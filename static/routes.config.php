@@ -549,6 +549,10 @@ return [
 		'/{type:users}/{guid}' => [Module\Diaspora\Receive::class, [        R::POST]],
 	],
 
+	'/security' => [
+		'/password_too_long' => [Module\Security\PasswordTooLong::class, [R::GET, R::POST]],
+	],
+
 	'/settings' => [
 		'[/]'         => [Module\Settings\Account::class,               [R::GET, R::POST]],
 		'/account' => [

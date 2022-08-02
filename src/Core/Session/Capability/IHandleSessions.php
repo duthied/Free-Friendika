@@ -55,6 +55,16 @@ interface IHandleSessions
 	public function get(string $name, $defaults = null);
 
 	/**
+	 * Retrieves a value from the provided key if it exists and removes it from session
+	 *
+	 * @param string $name
+	 * @param mixed  $defaults
+	 *
+	 * @return mixed
+	 */
+	public function pop(string $name, $defaults = null);
+
+	/**
 	 * Sets a single session variable.
 	 * Overrides value of existing key.
 	 *

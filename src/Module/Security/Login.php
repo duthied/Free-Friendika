@@ -21,54 +21,76 @@
 
 namespace Friendica\Module\Security;
 
+use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\DI;
 use Friendica\Module\Register;
+use Friendica\Module\Response;
+use Friendica\Security\Authentication;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Login module
  */
 class Login extends BaseModule
 {
+	/** @var Authentication */
+	private $auth;
+
+	/** @var IManageConfigValues */
+	private $config;
+
+	/** @var IHandleSessions */
+	private $session;
+
+	public function __construct(Authentication $auth, IManageConfigValues $config, IHandleSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->auth    = $auth;
+		$this->config  = $config;
+		$this->session = $session;
+	}
+
 	protected function content(array $request = []): string
 	{
-		$return_path = $_REQUEST['return_path'] ?? '' ;
+		$return_path = $request['return_path'] ?? $this->session->pop('return_path', '') ;
 
 		if (local_user()) {
-			DI::baseUrl()->redirect($return_path);
-		} elseif (!empty($return_path)) {
-			Session::set('return_path', $return_path);
+			$this->baseUrl->redirect($return_path);
 		}
 
-		return self::form(Session::get('return_path'), intval(DI::config()->get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
+		return self::form($return_path, intval($this->config->get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
 	}
 
 	protected function post(array $request = [])
 	{
-		$return_path = Session::get('return_path');
-		Session::clear();
-		Session::set('return_path', $return_path);
+		$this->session->clear();
 
 		// OpenId Login
 		if (
-			empty($_POST['password'])
-			&& (!empty($_POST['openid_url'])
-				|| !empty($_POST['username']))
+			empty($request['password'])
+			&& (!empty($request['openid_url'])
+				|| !empty($request['username']))
 		) {
-			$openid_url = trim(($_POST['openid_url'] ?? '') ?: $_POST['username']);
+			$openid_url = trim(($request['openid_url'] ?? '') ?: $request['username']);
 
-			DI::auth()->withOpenId($openid_url, !empty($_POST['remember']));
+			$this->auth->withOpenId($openid_url, !empty($request['remember']));
 		}
 
-		if (!empty($_POST['auth-params']) && $_POST['auth-params'] === 'login') {
-			DI::auth()->withPassword(
+		if (!empty($request['auth-params']) && $request['auth-params'] === 'login') {
+			$this->auth->withPassword(
 				DI::app(),
-				trim($_POST['username']),
-				trim($_POST['password']),
-				!empty($_POST['remember'])
+				trim($request['username']),
+				trim($request['password']),
+				!empty($request['remember']),
+				$request['return_path'] ?? ''
 			);
 		}
 	}
@@ -76,26 +98,23 @@ class Login extends BaseModule
 	/**
 	 * Wrapper for adding a login box.
 	 *
-	 * @param string $return_path  The path relative to the base the user should be sent
-	 *                             back to after login completes
-	 * @param bool   $register     If $register == true provide a registration link.
-	 *                             This will most always depend on the value of config.register_policy.
-	 * @param array  $hiddens      optional
+	 * @param string|null $return_path The path relative to the base the user should be sent back to after login completes.
+	 * @param bool        $register    If $register == true provide a registration link.
+	 *                                 This will almost always depend on the value of config.register_policy.
 	 *
 	 * @return string Returns the complete html for inserting into the page
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
 	 * @hooks 'login_hook' string $o
 	 */
-	public static function form($return_path = null, $register = false, $hiddens = [])
+	public static function form(string $return_path = null, bool $register = false): string
 	{
-		$o = '';
-
 		$noid = DI::config()->get('system', 'no_openid');
 
 		if ($noid) {
-			Session::remove('openid_identity');
-			Session::remove('openid_attributes');
+			DI::session()->remove('openid_identity');
+			DI::session()->remove('openid_attributes');
 		}
 
 		$reg = false;
@@ -105,10 +124,6 @@ class Login extends BaseModule
 				'desc' => DI::l10n()->t('Register'),
 				'url' => self::getRegisterURL()
 			];
-		}
-
-		if (is_null($return_path)) {
-			$return_path = DI::args()->getQueryString();
 		}
 
 		if (local_user()) {
@@ -122,13 +137,12 @@ class Login extends BaseModule
 			);
 
 			$tpl = Renderer::getMarkupTemplate('login.tpl');
-			$_SESSION['return_path'] = $return_path;
 		}
 
-		if (!empty(Session::get('openid_identity'))) {
+		if (!empty(DI::session()->get('openid_identity'))) {
 			$openid_title = DI::l10n()->t('Your OpenID: ');
 			$openid_readonly = true;
-			$identity = Session::get('openid_identity');
+			$identity = DI::session()->get('openid_identity');
 			$username_desc = DI::l10n()->t('Please enter your username and password to add the OpenID to your existing account.');
 		} else {
 			$openid_title = DI::l10n()->t('Or login using OpenID: ');
@@ -137,7 +151,7 @@ class Login extends BaseModule
 			$username_desc = '';
 		}
 
-		$o .= Renderer::replaceMacros(
+		$o = Renderer::replaceMacros(
 			$tpl,
 			[
 				'$dest_url'     => DI::baseUrl()->get(true) . '/login',
@@ -151,7 +165,7 @@ class Login extends BaseModule
 				'$openid'       => !$noid,
 				'$lopenid'      => ['openid_url', $openid_title, $identity, '', $openid_readonly],
 
-				'$hiddens'      => $hiddens,
+				'$hiddens'      => ['return_path' => $return_path ?? DI::args()->getQueryString()],
 
 				'$register'     => $reg,
 
@@ -174,14 +188,14 @@ class Login extends BaseModule
 	/**
 	 * Get the URL to the register page and add OpenID parameters to it
 	 */
-	private static function getRegisterURL()
+	private static function getRegisterURL(): string
 	{
-		if (empty(Session::get('openid_identity'))) {
+		if (empty(DI::session()->get('openid_identity'))) {
 			return 'register';
 		}
 
 		$args = [];
-		$attr = Session::get('openid_attributes', []);
+		$attr = DI::session()->get('openid_attributes', []);
 
 		if (is_array($attr) && count($attr)) {
 			foreach ($attr as $k => $v) {
@@ -218,7 +232,7 @@ class Login extends BaseModule
 			$args['photo'] = $photo;
 		}
 
-		$args['openid_url'] = trim(Session::get('openid_identity'));
+		$args['openid_url'] = trim(DI::session()->get('openid_identity'));
 
 		return 'register?' . http_build_query($args);
 	}

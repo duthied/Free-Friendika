@@ -736,6 +736,29 @@ class User
 	}
 
 	/**
+	 * Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).
+	 *
+	 * Password length is limited to 72 characters if the current default password hashing algorithm is Blowfish.
+	 * From the manual: "Using the PASSWORD_BCRYPT as the algorithm, will result in the password parameter being
+	 * truncated to a maximum length of 72 bytes."
+	 *
+	 * @see https://www.php.net/manual/en/function.password-hash.php#refsect1-function.password-hash-parameters
+	 *
+	 * @param string|null $delimiter Whether the regular expression is meant to be wrapper in delimiter characters
+	 * @return string
+	 */
+	public static function getPasswordRegExp(string $delimiter = null): string
+	{
+		$allowed_characters = '!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
+
+		if ($delimiter) {
+			$allowed_characters = preg_quote($allowed_characters, $delimiter);
+		}
+
+		return '^[a-zA-Z0-9' . $allowed_characters . ']' . (PASSWORD_DEFAULT !== PASSWORD_BCRYPT ? '{1,72}' : '+') . '$';
+	}
+
+	/**
 	 * Updates a user row with a new plaintext password
 	 *
 	 * @param int    $uid
@@ -755,9 +778,11 @@ class User
 			throw new Exception(DI::l10n()->t('The new password has been exposed in a public data dump, please choose another.'));
 		}
 
-		$allowed_characters = '!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
+		if (PASSWORD_DEFAULT === PASSWORD_BCRYPT && strlen($password) > 72) {
+			throw new Exception(DI::l10n()->t('The password length is limited to 72 characters.'));
+		}
 
-		if (!preg_match('/^[a-z0-9' . preg_quote($allowed_characters, '/') . ']+$/i', $password)) {
+		if (!preg_match('/' . self::getPasswordRegExp('/') . '/', $password)) {
 			throw new Exception(DI::l10n()->t('The password can\'t contain accentuated letters, white spaces or colons (:)'));
 		}
 

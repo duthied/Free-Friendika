@@ -551,6 +551,9 @@ class Account extends BaseSettings
 
 		$notify_type = DI::pConfig()->get(local_user(), 'system', 'notify_type');
 
+		$passwordRules = DI::l10n()->t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).')
+			. (PASSWORD_DEFAULT === PASSWORD_BCRYPT ? ' ' . DI::l10n()->t('Password length is limited to 72 characters.') : '');
+
 		$tpl = Renderer::getMarkupTemplate('settings/account.tpl');
 		$o   = Renderer::replaceMacros($tpl, [
 			'$ptitle' => DI::l10n()->t('Account Settings'),
@@ -563,7 +566,7 @@ class Account extends BaseSettings
 			'$open'                => $this->parameters['open'] ?? 'password',
 
 			'$h_pass'        => DI::l10n()->t('Password Settings'),
-			'$password1'     => ['password', DI::l10n()->t('New Password:'), '', DI::l10n()->t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'), false, 'autocomplete="off"'],
+			'$password1'     => ['password', DI::l10n()->t('New Password:'), '', $passwordRules, false, 'autocomplete="off"', User::getPasswordRegExp()],
 			'$password2'     => ['confirm', DI::l10n()->t('Confirm:'), '', DI::l10n()->t('Leave password fields blank unless changing'), false, 'autocomplete="off"'],
 			'$password3'     => ['opassword', DI::l10n()->t('Current Password:'), '', DI::l10n()->t('Your current password to confirm the changes'), false, 'autocomplete="off"'],
 			'$password4'     => ['mpassword', DI::l10n()->t('Password:'), '', DI::l10n()->t('Your current password to confirm the changes of the email address'), false, 'autocomplete="off"'],

@@ -73,9 +73,7 @@ class OpenID extends BaseModule
 
 					DI::auth()->setForUser(DI::app(), $user, true, true);
 
-					// just in case there was no return url set
-					// and we fell through
-					DI::baseUrl()->redirect();
+					$this->baseUrl->redirect(DI::session()->pop('return_path', ''));
 				}
 
 				// Successful OpenID login - but we can't match it to an existing account.
@@ -84,7 +82,7 @@ class OpenID extends BaseModule
 				$session->set('openid_identity', $authId);
 
 				// Detect the server URL
-				$open_id_obj = new LightOpenID(DI::baseUrl()->getHostName());
+				$open_id_obj = new LightOpenID(DI::baseUrl()->getHostname());
 				$open_id_obj->identity = $authId;
 				$session->set('openid_server', $open_id_obj->discover($open_id_obj->identity));
 

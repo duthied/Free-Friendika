@@ -55,6 +55,20 @@ class AbstractSession implements IHandleSessions
 	/**
 	 * {@inheritDoc}
 	 */
+	public function pop(string $name, $defaults = null)
+	{
+		$value = $defaults;
+		if ($this->exists($name)) {
+			$value = $this->get($name);
+			$this->remove($name);
+		}
+
+		return $value;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function set(string $name, $value)
 	{
 		$_SESSION[$name] = $value;
