@@ -306,58 +306,13 @@ class Processor
 		}
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
-			if (self::hasJustBeenFetched($activity['reply-to-id'])) {
-				Logger::notice('We just have tried to fetch this activity. We don\'t try it again.', ['parent' => $activity['reply-to-id']]);
-				$fetch_by_worker = false;
-				if (empty($conversation)) {
-					return [];
-				}
-			} else {
-				$recursion_depth = $activity['recursion-depth'] ?? 0;
-				Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
-				if ($recursion_depth < DI::config()->get('system', 'max_recursion_depth')) {
-					$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
-					$fetch_by_worker = empty($result);
-					if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
-						if (!empty($activity['entry-id'])) {
-							Queue::deleteById($activity['entry-id']);
-						}
-						if (empty($conversation)) {
-							return [];
-						}
-					}
-				} else {
-					Logger::notice('Recursion level is too high.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
-					$fetch_by_worker = true;
-				}
-			}
-
-			if ($fetch_by_worker && Queue::hasWorker($activity)) {
-				Logger::notice('There is already a worker task to fetch the post.', ['id' => $activity['id'], 'parent' => $activity['reply-to-id']]);
-				$fetch_by_worker = false;
-				if (empty($conversation)) {
-					return [];
-				}
-			}
-
-			if ($fetch_by_worker && DI::config()->get('system', 'fetch_by_worker')) {
-				Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
-				$activity['recursion-depth'] = 0;
-				if (!Fetch::hasWorker($activity['reply-to-id'])) {
-					Fetch::add($activity['reply-to-id']);
-					$wid = Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
-					Fetch::setWorkerId($activity['reply-to-id'], $wid);
-					Queue::setWorkerId($activity, $wid);
-				} else {
-					Logger::debug('Activity will already be fetched via a worker.', ['url' => $activity['reply-to-id']]);
-				}
-				if (empty($conversation)) {
-					return [];
-				}
-			} elseif (!empty($result)) {
+			$result = self::fetchParent($activity);
+			if (!empty($result)) {
 				if (($item['thr-parent'] != $result) && Post::exists(['uri' => $result])) {
 					$item['thr-parent'] = $result;
 				}
+			} elseif (empty($conversation)) {
+				return [];
 			}
 		}
 
@@ -480,6 +435,77 @@ class Processor
 		}
 
 		return $item;
+	}
+
+	/**
+	 * Fetch and process parent posts for the given activity
+	 *
+	 * @param array $activity
+	 *
+	 * @return string
+	 */
+	private static function fetchParent(array $activity): string
+	{
+		if (self::hasJustBeenFetched($activity['reply-to-id'])) {
+			Logger::notice('We just have tried to fetch this activity. We don\'t try it again.', ['parent' => $activity['reply-to-id']]);
+			return '';
+		} 
+
+		$recursion_depth = $activity['recursion-depth'] ?? 0;
+
+		if ($recursion_depth < DI::config()->get('system', 'max_recursion_depth')) {
+			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+			$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+			if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
+				Logger::notice('The activity is gone, the queue entry will be deleted', ['parent' => $activity['reply-to-id']]);
+				if (!empty($activity['entry-id'])) {
+					Queue::deleteById($activity['entry-id']);
+				}
+				return '';
+			} elseif (!empty($result)) {
+				$exists = Post::exists(['uri' => [$result, $activity['reply-to-id']]]);
+				if ($exists) {
+					Logger::notice('The activity has been fetched and created.', ['parent' => $result]);
+					return $result;
+				} elseif (DI::config()->get('system', 'fetch_by_worker') || DI::config()->get('system', 'decoupled_receiver')) {
+					Logger::notice('The activity has been fetched and will hopefully be created later.', ['parent' => $result]);
+				} else {
+					Logger::notice('The activity exists but has not been created, the queue entry will be deleted.', ['parent' => $result]);
+					if (!empty($activity['entry-id'])) {
+						Queue::deleteById($activity['entry-id']);
+					}
+				}
+				return '';
+			}
+			if (empty($result) && !DI::config()->get('system', 'fetch_by_worker')) {
+				return '';
+			}
+		} elseif (self::isActivityGone($activity['reply-to-id'])) {
+			Logger::notice('The activity is gone. We will not spawn a worker. The queue entry will be deleted', ['parent' => $activity['reply-to-id']]);
+			if (!empty($activity['entry-id'])) {
+				Queue::deleteById($activity['entry-id']);
+			}
+			return '';
+		} else {
+			Logger::notice('Recursion level is too high.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+		}
+
+		if (Queue::hasWorker($activity['worker-id'] ?? 0)) {
+			Logger::notice('There is already a worker task to fetch the post.', ['id' => $activity['id'], 'parent' => $activity['reply-to-id']]);
+			return '';
+		}
+
+		if (!Fetch::hasWorker($activity['reply-to-id'])) {
+			Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+			Fetch::add($activity['reply-to-id']);
+			$activity['recursion-depth'] = 0;
+			$wid = Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+			Fetch::setWorkerId($activity['reply-to-id'], $wid);
+		} else {
+			Logger::debug('Activity will already be fetched via a worker.', ['url' => $activity['reply-to-id']]);
+		}
+
+		return '';
 	}
 
 	/**
@@ -1022,7 +1048,7 @@ class Processor
 		Queue::remove($activity);
 
 		if ($success && Queue::hasChildren($item['uri'])) {
-			Worker::add(PRIORITY_HIGH, 'ProcessReplyByUri', $item['uri']);
+			Queue::processReplyByUri($item['uri']);
 		}
 
 		// Store send a follow request for every reshare - but only when the item had been stored
@@ -1366,9 +1392,13 @@ class Processor
 			return '';
 		}
 
-		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer);
-
-		Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'object' => $activity['id']]);
+		if (($completion == Receiver::COMPLETION_RELAY) && Queue::exists($url, 'as:Create')) {
+			Logger::notice('Activity has already been queued.', ['url' => $url, 'object' => $activity['id']]);
+		} elseif (ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer, '', $completion)) {
+			Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'entry' => $child['entry-id'] ?? 0, 'completion' => $completion, 'object' => $activity['id']]);
+		} else {
+			Logger::notice('Activity had been fetched and will be processed later.', ['url' => $url, 'entry' => $child['entry-id'] ?? 0, 'completion' => $completion, 'object' => $activity['id']]);
+		}
 
 		return $activity['id'];
 	}

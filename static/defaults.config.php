@@ -286,6 +286,10 @@ return [
 		// Fetch missing posts via a background process
 		'fetch_by_worker' => false,
 
+		// fetch_featured_posts (Boolean)
+		// Fetch featured posts from all contacts
+		'fetch_featured_posts' => false,
+
 		// free_crawls (Integer)
 		// Number of "free" searches when system => permit_crawling is enabled.
 		'free_crawls' => 10,
