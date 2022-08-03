@@ -1050,7 +1050,7 @@ class Processor
 
 		Queue::remove($activity);
 
-		if ($success && Queue::hasChildren($item['uri'])) {
+		if ($success && Queue::hasChildren($item['uri']) && Post::exists(['uri' => $item['uri']])) {
 			Queue::processReplyByUri($item['uri']);
 		}
 
