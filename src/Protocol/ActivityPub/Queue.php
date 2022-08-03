@@ -85,7 +85,7 @@ class Queue
 	}
 
 	/**
-	 * Checks if an entryy for a given url and type already exists
+	 * Checks if an entry for a given url and type already exists
 	 *
 	 * @param string $url
 	 * @param string $type
@@ -144,16 +144,16 @@ class Queue
 	/**
 	 * Set the worker id for the queue entry
 	 *
-	 * @param int $entryid
+	 * @param int $entry_id
 	 * @param int $wid
 	 * @return void
 	 */
-	public static function setWorkerId(int $entryid, int $wid)
+	public static function setWorkerId(int $entry_id, int $wid)
 	{
-		if (empty($entryid) || empty($wid)) {
+		if (empty($entry_id) || empty($wid)) {
 			return;
 		}
-		DBA::update('inbox-entry', ['wid' => $wid], ['id' => $entryid]);
+		DBA::update('inbox-entry', ['wid' => $wid], ['id' => $entry_id]);
 	}
 
 	/**
