@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Post;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\JsonLD;
 
@@ -85,6 +86,18 @@ class Queue
 	}
 
 	/**
+	 * Checks if an entry for a given url and type already exists
+	 *
+	 * @param string $url
+	 * @param string $type
+	 * @return boolean
+	 */
+	public static function exists(string $url, string $type): bool
+	{
+		return DBA::exists('inbox-entry', ['type' => $type, 'object-id' => $url]);
+	}
+
+	/**
 	 * Remove activity from the queue
 	 *
 	 * @param array $activity
@@ -132,44 +145,58 @@ class Queue
 	/**
 	 * Set the worker id for the queue entry
 	 *
-	 * @param array $activity
-	 * @param int   $wid
+	 * @param int $entry_id
+	 * @param int $wid
 	 * @return void
 	 */
-	public static function setWorkerId(array $activity, int $wid)
+	public static function setWorkerId(int $entry_id, int $wid)
 	{
-		if (empty($activity['entry-id']) || empty($wid)) {
+		if (empty($entry_id) || empty($wid)) {
 			return;
 		}
-		DBA::update('inbox-entry', ['wid' => $wid], ['id' => $activity['entry-id']]);
+		DBA::update('inbox-entry', ['wid' => $wid], ['id' => $entry_id]);
 	}
 
 	/**
 	 * Check if there is an assigned worker task
 	 *
-	 * @param array $activity
+	 * @param int $wid
+	 *
 	 * @return bool
 	 */
-	public static function hasWorker(array $activity = []): bool
+	public static function hasWorker(int $wid): bool
 	{
-		if (empty($activity['worker-id'])) {
+		if (empty($wid)) {
 			return false;
 		}
-		return DBA::exists('workerqueue', ['id' => $activity['worker-id'], 'done' => false]);
+		return DBA::exists('workerqueue', ['id' => $wid, 'done' => false]);
 	}
 
 	/**
 	 * Process the activity with the given id
 	 *
 	 * @param integer $id
+	 * @param bool    $fetch_parents
 	 *
 	 * @return bool
 	 */
-	public static function process(int $id): bool
+	public static function process(int $id, bool $fetch_parents = true): bool
 	{
 		$entry = DBA::selectFirst('inbox-entry', [], ['id' => $id]);
 		if (empty($entry)) {
 			return false;
+		}
+
+		if (!empty($entry['wid'])) {
+			$worker = DI::app()->getQueue();
+			$wid = $worker['id'] ?? 0;
+			if ($entry['wid'] != $wid) {
+				$workerqueue = DBA::selectFirst('workerqueue', ['pid'], ['id' => $entry['wid'], 'done' => false]);
+				if (!empty($workerqueue['pid']) && posix_kill($workerqueue['pid'], 0)) {
+					Logger::notice('Entry is already processed via another process.', ['current' => $wid, 'processor' => $entry['wid']]);
+					return false;
+				}
+			}
 		}
 
 		Logger::debug('Processing queue entry', ['id' => $entry['id'], 'type' => $entry['type'], 'object-type' => $entry['object-type'], 'uri' => $entry['object-id'], 'in-reply-to' => $entry['in-reply-to-id']]);
@@ -190,7 +217,7 @@ class Queue
 		}
 		DBA::close($receivers);
 
-		if (!Receiver::routeActivities($activity, $type, $push)) {
+		if (!Receiver::routeActivities($activity, $type, $push, $fetch_parents)) {
 			self::remove($activity);
 		}
 
@@ -206,12 +233,16 @@ class Queue
 	{
 		$entries = DBA::select('inbox-entry', ['id', 'type', 'object-type', 'object-id', 'in-reply-to-id'], ["`trust` AND `wid` IS NULL"], ['order' => ['id' => true]]);
 		while ($entry = DBA::fetch($entries)) {
+			// Don't process entries of items that are answer to non existing posts
+			if (!empty($entry['in-reply-to-id']) && !Post::exists(['uri' => $entry['in-reply-to-id']])) {
+				continue;
+			}
 			// We don't need to process entries that depend on already existing entries.
 			if (!empty($entry['in-reply-to-id']) && DBA::exists('inbox-entry', ["`id` != ? AND `object-id` = ?", $entry['id'], $entry['in-reply-to-id']])) {
 				continue;
 			}
 			Logger::debug('Process leftover entry', $entry);
-			self::process($entry['id']);
+			self::process($entry['id'], false);
 		}
 		DBA::close($entries);
 	}
@@ -247,7 +278,7 @@ class Queue
 		$entries = DBA::select('inbox-entry', ['id'], ["`in-reply-to-id` = ? AND `object-id` != ?", $uri, $uri]);
 		while ($entry = DBA::fetch($entries)) {
 			$count += 1;
-			self::process($entry['id']);
+			self::process($entry['id'], false);
 		}
 		DBA::close($entries);
 		return $count;
@@ -314,6 +345,5 @@ class Queue
 			}
 		}
 		DBA::close($entries);
-
 	}
 }

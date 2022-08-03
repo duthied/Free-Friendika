@@ -2449,7 +2449,7 @@ class Contact
 
 		$new_pubkey = $ret['pubkey'] ?? '';
 
-		if ($uid == 0) {
+		if ($uid == 0 && DI::config()->get('system', 'fetch_featured_posts')) {
 			if ($ret['network'] == Protocol::ACTIVITYPUB) {
 				$apcontact = APContact::getByURL($ret['url'], false);
 				if (!empty($apcontact['featured'])) {

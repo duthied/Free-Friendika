@@ -507,26 +507,29 @@ class Receiver
 	 * @param boolean    $trust_source Do we trust the source?
 	 * @param boolean    $push         Message had been pushed to our system
 	 * @param array      $signer       The signer of the post
+	 *
+	 * @return bool
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function processActivity(array $activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [], string $http_signer = '')
+	public static function processActivity(array $activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [], string $http_signer = '', int $completion = Receiver::COMPLETION_AUTO): bool
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
 			Logger::info('Empty type', ['activity' => $activity]);
-			return;
+			return true;
 		}
 
 		if (!JsonLD::fetchElement($activity, 'as:object', '@id')) {
 			Logger::info('Empty object', ['activity' => $activity]);
-			return;
+			return true;
 		}
 
 		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
 		if (empty($actor)) {
 			Logger::info('Empty actor', ['activity' => $activity]);
-			return;
+			return true;
 		}
 
 		if (is_array($activity['as:object'])) {
@@ -548,7 +551,7 @@ class Receiver
 		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source);
 		if (empty($object_data)) {
 			Logger::info('No object data found', ['activity' => $activity]);
-			return;
+			return true;
 		}
 
 		// Lemmy is announcing activities.
@@ -583,21 +586,27 @@ class Receiver
 			$object_data['object_activity']	= $activity;
 		}
 
+		if (($type == 'as:Create') && Queue::exists($object_data['object_id'], $type)) {
+			Logger::info('The activity is already added.', ['id' => $object_data['object_id']]);
+			return true;
+		}
+
 		if (DI::config()->get('system', 'decoupled_receiver') && ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted'))) {
 			$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push, $trust_source);
 		}
 
 		if (!$trust_source) {
 			Logger::info('Activity trust could not be achieved.',  ['id' => $object_data['object_id'], 'type' => $type, 'signer' => $signer, 'actor' => $actor, 'attributedTo' => $attributed_to]);
-			return;
+			return true;
 		}
 
-		if (!empty($object_data['entry-id']) && DI::config()->get('system', 'decoupled_receiver') && ($push || ($activity['completion-mode'] == self::COMPLETION_RELAY))) {
+		if (!empty($object_data['entry-id']) && DI::config()->get('system', 'decoupled_receiver') && ($push || ($completion == self::COMPLETION_RELAY))) {
 			// We delay by 5 seconds to allow to accumulate all receivers
 			$delayed = date(DateTimeFormat::MYSQL, time() + 5);
 			Logger::debug('Initiate processing', ['id' => $object_data['entry-id'], 'uri' => $object_data['object_id']]);
-			Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'ProcessQueue', $object_data['entry-id']);
-			return;
+			$wid = Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'ProcessQueue', $object_data['entry-id']);
+			Queue::setWorkerId($object_data['entry-id'], $wid);
+			return false;
 		}
 
 		if (!empty($activity['recursion-depth'])) {
@@ -612,25 +621,27 @@ class Receiver
 			self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 			Queue::remove($object_data);
 		}
+		return true;
 	}
 
 	/**
 	 * Route activities
 	 *
-	 * @param array   $object_data
-	 * @param string  $type
-	 * @param boolean $push
+	 * @param array  $object_data
+	 * @param string $type
+	 * @param bool   $push
+	 * @param bool   $fetch_parents
 	 *
 	 * @return boolean Could the activity be routed?
 	 */
-	public static function routeActivities(array $object_data, string $type, bool $push): bool
+	public static function routeActivities(array $object_data, string $type, bool $push, bool $fetch_parents = true): bool
 	{
 		$activity = $object_data['object_activity']	?? [];
 
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
 					ActivityPub\Processor::postItem($object_data, $item);
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
@@ -642,7 +653,7 @@ class Receiver
 
 			case 'as:Invite':
 				if (in_array($object_data['object_type'], ['as:Event'])) {
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
 					ActivityPub\Processor::postItem($object_data, $item);
 				} else {
 					return false;
@@ -668,7 +679,7 @@ class Receiver
 					$object_data['thread-completion'] = Contact::getIdForURL($actor);
 					$object_data['completion-mode']   = self::COMPLETION_ANNOUCE;
 
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
 					if (empty($item)) {
 						return false;
 					}
