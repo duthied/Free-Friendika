@@ -265,12 +265,15 @@ class Processor
 	/**
 	 * Prepares data for a message
 	 *
-	 * @param array      $activity   Activity array
+	 * @param array $activity      Activity array
+	 * @param bool  $fetch_parents
+	 *
 	 * @return array Internal item
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createItem(array $activity): array
+	public static function createItem(array $activity, bool $fetch_parents = true): array
 	{
 		$item = [];
 		$item['verb'] = Activity::POST;
@@ -305,7 +308,7 @@ class Processor
 			return [];
 		}
 
-		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
+		if ($fetch_parents && empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
 			$result = self::fetchParent($activity);
 			if (!empty($result)) {
 				if (($item['thr-parent'] != $result) && Post::exists(['uri' => $result])) {

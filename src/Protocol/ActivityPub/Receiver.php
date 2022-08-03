@@ -627,20 +627,21 @@ class Receiver
 	/**
 	 * Route activities
 	 *
-	 * @param array   $object_data
-	 * @param string  $type
-	 * @param boolean $push
+	 * @param array  $object_data
+	 * @param string $type
+	 * @param bool   $push
+	 * @param bool   $fetch_parents
 	 *
 	 * @return boolean Could the activity be routed?
 	 */
-	public static function routeActivities(array $object_data, string $type, bool $push): bool
+	public static function routeActivities(array $object_data, string $type, bool $push, bool $fetch_parents = true): bool
 	{
 		$activity = $object_data['object_activity']	?? [];
 
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
 					ActivityPub\Processor::postItem($object_data, $item);
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
@@ -652,7 +653,7 @@ class Receiver
 
 			case 'as:Invite':
 				if (in_array($object_data['object_type'], ['as:Event'])) {
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
 					ActivityPub\Processor::postItem($object_data, $item);
 				} else {
 					return false;
@@ -678,7 +679,7 @@ class Receiver
 					$object_data['thread-completion'] = Contact::getIdForURL($actor);
 					$object_data['completion-mode']   = self::COMPLETION_ANNOUCE;
 
-					$item = ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
 					if (empty($item)) {
 						return false;
 					}

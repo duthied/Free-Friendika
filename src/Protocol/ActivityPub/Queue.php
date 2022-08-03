@@ -175,10 +175,11 @@ class Queue
 	 * Process the activity with the given id
 	 *
 	 * @param integer $id
+	 * @param bool    $fetch_parents
 	 *
 	 * @return bool
 	 */
-	public static function process(int $id): bool
+	public static function process(int $id, bool $fetch_parents = true): bool
 	{
 		$entry = DBA::selectFirst('inbox-entry', [], ['id' => $id]);
 		if (empty($entry)) {
@@ -215,7 +216,7 @@ class Queue
 		}
 		DBA::close($receivers);
 
-		if (!Receiver::routeActivities($activity, $type, $push)) {
+		if (!Receiver::routeActivities($activity, $type, $push, $fetch_parents)) {
 			self::remove($activity);
 		}
 
@@ -236,7 +237,7 @@ class Queue
 				continue;
 			}
 			Logger::debug('Process leftover entry', $entry);
-			self::process($entry['id']);
+			self::process($entry['id'], false);
 		}
 		DBA::close($entries);
 	}
@@ -272,7 +273,7 @@ class Queue
 		$entries = DBA::select('inbox-entry', ['id'], ["`in-reply-to-id` = ? AND `object-id` != ?", $uri, $uri]);
 		while ($entry = DBA::fetch($entries)) {
 			$count += 1;
-			self::process($entry['id']);
+			self::process($entry['id'], false);
 		}
 		DBA::close($entries);
 		return $count;
