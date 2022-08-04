@@ -59,6 +59,23 @@ class Processor
 {
 	const CACHEKEY_FETCH_ACTIVITY = 'processor:fetchMissingActivity:';
 	const CACHEKEY_JUST_FETCHED   = 'processor:isJustFetched:';
+
+	static $processed = [];
+
+	public static function addActivityId(string $id)
+	{
+		self::$processed[] = $id;
+		if (count(self::$processed) > 100) {
+			self::$processed = array_slice(self::$processed, 1);
+		}
+		print_r(self::$processed);
+	}
+
+	public static function isProcessed(string $id): bool
+	{
+		return in_array($id, self::$processed);
+	}
+
 	/**
 	 * Extracts the tag character (#, @, !) from mention links
 	 *
@@ -275,6 +292,13 @@ class Processor
 	 */
 	public static function createItem(array $activity, bool $fetch_parents = true): array
 	{
+		if (self::isProcessed($activity['id'])) {
+			Logger::info('Id is already processed', ['id' => $activity['id']]);
+			return [];
+		}
+
+		self::addActivityId($activity['id']);
+
 		$item = [];
 		$item['verb'] = Activity::POST;
 		$item['thr-parent'] = $activity['reply-to-id'];
