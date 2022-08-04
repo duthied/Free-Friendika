@@ -308,6 +308,10 @@ class Processor
 			return [];
 		}
 
+		if (!DI::config()->get('system', 'fetch_parents')) {
+			$fetch_parents = false;
+		}
+
 		if ($fetch_parents && empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
 			$result = self::fetchParent($activity);
 			if (!empty($result)) {

@@ -172,6 +172,10 @@ return [
 		// Whether to use database, Memcache, Memcached or Redis as a distributed cache.
 		'distributed_cache_driver' => 'database',
 
+		// fetch_parents (Boolean)
+		// Fetch missing parent posts
+		'fetch_parents' => true,
+
 		// config_adapter (jit|preload)
 		// Allow to switch the configuration adapter to improve performances at the cost of memory consumption.
 		'config_adapter' => 'jit',
