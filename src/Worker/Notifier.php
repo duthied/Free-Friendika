@@ -505,9 +505,17 @@ class Notifier
 		foreach ($contacts as $contact) {
 			// Direct delivery of local contacts
 			if (!in_array($cmd, [Delivery::RELOCATION, Delivery::SUGGESTION, Delivery::DELETION, Delivery::MAIL]) && $target_uid = User::getIdForURL($contact['url'])) {
-				Logger::info('Direct delivery', ['uri-id' => $target_item['uri-id'], 'target' => $target_uid]);
-				$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH, 'post-reason' => Item::PR_DIRECT];
-				Item::storeForUserByUriId($target_item['uri-id'], $target_uid, $fields, $target_item['uid']);
+				if ($target_item['origin'] || ($target_item['network'] != Protocol::ACTIVITYPUB)) {
+					if ($target_uid != $target_item['uid']) {
+						$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH, 'post-reason' => Item::PR_DIRECT];
+						Item::storeForUserByUriId($target_item['uri-id'], $target_uid, $fields, $target_item['uid']);
+						Logger::info('Delivered locally', ['cmd' => $cmd, 'id' => $target_item['id'], 'target' => $target_uid]);
+					} else {
+						Logger::info('No need to deliver to myself', ['uid' => $target_uid, 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'uri' => $target_item['uri']]);
+					}
+				} else {
+					Logger::info('Remote item does not need to be delivered locally', ['guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'uri' => $target_item['uri']]);
+				}
 				continue;
 			}
 
@@ -775,12 +783,22 @@ class Notifier
 
 			if ((count($receivers) == 1) && Network::isLocalLink($inbox)) {
 				$contact = Contact::getById($receivers[0], ['url']);
-				if ($target_uid = User::getIdForURL($contact['url'])) {
-					$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH, 'post-reason' => Item::PR_BCC];
-					Item::storeForUserByUriId($target_item['uri-id'], $target_uid, $fields, $target_item['uid']);
-					Logger::info('Delivered locally', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
+				if (!in_array($cmd, [Delivery::RELOCATION, Delivery::SUGGESTION, Delivery::DELETION, Delivery::MAIL]) && ($target_uid = User::getIdForURL($contact['url']))) {
+					if ($target_item['origin'] || ($target_item['network'] != Protocol::ACTIVITYPUB)) {
+						if ($target_uid != $target_item['uid']) {
+							$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH, 'post-reason' => Item::PR_BCC];
+							Item::storeForUserByUriId($target_item['uri-id'], $target_uid, $fields, $target_item['uid']);
+							Logger::info('Delivered locally', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
+						} else {
+							Logger::info('No need to deliver to myself', ['uid' => $target_uid, 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'uri' => $target_item['uri']]);
+						}
+					} else {
+						Logger::info('Remote item does not need to be delivered locally', ['guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'uri' => $target_item['uri']]);
+					}
 					continue;
 				}
+			} elseif ((count($receivers) >= 1) && Network::isLocalLink($inbox)) {
+				Logger::info('Is this a thing?', ['guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'uri' => $target_item['uri']]);
 			}
 
 			Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);

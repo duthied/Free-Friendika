@@ -706,7 +706,7 @@ class Item
 		}
 
 		if (!DBA::isResult($parent)) {
-			Logger::notice('item parent was not found - ignoring item', ['thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
+			Logger::notice('item parent was not found - ignoring item', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid'], 'callstack' => System::callstack(20)]);
 			return [];
 		}
 
