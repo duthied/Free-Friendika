@@ -33,7 +33,7 @@ class FriendicaSmarty extends Smarty
 
 	public $filename;
 
-	function __construct(string $theme, array $theme_info)
+	public function __construct(string $theme, array $theme_info, string $work_dir)
 	{
 		parent::__construct();
 
@@ -46,13 +46,28 @@ class FriendicaSmarty extends Smarty
 
 		$template_dirs = $template_dirs + ['base' => 'view/' . self::SMARTY3_TEMPLATE_FOLDER . '/'];
 		$this->setTemplateDir($template_dirs);
+		
+		$work_dir = rtrim($work_dir, '/');
 
-		$this->setCompileDir('view/smarty3/compiled/');
-		$this->setConfigDir('view/smarty3/');
-		$this->setCacheDir('view/smarty3/');
+		$this->setCompileDir($work_dir . '/compiled');
+		$this->setConfigDir($work_dir . '/');
+		$this->setCacheDir($work_dir . '/');
 
-		$this->left_delimiter = Renderer::getTemplateLeftDelimiter('smarty3');
-		$this->right_delimiter = Renderer::getTemplateRightDelimiter('smarty3');
+		/*
+		 * Enable sub-directory splitting for reducing directory descriptor
+		 * size. The default behavior is to put all compiled/cached files into
+		 * one single directory. Under Linux and EXT4 (and maybe other FS) this
+		 * will increase the descriptor's size (which contains information
+		 * about entries inside the described directory. If the descriptor is
+		 * getting to big, the system will slow down as it has to read the
+		 * whole directory descriptor all over again (unless you have tons of
+		 * RAM available + have enabled caching inode tables (aka.
+		 * "descriptors"). Still it won't hurt you.
+		 */
+		$this->setUseSubDirs(true);
+
+		$this->left_delimiter  = Renderer::getTemplateLeftDelimiter();
+		$this->right_delimiter = Renderer::getTemplateRightDelimiter();
 
 		$this->escape_html = true;
 
