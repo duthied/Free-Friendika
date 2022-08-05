@@ -22,6 +22,7 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -199,7 +200,7 @@ class Queue
 			}
 		}
 
-		Logger::debug('Processing queue entry', ['id' => $entry['id'], 'type' => $entry['type'], 'object-type' => $entry['object-type'], 'uri' => $entry['object-id'], 'in-reply-to' => $entry['in-reply-to-id']]);
+		Logger::debug('Processing queue entry', ['id' => $entry['id'], 'type' => $entry['type'], 'object-type' => $entry['object-type'], 'uri' => $entry['object-id'], 'in-reply-to' => $entry['in-reply-to-id'], 'callstack' => System::callstack(20)]);
 
 		$activity = json_decode($entry['activity'], true);
 		$type     = $entry['type'];

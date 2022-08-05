@@ -59,6 +59,36 @@ class Processor
 {
 	const CACHEKEY_FETCH_ACTIVITY = 'processor:fetchMissingActivity:';
 	const CACHEKEY_JUST_FETCHED   = 'processor:isJustFetched:';
+
+	static $processed = [];
+
+	/**
+	 * Add an activity id to the list of processed ids
+	 *
+	 * @param string $id
+	 *
+	 * @return void
+	 */
+	public static function addActivityId(string $id)
+	{
+		self::$processed[] = $id;
+		if (count(self::$processed) > 100) {
+			self::$processed = array_slice(self::$processed, 1);
+		}
+	}
+
+	/**
+	 * Checks if the given has just been processed
+	 *
+	 * @param string $id
+	 *
+	 * @return boolean
+	 */
+	public static function isProcessed(string $id): bool
+	{
+		return in_array($id, self::$processed);
+	}
+
 	/**
 	 * Extracts the tag character (#, @, !) from mention links
 	 *
@@ -275,6 +305,13 @@ class Processor
 	 */
 	public static function createItem(array $activity, bool $fetch_parents = true): array
 	{
+		if (self::isProcessed($activity['id'])) {
+			Logger::info('Id is already processed', ['id' => $activity['id']]);
+			return [];
+		}
+
+		self::addActivityId($activity['id']);
+
 		$item = [];
 		$item['verb'] = Activity::POST;
 		$item['thr-parent'] = $activity['reply-to-id'];
@@ -308,7 +345,7 @@ class Processor
 			return [];
 		}
 
-		if (!DI::config()->get('system', 'fetch_parents')) {
+		if (!in_array(0, $activity['receiver']) && !DI::config()->get('system', 'fetch_parents')) {
 			$fetch_parents = false;
 		}
 
@@ -1045,6 +1082,10 @@ class Processor
 				$success = true;
 			} else {
 				Logger::notice('Item insertion aborted', ['uri' => $item['uri'], 'uid' => $item['uid']]);
+				if (($item['uid'] == 0) && (count($activity['receiver']) > 1)) {
+					Logger::info('Public item was aborted. We skip for all users.', ['uri' => $item['uri']]);
+					break;
+				}
 			}
 
 			if ($item['uid'] == 0) {
