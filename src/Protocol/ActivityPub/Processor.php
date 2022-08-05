@@ -1082,6 +1082,10 @@ class Processor
 				$success = true;
 			} else {
 				Logger::notice('Item insertion aborted', ['uri' => $item['uri'], 'uid' => $item['uid']]);
+				if (($item['uid'] == 0) && (count($activity['receiver']) > 1)) {
+					Logger::info('Public item was aborted. We skip for all users.', ['uri' => $item['uri']]);
+					break;
+				}
 			}
 
 			if ($item['uid'] == 0) {
