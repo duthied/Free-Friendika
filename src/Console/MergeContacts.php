@@ -87,7 +87,7 @@ HELP;
 	{
 		$first = $this->dba->selectFirst('contact', ['id', 'nurl', 'url'], ["`uri-id` = ? AND `nurl` != ? AND `url` != ?", $uriid, '', ''], ['order' => ['id']]);
 		if (empty($first)) {
-			$this->err($this->l10n->t('No valid first countact found for uri-id %d.', $uriid));
+			$this->err($this->l10n->t('No valid first contact found for uri-id %d.', $uriid));
 			return;
 		}
 		$this->out($first['url']);
