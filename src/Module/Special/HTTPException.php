@@ -70,8 +70,17 @@ class HTTPException
 		$content = '';
 
 		if ($e->getCode() >= 400) {
-			$tpl = Renderer::getMarkupTemplate('http_status.tpl');
-			$content = Renderer::replaceMacros($tpl, self::getVars($e));
+			$vars = self::getVars($e);
+			try {
+				$tpl = Renderer::getMarkupTemplate('http_status.tpl');
+				$content = Renderer::replaceMacros($tpl, $vars);
+			} catch (\Exception $e) {
+				$content = "<h1>{$vars['$title']}</h1><p>{$vars['$message']}</p>";
+				if (DI::app()->isSiteAdmin()) {
+					$content .= "<p>{$vars['$thrown']}</p>";
+					$content .= "<pre>{$vars['$trace']}</pre>";
+				}
+			}
 		}
 
 		System::httpError($e->getCode(), $e->getDescription(), $content);
