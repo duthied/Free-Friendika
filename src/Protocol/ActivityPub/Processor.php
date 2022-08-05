@@ -62,15 +62,28 @@ class Processor
 
 	static $processed = [];
 
+	/**
+	 * Add an activity id to the list of processed ids
+	 *
+	 * @param string $id
+	 *
+	 * @return void
+	 */
 	public static function addActivityId(string $id)
 	{
 		self::$processed[] = $id;
 		if (count(self::$processed) > 100) {
 			self::$processed = array_slice(self::$processed, 1);
 		}
-		print_r(self::$processed);
 	}
 
+	/**
+	 * Checks if the given has just been processed
+	 *
+	 * @param string $id
+	 *
+	 * @return boolean
+	 */
 	public static function isProcessed(string $id): bool
 	{
 		return in_array($id, self::$processed);
@@ -332,7 +345,7 @@ class Processor
 			return [];
 		}
 
-		if (!DI::config()->get('system', 'fetch_parents')) {
+		if (!in_array(0, $activity['receiver']) && !DI::config()->get('system', 'fetch_parents')) {
 			$fetch_parents = false;
 		}
 
