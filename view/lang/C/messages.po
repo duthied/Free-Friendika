@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-01 12:24-0400\n"
+"POT-Creation-Date: 2022-08-05 15:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1656,7 +1656,7 @@ msgstr ""
 
 #: src/Console/MergeContacts.php:90
 #, php-format
-msgid "No valid first countact found for uri-id %d."
+msgid "No valid first contact found for uri-id %d."
 msgstr ""
 
 #: src/Console/MergeContacts.php:101
