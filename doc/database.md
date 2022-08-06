@@ -13,6 +13,7 @@ Database Tables
 | [application](help/database/db_application) | OAuth application |
 | [application-marker](help/database/db_application-marker) | Timeline marker |
 | [application-token](help/database/db_application-token) | OAuth user token |
+| [arrived-activity](help/database/db_arrived-activity) | Id of arrived activities |
 | [attach](help/database/db_attach) | file attachments |
 | [cache](help/database/db_cache) | Stores temporary data |
 | [config](help/database/db_config) | main configuration storage |
@@ -67,6 +68,7 @@ Database Tables
 | [post-user](help/database/db_post-user) | User specific post data |
 | [post-user-notification](help/database/db_post-user-notification) | User post notifications |
 | [process](help/database/db_process) | Currently running system processes |
+| [processed-activity](help/database/db_processed-activity) | Id of processed activities |
 | [profile](help/database/db_profile) | user profiles data |
 | [profile_field](help/database/db_profile_field) | Custom profile fields |
 | [push_subscriber](help/database/db_push_subscriber) | Used for OStatus: Contains feed subscribers |

@@ -60,33 +60,29 @@ class Processor
 	const CACHEKEY_FETCH_ACTIVITY = 'processor:fetchMissingActivity:';
 	const CACHEKEY_JUST_FETCHED   = 'processor:isJustFetched:';
 
-	static $processed = [];
-
 	/**
-	 * Add an activity id to the list of processed ids
+	 * Add an object id to the list of processed ids
 	 *
 	 * @param string $id
 	 *
 	 * @return void
 	 */
-	public static function addActivityId(string $id)
+	private static function addActivityId(string $id)
 	{
-		self::$processed[] = $id;
-		if (count(self::$processed) > 100) {
-			self::$processed = array_slice(self::$processed, 1);
-		}
+		DBA::delete('processed-activity', ["`received` < ?", DateTimeFormat::utc('now - 5 minutes')]);
+		DBA::insert('processed-activity', ['object-id' => $id, 'received' => DateTimeFormat::utcNow()]);
 	}
 
 	/**
-	 * Checks if the given has just been processed
+	 * Checks if the given object id has just been processed
 	 *
 	 * @param string $id
 	 *
 	 * @return boolean
 	 */
-	public static function isProcessed(string $id): bool
+	private static function isProcessed(string $id): bool
 	{
-		return in_array($id, self::$processed);
+		return DBA::exists('processed-activity', ['object-id' => $id]);
 	}
 
 	/**
@@ -233,7 +229,7 @@ class Processor
 		$item = Post::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity', 'post-type'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
-			$item = self::createItem($activity);
+			$item = self::createItem($activity, false);
 			if (empty($item)) {
 				return;
 			}
@@ -303,7 +299,7 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createItem(array $activity, bool $fetch_parents = true): array
+	public static function createItem(array $activity, bool $fetch_parents): array
 	{
 		if (self::isProcessed($activity['id'])) {
 			Logger::info('Id is already processed', ['id' => $activity['id']]);
@@ -324,10 +320,10 @@ class Processor
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 		}
 
-		if (!empty($activity['context'])) {
-			$item['conversation'] = $activity['context'];
-		} elseif (!empty($activity['conversation'])) {
+		if (!empty($activity['conversation'])) {
 			$item['conversation'] = $activity['conversation'];
+		} elseif (!empty($activity['context'])) {
+			$item['conversation'] = $activity['context'];
 		}
 
 		if (!empty($item['conversation'])) {
@@ -340,6 +336,7 @@ class Processor
 			$conversation = [];
 		}
 
+		Logger::debug('Create Item', ['id' => $activity['id'], 'conversation' => $item['conversation'] ?? '']);
 		if (empty($activity['author']) && empty($activity['actor'])) {
 			Logger::notice('Missing author and actor. We quit here.', ['activity' => $activity]);
 			return [];
@@ -490,11 +487,6 @@ class Processor
 	 */
 	private static function fetchParent(array $activity): string
 	{
-		if (self::hasJustBeenFetched($activity['reply-to-id'])) {
-			Logger::notice('We just have tried to fetch this activity. We don\'t try it again.', ['parent' => $activity['reply-to-id']]);
-			return '';
-		} 
-
 		$recursion_depth = $activity['recursion-depth'] ?? 0;
 
 		if ($recursion_depth < DI::config()->get('system', 'max_recursion_depth')) {
@@ -550,23 +542,6 @@ class Processor
 		}
 
 		return '';
-	}
-
-	/**
-	 * Check if a given activity has recently been fetched
-	 *
-	 * @param string $url
-	 * @return boolean
-	 */
-	private static function hasJustBeenFetched(string $url): bool
-	{
-		$cachekey = self::CACHEKEY_JUST_FETCHED . $url;
-		$time = DI::cache()->get($cachekey);
-		if (is_null($time)) {
-			DI::cache()->set($cachekey, time(), Duration::FIVE_MINUTES);
-			return false;
-		}
-		return ($time + 300) > time();
 	}
 
 	/**
@@ -656,7 +631,7 @@ class Processor
 	public static function createActivity(array $activity, string $verb)
 	{
 		$activity['reply-to-id'] = $activity['object_id'];
-		$item = self::createItem($activity);
+		$item = self::createItem($activity, false);
 		if (empty($item)) {
 			return;
 		}
@@ -1419,7 +1394,7 @@ class Processor
 
 		$ldactivity = JsonLD::compact($activity);
 
-		$ldactivity['recursion-depth'] = !empty($child['recursion-depth']) ? $child['recursion-depth'] + 1 : 1;
+		$ldactivity['recursion-depth'] = !empty($child['recursion-depth']) ? $child['recursion-depth'] + 1 : 0;
 
 		if (!empty($relay_actor)) {
 			$ldactivity['thread-completion'] = $ldactivity['from-relay'] = Contact::getIdForURL($relay_actor);

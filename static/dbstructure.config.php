@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1477);
+	define('DB_UPDATE_VERSION', 1478);
 }
 
 return [
@@ -1722,6 +1722,28 @@ return [
 			"cid" => ["cid"],
 			"uri-id_uid" => ["UNIQUE", "uri-id", "uid"],
 		]
+	],
+	"arrived-activity" => [
+		"comment" => "Id of arrived activities",
+		"fields" => [
+			"object-id" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "object id of the incoming activity"],
+			"received" => ["type" => "datetime", "comment" => "Receiving date"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["object-id"],
+		],
+		"engine" => "MEMORY",
+	],
+	"processed-activity" => [
+		"comment" => "Id of processed activities",
+		"fields" => [
+			"object-id" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "object id of the incoming activity"],
+			"received" => ["type" => "datetime", "comment" => "Receiving date"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["object-id"],
+		],
+		"engine" => "MEMORY",
 	],
 	"worker-ipc" => [
 		"comment" => "Inter process communication between the frontend and the worker",

@@ -586,11 +586,19 @@ class Receiver
 			$object_data['object_activity']	= $activity;
 		}
 
-		if (($type == 'as:Create') && Queue::exists($object_data['object_id'], $type)) {
-			Logger::info('The activity is already added.', ['id' => $object_data['object_id']]);
-			return true;
-		}
+		if (($type == 'as:Create') && $trust_source) {
+			if (self::hasArrived($object_data['object_id'])) {
+				Logger::info('The activity already arrived.', ['id' => $object_data['object_id']]);
+				return true;
+			}
+			self::addArrivedId($object_data['object_id']);
 
+			if (Queue::exists($object_data['object_id'], $type)) {
+				Logger::info('The activity is already added.', ['id' => $object_data['object_id']]);
+				return true;
+			}
+		}
+	
 		if (DI::config()->get('system', 'decoupled_receiver') && ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted'))) {
 			$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push, $trust_source);
 		}
@@ -1882,5 +1890,30 @@ class Receiver
 		unset($object_data['reception_type'][-1]);
 
 		return $object_data;
+	}
+
+	/**
+	 * Add an object id to the list of arrived activities
+	 *
+	 * @param string $id
+	 *
+	 * @return void
+	 */
+	private static function addArrivedId(string $id)
+	{
+		DBA::delete('arrived-activity', ["`received` < ?", DateTimeFormat::utc('now - 5 minutes')]);
+		DBA::insert('arrived-activity', ['object-id' => $id, 'received' => DateTimeFormat::utcNow()]);
+	}
+
+	/**
+	 * Checks if the given object already arrived before
+	 *
+	 * @param string $id
+	 *
+	 * @return boolean
+	 */
+	private static function hasArrived(string $id): bool
+	{
+		return DBA::exists('arrived-activity', ['object-id' => $id]);
 	}
 }
