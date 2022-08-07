@@ -905,14 +905,7 @@ class Item
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, null, $default);
 
-		$actor = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
-		if (!$item['origin'] && ($item['uid'] != 0) && Contact::isSharing($actor, $item['uid'])) {
-			$item['post-reason'] = self::PR_FOLLOWER;
-		}
-
-		if ($item['origin'] && empty($item['post-reason'])) {
-			$item['post-reason'] = self::PR_LOCAL;
-		}
+		$item['post-reason'] = self::getPostReason($item);
 
 		// Ensure that there is an avatar cache
 		Contact::checkAvatarCache($item['author-id']);
@@ -1292,6 +1285,27 @@ class Item
 	}
 
 	/**
+	 * Fetch the post reason for a given item array
+	 *
+	 * @param array $item
+	 *
+	 * @return integer
+	 */
+	public static function getPostReason(array $item): int
+	{
+		$actor = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
+		if (empty($item['origin']) && ($item['uid'] != 0) && Contact::isSharing($actor, $item['uid'])) {
+			return self::PR_FOLLOWER;
+		}
+
+		if (!empty($item['origin']) && empty($item['post-reason'])) {
+			return self::PR_LOCAL;
+		}
+
+		return $item['post-reason'] ?? self::PR_NONE;
+	}
+
+	/**
 	 * Update the display cache
 	 *
 	 * @param integer $uri_id
@@ -1495,12 +1509,13 @@ class Item
 
 		$item = array_merge($item, $fields);
 
+		$item['post-reason'] = self::getPostReason($item);
+
 		$is_reshare = ($item['gravity'] == GRAVITY_ACTIVITY) && ($item['verb'] == Activity::ANNOUNCE);
 
 		if ((($item['gravity'] == GRAVITY_PARENT) || $is_reshare) &&
 			DI::pConfig()->get($uid, 'system', 'accept_only_sharer') == self::COMPLETION_NONE &&
-			!Contact::isSharingByURL($item['author-link'], $uid) &&
-			!Contact::isSharingByURL($item['owner-link'], $uid)) {
+			!in_array($item['post-reason'], [self::PR_FOLLOWER, self::PR_TAG, self::PR_TO, self::PR_CC])) {
 			Logger::info('Contact is not a follower, thread will not be stored', ['author' => $item['author-link'], 'uid' => $uid]);
 			return 0;
 		}
