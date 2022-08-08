@@ -345,7 +345,7 @@ class Processor
 			return [];
 		}
 
-		if (!in_array(0, $activity['receiver']) && !DI::config()->get('system', 'fetch_parents')) {
+		if (!in_array(0, $activity['receiver']) || !DI::config()->get('system', 'fetch_parents')) {
 			$fetch_parents = false;
 		}
 

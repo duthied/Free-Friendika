@@ -39,7 +39,7 @@ class RemoveUnusedAvatars
 				AND NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` != ?)
 				AND NOT `contact`.`id` IN (SELECT `author-id` FROM `post-user`)
 				AND NOT `contact`.`id` IN (SELECT `owner-id` FROM `post-user`)
-				AND NOT `contact`.`id` IN (SELECT `causer-id` FROM `post-user`)
+				AND NOT `contact`.`id` IN (SELECT `causer-id` FROM `post-user` WHERE `causer-id` IS NOT NULL)
 				AND NOT `contact`.`id` IN (SELECT `cid` FROM `post-tag`)
 				AND NOT `contact`.`id` IN (SELECT `contact-id` FROM `post-user`);";
 
