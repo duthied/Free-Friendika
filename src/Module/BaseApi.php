@@ -271,7 +271,7 @@ class BaseApi extends BaseModule
 			if ($posts_month > $throttle_month) {
 				Logger::info('Monthly posting limit reached', ['uid' => $uid, 'posts' => $posts_month, 'limit' => $throttle_month]);
 				$error = DI::l10n()->t('Too Many Requests');
-				$error_description = DI::l10n()->t("Monthly posting limit of %d post reached. The post was rejected.", "Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month);
+				$error_description = DI::l10n()->tt('Monthly posting limit of %d post reached. The post was rejected.', 'Monthly posting limit of %d posts reached. The post was rejected.', $throttle_month);
 				$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 				System::jsonError(429, $errorobj->toArray());
 			}
