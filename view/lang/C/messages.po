@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-08 02:12-0400\n"
+"POT-Creation-Date: 2022-08-08 12:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3246,206 +3246,206 @@ msgstr ""
 msgid "Could not connect to database."
 msgstr ""
 
-#: src/Core/L10n.php:402 src/Model/Event.php:428
+#: src/Core/L10n.php:403 src/Model/Event.php:428
 #: src/Module/Settings/Display.php:182
 msgid "Monday"
 msgstr ""
 
-#: src/Core/L10n.php:402 src/Model/Event.php:429
+#: src/Core/L10n.php:403 src/Model/Event.php:429
 msgid "Tuesday"
 msgstr ""
 
-#: src/Core/L10n.php:402 src/Model/Event.php:430
+#: src/Core/L10n.php:403 src/Model/Event.php:430
 msgid "Wednesday"
 msgstr ""
 
-#: src/Core/L10n.php:402 src/Model/Event.php:431
+#: src/Core/L10n.php:403 src/Model/Event.php:431
 msgid "Thursday"
 msgstr ""
 
-#: src/Core/L10n.php:402 src/Model/Event.php:432
+#: src/Core/L10n.php:403 src/Model/Event.php:432
 msgid "Friday"
 msgstr ""
 
-#: src/Core/L10n.php:402 src/Model/Event.php:433
+#: src/Core/L10n.php:403 src/Model/Event.php:433
 msgid "Saturday"
 msgstr ""
 
-#: src/Core/L10n.php:402 src/Model/Event.php:427
+#: src/Core/L10n.php:403 src/Model/Event.php:427
 #: src/Module/Settings/Display.php:182
 msgid "Sunday"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:448
+#: src/Core/L10n.php:407 src/Model/Event.php:448
 msgid "January"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:449
+#: src/Core/L10n.php:407 src/Model/Event.php:449
 msgid "February"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:450
+#: src/Core/L10n.php:407 src/Model/Event.php:450
 msgid "March"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:451
+#: src/Core/L10n.php:407 src/Model/Event.php:451
 msgid "April"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Core/L10n.php:425 src/Model/Event.php:439
+#: src/Core/L10n.php:407 src/Core/L10n.php:426 src/Model/Event.php:439
 msgid "May"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:452
+#: src/Core/L10n.php:407 src/Model/Event.php:452
 msgid "June"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:453
+#: src/Core/L10n.php:407 src/Model/Event.php:453
 msgid "July"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:454
+#: src/Core/L10n.php:407 src/Model/Event.php:454
 msgid "August"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:455
+#: src/Core/L10n.php:407 src/Model/Event.php:455
 msgid "September"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:456
+#: src/Core/L10n.php:407 src/Model/Event.php:456
 msgid "October"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:457
+#: src/Core/L10n.php:407 src/Model/Event.php:457
 msgid "November"
 msgstr ""
 
-#: src/Core/L10n.php:406 src/Model/Event.php:458
+#: src/Core/L10n.php:407 src/Model/Event.php:458
 msgid "December"
 msgstr ""
 
-#: src/Core/L10n.php:421 src/Model/Event.php:420
+#: src/Core/L10n.php:422 src/Model/Event.php:420
 msgid "Mon"
 msgstr ""
 
-#: src/Core/L10n.php:421 src/Model/Event.php:421
+#: src/Core/L10n.php:422 src/Model/Event.php:421
 msgid "Tue"
 msgstr ""
 
-#: src/Core/L10n.php:421 src/Model/Event.php:422
+#: src/Core/L10n.php:422 src/Model/Event.php:422
 msgid "Wed"
 msgstr ""
 
-#: src/Core/L10n.php:421 src/Model/Event.php:423
+#: src/Core/L10n.php:422 src/Model/Event.php:423
 msgid "Thu"
 msgstr ""
 
-#: src/Core/L10n.php:421 src/Model/Event.php:424
+#: src/Core/L10n.php:422 src/Model/Event.php:424
 msgid "Fri"
 msgstr ""
 
-#: src/Core/L10n.php:421 src/Model/Event.php:425
+#: src/Core/L10n.php:422 src/Model/Event.php:425
 msgid "Sat"
 msgstr ""
 
-#: src/Core/L10n.php:421 src/Model/Event.php:419
+#: src/Core/L10n.php:422 src/Model/Event.php:419
 msgid "Sun"
 msgstr ""
 
-#: src/Core/L10n.php:425 src/Model/Event.php:435
+#: src/Core/L10n.php:426 src/Model/Event.php:435
 msgid "Jan"
 msgstr ""
 
-#: src/Core/L10n.php:425 src/Model/Event.php:436
+#: src/Core/L10n.php:426 src/Model/Event.php:436
 msgid "Feb"
 msgstr ""
 
-#: src/Core/L10n.php:425 src/Model/Event.php:437
+#: src/Core/L10n.php:426 src/Model/Event.php:437
 msgid "Mar"
 msgstr ""
 
-#: src/Core/L10n.php:425 src/Model/Event.php:438
+#: src/Core/L10n.php:426 src/Model/Event.php:438
 msgid "Apr"
 msgstr ""
 
-#: src/Core/L10n.php:425 src/Model/Event.php:440
+#: src/Core/L10n.php:426 src/Model/Event.php:440
 msgid "Jun"
 msgstr ""
 
-#: src/Core/L10n.php:425 src/Model/Event.php:441
+#: src/Core/L10n.php:426 src/Model/Event.php:441
 msgid "Jul"
 msgstr ""
 
-#: src/Core/L10n.php:425 src/Model/Event.php:442
+#: src/Core/L10n.php:426 src/Model/Event.php:442
 msgid "Aug"
 msgstr ""
 
-#: src/Core/L10n.php:425
+#: src/Core/L10n.php:426
 msgid "Sep"
 msgstr ""
 
-#: src/Core/L10n.php:425 src/Model/Event.php:444
+#: src/Core/L10n.php:426 src/Model/Event.php:444
 msgid "Oct"
 msgstr ""
 
-#: src/Core/L10n.php:425 src/Model/Event.php:445
+#: src/Core/L10n.php:426 src/Model/Event.php:445
 msgid "Nov"
 msgstr ""
 
-#: src/Core/L10n.php:425 src/Model/Event.php:446
+#: src/Core/L10n.php:426 src/Model/Event.php:446
 msgid "Dec"
 msgstr ""
 
-#: src/Core/L10n.php:444
+#: src/Core/L10n.php:445
 msgid "poke"
 msgstr ""
 
-#: src/Core/L10n.php:444
+#: src/Core/L10n.php:445
 msgid "poked"
 msgstr ""
 
-#: src/Core/L10n.php:445
+#: src/Core/L10n.php:446
 msgid "ping"
 msgstr ""
 
-#: src/Core/L10n.php:445
+#: src/Core/L10n.php:446
 msgid "pinged"
 msgstr ""
 
-#: src/Core/L10n.php:446
+#: src/Core/L10n.php:447
 msgid "prod"
 msgstr ""
 
-#: src/Core/L10n.php:446
+#: src/Core/L10n.php:447
 msgid "prodded"
 msgstr ""
 
-#: src/Core/L10n.php:447
+#: src/Core/L10n.php:448
 msgid "slap"
 msgstr ""
 
-#: src/Core/L10n.php:447
+#: src/Core/L10n.php:448
 msgid "slapped"
 msgstr ""
 
-#: src/Core/L10n.php:448
+#: src/Core/L10n.php:449
 msgid "finger"
 msgstr ""
 
-#: src/Core/L10n.php:448
+#: src/Core/L10n.php:449
 msgid "fingered"
 msgstr ""
 
-#: src/Core/L10n.php:449
+#: src/Core/L10n.php:450
 msgid "rebuff"
 msgstr ""
 
-#: src/Core/L10n.php:449
+#: src/Core/L10n.php:450
 msgid "rebuffed"
 msgstr ""
 
 #: src/Core/Renderer.php:89 src/Core/Renderer.php:118 src/Core/Renderer.php:145
-#: src/Core/Renderer.php:179 src/Render/FriendicaSmartyEngine.php:69
+#: src/Core/Renderer.php:179 src/Render/FriendicaSmartyEngine.php:57
 msgid ""
 "Friendica can't display this page at the moment, please contact the "
 "administrator."
@@ -11051,8 +11051,9 @@ msgstr ""
 msgid "stopped following"
 msgstr ""
 
-#: src/Render/FriendicaSmartyEngine.php:65
-msgid "The folder view/smarty3/ must be writable by webserver."
+#: src/Render/FriendicaSmartyEngine.php:53
+#, php-format
+msgid "The folder %s must be writable by webserver."
 msgstr ""
 
 #: src/Security/Authentication.php:226
