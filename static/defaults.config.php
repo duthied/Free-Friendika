@@ -701,5 +701,10 @@ return [
 		// ap_log_failure (Boolean)
 		// Logs every ActivityPub activity that couldn't be compacted
 		'ap_log_failure' => false,
-	]
+	],
+	'smarty3' => [
+		// config_dir (String)
+		// Base working directory for the templating engine, must be writeable by the webserver user
+		'config_dir' => 'view/smarty3',
+	],
 ];
