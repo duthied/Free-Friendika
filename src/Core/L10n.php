@@ -304,11 +304,12 @@ class L10n
 	 * @param string $singular
 	 * @param string $plural
 	 * @param int    $count
+	 * @param array  $vars Variables to interpolate in the translation string
 	 *
 	 * @return string
 	 * @throws \Exception
 	 */
-	public function tt(string $singular, string $plural, int $count): string
+	public function tt(string $singular, string $plural, int $count, ...$vars): string
 	{
 		$s = null;
 
@@ -341,7 +342,9 @@ class L10n
 			$s = $singular;
 		}
 
-		$s = @sprintf($s, $count);
+		// We mute errors here because the translation strings may not be referencing the count at all,
+		// but we still have to try the interpolation just in case it is indeed referenced.
+		$s = @sprintf($s, $count, ...$vars);
 
 		return $s;
 	}
