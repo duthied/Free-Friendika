@@ -315,6 +315,10 @@ class ParseUrl
 
 		$body = mb_convert_encoding($body, 'HTML-ENTITIES', 'UTF-8');
 
+		if (empty($body)) {
+			return $siteinfo;
+		}
+
 		$doc = new DOMDocument();
 		@$doc->loadHTML($body);
 

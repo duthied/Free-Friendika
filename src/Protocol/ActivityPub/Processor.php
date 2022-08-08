@@ -60,33 +60,29 @@ class Processor
 	const CACHEKEY_FETCH_ACTIVITY = 'processor:fetchMissingActivity:';
 	const CACHEKEY_JUST_FETCHED   = 'processor:isJustFetched:';
 
-	static $processed = [];
-
 	/**
-	 * Add an activity id to the list of processed ids
+	 * Add an object id to the list of processed ids
 	 *
 	 * @param string $id
 	 *
 	 * @return void
 	 */
-	public static function addActivityId(string $id)
+	private static function addActivityId(string $id)
 	{
-		self::$processed[] = $id;
-		if (count(self::$processed) > 100) {
-			self::$processed = array_slice(self::$processed, 1);
-		}
+		DBA::delete('processed-activity', ["`received` < ?", DateTimeFormat::utc('now - 5 minutes')]);
+		DBA::insert('processed-activity', ['object-id' => $id, 'received' => DateTimeFormat::utcNow()]);
 	}
 
 	/**
-	 * Checks if the given has just been processed
+	 * Checks if the given object id has just been processed
 	 *
 	 * @param string $id
 	 *
 	 * @return boolean
 	 */
-	public static function isProcessed(string $id): bool
+	private static function isProcessed(string $id): bool
 	{
-		return in_array($id, self::$processed);
+		return DBA::exists('processed-activity', ['object-id' => $id]);
 	}
 
 	/**
@@ -233,8 +229,9 @@ class Processor
 		$item = Post::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity', 'post-type', 'private'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
-			$item = self::createItem($activity);
+			$item = self::createItem($activity, false);
 			if (empty($item)) {
+				Queue::remove($activity);
 				return;
 			}
 
@@ -247,6 +244,7 @@ class Processor
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
+			Queue::remove($activity);
 			return;
 		}
 
@@ -303,9 +301,9 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createItem(array $activity, bool $fetch_parents = true): array
+	public static function createItem(array $activity, bool $fetch_parents): array
 	{
-		if (self::isProcessed($activity['id'])) {
+		if (self::isProcessed($activity['id']) && !Post::exists(['uri' => $activity['id']])) {
 			Logger::info('Id is already processed', ['id' => $activity['id']]);
 			return [];
 		}
@@ -324,10 +322,10 @@ class Processor
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 		}
 
-		if (!empty($activity['context'])) {
-			$item['conversation'] = $activity['context'];
-		} elseif (!empty($activity['conversation'])) {
+		if (!empty($activity['conversation'])) {
 			$item['conversation'] = $activity['conversation'];
+		} elseif (!empty($activity['context'])) {
+			$item['conversation'] = $activity['context'];
 		}
 
 		if (!empty($item['conversation'])) {
@@ -340,8 +338,10 @@ class Processor
 			$conversation = [];
 		}
 
+		Logger::debug('Create Item', ['id' => $activity['id'], 'conversation' => $item['conversation'] ?? '']);
 		if (empty($activity['author']) && empty($activity['actor'])) {
 			Logger::notice('Missing author and actor. We quit here.', ['activity' => $activity]);
+			Queue::remove($activity);
 			return [];
 		}
 
@@ -364,6 +364,9 @@ class Processor
 
 		if (empty($conversation) && empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Post::exists(['uri' => $item['thr-parent']])) {
 			Logger::info('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
+			if (!$fetch_parents) {
+				Queue::remove($activity);
+			}
 			return [];
 		}
 
@@ -457,6 +460,7 @@ class Processor
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
 			Logger::info('Message was not processed');
+			Queue::remove($activity);
 			return [];
 		}
 
@@ -490,11 +494,6 @@ class Processor
 	 */
 	private static function fetchParent(array $activity): string
 	{
-		if (self::hasJustBeenFetched($activity['reply-to-id'])) {
-			Logger::notice('We just have tried to fetch this activity. We don\'t try it again.', ['parent' => $activity['reply-to-id']]);
-			return '';
-		} 
-
 		$recursion_depth = $activity['recursion-depth'] ?? 0;
 
 		if ($recursion_depth < DI::config()->get('system', 'max_recursion_depth')) {
@@ -553,23 +552,6 @@ class Processor
 	}
 
 	/**
-	 * Check if a given activity has recently been fetched
-	 *
-	 * @param string $url
-	 * @return boolean
-	 */
-	private static function hasJustBeenFetched(string $url): bool
-	{
-		$cachekey = self::CACHEKEY_JUST_FETCHED . $url;
-		$time = DI::cache()->get($cachekey);
-		if (is_null($time)) {
-			DI::cache()->set($cachekey, time(), Duration::FIVE_MINUTES);
-			return false;
-		}
-		return ($time + 300) > time();
-	}
-
-	/**
 	 * Check if a given activity is no longer available
 	 *
 	 * @param string $url
@@ -585,16 +567,23 @@ class Processor
 		}
 
 		// @todo To ensure that the remote system is working correctly, we can check if the "Content-Type" contains JSON
-		if (in_array($curlResult->getReturnCode(), [404])) {
+		if (in_array($curlResult->getReturnCode(), [401, 404])) {
 			return true;
 		}
 
-		$object = json_decode($curlResult->getBody(), true);
-		if (!empty($object)) {
-			$activity = JsonLD::compact($object);
-			if (JsonLD::fetchElement($activity, '@type') == 'as:Tombstone') {
+		if ($curlResult->isSuccess()) {
+			$object = json_decode($curlResult->getBody(), true);
+			if (!empty($object)) {
+				$activity = JsonLD::compact($object);
+				if (JsonLD::fetchElement($activity, '@type') == 'as:Tombstone') {
+					return true;
+				}
+			}
+		} elseif ($curlResult->getReturnCode() == 0) {
+			$host = parse_url($url, PHP_URL_HOST);
+			if (!(filter_var($host, FILTER_VALIDATE_IP) || @dns_get_record($host . '.', DNS_A + DNS_AAAA))) {
 				return true;
-			}			
+			}
 		}
 
 		return false;
@@ -656,7 +645,7 @@ class Processor
 	public static function createActivity(array $activity, string $verb)
 	{
 		$activity['reply-to-id'] = $activity['object_id'];
-		$item = self::createItem($activity);
+		$item = self::createItem($activity, false);
 		if (empty($item)) {
 			return;
 		}
@@ -839,7 +828,7 @@ class Processor
 					Logger::warning('Unknown parent item.', ['uri' => $parent_uri]);
 					return false;
 				}
-				if (($item['private'] == Item::PRIVATE) && ($parent['private'] != Item::PRIVATE)) {
+				if (!empty($activity['type']) && in_array($activity['type'], Receiver::CONTENT_TYPES) && ($item['private'] == Item::PRIVATE) && ($parent['private'] != Item::PRIVATE)) {
 					Logger::warning('Item is private but the parent is not. Dropping.', ['item-uri' => $item['uri'], 'thr-parent' => $item['thr-parent']]);
 					return false;
 				}
@@ -969,6 +958,9 @@ class Processor
 
 		if (!self::isSolicitedMessage($activity, $item)) {
 			DBA::delete('item-uri', ['id' => $item['uri-id']]);
+			if (!empty($activity['entry-id'])) {
+				Queue::deleteById($activity['entry-id']);
+			}
 			return;
 		}
 
@@ -1006,12 +998,16 @@ class Processor
 					$item['post-reason'] = Item::PR_NONE;
 			}
 
-			if (!empty($activity['from-relay'])) {
-				$item['post-reason'] = Item::PR_RELAY;
-			} elseif (!empty($activity['thread-completion'])) {
-				$item['post-reason'] = Item::PR_FETCHED;
-			} elseif (in_array($item['post-reason'], [Item::PR_GLOBAL, Item::PR_NONE]) && !empty($activity['push'])) {
-				$item['post-reason'] = Item::PR_PUSHED;
+			$item['post-reason'] = Item::getPostReason($item);
+
+			if (in_array($item['post-reason'], [Item::PR_GLOBAL, Item::PR_NONE])) {
+				if (!empty($activity['from-relay'])) {
+					$item['post-reason'] = Item::PR_RELAY;
+				} elseif (!empty($activity['thread-completion'])) {
+					$item['post-reason'] = Item::PR_FETCHED;
+				} elseif (!empty($activity['push'])) {
+					$item['post-reason'] = Item::PR_PUSHED;
+				}
 			}
 
 			if ($item['isForum'] ?? false) {
@@ -1029,41 +1025,31 @@ class Processor
 				continue;
 			}
 
-			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) && !Contact::isSharingByURL($activity['author'], $receiver)) {
-				if ($item['post-reason'] == Item::PR_BCC) {
-					Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
-					continue;
+			if (($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) && !in_array($item['post-reason'], [Item::PR_FOLLOWER, Item::PR_TAG, item::PR_TO, Item::PR_CC])) {
+				if (!($item['isForum'] ?? false)) {
+					if ($item['post-reason'] == Item::PR_BCC) {
+						Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id'], 'url' => $item['uri']]);
+						continue;
+					}
+
+					if ((DI::pConfig()->get($receiver, 'system', 'accept_only_sharer') != Item::COMPLETION_LIKE)
+						&& in_array($activity['thread-children-type'] ?? '', Receiver::ACTIVITY_TYPES)) {
+						Logger::info('Top level post from thread completion from a non sharer had been initiated via an activity, ignoring',
+							['type' => $activity['thread-children-type'], 'user' => $item['uid'], 'causer' => $item['causer-link'], 'author' => $activity['author'], 'url' => $item['uri']]);
+						continue;
+					}
 				}
 
-				if (
-					!empty($activity['thread-children-type'])
-					&& in_array($activity['thread-children-type'], Receiver::ACTIVITY_TYPES)
-					&& DI::pConfig()->get($receiver, 'system', 'accept_only_sharer') != Item::COMPLETION_LIKE
-				) {
-					Logger::info('Top level post from thread completion from a non sharer had been initiated via an activity, ignoring',
-						['type' => $activity['thread-children-type'], 'user' => $item['uid'], 'causer' => $item['causer-link'], 'author' => $activity['author'], 'url' => $item['uri']]);
-					continue;
-				}
-			}
-
-			$is_forum = false;
-
-			if ($receiver != 0) {
+				$is_forum = false;
 				$user = User::getById($receiver, ['account-type']);
 				if (!empty($user['account-type'])) {
 					$is_forum = ($user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY);
 				}
-			}
 
-			if (!$is_forum && DI::pConfig()->get($receiver, 'system', 'accept_only_sharer') == Item::COMPLETION_NONE && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
-				$skip = !Contact::isSharingByURL($activity['author'], $receiver);
-
-				if ($skip && (($activity['type'] == 'as:Announce') || ($item['isForum'] ?? false))) {
-					$skip = !Contact::isSharingByURL($activity['actor'], $receiver);
-				}
-
-				if ($skip) {
-					Logger::info('Skipping post', ['uid' => $receiver, 'url' => $item['uri']]);
+				if ((DI::pConfig()->get($receiver, 'system', 'accept_only_sharer') == Item::COMPLETION_NONE)
+					&& ((!$is_forum && !($item['isForum'] ?? false) && ($activity['type'] != 'as:Announce'))
+					|| !Contact::isSharingByURL($activity['actor'], $receiver))) {
+					Logger::info('Actor is a non sharer, is no forum or it is no announce', ['uid' => $receiver, 'actor' => $activity['actor'], 'url' => $item['uri'], 'type' => $activity['type']]);
 					continue;
 				}
 
@@ -1358,13 +1344,7 @@ class Processor
 	 */
 	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL): string
 	{
-		if (!empty($child['receiver'])) {
-			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
-		} else {
-			$uid = 0;
-		}
-
-		$object = self::fetchCachedActivity($url, $uid);
+		$object = self::fetchCachedActivity($url, 0);
 		if (empty($object)) {
 			return '';
 		}
@@ -1377,7 +1357,7 @@ class Processor
 				$compacted = JsonLD::compact($object);
 				$attributed_to = JsonLD::fetchElement($compacted, 'as:attributedTo', '@id');
 			}
-			$signer[] = $attributed_to;	
+			$signer[] = $attributed_to;
 		}
 
 		if (!empty($object['actor'])) {
@@ -1419,7 +1399,7 @@ class Processor
 
 		$ldactivity = JsonLD::compact($activity);
 
-		$ldactivity['recursion-depth'] = !empty($child['recursion-depth']) ? $child['recursion-depth'] + 1 : 1;
+		$ldactivity['recursion-depth'] = !empty($child['recursion-depth']) ? $child['recursion-depth'] + 1 : 0;
 
 		if (!empty($relay_actor)) {
 			$ldactivity['thread-completion'] = $ldactivity['from-relay'] = Contact::getIdForURL($relay_actor);
@@ -1432,8 +1412,12 @@ class Processor
 			$ldactivity['completion-mode']   = $completion;
 		}
 
-		if (!empty($child['type'])) {
+		if (!empty($child['thread-children-type'])) {
+			$ldactivity['thread-children-type'] = $child['thread-children-type'];
+		} elseif (!empty($child['type'])) {
 			$ldactivity['thread-children-type'] = $child['type'];
+		} else {
+			$ldactivity['thread-children-type'] = 'as:Create';
 		}
 
 		if (!empty($relay_actor) && !self::acceptIncomingMessage($ldactivity, $object['id'])) {
@@ -1442,7 +1426,7 @@ class Processor
 
 		if (($completion == Receiver::COMPLETION_RELAY) && Queue::exists($url, 'as:Create')) {
 			Logger::notice('Activity has already been queued.', ['url' => $url, 'object' => $activity['id']]);
-		} elseif (ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer, '', $completion)) {
+		} elseif (ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), 0, true, false, $signer, '', $completion)) {
 			Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'entry' => $child['entry-id'] ?? 0, 'completion' => $completion, 'object' => $activity['id']]);
 		} else {
 			Logger::notice('Activity had been fetched and will be processed later.', ['url' => $url, 'entry' => $child['entry-id'] ?? 0, 'completion' => $completion, 'object' => $activity['id']]);

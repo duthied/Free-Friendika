@@ -586,9 +586,17 @@ class Receiver
 			$object_data['object_activity']	= $activity;
 		}
 
-		if (($type == 'as:Create') && Queue::exists($object_data['object_id'], $type)) {
-			Logger::info('The activity is already added.', ['id' => $object_data['object_id']]);
-			return true;
+		if (($type == 'as:Create') && $trust_source) {
+			if (self::hasArrived($object_data['object_id'])) {
+				Logger::info('The activity already arrived.', ['id' => $object_data['object_id']]);
+				return true;
+			}
+			self::addArrivedId($object_data['object_id']);
+
+			if (Queue::exists($object_data['object_id'], $type)) {
+				Logger::info('The activity is already added.', ['id' => $object_data['object_id']]);
+				return true;
+			}
 		}
 
 		if (DI::config()->get('system', 'decoupled_receiver') && ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted'))) {
@@ -601,11 +609,15 @@ class Receiver
 		}
 
 		if (!empty($object_data['entry-id']) && DI::config()->get('system', 'decoupled_receiver') && ($push || ($completion == self::COMPLETION_RELAY))) {
-			// We delay by 5 seconds to allow to accumulate all receivers
-			$delayed = date(DateTimeFormat::MYSQL, time() + 5);
-			Logger::debug('Initiate processing', ['id' => $object_data['entry-id'], 'uri' => $object_data['object_id']]);
-			$wid = Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'ProcessQueue', $object_data['entry-id']);
-			Queue::setWorkerId($object_data['entry-id'], $wid);
+			if (Queue::isProcessable($object_data['entry-id'])) {
+				// We delay by 5 seconds to allow to accumulate all receivers
+				$delayed = date(DateTimeFormat::MYSQL, time() + 5);
+				Logger::debug('Initiate processing', ['id' => $object_data['entry-id'], 'uri' => $object_data['object_id']]);
+				$wid = Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'ProcessQueue', $object_data['entry-id']);
+				Queue::setWorkerId($object_data['entry-id'], $wid);
+			} else {
+				Logger::debug('Other queue entries need to be processed first.', ['id' => $object_data['entry-id']]);
+			}
 			return false;
 		}
 
@@ -679,13 +691,18 @@ class Receiver
 					$object_data['thread-completion'] = Contact::getIdForURL($actor);
 					$object_data['completion-mode']   = self::COMPLETION_ANNOUCE;
 
-					$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
-					if (empty($item)) {
-						return false;
-					}
+					if (!Post::exists(['uri' => $object_data['id'], 'uid' => 0])) {
+						$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
+						if (empty($item)) {
+							return false;
+						}
 
-					$item['post-reason'] = Item::PR_ANNOUNCEMENT;
-					ActivityPub\Processor::postItem($object_data, $item);
+						$item['post-reason'] = Item::PR_ANNOUNCEMENT;
+						ActivityPub\Processor::postItem($object_data, $item);
+					} else {
+						Logger::info('Announced id already exists', ['id' => $object_data['id']]);
+						Queue::remove($object_data);
+					}
 
 					if (!empty($activity)) {
 						$announce_object_data = self::processObject($activity);
@@ -1882,5 +1899,30 @@ class Receiver
 		unset($object_data['reception_type'][-1]);
 
 		return $object_data;
+	}
+
+	/**
+	 * Add an object id to the list of arrived activities
+	 *
+	 * @param string $id
+	 *
+	 * @return void
+	 */
+	private static function addArrivedId(string $id)
+	{
+		DBA::delete('arrived-activity', ["`received` < ?", DateTimeFormat::utc('now - 5 minutes')]);
+		DBA::insert('arrived-activity', ['object-id' => $id, 'received' => DateTimeFormat::utcNow()]);
+	}
+
+	/**
+	 * Checks if the given object already arrived before
+	 *
+	 * @param string $id
+	 *
+	 * @return boolean
+	 */
+	private static function hasArrived(string $id): bool
+	{
+		return DBA::exists('arrived-activity', ['object-id' => $id]);
 	}
 }

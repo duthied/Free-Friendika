@@ -60,10 +60,13 @@ class ItemURI
 	 * Searched for an id of a given uri. Adds it, if not existing yet.
 	 *
 	 * @param string $uri
+	 * @param bool   $insert
+	 *
 	 * @return integer item-uri id
+	 *
 	 * @throws \Exception
 	 */
-	public static function getIdByURI(string $uri): int
+	public static function getIdByURI(string $uri, bool $insert = true): int
 	{
 		if (empty($uri)) {
 			return 0;
@@ -74,12 +77,13 @@ class ItemURI
 
 		$itemuri = DBA::selectFirst('item-uri', ['id'], ['uri' => $uri]);
 
-		if (!DBA::isResult($itemuri)) {
+		if (!DBA::isResult($itemuri) && $insert) {
 			return self::insert(['uri' => $uri]);
 		}
 
-		return $itemuri['id'];
+		return $itemuri['id'] ?? 0;
 	}
+
 	/**
 	 * Searched for an id of a given guid.
 	 *

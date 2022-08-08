@@ -22,15 +22,10 @@
 namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
-use Friendica\Content\Text;
-use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Model\Item;
-use Friendica\Model\Tag;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\JsonLD;
-use Friendica\Util\XML;
 
 class ActivityPubConversion extends BaseModule
 {
@@ -123,7 +118,7 @@ class ActivityPubConversion extends BaseModule
 					'content' => visible_whitespace(var_export($object_data, true))
 				];
 
-				$item = ActivityPub\Processor::createItem($object_data);
+				$item = ActivityPub\Processor::createItem($object_data, true);
 
 				$results[] = [
 					'title'   => DI::l10n()->t('Result Item'),

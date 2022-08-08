@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1477
+-- DB_UPDATE_VERSION 1478
 -- ------------------------------------------
 
 
@@ -1715,6 +1715,24 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific public contact data';
+
+--
+-- TABLE arrived-activity
+--
+CREATE TABLE IF NOT EXISTS `arrived-activity` (
+	`object-id` varbinary(255) NOT NULL COMMENT 'object id of the incoming activity',
+	`received` datetime COMMENT 'Receiving date',
+	 PRIMARY KEY(`object-id`)
+) ENGINE=MEMORY DEFAULT COLLATE utf8mb4_general_ci COMMENT='Id of arrived activities';
+
+--
+-- TABLE processed-activity
+--
+CREATE TABLE IF NOT EXISTS `processed-activity` (
+	`object-id` varbinary(255) NOT NULL COMMENT 'object id of the incoming activity',
+	`received` datetime COMMENT 'Receiving date',
+	 PRIMARY KEY(`object-id`)
+) ENGINE=MEMORY DEFAULT COLLATE utf8mb4_general_ci COMMENT='Id of processed activities';
 
 --
 -- TABLE worker-ipc
