@@ -1700,7 +1700,7 @@ msgstr "URI-ID ist leer für den Kontakt %s."
 #: src/Console/MergeContacts.php:90
 #, php-format
 msgid "No valid first contact found for uri-id %d."
-msgstr "Kein gültiger erster Kontakt fpr die url-id %d gefunden."
+msgstr "Kein gültiger erster Kontakt für die url-id %d gefunden."
 
 #: src/Console/MergeContacts.php:101
 #, php-format

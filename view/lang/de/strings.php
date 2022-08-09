@@ -414,7 +414,7 @@ $a->strings['Could not find any contact entry for this URL (%s)'] = 'Für die UR
 $a->strings['The contact has been blocked from the node'] = 'Der Kontakt wurde von diesem Knoten geblockt';
 $a->strings['%d %s, %d duplicates.'] = '%d %s, Duplikat %d.';
 $a->strings['uri-id is empty for contact %s.'] = 'URI-ID ist leer für den Kontakt %s.';
-$a->strings['No valid first contact found for uri-id %d.'] = 'Kein gültiger erster Kontakt fpr die url-id %d gefunden.';
+$a->strings['No valid first contact found for uri-id %d.'] = 'Kein gültiger erster Kontakt für die url-id %d gefunden.';
 $a->strings['Wrong duplicate found for uri-id %d in %d (url: %s != %s).'] = 'Falsches Dublikat für die URI-ID %d in %d gefunden (URI: %s != %s).';
 $a->strings['Wrong duplicate found for uri-id %d in %d (nurl: %s != %s).'] = 'Falsches Dublikat für die URI-ID %d in %d (nurl: %s != %s).';
 $a->strings['Deletion of id %d failed'] = 'Löschung der ID %d fehlgeschlagen';
