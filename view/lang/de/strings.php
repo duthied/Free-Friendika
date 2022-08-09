@@ -414,7 +414,7 @@ $a->strings['Could not find any contact entry for this URL (%s)'] = 'Für die UR
 $a->strings['The contact has been blocked from the node'] = 'Der Kontakt wurde von diesem Knoten geblockt';
 $a->strings['%d %s, %d duplicates.'] = '%d %s, Duplikat %d.';
 $a->strings['uri-id is empty for contact %s.'] = 'URI-ID ist leer für den Kontakt %s.';
-$a->strings['No valid first countact found for uri-id %d.'] = 'Es wurde kein gültiger erster Kontakt für die URI-ID %d gefunden.';
+$a->strings['No valid first contact found for uri-id %d.'] = 'Kein gültiger erster Kontakt fpr die url-id %d gefunden.';
 $a->strings['Wrong duplicate found for uri-id %d in %d (url: %s != %s).'] = 'Falsches Dublikat für die URI-ID %d in %d gefunden (URI: %s != %s).';
 $a->strings['Wrong duplicate found for uri-id %d in %d (nurl: %s != %s).'] = 'Falsches Dublikat für die URI-ID %d in %d (nurl: %s != %s).';
 $a->strings['Deletion of id %d failed'] = 'Löschung der ID %d fehlgeschlagen';
@@ -517,16 +517,16 @@ $a->strings['remove'] = 'löschen';
 $a->strings['Delete Selected Items'] = 'Lösche die markierten Beiträge';
 $a->strings['You had been addressed (%s).'] = 'Du wurdest angeschrieben (%s).';
 $a->strings['You are following %s.'] = 'Du folgst %s.';
-$a->strings['Tagged'] = 'Verschlagwortet';
+$a->strings['You subscribed to one or more tags in this post.'] = 'Du folgst einem oder mehreren Hashtags dieses Beitrags.';
 $a->strings['Reshared'] = 'Geteilt';
 $a->strings['Reshared by %s <%s>'] = 'Geteilt von %s <%s>';
 $a->strings['%s is participating in this thread.'] = '%s ist an der Unterhaltung beteiligt.';
-$a->strings['Stored'] = 'Gespeichert';
-$a->strings['Global'] = 'Global';
-$a->strings['Relayed'] = 'Übermittelt';
-$a->strings['Relayed by %s <%s>'] = 'Weitergeleitet von %s <%s>';
+$a->strings['Global post'] = 'Globaler Beitrag';
+$a->strings['Sent via an relay server'] = 'Über einen Relay-Server gesendet';
+$a->strings['Sent via the relay server %s <%s>'] = 'Über den Relay-Server %s <%s> gesendet';
 $a->strings['Fetched'] = 'Abgerufen';
 $a->strings['Fetched because of %s <%s>'] = 'Wegen %s <%s> abgerufen';
+$a->strings['Local delivery'] = 'Lokale Zustellung';
 $a->strings['General Features'] = 'Allgemeine Features';
 $a->strings['Photo Location'] = 'Aufnahmeort';
 $a->strings['Photo metadata is normally stripped. This extracts the location (if present) prior to stripping metadata and links it to a map.'] = 'Die Foto-Metadaten werden ausgelesen. Dadurch kann der Aufnahmeort (wenn vorhanden) in einer Karte angezeigt werden.';
@@ -749,6 +749,8 @@ $a->strings['JSON PHP module'] = 'PHP JSON Modul';
 $a->strings['Error: JSON PHP module required but not installed.'] = 'Fehler: Das JSON PHP Modul wird benötigt, ist aber nicht installiert.';
 $a->strings['File Information PHP module'] = 'PHP Datei Informations-Modul';
 $a->strings['Error: File Information PHP module required but not installed.'] = 'Fehler: Das Datei Informations PHP Modul ist nicht installiert.';
+$a->strings['GNU Multiple Precision PHP module'] = 'GNU Multiple Precision PHP Modul';
+$a->strings['Error: GNU Multiple Precision PHP module required but not installed.'] = 'Fehler: GNU Multiple Precision PHP Modul wird benötigt, ist aber nicht installiert.';
 $a->strings['The web installer needs to be able to create a file called "local.config.php" in the "config" folder of your web server and it is unable to do so.'] = 'Das Installationsprogramm muss in der Lage sein, eine Datei namens "local.config.php" im Ordner "config" Ihres Webservers zu erstellen, ist aber nicht in der Lage dazu.';
 $a->strings['This is most often a permission setting, as the web server may not be able to write files in your folder - even if you can.'] = 'In den meisten Fällen ist dies ein Problem mit den Schreibrechten. Der Webserver könnte keine Schreiberlaubnis haben, selbst wenn du sie hast.';
 $a->strings['At the end of this procedure, we will give you a text to save in a file named local.config.php in your Friendica "config" folder.'] = 'Am Ende dieser Prozedur bekommst du einen Text, der in der local.config.php im Friendica "config" Ordner gespeichert werden muss.';
@@ -928,10 +930,22 @@ $a->strings['comment'] = 'Kommentar';
 $a->strings['post'] = 'Beitrag';
 $a->strings['Content warning: %s'] = 'Inhaltswarnung: %s';
 $a->strings['bytes'] = 'Byte';
-$a->strings['%s (%d%s, %d votes)'] = '%s (%d%s, %d Stimmen)';
-$a->strings['%s (%d votes)'] = '%s (%d Stimmen)';
-$a->strings['%d voters. Poll end: %s'] = '%d Stimmen, Abstimmung endet: %s';
-$a->strings['%d voters.'] = '%d Stimmen.';
+$a->strings['%2$s (%3$d%%, %1$d vote)'] = [
+	0 => '%2$s (%3$d%%, %1$d Stimme)',
+	1 => '%2$s (%3$d%%, %1$d Stimmen)',
+];
+$a->strings['%2$s (%1$d vote)'] = [
+	0 => '%2$s (%1$d Stimme)',
+	1 => '%2$s (%1$d Stimmen)',
+];
+$a->strings['%d voter. Poll end: %s'] = [
+	0 => '%d Stimme, Abstimmung endet: %s',
+	1 => '%d Stimmen, Abstimmung endet: %s',
+];
+$a->strings['%d voter.'] = [
+	0 => '%d Stimme.',
+	1 => '%d Stimmen.',
+];
 $a->strings['Poll end: %s'] = 'Abstimmung endet: %s';
 $a->strings['View on separate page'] = 'Auf separater Seite ansehen';
 $a->strings['[no subject]'] = '[kein Betreff]';
@@ -975,6 +989,7 @@ $a->strings['Not enough information to authenticate'] = 'Nicht genügend Informa
 $a->strings['Password can\'t be empty'] = 'Das Passwort kann nicht leer sein';
 $a->strings['Empty passwords are not allowed.'] = 'Leere Passwörter sind nicht erlaubt.';
 $a->strings['The new password has been exposed in a public data dump, please choose another.'] = 'Das neue Passwort wurde in einem öffentlichen Daten-Dump veröffentlicht. Bitte verwende ein anderes Passwort.';
+$a->strings['The password length is limited to 72 characters.'] = 'Die Länge des Passworts ist auf 72 Zeichen begrenzt.';
 $a->strings['The password can\'t contain accentuated letters, white spaces or colons (:)'] = 'Das Passwort darf keine akzentuierten Buchstaben, Leerzeichen oder Doppelpunkte (:) beinhalten';
 $a->strings['Passwords do not match. Password unchanged.'] = 'Die Passwörter stimmen nicht überein. Das Passwort bleibt unverändert.';
 $a->strings['An invitation is required.'] = 'Du benötigst eine Einladung.';
@@ -1130,6 +1145,16 @@ allerdings dabei helfen, neue und interessante Kontakte zu knüpfen.
 Solltest du dein Nutzerkonto löschen wollen, kannst du dies unter %3$s/removeme jederzeit tun.
 
 Danke für deine Aufmerksamkeit und willkommen auf %2$s.';
+$a->strings['[%s] Notice of remote server domain pattern block list update'] = '[%s] Die Liste der blockierten Domain Muster wurde aktualisiert';
+$a->strings['Dear %s,
+
+You are receiving this email because the Friendica node at %s where you are registered as a user updated their remote server domain pattern block list.
+
+Please review the updated list at %s at your earliest convenience.'] = 'Hallo %s,
+
+du erhällst diese EMail, da du auf dem Friendica Knoten %s einen Account besitzt. Die Blockliste für gesperrte Knoten wurde aktualisiert.
+
+Die Änderungen an der Blockliste kannst du unter %s einsehen.';
 $a->strings['Addon not found.'] = 'Addon nicht gefunden.';
 $a->strings['Addon %s disabled.'] = 'Addon %s ausgeschaltet.';
 $a->strings['Addon %s enabled.'] = 'Addon %s eingeschaltet.';
@@ -1206,7 +1231,7 @@ $a->strings['<p>The server domain pattern syntax is case-insensitive shell wildc
 $a->strings['Check pattern'] = 'Muster überprüfen';
 $a->strings['Matching known servers'] = 'Passende bekannte Server';
 $a->strings['Server Name'] = 'Server Name';
-$a->strings['Server Domain'] = 'Server Domai';
+$a->strings['Server Domain'] = 'Server Domain';
 $a->strings['Known Contacts'] = 'Bekannte Kontakte';
 $a->strings['%d known server'] = [
 	0 => '%d bekannter Server',
@@ -1251,16 +1276,8 @@ $a->strings['Lock feature %s'] = 'Feature festlegen: %s';
 $a->strings['Manage Additional Features'] = 'Zusätzliche Features Verwalten';
 $a->strings['Other'] = 'Andere';
 $a->strings['unknown'] = 'Unbekannt';
-$a->strings['%s total systems'] = '%s Server gesamt';
-$a->strings['%s active users last month'] = '%s aktive Accounts im letzten Monat';
-$a->strings['%s active users last six months'] = '%s aktive Accounts im letzten halben Jahr';
-$a->strings['%s registered users'] = '%s registrierte Accounts';
-$a->strings['%s locally created posts and comments'] = '%s lokal erzeugte Beiträge und Kommentare';
-$a->strings['%s posts per user'] = '%s Beiträge pro Account';
-$a->strings['%s users per system'] = '%s Accounts pro Server';
 $a->strings['This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.'] = 'Diese Seite präsentiert einige Zahlen zu dem bekannten Teil des föderalen sozialen Netzwerks, von dem deine Friendica Installation ein Teil ist. Diese Zahlen sind nicht absolut und reflektieren nur den Teil des Netzwerks, den dein Knoten kennt.';
 $a->strings['Federation Statistics'] = 'Föderation Statistik';
-$a->strings['Currently this node is aware of %s nodes (%s active users last month, %s active users last six months, %s registered users in total) from the following platforms:'] = 'Derzeit kennt dieser Knoten %s andere Knoten (mit %s aktiven Accounts im letzten Monat, %s aktiven Accounts im letzten halben Jahr, %s registrierten Accounts insgesamt) von den folgenden Plattformen:';
 $a->strings['Item marked for deletion.'] = 'Eintrag wurden zur Löschung markiert';
 $a->strings['Delete Item'] = 'Eintrag löschen';
 $a->strings['Delete this Item'] = 'Diesen Eintrag löschen';
@@ -1279,7 +1296,6 @@ $a->strings['Term'] = 'Term';
 $a->strings['URL'] = 'URL';
 $a->strings['Mention'] = 'Mention';
 $a->strings['Implicit Mention'] = 'Implicit Mention';
-$a->strings['Source'] = 'Quelle';
 $a->strings['The logfile \'%s\' is not writable. No logging possible'] = 'Die Logdatei \'%s\' ist nicht beschreibbar. Derzeit ist keine Aufzeichnung möglich.';
 $a->strings['PHP log currently enabled.'] = 'PHP Protokollierung ist derzeit aktiviert.';
 $a->strings['PHP log currently disabled.'] = 'PHP Protokollierung ist derzeit nicht aktiviert.';
@@ -1303,6 +1319,7 @@ $a->strings['ALL'] = 'ALLE';
 $a->strings['View details'] = 'Details anzeigen';
 $a->strings['Click to view details'] = 'Anklicken zum Anzeigen der Details';
 $a->strings['Data'] = 'Daten';
+$a->strings['Source'] = 'Quelle';
 $a->strings['File'] = 'Datei';
 $a->strings['Line'] = 'Zeile';
 $a->strings['Function'] = 'Funktion';
@@ -1663,7 +1680,6 @@ $a->strings['Weekly posting limit of %d post reached. The post was rejected.'] =
 	0 => 'Das wöchentliche Limit von %d Beitrag wurde erreicht. Die Nachricht wurde verworfen.',
 	1 => 'Das wöchentliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde verworfen.',
 ];
-$a->strings['Monthly posting limit of %d post reached. The post was rejected.'] = 'Das monatliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde verworfen.';
 $a->strings['Profile Details'] = 'Profildetails';
 $a->strings['Only You Can See This'] = 'Nur du kannst das sehen';
 $a->strings['Scheduled Posts'] = 'Geplante Beiträge';
@@ -2140,6 +2156,14 @@ $a->strings['Logged out.'] = 'Abgemeldet.';
 $a->strings['OpenID protocol error. No ID returned'] = 'OpenID Protokollfehler. Keine ID zurückgegeben.';
 $a->strings['Account not found. Please login to your existing account to add the OpenID to it.'] = 'Nutzerkonto nicht gefunden. Bitte melde dich an und füge die OpenID zu deinem Konto hinzu.';
 $a->strings['Account not found. Please register a new account or login to your existing account to add the OpenID to it.'] = 'Nutzerkonto nicht gefunden. Bitte registriere ein neues Konto oder melde dich mit einem existierendem Konto an um diene OpenID hinzuzufügen.';
+$a->strings['Passwords do not match.'] = 'Die Passwörter stimmen nicht überein.';
+$a->strings['Password unchanged.'] = 'Passwort unverändert.';
+$a->strings['Password Too Long'] = 'Passwort ist zu lang';
+$a->strings['Update Password'] = 'Passwort aktualisieren';
+$a->strings['Current Password:'] = 'Aktuelles Passwort:';
+$a->strings['Your current password to confirm the changes'] = 'Dein aktuelles Passwort um die Änderungen zu bestätigen';
+$a->strings['Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'] = 'Erlaubte Zeichen sind a-z, A-Z, 0-9 und Sonderzeichen, abgesehen von Leerzeichen, Doppelpunkten (:) und akzentuierten Buchstaben.';
+$a->strings['Password length is limited to 72 characters.'] = 'Die Länge des Passworts ist auf 72 Zeichen begrenzt.';
 $a->strings['Remaining recovery codes: %d'] = 'Verbleibende Wiederherstellungscodes: %d';
 $a->strings['Invalid code, please retry.'] = 'Ungültiger Code, bitte erneut versuchen.';
 $a->strings['Two-factor recovery'] = 'Zwei-Faktor-Wiederherstellung';
@@ -2161,8 +2185,6 @@ $a->strings['<p>Open the two-factor authentication app on your device to get an 
 $a->strings['If you do not have access to your authentication code you can use a <a href="%s">two-factor recovery code</a>.'] = 'Wenn du keinen Zugriff auf deinen Authentifikationscode hast, kannst du einen <a href="%s">Zwei-Faktor Wiederherstellungsschlüssel</a> verwenden.';
 $a->strings['Please enter a code from your authentication app'] = 'Bitte gebe einen Code aus Ihrer Authentifizierungs-App ein';
 $a->strings['Verify code and complete login'] = 'Code überprüfen und Anmeldung abschließen';
-$a->strings['Passwords do not match.'] = 'Die Passwörter stimmen nicht überein.';
-$a->strings['Password unchanged.'] = 'Passwort unverändert.';
 $a->strings['Please use a shorter name.'] = 'Bitte verwende einen kürzeren Namen.';
 $a->strings['Name too short.'] = 'Der Name ist zu kurz.';
 $a->strings['Wrong Password.'] = 'Falsches Passwort';
@@ -2193,10 +2215,7 @@ $a->strings['Your profile will also be published in the global friendica directo
 $a->strings['Account Settings'] = 'Kontoeinstellungen';
 $a->strings['Your Identity Address is <strong>\'%s\'</strong> or \'%s\'.'] = 'Die Adresse deines Profils lautet <strong>\'%s\'</strong> oder \'%s\'.';
 $a->strings['Password Settings'] = 'Passwort-Einstellungen';
-$a->strings['Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'] = 'Erlaubte Zeichen sind a-z, A-Z, 0-9 und Sonderzeichen, abgesehen von Leerzeichen, Doppelpunkten (:) und akzentuierten Buchstaben.';
 $a->strings['Leave password fields blank unless changing'] = 'Lass die Passwort-Felder leer, außer du willst das Passwort ändern';
-$a->strings['Current Password:'] = 'Aktuelles Passwort:';
-$a->strings['Your current password to confirm the changes'] = 'Dein aktuelles Passwort um die Änderungen zu bestätigen';
 $a->strings['Password:'] = 'Passwort:';
 $a->strings['Your current password to confirm the changes of the email address'] = 'Dein aktuelles Passwort um die Änderungen deiner E-Mail Adresse zu bestätigen';
 $a->strings['Delete OpenID URL'] = 'OpenID URL löschen';
@@ -2658,7 +2677,6 @@ $a->strings['%s is now following %s.'] = '%s folgt nun %s';
 $a->strings['following'] = 'folgen';
 $a->strings['%s stopped following %s.'] = '%s hat aufgehört %s, zu folgen';
 $a->strings['stopped following'] = 'wird nicht mehr gefolgt';
-$a->strings['The folder view/smarty3/ must be writable by webserver.'] = 'Das Verzeichnis view/smarty3/ muss für den Web-Server beschreibbar sein.';
 $a->strings['Login failed.'] = 'Anmeldung fehlgeschlagen.';
 $a->strings['Login failed. Please check your credentials.'] = 'Anmeldung fehlgeschlagen. Bitte überprüfe deine Angaben.';
 $a->strings['Welcome %s'] = 'Willkommen %s';
