@@ -40,7 +40,7 @@ class Type
 	const SUGGEST = 32;
 	/** @var int Notification about being tagged in a post */
 	const TAG_SELF = 128;
-	/** @var int Notification about getting poked/prodded/etc. */
+	/** @var int Notification about getting poked/prodded/etc. (Obsolete) */
 	const POKE = 512;
 	/** @var int Notification about either a contact had posted something directly or the contact is a mentioned forum */
 	const SHARE = 1024;

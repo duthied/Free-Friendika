@@ -164,15 +164,6 @@ final class Activity
 	 */
 	const ANNOUNCE   = ActivityNamespace::ACTIVITY2 . 'Announce';
 
-	/**
-	 * Pokes an user.
-	 *
-	 * @see https://github.com/friendica/friendica/wiki/ActivityStreams#activity_poke
-	 * @var string
-	 */
-	const POKE       = ActivityNamespace::ZOT . '/activity/poke';
-
-
 	const O_UNFOLLOW    = ActivityNamespace::OSTATUS . '/unfollow';
 	const O_UNFAVOURITE = ActivityNamespace::OSTATUS . '/unfavorite';
 

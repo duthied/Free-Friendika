@@ -467,7 +467,7 @@ class Notifier
 			Hook::callAll('notifier_end', $target_item);
 
 			// Workaround for pure connector posts
-			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+			if ($cmd == Delivery::POST) {
 				if ($delivery_queue_count == 0) {
 					Post\DeliveryData::incrementQueueDone($target_item['uri-id']);
 					$delivery_queue_count = 1;

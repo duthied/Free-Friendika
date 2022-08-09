@@ -101,7 +101,6 @@
 				{{include file="field_intcheckbox.tpl" field=$notify5}}
 				{{include file="field_intcheckbox.tpl" field=$notify6}}
 				{{include file="field_intcheckbox.tpl" field=$notify7}}
-				{{include file="field_intcheckbox.tpl" field=$notify8}}
 			</div>
 
 			<div id="settings-notify-desc">{{$lbl_notify}}</div>

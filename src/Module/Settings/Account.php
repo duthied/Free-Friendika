@@ -617,7 +617,6 @@ class Account extends BaseSettings
 			'$notify5' => ['notify5', DI::l10n()->t('You receive a private message'), ($notify & Notification\Type::MAIL), Notification\Type::MAIL, ''],
 			'$notify6' => ['notify6', DI::l10n()->t('You receive a friend suggestion'), ($notify & Notification\Type::SUGGEST), Notification\Type::SUGGEST, ''],
 			'$notify7' => ['notify7', DI::l10n()->t('You are tagged in a post'), ($notify & Notification\Type::TAG_SELF), Notification\Type::TAG_SELF, ''],
-			'$notify8' => ['notify8', DI::l10n()->t('You are poked/prodded/etc. in a post'), ($notify & Notification\Type::POKE), Notification\Type::POKE, ''],
 
 			'$lbl_notify'                    => DI::l10n()->t('Create a desktop notification when:'),
 			'$notify_tagged'                 => ['notify_tagged', DI::l10n()->t('Someone tagged you'), is_null($notify_type) || $notify_type & UserNotification::TYPE_EXPLICIT_TAGGED, ''],

@@ -766,10 +766,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('home_init', $ret);
     Hook::callAll("home_content", $content);
 
-### mod/poke.php
-
-    Hook::callAll('post_local_end', $arr);
-
 ### mod/contacts.php
 
     Hook::callAll('contact_edit_post', $_POST);
@@ -966,10 +962,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 ### src/Core/Hook.php
 
     self::callSingle(self::getApp(), 'hook_fork', $fork_hook, $hookdata);
-
-### src/Core/L10n/L10n.php
-
-    Hook::callAll('poke_verbs', $arr);
 
 ### src/Core/Worker.php
 

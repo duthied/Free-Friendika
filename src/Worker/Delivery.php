@@ -45,7 +45,6 @@ class Delivery
 	const RELOCATION    = 'relocate';
 	const DELETION      = 'drop';
 	const POST          = 'wall-new';
-	const POKE          = 'poke';
 	const REMOVAL       = 'removeme';
 	const PROFILEUPDATE = 'profileupdate';
 
@@ -247,7 +246,7 @@ class Delivery
 	 */
 	private static function setFailedQueue(string $cmd, array $item)
 	{
-		if (!in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+		if ($cmd != Delivery::POST) {
 			return;
 		}
 
@@ -326,7 +325,7 @@ class Delivery
 			if ($public_dfrn) {
 				Logger::info('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
 
-				if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+				if ($cmd == Delivery::POST) {
 					if (($deliver_status >= 200) && ($deliver_status <= 299)) {
 						Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], $protocol);
 
@@ -356,7 +355,7 @@ class Delivery
 
 			Model\GServer::setProtocol($contact['gsid'] ?? 0, $protocol);
 
-			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+			if ($cmd == Delivery::POST) {
 				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], $protocol);
 			}
 		} else {
@@ -364,7 +363,7 @@ class Delivery
 			Model\Contact::markForArchival($contact);
 
 			Logger::info('Delivery failed: defer message', ['id' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
-			if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+			if (!Worker::defer() && $cmd == Delivery::POST) {
 				Model\Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
 			}
 		}
@@ -443,7 +442,7 @@ class Delivery
 
 			Model\GServer::setProtocol($contact['gsid'] ?? 0, Model\Post\DeliveryData::DIASPORA);
 
-			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+			if ($cmd == Delivery::POST) {
 				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::DIASPORA);
 			}
 		} else {
@@ -458,10 +457,10 @@ class Delivery
 			if (empty($contact['contact-type']) || ($contact['contact-type'] != Model\Contact::TYPE_RELAY)) {
 				Logger::info('Delivery failed: defer message', ['id' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
 				// defer message for redelivery
-				if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+				if (!Worker::defer() && $cmd == Delivery::POST) {
 					Model\Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
 				}
-			} elseif (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+			} elseif ($cmd == Delivery::POST) {
 				Model\Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
 			}
 		}
@@ -490,7 +489,7 @@ class Delivery
 			return;
 		}
 
-		if (!in_array($cmd, [self::POST, self::POKE])) {
+		if ($cmd != self::POST) {
 			return;
 		}
 

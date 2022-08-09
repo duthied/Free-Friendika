@@ -372,7 +372,6 @@ return [
 		'/{id:\d+}/conversations'     => [Module\Contact\Conversations::class, [R::GET]],
 		'/{id:\d+}/contacts[/{type}]' => [Module\Contact\Contacts::class,  [R::GET]],
 		'/{id:\d+}/media'             => [Module\Contact\Media::class,     [R::GET]],
-		'/{id:\d+}/poke'              => [Module\Contact\Poke::class,      [R::GET, R::POST]],
 		'/{id:\d+}/posts'             => [Module\Contact\Posts::class,     [R::GET]],
 		'/{id:\d+}/revoke'            => [Module\Contact\Revoke::class,    [R::GET, R::POST]],
 		'/archived'                   => [Module\Contact::class,           [R::GET]],
