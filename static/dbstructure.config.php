@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1478);
+	define('DB_UPDATE_VERSION', 1479);
 }
 
 return [
@@ -1734,10 +1734,10 @@ return [
 		],
 		"engine" => "MEMORY",
 	],
-	"processed-activity" => [
-		"comment" => "Id of processed activities",
+	"fetched-activity" => [
+		"comment" => "Id of fetched activities",
 		"fields" => [
-			"object-id" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "object id of the incoming activity"],
+			"object-id" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "object id of fetched activity"],
 			"received" => ["type" => "datetime", "comment" => "Receiving date"],
 		],
 		"indexes" => [
