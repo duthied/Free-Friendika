@@ -268,7 +268,7 @@ class Widget
 
 		$r = DBA::select('contact', ['network'], $condition, ['group_by' => ['network'], 'order' => ['network']]);
 
-		$nets = array();
+		$nets = [];
 		while ($rr = DBA::fetch($r)) {
 			$nets[] = ['ref' => $rr['network'], 'name' => ContactSelector::networkToName($rr['network'])];
 		}
@@ -334,7 +334,7 @@ class Widget
 			return '';
 		}
 
-		$terms = array();
+		$terms = [];
 		foreach (Post\Category::getArray($uid, Post\Category::CATEGORY) as $savedFolderName) {
 			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}

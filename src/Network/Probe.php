@@ -1738,7 +1738,7 @@ class Probe
 				// Resolve arbitrary relative path
 				// Lifted from https://www.php.net/manual/en/function.realpath.php#84012
 				$parts = array_filter(explode('/', $path), 'strlen');
-				$absolutes = array();
+				$absolutes = [];
 				foreach ($parts as $part) {
 					if ('.' == $part) continue;
 					if ('..' == $part) {
