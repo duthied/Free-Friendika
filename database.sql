@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1478
+-- DB_UPDATE_VERSION 1479
 -- ------------------------------------------
 
 
@@ -1726,13 +1726,13 @@ CREATE TABLE IF NOT EXISTS `arrived-activity` (
 ) ENGINE=MEMORY DEFAULT COLLATE utf8mb4_general_ci COMMENT='Id of arrived activities';
 
 --
--- TABLE processed-activity
+-- TABLE fetched-activity
 --
-CREATE TABLE IF NOT EXISTS `processed-activity` (
-	`object-id` varbinary(255) NOT NULL COMMENT 'object id of the incoming activity',
+CREATE TABLE IF NOT EXISTS `fetched-activity` (
+	`object-id` varbinary(255) NOT NULL COMMENT 'object id of fetched activity',
 	`received` datetime COMMENT 'Receiving date',
 	 PRIMARY KEY(`object-id`)
-) ENGINE=MEMORY DEFAULT COLLATE utf8mb4_general_ci COMMENT='Id of processed activities';
+) ENGINE=MEMORY DEFAULT COLLATE utf8mb4_general_ci COMMENT='Id of fetched activities';
 
 --
 -- TABLE worker-ipc

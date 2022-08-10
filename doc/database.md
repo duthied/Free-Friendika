@@ -26,6 +26,7 @@ Database Tables
 | [event](help/database/db_event) | Events |
 | [fcontact](help/database/db_fcontact) | Diaspora compatible contacts - used in the Diaspora implementation |
 | [fetch-entry](help/database/db_fetch-entry) |  |
+| [fetched-activity](help/database/db_fetched-activity) | Id of fetched activities |
 | [fsuggest](help/database/db_fsuggest) | friend suggestion stuff |
 | [group](help/database/db_group) | privacy groups, group info |
 | [group_member](help/database/db_group_member) | privacy groups, member info |
@@ -68,7 +69,6 @@ Database Tables
 | [post-user](help/database/db_post-user) | User specific post data |
 | [post-user-notification](help/database/db_post-user-notification) | User post notifications |
 | [process](help/database/db_process) | Currently running system processes |
-| [processed-activity](help/database/db_processed-activity) | Id of processed activities |
 | [profile](help/database/db_profile) | user profiles data |
 | [profile_field](help/database/db_profile_field) | Custom profile fields |
 | [push_subscriber](help/database/db_push_subscriber) | Used for OStatus: Contains feed subscribers |

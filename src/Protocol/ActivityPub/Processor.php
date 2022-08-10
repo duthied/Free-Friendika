@@ -69,20 +69,20 @@ class Processor
 	 */
 	private static function addActivityId(string $id)
 	{
-		DBA::delete('processed-activity', ["`received` < ?", DateTimeFormat::utc('now - 5 minutes')]);
-		DBA::insert('processed-activity', ['object-id' => $id, 'received' => DateTimeFormat::utcNow()]);
+		DBA::delete('fetched-activity', ["`received` < ?", DateTimeFormat::utc('now - 5 minutes')]);
+		DBA::insert('fetched-activity', ['object-id' => $id, 'received' => DateTimeFormat::utcNow()]);
 	}
 
 	/**
-	 * Checks if the given object id has just been processed
+	 * Checks if the given object id has just been fetched
 	 *
 	 * @param string $id
 	 *
 	 * @return boolean
 	 */
-	private static function isProcessed(string $id): bool
+	private static function isFetched(string $id): bool
 	{
-		return DBA::exists('processed-activity', ['object-id' => $id]);
+		return DBA::exists('fetched-activity', ['object-id' => $id]);
 	}
 
 	/**
@@ -303,13 +303,6 @@ class Processor
 	 */
 	public static function createItem(array $activity, bool $fetch_parents): array
 	{
-		if (self::isProcessed($activity['id']) && !Post::exists(['uri' => $activity['id']])) {
-			Logger::info('Id is already processed', ['id' => $activity['id']]);
-			return [];
-		}
-
-		self::addActivityId($activity['id']);
-
 		$item = [];
 		$item['verb'] = Activity::POST;
 		$item['thr-parent'] = $activity['reply-to-id'];
@@ -333,6 +326,7 @@ class Processor
 			if (!empty($conversation)) {
 				Logger::debug('Got conversation', ['conversation' => $item['conversation'], 'parent' => $conversation]);
 				$item['parent-uri'] = $conversation['uri'];
+				$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
 			}
 		} else {
 			$conversation = [];
@@ -350,7 +344,7 @@ class Processor
 		}
 
 		if ($fetch_parents && empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
-			$result = self::fetchParent($activity);
+			$result = self::fetchParent($activity, !empty($conversation));
 			if (!empty($result)) {
 				if (($item['thr-parent'] != $result) && Post::exists(['uri' => $result])) {
 					$item['thr-parent'] = $result;
@@ -457,6 +451,8 @@ class Processor
 			return [];
 		}
 
+		$item['thr-parent-id'] = ItemURI::getIdByURI($item['thr-parent']);
+
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
 			Logger::info('Message was not processed');
@@ -489,14 +485,26 @@ class Processor
 	 * Fetch and process parent posts for the given activity
 	 *
 	 * @param array $activity
+	 * @param bool  $in_background
 	 *
 	 * @return string
 	 */
-	private static function fetchParent(array $activity): string
+	private static function fetchParent(array $activity, bool $in_background = false): string
 	{
+		if (self::isFetched($activity['reply-to-id'])) {
+			Logger::info('Id is already fetched', ['id' => $activity['reply-to-id']]);
+			return '';
+		}
+
+		self::addActivityId($activity['reply-to-id']);
+
+		if (!DI::config()->get('system', 'fetch_by_worker')) {
+			$in_background = false;
+		}
+
 		$recursion_depth = $activity['recursion-depth'] ?? 0;
 
-		if ($recursion_depth < DI::config()->get('system', 'max_recursion_depth')) {
+		if (!$in_background && ($recursion_depth < DI::config()->get('system', 'max_recursion_depth'))) {
 			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 			$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 			if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
@@ -525,17 +533,19 @@ class Processor
 			}
 		} elseif (self::isActivityGone($activity['reply-to-id'])) {
 			Logger::notice('The activity is gone. We will not spawn a worker. The queue entry will be deleted', ['parent' => $activity['reply-to-id']]);
-			if (!empty($activity['entry-id'])) {
+			if ($in_background) {
+				// fetching in background is done for all activities where we have got the conversation
+				// There we only delete the single activity and not thr whole thread since we can store the
+				// other posts in the thread even with missing posts.
+				Queue::remove($activity);
+			} elseif (!empty($activity['entry-id'])) {
 				Queue::deleteById($activity['entry-id']);
 			}
 			return '';
-		} else {
+		} elseif (!$in_background) {
 			Logger::notice('Recursion level is too high.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
-		}
-
-		if (Queue::hasWorker($activity['worker-id'] ?? 0)) {
-			Logger::notice('There is already a worker task to fetch the post.', ['id' => $activity['id'], 'parent' => $activity['reply-to-id']]);
-			return '';
+		} elseif ($in_background) {
+			Logger::notice('Fetching is done in the background.', ['parent' => $activity['reply-to-id']]);
 		}
 
 		if (!Fetch::hasWorker($activity['reply-to-id'])) {
@@ -1056,6 +1066,10 @@ class Processor
 				Logger::info('Accepting post', ['uid' => $receiver, 'url' => $item['uri']]);
 			}
 
+			if (!self::hasParents($item, $receiver)) {
+				continue;
+			}
+
 			if (($item['gravity'] != GRAVITY_ACTIVITY) && ($activity['object_type'] == 'as:Event')) {
 				$event_id = self::createEvent($activity, $item);
 
@@ -1094,6 +1108,56 @@ class Processor
 				ActivityPub\Transmitter::sendFollowObject($item['uri'], $item['author-link']);
 			}
 		}
+	}
+
+	/**
+	 * Checks if there are parent posts for the given receiver.
+	 * If not, then the system will try to add them.
+	 *
+	 * @param array $item
+	 * @param integer $receiver
+	 * @return boolean
+	 */
+	private static function hasParents(array $item, int $receiver)
+	{
+		if (($receiver == 0) || ($item['gravity'] == GRAVITY_PARENT)) {
+			return true;
+		}
+
+		$fields = ['causer-id' => $item['causer-id'] ?? $item['author-id'], 'post-reason' => Item::PR_FETCHED];
+
+		$has_parents = false;
+
+		if (!empty($item['parent-uri-id'])) {
+			if (Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $receiver])) {
+				$has_parents = true;
+			} elseif (Post::exists(['uri-id' => $item['parent-uri'], 'uid' => 0])) {
+				$stored = Item::storeForUserByUriId($item['parent-uri-id'], $receiver, $fields);
+				$has_parents = (bool)$stored;
+				if ($stored) {
+					Logger::notice('Inserted missing parent post', ['stored' => $stored, 'uid' => $receiver, 'parent' => $item['parent-uri']]);
+				} else {
+					Logger::notice('Parent could not be added.', ['uid' => $receiver, 'uri' => $item['uri'], 'parent' => $item['parent-uri']]);
+					return false;
+				}
+			}
+		}
+
+		if (empty($item['parent-uri-id']) || ($item['thr-parent-id'] != $item['parent-uri-id'])) {
+			if (Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $receiver])) {
+				$has_parents = true;
+			} elseif (Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => 0])) {
+				$stored = Item::storeForUserByUriId($item['thr-parent-id'], $receiver, $fields);
+				$has_parents = $has_parents || (bool)$stored;
+				if ($stored) {
+					Logger::notice('Inserted missing thread parent post', ['stored' => $stored, 'uid' => $receiver, 'thread-parent' => $item['thr-parent']]);
+				} else {
+					Logger::notice('Thread parent could not be added.', ['uid' => $receiver, 'uri' => $item['uri'], 'thread-parent' => $item['thr-parent']]);
+				}
+			}
+		}
+
+		return $has_parents;
 	}
 
 	/**
