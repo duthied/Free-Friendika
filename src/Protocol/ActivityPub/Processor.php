@@ -535,17 +535,17 @@ class Processor
 			Logger::notice('The activity is gone. We will not spawn a worker. The queue entry will be deleted', ['parent' => $activity['reply-to-id']]);
 			if ($in_background) {
 				// fetching in background is done for all activities where we have got the conversation
-				// There we only delete the single activity and not thr whole thread since we can store the
+				// There we only delete the single activity and not the whole thread since we can store the
 				// other posts in the thread even with missing posts.
 				Queue::remove($activity);
 			} elseif (!empty($activity['entry-id'])) {
 				Queue::deleteById($activity['entry-id']);
 			}
 			return '';
-		} elseif (!$in_background) {
-			Logger::notice('Recursion level is too high.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 		} elseif ($in_background) {
 			Logger::notice('Fetching is done in the background.', ['parent' => $activity['reply-to-id']]);
+		} else {
+			Logger::notice('Recursion level is too high.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 		}
 
 		if (!Fetch::hasWorker($activity['reply-to-id'])) {
