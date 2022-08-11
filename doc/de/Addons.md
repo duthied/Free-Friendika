@@ -285,10 +285,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('home_init', $ret);
     Hook::callAll("home_content", $content);
 
-### mod/poke.php
-
-    Hook::callAll('post_local_end', $arr);
-
 ### mod/contacts.php
 
     Hook::callAll('contact_edit_post', $_POST);
@@ -460,10 +456,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 ### src/Core/Hook.php
 
     self::callSingle(self::getApp(), 'hook_fork', $fork_hook, $hookdata);
-
-### src/Core/L10n/L10n.php
-
-    Hook::callAll('poke_verbs', $arr);
 
 ### src/Core/Worker.php
 

@@ -103,8 +103,6 @@ class Delivery
 			$success = ActivityPub\Transmitter::sendContactSuggestion($uid, $inbox, $item_id);
 		} elseif ($cmd == WorkerDelivery::RELOCATION) {
 			// @todo Implementation pending
-		} elseif ($cmd == WorkerDelivery::POKE) {
-			// Implementation not planned
 		} elseif ($cmd == WorkerDelivery::REMOVAL) {
 			$success = ActivityPub\Transmitter::sendProfileDeletion($uid, $inbox);
 		} elseif ($cmd == WorkerDelivery::PROFILEUPDATE) {

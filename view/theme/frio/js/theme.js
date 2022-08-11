@@ -443,23 +443,6 @@ $(document).ready(function () {
 			});
 	});
 
-	$body.on("submit", ".modal-body #poke-wrapper", function (e) {
-		e.preventDefault();
-
-		let $form = $(this);
-		let $pokeSubmit = $form.find("button[type=submit]").button("loading");
-
-		$.post($form.attr("action"), $form.serialize(), "json")
-			.then(function (data) {
-				if (data.success) {
-					$("#modal").modal("hide");
-				}
-			})
-			.always(function () {
-				$pokeSubmit.button("reset");
-			});
-	});
-
 	if (!navigator.canShare || !navigator.canShare()) {
 		$('.button-browser-share').hide();
 	}

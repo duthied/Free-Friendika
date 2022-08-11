@@ -1085,11 +1085,7 @@ class Item
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
 
-		if (stristr($item['verb'], Activity::POKE)) {
-			$notify_type = Delivery::POKE;
-		} else {
-			$notify_type = Delivery::POST;
-		}
+		$notify_type = Delivery::POST;
 
 		// Filling item related side tables
 		if (!empty($item['attach'])) {

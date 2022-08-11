@@ -1578,61 +1578,6 @@ class DFRN
 	}
 
 	/**
-	 * Send a "poke"
-	 *
-	 * @param array $item      The new item record
-	 * @param array $importer  Record of the importer user mixed with contact of the content
-	 * @return void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @todo  set proper type-hints (array?)
-	 */
-	private static function doPoke(array $item, array $importer)
-	{
-		$verb = urldecode(substr($item['verb'], strpos($item['verb'], '#')+1));
-		if (!$verb) {
-			return;
-		}
-		$xo = XML::parseString($item['object']);
-
-		if (($xo->type == Activity\ObjectType::PERSON) && ($xo->id)) {
-			// somebody was poked/prodded. Was it me?
-			$Blink = '';
-			foreach ($xo->link as $l) {
-				$atts = $l->attributes();
-				switch ($atts['rel']) {
-					case 'alternate':
-						$Blink = $atts['href'];
-						break;
-
-					default:
-						break;
-				}
-			}
-
-			if ($Blink && Strings::compareLink($Blink, DI::baseUrl() . '/profile/' . $importer['nickname'])) {
-				$author = DBA::selectFirst('contact', ['id', 'name', 'thumb', 'url'], ['id' => $item['author-id']]);
-
-				$parent = Post::selectFirst(['id'], ['uri' => $item['thr-parent'], 'uid' => $importer['importer_uid']]);
-				$item['parent'] = $parent['id'];
-
-				// send a notification
-				DI::notify()->createFromArray(
-					[
-					'type'     => Notification\Type::POKE,
-					'otype'    => Notification\ObjectType::PERSON,
-					'activity' => $verb,
-					'verb'     => $item['verb'],
-					'uid'      => $importer['importer_uid'],
-					'cid'      => $author['id'],
-					'item'     => $item,
-					'link'     => DI::baseUrl() . '/display/' . urlencode($item['guid']),
-					]
-				);
-			}
-		}
-	}
-
-	/**
 	 * Processes several actions, depending on the verb
 	 *
 	 * @param int   $entrytype Is it a toplevel entry, a comment or a relayed comment?
@@ -2154,11 +2099,6 @@ class DFRN
 
 			if ($item['uid'] == 0) {
 				Item::distribute($posted_id);
-			}
-
-			if (stristr($item['verb'], Activity::POKE)) {
-				$item['id'] = $posted_id;
-				self::doPoke($item, $importer);
 			}
 		}
 	}

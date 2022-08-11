@@ -430,32 +430,6 @@ class L10n
 	}
 
 	/**
-	 * Load poke verbs
-	 *
-	 * @return array index is present tense verb
-	 *                 value is array containing past tense verb, translation of present, translation of past
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @hook poke_verbs pokes array
-	 */
-	public function getPokeVerbs(): array
-	{
-		// index is present tense verb
-		// value is array containing past tense verb, translation of present, translation of past
-		$arr = [
-			'poke'   => ['poked', $this->t('poke'), $this->t('poked')],
-			'ping'   => ['pinged', $this->t('ping'), $this->t('pinged')],
-			'prod'   => ['prodded', $this->t('prod'), $this->t('prodded')],
-			'slap'   => ['slapped', $this->t('slap'), $this->t('slapped')],
-			'finger' => ['fingered', $this->t('finger'), $this->t('fingered')],
-			'rebuff' => ['rebuffed', $this->t('rebuff'), $this->t('rebuffed')],
-		];
-
-		Hook::callAll('poke_verbs', $arr);
-
-		return $arr;
-	}
-
-	/**
 	 * Creates a new L10n instance based on the given langauge
 	 *
 	 * @param string $lang The new language

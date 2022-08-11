@@ -256,63 +256,6 @@ class Item
 		if (!empty($item['verb'])) {
 			$xmlhead = '<?xml version="1.0" encoding="UTF-8" ?>';
 
-			if (stristr($item['verb'], Activity::POKE)) {
-				$verb = urldecode(substr($item['verb'], strpos($item['verb'],'#') + 1));
-				if (!$verb) {
-					$this->profiler->stopRecording();
-					return;
-				}
-				if ($item['object-type'] == '' || $item['object-type'] !== Activity\ObjectType::PERSON) {
-					$this->profiler->stopRecording();
-					return;
-				}
-
-				$obj = XML::parseString($xmlhead . $item['object']);
-
-				$Bname = $obj->title;
-				$Blink = $obj->id;
-				$Bphoto = '';
-
-				foreach ($obj->link as $l) {
-					$atts = $l->attributes();
-					switch ($atts['rel']) {
-						case 'alternate': $Blink = $atts['href'];
-						case 'photo': $Bphoto = $atts['href'];
-					}
-				}
-
-				$author = [
-					'uid' => 0,
-					'id' => $item['author-id'],
-					'network' => $item['author-network'],
-					'url' => $item['author-link'],
-				];
-				$A = '[url=' . Contact::magicLinkByContact($author) . ']' . $item['author-name'] . '[/url]';
-
-				if (!empty($Blink)) {
-					$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
-				} else {
-					$B = '';
-				}
-
-				if ($Bphoto != '' && !empty($Blink)) {
-					$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
-				}
-
-				/*
-				* we can't have a translation string with three positions but no distinguishable text
-				* So here is the translate string.
-				*/
-				$txt = $this->l10n->t('%1$s poked %2$s');
-
-				// now translate the verb
-				$poked_t = trim(sprintf($txt, '', ''));
-				$txt = str_replace($poked_t, $this->l10n->t($verb), $txt);
-
-				// then do the sprintf on the translation string
-				$item['body'] = sprintf($txt, $A, $B) . "\n\n\n" . $Bphoto;
-			}
-
 			if ($this->activity->match($item['verb'], Activity::TAG)) {
 				$fields = ['author-id', 'author-link', 'author-name', 'author-network',
 					'verb', 'object-type', 'resource-id', 'body', 'plink'];
@@ -382,7 +325,7 @@ class Item
 	public function photoMenu(array $item, string $formSecurityToken): string
 	{
 		$this->profiler->startRecording('rendering');
-		$sub_link = $poke_link = $contact_url = $pm_url = $status_link = '';
+		$sub_link = $contact_url = $pm_url = $status_link = '';
 		$photos_link = $posts_link = $block_link = $ignore_link = '';
 
 		if (local_user() && local_user() == $item['uid'] && $item['gravity'] == GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
@@ -425,7 +368,6 @@ class Item
 
 		if ($cid && !$item['self']) {
 			$contact_url = 'contact/' . $cid;
-			$poke_link   = $contact_url . '/poke';
 			$posts_link  = $contact_url . '/posts';
 
 			if (in_array($network, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
@@ -448,10 +390,6 @@ class Item
 
 			if (!empty($item['language'])) {
 				$menu[$this->l10n->t('Languages')] = 'javascript:alert(\'' . ModelItem::getLanguageMessage($item) . '\');';
-			}
-
-			if ($network == Protocol::DFRN) {
-				$menu[$this->l10n->t('Poke')] = $poke_link;
 			}
 
 			if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&

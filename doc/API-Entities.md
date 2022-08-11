@@ -765,7 +765,7 @@ Identical to [the Twitter Media Object](https://developer.twitter.com/en/docs/tw
 <li>64: Unused</li>
 <li>128: Mention</li>
 <li>256: Tag added to a post</li>
-<li>512: Poke</li>
+<li>512: Poke (Obsolete)</li>
 <li>1024: New post</li>
 <li>16384: System email</li>
 <li>32768: System event</li>

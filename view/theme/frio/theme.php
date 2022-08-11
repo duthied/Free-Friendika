@@ -1,10 +1,26 @@
 <?php
-/*
+/**
+ * @copyright Copyright (C) 2010-2022, the Friendica project
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  * Name: frio
  * Description: Bootstrap V3 theme. The theme is currently under construction, so it is far from finished. For further information have a look at the <a href="https://github.com/friendica/friendica/tree/develop/view/theme/frio/README.md">ReadMe</a>.
  * Version: V.0.8.5
  * Author: Rabuzarus <https://friendica.kommune4.de/profile/rabuzarus>
- *
  */
 
 use Friendica\App;
@@ -105,7 +121,7 @@ function frio_item_photo_links(App $a, &$body_info)
 /**
  * Replace links of the item_photo_menu hook
  *
- *  This function replaces the original poke and the message links
+ *  This function replaces the original message links
  *  to call the addToModal javascript function so this pages can
  *  be loaded in a bootstrap modal
  *
@@ -115,7 +131,7 @@ function frio_item_photo_links(App $a, &$body_info)
 function frio_item_photo_menu(App $a, &$arr)
 {
 	foreach ($arr['menu'] as $k => $v) {
-		if (strpos($v, '/poke') === 0 || strpos($v, 'message/new/') === 0) {
+		if (strpos($v, 'message/new/') === 0) {
 			$v = 'javascript:addToModal(\'' . $v . '\'); return false;';
 			$arr['menu'][$k] = $v;
 		}
@@ -125,7 +141,7 @@ function frio_item_photo_menu(App $a, &$arr)
 /**
  * Replace links of the contact_photo_menu
  *
- *  This function replaces the original poke and the message links
+ *  This function replaces the original message link
  *  to call the addToModal javascript function so this pages can
  *  be loaded in a bootstrap modal
  *  Additionally the profile, status and photo page links  will be changed
@@ -138,13 +154,7 @@ function frio_contact_photo_menu(App $a, &$args)
 {
 	$cid = $args['contact']['id'];
 
-	if (!empty($args['menu']['poke'])) {
-		$pokelink = $args['menu']['poke'][1];
-	} else {
-		$pokelink = '';
-	}
-
-	if (!empty($args['menu']['poke'])) {
+	if (!empty($args['menu']['pm'])) {
 		$pmlink = $args['menu']['pm'][1];
 	} else {
 		$pmlink = '';
@@ -166,13 +176,9 @@ function frio_contact_photo_menu(App $a, &$args)
 		}
 	}
 
-	// Add to pm and poke links a new key with the value 'modal'.
-	// Later we can make conditions in the corresponing templates (e.g.
+	// Add to pm link a new key with the value 'modal'.
+	// Later we can make conditions in the corresponding templates (e.g.
 	// contact_template.tpl)
-	if (strpos($pokelink, $cid . '/poke') !== false) {
-		$args['menu']['poke'][3] = 'modal';
-	}
-
 	if (strpos($pmlink, 'message/new/' . $cid) !== false) {
 		$args['menu']['pm'][3] = 'modal';
 	}

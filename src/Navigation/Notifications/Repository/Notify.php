@@ -358,25 +358,6 @@ class Notify extends BaseRepository
 				$itemlink =  $params['link'];
 				break;
 
-			case Model\Notification\Type::POKE:
-				$subject = $l10n->t('%1$s %2$s poked you', $subjectPrefix, $params['source_name']);
-
-				$preamble = $l10n->t('%1$s poked you at %2$s', $params['source_name'], $sitename);
-				$epreamble = $l10n->t('%1$s [url=%2$s]poked you[/url].',
-					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
-					$params['link']
-				);
-
-				$subject = str_replace('poked', $l10n->t($params['activity']), $subject);
-				$preamble = str_replace('poked', $l10n->t($params['activity']), $preamble);
-				$epreamble = str_replace('poked', $l10n->t($params['activity']), $epreamble);
-
-				$sitelink = $l10n->t('Please visit %s to view and/or reply to the conversation.');
-				$tsitelink = sprintf($sitelink, $siteurl);
-				$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
-				$itemlink =  $params['link'];
-				break;
-
 			case Model\Notification\Type::INTRO:
 				$itemlink = $params['link'];
 				$subject = $l10n->t('%s Introduction received', $subjectPrefix);

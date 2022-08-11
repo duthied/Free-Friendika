@@ -1041,7 +1041,6 @@ class Contact
 		$pm_url = '';
 		$status_link = '';
 		$photos_link = '';
-		$poke_link = '';
 
 		if ($uid == 0) {
 			$uid = local_user();
@@ -1084,10 +1083,6 @@ class Contact
 			$pm_url = DI::baseUrl() . '/message/new/' . $contact['id'];
 		}
 
-		if (($contact['network'] == Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
-			$poke_link = 'contact/' . $contact['id'] . '/poke';
-		}
-
 		$contact_url = DI::baseUrl() . '/contact/' . $contact['id'];
 
 		$posts_link = DI::baseUrl() . '/contact/' . $contact['id'] . '/conversations';
@@ -1122,7 +1117,6 @@ class Contact
 				'network' => [DI::l10n()->t('Network Posts') , $posts_link       , false],
 				'edit'    => [DI::l10n()->t('View Contact')  , $contact_url      , false],
 				'pm'      => [DI::l10n()->t('Send PM')       , $pm_url           , false],
-				'poke'    => [DI::l10n()->t('Poke')          , $poke_link        , false],
 				'follow'  => [DI::l10n()->t('Connect/Follow'), $follow_link      , true],
 				'unfollow'=> [DI::l10n()->t('UnFollow')      , $unfollow_link    , true],
 			];
