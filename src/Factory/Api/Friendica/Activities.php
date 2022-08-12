@@ -42,11 +42,16 @@ class Activities extends BaseFactory
 	}
 
 	/**
+	 * Creates activities array from URI id, user id
+	 *
 	 * @param int $uriId Uri-ID of the item
-	 * @return Array
+	 * @param int $uid User id
+	 * @param string $type Type of returned activities, can be 'json' or 'xml', default: json
+	 *
+	 * @return array Array of found activities
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function createFromUriId(int $uriId, int $uid, $type = 'json'): array
+	public function createFromUriId(int $uriId, int $uid, string $type = 'json'): array
 	{
 		$activities = [
 			'like'        => [],
@@ -68,22 +73,29 @@ class Activities extends BaseFactory
 				case Activity::LIKE:
 					$activities['like'][] = $user;
 					break;
+
 				case Activity::DISLIKE:
 					$activities['dislike'][] = $user;
 					break;
+
 				case Activity::ATTEND:
 					$activities['attendyes'][] = $user;
 					break;
+
 				case Activity::ATTENDNO:
 					$activities['attendno'][] = $user;
 					break;
+
 				case Activity::ATTENDMAYBE:
 					$activities['attendmaybe'][] = $user;
 					break;
+
 				case Activity::ANNOUNCE:
 					$activities['announce'][] = $user;
 					break;
+
 				default:
+					$this->logger->warning('Unsupported verb in parent item:', ['parent_item' => $parent_item]);
 					break;
 			}
 		}
@@ -94,7 +106,7 @@ class Activities extends BaseFactory
 			$xml_activities = [];
 			foreach ($activities as $k => $v) {
 				// change xml element from "like" to "friendica:like"
-				$xml_activities["friendica:".$k] = $v;
+				$xml_activities['friendica:' . $k] = $v;
 				// add user data into xml output
 				$k_user = 0;
 				foreach ($v as $user) {
