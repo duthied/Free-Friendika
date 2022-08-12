@@ -102,9 +102,9 @@ class Xrd extends BaseModule
 		}
 
 		if ($mode == Response::TYPE_XML) {
-			self::printXML($alias, DI::baseUrl()->get(), $user, $owner, $avatar);
+			self::printXML($alias, $user, $owner, $avatar);
 		} else {
-			self::printJSON($alias, DI::baseUrl()->get(), $owner, $avatar);
+			self::printJSON($alias, $owner, $avatar);
 		}
 	}
 
@@ -153,8 +153,9 @@ class Xrd extends BaseModule
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
-	private static function printJSON($alias, $baseURL, $owner, $avatar)
+	private static function printJSON(string $alias, array $owner, array $avatar)
 	{
+		$baseURL = DI::baseUrl()->get();
 		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
 		$json = [
@@ -234,8 +235,9 @@ class Xrd extends BaseModule
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
-	private static function printXML($alias, $baseURL, $user, $owner, $avatar)
+	private static function printXML(string $alias, array $user, array $owner, array $avatar)
 	{
+		$baseURL = DI::baseUrl()->get();
 		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
 		$tpl = Renderer::getMarkupTemplate('xrd_person.tpl');

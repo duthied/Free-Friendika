@@ -95,7 +95,7 @@ abstract class ContactEndpoint extends BaseApi
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	protected static function list(array $ids, int $total_count, int $uid, int $cursor = -1, int $count = self::DEFAULT_COUNT, bool $skip_status = false, bool $include_user_entities = true)
+	protected static function list(array $ids, int $total_count, int $uid, int $cursor = -1, int $count = self::DEFAULT_COUNT, bool $skip_status = false, bool $include_user_entities = true): array
 	{
 		$return = self::ids($ids, $total_count, $cursor, $count, false);
 
@@ -128,7 +128,7 @@ abstract class ContactEndpoint extends BaseApi
 	 * @return array
 	 * @throws HTTPException\NotFoundException
 	 */
-	protected static function ids(array $ids, int $total_count, int $cursor = -1, int $count = self::DEFAULT_COUNT, bool $stringify_ids = false)
+	protected static function ids(array $ids, int $total_count, int $cursor = -1, int $count = self::DEFAULT_COUNT, bool $stringify_ids = false): array
 	{
 		$next_cursor = 0;
 		$previous_cursor = 0;

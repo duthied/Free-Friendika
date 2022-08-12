@@ -128,7 +128,7 @@ class Diaspora
 			return false;
 		}
 
-		$children = $basedom->children('http://salmon-protocol.org/ns/magic-env');
+		$children = $basedom->children(ActivityNamespace::SALMON_ME);
 
 		if (sizeof($children) == 0) {
 			Logger::notice('XML has no children');
@@ -2969,7 +2969,7 @@ class Diaspora
 			]
 		];
 
-		$namespaces = ['me' => 'http://salmon-protocol.org/ns/magic-env'];
+		$namespaces = ['me' => ActivityNamespace::SALMON_ME];
 
 		return XML::fromArray($xmldata, $xml, false, $namespaces);
 	}

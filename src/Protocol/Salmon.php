@@ -145,14 +145,18 @@ class Salmon
 		$signature3  = Strings::base64UrlEncode(Crypto::rsaSign($data, $owner['sprvkey']));
 
 		// At first try the non compliant method that works for GNU Social
-		$xmldata = ["me:env" => ["me:data" => $data,
-				"@attributes" => ["type" => $data_type],
-				"me:encoding" => $encoding,
-				"me:alg" => $algorithm,
-				"me:sig" => $signature,
-				"@attributes2" => ["key_id" => $keyhash]]];
+		$xmldata = [
+			'me:env' => [
+				'me:data' => $data,
+				'@attributes' => ['type' => $data_type],
+				'me:encoding' => $encoding,
+				'me:alg' => $algorithm,
+				'me:sig' => $signature,
+				'@attributes2' => ['key_id' => $keyhash],
+			]
+		];
 
-		$namespaces = ["me" => "http://salmon-protocol.org/ns/magic-env"];
+		$namespaces = ['me' => ActivityNamespace::SALMON_ME];
 
 		$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
@@ -170,14 +174,18 @@ class Salmon
 			Logger::notice('GNU Social salmon failed. Falling back to compliant mode');
 
 			// Now try the compliant mode that normally isn't used for GNU Social
-			$xmldata = ["me:env" => ["me:data" => $data,
-					"@attributes" => ["type" => $data_type],
-					"me:encoding" => $encoding,
-					"me:alg" => $algorithm,
-					"me:sig" => $signature2,
-					"@attributes2" => ["key_id" => $keyhash]]];
+			$xmldata = [
+				'me:env' => [
+					'me:data' => $data,
+					'@attributes' => ['type' => $data_type],
+					'me:encoding' => $encoding,
+					'me:alg' => $algorithm,
+					'me:sig' => $signature2,
+					'@attributes2' => ['key_id' => $keyhash]
+				]
+			];
 
-			$namespaces = ["me" => "http://salmon-protocol.org/ns/magic-env"];
+			$namespaces = ['me' => ActivityNamespace::SALMON_ME];
 
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
@@ -193,14 +201,18 @@ class Salmon
 			Logger::notice('compliant salmon failed. Falling back to old status.net');
 
 			// Last try. This will most likely fail as well.
-			$xmldata = ["me:env" => ["me:data" => $data,
-					"@attributes" => ["type" => $data_type],
-					"me:encoding" => $encoding,
-					"me:alg" => $algorithm,
-					"me:sig" => $signature3,
-					"@attributes2" => ["key_id" => $keyhash]]];
+			$xmldata = [
+				'me:env' => [
+					'me:data' => $data,
+					'@attributes' => ['type' => $data_type],
+					'me:encoding' => $encoding,
+					'me:alg' => $algorithm,
+					'me:sig' => $signature3,
+					'@attributes2' => ['key_id' => $keyhash],
+				]
+			];
 
-			$namespaces = ["me" => "http://salmon-protocol.org/ns/magic-env"];
+			$namespaces = ['me' => ActivityNamespace::SALMON_ME];
 
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 

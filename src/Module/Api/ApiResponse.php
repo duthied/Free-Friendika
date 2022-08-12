@@ -109,7 +109,7 @@ class ApiResponse extends Response
 	 * @param int   $cid Contact ID of template
 	 * @return array
 	 */
-	private function addRSSValues(array $arr, int $cid)
+	private function addRSSValues(array $arr, int $cid): array
 	{
 		if (empty($cid)) {
 			return $arr;
@@ -244,6 +244,8 @@ class ApiResponse extends Response
 	 * Wrapper around exit() for JSON only responses
 	 *
 	 * @param array $data
+	 *
+	 * @return void
 	 */
 	public function exitWithJson(array $data)
 	{
