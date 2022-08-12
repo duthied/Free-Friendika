@@ -41,6 +41,7 @@ class Tag extends BaseFactory
 
 	/**
 	 * @param int $uriId Uri-ID of the item
+	 *
 	 * @return array
 	 * @throws HTTPException\InternalServerErrorException
 	 */

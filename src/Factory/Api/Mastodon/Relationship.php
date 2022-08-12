@@ -31,6 +31,7 @@ class Relationship extends BaseFactory
 	/**
 	 * @param int $contactId Contact ID (public or user contact)
 	 * @param int $uid User ID
+	 *
 	 * @return RelationshipEntity
 	 * @throws Exception
 	 */

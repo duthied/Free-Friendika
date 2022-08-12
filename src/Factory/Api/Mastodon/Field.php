@@ -43,6 +43,7 @@ class Field extends BaseFactory
 
 	/**
 	 * @param ProfileFields $profileFields
+	 *
 	 * @return Fields
 	 * @throws HTTPException\InternalServerErrorException
 	 */

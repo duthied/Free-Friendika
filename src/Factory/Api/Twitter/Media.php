@@ -41,6 +41,8 @@ class Media extends BaseFactory
 
 	/**
 	 * @param int $uriId Uri-ID of the attachments
+	 * @param string $text
+	 *
 	 * @return array
 	 * @throws HTTPException\InternalServerErrorException
 	 */

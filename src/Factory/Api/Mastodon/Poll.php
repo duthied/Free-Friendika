@@ -31,8 +31,11 @@ class Poll extends BaseFactory
 	/**
 	 * @param int $id  Id the question
 	 * @param int $uid Item user
+	 *
+	 * @return \Friendica\Object\Api\Mastodon\Poll
+	 * @throws HTTPException\NotFoundException
 	 */
-	public function createFromId(int $id, $uid = 0): \Friendica\Object\Api\Mastodon\Poll
+	public function createFromId(int $id, int $uid = 0): \Friendica\Object\Api\Mastodon\Poll
 	{
 		$question = Post\Question::getById($id);
 		if (empty($question)) {
