@@ -43,6 +43,7 @@ class Download extends \Friendica\BaseModule
 
 	/**
 	 * @param array $request
+	 *
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -52,7 +53,7 @@ class Download extends \Friendica\BaseModule
 
 		$etag = 'W/"' . $hash . '"';
 		if (trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '') == $etag) {
-			header("HTTP/1.1 304 Not Modified");
+			header('HTTP/1.1 304 Not Modified');
 			System::exit();
 		}
 
