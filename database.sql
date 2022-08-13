@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1479
+-- DB_UPDATE_VERSION 1480
 -- ------------------------------------------
 
 
@@ -141,12 +141,14 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`poll` varchar(255) COMMENT '',
 	`subscribe` varchar(255) COMMENT '',
 	`last-update` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last try to update the contact info',
+	`next-update` datetime COMMENT 'Next connection request',
 	`success_update` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last successful contact update',
 	`failure_update` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last failed update',
 	`failed` boolean COMMENT 'Connection failed',
 	`term-date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last-item` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'date of the last post',
 	`last-discovery` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'date of the last follower discovery',
+	`local-data` boolean COMMENT 'Is true when there are posts with this contact on the system',
 	`blocked` boolean NOT NULL DEFAULT '1' COMMENT 'Node-wide block status',
 	`block_reason` text COMMENT 'Node-wide block reason',
 	`readonly` boolean NOT NULL DEFAULT '0' COMMENT 'posts of the contact are readonly',
@@ -213,6 +215,8 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `attag_uid` (`attag`(96),`uid`),
 	 INDEX `network_uid_lastupdate` (`network`,`uid`,`last-update`),
 	 INDEX `uid_network_self_lastupdate` (`uid`,`network`,`self`,`last-update`),
+	 INDEX `next-update` (`next-update`),
+	 INDEX `local-data-next-update` (`local-data`,`next-update`),
 	 INDEX `uid_lastitem` (`uid`,`last-item`),
 	 INDEX `baseurl` (`baseurl`(64)),
 	 INDEX `uid_contact-type` (`uid`,`contact-type`),

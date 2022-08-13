@@ -1948,15 +1948,15 @@ class Item
 			} else {
 				$condition = ['id' => $arr['contact-id'], 'self' => false];
 			}
-			Contact::update(['failed' => false, 'success_update' => $arr['received'], 'last-item' => $arr['received']], $condition);
+			Contact::update(['failed' => false, 'local-data' => true, 'success_update' => $arr['received'], 'last-item' => $arr['received']], $condition);
 		}
 		// Now do the same for the system wide contacts with uid=0
 		if ($arr['private'] != self::PRIVATE) {
-			Contact::update(['failed' => false, 'success_update' => $arr['received'], 'last-item' => $arr['received']],
+			Contact::update(['failed' => false, 'local-data' => true, 'success_update' => $arr['received'], 'last-item' => $arr['received']],
 				['id' => $arr['owner-id']]);
 
 			if ($arr['owner-id'] != $arr['author-id']) {
-				Contact::update(['failed' => false, 'success_update' => $arr['received'], 'last-item' => $arr['received']],
+				Contact::update(['failed' => false, 'local-data' => true, 'success_update' => $arr['received'], 'last-item' => $arr['received']],
 					['id' => $arr['author-id']]);
 			}
 		}

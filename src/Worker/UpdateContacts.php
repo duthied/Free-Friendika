@@ -35,8 +35,6 @@ class UpdateContacts
 {
 	public static function execute()
 	{
-		$base_condition = ['network' => array_merge(Protocol::FEDERATED, [Protocol::ZOT, Protocol::PHANTOM]), 'self' => false];
-
 		$update_limit = DI::config()->get('system', 'contact_update_limit');
 		if (empty($update_limit)) {
 			return;
@@ -49,66 +47,24 @@ class UpdateContacts
 			return;
 		}
 
-		$condition = DBA::mergeConditions($base_condition,
-			["`uid` != ? AND (`last-update` < ? OR (NOT `failed` AND `last-update` < ?))",
-			0, DateTimeFormat::utc('now - 1 month'), DateTimeFormat::utc('now - 1 week')]);
-		$ids = self::getContactsToUpdate($condition, $limit, []);
-		Logger::info('Fetched federated user contacts', ['count' => count($ids)]);
+		Logger::info('Updating contact', ['count' => $limit]);
 
-		$conditions = ["`id` IN (SELECT `author-id` FROM `post`)",
-			"`id` IN (SELECT `owner-id` FROM `post`)",
-			"`id` IN (SELECT `causer-id` FROM `post` WHERE NOT `causer-id` IS NULL)",
-			"`id` IN (SELECT `cid` FROM `post-tag`)",
-			"`id` IN (SELECT `cid` FROM `user-contact`)"];
+		$condition = ['self' => false];
 
-		foreach ($conditions as $contact_condition) {
-			$condition = DBA::mergeConditions($base_condition,
-				[$contact_condition . " AND (`last-update` < ? OR (NOT `failed` AND `last-update` < ?))",
-				DateTimeFormat::utc('now - 1 month'), DateTimeFormat::utc('now - 1 week')]);
-			$ids = self::getContactsToUpdate($condition, $limit, $ids);
-			Logger::info('Fetched interacting federated contacts', ['count' => count($ids), 'condition' => $contact_condition]);
+		if (DI::config()->get('system', 'update_active_contacts')) {
+			$condition = array_merge(['local-data' => true], $condition);
 		}
 
-		if (count($ids) > $limit) {
-			$ids = array_slice($ids, 0, $limit, true);
-		}
-
-		if (!DI::config()->get('system', 'update_active_contacts')) {
-			// Add every contact (mostly failed ones) that hadn't been updated for six months
-			// and every non failed contact that hadn't been updated for a month
-			$condition = DBA::mergeConditions($base_condition,
-				["(`last-update` < ? OR (NOT `failed` AND `last-update` < ?))",
-					DateTimeFormat::utc('now - 6 month'), DateTimeFormat::utc('now - 1 month')]);
-			$previous = count($ids);
-			$ids = self::getContactsToUpdate($condition, $limit - $previous, $ids);
-			Logger::info('Fetched federated contacts', ['count' => count($ids) - $previous]);
-		}
-
+		$condition = array_merge(["`next-update` < ?", DateTimeFormat::utcNow()], $condition);
+		$contacts = DBA::select('contact', ['id'], $condition, ['order' => ['next-update'], 'limit' => $limit]);
 		$count = 0;
-		foreach ($ids as $id) {
-			if (Worker::add(PRIORITY_LOW, "UpdateContact", $id)) {
+		while ($contact = DBA::fetch($contacts)) {
+			if (Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], "UpdateContact", $contact['id'])) {
 				++$count;
 			}
 		}
+		DBA::close($contacts);
 
 		Logger::info('Initiated update for federated contacts', ['count' => $count]);
-	}
-
-	/**
-	 * Returns contact ids based on a given condition
-	 *
-	 * @param array $condition
-	 * @param int $limit
-	 * @param array $ids
-	 * @return array contact ids
-	 */
-	private static function getContactsToUpdate(array $condition, int $limit, array $ids = []): array
-	{
-		$contacts = DBA::select('contact', ['id'], $condition, ['limit' => $limit]);
-		while ($contact = DBA::fetch($contacts)) {
-			$ids[$contact['id']] = $contact['id'];
-		}
-		DBA::close($contacts);
-		return $ids;
 	}
 }

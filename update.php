@@ -42,6 +42,7 @@
 
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\Storage\Capability\ICanReadFromStorage;
 use Friendica\Core\Storage\Type\Database as DatabaseStorage;
 use Friendica\Core\Update;
@@ -1105,5 +1106,12 @@ function update_1457()
 	}
 	DBA::close($pinned);
 
+	return Update::SUCCESS;
+}
+
+function update_1480()
+{
+	DBA::update('contact', ['next-update' => DBA::NULL_DATETIME], ['network' => Protocol::FEDERATED]);
+	DBA::update('post', ['deleted' => false], ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE NOT `deleted`)"]);
 	return Update::SUCCESS;
 }

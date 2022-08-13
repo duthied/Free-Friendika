@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1479);
+	define('DB_UPDATE_VERSION', 1480);
 }
 
 return [
@@ -198,12 +198,14 @@ return [
 			"poll" => ["type" => "varchar(255)", "comment" => ""],
 			"subscribe" => ["type" => "varchar(255)", "comment" => ""],
 			"last-update" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last try to update the contact info"],
+			"next-update" => ["type" => "datetime", "comment" => "Next connection request"],
 			"success_update" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last successful contact update"],
 			"failure_update" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last failed update"],
 			"failed" => ["type" => "boolean", "comment" => "Connection failed"],
 			"term-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last-item" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "date of the last post"],
 			"last-discovery" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "date of the last follower discovery"],
+			"local-data" => ["type" => "boolean", "comment" => "Is true when there are posts with this contact on the system"],
 			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "Node-wide block status"],
 			"block_reason" => ["type" => "text", "comment" => "Node-wide block reason"],
 			"readonly" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "posts of the contact are readonly"],
@@ -275,6 +277,8 @@ return [
 			"attag_uid" => ["attag(96)", "uid"],
 			"network_uid_lastupdate" => ["network", "uid", "last-update"],
 			"uid_network_self_lastupdate" => ["uid", "network", "self", "last-update"],
+			"next-update" => ["next-update"],
+			"local-data-next-update" => ["local-data", "next-update"],
 			"uid_lastitem" => ["uid", "last-item"],
 			"baseurl" => ["baseurl(64)"],
 			"uid_contact-type" => ["uid", "contact-type"],

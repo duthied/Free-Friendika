@@ -34,12 +34,14 @@ Fields
 | poll                      |                                                                                                                | varchar(255)       | YES  |     | NULL                |                |
 | subscribe                 |                                                                                                                | varchar(255)       | YES  |     | NULL                |                |
 | last-update               | Date of the last try to update the contact info                                                                | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| next-update               | Next connection request                                                                                        | datetime           | YES  |     | NULL                |                |
 | success_update            | Date of the last successful contact update                                                                     | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 | failure_update            | Date of the last failed update                                                                                 | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 | failed                    | Connection failed                                                                                              | boolean            | YES  |     | NULL                |                |
 | term-date                 |                                                                                                                | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 | last-item                 | date of the last post                                                                                          | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 | last-discovery            | date of the last follower discovery                                                                            | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+| local-data                | Is true when there are posts with this contact on the system                                                   | boolean            | YES  |     | NULL                |                |
 | blocked                   | Node-wide block status                                                                                         | boolean            | NO   |     | 1                   |                |
 | block_reason              | Node-wide block reason                                                                                         | text               | YES  |     | NULL                |                |
 | readonly                  | posts of the contact are readonly                                                                              | boolean            | NO   |     | 0                   |                |
@@ -112,6 +114,8 @@ Indexes
 | attag_uid                   | attag(96), uid                       |
 | network_uid_lastupdate      | network, uid, last-update            |
 | uid_network_self_lastupdate | uid, network, self, last-update      |
+| next-update                 | next-update                          |
+| local-data-next-update      | local-data, next-update              |
 | uid_lastitem                | uid, last-item                       |
 | baseurl                     | baseurl(64)                          |
 | uid_contact-type            | uid, contact-type                    |
