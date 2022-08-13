@@ -290,7 +290,7 @@ class XML
 			return [];
 		}
 
-		xml_parser_set_option($parser, XML_OPTION_TARGET_ENCODING, "UTF-8");
+		xml_parser_set_option($parser, XML_OPTION_TARGET_ENCODING, 'UTF-8');
 		// http://minutillo.com/steve/weblog/2004/6/17/php-xml-and-character-encodings-a-tale-of-sadness-rage-and-data-loss
 		xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
 		xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
@@ -300,7 +300,7 @@ class XML
 		if (! $xml_values) {
 			Logger::debug('Xml::toArray: libxml: parse error: ' . $contents);
 			foreach (libxml_get_errors() as $err) {
-				Logger::debug('libxml: parse: ' . $err->code . " at " . $err->line . ":" . $err->column . " : " . $err->message);
+				Logger::debug('libxml: parse: ' . $err->code . ' at ' . $err->line . ':' . $err->column . ' : ' . $err->message);
 			}
 			libxml_clear_errors();
 			return [];
@@ -350,38 +350,38 @@ class XML
 			}
 			$tag = strtolower($tag);
 
-			if ($type == "open") {   // The starting of the tag '<tag>'
+			if ($type == 'open') {   // The starting of the tag '<tag>'
 				$parent[$level-1] = &$current;
 				if (!is_array($current) || (!in_array($tag, array_keys($current)))) { // Insert New tag
 					$current[$tag] = $result;
 					if ($attributes_data) {
 						$current[$tag. '_attr'] = $attributes_data;
 					}
-					$repeated_tag_index[$tag.'_'.$level] = 1;
+					$repeated_tag_index[$tag . '_' . $level] = 1;
 
 					$current = &$current[$tag];
 				} else { // There was another element with the same tag name
 
 					if (isset($current[$tag][0])) { // If there is a 0th element it is already an array
-						$current[$tag][$repeated_tag_index[$tag.'_'.$level]] = $result;
-						$repeated_tag_index[$tag.'_'.$level]++;
+						$current[$tag][$repeated_tag_index[$tag . '_' . $level]] = $result;
+						$repeated_tag_index[$tag . '_' . $level]++;
 					} else { // This section will make the value an array if multiple tags with the same name appear together
 						$current[$tag] = [$current[$tag], $result]; // This will combine the existing item and the new item together to make an array
-						$repeated_tag_index[$tag.'_'.$level] = 2;
+						$repeated_tag_index[$tag . '_' . $level] = 2;
 
 						if (isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
 							$current[$tag]['0_attr'] = $current[$tag.'_attr'];
 							unset($current[$tag.'_attr']);
 						}
 					}
-					$last_item_index = $repeated_tag_index[$tag.'_'.$level]-1;
+					$last_item_index = $repeated_tag_index[$tag . '_' . $level]-1;
 					$current = &$current[$tag][$last_item_index];
 				}
-			} elseif ($type == "complete") { // Tags that ends in 1 line '<tag />'
+			} elseif ($type == 'complete') { // Tags that ends in 1 line '<tag />'
 				//See if the key is already taken.
 				if (!isset($current[$tag])) { //New Key
 					$current[$tag] = $result;
-					$repeated_tag_index[$tag.'_'.$level] = 1;
+					$repeated_tag_index[$tag . '_' . $level] = 1;
 					if ($priority == 'tag' and $attributes_data) {
 						$current[$tag. '_attr'] = $attributes_data;
 					}
@@ -389,15 +389,15 @@ class XML
 					if (isset($current[$tag][0]) and is_array($current[$tag])) { // If it is already an array...
 
 						// ...push the new element into that array.
-						$current[$tag][$repeated_tag_index[$tag.'_'.$level]] = $result;
+						$current[$tag][$repeated_tag_index[$tag . '_' . $level]] = $result;
 
 						if ($priority == 'tag' and $get_attributes and $attributes_data) {
-							$current[$tag][$repeated_tag_index[$tag.'_'.$level] . '_attr'] = $attributes_data;
+							$current[$tag][$repeated_tag_index[$tag . '_' . $level] . '_attr'] = $attributes_data;
 						}
-						$repeated_tag_index[$tag.'_'.$level]++;
+						$repeated_tag_index[$tag . '_' . $level]++;
 					} else { // If it is not an array...
 						$current[$tag] = [$current[$tag], $result]; //...Make it an array using using the existing value and the new value
-						$repeated_tag_index[$tag.'_'.$level] = 1;
+						$repeated_tag_index[$tag . '_' . $level] = 1;
 						if ($priority == 'tag' and $get_attributes) {
 							if (isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
 
@@ -406,10 +406,10 @@ class XML
 							}
 
 							if ($attributes_data) {
-								$current[$tag][$repeated_tag_index[$tag.'_'.$level] . '_attr'] = $attributes_data;
+								$current[$tag][$repeated_tag_index[$tag . '_' . $level] . '_attr'] = $attributes_data;
 							}
 						}
-						$repeated_tag_index[$tag.'_'.$level]++; // 0 and 1 indexes are already taken
+						$repeated_tag_index[$tag . '_' . $level]++; // 0 and 1 indexes are already taken
 					}
 				}
 			} elseif ($type == 'close') { // End of tag '</tag>'
@@ -452,7 +452,7 @@ class XML
 			if (!$suppress_log) {
 				Logger::error('Error(s) while parsing XML string.', ['callstack' => System::callstack()]);
 				foreach (libxml_get_errors() as $err) {
-					Logger::info('libxml error', ['code' => $err->code, 'position' => $err->line . ":" . $err->column, 'message' => $err->message]);
+					Logger::info('libxml error', ['code' => $err->code, 'position' => $err->line . ':' . $err->column, 'message' => $err->message]);
 				}
 				Logger::debug('Erroring XML string', ['xml' => $s]);
 			}

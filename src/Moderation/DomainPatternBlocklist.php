@@ -130,7 +130,6 @@ class DomainPatternBlocklist
 	 *
 	 * @return void
 	 * @throws Exception
-	 * @todo maybe throw more explicit exception
 	 */
 	public function exportToFile(string $filename)
 	{
@@ -148,6 +147,7 @@ class DomainPatternBlocklist
 	 * Appends to the local block list all the patterns from the provided list that weren't already present.
 	 *
 	 * @param array $blocklist
+	 *
 	 * @return int The number of patterns actually added to the block list
 	 */
 	public function append(array $blocklist): int

@@ -480,7 +480,7 @@ class Notify extends BaseRepository
 
 						$sitelink = $l10n->t('Please visit %s to approve or reject the request.');
 						$tsitelink = sprintf($sitelink, $params['link']);
-						$hsitelink = sprintf($sitelink, '<a href="'.$params['link'].'">'.$sitename.'</a><br><br>');
+						$hsitelink = sprintf($sitelink, '<a href="' . $params['link'] . '">' . $sitename . '</a><br><br>');
 						break;
 
 					case 'SYSTEM_DB_UPDATE_FAIL': // @TODO Unused (only here)
