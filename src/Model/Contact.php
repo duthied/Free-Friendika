@@ -2340,6 +2340,47 @@ class Contact
 	}
 
 	/**
+	 * Checks if the given contact has got local data
+	 *
+	 * @param int   $id
+	 * @param array $contact
+	 *
+	 * @return boolean
+	 */
+	private static function hasLocalData(int $id, array $contact): bool
+	{
+		if (!empty($contact['uri-id']) && DBA::exists('contact', ["`uri-id` = ? AND `uid` != ?", $contact['uri-id'], 0])) {
+			// User contacts with the same uri-id exist
+			return true;
+		} elseif (DBA::exists('contact', ["`nurl` = ? AND `uid` != ?", Strings::normaliseLink($contact['url']), 0])) {
+			// User contacts with the same nurl exists (compatibility mode for systems with missing uri-id values)
+			return true;
+		}
+		if (DBA::exists('post-tag', ['cid' => $id])) {
+			// Is tagged in a post
+			return true;
+		}
+		if (DBA::exists('user-contact', ['cid' => $id])) {
+			// Has got user-contact data
+			return true;
+		}
+		if (Post::exists(['author-id' => $id])) {
+			// Posts with this author exist
+			return true;
+		}
+		if (Post::exists(['owner-id' => $id])) {
+			// Posts with this owner exist
+			return true;
+		}
+		if (Post::exists(['causer-id' => $id])) {
+			// Posts with this causer exist
+			return true;
+		}
+		// We don't have got this contact locally
+		return false;
+	}
+
+	/**
 	 * Updates contact record by provided id and probed data
 	 *
 	 * @param integer $id      contact id
@@ -2360,7 +2401,8 @@ class Contact
 
 		$fields = ['uid', 'uri-id', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
 			'manually-approve', 'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
-			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item', 'xmpp', 'matrix'];
+			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item', 'xmpp', 'matrix',
+			'created', 'last-update'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
@@ -2393,14 +2435,34 @@ class Contact
 		$pubkey = $contact['pubkey'];
 		unset($contact['pubkey']);
 
+		$created = $contact['created'];
+		unset($contact['created']);
+
+		$last_update = $contact['last-update'];
+		unset($contact['last-update']);
+
 		$contact['photo'] = $contact['avatar'];
 		unset($contact['avatar']);
 
 		$updated = DateTimeFormat::utcNow();
 
+		$has_local_data = self::hasLocalData($id, $contact);
+
+		if (!in_array($ret['network'], array_merge(Protocol::FEDERATED, [Protocol::ZOT, Protocol::PHANTOM]))) {
+			// Periodical checks are only done on federated contacts
+			$failed_next_update  = null;
+			$success_next_update = null;
+		} elseif ($has_local_data) {
+			$failed_next_update  = GServer::getNextUpdateDate(false, $created, $last_update, !in_array($contact['network'], Protocol::FEDERATED));
+			$success_next_update = GServer::getNextUpdateDate(true, $created, $last_update, !in_array($contact['network'], Protocol::FEDERATED));
+		} else {
+			$failed_next_update  = DateTimeFormat::utc('now +6 month');
+			$success_next_update = DateTimeFormat::utc('now +1 month');
+		}
+
 		if (Strings::normaliseLink($contact['url']) != Strings::normaliseLink($ret['url'])) {
 			Logger::notice('New URL differs from old URL', ['id' => $id, 'uid' => $uid, 'old' => $contact['url'], 'new' => $ret['url']]);
-			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
+			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => true, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $failed_next_update, 'failure_update' => $updated]);
 			return false;
 		}
 
@@ -2408,14 +2470,14 @@ class Contact
 		// We check after the probing to be able to correct falsely detected contact types.
 		if (($contact['contact-type'] == self::TYPE_RELAY) &&
 			(!Strings::compareLink($ret['url'], $contact['url']) || in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]))) {
-			self::updateContact($id, $uid, $contact['url'], $contact['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
+			self::updateContact($id, $uid, $contact['url'], $contact['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated]);
 			Logger::info('Not updating relais', ['id' => $id, 'url' => $contact['url']]);
 			return true;
 		}
 
 		// If Probe::uri fails the network code will be different ("feed" or "unkn")
 		if (($ret['network'] == Protocol::PHANTOM) || (($ret['network'] == Protocol::FEED) && ($ret['network'] != $contact['network']))) {
-			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
+			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => true, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $failed_next_update, 'failure_update' => $updated]);
 			return false;
 		}
 
@@ -2487,7 +2549,7 @@ class Contact
 		$uriid = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);
 
 		if (!$update) {
-			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
+			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated]);
 
 			if (Contact\Relation::isDiscoverable($ret['url'])) {
 				Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
@@ -2504,10 +2566,12 @@ class Contact
 			return true;
 		}
 
-		$ret['uri-id']  = $uriid;
-		$ret['nurl']    = Strings::normaliseLink($ret['url']);
-		$ret['updated'] = $updated;
-		$ret['failed']  = false;
+		$ret['uri-id']      = $uriid;
+		$ret['nurl']        = Strings::normaliseLink($ret['url']);
+		$ret['updated']     = $updated;
+		$ret['failed']      = false;
+		$ret['next-update'] = $success_next_update;
+		$ret['local-data']  = $has_local_data;
 
 		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
 		if (empty($pubkey) && !empty($new_pubkey)) {
