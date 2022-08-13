@@ -1112,4 +1112,5 @@ function update_1457()
 function update_1480()
 {
 	DBA::update('contact', ['next-update' => DBA::NULL_DATETIME], ['network' => Protocol::FEDERATED]);
+	return Update::SUCCESS;
 }
