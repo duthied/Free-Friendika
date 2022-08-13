@@ -46,7 +46,7 @@ class MoveToAvatarCache extends \Asika\SimpleConsole\Console
 	/**
 	 * @var $baseurl Friendica\App\BaseURL
 	 */
-	private $baseurl;
+	private $baseUrl;
 
 	/**
 	 * @var L10n
@@ -75,12 +75,12 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(\Friendica\Database\Database $dba, BaseURL $baseurl, L10n $l10n, IManageConfigValues $config, array $argv = null)
+	public function __construct(\Friendica\Database\Database $dba, BaseURL $baseUrl, L10n $l10n, IManageConfigValues $config, array $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->dba     = $dba;
-		$this->baseurl = $baseurl;
+		$this->baseUrl = $baseUrl;
 		$this->l10n    = $l10n;
 		$this->config = $config;
 	}
@@ -94,7 +94,7 @@ HELP;
 
 		$fields = ['id', 'avatar', 'photo', 'thumb', 'micro', 'uri-id', 'url', 'avatar', 'network'];
 		$condition = ["NOT `self` AND `avatar` != ? AND `photo` LIKE ? AND `uid` = ? AND `uri-id` != ? AND NOT `uri-id` IS NULL AND NOT `network` IN (?, ?)",
-			'', $this->baseurl->get() . '/photo/%', 0, 0, Protocol::MAIL, Protocol::FEED];
+			'', $this->baseUrl->get() . '/photo/%', 0, 0, Protocol::MAIL, Protocol::FEED];
 
 		$count    = 0;
 		$total    = $this->dba->count('contact', $condition);
