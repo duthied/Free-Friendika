@@ -28,6 +28,7 @@ use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
+use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\Salmon;
 
@@ -77,19 +78,19 @@ class Xrd extends BaseModule
 		if ($name == User::getActorName()) {
 			$owner = User::getSystemAccount();
 			if (empty($owner)) {
-				throw new \Friendica\Network\HTTPException\NotFoundException();
+				throw new NotFoundException('System account was not found. Please setup your Friendica installation properly.');
 			}
-			self::printSystemJSON($owner);
+			$this->printSystemJSON($owner);
 		} else {
 			$user = User::getByNickname($name);
 			if (empty($user)) {
-				throw new \Friendica\Network\HTTPException\NotFoundException();
+				throw new NotFoundException('User was not found for name=' . $name);
 			}
 
 			$owner = User::getOwnerDataById($user['uid']);
 			if (empty($owner)) {
 				DI::logger()->warning('No owner data for user id', ['uri' => $uri, 'name' => $name, 'user' => $user]);
-				throw new \Friendica\Network\HTTPException\NotFoundException();
+				throw new NotFoundException('Owner was not found for user->uid=' . $user['uid']);
 			}
 
 			$alias = str_replace('/profile/', '/~', $owner['url']);
@@ -102,13 +103,13 @@ class Xrd extends BaseModule
 		}
 
 		if ($mode == Response::TYPE_XML) {
-			self::printXML($alias, $user, $owner, $avatar);
+			$this->printXML($alias, $user, $owner, $avatar);
 		} else {
-			self::printJSON($alias, $owner, $avatar);
+			$this->printJSON($alias, $owner, $avatar);
 		}
 	}
 
-	private static function printSystemJSON(array $owner)
+	private function printSystemJSON(array $owner)
 	{
 		$baseURL = $this->baseurl->get();
 		$json = [
@@ -154,7 +155,7 @@ class Xrd extends BaseModule
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
-	private static function printJSON(string $alias, array $owner, array $avatar)
+	private function printJSON(string $alias, array $owner, array $avatar)
 	{
 		$baseURL = $this->baseurl->get();
 		$salmon_key = Salmon::salmonKey($owner['spubkey']);
@@ -236,7 +237,7 @@ class Xrd extends BaseModule
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
-	private static function printXML(string $alias, array $user, array $owner, array $avatar)
+	private function printXML(string $alias, array $user, array $owner, array $avatar)
 	{
 		$baseURL = $this->baseurl->get();
 		$salmon_key = Salmon::salmonKey($owner['spubkey']);
