@@ -54,6 +54,8 @@ abstract class DirectMessagesEndpoint extends BaseApi
 	 * @param array $request
 	 * @param int   $uid
 	 * @param array $condition
+	 *
+	 * @return void
 	 */
 	protected function getMessages(array $request, int $uid, array $condition)
 	{

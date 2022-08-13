@@ -35,6 +35,7 @@ class Attachment extends BaseFactory
 
 	/**
 	 * @param int $uriId Uri-ID of the attachments
+	 *
 	 * @return array
 	 * @throws HTTPException\InternalServerErrorException
 	 */

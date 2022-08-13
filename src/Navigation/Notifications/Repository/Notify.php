@@ -88,6 +88,7 @@ class Notify extends BaseRepository
 	/**
 	 * @param array $condition
 	 * @param array $params
+	 *
 	 * @return Entity\Notify
 	 * @throws HTTPException\NotFoundException
 	 */
@@ -117,6 +118,7 @@ class Notify extends BaseRepository
 
 	/**
 	 * @param int $id
+	 *
 	 * @return Entity\Notify
 	 * @throws HTTPException\NotFoundException
 	 */
@@ -153,6 +155,7 @@ class Notify extends BaseRepository
 
 	/**
 	 * @param Entity\Notify $Notify
+	 *
 	 * @return Entity\Notify
 	 * @throws HTTPException\NotFoundException
 	 * @throws HTTPException\InternalServerErrorException
@@ -459,7 +462,7 @@ class Notify extends BaseRepository
 
 			case Model\Notification\Type::SYSTEM:
 				switch($params['event']) {
-					case "SYSTEM_REGISTER_REQUEST":
+					case 'SYSTEM_REGISTER_REQUEST':
 						$itemlink =  $params['link'];
 						$subject = $l10n->t('[Friendica System Notify]') . ' ' . $l10n->t('registration request');
 
@@ -477,9 +480,10 @@ class Notify extends BaseRepository
 
 						$sitelink = $l10n->t('Please visit %s to approve or reject the request.');
 						$tsitelink = sprintf($sitelink, $params['link']);
-						$hsitelink = sprintf($sitelink, '<a href="'.$params['link'].'">'.$sitename.'</a><br><br>');
+						$hsitelink = sprintf($sitelink, '<a href="' . $params['link'] . '">' . $sitename . '</a><br><br>');
 						break;
-					case "SYSTEM_DB_UPDATE_FAIL":
+
+					case 'SYSTEM_DB_UPDATE_FAIL': // @TODO Unused (only here)
 						break;
 				}
 				break;
@@ -492,7 +496,7 @@ class Notify extends BaseRepository
 		return $this->storeAndSend($params, $sitelink, $tsitelink, $hsitelink, $title, $subject, $preamble, $epreamble, $body, $itemlink, $show_in_notification_page);
 	}
 
-	private function storeAndSend($params, $sitelink, $tsitelink, $hsitelink, $title, $subject, $preamble, $epreamble, $body, $itemlink, $show_in_notification_page)
+	private function storeAndSend(array $params, string $sitelink, string $tsitelink, string $hsitelink, string $title, string $subject, string $preamble, string $epreamble, string $body, string $itemlink, bool $show_in_notification_page): bool
 	{
 		$item_id = $params['item']['id'] ?? 0;
 		$uri_id = $params['item']['uri-id'] ?? null;
@@ -671,7 +675,7 @@ class Notify extends BaseRepository
 		return false;
 	}
 
-	public function createFromNotification(Entity\Notification $Notification)
+	public function createFromNotification(Entity\Notification $Notification): bool
 	{
 		$this->logger->info('Start', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
 

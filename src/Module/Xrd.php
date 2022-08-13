@@ -102,14 +102,15 @@ class Xrd extends BaseModule
 		}
 
 		if ($mode == Response::TYPE_XML) {
-			self::printXML($alias, DI::baseUrl()->get(), $user, $owner, $avatar);
+			self::printXML($alias, $user, $owner, $avatar);
 		} else {
-			self::printJSON($alias, DI::baseUrl()->get(), $owner, $avatar);
+			self::printJSON($alias, $owner, $avatar);
 		}
 	}
 
 	private static function printSystemJSON(array $owner)
 	{
+		$baseURL = $this->baseurl->get();
 		$json = [
 			'subject' => 'acct:' . $owner['addr'],
 			'aliases' => [$owner['url']],
@@ -126,26 +127,26 @@ class Xrd extends BaseModule
 				],
 				[
 					'rel'      => 'http://ostatus.org/schema/1.0/subscribe',
-					'template' => DI::baseUrl()->get() . '/follow?url={uri}',
+					'template' => $baseURL . '/follow?url={uri}',
 				],
 				[
 					'rel'  => ActivityNamespace::FEED,
 					'type' => 'application/atom+xml',
-					'href' => $owner['poll'] ?? DI::baseUrl()->get(),
+					'href' => $owner['poll'] ?? $baseURL,
 				],
 				[
 					'rel'  => 'salmon',
-					'href' => DI::baseUrl()->get() . '/salmon/' . $owner['nickname'],
+					'href' => $baseURL . '/salmon/' . $owner['nickname'],
 				],
 				[
 					'rel'  => 'http://microformats.org/profile/hcard',
 					'type' => 'text/html',
-					'href' => DI::baseUrl()->get() . '/hcard/' . $owner['nickname'],
+					'href' => $baseURL . '/hcard/' . $owner['nickname'],
 				],
 				[
 					'rel'  => 'http://joindiaspora.com/seed_location',
 					'type' => 'text/html',
-					'href' => DI::baseUrl()->get(),
+					'href' => $baseURL,
 				],
 			]
 		];
@@ -153,8 +154,9 @@ class Xrd extends BaseModule
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
-	private static function printJSON($alias, $baseURL, $owner, $avatar)
+	private static function printJSON(string $alias, array $owner, array $avatar)
 	{
+		$baseURL = $this->baseurl->get();
 		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
 		$json = [
@@ -234,8 +236,9 @@ class Xrd extends BaseModule
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
-	private static function printXML($alias, $baseURL, $user, $owner, $avatar)
+	private static function printXML(string $alias, array $user, array $owner, array $avatar)
 	{
+		$baseURL = $this->baseurl->get();
 		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
 		$tpl = Renderer::getMarkupTemplate('xrd_person.tpl');

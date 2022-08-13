@@ -46,9 +46,12 @@ class Conversation extends BaseFactory
 	}
 
 	/**
+	 * @param int $id Conversation id
+	 *
+	 * @return \Friendica\Object\Api\Mastodon\Conversation
 	 * @throws ImagickException|HTTPException\InternalServerErrorException|HTTPException\NotFoundException
 	 */
-	public function CreateFromConvId(int $id): \Friendica\Object\Api\Mastodon\Conversation
+	public function createFromConvId(int $id): \Friendica\Object\Api\Mastodon\Conversation
 	{
 		$accounts    = [];
 		$unread      = false;

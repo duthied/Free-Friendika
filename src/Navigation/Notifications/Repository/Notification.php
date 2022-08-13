@@ -112,6 +112,7 @@ class Notification extends BaseRepository
 	 * Returns only the most recent notifications for the same conversation or contact
 	 *
 	 * @param int $uid
+	 *
 	 * @return Collection\Notifications
 	 * @throws Exception
 	 */
@@ -139,6 +140,7 @@ class Notification extends BaseRepository
 	 * Returns only the most recent notifications for the same conversation or contact
 	 *
 	 * @param int $uid
+	 *
 	 * @return Collection\Notifications
 	 * @throws Exception
 	 */
@@ -201,6 +203,7 @@ class Notification extends BaseRepository
 	 * @param int|null $min_id Retrieve models with an id no fewer than this, as close to it as possible
 	 * @param int|null $max_id Retrieve models with an id no greater than this, as close to it as possible
 	 * @param int      $limit
+	 *
 	 * @return BaseCollection
 	 * @throws Exception
 	 * @see _selectByBoundaries

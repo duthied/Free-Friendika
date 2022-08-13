@@ -41,7 +41,6 @@ class Application extends BaseFactory
 	 * @param int $id Application ID
 	 *
 	 * @return \Friendica\Object\Api\Mastodon\Application
-	 *
 	 * @throws UnprocessableEntityException
 	 */
 	public function createFromApplicationId(int $id): \Friendica\Object\Api\Mastodon\Application

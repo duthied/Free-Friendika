@@ -45,6 +45,12 @@ class Notification extends BaseFactory
 		$this->mstdnStatusFactory  = $mstdnStatusFactoryFactory;
 	}
 
+	/**
+	 * @param Notifications\Entity\Notification $Notification
+	 *
+	 * @return MstdnNotification
+	 * @throws UnexpectedNotificationTypeException
+	 */
 	public function createFromNotification(Notifications\Entity\Notification $Notification): MstdnNotification
 	{
 		$type = self::getType($Notification);

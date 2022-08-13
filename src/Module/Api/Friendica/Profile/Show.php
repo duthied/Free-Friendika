@@ -68,10 +68,11 @@ class Show extends BaseApi
 	/**
 	 * @param array         $profile_row array containing data from db table 'profile'
 	 * @param ProfileFields $profileFields
+	 *
 	 * @return array
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function formatProfile($profile_row, ProfileFields $profileFields)
+	private static function formatProfile($profile_row, ProfileFields $profileFields): array
 	{
 		$custom_fields = [];
 		foreach ($profileFields as $profileField) {

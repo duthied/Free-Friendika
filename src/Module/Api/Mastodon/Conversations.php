@@ -85,7 +85,7 @@ class Conversations extends BaseApi
 
 		while ($conv = DBA::fetch($convs)) {
 			self::setBoundaries($conv['id']);
-			$conversations[] = DI::mstdnConversation()->CreateFromConvId($conv['id']);
+			$conversations[] = DI::mstdnConversation()->createFromConvId($conv['id']);
 		}
 
 		DBA::close($convs);

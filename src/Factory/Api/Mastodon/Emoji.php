@@ -33,6 +33,7 @@ class Emoji extends BaseFactory
 
 	/**
 	 * @param array $smilies
+	 *
 	 * @return Emojis
 	 */
 	public function createCollectionFromSmilies(array $smilies): Emojis

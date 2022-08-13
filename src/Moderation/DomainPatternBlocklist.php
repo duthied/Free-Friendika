@@ -73,6 +73,7 @@ class DomainPatternBlocklist
 	/**
 	 * @param string $pattern
 	 * @param string $reason
+	 *
 	 * @return int 0 if the block list couldn't be saved, 1 if the pattern was added, 2 if it was updated in place
 	 */
 	public function addPattern(string $pattern, string $reason): int
@@ -105,6 +106,7 @@ class DomainPatternBlocklist
 
 	/**
 	 * @param string $pattern
+	 *
 	 * @return int 0 if the block list couldn't be saved, 1 if the pattern wasn't found, 2 if it was removed
 	 */
 	public function removePattern(string $pattern): int
@@ -123,6 +125,12 @@ class DomainPatternBlocklist
 		return $found ? ($this->set($blocklist) ? 2 : 0) : 1;
 	}
 
+	/**
+	 * @param string $filename
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
 	public function exportToFile(string $filename)
 	{
 		$fp = fopen($filename, 'w');
@@ -139,6 +147,7 @@ class DomainPatternBlocklist
 	 * Appends to the local block list all the patterns from the provided list that weren't already present.
 	 *
 	 * @param array $blocklist
+	 *
 	 * @return int The number of patterns actually added to the block list
 	 */
 	public function append(array $blocklist): int
@@ -165,6 +174,7 @@ class DomainPatternBlocklist
 	 * Extracts a server domain pattern block list from the provided CSV file name. Deduplicates the list based on patterns.
 	 *
 	 * @param string $filename
+	 *
 	 * @return array
 	 * @throws Exception
 	 */

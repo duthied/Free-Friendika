@@ -47,11 +47,12 @@ class User extends BaseFactory
 	 * @param int  $uid Public contact (=0) or owner user id
 	 * @param bool $skip_status
 	 * @param bool $include_user_entities
+	 *
 	 * @return \Friendica\Object\Api\Twitter\User
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function createFromContactId(int $contactId, int $uid = 0, bool $skip_status = true, bool $include_user_entities = true)
+	public function createFromContactId(int $contactId, int $uid = 0, bool $skip_status = true, bool $include_user_entities = true): \Friendica\Object\Api\Twitter\User
 	{
 		$cdata = Contact::getPublicAndUserContactID($contactId, $uid);
 		if (!empty($cdata)) {
@@ -78,7 +79,14 @@ class User extends BaseFactory
 		return new \Friendica\Object\Api\Twitter\User($publicContact, $apcontact, $userContact, $status, $include_user_entities);
 	}
 
-	public function createFromUserId(int $uid, bool $skip_status = true, bool $include_user_entities = true)
+	/**
+	 * @param int  $uid Public contact (=0) or owner user id
+	 * @param bool $skip_status
+	 * @param bool $include_user_entities
+	 *
+	 * @return \Friendica\Object\Api\Twitter\User
+	 */
+	public function createFromUserId(int $uid, bool $skip_status = true, bool $include_user_entities = true): \Friendica\Object\Api\Twitter\User
 	{
 		return $this->createFromContactId(Contact::getPublicIdByUserId($uid), $uid, $skip_status, $include_user_entities);
 	}
