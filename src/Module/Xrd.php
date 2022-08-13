@@ -111,7 +111,7 @@ class Xrd extends BaseModule
 
 	private function printSystemJSON(array $owner)
 	{
-		$baseURL = $this->baseurl->get();
+		$baseURL = $this->baseUrl->get();
 		$json = [
 			'subject' => 'acct:' . $owner['addr'],
 			'aliases' => [$owner['url']],
@@ -157,7 +157,7 @@ class Xrd extends BaseModule
 
 	private function printJSON(string $alias, array $owner, array $avatar)
 	{
-		$baseURL = $this->baseurl->get();
+		$baseURL = $this->baseUrl->get();
 		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
 		$json = [
@@ -239,7 +239,7 @@ class Xrd extends BaseModule
 
 	private function printXML(string $alias, array $user, array $owner, array $avatar)
 	{
-		$baseURL = $this->baseurl->get();
+		$baseURL = $this->baseUrl->get();
 		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
 		$tpl = Renderer::getMarkupTemplate('xrd_person.tpl');

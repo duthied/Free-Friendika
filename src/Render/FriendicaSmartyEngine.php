@@ -31,7 +31,7 @@ use Friendica\Util\Strings;
  */
 final class FriendicaSmartyEngine extends TemplateEngine
 {
-	static $name = "smarty3";
+	static $name = 'smarty3';
 
 	const FILE_PREFIX = 'file:';
 	const STRING_PREFIX = 'string:';
