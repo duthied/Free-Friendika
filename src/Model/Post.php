@@ -565,6 +565,12 @@ class Post
 			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
+
+				// Only delete the "post" entry when all "post-user" entries are deleted
+				if (!empty($update_fields['deleted']) && DBA::exists('post-user', ['uri-id' => $uriids, 'deleted' => false])) {
+					unset($update_fields['deleted']);
+				}
+
 				if (!DBA::update('post', $update_fields, ['uri-id' => $uriids])) {
 					DBA::rollback();
 					Logger::notice('Updating post failed', ['fields' => $update_fields, 'condition' => $condition]);

@@ -1112,5 +1112,6 @@ function update_1457()
 function update_1480()
 {
 	DBA::update('contact', ['next-update' => DBA::NULL_DATETIME], ['network' => Protocol::FEDERATED]);
+	DBA::update('post', ['deleted' => false], ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE NOT `deleted`)"]);
 	return Update::SUCCESS;
 }
