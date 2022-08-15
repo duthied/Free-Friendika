@@ -1273,10 +1273,6 @@ class Item
 			self::updateDisplayCache($posted_item['uri-id']);
 		}
 
-		if ($posted_item['origin'] && ($posted_item['uid'] != 0) && in_array($posted_item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT])) {
-			DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_OUTBOX . $posted_item['uid']);
-		}
-
 		return $post_user_id;
 	}
 
