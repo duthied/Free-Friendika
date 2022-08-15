@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1480
+-- DB_UPDATE_VERSION 1481
 -- ------------------------------------------
 
 
@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `uid_contact-type` (`uid`,`contact-type`),
 	 INDEX `uid_self_contact-type` (`uid`,`self`,`contact-type`),
 	 INDEX `self_network_uid` (`self`,`network`,`uid`),
-	 INDEX `gsid` (`gsid`),
+	 INDEX `gsid_uid_failed` (`gsid`,`uid`,`failed`),
 	 INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
@@ -920,6 +920,7 @@ CREATE TABLE IF NOT EXISTS `notification` (
 	 INDEX `target-uri-id` (`target-uri-id`),
 	 INDEX `parent-uri-id` (`parent-uri-id`),
 	 INDEX `seen_uid` (`seen`,`uid`),
+	 INDEX `uid_type_parent-uri-id_actor-id` (`uid`,`type`,`parent-uri-id`,`actor-id`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`actor-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
@@ -1153,9 +1154,12 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 CREATE TABLE IF NOT EXISTS `post-collection` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0 - Featured',
+	`author-id` int unsigned COMMENT 'Author of the featured post',
 	 PRIMARY KEY(`uri-id`,`type`),
 	 INDEX `type` (`type`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `author-id` (`author-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Collection of posts';
 
 --
@@ -2423,7 +2427,7 @@ DROP VIEW IF EXISTS `collection-view`;
 CREATE VIEW `collection-view` AS SELECT 
 	`post-collection`.`uri-id` AS `uri-id`,
 	`post-collection`.`type` AS `type`,
-	`post`.`author-id` AS `cid`,
+	`post-collection`.`author-id` AS `cid`,
 	`post`.`received` AS `received`,
 	`post`.`created` AS `created`,
 	`post-thread`.`commented` AS `commented`,
@@ -2431,7 +2435,7 @@ CREATE VIEW `collection-view` AS SELECT
 	`post`.`visible` AS `visible`,
 	`post`.`deleted` AS `deleted`,
 	`post`.`thr-parent-id` AS `thr-parent-id`,
-	`post`.`author-id` AS `author-id`,
+	`post-collection`.`author-id` AS `author-id`,
 	`post`.`gravity` AS `gravity`
 	FROM `post-collection`
 			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`

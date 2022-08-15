@@ -59,7 +59,6 @@ class Transmitter
 {
 	const CACHEKEY_FEATURED = 'transmitter:getFeatured:';
 	const CACHEKEY_CONTACTS = 'transmitter:getContacts:';
-	const CACHEKEY_OUTBOX   = 'transmitter:getOutbox:';
 
 	/**
 	 * Add relay servers to the list of inboxes
@@ -251,14 +250,6 @@ class Transmitter
 	 */
 	public static function getOutbox(array $owner, int $page = null, string $requester = '', bool $nocache = false): array
 	{
-		if (empty($page)) {
-			$cachekey = self::CACHEKEY_OUTBOX . $owner['uid'];
-			$result = DI::cache()->get($cachekey);
-			if (!$nocache && !is_null($result)) {
-				return $result;
-			}
-		}
-
 		$condition = ['private' => [Item::PUBLIC, Item::UNLISTED]];
 
 		if (!empty($requester)) {
@@ -283,12 +274,12 @@ class Transmitter
 			'visible'        => true
 		]);
 
-		$count = Post::count($condition);
+		$apcontact = APContact::getByURL($owner['url']);
 
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data['id'] = DI::baseUrl() . '/outbox/' . $owner['nickname'];
 		$data['type'] = 'OrderedCollection';
-		$data['totalItems'] = $count;
+		$data['totalItems'] = $apcontact['statuses_count'] ?? 0;
 
 		if (!empty($page)) {
 			$data['id'] .= '?' . http_build_query(['page' => $page]);
@@ -316,13 +307,15 @@ class Transmitter
 				$data['next'] = DI::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=' . ($page + 1);
 			}
 
+			// Fix the cached total item count when it is lower than the real count
+			$total = (($page - 1) * 20) + $data['totalItems'];
+			if ($total > $data['totalItems']) {
+				$data['totalItems'] = $total;
+			}
+
 			$data['partOf'] = DI::baseUrl() . '/outbox/' . $owner['nickname'];
 
 			$data['orderedItems'] = $list;
-		}
-
-		if (!empty($cachekey)) {
-			DI::cache()->set($cachekey, $data, Duration::DAY);
 		}
 
 		return $data;

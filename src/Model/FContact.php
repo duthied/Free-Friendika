@@ -100,7 +100,7 @@ class FContact
 
 			$interacted  = DBA::count('contact-relation', ["`cid` = ? AND NOT `follows` AND `last-interaction` > ?", $contact['id'], $last_interaction]);
 			$interacting = DBA::count('contact-relation', ["`relation-cid` = ? AND NOT `follows` AND `last-interaction` > ?", $contact['id'], $last_interaction]);
-			$posts       = Post::countPosts(['author-id' => $contact['id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]]);
+			$posts       = DBA::count('post', ['author-id' => $contact['id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]]);
 		}
 
 		$fields = [

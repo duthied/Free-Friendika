@@ -1100,9 +1100,9 @@ function update_1451()
 
 function update_1457()
 {
-	$pinned = DBA::select('post-thread-user', ['uri-id'], ['pinned' => true]);
+	$pinned = DBA::select('post-thread-user', ['uri-id', 'author-id'], ['pinned' => true]);
 	while ($post = DBA::fetch($pinned)) {
-		Post\Collection::add($post['uri-id'], Post\Collection::FEATURED);
+		Post\Collection::add($post['uri-id'], Post\Collection::FEATURED, $post['author-id']);
 	}
 	DBA::close($pinned);
 
@@ -1113,5 +1113,11 @@ function update_1480()
 {
 	DBA::update('contact', ['next-update' => DBA::NULL_DATETIME], ['network' => Protocol::FEDERATED]);
 	DBA::update('post', ['deleted' => false], ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE NOT `deleted`)"]);
+	return Update::SUCCESS;
+}
+
+function update_1481()
+{
+	DBA::e("UPDATE `post-collection` INNER JOIN `post` ON `post`.`uri-id` = `post-collection`.`uri-id` SET `post-collection`.`author-id` = `post`.`author-id` WHERE `post-collection`.`author-id` IS null");
 	return Update::SUCCESS;
 }

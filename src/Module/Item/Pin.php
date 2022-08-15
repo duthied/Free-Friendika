@@ -48,7 +48,7 @@ class Pin extends BaseModule
 
 		$itemId = intval($this->parameters['id']);
 
-		$item = Post::selectFirst(['uri-id', 'uid', 'featured'], ['id' => $itemId]);
+		$item = Post::selectFirst(['uri-id', 'uid', 'featured', 'author-id'], ['id' => $itemId]);
 		if (!DBA::isResult($item)) {
 			throw new HTTPException\NotFoundException();
 		}
@@ -60,7 +60,7 @@ class Pin extends BaseModule
 		$pinned = !$item['featured'];
 
 		if ($pinned) {
-			Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, local_user());
+			Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, $item['author-id'], local_user());
 		} else {
 			Post\Collection::remove($item['uri-id'], Post\Collection::FEATURED, local_user());
 		}

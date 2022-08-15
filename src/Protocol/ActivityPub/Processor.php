@@ -679,7 +679,7 @@ class Processor
 	 * Fetch the Uri-Id of a post for the "featured" collection
 	 *
 	 * @param array $activity
-	 * @return null|int
+	 * @return null|array
 	 */
 	private static function getUriIdForFeaturedCollection(array $activity)
 	{
@@ -697,7 +697,7 @@ class Processor
 			}
 		}
 
-		$parent = Post::selectFirst(['uri-id'], ['uri' => $activity['object_id']]);
+		$parent = Post::selectFirst(['uri-id', 'author-id'], ['uri' => $activity['object_id']]);
 		if (empty($parent['uri-id'])) {
 			if (self::fetchMissingActivity($activity['object_id'], $activity, '', Receiver::COMPLETION_AUTO)) {
 				$parent = Post::selectFirst(['uri-id'], ['uri' => $activity['object_id']]);
@@ -705,7 +705,7 @@ class Processor
 		}
 
 		if (!empty($parent['uri-id'])) {
-			return $parent['uri-id'];
+			$parent;
 		}
 
 		return null;
@@ -718,14 +718,14 @@ class Processor
 	 */
 	public static function addToFeaturedCollection(array $activity)
 	{
-		$uriid = self::getUriIdForFeaturedCollection($activity);
-		if (empty($uriid)) {
+		$post = self::getUriIdForFeaturedCollection($activity);
+		if (empty($post)) {
 			return;
 		}
 
-		Logger::debug('Add post to featured collection', ['uri-id' => $uriid]);
+		Logger::debug('Add post to featured collection', ['post' => $post]);
 
-		Post\Collection::add($uriid, Post\Collection::FEATURED);
+		Post\Collection::add($post['uri-id'], Post\Collection::FEATURED, $post['author-id']);
 		Queue::remove($activity);
 	}
 
@@ -736,14 +736,14 @@ class Processor
 	 */
 	public static function removeFromFeaturedCollection(array $activity)
 	{
-		$uriid = self::getUriIdForFeaturedCollection($activity);
-		if (empty($uriid)) {
+		$post = self::getUriIdForFeaturedCollection($activity);
+		if (empty($post)) {
 			return;
 		}
 
-		Logger::debug('Remove post from featured collection', ['uri-id' => $uriid]);
+		Logger::debug('Remove post from featured collection', ['post' => $post]);
 
-		Post\Collection::remove($uriid, Post\Collection::FEATURED);
+		Post\Collection::remove($post['uri-id'], Post\Collection::FEATURED);
 		Queue::remove($activity);
 	}
 
@@ -1335,10 +1335,10 @@ class Processor
 			}
 			$id = Item::fetchByLink($post['id']);
 			if (!empty($id)) {
-				$item = Post::selectFirst(['uri-id', 'featured'], ['id' => $id]);
+				$item = Post::selectFirst(['uri-id', 'featured', 'author-id'], ['id' => $id]);
 				if (!empty($item['uri-id'])) {
 					if (!$item['featured']) {
-						Post\Collection::add($item['uri-id'], Post\Collection::FEATURED);
+						Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, $item['author-id']);
 						Logger::debug('Added featured post', ['uri-id' => $item['uri-id'], 'contact' => $url]);
 						$new++;
 					} else {

@@ -24,6 +24,7 @@ namespace Friendica\Model;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -352,17 +353,18 @@ class APContact
 
 		if (!empty($apcontact['outbox'])) {
 			if (!empty($local_owner)) {
-				$outbox = ActivityPub\Transmitter::getOutbox($local_owner);
+				$statuses_count = self::getStatusesCount($local_owner);
 			} else {
 				$outbox = ActivityPub::fetchContent($apcontact['outbox']);
+				$statuses_count = $outbox['totalItems'] ?? 0;
 			}
-			if (!empty($outbox['totalItems'])) {
+			if (!empty($statuses_count)) {
 				// Mastodon seriously allows for this condition?
 				// Jul 20 2021 - See https://chaos.social/@m11 for a negative posts count
-				if ($outbox['totalItems'] < 0) {
-					$outbox['totalItems'] = 0;
+				if ($statuses_count < 0) {
+					$statuses_count = 0;
 				}
-				$apcontact['statuses_count'] = $outbox['totalItems'];
+				$apcontact['statuses_count'] = $statuses_count;
 			}
 		}
 
@@ -481,6 +483,30 @@ class APContact
 		Logger::info('Updated profile', ['url' => $url]);
 
 		return DBA::selectFirst('apcontact', [], ['url' => $apcontact['url']]) ?: [];
+	}
+
+	/**
+	 * Fetch the number of statuses for the given owner
+	 *
+	 * @param array $owner
+	 *
+	 * @return integer
+	 */
+	private static function getStatusesCount(array $owner): int
+	{
+		$condition = [
+			'private' => [Item::PUBLIC, Item::UNLISTED],
+			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
+			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'network'        => Protocol::DFRN,
+			'parent-network' => Protocol::FEDERATED,
+			'deleted'        => false,
+			'visible'        => true
+		];
+
+		$count = Post::countPosts($condition);
+
+		return $count;
 	}
 
 	/**

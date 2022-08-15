@@ -400,12 +400,12 @@ class Post
 			AND (NOT `causer-blocked` OR `causer-id` = ? OR `causer-id` IS NULL) AND NOT `contact-blocked`
 			AND ((NOT `contact-readonly` AND NOT `contact-pending` AND (`contact-rel` IN (?, ?)))
 				OR `self` OR `gravity` != ? OR `contact-uid` = ?)
-			AND NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `uid` = ? AND `uri-id` = `" . $view . "`.`uri-id` AND `hidden`)
-			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `author-id` AND `blocked`)
-			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `owner-id` AND `blocked`)
-			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `author-id` AND `ignored` AND `gravity` = ?)
-			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `owner-id` AND `ignored` AND `gravity` = ?)",
-			0, Contact::SHARING, Contact::FRIEND, GRAVITY_PARENT, 0, $uid, $uid, $uid, $uid, GRAVITY_PARENT, $uid, GRAVITY_PARENT]);
+			AND NOT `" . $view . "`.`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `uid` = ? AND `hidden`)
+			AND NOT `author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `blocked`)
+			AND NOT `owner-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `blocked`)
+			AND NOT (`gravity` = ? AND `author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `ignored`))
+			AND NOT (`gravity` = ? AND `owner-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `ignored`))",
+			0, Contact::SHARING, Contact::FRIEND, GRAVITY_PARENT, 0, $uid, $uid, $uid, GRAVITY_PARENT, $uid, GRAVITY_PARENT, $uid]);
 
 		$select_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], $selected));
 

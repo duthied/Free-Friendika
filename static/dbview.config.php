@@ -702,7 +702,7 @@
 		"fields" => [
 			"uri-id" => ["post-collection", "uri-id"],
 			"type" => ["post-collection", "type"],
-			"cid" => ["post", "author-id"],
+			"cid" => ["post-collection", "author-id"],
 			"received" => ["post", "received"],
 			"created" => ["post", "created"],
 			"commented" => ["post-thread", "commented"],
@@ -710,7 +710,7 @@
 			"visible" => ["post", "visible"],
 			"deleted" => ["post", "deleted"],
 			"thr-parent-id" => ["post", "thr-parent-id"],
-			"author-id" => ["post", "author-id"],
+			"author-id" => ["post-collection", "author-id"],
 			"gravity" => ["post", "gravity"],
 		],
 		"query" => "FROM `post-collection`
