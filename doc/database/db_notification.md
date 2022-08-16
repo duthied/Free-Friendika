@@ -31,6 +31,7 @@ Indexes
 | target-uri-id                       | target-uri-id                                   |
 | parent-uri-id                       | parent-uri-id                                   |
 | seen_uid                            | seen, uid                                       |
+| uid_type_parent-uri-id_actor-id     | uid, type, parent-uri-id, actor-id              |
 
 Foreign Keys
 ------------

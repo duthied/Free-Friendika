@@ -121,7 +121,7 @@ Indexes
 | uid_contact-type            | uid, contact-type                    |
 | uid_self_contact-type       | uid, self, contact-type              |
 | self_network_uid            | self, network, uid                   |
-| gsid                        | gsid                                 |
+| gsid_uid_failed             | gsid, uid, failed                    |
 | uri-id                      | uri-id                               |
 
 Foreign Keys

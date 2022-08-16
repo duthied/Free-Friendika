@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1480);
+	define('DB_UPDATE_VERSION', 1481);
 }
 
 return [
@@ -284,7 +284,7 @@ return [
 			"uid_contact-type" => ["uid", "contact-type"],
 			"uid_self_contact-type" => ["uid", "self", "contact-type"],
 			"self_network_uid" => ["self", "network", "uid"],
-			"gsid" => ["gsid"],
+			"gsid_uid_failed" => ["gsid", "uid", "failed"],
 			"uri-id" => ["uri-id"],
 		]
 	],
@@ -971,6 +971,7 @@ return [
 			"target-uri-id" => ["target-uri-id"],
 			"parent-uri-id" => ["parent-uri-id"],
 			"seen_uid" => ["seen", "uid"],
+			"uid_type_parent-uri-id_actor-id" => ["uid", "type", "parent-uri-id", "actor-id"],
 		]
 	],
 	"notify" => [
@@ -1187,10 +1188,12 @@ return [
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => "0 - Featured"],
+			"author-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Author of the featured post"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id", "type"],
 			"type" => ["type"],
+			"author-id" => ["author-id"],
 		]
 	],
 	"post-content" => [
@@ -1440,6 +1443,7 @@ return [
 			"author-id_uid" => ["author-id", "uid"],
 			"author-id_received" => ["author-id", "received"],
 			"parent-uri-id_uid" => ["parent-uri-id", "uid"],
+			"uid_wall_received" => ["uid", "wall", "received"],
 			"uid_contactid" => ["uid", "contact-id"],
 			"uid_unseen_contactid" => ["uid", "unseen", "contact-id"],
 			"uid_unseen" => ["uid", "unseen"],

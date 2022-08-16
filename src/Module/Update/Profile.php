@@ -40,7 +40,7 @@ class Profile extends BaseModule
 		$a = DI::app();
 
 		// Ensure we've got a profile owner if updating.
-		$a->setProfileOwner($_GET['p'] ?? 0);
+		$a->setProfileOwner((int)($_GET['p'] ?? 0));
 
 		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->getProfileOwner())) {
 			throw new ForbiddenException();
