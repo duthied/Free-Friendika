@@ -1416,6 +1416,7 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	 INDEX `author-id_uid` (`author-id`,`uid`),
 	 INDEX `author-id_received` (`author-id`,`received`),
 	 INDEX `parent-uri-id_uid` (`parent-uri-id`,`uid`),
+	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
 	 INDEX `uid_contactid` (`uid`,`contact-id`),
 	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
 	 INDEX `uid_unseen` (`uid`,`unseen`),

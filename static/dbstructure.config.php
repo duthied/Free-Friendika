@@ -1443,6 +1443,7 @@ return [
 			"author-id_uid" => ["author-id", "uid"],
 			"author-id_received" => ["author-id", "received"],
 			"parent-uri-id_uid" => ["parent-uri-id", "uid"],
+			"uid_wall_received" => ["uid", "wall", "received"],
 			"uid_contactid" => ["uid", "contact-id"],
 			"uid_unseen_contactid" => ["uid", "unseen", "contact-id"],
 			"uid_unseen" => ["uid", "unseen"],

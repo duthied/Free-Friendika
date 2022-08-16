@@ -58,7 +58,7 @@ class Pager
 
 		$this->setQueryString($queryString);
 		$this->setItemsPerPage($itemsPerPage);
-		$this->setPage(($_GET['page'] ?? 0) ?: 1);
+		$this->setPage((int)($_GET['page'] ?? 0) ?: 1);
 	}
 
 	/**
