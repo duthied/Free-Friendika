@@ -1159,7 +1159,7 @@ CREATE TABLE IF NOT EXISTS `post-collection` (
 	 INDEX `type` (`type`),
 	 INDEX `author-id` (`author-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Collection of posts';
 
 --

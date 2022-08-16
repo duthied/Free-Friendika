@@ -759,7 +759,7 @@ class Processor
 	public static function createEvent(array $activity, array $item): int
 	{
 		$event['summary']   = HTML::toBBCode($activity['name'] ?: $activity['summary']);
-		$event['desc']      = HTML::toBBCode($activity['content']);
+		$event['desc']      = HTML::toBBCode($activity['content'] ?? '');
 		if (!empty($activity['start-time'])) {
 			$event['start']  = DateTimeFormat::utc($activity['start-time']);
 		}

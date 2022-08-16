@@ -1188,7 +1188,7 @@ return [
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => "0 - Featured"],
-			"author-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Author of the featured post"],
+			"author-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Author of the featured post"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id", "type"],
