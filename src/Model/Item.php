@@ -1522,20 +1522,18 @@ class Item
 
 		$causer = $item['causer-id'] ?: $item['author-id'];
 
-		if (($uri_id != $item['parent-uri-id']) && (($item['gravity'] == GRAVITY_COMMENT) || $is_reshare) && !Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $uid])) {
+		if (($uri_id != $item['parent-uri-id']) && ($item['gravity'] == GRAVITY_COMMENT) && !Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $uid])) {
 			if (!self::fetchParent($item['parent-uri-id'], $uid, $causer)) {
 				Logger::info('Parent post had not been added', ['uri-id' => $item['parent-uri-id'], 'uid' => $uid, 'causer' => $causer]);
 				return 0;
 			}
 			Logger::info('Fetched parent post', ['uri-id' => $item['parent-uri-id'], 'uid' => $uid, 'causer' => $causer]);
-		}
-
-		if (($item['thr-parent-id'] != $item['parent-uri-id']) && ($uri_id != $item['thr-parent-id']) && (($item['gravity'] == GRAVITY_COMMENT) || $is_reshare) && !Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $uid])) {
-			if (!self::fetchParent($item['parent-uri-id'], $uid, $causer)) {
-				Logger::info('Thread parent had not been added', ['uri-id' => $item['parent-uri-id'], 'uid' => $uid, 'causer' => $causer]);
+		} elseif (($uri_id != $item['thr-parent-id']) && $is_reshare && !Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $uid])) {
+			if (!self::fetchParent($item['thr-parent-id'], $uid, $causer)) {
+				Logger::info('Thread parent had not been added', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'causer' => $causer]);
 				return 0;
 			}
-			Logger::info('Fetched thread parent', ['uri-id' => $item['parent-uri-id'], 'uid' => $uid, 'causer' => $causer]);
+			Logger::info('Fetched thread parent', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'causer' => $causer]);
 		}
 
 		$stored = self::storeForUser($item, $uid);

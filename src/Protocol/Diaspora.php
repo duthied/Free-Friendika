@@ -3992,7 +3992,7 @@ class Diaspora
 				$data['birthday'] = DateTimeFormat::utc($year . '-' . $month . '-' . $day, 'Y-m-d');
 			}
 
-			$data['about'] = BBCode::toMarkdown($profile['about']);
+			$data['about'] = BBCode::toMarkdown($profile['about'] ?? '');
 
 			$data['location'] = $profile['location'];
 			$data['tag_string'] = '';
