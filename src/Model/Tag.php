@@ -472,6 +472,26 @@ class Tag
 	}
 
 	/**
+	 * Checks if the given url is mentioned in the post
+	 *
+	 * @param integer $uriId
+	 * @param string $url
+	 * @param array $type
+	 *
+	 * @return boolean
+	 */
+	public static function isMentioned(int $uriId, string $url, array $type = [self::MENTION, self::EXCLUSIVE_MENTION]): bool
+	{
+		$tags = self::getByURIId($uriId, $type);
+		foreach ($tags as $tag) {
+			if (Strings::compareLink($url, $tag['url'])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Return a string with all tags and mentions
 	 *
 	 * @param integer $uriId

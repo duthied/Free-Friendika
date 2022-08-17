@@ -1492,6 +1492,14 @@ class Item
 			return 0;
 		}
 
+		if (($uid != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
+			$owner = User::getOwnerDataById($uid);
+			if (($owner['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY) && !Tag::isMentioned($uri_id, $owner['url'])) {
+				Logger::info('Target user is a forum but is not mentioned here, thread will not be stored', ['uid' => $uid, 'uri-id' => $uri_id]);
+				return 0;
+			}
+		}
+
 		if (($source_uid == 0) && (($item['private'] == self::PRIVATE) || !in_array($item['network'], Protocol::FEDERATED))) {
 			Logger::notice('Item is private or not from a federated network. It will not be stored for the user.', ['uri-id' => $uri_id, 'uid' => $uid, 'private' => $item['private'], 'network' => $item['network']]);
 			return 0;
@@ -1508,26 +1516,50 @@ class Item
 		if (($uid != 0) && (($item['gravity'] == GRAVITY_PARENT) || $is_reshare) &&
 			DI::pConfig()->get($uid, 'system', 'accept_only_sharer') == self::COMPLETION_NONE &&
 			!in_array($item['post-reason'], [self::PR_FOLLOWER, self::PR_TAG, self::PR_TO, self::PR_CC])) {
-			Logger::info('Contact is not a follower, thread will not be stored', ['author' => $item['author-link'], 'uid' => $uid]);
+			Logger::info('Contact is not a follower, thread will not be stored', ['author' => $item['author-link'], 'uid' => $uid, 'uri-id' => $uri_id]);
 			return 0;
 		}
 
-		if (($uri_id != $item['thr-parent-id']) && (($item['gravity'] == GRAVITY_COMMENT) || $is_reshare) && !Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $uid])) {
-			// Fetch the origin user for the post
-			$origin_uid = self::GetOriginUidForUriId($item['thr-parent-id'], $uid);
-			if (is_null($origin_uid)) {
-				Logger::info('Origin item was not found', ['uid' => $uid, 'uri-id' => $item['thr-parent-id']]);
+		$causer = $item['causer-id'] ?: $item['author-id'];
+
+		if (($uri_id != $item['parent-uri-id']) && ($item['gravity'] == GRAVITY_COMMENT) && !Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $uid])) {
+			if (!self::fetchParent($item['parent-uri-id'], $uid, $causer)) {
+				Logger::info('Parent post had not been added', ['uri-id' => $item['parent-uri-id'], 'uid' => $uid, 'causer' => $causer]);
 				return 0;
 			}
-
-			$causer = $item['causer-id'] ?: $item['author-id'];
-			$result = self::storeForUserByUriId($item['thr-parent-id'], $uid, ['causer-id' => $causer, 'post-reason' => self::PR_FETCHED], $origin_uid);
-			Logger::info('Fetched thread parent', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'causer' => $causer, 'result' => $result]);
+			Logger::info('Fetched parent post', ['uri-id' => $item['parent-uri-id'], 'uid' => $uid, 'causer' => $causer]);
+		} elseif (($uri_id != $item['thr-parent-id']) && $is_reshare && !Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $uid])) {
+			if (!self::fetchParent($item['thr-parent-id'], $uid, $causer)) {
+				Logger::info('Thread parent had not been added', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'causer' => $causer]);
+				return 0;
+			}
+			Logger::info('Fetched thread parent', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'causer' => $causer]);
 		}
 
 		$stored = self::storeForUser($item, $uid);
-		Logger::info('Item stored for user', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'source-uid' => $source_uid, 'stored' => $stored]);
+		Logger::info('Item stored for user', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'causer' => $causer, 'source-uid' => $source_uid, 'stored' => $stored]);
 		return $stored;
+	}
+
+	/**
+	 * Fetch the parent with the given uri-id
+	 *
+	 * @param integer $uri_id
+	 * @param integer $uid
+	 * @param integer $causer
+	 *
+	 * @return integer
+	 */
+	private static function fetchParent(int $uri_id, int $uid, int $causer): int
+	{
+		// Fetch the origin user for the post
+		$origin_uid = self::GetOriginUidForUriId($uri_id, $uid);
+		if (is_null($origin_uid)) {
+			Logger::info('Origin item was not found', ['uid' => $uid, 'uri-id' => $uri_id]);
+			return 0;
+		}
+
+		return self::storeForUserByUriId($uri_id, $uid, ['causer-id' => $causer, 'post-reason' => self::PR_FETCHED], $origin_uid);
 	}
 
 	/**
@@ -1590,7 +1622,8 @@ class Item
 	 */
 	private static function storeForUser(array $item, int $uid): int
 	{
-		if (Post::exists(['uri-id' => $item['uri-id'], 'uid' => $uid])) {
+		$post = Post::selectFirst(['id'], ['uri-id' => $item['uri-id'], 'uid' => $uid]);
+		if (!empty($post['id'])) {
 			if (!empty($item['event-id'])) {
 				$post = Post::selectFirst(['event-id'], ['uri-id' => $item['uri-id'], 'uid' => $uid]);
 				if (!empty($post['event-id'])) {
@@ -1602,8 +1635,8 @@ class Item
 					}
 				}
 			}
-			Logger::info('Item already exists', ['uri-id' => $item['uri-id'], 'uid' => $uid]);
-			return 0;
+			Logger::info('Item already exists', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'id' => $post['id']]);
+			return $post['id'];
 		}
 
 		// Data from the "post-user" table
@@ -2054,15 +2087,9 @@ class Item
 		}
 
 		if ($item['gravity'] == GRAVITY_PARENT) {
-			$tags = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
-			foreach ($tags as $tag) {
-				if (Strings::compareLink($owner['url'], $tag['url'])) {
-					$mention = true;
-					Logger::info('Mention found in tag.', ['url' => $tag['url'], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-				}
-			}
-
-			if (!$mention) {
+			if (Tag::isMentioned($item['uri-id'], $owner['url'])) {
+				Logger::info('Mention found in tag.', ['uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			} else {
 				Logger::info('Top-level post without mention is deleted.', ['uri' => $item['uri'], $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 				Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
 				return true;
@@ -2072,15 +2099,9 @@ class Item
 
 			Hook::callAll('tagged', $arr);
 		} else {
-			$tags = Tag::getByURIId($item['parent-uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
-			foreach ($tags as $tag) {
-				if (Strings::compareLink($owner['url'], $tag['url'])) {
-					$mention = true;
-					Logger::info('Mention found in parent tag.', ['url' => $tag['url'], 'uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-				}
-			}
-
-			if (!$mention) {
+			if (Tag::isMentioned($item['parent-uri-id'], $owner['url'])) {
+				Logger::info('Mention found in parent tag.', ['uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			} else {
 				Logger::debug('No mentions found in parent, quitting here.', ['id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 				return false;
 			}
