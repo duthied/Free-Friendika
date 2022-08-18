@@ -27,6 +27,7 @@ class Mimetype
 	 * Return mimetype based on file extension
 	 *
 	 * @param string $filename filename
+	 *
 	 * @return mixed array or string
 	 */
 	public static function getContentType(string $filename)

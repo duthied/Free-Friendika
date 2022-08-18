@@ -50,6 +50,7 @@ class Network
 	 * and check DNS to see if it's real (or check if is a valid IP address)
 	 *
 	 * @param string $url The URL to be validated
+	 *
 	 * @return string|boolean The actual working URL, false else
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -259,6 +260,7 @@ class Network
 	 *
 	 * @param string $domain
 	 * @param array  $domain_list
+	 *
 	 * @return boolean
 	 */
 	public static function isDomainAllowed(string $domain, array $domain_list): bool
@@ -297,6 +299,7 @@ class Network
 	 * Remove Google Analytics and other tracking platforms params from URL
 	 *
 	 * @param string $url Any user-submitted URL that may contain tracking params
+	 *
 	 * @return string The same URL stripped of tracking parameters
 	 */
 	public static function stripTrackingQueryParams(string $url): string
@@ -350,9 +353,10 @@ class Network
 	 *
 	 * @param string $url
 	 * @param string $basepath
+	 *
 	 * @return string url
 	 */
-	public static function addBasePath(string $url, string $basepath)
+	public static function addBasePath(string $url, string $basepath): string
 	{
 		if (!empty(parse_url($url, PHP_URL_SCHEME)) || empty(parse_url($basepath, PHP_URL_SCHEME)) || empty($url) || empty(parse_url($url))) {
 			return $url;
@@ -372,6 +376,7 @@ class Network
 	 *
 	 * @param string $url1
 	 * @param string $url2
+	 *
 	 * @return string The matching part or empty string on error
 	 */
 	public static function getUrlMatch(string $url1, string $url2): string
@@ -459,6 +464,7 @@ class Network
 	 * Glue url parts together
 	 *
 	 * @param array $parsed URL parts
+	 *
 	 * @return string|null The glued URL or null on error
 	 * @deprecated since version 2021.12, use GuzzleHttp\Psr7\Uri::fromParts($parts) instead
 	 */
@@ -490,6 +496,7 @@ class Network
 	 * Convert an URI to an IDN compatible URI
 	 *
 	 * @param string $uri
+	 *
 	 * @return string
 	 */
 	public static function convertToIdn(string $uri): string
@@ -514,6 +521,7 @@ class Network
 	 * Switch the scheme of an url between http and https
 	 *
 	 * @param string $url
+	 *
 	 * @return string Switched URL
 	 */
 	public static function switchScheme(string $url): string
@@ -537,6 +545,7 @@ class Network
 	 *
 	 * @param string $path
 	 * @param array  $additionalParams Associative array of parameters
+	 *
 	 * @return string
 	 */
 	public static function appendQueryParam(string $path, array $additionalParams): string
@@ -563,6 +572,7 @@ class Network
 	 *
 	 * @param string $etag          The page etag
 	 * @param string $last_modified The page last modification UTC date
+	 *
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -601,6 +611,7 @@ class Network
 	 * Check if the given URL is a local link
 	 *
 	 * @param string $url
+	 *
 	 * @return bool
 	 */
 	public static function isLocalLink(string $url): bool
