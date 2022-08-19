@@ -33,7 +33,8 @@ class PidFile
 	 *
 	 * @return boolean|string PID or "false" if not existent
 	 */
-	static private function pidFromFile($file) {
+	private static function pidFromFile(string $file)
+	{
 		if (!file_exists($file)) {
 			return false;
 		}
@@ -48,7 +49,8 @@ class PidFile
 	 *
 	 * @return boolean Is it running?
 	 */
-	static public function isRunningProcess($file) {
+	public static function isRunningProcess(string $file): bool
+	{
 		$pid = self::pidFromFile($file);
 
 		if (!$pid) {
@@ -72,7 +74,8 @@ class PidFile
 	 *
 	 * @return boolean Was it killed successfully?
 	 */
-	static public function killProcess($file) {
+	public static function killProcess(string $file): bool
+	{
 		$pid = self::pidFromFile($file);
 
 		// We don't have a process id? then we quit
@@ -97,7 +100,7 @@ class PidFile
 	 *
 	 * @return boolean|string PID or "false" if not created
 	 */
-	static public function create(string $file)
+	public static function create(string $file)
 	{
 		$pid = self::pidFromFile($file);
 
@@ -120,7 +123,7 @@ class PidFile
 	 *
 	 * @return boolean Is it running?
 	 */
-	static public function delete(string $file): bool
+	public static function delete(string $file): bool
 	{
 		return @unlink($file);
 	}

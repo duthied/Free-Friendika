@@ -107,6 +107,7 @@ class ApiResponse extends Response
 	 *
 	 * @param array $arr Array to be passed to template
 	 * @param int   $cid Contact ID of template
+	 *
 	 * @return array
 	 */
 	private function addRSSValues(array $arr, int $cid): array
@@ -149,6 +150,7 @@ class ApiResponse extends Response
 			case 'atom':
 			case 'xml':
 				return $this->createXML($data, $root_element);
+
 			case 'json':
 			default:
 				return $data;
@@ -219,6 +221,7 @@ class ApiResponse extends Response
 			case 'xml':
 				$this->setType(static::TYPE_XML);
 				break;
+
 			case 'json':
 				$this->setType(static::TYPE_JSON);
 				if (!empty($return)) {
@@ -229,9 +232,11 @@ class ApiResponse extends Response
 					$return = $json;
 				}
 				break;
+
 			case 'rss':
 				$this->setType(static::TYPE_RSS);
 				break;
+
 			case 'atom':
 				$this->setType(static::TYPE_ATOM);
 				break;

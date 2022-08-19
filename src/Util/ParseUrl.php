@@ -187,7 +187,7 @@ class ParseUrl
 	 * </body>
 	 * @endverbatim
 	 */
-	public static function getSiteinfo(string $url, bool $do_oembed = true, int $count = 1)
+	public static function getSiteinfo(string $url, bool $do_oembed = true, int $count = 1): array
 	{
 		if (empty($url)) {
 			return [
@@ -645,6 +645,7 @@ class ParseUrl
 	 * Convert tags from CSV to an array
 	 *
 	 * @param string $string Tags
+	 *
 	 * @return array with formatted Hashtags
 	 */
 	public static function convertTagsToArray(string $string): array
@@ -666,6 +667,7 @@ class ParseUrl
 	 *
 	 * @param string $tag The pure tag name
 	 * @param int    $k   Counter for internal use
+	 *
 	 * @return void
 	 */
 	private static function arrAddHashes(string &$tag, int $k)
@@ -729,6 +731,7 @@ class ParseUrl
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
+	 *
 	 * @return array siteinfo
 	 */
 	private static function parseParts(array $siteinfo, array $jsonld): array
@@ -774,6 +777,7 @@ class ParseUrl
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
+	 *
 	 * @return array siteinfo
 	 */
 	private static function parseJsonLd(array $siteinfo, array $jsonld): array
@@ -867,6 +871,7 @@ class ParseUrl
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
+	 *
 	 * @return array siteinfo
 	 */
 	private static function parseJsonLdAuthor(array $siteinfo, array $jsonld): array
@@ -951,6 +956,7 @@ class ParseUrl
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
+	 *
 	 * @return array siteinfo
 	 */
 	private static function parseJsonLdArticle(array $siteinfo, array $jsonld): array
@@ -1021,6 +1027,7 @@ class ParseUrl
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
+	 *
 	 * @return array siteinfo
 	 */
 	private static function parseJsonLdWebPage(array $siteinfo, array $jsonld): array
@@ -1060,6 +1067,7 @@ class ParseUrl
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
+	 *
 	 * @return array siteinfo
 	 */
 	private static function parseJsonLdWebSite(array $siteinfo, array $jsonld): array
@@ -1098,6 +1106,7 @@ class ParseUrl
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
+	 *
 	 * @return array siteinfo
 	 */
 	private static function parseJsonLdWebOrganization(array $siteinfo, array $jsonld): array
@@ -1144,6 +1153,7 @@ class ParseUrl
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
+	 *
 	 * @return array siteinfo
 	 */
 	private static function parseJsonLdWebPerson(array $siteinfo, array $jsonld): array
@@ -1189,6 +1199,7 @@ class ParseUrl
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
+	 *
 	 * @return array siteinfo
 	 */
 	private static function parseJsonLdMediaObject(array $siteinfo, array $jsonld, string $name): array
