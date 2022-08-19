@@ -448,21 +448,40 @@ class Item
 	 */
 	private static function contactId(array $item): int
 	{
-		if (!empty($item['contact-id']) && DBA::exists('contact', ['self' => true, 'id' => $item['contact-id']])) {
-			return $item['contact-id'];
-		} elseif (($item['gravity'] == GRAVITY_PARENT) && !empty($item['uid']) && !empty($item['contact-id']) && Contact::isSharing($item['contact-id'], $item['uid'])) {
-			return $item['contact-id'];
-		} elseif (!empty($item['uid']) && !Contact::isSharing($item['author-id'], $item['uid'])) {
+		if ($item['uid'] == 0) {
 			return $item['author-id'];
-		} elseif (!empty($item['contact-id'])) {
-			return $item['contact-id'];
-		} else {
-			$contact_id = Contact::getIdForURL($item['author-link'], $item['uid']);
+		}
+		if (!empty($item['causer-id']) && Contact::isSharing($item['causer-id'], $item['uid'], true)) {
+			$cdata = Contact::getPublicAndUserContactID($item['causer-id'], $item['uid']);
+			if (!empty($cdata['user'])) {
+				return $cdata['user'];
+			}
+		}
+
+		if ($item['gravity'] == GRAVITY_PARENT) {
+			if (Contact::isSharingByURL($item['owner-link'], $item['uid'], true)) {
+				$contact_id = Contact::getIdForURL($item['owner-link'], $item['uid']);
+			} else {
+				$contact_id = Contact::getIdForURL($item['owner-link']);
+			}
 			if (!empty($contact_id)) {
 				return $contact_id;
 			}
 		}
-		return $item['author-id'];
+
+		if (Contact::isSharingByURL($item['author-link'], $item['uid'], true)) {
+			$contact_id = Contact::getIdForURL($item['author-link'], $item['uid']);
+		} else {
+			$contact_id = Contact::getIdForURL($item['author-link']);
+		}
+
+		if (!empty($contact_id)) {
+			return $contact_id;
+		}
+
+		Logger::warning('contact-id could not be fetched, using self contact instead.', ['uid' => $item['uid'], 'item' => $item]);
+		$self = Contact::selectFirst(['id'], ['self' => true, 'uid' => $item['uid']]);
+		return $self['id'];
 	}
 
 	/**
@@ -911,8 +930,9 @@ class Item
 		Contact::checkAvatarCache($item['author-id']);
 		Contact::checkAvatarCache($item['owner-id']);
 
-		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
-		$item['contact-id'] = self::contactId($item);
+		if (!Contact::isSharing($item['contact-id'], $item['uid'])) {
+			$item['contact-id'] = self::contactId($item);
+		}
 
 		if (!empty($item['direction']) && in_array($item['direction'], [Conversation::PUSH, Conversation::RELAY]) &&
 			empty($item['origin']) && self::isTooOld($item)) {
@@ -1660,25 +1680,7 @@ class Item
 		$item['origin'] = 0;
 		$item['wall'] = 0;
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
-			$contact = Contact::getByURLForUser($item['owner-link'], $uid, false, ['id']);
-		} else {
-			$contact = Contact::getByURLForUser($item['author-link'], $uid, false, ['id']);
-		}
-
-		if (!empty($contact['id'])) {
-			$item['contact-id'] = $contact['id'];
-		} else {
-			// Shouldn't happen at all
-			Logger::warning('contact-id could not be fetched', ['uid' => $uid, 'item' => $item]);
-			$self = DBA::selectFirst('contact', ['id'], ['self' => true, 'uid' => $uid]);
-			if (!DBA::isResult($self)) {
-				// Shouldn't happen even less
-				Logger::warning('self contact could not be fetched', ['uid' => $uid, 'item' => $item]);
-				return 0;
-			}
-			$item['contact-id'] = $self['id'];
-		}
+		$item['contact-id'] = self::contactId($item);
 
 		$notify = false;
 		if ($item['gravity'] == GRAVITY_PARENT) {

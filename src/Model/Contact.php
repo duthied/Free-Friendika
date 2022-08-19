@@ -327,14 +327,15 @@ class Contact
 	/**
 	 * Tests if the given contact is a follower
 	 *
-	 * @param int $cid Either public contact id or user's contact id
-	 * @param int $uid User ID
+	 * @param int  $cid    Either public contact id or user's contact id
+	 * @param int  $uid    User ID
+	 * @param bool $strict If "true" then contact mustn't be set to pending or readonly
 	 *
 	 * @return boolean is the contact id a follower?
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isFollower(int $cid, int $uid): bool
+	public static function isFollower(int $cid, int $uid, bool $strict = false): bool
 	{
 		if (Contact\User::isBlocked($cid, $uid)) {
 			return false;
@@ -346,20 +347,24 @@ class Contact
 		}
 
 		$condition = ['id' => $cdata['user'], 'rel' => [self::FOLLOWER, self::FRIEND]];
+		if ($strict) {
+			$condition = array_merge($condition, ['pending' => false, 'readonly' => false, 'blocked' => false]);
+		}
 		return DBA::exists('contact', $condition);
 	}
 
 	/**
 	 * Tests if the given contact url is a follower
 	 *
-	 * @param string $url Contact URL
-	 * @param int    $uid User ID
+	 * @param string $url    Contact URL
+	 * @param int    $uid    User ID
+	 * @param bool   $strict If "true" then contact mustn't be set to pending or readonly
 	 *
 	 * @return boolean is the contact id a follower?
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isFollowerByURL(string $url, int $uid): bool
+	public static function isFollowerByURL(string $url, int $uid, bool $strict = false): bool
 	{
 		$cid = self::getIdForURL($url, $uid);
 
@@ -367,20 +372,21 @@ class Contact
 			return false;
 		}
 
-		return self::isFollower($cid, $uid);
+		return self::isFollower($cid, $uid, $strict);
 	}
 
 	/**
 	 * Tests if the given user shares with the given contact
 	 *
-	 * @param int $cid Either public contact id or user's contact id
-	 * @param int $uid User ID
+	 * @param int  $cid    Either public contact id or user's contact id
+	 * @param int  $uid    User ID
+	 * @param bool $strict If "true" then contact mustn't be set to pending or readonly
 	 *
 	 * @return boolean is the contact sharing with given user?
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSharing(int $cid, int $uid): bool
+	public static function isSharing(int $cid, int $uid, bool $strict = false): bool
 	{
 		if (Contact\User::isBlocked($cid, $uid)) {
 			return false;
@@ -392,20 +398,24 @@ class Contact
 		}
 
 		$condition = ['id' => $cdata['user'], 'rel' => [self::SHARING, self::FRIEND]];
+		if ($strict) {
+			$condition = array_merge($condition, ['pending' => false, 'readonly' => false, 'blocked' => false]);
+		}
 		return DBA::exists('contact', $condition);
 	}
 
 	/**
 	 * Tests if the given user follow the given contact url
 	 *
-	 * @param string $url Contact URL
-	 * @param int    $uid User ID
+	 * @param string $url    Contact URL
+	 * @param int    $uid    User ID
+	 * @param bool   $strict If "true" then contact mustn't be set to pending or readonly
 	 *
 	 * @return boolean is the contact url being followed?
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSharingByURL(string $url, int $uid): bool
+	public static function isSharingByURL(string $url, int $uid, bool $strict = false): bool
 	{
 		$cid = self::getIdForURL($url, $uid);
 
@@ -413,7 +423,7 @@ class Contact
 			return false;
 		}
 
-		return self::isSharing($cid, $uid);
+		return self::isSharing($cid, $uid, $strict);
 	}
 
 	/**
