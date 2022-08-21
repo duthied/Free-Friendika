@@ -69,21 +69,27 @@ class Profiler implements ContainerInterface
 	/**
 	 * Updates the enabling of the current profiler
 	 *
+	 * Note: The reason there are two different ways of updating the configuration of this class is because it can
+	 * be used even with no available database connection which IManageConfigValues doesn't ensure.
+	 *
 	 * @param IManageConfigValues $config
 	 */
 	public function update(IManageConfigValues $config)
 	{
-		$this->enabled = $config->get('system', 'profiler');
-		$this->rendertime = $config->get('rendertime', 'callstack');
+		$this->enabled = (bool) $config->get('system', 'profiler') ?? false;
+		$this->rendertime = (bool) $config->get('rendertime', 'callstack') ?? false;
 	}
 
 	/**
+	 * Note: The reason we are using a Config Cache object to initialize this class is to ensure it'll work even with no
+	 * available database connection.
+	 *
 	 * @param \Friendica\Core\Config\ValueObject\Cache $configCache The configuration cache
 	 */
 	public function __construct(Cache $configCache)
 	{
-		$this->enabled = $configCache->get('system', 'profiler');
-		$this->rendertime = $configCache->get('rendertime', 'callstack');
+		$this->enabled = (bool) $configCache->get('system', 'profiler') ?? false;
+		$this->rendertime = (bool) $configCache->get('rendertime', 'callstack') ?? false;
 		$this->reset();
 	}
 
