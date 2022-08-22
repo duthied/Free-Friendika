@@ -451,6 +451,12 @@ class Item
 		if ($item['uid'] == 0) {
 			return $item['author-id'];
 		}
+
+		if ($item['origin']) {
+			$owner = User::getOwnerDataById($item['uid']);
+			return $owner['id'];
+		}
+
 		if (!empty($item['causer-id']) && Contact::isSharing($item['causer-id'], $item['uid'], true)) {
 			$cdata = Contact::getPublicAndUserContactID($item['causer-id'], $item['uid']);
 			if (!empty($cdata['user'])) {
@@ -930,9 +936,7 @@ class Item
 		Contact::checkAvatarCache($item['author-id']);
 		Contact::checkAvatarCache($item['owner-id']);
 
-		if (!Contact::isSharing($item['contact-id'], $item['uid'])) {
-			$item['contact-id'] = self::contactId($item);
-		}
+		$item['contact-id'] = self::contactId($item);
 
 		if (!empty($item['direction']) && in_array($item['direction'], [Conversation::PUSH, Conversation::RELAY]) &&
 			empty($item['origin']) && self::isTooOld($item)) {
