@@ -629,7 +629,7 @@ class Diaspora
 		$type = $element->getName();
 		$orig_type = $type;
 
-		Logger::debug('Got message type ' . $type . ': ' . $msg['message']);
+		Logger::debug('Got message', ['type' => $type, 'message' => $msg['message']]);
 
 		// All retractions are handled identically from now on.
 		// In the new version there will only be "retraction".
@@ -714,9 +714,15 @@ class Diaspora
 		if (!in_array($type, ['comment', 'like'])) {
 			return $fields;
 		}
+
+		if (!isset($author_signature) && ($msg['author'] == $fields->author)) {
+			Logger::debug('No author signature, but the sender matches the author', ['type' => $type, 'msg-author' => $msg['author'], 'message' => $msg['message']]);
+			return $fields;
+		}
+
 		// No author_signature? This is a must, so we quit.
 		if (!isset($author_signature)) {
-			Logger::info('No author signature for type ' . $type . ' - Message: ' . $msg['message']);
+			Logger::info('No author signature', ['type' => $type, 'msg-author' => $msg['author'], 'fields-author' => $fields->author, 'message' => $msg['message']]);
 			return false;
 		}
 
