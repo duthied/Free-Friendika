@@ -415,7 +415,7 @@ $a->strings['Could not find any contact entry for this URL (%s)'] = 'Aucun profi
 $a->strings['The contact has been blocked from the node'] = 'Le profile distant a été bloqué';
 $a->strings['%d %s, %d duplicates.'] = '%d%s, %d duplications.';
 $a->strings['uri-id is empty for contact %s.'] = 'l\'uri-id est vide pour le contact %s.';
-$a->strings['No valid first countact found for uri-id %d.'] = 'Aucun premier contact valide trouvé pour l\'uri-id %d.';
+$a->strings['No valid first contact found for uri-id %d.'] = 'Aucun premier contact valide trouvé pour l\'uri-id %d.';
 $a->strings['Wrong duplicate found for uri-id %d in %d (url: %s != %s).'] = 'Mauvaise duplication trouvée pour l\'uri-id %d dans %d (url : %s != %s).';
 $a->strings['Wrong duplicate found for uri-id %d in %d (nurl: %s != %s).'] = 'Mauvaise duplication trouvée pour l\'uri-id %d dans %d (nurl : %s != %s).';
 $a->strings['Deletion of id %d failed'] = 'La suppression de l\'id %d a échoué.';
@@ -518,16 +518,21 @@ $a->strings['remove'] = 'enlever';
 $a->strings['Delete Selected Items'] = 'Supprimer les éléments sélectionnés';
 $a->strings['You had been addressed (%s).'] = 'Vous avez été mentionné (%s)';
 $a->strings['You are following %s.'] = 'Vous suivez %s.';
-$a->strings['Tagged'] = 'Mentionné';
+$a->strings['You subscribed to one or more tags in this post.'] = 'Vous vous êtes abonné(e) à une étiquette ou plus de cette publication.';
 $a->strings['Reshared'] = 'Partagé';
 $a->strings['Reshared by %s <%s>'] = 'Partagé par %s <%s>';
 $a->strings['%s is participating in this thread.'] = '%s participe à ce fil de discussion';
-$a->strings['Stored'] = 'Enregistré';
-$a->strings['Global'] = 'Global';
-$a->strings['Relayed'] = 'Relayé';
-$a->strings['Relayed by %s <%s>'] = 'Relayé par %s <%s>';
+$a->strings['Stored for general reasons'] = 'Stocké pour des raisons générales.';
+$a->strings['Global post'] = 'Publication globale';
+$a->strings['Sent via an relay server'] = 'Envoyé via un serveur relais';
+$a->strings['Sent via the relay server %s <%s>'] = 'Envoyé par le serveur relais %s <%s>';
 $a->strings['Fetched'] = 'Récupéré';
 $a->strings['Fetched because of %s <%s>'] = 'Récupéré grâce à %s <%s>';
+$a->strings['Stored because of a child post to complete this thread.'] = 'Stocké parce qu\'une publication fille complète ce fil de discussion.';
+$a->strings['Local delivery'] = 'Distribution locale';
+$a->strings['Stored because of your activity (like, comment, star, ...)'] = 'Stocké en lien avec votre activité (j\'aime, commentaire, étoile...)';
+$a->strings['Distributed'] = 'Distribué';
+$a->strings['Pushed to us'] = 'Poussé vers nous';
 $a->strings['General Features'] = 'Fonctions générales';
 $a->strings['Photo Location'] = 'Lieu de prise de la photo';
 $a->strings['Photo metadata is normally stripped. This extracts the location (if present) prior to stripping metadata and links it to a map.'] = 'Les métadonnées des photos sont normalement retirées. Ceci permet de sauver l\'emplacement (si présent) et de positionner la photo sur une carte.';
@@ -554,7 +559,6 @@ $a->strings['Forums'] = 'Forums';
 $a->strings['External link to forum'] = 'Lien sortant vers le forum';
 $a->strings['show less'] = 'voir moins';
 $a->strings['show more'] = 'montrer plus';
-$a->strings['%1$s poked %2$s'] = '%1$s a sollicité %2$s';
 $a->strings['event'] = 'évènement';
 $a->strings['Follow Thread'] = 'Suivre le fil';
 $a->strings['View Status'] = 'Voir les statuts';
@@ -566,7 +570,6 @@ $a->strings['Send PM'] = 'Message privé';
 $a->strings['Block'] = 'Bloquer';
 $a->strings['Ignore'] = 'Ignorer';
 $a->strings['Languages'] = 'Langues';
-$a->strings['Poke'] = 'Sollicitations (pokes)';
 $a->strings['Nothing new here'] = 'Rien de neuf ici';
 $a->strings['Go back'] = 'Revenir';
 $a->strings['Clear notifications'] = 'Effacer les notifications';
@@ -754,6 +757,8 @@ $a->strings['JSON PHP module'] = 'Module PHP JSON';
 $a->strings['Error: JSON PHP module required but not installed.'] = 'Erreur : Le module PHP JSON est requis mais absent sur votre serveur.';
 $a->strings['File Information PHP module'] = 'Module PHP fileinfo';
 $a->strings['Error: File Information PHP module required but not installed.'] = 'Erreur : Le module PHP fileinfo requis est absent.';
+$a->strings['GNU Multiple Precision PHP module'] = 'Module PHP de Précision Multiple GNU';
+$a->strings['Error: GNU Multiple Precision PHP module required but not installed.'] = 'Erreur : le module PHP de Précision Multiple GNU est requis mais il n\'est pas installé.';
 $a->strings['The web installer needs to be able to create a file called "local.config.php" in the "config" folder of your web server and it is unable to do so.'] = 'L\'installeur web n\'est pas en mesure de créer le fichier "local.config.php" dans le répertoire "config" de votre serveur.';
 $a->strings['This is most often a permission setting, as the web server may not be able to write files in your folder - even if you can.'] = 'Le plus souvent, il s\'agit d\'un problème de permission. Le serveur web peut ne pas être capable d\'écrire dans votre répertoire - alors que vous-même le pouvez.';
 $a->strings['At the end of this procedure, we will give you a text to save in a file named local.config.php in your Friendica "config" folder.'] = 'À la fin de la procédure d\'installation nous vous fournirons le contenu du fichier "local.config.php" à créer manuellement dans le sous-répertoire "config" de votre répertoire Friendica sur votre serveur.';
@@ -815,18 +820,6 @@ $a->strings['Sep'] = 'Sep';
 $a->strings['Oct'] = 'Oct';
 $a->strings['Nov'] = 'Nov';
 $a->strings['Dec'] = 'Déc';
-$a->strings['poke'] = 'titiller';
-$a->strings['poked'] = 'a titillé';
-$a->strings['ping'] = 'attirer l\'attention';
-$a->strings['pinged'] = 'a attiré l\'attention de';
-$a->strings['prod'] = 'aiguillonner';
-$a->strings['prodded'] = 'a aiguillonné';
-$a->strings['slap'] = 'gifler';
-$a->strings['slapped'] = 'a giflé';
-$a->strings['finger'] = 'tripoter';
-$a->strings['fingered'] = 'a tripoté';
-$a->strings['rebuff'] = 'rabrouer';
-$a->strings['rebuffed'] = 'a rabroué';
 $a->strings['Friendica can\'t display this page at the moment, please contact the administrator.'] = 'Friendica ne peut pas afficher cette page pour le moment. Merci de contacter l\'administrateur.';
 $a->strings['template engine cannot be registered without a name.'] = 'Le moteur de template ne peut pas être enregistré sans nom.';
 $a->strings['template engine is not registered!'] = 'le moteur de template n\'est pas enregistré!';
@@ -932,10 +925,26 @@ $a->strings['comment'] = 'commentaire';
 $a->strings['post'] = 'publication';
 $a->strings['Content warning: %s'] = 'Avertissement de contenu: %s';
 $a->strings['bytes'] = 'octets';
-$a->strings['%s (%d%s, %d votes)'] = '%s (%d%s, %d votes)';
-$a->strings['%s (%d votes)'] = '%s (%d votes)';
-$a->strings['%d voters. Poll end: %s'] = '%d votants. Fin du sondage : %s';
-$a->strings['%d voters.'] = '%d votants.';
+$a->strings['%2$s (%3$d%%, %1$d vote)'] = [
+	0 => '%2$s (%3$d%%, %1$d vote)',
+	1 => '%2$s (%3$d%%, %1$d votes)',
+	2 => '%2$s (%3$d%%, %1$d vote)',
+];
+$a->strings['%2$s (%1$d vote)'] = [
+	0 => '%2$s (%1$d vote)',
+	1 => '%2$s (%1$d votes)',
+	2 => '%2$s (%1$d vote)',
+];
+$a->strings['%d voter. Poll end: %s'] = [
+	0 => '%d votant. Fin du sondage : %s',
+	1 => '%d votants. Fin du sondage : %s',
+	2 => '%d votant. Fin du sondage : %s',
+];
+$a->strings['%d voter.'] = [
+	0 => '%d votant.',
+	1 => '%d votants.',
+	2 => '%d votant.',
+];
 $a->strings['Poll end: %s'] = 'Fin du sondage : %s';
 $a->strings['View on separate page'] = 'Voir dans une nouvelle page';
 $a->strings['[no subject]'] = '[pas de sujet]';
@@ -979,6 +988,7 @@ $a->strings['Not enough information to authenticate'] = 'Pas assez d\'informatio
 $a->strings['Password can\'t be empty'] = 'Le mot de passe ne peut pas être vide';
 $a->strings['Empty passwords are not allowed.'] = 'Les mots de passe vides ne sont pas acceptés.';
 $a->strings['The new password has been exposed in a public data dump, please choose another.'] = 'Le nouveau mot de passe fait partie d\'une fuite de mot de passe publique, veuillez en choisir un autre.';
+$a->strings['The password length is limited to 72 characters.'] = 'La taille du mot de passe est limitée à 72 caractères.';
 $a->strings['The password can\'t contain accentuated letters, white spaces or colons (:)'] = 'Le mot de passe ne peut pas contenir de lettres accentuées, d\'espaces ou de deux-points (:)';
 $a->strings['Passwords do not match. Password unchanged.'] = 'Les mots de passe ne correspondent pas. Aucun changement appliqué.';
 $a->strings['An invitation is required.'] = 'Une invitation est requise.';
@@ -1150,6 +1160,16 @@ $a->strings['
 		Si jamais vous souhaitiez supprimer votre compte, vous pouvez le faire à %3$s/removeme
 
 		Merci et bienvenue sur %2$s.';
+$a->strings['[%s] Notice of remote server domain pattern block list update'] = '[%s] Annonce de mise à jour de la liste de blocage de motif de domaine de serveur distant';
+$a->strings['Dear %s,
+
+You are receiving this email because the Friendica node at %s where you are registered as a user updated their remote server domain pattern block list.
+
+Please review the updated list at %s at your earliest convenience.'] = '%s,
+
+Vous recevez cet email parce que le serveur Friendica à %s où vous vous êtes inscrit∙e a mis à jour sa liste de blocage de motif de domaine de serveur.
+
+Veuillez prendre connaissance de la liste mise à jour à %s dès que possible.';
 $a->strings['Addon not found.'] = 'Extension manquante.';
 $a->strings['Addon %s disabled.'] = 'Add-on %s désactivé.';
 $a->strings['Addon %s enabled.'] = 'Add-on %s activé.';
@@ -1247,6 +1267,31 @@ $a->strings['Also purges all the locally stored content authored by the known co
 ];
 $a->strings['Block reason'] = 'Raison du blocage';
 $a->strings['The reason why you blocked this server domain pattern. This reason will be shown publicly in the server information page.'] = 'La raison pour laquelle vous avez bloqué ce modèle de domaine de serveur. La raison sera publiquement affichée dans la page d\'information du serveur.';
+$a->strings['Error importing pattern file'] = 'Erreur lors de l\'import du fichier de motifs';
+$a->strings['Local blocklist replaced with the provided file.'] = 'La liste de blocage locale a été remplacée par le fichier fourni.';
+$a->strings['%d pattern was added to the local blocklist.'] = [
+	0 => '%d motif a été ajouté à la liste de blocage locale.',
+	1 => '%d motifs ont été ajoutés à la liste de blocage locale.',
+	2 => '%d motifs ont été ajoutés à la liste de blocage locale.',
+];
+$a->strings['No pattern was added to the local blocklist.'] = 'Aucun motif n\'a été ajouté à la liste de blocage locale.';
+$a->strings['Import a Server Domain Pattern Blocklist'] = 'Importer une liste de blocage de motif de domaine de serveur';
+$a->strings['<p>This file can be downloaded from the <code>/friendica</code> path of any Friendica server.</p>'] = '<p>Ce fichier peut être téléchargé depuis le chemin <code>/friendica</code> de n\'importe quel serveur Friendica.</p>';
+$a->strings['Upload file'] = 'Téléverser un fichier';
+$a->strings['Patterns to import'] = 'Motifs à importer';
+$a->strings['Domain Pattern'] = 'Motif de domaine';
+$a->strings['Import Mode'] = 'Mode d\'import';
+$a->strings['Import Patterns'] = 'Importer les motifs';
+$a->strings['%d total pattern'] = [
+	0 => '%d motif total',
+	1 => '%d motifs totaux',
+	2 => '%d motifs totaux',
+];
+$a->strings['Server domain pattern blocklist CSV file'] = 'Fichier CSV de liste de blocage de motif de domaine de serveur';
+$a->strings['Append'] = 'Ajouter';
+$a->strings['Imports patterns from the file that weren\'t already existing in the current blocklist.'] = 'Importe les motifs du fichier qui n\'étaient pas déjà présent dans la liste de blocage actuelle.';
+$a->strings['Replace'] = 'Remplacer';
+$a->strings['Replaces the current blocklist by the imported patterns.'] = 'Remplace la liste de blocage locale par les motifs importés.';
 $a->strings['Blocked server domain pattern'] = 'Filtre de domaine bloqué';
 $a->strings['Reason for the block'] = 'Raison du blocage';
 $a->strings['Delete server domain pattern'] = 'Supprimer ce filtre de domaine bloqué';
@@ -1254,6 +1299,7 @@ $a->strings['Check to delete this entry from the blocklist'] = 'Cochez la case p
 $a->strings['Server Domain Pattern Blocklist'] = 'Liste des filtres de domaines bloqués';
 $a->strings['This page can be used to define a blocklist of server domain patterns from the federated network that are not allowed to interact with your node. For each domain pattern you should also provide the reason why you block it.'] = 'Cette page sert à définit une liste de blocage de schémas de domaine de serveurs distants qui ne sont pas autorisé à interagir avec ce serveur. Veuillez fournir la raison pour laquelle vous avez décidé de bloquer chaque schéma de domaine.';
 $a->strings['The list of blocked server domain patterns will be made publically available on the <a href="/friendica">/friendica</a> page so that your users and people investigating communication problems can find the reason easily.'] = 'La liste de blocage est disponible publiquement à la page <a href="/friendica">/friendica</a> pour permettre de déterminer la cause de certains problèmes de communication avec des serveurs distants.';
+$a->strings['Import server domain pattern blocklist'] = 'Importer la liste de blocage de motif de domaine de serveur';
 $a->strings['Add new entry to the blocklist'] = 'Ajouter une nouvelle entrée à la liste de blocage';
 $a->strings['Save changes to the blocklist'] = 'Sauvegarder la liste noire';
 $a->strings['Current Entries in the Blocklist'] = 'Entrées de la liste noire';
@@ -1276,16 +1322,48 @@ $a->strings['Lock feature %s'] = 'Verouiller la fonctionnalité %s';
 $a->strings['Manage Additional Features'] = 'Gérer les fonctionnalités avancées';
 $a->strings['Other'] = 'Autre';
 $a->strings['unknown'] = 'inconnu';
-$a->strings['%s total systems'] = '%s systèmes au total';
-$a->strings['%s active users last month'] = '%s utilisateurs actifs le mois dernier';
-$a->strings['%s active users last six months'] = '%s utilisateurs actifs les six derniers mois';
-$a->strings['%s registered users'] = '%s utilisateurs inscrits';
-$a->strings['%s locally created posts and comments'] = '%s publications et commentaires locaux';
-$a->strings['%s posts per user'] = '%s publications par utilisateur';
-$a->strings['%s users per system'] = '%s utilisateurs par système';
+$a->strings['%2$s total system'] = [
+	0 => '%2$s système au total',
+	1 => '%2$s systèmes au total',
+	2 => '%2$s système au total',
+];
+$a->strings['%2$s active user last month'] = [
+	0 => '%2$s utilisateur actif le mois dernier',
+	1 => '%2$s utilisateurs actifs le mois dernier',
+	2 => '%2$s utilisateur actif le mois dernier',
+];
+$a->strings['%2$s active user last six months'] = [
+	0 => '%2$s utilisateur actif ces six derniers mois',
+	1 => '%2$s utilisateurs actifs ces six derniers mois',
+	2 => '%2$s utilisateur actif ces six derniers mois',
+];
+$a->strings['%2$s registered user'] = [
+	0 => '%2$s utilisateur enregistré',
+	1 => '%2$s utilisateurs enregistrés',
+	2 => '%2$s utilisateur enregistré',
+];
+$a->strings['%2$s locally created post or comment'] = [
+	0 => '%2$s publication ou commentaire créé localement',
+	1 => '%2$s publications et commentaires créés localement',
+	2 => '%2$s publication ou commentaire créé localement',
+];
+$a->strings['%2$s post per user'] = [
+	0 => '%2$s publication par utilisateur',
+	1 => '%2$s publications par utilisateur',
+	2 => '%2$s publication par utilisateur',
+];
+$a->strings['%2$s user per system'] = [
+	0 => '%2$s utilisateur par système',
+	1 => '%2$s utilisateurs par système',
+	2 => '%2$s utilisateur par système',
+];
 $a->strings['This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.'] = 'Cette page montre quelques statistiques de la partie connue du réseau social fédéré dont votre instance Friendica fait partie. Ces chiffres sont partiels et ne reflètent que la portion du réseau dont votre instance a connaissance.';
 $a->strings['Federation Statistics'] = 'Statistiques Federation';
-$a->strings['Currently this node is aware of %s nodes (%s active users last month, %s active users last six months, %s registered users in total) from the following platforms:'] = 'Actuellement ce nœud a connaissance de %s autres nœuds (%s utilisateurs actifs le mois dernier, %s utilisateurs actifs les six derniers mois, %s utlisateurs inscrits au total) des plateformes suivantes :';
+$a->strings['Currently this node is aware of %2$s node (%3$s active users last month, %4$s active users last six months, %5$s registered users in total) from the following platforms:'] = [
+	0 => 'Actuellement, ce nœud est en relation avec %2$s autre nœud (%3$s utilisateurs actifs le mois dernier, %4$s ces six derniers mois, %5$s utilisateurs enregistrés au total) issus des plateformes suivantes :',
+	1 => 'Actuellement, ce nœud est en relation avec %2$s autres nœuds (%3$s utilisateurs actifs le mois dernier, %4$s ces six derniers mois, %5$s utilisateurs enregistrés au total) issus des plateformes suivantes :',
+	2 => 'Actuellement, ce nœud est en relation avec %2$s autre nœud (%3$s utilisateurs actifs  le mois dernier, %4$s ces six derniers mois, %5$s utilisateurs enregistrés au total) issus des plateformes suivantes :',
+];
 $a->strings['Item marked for deletion.'] = 'L\'élément va être supprimé.';
 $a->strings['Delete Item'] = 'Supprimer un élément';
 $a->strings['Delete this Item'] = 'Supprimer l\'élément';
@@ -1304,7 +1382,6 @@ $a->strings['Term'] = 'Terme';
 $a->strings['URL'] = 'URL';
 $a->strings['Mention'] = 'Mention';
 $a->strings['Implicit Mention'] = 'Mention implicite';
-$a->strings['Source'] = 'Source';
 $a->strings['The logfile \'%s\' is not writable. No logging possible'] = 'Le fichier journal \'%s\' n\'est pas accessible en écriture. Pas de journalisation possible';
 $a->strings['PHP log currently enabled.'] = 'Log PHP actuellement activé.';
 $a->strings['PHP log currently disabled.'] = 'Log PHP actuellement desactivé.';
@@ -1328,6 +1405,7 @@ $a->strings['ALL'] = 'TOUS';
 $a->strings['View details'] = 'Voir les détails';
 $a->strings['Click to view details'] = 'Cliquer pour voir les détails';
 $a->strings['Data'] = 'Données';
+$a->strings['Source'] = 'Source';
 $a->strings['File'] = 'Fichier';
 $a->strings['Line'] = 'Ligne';
 $a->strings['Function'] = 'Fonction';
@@ -1517,6 +1595,8 @@ $a->strings['Temp path'] = 'Chemin des fichiers temporaires';
 $a->strings['If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.'] = 'Si vous n\'avez pas la possibilité d\'avoir accès au répertoire temp, entrez un autre répertoire ici.';
 $a->strings['Only search in tags'] = 'Rechercher seulement dans les étiquettes';
 $a->strings['On large systems the text search can slow down the system extremely.'] = 'La recherche textuelle peut ralentir considérablement les systèmes de grande taille.';
+$a->strings['Generate counts per contact group when calculating network count'] = 'Générer des comptes par groupe de contacts lors du calcul du nombre de réseaux.';
+$a->strings['On systems with users that heavily use contact groups the query can be very expensive.'] = 'Sur les systèmes avec des utilisateurs utilisant extensivement les groupes de contacts, cette requête peut être très coûteuse.';
 $a->strings['Maximum number of parallel workers'] = 'Nombre maximum de processus simultanés';
 $a->strings['On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.'] = 'Sur un hébergement partagé, mettez %d. Sur des serveurs plus puissants, %d est optimal. La valeur par défaut est %d.';
 $a->strings['Enable fastlane'] = 'Activer la file prioritaire';
@@ -1695,7 +1775,11 @@ $a->strings['Weekly posting limit of %d post reached. The post was rejected.'] =
 	1 => 'Limite hebdomadaire de %d publications atteinte, votre soumission a été rejetée.',
 	2 => 'Limite hebdomadaire de %d publications atteinte, votre soumission a été rejetée.',
 ];
-$a->strings['Monthly posting limit of %d post reached. The post was rejected.'] = 'La limite mensuelle de%d publication est atteinte. Votre publication a été rejetée.';
+$a->strings['Monthly posting limit of %d post reached. The post was rejected.'] = [
+	0 => 'La limite du nombre de publications de %d publication a été atteinte. La publication a été refusée.',
+	1 => 'La limite du nombre de publications de %d publications a été atteinte. La publication a été refusée.',
+	2 => 'La limite du nombre de publications de %d publication a été atteinte. La publication a été refusée.',
+];
 $a->strings['Profile Details'] = 'Détails du profil';
 $a->strings['Only You Can See This'] = 'Vous seul pouvez voir ça';
 $a->strings['Scheduled Posts'] = 'Publications programmées';
@@ -1779,12 +1863,6 @@ $a->strings['Contact (%s)'] = [
 	1 => 'Contacts (%s)',
 	2 => 'Contacts (%s)',
 ];
-$a->strings['Error while sending poke, please retry.'] = 'Une erreur est survenue pendant l\'envoi du "poke", veuillez réessayer.';
-$a->strings['You must be logged in to use this module.'] = 'Ce module est réservé aux utilisateurs identifiés.';
-$a->strings['Poke/Prod'] = 'Solliciter';
-$a->strings['poke, prod or do other things to somebody'] = 'solliciter (poke/...) quelqu\'un';
-$a->strings['Choose what you wish to do to recipient'] = 'Choisissez ce que vous voulez faire au destinataire';
-$a->strings['Make this post private'] = 'Rendez ce message privé';
 $a->strings['Failed to update contact record.'] = 'Échec de mise à jour du contact.';
 $a->strings['Contact has been unblocked'] = 'Le contact n\'est plus bloqué';
 $a->strings['Contact has been blocked'] = 'Le contact a été bloqué';
@@ -1952,6 +2030,7 @@ $a->strings['Installed addons/apps:'] = 'Add-ons/Applications installés :';
 $a->strings['No installed addons/apps'] = 'Aucun add-on/application n\'est installé';
 $a->strings['Read about the <a href="%1$s/tos">Terms of Service</a> of this node.'] = 'Lire les <a href="%1$s/tos">Conditions d\'utilisation</a> de ce nœud.';
 $a->strings['On this server the following remote servers are blocked.'] = 'Sur ce serveur, les serveurs suivants sont sur liste noire.';
+$a->strings['Download this list in CSV format'] = 'Télécharger cette liste au format CSV';
 $a->strings['This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.'] = 'C\'est Friendica, version %s qui fonctionne à l\'emplacement web %s. La version de la base de données est %s, la version de mise à jour des publications est %s.';
 $a->strings['Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'] = 'Rendez-vous sur <a href="https://friendi.ca">Friendi.ca</a> pour en savoir plus sur le projet Friendica.';
 $a->strings['Bug reports and issues: please visit'] = 'Pour les rapports de bugs : rendez vous sur';
@@ -2154,6 +2233,7 @@ $a->strings['Friend/Connection Request'] = 'Demande de mise en contact';
 $a->strings['Enter your Webfinger address (user@domain.tld) or profile URL here. If this isn\'t supported by your system, you have to subscribe to <strong>%s</strong> or <strong>%s</strong> directly on your system.'] = 'Saisissez votre adresse WebFinger (utilisateur@domaine.tld) ou l\'adresse URL de votre profil ici. Si ce n\'est pas supporté par votre site, vous devrez vous abonner à <strong>%s</strong> ou <strong>%s</strong> directement depuis votre système.';
 $a->strings['If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica node and join us today</a>.'] = 'Si vous n\'avez pas de compte sur un site compatible, <a href="%s">cliquez ici pour trouver un site Friendica public et vous inscrire dès aujourd\'hui</a>.';
 $a->strings['Your Webfinger address or profile URL:'] = 'Votre adresse Webfinger ou URL de profil :';
+$a->strings['You must be logged in to use this module.'] = 'Ce module est réservé aux utilisateurs identifiés.';
 $a->strings['Only logged in users are permitted to perform a search.'] = 'Seuls les utilisateurs inscrits sont autorisés à lancer une recherche.';
 $a->strings['Only one search per minute is permitted for not logged in users.'] = 'Une seule recherche par minute pour les utilisateurs qui ne sont pas connectés.';
 $a->strings['Items tagged with: %s'] = 'Éléments taggés %s';
@@ -2175,6 +2255,16 @@ $a->strings['Logged out.'] = 'Déconnecté.';
 $a->strings['OpenID protocol error. No ID returned'] = 'Erreur de protocole OpenID. Pas d\'ID en retour.';
 $a->strings['Account not found. Please login to your existing account to add the OpenID to it.'] = 'Compte non trouvé. Veuillez vous connecter à votre compte existant pour y ajouter l\'OpenID.';
 $a->strings['Account not found. Please register a new account or login to your existing account to add the OpenID to it.'] = 'Compte non trouvé. Veuillez créer un nouveau compte ou vous connecter à votre compte existant pour y ajouter l\'OpenID.';
+$a->strings['Passwords do not match.'] = 'Les mots de passe ne correspondent pas.';
+$a->strings['Password does not need changing.'] = 'Le mot de passe n\'a pas besoin d\'être changé.';
+$a->strings['Password unchanged.'] = 'Mot de passe non changé.';
+$a->strings['Password Too Long'] = 'Mot de passe trop long';
+$a->strings['Since version 2022.09, we\'ve realized that any password longer than 72 characters is truncated during hashing. To prevent any confusion about this behavior, please update your password to be fewer or equal to 72 characters.'] = 'Depuis la version 2022.09, nous nous sommes rendu compte que tout mot de passe plus long que 72 caractères est tronqué lors du hashage. Pour éviter toute confusion à propos de ce comportement, merci de mettre à jour votre mot de passe pour qu\'il soit d\'une taille inférieure ou égale à 72 caractères.';
+$a->strings['Update Password'] = 'Mettre à jour le mot de passe';
+$a->strings['Current Password:'] = 'Mot de passe actuel :';
+$a->strings['Your current password to confirm the changes'] = 'Votre mot de passe actuel pour confirmer les modifications';
+$a->strings['Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'] = 'Les caractères permis sont a-z, A-Z, 0-9 et les caractères de ponctuation sauf les espaces et les deux-points (:).';
+$a->strings['Password length is limited to 72 characters.'] = 'La taille du mot de passe est limitée à 72 caractères.';
 $a->strings['Remaining recovery codes: %d'] = 'Codes de récupération restants : %d';
 $a->strings['Invalid code, please retry.'] = 'Code invalide, veuillez réessayer.';
 $a->strings['Two-factor recovery'] = 'Récupération d\'identification à deux facteurs';
@@ -2182,12 +2272,17 @@ $a->strings['<p>You can enter one of your one-time recovery codes in case you lo
 $a->strings['Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>'] = 'Vous n\'avez pas votre téléphone ? <a href="%s">Saisissez un code de récupération à deux facteurs</a>';
 $a->strings['Please enter a recovery code'] = 'Merci de saisir un code de récupération';
 $a->strings['Submit recovery code and complete login'] = 'Soumettre le code de récupération et compléter l\'identification';
+$a->strings['Sign out of this browser?'] = 'Se déconnecter de ce navigateur ?';
+$a->strings['Sign out'] = 'Se déconnecter';
+$a->strings['Trust and sign out'] = 'Faire confiance et se déconnecter';
+$a->strings['Couldn\'t save browser to Cookie.'] = 'Impossible d\'enregistrer ce navigateur dans le cookie.';
+$a->strings['Trust this browser?'] = 'Faire confiance à ce navigateur ?';
+$a->strings['Not now'] = 'Pas maintenant';
+$a->strings['Don\'t trust'] = 'Ne pas faire confiance';
+$a->strings['Trust'] = 'Faire confiance';
 $a->strings['<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'] = '<p>Ouvrez l\'application d\'identification à deux facteurs sur votre appareil afin d\'avoir un code d\'identification et vérifier votre identité.</p>';
 $a->strings['Please enter a code from your authentication app'] = 'Veuillez saisir le code fourni par votre application mobile d\'authentification à deux facteurs';
-$a->strings['This is my two-factor authenticator app device'] = 'C\'est mon appareil portant l\'application d\'identification à deux facteurs';
 $a->strings['Verify code and complete login'] = 'Vérifier le code de récupération et compléter l\'identification';
-$a->strings['Passwords do not match.'] = 'Les mots de passe ne correspondent pas.';
-$a->strings['Password unchanged.'] = 'Mot de passe non changé.';
 $a->strings['Please use a shorter name.'] = 'Veuillez saisir un nom plus court.';
 $a->strings['Name too short.'] = 'Le nom est trop court.';
 $a->strings['Wrong Password.'] = 'Mot de passe erroné.';
@@ -2218,10 +2313,7 @@ $a->strings['Your profile will also be published in the global friendica directo
 $a->strings['Account Settings'] = 'Compte';
 $a->strings['Your Identity Address is <strong>\'%s\'</strong> or \'%s\'.'] = 'L’adresse de votre profil est <strong>\'%s\'</strong> ou \'%s\'.';
 $a->strings['Password Settings'] = 'Réglages de mot de passe';
-$a->strings['Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'] = 'Les caractères permis sont a-z, A-Z, 0-9 et les caractères de ponctuation sauf les espaces et les deux-points (:).';
 $a->strings['Leave password fields blank unless changing'] = 'Laissez les champs de mot de passe vierges, sauf si vous désirez les changer';
-$a->strings['Current Password:'] = 'Mot de passe actuel :';
-$a->strings['Your current password to confirm the changes'] = 'Votre mot de passe actuel pour confirmer les modifications';
 $a->strings['Password:'] = 'Mot de passe :';
 $a->strings['Your current password to confirm the changes of the email address'] = 'Votre mot de passe actuel pour confirmer les modifications de votre adresse email.';
 $a->strings['Delete OpenID URL'] = 'Supprimer l\'URL OpenID';
@@ -2273,7 +2365,6 @@ $a->strings['Someone writes a followup comment'] = 'Quelqu\'un vous commente';
 $a->strings['You receive a private message'] = 'Vous recevez un message privé';
 $a->strings['You receive a friend suggestion'] = 'Vous avez reçu une suggestion d\'abonnement';
 $a->strings['You are tagged in a post'] = 'Vous avez été mentionné•e dans une publication';
-$a->strings['You are poked/prodded/etc. in a post'] = 'Vous avez été sollicité•e dans une publication';
 $a->strings['Create a desktop notification when:'] = 'Créer une notification de bureau quand :';
 $a->strings['Someone tagged you'] = 'Quelqu\'un vous a mentionné';
 $a->strings['Someone directly commented on your post'] = 'Quelqu\'un a commenté directement sur votre publication';
@@ -2419,7 +2510,6 @@ $a->strings['Generate new app-specific password'] = 'Générer un nouveau mot de
 $a->strings['Friendiqa on my Fairphone 2...'] = 'Friendiqa sur mon Fairphone 2...';
 $a->strings['Generate'] = 'Générer';
 $a->strings['Two-factor authentication successfully disabled.'] = 'Authentification à deux facteurs désactivée avec succès.';
-$a->strings['Wrong Password'] = 'Mauvais mot de passe';
 $a->strings['<p>Use an application on a mobile device to get two-factor authentication codes when prompted on login.</p>'] = '<p>Utilisez une application mobile pour obtenir des codes d\'authentification à deux facteurs que vous devrez fournir lors de la saisie de vos identifiants.</p>';
 $a->strings['Authenticator app'] = 'Application mobile';
 $a->strings['Configured'] = 'Configurée';
@@ -2453,6 +2543,7 @@ $a->strings['Trusted browsers are individual browsers you chose to skip two-fact
 $a->strings['Device'] = 'Périphérique';
 $a->strings['OS'] = 'Système d\'exploitation';
 $a->strings['Trusted'] = 'De confiance';
+$a->strings['Created At'] = 'Créé à';
 $a->strings['Last Use'] = 'Dernière utilisation';
 $a->strings['Remove All'] = 'Tout supprimer';
 $a->strings['Two-factor authentication successfully activated.'] = 'Authentification à deux facteurs activée avec succès.';
@@ -2583,9 +2674,6 @@ $a->strings['Please visit %s to view and/or reply to the conversation.'] = 'Merc
 $a->strings['%s %s posted to your profile wall'] = '%s %s a posté sur votre mur';
 $a->strings['%1$s posted to your profile wall at %2$s'] = '%1$s a publié sur votre mur à %2$s';
 $a->strings['%1$s posted to [url=%2$s]your wall[/url]'] = '%1$s a posté sur [url=%2$s]votre mur[/url]';
-$a->strings['%1$s %2$s poked you'] = '%1$s %2$s vous a sollicité•e';
-$a->strings['%1$s poked you at %2$s'] = '%1$s vous a sollicité•e sur %2$s';
-$a->strings['%1$s [url=%2$s]poked you[/url].'] = '%1$s vous a [url=%2$s]sollicité•e[/url].';
 $a->strings['%s Introduction received'] = '%s Demande de mise en contact reçue';
 $a->strings['You\'ve received an introduction from \'%1$s\' at %2$s'] = 'Vous avez reçu une introduction de \'%1$s\' sur %2$s';
 $a->strings['You\'ve received [url=%1$s]an introduction[/url] from %2$s.'] = 'Vous avez reçu [url=%1$s]une introduction[/url] de %2$s.';
@@ -2681,7 +2769,7 @@ $a->strings['%s is now following %s.'] = '%s suit désormais %s.';
 $a->strings['following'] = 'following';
 $a->strings['%s stopped following %s.'] = '%s ne suit plus %s.';
 $a->strings['stopped following'] = 'retiré de la liste de suivi';
-$a->strings['The folder view/smarty3/ must be writable by webserver.'] = 'Le répertoire view/smarty3/ doit être accessible en écriture par le serveur.';
+$a->strings['The folder %s must be writable by webserver.'] = 'Le répertoire %s doit être accessible en écriture par le serveur web.';
 $a->strings['Login failed.'] = 'Échec de connexion.';
 $a->strings['Login failed. Please check your credentials.'] = 'Échec d\'authentification. Merci de vérifier vos identifiants.';
 $a->strings['Welcome %s'] = 'Bienvenue %s';
