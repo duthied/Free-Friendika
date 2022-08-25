@@ -160,6 +160,7 @@ class Contact
 			$fields['created'] = DateTimeFormat::utcNow();
 		}
 
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('contact', $fields);
 		DBA::insert('contact', $fields, $duplicate_mode);
 		$contact = DBA::selectFirst('contact', [], ['id' => DBA::lastInsertId()]);
 		if (!DBA::isResult($contact)) {
@@ -191,6 +192,7 @@ class Contact
 	 */
 	public static function update(array $fields, array $condition, $old_fields = [])
 	{
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('contact', $fields);
 		$ret = DBA::update('contact', $fields, $condition, $old_fields);
 
 		// Apply changes to the "user-contact" table on dedicated fields
