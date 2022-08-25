@@ -251,7 +251,7 @@ class Notification extends BaseRepository
 			$this->db->update(self::$table_name, $fields, ['id' => $Notification->id]);
 		} else {
 			$fields['created'] = DateTimeFormat::utcNow();
-			$this->db->insert(self::$table_name, $fields);
+			$this->db->insert(self::$table_name, $fields, Database::INSERT_IGNORE);
 
 			$Notification = $this->selectOneById($this->db->lastInsertId());
 		}

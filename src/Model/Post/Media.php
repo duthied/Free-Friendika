@@ -85,6 +85,7 @@ class Media
 		}
 
 		$media = self::unsetEmptyFields($media);
+		$media = DI::dbaDefinition()->truncateFieldsForTable('post-media', $media);
 
 		// We are storing as fast as possible to avoid duplicated network requests
 		// when fetching additional information for pictures and other content.
@@ -94,6 +95,7 @@ class Media
 
 		$media = self::fetchAdditionalData($media);
 		$media = self::unsetEmptyFields($media);
+		$media = DI::dbaDefinition()->truncateFieldsForTable('post-media', $media);
 
 		if (array_diff_assoc($media, $stored)) {
 			$result = DBA::insert('post-media', $media, Database::INSERT_UPDATE);
