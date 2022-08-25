@@ -29,6 +29,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\APContact;
@@ -1911,7 +1912,7 @@ class Receiver
 	private static function addArrivedId(string $id)
 	{
 		DBA::delete('arrived-activity', ["`received` < ?", DateTimeFormat::utc('now - 5 minutes')]);
-		DBA::insert('arrived-activity', ['object-id' => $id, 'received' => DateTimeFormat::utcNow()]);
+		DBA::insert('arrived-activity', ['object-id' => $id, 'received' => DateTimeFormat::utcNow()], Database::INSERT_IGNORE);
 	}
 
 	/**
