@@ -37,9 +37,10 @@ class Temporal
 	 *
 	 * @param string $a
 	 * @param string $b
+	 *
 	 * @return int
 	 */
-	private static function timezoneCompareCallback($a, $b)
+	private static function timezoneCompareCallback(string $a, string $b): int
 	{
 		if (strstr($a, '/') && strstr($b, '/')) {
 			if (DI::l10n()->t($a) == DI::l10n()->t($b)) {
@@ -63,9 +64,10 @@ class Temporal
 	 * Emit a timezone selector grouped (primarily) by continent
 	 *
 	 * @param string $current Timezone
+	 *
 	 * @return string Parsed HTML output
 	 */
-	public static function getTimezoneSelect($current = 'America/Los_Angeles')
+	public static function getTimezoneSelect(string $current = 'America/Los_Angeles'): string
 	{
 		$timezone_identifiers = DateTimeZone::listIdentifiers();
 
@@ -120,7 +122,7 @@ class Temporal
 	 * @return string Parsed HTML
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getTimezoneField($name = 'timezone', $label = '', $current = 'America/Los_Angeles', $help = '')
+	public static function getTimezoneField(string $name = 'timezone', string $label = '', string $current = 'America/Los_Angeles', string $help = ''): string
 	{
 		$options = self::getTimezoneSelect($current);
 		$options = str_replace('<select id="timezone_select" name="timezone">', '', $options);
@@ -137,10 +139,11 @@ class Temporal
 	 *
 	 * @param string $dob Date of Birth
 	 * @param string $timezone
+	 *
 	 * @return string Formatted HTML
 	 * @throws \Exception
 	 */
-	public static function getDateofBirthField(string $dob, string $timezone = 'UTC')
+	public static function getDateofBirthField(string $dob, string $timezone = 'UTC'): string
 	{
 		list($year, $month, $day) = sscanf($dob, '%4d-%2d-%2d');
 
@@ -182,7 +185,7 @@ class Temporal
 	 * @return string Parsed HTML output.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getDateField($min, $max, $default, $id = 'datepicker')
+	public static function getDateField(DateTime $min, DateTime $max, DateTime $default, string $id = 'datepicker'): string
 	{
 		return self::getDateTimeField($min, $max, $default, '', $id, true, false, '', '');
 	}
@@ -197,7 +200,7 @@ class Temporal
 	 * @return string Parsed HTML output.
 	 * @throws \Exception
 	 */
-	public static function getTimeField($h, $m, $id = 'timepicker')
+	public static function getTimeField(string $h, string $m, string $id = 'timepicker'): string
 	{
 		return self::getDateTimeField(new DateTime(), new DateTime(), new DateTime("$h:$m"), '', $id, false, true);
 	}
@@ -227,12 +230,12 @@ class Temporal
 		DateTime $maxDate,
 		DateTime $defaultDate = null,
 		$label,
-		$id       = 'datetimepicker',
-		$pickdate = true,
-		$picktime = true,
-		$minfrom  = '',
-		$maxfrom  = '',
-		$required = false)
+		string $id       = 'datetimepicker',
+		bool $pickdate = true,
+		bool $picktime = true,
+		string $minfrom  = '',
+		string $maxfrom  = '',
+		bool $required = false): string
 	{
 		// First day of the week (0 = Sunday)
 		$firstDay = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
@@ -241,8 +244,8 @@ class Temporal
 
 		// Check if the detected language is supported by the picker
 		if (!in_array($lang,
-				["ar", "ro", "id", "bg", "fa", "ru", "uk", "en", "el", "de", "nl", "tr", "fr", "es", "th", "pl", "pt", "ch", "se", "kr",
-				"it", "da", "no", "ja", "vi", "sl", "cs", "hu"])) {
+				['ar', 'ro', 'id', 'bg', 'fa', 'ru', 'uk', 'en', 'el', 'de', 'nl', 'tr', 'fr', 'es', 'th', 'pl', 'pt', 'ch', 'se', 'kr',
+				'it', 'da', 'no', 'ja', 'vi', 'sl', 'cs', 'hu'])) {
 			$lang = 'en';
 		}
 
@@ -308,7 +311,7 @@ class Temporal
 	 *
 	 * @return string with relative date
 	 */
-	public static function getRelativeDate($posted_date, $format = null)
+	public static function getRelativeDate(string $posted_date, string $format = null): string
 	{
 		$localtime = $posted_date . ' UTC';
 
@@ -330,13 +333,14 @@ class Temporal
 			$isfuture = true;
 		}
 
-		$a = [12 * 30 * 24 * 60 * 60 => [DI::l10n()->t('year'), DI::l10n()->t('years')],
+		$a = [
+			12 * 30 * 24 * 60 * 60 => [DI::l10n()->t('year'), DI::l10n()->t('years')],
 			30 * 24 * 60 * 60 => [DI::l10n()->t('month'), DI::l10n()->t('months')],
 			7 * 24 * 60 * 60 => [DI::l10n()->t('week'), DI::l10n()->t('weeks')],
 			24 * 60 * 60 => [DI::l10n()->t('day'), DI::l10n()->t('days')],
 			60 * 60 => [DI::l10n()->t('hour'), DI::l10n()->t('hours')],
 			60 => [DI::l10n()->t('minute'), DI::l10n()->t('minutes')],
-			1 => [DI::l10n()->t('second'), DI::l10n()->t('seconds')]
+			1 => [DI::l10n()->t('second'), DI::l10n()->t('seconds')],
 		];
 
 		foreach ($a as $secs => $str) {
@@ -395,7 +399,7 @@ class Temporal
 	 *
 	 * @return int Number of days in the given month
 	 */
-	public static function getDaysInMonth($y, $m)
+	public static function getDaysInMonth(int $y, int $m): int
 	{
 		return date('t', mktime(0, 0, 0, $m, 1, $y));
 	}
@@ -411,7 +415,7 @@ class Temporal
 	 * @return string day 0 = Sunday through 6 = Saturday
 	 * @throws \Exception
 	 */
-	private static function getFirstDayInMonth($y, $m)
+	private static function getFirstDayInMonth(int $y, int $m): string
 	{
 		$d = sprintf('%04d-%02d-01 00:00', intval($y), intval($m));
 
@@ -436,7 +440,7 @@ class Temporal
 	 * @throws \Exception
 	 * @todo  Provide (prev, next) links, define class variations for different size calendars
 	 */
-	public static function getCalendarTable($y = 0, $m = 0, $links = null, $class = '')
+	public static function getCalendarTable(int $y = 0, int $m = 0, array $links = null, string $class = ''): string
 	{
 		// month table - start at 1 to match human usage.
 		$mtab = [' ',

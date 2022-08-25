@@ -33,6 +33,7 @@ class Strings
 	 * Generates a pseudo-random string of hexadecimal characters
 	 *
 	 * @param int $size Size of string (default: 64)
+	 *
 	 * @return string Pseudo-random string
 	 * @throws \Exception
 	 */
@@ -159,6 +160,7 @@ class Strings
 	 *
 	 * @param string $network Network name of the contact (e.g. dfrn, rss and so on)
 	 * @param string $url	  The contact url
+	 *
 	 * @return string Formatted network name
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -341,7 +343,8 @@ class Strings
 	 * Check if the trimmed provided string is starting with one of the provided characters
 	 *
 	 * @param string $string
-	 * @param array	 $chars
+	 * @param array $chars
+	 *
 	 * @return bool
 	 */
 	public static function startsWithChars(string $string, array $chars): bool
@@ -372,13 +375,12 @@ class Strings
 	 * @see http://maettig.com/code/php/php-performance-benchmarks.php#endswith
 	 * @param string $string
 	 * @param string $end
+	 *
 	 * @return bool
 	 */
-	public static function endsWith(string $string, string $end): string
+	public static function endsWith(string $string, string $end): bool
 	{
-		$return = substr_compare($string, $end, -strlen($end)) === 0;
-
-		return $return;
+		return (substr_compare($string, $end, -strlen($end)) === 0);
 	}
 
 	/**
@@ -413,8 +415,9 @@ class Strings
 	/**
 	 * Ensures a single path item doesn't contain any path-traversing characters
 	 *
-	 * @see https://stackoverflow.com/a/46097713
 	 * @param string $pathItem
+	 *
+	 * @see https://stackoverflow.com/a/46097713
 	 * @return string
 	 */
 	public static function sanitizeFilePathItem(string $pathItem): string
@@ -436,6 +439,7 @@ class Strings
 	 * @param string   $replacement
 	 * @param int      $start
 	 * @param int|null $length
+	 *
 	 * @return string
 	 * @see substr_replace()
 	 */
@@ -474,6 +478,7 @@ class Strings
 	 * @param string   $text
 	 * @param string   $regex
 	 * @param callable $callback
+	 *
 	 * @return string
 	 */
 	public static function performWithEscapedBlocks(string $text, string $regex, callable $callback): string

@@ -132,6 +132,7 @@ class Proxy
 	 * proxy storage directory.
 	 *
 	 * @param string $html Un-proxified HTML code
+	 *
 	 * @return string Proxified HTML code
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -146,6 +147,7 @@ class Proxy
 	 * Checks if the URL is a local URL.
 	 *
 	 * @param string $url
+	 *
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -166,6 +168,7 @@ class Proxy
 	 * Return the array of query string parameters from a URL
 	 *
 	 * @param string $url URL to parse
+	 *
 	 * @return array Associative array of query string parameters
 	 */
 	private static function parseQuery(string $url): array
@@ -182,6 +185,7 @@ class Proxy
 	 * Call-back method to replace the UR
 	 *
 	 * @param array $matches Matches from preg_replace_callback()
+	 *
 	 * @return string Proxified HTML image tag
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
