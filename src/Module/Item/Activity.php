@@ -51,9 +51,9 @@ class Activity extends BaseModule
 		$itemId =  $this->parameters['id'];
 
 		if (in_array($verb, ['announce', 'unannounce'])) {
-			$item = Post::selectFirst(['network', 'uri-id', 'uid'], ['id' => $itemId]);
+			$item = Post::selectFirst(['network', 'uri-id'], ['id' => $itemId, 'uid' => [local_user(), 0]]);
 			if ($item['network'] == Protocol::DIASPORA) {
-				Diaspora::performReshare($item['uri-id'], $item['uid']);
+				Diaspora::performReshare($item['uri-id'], local_user());
 			}
 		}
 
