@@ -1649,13 +1649,13 @@ class Item
 		$post = Post::selectFirst(['id'], ['uri-id' => $item['uri-id'], 'uid' => $uid]);
 		if (!empty($post['id'])) {
 			if (!empty($item['event-id'])) {
-				$post = Post::selectFirst(['event-id'], ['uri-id' => $item['uri-id'], 'uid' => $uid]);
-				if (!empty($post['event-id'])) {
+				$event_post = Post::selectFirst(['event-id'], ['uri-id' => $item['uri-id'], 'uid' => $uid]);
+				if (!empty($event_post['event-id'])) {
 					$event = DBA::selectFirst('event', ['edited', 'start', 'finish', 'summary', 'desc', 'location', 'nofinish', 'adjust'], ['id' => $item['event-id']]);
 					if (!empty($event)) {
 						// We aren't using "Event::store" here, since we don't want to trigger any further action
-						$ret = DBA::update('event', $event, ['id' => $post['event-id']]);
-						Logger::info('Event updated', ['uid' => $uid, 'source-event' => $item['event-id'], 'target-event' => $post['event-id'], 'ret' => $ret]);
+						$ret = DBA::update('event', $event, ['id' => $event_post['event-id']]);
+						Logger::info('Event updated', ['uid' => $uid, 'source-event' => $item['event-id'], 'target-event' => $event_post['event-id'], 'ret' => $ret]);
 					}
 				}
 			}

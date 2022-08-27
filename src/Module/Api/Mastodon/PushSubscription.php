@@ -50,13 +50,13 @@ class PushSubscription extends BaseApi
 			'endpoint'                      => $request['subscription']['endpoint'] ?? '',
 			'pubkey'                        => $request['subscription']['keys']['p256dh'] ?? '',
 			'secret'                        => $request['subscription']['keys']['auth'] ?? '',
-			Notification::TYPE_FOLLOW       => $request['data']['alerts'][Notification::TYPE_FOLLOW] ?? false,
-			Notification::TYPE_LIKE         => $request['data']['alerts'][Notification::TYPE_LIKE] ?? false,
-			Notification::TYPE_RESHARE      => $request['data']['alerts'][Notification::TYPE_RESHARE] ?? false,
-			Notification::TYPE_MENTION      => $request['data']['alerts'][Notification::TYPE_MENTION] ?? false,
-			Notification::TYPE_POLL         => $request['data']['alerts'][Notification::TYPE_POLL] ?? false,
-			Notification::TYPE_INTRODUCTION => $request['data']['alerts'][Notification::TYPE_INTRODUCTION] ?? false,
-			Notification::TYPE_POST         => $request['data']['alerts'][Notification::TYPE_POST] ?? false,
+			Notification::TYPE_FOLLOW       => filter_var($request['data']['alerts'][Notification::TYPE_FOLLOW] ?? false, FILTER_VALIDATE_BOOLEAN),
+			Notification::TYPE_LIKE         => filter_var($request['data']['alerts'][Notification::TYPE_LIKE] ?? false, FILTER_VALIDATE_BOOLEAN),
+			Notification::TYPE_RESHARE      => filter_var($request['data']['alerts'][Notification::TYPE_RESHARE] ?? false, FILTER_VALIDATE_BOOLEAN),
+			Notification::TYPE_MENTION      => filter_var($request['data']['alerts'][Notification::TYPE_MENTION] ?? false, FILTER_VALIDATE_BOOLEAN),
+			Notification::TYPE_POLL         => filter_var($request['data']['alerts'][Notification::TYPE_POLL] ?? false, FILTER_VALIDATE_BOOLEAN),
+			Notification::TYPE_INTRODUCTION => filter_var($request['data']['alerts'][Notification::TYPE_INTRODUCTION] ?? false, FILTER_VALIDATE_BOOLEAN),
+			Notification::TYPE_POST         => filter_var($request['data']['alerts'][Notification::TYPE_POST] ?? false, FILTER_VALIDATE_BOOLEAN),
 		];
 
 		$ret = Subscription::replace($subscription);
