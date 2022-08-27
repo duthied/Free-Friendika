@@ -1169,10 +1169,6 @@ class OStatus
 				];
 				XML::addElement($doc, $root, 'link', '', $attributes);
 				break;
-
-			default:
-				Logger::warning('Unsupported type', ['type' => $siteinfo['type'], 'url' => $siteinfo['url'] ?? '']);
-				break;
 		}
 
 		if (!DI::config()->get('system', 'ostatus_not_attach_preview') && ($siteinfo['type'] != 'photo') && isset($siteinfo['image'])) {

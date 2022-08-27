@@ -113,9 +113,16 @@ class Receiver
 			APContact::unmarkForArchival($apcontact);
 		}
 
+		$sig_contact = HTTPSignature::getKeyIdContact($header);
+		if (APContact::isRelay($sig_contact)) {
+			Logger::info('Message from a relay', ['url' => $sig_contact['url']]);
+			self::processRelayPost($ldactivity, $sig_contact['url']);
+			return;
+		}
+
 		$http_signer = HTTPSignature::getSigner($body, $header);
 		if ($http_signer === false) {
-			Logger::warning('Invalid HTTP signature, message will be discarded.');
+			Logger::warning('Invalid HTTP signature, message will be discarded.', ['uid' => $uid, 'actor' => $actor, 'header' => $header, 'body' => $body]);
 			return;
 		} elseif (empty($http_signer)) {
 			Logger::info('Signer is a tombstone. The message will be discarded, the signer account is deleted.');
@@ -170,18 +177,43 @@ class Receiver
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
-			Logger::info('Empty type', ['activity' => $activity, 'actor' => $actor]);
+			Logger::notice('Empty type', ['activity' => $activity, 'actor' => $actor]);
 			return;
 		}
 
-		if ($type != 'as:Announce') {
-			Logger::info('Not an announcement', ['activity' => $activity, 'actor' => $actor]);
-			return;
-		}
+		$object_type = JsonLD::fetchElement($activity, 'as:object', '@type') ?? '';
 
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
 		if (empty($object_id)) {
-			Logger::info('No object id found', ['activity' => $activity, 'actor' => $actor]);
+			Logger::notice('No object id found', ['type' => $type, 'object_type' => $object_type, 'actor' => $actor, 'activity' => $activity]);
+			return;
+		}
+
+		$handle = ($type == 'as:Announce');
+
+		if (!$handle && in_array($type, ['as:Create', 'as:Update'])) {
+			$handle = in_array($object_type, self::CONTENT_TYPES);
+		}
+
+		if (!$handle) {
+			$trust_source = false;
+			$object_data = self::prepareObjectData($activity, 0, false, $trust_source);
+
+			if (!$trust_source) {
+				Logger::notice('Activity trust could not be achieved.',  ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'actor' => $actor, 'activity' => $activity]);
+				return;
+			}
+
+			if (empty($object_data)) {
+				Logger::notice('No object data found', ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'actor' => $actor, 'activity' => $activity]);
+				return;
+			}
+	
+			if (self::routeActivities($object_data, $type, true)) {
+				Logger::debug('Handled activity', ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'actor' => $actor]);
+			} else {
+				Logger::info('Unhandled activity', ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'actor' => $actor, 'activity' => $activity]);
+			}
 			return;
 		}
 
@@ -196,7 +228,7 @@ class Receiver
 			return;
 		}
 
-		Logger::info('Got relayed message id', ['id' => $object_id, 'actor' => $actor]);
+		Logger::debug('Got relayed message id', ['id' => $object_id, 'actor' => $actor]);
 
 		$item_id = Item::searchByLink($object_id);
 		if ($item_id) {

@@ -55,7 +55,7 @@ class UpdateContacts
 			$condition = array_merge(['local-data' => true], $condition);
 		}
 
-		$condition = array_merge(["`next-update` < ?", DateTimeFormat::utcNow()], $condition);
+		$condition = DBA::mergeConditions(["`next-update` < ?", DateTimeFormat::utcNow()], $condition);
 		$contacts = DBA::select('contact', ['id'], $condition, ['order' => ['next-update'], 'limit' => $limit]);
 		$count = 0;
 		while ($contact = DBA::fetch($contacts)) {

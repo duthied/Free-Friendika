@@ -1330,7 +1330,7 @@ class GServer
 			return false;
 		}
 
-		$xrd = XML::parseString($curlResult->getBody());
+		$xrd = XML::parseString($curlResult->getBody(), true);
 		if (!is_object($xrd)) {
 			return false;
 		}

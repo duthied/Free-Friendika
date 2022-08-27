@@ -486,6 +486,31 @@ class HTTPSignature
 	}
 
 	/**
+	 * Fetch the apcontact entry of the keyId in the given header
+	 *
+	 * @param array $http_headers
+	 *
+	 * @return array APContact entry
+	 */
+	public static function getKeyIdContact(array $http_headers): array
+	{
+		if (empty($http_headers['HTTP_SIGNATURE'])) {
+			Logger::debug('No HTTP_SIGNATURE header', ['header' => $http_headers]);
+			return [];
+		}
+
+		$sig_block = self::parseSigHeader($http_headers['HTTP_SIGNATURE']);
+
+		if (empty($sig_block['keyId'])) {
+			Logger::debug('No keyId', ['sig_block' => $sig_block]);
+			return [];
+		}
+
+		$url = (strpos($sig_block['keyId'], '#') ? substr($sig_block['keyId'], 0, strpos($sig_block['keyId'], '#')) : $sig_block['keyId']);
+		return APContact::getByURL($url);
+	}
+
+	/**
 	 * Gets a signer from a given HTTP request
 	 *
 	 * @param string $content
