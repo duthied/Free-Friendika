@@ -1040,17 +1040,17 @@ class ParseUrl
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'description');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['text'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'image');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['image'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['image'] = trim($content);
 		}
 
@@ -1075,22 +1075,22 @@ class ParseUrl
 		$jsonldinfo = [];
 
 		$content = JsonLD::fetchElement($jsonld, 'name');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['publisher_name'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'description');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['publisher_description'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['publisher_url'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['image'] = trim($content);
 		}
 
@@ -1114,32 +1114,32 @@ class ParseUrl
 		$jsonldinfo = [];
 
 		$content = JsonLD::fetchElement($jsonld, 'name');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['publisher_name'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'description');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['publisher_description'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['publisher_url'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'logo', 'url', '@type', 'ImageObject');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['publisher_img'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'brand', 'name', '@type', 'Organization');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['publisher_name'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'brand', 'url', '@type', 'Organization');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['publisher_url'] = trim($content);
 		}
 
@@ -1161,12 +1161,12 @@ class ParseUrl
 		$jsonldinfo = [];
 
 		$content = JsonLD::fetchElement($jsonld, 'name');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['author_name'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'description');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['author_description'] = trim($content);
 		}
 
@@ -1176,7 +1176,7 @@ class ParseUrl
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$jsonldinfo['author_url'] = trim($content);
 		}
 
@@ -1207,22 +1207,22 @@ class ParseUrl
 		$media = [];
 
 		$content = JsonLD::fetchElement($jsonld, 'caption');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$media['caption'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$media['url'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'mainEntityOfPage');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$media['main'] = Strings::compareLink($content, $siteinfo['url']);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'description');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$media['description'] = trim($content);
 		}
 
@@ -1232,27 +1232,27 @@ class ParseUrl
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'contentUrl');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$media['content'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'embedUrl');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$media['embed'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'height');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$media['height'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'width');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$media['width'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'image');
-		if (!empty($content)) {
+		if (!empty($content) && is_string($content)) {
 			$media['image'] = trim($content);
 		}
 
