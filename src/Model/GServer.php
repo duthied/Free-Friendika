@@ -304,7 +304,7 @@ class GServer
 			Logger::info('Set failed status for existing server', ['url' => $url]);
 			return;
 		}
-		DBA::insert('gserver', ['url' => $url, 'nurl' => Strings::normaliseLink($url),
+		self::insert(['url' => $url, 'nurl' => Strings::normaliseLink($url),
 			'network' => Protocol::PHANTOM, 'created' => DateTimeFormat::utcNow(),
 			'failed' => true, 'last_failure' => DateTimeFormat::utcNow()]);
 		Logger::info('Set failed status for new server', ['url' => $url]);
@@ -583,7 +583,7 @@ class GServer
 		$gserver = DBA::selectFirst('gserver', ['network'], ['nurl' => Strings::normaliseLink($url)]);
 		if (!DBA::isResult($gserver)) {
 			$serverdata['created'] = DateTimeFormat::utcNow();
-			$ret = DBA::insert('gserver', $serverdata);
+			$ret = self::insert($serverdata);
 			$id = DBA::lastInsertId();
 		} else {
 			$ret = self::update($serverdata, ['nurl' => $serverdata['nurl']]);
@@ -2259,6 +2259,7 @@ class GServer
 	}
 
 	/**
+	 * Update rows in the gserver table.
 	 * Enforces gserver table field maximum sizes to avoid "Data too long" database errors
 	 *
 	 * @param array $fields
@@ -2273,5 +2274,23 @@ class GServer
 		$fields = DI::dbaDefinition()->truncateFieldsForTable('gserver', $fields);
 
 		return DBA::update('gserver', $fields, $condition);
+	}
+
+	/**
+	 * Insert a row into the gserver table.
+	 * Enforces gserver table field maximum sizes to avoid "Data too long" database errors
+	 *
+	 * @param array $fields
+	 * @param int   $duplicate_mode What to do on a duplicated entry
+	 *
+	 * @return bool
+	 *
+	 * @throws Exception
+	 */
+	public static function insert(array $fields, int $duplicate_mode = Database::INSERT_DEFAULT): bool
+	{
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('gserver', $fields);
+
+		return DBA::insert('gserver', $fields, $duplicate_mode);
 	}
 }

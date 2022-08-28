@@ -156,6 +156,8 @@ class HttpClient implements ICanSendHttpRequests
 			$conf[HttpClientOptions::HEADERS]['Accept'] = HttpClientAccept::DEFAULT;
 		}
 
+		$conf['sink'] = tempnam(System::getTempPath(), 'http-');
+
 		try {
 			$this->logger->debug('http request config.', ['url' => $url, 'method' => $method, 'options' => $conf]);
 
@@ -172,6 +174,7 @@ class HttpClient implements ICanSendHttpRequests
 			$this->logger->info('Invalid Argument for HTTP call.', ['url' => $url, 'method' => $method, 'exception' => $argumentException]);
 			return new CurlResult($url, '', ['http_code' => 500], $argumentException->getCode(), $argumentException->getMessage());
 		} finally {
+			unlink($conf['sink']);
 			$this->logger->debug('Request stop.', ['url' => $url, 'method' => $method]);
 			$this->profiler->stopRecording();
 		}
