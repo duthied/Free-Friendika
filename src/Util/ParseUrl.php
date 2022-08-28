@@ -287,21 +287,21 @@ class ParseUrl
 		// Expected form: Content-Type: text/html; charset=ISO-8859-4
 		if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $curlResult->getContentType(), $matches)) {
 			$charset = trim(trim(trim(array_pop($matches)), ';,'));
+		} else {
+			// Then in body that gets precedence
+			// Expected forms:
+			// - <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+			// - <meta charset="utf-8">
+			// - <meta charset=utf-8>
+			// - <meta charSet="utf-8">
+			// We escape <style> and <script> tags since they can contain irrelevant charset information
+			// (see https://github.com/friendica/friendica/issues/9251#issuecomment-698636806)
+			Strings::performWithEscapedBlocks($body, '#<(?:style|script).*?</(?:style|script)>#ism', function ($body) use (&$charset) {
+				if (preg_match('/charset=["\']?([a-z0-9-_.\/]+)/i', $body, $matches)) {
+					$charset = trim(trim(trim(array_pop($matches)), ';,'));
+				}
+			});
 		}
-
-		// Then in body that gets precedence
-		// Expected forms:
-		// - <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		// - <meta charset="utf-8">
-		// - <meta charset=utf-8>
-		// - <meta charSet="utf-8">
-		// We escape <style> and <script> tags since they can contain irrelevant charset information
-		// (see https://github.com/friendica/friendica/issues/9251#issuecomment-698636806)
-		Strings::performWithEscapedBlocks($body, '#<(?:style|script).*?</(?:style|script)>#ism', function ($body) use (&$charset) {
-			if (preg_match('/charset=["\']?([a-z0-9-_.\/]+)/i', $body, $matches)) {
-				$charset = trim(trim(trim(array_pop($matches)), ';,'));
-			}
-		});
 
 		$siteinfo['charset'] = $charset;
 

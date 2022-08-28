@@ -2674,9 +2674,11 @@ class Item
 			'unseen'        => 1,
 		];
 
-		$signed = Diaspora::createLikeSignature($uid, $new_item);
-		if (!empty($signed)) {
-			$new_item['diaspora_signed_text'] = json_encode($signed);
+		if (in_array($activity, [Activity::LIKE, Activity::DISLIKE])) {
+			$signed = Diaspora::createLikeSignature($uid, $new_item);
+			if (!empty($signed)) {
+				$new_item['diaspora_signed_text'] = json_encode($signed);
+			}
 		}
 
 		self::insert($new_item, true);
