@@ -179,7 +179,15 @@ class Display extends BaseSettings
 
 
 		$first_day_of_week = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
-		$weekdays = [0 => DI::l10n()->t("Sunday"), 1 => DI::l10n()->t("Monday")];
+		$weekdays = [
+			0 => DI::l10n()->t("Sunday"),
+			1 => DI::l10n()->t("Monday"),
+			2 => DI::l10n()->t("Tuesday"),
+			3 => DI::l10n()->t("Wednesday"),
+			4 => DI::l10n()->t("Thursday"),
+			5 => DI::l10n()->t("Friday"),
+			6 => DI::l10n()->t("Saturday")
+		];
 
 		$theme_config = '';
 		if ($themeconfigfile = Theme::getConfigFile($theme_selected)) {
