@@ -68,7 +68,7 @@ class Database
 	protected $connection;
 	protected $driver = '';
 	protected $pdo_emulate_prepares = false;
-	private $error          = false;
+	private $error          = '';
 	private $errorno        = 0;
 	private $affected_rows  = 0;
 	protected $in_transaction = false;
@@ -558,8 +558,8 @@ class Database
 				if (count($args) == 0) {
 					if (!$retval = $this->connection->query($this->replaceParameters($sql, $args))) {
 						$errorInfo     = $this->connection->errorInfo();
-						$this->error   = $errorInfo[2];
-						$this->errorno = (int) $errorInfo[1];
+						$this->error   = (string)$errorInfo[2];
+						$this->errorno = (int)$errorInfo[1];
 						$retval        = false;
 						$is_error      = true;
 						break;
@@ -571,8 +571,8 @@ class Database
 				/** @var $stmt mysqli_stmt|PDOStatement */
 				if (!$stmt = $this->connection->prepare($sql)) {
 					$errorInfo     = $this->connection->errorInfo();
-					$this->error   = $errorInfo[2];
-					$this->errorno = (int) $errorInfo[1];
+					$this->error   = (string)$errorInfo[2];
+					$this->errorno = (int)$errorInfo[1];
 					$retval        = false;
 					$is_error      = true;
 					break;
@@ -591,8 +591,8 @@ class Database
 
 				if (!$stmt->execute()) {
 					$errorInfo     = $stmt->errorInfo();
-					$this->error   = $errorInfo[2];
-					$this->errorno = (int) $errorInfo[1];
+					$this->error   = (string)$errorInfo[2];
+					$this->errorno = (int)$errorInfo[1];
 					$retval        = false;
 					$is_error      = true;
 				} else {
@@ -610,8 +610,8 @@ class Database
 				if (!$can_be_prepared || (count($args) == 0)) {
 					$retval = $this->connection->query($this->replaceParameters($sql, $args));
 					if ($this->connection->errno) {
-						$this->error   = $this->connection->error;
-						$this->errorno = $this->connection->errno;
+						$this->error   = (string)$this->connection->error;
+						$this->errorno = (int)$this->connection->errno;
 						$retval        = false;
 						$is_error      = true;
 					} else {
@@ -627,8 +627,8 @@ class Database
 				$stmt = $this->connection->stmt_init();
 
 				if (!$stmt->prepare($sql)) {
-					$this->error   = $stmt->error;
-					$this->errorno = $stmt->errno;
+					$this->error   = (string)$stmt->error;
+					$this->errorno = (int)$stmt->errno;
 					$retval        = false;
 					$is_error      = true;
 					break;
@@ -658,8 +658,8 @@ class Database
 				}
 
 				if (!$stmt->execute()) {
-					$this->error   = $this->connection->error;
-					$this->errorno = $this->connection->errno;
+					$this->error   = (string)$this->connection->error;
+					$this->errorno = (int)$this->connection->errno;
 					$retval        = false;
 					$is_error      = true;
 				} else {
@@ -726,8 +726,8 @@ class Database
 				}
 			}
 
-			$this->error   = $error;
-			$this->errorno = (int) $errorno;
+			$this->error   = (string)$error;
+			$this->errorno = (int)$errorno;
 		}
 
 		$this->profiler->stopRecording();

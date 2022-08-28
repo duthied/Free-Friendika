@@ -33,7 +33,6 @@ use Friendica\Model\Tag;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
@@ -2545,7 +2544,7 @@ class Item
 		}
 
 		// Retrieve the current logged in user's public contact
-		$author_id = Contact::getIdForURL($owner['url']);
+		$author_id = Contact::getPublicIdByUserId($uid);
 		if (empty($author_id)) {
 			Logger::info('Empty public contact');
 			return false;
@@ -2652,7 +2651,7 @@ class Item
 		$new_item = [
 			'guid'          => System::createUUID(),
 			'uri'           => self::newURI(),
-			'uid'           => $item['uid'],
+			'uid'           => $uid,
 			'contact-id'    => $owner['id'],
 			'wall'          => $item['wall'],
 			'origin'        => 1,
@@ -2680,17 +2679,13 @@ class Item
 			$new_item['diaspora_signed_text'] = json_encode($signed);
 		}
 
-		$new_item_id = self::insert($new_item);
+		self::insert($new_item, true);
 
 		// If the parent item isn't visible then set it to visible
+		// @todo Check if this is still needed
 		if (!$item['visible']) {
 			self::update(['visible' => true], ['id' => $item['id']]);
 		}
-
-		$new_item['id'] = $new_item_id;
-
-		Hook::callAll('post_local_end', $new_item);
-
 		return true;
 	}
 

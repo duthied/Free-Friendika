@@ -228,7 +228,7 @@ class Processor
 	{
 		$item = Post::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity', 'post-type', 'private'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
-			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
+			Logger::notice('No existing item, item will be created', ['uri' => $activity['id']]);
 			$item = self::createItem($activity, false);
 			if (empty($item)) {
 				Queue::remove($activity);

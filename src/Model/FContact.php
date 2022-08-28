@@ -24,6 +24,7 @@ namespace Friendica\Model;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -125,6 +126,7 @@ class FContact
 
 		$condition = ['url' => $arr['url'], 'network' => $arr['network']];
 
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('fcontact', $fields);
 		DBA::update('fcontact', $fields, $condition, true);
 	}
 
