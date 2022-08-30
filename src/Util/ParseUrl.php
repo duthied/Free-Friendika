@@ -214,7 +214,7 @@ class ParseUrl
 		];
 
 		if ($count > 10) {
-			Logger::notice('Endless loop detected', ['url' => $url]);
+			Logger::warning('Endless loop detected', ['url' => $url]);
 			return $siteinfo;
 		}
 

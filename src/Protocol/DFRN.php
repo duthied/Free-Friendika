@@ -747,7 +747,7 @@ class DFRN
 		$mentioned = [];
 
 		if (!$item['parent']) {
-			Logger::notice('Item without parent found.', ['type' => $type, 'item' => $item]);
+			Logger::warning('Item without parent found.', ['type' => $type, 'item' => $item]);
 			return null;
 		}
 
@@ -1466,9 +1466,8 @@ class DFRN
 
 		// update contact
 		$old = Contact::selectFirst(['photo', 'url'], ['id' => $importer['id'], 'uid' => $importer['importer_uid']]);
-
 		if (!DBA::isResult($old)) {
-			Logger::notice("Query failed to execute, no result returned in " . __FUNCTION__);
+			Logger::warning('Existing contact had not been fetched', ['id' => $importer['id']]);
 			return false;
 		}
 
@@ -1550,24 +1549,9 @@ class DFRN
 	private static function getEntryType(array $importer, array $item): int
 	{
 		if ($item['thr-parent'] != $item['uri']) {
-			$community = false;
-
-			if ($importer['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-				$sql_extra = '';
-				$community = true;
-				Logger::notice("possible community action");
-			} else {
-				$sql_extra = " AND `self` AND `wall`";
-			}
-
 			// was the top-level post for this action written by somebody on this site?
 			// Specifically, the recipient?
-			$parent = Post::selectFirst(['wall'],
-				["`uri` = ? AND `uid` = ?" . $sql_extra, $item['thr-parent'], $importer['importer_uid']]);
-
-			$is_a_remote_action = DBA::isResult($parent);
-
-			if ($is_a_remote_action) {
+			if (Post::exists(['uri' => $item['thr-parent'], 'uid' => $importer['importer_uid'], 'self' => true, 'wall' => true])) {
 				return DFRN::REPLY_RC;
 			} else {
 				return DFRN::REPLY;
@@ -1665,9 +1649,8 @@ class DFRN
 
 				if ($xt->type == Activity\ObjectType::NOTE) {
 					$item_tag = Post::selectFirst(['id', 'uri-id'], ['uri' => $xt->id, 'uid' => $importer['importer_uid']]);
-
 					if (!DBA::isResult($item_tag)) {
-						Logger::notice("Query failed to execute, no result returned in " . __FUNCTION__);
+						Logger::warning('Post had not been fetched', ['uri' => $xt->id, 'uid' => $importer['importer_uid']]);
 						return false;
 					}
 

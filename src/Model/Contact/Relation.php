@@ -108,7 +108,7 @@ class Relation
 				$followings = [];
 			}
 		} else {
-			Logger::notice('Contact seems to be local but could not be found here', ['url' => $url]);
+			Logger::warning('Contact seems to be local but could not be found here', ['url' => $url]);
 			$followers = [];
 			$followings = [];
 		}

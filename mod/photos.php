@@ -304,7 +304,7 @@ function photos_post(App $a)
 		}
 
 		if (!empty($_POST['rotate']) && (intval($_POST['rotate']) == 1 || intval($_POST['rotate']) == 2)) {
-			Logger::notice('rotate');
+			Logger::debug('rotate');
 
 			$photo = Photo::getPhotoForUser($page_owner_uid, $resource_id);
 
@@ -580,7 +580,7 @@ function photos_post(App $a)
 	$album    = trim($_REQUEST['album'] ?? '');
 	$newalbum = trim($_REQUEST['newalbum'] ?? '');
 
-	Logger::info('album= ' . $album . ' newalbum= ' . $newalbum);
+	Logger::debug('album= ' . $album . ' newalbum= ' . $newalbum);
 
 	if (!strlen($album)) {
 		if (strlen($newalbum)) {
@@ -711,7 +711,7 @@ function photos_post(App $a)
 	$r = Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0 , Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
 	if (!$r) {
-		Logger::info('image store failed');
+		Logger::warning('image store failed');
 		notice(DI::l10n()->t('Image upload failed.'));
 		return;
 	}

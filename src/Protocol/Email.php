@@ -51,12 +51,12 @@ class Email
 
 		$errors = imap_errors();
 		if (!empty($errors)) {
-			Logger::notice('IMAP Errors occured', ['errors' => $errors]);
+			Logger::warning('IMAP Errors occured', ['errors' => $errors]);
 		}
 
 		$alerts = imap_alerts();
 		if (!empty($alerts)) {
-			Logger::notice('IMAP Alerts occured: ', ['alerts' => $alerts]);
+			Logger::warning('IMAP Alerts occured: ', ['alerts' => $alerts]);
 		}
 
 		return $mbox;
@@ -78,21 +78,21 @@ class Email
 		if (!$search1) {
 			$search1 = [];
 		} else {
-			Logger::notice("Found mails from ".$email_addr);
+			Logger::debug("Found mails from ".$email_addr);
 		}
 
 		$search2 = @imap_search($mbox, 'UNDELETED TO "' . $email_addr . '"', SE_UID);
 		if (!$search2) {
 			$search2 = [];
 		} else {
-			Logger::notice("Found mails to ".$email_addr);
+			Logger::debug("Found mails to ".$email_addr);
 		}
 
 		$search3 = @imap_search($mbox, 'UNDELETED CC "' . $email_addr . '"', SE_UID);
 		if (!$search3) {
 			$search3 = [];
 		} else {
-			Logger::notice("Found mails cc ".$email_addr);
+			Logger::debug("Found mails cc ".$email_addr);
 		}
 
 		$res = array_unique(array_merge($search1, $search2, $search3));

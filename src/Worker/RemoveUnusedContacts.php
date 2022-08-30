@@ -80,7 +80,7 @@ class RemoveUnusedContacts
 
 			DBA::delete('contact', ['id' => $contact['id']]);
 			if ((++$count % 1000) == 0) {
-				Logger::notice('In removal', ['count' => $count, 'total' => $total]);
+				Logger::info('In removal', ['count' => $count, 'total' => $total]);
 			}
 		}
 		DBA::close($contacts);

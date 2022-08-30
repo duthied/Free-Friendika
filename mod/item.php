@@ -89,7 +89,7 @@ function item_post(App $a) {
 	 */
 	if (!$preview && !empty($_REQUEST['post_id_random'])) {
 		if (!empty($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
-			Logger::info('item post: duplicate post');
+			Logger::warning('duplicate post');
 			item_post_return(DI::baseUrl(), $api_source, $return_path);
 		} else {
 			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
@@ -177,7 +177,7 @@ function item_post(App $a) {
 
 	// Now check that valid personal details have been provided
 	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
-		Logger::notice('Permission denied.', ['local' => local_user(), 'profile_uid' => $profile_uid, 'toplevel_item_id' => $toplevel_item_id, 'network' => $toplevel_item['network']]);
+		Logger::warning('Permission denied.', ['local' => local_user(), 'profile_uid' => $profile_uid, 'toplevel_item_id' => $toplevel_item_id, 'network' => $toplevel_item['network']]);
 		notice(DI::l10n()->t('Permission denied.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
@@ -755,7 +755,7 @@ function item_post(App $a) {
 		}
 	}
 
-	Logger::info('post_complete');
+	Logger::debug('post_complete');
 
 	if ($api_source) {
 		return $post_id;
@@ -780,7 +780,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 	}
 
-	Logger::info('post_json', ['json' => $json]);
+	Logger::debug('post_json', ['json' => $json]);
 
 	System::jsonExit($json);
 }
@@ -866,7 +866,7 @@ function drop_item(int $id, string $return = '')
 
 		item_redirect_after_action($item, $return);
 	} else {
-		Logger::notice('Permission denied.', ['local' => local_user(), 'uid' => $item['uid'], 'cid' => $contact_id]);
+		Logger::warning('Permission denied.', ['local' => local_user(), 'uid' => $item['uid'], 'cid' => $contact_id]);
 		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('display/' . $item['guid']);
 		//NOTREACHED

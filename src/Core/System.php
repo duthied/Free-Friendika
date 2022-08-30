@@ -493,30 +493,30 @@ class System
 	 *
 	 * @return boolean the directory is usable
 	 */
-	public static function isDirectoryUsable($directory, $check_writable = true)
+	private static function isDirectoryUsable($directory, $check_writable = true)
 	{
 		if ($directory == '') {
-			Logger::info('Directory is empty. This shouldn\'t happen.');
+			Logger::warning('Directory is empty. This shouldn\'t happen.');
 			return false;
 		}
 
 		if (!file_exists($directory)) {
-			Logger::info('Path "' . $directory . '" does not exist for user ' . static::getUser());
+			Logger::warning('Path does not exist', ['directory' => $directory, 'user' => static::getUser()]);
 			return false;
 		}
 
 		if (is_file($directory)) {
-			Logger::info('Path "' . $directory . '" is a file for user ' . static::getUser());
+			Logger::warning('Path is a file', ['directory' => $directory, 'user' => static::getUser()]);
 			return false;
 		}
 
 		if (!is_dir($directory)) {
-			Logger::info('Path "' . $directory . '" is not a directory for user ' . static::getUser());
+			Logger::warning('Path is not a directory', ['directory' => $directory, 'user' => static::getUser()]);
 			return false;
 		}
 
 		if ($check_writable && !is_writable($directory)) {
-			Logger::info('Path "' . $directory . '" is not writable for user ' . static::getUser());
+			Logger::warning('Path is not writable', ['directory' => $directory, 'user' => static::getUser()]);
 			return false;
 		}
 
@@ -550,7 +550,7 @@ class System
 	{
 		$temppath = DI::config()->get("system", "temppath");
 
-		if (($temppath != "") && System::isDirectoryUsable($temppath)) {
+		if (($temppath != "") && self::isDirectoryUsable($temppath)) {
 			// We have a temp path and it is usable
 			return BasePath::getRealPath($temppath);
 		}
@@ -559,7 +559,7 @@ class System
 		$temppath = sys_get_temp_dir();
 
 		// Check if it is usable
-		if (($temppath != "") && System::isDirectoryUsable($temppath)) {
+		if (($temppath != "") && self::isDirectoryUsable($temppath)) {
 			// Always store the real path, not the path through symlinks
 			$temppath = BasePath::getRealPath($temppath);
 
@@ -570,7 +570,7 @@ class System
 				mkdir($new_temppath);
 			}
 
-			if (System::isDirectoryUsable($new_temppath)) {
+			if (self::isDirectoryUsable($new_temppath)) {
 				// The new path is usable, we are happy
 				DI::config()->set("system", "temppath", $new_temppath);
 				return $new_temppath;
@@ -593,7 +593,7 @@ class System
 	public static function getSpoolPath()
 	{
 		$spoolpath = DI::config()->get('system', 'spoolpath');
-		if (($spoolpath != "") && System::isDirectoryUsable($spoolpath)) {
+		if (($spoolpath != "") && self::isDirectoryUsable($spoolpath)) {
 			// We have a spool path and it is usable
 			return $spoolpath;
 		}
@@ -608,7 +608,7 @@ class System
 				mkdir($spoolpath);
 			}
 
-			if (System::isDirectoryUsable($spoolpath)) {
+			if (self::isDirectoryUsable($spoolpath)) {
 				// The new path is usable, we are happy
 				DI::config()->set("system", "spoolpath", $spoolpath);
 				return $spoolpath;

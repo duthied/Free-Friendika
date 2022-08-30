@@ -165,11 +165,11 @@ class Avatar
 					Logger::warning('Directory could not be created', ['directory' => $dirpath]);
 				}
 			} elseif ((($old_perm = fileperms($dirpath) & 0777) != $dir_perm) && !chmod($dirpath, $dir_perm)) {
-				Logger::notice('Directory permissions could not be changed', ['directory' => $dirpath, 'old' => $old_perm, 'new' => $dir_perm]);
+				Logger::warning('Directory permissions could not be changed', ['directory' => $dirpath, 'old' => $old_perm, 'new' => $dir_perm]);
 			}
 
 			if ((($old_group = filegroup($dirpath)) != $group) && !chgrp($dirpath, $group)) {
-				Logger::notice('Directory group could not be changed', ['directory' => $dirpath, 'old' => $old_group, 'new' => $group]);
+				Logger::warning('Directory group could not be changed', ['directory' => $dirpath, 'old' => $old_group, 'new' => $group]);
 			}
 		}
 
@@ -181,11 +181,11 @@ class Avatar
 		$old_group = filegroup($filepath);
 
 		if (($old_perm != $file_perm) && !chmod($filepath, $file_perm)) {
-			Logger::notice('File permissions could not be changed', ['file' => $filepath, 'old' => $old_perm, 'new' => $file_perm]);
+			Logger::warning('File permissions could not be changed', ['file' => $filepath, 'old' => $old_perm, 'new' => $file_perm]);
 		}
 
 		if (($old_group != $group) && !chgrp($filepath, $group)) {
-			Logger::notice('File group could not be changed', ['file' => $filepath, 'old' => $old_group, 'new' => $group]);
+			Logger::warning('File group could not be changed', ['file' => $filepath, 'old' => $old_group, 'new' => $group]);
 		}
 
 		DI::profiler()->stopRecording();

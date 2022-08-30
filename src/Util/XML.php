@@ -270,7 +270,7 @@ class XML
 		}
 
 		if (!function_exists('xml_parser_create')) {
-			Logger::notice('Xml::toArray: parser function missing');
+			Logger::error('Xml::toArray: parser function missing');
 			return [];
 		}
 
@@ -285,8 +285,8 @@ class XML
 			$parser = @xml_parser_create();
 		}
 
-		if (! $parser) {
-			Logger::notice('Xml::toArray: xml_parser_create: no resource');
+		if (!$parser) {
+			Logger::warning('Xml::toArray: xml_parser_create: no resource');
 			return [];
 		}
 

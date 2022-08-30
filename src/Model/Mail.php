@@ -186,7 +186,7 @@ class Mail
 		}
 
 		if (!$convid) {
-			Logger::notice('send message: conversation not found.');
+			Logger::warning('conversation not found.');
 			return -4;
 		}
 
@@ -290,7 +290,7 @@ class Mail
 		}
 
 		if (!$convid) {
-			Logger::notice('send message: conversation not found.');
+			Logger::warning('conversation not found.');
 			return -4;
 		}
 

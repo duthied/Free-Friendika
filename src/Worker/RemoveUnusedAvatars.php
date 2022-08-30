@@ -56,7 +56,7 @@ class RemoveUnusedAvatars
 					Logger::notice('We are outside of the maintenance window, quitting');
 					return;
 				}
-				Logger::notice('In removal', ['count' => $count, 'total' => $total]);
+				Logger::info('In removal', ['count' => $count, 'total' => $total]);
 			}
 		}
 		DBA::close($contacts);
