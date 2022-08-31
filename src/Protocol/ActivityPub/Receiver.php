@@ -745,7 +745,7 @@ class Receiver
 						$announce_object_data = self::processObject($activity);
 						$announce_object_data['name'] = $type;
 						$announce_object_data['author'] = $actor;
-						$announce_object_data['object_id'] = $object_data['object_id'];
+						$announce_object_data['object_id'] = $object_data['id'];
 						$announce_object_data['object_type'] = $object_data['object_type'];
 						$announce_object_data['push'] = $push;
 						Logger::debug('Create announce activity', ['id' => $announce_object_data['id'], 'object_data' => $announce_object_data]);
