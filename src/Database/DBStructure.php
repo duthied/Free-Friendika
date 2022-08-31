@@ -119,7 +119,7 @@ class DBStructure
 		$tables = array_merge($tables, DBA::selectToArray(
 			'information_schema.tables',
 			['table_name'],
-			['engine' => 'InnoDB', 'ROW_FORMAT' => ['COMPACT', 'REDUNDANT', 'COMPRESSED'], 'table_schema' => DBA::databaseName()]
+			['engine' => 'InnoDB', 'ROW_FORMAT' => ['COMPACT', 'REDUNDANT'], 'table_schema' => DBA::databaseName()]
 		));
 
 		if (!DBA::isResult($tables)) {
