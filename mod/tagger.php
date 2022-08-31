@@ -51,7 +51,7 @@ function tagger_content(App $a) {
 
 	$item_id = ((DI::args()->getArgc() > 1) ? trim(DI::args()->getArgv()[1]) : 0);
 
-	Logger::info('tagger: tag ' . $term . ' item ' . $item_id);
+	Logger::info('tagger: tag', ['term' =>  $term, 'item' => $item_id]);
 
 
 	$item = Post::selectFirst([], ['id' => $item_id]);

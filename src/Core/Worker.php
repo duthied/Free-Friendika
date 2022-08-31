@@ -104,7 +104,7 @@ class Worker
 			foreach ($r as $entry) {
 				// The work will be done
 				if (!self::execute($entry)) {
-					Logger::warning('Process execution failed, quitting.');
+					Logger::warning('Process execution failed, quitting.', ['entry' => $entry]);
 					return;
 				}
 
