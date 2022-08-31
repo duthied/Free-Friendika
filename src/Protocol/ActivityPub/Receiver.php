@@ -391,6 +391,7 @@ class Receiver
 
 		// Fetch the activity on Lemmy "Announce" messages (announces of activities)
 		if (($type == 'as:Announce') && in_array($object_type, array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
+			Logger::debug('Fetch announced activity', ['object' => $object_id]);
 			$data = Processor::fetchCachedActivity($object_id, $fetch_uid);
 			if (!empty($data)) {
 				$type = $object_type;
@@ -590,6 +591,7 @@ class Receiver
 		// Lemmy is announcing activities.
 		// We are changing the announces into regular activities.
 		if (($type == 'as:Announce') && in_array($object_data['type'] ?? '', array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
+			Logger::debug('Change type of announce to activity', ['type' => $object_data['type']]);
 			$type = $object_data['type'];
 		}
 
@@ -727,11 +729,13 @@ class Receiver
 					if (!Post::exists(['uri' => $object_data['id'], 'uid' => 0])) {
 						$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
 						if (empty($item)) {
+							Logger::debug('announced id was not created', ['id' => $object_data['id']]);
 							return false;
 						}
 
 						$item['post-reason'] = Item::PR_ANNOUNCEMENT;
 						ActivityPub\Processor::postItem($object_data, $item);
+						Logger::debug('Created announced id', ['id' => $object_data['id']]);
 					} else {
 						Logger::info('Announced id already exists', ['id' => $object_data['id']]);
 						Queue::remove($object_data);
@@ -744,6 +748,7 @@ class Receiver
 						$announce_object_data['object_id'] = $object_data['object_id'];
 						$announce_object_data['object_type'] = $object_data['object_type'];
 						$announce_object_data['push'] = $push;
+						Logger::debug('Create announce activity', ['id' => $announce_object_data['id'], 'object_data' => $announce_object_data]);
 
 						if (!empty($object_data['raw'])) {
 							$announce_object_data['raw'] = $object_data['raw'];

@@ -938,7 +938,7 @@ class OStatus
 						break;
 
 					default:
-						Logger::warning('Unsupported rel=' . $attribute['rel'] . ', href=' . $attribute['href'] . ', object-type=' . $item['object-type']);
+						Logger::notice('Unsupported rel=' . $attribute['rel'] . ', href=' . $attribute['href'] . ', object-type=' . $item['object-type']);
 				}
 			}
 		}

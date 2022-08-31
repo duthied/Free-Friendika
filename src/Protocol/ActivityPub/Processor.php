@@ -357,7 +357,7 @@ class Processor
 		$item['diaspora_signed_text'] = $activity['diaspora:comment'] ?? '';
 
 		if (empty($conversation) && empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Post::exists(['uri' => $item['thr-parent']])) {
-			Logger::info('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
+			Logger::notice('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
 			if (!$fetch_parents) {
 				Queue::remove($activity);
 			}
@@ -657,6 +657,7 @@ class Processor
 		$activity['reply-to-id'] = $activity['object_id'];
 		$item = self::createItem($activity, false);
 		if (empty($item)) {
+			Logger::debug('Activity was not prepared', ['id' => $activity['object_id']]);
 			return;
 		}
 
@@ -1304,7 +1305,7 @@ class Processor
 
 		$pcid = Contact::getIdForURL($url, 0, false);
 		if (empty($pcid)) {
-			Logger::info('Contact not found', ['contact' => $url]);
+			Logger::notice('Contact not found', ['contact' => $url]);
 			return;
 		}
 
@@ -1364,7 +1365,7 @@ class Processor
 
 	public static function fetchCachedActivity(string $url, int $uid): array
 	{
-		$cachekey = self::CACHEKEY_FETCH_ACTIVITY . $uid . ':' . $url;
+		$cachekey = self::CACHEKEY_FETCH_ACTIVITY . $uid . ':' . hash('sha256', $url);
 		$object = DI::cache()->get($cachekey);
 
 		if (!is_null($object)) {

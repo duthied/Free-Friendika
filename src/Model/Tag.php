@@ -156,7 +156,7 @@ class Tag
 
 		DBA::insert('post-tag', $fields, Database::INSERT_IGNORE);
 
-		Logger::info('Stored tag/mention', ['uri-id' => $uriId, 'tag-id' => $tagid, 'contact-id' => $cid, 'name' => $name, 'type' => $type, 'callstack' => System::callstack(8)]);
+		Logger::debug('Stored tag/mention', ['uri-id' => $uriId, 'tag-id' => $tagid, 'contact-id' => $cid, 'name' => $name, 'type' => $type, 'callstack' => System::callstack(8)]);
 	}
 
 	/**
@@ -389,7 +389,7 @@ class Tag
 			return;
 		}
 
-		Logger::info('Removing tag/mention', ['uri-id' => $uriId, 'tid' => $tag['tid'], 'name' => $name, 'url' => $url, 'callstack' => System::callstack(8)]);
+		Logger::debug('Removing tag/mention', ['uri-id' => $uriId, 'tid' => $tag['tid'], 'name' => $name, 'url' => $url, 'callstack' => System::callstack(8)]);
 		DBA::delete('post-tag', ['uri-id' => $uriId, 'type' => $type, 'tid' => $tag['tid'], 'cid' => $tag['cid']]);
 	}
 

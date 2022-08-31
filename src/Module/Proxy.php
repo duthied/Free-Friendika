@@ -75,7 +75,7 @@ class Proxy extends BaseModule
 		}
 
 		if (!local_user()) {
-			Logger::info('Redirecting not logged in user to original address', ['url' => $request['url']]);
+			Logger::debug('Redirecting not logged in user to original address', ['url' => $request['url']]);
 			System::externalRedirect($request['url']);
 		}
 
@@ -87,7 +87,7 @@ class Proxy extends BaseModule
 		$img_str = $fetchResult->getBody();
 
 		if (!$fetchResult->isSuccess() || empty($img_str)) {
-			Logger::info('Error fetching image', ['image' => $request['url'], 'return' => $fetchResult->getReturnCode(), 'empty' => empty($img_str)]);
+			Logger::notice('Error fetching image', ['image' => $request['url'], 'return' => $fetchResult->getReturnCode(), 'empty' => empty($img_str)]);
 			self::responseError();
 			// stop.
 		}
@@ -98,7 +98,7 @@ class Proxy extends BaseModule
 
 		$image = new Image($img_str, $mime);
 		if (!$image->isValid()) {
-			Logger::info('The image is invalid', ['image' => $request['url'], 'mime' => $mime]);
+			Logger::notice('The image is invalid', ['image' => $request['url'], 'mime' => $mime]);
 			self::responseError();
 			// stop.
 		}
@@ -193,7 +193,7 @@ class Proxy extends BaseModule
 	private static function responseImageHttpCache(Image $img)
 	{
 		if (is_null($img) || !$img->isValid()) {
-			Logger::info('The cached image is invalid');
+			Logger::notice('The cached image is invalid');
 			self::responseError();
 			// stop.
 		}

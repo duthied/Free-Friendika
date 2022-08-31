@@ -88,7 +88,7 @@ class Token extends BaseApi
 
 			$token = DBA::selectFirst('application-view', ['access_token', 'created_at'], $condition);
 			if (!DBA::isResult($token)) {
-				Logger::warning('Token not found or outdated', $condition);
+				Logger::notice('Token not found or outdated', $condition);
 				DI::mstdnError()->Unauthorized();
 			}
 		} else {

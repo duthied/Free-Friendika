@@ -103,7 +103,7 @@ class Delivery
 			DBA::close($itemdata);
 
 			if (empty($target_item)) {
-				Logger::warning('Item ' . $target_id . "wasn't found. Quitting here.");
+				Logger::warning("No target item data. Quitting here.", ['id' => $target_id]);
 				return;
 			}
 

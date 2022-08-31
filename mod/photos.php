@@ -678,14 +678,14 @@ function photos_post(App $a)
 		return;
 	}
 
-	Logger::info('loading the contents of ' . $src);
+	Logger::debug('loading contents', ['src' => $src]);
 
 	$imagedata = @file_get_contents($src);
 
 	$image = new Image($imagedata, $type);
 
 	if (!$image->isValid()) {
-		Logger::info('unable to process image');
+		Logger::notice('unable to process image');
 		notice(DI::l10n()->t('Unable to process image.'));
 		@unlink($src);
 		$foo = 0;

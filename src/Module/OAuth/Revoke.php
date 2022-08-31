@@ -49,7 +49,7 @@ class Revoke extends BaseApi
 		$condition = ['client_id' => $request['client_id'], 'client_secret' => $request['client_secret'], 'access_token' => $request['token']];
 		$token = DBA::selectFirst('application-view', ['id'], $condition);
 		if (empty($token['id'])) {
-			Logger::warning('Token not found', $condition);
+			Logger::notice('Token not found', $condition);
 			DI::mstdnError()->Unauthorized();
 		}
 
