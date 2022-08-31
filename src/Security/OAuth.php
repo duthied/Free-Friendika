@@ -96,7 +96,7 @@ class OAuth
 
 		$token = DBA::selectFirst('application-view', ['uid', 'id', 'name', 'website', 'created_at', 'read', 'write', 'follow', 'push'], $condition);
 		if (!DBA::isResult($token)) {
-			Logger::warning('Token not found', $condition);
+			Logger::notice('Token not found', $condition);
 			return [];
 		}
 		Logger::debug('Token found', $token);

@@ -103,12 +103,12 @@ class Delivery
 			DBA::close($itemdata);
 
 			if (empty($target_item)) {
-				Logger::notice('Item ' . $target_id . "wasn't found. Quitting here.");
+				Logger::warning("No target item data. Quitting here.", ['id' => $target_id]);
 				return;
 			}
 
 			if (empty($parent)) {
-				Logger::notice('Parent ' . $parent_id . ' for item ' . $target_id . "wasn't found. Quitting here.");
+				Logger::warning('Parent ' . $parent_id . ' for item ' . $target_id . "wasn't found. Quitting here.");
 				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
@@ -182,7 +182,7 @@ class Delivery
 		}
 
 		if (empty($items)) {
-			Logger::notice('No delivery data', ['command' => $cmd, 'uri-id' => $post_uriid, 'cid' => $contact_id]);
+			Logger::warning('No delivery data', ['command' => $cmd, 'uri-id' => $post_uriid, 'cid' => $contact_id]);
 		}
 
 		$owner = Model\User::getOwnerDataById($uid);
@@ -432,7 +432,7 @@ class Delivery
 			Logger::notice('diaspora status: ' . $loc);
 			$deliver_status = Diaspora::sendStatus($target_item, $owner, $contact, $public_message);
 		} else {
-			Logger::notice('Unknown mode ' . $cmd . ' for ' . $loc);
+			Logger::warning('Unknown mode', ['command' => $cmd, 'target' => $loc]);
 			return;
 		}
 

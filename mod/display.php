@@ -102,7 +102,7 @@ function display_init(App $a)
 	}
 
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
-		Logger::info('Directly serving XML for uri-id '.$item['uri-id']);
+		Logger::debug('Directly serving XML', ['uri-id' => $item['uri-id']]);
 		displayShowFeed($item['uri-id'], $item['uid'], false);
 	}
 

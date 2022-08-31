@@ -51,7 +51,7 @@ function tagger_content(App $a) {
 
 	$item_id = ((DI::args()->getArgc() > 1) ? trim(DI::args()->getArgv()[1]) : 0);
 
-	Logger::notice('tagger: tag ' . $term . ' item ' . $item_id);
+	Logger::info('tagger: tag', ['term' =>  $term, 'item' => $item_id]);
 
 
 	$item = Post::selectFirst([], ['id' => $item_id]);
@@ -69,7 +69,7 @@ function tagger_content(App $a) {
 
 	$contact = Contact::selectFirst([], ['self' => true, 'uid' => local_user()]);
 	if (!DBA::isResult($contact)) {
-		Logger::notice('tagger: no contact_id');
+		Logger::warning('Self contact not found.', ['uid' => local_user()]);
 		return;
 	}
 

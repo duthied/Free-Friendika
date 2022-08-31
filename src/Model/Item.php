@@ -279,7 +279,7 @@ class Item
 			if ($item['uid'] == $uid) {
 				self::markForDeletionById($item['id'], PRIORITY_HIGH);
 			} elseif ($item['uid'] != 0) {
-				Logger::notice('Wrong ownership. Not deleting item', ['id' => $item['id']]);
+				Logger::warning('Wrong ownership. Not deleting item', ['id' => $item['id']]);
 			}
 		}
 		DBA::close($items);
@@ -580,7 +580,7 @@ class Item
 		if (!empty($item['uid'])) {
 			$owner = User::getOwnerDataById($item['uid'], false);
 			if (!$owner) {
-				Logger::notice('Missing item user owner data', ['uid' => $item['uid']]);
+				Logger::warning('Missing item user owner data', ['uid' => $item['uid']]);
 				return false;
 			}
 
@@ -2515,7 +2515,7 @@ class Item
 
 		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
-			Logger::notice('like: unknown item', ['id' => $item_id]);
+			Logger::warning('Post had not been fetched', ['id' => $item_id]);
 			return false;
 		}
 
@@ -2581,7 +2581,7 @@ class Item
 				$activity = Activity::ANNOUNCE;
 				break;
 			default:
-				Logger::notice('unknown verb', ['verb' => $verb, 'item' => $item_id]);
+				Logger::warning('unknown verb', ['verb' => $verb, 'item' => $item_id]);
 				return false;
 		}
 

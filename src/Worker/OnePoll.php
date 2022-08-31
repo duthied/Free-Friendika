@@ -394,7 +394,7 @@ class OnePoll
 
 					$datarray = Email::getMessage($mbox, $msg_uid, $reply, $datarray);
 					if (empty($datarray['body'])) {
-						Logger::notice("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
+						Logger::warning('Cannot fetch mail', ['msg-id' => $msg_uid, 'uid' => $mailconf['user']]);
 						continue;
 					}
 

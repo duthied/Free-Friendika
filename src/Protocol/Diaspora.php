@@ -475,7 +475,7 @@ class Diaspora
 		}
 
 		if (!($fields = self::validPosting($msg))) {
-			Logger::notice('Invalid posting');
+			Logger::warning('Invalid posting');
 			return false;
 		}
 
@@ -510,7 +510,7 @@ class Diaspora
 		if (is_null($fields)) {
 			$private = true;
 			if (!($fields = self::validPosting($msg))) {
-				Logger::notice('Invalid posting');
+				Logger::warning('Invalid posting');
 				return false;
 			}
 		} else {
@@ -1711,7 +1711,7 @@ class Diaspora
 			}
 		}
 		if (!$conversation) {
-			Logger::notice('Unable to create conversation.');
+			Logger::warning('Unable to create conversation.');
 			return false;
 		}
 
@@ -3644,7 +3644,7 @@ class Diaspora
 				$attend_answer = 'tentative';
 				break;
 			default:
-				Logger::notice('Unknown verb ' . $item['verb'] . ' in item ' . $item['guid']);
+				Logger::warning('Unknown verb ' . $item['verb'] . ' in item ' . $item['guid']);
 				return false;
 		}
 

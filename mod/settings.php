@@ -108,7 +108,7 @@ function settings_post(App $a)
 					'pubmail'      => $mail_pubmail
 				], ['uid' => local_user()]);
 
-				Logger::notice('updating mailaccount', ['response' => $r]);
+				Logger::debug('updating mailaccount', ['response' => $r]);
 				$mailacct = DBA::selectFirst('mailacct', [], ['uid' => local_user()]);
 				if (DBA::isResult($mailacct)) {
 					$mb = Email::constructMailboxName($mailacct);

@@ -1095,7 +1095,7 @@ class Photo
 
 		$r = self::store($image, $user['uid'], 0, $resource_id, $filename, $album, 0, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 		if (!$r) {
-			Logger::notice('Photo could not be stored');
+			Logger::warning('Photo could not be stored', ['uid' => $user['uid'], 'resource_id' => $resource_id, 'filename' => $filename, 'album' => $album]);
 			return [];
 		}
 
@@ -1182,7 +1182,7 @@ class Photo
 
 		$r = self::store($image, $uid, 0, $resource_id, $filename, $album, 4, self::USER_AVATAR);
 		if (!$r) {
-			logger::notice('profile image upload with scale 4 (300) failed');
+			logger::warning('profile image upload with scale 4 (300) failed', ['uid' => $uid, 'resource_id' => $resource_id, 'filename' => $filename, 'album' => $album]);
 		}
 
 		if ($width > 80 || $height > 80) {
@@ -1191,7 +1191,7 @@ class Photo
 
 		$r = self::store($image, $uid, 0, $resource_id, $filename, $album, 5, self::USER_AVATAR);
 		if (!$r) {
-			logger::notice('profile image upload with scale 5 (80) failed');
+			logger::warning('profile image upload with scale 5 (80) failed', ['uid' => $uid, 'resource_id' => $resource_id, 'filename' => $filename, 'album' => $album]);
 		}
 
 		if ($width > 48 || $height > 48) {
@@ -1200,7 +1200,7 @@ class Photo
 
 		$r = self::store($image, $uid, 0, $resource_id, $filename, $album, 6, self::USER_AVATAR);
 		if (!$r) {
-			logger::notice('profile image upload with scale 6 (48) failed');
+			logger::warning('profile image upload with scale 6 (48) failed', ['uid' => $uid, 'resource_id' => $resource_id, 'filename' => $filename, 'album' => $album]);
 		}
 
 		logger::info('new profile image upload ended');
@@ -1257,7 +1257,7 @@ class Photo
 
 		$r = self::store($image, $uid, 0, $resource_id, $filename, $album, 3, self::USER_BANNER);
 		if (!$r) {
-			logger::notice('profile banner upload with scale 3 (960) failed');
+			logger::warning('profile banner upload with scale 3 (960) failed');
 		}
 
 		logger::info('new profile banner upload ended');

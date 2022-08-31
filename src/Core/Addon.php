@@ -128,7 +128,7 @@ class Addon
 	{
 		$addon = Strings::sanitizeFilePathItem($addon);
 
-		Logger::notice("Addon {addon}: {action}", ['action' => 'uninstall', 'addon' => $addon]);
+		Logger::debug("Addon {addon}: {action}", ['action' => 'uninstall', 'addon' => $addon]);
 		DBA::delete('addon', ['name' => $addon]);
 
 		@include_once('addon/' . $addon . '/' . $addon . '.php');
@@ -160,7 +160,7 @@ class Addon
 			return false;
 		}
 
-		Logger::notice("Addon {addon}: {action}", ['action' => 'install', 'addon' => $addon]);
+		Logger::debug("Addon {addon}: {action}", ['action' => 'install', 'addon' => $addon]);
 		$t = @filemtime($addon_file_path);
 		@include_once($addon_file_path);
 		if (function_exists($addon . '_install')) {
@@ -200,7 +200,7 @@ class Addon
 				continue;
 			}
 
-			Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $addon['name']]);
+			Logger::debug("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $addon['name']]);
 
 			self::uninstall($addon['name']);
 			self::install($addon['name']);

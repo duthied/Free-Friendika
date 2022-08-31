@@ -304,7 +304,7 @@ function photos_post(App $a)
 		}
 
 		if (!empty($_POST['rotate']) && (intval($_POST['rotate']) == 1 || intval($_POST['rotate']) == 2)) {
-			Logger::notice('rotate');
+			Logger::debug('rotate');
 
 			$photo = Photo::getPhotoForUser($page_owner_uid, $resource_id);
 
@@ -580,7 +580,7 @@ function photos_post(App $a)
 	$album    = trim($_REQUEST['album'] ?? '');
 	$newalbum = trim($_REQUEST['newalbum'] ?? '');
 
-	Logger::info('album= ' . $album . ' newalbum= ' . $newalbum);
+	Logger::debug('album= ' . $album . ' newalbum= ' . $newalbum);
 
 	if (!strlen($album)) {
 		if (strlen($newalbum)) {
@@ -678,14 +678,14 @@ function photos_post(App $a)
 		return;
 	}
 
-	Logger::info('loading the contents of ' . $src);
+	Logger::debug('loading contents', ['src' => $src]);
 
 	$imagedata = @file_get_contents($src);
 
 	$image = new Image($imagedata, $type);
 
 	if (!$image->isValid()) {
-		Logger::info('unable to process image');
+		Logger::notice('unable to process image');
 		notice(DI::l10n()->t('Unable to process image.'));
 		@unlink($src);
 		$foo = 0;
@@ -711,7 +711,7 @@ function photos_post(App $a)
 	$r = Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0 , Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
 	if (!$r) {
-		Logger::info('image store failed');
+		Logger::warning('image store failed');
 		notice(DI::l10n()->t('Image upload failed.'));
 		return;
 	}

@@ -82,7 +82,7 @@ class Notify extends BaseModule
 			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
-		Logger::info('Importing post with the public envelope.', ['transmitter' => $msg['author']]);
+		Logger::debug('Importing post with the public envelope.', ['transmitter' => $msg['author']]);
 
 		// Now we should be able to import it
 		$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::RELAY);
@@ -117,7 +117,7 @@ class Notify extends BaseModule
 			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
-		Logger::info('Importing post with the private envelope.', ['transmitter' => $msg['author'], 'receiver' => $user['nickname']]);
+		Logger::debug('Importing post with the private envelope.', ['transmitter' => $msg['author'], 'receiver' => $user['nickname']]);
 
 		// Now we should be able to import it
 		$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::PUSH);

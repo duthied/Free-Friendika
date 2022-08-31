@@ -533,7 +533,7 @@ class Post
 				$puids = array_column($rows, 'post-user-id');
 				if (!DBA::update('post-user', $update_fields, ['id' => $puids])) {
 					DBA::rollback();
-					Logger::notice('Updating post-user failed', ['fields' => $update_fields, 'condition' => $condition]);
+					Logger::warning('Updating post-user failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
@@ -550,7 +550,7 @@ class Post
 				$uriids = array_column($rows, 'uri-id');
 				if (!DBA::update('post-content', $update_fields, ['uri-id' => $uriids])) {
 					DBA::rollback();
-					Logger::notice('Updating post-content failed', ['fields' => $update_fields, 'condition' => $condition]);
+					Logger::warning('Updating post-content failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
@@ -573,7 +573,7 @@ class Post
 
 				if (!DBA::update('post', $update_fields, ['uri-id' => $uriids])) {
 					DBA::rollback();
-					Logger::notice('Updating post failed', ['fields' => $update_fields, 'condition' => $condition]);
+					Logger::warning('Updating post failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
@@ -590,7 +590,7 @@ class Post
 				$uriids = array_column($rows, 'uri-id');
 				if (!DBA::update('post-delivery-data', $update_fields, ['uri-id' => $uriids])) {
 					DBA::rollback();
-					Logger::notice('Updating post-delivery-data failed', ['fields' => $update_fields, 'condition' => $condition]);
+					Logger::warning('Updating post-delivery-data failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
@@ -607,7 +607,7 @@ class Post
 				$uriids = array_column($rows, 'uri-id');
 				if (!DBA::update('post-thread', $update_fields, ['uri-id' => $uriids])) {
 					DBA::rollback();
-					Logger::notice('Updating post-thread failed', ['fields' => $update_fields, 'condition' => $condition]);
+					Logger::warning('Updating post-thread failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
@@ -624,7 +624,7 @@ class Post
 				$thread_puids = array_column($rows, 'post-user-id');
 				if (!DBA::update('post-thread-user', $update_fields, ['post-user-id' => $thread_puids])) {
 					DBA::rollback();
-					Logger::notice('Updating post-thread-user failed', ['fields' => $update_fields, 'condition' => $condition]);
+					Logger::warning('Updating post-thread-user failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();

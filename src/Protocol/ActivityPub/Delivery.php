@@ -52,7 +52,7 @@ class Delivery
 				if ($result['serverfailure']) {
 					// In a timeout situation we assume that every delivery to that inbox will time out.
 					// So we set the flag and try all deliveries at a later time.
-					Logger::info('Inbox delivery has a server failure', ['inbox' => $inbox]);
+					Logger::notice('Inbox delivery has a server failure', ['inbox' => $inbox]);
 					$serverfail = true;
 				}
 			}
@@ -82,7 +82,7 @@ class Delivery
 		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
 			$item = Post::selectFirst(['id', 'parent', 'origin'], ['uri-id' => $uri_id, 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
 			if (empty($item['id'])) {
-				Logger::notice('Item not found, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
+				Logger::warning('Item not found, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
 				Post\Delivery::remove($uri_id, $inbox);
 				return true;
 			} else {
@@ -151,7 +151,7 @@ class Delivery
 
 					}
 
-					Logger::info('Delivery failed', ['retcode' => $response->getReturnCode(), 'serverfailure' => $serverfail, 'drop' => $drop, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
+					Logger::notice('Delivery failed', ['retcode' => $response->getReturnCode(), 'serverfailure' => $serverfail, 'drop' => $drop, 'runtime' => round($runtime, 3), 'uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox]);
 				}
 				if ($uri_id) {
 					if ($success) {

@@ -42,7 +42,7 @@ class PageInfo
 	 */
 	public static function searchAndAppendToBody(string $body, bool $searchNakedUrls = false, bool $no_photos = false)
 	{
-		Logger::info('add_page_info_to_body: fetch page info for body', ['body' => $body]);
+		Logger::debug('add_page_info_to_body: fetch page info for body', ['body' => $body]);
 
 		$url = self::getRelevantUrlFromBody($body, $searchNakedUrls);
 		if (!$url) {
@@ -208,7 +208,7 @@ class PageInfo
 			}
 		}
 
-		Logger::info('fetch page info for URL', ['url' => $url, 'data' => $data]);
+		Logger::debug('fetch page info for URL', ['url' => $url, 'data' => $data]);
 
 		return $data;
 	}

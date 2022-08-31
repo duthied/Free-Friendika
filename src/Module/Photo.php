@@ -219,7 +219,7 @@ class Photo extends BaseModule
 		$rest = $total - ($fetch + $data + $checksum + $output);
 
 		if (!is_null($scale) && ($scale < 4)) {
-			Logger::info('Performance:', ['scale' => $scale, 'resource' => $photo['resource-id'],
+			Logger::debug('Performance:', ['scale' => $scale, 'resource' => $photo['resource-id'],
 				'total' => number_format($total, 3), 'fetch' => number_format($fetch, 3),
 				'data' => number_format($data, 3), 'checksum' => number_format($checksum, 3),
 				'output' => number_format($output, 3), 'rest' => number_format($rest, 3)]);

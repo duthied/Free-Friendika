@@ -1299,7 +1299,7 @@ class Contact
 			}
 
 			if (!$contact_id) {
-				Logger::info('Contact was not inserted', ['url' => $url, 'uid' => $uid]);
+				Logger::warning('Contact was not inserted', ['url' => $url, 'uid' => $uid]);
 				return 0;
 			}
 		} else {
