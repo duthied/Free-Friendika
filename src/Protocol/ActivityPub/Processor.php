@@ -1966,7 +1966,9 @@ class Processor
 					$name = $tag['name'];
 				}
 
-				$body = str_replace($tag['name'], $hash . '[url=' . $tag['href'] . ']' . $name . '[/url]', $body);
+				if (Network::isValidHttpUrl($tag['href'])) {
+					$body = str_replace($tag['name'], $hash . '[url=' . $tag['href'] . ']' . $name . '[/url]', $body);
+				}
 			}
 
 			return $body;

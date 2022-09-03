@@ -502,6 +502,11 @@ class Notifier
 		$a = DI::app();
 		$delivery_queue_count = 0;
 
+		if ($target_item['verb'] == Activity::ANNOUNCE) {
+			Logger::notice('Announces are only delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'uri' => $target_item['uri']]);
+			return 0;
+		}
+
 		foreach ($contacts as $contact) {
 			// Direct delivery of local contacts
 			if (!in_array($cmd, [Delivery::RELOCATION, Delivery::SUGGESTION, Delivery::DELETION, Delivery::MAIL]) && $target_uid = User::getIdForURL($contact['url'])) {
