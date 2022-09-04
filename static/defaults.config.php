@@ -608,7 +608,7 @@ return [
 		'username_max_length' => 48,
 
 		// worker_cooldown (Integer)
-		// Cooldown period in seconds after each worker function call.
+		// Cooldown period in seconds before each worker function call.
 		'worker_cooldown' => 0,
 
 		// worker_debug (Boolean)
@@ -632,11 +632,19 @@ return [
 		// List of minutes for the jobs per minute (JPM) calculation
 		'worker_jpm_range' => '1, 10, 60',
 
+		// worker_load_cooldown (Integer)
+		// Maximum load that causes a cooldown before each worker function call.
+		'worker_load_cooldown' => 0,
+
 		// worker_load_exponent (Integer)
 		// Default 3, which allows only 25% of the maximum worker queues when server load reaches around 37% of maximum load.
 		// For a linear response where 25% of worker queues are allowed at 75% of maximum load, set this to 1.
 		// Setting 0 would allow maximum worker queues at all times, which is not recommended.
 		'worker_load_exponent' => 3,
+
+		// worker_processes_cooldown (Integer)
+		// Maximum number pro processes that causes a cooldown before each worker function call.
+		'worker_processes_cooldown' => 0,
 
 		// worker_multiple_fetch (Boolean)
 		// When activated, the worker fetches jobs for multiple workers (not only for itself).
