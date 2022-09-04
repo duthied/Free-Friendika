@@ -21,12 +21,12 @@ Fields
 | preview-width   | Width of the preview picture                              | smallint unsigned | YES  |     | NULL    |                |
 | description     |                                                           | text              | YES  |     | NULL    |                |
 | name            | Name of the media                                         | varchar(255)      | YES  |     | NULL    |                |
-| author-url      | URL of the author of the media                            | varbinary(255)    | YES  |     | NULL    |                |
+| author-url      | URL of the author of the media                            | varbinary(383)    | YES  |     | NULL    |                |
 | author-name     | Name of the author of the media                           | varchar(255)      | YES  |     | NULL    |                |
-| author-image    | Image of the author of the media                          | varbinary(255)    | YES  |     | NULL    |                |
-| publisher-url   | URL of the publisher of the media                         | varbinary(255)    | YES  |     | NULL    |                |
+| author-image    | Image of the author of the media                          | varbinary(383)    | YES  |     | NULL    |                |
+| publisher-url   | URL of the publisher of the media                         | varbinary(383)    | YES  |     | NULL    |                |
 | publisher-name  | Name of the publisher of the media                        | varchar(255)      | YES  |     | NULL    |                |
-| publisher-image | Image of the publisher of the media                       | varbinary(255)    | YES  |     | NULL    |                |
+| publisher-image | Image of the publisher of the media                       | varbinary(383)    | YES  |     | NULL    |                |
 
 Indexes
 ------------

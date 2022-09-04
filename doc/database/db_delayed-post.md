@@ -9,7 +9,7 @@ Fields
 | Field   | Description                                    | Type               | Null | Key | Default | Extra          |
 | ------- | ---------------------------------------------- | ------------------ | ---- | --- | ------- | -------------- |
 | id      |                                                | int unsigned       | NO   | PRI | NULL    | auto_increment |
-| uri     | URI of the post that will be distributed later | varchar(255)       | YES  |     | NULL    |                |
+| uri     | URI of the post that will be distributed later | varbinary(383)     | YES  |     | NULL    |                |
 | uid     | Owner User id                                  | mediumint unsigned | YES  |     | NULL    |                |
 | delayed | delay time                                     | datetime           | YES  |     | NULL    |                |
 | wid     | Workerqueue id                                 | int unsigned       | YES  |     | NULL    |                |

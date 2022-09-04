@@ -11,12 +11,12 @@ Fields
 | id            | sequential ID                                 | int unsigned       | NO   | PRI | NULL                | auto_increment |
 | type          |                                               | smallint unsigned  | NO   |     | 0                   |                |
 | name          |                                               | varchar(255)       | NO   |     |                     |                |
-| url           |                                               | varchar(255)       | NO   |     |                     |                |
-| photo         |                                               | varchar(255)       | NO   |     |                     |                |
+| url           |                                               | varbinary(383)     | NO   |     |                     |                |
+| photo         |                                               | varbinary(383)     | NO   |     |                     |                |
 | date          |                                               | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 | msg           |                                               | mediumtext         | YES  |     | NULL                |                |
 | uid           | Owner User id                                 | mediumint unsigned | NO   |     | 0                   |                |
-| link          |                                               | varchar(255)       | NO   |     |                     |                |
+| link          |                                               | varbinary(383)     | NO   |     |                     |                |
 | iid           |                                               | int unsigned       | YES  |     | NULL                |                |
 | parent        |                                               | int unsigned       | YES  |     | NULL                |                |
 | uri-id        | Item-uri id of the related post               | int unsigned       | YES  |     | NULL                |                |

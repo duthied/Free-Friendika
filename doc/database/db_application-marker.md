@@ -11,7 +11,7 @@ Fields
 | application-id |                              | int unsigned       | NO   | PRI | NULL    |       |
 | uid            | Owner User id                | mediumint unsigned | NO   | PRI | NULL    |       |
 | timeline       | Marker (home, notifications) | varchar(64)        | NO   | PRI | NULL    |       |
-| last_read_id   | Marker id for the timeline   | varchar(255)       | YES  |     | NULL    |       |
+| last_read_id   | Marker id for the timeline   | varbinary(383)     | YES  |     | NULL    |       |
 | version        | Version number               | smallint unsigned  | YES  |     | NULL    |       |
 | updated_at     | creation time                | datetime           | YES  |     | NULL    |       |
 

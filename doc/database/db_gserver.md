@@ -9,8 +9,8 @@ Fields
 | Field                 | Description                                        | Type             | Null | Key | Default             | Extra          |
 | --------------------- | -------------------------------------------------- | ---------------- | ---- | --- | ------------------- | -------------- |
 | id                    | sequential ID                                      | int unsigned     | NO   | PRI | NULL                | auto_increment |
-| url                   |                                                    | varchar(255)     | NO   |     |                     |                |
-| nurl                  |                                                    | varchar(255)     | NO   |     |                     |                |
+| url                   |                                                    | varbinary(383)   | NO   |     |                     |                |
+| nurl                  |                                                    | varbinary(383)   | NO   |     |                     |                |
 | version               |                                                    | varchar(255)     | NO   |     |                     |                |
 | site_name             |                                                    | varchar(255)     | NO   |     |                     |                |
 | info                  |                                                    | text             | YES  |     | NULL                |                |
@@ -22,8 +22,8 @@ Fields
 | local-posts           | Number of local posts                              | int unsigned     | YES  |     | NULL                |                |
 | local-comments        | Number of local comments                           | int unsigned     | YES  |     | NULL                |                |
 | directory-type        | Type of directory service (Poco, Mastodon)         | tinyint          | YES  |     | 0                   |                |
-| poco                  |                                                    | varchar(255)     | NO   |     |                     |                |
-| noscrape              |                                                    | varchar(255)     | NO   |     |                     |                |
+| poco                  |                                                    | varbinary(383)   | NO   |     |                     |                |
+| noscrape              |                                                    | varbinary(383)   | NO   |     |                     |                |
 | network               |                                                    | char(4)          | NO   |     |                     |                |
 | protocol              | The protocol of the server                         | tinyint unsigned | YES  |     | NULL                |                |
 | platform              |                                                    | varchar(255)     | NO   |     |                     |                |

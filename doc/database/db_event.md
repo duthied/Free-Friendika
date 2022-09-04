@@ -9,10 +9,10 @@ Fields
 | Field     | Description                                                | Type               | Null | Key | Default             | Extra          |
 | --------- | ---------------------------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id        | sequential ID                                              | int unsigned       | NO   | PRI | NULL                | auto_increment |
-| guid      |                                                            | varchar(255)       | NO   |     |                     |                |
+| guid      |                                                            | varbinary(255)     | NO   |     |                     |                |
 | uid       | Owner User id                                              | mediumint unsigned | NO   |     | 0                   |                |
 | cid       | contact_id (ID of the contact in contact table)            | int unsigned       | NO   |     | 0                   |                |
-| uri       |                                                            | varchar(255)       | NO   |     |                     |                |
+| uri       |                                                            | varbinary(383)     | NO   |     |                     |                |
 | uri-id    | Id of the item-uri table entry that contains the event uri | int unsigned       | YES  |     | NULL                |                |
 | created   | creation time                                              | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 | edited    | last edit time                                             | datetime           | NO   |     | 0001-01-01 00:00:00 |                |

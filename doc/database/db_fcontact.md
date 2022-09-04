@@ -9,21 +9,21 @@ Fields
 | Field             | Description                                                   | Type             | Null | Key | Default             | Extra          |
 | ----------------- | ------------------------------------------------------------- | ---------------- | ---- | --- | ------------------- | -------------- |
 | id                | sequential ID                                                 | int unsigned     | NO   | PRI | NULL                | auto_increment |
-| guid              | unique id                                                     | varchar(255)     | NO   |     |                     |                |
-| url               |                                                               | varchar(255)     | NO   |     |                     |                |
+| guid              | unique id                                                     | varbinary(255)   | NO   |     |                     |                |
+| url               |                                                               | varbinary(383)   | NO   |     |                     |                |
 | uri-id            | Id of the item-uri table entry that contains the fcontact url | int unsigned     | YES  |     | NULL                |                |
 | name              |                                                               | varchar(255)     | NO   |     |                     |                |
-| photo             |                                                               | varchar(255)     | NO   |     |                     |                |
-| request           |                                                               | varchar(255)     | NO   |     |                     |                |
+| photo             |                                                               | varbinary(383)   | NO   |     |                     |                |
+| request           |                                                               | varbinary(383)   | NO   |     |                     |                |
 | nick              |                                                               | varchar(255)     | NO   |     |                     |                |
 | addr              |                                                               | varchar(255)     | NO   |     |                     |                |
-| batch             |                                                               | varchar(255)     | NO   |     |                     |                |
-| notify            |                                                               | varchar(255)     | NO   |     |                     |                |
-| poll              |                                                               | varchar(255)     | NO   |     |                     |                |
-| confirm           |                                                               | varchar(255)     | NO   |     |                     |                |
+| batch             |                                                               | varbinary(383)   | NO   |     |                     |                |
+| notify            |                                                               | varbinary(383)   | NO   |     |                     |                |
+| poll              |                                                               | varbinary(383)   | NO   |     |                     |                |
+| confirm           |                                                               | varbinary(383)   | NO   |     |                     |                |
 | priority          |                                                               | tinyint unsigned | NO   |     | 0                   |                |
 | network           |                                                               | char(4)          | NO   |     |                     |                |
-| alias             |                                                               | varchar(255)     | NO   |     |                     |                |
+| alias             |                                                               | varbinary(383)   | NO   |     |                     |                |
 | pubkey            |                                                               | text             | YES  |     | NULL                |                |
 | updated           |                                                               | datetime         | NO   |     | 0001-01-01 00:00:00 |                |
 | interacting_count | Number of contacts this contact interactes with               | int unsigned     | YES  |     | 0                   |                |

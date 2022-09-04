@@ -24,7 +24,7 @@ Fields
 | fetch_further_information |                                                              | tinyint unsigned   | YES  |     | NULL    |       |
 | ffi_keyword_denylist      |                                                              | text               | YES  |     | NULL    |       |
 | subhub                    |                                                              | boolean            | YES  |     | NULL    |       |
-| hub-verify                |                                                              | varchar(255)       | YES  |     | NULL    |       |
+| hub-verify                |                                                              | varbinary(383)     | YES  |     | NULL    |       |
 | protocol                  | Protocol of the contact                                      | char(4)            | YES  |     | NULL    |       |
 | rating                    | Automatically detected feed poll frequency                   | tinyint            | YES  |     | NULL    |       |
 | priority                  | Feed poll priority                                           | tinyint unsigned   | YES  |     | NULL    |       |

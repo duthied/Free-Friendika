@@ -734,7 +734,7 @@ class Diaspora
 			}
 
 			if (!Crypto::rsaVerify($signed_data, $parent_author_signature, $key, 'sha256')) {
-				Logger::info('No valid parent author signature for parent author ' . $msg['author'] . ' in type ' . $type . ' - signed data: ' . $signed_data . ' - Message: ' . $msg['message'] . ' - Signature ' . $parent_author_signature);
+				Logger::info('No valid parent author signature', ['author' => $msg['author'], 'type' => $type, 'signed data' => $signed_data, 'message'  => $msg['message'], 'signature' => $parent_author_signature]);
 				return false;
 			}
 		}
@@ -746,7 +746,7 @@ class Diaspora
 		}
 
 		if (!Crypto::rsaVerify($signed_data, $author_signature, $key, 'sha256')) {
-			Logger::info('No valid author signature for author ' . $fields->author . ' in type ' . $type . ' - signed data: ' . $signed_data . ' - Message: ' . $msg['message'] . ' - Signature ' . $author_signature);
+			Logger::info('No valid author signature for author', ['author' => $fields->author, 'type' => $type, 'signed data' => $signed_data, 'message'  => $msg['message'], 'signature' => $author_signature]);
 			return false;
 		} else {
 			return $fields;

@@ -10,7 +10,7 @@ Fields
 | ----- | ----------------------------------------------------------------------------- | ---------------- | ---- | --- | ------- | -------------- |
 | id    |                                                                               | int unsigned     | NO   | PRI | NULL    | auto_increment |
 | name  |                                                                               | varchar(96)      | NO   |     |         |                |
-| url   |                                                                               | varbinary(255)   | NO   |     |         |                |
+| url   |                                                                               | varbinary(383)   | NO   |     |         |                |
 | type  | Type of the tag (Unknown, General Collection, Follower Collection or Account) | tinyint unsigned | YES  |     | NULL    |                |
 
 Indexes

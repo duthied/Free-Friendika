@@ -8,7 +8,7 @@ Fields
 
 | Field        | Description                                                    | Type           | Null | Key | Default | Extra |
 | ------------ | -------------------------------------------------------------- | -------------- | ---- | --- | ------- | ----- |
-| url          | URL of the contact                                             | varbinary(255) | NO   | PRI | NULL    |       |
+| url          | URL of the contact                                             | varbinary(383) | NO   | PRI | NULL    |       |
 | type         |                                                                | varchar(20)    | NO   |     | NULL    |       |
 | owner-uri-id | Id of the item-uri table entry that contains the apcontact url | int unsigned   | YES  |     | NULL    |       |
 

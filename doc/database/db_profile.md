@@ -47,8 +47,8 @@ Fields
 | homepage     |                                               | varchar(255)       | NO   |     |            |                |
 | xmpp         | XMPP address                                  | varchar(255)       | NO   |     |            |                |
 | matrix       | Matrix address                                | varchar(255)       | NO   |     |            |                |
-| photo        |                                               | varchar(255)       | NO   |     |            |                |
-| thumb        |                                               | varchar(255)       | NO   |     |            |                |
+| photo        |                                               | varbinary(383)     | NO   |     |            |                |
+| thumb        |                                               | varbinary(383)     | NO   |     |            |                |
 | publish      | publish default profile in local directory    | boolean            | NO   |     | 0          |                |
 | net-publish  | publish profile in global directory           | boolean            | NO   |     | 0          |                |
 
