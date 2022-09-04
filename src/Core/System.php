@@ -436,6 +436,33 @@ class System
 	}
 
 	/**
+	 * Fetch the load and number of processes
+	 *
+	 * @return array
+	 */
+	public static function getLoadAvg(): array
+	{
+		$content = file_get_contents('/proc/loadavg');
+		if (empty($content)) {
+			$content = shell_exec('cat /proc/loadavg');
+		}
+		if (empty($content)) {
+			return [];
+		}
+
+		if (!preg_match("#([.\d]+)\s([.\d]+)\s([.\d]+)\s(\d+)/(\d+)#", $content, $matches)) {
+			return [];
+		}
+		return [
+			'average1'  => (float)$matches[1],
+			'average5'  => (float)$matches[2],
+			'average15' => (float)$matches[3],
+			'runnable'  => (float)$matches[4],
+			'scheduled' => (float)$matches[5]
+		];
+	}
+
+	/**
 	 * Redirects to an external URL (fully qualified URL)
 	 * If you want to route relative to the current Friendica base, use App->internalRedirect()
 	 *
