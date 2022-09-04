@@ -9,7 +9,7 @@ Fields
 | Field    | Description   | Type               | Null | Key | Default             | Extra          |
 | -------- | ------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id       | sequential ID | int unsigned       | NO   | PRI | NULL                | auto_increment |
-| hash     |               | varchar(255)       | NO   |     |                     |                |
+| hash     |               | varbinary(255)     | NO   |     |                     |                |
 | created  |               | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 | uid      | User id       | mediumint unsigned | NO   |     | 0                   |                |
 | password |               | varchar(255)       | NO   |     |                     |                |

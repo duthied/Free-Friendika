@@ -9,7 +9,7 @@ Fields
 | Field   | Description                               | Type               | Null | Key | Default             | Extra          |
 | ------- | ----------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id      | sequential ID                             | int unsigned       | NO   | PRI | NULL                | auto_increment |
-| guid    | A unique identifier for this conversation | varchar(255)       | NO   |     |                     |                |
+| guid    | A unique identifier for this conversation | varbinary(255)     | NO   |     |                     |                |
 | recips  | sender_handle;recipient_handle            | text               | YES  |     | NULL                |                |
 | uid     | Owner User id                             | mediumint unsigned | NO   |     | 0                   |                |
 | creator | handle of creator                         | varchar(255)       | NO   |     |                     |                |

@@ -9,7 +9,7 @@ Fields
 | Field | Description                     | Type           | Null | Key | Default | Extra          |
 | ----- | ------------------------------- | -------------- | ---- | --- | ------- | -------------- |
 | id    |                                 | int unsigned   | NO   | PRI | NULL    | auto_increment |
-| uri   | URI of an item                  | varbinary(255) | NO   |     | NULL    |                |
+| uri   | URI of an item                  | varbinary(383) | NO   |     | NULL    |                |
 | guid  | A unique identifier for an item | varbinary(255) | YES  |     | NULL    |                |
 
 Indexes

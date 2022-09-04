@@ -12,9 +12,9 @@ Fields
 | uid     | User id     | mediumint unsigned | NO   |     | 0                   |                |
 | cid     |             | int unsigned       | NO   |     | 0                   |                |
 | name    |             | varchar(255)       | NO   |     |                     |                |
-| url     |             | varchar(255)       | NO   |     |                     |                |
-| request |             | varchar(255)       | NO   |     |                     |                |
-| photo   |             | varchar(255)       | NO   |     |                     |                |
+| url     |             | varbinary(383)     | NO   |     |                     |                |
+| request |             | varbinary(383)     | NO   |     |                     |                |
+| photo   |             | varbinary(383)     | NO   |     |                     |                |
 | note    |             | text               | YES  |     | NULL                |                |
 | created |             | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 

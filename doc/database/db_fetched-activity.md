@@ -8,7 +8,7 @@ Fields
 
 | Field     | Description                   | Type           | Null | Key | Default | Extra |
 | --------- | ----------------------------- | -------------- | ---- | --- | ------- | ----- |
-| object-id | object id of fetched activity | varbinary(255) | NO   | PRI | NULL    |       |
+| object-id | object id of fetched activity | varbinary(383) | NO   | PRI | NULL    |       |
 | received  | Receiving date                | datetime       | YES  |     | NULL    |       |
 
 Indexes

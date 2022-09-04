@@ -10,7 +10,7 @@ Fields
 | ------------ | --------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id           | sequential ID                     | int unsigned       | NO   | PRI | NULL                | auto_increment |
 | uid          | User id                           | mediumint unsigned | NO   |     | 0                   |                |
-| callback_url |                                   | varchar(255)       | NO   |     |                     |                |
+| callback_url |                                   | varbinary(383)     | NO   |     |                     |                |
 | topic        |                                   | varchar(255)       | NO   |     |                     |                |
 | nickname     |                                   | varchar(255)       | NO   |     |                     |                |
 | push         | Retrial counter                   | tinyint            | NO   |     | 0                   |                |

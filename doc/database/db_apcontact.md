@@ -8,17 +8,17 @@ Fields
 
 | Field            | Description                                                         | Type           | Null | Key | Default             | Extra |
 | ---------------- | ------------------------------------------------------------------- | -------------- | ---- | --- | ------------------- | ----- |
-| url              | URL of the contact                                                  | varbinary(255) | NO   | PRI | NULL                |       |
+| url              | URL of the contact                                                  | varbinary(383) | NO   | PRI | NULL                |       |
 | uri-id           | Id of the item-uri table entry that contains the apcontact url      | int unsigned   | YES  |     | NULL                |       |
-| uuid             |                                                                     | varchar(255)   | YES  |     | NULL                |       |
+| uuid             |                                                                     | varbinary(255) | YES  |     | NULL                |       |
 | type             |                                                                     | varchar(20)    | NO   |     | NULL                |       |
-| following        |                                                                     | varchar(255)   | YES  |     | NULL                |       |
-| followers        |                                                                     | varchar(255)   | YES  |     | NULL                |       |
-| inbox            |                                                                     | varchar(255)   | NO   |     | NULL                |       |
-| outbox           |                                                                     | varchar(255)   | YES  |     | NULL                |       |
-| sharedinbox      |                                                                     | varchar(255)   | YES  |     | NULL                |       |
-| featured         | Address for the collection of featured posts                        | varchar(255)   | YES  |     | NULL                |       |
-| featured-tags    | Address for the collection of featured tags                         | varchar(255)   | YES  |     | NULL                |       |
+| following        |                                                                     | varbinary(383) | YES  |     | NULL                |       |
+| followers        |                                                                     | varbinary(383) | YES  |     | NULL                |       |
+| inbox            |                                                                     | varbinary(383) | NO   |     | NULL                |       |
+| outbox           |                                                                     | varbinary(383) | YES  |     | NULL                |       |
+| sharedinbox      |                                                                     | varbinary(383) | YES  |     | NULL                |       |
+| featured         | Address for the collection of featured posts                        | varbinary(383) | YES  |     | NULL                |       |
+| featured-tags    | Address for the collection of featured tags                         | varbinary(383) | YES  |     | NULL                |       |
 | manually-approve |                                                                     | boolean        | YES  |     | NULL                |       |
 | discoverable     | Mastodon extension: true if profile is published in their directory | boolean        | YES  |     | NULL                |       |
 | suspended        | Mastodon extension: true if profile is suspended                    | boolean        | YES  |     | NULL                |       |
@@ -27,13 +27,13 @@ Fields
 | about            |                                                                     | text           | YES  |     | NULL                |       |
 | xmpp             | XMPP address                                                        | varchar(255)   | YES  |     | NULL                |       |
 | matrix           | Matrix address                                                      | varchar(255)   | YES  |     | NULL                |       |
-| photo            |                                                                     | varchar(255)   | YES  |     | NULL                |       |
-| header           | Header picture                                                      | varchar(255)   | YES  |     | NULL                |       |
+| photo            |                                                                     | varbinary(383) | YES  |     | NULL                |       |
+| header           | Header picture                                                      | varbinary(383) | YES  |     | NULL                |       |
 | addr             |                                                                     | varchar(255)   | YES  |     | NULL                |       |
-| alias            |                                                                     | varchar(255)   | YES  |     | NULL                |       |
+| alias            |                                                                     | varbinary(383) | YES  |     | NULL                |       |
 | pubkey           |                                                                     | text           | YES  |     | NULL                |       |
-| subscribe        |                                                                     | varchar(255)   | YES  |     | NULL                |       |
-| baseurl          | baseurl of the ap contact                                           | varchar(255)   | YES  |     | NULL                |       |
+| subscribe        |                                                                     | varbinary(383) | YES  |     | NULL                |       |
+| baseurl          | baseurl of the ap contact                                           | varbinary(383) | YES  |     | NULL                |       |
 | gsid             | Global Server ID                                                    | int unsigned   | YES  |     | NULL                |       |
 | generator        | Name of the contact's system                                        | varchar(255)   | YES  |     | NULL                |       |
 | following_count  | Number of following contacts                                        | int unsigned   | YES  |     | 0                   |       |

@@ -35,14 +35,11 @@ class ItemURI
 	 */
 	public static function insert(array $fields)
 	{
-		// If the URI gets too long we only take the first parts and hope for best
-		$uri = substr($fields['uri'], 0, 255);
-
-		if (!DBA::exists('item-uri', ['uri' => $uri])) {
+		if (!DBA::exists('item-uri', ['uri' => $fields['uri']])) {
 			DBA::insert('item-uri', $fields, Database::INSERT_UPDATE);
 		}
 
-		$itemuri = DBA::selectFirst('item-uri', ['id', 'guid'], ['uri' => $uri]);
+		$itemuri = DBA::selectFirst('item-uri', ['id', 'guid'], ['uri' => $fields['uri']]);
 
 		if (!DBA::isResult($itemuri)) {
 			// This shouldn't happen
@@ -72,9 +69,6 @@ class ItemURI
 			return 0;
 		}
 
-		// If the URI gets too long we only take the first parts and hope for best
-		$uri = substr($uri, 0, 255);
-
 		$itemuri = DBA::selectFirst('item-uri', ['id'], ['uri' => $uri]);
 
 		if (!DBA::isResult($itemuri) && $insert) {
@@ -93,9 +87,6 @@ class ItemURI
 	 */
 	public static function getIdByGUID(string $guid): int
 	{
-		// If the GUID gets too long we only take the first parts and hope for best
-		$guid = substr($guid, 0, 255);
-
 		$itemuri = DBA::selectFirst('item-uri', ['id'], ['guid' => $guid]);
 
 		if (!DBA::isResult($itemuri)) {
