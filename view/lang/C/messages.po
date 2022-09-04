@@ -1411,7 +1411,7 @@ msgstr ""
 msgid "Friend Suggestions"
 msgstr ""
 
-#: mod/tagger.php:78 src/Content/Item.php:297 src/Model/Item.php:2785
+#: mod/tagger.php:78 src/Content/Item.php:297 src/Model/Item.php:2814
 msgid "photo"
 msgstr ""
 
@@ -2292,7 +2292,7 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:288 src/Model/Item.php:2783
+#: src/Content/Item.php:288 src/Model/Item.php:2812
 msgid "event"
 msgstr ""
 
@@ -2639,8 +2639,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1213 src/Model/Item.php:3359
-#: src/Model/Item.php:3365 src/Model/Item.php:3366
+#: src/Content/Text/BBCode.php:1213 src/Model/Item.php:3388
+#: src/Model/Item.php:3394 src/Model/Item.php:3395
 msgid "Link to source"
 msgstr ""
 
@@ -3782,66 +3782,66 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1895
+#: src/Model/Item.php:1924
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2787
+#: src/Model/Item.php:2816
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2789
+#: src/Model/Item.php:2818
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2792
+#: src/Model/Item.php:2821
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:2908
+#: src/Model/Item.php:2937
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3271
+#: src/Model/Item.php:3300
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3302
+#: src/Model/Item.php:3331
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3304
+#: src/Model/Item.php:3333
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3309
+#: src/Model/Item.php:3338
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3311
+#: src/Model/Item.php:3340
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3313
+#: src/Model/Item.php:3342
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3347 src/Model/Item.php:3348
+#: src/Model/Item.php:3376 src/Model/Item.php:3377
 msgid "View on separate page"
 msgstr ""
 
