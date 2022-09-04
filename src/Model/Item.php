@@ -919,8 +919,6 @@ class Item
 
 		$item['gravity'] = self::getGravity($item);
 
-		$item['language'] = self::getLanguage($item);
-
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
 		$item['author-id'] = ($item['author-id'] ?? 0) ?: Contact::getIdForURL($item['author-link'], 0, null, $default);
@@ -1107,6 +1105,8 @@ class Item
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
+
+		$item['language'] = self::getLanguage($item);
 
 		$notify_type = Delivery::POST;
 
@@ -1869,6 +1869,8 @@ class Item
 			return '';
 		}
 
+		$naked_body = self::getDominantLanguage($naked_body);
+
 		$availableLanguages = DI::l10n()->getAvailableLanguages();
 		// See https://github.com/friendica/friendica/issues/10511
 		// Persian is manually added to language detection until a persian translation is provided for the interface, at
@@ -1882,6 +1884,33 @@ class Item
 		}
 
 		return '';
+	}
+
+	/**
+	 * Check if latin or non latin are dominant in the body and only return the dominant one
+	 *
+	 * @param string $body
+	 * @return string
+	 */
+	private static function getDominantLanguage(string $body): string
+	{
+		$latin = '';
+		$non_latin = '';
+		for ($i = 0; $i < mb_strlen($body); $i++) { 
+			$character = mb_substr($body, $i, 1);
+			$ord = mb_ord($character);
+
+			// We add the most common characters to both strings.
+			if (($ord <= 64) || ($ord >= 91 && $ord <= 96) || ($ord >= 123 && $ord <= 191) || in_array($ord, [215, 247]) || ($ord >= 697 && $ord <= 735) || ($ord > 65535)) {
+				$latin .= $character;
+				$non_latin .= $character;
+			} elseif ($ord < 768) {
+				$latin .= $character;
+			} else {
+				$non_latin .= $character;
+			}
+		}
+		return (mb_strlen($latin) > mb_strlen($non_latin)) ? $latin : $non_latin;
 	}
 
 	public static function getLanguageMessage(array $item): string
