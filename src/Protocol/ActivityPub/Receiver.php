@@ -122,20 +122,21 @@ class Receiver
 
 		$http_signer = HTTPSignature::getSigner($body, $header);
 		if ($http_signer === false) {
-			Logger::warning('Invalid HTTP signature, message will be discarded.', ['uid' => $uid, 'actor' => $actor, 'header' => $header, 'body' => $body]);
-			return;
+			Logger::notice('Invalid HTTP signature, message will not be trusted.', ['uid' => $uid, 'actor' => $actor, 'header' => $header, 'body' => $body]);
+			$signer = [];
 		} elseif (empty($http_signer)) {
 			Logger::info('Signer is a tombstone. The message will be discarded, the signer account is deleted.');
 			return;
 		} else {
 			Logger::info('Valid HTTP signature', ['signer' => $http_signer]);
+			$signer = [$http_signer];
 		}
-
-		$signer = [$http_signer];
 
 		Logger::info('Message for user ' . $uid . ' is from actor ' . $actor);
 
-		if (LDSignature::isSigned($activity)) {
+		if ($http_signer === false) {
+			$trust_source = false;
+		} elseif (LDSignature::isSigned($activity)) {
 			$ld_signer = LDSignature::getSigner($activity);
 			if (empty($ld_signer)) {
 				Logger::info('Invalid JSON-LD signature from ' . $actor);
