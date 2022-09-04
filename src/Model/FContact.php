@@ -96,7 +96,12 @@ class FContact
 		$uriid = ItemURI::insert(['uri' => $arr['url'], 'guid' => $arr['guid']]);
 
 		$contact = Contact::getByUriId($uriid, ['id']);
-		if (!empty($contact['id'])) {
+		$apcontact = APContact::getByURL($arr['url'], false);
+		if (!empty($apcontact)) {
+			$interacted  = $apcontact['following_count'];
+			$interacting = $apcontact['followers_count'];
+			$posts       = $apcontact['statuses_count'];
+		} elseif (!empty($contact['id'])) {
 			$last_interaction = DateTimeFormat::utc('now - 180 days');
 
 			$interacted  = DBA::count('contact-relation', ["`cid` = ? AND NOT `follows` AND `last-interaction` > ?", $contact['id'], $last_interaction]);
