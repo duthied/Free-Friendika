@@ -648,7 +648,7 @@ class Transmitter
 		}
 
 		$parent = Post::selectFirst(['causer-link', 'post-reason'], ['id' => $item['parent']]);
-		if (($parent['post-reason'] == Item::PR_ANNOUNCEMENT) && !empty($parent['causer-link'])) {
+		if (!empty($parent) && ($parent['post-reason'] == Item::PR_ANNOUNCEMENT) && !empty($parent['causer-link'])) {
 			$profile = APContact::getByURL($parent['causer-link'], false);
 			$is_forum_thread = isset($profile['type']) && $profile['type'] == 'Group';
 		} else {
@@ -1610,7 +1610,7 @@ class Transmitter
 		$data['url'] = $link ?? $item['plink'];
 		$data['attributedTo'] = $item['author-link'];
 		$data['sensitive'] = self::isSensitive($item['uri-id']);
-		$data['conversation'] = $data['context'] = $item['conversation'];
+		$data['conversation'] = $data['context'] = ($item['conversation'] ?? '');
 
 		if (!empty($item['title'])) {
 			$data['name'] = BBCode::toPlaintext($item['title'], false);

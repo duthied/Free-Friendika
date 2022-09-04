@@ -2001,11 +2001,11 @@ class Diaspora
 		Logger::info('Participation stored', ['id' => $message_id, 'guid' => $guid, 'parent_guid' => $parent_guid, 'author' => $author]);
 
 		// Send all existing comments and likes to the requesting server
-		$comments = Post::select(['id', 'uri-id', 'parent-author-network', 'author-network', 'verb'],
+		$comments = Post::select(['id', 'uri-id', 'parent-author-network', 'author-network', 'verb', 'gravity'],
 			['parent' => $toplevel_parent_item['id'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_ACTIVITY]]);
 		while ($comment = Post::fetch($comments)) {
-			if (in_array($comment['verb'], [Activity::FOLLOW, Activity::TAG])) {
-				Logger::info('participation messages are not relayed', ['item' => $comment['id']]);
+			if (($comment['gravity'] == GRAVITY_ACTIVITY) && !in_array($comment['verb'], [Activity::LIKE, Activity::DISLIKE])) {
+				Logger::info('Unsupported activities are not relayed', ['item' => $comment['id'], 'verb' => $comment['verb']]);
 				continue;
 			}
 
@@ -2020,7 +2020,7 @@ class Diaspora
 			}
 
 			Logger::info('Deliver participation', ['item' => $comment['id'], 'contact' => $author_contact['cid']]);
-			if (Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['id'], $author_contact['cid'])) {
+			if (Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['uri-id'], $author_contact['cid'], $datarray['uid'])) {
 				Post\DeliveryData::incrementQueueCount($comment['uri-id'], 1);
 			}
 		}
