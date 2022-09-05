@@ -56,7 +56,6 @@
 			jotTextOpenUI(document.getElementById("profile-jot-text"));
 		});
 
-
 		/* show images / file browser window
 		 *
 		 **/
@@ -124,6 +123,24 @@
 		$('#wall-file-upload').on('click', function(){
 			Dialog.doFileBrowser("main");
 			jotActive();
+		});
+
+		$('body').on('click', '.p-category .filerm', function(e){
+			e.preventDefault();
+
+			let $href = $(e.target).attr('href');
+			// Prevents arbitrary Ajax requests
+			if ($href.substr(0, 7) === 'filerm/') {
+				$(e.target).parent().removeClass('btn-success btn-danger');
+				$.post($href)
+				.done(function() {
+					liking = 1;
+					force_update = true;
+				})
+				.always(function () {
+					NavUpdate();
+				});
+			}
 		});
 	});
 
@@ -281,7 +298,6 @@
 				return false;
 			});
 		});
-
 	}
 
 	function jotClearLocation() {
