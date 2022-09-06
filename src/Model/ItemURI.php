@@ -21,8 +21,10 @@
 
 namespace Friendica\Model;
 
+use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 class ItemURI
 {
@@ -35,14 +37,16 @@ class ItemURI
 	 */
 	public static function insert(array $fields)
 	{
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('item-uri', $fields);
+
 		if (!DBA::exists('item-uri', ['uri' => $fields['uri']])) {
-			DBA::insert('item-uri', $fields, Database::INSERT_UPDATE);
+			DBA::insert('item-uri', $fields, Database::INSERT_IGNORE);
 		}
 
 		$itemuri = DBA::selectFirst('item-uri', ['id', 'guid'], ['uri' => $fields['uri']]);
-
 		if (!DBA::isResult($itemuri)) {
 			// This shouldn't happen
+			Logger::warning('Item-uri not found', $fields);
 			return null;
 		}
 
@@ -76,23 +80,5 @@ class ItemURI
 		}
 
 		return $itemuri['id'] ?? 0;
-	}
-
-	/**
-	 * Searched for an id of a given guid.
-	 *
-	 * @param string $guid
-	 * @return integer item-uri id
-	 * @throws \Exception
-	 */
-	public static function getIdByGUID(string $guid): int
-	{
-		$itemuri = DBA::selectFirst('item-uri', ['id'], ['guid' => $guid]);
-
-		if (!DBA::isResult($itemuri)) {
-			return 0;
-		}
-
-		return $itemuri['id'];
 	}
 }

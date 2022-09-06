@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1482);
+	define('DB_UPDATE_VERSION', 1483);
 }
 
 return [
@@ -795,7 +795,7 @@ return [
 			"conversation" => ["type" => "varbinary(383)", "comment" => ""],
 			"type" => ["type" => "varchar(64)", "comment" => "Type of the activity"],
 			"object-type" => ["type" => "varchar(64)", "comment" => "Type of the object activity"],
-			"object-object-type" => ["type" => "varchar(64)", "comment" => "Type of the object's object activity"],			
+			"object-object-type" => ["type" => "varchar(64)", "comment" => "Type of the object's object activity"],
 			"received" => ["type" => "datetime", "comment" => "Receiving date"],
 			"activity" => ["type" => "mediumtext", "comment" => "The JSON activity"],
 			"signer" => ["type" => "varchar(255)", "comment" => ""],
@@ -1050,6 +1050,18 @@ return [
 			"PRIMARY" => ["id"],
 			"uid" => ["uid"],
 		]
+	],
+	"pagecache" => [
+		"comment" => "Stores temporary data",
+		"fields" => [
+			"page" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "Page"],
+			"content" => ["type" => "mediumtext", "comment" => "Page content"],
+			"fetched" => ["type" => "datetime", "comment" => "date when the page had been fetched"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["page"],
+			"fetched" => ["fetched"],
+		],
 	],
 	"parsed_url" => [
 		"comment" => "cache for 'parse_url' queries",

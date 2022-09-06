@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1482
+-- DB_UPDATE_VERSION 1483
 -- ------------------------------------------
 
 
@@ -1006,6 +1006,17 @@ CREATE TABLE IF NOT EXISTS `openwebauth-token` (
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Store OpenWebAuth token to verify contacts';
+
+--
+-- TABLE pagecache
+--
+CREATE TABLE IF NOT EXISTS `pagecache` (
+	`page` varbinary(255) NOT NULL COMMENT 'Page',
+	`content` mediumtext COMMENT 'Page content',
+	`fetched` datetime COMMENT 'date when the page had been fetched',
+	 PRIMARY KEY(`page`),
+	 INDEX `fetched` (`fetched`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Stores temporary data';
 
 --
 -- TABLE parsed_url

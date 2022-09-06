@@ -31,6 +31,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\ActivityPub\PageCache;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -48,6 +49,13 @@ class Objects extends BaseModule
 
 		if (!ActivityPub::isRequest()) {
 			DI::baseUrl()->redirect(str_replace('objects/', 'display/', DI::args()->getQueryString()));
+		}
+
+		$data = PageCache::fetch($_SERVER['REQUEST_URI']);
+		if (!empty($data)) {
+			header('Access-Control-Allow-Origin: *');
+
+			System::jsonExit($data, 'application/activity+json');
 		}
 
 		$itemuri = DBA::selectFirst('item-uri', ['id'], ['guid' => $this->parameters['guid']]);
@@ -125,6 +133,10 @@ class Objects extends BaseModule
 			}
 		} else {
 			throw new HTTPException\NotFoundException();
+		}
+
+		if (in_array($item['private'], [Item::PUBLIC, Item::UNLISTED])) {
+			PageCache::add($_SERVER['REQUEST_URI'], $data);
 		}
 
 		// Relaxed CORS header for public items

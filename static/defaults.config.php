@@ -478,6 +478,10 @@ return [
 		// Don't show smilies.
 		'no_smilies' => false,
 
+		// pagecache (Boolean)
+		// Cache frequently fetched pages.
+		'pagecache' => false,
+
 		// paranoia (Boolean)
 		// Log out users if their IP address changed.
 		'paranoia' => false,
@@ -643,7 +647,7 @@ return [
 		'worker_load_exponent' => 3,
 
 		// worker_processes_cooldown (Integer)
-		// Maximum number pro processes that causes a cooldown before each worker function call.
+		// Maximum number per processes that causes a cooldown before each worker function call.
 		'worker_processes_cooldown' => 0,
 
 		// worker_multiple_fetch (Boolean)
