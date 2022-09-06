@@ -1097,7 +1097,7 @@ class PostUpdate
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function update1483()
+	private static function update1483()
 	{
 		// Was the script completed?
 		if (DI::config()->get('system', 'post_update_version') >= 1483) {
