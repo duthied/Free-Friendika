@@ -702,6 +702,26 @@ class Item
 	}
 
 	/**
+	 * Fetch the uri-id of the parent for the given uri-id
+	 *
+	 * @param integer $uriid
+	 * @return integer
+	 */
+	public static function getParent(int $uriid): int
+	{
+		$thread_parent = Post::selectFirstPost(['thr-parent-id', 'gravity'], ['uri-id' => $uriid]);
+		if (empty($thread_parent)) {
+			return 0;
+		}
+
+		if ($thread_parent['gravity'] == GRAVITY_PARENT) {
+			return $uriid;
+		}
+
+		return self::getParent($thread_parent['thr-parent-id']);
+	}
+
+	/**
 	 * Fetch top-level parent data for the given item array
 	 *
 	 * @param array $item

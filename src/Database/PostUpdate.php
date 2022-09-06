@@ -111,6 +111,9 @@ class PostUpdate
 		if (!self::update1452()) {
 			return false;
 		}
+		if (!self::update1483()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -1084,5 +1087,38 @@ class PostUpdate
 		}
 
 		return false;
+	}
+
+	/**
+	 * Correct the parent.
+	 * This fixes a bug that was introduced in the development of version 2022.09
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function update1483()
+	{
+		// Was the script completed?
+		if (DI::config()->get('system', 'post_update_version') >= 1483) {
+			return true;
+		}
+
+		Logger::info('Start');
+
+		$posts = DBA::select('post-view', ['uri-id'], ['conversation' => './']);
+		while ($post = DBA::fetch($posts)) {
+			echo $post['uri-id'] . "\n";
+			$parent = Item::getParent($post['uri-id']);
+			if ($parent != 0) {
+				DBA::update('post', ['parent-uri-id' => $parent], ['uri-id' => $post['uri-id']]);
+				DBA::update('post-user', ['parent-uri-id' => $parent], ['uri-id' => $post['uri-id']]);
+			}
+		}
+		DBA::close($posts);
+
+		DI::config()->set('system', 'post_update_version', 1483);
+		Logger::info('Done');
+		return true;
 	}
 }
