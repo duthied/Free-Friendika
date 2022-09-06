@@ -36,17 +36,18 @@ class PageCache
 	 * Add content to the page cache
 	 *
 	 * @param string $page
+	 * @param int    $uriid
 	 * @param mixed $content
 	 * @return void
 	 */
-	public static function add(string $page, $content)
+	public static function add(string $page, int $uriid, $content)
 	{
 		if (!DI::config()->get('system', 'pagecache')) {
 			return;
 		}
 
 		DBA::delete('pagecache', ["`fetched` < ?", DateTimeFormat::utc('now - 5 minutes')]);
-		DBA::insert('pagecache', ['page' => $page, 'content' => serialize($content), 'fetched' => DateTimeFormat::utcNow()], Database::INSERT_UPDATE);
+		DBA::insert('pagecache', ['page' => $page, 'uri-id' => $uriid, 'content' => serialize($content), 'fetched' => DateTimeFormat::utcNow()], Database::INSERT_UPDATE);
 
 		Logger::debug('Page added', ['page' => $page]);
 	}
@@ -69,5 +70,16 @@ class PageCache
 		Logger::debug('Page fetched', ['page' => $page]);
 
 		return unserialize($pagecache['content']);
+	}
+
+	/**
+	 * Delete the pagecache via its connected uri-id
+	 *
+	 * @param integer $uriid
+	 * @return void
+	 */
+	public static function deleteByUriId(int $uriid)
+	{
+		DBA::delete('pagecache', ['uri-id' => $uriid]);
 	}
 }

@@ -136,7 +136,7 @@ class Objects extends BaseModule
 		}
 
 		if (in_array($item['private'], [Item::PUBLIC, Item::UNLISTED])) {
-			PageCache::add($_SERVER['REQUEST_URI'], $data);
+			PageCache::add($_SERVER['REQUEST_URI'], $item['uri-id'], $data);
 		}
 
 		// Relaxed CORS header for public items
