@@ -1108,7 +1108,6 @@ class PostUpdate
 
 		$posts = DBA::select('post-view', ['uri-id'], ['conversation' => './']);
 		while ($post = DBA::fetch($posts)) {
-			echo $post['uri-id'] . "\n";
 			$parent = Item::getParent($post['uri-id']);
 			if ($parent != 0) {
 				DBA::update('post', ['parent-uri-id' => $parent], ['uri-id' => $post['uri-id']]);
