@@ -1610,7 +1610,10 @@ class Transmitter
 		$data['url'] = $link ?? $item['plink'];
 		$data['attributedTo'] = $item['author-link'];
 		$data['sensitive'] = self::isSensitive($item['uri-id']);
-		$data['conversation'] = $data['context'] = ($item['conversation'] ?? '');
+
+		if (!empty($item['conversation']) && ($item['conversation'] != './')) {
+			$data['conversation'] = $data['context'] = $item['conversation'];
+		}
 
 		if (!empty($item['title'])) {
 			$data['name'] = BBCode::toPlaintext($item['title'], false);
