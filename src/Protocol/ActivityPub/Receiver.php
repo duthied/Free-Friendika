@@ -1869,8 +1869,10 @@ class Receiver
 		$object_data['diaspora:comment'] = JsonLD::fetchElement($object, 'diaspora:comment', '@value');
 		$object_data['diaspora:like'] = JsonLD::fetchElement($object, 'diaspora:like', '@value');
 		$object_data['actor'] = $object_data['author'] = $actor;
-		$object_data['context'] = JsonLD::fetchElement($object, 'as:context', '@id');
-		$object_data['conversation'] = JsonLD::fetchElement($object, 'ostatus:conversation', '@id');
+		$element = JsonLD::fetchElement($object, 'as:context', '@id');
+		$object_data['context'] = $element != './' ? $element : null;
+		$element = JsonLD::fetchElement($object, 'ostatus:conversation', '@id');
+		$object_data['conversation'] = $element != './' ? $element : null;
 		$object_data['sensitive'] = JsonLD::fetchElement($object, 'as:sensitive');
 		$object_data['name'] = JsonLD::fetchElement($object, 'as:name', '@value');
 		$object_data['summary'] = JsonLD::fetchElement($object, 'as:summary', '@value');
