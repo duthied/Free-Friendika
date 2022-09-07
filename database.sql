@@ -1008,20 +1008,6 @@ CREATE TABLE IF NOT EXISTS `openwebauth-token` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Store OpenWebAuth token to verify contacts';
 
 --
--- TABLE pagecache
---
-CREATE TABLE IF NOT EXISTS `pagecache` (
-	`page` varbinary(255) NOT NULL COMMENT 'Page',
-	`uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the uri the page belongs to',
-	`content` mediumtext COMMENT 'Page content',
-	`fetched` datetime COMMENT 'date when the page had been fetched',
-	 PRIMARY KEY(`page`),
-	 INDEX `fetched` (`fetched`),
-	 INDEX `uri-id` (`uri-id`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Stores temporary data';
-
---
 -- TABLE parsed_url
 --
 CREATE TABLE IF NOT EXISTS `parsed_url` (

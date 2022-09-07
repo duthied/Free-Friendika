@@ -43,7 +43,6 @@ class OptimizeTables
 		DBA::e("OPTIMIZE TABLE `cache`");
 		DBA::e("OPTIMIZE TABLE `locks`");
 		DBA::e("OPTIMIZE TABLE `oembed`");
-		DBA::e("OPTIMIZE TABLE `pagecache`");
 		DBA::e("OPTIMIZE TABLE `parsed_url`");
 		DBA::e("OPTIMIZE TABLE `session`");
 

@@ -1185,9 +1185,9 @@ class Transmitter
 	 * @return array|false activity or false on failure
 	 * @throws \Exception
 	 */
-	public static function createCachedActivityFromItem(int $item_id, bool $force = false)
+	public static function createCachedActivityFromItem(int $item_id, bool $force = false, bool $object_mode = false)
 	{
-		$cachekey = 'APDelivery:createActivity:' . $item_id;
+		$cachekey = 'APDelivery:createActivity:' . $item_id . ':' . (int)$object_mode;
 
 		if (!$force) {
 			$data = DI::cache()->get($cachekey);
@@ -1196,7 +1196,7 @@ class Transmitter
 			}
 		}
 
-		$data = self::createActivityFromItem($item_id);
+		$data = self::createActivityFromItem($item_id, $object_mode);
 
 		DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
 		return $data;

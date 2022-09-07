@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1483);
+	define('DB_UPDATE_VERSION', 1482);
 }
 
 return [
@@ -1050,20 +1050,6 @@ return [
 			"PRIMARY" => ["id"],
 			"uid" => ["uid"],
 		]
-	],
-	"pagecache" => [
-		"comment" => "Stores temporary data",
-		"fields" => [
-			"page" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "Page"],
-			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the uri the page belongs to"],
-			"content" => ["type" => "mediumtext", "comment" => "Page content"],
-			"fetched" => ["type" => "datetime", "comment" => "date when the page had been fetched"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["page"],
-			"fetched" => ["fetched"],
-			"uri-id" => ["uri-id"],
-		],
 	],
 	"parsed_url" => [
 		"comment" => "cache for 'parse_url' queries",

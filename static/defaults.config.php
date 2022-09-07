@@ -478,10 +478,6 @@ return [
 		// Don't show smilies.
 		'no_smilies' => false,
 
-		// pagecache (Boolean)
-		// Cache frequently fetched pages.
-		'pagecache' => false,
-
 		// paranoia (Boolean)
 		// Log out users if their IP address changed.
 		'paranoia' => false,

@@ -196,8 +196,6 @@ class Item
 		$notify_items = [];
 
 		while ($item = DBA::fetch($items)) {
-			ActivityPub\PageCache::deleteByUriId($item['uri-id']);
-
 			if (!empty($fields['body'])) {
 				Post\Media::insertFromAttachmentData($item['uri-id'], $fields['body']);
 
@@ -320,8 +318,6 @@ class Item
 
 		// clean up categories and tags so they don't end up as orphans
 		Post\Category::deleteByURIId($item['uri-id'], $item['uid']);
-
-		ActivityPub\PageCache::deleteByUriId($item['uri-id']);
 
 		/*
 		 * If item is a link to a photo resource, nuke all the associated photos

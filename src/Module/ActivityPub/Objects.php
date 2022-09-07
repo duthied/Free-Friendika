@@ -31,7 +31,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Protocol\ActivityPub\PageCache;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -49,13 +48,6 @@ class Objects extends BaseModule
 
 		if (!ActivityPub::isRequest()) {
 			DI::baseUrl()->redirect(str_replace('objects/', 'display/', DI::args()->getQueryString()));
-		}
-
-		$data = PageCache::fetch($_SERVER['REQUEST_URI']);
-		if (!empty($data)) {
-			header('Access-Control-Allow-Origin: *');
-
-			System::jsonExit($data, 'application/activity+json');
 		}
 
 		$itemuri = DBA::selectFirst('item-uri', ['id'], ['guid' => $this->parameters['guid']]);
@@ -106,7 +98,7 @@ class Objects extends BaseModule
 		Network::checkEtagModified($etag, $last_modified);
 
 		if (empty($this->parameters['activity']) && ($item['gravity'] != GRAVITY_ACTIVITY)) {
-			$activity = ActivityPub\Transmitter::createActivityFromItem($item['id'], true);
+			$activity = ActivityPub\Transmitter::createCachedActivityFromItem($item['id'], false, true);
 			if (empty($activity['type'])) {
 				throw new HTTPException\NotFoundException();
 			}
@@ -123,7 +115,7 @@ class Objects extends BaseModule
 		} elseif (empty($this->parameters['activity']) || in_array($this->parameters['activity'],
 			['Create', 'Announce', 'Update', 'Like', 'Dislike', 'Accept', 'Reject',
 			'TentativeAccept', 'Follow', 'Add'])) {
-			$data = ActivityPub\Transmitter::createActivityFromItem($item['id']);
+			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item['id']);
 			if (empty($data)) {
 				throw new HTTPException\NotFoundException();
 			}
@@ -133,10 +125,6 @@ class Objects extends BaseModule
 			}
 		} else {
 			throw new HTTPException\NotFoundException();
-		}
-
-		if (in_array($item['private'], [Item::PUBLIC, Item::UNLISTED])) {
-			PageCache::add($_SERVER['REQUEST_URI'], $item['uri-id'], $data);
 		}
 
 		// Relaxed CORS header for public items
