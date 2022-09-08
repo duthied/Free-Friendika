@@ -44,10 +44,13 @@ final class FriendicaSmartyEngine extends TemplateEngine
 	 */
 	public function __construct(string $theme, array $theme_info)
 	{
-		$this->theme = $theme;
+		$this->theme      = $theme;
 		$this->theme_info = $theme_info;
-		$work_dir = DI::config()->get('smarty3', 'config_dir');
-		$this->smarty = new FriendicaSmarty($this->theme, $this->theme_info, $work_dir);
+
+		$work_dir     = DI::config()->get('smarty3', 'config_dir');
+		$use_sub_dirs = DI::config()->get('smarty3', 'use_sub_dirs');
+
+		$this->smarty = new FriendicaSmarty($this->theme, $this->theme_info, $work_dir, $use_sub_dirs);
 
 		if (!is_writable($work_dir)) {
 			$admin_message = DI::l10n()->t('The folder %s must be writable by webserver.', $work_dir);
