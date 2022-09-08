@@ -23,6 +23,7 @@ namespace Friendica\Render;
 
 use Smarty;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 
 /**
  * Friendica extension of the Smarty3 template engine
@@ -64,7 +65,7 @@ class FriendicaSmarty extends Smarty
 		 * RAM available + have enabled caching inode tables (aka.
 		 * "descriptors"). Still it won't hurt you.
 		 */
-		$this->setUseSubDirs(true);
+		$this->setUseSubDirs(DI::config()->get('smarty3', 'use_sub_dirs'));
 
 		$this->left_delimiter  = Renderer::getTemplateLeftDelimiter();
 		$this->right_delimiter = Renderer::getTemplateRightDelimiter();
