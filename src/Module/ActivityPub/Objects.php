@@ -98,7 +98,7 @@ class Objects extends BaseModule
 		Network::checkEtagModified($etag, $last_modified);
 
 		if (empty($this->parameters['activity']) && ($item['gravity'] != GRAVITY_ACTIVITY)) {
-			$activity = ActivityPub\Transmitter::createActivityFromItem($item['id'], true);
+			$activity = ActivityPub\Transmitter::createCachedActivityFromItem($item['id'], false, true);
 			if (empty($activity['type'])) {
 				throw new HTTPException\NotFoundException();
 			}
@@ -115,7 +115,7 @@ class Objects extends BaseModule
 		} elseif (empty($this->parameters['activity']) || in_array($this->parameters['activity'],
 			['Create', 'Announce', 'Update', 'Like', 'Dislike', 'Accept', 'Reject',
 			'TentativeAccept', 'Follow', 'Add'])) {
-			$data = ActivityPub\Transmitter::createActivityFromItem($item['id']);
+			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item['id']);
 			if (empty($data)) {
 				throw new HTTPException\NotFoundException();
 			}

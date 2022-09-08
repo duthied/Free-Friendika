@@ -643,7 +643,7 @@ return [
 		'worker_load_exponent' => 3,
 
 		// worker_processes_cooldown (Integer)
-		// Maximum number pro processes that causes a cooldown before each worker function call.
+		// Maximum number per processes that causes a cooldown before each worker function call.
 		'worker_processes_cooldown' => 0,
 
 		// worker_multiple_fetch (Boolean)

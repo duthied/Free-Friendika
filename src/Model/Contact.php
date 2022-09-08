@@ -3321,7 +3321,7 @@ class Contact
 				continue;
 			}
 			$contact = self::getByURL($url, false, ['id', 'updated']);
-			if (empty($contact['id'])) {
+			if (empty($contact['id']) && Network::isValidHttpUrl($url)) {
 				Worker::add(PRIORITY_LOW, 'AddContact', 0, $url);
 				++$added;
 			} elseif ($contact['updated'] < DateTimeFormat::utc('now -7 days')) {

@@ -795,7 +795,7 @@ return [
 			"conversation" => ["type" => "varbinary(383)", "comment" => ""],
 			"type" => ["type" => "varchar(64)", "comment" => "Type of the activity"],
 			"object-type" => ["type" => "varchar(64)", "comment" => "Type of the object activity"],
-			"object-object-type" => ["type" => "varchar(64)", "comment" => "Type of the object's object activity"],			
+			"object-object-type" => ["type" => "varchar(64)", "comment" => "Type of the object's object activity"],
 			"received" => ["type" => "datetime", "comment" => "Receiving date"],
 			"activity" => ["type" => "mediumtext", "comment" => "The JSON activity"],
 			"signer" => ["type" => "varchar(255)", "comment" => ""],
