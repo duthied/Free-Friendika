@@ -714,5 +714,10 @@ return [
 		// config_dir (String)
 		// Base working directory for the templating engine, must be writeable by the webserver user
 		'config_dir' => 'view/smarty3',
+
+		// use_sub_dirs (Boolean)
+		// By default the template cache is stored in several sub directories.
+		// 
+		'use_sub_dirs' => true,
 	],
 ];

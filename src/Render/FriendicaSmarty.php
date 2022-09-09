@@ -33,7 +33,7 @@ class FriendicaSmarty extends Smarty
 
 	public $filename;
 
-	public function __construct(string $theme, array $theme_info, string $work_dir)
+	public function __construct(string $theme, array $theme_info, string $work_dir, bool $use_sub_dirs)
 	{
 		parent::__construct();
 
@@ -64,7 +64,7 @@ class FriendicaSmarty extends Smarty
 		 * RAM available + have enabled caching inode tables (aka.
 		 * "descriptors"). Still it won't hurt you.
 		 */
-		$this->setUseSubDirs(true);
+		$this->setUseSubDirs($use_sub_dirs);
 
 		$this->left_delimiter  = Renderer::getTemplateLeftDelimiter();
 		$this->right_delimiter = Renderer::getTemplateRightDelimiter();
