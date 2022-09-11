@@ -42,9 +42,9 @@ class ContactBlock
 	 *
 	 * @template widget/contacts.tpl
 	 * @hook contact_block_end (contacts=>array, output=>string)
-	 * @return string
+	 * @return string Formatted HTML code or empty string
 	 */
-	public static function getHTML(array $profile, int $visitor_uid = null)
+	public static function getHTML(array $profile, int $visitor_uid = null): string
 	{
 		$o = '';
 
@@ -66,13 +66,13 @@ class ContactBlock
 		$contacts = [];
 
 		$total = DBA::count('contact', [
-			'uid' => $profile['uid'],
-			'self' => false,
+			'uid'     => $profile['uid'],
+			'self'    => false,
 			'blocked' => false,
 			'pending' => false,
-			'hidden' => false,
+			'hidden'  => false,
 			'archive' => false,
-			'failed' => false,
+			'failed'  => false,
 			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::FEED],
 		]);
 
@@ -89,15 +89,17 @@ class ContactBlock
 			}
 
 			$personal_contacts = DBA::selectToArray('contact', ['uri-id'], [
-				'uid' => $profile['uid'],
-				'self' => false,
+				'uid'     => $profile['uid'],
+				'self'    => false,
 				'blocked' => false,
 				'pending' => false,
-				'hidden' => false,
+				'hidden'  => false,
 				'archive' => false,
-				'rel' => $rel,
+				'rel'     => $rel,
 				'network' => Protocol::FEDERATED,
-			], ['limit' => $shown]);
+			], [
+				'limit' => $shown,
+			]);
 
 			$contact_uriids = array_column($personal_contacts, 'uri-id');
 

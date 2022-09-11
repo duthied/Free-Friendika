@@ -34,7 +34,7 @@ class SavedSearches
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function getHTML($return_url, $search = '')
+	public static function getHTML(string $return_url, string $search = ''): string
 	{
 		$saved = [];
 		$saved_searches = DBA::select('search', ['id', 'term'], ['uid' => DI::userSession()->getLocalUserId()]);

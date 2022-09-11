@@ -34,12 +34,14 @@ class CalendarExport
 {
 	/**
 	 * Get the events widget.
+	 *
 	 * @param int $uid
 	 *
 	 * @return string Formated HTML of the calendar widget.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getHTML(int $uid = 0) {
+	public static function getHTML(int $uid = 0): string
+	{
 		if (empty($uid)) {
 			return '';
 		}
@@ -49,11 +51,11 @@ class CalendarExport
 			return '';
 		}
 
-		$tpl = Renderer::getMarkupTemplate("widget/events.tpl");
+		$tpl = Renderer::getMarkupTemplate('widget/events.tpl');
 		$return = Renderer::replaceMacros($tpl, [
-			'$etitle'      => DI::l10n()->t("Export"),
-			'$export_ical' => DI::l10n()->t("Export calendar as ical"),
-			'$export_csv'  => DI::l10n()->t("Export calendar as csv"),
+			'$etitle'      => DI::l10n()->t('Export'),
+			'$export_ical' => DI::l10n()->t('Export calendar as ical'),
+			'$export_csv'  => DI::l10n()->t('Export calendar as csv'),
 			'$user'        => $user['nickname']
 		]);
 

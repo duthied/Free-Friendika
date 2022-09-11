@@ -44,7 +44,7 @@ class VCard
 	 * @template widget/vcard.tpl
 	 * @return string
 	 */
-	public static function getHTML(array $contact)
+	public static function getHTML(array $contact): string
 	{
 		if (!isset($contact['network']) || !isset($contact['id'])) {
 			Logger::warning('Incomplete contact', ['contact' => $contact ?? [], 'callstack' => System::callstack(20)]);
