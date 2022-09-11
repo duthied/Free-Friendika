@@ -22,12 +22,12 @@
 namespace Friendica\Module\WellKnown;
 
 use Friendica\BaseModule;
-use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Module\Response;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
+use Friendica\Util\XML;
 
 /**
  * Prints the metadata for describing this host
@@ -46,14 +46,58 @@ class HostMeta extends BaseModule
 			$config->set('system', 'site_pubkey', $res['pubkey']);
 		}
 
-		$tpl = Renderer::getMarkupTemplate('xrd_host.tpl');
-		$content = Renderer::replaceMacros($tpl, [
-			'$zhost'  => DI::baseUrl()->getHostname(),
-			'$zroot'  => DI::baseUrl()->get(),
-			'$domain' => DI::baseUrl()->get(),
-			'$bigkey' => Salmon::salmonKey($config->get('system', 'site_pubkey'))
-		]);
+		$domain = DI::baseUrl()->get();
 
-		System::httpExit($content, Response::TYPE_XML, 'application/xrd+xml');
+		$xml = null;
+		XML::fromArray([
+			'XRD' => [
+				'@attributes' => [
+					'xmlns'    => 'http://docs.oasis-open.org/ns/xri/xrd-1.0',
+				],
+				'hm:Host' => DI::baseUrl()->getHostname(),
+				'1:link' => [
+					'@attributes' => [
+						'rel'      => 'lrdd',
+						'type'     => 'application/xrd+xml',
+						'template' => $domain . '/xrd?uri={uri}'
+					]
+				],
+				'2:link' => [
+					'@attributes' => [
+						'rel'      => 'lrdd',
+						'type'     => 'application/json',
+						'template' => $domain . '/.well-known/webfinger?resource={uri}'
+					]
+				],
+				'3:link' => [
+					'@attributes' => [
+						'rel'  => 'acct-mgmt',
+						'href' => $domain . '/amcd'
+					]
+				],
+				'4:link' => [
+					'@attributes' => [
+						'rel'  => 'http://services.mozilla.com/amcd/0.1',
+						'href' => $domain . '/amcd'
+					]
+				],
+				'5:link' => [
+					'@attributes' => [
+						'rel'  => 'http://oexchange.org/spec/0.8/rel/resident-target',
+						'type' => 'application/xrd+xml', 
+						'href' => $domain . '/oexchange/xrd'
+					]
+				],
+				'Property' => [
+					'@attributes' => [
+						'type'      => 'http://salmon-protocol.org/ns/magic-key',
+						'mk:key_id' => '1'
+					],
+					Salmon::salmonKey($config->get('system', 'site_pubkey'))
+				]
+			],
+		], $xml, false, ['hm' => 'http://host-meta.net/xrd/1.0', 'mk' => 'http://salmon-protocol.org/ns/magic-key']);
+		
+		System::httpExit($xml->saveXML(), Response::TYPE_XML, 'application/xrd+xml');
 	}
 }

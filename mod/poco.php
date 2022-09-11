@@ -24,13 +24,10 @@ use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Module\Response;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\XML;
 
 function poco_init(App $a) {
 	if (intval(DI::config()->get('system', 'block_public')) || (DI::config()->get('system', 'block_local_dir'))) {
@@ -229,12 +226,9 @@ function poco_init(App $a) {
 
 	Logger::info("End of poco");
 
-	if ($format === 'xml') {
-		System::httpExit(Renderer::replaceMacros(Renderer::getMarkupTemplate('poco_xml.tpl'), XML::arrayEscape(['$response' => $ret])), Response::TYPE_XML);
-	}
 	if ($format === 'json') {
 		System::jsonExit($ret);
 	} else {
-		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
+		throw new \Friendica\Network\HTTPException\UnsupportedMediaTypeException();
 	}
 }
