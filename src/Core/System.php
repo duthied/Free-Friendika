@@ -323,12 +323,12 @@ class System
 	 * After finishing the process is getting killed.
 	 *
 	 * @param string $content
-	 * @param [type] $responce
+	 * @param string $type
 	 * @param string|null $content_type
 	 * @return void
 	 */
-	public static function httpExit(string $content, string $responce = Response::TYPE_HTML, ?string $content_type = null) {
-		DI::apiResponse()->setType($responce, $content_type);
+	public static function httpExit(string $content, string $type = Response::TYPE_HTML, ?string $content_type = null) {
+		DI::apiResponse()->setType($type, $content_type);
 		DI::apiResponse()->addContent($content);
 		DI::page()->exit(DI::apiResponse()->generate());
 

@@ -278,12 +278,12 @@ as the value of $top_child_total (this is done at the end of this file)
 				<span class="mention label label-default sm">{{$tag nofilter}} <i class="fa fa-eye-slash" aria-hidden="true"></i></span>
 			{{/foreach*}}
 		{{/if}}
-			{{foreach $item.folders as $cat}}
-				<span class="folder label btn-danger sm p-category">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+			{{foreach $item.folders as $folder}}
+				<span class="folder label btn-danger sm p-category">{{$folder.name}}{{if $folder.removeurl}} (<a href="{{$folder.removeurl}}" class="filerm" title="{{$remove}}">x</a>){{/if}}</span>
 			{{/foreach}}
 
 			{{foreach $item.categories as $cat}}
-				<span class="category label btn-success sm p-category"><a href="{{$cat.url}}">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+				<span class="category label btn-success sm p-category"><a href="{{$cat.url}}">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" class="filerm" title="{{$remove}}">x</a>){{/if}}</span>
 			{{/foreach}}
 			</div>
 			{{if $item.edited}}<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>{{/if}}
