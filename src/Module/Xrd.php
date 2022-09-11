@@ -22,8 +22,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Hook;
-use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Photo;
@@ -31,6 +29,7 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\Salmon;
+use Friendica\Util\XML;
 
 /**
  * Prints responses to /.well-known/webfinger  or /xrd requests
@@ -82,15 +81,10 @@ class Xrd extends BaseModule
 			}
 			$this->printSystemJSON($owner);
 		} else {
-			$user = User::getByNickname($name);
-			if (empty($user)) {
-				throw new NotFoundException('User was not found for name=' . $name);
-			}
-
-			$owner = User::getOwnerDataById($user['uid']);
+			$owner = User::getOwnerDataByNick($name);
 			if (empty($owner)) {
-				DI::logger()->warning('No owner data for user id', ['uri' => $uri, 'name' => $name, 'user' => $user]);
-				throw new NotFoundException('Owner was not found for user->uid=' . $user['uid']);
+				DI::logger()->warning('No owner data for user id', ['uri' => $uri, 'name' => $name]);
+				throw new NotFoundException('Owner was not found for user->uid=' . $name);
 			}
 
 			$alias = str_replace('/profile/', '/~', $owner['url']);
@@ -103,7 +97,7 @@ class Xrd extends BaseModule
 		}
 
 		if ($mode == Response::TYPE_XML) {
-			$this->printXML($alias, $user, $owner, $avatar);
+			$this->printXML($alias, $owner, $avatar);
 		} else {
 			$this->printJSON($alias, $owner, $avatar);
 		}
@@ -158,7 +152,6 @@ class Xrd extends BaseModule
 	private function printJSON(string $alias, array $owner, array $avatar)
 	{
 		$baseURL = $this->baseUrl->get();
-		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
 		$json = [
 			'subject' => 'acct:' . $owner['addr'],
@@ -223,7 +216,7 @@ class Xrd extends BaseModule
 				],
 				[
 					'rel'  => 'magic-public-key',
-					'href' => 'data:application/magic-public-key,' . $salmon_key,
+					'href' => 'data:application/magic-public-key,' . Salmon::salmonKey($owner['spubkey']),
 				],
 				[
 					'rel'  => 'http://purl.org/openwebauth/v1',
@@ -237,35 +230,109 @@ class Xrd extends BaseModule
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
-	private function printXML(string $alias, array $user, array $owner, array $avatar)
+	private function printXML(string $alias, array $owner, array $avatar)
 	{
 		$baseURL = $this->baseUrl->get();
-		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
-		$tpl = Renderer::getMarkupTemplate('xrd_person.tpl');
+		$xml = null;
 
-		$o = Renderer::replaceMacros($tpl, [
-			'$nick'        => $owner['nickname'],
-			'$accturi'     => 'acct:' . $owner['addr'],
-			'$alias'       => $alias,
-			'$profile_url' => $owner['url'],
-			'$hcard_url'   => $baseURL . '/hcard/' . $owner['nickname'],
-			'$atom'        => $owner['poll'],
-			'$poco_url'    => $owner['poco'],
-			'$photo'       => User::getAvatarUrl($owner),
-			'$type'        => $avatar['type'],
-			'$salmon'      => $baseURL . '/salmon/' . $owner['nickname'],
-			'$salmen'      => $baseURL . '/salmon/' . $owner['nickname'] . '/mention',
-			'$subscribe'   => $baseURL . '/follow?url={uri}',
-			'$openwebauth' => $baseURL . '/owa',
-			'$modexp'      => 'data:application/magic-public-key,' . $salmon_key
-		]);
-
-		$arr = ['user' => $user, 'xml' => $o];
-		Hook::callAll('personal_xrd', $arr);
+		XML::fromArray([
+			'XRD' => [
+				'@attributes' => [
+					'xmlns'    => 'http://docs.oasis-open.org/ns/xri/xrd-1.0',
+				],
+				'Subject' => 'acct:' . $owner['addr'],
+				'1:Alias' => $owner['url'],
+				'2:Alias' => $alias,
+				'1:link' => [
+					'@attributes' => [
+						'rel'  => 'http://purl.org/macgirvin/dfrn/1.0',
+						'href' => $owner['url']
+					]
+				],
+				'2:link' => [
+					'@attributes' => [
+						'rel'  => 'http://schemas.google.com/g/2010#updates-from',
+						'type' => 'application/atom+xml',
+						'href' => $owner['poll']
+					]
+				],
+				'3:link' => [
+					'@attributes' => [
+						'rel'  => 'http://webfinger.net/rel/profile-page',
+						'type' => 'text/html',
+						'href' => $owner['url']
+					]
+				],
+				'4:link' => [
+					'@attributes' => [
+						'rel'  => 'http://microformats.org/profile/hcard',
+						'type' => 'text/html',
+						'href' => $baseURL . '/hcard/' . $owner['nickname']
+					]
+				],
+				'5:link' => [
+					'@attributes' => [
+						'rel'  => 'http://portablecontacts.net/spec/1.0',
+						'href' => $owner['poco']
+					]
+				],
+				'6:link' => [
+					'@attributes' => [
+						'rel'  => 'http://webfinger.net/rel/avatar',
+						'type' => $avatar['type'],
+						'href' => User::getAvatarUrl($owner)
+					]
+				],
+				'7:link' => [
+					'@attributes' => [
+						'rel'  => 'http://joindiaspora.com/seed_location',
+						'type' => 'text/html',
+						'href' => $baseURL
+					]
+				],
+				'8:link' => [
+					'@attributes' => [
+						'rel'  => 'salmon',
+						'href' => $baseURL . '/salmon/' . $owner['nickname']
+					]
+				],
+				'9:link' => [
+					'@attributes' => [
+						'rel'  => 'http://salmon-protocol.org/ns/salmon-replies',
+						'href' => $baseURL . '/salmon/' . $owner['nickname']
+					]
+				],
+				'10:link' => [
+					'@attributes' => [
+						'rel'  => 'http://salmon-protocol.org/ns/salmon-mention',
+						'href' => $baseURL . '/salmon/' . $owner['nickname'] . '/mention'
+					]
+				],
+				'11:link' => [
+					'@attributes' => [
+						'rel'  => 'http://ostatus.org/schema/1.0/subscribe',
+						'template' => $baseURL . '/follow?url={uri}'
+					]
+				],
+				'12:link' => [
+					'@attributes' => [
+						'rel'  => 'magic-public-key',
+						'href' => 'data:application/magic-public-key,' . Salmon::salmonKey($owner['spubkey'])
+					]
+				],
+				'13:link' => [
+					'@attributes' => [
+						'rel'  => 'http://purl.org/openwebauth/v1',
+						'type' => 'application/x-zot+json',
+						'href' => $baseURL . '/owa'
+					]
+				],
+			],
+		], $xml);
 
 		header('Access-Control-Allow-Origin: *');
 
-		System::httpExit($arr['xml'], Response::TYPE_XML, 'application/xrd+xml');
+		System::httpExit($xml->saveXML(), Response::TYPE_XML, 'application/xrd+xml');
 	}
 }

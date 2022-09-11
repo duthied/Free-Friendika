@@ -20,20 +20,77 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
+use Friendica\Util\XML;
 
-function oexchange_init(App $a) {
-
-	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'xrd')) {
-		$tpl = Renderer::getMarkupTemplate('oexchange_xrd.tpl');
-
-		$o = Renderer::replaceMacros($tpl, ['$base' => DI::baseUrl()]);
-		System::httpExit($o, Response::TYPE_XML, 'application/xrd+xml');
+function oexchange_init(App $a)
+{
+	if ((DI::args()->getArgc() <= 1) || (DI::args()->getArgv()[1] != 'xrd')) {
+		return;
 	}
+
+	$baseURL = DI::baseUrl()->get();
+
+	$xml = null;
+
+	XML::fromArray([
+		'XRD' => [
+			'@attributes' => [
+				'xmlns'    => 'http://docs.oasis-open.org/ns/xri/xrd-1.0',
+			],
+			'Subject' => $baseURL,
+			'1:Property' => [
+				'@attributes' => [
+					'type'  => 'http://www.oexchange.org/spec/0.8/prop/vendor',
+				],
+				'Friendica'
+			],
+			'2:Property' => [
+				'@attributes' => [
+					'type'  => 'http://www.oexchange.org/spec/0.8/prop/title',
+				],
+				'Friendica Social Network'
+			],
+			'3:Property' => [
+				'@attributes' => [
+					'type'  => 'http://www.oexchange.org/spec/0.8/prop/name',
+				],
+				'Friendica'
+			],
+			'4:Property' => [
+				'@attributes' => [
+					'type'  => 'http://www.oexchange.org/spec/0.8/prop/prompt',
+				],
+				'Send to Friendica'
+			],
+			'1:link' => [
+				'@attributes' => [
+					'rel'  => 'icon',
+					'type' => 'image/png',
+					'href' => $baseURL . '/images/friendica-16.png'
+				]
+			],
+			'2:link' => [
+				'@attributes' => [
+					'rel'  => 'icon32',
+					'type' => 'image/png',
+					'href' => $baseURL . '/images/friendica-32.png'
+				]
+			],
+			'3:link' => [
+				'@attributes' => [
+					'rel'  => 'http://www.oexchange.org/spec/0.8/rel/offer',
+					'type' => 'text/html',
+					'href' => $baseURL . '/oexchange'
+				]
+			],
+		],
+	], $xml);
+
+	System::httpExit($xml->saveXML(), Response::TYPE_XML, 'application/xrd+xml');
 }
 
 function oexchange_content(App $a) {
