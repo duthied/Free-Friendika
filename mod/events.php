@@ -173,22 +173,23 @@ function events_post(App $a)
 		$private_event = true;
 	}
 
-	$datarray = [];
-	$datarray['start']     = $start;
-	$datarray['finish']    = $finish;
-	$datarray['summary']   = $summary;
-	$datarray['desc']      = $desc;
-	$datarray['location']  = $location;
-	$datarray['type']      = $type;
-	$datarray['nofinish']  = $nofinish;
-	$datarray['uid']       = $uid;
-	$datarray['cid']       = $cid;
-	$datarray['allow_cid'] = $str_contact_allow;
-	$datarray['allow_gid'] = $str_group_allow;
-	$datarray['deny_cid']  = $str_contact_deny;
-	$datarray['deny_gid']  = $str_group_deny;
-	$datarray['private']   = $private_event;
-	$datarray['id']        = $event_id;
+	$datarray = [
+		'start'     => $start,
+		'finish'    => $finish,
+		'summary'   => $summary,
+		'desc'      => $desc,
+		'location'  => $location,
+		'type'      => $type,
+		'nofinish'  => $nofinish,
+		'uid'       => $uid,
+		'cid'       => $cid,
+		'allow_cid' => $str_contact_allow,
+		'allow_gid' => $str_group_allow,
+		'deny_cid'  => $str_contact_deny,
+		'deny_gid'  => $str_group_deny,
+		'private'   => $private_event,
+		'id'        => $event_id,
+	];
 
 	if (intval($_REQUEST['preview'])) {
 		System::httpExit(Event::getHTML($datarray));

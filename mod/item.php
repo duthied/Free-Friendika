@@ -307,7 +307,7 @@ function item_post(App $a) {
 			// for non native networks use the network of the original post as network of the item
 			if (($toplevel_item['network'] != Protocol::DIASPORA)
 				&& ($toplevel_item['network'] != Protocol::OSTATUS)
-				&& ($network == "")) {
+				&& ($network == '')) {
 				$network = $toplevel_item['network'];
 			}
 
@@ -462,7 +462,7 @@ function item_post(App $a) {
 
 	$data = BBCode::getAttachmentData($body);
 	$match = [];
-	if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"]))
+	if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data['type']))
 		&& ($posttype != Item::PT_PERSONAL_NOTE)) {
 		$posttype = Item::PT_PAGE;
 		$objecttype =  Activity\ObjectType::BOOKMARK;
@@ -477,11 +477,11 @@ function item_post(App $a) {
 		$objecttype = Activity\ObjectType::NOTE; // Default value
 		$objectdata = BBCode::getAttachedData($body);
 
-		if ($objectdata["type"] == "link") {
+		if ($objectdata['type'] == 'link') {
 			$objecttype = Activity\ObjectType::BOOKMARK;
-		} elseif ($objectdata["type"] == "video") {
+		} elseif ($objectdata['type'] == 'video') {
 			$objecttype = Activity\ObjectType::VIDEO;
-		} elseif ($objectdata["type"] == "photo") {
+		} elseif ($objectdata['type'] == 'photo') {
 			$objecttype = Activity\ObjectType::IMAGE;
 		}
 
@@ -509,7 +509,7 @@ function item_post(App $a) {
 		$verb = Activity::POST;
 	}
 
-	if ($network == "") {
+	if ($network == '') {
 		$network = Protocol::DFRN;
 	}
 
@@ -532,68 +532,65 @@ function item_post(App $a) {
 		$thr_parent_uri = $uri;
 	}
 
-	$datarray = [];
-	$datarray['uid']           = $profile_uid;
-	$datarray['wall']          = $wall;
-	$datarray['gravity']       = $gravity;
-	$datarray['network']       = $network;
-	$datarray['contact-id']    = $contact_id;
-	$datarray['owner-name']    = $contact_record['name'] ?? '';
-	$datarray['owner-link']    = $contact_record['url'] ?? '';
-	$datarray['owner-avatar']  = $contact_record['thumb'] ?? '';
-	$datarray['owner-id']      = Contact::getIdForURL($datarray['owner-link']);
-	$datarray['author-name']   = $author['name'];
-	$datarray['author-link']   = $author['url'];
-	$datarray['author-avatar'] = $author['thumb'];
-	$datarray['author-id']     = Contact::getIdForURL($datarray['author-link']);
-	$datarray['created']       = empty($_REQUEST['created_at']) ? DateTimeFormat::utcNow() : $_REQUEST['created_at'];
-	$datarray['edited']        = $datarray['created'];
-	$datarray['commented']     = $datarray['created'];
-	$datarray['changed']       = $datarray['created'];
-	$datarray['received']      = DateTimeFormat::utcNow();
-	$datarray['extid']         = $extid;
-	$datarray['guid']          = $guid;
-	$datarray['uri']           = $uri;
-	$datarray['title']         = $title;
-	$datarray['body']          = $body;
-	$datarray['app']           = $app;
-	$datarray['location']      = $location;
-	$datarray['coord']         = $coord;
-	$datarray['file']          = $categories;
-	$datarray['inform']        = $inform;
-	$datarray['verb']          = $verb;
-	$datarray['post-type']     = $posttype;
-	$datarray['object-type']   = $objecttype;
-	$datarray['allow_cid']     = $str_contact_allow;
-	$datarray['allow_gid']     = $str_group_allow;
-	$datarray['deny_cid']      = $str_contact_deny;
-	$datarray['deny_gid']      = $str_group_deny;
-	$datarray['private']       = $private;
-	$datarray['pubmail']       = $pubmail_enabled;
-	$datarray['attach']        = $attachments;
+	$datarray = [
+		'uid'           => $profile_uid,
+		'wall'          => $wall,
+		'gravity'       => $gravity,
+		'network'       => $network,
+		'contact-id'    => $contact_id,
+		'owner-name'    => $contact_record['name'] ?? '',
+		'owner-link'    => $contact_record['url'] ?? '',
+		'owner-avatar'  => $contact_record['thumb'] ?? '',
+		'author-name'   => $author['name'],
+		'author-link'   => $author['url'],
+		'author-avatar' => $author['thumb'],
+		'created'       => empty($_REQUEST['created_at']) ? DateTimeFormat::utcNow() : $_REQUEST['created_at'],
+		'received'      => DateTimeFormat::utcNow(),
+		'extid'         => $extid,
+		'guid'          => $guid,
+		'uri'           => $uri,
+		'title'         => $title,
+		'body'          => $body,
+		'app'           => $app,
+		'location'      => $location,
+		'coord'         => $coord,
+		'file'          => $categories,
+		'inform'        => $inform,
+		'verb'          => $verb,
+		'post-type'     => $posttype,
+		'object-type'   => $objecttype,
+		'allow_cid'     => $str_contact_allow,
+		'allow_gid'     => $str_group_allow,
+		'deny_cid'      => $str_contact_deny,
+		'deny_gid'      => $str_group_deny,
+		'private'       => $private,
+		'pubmail'       => $pubmail_enabled,
+		'attach'        => $attachments,
+		'thr-parent'    => $thr_parent_uri,
+		'postopts'      => $postopts,
+		'origin'        => $origin,
+		'object'        => $object,
+		'attachments'   => $_REQUEST['attachments'] ?? [],
+		/*
+		 * These fields are for the convenience of addons...
+		 * 'self' if true indicates the owner is posting on their own wall
+		 * If parent is 0 it is a top-level post.
+		 */
+		'parent'        => $toplevel_item_id,
+		'self'          => $self,
+		// This triggers posts via API and the mirror functions
+		'api_source'    => $api_source,
+		// This field is for storing the raw conversation data
+		'protocol'      => Conversation::PARCEL_DIRECT,
+		'direction'     => Conversation::PUSH,
+	];
 
-	$datarray['thr-parent']    = $thr_parent_uri;
-
-	$datarray['postopts']      = $postopts;
-	$datarray['origin']        = $origin;
-	$datarray['object']        = $object;
-
-	$datarray['attachments']   = $_REQUEST['attachments'] ?? [];
-
-	/*
-	 * These fields are for the convenience of addons...
-	 * 'self' if true indicates the owner is posting on their own wall
-	 * If parent is 0 it is a top-level post.
-	 */
-	$datarray['parent']        = $toplevel_item_id;
-	$datarray['self']          = $self;
-
-	// This triggers posts via API and the mirror functions
-	$datarray['api_source'] = $api_source;
-
-	// This field is for storing the raw conversation data
-	$datarray['protocol'] = Conversation::PARCEL_DIRECT;
-	$datarray['direction'] = Conversation::PUSH;
+	// These cannot be part of above initialization ...
+	$datarray['edited']    = $datarray['created'];
+	$datarray['commented'] = $datarray['created'];
+	$datarray['changed']   = $datarray['created'];
+	$datarray['owner-id']  = Contact::getIdForURL($datarray['owner-link']);
+	$datarray['author-id'] = Contact::getIdForURL($datarray['author-link']);
 
 	$datarray['edit'] = $orig_post;
 
@@ -606,14 +603,14 @@ function item_post(App $a) {
 	if ($preview) {
 		// We set the datarray ID to -1 because in preview mode the dataray
 		// doesn't have an ID.
-		$datarray["id"] = -1;
-		$datarray["uri-id"] = -1;
-		$datarray["author-network"] = Protocol::DFRN;
-		$datarray["author-updated"] = '';
-		$datarray["author-gsid"] = 0;
-		$datarray["author-uri-id"] = ItemURI::getIdByURI($datarray["author-link"]);
-		$datarray["owner-updated"] = '';
-		$datarray["has-media"] = false;
+		$datarray['id'] = -1;
+		$datarray['uri-id'] = -1;
+		$datarray['author-network'] = Protocol::DFRN;
+		$datarray['author-updated'] = '';
+		$datarray['author-gsid'] = 0;
+		$datarray['author-uri-id'] = ItemURI::getIdByURI($datarray['author-link']);
+		$datarray['owner-updated'] = '';
+		$datarray['has-media'] = false;
 		$datarray['body'] = Item::improveSharedDataInBody($datarray);
 
 		$o = DI::conversation()->create([array_merge($contact_record, $datarray)], 'search', false, true);
@@ -657,13 +654,13 @@ function item_post(App $a) {
 	$datarray['uri-id'] = ItemURI::getIdByURI($datarray['uri']);
 	$datarray['body']   = Item::improveSharedDataInBody($datarray);
 
-	if ($orig_post)	{
+	if ($orig_post) {
 		$fields = [
-			'title' => $datarray['title'],
-			'body' => $datarray['body'],
-			'attach' => $datarray['attach'],
-			'file' => $datarray['file'],
-			'edited' => DateTimeFormat::utcNow(),
+			'title'   => $datarray['title'],
+			'body'    => $datarray['body'],
+			'attach'  => $datarray['attach'],
+			'file'    => $datarray['file'],
+			'edited'  => DateTimeFormat::utcNow(),
 			'changed' => DateTimeFormat::utcNow()
 		];
 
@@ -807,6 +804,7 @@ function item_content(App $a)
 				}
 			}
 			break;
+
 		case 'block':
 			$item = Post::selectFirstForUser(local_user(), ['guid', 'author-id', 'parent', 'gravity'], ['id' => $args->get(2)]);
 			if (empty($item['author-id'])) {

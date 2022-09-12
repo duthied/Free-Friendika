@@ -35,8 +35,8 @@ use Friendica\Protocol\Activity;
 use Friendica\Util\XML;
 use Friendica\Worker\Delivery;
 
-function tagger_content(App $a) {
-
+function tagger_content(App $a)
+{
 	if (!Session::isAuthenticated()) {
 		return;
 	}
@@ -116,41 +116,41 @@ EOT;
 
 	$termlink = html_entity_decode('&#x2317;') . '[url=' . DI::baseUrl() . '/search?tag=' . $term . ']'. $term . '[/url]';
 
-	$arr = [];
-
-	$arr['guid'] = System::createUUID();
-	$arr['uri'] = $uri;
-	$arr['uid'] = $owner_uid;
-	$arr['contact-id'] = $contact['id'];
-	$arr['wall'] = $item['wall'];
-	$arr['gravity'] = Item::GRAVITY_COMMENT;
-	$arr['parent'] = $item['id'];
-	$arr['thr-parent'] = $item['uri'];
-	$arr['owner-name'] = $item['author-name'];
-	$arr['owner-link'] = $item['author-link'];
-	$arr['owner-avatar'] = $item['author-avatar'];
-	$arr['author-name'] = $contact['name'];
-	$arr['author-link'] = $contact['url'];
-	$arr['author-avatar'] = $contact['thumb'];
-
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
 	$plink = '[url=' . $item['plink'] . ']' . $post_type . '[/url]';
-	$arr['body'] =  sprintf( $bodyverb, $ulink, $alink, $plink, $termlink );
 
-	$arr['verb'] = Activity::TAG;
-	$arr['target-type'] = $targettype;
-	$arr['target'] = $target;
-	$arr['object-type'] = $objtype;
-	$arr['object'] = $obj;
-	$arr['private'] = $item['private'];
-	$arr['allow_cid'] = $item['allow_cid'];
-	$arr['allow_gid'] = $item['allow_gid'];
-	$arr['deny_cid'] = $item['deny_cid'];
-	$arr['deny_gid'] = $item['deny_gid'];
-	$arr['visible'] = 1;
-	$arr['unseen'] = 1;
-	$arr['origin'] = 1;
+	$arr = [
+		'guid'          => System::createUUID(),
+		'uri'           => $uri,
+		'uid'           => $owner_uid,
+		'contact-id'    => $contact['id'],
+		'wall'          => $item['wall'],
+		'gravity'       => Item::GRAVITY_COMMENT,
+		'parent'        => $item['id'],
+		'thr-parent'    => $item['uri'],
+		'owner-name'    => $item['author-name'],
+		'owner-link'    => $item['author-link'],
+		'owner-avatar'  => $item['author-avatar'],
+		'author-name'   => $contact['name'],
+		'author-link'   => $contact['url'],
+		'author-avatar' => $contact['thumb'],
+		'body'          => sprintf( $bodyverb, $ulink, $alink, $plink, $termlink),
+		'verb'          => Activity::TAG,
+		'target-type'   => $targettype,
+		'target'        => $target,
+		'object-type'   => $objtype,
+		'object'        => $obj,
+		'private'       => $item['private'],
+		'allow_cid'     => $item['allow_cid'],
+		'allow_gid'     => $item['allow_gid'],
+		'deny_cid'      => $item['deny_cid'],
+		'deny_gid'      => $item['deny_gid'],
+		'visible'       => 1,
+		'unseen'        => 1,
+		'origin'        => 1,
+	];
+
 
 	$post_id = Item::insert($arr);
 
