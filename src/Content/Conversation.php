@@ -641,7 +641,7 @@ class Conversation
 						unset($likebuttons['dislike']);
 					}
 
-					$body_html = Item::prepareBody($item, true, $preview);
+					$body_html = ItemModel::prepareBody($item, true, $preview);
 
 					[$categories, $folders] = $this->item->determineCategoriesTerms($item, local_user());
 
@@ -698,7 +698,7 @@ class Conversation
 						'owner_name'           => '',
 						'owner_url'            => '',
 						'owner_photo'          => $this->baseURL->remove($this->item->getOwnerAvatar($item)),
-						'plink'                => Item::getPlink($item),
+						'plink'                => ItemModel::getPlink($item),
 						'edpost'               => false,
 						'pinned'               => $pinned,
 						'isstarred'            => 'unstarred',
@@ -826,7 +826,7 @@ class Conversation
 
 		if (!empty($activity)) {
 			if (($row['gravity'] == ItemModel::GRAVITY_PARENT)) {
-				$row['post-reason'] = Item::PR_ANNOUNCEMENT;
+				$row['post-reason'] = ItemModel::PR_ANNOUNCEMENT;
 
 				$row     = array_merge($row, $activity);
 				$contact = Contact::getById($activity['causer-id'], ['url', 'name', 'thumb']);
@@ -841,25 +841,25 @@ class Conversation
 		}
 
 		switch ($row['post-reason']) {
-			case Item::PR_TO:
+			case ItemModel::PR_TO:
 				$row['direction'] = ['direction' => 7, 'title' => $this->l10n->t('You had been addressed (%s).', 'to')];
 				break;
-			case Item::PR_CC:
+			case ItemModel::PR_CC:
 				$row['direction'] = ['direction' => 7, 'title' => $this->l10n->t('You had been addressed (%s).', 'cc')];
 				break;
-			case Item::PR_BTO:
+			case ItemModel::PR_BTO:
 				$row['direction'] = ['direction' => 7, 'title' => $this->l10n->t('You had been addressed (%s).', 'bto')];
 				break;
-			case Item::PR_BCC:
+			case ItemModel::PR_BCC:
 				$row['direction'] = ['direction' => 7, 'title' => $this->l10n->t('You had been addressed (%s).', 'bcc')];
 				break;
-			case Item::PR_FOLLOWER:
+			case ItemModel::PR_FOLLOWER:
 				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('You are following %s.', $row['causer-name'] ?: $row['author-name'])];
 				break;
-			case Item::PR_TAG:
+			case ItemModel::PR_TAG:
 				$row['direction'] = ['direction' => 4, 'title' => $this->l10n->t('You subscribed to one or more tags in this post.')];
 				break;
-			case Item::PR_ANNOUNCEMENT:
+			case ItemModel::PR_ANNOUNCEMENT:
 				if (!empty($row['causer-id']) && $this->pConfig->get(local_user(), 'system', 'display_resharer')) {
 					$row['owner-id']     = $row['causer-id'];
 					$row['owner-link']   = $row['causer-link'];
@@ -874,34 +874,34 @@ class Conversation
 				}
 				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Reshared') : $this->l10n->t('Reshared by %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
-			case Item::PR_COMMENT:
+			case ItemModel::PR_COMMENT:
 				$row['direction'] = ['direction' => 5, 'title' => $this->l10n->t('%s is participating in this thread.', $row['author-name'])];
 				break;
-			case Item::PR_STORED:
+			case ItemModel::PR_STORED:
 				$row['direction'] = ['direction' => 8, 'title' => $this->l10n->t('Stored for general reasons')];
 				break;
-			case Item::PR_GLOBAL:
+			case ItemModel::PR_GLOBAL:
 				$row['direction'] = ['direction' => 9, 'title' => $this->l10n->t('Global post')];
 				break;
-			case Item::PR_RELAY:
+			case ItemModel::PR_RELAY:
 				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Sent via an relay server') : $this->l10n->t('Sent via the relay server %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
-			case Item::PR_FETCHED:
+			case ItemModel::PR_FETCHED:
 				$row['direction'] = ['direction' => 2, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Fetched') : $this->l10n->t('Fetched because of %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
-			case Item::PR_COMPLETION:
+			case ItemModel::PR_COMPLETION:
 				$row['direction'] = ['direction' => 2, 'title' => $this->l10n->t('Stored because of a child post to complete this thread.')];
 				break;
-			case Item::PR_DIRECT:
+			case ItemModel::PR_DIRECT:
 				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('Local delivery')];
 				break;
-			case Item::PR_ACTIVITY:
+			case ItemModel::PR_ACTIVITY:
 				$row['direction'] = ['direction' => 2, 'title' => $this->l10n->t('Stored because of your activity (like, comment, star, ...)')];
 				break;
-			case Item::PR_DISTRIBUTE:
+			case ItemModel::PR_DISTRIBUTE:
 				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('Distributed')];
 				break;
-			case Item::PR_PUSHED:
+			case ItemModel::PR_PUSHED:
 				$row['direction'] = ['direction' => 1, 'title' => $this->l10n->t('Pushed to us')];
 				break;
 		}
@@ -979,7 +979,7 @@ class Conversation
 
 		$params = ['order' => ['uri-id' => true, 'uid' => true]];
 
-		$thread_items = Post::selectForUser($uid, array_merge(Item::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
+		$thread_items = Post::selectForUser($uid, array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
 		$items = [];
 
