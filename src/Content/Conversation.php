@@ -369,7 +369,7 @@ class Conversation
 			'$permset'      => $this->l10n->t('Permission settings'),
 			'$shortpermset' => $this->l10n->t('Permissions'),
 			'$wall'         => $notes_cid ? 0 : 1,
-			'$posttype'     => $notes_cid ? Item::PT_PERSONAL_NOTE : Item::PT_ARTICLE,
+			'$posttype'     => $notes_cid ? ItemModel::PT_PERSONAL_NOTE : ItemModel::PT_ARTICLE,
 			'$content'      => $x['content'] ?? '',
 			'$post_id'      => $x['post_id'] ?? '',
 			'$baseurl'      => $this->baseURL->get(true),
