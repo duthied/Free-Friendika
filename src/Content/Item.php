@@ -31,7 +31,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
-use Friendica\Model\Item as ModelItem;
+use Friendica\Model\Item as ItemModel;
 use Friendica\Model\Photo;
 use Friendica\Model\Tag;
 use Friendica\Model\Post;
@@ -331,7 +331,7 @@ class Item
 		$sub_link = $contact_url = $pm_url = $status_link = '';
 		$photos_link = $posts_link = $block_link = $ignore_link = '';
 
-		if (local_user() && local_user() == $item['uid'] && $item['gravity'] == ModelItem::GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
+		if (local_user() && local_user() == $item['uid'] && $item['gravity'] == ItemModel::GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
 			$sub_link = 'javascript:doFollowThread(' . $item['id'] . '); return false;';
 		}
 
@@ -392,7 +392,7 @@ class Item
 			];
 
 			if (!empty($item['language'])) {
-				$menu[$this->l10n->t('Languages')] = 'javascript:alert(\'' . ModelItem::getLanguageMessage($item) . '\');';
+				$menu[$this->l10n->t('Languages')] = 'javascript:alert(\'' . ItemModel::getLanguageMessage($item) . '\');';
 			}
 
 			if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
@@ -470,7 +470,7 @@ class Item
 			}
 			$item['inform'] .= 'cid:' . $contact['id'];
 
-			if (($item['gravity'] == ModelItem::GRAVITY_COMMENT) || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
+			if (($item['gravity'] == ItemModel::GRAVITY_COMMENT) || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
 				continue;
 			}
 
@@ -492,9 +492,9 @@ class Item
 		}
 		Logger::info('Got inform', ['inform' => $item['inform']]);
 
-		if (($item['gravity'] == ModelItem::GRAVITY_PARENT) && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
+		if (($item['gravity'] == ItemModel::GRAVITY_PARENT) && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
 			// we tagged a forum in a top level post. Now we change the post
-			$item['private'] = $private_forum ? ModelItem::PRIVATE : ModelItem::UNLISTED;
+			$item['private'] = $private_forum ? ItemModel::PRIVATE : ItemModel::UNLISTED;
 
 			if ($only_to_forum) {
 				$item['postopts'] = '';
@@ -510,14 +510,14 @@ class Item
 				$item['allow_cid'] = '';
 				$item['allow_gid'] = '';
 			}
-		} elseif ($setPermissions && ($item['gravity'] == ModelItem::GRAVITY_PARENT)) {
+		} elseif ($setPermissions && ($item['gravity'] == ItemModel::GRAVITY_PARENT)) {
 			if (empty($receivers)) {
 				// For security reasons direct posts without any receiver will be posts to yourself
 				$self = Contact::selectFirst(['id'], ['uid' => $item['uid'], 'self' => true]);
 				$receivers[] = $self['id'];
 			}
 
-			$item['private']   = ModelItem::PRIVATE;
+			$item['private']   = ItemModel::PRIVATE;
 			$item['allow_cid'] = '';
 			$item['allow_gid'] = '';
 			$item['deny_cid']  = '';
