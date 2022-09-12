@@ -26,10 +26,11 @@ use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Factory\Api\Twitter\Status as TwitterStatus;
-use Friendica\Module\BaseApi;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\Api\ApiResponse;
+use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -77,7 +78,7 @@ class Statuses extends BaseApi
 
 		$groups    = $this->dba->selectToArray('group_member', ['contact-id'], ['gid' => $request['list_id']]);
 		$gids      = array_column($groups, 'contact-id');
-		$condition = ['uid' => $uid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'contact-id' => $gids];
+		$condition = ['uid' => $uid, 'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'contact-id' => $gids];
 		$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $since_id]);
 
 		if ($max_id > 0) {
@@ -86,7 +87,7 @@ class Statuses extends BaseApi
 		}
 		if ($exclude_replies) {
 			$condition[0] .= ' AND `gravity` = ?';
-			$condition[] = GRAVITY_PARENT;
+			$condition[] = Item::GRAVITY_PARENT;
 		}
 		if ($conversation_id > 0) {
 			$condition[0] .= " AND `parent-uri-id` = ?";

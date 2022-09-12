@@ -210,7 +210,7 @@ class Post
 		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER]);
 
 		// On Diaspora only toplevel posts can be reshared
-		if ($announceable && ($item['network'] == Protocol::DIASPORA) && ($item['gravity'] != GRAVITY_PARENT)) {
+		if ($announceable && ($item['network'] == Protocol::DIASPORA) && ($item['gravity'] != Item::GRAVITY_PARENT)) {
 			$announceable = false;
 		}
 
@@ -915,7 +915,7 @@ class Post
 			return $text;
 		}
 
-		if (($item['author-addr'] != $owner['addr']) && (($item['gravity'] != GRAVITY_PARENT) || !in_array($item['network'], [Protocol::DIASPORA]))) {
+		if (($item['author-addr'] != $owner['addr']) && (($item['gravity'] != Item::GRAVITY_PARENT) || !in_array($item['network'], [Protocol::DIASPORA]))) {
 			$text .= '@' . $item['author-addr'] . ' ';
 		}
 

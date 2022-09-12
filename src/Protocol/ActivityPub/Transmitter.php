@@ -266,7 +266,7 @@ class Transmitter
 		$condition = array_merge($condition, [
 			'uid'           => $owner['uid'],
 			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
-			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'gravity'        => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
 			'network'        => Protocol::FEDERATED,
 			'parent-network' => Protocol::FEDERATED,
 			'origin'         => true,
@@ -351,7 +351,7 @@ class Transmitter
 			'uid'           => $owner['uid'],
 			'author-id'      => $owner_cid,
 			'private'        => [Item::PUBLIC, Item::UNLISTED],
-			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'gravity'        => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
 			'network'        => Protocol::FEDERATED,
 			'parent-network' => Protocol::FEDERATED,
 			'origin'         => true,
@@ -577,7 +577,7 @@ class Transmitter
 		$item_profile = APContact::getByURL($item['author-link']);
 		$exclude[] = $item['author-link'];
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == Item::GRAVITY_PARENT) {
 			$exclude[] = $item['owner-link'];
 		}
 
@@ -665,7 +665,7 @@ class Transmitter
 
 		$data = ['to' => [], 'cc' => [], 'bcc' => []];
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == Item::GRAVITY_PARENT) {
 			$actor_profile = APContact::getByURL($item['owner-link']);
 		} else {
 			$actor_profile = APContact::getByURL($item['author-link']);
@@ -753,10 +753,10 @@ class Transmitter
 		if (!empty($item['parent'])) {
 			$parents = Post::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']], ['order' => ['id']]);
 			while ($parent = Post::fetch($parents)) {
-				if ($parent['gravity'] == GRAVITY_PARENT) {
+				if ($parent['gravity'] == Item::GRAVITY_PARENT) {
 					$profile = APContact::getByURL($parent['owner-link'], false);
 					if (!empty($profile)) {
-						if ($item['gravity'] != GRAVITY_PARENT) {
+						if ($item['gravity'] != Item::GRAVITY_PARENT) {
 							// Comments to forums are directed to the forum
 							// But comments to forums aren't directed to the followers collection
 							// This rule is only valid when the actor isn't the forum.
@@ -971,7 +971,7 @@ class Transmitter
 
 		$inboxes = [];
 
-		if ($item['gravity'] == GRAVITY_ACTIVITY) {
+		if ($item['gravity'] == Item::GRAVITY_ACTIVITY) {
 			$item_profile = APContact::getByURL($item['author-link'], false);
 		} else {
 			$item_profile = APContact::getByURL($item['owner-link'], false);
@@ -1060,7 +1060,7 @@ class Transmitter
 		$mail['parent-uri']       = $reply['uri'];
 		$mail['parent-uri-id']    = $reply['uri-id'];
 		$mail['parent-author-id'] = Contact::getIdForURL($reply['from-url'], 0, false);
-		$mail['gravity']          = ($mail['reply'] ? GRAVITY_COMMENT: GRAVITY_PARENT);
+		$mail['gravity']          = ($mail['reply'] ? Item::GRAVITY_COMMENT: Item::GRAVITY_PARENT);
 		$mail['event-type']       = '';
 		$mail['language']         = '';
 		$mail['parent']           = 0;
@@ -1245,7 +1245,7 @@ class Transmitter
 		if (!$object_mode) {
 			$data = ['@context' => $context ?? ActivityPub::CONTEXT];
 
-			if ($item['deleted'] && ($item['gravity'] == GRAVITY_ACTIVITY)) {
+			if ($item['deleted'] && ($item['gravity'] == Item::GRAVITY_ACTIVITY)) {
 				$type = 'Undo';
 			} elseif ($item['deleted']) {
 				$type = 'Delete';
@@ -1256,7 +1256,7 @@ class Transmitter
 
 		if ($type == 'Delete') {
 			$data['id'] = Item::newURI($item['guid']) . '/' . $type;;
-		} elseif (($item['gravity'] == GRAVITY_ACTIVITY) && ($type != 'Undo')) {
+		} elseif (($item['gravity'] == Item::GRAVITY_ACTIVITY) && ($type != 'Undo')) {
 			$data['id'] = $item['uri'];
 		} else {
 			$data['id'] = $item['uri'] . '/' . $type;
@@ -1264,7 +1264,7 @@ class Transmitter
 
 		$data['type'] = $type;
 
-		if (($type != 'Announce') || ($item['gravity'] != GRAVITY_PARENT)) {
+		if (($type != 'Announce') || ($item['gravity'] != Item::GRAVITY_PARENT)) {
 			$data['actor'] = $item['author-link'];
 		} else {
 			$data['actor'] = $item['owner-link'];
@@ -1557,7 +1557,7 @@ class Transmitter
 		// We are treating posts differently when they are directed to a community.
 		// This is done to better support Lemmy. Most of the changes should work with other systems as well.
 		// But to not risk compatibility issues we currently perform the changes only for communities.
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == Item::GRAVITY_PARENT) {
 			$isCommunityPost = !empty(Tag::getByURIId($item['uri-id'], [Tag::EXCLUSIVE_MENTION]));
 			$links = Post\Media::getByURIId($item['uri-id'], [Post\Media::HTML]);
 			if ($isCommunityPost && (count($links) == 1)) {

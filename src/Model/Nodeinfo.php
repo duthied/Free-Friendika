@@ -25,6 +25,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use stdClass;
 
 /**
@@ -62,8 +63,8 @@ class Nodeinfo
 		$logger->info('user statistics', $userStats);
 
 		$posts = DBA::count('post-thread', ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE NOT `deleted` AND `origin`)"]);
-		$comments = DBA::count('post', ["NOT `deleted` AND `gravity` = ? AND `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)", GRAVITY_COMMENT]);
-				$config->set('nodeinfo', 'local_posts', $posts);
+		$comments = DBA::count('post', ["NOT `deleted` AND `gravity` = ? AND `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)", Item::GRAVITY_COMMENT]);
+		$config->set('nodeinfo', 'local_posts', $posts);
 		$config->set('nodeinfo', 'local_comments', $comments);
 
 		$logger->info('User actitivy', ['posts' => $posts, 'comments' => $comments]);

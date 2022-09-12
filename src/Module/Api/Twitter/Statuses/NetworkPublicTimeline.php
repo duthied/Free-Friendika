@@ -47,7 +47,7 @@ class NetworkPublicTimeline extends BaseApi
 		$start = max(0, ($page - 1) * $count);
 
 		$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `uri-id` > ? AND `private` = ?",
-			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
+			Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 		if ($max_id > 0) {
 			$condition[0] .= " AND `uri-id` <= ?";

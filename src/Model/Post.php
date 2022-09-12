@@ -28,6 +28,7 @@ use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Protocol\Activity;
 
 class Post
@@ -405,7 +406,7 @@ class Post
 			AND NOT `owner-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `blocked`)
 			AND NOT (`gravity` = ? AND `author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `ignored`))
 			AND NOT (`gravity` = ? AND `owner-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `ignored`))",
-			0, Contact::SHARING, Contact::FRIEND, GRAVITY_PARENT, 0, $uid, $uid, $uid, GRAVITY_PARENT, $uid, GRAVITY_PARENT, $uid]);
+			0, Contact::SHARING, Contact::FRIEND, Item::GRAVITY_PARENT, 0, $uid, $uid, $uid, Item::GRAVITY_PARENT, $uid, Item::GRAVITY_PARENT, $uid]);
 
 		$select_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], $selected));
 
@@ -520,7 +521,7 @@ class Post
 		unset($fields['parent-uri']);
 		unset($fields['parent-uri-id']);
 
-		$thread_condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
+		$thread_condition = DBA::mergeConditions($condition, ['gravity' => Item::GRAVITY_PARENT]);
 
 		// To ensure the data integrity we do it in an transaction
 		DBA::transaction();

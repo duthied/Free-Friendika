@@ -26,6 +26,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag as TagModel;
 use Friendica\Model\Verb;
@@ -94,19 +95,19 @@ class Status extends BaseFactory
 
 		$count_announce = Post::countPosts([
 			'thr-parent-id' => $uriId,
-			'gravity'       => GRAVITY_ACTIVITY,
+			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::ANNOUNCE),
 			'deleted'       => false
 		], []);
 		$count_like = Post::countPosts([
 			'thr-parent-id' => $uriId,
-			'gravity'       => GRAVITY_ACTIVITY,
+			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::LIKE),
 			'deleted'       => false
 		], []);
 
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
-			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_COMMENT, 'deleted' => false], []),
+			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => Item::GRAVITY_COMMENT, 'deleted' => false], []),
 			$count_announce,
 			$count_like
 		);
@@ -115,7 +116,7 @@ class Status extends BaseFactory
 			'thr-parent-id' => $uriId,
 			'uid'           => $uid,
 			'origin'        => true,
-			'gravity'       => GRAVITY_ACTIVITY,
+			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::LIKE),
 			'deleted'     => false
 		]);
@@ -123,7 +124,7 @@ class Status extends BaseFactory
 			'thr-parent-id' => $uriId,
 			'uid'           => $uid,
 			'origin'        => true,
-			'gravity'       => GRAVITY_ACTIVITY,
+			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::ANNOUNCE),
 			'deleted'       => false
 		]);
@@ -131,7 +132,7 @@ class Status extends BaseFactory
 			$origin_like,
 			$origin_announce,
 			Post\ThreadUser::getIgnored($uriId, $uid),
-			(bool)($item['starred'] && ($item['gravity'] == GRAVITY_PARENT)),
+			(bool)($item['starred'] && ($item['gravity'] == Item::GRAVITY_PARENT)),
 			$item['featured']
 		);
 

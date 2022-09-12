@@ -113,12 +113,12 @@ class Update extends BaseApi
 			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_status_id'], 'uid' => [0, $uid]]);
 
 			$item['thr-parent']  = $parent['uri'];
-			$item['gravity']     = GRAVITY_COMMENT;
+			$item['gravity']     = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 		} else {
 			self::checkThrottleLimit();
 
-			$item['gravity']     = GRAVITY_PARENT;
+			$item['gravity']     = Item::GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
 		}
 

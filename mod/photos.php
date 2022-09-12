@@ -55,8 +55,8 @@ use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 use Friendica\Network\HTTPException;
 
-function photos_init(App $a) {
-
+function photos_init(App $a)
+{
 	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
@@ -526,43 +526,39 @@ function photos_post(App $a)
 				foreach ($taginfo as $tagged) {
 					$uri = Item::newURI();
 
-					$arr = [];
-					$arr['guid']          = System::createUUID();
-					$arr['uid']           = $page_owner_uid;
-					$arr['uri']           = $uri;
-					$arr['wall']          = 1;
-					$arr['contact-id']    = $owner_record['id'];
-					$arr['owner-name']    = $owner_record['name'];
-					$arr['owner-link']    = $owner_record['url'];
-					$arr['owner-avatar']  = $owner_record['thumb'];
-					$arr['author-name']   = $owner_record['name'];
-					$arr['author-link']   = $owner_record['url'];
-					$arr['author-avatar'] = $owner_record['thumb'];
-					$arr['title']         = '';
-					$arr['allow_cid']     = $photo['allow_cid'];
-					$arr['allow_gid']     = $photo['allow_gid'];
-					$arr['deny_cid']      = $photo['deny_cid'];
-					$arr['deny_gid']      = $photo['deny_gid'];
-					$arr['visible']       = 0;
-					$arr['verb']          = Activity::TAG;
-					$arr['gravity']       = GRAVITY_PARENT;
-					$arr['object-type']   = Activity\ObjectType::PERSON;
-					$arr['target-type']   = Activity\ObjectType::IMAGE;
-					$arr['inform']        = $tagged[2];
-					$arr['origin']        = 1;
-					$arr['body']          = DI::l10n()->t('%1$s was tagged in %2$s by %3$s', '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . ']' . DI::l10n()->t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
-					$arr['body'] .= "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . ']' . '[img]' . DI::baseUrl() . "/photo/" . $photo['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n" ;
+					$arr = [
+						'guid'          => System::createUUID(),
+						'uid'           => $page_owner_uid,
+						'uri'           => $uri,
+						'wall'          => 1,
+						'contact-id'    => $owner_record['id'],
+						'owner-name'    => $owner_record['name'],
+						'owner-link'    => $owner_record['url'],
+						'owner-avatar'  => $owner_record['thumb'],
+						'author-name'   => $owner_record['name'],
+						'author-link'   => $owner_record['url'],
+						'author-avatar' => $owner_record['thumb'],
+						'title'         => '',
+						'allow_cid'     => $photo['allow_cid'],
+						'allow_gid'     => $photo['allow_gid'],
+						'deny_cid'      => $photo['deny_cid'],
+						'deny_gid'      => $photo['deny_gid'],
+						'visible'       => 0,
+						'verb'          => Activity::TAG,
+						'gravity'       => Item::GRAVITY_PARENT,
+						'object-type'   => Activity\ObjectType::PERSON,
+						'target-type'   => Activity\ObjectType::IMAGE,
+						'inform'        => $tagged[2],
+						'origin'        => 1,
+						'body'          => DI::l10n()->t('%1$s was tagged in %2$s by %3$s', '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . ']' . DI::l10n()->t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') . "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . ']' . '[img]' . DI::baseUrl() . '/photo/' . $photo['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n",
+						'object'        => '<object><type>' . Activity\ObjectType::PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id><link>' . XML::escape('<link rel="alternate" type="text/html" href="' . $tagged[1] . '" />' . "\n"),
+						'target'        => '<target><type>' . Activity\ObjectType::IMAGE . '</type><title>' . $photo['desc'] . '</title><id>' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . '</id><link>' . XML::escape('<link rel="alternate" type="text/html" href="' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . '" />' . "\n" . '<link rel="preview" type="' . $photo['type'] . '" href="' . DI::baseUrl() . '/photo/' . $photo['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>',
+					];
 
-					$arr['object'] = '<object><type>' . Activity\ObjectType::PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
-					$arr['object'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . $tagged[1] . '" />' . "\n");
 					if ($tagged[3]) {
 						$arr['object'] .= XML::escape('<link rel="photo" type="' . $photo['type'] . '" href="' . $tagged[3]['photo'] . '" />' . "\n");
 					}
 					$arr['object'] .= '</link></object>' . "\n";
-
-					$arr['target'] = '<target><type>' . Activity\ObjectType::IMAGE . '</type><title>' . $photo['desc'] . '</title><id>'
-						. DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . '</id>';
-					$arr['target'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . '" />' . "\n" . '<link rel="preview" type="' . $photo['type'] . '" href="' . DI::baseUrl() . "/photo/" . $photo['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
 
 					Item::insert($arr);
 				}
@@ -1233,7 +1229,7 @@ function photos_content(App $a)
 		$link_item = Post::selectFirst([], ["`resource-id` = ?" . $sql_extra, $datum]);
 
 		if (!empty($link_item['parent']) && !empty($link_item['uid'])) {
-			$condition = ["`parent` = ? AND `gravity` = ?",  $link_item['parent'], GRAVITY_COMMENT];
+			$condition = ["`parent` = ? AND `gravity` = ?",  $link_item['parent'], Item::GRAVITY_COMMENT];
 			$total = Post::count($condition);
 
 			$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
@@ -1404,7 +1400,7 @@ function photos_content(App $a)
 
 					if (($activity->match($item['verb'], Activity::LIKE) ||
 					     $activity->match($item['verb'], Activity::DISLIKE)) &&
-					    ($item['gravity'] != GRAVITY_PARENT)) {
+					    ($item['gravity'] != Item::GRAVITY_PARENT)) {
 						continue;
 					}
 
@@ -1421,25 +1417,25 @@ function photos_content(App $a)
 					$drop = [
 						'dropping' => $dropping,
 						'pagedrop' => false,
-						'select' => DI::l10n()->t('Select'),
-						'delete' => DI::l10n()->t('Delete'),
+						'select'   => DI::l10n()->t('Select'),
+						'delete'   => DI::l10n()->t('Delete'),
 					];
 
 					$title_e = $item['title'];
 					$body_e = BBCode::convertForUriId($item['uri-id'], $item['body']);
 
 					$comments .= Renderer::replaceMacros($template,[
-						'$id' => $item['id'],
+						'$id'          => $item['id'],
 						'$profile_url' => $profile_url,
-						'$name' => $item['author-name'],
-						'$thumb' => $item['author-avatar'],
-						'$sparkle' => $sparkle,
-						'$title' => $title_e,
-						'$body' => $body_e,
-						'$ago' => Temporal::getRelativeDate($item['created']),
-						'$indent' => (($item['parent'] != $item['id']) ? ' comment' : ''),
-						'$drop' => $drop,
-						'$comment' => $comment
+						'$name'        => $item['author-name'],
+						'$thumb'       => $item['author-avatar'],
+						'$sparkle'     => $sparkle,
+						'$title'       => $title_e,
+						'$body'        => $body_e,
+						'$ago'         => Temporal::getRelativeDate($item['created']),
+						'$indent'      => (($item['parent'] != $item['id']) ? ' comment' : ''),
+						'$drop'        => $drop,
+						'$comment'     => $comment
 					]);
 
 					if (($can_post || Security::canWriteToUserWall($owner_uid))) {

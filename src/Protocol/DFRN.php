@@ -799,7 +799,7 @@ class DFRN
 		$dfrnowner = self::addEntryAuthor($doc, "dfrn:owner", $item["owner-link"], $item);
 		$entry->appendChild($dfrnowner);
 
-		if ($item['gravity'] != GRAVITY_PARENT) {
+		if ($item['gravity'] != Item::GRAVITY_PARENT) {
 			$parent = Post::selectFirst(['guid', 'plink'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
 			if (DBA::isResult($parent)) {
 				$attributes = ["ref" => $item['thr-parent'], "type" => "text/html",
@@ -888,7 +888,7 @@ class DFRN
 
 		if ($item['object-type'] != '') {
 			XML::addElement($doc, $entry, 'activity:object-type', $item['object-type']);
-		} elseif ($item['gravity'] == GRAVITY_PARENT) {
+		} elseif ($item['gravity'] == Item::GRAVITY_PARENT) {
 			XML::addElement($doc, $entry, 'activity:object-type', Activity\ObjectType::NOTE);
 		} else {
 			XML::addElement($doc, $entry, 'activity:object-type', Activity\ObjectType::COMMENT);
@@ -1612,21 +1612,21 @@ class DFRN
 				|| ($item['verb'] == Activity::ATTENDMAYBE)
 				|| ($item['verb'] == Activity::ANNOUNCE)
 			) {
-				$item['gravity'] = GRAVITY_ACTIVITY;
+				$item['gravity'] = Item::GRAVITY_ACTIVITY;
 				// only one like or dislike per person
 				// split into two queries for performance issues
 				$condition = [
-					'uid' => $item['uid'],
-					'author-id' => $item['author-id'],
-					'gravity' => GRAVITY_ACTIVITY,
-					'verb' => $item['verb'],
+					'uid'        => $item['uid'],
+					'author-id'  => $item['author-id'],
+					'gravity'    => Item::GRAVITY_ACTIVITY,
+					'verb'       => $item['verb'],
 					'parent-uri' => $item['thr-parent'],
 				];
 				if (Post::exists($condition)) {
 					return false;
 				}
 
-				$condition = ['uid' => $item['uid'], 'author-id' => $item['author-id'], 'gravity' => GRAVITY_ACTIVITY,
+				$condition = ['uid' => $item['uid'], 'author-id' => $item['author-id'], 'gravity' => Item::GRAVITY_ACTIVITY,
 					'verb' => $item['verb'], 'thr-parent' => $item['thr-parent']];
 				if (Post::exists($condition)) {
 					return false;
@@ -1938,7 +1938,7 @@ class DFRN
 
 		// Now assign the rest of the values that depend on the type of the message
 		if (in_array($entrytype, [self::REPLY, self::REPLY_RC])) {
-			$item['gravity'] = GRAVITY_COMMENT;
+			$item['gravity'] = Item::GRAVITY_COMMENT;
 
 			if (!isset($item['object-type'])) {
 				$item['object-type'] = Activity\ObjectType::COMMENT;
@@ -1964,7 +1964,7 @@ class DFRN
 		if ($entrytype == self::REPLY_RC) {
 			$item['wall'] = 1;
 		} elseif ($entrytype == self::TOP_LEVEL) {
-			$item['gravity'] = GRAVITY_PARENT;
+			$item['gravity'] = Item::GRAVITY_PARENT;
 
 			if (!isset($item['object-type'])) {
 				$item['object-type'] = Activity\ObjectType::NOTE;
@@ -2034,7 +2034,7 @@ class DFRN
 					Logger::info('Contact is not sharing with the user', ['uid' => $item['uid'], 'owner-id' => $item['owner-id'], 'author-id' => $item['author-id'], 'gravity' => $item['gravity'], 'uri' => $item['uri']]);
 					return;
 				}
-				if (($item['gravity'] == GRAVITY_ACTIVITY) && DI::pConfig()->get($item['uid'], 'system', 'accept_only_sharer') == Item::COMPLETION_COMMENT) {
+				if (($item['gravity'] == Item::GRAVITY_ACTIVITY) && DI::pConfig()->get($item['uid'], 'system', 'accept_only_sharer') == Item::COMPLETION_COMMENT) {
 					Logger::info('Completion is set to "comment", but this is an activity. so we stop here.', ['uid' => $item['uid'], 'owner-id' => $item['owner-id'], 'author-id' => $item['author-id'], 'gravity' => $item['gravity'], 'uri' => $item['uri']]);
 					return;
 				}
@@ -2119,13 +2119,13 @@ class DFRN
 		}
 
 		// When it is a starting post it has to belong to the person that wants to delete it
-		if (($item['gravity'] == GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
+		if (($item['gravity'] == Item::GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
 			Logger::info('Item with URI ' . $uri . ' do not belong to contact ' . $importer['id'] . ' - ignoring deletion.');
 			return;
 		}
 
 		// Comments can be deleted by the thread owner or comment owner
-		if (($item['gravity'] != GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
+		if (($item['gravity'] != Item::GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
 			$condition = ['id' => $item['parent'], 'contact-id' => $importer['id']];
 			if (!Post::exists($condition)) {
 				Logger::info('Item with URI ' . $uri . ' was not found or must not be deleted by contact ' . $importer['id'] . ' - ignoring deletion.');

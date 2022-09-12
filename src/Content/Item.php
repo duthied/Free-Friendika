@@ -331,7 +331,7 @@ class Item
 		$sub_link = $contact_url = $pm_url = $status_link = '';
 		$photos_link = $posts_link = $block_link = $ignore_link = '';
 
-		if (local_user() && local_user() == $item['uid'] && $item['gravity'] == GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
+		if (local_user() && local_user() == $item['uid'] && $item['gravity'] == ModelItem::GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
 			$sub_link = 'javascript:doFollowThread(' . $item['id'] . '); return false;';
 		}
 
@@ -470,7 +470,7 @@ class Item
 			}
 			$item['inform'] .= 'cid:' . $contact['id'];
 
-			if (($item['gravity'] == GRAVITY_COMMENT) || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
+			if (($item['gravity'] == ModelItem::GRAVITY_COMMENT) || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
 				continue;
 			}
 
@@ -492,7 +492,7 @@ class Item
 		}
 		Logger::info('Got inform', ['inform' => $item['inform']]);
 
-		if (($item['gravity'] == GRAVITY_PARENT) && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
+		if (($item['gravity'] == ModelItem::GRAVITY_PARENT) && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
 			// we tagged a forum in a top level post. Now we change the post
 			$item['private'] = $private_forum ? ModelItem::PRIVATE : ModelItem::UNLISTED;
 
@@ -510,7 +510,7 @@ class Item
 				$item['allow_cid'] = '';
 				$item['allow_gid'] = '';
 			}
-		} elseif ($setPermissions && ($item['gravity'] == GRAVITY_PARENT)) {
+		} elseif ($setPermissions && ($item['gravity'] == ModelItem::GRAVITY_PARENT)) {
 			if (empty($receivers)) {
 				// For security reasons direct posts without any receiver will be posts to yourself
 				$self = Contact::selectFirst(['id'], ['uid' => $item['uid'], 'self' => true]);

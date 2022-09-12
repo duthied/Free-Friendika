@@ -33,7 +33,9 @@ use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\Item;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 use Friendica\Module;
 use Friendica\Util\Strings;
 
@@ -203,7 +205,7 @@ function frio_remote_nav(App $a, array &$nav_info)
 {
 	if (DI::mode()->has(App\Mode::MAINTENANCEDISABLED)) {
 		// get the homelink from $_SESSION
-		$homelink = Model\Profile::getMyURL();
+		$homelink = Profile::getMyURL();
 		if (!$homelink) {
 			$homelink = Session::get('visitor_home', '');
 		}
@@ -216,7 +218,7 @@ function frio_remote_nav(App $a, array &$nav_info)
 		} elseif (!local_user() && remote_user()) {
 			$remoteUser                = Contact::getById(remote_user(), $fields);
 			$nav_info['nav']['remote'] = DI::l10n()->t('Guest');
-		} elseif (Model\Profile::getMyURL()) {
+		} elseif (Profile::getMyURL()) {
 			$remoteUser                = Contact::getByURL($homelink, null, $fields);
 			$nav_info['nav']['remote'] = DI::l10n()->t('Visitor');
 		} else {
@@ -257,7 +259,7 @@ function frio_display_item(App $a, &$arr)
 	if (
 		local_user()
 		&& in_array($arr['item']['uid'], [0, local_user()])
-		&& $arr['item']['gravity'] == GRAVITY_PARENT
+		&& $arr['item']['gravity'] == Item::GRAVITY_PARENT
 		&& !$arr['item']['self']
 		&& !$arr['item']['mention']
 	) {

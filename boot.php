@@ -60,18 +60,6 @@ define('CP_USERS_AND_GLOBAL',       2);
  */
 
 /**
- * @name Gravity
- *
- * Item weight for query ordering
- * @{
- */
-define('GRAVITY_PARENT',       0);
-define('GRAVITY_ACTIVITY',     3);
-define('GRAVITY_COMMENT',      6);
-define('GRAVITY_UNKNOWN',      9);
-/* @}*/
-
-/**
  * @name Priority
  *
  * Process priority for the worker

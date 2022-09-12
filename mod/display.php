@@ -106,7 +106,7 @@ function display_init(App $a)
 		displayShowFeed($item['uri-id'], $item['uid'], false);
 	}
 
-	if ($item['gravity'] != GRAVITY_PARENT) {
+	if ($item['gravity'] != Item::GRAVITY_PARENT) {
 		$parent = Post::selectFirstForUser($item_user, $fields, ['uid' => [0, $item_user], 'uri-id' => $item['parent-uri-id']], ['order' => ['uid' => true]]);
 		$item = $parent ?: $item;
 	}

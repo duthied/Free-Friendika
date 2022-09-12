@@ -36,7 +36,7 @@ use Friendica\Core\Session;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\Item as ItemModel;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
@@ -135,7 +135,7 @@ class Conversation
 					return;
 			}
 
-			if (!empty($activity['verb']) && $this->activity->match($activity['verb'], $verb) && ($activity['gravity'] != GRAVITY_PARENT)) {
+			if (!empty($activity['verb']) && $this->activity->match($activity['verb'], $verb) && ($activity['gravity'] != Item::GRAVITY_PARENT)) {
 				$author = [
 					'uid'     => 0,
 					'id'      => $activity['author-id'],
@@ -369,7 +369,7 @@ class Conversation
 			'$permset'      => $this->l10n->t('Permission settings'),
 			'$shortpermset' => $this->l10n->t('Permissions'),
 			'$wall'         => $notes_cid ? 0 : 1,
-			'$posttype'     => $notes_cid ? ItemModel::PT_PERSONAL_NOTE : ItemModel::PT_ARTICLE,
+			'$posttype'     => $notes_cid ? Item::PT_PERSONAL_NOTE : Item::PT_ARTICLE,
 			'$content'      => $x['content'] ?? '',
 			'$post_id'      => $x['post_id'] ?? '',
 			'$baseurl'      => $this->baseURL->get(true),
@@ -641,7 +641,7 @@ class Conversation
 						unset($likebuttons['dislike']);
 					}
 
-					$body_html = ItemModel::prepareBody($item, true, $preview);
+					$body_html = Item::prepareBody($item, true, $preview);
 
 					[$categories, $folders] = $this->item->determineCategoriesTerms($item, local_user());
 
@@ -698,7 +698,7 @@ class Conversation
 						'owner_name'           => '',
 						'owner_url'            => '',
 						'owner_photo'          => $this->baseURL->remove($this->item->getOwnerAvatar($item)),
-						'plink'                => ItemModel::getPlink($item),
+						'plink'                => Item::getPlink($item),
 						'edpost'               => false,
 						'pinned'               => $pinned,
 						'isstarred'            => 'unstarred',
@@ -755,7 +755,7 @@ class Conversation
 
 					$item['pagedrop'] = $page_dropping;
 
-					if ($item['gravity'] == GRAVITY_PARENT) {
+					if ($item['gravity'] == Item::GRAVITY_PARENT) {
 						$item_object = new PostObject($item);
 						$conv->addParent($item_object);
 					}
@@ -825,8 +825,8 @@ class Conversation
 		}
 
 		if (!empty($activity)) {
-			if (($row['gravity'] == GRAVITY_PARENT)) {
-				$row['post-reason'] = ItemModel::PR_ANNOUNCEMENT;
+			if (($row['gravity'] == Item::GRAVITY_PARENT)) {
+				$row['post-reason'] = Item::PR_ANNOUNCEMENT;
 
 				$row     = array_merge($row, $activity);
 				$contact = Contact::getById($activity['causer-id'], ['url', 'name', 'thumb']);
@@ -834,32 +834,32 @@ class Conversation
 				$row['causer-link']   = $contact['url'];
 				$row['causer-avatar'] = $contact['thumb'];
 				$row['causer-name']   = $contact['name'];
-			} elseif (($row['gravity'] == GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
+			} elseif (($row['gravity'] == Item::GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
 				($row['author-id'] == $activity['causer-id'])) {
 				return $row;
 			}
 		}
 
 		switch ($row['post-reason']) {
-			case ItemModel::PR_TO:
+			case Item::PR_TO:
 				$row['direction'] = ['direction' => 7, 'title' => $this->l10n->t('You had been addressed (%s).', 'to')];
 				break;
-			case ItemModel::PR_CC:
+			case Item::PR_CC:
 				$row['direction'] = ['direction' => 7, 'title' => $this->l10n->t('You had been addressed (%s).', 'cc')];
 				break;
-			case ItemModel::PR_BTO:
+			case Item::PR_BTO:
 				$row['direction'] = ['direction' => 7, 'title' => $this->l10n->t('You had been addressed (%s).', 'bto')];
 				break;
-			case ItemModel::PR_BCC:
+			case Item::PR_BCC:
 				$row['direction'] = ['direction' => 7, 'title' => $this->l10n->t('You had been addressed (%s).', 'bcc')];
 				break;
-			case ItemModel::PR_FOLLOWER:
+			case Item::PR_FOLLOWER:
 				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('You are following %s.', $row['causer-name'] ?: $row['author-name'])];
 				break;
-			case ItemModel::PR_TAG:
+			case Item::PR_TAG:
 				$row['direction'] = ['direction' => 4, 'title' => $this->l10n->t('You subscribed to one or more tags in this post.')];
 				break;
-			case ItemModel::PR_ANNOUNCEMENT:
+			case Item::PR_ANNOUNCEMENT:
 				if (!empty($row['causer-id']) && $this->pConfig->get(local_user(), 'system', 'display_resharer')) {
 					$row['owner-id']     = $row['causer-id'];
 					$row['owner-link']   = $row['causer-link'];
@@ -867,41 +867,41 @@ class Conversation
 					$row['owner-name']   = $row['causer-name'];
 				}
 
-				if (in_array($row['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) && !empty($row['causer-id'])) {
+				if (in_array($row['gravity'], [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]) && !empty($row['causer-id'])) {
 					$causer = ['uid' => 0, 'id' => $row['causer-id'], 'network' => $row['causer-network'], 'url' => $row['causer-link']];
 
 					$row['reshared'] = $this->l10n->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($row['causer-name']) . '</a>');
 				}
 				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Reshared') : $this->l10n->t('Reshared by %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
-			case ItemModel::PR_COMMENT:
+			case Item::PR_COMMENT:
 				$row['direction'] = ['direction' => 5, 'title' => $this->l10n->t('%s is participating in this thread.', $row['author-name'])];
 				break;
-			case ItemModel::PR_STORED:
+			case Item::PR_STORED:
 				$row['direction'] = ['direction' => 8, 'title' => $this->l10n->t('Stored for general reasons')];
 				break;
-			case ItemModel::PR_GLOBAL:
+			case Item::PR_GLOBAL:
 				$row['direction'] = ['direction' => 9, 'title' => $this->l10n->t('Global post')];
 				break;
-			case ItemModel::PR_RELAY:
+			case Item::PR_RELAY:
 				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Sent via an relay server') : $this->l10n->t('Sent via the relay server %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
-			case ItemModel::PR_FETCHED:
+			case Item::PR_FETCHED:
 				$row['direction'] = ['direction' => 2, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Fetched') : $this->l10n->t('Fetched because of %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
-			case ItemModel::PR_COMPLETION:
+			case Item::PR_COMPLETION:
 				$row['direction'] = ['direction' => 2, 'title' => $this->l10n->t('Stored because of a child post to complete this thread.')];
 				break;
-			case ItemModel::PR_DIRECT:
+			case Item::PR_DIRECT:
 				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('Local delivery')];
 				break;
-			case ItemModel::PR_ACTIVITY:
+			case Item::PR_ACTIVITY:
 				$row['direction'] = ['direction' => 2, 'title' => $this->l10n->t('Stored because of your activity (like, comment, star, ...)')];
 				break;
-			case ItemModel::PR_DISTRIBUTE:
+			case Item::PR_DISTRIBUTE:
 				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('Distributed')];
 				break;
-			case ItemModel::PR_PUSHED:
+			case Item::PR_PUSHED:
 				$row['direction'] = ['direction' => 1, 'title' => $this->l10n->t('Pushed to us')];
 				break;
 		}
@@ -941,7 +941,7 @@ class Conversation
 		$activitycounter = [];
 
 		foreach ($parents as $parent) {
-			if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == GRAVITY_ACTIVITY)) {
+			if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == Item::GRAVITY_ACTIVITY)) {
 				$uriid = $parent['thr-parent-id'];
 				if (!empty($parent['author-id'])) {
 					$activities[$uriid] = ['causer-id' => $parent['author-id']];
@@ -979,7 +979,7 @@ class Conversation
 
 		$params = ['order' => ['uri-id' => true, 'uid' => true]];
 
-		$thread_items = Post::selectForUser($uid, array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
+		$thread_items = Post::selectForUser($uid, array_merge(Item::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
 		$items = [];
 
@@ -993,10 +993,10 @@ class Conversation
 			}
 
 			if ($max_comments > 0) {
-				if (($row['gravity'] == GRAVITY_COMMENT) && (++$commentcounter[$row['parent-uri-id']] > $max_comments)) {
+				if (($row['gravity'] == Item::GRAVITY_COMMENT) && (++$commentcounter[$row['parent-uri-id']] > $max_comments)) {
 					continue;
 				}
-				if (($row['gravity'] == GRAVITY_ACTIVITY) && (++$activitycounter[$row['parent-uri-id']] > $max_comments)) {
+				if (($row['gravity'] == Item::GRAVITY_ACTIVITY) && (++$activitycounter[$row['parent-uri-id']] > $max_comments)) {
 					continue;
 				}
 			}
@@ -1025,7 +1025,7 @@ class Conversation
 		$this->profiler->startRecording('rendering');
 		$children = [];
 		foreach ($item_list as $i => $item) {
-			if ($item['gravity'] != GRAVITY_PARENT) {
+			if ($item['gravity'] != Item::GRAVITY_PARENT) {
 				if ($recursive) {
 					// Fallback to parent-uri if thr-parent is not set
 					$thr_parent = $item['thr-parent-id'];
@@ -1182,7 +1182,7 @@ class Conversation
 
 		// Extract the top level items
 		foreach ($item_array as $item) {
-			if ($item['gravity'] == GRAVITY_PARENT) {
+			if ($item['gravity'] == Item::GRAVITY_PARENT) {
 				$parents[] = $item;
 			}
 		}

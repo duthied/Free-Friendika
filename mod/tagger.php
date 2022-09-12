@@ -123,7 +123,7 @@ EOT;
 	$arr['uid'] = $owner_uid;
 	$arr['contact-id'] = $contact['id'];
 	$arr['wall'] = $item['wall'];
-	$arr['gravity'] = GRAVITY_COMMENT;
+	$arr['gravity'] = Item::GRAVITY_COMMENT;
 	$arr['parent'] = $item['id'];
 	$arr['thr-parent'] = $item['uri'];
 	$arr['owner-name'] = $item['author-name'];

@@ -54,7 +54,7 @@ class HomeTimeline extends BaseApi
 		$start = max(0, ($page - 1) * $count);
 
 		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `uri-id` > ?",
-			$uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+			$uid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, $since_id];
 
 		if ($max_id > 0) {
 			$condition[0] .= " AND `uri-id` <= ?";
@@ -62,7 +62,7 @@ class HomeTimeline extends BaseApi
 		}
 		if ($exclude_replies) {
 			$condition[0] .= ' AND `gravity` = ?';
-			$condition[] = GRAVITY_PARENT;
+			$condition[] = Item::GRAVITY_PARENT;
 		}
 		if ($conversation_id > 0) {
 			$condition[0] .= " AND `parent-uri-id` = ?";

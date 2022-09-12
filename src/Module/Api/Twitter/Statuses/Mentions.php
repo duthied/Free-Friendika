@@ -24,6 +24,7 @@ namespace Friendica\Module\Api\Twitter\Statuses;
 use Friendica\Database\DBA;
 use Friendica\Module\BaseApi;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 
@@ -55,7 +56,7 @@ class Mentions extends BaseApi
 			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) AND `uri-id` > ?";
 
 		$condition = [
-			GRAVITY_PARENT, GRAVITY_COMMENT,
+			Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT,
 			$uid,
 			Post\UserNotification::TYPE_EXPLICIT_TAGGED | Post\UserNotification::TYPE_IMPLICIT_TAGGED |
 			Post\UserNotification::TYPE_THREAD_COMMENT | Post\UserNotification::TYPE_DIRECT_COMMENT |

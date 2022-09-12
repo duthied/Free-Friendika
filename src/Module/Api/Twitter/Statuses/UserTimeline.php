@@ -23,10 +23,11 @@ namespace Friendica\Module\Api\Twitter\Statuses;
 
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
-use Friendica\Module\BaseApi;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Module\BaseApi;
 
 /**
  * Returns the most recent statuses posted by the user.
@@ -54,11 +55,11 @@ class UserTimeline extends BaseApi
 		$start = max(0, ($page - 1) * $count);
 
 		$condition = ["(`uid` = ? OR (`uid` = ? AND NOT `global`)) AND `gravity` IN (?, ?) AND `uri-id` > ? AND `author-id` = ?",
-			0, $uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $cid];
+			0, $uid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, $since_id, $cid];
 
 		if ($exclude_replies) {
 			$condition[0] .= ' AND `gravity` = ?';
-			$condition[] = GRAVITY_PARENT;
+			$condition[] = Item::GRAVITY_PARENT;
 		}
 
 		if ($conversation_id > 0) {

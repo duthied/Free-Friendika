@@ -122,7 +122,7 @@ function item_post(App $a) {
 			$thr_parent_uri = $parent_item['uri'];
 			$toplevel_item = $parent_item;
 
-			if ($parent_item['gravity'] != GRAVITY_PARENT) {
+			if ($parent_item['gravity'] != Item::GRAVITY_PARENT) {
 				$toplevel_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $toplevel_item['parent']]);
 			}
 		}
@@ -385,7 +385,7 @@ function item_post(App $a) {
 		// Look for any tags and linkify them
 		$item = [
 			'uid'       => local_user() ? local_user() : $profile_uid,
-			'gravity'   => $toplevel_item_id ? GRAVITY_COMMENT : GRAVITY_PARENT,
+			'gravity'   => $toplevel_item_id ? Item::GRAVITY_COMMENT : Item::GRAVITY_PARENT,
 			'network'   => $network,
 			'body'      => $body,
 			'postopts'  => $postopts,
@@ -513,7 +513,7 @@ function item_post(App $a) {
 		$network = Protocol::DFRN;
 	}
 
-	$gravity = ($toplevel_item_id ? GRAVITY_COMMENT : GRAVITY_PARENT);
+	$gravity = ($toplevel_item_id ? Item::GRAVITY_COMMENT : Item::GRAVITY_PARENT);
 
 	// even if the post arrived via API we are considering that it
 	// originated on this site by default for determining relayability.
@@ -705,7 +705,7 @@ function item_post(App $a) {
 
 	Tag::storeFromBody($datarray['uri-id'], $datarray['body']);
 
-	if (!\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions') && ($datarray['gravity'] == GRAVITY_COMMENT)) {
+	if (!\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions') && ($datarray['gravity'] == Item::GRAVITY_COMMENT)) {
 		Tag::createImplicitMentions($datarray['uri-id'], $datarray['thr-parent-id']);
 	}
 
@@ -833,15 +833,15 @@ function item_content(App $a)
  * @return string
  * @throws HTTPException\InternalServerErrorException
  */
-function drop_item(int $id, string $return = '')
+function drop_item(int $id, string $return = ''): string
 {
-	// locate item to be deleted
-	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', 'parent'];
-	$item = Post::selectFirstForUser(local_user(), $fields, ['id' => $id]);
+	// Locate item to be deleted
+	$item = Post::selectFirstForUser(local_user(), ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', 'parent'], ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
 		notice(DI::l10n()->t('Item not found.'));
 		DI::baseUrl()->redirect('network');
+		//NOTREACHED
 	}
 
 	if ($item['deleted']) {
@@ -860,6 +860,7 @@ function drop_item(int $id, string $return = '')
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
 		item_redirect_after_action($item, $return);
+		//NOTREACHED
 	} else {
 		Logger::warning('Permission denied.', ['local' => local_user(), 'uid' => $item['uid'], 'cid' => $contact_id]);
 		notice(DI::l10n()->t('Permission denied.'));
@@ -870,15 +871,15 @@ function drop_item(int $id, string $return = '')
 	return '';
 }
 
-function item_redirect_after_action($item, $returnUrlHex)
+function item_redirect_after_action(array $item, string $returnUrlHex)
 {
 	$return_url = hex2bin($returnUrlHex);
 
 	// removes update_* from return_url to ignore Ajax refresh
-	$return_url = str_replace("update_", "", $return_url);
+	$return_url = str_replace('update_', '', $return_url);
 
 	// Check if delete a comment
-	if ($item['gravity'] == GRAVITY_COMMENT) {
+	if ($item['gravity'] == Item::GRAVITY_COMMENT) {
 		if (!empty($item['parent'])) {
 			$parentitem = Post::selectFirstForUser(local_user(), ['guid'], ['id' => $item['parent']]);
 		}

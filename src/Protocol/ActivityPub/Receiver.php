@@ -264,7 +264,7 @@ class Receiver
 			}
 		}
 
-		if (Post::exists(['uri' => $object_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]])) {
+		if (Post::exists(['uri' => $object_id, 'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]])) {
 			// We just assume "note" since it doesn't make a difference for the further processing
 			return 'as:Note';
 		}
