@@ -2839,7 +2839,7 @@ class Diaspora
 	public static function buildMagicEnvelope(string $msg, array $user): string
 	{
 		$b64url_data = Strings::base64UrlEncode($msg);
-		$data = str_replace(["\n", "\r", " ", "\t"], ['', '', '', ''], $b64url_data);
+		$data = str_replace(["\n", "\r", ' ', "\t"], ['', '', '', ''], $b64url_data);
 
 		$key_id = Strings::base64UrlEncode(self::myHandle($user));
 		$type = 'application/xml';
@@ -2857,11 +2857,11 @@ class Diaspora
 
 		$xmldata = [
 			'me:env' => [
-				'me:data' => $data,
-				'@attributes' => ['type' => $type],
-				'me:encoding' => $encoding,
-				'me:alg' => $alg,
-				'me:sig' => $sig,
+				'me:data'      => $data,
+				'@attributes'  => ['type' => $type],
+				'me:encoding'  => $encoding,
+				'me:alg'       => $alg,
+				'me:sig'       => $sig,
 				'@attributes2' => ['key_id' => $key_id]
 			]
 		];
