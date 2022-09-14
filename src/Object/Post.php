@@ -585,17 +585,17 @@ class Post
 			}
 		}
 
+		// Copy values/set defaults
 		$result['total_comments_num'] = $this->isToplevel() ? $total_children : 0;
-
 		$result['private'] = $item['private'];
 		$result['toplevel'] = ($this->isToplevel() ? 'toplevel_item' : '');
+		$result['flatten'] = false;
+		$result['threaded'] = false;
 
 		if ($this->isThreaded()) {
-			$result['flatten'] = false;
 			$result['threaded'] = true;
 		} else {
 			$result['flatten'] = true;
-			$result['threaded'] = false;
 		}
 
 		return $result;
@@ -618,33 +618,32 @@ class Post
 	}
 
 	/**
-	 * Add a child item
+	 * Add a child post
 	 *
-	 * @param Post $item The child item to add
+	 * @param Post $item The child post to add
 	 *
-	 * @return mixed
+	 * @return Post|bool Last Post object or bool on any error
 	 * @throws \Exception
 	 */
 	public function addChild(Post $item)
 	{
-		$item_id = $item->getId();
-		if (!$item_id) {
-			Logger::info('[ERROR] Post::addChild : Item has no ID!!');
+		if (!$item->getId()) {
+			Logger::fatal('Post object has no id', ['post' => $item]);
 			return false;
 		} elseif ($this->getChild($item->getId())) {
-			Logger::info('[WARN] Post::addChild : Item already exists (' . $item->getId() . ').');
+			Logger::warning('Post object already exists', ['post' => $item]);
 			return false;
 		}
-
-		$activity = DI::activity();
 
 		/*
 		 * Only add what will be displayed
 		 */
 		if ($item->getDataValue('network') === Protocol::MAIL && DI::userSession()->getLocalUserId() != $item->getDataValue('uid')) {
+			Logger::warning('Post object does not belong to local user', ['post' => $item, 'local_user' => $local_user]);
 			return false;
-		} elseif ($activity->match($item->getDataValue('verb'), Activity::LIKE) ||
-		          $activity->match($item->getDataValue('verb'), Activity::DISLIKE)) {
+		} elseif (DI::activity()->match($item->getDataValue('verb'), Activity::LIKE) ||
+		          DI::activity()->match($item->getDataValue('verb'), Activity::DISLIKE)) {
+			Logger::warning('Post objects is a like/dislike', ['post' => $item]);
 			return false;
 		}
 
@@ -658,7 +657,7 @@ class Post
 	 * Get a child by its ID
 	 *
 	 * @param integer $id The child id
-	 * @return mixed
+	 * @return Thread|null Thread or NULL if not found
 	 */
 	public function getChild(int $id)
 	{
@@ -747,6 +746,7 @@ class Post
 	 * Set conversation thread
 	 *
 	 * @param Thread|null $thread
+	 *
 	 * @return void
 	 */
 	public function setThread(Thread $thread = null)
@@ -785,6 +785,7 @@ class Post
 	 * Get a data value
 	 *
 	 * @param string $name key
+	 *
 	 * @return mixed value on success, false on failure
 	 */
 	public function getDataValue(string $name)
@@ -798,13 +799,14 @@ class Post
 	}
 
 	/**
-	 * Set template
+	 * Set template by name
 	 *
 	 * @param string $name Template name
-	 * @return bool If template was set
+	 *
+	 * @return void
 	 * @throws InvalidArgumentException
 	 */
-	private function setTemplate(string $name): bool
+	private function setTemplate(string $name)
 	{
 		if (empty($this->available_templates[$name])) {
 			// Throw exception
@@ -812,8 +814,6 @@ class Post
 		}
 
 		$this->template = $this->available_templates[$name];
-
-		return true;
 	}
 
 	/**
@@ -939,6 +939,7 @@ class Post
 	 * Get the comment box
 	 *
 	 * @param string $indent Indent value
+	 *
 	 * @return mixed The comment box string (empty if no comment box), false on failure
 	 * @throws \Exception
 	 * @todo return false is nowhere in this method?
