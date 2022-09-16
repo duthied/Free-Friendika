@@ -169,14 +169,39 @@ class Contact
 			return 0;
 		}
 
-		Contact\User::insertForContactArray($contact);
-
-		// Search for duplicated contacts and get rid of them
-		if (!$contact['self']) {
-			self::removeDuplicates($contact['nurl'], $contact['uid']);
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('account-user', $contact);
+		DBA::insert('account-user', $fields, Database::INSERT_IGNORE);
+		$account_user = DBA::selectFirst('account-user', ['id'], ['uid' => $contact['uid'], 'uri-id' => $contact['uri-id']]);
+		if (empty($account_user['id'])) {
+			Logger::warning('Account-user entry not found', ['cid' => $contact['id'], 'uid' => $contact['uid'], 'uri-id' => $contact['uri-id'], 'url' => $contact['url']]);
+		} elseif ($account_user['id'] != $contact['id']) {
+			$duplicate = DBA::selectFirst('contact', [], ['id' => $account_user['id'], 'deleted' => false]);
+			if (!empty($duplicate['id'])) {
+				$ret = Contact::deleteById($contact['id']);
+				Logger::notice('Deleted duplicated contact', ['ret' => $ret, 'account-user' => $account_user, 'cid' => $duplicate['id'], 'uid' => $duplicate['uid'], 'uri-id' => $duplicate['uri-id'], 'url' => $duplicate['url']]);
+				$contact = $duplicate;
+			} else {
+				$ret = DBA::update('account-user', ['id' => $contact['id']], ['uid' => $contact['uid'], 'uri-id' => $contact['uri-id']]);
+				Logger::notice('Updated account-user', ['ret' => $ret, 'account-user' => $account_user, 'cid' => $contact['id'], 'uid' => $contact['uid'], 'uri-id' => $contact['uri-id'], 'url' => $contact['url']]);
+			}
 		}
 
+		Contact\User::insertForContactArray($contact);
+
 		return $contact['id'];
+	}
+
+	/**
+	 * Delete contact by id
+	 *
+	 * @param integer $id
+	 * @return boolean
+	 */
+	public static function deleteById(int $id): bool
+	{
+		Logger::debug('Delete contact', ['id' => $id]);
+		DBA::delete('account-user', ['id' => $id]);
+		return DBA::delete('contact', ['id' => $id]);
 	}
 
 	/**
@@ -825,6 +850,8 @@ class Contact
 			return;
 		}
 
+		DBA::delete('account-user', ['id' => $id]);
+
 		self::clearFollowerFollowingEndpointCache($contact['uid']);
 
 		// Archive the contact
@@ -1253,6 +1280,11 @@ class Contact
 			return 0;
 		}
 
+		if (!$contact_id && !empty($data['account-type']) && $data['account-type'] == User::ACCOUNT_TYPE_DELETED) {
+			Logger::info('Contact is a tombstone. It will not be inserted', ['url' => $url, 'uid' => $uid]);
+			return 0;
+		}
+
 		if (!$contact_id) {
 			$urls = [Strings::normaliseLink($url), Strings::normaliseLink($data['url'])];
 			if (!empty($data['alias'])) {
@@ -1282,20 +1314,15 @@ class Contact
 			$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid, 'deleted' => false];
 
 			// Before inserting we do check if the entry does exist now.
-			if (DI::lock()->acquire(self::LOCK_INSERT, 0)) {
-				$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
-				if (DBA::isResult($contact)) {
-					$contact_id = $contact['id'];
-					Logger::notice('Contact had been created (shortly) before', ['id' => $contact_id, 'url' => $url, 'uid' => $uid]);
-				} else {
-					$contact_id = self::insert($fields);
-					if ($contact_id) {
-						Logger::info('Contact inserted', ['id' => $contact_id, 'url' => $url, 'uid' => $uid]);
-					}
-				}
-				DI::lock()->release(self::LOCK_INSERT);
+			$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+			if (DBA::isResult($contact)) {
+				$contact_id = $contact['id'];
+				Logger::notice('Contact had been created (shortly) before', ['id' => $contact_id, 'url' => $url, 'uid' => $uid]);
 			} else {
-				Logger::warning('Contact lock had not been acquired');
+				$contact_id = self::insert($fields);
+				if ($contact_id) {
+					Logger::info('Contact inserted', ['id' => $contact_id, 'url' => $url, 'uid' => $uid]);
+				}
 			}
 
 			if (!$contact_id) {
@@ -2219,25 +2246,22 @@ class Contact
 	/**
 	 * Helper function for "updateFromProbe". Updates personal and public contact
 	 *
-	 * @param integer $id      contact id
-	 * @param integer $uid     user id
-	 * @param string  $old_url The previous profile URL of the contact
-	 * @param string  $new_url The profile URL of the contact
-	 * @param array   $fields  The fields that are updated
+	 * @param integer $id     contact id
+	 * @param integer $uid    user id
+	 * @param integer $uri_id Uri-Id
+	 * @param string  $url    The profile URL of the contact
+	 * @param array   $fields The fields that are updated
 	 *
 	 * @throws \Exception
 	 */
-	private static function updateContact(int $id, int $uid, string $old_url, string $new_url, array $fields)
+	private static function updateContact(int $id, int $uid, int $uri_id, string $url, array $fields)
 	{
 		if (!self::update($fields, ['id' => $id])) {
 			Logger::info('Couldn\'t update contact.', ['id' => $id, 'fields' => $fields]);
 			return;
 		}
 
-		// Search for duplicated contacts and get rid of them
-		if (self::removeDuplicates(Strings::normaliseLink($new_url), $uid)) {
-			return;
-		}
+		self::setAccountUser($id, $uid, $uri_id, $url);
 
 		// Archive or unarchive the contact.
 		$contact = DBA::selectFirst('contact', [], ['id' => $id]);
@@ -2259,7 +2283,7 @@ class Contact
 		}
 
 		// Update contact data for all users
-		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($old_url)];
+		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($url)];
 
 		$condition['network'] = [Protocol::DFRN, Protocol::DIASPORA, Protocol::ACTIVITYPUB];
 		self::update($fields, $condition);
@@ -2279,6 +2303,51 @@ class Contact
 		}
 
 		self::update($fields, $condition);
+	}
+
+	/**
+	 * Create or update an "account-user" entry
+	 *
+	 * @param integer $id
+	 * @param integer $uid
+	 * @param integer $uri_id
+	 * @param string $url
+	 * @return void
+	 */
+	public static function setAccountUser(int $id, int $uid, int $uri_id, string $url)
+	{
+		if (empty($uri_id)) {
+			return;
+		}
+
+		$account_user = DBA::selectFirst('account-user', ['id', 'uid', 'uri-id'], ['id' => $id]);
+		if (!empty($account_user['uri-id']) && ($account_user['uri-id'] != $uri_id)) {
+			if ($account_user['uid'] == $uid) {
+				$ret = DBA::update('account-user', ['uri-id' => $uri_id], ['id' => $id]);
+				Logger::notice('Updated account-user uri-id', ['ret' => $ret, 'account-user' => $account_user, 'cid' => $id, 'uid' => $uid, 'uri-id' => $uri_id, 'url' => $url]);
+			} else {
+				// This should never happen
+				Logger::warning('account-user exists for a different uri-id and uid', ['account_user' => $account_user, 'id' => $id, 'uid' => $uid, 'uri-id' => $uri_id, 'url' => $url]);
+			}
+		}
+
+		$account_user = DBA::selectFirst('account-user', ['id', 'uid', 'uri-id'], ['uid' => $uid, 'uri-id' => $uri_id]);
+		if (!empty($account_user['id'])) {
+			if ($account_user['id'] == $id) {
+				Logger::debug('account-user already exists', ['id' => $id, 'uid' => $uid, 'uri-id' => $uri_id, 'url' => $url]);
+				return;
+			} elseif (!DBA::exists('contact', ['id' => $account_user['id'], 'deleted' => false])) {
+				$ret = DBA::update('account-user', ['id' => $id], ['uid' => $uid, 'uri-id' => $uri_id]);
+				Logger::notice('Updated account-user', ['ret' => $ret, 'account-user' => $account_user, 'cid' => $id, 'uid' => $uid, 'uri-id' => $uri_id, 'url' => $url]);
+				return;
+			}
+			Logger::warning('account-user exists for a different contact id', ['account_user' => $account_user, 'id' => $id, 'uid' => $uid, 'uri-id' => $uri_id, 'url' => $url]);
+			Worker::add(PRIORITY_HIGH, 'MergeContact', $account_user['id'], $id, $uid);
+		} elseif (DBA::insert('account-user', ['id' => $id, 'uri-id' => $uri_id, 'uid' => $uid], Database::INSERT_IGNORE)) {
+			Logger::notice('account-user was added', ['id' => $id, 'uid' => $uid, 'uri-id' => $uri_id, 'url' => $url]);
+		} else {
+			Logger::warning('account-user was not added', ['id' => $id, 'uid' => $uid, 'uri-id' => $uri_id, 'url' => $url]);
+		}
 	}
 
 	/**
@@ -2305,11 +2374,6 @@ class Contact
 
 		$first = $first_contact['id'];
 		Logger::info('Found duplicates', ['count' => $count, 'first' => $first, 'uid' => $uid, 'nurl' => $nurl]);
-		if (($uid != 0 && ($first_contact['network'] == Protocol::DFRN))) {
-			// Don't handle non public DFRN duplicates by now (legacy DFRN is very special because of the key handling)
-			Logger::info('Not handling non public DFRN duplicate', ['uid' => $uid, 'nurl' => $nurl]);
-			return false;
-		}
 
 		// Find all duplicates
 		$condition = ["`nurl` = ? AND `uid` = ? AND `id` != ? AND NOT `self` AND NOT `deleted`", $nurl, $uid, $first];
@@ -2474,7 +2538,7 @@ class Contact
 
 		if (Strings::normaliseLink($contact['url']) != Strings::normaliseLink($ret['url'])) {
 			Logger::notice('New URL differs from old URL', ['id' => $id, 'uid' => $uid, 'old' => $contact['url'], 'new' => $ret['url']]);
-			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => true, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $failed_next_update, 'failure_update' => $updated]);
+			self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => true, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $failed_next_update, 'failure_update' => $updated]);
 			return false;
 		}
 
@@ -2482,14 +2546,14 @@ class Contact
 		// We check after the probing to be able to correct falsely detected contact types.
 		if (($contact['contact-type'] == self::TYPE_RELAY) &&
 			(!Strings::compareLink($ret['url'], $contact['url']) || in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]))) {
-			self::updateContact($id, $uid, $contact['url'], $contact['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated]);
+			self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated]);
 			Logger::info('Not updating relais', ['id' => $id, 'url' => $contact['url']]);
 			return true;
 		}
 
 		// If Probe::uri fails the network code will be different ("feed" or "unkn")
 		if (($ret['network'] == Protocol::PHANTOM) || (($ret['network'] == Protocol::FEED) && ($ret['network'] != $contact['network']))) {
-			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => true, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $failed_next_update, 'failure_update' => $updated]);
+			self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => true, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $failed_next_update, 'failure_update' => $updated]);
 			return false;
 		}
 
@@ -2558,10 +2622,8 @@ class Contact
 			self::updateAvatar($id, $ret['photo'], $update);
 		}
 
-		$uriid = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);
-
 		if (!$update) {
-			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated]);
+			self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated]);
 
 			if (Contact\Relation::isDiscoverable($ret['url'])) {
 				Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
@@ -2578,7 +2640,7 @@ class Contact
 			return true;
 		}
 
-		$ret['uri-id']      = $uriid;
+		$ret['uri-id']      = ItemURI::insert(['uri' => $ret['url'], 'guid' => $guid]);
 		$ret['nurl']        = Strings::normaliseLink($ret['url']);
 		$ret['updated']     = $updated;
 		$ret['failed']      = false;
@@ -2605,7 +2667,7 @@ class Contact
 
 		unset($ret['photo']);
 
-		self::updateContact($id, $uid, $contact['url'], $ret['url'], $ret);
+		self::updateContact($id, $uid, $ret['uri-id'], $ret['url'], $ret);
 
 		if (Contact\Relation::isDiscoverable($ret['url'])) {
 			Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);

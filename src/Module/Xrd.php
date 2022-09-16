@@ -83,7 +83,7 @@ class Xrd extends BaseModule
 		} else {
 			$owner = User::getOwnerDataByNick($name);
 			if (empty($owner)) {
-				DI::logger()->warning('No owner data for user id', ['uri' => $uri, 'name' => $name]);
+				DI::logger()->notice('No owner data for user id', ['uri' => $uri, 'name' => $name]);
 				throw new NotFoundException('Owner was not found for user->uid=' . $name);
 			}
 

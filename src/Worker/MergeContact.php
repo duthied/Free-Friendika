@@ -24,6 +24,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\Model\Contact;
 
 class MergeContact
 {
@@ -68,10 +69,57 @@ class MergeContact
 				DBA::update('thread', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
 			}
 		} else {
-			/// @todo Check if some other data needs to be adjusted as well, possibly the "rel" status?
+			self::mergePersonalContacts($new_cid, $old_cid);
 		}
 
 		// Remove the duplicate
-		DBA::delete('contact', ['id' => $old_cid]);
+		Contact::deleteById($old_cid);
+	}
+
+	/**
+	 * Merge important fields between two contacts
+	 *
+	 * @param integer $first
+	 * @param integer $duplicate
+	 * @return void
+	 */
+	private static function mergePersonalContacts(int $first, int $duplicate)
+	{
+		$fields = ['self', 'remote_self', 'rel', 'prvkey', 'subhub', 'hub-verify', 'priority', 'writable', 'archive', 'pending',
+			'rating', 'notify_new_posts', 'fetch_further_information', 'ffi_keyword_denylist', 'block_reason'];
+		$c1 = Contact::getById($first, $fields);
+		$c2 = Contact::getById($duplicate, $fields);
+
+		$ctarget = $c1;
+
+		if ($c1['self'] || $c2['self']) {
+			return;
+		}
+
+		$ctarget['rel'] = $c1['rel'] | $c2['rel'];
+		foreach (['prvkey', 'hub-verify', 'priority', 'rating', 'fetch_further_information', 'ffi_keyword_denylist', 'block_reason'] as $field) {
+			$ctarget[$field] = $c1[$field] ?: $c2[$field];
+		}
+
+		foreach (['remote_self', 'subhub', 'writable', 'notify_new_posts'] as $field) {
+			$ctarget[$field] = $c1[$field] || $c2[$field];
+		}
+
+		foreach (['archive', 'pending'] as $field) {
+			$ctarget[$field] = $c1[$field] && $c2[$field];
+		}
+
+		$data = [];
+
+		foreach ($fields as $field) {
+			if ($ctarget[$field] != $c1[$field]) {
+				$data[$field] = $ctarget[$field];
+			}
+		}
+
+		if (empty($data)) {
+			return;
+		}
+		Contact::update($data, ['id' => $first]);
 	}
 }

@@ -2472,16 +2472,16 @@ class Item
 			return;
 		}
 
-		$expire_items = DI::pConfig()->get($uid, 'expire', 'items', true);
+		$expire_items = (bool)DI::pConfig()->get($uid, 'expire', 'items', true);
 
 		// Forcing expiring of items - but not notes and marked items
 		if ($force) {
 			$expire_items = true;
 		}
 
-		$expire_notes = DI::pConfig()->get($uid, 'expire', 'notes', true);
-		$expire_starred = DI::pConfig()->get($uid, 'expire', 'starred', true);
-		$expire_photos = DI::pConfig()->get($uid, 'expire', 'photos', false);
+		$expire_notes = (bool)DI::pConfig()->get($uid, 'expire', 'notes', true);
+		$expire_starred = (bool)DI::pConfig()->get($uid, 'expire', 'starred', true);
+		$expire_photos = (bool)DI::pConfig()->get($uid, 'expire', 'photos', false);
 
 		$expired = 0;
 
@@ -2510,7 +2510,7 @@ class Item
 			++$expired;
 		}
 		DBA::close($items);
-		Logger::notice('User ' . $uid . ": expired $expired items; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
+		Logger::notice('Expired', ['user' => $uid, 'days' => $days, 'network' => $network, 'force' => $force, 'expired' => $expired, 'expire items' => $expire_items, 'expire notes' => $expire_notes, 'expire starred' => $expire_starred, 'expire photos' => $expire_photos, 'condition' => $condition]);
 	}
 
 	public static function firstPostDate(int $uid, bool $wall = false)

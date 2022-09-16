@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1482
+-- DB_UPDATE_VERSION 1484
 -- ------------------------------------------
 
 
@@ -308,6 +308,20 @@ CREATE TABLE IF NOT EXISTS `2fa_trusted_browser` (
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor authentication trusted browsers';
+
+--
+-- TABLE account-user
+--
+CREATE TABLE IF NOT EXISTS `account-user` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the account url',
+	`uid` mediumint unsigned NOT NULL COMMENT 'User ID',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uri-id_uid` (`uri-id`,`uid`),
+	 INDEX `uid_uri-id` (`uid`,`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Remote and local accounts';
 
 --
 -- TABLE addon

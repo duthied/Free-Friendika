@@ -50,7 +50,7 @@ class PostUpdate
 	// Needed for the helper function to read from the legacy term table
 	const OBJECT_TYPE_POST  = 1;
 
-	const VERSION = 1452;
+	const VERSION = 1484;
 
 	/**
 	 * Calls the post update functions
@@ -112,6 +112,9 @@ class PostUpdate
 			return false;
 		}
 		if (!self::update1483()) {
+			return false;
+		}
+		if (!self::update1484()) {
 			return false;
 		}
 		return true;
@@ -1119,5 +1122,52 @@ class PostUpdate
 		DI::config()->set('system', 'post_update_version', 1483);
 		Logger::info('Done');
 		return true;
+	}
+
+	/**
+	 * Handle duplicate contact entries
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1484()
+	{
+		// Was the script completed?
+		if (DI::config()->get('system', 'post_update_version') >= 1484) {
+			return true;
+		}
+
+		$id = DI::config()->get('system', 'post_update_version_1484_id', 0);
+
+		Logger::info('Start', ['id' => $id]);
+
+		$rows = 0;
+
+		$contacts = DBA::select('contact', ['id', 'uid', 'uri-id', 'url'], ["`id` > ?", $id], ['order' => ['id'], 'limit' => 1000]);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($contact = DBA::fetch($contacts)) {
+			$id = $contact['id'];
+			Contact::setAccountUser($contact['id'], $contact['uid'], $contact['uri-id'], $contact['url']);
+			++$rows;
+		}
+		DBA::close($contacts);
+
+		DI::config()->set('system', 'post_update_version_1484_id', $id);
+
+		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
+
+		if ($rows <= 100) {
+			DI::config()->set('system', 'post_update_version', 1484);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
 	}
 }
