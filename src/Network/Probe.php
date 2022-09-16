@@ -346,6 +346,7 @@ class Probe
 	 * @return array uri data
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
+	 * @todo Choice: implement $cache parameter or remove documentation
 	 */
 	public static function uri(string $uri, string $network = '', int $uid = -1): array
 	{
@@ -1181,7 +1182,6 @@ class Probe
 			$data = self::pollHcard($profile_link, $data, true);
 		}
 
-		$prof_data = [];
 
 		if (empty($data['addr']) || empty($data['nick'])) {
 			$probe_data = self::uri($profile_link);
@@ -1189,15 +1189,17 @@ class Probe
 			$data['nick'] = ($data['nick'] ?? '') ?: $probe_data['nick'];
 		}
 
-		$prof_data['addr']         = $data['addr'];
-		$prof_data['nick']         = $data['nick'];
-		$prof_data['dfrn-request'] = $data['request'] ?? null;
-		$prof_data['dfrn-confirm'] = $data['confirm'] ?? null;
-		$prof_data['dfrn-notify']  = $data['notify']  ?? null;
-		$prof_data['dfrn-poll']    = $data['poll']    ?? null;
-		$prof_data['photo']        = $data['photo']   ?? null;
-		$prof_data['fn']           = $data['name']    ?? null;
-		$prof_data['key']          = $data['pubkey']  ?? null;
+		$prof_data = [
+			'addr'         => $data['addr'],
+			'nick'         => $data['nick'],
+			'dfrn-request' => $data['request'] ?? null,
+			'dfrn-confirm' => $data['confirm'] ?? null,
+			'dfrn-notify'  => $data['notify']  ?? null,
+			'dfrn-poll'    => $data['poll']    ?? null,
+			'photo'        => $data['photo']   ?? null,
+			'fn'           => $data['name']    ?? null,
+			'key'          => $data['pubkey']  ?? null,
+		];
 
 		Logger::debug('Result', ['link' => $profile_link, 'data' => $prof_data]);
 
