@@ -58,6 +58,18 @@ class Probe
 	private static $istimeout;
 
 	/**
+	 * Checks if the provided network can be probed
+	 *
+	 * @param string $network
+	 * @return boolean
+	 */
+	public static function isProbable(string $network): bool
+	{
+		return (in_array($network, array_merge(Protocol::FEDERATED, [Protocol::ZOT, Protocol::PHANTOM])));
+
+	}
+
+	/**
 	 * Remove stuff from an URI that doesn't belong there
 	 *
 	 * @param string $rawUri

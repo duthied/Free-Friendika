@@ -252,7 +252,7 @@ class Contact
 		// Add internal fields
 		$removal = [];
 		if (!empty($fields)) {
-			foreach (['id', 'avatar', 'created', 'updated', 'last-update', 'success_update', 'failure_update', 'network'] as $internal) {
+			foreach (['id', 'next-update', 'network'] as $internal) {
 				if (!in_array($internal, $fields)) {
 					$fields[] = $internal;
 					$removal[] = $internal;
@@ -282,9 +282,8 @@ class Contact
 		}
 
 		// Update the contact in the background if needed
-		$updated = max($contact['success_update'], $contact['created'], $contact['updated'], $contact['last-update'], $contact['failure_update']);
-		if (($updated < DateTimeFormat::utc('now -7 days')) && in_array($contact['network'], Protocol::FEDERATED) && !self::isLocalById($contact['id'])) {
-			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id']);
+		if (Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+			Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
 		}
 
 		// Remove the internal fields
@@ -935,7 +934,6 @@ class Contact
 
 		DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_CONTACTS . 'followers:' . $uid);
 		DI::cache()->delete(ActivityPub\Transmitter::CACHEKEY_CONTACTS . 'following:' . $uid);
-		DI::cache()->delete(NoScrape::CACHEKEY . $uid);
 	}
 
 	/**
@@ -1194,10 +1192,14 @@ class Contact
 			return 0;
 		}
 
-		$contact = self::getByURL($url, false, ['id', 'network', 'uri-id'], $uid);
+		$contact = self::getByURL($url, false, ['id', 'network', 'uri-id', 'next-update'], $uid);
 
 		if (!empty($contact)) {
 			$contact_id = $contact['id'];
+
+			if (Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+				Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
+			}
 
 			if (empty($update) && (!empty($contact['uri-id']) || is_bool($update))) {
 				Logger::debug('Contact found', ['url' => $url, 'uid' => $uid, 'update' => $update, 'cid' => $contact_id]);
@@ -2460,7 +2462,7 @@ class Contact
 
 		$has_local_data = self::hasLocalData($id, $contact);
 
-		if (!in_array($ret['network'], array_merge(Protocol::FEDERATED, [Protocol::ZOT, Protocol::PHANTOM]))) {
+		if (!Probe::isProbable($ret['network'])) {
 			// Periodical checks are only done on federated contacts
 			$failed_next_update  = null;
 			$success_next_update = null;
@@ -3320,12 +3322,12 @@ class Contact
 			if (empty($url) || !is_string($url)) {
 				continue;
 			}
-			$contact = self::getByURL($url, false, ['id', 'updated']);
+			$contact = self::getByURL($url, false, ['id', 'network', 'next-update']);
 			if (empty($contact['id']) && Network::isValidHttpUrl($url)) {
 				Worker::add(PRIORITY_LOW, 'AddContact', 0, $url);
 				++$added;
-			} elseif ($contact['updated'] < DateTimeFormat::utc('now -7 days')) {
-				Worker::add(PRIORITY_LOW, 'UpdateContact', $contact['id']);
+			} elseif (Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+				Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
 				++$updated;
 			} else {
 				++$unchanged;
