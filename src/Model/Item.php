@@ -1878,6 +1878,13 @@ class Item
 		return json_encode($languages);
 	}
 
+	/**
+	 * Get a language array from a given text
+	 *
+	 * @param string  $body
+	 * @param integer $count
+	 * @return array
+	 */
 	public static function getLanguageArray(string $body, int $count): array
 	{
 		// Convert attachments to links
