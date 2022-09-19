@@ -152,13 +152,13 @@ class Profiler implements ContainerInterface
 	 * Saves a timestamp for a value - f.e. a call
 	 * Necessary for profiling Friendica
 	 *
-	 * @param int    $timestamp the Timestamp
+	 * @param float  $timestamp the Timestamp
 	 * @param string $value     A value to profile
 	 * @param string $callstack A callstack string, generated if absent
 	 *
 	 * @return void
 	 */
-	public function saveTimestamp(int $timestamp, string $value, string $callstack = '')
+	public function saveTimestamp(float $timestamp, string $value, string $callstack = '')
 	{
 		if (!$this->enabled) {
 			return;
@@ -358,9 +358,9 @@ class Profiler implements ContainerInterface
 	 * @throws NotFoundExceptionInterface  No entry was found for **this** identifier.
 	 * @throws ContainerExceptionInterface Error while retrieving the entry.
 	 *
-	 * @return int Entry.
+	 * @return float Entry.
 	 */
-	public function get(string $id): int
+	public function get(string $id): float
 	{
 		if (!$this->has($id)) {
 			return 0;

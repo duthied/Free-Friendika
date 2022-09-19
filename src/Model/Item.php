@@ -1870,23 +1870,33 @@ class Item
 			return '';
 		}
 
-		// Convert attachments to links
-		$naked_body = BBCode::removeAttachment($item['body']);
-		if (empty($naked_body)) {
+		$languages = self::getLanguageArray(trim($item['title'] . "\n" . $item['body']));
+		if (empty($languages)) {
 			return '';
+		}
+
+		return json_encode($languages);
+	}
+
+	public static function getLanguageArray(string $body): array
+	{
+		// Convert attachments to links
+		$naked_body = BBCode::removeAttachment($body);
+		if (empty($naked_body)) {
+			return [];
 		}
 
 		// Remove links and pictures
 		$naked_body = BBCode::removeLinks($naked_body);
 
 		// Convert the title and the body to plain text
-		$naked_body = trim($item['title'] . "\n" . BBCode::toPlaintext($naked_body));
+		$naked_body = BBCode::toPlaintext($naked_body);
 
 		// Remove possibly remaining links
 		$naked_body = preg_replace(Strings::autoLinkRegEx(), '', $naked_body);
 
 		if (empty($naked_body)) {
-			return '';
+			return [];
 		}
 
 		$naked_body = self::getDominantLanguage($naked_body);
@@ -1898,12 +1908,7 @@ class Item
 		$availableLanguages['fa'] = 'fa';
 
 		$ld = new Language(array_keys($availableLanguages));
-		$languages = $ld->detect($naked_body)->limit(0, 3)->close();
-		if (is_array($languages)) {
-			return json_encode($languages);
-		}
-
-		return '';
+		return $ld->detect($naked_body)->limit(0, 3)->close() ?: [];
 	}
 
 	/**

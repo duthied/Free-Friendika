@@ -91,7 +91,7 @@ class Processor
 	 * @param string $body
 	 * @return string
 	 */
-	protected static function normalizeMentionLinks(string $body): string
+	public static function normalizeMentionLinks(string $body): string
 	{
 		return preg_replace('%\[url=([^\[\]]*)]([#@!])(.*?)\[/url]%ism', '$2[url=$1]$3[/url]', $body);
 	}
