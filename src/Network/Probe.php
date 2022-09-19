@@ -66,7 +66,6 @@ class Probe
 	public static function isProbable(string $network): bool
 	{
 		return (in_array($network, array_merge(Protocol::FEDERATED, [Protocol::ZOT, Protocol::PHANTOM])));
-
 	}
 
 	/**
