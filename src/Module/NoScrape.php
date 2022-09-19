@@ -22,11 +22,10 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Cache\Enum\Duration;
-use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\APContact;
 use Friendica\Model\User;
 
 /**
@@ -36,8 +35,6 @@ use Friendica\Model\User;
  */
 class NoScrape extends BaseModule
 {
-	const CACHEKEY = 'noscrape:';
-
 	protected function rawContent(array $request = [])
 	{
 		$a = DI::app();
@@ -56,12 +53,6 @@ class NoScrape extends BaseModule
 
 		if (empty($owner['uid'])) {
 			System::jsonError(404, 'Profile not found');
-		}
-
-		$cachekey = self::CACHEKEY . $owner['uid'];
-		$result = DI::cache()->get($cachekey);
-		if (!is_null($result)) {
-			System::jsonExit($result);
 		}
 
 		$json_info = [
@@ -98,16 +89,8 @@ class NoScrape extends BaseModule
 		}
 
 		if (!($owner['hide-friends'] ?? false)) {
-			$json_info['contacts'] = DBA::count('contact',
-				[
-					'uid'     => $owner['uid'],
-					'self'    => 0,
-					'blocked' => 0,
-					'pending' => 0,
-					'hidden'  => 0,
-					'archive' => 0,
-					'network' => [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]
-				]);
+			$apcontact = APContact::getByURL($owner['url']);
+			$json_info['contacts'] = max($apcontact['following_count'], $apcontact['followers_count']);
 		}
 
 		// We display the last activity (post or login), reduced to year and week number
@@ -134,8 +117,6 @@ class NoScrape extends BaseModule
 				$json_info[$field] = $owner[$field];
 			}
 		}
-
-		DI::cache()->set($cachekey, $json_info, Duration::DAY);
 
 		System::jsonExit($json_info);
 	}

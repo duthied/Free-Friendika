@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1482
+-- DB_UPDATE_VERSION 1483
 -- ------------------------------------------
 
 
@@ -625,6 +625,7 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
 	`alias` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
 	`pubkey` text COMMENT '',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`interacting_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts this contact interactes with',
 	`interacted_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts that interacted with this contact',
