@@ -1870,7 +1870,7 @@ class Item
 			return '';
 		}
 
-		$languages = self::getLanguageArray(trim($item['title'] . "\n" . $item['body']));
+		$languages = self::getLanguageArray(trim($item['title'] . "\n" . $item['body']), 3);
 		if (empty($languages)) {
 			return '';
 		}
@@ -1878,7 +1878,7 @@ class Item
 		return json_encode($languages);
 	}
 
-	public static function getLanguageArray(string $body): array
+	public static function getLanguageArray(string $body, int $count): array
 	{
 		// Convert attachments to links
 		$naked_body = BBCode::removeAttachment($body);
@@ -1908,7 +1908,7 @@ class Item
 		$availableLanguages['fa'] = 'fa';
 
 		$ld = new Language(array_keys($availableLanguages));
-		return $ld->detect($naked_body)->limit(0, 3)->close() ?: [];
+		return $ld->detect($naked_body)->limit(0, $count)->close() ?: [];
 	}
 
 	/**

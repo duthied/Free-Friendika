@@ -129,7 +129,7 @@ class Relay
 		}
 
 		$languages = [];
-		foreach (Item::getLanguageArray($body) as $language => $reliability) {
+		foreach (Item::getLanguageArray($body, 10) as $language => $reliability) {
 			if ($reliability > 0) {
 				$languages[] = $language;
 			}
