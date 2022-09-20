@@ -25,6 +25,7 @@ Fields
 | network           |                                                               | char(4)          | NO   |     |                     |                |
 | alias             |                                                               | varbinary(383)   | NO   |     |                     |                |
 | pubkey            |                                                               | text             | YES  |     | NULL                |                |
+| created           |                                                               | datetime         | NO   |     | 0001-01-01 00:00:00 |                |
 | updated           |                                                               | datetime         | NO   |     | 0001-01-01 00:00:00 |                |
 | interacting_count | Number of contacts this contact interactes with               | int unsigned     | YES  |     | 0                   |                |
 | interacted_count  | Number of contacts that interacted with this contact          | int unsigned     | YES  |     | 0                   |                |
