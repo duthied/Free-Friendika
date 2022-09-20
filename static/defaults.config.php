@@ -526,7 +526,7 @@ return [
 		'redis_password' => null,
 
 		// relay_deny_languages (Array)
-		// Array of languages that are rejected.
+		// Array of languages (two digit format) that are rejected.
 		'relay_deny_languages' => [],
 
 		// relay_deny_undetected_language (Boolean)
