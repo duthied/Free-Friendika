@@ -697,6 +697,7 @@ return [
 			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 			"alias" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
 			"pubkey" => ["type" => "text", "comment" => ""],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"interacting_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts this contact interactes with"],
 			"interacted_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts that interacted with this contact"],

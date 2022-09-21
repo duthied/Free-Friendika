@@ -80,8 +80,9 @@ class Page implements ArrayAccess
 	private $basePath;
 
 	private $timestamp = 0;
-	private $command   = '';
 	private $method    = '';
+	private $module    = '';
+	private $command   = '';
 
 	/**
 	 * @param string $basepath The Page basepath
@@ -92,21 +93,25 @@ class Page implements ArrayAccess
 		$this->basePath = $basepath;
 	}
 
-	public function setLogging(string $command, string $method)
+	public function setLogging(string $method, string $module, string $command)
 	{
-		$this->command = $command;
 		$this->method  = $method;
+		$this->module  = $module;
+		$this->command = $command;
 	}
 
 	public function logRuntime(IManageConfigValues $config, string $origin = '')
 	{
-		if (in_array($this->command, $config->get('system', 'runtime_ignore'))) {
+		$ignore = $config->get('system', 'runtime_ignore');
+		if (in_array($this->module, $ignore) || in_array($this->command, $ignore)) {
 			return;
 		}
 
-		$runtime = number_format(microtime(true) - $this->timestamp, 3);
+		$signature = !empty($_SERVER['HTTP_SIGNATURE']);
+		$load      = number_format(System::currentLoad(), 2);
+		$runtime   = number_format(microtime(true) - $this->timestamp, 3);
 		if ($runtime > $config->get('system', 'runtime_loglimit')) {
-			Logger::debug('Runtime', ['method' => $this->method, 'command' => $this->command, 'runtime' => $runtime, 'origin' => $origin]);
+			Logger::debug('Runtime', ['method' => $this->method, 'module' => $this->module, 'runtime' => $runtime, 'load' => $load, 'origin' => $origin, 'signature' => $signature, 'request' => $_SERVER['REQUEST_URI'] ?? '']);
 		}
 	}
 

@@ -525,6 +525,14 @@ return [
 		// The authentication password for the redis database
 		'redis_password' => null,
 
+		// relay_deny_languages (Array)
+		// Array of languages (two digit format) that are rejected.
+		'relay_deny_languages' => [],
+
+		// relay_deny_undetected_language (Boolean)
+		// Deny undetected languages
+		'relay_deny_undetected_language' => false,
+
 		// session_handler (database|cache|native)
 		// Whether to use Cache to store session data or to use PHP native session storage.
 		'session_handler' => 'database',

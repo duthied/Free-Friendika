@@ -29,6 +29,7 @@ use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Search;
 use Friendica\Model\Tag;
@@ -75,6 +76,8 @@ class Relay
 			Logger::info('Author is hidden - rejected', ['author' => $authorid, 'network' => $network, 'url' => $url]);
 			return false;
 		}
+
+		$body = ActivityPub\Processor::normalizeMentionLinks($body);
 
 		$systemTags = [];
 		$userTags = [];
@@ -123,6 +126,25 @@ class Relay
 					return true;
 				}
 			}
+		}
+
+		$languages = [];
+		foreach (Item::getLanguageArray($body, 10) as $language => $reliability) {
+			if ($reliability > 0) {
+				$languages[] = $language;
+			}
+		}
+
+		Logger::debug('Got languages', ['languages' => $languages, 'body' => $body]);
+
+		if (!empty($languages)) {
+			if (in_array($languages[0], $config->get('system', 'relay_deny_languages'))) {
+				Logger::info('Unwanted language found - rejected', ['language' => $languages[0], 'network' => $network, 'url' => $url]);
+				return false;
+			}
+		} elseif ($config->get('system', 'relay_deny_undetected_language')) {
+			Logger::info('Undetected language found - rejected', ['body' => $body, 'network' => $network, 'url' => $url]);
+			return false;
 		}
 
 		if ($scope == self::SCOPE_ALL) {

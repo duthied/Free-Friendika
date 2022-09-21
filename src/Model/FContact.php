@@ -23,6 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\Probe;
@@ -43,6 +44,7 @@ class FContact
 	 */
 	public static function getByURL(string $handle, $update = null): array
 	{
+		Logger::debug('Fetch fcontact', ['handle' => $handle, 'update' => $update]);
 		$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
 		if (!DBA::isResult($person)) {
 			$urls = [$handle, str_replace('http://', 'https://', $handle), Strings::normaliseLink($handle)];
@@ -50,21 +52,17 @@ class FContact
 		}
 
 		if (DBA::isResult($person)) {
-			Logger::debug('In cache', ['person' => $person]);
+			Logger::debug('In cache', ['handle' => $handle]);
 
 			if (is_null($update)) {
-				// update record occasionally so it doesn't get stale
-				$d = strtotime($person['updated'] . ' +00:00');
-				if ($d < strtotime('now - 14 days')) {
-					$update = true;
-				}
-
-				if (empty($person['guid']) || empty($person['uri-id'])) {
-					$update = true;
+				$update = empty($person['guid']) || empty($person['uri-id']) || ($person['created'] <= DBA::NULL_DATETIME);
+				if (GServer::getNextUpdateDate(true, $person['created'], $person['updated'], false) < DateTimeFormat::utcNow()) {
+					Logger::debug('Start background update', ['handle' => $handle]);
+					Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'UpdateFContact', $handle);
 				}
 			}
 		} elseif (is_null($update)) {
-			$update = !DBA::isResult($person);
+			$update = true;
 		} else {
 			$person = [];
 		}
@@ -95,7 +93,8 @@ class FContact
 	{
 		$uriid = ItemURI::insert(['uri' => $arr['url'], 'guid' => $arr['guid']]);
 
-		$contact = Contact::getByUriId($uriid, ['id']);
+		$fcontact  = DBA::selectFirst('fcontact', ['created'], ['url' => $arr['url'], 'network' => $arr['network']]);
+		$contact   = Contact::getByUriId($uriid, ['id', 'created']);
 		$apcontact = APContact::getByURL($arr['url'], false);
 		if (!empty($apcontact)) {
 			$interacted  = $apcontact['following_count'];
@@ -129,10 +128,14 @@ class FContact
 			'updated' => DateTimeFormat::utcNow(),
 		];
 
-		$condition = ['url' => $arr['url'], 'network' => $arr['network']];
+		if (empty($fcontact['created'])) {
+			$fields['created'] = $fields['updated'];
+		} elseif (!empty($contact['created']) && ($fcontact['created'] <= DBA::NULL_DATETIME)) {
+			$fields['created'] = $contact['created'];
+		}
 
 		$fields = DI::dbaDefinition()->truncateFieldsForTable('fcontact', $fields);
-		DBA::update('fcontact', $fields, $condition, true);
+		DBA::update('fcontact', $fields, ['url' => $arr['url'], 'network' => $arr['network']], true);
 	}
 
 	/**
