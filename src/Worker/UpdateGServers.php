@@ -72,6 +72,7 @@ class UpdateGServers
 					$count++;
 				}
 			}
+			Worker::coolDown();
 		}
 		DBA::close($gservers);
 		Logger::info('Updated servers', ['count' => $count]);

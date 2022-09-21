@@ -63,6 +63,7 @@ class UpdateServerPeers
 			// This endpoint doesn't offer the schema. So we assume that it is HTTPS.
 			GServer::add('https://' . $peer);
 			++$added;
+			Worker::coolDown();
 		}
 		Logger::info('Server peer update ended', ['total' => $total, 'added' => $added, 'url' => $url]);
 	}

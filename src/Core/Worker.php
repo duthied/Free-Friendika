@@ -445,6 +445,47 @@ class Worker
 	}
 
 	/**
+	 * Slow the execution down if the system load is too high
+	 *
+	 * @return void
+	 */
+	public static function coolDown()
+	{
+		$load_cooldown      = DI::config()->get('system', 'worker_load_cooldown');
+		$processes_cooldown = DI::config()->get('system', 'worker_processes_cooldown');
+
+		if (($load_cooldown == 0) && ($processes_cooldown == 0)) {
+			return;
+		}
+
+		$sleeping = false;
+
+		while ($load = System::getLoadAvg()) {
+			if (($load_cooldown > 0) && ($load['average1'] > $load_cooldown)) {
+				if (!$sleeping) {
+					Logger::notice('Load induced pre execution cooldown.', ['max' => $load_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
+					$sleeping = true;
+				}
+				sleep(1);
+				continue;
+			}
+			if (($processes_cooldown > 0) && ($load['scheduled'] > $processes_cooldown)) {
+				if (!$sleeping) {
+					Logger::notice('Process induced pre execution cooldown.', ['max' => $processes_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
+					$sleeping = true;
+				}
+				sleep(1);
+				continue;
+			}
+			break;
+		}
+
+		if ($sleeping) {
+			Logger::notice('Cooldown ended.', ['max-load' => $load_cooldown, 'max-processes' => $processes_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
+		}
+	}
+
+	/**
 	 * Execute a function from the queue
 	 *
 	 * @param array   $queue       Workerqueue entry
@@ -460,26 +501,11 @@ class Worker
 
 		$cooldown = DI::config()->get('system', 'worker_cooldown', 0);
 		if ($cooldown > 0) {
-			Logger::debug('Pre execution cooldown.', ['cooldown' => $cooldown, 'id' => $queue['id'], 'priority' => $queue['priority'], 'command' => $queue['command']]);
+			Logger::notice('Pre execution cooldown.', ['cooldown' => $cooldown, 'id' => $queue['id'], 'priority' => $queue['priority'], 'command' => $queue['command']]);
 			sleep($cooldown);
 		}
 
-		$load_cooldown      = DI::config()->get('system', 'worker_load_cooldown');
-		$processes_cooldown = DI::config()->get('system', 'worker_processes_cooldown');
-
-		while ((($load_cooldown > 0) || ($processes_cooldown > 0)) && ($load = System::getLoadAvg())) {
-			if (($load_cooldown > 0) && ($load['average1'] > $load_cooldown)) {
-				Logger::debug('Load induced pre execution cooldown.', ['max' => $load_cooldown, 'load' => $load, 'id' => $queue['id'], 'priority' => $queue['priority'], 'command' => $queue['command']]);
-				sleep(1);
-				continue;
-			}
-			if (($processes_cooldown > 0) && ($load['scheduled'] > $processes_cooldown)) {
-				Logger::debug('Process induced pre execution cooldown.', ['max' => $processes_cooldown, 'load' => $load, 'id' => $queue['id'], 'priority' => $queue['priority'], 'command' => $queue['command']]);
-				sleep(1);
-				continue;
-			}
-			break;
-		}
+		self::coolDown();
 
 		Logger::enableWorker($funcname);
 
@@ -526,6 +552,8 @@ class Worker
 		$exec    = round($duration, 2);
 
 		Logger::info('Performance:', ['state' => self::$state, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'lock' => $dblock, 'total' => $dbtotal, 'rest' => $rest, 'exec' => $exec]);
+
+		self::coolDown();
 
 		self::$up_start = microtime(true);
 		self::$db_duration = 0;

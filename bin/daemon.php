@@ -76,8 +76,8 @@ DI::config()->load();
 if (empty(DI::config()->get('system', 'pidfile'))) {
 	die(<<<TXT
 Please set system.pidfile in config/local.config.php. For example:
-    
-    'system' => [ 
+
+    'system' => [
         'pidfile' => '/path/to/daemon.pid',
     ],
 TXT
@@ -199,6 +199,7 @@ while (true) {
 	}
 
 	if ($do_cron || (!DI::system()->isMaxLoadReached() && Worker::entriesExists() && Worker::isReady())) {
+		Worker::coolDown();
 		Worker::spawnWorker($do_cron);
 	} else {
 		Logger::info('Cool down for 5 seconds', ['pid' => $pid]);
