@@ -31,7 +31,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Subscription as ModelSubscription;
 use Friendica\Model\User;
-use Friendica\Navigation\Notifications;
 use Friendica\Network\HTTPException\NotFoundException;
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
@@ -91,7 +90,7 @@ class PushSubscription
 		}
 
 		$message = DI::notificationFactory()->getMessageFromNotification($notification);
-		$title = $message['plain'] ?: '';
+		$title = $message['plain'] ?? '';
 
 		$push = Subscription::create([
 			'contentEncoding' => 'aesgcm',

@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1483);
+	define('DB_UPDATE_VERSION', 1484);
 }
 
 return [
@@ -369,6 +369,19 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["cookie_hash"],
 			"uid" => ["uid"],
+		]
+	],
+	"account-user" => [
+		"comment" => "Remote and local accounts",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the account url"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "User ID"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uri-id_uid" => ["UNIQUE", "uri-id", "uid"],
+			"uid_uri-id" => ["uid", "uri-id"],
 		]
 	],
 	"addon" => [

@@ -78,7 +78,7 @@ class RemoveUnusedContacts
 			DBA::delete('post-thread-user', ['author-id' => $contact['id']]);
 			DBA::delete('post-thread-user', ['causer-id' => $contact['id']]);
 
-			DBA::delete('contact', ['id' => $contact['id']]);
+			Contact::deleteById($contact['id']);
 			if ((++$count % 1000) == 0) {
 				Logger::info('In removal', ['count' => $count, 'total' => $total]);
 			}

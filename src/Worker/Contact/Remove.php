@@ -23,6 +23,7 @@ namespace Friendica\Worker\Contact;
 
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 
 /**
  * Removes a contact and all its related content
@@ -41,7 +42,7 @@ class Remove extends RemoveContent
 			return false;
 		}
 
-		$ret = DBA::delete('contact', ['id' => $id]);
+		$ret = Contact::deleteById($id);
 		Logger::info('Deleted contact', ['id' => $id, 'result' => $ret]);
 
 		return true;
