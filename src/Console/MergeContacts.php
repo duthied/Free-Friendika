@@ -23,6 +23,7 @@ namespace Friendica\Console;
 
 use Friendica\Core\L10n;
 use Friendica\Database\Database;
+use Friendica\Model\Contact;
 
 /**
  * tool to find and merge duplicated contact entries.
@@ -137,7 +138,7 @@ HELP;
 		$this->updateTable('post-thread-user', 'contact-id', $from, $to, false);
 		$this->updateTable('user-contact', 'cid', $from, $to, true);
 
-		if (!$this->dba->delete('contact', ['id' => $from])) {
+		if (!Contact::deleteById($from)) {
 			$this->err($this->l10n->t('Deletion of id %d failed', $from));
 		} else {
 			$this->out($this->l10n->t('Deletion of id %d was successful', $from));

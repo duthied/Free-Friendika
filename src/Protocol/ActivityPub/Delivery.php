@@ -84,7 +84,7 @@ class Delivery
 			if (empty($item['id'])) {
 				Logger::warning('Item not found, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
 				Post\Delivery::remove($uri_id, $inbox);
-				return true;
+				return ['success' => true, 'serverfailure' => false, 'drop' => false];
 			} else {
 				$item_id = $item['id'];
 			}
