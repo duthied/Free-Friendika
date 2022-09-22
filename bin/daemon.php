@@ -76,8 +76,8 @@ DI::config()->load();
 if (empty(DI::config()->get('system', 'pidfile'))) {
 	die(<<<TXT
 Please set system.pidfile in config/local.config.php. For example:
-
-    'system' => [
+    
+    'system' => [ 
         'pidfile' => '/path/to/daemon.pid',
     ],
 TXT
