@@ -143,7 +143,7 @@ class Worker
 			}
 
 			// Quit the worker once every cron interval
-			if (time() > ($starttime + (DI::config()->get('system', 'cron_interval') * 60))) {
+			if (time() > ($starttime + (DI::config()->get('system', 'cron_interval') * 60)) && !self::systemLimitReached()) {
 				Logger::info('Process lifetime reached, respawning.');
 				self::unclaimProcess($process);
 				if (Worker\Daemon::isMode()) {
@@ -442,6 +442,36 @@ class Worker
 		}
 
 		return true;
+	}
+
+	/**
+	 * Checks if system limits are reached.
+	 *
+	 * @return boolean
+	 */
+	private static function systemLimitReached(): bool
+	{
+		$load_cooldown      = DI::config()->get('system', 'worker_load_cooldown');
+		$processes_cooldown = DI::config()->get('system', 'worker_processes_cooldown');
+
+		if (($load_cooldown == 0) && ($processes_cooldown == 0)) {
+			return false;
+		}
+
+		$load = System::getLoadAvg();
+		if (empty($load)) {
+			return false;
+		}
+
+		if (($load_cooldown > 0) && ($load['average1'] > $load_cooldown)) {
+			return true;
+		}
+
+		if (($processes_cooldown > 0) && ($load['scheduled'] > $processes_cooldown)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -772,7 +802,7 @@ class Worker
 			Logger::notice('Load: ' . $load . '/' . $maxsysload . ' - processes: ' . $deferred . '/' . $active . '/' . $waiting_processes . $processlist . ' - maximum: ' . $queues . '/' . $maxqueues);
 
 			// Are there fewer workers running as possible? Then fork a new one.
-			if (!DI::config()->get('system', 'worker_dont_fork', false) && ($queues > ($active + 1)) && self::entriesExists()) {
+			if (!DI::config()->get('system', 'worker_dont_fork', false) && ($queues > ($active + 1)) && self::entriesExists() && !self::systemLimitReached()) {
 				Logger::info('There are fewer workers as possible, fork a new worker.', ['active' => $active, 'queues' => $queues]);
 				if (Worker\Daemon::isMode()) {
 					Worker\IPC::SetJobState(true);
@@ -1250,7 +1280,7 @@ class Worker
 		Worker\Daemon::checkState();
 
 		// Should we quit and wait for the worker to be called as a cronjob?
-		if ($dont_fork) {
+		if ($dont_fork || self::systemLimitReached()) {
 			return $added;
 		}
 
