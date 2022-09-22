@@ -615,7 +615,7 @@ return [
 		// Minimum for this config value is 1. Maximum is 64 as the resulting profile URL mustn't be longer than 255 chars.
 		'username_max_length' => 48,
 
-		// worker_cooldown (Integer)
+		// worker_cooldown (Float)
 		// Cooldown period in seconds before each worker function call.
 		'worker_cooldown' => 0,
 

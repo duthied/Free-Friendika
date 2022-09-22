@@ -481,6 +481,16 @@ class Worker
 	 */
 	public static function coolDown()
 	{
+		$cooldown = DI::config()->get('system', 'worker_cooldown', 0);
+		if ($cooldown > 0) {
+			Logger::debug('Wait for cooldown.', ['cooldown' => $cooldown]);
+			if ($cooldown < 1) {
+				usleep($cooldown * 1000000);
+			} else {
+				sleep($cooldown);
+			}
+		}
+
 		$load_cooldown      = DI::config()->get('system', 'worker_load_cooldown');
 		$processes_cooldown = DI::config()->get('system', 'worker_processes_cooldown');
 
@@ -528,12 +538,6 @@ class Worker
 	private static function execFunction(array $queue, string $funcname, array $argv, bool $method_call)
 	{
 		$a = DI::app();
-
-		$cooldown = DI::config()->get('system', 'worker_cooldown', 0);
-		if ($cooldown > 0) {
-			Logger::notice('Pre execution cooldown.', ['cooldown' => $cooldown, 'id' => $queue['id'], 'priority' => $queue['priority'], 'command' => $queue['command']]);
-			sleep($cooldown);
-		}
 
 		self::coolDown();
 
@@ -605,11 +609,6 @@ class Worker
 		Logger::info('Process done.', ['priority' => $queue['priority'], 'id' => $queue['id'], 'duration' => round($duration, 3)]);
 
 		DI::profiler()->saveLog(DI::logger(), 'ID ' . $queue['id'] . ': ' . $funcname);
-
-		if ($cooldown > 0) {
-			Logger::info('Post execution cooldown.', ['priority' => $queue['priority'], 'id' => $queue['id'], 'cooldown' => $cooldown]);
-			sleep($cooldown);
-		}
 	}
 
 	/**
