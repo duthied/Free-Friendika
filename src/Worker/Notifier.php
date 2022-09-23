@@ -573,6 +573,7 @@ class Notifier
 			if (Worker::add($deliver_options, 'Delivery', $cmd, $post_uriid, (int)$contact['id'], $sender_uid)) {
 				$delivery_queue_count++;
 			}
+			Worker::coolDown();
 		}
 		return $delivery_queue_count;
 	}
@@ -695,6 +696,7 @@ class Notifier
 			Logger::info('Account removal via ActivityPub', ['uid' => $self_user_id, 'inbox' => $inbox]);
 			Worker::add(['priority' => PRIORITY_NEGLIGIBLE, 'created' => $created, 'dont_fork' => true],
 				'APDelivery', Delivery::REMOVAL, 0, $inbox, $self_user_id, $receivers);
+			Worker::coolDown();
 		}
 
 		return true;
@@ -818,6 +820,7 @@ class Notifier
 					$delivery_queue_count++;
 				}
 			}
+			Worker::coolDown();
 		}
 
 		// We deliver posts to relay servers slightly delayed to priorize the direct delivery
@@ -833,6 +836,7 @@ class Notifier
 					$delivery_queue_count++;
 				}
 			}
+			Worker::coolDown();
 		}
 
 		return ['count' => $delivery_queue_count, 'contacts' => $contacts];

@@ -81,6 +81,7 @@ class PollContacts
 			Logger::notice("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact['priority'] . " " . $contact["nick"] . " " . $contact["name"]);
 
 			Worker::add(['priority' => $priority, 'dont_fork' => true, 'force_priority' => true], 'OnePoll', (int)$contact['id']);
+			Worker::coolDown();
 		}
 		DBA::close($contacts);
 	}

@@ -143,7 +143,7 @@ class Worker
 			}
 
 			// Quit the worker once every cron interval
-			if (time() > ($starttime + (DI::config()->get('system', 'cron_interval') * 60))) {
+			if (time() > ($starttime + (DI::config()->get('system', 'cron_interval') * 60)) && !self::systemLimitReached()) {
 				Logger::info('Process lifetime reached, respawning.');
 				self::unclaimProcess($process);
 				if (Worker\Daemon::isMode()) {
@@ -445,6 +445,87 @@ class Worker
 	}
 
 	/**
+	 * Checks if system limits are reached.
+	 *
+	 * @return boolean
+	 */
+	private static function systemLimitReached(): bool
+	{
+		$load_cooldown      = DI::config()->get('system', 'worker_load_cooldown');
+		$processes_cooldown = DI::config()->get('system', 'worker_processes_cooldown');
+
+		if (($load_cooldown == 0) && ($processes_cooldown == 0)) {
+			return false;
+		}
+
+		$load = System::getLoadAvg();
+		if (empty($load)) {
+			return false;
+		}
+
+		if (($load_cooldown > 0) && ($load['average1'] > $load_cooldown)) {
+			return true;
+		}
+
+		if (($processes_cooldown > 0) && ($load['scheduled'] > $processes_cooldown)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Slow the execution down if the system load is too high
+	 *
+	 * @return void
+	 */
+	public static function coolDown()
+	{
+		$cooldown = DI::config()->get('system', 'worker_cooldown', 0);
+		if ($cooldown > 0) {
+			Logger::debug('Wait for cooldown.', ['cooldown' => $cooldown]);
+			if ($cooldown < 1) {
+				usleep($cooldown * 1000000);
+			} else {
+				sleep($cooldown);
+			}
+		}
+
+		$load_cooldown      = DI::config()->get('system', 'worker_load_cooldown');
+		$processes_cooldown = DI::config()->get('system', 'worker_processes_cooldown');
+
+		if (($load_cooldown == 0) && ($processes_cooldown == 0)) {
+			return;
+		}
+
+		$sleeping = false;
+
+		while ($load = System::getLoadAvg()) {
+			if (($load_cooldown > 0) && ($load['average1'] > $load_cooldown)) {
+				if (!$sleeping) {
+					Logger::notice('Load induced pre execution cooldown.', ['max' => $load_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
+					$sleeping = true;
+				}
+				sleep(1);
+				continue;
+			}
+			if (($processes_cooldown > 0) && ($load['scheduled'] > $processes_cooldown)) {
+				if (!$sleeping) {
+					Logger::notice('Process induced pre execution cooldown.', ['max' => $processes_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
+					$sleeping = true;
+				}
+				sleep(1);
+				continue;
+			}
+			break;
+		}
+
+		if ($sleeping) {
+			Logger::notice('Cooldown ended.', ['max-load' => $load_cooldown, 'max-processes' => $processes_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
+		}
+	}
+
+	/**
 	 * Execute a function from the queue
 	 *
 	 * @param array   $queue       Workerqueue entry
@@ -458,28 +539,7 @@ class Worker
 	{
 		$a = DI::app();
 
-		$cooldown = DI::config()->get('system', 'worker_cooldown', 0);
-		if ($cooldown > 0) {
-			Logger::debug('Pre execution cooldown.', ['cooldown' => $cooldown, 'id' => $queue['id'], 'priority' => $queue['priority'], 'command' => $queue['command']]);
-			sleep($cooldown);
-		}
-
-		$load_cooldown      = DI::config()->get('system', 'worker_load_cooldown');
-		$processes_cooldown = DI::config()->get('system', 'worker_processes_cooldown');
-
-		while ((($load_cooldown > 0) || ($processes_cooldown > 0)) && ($load = System::getLoadAvg())) {
-			if (($load_cooldown > 0) && ($load['average1'] > $load_cooldown)) {
-				Logger::debug('Load induced pre execution cooldown.', ['max' => $load_cooldown, 'load' => $load, 'id' => $queue['id'], 'priority' => $queue['priority'], 'command' => $queue['command']]);
-				sleep(1);
-				continue;
-			}
-			if (($processes_cooldown > 0) && ($load['scheduled'] > $processes_cooldown)) {
-				Logger::debug('Process induced pre execution cooldown.', ['max' => $processes_cooldown, 'load' => $load, 'id' => $queue['id'], 'priority' => $queue['priority'], 'command' => $queue['command']]);
-				sleep(1);
-				continue;
-			}
-			break;
-		}
+		self::coolDown();
 
 		Logger::enableWorker($funcname);
 
@@ -527,6 +587,8 @@ class Worker
 
 		Logger::info('Performance:', ['state' => self::$state, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'lock' => $dblock, 'total' => $dbtotal, 'rest' => $rest, 'exec' => $exec]);
 
+		self::coolDown();
+
 		self::$up_start = microtime(true);
 		self::$db_duration = 0;
 		self::$db_duration_count = 0;
@@ -547,11 +609,6 @@ class Worker
 		Logger::info('Process done.', ['priority' => $queue['priority'], 'id' => $queue['id'], 'duration' => round($duration, 3)]);
 
 		DI::profiler()->saveLog(DI::logger(), 'ID ' . $queue['id'] . ': ' . $funcname);
-
-		if ($cooldown > 0) {
-			Logger::info('Post execution cooldown.', ['priority' => $queue['priority'], 'id' => $queue['id'], 'cooldown' => $cooldown]);
-			sleep($cooldown);
-		}
 	}
 
 	/**
@@ -744,7 +801,7 @@ class Worker
 			Logger::notice('Load: ' . $load . '/' . $maxsysload . ' - processes: ' . $deferred . '/' . $active . '/' . $waiting_processes . $processlist . ' - maximum: ' . $queues . '/' . $maxqueues);
 
 			// Are there fewer workers running as possible? Then fork a new one.
-			if (!DI::config()->get('system', 'worker_dont_fork', false) && ($queues > ($active + 1)) && self::entriesExists()) {
+			if (!DI::config()->get('system', 'worker_dont_fork', false) && ($queues > ($active + 1)) && self::entriesExists() && !self::systemLimitReached()) {
 				Logger::info('There are fewer workers as possible, fork a new worker.', ['active' => $active, 'queues' => $queues]);
 				if (Worker\Daemon::isMode()) {
 					Worker\IPC::SetJobState(true);
@@ -1222,7 +1279,7 @@ class Worker
 		Worker\Daemon::checkState();
 
 		// Should we quit and wait for the worker to be called as a cronjob?
-		if ($dont_fork) {
+		if ($dont_fork || self::systemLimitReached()) {
 			return $added;
 		}
 

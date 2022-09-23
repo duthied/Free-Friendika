@@ -22,6 +22,7 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -55,6 +56,7 @@ class Delivery
 					Logger::notice('Inbox delivery has a server failure', ['inbox' => $inbox]);
 					$serverfail = true;
 				}
+				Worker::coolDown();
 			}
 
 			if ($serverfail || (!$result['success'] && !$result['drop'])) {

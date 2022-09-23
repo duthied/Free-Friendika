@@ -62,6 +62,7 @@ class UpdateContacts
 			if (Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], "UpdateContact", $contact['id'])) {
 				++$count;
 			}
+			Worker::coolDown();
 		}
 		DBA::close($contacts);
 
