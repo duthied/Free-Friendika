@@ -180,7 +180,7 @@ class Search extends BaseApi
 
 		$params = ['order' => ['name'], 'limit' => [$offset, $limit]];
 
-		$condition = ["EXISTS(SELECT `tid` FROM `post-tag` WHERE `type` = ? AND `tid` = `id`) AND `name` LIKE ?", Tag::HASHTAG, $q . '%'];
+		$condition = ["`id` IN (SELECT `tid` FROM `post-tag` WHERE `type` = ?) AND `name` LIKE ?", Tag::HASHTAG, $q . '%'];
 
 		$tags = DBA::select('tag', ['name'], $condition, $params);
 

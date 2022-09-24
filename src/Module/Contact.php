@@ -210,7 +210,7 @@ class Contact extends BaseModule
 
 		switch ($type) {
 			case 'blocked':
-				$sql_extra = " AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = ? and `user-contact`.`blocked`)";
+				$sql_extra = " AND `id` IN (SELECT `cid` FROM `user-contact` WHERE `user-contact`.`uid` = ? AND `user-contact`.`blocked`)";
 				// This makes the query look for contact.uid = 0
 				array_unshift($sql_values, 0);
 				break;
@@ -218,7 +218,7 @@ class Contact extends BaseModule
 				$sql_extra = " AND `hidden` AND NOT `blocked` AND NOT `pending`";
 				break;
 			case 'ignored':
-				$sql_extra = " AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = ? and `user-contact`.`ignored`)";
+				$sql_extra = " AND `id` IN (SELECT `cid` FROM `user-contact` WHERE `user-contact`.`uid` = ? AND `user-contact`.`ignored`)";
 				// This makes the query look for contact.uid = 0
 				array_unshift($sql_values, 0);
 				break;
@@ -227,8 +227,9 @@ class Contact extends BaseModule
 				break;
 			case 'pending':
 				$sql_extra = " AND `pending` AND NOT `archive` AND NOT `failed` AND ((`rel` = ?)
-					OR EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id` AND NOT `ignore`))";
+					OR `id` IN (SELECT `contact-id` FROM `intro` WHERE `intro`.`uid` = ? AND NOT `ignore`))";
 				$sql_values[] = Model\Contact::SHARING;
+				$sql_values[] = local_user();
 				break;
 			default:
 				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending`";
@@ -275,7 +276,7 @@ class Contact extends BaseModule
 		}
 
 		if ($group) {
-			$sql_extra .= " AND EXISTS(SELECT `id` FROM `group_member` WHERE `gid` = ? AND `contact`.`id` = `contact-id`)";
+			$sql_extra .= " AND `id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)";
 			$sql_values[] = $group;
 		}
 

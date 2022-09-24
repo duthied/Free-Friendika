@@ -179,22 +179,22 @@ class ExpirePosts
 		}
 		Logger::notice('Start collecting orphaned URI-ID', ['last-id' => $item['uri-id']]);
 		$uris = DBA::select('item-uri', ['id'], ["`id` < ?
-			AND NOT EXISTS(SELECT `uri-id` FROM `post-user` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `parent-uri-id` FROM `post-user` WHERE `parent-uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `thr-parent-id` FROM `post-user` WHERE `thr-parent-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `external-id` FROM `post-user` WHERE `external-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `conversation-id` FROM `post-thread` WHERE `conversation-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `uri-id` FROM `mail` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `uri-id` FROM `event` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `uri-id` FROM `user-contact` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `uri-id` FROM `contact` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `uri-id` FROM `apcontact` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `uri-id` FROM `fcontact` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `uri-id` FROM `inbox-status` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `uri-id` FROM `post-delivery` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `uri-id` FROM `post-delivery` WHERE `inbox-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `parent-uri-id` FROM `mail` WHERE `parent-uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `thr-parent-id` FROM `mail` WHERE `thr-parent-id` = `item-uri`.`id`)", $item['uri-id']]);
+			AND NOT `id` IN (SELECT `uri-id` FROM `post-user`)
+			AND NOT `id` IN (SELECT `parent-uri-id` FROM `post-user`)
+			AND NOT `id` IN (SELECT `thr-parent-id` FROM `post-user`)
+			AND NOT `id` IN (SELECT `external-id` FROM `post-user`)
+			AND NOT `id` IN (SELECT `conversation-id` FROM `post-thread`)
+			AND NOT `id` IN (SELECT `uri-id` FROM `mail`)
+			AND NOT `id` IN (SELECT `uri-id` FROM `event`)
+			AND NOT `id` IN (SELECT `uri-id` FROM `user-contact`)
+			AND NOT `id` IN (SELECT `uri-id` FROM `contact`)
+			AND NOT `id` IN (SELECT `uri-id` FROM `apcontact`)
+			AND NOT `id` IN (SELECT `uri-id` FROM `fcontact`)
+			AND NOT `id` IN (SELECT `uri-id` FROM `inbox-status`)
+			AND NOT `id` IN (SELECT `uri-id` FROM `post-delivery`)
+			AND NOT `id` IN (SELECT `uri-id` FROM `post-delivery`)
+			AND NOT `id` IN (SELECT `parent-uri-id` FROM `mail`)
+			AND NOT `id` IN (SELECT `thr-parent-id` FROM `mail`)", $item['uri-id']]);
 
 		Logger::notice('Start deleting orphaned URI-ID', ['last-id' => $item['uri-id']]);
 		$affected_count = 0;
