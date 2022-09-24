@@ -1153,6 +1153,10 @@ class PostUpdate
 
 		while ($contact = DBA::fetch($contacts)) {
 			$id = $contact['id'];
+			if (is_null($contact['uri-id'])) {
+				$contact['uri-id'] = ItemURI::getIdByURI($contact['url']);
+				DBA::update('contact', ['uri-id' => $contact['uri-id']], ['id' => $contact['id']]);
+			}
 			Contact::setAccountUser($contact['id'], $contact['uid'], $contact['uri-id'], $contact['url']);
 			++$rows;
 		}
