@@ -92,7 +92,7 @@ class PublicTimeline extends BaseApi
 
 		if (!empty($uid)) {
 			$condition = DBA::mergeConditions($condition,
-				["NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `parent-author-id` AND (`blocked` OR `ignored`))", $uid]);
+				["NOT `parent-author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND (`blocked` OR `ignored`))", $uid]);
 		}
 
 		$items = Post::selectPostsForUser($uid, ['uri-id'], $condition, $params);

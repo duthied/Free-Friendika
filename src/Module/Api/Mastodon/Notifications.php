@@ -79,13 +79,13 @@ class Notifications extends BaseApi
 
 		if (in_array(Notification::TYPE_INTRODUCTION, $request['exclude_types'])) {
 			$condition = DBA::mergeConditions($condition,
-				["(`vid` != ? OR `type` != ? OR NOT EXISTS (SELECT `id` FROM `contact` WHERE `id` = `actor-id` AND `pending`))",
+				["(`vid` != ? OR `type` != ? OR NOT `actor-id` IN (SELECT `id` FROM `contact` WHERE `pending`))",
 				Verb::getID(Activity::FOLLOW), Post\UserNotification::TYPE_NONE]);
 		}
 
 		if (in_array(Notification::TYPE_FOLLOW, $request['exclude_types'])) {
 			$condition = DBA::mergeConditions($condition,
-				["(`vid` != ? OR `type` != ? OR NOT EXISTS (SELECT `id` FROM `contact` WHERE `id` = `actor-id` AND NOT `pending`))",
+				["(`vid` != ? OR `type` != ? OR NOT `actor-id` IN (SELECT `id` FROM `contact` WHERE NOT `pending`))",
 				Verb::getID(Activity::FOLLOW), Post\UserNotification::TYPE_NONE]);
 		}
 

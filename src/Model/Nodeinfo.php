@@ -61,9 +61,9 @@ class Nodeinfo
 
 		$logger->info('user statistics', $userStats);
 
-		$posts = DBA::count('post-thread', ["EXISTS(SELECT `uri-id` FROM `post-user` WHERE NOT `deleted` AND `origin` AND `uri-id` = `post-thread`.`uri-id`)"]);
-		$comments = DBA::count('post', ["NOT `deleted` AND `gravity` = ? AND EXISTS(SELECT `uri-id` FROM `post-user` WHERE `origin` AND `uri-id` = `post`.`uri-id`)", GRAVITY_COMMENT]);
-		$config->set('nodeinfo', 'local_posts', $posts);
+		$posts = DBA::count('post-thread', ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE NOT `deleted` AND `origin`)"]);
+		$comments = DBA::count('post', ["NOT `deleted` AND `gravity` = ? AND `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)", GRAVITY_COMMENT]);
+				$config->set('nodeinfo', 'local_posts', $posts);
 		$config->set('nodeinfo', 'local_comments', $comments);
 
 		$logger->info('User actitivy', ['posts' => $posts, 'comments' => $comments]);

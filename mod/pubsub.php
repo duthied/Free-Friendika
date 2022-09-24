@@ -145,7 +145,7 @@ function pubsub_post(App $a)
 	}
 
 	// We only import feeds from OStatus here
-	if ($contact['network'] != Protocol::OSTATUS) {
+	if (!in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS])) {
 		Logger::warning('Unexpected network', ['contact' => $contact]);
 		hub_post_return();
 	}
