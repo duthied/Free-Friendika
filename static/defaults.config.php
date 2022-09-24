@@ -552,7 +552,7 @@ return [
 		// runtime_loglimit (Integer)
 		// The runtime is logged, When the program execution time is higher than this value.
 		'runtime_loglimit' => 0,
-	
+
 		// sendmail_params (Boolean)
 		// Normal sendmail command parameters will be added when the PHP mail() function is called for sending e-mails.
 		// This ensures the Sender Email address setting is applied to the message envelope rather than the host's default address.
@@ -650,6 +650,16 @@ return [
 		// Setting 0 would allow maximum worker queues at all times, which is not recommended.
 		'worker_load_exponent' => 3,
 
+		// worker_max_duration (Array)
+		// Maximum runtime per priority. Worker processes that exceed this runtime will be terminated.
+		'worker_max_duration' => [
+			PRIORITY_CRITICAL   => 720,
+			PRIORITY_HIGH       => 10,
+			PRIORITY_MEDIUM     => 60,
+			PRIORITY_LOW        => 180,
+			PRIORITY_NEGLIGIBLE => 720
+		],
+
 		// worker_processes_cooldown (Integer)
 		// Maximum number per processes that causes a cooldown before each worker function call.
 		'worker_processes_cooldown' => 0,
@@ -659,7 +669,7 @@ return [
 		// This is an experimental setting without knowing the performance impact.
 		// Does not work when "worker_fork" is enabled (Needs more testing)
 		'worker_multiple_fetch' => false,
-		
+
 		// worker_defer_limit (Integer)
 		// Per default the systems tries delivering for 15 times before dropping it.
 		'worker_defer_limit' => 15,

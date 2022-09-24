@@ -77,6 +77,8 @@ class Cron
 			['order' => ['priority', 'retrial', 'created']]
 		);
 
+		$max_duration_defaults = DI::config()->get('system', 'worker_max_duration');
+
 		while ($entry = DBA::fetch($entries)) {
 			if (!posix_kill($entry["pid"], 0)) {
 				DBA::update('workerqueue', ['executed' => DBA::NULL_DATETIME, 'pid' => 0], ['id' => $entry["id"]]);
@@ -84,8 +86,10 @@ class Cron
 				// Kill long running processes
 
 				// Define the maximum durations
-				$max_duration_defaults = [PRIORITY_CRITICAL => 720, PRIORITY_HIGH => 10, PRIORITY_MEDIUM => 60, PRIORITY_LOW => 180, PRIORITY_NEGLIGIBLE => 720];
-				$max_duration          = $max_duration_defaults[$entry['priority']];
+				$max_duration = $max_duration_defaults[$entry['priority']] ?? 0;
+				if (empty($max_duration)) {
+					continue;
+				}
 
 				$argv = json_decode($entry['parameter'], true);
 				if (!empty($entry['command'])) {
