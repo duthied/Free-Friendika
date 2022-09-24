@@ -410,13 +410,13 @@ Ex: Wed May 23 06:01:13 +0000 2007
 </tr>
 
 <tr>
-<td><code>startTime</code></td>
+<td><code>start_time</code></td>
 <td>String (UTC <code>YYYY-MM-DD HH:II:SS)</code>)</td>
 <td></td>
 </tr>
 
 <tr>
-<td><code>endTime</code></td>
+<td><code>end_time</code></td>
 <td>String (UTC <code>YYYY-MM-DD HH:II:SS)</code>)</td>
 <td>Optional (null date is <code>0001-01-01 00:00:00</code></td>
 </tr>
