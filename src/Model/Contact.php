@@ -3388,7 +3388,7 @@ class Contact
 			if (empty($contact['id']) && Network::isValidHttpUrl($url)) {
 				Worker::add(PRIORITY_LOW, 'AddContact', 0, $url);
 				++$added;
-			} elseif (Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+			} elseif (!empty($contact['network']) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
 				Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
 				++$updated;
 			} else {
