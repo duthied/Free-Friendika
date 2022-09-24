@@ -77,7 +77,7 @@ class Probe
 	public static function cleanURI(string $rawUri): string
 	{
 		// At first remove leading and trailing junk
-		$rawUri = trim($rawUri, "@#?:/ \t\n\r\0\x0B");
+		$rawUri = trim($rawUri, "@#?: \t\n\r\0\x0B");
 
 		$rawUri = Network::convertToIdn($rawUri);
 
