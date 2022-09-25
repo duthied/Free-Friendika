@@ -24,6 +24,7 @@ namespace Friendica\Module\Api\Mastodon;
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Factory\Api\Mastodon\Error;
+use Friendica\Factory\Api\Mastodon\Subscription as SubscriptionFactory;
 use Friendica\Model\Subscription;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
@@ -36,12 +37,12 @@ use Psr\Log\LoggerInterface;
  */
 class PushSubscription extends BaseApi
 {
-	/** @var \Friendica\Factory\Api\Mastodon\Subscription */
+	/** @var SubscriptionFactory */
 	protected $subscriptionFac;
 	/** @var Error */
 	protected $errorFac;
 
-	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, \Friendica\Factory\Api\Mastodon\Subscription $subscriptionFac, Error $errorFac, array $server, array $parameters = [])
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, SubscriptionFactory $subscriptionFac, Error $errorFac, array $server, array $parameters = [])
 	{
 		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -111,8 +112,10 @@ class PushSubscription extends BaseApi
 
 		$ret = Subscription::update($application['id'], $uid, $fields);
 
-		$this->logger->info('Subscription updated', ['result' => $ret, 'application-id' => $application['id'],
-													 'uid'    => $uid, 'fields' => $fields]);
+		$this->logger->info('Subscription updated', [
+			'result' => $ret, 'application-id' => $application['id'],
+			'uid'    => $uid, 'fields' => $fields
+		]);
 
 		$subscriptionObj = $this->subscriptionFac->createForApplicationIdAndUserId($application['id'], $uid);
 		$this->response->exitWithJson($subscriptionObj->toArray());
@@ -126,8 +129,10 @@ class PushSubscription extends BaseApi
 
 		$ret = Subscription::delete($application['id'], $uid);
 
-		$this->logger->info('Subscription deleted', ['result' => $ret, 'application-id' => $application['id'],
-													 'uid'    => $uid]);
+		$this->logger->info('Subscription deleted', [
+			'result' => $ret, 'application-id' => $application['id'],
+			'uid'    => $uid
+		]);
 
 		$this->response->exitWithJson([]);
 	}
