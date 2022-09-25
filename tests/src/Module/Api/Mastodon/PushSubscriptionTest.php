@@ -30,7 +30,7 @@ class PushSubscriptionTest extends ApiTest
 	 *
 	 * @return void
 	 */
-	public function testApiAccountVerifyCredentials()
+	public function testApiAccountVerifyCredentials(): void
 	{
 		$this->markTestIncomplete('Needs mocking of whole applictaions/Apps first');
 
@@ -50,7 +50,7 @@ class PushSubscriptionTest extends ApiTest
 	 *
 	 * @return void
 	 */
-	public function testApiAccountVerifyCredentialsWithoutAuthenticatedUser()
+	public function testApiAccountVerifyCredentialsWithoutAuthenticatedUser(): void
 	{
 		self::markTestIncomplete('Needs dynamic BasicAuth first');
 
