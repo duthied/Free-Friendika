@@ -114,7 +114,7 @@ class HTML
 					/** @var \DOMNode $child */
 					foreach ($node->childNodes as $key => $child) {
 						/* Remove empty text nodes at the start or at the end of the children list */
-						if ($key > 0 && $key < $node->childNodes->length - 1 || $child->nodeName != '#text' || trim($child->nodeValue)) {
+						if ($key > 0 && $key < $node->childNodes->length - 1 || $child->nodeName != '#text' || trim($child->nodeValue) !== '') {
 							$newNode = $child->cloneNode(true);
 							$node->parentNode->insertBefore($newNode, $node);
 						}
@@ -144,10 +144,10 @@ class HTML
 	public static function toBBCode(string $message, string $basepath = ''): string
 	{
 		/*
-		 * Check if message is empty to prevent a lot code below being executed
+		 * Check if message is empty to prevent a lot of code below from being executed
 		 * for just an empty message.
 		 */
-		if (empty($message)) {
+		if ($message === '') {
 			return '';
 		}
 

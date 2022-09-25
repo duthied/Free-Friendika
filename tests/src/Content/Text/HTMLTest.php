@@ -82,6 +82,10 @@ its surprisingly good",
 				'html' => "<p>Now playing</p><pre><code>echo &quot;main(i){for(i=0;;i++)putchar(((i*(i&gt;&gt;8|i&gt;&gt;9)&amp;46&amp;i&gt;&gt;8))^(i&amp;i&gt;&gt;13|i&gt;&gt;6));}&quot; | gcc -o a.out -x c - 2&gt; /dev/null
 ./a.out | aplay -q 2&gt; /dev/null</code></pre><p>its surprisingly good</p>",
 			],
+			'bug-11851-content-0' => [
+				'expectedBBCode' => '[url=https://dev-friendica.mrpetovan.com/profile/hypolite]@hypolite[/url] 0',
+				'html' => '<p><span class="h-card"><a href="https://dev-friendica.mrpetovan.com/profile/hypolite" class="u-url mention">@<span>hypolite</span></a></span> 0</p>',
+			],
 		];
 	}
 
