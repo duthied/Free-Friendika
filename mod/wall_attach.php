@@ -20,6 +20,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -35,14 +36,14 @@ function wall_attach_post(App $a)
 		$nick = DI::args()->getArgv()[1];
 		$owner = User::getOwnerDataByNick($nick);
 		if (!DBA::isResult($owner)) {
-			DI::logger()->warning('owner is not a valid record:', ['owner' => $owner]);
+			Logger::warning('owner is not a valid record:', ['owner' => $owner, 'nick' => $nick]);
 			if ($isJson) {
 				System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 			}
 			return;
 		}
 	} else {
-		DI::logger()->warning('Argument count is zero');
+		Logger::warning('Argument count is zero or one (invalid)');
 		if ($isJson) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
@@ -64,6 +65,7 @@ function wall_attach_post(App $a)
 	}
 
 	if (!$can_post) {
+		Logger::warning('User does not have required permissions', ['contact_id' => $contact_id, 'page_owner_uid' => $page_owner_uid]);
 		if ($isJson) {
 			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
@@ -72,7 +74,7 @@ function wall_attach_post(App $a)
 	}
 
 	if (empty($_FILES['userfile'])) {
-		DI::logger()->warning('No file uploaded (empty userfile)');
+		Logger::warning('No file uploaded (empty userfile)');
 		if ($isJson) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
@@ -91,6 +93,7 @@ function wall_attach_post(App $a)
 	 */
 	if ($fileSize <= 0) {
 		$msg = DI::l10n()->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . '<br />' .(DI::l10n()->t('Or - did you try to upload an empty file?'));
+		Logger::warning($msg, ['fileSize' => $fileSize]);
 		@unlink($tempFileName);
 		if ($isJson) {
 			System::jsonExit(['error' => $msg]);
@@ -102,6 +105,7 @@ function wall_attach_post(App $a)
 
 	if ($maxFileSize && $fileSize > $maxFileSize) {
 		$msg = DI::l10n()->t('File exceeds size limit of %s', Strings::formatBytes($maxFileSize));
+		Logger::warning($msg, ['fileSize' => $fileSize]);
 		@unlink($tempFileName);
 		if ($isJson) {
 			System::jsonExit(['error' => $msg]);
@@ -117,6 +121,7 @@ function wall_attach_post(App $a)
 
 	if ($newid === false) {
 		$msg =  DI::l10n()->t('File upload failed.');
+		Logger::warning($msg);
 		if ($isJson) {
 			System::jsonExit(['error' => $msg]);
 		} else {
