@@ -27,21 +27,23 @@ use Friendica\Model\Attach;
 use Friendica\Model\User;
 use Friendica\Util\Strings;
 
-function wall_attach_post(App $a) {
-
-	$r_json = (!empty($_GET['response']) && $_GET['response']=='json');
+function wall_attach_post(App $a)
+{
+	$isJson = (!empty($_GET['response']) && $_GET['response'] == 'json');
 
 	if (DI::args()->getArgc() > 1) {
 		$nick = DI::args()->getArgv()[1];
 		$owner = User::getOwnerDataByNick($nick);
 		if (!DBA::isResult($owner)) {
-			if ($r_json) {
+			DI::logger()->warning('owner is not a valid record:', ['owner' => $owner]);
+			if ($isJson) {
 				System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 			}
 			return;
 		}
 	} else {
-		if ($r_json) {
+		DI::logger()->warning('Argument count is zero');
+		if ($isJson) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 
@@ -62,7 +64,7 @@ function wall_attach_post(App $a) {
 	}
 
 	if (!$can_post) {
-		if ($r_json) {
+		if ($isJson) {
 			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
@@ -70,28 +72,27 @@ function wall_attach_post(App $a) {
 	}
 
 	if (empty($_FILES['userfile'])) {
-		if ($r_json) {
+		DI::logger()->warning('No file uploaded (empty userfile)');
+		if ($isJson) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 		System::exit();
 	}
 
-	$src      = $_FILES['userfile']['tmp_name'];
-	$filename = basename($_FILES['userfile']['name']);
-	$filesize = intval($_FILES['userfile']['size']);
+	$tempFileName = $_FILES['userfile']['tmp_name'];
+	$fileName     = basename($_FILES['userfile']['name']);
+	$fileSize     = intval($_FILES['userfile']['size']);
+	$maxFileSize  = DI::config()->get('system', 'maxfilesize');
 
-	$maxfilesize = DI::config()->get('system','maxfilesize');
-
-	/* Found html code written in text field of form,
-	 * when trying to upload a file with filesize
-	 * greater than upload_max_filesize. Cause is unknown.
+	/*
+	 * Found html code written in text field of form, when trying to upload a
+	 * file with filesize greater than upload_max_filesize. Cause is unknown.
 	 * Then Filesize gets <= 0.
 	 */
-
-	if ($filesize <= 0) {
-		$msg = DI::l10n()->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . '<br />' . (DI::l10n()->t('Or - did you try to upload an empty file?'));
-		@unlink($src);
-		if ($r_json) {
+	if ($fileSize <= 0) {
+		$msg = DI::l10n()->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . '<br />' .(DI::l10n()->t('Or - did you try to upload an empty file?'));
+		@unlink($tempFileName);
+		if ($isJson) {
 			System::jsonExit(['error' => $msg]);
 		} else {
 			DI::sysmsg()->addNotice($msg);
@@ -99,10 +100,10 @@ function wall_attach_post(App $a) {
 		System::exit();
 	}
 
-	if ($maxfilesize && $filesize > $maxfilesize) {
-		$msg = DI::l10n()->t('File exceeds size limit of %s', Strings::formatBytes($maxfilesize));
-		@unlink($src);
-		if ($r_json) {
+	if ($maxFileSize && $fileSize > $maxFileSize) {
+		$msg = DI::l10n()->t('File exceeds size limit of %s', Strings::formatBytes($maxFileSize));
+		@unlink($tempFileName);
+		if ($isJson) {
 			System::jsonExit(['error' => $msg]);
 		} else {
 			echo $msg . '<br />';
@@ -110,13 +111,13 @@ function wall_attach_post(App $a) {
 		System::exit();
 	}
 
-	$newid = Attach::storeFile($src, $page_owner_uid, $filename, '<' . $page_owner_cid . '>');
+	$newid = Attach::storeFile($tempFileName, $page_owner_uid, $fileName, '<' . $page_owner_cid . '>');
 
-	@unlink($src);
+	@unlink($tempFileName);
 
 	if ($newid === false) {
 		$msg =  DI::l10n()->t('File upload failed.');
-		if ($r_json) {
+		if ($isJson) {
 			System::jsonExit(['error' => $msg]);
 		} else {
 			echo $msg . '<br />';
@@ -124,7 +125,7 @@ function wall_attach_post(App $a) {
 		System::exit();
 	}
 
-	if ($r_json) {
+	if ($isJson) {
 		System::jsonExit(['ok' => true, 'id' => $newid]);
 	}
 
