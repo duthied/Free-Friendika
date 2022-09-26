@@ -132,8 +132,9 @@ class PushSubscription extends BaseApi
 		$ret = Subscription::delete($application['id'], $uid);
 
 		$this->logger->info('Subscription deleted', [
-			'result' => $ret, 'application-id' => $application['id'],
-			'uid'    => $uid
+			'result'         => $ret,
+			'application-id' => $application['id'],
+			'uid'            => $uid,
 		]);
 
 		$this->response->exitWithJson([]);
