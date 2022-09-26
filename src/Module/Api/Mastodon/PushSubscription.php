@@ -113,8 +113,10 @@ class PushSubscription extends BaseApi
 		$ret = Subscription::update($application['id'], $uid, $fields);
 
 		$this->logger->info('Subscription updated', [
-			'result' => $ret, 'application-id' => $application['id'],
-			'uid'    => $uid, 'fields' => $fields
+			'result'         => $ret,
+			'application-id' => $application['id'],
+			'uid'            => $uid,
+			'fields'         => $fields,
 		]);
 
 		$subscriptionObj = $this->subscriptionFac->createForApplicationIdAndUserId($application['id'], $uid);
