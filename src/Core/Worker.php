@@ -31,6 +31,13 @@ use Friendica\Util\DateTimeFormat;
  */
 class Worker
 {
+	const PRIORITY_UNDEFINED  = PRIORITY_UNDEFINED;
+	const PRIORITY_CRITICAL   = PRIORITY_CRITICAL;
+	const PRIORITY_HIGH       = PRIORITY_HIGH;
+	const PRIORITY_MEDIUM     = PRIORITY_MEDIUM;
+	const PRIORITY_LOW        = PRIORITY_LOW;
+	const PRIORITY_NEGLIGIBLE = PRIORITY_NEGLIGIBLE;
+
 	const STATE_STARTUP    = 1; // Worker is in startup. This takes most time.
 	const STATE_LONG_LOOP  = 2; // Worker is processing the whole - long - loop.
 	const STATE_REFETCH    = 3; // Worker had refetched jobs in the execution loop.

@@ -653,11 +653,11 @@ return [
 		// worker_max_duration (Array)
 		// Maximum runtime per priority. Worker processes that exceed this runtime will be terminated.
 		'worker_max_duration' => [
-			PRIORITY_CRITICAL   => 720,
-			PRIORITY_HIGH       => 10,
-			PRIORITY_MEDIUM     => 60,
-			PRIORITY_LOW        => 180,
-			PRIORITY_NEGLIGIBLE => 720
+			Friendica\Core\Worker::PRIORITY_CRITICAL   => 720,
+			Friendica\Core\Worker::PRIORITY_HIGH       => 10,
+			Friendica\Core\Worker::PRIORITY_MEDIUM     => 60,
+			Friendica\Core\Worker::PRIORITY_LOW        => 180,
+			Friendica\Core\Worker::PRIORITY_NEGLIGIBLE => 720
 		],
 
 		// worker_processes_cooldown (Integer)
