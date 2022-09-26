@@ -577,15 +577,15 @@ class APContact
 	 */
 	public static function isRelay(array $apcontact): bool
 	{
-		if ($apcontact['nick'] != 'relay') {
+		if (empty($apcontact['nick']) || $apcontact['nick'] != 'relay') {
 			return false;
 		}
 
-		if ($apcontact['type'] == 'Application') {
+		if (!empty($apcontact['type']) && $apcontact['type'] == 'Application') {
 			return true;
 		}
 
-		if (in_array($apcontact['type'], ['Group', 'Service']) && is_null($apcontact['outbox'])) {
+		if (!empty($apcontact['type']) && in_array($apcontact['type'], ['Group', 'Service']) && is_null($apcontact['outbox'])) {
 			return true;
 		}
 

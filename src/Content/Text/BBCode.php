@@ -1867,11 +1867,13 @@ class BBCode
 				if ($try_oembed) {
 					$text = preg_replace_callback("/\[youtube\](https?:\/\/www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", $try_oembed_callback, $text);
 					$text = preg_replace_callback("/\[youtube\](www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", $try_oembed_callback, $text);
+					$text = preg_replace_callback("/\[youtube\](https?:\/\/www.youtube.com\/shorts\/.*?)\[\/youtube\]/ism", $try_oembed_callback, $text);
 					$text = preg_replace_callback("/\[youtube\](https?:\/\/youtu.be\/.*?)\[\/youtube\]/ism", $try_oembed_callback, $text);
 				}
 
 				$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
 				$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/embed\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
+				$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/shorts\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
 				$text = preg_replace("/\[youtube\]https?:\/\/youtu.be\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
 
 				if ($try_oembed) {

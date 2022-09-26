@@ -53,11 +53,17 @@ class Community extends BaseModule
 	{
 		$this->parseRequest();
 
+		$t = Renderer::getMarkupTemplate("community.tpl");
+		$o = Renderer::replaceMacros($t, [
+			'$content' => '',
+			'$header' => '',
+			'$show_global_community_hint' => (self::$content == 'global') && DI::config()->get('system', 'show_global_community_hint'),
+			'$global_community_hint' => DI::l10n()->t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
+		]);
+
 		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
-			$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
-		} else {
-			$o = '';
+			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		}
 
 		if (empty($_GET['mode']) || ($_GET['mode'] != 'raw')) {
@@ -154,13 +160,7 @@ class Community extends BaseModule
 			$o .= $pager->renderMinimal(count($items));
 		}
 
-		$t = Renderer::getMarkupTemplate("community.tpl");
-		return Renderer::replaceMacros($t, [
-			'$content' => $o,
-			'$header' => '',
-			'$show_global_community_hint' => (self::$content == 'global') && DI::config()->get('system', 'show_global_community_hint'),
-			'$global_community_hint' => DI::l10n()->t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
-		]);
+		return $o;
 	}
 
 	/**
@@ -323,7 +323,7 @@ class Community extends BaseModule
 			$condition[] = $item_id;
 		} else {
 			if (local_user() && !empty($_REQUEST['no_sharer'])) {
-				$condition[0] .= " AND NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-thread-user-view`.`uri-id` AND `post-user`.`uid` = ?)";
+				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ?)";
 				$condition[] = local_user();
 			}
 	

@@ -193,7 +193,7 @@ class Cron
 	 */
 	private static function addIntros()
 	{
-		$contacts = DBA::p("SELECT `uid`, `id`, `created` FROM `contact` WHERE `rel` = ? AND `pending` AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id`)", Contact::FOLLOWER);
+		$contacts = DBA::p("SELECT `uid`, `id`, `created` FROM `contact` WHERE `rel` = ? AND `pending` AND NOT `id` IN (SELECT `contact-id` FROM `intro`)", Contact::FOLLOWER);
 		while ($contact = DBA::fetch($contacts)) {
 			$fields = [
 				'uid'        => $contact['uid'],

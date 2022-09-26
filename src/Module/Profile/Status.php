@@ -175,10 +175,8 @@ class Status extends BaseProfile
 
 		$condition = DBA::mergeConditions($condition, ["((`gravity` = ? AND `wall`) OR
 			(`gravity` = ? AND `vid` = ? AND `origin`
-			AND EXISTS(SELECT `uri-id` FROM `post` WHERE `gravity` = ? AND `network` IN (?, ?, ?, ?)
-				AND `uri-id` = `post-user-view`.`thr-parent-id`)))",
-			GRAVITY_PARENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), GRAVITY_PARENT,
-			Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::OSTATUS]);
+			AND `thr-parent-id` IN (SELECT `uri-id` FROM `post` WHERE `gravity` = ? AND `network` = ?)))",
+			GRAVITY_PARENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), GRAVITY_PARENT, Protocol::ACTIVITYPUB]);
 
 		$condition = DBA::mergeConditions($condition, ['uid' => $profile['uid'], 'network' => Protocol::FEDERATED,
 			'visible' => true, 'deleted' => false]);

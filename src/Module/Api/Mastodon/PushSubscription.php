@@ -21,19 +21,36 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\Core\Logger;
-use Friendica\Core\System;
-use Friendica\DI;
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Factory\Api\Mastodon\Error;
+use Friendica\Factory\Api\Mastodon\Subscription as SubscriptionFactory;
 use Friendica\Model\Subscription;
+use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Object\Api\Mastodon\Notification;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * @see https://docs.joinmastodon.org/methods/notifications/push/
  */
 class PushSubscription extends BaseApi
 {
-	protected function post(array $request = [])
+	/** @var SubscriptionFactory */
+	protected $subscriptionFac;
+	/** @var Error */
+	protected $errorFac;
+
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, SubscriptionFactory $subscriptionFac, Error $errorFac, array $server, array $parameters = [])
+	{
+		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->subscriptionFac = $subscriptionFac;
+		$this->errorFac        = $errorFac;
+	}
+
+	protected function post(array $request = []): void
 	{
 		self::checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
@@ -61,12 +78,13 @@ class PushSubscription extends BaseApi
 
 		$ret = Subscription::replace($subscription);
 
-		Logger::info('Subscription stored', ['ret' => $ret, 'subscription' => $subscription]);
+		$this->logger->info('Subscription stored', ['ret' => $ret, 'subscription' => $subscription]);
 
-		return DI::mstdnSubscription()->createForApplicationIdAndUserId($application['id'], $uid)->toArray();
+		$subscriptionObj = $this->subscriptionFac->createForApplicationIdAndUserId($application['id'], $uid);
+		$this->response->exitWithJson($subscriptionObj->toArray());
 	}
 
-	public function put(array $request = [])
+	public function put(array $request = []): void
 	{
 		self::checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
@@ -78,8 +96,8 @@ class PushSubscription extends BaseApi
 
 		$subscription = Subscription::select($application['id'], $uid, ['id']);
 		if (empty($subscription)) {
-			Logger::info('Subscription not found', ['application-id' => $application['id'], 'uid' => $uid]);
-			DI::mstdnError()->RecordNotFound();
+			$this->logger->info('Subscription not found', ['application-id' => $application['id'], 'uid' => $uid]);
+			$this->errorFac->RecordNotFound();
 		}
 
 		$fields = [
@@ -94,12 +112,18 @@ class PushSubscription extends BaseApi
 
 		$ret = Subscription::update($application['id'], $uid, $fields);
 
-		Logger::info('Subscription updated', ['result' => $ret, 'application-id' => $application['id'], 'uid' => $uid, 'fields' => $fields]);
+		$this->logger->info('Subscription updated', [
+			'result'         => $ret,
+			'application-id' => $application['id'],
+			'uid'            => $uid,
+			'fields'         => $fields,
+		]);
 
-		return DI::mstdnSubscription()->createForApplicationIdAndUserId($application['id'], $uid)->toArray();
+		$subscriptionObj = $this->subscriptionFac->createForApplicationIdAndUserId($application['id'], $uid);
+		$this->response->exitWithJson($subscriptionObj->toArray());
 	}
 
-	protected function delete(array $request = [])
+	protected function delete(array $request = []): void
 	{
 		self::checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
@@ -107,24 +131,29 @@ class PushSubscription extends BaseApi
 
 		$ret = Subscription::delete($application['id'], $uid);
 
-		Logger::info('Subscription deleted', ['result' => $ret, 'application-id' => $application['id'], 'uid' => $uid]);
+		$this->logger->info('Subscription deleted', [
+			'result'         => $ret,
+			'application-id' => $application['id'],
+			'uid'            => $uid,
+		]);
 
-		System::jsonExit([]);
+		$this->response->exitWithJson([]);
 	}
 
-	protected function rawContent(array $request = [])
+	protected function rawContent(array $request = []): void
 	{
 		self::checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
 		if (!Subscription::exists($application['id'], $uid)) {
-			Logger::info('Subscription not found', ['application-id' => $application['id'], 'uid' => $uid]);
-			DI::mstdnError()->RecordNotFound();
+			$this->logger->info('Subscription not found', ['application-id' => $application['id'], 'uid' => $uid]);
+			$this->errorFac->RecordNotFound();
 		}
 
-		Logger::info('Fetch subscription', ['application-id' => $application['id'], 'uid' => $uid]);
+		$this->logger->info('Fetch subscription', ['application-id' => $application['id'], 'uid' => $uid]);
 
-		return DI::mstdnSubscription()->createForApplicationIdAndUserId($application['id'], $uid)->toArray();
+		$subscriptionObj = $this->subscriptionFac->createForApplicationIdAndUserId($application['id'], $uid);
+		$this->response->exitWithJson($subscriptionObj->toArray());
 	}
 }

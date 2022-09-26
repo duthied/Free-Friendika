@@ -22,6 +22,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\GServer;
