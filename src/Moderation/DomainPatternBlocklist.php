@@ -222,11 +222,11 @@ class DomainPatternBlocklist
 		}
 
 		foreach ($recipients as $recipient) {
-			$this->l10n->withLang($recipient['language']);
+			$l10n  = $this->l10n->withLang($recipient['language']);
 			$email = $this->emailer->newSystemMail()
 				->withMessage(
-					$this->l10n->t('[%s] Notice of remote server domain pattern block list update', $this->emailer->getSiteEmailName()),
-					$this->l10n->t(
+					$l10n->t('[%s] Notice of remote server domain pattern block list update', $this->emailer->getSiteEmailName()),
+					$l10n->t(
 						'Dear %s,
 
 You are receiving this email because the Friendica node at %s where you are registered as a user updated their remote server domain pattern block list.
