@@ -852,7 +852,11 @@ class Receiver
 
 			case 'as:Accept':
 				if ($object_data['object_type'] == 'as:Follow') {
-					ActivityPub\Processor::acceptFollowUser($object_data);
+					if (!empty($object_data['object_actor'])) {
+						ActivityPub\Processor::acceptFollowUser($object_data);
+					} else {
+						Logger::notice('Unhandled "accept follow" message.', ['object_data' => $object_data]);
+					}
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::ATTEND);
 				} else {
