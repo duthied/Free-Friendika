@@ -855,7 +855,7 @@ class Receiver
 					if (!empty($object_data['object_actor'])) {
 						ActivityPub\Processor::acceptFollowUser($object_data);
 					} else {
-						Logger::debug('Unhandled "accept follow" message.', ['object_data' => $object_data]);
+						Logger::notice('Unhandled "accept follow" message.', ['object_data' => $object_data]);
 					}
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::ATTEND);
