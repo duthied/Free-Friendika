@@ -980,6 +980,14 @@ class Processor
 				continue;
 			}
 
+			if (($receiver != 0) && empty($item['parent-uri-id']) && !empty($item['thr-parent-id'])) {
+				$parent = Post::selectFirst(['parent-uri-id', 'parent-uri'], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $receiver]]);
+				if (!empty($parent['parent-uri-id'])) {
+					$item['parent-uri-id'] = $parent['parent-uri-id'];
+					$item['parent-uri']    = $parent['parent-uri'];
+				}
+			}
+
 			$item['uid'] = $receiver;
 
 			$type = $activity['reception_type'][$receiver] ?? Receiver::TARGET_UNKNOWN;
@@ -1019,6 +1027,11 @@ class Processor
 				} elseif (!empty($activity['push'])) {
 					$item['post-reason'] = Item::PR_PUSHED;
 				}
+			} elseif (($item['post-reason'] == Item::PR_FOLLOWER) && !empty($activity['from-relay'])) {
+				// When a post arrives via a relay and we follow the author, we have to override the causer.
+				// Otherwise the system assumes that we follow the relay. (See "addRowInformation")
+				Logger::debug('Relay post for follower', ['receiver' => $receiver, 'guid' => $item['guid'], 'relay' => $activity['from-relay']]);
+				$item['causer-id'] = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
 			}
 
 			if ($item['isForum'] ?? false) {
@@ -1127,12 +1140,36 @@ class Processor
 
 		$fields = ['causer-id' => $item['causer-id'] ?? $item['author-id'], 'post-reason' => Item::PR_FETCHED];
 
+		$add_parent = true;
+
+		if ($item['verb'] != Activity::ANNOUNCE) {
+			switch (DI::pConfig()->get($receiver, 'system', 'accept_only_sharer')) {
+				case Item::COMPLETION_COMMENT:
+					$add_parent = ($item['gravity'] != GRAVITY_ACTIVITY);
+					break;
+
+				case Item::COMPLETION_NONE:
+					$add_parent = false;
+					break;
+			}
+		}
+
+		if ($add_parent) {
+			$add_parent = Contact::isSharing($fields['causer-id'], $receiver);
+			if (!$add_parent && ($item['author-id'] != $fields['causer-id'])) {
+				$add_parent = Contact::isSharing($item['author-id'], $receiver);
+			}
+			if (!$add_parent && !in_array($item['owner-id'], [$fields['causer-id'], $item['author-id']])) {
+				$add_parent = Contact::isSharing($item['owner-id'], $receiver);
+			}
+		}
+
 		$has_parents = false;
 
 		if (!empty($item['parent-uri-id'])) {
 			if (Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $receiver])) {
 				$has_parents = true;
-			} elseif (Post::exists(['uri-id' => $item['parent-uri'], 'uid' => 0])) {
+			} elseif ($add_parent && Post::exists(['uri-id' => $item['parent-uri'], 'uid' => 0])) {
 				$stored = Item::storeForUserByUriId($item['parent-uri-id'], $receiver, $fields);
 				$has_parents = (bool)$stored;
 				if ($stored) {
@@ -1141,13 +1178,17 @@ class Processor
 					Logger::notice('Parent could not be added.', ['uid' => $receiver, 'uri' => $item['uri'], 'parent' => $item['parent-uri']]);
 					return false;
 				}
+			} elseif ($add_parent) {
+				Logger::debug('Parent does not exist.', ['uid' => $receiver, 'uri' => $item['uri'], 'parent' => $item['parent-uri']]);
+			} else {
+				Logger::debug('Parent should not be added.', ['uid' => $receiver, 'gravity' => $item['gravity'], 'verb' => $item['verb'], 'guid' => $item['guid'], 'uri' => $item['uri'], 'parent' => $item['parent-uri']]);
 			}
 		}
 
 		if (empty($item['parent-uri-id']) || ($item['thr-parent-id'] != $item['parent-uri-id'])) {
 			if (Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $receiver])) {
 				$has_parents = true;
-			} elseif (Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => 0])) {
+			} elseif (($has_parents || $add_parent) && Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => 0])) {
 				$stored = Item::storeForUserByUriId($item['thr-parent-id'], $receiver, $fields);
 				$has_parents = $has_parents || (bool)$stored;
 				if ($stored) {
@@ -1155,6 +1196,10 @@ class Processor
 				} else {
 					Logger::notice('Thread parent could not be added.', ['uid' => $receiver, 'uri' => $item['uri'], 'thread-parent' => $item['thr-parent']]);
 				}
+			} elseif ($add_parent) {
+				Logger::debug('Thread parent does not exist.', ['uid' => $receiver, 'uri' => $item['uri'], 'thread-parent' => $item['thr-parent']]);
+			} else {
+				Logger::debug('Thread parent should not be added.', ['uid' => $receiver, 'gravity' => $item['gravity'], 'verb' => $item['verb'], 'guid' => $item['guid'], 'uri' => $item['uri'], 'thread-parent' => $item['thr-parent']]);
 			}
 		}
 
