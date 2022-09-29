@@ -1916,6 +1916,24 @@ class Receiver
 			$object_data['attachments'] = array_merge($object_data['attachments'], self::processAttachmentUrls($object['as:url'] ?? []));
 		}
 
+		// Support for quoted posts (Pleroma, Fedibird and Misskey)
+		$object_data['quote-url'] = JsonLD::fetchElement($object, 'as:quoteUrl', '@value');
+		if (empty($object_data['quote-url'])) {
+			$object_data['quote-url'] = JsonLD::fetchElement($object, 'fedibird:quoteUri', '@value');
+		}
+		if (empty($object_data['quote-url'])) {
+			$object_data['quote-url'] = JsonLD::fetchElement($object, 'misskey:_misskey_quote', '@value');
+		}
+
+		// Misskey adds some data to the standard "content" value for quoted posts for backwards compatibility.
+		// Their own "_misskey_content" value does then contain the content without this extra data.
+		if (!empty($object_data['quote-url'])) {
+			$misskey_content = JsonLD::fetchElement($object, 'misskey:_misskey_content', '@value');
+			if (!empty($misskey_content)) {
+				$object_data['content'] = $misskey_content;
+			}
+		}
+
 		// For page types we expect that the alternate url posts to some page.
 		// So we add this to the attachments if it differs from the id.
 		// Currently only Lemmy is using the page type.

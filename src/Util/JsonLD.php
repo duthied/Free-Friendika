@@ -157,6 +157,8 @@ class JsonLD
 			'sc' => (object)['@id' => 'http://schema.org#', '@type' => '@id'],
 			'pt' => (object)['@id' => 'https://joinpeertube.org/ns#', '@type' => '@id'],
 			'mobilizon' => (object)['@id' => 'https://joinmobilizon.org/ns#', '@type' => '@id'],
+			'fedibird' => (object)['@id' => 'http://fedibird.com/ns#', '@type' => '@id'],
+			'misskey' => (object)['@id' => 'https://misskey-hub.net/ns#', '@type' => '@id'],
 		];
 
 		$orig_json = $json;
