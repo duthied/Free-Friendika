@@ -848,6 +848,10 @@ class Processor
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary'] ?? '');
 			$item['raw-body'] = $item['body'] = $content;
+
+			if (!empty($activity['quote-url'])) {
+				$item['body'] .= self::addSharedData($activity['quote-url']);
+			}
 		}
 
 		self::storeFromBody($item);
@@ -864,6 +868,40 @@ class Processor
 		$item['app'] = $activity['generator'];
 
 		return $item;
+	}
+
+	/**
+	 * Add a share block for the given quote link
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	private static function addSharedData(string $url): string
+	{
+		$id = Item::fetchByLink($url);
+		if (empty($id)) {
+			return '';
+		}
+
+		$shared_item = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'title', 'body'], ['id' => $id]);
+		if (!DBA::isResult($shared_item)) {
+			return '';
+		}
+
+		$prefix = BBCode::getShareOpeningTag(
+			$shared_item['author-name'],
+			$shared_item['author-link'],
+			$shared_item['author-avatar'],
+			$shared_item['plink'],
+			$shared_item['created'],
+			$shared_item['guid']
+		);
+
+		if (!empty($shared_item['title'])) {
+			$prefix .= '[h3]' . $shared_item['title'] . "[/h3]\n";
+		}
+
+		return $prefix . $shared_item['body'] . '[/share]';
 	}
 
 	/**
