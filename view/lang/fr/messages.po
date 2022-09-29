@@ -36,7 +36,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-08-09 13:22-0400\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
-"Last-Translator: Hypolite Petovan <hypolite@mrpetovan.com>, 2019-2022\n"
+"Last-Translator: Nicolas Derive, 2022\n"
 "Language-Team: French (http://www.transifex.com/Friendica/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -8872,7 +8872,7 @@ msgstr "Se déconnecter de ce navigateur ?"
 msgid ""
 "<p>If you trust this browser, you will not be asked for verification code "
 "the next time you sign in.</p>"
-msgstr ""
+msgstr "<p>Si vous faites confiance à ce navigateur, votre code de vérification ne vous sera pas demandé la prochaine fois que vous vous connecterez.</p>"
 
 #: src/Module/Security/TwoFactor/SignOut.php:124
 msgid "Sign out"
@@ -8894,7 +8894,7 @@ msgstr "Faire confiance à ce navigateur ?"
 msgid ""
 "<p>If you choose to trust this browser, you will not be asked for a "
 "verification code the next time you sign in.</p>"
-msgstr ""
+msgstr "<p>Si vous choisissez de faire confiance à ce navigateur, votre code de vérification ne vous sera pas demandé la prochaine fois que vous vous connecterez.</p>"
 
 #: src/Module/Security/TwoFactor/Trust.php:142
 msgid "Not now"
@@ -8919,7 +8919,7 @@ msgstr "<p>Ouvrez l'application d'identification à deux facteurs sur votre appa
 msgid ""
 "If you do not have access to your authentication code you can use a <a "
 "href=\"%s\">two-factor recovery code</a>."
-msgstr ""
+msgstr "Si vous n'avez pas accès à votre code d'identification vous pouvez utiliser un <a href=\"%s\">code de récupération à deux facteurs</a>."
 
 #: src/Module/Security/TwoFactor/Verify.php:101
 #: src/Module/Settings/TwoFactor/Verify.php:154

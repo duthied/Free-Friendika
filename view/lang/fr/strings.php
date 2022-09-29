@@ -2273,14 +2273,17 @@ $a->strings['Don’t have your phone? <a href="%s">Enter a two-factor recovery c
 $a->strings['Please enter a recovery code'] = 'Merci de saisir un code de récupération';
 $a->strings['Submit recovery code and complete login'] = 'Soumettre le code de récupération et compléter l\'identification';
 $a->strings['Sign out of this browser?'] = 'Se déconnecter de ce navigateur ?';
+$a->strings['<p>If you trust this browser, you will not be asked for verification code the next time you sign in.</p>'] = '<p>Si vous faites confiance à ce navigateur, votre code de vérification ne vous sera pas demandé la prochaine fois que vous vous connecterez.</p>';
 $a->strings['Sign out'] = 'Se déconnecter';
 $a->strings['Trust and sign out'] = 'Faire confiance et se déconnecter';
 $a->strings['Couldn\'t save browser to Cookie.'] = 'Impossible d\'enregistrer ce navigateur dans le cookie.';
 $a->strings['Trust this browser?'] = 'Faire confiance à ce navigateur ?';
+$a->strings['<p>If you choose to trust this browser, you will not be asked for a verification code the next time you sign in.</p>'] = '<p>Si vous choisissez de faire confiance à ce navigateur, votre code de vérification ne vous sera pas demandé la prochaine fois que vous vous connecterez.</p>';
 $a->strings['Not now'] = 'Pas maintenant';
 $a->strings['Don\'t trust'] = 'Ne pas faire confiance';
 $a->strings['Trust'] = 'Faire confiance';
 $a->strings['<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'] = '<p>Ouvrez l\'application d\'identification à deux facteurs sur votre appareil afin d\'avoir un code d\'identification et vérifier votre identité.</p>';
+$a->strings['If you do not have access to your authentication code you can use a <a href="%s">two-factor recovery code</a>.'] = 'Si vous n\'avez pas accès à votre code d\'identification vous pouvez utiliser un <a href="%s">code de récupération à deux facteurs</a>.';
 $a->strings['Please enter a code from your authentication app'] = 'Veuillez saisir le code fourni par votre application mobile d\'authentification à deux facteurs';
 $a->strings['Verify code and complete login'] = 'Vérifier le code de récupération et compléter l\'identification';
 $a->strings['Please use a shorter name.'] = 'Veuillez saisir un nom plus court.';
