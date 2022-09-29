@@ -1355,11 +1355,12 @@ class Transmitter
 	/**
 	 * Returns a tag array for a given item array
 	 *
-	 * @param array $item Item array
+	 * @param array  $item      Item array
+	 * @param string $quote_url Url of the attached quote link
 	 * @return array of tags
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function createTagList(array $item): array
+	private static function createTagList(array $item, string $quote_url): array
 	{
 		$tags = [];
 
@@ -1387,6 +1388,16 @@ class Transmitter
 		// Mention the original author upon commented reshares
 		if (!empty($announce['comment'])) {
 			$tags[] = ['type' => 'Mention', 'href' => $announce['actor']['url'], 'name' => '@' . $announce['actor']['addr']];
+		}
+
+		// @see https://codeberg.org/fediverse/fep/src/branch/main/feps/fep-e232.md
+		if (!empty($quote_url)) {
+			$tags[] = [
+				'type'      => 'Link',
+				'mediaType' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				'href'      => $quote_url,
+				'name'      => BBCode::convertForUriId($item['uri-id'], $quote_url, BBCode::ACTIVITYPUB)
+			];
 		}
 
 		return $tags;
@@ -1662,6 +1673,12 @@ class Transmitter
 
 			$body = BBCode::setMentionsToNicknames($body);
 
+			$shared = BBCode::fetchShareAttributes($body);
+			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
+				$body = self::ReplaceSharedData($body);
+				$data['quoteUrl'] = $shared['link'];
+			}
+
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
 		}
 
@@ -1683,7 +1700,7 @@ class Transmitter
 		}
 
 		$data['attachment'] = self::createAttachmentList($item, $type);
-		$data['tag'] = self::createTagList($item);
+		$data['tag'] = self::createTagList($item, $data['quoteUrl'] ?? '');
 
 		if (empty($data['location']) && (!empty($item['coord']) || !empty($item['location']))) {
 			$data['location'] = self::createLocation($item);
@@ -1696,6 +1713,22 @@ class Transmitter
 		$data = array_merge($data, $permission_block);
 
 		return $data;
+	}
+
+	/**
+	 * Replace the share block with a link
+	 *
+	 * @param string $body
+	 * @return string
+	 */
+	private static function ReplaceSharedData(string $body): string
+	{
+		return BBCode::convertShare(
+			$body,
+			function (array $attributes) {
+				return $attributes['link'];
+			}
+		);
 	}
 
 	/**

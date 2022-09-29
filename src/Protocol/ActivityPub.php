@@ -72,6 +72,8 @@ class ActivityPub
 		'schema' => 'http://schema.org#',
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
+		'quoteUrl' => 'as:quoteUrl',
+		'conversation' => 'ostatus:conversation',
 		'directMessage' => 'litepub:directMessage',
 		'discoverable' => 'toot:discoverable',
 		'PropertyValue' => 'schema:PropertyValue',
