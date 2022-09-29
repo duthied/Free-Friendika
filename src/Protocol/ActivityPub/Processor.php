@@ -981,9 +981,10 @@ class Processor
 			}
 
 			if (($receiver != 0) && empty($item['parent-uri-id']) && !empty($item['thr-parent-id'])) {
-				$parent = Post::selectFirst(['parent-uri-id'], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $receiver]]);
+				$parent = Post::selectFirst(['parent-uri-id', 'parent-uri'], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $receiver]]);
 				if (!empty($parent['parent-uri-id'])) {
 					$item['parent-uri-id'] = $parent['parent-uri-id'];
+					$item['parent-uri']    = $parent['parent-uri'];
 				}
 			}
 
