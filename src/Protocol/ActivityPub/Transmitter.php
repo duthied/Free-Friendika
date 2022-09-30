@@ -1392,12 +1392,13 @@ class Transmitter
 
 		// @see https://codeberg.org/fediverse/fep/src/branch/main/feps/fep-e232.md
 		if (!empty($quote_url)) {
-			$tags[] = [
-				'type'      => 'Link',
-				'mediaType' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-				'href'      => $quote_url,
-				'name'      => BBCode::convertForUriId($item['uri-id'], $quote_url, BBCode::ACTIVITYPUB)
-			];
+			// Currently deactivated because of compatibility issues with Pleroma
+			//$tags[] = [
+			//	'type'      => 'Link',
+			//	'mediaType' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+			//	'href'      => $quote_url,
+			//	'name'      => BBCode::convertForUriId($item['uri-id'], $quote_url, BBCode::ACTIVITYPUB)
+			//];
 		}
 
 		return $tags;
@@ -1694,7 +1695,7 @@ class Transmitter
 		}
 
 		$data['attachment'] = self::createAttachmentList($item);
-		$data['tag'] = self::createTagList($item, ''); // $data['quoteUrl'] ?? 
+		$data['tag'] = self::createTagList($item, $data['quoteUrl'] ?? '');  
 
 		if (empty($data['location']) && (!empty($item['coord']) || !empty($item['location']))) {
 			$data['location'] = self::createLocation($item);
