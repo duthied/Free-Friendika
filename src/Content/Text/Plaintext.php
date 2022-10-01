@@ -179,6 +179,8 @@ class Plaintext
 		$msg = HTML::toPlaintext($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 
+		$complete_msg = $msg;
+
 		$link = '';
 		if ($includedlinks) {
 			if ($post['type'] == 'link') {
@@ -221,6 +223,8 @@ class Plaintext
 						unset($post['url']);
 					}
 				}
+			} elseif ($link != '') {
+				$complete_msg .= "\n" . $link;
 			}
 		}
 
@@ -251,8 +255,61 @@ class Plaintext
 			}
 		}
 
+		if ($limit > 0) {
+			$post['parts'] = self::getParts(trim($complete_msg), $limit);
+		}
+
 		$post['text'] = trim($msg);
 
 		return $post;
+	}
+
+	/**
+	 * Split the message in parts
+	 *
+	 * @param string  $message
+	 * @param integer $limit
+	 * @return array
+	 */
+	private static function getParts(string $message, int $limit): array
+	{
+		$parts = [];
+		$part = '';
+
+		while (trim($message)) {
+			$pos1 = strpos($message, ' ');
+			$pos2 = strpos($message, "\n");
+
+			if (($pos1 !== false) && ($pos2 !== false)) {
+				$pos = min($pos1, $pos2) + 1;
+			} elseif ($pos1 !== false) {
+				$pos = $pos1 + 1;
+			} elseif ($pos2 !== false) {
+				$pos = $pos2 + 1;
+			} else {
+				$word = $message;
+				$message = '';
+			}
+
+			if (trim($message)) {
+				$word    = substr($message, 0, $pos);
+				$message = trim(substr($message, $pos));
+			}
+
+			if (strlen($part . $word) > ($limit - 8)) {
+				$parts[] = trim($part);
+				$part = '';
+			}
+			$part .= $word;
+		}
+		$parts[] = $part;
+
+		if (count($parts) > 1) {
+			foreach ($parts as $key => $part) {
+				$parts[$key] .= ' (' . ($key + 1) . '/' . count($parts) . ')';
+			}
+		}
+
+		return $parts;
 	}
 }
