@@ -1397,7 +1397,7 @@ class Transmitter
 			//	'type'      => 'Link',
 			//	'mediaType' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
 			//	'href'      => $quote_url,
-			//	'name'      => BBCode::convertForUriId($item['uri-id'], $quote_url, BBCode::ACTIVITYPUB)
+			//	'name'      => '♲ ' . BBCode::convertForUriId($item['uri-id'], $quote_url, BBCode::ACTIVITYPUB)
 			//];
 		}
 
@@ -1721,7 +1721,7 @@ class Transmitter
 		return BBCode::convertShare(
 			$body,
 			function (array $attributes) {
-				return $attributes['link'];
+				return '♲ ' . $attributes['link'];
 			}
 		);
 	}
