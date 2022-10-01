@@ -126,8 +126,6 @@ class Plaintext
 		$body = BBCode::stripAbstract($body);
 
 		// At first look at data that is attached via "type-..." stuff
-		// This will hopefully replaced with a dedicated bbcode later
-		//$post = self::getAttachedData($b['body']);
 		$post = BBCode::getAttachedData($body, $item);
 
 		if (($item['title'] != '') && ($post['text'] != '')) {
@@ -238,11 +236,13 @@ class Plaintext
 				$limit = $limit - 23;
 			}
 
-			if (!in_array($link, ['', $item['plink']]) && ($post['type'] != 'photo')) {
-				$complete_msg .= "\n" . $link;
+			if (!in_array($link, ['', $item['plink']]) && ($post['type'] != 'photo') && (strpos($complete_msg, $link) === false)) {
+				$complete_link = $link;
+			} else {
+				$complete_link = '';
 			}
 
-			$post['parts'] = self::getParts(trim($complete_msg), $limit);
+			$post['parts'] = self::getParts(trim($complete_msg), $limit, $complete_link);
 
 			if (iconv_strlen($msg, 'UTF-8') > $limit) {
 				if (($post['type'] == 'text') && isset($post['url'])) {
@@ -271,12 +271,18 @@ class Plaintext
 	 * @param integer $limit
 	 * @return array
 	 */
-	private static function getParts(string $message, int $limit): array
+	private static function getParts(string $message, int $limit, string $link): array
 	{
 		$parts = [];
 		$part = '';
 
-		while (trim($message)) {
+		if (($link != '') && (strlen($message) <= $limit - 24)) {
+			return [$message. "\n" . $link];
+		} elseif (($link == '') && (strlen($message) <= $limit)) {
+			return [$message];
+		}
+
+		while ($message) {
 			$pos1 = strpos($message, ' ');
 			$pos2 = strpos($message, "\n");
 
@@ -299,10 +305,13 @@ class Plaintext
 			if (strlen($part . $word) > ($limit - 8)) {
 				$parts[] = trim($part);
 				$part = '';
+				if (strlen($message) <= ($limit - 8)) {
+					$limit -= 23;
+				}
 			}
 			$part .= $word;
 		}
-		$parts[] = $part;
+		$parts[] = trim($part . "\n" . $link);
 
 		if (count($parts) > 1) {
 			foreach ($parts as $key => $part) {
