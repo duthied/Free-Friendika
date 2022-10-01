@@ -179,6 +179,8 @@ class Plaintext
 		$msg = HTML::toPlaintext($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 
+		$complete_msg = $msg;
+
 		$link = '';
 		if ($includedlinks) {
 			if ($post['type'] == 'link') {
@@ -236,6 +238,12 @@ class Plaintext
 				$limit = $limit - 23;
 			}
 
+			if (!in_array($link, ['', $item['plink']]) && ($post['type'] != 'photo')) {
+				$complete_msg .= "\n" . $link;
+			}
+
+			$post['parts'] = self::getParts(trim($complete_msg), $limit);
+
 			if (iconv_strlen($msg, 'UTF-8') > $limit) {
 				if (($post['type'] == 'text') && isset($post['url'])) {
 					$post['url'] = $item['plink'];
@@ -254,5 +262,54 @@ class Plaintext
 		$post['text'] = trim($msg);
 
 		return $post;
+	}
+
+	/**
+	 * Split the message in parts
+	 *
+	 * @param string  $message
+	 * @param integer $limit
+	 * @return array
+	 */
+	private static function getParts(string $message, int $limit): array
+	{
+		$parts = [];
+		$part = '';
+
+		while (trim($message)) {
+			$pos1 = strpos($message, ' ');
+			$pos2 = strpos($message, "\n");
+
+			if (($pos1 !== false) && ($pos2 !== false)) {
+				$pos = min($pos1, $pos2) + 1;
+			} elseif ($pos1 !== false) {
+				$pos = $pos1 + 1;
+			} elseif ($pos2 !== false) {
+				$pos = $pos2 + 1;
+			} else {
+				$word = $message;
+				$message = '';
+			}
+
+			if (trim($message)) {
+				$word    = substr($message, 0, $pos);
+				$message = trim(substr($message, $pos));
+			}
+
+			if (strlen($part . $word) > ($limit - 8)) {
+				$parts[] = trim($part);
+				$part = '';
+			}
+			$part .= $word;
+		}
+		$parts[] = $part;
+
+		if (count($parts) > 1) {
+			foreach ($parts as $key => $part) {
+				$parts[$key] .= ' (' . ($key + 1) . '/' . count($parts) . ')';
+			}
+		}
+
+		return $parts;
 	}
 }
