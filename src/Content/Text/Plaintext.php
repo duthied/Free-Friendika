@@ -223,8 +223,6 @@ class Plaintext
 						unset($post['url']);
 					}
 				}
-			} elseif ($link != '') {
-				$complete_msg .= "\n" . $link;
 			}
 		}
 
@@ -240,6 +238,12 @@ class Plaintext
 				$limit = $limit - 23;
 			}
 
+			if (!in_array($link, ['', $item['plink']]) && ($post['type'] != 'photo')) {
+				$complete_msg .= "\n" . $link;
+			}
+
+			$post['parts'] = self::getParts(trim($complete_msg), $limit);
+
 			if (iconv_strlen($msg, 'UTF-8') > $limit) {
 				if (($post['type'] == 'text') && isset($post['url'])) {
 					$post['url'] = $item['plink'];
@@ -253,10 +257,6 @@ class Plaintext
 				}
 				$msg = self::shorten($msg, $limit, $item['uid']);
 			}
-		}
-
-		if ($limit > 0) {
-			$post['parts'] = self::getParts(trim($complete_msg), $limit);
 		}
 
 		$post['text'] = trim($msg);
