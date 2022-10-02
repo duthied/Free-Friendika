@@ -23,9 +23,12 @@ namespace Friendica\Content\Text;
 
 use Friendica\Core\Protocol;
 use Friendica\DI;
+use Friendica\Util\Network;
 
 class Plaintext
 {
+	const URL_LENGTH = 23;
+
 	/**
 	 * Shortens message
 	 *
@@ -41,18 +44,18 @@ class Plaintext
 		$ellipsis = html_entity_decode("&#x2026;", ENT_QUOTES, 'UTF-8');
 
 		if (!empty($uid) && DI::pConfig()->get($uid, 'system', 'simple_shortening')) {
-			return iconv_substr(iconv_substr(trim($msg), 0, $limit, "UTF-8"), 0, -3, "UTF-8") . $ellipsis;
+			return mb_substr(mb_substr(trim($msg), 0, $limit), 0, -3) . $ellipsis;
 		}
 
 		$lines = explode("\n", $msg);
 		$msg = "";
 		$recycle = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
 		foreach ($lines as $row => $line) {
-			if (iconv_strlen(trim($msg . "\n" . $line), "UTF-8") <= $limit) {
+			if (mb_strlen(trim($msg . "\n" . $line)) <= $limit) {
 				$msg = trim($msg . "\n" . $line);
 			} elseif (($msg == "") || (($row == 1) && (substr($msg, 0, 4) == $recycle))) {
 				// Is the new message empty by now or is it a reshared message?
-				$msg = iconv_substr(iconv_substr(trim($msg . "\n" . $line), 0, $limit, "UTF-8"), 0, -3, "UTF-8") . $ellipsis;
+				$msg = mb_substr(mb_substr(trim($msg . "\n" . $line), 0, $limit), 0, -3) . $ellipsis;
 			} else {
 				break;
 			}
@@ -206,13 +209,13 @@ class Plaintext
 
 				// Will the text be shortened in the link?
 				// Or is the link the last item in the post?
-				if (($limit > 0) && ($pos < $limit) && (($pos + 23 > $limit) || ($pos + strlen($link) == strlen($msg)))) {
+				if (($limit > 0) && ($pos < $limit) && (($pos + self::URL_LENGTH > $limit) || ($pos + mb_strlen($link) == mb_strlen($msg)))) {
 					$msg = trim(str_replace($link, '', $msg));
 				} elseif (($limit == 0) || ($pos < $limit)) {
 					// The limit has to be increased since it will be shortened - but not now
 					// Only do it with Twitter
-					if (($limit > 0) && (strlen($link) > 23) && ($htmlmode == BBCode::TWITTER)) {
-						$limit = $limit - 23 + strlen($link);
+					if (($limit > 0) && (mb_strlen($link) > self::URL_LENGTH) && ($htmlmode == BBCode::TWITTER)) {
+						$limit = $limit - self::URL_LENGTH + mb_strlen($link);
 					}
 
 					$link = '';
@@ -231,24 +234,22 @@ class Plaintext
 				$msg = str_replace('  ', ' ', $msg);
 			}
 
-			// Twitter is using its own limiter, so we always assume that shortened links will have this length
-			if (iconv_strlen($link, 'UTF-8') > 0) {
-				$limit = $limit - 23;
-			}
-
 			if (!in_array($link, ['', $item['plink']]) && ($post['type'] != 'photo') && (strpos($complete_msg, $link) === false)) {
-				$complete_link = $link;
-			} else {
-				$complete_link = '';
+				$complete_msg .= "\n" . $link;
 			}
 
-			$post['parts'] = self::getParts(trim($complete_msg), $limit, $complete_link);
+			$post['parts'] = self::getParts(trim($complete_msg), $limit);
 
-			if (iconv_strlen($msg, 'UTF-8') > $limit) {
+			// Twitter is using its own limiter, so we always assume that shortened links will have this length
+			if (mb_strlen($link) > 0) {
+				$limit = $limit - self::URL_LENGTH;
+			}
+
+			if (mb_strlen($msg) > $limit) {
 				if (($post['type'] == 'text') && isset($post['url'])) {
 					$post['url'] = $item['plink'];
 				} elseif (!isset($post['url'])) {
-					$limit = $limit - 23;
+					$limit = $limit - self::URL_LENGTH;
 					$post['url'] = $item['plink'];
 				} elseif (strpos($item['body'], '[share') !== false) {
 					$post['url'] = $item['plink'];
@@ -268,19 +269,15 @@ class Plaintext
 	 * Split the message in parts
 	 *
 	 * @param string  $message
-	 * @param integer $limit
+	 * @param integer $baselimit
 	 * @return array
 	 */
-	private static function getParts(string $message, int $limit, string $link): array
+	private static function getParts(string $message, int $baselimit): array
 	{
 		$parts = [];
 		$part = '';
 
-		if (($link != '') && (strlen($message) <= $limit - 24)) {
-			return [$message. "\n" . $link];
-		} elseif (($link == '') && (strlen($message) <= $limit)) {
-			return [$message];
-		}
+		$limit = $baselimit;
 
 		while ($message) {
 			$pos1 = strpos($message, ' ');
@@ -302,16 +299,18 @@ class Plaintext
 				$message = trim(substr($message, $pos));
 			}
 
-			if (strlen($part . $word) > ($limit - 8)) {
+			if (Network::isValidHttpUrl(trim($word))) {
+				$limit += mb_strlen(trim($word)) - self::URL_LENGTH;
+			}
+
+			if ((mb_strlen($part . $word) > $limit - 8) && (mb_strlen($part . $word . $message) > $limit)) {
 				$parts[] = trim($part);
-				$part = '';
-				if (strlen($message) <= ($limit - 8)) {
-					$limit -= 23;
-				}
+				$part    = '';
+				$limit   = $baselimit;
 			}
 			$part .= $word;
 		}
-		$parts[] = trim($part . "\n" . $link);
+		$parts[] = trim($part);
 
 		if (count($parts) > 1) {
 			foreach ($parts as $key => $part) {
