@@ -1664,7 +1664,7 @@ class Transmitter
 
 			$shared = BBCode::fetchShareAttributes($body);
 			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
-				$body = self::ReplaceSharedData($body);
+				$body = self::replaceSharedData($body);
 				$data['quoteUrl'] = $shared['link'];
 			}
 
@@ -1680,7 +1680,7 @@ class Transmitter
 
 			$shared = BBCode::fetchShareAttributes($richbody);
 			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
-				$richbody = self::ReplaceSharedData($richbody);
+				$richbody = self::replaceSharedData($richbody);
 			}
 
 			$richbody = BBCode::removeAttachment($richbody);
@@ -1716,7 +1716,7 @@ class Transmitter
 	 * @param string $body
 	 * @return string
 	 */
-	private static function ReplaceSharedData(string $body): string
+	private static function replaceSharedData(string $body): string
 	{
 		return BBCode::convertShare(
 			$body,
