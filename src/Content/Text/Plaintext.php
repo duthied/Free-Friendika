@@ -27,6 +27,7 @@ use Friendica\Util\Network;
 
 class Plaintext
 {
+	// Assumed length of an URL when shortened via the network's own url shortener (e.g. Twitter)
 	const URL_LENGTH = 23;
 
 	/**
