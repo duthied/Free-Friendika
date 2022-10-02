@@ -1355,11 +1355,12 @@ class Transmitter
 	/**
 	 * Returns a tag array for a given item array
 	 *
-	 * @param array $item Item array
+	 * @param array  $item      Item array
+	 * @param string $quote_url Url of the attached quote link
 	 * @return array of tags
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function createTagList(array $item): array
+	private static function createTagList(array $item, string $quote_url): array
 	{
 		$tags = [];
 
@@ -1389,6 +1390,17 @@ class Transmitter
 			$tags[] = ['type' => 'Mention', 'href' => $announce['actor']['url'], 'name' => '@' . $announce['actor']['addr']];
 		}
 
+		// @see https://codeberg.org/fediverse/fep/src/branch/main/feps/fep-e232.md
+		if (!empty($quote_url)) {
+			// Currently deactivated because of compatibility issues with Pleroma
+			//$tags[] = [
+			//	'type'      => 'Link',
+			//	'mediaType' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+			//	'href'      => $quote_url,
+			//	'name'      => '♲ ' . BBCode::convertForUriId($item['uri-id'], $quote_url, BBCode::ACTIVITYPUB)
+			//];
+		}
+
 		return $tags;
 	}
 
@@ -1396,51 +1408,39 @@ class Transmitter
 	 * Adds attachment data to the JSON document
 	 *
 	 * @param array  $item Data of the item that is to be posted
-	 * @param string $type Object type
 	 *
 	 * @return array with attachment data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function createAttachmentList(array $item, string $type): array
+	private static function createAttachmentList(array $item): array
 	{
 		$attachments = [];
 
-		$uriids = [$item['uri-id']];
-		$shared = BBCode::fetchShareAttributes($item['body']);
-		if (!empty($shared['guid'])) {
-			$shared_item = Post::selectFirst(['uri-id'], ['guid' => $shared['guid']]);
-			if (!empty($shared_item['uri-id'])) {
-				$uriids[] = $shared_item['uri-id'];
-			}
-		}
-
 		$urls = [];
-		foreach ($uriids as $uriid) {
-			foreach (Post\Media::getByURIId($uriid, [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO, Post\Media::DOCUMENT, Post\Media::TORRENT]) as $attachment) {
-				if (in_array($attachment['url'], $urls)) {
-					continue;
-				}
-				$urls[] = $attachment['url'];
-
-				$attach = ['type' => 'Document',
-					'mediaType' => $attachment['mimetype'],
-					'url' => $attachment['url'],
-					'name' => $attachment['description']];
-
-				if (!empty($attachment['height'])) {
-					$attach['height'] = $attachment['height'];
-				}
-
-				if (!empty($attachment['width'])) {
-					$attach['width'] = $attachment['width'];
-				}
-
-				if (!empty($attachment['preview'])) {
-					$attach['image'] = $attachment['preview'];
-				}
-
-				$attachments[] = $attach;
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO, Post\Media::DOCUMENT, Post\Media::TORRENT]) as $attachment) {
+			if (in_array($attachment['url'], $urls)) {
+				continue;
 			}
+			$urls[] = $attachment['url'];
+
+			$attach = ['type' => 'Document',
+				'mediaType' => $attachment['mimetype'],
+				'url' => $attachment['url'],
+				'name' => $attachment['description']];
+
+			if (!empty($attachment['height'])) {
+				$attach['height'] = $attachment['height'];
+			}
+
+			if (!empty($attachment['width'])) {
+				$attach['width'] = $attachment['width'];
+			}
+
+			if (!empty($attachment['preview'])) {
+				$attach['image'] = $attachment['preview'];
+			}
+
+			$attachments[] = $attach;
 		}
 
 		return $attachments;
@@ -1662,6 +1662,12 @@ class Transmitter
 
 			$body = BBCode::setMentionsToNicknames($body);
 
+			$shared = BBCode::fetchShareAttributes($body);
+			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
+				$body = self::replaceSharedData($body);
+				$data['quoteUrl'] = $shared['link'];
+			}
+
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
 		}
 
@@ -1671,6 +1677,12 @@ class Transmitter
 		$language = self::getLanguage($item);
 		if (!empty($language)) {
 			$richbody = BBCode::setMentionsToNicknames($item['body'] ?? '');
+
+			$shared = BBCode::fetchShareAttributes($richbody);
+			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
+				$richbody = self::replaceSharedData($richbody);
+			}
+
 			$richbody = BBCode::removeAttachment($richbody);
 
 			$data['contentMap'][$language] = BBCode::convertForUriId($item['uri-id'], $richbody, BBCode::EXTERNAL);
@@ -1682,8 +1694,8 @@ class Transmitter
 			$data['diaspora:comment'] = $item['signed_text'];
 		}
 
-		$data['attachment'] = self::createAttachmentList($item, $type);
-		$data['tag'] = self::createTagList($item);
+		$data['attachment'] = self::createAttachmentList($item);
+		$data['tag'] = self::createTagList($item, $data['quoteUrl'] ?? '');  
 
 		if (empty($data['location']) && (!empty($item['coord']) || !empty($item['location']))) {
 			$data['location'] = self::createLocation($item);
@@ -1696,6 +1708,22 @@ class Transmitter
 		$data = array_merge($data, $permission_block);
 
 		return $data;
+	}
+
+	/**
+	 * Replace the share block with a link
+	 *
+	 * @param string $body
+	 * @return string
+	 */
+	private static function replaceSharedData(string $body): string
+	{
+		return BBCode::convertShare(
+			$body,
+			function (array $attributes) {
+				return '♲ ' . $attributes['link'];
+			}
+		);
 	}
 
 	/**
