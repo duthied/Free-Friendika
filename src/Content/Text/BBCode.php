@@ -287,14 +287,17 @@ class BBCode
 			}
 		}
 
+		if (!isset($post['type'])) {
+			$post['text'] = $body;
+		}
+
+		// Simplify image codes
+		$post['text'] = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $post['text']);
+		$post['text'] = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $post['text']);
+		
 		// if nothing is found, it maybe having an image.
 		if (!isset($post['type'])) {
-			// Simplify image codes
-			$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
-			$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
-			$post['text'] = $body;
-
-			if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
+			if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $post['text'], $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
 					if (!empty($item['object-type']) && ($item['object-type'] == Activity\ObjectType::IMAGE)) {
 						// Replace the preview picture with the real picture
@@ -322,14 +325,14 @@ class BBCode
 						}
 
 						$post['preview'] = $pictures[0][2];
-						$post['text'] = trim(str_replace($pictures[0][0], '', $body));
+						$post['text'] = trim(str_replace($pictures[0][0], '', $post['text']));
 					} else {
 						$imgdata = Images::getInfoFromURLCached($pictures[0][1]);
 						if (($imgdata) && substr($imgdata['mime'], 0, 6) == 'image/') {
 							$post['type'] = 'photo';
 							$post['image'] = $pictures[0][1];
 							$post['preview'] = $pictures[0][2];
-							$post['text'] = trim(str_replace($pictures[0][0], '', $body));
+							$post['text'] = trim(str_replace($pictures[0][0], '', $post['text']));
 						}
 					}
 				} elseif (count($pictures) > 0) {
@@ -341,13 +344,12 @@ class BBCode
 					}
 
 					$post['image'] = $pictures[0][2];
-					$post['text'] = $body;
 
 					foreach ($pictures as $picture) {
 						$post['text'] = trim(str_replace($picture[0], '', $post['text']));
 					}
 				}
-			} elseif (preg_match_all("(\[img\](.*?)\[\/img\])ism", $body, $pictures, PREG_SET_ORDER)) {
+			} elseif (preg_match_all("(\[img\](.*?)\[\/img\])ism", $post['text'], $pictures, PREG_SET_ORDER)) {
 				if ($has_title) {
 					$post['type'] = 'link';
 					$post['url'] = $plink;
@@ -356,7 +358,6 @@ class BBCode
 				}
 
 				$post['image'] = $pictures[0][1];
-				$post['text'] = $body;
 				foreach ($pictures as $picture) {
 					$post['text'] = trim(str_replace($picture[0], '', $post['text']));
 				}
@@ -396,7 +397,6 @@ class BBCode
 
 			if (!isset($post['type'])) {
 				$post['type'] = 'text';
-				$post['text'] = trim($body);
 			}
 
 			if (($post['type'] == 'photo') && empty($post['images']) && !empty($post['remote_images'])) {
@@ -412,6 +412,10 @@ class BBCode
 
 			if (isset($data['images'][0])) {
 				$post['image'] = $data['images'][0]['src'];
+			}
+		} elseif (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $post['text'], $pictures, PREG_SET_ORDER)) {
+			foreach ($pictures as $picture) {
+				$post['text'] = trim(str_replace($picture[0], '', $post['text']));
 			}
 		}
 
