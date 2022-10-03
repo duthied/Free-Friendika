@@ -103,7 +103,8 @@ function fbrowser_content(App $a)
 				return [
 					DI::baseUrl() . '/photos/' . $a->getLoggedInUserNickname() . '/image/' . $rr['resource-id'],
 					$filename_e,
-					DI::baseUrl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext
+					DI::baseUrl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext,
+					$rr['desc']
 				];
 			}
 			$files = array_map("_map_files1", $r);
