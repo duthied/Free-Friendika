@@ -4133,6 +4133,17 @@ class Diaspora
 			return false;
 		}
 
+		$parent_post = Post::selectFirstPost(['gravity', 'signed_text', 'author-link'], ['uri-id' => $item['thr-parent-id']]);
+		if (empty(FContact::getByURL($parent_post['author-link'], false))) {
+			Logger::info('Parent author is no Diaspora contact. A signature will not be created.', ['uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			return false;
+		}
+
+		if (($parent_post['gravity'] == GRAVITY_COMMENT) && empty($parent_post['signed_text'])) {
+			Logger::info('Parent comment has got no Diaspora signature. A signature will not be created.', ['uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			return false;
+		}
+
 		$message = self::constructComment($item, $owner);
 		if ($message === false) {
 			return false;
