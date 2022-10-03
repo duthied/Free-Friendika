@@ -64,7 +64,7 @@ class BaseSearch extends BaseModule
 		$header = '';
 
 		if (strpos($search, '@') === 0) {
-			$search  = substr($search, 1);
+			$search  = trim(substr($search, 1));
 			$type    = Search::TYPE_PEOPLE;
 			$header  = DI::l10n()->t('People Search - %s', $search);
 
@@ -74,7 +74,7 @@ class BaseSearch extends BaseModule
 		}
 
 		if (strpos($search, '!') === 0) {
-			$search = substr($search, 1);
+			$search = trim(substr($search, 1));
 			$type   = Search::TYPE_FORUM;
 			$header = DI::l10n()->t('Forum Search - %s', $search);
 		}

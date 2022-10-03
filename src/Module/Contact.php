@@ -246,8 +246,10 @@ class Contact extends BaseModule
 		if ($search) {
 			$searching = true;
 			$search_hdr = $search;
-			$search_txt = preg_quote($search);
-			$sql_extra .= " AND (name REGEXP ? OR url REGEXP ? OR nick REGEXP ?)";
+			$search_txt = preg_quote(trim($search, ' @!'));
+			$sql_extra .= " AND (`name` REGEXP ? OR `url` REGEXP ? OR `nick` REGEXP ? OR `addr` REGEXP ? OR `alias` REGEXP ?)";
+			$sql_values[] = $search_txt;
+			$sql_values[] = $search_txt;
 			$sql_values[] = $search_txt;
 			$sql_values[] = $search_txt;
 			$sql_values[] = $search_txt;
