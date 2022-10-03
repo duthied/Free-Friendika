@@ -4134,7 +4134,7 @@ class Diaspora
 		}
 
 		if (!self::parentSupportDiaspora($item['thr-parent-id'])) {
-			Logger::info('One of the parents does not support. A signature will not be created.', ['uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			Logger::info('One of the parents does not support Diaspora. A signature will not be created.', ['uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 			return false;
 		}
 
