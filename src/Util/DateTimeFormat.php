@@ -183,18 +183,18 @@ class DateTimeFormat
 	 */
 	private static function fixDateFormat(string $dateString): string
 	{
-		$pattern =
-			[
-				['#(\w+), (\d+/\d+/\d+) - (\d+:\d+)#', '$1, $2 $3'],
-				['#(\d+-\d+-\d+)T(\d+:\d+:\d+)ZZ#', '$1T$2Z'],
-				['#(\d+-\d+-\d+)T(\d+:\d+:\d+\.\d+)ZZ#', '$1T$2Z'],
-				['#(\w+), (\d+ \w+ \d+) (\d+:\d+:\d+) (.+)#', '$2 $3 $4'],
-				['#(\d+:\d+) (\w+), (\w+) (\d+), (\d+)#', '$1 $2 $3 $4 $5'],
-			];
+		$patterns = [
+			['#(\w+), (\d+/\d+/\d+) - (\d+:\d+)#', '$1, $2 $3'],
+			['#(\d+-\d+-\d+)T(\d+:\d+:\d+)ZZ#', '$1T$2Z'],
+			['#(\d+-\d+-\d+)T(\d+:\d+:\d+\.\d+)ZZ#', '$1T$2Z'],
+			['#(\w+), (\d+ \w+ \d+) (\d+:\d+:\d+) (.+)#', '$2 $3 $4'],
+			['#(\d+:\d+) (\w+), (\w+) (\d+), (\d+)#', '$1 $2 $3 $4 $5'],
+		];
 
-		foreach ($pattern as $search_replace) {
-			$dateString = preg_replace($search_replace[0], $search_replace[1], $dateString);
+		foreach ($patterns as $pattern) {
+			$dateString = preg_replace($pattern[0], $pattern[1], $dateString);
 		}
+		
 		return $dateString;
 	}
 
