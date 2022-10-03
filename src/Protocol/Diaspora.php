@@ -4133,6 +4133,11 @@ class Diaspora
 			return false;
 		}
 
+		if (!self::parentSupportDiaspora($item['thr-parent-id'])) {
+			Logger::info('One of the parents does not support Diaspora. A signature will not be created.', ['uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			return false;
+		}
+
 		$message = self::constructComment($item, $owner);
 		if ($message === false) {
 			return false;
@@ -4141,6 +4146,37 @@ class Diaspora
 		$message['author_signature'] = self::signature($owner, $message);
 
 		return $message;
+	}
+
+	/**
+	 * Check if the parent and their parents support Diaspora
+	 *
+	 * @param integer $parent_id
+	 * @return boolean
+	 */
+	private static function parentSupportDiaspora(int $parent_id): bool
+	{
+		$parent_post = Post::selectFirstPost(['gravity', 'signed_text', 'author-link', 'thr-parent-id'], ['uri-id' => $parent_id]);
+		if (empty($parent_post['thr-parent-id'])) {
+			Logger::warning('Parent post does not exist.', ['parent-id' => $parent_id]);
+			return false;
+		}
+
+		if (empty(FContact::getByURL($parent_post['author-link'], false))) {
+			Logger::info('Parent author is no Diaspora contact.', ['parent-id' => $parent_id]);
+			return false;
+		}
+
+		if (($parent_post['gravity'] == GRAVITY_COMMENT) && empty($parent_post['signed_text'])) {
+			Logger::info('Parent comment has got no Diaspora signature.', ['parent-id' => $parent_id]);
+			return false;
+		}
+
+		if ($parent_post['gravity'] == GRAVITY_COMMENT) {
+			return self::parentSupportDiaspora($parent_post['thr-parent-id']);
+		}
+
+		return true;
 	}
 
 	public static function performReshare(int $UriId, int $uid): int
