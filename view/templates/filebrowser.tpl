@@ -32,7 +32,7 @@
 	<div class="list">
 		{{foreach $files as $f}}
 		<div class="photo-album-image-wrapper">
-			<a href="#" class="photo-album-photo-link" data-link="{{$f.0}}" data-filename="{{$f.1}}" data-img="{{$f.2}}">
+			<a href="#" class="photo-album-photo-link" data-link="{{$f.0}}" data-filename="{{$f.1}}" data-img="{{$f.2}}" data-alt="{{$f.3}}>
 				<img src="{{$f.2}}">
 				<p>{{$f.1}}</p>
 			</a>
