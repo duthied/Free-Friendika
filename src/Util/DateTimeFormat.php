@@ -135,6 +135,8 @@ class DateTimeFormat
 			$s = 'now';
 		}
 
+		$s = self::fixDateFormat($s);
+
 		/*
 		 * Slight hackish adjustment so that 'zero' datetime actually returns what is intended
 		 * otherwise we end up with -0001-11-30 ...
@@ -171,6 +173,29 @@ class DateTimeFormat
 		$d->setTimezone($to_obj);
 
 		return $d->format($format);
+	}
+
+	/**
+	 * Fix weird date formats
+	 *
+	 * @param string $dateString
+	 * @return string
+	 */
+	private static function fixDateFormat(string $dateString): string
+	{
+		$pattern =
+			[
+				['#(\w+), (\d+/\d+/\d+) - (\d+:\d+)#', '$1, $2 $3'],
+				['#(\d+-\d+-\d+)T(\d+:\d+:\d+)ZZ#', '$1T$2Z'],
+				['#(\d+-\d+-\d+)T(\d+:\d+:\d+\.\d+)ZZ#', '$1T$2Z'],
+				['#(\w+), (\d+ \w+ \d+) (\d+:\d+:\d+) (.+)#', '$2 $3 $4'],
+				['#(\d+:\d+) (\w+), (\w+) (\d+), (\d+)#', '$1 $2 $3 $4 $5'],
+			];
+
+		foreach ($pattern as $search_replace) {
+			$dateString = preg_replace($search_replace[0], $search_replace[1], $dateString);
+		}
+		return $dateString;
 	}
 
 	/**
