@@ -10,6 +10,7 @@ Aditoo
 AgnesElisa
 Albert
 Aleksandr "M.O.Z.G" Dikov
+Alessandro Lorenzi
 Alex
 Alexander An
 Alexander Fortin
@@ -66,6 +67,7 @@ Christian Vogeley
 Christian Wiwie
 Cohan Robinson
 Colby Sollars
+Copiis
 Copiis Praeesse
 CrystalStiletto
 Cyboulette
@@ -120,6 +122,7 @@ Gregory Smith
 gudzpoz
 guzzisti
 Haakon Meland Eriksen
+Hank Grabowski
 Hans Meine
 Hauke
 Hauke Altmann
@@ -199,6 +202,7 @@ mpanhans
 mytbk
 nathilia-peirce
 Nicola Spanti
+Nicolas Derive
 nobody
 nupplaPhil
 Olaf Conradi
@@ -208,6 +212,7 @@ Olivier Mehani
 Olivier Migeot
 ominds
 ozero dien
+pankraz
 Paolo Wave
 Pascal
 Pascal Deklerck
@@ -310,6 +315,7 @@ Valvin
 Vasudev Kamath
 Vasya Novikov
 very-ape
+Viktor Nilsson
 Vinzenz Vietzke
 vislav
 vladimir N
@@ -318,8 +324,10 @@ VVelox
 Vít Šesták 'v6ak'
 Waldemar Stoczkowski
 Walter Bulbazor
+Wanting Chen
 Wil Tur
 Wouter Broers
+Xiaofei Xu
 XMPPはいいぞ
 Yasen Pramatarov
 Yasmine A
