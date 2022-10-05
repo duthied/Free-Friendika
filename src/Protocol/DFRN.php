@@ -59,9 +59,9 @@ use GuzzleHttp\Psr7\Uri;
 class DFRN
 {
 
-	const TOP_LEVEL = 0;	// Top level posting
-	const REPLY = 1;		// Regular reply that is stored locally
-	const REPLY_RC = 2;	// Reply that will be relayed
+	const TOP_LEVEL = 0; // Top level posting
+	const REPLY     = 1; // Regular reply that is stored locally
+	const REPLY_RC  = 2; // Reply that will be relayed
 
 	/**
 	 * Generates an array of contact and user for DFRN imports
@@ -1552,12 +1552,12 @@ class DFRN
 			// was the top-level post for this action written by somebody on this site?
 			// Specifically, the recipient?
 			if (Post::exists(['uri' => $item['thr-parent'], 'uid' => $importer['importer_uid'], 'self' => true, 'wall' => true])) {
-				return DFRN::REPLY_RC;
+				return self::REPLY_RC;
 			} else {
-				return DFRN::REPLY;
+				return self::REPLY;
 			}
 		} else {
-			return DFRN::TOP_LEVEL;
+			return self::TOP_LEVEL;
 		}
 	}
 
@@ -1567,16 +1567,15 @@ class DFRN
 	 * @param int   $entrytype Is it a toplevel entry, a comment or a relayed comment?
 	 * @param array $importer  Record of the importer user mixed with contact of the content
 	 * @param array $item      the new item record
-	 * @param bool  $is_like   Is the verb a "like"?
 	 *
 	 * @return bool Should the processing of the entries be continued?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function processVerbs(int $entrytype, array $importer, array &$item, bool &$is_like)
+	private static function processVerbs(int $entrytype, array $importer, array &$item)
 	{
 		Logger::info('Process verb ' . $item['verb'] . ' and object-type ' . $item['object-type'] . ' for entrytype ' . $entrytype);
 
-		if (($entrytype == DFRN::TOP_LEVEL) && !empty($importer['id'])) {
+		if (($entrytype == self::TOP_LEVEL) && !empty($importer['id'])) {
 			// The filling of the the "contact" variable is done for legcy reasons
 			// The functions below are partly used by ostatus.php as well - where we have this variable
 			$contact = Contact::selectFirst([], ['id' => $importer['id']]);
@@ -1613,7 +1612,6 @@ class DFRN
 				|| ($item['verb'] == Activity::ATTENDMAYBE)
 				|| ($item['verb'] == Activity::ANNOUNCE)
 			) {
-				$is_like = true;
 				$item['gravity'] = GRAVITY_ACTIVITY;
 				// only one like or dislike per person
 				// split into two queries for performance issues
@@ -1639,8 +1637,6 @@ class DFRN
 				$item['owner-link'] = $item['author-link'];
 				$item['owner-avatar'] = $item['author-avatar'];
 				$item['owner-id'] = $item['author-id'];
-			} else {
-				$is_like = false;
 			}
 
 			if (($item['verb'] == Activity::TAG) && ($item['object-type'] == Activity\ObjectType::TAGTERM)) {
@@ -1941,7 +1937,9 @@ class DFRN
 		$entrytype = self::getEntryType($importer, $item);
 
 		// Now assign the rest of the values that depend on the type of the message
-		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
+		if (in_array($entrytype, [self::REPLY, self::REPLY_RC])) {
+			$item['gravity'] = GRAVITY_COMMENT;
+
 			if (!isset($item['object-type'])) {
 				$item['object-type'] = Activity\ObjectType::COMMENT;
 			}
@@ -1966,9 +1964,11 @@ class DFRN
 		// Ensure to have the correct share data
 		$item = Item::addShareDataFromOriginal($item);
 
-		if ($entrytype == DFRN::REPLY_RC) {
+		if ($entrytype == self::REPLY_RC) {
 			$item['wall'] = 1;
-		} elseif ($entrytype == DFRN::TOP_LEVEL) {
+		} elseif ($entrytype == self::TOP_LEVEL) {
+			$item['gravity'] = GRAVITY_PARENT;
+
 			if (!isset($item['object-type'])) {
 				$item['object-type'] = Activity\ObjectType::NOTE;
 			}
@@ -2005,16 +2005,13 @@ class DFRN
 			}
 		}
 
-		// Need to initialize variable, otherwise E_NOTICE will happen
-		$is_like = false;
-
-		if (!self::processVerbs($entrytype, $importer, $item, $is_like)) {
+		if (!self::processVerbs($entrytype, $importer, $item)) {
 			Logger::info("Exiting because 'processVerbs' told us so");
 			return;
 		}
 
 		// This check is done here to be able to receive connection requests in "processVerbs"
-		if (($entrytype == DFRN::TOP_LEVEL) && $owner_unknown) {
+		if (($entrytype == self::TOP_LEVEL) && $owner_unknown) {
 			Logger::info("Item won't be stored because user " . $importer['importer_uid'] . " doesn't follow " . $item['owner-link'] . ".");
 			return;
 		}
@@ -2030,9 +2027,27 @@ class DFRN
 			return;
 		}
 
-		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
+		if (in_array($entrytype, [self::REPLY, self::REPLY_RC])) {
+			if (($item['uid'] != 0) && !Post::exists(['uid' => $item['uid'], 'uri' => $item['thr-parent']])) {
+				if (DI::pConfig()->get($item['uid'], 'system', 'accept_only_sharer') == Item::COMPLETION_NONE) {
+					Logger::info('Completion is set to "none", so we stop here.', ['uid' => $item['uid'], 'owner-id' => $item['owner-id'], 'author-id' => $item['author-id'], 'gravity' => $item['gravity'], 'uri' => $item['uri']]);
+					return;
+				}
+				if (!Contact::isSharing($item['owner-id'], $item['uid']) && !Contact::isSharing($item['author-id'], $item['uid'])) {
+					Logger::info('Contact is not sharing with the user', ['uid' => $item['uid'], 'owner-id' => $item['owner-id'], 'author-id' => $item['author-id'], 'gravity' => $item['gravity'], 'uri' => $item['uri']]);
+					return;
+				}
+				if (($item['gravity'] == GRAVITY_ACTIVITY) && DI::pConfig()->get($item['uid'], 'system', 'accept_only_sharer') == Item::COMPLETION_COMMENT) {
+					Logger::info('Completion is set to "comment", but this is an activity. so we stop here.', ['uid' => $item['uid'], 'owner-id' => $item['owner-id'], 'author-id' => $item['author-id'], 'gravity' => $item['gravity'], 'uri' => $item['uri']]);
+					return;
+				}
+				Logger::debug('Post is accepted.', ['uid' => $item['uid'], 'owner-id' => $item['owner-id'], 'author-id' => $item['author-id'], 'gravity' => $item['gravity'], 'uri' => $item['uri']]);
+			} else {
+				Logger::debug('Thread parent exists.', ['uid' => $item['uid'], 'owner-id' => $item['owner-id'], 'author-id' => $item['author-id'], 'gravity' => $item['gravity'], 'uri' => $item['uri']]);
+			}
+
 			// Will be overwritten for sharing accounts in Item::insert
-			if (empty($item['post-reason']) && ($entrytype == DFRN::REPLY)) {
+			if (empty($item['post-reason']) && ($entrytype == self::REPLY)) {
 				$item['post-reason'] = Item::PR_COMMENT;
 			}
 
@@ -2046,25 +2061,9 @@ class DFRN
 
 				return true;
 			}
-		} else { // $entrytype == DFRN::TOP_LEVEL
-			if (($importer['uid'] == 0) && ($importer['importer_uid'] != 0)) {
-				Logger::info("Contact " . $importer['id'] . " isn't known to user " . $importer['importer_uid'] . ". The post will be ignored.");
-				return;
-			}
-			if (!Strings::compareLink($item['owner-link'], $importer['url'])) {
-				/*
-				 * The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
-				 * but otherwise there's a possible data mixup on the sender's system.
-				 * the tgroup delivery code called from Item::insert will correct it if it's a forum,
-				 * but we're going to unconditionally correct it here so that the post will always be owned by our contact.
-				 */
-				Logger::info('Correcting item owner.');
-				$item['owner-link'] = $importer['url'];
-				$item['owner-id'] = Contact::getIdForURL($importer['url'], 0);
-			}
-
-			if (($importer['rel'] == Contact::FOLLOWER) && (!self::tgroupCheck($importer['importer_uid'], $item))) {
-				Logger::info("Contact " . $importer['id'] . " is only follower and tgroup check was negative.");
+		} else { // $entrytype == self::TOP_LEVEL
+			if (($item['uid'] != 0) && !Contact::isSharing($item['owner-id'], $item['uid']) && !Contact::isSharing($item['author-id'], $item['uid'])) {
+				Logger::info('Contact is not sharing with the user', ['uid' => $item['uid'], 'owner-id' => $item['owner-id'], 'author-id' => $item['author-id'], 'gravity' => $item['gravity'], 'uri' => $item['uri']]);
 				return;
 			}
 
@@ -2304,47 +2303,6 @@ class DFRN
 			return $item['verb'];
 		}
 		return Activity::POST;
-	}
-
-	// @TODO Documentation missing
-	private static function tgroupCheck(int $uid, array $item): bool
-	{
-		$mention = false;
-
-		// check that the message originated elsewhere and is a top-level post
-
-		if ($item['wall'] || $item['origin'] || ($item['uri'] != $item['thr-parent'])) {
-			return false;
-		}
-
-		$user = DBA::selectFirst('user', ['account-type', 'nickname'], ['uid' => $uid]);
-		if (!DBA::isResult($user)) {
-			return false;
-		}
-
-		$link = Strings::normaliseLink(DI::baseUrl() . '/profile/' . $user['nickname']);
-
-		/*
-		 * Diaspora uses their own hardwired link URL in @-tags
-		 * instead of the one we supply with webfinger
-		 */
-		$dlink = Strings::normaliseLink(DI::baseUrl() . '/u/' . $user['nickname']);
-
-		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				if (Strings::compareLink($link, $mtch[1]) || Strings::compareLink($dlink, $mtch[1])) {
-					$mention = true;
-					Logger::notice('mention found: ' . $mtch[2]);
-				}
-			}
-		}
-
-		if (!$mention) {
-			return false;
-		}
-
-		return ($user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY);
 	}
 
 	/**
