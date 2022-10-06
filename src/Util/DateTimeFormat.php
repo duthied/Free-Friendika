@@ -189,12 +189,13 @@ class DateTimeFormat
 			['#(\d+-\d+-\d+)T(\d+:\d+:\d+\.\d+)ZZ#', '$1T$2Z'],
 			['#(\w+), (\d+ \w+ \d+) (\d+:\d+:\d+) (.+)#', '$2 $3 $4'],
 			['#(\d+:\d+) (\w+), (\w+) (\d+), (\d+)#', '$1 $2 $3 $4 $5'],
+			['#(\w+ \d+, \d+) - (\d+:\d+)#', '$1, $2'],
 		];
 
 		foreach ($patterns as $pattern) {
 			$dateString = preg_replace($pattern[0], $pattern[1], $dateString);
 		}
-		
+
 		return $dateString;
 	}
 
