@@ -38,6 +38,7 @@ class Federation extends BaseAdmin
 		// We list the more common systems by name. The rest is counted as "other"
 		$systems = [
 			'friendica'    => ['name' => 'Friendica', 'color' => '#ffc018'], // orange from the logo
+			'akkoma'       => ['name' => 'Akkoma', 'color' => '#9574cd'], // Color from the page
 			'birdsitelive' => ['name' => 'BirdsiteLIVE', 'color' => '#1b6ec2'], // Color from the page
 			'bookwyrm'     => ['name' => 'BookWyrm', 'color' => '#00d1b2'], // Color from the page
 			'castopod'     => ['name' => 'Castopod', 'color' => '#00564a'], // Background color from the page
@@ -153,7 +154,7 @@ class Federation extends BaseAdmin
 
 			if ($platform == 'friendica') {
 				$versionCounts = self::reformaFriendicaVersions($versionCounts);
-			} elseif ($platform == 'pleroma') {
+			} elseif (in_array($platform, ['pleroma', 'akkoma'])) {
 				$versionCounts = self::reformaPleromaVersions($versionCounts);
 			} elseif ($platform == 'diaspora') {
 				$versionCounts = self::reformaDiasporaVersions($versionCounts);
