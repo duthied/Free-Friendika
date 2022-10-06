@@ -2483,7 +2483,8 @@ class Diaspora
 			$original_item['author-avatar'],
 			$original_item['plink'],
 			$original_item['created'],
-			$original_item['guid']
+			$original_item['guid'],
+			$original_item['uri'],
 		);
 
 		if (!empty($original_item['title'])) {
@@ -4181,7 +4182,7 @@ class Diaspora
 
 	public static function performReshare(int $UriId, int $uid): int
 	{
-		$fields = ['uri-id', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+		$fields = ['uri-id', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'uri'];
 		$item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 		if (!DBA::isResult($item)) {
 			return 0;
@@ -4191,7 +4192,7 @@ class Diaspora
 			$pos = strpos($item['body'], '[share');
 			$post = substr($item['body'], $pos);
 		} else {
-			$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
+			$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid'], $item['uri']);
 
 			if (!empty($item['title'])) {
 				$post .= '[h3]' . $item['title'] . "[/h3]\n";

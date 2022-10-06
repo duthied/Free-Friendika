@@ -1047,7 +1047,7 @@ class BBCode
 	private static function extractShareAttributes(string $shareString): array
 	{
 		$attributes = [];
-		foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid'] as $field) {
+		foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid', 'message_id'] as $field) {
 			preg_match("/$field=(['\"])(.+?)\\1/ism", $shareString, $matches);
 			$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 		}
@@ -2458,10 +2458,11 @@ class BBCode
 	 * @param string      $link    Post source URL
 	 * @param string      $posted  Post created date
 	 * @param string|null $guid    Post guid (if any)
+	 * @param string|null $uri     Post uri (if any)
 	 * @return string
 	 * @TODO Rewrite to handle over whole record array
 	 */
-	public static function getShareOpeningTag(string $author, string $profile, string $avatar, string $link, string $posted, string $guid = null): string
+	public static function getShareOpeningTag(string $author, string $profile, string $avatar, string $link, string $posted, string $guid = null, string $uri = null): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author) .
@@ -2472,6 +2473,10 @@ class BBCode
 
 		if ($guid) {
 			$header .= "' guid='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $guid);
+		}
+
+		if ($uri) {
+			$header .= "' message_id='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $uri);
 		}
 
 		$header  .= "']";

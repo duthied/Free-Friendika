@@ -20,7 +20,6 @@
  */
 
 use Friendica\App;
-use Friendica\Content\Text\BBCode;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -34,8 +33,7 @@ function share_init(App $a) {
 		System::exit();
 	}
 
-	$fields = ['private', 'body', 'author-name', 'author-link', 'author-avatar',
-		'guid', 'created', 'plink', 'title'];
+	$fields = ['private', 'body', 'uri'];
 	$item = Post::selectFirst($fields, ['id' => $post_id]);
 
 	if (!DBA::isResult($item) || $item['private'] == Item::PRIVATE) {
@@ -46,14 +44,7 @@ function share_init(App $a) {
 		$pos = strpos($item['body'], "[share");
 		$o = substr($item['body'], $pos);
 	} else {
-		$o = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
-
-		if ($item['title']) {
-			$o .= '[h3]'.$item['title'].'[/h3]'."\n";
-		}
-
-		$o .= $item['body'];
-		$o .= "[/share]";
+		$o = "[share message_id='" . $item['uri'] . "'][/share]";
 	}
 
 	echo $o;
