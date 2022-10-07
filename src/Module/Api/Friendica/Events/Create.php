@@ -88,8 +88,8 @@ class Create extends BaseApi
 		$event['summary']    = $request['name'];
 		$event['desc']       = $request['desc'];
 		$event['location']   = $request['place'];
-		$event['start_time'] = $start;
-		$event['end_time']   = $finish;
+		$event['start']      = $start;
+		$event['finish']     = $finish;
 		$event['nofinish']   = $nofinish;
 
 		$event['allow_cid'] = $request['allow_cid'];
