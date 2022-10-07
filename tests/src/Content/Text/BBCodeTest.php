@@ -501,14 +501,12 @@ Karl Marx - Die ursprüngliche Akkumulation
 					'link' => '',
 					'posted' => '',
 					'guid' => '',
-					'message_id' => '',
+					'message_id' => 'https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243',
 					'comment' => 'comment',
-					'shared' => 'shared',
+					'shared' => '',
 				],
 				'text' => ' comment
-				[share]
-				shared
-				[/share]',
+				[share]https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243[/share]',
 			],
 			'all-attributes' => [
 				'expected' => [
