@@ -1029,7 +1029,7 @@ class BBCode
 				'link'       => '',
 				'posted'     => '',
 				'guid'       => '',
-				'message_id' => $matches[2],
+				'message_id' => trim($matches[2]),
 				'comment'    => trim($matches[1]),
 				'shared'     => '',
 			];
