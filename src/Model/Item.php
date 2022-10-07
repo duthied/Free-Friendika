@@ -3666,9 +3666,18 @@ class Item
 	 */
 	public static function improveSharedDataInBody(array $item): string
 	{
-		$shared = BBCode::fetchShareAttributes($item['body']);
-		if (empty($shared['link']) && empty($shared['message_id'])) {
-			return $item['body'];
+		if (preg_match('#\[share](.*)\[/share]#', $item['body'], $matches)) {
+			$shared = [
+				'message_id' => $matches[1],
+				'link'       => '',
+				'guid'       => '',
+				'profile'    => '',
+			];
+		} else {
+			$shared = BBCode::fetchShareAttributes($item['body']);
+			if (empty($shared['link']) && empty($shared['message_id'])) {
+				return $item['body'];
+			}	
 		}
 
 		$id = self::fetchByLink($shared['link'] ?: $shared['message_id']);

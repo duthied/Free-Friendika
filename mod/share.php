@@ -44,7 +44,7 @@ function share_init(App $a) {
 		$pos = strpos($item['body'], "[share");
 		$o = substr($item['body'], $pos);
 	} else {
-		$o = "[share message_id='" . $item['uri'] . "'][/share]";
+		$o = "[share]" . $item['uri'] . "[/share]";
 	}
 
 	echo $o;
