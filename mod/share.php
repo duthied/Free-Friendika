@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Util\Network;
 
 function share_init(App $a) {
 	$post_id = ((DI::args()->getArgc() > 1) ? intval(DI::args()->getArgv()[1]) : 0);
@@ -46,7 +47,7 @@ function share_init(App $a) {
 	if (strpos($item['body'], "[/share]") !== false) {
 		$pos = strpos($item['body'], "[share");
 		$o = substr($item['body'], $pos);
-	} elseif (in_array($item['network'], Protocol::FEDERATED)) {
+	} elseif (Network::isValidHttpUrl($item['uri']) && in_array($item['network'], Protocol::FEDERATED)) {
 		$o = "[share]" . $item['uri'] . "[/share]";
 	} else {
 		$o = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
