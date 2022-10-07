@@ -87,4 +87,58 @@ class DateTimeFormatTest extends MockedTest
 	{
 		self::assertEquals('Wed Oct 10 00:00:00 +0000 1990', DateTimeFormat::utc('1990-10-10', DateTimeFormat::API));
 	}
+
+	public function dataFix(): array
+	{
+		return [
+			'Mo, 19 Sep 2022 14:51:00 +0200' => [
+				'expected' => '19 Sep 2022 14:51:00 +0200',
+				'dateString' => 'Mo, 19 Sep 2022 14:51:00 +0200',
+			],
+			'2020-11-21T12:00:13.745339ZZ' => [
+				'expected' => '2020-11-21T12:00:13.745339Z',
+				'dateString' => '2020-11-21T12:00:13.745339ZZ',
+			],
+			'2016-09-09T13:32:00ZZ' => [
+				'expected' => '2016-09-09T13:32:00Z',
+				'dateString' => '2016-09-09T13:32:00ZZ',
+			],
+			'2021-09-09T16:19:00ZZ' => [
+				'expected' => '2021-09-09T16:19:00Z',
+				'dateString' => '2021-09-09T16:19:00ZZ',
+			],
+			'Sun, 10/03/2021 - 12:41' => [
+				'expected' => 'Sun, 10/03/2021 12:41',
+				'dateString' => 'Sun, 10/03/2021 - 12:41',
+			],
+			'Mon, 09/12/2022 - 09:02' => [
+				'expected' => 'Mon, 09/12/2022 09:02',
+				'dateString' => 'Mon, 09/12/2022 - 09:02',
+			],
+			'4:30 PM, Sep 13, 2022' => [
+				'expected' => '4:30 PM Sep 13 2022',
+				'dateString' => '4:30 PM, Sep 13, 2022',
+			],
+			'August 27, 2022 - 21:00' => [
+				'expected' => 'August 27, 2022, 21:00',
+				'dateString' => 'August 27, 2022 - 21:00',
+			],
+			'2021-09-19T14:06:03&#x2B;00:00' => [
+				'expected' => '2021-09-19T14:06:03+00:00',
+				'dateString' => '2021-09-19T14:06:03&#x2B;00:00',
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataFix
+	 *
+	 * @param $expected
+	 * @param $dateString
+	 * @return void
+	 */
+	public function testFix($expected, $dateString)
+	{
+		$this->assertEquals($expected, DateTimeFormat::fix($dateString));
+	}
 }

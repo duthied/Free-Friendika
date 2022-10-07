@@ -178,6 +178,7 @@ class DateTimeFormat
 	/**
 	 * Fix weird date formats
 	 *
+	 * @see \Friendica\Test\src\Util\DateTimeFormatTest::dataFix() for a list of examples handled by this method.
 	 * @param string $dateString
 	 * @return string
 	 */
