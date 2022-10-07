@@ -1021,7 +1021,7 @@ class BBCode
 	public static function fetchShareAttributes(string $text): array
 	{
 		DI::profiler()->startRecording('rendering');
-		if (preg_match('#(.*?)\[share](.*)\[/share]#', $text, $matches)) {
+		if (preg_match('~(.*?)\[share](.*)\[/share]~ism', $text, $matches)) {
 			return [
 				'author'     => '',
 				'profile'    => '',
