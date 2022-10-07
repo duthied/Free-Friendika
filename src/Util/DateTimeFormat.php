@@ -135,7 +135,7 @@ class DateTimeFormat
 			$s = 'now';
 		}
 
-		$s = self::fixDateFormat($s);
+		$s = self::fix($s);
 
 		/*
 		 * Slight hackish adjustment so that 'zero' datetime actually returns what is intended
@@ -181,7 +181,7 @@ class DateTimeFormat
 	 * @param string $dateString
 	 * @return string
 	 */
-	private static function fixDateFormat(string $dateString): string
+	public static function fix(string $dateString): string
 	{
 		$patterns = [
 			['#(\w+), (\d+/\d+/\d+) - (\d+:\d+)#', '$1, $2 $3'],
