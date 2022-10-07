@@ -339,7 +339,7 @@ class Router
 			if ($this->dice_profiler_threshold > 0) {
 				$dur = floatval(microtime(true) - $stamp);
 				if ($dur >= $this->dice_profiler_threshold) {
-					$this->logger->warning('Dice module creation lasts too long.', ['duration' => round($dur, 3), 'module' => $module_class, 'parameters' => $module_parameters]);
+					$this->logger->notice('Dice module creation lasts too long.', ['duration' => round($dur, 3), 'module' => $module_class, 'parameters' => $module_parameters]);
 				}
 			}
 		}

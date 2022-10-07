@@ -883,7 +883,7 @@ class Processor
 			return '';
 		}
 
-		$shared_item = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'title', 'body'], ['id' => $id]);
+		$shared_item = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'uri', 'title', 'body'], ['id' => $id]);
 		if (!DBA::isResult($shared_item)) {
 			return '';
 		}
@@ -894,7 +894,8 @@ class Processor
 			$shared_item['author-avatar'],
 			$shared_item['plink'],
 			$shared_item['created'],
-			$shared_item['guid']
+			$shared_item['guid'],
+			$shared_item['uri'],
 		);
 
 		if (!empty($shared_item['title'])) {

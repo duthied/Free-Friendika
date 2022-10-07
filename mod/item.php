@@ -401,7 +401,7 @@ function item_post(App $a) {
 		$body              = $item['body'];
 		$inform            = $item['inform'];
 		$postopts          = $item['postopts'];
-		$private           = $item['private']; 
+		$private           = $item['private'];
 		$str_contact_allow = $item['allow_cid'];
 		$str_group_allow   = $item['allow_gid'];
 		$str_contact_deny  = $item['deny_cid'];
@@ -621,6 +621,7 @@ function item_post(App $a) {
 		$datarray["author-uri-id"] = ItemURI::getIdByURI($datarray["author-link"]);
 		$datarray["owner-updated"] = '';
 		$datarray["has-media"] = false;
+		$datarray['body'] = Item::improveSharedDataInBody($datarray);
 
 		$o = DI::conversation()->create([array_merge($contact_record, $datarray)], 'search', false, true);
 
@@ -661,6 +662,7 @@ function item_post(App $a) {
 	}
 
 	$datarray['uri-id'] = ItemURI::getIdByURI($datarray['uri']);
+	$datarray['body']   = Item::improveSharedDataInBody($datarray);
 
 	if ($orig_post)	{
 		$fields = [

@@ -1930,7 +1930,7 @@ class Item
 	{
 		$latin = '';
 		$non_latin = '';
-		for ($i = 0; $i < mb_strlen($body); $i++) { 
+		for ($i = 0; $i < mb_strlen($body); $i++) {
 			$character = mb_substr($body, $i, 1);
 			$ord = mb_ord($character);
 
@@ -3667,22 +3667,22 @@ class Item
 	public static function improveSharedDataInBody(array $item): string
 	{
 		$shared = BBCode::fetchShareAttributes($item['body']);
-		if (empty($shared['link'])) {
+		if (empty($shared['link']) && empty($shared['message_id'])) {
 			return $item['body'];
 		}
 
-		$id = self::fetchByLink($shared['link']);
-		Logger::info('Fetched shared post', ['uri-id' => $item['uri-id'], 'id' => $id, 'author' => $shared['profile'], 'url' => $shared['link'], 'guid' => $shared['guid'], 'callstack' => System::callstack()]);
+		$id = self::fetchByLink($shared['link'] ?: $shared['message_id']);
+		Logger::debug('Fetched shared post', ['uri-id' => $item['uri-id'], 'id' => $id, 'author' => $shared['profile'], 'url' => $shared['link'], 'guid' => $shared['guid'], 'uri' => $shared['message_id'], 'callstack' => System::callstack()]);
 		if (!$id) {
 			return $item['body'];
 		}
 
-		$shared_item = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'title', 'body'], ['id' => $id]);
+		$shared_item = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'uri', 'title', 'body'], ['id' => $id]);
 		if (!DBA::isResult($shared_item)) {
 			return $item['body'];
 		}
 
-		$shared_content = BBCode::getShareOpeningTag($shared_item['author-name'], $shared_item['author-link'], $shared_item['author-avatar'], $shared_item['plink'], $shared_item['created'], $shared_item['guid']);
+		$shared_content = BBCode::getShareOpeningTag($shared_item['author-name'], $shared_item['author-link'], $shared_item['author-avatar'], $shared_item['plink'], $shared_item['created'], $shared_item['guid'], $shared_item['uri']);
 
 		if (!empty($shared_item['title'])) {
 			$shared_content .= '[h3]'.$shared_item['title'].'[/h3]'."\n";
@@ -3691,7 +3691,7 @@ class Item
 		$shared_content .= $shared_item['body'];
 
 		$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $shared_content . '[/share]', $item['body']);
-		Logger::info('New shared data', ['uri-id' => $item['uri-id'], 'id' => $id, 'shared_item' => $shared_item]);
+		Logger::debug('New shared data', ['uri-id' => $item['uri-id'], 'id' => $id, 'shared_item' => $shared_item]);
 		return $item['body'];
 	}
 }

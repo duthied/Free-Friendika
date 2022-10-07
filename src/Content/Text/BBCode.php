@@ -294,7 +294,7 @@ class BBCode
 		// Simplify image codes
 		$post['text'] = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $post['text']);
 		$post['text'] = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $post['text']);
-		
+
 		// if nothing is found, it maybe having an image.
 		if (!isset($post['type'])) {
 			if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $post['text'], $pictures, PREG_SET_ORDER)) {
@@ -1021,6 +1021,19 @@ class BBCode
 	public static function fetchShareAttributes(string $text): array
 	{
 		DI::profiler()->startRecording('rendering');
+		if (preg_match('~(.*?)\[share](.*)\[/share]~ism', $text, $matches)) {
+			return [
+				'author'     => '',
+				'profile'    => '',
+				'avatar'     => '',
+				'link'       => '',
+				'posted'     => '',
+				'guid'       => '',
+				'message_id' => trim($matches[2]),
+				'comment'    => trim($matches[1]),
+				'shared'     => '',
+			];
+		}
 		// See Issue https://github.com/friendica/friendica/issues/10454
 		// Hashtags in usernames are expanded to links. This here is a quick fix.
 		$text = preg_replace('~([@!#])\[url=.*?](.*?)\[/url]~ism', '$1$2', $text);
@@ -1047,7 +1060,7 @@ class BBCode
 	private static function extractShareAttributes(string $shareString): array
 	{
 		$attributes = [];
-		foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid'] as $field) {
+		foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid', 'message_id'] as $field) {
 			preg_match("/$field=(['\"])(.+?)\\1/ism", $shareString, $matches);
 			$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 		}
@@ -2458,10 +2471,11 @@ class BBCode
 	 * @param string      $link    Post source URL
 	 * @param string      $posted  Post created date
 	 * @param string|null $guid    Post guid (if any)
+	 * @param string|null $uri     Post uri (if any)
 	 * @return string
 	 * @TODO Rewrite to handle over whole record array
 	 */
-	public static function getShareOpeningTag(string $author, string $profile, string $avatar, string $link, string $posted, string $guid = null): string
+	public static function getShareOpeningTag(string $author, string $profile, string $avatar, string $link, string $posted, string $guid = null, string $uri = null): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author) .
@@ -2472,6 +2486,10 @@ class BBCode
 
 		if ($guid) {
 			$header .= "' guid='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $guid);
+		}
+
+		if ($uri) {
+			$header .= "' message_id='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $uri);
 		}
 
 		$header  .= "']";
