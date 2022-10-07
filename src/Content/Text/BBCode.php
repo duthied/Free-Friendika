@@ -1021,6 +1021,19 @@ class BBCode
 	public static function fetchShareAttributes(string $text): array
 	{
 		DI::profiler()->startRecording('rendering');
+		if (preg_match('#(.*?)\[share](.*)\[/share]#', $text, $matches)) {
+			return [
+				'author'     => '',
+				'profile'    => '',
+				'avatar'     => '',
+				'link'       => '',
+				'posted'     => '',
+				'guid'       => '',
+				'message_id' => $matches[2],
+				'comment'    => trim($matches[1]),
+				'shared'     => '',
+			];
+		}
 		// See Issue https://github.com/friendica/friendica/issues/10454
 		// Hashtags in usernames are expanded to links. This here is a quick fix.
 		$text = preg_replace('~([@!#])\[url=.*?](.*?)\[/url]~ism', '$1$2', $text);

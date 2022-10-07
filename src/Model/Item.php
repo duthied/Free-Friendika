@@ -3666,19 +3666,10 @@ class Item
 	 */
 	public static function improveSharedDataInBody(array $item): string
 	{
-		if (preg_match('#\[share](.*)\[/share]#', $item['body'], $matches)) {
-			$shared = [
-				'message_id' => $matches[1],
-				'link'       => '',
-				'guid'       => '',
-				'profile'    => '',
-			];
-		} else {
-			$shared = BBCode::fetchShareAttributes($item['body']);
-			if (empty($shared['link']) && empty($shared['message_id'])) {
-				return $item['body'];
-			}	
-		}
+		$shared = BBCode::fetchShareAttributes($item['body']);
+		if (empty($shared['link']) && empty($shared['message_id'])) {
+			return $item['body'];
+		}	
 
 		$id = self::fetchByLink($shared['link'] ?: $shared['message_id']);
 		Logger::debug('Fetched shared post', ['uri-id' => $item['uri-id'], 'id' => $id, 'author' => $shared['profile'], 'url' => $shared['link'], 'guid' => $shared['guid'], 'uri' => $shared['message_id'], 'callstack' => System::callstack()]);
