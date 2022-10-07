@@ -487,6 +487,7 @@ Karl Marx - Die ursprüngliche Akkumulation
 				    'link' => '',
 				    'posted' => '',
 				    'guid' => '',
+				    'message_id' => '',
 				    'comment' => '',
 				    'shared' => '',
 				],
@@ -500,6 +501,7 @@ Karl Marx - Die ursprüngliche Akkumulation
 					'link' => '',
 					'posted' => '',
 					'guid' => '',
+				    'message_id' => '',
 					'comment' => 'comment',
 					'shared' => 'shared',
 				],
@@ -516,6 +518,7 @@ Karl Marx - Die ursprüngliche Akkumulation
 					'link' => 'https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243',
 					'posted' => '2022-06-16 12:34:10',
 					'guid' => '735a2029-1062-ab23-42e4-f9c631220243',
+				    'message_id' => 'https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243',
 					'comment' => '',
 					'shared' => 'George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
 Disney: So a morally grey “choose your side” story, right?
@@ -528,6 +531,7 @@ Lucas: For the right price, yes.',
 				    link='https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243'
 				    posted='2022-06-16 12:34:10'
 				    guid='735a2029-1062-ab23-42e4-f9c631220243'
+				    message_id='https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243'
 			    ]George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
 Disney: So a morally grey “choose your side” story, right?
 Lucas: For the right price, yes.[/share]",
@@ -540,6 +544,7 @@ Lucas: For the right price, yes.[/share]",
 					'link' => 'https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243',
 					'posted' => '2022-06-16 12:34:10',
 					'guid' => '',
+				    'message_id' => 'https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243',
 					'comment' => '',
 					'shared' => 'George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
 Disney: So a morally grey “choose your side” story, right?
@@ -551,6 +556,7 @@ Lucas: For the right price, yes.',
 				    avatar='https://friendica.mrpetovan.com/photo/20682437145daa4e85f019a278584494-5.png'
 				    link='https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243'
 				    posted='2022-06-16 12:34:10'
+				    message_id='https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243'
 			    ]George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
 Disney: So a morally grey “choose your side” story, right?
 Lucas: For the right price, yes.[/share]",
@@ -563,6 +569,7 @@ Lucas: For the right price, yes.[/share]",
 					'link' => 'https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243',
 					'posted' => '2022-06-16 12:34:10',
 					'guid' => '',
+				    'message_id' => 'https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243',
 					'comment' => '',
 					'shared' => 'George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
 Disney: So a morally grey “choose your side” story, right?
@@ -573,6 +580,7 @@ Lucas: For the right price, yes.',
 				    profile="https://friendica.mrpetovan.com/profile/hypolite"
 				    avatar="https://friendica.mrpetovan.com/photo/20682437145daa4e85f019a278584494-5.png"
 				    link="https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243"
+				    message_id="https://friendica.mrpetovan.com/display/735a2029-1062-ab23-42e4-f9c631220243"
 				    posted="2022-06-16 12:34:10"
 			    ]George Lucas: I made a science-fiction universe with a straightforward anti-authoritarianism plot where even the libertarian joins the rebellion.
 Disney: So a morally grey “choose your side” story, right?
