@@ -401,7 +401,7 @@ function item_post(App $a) {
 		$body              = $item['body'];
 		$inform            = $item['inform'];
 		$postopts          = $item['postopts'];
-		$private           = $item['private']; 
+		$private           = $item['private'];
 		$str_contact_allow = $item['allow_cid'];
 		$str_group_allow   = $item['allow_gid'];
 		$str_contact_deny  = $item['deny_cid'];

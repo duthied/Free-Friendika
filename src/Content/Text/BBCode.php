@@ -294,7 +294,7 @@ class BBCode
 		// Simplify image codes
 		$post['text'] = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $post['text']);
 		$post['text'] = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $post['text']);
-		
+
 		// if nothing is found, it maybe having an image.
 		if (!isset($post['type'])) {
 			if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $post['text'], $pictures, PREG_SET_ORDER)) {
