@@ -412,6 +412,11 @@
 	<nav class="navbar navbar-fixed-top">
 		<div class="container">
 			<div class="navbar-header pull-left">
+				<button type="button" class="navbar-toggle collapsed pull-left visible-sm visible-xs"
+				        data-toggle="offcanvas" data-target="aside" aria-haspopup="true">
+					<span class="sr-only">Toggle navigation</span>
+					<i class="fa fa-ellipsis-v fa-fw fa-lg" aria-hidden="true"></i>
+				</button>
 				<a class="navbar-brand" href="#">
 					<div id="navbrand-container">
 						<div id="logo-img"></div>
