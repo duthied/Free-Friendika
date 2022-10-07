@@ -1930,7 +1930,7 @@ class Item
 	{
 		$latin = '';
 		$non_latin = '';
-		for ($i = 0; $i < mb_strlen($body); $i++) { 
+		for ($i = 0; $i < mb_strlen($body); $i++) {
 			$character = mb_substr($body, $i, 1);
 			$ord = mb_ord($character);
 
@@ -3669,7 +3669,7 @@ class Item
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (empty($shared['link']) && empty($shared['message_id'])) {
 			return $item['body'];
-		}	
+		}
 
 		$id = self::fetchByLink($shared['link'] ?: $shared['message_id']);
 		Logger::debug('Fetched shared post', ['uri-id' => $item['uri-id'], 'id' => $id, 'author' => $shared['profile'], 'url' => $shared['link'], 'guid' => $shared['guid'], 'uri' => $shared['message_id'], 'callstack' => System::callstack()]);
