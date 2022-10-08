@@ -135,7 +135,7 @@ class DateTimeFormat
 			$s = 'now';
 		}
 
-		$s = self::fixDateFormat($s);
+		$s = self::fix($s);
 
 		/*
 		 * Slight hackish adjustment so that 'zero' datetime actually returns what is intended
@@ -178,10 +178,11 @@ class DateTimeFormat
 	/**
 	 * Fix weird date formats
 	 *
+	 * @see \Friendica\Test\src\Util\DateTimeFormatTest::dataFix() for a list of examples handled by this method.
 	 * @param string $dateString
 	 * @return string
 	 */
-	private static function fixDateFormat(string $dateString): string
+	public static function fix(string $dateString): string
 	{
 		$patterns = [
 			['#(\w+), (\d+/\d+/\d+) - (\d+:\d+)#', '$1, $2 $3'],
