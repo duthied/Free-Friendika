@@ -1009,14 +1009,15 @@ class BBCode
 	/**
 	 * @param string $text A BBCode string
 	 * @return array Empty array if no share tag is present or the following array, missing attributes end up empty strings:
-	 *               - comment: Text before the opening share tag
-	 *               - shared : Text inside the share tags
-	 *               - author : (Optional) Display name of the shared author
-	 *               - profile: (Optional) Profile page URL of the shared author
-	 *               - avatar : (Optional) Profile picture URL of the shared author
-	 *               - link   : (Optional) Canonical URL of the shared post
-	 *               - posted : (Optional) Date the shared post was initially posted ("Y-m-d H:i:s" in GMT)
-	 *               - guid   : (Optional) Shared post GUID if any
+	 *               - comment   : Text before the opening share tag
+	 *               - shared    : Text inside the share tags
+	 *               - author    : (Optional) Display name of the shared author
+	 *               - profile   : (Optional) Profile page URL of the shared author
+	 *               - avatar    : (Optional) Profile picture URL of the shared author
+	 *               - link      : (Optional) Canonical URL of the shared post
+	 *               - posted    : (Optional) Date the shared post was initially posted ("Y-m-d H:i:s" in GMT)
+	 *               - message_id: (Optional) Shared post URI if any
+	 *               - guid      : (Optional) Shared post GUID if any
 	 */
 	public static function fetchShareAttributes(string $text): array
 	{

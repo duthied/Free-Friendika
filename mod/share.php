@@ -21,13 +21,11 @@
 
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
-use Friendica\Util\Network;
 
 function share_init(App $a) {
 	$post_id = ((DI::args()->getArgc() > 1) ? intval(DI::args()->getArgv()[1]) : 0);
@@ -36,30 +34,21 @@ function share_init(App $a) {
 		System::exit();
 	}
 
-	$fields = ['private', 'body', 'author-name', 'author-link', 'author-avatar',
-		'guid', 'created', 'plink', 'uri', 'title', 'network'];
+	$fields = ['private', 'body', 'uri'];
 	$item = Post::selectFirst($fields, ['id' => $post_id]);
 
 	if (!DBA::isResult($item) || $item['private'] == Item::PRIVATE) {
 		System::exit();
 	}
 
-	if (strpos($item['body'], "[/share]") !== false) {
-		$pos = strpos($item['body'], "[share");
-		$o = substr($item['body'], $pos);
-	} elseif (Network::isValidHttpUrl($item['uri']) && in_array($item['network'], Protocol::FEDERATED)) {
-		$o = "[share]" . $item['uri'] . "[/share]";
+	$shared = BBCode::fetchShareAttributes($item['body']);
+	if (!empty($shared['message_id']) || !empty($shared['link'])) {
+		$content = '[share]' . ($shared['message_id'] ?: $shared['link']) . '[/share]';
+	} elseif (strpos($item['body'], '[/share]') !== false) {
+		$pos = strpos($item['body'], '[share');
+		$content = substr($item['body'], $pos);
 	} else {
-		$o = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
-
-		if ($item['title']) {
-			$o .= '[h3]'.$item['title'].'[/h3]'."\n";
-		}
-
-		$o .= $item['body'];
-		$o .= "[/share]";
+		$content = '[share]' . $item['uri'] . '[/share]';
 	}
-
-	echo $o;
-	System::exit();
+	System::httpExit($content);
 }
