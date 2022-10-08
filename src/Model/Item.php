@@ -3671,7 +3671,15 @@ class Item
 			return $item['body'];
 		}
 
-		$id = self::fetchByLink($shared['link'] ?: $shared['message_id']);
+		$link = $shared['link'] ?: $shared['message_id'];
+
+		if (!empty($item['uid'])) {
+			$id = self::searchByLink($link, $item['uid']);
+		}
+
+		if (empty($id)) {
+			$id = self::fetchByLink($link);
+		}
 		Logger::debug('Fetched shared post', ['uri-id' => $item['uri-id'], 'id' => $id, 'author' => $shared['profile'], 'url' => $shared['link'], 'guid' => $shared['guid'], 'uri' => $shared['message_id'], 'callstack' => System::callstack()]);
 		if (!$id) {
 			return $item['body'];
