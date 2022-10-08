@@ -1040,6 +1040,11 @@ class PostUpdate
 			return true;
 		}
 
+		if (!DBStructure::existsTable('conversation')) {
+			DI::config()->set('system', 'post_update_version', 1452);
+			return true;
+		}
+
 		$id = DI::config()->get('system', 'post_update_version_1452_id', 0);
 
 		Logger::info('Start', ['uri-id' => $id]);
