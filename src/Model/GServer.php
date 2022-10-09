@@ -2164,9 +2164,11 @@ class GServer
 			if ($curlResult->isSuccess()) {
 				$servers = json_decode($curlResult->getBody(), true);
 
-				foreach ($servers['instances'] as $server) {
-					$url = (is_null($server['https_score']) ? 'http' : 'https') . '://' . $server['name'];
-					self::add($url);
+				if (!empty($servers['instances'])) {
+					foreach ($servers['instances'] as $server) {
+						$url = (is_null($server['https_score']) ? 'http' : 'https') . '://' . $server['name'];
+						self::add($url);
+					}	
 				}
 			}
 		}
