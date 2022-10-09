@@ -119,7 +119,7 @@ class DateTimeFormat
 	 * @return string Formatted date according to given format
 	 * @throws Exception
 	 */
-	public static function convert($s = 'now', $tz_to = 'UTC', $tz_from = 'UTC', $format = self::MYSQL)
+	public static function convert(string $s = 'now', string $tz_to = 'UTC', string $tz_from = 'UTC', string $format = self::MYSQL): string
 	{
 		// Defaults to UTC if nothing is set, but throws an exception if set to empty string.
 		// Provide some sane defaults regardless.
@@ -135,20 +135,11 @@ class DateTimeFormat
 			$s = 'now';
 		}
 
-		$s = self::fix($s);
-
-		/*
-		 * Slight hackish adjustment so that 'zero' datetime actually returns what is intended
-		 * otherwise we end up with -0001-11-30 ...
-		 * add 32 days so that we at least get year 00, and then hack around the fact that
-		 * months and days always start with 1.
-		 */
+		// Lowest possible datetime value
 		if (substr($s, 0, 10) <= '0001-01-01') {
-			if ($s < '0000-00-00') {
-				$s = '0000-00-00';
-			}
-			$d = new DateTime($s . ' + 32 days', new DateTimeZone('UTC'));
-			return str_replace('1', '0', $d->format($format));
+			$d = new DateTime('now', new DateTimeZone('UTC'));
+			$d->setDate(1, 1, 1)->setTime(0, 0);
+			return $d->format($format);
 		}
 
 		try {
@@ -160,8 +151,12 @@ class DateTimeFormat
 		try {
 			$d = new DateTime($s, $from_obj);
 		} catch (Exception $e) {
-			Logger::warning('DateTimeFormat::convert: exception: ' . $e->getMessage());
-			$d = new DateTime('now', $from_obj);
+			try {
+				$d = new DateTime(self::fix($s), $from_obj);
+			} catch (\Throwable $e) {
+				Logger::warning('DateTimeFormat::convert: exception: ' . $e->getMessage());
+				$d = new DateTime('now', $from_obj);
+			}
 		}
 
 		try {
@@ -176,7 +171,10 @@ class DateTimeFormat
 	}
 
 	/**
-	 * Fix weird date formats
+	 * Fix weird date formats.
+	 *
+	 * Note: This method isn't meant to sanitize valid date/time strings, for example it will mangle relative date
+	 * strings like "now - 3 days".
 	 *
 	 * @see \Friendica\Test\src\Util\DateTimeFormatTest::dataFix() for a list of examples handled by this method.
 	 * @param string $dateString

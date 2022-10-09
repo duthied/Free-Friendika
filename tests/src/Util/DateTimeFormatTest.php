@@ -141,4 +141,18 @@ class DateTimeFormatTest extends MockedTest
 	{
 		$this->assertEquals($expected, DateTimeFormat::fix($dateString));
 	}
+
+	/**
+	 * This test is meant to ensure DateTimeFormat::fix() isn't called on relative date/time strings
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function testConvertRelative()
+	{
+		$now = DateTimeFormat::utcNow('U');
+		$date = DateTimeFormat::utc('now - 3 days', 'U');
+
+		$this->assertEquals(259200, $now - $date);
+	}
 }
