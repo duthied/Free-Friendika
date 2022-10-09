@@ -92,54 +92,57 @@ class DateTimeFormatTest extends MockedTest
 	{
 		return [
 			'Mo, 19 Sep 2022 14:51:00 +0200' => [
-				'expected' => '19 Sep 2022 14:51:00 +0200',
+				'expectedDate' => '2022-09-19T14:51:00+02:00',
 				'dateString' => 'Mo, 19 Sep 2022 14:51:00 +0200',
 			],
 			'2020-11-21T12:00:13.745339ZZ' => [
-				'expected' => '2020-11-21T12:00:13.745339Z',
+				'expectedDate' => '2020-11-21T12:00:13+00:00',
 				'dateString' => '2020-11-21T12:00:13.745339ZZ',
 			],
 			'2016-09-09T13:32:00ZZ' => [
-				'expected' => '2016-09-09T13:32:00Z',
+				'expectedDate' => '2016-09-09T13:32:00+00:00',
 				'dateString' => '2016-09-09T13:32:00ZZ',
 			],
-			'2021-09-09T16:19:00ZZ' => [
-				'expected' => '2021-09-09T16:19:00Z',
-				'dateString' => '2021-09-09T16:19:00ZZ',
-			],
 			'Sun, 10/03/2021 - 12:41' => [
-				'expected' => 'Sun, 10/03/2021 12:41',
+				'expectedDate' => '2021-10-03T12:41:00+00:00',
 				'dateString' => 'Sun, 10/03/2021 - 12:41',
 			],
-			'Mon, 09/12/2022 - 09:02' => [
-				'expected' => 'Mon, 09/12/2022 09:02',
-				'dateString' => 'Mon, 09/12/2022 - 09:02',
-			],
 			'4:30 PM, Sep 13, 2022' => [
-				'expected' => '4:30 PM Sep 13 2022',
+				'expectedDate' => '2022-09-13T16:30:00+00:00',
 				'dateString' => '4:30 PM, Sep 13, 2022',
 			],
 			'August 27, 2022 - 21:00' => [
-				'expected' => 'August 27, 2022, 21:00',
+				'expectedDate' => '2022-08-27T21:00:00+00:00',
 				'dateString' => 'August 27, 2022 - 21:00',
 			],
 			'2021-09-19T14:06:03&#x2B;00:00' => [
-				'expected' => '2021-09-19T14:06:03+00:00',
+				'expectedDate' => '2021-09-19T14:06:03+00:00',
 				'dateString' => '2021-09-19T14:06:03&#x2B;00:00',
 			],
+			'Eastern Time timezone' => [
+				'expectedDate' => '2022-09-30T00:00:00-05:00',
+				'dateString' => 'September 30, 2022, 12:00 a.m. ET',
+			],
+			'German date time string' => [
+				'expectedDate' => '2022-10-05T16:34:00+02:00',
+				'dateString' => '05 Okt 2022 16:34:00 +0200',
+			]
 		];
 	}
 
 	/**
 	 * @dataProvider dataFix
 	 *
-	 * @param $expected
+	 * @param $expectedDate
 	 * @param $dateString
 	 * @return void
+	 * @throws \Exception
 	 */
-	public function testFix($expected, $dateString)
+	public function testFix($expectedDate, $dateString)
 	{
-		$this->assertEquals($expected, DateTimeFormat::fix($dateString));
+		$fixed = DateTimeFormat::fix($dateString);
+
+		$this->assertEquals($expectedDate, (new \DateTime($fixed))->format('c'));
 	}
 
 	/**

@@ -182,17 +182,17 @@ class DateTimeFormat
 	 */
 	public static function fix(string $dateString): string
 	{
-		$patterns = [
-			['#(\w+), (\d+/\d+/\d+) - (\d+:\d+)#', '$1, $2 $3'],
-			['#(\d+-\d+-\d+)T(\d+:\d+:\d+)ZZ#', '$1T$2Z'],
-			['#(\d+-\d+-\d+)T(\d+:\d+:\d+\.\d+)ZZ#', '$1T$2Z'],
+		$search  = ['Mär', 'März', 'Mai', 'Juni', 'Juli', 'Okt', 'Dez', 'ET' , 'ZZ', ' - ', '&#x2B;'];
+		$replace = ['Mar', 'Mar' , 'May', 'Jun' , 'Jul' , 'Oct', 'Dec', 'EST', 'Z' , ', ' , '+'     ];
+
+		$dateString = str_replace($search, $replace, $dateString);
+
+		$pregPatterns = [
 			['#(\w+), (\d+ \w+ \d+) (\d+:\d+:\d+) (.+)#', '$2 $3 $4'],
 			['#(\d+:\d+) (\w+), (\w+) (\d+), (\d+)#', '$1 $2 $3 $4 $5'],
-			['#(\w+ \d+, \d+) - (\d+:\d+)#', '$1, $2'],
-			['~(\d+-\d+-\d+)T(\d+:\d+:\d+)&#x2B;(\d+:\d+)~', '$1T$2+$3'],
 		];
 
-		foreach ($patterns as $pattern) {
+		foreach ($pregPatterns as $pattern) {
 			$dateString = preg_replace($pattern[0], $pattern[1], $dateString);
 		}
 
