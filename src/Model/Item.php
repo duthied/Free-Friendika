@@ -3565,63 +3565,6 @@ class Item
 	}
 
 	/**
-	 * Fetch item information for shared items from the original items and adds it.
-	 *
-	 * @param array $item
-	 *
-	 * @return array item array with data from the original item
-	 */
-	public static function addShareDataFromOriginal(array $item): array
-	{
-		$shared = self::getShareArray($item);
-		if (empty($shared)) {
-			return $item;
-		}
-
-		// Real reshares always have got a GUID.
-		if (empty($shared['guid'])) {
-			return $item;
-		}
-
-		$uid = $item['uid'] ?? 0;
-
-		// first try to fetch the item via the GUID. This will work for all reshares that had been created on this system
-		$shared_item = Post::selectFirst(['title', 'body'], ['guid' => $shared['guid'], 'uid' => [0, $uid]]);
-		if (!DBA::isResult($shared_item)) {
-			if (empty($shared['link'])) {
-				return $item;
-			}
-
-			// Otherwhise try to find (and possibly fetch) the item via the link. This should work for Diaspora and ActivityPub posts
-			$id = self::fetchByLink($shared['link'] ?? '', $uid);
-			if (empty($id)) {
-				Logger::info('Original item not found', ['url' => $shared['link'] ?? '', 'callstack' => System::callstack()]);
-				return $item;
-			}
-
-			$shared_item = Post::selectFirst(['title', 'body'], ['id' => $id]);
-			if (!DBA::isResult($shared_item)) {
-				return $item;
-			}
-			Logger::info('Got shared data from url', ['url' => $shared['link'], 'callstack' => System::callstack()]);
-		} else {
-			Logger::info('Got shared data from guid', ['guid' => $shared['guid'], 'callstack' => System::callstack()]);
-		}
-
-		if (!empty($shared_item['title'])) {
-			$body = '[h3]' . $shared_item['title'] . "[/h3]\n" . $shared_item['body'];
-			unset($shared_item['title']);
-		} else {
-			$body = $shared_item['body'];
-		}
-
-		$item['body'] = preg_replace("/\[share ([^\[\]]*)\].*\[\/share\]/ism", '[share $1]' . str_replace('$', '\$', $body) . '[/share]', $item['body']);
-		unset($shared_item['body']);
-
-		return array_merge($item, $shared_item);
-	}
-
-	/**
 	 * Check a prospective item array against user-level permissions
 	 *
 	 * @param array $item Expected keys: uri, gravity, and
@@ -3667,39 +3610,23 @@ class Item
 	public static function improveSharedDataInBody(array $item): string
 	{
 		$shared = BBCode::fetchShareAttributes($item['body']);
-		if (empty($shared['link']) && empty($shared['message_id'])) {
+		if (empty($shared['guid']) && empty($shared['message_id'])) {
 			return $item['body'];
 		}
 
 		$link = $shared['link'] ?: $shared['message_id'];
 
-		if (!empty($item['uid'])) {
-			$id = self::searchByLink($link, $item['uid']);
+		if (empty($shared_content)) {
+			$shared_content = DI::contentItem()->createSharedPostByUrl($link, $item['uid'] ?? 0);
 		}
 
-		if (empty($id)) {
-			$id = self::fetchByLink($link);
-		}
-		Logger::debug('Fetched shared post', ['uri-id' => $item['uri-id'], 'id' => $id, 'author' => $shared['profile'], 'url' => $shared['link'], 'guid' => $shared['guid'], 'uri' => $shared['message_id'], 'callstack' => System::callstack()]);
-		if (!$id) {
+		if (empty($shared_content)) {
 			return $item['body'];
 		}
 
-		$shared_item = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'uri', 'title', 'body'], ['id' => $id]);
-		if (!DBA::isResult($shared_item)) {
-			return $item['body'];
-		}
+		$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $shared_content, $item['body']);
 
-		$shared_content = BBCode::getShareOpeningTag($shared_item['author-name'], $shared_item['author-link'], $shared_item['author-avatar'], $shared_item['plink'], $shared_item['created'], $shared_item['guid'], $shared_item['uri']);
-
-		if (!empty($shared_item['title'])) {
-			$shared_content .= '[h3]'.$shared_item['title'].'[/h3]'."\n";
-		}
-
-		$shared_content .= $shared_item['body'];
-
-		$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $shared_content . '[/share]', $item['body']);
-		Logger::debug('New shared data', ['uri-id' => $item['uri-id'], 'id' => $id, 'shared_item' => $shared_item]);
+		Logger::debug('New shared data', ['uri-id' => $item['uri-id'], 'link' => $link, 'guid' => $item['guid']]);
 		return $item['body'];
 	}
 }

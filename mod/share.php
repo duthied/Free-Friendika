@@ -42,11 +42,8 @@ function share_init(App $a) {
 	}
 
 	$shared = BBCode::fetchShareAttributes($item['body']);
-	if (!empty($shared['message_id']) || !empty($shared['link'])) {
+	if (empty($shared['comment']) && (!empty($shared['message_id']) || !empty($shared['link']))) {
 		$content = '[share]' . ($shared['message_id'] ?: $shared['link']) . '[/share]';
-	} elseif (strpos($item['body'], '[/share]') !== false) {
-		$pos = strpos($item['body'], '[share');
-		$content = substr($item['body'], $pos);
 	} else {
 		$content = '[share]' . $item['uri'] . '[/share]';
 	}

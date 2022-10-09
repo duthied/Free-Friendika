@@ -35,7 +35,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Module\NoScrape;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
@@ -136,6 +135,18 @@ class Contact
 		$contact = DBA::selectFirst('contact', $fields, $condition, $params);
 
 		return $contact;
+	}
+
+	/**
+	 * @param array $fields    Array of selected fields, empty for all
+	 * @param array $condition Array of fields for condition
+	 * @param array $params    Array of several parameters
+	 * @return array|bool
+	 * @throws \Exception
+	 */
+	public static function selectFirstAccount(array $fields = [], array $condition = [], array $params = [])
+	{
+		return DBA::selectFirst('account-view', $fields, $condition, $params);
 	}
 
 	/**
@@ -348,6 +359,18 @@ class Contact
 			$contact['zid'] = $contact['id'];
 		}
 		return $contact;
+	}
+
+	/**
+	 * Checks if a contact uses a specific platform
+	 *
+	 * @param string $url
+	 * @param string $platform
+	 * @return boolean
+	 */
+	public static function isPlatform(string $url, string $platform): bool
+	{
+		return DBA::exists('account-view', ['nurl' => Strings::normaliseLink($url), 'platform' => $platform]);
 	}
 
 	/**

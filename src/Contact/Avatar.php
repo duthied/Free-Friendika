@@ -161,7 +161,7 @@ class Avatar
 			$dirpath .= $part . '/';
 
 			if (!file_exists($dirpath)) {
-				if (!@mkdir($dirpath, $dir_perm)) {
+				if (!@mkdir($dirpath, $dir_perm) && !file_exists($dirpath)) {
 					Logger::warning('Directory could not be created', ['directory' => $dirpath]);
 				}
 			} elseif ((($old_perm = fileperms($dirpath) & 0777) != $dir_perm) && !chmod($dirpath, $dir_perm)) {

@@ -22,10 +22,12 @@
 namespace Friendica\Content;
 
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\Markdown;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -34,6 +36,7 @@ use Friendica\Model\Photo;
 use Friendica\Model\Tag;
 use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\Diaspora;
 use Friendica\Util\Profiler;
 use Friendica\Util\Proxy;
 use Friendica\Util\XML;
@@ -564,5 +567,114 @@ class Item
 		}
 
 		return $owner_thumb;
+	}
+
+	/**
+	 * Add a share block for the given url
+	 *
+	 * @param string $url
+	 * @param integer $uid
+	 * @return string
+	 */
+	public function createSharedPostByUrl(string $url, int $uid = 0): string
+	{
+		if (!empty($uid)) {
+			$id = ModelItem::searchByLink($url, $uid);
+		}
+
+		if (empty($id)) {
+			$id = ModelItem::fetchByLink($url);
+		}
+
+		if (!$id) {
+			Logger::notice('Post could not be fetched.', ['url' => $url, 'uid' => $uid, 'callstack' => System::callstack()]);
+			return '';
+		}
+
+		Logger::debug('Fetched shared post', ['id' => $id, 'url' => $url, 'uid' => $uid, 'callstack' => System::callstack()]);
+
+		$shared_item = Post::selectFirst(['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'], ['id' => $id]);
+		if (!DBA::isResult($shared_item)) {
+			Logger::warning('Post does not exist.', ['id' => $id, 'url' => $url, 'uid' => $uid]);
+			return '';
+		}
+
+		return $this->createSharedBlockByArray($shared_item);
+	}
+
+	/**
+	 * Add a share block for the given uri-id
+	 *
+	 * @param integer $UriId
+	 * @param integer $uid
+	 * @return string
+	 */
+	public function createSharedPostByUriId(int $UriId, int $uid = 0): string
+	{
+		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
+		$shared_item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
+		if (!DBA::isResult($shared_item)) {
+			Logger::notice('Post does not exist.', ['uri-id' => $UriId, 'uid' => $uid]);
+			return '';
+		}
+
+		return $this->createSharedBlockByArray($shared_item);
+	}
+
+	/**
+	 * Add a share block for the given guid
+	 *
+	 * @param string $guid
+	 * @param integer $uid
+	 * @return string
+	 */
+	public function createSharedPostByGuid(string $guid, int $uid = 0, string $host = ''): string
+	{
+		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
+		$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
+
+		if (!DBA::isResult($shared_item) && !empty($host) && Diaspora::storeByGuid($guid, $host, true)) {
+			Logger::debug('Fetched post', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
+			$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
+		} elseif (DBA::isResult($shared_item)) {
+			Logger::debug('Found existing post', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
+		}
+
+		if (!DBA::isResult($shared_item)) {
+			Logger::notice('Post does not exist.', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
+			return '';
+		}
+
+		return $this->createSharedBlockByArray($shared_item);
+	}
+
+	/**
+	 * Add a share block for the given item array
+	 *
+	 * @param array $item
+	 * @return string
+	 */
+	public function createSharedBlockByArray(array $item): string
+	{
+		if (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
+			$item['guid'] = '';
+			$item['uri']  = '';
+		}
+
+		$shared_content = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid'], $item['uri']);
+
+		if (!empty($item['title'])) {
+			$shared_content .= '[h3]' . $item['title'] . "[/h3]\n";
+		}
+
+		// If it is a reshared post then reformat it to avoid display problems with two share elements
+		if (Diaspora::isReshare($item['body'], false)) {
+			$item['body'] = Markdown::toBBCode(BBCode::toMarkdown($item['body']));
+			$item['body'] = Diaspora::replacePeopleGuid($item['body'], $item['author-link']);
+		}
+
+		$shared_content .= $item['body'] . '[/share]';
+
+		return $shared_content;
 	}
 }
