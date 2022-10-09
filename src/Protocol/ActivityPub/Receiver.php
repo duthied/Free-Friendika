@@ -512,7 +512,10 @@ class Receiver
 //			}
 //		}
 
-		Logger::info('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id']);
+		$account = Contact::selectFirstAccount(['platform'], ['nurl' => Strings::normaliseLink($actor)]);
+		$platform = $account['platform'] ?? '';
+
+		Logger::info('Processing', ['type' => $object_data['type'], 'object_type' => $object_data['object_type'], 'id' => $object_data['id'], 'actor' => $actor, 'platform' => $platform]);
 
 		return $object_data;
 	}
@@ -1147,6 +1150,17 @@ class Receiver
 		}
 
 		self::switchContacts($receivers, $actor);
+
+		// "birdsitelive" is a service that mirrors tweets into the fediverse
+		// These posts can be fetched without authentification, but are not marked as public
+		// We treat them as unlisted posts to be able to handle them.
+		if (empty($receivers) && $fetch_unlisted && Contact::isPlatform($actor, 'birdsitelive')) {
+			$receivers[0]  = ['uid' => 0, 'type' => self::TARGET_GLOBAL];
+			$receivers[-1] = ['uid' => -1, 'type' => self::TARGET_GLOBAL];
+			Logger::notice('Post from "birdsitelive" is set to "unlisted"', ['id' => JsonLD::fetchElement($activity, '@id')]);
+		} elseif (empty($receivers)) {
+			Logger::notice('Post has got no receivers', ['fetch_unlisted' => $fetch_unlisted, 'actor' => $actor, 'id' => JsonLD::fetchElement($activity, '@id'), 'type' => JsonLD::fetchElement($activity, '@type')]);
+		}
 
 		return $receivers;
 	}

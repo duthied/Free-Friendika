@@ -1025,7 +1025,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function storeByGuid(string $guid, string $server, bool $force)
+	public static function storeByGuid(string $guid, string $server, bool $force)
 	{
 		$serverparts = parse_url($server);
 
@@ -2274,83 +2274,6 @@ class Diaspora
 	}
 
 	/**
-	 * Fetches a message with a given guid
-	 *
-	 * @param string $guid        message guid
-	 * @param string $orig_author handle of the original post
-	 * @return array|bool The fetched item or false on failure
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function originalItem(string $guid, string $orig_author)
-	{
-		if (empty($guid)) {
-			Logger::notice('Empty guid. Quitting.');
-			return false;
-		}
-
-		// Do we already have this item?
-		$fields = ['body', 'title', 'app', 'created', 'object-type', 'uri', 'guid',
-			'author-name', 'author-link', 'author-avatar', 'plink', 'uri-id'];
-		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
-		$item = Post::selectFirst($fields, $condition);
-
-		if (DBA::isResult($item)) {
-			Logger::notice("reshared message " . $guid . " already exists on system.");
-
-			// Maybe it is already a reshared item?
-			// Then refetch the content, if it is a reshare from a reshare.
-			// If it is a reshared post from another network then reformat to avoid display problems with two share elements
-			if (self::isReshare($item['body'], true)) {
-				$item = [];
-			} elseif (self::isReshare($item['body'], false) || strstr($item['body'], '[share')) {
-				$item['body'] = Markdown::toBBCode(BBCode::toMarkdown($item['body']));
-
-				$item['body'] = self::replacePeopleGuid($item['body'], $item['author-link']);
-
-				return $item;
-			} else {
-				return $item;
-			}
-		}
-
-		if (!DBA::isResult($item)) {
-			if (empty($orig_author)) {
-				Logger::notice('Empty author for guid ' . $guid . '. Quitting.');
-				return false;
-			}
-
-			$server = 'https://' . substr($orig_author, strpos($orig_author, '@') + 1);
-			Logger::notice('1st try: reshared message ' . $guid . ' will be fetched via SSL from the server ' . $server);
-			$stored = self::storeByGuid($guid, $server, true);
-
-			if (!$stored) {
-				$server = 'http://' . substr($orig_author, strpos($orig_author, '@') + 1);
-				Logger::notice('2nd try: reshared message ' . $guid . ' will be fetched without SSL from the server ' . $server);
-				$stored = self::storeByGuid($guid, $server, true);
-			}
-
-			if ($stored) {
-				$fields = ['body', 'title', 'app', 'created', 'object-type', 'uri', 'guid',
-					'author-name', 'author-link', 'author-avatar', 'plink', 'uri-id'];
-				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
-				$item = Post::selectFirst($fields, $condition);
-
-				if (DBA::isResult($item)) {
-					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
-					if (self::isReshare($item['body'], false)) {
-						$item['body'] = Markdown::toBBCode(BBCode::toMarkdown($item['body']));
-						$item['body'] = self::replacePeopleGuid($item['body'], $item['author-link']);
-					}
-
-					return $item;
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Stores a reshare activity
 	 *
 	 * @param array   $item              Array of reshare post
@@ -2442,13 +2365,9 @@ class Diaspora
 			return true;
 		}
 
-		$original_item = self::originalItem($root_guid, $root_author);
-		if (!$original_item) {
+		$original_person = FContact::getByURL($root_author);
+		if (!$original_person) {
 			return false;
-		}
-
-		if (empty($original_item['plink'])) {
-			$original_item['plink'] = self::plink($root_author, $root_guid);
 		}
 
 		$datarray = [];
@@ -2475,33 +2394,14 @@ class Diaspora
 
 		$datarray = self::setDirection($datarray, $direction);
 
+		$datarray['body'] = DI::contentItem()->createSharedPostByGuid($root_guid, $importer['uid'], $original_person['url']);
+
 		/// @todo Copy tag data from original post
-
-		$prefix = BBCode::getShareOpeningTag(
-			$original_item['author-name'],
-			$original_item['author-link'],
-			$original_item['author-avatar'],
-			$original_item['plink'],
-			$original_item['created'],
-			$original_item['guid'],
-			$original_item['uri'],
-		);
-
-		if (!empty($original_item['title'])) {
-			$prefix .= '[h3]' . $original_item['title'] . "[/h3]\n";
-		}
-
-		$datarray['body'] = $prefix.$original_item['body'] . '[/share]';
-
 		Tag::storeFromBody($datarray['uri-id'], $datarray['body']);
-
-		$datarray['app']  = $original_item['app'];
 
 		$datarray['plink'] = self::plink($author, $guid);
 		$datarray['private'] = (($public == 'false') ? Item::PRIVATE : Item::PUBLIC);
 		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = $created_at;
-
-		$datarray['object-type'] = $original_item['object-type'];
 
 		self::fetchGuid($datarray);
 
@@ -3475,9 +3375,9 @@ class Diaspora
 				}
 			}
 
+			// @todo Check if this is obsolete and if we are still using different owners. (Possibly a fragment from the forum functionality)
 			if ($item['author-link'] != $item['owner-link']) {
-				$body = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'],
-					$item['plink'], $item['created']) . $body . '[/share]';
+				$body = DI::contentItem()->createSharedBlockByArray($item);
 			}
 
 			// convert to markdown
@@ -4182,24 +4082,9 @@ class Diaspora
 
 	public static function performReshare(int $UriId, int $uid): int
 	{
-		$fields = ['uri-id', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'uri'];
-		$item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [Item::PUBLIC, Item::UNLISTED]]);
-		if (!DBA::isResult($item)) {
+		$post = DI::contentItem()->createSharedPostByUriId($UriId, $uid);
+		if (empty($post)) {
 			return 0;
-		}
-
-		if (strpos($item['body'], '[/share]') !== false) {
-			$pos = strpos($item['body'], '[share');
-			$post = substr($item['body'], $pos);
-		} else {
-			$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid'], $item['uri']);
-
-			if (!empty($item['title'])) {
-				$post .= '[h3]' . $item['title'] . "[/h3]\n";
-			}
-
-			$post .= $item['body'];
-			$post .= '[/share]';
 		}
 
 		$owner  = User::getOwnerDataById($uid);

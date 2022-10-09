@@ -595,14 +595,7 @@ function item_post(App $a) {
 	$datarray['protocol'] = Conversation::PARCEL_DIRECT;
 	$datarray['direction'] = Conversation::PUSH;
 
-	if ($orig_post) {
-		$datarray['edit'] = true;
-	} else {
-		// If this was a share, add missing data here
-		$datarray = Item::addShareDataFromOriginal($datarray);
-
-		$datarray['edit'] = false;
-	}
+	$datarray['edit'] = $orig_post;
 
 	// Check for hashtags in the body and repair or add hashtag links
 	if ($preview || $orig_post) {
