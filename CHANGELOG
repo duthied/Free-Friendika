@@ -2,6 +2,7 @@ Version 2022.09 (unreleased)
   Friendica Core
     Added GD translation, updates to the translations AR, DE, FR, HU, PL, SV, ZH CN
     Added a check for too long passwords (due Blowfish hashing algorithm) [MrPetovan]
+    Added an API endpoint to create events [MrPetovan, pankraz]
     Added the possibility to store profile avatars in a separate directory [annando]
     Added an option to not fetch parent postings [annando]
     Added an option to reject postings by language received by the relay [annando]
