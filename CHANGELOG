@@ -21,7 +21,7 @@ Version 2022.09 (unreleased)
     Fixed a federation problem with Diaspora* during the author signature check [annando]
     Fixed a problem with Forwarded-For headers [nupplaphil]
     Fixed a problem with the encoding of mails send [MrPetovan]
-    Fixed a problem with wired formatted date notations [annando, MrPetovan]
+    Fixed a problem with weird formatted date notations [annando, MrPetovan]
     Fixed a problem following some RSS feeds [mexon]
     Updated dependencies [MrPetovan]
     Replace SFTP-publish with docker-publish [nupplaphil]
