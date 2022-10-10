@@ -1662,10 +1662,9 @@ class Transmitter
 
 			$body = BBCode::setMentionsToNicknames($body);
 
-			$shared = BBCode::fetchShareAttributes($body);
-			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
-				$body = self::replaceSharedData($body);
-				$data['quoteUrl'] = $shared['link'];
+			if (!empty($item['quote-uri'])) {
+				$body = BBCode::replaceSharedData($body);
+				$data['quoteUrl'] = $item['quote-uri'];
 			}
 
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
@@ -1680,7 +1679,7 @@ class Transmitter
 
 			$shared = BBCode::fetchShareAttributes($richbody);
 			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
-				$richbody = self::replaceSharedData($richbody);
+				$richbody = BBCode::replaceSharedData($richbody);
 			}
 
 			$richbody = BBCode::removeAttachment($richbody);
@@ -1708,22 +1707,6 @@ class Transmitter
 		$data = array_merge($data, $permission_block);
 
 		return $data;
-	}
-
-	/**
-	 * Replace the share block with a link
-	 *
-	 * @param string $body
-	 * @return string
-	 */
-	private static function replaceSharedData(string $body): string
-	{
-		return BBCode::convertShare(
-			$body,
-			function (array $attributes) {
-				return '♲ ' . $attributes['link'];
-			}
-		);
 	}
 
 	/**

@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1484);
+	define('DB_UPDATE_VERSION', 1485);
 }
 
 return [
@@ -1218,6 +1218,7 @@ return [
 			"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"body" => ["type" => "mediumtext", "comment" => "item body content"],
 			"raw-body" => ["type" => "mediumtext", "comment" => "Body without embedded media links"],
+			"quote-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the quoted uri"],
 			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "text location where this item originated"],
 			"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "longitude/latitude pair representing location where this item originated"],
 			"language" => ["type" => "text", "comment" => "Language information about this post"],
@@ -1236,6 +1237,7 @@ return [
 			"plink" => ["plink(191)"],
 			"resource-id" => ["resource-id"],
 			"title-content-warning-body" => ["FULLTEXT", "title", "content-warning", "body"],
+			"quote-uri-id" => ["quote-uri-id"],
 		]
 	],
 	"post-delivery" => [

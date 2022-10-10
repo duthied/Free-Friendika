@@ -93,7 +93,7 @@ class Item
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 		'wall', 'private', 'starred', 'origin', 'parent-origin', 'title', 'body', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
-		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'mention', 'global',
+		'quote-uri', 'quote-uri-id', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'mention', 'global',
 		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network', 'author-updated', 'author-gsid', 'author-addr', 'author-uri-id',
 		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network', 'owner-contact-type', 'owner-updated',
 		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type', 'causer-network',
@@ -115,7 +115,7 @@ class Item
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-id', 'author-link', 'author-name', 'author-avatar', 'owner-id', 'owner-link', 'contact-uid',
 			'signed_text', 'network', 'wall', 'contact-id', 'plink', 'origin',
-			'thr-parent-id', 'parent-uri-id', 'postopts', 'pubmail',
+			'thr-parent-id', 'parent-uri-id', 'quote-uri', 'quote-uri-id', 'postopts', 'pubmail',
 			'event-created', 'event-edited', 'event-start', 'event-finish',
 			'event-summary', 'event-desc', 'event-location', 'event-type',
 			'event-nofinish', 'event-ignore', 'event-id'];
@@ -123,7 +123,7 @@ class Item
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'conversation', 'vid',
-			'contact-id', 'wall', 'gravity', 'extid', 'psid',
+			'quote-uri', 'quote-uri-id', 'contact-id', 'wall', 'gravity', 'extid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type', 'post-reason',
@@ -1118,6 +1118,11 @@ class Item
 		// Remove all media attachments from the body and store them in the post-media table
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
+
+		if ($quote_id = self::getQuoteUriId($item['body'])) {
+			$item['quote-uri-id'] = $quote_id;
+			$item['raw-body'] = BBCode::replaceSharedData($item['raw-body']);
+		}
 
 		if (!DBA::exists('contact', ['id' => $item['author-id'], 'network' => Protocol::DFRN])) {
 			Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body']);
@@ -3628,5 +3633,20 @@ class Item
 
 		Logger::debug('New shared data', ['uri-id' => $item['uri-id'], 'link' => $link, 'guid' => $item['guid']]);
 		return $item['body'];
+	}
+
+	/**
+	 * Fetch the uri-id of a quote
+	 *
+	 * @param string $body
+	 * @return integer
+	 */
+	private static function getQuoteUriId(string $body): int
+	{
+		$shared = BBCode::fetchShareAttributes($body);
+		if (empty($shared['message_id'])) {
+			return 0;
+		}
+		return ItemURI::getIdByURI($shared['message_id']);
 	}
 }
