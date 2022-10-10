@@ -461,6 +461,10 @@ class Worker
 		$load_cooldown      = DI::config()->get('system', 'worker_load_cooldown');
 		$processes_cooldown = DI::config()->get('system', 'worker_processes_cooldown');
 
+		if ($load_cooldown == 0) {
+			$load_cooldown = DI::config()->get('system', 'maxloadavg');
+		}
+
 		if (($load_cooldown == 0) && ($processes_cooldown == 0)) {
 			return false;
 		}
@@ -500,6 +504,10 @@ class Worker
 
 		$load_cooldown      = DI::config()->get('system', 'worker_load_cooldown');
 		$processes_cooldown = DI::config()->get('system', 'worker_processes_cooldown');
+
+		if ($load_cooldown == 0) {
+			$load_cooldown = DI::config()->get('system', 'maxloadavg');
+		}
 
 		if (($load_cooldown == 0) && ($processes_cooldown == 0)) {
 			return;
