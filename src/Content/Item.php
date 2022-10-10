@@ -22,7 +22,7 @@
 namespace Friendica\Content;
 
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\Markdown;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -669,8 +669,7 @@ class Item
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
 		if (Diaspora::isReshare($item['body'], false)) {
-			$item['body'] = Markdown::toBBCode(BBCode::toMarkdown($item['body']));
-			$item['body'] = Diaspora::replacePeopleGuid($item['body'], $item['author-link']);
+			$item['body'] = HTML::toBBCode(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::ACTIVITYPUB));
 		}
 
 		$shared_content .= $item['body'] . '[/share]';

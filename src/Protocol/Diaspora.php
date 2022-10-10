@@ -2395,6 +2395,7 @@ class Diaspora
 		$datarray = self::setDirection($datarray, $direction);
 
 		$datarray['body'] = DI::contentItem()->createSharedPostByGuid($root_guid, $importer['uid'], $original_person['url']);
+		$datarray['body'] = Diaspora::replacePeopleGuid($datarray['body'], $datarray['author-link']);
 
 		/// @todo Copy tag data from original post
 		Tag::storeFromBody($datarray['uri-id'], $datarray['body']);
