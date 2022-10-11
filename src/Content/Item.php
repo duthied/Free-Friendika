@@ -672,11 +672,8 @@ class Item
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
 		if (Diaspora::isReshare($item['body'], false)) {
-			if (!empty($shared['guid'])) {
-				$encaspulated_share = self::createSharedPostByGuid($shared['guid']);
-				if (!empty($encaspulated_share)) {
-					$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
-				}
+			if (!empty($shared['guid']) && ($encaspulated_share = self::createSharedPostByGuid($shared['guid']))) {
+				$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
 			}
 	
 			$item['body'] = HTML::toBBCode(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::ACTIVITYPUB));
