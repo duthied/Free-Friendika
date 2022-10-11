@@ -657,7 +657,6 @@ class Item
 	public function createSharedBlockByArray(array $item): string
 	{
 		if (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
-			$item['guid'] = '';
 			$item['uri']  = '';
 		}
 
