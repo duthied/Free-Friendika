@@ -657,7 +657,9 @@ class Item
 	public function createSharedBlockByArray(array $item): string
 	{
 		if (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
+			$item['guid'] = '';
 			$item['uri']  = '';
+			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 		}
 
 		$shared_content = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid'], $item['uri']);
@@ -667,8 +669,6 @@ class Item
 		}
 
 		$shared = BBCode::fetchShareAttributes($item['body']);
-
-		$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body'], [Post\Media::IMAGE]);
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
 		if (Diaspora::isReshare($item['body'], false)) {
