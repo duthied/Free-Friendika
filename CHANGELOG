@@ -24,6 +24,7 @@ Version 2022.09 (unreleased)
     Fixed a problem with the encoding of mails send [MrPetovan]
     Fixed a problem with weird formatted date notations [annando, MrPetovan]
     Fixed a problem following some RSS feeds [mexon]
+    Fixed a problem with quoted reshares from Twitter [annando]
     Updated dependencies [MrPetovan]
     Replace SFTP-publish with docker-publish [nupplaphil]
     Removed the poke functionality [MrPetovan]
