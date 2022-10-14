@@ -1680,11 +1680,9 @@ class Contact
 	/**
 	 * Return the photo path for a given contact array in the given size
 	 *
-	 * @param array $contact    contact array
-	 * @param string $field     Fieldname of the photo in the contact array
+	 * @param array  $contact   contact array
 	 * @param string $size      Size of the avatar picture
-	 * @param string $avatar    Avatar path that is displayed when no photo had been found
-	 * @param bool  $no_update Don't perfom an update if no cached avatar was found
+	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
 	private static function getAvatarPath(array $contact, string $size, bool $no_update = false): string
@@ -1711,7 +1709,7 @@ class Contact
 			}
 		}
 
-		return self::getAvatarUrlForId($contact['id'], $size, $contact['updated'] ?? '');
+		return self::getAvatarUrlForId($contact['id'] ?? 0, $size, $contact['updated'] ?? '');
 	}
 
 	/**

@@ -648,11 +648,13 @@ class Media
 	/**
 	 * Add media attachments to the body
 	 *
-	 * @param int $uriid
+	 * @param int    $uriid
 	 * @param string $body
+	 * @param array  $types
+	 *
 	 * @return string body
 	 */
-	public static function addAttachmentsToBody(int $uriid, string $body = ''): string
+	public static function addAttachmentsToBody(int $uriid, string $body = '', array $types = [self::IMAGE, self::AUDIO, self::VIDEO]): string
 	{
 		if (empty($body)) {
 			$item = Post::selectFirst(['body'], ['uri-id' => $uriid]);
@@ -665,7 +667,7 @@ class Media
 
 		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
 
-		foreach (self::getByURIId($uriid, [self::IMAGE, self::AUDIO, self::VIDEO]) as $media) {
+		foreach (self::getByURIId($uriid, $types) as $media) {
 			if (Item::containsLink($body, $media['preview'] ?? $media['url'], $media['type'])) {
 				continue;
 			}
