@@ -656,7 +656,9 @@ class Item
 	 */
 	public function createSharedBlockByArray(array $item): string
 	{
-		if (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
+		if ($item['network'] == Protocol::FEED) {
+			return PageInfo::getFooterFromUrl($item['plink']);
+		} elseif (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
 			$item['guid'] = '';
 			$item['uri']  = '';
 			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
@@ -675,7 +677,7 @@ class Item
 			if (!empty($shared['guid']) && ($encaspulated_share = self::createSharedPostByGuid($shared['guid']))) {
 				$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
 			}
-	
+
 			$item['body'] = HTML::toBBCode(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::ACTIVITYPUB));
 		}
 
