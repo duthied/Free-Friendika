@@ -31,7 +31,7 @@ use Friendica\Model\Contact;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Giant Rhubarb');
-define('FRIENDICA_VERSION',      '2022.10');
+define('FRIENDICA_VERSION',      '2022.12-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_TABLE_STRUCTURE_VERSION', 1288);
 
