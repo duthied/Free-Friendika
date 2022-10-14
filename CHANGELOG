@@ -1,4 +1,11 @@
-Version 2022.09 (unreleased)
+Version 2022.12 (unreleased)
+  Friendica Core
+
+  Friendica Addons
+
+  Closed Issues
+
+Version 2022.10 (2022-10-14)
   Friendica Core
     Added GD translation, updates to the translations AR, DE, FR, HU, PL, SV, ZH CN
     Added a check for too long passwords (due Blowfish hashing algorithm) [MrPetovan]
