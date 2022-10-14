@@ -1119,7 +1119,9 @@ class Item
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
 
-		if ($quote_id = self::getQuoteUriId($item['body'])) {
+		$quote_id = self::getQuoteUriId($item['body']);
+
+		if (!empty($quote_id) && Post::exists(['uri-id' => $quote_id, 'network' => Protocol::FEDERATED])) {
 			$item['quote-uri-id'] = $quote_id;
 			$item['raw-body'] = BBCode::replaceSharedData($item['raw-body']);
 		}
