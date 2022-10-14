@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 2022.09-rc (Giant Rhubarb)
+-- Friendica 2022.12-dev (Giant Rhubarb)
 -- DB_UPDATE_VERSION 1485
 -- ------------------------------------------
 
