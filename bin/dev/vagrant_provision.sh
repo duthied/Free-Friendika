@@ -51,7 +51,7 @@ service apache2 restart
 
 #Install php
 echo ">>> Installing PHP7"
-apt-get install -qq php libapache2-mod-php php-cli php-mysql php-curl php-gd php-mbstring php-xml imagemagick php-imagick php-zip
+apt-get install -qq php libapache2-mod-php php-cli php-mysql php-curl php-gd php-mbstring php-xml imagemagick php-imagick php-zip php-gmp
 systemctl restart apache2
 
 echo ">>> Installing PHP8"
@@ -59,7 +59,7 @@ apt-get install -qq -y lsb-release ca-certificates apt-transport-https software-
 echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/sury-php.list
 wget -qO - https://packages.sury.org/php/apt.gpg | sudo apt-key add -
 apt update
-apt-get install -qq php8.0 php8.0-cli php8.0-mysql php8.0-curl php8.0-gd php8.0-mbstring php8.0-xml php8.0-imagick php8.0-zip
+apt-get install -qq php8.0 php8.0-cli php8.0-mysql php8.0-curl php8.0-gd php8.0-mbstring php8.0-xml php8.0-imagick php8.0-zip php8.0-gmp
 systemctl restart apache2
 
 #Install mysql
