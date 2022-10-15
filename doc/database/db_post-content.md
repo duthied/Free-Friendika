@@ -13,6 +13,7 @@ Fields
 | content-warning |                                                                                                                           | varchar(255)   | NO   |     |         |       |
 | body            | item body content                                                                                                         | mediumtext     | YES  |     | NULL    |       |
 | raw-body        | Body without embedded media links                                                                                         | mediumtext     | YES  |     | NULL    |       |
+| quote-uri-id    | Id of the item-uri table that contains the quoted uri                                                                     | int unsigned   | YES  |     | NULL    |       |
 | location        | text location where this item originated                                                                                  | varchar(255)   | NO   |     |         |       |
 | coord           | longitude/latitude pair representing location where this item originated                                                  | varchar(255)   | NO   |     |         |       |
 | language        | Language information about this post                                                                                      | text           | YES  |     | NULL    |       |
@@ -35,6 +36,7 @@ Indexes
 | plink                      | plink(191)                             |
 | resource-id                | resource-id                            |
 | title-content-warning-body | FULLTEXT, title, content-warning, body |
+| quote-uri-id               | quote-uri-id                           |
 
 Foreign Keys
 ------------
@@ -42,5 +44,6 @@ Foreign Keys
 | Field | Target Table | Target Field |
 |-------|--------------|--------------|
 | uri-id | [item-uri](help/database/db_item-uri) | id |
+| quote-uri-id | [item-uri](help/database/db_item-uri) | id |
 
 Return to [database documentation](help/database)

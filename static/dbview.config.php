@@ -72,6 +72,8 @@
 			"thr-parent-id" => ["post-user", "thr-parent-id"],
 			"conversation" => ["conversation-item-uri", "uri"],
 			"conversation-id" => ["post-thread-user", "conversation-id"],
+			"quote-uri" => ["quote-item-uri", "uri"],
+			"quote-uri-id" => ["post-content", "quote-uri-id"],
 			"guid" => ["item-uri", "guid"],
 			"wall" => ["post-user", "wall"],
 			"gravity" => ["post-user", "gravity"],
@@ -229,6 +231,7 @@
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id` AND `post-user`.`origin`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
@@ -249,6 +252,8 @@
 			"thr-parent-id" => ["post-user", "thr-parent-id"],
 			"conversation" => ["conversation-item-uri", "uri"],
 			"conversation-id" => ["post-thread-user", "conversation-id"],
+			"quote-uri" => ["quote-item-uri", "uri"],
+			"quote-uri-id" => ["post-content", "quote-uri-id"],
 			"guid" => ["item-uri", "guid"],
 			"wall" => ["post-thread-user", "wall"],
 			"gravity" => ["post-user", "gravity"],
@@ -404,6 +409,7 @@
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread-user`.`uri-id` AND `post-thread-user`.`origin`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
@@ -420,6 +426,8 @@
 			"thr-parent-id" => ["post", "thr-parent-id"],
 			"conversation" => ["conversation-item-uri", "uri"],
 			"conversation-id" => ["post-thread", "conversation-id"],
+			"quote-uri" => ["quote-item-uri", "uri"],
+			"quote-uri-id" => ["post-content", "quote-uri-id"],
 			"guid" => ["item-uri", "guid"],
 			"gravity" => ["post", "gravity"],
 			"extid" => ["external-item-uri", "uri"],
@@ -544,6 +552,7 @@
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post`.`uri-id`
 			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
@@ -558,6 +567,8 @@
 			"thr-parent-id" => ["post", "thr-parent-id"],
 			"conversation" => ["conversation-item-uri", "uri"],
 			"conversation-id" => ["post-thread", "conversation-id"],
+			"quote-uri" => ["quote-item-uri", "uri"],
+			"quote-uri-id" => ["post-content", "quote-uri-id"],
 			"guid" => ["item-uri", "guid"],
 			"gravity" => ["post", "gravity"],
 			"extid" => ["external-item-uri", "uri"],
@@ -682,6 +693,7 @@
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"

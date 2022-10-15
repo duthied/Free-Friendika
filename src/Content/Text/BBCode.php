@@ -1070,6 +1070,22 @@ class BBCode
 	}
 
 	/**
+	 * Replace the share block with a link
+	 *
+	 * @param string $body
+	 * @return string
+	 */
+	public static function replaceSharedData(string $body): string
+	{
+		return BBCode::convertShare(
+			$body,
+			function (array $attributes) {
+				return '♲ ' . $attributes['link'];
+			}
+		);
+	}
+
+	/**
 	 * This function converts a [share] block to text according to a provided callback function whose signature is:
 	 *
 	 * function(array $attributes, array $author_contact, string $content, boolean $is_quote_share): string
