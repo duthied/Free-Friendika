@@ -45,7 +45,7 @@ apt-get install -qq apache2
 a2enmod rewrite actions ssl
 cp /vagrant/bin/dev/vagrant_vhost.sh /usr/local/bin/vhost
 chmod guo+x /usr/local/bin/vhost
-vhost -s 192.168.22.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica.local
+vhost -s 192.168.56.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica.local
 a2dissite 000-default
 service apache2 restart
 
