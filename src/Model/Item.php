@@ -1123,7 +1123,7 @@ class Item
 
 		if (!empty($quote_id) && Post::exists(['uri-id' => $quote_id, 'network' => Protocol::FEDERATED])) {
 			$item['quote-uri-id'] = $quote_id;
-			$item['raw-body'] = BBCode::replaceSharedData($item['raw-body']);
+			$item['raw-body'] = BBCode::removeSharedData($item['raw-body']);
 		}
 
 		if (!DBA::exists('contact', ['id' => $item['author-id'], 'network' => Protocol::DFRN])) {
@@ -3612,9 +3612,10 @@ class Item
 	 * Improve the data in shared posts
 	 *
 	 * @param array $item
+	 * @param bool  $add_media
 	 * @return string body
 	 */
-	public static function improveSharedDataInBody(array $item): string
+	public static function improveSharedDataInBody(array $item, bool $add_media = false): string
 	{
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (empty($shared['guid']) && empty($shared['message_id'])) {
@@ -3624,7 +3625,7 @@ class Item
 		$link = $shared['link'] ?: $shared['message_id'];
 
 		if (empty($shared_content)) {
-			$shared_content = DI::contentItem()->createSharedPostByUrl($link, $item['uid'] ?? 0);
+			$shared_content = DI::contentItem()->createSharedPostByUrl($link, $item['uid'] ?? 0, $add_media);
 		}
 
 		if (empty($shared_content)) {

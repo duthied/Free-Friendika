@@ -1086,6 +1086,22 @@ class BBCode
 	}
 
 	/**
+	 * Remove the share block
+	 *
+	 * @param string $body
+	 * @return string
+	 */
+	public static function removeSharedData(string $body): string
+	{
+		return BBCode::convertShare(
+			$body,
+			function (array $attributes) {
+				return '';
+			}
+		);
+	}
+
+	/**
 	 * This function converts a [share] block to text according to a provided callback function whose signature is:
 	 *
 	 * function(array $attributes, array $author_contact, string $content, boolean $is_quote_share): string
@@ -1134,7 +1150,7 @@ class BBCode
 		);
 
 		DI::profiler()->stopRecording();
-		return $return;
+		return trim($return);
 	}
 
 	/**

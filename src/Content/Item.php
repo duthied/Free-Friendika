@@ -574,9 +574,10 @@ class Item
 	 *
 	 * @param string $url
 	 * @param integer $uid
+	 * @param bool $add_media
 	 * @return string
 	 */
-	public function createSharedPostByUrl(string $url, int $uid = 0): string
+	public function createSharedPostByUrl(string $url, int $uid = 0, bool $add_media = false): string
 	{
 		if (!empty($uid)) {
 			$id = ModelItem::searchByLink($url, $uid);
@@ -599,7 +600,7 @@ class Item
 			return '';
 		}
 
-		return $this->createSharedBlockByArray($shared_item);
+		return $this->createSharedBlockByArray($shared_item, $add_media);
 	}
 
 	/**
@@ -652,15 +653,18 @@ class Item
 	 * Add a share block for the given item array
 	 *
 	 * @param array $item
+	 * @param bool $add_media
 	 * @return string
 	 */
-	public function createSharedBlockByArray(array $item): string
+	public function createSharedBlockByArray(array $item, bool $add_media = false): string
 	{
 		if ($item['network'] == Protocol::FEED) {
 			return PageInfo::getFooterFromUrl($item['plink']);
 		} elseif (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
 			$item['guid'] = '';
 			$item['uri']  = '';
+			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
+		} elseif ($add_media) {
 			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 		}
 
