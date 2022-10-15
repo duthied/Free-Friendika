@@ -40,6 +40,7 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
@@ -1621,6 +1622,8 @@ class Transmitter
 
 		$permission_block = self::createPermissionBlockForItem($item, false);
 
+		$real_quote = false;
+
 		$body = $item['body'];
 
 		if ($type == 'Note') {
@@ -1662,9 +1665,22 @@ class Transmitter
 
 			$body = BBCode::setMentionsToNicknames($body);
 
-			if (!empty($item['quote-uri'])) {
-				$body = BBCode::replaceSharedData($body);
+			if (!empty($item['quote-uri']) && Post::exists(['uri-id' => $item['quote-uri-id'], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN]])) {
+				$real_quote = true;
+				if (Diaspora::isReshare($body, false)) {
+					$body = BBCode::replaceSharedData($body);
+				} elseif (strpos($body, $item['quote-uri']) === false) {
+					$body .= "\n♲ " . $item['quote-uri'];
+				}
 				$data['quoteUrl'] = $item['quote-uri'];
+			} elseif (!empty($item['quote-uri']) && !Diaspora::isReshare($body, false)) {
+				$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
+				$shared_item = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id']]);
+				if (!empty($shared_item['uri-id'])) {
+					$shared_item['body'] = Post\Media::addAttachmentsToBody($shared_item['uri-id'], $shared_item['body']);
+					$body .= "\n" . DI::contentItem()->createSharedBlockByArray($shared_item);
+					$item['body'] = Item::improveSharedDataInBody($item, true);
+				}
 			}
 
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
@@ -1677,9 +1693,11 @@ class Transmitter
 		if (!empty($language)) {
 			$richbody = BBCode::setMentionsToNicknames($item['body'] ?? '');
 
-			$shared = BBCode::fetchShareAttributes($richbody);
-			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
-				$richbody = BBCode::replaceSharedData($richbody);
+			if ($real_quote) {
+				$shared = BBCode::fetchShareAttributes($richbody);
+				if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
+					$richbody = BBCode::replaceSharedData($richbody);
+				}
 			}
 
 			$richbody = BBCode::removeAttachment($richbody);
