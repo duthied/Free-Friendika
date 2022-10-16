@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-14 22:46+0000\n"
+"POT-Creation-Date: 2022-10-16 12:38-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -212,7 +212,7 @@ msgid "audio link"
 msgstr ""
 
 #: mod/editpost.php:103 src/Content/Conversation.php:352
-#: src/Module/Item/Compose.php:173
+#: src/Module/Item/Compose.php:200
 msgid "Set your location"
 msgstr ""
 
@@ -230,7 +230,7 @@ msgstr ""
 
 #: mod/editpost.php:107 mod/message.php:200 mod/message.php:358
 #: mod/photos.php:1489 mod/wallmessage.php:142 src/Content/Conversation.php:368
-#: src/Content/Conversation.php:713 src/Module/Item/Compose.php:177
+#: src/Content/Conversation.php:714 src/Module/Item/Compose.php:204
 #: src/Object/Post.php:538
 msgid "Please wait"
 msgstr ""
@@ -248,12 +248,12 @@ msgid "Public post"
 msgstr ""
 
 #: mod/editpost.php:120 src/Content/Conversation.php:357
-#: src/Module/Item/Compose.php:178
+#: src/Module/Item/Compose.php:205
 msgid "Set title"
 msgstr ""
 
 #: mod/editpost.php:122 src/Content/Conversation.php:359
-#: src/Module/Item/Compose.php:179
+#: src/Module/Item/Compose.php:206
 msgid "Categories (comma-separated list)"
 msgstr ""
 
@@ -263,7 +263,7 @@ msgstr ""
 
 #: mod/editpost.php:128 mod/events.php:513 mod/photos.php:1337
 #: mod/photos.php:1393 mod/photos.php:1467 src/Content/Conversation.php:383
-#: src/Module/Item/Compose.php:172 src/Object/Post.php:1003
+#: src/Module/Item/Compose.php:199 src/Object/Post.php:1003
 msgid "Preview"
 msgstr ""
 
@@ -276,37 +276,37 @@ msgid "Cancel"
 msgstr ""
 
 #: mod/editpost.php:134 src/Content/Conversation.php:343
-#: src/Module/Item/Compose.php:163 src/Object/Post.php:994
+#: src/Module/Item/Compose.php:190 src/Object/Post.php:994
 msgid "Bold"
 msgstr ""
 
 #: mod/editpost.php:135 src/Content/Conversation.php:344
-#: src/Module/Item/Compose.php:164 src/Object/Post.php:995
+#: src/Module/Item/Compose.php:191 src/Object/Post.php:995
 msgid "Italic"
 msgstr ""
 
 #: mod/editpost.php:136 src/Content/Conversation.php:345
-#: src/Module/Item/Compose.php:165 src/Object/Post.php:996
+#: src/Module/Item/Compose.php:192 src/Object/Post.php:996
 msgid "Underline"
 msgstr ""
 
 #: mod/editpost.php:137 src/Content/Conversation.php:346
-#: src/Module/Item/Compose.php:166 src/Object/Post.php:997
+#: src/Module/Item/Compose.php:193 src/Object/Post.php:997
 msgid "Quote"
 msgstr ""
 
 #: mod/editpost.php:138 src/Content/Conversation.php:347
-#: src/Module/Item/Compose.php:167 src/Object/Post.php:998
+#: src/Module/Item/Compose.php:194 src/Object/Post.php:998
 msgid "Code"
 msgstr ""
 
 #: mod/editpost.php:139 src/Content/Conversation.php:349
-#: src/Module/Item/Compose.php:169 src/Object/Post.php:1000
+#: src/Module/Item/Compose.php:196 src/Object/Post.php:1000
 msgid "Link"
 msgstr ""
 
 #: mod/editpost.php:140 src/Content/Conversation.php:350
-#: src/Module/Item/Compose.php:170 src/Object/Post.php:1001
+#: src/Module/Item/Compose.php:197 src/Object/Post.php:1001
 msgid "Link or Media"
 msgstr ""
 
@@ -415,9 +415,9 @@ msgstr ""
 #: src/Module/Delegation.php:148 src/Module/FriendSuggest.php:144
 #: src/Module/Install.php:252 src/Module/Install.php:294
 #: src/Module/Install.php:331 src/Module/Invite.php:178
-#: src/Module/Item/Compose.php:162 src/Module/Profile/Profile.php:247
+#: src/Module/Item/Compose.php:189 src/Module/Profile/Profile.php:247
 #: src/Module/Settings/Profile/Index.php:222 src/Object/Post.php:992
-#: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
+#: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:171
 #: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
 msgstr ""
@@ -1070,7 +1070,7 @@ msgid "Rotate CCW (left)"
 msgstr ""
 
 #: mod/photos.php:1333 mod/photos.php:1389 mod/photos.php:1463
-#: src/Module/Contact.php:547 src/Module/Item/Compose.php:160
+#: src/Module/Contact.php:547 src/Module/Item/Compose.php:188
 #: src/Object/Post.php:989
 msgid "This is you"
 msgstr ""
@@ -1080,11 +1080,11 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: mod/photos.php:1424 src/Content/Conversation.php:629 src/Object/Post.php:256
+#: mod/photos.php:1424 src/Content/Conversation.php:630 src/Object/Post.php:256
 msgid "Select"
 msgstr ""
 
-#: mod/photos.php:1425 mod/settings.php:350 src/Content/Conversation.php:630
+#: mod/photos.php:1425 mod/settings.php:350 src/Content/Conversation.php:631
 #: src/Module/Admin/Users/Active.php:139 src/Module/Admin/Users/Blocked.php:140
 #: src/Module/Admin/Users/Index.php:153
 msgid "Delete"
@@ -1947,7 +1947,7 @@ msgid "%s attends maybe."
 msgstr ""
 
 #: src/Content/Conversation.php:222 src/Content/Conversation.php:260
-#: src/Content/Conversation.php:873
+#: src/Content/Conversation.php:874
 #, php-format
 msgid "%s reshared this."
 msgstr ""
@@ -2020,7 +2020,7 @@ msgstr ""
 msgid "Visible to <strong>everybody</strong>"
 msgstr ""
 
-#: src/Content/Conversation.php:308 src/Module/Item/Compose.php:171
+#: src/Content/Conversation.php:308 src/Module/Item/Compose.php:198
 #: src/Object/Post.php:1002
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr ""
@@ -2041,7 +2041,7 @@ msgstr ""
 msgid "Delete item(s)?"
 msgstr ""
 
-#: src/Content/Conversation.php:324 src/Module/Item/Compose.php:143
+#: src/Content/Conversation.php:324 src/Module/Item/Compose.php:175
 msgid "Created at"
 msgstr ""
 
@@ -2053,7 +2053,7 @@ msgstr ""
 msgid "Share"
 msgstr ""
 
-#: src/Content/Conversation.php:348 src/Module/Item/Compose.php:168
+#: src/Content/Conversation.php:348 src/Module/Item/Compose.php:195
 #: src/Object/Post.php:999
 msgid "Image"
 msgstr ""
@@ -2062,117 +2062,117 @@ msgstr ""
 msgid "Video"
 msgstr ""
 
-#: src/Content/Conversation.php:364 src/Module/Item/Compose.php:184
+#: src/Content/Conversation.php:364 src/Module/Item/Compose.php:222
 msgid "Scheduled at"
 msgstr ""
 
-#: src/Content/Conversation.php:657 src/Object/Post.php:244
+#: src/Content/Conversation.php:658 src/Object/Post.php:244
 msgid "Pinned item"
 msgstr ""
 
-#: src/Content/Conversation.php:673 src/Object/Post.php:486
+#: src/Content/Conversation.php:674 src/Object/Post.php:486
 #: src/Object/Post.php:487
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr ""
 
-#: src/Content/Conversation.php:686 src/Object/Post.php:474
+#: src/Content/Conversation.php:687 src/Object/Post.php:474
 msgid "Categories:"
 msgstr ""
 
-#: src/Content/Conversation.php:687 src/Object/Post.php:475
+#: src/Content/Conversation.php:688 src/Object/Post.php:475
 msgid "Filed under:"
 msgstr ""
 
-#: src/Content/Conversation.php:695 src/Object/Post.php:500
+#: src/Content/Conversation.php:696 src/Object/Post.php:500
 #, php-format
 msgid "%s from %s"
 msgstr ""
 
-#: src/Content/Conversation.php:711
+#: src/Content/Conversation.php:712
 msgid "View in context"
 msgstr ""
 
-#: src/Content/Conversation.php:776
+#: src/Content/Conversation.php:777
 msgid "remove"
 msgstr ""
 
-#: src/Content/Conversation.php:780
+#: src/Content/Conversation.php:781
 msgid "Delete Selected Items"
 msgstr ""
 
-#: src/Content/Conversation.php:845 src/Content/Conversation.php:848
-#: src/Content/Conversation.php:851 src/Content/Conversation.php:854
+#: src/Content/Conversation.php:846 src/Content/Conversation.php:849
+#: src/Content/Conversation.php:852 src/Content/Conversation.php:855
 #, php-format
 msgid "You had been addressed (%s)."
 msgstr ""
 
-#: src/Content/Conversation.php:857
+#: src/Content/Conversation.php:858
 #, php-format
 msgid "You are following %s."
 msgstr ""
 
-#: src/Content/Conversation.php:860
+#: src/Content/Conversation.php:861
 msgid "You subscribed to one or more tags in this post."
 msgstr ""
 
-#: src/Content/Conversation.php:875
+#: src/Content/Conversation.php:876
 msgid "Reshared"
 msgstr ""
 
-#: src/Content/Conversation.php:875
+#: src/Content/Conversation.php:876
 #, php-format
 msgid "Reshared by %s <%s>"
 msgstr ""
 
-#: src/Content/Conversation.php:878
+#: src/Content/Conversation.php:879
 #, php-format
 msgid "%s is participating in this thread."
 msgstr ""
 
-#: src/Content/Conversation.php:881
+#: src/Content/Conversation.php:882
 msgid "Stored for general reasons"
 msgstr ""
 
-#: src/Content/Conversation.php:884
+#: src/Content/Conversation.php:885
 msgid "Global post"
 msgstr ""
 
-#: src/Content/Conversation.php:887
+#: src/Content/Conversation.php:888
 msgid "Sent via an relay server"
 msgstr ""
 
-#: src/Content/Conversation.php:887
+#: src/Content/Conversation.php:888
 #, php-format
 msgid "Sent via the relay server %s <%s>"
 msgstr ""
 
-#: src/Content/Conversation.php:890
+#: src/Content/Conversation.php:891
 msgid "Fetched"
 msgstr ""
 
-#: src/Content/Conversation.php:890
+#: src/Content/Conversation.php:891
 #, php-format
 msgid "Fetched because of %s <%s>"
 msgstr ""
 
-#: src/Content/Conversation.php:893
+#: src/Content/Conversation.php:894
 msgid "Stored because of a child post to complete this thread."
 msgstr ""
 
-#: src/Content/Conversation.php:896
+#: src/Content/Conversation.php:897
 msgid "Local delivery"
 msgstr ""
 
-#: src/Content/Conversation.php:899
+#: src/Content/Conversation.php:900
 msgid "Stored because of your activity (like, comment, star, ...)"
 msgstr ""
 
-#: src/Content/Conversation.php:902
+#: src/Content/Conversation.php:903
 msgid "Distributed"
 msgstr ""
 
-#: src/Content/Conversation.php:905
+#: src/Content/Conversation.php:906
 msgid "Pushed to us"
 msgstr ""
 
@@ -2628,39 +2628,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1002 src/Content/Text/BBCode.php:1867
-#: src/Content/Text/BBCode.php:1868
+#: src/Content/Text/BBCode.php:1002 src/Content/Text/BBCode.php:1883
+#: src/Content/Text/BBCode.php:1884
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1222
+#: src/Content/Text/BBCode.php:1238
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1247 src/Model/Item.php:3429
+#: src/Content/Text/BBCode.php:1263 src/Model/Item.php:3429
 #: src/Model/Item.php:3435 src/Model/Item.php:3436
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1785 src/Content/Text/HTML.php:940
+#: src/Content/Text/BBCode.php:1801 src/Content/Text/HTML.php:940
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1816
+#: src/Content/Text/BBCode.php:1832
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1872 src/Content/Text/BBCode.php:1873
+#: src/Content/Text/BBCode.php:1888 src/Content/Text/BBCode.php:1889
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2093
+#: src/Content/Text/BBCode.php:2109
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2108
+#: src/Content/Text/BBCode.php:2124
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -8094,38 +8094,44 @@ msgid ""
 "important, please visit http://friendi.ca"
 msgstr ""
 
-#: src/Module/Item/Compose.php:50
+#: src/Module/Item/Compose.php:85
 msgid "Please enter a post body."
 msgstr ""
 
-#: src/Module/Item/Compose.php:63
+#: src/Module/Item/Compose.php:98
 msgid "This feature is only available with the frio theme."
 msgstr ""
 
-#: src/Module/Item/Compose.php:90
+#: src/Module/Item/Compose.php:122
 msgid "Compose new personal note"
 msgstr ""
 
-#: src/Module/Item/Compose.php:99
+#: src/Module/Item/Compose.php:131
 msgid "Compose new post"
 msgstr ""
 
-#: src/Module/Item/Compose.php:153
+#: src/Module/Item/Compose.php:187
 msgid "Visibility"
 msgstr ""
 
-#: src/Module/Item/Compose.php:174
+#: src/Module/Item/Compose.php:201
 msgid "Clear the location"
 msgstr ""
 
-#: src/Module/Item/Compose.php:175
+#: src/Module/Item/Compose.php:202
 msgid "Location services are unavailable on your device"
 msgstr ""
 
-#: src/Module/Item/Compose.php:176
+#: src/Module/Item/Compose.php:203
 msgid ""
 "Location services are disabled. Please check the website's permissions on "
 "your device"
+msgstr ""
+
+#: src/Module/Item/Compose.php:209
+msgid ""
+"You can make this page always open when you use the New Post button in the "
+"<a href=\"/settings/display\">Theme Customization settings</a>."
 msgstr ""
 
 #: src/Module/Item/Follow.php:52
@@ -9456,7 +9462,7 @@ msgid "Content Settings"
 msgstr ""
 
 #: src/Module/Settings/Display.php:205 view/theme/duepuntozero/config.php:70
-#: view/theme/frio/config.php:161 view/theme/quattro/config.php:72
+#: view/theme/frio/config.php:172 view/theme/quattro/config.php:72
 #: view/theme/vier/config.php:120
 msgid "Theme settings"
 msgstr ""
@@ -11119,113 +11125,124 @@ msgstr ""
 msgid "Variations"
 msgstr ""
 
-#: view/theme/frio/config.php:142
+#: view/theme/frio/config.php:153
 msgid "Light (Accented)"
 msgstr ""
 
-#: view/theme/frio/config.php:143
+#: view/theme/frio/config.php:154
 msgid "Dark (Accented)"
 msgstr ""
 
-#: view/theme/frio/config.php:144
+#: view/theme/frio/config.php:155
 msgid "Black (Accented)"
 msgstr ""
 
-#: view/theme/frio/config.php:156
+#: view/theme/frio/config.php:167
 msgid "Note"
 msgstr ""
 
-#: view/theme/frio/config.php:156
+#: view/theme/frio/config.php:167
 msgid "Check image permissions if all users are allowed to see the image"
 msgstr ""
 
-#: view/theme/frio/config.php:162
+#: view/theme/frio/config.php:173
 msgid "Custom"
 msgstr ""
 
-#: view/theme/frio/config.php:163
+#: view/theme/frio/config.php:174
 msgid "Legacy"
 msgstr ""
 
-#: view/theme/frio/config.php:164
+#: view/theme/frio/config.php:175
 msgid "Accented"
 msgstr ""
 
-#: view/theme/frio/config.php:165
+#: view/theme/frio/config.php:176
 msgid "Select color scheme"
 msgstr ""
 
-#: view/theme/frio/config.php:166
+#: view/theme/frio/config.php:177
 msgid "Select scheme accent"
 msgstr ""
 
-#: view/theme/frio/config.php:166
+#: view/theme/frio/config.php:177
 msgid "Blue"
 msgstr ""
 
-#: view/theme/frio/config.php:166
+#: view/theme/frio/config.php:177
 msgid "Red"
 msgstr ""
 
-#: view/theme/frio/config.php:166
+#: view/theme/frio/config.php:177
 msgid "Purple"
 msgstr ""
 
-#: view/theme/frio/config.php:166
+#: view/theme/frio/config.php:177
 msgid "Green"
 msgstr ""
 
-#: view/theme/frio/config.php:166
+#: view/theme/frio/config.php:177
 msgid "Pink"
 msgstr ""
 
-#: view/theme/frio/config.php:167
+#: view/theme/frio/config.php:178
 msgid "Copy or paste schemestring"
 msgstr ""
 
-#: view/theme/frio/config.php:167
+#: view/theme/frio/config.php:178
 msgid ""
 "You can copy this string to share your theme with others. Pasting here "
 "applies the schemestring"
 msgstr ""
 
-#: view/theme/frio/config.php:168
+#: view/theme/frio/config.php:179
 msgid "Navigation bar background color"
 msgstr ""
 
-#: view/theme/frio/config.php:169
+#: view/theme/frio/config.php:180
 msgid "Navigation bar icon color "
 msgstr ""
 
-#: view/theme/frio/config.php:170
+#: view/theme/frio/config.php:181
 msgid "Link color"
 msgstr ""
 
-#: view/theme/frio/config.php:171
+#: view/theme/frio/config.php:182
 msgid "Set the background color"
 msgstr ""
 
-#: view/theme/frio/config.php:172
+#: view/theme/frio/config.php:183
 msgid "Content background opacity"
 msgstr ""
 
-#: view/theme/frio/config.php:173
+#: view/theme/frio/config.php:184
 msgid "Set the background image"
 msgstr ""
 
-#: view/theme/frio/config.php:174
+#: view/theme/frio/config.php:185
 msgid "Background image style"
 msgstr ""
 
-#: view/theme/frio/config.php:179
+#: view/theme/frio/config.php:188
+msgid "Always open Compose page"
+msgstr ""
+
+#: view/theme/frio/config.php:188
+msgid ""
+"The New Post button always open the <a href=\"/compose\">Compose page</a> "
+"instead of the modal form. When this is disabled, the Compose page can be "
+"accessed with a middle click on the link or from the modal."
+msgstr ""
+
+#: view/theme/frio/config.php:192
 msgid "Login page background image"
 msgstr ""
 
-#: view/theme/frio/config.php:183
+#: view/theme/frio/config.php:196
 msgid "Login page background color"
 msgstr ""
 
-#: view/theme/frio/config.php:183
+#: view/theme/frio/config.php:196
 msgid "Leave background image and color empty for theme defaults"
 msgstr ""
 
