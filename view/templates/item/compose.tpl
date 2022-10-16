@@ -1,5 +1,8 @@
 <div class="generic-page-wrapper">
 	<h2>{{$l10n.compose_title}}</h2>
+    {{if $l10n.always_open_compose}}
+	<p>{{$l10n.always_open_compose nofilter}}</p>
+	{{/if}}
 	<div id="profile-jot-wrapper">
 		<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="compose/{{$type}}" method="post">
 		    {{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}

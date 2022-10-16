@@ -393,7 +393,8 @@ class Conversation
 			'$message' => $this->l10n->t('Message'),
 			'$browser' => $this->l10n->t('Browser'),
 
-			'$compose_link_title' => $this->l10n->t('Open Compose page'),
+			'$compose_link_title'  => $this->l10n->t('Open Compose page'),
+			'$always_open_compose' => $this->pConfig->get(local_user(), 'frio', 'always_open_compose', false),
 		]);
 
 

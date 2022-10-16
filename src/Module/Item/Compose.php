@@ -26,6 +26,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Core\ACL;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
@@ -60,7 +61,10 @@ class Compose extends BaseModule
 	/** @var IManagePersonalConfigValues */
 	private $pConfig;
 
-	public function __construct(IManagePersonalConfigValues $pConfig, App\Page $page, ACLFormatter $ACLFormatter, SystemMessages $systemMessages, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	/** @var IManageConfigValues */
+	private $config;
+
+	public function __construct(IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, ACLFormatter $ACLFormatter, SystemMessages $systemMessages, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -68,6 +72,7 @@ class Compose extends BaseModule
 		$this->ACLFormatter   = $ACLFormatter;
 		$this->page           = $page;
 		$this->pConfig        = $pConfig;
+		$this->config         = $config;
 	}
 
 	protected function post(array $request = [])
@@ -199,6 +204,9 @@ class Compose extends BaseModule
 				'wait'                 => $this->l10n->t('Please wait'),
 				'placeholdertitle'     => $this->l10n->t('Set title'),
 				'placeholdercategory'  => Feature::isEnabled(local_user(),'categories') ? $this->l10n->t('Categories (comma-separated list)') : '',
+				'always_open_compose'  => $this->pConfig->get(local_user(), 'frio', 'always_open_compose',
+					$this->config->get('frio', 'always_open_compose', false)) ? '' :
+						$this->l10n->t('You can make this page always open when you use the New Post button in the <a href="/settings/display">Theme Customization settings</a>.'),
 			],
 
 			'$id'           => 0,

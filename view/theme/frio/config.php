@@ -44,6 +44,7 @@ function theme_post(App $a)
 			'bg_image_option',
 			'login_bg_image',
 			'login_bg_color',
+			'always_open_compose',
 		] as $field) {
 			if (isset($_POST['frio_' . $field])) {
 				DI::pConfig()->set(local_user(), 'frio', $field, $_POST['frio_' . $field]);
@@ -74,6 +75,7 @@ function theme_admin_post(App $a)
 			'bg_image_option',
 			'login_bg_image',
 			'login_bg_color',
+			'always_open_compose',
 		] as $field) {
 			if (isset($_POST['frio_' . $field])) {
 				DI::config()->set('frio', $field, $_POST['frio_' . $field]);
@@ -108,6 +110,7 @@ function theme_content(): string
 		'contentbg_transp'    => DI::pConfig()->get(local_user(), 'frio', 'contentbg_transp'   , DI::config()->get('frio', 'contentbg_transp')),
 		'background_image'    => DI::pConfig()->get(local_user(), 'frio', 'background_image'   , DI::config()->get('frio', 'background_image')),
 		'bg_image_option'     => DI::pConfig()->get(local_user(), 'frio', 'bg_image_option'    , DI::config()->get('frio', 'bg_image_option')),
+		'always_open_compose' => DI::pConfig()->get(local_user(), 'frio', 'always_open_compose', DI::config()->get('frio', 'always_open_compose', false)),
 	];
 
 	return frio_form($arr);
@@ -132,6 +135,7 @@ function theme_admin(): string
 		'bg_image_option'     => DI::config()->get('frio', 'bg_image_option'),
 		'login_bg_image'      => DI::config()->get('frio', 'login_bg_image'),
 		'login_bg_color'      => DI::config()->get('frio', 'login_bg_color'),
+		'always_open_compose' => DI::config()->get('frio', 'always_open_compose', false),
 	];
 
 	return frio_form($arr);
@@ -180,6 +184,8 @@ function frio_form($arr)
 		'$background_image' => array_key_exists('background_image', $disable) ? '' : ['frio_background_image', DI::l10n()->t('Set the background image'), $arr['background_image'], $background_image_help, false],
 		'$bg_image_options_title' => DI::l10n()->t('Background image style'),
 		'$bg_image_options' => Image::get_options($arr),
+
+		'$always_open_compose' => ['frio_always_open_compose', DI::l10n()->t('Always open Compose page'), $arr['always_open_compose'], DI::l10n()->t('The New Post button always open the <a href="/compose">Compose page</a> instead of the modal form. When this is disabled, the Compose page can be accessed with a middle click on the link or from the modal.')],
 	];
 
 	if (array_key_exists('login_bg_image', $arr) && !array_key_exists('login_bg_image', $disable)) {
