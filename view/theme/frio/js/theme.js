@@ -87,10 +87,12 @@ $(document).ready(function () {
 		if ($("#jot-popup").is(":hidden")) {
 			$jotButton.hide();
 		}
-		$jotButton.on("click", function (e) {
-			e.preventDefault();
-			jotShow();
-		});
+		if ($jotButton.hasClass('modal-open')) {
+			$jotButton.on("click", function (e) {
+				e.preventDefault();
+				jotShow();
+			});
+		}
 	}
 
 	let $body = $("body");
