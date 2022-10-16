@@ -328,7 +328,7 @@ class Conversation
 			$created_at = '';
 		}
 
-		$tpl = Renderer::getMarkupTemplate("jot.tpl");
+		$tpl = Renderer::getMarkupTemplate('jot.tpl');
 
 		$o .= Renderer::replaceMacros($tpl, [
 			'$new_post'            => $this->l10n->t('New Post'),

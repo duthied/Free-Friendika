@@ -43,7 +43,7 @@ function theme_post(App $a)
 			'background_image',
 			'bg_image_option',
 			'login_bg_image',
-			'login_bg_color'
+			'login_bg_color',
 		] as $field) {
 			if (isset($_POST['frio_' . $field])) {
 				DI::pConfig()->set(local_user(), 'frio', $field, $_POST['frio_' . $field]);
@@ -73,7 +73,7 @@ function theme_admin_post(App $a)
 			'background_image',
 			'bg_image_option',
 			'login_bg_image',
-			'login_bg_color'
+			'login_bg_color',
 		] as $field) {
 			if (isset($_POST['frio_' . $field])) {
 				DI::config()->set('frio', $field, $_POST['frio_' . $field]);
@@ -84,48 +84,55 @@ function theme_admin_post(App $a)
 	}
 }
 
-function theme_content(App $a)
+function theme_content(): string
 {
 	if (!local_user()) {
-		return;
+		return '';
 	}
-	$arr = [];
 
-	$node_scheme = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'scheme'));
+	$arr = [
+		'scheme' => DI::pConfig()->get(local_user(), 'frio', 'scheme',
+			DI::pConfig()->get(local_user(), 'frio', 'schema',
+				DI::config()->get('frio', 'scheme',
+					DI::config()->get('frio', 'schema')
+				)
+			)
+		),
 
-	$arr['scheme']           = DI::pConfig()->get(local_user(), 'frio', 'scheme', DI::pConfig()->get(local_user(), 'frio', 'schema', $node_scheme));
-	$arr['scheme_accent']    = DI::pConfig()->get(local_user(), 'frio', 'scheme_accent'   , DI::config()->get('frio', 'scheme_accent'));
-	$arr['share_string']     = '';
-	$arr['nav_bg']           = DI::pConfig()->get(local_user(), 'frio', 'nav_bg'          , DI::config()->get('frio', 'nav_bg'));
-	$arr['nav_icon_color']   = DI::pConfig()->get(local_user(), 'frio', 'nav_icon_color'  , DI::config()->get('frio', 'nav_icon_color'));
-	$arr['link_color']       = DI::pConfig()->get(local_user(), 'frio', 'link_color'      , DI::config()->get('frio', 'link_color'));
-	$arr['background_color'] = DI::pConfig()->get(local_user(), 'frio', 'background_color', DI::config()->get('frio', 'background_color'));
-	$arr['contentbg_transp'] = DI::pConfig()->get(local_user(), 'frio', 'contentbg_transp', DI::config()->get('frio', 'contentbg_transp'));
-	$arr['background_image'] = DI::pConfig()->get(local_user(), 'frio', 'background_image', DI::config()->get('frio', 'background_image'));
-	$arr['bg_image_option']  = DI::pConfig()->get(local_user(), 'frio', 'bg_image_option' , DI::config()->get('frio', 'bg_image_option'));
+		'share_string'        => '',
+		'scheme_accent'       => DI::pConfig()->get(local_user(), 'frio', 'scheme_accent'      , DI::config()->get('frio', 'scheme_accent')),
+		'nav_bg'              => DI::pConfig()->get(local_user(), 'frio', 'nav_bg'             , DI::config()->get('frio', 'nav_bg')),
+		'nav_icon_color'      => DI::pConfig()->get(local_user(), 'frio', 'nav_icon_color'     , DI::config()->get('frio', 'nav_icon_color')),
+		'link_color'          => DI::pConfig()->get(local_user(), 'frio', 'link_color'         , DI::config()->get('frio', 'link_color')),
+		'background_color'    => DI::pConfig()->get(local_user(), 'frio', 'background_color'   , DI::config()->get('frio', 'background_color')),
+		'contentbg_transp'    => DI::pConfig()->get(local_user(), 'frio', 'contentbg_transp'   , DI::config()->get('frio', 'contentbg_transp')),
+		'background_image'    => DI::pConfig()->get(local_user(), 'frio', 'background_image'   , DI::config()->get('frio', 'background_image')),
+		'bg_image_option'     => DI::pConfig()->get(local_user(), 'frio', 'bg_image_option'    , DI::config()->get('frio', 'bg_image_option')),
+	];
 
 	return frio_form($arr);
 }
 
-function theme_admin(App $a)
+function theme_admin(): string
 {
 	if (!local_user()) {
-		return;
+		return '';
 	}
-	$arr = [];
 
-	$arr['scheme']           = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
-	$arr['scheme_accent']    = DI::config()->get('frio', 'scheme_accent');
-	$arr['share_string']     = '';
-	$arr['nav_bg']           = DI::config()->get('frio', 'nav_bg');
-	$arr['nav_icon_color']   = DI::config()->get('frio', 'nav_icon_color');
-	$arr['link_color']       = DI::config()->get('frio', 'link_color');
-	$arr['background_color'] = DI::config()->get('frio', 'background_color');
-	$arr['contentbg_transp'] = DI::config()->get('frio', 'contentbg_transp');
-	$arr['background_image'] = DI::config()->get('frio', 'background_image');
-	$arr['bg_image_option']  = DI::config()->get('frio', 'bg_image_option');
-	$arr['login_bg_image']   = DI::config()->get('frio', 'login_bg_image');
-	$arr['login_bg_color']   = DI::config()->get('frio', 'login_bg_color');
+	$arr = [
+		'scheme'              => DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema')),
+		'scheme_accent'       => DI::config()->get('frio', 'scheme_accent'),
+		'share_string'        => '',
+		'nav_bg'              => DI::config()->get('frio', 'nav_bg'),
+		'nav_icon_color'      => DI::config()->get('frio', 'nav_icon_color'),
+		'link_color'          => DI::config()->get('frio', 'link_color'),
+		'background_color'    => DI::config()->get('frio', 'background_color'),
+		'contentbg_transp'    => DI::config()->get('frio', 'contentbg_transp'),
+		'background_image'    => DI::config()->get('frio', 'background_image'),
+		'bg_image_option'     => DI::config()->get('frio', 'bg_image_option'),
+		'login_bg_image'      => DI::config()->get('frio', 'login_bg_image'),
+		'login_bg_color'      => DI::config()->get('frio', 'login_bg_color'),
+	];
 
 	return frio_form($arr);
 }
@@ -183,7 +190,5 @@ function frio_form($arr)
 		$ctx['$login_bg_color'] = ['frio_login_bg_color', DI::l10n()->t('Login page background color'), $arr['login_bg_color'], DI::l10n()->t('Leave background image and color empty for theme defaults'), false];
 	}
 
-	$o = Renderer::replaceMacros($t, $ctx);
-
-	return $o;
+	return Renderer::replaceMacros($t, $ctx);
 }
