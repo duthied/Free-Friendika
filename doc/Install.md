@@ -34,7 +34,7 @@ Due to the large variety of operating systems and PHP platforms in existence we 
   * The POSIX module of PHP needs to be activated (e.g. [RHEL, CentOS](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) have disabled it)
   * Some form of email server or email gateway such that PHP mail() works.
     If you cannot set up your own email server, you can use the [phpmailer](https://github.com/friendica/friendica-addons/tree/develop/phpmailer) addon and use a remote SMTP server.
-* MySQL 5.6+ or an equivalent alternative for MySQL (MariaDB, Percona Server etc.)
+* MySQL with support of InnoDB and Barracuda (we suggest a MariaDB server as all development is done using these, but alternatives like MySQL or Percona Server etc. might work as well)
 * ability to schedule jobs with cron (Linux/Mac) or Scheduled Tasks (Windows)
 * installation into a top-level domain or sub-domain (without a directory/path component in the URL) is RECOMMENDED. Directory paths will not be as convenient to use and have not been thoroughly tested. This is REQUIRED if you wish to communicate with the Diaspora network.
 
