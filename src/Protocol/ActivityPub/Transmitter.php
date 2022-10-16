@@ -1674,13 +1674,8 @@ class Transmitter
 				}
 				$data['quoteUrl'] = $item['quote-uri'];
 			} elseif (!empty($item['quote-uri']) && !Diaspora::isReshare($body, false)) {
-				$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
-				$shared_item = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id']]);
-				if (!empty($shared_item['uri-id'])) {
-					$shared_item['body'] = Post\Media::addAttachmentsToBody($shared_item['uri-id'], $shared_item['body']);
-					$body .= "\n" . DI::contentItem()->createSharedBlockByArray($shared_item);
-					$item['body'] = Item::improveSharedDataInBody($item, true);
-				}
+				$body .= "\n" . DI::contentItem()->createSharedPostByUriId($item['quote-uri-id'], $item['uid'], true);
+				$item['body'] = Item::improveSharedDataInBody($item, true);
 			}
 
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);

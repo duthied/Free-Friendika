@@ -2946,17 +2946,44 @@ class Item
 		$body = $item['body'] ?? '';
 		$shared = BBCode::fetchShareAttributes($body);
 		if (!empty($shared['guid'])) {
-			$shared_item = Post::selectFirst(['uri-id', 'plink', 'has-media'], ['guid' => $shared['guid']]);
-			$shared_uri_id = $shared_item['uri-id'] ?? 0;
-			$shared_links = [strtolower($shared_item['plink'] ?? '')];
-			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid'], [], $shared_item['has-media'] ?? false);
+			$shared_item = Post::selectFirst(['uri-id', 'guid', 'plink', 'has-media'], ['guid' => $shared['guid'], 'uid' => [$item['uid'], 0]]);
+		}
+
+		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media'];
+
+		$shared_uri_id = 0;
+		$shared_links  = [];
+
+		if (empty($shared_item['uri-id']) && !empty($item['quote-uri-id'])) {
+			$shared_item = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id']]);
+			$quote_uri_id = $item['quote-uri-id'] ?? 0;
+			$shared_links[] = strtolower($item['quote-uri']);
+		} elseif (empty($shared_item['uri-id']) && empty($item['quote-uri-id'])) {
+			$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::ACTIVITY]);
+			if (!empty($media)) {
+				$shared_item = Post::selectFirst($fields, ['plink' => $media[0]['url'], 'uid' => [$item['uid'], 0]]);
+
+				if (empty($shared_item['uri-id'])) {
+					$shared_item = Post::selectFirst($fields, ['uri' => $media[0]['url'], 'uid' => [$item['uid'], 0]]);
+					$shared_links[] = strtolower($media[0]['url']);
+				}
+
+				$quote_uri_id = $shared_item['uri-id'] ?? 0;
+			}
+		}
+
+		if (!empty($quote_uri_id)) {
+			$item['body'] .= "\n" . DI::contentItem()->createSharedBlockByArray($shared_item);
+		}
+
+		if (!empty($shared_item['uri-id'])) {
+			$shared_uri_id = $shared_item['uri-id'];
+			$shared_links[] = strtolower($shared_item['plink']);
+			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, $shared_item['guid'], [], $shared_item['has-media']);
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['visual'], 'url'));
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['link'], 'url'));
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['additional'], 'url'));
 			$item['body'] = self::replaceVisualAttachments($shared_attachments, $item['body']);
-		} else {
-			$shared_uri_id = 0;
-			$shared_links = [];
 		}
 
 		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links, $item['has-media'] ?? false);
@@ -3278,7 +3305,7 @@ class Item
 		}
 		DI::profiler()->stopRecording();
 
-		if (isset($data['url']) && !in_array($data['url'], $ignore_links)) {
+		if (isset($data['url']) && !in_array(strtolower($data['url']), $ignore_links)) {
 			if (!empty($data['description']) || !empty($data['image']) || !empty($data['preview'])) {
 				$parts = parse_url($data['url']);
 				if (!empty($parts['scheme']) && !empty($parts['host'])) {

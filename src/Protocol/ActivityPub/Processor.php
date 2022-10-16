@@ -170,7 +170,7 @@ class Processor
 	}
 
 	/**
-	 * Stire attachment data
+	 * Store attachment data
 	 *
 	 * @param array   $activity
 	 * @param array   $item
@@ -187,7 +187,7 @@ class Processor
 	}
 
 	/**
-	 * Store attachment data
+	 * Store question data
 	 *
 	 * @param array   $activity
 	 * @param array   $item
