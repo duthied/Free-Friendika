@@ -69,8 +69,8 @@ class Statistics extends BaseModule
 
 		$statistics = array_merge([
 			'name'                  => $this->config->get('config', 'sitename'),
-			'network'               => FRIENDICA_PLATFORM,
-			'version'               => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
+			'network'               => App::PLATFORM,
+			'version'               => App::VERSION . '-' . DB_UPDATE_VERSION,
 			'registrations_open'    => $registration_open,
 			'total_users'           => $this->config->get('nodeinfo', 'total_users'),
 			'active_users_halfyear' => $this->config->get('nodeinfo', 'active_users_halfyear'),

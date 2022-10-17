@@ -29,10 +29,6 @@
 
 use Friendica\Model\Contact;
 
-define('FRIENDICA_PLATFORM',     'Friendica');
-define('FRIENDICA_CODENAME',     'Giant Rhubarb');
-define('FRIENDICA_VERSION',      '2022.12-dev');
-
 /**
  * Constant with a HTML line break.
  *

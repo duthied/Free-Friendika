@@ -21,6 +21,7 @@
 
 namespace Friendica\Protocol\ActivityPub;
 
+use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Enum\Duration;
@@ -416,7 +417,7 @@ class Transmitter
 	{
 		return [
 			'type' => 'Service',
-			'name' =>  FRIENDICA_PLATFORM . " '" . FRIENDICA_CODENAME . "' " . FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
+			'name' =>  App::PLATFORM . " '" . App::CODENAME . "' " . App::VERSION . '-' . DB_UPDATE_VERSION,
 			'url' => DI::baseUrl()->get()
 		];
 	}

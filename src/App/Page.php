@@ -202,7 +202,7 @@ class Page implements ArrayAccess
 	 */
 	public function registerStylesheet(string $path, string $media = 'screen')
 	{
-		$path = Network::appendQueryParam($path, ['v' => FRIENDICA_VERSION]);
+		$path = Network::appendQueryParam($path, ['v' => App::VERSION]);
 
 		if (mb_strpos($path, $this->basePath . DIRECTORY_SEPARATOR) === 0) {
 			$path = mb_substr($path, mb_strlen($this->basePath . DIRECTORY_SEPARATOR));
@@ -277,7 +277,7 @@ class Page implements ArrayAccess
 		 */
 		$this->page['htmlhead'] = Renderer::replaceMacros($tpl, [
 			'$local_user'      => local_user(),
-			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
+			'$generator'       => 'Friendica' . ' ' . App::VERSION,
 			'$delitem'         => $l10n->t('Delete this item?'),
 			'$blockAuthor'     => $l10n->t('Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'),
 			'$update_interval' => $interval,
@@ -395,7 +395,7 @@ class Page implements ArrayAccess
 	 */
 	public function registerFooterScript($path)
 	{
-		$path = Network::appendQueryParam($path, ['v' => FRIENDICA_VERSION]);
+		$path = Network::appendQueryParam($path, ['v' => App::VERSION]);
 
 		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
 
@@ -543,7 +543,7 @@ class Page implements ArrayAccess
 
 		$page    = $this->page;
 
-		header("X-Friendica-Version: " . FRIENDICA_VERSION);
+		header("X-Friendica-Version: " . App::VERSION);
 		header("Content-type: text/html; charset=utf-8");
 
 		if ($config->get('system', 'hsts') && ($baseURL->getSSLPolicy() == BaseURL::SSL_POLICY_FULL)) {

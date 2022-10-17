@@ -21,6 +21,7 @@
 
 namespace Friendica\Module;
 
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Hook;
@@ -96,7 +97,7 @@ class Friendica extends BaseModule
 
 		return Renderer::replaceMacros($tpl, [
 			'about'     => DI::l10n()->t('This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.',
-				'<strong>' . FRIENDICA_VERSION . '</strong>',
+				'<strong>' . App::VERSION . '</strong>',
 				DI::baseUrl()->get(),
 				'<strong>' . $config->get('system', 'build') . '/' . DB_UPDATE_VERSION . '</strong>',
 				'<strong>' . $config->get('system', 'post_update_version') . '/' . PostUpdate::VERSION . '</strong>'),
@@ -169,7 +170,7 @@ class Friendica extends BaseModule
 		}
 
 		$data = [
-			'version'          => FRIENDICA_VERSION,
+			'version'          => App::VERSION,
 			'url'              => DI::baseUrl()->get(),
 			'addons'           => $visible_addons,
 			'locked_features'  => $locked_features,
@@ -178,7 +179,7 @@ class Friendica extends BaseModule
 			'register_policy'  => $register_policy,
 			'admin'            => $admin,
 			'site_name'        => $config->get('config', 'sitename'),
-			'platform'         => strtolower(FRIENDICA_PLATFORM),
+			'platform'         => strtolower(App::PLATFORM),
 			'info'             => $config->get('config', 'info'),
 			'no_scrape_url'    => DI::baseUrl()->get() . '/noscrape',
 		];
