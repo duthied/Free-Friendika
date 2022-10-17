@@ -232,7 +232,7 @@ class Item
 
 		foreach ($notify_items as $notify_item) {
 			$post = Post::selectFirst(['uri-id', 'uid'], ['id' => $notify_item]);
-			Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::POST, (int)$post['uri-id'], (int)$post['uid']);
+			Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::POST, (int)$post['uri-id'], (int)$post['uid']);
 		}
 
 		return $rows;
@@ -246,7 +246,7 @@ class Item
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function markForDeletion(array $condition, int $priority = PRIORITY_HIGH)
+	public static function markForDeletion(array $condition, int $priority = Worker::PRIORITY_HIGH)
 	{
 		$items = Post::select(['id'], $condition);
 		while ($item = Post::fetch($items)) {
@@ -277,7 +277,7 @@ class Item
 			}
 
 			if ($item['uid'] == $uid) {
-				self::markForDeletionById($item['id'], PRIORITY_HIGH);
+				self::markForDeletionById($item['id'], Worker::PRIORITY_HIGH);
 			} elseif ($item['uid'] != 0) {
 				Logger::warning('Wrong ownership. Not deleting item', ['id' => $item['id']]);
 			}
@@ -293,7 +293,7 @@ class Item
 	 * @return boolean success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function markForDeletionById(int $item_id, int $priority = PRIORITY_HIGH): bool
+	public static function markForDeletionById(int $item_id, int $priority = Worker::PRIORITY_HIGH): bool
 	{
 		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
@@ -816,7 +816,7 @@ class Item
 	{
 		$orig_item = $item;
 
-		$priority = PRIORITY_HIGH;
+		$priority = Worker::PRIORITY_HIGH;
 
 		// If it is a posting where users should get notifications, then define it as wall posting
 		if ($notify) {
@@ -826,7 +826,7 @@ class Item
 			$item['protocol'] = Conversation::PARCEL_DIRECT;
 			$item['direction'] = Conversation::PUSH;
 
-			if (is_int($notify) && in_array($notify, PRIORITIES)) {
+			if (is_int($notify) && in_array($notify, Worker::PRIORITIES)) {
 				$priority = $notify;
 			}
 		} else {

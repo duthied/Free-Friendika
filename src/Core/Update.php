@@ -92,7 +92,7 @@ class Update
 				 */
 				self::run($basePath);
 			} else {
-				Worker::add(PRIORITY_CRITICAL, 'DBUpdate');
+				Worker::add(Worker::PRIORITY_CRITICAL, 'DBUpdate');
 			}
 		}
 	}

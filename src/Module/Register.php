@@ -302,7 +302,7 @@ class Register extends BaseModule
 
 		if ($netpublish && intval(DI::config()->get('config', 'register_policy')) !== self::APPROVE) {
 			$url = $base_url . '/profile/' . $user['nickname'];
-			Worker::add(PRIORITY_LOW, 'Directory', $url);
+			Worker::add(Worker::PRIORITY_LOW, 'Directory', $url);
 		}
 
 		if ($additional_account) {

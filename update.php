@@ -131,7 +131,7 @@ function update_1309()
 			continue;
 		}
 
-		$deliver_options = ['priority' => PRIORITY_MEDIUM, 'dont_fork' => true];
+		$deliver_options = ['priority' => Worker::PRIORITY_MEDIUM, 'dont_fork' => true];
 		Worker::add($deliver_options, 'Delivery', Delivery::POST, $item['id'], $entry['cid']);
 		Logger::info('Added delivery worker', ['item' => $item['id'], 'contact' => $entry['cid']]);
 		DBA::delete('queue', ['id' => $entry['id']]);
@@ -152,7 +152,7 @@ function update_1318()
 	DBA::update('profile', ['marital' => 'In a relation'], ['marital' => 'Unavailable']);
 	DBA::update('profile', ['marital' => 'Single'], ['marital' => 'Available']);
 
-	Worker::add(PRIORITY_LOW, 'ProfileUpdate');
+	Worker::add(Worker::PRIORITY_LOW, 'ProfileUpdate');
 	return Update::SUCCESS;
 }
 

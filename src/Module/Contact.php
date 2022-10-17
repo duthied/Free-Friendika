@@ -126,9 +126,9 @@ class Contact extends BaseModule
 			}
 
 			// pull feed and consume it, which should subscribe to the hub.
-			Worker::add(PRIORITY_HIGH, 'OnePoll', $contact_id, 'force');
+			Worker::add(Worker::PRIORITY_HIGH, 'OnePoll', $contact_id, 'force');
 		} else {
-			Worker::add(PRIORITY_HIGH, 'UpdateContact', $contact_id);
+			Worker::add(Worker::PRIORITY_HIGH, 'UpdateContact', $contact_id);
 		}
 	}
 

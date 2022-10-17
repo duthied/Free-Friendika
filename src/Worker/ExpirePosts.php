@@ -53,10 +53,10 @@ class ExpirePosts
 		}
 
 		// Set the expiry for origin posta
-		Worker::add(PRIORITY_LOW, 'Expire');
+		Worker::add(Worker::PRIORITY_LOW, 'Expire');
 
 		// update nodeinfo data after everything is cleaned up
-		Worker::add(PRIORITY_LOW, 'NodeInfo');
+		Worker::add(Worker::PRIORITY_LOW, 'NodeInfo');
 	}
 
 	/**

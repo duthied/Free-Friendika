@@ -94,7 +94,7 @@ class FriendSuggest extends BaseModule
 			$note
 		));
 
-		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::SUGGESTION, $suggest->id);
+		Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::SUGGESTION, $suggest->id);
 
 		info($this->t('Friend suggestion sent.'));
 	}

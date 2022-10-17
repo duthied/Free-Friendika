@@ -30,6 +30,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -630,7 +631,7 @@ class Feed
 				unset($item['parent-uri']);
 
 				// Set the delivery priority for "remote self" to "medium"
-				$notify = PRIORITY_MEDIUM;
+				$notify = Worker::PRIORITY_MEDIUM;
 			}
 
 			$condition = ['uid' => $item['uid'], 'uri' => $item['uri']];

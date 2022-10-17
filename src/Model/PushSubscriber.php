@@ -37,7 +37,7 @@ class PushSubscriber
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function publishFeed(int $uid, int $default_priority = PRIORITY_HIGH)
+	public static function publishFeed(int $uid, int $default_priority = Worker::PRIORITY_HIGH)
 	{
 		$condition = ['push' => 0, 'uid' => $uid];
 		DBA::update('push_subscriber', ['push' => 1, 'next_try' => DBA::NULL_DATETIME], $condition);
@@ -52,7 +52,7 @@ class PushSubscriber
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function requeue(int $default_priority = PRIORITY_HIGH)
+	public static function requeue(int $default_priority = Worker::PRIORITY_HIGH)
 	{
 		// We'll push to each subscriber that has push > 0,
 		// i.e. there has been an update (set in notifier.php).
@@ -61,7 +61,7 @@ class PushSubscriber
 		while ($subscriber = DBA::fetch($subscribers)) {
 			// We always handle retries with low priority
 			if ($subscriber['push'] > 1) {
-				$priority = PRIORITY_LOW;
+				$priority = Worker::PRIORITY_LOW;
 			} else {
 				$priority = $default_priority;
 			}

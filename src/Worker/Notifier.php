@@ -86,7 +86,7 @@ class Notifier
 			foreach ($inboxes as $inbox => $receivers) {
 				$ap_contacts = array_merge($ap_contacts, $receivers);
 				Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'target' => $target_id, 'inbox' => $inbox]);
-				Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->getQueueValue('created'), 'dont_fork' => true],
+				Worker::add(['priority' => Worker::PRIORITY_HIGH, 'created' => $a->getQueueValue('created'), 'dont_fork' => true],
 					'APDelivery', $cmd, $target_id, $inbox, $uid, $receivers, $post_uriid);
 			}
 		} elseif ($cmd == Delivery::SUGGESTION) {
@@ -568,7 +568,7 @@ class Notifier
 			// Situation is that sometimes Friendica servers receive Friendica posts over the Diaspora protocol first.
 			// The conversion in Markdown reduces the formatting, so these posts should arrive after the Friendica posts.
 			// This is only important for high and medium priority tasks and not for Low priority jobs like deletions.
-			if (($contact['network'] == Protocol::DIASPORA) && in_array($a->getQueueValue('priority'), [PRIORITY_HIGH, PRIORITY_MEDIUM])) {
+			if (($contact['network'] == Protocol::DIASPORA) && in_array($a->getQueueValue('priority'), [Worker::PRIORITY_HIGH, Worker::PRIORITY_MEDIUM])) {
 				$deliver_options = ['priority' => $a->getQueueValue('priority'), 'dont_fork' => true];
 			} else {
 				$deliver_options = ['priority' => $a->getQueueValue('priority'), 'created' => $a->getQueueValue('created'), 'dont_fork' => true];
@@ -698,7 +698,7 @@ class Notifier
 		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser($self_user_id);
 		foreach ($inboxes as $inbox => $receivers) {
 			Logger::info('Account removal via ActivityPub', ['uid' => $self_user_id, 'inbox' => $inbox]);
-			Worker::add(['priority' => PRIORITY_NEGLIGIBLE, 'created' => $created, 'dont_fork' => true],
+			Worker::add(['priority' => Worker::PRIORITY_NEGLIGIBLE, 'created' => $created, 'dont_fork' => true],
 				'APDelivery', Delivery::REMOVAL, 0, $inbox, $self_user_id, $receivers);
 			Worker::coolDown();
 		}
@@ -817,7 +817,7 @@ class Notifier
 			if (DI::config()->get('system', 'bulk_delivery')) {
 				$delivery_queue_count++;
 				Post\Delivery::add($target_item['uri-id'], $uid, $inbox, $target_item['created'], $cmd, $receivers);
-				Worker::add(PRIORITY_HIGH, 'APDelivery', '', 0, $inbox, 0);
+				Worker::add(Worker::PRIORITY_HIGH, 'APDelivery', '', 0, $inbox, 0);
 			} else {
 				if (Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
 						'APDelivery', $cmd, $target_item['id'], $inbox, $uid, $receivers, $target_item['uri-id'])) {
@@ -834,7 +834,7 @@ class Notifier
 			if (DI::config()->get('system', 'bulk_delivery')) {
 				$delivery_queue_count++;
 				Post\Delivery::add($target_item['uri-id'], $uid, $inbox, $target_item['created'], $cmd, []);
-				Worker::add(PRIORITY_MEDIUM, 'APDelivery', '', 0, $inbox, 0);
+				Worker::add(Worker::PRIORITY_MEDIUM, 'APDelivery', '', 0, $inbox, 0);
 			} else {
 				if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, $target_item['id'], $inbox, $uid, [], $target_item['uri-id'])) {
 					$delivery_queue_count++;

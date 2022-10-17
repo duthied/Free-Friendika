@@ -71,11 +71,11 @@ class PollContacts
 			}
 
 			if ((($contact['network'] == Protocol::FEED) && ($contact['priority'] <= 3)) || ($contact['network'] == Protocol::MAIL)) {
-				$priority = PRIORITY_MEDIUM;
+				$priority = Worker::PRIORITY_MEDIUM;
 			} elseif ($contact['archive']) {
-				$priority = PRIORITY_NEGLIGIBLE;
+				$priority = Worker::PRIORITY_NEGLIGIBLE;
 			} else {
-				$priority = PRIORITY_LOW;
+				$priority = Worker::PRIORITY_LOW;
 			}
 
 			Logger::notice("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact['priority'] . " " . $contact["nick"] . " " . $contact["name"]);

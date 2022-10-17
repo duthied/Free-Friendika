@@ -102,7 +102,7 @@ class GServer
 			return;
 		}
 
-		Worker::add(PRIORITY_LOW, 'UpdateGServer', $url, $only_nodeinfo);
+		Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $url, $only_nodeinfo);
 	}
 
 	/**
@@ -2108,10 +2108,10 @@ class GServer
 
 		while ($gserver = DBA::fetch($gservers)) {
 			Logger::info('Update peer list', ['server' => $gserver['url'], 'id' => $gserver['id']]);
-			Worker::add(PRIORITY_LOW, 'UpdateServerPeers', $gserver['url']);
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateServerPeers', $gserver['url']);
 
 			Logger::info('Update directory', ['server' => $gserver['url'], 'id' => $gserver['id']]);
-			Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', $gserver);
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateServerDirectory', $gserver);
 
 			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
 			self::update($fields, ['nurl' => $gserver['nurl']]);

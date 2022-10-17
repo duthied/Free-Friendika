@@ -71,21 +71,6 @@ define('GRAVITY_COMMENT',      6);
 define('GRAVITY_UNKNOWN',      9);
 /* @}*/
 
-/**
- * @name Priority
- *
- * Process priority for the worker
- * @{
- */
-define('PRIORITY_UNDEFINED',   0);
-define('PRIORITY_CRITICAL',   10);
-define('PRIORITY_HIGH',       20);
-define('PRIORITY_MEDIUM',     30);
-define('PRIORITY_LOW',        40);
-define('PRIORITY_NEGLIGIBLE', 50);
-define('PRIORITIES', [PRIORITY_CRITICAL, PRIORITY_HIGH, PRIORITY_MEDIUM, PRIORITY_LOW, PRIORITY_NEGLIGIBLE]);
-/* @}*/
-
 // Normally this constant is defined - but not if "pcntl" isn't installed
 if (!defined('SIGTERM')) {
 	define('SIGTERM', 15);

@@ -53,7 +53,7 @@ class Site extends BaseAdmin
 		$a = DI::app();
 
 		if (!empty($_POST['republish_directory'])) {
-			Worker::add(PRIORITY_LOW, 'Directory');
+			Worker::add(Worker::PRIORITY_LOW, 'Directory');
 			return;
 		}
 
@@ -150,7 +150,7 @@ class Site extends BaseAdmin
 		// Has the directory url changed? If yes, then resubmit the existing profiles there
 		if ($global_directory != DI::config()->get('system', 'directory') && ($global_directory != '')) {
 			DI::config()->set('system', 'directory', $global_directory);
-			Worker::add(PRIORITY_LOW, 'Directory');
+			Worker::add(Worker::PRIORITY_LOW, 'Directory');
 		}
 
 		if (DI::baseUrl()->getUrlPath() != "") {
