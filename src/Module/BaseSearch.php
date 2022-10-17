@@ -116,7 +116,7 @@ class BaseSearch extends BaseModule
 	protected static function printResult(ResultList $results, Pager $pager, string $header = ''): string
 	{
 		if ($results->getTotal() == 0) {
-			notice(DI::l10n()->t('No matches'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('No matches'));
 			return '';
 		}
 

@@ -104,7 +104,7 @@ class Display extends BaseSettings
 				DBA::update('user', ['theme' => $theme], ['uid' => local_user()]);
 			}
 		} else {
-			notice(DI::l10n()->t('The theme you chose isn\'t available.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('The theme you chose isn\'t available.'));
 		}
 
 		Hook::callAll('display_settings_post', $_POST);

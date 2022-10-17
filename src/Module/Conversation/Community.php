@@ -155,7 +155,7 @@ class Community extends BaseModule
 		$items = self::getItems();
 
 		if (!DBA::isResult($items)) {
-			notice(DI::l10n()->t('No results.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('No results.'));
 			return $o;
 		}
 

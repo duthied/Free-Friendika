@@ -39,18 +39,18 @@ class Index extends BaseAdmin
 			switch ($_GET['action']) {
 				case 'reload':
 					Addon::reload();
-					info(DI::l10n()->t('Addons reloaded'));
+					DI::sysmsg()->addInfo(DI::l10n()->t('Addons reloaded'));
 					break;
 
 				case 'toggle' :
 					$addon = $_GET['addon'] ?? '';
 					if (Addon::isEnabled($addon)) {
 						Addon::uninstall($addon);
-						info(DI::l10n()->t('Addon %s disabled.', $addon));
+						DI::sysmsg()->addInfo(DI::l10n()->t('Addon %s disabled.', $addon));
 					} elseif (Addon::install($addon)) {
-						info(DI::l10n()->t('Addon %s enabled.', $addon));
+						DI::sysmsg()->addInfo(DI::l10n()->t('Addon %s enabled.', $addon));
 					} else {
-						notice(DI::l10n()->t('Addon %s failed to install.', $addon));
+						DI::sysmsg()->addNotice(DI::l10n()->t('Addon %s failed to install.', $addon));
 					}
 
 					break;

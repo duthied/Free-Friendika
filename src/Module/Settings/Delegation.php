@@ -50,13 +50,13 @@ class Delegation extends BaseSettings
 		if ($parent_uid != 0) {
 			try {
 				User::getIdFromPasswordAuthentication($parent_uid, $parent_password);
-				info(DI::l10n()->t('Delegation successfully granted.'));
+				DI::sysmsg()->addInfo(DI::l10n()->t('Delegation successfully granted.'));
 			} catch (\Exception $ex) {
-				notice(DI::l10n()->t('Parent user not found, unavailable or password doesn\'t match.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Parent user not found, unavailable or password doesn\'t match.'));
 				return;
 			}
 		} else {
-			info(DI::l10n()->t('Delegation successfully revoked.'));
+			DI::sysmsg()->addInfo(DI::l10n()->t('Delegation successfully revoked.'));
 		}
 
 		DBA::update('user', ['parent-uid' => $parent_uid], ['uid' => local_user()]);
@@ -78,7 +78,7 @@ class Delegation extends BaseSettings
 
 		if ($action === 'add' && $user_id) {
 			if (Session::get('submanage')) {
-				notice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
 				DI::baseUrl()->redirect('settings/delegation');
 			}
 
@@ -92,7 +92,7 @@ class Delegation extends BaseSettings
 					DBA::insert('manage', ['uid' => $user_id, 'mid' => local_user()]);
 				}
 			} else {
-				notice(DI::l10n()->t('Delegate user not found.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Delegate user not found.'));
 			}
 
 			DI::baseUrl()->redirect('settings/delegation');
@@ -100,7 +100,7 @@ class Delegation extends BaseSettings
 
 		if ($action === 'remove' && $user_id) {
 			if (Session::get('submanage')) {
-				notice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
 				DI::baseUrl()->redirect('settings/delegation');
 			}
 

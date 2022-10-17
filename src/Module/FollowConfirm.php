@@ -35,7 +35,7 @@ class FollowConfirm extends BaseModule
 		parent::post($request);
 		$uid = local_user();
 		if (!$uid) {
-			notice(DI::l10n()->t('Permission denied.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return;
 		}
 

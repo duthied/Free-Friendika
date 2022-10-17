@@ -66,7 +66,7 @@ class Index extends BaseSettings
 						DI::pConfig()->delete(local_user(), '2fa', 'verified');
 						Session::remove('2fa');
 
-						info(DI::l10n()->t('Two-factor authentication successfully disabled.'));
+						DI::sysmsg()->addInfo(DI::l10n()->t('Two-factor authentication successfully disabled.'));
 						DI::baseUrl()->redirect('settings/2fa');
 					}
 					break;
@@ -98,7 +98,7 @@ class Index extends BaseSettings
 		} catch (FoundException $exception) {
 			// Nothing to do here
 		} catch (\Exception $e) {
-			notice(DI::l10n()->t($e->getMessage()));
+			DI::sysmsg()->addNotice(DI::l10n()->t($e->getMessage()));
 		}
 	}
 

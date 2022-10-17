@@ -223,7 +223,7 @@ class Authentication
 
 		// if it's an email address or doesn't resolve to a URL, fail.
 		if ($noid || strpos($openid_url, '@') || !Network::isUrlValid($openid_url)) {
-			notice($this->l10n->t('Login failed.'));
+			DI::sysmsg()->addNotice($this->l10n->t('Login failed.'));
 			$this->baseUrl->redirect();
 		}
 
@@ -237,7 +237,7 @@ class Authentication
 			$openid->optional  = ['namePerson/friendly', 'contact/email', 'namePerson', 'namePerson/first', 'media/image/aspect11', 'media/image/default'];
 			System::externalRedirect($openid->authUrl());
 		} catch (Exception $e) {
-			notice($this->l10n->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . $this->l10n->t('The error message was:') . ' ' . $e->getMessage());
+			DI::sysmsg()->addNotice($this->l10n->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . $this->l10n->t('The error message was:') . ' ' . $e->getMessage());
 		}
 	}
 
@@ -268,7 +268,7 @@ class Authentication
 			);
 		} catch (Exception $e) {
 			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => $username, 'ip' => $this->remoteAddress]);
-			notice($this->l10n->t('Login failed. Please check your credentials.'));
+			DI::sysmsg()->addNotice($this->l10n->t('Login failed. Please check your credentials.'));
 			$this->baseUrl->redirect();
 		}
 
@@ -379,8 +379,8 @@ class Authentication
 
 		if ($interactive) {
 			if ($user_record['login_date'] <= DBA::NULL_DATETIME) {
-				info($this->l10n->t('Welcome %s', $user_record['username']));
-				info($this->l10n->t('Please upload a profile photo.'));
+				DI::sysmsg()->addInfo($this->l10n->t('Welcome %s', $user_record['username']));
+				DI::sysmsg()->addInfo($this->l10n->t('Please upload a profile photo.'));
 				$this->baseUrl->redirect('settings/profile/photo/new');
 			}
 		}

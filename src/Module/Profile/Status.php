@@ -107,7 +107,7 @@ class Status extends BaseProfile
 		$last_updated_key = "profile:" . $profile['uid'] . ":" . local_user() . ":" . $remote_contact;
 
 		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact) {
-			notice(DI::l10n()->t('Access to this profile has been restricted.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Access to this profile has been restricted.'));
 			return '';
 		}
 

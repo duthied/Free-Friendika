@@ -79,7 +79,7 @@ class Invite extends BaseModule
 			$recipient = trim($recipient);
 
 			if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
-				notice(DI::l10n()->t('%s : Not a valid email address.', $recipient));
+				DI::sysmsg()->addNotice(DI::l10n()->t('%s : Not a valid email address.', $recipient));
 				continue;
 			}
 
@@ -114,15 +114,15 @@ class Invite extends BaseModule
 				$current_invites++;
 				DI::pConfig()->set(local_user(), 'system', 'sent_invites', $current_invites);
 				if ($current_invites > $max_invites) {
-					notice(DI::l10n()->t('Invitation limit exceeded. Please contact your site administrator.'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Invitation limit exceeded. Please contact your site administrator.'));
 					return;
 				}
 			} else {
-				notice(DI::l10n()->t('%s : Message delivery failed.', $recipient));
+				DI::sysmsg()->addNotice(DI::l10n()->t('%s : Message delivery failed.', $recipient));
 			}
 
 		}
-		info(DI::l10n()->tt('%d message sent.', '%d messages sent.', $total));
+		DI::sysmsg()->addInfo(DI::l10n()->tt('%d message sent.', '%d messages sent.', $total));
 	}
 
 	protected function content(array $request = []): string

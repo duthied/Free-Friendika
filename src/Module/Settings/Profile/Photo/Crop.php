@@ -105,7 +105,7 @@ class Crop extends BaseSettings
 					Photo::USER_AVATAR
 				);
 				if ($r === false) {
-					notice(DI::l10n()->t('Image size reduction [%s] failed.', '300'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', '300'));
 				} else {
 					Photo::update(['profile' => true], array_merge($condition, ['scale' => 4]));
 				}
@@ -123,7 +123,7 @@ class Crop extends BaseSettings
 					Photo::USER_AVATAR
 				);
 				if ($r === false) {
-					notice(DI::l10n()->t('Image size reduction [%s] failed.', '80'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', '80'));
 				} else {
 					Photo::update(['profile' => true], array_merge($condition, ['scale' => 5]));
 				}
@@ -141,19 +141,19 @@ class Crop extends BaseSettings
 					Photo::USER_AVATAR
 				);
 				if ($r === false) {
-					notice(DI::l10n()->t('Image size reduction [%s] failed.', '48'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', '48'));
 				} else {
 					Photo::update(['profile' => true], array_merge($condition, ['scale' => 6]));
 				}
 
 				Contact::updateSelfFromUserID(local_user(), true);
 
-				info(DI::l10n()->t('Shift-reload the page or clear browser cache if the new photo does not display immediately.'));
+				DI::sysmsg()->addInfo(DI::l10n()->t('Shift-reload the page or clear browser cache if the new photo does not display immediately.'));
 
 				// Update global directory in background
 				Profile::publishUpdate(local_user());
 			} else {
-				notice(DI::l10n()->t('Unable to process image'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Unable to process image'));
 			}
 		}
 
@@ -194,7 +194,7 @@ class Crop extends BaseSettings
 			// Update global directory in background
 			Profile::publishUpdate(local_user());
 
-			info(DI::l10n()->t('Profile picture successfully updated.'));
+			DI::sysmsg()->addInfo(DI::l10n()->t('Profile picture successfully updated.'));
 
 			DI::baseUrl()->redirect('profile/' . DI::app()->getLoggedInUserNickname());
 		}

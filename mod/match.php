@@ -90,7 +90,7 @@ function match_content(App $a)
 	}
 
 	if (empty($entries)) {
-		info(DI::l10n()->t('No matches'));
+		DI::sysmsg()->addInfo(DI::l10n()->t('No matches'));
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');

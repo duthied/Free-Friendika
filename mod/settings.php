@@ -37,7 +37,7 @@ use Friendica\Protocol\Email;
 function settings_init(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -47,7 +47,7 @@ function settings_init(App $a)
 function settings_post(App $a)
 {
 	if (!$a->isLoggedIn()) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -119,7 +119,7 @@ function settings_post(App $a)
 						$mbox = Email::connect($mb, $mail_user, $dcrpass);
 						unset($dcrpass);
 						if (!$mbox) {
-							notice(DI::l10n()->t('Failed to connect with email account using the settings provided.'));
+							DI::sysmsg()->addNotice(DI::l10n()->t('Failed to connect with email account using the settings provided.'));
 						}
 					}
 				}
@@ -148,12 +148,12 @@ function settings_content(App $a)
 	Nav::setSelected('settings');
 
 	if (!local_user()) {
-		//notice(DI::l10n()->t('Permission denied.'));
+		//DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
 
 	if (!empty($_SESSION['submanage'])) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return '';
 	}
 

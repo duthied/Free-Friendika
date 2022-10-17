@@ -30,7 +30,7 @@ use Friendica\DI;
 function uimport_post(App $a)
 {
 	if ((DI::config()->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !$a->isSiteAdmin()) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -43,7 +43,7 @@ function uimport_post(App $a)
 function uimport_content(App $a)
 {
 	if ((DI::config()->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !$a->isSiteAdmin()) {
-		notice(DI::l10n()->t('User imports on closed servers can only be done by an administrator.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('User imports on closed servers can only be done by an administrator.'));
 		return;
 	}
 
@@ -52,7 +52,7 @@ function uimport_content(App $a)
 		$total = DBA::count('user', ["`register_date` > UTC_TIMESTAMP - INTERVAL 1 DAY"]);
 		if ($total >= $max_dailies) {
 			Logger::notice('max daily registrations exceeded.');
-			notice(DI::l10n()->t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'));
 			return;
 		}
 	}

@@ -43,7 +43,7 @@ class Blocked extends BaseUsers
 			foreach ($users as $uid) {
 				User::block($uid, false);
 			}
-			info(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
+			DI::sysmsg()->addInfo(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
 		}
 
 		if (!empty($_POST['page_users_delete'])) {
@@ -51,11 +51,11 @@ class Blocked extends BaseUsers
 				if (local_user() != $uid) {
 					User::remove($uid);
 				} else {
-					notice(DI::l10n()->t('You can\'t remove yourself'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('You can\'t remove yourself'));
 				}
 			}
 
-			info(DI::l10n()->tt('%s user deleted', '%s users deleted', count($users)));
+			DI::sysmsg()->addInfo(DI::l10n()->tt('%s user deleted', '%s users deleted', count($users)));
 		}
 
 		DI::baseUrl()->redirect('admin/users/blocked');
@@ -71,7 +71,7 @@ class Blocked extends BaseUsers
 		if ($uid) {
 			$user = User::getById($uid, ['username', 'blocked']);
 			if (!DBA::isResult($user)) {
-				notice(DI::l10n()->t('User not found'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('User not found'));
 				DI::baseUrl()->redirect('admin/users');
 				return ''; // NOTREACHED
 			}
@@ -84,16 +84,16 @@ class Blocked extends BaseUsers
 					// delete user
 					User::remove($uid);
 
-					notice(DI::l10n()->t('User "%s" deleted', $user['username']));
+					DI::sysmsg()->addNotice(DI::l10n()->t('User "%s" deleted', $user['username']));
 				} else {
-					notice(DI::l10n()->t('You can\'t remove yourself'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('You can\'t remove yourself'));
 				}
 				DI::baseUrl()->redirect('admin/users/blocked');
 				break;
 			case 'unblock':
 				self::checkFormSecurityTokenRedirectOnError('/admin/users/blocked', 'admin_users_blocked', 't');
 				User::block($uid, false);
-				notice(DI::l10n()->t('User "%s" unblocked', $user['username']));
+				DI::sysmsg()->addNotice(DI::l10n()->t('User "%s" unblocked', $user['username']));
 				DI::baseUrl()->redirect('admin/users/blocked');
 				break;
 		}

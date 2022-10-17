@@ -87,9 +87,9 @@ class OpenID extends BaseModule
 				$session->set('openid_server', $open_id_obj->discover($open_id_obj->identity));
 
 				if (intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED) {
-					notice($l10n->t('Account not found. Please login to your existing account to add the OpenID to it.'));
+					DI::sysmsg()->addNotice($l10n->t('Account not found. Please login to your existing account to add the OpenID to it.'));
 				} else {
-					notice($l10n->t('Account not found. Please register a new account or login to your existing account to add the OpenID to it.'));
+					DI::sysmsg()->addNotice($l10n->t('Account not found. Please register a new account or login to your existing account to add the OpenID to it.'));
 				}
 
 				DI::baseUrl()->redirect('login');

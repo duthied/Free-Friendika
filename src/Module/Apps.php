@@ -28,6 +28,7 @@ use Friendica\Content\Nav;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -51,7 +52,7 @@ class Apps extends BaseModule
 		$apps = Nav::getAppMenu();
 
 		if (count($apps) == 0) {
-			notice($this->t('No installed applications.'));
+			DI::sysmsg()->addNotice($this->t('No installed applications.'));
 		}
 
 		$tpl = Renderer::getMarkupTemplate('apps.tpl');

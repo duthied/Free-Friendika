@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
 use Friendica\Security\TwoFactor;
@@ -62,7 +63,7 @@ class Trusted extends BaseSettings
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice($this->t('Please enter your password to access this page.'));
+			DI::sysmsg()->addNotice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
@@ -79,7 +80,7 @@ class Trusted extends BaseSettings
 			switch ($_POST['action']) {
 				case 'remove_all':
 					$this->trustedBrowserRepo->removeAllForUser(local_user());
-					info($this->t('Trusted browsers successfully removed.'));
+					DI::sysmsg()->addInfo($this->t('Trusted browsers successfully removed.'));
 					$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					break;
 			}
@@ -89,7 +90,7 @@ class Trusted extends BaseSettings
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/trusted', 'settings_2fa_trusted');
 
 			if ($this->trustedBrowserRepo->removeForUser(local_user(), $_POST['remove_id'])) {
-				info($this->t('Trusted browser successfully removed.'));
+				DI::sysmsg()->addInfo($this->t('Trusted browser successfully removed.'));
 			}
 
 			$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));

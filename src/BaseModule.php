@@ -397,7 +397,7 @@ abstract class BaseModule implements ICanHandleRequests
 		if (!self::checkFormSecurityToken($typename, $formname)) {
 			Logger::notice('checkFormSecurityToken failed: user ' . DI::app()->getLoggedInUserNickname() . ' - form element ' . $typename);
 			Logger::debug('checkFormSecurityToken failed', ['request' => $_REQUEST]);
-			notice(self::getFormSecurityStandardErrorMessage());
+			DI::sysmsg()->addNotice(self::getFormSecurityStandardErrorMessage());
 			DI::baseUrl()->redirect($err_redirect);
 		}
 	}
