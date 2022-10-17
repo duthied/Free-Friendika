@@ -44,7 +44,7 @@ class Create extends BaseUsers
 				User::createMinimal($nu_name, $nu_email, $nu_nickname, $nu_language);
 				DI::baseUrl()->redirect('admin/users');
 			} catch (\Exception $ex) {
-				notice($ex->getMessage());
+				DI::sysmsg()->addNotice($ex->getMessage());
 			}
 		}
 

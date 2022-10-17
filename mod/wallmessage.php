@@ -34,7 +34,7 @@ function wallmessage_post(App $a) {
 
 	$replyto = Profile::getMyURL();
 	if (!$replyto) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -53,13 +53,13 @@ function wallmessage_post(App $a) {
 	}
 
 	if (!$user['unkmail']) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	$total = DBA::count('mail', ["`uid` = ? AND `created` > ? AND `unknown`", $user['uid'], DateTimeFormat::utc('now - 1 day')]);
 	if ($total > $user['cntunkmail']) {
-		notice(DI::l10n()->t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
 		return;
 	}
 
@@ -67,16 +67,16 @@ function wallmessage_post(App $a) {
 
 	switch ($ret) {
 		case -1:
-			notice(DI::l10n()->t('No recipient selected.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('No recipient selected.'));
 			break;
 		case -2:
-			notice(DI::l10n()->t('Unable to check your home location.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to check your home location.'));
 			break;
 		case -3:
-			notice(DI::l10n()->t('Message could not be sent.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Message could not be sent.'));
 			break;
 		case -4:
-			notice(DI::l10n()->t('Message collection failure.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Message collection failure.'));
 			break;
 	}
 
@@ -87,33 +87,33 @@ function wallmessage_post(App $a) {
 function wallmessage_content(App $a) {
 
 	if (!Profile::getMyURL()) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	$recipient = ((DI::args()->getArgc() > 1) ? DI::args()->getArgv()[1] : '');
 
 	if (!$recipient) {
-		notice(DI::l10n()->t('No recipient.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('No recipient.'));
 		return;
 	}
 
 	$user = User::getByNickname($recipient);
 
 	if (empty($user)) {
-		notice(DI::l10n()->t('No recipient.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('No recipient.'));
 		Logger::notice('wallmessage: no recipient');
 		return;
 	}
 
 	if (!$user['unkmail']) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	$total = DBA::count('mail', ["`uid` = ? AND `created` > ? AND `unknown`", $user['uid'], DateTimeFormat::utc('now - 1 day')]);
 	if ($total > $user['cntunkmail']) {
-		notice(DI::l10n()->t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
 		return;
 	}
 

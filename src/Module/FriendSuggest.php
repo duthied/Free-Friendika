@@ -28,6 +28,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model\Contact as ContactModel;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Network\HTTPException\NotFoundException;
@@ -78,7 +79,7 @@ class FriendSuggest extends BaseModule
 		// We do query the "uid" as well to ensure that it is our contact
 		$contact = $this->dba->selectFirst('contact', ['name', 'url', 'request', 'avatar'], ['id' => $suggest_contact_id, 'uid' => local_user()]);
 		if (empty($contact)) {
-			notice($this->t('Suggested contact not found.'));
+			DI::sysmsg()->addNotice($this->t('Suggested contact not found.'));
 			return;
 		}
 
@@ -96,7 +97,7 @@ class FriendSuggest extends BaseModule
 
 		Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::SUGGESTION, $suggest->id);
 
-		info($this->t('Friend suggestion sent.'));
+		DI::sysmsg()->addInfo($this->t('Friend suggestion sent.'));
 	}
 
 	protected function content(array $request = []): string
@@ -105,7 +106,7 @@ class FriendSuggest extends BaseModule
 
 		$contact = $this->dba->selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {
-			notice($this->t('Contact not found.'));
+			DI::sysmsg()->addNotice($this->t('Contact not found.'));
 			$this->baseUrl->redirect();
 		}
 

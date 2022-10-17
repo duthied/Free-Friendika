@@ -80,7 +80,7 @@ class Index extends BaseSettings
 
 		$name = trim($_POST['name'] ?? '');
 		if (!strlen($name)) {
-			notice(DI::l10n()->t('Profile Name is required.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Profile Name is required.'));
 			return;
 		}
 
@@ -128,7 +128,7 @@ class Index extends BaseSettings
 		);
 
 		if (!$result) {
-			notice(DI::l10n()->t('Profile couldn\'t be updated.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Profile couldn\'t be updated.'));
 			return;
 		}
 
@@ -138,7 +138,7 @@ class Index extends BaseSettings
 	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
-			notice(DI::l10n()->t('You must be logged in to use this module'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('You must be logged in to use this module'));
 			return Login::form();
 		}
 

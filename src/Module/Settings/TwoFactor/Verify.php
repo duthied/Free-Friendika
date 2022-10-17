@@ -30,6 +30,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
+use Friendica\DI;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
@@ -65,7 +66,7 @@ class Verify extends BaseSettings
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice($this->t('Please enter your password to access this page.'));
+			DI::sysmsg()->addNotice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
@@ -87,11 +88,11 @@ class Verify extends BaseSettings
 				$this->pConfig->set(local_user(), '2fa', 'verified', true);
 				Session::set('2fa', true);
 
-				info($this->t('Two-factor authentication successfully activated.'));
+				DI::sysmsg()->addInfo($this->t('Two-factor authentication successfully activated.'));
 
 				$this->baseUrl->redirect('settings/2fa');
 			} else {
-				notice($this->t('Invalid code, please retry.'));
+				DI::sysmsg()->addNotice($this->t('Invalid code, please retry.'));
 			}
 		}
 	}

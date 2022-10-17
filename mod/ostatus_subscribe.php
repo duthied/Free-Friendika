@@ -30,7 +30,7 @@ use Friendica\Protocol\ActivityPub;
 function ostatus_subscribe_content(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('ostatus_subscribe');
 		// NOTREACHED
 	}

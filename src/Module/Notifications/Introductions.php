@@ -30,6 +30,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\BaseNotifications;
 use Friendica\Module\Response;
@@ -211,7 +212,7 @@ class Introductions extends BaseNotifications
 		}
 
 		if (count($notifications['notifications']) == 0) {
-			notice($this->t('No introductions.'));
+			DI::sysmsg()->addNotice($this->t('No introductions.'));
 			$notificationNoContent = $this->t('No more %s notifications.', $notifications['ident']);
 		}
 

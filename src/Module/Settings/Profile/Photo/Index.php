@@ -43,7 +43,7 @@ class Index extends BaseSettings
 		self::checkFormSecurityTokenRedirectOnError('/settings/profile/photo', 'settings_profile_photo');
 
 		if (empty($_FILES['userfile'])) {
-			notice(DI::l10n()->t('Missing uploaded image.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Missing uploaded image.'));
 			return;
 		}
 
@@ -57,7 +57,7 @@ class Index extends BaseSettings
 		$maximagesize = DI::config()->get('system', 'maximagesize', 0);
 
 		if ($maximagesize && $filesize > $maximagesize) {
-			notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
 			@unlink($src);
 			return;
 		}
@@ -66,7 +66,7 @@ class Index extends BaseSettings
 		$Image = new Image($imagedata, $filetype);
 
 		if (!$Image->isValid()) {
-			notice(DI::l10n()->t('Unable to process image.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to process image.'));
 			@unlink($src);
 			return;
 		}
@@ -93,13 +93,13 @@ class Index extends BaseSettings
 		$filename = '';
 
 		if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 0, Photo::USER_AVATAR)) {
-			notice(DI::l10n()->t('Image upload failed.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Image upload failed.'));
 		}
 
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
 			if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 1, Photo::USER_AVATAR)) {
-				notice(DI::l10n()->t('Image size reduction [%s] failed.', '640'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', '640'));
 			}
 		}
 

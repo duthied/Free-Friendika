@@ -39,7 +39,7 @@ class Group extends BaseModule
 		}
 
 		if (!local_user()) {
-			notice(DI::l10n()->t('Permission denied.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			DI::baseUrl()->redirect();
 		}
 
@@ -55,7 +55,7 @@ class Group extends BaseModule
 					DI::baseUrl()->redirect('group/' . $r);
 				}
 			} else {
-				notice(DI::l10n()->t('Could not create group.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Could not create group.'));
 			}
 			DI::baseUrl()->redirect('group');
 		}
@@ -66,13 +66,13 @@ class Group extends BaseModule
 
 			$group = DBA::selectFirst('group', ['id', 'name'], ['id' => DI::args()->getArgv()[1], 'uid' => local_user()]);
 			if (!DBA::isResult($group)) {
-				notice(DI::l10n()->t('Group not found.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Group not found.'));
 				DI::baseUrl()->redirect('contact');
 			}
 			$groupname = trim($_POST['groupname']);
 			if (strlen($groupname) && ($groupname != $group['name'])) {
 				if (!Model\Group::update($group['id'], $groupname)) {
-					notice(DI::l10n()->t('Group name was not changed.'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Group name was not changed.'));
 				}
 			}
 		}
@@ -132,10 +132,10 @@ class Group extends BaseModule
 				throw new \Exception(DI::l10n()->t('Bad request.'), 400);
 			}
 
-			info($message);
+			DI::sysmsg()->addInfo($message);
 			System::jsonExit(['status' => 'OK', 'message' => $message]);
 		} catch (\Exception $e) {
-			notice($e->getMessage());
+			DI::sysmsg()->addNotice($e->getMessage());
 			System::jsonError($e->getCode(), ['status' => 'error', 'message' => $e->getMessage()]);
 		}
 	}
@@ -212,12 +212,12 @@ class Group extends BaseModule
 			// @TODO: Replace with parameter from router
 			if (intval(DI::args()->getArgv()[2])) {
 				if (!Model\Group::exists(DI::args()->getArgv()[2], local_user())) {
-					notice(DI::l10n()->t('Group not found.'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Group not found.'));
 					DI::baseUrl()->redirect('contact');
 				}
 
 				if (!Model\Group::remove(DI::args()->getArgv()[2])) {
-					notice(DI::l10n()->t('Unable to remove group.'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Unable to remove group.'));
 				}
 			}
 			DI::baseUrl()->redirect('group');
@@ -236,7 +236,7 @@ class Group extends BaseModule
 		if ((DI::args()->getArgc() > 1) && intval(DI::args()->getArgv()[1])) {
 			$group = DBA::selectFirst('group', ['id', 'name'], ['id' => DI::args()->getArgv()[1], 'uid' => local_user(), 'deleted' => false]);
 			if (!DBA::isResult($group)) {
-				notice(DI::l10n()->t('Group not found.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Group not found.'));
 				DI::baseUrl()->redirect('contact');
 			}
 

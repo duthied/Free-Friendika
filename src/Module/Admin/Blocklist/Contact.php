@@ -46,12 +46,12 @@ class Contact extends BaseAdmin
 		if (!empty($_POST['page_contactblock_block'])) {
 			$contact = Model\Contact::getByURL($contact_url, null, ['id', 'nurl']);
 			if (empty($contact)) {
-				notice(DI::l10n()->t('Could not find any contact entry for this URL (%s)', $contact_url));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Could not find any contact entry for this URL (%s)', $contact_url));
 				DI::baseUrl()->redirect('admin/blocklist/contact');
 			}
 
 			if (Network::isLocalLink($contact['nurl'])) {
-				notice(DI::l10n()->t('You can\'t block a local contact, please block the user instead'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('You can\'t block a local contact, please block the user instead'));
 				DI::baseUrl()->redirect('admin/blocklist/contact');
 			}
 
@@ -63,14 +63,14 @@ class Contact extends BaseAdmin
 				}
 			}
 
-			info(DI::l10n()->t('The contact has been blocked from the node'));
+			DI::sysmsg()->addInfo(DI::l10n()->t('The contact has been blocked from the node'));
 		}
 
 		if (!empty($_POST['page_contactblock_unblock'])) {
 			foreach ($contacts as $uid) {
 				Model\Contact::unblock($uid);
 			}
-			info(DI::l10n()->tt('%s contact unblocked', '%s contacts unblocked', count($contacts)));
+			DI::sysmsg()->addInfo(DI::l10n()->tt('%s contact unblocked', '%s contacts unblocked', count($contacts)));
 		}
 
 		DI::baseUrl()->redirect('admin/blocklist/contact');

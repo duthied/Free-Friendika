@@ -31,6 +31,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -68,25 +69,25 @@ class RemoteFollow extends BaseModule
 		}
 	
 		if (empty($this->owner)) {
-			notice($this->t('Profile unavailable.'));
+			DI::sysmsg()->addNotice($this->t('Profile unavailable.'));
 			return;
 		}
 		
 		$url = Probe::cleanURI($_POST['dfrn_url']);
 		if (!strlen($url)) {
-			notice($this->t("Invalid locator"));
+			DI::sysmsg()->addNotice($this->t("Invalid locator"));
 			return;
 		}
 
 		// Detect the network, make sure the provided URL is valid
 		$data = Contact::getByURL($url);
 		if (!$data) {
-			notice($this->t("The provided profile link doesn't seem to be valid"));
+			DI::sysmsg()->addNotice($this->t("The provided profile link doesn't seem to be valid"));
 			return;
 		}
 
 		if (empty($data['subscribe'])) {
-			notice($this->t("Remote subscription can't be done for your network. Please subscribe directly on your system."));
+			DI::sysmsg()->addNotice($this->t("Remote subscription can't be done for your network. Please subscribe directly on your system."));
 			return;
 		}
 

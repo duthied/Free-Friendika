@@ -30,6 +30,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Module\Contact;
 use Friendica\Module\Response;
@@ -96,7 +97,7 @@ class Advanced extends BaseModule
 		}
 
 		if (!$r) {
-			notice($this->t('Contact update failed.'));
+			DI::sysmsg()->addNotice($this->t('Contact update failed.'));
 		}
 	}
 

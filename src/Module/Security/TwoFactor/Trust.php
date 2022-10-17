@@ -26,6 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Model\User\Cookie;
 use Friendica\Module\Response;
@@ -92,7 +93,7 @@ class Trust extends BaseModule
 
 						// The string is sent to the browser to be sent back with each request
 						if (!$this->cookie->set('2fa_cookie_hash', $trustedBrowser->cookie_hash)) {
-							notice($this->t('Couldn\'t save browser to Cookie.'));
+							DI::sysmsg()->addNotice($this->t('Couldn\'t save browser to Cookie.'));
 						};
 					} catch (TrustedBrowserPersistenceException $exception) {
 						$this->logger->warning('Unexpected error when saving the trusted browser.', ['trustedBrowser' => $trustedBrowser, 'exception' => $exception]);

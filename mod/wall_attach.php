@@ -66,7 +66,7 @@ function wall_attach_post(App $a) {
 		if ($r_json) {
 			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
-		notice(DI::l10n()->t('Permission denied.') . EOL );
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.') . EOL );
 		System::exit();
 	}
 
@@ -95,7 +95,7 @@ function wall_attach_post(App $a) {
 		if ($r_json) {
 			System::jsonExit(['error' => $msg]);
 		} else {
-			notice($msg);
+			DI::sysmsg()->addNotice($msg);
 		}
 		System::exit();
 	}

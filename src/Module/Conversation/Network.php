@@ -170,7 +170,7 @@ class Network extends BaseModule
 		if (self::$groupId) {
 			$group = DBA::selectFirst('group', ['name'], ['id' => self::$groupId, 'uid' => local_user()]);
 			if (!DBA::isResult($group)) {
-				notice(DI::l10n()->t('No such group'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('No such group'));
 			}
 
 			$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
@@ -184,7 +184,7 @@ class Network extends BaseModule
 					'id' => DI::args()->get(0),
 				]) . $o;
 			} else {
-				notice(DI::l10n()->t('Invalid contact.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Invalid contact.'));
 			}
 		} elseif (!DI::config()->get('theme', 'hide_eventlist')) {
 			$o .= Profile::getBirthdays();

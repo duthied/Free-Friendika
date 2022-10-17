@@ -865,7 +865,7 @@ class Profile
 
 		$a->setContactId($arr['visitor']['id']);
 
-		info(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
+		DI::sysmsg()->addInfo(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
 
 		Logger::info('OpenWebAuth: auth success from ' . $visitor['addr']);
 	}

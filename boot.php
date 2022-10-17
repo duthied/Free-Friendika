@@ -126,33 +126,3 @@ function remote_user()
 
 	return false;
 }
-
-/**
- * Show an error message to user.
- *
- * This function save text in session, to be shown to the user at next page load
- *
- * @param string $s - Text of notice
- *
- * @return void
- * @deprecated since version 2022.09, use \Friendica\Navigation\SystemMessages instead
- */
-function notice(string $s)
-{
-	\Friendica\DI::sysmsg()->addNotice($s);
-}
-
-/**
- * Show an info message to user.
- *
- * This function save text in session, to be shown to the user at next page load
- *
- * @param string $s - Text of notice
- *
- * @return void
- * @deprecated since version 2022.09, use \Friendica\Navigation\SystemMessages instead
- */
-function info(string $s)
-{
-	\Friendica\DI::sysmsg()->addInfo($s);
-}

@@ -106,7 +106,7 @@ class Profile extends BaseProfile
 		$o = self::getTabsHTML($a, 'profile', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact_id) {
-			notice(DI::l10n()->t('Access to this profile has been restricted.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Access to this profile has been restricted.'));
 			return '';
 		}
 

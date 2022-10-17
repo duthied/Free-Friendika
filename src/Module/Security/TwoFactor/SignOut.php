@@ -26,6 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\DI;
 use Friendica\Model\User\Cookie;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException\NotFoundException;
@@ -75,7 +76,7 @@ class SignOut extends BaseModule
 					$this->cookie->reset(['2fa_cookie_hash' => $trusted]);
 					$this->session->clear();
 
-					info($this->t('Logged out.'));
+					DI::sysmsg()->addInfo($this->t('Logged out.'));
 					$this->baseUrl->redirect();
 					break;
 				case 'sign_out':
@@ -83,7 +84,7 @@ class SignOut extends BaseModule
 					$this->cookie->clear();
 					$this->session->clear();
 
-					info($this->t('Logged out.'));
+					DI::sysmsg()->addInfo($this->t('Logged out.'));
 					$this->baseUrl->redirect();
 					break;
 				default:
@@ -105,14 +106,14 @@ class SignOut extends BaseModule
 				$this->cookie->reset(['2fa_cookie_hash' => $trusted]);
 				$this->session->clear();
 
-				info($this->t('Logged out.'));
+				DI::sysmsg()->addInfo($this->t('Logged out.'));
 				$this->baseUrl->redirect();
 			}
 		} catch (TwoFactor\Exception\TrustedBrowserNotFoundException $exception) {
 			$this->cookie->clear();
 			$this->session->clear();
 
-			info($this->t('Logged out.'));
+			DI::sysmsg()->addInfo($this->t('Logged out.'));
 			$this->baseUrl->redirect();
 		}
 

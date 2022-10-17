@@ -28,6 +28,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\Profile;
 use Friendica\Model\User\Cookie;
 use Friendica\Module\Response;
@@ -80,7 +81,7 @@ class Logout extends BaseModule
 		if ($visitor_home) {
 			System::externalRedirect($visitor_home);
 		} else {
-			info($this->t('Logged out.'));
+			DI::sysmsg()->addInfo($this->t('Logged out.'));
 			$this->baseUrl->redirect();
 		}
 	}

@@ -66,7 +66,7 @@ function message_init(App $a)
 function message_post(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -80,17 +80,17 @@ function message_post(App $a)
 
 	switch ($ret) {
 		case -1:
-			notice(DI::l10n()->t('No recipient selected.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('No recipient selected.'));
 			$norecip = true;
 			break;
 		case -2:
-			notice(DI::l10n()->t('Unable to locate contact information.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate contact information.'));
 			break;
 		case -3:
-			notice(DI::l10n()->t('Message could not be sent.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Message could not be sent.'));
 			break;
 		case -4:
-			notice(DI::l10n()->t('Message collection failure.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Message collection failure.'));
 			break;
 	}
 
@@ -108,7 +108,7 @@ function message_content(App $a)
 	Nav::setSelected('messages');
 
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
 
@@ -143,12 +143,12 @@ function message_content(App $a)
 		if ($cmd === 'drop') {
 			$message = DBA::selectFirst('mail', ['convid'], ['id' => DI::args()->getArgv()[2], 'uid' => local_user()]);
 			if(!DBA::isResult($message)){
-				notice(DI::l10n()->t('Conversation not found.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Conversation not found.'));
 				DI::baseUrl()->redirect('message');
 			}
 
 			if (!DBA::delete('mail', ['id' => DI::args()->getArgv()[2], 'uid' => local_user()])) {
-				notice(DI::l10n()->t('Message was not deleted.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Message was not deleted.'));
 			}
 
 			$conversation = DBA::selectFirst('mail', ['id'], ['convid' => $message['convid'], 'uid' => local_user()]);
@@ -163,7 +163,7 @@ function message_content(App $a)
 				$parent = $parentmail['parent-uri'];
 
 				if (!DBA::delete('mail', ['parent-uri' => $parent, 'uid' => local_user()])) {
-					notice(DI::l10n()->t('Conversation was not removed.'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Conversation was not removed.'));
 				}
 			}
 			DI::baseUrl()->redirect('message');
@@ -219,7 +219,7 @@ function message_content(App $a)
 		$r = get_messages(local_user(), $pager->getStart(), $pager->getItemsPerPage());
 
 		if (!DBA::isResult($r)) {
-			notice(DI::l10n()->t('No messages.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('No messages.'));
 			return $o;
 		}
 
@@ -275,7 +275,7 @@ function message_content(App $a)
 		}
 
 		if (!DBA::isResult($messages)) {
-			notice(DI::l10n()->t('Message not available.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Message not available.'));
 			return $o;
 		}
 
