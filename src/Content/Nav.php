@@ -30,6 +30,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Module\Conversation\Community;
 
 class Nav
 {
@@ -251,8 +252,8 @@ class Nav
 			}
 		}
 
-		if ((local_user() || DI::config()->get('system', 'community_page_style') != CP_NO_COMMUNITY_PAGE) &&
-			!(DI::config()->get('system', 'community_page_style') == CP_NO_INTERNAL_COMMUNITY)) {
+		if ((local_user() || DI::config()->get('system', 'community_page_style') != Community::DISABLED_VISITOR) &&
+			!(DI::config()->get('system', 'community_page_style') == Community::DISABLED)) {
 			$nav['community'] = ['community', DI::l10n()->t('Community'), '', DI::l10n()->t('Conversations on this and other servers')];
 		}
 

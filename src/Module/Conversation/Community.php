@@ -40,6 +40,21 @@ use Friendica\Network\HTTPException;
 
 class Community extends BaseModule
 {
+	/**
+	 * @name CP
+	 *
+	 * Type of the community page
+	 * @{
+	 */
+	const DISABLED         = -2;
+	const DISABLED_VISITOR = -1;
+	const LOCAL            = 0;
+	const GLOBAL           = 1;
+	const LOCAL_AND_GLOBAL = 2;
+	/**
+	 * @}
+	 */
+
 	protected static $page_style;
 	protected static $content;
 	protected static $accountTypeString;
@@ -69,7 +84,7 @@ class Community extends BaseModule
 		if (empty($_GET['mode']) || ($_GET['mode'] != 'raw')) {
 			$tabs = [];
 
-			if ((Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(DI::config()->get('system', 'singleuser'))) {
+			if ((Session::isAuthenticated() || in_array(self::$page_style, [self::LOCAL_AND_GLOBAL, self::LOCAL])) && empty(DI::config()->get('system', 'singleuser'))) {
 				$tabs[] = [
 					'label' => DI::l10n()->t('Local Community'),
 					'url' => 'community/local',
@@ -80,7 +95,7 @@ class Community extends BaseModule
 				];
 			}
 	
-			if (Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
+			if (Session::isAuthenticated() || in_array(self::$page_style, [self::LOCAL_AND_GLOBAL, self::GLOBAL])) {
 				$tabs[] = [
 					'label' => DI::l10n()->t('Global Community'),
 					'url' => 'community/global',
@@ -177,7 +192,7 @@ class Community extends BaseModule
 
 		self::$page_style = DI::config()->get('system', 'community_page_style');
 
-		if (self::$page_style == CP_NO_INTERNAL_COMMUNITY) {
+		if (self::$page_style == self::DISABLED) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 		}
 
@@ -191,7 +206,7 @@ class Community extends BaseModule
 				self::$content = 'global';
 			} else {
 				// When only the global community is allowed, we use this as default
-				self::$content = self::$page_style == CP_GLOBAL_COMMUNITY ? 'global' : 'local';
+				self::$content = self::$page_style == self::GLOBAL ? 'global' : 'local';
 			}
 		}
 
@@ -201,14 +216,14 @@ class Community extends BaseModule
 
 		// Check if we are allowed to display the content to visitors
 		if (!Session::isAuthenticated()) {
-			$available = self::$page_style == CP_USERS_AND_GLOBAL;
+			$available = self::$page_style == self::LOCAL_AND_GLOBAL;
 
 			if (!$available) {
-				$available = (self::$page_style == CP_USERS_ON_SERVER) && (self::$content == 'local');
+				$available = (self::$page_style == self::LOCAL) && (self::$content == 'local');
 			}
 
 			if (!$available) {
-				$available = (self::$page_style == CP_GLOBAL_COMMUNITY) && (self::$content == 'global');
+				$available = (self::$page_style == self::GLOBAL) && (self::$content == 'global');
 			}
 
 			if (!$available) {

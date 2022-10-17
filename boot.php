@@ -32,8 +32,6 @@ use Friendica\Model\Contact;
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Giant Rhubarb');
 define('FRIENDICA_VERSION',      '2022.12-dev');
-define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('NEW_TABLE_STRUCTURE_VERSION', 1288);
 
 /**
  * Constant with a HTML line break.
@@ -43,21 +41,6 @@ define('NEW_TABLE_STRUCTURE_VERSION', 1288);
  * This can be used in HTML and JavaScript where needed a line break.
  */
 define('EOL',                    "<br />\r\n");
-
-/**
- * @name CP
- *
- * Type of the community page
- * @{
- */
-define('CP_NO_INTERNAL_COMMUNITY', -2);
-define('CP_NO_COMMUNITY_PAGE',     -1);
-define('CP_USERS_ON_SERVER',        0);
-define('CP_GLOBAL_COMMUNITY',       1);
-define('CP_USERS_AND_GLOBAL',       2);
-/**
- * @}
- */
 
 /**
  * @name Gravity
