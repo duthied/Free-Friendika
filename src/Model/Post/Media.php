@@ -23,10 +23,12 @@ namespace Friendica\Model\Post;
 
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
@@ -56,6 +58,7 @@ class Media
 	const HTML        = 17;
 	const XML         = 18;
 	const PLAIN       = 19;
+	const ACTIVITY    = 20;
 	const DOCUMENT    = 128;
 
 	/**
@@ -215,6 +218,10 @@ class Media
 			$media = self::addType($media);
 		}
 
+		if (in_array($media['type'], [self::TEXT, self::APPLICATION, self::HTML, self::XML, self::PLAIN])) {
+			$media = self::addActivity($media);
+		}
+
 		if ($media['type'] == self::HTML) {
 			$data = ParseUrl::getSiteinfoCached($media['url'], false);
 			$media['preview'] = $data['images'][0]['src'] ?? null;
@@ -229,6 +236,65 @@ class Media
 			$media['publisher-name'] = $data['publisher_name'] ?? null;
 			$media['publisher-image'] = $data['publisher_img'] ?? null;
 		}
+		return $media;
+	}
+
+	/**
+	 * Adds the activity type if the media entry is linked to an activity
+	 *
+	 * @param array $media
+	 * @return array
+	 */
+	private static function addActivity(array $media): array
+	{
+		$id = Item::fetchByLink($media['url']);
+		if (empty($id)) {
+			return $media;
+		}
+
+		$item = Post::selectFirst([], ['id' => $id, 'network' => Protocol::FEDERATED]);
+		if (empty($item['id'])) {
+			Logger::debug('Not a federated activity', ['id' => $id, 'uri-id' => $media['uri-id'], 'url' => $media['url']]);
+			return $media;
+		}
+
+		if (!empty($item['plink']) && Strings::compareLink($item['plink'], $media['url']) &&
+			parse_url($item['plink'], PHP_URL_HOST) != parse_url($item['uri'], PHP_URL_HOST)) {
+			Logger::debug('Not a link to an activity', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'plink' => $item['plink'], 'uri' => $item['uri']]);
+			return $media;
+		}
+
+		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+			$media['mimetype'] = 'application/activity+json';
+		} elseif ($item['network'] == Protocol::DIASPORA) {
+			$media['mimetype'] = 'application/xml';
+		} else {
+			$media['mimetype'] = '';
+		}
+
+		$contact = Contact::getById($item['author-id'], ['avatar', 'gsid']);
+		if (!empty($contact['gsid'])) {
+			$gserver = DBA::selectFirst('gserver', ['url', 'site_name'], ['id' => $contact['gsid']]);
+		}
+		
+		$media['type'] = self::ACTIVITY;
+		$media['media-uri-id'] = $item['uri-id'];
+		$media['height'] = null;
+		$media['width'] = null;
+		$media['size'] = null;
+		$media['preview'] = null;
+		$media['preview-height'] = null;
+		$media['preview-width'] = null;
+		$media['description'] = $item['body'];
+		$media['name'] = $item['title'];
+		$media['author-url'] = $item['author-link'];
+		$media['author-name'] = $item['author-name'];
+		$media['author-image'] = $contact['avatar'] ?? $item['author-avatar'];
+		$media['publisher-url'] = $gserver['url'] ?? null;
+		$media['publisher-name'] = $gserver['site_name'] ?? null;
+		$media['publisher-image'] = null;
+
+		Logger::debug('Activity detected', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'plink' => $item['plink'], 'uri' => $item['uri']]);
 		return $media;
 	}
 

@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1485);
+	define('DB_UPDATE_VERSION', 1486);
 }
 
 return [
@@ -1321,6 +1321,7 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"url" => ["type" => "varbinary(1024)", "not null" => "1", "comment" => "Media URL"],
+			"media-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the activities uri-id"],
 			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Media type"],
 			"mimetype" => ["type" => "varchar(60)", "comment" => ""],
 			"height" => ["type" => "smallint unsigned", "comment" => "Height of the media"],
@@ -1342,6 +1343,7 @@ return [
 			"PRIMARY" => ["id"],
 			"uri-id-url" => ["UNIQUE", "uri-id", "url(512)"],
 			"uri-id-id" => ["uri-id", "id"],
+			"media-uri-id" => ["media-uri-id"],
 		]
 	],
 	"post-question" => [
