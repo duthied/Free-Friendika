@@ -405,6 +405,10 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('block', $hook_data);
     Hook::callAll('unblock', $hook_data);
 
+### src/Core/Logger/Factory.php
+
+    Hook::callAll('logger_instance', $data);
+
 ### src/Core/StorageManager
 
     Hook::callAll('storage_instance', $data);

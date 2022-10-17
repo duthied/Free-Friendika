@@ -919,6 +919,10 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('block', $hook_data);
     Hook::callAll('unblock', $hook_data);
 
+### src/Core/Logger/Factory.php
+
+    Hook::callAll('logger_instance', $data);
+
 ### src/Core/StorageManager
 
     Hook::callAll('storage_instance', $data);
