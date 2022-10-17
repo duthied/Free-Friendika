@@ -322,7 +322,7 @@ class UserImport
 		}
 
 		// send relocate messages
-		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $newuid);
+		Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $newuid);
 
 		info(DI::l10n()->t("Done. You can now login with your username and password"));
 		DI::baseUrl()->redirect('login');

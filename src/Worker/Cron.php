@@ -62,25 +62,25 @@ class Cron
 		}
 
 		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
-		Hook::fork(PRIORITY_MEDIUM, 'cron');
+		Hook::fork(Worker::PRIORITY_MEDIUM, 'cron');
 
 		// Poll contacts
-		Worker::add(PRIORITY_MEDIUM, 'PollContacts');
+		Worker::add(Worker::PRIORITY_MEDIUM, 'PollContacts');
 
 		// Update contact information
-		Worker::add(PRIORITY_LOW, 'UpdateContacts');
+		Worker::add(Worker::PRIORITY_LOW, 'UpdateContacts');
 
 		// Update server information
-		Worker::add(PRIORITY_LOW, 'UpdateGServers');
+		Worker::add(Worker::PRIORITY_LOW, 'UpdateGServers');
 
 		// run the process to update server directories in the background
-		Worker::add(PRIORITY_LOW, 'UpdateServerDirectories');
+		Worker::add(Worker::PRIORITY_LOW, 'UpdateServerDirectories');
 
 		// Expire and remove user entries
-		Worker::add(PRIORITY_MEDIUM, 'ExpireAndRemoveUsers');
+		Worker::add(Worker::PRIORITY_MEDIUM, 'ExpireAndRemoveUsers');
 
 		// Call possible post update functions
-		Worker::add(PRIORITY_LOW, 'PostUpdate');
+		Worker::add(Worker::PRIORITY_LOW, 'PostUpdate');
 
 		// Hourly cron calls
 		if (DI::config()->get('system', 'last_cron_hourly', 0) + 3600 < time()) {
@@ -97,11 +97,11 @@ class Cron
 
 			// Search for new contacts in the directory
 			if (DI::config()->get('system', 'synchronize_directory')) {
-				Worker::add(PRIORITY_LOW, 'PullDirectory');
+				Worker::add(Worker::PRIORITY_LOW, 'PullDirectory');
 			}
 
 			// Clear cache entries
-			Worker::add(PRIORITY_LOW, 'ClearCache');
+			Worker::add(Worker::PRIORITY_LOW, 'ClearCache');
 
 			DI::config()->set('system', 'last_cron_hourly', time());
 		}
@@ -109,27 +109,27 @@ class Cron
 		// Daily maintenance cron calls
 		if (Worker::isInMaintenanceWindow(true)) {
 
-			Worker::add(PRIORITY_LOW, 'UpdateContactBirthdays');
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateContactBirthdays');
 
-			Worker::add(PRIORITY_LOW, 'UpdatePhotoAlbums');
+			Worker::add(Worker::PRIORITY_LOW, 'UpdatePhotoAlbums');
 
-			Worker::add(PRIORITY_LOW, 'ExpirePosts');
+			Worker::add(Worker::PRIORITY_LOW, 'ExpirePosts');
 
-			Worker::add(PRIORITY_LOW, 'ExpireActivities');
+			Worker::add(Worker::PRIORITY_LOW, 'ExpireActivities');
 
-			Worker::add(PRIORITY_LOW, 'RemoveUnusedTags');
+			Worker::add(Worker::PRIORITY_LOW, 'RemoveUnusedTags');
 
-			Worker::add(PRIORITY_LOW, 'RemoveUnusedContacts');
+			Worker::add(Worker::PRIORITY_LOW, 'RemoveUnusedContacts');
 
-			Worker::add(PRIORITY_LOW, 'RemoveUnusedAvatars');
+			Worker::add(Worker::PRIORITY_LOW, 'RemoveUnusedAvatars');
 
 			// check upstream version?
-			Worker::add(PRIORITY_LOW, 'CheckVersion');
+			Worker::add(Worker::PRIORITY_LOW, 'CheckVersion');
 
-			Worker::add(PRIORITY_LOW, 'CheckDeletedContacts');
+			Worker::add(Worker::PRIORITY_LOW, 'CheckDeletedContacts');
 
 			if (DI::config()->get('system', 'optimize_tables')) {
-				Worker::add(PRIORITY_LOW, 'OptimizeTables');
+				Worker::add(Worker::PRIORITY_LOW, 'OptimizeTables');
 			}
 
 			// Resubscribe to relay servers

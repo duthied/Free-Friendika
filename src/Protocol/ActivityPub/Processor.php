@@ -552,7 +552,7 @@ class Processor
 			Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 			Fetch::add($activity['reply-to-id']);
 			$activity['recursion-depth'] = 0;
-			$wid = Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+			$wid = Worker::add(Worker::PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 			Fetch::setWorkerId($activity['reply-to-id'], $wid);
 		} else {
 			Logger::debug('Activity will already be fetched via a worker.', ['url' => $activity['reply-to-id']]);
@@ -1665,9 +1665,9 @@ class Processor
 			}
 			if (DI::config()->get('system', 'bulk_delivery')) {
 				Post\Delivery::add($post['uri-id'], $uid, $inbox, $post['created'], Delivery::POST, [$cid]);
-				Worker::add(PRIORITY_HIGH, 'APDelivery', '', 0, $inbox, 0);
+				Worker::add(Worker::PRIORITY_HIGH, 'APDelivery', '', 0, $inbox, 0);
 			} else {
-				Worker::add(PRIORITY_HIGH, 'APDelivery', Delivery::POST, $post['id'], $inbox, $uid, [$cid], $post['uri-id']);
+				Worker::add(Worker::PRIORITY_HIGH, 'APDelivery', Delivery::POST, $post['id'], $inbox, $uid, [$cid], $post['uri-id']);
 			}
 		}
 	}

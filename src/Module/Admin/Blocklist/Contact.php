@@ -59,7 +59,7 @@ class Contact extends BaseAdmin
 
 			if ($block_purge) {
 				foreach (Model\Contact::selectToArray(['id'], ['nurl' => $contact['nurl']]) as $contact) {
-					Worker::add(PRIORITY_LOW, 'Contact\RemoveContent', $contact['id']);
+					Worker::add(Worker::PRIORITY_LOW, 'Contact\RemoveContent', $contact['id']);
 				}
 			}
 

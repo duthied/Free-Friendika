@@ -338,7 +338,7 @@ class Photo extends BaseModule
 						}
 						if ($update) {
 							Logger::info('Invalid file, contact update initiated', ['cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
-							Worker::add(PRIORITY_LOW, 'UpdateContact', $id);
+							Worker::add(Worker::PRIORITY_LOW, 'UpdateContact', $id);
 						} else {
 							Logger::info('Invalid file', ['cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
 						}

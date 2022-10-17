@@ -34,7 +34,7 @@ class CheckDeletedContacts
 	{
 		$contacts = DBA::select('contact', ['id'], ['deleted' => true]);
 		while ($contact = DBA::fetch($contacts)) {
-			Worker::add(PRIORITY_MEDIUM, 'Contact\Remove', $contact['id']);
+			Worker::add(Worker::PRIORITY_MEDIUM, 'Contact\Remove', $contact['id']);
 		}
 		DBA::close($contacts);
 	}

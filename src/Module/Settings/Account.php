@@ -375,7 +375,7 @@ class Account extends BaseSettings
 						// "http" or "@" to be present in the string.
 						// All other fields from the row will be ignored
 						if ((strpos($csvRow[0], '@') !== false) || Network::isValidHttpUrl($csvRow[0])) {
-							Worker::add(PRIORITY_MEDIUM, 'AddContact', local_user(), $csvRow[0]);
+							Worker::add(Worker::PRIORITY_MEDIUM, 'AddContact', local_user(), $csvRow[0]);
 						} else {
 							Logger::notice('Invalid account', ['url' => $csvRow[0]]);
 						}
@@ -394,7 +394,7 @@ class Account extends BaseSettings
 		}
 
 		if (!empty($request['relocate-submit'])) {
-			Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, local_user());
+			Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, local_user());
 			info(DI::l10n()->t("Relocate message has been send to your contacts"));
 			DI::baseUrl()->redirect($redirectUrl);
 		}

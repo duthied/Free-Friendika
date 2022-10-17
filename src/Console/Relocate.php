@@ -197,7 +197,7 @@ HELP;
 		$this->out('Schedule relocation messages to remote Friendica and Diaspora hosts');
 		$users = $this->database->selectToArray('user', ['uid'], ['account_removed' => false, 'account_expired' => false]);
 		foreach ($users as $user) {
-			Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $user['uid']);
+			Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $user['uid']);
 		}
 
 		return 0;

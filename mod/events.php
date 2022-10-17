@@ -205,7 +205,7 @@ function events_post(App $a)
 	}
 
 	if (!$cid && $uri_id) {
-		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, (int)$uri_id, (int)$uid);
+		Worker::add(Worker::PRIORITY_HIGH, "Notifier", Delivery::POST, (int)$uri_id, (int)$uid);
 	}
 
 	DI::baseUrl()->redirect('events');

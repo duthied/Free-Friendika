@@ -36,6 +36,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Attach;
@@ -635,7 +636,7 @@ function item_post(App $a) {
 			unset($datarray['self']);
 			unset($datarray['api_source']);
 
-			Post\Delayed::add($datarray['uri'], $datarray, PRIORITY_HIGH, Post\Delayed::PREPARED_NO_HOOK, $scheduled_at);
+			Post\Delayed::add($datarray['uri'], $datarray, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED_NO_HOOK, $scheduled_at);
 			item_post_return(DI::baseUrl(), $api_source, $return_path);
 		}
 	}

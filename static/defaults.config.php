@@ -284,7 +284,7 @@ return [
 
 		// expire-notify-priority (integer)
 		// Priority for the expirary notification 
-		'expire-notify-priority' => PRIORITY_LOW,
+		'expire-notify-priority' => Friendica\Core\Worker::PRIORITY_LOW,
 
 		// fetch_by_worker (Boolean)
 		// Fetch missing posts via a background process
