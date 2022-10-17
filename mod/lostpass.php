@@ -37,7 +37,7 @@ function lostpass_post(App $a)
 	$condition = ['(`email` = ? OR `nickname` = ?) AND `verified` = 1 AND `blocked` = 0', $loginame, $loginame];
 	$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'email', 'language'], $condition);
 	if (!DBA::isResult($user)) {
-		notice(DI::l10n()->t('No valid account found.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('No valid account found.'));
 		DI::baseUrl()->redirect();
 	}
 
@@ -97,7 +97,7 @@ function lostpass_content(App $a)
 
 		$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'email', 'pwdreset_time', 'language'], ['pwdreset' => hash('sha256', $pwdreset_token)]);
 		if (!DBA::isResult($user)) {
-			notice(DI::l10n()->t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed."));
+			DI::sysmsg()->addNotice(DI::l10n()->t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed."));
 
 			return lostpass_form();
 		}
@@ -110,7 +110,7 @@ function lostpass_content(App $a)
 			];
 			DBA::update('user', $fields, ['uid' => $user['uid']]);
 
-			notice(DI::l10n()->t('Request has expired, please make a new one.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Request has expired, please make a new one.'));
 
 			return lostpass_form();
 		}
