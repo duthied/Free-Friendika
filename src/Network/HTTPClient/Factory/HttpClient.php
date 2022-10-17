@@ -86,9 +86,9 @@ class HttpClient extends BaseFactory
 			$logger->notice('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri, 'method' => $request->getMethod()]);
 		};
 
-		$userAgent = FRIENDICA_PLATFORM . " '" .
-					 FRIENDICA_CODENAME . "' " .
-					 FRIENDICA_VERSION . '-' .
+		$userAgent = App::PLATFORM . " '" .
+					 App::CODENAME . "' " .
+					 App::VERSION . '-' .
 					 DB_UPDATE_VERSION . '; ' .
 					 $this->baseUrl->get();
 

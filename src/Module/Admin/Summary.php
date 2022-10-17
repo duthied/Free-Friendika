@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Admin;
 
+use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Logger;
@@ -79,8 +80,8 @@ class Summary extends BaseAdmin
 		// the local version of Friendica. Check is opt-in, source may be stable or develop branch
 		if (DI::config()->get('system', 'check_new_version_url', 'none') != 'none') {
 			$gitversion = DI::config()->get('system', 'git_friendica_version');
-			if (version_compare(FRIENDICA_VERSION, $gitversion) < 0) {
-				$warningtext[] = DI::l10n()->t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s', FRIENDICA_VERSION, $gitversion);
+			if (version_compare(App::VERSION, $gitversion) < 0) {
+				$warningtext[] = DI::l10n()->t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s', App::VERSION, $gitversion);
 			}
 		}
 
@@ -236,9 +237,9 @@ class Summary extends BaseAdmin
 			'$users' => [DI::l10n()->t('Registered users'), $users],
 			'$accounts' => $accounts,
 			'$pending' => [DI::l10n()->t('Pending registrations'), $pending],
-			'$version' => [DI::l10n()->t('Version'), FRIENDICA_VERSION],
-			'$platform' => FRIENDICA_PLATFORM,
-			'$codename' => FRIENDICA_CODENAME,
+			'$version' => [DI::l10n()->t('Version'), App::VERSION],
+			'$platform' => App::PLATFORM,
+			'$codename' => App::CODENAME,
 			'$build' => DI::config()->get('system', 'build'),
 			'$addons' => [DI::l10n()->t('Active addons'), Addon::getEnabledList()],
 			'$serversettings' => $server_settings,
