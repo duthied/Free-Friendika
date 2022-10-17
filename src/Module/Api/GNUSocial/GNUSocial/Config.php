@@ -55,7 +55,7 @@ class Config extends BaseApi
 				'friendica'    => [
 					'FRIENDICA_PLATFORM'    => App::PLATFORM,
 					'FRIENDICA_VERSION'     => App::VERSION,
-					'DB_UPDATE_VERSION'     => App::VERSION,
+					'DB_UPDATE_VERSION'     => DB_UPDATE_VERSION,
 				]
 			],
 		];
