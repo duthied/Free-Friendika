@@ -55,7 +55,6 @@ class Config extends BaseApi
 				'friendica'    => [
 					'FRIENDICA_PLATFORM'    => FRIENDICA_PLATFORM,
 					'FRIENDICA_VERSION'     => FRIENDICA_VERSION,
-					'DFRN_PROTOCOL_VERSION' => DFRN_PROTOCOL_VERSION,
 					'DB_UPDATE_VERSION'     => DB_UPDATE_VERSION,
 				]
 			],
