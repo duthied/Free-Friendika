@@ -337,7 +337,7 @@ class Install extends BaseModule
 
 				if (count($this->installer->getChecks()) == 0) {
 					$txt            = '<p style="font-size: 130%;">';
-					$txt            .= $this->t('Your Friendica site database has been installed.') . EOL;
+					$txt            .= $this->t('Your Friendica site database has been installed.') . '<br />';
 					$db_return_text .= $txt;
 				}
 

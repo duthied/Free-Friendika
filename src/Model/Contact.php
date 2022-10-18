@@ -2853,30 +2853,30 @@ class Contact
 
 		// do we have enough information?
 		if (empty($protocol) || ($protocol == Protocol::PHANTOM) || (empty($ret['url']) && empty($ret['addr']))) {
-			$result['message'] .= DI::l10n()->t('The profile address specified does not provide adequate information.') . EOL;
+			$result['message'] .= DI::l10n()->t('The profile address specified does not provide adequate information.') . '<br />';
 			if (empty($ret['poll'])) {
-				$result['message'] .= DI::l10n()->t('No compatible communication protocols or feeds were discovered.') . EOL;
+				$result['message'] .= DI::l10n()->t('No compatible communication protocols or feeds were discovered.') . '<br />';
 			}
 			if (empty($ret['name'])) {
-				$result['message'] .= DI::l10n()->t('An author or name was not found.') . EOL;
+				$result['message'] .= DI::l10n()->t('An author or name was not found.') . '<br />';
 			}
 			if (empty($ret['url'])) {
-				$result['message'] .= DI::l10n()->t('No browser URL could be matched to this address.') . EOL;
+				$result['message'] .= DI::l10n()->t('No browser URL could be matched to this address.') . '<br />';
 			}
 			if (strpos($ret['url'], '@') !== false) {
-				$result['message'] .= DI::l10n()->t('Unable to match @-style Identity Address with a known protocol or email contact.') . EOL;
-				$result['message'] .= DI::l10n()->t('Use mailto: in front of address to force email check.') . EOL;
+				$result['message'] .= DI::l10n()->t('Unable to match @-style Identity Address with a known protocol or email contact.') . '<br />';
+				$result['message'] .= DI::l10n()->t('Use mailto: in front of address to force email check.') . '<br />';
 			}
 			return $result;
 		}
 
 		if ($protocol === Protocol::OSTATUS && DI::config()->get('system', 'ostatus_disabled')) {
-			$result['message'] .= DI::l10n()->t('The profile address specified belongs to a network which has been disabled on this site.') . EOL;
+			$result['message'] .= DI::l10n()->t('The profile address specified belongs to a network which has been disabled on this site.') . '<br />';
 			$ret['notify'] = '';
 		}
 
 		if (!$ret['notify']) {
-			$result['message'] .= DI::l10n()->t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . EOL;
+			$result['message'] .= DI::l10n()->t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . '<br />';
 		}
 
 		$writeable = ((($protocol === Protocol::OSTATUS) && ($ret['notify'])) ? 1 : 0);
@@ -2935,7 +2935,7 @@ class Contact
 
 		$contact = DBA::selectFirst('contact', [], ['url' => $ret['url'], 'network' => $ret['network'], 'uid' => $uid]);
 		if (!DBA::isResult($contact)) {
-			$result['message'] .= DI::l10n()->t('Unable to retrieve contact information.') . EOL;
+			$result['message'] .= DI::l10n()->t('Unable to retrieve contact information.') . '<br />';
 			return $result;
 		}
 

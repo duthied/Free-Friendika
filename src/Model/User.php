@@ -994,7 +994,7 @@ class User
 				try {
 					$authurl = $openid->authUrl();
 				} catch (Exception $e) {
-					throw new Exception(DI::l10n()->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . EOL . EOL . DI::l10n()->t('The error message was:') . $e->getMessage(), 0, $e);
+					throw new Exception(DI::l10n()->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br />' . DI::l10n()->t('The error message was:') . $e->getMessage(), 0, $e);
 				}
 				System::externalRedirect($authurl);
 				// NOTREACHED

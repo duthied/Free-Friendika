@@ -30,15 +30,6 @@
 use Friendica\Core\Session;
 
 /**
- * Constant with a HTML line break.
- *
- * Contains a HTML line break (br) element and a real carriage return with line
- * feed for the source.
- * This can be used in HTML and JavaScript where needed a line break.
- */
-define('EOL', "<br />\r\n");
-
-/**
  * @name Gravity
  *
  * Item weight for query ordering
