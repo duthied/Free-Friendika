@@ -20,6 +20,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Module\Response;
