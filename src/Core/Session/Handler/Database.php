@@ -70,7 +70,7 @@ class Database implements SessionHandlerInterface
 				return $session['data'];
 			}
 		} catch (\Exception $exception) {
-			$this->logger->warning('Cannot read session.'. ['id' => $id, 'exception' => $exception]);
+			$this->logger->warning('Cannot read session.', ['id' => $id, 'exception' => $exception]);
 			return '';
 		}
 
@@ -114,7 +114,7 @@ class Database implements SessionHandlerInterface
 				$this->dba->insert('session', $fields);
 			}
 		} catch (\Exception $exception) {
-			$this->logger->warning('Cannot write session.'. ['id' => $id, 'exception' => $exception]);
+			$this->logger->warning('Cannot write session.', ['id' => $id, 'exception' => $exception]);
 			return false;
 		}
 
@@ -131,7 +131,7 @@ class Database implements SessionHandlerInterface
 		try {
 			return $this->dba->delete('session', ['sid' => $id]);
 		} catch (\Exception $exception) {
-			$this->logger->warning('Cannot destroy session.'. ['id' => $id, 'exception' => $exception]);
+			$this->logger->warning('Cannot destroy session.', ['id' => $id, 'exception' => $exception]);
 			return false;
 		}
 	}
@@ -141,7 +141,7 @@ class Database implements SessionHandlerInterface
 		try {
 			return $this->dba->delete('session', ["`expire` < ?", time()]);
 		} catch (\Exception $exception) {
-			$this->logger->warning('Cannot use garbage collector.'. ['exception' => $exception]);
+			$this->logger->warning('Cannot use garbage collector.', ['exception' => $exception]);
 			return false;
 		}
 	}

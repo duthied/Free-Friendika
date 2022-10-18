@@ -61,7 +61,7 @@ class Cache implements SessionHandlerInterface
 				return $data;
 			}
 		} catch (CachePersistenceException $exception) {
-			$this->logger->warning('Cannot read session.'. ['id' => $id, 'exception' => $exception]);
+			$this->logger->warning('Cannot read session.', ['id' => $id, 'exception' => $exception]);
 			return '';
 		}
 
