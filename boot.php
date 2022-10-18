@@ -27,7 +27,7 @@
  * easily as email does today.
  */
 
-use Friendica\Model\Contact;
+use Friendica\Core\Session;
 
 /**
  * Constant with a HTML line break.
@@ -36,7 +36,7 @@ use Friendica\Model\Contact;
  * feed for the source.
  * This can be used in HTML and JavaScript where needed a line break.
  */
-define('EOL',                    "<br />\r\n");
+define('EOL', "<br />\r\n");
 
 /**
  * @name Gravity
@@ -50,79 +50,35 @@ define('GRAVITY_COMMENT',      6);
 define('GRAVITY_UNKNOWN',      9);
 /* @}*/
 
-// Normally this constant is defined - but not if "pcntl" isn't installed
-if (!defined('SIGTERM')) {
-	define('SIGTERM', 15);
-}
-
-/**
- * Depending on the PHP version this constant does exist - or not.
- * See here: http://php.net/manual/en/curl.constants.php#117928
- */
-if (!defined('CURLE_OPERATION_TIMEDOUT')) {
-	define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
-}
-
-if (!function_exists('exif_imagetype')) {
-	function exif_imagetype($file)
-	{
-		$size = getimagesize($file);
-		return $size[2];
-	}
-}
-
 /**
  * Returns the user id of locally logged in user or false.
  *
  * @return int|bool user id or false
+ * @deprecated since version 2022.12, use Core\Session::getLocalUser() instead
  */
 function local_user()
 {
-	if (!empty($_SESSION['authenticated']) && !empty($_SESSION['uid'])) {
-		return intval($_SESSION['uid']);
-	}
-
-	return false;
+	return Session::getLocalUser();
 }
 
 /**
  * Returns the public contact id of logged in user or false.
  *
  * @return int|bool public contact id or false
+ * @deprecated since version 2022.12, use Core\Session:: getPublicContact() instead
  */
 function public_contact()
 {
-	static $public_contact_id = false;
-
-	if (!$public_contact_id && !empty($_SESSION['authenticated'])) {
-		if (!empty($_SESSION['my_address'])) {
-			// Local user
-			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0, false));
-		} elseif (!empty($_SESSION['visitor_home'])) {
-			// Remote user
-			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0, false));
-		}
-	} elseif (empty($_SESSION['authenticated'])) {
-		$public_contact_id = false;
-	}
-
-	return $public_contact_id;
+	return Session::getPublicContact();
 }
 
 /**
  * Returns public contact id of authenticated site visitor or false
  *
  * @return int|bool visitor_id or false
+ * @deprecated since version 2022.12, use Core\Session:: getRemoteUser() instead
  */
 function remote_user()
 {
-	if (empty($_SESSION['authenticated'])) {
-		return false;
-	}
-
-	if (!empty($_SESSION['visitor_id'])) {
-		return intval($_SESSION['visitor_id']);
-	}
-
-	return false;
+	return Session::getRemoteUser();
 }

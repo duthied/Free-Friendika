@@ -389,7 +389,7 @@ abstract class BaseModule implements ICanHandleRequests
 
 	public static function getFormSecurityStandardErrorMessage(): string
 	{
-		return DI::l10n()->t("The form security token was not correct. This probably happened because the form has been opened for too long \x28>3 hours\x29 before submitting it.") . EOL;
+		return DI::l10n()->t("The form security token was not correct. This probably happened because the form has been opened for too long \x28>3 hours\x29 before submitting it.");
 	}
 
 	public static function checkFormSecurityTokenRedirectOnError(string $err_redirect, string $typename = '', string $formname = 'form_security_token')
