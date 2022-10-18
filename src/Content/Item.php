@@ -580,11 +580,11 @@ class Item
 	public function createSharedPostByUrl(string $url, int $uid = 0, bool $add_media = false): string
 	{
 		if (!empty($uid)) {
-			$id = ModelItem::searchByLink($url, $uid);
+			$id = ItemModel::searchByLink($url, $uid);
 		}
 
 		if (empty($id)) {
-			$id = ModelItem::fetchByLink($url);
+			$id = ItemModel::fetchByLink($url);
 		}
 
 		if (!$id) {
@@ -614,7 +614,7 @@ class Item
 	public function createSharedPostByUriId(int $UriId, int $uid = 0, bool $add_media = false): string
 	{
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
-		$shared_item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
+		$shared_item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
 		if (!DBA::isResult($shared_item)) {
 			Logger::notice('Post does not exist.', ['uri-id' => $UriId, 'uid' => $uid]);
 			return '';
@@ -634,11 +634,11 @@ class Item
 	public function createSharedPostByGuid(string $guid, int $uid = 0, string $host = '', bool $add_media = false): string
 	{
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
-		$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
+		$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
 
 		if (!DBA::isResult($shared_item) && !empty($host) && Diaspora::storeByGuid($guid, $host, true)) {
 			Logger::debug('Fetched post', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
-			$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
+			$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
 		} elseif (DBA::isResult($shared_item)) {
 			Logger::debug('Found existing post', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
 		}
