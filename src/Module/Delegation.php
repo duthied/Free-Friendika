@@ -24,7 +24,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Notification;
@@ -46,8 +45,8 @@ class Delegation extends BaseModule
 		$uid = local_user();
 		$orig_record = User::getById(DI::app()->getLoggedInUserId());
 
-		if (Session::get('submanage')) {
-			$user = User::getById(Session::get('submanage'));
+		if (DI::session()->get('submanage')) {
+			$user = User::getById(DI::session()->get('submanage'));
 			if (DBA::isResult($user)) {
 				$uid = intval($user['uid']);
 				$orig_record = $user;
@@ -97,12 +96,12 @@ class Delegation extends BaseModule
 			return;
 		}
 
-		Session::clear();
+		DI::session()->clear();
 
 		DI::auth()->setForUser(DI::app(), $user, true, true);
 
 		if ($limited_id) {
-			Session::set('submanage', $original_id);
+			DI::session()->set('submanage', $original_id);
 		}
 
 		$ret = [];

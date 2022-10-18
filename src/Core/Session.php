@@ -34,41 +34,6 @@ class Session
 	public static $exists = false;
 	public static $expire = 180000;
 
-	public static function exists($name)
-	{
-		return DI::session()->exists($name);
-	}
-
-	public static function get($name, $defaults = null)
-	{
-		return DI::session()->get($name, $defaults);
-	}
-
-	public static function pop($name, $defaults = null)
-	{
-		return DI::session()->pop($name, $defaults);
-	}
-
-	public static function set($name, $value)
-	{
-		DI::session()->set($name, $value);
-	}
-
-	public static function setMultiple(array $values)
-	{
-		DI::session()->setMultiple($values);
-	}
-
-	public static function remove($name)
-	{
-		DI::session()->remove($name);
-	}
-
-	public static function clear()
-	{
-		DI::session()->clear();
-	}
-
 	/**
 	 * Returns the user id of locally logged in user or false.
 	 *

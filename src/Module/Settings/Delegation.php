@@ -77,7 +77,7 @@ class Delegation extends BaseSettings
 		$user_id = $args->get(3);
 
 		if ($action === 'add' && $user_id) {
-			if (Session::get('submanage')) {
+			if (DI::session()->get('submanage')) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
 				DI::baseUrl()->redirect('settings/delegation');
 			}
@@ -99,7 +99,7 @@ class Delegation extends BaseSettings
 		}
 
 		if ($action === 'remove' && $user_id) {
-			if (Session::get('submanage')) {
+			if (DI::session()->get('submanage')) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
 				DI::baseUrl()->redirect('settings/delegation');
 			}

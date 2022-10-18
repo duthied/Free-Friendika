@@ -86,7 +86,7 @@ class Verify extends BaseSettings
 
 			if ($valid) {
 				$this->pConfig->set(local_user(), '2fa', 'verified', true);
-				Session::set('2fa', true);
+				DI::session()->set('2fa', true);
 
 				DI::sysmsg()->addInfo($this->t('Two-factor authentication successfully activated.'));
 
@@ -106,7 +106,7 @@ class Verify extends BaseSettings
 		parent::content();
 
 		$company = 'Friendica';
-		$holder = Session::get('my_address');
+		$holder = DI::session()->get('my_address');
 		$secret = $this->pConfig->get(local_user(), '2fa', 'secret');
 
 		$otpauthUrl = (new Google2FA())->getQRCodeUrl($company, $holder, $secret);

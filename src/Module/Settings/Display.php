@@ -157,7 +157,7 @@ class Display extends BaseSettings
 		}
 
 		$theme_selected        = $user['theme'] ?: $default_theme;
-		$mobile_theme_selected = Session::get('mobile-theme', $default_mobile_theme);
+		$mobile_theme_selected = DI::session()->get('mobile-theme', $default_mobile_theme);
 
 		$itemspage_network = intval(DI::pConfig()->get(local_user(), 'system', 'itemspage_network'));
 		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : DI::config()->get('system', 'itemspage_network'));

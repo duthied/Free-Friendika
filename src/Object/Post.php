@@ -217,7 +217,7 @@ class Post
 		$edpost = false;
 
 		if (local_user()) {
-			if (Strings::compareLink(Session::get('my_url'), $item['author-link'])) {
+			if (Strings::compareLink(DI::session()->get('my_url'), $item['author-link'])) {
 				if ($item['event-id'] != 0) {
 					$edpost = ['events/event/' . $item['event-id'], DI::l10n()->t('Edit')];
 				} else {
@@ -434,9 +434,9 @@ class Post
 		}
 
 		// Fetching of Diaspora posts doesn't always work. There are issues with reshares and possibly comments
-		if (!local_user() && ($item['network'] != Protocol::DIASPORA) && !empty(Session::get('remote_comment'))) {
+		if (!local_user() && ($item['network'] != Protocol::DIASPORA) && !empty(DI::session()->get('remote_comment'))) {
 			$remote_comment = [DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('Remote comment'),
-				str_replace('{uri}', urlencode($item['uri']), Session::get('remote_comment'))];
+				str_replace('{uri}', urlencode($item['uri']), DI::session()->get('remote_comment'))];
 
 			// Ensure to either display the remote comment or the local activities
 			$buttons = [];
@@ -507,7 +507,7 @@ class Post
 			'location_html'   => $location_html,
 			'indent'          => $indent,
 			'shiny'           => $shiny,
-			'owner_self'      => $item['author-link'] == Session::get('my_url'),
+			'owner_self'      => $item['author-link'] == DI::session()->get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
 			'owner_photo'     => DI::baseUrl()->remove(DI::contentItem()->getOwnerAvatar($item)),
 			'owner_name'      => $this->getOwnerName(),

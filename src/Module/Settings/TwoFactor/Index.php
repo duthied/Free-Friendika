@@ -22,7 +22,6 @@
 namespace Friendica\Module\Settings\TwoFactor;
 
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Network\HTTPException\FoundException;
 use Friendica\Security\TwoFactor\Model\AppSpecificPassword;
@@ -64,7 +63,7 @@ class Index extends BaseSettings
 						RecoveryCode::deleteForUser(local_user());
 						DI::pConfig()->delete(local_user(), '2fa', 'secret');
 						DI::pConfig()->delete(local_user(), '2fa', 'verified');
-						Session::remove('2fa');
+						DI::session()->remove('2fa');
 
 						DI::sysmsg()->addInfo(DI::l10n()->t('Two-factor authentication successfully disabled.'));
 						DI::baseUrl()->redirect('settings/2fa');
