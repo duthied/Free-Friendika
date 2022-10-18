@@ -34,11 +34,6 @@ class Session
 	public static $exists = false;
 	public static $expire = 180000;
 
-	public static function set($name, $value)
-	{
-		DI::session()->set($name, $value);
-	}
-
 	public static function setMultiple(array $values)
 	{
 		DI::session()->setMultiple($values);

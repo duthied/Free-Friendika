@@ -102,7 +102,7 @@ class Delegation extends BaseModule
 		DI::auth()->setForUser(DI::app(), $user, true, true);
 
 		if ($limited_id) {
-			Session::set('submanage', $original_id);
+			DI::session()->set('submanage', $original_id);
 		}
 
 		$ret = [];

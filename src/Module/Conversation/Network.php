@@ -345,7 +345,7 @@ class Network extends BaseModule
 			self::$star = false;
 		}
 
-		Session::set('network-tab', self::$selectedTab);
+		DI::session()->set('network-tab', self::$selectedTab);
 		DI::pConfig()->set(local_user(), 'network.view', 'selected_tab', self::$selectedTab);
 
 		self::$accountTypeString = $get['accounttype'] ?? $this->parameters['accounttype'] ?? '';

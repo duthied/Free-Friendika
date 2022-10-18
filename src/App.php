@@ -634,8 +634,8 @@ class App
 				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == '') &&
 					strstr(parse_url($_GET['zrl'], PHP_URL_PATH), '/profile/')) {
 					if ($this->session->get('visitor_home') != $_GET['zrl']) {
-						Core\Session::set('my_url', $_GET['zrl']);
-						Core\Session::set('authenticated', 0);
+						$this->session->set('my_url', $_GET['zrl']);
+						$this->session->set('authenticated', 0);
 
 						$remote_contact = Contact::getByURL($_GET['zrl'], false, ['subscribe']);
 						if (!empty($remote_contact['subscribe'])) {

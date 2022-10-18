@@ -86,7 +86,7 @@ class Verify extends BaseSettings
 
 			if ($valid) {
 				$this->pConfig->set(local_user(), '2fa', 'verified', true);
-				Session::set('2fa', true);
+				DI::session()->set('2fa', true);
 
 				DI::sysmsg()->addInfo($this->t('Two-factor authentication successfully activated.'));
 

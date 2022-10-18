@@ -102,7 +102,7 @@ class Profile extends BaseModule
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)
 		$last_updated_array[$last_updated_key] = time();
-		Session::set('last_updated', $last_updated_array);
+		DI::session()->set('last_updated', $last_updated_array);
 
 		if ($is_owner && !$a->getProfileOwner() && !DI::config()->get('theme', 'hide_eventlist')) {
 			$o .= ProfileModel::getBirthdays();
