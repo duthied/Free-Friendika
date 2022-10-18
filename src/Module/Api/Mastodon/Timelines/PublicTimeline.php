@@ -57,7 +57,7 @@ class PublicTimeline extends BaseApi
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
-		$condition = ['gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => Item::PUBLIC,
+		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'private' => Item::PUBLIC,
 			'network' => Protocol::FEDERATED, 'parent-author-blocked' => false, 'parent-author-hidden' => false];
 
 		if ($request['local']) {
@@ -87,7 +87,7 @@ class PublicTimeline extends BaseApi
 		}
 
 		if ($request['exclude_replies']) {
-			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
+			$condition = DBA::mergeConditions($condition, ['gravity' => Item::GRAVITY_PARENT]);
 		}
 
 		if (!empty($uid)) {

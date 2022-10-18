@@ -78,7 +78,7 @@ class Statuses extends BaseApi
 
 		if (!$request['pinned']) {
 			$condition = DBA::mergeConditions($condition, ["(`gravity` IN (?, ?) OR (`gravity` = ? AND `vid` = ?))",
-				GRAVITY_PARENT, GRAVITY_COMMENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE)]);
+				Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE)]);
 		}
 
 		if ($request['only_media']) {
@@ -100,7 +100,7 @@ class Statuses extends BaseApi
 		}
 
 		if ($request['exclude_replies']) {
-			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
+			$condition = DBA::mergeConditions($condition, ['gravity' => Item::GRAVITY_PARENT]);
 		}
 
 		if ($request['pinned']) {

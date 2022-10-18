@@ -97,7 +97,7 @@ class Objects extends BaseModule
 		$last_modified = $item['changed'];
 		Network::checkEtagModified($etag, $last_modified);
 
-		if (empty($this->parameters['activity']) && ($item['gravity'] != GRAVITY_ACTIVITY)) {
+		if (empty($this->parameters['activity']) && ($item['gravity'] != Item::GRAVITY_ACTIVITY)) {
 			$activity = ActivityPub\Transmitter::createCachedActivityFromItem($item['id'], false, true);
 			if (empty($activity['type'])) {
 				throw new HTTPException\NotFoundException();

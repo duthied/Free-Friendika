@@ -38,7 +38,7 @@ function notes_init(App $a)
 }
 
 
-function notes_content(App $a, $update = false)
+function notes_content(App $a, bool $update = false)
 {
 	if (!local_user()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
@@ -60,7 +60,7 @@ function notes_content(App $a, $update = false)
 		$o .= DI::conversation()->statusEditor($x, $a->getContactId());
 	}
 
-	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
+	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => Item::GRAVITY_PARENT,
 		'contact-id'=> $a->getContactId()];
 
 	if (DI::mode()->isMobile()) {

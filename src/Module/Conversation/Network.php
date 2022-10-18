@@ -414,7 +414,7 @@ class Network extends BaseModule
 		} elseif (self::$forumContactId) {
 			$conditionStrings = DBA::mergeConditions($conditionStrings, 
 				["((`contact-id` = ?) OR `uri-id` IN (SELECT `parent-uri-id` FROM `post-user-view` WHERE (`contact-id` = ? AND `gravity` = ? AND `vid` = ? AND `uid` = ?)))",
-				self::$forumContactId, self::$forumContactId, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), local_user()]);
+				self::$forumContactId, self::$forumContactId, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), local_user()]);
 		}
 
 		// Currently only the order modes "received" and "commented" are in use

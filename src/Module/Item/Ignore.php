@@ -25,6 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 
@@ -49,7 +50,7 @@ class Ignore extends BaseModule
 
 		$dba = DI::dba();
 
-		$thread = Post::selectFirst(['uri-id', 'uid'], ['id' => $itemId, 'gravity' => GRAVITY_PARENT]);
+		$thread = Post::selectFirst(['uri-id', 'uid'], ['id' => $itemId, 'gravity' => Item::GRAVITY_PARENT]);
 		if (!$dba->isResult($thread)) {
 			throw new HTTPException\NotFoundException();
 		}

@@ -128,7 +128,7 @@ class Status extends BaseFactory
 			$owner = $this->twitterUser->createFromContactId($item['owner-id'], $uid, true);
 		}
 
-		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT]);
+		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => Item::GRAVITY_COMMENT]);
 
 		$text  = '';
 		$title = '';
@@ -162,7 +162,7 @@ class Status extends BaseFactory
 			'thr-parent-id' => $item['uri-id'],
 			'uid'           => $uid,
 			'origin'        => true,
-			'gravity'       => GRAVITY_ACTIVITY,
+			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::LIKE),
 			'deleted'       => false
 		]);

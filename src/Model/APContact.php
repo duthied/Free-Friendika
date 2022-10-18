@@ -28,6 +28,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
@@ -495,13 +496,13 @@ class APContact
 	private static function getStatusesCount(array $owner): int
 	{
 		$condition = [
-			'private' => [Item::PUBLIC, Item::UNLISTED],
+			'private'        => [Item::PUBLIC, Item::UNLISTED],
 			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
-			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'gravity'        => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
 			'network'        => Protocol::DFRN,
 			'parent-network' => Protocol::FEDERATED,
 			'deleted'        => false,
-			'visible'        => true
+			'visible'        => true,
 		];
 
 		$count = Post::countPosts($condition);

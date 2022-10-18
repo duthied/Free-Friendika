@@ -30,18 +30,6 @@
 use Friendica\Core\Session;
 
 /**
- * @name Gravity
- *
- * Item weight for query ordering
- * @{
- */
-define('GRAVITY_PARENT',       0);
-define('GRAVITY_ACTIVITY',     3);
-define('GRAVITY_COMMENT',      6);
-define('GRAVITY_UNKNOWN',      9);
-/* @}*/
-
-/**
  * Returns the user id of locally logged in user or false.
  *
  * @return int|bool user id or false

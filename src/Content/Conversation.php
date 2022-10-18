@@ -135,7 +135,7 @@ class Conversation
 					return;
 			}
 
-			if (!empty($activity['verb']) && $this->activity->match($activity['verb'], $verb) && ($activity['gravity'] != GRAVITY_PARENT)) {
+			if (!empty($activity['verb']) && $this->activity->match($activity['verb'], $verb) && ($activity['gravity'] != ItemModel::GRAVITY_PARENT)) {
 				$author = [
 					'uid'     => 0,
 					'id'      => $activity['author-id'],
@@ -756,7 +756,7 @@ class Conversation
 
 					$item['pagedrop'] = $page_dropping;
 
-					if ($item['gravity'] == GRAVITY_PARENT) {
+					if ($item['gravity'] == ItemModel::GRAVITY_PARENT) {
 						$item_object = new PostObject($item);
 						$conv->addParent($item_object);
 					}
@@ -826,7 +826,7 @@ class Conversation
 		}
 
 		if (!empty($activity)) {
-			if (($row['gravity'] == GRAVITY_PARENT)) {
+			if (($row['gravity'] == ItemModel::GRAVITY_PARENT)) {
 				$row['post-reason'] = ItemModel::PR_ANNOUNCEMENT;
 
 				$row     = array_merge($row, $activity);
@@ -835,7 +835,7 @@ class Conversation
 				$row['causer-link']   = $contact['url'];
 				$row['causer-avatar'] = $contact['thumb'];
 				$row['causer-name']   = $contact['name'];
-			} elseif (($row['gravity'] == GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
+			} elseif (($row['gravity'] == ItemModel::GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
 				($row['author-id'] == $activity['causer-id'])) {
 				return $row;
 			}
@@ -868,7 +868,7 @@ class Conversation
 					$row['owner-name']   = $row['causer-name'];
 				}
 
-				if (in_array($row['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) && !empty($row['causer-id'])) {
+				if (in_array($row['gravity'], [ItemModel::GRAVITY_PARENT, ItemModel::GRAVITY_COMMENT]) && !empty($row['causer-id'])) {
 					$causer = ['uid' => 0, 'id' => $row['causer-id'], 'network' => $row['causer-network'], 'url' => $row['causer-link']];
 
 					$row['reshared'] = $this->l10n->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($row['causer-name']) . '</a>');
@@ -942,7 +942,7 @@ class Conversation
 		$activitycounter = [];
 
 		foreach ($parents as $parent) {
-			if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == GRAVITY_ACTIVITY)) {
+			if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == ItemModel::GRAVITY_ACTIVITY)) {
 				$uriid = $parent['thr-parent-id'];
 				if (!empty($parent['author-id'])) {
 					$activities[$uriid] = ['causer-id' => $parent['author-id']];
@@ -994,10 +994,10 @@ class Conversation
 			}
 
 			if ($max_comments > 0) {
-				if (($row['gravity'] == GRAVITY_COMMENT) && (++$commentcounter[$row['parent-uri-id']] > $max_comments)) {
+				if (($row['gravity'] == ItemModel::GRAVITY_COMMENT) && (++$commentcounter[$row['parent-uri-id']] > $max_comments)) {
 					continue;
 				}
-				if (($row['gravity'] == GRAVITY_ACTIVITY) && (++$activitycounter[$row['parent-uri-id']] > $max_comments)) {
+				if (($row['gravity'] == ItemModel::GRAVITY_ACTIVITY) && (++$activitycounter[$row['parent-uri-id']] > $max_comments)) {
 					continue;
 				}
 			}
@@ -1026,7 +1026,7 @@ class Conversation
 		$this->profiler->startRecording('rendering');
 		$children = [];
 		foreach ($item_list as $i => $item) {
-			if ($item['gravity'] != GRAVITY_PARENT) {
+			if ($item['gravity'] != ItemModel::GRAVITY_PARENT) {
 				if ($recursive) {
 					// Fallback to parent-uri if thr-parent is not set
 					$thr_parent = $item['thr-parent-id'];
@@ -1183,7 +1183,7 @@ class Conversation
 
 		// Extract the top level items
 		foreach ($item_array as $item) {
-			if ($item['gravity'] == GRAVITY_PARENT) {
+			if ($item['gravity'] == ItemModel::GRAVITY_PARENT) {
 				$parents[] = $item;
 			}
 		}

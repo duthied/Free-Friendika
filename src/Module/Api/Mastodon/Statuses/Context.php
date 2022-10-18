@@ -24,6 +24,7 @@ namespace Friendica\Module\Api\Mastodon\Statuses;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 
@@ -55,7 +56,7 @@ class Context extends BaseApi
 		$parent = Post::selectFirst(['parent-uri-id'], ['uri-id' => $id]);
 		if (DBA::isResult($parent)) {
 			$posts = Post::selectPosts(['uri-id', 'thr-parent-id'],
-				['parent-uri-id' => $parent['parent-uri-id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]]);
+				['parent-uri-id' => $parent['parent-uri-id'], 'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]]);
 			while ($post = Post::fetch($posts)) {
 				if ($post['uri-id'] == $post['thr-parent-id']) {
 					continue;

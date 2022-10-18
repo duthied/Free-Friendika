@@ -254,20 +254,21 @@ class Feed
 			$author['owner-avatar'] = $contact['thumb'];
 		}
 
-		$header = [];
-		$header['uid'] = $importer['uid'] ?? 0;
-		$header['network'] = Protocol::FEED;
+		$header = [
+			'uid'         => $importer['uid'] ?? 0,
+			'network'     => Protocol::FEED,
+			'wall'        => 0,
+			'origin'      => 0,
+			'gravity'     => Item::GRAVITY_PARENT,
+			'private'     => Item::PUBLIC,
+			'verb'        => Activity::POST,
+			'object-type' => Activity\ObjectType::NOTE,
+			'post-type'   => Item::PT_ARTICLE,
+			'contact-id'  => $contact['id'] ?? 0,
+		];
+
 		$datarray['protocol'] = $protocol;
 		$datarray['direction'] = Conversation::PULL;
-		$header['wall'] = 0;
-		$header['origin'] = 0;
-		$header['gravity'] = GRAVITY_PARENT;
-		$header['private'] = Item::PUBLIC;
-		$header['verb'] = Activity::POST;
-		$header['object-type'] = Activity\ObjectType::NOTE;
-		$header['post-type'] = Item::PT_ARTICLE;
-
-		$header['contact-id'] = $contact['id'] ?? 0;
 
 		if (!is_object($entries)) {
 			Logger::info("There are no entries in this feed.");
@@ -956,13 +957,13 @@ class Feed
 
 		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted` AND `gravity` IN (?, ?)
 			AND `private` != ? AND `visible` AND `wall` AND `parent-network` IN (?, ?, ?, ?)",
-			$owner['uid'], $check_date, GRAVITY_PARENT, GRAVITY_COMMENT,
+			$owner['uid'], $check_date, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT,
 			Item::PRIVATE, Protocol::ACTIVITYPUB,
 			Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA];
 
 		if ($filter === 'comments') {
 			$condition[0] .= " AND `gravity` = ? ";
-			$condition[] = GRAVITY_COMMENT;
+			$condition[] = Item::GRAVITY_COMMENT;
 		}
 
 		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
@@ -1089,7 +1090,7 @@ class Feed
 	 */
 	private static function noteEntry(DOMDocument $doc, array $item, array $owner): DOMElement
 	{
-		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
+		if (($item['gravity'] != Item::GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
 			Logger::info('Feed entry author does not match feed owner', ['owner' => $owner['url'], 'author' => $item['author-link']]);
 		}
 
@@ -1153,7 +1154,7 @@ class Feed
 	{
 		$mentioned = [];
 
-		if ($item['gravity'] != GRAVITY_PARENT) {
+		if ($item['gravity'] != Item::GRAVITY_PARENT) {
 			$parent = Post::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item['parent']]);
 
 			$thrparent = Post::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner['uid'], 'uri' => $item['thr-parent']]);

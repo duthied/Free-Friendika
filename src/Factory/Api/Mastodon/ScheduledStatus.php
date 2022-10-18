@@ -24,6 +24,7 @@ namespace Friendica\Factory\Api\Mastodon;
 use Friendica\BaseFactory;
 use Friendica\Database\Database;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
@@ -69,7 +70,7 @@ class ScheduledStatus extends BaseFactory
 			$media_attachments[] = DI::mstdnAttachment()->createFromPhoto($id);
 		}
 
-		if (isset($parameters['item']['thr-parent']) && ($parameters['item']['gravity'] ?? GRAVITY_PARENT != GRAVITY_PARENT)) {
+		if (isset($parameters['item']['thr-parent']) && ($parameters['item']['gravity'] ?? Item::GRAVITY_PARENT != Item::GRAVITY_PARENT)) {
 			$in_reply_to_id = ItemURI::getIdByURI($parameters['item']['thr-parent']);
 		} else {
 			$in_reply_to_id = null;

@@ -29,6 +29,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseNotifications;
 use Friendica\Navigation\Notifications\Collection\FormattedNotifies;
@@ -363,13 +364,13 @@ class FormattedNotify extends BaseFactory
 			$item['author-avatar'] = $item['contact-avatar'];
 		}
 
-		$item['label'] = (($item['gravity'] == GRAVITY_PARENT) ? 'post' : 'comment');
+		$item['label'] = (($item['gravity'] == Item::GRAVITY_PARENT) ? 'post' : 'comment');
 		$item['link']  = $this->baseUrl->get(true) . '/display/' . $item['parent-guid'];
 		$item['image'] = $item['author-avatar'];
 		$item['url']   = $item['author-link'];
 		$item['when']  = DateTimeFormat::local($item['created'], 'r');
 		$item['ago']   = Temporal::getRelativeDate($item['created']);
-		$item['text']  = (($item['gravity'] == GRAVITY_PARENT)
+		$item['text']  = (($item['gravity'] == Item::GRAVITY_PARENT)
 			? $this->l10n->t("%s created a new post", $item['author-name'])
 			: $this->l10n->t("%s commented on %s's post", $item['author-name'], $item['parent-author-name']));
 

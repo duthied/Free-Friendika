@@ -1506,10 +1506,10 @@ class Contact
 
 		if ($thread_mode) {
 			$condition = ["((`$contact_field` = ? AND `gravity` = ?) OR (`author-id` = ? AND `gravity` = ? AND `vid` = ? AND `thr-parent-id` = `parent-uri-id`)) AND " . $sql,
-				$cid, GRAVITY_PARENT, $cid, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), local_user()];
+				$cid, Item::GRAVITY_PARENT, $cid, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), local_user()];
 		} else {
 			$condition = ["`$contact_field` = ? AND `gravity` IN (?, ?) AND " . $sql,
-				$cid, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
+				$cid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, local_user()];
 		}
 
 		if (!empty($parent)) {

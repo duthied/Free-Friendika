@@ -26,6 +26,7 @@ use Friendica\Database\DBA;
 use Friendica\Module\BaseApi;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException\BadRequestException;
 
@@ -69,7 +70,7 @@ class Conversation extends BaseApi
 		$id = $parent['id'];
 
 		$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `gravity` IN (?, ?) AND `uri-id` > ?",
-			$id, $uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+			$id, $uid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, $since_id];
 
 		if ($max_id > 0) {
 			$condition[0] .= " AND `uri-id` <= ?";

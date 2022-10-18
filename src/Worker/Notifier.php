@@ -143,7 +143,7 @@ class Notifier
 				}
 			}
 
-			$top_level = $target_item['gravity'] == GRAVITY_PARENT;
+			$top_level = $target_item['gravity'] == Item::GRAVITY_PARENT;
 		}
 
 		$owner = User::getOwnerDataById($uid);

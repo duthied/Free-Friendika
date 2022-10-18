@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\Twitter;
 
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
+use Friendica\Model\Item;
 use Friendica\Module\BaseApi;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -54,7 +55,7 @@ class Favorites extends BaseApi
 		$start = max(0, ($page - 1) * $count);
 
 		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `uri-id` > ? AND `starred`",
-			$uid, GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+			$uid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, $since_id];
 
 		$params = ['order' => ['uri-id' => true], 'limit' => [$start, $count]];
 

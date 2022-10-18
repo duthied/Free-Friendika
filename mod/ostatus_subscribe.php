@@ -27,7 +27,7 @@ use Friendica\Model\Contact;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Protocol\ActivityPub;
 
-function ostatus_subscribe_content(App $a)
+function ostatus_subscribe_content(App $a): string
 {
 	if (!local_user()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
@@ -42,7 +42,6 @@ function ostatus_subscribe_content(App $a)
 	$counter = intval($_REQUEST['counter'] ?? 0);
 
 	if (DI::pConfig()->get($uid, 'ostatus', 'legacy_friends') == '') {
-
 		if ($_REQUEST['url'] == '') {
 			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
 			return $o . DI::l10n()->t('No contact provided.');

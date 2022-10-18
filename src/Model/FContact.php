@@ -26,6 +26,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -105,27 +106,27 @@ class FContact
 
 			$interacted  = DBA::count('contact-relation', ["`cid` = ? AND NOT `follows` AND `last-interaction` > ?", $contact['id'], $last_interaction]);
 			$interacting = DBA::count('contact-relation', ["`relation-cid` = ? AND NOT `follows` AND `last-interaction` > ?", $contact['id'], $last_interaction]);
-			$posts       = DBA::count('post', ['author-id' => $contact['id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]]);
+			$posts       = DBA::count('post', ['author-id' => $contact['id'], 'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]]);
 		}
 
 		$fields = [
-			'name' => $arr['name'],
-			'photo' => $arr['photo'],
-			'request' => $arr['request'],
-			'nick' => $arr['nick'],
-			'addr' => strtolower($arr['addr']),
-			'guid' => $arr['guid'],
-			'batch' => $arr['batch'],
-			'notify' => $arr['notify'],
-			'poll' => $arr['poll'],
-			'confirm' => $arr['confirm'],
-			'alias' => $arr['alias'],
-			'pubkey' => $arr['pubkey'],
-			'uri-id' => $uriid,
+			'name'              => $arr['name'],
+			'photo'             => $arr['photo'],
+			'request'           => $arr['request'],
+			'nick'              => $arr['nick'],
+			'addr'              => strtolower($arr['addr']),
+			'guid'              => $arr['guid'],
+			'batch'             => $arr['batch'],
+			'notify'            => $arr['notify'],
+			'poll'              => $arr['poll'],
+			'confirm'           => $arr['confirm'],
+			'alias'             => $arr['alias'],
+			'pubkey'            => $arr['pubkey'],
+			'uri-id'            => $uriid,
 			'interacting_count' => $interacting ?? 0,
-			'interacted_count' => $interacted ?? 0,
-			'post_count' => $posts ?? 0,
-			'updated' => DateTimeFormat::utcNow(),
+			'interacted_count'  => $interacted ?? 0,
+			'post_count'        => $posts ?? 0,
+			'updated'           => DateTimeFormat::utcNow(),
 		];
 
 		if (empty($fcontact['created'])) {

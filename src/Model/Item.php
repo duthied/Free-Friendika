@@ -146,6 +146,12 @@ class Item
 	const PRIVATE = 1;
 	const UNLISTED = 2;
 
+	// Item weight for query ordering
+	const GRAVITY_PARENT   = 0;
+	const GRAVITY_ACTIVITY = 3;
+	const GRAVITY_COMMENT  = 6;
+	const GRAVITY_UNKNOWN  = 9;
+
 	/**
 	 * Update existing item entries
 	 *
@@ -356,7 +362,7 @@ class Item
 		Post\DeliveryData::delete($item['uri-id']);
 
 		// If it's the parent of a comment thread, kill all the kids
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == self::GRAVITY_PARENT) {
 			self::markForDeletion(['parent' => $item['parent'], 'deleted' => false], $priority);
 		}
 
@@ -463,7 +469,7 @@ class Item
 			}
 		}
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == self::GRAVITY_PARENT) {
 			if (Contact::isSharingByURL($item['owner-link'], $item['uid'], true)) {
 				$contact_id = Contact::getIdForURL($item['owner-link'], $item['uid']);
 			} else {
@@ -714,7 +720,7 @@ class Item
 			return 0;
 		}
 
-		if ($thread_parent['gravity'] == GRAVITY_PARENT) {
+		if ($thread_parent['gravity'] == Item::GRAVITY_PARENT) {
 			return $uriid;
 		}
 
@@ -791,17 +797,17 @@ class Item
 		if (isset($item['gravity'])) {
 			return intval($item['gravity']);
 		} elseif ($item['parent-uri-id'] === $item['uri-id']) {
-			return GRAVITY_PARENT;
+			return self::GRAVITY_PARENT;
 		} elseif ($activity->match($item['verb'], Activity::POST)) {
-			return GRAVITY_COMMENT;
+			return self::GRAVITY_COMMENT;
 		} elseif ($activity->match($item['verb'], Activity::FOLLOW)) {
-			return GRAVITY_ACTIVITY;
+			return self::GRAVITY_ACTIVITY;
 		} elseif ($activity->match($item['verb'], Activity::ANNOUNCE)) {
-			return GRAVITY_ACTIVITY;
+			return self::GRAVITY_ACTIVITY;
 		}
 
 		Logger::info('Unknown gravity for verb', ['verb' => $item['verb']]);
-		return GRAVITY_UNKNOWN;   // Should not happen
+		return self::GRAVITY_UNKNOWN;   // Should not happen
 	}
 
 	/**
@@ -965,7 +971,7 @@ class Item
 			return 0;
 		}
 
-		if ($item['gravity'] !== GRAVITY_PARENT) {
+		if ($item['gravity'] !== self::GRAVITY_PARENT) {
 			$toplevel_parent = self::getTopLevelParent($item);
 			if (empty($toplevel_parent)) {
 				return 0;
@@ -1185,7 +1191,7 @@ class Item
 
 		Post::insert($item['uri-id'], $item);
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == self::GRAVITY_PARENT) {
 			Post\Thread::insert($item['uri-id'], $item);
 		}
 
@@ -1194,7 +1200,7 @@ class Item
 		}
 
 		// Create Diaspora signature
-		if ($item['origin'] && empty($item['diaspora_signed_text']) && ($item['gravity'] != GRAVITY_PARENT)) {
+		if ($item['origin'] && empty($item['diaspora_signed_text']) && ($item['gravity'] != self::GRAVITY_PARENT)) {
 			$signed = Diaspora::createCommentSignature($item);
 			if (!empty($signed)) {
 				$item['diaspora_signed_text'] = json_encode($signed);
@@ -1234,7 +1240,7 @@ class Item
 			return 0;
 		}
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == self::GRAVITY_PARENT) {
 			$item['post-user-id'] = $post_user_id;
 			Post\ThreadUser::insert($item['uri-id'], $item['uid'], $item);
 		}
@@ -1252,7 +1258,7 @@ class Item
 		// update the commented timestamp on the parent
 		if (DI::config()->get('system', 'like_no_comment')) {
 			// Update when it is a comment
-			$update_commented = in_array($posted_item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]);
+			$update_commented = in_array($posted_item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]);
 		} else {
 			// Update when it isn't a follow or tag verb
 			$update_commented = !in_array($posted_item['verb'], [Activity::FOLLOW, Activity::TAG]);
@@ -1276,7 +1282,7 @@ class Item
 		}
 
 		if ($notify) {
-			if (!\Friendica\Content\Feature::isEnabled($posted_item['uid'], 'explicit_mentions') && ($posted_item['gravity'] == GRAVITY_COMMENT)) {
+			if (!\Friendica\Content\Feature::isEnabled($posted_item['uid'], 'explicit_mentions') && ($posted_item['gravity'] == self::GRAVITY_COMMENT)) {
 				Tag::createImplicitMentions($posted_item['uri-id'], $posted_item['thr-parent-id']);
 			}
 			Hook::callAll('post_local_end', $posted_item);
@@ -1284,7 +1290,7 @@ class Item
 			Hook::callAll('post_remote_end', $posted_item);
 		}
 
-		if ($posted_item['gravity'] === GRAVITY_PARENT) {
+		if ($posted_item['gravity'] === self::GRAVITY_PARENT) {
 			self::addShadow($post_user_id);
 		} else {
 			self::addShadowPost($post_user_id);
@@ -1319,7 +1325,7 @@ class Item
 		}
 
 		// Fill the cache with the rendered content.
-		if (in_array($posted_item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) && ($posted_item['uid'] == 0)) {
+		if (in_array($posted_item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]) && ($posted_item['uid'] == 0)) {
 			self::updateDisplayCache($posted_item['uri-id']);
 		}
 
@@ -1335,7 +1341,7 @@ class Item
 	 */
 	public static function getPostReason(array $item): int
 	{
-		$actor = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
+		$actor = ($item['gravity'] == self::GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
 		if (empty($item['origin']) && ($item['uid'] != 0) && Contact::isSharing($actor, $item['uid'])) {
 			return self::PR_FOLLOWER;
 		}
@@ -1416,7 +1422,7 @@ class Item
 	 */
 	private static function distributeByTags(array $item)
 	{
-		if (($item['uid'] != 0) || ($item['gravity'] != GRAVITY_PARENT) || !in_array($item['network'], Protocol::FEDERATED)) {
+		if (($item['uid'] != 0) || ($item['gravity'] != self::GRAVITY_PARENT) || !in_array($item['network'], Protocol::FEDERATED)) {
 			return;
 		}
 
@@ -1542,7 +1548,7 @@ class Item
 			return 0;
 		}
 
-		if (($uid != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
+		if (($uid != 0) && ($item['gravity'] == self::GRAVITY_PARENT)) {
 			$owner = User::getOwnerDataById($uid);
 			if (($owner['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY) && !Tag::isMentioned($uri_id, $owner['url'])) {
 				Logger::info('Target user is a forum but is not mentioned here, thread will not be stored', ['uid' => $uid, 'uri-id' => $uri_id]);
@@ -1559,13 +1565,13 @@ class Item
 
 		$item = array_merge($item, $fields);
 
-		if (($uid != 0) && Contact::isSharing(($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'], $uid)) {
+		if (($uid != 0) && Contact::isSharing(($item['gravity'] == Item::GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'], $uid)) {
 			$item['post-reason'] = self::PR_FOLLOWER;
 		}
 
-		$is_reshare = ($item['gravity'] == GRAVITY_ACTIVITY) && ($item['verb'] == Activity::ANNOUNCE);
+		$is_reshare = ($item['gravity'] == self::GRAVITY_ACTIVITY) && ($item['verb'] == Activity::ANNOUNCE);
 
-		if (($uid != 0) && (($item['gravity'] == GRAVITY_PARENT) || $is_reshare) &&
+		if (($uid != 0) && (($item['gravity'] == self::GRAVITY_PARENT) || $is_reshare) &&
 			DI::pConfig()->get($uid, 'system', 'accept_only_sharer') == self::COMPLETION_NONE &&
 			!in_array($item['post-reason'], [self::PR_FOLLOWER, self::PR_TAG, self::PR_TO, self::PR_CC])) {
 			Logger::info('Contact is not a follower, thread will not be stored', ['author' => $item['author-link'], 'uid' => $uid, 'uri-id' => $uri_id, 'post-reason' => $item['post-reason']]);
@@ -1574,7 +1580,7 @@ class Item
 
 		$causer = $item['causer-id'] ?: $item['author-id'];
 
-		if (($uri_id != $item['parent-uri-id']) && ($item['gravity'] == GRAVITY_COMMENT) && !Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $uid])) {
+		if (($uri_id != $item['parent-uri-id']) && ($item['gravity'] == self::GRAVITY_COMMENT) && !Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $uid])) {
 			if (!self::fetchParent($item['parent-uri-id'], $uid, $causer)) {
 				Logger::info('Parent post had not been added', ['uri-id' => $item['parent-uri-id'], 'uid' => $uid, 'causer' => $causer]);
 				return 0;
@@ -1715,7 +1721,7 @@ class Item
 		$item['contact-id'] = self::contactId($item);
 
 		$notify = false;
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == self::GRAVITY_PARENT) {
 			$contact = DBA::selectFirst('contact', [], ['id' => $item['contact-id'], 'self' => false]);
 			if (DBA::isResult($contact)) {
 				$notify = self::isRemoteSelf($contact, $item);
@@ -1745,7 +1751,7 @@ class Item
 	private static function addShadow(int $itemid)
 	{
 		$fields = ['uid', 'private', 'visible', 'deleted', 'network', 'uri-id'];
-		$condition = ['id' => $itemid, 'gravity' => GRAVITY_PARENT];
+		$condition = ['id' => $itemid, 'gravity' => self::GRAVITY_PARENT];
 		$item = Post::selectFirst($fields, $condition);
 
 		if (!DBA::isResult($item)) {
@@ -1813,7 +1819,7 @@ class Item
 		}
 
 		// Is it a toplevel post?
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == self::GRAVITY_PARENT) {
 			self::addShadow($itemid);
 			return;
 		}
@@ -1875,7 +1881,7 @@ class Item
 			return $item['language'];
 		}
 
-		if (!in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) || empty($item['body'])) {
+		if (!in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]) || empty($item['body'])) {
 			return '';
 		}
 
@@ -2155,13 +2161,13 @@ class Item
 			return false;
 		}
 
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'origin' => false]);
+		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id, 'gravity' => [self::GRAVITY_PARENT, self::GRAVITY_COMMENT], 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			Logger::debug('Post is an activity or origin or not found at all, quitting here.', ['id' => $item_id]);
 			return false;
 		}
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == self::GRAVITY_PARENT) {
 			if (Tag::isMentioned($item['uri-id'], $owner['url'])) {
 				Logger::info('Mention found in tag.', ['uri' => $item['uri'], 'uid' => $uid, 'id' => $item_id, 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 			} else {
@@ -2206,7 +2212,7 @@ class Item
 	 */
 	private static function autoReshare(array $item)
 	{
-		if ($item['gravity'] != GRAVITY_PARENT) {
+		if ($item['gravity'] != self::GRAVITY_PARENT) {
 			return;
 		}
 
@@ -2467,7 +2473,7 @@ class Item
 		}
 
 		$condition = ["`uid` = ? AND NOT `deleted` AND `gravity` = ?",
-			$uid, GRAVITY_PARENT];
+			$uid, self::GRAVITY_PARENT];
 
 		/*
 		 * $expire_network_only = save your own wall posts
@@ -2674,7 +2680,7 @@ class Item
 			$vids = Verb::getID($activity);
 		}
 
-		$condition = ['vid' => $vids, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
+		$condition = ['vid' => $vids, 'deleted' => false, 'gravity' => self::GRAVITY_ACTIVITY,
 			'author-id' => $author_id, 'uid' => $item['uid'], 'thr-parent-id' => $uri_id];
 		$like_item = Post::selectFirst(['id', 'guid', 'verb'], $condition);
 
@@ -2728,7 +2734,7 @@ class Item
 			'network'       => Protocol::DFRN,
 			'protocol'      => Conversation::PARCEL_DIRECT,
 			'direction'     => Conversation::PUSH,
-			'gravity'       => GRAVITY_ACTIVITY,
+			'gravity'       => self::GRAVITY_ACTIVITY,
 			'parent'        => $item['id'],
 			'thr-parent'    => $item['uri'],
 			'owner-id'      => $author_id,
@@ -2853,9 +2859,9 @@ class Item
 			return $l10n->t('event');
 		} elseif (!empty($item['resource-id'])) {
 			return $l10n->t('photo');
-		} elseif ($item['gravity'] == GRAVITY_ACTIVITY) {
+		} elseif ($item['gravity'] == self::GRAVITY_ACTIVITY) {
 			return $l10n->t('activity');
-		} elseif ($item['gravity'] == GRAVITY_COMMENT) {
+		} elseif ($item['gravity'] == self::GRAVITY_COMMENT) {
 			return $l10n->t('comment');
 		}
 
@@ -3627,7 +3633,7 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['causer-id']) && ($item['gravity'] === GRAVITY_PARENT) && Contact\User::isIgnored($item['causer-id'], $user_id)) {
+		if (!empty($item['causer-id']) && ($item['gravity'] === self::GRAVITY_PARENT) && Contact\User::isIgnored($item['causer-id'], $user_id)) {
 			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'] ?? $item['causer-id'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
 			return false;
 		}

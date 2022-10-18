@@ -29,6 +29,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Module\Api\ApiResponse;
@@ -233,7 +234,7 @@ class BaseApi extends BaseModule
 		if ($throttle_day > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
 
-			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, $uid, $datefrom];
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", Item::GRAVITY_PARENT, $uid, $datefrom];
 			$posts_day = Post::countThread($condition);
 
 			if ($posts_day > $throttle_day) {
@@ -249,7 +250,7 @@ class BaseApi extends BaseModule
 		if ($throttle_week > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
 
-			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, $uid, $datefrom];
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", Item::GRAVITY_PARENT, $uid, $datefrom];
 			$posts_week = Post::countThread($condition);
 
 			if ($posts_week > $throttle_week) {
@@ -265,7 +266,7 @@ class BaseApi extends BaseModule
 		if ($throttle_month > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
 
-			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, $uid, $datefrom];
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", Item::GRAVITY_PARENT, $uid, $datefrom];
 			$posts_month = Post::countThread($condition);
 
 			if ($posts_month > $throttle_month) {

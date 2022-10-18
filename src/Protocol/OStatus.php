@@ -392,7 +392,7 @@ class OStatus
 		$header['network'] = Protocol::OSTATUS;
 		$header['wall'] = 0;
 		$header['origin'] = 0;
-		$header['gravity'] = GRAVITY_COMMENT;
+		$header['gravity'] = Item::GRAVITY_COMMENT;
 
 		if (!is_object($doc->firstChild) || empty($doc->firstChild->tagName)) {
 			return false;
@@ -500,7 +500,7 @@ class OStatus
 
 				$item['verb'] = Activity::LIKE;
 				$item['thr-parent'] = $orig_uri;
-				$item['gravity'] = GRAVITY_ACTIVITY;
+				$item['gravity'] = Item::GRAVITY_ACTIVITY;
 				$item['object-type'] = Activity\ObjectType::NOTE;
 			}
 
@@ -715,7 +715,7 @@ class OStatus
 			}
 		} else {
 			$item['thr-parent'] = $item['uri'];
-			$item['gravity'] = GRAVITY_PARENT;
+			$item['gravity'] = Item::GRAVITY_PARENT;
 		}
 
 		self::$itemlist[] = $item;
@@ -1360,7 +1360,7 @@ class OStatus
 	 */
 	private static function likeEntry(DOMDocument $doc, array $item, array $owner, bool $toplevel): DOMElement
 	{
-		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
+		if (($item['gravity'] != Item::GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
 			Logger::info('OStatus entry is from author ' . $owner['url'] . ' - not from ' . $item['author-link'] . '. Quitting.');
 		}
 
@@ -1510,7 +1510,7 @@ class OStatus
 	 */
 	private static function noteEntry(DOMDocument $doc, array $item, array $owner, bool $toplevel): DOMElement
 	{
-		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
+		if (($item['gravity'] != Item::GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
 			Logger::info('OStatus entry is from author ' . $owner['url'] . ' - not from ' . $item['author-link'] . '. Quitting.');
 		}
 
@@ -1640,7 +1640,7 @@ class OStatus
 	{
 		$mentioned = [];
 
-		if ($item['gravity'] != GRAVITY_PARENT) {
+		if ($item['gravity'] != Item::GRAVITY_PARENT) {
 			$parent = Post::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item['parent']]);
 
 			$thrparent = Post::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner['uid'], 'uri' => $item['thr-parent']]);

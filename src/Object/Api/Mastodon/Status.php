@@ -23,6 +23,7 @@ namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\BaseDataTransferObject;
 use Friendica\Content\Text\BBCode;
+use Friendica\Model\Item;
 use Friendica\Object\Api\Mastodon\Status\Counts;
 use Friendica\Object\Api\Mastodon\Status\UserAttributes;
 use Friendica\Util\DateTimeFormat;
@@ -102,7 +103,7 @@ class Status extends BaseDataTransferObject
 		$this->id         = (string)$item['uri-id'];
 		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::JSON);
 
-		if ($item['gravity'] == GRAVITY_COMMENT) {
+		if ($item['gravity'] == Item::GRAVITY_COMMENT) {
 			$this->in_reply_to_id         = (string)$item['thr-parent-id'];
 			$this->in_reply_to_account_id = (string)$item['parent-author-id'];
 		}

@@ -72,7 +72,7 @@ class Profile extends BaseModule
 
 		$condition = ["`uid` = ? AND NOT `contact-blocked` AND NOT `contact-pending`
 				AND `visible` AND (NOT `deleted` OR `gravity` = ?)
-				AND `wall` " . $sql_extra, $a->getProfileOwner(), GRAVITY_ACTIVITY];
+				AND `wall` " . $sql_extra, $a->getProfileOwner(), Item::GRAVITY_ACTIVITY];
 
 		if ($_GET['force'] && !empty($_GET['item'])) {
 			// When the parent is provided, we only fetch this

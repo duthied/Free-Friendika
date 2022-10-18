@@ -83,7 +83,7 @@ class Diaspora
 		}
 
 		$items = Post::select(['author-id', 'author-link', 'parent-author-link', 'parent-guid', 'guid'],
-			['parent' => $item['parent'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_ACTIVITY]]);
+			['parent' => $item['parent'], 'gravity' => [Item::GRAVITY_COMMENT, Item::GRAVITY_ACTIVITY]]);
 		while ($item = Post::fetch($items)) {
 			$contact = DBA::selectFirst('contact', ['id', 'url', 'name', 'protocol', 'batch', 'network'],
 				['id' => $item['author-id']]);
@@ -1548,7 +1548,7 @@ class Diaspora
 		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
 
 		$datarray['verb'] = Activity::POST;
-		$datarray['gravity'] = GRAVITY_COMMENT;
+		$datarray['gravity'] = Item::GRAVITY_COMMENT;
 
 		$datarray['thr-parent'] = $thr_parent ?: $toplevel_parent_item['uri'];
 
@@ -1801,7 +1801,7 @@ class Diaspora
 		$datarray['uri'] = self::getUriFromGuid($author, $guid);
 
 		$datarray['verb'] = $verb;
-		$datarray['gravity'] = GRAVITY_ACTIVITY;
+		$datarray['gravity'] = Item::GRAVITY_ACTIVITY;
 		$datarray['thr-parent'] = $toplevel_parent_item['uri'];
 
 		$datarray['object-type'] = Activity\ObjectType::NOTE;
@@ -1812,7 +1812,7 @@ class Diaspora
 		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = DateTimeFormat::utcNow();
 
 		// like on comments have the comment as parent. So we need to fetch the toplevel parent
-		if ($toplevel_parent_item['gravity'] != GRAVITY_PARENT) {
+		if ($toplevel_parent_item['gravity'] != Item::GRAVITY_PARENT) {
 			$toplevel = Post::selectFirst(['origin'], ['id' => $toplevel_parent_item['parent']]);
 			$origin = $toplevel['origin'];
 		} else {
@@ -1981,7 +1981,7 @@ class Diaspora
 		$datarray['uri'] = self::getUriFromGuid($author, $guid);
 
 		$datarray['verb'] = Activity::FOLLOW;
-		$datarray['gravity'] = GRAVITY_ACTIVITY;
+		$datarray['gravity'] = Item::GRAVITY_ACTIVITY;
 		$datarray['thr-parent'] = $toplevel_parent_item['uri'];
 
 		$datarray['object-type'] = Activity\ObjectType::NOTE;
@@ -2002,9 +2002,9 @@ class Diaspora
 
 		// Send all existing comments and likes to the requesting server
 		$comments = Post::select(['id', 'uri-id', 'parent-author-network', 'author-network', 'verb', 'gravity'],
-			['parent' => $toplevel_parent_item['id'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_ACTIVITY]]);
+			['parent' => $toplevel_parent_item['id'], 'gravity' => [Item::GRAVITY_COMMENT, Item::GRAVITY_ACTIVITY]]);
 		while ($comment = Post::fetch($comments)) {
-			if (($comment['gravity'] == GRAVITY_ACTIVITY) && !in_array($comment['verb'], [Activity::LIKE, Activity::DISLIKE])) {
+			if (($comment['gravity'] == Item::GRAVITY_ACTIVITY) && !in_array($comment['verb'], [Activity::LIKE, Activity::DISLIKE])) {
 				Logger::info('Unsupported activities are not relayed', ['item' => $comment['id'], 'verb' => $comment['verb']]);
 				continue;
 			}
@@ -2302,7 +2302,7 @@ class Diaspora
 		$datarray['thr-parent'] = $parent['uri'];
 
 		$datarray['verb'] = $datarray['body'] = Activity::ANNOUNCE;
-		$datarray['gravity'] = GRAVITY_ACTIVITY;
+		$datarray['gravity'] = Item::GRAVITY_ACTIVITY;
 		$datarray['object-type'] = Activity\ObjectType::NOTE;
 
 		$datarray['protocol'] = $item['protocol'];
@@ -2387,7 +2387,7 @@ class Diaspora
 		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
 
 		$datarray['verb'] = Activity::POST;
-		$datarray['gravity'] = GRAVITY_PARENT;
+		$datarray['gravity'] = Item::GRAVITY_PARENT;
 
 		$datarray['protocol'] = Conversation::PARCEL_DIASPORA;
 		$datarray['source'] = $xml;
@@ -2706,7 +2706,7 @@ class Diaspora
 		$datarray['owner-id'] = $datarray['author-id'];
 
 		$datarray['verb'] = Activity::POST;
-		$datarray['gravity'] = GRAVITY_PARENT;
+		$datarray['gravity'] = Item::GRAVITY_PARENT;
 
 		$datarray['protocol'] = Conversation::PARCEL_DIASPORA;
 		$datarray['source'] = $xml;
@@ -3596,7 +3596,7 @@ class Diaspora
 		// - Implicit mentions are enabled
 		if (
 			$item['author-id'] != $thread_parent_item['author-id']
-			&& ($thread_parent_item['gravity'] != GRAVITY_PARENT)
+			&& ($thread_parent_item['gravity'] != Item::GRAVITY_PARENT)
 			&& (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions'))
 			&& !DI::config()->get('system', 'disable_implicit_mentions')
 		) {
@@ -3729,7 +3729,7 @@ class Diaspora
 
 		$msg_type = 'retraction';
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == Item::GRAVITY_PARENT) {
 			$target_type = 'Post';
 		} elseif (in_array($item['verb'], [Activity::LIKE, Activity::DISLIKE])) {
 			$target_type = 'Like';
@@ -4069,12 +4069,12 @@ class Diaspora
 			return false;
 		}
 
-		if (($parent_post['gravity'] == GRAVITY_COMMENT) && empty($parent_post['signed_text'])) {
+		if (($parent_post['gravity'] == Item::GRAVITY_COMMENT) && empty($parent_post['signed_text'])) {
 			Logger::info('Parent comment has got no Diaspora signature.', ['parent-id' => $parent_id]);
 			return false;
 		}
 
-		if ($parent_post['gravity'] == GRAVITY_COMMENT) {
+		if ($parent_post['gravity'] == Item::GRAVITY_COMMENT) {
 			return self::parentSupportDiaspora($parent_post['thr-parent-id']);
 		}
 

@@ -48,19 +48,19 @@ class Renderer
 	 * beyond are used.
 	 */
 	public static $theme = [
-		'videowidth' => 425,
-		'videoheight' => 350,
-		'stylesheet' => '',
+		'videowidth'      => 425,
+		'videoheight'     => 350,
+		'stylesheet'      => '',
 		'template_engine' => 'smarty3',
 	];
 
 	private static $ldelim = [
 		'internal' => '',
-		'smarty3' => '{{'
+		'smarty3'  => '{{'
 	];
 	private static $rdelim = [
 		'internal' => '',
-		'smarty3' => '}}'
+		'smarty3'  => '}}'
 	];
 
 	/**
@@ -101,10 +101,10 @@ class Renderer
 	 * @param string $file   Template to load.
 	 * @param string $subDir Subdirectory (Optional)
 	 *
-	 * @return string template.
+	 * @return string Template
 	 * @throws ServiceUnavailableException
 	 */
-	public static function getMarkupTemplate($file, $subDir = '')
+	public static function getMarkupTemplate(string $file, string $subDir = ''): string
 	{
 		DI::profiler()->startRecording('file');
 		$t = self::getTemplateEngine();
@@ -128,9 +128,11 @@ class Renderer
 	 * Register template engine class
 	 *
 	 * @param string $class
+	 *
+	 * @return void
 	 * @throws ServiceUnavailableException
 	 */
-	public static function registerTemplateEngine($class)
+	public static function registerTemplateEngine(string $class)
 	{
 		$v = get_class_vars($class);
 
@@ -156,7 +158,7 @@ class Renderer
 	 * @return TemplateEngine Template Engine instance
 	 * @throws ServiceUnavailableException
 	 */
-	public static function getTemplateEngine()
+	public static function getTemplateEngine(): TemplateEngine
 	{
 		$template_engine = (self::$theme['template_engine'] ?? '') ?: 'smarty3';
 
@@ -185,7 +187,7 @@ class Renderer
 	 *
 	 * @return string the active template engine
 	 */
-	public static function getActiveTemplateEngine()
+	public static function getActiveTemplateEngine(): string
 	{
 		return self::$theme['template_engine'];
 	}
@@ -194,8 +196,10 @@ class Renderer
 	 * sets the active template engine
 	 *
 	 * @param string $engine the template engine (default is Smarty3)
+	 *
+	 * @return void
 	 */
-	public static function setActiveTemplateEngine($engine = 'smarty3')
+	public static function setActiveTemplateEngine(string $engine = 'smarty3')
 	{
 		self::$theme['template_engine'] = $engine;
 	}
@@ -211,7 +215,7 @@ class Renderer
 	 *
 	 * @return string the right delimiter
 	 */
-	public static function getTemplateLeftDelimiter($engine = 'smarty3')
+	public static function getTemplateLeftDelimiter(string $engine = 'smarty3'): string
 	{
 		return self::$ldelim[$engine];
 	}
@@ -227,7 +231,7 @@ class Renderer
 	 *
 	 * @return string the left delimiter
 	 */
-	public static function getTemplateRightDelimiter($engine = 'smarty3')
+	public static function getTemplateRightDelimiter(string $engine = 'smarty3'): string
 	{
 		return self::$rdelim[$engine];
 	}

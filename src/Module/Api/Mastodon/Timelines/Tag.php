@@ -25,6 +25,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
@@ -85,7 +86,7 @@ class Tag extends BaseApi
 		}
 
 		if ($request['exclude_replies']) {
-			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
+			$condition = DBA::mergeConditions($condition, ['gravity' => Item::GRAVITY_PARENT]);
 		}
 
 		if (!empty($request['max_id'])) {

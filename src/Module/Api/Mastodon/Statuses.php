@@ -152,13 +152,13 @@ class Statuses extends BaseApi
 			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
 
 			$item['thr-parent']  = $parent['uri'];
-			$item['gravity']     = GRAVITY_COMMENT;
+			$item['gravity']     = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 			$item['body']        = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
 		} else {
 			self::checkThrottleLimit();
 
-			$item['gravity']     = GRAVITY_PARENT;
+			$item['gravity']     = Item::GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
 			$item['title']       = $request['spoiler_text'];
 		}

@@ -78,13 +78,13 @@ class Tweets extends BaseApi
 
 			$condition = ['uri-id' => $uriids];
 			if ($exclude_replies) {
-				$condition['gravity'] = GRAVITY_PARENT;
+				$condition['gravity'] = Item::GRAVITY_PARENT;
 			}
 
 			$params['group_by'] = ['uri-id'];
 		} else {
 			$condition = ["`uri-id` > ?
-				" . ($exclude_replies ? " AND `gravity` = " . GRAVITY_PARENT : ' ') . "
+				" . ($exclude_replies ? " AND `gravity` = " . Item::GRAVITY_PARENT : ' ') . "
 				AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))
 				AND `body` LIKE CONCAT('%',?,'%')",
 				$since_id, $uid, $_REQUEST['q']];
