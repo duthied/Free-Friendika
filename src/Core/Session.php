@@ -34,11 +34,6 @@ class Session
 	public static $exists = false;
 	public static $expire = 180000;
 
-	public static function clear()
-	{
-		DI::session()->clear();
-	}
-
 	/**
 	 * Returns the user id of locally logged in user or false.
 	 *

@@ -24,7 +24,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Notification;
@@ -97,7 +96,7 @@ class Delegation extends BaseModule
 			return;
 		}
 
-		Session::clear();
+		DI::session()->clear();
 
 		DI::auth()->setForUser(DI::app(), $user, true, true);
 
