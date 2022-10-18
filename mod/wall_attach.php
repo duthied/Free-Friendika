@@ -66,7 +66,7 @@ function wall_attach_post(App $a) {
 		if ($r_json) {
 			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
-		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.') . EOL );
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		System::exit();
 	}
 
@@ -90,7 +90,7 @@ function wall_attach_post(App $a) {
 	 */
 
 	if ($filesize <= 0) {
-		$msg = DI::l10n()->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . EOL .(DI::l10n()->t('Or - did you try to upload an empty file?'));
+		$msg = DI::l10n()->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . '<br />' . (DI::l10n()->t('Or - did you try to upload an empty file?'));
 		@unlink($src);
 		if ($r_json) {
 			System::jsonExit(['error' => $msg]);
@@ -106,7 +106,7 @@ function wall_attach_post(App $a) {
 		if ($r_json) {
 			System::jsonExit(['error' => $msg]);
 		} else {
-			echo $msg . EOL;
+			echo $msg . '<br />';
 		}
 		System::exit();
 	}
@@ -120,7 +120,7 @@ function wall_attach_post(App $a) {
 		if ($r_json) {
 			System::jsonExit(['error' => $msg]);
 		} else {
-			echo $msg . EOL;
+			echo $msg . '<br />';
 		}
 		System::exit();
 	}

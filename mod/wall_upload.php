@@ -165,7 +165,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		if ($r_json) {
 			System::jsonExit(['error' => $msg]);
 		} else {
-			echo  $msg. EOL;
+			echo  $msg . '<br />';
 		}
 		System::exit();
 	}
@@ -203,7 +203,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			if ($r_json) {
 				System::jsonExit(['error' => $msg]);
 			} else {
-				echo  $msg. EOL;
+				echo  $msg . '<br />';
 			}
 			System::exit();
 		}
@@ -227,7 +227,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		if ($r_json) {
 			System::jsonExit(['error' => $msg]);
 		} else {
-			echo  $msg. EOL;
+			echo  $msg . '<br />';
 		}
 		System::exit();
 	}
