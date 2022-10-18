@@ -119,7 +119,7 @@ function cal_content(App $a)
 	$is_owner = local_user() == $owner['uid'];
 
 	if ($owner['hidewall'] && !$is_owner && !$remote_contact) {
-		notice(DI::l10n()->t('Access to this profile has been restricted.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Access to this profile has been restricted.'));
 		return;
 	}
 
@@ -262,7 +262,7 @@ function cal_content(App $a)
 
 	if ($mode == 'export') {
 		if (!$owner_uid) {
-			notice(DI::l10n()->t('User not found'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('User not found'));
 			return;
 		}
 
@@ -271,9 +271,9 @@ function cal_content(App $a)
 
 		if (!$evexport["success"]) {
 			if ($evexport["content"]) {
-				notice(DI::l10n()->t('This calendar format is not supported'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('This calendar format is not supported'));
 			} else {
-				notice(DI::l10n()->t('No exportable data found'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('No exportable data found'));
 			}
 
 			// If it the own calendar return to the events page

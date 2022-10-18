@@ -32,7 +32,7 @@ use Friendica\Util\Strings;
 function unfollow_post(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('login');
 		// NOTREACHED
 	}
@@ -47,7 +47,7 @@ function unfollow_content(App $a)
 	$base_return_path = 'contact';
 
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('login');
 		// NOTREACHED
 	}
@@ -62,13 +62,13 @@ function unfollow_content(App $a)
 	$contact = DBA::selectFirst('contact', ['url', 'id', 'uid', 'network', 'addr', 'name'], $condition);
 
 	if (!DBA::isResult($contact)) {
-		notice(DI::l10n()->t("You aren't following this contact."));
+		DI::sysmsg()->addNotice(DI::l10n()->t("You aren't following this contact."));
 		DI::baseUrl()->redirect($base_return_path);
 		// NOTREACHED
 	}
 
 	if (!Protocol::supportsFollow($contact['network'])) {
-		notice(DI::l10n()->t('Unfollowing is currently not supported by your network.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Unfollowing is currently not supported by your network.'));
 		DI::baseUrl()->redirect($base_return_path . '/' . $contact['id']);
 		// NOTREACHED
 	}
@@ -79,7 +79,7 @@ function unfollow_content(App $a)
 	$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
 
 	if (!DBA::isResult($self)) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect($base_return_path);
 		// NOTREACHED
 	}
@@ -131,7 +131,7 @@ function unfollow_process(string $url)
 	$contact = DBA::selectFirst('contact', [], $condition);
 
 	if (!DBA::isResult($contact)) {
-		notice(DI::l10n()->t("You aren't following this contact."));
+		DI::sysmsg()->addNotice(DI::l10n()->t("You aren't following this contact."));
 		DI::baseUrl()->redirect($base_return_path);
 		// NOTREACHED
 	}
@@ -146,6 +146,6 @@ function unfollow_process(string $url)
 		$notice_message = DI::l10n()->t('Unable to unfollow this contact, please contact your administrator');
 	}
 
-	notice($notice_message);
+	DI::sysmsg()->addNotice($notice_message);
 	DI::baseUrl()->redirect($return_path);
 }

@@ -22,7 +22,6 @@
 namespace Friendica\Module\Admin;
 
 use Friendica\App;
-use Friendica\Core\Relocate;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\Core\System;
@@ -33,12 +32,11 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Module\BaseAdmin;
+use Friendica\Module\Conversation\Community;
 use Friendica\Module\Register;
 use Friendica\Protocol\Relay;
 use Friendica\Util\BasePath;
 use Friendica\Util\EMailer\MailBuilder;
-use Friendica\Util\Strings;
-use Friendica\Worker\Delivery;
 
 require_once __DIR__ . '/../../../boot.php';
 
@@ -53,7 +51,7 @@ class Site extends BaseAdmin
 		$a = DI::app();
 
 		if (!empty($_POST['republish_directory'])) {
-			Worker::add(PRIORITY_LOW, 'Directory');
+			Worker::add(Worker::PRIORITY_LOW, 'Directory');
 			return;
 		}
 
@@ -150,7 +148,7 @@ class Site extends BaseAdmin
 		// Has the directory url changed? If yes, then resubmit the existing profiles there
 		if ($global_directory != DI::config()->get('system', 'directory') && ($global_directory != '')) {
 			DI::config()->set('system', 'directory', $global_directory);
-			Worker::add(PRIORITY_LOW, 'Directory');
+			Worker::add(Worker::PRIORITY_LOW, 'Directory');
 		}
 
 		if (DI::baseUrl()->getUrlPath() != "") {
@@ -364,11 +362,11 @@ class Site extends BaseAdmin
 
 		/* Community page style */
 		$community_page_style_choices = [
-			CP_NO_INTERNAL_COMMUNITY => DI::l10n()->t('No community page for local users'),
-			CP_NO_COMMUNITY_PAGE => DI::l10n()->t('No community page'),
-			CP_USERS_ON_SERVER => DI::l10n()->t('Public postings from users of this site'),
-			CP_GLOBAL_COMMUNITY => DI::l10n()->t('Public postings from the federated network'),
-			CP_USERS_AND_GLOBAL => DI::l10n()->t('Public postings from local users and the federated network')
+			Community::DISABLED         => DI::l10n()->t('No community page'),
+			Community::DISABLED_VISITOR => DI::l10n()->t('No community page for visitors'),
+			Community::LOCAL            => DI::l10n()->t('Public postings from users of this site'),
+			Community::GLOBAL           => DI::l10n()->t('Public postings from the federated network'),
+			Community::LOCAL_AND_GLOBAL => DI::l10n()->t('Public postings from local users and the federated network')
 		];
 
 		/* get user names to make the install a personal install of X */

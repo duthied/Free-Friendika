@@ -22,6 +22,7 @@
 namespace Friendica\Util\EMailer;
 
 use Exception;
+use Friendica\App;
 use Friendica\App\BaseURL;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
@@ -79,8 +80,8 @@ abstract class MailBuilder
 		$this->headers = [
 			'Precedence'           => ['list'],
 			'X-Friendica-Host'     => [$hostname],
-			'X-Friendica-Platform' => [FRIENDICA_PLATFORM],
-			'X-Friendica-Version'  => [FRIENDICA_VERSION],
+			'X-Friendica-Platform' => [App::PLATFORM],
+			'X-Friendica-Version'  => [App::VERSION],
 			'List-ID'              => ['<notification.' . $hostname . '>'],
 			'List-Archive'         => ['<' . $baseUrl->get() . '/notifications/system>'],
 		];
@@ -257,7 +258,7 @@ abstract class MailBuilder
 			$tpl     = Renderer::getMarkupTemplate('email/html.tpl');
 			$msgHtml = Renderer::replaceMacros($tpl, [
 				'$title'       => $this->l10n->t('Friendica Notification'),
-				'$product'     => FRIENDICA_PLATFORM,
+				'$product'     => App::PLATFORM,
 				'$htmlversion' => $msgHtml,
 				'$sitename'    => $this->config->get('config', 'sitename'),
 				'$banner'      => $this->config->get('system', 'email_banner',

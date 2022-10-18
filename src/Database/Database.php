@@ -36,6 +36,7 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * This class is for the low level database stuff that does driver specific things.
@@ -80,14 +81,16 @@ class Database
 	/** @var ViewDefinition */
 	protected $viewDefinition;
 
-	public function __construct(Cache $configCache, Profiler $profiler, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition, LoggerInterface $logger)
+	public function __construct(Cache $configCache, Profiler $profiler, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition)
 	{
 		// We are storing these values for being able to perform a reconnect
 		$this->configCache    = $configCache;
 		$this->profiler       = $profiler;
-		$this->logger         = $logger;
 		$this->dbaDefinition  = $dbaDefinition;
 		$this->viewDefinition = $viewDefinition;
+
+		// Temporary NullLogger until we can fetch the logger class from the config
+		$this->logger = new NullLogger();
 
 		$this->connect();
 	}

@@ -25,6 +25,7 @@ use Friendica\App\Router;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -204,7 +205,7 @@ class Statuses extends BaseApi
 		if (!empty($request['scheduled_at'])) {
 			$item['guid'] = Item::guid($item, true);
 			$item['uri'] = Item::newURI($item['guid']);
-			$id = Post\Delayed::add($item['uri'], $item, PRIORITY_HIGH, Post\Delayed::PREPARED, $request['scheduled_at']);
+			$id = Post\Delayed::add($item['uri'], $item, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED, $request['scheduled_at']);
 			if (empty($id)) {
 				DI::mstdnError()->InternalError();
 			}

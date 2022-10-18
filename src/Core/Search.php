@@ -192,7 +192,7 @@ class Search
 		}
 
 		// Add found profiles from the global directory to the local directory
-		Worker::add(PRIORITY_LOW, 'SearchDirectory', $search);
+		Worker::add(Worker::PRIORITY_LOW, 'SearchDirectory', $search);
 
 		return $resultList;
 	}

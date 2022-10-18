@@ -150,7 +150,7 @@ class DBStructure
 		echo DI::l10n()->t("\nError %d occurred during database update:\n%s\n",
 			DBA::errorNo(), DBA::errorMessage());
 
-		return DI::l10n()->t('Errors encountered performing database changes: ') . $message . EOL;
+		return DI::l10n()->t('Errors encountered performing database changes: ') . $message . '<br />';
 	}
 
 	/**

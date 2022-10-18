@@ -153,11 +153,11 @@ class Profile
 		if ($owner['net-publish'] || $force) {
 			// Update global directory in background
 			if (Search::getGlobalDirectory()) {
-				Worker::add(PRIORITY_LOW, 'Directory', $owner['url']);
+				Worker::add(Worker::PRIORITY_LOW, 'Directory', $owner['url']);
 			}
 		}
 
-		Worker::add(PRIORITY_LOW, 'ProfileUpdate', $uid);
+		Worker::add(Worker::PRIORITY_LOW, 'ProfileUpdate', $uid);
 	}
 
 	/**
@@ -865,7 +865,7 @@ class Profile
 
 		$a->setContactId($arr['visitor']['id']);
 
-		info(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
+		DI::sysmsg()->addInfo(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
 
 		Logger::info('OpenWebAuth: auth success from ' . $visitor['addr']);
 	}

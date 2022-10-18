@@ -2020,7 +2020,7 @@ class Diaspora
 			}
 
 			Logger::info('Deliver participation', ['item' => $comment['id'], 'contact' => $author_contact['cid']]);
-			if (Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['uri-id'], $author_contact['cid'], $datarray['uid'])) {
+			if (Worker::add(Worker::PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['uri-id'], $author_contact['cid'], $datarray['uid'])) {
 				Post\DeliveryData::incrementQueueCount($comment['uri-id'], 1);
 			}
 		}

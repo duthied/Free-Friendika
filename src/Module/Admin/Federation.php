@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Admin;
 
+use Friendica\App;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
@@ -202,7 +203,7 @@ class Federation extends BaseAdmin
 			'$page' => DI::l10n()->t('Federation Statistics'),
 			'$intro' => $intro,
 			'$counts' => $counts,
-			'$version' => FRIENDICA_VERSION,
+			'$version' => App::VERSION,
 			'$legendtext' => DI::l10n()->tt('Currently this node is aware of %2$s node (%3$s active users last month, %4$s active users last six months, %5$s registered users in total) from the following platforms:', 'Currently this node is aware of %2$s nodes (%3$s active users last month, %4$s active users last six months, %5$s registered users in total) from the following platforms:', $total, number_format($total), number_format($month), number_format($halfyear), number_format($users)),
 		]);
 	}

@@ -59,7 +59,7 @@ class FContact
 				$update = empty($person['guid']) || empty($person['uri-id']) || ($person['created'] <= DBA::NULL_DATETIME);
 				if (GServer::getNextUpdateDate(true, $person['created'], $person['updated'], false) < DateTimeFormat::utcNow()) {
 					Logger::debug('Start background update', ['handle' => $handle]);
-					Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'UpdateFContact', $handle);
+					Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateFContact', $handle);
 				}
 			}
 		} elseif (is_null($update)) {

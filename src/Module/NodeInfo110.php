@@ -53,7 +53,7 @@ class NodeInfo110 extends BaseModule
 			'version'           => '1.0',
 			'software'          => [
 				'name'    => 'friendica',
-				'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
+				'version' => App::VERSION . '-' . DB_UPDATE_VERSION,
 			],
 			'protocols'         => [
 				'inbound'  => [

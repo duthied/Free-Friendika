@@ -31,12 +31,20 @@ use Friendica\Util\DateTimeFormat;
  */
 class Worker
 {
-	const PRIORITY_UNDEFINED  = PRIORITY_UNDEFINED;
-	const PRIORITY_CRITICAL   = PRIORITY_CRITICAL;
-	const PRIORITY_HIGH       = PRIORITY_HIGH;
-	const PRIORITY_MEDIUM     = PRIORITY_MEDIUM;
-	const PRIORITY_LOW        = PRIORITY_LOW;
-	const PRIORITY_NEGLIGIBLE = PRIORITY_NEGLIGIBLE;
+	/**
+	 * @name Priority
+	 *
+	 * Process priority for the worker
+	 * @{
+	 */
+	const PRIORITY_UNDEFINED  = 0;
+	const PRIORITY_CRITICAL   = 10;
+	const PRIORITY_HIGH       = 20;
+	const PRIORITY_MEDIUM     = 30;
+	const PRIORITY_LOW        = 40;
+	const PRIORITY_NEGLIGIBLE = 50;
+	const PRIORITIES          = [self::PRIORITY_CRITICAL, self::PRIORITY_HIGH, self::PRIORITY_MEDIUM, self::PRIORITY_LOW, self::PRIORITY_NEGLIGIBLE];
+	/* @}*/
 
 	const STATE_STARTUP    = 1; // Worker is in startup. This takes most time.
 	const STATE_LONG_LOOP  = 2; // Worker is processing the whole - long - loop.
@@ -807,7 +815,7 @@ class Worker
 				$top_priority = self::highestPriority();
 				$high_running = self::processWithPriorityActive($top_priority);
 
-				if (!$high_running && ($top_priority > PRIORITY_UNDEFINED) && ($top_priority < PRIORITY_NEGLIGIBLE)) {
+				if (!$high_running && ($top_priority > self::PRIORITY_UNDEFINED) && ($top_priority < self::PRIORITY_NEGLIGIBLE)) {
 					Logger::info('Jobs with a higher priority are waiting but none is executed. Open a fastlane.', ['priority' => $top_priority]);
 					$queues = $active + 1;
 				}
@@ -939,7 +947,7 @@ class Worker
 	private static function nextPriority()
 	{
 		$waiting = [];
-		$priorities = [PRIORITY_CRITICAL, PRIORITY_HIGH, PRIORITY_MEDIUM, PRIORITY_LOW, PRIORITY_NEGLIGIBLE];
+		$priorities = [self::PRIORITY_CRITICAL, self::PRIORITY_HIGH, self::PRIORITY_MEDIUM, self::PRIORITY_LOW, self::PRIORITY_NEGLIGIBLE];
 		foreach ($priorities as $priority) {
 			$stamp = (float)microtime(true);
 			if (DBA::exists('workerqueue', ["`priority` = ? AND `pid` = 0 AND NOT `done` AND `next_try` < ?", $priority, DateTimeFormat::utcNow()])) {
@@ -948,8 +956,8 @@ class Worker
 			self::$db_duration += (microtime(true) - $stamp);
 		}
 
-		if (!empty($waiting[PRIORITY_CRITICAL])) {
-			return PRIORITY_CRITICAL;
+		if (!empty($waiting[self::PRIORITY_CRITICAL])) {
+			return self::PRIORITY_CRITICAL;
 		}
 
 		$running = [];
@@ -1206,8 +1214,8 @@ class Worker
 	 * @param (integer|array) priority or parameter array, strings are deprecated and are ignored
 	 *
 	 * next args are passed as $cmd command line
-	 * or: Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::DELETION, $drop_id);
-	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), 'Delivery', $post_id);
+	 * or: Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::DELETION, $drop_id);
+	 * or: Worker::add(array('priority' => Worker::PRIORITY_HIGH, 'dont_fork' => true), 'Delivery', $post_id);
 	 *
 	 * @return int '0' if worker queue entry already existed or there had been an error, otherwise the ID of the worker task
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -1230,7 +1238,7 @@ class Worker
 			return 1;
 		}
 
-		$priority = PRIORITY_MEDIUM;
+		$priority = self::PRIORITY_MEDIUM;
 		// Don't fork from frontend tasks by default
 		$dont_fork = DI::config()->get('system', 'worker_dont_fork', false) || !DI::mode()->isBackend();
 		$created = DateTimeFormat::utcNow();
@@ -1266,9 +1274,9 @@ class Worker
 		$found = DBA::exists('workerqueue', ['command' => $command, 'parameter' => $parameters, 'done' => false]);
 		$added = 0;
 
-		if (!is_int($priority) || !in_array($priority, PRIORITIES)) {
+		if (!is_int($priority) || !in_array($priority, self::PRIORITIES)) {
 			Logger::warning('Invalid priority', ['priority' => $priority, 'command' => $command, 'callstack' => System::callstack(20)]);
-			$priority = PRIORITY_MEDIUM;
+			$priority = self::PRIORITY_MEDIUM;
 		}
 
 		// Quit if there was a database error - a precaution for the update process to 3.5.3
@@ -1383,12 +1391,12 @@ class Worker
 		$delay = (($new_retrial + 2) ** 4) + (rand(1, 30) * ($new_retrial));
 		$next = DateTimeFormat::utc('now + ' . $delay . ' seconds');
 
-		if (($priority < PRIORITY_MEDIUM) && ($new_retrial > 3)) {
-			$priority = PRIORITY_MEDIUM;
-		} elseif (($priority < PRIORITY_LOW) && ($new_retrial > 6)) {
-			$priority = PRIORITY_LOW;
-		} elseif (($priority < PRIORITY_NEGLIGIBLE) && ($new_retrial > 8)) {
-			$priority = PRIORITY_NEGLIGIBLE;
+		if (($priority < self::PRIORITY_MEDIUM) && ($new_retrial > 3)) {
+			$priority = self::PRIORITY_MEDIUM;
+		} elseif (($priority < self::PRIORITY_LOW) && ($new_retrial > 6)) {
+			$priority = self::PRIORITY_LOW;
+		} elseif (($priority < self::PRIORITY_NEGLIGIBLE) && ($new_retrial > 8)) {
+			$priority = self::PRIORITY_NEGLIGIBLE;
 		}
 
 		Logger::info('Deferred task', ['id' => $id, 'retrial' => $new_retrial, 'created' => $queue['created'], 'next_execution' => $next, 'old_prio' => $queue['priority'], 'new_prio' => $priority]);

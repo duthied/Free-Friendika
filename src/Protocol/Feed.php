@@ -24,12 +24,14 @@ namespace Friendica\Protocol;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
+use Friendica\App;
 use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -631,7 +633,7 @@ class Feed
 				unset($item['parent-uri']);
 
 				// Set the delivery priority for "remote self" to "medium"
-				$notify = PRIORITY_MEDIUM;
+				$notify = Worker::PRIORITY_MEDIUM;
 			}
 
 			$condition = ['uid' => $item['uid'], 'uri' => $item['uri']];
@@ -1035,8 +1037,8 @@ class Feed
 				break;
 		}
 
-		$attributes = ['uri' => 'https://friendi.ca', 'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION];
-		XML::addElement($doc, $root, 'generator', FRIENDICA_PLATFORM, $attributes);
+		$attributes = ['uri' => 'https://friendi.ca', 'version' => App::VERSION . '-' . DB_UPDATE_VERSION];
+		XML::addElement($doc, $root, 'generator', App::PLATFORM, $attributes);
 		XML::addElement($doc, $root, 'id', DI::baseUrl() . '/profile/' . $owner['nick']);
 		XML::addElement($doc, $root, 'title', $title);
 		XML::addElement($doc, $root, 'subtitle', sprintf("Updates from %s on %s", $owner['name'], DI::config()->get('config', 'sitename')));

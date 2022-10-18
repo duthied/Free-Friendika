@@ -24,6 +24,7 @@ namespace Friendica\Protocol;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
+use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Enum\Duration;
@@ -1061,9 +1062,9 @@ class OStatus
 
 		$attributes = [
 			'uri' => 'https://friendi.ca',
-			'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
+			'version' => App::VERSION . '-' . DB_UPDATE_VERSION,
 		];
-		XML::addElement($doc, $root, 'generator', FRIENDICA_PLATFORM, $attributes);
+		XML::addElement($doc, $root, 'generator', App::PLATFORM, $attributes);
 		XML::addElement($doc, $root, 'id', DI::baseUrl() . '/profile/' . $owner['nick']);
 		XML::addElement($doc, $root, 'title', $title);
 		XML::addElement($doc, $root, 'subtitle', sprintf("Updates from %s on %s", $owner['name'], DI::config()->get('config', 'sitename')));

@@ -102,7 +102,7 @@ class Group
 				$group = DBA::selectFirst('group', ['deleted'], ['id' => $gid]);
 				if (DBA::isResult($group) && $group['deleted']) {
 					DBA::update('group', ['deleted' => 0], ['id' => $gid]);
-					notice(DI::l10n()->t('A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.'));
 				}
 				return true;
 			}

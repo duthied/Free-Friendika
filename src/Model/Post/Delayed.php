@@ -80,7 +80,7 @@ class Delayed
 
 		Logger::notice('Adding post for delayed publishing', ['uid' => $item['uid'], 'delayed' => $delayed, 'uri' => $uri]);
 
-		$wid = Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $preparation_mode, $uri);
+		$wid = Worker::add(['priority' => Worker::PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $preparation_mode, $uri);
 		if (!$wid) {
 			return 0;
 		}

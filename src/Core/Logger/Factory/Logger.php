@@ -22,19 +22,16 @@
 namespace Friendica\Core\Logger\Factory;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core;
 use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Database\Database;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\FileSystem;
 use Friendica\Core\Logger\Util\Introspection;
-use Friendica\Core\Logger\Type\Monolog\DevelopHandler;
-use Friendica\Core\Logger\Type\Monolog\IntrospectionProcessor;
 use Friendica\Core\Logger\Type\ProfilerLogger;
 use Friendica\Core\Logger\Type\StreamLogger;
 use Friendica\Core\Logger\Type\SyslogLogger;
 use Friendica\Util\Profiler;
-use Monolog;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
@@ -60,9 +57,15 @@ class Logger
 	/** @var string The log-channel (app, worker, ...) */
 	private $channel;
 
-	public function __construct(string $channel)
+	public function __construct(string $channel, bool $includeAddon = true)
 	{
 		$this->channel = $channel;
+
+		/// @fixme clean solution = Making Addon & Hook dynamic and load them inside the constructor, so there's no custom load logic necessary anymore
+		if ($includeAddon) {
+			Core\Addon::loadAddons();
+			Core\Hook::loadHooks();
+		}
 	}
 
 	/**
@@ -88,35 +91,9 @@ class Logger
 		$minLevel      = $minLevel ?? $config->get('system', 'loglevel');
 		$loglevel      = self::mapLegacyConfigDebugLevel((string)$minLevel);
 
-		switch ($config->get('system', 'logger_config', 'stream')) {
-			case 'monolog':
-				$loggerTimeZone = new \DateTimeZone('UTC');
-				Monolog\Logger::setTimezone($loggerTimeZone);
+		$name = $config->get('system', 'logger_config', 'stream');
 
-				$logger = new Monolog\Logger($this->channel);
-				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
-				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
-				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-				$logger->pushProcessor(new IntrospectionProcessor($introspection, LogLevel::DEBUG));
-
-				$stream = $config->get('system', 'logfile');
-
-				// just add a stream in case it's either writable or not file
-				if (!is_file($stream) || is_writable($stream)) {
-					try {
-						static::addStreamHandler($logger, $stream, $loglevel);
-					} catch (\Throwable $e) {
-						// No Logger ..
-						try {
-							$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
-						} catch (\Throwable $e) {
-							// No logger ...
-							$logger = new NullLogger();
-						}
-					}
-				}
-				break;
-
+		switch ($name) {
 			case 'syslog':
 				try {
 					$logger = new SyslogLogger($this->channel, $introspection, $loglevel, $config->get('system', 'syslog_flags', SyslogLogger::DEFAULT_FLAGS), $config->get('system', 'syslog_facility', SyslogLogger::DEFAULT_FACILITY));
@@ -132,29 +109,48 @@ class Logger
 
 			case 'stream':
 			default:
-				$stream = $config->get('system', 'logfile');
-				// just add a stream in case it's either writable or not file
-				if (!is_file($stream) || is_writable($stream)) {
-					try {
-						$logger = new StreamLogger($this->channel, $stream, $introspection, $fileSystem, $loglevel);
-					} catch (LogLevelException $exception) {
-						// If there's a wrong config value for loglevel, try again with standard
-						$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
-						$logger->warning('Invalid loglevel set in config.', ['loglevel' => $loglevel]);
-					} catch (\Throwable $t) {
-						// No logger ...
-						$logger = new NullLogger();
-					}
-				} else {
-					try {
-						$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
-					} catch (LogLevelException $exception) {
-						// If there's a wrong config value for loglevel, try again with standard
-						$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
-						$logger->warning('Invalid loglevel set in config.', ['loglevel' => $loglevel]);
-					} catch (\Throwable $e) {
-						// No logger ...
-						$logger = new NullLogger();
+				$data = [
+					'name'          => $name,
+					'channel'       => $this->channel,
+					'introspection' => $introspection,
+					'loglevel'      => $loglevel,
+					'logger'        => null,
+				];
+				try {
+					Core\Hook::callAll('logger_instance', $data);
+				} catch (InternalServerErrorException $exception) {
+					$data['logger'] = null;
+				}
+
+				if (($data['logger'] ?? null) instanceof LoggerInterface) {
+					$logger = $data['logger'];
+				}
+
+				if (empty($logger)) {
+					$stream = $config->get('system', 'logfile');
+					// just add a stream in case it's either writable or not file
+					if (!is_file($stream) || is_writable($stream)) {
+						try {
+							$logger = new StreamLogger($this->channel, $stream, $introspection, $fileSystem, $loglevel);
+						} catch (LogLevelException $exception) {
+							// If there's a wrong config value for loglevel, try again with standard
+							$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
+							$logger->warning('Invalid loglevel set in config.', ['loglevel' => $loglevel]);
+						} catch (\Throwable $t) {
+							// No logger ...
+							$logger = new NullLogger();
+						}
+					} else {
+						try {
+							$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
+						} catch (LogLevelException $exception) {
+							// If there's a wrong config value for loglevel, try again with standard
+							$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
+							$logger->warning('Invalid loglevel set in config.', ['loglevel' => $loglevel]);
+						} catch (\Throwable $e) {
+							// No logger ...
+							$logger = new NullLogger();
+						}
 					}
 				}
 				break;
@@ -197,27 +193,11 @@ class Logger
 			return new NullLogger();
 		}
 
-		$loggerTimeZone = new \DateTimeZone('UTC');
-		Monolog\Logger::setTimezone($loggerTimeZone);
-
 		$introspection = new Introspection(self::$ignoreClassList);
 
-		switch ($config->get('system', 'logger_config', 'stream')) {
+		$name = $config->get('system', 'logger_config', 'stream');
 
-			case 'monolog':
-				$loggerTimeZone = new \DateTimeZone('UTC');
-				Monolog\Logger::setTimezone($loggerTimeZone);
-
-				$logger = new Monolog\Logger(self::DEV_CHANNEL);
-				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
-				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
-				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-				$logger->pushProcessor(new IntrospectionProcessor($introspection, LogLevel::DEBUG));
-
-				$logger->pushHandler(new DevelopHandler($developerIp));
-
-				static::addStreamHandler($logger, $stream, LogLevel::DEBUG);
-				break;
+		switch ($name) {
 
 			case 'syslog':
 				$logger = new SyslogLogger(self::DEV_CHANNEL, $introspection, LogLevel::DEBUG);
@@ -225,6 +205,23 @@ class Logger
 
 			case 'stream':
 			default:
+				$data = [
+					'name'          => $name,
+					'channel'       => self::DEV_CHANNEL,
+					'introspection' => $introspection,
+					'loglevel'      => LogLevel::DEBUG,
+					'logger'        => null,
+				];
+				try {
+					Core\Hook::callAll('logger_instance', $data);
+				} catch (InternalServerErrorException $exception) {
+					$data['logger'] = null;
+				}
+
+				if (($data['logger'] ?? null) instanceof LoggerInterface) {
+					return $data['logger'];
+				}
+
 				$logger = new StreamLogger(self::DEV_CHANNEL, $stream, $introspection, $fileSystem, LogLevel::DEBUG);
 				break;
 		}
@@ -271,40 +268,6 @@ class Logger
 			// default if nothing set
 			default:
 				return $level;
-		}
-	}
-
-	/**
-	 * Adding a handler to a given logger instance
-	 *
-	 * @param LoggerInterface $logger The logger instance
-	 * @param mixed           $stream The stream which handles the logger output
-	 * @param string          $level  The level, for which this handler at least should handle logging
-	 *
-	 * @return void
-	 *
-	 * @throws LoggerException
-	 */
-	public static function addStreamHandler(LoggerInterface $logger, $stream, string $level = LogLevel::NOTICE)
-	{
-		if ($logger instanceof Monolog\Logger) {
-			$loglevel = Monolog\Logger::toMonologLevel($level);
-
-			// fallback to notice if an invalid loglevel is set
-			if (!is_int($loglevel)) {
-				$loglevel = LogLevel::NOTICE;
-			}
-
-			try {
-				$fileHandler = new Monolog\Handler\StreamHandler($stream, $loglevel);
-
-				$formatter = new Monolog\Formatter\LineFormatter("%datetime% %channel% [%level_name%]: %message% %context% %extra%\n");
-				$fileHandler->setFormatter($formatter);
-
-				$logger->pushHandler($fileHandler);
-			} catch (\Exception $exception) {
-				throw new LoggerException('Cannot create Monolog Logger.', $exception);
-			}
 		}
 	}
 }

@@ -72,7 +72,7 @@ class Directory extends BaseModule
 		$profiles = Profile::searchProfiles($pager->getStart(), $pager->getItemsPerPage(), $search);
 
 		if ($profiles['total'] === 0) {
-			notice(DI::l10n()->t('No entries (some entries may be hidden).'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('No entries (some entries may be hidden).'));
 		} else {
 			foreach ($profiles['entries'] as $entry) {
 				$contact = Model\Contact::getByURLForUser($entry['url'], local_user());

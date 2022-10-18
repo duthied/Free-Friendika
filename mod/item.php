@@ -36,6 +36,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Attach;
@@ -128,7 +129,7 @@ function item_post(App $a) {
 		}
 
 		if (!DBA::isResult($toplevel_item)) {
-			notice(DI::l10n()->t('Unable to locate original post.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate original post.'));
 			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
@@ -178,7 +179,7 @@ function item_post(App $a) {
 	// Now check that valid personal details have been provided
 	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
 		Logger::warning('Permission denied.', ['local' => local_user(), 'profile_uid' => $profile_uid, 'toplevel_item_id' => $toplevel_item_id, 'network' => $toplevel_item['network']]);
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -334,7 +335,7 @@ function item_post(App $a) {
 				System::jsonExit(['preview' => '']);
 			}
 
-			notice(DI::l10n()->t('Empty post discarded.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Empty post discarded.'));
 			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
@@ -632,7 +633,7 @@ function item_post(App $a) {
 			unset($datarray['self']);
 			unset($datarray['api_source']);
 
-			Post\Delayed::add($datarray['uri'], $datarray, PRIORITY_HIGH, Post\Delayed::PREPARED_NO_HOOK, $scheduled_at);
+			Post\Delayed::add($datarray['uri'], $datarray, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED_NO_HOOK, $scheduled_at);
 			item_post_return(DI::baseUrl(), $api_source, $return_path);
 		}
 	}
@@ -681,7 +682,7 @@ function item_post(App $a) {
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
-		notice(DI::l10n()->t('Item wasn\'t stored.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Item wasn\'t stored.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -837,7 +838,7 @@ function drop_item(int $id, string $return = ''): string
 	$item = Post::selectFirstForUser(local_user(), ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', 'parent'], ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
-		notice(DI::l10n()->t('Item not found.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Item not found.'));
 		DI::baseUrl()->redirect('network');
 		//NOTREACHED
 	}
@@ -861,7 +862,7 @@ function drop_item(int $id, string $return = ''): string
 		//NOTREACHED
 	} else {
 		Logger::warning('Permission denied.', ['local' => local_user(), 'uid' => $item['uid'], 'cid' => $contact_id]);
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('display/' . $item['guid']);
 		//NOTREACHED
 	}

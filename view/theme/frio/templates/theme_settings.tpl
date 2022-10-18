@@ -209,6 +209,8 @@
 	});
 </script>
 
+{{include file="field_checkbox.tpl" field=$always_open_compose}}
+
 <div class="settings-submit-wrapper pull-right">
 	<button type="submit" value="{{$submit}}" class="settings-submit btn btn-primary" name="frio-settings-submit">{{$submit}}</button>
 </div>

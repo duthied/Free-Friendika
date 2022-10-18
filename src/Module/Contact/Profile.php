@@ -35,6 +35,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Module;
@@ -124,7 +125,7 @@ class Profile extends BaseModule
 		}
 
 		if (!Contact::update($fields, ['id' => $cdata['user'], 'uid' => local_user()])) {
-			notice($this->t('Failed to update contact record.'));
+			DI::sysmsg()->addNotice($this->t('Failed to update contact record.'));
 		}
 	}
 
@@ -182,7 +183,7 @@ class Profile extends BaseModule
 				}
 
 				// @TODO: add $this->localRelationship->save($localRelationship);
-				info($message);
+				DI::sysmsg()->addInfo($message);
 			}
 
 			if ($cmd === 'ignore') {
@@ -198,7 +199,7 @@ class Profile extends BaseModule
 				}
 
 				// @TODO: add $this->localRelationship->save($localRelationship);
-				info($message);
+				DI::sysmsg()->addInfo($message);
 			}
 
 			$this->baseUrl->redirect('contact/' . $contact['id']);

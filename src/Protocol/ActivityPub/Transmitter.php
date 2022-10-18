@@ -21,6 +21,7 @@
 
 namespace Friendica\Protocol\ActivityPub;
 
+use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Enum\Duration;
@@ -40,6 +41,7 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
@@ -415,7 +417,7 @@ class Transmitter
 	{
 		return [
 			'type' => 'Service',
-			'name' =>  FRIENDICA_PLATFORM . " '" . FRIENDICA_CODENAME . "' " . FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
+			'name' =>  App::PLATFORM . " '" . App::CODENAME . "' " . App::VERSION . '-' . DB_UPDATE_VERSION,
 			'url' => DI::baseUrl()->get()
 		];
 	}
@@ -1621,6 +1623,8 @@ class Transmitter
 
 		$permission_block = self::createPermissionBlockForItem($item, false);
 
+		$real_quote = false;
+
 		$body = $item['body'];
 
 		if ($type == 'Note') {
@@ -1662,10 +1666,17 @@ class Transmitter
 
 			$body = BBCode::setMentionsToNicknames($body);
 
-			$shared = BBCode::fetchShareAttributes($body);
-			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
-				$body = self::replaceSharedData($body);
-				$data['quoteUrl'] = $shared['link'];
+			if (!empty($item['quote-uri']) && Post::exists(['uri-id' => $item['quote-uri-id'], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN]])) {
+				$real_quote = true;
+				if (Diaspora::isReshare($body, false)) {
+					$body = BBCode::replaceSharedData($body);
+				} elseif (strpos($body, $item['quote-uri']) === false) {
+					$body .= "\n♲ " . $item['quote-uri'];
+				}
+				$data['quoteUrl'] = $item['quote-uri'];
+			} elseif (!empty($item['quote-uri']) && !Diaspora::isReshare($body, false)) {
+				$body .= "\n" . DI::contentItem()->createSharedPostByUriId($item['quote-uri-id'], $item['uid'], true);
+				$item['body'] = Item::improveSharedDataInBody($item, true);
 			}
 
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
@@ -1678,9 +1689,11 @@ class Transmitter
 		if (!empty($language)) {
 			$richbody = BBCode::setMentionsToNicknames($item['body'] ?? '');
 
-			$shared = BBCode::fetchShareAttributes($richbody);
-			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
-				$richbody = self::replaceSharedData($richbody);
+			if ($real_quote) {
+				$shared = BBCode::fetchShareAttributes($richbody);
+				if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
+					$richbody = BBCode::replaceSharedData($richbody);
+				}
 			}
 
 			$richbody = BBCode::removeAttachment($richbody);
@@ -1708,22 +1721,6 @@ class Transmitter
 		$data = array_merge($data, $permission_block);
 
 		return $data;
-	}
-
-	/**
-	 * Replace the share block with a link
-	 *
-	 * @param string $body
-	 * @return string
-	 */
-	private static function replaceSharedData(string $body): string
-	{
-		return BBCode::convertShare(
-			$body,
-			function (array $attributes) {
-				return '♲ ' . $attributes['link'];
-			}
-		);
 	}
 
 	/**

@@ -574,9 +574,10 @@ class Item
 	 *
 	 * @param string $url
 	 * @param integer $uid
+	 * @param bool $add_media
 	 * @return string
 	 */
-	public function createSharedPostByUrl(string $url, int $uid = 0): string
+	public function createSharedPostByUrl(string $url, int $uid = 0, bool $add_media = false): string
 	{
 		if (!empty($uid)) {
 			$id = ModelItem::searchByLink($url, $uid);
@@ -599,7 +600,7 @@ class Item
 			return '';
 		}
 
-		return $this->createSharedBlockByArray($shared_item);
+		return $this->createSharedBlockByArray($shared_item, $add_media);
 	}
 
 	/**
@@ -607,9 +608,10 @@ class Item
 	 *
 	 * @param integer $UriId
 	 * @param integer $uid
+	 * @param bool $add_media
 	 * @return string
 	 */
-	public function createSharedPostByUriId(int $UriId, int $uid = 0): string
+	public function createSharedPostByUriId(int $UriId, int $uid = 0, bool $add_media = false): string
 	{
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
 		$shared_item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
@@ -618,7 +620,7 @@ class Item
 			return '';
 		}
 
-		return $this->createSharedBlockByArray($shared_item);
+		return $this->createSharedBlockByArray($shared_item, $add_media);
 	}
 
 	/**
@@ -626,9 +628,10 @@ class Item
 	 *
 	 * @param string $guid
 	 * @param integer $uid
+	 * @param bool $add_media
 	 * @return string
 	 */
-	public function createSharedPostByGuid(string $guid, int $uid = 0, string $host = ''): string
+	public function createSharedPostByGuid(string $guid, int $uid = 0, string $host = '', bool $add_media = false): string
 	{
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
 		$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
@@ -645,22 +648,25 @@ class Item
 			return '';
 		}
 
-		return $this->createSharedBlockByArray($shared_item);
+		return $this->createSharedBlockByArray($shared_item, $add_media);
 	}
 
 	/**
 	 * Add a share block for the given item array
 	 *
 	 * @param array $item
+	 * @param bool $add_media
 	 * @return string
 	 */
-	public function createSharedBlockByArray(array $item): string
+	public function createSharedBlockByArray(array $item, bool $add_media = false): string
 	{
 		if ($item['network'] == Protocol::FEED) {
 			return PageInfo::getFooterFromUrl($item['plink']);
 		} elseif (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
 			$item['guid'] = '';
 			$item['uri']  = '';
+			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
+		} elseif ($add_media) {
 			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 		}
 
@@ -674,7 +680,7 @@ class Item
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
 		if (Diaspora::isReshare($item['body'], false)) {
-			if (!empty($shared['guid']) && ($encaspulated_share = self::createSharedPostByGuid($shared['guid']))) {
+			if (!empty($shared['guid']) && ($encaspulated_share = self::createSharedPostByGuid($shared['guid'], 0, '', $add_media))) {
 				$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
 			}
 

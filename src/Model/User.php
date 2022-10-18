@@ -994,7 +994,7 @@ class User
 				try {
 					$authurl = $openid->authUrl();
 				} catch (Exception $e) {
-					throw new Exception(DI::l10n()->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . EOL . EOL . DI::l10n()->t('The error message was:') . $e->getMessage(), 0, $e);
+					throw new Exception(DI::l10n()->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br />' . DI::l10n()->t('The error message was:') . $e->getMessage(), 0, $e);
 				}
 				System::externalRedirect($authurl);
 				// NOTREACHED
@@ -1317,7 +1317,7 @@ class User
 
 		if (DBA::isResult($profile) && $profile['net-publish'] && Search::getGlobalDirectory()) {
 			$url = DI::baseUrl() . '/profile/' . $user['nickname'];
-			Worker::add(PRIORITY_LOW, "Directory", $url);
+			Worker::add(Worker::PRIORITY_LOW, "Directory", $url);
 		}
 
 		$l10n = DI::l10n()->withLang($register['language']);
@@ -1567,14 +1567,14 @@ class User
 
 		// The user and related data will be deleted in Friendica\Worker\ExpireAndRemoveUsers
 		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc('now + 7 day')], ['uid' => $uid]);
-		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::REMOVAL, $uid);
+		Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::REMOVAL, $uid);
 
 		// Send an update to the directory
 		$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
-		Worker::add(PRIORITY_LOW, 'Directory', $self['url']);
+		Worker::add(Worker::PRIORITY_LOW, 'Directory', $self['url']);
 
 		// Remove the user relevant data
-		Worker::add(PRIORITY_NEGLIGIBLE, 'RemoveUser', $uid);
+		Worker::add(Worker::PRIORITY_NEGLIGIBLE, 'RemoveUser', $uid);
 
 		return true;
 	}

@@ -26,6 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\Response;
 use Friendica\Security\Authentication;
@@ -70,13 +71,13 @@ class Recovery extends BaseModule
 			if (RecoveryCode::existsForUser(local_user(), $recovery_code)) {
 				RecoveryCode::markUsedForUser(local_user(), $recovery_code);
 				$this->session->set('2fa', true);
-				info($this->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
+				DI::sysmsg()->addInfo($this->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
 
 				$this->auth->setForUser($this->app, User::getById($this->app->getLoggedInUserId()), true, true);
 
 				$this->baseUrl->redirect($this->session->pop('return_path', ''));
 			} else {
-				notice($this->t('Invalid code, please retry.'));
+				DI::sysmsg()->addNotice($this->t('Invalid code, please retry.'));
 			}
 		}
 	}

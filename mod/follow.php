@@ -53,7 +53,7 @@ function follow_content(App $a)
 	$return_path = 'contact';
 
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect($return_path);
 		// NOTREACHED
 	}
@@ -81,7 +81,7 @@ function follow_content(App $a)
 
 	if (DBA::isResult($user_contact)) {
 		if ($user_contact['pending']) {
-			notice(DI::l10n()->t('You already added this contact.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('You already added this contact.'));
 			$submit = '';
 		}
 	}
@@ -97,7 +97,7 @@ function follow_content(App $a)
 		// Possibly it is a remote item and not an account
 		follow_remote_item($url);
 
-		notice(DI::l10n()->t("The network type couldn't be detected. Contact can't be added."));
+		DI::sysmsg()->addNotice(DI::l10n()->t("The network type couldn't be detected. Contact can't be added."));
 		$submit = '';
 		$contact = ['url' => $url, 'network' => Protocol::PHANTOM, 'name' => $url, 'keywords' => ''];
 	}
@@ -105,12 +105,12 @@ function follow_content(App $a)
 	$protocol = Contact::getProtocol($contact['url'], $contact['network']);
 
 	if (($protocol == Protocol::DIASPORA) && !DI::config()->get('system', 'diaspora_enabled')) {
-		notice(DI::l10n()->t("Diaspora support isn't enabled. Contact can't be added."));
+		DI::sysmsg()->addNotice(DI::l10n()->t("Diaspora support isn't enabled. Contact can't be added."));
 		$submit = '';
 	}
 
 	if (($protocol == Protocol::OSTATUS) && DI::config()->get('system', 'ostatus_disabled')) {
-		notice(DI::l10n()->t("OStatus support is disabled. Contact can't be added."));
+		DI::sysmsg()->addNotice(DI::l10n()->t("OStatus support is disabled. Contact can't be added."));
 		$submit = '';
 	}
 
@@ -127,7 +127,7 @@ function follow_content(App $a)
 
 	$owner = User::getOwnerDataById($uid);
 	if (empty($owner)) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect($return_path);
 		// NOTREACHED
 	}
@@ -181,14 +181,14 @@ function follow_process(App $a, string $url)
 		follow_remote_item($url);
 
 		if ($result['message']) {
-			notice($result['message']);
+			DI::sysmsg()->addNotice($result['message']);
 		}
 		DI::baseUrl()->redirect($return_path);
 	} elseif ($result['cid']) {
 		DI::baseUrl()->redirect('contact/' . $result['cid']);
 	}
 
-	notice(DI::l10n()->t('The contact could not be added.'));
+	DI::sysmsg()->addNotice(DI::l10n()->t('The contact could not be added.'));
 
 	DI::baseUrl()->redirect($return_path);
 }

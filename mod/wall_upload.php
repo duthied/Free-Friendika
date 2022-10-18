@@ -88,7 +88,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		if ($r_json) {
 			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		System::exit();
 	}
 
@@ -147,7 +147,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		if ($r_json) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
-		notice(DI::l10n()->t('Invalid request.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Invalid request.'));
 		System::exit();
 	}
 
@@ -165,7 +165,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		if ($r_json) {
 			System::jsonExit(['error' => $msg]);
 		} else {
-			echo  $msg. EOL;
+			echo  $msg . '<br />';
 		}
 		System::exit();
 	}
@@ -203,7 +203,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			if ($r_json) {
 				System::jsonExit(['error' => $msg]);
 			} else {
-				echo  $msg. EOL;
+				echo  $msg . '<br />';
 			}
 			System::exit();
 		}
@@ -227,7 +227,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		if ($r_json) {
 			System::jsonExit(['error' => $msg]);
 		} else {
-			echo  $msg. EOL;
+			echo  $msg . '<br />';
 		}
 		System::exit();
 	}

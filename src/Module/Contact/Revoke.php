@@ -28,6 +28,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Module\Contact;
 use Friendica\Module\Response;
@@ -87,7 +88,7 @@ class Revoke extends BaseModule
 
 		Model\Contact::revokeFollow($this->contact);
 
-		notice($this->t('Follow was successfully revoked.'));
+		DI::sysmsg()->addNotice($this->t('Follow was successfully revoked.'));
 
 		$this->baseUrl->redirect('contact/' . $this->parameters['id']);
 	}

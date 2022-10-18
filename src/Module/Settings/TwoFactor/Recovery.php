@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Module\Response;
 use Friendica\Security\TwoFactor\Model\RecoveryCode;
 use Friendica\Module\BaseSettings;
@@ -59,7 +60,7 @@ class Recovery extends BaseSettings
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice($this->t('Please enter your password to access this page.'));
+			DI::sysmsg()->addNotice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
@@ -75,7 +76,7 @@ class Recovery extends BaseSettings
 
 			if ($_POST['action'] == 'regenerate') {
 				RecoveryCode::regenerateForUser(local_user());
-				info($this->t('New recovery codes successfully generated.'));
+				DI::sysmsg()->addInfo($this->t('New recovery codes successfully generated.'));
 				$this->baseUrl->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 			}
 		}

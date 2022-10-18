@@ -54,7 +54,7 @@ abstract class BaseAdmin extends BaseModule
 	{
 		if (!local_user()) {
 			if ($interactive) {
-				notice(DI::l10n()->t('Please login to continue.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Please login to continue.'));
 				Session::set('return_path', DI::args()->getQueryString());
 				DI::baseUrl()->redirect('login');
 			} else {

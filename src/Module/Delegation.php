@@ -108,7 +108,7 @@ class Delegation extends BaseModule
 		$ret = [];
 		Hook::callAll('home_init', $ret);
 
-		notice($this->t('You are now logged in as %s', $user['username']));
+		DI::sysmsg()->addNotice($this->t('You are now logged in as %s', $user['username']));
 
 		DI::baseUrl()->redirect('network');
 	}

@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2022.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1484
+-- Friendica 2022.12-dev (Giant Rhubarb)
+-- DB_UPDATE_VERSION 1486
 -- ------------------------------------------
 
 
@@ -1186,6 +1186,7 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	`content-warning` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`body` mediumtext COMMENT 'item body content',
 	`raw-body` mediumtext COMMENT 'Body without embedded media links',
+	`quote-uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the quoted uri',
 	`location` varchar(255) NOT NULL DEFAULT '' COMMENT 'text location where this item originated',
 	`coord` varchar(255) NOT NULL DEFAULT '' COMMENT 'longitude/latitude pair representing location where this item originated',
 	`language` text COMMENT 'Language information about this post',
@@ -1202,7 +1203,9 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	 INDEX `plink` (`plink`(191)),
 	 INDEX `resource-id` (`resource-id`),
 	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `quote-uri-id` (`quote-uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`quote-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
@@ -1289,6 +1292,7 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`url` varbinary(1024) NOT NULL COMMENT 'Media URL',
+	`media-uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the activities uri-id',
 	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Media type',
 	`mimetype` varchar(60) COMMENT '',
 	`height` smallint unsigned COMMENT 'Height of the media',
@@ -1308,7 +1312,9 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`(512)),
 	 INDEX `uri-id-id` (`uri-id`,`id`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `media-uri-id` (`media-uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`media-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Attached media';
 
 --
@@ -1807,6 +1813,8 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-user`.`thr-parent-id` AS `thr-parent-id`,
 	`conversation-item-uri`.`uri` AS `conversation`,
 	`post-thread-user`.`conversation-id` AS `conversation-id`,
+	`quote-item-uri`.`uri` AS `quote-uri`,
+	`post-content`.`quote-uri-id` AS `quote-uri-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post-user`.`wall` AS `wall`,
 	`post-user`.`gravity` AS `gravity`,
@@ -1962,6 +1970,7 @@ CREATE VIEW `post-user-view` AS SELECT
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id` AND `post-user`.`origin`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
@@ -1985,6 +1994,8 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-user`.`thr-parent-id` AS `thr-parent-id`,
 	`conversation-item-uri`.`uri` AS `conversation`,
 	`post-thread-user`.`conversation-id` AS `conversation-id`,
+	`quote-item-uri`.`uri` AS `quote-uri`,
+	`post-content`.`quote-uri-id` AS `quote-uri-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post-thread-user`.`wall` AS `wall`,
 	`post-user`.`gravity` AS `gravity`,
@@ -2138,6 +2149,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread-user`.`uri-id` AND `post-thread-user`.`origin`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
@@ -2157,6 +2169,8 @@ CREATE VIEW `post-view` AS SELECT
 	`post`.`thr-parent-id` AS `thr-parent-id`,
 	`conversation-item-uri`.`uri` AS `conversation`,
 	`post-thread`.`conversation-id` AS `conversation-id`,
+	`quote-item-uri`.`uri` AS `quote-uri`,
+	`post-content`.`quote-uri-id` AS `quote-uri-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post`.`gravity` AS `gravity`,
 	`external-item-uri`.`uri` AS `extid`,
@@ -2279,6 +2293,7 @@ CREATE VIEW `post-view` AS SELECT
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post`.`uri-id`
 			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
@@ -2296,6 +2311,8 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post`.`thr-parent-id` AS `thr-parent-id`,
 	`conversation-item-uri`.`uri` AS `conversation`,
 	`post-thread`.`conversation-id` AS `conversation-id`,
+	`quote-item-uri`.`uri` AS `quote-uri`,
+	`post-content`.`quote-uri-id` AS `quote-uri-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post`.`gravity` AS `gravity`,
 	`external-item-uri`.`uri` AS `extid`,
@@ -2418,6 +2435,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;

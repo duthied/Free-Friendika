@@ -70,6 +70,68 @@ class Session
 	}
 
 	/**
+	 * Returns the user id of locally logged in user or false.
+	 *
+	 * @return int|bool user id or false
+	 */
+	public static function getLocalUser()
+	{
+		$session = DI::session();
+
+		if (!empty($session->get('authenticated')) && !empty($session->get('uid'))) {
+			return intval($session->get('uid'));
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns the public contact id of logged in user or false.
+	 *
+	 * @return int|bool public contact id or false
+	 */
+	public static function getPublicContact()
+	{
+		static $public_contact_id = false;
+
+		$session = DI::session();
+
+		if (!$public_contact_id && !empty($session->get('authenticated'))) {
+			if (!empty($session->get('my_address'))) {
+				// Local user
+				$public_contact_id = intval(Contact::getIdForURL($session->get('my_address'), 0, false));
+			} elseif (!empty($session->get('visitor_home'))) {
+				// Remote user
+				$public_contact_id = intval(Contact::getIdForURL($session->get('visitor_home'), 0, false));
+			}
+		} elseif (empty($session->get('authenticated'))) {
+			$public_contact_id = false;
+		}
+
+		return $public_contact_id;
+	}
+
+	/**
+	 * Returns public contact id of authenticated site visitor or false
+	 *
+	 * @return int|bool visitor_id or false
+	 */
+	public static function getRemoteUser()
+	{
+		$session = DI::session();
+
+		if (empty($session->get('authenticated'))) {
+			return false;
+		}
+
+		if (!empty($session->get('visitor_id'))) {
+			return intval($session->get('visitor_id'));
+		}
+
+		return false;
+	}
+
+	/**
 	 * Return the user contact ID of a visitor for the given user ID they are visiting
 	 *
 	 * @param integer $uid User ID

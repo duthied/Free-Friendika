@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
@@ -48,7 +49,7 @@ class Feed extends BaseModule
 		$this->httpClient = $httpClient;
 
 		if (!local_user()) {
-			notice($this->t('You must be logged in to use this module'));
+			DI::sysmsg()->addNotice($this->t('You must be logged in to use this module'));
 			$baseUrl->redirect();
 		}
 	}

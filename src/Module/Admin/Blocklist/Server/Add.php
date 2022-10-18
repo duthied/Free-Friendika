@@ -82,7 +82,7 @@ class Add extends BaseAdmin
 		if (!empty($request['purge'])) {
 			$gservers = GServer::listByDomainPattern($pattern);
 			foreach (Contact::selectToArray(['id'], ['gsid' => array_column($gservers, 'id')]) as $contact) {
-				Worker::add(PRIORITY_LOW, 'Contact\RemoveContent', $contact['id']);
+				Worker::add(Worker::PRIORITY_LOW, 'Contact\RemoveContent', $contact['id']);
 			}
 
 			$this->sysmsg->addInfo($this->l10n->tt('%s server scheduled to be purged.', '%s servers scheduled to be purged.', count($gservers)));

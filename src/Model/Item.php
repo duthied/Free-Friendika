@@ -93,7 +93,7 @@ class Item
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 		'wall', 'private', 'starred', 'origin', 'parent-origin', 'title', 'body', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
-		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'mention', 'global',
+		'quote-uri', 'quote-uri-id', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'mention', 'global',
 		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network', 'author-updated', 'author-gsid', 'author-addr', 'author-uri-id',
 		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network', 'owner-contact-type', 'owner-updated',
 		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type', 'causer-network',
@@ -115,7 +115,7 @@ class Item
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-id', 'author-link', 'author-name', 'author-avatar', 'owner-id', 'owner-link', 'contact-uid',
 			'signed_text', 'network', 'wall', 'contact-id', 'plink', 'origin',
-			'thr-parent-id', 'parent-uri-id', 'postopts', 'pubmail',
+			'thr-parent-id', 'parent-uri-id', 'quote-uri', 'quote-uri-id', 'postopts', 'pubmail',
 			'event-created', 'event-edited', 'event-start', 'event-finish',
 			'event-summary', 'event-desc', 'event-location', 'event-type',
 			'event-nofinish', 'event-ignore', 'event-id'];
@@ -123,7 +123,7 @@ class Item
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'conversation', 'vid',
-			'contact-id', 'wall', 'gravity', 'extid', 'psid',
+			'quote-uri', 'quote-uri-id', 'contact-id', 'wall', 'gravity', 'extid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type', 'post-reason',
@@ -238,7 +238,7 @@ class Item
 
 		foreach ($notify_items as $notify_item) {
 			$post = Post::selectFirst(['uri-id', 'uid'], ['id' => $notify_item]);
-			Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::POST, (int)$post['uri-id'], (int)$post['uid']);
+			Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::POST, (int)$post['uri-id'], (int)$post['uid']);
 		}
 
 		return $rows;
@@ -252,7 +252,7 @@ class Item
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function markForDeletion(array $condition, int $priority = PRIORITY_HIGH)
+	public static function markForDeletion(array $condition, int $priority = Worker::PRIORITY_HIGH)
 	{
 		$items = Post::select(['id'], $condition);
 		while ($item = Post::fetch($items)) {
@@ -283,7 +283,7 @@ class Item
 			}
 
 			if ($item['uid'] == $uid) {
-				self::markForDeletionById($item['id'], PRIORITY_HIGH);
+				self::markForDeletionById($item['id'], Worker::PRIORITY_HIGH);
 			} elseif ($item['uid'] != 0) {
 				Logger::warning('Wrong ownership. Not deleting item', ['id' => $item['id']]);
 			}
@@ -299,7 +299,7 @@ class Item
 	 * @return boolean success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function markForDeletionById(int $item_id, int $priority = PRIORITY_HIGH): bool
+	public static function markForDeletionById(int $item_id, int $priority = Worker::PRIORITY_HIGH): bool
 	{
 		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
@@ -822,7 +822,7 @@ class Item
 	{
 		$orig_item = $item;
 
-		$priority = PRIORITY_HIGH;
+		$priority = Worker::PRIORITY_HIGH;
 
 		// If it is a posting where users should get notifications, then define it as wall posting
 		if ($notify) {
@@ -832,7 +832,7 @@ class Item
 			$item['protocol'] = Conversation::PARCEL_DIRECT;
 			$item['direction'] = Conversation::PUSH;
 
-			if (is_int($notify) && in_array($notify, PRIORITIES)) {
+			if (is_int($notify) && in_array($notify, Worker::PRIORITIES)) {
 				$priority = $notify;
 			}
 		} else {
@@ -1124,6 +1124,13 @@ class Item
 		// Remove all media attachments from the body and store them in the post-media table
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
+
+		$quote_id = self::getQuoteUriId($item['body']);
+
+		if (!empty($quote_id) && Post::exists(['uri-id' => $quote_id, 'network' => Protocol::FEDERATED])) {
+			$item['quote-uri-id'] = $quote_id;
+			$item['raw-body'] = BBCode::removeSharedData($item['raw-body']);
+		}
 
 		if (!DBA::exists('contact', ['id' => $item['author-id'], 'network' => Protocol::DFRN])) {
 			Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body']);
@@ -2945,17 +2952,44 @@ class Item
 		$body = $item['body'] ?? '';
 		$shared = BBCode::fetchShareAttributes($body);
 		if (!empty($shared['guid'])) {
-			$shared_item = Post::selectFirst(['uri-id', 'plink', 'has-media'], ['guid' => $shared['guid']]);
-			$shared_uri_id = $shared_item['uri-id'] ?? 0;
-			$shared_links = [strtolower($shared_item['plink'] ?? '')];
-			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid'], [], $shared_item['has-media'] ?? false);
+			$shared_item = Post::selectFirst(['uri-id', 'guid', 'plink', 'has-media'], ['guid' => $shared['guid'], 'uid' => [$item['uid'], 0]]);
+		}
+
+		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media'];
+
+		$shared_uri_id = 0;
+		$shared_links  = [];
+
+		if (empty($shared_item['uri-id']) && !empty($item['quote-uri-id'])) {
+			$shared_item = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id']]);
+			$quote_uri_id = $item['quote-uri-id'] ?? 0;
+			$shared_links[] = strtolower($item['quote-uri']);
+		} elseif (empty($shared_item['uri-id']) && empty($item['quote-uri-id'])) {
+			$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::ACTIVITY]);
+			if (!empty($media)) {
+				$shared_item = Post::selectFirst($fields, ['plink' => $media[0]['url'], 'uid' => [$item['uid'], 0]]);
+
+				if (empty($shared_item['uri-id'])) {
+					$shared_item = Post::selectFirst($fields, ['uri' => $media[0]['url'], 'uid' => [$item['uid'], 0]]);
+					$shared_links[] = strtolower($media[0]['url']);
+				}
+
+				$quote_uri_id = $shared_item['uri-id'] ?? 0;
+			}
+		}
+
+		if (!empty($quote_uri_id)) {
+			$item['body'] .= "\n" . DI::contentItem()->createSharedBlockByArray($shared_item);
+		}
+
+		if (!empty($shared_item['uri-id'])) {
+			$shared_uri_id = $shared_item['uri-id'];
+			$shared_links[] = strtolower($shared_item['plink']);
+			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, $shared_item['guid'], [], $shared_item['has-media']);
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['visual'], 'url'));
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['link'], 'url'));
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['additional'], 'url'));
 			$item['body'] = self::replaceVisualAttachments($shared_attachments, $item['body']);
-		} else {
-			$shared_uri_id = 0;
-			$shared_links = [];
 		}
 
 		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links, $item['has-media'] ?? false);
@@ -3277,7 +3311,7 @@ class Item
 		}
 		DI::profiler()->stopRecording();
 
-		if (isset($data['url']) && !in_array($data['url'], $ignore_links)) {
+		if (isset($data['url']) && !in_array(strtolower($data['url']), $ignore_links)) {
 			if (!empty($data['description']) || !empty($data['image']) || !empty($data['preview'])) {
 				$parts = parse_url($data['url']);
 				if (!empty($parts['scheme']) && !empty($parts['host'])) {
@@ -3611,9 +3645,10 @@ class Item
 	 * Improve the data in shared posts
 	 *
 	 * @param array $item
+	 * @param bool  $add_media
 	 * @return string body
 	 */
-	public static function improveSharedDataInBody(array $item): string
+	public static function improveSharedDataInBody(array $item, bool $add_media = false): string
 	{
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (empty($shared['guid']) && empty($shared['message_id'])) {
@@ -3623,7 +3658,7 @@ class Item
 		$link = $shared['link'] ?: $shared['message_id'];
 
 		if (empty($shared_content)) {
-			$shared_content = DI::contentItem()->createSharedPostByUrl($link, $item['uid'] ?? 0);
+			$shared_content = DI::contentItem()->createSharedPostByUrl($link, $item['uid'] ?? 0, $add_media);
 		}
 
 		if (empty($shared_content)) {
@@ -3634,5 +3669,20 @@ class Item
 
 		Logger::debug('New shared data', ['uri-id' => $item['uri-id'], 'link' => $link, 'guid' => $item['guid']]);
 		return $item['body'];
+	}
+
+	/**
+	 * Fetch the uri-id of a quote
+	 *
+	 * @param string $body
+	 * @return integer
+	 */
+	private static function getQuoteUriId(string $body): int
+	{
+		$shared = BBCode::fetchShareAttributes($body);
+		if (empty($shared['message_id'])) {
+			return 0;
+		}
+		return ItemURI::getIdByURI($shared['message_id']);
 	}
 }

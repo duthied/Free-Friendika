@@ -45,14 +45,14 @@ class Pending extends BaseUsers
 			foreach ($pending as $hash) {
 				User::allow($hash);
 			}
-			info(DI::l10n()->tt('%s user approved', '%s users approved', count($pending)));
+			DI::sysmsg()->addInfo(DI::l10n()->tt('%s user approved', '%s users approved', count($pending)));
 		}
 
 		if (!empty($_POST['page_users_deny'])) {
 			foreach ($pending as $hash) {
 				User::deny($hash);
 			}
-			info(DI::l10n()->tt('%s registration revoked', '%s registrations revoked', count($pending)));
+			DI::sysmsg()->addInfo(DI::l10n()->tt('%s registration revoked', '%s registrations revoked', count($pending)));
 		}
 
 		DI::baseUrl()->redirect('admin/users/pending');
@@ -68,7 +68,7 @@ class Pending extends BaseUsers
 		if ($uid) {
 			$user = User::getById($uid, ['username', 'blocked']);
 			if (!DBA::isResult($user)) {
-				notice(DI::l10n()->t('User not found'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('User not found'));
 				DI::baseUrl()->redirect('admin/users');
 				return ''; // NOTREACHED
 			}
@@ -78,13 +78,13 @@ class Pending extends BaseUsers
 			case 'allow':
 				self::checkFormSecurityTokenRedirectOnError('/admin/users/pending', 'admin_users_pending', 't');
 				User::allow(Register::getPendingForUser($uid)['hash'] ?? '');
-				notice(DI::l10n()->t('Account approved.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Account approved.'));
 				DI::baseUrl()->redirect('admin/users/pending');
 				break;
 			case 'deny':
 				self::checkFormSecurityTokenRedirectOnError('/admin/users/pending', 'admin_users_pending', 't');
 				User::deny(Register::getPendingForUser($uid)['hash'] ?? '');
-				notice(DI::l10n()->t('Registration revoked'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Registration revoked'));
 				DI::baseUrl()->redirect('admin/users/pending');
 				break;
 		}

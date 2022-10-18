@@ -104,7 +104,7 @@ class Create extends BaseApi
 			$item = ['network' => Protocol::DFRN, 'protocol' => Conversation::PARCEL_DIRECT, 'direction' => Conversation::PUSH];
 			$item = Event::getItemArrayForId($event_id, $item);
 			if (Item::insert($item)) {
-				Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, (int)$item['uri-id'], $uid);
+				Worker::add(Worker::PRIORITY_HIGH, "Notifier", Delivery::POST, (int)$item['uri-id'], $uid);
 			}
 		}
 

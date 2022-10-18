@@ -35,6 +35,8 @@ class Update
 	const SUCCESS = 0;
 	const FAILED  = 1;
 
+	const NEW_TABLE_STRUCTURE_VERSION = 1288;
+
 	/**
 	 * Function to check if the Database structure needs an update.
 	 *
@@ -63,7 +65,7 @@ class Update
 		}
 
 		// We don't support upgrading from very old versions anymore
-		if ($build < NEW_TABLE_STRUCTURE_VERSION) {
+		if ($build < self::NEW_TABLE_STRUCTURE_VERSION) {
 			$error = DI::l10n()->t('Updates from version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.', $build);
 			if (DI::mode()->getExecutor() == Mode::INDEX) {
 				die($error);
@@ -73,8 +75,8 @@ class Update
 		}
 
 		// The postupdate has to completed version 1288 for the new post views to take over
-		$postupdate = DI::config()->get('system', 'post_update_version', NEW_TABLE_STRUCTURE_VERSION);
-		if ($postupdate < NEW_TABLE_STRUCTURE_VERSION) {
+		$postupdate = DI::config()->get('system', 'post_update_version', self::NEW_TABLE_STRUCTURE_VERSION);
+		if ($postupdate < self::NEW_TABLE_STRUCTURE_VERSION) {
 			$error = DI::l10n()->t('Updates from postupdate version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.', $postupdate);
 			if (DI::mode()->getExecutor() == Mode::INDEX) {
 				die($error);
@@ -92,7 +94,7 @@ class Update
 				 */
 				self::run($basePath);
 			} else {
-				Worker::add(PRIORITY_CRITICAL, 'DBUpdate');
+				Worker::add(Worker::PRIORITY_CRITICAL, 'DBUpdate');
 			}
 		}
 	}

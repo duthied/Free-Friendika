@@ -75,10 +75,10 @@ class Account extends BaseSettings
 					throw new Exception(DI::l10n()->t('Password update failed. Please try again.'));
 				}
 
-				info(DI::l10n()->t('Password changed.'));
+				DI::sysmsg()->addInfo(DI::l10n()->t('Password changed.'));
 			} catch (Exception $e) {
-				notice($e->getMessage());
-				notice(DI::l10n()->t('Password unchanged.'));
+				DI::sysmsg()->addNotice($e->getMessage());
+				DI::sysmsg()->addNotice(DI::l10n()->t('Password unchanged.'));
 			}
 
 			DI::baseUrl()->redirect($redirectUrl);
@@ -123,7 +123,7 @@ class Account extends BaseSettings
 			}
 
 			if (strlen($err)) {
-				notice($err);
+				DI::sysmsg()->addNotice($err);
 				return;
 			}
 
@@ -146,7 +146,7 @@ class Account extends BaseSettings
 			}
 
 			if (!User::update($fields, local_user())) {
-				notice(DI::l10n()->t('Settings were not updated.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
 			// clear session language
@@ -198,7 +198,7 @@ class Account extends BaseSettings
 			];
 
 			if (!User::update($fields, local_user()) || !Profile::update($profile_fields, local_user())) {
-				notice(DI::l10n()->t('Settings were not updated.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
 			DI::baseUrl()->redirect($redirectUrl);
@@ -218,7 +218,7 @@ class Account extends BaseSettings
 			DI::pConfig()->set(local_user(), 'expire', 'network_only', $expire_network_only);
 
 			if (!User::update(['expire' => $expire], local_user())) {
-				notice(DI::l10n()->t('Settings were not updated.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
 			DI::baseUrl()->redirect($redirectUrl);
@@ -302,7 +302,7 @@ class Account extends BaseSettings
 			];
 
 			if (!User::update($fields, local_user())) {
-				notice(DI::l10n()->t('Settings were not updated.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
 			DI::baseUrl()->redirect($redirectUrl);
@@ -351,7 +351,7 @@ class Account extends BaseSettings
 			]);
 
 			if (!User::update($fields, local_user()) || !empty($profile_fields) && !Profile::update($profile_fields, local_user())) {
-				notice(DI::l10n()->t('Settings were not updated.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
 			DI::baseUrl()->redirect($redirectUrl);
@@ -363,7 +363,7 @@ class Account extends BaseSettings
 				// was there an error
 				if ($_FILES['importcontact-filename']['error'] > 0) {
 					Logger::notice('Contact CSV file upload error', ['error' => $_FILES['importcontact-filename']['error']]);
-					notice(DI::l10n()->t('Contact CSV file upload error'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Contact CSV file upload error'));
 				} else {
 					$csvArray = array_map('str_getcsv', file($_FILES['importcontact-filename']['tmp_name']));
 					Logger::notice('Import started', ['lines' => count($csvArray)]);
@@ -375,14 +375,14 @@ class Account extends BaseSettings
 						// "http" or "@" to be present in the string.
 						// All other fields from the row will be ignored
 						if ((strpos($csvRow[0], '@') !== false) || Network::isValidHttpUrl($csvRow[0])) {
-							Worker::add(PRIORITY_MEDIUM, 'AddContact', local_user(), $csvRow[0]);
+							Worker::add(Worker::PRIORITY_MEDIUM, 'AddContact', local_user(), $csvRow[0]);
 						} else {
 							Logger::notice('Invalid account', ['url' => $csvRow[0]]);
 						}
 					}
 					Logger::notice('Import done');
 
-					info(DI::l10n()->t('Importing Contacts done'));
+					DI::sysmsg()->addInfo(DI::l10n()->t('Importing Contacts done'));
 					// delete temp file
 					unlink($_FILES['importcontact-filename']['tmp_name']);
 				}
@@ -394,8 +394,8 @@ class Account extends BaseSettings
 		}
 
 		if (!empty($request['relocate-submit'])) {
-			Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, local_user());
-			info(DI::l10n()->t("Relocate message has been send to your contacts"));
+			Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, local_user());
+			DI::sysmsg()->addInfo(DI::l10n()->t("Relocate message has been send to your contacts"));
 			DI::baseUrl()->redirect($redirectUrl);
 		}
 
@@ -412,7 +412,7 @@ class Account extends BaseSettings
 
 		$profile = DBA::selectFirst('profile', [], ['uid' => local_user()]);
 		if (!DBA::isResult($profile)) {
-			notice(DI::l10n()->t('Unable to find your profile. Please contact your admin.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to find your profile. Please contact your admin.'));
 			return '';
 		}
 

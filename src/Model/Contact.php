@@ -319,7 +319,7 @@ class Contact
 
 		// Update the contact in the background if needed
 		if (Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
-			Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
+			Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
 		}
 
 		// Remove the internal fields
@@ -884,7 +884,7 @@ class Contact
 		}
 
 		// Delete it in the background
-		Worker::add(PRIORITY_MEDIUM, 'Contact\Remove', $id);
+		Worker::add(Worker::PRIORITY_MEDIUM, 'Contact\Remove', $id);
 	}
 
 	/**
@@ -908,7 +908,7 @@ class Contact
 		if (in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
 			$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 			if (!empty($cdata['public'])) {
-				Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
+				Worker::add(Worker::PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
 			}
 		}
 
@@ -938,7 +938,7 @@ class Contact
 		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND])) {
 			$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 			if (!empty($cdata['public'])) {
-				Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
+				Worker::add(Worker::PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
 			}
 		}
 
@@ -966,11 +966,11 @@ class Contact
 		$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
 
 		if (in_array($contact['rel'], [self::SHARING, self::FRIEND]) && !empty($cdata['public'])) {
-			Worker::add(PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
+			Worker::add(Worker::PRIORITY_HIGH, 'Contact\Unfollow', $cdata['public'], $contact['uid']);
 		}
 
 		if (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND]) && !empty($cdata['public'])) {
-			Worker::add(PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
+			Worker::add(Worker::PRIORITY_HIGH, 'Contact\RevokeFollow', $cdata['public'], $contact['uid']);
 		}
 
 		self::remove($contact['id']);
@@ -1248,7 +1248,7 @@ class Contact
 			$contact_id = $contact['id'];
 
 			if (Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
-				Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
+				Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
 			}
 
 			if (empty($update) && (!empty($contact['uri-id']) || is_bool($update))) {
@@ -2365,7 +2365,7 @@ class Contact
 				return;
 			}
 			Logger::warning('account-user exists for a different contact id', ['account_user' => $account_user, 'id' => $id, 'uid' => $uid, 'uri-id' => $uri_id, 'url' => $url]);
-			Worker::add(PRIORITY_HIGH, 'MergeContact', $account_user['id'], $id, $uid);
+			Worker::add(Worker::PRIORITY_HIGH, 'MergeContact', $account_user['id'], $id, $uid);
 		} elseif (DBA::insert('account-user', ['id' => $id, 'uri-id' => $uri_id, 'uid' => $uid], Database::INSERT_IGNORE)) {
 			Logger::notice('account-user was added', ['id' => $id, 'uid' => $uid, 'uri-id' => $uri_id, 'url' => $url]);
 		} else {
@@ -2406,7 +2406,7 @@ class Contact
 				continue;
 			}
 
-			Worker::add(PRIORITY_HIGH, 'MergeContact', $first, $duplicate['id'], $uid);
+			Worker::add(Worker::PRIORITY_HIGH, 'MergeContact', $first, $duplicate['id'], $uid);
 		}
 		DBA::close($duplicates);
 		Logger::info('Duplicates handled', ['uid' => $uid, 'nurl' => $nurl, 'callstack' => System::callstack(20)]);
@@ -2608,7 +2608,7 @@ class Contact
 			if ($ret['network'] == Protocol::ACTIVITYPUB) {
 				$apcontact = APContact::getByURL($ret['url'], false);
 				if (!empty($apcontact['featured'])) {
-					Worker::add(PRIORITY_LOW, 'FetchFeaturedPosts', $ret['url']);
+					Worker::add(Worker::PRIORITY_LOW, 'FetchFeaturedPosts', $ret['url']);
 				}
 			}
 
@@ -2649,7 +2649,7 @@ class Contact
 			self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated]);
 
 			if (Contact\Relation::isDiscoverable($ret['url'])) {
-				Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
+				Worker::add(Worker::PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
 			}
 
 			// Update the public contact
@@ -2693,7 +2693,7 @@ class Contact
 		self::updateContact($id, $uid, $ret['uri-id'], $ret['url'], $ret);
 
 		if (Contact\Relation::isDiscoverable($ret['url'])) {
-			Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
+			Worker::add(Worker::PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
 		}
 
 		return true;
@@ -2853,30 +2853,30 @@ class Contact
 
 		// do we have enough information?
 		if (empty($protocol) || ($protocol == Protocol::PHANTOM) || (empty($ret['url']) && empty($ret['addr']))) {
-			$result['message'] .= DI::l10n()->t('The profile address specified does not provide adequate information.') . EOL;
+			$result['message'] .= DI::l10n()->t('The profile address specified does not provide adequate information.') . '<br />';
 			if (empty($ret['poll'])) {
-				$result['message'] .= DI::l10n()->t('No compatible communication protocols or feeds were discovered.') . EOL;
+				$result['message'] .= DI::l10n()->t('No compatible communication protocols or feeds were discovered.') . '<br />';
 			}
 			if (empty($ret['name'])) {
-				$result['message'] .= DI::l10n()->t('An author or name was not found.') . EOL;
+				$result['message'] .= DI::l10n()->t('An author or name was not found.') . '<br />';
 			}
 			if (empty($ret['url'])) {
-				$result['message'] .= DI::l10n()->t('No browser URL could be matched to this address.') . EOL;
+				$result['message'] .= DI::l10n()->t('No browser URL could be matched to this address.') . '<br />';
 			}
 			if (strpos($ret['url'], '@') !== false) {
-				$result['message'] .= DI::l10n()->t('Unable to match @-style Identity Address with a known protocol or email contact.') . EOL;
-				$result['message'] .= DI::l10n()->t('Use mailto: in front of address to force email check.') . EOL;
+				$result['message'] .= DI::l10n()->t('Unable to match @-style Identity Address with a known protocol or email contact.') . '<br />';
+				$result['message'] .= DI::l10n()->t('Use mailto: in front of address to force email check.') . '<br />';
 			}
 			return $result;
 		}
 
 		if ($protocol === Protocol::OSTATUS && DI::config()->get('system', 'ostatus_disabled')) {
-			$result['message'] .= DI::l10n()->t('The profile address specified belongs to a network which has been disabled on this site.') . EOL;
+			$result['message'] .= DI::l10n()->t('The profile address specified belongs to a network which has been disabled on this site.') . '<br />';
 			$ret['notify'] = '';
 		}
 
 		if (!$ret['notify']) {
-			$result['message'] .= DI::l10n()->t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . EOL;
+			$result['message'] .= DI::l10n()->t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . '<br />';
 		}
 
 		$writeable = ((($protocol === Protocol::OSTATUS) && ($ret['notify'])) ? 1 : 0);
@@ -2935,7 +2935,7 @@ class Contact
 
 		$contact = DBA::selectFirst('contact', [], ['url' => $ret['url'], 'network' => $ret['network'], 'uid' => $uid]);
 		if (!DBA::isResult($contact)) {
-			$result['message'] .= DI::l10n()->t('Unable to retrieve contact information.') . EOL;
+			$result['message'] .= DI::l10n()->t('Unable to retrieve contact information.') . '<br />';
 			return $result;
 		}
 
@@ -2949,13 +2949,13 @@ class Contact
 
 		// pull feed and consume it, which should subscribe to the hub.
 		if ($contact['network'] == Protocol::OSTATUS) {
-			Worker::add(PRIORITY_HIGH, 'OnePoll', $contact_id, 'force');
+			Worker::add(Worker::PRIORITY_HIGH, 'OnePoll', $contact_id, 'force');
 		}
 
 		if ($probed) {
 			self::updateFromProbeArray($contact_id, $ret);
 		} else {
-			Worker::add(PRIORITY_HIGH, 'UpdateContact', $contact_id);
+			Worker::add(Worker::PRIORITY_HIGH, 'UpdateContact', $contact_id);
 		}
 
 		$result['success'] = Protocol::follow($uid, $contact, $protocol);
@@ -3407,10 +3407,10 @@ class Contact
 			}
 			$contact = self::getByURL($url, false, ['id', 'network', 'next-update']);
 			if (empty($contact['id']) && Network::isValidHttpUrl($url)) {
-				Worker::add(PRIORITY_LOW, 'AddContact', 0, $url);
+				Worker::add(Worker::PRIORITY_LOW, 'AddContact', 0, $url);
 				++$added;
 			} elseif (!empty($contact['network']) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
-				Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
+				Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
 				++$updated;
 			} else {
 				++$unchanged;

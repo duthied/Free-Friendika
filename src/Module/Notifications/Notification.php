@@ -27,6 +27,7 @@ use Friendica\Contact\Introduction\Repository\Introduction;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
@@ -131,7 +132,7 @@ class Notification extends BaseModule
 	protected function content(array $request = []): string
 	{
 		if (!local_user()) {
-			notice($this->l10n->t('You must be logged in to show this page.'));
+			DI::sysmsg()->addNotice($this->l10n->t('You must be logged in to show this page.'));
 			return Login::form();
 		}
 

@@ -58,6 +58,10 @@ use Psr\Log\LoggerInterface;
  */
 class App
 {
+	const PLATFORM = 'Friendica';
+	const CODENAME = 'Giant Rhubarb';
+	const VERSION  = '2022.12-dev';
+
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
 	private $theme_info = [
@@ -346,6 +350,11 @@ class App
 	public function load()
 	{
 		set_time_limit(0);
+
+		// Normally this constant is defined - but not if "pcntl" isn't installed
+		if (!defined('SIGTERM')) {
+			define('SIGTERM', 15);
+		}
 
 		// Ensure that all "strtotime" operations do run timezone independent
 		date_default_timezone_set('UTC');

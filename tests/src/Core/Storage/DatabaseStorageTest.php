@@ -47,7 +47,6 @@ class DatabaseStorageTest extends StorageTest
 
 	protected function getInstance()
 	{
-		$logger   = new NullLogger();
 		$profiler = \Mockery::mock(Profiler::class);
 		$profiler->shouldReceive('startRecording');
 		$profiler->shouldReceive('stopRecording');
@@ -61,7 +60,7 @@ class DatabaseStorageTest extends StorageTest
 		$dbaDefinition = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
 		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
 
-		$dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition, $logger);
+		$dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition);
 
 		return new Database($dba);
 	}

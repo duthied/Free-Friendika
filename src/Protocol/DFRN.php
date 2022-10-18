@@ -25,6 +25,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use DOMXPath;
+use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -369,8 +370,8 @@ class DFRN
 		XML::addElement($doc, $root, 'id', DI::baseUrl() . '/profile/' . $owner['nick']);
 		XML::addElement($doc, $root, 'title', $owner['name']);
 
-		$attributes = ['uri' => 'https://friendi.ca', 'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION];
-		XML::addElement($doc, $root, 'generator', FRIENDICA_PLATFORM, $attributes);
+		$attributes = ['uri' => 'https://friendi.ca', 'version' => App::VERSION . '-' . DB_UPDATE_VERSION];
+		XML::addElement($doc, $root, 'generator', App::PLATFORM, $attributes);
 
 		$attributes = ['rel' => 'license', 'href' => 'http://creativecommons.org/licenses/by/3.0/'];
 		XML::addElement($doc, $root, 'link', '', $attributes);

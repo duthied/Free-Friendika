@@ -26,6 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
@@ -43,7 +44,7 @@ class SaveTag extends BaseModule
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		if (!local_user()) {
-			notice($this->t('You must be logged in to use this module'));
+			DI::sysmsg()->addNotice($this->t('You must be logged in to use this module'));
 			$baseUrl->redirect();
 		}
 	}

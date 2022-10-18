@@ -123,13 +123,13 @@ class UserImport
 
 		$account = json_decode(file_get_contents($file['tmp_name']), true);
 		if ($account === null) {
-			notice(DI::l10n()->t("Error decoding account file"));
+			DI::sysmsg()->addNotice(DI::l10n()->t("Error decoding account file"));
 			return;
 		}
 
 
 		if (empty($account['version'])) {
-			notice(DI::l10n()->t("Error! No version data in file! This is not a Friendica account file?"));
+			DI::sysmsg()->addNotice(DI::l10n()->t("Error! No version data in file! This is not a Friendica account file?"));
 			return;
 		}
 
@@ -137,7 +137,7 @@ class UserImport
 		// check if username matches deleted account
 		if (DBA::exists('user', ['nickname' => $account['user']['nickname']])
 			|| DBA::exists('userd', ['username' => $account['user']['nickname']])) {
-			notice(DI::l10n()->t("User '%s' already exists on this server!", $account['user']['nickname']));
+			DI::sysmsg()->addNotice(DI::l10n()->t("User '%s' already exists on this server!", $account['user']['nickname']));
 			return;
 		}
 
@@ -173,7 +173,7 @@ class UserImport
 		$r = self::dbImportAssoc('user', $account['user']);
 		if ($r === false) {
 			Logger::warning("uimport:insert user : ERROR : " . DBA::errorMessage());
-			notice(DI::l10n()->t("User creation error"));
+			DI::sysmsg()->addNotice(DI::l10n()->t("User creation error"));
 			return;
 		}
 		$newuid = self::lastInsertId();
@@ -218,7 +218,7 @@ class UserImport
 			}
 		}
 		if ($errorcount > 0) {
-			notice(DI::l10n()->tt("%d contact not imported", "%d contacts not imported", $errorcount));
+			DI::sysmsg()->addNotice(DI::l10n()->tt("%d contact not imported", "%d contacts not imported", $errorcount));
 		}
 
 		foreach ($account['group'] as &$group) {
@@ -271,7 +271,7 @@ class UserImport
 
 				if ($r === false) {
 					Logger::warning("uimport:insert profile: ERROR : " . DBA::errorMessage());
-					notice(DI::l10n()->t("User profile creation error"));
+					DI::sysmsg()->addNotice(DI::l10n()->t("User profile creation error"));
 					DBA::delete('user', ['uid' => $newuid]);
 					DBA::delete('profile_field', ['uid' => $newuid]);
 					return;
@@ -322,9 +322,9 @@ class UserImport
 		}
 
 		// send relocate messages
-		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $newuid);
+		Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $newuid);
 
-		info(DI::l10n()->t("Done. You can now login with your username and password"));
+		DI::sysmsg()->addInfo(DI::l10n()->t("Done. You can now login with your username and password"));
 		DI::baseUrl()->redirect('login');
 	}
 }

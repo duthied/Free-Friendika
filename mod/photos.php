@@ -157,14 +157,14 @@ function photos_post(App $a)
 	}
 
 	if (!$can_post) {
-		notice(DI::l10n()->t('Permission denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		System::exit();
 	}
 
 	$owner_record = User::getOwnerDataById($page_owner_uid);
 
 	if (!$owner_record) {
-		notice(DI::l10n()->t('Contact information unavailable'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Contact information unavailable'));
 		DI::logger()->info('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
 		System::exit();
 	}
@@ -193,7 +193,7 @@ function photos_post(App $a)
 		$album = hex2bin(DI::args()->getArgv()[3]);
 
 		if (!DBA::exists('photo', ['album' => $album, 'uid' => $page_owner_uid, 'photo-type' => Photo::DEFAULT])) {
-			notice(DI::l10n()->t('Album not found.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Album not found.'));
 			DI::baseUrl()->redirect('photos/' . $user['nickname'] . '/album');
 			return; // NOTREACHED
 		}
@@ -247,9 +247,9 @@ function photos_post(App $a)
 
 				// Update the photo albums cache
 				Photo::clearAlbumCache($page_owner_uid);
-				notice(DI::l10n()->t('Album successfully deleted'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Album successfully deleted'));
 			} else {
-				notice(DI::l10n()->t('Album was empty.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Album was empty.'));
 			}
 		}
 
@@ -281,7 +281,7 @@ function photos_post(App $a)
 				// Update the photo albums cache
 				Photo::clearAlbumCache($page_owner_uid);
 			} else {
-				notice(DI::l10n()->t('Failed to delete the photo.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Failed to delete the photo.'));
 				DI::baseUrl()->redirect('photos/' . DI::args()->getArgv()[1] . '/image/' . DI::args()->getArgv()[3]);
 			}
 
@@ -629,21 +629,21 @@ function photos_post(App $a)
 	if ($error !== UPLOAD_ERR_OK) {
 		switch ($error) {
 			case UPLOAD_ERR_INI_SIZE:
-				notice(DI::l10n()->t('Image exceeds size limit of %s', ini_get('upload_max_filesize')));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Image exceeds size limit of %s', ini_get('upload_max_filesize')));
 				break;
 			case UPLOAD_ERR_FORM_SIZE:
-				notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($_REQUEST['MAX_FILE_SIZE'] ?? 0)));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($_REQUEST['MAX_FILE_SIZE'] ?? 0)));
 				break;
 			case UPLOAD_ERR_PARTIAL:
-				notice(DI::l10n()->t('Image upload didn\'t complete, please try again'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Image upload didn\'t complete, please try again'));
 				break;
 			case UPLOAD_ERR_NO_FILE:
-				notice(DI::l10n()->t('Image file is missing'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Image file is missing'));
 				break;
 			case UPLOAD_ERR_NO_TMP_DIR:
 			case UPLOAD_ERR_CANT_WRITE:
 			case UPLOAD_ERR_EXTENSION:
-				notice(DI::l10n()->t('Server can\'t accept new file upload at this time, please contact your administrator'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Server can\'t accept new file upload at this time, please contact your administrator'));
 				break;
 		}
 		@unlink($src);
@@ -659,7 +659,7 @@ function photos_post(App $a)
 	$maximagesize = DI::config()->get('system', 'maximagesize');
 
 	if ($maximagesize && ($filesize > $maximagesize)) {
-		notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
 		@unlink($src);
 		$foo = 0;
 		Hook::callAll('photo_post_end', $foo);
@@ -667,7 +667,7 @@ function photos_post(App $a)
 	}
 
 	if (!$filesize) {
-		notice(DI::l10n()->t('Image file is empty.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Image file is empty.'));
 		@unlink($src);
 		$foo = 0;
 		Hook::callAll('photo_post_end', $foo);
@@ -682,7 +682,7 @@ function photos_post(App $a)
 
 	if (!$image->isValid()) {
 		Logger::notice('unable to process image');
-		notice(DI::l10n()->t('Unable to process image.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Unable to process image.'));
 		@unlink($src);
 		$foo = 0;
 		Hook::callAll('photo_post_end',$foo);
@@ -708,7 +708,7 @@ function photos_post(App $a)
 
 	if (!$r) {
 		Logger::warning('image store failed');
-		notice(DI::l10n()->t('Image upload failed.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Image upload failed.'));
 		return;
 	}
 
@@ -795,12 +795,12 @@ function photos_content(App $a)
 	}
 
 	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
-		notice(DI::l10n()->t('Public access denied.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Public access denied.'));
 		return;
 	}
 
 	if (empty($user)) {
-		notice(DI::l10n()->t('No photos selected'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('No photos selected'));
 		return;
 	}
 
@@ -869,7 +869,7 @@ function photos_content(App $a)
 	}
 
 	if ($user['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {
-		notice(DI::l10n()->t('Access to this item is restricted.'));
+		DI::sysmsg()->addNotice(DI::l10n()->t('Access to this item is restricted.'));
 		return;
 	}
 
@@ -884,7 +884,7 @@ function photos_content(App $a)
 	// Display upload form
 	if ($datatype === 'upload') {
 		if (!$can_post) {
-			notice(DI::l10n()->t('Permission denied.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return;
 		}
 
@@ -1084,9 +1084,9 @@ function photos_content(App $a)
 
 		if (!DBA::isResult($ph)) {
 			if (DBA::exists('photo', ['resource-id' => $datum, 'uid' => $owner_uid])) {
-				notice(DI::l10n()->t('Permission denied. Access to this item may be restricted.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied. Access to this item may be restricted.'));
 			} else {
-				notice(DI::l10n()->t('Photo not available'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Photo not available'));
 			}
 			return;
 		}
