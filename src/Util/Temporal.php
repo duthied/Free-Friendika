@@ -311,13 +311,16 @@ class Temporal
 	 *
 	 * @return string with relative date
 	 */
-	public static function getRelativeDate(string $posted_date, string $format = null): string
+	public static function getRelativeDate(string $posted_date = null, string $format = null): string
 	{
-		$localtime = $posted_date . ' UTC';
+		if (empty($posted_date) || $posted_date <= DBA::NULL_DATETIME) {
+			return DI::l10n()->t('never');
+		}
 
+		$localtime = $posted_date . ' UTC';
 		$abs = strtotime($localtime);
 
-		if (is_null($posted_date) || $posted_date <= DBA::NULL_DATETIME || $abs === false) {
+		if ($abs === false) {
 			return DI::l10n()->t('never');
 		}
 
