@@ -91,7 +91,7 @@ function redir_init(App $a) {
 		// with the local contact. Otherwise the local user would ask the local contact
 		// for authentification everytime he/she is visiting a profile page of the local
 		// contact.
-		if (($host == $remotehost) && (Session::getRemoteContactID(Session::get('visitor_visiting')) == Session::get('visitor_id'))) {
+		if (($host == $remotehost) && (Session::getRemoteContactID(DI::session()->get('visitor_visiting')) == DI::session()->get('visitor_id'))) {
 			// Remote user is already authenticated.
 			redir_check_url($contact_url, $url);
 			$target_url = $url ?: $contact_url;

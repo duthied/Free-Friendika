@@ -39,11 +39,6 @@ class Session
 		return DI::session()->exists($name);
 	}
 
-	public static function get($name, $defaults = null)
-	{
-		return DI::session()->get($name, $defaults);
-	}
-
 	public static function pop($name, $defaults = null)
 	{
 		return DI::session()->pop($name, $defaults);

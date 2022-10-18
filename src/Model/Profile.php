@@ -683,7 +683,7 @@ class Profile
 	 */
 	public static function getMyURL(): string
 	{
-		return Session::get('my_url') ?? '';
+		return DI::session()->get('my_url') ?? '';
 	}
 
 	/**

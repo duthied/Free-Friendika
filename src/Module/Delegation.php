@@ -46,8 +46,8 @@ class Delegation extends BaseModule
 		$uid = local_user();
 		$orig_record = User::getById(DI::app()->getLoggedInUserId());
 
-		if (Session::get('submanage')) {
-			$user = User::getById(Session::get('submanage'));
+		if (DI::session()->get('submanage')) {
+			$user = User::getById(DI::session()->get('submanage'));
 			if (DBA::isResult($user)) {
 				$uid = intval($user['uid']);
 				$orig_record = $user;

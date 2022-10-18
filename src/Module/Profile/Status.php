@@ -139,7 +139,7 @@ class Status extends BaseProfile
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
 		$condition = Item::getPermissionsConditionArrayByUserId($profile['uid']);
 
-		$last_updated_array = Session::get('last_updated', []);
+		$last_updated_array = DI::session()->get('last_updated', []);
 
 		if (!empty($category)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `category-view` WHERE `name` = ? AND `type` = ? AND `uid` = ?)",

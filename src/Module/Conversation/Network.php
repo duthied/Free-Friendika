@@ -307,7 +307,7 @@ class Network extends BaseModule
 
 		self::$forumContactId = $this->parameters['contact_id'] ?? 0;
 
-		self::$selectedTab = Session::get('network-tab', DI::pConfig()->get(local_user(), 'network.view', 'selected_tab', ''));
+		self::$selectedTab = DI::session()->get('network-tab', DI::pConfig()->get(local_user(), 'network.view', 'selected_tab', ''));
 
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';

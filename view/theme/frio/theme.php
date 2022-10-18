@@ -207,7 +207,7 @@ function frio_remote_nav(App $a, array &$nav_info)
 		// get the homelink from $_SESSION
 		$homelink = Profile::getMyURL();
 		if (!$homelink) {
-			$homelink = Session::get('visitor_home', '');
+			$homelink = DI::session()->get('visitor_home', '');
 		}
 
 		// since $userinfo isn't available for the hook we write it to the nav array

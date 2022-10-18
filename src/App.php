@@ -26,6 +26,7 @@ use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
 use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Core\Config\Factory\Config;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
 use Friendica\Core\Config\ValueObject\Cache;
@@ -126,6 +127,11 @@ class App
 	 * @var IManagePersonalConfigValues
 	 */
 	private $pConfig;
+
+	/**
+	 * @var IHandleSessions
+	 */
+	private $session;
 
 	/**
 	 * Set the user ID
@@ -328,8 +334,9 @@ class App
 	 * @param L10n                        $l10n     The translator instance
 	 * @param App\Arguments               $args     The Friendica Arguments of the call
 	 * @param IManagePersonalConfigValues $pConfig  Personal configuration
+	 * @param IHandleSessions             $session  The Session handler
 	 */
-	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig)
+	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig, IHandleSessions $session)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -340,6 +347,7 @@ class App
 		$this->l10n     = $l10n;
 		$this->args     = $args;
 		$this->pConfig  = $pConfig;
+		$this->session  = $session;
 
 		$this->load();
 	}
@@ -415,7 +423,7 @@ class App
 		}
 
 		// Specific mobile theme override
-		if (($this->mode->isMobile() || $this->mode->isTablet()) && Core\Session::get('show-mobile', true)) {
+		if (($this->mode->isMobile() || $this->mode->isTablet()) && $this->session->get('show-mobile', true)) {
 			$user_mobile_theme = $this->getCurrentMobileTheme();
 
 			// --- means same mobile theme as desktop
@@ -496,7 +504,7 @@ class App
 			}
 		}
 
-		$theme_name = $page_theme ?: Core\Session::get('theme', $system_theme);
+		$theme_name = $page_theme ?: $this->session->get('theme', $system_theme);
 
 		$theme_name = Strings::sanitizeFilePathItem($theme_name);
 		if ($theme_name
@@ -528,7 +536,7 @@ class App
 			}
 		}
 
-		$mobile_theme_name = $page_mobile_theme ?: Core\Session::get('mobile-theme', $system_mobile_theme);
+		$mobile_theme_name = $page_mobile_theme ?: $this->session->get('mobile-theme', $system_mobile_theme);
 
 		$mobile_theme_name = Strings::sanitizeFilePathItem($mobile_theme_name);
 		if ($mobile_theme_name == '---'
@@ -625,7 +633,7 @@ class App
 				// Valid profile links contain a path with "/profile/" and no query parameters
 				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == '') &&
 					strstr(parse_url($_GET['zrl'], PHP_URL_PATH), '/profile/')) {
-					if (Core\Session::get('visitor_home') != $_GET['zrl']) {
+					if ($this->session->get('visitor_home') != $_GET['zrl']) {
 						Core\Session::set('my_url', $_GET['zrl']);
 						Core\Session::set('authenticated', 0);
 

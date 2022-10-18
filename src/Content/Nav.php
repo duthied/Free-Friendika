@@ -208,7 +208,7 @@ class Nav
 		// "Home" should also take you home from an authenticated remote profile connection
 		$homelink = Profile::getMyURL();
 		if (! $homelink) {
-			$homelink = Session::get('visitor_home', '');
+			$homelink = DI::session()->get('visitor_home', '');
 		}
 
 		if ((DI::args()->getModuleName() != 'home') && (! (local_user()))) {
@@ -276,7 +276,7 @@ class Nav
 			$nav['home'] = ['profile/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];
 
 			// Don't show notifications for public communities
-			if (Session::get('page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {
+			if (DI::session()->get('page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {
 				$nav['introductions'] = ['notifications/intros', DI::l10n()->t('Introductions'), '', DI::l10n()->t('Friend Requests')];
 				$nav['notifications'] = ['notifications',	DI::l10n()->t('Notifications'), '', DI::l10n()->t('Notifications')];
 				$nav['notifications']['all'] = ['notifications/system', DI::l10n()->t('See all notifications'), '', ''];
