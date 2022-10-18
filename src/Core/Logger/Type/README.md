@@ -5,7 +5,6 @@ This namespace contains the different implementations of a Logger.
 ### Configuration guideline
 
 The following settings are possible for `logger_config`:
--	`monolog`: A Logging framework with lots of additions (see [Monolog](https://github.com/Seldaek/monolog/)). There are just Friendica additions inside the Monolog directory
 -	[`stream`](StreamLogger.php): A small logger for files or streams
 -	[`syslog`](SyslogLogger.php): Prints the logging output into the syslog
 
