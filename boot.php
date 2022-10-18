@@ -36,7 +36,7 @@ use Friendica\Core\Session;
  * feed for the source.
  * This can be used in HTML and JavaScript where needed a line break.
  */
-define('EOL',                    "<br />\r\n");
+define('EOL', "<br />\r\n");
 
 /**
  * @name Gravity
@@ -49,11 +49,6 @@ define('GRAVITY_ACTIVITY',     3);
 define('GRAVITY_COMMENT',      6);
 define('GRAVITY_UNKNOWN',      9);
 /* @}*/
-
-// Normally this constant is defined - but not if "pcntl" isn't installed
-if (!defined('SIGTERM')) {
-	define('SIGTERM', 15);
-}
 
 /**
  * Returns the user id of locally logged in user or false.

@@ -351,6 +351,11 @@ class App
 	{
 		set_time_limit(0);
 
+		// Normally this constant is defined - but not if "pcntl" isn't installed
+		if (!defined('SIGTERM')) {
+			define('SIGTERM', 15);
+		}
+
 		// Ensure that all "strtotime" operations do run timezone independent
 		date_default_timezone_set('UTC');
 
