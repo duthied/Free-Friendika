@@ -442,10 +442,13 @@ class System
 	 */
 	public static function getLoadAvg(): array
 	{
-		$content = @file_get_contents('/proc/loadavg');
-		if (empty($content)) {
-			$content = shell_exec('cat /proc/loadavg');
+		if (is_readable('/proc/loadavg')) {
+			$content = @file_get_contents('/proc/loadavg');
+			if (empty($content)) {
+				$content = shell_exec('cat /proc/loadavg');
+			}
 		}
+
 		if (empty($content) || !preg_match("#([.\d]+)\s([.\d]+)\s([.\d]+)\s(\d+)/(\d+)#", $content, $matches)) {
 			$load_arr = sys_getloadavg();
 			if (empty($load_arr)) {
