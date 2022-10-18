@@ -34,11 +34,6 @@ class Session
 	public static $exists = false;
 	public static $expire = 180000;
 
-	public static function exists($name)
-	{
-		return DI::session()->exists($name);
-	}
-
 	public static function pop($name, $defaults = null)
 	{
 		return DI::session()->pop($name, $defaults);
