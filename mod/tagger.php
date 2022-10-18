@@ -135,7 +135,7 @@ EOT;
 		'author-name'   => $contact['name'],
 		'author-link'   => $contact['url'],
 		'author-avatar' => $contact['thumb'],
-		'body'          => sprintf( $bodyverb, $ulink, $alink, $plink, $termlink),
+		'body'          => sprintf($bodyverb, $ulink, $alink, $plink, $termlink),
 		'verb'          => Activity::TAG,
 		'target-type'   => $targettype,
 		'target'        => $target,
