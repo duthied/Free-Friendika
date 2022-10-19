@@ -161,9 +161,7 @@ class Ping extends BaseModule
 				$ev = DBA::selectToArray('event', ['type', 'start'],
 					["`uid` = ? AND `start` < ? AND `finish` > ? AND NOT `ignore`",
 						Session::getLocalUser(), DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utcNow()]);
-				if (DBA::isResult($ev)) {
-					DI::cache()->set($cachekey, $ev, Duration::HOUR);
-				}
+				DI::cache()->set($cachekey, $ev, Duration::HOUR);
 			}
 
 			if (DBA::isResult($ev)) {
