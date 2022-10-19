@@ -123,13 +123,13 @@ The selected 1st part will be saved in the database by the theme_post function.
 
     function theme_post(App $a){
         // non local users shall not pass
-        if (! local_user()) {
+        if (!Session::getLocalUser()) {
             return;
         }
         // if the one specific submit button was pressed then proceed
         if (isset($_POST['duepuntozero-settings-submit'])){
             // and save the selection key into the personal config of the user
-            DI::pConfig()->set(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
+            DI::pConfig()->set(Session::getLocalUser(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
         }
     }
 
@@ -137,7 +137,7 @@ Now that this information is set in the database, what should friendica do with 
 For this, have a look at the theme.php file of the *duepunto zero*.
 There you'll find somethink alike
 
-        $colorset = DI::pConfig()->get( local_user(), 'duepuntozero','colorset');
+        $colorset = DI::pConfig()->get(Session::getLocalUser(), 'duepuntozero','colorset');
         if (!$colorset)
             $colorset = DI::config()->get('duepuntozero', 'colorset');
         if ($colorset) {

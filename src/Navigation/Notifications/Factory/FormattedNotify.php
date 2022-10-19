@@ -27,6 +27,7 @@ use Friendica\BaseFactory;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\Session;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -210,7 +211,7 @@ class FormattedNotify extends BaseFactory
 
 		$formattedNotifications = new FormattedNotifies();
 		try {
-			$Notifies = $this->notify->selectForUser(local_user(), $conditions, $params);
+			$Notifies = $this->notify->selectForUser(Session::getLocalUser(), $conditions, $params);
 
 			foreach ($Notifies as $Notify) {
 				$formattedNotifications[] = new ValueObject\FormattedNotify(
@@ -243,7 +244,7 @@ class FormattedNotify extends BaseFactory
 	 */
 	public function getNetworkList(bool $seen = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT): FormattedNotifies
 	{
-		$condition = ['wall' => false, 'uid' => local_user()];
+		$condition = ['wall' => false, 'uid' => Session::getLocalUser()];
 
 		if (!$seen) {
 			$condition['unseen'] = true;
@@ -256,7 +257,7 @@ class FormattedNotify extends BaseFactory
 		$formattedNotifications = new FormattedNotifies();
 
 		try {
-			$userPosts = Post::selectForUser(local_user(), $fields, $condition, $params);
+			$userPosts = Post::selectForUser(Session::getLocalUser(), $fields, $condition, $params);
 			while ($userPost = $this->dba->fetch($userPosts)) {
 				$formattedNotifications[] = $this->createFromFormattedItem($this->formatItem($userPost));
 			}
@@ -279,7 +280,7 @@ class FormattedNotify extends BaseFactory
 	 */
 	public function getPersonalList(bool $seen = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT): FormattedNotifies
 	{
-		$condition = ['wall' => false, 'uid' => local_user(), 'author-id' => public_contact()];
+		$condition = ['wall' => false, 'uid' => Session::getLocalUser(), 'author-id' => Session::getPublicContact()];
 
 		if (!$seen) {
 			$condition['unseen'] = true;
@@ -292,7 +293,7 @@ class FormattedNotify extends BaseFactory
 		$formattedNotifications = new FormattedNotifies();
 
 		try {
-			$userPosts = Post::selectForUser(local_user(), $fields, $condition, $params);
+			$userPosts = Post::selectForUser(Session::getLocalUser(), $fields, $condition, $params);
 			while ($userPost = $this->dba->fetch($userPosts)) {
 				$formattedNotifications[] = $this->createFromFormattedItem($this->formatItem($userPost));
 			}
@@ -315,7 +316,7 @@ class FormattedNotify extends BaseFactory
 	 */
 	public function getHomeList(bool $seen = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT): FormattedNotifies
 	{
-		$condition = ['wall' => true, 'uid' => local_user()];
+		$condition = ['wall' => true, 'uid' => Session::getLocalUser()];
 
 		if (!$seen) {
 			$condition['unseen'] = true;
@@ -328,7 +329,7 @@ class FormattedNotify extends BaseFactory
 		$formattedNotifications = new FormattedNotifies();
 
 		try {
-			$userPosts = Post::selectForUser(local_user(), $fields, $condition, $params);
+			$userPosts = Post::selectForUser(Session::getLocalUser(), $fields, $condition, $params);
 			while ($userPost = $this->dba->fetch($userPosts)) {
 				$formattedItem = $this->formatItem($userPost);
 

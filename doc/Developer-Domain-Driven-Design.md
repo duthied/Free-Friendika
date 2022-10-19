@@ -30,7 +30,7 @@ function doSomething(array $intros)
     }
 }
 
-$intros = \Friendica\Database\DBA::selectToArray('intros', [], ['uid' => local_user()]);
+$intros = \Friendica\Database\DBA::selectToArray('intros', [], ['uid' => Session::getLocalUser()]);
 
 doSomething($intros);
 ```
@@ -47,7 +47,7 @@ function doSomething(\Friendica\Contact\Introductions\Collection\Introductions $
 }
 
 /** @var $intros \Friendica\Contact\Introductions\Collection\Introductions */
-$intros = \Friendica\DI::intro()->selecForUser(local_user());
+$intros = \Friendica\DI::intro()->selecForUser(Session::getLocalUser());
 
 doSomething($intros);
 ```

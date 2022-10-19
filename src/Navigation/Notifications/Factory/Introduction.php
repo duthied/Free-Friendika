@@ -29,6 +29,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
+use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
@@ -142,7 +143,7 @@ class Introduction extends BaseFactory
 						'url'            => $intro['furl'],
 						'zrl'            => Contact::magicLink($intro['furl']),
 						'hidden'         => $intro['hidden'] == 1,
-						'post_newfriend' => (intval($this->pConfig->get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
+						'post_newfriend' => (intval($this->pConfig->get(Session::getLocalUser(), 'system', 'post_newfriend')) ? '1' : 0),
 						'note'           => $intro['note'],
 						'request'        => $intro['frequest'] . '?addr=' . $return_addr]);
 
@@ -167,7 +168,7 @@ class Introduction extends BaseFactory
 						'about'          => BBCode::convert($intro['about'], false),
 						'keywords'       => $intro['keywords'],
 						'hidden'         => $intro['hidden'] == 1,
-						'post_newfriend' => (intval($this->pConfig->get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
+						'post_newfriend' => (intval($this->pConfig->get(Session::getLocalUser(), 'system', 'post_newfriend')) ? '1' : 0),
 						'url'            => $intro['url'],
 						'zrl'            => Contact::magicLink($intro['url']),
 						'addr'           => $intro['addr'],
