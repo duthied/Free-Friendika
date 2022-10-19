@@ -32,6 +32,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
