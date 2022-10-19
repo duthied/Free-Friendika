@@ -25,8 +25,6 @@ use Friendica\DI;
 use Friendica\Model\Profile;
 use Friendica\Util\Strings;
 
-require_once 'boot.php';
-
 /**
  * Some functions to handle themes
  */

@@ -38,8 +38,6 @@ use Friendica\Protocol\Relay;
 use Friendica\Util\BasePath;
 use Friendica\Util\EMailer\MailBuilder;
 
-require_once __DIR__ . '/../../../boot.php';
-
 class Site extends BaseAdmin
 {
 	protected function post(array $request = [])

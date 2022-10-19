@@ -19,7 +19,6 @@ static/
 vendor/
 view/
 .htaccess-dist
-boot.php
 CHANGELOG
 CREDITS.txt
 database.sql

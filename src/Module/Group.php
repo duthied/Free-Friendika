@@ -29,8 +29,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
 
-require_once 'boot.php';
-
 class Group extends BaseModule
 {
 	protected function post(array $request = [])
