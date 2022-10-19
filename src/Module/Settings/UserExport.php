@@ -24,6 +24,7 @@ namespace Friendica\Module\Settings;
 use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -54,7 +55,7 @@ class UserExport extends BaseSettings
 	 */
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -100,17 +101,17 @@ class UserExport extends BaseSettings
 				case "backup":
 					header("Content-type: application/json");
 					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '.' . $action . '"');
-					self::exportAll(local_user());
+					self::exportAll(Session::getLocalUser());
 					break;
 				case "account":
 					header("Content-type: application/json");
 					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '.' . $action . '"');
-					self::exportAccount(local_user());
+					self::exportAccount(Session::getLocalUser());
 					break;
 				case "contact":
 					header("Content-type: application/csv");
 					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '-contacts.csv' . '"');
-					self::exportContactsAsCSV(local_user());
+					self::exportContactsAsCSV(Session::getLocalUser());
 					break;
 			}
 			System::exit();

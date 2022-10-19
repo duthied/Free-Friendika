@@ -29,6 +29,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\Session;
 use Friendica\Core\Theme;
 use Friendica\Model;
 use Friendica\Module\Contact;
@@ -67,13 +68,13 @@ class Conversations extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return Login::form($_SERVER['REQUEST_URI']);
 		}
 
 		// Backward compatibility: Ensure to use the public contact when the user contact is provided
 		// Remove by version 2022.03
-		$data = Model\Contact::getPublicAndUserContactID(intval($this->parameters['id']), local_user());
+		$data = Model\Contact::getPublicAndUserContactID(intval($this->parameters['id']), Session::getLocalUser());
 		if (empty($data)) {
 			throw new NotFoundException($this->t('Contact not found.'));
 		}
@@ -88,7 +89,7 @@ class Conversations extends BaseModule
 			throw new NotFoundException($this->t('Contact not found.'));
 		}
 
-		$localRelationship = $this->localRelationship->getForUserContact(local_user(), $contact['id']);
+		$localRelationship = $this->localRelationship->getForUserContact(Session::getLocalUser(), $contact['id']);
 		if ($localRelationship->rel === Model\Contact::SELF) {
 			$this->baseUrl->redirect('profile/' . $contact['nick']);
 		}

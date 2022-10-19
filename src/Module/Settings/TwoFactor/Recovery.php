@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Module\Response;
 use Friendica\Security\TwoFactor\Model\RecoveryCode;
@@ -49,11 +50,11 @@ class Recovery extends BaseSettings
 
 		$this->pConfig = $pConfig;
 
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
-		$secret = $this->pConfig->get(local_user(), '2fa', 'secret');
+		$secret = $this->pConfig->get(Session::getLocalUser(), '2fa', 'secret');
 
 		if (!$secret) {
 			$this->baseUrl->redirect('settings/2fa');
@@ -67,7 +68,7 @@ class Recovery extends BaseSettings
 
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
@@ -75,7 +76,7 @@ class Recovery extends BaseSettings
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/recovery', 'settings_2fa_recovery');
 
 			if ($_POST['action'] == 'regenerate') {
-				RecoveryCode::regenerateForUser(local_user());
+				RecoveryCode::regenerateForUser(Session::getLocalUser());
 				DI::sysmsg()->addInfo($this->t('New recovery codes successfully generated.'));
 				$this->baseUrl->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 			}
@@ -84,19 +85,19 @@ class Recovery extends BaseSettings
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return Login::form('settings/2fa/recovery');
 		}
 
 		parent::content();
 
-		if (!RecoveryCode::countValidForUser(local_user())) {
-			RecoveryCode::generateForUser(local_user());
+		if (!RecoveryCode::countValidForUser(Session::getLocalUser())) {
+			RecoveryCode::generateForUser(Session::getLocalUser());
 		}
 
-		$recoveryCodes = RecoveryCode::getListForUser(local_user());
+		$recoveryCodes = RecoveryCode::getListForUser(Session::getLocalUser());
 
-		$verified = $this->pConfig->get(local_user(), '2fa', 'verified');
+		$verified = $this->pConfig->get(Session::getLocalUser(), '2fa', 'verified');
 		
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/recovery.tpl'), [
 			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_recovery'),

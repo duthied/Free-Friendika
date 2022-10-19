@@ -25,6 +25,7 @@ use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -43,11 +44,11 @@ class Index extends BaseSettings
 {
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
-		$profile = Profile::getByUID(local_user());
+		$profile = Profile::getByUID(Session::getLocalUser());
 		if (!DBA::isResult($profile)) {
 			return;
 		}
@@ -101,12 +102,12 @@ class Index extends BaseSettings
 		}
 
 		$profileFieldsNew = self::getProfileFieldsFromInput(
-			local_user(),
+			Session::getLocalUser(),
 			$_REQUEST['profile_field'],
 			$_REQUEST['profile_field_order']
 		);
 
-		DI::profileField()->saveCollectionForUser(local_user(), $profileFieldsNew);
+		DI::profileField()->saveCollectionForUser(Session::getLocalUser(), $profileFieldsNew);
 
 		$result = Profile::update(
 			[
@@ -124,7 +125,7 @@ class Index extends BaseSettings
 				'pub_keywords' => $pub_keywords,
 				'prv_keywords' => $prv_keywords,
 			],
-			local_user()
+			Session::getLocalUser()
 		);
 
 		if (!$result) {
@@ -137,7 +138,7 @@ class Index extends BaseSettings
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('You must be logged in to use this module'));
 			return Login::form();
 		}
@@ -146,7 +147,7 @@ class Index extends BaseSettings
 
 		$o = '';
 
-		$profile = User::getOwnerDataById(local_user());
+		$profile = User::getOwnerDataById(Session::getLocalUser());
 		if (!DBA::isResult($profile)) {
 			throw new HTTPException\NotFoundException();
 		}
@@ -158,7 +159,7 @@ class Index extends BaseSettings
 
 		$custom_fields = [];
 
-		$profileFields = DI::profileField()->selectByUserId(local_user());
+		$profileFields = DI::profileField()->selectByUserId(Session::getLocalUser());
 		foreach ($profileFields as $profileField) {
 			/** @var ProfileField $profileField */
 			$defaultPermissions = $profileField->permissionSet->withAllowedContacts(

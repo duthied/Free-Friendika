@@ -42,13 +42,13 @@ class Profile extends BaseModule
 		// Ensure we've got a profile owner if updating.
 		$a->setProfileOwner((int)($_GET['p'] ?? 0));
 
-		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->getProfileOwner())) {
+		if (DI::config()->get('system', 'block_public') && !Session::getLocalUser() && !Session::getRemoteContactID($a->getProfileOwner())) {
 			throw new ForbiddenException();
 		}
 
 		$remote_contact = Session::getRemoteContactID($a->getProfileOwner());
-		$is_owner = local_user() == $a->getProfileOwner();
-		$last_updated_key = "profile:" . $a->getProfileOwner() . ":" . local_user() . ":" . $remote_contact;
+		$is_owner = Session::getLocalUser() == $a->getProfileOwner();
+		$last_updated_key = "profile:" . $a->getProfileOwner() . ":" . Session::getLocalUser() . ":" . $remote_contact;
 
 		if (!$is_owner && !$remote_contact) {
 			$user = User::getById($a->getProfileOwner(), ['hidewall']);
@@ -59,7 +59,7 @@ class Profile extends BaseModule
 
 		$o = '';
 
-		if (empty($_GET['force']) && DI::pConfig()->get(local_user(), 'system', 'no_auto_update')) {
+		if (empty($_GET['force']) && DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_auto_update')) {
 			System::htmlUpdateExit($o);
 		}
 
@@ -110,9 +110,9 @@ class Profile extends BaseModule
 		}
 
 		if ($is_owner) {
-			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => local_user()]);
+			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => Session::getLocalUser()]);
 			if ($unseen) {
-				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => local_user()]);
+				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => Session::getLocalUser()]);
 			}
 		}
 

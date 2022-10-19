@@ -66,7 +66,7 @@ class Advanced extends BaseModule
 	{
 		$cid = $this->parameters['id'];
 
-		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
+		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => Session::getLocalUser()]);
 		if (empty($contact)) {
 			throw new BadRequestException($this->t('Contact not found.'));
 		}
@@ -87,7 +87,7 @@ class Advanced extends BaseModule
 				'nurl'        => $nurl,
 				'poll'        => $poll,
 			],
-			['id' => $contact['id'], 'uid' => local_user()]
+			['id' => $contact['id'], 'uid' => Session::getLocalUser()]
 		);
 
 		if ($photo) {
@@ -105,7 +105,7 @@ class Advanced extends BaseModule
 	{
 		$cid = $this->parameters['id'];
 
-		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
+		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => Session::getLocalUser()]);
 		if (empty($contact)) {
 			throw new BadRequestException($this->t('Contact not found.'));
 		}

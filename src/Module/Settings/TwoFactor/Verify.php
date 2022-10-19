@@ -54,12 +54,12 @@ class Verify extends BaseSettings
 
 		$this->pConfig = $pConfig;
 
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
-		$secret   = $this->pConfig->get(local_user(), '2fa', 'secret');
-		$verified = $this->pConfig->get(local_user(), '2fa', 'verified');
+		$secret   = $this->pConfig->get(Session::getLocalUser(), '2fa', 'secret');
+		$verified = $this->pConfig->get(Session::getLocalUser(), '2fa', 'verified');
 
 		if ($secret && $verified) {
 			$this->baseUrl->redirect('settings/2fa');
@@ -73,7 +73,7 @@ class Verify extends BaseSettings
 
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
@@ -82,10 +82,10 @@ class Verify extends BaseSettings
 
 			$google2fa = new Google2FA();
 
-			$valid = $google2fa->verifyKey($this->pConfig->get(local_user(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
+			$valid = $google2fa->verifyKey($this->pConfig->get(Session::getLocalUser(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
 
 			if ($valid) {
-				$this->pConfig->set(local_user(), '2fa', 'verified', true);
+				$this->pConfig->set(Session::getLocalUser(), '2fa', 'verified', true);
 				DI::session()->set('2fa', true);
 
 				DI::sysmsg()->addInfo($this->t('Two-factor authentication successfully activated.'));
@@ -99,7 +99,7 @@ class Verify extends BaseSettings
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return Login::form('settings/2fa/verify');
 		}
 
@@ -107,7 +107,7 @@ class Verify extends BaseSettings
 
 		$company = 'Friendica';
 		$holder = DI::session()->get('my_address');
-		$secret = $this->pConfig->get(local_user(), '2fa', 'secret');
+		$secret = $this->pConfig->get(Session::getLocalUser(), '2fa', 'secret');
 
 		$otpauthUrl = (new Google2FA())->getQRCodeUrl($company, $holder, $secret);
 
