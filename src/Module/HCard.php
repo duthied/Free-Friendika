@@ -36,7 +36,7 @@ class HCard extends BaseModule
 {
 	protected function content(array $request = []): string
 	{
-		if ((local_user()) && ($this->parameters['action'] ?? '') === 'view') {
+		if ((Session::getLocalUser()) && ($this->parameters['action'] ?? '') === 'view') {
 			// A logged in user views a profile of a user
 			$nickname = DI::app()->getLoggedInUserNickname();
 		} elseif (empty($this->parameters['action'])) {

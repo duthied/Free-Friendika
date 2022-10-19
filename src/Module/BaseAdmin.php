@@ -52,7 +52,7 @@ abstract class BaseAdmin extends BaseModule
 	 */
 	public static function checkAdminAccess(bool $interactive = false)
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			if ($interactive) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Please login to continue.'));
 				Session::set('return_path', DI::args()->getQueryString());

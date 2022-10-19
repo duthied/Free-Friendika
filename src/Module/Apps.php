@@ -28,6 +28,7 @@ use Friendica\Content\Nav;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -42,7 +43,7 @@ class Apps extends BaseModule
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$privateaddons = $config->get('config', 'private_addons');
-		if ($privateaddons === "1" && !local_user()) {
+		if ($privateaddons === "1" && !Session::getLocalUser()) {
 			$baseUrl->redirect();
 		}
 	}
