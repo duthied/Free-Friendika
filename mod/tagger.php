@@ -63,13 +63,13 @@ function tagger_content(App $a)
 
 	$owner_uid = $item['uid'];
 
-	if (local_user() != $owner_uid) {
+	if (Session::getLocalUser() != $owner_uid) {
 		return;
 	}
 
-	$contact = Contact::selectFirst([], ['self' => true, 'uid' => local_user()]);
+	$contact = Contact::selectFirst([], ['self' => true, 'uid' => Session::getLocalUser()]);
 	if (!DBA::isResult($contact)) {
-		Logger::warning('Self contact not found.', ['uid' => local_user()]);
+		Logger::warning('Self contact not found.', ['uid' => Session::getLocalUser()]);
 		return;
 	}
 

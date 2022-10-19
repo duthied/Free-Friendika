@@ -23,6 +23,7 @@ use Friendica\App;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -44,7 +45,7 @@ use Friendica\Module\Contact as ModuleContact;
  */
 function match_content(App $a)
 {
-	if (!local_user()) {
+	if (!Session::getLocalUser()) {
 		return '';
 	}
 
@@ -53,7 +54,7 @@ function match_content(App $a)
 
 	$_SESSION['return_path'] = DI::args()->getCommand();
 
-	$profile = Profile::getByUID(local_user());
+	$profile = Profile::getByUID(Session::getLocalUser());
 
 	if (!DBA::isResult($profile)) {
 		return '';
@@ -67,10 +68,10 @@ function match_content(App $a)
 	$tags = trim($profile['pub_keywords'] . ' ' . $profile['prv_keywords']);
 
 	if (DI::mode()->isMobile()) {
-		$limit = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+		$limit = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
 			DI::config()->get('system', 'itemspage_network_mobile'));
 	} else {
-		$limit = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+		$limit = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
 			DI::config()->get('system', 'itemspage_network'));
 	}
 
@@ -114,12 +115,12 @@ function match_get_contacts($msearch, $entries, $limit)
 		}
 
 		// Already known contact
-		$contact = Contact::getByURL($profile->url, null, ['rel'], local_user());
+		$contact = Contact::getByURL($profile->url, null, ['rel'], Session::getLocalUser());
 		if (!empty($contact) && in_array($contact['rel'], [Contact::FRIEND, Contact::SHARING])) {
 			continue;
 		}
 
-		$contact = Contact::getByURLForUser($profile->url, local_user());
+		$contact = Contact::getByURLForUser($profile->url, Session::getLocalUser());
 		if (!empty($contact)) {
 			$entries[$contact['id']] = ModuleContact::getContactTemplateVars($contact);
 		}

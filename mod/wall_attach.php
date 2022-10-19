@@ -55,7 +55,7 @@ function wall_attach_post(App $a) {
 	$page_owner_cid = $owner['id'];
 	$community_page = $owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 
-	if (local_user() && (local_user() == $page_owner_uid)) {
+	if (Session::getLocalUser() && (Session::getLocalUser() == $page_owner_uid)) {
 		$can_post = true;
 	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
 		$contact_id = Session::getRemoteContactID($page_owner_uid);

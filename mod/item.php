@@ -62,7 +62,7 @@ function item_post(App $a) {
 		throw new HTTPException\ForbiddenException();
 	}
 
-	$uid = local_user();
+	$uid = Session::getLocalUser();
 
 	if (!empty($_REQUEST['dropitems'])) {
 		$arr_drop = explode(',', $_REQUEST['dropitems']);
@@ -107,7 +107,7 @@ function item_post(App $a) {
 	$toplevel_user_id = null;
 
 	$objecttype = null;
-	$profile_uid = ($_REQUEST['profile_uid'] ?? 0) ?: local_user();
+	$profile_uid = ($_REQUEST['profile_uid'] ?? 0) ?: Session::getLocalUser();
 	$posttype = ($_REQUEST['post_type'] ?? '') ?: Item::PT_ARTICLE;
 
 	if ($parent_item_id || $thr_parent_uri) {
@@ -139,7 +139,7 @@ function item_post(App $a) {
 		// When commenting on a public post then store the post for the current user
 		// This enables interaction like starring and saving into folders
 		if ($toplevel_item['uid'] == 0) {
-			$stored = Item::storeForUserByUriId($toplevel_item['uri-id'], local_user(), ['post-reason' => Item::PR_ACTIVITY]);
+			$stored = Item::storeForUserByUriId($toplevel_item['uri-id'], Session::getLocalUser(), ['post-reason' => Item::PR_ACTIVITY]);
 			Logger::info('Public item stored for user', ['uri-id' => $toplevel_item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
 			if ($stored) {
 				$toplevel_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $stored]);
@@ -169,16 +169,16 @@ function item_post(App $a) {
 	}
 
 	// Ensure that the user id in a thread always stay the same
-	if (!is_null($toplevel_user_id) && in_array($toplevel_user_id, [local_user(), 0])) {
+	if (!is_null($toplevel_user_id) && in_array($toplevel_user_id, [Session::getLocalUser(), 0])) {
 		$profile_uid = $toplevel_user_id;
 	}
 
 	// Allow commenting if it is an answer to a public post
-	$allow_comment = local_user() && $toplevel_item_id && in_array($toplevel_item['private'], [Item::PUBLIC, Item::UNLISTED]) && in_array($toplevel_item['network'], Protocol::FEDERATED);
+	$allow_comment = Session::getLocalUser() && $toplevel_item_id && in_array($toplevel_item['private'], [Item::PUBLIC, Item::UNLISTED]) && in_array($toplevel_item['network'], Protocol::FEDERATED);
 
 	// Now check that valid personal details have been provided
 	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
-		Logger::warning('Permission denied.', ['local' => local_user(), 'profile_uid' => $profile_uid, 'toplevel_item_id' => $toplevel_item_id, 'network' => $toplevel_item['network']]);
+		Logger::warning('Permission denied.', ['local' => Session::getLocalUser(), 'profile_uid' => $profile_uid, 'toplevel_item_id' => $toplevel_item_id, 'network' => $toplevel_item['network']]);
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
@@ -324,9 +324,9 @@ function item_post(App $a) {
 		$pubmail_enabled = ($_REQUEST['pubmail_enable'] ?? false) && !$private;
 
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
-		if ($api_source && $profile_uid && $profile_uid == local_user() && !$private) {
+		if ($api_source && $profile_uid && $profile_uid == Session::getLocalUser() && !$private) {
 			if (function_exists('imap_open') && !DI::config()->get('system', 'imap_disabled')) {
-				$pubmail_enabled = DBA::exists('mailacct', ["`uid` = ? AND `server` != ? AND `pubmail`", local_user(), '']);
+				$pubmail_enabled = DBA::exists('mailacct', ["`uid` = ? AND `server` != ? AND `pubmail`", Session::getLocalUser(), '']);
 			}
 		}
 
@@ -363,9 +363,9 @@ function item_post(App $a) {
 	$self   = false;
 	$contact_id = 0;
 
-	if (local_user() && ((local_user() == $profile_uid) || $allow_comment)) {
+	if (Session::getLocalUser() && ((Session::getLocalUser() == $profile_uid) || $allow_comment)) {
 		$self = true;
-		$author = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
+		$author = DBA::selectFirst('contact', [], ['uid' => Session::getLocalUser(), 'self' => true]);
 	} elseif (!empty(Session::getRemoteContactID($profile_uid))) {
 		$author = DBA::selectFirst('contact', [], ['id' => Session::getRemoteContactID($profile_uid)]);
 	}
@@ -375,7 +375,7 @@ function item_post(App $a) {
 	}
 
 	// get contact info for owner
-	if ($profile_uid == local_user() || $allow_comment) {
+	if ($profile_uid == Session::getLocalUser() || $allow_comment) {
 		$contact_record = $author ?: [];
 	} else {
 		$contact_record = DBA::selectFirst('contact', [], ['uid' => $profile_uid, 'self' => true]) ?: [];
@@ -385,7 +385,7 @@ function item_post(App $a) {
 	if ($posttype != Item::PT_PERSONAL_NOTE) {
 		// Look for any tags and linkify them
 		$item = [
-			'uid'       => local_user() ? local_user() : $profile_uid,
+			'uid'       => Session::getLocalUser() ? Session::getLocalUser() : $profile_uid,
 			'gravity'   => $toplevel_item_id ? Item::GRAVITY_COMMENT : Item::GRAVITY_PARENT,
 			'network'   => $network,
 			'body'      => $body,
@@ -734,7 +734,7 @@ function item_post(App $a) {
 
 	Hook::callAll('post_local_end', $datarray);
 
-	if (strlen($emailcc) && $profile_uid == local_user()) {
+	if (strlen($emailcc) && $profile_uid == Session::getLocalUser()) {
 		$recipients = explode(',', $emailcc);
 		if (count($recipients)) {
 			foreach ($recipients as $recipient) {
@@ -794,9 +794,9 @@ function item_content(App $a)
 	switch ($args->get(1)) {
 		case 'drop':
 			if (DI::mode()->isAjax()) {
-				Item::deleteForUser(['id' => $args->get(2)], local_user());
+				Item::deleteForUser(['id' => $args->get(2)], Session::getLocalUser());
 				// ajax return: [<item id>, 0 (no perm) | <owner id>]
-				System::jsonExit([intval($args->get(2)), local_user()]);
+				System::jsonExit([intval($args->get(2)), Session::getLocalUser()]);
 			} else {
 				if (!empty($args->get(3))) {
 					$o = drop_item($args->get(2), $args->get(3));
@@ -807,16 +807,16 @@ function item_content(App $a)
 			break;
 
 		case 'block':
-			$item = Post::selectFirstForUser(local_user(), ['guid', 'author-id', 'parent', 'gravity'], ['id' => $args->get(2)]);
+			$item = Post::selectFirstForUser(Session::getLocalUser(), ['guid', 'author-id', 'parent', 'gravity'], ['id' => $args->get(2)]);
 			if (empty($item['author-id'])) {
 				throw new HTTPException\NotFoundException('Item not found');
 			}
 
-			Contact\User::setBlocked($item['author-id'], local_user(), true);
+			Contact\User::setBlocked($item['author-id'], Session::getLocalUser(), true);
 
 			if (DI::mode()->isAjax()) {
 				// ajax return: [<item id>, 0 (no perm) | <owner id>]
-				System::jsonExit([intval($args->get(2)), local_user()]);
+				System::jsonExit([intval($args->get(2)), Session::getLocalUser()]);
 			} else {
 				item_redirect_after_action($item, $args->get(3));
 			}
@@ -835,7 +835,7 @@ function item_content(App $a)
 function drop_item(int $id, string $return = ''): string
 {
 	// Locate item to be deleted
-	$item = Post::selectFirstForUser(local_user(), ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', 'parent'], ['id' => $id]);
+	$item = Post::selectFirstForUser(Session::getLocalUser(), ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', 'parent'], ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Item not found.'));
@@ -854,14 +854,14 @@ function drop_item(int $id, string $return = ''): string
 		$contact_id = $item['contact-id'];
 	}
 
-	if ((local_user() == $item['uid']) || $contact_id) {
+	if ((Session::getLocalUser() == $item['uid']) || $contact_id) {
 		// delete the item
-		Item::deleteForUser(['id' => $item['id']], local_user());
+		Item::deleteForUser(['id' => $item['id']], Session::getLocalUser());
 
 		item_redirect_after_action($item, $return);
 		//NOTREACHED
 	} else {
-		Logger::warning('Permission denied.', ['local' => local_user(), 'uid' => $item['uid'], 'cid' => $contact_id]);
+		Logger::warning('Permission denied.', ['local' => Session::getLocalUser(), 'uid' => $item['uid'], 'cid' => $contact_id]);
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('display/' . $item['guid']);
 		//NOTREACHED
@@ -880,7 +880,7 @@ function item_redirect_after_action(array $item, string $returnUrlHex)
 	// Check if delete a comment
 	if ($item['gravity'] == Item::GRAVITY_COMMENT) {
 		if (!empty($item['parent'])) {
-			$parentitem = Post::selectFirstForUser(local_user(), ['guid'], ['id' => $item['parent']]);
+			$parentitem = Post::selectFirstForUser(Session::getLocalUser(), ['guid'], ['id' => $item['parent']]);
 		}
 
 		// Return to parent guid

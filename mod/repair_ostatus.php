@@ -21,13 +21,14 @@
 
 use Friendica\App;
 use Friendica\Core\Protocol;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 
 function repair_ostatus_content(App $a) {
 
-	if (!local_user()) {
+	if (!Session::getLocalUser()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('ostatus_repair');
 		// NOTREACHED
@@ -35,7 +36,7 @@ function repair_ostatus_content(App $a) {
 
 	$o = '<h2>' . DI::l10n()->t('Resubscribing to OStatus contacts') . '</h2>';
 
-	$uid = local_user();
+	$uid = Session::getLocalUser();
 
 	$counter = intval($_REQUEST['counter'] ?? 0);
 

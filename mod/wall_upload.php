@@ -76,7 +76,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$page_owner_nick  = $user['nickname'];
 	$community_page   = (($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
-	if ((local_user()) && (local_user() == $page_owner_uid)) {
+	if ((Session::getLocalUser()) && (Session::getLocalUser() == $page_owner_uid)) {
 		$can_post = true;
 	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
 		$contact_id = Session::getRemoteContactID($page_owner_uid);

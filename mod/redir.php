@@ -52,7 +52,7 @@ function redir_init(App $a) {
 	}
 
 	$fields = ['id', 'uid', 'nurl', 'url', 'addr', 'name'];
-	$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => [0, local_user()]]);
+	$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => [0, Session::getLocalUser()]]);
 	if (!DBA::isResult($contact)) {
 		throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('Contact not found.'));
 	}
@@ -65,10 +65,10 @@ function redir_init(App $a) {
 		$a->redirect($url ?: $contact_url);
 	}
 
-	if ($contact['uid'] == 0 && local_user()) {
+	if ($contact['uid'] == 0 && Session::getLocalUser()) {
 		// Let's have a look if there is an established connection
 		// between the public contact we have found and the local user.
-		$contact = DBA::selectFirst('contact', $fields, ['nurl' => $contact['nurl'], 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', $fields, ['nurl' => $contact['nurl'], 'uid' => Session::getLocalUser()]);
 
 		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
@@ -83,7 +83,7 @@ function redir_init(App $a) {
 		}
 	}
 
-	if (remote_user()) {
+	if (Session::getRemoteUser()) {
 		$host = substr(DI::baseUrl()->getUrlPath() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : ''), strpos(DI::baseUrl()->getUrlPath(), '://') + 3);
 		$remotehost = substr($contact['addr'], strpos($contact['addr'], '@') + 1);
 
@@ -91,7 +91,7 @@ function redir_init(App $a) {
 		// with the local contact. Otherwise the local user would ask the local contact
 		// for authentification everytime he/she is visiting a profile page of the local
 		// contact.
-		if (($host == $remotehost) && (Session::getRemoteContactID(Session::get('visitor_visiting')) == Session::get('visitor_id'))) {
+		if (($host == $remotehost) && (Session::getRemoteContactID(DI::session()->get('visitor_visiting')) == DI::session()->get('visitor_id'))) {
 			// Remote user is already authenticated.
 			redir_check_url($contact_url, $url);
 			$target_url = $url ?: $contact_url;

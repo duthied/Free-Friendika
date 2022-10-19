@@ -69,7 +69,7 @@ function photos_init(App $a)
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		$is_owner = (local_user() && (local_user() == $owner['uid']));
+		$is_owner = (Session::getLocalUser() && (Session::getLocalUser() == $owner['uid']));
 
 		$albums = Photo::getAlbums($owner['uid']);
 
@@ -96,7 +96,7 @@ function photos_init(App $a)
 			}
 		}
 
-		if (local_user() && $owner['uid'] == local_user()) {
+		if (Session::getLocalUser() && $owner['uid'] == Session::getLocalUser()) {
 			$can_post = true;
 		} else {
 			$can_post = false;
@@ -148,7 +148,7 @@ function photos_post(App $a)
 	$page_owner_uid = intval($user['uid']);
 	$community_page = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 
-	if (local_user() && (local_user() == $page_owner_uid)) {
+	if (Session::getLocalUser() && (Session::getLocalUser() == $page_owner_uid)) {
 		$can_post = true;
 	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
 		$contact_id = Session::getRemoteContactID($page_owner_uid);
@@ -229,7 +229,7 @@ function photos_post(App $a)
 				));
 			} else {
 				$r = DBA::toArray(DBA::p("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `uid` = ? AND `album` = ?",
-					local_user(),
+					Session::getLocalUser(),
 					$album
 				));
 			}
@@ -268,7 +268,7 @@ function photos_post(App $a)
 				$condition = ['contact-id' => $visitor, 'uid' => $page_owner_uid, 'resource-id' => DI::args()->getArgv()[3]];
 
 			} else {
-				$condition = ['uid' => local_user(), 'resource-id' => DI::args()->getArgv()[3]];
+				$condition = ['uid' => Session::getLocalUser(), 'resource-id' => DI::args()->getArgv()[3]];
 			}
 
 			$photo = DBA::selectFirst('photo', ['resource-id'], $condition);
@@ -840,7 +840,7 @@ function photos_content(App $a)
 
 	$community_page = (($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
-	if (local_user() && (local_user() == $owner_uid)) {
+	if (Session::getLocalUser() && (Session::getLocalUser() == $owner_uid)) {
 		$can_post = true;
 	} elseif ($community_page && !empty(Session::getRemoteContactID($owner_uid))) {
 		$contact_id = Session::getRemoteContactID($owner_uid);
@@ -862,13 +862,13 @@ function photos_content(App $a)
 		$remote_contact = DBA::isResult($contact);
 	}
 
-	if (!$remote_contact && local_user()) {
+	if (!$remote_contact && Session::getLocalUser()) {
 		$contact_id = $_SESSION['cid'];
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 	}
 
-	if ($user['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {
+	if ($user['hidewall'] && (Session::getLocalUser() != $owner_uid) && !$remote_contact) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Access to this item is restricted.'));
 		return;
 	}
@@ -878,7 +878,7 @@ function photos_content(App $a)
 	$o = "";
 
 	// tabs
-	$is_owner = (local_user() && (local_user() == $owner_uid));
+	$is_owner = (Session::getLocalUser() && (Session::getLocalUser() == $owner_uid));
 	$o .= BaseProfile::getTabsHTML($a, 'photos', $is_owner, $user['nickname'], $profile['hide-friends']);
 
 	// Display upload form
@@ -1197,7 +1197,7 @@ function photos_content(App $a)
 			}
 
 			if (
-				$ph[0]['uid'] == local_user()
+				$ph[0]['uid'] == Session::getLocalUser()
 				&& (strlen($ph[0]['allow_cid']) || strlen($ph[0]['allow_gid']) || strlen($ph[0]['deny_cid']) || strlen($ph[0]['deny_gid']))
 			) {
 				$tools['lock'] = DI::l10n()->t('Private Photo');
@@ -1237,7 +1237,7 @@ function photos_content(App $a)
 			$params = ['order' => ['id'], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 			$items = Post::toArray(Post::selectForUser($link_item['uid'], Item::ITEM_FIELDLIST, $condition, $params));
 
-			if (local_user() == $link_item['uid']) {
+			if (Session::getLocalUser() == $link_item['uid']) {
 				Item::update(['unseen' => false], ['parent' => $link_item['parent']]);
 			}
 		}
@@ -1315,7 +1315,7 @@ function photos_content(App $a)
 					 */
 					$qcomment = null;
 					if (Addon::isEnabled('qcomment')) {
-						$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+						$words = DI::pConfig()->get(Session::getLocalUser(), 'qcomment', 'words');
 						$qcomment = $words ? explode("\n", $words) : [];
 					}
 
@@ -1346,7 +1346,7 @@ function photos_content(App $a)
 				'attendmaybe' => []
 			];
 
-			if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
+			if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'hide_dislike')) {
 				unset($conv_responses['dislike']);
 			}
 
@@ -1371,7 +1371,7 @@ function photos_content(App $a)
 					 */
 					$qcomment = null;
 					if (Addon::isEnabled('qcomment')) {
-						$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+						$words = DI::pConfig()->get(Session::getLocalUser(), 'qcomment', 'words');
 						$qcomment = $words ? explode("\n", $words) : [];
 					}
 
@@ -1413,7 +1413,7 @@ function photos_content(App $a)
 						$sparkle = '';
 					}
 
-					$dropping = (($item['contact-id'] == $contact_id) || ($item['uid'] == local_user()));
+					$dropping = (($item['contact-id'] == $contact_id) || ($item['uid'] == Session::getLocalUser()));
 					$drop = [
 						'dropping' => $dropping,
 						'pagedrop' => false,
@@ -1445,7 +1445,7 @@ function photos_content(App $a)
 						 */
 						$qcomment = null;
 						if (Addon::isEnabled('qcomment')) {
-							$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+							$words = DI::pConfig()->get(Session::getLocalUser(), 'qcomment', 'words');
 							$qcomment = $words ? explode("\n", $words) : [];
 						}
 
@@ -1484,7 +1484,7 @@ function photos_content(App $a)
 					'$dislike' => DI::l10n()->t('Dislike'),
 					'$wait' => DI::l10n()->t('Please wait'),
 					'$dislike_title' => DI::l10n()->t('I don\'t like this (toggle)'),
-					'$hide_dislike' => DI::pConfig()->get(local_user(), 'system', 'hide_dislike'),
+					'$hide_dislike' => DI::pConfig()->get(Session::getLocalUser(), 'system', 'hide_dislike'),
 					'$responses' => $responses,
 					'$return_path' => DI::args()->getQueryString(),
 				]);
