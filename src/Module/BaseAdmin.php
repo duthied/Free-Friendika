@@ -55,7 +55,7 @@ abstract class BaseAdmin extends BaseModule
 		if (!Session::getLocalUser()) {
 			if ($interactive) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Please login to continue.'));
-				Session::set('return_path', DI::args()->getQueryString());
+				DI::session()->set('return_path', DI::args()->getQueryString());
 				DI::baseUrl()->redirect('login');
 			} else {
 				throw new HTTPException\UnauthorizedException(DI::l10n()->t('Please login to continue.'));
