@@ -436,7 +436,7 @@ class Conversation
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
-		$ssl_state = (Session::getLocalUser() ? true : false);
+		$ssl_state = (bool)Session::getLocalUser();
 
 		$live_update_div = '';
 
@@ -526,7 +526,7 @@ class Conversation
 			$live_update_div = '<div id="live-search"></div>' . "\r\n";
 		}
 
-		$page_dropping = ((Session::getLocalUser() && Session::getLocalUser() == $uid) ? true : false);
+		$page_dropping = Session::getLocalUser() && Session::getLocalUser() == $uid;
 
 		if (!$update) {
 			$_SESSION['return_path'] = $this->args->getQueryString();
