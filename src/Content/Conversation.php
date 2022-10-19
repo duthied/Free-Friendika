@@ -32,6 +32,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -76,10 +77,10 @@ class Conversation
 	private $page;
 	/** @var App\Mode */
 	private $mode;
-	/** @var Session\Capability\IHandleSessions */
+	/** @var IHandleSessions */
 	private $session;
 
-	public function __construct(LoggerInterface $logger, Profiler $profiler, Activity $activity, L10n $l10n, Item $item, Arguments $args, BaseURL $baseURL, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, App\Mode $mode, App $app, Session\Capability\IHandleSessions $session)
+	public function __construct(LoggerInterface $logger, Profiler $profiler, Activity $activity, L10n $l10n, Item $item, Arguments $args, BaseURL $baseURL, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, App\Mode $mode, App $app, IHandleSessions $session)
 	{
 		$this->activity = $activity;
 		$this->item     = $item;
