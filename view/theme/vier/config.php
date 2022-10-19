@@ -1,17 +1,34 @@
 <?php
 /**
- * Theme settings
+ * @copyright Copyright (C) 2010-2022, the Friendica project
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 use Friendica\App;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\DI;
 
 require_once __DIR__ . '/theme.php';
 
 function theme_content(App $a)
 {
-	if (!local_user()) {
+	if (!Session::getLocalUser()) {
 		return;
 	}
 
@@ -19,7 +36,7 @@ function theme_content(App $a)
 		return;
 	}
 
-	$style = DI::pConfig()->get(local_user(), 'vier', 'style');
+	$style = DI::pConfig()->get(Session::getLocalUser(), 'vier', 'style');
 
 	if ($style == "") {
 		$style = DI::config()->get('vier', 'style');
@@ -42,18 +59,18 @@ function theme_content(App $a)
 
 function theme_post(App $a)
 {
-	if (! local_user()) {
+	if (! Session::getLocalUser()) {
 		return;
 	}
 
 	if (isset($_POST['vier-settings-submit'])) {
-		DI::pConfig()->set(local_user(), 'vier', 'style', $_POST['vier_style']);
-		DI::pConfig()->set(local_user(), 'vier', 'show_pages', $_POST['vier_show_pages']);
-		DI::pConfig()->set(local_user(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
-		DI::pConfig()->set(local_user(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
-		DI::pConfig()->set(local_user(), 'vier', 'show_services', $_POST['vier_show_services']);
-		DI::pConfig()->set(local_user(), 'vier', 'show_friends', $_POST['vier_show_friends']);
-		DI::pConfig()->set(local_user(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
+		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'style', $_POST['vier_style']);
+		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_pages', $_POST['vier_show_pages']);
+		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
+		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
+		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_services', $_POST['vier_show_services']);
+		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_friends', $_POST['vier_show_friends']);
+		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
 	}
 }
 

@@ -281,7 +281,7 @@ $data = [
 	'submit' => [
 		'catavatar-usecat'   => DI::l10n()->t('Use Cat as Avatar'),
 		'catavatar-morecat'  => DI::l10n()->t('Another random Cat!'),
-		'catavatar-emailcat' => DI::pConfig()->get(local_user(), 'catavatar', 'seed', false) ? DI::l10n()->t('Reset to email Cat') : null,
+		'catavatar-emailcat' => DI::pConfig()->get(Session::getLocalUser(), 'catavatar', 'seed', false) ? DI::l10n()->t('Reset to email Cat') : null,
 	],
 ];
 ```

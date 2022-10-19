@@ -1,5 +1,22 @@
 <?php
 /**
+ * @copyright Copyright (C) 2010-2022, the Friendica project
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  * Name: Vier
  * Version: 1.2
  * Author: Fabio <http://kirgroup.com/profile/fabrixxm>
@@ -14,6 +31,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Core\Addon;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -35,7 +53,7 @@ function vier_init(App $a)
 		DI::mode()->has(App\Mode::MAINTENANCEDISABLED)
 		&& (
 			$args->get(0) === 'profile' && $args->get(1) === ($a->getLoggedInUserNickname() ?? '')
-			|| $args->get(0) === 'network' && local_user()
+			|| $args->get(0) === 'network' && Session::getLocalUser()
 		)
 	) {
 		vier_community_info();
@@ -97,8 +115,8 @@ EOT;
 
 function get_vier_config($key, $default = false, $admin = false)
 {
-	if (local_user() && !$admin) {
-		$result = DI::pConfig()->get(local_user(), "vier", $key);
+	if (Session::getLocalUser() && !$admin) {
+		$result = DI::pConfig()->get(Session::getLocalUser(), "vier", $key);
 		if (!is_null($result)) {
 			return $result;
 		}
@@ -127,7 +145,7 @@ function vier_community_info()
 
 	// comunity_profiles
 	if ($show_profiles) {
-		$contacts = Contact\Relation::getSuggestions(local_user(), 0, 9);
+		$contacts = Contact\Relation::getSuggestions(Session::getLocalUser(), 0, 9);
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
 		if (DBA::isResult($contacts)) {
@@ -174,7 +192,7 @@ function vier_community_info()
 	}
 
 	//right_aside FIND FRIENDS
-	if ($show_friends && local_user()) {
+	if ($show_friends && Session::getLocalUser()) {
 		$nv = [];
 		$nv['findpeople'] = DI::l10n()->t('Find People');
 		$nv['desc'] = DI::l10n()->t('Enter name or interest');
@@ -193,8 +211,8 @@ function vier_community_info()
 	}
 
 	//Community_Pages at right_aside
-	if ($show_pages && local_user()) {
-		$aside['$page'] = ForumManager::widget('network/forum', local_user());;
+	if ($show_pages && Session::getLocalUser()) {
+		$aside['$page'] = ForumManager::widget('network/forum', Session::getLocalUser());;
 	}
 	// END Community Page
 

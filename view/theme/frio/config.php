@@ -21,13 +21,14 @@
 
 use Friendica\App;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\DI;
 
 require_once 'view/theme/frio/php/Image.php';
 
 function theme_post(App $a)
 {
-	if (!local_user()) {
+	if (!Session::getLocalUser()) {
 		return;
 	}
 
@@ -47,12 +48,12 @@ function theme_post(App $a)
 			'always_open_compose',
 		] as $field) {
 			if (isset($_POST['frio_' . $field])) {
-				DI::pConfig()->set(local_user(), 'frio', $field, $_POST['frio_' . $field]);
+				DI::pConfig()->set(Session::getLocalUser(), 'frio', $field, $_POST['frio_' . $field]);
 			}
 
 		}
 
-		DI::pConfig()->set(local_user(), 'frio', 'css_modified',     time());
+		DI::pConfig()->set(Session::getLocalUser(), 'frio', 'css_modified',     time());
 	}
 }
 
@@ -88,13 +89,13 @@ function theme_admin_post(App $a)
 
 function theme_content(): string
 {
-	if (!local_user()) {
+	if (!Session::getLocalUser()) {
 		return '';
 	}
 
 	$arr = [
-		'scheme' => DI::pConfig()->get(local_user(), 'frio', 'scheme',
-			DI::pConfig()->get(local_user(), 'frio', 'schema',
+		'scheme' => DI::pConfig()->get(Session::getLocalUser(), 'frio', 'scheme',
+			DI::pConfig()->get(Session::getLocalUser(), 'frio', 'schema',
 				DI::config()->get('frio', 'scheme',
 					DI::config()->get('frio', 'schema')
 				)
@@ -102,15 +103,15 @@ function theme_content(): string
 		),
 
 		'share_string'        => '',
-		'scheme_accent'       => DI::pConfig()->get(local_user(), 'frio', 'scheme_accent'      , DI::config()->get('frio', 'scheme_accent')),
-		'nav_bg'              => DI::pConfig()->get(local_user(), 'frio', 'nav_bg'             , DI::config()->get('frio', 'nav_bg')),
-		'nav_icon_color'      => DI::pConfig()->get(local_user(), 'frio', 'nav_icon_color'     , DI::config()->get('frio', 'nav_icon_color')),
-		'link_color'          => DI::pConfig()->get(local_user(), 'frio', 'link_color'         , DI::config()->get('frio', 'link_color')),
-		'background_color'    => DI::pConfig()->get(local_user(), 'frio', 'background_color'   , DI::config()->get('frio', 'background_color')),
-		'contentbg_transp'    => DI::pConfig()->get(local_user(), 'frio', 'contentbg_transp'   , DI::config()->get('frio', 'contentbg_transp')),
-		'background_image'    => DI::pConfig()->get(local_user(), 'frio', 'background_image'   , DI::config()->get('frio', 'background_image')),
-		'bg_image_option'     => DI::pConfig()->get(local_user(), 'frio', 'bg_image_option'    , DI::config()->get('frio', 'bg_image_option')),
-		'always_open_compose' => DI::pConfig()->get(local_user(), 'frio', 'always_open_compose', DI::config()->get('frio', 'always_open_compose', false)),
+		'scheme_accent'       => DI::pConfig()->get(Session::getLocalUser(), 'frio', 'scheme_accent'      , DI::config()->get('frio', 'scheme_accent')),
+		'nav_bg'              => DI::pConfig()->get(Session::getLocalUser(), 'frio', 'nav_bg'             , DI::config()->get('frio', 'nav_bg')),
+		'nav_icon_color'      => DI::pConfig()->get(Session::getLocalUser(), 'frio', 'nav_icon_color'     , DI::config()->get('frio', 'nav_icon_color')),
+		'link_color'          => DI::pConfig()->get(Session::getLocalUser(), 'frio', 'link_color'         , DI::config()->get('frio', 'link_color')),
+		'background_color'    => DI::pConfig()->get(Session::getLocalUser(), 'frio', 'background_color'   , DI::config()->get('frio', 'background_color')),
+		'contentbg_transp'    => DI::pConfig()->get(Session::getLocalUser(), 'frio', 'contentbg_transp'   , DI::config()->get('frio', 'contentbg_transp')),
+		'background_image'    => DI::pConfig()->get(Session::getLocalUser(), 'frio', 'background_image'   , DI::config()->get('frio', 'background_image')),
+		'bg_image_option'     => DI::pConfig()->get(Session::getLocalUser(), 'frio', 'bg_image_option'    , DI::config()->get('frio', 'bg_image_option')),
+		'always_open_compose' => DI::pConfig()->get(Session::getLocalUser(), 'frio', 'always_open_compose', DI::config()->get('frio', 'always_open_compose', false)),
 	];
 
 	return frio_form($arr);
@@ -118,7 +119,7 @@ function theme_content(): string
 
 function theme_admin(): string
 {
-	if (!local_user()) {
+	if (!Session::getLocalUser()) {
 		return '';
 	}
 

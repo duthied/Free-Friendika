@@ -191,7 +191,7 @@ class BasicAuth
 
 		Hook::callAll('logged_in', $record);
 
-		self::$current_user_id = local_user();
+		self::$current_user_id = Session::getLocalUser();
 
 		return self::$current_user_id;
 	}

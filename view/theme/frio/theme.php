@@ -215,8 +215,8 @@ function frio_remote_nav(App $a, array &$nav_info)
 		$fields = ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl', 'updated'];
 		if ($a->isLoggedIn()) {
 			$remoteUser = Contact::selectFirst($fields, ['uid' => $a->getLoggedInUserId(), 'self' => true]);
-		} elseif (!local_user() && remote_user()) {
-			$remoteUser                = Contact::getById(remote_user(), $fields);
+		} elseif (!Session::getLocalUser() && Session::getRemoteUser()) {
+			$remoteUser                = Contact::getById(Session::getRemoteUser(), $fields);
 			$nav_info['nav']['remote'] = DI::l10n()->t('Guest');
 		} elseif (Profile::getMyURL()) {
 			$remoteUser                = Contact::getByURL($homelink, null, $fields);
@@ -233,7 +233,7 @@ function frio_remote_nav(App $a, array &$nav_info)
 			$server_url           = $remoteUser['baseurl'];
 		}
 
-		if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
+		if (!Session::getLocalUser() && !empty($server_url) && !is_null($remoteUser)) {
 			// user menu
 			$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
 			$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
@@ -257,8 +257,8 @@ function frio_display_item(App $a, &$arr)
 	// Add follow to the item menu
 	$followThread = [];
 	if (
-		local_user()
-		&& in_array($arr['item']['uid'], [0, local_user()])
+		Session::getLocalUser()
+		&& in_array($arr['item']['uid'], [0, Session::getLocalUser()])
 		&& $arr['item']['gravity'] == Item::GRAVITY_PARENT
 		&& !$arr['item']['self']
 		&& !$arr['item']['mention']

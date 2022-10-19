@@ -40,12 +40,12 @@ class Security
 			return false;
 		}
 
-		$uid = local_user();
+		$uid = Session::getLocalUser();
 		if ($uid == $owner) {
 			return true;
 		}
 
-		if (local_user() && ($owner == 0)) {
+		if (Session::getLocalUser() && ($owner == 0)) {
 			return true;
 		}
 
@@ -93,7 +93,7 @@ class Security
 	 */
 	public static function getPermissionsSQLByUserId(int $owner_id, bool $accessible = false)
 	{
-		$local_user = local_user();
+		$local_user = Session::getLocalUser();
 		$remote_contact = Session::getRemoteContactID($owner_id);
 		$acc_sql = '';
 
