@@ -44,7 +44,7 @@ class Display extends BaseSettings
 
 		self::checkFormSecurityTokenRedirectOnError('/settings/display', 'settings_display');
 
-		$user = User::getById(local_user());
+		$user = User::getById(Session::getLocalUser());
 
 		$theme                  = !empty($_POST['theme'])                  ? trim($_POST['theme'])                : $user['theme'];
 		$mobile_theme           = !empty($_POST['mobile_theme'])           ? trim($_POST['mobile_theme'])         : '';
@@ -78,20 +78,20 @@ class Display extends BaseSettings
 		}
 
 		if ($mobile_theme !== '') {
-			DI::pConfig()->set(local_user(), 'system', 'mobile_theme', $mobile_theme);
+			DI::pConfig()->set(Session::getLocalUser(), 'system', 'mobile_theme', $mobile_theme);
 		}
 
-		DI::pConfig()->set(local_user(), 'system', 'itemspage_network'       , $itemspage_network);
-		DI::pConfig()->set(local_user(), 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
-		DI::pConfig()->set(local_user(), 'system', 'update_interval'         , $browser_update);
-		DI::pConfig()->set(local_user(), 'system', 'no_auto_update'          , $no_auto_update);
-		DI::pConfig()->set(local_user(), 'system', 'no_smilies'              , !$enable_smile);
-		DI::pConfig()->set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
-		DI::pConfig()->set(local_user(), 'system', 'no_smart_threading'      , !$enable_smart_threading);
-		DI::pConfig()->set(local_user(), 'system', 'hide_dislike'            , !$enable_dislike);
-		DI::pConfig()->set(local_user(), 'system', 'display_resharer'        , $display_resharer);
-		DI::pConfig()->set(local_user(), 'system', 'stay_local'              , $stay_local);
-		DI::pConfig()->set(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'itemspage_network'       , $itemspage_network);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'update_interval'         , $browser_update);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'no_auto_update'          , $no_auto_update);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'no_smilies'              , !$enable_smile);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'infinite_scroll'         , $infinite_scroll);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'no_smart_threading'      , !$enable_smart_threading);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'hide_dislike'            , !$enable_dislike);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'display_resharer'        , $display_resharer);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'stay_local'              , $stay_local);
+		DI::pConfig()->set(Session::getLocalUser(), 'system', 'first_day_of_week'       , $first_day_of_week);
 
 		if (in_array($theme, Theme::getAllowedList())) {
 			if ($theme == $user['theme']) {
@@ -101,7 +101,7 @@ class Display extends BaseSettings
 					theme_post(DI::app());
 				}
 			} else {
-				DBA::update('user', ['theme' => $theme], ['uid' => local_user()]);
+				DBA::update('user', ['theme' => $theme], ['uid' => Session::getLocalUser()]);
 			}
 		} else {
 			DI::sysmsg()->addNotice(DI::l10n()->t('The theme you chose isn\'t available.'));
@@ -116,7 +116,7 @@ class Display extends BaseSettings
 	{
 		parent::content();
 
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -130,7 +130,7 @@ class Display extends BaseSettings
 			$default_mobile_theme = 'none';
 		}
 
-		$user = User::getById(local_user());
+		$user = User::getById(Session::getLocalUser());
 
 		$allowed_themes = Theme::getAllowedList();
 
@@ -159,26 +159,26 @@ class Display extends BaseSettings
 		$theme_selected        = $user['theme'] ?: $default_theme;
 		$mobile_theme_selected = DI::session()->get('mobile-theme', $default_mobile_theme);
 
-		$itemspage_network = intval(DI::pConfig()->get(local_user(), 'system', 'itemspage_network'));
+		$itemspage_network = intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network'));
 		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : DI::config()->get('system', 'itemspage_network'));
-		$itemspage_mobile_network = intval(DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network'));
+		$itemspage_mobile_network = intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network'));
 		$itemspage_mobile_network = (($itemspage_mobile_network > 0 && $itemspage_mobile_network < 101) ? $itemspage_mobile_network : DI::config()->get('system', 'itemspage_network_mobile'));
 
-		$browser_update = intval(DI::pConfig()->get(local_user(), 'system', 'update_interval'));
+		$browser_update = intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'update_interval'));
 		if (intval($browser_update) != -1) {
 			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
 		}
 
-		$no_auto_update         = DI::pConfig()->get(local_user(), 'system', 'no_auto_update', 0);
-		$enable_smile           = !DI::pConfig()->get(local_user(), 'system', 'no_smilies', 0);
-		$infinite_scroll        = DI::pConfig()->get(local_user(), 'system', 'infinite_scroll', 0);
-		$enable_smart_threading = !DI::pConfig()->get(local_user(), 'system', 'no_smart_threading', 0);
-		$enable_dislike         = !DI::pConfig()->get(local_user(), 'system', 'hide_dislike', 0);
-		$display_resharer       = DI::pConfig()->get(local_user(), 'system', 'display_resharer', 0);
-		$stay_local             = DI::pConfig()->get(local_user(), 'system', 'stay_local', 0);
+		$no_auto_update         =  DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_auto_update', 0);
+		$enable_smile           = !DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_smilies', 0);
+		$infinite_scroll        =  DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll', 0);
+		$enable_smart_threading = !DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_smart_threading', 0);
+		$enable_dislike         = !DI::pConfig()->get(Session::getLocalUser(), 'system', 'hide_dislike', 0);
+		$display_resharer       =  DI::pConfig()->get(Session::getLocalUser(), 'system', 'display_resharer', 0);
+		$stay_local             =  DI::pConfig()->get(Session::getLocalUser(), 'system', 'stay_local', 0);
 
 
-		$first_day_of_week = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
+		$first_day_of_week = DI::pConfig()->get(Session::getLocalUser(), 'system', 'first_day_of_week', 0);
 		$weekdays = [
 			0 => DI::l10n()->t("Sunday"),
 			1 => DI::l10n()->t("Monday"),
@@ -207,7 +207,7 @@ class Display extends BaseSettings
 
 			'$form_security_token' => self::getFormSecurityToken('settings_display'),
 			'$baseurl' => DI::baseUrl()->get(true),
-			'$uid'     => local_user(),
+			'$uid'     => Session::getLocalUser(),
 
 			'$theme'	    => ['theme', DI::l10n()->t('Display Theme:'), $theme_selected, '', $themes, true],
 			'$mobile_theme'	=> ['mobile_theme', DI::l10n()->t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, false],

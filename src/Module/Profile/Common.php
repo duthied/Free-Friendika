@@ -56,7 +56,7 @@ class Common extends BaseProfile
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		$displayCommonTab = Session::isAuthenticated() && $profile['uid'] != local_user();
+		$displayCommonTab = Session::isAuthenticated() && $profile['uid'] != Session::getLocalUser();
 
 		if (!$displayCommonTab) {
 			$a->redirect('profile/' . $nickname . '/contacts');

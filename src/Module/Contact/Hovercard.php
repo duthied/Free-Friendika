@@ -71,7 +71,7 @@ class Hovercard extends BaseModule
 		// Search for contact data
 		// Look if the local user has got the contact
 		if (Session::isAuthenticated()) {
-			$contact = Contact::getByURLForUser($contact_url, local_user());
+			$contact = Contact::getByURLForUser($contact_url, Session::getLocalUser());
 		} else {
 			$contact = Contact::getByURL($contact_url, false);
 		}

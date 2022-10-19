@@ -92,13 +92,13 @@ class Index extends BaseSettings
 
 		$filename = '';
 
-		if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 0, Photo::USER_AVATAR)) {
+		if (!Photo::store($Image, Session::getLocalUser(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 0, Photo::USER_AVATAR)) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Image upload failed.'));
 		}
 
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
-			if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 1, Photo::USER_AVATAR)) {
+			if (!Photo::store($Image, Session::getLocalUser(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 1, Photo::USER_AVATAR)) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', '640'));
 			}
 		}
@@ -118,7 +118,7 @@ class Index extends BaseSettings
 
 		$newuser = $args->get($args->getArgc() - 1) === 'new';
 
-		$contact = Contact::selectFirst(['avatar'], ['uid' => local_user(), 'self' => true]);
+		$contact = Contact::selectFirst(['avatar'], ['uid' => Session::getLocalUser(), 'self' => true]);
 
 		$tpl = Renderer::getMarkupTemplate('settings/profile/photo/index.tpl');
 		$o = Renderer::replaceMacros($tpl, [

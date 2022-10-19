@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Module\Response;
 use Friendica\Security\TwoFactor\Model\AppSpecificPassword;
@@ -51,11 +52,11 @@ class AppSpecific extends BaseSettings
 
 		$this->pConfig = $pConfig;
 
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
-		$verified = $this->pConfig->get(local_user(), '2fa', 'verified');
+		$verified = $this->pConfig->get(Session::getLocalUser(), '2fa', 'verified');
 
 		if (!$verified) {
 			$this->baseUrl->redirect('settings/2fa');
@@ -69,7 +70,7 @@ class AppSpecific extends BaseSettings
 
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
@@ -82,17 +83,17 @@ class AppSpecific extends BaseSettings
 					if (empty($description)) {
 						DI::sysmsg()->addNotice($this->t('App-specific password generation failed: The description is empty.'));
 						$this->baseUrl->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
-					} elseif (AppSpecificPassword::checkDuplicateForUser(local_user(), $description)) {
+					} elseif (AppSpecificPassword::checkDuplicateForUser(Session::getLocalUser(), $description)) {
 						DI::sysmsg()->addNotice($this->t('App-specific password generation failed: This description already exists.'));
 						$this->baseUrl->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					} else {
-						$this->appSpecificPassword = AppSpecificPassword::generateForUser(local_user(), $_POST['description'] ?? '');
+						$this->appSpecificPassword = AppSpecificPassword::generateForUser(Session::getLocalUser(), $_POST['description'] ?? '');
 						DI::sysmsg()->addInfo($this->t('New app-specific password generated.'));
 					}
 
 					break;
 				case 'revoke_all' :
-					AppSpecificPassword::deleteAllForUser(local_user());
+					AppSpecificPassword::deleteAllForUser(Session::getLocalUser());
 					DI::sysmsg()->addInfo($this->t('App-specific passwords successfully revoked.'));
 					$this->baseUrl->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					break;
@@ -102,7 +103,7 @@ class AppSpecific extends BaseSettings
 		if (!empty($_POST['revoke_id'])) {
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/app_specific', 'settings_2fa_app_specific');
 
-			if (AppSpecificPassword::deleteForUser(local_user(), $_POST['revoke_id'])) {
+			if (AppSpecificPassword::deleteForUser(Session::getLocalUser(), $_POST['revoke_id'])) {
 				DI::sysmsg()->addInfo($this->t('App-specific password successfully revoked.'));
 			}
 
@@ -112,13 +113,13 @@ class AppSpecific extends BaseSettings
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return Login::form('settings/2fa/app_specific');
 		}
 
 		parent::content();
 
-		$appSpecificPasswords = AppSpecificPassword::getListForUser(local_user());
+		$appSpecificPasswords = AppSpecificPassword::getListForUser(Session::getLocalUser());
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/app_specific.tpl'), [
 			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_app_specific'),

@@ -58,7 +58,7 @@ class Crop extends BaseSettings
 
 		$path = 'profile/' . DI::app()->getLoggedInUserNickname();
 
-		$base_image = Photo::selectFirst([], ['resource-id' => $resource_id, 'uid' => local_user(), 'scale' => $scale]);
+		$base_image = Photo::selectFirst([], ['resource-id' => $resource_id, 'uid' => Session::getLocalUser(), 'scale' => $scale]);
 		if (DBA::isResult($base_image)) {
 			$Image = Photo::getImageForPhoto($base_image);
 			if (empty($Image)) {
@@ -67,7 +67,7 @@ class Crop extends BaseSettings
 
 			if ($Image->isValid()) {
 				// If setting for the default profile, unset the profile photo flag from any other photos I own
-				DBA::update('photo', ['profile' => 0], ['uid' => local_user()]);
+				DBA::update('photo', ['profile' => 0], ['uid' => Session::getLocalUser()]);
 
 				// Normalizing expected square crop parameters
 				$selectionW = $selectionH = min($selectionW, $selectionH);
@@ -92,11 +92,11 @@ class Crop extends BaseSettings
 					$Image->scaleDown(300);
 				}
 
-				$condition = ['resource-id' => $resource_id, 'uid' => local_user(), 'contact-id' => 0];
+				$condition = ['resource-id' => $resource_id, 'uid' => Session::getLocalUser(), 'contact-id' => 0];
 
 				$r = Photo::store(
 					$Image,
-					local_user(),
+					Session::getLocalUser(),
 					0,
 					$resource_id,
 					$base_image['filename'],
@@ -114,7 +114,7 @@ class Crop extends BaseSettings
 
 				$r = Photo::store(
 					$Image,
-					local_user(),
+					Session::getLocalUser(),
 					0,
 					$resource_id,
 					$base_image['filename'],
@@ -132,7 +132,7 @@ class Crop extends BaseSettings
 
 				$r = Photo::store(
 					$Image,
-					local_user(),
+					Session::getLocalUser(),
 					0,
 					$resource_id,
 					$base_image['filename'],
@@ -146,12 +146,12 @@ class Crop extends BaseSettings
 					Photo::update(['profile' => true], array_merge($condition, ['scale' => 6]));
 				}
 
-				Contact::updateSelfFromUserID(local_user(), true);
+				Contact::updateSelfFromUserID(Session::getLocalUser(), true);
 
 				DI::sysmsg()->addInfo(DI::l10n()->t('Shift-reload the page or clear browser cache if the new photo does not display immediately.'));
 
 				// Update global directory in background
-				Profile::publishUpdate(local_user());
+				Profile::publishUpdate(Session::getLocalUser());
 			} else {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Unable to process image'));
 			}
@@ -170,7 +170,7 @@ class Crop extends BaseSettings
 
 		$resource_id = $this->parameters['guid'];
 
-		$photos = Photo::selectToArray([], ['resource-id' => $resource_id, 'uid' => local_user()], ['order' => ['scale' => false]]);
+		$photos = Photo::selectToArray([], ['resource-id' => $resource_id, 'uid' => Session::getLocalUser()], ['order' => ['scale' => false]]);
 		if (!DBA::isResult($photos)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Photo not found.'));
 		}
@@ -185,14 +185,14 @@ class Crop extends BaseSettings
 		// set an already uloaded photo as profile photo
 		// if photo is in 'Profile Photos', change it in db
 		if ($photos[0]['photo-type'] == Photo::USER_AVATAR && $havescale) {
-			Photo::update(['profile' => false], ['uid' => local_user()]);
+			Photo::update(['profile' => false], ['uid' => Session::getLocalUser()]);
 
-			Photo::update(['profile' => true], ['resource-id' => $resource_id, 'uid' => local_user()]);
+			Photo::update(['profile' => true], ['resource-id' => $resource_id, 'uid' => Session::getLocalUser()]);
 
-			Contact::updateSelfFromUserID(local_user(), true);
+			Contact::updateSelfFromUserID(Session::getLocalUser(), true);
 
 			// Update global directory in background
-			Profile::publishUpdate(local_user());
+			Profile::publishUpdate(Session::getLocalUser());
 
 			DI::sysmsg()->addInfo(DI::l10n()->t('Profile picture successfully updated.'));
 

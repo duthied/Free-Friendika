@@ -59,14 +59,14 @@ class Delegation extends BaseSettings
 			DI::sysmsg()->addInfo(DI::l10n()->t('Delegation successfully revoked.'));
 		}
 
-		DBA::update('user', ['parent-uid' => $parent_uid], ['uid' => local_user()]);
+		DBA::update('user', ['parent-uid' => $parent_uid], ['uid' => Session::getLocalUser()]);
 	}
 
 	protected function content(array $request = []): string
 	{
 		parent::content();
 
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -85,11 +85,11 @@ class Delegation extends BaseSettings
 			$user = User::getById($user_id, ['nickname']);
 			if (DBA::isResult($user)) {
 				$condition = [
-					'uid' => local_user(),
+					'uid' => Session::getLocalUser(),
 					'nurl' => Strings::normaliseLink(DI::baseUrl() . '/profile/' . $user['nickname'])
 				];
 				if (DBA::exists('contact', $condition)) {
-					DBA::insert('manage', ['uid' => $user_id, 'mid' => local_user()]);
+					DBA::insert('manage', ['uid' => $user_id, 'mid' => Session::getLocalUser()]);
 				}
 			} else {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Delegate user not found.'));
@@ -104,12 +104,12 @@ class Delegation extends BaseSettings
 				DI::baseUrl()->redirect('settings/delegation');
 			}
 
-			DBA::delete('manage', ['uid' => $user_id, 'mid' => local_user()]);
+			DBA::delete('manage', ['uid' => $user_id, 'mid' => Session::getLocalUser()]);
 			DI::baseUrl()->redirect('settings/delegation');
 		}
 
 		// find everybody that currently has delegated management to this account/page
-		$delegates = DBA::selectToArray('user', [], ['`uid` IN (SELECT `uid` FROM `manage` WHERE `mid` = ?)', local_user()]);
+		$delegates = DBA::selectToArray('user', [], ['`uid` IN (SELECT `uid` FROM `manage` WHERE `mid` = ?)', Session::getLocalUser()]);
 
 		$uids = [];
 		foreach ($delegates as $user) {
@@ -120,7 +120,7 @@ class Delegation extends BaseSettings
 		$potentials = [];
 		$nicknames = [];
 
-		$condition = ['baseurl' => DI::baseUrl(), 'self' => false, 'uid' => local_user(), 'blocked' => false];
+		$condition = ['baseurl' => DI::baseUrl(), 'self' => false, 'uid' => Session::getLocalUser(), 'blocked' => false];
 		$contacts = DBA::select('contact', ['nick'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
 			$nicknames[] = $contact['nick'];
@@ -137,8 +137,8 @@ class Delegation extends BaseSettings
 
 		$parent_user = null;
 		$parent_password = null;
-		$user = User::getById(local_user(), ['parent-uid', 'email']);
-		if (DBA::isResult($user) && !DBA::exists('user', ['parent-uid' => local_user()])) {
+		$user = User::getById(Session::getLocalUser(), ['parent-uid', 'email']);
+		if (DBA::isResult($user) && !DBA::exists('user', ['parent-uid' => Session::getLocalUser()])) {
 			$parent_uid = $user['parent-uid'];
 			$parents = [0 => DI::l10n()->t('No parent user')];
 
@@ -146,7 +146,7 @@ class Delegation extends BaseSettings
 			$condition = ['email' => $user['email'], 'verified' => true, 'blocked' => false, 'parent-uid' => 0];
 			$parent_users = DBA::selectToArray('user', $fields, $condition);
 			foreach($parent_users as $parent) {
-				if ($parent['uid'] != local_user()) {
+				if ($parent['uid'] != Session::getLocalUser()) {
 					$parents[$parent['uid']] = sprintf('%s (%s)', $parent['username'], $parent['nickname']);
 				}
 			}

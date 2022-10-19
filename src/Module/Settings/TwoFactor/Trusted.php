@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
@@ -52,11 +53,11 @@ class Trusted extends BaseSettings
 		$this->pConfig            = $pConfig;
 		$this->trustedBrowserRepo = $trustedBrowserRepo;
 
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
-		$verified = $this->pConfig->get(local_user(), '2fa', 'verified');
+		$verified = $this->pConfig->get(Session::getLocalUser(), '2fa', 'verified');
 
 		if (!$verified) {
 			$this->baseUrl->redirect('settings/2fa');
@@ -70,7 +71,7 @@ class Trusted extends BaseSettings
 
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
@@ -79,7 +80,7 @@ class Trusted extends BaseSettings
 
 			switch ($_POST['action']) {
 				case 'remove_all':
-					$this->trustedBrowserRepo->removeAllForUser(local_user());
+					$this->trustedBrowserRepo->removeAllForUser(Session::getLocalUser());
 					DI::sysmsg()->addInfo($this->t('Trusted browsers successfully removed.'));
 					$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					break;
@@ -89,7 +90,7 @@ class Trusted extends BaseSettings
 		if (!empty($_POST['remove_id'])) {
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/trusted', 'settings_2fa_trusted');
 
-			if ($this->trustedBrowserRepo->removeForUser(local_user(), $_POST['remove_id'])) {
+			if ($this->trustedBrowserRepo->removeForUser(Session::getLocalUser(), $_POST['remove_id'])) {
 				DI::sysmsg()->addInfo($this->t('Trusted browser successfully removed.'));
 			}
 
@@ -102,7 +103,7 @@ class Trusted extends BaseSettings
 	{
 		parent::content();
 
-		$trustedBrowsers = $this->trustedBrowserRepo->selectAllByUid(local_user());
+		$trustedBrowsers = $this->trustedBrowserRepo->selectAllByUid(Session::getLocalUser());
 
 		$parser = Parser::create();
 

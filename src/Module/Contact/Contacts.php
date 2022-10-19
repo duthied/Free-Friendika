@@ -25,6 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\User;
@@ -35,9 +36,7 @@ class Contacts extends BaseModule
 {
 	protected function content(array $request = []): string
 	{
-		$app = DI::app();
-
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
@@ -55,7 +54,7 @@ class Contacts extends BaseModule
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Contact not found.'));
 		}
 
-		$localContactId = Model\Contact::getPublicIdByUserId(local_user());
+		$localContactId = Model\Contact::getPublicIdByUserId(Session::getLocalUser());
 
 		DI::page()['aside'] = Widget\VCard::getHTML($contact);
 
