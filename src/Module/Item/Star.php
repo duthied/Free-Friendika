@@ -50,13 +50,13 @@ class Star extends BaseModule
 		$itemId = intval($this->parameters['id']);
 
 
-		$item = Post::selectFirstForUser(local_user(), ['uid', 'uri-id', 'starred'], ['uid' => [0, local_user()], 'id' => $itemId]);
+		$item = Post::selectFirstForUser(Session::getLocalUser(), ['uid', 'uri-id', 'starred'], ['uid' => [0, Session::getLocalUser()], 'id' => $itemId]);
 		if (empty($item)) {
 			throw new HTTPException\NotFoundException();
 		}
 
 		if ($item['uid'] == 0) {
-			$stored = Item::storeForUserByUriId($item['uri-id'], local_user(), ['post-reason' => Item::PR_ACTIVITY]);
+			$stored = Item::storeForUserByUriId($item['uri-id'], Session::getLocalUser(), ['post-reason' => Item::PR_ACTIVITY]);
 			if (!empty($stored)) {
 				$item = Post::selectFirst(['starred'], ['id' => $stored]);
 				if (!DBA::isResult($item)) {

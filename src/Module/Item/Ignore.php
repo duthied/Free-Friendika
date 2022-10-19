@@ -55,10 +55,10 @@ class Ignore extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		$ignored = !Post\ThreadUser::getIgnored($thread['uri-id'], local_user());
+		$ignored = !Post\ThreadUser::getIgnored($thread['uri-id'], Session::getLocalUser());
 
-		if (in_array($thread['uid'], [0, local_user()])) {
-			Post\ThreadUser::setIgnored($thread['uri-id'], local_user(), $ignored);
+		if (in_array($thread['uid'], [0, Session::getLocalUser()])) {
+			Post\ThreadUser::setIgnored($thread['uri-id'], Session::getLocalUser(), $ignored);
 		} else {
 			throw new HTTPException\BadRequestException();
 		}

@@ -51,13 +51,13 @@ class Activity extends BaseModule
 		$itemId =  $this->parameters['id'];
 
 		if (in_array($verb, ['announce', 'unannounce'])) {
-			$item = Post::selectFirst(['network', 'uri-id'], ['id' => $itemId, 'uid' => [local_user(), 0]]);
+			$item = Post::selectFirst(['network', 'uri-id'], ['id' => $itemId, 'uid' => [Session::getLocalUser(), 0]]);
 			if ($item['network'] == Protocol::DIASPORA) {
-				Diaspora::performReshare($item['uri-id'], local_user());
+				Diaspora::performReshare($item['uri-id'], Session::getLocalUser());
 			}
 		}
 
-		if (!Item::performActivity($itemId, $verb, local_user())) {
+		if (!Item::performActivity($itemId, $verb, Session::getLocalUser())) {
 			throw new HTTPException\BadRequestException();
 		}
 

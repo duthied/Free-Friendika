@@ -48,7 +48,7 @@ class Follow extends BaseModule
 
 		$itemId = intval($this->parameters['id']);
 
-		if (!Item::performActivity($itemId, 'follow', local_user())) {
+		if (!Item::performActivity($itemId, 'follow', Session::getLocalUser())) {
 			throw new HTTPException\BadRequestException($l10n->t('Unable to follow this item.'));
 		}
 

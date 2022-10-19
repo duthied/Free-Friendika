@@ -31,6 +31,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -88,7 +89,7 @@ class Compose extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return Login::form('compose');
 		}
 
@@ -110,7 +111,7 @@ class Compose extends BaseModule
 			}
 		}
 
-		$user = User::getById(local_user(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'default-location']);
+		$user = User::getById(Session::getLocalUser(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'default-location']);
 
 		$contact_allow_list = $this->ACLFormatter->expand($user['allow_cid']);
 		$group_allow_list   = $this->ACLFormatter->expand($user['allow_gid']);
@@ -167,7 +168,7 @@ class Compose extends BaseModule
 
 		$contact = Contact::getById($a->getContactId());
 
-		if ($this->pConfig->get(local_user(), 'system', 'set_creation_date')) {
+		if ($this->pConfig->get(Session::getLocalUser(), 'system', 'set_creation_date')) {
 			$created_at = Temporal::getDateTimeField(
 				new \DateTime(DBA::NULL_DATETIME),
 				new \DateTime('now'),
@@ -203,8 +204,8 @@ class Compose extends BaseModule
 				'location_disabled'    => $this->l10n->t('Location services are disabled. Please check the website\'s permissions on your device'),
 				'wait'                 => $this->l10n->t('Please wait'),
 				'placeholdertitle'     => $this->l10n->t('Set title'),
-				'placeholdercategory'  => Feature::isEnabled(local_user(),'categories') ? $this->l10n->t('Categories (comma-separated list)') : '',
-				'always_open_compose'  => $this->pConfig->get(local_user(), 'frio', 'always_open_compose',
+				'placeholdercategory'  => Feature::isEnabled(Session::getLocalUser(),'categories') ? $this->l10n->t('Categories (comma-separated list)') : '',
+				'always_open_compose'  => $this->pConfig->get(Session::getLocalUser(), 'frio', 'always_open_compose',
 					$this->config->get('frio', 'always_open_compose', false)) ? '' :
 						$this->l10n->t('You can make this page always open when you use the New Post button in the <a href="/settings/display">Theme Customization settings</a>.'),
 			],

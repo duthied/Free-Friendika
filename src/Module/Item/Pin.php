@@ -53,16 +53,16 @@ class Pin extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		if (!in_array($item['uid'], [0, local_user()])) {
+		if (!in_array($item['uid'], [0, Session::getLocalUser()])) {
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
 		$pinned = !$item['featured'];
 
 		if ($pinned) {
-			Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, $item['author-id'], local_user());
+			Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, $item['author-id'], Session::getLocalUser());
 		} else {
-			Post\Collection::remove($item['uri-id'], Post\Collection::FEATURED, local_user());
+			Post\Collection::remove($item['uri-id'], Post\Collection::FEATURED, Session::getLocalUser());
 		}
 
 		// See if we've been passed a return path to redirect to

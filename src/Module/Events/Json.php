@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Events;
 
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -35,7 +36,7 @@ class Json extends \Friendica\BaseModule
 {
 	protected function rawContent(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new HTTPException\UnauthorizedException();
 		}
 
@@ -69,9 +70,9 @@ class Json extends \Friendica\BaseModule
 
 		// get events by id or by date
 		if ($event_params['event_id']) {
-			$r = Event::getListById(local_user(), $event_params['event_id']);
+			$r = Event::getListById(Session::getLocalUser(), $event_params['event_id']);
 		} else {
-			$r = Event::getListByDate(local_user(), $event_params);
+			$r = Event::getListByDate(Session::getLocalUser(), $event_params);
 		}
 
 		$links = [];

@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Module\Response;
@@ -48,7 +49,7 @@ class Feed extends BaseModule
 
 		$this->httpClient = $httpClient;
 
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			DI::sysmsg()->addNotice($this->t('You must be logged in to use this module'));
 			$baseUrl->redirect();
 		}
@@ -60,7 +61,7 @@ class Feed extends BaseModule
 		if (!empty($_REQUEST['url'])) {
 			$url = $_REQUEST['url'];
 
-			$contact = Model\Contact::getByURLForUser($url, local_user(), null);
+			$contact = Model\Contact::getByURLForUser($url, Session::getLocalUser(), null);
 
 			$xml = $this->httpClient->fetch($contact['poll'], HttpClientAccept::FEED_XML);
 

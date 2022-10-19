@@ -74,7 +74,7 @@ class Community extends BaseModule
 			'$global_community_hint' => DI::l10n()->t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
 		]);
 
-		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		}
@@ -111,7 +111,7 @@ class Community extends BaseModule
 
 			DI::page()['aside'] .= Widget::accountTypes('community/' . self::$content, self::$accountTypeString);
 	
-			if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
+			if (Session::getLocalUser() && DI::config()->get('system', 'community_no_sharer')) {
 				$path = self::$content;
 				if (!empty($this->parameters['accounttype'])) {
 					$path .= '/' . $this->parameters['accounttype'];
@@ -140,7 +140,7 @@ class Community extends BaseModule
 				]);
 			}
 	
-			if (Feature::isEnabled(local_user(), 'trending_tags')) {
+			if (Feature::isEnabled(Session::getLocalUser(), 'trending_tags')) {
 				DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
 			}
 
@@ -157,7 +157,7 @@ class Community extends BaseModule
 			return $o;
 		}
 
-		$o .= DI::conversation()->create($items, 'community', false, false, 'commented', local_user());
+		$o .= DI::conversation()->create($items, 'community', false, false, 'commented', Session::getLocalUser());
 
 		$pager = new BoundariesPager(
 			DI::l10n(),
@@ -167,7 +167,7 @@ class Community extends BaseModule
 			self::$itemsPerPage
 		);
 
-		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
 		} else {
 			$o .= $pager->renderMinimal(count($items));
@@ -230,10 +230,10 @@ class Community extends BaseModule
 		}
 
 		if (DI::mode()->isMobile()) {
-			self::$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			self::$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			self::$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			self::$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -335,9 +335,9 @@ class Community extends BaseModule
 			$condition[0] .= " AND `id` = ?";
 			$condition[] = $item_id;
 		} else {
-			if (local_user() && !empty($_REQUEST['no_sharer'])) {
+			if (Session::getLocalUser() && !empty($_REQUEST['no_sharer'])) {
 				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ?)";
-				$condition[] = local_user();
+				$condition[] = Session::getLocalUser();
 			}
 	
 			if (isset($max_id)) {
