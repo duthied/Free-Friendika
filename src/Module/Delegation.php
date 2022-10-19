@@ -24,6 +24,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Notification;
@@ -38,11 +39,11 @@ class Delegation extends BaseModule
 {
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
-		$uid = local_user();
+		$uid = Session::getLocalUser();
 		$orig_record = User::getById(DI::app()->getLoggedInUserId());
 
 		if (DI::session()->get('submanage')) {
@@ -114,11 +115,11 @@ class Delegation extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		$identities = User::identities(DI::session()->get('submanage', local_user()));
+		$identities = User::identities(DI::session()->get('submanage', Session::getLocalUser()));
 
 		//getting additinal information for each identity
 		foreach ($identities as $key => $identity) {

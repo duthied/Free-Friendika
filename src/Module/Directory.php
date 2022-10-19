@@ -49,7 +49,7 @@ class Directory extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
 		}
 
-		if (local_user()) {
+		if (Session::getLocalUser()) {
 			DI::page()['aside'] .= Widget::findPeople();
 			DI::page()['aside'] .= Widget::follow();
 		}
@@ -75,7 +75,7 @@ class Directory extends BaseModule
 			DI::sysmsg()->addNotice(DI::l10n()->t('No entries (some entries may be hidden).'));
 		} else {
 			foreach ($profiles['entries'] as $entry) {
-				$contact = Model\Contact::getByURLForUser($entry['url'], local_user());
+				$contact = Model\Contact::getByURLForUser($entry['url'], Session::getLocalUser());
 				if (!empty($contact)) {
 					$entries[] = Contact::getContactTemplateVars($contact);
 				}

@@ -25,6 +25,7 @@ use Friendica\App\Router;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Group;
 use Friendica\Module\BaseApi;
 
 /**
@@ -61,7 +62,7 @@ class Accounts extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		return Group::addMembers($this->parameters['id'], $request['account_ids']);
+		Group::addMembers($this->parameters['id'], $request['account_ids']);
 	}
 
 	/**

@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -42,7 +43,7 @@ class NoScrape extends BaseModule
 		if (isset($this->parameters['nick'])) {
 			// Get infos about a specific nick (public)
 			$which = $this->parameters['nick'];
-		} elseif (local_user() && isset($this->parameters['profile']) && DI::args()->get(2) == 'view') {
+		} elseif (Session::getLocalUser() && isset($this->parameters['profile']) && DI::args()->get(2) == 'view') {
 			// view infos about a known profile (needs a login)
 			$which = $a->getLoggedInUserNickname();
 		} else {

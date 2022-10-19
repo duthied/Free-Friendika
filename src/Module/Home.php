@@ -24,6 +24,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Module\Security\Login;
 
@@ -42,7 +43,7 @@ class Home extends BaseModule
 
 		Hook::callAll('home_init', $ret);
 
-		if (local_user() && ($app->getLoggedInUserNickname())) {
+		if (Session::getLocalUser() && ($app->getLoggedInUserNickname())) {
 			DI::baseUrl()->redirect('network');
 		}
 

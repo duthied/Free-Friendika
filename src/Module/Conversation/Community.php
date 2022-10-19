@@ -41,8 +41,6 @@ use Friendica\Network\HTTPException;
 class Community extends BaseModule
 {
 	/**
-	 * @name CP
-	 *
 	 * Type of the community page
 	 * @{
 	 */

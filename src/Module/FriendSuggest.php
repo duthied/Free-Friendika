@@ -26,6 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\DI;
@@ -53,7 +54,7 @@ class FriendSuggest extends BaseModule
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new ForbiddenException($this->t('Permission denied.'));
 		}
 
@@ -67,7 +68,7 @@ class FriendSuggest extends BaseModule
 		$cid = intval($this->parameters['contact']);
 
 		// We do query the "uid" as well to ensure that it is our contact
-		if (!$this->dba->exists('contact', ['id' => $cid, 'uid' => local_user()])) {
+		if (!$this->dba->exists('contact', ['id' => $cid, 'uid' => Session::getLocalUser()])) {
 			throw new NotFoundException($this->t('Contact not found.'));
 		}
 
@@ -77,7 +78,7 @@ class FriendSuggest extends BaseModule
 		}
 
 		// We do query the "uid" as well to ensure that it is our contact
-		$contact = $this->dba->selectFirst('contact', ['name', 'url', 'request', 'avatar'], ['id' => $suggest_contact_id, 'uid' => local_user()]);
+		$contact = $this->dba->selectFirst('contact', ['name', 'url', 'request', 'avatar'], ['id' => $suggest_contact_id, 'uid' => Session::getLocalUser()]);
 		if (empty($contact)) {
 			DI::sysmsg()->addNotice($this->t('Suggested contact not found.'));
 			return;
@@ -86,7 +87,7 @@ class FriendSuggest extends BaseModule
 		$note = Strings::escapeHtml(trim($_POST['note'] ?? ''));
 
 		$suggest = $this->friendSuggestRepo->save($this->friendSuggestFac->createNew(
-			local_user(),
+			Session::getLocalUser(),
 			$cid,
 			$contact['name'],
 			$contact['url'],
@@ -104,7 +105,7 @@ class FriendSuggest extends BaseModule
 	{
 		$cid = intval($this->parameters['contact']);
 
-		$contact = $this->dba->selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
+		$contact = $this->dba->selectFirst('contact', [], ['id' => $cid, 'uid' => Session::getLocalUser()]);
 		if (empty($contact)) {
 			DI::sysmsg()->addNotice($this->t('Contact not found.'));
 			$this->baseUrl->redirect();
@@ -120,7 +121,7 @@ class FriendSuggest extends BaseModule
 			AND NOT `archive` 
 			AND NOT `deleted` 
 			AND `notify` != ""',
-			local_user(),
+			Session::getLocalUser(),
 			$cid,
 			Protocol::DFRN,
 		]);

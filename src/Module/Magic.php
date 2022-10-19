@@ -24,6 +24,7 @@ namespace Friendica\Module;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
@@ -90,8 +91,8 @@ class Magic extends BaseModule
 		}
 
 		// OpenWebAuth
-		if (local_user() && $owa) {
-			$user = User::getById(local_user());
+		if (Session::getLocalUser() && $owa) {
+			$user = User::getById(Session::getLocalUser());
 
 			// Extract the basepath
 			// NOTE: we need another solution because this does only work

@@ -28,6 +28,7 @@ use Friendica\BaseModule;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Navigation\Notifications\ValueObject\FormattedNotify;
 use Friendica\Network\HTTPException\ForbiddenException;
@@ -93,7 +94,7 @@ abstract class BaseNotifications extends BaseModule
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new ForbiddenException($this->t('Permission denied.'));
 		}
 

@@ -29,6 +29,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -73,20 +74,20 @@ class Register extends BaseModule
 		// 'block_extended_register' blocks all registrations, period.
 		$block = DI::config()->get('system', 'block_extended_register');
 
-		if (local_user() && $block) {
+		if (Session::getLocalUser() && $block) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return '';
 		}
 
-		if (local_user()) {
-			$user = DBA::selectFirst('user', ['parent-uid'], ['uid' => local_user()]);
+		if (Session::getLocalUser()) {
+			$user = DBA::selectFirst('user', ['parent-uid'], ['uid' => Session::getLocalUser()]);
 			if (!empty($user['parent-uid'])) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Only parent users can create additional accounts.'));
 				return '';
 			}
 		}
 
-		if (!local_user() && (intval(DI::config()->get('config', 'register_policy')) === self::CLOSED)) {
+		if (!Session::getLocalUser() && (intval(DI::config()->get('config', 'register_policy')) === self::CLOSED)) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return '';
 		}
@@ -108,7 +109,7 @@ class Register extends BaseModule
 		$photo      = $_REQUEST['photo']      ?? '';
 		$invite_id  = $_REQUEST['invite_id']  ?? '';
 
-		if (local_user() || DI::config()->get('system', 'no_openid')) {
+		if (Session::getLocalUser() || DI::config()->get('system', 'no_openid')) {
 			$fillwith = '';
 			$fillext  = '';
 			$oidlabel = '';
@@ -179,7 +180,7 @@ class Register extends BaseModule
 			'$form_security_token' => BaseModule::getFormSecurityToken('register'),
 			'$explicit_content' => DI::config()->get('system', 'explicit_content', false),
 			'$explicit_content_note' => DI::l10n()->t('Note: This node explicitly contains adult content'),
-			'$additional'   => !empty(local_user()),
+			'$additional'   => !empty(Session::getLocalUser()),
 			'$parent_password' => ['parent_password', DI::l10n()->t('Parent Password:'), '', DI::l10n()->t('Please enter the password of the parent account to legitimize your request.')]
 
 		]);
@@ -202,19 +203,19 @@ class Register extends BaseModule
 
 		$additional_account = false;
 
-		if (!local_user() && !empty($arr['post']['parent_password'])) {
+		if (!Session::getLocalUser() && !empty($arr['post']['parent_password'])) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return;
-		} elseif (local_user() && !empty($arr['post']['parent_password'])) {
+		} elseif (Session::getLocalUser() && !empty($arr['post']['parent_password'])) {
 			try {
-				Model\User::getIdFromPasswordAuthentication(local_user(), $arr['post']['parent_password']);
+				Model\User::getIdFromPasswordAuthentication(Session::getLocalUser(), $arr['post']['parent_password']);
 			} catch (\Exception $ex) {
 				DI::sysmsg()->addNotice(DI::l10n()->t("Password doesn't match."));
 				$regdata = ['nickname' => $arr['post']['nickname'], 'username' => $arr['post']['username']];
 				DI::baseUrl()->redirect('register?' . http_build_query($regdata));
 			}
 			$additional_account = true;
-		} elseif (local_user()) {
+		} elseif (Session::getLocalUser()) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Please enter your password.'));
 			$regdata = ['nickname' => $arr['post']['nickname'], 'username' => $arr['post']['username']];
 			DI::baseUrl()->redirect('register?' . http_build_query($regdata));
@@ -262,7 +263,7 @@ class Register extends BaseModule
 		}
 
 		if ($additional_account) {
-			$user = DBA::selectFirst('user', ['email'], ['uid' => local_user()]);
+			$user = DBA::selectFirst('user', ['email'], ['uid' => Session::getLocalUser()]);
 			if (!DBA::isResult($user)) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('User not found.'));
 				DI::baseUrl()->redirect('register');
@@ -306,7 +307,7 @@ class Register extends BaseModule
 		}
 
 		if ($additional_account) {
-			DBA::update('user', ['parent-uid' => local_user()], ['uid' => $user['uid']]);
+			DBA::update('user', ['parent-uid' => Session::getLocalUser()], ['uid' => $user['uid']]);
 			DI::sysmsg()->addInfo(DI::l10n()->t('The additional account was created.'));
 			DI::baseUrl()->redirect('delegation');
 		}
