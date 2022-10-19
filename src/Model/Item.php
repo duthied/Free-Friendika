@@ -1066,7 +1066,7 @@ class Item
 			}
 
 			// We have to tell the hooks who we are - this really should be improved
-			if (!local_user()) {
+			if (!Session::getLocalUser()) {
 				$_SESSION['authenticated'] = true;
 				$_SESSION['uid'] = $uid;
 				$dummy_session = true;
@@ -2775,7 +2775,7 @@ class Item
 	 */
 	public static function getPermissionsConditionArrayByUserId(int $owner_id): array
 	{
-		$local_user = local_user();
+		$local_user = Session::getLocalUser();
 		$remote_user = Session::getRemoteContactID($owner_id);
 
 		// default permissions - anonymous user
@@ -2807,7 +2807,7 @@ class Item
 	 */
 	public static function getPermissionsSQLByUserId(int $owner_id, string $table = ''): string
 	{
-		$local_user = local_user();
+		$local_user = Session::getLocalUser();
 		$remote_user = Session::getRemoteContactID($owner_id);
 
 		if (!empty($table)) {
@@ -3006,8 +3006,8 @@ class Item
 
 		// Compile eventual content filter reasons
 		$filter_reasons = [];
-		if (!$is_preview && public_contact() != $item['author-id']) {
-			if (!empty($item['content-warning']) && (!local_user() || !DI::pConfig()->get(local_user(), 'system', 'disable_cw', false))) {
+		if (!$is_preview && Session::getPublicContact() != $item['author-id']) {
+			if (!empty($item['content-warning']) && (!Session::getLocalUser() || !DI::pConfig()->get(Session::getLocalUser(), 'system', 'disable_cw', false))) {
 				$filter_reasons[] = DI::l10n()->t('Content warning: %s', $item['content-warning']);
 			}
 
@@ -3443,7 +3443,7 @@ class Item
 			$plink = $item['uri'];
 		}
 
-		if (local_user()) {
+		if (Session::getLocalUser()) {
 			$ret = [
 				'href' => "display/" . $item['guid'],
 				'orig' => "display/" . $item['guid'],

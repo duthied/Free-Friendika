@@ -24,6 +24,7 @@ namespace Friendica\Content;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -223,7 +224,7 @@ class ForumManager
 				AND NOT `contact`.`pending` AND NOT `contact`.`archive`
 				AND `contact`.`uid` = ?
 				GROUP BY `contact`.`id`",
-			local_user(), Protocol::DFRN, Protocol::ACTIVITYPUB, Contact::TYPE_COMMUNITY, local_user()
+			Session::getLocalUser(), Protocol::DFRN, Protocol::ACTIVITYPUB, Contact::TYPE_COMMUNITY, Session::getLocalUser()
 		);
 
 		return DBA::toArray($stmtContacts);

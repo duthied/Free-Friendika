@@ -127,7 +127,7 @@ class Nav
 
 		//Don't populate apps_menu if apps are private
 		$privateapps = DI::config()->get('config', 'private_addons', false);
-		if (local_user() || !$privateapps) {
+		if (Session::getLocalUser() || !$privateapps) {
 			$arr = ['app_menu' => self::$app_menu];
 
 			Hook::callAll('app_menu', $arr);
@@ -149,7 +149,7 @@ class Nav
 	 */
 	private static function getInfo(App $a): array
 	{
-		$ssl_state = (bool) local_user();
+		$ssl_state = (bool) Session::getLocalUser();
 
 		/*
 		 * Our network is distributed, and as you visit friends some of the
@@ -211,7 +211,7 @@ class Nav
 			$homelink = DI::session()->get('visitor_home', '');
 		}
 
-		if ((DI::args()->getModuleName() != 'home') && (! (local_user()))) {
+		if ((DI::args()->getModuleName() != 'home') && (! (Session::getLocalUser()))) {
 			$nav['home'] = [$homelink, DI::l10n()->t('Home'), '', DI::l10n()->t('Home Page')];
 		}
 
@@ -229,7 +229,7 @@ class Nav
 			$nav['apps'] = ['apps', DI::l10n()->t('Apps'), '', DI::l10n()->t('Addon applications, utilities, games')];
 		}
 
-		if (local_user() || !DI::config()->get('system', 'local_search')) {
+		if (Session::getLocalUser() || !DI::config()->get('system', 'local_search')) {
 			$nav['search'] = ['search', DI::l10n()->t('Search'), '', DI::l10n()->t('Search site content')];
 
 			$nav['searchoption'] = [
@@ -252,12 +252,12 @@ class Nav
 			}
 		}
 
-		if ((local_user() || DI::config()->get('system', 'community_page_style') != Community::DISABLED_VISITOR) &&
+		if ((Session::getLocalUser() || DI::config()->get('system', 'community_page_style') != Community::DISABLED_VISITOR) &&
 			!(DI::config()->get('system', 'community_page_style') == Community::DISABLED)) {
 			$nav['community'] = ['community', DI::l10n()->t('Community'), '', DI::l10n()->t('Conversations on this and other servers')];
 		}
 
-		if (local_user()) {
+		if (Session::getLocalUser()) {
 			$nav['events'] = ['events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
 		}
 
@@ -270,7 +270,7 @@ class Nav
 		}
 
 		// The following nav links are only show to logged in users
-		if (local_user() && !empty($a->getLoggedInUserNickname())) {
+		if (Session::getLocalUser() && !empty($a->getLoggedInUserNickname())) {
 			$nav['network'] = ['network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
 
 			$nav['home'] = ['profile/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];
@@ -288,7 +288,7 @@ class Nav
 			$nav['messages']['outbox'] = ['message/sent', DI::l10n()->t('Outbox'), '', DI::l10n()->t('Outbox')];
 			$nav['messages']['new'] = ['message/new', DI::l10n()->t('New Message'), '', DI::l10n()->t('New Message')];
 
-			if (User::hasIdentities(DI::session()->get('submanage') ?: local_user())) {
+			if (User::hasIdentities(DI::session()->get('submanage') ?: Session::getLocalUser())) {
 				$nav['delegation'] = ['delegation', DI::l10n()->t('Accounts'), '', DI::l10n()->t('Manage other pages')];
 			}
 

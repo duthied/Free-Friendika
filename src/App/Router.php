@@ -34,6 +34,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock\Capability\ICanLock;
+use Friendica\Core\Session;
 use Friendica\LegacyModule;
 use Friendica\Module\HTTPException\MethodNotAllowed;
 use Friendica\Module\HTTPException\PageNotFound;
@@ -308,7 +309,7 @@ class Router
 			if (Addon::isEnabled($moduleName) && file_exists("addon/{$moduleName}/{$moduleName}.php")) {
 				//Check if module is an app and if public access to apps is allowed or not
 				$privateapps = $this->config->get('config', 'private_addons', false);
-				if ((!local_user()) && Hook::isAddonApp($moduleName) && $privateapps) {
+				if (!Session::getLocalUser() && Hook::isAddonApp($moduleName) && $privateapps) {
 					throw new MethodNotAllowedException($this->l10n->t("You must be logged in to use addons. "));
 				} else {
 					include_once "addon/{$moduleName}/{$moduleName}.php";

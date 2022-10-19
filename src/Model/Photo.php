@@ -23,9 +23,9 @@ namespace Friendica\Model;
 
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Core\Storage\Type\ExternalResource;
 use Friendica\Core\Storage\Exception\InvalidClassStorageException;
@@ -639,10 +639,10 @@ class Photo
 	{
 		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
-		$avatar_type = (local_user() && (local_user() == $uid)) ? self::USER_AVATAR : self::DEFAULT;
-		$banner_type = (local_user() && (local_user() == $uid)) ? self::USER_BANNER : self::DEFAULT;
+		$avatar_type = (Session::getLocalUser() && (Session::getLocalUser() == $uid)) ? self::USER_AVATAR : self::DEFAULT;
+		$banner_type = (Session::getLocalUser() && (Session::getLocalUser() == $uid)) ? self::USER_BANNER : self::DEFAULT;
 
-		$key = 'photo_albums:' . $uid . ':' . local_user() . ':' . remote_user();
+		$key = 'photo_albums:' . $uid . ':' . Session::getLocalUser() . ':' . Session::getRemoteUser();
 		$albums = DI::cache()->get($key);
 
 		if (is_null($albums) || $update) {
@@ -681,7 +681,7 @@ class Photo
 	 */
 	public static function clearAlbumCache(int $uid)
 	{
-		$key = 'photo_albums:' . $uid . ':' . local_user() . ':' . remote_user();
+		$key = 'photo_albums:' . $uid . ':' . Session::getLocalUser() . ':' . Session::getRemoteUser();
 		DI::cache()->set($key, null, Duration::DAY);
 	}
 
