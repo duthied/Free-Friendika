@@ -169,13 +169,13 @@ class Display extends BaseSettings
 			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
 		}
 
-		$no_auto_update         = DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_auto_update', 0);
+		$no_auto_update         =  DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_auto_update', 0);
 		$enable_smile           = !DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_smilies', 0);
-		$infinite_scroll        = DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll', 0);
+		$infinite_scroll        =  DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll', 0);
 		$enable_smart_threading = !DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_smart_threading', 0);
 		$enable_dislike         = !DI::pConfig()->get(Session::getLocalUser(), 'system', 'hide_dislike', 0);
-		$display_resharer       = DI::pConfig()->get(Session::getLocalUser(), 'system', 'display_resharer', 0);
-		$stay_local             = DI::pConfig()->get(Session::getLocalUser(), 'system', 'stay_local', 0);
+		$display_resharer       =  DI::pConfig()->get(Session::getLocalUser(), 'system', 'display_resharer', 0);
+		$stay_local             =  DI::pConfig()->get(Session::getLocalUser(), 'system', 'stay_local', 0);
 
 
 		$first_day_of_week = DI::pConfig()->get(Session::getLocalUser(), 'system', 'first_day_of_week', 0);
