@@ -23,6 +23,7 @@ namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Network\Probe;
 
@@ -33,7 +34,7 @@ class WebFinger extends BaseModule
 {
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a probing.'));
 		}
 

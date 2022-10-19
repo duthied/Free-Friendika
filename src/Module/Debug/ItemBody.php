@@ -22,6 +22,7 @@
 namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Post;
@@ -34,7 +35,7 @@ class ItemBody extends BaseModule
 {
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Access denied.'));
 		}
 
@@ -44,7 +45,7 @@ class ItemBody extends BaseModule
 
 		$itemId = intval($this->parameters['item']);
 
-		$item = Post::selectFirst(['body'], ['uid' => [0, local_user()], 'uri-id' => $itemId]);
+		$item = Post::selectFirst(['body'], ['uid' => [0, Session::getLocalUser()], 'uri-id' => $itemId]);
 
 		if (!empty($item)) {
 			if (DI::mode()->isAjax()) {

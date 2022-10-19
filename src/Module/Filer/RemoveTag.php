@@ -24,6 +24,7 @@ namespace Friendica\Module\Filer;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Post;
@@ -55,7 +56,7 @@ class RemoveTag extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
@@ -107,7 +108,7 @@ class RemoveTag extends BaseModule
 			return 404;
 		}
 
-		if (!Post\Category::deleteFileByURIId($item['uri-id'], local_user(), $type, $term)) {
+		if (!Post\Category::deleteFileByURIId($item['uri-id'], Session::getLocalUser(), $type, $term)) {
 			$this->systemMessages->addNotice($this->l10n->t('Item was not removed'));
 			return 500;
 		}
