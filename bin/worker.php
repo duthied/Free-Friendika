@@ -40,7 +40,7 @@ $longopts = ['spawn', 'no_cron'];
 $options = getopt($shortopts, $longopts);
 
 // Ensure that worker.php is executed from the base path of the installation
-if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
+if (!file_exists("index.php") && (sizeof($_SERVER["argv"]) != 0)) {
 	$directory = dirname($_SERVER["argv"][0]);
 
 	if (substr($directory, 0, 1) != '/') {

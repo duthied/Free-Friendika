@@ -83,10 +83,7 @@
 		"psr-4": {
 			"Friendica\\": "src/",
 			"Friendica\\Addon\\": "addon/"
-		},
-		"files": [
-			"boot.php"
-		]
+		}
 	},
 	"autoload-dev": {
 		"psr-4": {

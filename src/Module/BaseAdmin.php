@@ -28,8 +28,6 @@ use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 
-require_once 'boot.php';
-
 /**
  * This abstract module is meant to be extended by all modules that are reserved to administrator users.
  *

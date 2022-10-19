@@ -6,7 +6,7 @@ Autoloader with Composer
 
 Friendica uses [Composer](https://getcomposer.org) to manage dependencies libraries and the class autoloader both for libraries and namespaced Friendica classes.
 
-It's a command-line tool that downloads required libraries into the `vendor` folder and makes any namespaced class in `src` available through the whole application through `boot.php`.
+It's a command-line tool that downloads required libraries into the `vendor` folder and makes any namespaced class in `src` available through the whole application.
 
 * [Using Composer](help/Composer)
 
@@ -39,7 +39,6 @@ Namespaces are useful to keep classes separated and avoid names conflicts (could
 
 Let's say now that you need to load some items in a view, maybe in a fictional `mod/network.php`.
 In order for the Composer autoloader to work, it must first be included.
-In Friendica this is already done at the top of `boot.php`, with `require_once('vendor/autoload.php');`.
 
 The code will be something like:
 
