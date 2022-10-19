@@ -53,7 +53,7 @@ function display_init(App $a)
 	$nick = ((DI::args()->getArgc() > 1) ? DI::args()->getArgv()[1] : '');
 
 	$item = null;
-	$item_user = local_user();
+	$item_user = Session::getLocalUser();
 
 	$fields = ['uri-id', 'parent-uri-id', 'author-id', 'author-link', 'body', 'uid', 'guid', 'gravity'];
 
@@ -62,18 +62,18 @@ function display_init(App $a)
 		$nick = '';
 
 		// Does the local user have this item?
-		if (local_user()) {
-			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => DI::args()->getArgv()[1], 'uid' => local_user()]);
+		if (Session::getLocalUser()) {
+			$item = Post::selectFirstForUser(Session::getLocalUser(), $fields, ['guid' => DI::args()->getArgv()[1], 'uid' => Session::getLocalUser()]);
 			if (DBA::isResult($item)) {
 				$nick = $a->getLoggedInUserNickname();
 			}
 		}
 
 		// Is this item private but could be visible to the remove visitor?
-		if (!DBA::isResult($item) && remote_user()) {
+		if (!DBA::isResult($item) && Session::getRemoteUser()) {
 			$item = Post::selectFirst($fields, ['guid' => DI::args()->getArgv()[1], 'private' => Item::PRIVATE, 'origin' => true]);
 			if (DBA::isResult($item)) {
-				if (!Contact::isFollower(remote_user(), $item['uid'])) {
+				if (!Contact::isFollower(Session::getRemoteUser(), $item['uid'])) {
 					$item = null;
 				} else {
 					$item_user = $item['uid'];
@@ -83,14 +83,14 @@ function display_init(App $a)
 
 		// Is it an item with uid=0?
 		if (!DBA::isResult($item)) {
-			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => DI::args()->getArgv()[1], 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
+			$item = Post::selectFirstForUser(Session::getLocalUser(), $fields, ['guid' => DI::args()->getArgv()[1], 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 		}
 	} elseif (DI::args()->getArgc() >= 3 && $nick == 'feed-item') {
 		$uri_id = DI::args()->getArgv()[2];
 		if (substr($uri_id, -5) == '.atom') {
 			$uri_id = substr($uri_id, 0, -5);
 		}
-		$item = Post::selectFirstForUser(local_user(), $fields, ['uri-id' => $uri_id, 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
+		$item = Post::selectFirstForUser(Session::getLocalUser(), $fields, ['uri-id' => $uri_id, 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 	}
 
 	if (!DBA::isResult($item)) {
@@ -126,7 +126,7 @@ function display_fetchauthor($item)
 	if (Diaspora::isReshare($item['body'], true)) {
 		$shared = Item::getShareArray($item);
 		if (!empty($shared['profile'])) {
-			$contact = Contact::getByURLForUser($shared['profile'], local_user());
+			$contact = Contact::getByURLForUser($shared['profile'], Session::getLocalUser());
 		}
 	}
 
@@ -181,18 +181,18 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		if (DI::args()->getArgc() == 2) {
 			$fields = ['uri-id', 'parent-uri-id', 'uid'];
 
-			if (local_user()) {
-				$condition = ['guid' => DI::args()->getArgv()[1], 'uid' => [0, local_user()]];
-				$item = Post::selectFirstForUser(local_user(), $fields, $condition, ['order' => ['uid' => true]]);
+			if (Session::getLocalUser()) {
+				$condition = ['guid' => DI::args()->getArgv()[1], 'uid' => [0, Session::getLocalUser()]];
+				$item = Post::selectFirstForUser(Session::getLocalUser(), $fields, $condition, ['order' => ['uid' => true]]);
 				if (DBA::isResult($item)) {
 					$uri_id = $item['uri-id'];
 					$parent_uri_id = $item['parent-uri-id'];
 				}
 			}
 
-			if (($parent_uri_id == 0) && remote_user()) {
+			if (($parent_uri_id == 0) && Session::getRemoteUser()) {
 				$item = Post::selectFirst($fields, ['guid' => DI::args()->getArgv()[1], 'private' => Item::PRIVATE, 'origin' => true]);
-				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
+				if (DBA::isResult($item) && Contact::isFollower(Session::getRemoteUser(), $item['uid'])) {
 					$uri_id = $item['uri-id'];
 					$parent_uri_id = $item['parent-uri-id'];
 				}
@@ -200,7 +200,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 			if ($parent_uri_id == 0) {
 				$condition = ['private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => DI::args()->getArgv()[1], 'uid' => 0];
-				$item = Post::selectFirstForUser(local_user(), $fields, $condition);
+				$item = Post::selectFirstForUser(Session::getLocalUser(), $fields, $condition);
 				if (DBA::isResult($item)) {
 					$uri_id = $item['uri-id'];
 					$parent_uri_id = $item['parent-uri-id'];
@@ -213,9 +213,9 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		throw new HTTPException\NotFoundException(DI::l10n()->t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
-	if (!DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
-		DI::notification()->setAllSeenForUser(local_user(), ['parent-uri-id' => $item['parent-uri-id']]);
-		DI::notify()->setAllSeenForUser(local_user(), ['parent-uri-id' => $item['parent-uri-id']]);
+	if (!DI::pConfig()->get(Session::getLocalUser(), 'system', 'detailed_notif')) {
+		DI::notification()->setAllSeenForUser(Session::getLocalUser(), ['parent-uri-id' => $item['parent-uri-id']]);
+		DI::notify()->setAllSeenForUser(Session::getLocalUser(), ['parent-uri-id' => $item['parent-uri-id']]);
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
@@ -234,11 +234,11 @@ function display_content(App $a, $update = false, $update_uid = 0)
 					'$conversation' => $conversation]);
 
 	$is_remote_contact = false;
-	$item_uid = local_user();
+	$item_uid = Session::getLocalUser();
 	$page_uid = 0;
 
 	$parent = null;
-	if (!local_user() && !empty($parent_uri_id)) {
+	if (!Session::getLocalUser() && !empty($parent_uri_id)) {
 		$parent = Post::selectFirst(['uid'], ['uri-id' => $parent_uri_id, 'wall' => true]);
 	}
 
@@ -252,11 +252,11 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$page_uid = $item['uid'];
 	}
 
-	if (!empty($page_uid) && ($page_uid != local_user())) {
+	if (!empty($page_uid) && ($page_uid != Session::getLocalUser())) {
 		$page_user = User::getById($page_uid);
 	}
 
-	$is_owner = local_user() && (in_array($page_uid, [local_user(), 0]));
+	$is_owner = Session::getLocalUser() && (in_array($page_uid, [Session::getLocalUser(), 0]));
 
 	if (!empty($page_user['hidewall']) && !$is_owner && !$is_remote_contact) {
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
@@ -268,8 +268,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 	$sql_extra = Item::getPermissionsSQLByUserId($page_uid);
 
-	if (local_user() && (local_user() == $page_uid)) {
-		$condition = ['parent-uri-id' => $parent_uri_id, 'uid' => local_user(), 'unseen' => true];
+	if (Session::getLocalUser() && (Session::getLocalUser() == $page_uid)) {
+		$condition = ['parent-uri-id' => $parent_uri_id, 'uid' => Session::getLocalUser(), 'unseen' => true];
 		$unseen = Post::exists($condition);
 	} else {
 		$unseen = false;
@@ -290,11 +290,11 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$item['uri-id'] = $item['parent-uri-id'];
 
 	if ($unseen) {
-		$condition = ['parent-uri-id' => $parent_uri_id, 'uid' => local_user(), 'unseen' => true];
+		$condition = ['parent-uri-id' => $parent_uri_id, 'uid' => Session::getLocalUser(), 'unseen' => true];
 		Item::update(['unseen' => false], $condition);
 	}
 
-	if (!$update && local_user()) {
+	if (!$update && Session::getLocalUser()) {
 		$o .= "<script> var netargs = '?uri_id=" . $item['uri-id'] . "'; </script>";
 	}
 

@@ -116,7 +116,7 @@ function cal_content(App $a)
 
 	$remote_contact = $contact_id && DBA::exists('contact', ['id' => $contact_id, 'uid' => $owner['uid']]);
 
-	$is_owner = local_user() == $owner['uid'];
+	$is_owner = Session::getLocalUser() == $owner['uid'];
 
 	if ($owner['hidewall'] && !$is_owner && !$remote_contact) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Access to this profile has been restricted.'));
@@ -278,7 +278,7 @@ function cal_content(App $a)
 
 			// If it the own calendar return to the events page
 			// otherwise to the profile calendar page
-			if (local_user() === $owner_uid) {
+			if (Session::getLocalUser() === $owner_uid) {
 				$return_path = "events";
 			} else {
 				$return_path = "cal/" . $nick;

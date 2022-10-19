@@ -21,6 +21,7 @@
 
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -30,7 +31,7 @@ use Friendica\Model\Post;
 function share_init(App $a) {
 	$post_id = ((DI::args()->getArgc() > 1) ? intval(DI::args()->getArgv()[1]) : 0);
 
-	if (!$post_id || !local_user()) {
+	if (!$post_id || !Session::getLocalUser()) {
 		System::exit();
 	}
 

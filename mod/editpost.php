@@ -23,6 +23,7 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -34,7 +35,7 @@ function editpost_content(App $a)
 {
 	$o = '';
 
-	if (!local_user()) {
+	if (!Session::getLocalUser()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
@@ -49,14 +50,14 @@ function editpost_content(App $a)
 	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 		'body', 'title', 'uri-id', 'wall', 'post-type', 'guid'];
 
-	$item = Post::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
+	$item = Post::selectFirstForUser(Session::getLocalUser(), $fields, ['id' => $post_id, 'uid' => Session::getLocalUser()]);
 
 	if (!DBA::isResult($item)) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Item not found'));
 		return;
 	}
 
-	$user = User::getById(local_user());
+	$user = User::getById(Session::getLocalUser());
 
 	$geotag = '';
 
@@ -118,8 +119,8 @@ function editpost_content(App $a)
 		'$jotnets' => $jotnets,
 		'$title' => $item['title'],
 		'$placeholdertitle' => DI::l10n()->t('Set title'),
-		'$category' => Post\Category::getCSVByURIId($item['uri-id'], local_user(), Post\Category::CATEGORY),
-		'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : ''),
+		'$category' => Post\Category::getCSVByURIId($item['uri-id'], Session::getLocalUser(), Post\Category::CATEGORY),
+		'$placeholdercategory' => (Feature::isEnabled(Session::getLocalUser(),'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : ''),
 		'$emtitle' => DI::l10n()->t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,
 		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user)),
