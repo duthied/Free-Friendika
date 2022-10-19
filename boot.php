@@ -26,38 +26,3 @@
  * communications are free and open and flow between alternate providers as
  * easily as email does today.
  */
-
-use Friendica\Core\Session;
-
-/**
- * Returns the user id of locally logged in user or false.
- *
- * @return int|bool user id or false
- * @deprecated since version 2022.12, use Core\Session::getLocalUser() instead
- */
-function local_user()
-{
-	return Session::getLocalUser();
-}
-
-/**
- * Returns the public contact id of logged in user or false.
- *
- * @return int|bool public contact id or false
- * @deprecated since version 2022.12, use Core\Session:: getPublicContact() instead
- */
-function public_contact()
-{
-	return Session::getPublicContact();
-}
-
-/**
- * Returns public contact id of authenticated site visitor or false
- *
- * @return int|bool visitor_id or false
- * @deprecated since version 2022.12, use Core\Session:: getRemoteUser() instead
- */
-function remote_user()
-{
-	return Session::getRemoteUser();
-}

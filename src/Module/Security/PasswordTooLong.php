@@ -24,6 +24,7 @@ namespace Friendica\Module\Security;
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Module\Response;
@@ -54,13 +55,13 @@ class PasswordTooLong extends \Friendica\BaseModule
 			}
 
 			//  check if the old password was supplied correctly before changing it to the new value
-			User::getIdFromPasswordAuthentication(local_user(), $request['password_current']);
+			User::getIdFromPasswordAuthentication(Session::getLocalUser(), $request['password_current']);
 
 			if (strlen($request['password_current']) <= 72) {
 				throw new \Exception($this->l10n->t('Password does not need changing.'));
 			}
 
-			$result = User::updatePassword(local_user(), $newpass);
+			$result = User::updatePassword(Session::getLocalUser(), $newpass);
 			if (!DBA::isResult($result)) {
 				throw new \Exception($this->l10n->t('Password update failed. Please try again.'));
 			}

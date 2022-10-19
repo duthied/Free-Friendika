@@ -26,6 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Module\Response;
 use Friendica\Util\Profiler;
@@ -57,7 +58,7 @@ class Verify extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
@@ -66,7 +67,7 @@ class Verify extends BaseModule
 
 			$code = $request['verify_code'] ?? '';
 
-			$valid = (new Google2FA())->verifyKey($this->pConfig->get(local_user(), '2fa', 'secret'), $code);
+			$valid = (new Google2FA())->verifyKey($this->pConfig->get(Session::getLocalUser(), '2fa', 'secret'), $code);
 
 			// The same code can't be used twice even if it's valid
 			if ($valid && $this->session->get('2fa') !== $code) {
@@ -81,7 +82,7 @@ class Verify extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			$this->baseUrl->redirect();
 		}
 

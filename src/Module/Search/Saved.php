@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Search;
+use Friendica\Core\Session;
 use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Module\Response;
@@ -50,10 +51,10 @@ class Saved extends BaseModule
 
 		$return_url = $_GET['return_url'] ?? Search::getSearchPath($search);
 
-		if (local_user() && $search) {
+		if (Session::getLocalUser() && $search) {
 			switch ($action) {
 				case 'add':
-					$fields = ['uid' => local_user(), 'term' => $search];
+					$fields = ['uid' => Session::getLocalUser(), 'term' => $search];
 					if (!$this->dba->exists('search', $fields)) {
 						if (!$this->dba->insert('search', $fields)) {
 							DI::sysmsg()->addNotice($this->t('Search term was not saved.'));
@@ -64,7 +65,7 @@ class Saved extends BaseModule
 					break;
 
 				case 'remove':
-					if (!$this->dba->delete('search', ['uid' => local_user(), 'term' => $search])) {
+					if (!$this->dba->delete('search', ['uid' => Session::getLocalUser(), 'term' => $search])) {
 						DI::sysmsg()->addNotice($this->t('Search term was not removed.'));
 					}
 					break;

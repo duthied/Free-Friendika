@@ -24,6 +24,7 @@ namespace Friendica\Module\Profile;
 use Friendica\BaseModule;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post;
@@ -35,7 +36,7 @@ class Schedule extends BaseProfile
 {
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -43,7 +44,7 @@ class Schedule extends BaseProfile
 			throw new HTTPException\BadRequestException();
 		}
 
-		if (!DBA::exists('delayed-post', ['id' => $_REQUEST['delete'], 'uid' => local_user()])) {
+		if (!DBA::exists('delayed-post', ['id' => $_REQUEST['delete'], 'uid' => Session::getLocalUser()])) {
 			throw new HTTPException\NotFoundException();
 		}
 
@@ -52,7 +53,7 @@ class Schedule extends BaseProfile
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -61,7 +62,7 @@ class Schedule extends BaseProfile
 		$o = self::getTabsHTML($a, 'schedule', true, $a->getLoggedInUserNickname(), false);
 
 		$schedule = [];
-		$delayed = DBA::select('delayed-post', [], ['uid' => local_user()]);
+		$delayed = DBA::select('delayed-post', [], ['uid' => Session::getLocalUser()]);
 		while ($row = DBA::fetch($delayed)) {
 			$parameter = Post\Delayed::getParametersForid($row['id']);
 			if (empty($parameter)) {

@@ -27,6 +27,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\DI;
 use Friendica\Module\Register;
@@ -62,7 +63,7 @@ class Login extends BaseModule
 	{
 		$return_path = $request['return_path'] ?? $this->session->pop('return_path', '') ;
 
-		if (local_user()) {
+		if (Session::getLocalUser()) {
 			$this->baseUrl->redirect($return_path);
 		}
 
@@ -126,7 +127,7 @@ class Login extends BaseModule
 			];
 		}
 
-		if (local_user()) {
+		if (Session::getLocalUser()) {
 			$tpl = Renderer::getMarkupTemplate('logout.tpl');
 		} else {
 			DI::page()['htmlhead'] .= Renderer::replaceMacros(
