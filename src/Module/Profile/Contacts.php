@@ -50,7 +50,7 @@ class Contacts extends Module\BaseProfile
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		$is_owner = $profile['uid'] == local_user();
+		$is_owner = $profile['uid'] == Session::getLocalUser();
 
 		if ($profile['hide-friends'] && !$is_owner) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
@@ -60,7 +60,7 @@ class Contacts extends Module\BaseProfile
 
 		$o = self::getTabsHTML($a, 'contacts', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
-		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, Session::isAuthenticated() && $profile['uid'] != local_user());
+		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, Session::isAuthenticated() && $profile['uid'] != Session::getLocalUser());
 
 		$condition = [
 			'uid'     => $profile['uid'],

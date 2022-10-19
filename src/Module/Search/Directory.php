@@ -22,6 +22,7 @@
 namespace Friendica\Module\Search;
 
 use Friendica\Content\Widget;
+use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Module\BaseSearch;
 use Friendica\Module\Security\Login;
@@ -33,7 +34,7 @@ class Directory extends BaseSearch
 {
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return Login::form();
 		}

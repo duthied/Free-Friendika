@@ -92,19 +92,19 @@ class Status extends BaseProfile
 
 		$hashtags = $_GET['tag'] ?? '';
 
-		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($profile['uid'])) {
+		if (DI::config()->get('system', 'block_public') && !Session::getLocalUser() && !Session::getRemoteContactID($profile['uid'])) {
 			return Login::form();
 		}
 
 		$o = '';
 
-		if ($profile['uid'] == local_user()) {
+		if ($profile['uid'] == Session::getLocalUser()) {
 			Nav::setSelected('home');
 		}
 
 		$remote_contact = Session::getRemoteContactID($profile['uid']);
-		$is_owner = local_user() == $profile['uid'];
-		$last_updated_key = "profile:" . $profile['uid'] . ":" . local_user() . ":" . $remote_contact;
+		$is_owner = Session::getLocalUser() == $profile['uid'];
+		$last_updated_key = "profile:" . $profile['uid'] . ":" . Session::getLocalUser() . ":" . $remote_contact;
 
 		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Access to this profile has been restricted.'));
@@ -166,10 +166,10 @@ class Status extends BaseProfile
 		}
 
 		if (DI::mode()->isMobile()) {
-			$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			$itemspage_network = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			$itemspage_network = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -197,9 +197,9 @@ class Status extends BaseProfile
 		}
 
 		if ($is_owner) {
-			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => local_user()]);
+			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => Session::getLocalUser()]);
 			if ($unseen) {
-				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => local_user()]);
+				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => Session::getLocalUser()]);
 			}
 		}
 

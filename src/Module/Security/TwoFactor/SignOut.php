@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\DI;
 use Friendica\Model\User\Cookie;
@@ -61,7 +62,7 @@ class SignOut extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		if (!local_user() || !($this->cookie->get('2fa_cookie_hash'))) {
+		if (!Session::getLocalUser() || !($this->cookie->get('2fa_cookie_hash'))) {
 			return;
 		}
 
@@ -80,7 +81,7 @@ class SignOut extends BaseModule
 					$this->baseUrl->redirect();
 					break;
 				case 'sign_out':
-					$this->trustedBrowserRepository->removeForUser(local_user(), $this->cookie->get('2fa_cookie_hash'));
+					$this->trustedBrowserRepository->removeForUser(Session::getLocalUser(), $this->cookie->get('2fa_cookie_hash'));
 					$this->cookie->clear();
 					$this->session->clear();
 
@@ -95,7 +96,7 @@ class SignOut extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user() || !($this->cookie->get('2fa_cookie_hash'))) {
+		if (!Session::getLocalUser() || !($this->cookie->get('2fa_cookie_hash'))) {
 			$this->baseUrl->redirect();
 		}
 

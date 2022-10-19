@@ -27,6 +27,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Search;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -51,7 +52,7 @@ class Acl extends BaseModule
 
 	protected function rawContent(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('You must be logged in to use this module.'));
 		}
 
@@ -113,8 +114,8 @@ class Acl extends BaseModule
 		Logger::info('ACL {action} - {subaction} - start', ['module' => 'acl', 'action' => 'content', 'subaction' => 'search', 'search' => $search, 'type' => $type, 'conversation' => $conv_id]);
 
 		$sql_extra = '';
-		$condition       = ["`uid` = ? AND NOT `deleted` AND NOT `pending` AND NOT `archive`", local_user()];
-		$condition_group = ["`uid` = ? AND NOT `deleted`", local_user()];
+		$condition       = ["`uid` = ? AND NOT `deleted` AND NOT `pending` AND NOT `archive`", Session::getLocalUser()];
+		$condition_group = ["`uid` = ? AND NOT `deleted`", Session::getLocalUser()];
 
 		if ($search != '') {
 			$sql_extra = "AND `name` LIKE '%%" . DBA::escape($search) . "%%'";
@@ -176,7 +177,7 @@ class Acl extends BaseModule
 				GROUP BY `group`.`name`, `group`.`id`
 				ORDER BY `group`.`name`
 				LIMIT ?, ?",
-				local_user(),
+				Session::getLocalUser(),
 				$start,
 				$count
 			));
@@ -251,7 +252,7 @@ class Acl extends BaseModule
 
 			$condition = ["`parent` = ?", $conv_id];
 			$params = ['order' => ['author-name' => true]];
-			$authors = Post::selectForUser(local_user(), ['author-link'], $condition, $params);
+			$authors = Post::selectForUser(Session::getLocalUser(), ['author-link'], $condition, $params);
 			$item_authors = [];
 			while ($author = Post::fetch($authors)) {
 				$item_authors[$author['author-link']] = $author['author-link'];

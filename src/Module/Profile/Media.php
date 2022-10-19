@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Profile;
 
+use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile as ProfileModel;
@@ -42,7 +43,7 @@ class Media extends BaseProfile
 			DI::page()['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 		}
 
-		$is_owner = local_user() == $profile['uid'];
+		$is_owner = Session::getLocalUser() == $profile['uid'];
 
 		$o = self::getTabsHTML($a, 'media', $is_owner, $profile['nickname'], $profile['hide-friends']);
 

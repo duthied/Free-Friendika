@@ -94,7 +94,7 @@ class Index extends BaseSearch
 			}
 		}
 
-		if (local_user()) {
+		if (Session::getLocalUser()) {
 			DI::page()['aside'] .= Widget\SavedSearches::getHTML(Search::getSearchPath($search), $search);
 		}
 
@@ -161,10 +161,10 @@ class Index extends BaseSearch
 		// No items will be shown if the member has a blocked profile wall.
 
 		if (DI::mode()->isMobile()) {
-			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -174,19 +174,19 @@ class Index extends BaseSearch
 
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);
-			$uriids = Tag::getURIIdListByTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
-			$count = Tag::countByTag($search, local_user());
+			$uriids = Tag::getURIIdListByTag($search, Session::getLocalUser(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
+			$count = Tag::countByTag($search, Session::getLocalUser());
 		} else {
 			Logger::info('Start fulltext search.', ['q' => $search]);
-			$uriids = Post\Content::getURIIdListBySearch($search, local_user(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
-			$count = Post\Content::countBySearch($search, local_user());
+			$uriids = Post\Content::getURIIdListBySearch($search, Session::getLocalUser(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
+			$count = Post\Content::countBySearch($search, Session::getLocalUser());
 		}
 
 		if (!empty($uriids)) {
-			$condition = ["(`uid` = ? OR (`uid` = ? AND NOT `global`))", 0, local_user()];
+			$condition = ["(`uid` = ? OR (`uid` = ? AND NOT `global`))", 0, Session::getLocalUser()];
 			$condition = DBA::mergeConditions($condition, ['uri-id' => $uriids]);
 			$params = ['order' => ['id' => true]];
-			$items = Post::toArray(Post::selectForUser(local_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
+			$items = Post::toArray(Post::selectForUser(Session::getLocalUser(), Item::DISPLAY_FIELDLIST, $condition, $params));
 		}
 
 		if (empty($items)) {
@@ -196,7 +196,7 @@ class Index extends BaseSearch
 			return $o;
 		}
 
-		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		}
@@ -213,9 +213,9 @@ class Index extends BaseSearch
 
 		Logger::info('Start Conversation.', ['q' => $search]);
 
-		$o .= DI::conversation()->create($items, 'search', false, false, 'commented', local_user());
+		$o .= DI::conversation()->create($items, 'search', false, false, 'commented', Session::getLocalUser());
 
-		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
 		} else {
 			$o .= $pager->renderMinimal($count);
@@ -254,9 +254,9 @@ class Index extends BaseSearch
 			$search = $matches[1];
 		}
 
-		if (local_user()) {
+		if (Session::getLocalUser()) {
 			// User-specific contact URL/address search
-			$contact_id = Contact::getIdForURL($search, local_user());
+			$contact_id = Contact::getIdForURL($search, Session::getLocalUser());
 			if (!$contact_id) {
 				// User-specific contact URL/address search and probe
 				$contact_id = Contact::getIdForURL($search);
@@ -293,9 +293,9 @@ class Index extends BaseSearch
 
 		$search = Network::convertToIdn($search);
 
-		if (local_user()) {
+		if (Session::getLocalUser()) {
 			// Post URL search
-			$item_id = Item::fetchByLink($search, local_user());
+			$item_id = Item::fetchByLink($search, Session::getLocalUser());
 			if (!$item_id) {
 				// If the user-specific search failed, we search and probe a public post
 				$item_id = Item::fetchByLink($search);

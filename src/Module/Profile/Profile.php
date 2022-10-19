@@ -84,11 +84,11 @@ class Profile extends BaseProfile
 
 		$remote_contact_id = Session::getRemoteContactID($profile['uid']);
 
-		if (DI::config()->get('system', 'block_public') && !local_user() && !$remote_contact_id) {
+		if (DI::config()->get('system', 'block_public') && !Session::getLocalUser() && !$remote_contact_id) {
 			return Login::form();
 		}
 
-		$is_owner = local_user() == $profile['uid'];
+		$is_owner = Session::getLocalUser() == $profile['uid'];
 
 		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact_id) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
@@ -102,7 +102,7 @@ class Profile extends BaseProfile
 
 		Nav::setSelected('home');
 
-		$is_owner = local_user() == $profile['uid'];
+		$is_owner = Session::getLocalUser() == $profile['uid'];
 		$o = self::getTabsHTML($a, 'profile', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact_id) {
@@ -117,7 +117,7 @@ class Profile extends BaseProfile
 			$view_as_contact_id = intval($_GET['viewas'] ?? 0);
 
 			$view_as_contacts = Contact::selectToArray(['id', 'name'], [
-				'uid' => local_user(),
+				'uid' => Session::getLocalUser(),
 				'rel' => [Contact::FOLLOWER, Contact::SHARING, Contact::FRIEND],
 				'network' => Protocol::DFRN,
 				'blocked' => false,
@@ -247,7 +247,7 @@ class Profile extends BaseProfile
 			'$submit' => DI::l10n()->t('Submit'),
 			'$basic' => DI::l10n()->t('Basic'),
 			'$advanced' => DI::l10n()->t('Advanced'),
-			'$is_owner' => $profile['uid'] == local_user(),
+			'$is_owner' => $profile['uid'] == Session::getLocalUser(),
 			'$query_string' => DI::args()->getQueryString(),
 			'$basic_fields' => $basic_fields,
 			'$custom_fields' => $custom_fields,
@@ -308,8 +308,8 @@ class Profile extends BaseProfile
 		}
 
 		// site block
-		$blocked   = !local_user() && !$remote_contact_id && DI::config()->get('system', 'block_public');
-		$userblock = !local_user() && !$remote_contact_id && $profile['hidewall'];
+		$blocked   = !Session::getLocalUser() && !$remote_contact_id && DI::config()->get('system', 'block_public');
+		$userblock = !Session::getLocalUser() && !$remote_contact_id && $profile['hidewall'];
 		if (!$blocked && !$userblock) {
 			$keywords = str_replace(['#', ',', ' ', ',,'], ['', ' ', ',', ','], $profile['pub_keywords'] ?? '');
 			if (strlen($keywords)) {

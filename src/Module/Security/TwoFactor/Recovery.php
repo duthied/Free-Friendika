@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -59,7 +60,7 @@ class Recovery extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			return;
 		}
 
@@ -68,10 +69,10 @@ class Recovery extends BaseModule
 
 			$recovery_code = $_POST['recovery_code'] ?? '';
 
-			if (RecoveryCode::existsForUser(local_user(), $recovery_code)) {
-				RecoveryCode::markUsedForUser(local_user(), $recovery_code);
+			if (RecoveryCode::existsForUser(Session::getLocalUser(), $recovery_code)) {
+				RecoveryCode::markUsedForUser(Session::getLocalUser(), $recovery_code);
 				$this->session->set('2fa', true);
-				DI::sysmsg()->addInfo($this->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
+				DI::sysmsg()->addInfo($this->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(Session::getLocalUser())));
 
 				$this->auth->setForUser($this->app, User::getById($this->app->getLoggedInUserId()), true, true);
 
@@ -84,7 +85,7 @@ class Recovery extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!Session::getLocalUser()) {
 			$this->baseUrl->redirect();
 		}
 
