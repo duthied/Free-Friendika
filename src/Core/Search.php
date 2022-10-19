@@ -70,7 +70,7 @@ class Search
 				return $emptyResultList;
 			}
 
-			$contactDetails = Contact::getByURLForUser($user_data['url'] ?? '', local_user());
+			$contactDetails = Contact::getByURLForUser($user_data['url'] ?? '', Session::getLocalUser());
 
 			$result = new ContactResult(
 				$user_data['name'] ?? '',
@@ -136,7 +136,7 @@ class Search
 
 		foreach ($profiles as $profile) {
 			$profile_url = $profile['profile_url'] ?? '';
-			$contactDetails = Contact::getByURLForUser($profile_url, local_user());
+			$contactDetails = Contact::getByURLForUser($profile_url, Session::getLocalUser());
 
 			$result = new ContactResult(
 				$profile['name'] ?? '',

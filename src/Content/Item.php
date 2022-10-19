@@ -27,6 +27,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -109,7 +110,7 @@ class Item
 			$categories[] = [
 				'name' => $savedFolderName,
 				'url' => $url,
-				'removeurl' => local_user() == $uid ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : '',
+				'removeurl' => Session::getLocalUser() == $uid ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : '',
 				'first' => $first,
 				'last' => false
 			];
@@ -120,12 +121,12 @@ class Item
 			$categories[count($categories) - 1]['last'] = true;
 		}
 
-		if (local_user() == $uid) {
+		if (Session::getLocalUser() == $uid) {
 			foreach (Post\Category::getArrayByURIId($item['uri-id'], $uid, Post\Category::FILE) as $savedFolderName) {
 				$folders[] = [
 					'name' => $savedFolderName,
 					'url' => "#",
-					'removeurl' => local_user() == $uid ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : '',
+					'removeurl' => Session::getLocalUser() == $uid ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : '',
 					'first' => $first,
 					'last' => false
 				];
@@ -331,7 +332,7 @@ class Item
 		$sub_link = $contact_url = $pm_url = $status_link = '';
 		$photos_link = $posts_link = $block_link = $ignore_link = '';
 
-		if (local_user() && local_user() == $item['uid'] && $item['gravity'] == ItemModel::GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
+		if (Session::getLocalUser() && Session::getLocalUser() == $item['uid'] && $item['gravity'] == ItemModel::GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
 			$sub_link = 'javascript:doFollowThread(' . $item['id'] . '); return false;';
 		}
 
@@ -348,7 +349,7 @@ class Item
 		$pcid = $item['author-id'];
 		$network = '';
 		$rel = 0;
-		$condition = ['uid' => local_user(), 'uri-id' => $item['author-uri-id']];
+		$condition = ['uid' => Session::getLocalUser(), 'uri-id' => $item['author-uri-id']];
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'rel'], $condition);
 		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
@@ -378,7 +379,7 @@ class Item
 			}
 		}
 
-		if (local_user()) {
+		if (Session::getLocalUser()) {
 			$menu = [
 				$this->l10n->t('Follow Thread') => $sub_link,
 				$this->l10n->t('View Status') => $status_link,
@@ -439,7 +440,7 @@ class Item
 		return (!($this->activity->match($item['verb'], Activity::FOLLOW) &&
 			$item['object-type'] === Activity\ObjectType::NOTE &&
 			empty($item['self']) &&
-			$item['uid'] == local_user())
+			$item['uid'] == Session::getLocalUser())
 		);
 	}
 

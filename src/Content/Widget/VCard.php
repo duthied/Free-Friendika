@@ -26,6 +26,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -64,13 +65,13 @@ class VCard
 
 		$photo   = Contact::getPhoto($contact);
 
-		if (local_user()) {
+		if (Session::getLocalUser()) {
 			if ($contact['uid']) {
 				$id      = $contact['id'];
 				$rel     = $contact['rel'];
 				$pending = $contact['pending'];
 			} else {
-				$pcontact = Contact::selectFirst([], ['uid' => local_user(), 'uri-id' => $contact['uri-id']]);
+				$pcontact = Contact::selectFirst([], ['uid' => Session::getLocalUser(), 'uri-id' => $contact['uri-id']]);
 
 				$id      = $pcontact['id'] ?? 0;
 				$rel     = $pcontact['rel'] ?? Contact::NOTHING;
