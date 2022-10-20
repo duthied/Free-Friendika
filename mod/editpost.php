@@ -23,7 +23,6 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;

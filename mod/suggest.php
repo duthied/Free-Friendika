@@ -22,7 +22,6 @@
 use Friendica\App;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;

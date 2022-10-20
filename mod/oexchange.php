@@ -22,7 +22,6 @@
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Module\Response;

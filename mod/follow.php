@@ -23,7 +23,6 @@ use Friendica\App;
 use Friendica\Content\Widget;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;

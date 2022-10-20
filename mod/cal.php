@@ -27,7 +27,6 @@ use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;

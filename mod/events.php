@@ -27,7 +27,6 @@ use Friendica\Core\ACL;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;

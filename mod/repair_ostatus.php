@@ -21,7 +21,6 @@
 
 use Friendica\App;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
