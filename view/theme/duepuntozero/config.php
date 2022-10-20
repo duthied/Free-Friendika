@@ -21,16 +21,15 @@
 
 use Friendica\App;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 
 function theme_content(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
-	$colorset = DI::pConfig()->get(Session::getLocalUser(), 'duepuntozero', 'colorset');
+	$colorset = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'duepuntozero', 'colorset');
 	$user = true;
 
 	return clean_form($a, $colorset, $user);
@@ -38,12 +37,12 @@ function theme_content(App $a)
 
 function theme_post(App $a)
 {
-	if (! Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
 	if (isset($_POST['duepuntozero-settings-submit'])) {
-		DI::pConfig()->set(Session::getLocalUser(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
 	}
 }
 
@@ -76,7 +75,7 @@ function clean_form(App $a, &$colorset, $user)
 	];
 
 	if ($user) {
-		$color = DI::pConfig()->get(Session::getLocalUser(), 'duepuntozero', 'colorset');
+		$color = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'duepuntozero', 'colorset');
 	} else {
 		$color = DI::config()->get('duepuntozero', 'colorset');
 	}

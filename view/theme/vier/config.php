@@ -21,14 +21,13 @@
 
 use Friendica\App;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 
 require_once __DIR__ . '/theme.php';
 
 function theme_content(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
@@ -36,7 +35,7 @@ function theme_content(App $a)
 		return;
 	}
 
-	$style = DI::pConfig()->get(Session::getLocalUser(), 'vier', 'style');
+	$style = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'vier', 'style');
 
 	if ($style == "") {
 		$style = DI::config()->get('vier', 'style');
@@ -59,18 +58,18 @@ function theme_content(App $a)
 
 function theme_post(App $a)
 {
-	if (! Session::getLocalUser()) {
+	if (! DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
 	if (isset($_POST['vier-settings-submit'])) {
-		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'style', $_POST['vier_style']);
-		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_pages', $_POST['vier_show_pages']);
-		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
-		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
-		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_services', $_POST['vier_show_services']);
-		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_friends', $_POST['vier_show_friends']);
-		DI::pConfig()->set(Session::getLocalUser(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'vier', 'style', $_POST['vier_style']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'vier', 'show_pages', $_POST['vier_show_pages']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'vier', 'show_services', $_POST['vier_show_services']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'vier', 'show_friends', $_POST['vier_show_friends']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
 	}
 }
 

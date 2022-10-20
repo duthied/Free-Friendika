@@ -21,32 +21,31 @@
 
 use Friendica\App;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 
 function theme_content(App $a) {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
-	$align = DI::pConfig()->get(Session::getLocalUser(), 'quattro', 'align' );
-	$color = DI::pConfig()->get(Session::getLocalUser(), 'quattro', 'color' );
-	$tfs = DI::pConfig()->get(Session::getLocalUser(),"quattro","tfs");
-	$pfs = DI::pConfig()->get(Session::getLocalUser(),"quattro","pfs");
+	$align = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'quattro', 'align' );
+	$color = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'quattro', 'color' );
+	$tfs = DI::pConfig()->get(DI::userSession()->getLocalUserId(),"quattro","tfs");
+	$pfs = DI::pConfig()->get(DI::userSession()->getLocalUserId(),"quattro","pfs");
 
 	return quattro_form($a,$align, $color, $tfs, $pfs);
 }
 
 function theme_post(App $a) {
-	if (! Session::getLocalUser()) {
+	if (! DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
 	if (isset($_POST['quattro-settings-submit'])){
-		DI::pConfig()->set(Session::getLocalUser(), 'quattro', 'align', $_POST['quattro_align']);
-		DI::pConfig()->set(Session::getLocalUser(), 'quattro', 'color', $_POST['quattro_color']);
-		DI::pConfig()->set(Session::getLocalUser(), 'quattro', 'tfs', $_POST['quattro_tfs']);
-		DI::pConfig()->set(Session::getLocalUser(), 'quattro', 'pfs', $_POST['quattro_pfs']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'quattro', 'align', $_POST['quattro_align']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'quattro', 'color', $_POST['quattro_color']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'quattro', 'tfs', $_POST['quattro_tfs']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'quattro', 'pfs', $_POST['quattro_pfs']);
 	}
 }
 

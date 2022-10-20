@@ -31,7 +31,6 @@ use Friendica\Content\ForumManager;
 use Friendica\Core\Addon;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -53,7 +52,7 @@ function vier_init(App $a)
 		DI::mode()->has(App\Mode::MAINTENANCEDISABLED)
 		&& (
 			$args->get(0) === 'profile' && $args->get(1) === ($a->getLoggedInUserNickname() ?? '')
-			|| $args->get(0) === 'network' && Session::getLocalUser()
+			|| $args->get(0) === 'network' && DI::userSession()->getLocalUserId()
 		)
 	) {
 		vier_community_info();
@@ -115,8 +114,8 @@ EOT;
 
 function get_vier_config($key, $default = false, $admin = false)
 {
-	if (Session::getLocalUser() && !$admin) {
-		$result = DI::pConfig()->get(Session::getLocalUser(), "vier", $key);
+	if (DI::userSession()->getLocalUserId() && !$admin) {
+		$result = DI::pConfig()->get(DI::userSession()->getLocalUserId(), "vier", $key);
 		if (!is_null($result)) {
 			return $result;
 		}
@@ -145,7 +144,7 @@ function vier_community_info()
 
 	// comunity_profiles
 	if ($show_profiles) {
-		$contacts = Contact\Relation::getSuggestions(Session::getLocalUser(), 0, 9);
+		$contacts = Contact\Relation::getSuggestions(DI::userSession()->getLocalUserId(), 0, 9);
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
 		if (DBA::isResult($contacts)) {
@@ -192,7 +191,7 @@ function vier_community_info()
 	}
 
 	//right_aside FIND FRIENDS
-	if ($show_friends && Session::getLocalUser()) {
+	if ($show_friends && DI::userSession()->getLocalUserId()) {
 		$nv = [];
 		$nv['findpeople'] = DI::l10n()->t('Find People');
 		$nv['desc'] = DI::l10n()->t('Enter name or interest');
@@ -211,8 +210,8 @@ function vier_community_info()
 	}
 
 	//Community_Pages at right_aside
-	if ($show_pages && Session::getLocalUser()) {
-		$aside['$page'] = ForumManager::widget('network/forum', Session::getLocalUser());;
+	if ($show_pages && DI::userSession()->getLocalUserId()) {
+		$aside['$page'] = ForumManager::widget('network/forum', DI::userSession()->getLocalUserId());;
 	}
 	// END Community Page
 

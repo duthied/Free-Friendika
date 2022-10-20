@@ -21,7 +21,6 @@
 
 use Friendica\App;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 
 /*
@@ -35,7 +34,7 @@ function duepuntozero_init(App $a) {
 	$colorset = null;
 
 	if (DI::mode()->has(App\Mode::MAINTENANCEDISABLED)) {
-		$colorset = DI::pConfig()->get(Session::getLocalUser(), 'duepuntozero', 'colorset');
+		$colorset = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'duepuntozero', 'colorset');
 		if (!$colorset)
 			$colorset = DI::config()->get('duepuntozero', 'colorset');          // user setting have priority, then node settings
 	}
