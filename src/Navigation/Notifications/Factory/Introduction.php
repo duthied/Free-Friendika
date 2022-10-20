@@ -30,8 +30,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\Database;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Module\BaseNotifications;
 use Friendica\Navigation\Notifications\ValueObject;
@@ -56,10 +56,12 @@ class Introduction extends BaseFactory
 	private $pConfig;
 	/** @var IHandleSessions */
 	private $session;
+	/** @var IHandleUserSessions */
+	private $userSession;
 	/** @var string */
 	private $nick;
 
-	public function __construct(LoggerInterface $logger, Database $dba, BaseURL $baseUrl, L10n $l10n, App $app, IManagePersonalConfigValues $pConfig, IHandleSessions $session)
+	public function __construct(LoggerInterface $logger, Database $dba, BaseURL $baseUrl, L10n $l10n, App $app, IManagePersonalConfigValues $pConfig, IHandleSessions $session, IHandleUserSessions $userSession)
 	{
 		parent::__construct($logger);
 
@@ -68,6 +70,7 @@ class Introduction extends BaseFactory
 		$this->l10n         = $l10n;
 		$this->pConfig      = $pConfig;
 		$this->session      = $session;
+		$this->userSession  = $userSession;
 		$this->nick         = $app->getLoggedInUserNickname() ?? '';
 	}
 
@@ -143,7 +146,7 @@ class Introduction extends BaseFactory
 						'url'            => $intro['furl'],
 						'zrl'            => Contact::magicLink($intro['furl']),
 						'hidden'         => $intro['hidden'] == 1,
-						'post_newfriend' => (intval($this->pConfig->get(DI::userSession()->getLocalUserId(), 'system', 'post_newfriend')) ? '1' : 0),
+						'post_newfriend' => (intval($this->pConfig->get($this->userSession->getLocalUserId(), 'system', 'post_newfriend')) ? '1' : 0),
 						'note'           => $intro['note'],
 						'request'        => $intro['frequest'] . '?addr=' . $return_addr]);
 
@@ -168,7 +171,7 @@ class Introduction extends BaseFactory
 						'about'          => BBCode::convert($intro['about'], false),
 						'keywords'       => $intro['keywords'],
 						'hidden'         => $intro['hidden'] == 1,
-						'post_newfriend' => (intval($this->pConfig->get(DI::userSession()->getLocalUserId(), 'system', 'post_newfriend')) ? '1' : 0),
+						'post_newfriend' => (intval($this->pConfig->get($this->userSession->getLocalUserId(), 'system', 'post_newfriend')) ? '1' : 0),
 						'url'            => $intro['url'],
 						'zrl'            => Contact::magicLink($intro['url']),
 						'addr'           => $intro['addr'],
