@@ -106,13 +106,6 @@ HELP;
 		$this->checkFiles($php_path, $files);
 
 		if ($this->getOption('v')) {
-			$this->out('Directory: include');
-		}
-
-		$files = glob('include/*.php');
-		$this->checkFiles($php_path, $files);
-
-		if ($this->getOption('v')) {
 			$this->out('Directory: addon');
 		}
 

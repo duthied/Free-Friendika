@@ -315,17 +315,7 @@ class Worker
 			return false;
 		}
 
-		$valid = false;
-		if (strpos($file, 'include/') === 0) {
-			$valid = true;
-		}
-
-		if (strpos($file, 'addon/') === 0) {
-			$valid = true;
-		}
-
-		// Simply return flag
-		return $valid;
+		return (strpos($file, 'addon/') === 0);
 	}
 
 	/**
@@ -404,11 +394,6 @@ class Worker
 			self::$db_duration_write += (microtime(true) - $stamp);
 
 			return true;
-		}
-
-		// The script could be provided as full path or only with the function name
-		if ($include == basename($include)) {
-			$include = 'include/' . $include . '.php';
 		}
 
 		if (!self::validateInclude($include)) {

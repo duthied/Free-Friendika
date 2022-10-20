@@ -77,7 +77,6 @@ HELP;
 		$files = array_merge(
 			['index.php'],
 			glob('mod/*'),
-			glob('include/*'),
 			glob('addon/*/*'),
 			$this->globRecursive('src')
 		);
