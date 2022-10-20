@@ -25,7 +25,6 @@ use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -188,8 +187,8 @@ class Group
 					) AS `count`
 				FROM `group`
 				WHERE `group`.`uid` = ?;",
-			Session::getLocalUser(),
-			Session::getLocalUser()
+			DI::userSession()->getLocalUserId(),
+			DI::userSession()->getLocalUserId()
 		);
 
 		return DBA::toArray($stmt);
@@ -527,7 +526,7 @@ class Group
 	 */
 	public static function sidebarWidget(string $every = 'contact', string $each = 'group', string $editmode = 'standard', $group_id = '', int $cid = 0)
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return '';
 		}
 
@@ -545,7 +544,7 @@ class Group
 			$member_of = self::getIdsByContactId($cid);
 		}
 
-		$stmt = DBA::select('group', [], ['deleted' => false, 'uid' => Session::getLocalUser(), 'cid' => null], ['order' => ['name']]);
+		$stmt = DBA::select('group', [], ['deleted' => false, 'uid' => DI::userSession()->getLocalUserId(), 'cid' => null], ['order' => ['name']]);
 		while ($group = DBA::fetch($stmt)) {
 			$selected = (($group_id == $group['id']) ? ' group-selected' : '');
 
