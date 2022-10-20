@@ -23,14 +23,12 @@ namespace Friendica\Core\Session\Handler;
 
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Exception\CachePersistenceException;
-use Friendica\Core\Session;
 use Psr\Log\LoggerInterface;
-use SessionHandlerInterface;
 
 /**
  * SessionHandler using Friendica Cache
  */
-class Cache implements SessionHandlerInterface
+class Cache extends AbstractSessionHandler
 {
 	/** @var ICanCache */
 	private $cache;
@@ -57,11 +55,10 @@ class Cache implements SessionHandlerInterface
 		try {
 			$data = $this->cache->get('session:' . $id);
 			if (!empty($data)) {
-				Session::$exists = true;
 				return $data;
 			}
 		} catch (CachePersistenceException $exception) {
-			$this->logger->warning('Cannot read session.'. ['id' => $id, 'exception' => $exception]);
+			$this->logger->warning('Cannot read session.', ['id' => $id, 'exception' => $exception]);
 			return '';
 		}
 
@@ -91,7 +88,7 @@ class Cache implements SessionHandlerInterface
 		}
 
 		try {
-			return $this->cache->set('session:' . $id, $data, Session::$expire);
+			return $this->cache->set('session:' . $id, $data, static::EXPIRE);
 		} catch (CachePersistenceException $exception) {
 			$this->logger->warning('Cannot write session', ['id' => $id, 'exception' => $exception]);
 			return false;

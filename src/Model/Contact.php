@@ -262,6 +262,32 @@ class Contact
 	}
 
 	/**
+	 * Fetch all remote contacts for a given contact url
+	 *
+	 * @param string $url The URL of the contact
+	 * @param array  $fields The wanted fields
+	 *
+	 * @return array all remote contacts
+	 *
+	 * @throws \Exception
+	 */
+	public static function getVisitorByUrl(string $url, array $fields = ['id', 'uid']): array
+	{
+		$remote = [];
+
+		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($url), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
+		while ($contact = DBA::fetch($remote_contacts)) {
+			if (($contact['uid'] == 0) || Contact\User::isBlocked($contact['id'], $contact['uid'])) {
+				continue;
+			}
+			$remote[$contact['uid']] = $contact['id'];
+		}
+		DBA::close($remote_contacts);
+
+		return $remote;
+	}
+
+	/**
 	 * Fetches a contact by a given url
 	 *
 	 * @param string  $url    profile url

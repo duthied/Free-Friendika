@@ -31,9 +31,6 @@ use Friendica\Util\Strings;
  */
 class Session
 {
-	public static $exists = false;
-	public static $expire = 180000;
-
 	/**
 	 * Returns the user id of locally logged in user or false.
 	 *

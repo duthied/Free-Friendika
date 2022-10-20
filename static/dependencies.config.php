@@ -41,6 +41,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock;
 use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\Storage\Repository\StorageManager;
 use Friendica\Database\Database;
 use Friendica\Database\Definition\DbaDefinition;
@@ -223,6 +224,9 @@ return [
 			['createSession', [$_SERVER], Dice::CHAIN_CALL],
 			['start', [], Dice::CHAIN_CALL],
 		],
+	],
+	IHandleUserSessions::class => [
+		'instanceOf' => \Friendica\Core\Session\Model\UserSession::class,
 	],
 	Cookie::class => [
 		'constructParams' => [
