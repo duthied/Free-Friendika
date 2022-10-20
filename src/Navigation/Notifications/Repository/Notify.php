@@ -585,7 +585,7 @@ class Notify extends BaseRepository
 					DBA::insert('notify-threads', $fields);
 
 					$emailBuilder->setHeader('Message-ID', $message_id);
-					$log_msg = "include/enotify: No previous notification found for this parent:\n" .
+					$log_msg = "No previous notification found for this parent:\n" .
 						"  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
 					$this->logger->info($log_msg);
 				} else {
