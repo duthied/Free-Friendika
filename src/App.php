@@ -27,6 +27,7 @@ use Friendica\App\BaseURL;
 use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
 use Friendica\Core\Config\ValueObject\Cache;
@@ -592,12 +593,13 @@ class App
 	 * @param Authentication              $auth       The Authentication backend of the node
 	 * @param App\Page                    $page       The Friendica page printing container
 	 * @param HTTPInputData               $httpInput  A library for processing PHP input streams
+	 * @param IHandleUserSessions         $userSessions The UserSession class
 	 * @param float                       $start_time The start time of the overall script execution
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, HTTPInputData $httpInput, float $start_time)
+	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, HTTPInputData $httpInput, IHandleUserSessions $userSessions, float $start_time)
 	{
 		$this->profiler->set($start_time, 'start');
 		$this->profiler->set(microtime(true), 'classinit');
@@ -736,7 +738,7 @@ class App
 			$response = $module->run($input);
 			$this->profiler->set(microtime(true) - $timestamp, 'content');
 			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
-				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
+				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig, $userSessions->getLocalUserId());
 			} else {
 				$page->exit($response);
 			}

@@ -34,7 +34,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
-use Friendica\DI;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
@@ -222,17 +221,18 @@ class Page implements ArrayAccess
 	 * - Infinite scroll data
 	 * - head.tpl template
 	 *
-	 * @param App                         $app     The Friendica App instance
-	 * @param Arguments                   $args    The Friendica App Arguments
-	 * @param L10n                        $l10n    The l10n language instance
-	 * @param IManageConfigValues         $config  The Friendica configuration
-	 * @param IManagePersonalConfigValues $pConfig The Friendica personal configuration (for user)
+	 * @param App                         $app      The Friendica App instance
+	 * @param Arguments                   $args     The Friendica App Arguments
+	 * @param L10n                        $l10n     The l10n language instance
+	 * @param IManageConfigValues         $config   The Friendica configuration
+	 * @param IManagePersonalConfigValues $pConfig  The Friendica personal configuration (for user)
+	 * @param int                         $localUID The local user id
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initHead(App $app, Arguments $args, L10n $l10n, IManageConfigValues $config, IManagePersonalConfigValues $pConfig)
+	private function initHead(App $app, Arguments $args, L10n $l10n, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, int $localUID)
 	{
-		$interval = ((DI::userSession()->getLocalUserId()) ? $pConfig->get(DI::userSession()->getLocalUserId(), 'system', 'update_interval') : 40000);
+		$interval = ($localUID ? $pConfig->get($localUID, 'system', 'update_interval') : 40000);
 
 		// If the update is 'deactivated' set it to the highest integer number (~24 days)
 		if ($interval < 0) {
@@ -277,7 +277,7 @@ class Page implements ArrayAccess
 		 * being first
 		 */
 		$this->page['htmlhead'] = Renderer::replaceMacros($tpl, [
-			'$local_user'      => DI::userSession()->getLocalUserId(),
+			'$local_user'      => $localUID,
 			'$generator'       => 'Friendica' . ' ' . App::VERSION,
 			'$delitem'         => $l10n->t('Delete this item?'),
 			'$blockAuthor'     => $l10n->t('Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'),
@@ -444,10 +444,11 @@ class Page implements ArrayAccess
 	 * @param L10n                        $l10n     The l10n language class
 	 * @param IManageConfigValues         $config   The Configuration of this node
 	 * @param IManagePersonalConfigValues $pconfig  The personal/user configuration
+	 * @param int                         $localUID The UID of the local user
 	 *
 	 * @throws HTTPException\InternalServerErrorException|HTTPException\ServiceUnavailableException
 	 */
-	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, ResponseInterface $response, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
+	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, ResponseInterface $response, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig, int $localUID)
 	{
 		$moduleName = $args->getModuleName();
 
@@ -481,7 +482,7 @@ class Page implements ArrayAccess
 		 * all the module functions have executed so that all
 		 * theme choices made by the modules can take effect.
 		 */
-		$this->initHead($app, $args, $l10n, $config, $pconfig);
+		$this->initHead($app, $args, $l10n, $config, $pconfig, $localUID);
 
 		/* Build the page ending -- this is stuff that goes right before
 		 * the closing </body> tag
