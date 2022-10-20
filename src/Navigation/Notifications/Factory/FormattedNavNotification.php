@@ -23,7 +23,7 @@ namespace Friendica\Navigation\Notifications\Factory;
 
 use Friendica\BaseFactory;
 use Friendica\Core\Renderer;
-use Friendica\DI;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Model\Contact;
 use Friendica\Navigation\Notifications\Entity;
 use Friendica\Navigation\Notifications\Exception\NoMessageException;
@@ -47,16 +47,19 @@ class FormattedNavNotification extends BaseFactory
 	private $baseUrl;
 	/** @var \Friendica\Core\L10n */
 	private $l10n;
+	/** @var IHandleUserSessions */
+	private $userSession;
 	/** @var string */
 	private $tpl;
 
-	public function __construct(Notification $notification, \Friendica\App\BaseURL $baseUrl, \Friendica\Core\L10n $l10n, LoggerInterface $logger)
+	public function __construct(Notification $notification, \Friendica\App\BaseURL $baseUrl, \Friendica\Core\L10n $l10n, LoggerInterface $logger, IHandleUserSessions $userSession)
 	{
 		parent::__construct($logger);
 
 		$this->notification = $notification;
 		$this->baseUrl      = $baseUrl;
 		$this->l10n         = $l10n;
+		$this->userSession  = $userSession;
 
 		$this->tpl = Renderer::getMarkupTemplate('notifications/nav/notify.tpl');
 	}
@@ -72,7 +75,7 @@ class FormattedNavNotification extends BaseFactory
 	 */
 	public function createFromParams(array $contact, string $message, \DateTime $date, Uri $href, bool $seen = false): ValueObject\FormattedNavNotification
 	{
-		$contact['photo'] = Contact::getAvatarUrlForUrl($contact['url'], DI::userSession()->getLocalUserId(), Proxy::SIZE_MICRO);
+		$contact['photo'] = Contact::getAvatarUrlForUrl($contact['url'], $this->userSession->getLocalUserId(), Proxy::SIZE_MICRO);
 
 		$dateMySQL = $date->format(DateTimeFormat::MYSQL);
 
