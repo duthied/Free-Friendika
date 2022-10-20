@@ -128,7 +128,7 @@ class UserSessionTest extends MockedTest
 		$this->assertEquals($expected, $userSession->getRemoteUserId());
 	}
 
-	/// @fixme Add more data when Contact::getIdForUrl ist a dynamic class
+	/// @fixme Add more data when Contact::getIdForUrl is a dynamic class
 	public function dataGetRemoteContactId()
 	{
 		return [
