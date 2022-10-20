@@ -25,7 +25,6 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
@@ -36,7 +35,7 @@ class Contacts extends Module\BaseProfile
 {
 	protected function content(array $request = []): string
 	{
-		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
@@ -50,7 +49,7 @@ class Contacts extends Module\BaseProfile
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		$is_owner = $profile['uid'] == Session::getLocalUser();
+		$is_owner = $profile['uid'] == DI::userSession()->getLocalUserId();
 
 		if ($profile['hide-friends'] && !$is_owner) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
@@ -60,7 +59,7 @@ class Contacts extends Module\BaseProfile
 
 		$o = self::getTabsHTML($a, 'contacts', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
-		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, Session::isAuthenticated() && $profile['uid'] != Session::getLocalUser());
+		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, DI::userSession()->isAuthenticated() && $profile['uid'] != DI::userSession()->getLocalUserId());
 
 		$condition = [
 			'uid'     => $profile['uid'],

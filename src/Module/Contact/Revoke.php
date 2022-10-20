@@ -27,7 +27,6 @@ use Friendica\Content\Nav;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model;
@@ -55,11 +54,11 @@ class Revoke extends BaseModule
 
 		$this->dba     = $dba;
 
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
-		$data = Model\Contact::getPublicAndUserContactID($this->parameters['id'], Session::getLocalUser());
+		$data = Model\Contact::getPublicAndUserContactID($this->parameters['id'], DI::userSession()->getLocalUserId());
 		if (!$this->dba->isResult($data)) {
 			throw new HTTPException\NotFoundException($this->t('Unknown contact.'));
 		}
@@ -81,7 +80,7 @@ class Revoke extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\UnauthorizedException();
 		}
 
@@ -96,7 +95,7 @@ class Revoke extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return Login::form($_SERVER['REQUEST_URI']);
 		}
 

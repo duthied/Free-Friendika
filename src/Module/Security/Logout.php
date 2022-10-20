@@ -26,7 +26,6 @@ use Friendica\BaseModule;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\System;
 use Friendica\DI;
@@ -64,7 +63,7 @@ class Logout extends BaseModule
 	protected function rawContent(array $request = [])
 	{
 		$visitor_home = null;
-		if (Session::getRemoteUser()) {
+		if (DI::userSession()->getRemoteUserId()) {
 			$visitor_home = Profile::getMyURL();
 			$this->cache->delete('zrlInit:' . $visitor_home);
 		}

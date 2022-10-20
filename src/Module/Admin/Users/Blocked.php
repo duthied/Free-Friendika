@@ -49,7 +49,7 @@ class Blocked extends BaseUsers
 
 		if (!empty($_POST['page_users_delete'])) {
 			foreach ($users as $uid) {
-				if (Session::getLocalUser() != $uid) {
+				if (DI::userSession()->getLocalUserId() != $uid) {
 					User::remove($uid);
 				} else {
 					DI::sysmsg()->addNotice(DI::l10n()->t('You can\'t remove yourself'));
@@ -80,7 +80,7 @@ class Blocked extends BaseUsers
 
 		switch ($action) {
 			case 'delete':
-				if (Session::getLocalUser() != $uid) {
+				if (DI::userSession()->getLocalUserId() != $uid) {
 					self::checkFormSecurityTokenRedirectOnError('/admin/users/blocked', 'admin_users_blocked', 't');
 					// delete user
 					User::remove($uid);

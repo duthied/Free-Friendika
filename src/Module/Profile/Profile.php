@@ -29,7 +29,6 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -82,13 +81,13 @@ class Profile extends BaseProfile
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Profile not found.'));
 		}
 
-		$remote_contact_id = Session::getRemoteContactID($profile['uid']);
+		$remote_contact_id = DI::userSession()->getRemoteContactID($profile['uid']);
 
-		if (DI::config()->get('system', 'block_public') && !Session::getLocalUser() && !$remote_contact_id) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->getLocalUserId() && !$remote_contact_id) {
 			return Login::form();
 		}
 
-		$is_owner = Session::getLocalUser() == $profile['uid'];
+		$is_owner = DI::userSession()->getLocalUserId() == $profile['uid'];
 
 		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact_id) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
@@ -102,7 +101,7 @@ class Profile extends BaseProfile
 
 		Nav::setSelected('home');
 
-		$is_owner = Session::getLocalUser() == $profile['uid'];
+		$is_owner = DI::userSession()->getLocalUserId() == $profile['uid'];
 		$o = self::getTabsHTML($a, 'profile', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact_id) {
@@ -117,7 +116,7 @@ class Profile extends BaseProfile
 			$view_as_contact_id = intval($_GET['viewas'] ?? 0);
 
 			$view_as_contacts = Contact::selectToArray(['id', 'name'], [
-				'uid' => Session::getLocalUser(),
+				'uid' => DI::userSession()->getLocalUserId(),
 				'rel' => [Contact::FOLLOWER, Contact::SHARING, Contact::FRIEND],
 				'network' => Protocol::DFRN,
 				'blocked' => false,
@@ -247,7 +246,7 @@ class Profile extends BaseProfile
 			'$submit' => DI::l10n()->t('Submit'),
 			'$basic' => DI::l10n()->t('Basic'),
 			'$advanced' => DI::l10n()->t('Advanced'),
-			'$is_owner' => $profile['uid'] == Session::getLocalUser(),
+			'$is_owner' => $profile['uid'] == DI::userSession()->getLocalUserId(),
 			'$query_string' => DI::args()->getQueryString(),
 			'$basic_fields' => $basic_fields,
 			'$custom_fields' => $custom_fields,
@@ -308,8 +307,8 @@ class Profile extends BaseProfile
 		}
 
 		// site block
-		$blocked   = !Session::getLocalUser() && !$remote_contact_id && DI::config()->get('system', 'block_public');
-		$userblock = !Session::getLocalUser() && !$remote_contact_id && $profile['hidewall'];
+		$blocked   = !DI::userSession()->getLocalUserId() && !$remote_contact_id && DI::config()->get('system', 'block_public');
+		$userblock = !DI::userSession()->getLocalUserId() && !$remote_contact_id && $profile['hidewall'];
 		if (!$blocked && !$userblock) {
 			$keywords = str_replace(['#', ',', ' ', ',,'], ['', ' ', ',', ','], $profile['pub_keywords'] ?? '');
 			if (strlen($keywords)) {

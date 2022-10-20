@@ -23,7 +23,6 @@ namespace Friendica\Module\Admin\Users;
 
 use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -48,7 +47,7 @@ class Active extends BaseUsers
 
 		if (!empty($_POST['page_users_delete'])) {
 			foreach ($users as $uid) {
-				if (Session::getLocalUser() != $uid) {
+				if (DI::userSession()->getLocalUserId() != $uid) {
 					User::remove($uid);
 				} else {
 					DI::sysmsg()->addNotice(DI::l10n()->t('You can\'t remove yourself'));
@@ -79,7 +78,7 @@ class Active extends BaseUsers
 
 		switch ($action) {
 			case 'delete':
-				if (Session::getLocalUser() != $uid) {
+				if (DI::userSession()->getLocalUserId() != $uid) {
 					self::checkFormSecurityTokenRedirectOnError('admin/users/active', 'admin_users_active', 't');
 					// delete user
 					User::remove($uid);

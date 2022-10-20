@@ -25,7 +25,6 @@ use Friendica\BaseModule;
 use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Network\HTTPException;
@@ -83,10 +82,10 @@ class BaseSearch extends BaseModule
 		$search = Network::convertToIdn($search);
 
 		if (DI::mode()->isMobile()) {
-			$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
+			$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
+			$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -126,7 +125,7 @@ class BaseSearch extends BaseModule
 
 			// in case the result is a contact result, add a contact-specific entry
 			if ($result instanceof ContactResult) {
-				$contact = Model\Contact::getByURLForUser($result->getUrl(), Session::getLocalUser());
+				$contact = Model\Contact::getByURLForUser($result->getUrl(), DI::userSession()->getLocalUserId());
 				if (!empty($contact)) {
 					$entries[] = Contact::getContactTemplateVars($contact);
 				}

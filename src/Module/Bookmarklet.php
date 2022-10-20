@@ -23,7 +23,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Content\PageInfo;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
@@ -41,7 +40,7 @@ class Bookmarklet extends BaseModule
 
 		$config = DI::config();
 
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			$output = '<h2>' . DI::l10n()->t('Login') . '</h2>';
 			$output .= Login::form(DI::args()->getQueryString(), intval($config->get('config', 'register_policy')) === Register::CLOSED ? false : true);
 			return $output;

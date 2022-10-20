@@ -28,7 +28,6 @@ use Friendica\Content\ForumManager;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -91,18 +90,18 @@ class Ping extends BaseModule
 		$today_birthday_count = 0;
 
 
-		if (Session::getLocalUser()) {
-			if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'detailed_notif')) {
-				$notifications = $this->notificationRepo->selectDetailedForUser(Session::getLocalUser());
+		if (DI::userSession()->getLocalUserId()) {
+			if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'detailed_notif')) {
+				$notifications = $this->notificationRepo->selectDetailedForUser(DI::userSession()->getLocalUserId());
 			} else {
-				$notifications = $this->notificationRepo->selectDigestForUser(Session::getLocalUser());
+				$notifications = $this->notificationRepo->selectDigestForUser(DI::userSession()->getLocalUserId());
 			}
 
 			$condition = [
 				"`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
-				Session::getLocalUser(), Verb::getID(Activity::FOLLOW)
+				DI::userSession()->getLocalUserId(), Verb::getID(Activity::FOLLOW)
 			];
-			$items = Post::selectForUser(Session::getLocalUser(), ['wall', 'uid', 'uri-id'], $condition, ['limit' => 1000]);
+			$items = Post::selectForUser(DI::userSession()->getLocalUserId(), ['wall', 'uid', 'uri-id'], $condition, ['limit' => 1000]);
 			if (DBA::isResult($items)) {
 				$items_unseen = Post::toArray($items, false);
 				$arr          = ['items' => $items_unseen];
@@ -140,12 +139,12 @@ class Ping extends BaseModule
 				}
 			}
 
-			$intros = $this->introductionRepo->selectForUser(Session::getLocalUser());
+			$intros = $this->introductionRepo->selectForUser(DI::userSession()->getLocalUserId());
 
 			$intro_count = $intros->count();
 
 			$myurl      = DI::baseUrl() . '/profile/' . DI::app()->getLoggedInUserNickname();
-			$mail_count = DBA::count('mail', ["`uid` = ? AND NOT `seen` AND `from-url` != ?", Session::getLocalUser(), $myurl]);
+			$mail_count = DBA::count('mail', ["`uid` = ? AND NOT `seen` AND `from-url` != ?", DI::userSession()->getLocalUserId(), $myurl]);
 
 			if (intval(DI::config()->get('config', 'register_policy')) === Register::APPROVE && DI::app()->isSiteAdmin()) {
 				$regs = \Friendica\Model\Register::getPending();
@@ -155,12 +154,12 @@ class Ping extends BaseModule
 				}
 			}
 
-			$cachekey = 'ping:events:' . Session::getLocalUser();
+			$cachekey = 'ping:events:' . DI::userSession()->getLocalUserId();
 			$ev       = DI::cache()->get($cachekey);
 			if (is_null($ev)) {
 				$ev = DBA::selectToArray('event', ['type', 'start'],
 					["`uid` = ? AND `start` < ? AND `finish` > ? AND NOT `ignore`",
-						Session::getLocalUser(), DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utcNow()]);
+						DI::userSession()->getLocalUserId(), DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utcNow()]);
 				DI::cache()->set($cachekey, $ev, Duration::HOUR);
 			}
 
@@ -188,7 +187,7 @@ class Ping extends BaseModule
 				}
 			}
 
-			$owner = User::getOwnerDataById(Session::getLocalUser());
+			$owner = User::getOwnerDataById(DI::userSession()->getLocalUserId());
 
 			$navNotifications = array_map(function (Entity\Notification $notification) use ($owner) {
 				if (!DI::notify()->NotifyOnDesktop($notification)) {
@@ -215,7 +214,7 @@ class Ping extends BaseModule
 			}
 
 			if (DBA::isResult($regs)) {
-				if (count($regs) <= 1 || DI::pConfig()->get(Session::getLocalUser(), 'system', 'detailed_notif')) {
+				if (count($regs) <= 1 || DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'detailed_notif')) {
 					foreach ($regs as $reg) {
 						$navNotifications[] = $this->formattedNavNotification->createFromParams(
 							[

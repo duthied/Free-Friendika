@@ -26,7 +26,6 @@ use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
@@ -39,13 +38,13 @@ class Filed extends BaseSearch
 {
 	protected function content(array $request = []): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return Login::form();
 		}
 
 		DI::page()['aside'] .= Widget::fileAs(DI::args()->getCommand(), $_GET['file'] ?? '');
 
-		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 			$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		} else {
@@ -60,10 +59,10 @@ class Filed extends BaseSearch
 		}
 
 		if (DI::mode()->isMobile()) {
-			$itemspage_network = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
+			$itemspage_network = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemspage_network = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
+			$itemspage_network = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -71,7 +70,7 @@ class Filed extends BaseSearch
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemspage_network);
 
-		$term_condition = ['type' => Category::FILE, 'uid' => Session::getLocalUser()];
+		$term_condition = ['type' => Category::FILE, 'uid' => DI::userSession()->getLocalUserId()];
 		if ($file) {
 			$term_condition['name'] = $file;
 		}
@@ -94,14 +93,14 @@ class Filed extends BaseSearch
 		if (count($posts) == 0) {
 			return '';
 		}
-		$item_condition = ['uid' => [0, Session::getLocalUser()], 'uri-id' => $posts];
+		$item_condition = ['uid' => [0, DI::userSession()->getLocalUserId()], 'uri-id' => $posts];
 		$item_params = ['order' => ['uri-id' => true, 'uid' => true]];
 
-		$items = Post::toArray(Post::selectForUser(Session::getLocalUser(), Item::DISPLAY_FIELDLIST, $item_condition, $item_params));
+		$items = Post::toArray(Post::selectForUser(DI::userSession()->getLocalUserId(), Item::DISPLAY_FIELDLIST, $item_condition, $item_params));
 
-		$o .= DI::conversation()->create($items, 'filed', false, false, '', Session::getLocalUser());
+		$o .= DI::conversation()->create($items, 'filed', false, false, '', DI::userSession()->getLocalUserId());
 
-		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
 		} else {
 			$o .= $pager->renderMinimal($count);

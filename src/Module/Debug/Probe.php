@@ -23,7 +23,6 @@ namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe as NetworkProbe;
@@ -35,7 +34,7 @@ class Probe extends BaseModule
 {
 	protected function content(array $request = []): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a probing.'));
 		}
 

@@ -22,7 +22,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model\Contact;
 
@@ -34,7 +33,7 @@ class FollowConfirm extends BaseModule
 	protected function post(array $request = [])
 	{
 		parent::post($request);
-		$uid = Session::getLocalUser();
+		$uid = DI::userSession()->getLocalUserId();
 		if (!$uid) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return;
@@ -44,7 +43,7 @@ class FollowConfirm extends BaseModule
 		$duplex   = intval($_POST['duplex']     ?? 0);
 		$hidden   = intval($_POST['hidden']     ?? 0);
 
-		$intro = DI::intro()->selectOneById($intro_id, Session::getLocalUser());
+		$intro = DI::intro()->selectOneById($intro_id, DI::userSession()->getLocalUserId());
 
 		Contact\Introduction::confirm($intro, $duplex, $hidden);
 		DI::intro()->delete($intro);

@@ -24,7 +24,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 
@@ -50,7 +49,7 @@ abstract class BaseAdmin extends BaseModule
 	 */
 	public static function checkAdminAccess(bool $interactive = false)
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			if ($interactive) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Please login to continue.'));
 				DI::session()->set('return_path', DI::args()->getQueryString());

@@ -24,7 +24,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\User;
@@ -39,7 +38,7 @@ class Invite extends BaseModule
 {
 	protected function post(array $request = [])
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -53,7 +52,7 @@ class Invite extends BaseModule
 			$max_invites = 50;
 		}
 
-		$current_invites = intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'sent_invites'));
+		$current_invites = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'sent_invites'));
 		if ($current_invites > $max_invites) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Total invitation limit exceeded.'));
 		}
@@ -68,13 +67,13 @@ class Invite extends BaseModule
 
 		if ($config->get('system', 'invitation_only')) {
 			$invitation_only = true;
-			$invites_remaining = DI::pConfig()->get(Session::getLocalUser(), 'system', 'invites_remaining');
+			$invites_remaining = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'invites_remaining');
 			if ((!$invites_remaining) && (!$app->isSiteAdmin())) {
 				throw new HTTPException\ForbiddenException();
 			}
 		}
 
-		$user = User::getById(Session::getLocalUser());
+		$user = User::getById(DI::userSession()->getLocalUserId());
 
 		foreach ($recipients as $recipient) {
 			$recipient = trim($recipient);
@@ -91,7 +90,7 @@ class Invite extends BaseModule
 				if (!$app->isSiteAdmin()) {
 					$invites_remaining--;
 					if ($invites_remaining >= 0) {
-						DI::pConfig()->set(Session::getLocalUser(), 'system', 'invites_remaining', $invites_remaining);
+						DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'invites_remaining', $invites_remaining);
 					} else {
 						return;
 					}
@@ -113,7 +112,7 @@ class Invite extends BaseModule
 			if ($res) {
 				$total++;
 				$current_invites++;
-				DI::pConfig()->set(Session::getLocalUser(), 'system', 'sent_invites', $current_invites);
+				DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'sent_invites', $current_invites);
 				if ($current_invites > $max_invites) {
 					DI::sysmsg()->addNotice(DI::l10n()->t('Invitation limit exceeded. Please contact your site administrator.'));
 					return;
@@ -128,7 +127,7 @@ class Invite extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -139,7 +138,7 @@ class Invite extends BaseModule
 
 		if ($config->get('system', 'invitation_only')) {
 			$inviteOnly = true;
-			$x = DI::pConfig()->get(Session::getLocalUser(), 'system', 'invites_remaining');
+			$x = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'invites_remaining');
 			if ((!$x) && (!$app->isSiteAdmin())) {
 				throw new HTTPException\ForbiddenException(DI::l10n()->t('You have no more invitations available'));
 			}
