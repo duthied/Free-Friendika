@@ -35,7 +35,7 @@ function editpost_content(App $a)
 {
 	$o = '';
 
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
@@ -50,14 +50,14 @@ function editpost_content(App $a)
 	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 		'body', 'title', 'uri-id', 'wall', 'post-type', 'guid'];
 
-	$item = Post::selectFirstForUser(Session::getLocalUser(), $fields, ['id' => $post_id, 'uid' => Session::getLocalUser()]);
+	$item = Post::selectFirstForUser(DI::userSession()->getLocalUserId(), $fields, ['id' => $post_id, 'uid' => DI::userSession()->getLocalUserId()]);
 
 	if (!DBA::isResult($item)) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Item not found'));
 		return;
 	}
 
-	$user = User::getById(Session::getLocalUser());
+	$user = User::getById(DI::userSession()->getLocalUserId());
 
 	$geotag = '';
 
@@ -119,8 +119,8 @@ function editpost_content(App $a)
 		'$jotnets' => $jotnets,
 		'$title' => $item['title'],
 		'$placeholdertitle' => DI::l10n()->t('Set title'),
-		'$category' => Post\Category::getCSVByURIId($item['uri-id'], Session::getLocalUser(), Post\Category::CATEGORY),
-		'$placeholdercategory' => (Feature::isEnabled(Session::getLocalUser(),'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : ''),
+		'$category' => Post\Category::getCSVByURIId($item['uri-id'], DI::userSession()->getLocalUserId(), Post\Category::CATEGORY),
+		'$placeholdercategory' => (Feature::isEnabled(DI::userSession()->getLocalUserId(),'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : ''),
 		'$emtitle' => DI::l10n()->t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,
 		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user)),

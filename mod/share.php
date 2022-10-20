@@ -31,7 +31,7 @@ use Friendica\Model\Post;
 function share_init(App $a) {
 	$post_id = ((DI::args()->getArgc() > 1) ? intval(DI::args()->getArgv()[1]) : 0);
 
-	if (!$post_id || !Session::getLocalUser()) {
+	if (!$post_id || !DI::userSession()->getLocalUserId()) {
 		System::exit();
 	}
 

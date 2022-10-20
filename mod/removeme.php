@@ -29,7 +29,7 @@ use Friendica\Util\Strings;
 
 function removeme_post(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
@@ -65,7 +65,7 @@ function removeme_post(App $a)
 			->withMessage(
 				$l10n->t('[Friendica System Notify]') . ' ' . $l10n->t('User deleted their account'),
 				$l10n->t('On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'),
-				$l10n->t('The user id is %d', Session::getLocalUser()))
+				$l10n->t('The user id is %d', DI::userSession()->getLocalUserId()))
 			->forUser($admin)
 			->withRecipient($admin['email'])
 			->build();
@@ -84,7 +84,7 @@ function removeme_post(App $a)
 
 function removeme_content(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::baseUrl()->redirect();
 	}
 

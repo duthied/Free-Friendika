@@ -36,7 +36,7 @@ use Friendica\Util\Strings;
 
 function follow_post(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 	}
 
@@ -53,13 +53,13 @@ function follow_content(App $a)
 {
 	$return_path = 'contact';
 
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect($return_path);
 		// NOTREACHED
 	}
 
-	$uid = Session::getLocalUser();
+	$uid = DI::userSession()->getLocalUserId();
 
 	$url = Probe::cleanURI(trim($_REQUEST['url'] ?? ''));
 
@@ -196,7 +196,7 @@ function follow_process(App $a, string $url)
 
 function follow_remote_item($url)
 {
-	$item_id = Item::fetchByLink($url, Session::getLocalUser());
+	$item_id = Item::fetchByLink($url, DI::userSession()->getLocalUserId());
 	if (!$item_id) {
 		// If the user-specific search failed, we search and probe a public post
 		$item_id = Item::fetchByLink($url);

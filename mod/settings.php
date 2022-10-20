@@ -37,7 +37,7 @@ use Friendica\Protocol\Email;
 
 function settings_init(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
@@ -70,12 +70,12 @@ function settings_post(App $a)
 		BaseModule::checkFormSecurityTokenRedirectOnError(DI::args()->getQueryString(), 'settings_connectors');
 
 		if (!empty($_POST['general-submit'])) {
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'accept_only_sharer', intval($_POST['accept_only_sharer']));
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'disable_cw', !intval($_POST['enable_cw']));
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'no_intelligent_shortening', !intval($_POST['enable_smart_shortening']));
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'simple_shortening', intval($_POST['simple_shortening']));
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'attach_link_title', intval($_POST['attach_link_title']));
-			DI::pConfig()->set(Session::getLocalUser(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'accept_only_sharer', intval($_POST['accept_only_sharer']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'disable_cw', !intval($_POST['enable_cw']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'no_intelligent_shortening', !intval($_POST['enable_smart_shortening']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'simple_shortening', intval($_POST['simple_shortening']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'attach_link_title', intval($_POST['attach_link_title']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
 		} elseif (!empty($_POST['mail-submit'])) {
 			$mail_server       =                 $_POST['mail_server']       ?? '';
 			$mail_port         =                 $_POST['mail_port']         ?? '';
@@ -88,13 +88,13 @@ function settings_post(App $a)
 			$mail_pubmail      =                 $_POST['mail_pubmail']      ?? '';
 
 			if (function_exists('imap_open') && !DI::config()->get('system', 'imap_disabled')) {
-				if (!DBA::exists('mailacct', ['uid' => Session::getLocalUser()])) {
-					DBA::insert('mailacct', ['uid' => Session::getLocalUser()]);
+				if (!DBA::exists('mailacct', ['uid' => DI::userSession()->getLocalUserId()])) {
+					DBA::insert('mailacct', ['uid' => DI::userSession()->getLocalUserId()]);
 				}
 				if (strlen($mail_pass)) {
 					$pass = '';
 					openssl_public_encrypt($mail_pass, $pass, $user['pubkey']);
-					DBA::update('mailacct', ['pass' => bin2hex($pass)], ['uid' => Session::getLocalUser()]);
+					DBA::update('mailacct', ['pass' => bin2hex($pass)], ['uid' => DI::userSession()->getLocalUserId()]);
 				}
 
 				$r = DBA::update('mailacct', [
@@ -107,10 +107,10 @@ function settings_post(App $a)
 					'mailbox'      => 'INBOX',
 					'reply_to'     => $mail_replyto,
 					'pubmail'      => $mail_pubmail
-				], ['uid' => Session::getLocalUser()]);
+				], ['uid' => DI::userSession()->getLocalUserId()]);
 
 				Logger::debug('updating mailaccount', ['response' => $r]);
-				$mailacct = DBA::selectFirst('mailacct', [], ['uid' => Session::getLocalUser()]);
+				$mailacct = DBA::selectFirst('mailacct', [], ['uid' => DI::userSession()->getLocalUserId()]);
 				if (DBA::isResult($mailacct)) {
 					$mb = Email::constructMailboxName($mailacct);
 
@@ -136,7 +136,7 @@ function settings_post(App $a)
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/features', 'settings_features');
 		foreach ($_POST as $k => $v) {
 			if (strpos($k, 'feature_') === 0) {
-				DI::pConfig()->set(Session::getLocalUser(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
+				DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
 			}
 		}
 		return;
@@ -148,7 +148,7 @@ function settings_content(App $a)
 	$o = '';
 	Nav::setSelected('settings');
 
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		//DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
@@ -162,12 +162,12 @@ function settings_content(App $a)
 		if ((DI::args()->getArgc() > 3) && (DI::args()->getArgv()[2] === 'delete')) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth', 't');
 
-			DBA::delete('application-token', ['application-id' => DI::args()->getArgv()[3], 'uid' => Session::getLocalUser()]);
+			DBA::delete('application-token', ['application-id' => DI::args()->getArgv()[3], 'uid' => DI::userSession()->getLocalUserId()]);
 			DI::baseUrl()->redirect('settings/oauth/', true);
 			return '';
 		}
 
-		$applications = DBA::selectToArray('application-view', ['id', 'uid', 'name', 'website', 'scopes', 'created_at'], ['uid' => Session::getLocalUser()]);
+		$applications = DBA::selectToArray('application-view', ['id', 'uid', 'name', 'website', 'scopes', 'created_at'], ['uid' => DI::userSession()->getLocalUserId()]);
 
 		$tpl = Renderer::getMarkupTemplate('settings/oauth.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
@@ -226,7 +226,7 @@ function settings_content(App $a)
 			$arr[$fname] = [];
 			$arr[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata,1) as $f) {
-				$arr[$fname][1][] = ['feature_' . $f[0], $f[1], Feature::isEnabled(Session::getLocalUser(), $f[0]), $f[2]];
+				$arr[$fname][1][] = ['feature_' . $f[0], $f[1], Feature::isEnabled(DI::userSession()->getLocalUserId(), $f[0]), $f[2]];
 			}
 		}
 
@@ -241,12 +241,12 @@ function settings_content(App $a)
 	}
 
 	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'connectors')) {
-		$accept_only_sharer        = intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'accept_only_sharer'));
-		$enable_cw                 = !intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'disable_cw'));
-		$enable_smart_shortening   = !intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_intelligent_shortening'));
-		$simple_shortening         = intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'simple_shortening'));
-		$attach_link_title         = intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'attach_link_title'));
-		$legacy_contact            = DI::pConfig()->get(Session::getLocalUser(), 'ostatus', 'legacy_contact');
+		$accept_only_sharer        = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'accept_only_sharer'));
+		$enable_cw                 = !intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'disable_cw'));
+		$enable_smart_shortening   = !intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'no_intelligent_shortening'));
+		$simple_shortening         = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'simple_shortening'));
+		$attach_link_title         = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'attach_link_title'));
+		$legacy_contact            = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'ostatus', 'legacy_contact');
 
 		if (!empty($legacy_contact)) {
 			/// @todo Isn't it supposed to be a $a->internalRedirect() call?
@@ -280,7 +280,7 @@ function settings_content(App $a)
 
 		$mail_disabled = ((function_exists('imap_open') && (!DI::config()->get('system', 'imap_disabled'))) ? 0 : 1);
 		if (!$mail_disabled) {
-			$mailacct = DBA::selectFirst('mailacct', [], ['uid' => Session::getLocalUser()]);
+			$mailacct = DBA::selectFirst('mailacct', [], ['uid' => DI::userSession()->getLocalUserId()]);
 		} else {
 			$mailacct = null;
 		}

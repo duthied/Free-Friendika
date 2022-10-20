@@ -39,7 +39,7 @@ use Friendica\Util\Strings;
  */
 function fbrowser_content(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		System::exit();
 	}
 
@@ -66,7 +66,7 @@ function fbrowser_content(App $a)
 
 			if (DI::args()->getArgc() == 2) {
 				$photos = DBA::toArray(DBA::p("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?)",
-					Session::getLocalUser(),
+					DI::userSession()->getLocalUserId(),
 					Photo::CONTACT_AVATAR,
 					Photo::CONTACT_BANNER
 				));
@@ -85,7 +85,7 @@ function fbrowser_content(App $a)
 					min(`scale`) AS `hiq`, max(`scale`) AS `loq`, ANY_VALUE(`desc`) AS `desc`, ANY_VALUE(`created`) AS `created`
 					FROM `photo` WHERE `uid` = ? $sql_extra AND NOT `photo-type` IN (?, ?)
 					GROUP BY `resource-id` $sql_extra2",
-				Session::getLocalUser(),
+				DI::userSession()->getLocalUserId(),
 				Photo::CONTACT_AVATAR,
 				Photo::CONTACT_BANNER
 			));
@@ -125,7 +125,7 @@ function fbrowser_content(App $a)
 			break;
 		case "file":
 			if (DI::args()->getArgc()==2) {
-				$files = DBA::selectToArray('attach', ['id', 'filename', 'filetype'], ['uid' => Session::getLocalUser()]);
+				$files = DBA::selectToArray('attach', ['id', 'filename', 'filetype'], ['uid' => DI::userSession()->getLocalUserId()]);
 
 				function _map_files2($rr)
 				{

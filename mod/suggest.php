@@ -31,7 +31,7 @@ use Friendica\Network\HTTPException;
 
 function suggest_content(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 	}
 
@@ -40,7 +40,7 @@ function suggest_content(App $a)
 	DI::page()['aside'] .= Widget::findPeople();
 	DI::page()['aside'] .= Widget::follow();
 
-	$contacts = Contact\Relation::getSuggestions(Session::getLocalUser());
+	$contacts = Contact\Relation::getSuggestions(DI::userSession()->getLocalUserId());
 	if (!DBA::isResult($contacts)) {
 		return DI::l10n()->t('No suggestions available. If this is a new site, please try again in 24 hours.');
 	}

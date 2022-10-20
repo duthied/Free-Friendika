@@ -29,7 +29,7 @@ use Friendica\Model\Tag;
 
 function tagrm_post(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::baseUrl()->redirect($_SESSION['photo_return']);
 	}
 
@@ -62,7 +62,7 @@ function update_tags($item_id, $tags)
 		return;
 	}
 
-	$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => Session::getLocalUser()]);
+	$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => DI::userSession()->getLocalUserId()]);
 	if (!DBA::isResult($item)) {
 		return;
 	}
@@ -82,7 +82,7 @@ function tagrm_content(App $a)
 
 	$photo_return = $_SESSION['photo_return'] ?? '';
 
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::baseUrl()->redirect($photo_return);
 		// NOTREACHED
 	}
@@ -98,7 +98,7 @@ function tagrm_content(App $a)
 		// NOTREACHED
 	}
 
-	$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => Session::getLocalUser()]);
+	$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => DI::userSession()->getLocalUserId()]);
 	if (!DBA::isResult($item)) {
 		DI::baseUrl()->redirect($photo_return);
 	}
