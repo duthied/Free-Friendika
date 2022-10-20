@@ -22,7 +22,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -31,7 +30,7 @@ use Friendica\Model\Contact;
 
 function update_contact_content(App $a)
 {
-	if (!empty(DI::args()->get(1)) && (!empty($_GET['force']) || !DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_auto_update'))) {
+	if (!empty(DI::args()->get(1)) && (!empty($_GET['force']) || !DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'no_auto_update'))) {
 		$contact = Contact::getById(DI::args()->get(1), ['id', 'deleted']);
 		if (DBA::isResult($contact) && empty($contact['deleted'])) {
 			DI::page()['aside'] = '';

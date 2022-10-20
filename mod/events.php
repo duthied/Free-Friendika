@@ -27,7 +27,6 @@ use Friendica\Core\ACL;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
@@ -47,7 +46,7 @@ use Friendica\Worker\Delivery;
 
 function events_init(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
@@ -55,7 +54,7 @@ function events_init(App $a)
 		DI::page()['aside'] = '';
 	}
 
-	$cal_widget = CalendarExport::getHTML(Session::getLocalUser());
+	$cal_widget = CalendarExport::getHTML(DI::userSession()->getLocalUserId());
 
 	DI::page()['aside'] .= $cal_widget;
 
@@ -65,13 +64,13 @@ function events_init(App $a)
 function events_post(App $a)
 {
 	Logger::debug('post', ['request' => $_REQUEST]);
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
 	$event_id = !empty($_POST['event_id']) ? intval($_POST['event_id']) : 0;
 	$cid = !empty($_POST['cid']) ? intval($_POST['cid']) : 0;
-	$uid = Session::getLocalUser();
+	$uid = DI::userSession()->getLocalUserId();
 
 	$start_text  = Strings::escapeHtml($_REQUEST['start_text'] ?? '');
 	$finish_text = Strings::escapeHtml($_REQUEST['finish_text'] ?? '');
@@ -215,7 +214,7 @@ function events_post(App $a)
 
 function events_content(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
@@ -225,11 +224,11 @@ function events_content(App $a)
 	}
 
 	if ((DI::args()->getArgc() > 2) && (DI::args()->getArgv()[1] === 'ignore') && intval(DI::args()->getArgv()[2])) {
-		DBA::update('event', ['ignore' => true], ['id' => DI::args()->getArgv()[2], 'uid' => Session::getLocalUser()]);
+		DBA::update('event', ['ignore' => true], ['id' => DI::args()->getArgv()[2], 'uid' => DI::userSession()->getLocalUserId()]);
 	}
 
 	if ((DI::args()->getArgc() > 2) && (DI::args()->getArgv()[1] === 'unignore') && intval(DI::args()->getArgv()[2])) {
-		DBA::update('event', ['ignore' => false], ['id' => DI::args()->getArgv()[2], 'uid' => Session::getLocalUser()]);
+		DBA::update('event', ['ignore' => false], ['id' => DI::args()->getArgv()[2], 'uid' => DI::userSession()->getLocalUserId()]);
 	}
 
 	if ($a->getThemeInfoValue('events_in_profile')) {
@@ -324,9 +323,9 @@ function events_content(App $a)
 
 		// get events by id or by date
 		if ($event_params['event_id']) {
-			$r = Event::getListById(Session::getLocalUser(), $event_params['event_id']);
+			$r = Event::getListById(DI::userSession()->getLocalUserId(), $event_params['event_id']);
 		} else {
-			$r = Event::getListByDate(Session::getLocalUser(), $event_params);
+			$r = Event::getListByDate(DI::userSession()->getLocalUserId(), $event_params);
 		}
 
 		$links = [];
@@ -397,7 +396,7 @@ function events_content(App $a)
 	}
 
 	if (($mode === 'edit' || $mode === 'copy') && $event_id) {
-		$orig_event = DBA::selectFirst('event', [], ['id' => $event_id, 'uid' => Session::getLocalUser()]);
+		$orig_event = DBA::selectFirst('event', [], ['id' => $event_id, 'uid' => DI::userSession()->getLocalUserId()]);
 	}
 
 	// Passed parameters overrides anything found in the DB
@@ -406,8 +405,8 @@ function events_content(App $a)
 		$share_disabled = '';
 
 		if (empty($orig_event)) {
-			$orig_event = User::getById(Session::getLocalUser(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);;
-		} elseif ($orig_event['allow_cid'] !== '<' . Session::getLocalUser() . '>'
+			$orig_event = User::getById(DI::userSession()->getLocalUserId(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);;
+		} elseif ($orig_event['allow_cid'] !== '<' . DI::userSession()->getLocalUserId() . '>'
 			|| $orig_event['allow_gid']
 			|| $orig_event['deny_cid']
 			|| $orig_event['deny_gid']) {
@@ -525,11 +524,11 @@ function events_content(App $a)
 
 	// Remove an event from the calendar and its related items
 	if ($mode === 'drop' && $event_id) {
-		$ev = Event::getListById(Session::getLocalUser(), $event_id);
+		$ev = Event::getListById(DI::userSession()->getLocalUserId(), $event_id);
 
 		// Delete only real events (no birthdays)
 		if (DBA::isResult($ev) && $ev[0]['type'] == 'event') {
-			Item::deleteForUser(['id' => $ev[0]['itemid']], Session::getLocalUser());
+			Item::deleteForUser(['id' => $ev[0]['itemid']], DI::userSession()->getLocalUserId());
 		}
 
 		if (Post::exists(['id' => $ev[0]['itemid']])) {

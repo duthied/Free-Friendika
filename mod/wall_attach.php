@@ -20,7 +20,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -55,10 +54,10 @@ function wall_attach_post(App $a) {
 	$page_owner_cid = $owner['id'];
 	$community_page = $owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 
-	if (Session::getLocalUser() && (Session::getLocalUser() == $page_owner_uid)) {
+	if (DI::userSession()->getLocalUserId() && (DI::userSession()->getLocalUserId() == $page_owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
-		$contact_id = Session::getRemoteContactID($page_owner_uid);
+	} elseif ($community_page && !empty(DI::userSession()->getRemoteContactID($page_owner_uid))) {
+		$contact_id = DI::userSession()->getRemoteContactID($page_owner_uid);
 		$can_post = DBA::exists('contact', ['blocked' => false, 'pending' => false, 'id' => $contact_id, 'uid' => $page_owner_uid]);
 	}
 

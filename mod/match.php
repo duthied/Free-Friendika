@@ -23,7 +23,6 @@ use Friendica\App;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -45,7 +44,7 @@ use Friendica\Module\Contact as ModuleContact;
  */
 function match_content(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return '';
 	}
 
@@ -54,7 +53,7 @@ function match_content(App $a)
 
 	$_SESSION['return_path'] = DI::args()->getCommand();
 
-	$profile = Profile::getByUID(Session::getLocalUser());
+	$profile = Profile::getByUID(DI::userSession()->getLocalUserId());
 
 	if (!DBA::isResult($profile)) {
 		return '';
@@ -68,10 +67,10 @@ function match_content(App $a)
 	$tags = trim($profile['pub_keywords'] . ' ' . $profile['prv_keywords']);
 
 	if (DI::mode()->isMobile()) {
-		$limit = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
+		$limit = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 			DI::config()->get('system', 'itemspage_network_mobile'));
 	} else {
-		$limit = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
+		$limit = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 			DI::config()->get('system', 'itemspage_network'));
 	}
 
@@ -115,12 +114,12 @@ function match_get_contacts($msearch, $entries, $limit)
 		}
 
 		// Already known contact
-		$contact = Contact::getByURL($profile->url, null, ['rel'], Session::getLocalUser());
+		$contact = Contact::getByURL($profile->url, null, ['rel'], DI::userSession()->getLocalUserId());
 		if (!empty($contact) && in_array($contact['rel'], [Contact::FRIEND, Contact::SHARING])) {
 			continue;
 		}
 
-		$contact = Contact::getByURLForUser($profile->url, Session::getLocalUser());
+		$contact = Contact::getByURLForUser($profile->url, DI::userSession()->getLocalUserId());
 		if (!empty($contact)) {
 			$entries[$contact['id']] = ModuleContact::getContactTemplateVars($contact);
 		}

@@ -22,7 +22,6 @@
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Module\Response;
@@ -98,7 +97,7 @@ function oexchange_init(App $a)
 
 function oexchange_content(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		$o = Login::form();
 		return $o;
 	}
@@ -120,7 +119,7 @@ function oexchange_content(App $a)
 
 	$post = [];
 
-	$post['profile_uid'] = Session::getLocalUser();
+	$post['profile_uid'] = DI::userSession()->getLocalUserId();
 	$post['return'] = '/oexchange/done';
 	$post['body'] = HTML::toBBCode($s);
 

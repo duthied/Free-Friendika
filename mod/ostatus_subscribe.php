@@ -21,7 +21,6 @@
 
 use Friendica\App;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
@@ -30,7 +29,7 @@ use Friendica\Protocol\ActivityPub;
 
 function ostatus_subscribe_content(App $a): string
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('ostatus_subscribe');
 		// NOTREACHED
@@ -38,7 +37,7 @@ function ostatus_subscribe_content(App $a): string
 
 	$o = '<h2>' . DI::l10n()->t('Subscribing to contacts') . '</h2>';
 
-	$uid = Session::getLocalUser();
+	$uid = DI::userSession()->getLocalUserId();
 
 	$counter = intval($_REQUEST['counter'] ?? 0);
 

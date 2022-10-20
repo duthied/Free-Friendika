@@ -23,7 +23,6 @@ use Friendica\App;
 use Friendica\Content\Widget;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -32,7 +31,7 @@ use Friendica\Util\Strings;
 
 function unfollow_post(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('login');
 		// NOTREACHED
@@ -47,17 +46,17 @@ function unfollow_content(App $a)
 {
 	$base_return_path = 'contact';
 
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('login');
 		// NOTREACHED
 	}
 
-	$uid = Session::getLocalUser();
+	$uid = DI::userSession()->getLocalUserId();
 	$url = trim($_REQUEST['url']);
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
-		Session::getLocalUser(), Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
+		DI::userSession()->getLocalUserId(), Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
 		Strings::normaliseLink($url), $url];
 
 	$contact = DBA::selectFirst('contact', ['url', 'id', 'uid', 'network', 'addr', 'name'], $condition);
@@ -119,7 +118,7 @@ function unfollow_process(string $url)
 {
 	$base_return_path = 'contact';
 
-	$uid = Session::getLocalUser();
+	$uid = DI::userSession()->getLocalUserId();
 
 	$owner = User::getOwnerDataById($uid);
 	if (!$owner) {

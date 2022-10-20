@@ -22,7 +22,6 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
@@ -31,7 +30,7 @@ use Friendica\Module\BaseProfile;
 
 function notes_init(App $a)
 {
-	if (! Session::getLocalUser()) {
+	if (! DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
@@ -41,7 +40,7 @@ function notes_init(App $a)
 
 function notes_content(App $a, bool $update = false)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
@@ -53,7 +52,7 @@ function notes_content(App $a, bool $update = false)
 
 		$x = [
 			'lockstate' => 'lock',
-			'acl' => \Friendica\Core\ACL::getSelfOnlyHTML(Session::getLocalUser(), DI::l10n()->t('Personal notes are visible only by yourself.')),
+			'acl' => \Friendica\Core\ACL::getSelfOnlyHTML(DI::userSession()->getLocalUserId(), DI::l10n()->t('Personal notes are visible only by yourself.')),
 			'button' => DI::l10n()->t('Save'),
 			'acl_data' => '',
 		];
@@ -61,14 +60,14 @@ function notes_content(App $a, bool $update = false)
 		$o .= DI::conversation()->statusEditor($x, $a->getContactId());
 	}
 
-	$condition = ['uid' => Session::getLocalUser(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => Item::GRAVITY_PARENT,
+	$condition = ['uid' => DI::userSession()->getLocalUserId(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => Item::GRAVITY_PARENT,
 		'contact-id'=> $a->getContactId()];
 
 	if (DI::mode()->isMobile()) {
-		$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
+		$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 			DI::config()->get('system', 'itemspage_network_mobile'));
 	} else {
-		$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
+		$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 			DI::config()->get('system', 'itemspage_network'));
 	}
 
@@ -76,7 +75,7 @@ function notes_content(App $a, bool $update = false)
 
 	$params = ['order' => ['created' => true],
 		'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
-	$r = Post::selectThreadForUser(Session::getLocalUser(), ['uri-id'], $condition, $params);
+	$r = Post::selectThreadForUser(DI::userSession()->getLocalUserId(), ['uri-id'], $condition, $params);
 
 	$count = 0;
 
