@@ -192,7 +192,7 @@ class DomainPatternBlocklist
 				'reason' => $data[1] ?? '',
 			];
 			if (!in_array($item, $blocklist)) {
-				$blocklist[] = $data;
+				$blocklist[] = $item;
 			}
 		}
 
