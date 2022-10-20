@@ -23,7 +23,7 @@ namespace Friendica\Navigation\Notifications\Factory;
 
 use Friendica\BaseFactory;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Navigation\Notifications\Entity;
 use Friendica\Navigation\Notifications\Exception\NoMessageException;
@@ -72,7 +72,7 @@ class FormattedNavNotification extends BaseFactory
 	 */
 	public function createFromParams(array $contact, string $message, \DateTime $date, Uri $href, bool $seen = false): ValueObject\FormattedNavNotification
 	{
-		$contact['photo'] = Contact::getAvatarUrlForUrl($contact['url'], Session::getLocalUser(), Proxy::SIZE_MICRO);
+		$contact['photo'] = Contact::getAvatarUrlForUrl($contact['url'], DI::userSession()->getLocalUserId(), Proxy::SIZE_MICRO);
 
 		$dateMySQL = $date->format(DateTimeFormat::MYSQL);
 

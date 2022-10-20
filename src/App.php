@@ -33,7 +33,6 @@ use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\L10n;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
@@ -158,7 +157,7 @@ class App
 
 	public function isLoggedIn(): bool
 	{
-		return Session::getLocalUser() && $this->user_id && ($this->user_id == Session::getLocalUser());
+		return DI::userSession()->getLocalUserId() && $this->user_id && ($this->user_id == DI::userSession()->getLocalUserId());
 	}
 
 	/**
@@ -172,7 +171,7 @@ class App
 
 		$adminlist = explode(',', str_replace(' ', '', $admin_email));
 
-		return Session::getLocalUser() && $admin_email && $this->database->exists('user', ['uid' => $this->getLoggedInUserId(), 'email' => $adminlist]);
+		return DI::userSession()->getLocalUserId() && $admin_email && $this->database->exists('user', ['uid' => $this->getLoggedInUserId(), 'email' => $adminlist]);
 	}
 
 	/**
@@ -496,11 +495,11 @@ class App
 
 		$page_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
-		if (!empty($this->profile_owner) && ($this->profile_owner != Session::getLocalUser())) {
+		if (!empty($this->profile_owner) && ($this->profile_owner != DI::userSession()->getLocalUserId())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
 			$user = $this->database->selectFirst('user', ['theme'], ['uid' => $this->profile_owner]);
-			if ($this->database->isResult($user) && !Session::getLocalUser()) {
+			if ($this->database->isResult($user) && !DI::userSession()->getLocalUserId()) {
 				$page_theme = $user['theme'];
 			}
 		}
@@ -529,10 +528,10 @@ class App
 
 		$page_mobile_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
-		if (!empty($this->profile_owner) && ($this->profile_owner != Session::getLocalUser())) {
+		if (!empty($this->profile_owner) && ($this->profile_owner != DI::userSession()->getLocalUserId())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
-			if (!Session::getLocalUser()) {
+			if (!DI::userSession()->getLocalUserId()) {
 				$page_mobile_theme = $this->pConfig->get($this->profile_owner, 'system', 'mobile-theme');
 			}
 		}
@@ -629,7 +628,7 @@ class App
 			}
 
 			// ZRL
-			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend() && !Session::getLocalUser()) {
+			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend() && !DI::userSession()->getLocalUserId()) {
 				// Only continue when the given profile link seems valid
 				// Valid profile links contain a path with "/profile/" and no query parameters
 				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == '') &&

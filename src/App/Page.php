@@ -32,9 +32,9 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
+use Friendica\DI;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
@@ -232,7 +232,7 @@ class Page implements ArrayAccess
 	 */
 	private function initHead(App $app, Arguments $args, L10n $l10n, IManageConfigValues $config, IManagePersonalConfigValues $pConfig)
 	{
-		$interval = ((Session::getLocalUser()) ? $pConfig->get(Session::getLocalUser(), 'system', 'update_interval') : 40000);
+		$interval = ((DI::userSession()->getLocalUserId()) ? $pConfig->get(DI::userSession()->getLocalUserId(), 'system', 'update_interval') : 40000);
 
 		// If the update is 'deactivated' set it to the highest integer number (~24 days)
 		if ($interval < 0) {
@@ -277,7 +277,7 @@ class Page implements ArrayAccess
 		 * being first
 		 */
 		$this->page['htmlhead'] = Renderer::replaceMacros($tpl, [
-			'$local_user'      => Session::getLocalUser(),
+			'$local_user'      => DI::userSession()->getLocalUserId(),
 			'$generator'       => 'Friendica' . ' ' . App::VERSION,
 			'$delitem'         => $l10n->t('Delete this item?'),
 			'$blockAuthor'     => $l10n->t('Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'),

@@ -22,7 +22,6 @@
 namespace Friendica\Content;
 
 use Friendica\Core\Hook;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Util\Strings;
 
@@ -214,7 +213,7 @@ class Smilies
 	public static function replaceFromArray(string $text, array $smilies, bool $no_images = false): string
 	{
 		if (intval(DI::config()->get('system', 'no_smilies'))
-			|| (Session::getLocalUser() && intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_smilies')))
+			|| (DI::userSession()->getLocalUserId() && intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'no_smilies')))
 		) {
 			return $text;
 		}
