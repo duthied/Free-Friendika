@@ -34,7 +34,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock\Capability\ICanLock;
-use Friendica\DI;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\LegacyModule;
 use Friendica\Module\HTTPException\MethodNotAllowed;
 use Friendica\Module\HTTPException\PageNotFound;
@@ -99,6 +99,9 @@ class Router
 	/** @var LoggerInterface */
 	private $logger;
 
+	/** @var IHandleUserSessions */
+	private $userSession;
+
 	/** @var float */
 	private $dice_profiler_threshold;
 
@@ -121,9 +124,10 @@ class Router
 	 * @param Arguments           $args
 	 * @param LoggerInterface     $logger
 	 * @param Dice                $dice
+	 * @param IHandleUserSessions $userSession
 	 * @param RouteCollector|null $routeCollector
 	 */
-	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICanCache $cache, ICanLock $lock, IManageConfigValues $config, Arguments $args, LoggerInterface $logger, Dice $dice, RouteCollector $routeCollector = null)
+	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICanCache $cache, ICanLock $lock, IManageConfigValues $config, Arguments $args, LoggerInterface $logger, Dice $dice, IHandleUserSessions $userSession, RouteCollector $routeCollector = null)
 	{
 		$this->baseRoutesFilepath      = $baseRoutesFilepath;
 		$this->l10n                    = $l10n;
@@ -134,6 +138,7 @@ class Router
 		$this->dice                    = $dice;
 		$this->server                  = $server;
 		$this->logger                  = $logger;
+		$this->userSession             = $userSession;
 		$this->dice_profiler_threshold = $config->get('system', 'dice_profiler_threshold', 0);
 
 		$this->routeCollector = $routeCollector ?? new RouteCollector(new Std(), new GroupCountBased());
@@ -309,7 +314,7 @@ class Router
 			if (Addon::isEnabled($moduleName) && file_exists("addon/{$moduleName}/{$moduleName}.php")) {
 				//Check if module is an app and if public access to apps is allowed or not
 				$privateapps = $this->config->get('config', 'private_addons', false);
-				if (!DI::userSession()->getLocalUserId() && Hook::isAddonApp($moduleName) && $privateapps) {
+				if (!$this->userSession->getLocalUserId() && Hook::isAddonApp($moduleName) && $privateapps) {
 					throw new MethodNotAllowedException($this->l10n->t("You must be logged in to use addons. "));
 				} else {
 					include_once "addon/{$moduleName}/{$moduleName}.php";
