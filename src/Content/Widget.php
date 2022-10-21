@@ -365,7 +365,7 @@ class Widget
 			return '';
 		}
 
-		$visitorPCid = DI::userSession()->getLocalUserId() ? Contact::getPublicIdByUserId(DI::userSession()->getLocalUserId()) : DI::userSession()->getRemoteUserId();
+		$visitorPCid = DI::userSession()->getPublicContactId() ?: DI::userSession()->getRemoteUserId();
 		if (!$visitorPCid) {
 			return '';
 		}
