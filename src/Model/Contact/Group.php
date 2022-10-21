@@ -22,6 +22,7 @@
 namespace Friendica\Model\Contact;
 
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 
 /**
