@@ -99,8 +99,8 @@ class Router
 	/** @var LoggerInterface */
 	private $logger;
 
-	/** @var IHandleUserSessions */
-	private $userSession;
+	/** @var bool */
+	private $isLocalUser;
 
 	/** @var float */
 	private $dice_profiler_threshold;
@@ -138,7 +138,7 @@ class Router
 		$this->dice                    = $dice;
 		$this->server                  = $server;
 		$this->logger                  = $logger;
-		$this->userSession             = $userSession;
+		$this->isLocalUser             = !empty($userSession->getLocalUserId());
 		$this->dice_profiler_threshold = $config->get('system', 'dice_profiler_threshold', 0);
 
 		$this->routeCollector = $routeCollector ?? new RouteCollector(new Std(), new GroupCountBased());
@@ -314,7 +314,7 @@ class Router
 			if (Addon::isEnabled($moduleName) && file_exists("addon/{$moduleName}/{$moduleName}.php")) {
 				//Check if module is an app and if public access to apps is allowed or not
 				$privateapps = $this->config->get('config', 'private_addons', false);
-				if (!$this->userSession->getLocalUserId() && Hook::isAddonApp($moduleName) && $privateapps) {
+				if (!$this->isLocalUser && Hook::isAddonApp($moduleName) && $privateapps) {
 					throw new MethodNotAllowedException($this->l10n->t("You must be logged in to use addons. "));
 				} else {
 					include_once "addon/{$moduleName}/{$moduleName}.php";
