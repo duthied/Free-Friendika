@@ -23,7 +23,6 @@ namespace Friendica\Module\Admin\Users;
 
 use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
