@@ -22,7 +22,6 @@
 
 namespace Friendica\Module\Update;
 
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Module\Conversation\Community as CommunityModule;
@@ -39,8 +38,8 @@ class Community extends CommunityModule
 		$this->parseRequest();
 
 		$o = '';
-		if (!empty($_GET['force']) || !DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_auto_update')) {
-			$o = DI::conversation()->create(self::getItems(), 'community', true, false, 'commented', Session::getLocalUser());
+		if (!empty($_GET['force']) || !DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'no_auto_update')) {
+			$o = DI::conversation()->create(self::getItems(), 'community', true, false, 'commented', DI::userSession()->getLocalUserId());
 		}
 
 		System::htmlUpdateExit($o);

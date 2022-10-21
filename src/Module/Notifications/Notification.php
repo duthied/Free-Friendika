@@ -26,7 +26,6 @@ use Friendica\BaseModule;
 use Friendica\Contact\Introduction\Repository\Introduction;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -73,14 +72,14 @@ class Notification extends BaseModule
 	 */
 	protected function post(array $request = [])
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\UnauthorizedException($this->l10n->t('Permission denied.'));
 		}
 
 		$request_id = $this->parameters['id'] ?? false;
 
 		if ($request_id) {
-			$intro = $this->introductionRepo->selectOneById($request_id, Session::getLocalUser());
+			$intro = $this->introductionRepo->selectOneById($request_id, DI::userSession()->getLocalUserId());
 
 			switch ($_POST['submit']) {
 				case $this->l10n->t('Discard'):
@@ -104,14 +103,14 @@ class Notification extends BaseModule
 	 */
 	protected function rawContent(array $request = [])
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\UnauthorizedException($this->l10n->t('Permission denied.'));
 		}
 
 		if ($this->args->get(1) === 'mark' && $this->args->get(2) === 'all') {
 			try {
-				$this->notificationRepo->setAllSeenForUser(Session::getLocalUser());
-				$success = $this->notifyRepo->setAllSeenForUser(Session::getLocalUser());
+				$this->notificationRepo->setAllSeenForUser(DI::userSession()->getLocalUserId());
+				$success = $this->notifyRepo->setAllSeenForUser(DI::userSession()->getLocalUserId());
 			} catch (\Exception $e) {
 				$this->logger->warning('set all seen failed.', ['exception' => $e]);
 				$success = false;
@@ -132,7 +131,7 @@ class Notification extends BaseModule
 	 */
 	protected function content(array $request = []): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			DI::sysmsg()->addNotice($this->l10n->t('You must be logged in to show this page.'));
 			return Login::form();
 		}
@@ -151,11 +150,11 @@ class Notification extends BaseModule
 	private function handleNotify(int $notifyId)
 	{
 		$Notify = $this->notifyRepo->selectOneById($notifyId);
-		if ($Notify->uid !== Session::getLocalUser()) {
+		if ($Notify->uid !== DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
-		if ($this->pconfig->get(Session::getLocalUser(), 'system', 'detailed_notif')) {
+		if ($this->pconfig->get(DI::userSession()->getLocalUserId(), 'system', 'detailed_notif')) {
 			$Notify->setSeen();
 			$this->notifyRepo->save($Notify);
 		} else {
@@ -176,11 +175,11 @@ class Notification extends BaseModule
 	private function handleNotification(int $notificationId)
 	{
 		$Notification = $this->notificationRepo->selectOneById($notificationId);
-		if ($Notification->uid !== Session::getLocalUser()) {
+		if ($Notification->uid !== DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
-		if ($this->pconfig->get(Session::getLocalUser(), 'system', 'detailed_notif')) {
+		if ($this->pconfig->get(DI::userSession()->getLocalUserId(), 'system', 'detailed_notif')) {
 			$Notification->setSeen();
 			$this->notificationRepo->save($Notification);
 		} else {

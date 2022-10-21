@@ -30,7 +30,6 @@ use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
 use Friendica\Content\Widget\TrendingTags;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
@@ -74,7 +73,7 @@ class Community extends BaseModule
 			'$global_community_hint' => DI::l10n()->t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
 		]);
 
-		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		}
@@ -82,7 +81,7 @@ class Community extends BaseModule
 		if (empty($_GET['mode']) || ($_GET['mode'] != 'raw')) {
 			$tabs = [];
 
-			if ((Session::isAuthenticated() || in_array(self::$page_style, [self::LOCAL_AND_GLOBAL, self::LOCAL])) && empty(DI::config()->get('system', 'singleuser'))) {
+			if ((DI::userSession()->isAuthenticated() || in_array(self::$page_style, [self::LOCAL_AND_GLOBAL, self::LOCAL])) && empty(DI::config()->get('system', 'singleuser'))) {
 				$tabs[] = [
 					'label' => DI::l10n()->t('Local Community'),
 					'url' => 'community/local',
@@ -93,7 +92,7 @@ class Community extends BaseModule
 				];
 			}
 	
-			if (Session::isAuthenticated() || in_array(self::$page_style, [self::LOCAL_AND_GLOBAL, self::GLOBAL])) {
+			if (DI::userSession()->isAuthenticated() || in_array(self::$page_style, [self::LOCAL_AND_GLOBAL, self::GLOBAL])) {
 				$tabs[] = [
 					'label' => DI::l10n()->t('Global Community'),
 					'url' => 'community/global',
@@ -111,7 +110,7 @@ class Community extends BaseModule
 
 			DI::page()['aside'] .= Widget::accountTypes('community/' . self::$content, self::$accountTypeString);
 	
-			if (Session::getLocalUser() && DI::config()->get('system', 'community_no_sharer')) {
+			if (DI::userSession()->getLocalUserId() && DI::config()->get('system', 'community_no_sharer')) {
 				$path = self::$content;
 				if (!empty($this->parameters['accounttype'])) {
 					$path .= '/' . $this->parameters['accounttype'];
@@ -140,12 +139,12 @@ class Community extends BaseModule
 				]);
 			}
 	
-			if (Feature::isEnabled(Session::getLocalUser(), 'trending_tags')) {
+			if (Feature::isEnabled(DI::userSession()->getLocalUserId(), 'trending_tags')) {
 				DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
 			}
 
 			// We need the editor here to be able to reshare an item.
-			if (Session::isAuthenticated()) {
+			if (DI::userSession()->isAuthenticated()) {
 				$o .= DI::conversation()->statusEditor([], 0, true);
 			}
 		}
@@ -157,7 +156,7 @@ class Community extends BaseModule
 			return $o;
 		}
 
-		$o .= DI::conversation()->create($items, 'community', false, false, 'commented', Session::getLocalUser());
+		$o .= DI::conversation()->create($items, 'community', false, false, 'commented', DI::userSession()->getLocalUserId());
 
 		$pager = new BoundariesPager(
 			DI::l10n(),
@@ -167,7 +166,7 @@ class Community extends BaseModule
 			self::$itemsPerPage
 		);
 
-		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
 		} else {
 			$o .= $pager->renderMinimal(count($items));
@@ -184,7 +183,7 @@ class Community extends BaseModule
 	 */
 	protected function parseRequest()
 	{
-		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
 		}
 
@@ -213,7 +212,7 @@ class Community extends BaseModule
 		}
 
 		// Check if we are allowed to display the content to visitors
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			$available = self::$page_style == self::LOCAL_AND_GLOBAL;
 
 			if (!$available) {
@@ -230,10 +229,10 @@ class Community extends BaseModule
 		}
 
 		if (DI::mode()->isMobile()) {
-			self::$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
+			self::$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			self::$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
+			self::$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -335,9 +334,9 @@ class Community extends BaseModule
 			$condition[0] .= " AND `id` = ?";
 			$condition[] = $item_id;
 		} else {
-			if (Session::getLocalUser() && !empty($_REQUEST['no_sharer'])) {
+			if (DI::userSession()->getLocalUserId() && !empty($_REQUEST['no_sharer'])) {
 				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ?)";
-				$condition[] = Session::getLocalUser();
+				$condition[] = DI::userSession()->getLocalUserId();
 			}
 	
 			if (isset($max_id)) {

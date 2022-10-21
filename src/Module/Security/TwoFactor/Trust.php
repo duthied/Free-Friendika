@@ -25,7 +25,6 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -75,7 +74,7 @@ class Trust extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		if (!Session::getLocalUser() || !$this->session->get('2fa')) {
+		if (!DI::userSession()->getLocalUserId() || !$this->session->get('2fa')) {
 			$this->logger->info('Invalid call', ['request' => $request]);
 			return;
 		}
@@ -88,7 +87,7 @@ class Trust extends BaseModule
 			switch ($action) {
 				case 'trust':
 				case 'dont_trust':
-					$trustedBrowser = $this->trustedBrowserFactory->createForUserWithUserAgent(Session::getLocalUser(), $this->server['HTTP_USER_AGENT'], $action === 'trust');
+					$trustedBrowser = $this->trustedBrowserFactory->createForUserWithUserAgent(DI::userSession()->getLocalUserId(), $this->server['HTTP_USER_AGENT'], $action === 'trust');
 					try {
 						$this->trustedBrowserRepository->save($trustedBrowser);
 
@@ -116,7 +115,7 @@ class Trust extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!Session::getLocalUser() || !$this->session->get('2fa')) {
+		if (!DI::userSession()->getLocalUserId() || !$this->session->get('2fa')) {
 			$this->baseUrl->redirect();
 		}
 

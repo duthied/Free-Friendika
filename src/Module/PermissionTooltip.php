@@ -22,7 +22,6 @@
 namespace Friendica\Module;
 
 use Friendica\Core\Hook;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -50,7 +49,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 			throw new HTTPException\BadRequestException(DI::l10n()->t('Wrong type "%s", expected one of: %s', $type, implode(', ', $expectedTypes)));
 		}
 
-		$condition = ['id' => $referenceId, 'uid' => [0, Session::getLocalUser()]];
+		$condition = ['id' => $referenceId, 'uid' => [0, DI::userSession()->getLocalUserId()]];
 		if ($type == 'item') {
 			$fields = ['uid', 'psid', 'private', 'uri-id'];
 			$model = Post::selectFirst($fields, $condition);
@@ -178,7 +177,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 	private function fetchReceivers(int $uriId): string
 	{
 		$own_url = '';
-		$uid = Session::getLocalUser();
+		$uid = DI::userSession()->getLocalUserId();
 		if ($uid) {
 			$owner = User::getOwnerDataById($uid);
 			if (!empty($owner['url'])) {

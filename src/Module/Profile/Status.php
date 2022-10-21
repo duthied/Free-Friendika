@@ -26,7 +26,6 @@ use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -92,19 +91,19 @@ class Status extends BaseProfile
 
 		$hashtags = $_GET['tag'] ?? '';
 
-		if (DI::config()->get('system', 'block_public') && !Session::getLocalUser() && !Session::getRemoteContactID($profile['uid'])) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->getLocalUserId() && !DI::userSession()->getRemoteContactID($profile['uid'])) {
 			return Login::form();
 		}
 
 		$o = '';
 
-		if ($profile['uid'] == Session::getLocalUser()) {
+		if ($profile['uid'] == DI::userSession()->getLocalUserId()) {
 			Nav::setSelected('home');
 		}
 
-		$remote_contact = Session::getRemoteContactID($profile['uid']);
-		$is_owner = Session::getLocalUser() == $profile['uid'];
-		$last_updated_key = "profile:" . $profile['uid'] . ":" . Session::getLocalUser() . ":" . $remote_contact;
+		$remote_contact = DI::userSession()->getRemoteContactID($profile['uid']);
+		$is_owner = DI::userSession()->getLocalUserId() == $profile['uid'];
+		$last_updated_key = "profile:" . $profile['uid'] . ":" . DI::userSession()->getLocalUserId() . ":" . $remote_contact;
 
 		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Access to this profile has been restricted.'));
@@ -166,10 +165,10 @@ class Status extends BaseProfile
 		}
 
 		if (DI::mode()->isMobile()) {
-			$itemspage_network = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
+			$itemspage_network = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemspage_network = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
+			$itemspage_network = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -197,9 +196,9 @@ class Status extends BaseProfile
 		}
 
 		if ($is_owner) {
-			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => Session::getLocalUser()]);
+			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => DI::userSession()->getLocalUserId()]);
 			if ($unseen) {
-				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => Session::getLocalUser()]);
+				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => DI::userSession()->getLocalUserId()]);
 			}
 		}
 

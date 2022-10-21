@@ -75,7 +75,7 @@ class Profile extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
@@ -83,7 +83,7 @@ class Profile extends BaseModule
 
 		// Backward compatibility: The update still needs a user-specific contact ID
 		// Change to user-contact table check by version 2022.03
-		$cdata = Contact::getPublicAndUserContactID($contact_id, Session::getLocalUser());
+		$cdata = Contact::getPublicAndUserContactID($contact_id, DI::userSession()->getLocalUserId());
 		if (empty($cdata['user']) || !DBA::exists('contact', ['id' => $cdata['user'], 'deleted' => false])) {
 			return;
 		}
@@ -125,20 +125,20 @@ class Profile extends BaseModule
 			$fields['info'] = $_POST['info'];
 		}
 
-		if (!Contact::update($fields, ['id' => $cdata['user'], 'uid' => Session::getLocalUser()])) {
+		if (!Contact::update($fields, ['id' => $cdata['user'], 'uid' => DI::userSession()->getLocalUserId()])) {
 			DI::sysmsg()->addNotice($this->t('Failed to update contact record.'));
 		}
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return Module\Security\Login::form($_SERVER['REQUEST_URI']);
 		}
 
 		// Backward compatibility: Ensure to use the public contact when the user contact is provided
 		// Remove by version 2022.03
-		$data = Contact::getPublicAndUserContactID(intval($this->parameters['id']), Session::getLocalUser());
+		$data = Contact::getPublicAndUserContactID(intval($this->parameters['id']), DI::userSession()->getLocalUserId());
 		if (empty($data)) {
 			throw new HTTPException\NotFoundException($this->t('Contact not found.'));
 		}
@@ -153,7 +153,7 @@ class Profile extends BaseModule
 			throw new HTTPException\NotFoundException($this->t('Contact not found.'));
 		}
 
-		$localRelationship = $this->localRelationship->getForUserContact(Session::getLocalUser(), $contact['id']);
+		$localRelationship = $this->localRelationship->getForUserContact(DI::userSession()->getLocalUserId(), $contact['id']);
 
 		if ($localRelationship->rel === Contact::SELF) {
 			$this->baseUrl->redirect('profile/' . $contact['nick'] . '/profile');
@@ -174,12 +174,12 @@ class Profile extends BaseModule
 			if ($cmd === 'block') {
 				if ($localRelationship->blocked) {
 					// @TODO Backward compatibility, replace with $localRelationship->unblock()
-					Contact\User::setBlocked($contact['id'], Session::getLocalUser(), false);
+					Contact\User::setBlocked($contact['id'], DI::userSession()->getLocalUserId(), false);
 
 					$message = $this->t('Contact has been unblocked');
 				} else {
 					// @TODO Backward compatibility, replace with $localRelationship->block()
-					Contact\User::setBlocked($contact['id'], Session::getLocalUser(), true);
+					Contact\User::setBlocked($contact['id'], DI::userSession()->getLocalUserId(), true);
 					$message = $this->t('Contact has been blocked');
 				}
 
@@ -190,12 +190,12 @@ class Profile extends BaseModule
 			if ($cmd === 'ignore') {
 				if ($localRelationship->ignored) {
 					// @TODO Backward compatibility, replace with $localRelationship->unblock()
-					Contact\User::setIgnored($contact['id'], Session::getLocalUser(), false);
+					Contact\User::setIgnored($contact['id'], DI::userSession()->getLocalUserId(), false);
 
 					$message = $this->t('Contact has been unignored');
 				} else {
 					// @TODO Backward compatibility, replace with $localRelationship->block()
-					Contact\User::setIgnored($contact['id'], Session::getLocalUser(), true);
+					Contact\User::setIgnored($contact['id'], DI::userSession()->getLocalUserId(), true);
 					$message = $this->t('Contact has been ignored');
 				}
 
@@ -224,8 +224,8 @@ class Profile extends BaseModule
 			'$baseurl' => $this->baseUrl->get(true),
 		]);
 
-		$contact['blocked']  = Contact\User::isBlocked($contact['id'], Session::getLocalUser());
-		$contact['readonly'] = Contact\User::isIgnored($contact['id'], Session::getLocalUser());
+		$contact['blocked']  = Contact\User::isBlocked($contact['id'], DI::userSession()->getLocalUserId());
+		$contact['readonly'] = Contact\User::isIgnored($contact['id'], DI::userSession()->getLocalUserId());
 
 		switch ($localRelationship->rel) {
 			case Contact::FRIEND:   $relation_text = $this->t('You are mutual friends with %s', $contact['name']); break;
@@ -486,7 +486,7 @@ class Profile extends BaseModule
 	 */
 	private static function updateContactFromProbe(int $contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => [0, Session::getLocalUser()], 'deleted' => false]);
+		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => [0, DI::userSession()->getLocalUserId()], 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}

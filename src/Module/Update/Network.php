@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Update;
 
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Item;
@@ -76,7 +75,7 @@ class Network extends NetworkModule
 				$ordering = '`commented`';
 			}
 
-			$o = DI::conversation()->create($items, 'network', $profile_uid, false, $ordering, Session::getLocalUser());
+			$o = DI::conversation()->create($items, 'network', $profile_uid, false, $ordering, DI::userSession()->getLocalUserId());
 		}
 
 		System::htmlUpdateExit($o);

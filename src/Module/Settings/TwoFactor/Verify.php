@@ -29,7 +29,6 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
@@ -54,12 +53,12 @@ class Verify extends BaseSettings
 
 		$this->pConfig = $pConfig;
 
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
-		$secret   = $this->pConfig->get(Session::getLocalUser(), '2fa', 'secret');
-		$verified = $this->pConfig->get(Session::getLocalUser(), '2fa', 'verified');
+		$secret   = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'secret');
+		$verified = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'verified');
 
 		if ($secret && $verified) {
 			$this->baseUrl->redirect('settings/2fa');
@@ -73,7 +72,7 @@ class Verify extends BaseSettings
 
 	protected function post(array $request = [])
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
@@ -82,10 +81,10 @@ class Verify extends BaseSettings
 
 			$google2fa = new Google2FA();
 
-			$valid = $google2fa->verifyKey($this->pConfig->get(Session::getLocalUser(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
+			$valid = $google2fa->verifyKey($this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
 
 			if ($valid) {
-				$this->pConfig->set(Session::getLocalUser(), '2fa', 'verified', true);
+				$this->pConfig->set(DI::userSession()->getLocalUserId(), '2fa', 'verified', true);
 				DI::session()->set('2fa', true);
 
 				DI::sysmsg()->addInfo($this->t('Two-factor authentication successfully activated.'));
@@ -99,7 +98,7 @@ class Verify extends BaseSettings
 
 	protected function content(array $request = []): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return Login::form('settings/2fa/verify');
 		}
 
@@ -107,7 +106,7 @@ class Verify extends BaseSettings
 
 		$company = 'Friendica';
 		$holder = DI::session()->get('my_address');
-		$secret = $this->pConfig->get(Session::getLocalUser(), '2fa', 'secret');
+		$secret = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'secret');
 
 		$otpauthUrl = (new Google2FA())->getQRCodeUrl($company, $holder, $secret);
 
