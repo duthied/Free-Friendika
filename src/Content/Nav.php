@@ -210,7 +210,7 @@ class Nav
 			$homelink = DI::session()->get('visitor_home', '');
 		}
 
-		if ((DI::args()->getModuleName() != 'home') && (! (DI::userSession()->getLocalUserId()))) {
+		if (DI::args()->getModuleName() != 'home' && ! DI::userSession()->getLocalUserId()) {
 			$nav['home'] = [$homelink, DI::l10n()->t('Home'), '', DI::l10n()->t('Home Page')];
 		}
 
