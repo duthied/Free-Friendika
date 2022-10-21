@@ -63,7 +63,7 @@ abstract class BaseAdmin extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('You don\'t have access to administration pages.'));
 		}
 
-		if (!empty($_SESSION['submanage'])) {
+		if (DI::userSession()->getSubManagedUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Submanaged account can\'t access the administration pages. Please log back in as the main account.'));
 		}
 	}
