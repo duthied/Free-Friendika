@@ -126,7 +126,7 @@ class ActivityPubConversion extends BaseModule
 				];
 			} catch (\Throwable $e) {
 				$results[] = [
-					'title'   => DI::l10n()->t('Error'),
+					'title'   => DI::l10n()->tt('Error', 'Errors', 1),
 					'content' => $e->getMessage(),
 				];
 			}

@@ -290,7 +290,7 @@ class Babel extends BaseModule
 						];
 					} else {
 						$results[] = [
-							'title'   => DI::l10n()->t('Error'),
+							'title'   => DI::l10n()->tt('Error', 'Errors', 1),
 							'content' => DI::l10n()->t('Twitter addon is absent from the addon/ folder.'),
 						];
 					}
