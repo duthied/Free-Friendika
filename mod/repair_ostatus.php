@@ -43,7 +43,7 @@ function repair_ostatus_content(App $a) {
 	$total = DBA::count('contact', $condition);
 
 	if (!$total) {
-		return ($o . DI::l10n()->t('Error'));
+		return ($o . DI::l10n()->tt('Error', 'Errors', 1));
 	}
 
 	$contact = Contact::selectToArray(['url'], $condition, ['order' => ['url'], 'limit' => [$counter++, 1]]);
