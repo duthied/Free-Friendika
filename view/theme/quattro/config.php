@@ -37,7 +37,7 @@ function theme_content(App $a) {
 }
 
 function theme_post(App $a) {
-	if (! DI::userSession()->getLocalUserId()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
