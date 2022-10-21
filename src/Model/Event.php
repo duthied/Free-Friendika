@@ -26,7 +26,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -411,7 +410,7 @@ class Event
 	public static function getStrings(): array
 	{
 		// First day of the week (0 = Sunday).
-		$firstDay = DI::pConfig()->get(Session::getLocalUser(), 'system', 'first_day_of_week', 0);
+		$firstDay = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'first_day_of_week', 0);
 
 		$i18n = [
 			"firstDay" => $firstDay,
@@ -609,7 +608,7 @@ class Event
 			$edit = null;
 			$copy = null;
 			$drop = null;
-			if (Session::getLocalUser() && Session::getLocalUser() == $event['uid'] && $event['type'] == 'event') {
+			if (DI::userSession()->getLocalUserId() && DI::userSession()->getLocalUserId() == $event['uid'] && $event['type'] == 'event') {
 				$edit = !$event['cid'] ? [DI::baseUrl() . '/events/event/' . $event['id'], DI::l10n()->t('Edit event')     , '', ''] : null;
 				$copy = !$event['cid'] ? [DI::baseUrl() . '/events/copy/' . $event['id'] , DI::l10n()->t('Duplicate event'), '', ''] : null;
 				$drop =                  [DI::baseUrl() . '/events/drop/' . $event['id'] , DI::l10n()->t('Delete event')   , '', ''];
@@ -776,7 +775,7 @@ class Event
 		// Does the user who requests happen to be the owner of the events
 		// requested? then show all of your events, otherwise only those that
 		// don't have limitations set in allow_cid and allow_gid.
-		if (Session::getLocalUser() != $uid) {
+		if (DI::userSession()->getLocalUserId() != $uid) {
 			$conditions += ['allow_cid' => '', 'allow_gid' => ''];
 		}
 
