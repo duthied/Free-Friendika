@@ -34,7 +34,6 @@
  *    'overwrites' => Variables which overwriting custom settings
  */
 
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Util\Strings;
 
@@ -43,7 +42,7 @@ function get_scheme_info($scheme)
 	$theme = DI::app()->getCurrentTheme();
 	$themepath = 'view/theme/' . $theme . '/';
 	if (empty($scheme)) {
-		$scheme = DI::pConfig()->get(Session::getLocalUser(), 'frio', 'scheme', DI::pConfig()->get(Session::getLocalUser(), 'frio', 'schema', '---'));
+		$scheme = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'frio', 'scheme', DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'frio', 'schema', '---'));
 	}
 
 	$scheme = Strings::sanitizeFilePathItem($scheme);
