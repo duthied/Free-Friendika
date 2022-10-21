@@ -27,7 +27,6 @@ use Exception;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -317,7 +316,7 @@ class Probe
 		}
 
 		if ($uid == -1) {
-			$uid = Session::getLocalUser();
+			$uid = DI::userSession()->getLocalUserId();
 		}
 
 		if (empty($network) || ($network == Protocol::ACTIVITYPUB)) {

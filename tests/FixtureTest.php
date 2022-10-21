@@ -27,7 +27,6 @@ use Friendica\App\Arguments;
 use Friendica\App\Router;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;

@@ -32,8 +32,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -80,22 +80,25 @@ class Conversation
 	private $mode;
 	/** @var IHandleSessions */
 	private $session;
+	/** @var IHandleUserSessions */
+	private $userSession;
 
-	public function __construct(LoggerInterface $logger, Profiler $profiler, Activity $activity, L10n $l10n, Item $item, Arguments $args, BaseURL $baseURL, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, App\Mode $mode, App $app, IHandleSessions $session)
+	public function __construct(LoggerInterface $logger, Profiler $profiler, Activity $activity, L10n $l10n, Item $item, Arguments $args, BaseURL $baseURL, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, App\Mode $mode, App $app, IHandleSessions $session, IHandleUserSessions $userSession)
 	{
-		$this->activity = $activity;
-		$this->item     = $item;
-		$this->config   = $config;
-		$this->mode     = $mode;
-		$this->baseURL  = $baseURL;
-		$this->profiler = $profiler;
-		$this->logger   = $logger;
-		$this->l10n     = $l10n;
-		$this->args     = $args;
-		$this->pConfig  = $pConfig;
-		$this->page     = $page;
-		$this->app      = $app;
-		$this->session  = $session;
+		$this->activity    = $activity;
+		$this->item        = $item;
+		$this->config      = $config;
+		$this->mode        = $mode;
+		$this->baseURL     = $baseURL;
+		$this->profiler    = $profiler;
+		$this->logger      = $logger;
+		$this->l10n        = $l10n;
+		$this->args        = $args;
+		$this->pConfig     = $pConfig;
+		$this->page        = $page;
+		$this->app         = $app;
+		$this->session     = $session;
+		$this->userSession = $userSession;
 	}
 
 	/**
@@ -172,7 +175,7 @@ class Conversation
 					continue;
 				}
 
-				if (Session::getPublicContact() == $activity['author-id']) {
+				if ($this->userSession->getPublicContactId() == $activity['author-id']) {
 					$conv_responses[$mode][$activity['thr-parent-id']]['self'] = 1;
 				}
 
@@ -297,7 +300,7 @@ class Conversation
 		$x['bang']             = $x['bang']             ?? '';
 		$x['visitor']          = $x['visitor']          ?? 'block';
 		$x['is_owner']         = $x['is_owner']         ?? true;
-		$x['profile_uid']      = $x['profile_uid']      ?? Session::getLocalUser();
+		$x['profile_uid']      = $x['profile_uid']      ?? $this->userSession->getLocalUserId();
 
 
 		$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
@@ -360,7 +363,7 @@ class Conversation
 			'$title'               => $x['title'] ?? '',
 			'$placeholdertitle'    => $this->l10n->t('Set title'),
 			'$category'            => $x['category'] ?? '',
-			'$placeholdercategory' => Feature::isEnabled(Session::getLocalUser(), 'categories') ? $this->l10n->t("Categories \x28comma-separated list\x29") : '',
+			'$placeholdercategory' => Feature::isEnabled($this->userSession->getLocalUserId(), 'categories') ? $this->l10n->t("Categories \x28comma-separated list\x29") : '',
 			'$scheduled_at'        => Temporal::getDateTimeField(
 				new \DateTime(),
 				new \DateTime('now + 6 months'),
@@ -398,7 +401,7 @@ class Conversation
 			'$browser' => $this->l10n->t('Browser'),
 
 			'$compose_link_title'  => $this->l10n->t('Open Compose page'),
-			'$always_open_compose' => $this->pConfig->get(Session::getLocalUser(), 'frio', 'always_open_compose', false),
+			'$always_open_compose' => $this->pConfig->get($this->userSession->getLocalUserId(), 'frio', 'always_open_compose', false),
 		]);
 
 
@@ -437,7 +440,7 @@ class Conversation
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
-		$ssl_state = (bool)Session::getLocalUser();
+		$ssl_state = (bool)$this->userSession->getLocalUserId();
 
 		$live_update_div = '';
 
@@ -489,11 +492,11 @@ class Conversation
 				}
 			}
 		} elseif ($mode === 'notes') {
-			$items = $this->addChildren($items, false, $order, Session::getLocalUser(), $mode);
+			$items = $this->addChildren($items, false, $order, $this->userSession->getLocalUserId(), $mode);
 
 			if (!$update) {
 				$live_update_div = '<div id="live-notes"></div>' . "\r\n"
-					. "<script> var profile_uid = " . Session::getLocalUser()
+					. "<script> var profile_uid = " . $this->userSession->getLocalUserId()
 					. "; var netargs = '/?f='; </script>\r\n";
 			}
 		} elseif ($mode === 'display') {
@@ -527,7 +530,7 @@ class Conversation
 			$live_update_div = '<div id="live-search"></div>' . "\r\n";
 		}
 
-		$page_dropping = Session::getLocalUser() && Session::getLocalUser() == $uid;
+		$page_dropping = $this->userSession->getLocalUserId() && $this->userSession->getLocalUserId() == $uid;
 
 		if (!$update) {
 			$_SESSION['return_path'] = $this->args->getQueryString();
@@ -547,7 +550,7 @@ class Conversation
 			'announce'    => [],
 		];
 
-		if ($this->pConfig->get(Session::getLocalUser(), 'system', 'hide_dislike')) {
+		if ($this->pConfig->get($this->userSession->getLocalUserId(), 'system', 'hide_dislike')) {
 			unset($conv_responses['dislike']);
 		}
 
@@ -565,7 +568,7 @@ class Conversation
 				$writable = $items[0]['writable'] || ($items[0]['uid'] == 0) && in_array($items[0]['network'], Protocol::FEDERATED);
 			}
 
-			if (!Session::getLocalUser()) {
+			if (!$this->userSession->getLocalUserId()) {
 				$writable = false;
 			}
 
@@ -598,7 +601,7 @@ class Conversation
 					$threadsid++;
 
 					// prevent private email from leaking.
-					if ($item['network'] === Protocol::MAIL && Session::getLocalUser() != $item['uid']) {
+					if ($item['network'] === Protocol::MAIL && $this->userSession->getLocalUserId() != $item['uid']) {
 						continue;
 					}
 
@@ -642,17 +645,17 @@ class Conversation
 						'announce' => null,
 					];
 
-					if ($this->pConfig->get(Session::getLocalUser(), 'system', 'hide_dislike')) {
+					if ($this->pConfig->get($this->userSession->getLocalUserId(), 'system', 'hide_dislike')) {
 						unset($likebuttons['dislike']);
 					}
 
 					$body_html = ItemModel::prepareBody($item, true, $preview);
 
-					[$categories, $folders] = $this->item->determineCategoriesTerms($item, Session::getLocalUser());
+					[$categories, $folders] = $this->item->determineCategoriesTerms($item, $this->userSession->getLocalUserId());
 
 					if (!empty($item['title'])) {
 						$title = $item['title'];
-					} elseif (!empty($item['content-warning']) && $this->pConfig->get(Session::getLocalUser(), 'system', 'disable_cw', false)) {
+					} elseif (!empty($item['content-warning']) && $this->pConfig->get($this->userSession->getLocalUserId(), 'system', 'disable_cw', false)) {
 						$title = ucfirst($item['content-warning']);
 					} else {
 						$title = '';
@@ -746,7 +749,7 @@ class Conversation
 					$this->builtinActivityPuller($item, $conv_responses);
 
 					// Only add what is visible
-					if ($item['network'] === Protocol::MAIL && Session::getLocalUser() != $item['uid']) {
+					if ($item['network'] === Protocol::MAIL && $this->userSession->getLocalUserId() != $item['uid']) {
 						continue;
 					}
 
@@ -791,11 +794,11 @@ class Conversation
 
 	private function getBlocklist(): array
 	{
-		if (!Session::getLocalUser()) {
+		if (!$this->userSession->getLocalUserId()) {
 			return [];
 		}
 
-		$str_blocked = str_replace(["\n", "\r"], ",", $this->pConfig->get(Session::getLocalUser(), 'system', 'blocked'));
+		$str_blocked = str_replace(["\n", "\r"], ",", $this->pConfig->get($this->userSession->getLocalUserId(), 'system', 'blocked'));
 		if (empty($str_blocked)) {
 			return [];
 		}
@@ -865,7 +868,7 @@ class Conversation
 				$row['direction'] = ['direction' => 4, 'title' => $this->l10n->t('You subscribed to one or more tags in this post.')];
 				break;
 			case ItemModel::PR_ANNOUNCEMENT:
-				if (!empty($row['causer-id']) && $this->pConfig->get(Session::getLocalUser(), 'system', 'display_resharer')) {
+				if (!empty($row['causer-id']) && $this->pConfig->get($this->userSession->getLocalUserId(), 'system', 'display_resharer')) {
 					$row['owner-id']     = $row['causer-id'];
 					$row['owner-link']   = $row['causer-link'];
 					$row['owner-avatar'] = $row['causer-avatar'];
@@ -1217,7 +1220,7 @@ class Conversation
 			$parents[$i]['children'] = $this->sortItemChildren($parents[$i]['children']);
 		}
 
-		if (!$this->pConfig->get(Session::getLocalUser(), 'system', 'no_smart_threading', 0)) {
+		if (!$this->pConfig->get($this->userSession->getLocalUserId(), 'system', 'no_smart_threading', 0)) {
 			foreach ($parents as $i => $parent) {
 				$parents[$i] = $this->smartFlattenConversation($parent);
 			}

@@ -118,4 +118,16 @@ class UserSession implements IHandleUserSessions
 	{
 		$this->session->set('remote', Contact::getVisitorByUrl($this->session->get('my_url')));
 	}
+
+	/** {@inheritDoc} */
+	public function getSubManagedUserId()
+	{
+		return $this->session->get('submanage') ?? false;
+	}
+
+	/** {@inheritDoc} */
+	public function setSubManagedUserId(int $managed_uid): void
+	{
+		$this->session->set('submanage', $managed_uid);
+	}
 }

@@ -51,7 +51,7 @@ function settings_post(App $a)
 		return;
 	}
 
-	if (!empty($_SESSION['submanage'])) {
+	if (DI::userSession()->getSubManagedUserId()) {
 		return;
 	}
 
@@ -152,7 +152,7 @@ function settings_content(App $a)
 		return Login::form();
 	}
 
-	if (!empty($_SESSION['submanage'])) {
+	if (DI::userSession()->getSubManagedUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return '';
 	}

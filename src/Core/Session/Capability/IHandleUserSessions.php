@@ -73,6 +73,20 @@ interface IHandleUserSessions
 	public function isAuthenticated(): bool;
 
 	/**
+	 * Returns User ID of the managed user in case it's a different identity
+	 *
+	 * @return int|bool uid of the manager or false
+	 */
+	public function getSubManagedUserId();
+
+	/**
+	 * Sets the User ID of the managed user in case it's a different identity
+	 *
+	 * @param int $managed_uid The user id of the managing user
+	 */
+	public function setSubManagedUserId(int $managed_uid): void;
+
+	/**
 	 * Set the session variable that contains the contact IDs for the visitor's contact URL
 	 *
 	 * @param string $url Contact URL

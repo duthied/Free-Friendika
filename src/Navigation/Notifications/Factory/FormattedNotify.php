@@ -27,7 +27,7 @@ use Friendica\BaseFactory;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -64,15 +64,18 @@ class FormattedNotify extends BaseFactory
 	private $baseUrl;
 	/** @var L10n */
 	private $l10n;
+	/** @var IHandleUserSessions */
+	private $userSession;
 
-	public function __construct(LoggerInterface $logger, Database $dba, Repository\Notify $notification, BaseURL $baseUrl, L10n $l10n)
+	public function __construct(LoggerInterface $logger, Database $dba, Repository\Notify $notification, BaseURL $baseUrl, L10n $l10n, IHandleUserSessions $userSession)
 	{
 		parent::__construct($logger);
 
-		$this->dba     = $dba;
-		$this->notify  = $notification;
-		$this->baseUrl = $baseUrl;
-		$this->l10n    = $l10n;
+		$this->dba         = $dba;
+		$this->notify      = $notification;
+		$this->baseUrl     = $baseUrl;
+		$this->l10n        = $l10n;
+		$this->userSession = $userSession;
 	}
 
 	/**
@@ -211,7 +214,7 @@ class FormattedNotify extends BaseFactory
 
 		$formattedNotifications = new FormattedNotifies();
 		try {
-			$Notifies = $this->notify->selectForUser(Session::getLocalUser(), $conditions, $params);
+			$Notifies = $this->notify->selectForUser($this->userSession->getLocalUserId(), $conditions, $params);
 
 			foreach ($Notifies as $Notify) {
 				$formattedNotifications[] = new ValueObject\FormattedNotify(
@@ -244,7 +247,7 @@ class FormattedNotify extends BaseFactory
 	 */
 	public function getNetworkList(bool $seen = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT): FormattedNotifies
 	{
-		$condition = ['wall' => false, 'uid' => Session::getLocalUser()];
+		$condition = ['wall' => false, 'uid' => $this->userSession->getLocalUserId()];
 
 		if (!$seen) {
 			$condition['unseen'] = true;
@@ -257,7 +260,7 @@ class FormattedNotify extends BaseFactory
 		$formattedNotifications = new FormattedNotifies();
 
 		try {
-			$userPosts = Post::selectForUser(Session::getLocalUser(), $fields, $condition, $params);
+			$userPosts = Post::selectForUser($this->userSession->getLocalUserId(), $fields, $condition, $params);
 			while ($userPost = $this->dba->fetch($userPosts)) {
 				$formattedNotifications[] = $this->createFromFormattedItem($this->formatItem($userPost));
 			}
@@ -280,7 +283,7 @@ class FormattedNotify extends BaseFactory
 	 */
 	public function getPersonalList(bool $seen = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT): FormattedNotifies
 	{
-		$condition = ['wall' => false, 'uid' => Session::getLocalUser(), 'author-id' => Session::getPublicContact()];
+		$condition = ['wall' => false, 'uid' => $this->userSession->getLocalUserId(), 'author-id' => $this->userSession->getPublicContactId()];
 
 		if (!$seen) {
 			$condition['unseen'] = true;
@@ -293,7 +296,7 @@ class FormattedNotify extends BaseFactory
 		$formattedNotifications = new FormattedNotifies();
 
 		try {
-			$userPosts = Post::selectForUser(Session::getLocalUser(), $fields, $condition, $params);
+			$userPosts = Post::selectForUser($this->userSession->getLocalUserId(), $fields, $condition, $params);
 			while ($userPost = $this->dba->fetch($userPosts)) {
 				$formattedNotifications[] = $this->createFromFormattedItem($this->formatItem($userPost));
 			}
@@ -316,7 +319,7 @@ class FormattedNotify extends BaseFactory
 	 */
 	public function getHomeList(bool $seen = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT): FormattedNotifies
 	{
-		$condition = ['wall' => true, 'uid' => Session::getLocalUser()];
+		$condition = ['wall' => true, 'uid' => $this->userSession->getLocalUserId()];
 
 		if (!$seen) {
 			$condition['unseen'] = true;
@@ -329,7 +332,7 @@ class FormattedNotify extends BaseFactory
 		$formattedNotifications = new FormattedNotifies();
 
 		try {
-			$userPosts = Post::selectForUser(Session::getLocalUser(), $fields, $condition, $params);
+			$userPosts = Post::selectForUser($this->userSession->getLocalUserId(), $fields, $condition, $params);
 			while ($userPost = $this->dba->fetch($userPosts)) {
 				$formattedItem = $this->formatItem($userPost);
 

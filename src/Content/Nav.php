@@ -24,7 +24,6 @@ namespace Friendica\Content;
 use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -127,7 +126,7 @@ class Nav
 
 		//Don't populate apps_menu if apps are private
 		$privateapps = DI::config()->get('config', 'private_addons', false);
-		if (Session::getLocalUser() || !$privateapps) {
+		if (DI::userSession()->getLocalUserId() || !$privateapps) {
 			$arr = ['app_menu' => self::$app_menu];
 
 			Hook::callAll('app_menu', $arr);
@@ -149,7 +148,7 @@ class Nav
 	 */
 	private static function getInfo(App $a): array
 	{
-		$ssl_state = (bool) Session::getLocalUser();
+		$ssl_state = (bool) DI::userSession()->getLocalUserId();
 
 		/*
 		 * Our network is distributed, and as you visit friends some of the
@@ -182,7 +181,7 @@ class Nav
 		$userinfo = null;
 
 		// nav links: array of array('href', 'text', 'extra css classes', 'title')
-		if (Session::isAuthenticated()) {
+		if (DI::userSession()->isAuthenticated()) {
 			$nav['logout'] = ['logout', DI::l10n()->t('Logout'), '', DI::l10n()->t('End this session')];
 		} else {
 			$nav['login'] = ['login', DI::l10n()->t('Login'), (DI::args()->getModuleName() == 'login' ? 'selected' : ''), DI::l10n()->t('Sign in')];
@@ -211,11 +210,11 @@ class Nav
 			$homelink = DI::session()->get('visitor_home', '');
 		}
 
-		if ((DI::args()->getModuleName() != 'home') && (! (Session::getLocalUser()))) {
+		if (DI::args()->getModuleName() != 'home' && ! DI::userSession()->getLocalUserId()) {
 			$nav['home'] = [$homelink, DI::l10n()->t('Home'), '', DI::l10n()->t('Home Page')];
 		}
 
-		if (intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !Session::isAuthenticated()) {
+		if (intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !DI::userSession()->isAuthenticated()) {
 			$nav['register'] = ['register', DI::l10n()->t('Register'), '', DI::l10n()->t('Create an account')];
 		}
 
@@ -229,7 +228,7 @@ class Nav
 			$nav['apps'] = ['apps', DI::l10n()->t('Apps'), '', DI::l10n()->t('Addon applications, utilities, games')];
 		}
 
-		if (Session::getLocalUser() || !DI::config()->get('system', 'local_search')) {
+		if (DI::userSession()->getLocalUserId() || !DI::config()->get('system', 'local_search')) {
 			$nav['search'] = ['search', DI::l10n()->t('Search'), '', DI::l10n()->t('Search site content')];
 
 			$nav['searchoption'] = [
@@ -252,12 +251,12 @@ class Nav
 			}
 		}
 
-		if ((Session::getLocalUser() || DI::config()->get('system', 'community_page_style') != Community::DISABLED_VISITOR) &&
+		if ((DI::userSession()->getLocalUserId() || DI::config()->get('system', 'community_page_style') != Community::DISABLED_VISITOR) &&
 			!(DI::config()->get('system', 'community_page_style') == Community::DISABLED)) {
 			$nav['community'] = ['community', DI::l10n()->t('Community'), '', DI::l10n()->t('Conversations on this and other servers')];
 		}
 
-		if (Session::getLocalUser()) {
+		if (DI::userSession()->getLocalUserId()) {
 			$nav['events'] = ['events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
 		}
 
@@ -270,7 +269,7 @@ class Nav
 		}
 
 		// The following nav links are only show to logged in users
-		if (Session::getLocalUser() && !empty($a->getLoggedInUserNickname())) {
+		if (DI::userSession()->getLocalUserId() && !empty($a->getLoggedInUserNickname())) {
 			$nav['network'] = ['network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
 
 			$nav['home'] = ['profile/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];
@@ -288,7 +287,7 @@ class Nav
 			$nav['messages']['outbox'] = ['message/sent', DI::l10n()->t('Outbox'), '', DI::l10n()->t('Outbox')];
 			$nav['messages']['new'] = ['message/new', DI::l10n()->t('New Message'), '', DI::l10n()->t('New Message')];
 
-			if (User::hasIdentities(DI::session()->get('submanage') ?: Session::getLocalUser())) {
+			if (User::hasIdentities(DI::userSession()->getSubManagedUserId() ?: DI::userSession()->getLocalUserId())) {
 				$nav['delegation'] = ['delegation', DI::l10n()->t('Accounts'), '', DI::l10n()->t('Manage other pages')];
 			}
 

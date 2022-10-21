@@ -45,8 +45,8 @@ class Delegation extends BaseModule
 		$uid = DI::userSession()->getLocalUserId();
 		$orig_record = User::getById(DI::app()->getLoggedInUserId());
 
-		if (DI::session()->get('submanage')) {
-			$user = User::getById(DI::session()->get('submanage'));
+		if (DI::userSession()->getSubManagedUserId()) {
+			$user = User::getById(DI::userSession()->getSubManagedUserId());
 			if (DBA::isResult($user)) {
 				$uid = intval($user['uid']);
 				$orig_record = $user;
@@ -101,7 +101,7 @@ class Delegation extends BaseModule
 		DI::auth()->setForUser(DI::app(), $user, true, true);
 
 		if ($limited_id) {
-			DI::session()->set('submanage', $original_id);
+			DI::userSession()->setSubManagedUserId($original_id);
 		}
 
 		$ret = [];
@@ -118,7 +118,7 @@ class Delegation extends BaseModule
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		$identities = User::identities(DI::session()->get('submanage', DI::userSession()->getLocalUserId()));
+		$identities = User::identities(DI::userSession()->getSubManagedUserId() ?: DI::userSession()->getLocalUserId());
 
 		//getting additinal information for each identity
 		foreach ($identities as $key => $identity) {

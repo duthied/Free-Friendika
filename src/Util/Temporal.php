@@ -24,7 +24,6 @@ namespace Friendica\Util;
 use DateTime;
 use DateTimeZone;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 
@@ -239,7 +238,7 @@ class Temporal
 		bool $required = false): string
 	{
 		// First day of the week (0 = Sunday)
-		$firstDay = DI::pConfig()->get(Session::getLocalUser(), 'system', 'first_day_of_week', 0);
+		$firstDay = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'first_day_of_week', 0);
 
 		$lang = substr(DI::l10n()->getCurrentLang(), 0, 2);
 

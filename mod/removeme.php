@@ -32,7 +32,7 @@ function removeme_post(App $a)
 		return;
 	}
 
-	if (!empty($_SESSION['submanage'])) {
+	if (DI::userSession()->getSubManagedUserId()) {
 		return;
 	}
 

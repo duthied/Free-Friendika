@@ -26,7 +26,6 @@ use Friendica\App;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Hook;
-use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\System;
 use Friendica\Database\Database;
@@ -333,7 +332,7 @@ class Authentication
 			'addr'          => $this->remoteAddress,
 		]);
 
-		Session::setVisitorsContacts();
+		DI::userSession()->setVisitorsContacts();
 
 		$member_since = strtotime($user_record['register_date']);
 		$this->session->set('new_member', time() < ($member_since + (60 * 60 * 24 * 14)));
