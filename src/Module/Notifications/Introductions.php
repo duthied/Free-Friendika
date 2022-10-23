@@ -30,6 +30,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\BaseNotifications;
@@ -49,9 +50,9 @@ class Introductions extends BaseNotifications
 	/** @var Mode */
 	protected $mode;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Mode $mode, IntroductionFactory $notificationIntro, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Mode $mode, IntroductionFactory $notificationIntro, IHandleUserSessions $userSession, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $userSession, $server, $parameters);
 
 		$this->notificationIntro = $notificationIntro;
 		$this->mode              = $mode;
