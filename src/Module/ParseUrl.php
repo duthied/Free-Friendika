@@ -38,7 +38,7 @@ class ParseUrl extends BaseModule
 	/** @var IHandleUserSessions */
 	protected $userSession;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Session\Capability\IHandleUserSessions $userSession, $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IHandleUserSessions $userSession, $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
