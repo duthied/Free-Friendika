@@ -69,8 +69,6 @@ class Index extends BaseAdmin
 
 		$this->blocklist->set($blocklist);
 
-		$
-
 		$this->baseUrl->redirect('admin/blocklist/server');
 	}
 
