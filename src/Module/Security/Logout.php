@@ -26,7 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Profile;
@@ -44,10 +44,11 @@ class Logout extends BaseModule
 	protected $cache;
 	/** @var Cookie */
 	protected $cookie;
-	/** @var IHandleSessions */
+	/** @var IHandleUserSessions
+	 */
 	protected $session;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, ICanCache $cache, Cookie $cookie, IHandleSessions $session, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, ICanCache $cache, Cookie $cookie, IHandleUserSessions $session, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -63,7 +64,7 @@ class Logout extends BaseModule
 	protected function rawContent(array $request = [])
 	{
 		$visitor_home = null;
-		if (DI::userSession()->getRemoteUserId()) {
+		if ($this->session->getRemoteUserId()) {
 			$visitor_home = Profile::getMyURL();
 			$this->cache->delete('zrlInit:' . $visitor_home);
 		}

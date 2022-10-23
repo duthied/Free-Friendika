@@ -55,10 +55,8 @@ class Session
 	 * @param LoggerInterface     $logger
 	 * @param Profiler            $profiler
 	 * @param array               $server
-	 *
-	 * @return IHandleSessions
 	 */
-	public function createSession(App\Mode $mode, App\BaseURL $baseURL, IManageConfigValues $config, Database $dba, Cache $cacheFactory, LoggerInterface $logger, Profiler $profiler, array $server = [])
+	public function createSession(App\Mode $mode, App\BaseURL $baseURL, IManageConfigValues $config, Database $dba, Cache $cacheFactory, LoggerInterface $logger, Profiler $profiler, array $server = []): IHandleSessions
 	{
 		$profiler->startRecording('session');
 		$session = null;

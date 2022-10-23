@@ -26,7 +26,6 @@ use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Module\Response;
 use Friendica\Util\Profiler;
@@ -43,25 +42,22 @@ class Verify extends BaseModule
 {
 	protected $errors = [];
 
-	/** @var IHandleSessions  */
-	protected $session;
 	/** @var IManagePersonalConfigValues  */
 	protected $pConfig;
 	/** @var IHandleUserSessions */
-	protected $userSession;
+	protected $session;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManagePersonalConfigValues $pConfig, IHandleSessions $session, IHandleUserSessions $userSession, $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManagePersonalConfigValues $pConfig, IHandleUserSessions $session, $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->session     = $session;
 		$this->pConfig     = $pConfig;
-		$this->userSession = $userSession;
 	}
 
 	protected function post(array $request = [])
 	{
-		if (!$this->userSession->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return;
 		}
 
@@ -70,7 +66,7 @@ class Verify extends BaseModule
 
 			$code = $request['verify_code'] ?? '';
 
-			$valid = (new Google2FA())->verifyKey($this->pConfig->get($this->userSession->getLocalUserId(), '2fa', 'secret'), $code);
+			$valid = (new Google2FA())->verifyKey($this->pConfig->get($this->session->getLocalUserId(), '2fa', 'secret'), $code);
 
 			// The same code can't be used twice even if it's valid
 			if ($valid && $this->session->get('2fa') !== $code) {
@@ -85,7 +81,7 @@ class Verify extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!$this->userSession->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			$this->baseUrl->redirect();
 		}
 

@@ -25,6 +25,9 @@ use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Model\Contact;
 
+/**
+ * This class handles user sessions, which is directly extended from regular session
+ */
 class UserSession implements IHandleUserSessions
 {
 	/** @var IHandleSessions */
@@ -129,5 +132,53 @@ class UserSession implements IHandleUserSessions
 	public function setSubManagedUserId(int $managed_uid): void
 	{
 		$this->session->set('submanage', $managed_uid);
+	}
+
+	/** {@inheritDoc} */
+	public function start(): IHandleSessions
+	{
+		return $this;
+	}
+
+	/** {@inheritDoc} */
+	public function exists(string $name): bool
+	{
+		return $this->session->exists($name);
+	}
+
+	/** {@inheritDoc} */
+	public function get(string $name, $defaults = null)
+	{
+		return $this->session->get($name, $defaults);
+	}
+
+	/** {@inheritDoc} */
+	public function pop(string $name, $defaults = null)
+	{
+		return $this->session->pop($name, $defaults);
+	}
+
+	/** {@inheritDoc} */
+	public function set(string $name, $value)
+	{
+		$this->session->set($name, $value);
+	}
+
+	/** {@inheritDoc} */
+	public function setMultiple(array $values)
+	{
+		$this->session->setMultiple($values);
+	}
+
+	/** {@inheritDoc} */
+	public function remove(string $name)
+	{
+		$this->session->remove($name);
+	}
+
+	/** {@inheritDoc} */
+	public function clear()
+	{
+		$this->session->clear();
 	}
 }

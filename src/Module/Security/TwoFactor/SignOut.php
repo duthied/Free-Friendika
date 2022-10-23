@@ -25,11 +25,10 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\DI;
 use Friendica\Model\User\Cookie;
 use Friendica\Module\Response;
-use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\Profiler;
 use Friendica\Security\TwoFactor;
 use Psr\Log\LoggerInterface;
@@ -43,14 +42,14 @@ class SignOut extends BaseModule
 {
 	protected $errors = [];
 
-	/** @var IHandleSessions  */
+	/** @var IHandleUserSessions */
 	protected $session;
 	/** @var Cookie  */
 	protected $cookie;
 	/** @var TwoFactor\Repository\TrustedBrowser  */
 	protected $trustedBrowserRepository;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger,  IHandleSessions $session, Cookie $cookie, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepository, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, IHandleUserSessions $session, Cookie $cookie, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepository, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -61,7 +60,7 @@ class SignOut extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		if (!DI::userSession()->getLocalUserId() || !($this->cookie->get('2fa_cookie_hash'))) {
+		if (!$this->session->getLocalUserId() || !($this->cookie->get('2fa_cookie_hash'))) {
 			return;
 		}
 
@@ -80,7 +79,7 @@ class SignOut extends BaseModule
 					$this->baseUrl->redirect();
 					break;
 				case 'sign_out':
-					$this->trustedBrowserRepository->removeForUser(DI::userSession()->getLocalUserId(), $this->cookie->get('2fa_cookie_hash'));
+					$this->trustedBrowserRepository->removeForUser($this->session->getLocalUserId(), $this->cookie->get('2fa_cookie_hash'));
 					$this->cookie->clear();
 					$this->session->clear();
 
@@ -95,7 +94,7 @@ class SignOut extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!DI::userSession()->getLocalUserId() || !($this->cookie->get('2fa_cookie_hash'))) {
+		if (!$this->session->getLocalUserId() || !($this->cookie->get('2fa_cookie_hash'))) {
 			$this->baseUrl->redirect();
 		}
 

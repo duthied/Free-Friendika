@@ -22,9 +22,9 @@
 namespace Friendica\Core\Session\Capability;
 
 /**
- * Handles user infos based on session infos
+ * This interface handles UserSessions, which is directly extended from the global Session interface
  */
-interface IHandleUserSessions
+interface IHandleUserSessions extends IHandleSessions
 {
 	/**
 	 * Returns the user id of locally logged-in user or false.
@@ -88,8 +88,6 @@ interface IHandleUserSessions
 
 	/**
 	 * Set the session variable that contains the contact IDs for the visitor's contact URL
-	 *
-	 * @param string $url Contact URL
 	 */
 	public function setVisitorsContacts();
 }
