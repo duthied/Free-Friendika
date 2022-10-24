@@ -222,7 +222,7 @@ class UserExport extends BaseSettings
 		// write the table header (like Mastodon)
 		echo "Account address, Show boosts\n";
 		// get all the contacts
-		$contacts = DBA::select('contact', ['addr', 'url'], ['uid' => $user_id, 'self' => false, 'rel' => [1, 3], 'deleted' => false]);
+		$contacts = DBA::select('contact', ['addr', 'url'], ['uid' => $user_id, 'self' => false, 'rel' => [Contact::SHARING, Contact::FRIEND], 'deleted' => false, 'archive' => false]);
 		while ($contact = DBA::fetch($contacts)) {
 			echo ($contact['addr'] ?: $contact['url']) . ", true\n";
 		}
