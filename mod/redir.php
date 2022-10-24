@@ -82,7 +82,7 @@ function redir_init(App $a) {
 		}
 	}
 
-	if (DI::userSession()->getRemoteUserId) {
+	if (DI::userSession()->getRemoteUserId()) {
 		$host = substr(DI::baseUrl()->getUrlPath() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : ''), strpos(DI::baseUrl()->getUrlPath(), '://') + 3);
 		$remotehost = substr($contact['addr'], strpos($contact['addr'], '@') + 1);
 

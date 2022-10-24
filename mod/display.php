@@ -69,10 +69,10 @@ function display_init(App $a)
 		}
 
 		// Is this item private but could be visible to the remove visitor?
-		if (!DBA::isResult($item) && DI::userSession()->getRemoteUserId) {
+		if (!DBA::isResult($item) && DI::userSession()->getRemoteUserId()) {
 			$item = Post::selectFirst($fields, ['guid' => DI::args()->getArgv()[1], 'private' => Item::PRIVATE, 'origin' => true]);
 			if (DBA::isResult($item)) {
-				if (!Contact::isFollower(DI::userSession()->getRemoteUserId, $item['uid'])) {
+				if (!Contact::isFollower(DI::userSession()->getRemoteUserId(), $item['uid'])) {
 					$item = null;
 				} else {
 					$item_user = $item['uid'];
@@ -189,9 +189,9 @@ function display_content(App $a, $update = false, $update_uid = 0)
 				}
 			}
 
-			if (($parent_uri_id == 0) && DI::userSession()->getRemoteUserId) {
+			if (($parent_uri_id == 0) && DI::userSession()->getRemoteUserId()) {
 				$item = Post::selectFirst($fields, ['guid' => DI::args()->getArgv()[1], 'private' => Item::PRIVATE, 'origin' => true]);
-				if (DBA::isResult($item) && Contact::isFollower(DI::userSession()->getRemoteUserId, $item['uid'])) {
+				if (DBA::isResult($item) && Contact::isFollower(DI::userSession()->getRemoteUserId(), $item['uid'])) {
 					$uri_id = $item['uri-id'];
 					$parent_uri_id = $item['parent-uri-id'];
 				}
