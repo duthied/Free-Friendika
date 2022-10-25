@@ -1359,9 +1359,10 @@ class Contact
 				'writable'  => 1,
 				'blocked'   => 0,
 				'readonly'  => 0,
-				'pending'   => 0];
+				'pending'   => 0,
+			];
 
-			$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid, 'deleted' => false];
+			$condition = ['nurl' => Strings::normaliseLink($data['url']), 'uid' => $uid, 'deleted' => false];
 
 			// Before inserting we do check if the entry does exist now.
 			$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
