@@ -42,7 +42,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	Logger::info('wall upload: starting new upload');
 
 	$isJson = (!empty($_GET['response']) && $_GET['response'] == 'json');
-	$album = trim($_GET['album'] ?? '');
+	$album  = trim($_GET['album'] ?? '');
 
 	if (DI::args()->getArgc() > 1) {
 		if (empty($_FILES['media'])) {
@@ -69,20 +69,20 @@ function wall_upload_post(App $a, $desktopmode = true)
 	/*
 	 * Setup permissions structures
 	 */
-	$can_post  = false;
-	$visitor   = 0;
+	$can_post = false;
+	$visitor  = 0;
 
-	$page_owner_uid   = $user['uid'];
-	$default_cid      = $user['id'];
-	$page_owner_nick  = $user['nickname'];
-	$community_page   = ($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY);
+	$page_owner_uid  = $user['uid'];
+	$default_cid     = $user['id'];
+	$page_owner_nick = $user['nickname'];
+	$community_page  = ($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY);
 
 	if ((DI::userSession()->getLocalUserId()) && (DI::userSession()->getLocalUserId() == $page_owner_uid)) {
 		$can_post = true;
 	} elseif ($community_page && !empty(DI::userSession()->getRemoteContactID($page_owner_uid))) {
 		$contact_id = DI::userSession()->getRemoteContactID($page_owner_uid);
-		$can_post = DBA::exists('contact', ['blocked' => false, 'pending' => false, 'id' => $contact_id, 'uid' => $page_owner_uid]);
-		$visitor = $contact_id;
+		$can_post   = DBA::exists('contact', ['blocked' => false, 'pending' => false, 'id' => $contact_id, 'uid' => $page_owner_uid]);
+		$visitor    = $contact_id;
 	}
 
 	if (!$can_post) {
@@ -103,7 +103,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		System::exit();
 	}
 
-	$src = '';
+	$src      = '';
 	$filename = '';
 	$filesize = 0;
 	$filetype = '';
@@ -160,14 +160,14 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
 
 	Logger::info('File upload:', [
-		'src' => $src,
+		'src'      => $src,
 		'filename' => $filename,
 		'filesize' => $filesize,
 		'filetype' => $filetype,
 	]);
 
 	$imagedata = @file_get_contents($src);
-	$image = new Image($imagedata, $filetype);
+	$image     = new Image($imagedata, $filetype);
 
 	if (!$image->isValid()) {
 		$msg = DI::l10n()->t('Unable to process image.');
@@ -191,7 +191,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		Logger::info('File upload: Scaling picture to new size', ['max_length' => $max_length]);
 	}
 
-	$width = $image->getWidth();
+	$width  = $image->getWidth();
 	$height = $image->getHeight();
 
 	$maximagesize = DI::config()->get('system', 'maximagesize');
@@ -203,8 +203,8 @@ function wall_upload_post(App $a, $desktopmode = true)
 				Logger::info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
 				$image->scaleDown($pixels);
 				$filesize = strlen($image->asString());
-				$width = $image->getWidth();
-				$height = $image->getHeight();
+				$width    = $image->getWidth();
+				$height   = $image->getHeight();
 			}
 		}
 		if ($filesize > $maximagesize) {

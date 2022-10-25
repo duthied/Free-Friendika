@@ -33,7 +33,7 @@ function wall_attach_post(App $a)
 	$isJson = (!empty($_GET['response']) && $_GET['response'] == 'json');
 
 	if (DI::args()->getArgc() > 1) {
-		$nick = DI::args()->getArgv()[1];
+		$nick  = DI::args()->getArgv()[1];
 		$owner = User::getOwnerDataByNick($nick);
 		if (!DBA::isResult($owner)) {
 			Logger::warning('owner is not a valid record:', ['owner' => $owner, 'nick' => $nick]);
@@ -51,7 +51,7 @@ function wall_attach_post(App $a)
 		return;
 	}
 
-	$can_post  = false;
+	$can_post = false;
 
 	$page_owner_uid = $owner['uid'];
 	$page_owner_cid = $owner['id'];
@@ -61,7 +61,7 @@ function wall_attach_post(App $a)
 		$can_post = true;
 	} elseif ($community_page && !empty(DI::userSession()->getRemoteContactID($page_owner_uid))) {
 		$contact_id = DI::userSession()->getRemoteContactID($page_owner_uid);
-		$can_post = DBA::exists('contact', ['blocked' => false, 'pending' => false, 'id' => $contact_id, 'uid' => $page_owner_uid]);
+		$can_post   = DBA::exists('contact', ['blocked' => false, 'pending' => false, 'id' => $contact_id, 'uid' => $page_owner_uid]);
 	}
 
 	if (!$can_post) {
@@ -92,7 +92,7 @@ function wall_attach_post(App $a)
 	 * Then Filesize gets <= 0.
 	 */
 	if ($fileSize <= 0) {
-		$msg = DI::l10n()->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . '<br />' .(DI::l10n()->t('Or - did you try to upload an empty file?'));
+		$msg = DI::l10n()->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . '<br />' . DI::l10n()->t('Or - did you try to upload an empty file?');
 		Logger::warning($msg, ['fileSize' => $fileSize]);
 		@unlink($tempFileName);
 		if ($isJson) {
@@ -120,7 +120,7 @@ function wall_attach_post(App $a)
 	@unlink($tempFileName);
 
 	if ($newid === false) {
-		$msg =  DI::l10n()->t('File upload failed.');
+		$msg = DI::l10n()->t('File upload failed.');
 		Logger::warning($msg);
 		if ($isJson) {
 			System::jsonExit(['error' => $msg]);
