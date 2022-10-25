@@ -50,7 +50,9 @@ class TemporalTest extends TestCase
 
 		// Format current date/time - 1 minute into "MySQL" format
 		$minuteAgo = date('Y-m-d H:i:s', time() - 60);
-		$format = DI::l10n()->t('%1$d %2$s ago');
+		$format    = DI::l10n()->t('%1$d %2$s ago');
+
+		// Should be both equal
 		self::assertEquals(
 			Temporal::getRelativeDate($minuteAgo),
 			sprintf($format, 1, DI::l10n()->t('minute'))
