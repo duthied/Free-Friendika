@@ -23,7 +23,6 @@ namespace Friendica\Content\Widget;
 
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 
@@ -35,10 +34,10 @@ class SavedSearches
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function getHTML($return_url, $search = '')
+	public static function getHTML(string $return_url, string $search = ''): string
 	{
 		$saved = [];
-		$saved_searches = DBA::select('search', ['id', 'term'], ['uid' => Session::getLocalUser()]);
+		$saved_searches = DBA::select('search', ['id', 'term'], ['uid' => DI::userSession()->getLocalUserId()]);
 		while ($saved_search = DBA::fetch($saved_searches)) {
 			$saved[] = [
 				'id'          => $saved_search['id'],

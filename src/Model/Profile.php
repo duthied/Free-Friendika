@@ -30,7 +30,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -239,7 +238,7 @@ class Profile
 
 		DI::page()['title'] = $profile['name'] . ' @ ' . DI::config()->get('config', 'sitename');
 
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			$a->setCurrentTheme($profile['theme']);
 			$a->setCurrentMobileTheme(DI::pConfig()->get($a->getProfileOwner(), 'system', 'mobile_theme') ?? '');
 		}
@@ -255,7 +254,7 @@ class Profile
 			require_once $theme_info_file;
 		}
 
-		$block = (DI::config()->get('system', 'block_public') && !Session::isAuthenticated());
+		$block = (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated());
 
 		/**
 		 * @todo
@@ -295,8 +294,8 @@ class Profile
 
 		$profile_contact = [];
 
-		if (Session::getLocalUser() && ($profile['uid'] ?? 0) != Session::getLocalUser()) {
-			$profile_contact = Contact::getByURL($profile['nurl'], null, [], Session::getLocalUser());
+		if (DI::userSession()->getLocalUserId() && ($profile['uid'] ?? 0) != DI::userSession()->getLocalUserId()) {
+			$profile_contact = Contact::getByURL($profile['nurl'], null, [], DI::userSession()->getLocalUserId());
 		}
 		if (!empty($profile['cid']) && self::getMyURL()) {
 			$profile_contact = Contact::selectFirst([], ['id' => $profile['cid']]);
@@ -379,7 +378,7 @@ class Profile
 		$xmpp     = !empty($profile['xmpp'])     ? DI::l10n()->t('XMPP:')     : false;
 		$matrix   = !empty($profile['matrix'])   ? DI::l10n()->t('Matrix:')   : false;
 
-		if ((!empty($profile['hidewall']) || $block) && !Session::isAuthenticated()) {
+		if ((!empty($profile['hidewall']) || $block) && !DI::userSession()->isAuthenticated()) {
 			$location = $homepage = $about = false;
 		}
 
@@ -413,7 +412,7 @@ class Profile
 		}
 
 		if (!$block && $show_contacts) {
-			$contact_block = ContactBlock::getHTML($profile, Session::getLocalUser());
+			$contact_block = ContactBlock::getHTML($profile, DI::userSession()->getLocalUserId());
 
 			if (is_array($profile) && !$profile['hide-friends']) {
 				$contact_count = DBA::count('contact', [
@@ -493,7 +492,7 @@ class Profile
 	 */
 	public static function getBirthdays(): string
 	{
-		if (!Session::getLocalUser() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
+		if (!DI::userSession()->getLocalUserId() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
 			return '';
 		}
 
@@ -506,7 +505,7 @@ class Profile
 
 		$bd_short = DI::l10n()->t('F d');
 
-		$cacheKey = 'get_birthdays:' . Session::getLocalUser();
+		$cacheKey = 'get_birthdays:' . DI::userSession()->getLocalUserId();
 		$events   = DI::cache()->get($cacheKey);
 		if (is_null($events)) {
 			$result = DBA::p(
@@ -523,7 +522,7 @@ class Profile
 				ORDER BY `start`",
 				Contact::SHARING,
 				Contact::FRIEND,
-				Session::getLocalUser(),
+				DI::userSession()->getLocalUserId(),
 				DateTimeFormat::utc('now + 6 days'),
 				DateTimeFormat::utcNow()
 			);
@@ -595,7 +594,7 @@ class Profile
 		$a = DI::app();
 		$o = '';
 
-		if (!Session::getLocalUser() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
+		if (!DI::userSession()->getLocalUserId() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
 			return $o;
 		}
 
@@ -610,7 +609,7 @@ class Profile
 		$classtoday = '';
 
 		$condition = ["`uid` = ? AND `type` != 'birthday' AND `start` < ? AND `start` >= ?",
-			Session::getLocalUser(), DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utc('now - 1 days')];
+			DI::userSession()->getLocalUserId(), DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utc('now - 1 days')];
 		$s = DBA::select('event', [], $condition, ['order' => ['start']]);
 
 		$r = [];
@@ -620,7 +619,7 @@ class Profile
 			$total = 0;
 
 			while ($rr = DBA::fetch($s)) {
-				$condition = ['parent-uri' => $rr['uri'], 'uid' => $rr['uid'], 'author-id' => Session::getPublicContact(),
+				$condition = ['parent-uri' => $rr['uri'], 'uid' => $rr['uid'], 'author-id' => DI::userSession()->getPublicContactId(),
 					'vid' => [Verb::getID(Activity::ATTEND), Verb::getID(Activity::ATTENDMAYBE)],
 					'visible' => true, 'deleted' => false];
 				if (!Post::exists($condition)) {
@@ -712,7 +711,7 @@ class Profile
 		$my_url = self::getMyURL();
 		$my_url = Network::isUrlValid($my_url);
 
-		if (empty($my_url) || Session::getLocalUser()) {
+		if (empty($my_url) || DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
@@ -730,7 +729,7 @@ class Profile
 
 		$contact = DBA::selectFirst('contact',['id', 'url'], ['id' => $cid]);
 
-		if (DBA::isResult($contact) && Session::getRemoteUser() && Session::getRemoteUser() == $contact['id']) {
+		if (DBA::isResult($contact) && DI::userSession()->getRemoteUserId() && DI::userSession()->getRemoteUserId() == $contact['id']) {
 			Logger::info('The visitor ' . $my_url . ' is already authenticated');
 			return;
 		}
@@ -797,7 +796,7 @@ class Profile
 		$_SESSION['my_url'] = $visitor['url'];
 		$_SESSION['remote_comment'] = $visitor['subscribe'];
 
-		Session::setVisitorsContacts();
+		DI::userSession()->setVisitorsContacts();
 
 		$a->setContactId($visitor['id']);
 
@@ -916,7 +915,7 @@ class Profile
 	 */
 	public static function getThemeUid(App $a): int
 	{
-		return Session::getLocalUser() ?: $a->getProfileOwner();
+		return DI::userSession()->getLocalUserId() ?: $a->getProfileOwner();
 	}
 
 	/**

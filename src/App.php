@@ -27,13 +27,13 @@ use Friendica\App\BaseURL;
 use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\L10n;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
@@ -135,6 +135,11 @@ class App
 	private $session;
 
 	/**
+	 * @var IHandleUserSessions
+	 */
+	private $userSession;
+
+	/**
 	 * Set the user ID
 	 *
 	 * @param int $user_id
@@ -158,7 +163,7 @@ class App
 
 	public function isLoggedIn(): bool
 	{
-		return Session::getLocalUser() && $this->user_id && ($this->user_id == Session::getLocalUser());
+		return $this->userSession->getLocalUserId() && $this->user_id && ($this->user_id == $this->userSession->getLocalUserId());
 	}
 
 	/**
@@ -172,7 +177,7 @@ class App
 
 		$adminlist = explode(',', str_replace(' ', '', $admin_email));
 
-		return Session::getLocalUser() && $admin_email && $this->database->exists('user', ['uid' => $this->getLoggedInUserId(), 'email' => $adminlist]);
+		return $this->userSession->getLocalUserId() && $admin_email && $this->database->exists('user', ['uid' => $this->getLoggedInUserId(), 'email' => $adminlist]);
 	}
 
 	/**
@@ -337,18 +342,19 @@ class App
 	 * @param IManagePersonalConfigValues $pConfig  Personal configuration
 	 * @param IHandleSessions             $session  The Session handler
 	 */
-	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig, IHandleSessions $session)
+	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig, IHandleSessions $session, IHandleUserSessions $userSession)
 	{
-		$this->database = $database;
-		$this->config   = $config;
-		$this->mode     = $mode;
-		$this->baseURL  = $baseURL;
-		$this->profiler = $profiler;
-		$this->logger   = $logger;
-		$this->l10n     = $l10n;
-		$this->args     = $args;
-		$this->pConfig  = $pConfig;
-		$this->session  = $session;
+		$this->database    = $database;
+		$this->config      = $config;
+		$this->mode        = $mode;
+		$this->baseURL     = $baseURL;
+		$this->profiler    = $profiler;
+		$this->logger      = $logger;
+		$this->l10n        = $l10n;
+		$this->args        = $args;
+		$this->pConfig     = $pConfig;
+		$this->session     = $session;
+		$this->userSession = $userSession;
 
 		$this->load();
 	}
@@ -496,11 +502,11 @@ class App
 
 		$page_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
-		if (!empty($this->profile_owner) && ($this->profile_owner != Session::getLocalUser())) {
+		if (!empty($this->profile_owner) && ($this->profile_owner != $this->userSession->getLocalUserId())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
 			$user = $this->database->selectFirst('user', ['theme'], ['uid' => $this->profile_owner]);
-			if ($this->database->isResult($user) && !Session::getLocalUser()) {
+			if ($this->database->isResult($user) && !$this->userSession->getLocalUserId()) {
 				$page_theme = $user['theme'];
 			}
 		}
@@ -529,10 +535,10 @@ class App
 
 		$page_mobile_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
-		if (!empty($this->profile_owner) && ($this->profile_owner != Session::getLocalUser())) {
+		if (!empty($this->profile_owner) && ($this->profile_owner != $this->userSession->getLocalUserId())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
-			if (!Session::getLocalUser()) {
+			if (!$this->userSession->getLocalUserId()) {
 				$page_mobile_theme = $this->pConfig->get($this->profile_owner, 'system', 'mobile-theme');
 			}
 		}
@@ -629,7 +635,7 @@ class App
 			}
 
 			// ZRL
-			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend() && !Session::getLocalUser()) {
+			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend() && !$this->userSession->getLocalUserId()) {
 				// Only continue when the given profile link seems valid
 				// Valid profile links contain a path with "/profile/" and no query parameters
 				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == '') &&
@@ -737,7 +743,7 @@ class App
 			$response = $module->run($input);
 			$this->profiler->set(microtime(true) - $timestamp, 'content');
 			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
-				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
+				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig, $this->userSession->getLocalUserId());
 			} else {
 				$page->exit($response);
 			}

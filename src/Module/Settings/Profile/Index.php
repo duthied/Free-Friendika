@@ -25,7 +25,6 @@ use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -44,11 +43,11 @@ class Index extends BaseSettings
 {
 	protected function post(array $request = [])
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
-		$profile = Profile::getByUID(Session::getLocalUser());
+		$profile = Profile::getByUID(DI::userSession()->getLocalUserId());
 		if (!DBA::isResult($profile)) {
 			return;
 		}
@@ -102,12 +101,12 @@ class Index extends BaseSettings
 		}
 
 		$profileFieldsNew = self::getProfileFieldsFromInput(
-			Session::getLocalUser(),
+			DI::userSession()->getLocalUserId(),
 			$_REQUEST['profile_field'],
 			$_REQUEST['profile_field_order']
 		);
 
-		DI::profileField()->saveCollectionForUser(Session::getLocalUser(), $profileFieldsNew);
+		DI::profileField()->saveCollectionForUser(DI::userSession()->getLocalUserId(), $profileFieldsNew);
 
 		$result = Profile::update(
 			[
@@ -125,7 +124,7 @@ class Index extends BaseSettings
 				'pub_keywords' => $pub_keywords,
 				'prv_keywords' => $prv_keywords,
 			],
-			Session::getLocalUser()
+			DI::userSession()->getLocalUserId()
 		);
 
 		if (!$result) {
@@ -138,7 +137,7 @@ class Index extends BaseSettings
 
 	protected function content(array $request = []): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('You must be logged in to use this module'));
 			return Login::form();
 		}
@@ -147,7 +146,7 @@ class Index extends BaseSettings
 
 		$o = '';
 
-		$profile = User::getOwnerDataById(Session::getLocalUser());
+		$profile = User::getOwnerDataById(DI::userSession()->getLocalUserId());
 		if (!DBA::isResult($profile)) {
 			throw new HTTPException\NotFoundException();
 		}
@@ -159,7 +158,7 @@ class Index extends BaseSettings
 
 		$custom_fields = [];
 
-		$profileFields = DI::profileField()->selectByUserId(Session::getLocalUser());
+		$profileFields = DI::profileField()->selectByUserId(DI::userSession()->getLocalUserId());
 		foreach ($profileFields as $profileField) {
 			/** @var ProfileField $profileField */
 			$defaultPermissions = $profileField->permissionSet->withAllowedContacts(

@@ -21,7 +21,6 @@
 
 use Friendica\App;
 use Friendica\Core\Logger;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -32,7 +31,7 @@ use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\Strings;
 
 function redir_init(App $a) {
-	if (!Session::isAuthenticated()) {
+	if (!DI::userSession()->isAuthenticated()) {
 		throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 	}
 
@@ -52,7 +51,7 @@ function redir_init(App $a) {
 	}
 
 	$fields = ['id', 'uid', 'nurl', 'url', 'addr', 'name'];
-	$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => [0, Session::getLocalUser()]]);
+	$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => [0, DI::userSession()->getLocalUserId()]]);
 	if (!DBA::isResult($contact)) {
 		throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('Contact not found.'));
 	}
@@ -65,10 +64,10 @@ function redir_init(App $a) {
 		$a->redirect($url ?: $contact_url);
 	}
 
-	if ($contact['uid'] == 0 && Session::getLocalUser()) {
+	if ($contact['uid'] == 0 && DI::userSession()->getLocalUserId()) {
 		// Let's have a look if there is an established connection
 		// between the public contact we have found and the local user.
-		$contact = DBA::selectFirst('contact', $fields, ['nurl' => $contact['nurl'], 'uid' => Session::getLocalUser()]);
+		$contact = DBA::selectFirst('contact', $fields, ['nurl' => $contact['nurl'], 'uid' => DI::userSession()->getLocalUserId()]);
 
 		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
@@ -83,7 +82,7 @@ function redir_init(App $a) {
 		}
 	}
 
-	if (Session::getRemoteUser()) {
+	if (DI::userSession()->getRemoteUserId()) {
 		$host = substr(DI::baseUrl()->getUrlPath() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : ''), strpos(DI::baseUrl()->getUrlPath(), '://') + 3);
 		$remotehost = substr($contact['addr'], strpos($contact['addr'], '@') + 1);
 
@@ -91,7 +90,7 @@ function redir_init(App $a) {
 		// with the local contact. Otherwise the local user would ask the local contact
 		// for authentification everytime he/she is visiting a profile page of the local
 		// contact.
-		if (($host == $remotehost) && (Session::getRemoteContactID(DI::session()->get('visitor_visiting')) == DI::session()->get('visitor_id'))) {
+		if (($host == $remotehost) && (DI::userSession()->getRemoteContactID(DI::session()->get('visitor_visiting')) == DI::session()->get('visitor_id'))) {
 			// Remote user is already authenticated.
 			redir_check_url($contact_url, $url);
 			$target_url = $url ?: $contact_url;

@@ -23,7 +23,6 @@ namespace Friendica\Module\Contact;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -41,7 +40,7 @@ class Hovercard extends BaseModule
 		$contact_url = $_REQUEST['url'] ?? '';
 
 		// Get out if the system doesn't have public access allowed
-		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
@@ -70,8 +69,8 @@ class Hovercard extends BaseModule
 
 		// Search for contact data
 		// Look if the local user has got the contact
-		if (Session::isAuthenticated()) {
-			$contact = Contact::getByURLForUser($contact_url, Session::getLocalUser());
+		if (DI::userSession()->isAuthenticated()) {
+			$contact = Contact::getByURLForUser($contact_url, DI::userSession()->getLocalUserId());
 		} else {
 			$contact = Contact::getByURL($contact_url, false);
 		}
@@ -81,7 +80,7 @@ class Hovercard extends BaseModule
 		}
 
 		// Get the photo_menu - the menu if possible contact actions
-		if (Session::isAuthenticated()) {
+		if (DI::userSession()->isAuthenticated()) {
 			$actions = Contact::photoMenu($contact);
 		} else {
 			$actions = [];

@@ -22,7 +22,6 @@
 namespace Friendica\Module\Update;
 
 use Friendica\BaseModule;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -42,13 +41,13 @@ class Profile extends BaseModule
 		// Ensure we've got a profile owner if updating.
 		$a->setProfileOwner((int)($_GET['p'] ?? 0));
 
-		if (DI::config()->get('system', 'block_public') && !Session::getLocalUser() && !Session::getRemoteContactID($a->getProfileOwner())) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->getLocalUserId() && !DI::userSession()->getRemoteContactID($a->getProfileOwner())) {
 			throw new ForbiddenException();
 		}
 
-		$remote_contact = Session::getRemoteContactID($a->getProfileOwner());
-		$is_owner = Session::getLocalUser() == $a->getProfileOwner();
-		$last_updated_key = "profile:" . $a->getProfileOwner() . ":" . Session::getLocalUser() . ":" . $remote_contact;
+		$remote_contact = DI::userSession()->getRemoteContactID($a->getProfileOwner());
+		$is_owner = DI::userSession()->getLocalUserId() == $a->getProfileOwner();
+		$last_updated_key = "profile:" . $a->getProfileOwner() . ":" . DI::userSession()->getLocalUserId() . ":" . $remote_contact;
 
 		if (!$is_owner && !$remote_contact) {
 			$user = User::getById($a->getProfileOwner(), ['hidewall']);
@@ -59,7 +58,7 @@ class Profile extends BaseModule
 
 		$o = '';
 
-		if (empty($_GET['force']) && DI::pConfig()->get(Session::getLocalUser(), 'system', 'no_auto_update')) {
+		if (empty($_GET['force']) && DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'no_auto_update')) {
 			System::htmlUpdateExit($o);
 		}
 
@@ -110,9 +109,9 @@ class Profile extends BaseModule
 		}
 
 		if ($is_owner) {
-			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => Session::getLocalUser()]);
+			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => DI::userSession()->getLocalUserId()]);
 			if ($unseen) {
-				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => Session::getLocalUser()]);
+				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => DI::userSession()->getLocalUserId()]);
 			}
 		}
 

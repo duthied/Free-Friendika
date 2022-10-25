@@ -26,7 +26,6 @@ use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -67,7 +66,7 @@ class Widget
 		$global_dir = Search::getGlobalDirectory();
 
 		if (DI::config()->get('system', 'invitation_only')) {
-			$x = intval(DI::pConfig()->get(Session::getLocalUser(), 'system', 'invites_remaining'));
+			$x = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'invites_remaining'));
 			if ($x || DI::app()->isSiteAdmin()) {
 				DI::page()['aside'] .= '<div class="side-link widget" id="side-invite-remain">'
 					. DI::l10n()->tt('%d invitation available', '%d invitations available', $x)
@@ -196,7 +195,7 @@ class Widget
 	 */
 	public static function groups(string $baseurl, string $selected = ''): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return '';
 		}
 
@@ -205,7 +204,7 @@ class Widget
 				'ref'  => $group['id'],
 				'name' => $group['name']
 			];
-		}, Group::getByUserId(Session::getLocalUser()));
+		}, Group::getByUserId(DI::userSession()->getLocalUserId()));
 
 		return self::filter(
 			'group',
@@ -228,7 +227,7 @@ class Widget
 	 */
 	public static function contactRels(string $baseurl, string $selected = ''): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return '';
 		}
 
@@ -259,13 +258,13 @@ class Widget
 	 */
 	public static function networks(string $baseurl, string $selected = ''): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return '';
 		}
 
 		$networks = self::unavailableNetworks();
 		$query = "`uid` = ? AND NOT `deleted` AND `network` != '' AND NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")";
-		$condition = array_merge([$query], array_merge([Session::getLocalUser()], $networks));
+		$condition = array_merge([$query], array_merge([DI::userSession()->getLocalUserId()], $networks));
 
 		$r = DBA::select('contact', ['network'], $condition, ['group_by' => ['network'], 'order' => ['network']]);
 
@@ -300,12 +299,12 @@ class Widget
 	 */
 	public static function fileAs(string $baseurl, string $selected = ''): string
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return '';
 		}
 
 		$terms = [];
-		foreach (Post\Category::getArray(Session::getLocalUser(), Post\Category::FILE) as $savedFolderName) {
+		foreach (Post\Category::getArray(DI::userSession()->getLocalUserId(), Post\Category::FILE) as $savedFolderName) {
 			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
 
@@ -362,11 +361,11 @@ class Widget
 	 */
 	public static function commonFriendsVisitor(int $uid, string $nickname): string
 	{
-		if (Session::getLocalUser() == $uid) {
+		if (DI::userSession()->getLocalUserId() == $uid) {
 			return '';
 		}
 
-		$visitorPCid = Session::getLocalUser() ? Contact::getPublicIdByUserId(Session::getLocalUser()) : Session::getRemoteUser();
+		$visitorPCid = DI::userSession()->getPublicContactId() ?: DI::userSession()->getRemoteUserId();
 		if (!$visitorPCid) {
 			return '';
 		}

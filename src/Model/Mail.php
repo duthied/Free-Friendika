@@ -23,7 +23,6 @@ namespace Friendica\Model;
 
 use Friendica\Core\ACL;
 use Friendica\Core\Logger;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -138,12 +137,12 @@ class Mail
 			$subject = DI::l10n()->t('[no subject]');
 		}
 
-		$me = DBA::selectFirst('contact', [], ['uid' => Session::getLocalUser(), 'self' => true]);
+		$me = DBA::selectFirst('contact', [], ['uid' => DI::userSession()->getLocalUserId(), 'self' => true]);
 		if (!DBA::isResult($me)) {
 			return -2;
 		}
 
-		$contacts = ACL::getValidMessageRecipientsForUser(Session::getLocalUser());
+		$contacts = ACL::getValidMessageRecipientsForUser(DI::userSession()->getLocalUserId());
 
 		$contactIndex = array_search($recipient, array_column($contacts, 'id'));
 		if ($contactIndex === false) {
@@ -152,7 +151,7 @@ class Mail
 
 		$contact = $contacts[$contactIndex];
 
-		Photo::setPermissionFromBody($body, Session::getLocalUser(), $me['id'],  '<' . $contact['id'] . '>', '', '', '');
+		Photo::setPermissionFromBody($body, DI::userSession()->getLocalUserId(), $me['id'],  '<' . $contact['id'] . '>', '', '', '');
 
 		$guid = System::createUUID();
 		$uri = Item::newURI($guid);
@@ -165,7 +164,7 @@ class Mail
 		if (strlen($replyto)) {
 			$reply = true;
 			$condition = ["`uid` = ? AND (`uri` = ? OR `parent-uri` = ?)",
-				Session::getLocalUser(), $replyto, $replyto];
+				DI::userSession()->getLocalUserId(), $replyto, $replyto];
 			$mail = DBA::selectFirst('mail', ['convid'], $condition);
 			if (DBA::isResult($mail)) {
 				$convid = $mail['convid'];
@@ -178,7 +177,7 @@ class Mail
 			$conv_guid = System::createUUID();
 			$convuri = $contact['addr'] . ':' . $conv_guid;
 
-			$fields = ['uid' => Session::getLocalUser(), 'guid' => $conv_guid, 'creator' => $me['addr'],
+			$fields = ['uid' => DI::userSession()->getLocalUserId(), 'guid' => $conv_guid, 'creator' => $me['addr'],
 				'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(),
 				'subject' => $subject, 'recips' => $contact['addr'] . ';' . $me['addr']];
 			if (DBA::insert('conv', $fields)) {
@@ -197,7 +196,7 @@ class Mail
 
 		$post_id = self::insert(
 			[
-				'uid' => Session::getLocalUser(),
+				'uid' => DI::userSession()->getLocalUserId(),
 				'guid' => $guid,
 				'convid' => $convid,
 				'from-name' => $me['name'],
@@ -233,7 +232,7 @@ class Mail
 				foreach ($images as $image) {
 					$image_rid = Photo::ridFromURI($image);
 					if (!empty($image_rid)) {
-						Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => Session::getLocalUser()]);
+						Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => DI::userSession()->getLocalUserId()]);
 					}
 				}
 			}

@@ -22,7 +22,6 @@
 namespace Friendica\Module\OAuth;
 
 use Friendica\Core\Logger;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Security\OAuth;
@@ -71,7 +70,7 @@ class Authorize extends BaseApi
 		unset($redirect_request['pagename']);
 		$redirect = 'oauth/authorize?' . http_build_query($redirect_request);
 
-		$uid = Session::getLocalUser();
+		$uid = DI::userSession()->getLocalUserId();
 		if (empty($uid)) {
 			Logger::info('Redirect to login');
 			DI::app()->redirect('login?return_path=' . urlencode($redirect));

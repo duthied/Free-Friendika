@@ -22,7 +22,6 @@
 use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -37,7 +36,7 @@ use Friendica\Worker\Delivery;
 
 function tagger_content(App $a)
 {
-	if (!Session::isAuthenticated()) {
+	if (!DI::userSession()->isAuthenticated()) {
 		return;
 	}
 
@@ -63,13 +62,13 @@ function tagger_content(App $a)
 
 	$owner_uid = $item['uid'];
 
-	if (Session::getLocalUser() != $owner_uid) {
+	if (DI::userSession()->getLocalUserId() != $owner_uid) {
 		return;
 	}
 
-	$contact = Contact::selectFirst([], ['self' => true, 'uid' => Session::getLocalUser()]);
+	$contact = Contact::selectFirst([], ['self' => true, 'uid' => DI::userSession()->getLocalUserId()]);
 	if (!DBA::isResult($contact)) {
-		Logger::warning('Self contact not found.', ['uid' => Session::getLocalUser()]);
+		Logger::warning('Self contact not found.', ['uid' => DI::userSession()->getLocalUserId()]);
 		return;
 	}
 

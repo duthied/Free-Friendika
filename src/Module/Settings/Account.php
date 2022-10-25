@@ -26,7 +26,6 @@ use Friendica\Core\ACL;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\Session;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -69,9 +68,9 @@ class Account extends BaseSettings
 				}
 
 				//  check if the old password was supplied correctly before changing it to the new value
-				User::getIdFromPasswordAuthentication(Session::getLocalUser(), $request['opassword']);
+				User::getIdFromPasswordAuthentication(DI::userSession()->getLocalUserId(), $request['opassword']);
 
-				$result = User::updatePassword(Session::getLocalUser(), $newpass);
+				$result = User::updatePassword(DI::userSession()->getLocalUserId(), $newpass);
 				if (!DBA::isResult($result)) {
 					throw new Exception(DI::l10n()->t('Password update failed. Please try again.'));
 				}
@@ -104,7 +103,7 @@ class Account extends BaseSettings
 			if ($email != $user['email']) {
 				//  check for the correct password
 				try {
-					User::getIdFromPasswordAuthentication(Session::getLocalUser(), $request['mpassword']);
+					User::getIdFromPasswordAuthentication(DI::userSession()->getLocalUserId(), $request['mpassword']);
 				} catch (Exception $ex) {
 					$err .= DI::l10n()->t('Wrong Password.');
 					$email = $user['email'];
@@ -146,7 +145,7 @@ class Account extends BaseSettings
 				$fields['openidserver'] = '';
 			}
 
-			if (!User::update($fields, Session::getLocalUser())) {
+			if (!User::update($fields, DI::userSession()->getLocalUserId())) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
@@ -175,8 +174,8 @@ class Account extends BaseSettings
 			$str_group_deny    = !empty($request['group_deny']) ? $aclFormatter->toString($request['group_deny']) : '';
 			$str_contact_deny  = !empty($request['contact_deny']) ? $aclFormatter->toString($request['contact_deny']) : '';
 
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'unlisted', !empty($request['unlisted']));
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'accessible-photos', !empty($request['accessible-photos']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'unlisted', !empty($request['unlisted']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'accessible-photos', !empty($request['accessible-photos']));
 
 			$fields = [
 				'allow_cid'  => $str_contact_allow,
@@ -198,7 +197,7 @@ class Account extends BaseSettings
 				'hide-friends' => $hide_friends
 			];
 
-			if (!User::update($fields, Session::getLocalUser()) || !Profile::update($profile_fields, Session::getLocalUser())) {
+			if (!User::update($fields, DI::userSession()->getLocalUserId()) || !Profile::update($profile_fields, DI::userSession()->getLocalUserId())) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
@@ -213,12 +212,12 @@ class Account extends BaseSettings
 			$expire_starred      = !empty($request['expire_starred']);
 			$expire_network_only = !empty($request['expire_network_only']);
 
-			DI::pConfig()->set(Session::getLocalUser(), 'expire', 'items', $expire_items);
-			DI::pConfig()->set(Session::getLocalUser(), 'expire', 'notes', $expire_notes);
-			DI::pConfig()->set(Session::getLocalUser(), 'expire', 'starred', $expire_starred);
-			DI::pConfig()->set(Session::getLocalUser(), 'expire', 'network_only', $expire_network_only);
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'expire', 'items', $expire_items);
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'expire', 'notes', $expire_notes);
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'expire', 'starred', $expire_starred);
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'expire', 'network_only', $expire_network_only);
 
-			if (!User::update(['expire' => $expire], Session::getLocalUser())) {
+			if (!User::update(['expire' => $expire], DI::userSession()->getLocalUserId())) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
@@ -273,7 +272,7 @@ class Account extends BaseSettings
 			if (!empty($request['notify_activity_participation'])) {
 				$notify_type = $notify_type | UserNotification::TYPE_ACTIVITY_PARTICIPATION;
 			}
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'notify_type', $notify_type);
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'notify_type', $notify_type);
 
 			if (!($notify_type & (UserNotification::TYPE_DIRECT_COMMENT + UserNotification::TYPE_DIRECT_THREAD_COMMENT))) {
 				$notify_like     = false;
@@ -281,28 +280,28 @@ class Account extends BaseSettings
 			}
 
 			// Reset like notifications when they are going to be shown again
-			if (!DI::pConfig()->get(Session::getLocalUser(), 'system', 'notify_like') && $notify_like) {
-				DI::notification()->setAllSeenForUser(Session::getLocalUser(), ['vid' => Verb::getID(Activity::LIKE)]);
+			if (!DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'notify_like') && $notify_like) {
+				DI::notification()->setAllSeenForUser(DI::userSession()->getLocalUserId(), ['vid' => Verb::getID(Activity::LIKE)]);
 			}
 
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'notify_like', $notify_like);
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'notify_like', $notify_like);
 
 			// Reset share notifications when they are going to be shown again
-			if (!DI::pConfig()->get(Session::getLocalUser(), 'system', 'notify_announce') && $notify_announce) {
-				DI::notification()->setAllSeenForUser(Session::getLocalUser(), ['vid' => Verb::getID(Activity::ANNOUNCE)]);
+			if (!DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'notify_announce') && $notify_announce) {
+				DI::notification()->setAllSeenForUser(DI::userSession()->getLocalUserId(), ['vid' => Verb::getID(Activity::ANNOUNCE)]);
 			}
 
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'notify_announce', $notify_announce);
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'notify_announce', $notify_announce);
 
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'email_textonly', !empty($request['email_textonly']));
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'detailed_notif', !empty($request['detailed_notif']));
-			DI::pConfig()->set(Session::getLocalUser(), 'system', 'notify_ignored', !empty($request['notify_ignored']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'email_textonly', !empty($request['email_textonly']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'detailed_notif', !empty($request['detailed_notif']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'notify_ignored', !empty($request['notify_ignored']));
 
 			$fields = [
 				'notify-flags' => $notify,
 			];
 
-			if (!User::update($fields, Session::getLocalUser())) {
+			if (!User::update($fields, DI::userSession()->getLocalUserId())) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
@@ -328,7 +327,7 @@ class Account extends BaseSettings
 			$profile_fields = [];
 
 			if ($account_type == User::ACCOUNT_TYPE_COMMUNITY) {
-				DI::pConfig()->set(Session::getLocalUser(), 'system', 'unlisted', true);
+				DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'unlisted', true);
 
 				$fields = [
 					'allow_cid' => '',
@@ -351,7 +350,7 @@ class Account extends BaseSettings
 				'account-type' => $account_type,
 			]);
 
-			if (!User::update($fields, Session::getLocalUser()) || !empty($profile_fields) && !Profile::update($profile_fields, Session::getLocalUser())) {
+			if (!User::update($fields, DI::userSession()->getLocalUserId()) || !empty($profile_fields) && !Profile::update($profile_fields, DI::userSession()->getLocalUserId())) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
@@ -376,7 +375,7 @@ class Account extends BaseSettings
 						// "http" or "@" to be present in the string.
 						// All other fields from the row will be ignored
 						if ((strpos($csvRow[0], '@') !== false) || Network::isValidHttpUrl($csvRow[0])) {
-							Worker::add(Worker::PRIORITY_MEDIUM, 'AddContact', Session::getLocalUser(), $csvRow[0]);
+							Worker::add(Worker::PRIORITY_MEDIUM, 'AddContact', DI::userSession()->getLocalUserId(), $csvRow[0]);
 						} else {
 							Logger::notice('Invalid account', ['url' => $csvRow[0]]);
 						}
@@ -395,7 +394,7 @@ class Account extends BaseSettings
 		}
 
 		if (!empty($request['relocate-submit'])) {
-			Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, Session::getLocalUser());
+			Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, DI::userSession()->getLocalUserId());
 			DI::sysmsg()->addInfo(DI::l10n()->t("Relocate message has been send to your contacts"));
 			DI::baseUrl()->redirect($redirectUrl);
 		}
@@ -407,11 +406,11 @@ class Account extends BaseSettings
 	{
 		parent::content();
 
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		$profile = DBA::selectFirst('profile', [], ['uid' => Session::getLocalUser()]);
+		$profile = DBA::selectFirst('profile', [], ['uid' => DI::userSession()->getLocalUserId()]);
 		if (!DBA::isResult($profile)) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to find your profile. Please contact your admin.'));
 			return '';
@@ -434,10 +433,10 @@ class Account extends BaseSettings
 		$unkmail          = $user['unkmail'];
 		$cntunkmail       = $user['cntunkmail'];
 
-		$expire_items        = DI::pConfig()->get(Session::getLocalUser(), 'expire', 'items', true);
-		$expire_notes        = DI::pConfig()->get(Session::getLocalUser(), 'expire', 'notes', true);
-		$expire_starred      = DI::pConfig()->get(Session::getLocalUser(), 'expire', 'starred', true);
-		$expire_network_only = DI::pConfig()->get(Session::getLocalUser(), 'expire', 'network_only', false);
+		$expire_items        = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'expire', 'items', true);
+		$expire_notes        = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'expire', 'notes', true);
+		$expire_starred      = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'expire', 'starred', true);
+		$expire_network_only = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'expire', 'network_only', false);
 
 		if (!strlen($user['timezone'])) {
 			$timezone = $a->getTimeZone();
@@ -551,7 +550,7 @@ class Account extends BaseSettings
 		/* Installed langs */
 		$lang_choices = DI::l10n()->getAvailableLanguages();
 
-		$notify_type = DI::pConfig()->get(Session::getLocalUser(), 'system', 'notify_type');
+		$notify_type = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'notify_type');
 
 		$passwordRules = DI::l10n()->t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).')
 			. (PASSWORD_DEFAULT === PASSWORD_BCRYPT ? ' ' . DI::l10n()->t('Password length is limited to 72 characters.') : '');
@@ -563,7 +562,7 @@ class Account extends BaseSettings
 
 			'$submit'              => DI::l10n()->t('Save Settings'),
 			'$baseurl'             => DI::baseUrl()->get(true),
-			'$uid'                 => Session::getLocalUser(),
+			'$uid'                 => DI::userSession()->getLocalUserId(),
 			'$form_security_token' => self::getFormSecurityToken('settings'),
 			'$open'                => $this->parameters['open'] ?? 'password',
 
@@ -591,13 +590,13 @@ class Account extends BaseSettings
 			'$profile_in_net_dir' => ['profile_in_netdirectory', DI::l10n()->t('Allow your profile to be searchable globally?'), $profile['net-publish'], DI::l10n()->t("Activate this setting if you want others to easily find and follow you. Your profile will be searchable on remote systems. This setting also determines whether Friendica will inform search engines that your profile should be indexed or not.") . $net_pub_desc],
 			'$hide_friends'       => ['hide-friends', DI::l10n()->t('Hide your contact/friend list from viewers of your profile?'), $profile['hide-friends'], DI::l10n()->t('A list of your contacts is displayed on your profile page. Activate this option to disable the display of your contact list.')],
 			'$hide_wall'          => ['hidewall', DI::l10n()->t('Hide your profile details from anonymous viewers?'), $user['hidewall'], DI::l10n()->t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.')],
-			'$unlisted'           => ['unlisted', DI::l10n()->t('Make public posts unlisted'), DI::pConfig()->get(Session::getLocalUser(), 'system', 'unlisted'), DI::l10n()->t('Your public posts will not appear on the community pages or in search results, nor be sent to relay servers. However they can still appear on public feeds on remote servers.')],
-			'$accessiblephotos'   => ['accessible-photos', DI::l10n()->t('Make all posted pictures accessible'), DI::pConfig()->get(Session::getLocalUser(), 'system', 'accessible-photos'), DI::l10n()->t("This option makes every posted picture accessible via the direct link. This is a workaround for the problem that most other networks can't handle permissions on pictures. Non public pictures still won't be visible for the public on your photo albums though.")],
+			'$unlisted'           => ['unlisted', DI::l10n()->t('Make public posts unlisted'), DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'unlisted'), DI::l10n()->t('Your public posts will not appear on the community pages or in search results, nor be sent to relay servers. However they can still appear on public feeds on remote servers.')],
+			'$accessiblephotos'   => ['accessible-photos', DI::l10n()->t('Make all posted pictures accessible'), DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'accessible-photos'), DI::l10n()->t("This option makes every posted picture accessible via the direct link. This is a workaround for the problem that most other networks can't handle permissions on pictures. Non public pictures still won't be visible for the public on your photo albums though.")],
 			'$blockwall'          => ['blockwall', DI::l10n()->t('Allow friends to post to your profile page?'), (intval($user['blockwall']) ? '0' : '1'), DI::l10n()->t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts')],
 			'$blocktags'          => ['blocktags', DI::l10n()->t('Allow friends to tag your posts?'), (intval($user['blocktags']) ? '0' : '1'), DI::l10n()->t('Your contacts can add additional tags to your posts.')],
 			'$unkmail'            => ['unkmail', DI::l10n()->t('Permit unknown people to send you private mail?'), $unkmail, DI::l10n()->t('Friendica network users may send you private messages even if they are not in your contact list.')],
 			'$cntunkmail'         => ['cntunkmail', DI::l10n()->t('Maximum private messages per day from unknown people:'), $cntunkmail, DI::l10n()->t("(to prevent spam abuse)")],
-			'$group_select'       => Group::displayGroupSelection(Session::getLocalUser(), $user['def_gid']),
+			'$group_select'       => Group::displayGroupSelection(DI::userSession()->getLocalUserId(), $user['def_gid']),
 			'$permissions'        => DI::l10n()->t('Default Post Permissions'),
 			'$aclselect'          => ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId()),
 
@@ -623,8 +622,8 @@ class Account extends BaseSettings
 			'$lbl_notify'                    => DI::l10n()->t('Create a desktop notification when:'),
 			'$notify_tagged'                 => ['notify_tagged', DI::l10n()->t('Someone tagged you'), is_null($notify_type) || $notify_type & UserNotification::TYPE_EXPLICIT_TAGGED, ''],
 			'$notify_direct_comment'         => ['notify_direct_comment', DI::l10n()->t('Someone directly commented on your post'), is_null($notify_type) || $notify_type & (UserNotification::TYPE_IMPLICIT_TAGGED + UserNotification::TYPE_DIRECT_COMMENT + UserNotification::TYPE_DIRECT_THREAD_COMMENT), ''],
-			'$notify_like'                   => ['notify_like', DI::l10n()->t('Someone liked your content'), DI::pConfig()->get(Session::getLocalUser(), 'system', 'notify_like'), DI::l10n()->t('Can only be enabled, when the direct comment notification is enabled.')],
-			'$notify_announce'               => ['notify_announce', DI::l10n()->t('Someone shared your content'), DI::pConfig()->get(Session::getLocalUser(), 'system', 'notify_announce'), DI::l10n()->t('Can only be enabled, when the direct comment notification is enabled.')],
+			'$notify_like'                   => ['notify_like', DI::l10n()->t('Someone liked your content'), DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'notify_like'), DI::l10n()->t('Can only be enabled, when the direct comment notification is enabled.')],
+			'$notify_announce'               => ['notify_announce', DI::l10n()->t('Someone shared your content'), DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'notify_announce'), DI::l10n()->t('Can only be enabled, when the direct comment notification is enabled.')],
 			'$notify_thread_comment'         => ['notify_thread_comment', DI::l10n()->t('Someone commented in your thread'), is_null($notify_type) || $notify_type & UserNotification::TYPE_THREAD_COMMENT, ''],
 			'$notify_comment_participation'  => ['notify_comment_participation', DI::l10n()->t('Someone commented in a thread where you commented'), is_null($notify_type) || $notify_type & UserNotification::TYPE_COMMENT_PARTICIPATION, ''],
 			'$notify_activity_participation' => ['notify_activity_participation', DI::l10n()->t('Someone commented in a thread where you interacted'), is_null($notify_type) || $notify_type & UserNotification::TYPE_ACTIVITY_PARTICIPATION, ''],
@@ -634,19 +633,19 @@ class Account extends BaseSettings
 			'$email_textonly' => [
 				'email_textonly',
 				DI::l10n()->t('Text-only notification emails'),
-				DI::pConfig()->get(Session::getLocalUser(), 'system', 'email_textonly'),
+				DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'email_textonly'),
 				DI::l10n()->t('Send text only notification emails, without the html part')
 			],
 			'$detailed_notif' => [
 				'detailed_notif',
 				DI::l10n()->t('Show detailled notifications'),
-				DI::pConfig()->get(Session::getLocalUser(), 'system', 'detailed_notif'),
+				DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'detailed_notif'),
 				DI::l10n()->t('Per default, notifications are condensed to a single notification per item. When enabled every notification is displayed.')
 			],
 			'$notify_ignored' => [
 				'notify_ignored',
 				DI::l10n()->t('Show notifications of ignored contacts'),
-				DI::pConfig()->get(Session::getLocalUser(), 'system', 'notify_ignored', true),
+				DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'notify_ignored', true),
 				DI::l10n()->t("You don't see posts from ignored contacts. But you still see their comments. This setting controls if you want to still receive regular notifications that are caused by ignored contacts or not.")
 			],
 

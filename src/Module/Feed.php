@@ -22,7 +22,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Protocol\Feed as ProtocolFeed;
@@ -47,7 +46,7 @@ class Feed extends BaseModule
 	protected function rawContent(array $request = [])
 	{
 		$last_update = $this->getRequestValue($request, 'last_update', '');
-		$nocache     = !empty($request['nocache']) && Session::getLocalUser();
+		$nocache     = !empty($request['nocache']) && DI::userSession()->getLocalUserId();
 
 		$type = null;
 		// @TODO: Replace with parameter from router

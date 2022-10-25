@@ -29,7 +29,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\Database;
@@ -259,6 +258,32 @@ class Contact
 	public static function getByUriId(int $uri_id, array $fields = [])
 	{
 		return DBA::selectFirst('contact', $fields, ['uri-id' => $uri_id], ['order' => ['uid']]);
+	}
+
+	/**
+	 * Fetch all remote contacts for a given contact url
+	 *
+	 * @param string $url The URL of the contact
+	 * @param array  $fields The wanted fields
+	 *
+	 * @return array all remote contacts
+	 *
+	 * @throws \Exception
+	 */
+	public static function getVisitorByUrl(string $url, array $fields = ['id', 'uid']): array
+	{
+		$remote = [];
+
+		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($url), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
+		while ($contact = DBA::fetch($remote_contacts)) {
+			if (($contact['uid'] == 0) || Contact\User::isBlocked($contact['id'], $contact['uid'])) {
+				continue;
+			}
+			$remote[$contact['uid']] = $contact['id'];
+		}
+		DBA::close($remote_contacts);
+
+		return $remote;
 	}
 
 	/**
@@ -1103,7 +1128,7 @@ class Contact
 		$photos_link = '';
 
 		if ($uid == 0) {
-			$uid = Session::getLocalUser();
+			$uid = DI::userSession()->getLocalUserId();
 		}
 
 		if (empty($contact['uid']) || ($contact['uid'] != $uid)) {
@@ -1506,10 +1531,10 @@ class Contact
 
 		if ($thread_mode) {
 			$condition = ["((`$contact_field` = ? AND `gravity` = ?) OR (`author-id` = ? AND `gravity` = ? AND `vid` = ? AND `thr-parent-id` = `parent-uri-id`)) AND " . $sql,
-				$cid, Item::GRAVITY_PARENT, $cid, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), Session::getLocalUser()];
+				$cid, Item::GRAVITY_PARENT, $cid, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), DI::userSession()->getLocalUserId()];
 		} else {
 			$condition = ["`$contact_field` = ? AND `gravity` IN (?, ?) AND " . $sql,
-				$cid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, Session::getLocalUser()];
+				$cid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, DI::userSession()->getLocalUserId()];
 		}
 
 		if (!empty($parent)) {
@@ -1527,10 +1552,10 @@ class Contact
 		}
 
 		if (DI::mode()->isMobile()) {
-			$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
+			$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
+			$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -1538,7 +1563,7 @@ class Contact
 
 		$params = ['order' => ['received' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
-		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 			$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		} else {
@@ -1547,27 +1572,27 @@ class Contact
 
 		if ($thread_mode) {
 			$fields = ['uri-id', 'thr-parent-id', 'gravity', 'author-id', 'commented'];
-			$items = Post::toArray(Post::selectForUser(Session::getLocalUser(), $fields, $condition, $params));
+			$items = Post::toArray(Post::selectForUser(DI::userSession()->getLocalUserId(), $fields, $condition, $params));
 
 			if ($pager->getStart() == 0) {
-				$cdata = self::getPublicAndUserContactID($cid, Session::getLocalUser());
+				$cdata = self::getPublicAndUserContactID($cid, DI::userSession()->getLocalUserId());
 				if (!empty($cdata['public'])) {
 					$pinned = Post\Collection::selectToArrayForContact($cdata['public'], Post\Collection::FEATURED, $fields);
 					$items = array_merge($items, $pinned);
 				}
 			}
 
-			$o .= DI::conversation()->create($items, 'contacts', $update, false, 'pinned_commented', Session::getLocalUser());
+			$o .= DI::conversation()->create($items, 'contacts', $update, false, 'pinned_commented', DI::userSession()->getLocalUserId());
 		} else {
 			$fields = array_merge(Item::DISPLAY_FIELDLIST, ['featured']);
-			$items = Post::toArray(Post::selectForUser(Session::getLocalUser(), $fields, $condition, $params));
+			$items = Post::toArray(Post::selectForUser(DI::userSession()->getLocalUserId(), $fields, $condition, $params));
 
 			if ($pager->getStart() == 0) {
-				$cdata = self::getPublicAndUserContactID($cid, Session::getLocalUser());
+				$cdata = self::getPublicAndUserContactID($cid, DI::userSession()->getLocalUserId());
 				if (!empty($cdata['public'])) {
 					$condition = ["`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ? AND `type` = ?)",
 						$cdata['public'], Post\Collection::FEATURED];
-					$pinned = Post::toArray(Post::selectForUser(Session::getLocalUser(), $fields, $condition, $params));
+					$pinned = Post::toArray(Post::selectForUser(DI::userSession()->getLocalUserId(), $fields, $condition, $params));
 					$items = array_merge($pinned, $items);
 				}
 			}
@@ -1576,7 +1601,7 @@ class Contact
 		}
 
 		if (!$update) {
-			if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
+			if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
 				$o .= HTML::scrollLoader();
 			} else {
 				$o .= $pager->renderMinimal(count($items));
@@ -3231,7 +3256,7 @@ class Contact
 	 */
 	public static function magicLink(string $contact_url, string $url = ''): string
 	{
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
 		}
 
@@ -3277,7 +3302,7 @@ class Contact
 	{
 		$destination = $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			return $destination;
 		}
 
@@ -3286,7 +3311,7 @@ class Contact
 			return $url;
 		}
 
-		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'stay_local') && ($url == '')) {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'stay_local') && ($url == '')) {
 			return 'contact/' . $contact['id'] . '/conversations';
 		}
 

@@ -21,19 +21,33 @@
 
 namespace Friendica\Module;
 
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
-use Friendica\Core\Session;
+use Friendica\Core\L10n;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Util;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class ParseUrl extends BaseModule
 {
+	/** @var IHandleUserSessions */
+	protected $userSession;
+
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IHandleUserSessions $userSession, $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->userSession = $userSession;
+	}
+
 	protected function rawContent(array $request = [])
 	{
-		if (!Session::isAuthenticated()) {
+		if (!$this->userSession->isAuthenticated()) {
 			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 

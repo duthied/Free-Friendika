@@ -23,7 +23,6 @@ namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\JsonLD;
@@ -42,7 +41,7 @@ class ActivityPubConversion extends BaseModule
 			try {
 				$source = json_decode($_REQUEST['source'], true);
 				$trust_source = true;
-				$uid = Session::getLocalUser();
+				$uid = DI::userSession()->getLocalUserId();
 				$push = false;
 
 				if (!$source) {
@@ -127,7 +126,7 @@ class ActivityPubConversion extends BaseModule
 				];
 			} catch (\Throwable $e) {
 				$results[] = [
-					'title'   => DI::l10n()->t('Error'),
+					'title'   => DI::l10n()->tt('Error', 'Errors', 1),
 					'content' => $e->getMessage(),
 				];
 			}

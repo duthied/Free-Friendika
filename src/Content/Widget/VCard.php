@@ -26,7 +26,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -45,7 +44,7 @@ class VCard
 	 * @template widget/vcard.tpl
 	 * @return string
 	 */
-	public static function getHTML(array $contact)
+	public static function getHTML(array $contact): string
 	{
 		if (!isset($contact['network']) || !isset($contact['id'])) {
 			Logger::warning('Incomplete contact', ['contact' => $contact ?? [], 'callstack' => System::callstack(20)]);
@@ -65,13 +64,13 @@ class VCard
 
 		$photo   = Contact::getPhoto($contact);
 
-		if (Session::getLocalUser()) {
+		if (DI::userSession()->getLocalUserId()) {
 			if ($contact['uid']) {
 				$id      = $contact['id'];
 				$rel     = $contact['rel'];
 				$pending = $contact['pending'];
 			} else {
-				$pcontact = Contact::selectFirst([], ['uid' => Session::getLocalUser(), 'uri-id' => $contact['uri-id']]);
+				$pcontact = Contact::selectFirst([], ['uid' => DI::userSession()->getLocalUserId(), 'uri-id' => $contact['uri-id']]);
 
 				$id      = $pcontact['id'] ?? 0;
 				$rel     = $pcontact['rel'] ?? Contact::NOTHING;

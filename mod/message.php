@@ -25,7 +25,6 @@ use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -40,7 +39,7 @@ function message_init(App $a)
 	$tabs = '';
 
 	if (DI::args()->getArgc() > 1 && is_numeric(DI::args()->getArgv()[1])) {
-		$tabs = render_messages(get_messages(Session::getLocalUser(), 0, 5), 'mail_list.tpl');
+		$tabs = render_messages(get_messages(DI::userSession()->getLocalUserId(), 0, 5), 'mail_list.tpl');
 	}
 
 	$new = [
@@ -66,7 +65,7 @@ function message_init(App $a)
 
 function message_post(App $a)
 {
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
@@ -111,7 +110,7 @@ function message_content(App $a)
 	$o = '';
 	Nav::setSelected('messages');
 
-	if (!Session::getLocalUser()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
@@ -145,28 +144,28 @@ function message_content(App $a)
 
 		$cmd = DI::args()->getArgv()[1];
 		if ($cmd === 'drop') {
-			$message = DBA::selectFirst('mail', ['convid'], ['id' => DI::args()->getArgv()[2], 'uid' => Session::getLocalUser()]);
+			$message = DBA::selectFirst('mail', ['convid'], ['id' => DI::args()->getArgv()[2], 'uid' => DI::userSession()->getLocalUserId()]);
 			if(!DBA::isResult($message)){
 				DI::sysmsg()->addNotice(DI::l10n()->t('Conversation not found.'));
 				DI::baseUrl()->redirect('message');
 			}
 
-			if (!DBA::delete('mail', ['id' => DI::args()->getArgv()[2], 'uid' => Session::getLocalUser()])) {
+			if (!DBA::delete('mail', ['id' => DI::args()->getArgv()[2], 'uid' => DI::userSession()->getLocalUserId()])) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Message was not deleted.'));
 			}
 
-			$conversation = DBA::selectFirst('mail', ['id'], ['convid' => $message['convid'], 'uid' => Session::getLocalUser()]);
+			$conversation = DBA::selectFirst('mail', ['id'], ['convid' => $message['convid'], 'uid' => DI::userSession()->getLocalUserId()]);
 			if(!DBA::isResult($conversation)){
 				DI::baseUrl()->redirect('message');
 			}
 
 			DI::baseUrl()->redirect('message/' . $conversation['id'] );
 		} else {
-			$parentmail = DBA::selectFirst('mail', ['parent-uri'], ['id' => DI::args()->getArgv()[2], 'uid' => Session::getLocalUser()]);
+			$parentmail = DBA::selectFirst('mail', ['parent-uri'], ['id' => DI::args()->getArgv()[2], 'uid' => DI::userSession()->getLocalUserId()]);
 			if (DBA::isResult($parentmail)) {
 				$parent = $parentmail['parent-uri'];
 
-				if (!DBA::delete('mail', ['parent-uri' => $parent, 'uid' => Session::getLocalUser()])) {
+				if (!DBA::delete('mail', ['parent-uri' => $parent, 'uid' => DI::userSession()->getLocalUserId()])) {
 					DI::sysmsg()->addNotice(DI::l10n()->t('Conversation was not removed.'));
 				}
 			}
@@ -216,11 +215,11 @@ function message_content(App $a)
 
 		$o .= $header;
 
-		$total = DBA::count('mail', ['uid' => Session::getLocalUser()], ['distinct' => true, 'expression' => 'parent-uri']);
+		$total = DBA::count('mail', ['uid' => DI::userSession()->getLocalUserId()], ['distinct' => true, 'expression' => 'parent-uri']);
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
-		$r = get_messages(Session::getLocalUser(), $pager->getStart(), $pager->getItemsPerPage());
+		$r = get_messages(DI::userSession()->getLocalUserId(), $pager->getStart(), $pager->getItemsPerPage());
 
 		if (!DBA::isResult($r)) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('No messages.'));
@@ -244,14 +243,14 @@ function message_content(App $a)
 			LEFT JOIN `contact` ON `mail`.`contact-id` = `contact`.`id`
 			WHERE `mail`.`uid` = ? AND `mail`.`id` = ?
 			LIMIT 1",
-			Session::getLocalUser(),
+			DI::userSession()->getLocalUserId(),
 			DI::args()->getArgv()[1]
 		);
 		if (DBA::isResult($message)) {
 			$contact_id = $message['contact-id'];
 
 			$params = [
-				Session::getLocalUser(),
+				DI::userSession()->getLocalUserId(),
 				$message['parent-uri']
 			];
 
@@ -273,7 +272,7 @@ function message_content(App $a)
 
 			$messages = DBA::toArray($messages_stmt);
 
-			DBA::update('mail', ['seen' => 1], ['parent-uri' => $message['parent-uri'], 'uid' => Session::getLocalUser()]);
+			DBA::update('mail', ['seen' => 1], ['parent-uri' => $message['parent-uri'], 'uid' => DI::userSession()->getLocalUserId()]);
 		} else {
 			$messages = false;
 		}

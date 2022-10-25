@@ -27,7 +27,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Model\Tag;
 use Friendica\Core\Worker;
@@ -1066,7 +1065,7 @@ class Item
 			}
 
 			// We have to tell the hooks who we are - this really should be improved
-			if (!Session::getLocalUser()) {
+			if (!DI::userSession()->getLocalUserId()) {
 				$_SESSION['authenticated'] = true;
 				$_SESSION['uid'] = $uid;
 				$dummy_session = true;
@@ -2775,8 +2774,8 @@ class Item
 	 */
 	public static function getPermissionsConditionArrayByUserId(int $owner_id): array
 	{
-		$local_user = Session::getLocalUser();
-		$remote_user = Session::getRemoteContactID($owner_id);
+		$local_user = DI::userSession()->getLocalUserId();
+		$remote_user = DI::userSession()->getRemoteContactID($owner_id);
 
 		// default permissions - anonymous user
 		$condition = ["`private` != ?", self::PRIVATE];
@@ -2807,8 +2806,8 @@ class Item
 	 */
 	public static function getPermissionsSQLByUserId(int $owner_id, string $table = ''): string
 	{
-		$local_user = Session::getLocalUser();
-		$remote_user = Session::getRemoteContactID($owner_id);
+		$local_user = DI::userSession()->getLocalUserId();
+		$remote_user = DI::userSession()->getRemoteContactID($owner_id);
 
 		if (!empty($table)) {
 			$table = DBA::quoteIdentifier($table) . '.';
@@ -3006,8 +3005,8 @@ class Item
 
 		// Compile eventual content filter reasons
 		$filter_reasons = [];
-		if (!$is_preview && Session::getPublicContact() != $item['author-id']) {
-			if (!empty($item['content-warning']) && (!Session::getLocalUser() || !DI::pConfig()->get(Session::getLocalUser(), 'system', 'disable_cw', false))) {
+		if (!$is_preview && DI::userSession()->getPublicContactId() != $item['author-id']) {
+			if (!empty($item['content-warning']) && (!DI::userSession()->getLocalUserId() || !DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'disable_cw', false))) {
 				$filter_reasons[] = DI::l10n()->t('Content warning: %s', $item['content-warning']);
 			}
 
@@ -3443,7 +3442,7 @@ class Item
 			$plink = $item['uri'];
 		}
 
-		if (Session::getLocalUser()) {
+		if (DI::userSession()->getLocalUserId()) {
 			$ret = [
 				'href' => "display/" . $item['guid'],
 				'orig' => "display/" . $item['guid'],

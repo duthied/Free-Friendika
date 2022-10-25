@@ -27,7 +27,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -53,12 +53,15 @@ class Item
 	private $l10n;
 	/** @var Profiler */
 	private $profiler;
+	/** @var IHandleUserSessions */
+	private $userSession;
 
-	public function __construct(Profiler $profiler, Activity $activity, L10n $l10n)
+	public function __construct(Profiler $profiler, Activity $activity, L10n $l10n, IHandleUserSessions $userSession)
 	{
-		$this->profiler = $profiler;
-		$this->activity = $activity;
-		$this->l10n   = $l10n;
+		$this->profiler    = $profiler;
+		$this->activity    = $activity;
+		$this->l10n        = $l10n;
+		$this->userSession = $userSession;
 	}
 
 	/**
@@ -110,7 +113,7 @@ class Item
 			$categories[] = [
 				'name' => $savedFolderName,
 				'url' => $url,
-				'removeurl' => Session::getLocalUser() == $uid ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : '',
+				'removeurl' => $this->userSession->getLocalUserId() == $uid ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : '',
 				'first' => $first,
 				'last' => false
 			];
@@ -121,12 +124,12 @@ class Item
 			$categories[count($categories) - 1]['last'] = true;
 		}
 
-		if (Session::getLocalUser() == $uid) {
+		if ($this->userSession->getLocalUserId() == $uid) {
 			foreach (Post\Category::getArrayByURIId($item['uri-id'], $uid, Post\Category::FILE) as $savedFolderName) {
 				$folders[] = [
 					'name' => $savedFolderName,
 					'url' => "#",
-					'removeurl' => Session::getLocalUser() == $uid ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : '',
+					'removeurl' => $this->userSession->getLocalUserId() == $uid ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : '',
 					'first' => $first,
 					'last' => false
 				];
@@ -332,7 +335,7 @@ class Item
 		$sub_link = $contact_url = $pm_url = $status_link = '';
 		$photos_link = $posts_link = $block_link = $ignore_link = '';
 
-		if (Session::getLocalUser() && Session::getLocalUser() == $item['uid'] && $item['gravity'] == ItemModel::GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
+		if ($this->userSession->getLocalUserId() && $this->userSession->getLocalUserId() == $item['uid'] && $item['gravity'] == ItemModel::GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
 			$sub_link = 'javascript:doFollowThread(' . $item['id'] . '); return false;';
 		}
 
@@ -349,7 +352,7 @@ class Item
 		$pcid = $item['author-id'];
 		$network = '';
 		$rel = 0;
-		$condition = ['uid' => Session::getLocalUser(), 'uri-id' => $item['author-uri-id']];
+		$condition = ['uid' => $this->userSession->getLocalUserId(), 'uri-id' => $item['author-uri-id']];
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'rel'], $condition);
 		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
@@ -379,7 +382,7 @@ class Item
 			}
 		}
 
-		if (Session::getLocalUser()) {
+		if ($this->userSession->getLocalUserId()) {
 			$menu = [
 				$this->l10n->t('Follow Thread') => $sub_link,
 				$this->l10n->t('View Status') => $status_link,
@@ -440,7 +443,7 @@ class Item
 		return (!($this->activity->match($item['verb'], Activity::FOLLOW) &&
 			$item['object-type'] === Activity\ObjectType::NOTE &&
 			empty($item['self']) &&
-			$item['uid'] == Session::getLocalUser())
+			$item['uid'] == $this->userSession->getLocalUserId())
 		);
 	}
 

@@ -27,7 +27,6 @@ use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -42,7 +41,7 @@ use Friendica\Util\Temporal;
 
 function cal_init(App $a)
 {
-	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
+	if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 	}
 
@@ -112,11 +111,11 @@ function cal_content(App $a)
 	$owner_uid = intval($owner['uid']);
 	$nick = $owner['nickname'];
 
-	$contact_id = Session::getRemoteContactID($owner['uid']);
+	$contact_id = DI::userSession()->getRemoteContactID($owner['uid']);
 
 	$remote_contact = $contact_id && DBA::exists('contact', ['id' => $contact_id, 'uid' => $owner['uid']]);
 
-	$is_owner = Session::getLocalUser() == $owner['uid'];
+	$is_owner = DI::userSession()->getLocalUserId() == $owner['uid'];
 
 	if ($owner['hidewall'] && !$is_owner && !$remote_contact) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Access to this profile has been restricted.'));
@@ -278,7 +277,7 @@ function cal_content(App $a)
 
 			// If it the own calendar return to the events page
 			// otherwise to the profile calendar page
-			if (Session::getLocalUser() === $owner_uid) {
+			if (DI::userSession()->getLocalUserId() === $owner_uid) {
 				$return_path = "events";
 			} else {
 				$return_path = "cal/" . $nick;

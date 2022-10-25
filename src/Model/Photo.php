@@ -23,7 +23,6 @@ namespace Friendica\Model;
 
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -639,10 +638,10 @@ class Photo
 	{
 		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
-		$avatar_type = (Session::getLocalUser() && (Session::getLocalUser() == $uid)) ? self::USER_AVATAR : self::DEFAULT;
-		$banner_type = (Session::getLocalUser() && (Session::getLocalUser() == $uid)) ? self::USER_BANNER : self::DEFAULT;
+		$avatar_type = (DI::userSession()->getLocalUserId() && (DI::userSession()->getLocalUserId() == $uid)) ? self::USER_AVATAR : self::DEFAULT;
+		$banner_type = (DI::userSession()->getLocalUserId() && (DI::userSession()->getLocalUserId() == $uid)) ? self::USER_BANNER : self::DEFAULT;
 
-		$key = 'photo_albums:' . $uid . ':' . Session::getLocalUser() . ':' . Session::getRemoteUser();
+		$key = 'photo_albums:' . $uid . ':' . DI::userSession()->getLocalUserId() . ':' . DI::userSession()->getRemoteUserId();
 		$albums = DI::cache()->get($key);
 
 		if (is_null($albums) || $update) {
@@ -681,7 +680,7 @@ class Photo
 	 */
 	public static function clearAlbumCache(int $uid)
 	{
-		$key = 'photo_albums:' . $uid . ':' . Session::getLocalUser() . ':' . Session::getRemoteUser();
+		$key = 'photo_albums:' . $uid . ':' . DI::userSession()->getLocalUserId() . ':' . DI::userSession()->getRemoteUserId();
 		DI::cache()->set($key, null, Duration::DAY);
 	}
 

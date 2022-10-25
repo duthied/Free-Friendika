@@ -31,7 +31,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -61,15 +60,15 @@ class Index extends BaseSearch
 	{
 		$search = (!empty($_GET['q']) ? trim(rawurldecode($_GET['q'])) : '');
 
-		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
 		}
 
-		if (DI::config()->get('system', 'local_search') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'local_search') && !DI::userSession()->isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a search.'));
 		}
 
-		if (DI::config()->get('system', 'permit_crawling') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'permit_crawling') && !DI::userSession()->isAuthenticated()) {
 			// Default values:
 			// 10 requests are "free", after the 11th only a call per minute is allowed
 
@@ -94,7 +93,7 @@ class Index extends BaseSearch
 			}
 		}
 
-		if (Session::getLocalUser()) {
+		if (DI::userSession()->getLocalUserId()) {
 			DI::page()['aside'] .= Widget\SavedSearches::getHTML(Search::getSearchPath($search), $search);
 		}
 
@@ -161,10 +160,10 @@ class Index extends BaseSearch
 		// No items will be shown if the member has a blocked profile wall.
 
 		if (DI::mode()->isMobile()) {
-			$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_mobile_network',
+			$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemsPerPage = DI::pConfig()->get(Session::getLocalUser(), 'system', 'itemspage_network',
+			$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -174,19 +173,19 @@ class Index extends BaseSearch
 
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);
-			$uriids = Tag::getURIIdListByTag($search, Session::getLocalUser(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
-			$count = Tag::countByTag($search, Session::getLocalUser());
+			$uriids = Tag::getURIIdListByTag($search, DI::userSession()->getLocalUserId(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
+			$count = Tag::countByTag($search, DI::userSession()->getLocalUserId());
 		} else {
 			Logger::info('Start fulltext search.', ['q' => $search]);
-			$uriids = Post\Content::getURIIdListBySearch($search, Session::getLocalUser(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
-			$count = Post\Content::countBySearch($search, Session::getLocalUser());
+			$uriids = Post\Content::getURIIdListBySearch($search, DI::userSession()->getLocalUserId(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
+			$count = Post\Content::countBySearch($search, DI::userSession()->getLocalUserId());
 		}
 
 		if (!empty($uriids)) {
-			$condition = ["(`uid` = ? OR (`uid` = ? AND NOT `global`))", 0, Session::getLocalUser()];
+			$condition = ["(`uid` = ? OR (`uid` = ? AND NOT `global`))", 0, DI::userSession()->getLocalUserId()];
 			$condition = DBA::mergeConditions($condition, ['uri-id' => $uriids]);
 			$params = ['order' => ['id' => true]];
-			$items = Post::toArray(Post::selectForUser(Session::getLocalUser(), Item::DISPLAY_FIELDLIST, $condition, $params));
+			$items = Post::toArray(Post::selectForUser(DI::userSession()->getLocalUserId(), Item::DISPLAY_FIELDLIST, $condition, $params));
 		}
 
 		if (empty($items)) {
@@ -196,7 +195,7 @@ class Index extends BaseSearch
 			return $o;
 		}
 
-		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		}
@@ -213,9 +212,9 @@ class Index extends BaseSearch
 
 		Logger::info('Start Conversation.', ['q' => $search]);
 
-		$o .= DI::conversation()->create($items, 'search', false, false, 'commented', Session::getLocalUser());
+		$o .= DI::conversation()->create($items, 'search', false, false, 'commented', DI::userSession()->getLocalUserId());
 
-		if (DI::pConfig()->get(Session::getLocalUser(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
 		} else {
 			$o .= $pager->renderMinimal($count);
@@ -254,9 +253,9 @@ class Index extends BaseSearch
 			$search = $matches[1];
 		}
 
-		if (Session::getLocalUser()) {
+		if (DI::userSession()->getLocalUserId()) {
 			// User-specific contact URL/address search
-			$contact_id = Contact::getIdForURL($search, Session::getLocalUser());
+			$contact_id = Contact::getIdForURL($search, DI::userSession()->getLocalUserId());
 			if (!$contact_id) {
 				// User-specific contact URL/address search and probe
 				$contact_id = Contact::getIdForURL($search);
@@ -293,9 +292,9 @@ class Index extends BaseSearch
 
 		$search = Network::convertToIdn($search);
 
-		if (Session::getLocalUser()) {
+		if (DI::userSession()->getLocalUserId()) {
 			// Post URL search
-			$item_id = Item::fetchByLink($search, Session::getLocalUser());
+			$item_id = Item::fetchByLink($search, DI::userSession()->getLocalUserId());
 			if (!$item_id) {
 				// If the user-specific search failed, we search and probe a public post
 				$item_id = Item::fetchByLink($search);

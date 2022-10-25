@@ -27,7 +27,6 @@
 
 use Friendica\App;
 use Friendica\Core\Logger;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -76,10 +75,10 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$page_owner_nick  = $user['nickname'];
 	$community_page   = (($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
-	if ((Session::getLocalUser()) && (Session::getLocalUser() == $page_owner_uid)) {
+	if ((DI::userSession()->getLocalUserId()) && (DI::userSession()->getLocalUserId() == $page_owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
-		$contact_id = Session::getRemoteContactID($page_owner_uid);
+	} elseif ($community_page && !empty(DI::userSession()->getRemoteContactID($page_owner_uid))) {
+		$contact_id = DI::userSession()->getRemoteContactID($page_owner_uid);
 		$can_post = DBA::exists('contact', ['blocked' => false, 'pending' => false, 'id' => $contact_id, 'uid' => $page_owner_uid]);
 		$visitor = $contact_id;
 	}

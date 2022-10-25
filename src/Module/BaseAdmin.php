@@ -24,7 +24,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 
@@ -50,7 +49,7 @@ abstract class BaseAdmin extends BaseModule
 	 */
 	public static function checkAdminAccess(bool $interactive = false)
 	{
-		if (!Session::getLocalUser()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			if ($interactive) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Please login to continue.'));
 				DI::session()->set('return_path', DI::args()->getQueryString());
@@ -64,7 +63,7 @@ abstract class BaseAdmin extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('You don\'t have access to administration pages.'));
 		}
 
-		if (!empty($_SESSION['submanage'])) {
+		if (DI::userSession()->getSubManagedUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Submanaged account can\'t access the administration pages. Please log back in as the main account.'));
 		}
 	}

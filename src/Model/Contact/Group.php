@@ -21,8 +21,8 @@
 
 namespace Friendica\Model\Contact;
 
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 
 /**
@@ -54,7 +54,7 @@ class Group
 				AND NOT `contact`.`pending`
 				ORDER BY `contact`.`name` ASC',
 				$gid,
-				Session::getLocalUser()
+				DI::userSession()->getLocalUserId()
 			);
 
 			if (DBA::isResult($stmt)) {
