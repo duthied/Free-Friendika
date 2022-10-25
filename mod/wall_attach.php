@@ -20,6 +20,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -27,28 +28,30 @@ use Friendica\Model\Attach;
 use Friendica\Model\User;
 use Friendica\Util\Strings;
 
-function wall_attach_post(App $a) {
-
-	$r_json = (!empty($_GET['response']) && $_GET['response']=='json');
+function wall_attach_post(App $a)
+{
+	$isJson = (!empty($_GET['response']) && $_GET['response'] == 'json');
 
 	if (DI::args()->getArgc() > 1) {
-		$nick = DI::args()->getArgv()[1];
+		$nick  = DI::args()->getArgv()[1];
 		$owner = User::getOwnerDataByNick($nick);
 		if (!DBA::isResult($owner)) {
-			if ($r_json) {
+			Logger::warning('owner is not a valid record:', ['owner' => $owner, 'nick' => $nick]);
+			if ($isJson) {
 				System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 			}
 			return;
 		}
 	} else {
-		if ($r_json) {
+		Logger::warning('Argument count is zero or one (invalid)');
+		if ($isJson) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 
 		return;
 	}
 
-	$can_post  = false;
+	$can_post = false;
 
 	$page_owner_uid = $owner['uid'];
 	$page_owner_cid = $owner['id'];
@@ -58,11 +61,12 @@ function wall_attach_post(App $a) {
 		$can_post = true;
 	} elseif ($community_page && !empty(DI::userSession()->getRemoteContactID($page_owner_uid))) {
 		$contact_id = DI::userSession()->getRemoteContactID($page_owner_uid);
-		$can_post = DBA::exists('contact', ['blocked' => false, 'pending' => false, 'id' => $contact_id, 'uid' => $page_owner_uid]);
+		$can_post   = DBA::exists('contact', ['blocked' => false, 'pending' => false, 'id' => $contact_id, 'uid' => $page_owner_uid]);
 	}
 
 	if (!$can_post) {
-		if ($r_json) {
+		Logger::warning('User does not have required permissions', ['contact_id' => $contact_id, 'page_owner_uid' => $page_owner_uid]);
+		if ($isJson) {
 			System::jsonExit(['error' => DI::l10n()->t('Permission denied.')]);
 		}
 		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
@@ -70,28 +74,28 @@ function wall_attach_post(App $a) {
 	}
 
 	if (empty($_FILES['userfile'])) {
-		if ($r_json) {
+		Logger::warning('No file uploaded (empty userfile)');
+		if ($isJson) {
 			System::jsonExit(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 		System::exit();
 	}
 
-	$src      = $_FILES['userfile']['tmp_name'];
-	$filename = basename($_FILES['userfile']['name']);
-	$filesize = intval($_FILES['userfile']['size']);
+	$tempFileName = $_FILES['userfile']['tmp_name'];
+	$fileName     = basename($_FILES['userfile']['name']);
+	$fileSize     = intval($_FILES['userfile']['size']);
+	$maxFileSize  = DI::config()->get('system', 'maxfilesize');
 
-	$maxfilesize = DI::config()->get('system','maxfilesize');
-
-	/* Found html code written in text field of form,
-	 * when trying to upload a file with filesize
-	 * greater than upload_max_filesize. Cause is unknown.
+	/*
+	 * Found html code written in text field of form, when trying to upload a
+	 * file with filesize greater than upload_max_filesize. Cause is unknown.
 	 * Then Filesize gets <= 0.
 	 */
-
-	if ($filesize <= 0) {
-		$msg = DI::l10n()->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . '<br />' . (DI::l10n()->t('Or - did you try to upload an empty file?'));
-		@unlink($src);
-		if ($r_json) {
+	if ($fileSize <= 0) {
+		$msg = DI::l10n()->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . '<br />' . DI::l10n()->t('Or - did you try to upload an empty file?');
+		Logger::warning($msg, ['fileSize' => $fileSize]);
+		@unlink($tempFileName);
+		if ($isJson) {
 			System::jsonExit(['error' => $msg]);
 		} else {
 			DI::sysmsg()->addNotice($msg);
@@ -99,10 +103,11 @@ function wall_attach_post(App $a) {
 		System::exit();
 	}
 
-	if ($maxfilesize && $filesize > $maxfilesize) {
-		$msg = DI::l10n()->t('File exceeds size limit of %s', Strings::formatBytes($maxfilesize));
-		@unlink($src);
-		if ($r_json) {
+	if ($maxFileSize && $fileSize > $maxFileSize) {
+		$msg = DI::l10n()->t('File exceeds size limit of %s', Strings::formatBytes($maxFileSize));
+		Logger::warning($msg, ['fileSize' => $fileSize]);
+		@unlink($tempFileName);
+		if ($isJson) {
 			System::jsonExit(['error' => $msg]);
 		} else {
 			echo $msg . '<br />';
@@ -110,13 +115,14 @@ function wall_attach_post(App $a) {
 		System::exit();
 	}
 
-	$newid = Attach::storeFile($src, $page_owner_uid, $filename, '<' . $page_owner_cid . '>');
+	$newid = Attach::storeFile($tempFileName, $page_owner_uid, $fileName, '<' . $page_owner_cid . '>');
 
-	@unlink($src);
+	@unlink($tempFileName);
 
 	if ($newid === false) {
-		$msg =  DI::l10n()->t('File upload failed.');
-		if ($r_json) {
+		$msg = DI::l10n()->t('File upload failed.');
+		Logger::warning($msg);
+		if ($isJson) {
 			System::jsonExit(['error' => $msg]);
 		} else {
 			echo $msg . '<br />';
@@ -124,7 +130,7 @@ function wall_attach_post(App $a) {
 		System::exit();
 	}
 
-	if ($r_json) {
+	if ($isJson) {
 		System::jsonExit(['ok' => true, 'id' => $newid]);
 	}
 
