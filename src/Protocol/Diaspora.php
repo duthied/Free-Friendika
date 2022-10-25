@@ -3171,15 +3171,15 @@ class Diaspora
 	}
 
 	/**
-	 * Checks a message body if it is a reshare
+	 * Fetch reshare details
 	 *
 	 * @param array $item The message body that is to be check
 	 *
-	 * @return array Reshare details or "false" if no reshare
+	 * @return array Reshare details (empty if the item is no reshare)
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isReshare(array $item): array
+	public static function getReshareDetails(array $item): array
 	{
 		$reshared = Item::getShareArray($item);
 		if (empty($reshared)) {
@@ -3298,7 +3298,7 @@ class Diaspora
 		$edited = DateTimeFormat::utc($item['edited'] ?? $item['created'], DateTimeFormat::ATOM);
 
 		// Detect a share element and do a reshare
-		if (($item['private'] != Item::PRIVATE) && ($ret = self::isReshare($item))) {
+		if (($item['private'] != Item::PRIVATE) && ($ret = self::getReshareDetails($item))) {
 			$message = [
 				'author'                => $myaddr,
 				'guid'                  => $item['guid'],
