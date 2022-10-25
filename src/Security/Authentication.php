@@ -26,7 +26,7 @@ use Friendica\App;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Hook;
-use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
@@ -59,7 +59,7 @@ class Authentication
 	private $logger;
 	/** @var User\Cookie */
 	private $cookie;
-	/** @var IHandleSessions */
+	/** @var IHandleUserSessions */
 	private $session;
 	/** @var IManagePersonalConfigValues */
 	private $pConfig;
@@ -88,11 +88,11 @@ class Authentication
 	 * @param Database                    $dba
 	 * @param LoggerInterface             $logger
 	 * @param User\Cookie                 $cookie
-	 * @param IHandleSessions             $session
+	 * @param IHandleUserSessions         $session
 	 * @param IManagePersonalConfigValues $pConfig
 	 * @param App\Request                 $request
 	 */
-	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, IHandleSessions $session, IManagePersonalConfigValues $pConfig, App\Request $request)
+	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, IHandleUserSessions $session, IManagePersonalConfigValues $pConfig, App\Request $request)
 	{
 		$this->config        = $config;
 		$this->mode          = $mode;
@@ -330,9 +330,10 @@ class Authentication
 			'my_url'        => $this->baseUrl->get() . '/profile/' . $user_record['nickname'],
 			'my_address'    => $user_record['nickname'] . '@' . substr($this->baseUrl->get(), strpos($this->baseUrl->get(), '://') + 3),
 			'addr'          => $this->remoteAddress,
+			'nickname'      => $user_record['nickname'],
 		]);
 
-		DI::userSession()->setVisitorsContacts();
+		$this->session->setVisitorsContacts();
 
 		$member_since = strtotime($user_record['register_date']);
 		$this->session->set('new_member', time() < ($member_since + (60 * 60 * 24 * 14)));

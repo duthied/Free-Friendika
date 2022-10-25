@@ -25,7 +25,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\Response;
@@ -41,14 +41,14 @@ use Psr\Log\LoggerInterface;
  */
 class Recovery extends BaseModule
 {
-	/** @var IHandleSessions */
+	/** @var IHandleUserSessions */
 	protected $session;
 	/** @var App */
 	protected $app;
 	/** @var Authentication */
 	protected $auth;
 
-	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Authentication $auth, IHandleSessions $session, array $server, array $parameters = [])
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Authentication $auth, IHandleUserSessions $session, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -59,7 +59,7 @@ class Recovery extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return;
 		}
 
@@ -68,10 +68,10 @@ class Recovery extends BaseModule
 
 			$recovery_code = $_POST['recovery_code'] ?? '';
 
-			if (RecoveryCode::existsForUser(DI::userSession()->getLocalUserId(), $recovery_code)) {
-				RecoveryCode::markUsedForUser(DI::userSession()->getLocalUserId(), $recovery_code);
+			if (RecoveryCode::existsForUser($this->session->getLocalUserId(), $recovery_code)) {
+				RecoveryCode::markUsedForUser($this->session->getLocalUserId(), $recovery_code);
 				$this->session->set('2fa', true);
-				DI::sysmsg()->addInfo($this->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(DI::userSession()->getLocalUserId())));
+				DI::sysmsg()->addInfo($this->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser($this->session->getLocalUserId())));
 
 				$this->auth->setForUser($this->app, User::getById($this->app->getLoggedInUserId()), true, true);
 
@@ -84,7 +84,7 @@ class Recovery extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			$this->baseUrl->redirect();
 		}
 

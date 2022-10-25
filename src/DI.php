@@ -22,6 +22,7 @@
 namespace Friendica;
 
 use Dice\Dice;
+use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Navigation\SystemMessages;
 use Psr\Log\LoggerInterface;
@@ -212,10 +213,7 @@ abstract class DI
 		return self::$dice->create(Core\Worker\Repository\Process::class);
 	}
 
-	/**
-	 * @return Core\Session\Capability\IHandleSessions
-	 */
-	public static function session()
+	public static function session(): IHandleSessions
 	{
 		return self::$dice->create(Core\Session\Capability\IHandleSessions::class);
 	}
