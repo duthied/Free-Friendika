@@ -500,7 +500,7 @@ class Conversation
 
 			if (!$update) {
 				$live_update_div = '<div id="live-display"></div>' . "\r\n"
-					. "<script> var profile_uid = " . $this->session->getLocalUserId() ?? 0 . ";"
+					. "<script> var profile_uid = " . ($this->session->getLocalUserId() ?: 0) . ";"
 					. "</script>";
 			}
 		} elseif ($mode === 'community') {

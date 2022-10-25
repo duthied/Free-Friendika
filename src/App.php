@@ -334,9 +334,9 @@ class App
 	 * @param L10n                        $l10n     The translator instance
 	 * @param App\Arguments               $args     The Friendica Arguments of the call
 	 * @param IManagePersonalConfigValues $pConfig  Personal configuration
-	 * @param IHandleUserSessions         $sessions The (User)Session handler
+	 * @param IHandleUserSessions         $session  The (User)Session handler
 	 */
-	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig, IHandleUserSessions $sessions)
+	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig, IHandleUserSessions $session)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -347,7 +347,7 @@ class App
 		$this->l10n     = $l10n;
 		$this->args     = $args;
 		$this->pConfig  = $pConfig;
-		$this->session  = $sessions;
+		$this->session  = $session;
 
 		$this->load();
 	}

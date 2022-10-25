@@ -44,8 +44,7 @@ class Logout extends BaseModule
 	protected $cache;
 	/** @var Cookie */
 	protected $cookie;
-	/** @var IHandleUserSessions
-	 */
+	/** @var IHandleUserSessions */
 	protected $session;
 
 	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, ICanCache $cache, Cookie $cookie, IHandleUserSessions $session, array $server, array $parameters = [])
