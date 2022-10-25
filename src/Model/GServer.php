@@ -1325,7 +1325,7 @@ class GServer
 	private static function validHostMeta(string $url): bool
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = DI::httpClient()->get($url . '/.well-known/host-meta', HttpClientAccept::XRD_XML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
+		$curlResult = DI::httpClient()->get($url . Probe::HOST_META, HttpClientAccept::XRD_XML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}
