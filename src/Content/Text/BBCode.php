@@ -1023,6 +1023,7 @@ class BBCode
 	{
 		DI::profiler()->startRecording('rendering');
 		if (preg_match('~(.*?)\[share](.*)\[/share]~ism', $text, $matches)) {
+			DI::profiler()->stopRecording();
 			return [
 				'author'     => '',
 				'profile'    => '',
@@ -1093,12 +1094,7 @@ class BBCode
 	 */
 	public static function removeSharedData(string $body): string
 	{
-		return BBCode::convertShare(
-			$body,
-			function (array $attributes) {
-				return '';
-			}
-		);
+		return preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
 	}
 
 	/**

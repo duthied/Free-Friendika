@@ -178,7 +178,7 @@ class Status extends BaseFactory
 
 		$friendica_activities = $this->activities->createFromUriId($item['uri-id'], $uid);
 
-		$shared = BBCode::fetchShareAttributes($item['body']);
+		$shared = Item::getShareArray($item);
 		if (!empty($shared['guid'])) {
 			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
 

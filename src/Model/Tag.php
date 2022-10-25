@@ -311,10 +311,8 @@ class Tag
 		// Only remove the shared data from "real" reshares
 		$shared = BBCode::fetchShareAttributes($body);
 		if (!empty($shared['guid'])) {
-			if (preg_match("/\s*\[share .*?\](.*?)\[\/share\]\s*/ism",  $body, $matches)) {
-				$share_body = $matches[1];
-			}
-			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+			$share_body = $shared['shared'];
+			$body = BBCode::removeSharedData($body);
 		}
 
 		foreach (self::getFromBody($body, $tags) as $tag) {

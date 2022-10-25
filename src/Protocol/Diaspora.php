@@ -777,36 +777,6 @@ class Diaspora
 	}
 
 	/**
-	 * get a handle (user@domain.tld) from a given contact id
-	 *
-	 * @param int $contact_id  The id in the contact table
-	 * @param int $pcontact_id The id in the contact table (Used for the public contact)
-	 *
-	 * @return string the handle
-	 * @throws \Exception
-	 */
-	private static function handleFromContact(int $contact_id, int $pcontact_id = 0): string
-	{
-		$handle = '';
-
-		if ($pcontact_id != 0) {
-			$contact = Contact::getById($pcontact_id, ['addr']);
-			if (DBA::isResult($contact)) {
-				$handle = $contact['addr'];
-			}
-		}
-
-		if (empty($handle)) {
-			$contact = Contact::getById($contact_id, ['addr']);
-			if (DBA::isResult($contact)) {
-				$handle = $contact['addr'];
-			}
-		}
-
-		return strtolower($handle);
-	}
-
-	/**
 	 * Get a contact id for a given handle
 	 *
 	 * @todo  Move to Friendica\Model\Contact
@@ -3203,59 +3173,35 @@ class Diaspora
 	/**
 	 * Checks a message body if it is a reshare
 	 *
-	 * @param string $body     The message body that is to be check
-	 * @param bool   $complete Should it be a complete check or a simple check?
+	 * @param array $item The message body that is to be check
 	 *
-	 * @return array|bool Reshare details or "false" if no reshare
+	 * @return array Reshare details or "false" if no reshare
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isReshare(string $body, bool $complete = true)
+	public static function isReshare(array $item): array
 	{
-		$body = trim($body);
-
-		$reshared = Item::getShareArray(['body' => $body]);
+		$reshared = Item::getShareArray($item);
 		if (empty($reshared)) {
-			return false;
+			return [];
 		}
 
-		// Skip if it isn't a pure repeated messages
-		// Does it start with a share?
-		if (!empty($reshared['comment']) && $complete) {
-			return false;
+		// Skip if it isn't a pure repeated messages or not a real reshare
+		if (!empty($reshared['comment']) || empty($reshared['guid'])) {
+			return [];
 		}
 
-		if (!empty($reshared['guid']) && $complete) {
-			$condition = ['guid' => $reshared['guid'], 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
-			$item = Post::selectFirst(['contact-id'], $condition);
-			if (DBA::isResult($item)) {
-				$ret = [];
-				$ret['root_handle'] = self::handleFromContact($item['contact-id']);
-				$ret['root_guid'] = $reshared['guid'];
-				return $ret;
-			} elseif ($complete) {
-				// We are resharing something that isn't a DFRN or Diaspora post.
-				// So we have to return "false" on "$complete" to not trigger a reshare.
-				return false;
-			}
-		} elseif (empty($reshared['guid']) && $complete) {
-			return false;
+		$condition = ['guid' => $reshared['guid'], 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
+		$item = Post::selectFirst(['author-addr'], $condition);
+		if (DBA::isResult($item)) {
+			return [
+				'root_handle' => strtolower($item['author-addr']),
+				'root_guid'   => $reshared['guid']
+			];
 		}
 
-		$ret = [];
-
-		if (!empty($reshared['profile']) && ($cid = Contact::getIdForURL($reshared['profile']))) {
-			$contact = DBA::selectFirst('contact', ['addr'], ['id' => $cid]);
-			if (!empty($contact['addr'])) {
-				$ret['root_handle'] = $contact['addr'];
-			}
-		}
-
-		if (empty($ret) && !$complete) {
-			return true;
-		}
-
-		return $ret;
+		// We are resharing something that isn't a DFRN or Diaspora post.
+		return [];
 	}
 
 	/**
@@ -3352,7 +3298,7 @@ class Diaspora
 		$edited = DateTimeFormat::utc($item['edited'] ?? $item['created'], DateTimeFormat::ATOM);
 
 		// Detect a share element and do a reshare
-		if (($item['private'] != Item::PRIVATE) && ($ret = self::isReshare($item['body']))) {
+		if (($item['private'] != Item::PRIVATE) && ($ret = self::isReshare($item))) {
 			$message = [
 				'author'                => $myaddr,
 				'guid'                  => $item['guid'],
@@ -3725,7 +3671,7 @@ class Diaspora
 	 */
 	public static function sendRetraction(array $item, array $owner, array $contact, bool $public_batch = false, bool $relay = false): int
 	{
-		$itemaddr = self::handleFromContact($item['contact-id'], $item['author-id']);
+		$itemaddr = strtolower($item['author-addr']);
 
 		$msg_type = 'retraction';
 

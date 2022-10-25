@@ -97,11 +97,11 @@ class Contact
 	 * Relationship types
 	 * @{
 	 */
-	const NOTHING  = 0;
-	const FOLLOWER = 1;
-	const SHARING  = 2;
-	const FRIEND   = 3;
-	const SELF     = 4;
+	const NOTHING  = 0; // There is no relationship between the contact and the user
+	const FOLLOWER = 1; // The contact is following this user
+	const SHARING  = 2; // The contact shares their content with this user
+	const FRIEND   = 3; // There is a mutual relationship between the contact and the user
+	const SELF     = 4; // This is the user theirself
 	/**
 	 * @}
 	 */

@@ -677,10 +677,10 @@ class Item
 			$shared_content .= '[h3]' . $item['title'] . "[/h3]\n";
 		}
 
-		$shared = BBCode::fetchShareAttributes($item['body']);
+		$shared = ItemModel::getShareArray($item);
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
-		if (Diaspora::isReshare($item['body'], false)) {
+		if (!empty($shared)) {
 			if (!empty($shared['guid']) && ($encaspulated_share = self::createSharedPostByGuid($shared['guid'], 0, '', $add_media))) {
 				$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
 			}

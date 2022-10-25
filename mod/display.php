@@ -123,11 +123,9 @@ function display_init(App $a)
 
 function display_fetchauthor($item)
 {
-	if (Diaspora::isReshare($item['body'], true)) {
-		$shared = Item::getShareArray($item);
-		if (!empty($shared['profile'])) {
-			$contact = Contact::getByURLForUser($shared['profile'], Session::getLocalUser());
-		}
+	$shared = Item::getShareArray($item);
+	if (empty($shared['comment']) && !empty($shared['guid']) && !empty($shared['profile'])) {
+		$contact = Contact::getByURLForUser($shared['profile'], Session::getLocalUser());
 	}
 
 	if (empty($contact)) {
