@@ -1050,10 +1050,10 @@ class Post
 						$this->wall_to_wall = true;
 
 						$owner = [
-							'uid' => 0,
-							'id' => $this->getDataValue('owner-id'),
+							'uid'     => 0,
+							'id'      => $this->getDataValue('owner-id'),
 							'network' => $this->getDataValue('owner-network'),
-							'url' => $this->getDataValue('owner-link'),
+							'url'     => $this->getDataValue('owner-link'),
 						];
 						$this->owner_url = Contact::magicLinkByContact($owner);
 					}
