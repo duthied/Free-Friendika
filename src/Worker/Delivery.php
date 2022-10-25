@@ -274,7 +274,7 @@ class Delivery
 	private static function deliverDFRN(string $cmd, array $contact, array $owner, array $items, array $target_item, bool $public_message, bool $top_level, bool $followup, int $server_protocol = null)
 	{
 		// Transmit Diaspora reshares via Diaspora if the Friendica contact support Diaspora
-		if (Diaspora::isReshare($target_item['body'] ?? '') && !empty(FContact::getByURL($contact['addr'], false))) {
+		if (Diaspora::getReshareDetails($target_item ?? []) && !empty(FContact::getByURL($contact['addr'], false))) {
 			Logger::info('Reshare will be transmitted via Diaspora', ['url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
 			self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 			return;

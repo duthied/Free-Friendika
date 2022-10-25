@@ -112,7 +112,7 @@ class Item
 			'private', 'title', 'body', 'raw-body', 'location', 'coord', 'app',
 			'inform', 'deleted', 'extid', 'post-type', 'post-reason', 'gravity',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-			'author-id', 'author-link', 'author-name', 'author-avatar', 'owner-id', 'owner-link', 'contact-uid',
+			'author-id', 'author-addr', 'author-link', 'author-name', 'author-avatar', 'owner-id', 'owner-link', 'contact-uid',
 			'signed_text', 'network', 'wall', 'contact-id', 'plink', 'origin',
 			'thr-parent-id', 'parent-uri-id', 'quote-uri', 'quote-uri-id', 'postopts', 'pubmail',
 			'event-created', 'event-edited', 'event-start', 'event-finish',
@@ -2949,7 +2949,7 @@ class Item
 		$item['mentions'] = $tags['mentions'];
 
 		$body = $item['body'] ?? '';
-		$shared = BBCode::fetchShareAttributes($body);
+		$shared = self::getShareArray($item);
 		if (!empty($shared['guid'])) {
 			$shared_item = Post::selectFirst(['uri-id', 'guid', 'plink', 'has-media'], ['guid' => $shared['guid'], 'uid' => [$item['uid'], 0]]);
 		}
@@ -3042,7 +3042,7 @@ class Item
 			$s = self::addVisualAttachments($shared_attachments, $item, $s, true);
 			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, []);
 			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
-			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+			$body = BBCode::removeSharedData($body);
 		}
 
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
@@ -3600,7 +3600,29 @@ class Item
 	 */
 	public static function getShareArray(array $item): array
 	{
-		return BBCode::fetchShareAttributes($item['body']);
+		$attributes = BBCode::fetchShareAttributes($item['body'] ?? '');
+		if (!empty($attributes)) {
+			return $attributes;
+		}
+
+		if (!empty($item['quote-uri-id'])) {
+			$shared = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'uri', 'body'], ['uri-id' => $item['quote-uri-id']]);
+			if (!empty($shared)) {
+				return [
+					'author'     => $shared['author-name'],
+					'profile'    => $shared['author-link'],
+					'avatar'     => $shared['author-avatar'],
+					'link'       => $shared['plink'],
+					'posted'     => $shared['created'],
+					'guid'       => $shared['guid'],
+					'message_id' => $shared['uri'],
+					'comment'    => $item['body'],
+					'shared'     => $shared['body'],
+				];				
+			}
+		}
+
+		return [];
 	}
 
 	/**

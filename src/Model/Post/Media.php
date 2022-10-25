@@ -406,7 +406,7 @@ class Media
 		// Only remove the shared data from "real" reshares
 		$shared = BBCode::fetchShareAttributes($body);
 		if (!empty($shared['guid'])) {
-			$unshared_body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+			$unshared_body = BBCode::removeSharedData($body);
 		}
 
 		$attachments = [];
@@ -489,7 +489,7 @@ class Media
 		$shared = BBCode::fetchShareAttributes($body);
 		if (!empty($shared['guid'])) {
 			// Don't look at the shared content
-			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+			$body = BBCode::removeSharedData($body);
 		}
 
 		// Remove all hashtags and mentions
@@ -522,7 +522,7 @@ class Media
 	public static function insertFromAttachmentData(int $uriid, string $body)
 	{
 		// Don't look at the shared content
-		$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+		$body = BBCode::removeSharedData($body);
 
 		$data = BBCode::getAttachmentData($body);
 		if (empty($data))  {

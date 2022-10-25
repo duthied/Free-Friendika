@@ -438,7 +438,7 @@ class Feed
 				}
 
 				if (!empty($href)) {
-					$attachment = ['type' => Post\Media::UNKNOWN, 'url' => $href, 'mimetype' => $type, 'size' => $length];
+					$attachment = ['uri-id' => -1, 'type' => Post\Media::UNKNOWN, 'url' => $href, 'mimetype' => $type, 'size' => $length];
 
 					$attachment = Post\Media::fetchAdditionalData($attachment);
 

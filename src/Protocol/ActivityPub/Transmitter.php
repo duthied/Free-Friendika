@@ -1664,17 +1664,18 @@ class Transmitter
 				$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
 			}
 
-			$body = BBCode::setMentionsToNicknames($body);
+			$body   = BBCode::setMentionsToNicknames($body);
+			$shared = BBCode::fetchShareAttributes($body);
 
 			if (!empty($item['quote-uri']) && Post::exists(['uri-id' => $item['quote-uri-id'], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN]])) {
 				$real_quote = true;
-				if (Diaspora::isReshare($body, false)) {
+				if (!empty($shared['link'])) {
 					$body = BBCode::replaceSharedData($body);
 				} elseif (strpos($body, $item['quote-uri']) === false) {
 					$body .= "\n♲ " . $item['quote-uri'];
 				}
 				$data['quoteUrl'] = $item['quote-uri'];
-			} elseif (!empty($item['quote-uri']) && !Diaspora::isReshare($body, false)) {
+			} elseif (!empty($item['quote-uri']) && empty($shared)) {
 				$body .= "\n" . DI::contentItem()->createSharedPostByUriId($item['quote-uri-id'], $item['uid'], true);
 				$item['body'] = Item::improveSharedDataInBody($item, true);
 			}
@@ -1691,8 +1692,10 @@ class Transmitter
 
 			if ($real_quote) {
 				$shared = BBCode::fetchShareAttributes($richbody);
-				if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
+				if (!empty($shared['link'])) {
 					$richbody = BBCode::replaceSharedData($richbody);
+				} elseif (strpos($richbody, $item['quote-uri']) === false) {
+					$richbody .= "\n♲ " . $item['quote-uri'];
 				}
 			}
 
