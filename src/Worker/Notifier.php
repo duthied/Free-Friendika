@@ -173,7 +173,7 @@ class Notifier
 			$parent = $items[0];
 
 			$fields = ['network', 'author-id', 'author-link', 'author-network', 'owner-id'];
-			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
+			$condition = ['uri' => $target_item['thr-parent'], 'uid' => $target_item['uid']];
 			$thr_parent = Post::selectFirst($fields, $condition);
 			if (empty($thr_parent)) {
 				$thr_parent = $parent;
@@ -376,27 +376,27 @@ class Notifier
 			if (($thr_parent && ($thr_parent['network'] == Protocol::OSTATUS)) || ($parent['network'] == Protocol::OSTATUS)) {
 				$diaspora_delivery = false;
 
-				Logger::info('Some parent is OStatus for '.$target_item["guid"]." - Author: ".$thr_parent['author-id']." - Owner: ".$thr_parent['owner-id']);
+				Logger::info('Some parent is OStatus for ' . $target_item['guid'] . ' - Author: ' . $thr_parent['author-id'] . ' - Owner: ' . $thr_parent['owner-id']);
 
 				// Send a salmon to the parent author
 				$probed_contact = DBA::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['author-id']]);
-				if (DBA::isResult($probed_contact) && !empty($probed_contact["notify"])) {
-					Logger::notice('Notify parent author', ['url' => $probed_contact["url"], 'notify' => $probed_contact["notify"]]);
-					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+				if (DBA::isResult($probed_contact) && !empty($probed_contact['notify'])) {
+					Logger::notice('Notify parent author', ['url' => $probed_contact['url'], 'notify' => $probed_contact['notify']]);
+					$url_recipients[$probed_contact['notify']] = $probed_contact['notify'];
 				}
 
 				// Send a salmon to the parent owner
 				$probed_contact = DBA::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['owner-id']]);
-				if (DBA::isResult($probed_contact) && !empty($probed_contact["notify"])) {
-					Logger::notice('Notify parent owner', ['url' => $probed_contact["url"], 'notify' => $probed_contact["notify"]]);
-					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+				if (DBA::isResult($probed_contact) && !empty($probed_contact['notify'])) {
+					Logger::notice('Notify parent owner', ['url' => $probed_contact['url'], 'notify' => $probed_contact['notify']]);
+					$url_recipients[$probed_contact['notify']] = $probed_contact['notify'];
 				}
 
 				// Send a salmon notification to every person we mentioned in the post
 				foreach (Tag::getByURIId($target_item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION]) as $tag) {
 					$probed_contact = Contact::getByURL($tag['url']);
 					if (!empty($probed_contact['notify'])) {
-						Logger::notice('Notify mentioned user', ['url' => $probed_contact["url"], 'notify' => $probed_contact["notify"]]);
+						Logger::notice('Notify mentioned user', ['url' => $probed_contact['url'], 'notify' => $probed_contact['notify']]);
 						$url_recipients[$probed_contact['notify']] = $probed_contact['notify'];
 					}
 				}
@@ -497,11 +497,12 @@ class Notifier
 	 * @param array $contacts
 	 * @param array $ap_contacts
 	 * @param array $conversants
-	 * @return int
+	 *
+	 * @return int Count of delivery queue
 	 * @throws InternalServerErrorException
 	 * @throws Exception
 	 */
-	private static function delivery(string $cmd, int $post_uriid, int $sender_uid, array $target_item, array $thr_parent, array $owner, bool $batch_delivery, bool $in_batch, array $contacts, array $ap_contacts, array $conversants = [])
+	private static function delivery(string $cmd, int $post_uriid, int $sender_uid, array $target_item, array $thr_parent, array $owner, bool $batch_delivery, bool $in_batch, array $contacts, array $ap_contacts, array $conversants = []): int
 	{
 		$a = DI::app();
 		$delivery_queue_count = 0;
@@ -591,11 +592,12 @@ class Notifier
 	 * @param array $url_recipients
 	 * @param bool $public_message
 	 * @param bool $push_notify
-	 * @return int
+	 *
+	 * @return int Count of sent Salmon notifications
 	 * @throws InternalServerErrorException
 	 * @throws Exception
 	 */
-	private static function deliverOStatus(int $target_id, array $target_item, array $owner, array $url_recipients, bool $public_message, bool $push_notify)
+	private static function deliverOStatus(int $target_id, array $target_item, array $owner, array $url_recipients, bool $public_message, bool $push_notify): int
 	{
 		$a = DI::app();
 		$delivery_queue_count = 0;
@@ -616,7 +618,7 @@ class Notifier
 
 		// Notify PuSH subscribers (Used for OStatus distribution of regular posts)
 		if ($push_notify) {
-			Logger::info('Activating internal PuSH', ['item' => $target_id]);
+			Logger::info('Activating internal PuSH', ['uid' => $owner['uid']]);
 
 			// Handling the pubsubhubbub requests
 			PushSubscriber::publishFeed($owner['uid'], $a->getQueueValue('priority'));
@@ -631,9 +633,10 @@ class Notifier
 	 * @param array  $contact    Receiver of the post
 	 * @param array  $item       The post
 	 * @param array  $thr_parent The thread parent
+	 *
 	 * @return bool
 	 */
-	private static function skipActivityPubForDiaspora(array $contact, array $item, array $thr_parent)
+	private static function skipActivityPubForDiaspora(array $contact, array $item, array $thr_parent): bool
 	{
 		// No skipping needs to be done when delivery isn't done to Diaspora
 		if ($contact['network'] != Protocol::DIASPORA) {
@@ -661,11 +664,12 @@ class Notifier
 	 * @param string $cmd     Notifier command
 	 * @param array  $owner   Sender of the post
 	 * @param string $network Receiver network
+	 *
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function isRemovalActivity($cmd, $owner, $network)
+	private static function isRemovalActivity(string $cmd, array $owner, string $network): bool
 	{
 		return ($cmd == Delivery::DELETION) && $owner['account_removed'] && in_array($network, [Protocol::ACTIVITYPUB, Protocol::DIASPORA]);
 	}
@@ -674,11 +678,12 @@ class Notifier
 	 * @param int    $self_user_id
 	 * @param int    $priority The priority the Notifier queue item was created with
 	 * @param string $created  The date the Notifier queue item was created on
+	 *
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function notifySelfRemoval($self_user_id, $priority, $created)
+	private static function notifySelfRemoval(int $self_user_id, int $priority, string $created): bool
 	{
 		$owner = User::getOwnerDataById($self_user_id);
 		if (empty($self_user_id) || empty($owner)) {
@@ -713,11 +718,13 @@ class Notifier
 	 * @param array  $thr_parent
 	 * @param int    $priority The priority the Notifier queue item was created with
 	 * @param string $created  The date the Notifier queue item was created on
+	 *
 	 * @return array 'count' => The number of delivery tasks created, 'contacts' => their contact ids
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
+	 * @todo Unused parameter $owner
 	 */
-	private static function activityPubDelivery($cmd, array $target_item, array $parent, array $thr_parent, $priority, $created, $owner)
+	private static function activityPubDelivery($cmd, array $target_item, array $parent, array $thr_parent, int $priority, string $created, $owner): array
 	{
 		// Don't deliver via AP when the starting post isn't from a federated network
 		if (!in_array($parent['network'], Protocol::FEDERATED)) {

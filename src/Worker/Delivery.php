@@ -246,6 +246,8 @@ class Delivery
 	 *
 	 * @param string $cmd  Command
 	 * @param array  $item Item array
+	 *
+	 * @return void
 	 */
 	private static function setFailedQueue(string $cmd, array $item)
 	{
@@ -268,6 +270,8 @@ class Delivery
 	 * @param boolean  $top_level       Is it a thread starter?
 	 * @param boolean  $followup        Is it an answer to a remote post?
 	 * @param int|null $server_protocol The protocol of the server
+	 *
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -303,8 +307,8 @@ class Delivery
 				foreach ($items as $item) {
 					// Only add the parent when we don't delete other items.
 					if (($target_item['id'] == $item['id']) || ($cmd != self::DELETION)) {
-						$item["entry:comment-allow"] = true;
-						$item["entry:cid"] = ($top_level ? $contact['id'] : 0);
+						$item['entry:comment-allow'] = true;
+						$item['entry:cid'] = ($top_level ? $contact['id'] : 0);
 						$msgitems[] = $item;
 					}
 				}
@@ -312,7 +316,7 @@ class Delivery
 			$atom = DFRN::entries($msgitems, $owner);
 		}
 
-		Logger::debug('Notifier entry: ' . $contact["url"] . ' ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' entry: ' . $atom);
+		Logger::debug('Notifier entry: ' . $contact['url'] . ' ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' entry: ' . $atom);
 
 		$protocol = Post\DeliveryData::DFRN;
 
@@ -326,7 +330,7 @@ class Delivery
 
 			// We never spool failed relay deliveries
 			if ($public_dfrn) {
-				Logger::info('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
+				Logger::info('Relay delivery to ' . $contact['url'] . ' with guid ' . $target_item['guid'] . ' returns ' . $deliver_status);
 
 				if ($cmd == Delivery::POST) {
 					if (($deliver_status >= 200) && ($deliver_status <= 299)) {
@@ -383,6 +387,8 @@ class Delivery
 	 * @param boolean $public_message Is the content public?
 	 * @param boolean $top_level      Is it a thread starter?
 	 * @param boolean $followup       Is it an answer to a remote post?
+	 *
+	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -477,6 +483,7 @@ class Delivery
 	 * @param array  $owner       Owner record of the sender
 	 * @param array  $target_item Item record of the content
 	 * @param array  $thr_parent  Item record of the direct parent in the thread
+	 *
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException

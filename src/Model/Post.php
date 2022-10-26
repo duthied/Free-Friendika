@@ -26,9 +26,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Model\Item;
 use Friendica\Protocol\Activity;
 
 class Post
@@ -406,12 +404,12 @@ class Post
 			AND NOT `owner-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `blocked`)
 			AND NOT (`gravity` = ? AND `author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `ignored`))
 			AND NOT (`gravity` = ? AND `owner-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `ignored`))",
-			0, Contact::SHARING, Contact::FRIEND, Item::GRAVITY_PARENT, 0, $uid, $uid, $uid, Item::GRAVITY_PARENT, $uid, Item::GRAVITY_PARENT, $uid]);
+				0, Contact::SHARING, Contact::FRIEND, Item::GRAVITY_PARENT, 0, $uid, $uid, $uid, Item::GRAVITY_PARENT, $uid, Item::GRAVITY_PARENT, $uid]);
 
 		$select_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], $selected));
 
 		$condition_string = DBA::buildCondition($condition);
-		$param_string = DBA::buildParameter($params);
+		$param_string     = DBA::buildParameter($params);
 
 		$sql = "SELECT " . $select_string . " FROM `" . $view . "` " . $condition_string . $param_string;
 		$sql = DBA::cleanQuery($sql);
@@ -529,7 +527,7 @@ class Post
 		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-user-view', ['post-user-id'], $condition);
+			$posts          = DBA::select('post-user-view', ['post-user-id'], $condition);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$puids = array_column($rows, 'post-user-id');
 				if (!DBA::update('post-user', $update_fields, ['id' => $puids])) {
@@ -546,7 +544,7 @@ class Post
 		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-content', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$posts          = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
 				if (!DBA::update('post-content', $update_fields, ['uri-id' => $uriids])) {
@@ -563,7 +561,7 @@ class Post
 		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$posts          = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
 
@@ -586,7 +584,7 @@ class Post
 		$update_fields = Post\DeliveryData::extractFields($fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$posts          = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
 				if (!DBA::update('post-delivery-data', $update_fields, ['uri-id' => $uriids])) {
@@ -603,7 +601,7 @@ class Post
 		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-user-view', ['uri-id'], $thread_condition, ['group_by' => ['uri-id']]);
+			$posts          = DBA::select('post-user-view', ['uri-id'], $thread_condition, ['group_by' => ['uri-id']]);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
 				if (!DBA::update('post-thread', $update_fields, ['uri-id' => $uriids])) {
@@ -620,7 +618,7 @@ class Post
 		$update_fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-user-view', ['post-user-id'], $thread_condition);
+			$posts          = DBA::select('post-user-view', ['post-user-id'], $thread_condition);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$thread_puids = array_column($rows, 'post-user-id');
 				if (!DBA::update('post-thread-user', $update_fields, ['post-user-id' => $thread_puids])) {

@@ -141,6 +141,7 @@ class Item
 		Activity::FOLLOW,
 		Activity::ANNOUNCE];
 
+	// Privacy levels
 	const PUBLIC = 0;
 	const PRIVATE = 1;
 	const UNLISTED = 2;
