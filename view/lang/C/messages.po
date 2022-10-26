@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-24 18:18-0400\n"
+"POT-Creation-Date: 2022-10-25 19:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgstr ""
 msgid "User not found."
 msgstr ""
 
-#: mod/cal.php:121 mod/display.php:261 src/Module/Profile/Profile.php:93
+#: mod/cal.php:121 mod/display.php:259 src/Module/Profile/Profile.php:93
 #: src/Module/Profile/Profile.php:108 src/Module/Profile/Status.php:109
 #: src/Module/Update/Profile.php:55
 msgid "Access to this profile has been restricted."
@@ -104,17 +104,17 @@ msgstr ""
 msgid "calendar"
 msgstr ""
 
-#: mod/display.php:142 mod/photos.php:797
+#: mod/display.php:140 mod/photos.php:797
 #: src/Module/Conversation/Community.php:187 src/Module/Directory.php:48
 #: src/Module/Search/Index.php:64
 msgid "Public access denied."
 msgstr ""
 
-#: mod/display.php:212 mod/display.php:286
+#: mod/display.php:210 mod/display.php:284
 msgid "The requested item doesn't exist or has been deleted."
 msgstr ""
 
-#: mod/display.php:366
+#: mod/display.php:364
 msgid "The feed for this item is unavailable."
 msgstr ""
 
@@ -124,10 +124,10 @@ msgstr ""
 #: mod/photos.php:159 mod/photos.php:886 mod/repair_ostatus.php:31
 #: mod/settings.php:40 mod/settings.php:50 mod/settings.php:156
 #: mod/suggest.php:34 mod/uimport.php:33 mod/unfollow.php:35
-#: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:66
-#: mod/wall_attach.php:68 mod/wall_upload.php:88 mod/wall_upload.php:90
-#: mod/wallmessage.php:37 mod/wallmessage.php:56 mod/wallmessage.php:90
-#: mod/wallmessage.php:110 src/Module/Attach.php:56 src/Module/BaseApi.php:94
+#: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:70
+#: mod/wall_attach.php:72 mod/wall_upload.php:90 mod/wallmessage.php:37
+#: mod/wallmessage.php:56 mod/wallmessage.php:90 mod/wallmessage.php:110
+#: src/Module/Attach.php:56 src/Module/BaseApi.php:94
 #: src/Module/BaseNotifications.php:98 src/Module/Contact/Advanced.php:60
 #: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
 #: src/Module/FriendSuggest.php:57 src/Module/Group.php:40
@@ -164,25 +164,25 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: mod/editpost.php:92 mod/photos.php:1333 src/Content/Conversation.php:345
+#: mod/editpost.php:92 mod/photos.php:1333 src/Content/Conversation.php:341
 #: src/Object/Post.php:992
 msgid "Loading..."
 msgstr ""
 
 #: mod/editpost.php:93 mod/message.php:201 mod/message.php:357
-#: mod/wallmessage.php:140 src/Content/Conversation.php:346
+#: mod/wallmessage.php:140 src/Content/Conversation.php:342
 msgid "Upload photo"
 msgstr ""
 
-#: mod/editpost.php:94 src/Content/Conversation.php:347
+#: mod/editpost.php:94 src/Content/Conversation.php:343
 msgid "upload photo"
 msgstr ""
 
-#: mod/editpost.php:95 src/Content/Conversation.php:348
+#: mod/editpost.php:95 src/Content/Conversation.php:344
 msgid "Attach file"
 msgstr ""
 
-#: mod/editpost.php:96 src/Content/Conversation.php:349
+#: mod/editpost.php:96 src/Content/Conversation.php:345
 msgid "attach file"
 msgstr ""
 
@@ -211,31 +211,31 @@ msgstr ""
 msgid "audio link"
 msgstr ""
 
-#: mod/editpost.php:103 src/Content/Conversation.php:359
+#: mod/editpost.php:103 src/Content/Conversation.php:355
 #: src/Module/Item/Compose.php:200
 msgid "Set your location"
 msgstr ""
 
-#: mod/editpost.php:104 src/Content/Conversation.php:360
+#: mod/editpost.php:104 src/Content/Conversation.php:356
 msgid "set location"
 msgstr ""
 
-#: mod/editpost.php:105 src/Content/Conversation.php:361
+#: mod/editpost.php:105 src/Content/Conversation.php:357
 msgid "Clear browser location"
 msgstr ""
 
-#: mod/editpost.php:106 src/Content/Conversation.php:362
+#: mod/editpost.php:106 src/Content/Conversation.php:358
 msgid "clear location"
 msgstr ""
 
 #: mod/editpost.php:107 mod/message.php:203 mod/message.php:360
-#: mod/photos.php:1484 mod/wallmessage.php:142 src/Content/Conversation.php:375
-#: src/Content/Conversation.php:721 src/Module/Item/Compose.php:204
+#: mod/photos.php:1484 mod/wallmessage.php:142 src/Content/Conversation.php:371
+#: src/Content/Conversation.php:717 src/Module/Item/Compose.php:204
 #: src/Object/Post.php:537
 msgid "Please wait"
 msgstr ""
 
-#: mod/editpost.php:108 src/Content/Conversation.php:376
+#: mod/editpost.php:108 src/Content/Conversation.php:372
 msgid "Permission settings"
 msgstr ""
 
@@ -243,16 +243,16 @@ msgstr ""
 msgid "CC: email addresses"
 msgstr ""
 
-#: mod/editpost.php:117 src/Content/Conversation.php:386
+#: mod/editpost.php:117 src/Content/Conversation.php:382
 msgid "Public post"
 msgstr ""
 
-#: mod/editpost.php:120 src/Content/Conversation.php:364
+#: mod/editpost.php:120 src/Content/Conversation.php:360
 #: src/Module/Item/Compose.php:205
 msgid "Set title"
 msgstr ""
 
-#: mod/editpost.php:122 src/Content/Conversation.php:366
+#: mod/editpost.php:122 src/Content/Conversation.php:362
 #: src/Module/Item/Compose.php:206
 msgid "Categories (comma-separated list)"
 msgstr ""
@@ -262,71 +262,71 @@ msgid "Example: bob@example.com, mary@example.com"
 msgstr ""
 
 #: mod/editpost.php:128 mod/events.php:514 mod/photos.php:1332
-#: mod/photos.php:1388 mod/photos.php:1462 src/Content/Conversation.php:390
+#: mod/photos.php:1388 mod/photos.php:1462 src/Content/Conversation.php:386
 #: src/Module/Item/Compose.php:199 src/Object/Post.php:1002
 msgid "Preview"
 msgstr ""
 
 #: mod/editpost.php:130 mod/fbrowser.php:119 mod/fbrowser.php:146
 #: mod/follow.php:144 mod/photos.php:999 mod/photos.php:1100 mod/tagrm.php:35
-#: mod/tagrm.php:127 mod/unfollow.php:97 src/Content/Conversation.php:393
+#: mod/tagrm.php:127 mod/unfollow.php:97 src/Content/Conversation.php:389
 #: src/Module/Contact/Revoke.php:109 src/Module/RemoteFollow.php:128
-#: src/Module/Security/TwoFactor/SignOut.php:126
+#: src/Module/Security/TwoFactor/SignOut.php:125
 msgid "Cancel"
 msgstr ""
 
-#: mod/editpost.php:134 src/Content/Conversation.php:350
+#: mod/editpost.php:134 src/Content/Conversation.php:346
 #: src/Module/Item/Compose.php:190 src/Object/Post.php:993
 msgid "Bold"
 msgstr ""
 
-#: mod/editpost.php:135 src/Content/Conversation.php:351
+#: mod/editpost.php:135 src/Content/Conversation.php:347
 #: src/Module/Item/Compose.php:191 src/Object/Post.php:994
 msgid "Italic"
 msgstr ""
 
-#: mod/editpost.php:136 src/Content/Conversation.php:352
+#: mod/editpost.php:136 src/Content/Conversation.php:348
 #: src/Module/Item/Compose.php:192 src/Object/Post.php:995
 msgid "Underline"
 msgstr ""
 
-#: mod/editpost.php:137 src/Content/Conversation.php:353
+#: mod/editpost.php:137 src/Content/Conversation.php:349
 #: src/Module/Item/Compose.php:193 src/Object/Post.php:996
 msgid "Quote"
 msgstr ""
 
-#: mod/editpost.php:138 src/Content/Conversation.php:354
+#: mod/editpost.php:138 src/Content/Conversation.php:350
 #: src/Module/Item/Compose.php:194 src/Object/Post.php:997
 msgid "Code"
 msgstr ""
 
-#: mod/editpost.php:139 src/Content/Conversation.php:356
+#: mod/editpost.php:139 src/Content/Conversation.php:352
 #: src/Module/Item/Compose.php:196 src/Object/Post.php:999
 msgid "Link"
 msgstr ""
 
-#: mod/editpost.php:140 src/Content/Conversation.php:357
+#: mod/editpost.php:140 src/Content/Conversation.php:353
 #: src/Module/Item/Compose.php:197 src/Object/Post.php:1000
 msgid "Link or Media"
 msgstr ""
 
-#: mod/editpost.php:143 src/Content/Conversation.php:400
+#: mod/editpost.php:143 src/Content/Conversation.php:396
 #: src/Content/Widget/VCard.php:113 src/Model/Profile.php:465
 #: src/Module/Admin/Logs/View.php:93
 msgid "Message"
 msgstr ""
 
-#: mod/editpost.php:144 src/Content/Conversation.php:401
+#: mod/editpost.php:144 src/Content/Conversation.php:397
 #: src/Module/Settings/TwoFactor/Trusted.php:139
 msgid "Browser"
 msgstr ""
 
 #: mod/editpost.php:145 mod/events.php:519 mod/photos.php:934
-#: mod/photos.php:1286 src/Content/Conversation.php:377
+#: mod/photos.php:1286 src/Content/Conversation.php:373
 msgid "Permissions"
 msgstr ""
 
-#: mod/editpost.php:147 src/Content/Conversation.php:403
+#: mod/editpost.php:147 src/Content/Conversation.php:399
 msgid "Open Compose page"
 msgstr ""
 
@@ -369,7 +369,7 @@ msgstr ""
 #: src/Module/Install.php:286 src/Module/Install.php:291
 #: src/Module/Install.php:305 src/Module/Install.php:320
 #: src/Module/Install.php:347 src/Module/Register.php:148
-#: src/Module/Security/TwoFactor/Verify.php:105
+#: src/Module/Security/TwoFactor/Verify.php:101
 #: src/Module/Settings/TwoFactor/Index.php:140
 #: src/Module/Settings/TwoFactor/Verify.php:154
 msgid "Required"
@@ -908,7 +908,7 @@ msgid "%1$s was tagged in %2$s by %3$s"
 msgstr ""
 
 #: mod/photos.php:631 mod/photos.php:634 mod/photos.php:661
-#: mod/wall_upload.php:200 src/Module/Settings/Profile/Photo/Index.php:59
+#: mod/wall_upload.php:212 src/Module/Settings/Profile/Photo/Index.php:59
 #, php-format
 msgid "Image exceeds size limit of %s"
 msgstr ""
@@ -931,12 +931,12 @@ msgstr ""
 msgid "Image file is empty."
 msgstr ""
 
-#: mod/photos.php:684 mod/wall_upload.php:162
+#: mod/photos.php:684 mod/wall_upload.php:173
 #: src/Module/Settings/Profile/Photo/Index.php:68
 msgid "Unable to process image."
 msgstr ""
 
-#: mod/photos.php:710 mod/wall_upload.php:225
+#: mod/photos.php:710 mod/wall_upload.php:237
 #: src/Module/Settings/Profile/Photo/Index.php:95
 msgid "Image upload failed."
 msgstr ""
@@ -1080,11 +1080,11 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: mod/photos.php:1419 src/Content/Conversation.php:637 src/Object/Post.php:255
+#: mod/photos.php:1419 src/Content/Conversation.php:633 src/Object/Post.php:255
 msgid "Select"
 msgstr ""
 
-#: mod/photos.php:1420 mod/settings.php:350 src/Content/Conversation.php:638
+#: mod/photos.php:1420 mod/settings.php:350 src/Content/Conversation.php:634
 #: src/Module/Admin/Users/Active.php:139 src/Module/Admin/Users/Blocked.php:140
 #: src/Module/Admin/Users/Index.php:153
 msgid "Delete"
@@ -1169,7 +1169,7 @@ msgid "Resubscribing to OStatus contacts"
 msgstr ""
 
 #: mod/repair_ostatus.php:46 src/Module/Debug/ActivityPubConversion.php:129
-#: src/Module/Debug/Babel.php:293 src/Module/Security/TwoFactor/Verify.php:102
+#: src/Module/Debug/Babel.php:293 src/Module/Security/TwoFactor/Verify.php:98
 msgid "Error"
 msgid_plural "Errors"
 msgstr[0] ""
@@ -1502,30 +1502,30 @@ msgstr ""
 msgid "Unable to unfollow this contact, please contact your administrator"
 msgstr ""
 
-#: mod/wall_attach.php:39 mod/wall_attach.php:45 mod/wall_attach.php:74
-#: mod/wall_upload.php:53 mod/wall_upload.php:62 mod/wall_upload.php:96
-#: mod/wall_upload.php:147 mod/wall_upload.php:149
+#: mod/wall_attach.php:41 mod/wall_attach.php:48 mod/wall_attach.php:79
+#: mod/wall_upload.php:54 mod/wall_upload.php:64 mod/wall_upload.php:101
+#: mod/wall_upload.php:152
 msgid "Invalid request."
 msgstr ""
 
-#: mod/wall_attach.php:92
+#: mod/wall_attach.php:95
 msgid "Sorry, maybe your upload is bigger than the PHP configuration allows"
 msgstr ""
 
-#: mod/wall_attach.php:92
+#: mod/wall_attach.php:95
 msgid "Or - did you try to upload an empty file?"
 msgstr ""
 
-#: mod/wall_attach.php:103
+#: mod/wall_attach.php:107
 #, php-format
 msgid "File exceeds size limit of %s"
 msgstr ""
 
-#: mod/wall_attach.php:118
+#: mod/wall_attach.php:123
 msgid "File upload failed."
 msgstr ""
 
-#: mod/wall_upload.php:217 src/Model/Photo.php:1086
+#: mod/wall_upload.php:229 src/Model/Photo.php:1086
 msgid "Wall Photos"
 msgstr ""
 
@@ -1549,11 +1549,11 @@ msgid ""
 "your site allow private mail from unknown senders."
 msgstr ""
 
-#: src/App.php:497
+#: src/App.php:490
 msgid "No system theme config value set."
 msgstr ""
 
-#: src/App.php:618
+#: src/App.php:611
 msgid "Apologies but the website is unavailable at the moment."
 msgstr ""
 
@@ -1921,258 +1921,258 @@ msgstr ""
 msgid "%s (via %s)"
 msgstr ""
 
-#: src/Content/Conversation.php:214
+#: src/Content/Conversation.php:210
 #, php-format
 msgid "%s likes this."
 msgstr ""
 
-#: src/Content/Conversation.php:217
+#: src/Content/Conversation.php:213
 #, php-format
 msgid "%s doesn't like this."
 msgstr ""
 
-#: src/Content/Conversation.php:220
+#: src/Content/Conversation.php:216
 #, php-format
 msgid "%s attends."
 msgstr ""
 
-#: src/Content/Conversation.php:223
+#: src/Content/Conversation.php:219
 #, php-format
 msgid "%s doesn't attend."
 msgstr ""
 
-#: src/Content/Conversation.php:226
+#: src/Content/Conversation.php:222
 #, php-format
 msgid "%s attends maybe."
 msgstr ""
 
-#: src/Content/Conversation.php:229 src/Content/Conversation.php:267
-#: src/Content/Conversation.php:881
+#: src/Content/Conversation.php:225 src/Content/Conversation.php:263
+#: src/Content/Conversation.php:877
 #, php-format
 msgid "%s reshared this."
 msgstr ""
 
-#: src/Content/Conversation.php:235
+#: src/Content/Conversation.php:231
 msgid "and"
 msgstr ""
 
-#: src/Content/Conversation.php:238
+#: src/Content/Conversation.php:234
 #, php-format
 msgid "and %d other people"
 msgstr ""
 
-#: src/Content/Conversation.php:246
+#: src/Content/Conversation.php:242
 #, php-format
 msgid "<span  %1$s>%2$d people</span> like this"
 msgstr ""
 
-#: src/Content/Conversation.php:247
+#: src/Content/Conversation.php:243
 #, php-format
 msgid "%s like this."
 msgstr ""
 
-#: src/Content/Conversation.php:250
+#: src/Content/Conversation.php:246
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this"
 msgstr ""
 
-#: src/Content/Conversation.php:251
+#: src/Content/Conversation.php:247
 #, php-format
 msgid "%s don't like this."
 msgstr ""
 
-#: src/Content/Conversation.php:254
+#: src/Content/Conversation.php:250
 #, php-format
 msgid "<span  %1$s>%2$d people</span> attend"
 msgstr ""
 
-#: src/Content/Conversation.php:255
+#: src/Content/Conversation.php:251
 #, php-format
 msgid "%s attend."
 msgstr ""
 
-#: src/Content/Conversation.php:258
+#: src/Content/Conversation.php:254
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't attend"
 msgstr ""
 
-#: src/Content/Conversation.php:259
+#: src/Content/Conversation.php:255
 #, php-format
 msgid "%s don't attend."
 msgstr ""
 
-#: src/Content/Conversation.php:262
+#: src/Content/Conversation.php:258
 #, php-format
 msgid "<span  %1$s>%2$d people</span> attend maybe"
 msgstr ""
 
-#: src/Content/Conversation.php:263
+#: src/Content/Conversation.php:259
 #, php-format
 msgid "%s attend maybe."
 msgstr ""
 
-#: src/Content/Conversation.php:266
+#: src/Content/Conversation.php:262
 #, php-format
 msgid "<span  %1$s>%2$d people</span> reshared this"
 msgstr ""
 
-#: src/Content/Conversation.php:314
+#: src/Content/Conversation.php:310
 msgid "Visible to <strong>everybody</strong>"
 msgstr ""
 
-#: src/Content/Conversation.php:315 src/Module/Item/Compose.php:198
+#: src/Content/Conversation.php:311 src/Module/Item/Compose.php:198
 #: src/Object/Post.php:1001
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr ""
 
-#: src/Content/Conversation.php:316
+#: src/Content/Conversation.php:312
 msgid "Tag term:"
 msgstr ""
 
-#: src/Content/Conversation.php:317 src/Module/Filer/SaveTag.php:73
+#: src/Content/Conversation.php:313 src/Module/Filer/SaveTag.php:73
 msgid "Save to Folder:"
 msgstr ""
 
-#: src/Content/Conversation.php:318
+#: src/Content/Conversation.php:314
 msgid "Where are you right now?"
 msgstr ""
 
-#: src/Content/Conversation.php:319
+#: src/Content/Conversation.php:315
 msgid "Delete item(s)?"
 msgstr ""
 
-#: src/Content/Conversation.php:331 src/Module/Item/Compose.php:175
+#: src/Content/Conversation.php:327 src/Module/Item/Compose.php:175
 msgid "Created at"
 msgstr ""
 
-#: src/Content/Conversation.php:341
+#: src/Content/Conversation.php:337
 msgid "New Post"
 msgstr ""
 
-#: src/Content/Conversation.php:344
+#: src/Content/Conversation.php:340
 msgid "Share"
 msgstr ""
 
-#: src/Content/Conversation.php:355 src/Module/Item/Compose.php:195
+#: src/Content/Conversation.php:351 src/Module/Item/Compose.php:195
 #: src/Object/Post.php:998
 msgid "Image"
 msgstr ""
 
-#: src/Content/Conversation.php:358
+#: src/Content/Conversation.php:354
 msgid "Video"
 msgstr ""
 
-#: src/Content/Conversation.php:371 src/Module/Item/Compose.php:222
+#: src/Content/Conversation.php:367 src/Module/Item/Compose.php:222
 msgid "Scheduled at"
 msgstr ""
 
-#: src/Content/Conversation.php:665 src/Object/Post.php:243
+#: src/Content/Conversation.php:661 src/Object/Post.php:243
 msgid "Pinned item"
 msgstr ""
 
-#: src/Content/Conversation.php:681 src/Object/Post.php:485
+#: src/Content/Conversation.php:677 src/Object/Post.php:485
 #: src/Object/Post.php:486
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr ""
 
-#: src/Content/Conversation.php:694 src/Object/Post.php:473
+#: src/Content/Conversation.php:690 src/Object/Post.php:473
 msgid "Categories:"
 msgstr ""
 
-#: src/Content/Conversation.php:695 src/Object/Post.php:474
+#: src/Content/Conversation.php:691 src/Object/Post.php:474
 msgid "Filed under:"
 msgstr ""
 
-#: src/Content/Conversation.php:703 src/Object/Post.php:499
+#: src/Content/Conversation.php:699 src/Object/Post.php:499
 #, php-format
 msgid "%s from %s"
 msgstr ""
 
-#: src/Content/Conversation.php:719
+#: src/Content/Conversation.php:715
 msgid "View in context"
 msgstr ""
 
-#: src/Content/Conversation.php:784
+#: src/Content/Conversation.php:780
 msgid "remove"
 msgstr ""
 
-#: src/Content/Conversation.php:788
+#: src/Content/Conversation.php:784
 msgid "Delete Selected Items"
 msgstr ""
 
-#: src/Content/Conversation.php:853 src/Content/Conversation.php:856
-#: src/Content/Conversation.php:859 src/Content/Conversation.php:862
+#: src/Content/Conversation.php:849 src/Content/Conversation.php:852
+#: src/Content/Conversation.php:855 src/Content/Conversation.php:858
 #, php-format
 msgid "You had been addressed (%s)."
 msgstr ""
 
-#: src/Content/Conversation.php:865
+#: src/Content/Conversation.php:861
 #, php-format
 msgid "You are following %s."
 msgstr ""
 
-#: src/Content/Conversation.php:868
+#: src/Content/Conversation.php:864
 msgid "You subscribed to one or more tags in this post."
 msgstr ""
 
-#: src/Content/Conversation.php:883
+#: src/Content/Conversation.php:879
 msgid "Reshared"
 msgstr ""
 
-#: src/Content/Conversation.php:883
+#: src/Content/Conversation.php:879
 #, php-format
 msgid "Reshared by %s <%s>"
 msgstr ""
 
-#: src/Content/Conversation.php:886
+#: src/Content/Conversation.php:882
 #, php-format
 msgid "%s is participating in this thread."
 msgstr ""
 
-#: src/Content/Conversation.php:889
+#: src/Content/Conversation.php:885
 msgid "Stored for general reasons"
 msgstr ""
 
-#: src/Content/Conversation.php:892
+#: src/Content/Conversation.php:888
 msgid "Global post"
 msgstr ""
 
-#: src/Content/Conversation.php:895
+#: src/Content/Conversation.php:891
 msgid "Sent via an relay server"
 msgstr ""
 
-#: src/Content/Conversation.php:895
+#: src/Content/Conversation.php:891
 #, php-format
 msgid "Sent via the relay server %s <%s>"
 msgstr ""
 
-#: src/Content/Conversation.php:898
+#: src/Content/Conversation.php:894
 msgid "Fetched"
 msgstr ""
 
-#: src/Content/Conversation.php:898
+#: src/Content/Conversation.php:894
 #, php-format
 msgid "Fetched because of %s <%s>"
 msgstr ""
 
-#: src/Content/Conversation.php:901
+#: src/Content/Conversation.php:897
 msgid "Stored because of a child post to complete this thread."
 msgstr ""
 
-#: src/Content/Conversation.php:904
+#: src/Content/Conversation.php:900
 msgid "Local delivery"
 msgstr ""
 
-#: src/Content/Conversation.php:907
+#: src/Content/Conversation.php:903
 msgid "Stored because of your activity (like, comment, star, ...)"
 msgstr ""
 
-#: src/Content/Conversation.php:910
+#: src/Content/Conversation.php:906
 msgid "Distributed"
 msgstr ""
 
-#: src/Content/Conversation.php:913
+#: src/Content/Conversation.php:909
 msgid "Pushed to us"
 msgstr ""
 
@@ -2628,39 +2628,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1002 src/Content/Text/BBCode.php:1883
-#: src/Content/Text/BBCode.php:1884
+#: src/Content/Text/BBCode.php:1002 src/Content/Text/BBCode.php:1879
+#: src/Content/Text/BBCode.php:1880
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1238
+#: src/Content/Text/BBCode.php:1234
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1263 src/Model/Item.php:3461
+#: src/Content/Text/BBCode.php:1259 src/Model/Item.php:3461
 #: src/Model/Item.php:3467 src/Model/Item.php:3468
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1801 src/Content/Text/HTML.php:940
+#: src/Content/Text/BBCode.php:1797 src/Content/Text/HTML.php:940
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1832
+#: src/Content/Text/BBCode.php:1828
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1888 src/Content/Text/BBCode.php:1889
+#: src/Content/Text/BBCode.php:1884 src/Content/Text/BBCode.php:1885
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2109
+#: src/Content/Text/BBCode.php:2105
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2124
+#: src/Content/Text/BBCode.php:2120
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2795,7 +2795,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:523 src/Model/Contact.php:1630
+#: src/Content/Widget.php:523 src/Model/Contact.php:1631
 msgid "News"
 msgstr ""
 
@@ -3598,71 +3598,71 @@ msgstr ""
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1626
+#: src/Model/Contact.php:1627
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1634
+#: src/Model/Contact.php:1635
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2820
+#: src/Model/Contact.php:2821
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2825 src/Module/Friendica.php:82
+#: src/Model/Contact.php:2826 src/Module/Friendica.php:82
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:2830
+#: src/Model/Contact.php:2831
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2839
+#: src/Model/Contact.php:2840
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2881
+#: src/Model/Contact.php:2882
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2883
+#: src/Model/Contact.php:2884
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2886
+#: src/Model/Contact.php:2887
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2889
+#: src/Model/Contact.php:2890
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2892
+#: src/Model/Contact.php:2893
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2893
+#: src/Model/Contact.php:2894
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:2899
+#: src/Model/Contact.php:2900
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:2904
+#: src/Model/Contact.php:2905
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:2963
+#: src/Model/Contact.php:2964
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -3949,7 +3949,7 @@ msgstr ""
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1017 src/Module/Admin/Summary.php:235
+#: src/Model/Profile.php:1017 src/Module/Admin/Summary.php:236
 msgid "Summary"
 msgstr ""
 
@@ -4247,22 +4247,6 @@ msgid ""
 "\t\t\tThank you and welcome to %2$s."
 msgstr ""
 
-#: src/Moderation/DomainPatternBlocklist.php:228
-#, php-format
-msgid "[%s] Notice of remote server domain pattern block list update"
-msgstr ""
-
-#: src/Moderation/DomainPatternBlocklist.php:230
-#, php-format
-msgid ""
-"Dear %s,\n"
-"\n"
-"You are receiving this email because the Friendica node at %s where you are "
-"registered as a user updated their remote server domain pattern block list.\n"
-"\n"
-"Please review the updated list at %s at your earliest convenience."
-msgstr ""
-
 #: src/Module/Admin/Addons/Details.php:65
 msgid "Addon not found."
 msgstr ""
@@ -4295,7 +4279,7 @@ msgstr ""
 #: src/Module/Admin/Federation.php:202 src/Module/Admin/Item/Delete.php:64
 #: src/Module/Admin/Logs/Settings.php:79 src/Module/Admin/Logs/View.php:84
 #: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:429
-#: src/Module/Admin/Storage.php:138 src/Module/Admin/Summary.php:234
+#: src/Module/Admin/Storage.php:138 src/Module/Admin/Summary.php:235
 #: src/Module/Admin/Themes/Details.php:90 src/Module/Admin/Themes/Index.php:111
 #: src/Module/Admin/Tos.php:75 src/Module/Admin/Users/Active.php:136
 #: src/Module/Admin/Users/Blocked.php:137 src/Module/Admin/Users/Create.php:61
@@ -6121,12 +6105,12 @@ msgstr ""
 msgid "Database (legacy)"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:55
+#: src/Module/Admin/Summary.php:56
 #, php-format
 msgid "Template engine (%s) error: %s"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:59
+#: src/Module/Admin/Summary.php:60
 #, php-format
 msgid ""
 "Your DB still runs with MyISAM tables. You should change the engine type to "
@@ -6137,7 +6121,7 @@ msgid ""
 "automatic conversion.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:64
+#: src/Module/Admin/Summary.php:65
 #, php-format
 msgid ""
 "Your DB still runs with InnoDB tables in the Antelope file format. You "
@@ -6148,7 +6132,7 @@ msgid ""
 "installation for an automatic conversion.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:74
+#: src/Module/Admin/Summary.php:75
 #, php-format
 msgid ""
 "Your table_definition_cache is too low (%d). This can lead to the database "
@@ -6156,39 +6140,39 @@ msgid ""
 "to %d. See <a href=\"%s\">here</a> for more information.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:84
+#: src/Module/Admin/Summary.php:85
 #, php-format
 msgid ""
 "There is a new version of Friendica available for download. Your current "
 "version is %1$s, upstream version is %2$s"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:93
+#: src/Module/Admin/Summary.php:94
 msgid ""
 "The database update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:97
+#: src/Module/Admin/Summary.php:98
 msgid ""
 "The last update failed. Please run \"php bin/console.php dbstructure update"
 "\" from the command line and have a look at the errors that might appear. "
 "(Some of the errors are possibly inside the logfile.)"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:102
+#: src/Module/Admin/Summary.php:103
 msgid "The worker was never executed. Please check your database structure!"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:104
+#: src/Module/Admin/Summary.php:105
 #, php-format
 msgid ""
 "The last worker execution was on %s UTC. This is older than one hour. Please "
 "check your crontab settings."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:109
+#: src/Module/Admin/Summary.php:110
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -6197,7 +6181,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:113
+#: src/Module/Admin/Summary.php:114
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -6206,7 +6190,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:119
+#: src/Module/Admin/Summary.php:120
 #, php-format
 msgid ""
 "<a href=\"%s\">%s</a> is not reachable on your system. This is a severe "
@@ -6214,82 +6198,82 @@ msgid ""
 "href=\"%s\">the installation page</a> for help."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:137
+#: src/Module/Admin/Summary.php:138
 #, php-format
 msgid "The logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:151
+#: src/Module/Admin/Summary.php:152
 #, php-format
 msgid "The debug logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:167
+#: src/Module/Admin/Summary.php:168
 #, php-format
 msgid ""
 "Friendica's system.basepath was updated from '%s' to '%s'. Please remove the "
 "system.basepath from your db to avoid differences."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:175
+#: src/Module/Admin/Summary.php:176
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is wrong and the config file '%s' "
 "isn't used."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:183
+#: src/Module/Admin/Summary.php:184
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is not equal to the config file "
 "'%s'. Please fix your configuration."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:190
+#: src/Module/Admin/Summary.php:191
 msgid "Normal Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:191
+#: src/Module/Admin/Summary.php:192
 msgid "Automatic Follower Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:192
+#: src/Module/Admin/Summary.php:193
 msgid "Public Forum Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:193
+#: src/Module/Admin/Summary.php:194
 msgid "Automatic Friend Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:194
+#: src/Module/Admin/Summary.php:195
 msgid "Blog Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:195
+#: src/Module/Admin/Summary.php:196
 msgid "Private Forum Account"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:215
+#: src/Module/Admin/Summary.php:216
 msgid "Message queues"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:221
+#: src/Module/Admin/Summary.php:222
 msgid "Server Settings"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:237
+#: src/Module/Admin/Summary.php:238
 msgid "Registered users"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:239
+#: src/Module/Admin/Summary.php:240
 msgid "Pending registrations"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:240
+#: src/Module/Admin/Summary.php:241
 msgid "Version"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:244
+#: src/Module/Admin/Summary.php:245
 msgid "Active addons"
 msgstr ""
 
@@ -6767,7 +6751,7 @@ msgstr ""
 msgid "Account"
 msgstr ""
 
-#: src/Module/BaseSettings.php:48 src/Module/Security/TwoFactor/Verify.php:100
+#: src/Module/BaseSettings.php:48 src/Module/Security/TwoFactor/Verify.php:96
 #: src/Module/Settings/TwoFactor/Index.php:117
 msgid "Two-factor authentication"
 msgstr ""
@@ -8700,10 +8684,10 @@ msgid "privacy policy"
 msgstr ""
 
 #: src/Module/Security/Logout.php:84
-#: src/Module/Security/TwoFactor/SignOut.php:79
-#: src/Module/Security/TwoFactor/SignOut.php:87
-#: src/Module/Security/TwoFactor/SignOut.php:109
-#: src/Module/Security/TwoFactor/SignOut.php:116
+#: src/Module/Security/TwoFactor/SignOut.php:78
+#: src/Module/Security/TwoFactor/SignOut.php:86
+#: src/Module/Security/TwoFactor/SignOut.php:108
+#: src/Module/Security/TwoFactor/SignOut.php:115
 msgid "Logged out."
 msgstr ""
 
@@ -8780,7 +8764,7 @@ msgid "Remaining recovery codes: %d"
 msgstr ""
 
 #: src/Module/Security/TwoFactor/Recovery.php:80
-#: src/Module/Security/TwoFactor/Verify.php:81
+#: src/Module/Security/TwoFactor/Verify.php:77
 #: src/Module/Settings/TwoFactor/Verify.php:94
 msgid "Invalid code, please retry."
 msgstr ""
@@ -8809,21 +8793,21 @@ msgstr ""
 msgid "Submit recovery code and complete login"
 msgstr ""
 
-#: src/Module/Security/TwoFactor/SignOut.php:123
+#: src/Module/Security/TwoFactor/SignOut.php:122
 msgid "Sign out of this browser?"
 msgstr ""
 
-#: src/Module/Security/TwoFactor/SignOut.php:124
+#: src/Module/Security/TwoFactor/SignOut.php:123
 msgid ""
 "<p>If you trust this browser, you will not be asked for verification code "
 "the next time you sign in.</p>"
 msgstr ""
 
-#: src/Module/Security/TwoFactor/SignOut.php:125
+#: src/Module/Security/TwoFactor/SignOut.php:124
 msgid "Sign out"
 msgstr ""
 
-#: src/Module/Security/TwoFactor/SignOut.php:127
+#: src/Module/Security/TwoFactor/SignOut.php:126
 msgid "Trust and sign out"
 msgstr ""
 
@@ -8853,25 +8837,25 @@ msgstr ""
 msgid "Trust"
 msgstr ""
 
-#: src/Module/Security/TwoFactor/Verify.php:101
+#: src/Module/Security/TwoFactor/Verify.php:97
 msgid ""
 "<p>Open the two-factor authentication app on your device to get an "
 "authentication code and verify your identity.</p>"
 msgstr ""
 
-#: src/Module/Security/TwoFactor/Verify.php:104
+#: src/Module/Security/TwoFactor/Verify.php:100
 #, php-format
 msgid ""
 "If you do not have access to your authentication code you can use a <a href="
 "\"%s\">two-factor recovery code</a>."
 msgstr ""
 
-#: src/Module/Security/TwoFactor/Verify.php:105
+#: src/Module/Security/TwoFactor/Verify.php:101
 #: src/Module/Settings/TwoFactor/Verify.php:154
 msgid "Please enter a code from your authentication app"
 msgstr ""
 
-#: src/Module/Security/TwoFactor/Verify.php:106
+#: src/Module/Security/TwoFactor/Verify.php:102
 msgid "Verify code and complete login"
 msgstr ""
 
@@ -10347,15 +10331,15 @@ msgstr ""
 msgid "%s created a new post"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Introduction.php:137
+#: src/Navigation/Notifications/Factory/Introduction.php:133
 msgid "Friend Suggestion"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Introduction.php:163
+#: src/Navigation/Notifications/Factory/Introduction.php:159
 msgid "Friend/Connect Request"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/Introduction.php:163
+#: src/Navigation/Notifications/Factory/Introduction.php:159
 msgid "New Follower"
 msgstr ""
 
@@ -10978,12 +10962,12 @@ msgstr ""
 msgid "Login failed. Please check your credentials."
 msgstr ""
 
-#: src/Security/Authentication.php:381
+#: src/Security/Authentication.php:382
 #, php-format
 msgid "Welcome %s"
 msgstr ""
 
-#: src/Security/Authentication.php:382
+#: src/Security/Authentication.php:383
 msgid "Please upload a profile photo."
 msgstr ""
 
