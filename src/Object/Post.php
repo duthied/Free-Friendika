@@ -587,16 +587,10 @@ class Post
 
 		// Copy values/set defaults
 		$result['total_comments_num'] = $this->isToplevel() ? $total_children : 0;
-		$result['private'] = $item['private'];
-		$result['toplevel'] = ($this->isToplevel() ? 'toplevel_item' : '');
-		$result['flatten'] = false;
-		$result['threaded'] = false;
-
-		if ($this->isThreaded()) {
-			$result['threaded'] = true;
-		} else {
-			$result['flatten'] = true;
-		}
+		$result['private']            = $item['private'];
+		$result['toplevel']           = ($this->isToplevel() ? 'toplevel_item' : '');
+		$result['flatten']            = !$this->isThreaded();
+		$result['threaded']           = $this->isThreaded();
 
 		return $result;
 	}
