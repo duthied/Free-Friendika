@@ -122,9 +122,9 @@ function display_init(App $a)
 
 function display_fetchauthor($item)
 {
-	$shared = Item::getShareArray($item);
-	if (empty($shared['comment']) && !empty($shared['guid']) && !empty($shared['profile'])) {
-		$contact = Contact::getByURLForUser($shared['profile'], DI::userSession()->getLocalUserId());
+	$shared = DI::contentItem()->getSharedPost($item, ['author-link']);
+	if (!empty($shared) && empty($shared['comment'])) {
+		$contact = Contact::getByURLForUser($shared['post']['author-link'], DI::userSession()->getLocalUserId());
 	}
 
 	if (empty($contact)) {

@@ -23,9 +23,9 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
 use Friendica\Content\ContactSelector;
-use Friendica\Content\Text\BBCode;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag as TagModel;
@@ -155,11 +155,9 @@ class Status extends BaseFactory
 			$poll = null;
 		}
 
-		$shared = Item::getShareArray($item);
-		if (!empty($shared['guid'])) {
-			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
-
-			$shared_uri_id = $shared_item['uri-id'] ?? 0;
+		$shared = DI::contentItem()->getSharedPost($item, ['uri-id']);
+		if (!empty($shared)) {
+			$shared_uri_id = $shared['post']['uri-id'];
 
 			$mentions    = array_merge($mentions, $this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy());
 			$tags        = array_merge($tags, $this->mstdnTagFactory->createFromUriId($shared_uri_id));

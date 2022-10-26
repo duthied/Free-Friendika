@@ -2949,20 +2949,18 @@ class Item
 		$item['mentions'] = $tags['mentions'];
 
 		$body = $item['body'] ?? '';
-		$shared = self::getShareArray($item);
-		if (!empty($shared['guid'])) {
-			$shared_item = Post::selectFirst(['uri-id', 'guid', 'plink', 'has-media'], ['guid' => $shared['guid'], 'uid' => [$item['uid'], 0]]);
-		}
 
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media'];
 
 		$shared_uri_id = 0;
 		$shared_links  = [];
 
-		if (empty($shared_item['uri-id']) && !empty($item['quote-uri-id'])) {
-			$shared_item = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id']]);
-			$quote_uri_id = $item['quote-uri-id'] ?? 0;
-			$shared_links[] = strtolower($item['quote-uri']);
+		$shared = DI::contentItem()->getSharedPost($item, $fields);
+		if (!empty($shared['post'])) {
+			$shared_item  = $shared['post'];
+			$quote_uri_id = $shared['post']['uri-id'];
+			$shared_links[] = strtolower($shared['post']['uri']);
+			$item['body'] = BBCode::removeSharedData($item['body']);
 		} elseif (empty($shared_item['uri-id']) && empty($item['quote-uri-id'])) {
 			$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::ACTIVITY]);
 			if (!empty($media)) {
@@ -3586,43 +3584,6 @@ class Item
 
 		Logger::info('Link not found', ['uid' => $uid, 'uri' => $uri]);
 		return 0;
-	}
-
-	/**
-	 * Return share data from an item array (if the item is shared item)
-	 * We are providing the complete Item array, because at some time in the future
-	 * we hopefully will define these values not in the body anymore but in some item fields.
-	 * This function is meant to replace all similar functions in the system.
-	 *
-	 * @param array $item
-	 *
-	 * @return array with share information
-	 */
-	public static function getShareArray(array $item): array
-	{
-		$attributes = BBCode::fetchShareAttributes($item['body'] ?? '');
-		if (!empty($attributes)) {
-			return $attributes;
-		}
-
-		if (!empty($item['quote-uri-id'])) {
-			$shared = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'uri', 'body'], ['uri-id' => $item['quote-uri-id']]);
-			if (!empty($shared)) {
-				return [
-					'author'     => $shared['author-name'],
-					'profile'    => $shared['author-link'],
-					'avatar'     => $shared['author-avatar'],
-					'link'       => $shared['plink'],
-					'posted'     => $shared['created'],
-					'guid'       => $shared['guid'],
-					'message_id' => $shared['uri'],
-					'comment'    => $item['body'],
-					'shared'     => $shared['body'],
-				];				
-			}
-		}
-
-		return [];
 	}
 
 	/**

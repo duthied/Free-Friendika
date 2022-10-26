@@ -25,6 +25,7 @@ use Friendica\BaseFactory;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Factory\Api\Friendica\Activities;
 use Friendica\Factory\Api\Twitter\User as TwitterUser;
 use Friendica\Model\Item;
@@ -178,11 +179,9 @@ class Status extends BaseFactory
 
 		$friendica_activities = $this->activities->createFromUriId($item['uri-id'], $uid);
 
-		$shared = Item::getShareArray($item);
-		if (!empty($shared['guid'])) {
-			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
-
-			$shared_uri_id = $shared_item['uri-id'] ?? 0;
+		$shared = DI::contentItem()->getSharedPost($item, ['uri-id']);
+		if (!empty($shared)) {
+			$shared_uri_id = $shared['post']['uri-id'];
 
 			if ($include_entities) {
 				$hashtags = array_merge($hashtags, $this->hashtag->createFromUriId($shared_uri_id, $text));

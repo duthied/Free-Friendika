@@ -3181,27 +3181,20 @@ class Diaspora
 	 */
 	public static function getReshareDetails(array $item): array
 	{
-		$reshared = Item::getShareArray($item);
+		$reshared = DI::contentItem()->getSharedPost($item, ['network', 'author-addr']);
 		if (empty($reshared)) {
 			return [];
 		}
 
 		// Skip if it isn't a pure repeated messages or not a real reshare
-		if (!empty($reshared['comment']) || empty($reshared['guid'])) {
+		if (!empty($reshared['comment']) || !in_array($reshared['post']['network'], [Protocol::DFRN, Protocol::DIASPORA])) {
 			return [];
 		}
 
-		$condition = ['guid' => $reshared['guid'], 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
-		$item = Post::selectFirst(['author-addr'], $condition);
-		if (DBA::isResult($item)) {
-			return [
-				'root_handle' => strtolower($item['author-addr']),
-				'root_guid'   => $reshared['guid']
-			];
-		}
-
-		// We are resharing something that isn't a DFRN or Diaspora post.
-		return [];
+		return [
+			'root_handle' => strtolower($reshared['post']['author-addr']),
+			'root_guid'   => $reshared['guid']
+		];
 	}
 
 	/**
