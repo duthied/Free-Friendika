@@ -33,7 +33,7 @@
 			{{/foreach}}
 			</tbody>
 		</table>
-		<p><a href="/blocklist/domain/download"><i class="fa fa-download"></i> {{$block_list.download}}</a></p>
+		<p><a rel="nofollow" href="/blocklist/domain/download"><i class="fa fa-download"></i> {{$block_list.download}}</a></p>
 	</div>
 {{/if}}
 
