@@ -680,11 +680,11 @@ class Item
 			$shared_content .= '[h3]' . $item['title'] . "[/h3]\n";
 		}
 
-		$shared = ItemModel::getShareArray($item);
+		$shared = $this->getShareArray($item);
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
 		if (!empty($shared)) {
-			if (!empty($shared['guid']) && ($encaspulated_share = self::createSharedPostByGuid($shared['guid'], 0, '', $add_media))) {
+			if (!empty($shared['guid']) && ($encaspulated_share = $this->createSharedPostByGuid($shared['guid'], 0, '', $add_media))) {
 				$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
 			}
 
@@ -694,5 +694,106 @@ class Item
 		$shared_content .= $item['body'] . '[/share]';
 
 		return $shared_content;
+	}
+
+	/**
+	 * Return the shared post from an item array (if the item is shared item)
+	 *
+	 * @param array $item
+	 * @param array $fields
+	 *
+	 * @return array with the shared post
+	 */
+	public function getSharedPost(array $item, array $fields = []): array
+	{
+		if (!empty($item['quote-uri-id'])) {
+			$shared = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id'], 'uid' => [0, $item['uid'] ?? 0]]);
+			if (is_array($shared)) {
+				return [
+					'comment' => BBCode::removeSharedData($item['body'] ?? ''),
+					'post'    => $shared
+				];
+			}
+		}
+
+		$attributes = BBCode::fetchShareAttributes($item['body'] ?? '');
+		if (!empty($attributes)) {
+			$shared = Post::selectFirst($fields, ['guid' => $attributes['guid'], 'uid' => [0, $item['uid'] ?? 0]]);
+			if (is_array($shared)) {
+				return [
+					'comment' => $attributes['comment'],
+					'post'    => $shared
+				];
+			}
+		}
+
+		return [];
+	}
+
+	/**
+	 * Improve the data in shared posts
+	 *
+	 * @param array $item
+	 * @param bool  $add_media
+	 * @return string body
+	 */
+	public function improveSharedDataInBody(array $item, bool $add_media = false): string
+	{
+		$shared = BBCode::fetchShareAttributes($item['body']);
+		if (empty($shared['guid']) && empty($shared['message_id'])) {
+			return $item['body'];
+		}
+
+		$link = $shared['link'] ?: $shared['message_id'];
+
+		if (empty($shared_content)) {
+			$shared_content = $this->createSharedPostByUrl($link, $item['uid'] ?? 0, $add_media);
+		}
+
+		if (empty($shared_content)) {
+			return $item['body'];
+		}
+
+		$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $shared_content, $item['body']);
+
+		Logger::debug('New shared data', ['uri-id' => $item['uri-id'], 'link' => $link, 'guid' => $item['guid']]);
+		return $item['body'];
+	}
+
+	/**
+	 * Return share data from an item array (if the item is shared item)
+	 * We are providing the complete Item array, because at some time in the future
+	 * we hopefully will define these values not in the body anymore but in some item fields.
+	 * This function is meant to replace all similar functions in the system.
+	 *
+	 * @param array $item
+	 *
+	 * @return array with share information
+	 */
+	private function getShareArray(array $item): array
+	{
+		$attributes = BBCode::fetchShareAttributes($item['body'] ?? '');
+		if (!empty($attributes)) {
+			return $attributes;
+		}
+
+		if (!empty($item['quote-uri-id'])) {
+			$shared = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'uri', 'body'], ['uri-id' => $item['quote-uri-id']]);
+			if (!empty($shared)) {
+				return [
+					'author'     => $shared['author-name'],
+					'profile'    => $shared['author-link'],
+					'avatar'     => $shared['author-avatar'],
+					'link'       => $shared['plink'],
+					'posted'     => $shared['created'],
+					'guid'       => $shared['guid'],
+					'message_id' => $shared['uri'],
+					'comment'    => $item['body'],
+					'shared'     => $shared['body'],
+				];				
+			}
+		}
+
+		return [];
 	}
 }

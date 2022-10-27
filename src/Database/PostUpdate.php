@@ -359,7 +359,7 @@ class PostUpdate
                 }
 			}
 
-			Tag::store($term['uri-id'], $term['type'], $term['term'], $term['url'], false);
+			Tag::store($term['uri-id'], $term['type'], $term['term'], $term['url']);
 
 			$id = $term['tid'];
 			++$rows;

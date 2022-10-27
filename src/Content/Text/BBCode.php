@@ -1071,6 +1071,30 @@ class BBCode
 	}
 
 	/**
+	 * Checks, if the provided body contains a native reshare
+	 *
+	 * @param string $body
+	 * @return boolean
+	 */
+	public static function isNativeReshare(string $body): bool
+	{
+		$shared = BBCode::fetchShareAttributes($body);
+		return !empty($shared['guid'] ?? '');
+	}
+
+	/**
+	 * Checks if the provided body contains a "share" element
+	 *
+	 * @param string $body
+	 * @return boolean
+	 */
+	public static function existsShare(string $body): bool
+	{
+		$shared = BBCode::fetchShareAttributes($body);
+		return !empty($shared['link'] ?? '');
+	}
+
+	/**
 	 * Replace the share block with a link
 	 *
 	 * @param string $body
@@ -1094,7 +1118,7 @@ class BBCode
 	 */
 	public static function removeSharedData(string $body): string
 	{
-		return preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+		return trim(preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body));
 	}
 
 	/**

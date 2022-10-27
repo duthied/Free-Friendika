@@ -41,9 +41,9 @@ function share_init(App $a) {
 		System::exit();
 	}
 
-	$shared = Item::getShareArray($item);
-	if (empty($shared['comment']) && (!empty($shared['message_id']) || !empty($shared['link']))) {
-		$content = '[share]' . ($shared['message_id'] ?: $shared['link']) . '[/share]';
+	$shared = DI::contentItem()->getSharedPost($item, ['uri']);
+	if (!empty($shared) && empty($shared['comment'])) {
+		$content = '[share]' . $shared['post']['uri'] . '[/share]';
 	} else {
 		$content = '[share]' . $item['uri'] . '[/share]';
 	}

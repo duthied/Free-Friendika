@@ -49,7 +49,7 @@ class StatusTest extends FixtureTest
 			new Url(DI::logger()),
 			new Mention(DI::logger(), DI::baseUrl()),
 			new Activities(DI::logger(), DI::twitterUser()),
-			new Attachment(DI::logger()));
+			new Attachment(DI::logger()), DI::contentItem());
 	}
 
 	/**

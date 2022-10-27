@@ -404,8 +404,7 @@ class Media
 		$unshared_body = $body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 
 		// Only remove the shared data from "real" reshares
-		$shared = BBCode::fetchShareAttributes($body);
-		if (!empty($shared['guid'])) {
+		if (BBCode::isNativeReshare($body)) {
 			$unshared_body = BBCode::removeSharedData($body);
 		}
 
@@ -486,8 +485,7 @@ class Media
 	public static function insertFromRelevantUrl(int $uriid, string $body)
 	{
 		// Only remove the shared data from "real" reshares
-		$shared = BBCode::fetchShareAttributes($body);
-		if (!empty($shared['guid'])) {
+		if (BBCode::isNativeReshare($body)) {
 			// Don't look at the shared content
 			$body = BBCode::removeSharedData($body);
 		}

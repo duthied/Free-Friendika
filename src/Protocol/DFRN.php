@@ -1838,7 +1838,7 @@ class DFRN
 
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 
-		$item['body'] = Item::improveSharedDataInBody($item);
+		$item['body'] = DI::contentItem()->improveSharedDataInBody($item);
 
 		Tag::storeFromBody($item['uri-id'], $item['body']);
 

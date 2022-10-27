@@ -1664,20 +1664,20 @@ class Transmitter
 				$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
 			}
 
-			$body   = BBCode::setMentionsToNicknames($body);
-			$shared = BBCode::fetchShareAttributes($body);
+			$body           = BBCode::setMentionsToNicknames($body);
+			$exists_reshare = BBCode::existsShare($body);
 
 			if (!empty($item['quote-uri']) && Post::exists(['uri-id' => $item['quote-uri-id'], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN]])) {
 				$real_quote = true;
-				if (!empty($shared['link'])) {
+				if ($exists_reshare) {
 					$body = BBCode::replaceSharedData($body);
 				} elseif (strpos($body, $item['quote-uri']) === false) {
 					$body .= "\n♲ " . $item['quote-uri'];
 				}
 				$data['quoteUrl'] = $item['quote-uri'];
-			} elseif (!empty($item['quote-uri']) && empty($shared)) {
+			} elseif (!empty($item['quote-uri']) && !$exists_reshare) {
 				$body .= "\n" . DI::contentItem()->createSharedPostByUriId($item['quote-uri-id'], $item['uid'], true);
-				$item['body'] = Item::improveSharedDataInBody($item, true);
+				$item['body'] = DI::contentItem()->improveSharedDataInBody($item, true);
 			}
 
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
@@ -1691,8 +1691,7 @@ class Transmitter
 			$richbody = BBCode::setMentionsToNicknames($item['body'] ?? '');
 
 			if ($real_quote) {
-				$shared = BBCode::fetchShareAttributes($richbody);
-				if (!empty($shared['link'])) {
+				if (BBCode::existsShare($richbody)) {
 					$richbody = BBCode::replaceSharedData($richbody);
 				} elseif (strpos($richbody, $item['quote-uri']) === false) {
 					$richbody .= "\n♲ " . $item['quote-uri'];
@@ -1821,28 +1820,23 @@ class Transmitter
 	 * @param array $item
 	 * @return array Announcement array
 	 */
-	public static function getAnnounceArray(array $item): array
+	private static function getAnnounceArray(array $item): array
 	{
-		$reshared = Item::getShareArray($item);
-		if (empty($reshared['guid'])) {
+		$reshared = DI::contentItem()->getSharedPost($item, Item::DELIVER_FIELDLIST);
+		if (empty($reshared)) {
 			return [];
 		}
 
-		$reshared_item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['guid' => $reshared['guid']]);
-		if (!DBA::isResult($reshared_item)) {
+		if (!in_array($reshared['post']['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
 			return [];
 		}
 
-		if (!in_array($reshared_item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
-			return [];
-		}
-
-		$profile = APContact::getByURL($reshared_item['author-link'], false);
+		$profile = APContact::getByURL($reshared['post']['author-link'], false);
 		if (empty($profile)) {
 			return [];
 		}
 
-		return ['object' => $reshared_item, 'actor' => $profile, 'comment' => $reshared['comment']];
+		return ['object' => $reshared['post'], 'actor' => $profile, 'comment' => $reshared['comment']];
 	}
 
 	/**

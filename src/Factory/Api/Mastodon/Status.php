@@ -23,7 +23,7 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
 use Friendica\Content\ContactSelector;
-use Friendica\Content\Text\BBCode;
+use Friendica\Content\Item as ContentItem;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -54,11 +54,14 @@ class Status extends BaseFactory
 	private $mstdnErrorFactory;
 	/** @var Poll */
 	private $mstdnPollFactory;
+	/** @var ContentItem */
+	private $contentItem;
 
 	public function __construct(LoggerInterface $logger, Database $dba,
 		Account $mstdnAccountFactory, Mention $mstdnMentionFactory,
 		Tag $mstdnTagFactory, Card $mstdnCardFactory,
-		Attachment $mstdnAttachementFactory, Error $mstdnErrorFactory, Poll $mstdnPollFactory)
+		Attachment $mstdnAttachementFactory, Error $mstdnErrorFactory,
+		Poll $mstdnPollFactory, ContentItem $contentItem)
 	{
 		parent::__construct($logger);
 		$this->dba                     = $dba;
@@ -69,6 +72,7 @@ class Status extends BaseFactory
 		$this->mstdnAttachementFactory = $mstdnAttachementFactory;
 		$this->mstdnErrorFactory       = $mstdnErrorFactory;
 		$this->mstdnPollFactory        = $mstdnPollFactory;
+		$this->contentItem             = $contentItem;
 	}
 
 	/**
@@ -155,11 +159,9 @@ class Status extends BaseFactory
 			$poll = null;
 		}
 
-		$shared = Item::getShareArray($item);
-		if (!empty($shared['guid'])) {
-			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
-
-			$shared_uri_id = $shared_item['uri-id'] ?? 0;
+		$shared = $this->contentItem->getSharedPost($item, ['uri-id']);
+		if (!empty($shared)) {
+			$shared_uri_id = $shared['post']['uri-id'];
 
 			$mentions    = array_merge($mentions, $this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy());
 			$tags        = array_merge($tags, $this->mstdnTagFactory->createFromUriId($shared_uri_id));
