@@ -830,7 +830,7 @@ class Processor
 		if (!empty($activity['source'])) {
 			$item['body'] = $activity['source'];
 			$item['raw-body'] = $content;
-			$item['body'] = Item::improveSharedDataInBody($item);
+			$item['body'] = DI::contentItem()->improveSharedDataInBody($item);
 		} else {
 			$parent_uri = $item['parent-uri'] ?? $item['thr-parent'];
 			if (empty($activity['directmessage']) && ($parent_uri != $item['uri']) && ($item['gravity'] == Item::GRAVITY_COMMENT)) {

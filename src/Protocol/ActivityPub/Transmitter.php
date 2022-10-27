@@ -1677,7 +1677,7 @@ class Transmitter
 				$data['quoteUrl'] = $item['quote-uri'];
 			} elseif (!empty($item['quote-uri']) && !$exists_reshare) {
 				$body .= "\n" . DI::contentItem()->createSharedPostByUriId($item['quote-uri-id'], $item['uid'], true);
-				$item['body'] = Item::improveSharedDataInBody($item, true);
+				$item['body'] = DI::contentItem()->improveSharedDataInBody($item, true);
 			}
 
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);

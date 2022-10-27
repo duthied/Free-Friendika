@@ -3624,36 +3624,6 @@ class Item
 	}
 
 	/**
-	 * Improve the data in shared posts
-	 *
-	 * @param array $item
-	 * @param bool  $add_media
-	 * @return string body
-	 */
-	public static function improveSharedDataInBody(array $item, bool $add_media = false): string
-	{
-		$shared = BBCode::fetchShareAttributes($item['body']);
-		if (empty($shared['guid']) && empty($shared['message_id'])) {
-			return $item['body'];
-		}
-
-		$link = $shared['link'] ?: $shared['message_id'];
-
-		if (empty($shared_content)) {
-			$shared_content = DI::contentItem()->createSharedPostByUrl($link, $item['uid'] ?? 0, $add_media);
-		}
-
-		if (empty($shared_content)) {
-			return $item['body'];
-		}
-
-		$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $shared_content, $item['body']);
-
-		Logger::debug('New shared data', ['uri-id' => $item['uri-id'], 'link' => $link, 'guid' => $item['guid']]);
-		return $item['body'];
-	}
-
-	/**
 	 * Fetch the uri-id of a quote
 	 *
 	 * @param string $body

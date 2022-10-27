@@ -22,10 +22,10 @@
 namespace Friendica\Factory\Api\Twitter;
 
 use Friendica\BaseFactory;
+use Friendica\Content\Item as ContentItem;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Database\Database;
-use Friendica\DI;
 use Friendica\Factory\Api\Friendica\Activities;
 use Friendica\Factory\Api\Twitter\User as TwitterUser;
 use Friendica\Model\Item;
@@ -54,8 +54,10 @@ class Status extends BaseFactory
 	private $activities;
 	/** @var Activities entity */
 	private $attachment;
+	/** @var ContentItem */
+	private $contentItem;
 
-	public function __construct(LoggerInterface $logger, Database $dba, TwitterUser $twitteruser, Hashtag $hashtag, Media $media, Url $url, Mention $mention, Activities $activities, Attachment $attachment)
+	public function __construct(LoggerInterface $logger, Database $dba, TwitterUser $twitteruser, Hashtag $hashtag, Media $media, Url $url, Mention $mention, Activities $activities, Attachment $attachment, ContentItem $contentItem)
 	{
 		parent::__construct($logger);
 		$this->dba         = $dba;
@@ -66,6 +68,7 @@ class Status extends BaseFactory
 		$this->mention     = $mention;
 		$this->activities  = $activities;
 		$this->attachment  = $attachment;
+		$this->contentItem = $contentItem;
 	}
 
 	/**
@@ -179,7 +182,7 @@ class Status extends BaseFactory
 
 		$friendica_activities = $this->activities->createFromUriId($item['uri-id'], $uid);
 
-		$shared = DI::contentItem()->getSharedPost($item, ['uri-id']);
+		$shared = $this->contentItem->getSharedPost($item, ['uri-id']);
 		if (!empty($shared)) {
 			$shared_uri_id = $shared['post']['uri-id'];
 

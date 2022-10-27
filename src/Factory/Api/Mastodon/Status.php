@@ -23,9 +23,9 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Item as ContentItem;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag as TagModel;
@@ -54,11 +54,14 @@ class Status extends BaseFactory
 	private $mstdnErrorFactory;
 	/** @var Poll */
 	private $mstdnPollFactory;
+	/** @var ContentItem */
+	private $contentItem;
 
 	public function __construct(LoggerInterface $logger, Database $dba,
 		Account $mstdnAccountFactory, Mention $mstdnMentionFactory,
 		Tag $mstdnTagFactory, Card $mstdnCardFactory,
-		Attachment $mstdnAttachementFactory, Error $mstdnErrorFactory, Poll $mstdnPollFactory)
+		Attachment $mstdnAttachementFactory, Error $mstdnErrorFactory,
+		Poll $mstdnPollFactory, ContentItem $contentItem)
 	{
 		parent::__construct($logger);
 		$this->dba                     = $dba;
@@ -69,6 +72,7 @@ class Status extends BaseFactory
 		$this->mstdnAttachementFactory = $mstdnAttachementFactory;
 		$this->mstdnErrorFactory       = $mstdnErrorFactory;
 		$this->mstdnPollFactory        = $mstdnPollFactory;
+		$this->contentItem             = $contentItem;
 	}
 
 	/**
@@ -155,7 +159,7 @@ class Status extends BaseFactory
 			$poll = null;
 		}
 
-		$shared = DI::contentItem()->getSharedPost($item, ['uri-id']);
+		$shared = $this->contentItem->getSharedPost($item, ['uri-id']);
 		if (!empty($shared)) {
 			$shared_uri_id = $shared['post']['uri-id'];
 
