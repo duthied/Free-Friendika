@@ -3402,7 +3402,7 @@ class Item
 					$percent = $option['replies'] / $question['voters'] * 100;
 					$options[$key]['vote'] = DI::l10n()->tt('%2$s (%3$d%%, %1$d vote)', '%2$s (%3$d%%, %1$d votes)', $option['replies'], $option['name'], round($percent, 1));
 				} else {
-					$options[$key]['vote'] = DI::l10n()->tt('%2$s (%1$d vote)', '%2$s (%1$d votes)', $option['replies'], $option['name'], 0);
+					$options[$key]['vote'] = DI::l10n()->tt('%2$s (%1$d vote)', '%2$s (%1$d votes)', $option['replies'], $option['name']);
 				}
 			}
 
