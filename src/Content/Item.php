@@ -748,8 +748,7 @@ class Item
 			return $body;
 		}
 
-		$link = $post['plink'] ?: $post['uri'];
-		$body .= "\n♲ " . $link;
+		$body .= "\n♲ " . ($post['plink'] ?: $post['uri']);
 
 		return $body;
 	}

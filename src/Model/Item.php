@@ -3662,38 +3662,39 @@ class Item
 			$shared_item = Post::selectFirst(['uri-id'], ['guid' => $shared['guid'], 'uid' => [0, $uid]]);
 			if (!empty($shared_item['uri-id'])) {
 				Logger::debug('Found post by guid', ['guid' => $shared['guid'], 'uid' => $uid]);
+				return $shared_item['uri-id'];
 			}
 		}
 
-		if (empty($shared_item['uri-id']) && !empty($shared['message_id'])) {
+		if (!empty($shared['message_id'])) {
 			$shared_item = Post::selectFirst(['uri-id'], ['uri' => $shared['message_id'], 'uid' => [0, $uid]]);
 			if (!empty($shared_item['uri-id'])) {
 				Logger::debug('Found post by message_id', ['message_id' => $shared['message_id'], 'uid' => $uid]);
+				return $shared_item['uri-id'];
 			}
 		}
 
-		if (empty($shared_item['uri-id']) && !empty($shared['link'])) {
+		if (!empty($shared['link'])) {
 			$shared_item = Post::selectFirst(['uri-id'], ['plink' => $shared['link'], 'uid' => [0, $uid]]);
 			if (!empty($shared_item['uri-id'])) {
 				Logger::debug('Found post by link', ['link' => $shared['link'], 'uid' => $uid]);
+				return $shared_item['uri-id'];
 			}
 		}
 
-		if (empty($shared_item['uri-id'])) {
-			$url = $shared['message_id'] ?: $shared['link'];
-			$id = self::fetchByLink($url);
-			if (!$id) {
-				Logger::notice('Post could not be fetched.', ['url' => $url, 'uid' => $uid]);
-				return 0;
-			}
+		$url = $shared['message_id'] ?: $shared['link'];
+		$id = self::fetchByLink($url);
+		if (!$id) {
+			Logger::notice('Post could not be fetched.', ['url' => $url, 'uid' => $uid]);
+			return 0;
+		}
 
+		$shared_item = Post::selectFirst(['uri-id'], ['id' => $id]);
+		if (!DBA::isResult($shared_item)) {
+			Logger::warning('Post does not exist.', ['id' => $id, 'url' => $url, 'uid' => $uid]);
+			return 0;
+		} else {
 			Logger::debug('Fetched shared post', ['id' => $id, 'url' => $url, 'uid' => $uid]);
-
-			$shared_item = Post::selectFirst(['uri-id'], ['id' => $id]);
-			if (!DBA::isResult($shared_item)) {
-				Logger::warning('Post does not exist.', ['id' => $id, 'url' => $url, 'uid' => $uid]);
-				return 0;
-			}
 		}
 
 		return $shared_item['uri-id'];
