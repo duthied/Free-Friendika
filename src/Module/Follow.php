@@ -214,7 +214,7 @@ class Follow extends BaseModule
 			}
 
 			$this->baseUrl->redirect($returnPath);
-		} else if (!empty($result['cid'])) {
+		} elseif (!empty($result['cid'])) {
 			$this->baseUrl->redirect('contact/' . $result['cid']);
 		}
 
