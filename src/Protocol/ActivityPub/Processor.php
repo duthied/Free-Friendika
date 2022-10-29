@@ -827,10 +827,26 @@ class Processor
 
 		$content = self::addMentionLinks($content, $activity['tags']);
 
+		if (!empty($activity['quote-url'])) {
+			$id = Item::fetchByLink($activity['quote-url']);
+			if ($id) {
+				$shared_item = Post::selectFirst(['uri-id'], ['id' => $id]);
+				$item['quote-uri-id'] = $shared_item['uri-id'];
+			} else {
+				Logger::info('Quote was not fetched', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'quote' => $activity['quote-url']]);
+			}
+		}
+
 		if (!empty($activity['source'])) {
 			$item['body'] = $activity['source'];
 			$item['raw-body'] = $content;
-			$item['body'] = DI::contentItem()->improveSharedDataInBody($item);
+
+			$quote_uri_id = Item::getQuoteUriId($item['body']);
+			if (empty($item['quote-uri-id']) && !empty($quote_uri_id)) {
+				$item['quote-uri-id'] = $quote_uri_id;
+			}
+
+			$item['body'] = BBCode::removeSharedData($item['body']);
 		} else {
 			$parent_uri = $item['parent-uri'] ?? $item['thr-parent'];
 			if (empty($activity['directmessage']) && ($parent_uri != $item['uri']) && ($item['gravity'] == Item::GRAVITY_COMMENT)) {
@@ -848,10 +864,6 @@ class Processor
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary'] ?? '');
 			$item['raw-body'] = $item['body'] = $content;
-
-			if (!empty($activity['quote-url'])) {
-				$item['body'] .= DI::contentItem()->createSharedPostByUrl($activity['quote-url']);
-			}
 		}
 
 		self::storeFromBody($item);

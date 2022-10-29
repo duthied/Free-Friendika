@@ -403,11 +403,6 @@ class Media
 		// Simplify image codes
 		$unshared_body = $body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 
-		// Only remove the shared data from "real" reshares
-		if (BBCode::isNativeReshare($body)) {
-			$unshared_body = BBCode::removeSharedData($body);
-		}
-
 		$attachments = [];
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
@@ -484,12 +479,6 @@ class Media
 	 */
 	public static function insertFromRelevantUrl(int $uriid, string $body)
 	{
-		// Only remove the shared data from "real" reshares
-		if (BBCode::isNativeReshare($body)) {
-			// Don't look at the shared content
-			$body = BBCode::removeSharedData($body);
-		}
-
 		// Remove all hashtags and mentions
 		$body = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '', $body);
 
@@ -519,9 +508,6 @@ class Media
 	 */
 	public static function insertFromAttachmentData(int $uriid, string $body)
 	{
-		// Don't look at the shared content
-		$body = BBCode::removeSharedData($body);
-
 		$data = BBCode::getAttachmentData($body);
 		if (empty($data))  {
 			return;

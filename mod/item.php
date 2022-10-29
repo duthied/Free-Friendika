@@ -611,7 +611,8 @@ function item_post(App $a) {
 		$datarray['author-uri-id'] = ItemURI::getIdByURI($datarray['author-link']);
 		$datarray['owner-updated'] = '';
 		$datarray['has-media'] = false;
-		$datarray['body'] = DI::contentItem()->improveSharedDataInBody($datarray);
+		$datarray['quote-uri-id'] = Item::getQuoteUriId($datarray['body'], $datarray['uid']);
+		$datarray['body'] = BBCode::removeSharedData($datarray['body']);
 
 		$o = DI::conversation()->create([array_merge($contact_record, $datarray)], 'search', false, true);
 
@@ -652,7 +653,12 @@ function item_post(App $a) {
 	}
 
 	$datarray['uri-id'] = ItemURI::getIdByURI($datarray['uri']);
-	$datarray['body']   = DI::contentItem()->improveSharedDataInBody($datarray);
+
+	$quote_uri_id = Item::getQuoteUriId($datarray['body'], $datarray['uid']);
+	if (!empty($quote_uri_id)) {
+		$datarray['quote-uri-id'] = $quote_uri_id;
+		$datarray['body']         = BBCode::removeSharedData($datarray['body']);
+	}
 
 	if ($orig_post) {
 		$fields = [

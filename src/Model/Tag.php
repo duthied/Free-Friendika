@@ -319,15 +319,11 @@ class Tag
 			$tags = self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
 		}
 
-		// Only remove the shared data from "real" reshares
-		$shared = DI::contentItem()->getSharedPost($item, ['uri-id']);
-		if (!empty($shared)) {
-			$item['body'] = BBCode::removeSharedData($item['body']);
-		}
-
 		foreach (self::getFromBody($item['body'], $tags) as $tag) {
 			self::storeByHash($item['uri-id'], $tag[1], $tag[3], $tag[2]);
 		}
+
+		$shared = DI::contentItem()->getSharedPost($item, ['uri-id']);
 
 		// Search for hashtags in the shared body (but only if hashtags are wanted)
 		if (!empty($shared) && (strpos($tags, self::TAG_CHARACTER[self::HASHTAG]) !== false)) {

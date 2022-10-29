@@ -1664,20 +1664,17 @@ class Transmitter
 				$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
 			}
 
-			$body           = BBCode::setMentionsToNicknames($body);
-			$exists_reshare = BBCode::existsShare($body);
+			$body = BBCode::setMentionsToNicknames($body);
 
-			if (!empty($item['quote-uri']) && Post::exists(['uri-id' => $item['quote-uri-id'], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN]])) {
-				$real_quote = true;
-				if ($exists_reshare) {
-					$body = BBCode::replaceSharedData($body);
-				} elseif (strpos($body, $item['quote-uri']) === false) {
-					$body .= "\n♲ " . $item['quote-uri'];
+			if (!empty($item['quote-uri-id'])) {
+				$body = BBCode::removeSharedData($body);
+				if (Post::exists(['uri-id' => $item['quote-uri-id'], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN]])) {
+					$real_quote = true;
+					$data['quoteUrl'] = $item['quote-uri'];
+					$body = DI::contentItem()->addShareLink($body, $item['quote-uri-id']);
+				} else {
+					$body = DI::contentItem()->addSharedPost($item, $body);
 				}
-				$data['quoteUrl'] = $item['quote-uri'];
-			} elseif (!empty($item['quote-uri']) && !$exists_reshare) {
-				$body .= "\n" . DI::contentItem()->createSharedPostByUriId($item['quote-uri-id'], $item['uid'], true);
-				$item['body'] = DI::contentItem()->improveSharedDataInBody($item, true);
 			}
 
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
@@ -1689,15 +1686,14 @@ class Transmitter
 		$language = self::getLanguage($item);
 		if (!empty($language)) {
 			$richbody = BBCode::setMentionsToNicknames($item['body'] ?? '');
-
-			if ($real_quote) {
-				if (BBCode::existsShare($richbody)) {
-					$richbody = BBCode::replaceSharedData($richbody);
-				} elseif (strpos($richbody, $item['quote-uri']) === false) {
-					$richbody .= "\n♲ " . $item['quote-uri'];
+			if (!empty($item['quote-uri-id'])) {
+				$richbody = BBCode::removeSharedData($richbody);
+				if ($real_quote) {
+					$richbody = DI::contentItem()->addShareLink($richbody, $item['quote-uri-id']);
+				} else {
+					$richbody = DI::contentItem()->addSharedPost($item, $richbody);
 				}
 			}
-
 			$richbody = BBCode::removeAttachment($richbody);
 
 			$data['contentMap'][$language] = BBCode::convertForUriId($item['uri-id'], $richbody, BBCode::EXTERNAL);

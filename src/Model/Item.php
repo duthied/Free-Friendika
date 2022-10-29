@@ -197,12 +197,20 @@ class Item
 
 		Logger::info('Updating per single row method', ['fields' => $fields, 'condition' => $condition]);
 
-		$items = Post::select(['id', 'origin', 'uri-id', 'uid', 'author-network'], $condition);
+		$items = Post::select(['id', 'origin', 'uri-id', 'uid', 'author-network', 'quote-uri-id'], $condition);
 
 		$notify_items = [];
 
 		while ($item = DBA::fetch($items)) {
 			if (!empty($fields['body'])) {
+				if (!empty($item['quote-uri-id'])) {
+					$fields['body'] = BBCode::removeSharedData($fields['body']);
+
+					if (!empty($fields['raw-body'])) {
+						$fields['raw-body'] = BBCode::removeSharedData($fields['raw-body']);
+					}
+				}
+		
 				Post\Media::insertFromAttachmentData($item['uri-id'], $fields['body']);
 
 				$content_fields = ['raw-body' => trim($fields['raw-body'] ?? $fields['body'])];
@@ -578,7 +586,7 @@ class Item
 	public static function isValid(array $item): bool
 	{
 		// When there is no content then we don't post it
-		if (($item['body'] . $item['title'] == '') && (empty($item['uri-id']) || !Post\Media::existsByURIId($item['uri-id']))) {
+		if (($item['body'] . $item['title'] == '') && empty($item['quote-uri-id']) && (empty($item['uri-id']) || !Post\Media::existsByURIId($item['uri-id']))) {
 			Logger::notice('No body, no title.');
 			return false;
 		}
@@ -1119,18 +1127,26 @@ class Item
 			unset($item['attachments']);
 		}
 
+		if (empty($item['quote-uri-id'])) {
+			$quote_id = self::getQuoteUriId($item['body']);
+			if (!empty($quote_id)) {
+				// This is one of these "should not happen" situations.
+				// The protocol implementations should already have done this job.
+				Logger::notice('Quote-uri-id detected in post', ['id' => $quote_id, 'guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'callstack' => System::callstack(20)]);
+				$item['quote-uri-id'] = $quote_id;
+			}
+		}
+
+		if (!empty($item['quote-uri-id'])) {
+			$item['raw-body'] = BBCode::removeSharedData($item['raw-body']);
+			$item['body']     = BBCode::removeSharedData($item['body']);
+		}
+
 		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
 
 		// Remove all media attachments from the body and store them in the post-media table
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
-
-		$quote_id = self::getQuoteUriId($item['body']);
-
-		if (!empty($quote_id) && Post::exists(['uri-id' => $quote_id, 'network' => Protocol::FEDERATED])) {
-			$item['quote-uri-id'] = $quote_id;
-			$item['raw-body'] = BBCode::removeSharedData($item['raw-body']);
-		}
 
 		if (!DBA::exists('contact', ['id' => $item['author-id'], 'network' => Protocol::DFRN])) {
 			Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body']);
@@ -3630,12 +3646,56 @@ class Item
 	 * @param string $body
 	 * @return integer
 	 */
-	private static function getQuoteUriId(string $body): int
+	public static function getQuoteUriId(string $body, int $uid = 0): int
 	{
 		$shared = BBCode::fetchShareAttributes($body);
-		if (empty($shared['message_id'])) {
+		if (empty($shared['guid']) && empty($shared['message_id'])) {
 			return 0;
 		}
-		return ItemURI::getIdByURI($shared['message_id']);
+
+		if (empty($shared['link']) && empty($shared['message_id'])) {
+			Logger::notice('Invalid share block.', ['share' => $shared]);
+			return 0;
+		}
+
+		if (!empty($shared['guid'])) {
+			$shared_item = Post::selectFirst(['uri-id'], ['guid' => $shared['guid'], 'uid' => [0, $uid]]);
+			if (!empty($shared_item['uri-id'])) {
+				Logger::debug('Found post by guid', ['guid' => $shared['guid'], 'uid' => $uid]);
+			}
+		}
+
+		if (empty($shared_item['uri-id']) && !empty($shared['message_id'])) {
+			$shared_item = Post::selectFirst(['uri-id'], ['uri' => $shared['message_id'], 'uid' => [0, $uid]]);
+			if (!empty($shared_item['uri-id'])) {
+				Logger::debug('Found post by message_id', ['message_id' => $shared['message_id'], 'uid' => $uid]);
+			}
+		}
+
+		if (empty($shared_item['uri-id']) && !empty($shared['link'])) {
+			$shared_item = Post::selectFirst(['uri-id'], ['plink' => $shared['link'], 'uid' => [0, $uid]]);
+			if (!empty($shared_item['uri-id'])) {
+				Logger::debug('Found post by link', ['link' => $shared['link'], 'uid' => $uid]);
+			}
+		}
+
+		if (empty($shared_item['uri-id'])) {
+			$url = $shared['message_id'] ?: $shared['link'];
+			$id = self::fetchByLink($url);
+			if (!$id) {
+				Logger::notice('Post could not be fetched.', ['url' => $url, 'uid' => $uid]);
+				return 0;
+			}
+
+			Logger::debug('Fetched shared post', ['id' => $id, 'url' => $url, 'uid' => $uid]);
+
+			$shared_item = Post::selectFirst(['uri-id'], ['id' => $id]);
+			if (!DBA::isResult($shared_item)) {
+				Logger::warning('Post does not exist.', ['id' => $id, 'url' => $url, 'uid' => $uid]);
+				return 0;
+			}
+		}
+
+		return $shared_item['uri-id'];
 	}
 }
