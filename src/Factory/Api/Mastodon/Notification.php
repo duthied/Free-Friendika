@@ -85,7 +85,7 @@ class Notification extends BaseFactory
 		if (($Notification->verb == Activity::FOLLOW) && ($Notification->type === Post\UserNotification::TYPE_NONE)) {
 			$contact = Contact::getById($Notification->actorId, ['pending', 'uri-id', 'uid']);
 			if (($contact['uid'] == 0) && !empty($contact['uri-id'])) {
-				$contact = Contact::selectFirst(['pending', 'uri-id', 'uid'], ['uri-id' => $contact['uri-id'], 'uid' => $Notification->uid]);
+				$contact = Contact::selectFirst(['pending'], ['uri-id' => $contact['uri-id'], 'uid' => $Notification->uid]);
 			}
 			$type = $contact['pending'] ? MstdnNotification::TYPE_INTRODUCTION : MstdnNotification::TYPE_FOLLOW;
 		} elseif (($Notification->verb == Activity::ANNOUNCE) &&
