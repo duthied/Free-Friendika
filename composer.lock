@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c851fbba46ed090d0fbaf68e9b3b94df",
+    "content-hash": "e8626dc6957dff9cc783daad10cfc26f",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -240,22 +240,6 @@
                 "icon"
             ],
             "time": "2021-08-26T18:46:39+00:00"
-        },
-        {
-            "name": "bower-asset/vue",
-            "version": "v2.7.10",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/vuejs/vue.git",
-                "reference": "ee57d9fd1d51abe245c6c37e6f8f2d45977b929e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/vuejs/vue/zipball/ee57d9fd1d51abe245c6c37e6f8f2d45977b929e",
-                "reference": "ee57d9fd1d51abe245c6c37e6f8f2d45977b929e",
-                "shasum": ""
-            },
-            "type": "bower-asset-library"
         },
         {
             "name": "brick/math",
