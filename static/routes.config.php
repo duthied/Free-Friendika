@@ -38,6 +38,7 @@ $profileRoutes = [
 	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class, [R::GET]],
 	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,   [R::GET]],
 	'/media'                                   => [Module\Profile\Media::class,    [R::GET]],
+	'/unkmail'                                 => [Module\Profile\UnkMail::class,  [R::GET, R::POST]],
 ];
 
 $apiRoutes = [

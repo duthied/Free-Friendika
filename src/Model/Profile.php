@@ -349,7 +349,7 @@ class Profile
 				if ($visitor_is_followed || $visitor_is_following) {
 					$wallmessage_link = $visitor_base_path . '/message/new/' . $profile_contact['id'];
 				} elseif ($visitor_is_authenticated && !empty($profile['unkmail'])) {
-					$wallmessage_link = 'wallmessage/' . $profile['nickname'];
+					$wallmessage_link = 'profile/' . $profile['nickname'] . '/unkmail';
 				}
 			}
 		}
@@ -679,10 +679,11 @@ class Profile
 	 * Retrieves the my_url session variable
 	 *
 	 * @return string
+	 * @deprecated since version 2022.12, please use UserSession->getMyUrl instead
 	 */
 	public static function getMyURL(): string
 	{
-		return DI::session()->get('my_url') ?? '';
+		return DI::userSession()->getMyUrl();
 	}
 
 	/**

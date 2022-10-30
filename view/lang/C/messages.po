@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-25 19:06-0400\n"
+"POT-Creation-Date: 2022-10-29 21:45-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -125,23 +125,22 @@ msgstr ""
 #: mod/settings.php:40 mod/settings.php:50 mod/settings.php:156
 #: mod/suggest.php:34 mod/uimport.php:33 mod/unfollow.php:35
 #: mod/unfollow.php:50 mod/unfollow.php:82 mod/wall_attach.php:70
-#: mod/wall_attach.php:72 mod/wall_upload.php:90 mod/wallmessage.php:37
-#: mod/wallmessage.php:56 mod/wallmessage.php:90 mod/wallmessage.php:110
-#: src/Module/Attach.php:56 src/Module/BaseApi.php:94
-#: src/Module/BaseNotifications.php:98 src/Module/Contact/Advanced.php:60
-#: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
-#: src/Module/FriendSuggest.php:57 src/Module/Group.php:40
-#: src/Module/Group.php:83 src/Module/Invite.php:42 src/Module/Invite.php:131
-#: src/Module/Notifications/Notification.php:76
+#: mod/wall_attach.php:72 mod/wall_upload.php:90 src/Module/Attach.php:56
+#: src/Module/BaseApi.php:94 src/Module/BaseNotifications.php:98
+#: src/Module/Contact/Advanced.php:60 src/Module/Delegation.php:118
+#: src/Module/FollowConfirm.php:38 src/Module/FriendSuggest.php:57
+#: src/Module/Group.php:40 src/Module/Group.php:83 src/Module/Invite.php:42
+#: src/Module/Invite.php:131 src/Module/Notifications/Notification.php:76
 #: src/Module/Notifications/Notification.php:107
 #: src/Module/Profile/Common.php:55 src/Module/Profile/Contacts.php:55
 #: src/Module/Profile/Schedule.php:39 src/Module/Profile/Schedule.php:56
-#: src/Module/Register.php:77 src/Module/Register.php:90
-#: src/Module/Register.php:206 src/Module/Register.php:245
-#: src/Module/Search/Directory.php:37 src/Module/Settings/Account.php:50
-#: src/Module/Settings/Account.php:410 src/Module/Settings/Delegation.php:41
-#: src/Module/Settings/Delegation.php:69 src/Module/Settings/Display.php:41
-#: src/Module/Settings/Display.php:119
+#: src/Module/Profile/UnkMail.php:69 src/Module/Profile/UnkMail.php:121
+#: src/Module/Profile/UnkMail.php:132 src/Module/Register.php:77
+#: src/Module/Register.php:90 src/Module/Register.php:206
+#: src/Module/Register.php:245 src/Module/Search/Directory.php:37
+#: src/Module/Settings/Account.php:50 src/Module/Settings/Account.php:410
+#: src/Module/Settings/Delegation.php:41 src/Module/Settings/Delegation.php:69
+#: src/Module/Settings/Display.php:41 src/Module/Settings/Display.php:119
 #: src/Module/Settings/Profile/Photo/Crop.php:165
 #: src/Module/Settings/Profile/Photo/Index.php:111
 #: src/Module/Settings/UserExport.php:84 src/Module/Settings/UserExport.php:118
@@ -165,12 +164,12 @@ msgid "Save"
 msgstr ""
 
 #: mod/editpost.php:92 mod/photos.php:1333 src/Content/Conversation.php:341
-#: src/Object/Post.php:992
+#: src/Object/Post.php:987
 msgid "Loading..."
 msgstr ""
 
 #: mod/editpost.php:93 mod/message.php:201 mod/message.php:357
-#: mod/wallmessage.php:140 src/Content/Conversation.php:342
+#: src/Content/Conversation.php:342
 msgid "Upload photo"
 msgstr ""
 
@@ -187,7 +186,7 @@ msgid "attach file"
 msgstr ""
 
 #: mod/editpost.php:97 mod/message.php:202 mod/message.php:358
-#: mod/wallmessage.php:141
+#: src/Module/Profile/UnkMail.php:154
 msgid "Insert web link"
 msgstr ""
 
@@ -229,9 +228,9 @@ msgid "clear location"
 msgstr ""
 
 #: mod/editpost.php:107 mod/message.php:203 mod/message.php:360
-#: mod/photos.php:1484 mod/wallmessage.php:142 src/Content/Conversation.php:371
+#: mod/photos.php:1484 src/Content/Conversation.php:371
 #: src/Content/Conversation.php:717 src/Module/Item/Compose.php:204
-#: src/Object/Post.php:537
+#: src/Module/Profile/UnkMail.php:155 src/Object/Post.php:537
 msgid "Please wait"
 msgstr ""
 
@@ -263,7 +262,7 @@ msgstr ""
 
 #: mod/editpost.php:128 mod/events.php:514 mod/photos.php:1332
 #: mod/photos.php:1388 mod/photos.php:1462 src/Content/Conversation.php:386
-#: src/Module/Item/Compose.php:199 src/Object/Post.php:1002
+#: src/Module/Item/Compose.php:199 src/Object/Post.php:997
 msgid "Preview"
 msgstr ""
 
@@ -276,37 +275,37 @@ msgid "Cancel"
 msgstr ""
 
 #: mod/editpost.php:134 src/Content/Conversation.php:346
-#: src/Module/Item/Compose.php:190 src/Object/Post.php:993
+#: src/Module/Item/Compose.php:190 src/Object/Post.php:988
 msgid "Bold"
 msgstr ""
 
 #: mod/editpost.php:135 src/Content/Conversation.php:347
-#: src/Module/Item/Compose.php:191 src/Object/Post.php:994
+#: src/Module/Item/Compose.php:191 src/Object/Post.php:989
 msgid "Italic"
 msgstr ""
 
 #: mod/editpost.php:136 src/Content/Conversation.php:348
-#: src/Module/Item/Compose.php:192 src/Object/Post.php:995
+#: src/Module/Item/Compose.php:192 src/Object/Post.php:990
 msgid "Underline"
 msgstr ""
 
 #: mod/editpost.php:137 src/Content/Conversation.php:349
-#: src/Module/Item/Compose.php:193 src/Object/Post.php:996
+#: src/Module/Item/Compose.php:193 src/Object/Post.php:991
 msgid "Quote"
 msgstr ""
 
 #: mod/editpost.php:138 src/Content/Conversation.php:350
-#: src/Module/Item/Compose.php:194 src/Object/Post.php:997
+#: src/Module/Item/Compose.php:194 src/Object/Post.php:992
 msgid "Code"
 msgstr ""
 
 #: mod/editpost.php:139 src/Content/Conversation.php:352
-#: src/Module/Item/Compose.php:196 src/Object/Post.php:999
+#: src/Module/Item/Compose.php:196 src/Object/Post.php:994
 msgid "Link"
 msgstr ""
 
 #: mod/editpost.php:140 src/Content/Conversation.php:353
-#: src/Module/Item/Compose.php:197 src/Object/Post.php:1000
+#: src/Module/Item/Compose.php:197 src/Object/Post.php:995
 msgid "Link or Media"
 msgstr ""
 
@@ -416,9 +415,10 @@ msgstr ""
 #: src/Module/Install.php:252 src/Module/Install.php:294
 #: src/Module/Install.php:331 src/Module/Invite.php:178
 #: src/Module/Item/Compose.php:189 src/Module/Profile/Profile.php:246
-#: src/Module/Settings/Profile/Index.php:222 src/Object/Post.php:991
-#: view/theme/duepuntozero/config.php:85 view/theme/frio/config.php:171
-#: view/theme/quattro/config.php:87 view/theme/vier/config.php:135
+#: src/Module/Profile/UnkMail.php:156 src/Module/Settings/Profile/Index.php:222
+#: src/Object/Post.php:986 view/theme/duepuntozero/config.php:85
+#: view/theme/frio/config.php:171 view/theme/quattro/config.php:87
+#: view/theme/vier/config.php:135
 msgid "Submit"
 msgstr ""
 
@@ -695,7 +695,7 @@ msgstr ""
 msgid "New Message"
 msgstr ""
 
-#: mod/message.php:83 mod/wallmessage.php:70
+#: mod/message.php:83 src/Module/Profile/UnkMail.php:100
 msgid "No recipient selected."
 msgstr ""
 
@@ -703,11 +703,11 @@ msgstr ""
 msgid "Unable to locate contact information."
 msgstr ""
 
-#: mod/message.php:92 mod/wallmessage.php:76
+#: mod/message.php:92 src/Module/Profile/UnkMail.php:106
 msgid "Message could not be sent."
 msgstr ""
 
-#: mod/message.php:96 mod/wallmessage.php:79
+#: mod/message.php:96 src/Module/Profile/UnkMail.php:109
 msgid "Message collection failure."
 msgstr ""
 
@@ -733,24 +733,23 @@ msgstr ""
 msgid "Conversation was not removed."
 msgstr ""
 
-#: mod/message.php:183 mod/message.php:289 mod/wallmessage.php:124
+#: mod/message.php:183 mod/message.php:289 src/Module/Profile/UnkMail.php:146
 msgid "Please enter a link URL:"
 msgstr ""
 
-#: mod/message.php:192 mod/wallmessage.php:129
+#: mod/message.php:192 src/Module/Profile/UnkMail.php:152
 msgid "Send Private Message"
 msgstr ""
 
-#: mod/message.php:193 mod/message.php:349 mod/wallmessage.php:131
+#: mod/message.php:193 mod/message.php:349
 msgid "To:"
 msgstr ""
 
-#: mod/message.php:194 mod/message.php:350 mod/wallmessage.php:132
+#: mod/message.php:194 mod/message.php:350
 msgid "Subject:"
 msgstr ""
 
-#: mod/message.php:198 mod/message.php:353 mod/wallmessage.php:138
-#: src/Module/Invite.php:171
+#: mod/message.php:198 mod/message.php:353 src/Module/Invite.php:171
 msgid "Your message:"
 msgstr ""
 
@@ -1071,12 +1070,12 @@ msgstr ""
 
 #: mod/photos.php:1328 mod/photos.php:1384 mod/photos.php:1458
 #: src/Module/Contact.php:547 src/Module/Item/Compose.php:188
-#: src/Object/Post.php:988
+#: src/Object/Post.php:983
 msgid "This is you"
 msgstr ""
 
 #: mod/photos.php:1330 mod/photos.php:1386 mod/photos.php:1460
-#: src/Object/Post.php:531 src/Object/Post.php:990
+#: src/Object/Post.php:531 src/Object/Post.php:985
 msgid "Comment"
 msgstr ""
 
@@ -1411,7 +1410,7 @@ msgstr ""
 msgid "Friend Suggestions"
 msgstr ""
 
-#: mod/tagger.php:77 src/Content/Item.php:304 src/Model/Item.php:2860
+#: mod/tagger.php:77 src/Content/Item.php:304 src/Model/Item.php:2861
 msgid "photo"
 msgstr ""
 
@@ -1527,26 +1526,6 @@ msgstr ""
 
 #: mod/wall_upload.php:229 src/Model/Photo.php:1086
 msgid "Wall Photos"
-msgstr ""
-
-#: mod/wallmessage.php:62 mod/wallmessage.php:116
-#, php-format
-msgid "Number of daily wall messages for %s exceeded. Message failed."
-msgstr ""
-
-#: mod/wallmessage.php:73
-msgid "Unable to check your home location."
-msgstr ""
-
-#: mod/wallmessage.php:97 mod/wallmessage.php:104
-msgid "No recipient."
-msgstr ""
-
-#: mod/wallmessage.php:130
-#, php-format
-msgid ""
-"If you wish for %s to respond, please check that the privacy settings on "
-"your site allow private mail from unknown senders."
 msgstr ""
 
 #: src/App.php:490
@@ -2021,7 +2000,7 @@ msgid "Visible to <strong>everybody</strong>"
 msgstr ""
 
 #: src/Content/Conversation.php:311 src/Module/Item/Compose.php:198
-#: src/Object/Post.php:1001
+#: src/Object/Post.php:996
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr ""
 
@@ -2054,7 +2033,7 @@ msgid "Share"
 msgstr ""
 
 #: src/Content/Conversation.php:351 src/Module/Item/Compose.php:195
-#: src/Object/Post.php:998
+#: src/Object/Post.php:993
 msgid "Image"
 msgstr ""
 
@@ -2292,7 +2271,7 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:295 src/Model/Item.php:2858
+#: src/Content/Item.php:295 src/Model/Item.php:2859
 msgid "event"
 msgstr ""
 
@@ -2628,39 +2607,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1002 src/Content/Text/BBCode.php:1879
-#: src/Content/Text/BBCode.php:1880
+#: src/Content/Text/BBCode.php:1002 src/Content/Text/BBCode.php:1903
+#: src/Content/Text/BBCode.php:1904
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1234
+#: src/Content/Text/BBCode.php:1258
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1259 src/Model/Item.php:3461
-#: src/Model/Item.php:3467 src/Model/Item.php:3468
+#: src/Content/Text/BBCode.php:1283 src/Model/Item.php:3460
+#: src/Model/Item.php:3466 src/Model/Item.php:3467
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1797 src/Content/Text/HTML.php:940
+#: src/Content/Text/BBCode.php:1821 src/Content/Text/HTML.php:940
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1828
+#: src/Content/Text/BBCode.php:1852
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1884 src/Content/Text/BBCode.php:1885
+#: src/Content/Text/BBCode.php:1908 src/Content/Text/BBCode.php:1909
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2105
+#: src/Content/Text/BBCode.php:2129
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2120
+#: src/Content/Text/BBCode.php:2144
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -3782,66 +3761,66 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1970
+#: src/Model/Item.php:1971
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2862
+#: src/Model/Item.php:2863
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2864
+#: src/Model/Item.php:2865
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2867
+#: src/Model/Item.php:2868
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:3010
+#: src/Model/Item.php:3009
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3373
+#: src/Model/Item.php:3372
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3404
+#: src/Model/Item.php:3403
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3406
+#: src/Model/Item.php:3405
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3411
+#: src/Model/Item.php:3410
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3413
+#: src/Model/Item.php:3412
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3415
+#: src/Model/Item.php:3414
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3449 src/Model/Item.php:3450
+#: src/Model/Item.php:3448 src/Model/Item.php:3449
 msgid "View on separate page"
 msgstr ""
 
@@ -3904,88 +3883,88 @@ msgstr ""
 msgid "Upcoming events the next 7 days:"
 msgstr ""
 
-#: src/Model/Profile.php:867
+#: src/Model/Profile.php:868
 #, php-format
 msgid "OpenWebAuth: %1$s welcomes %2$s"
 msgstr ""
 
-#: src/Model/Profile.php:1007
+#: src/Model/Profile.php:1008
 msgid "Hometown:"
 msgstr ""
 
-#: src/Model/Profile.php:1008
+#: src/Model/Profile.php:1009
 msgid "Marital Status:"
 msgstr ""
 
-#: src/Model/Profile.php:1009
+#: src/Model/Profile.php:1010
 msgid "With:"
 msgstr ""
 
-#: src/Model/Profile.php:1010
+#: src/Model/Profile.php:1011
 msgid "Since:"
 msgstr ""
 
-#: src/Model/Profile.php:1011
+#: src/Model/Profile.php:1012
 msgid "Sexual Preference:"
 msgstr ""
 
-#: src/Model/Profile.php:1012
+#: src/Model/Profile.php:1013
 msgid "Political Views:"
 msgstr ""
 
-#: src/Model/Profile.php:1013
+#: src/Model/Profile.php:1014
 msgid "Religious Views:"
 msgstr ""
 
-#: src/Model/Profile.php:1014
+#: src/Model/Profile.php:1015
 msgid "Likes:"
 msgstr ""
 
-#: src/Model/Profile.php:1015
+#: src/Model/Profile.php:1016
 msgid "Dislikes:"
 msgstr ""
 
-#: src/Model/Profile.php:1016
+#: src/Model/Profile.php:1017
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1017 src/Module/Admin/Summary.php:236
+#: src/Model/Profile.php:1018 src/Module/Admin/Summary.php:236
 msgid "Summary"
 msgstr ""
 
-#: src/Model/Profile.php:1018
+#: src/Model/Profile.php:1019
 msgid "Musical interests"
 msgstr ""
 
-#: src/Model/Profile.php:1019
+#: src/Model/Profile.php:1020
 msgid "Books, literature"
 msgstr ""
 
-#: src/Model/Profile.php:1020
+#: src/Model/Profile.php:1021
 msgid "Television"
 msgstr ""
 
-#: src/Model/Profile.php:1021
+#: src/Model/Profile.php:1022
 msgid "Film/dance/culture/entertainment"
 msgstr ""
 
-#: src/Model/Profile.php:1022
+#: src/Model/Profile.php:1023
 msgid "Hobbies/Interests"
 msgstr ""
 
-#: src/Model/Profile.php:1023
+#: src/Model/Profile.php:1024
 msgid "Love/romance"
 msgstr ""
 
-#: src/Model/Profile.php:1024
+#: src/Model/Profile.php:1025
 msgid "Work/employment"
 msgstr ""
 
-#: src/Model/Profile.php:1025
+#: src/Model/Profile.php:1026
 msgid "School/education"
 msgstr ""
 
-#: src/Model/Profile.php:1026
+#: src/Model/Profile.php:1027
 msgid "Contact information and Social Networks"
 msgstr ""
 
@@ -8423,6 +8402,42 @@ msgstr ""
 msgid "Remove post"
 msgstr ""
 
+#: src/Module/Profile/UnkMail.php:78
+msgid "Empty message body."
+msgstr ""
+
+#: src/Module/Profile/UnkMail.php:103
+msgid "Unable to check your home location."
+msgstr ""
+
+#: src/Module/Profile/UnkMail.php:127
+msgid "Recipient not found."
+msgstr ""
+
+#: src/Module/Profile/UnkMail.php:138
+#, php-format
+msgid "Number of daily wall messages for %s exceeded. Message failed."
+msgstr ""
+
+#: src/Module/Profile/UnkMail.php:153
+#, php-format
+msgid ""
+"If you wish for %s to respond, please check that the privacy settings on "
+"your site allow private mail from unknown senders."
+msgstr ""
+
+#: src/Module/Profile/UnkMail.php:161
+msgid "To"
+msgstr ""
+
+#: src/Module/Profile/UnkMail.php:162
+msgid "Subject"
+msgstr ""
+
+#: src/Module/Profile/UnkMail.php:163
+msgid "Your message"
+msgstr ""
+
 #: src/Module/Register.php:84
 msgid "Only parent users can create additional accounts."
 msgstr ""
@@ -11065,7 +11080,7 @@ msgstr ""
 msgid "%1$d %2$s ago"
 msgstr ""
 
-#: src/Worker/Delivery.php:527
+#: src/Worker/Delivery.php:534
 msgid "(no subject)"
 msgstr ""
 

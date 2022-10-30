@@ -111,6 +111,12 @@ class UserSession implements IHandleUserSessions
 	}
 
 	/** {@inheritDoc} */
+	public function getMyUrl(): string
+	{
+		return $this->session->get('my_url', '');
+	}
+
+	/** {@inheritDoc} */
 	public function isAuthenticated(): bool
 	{
 		return $this->session->get('authenticated', false);

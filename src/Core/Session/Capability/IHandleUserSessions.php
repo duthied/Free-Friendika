@@ -66,6 +66,13 @@ interface IHandleUserSessions extends IHandleSessions
 	public function getUserIDForVisitorContactID(int $cid): int;
 
 	/**
+	 * Returns the account URL of the currently logged in user
+	 *
+	 * @return string
+	 */
+	public function getMyUrl(): string;
+
+	/**
 	 * Returns if the current visitor is authenticated
 	 *
 	 * @return bool "true" when visitor is either a local or remote user
