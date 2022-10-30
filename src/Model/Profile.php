@@ -349,7 +349,7 @@ class Profile
 				if ($visitor_is_followed || $visitor_is_following) {
 					$wallmessage_link = $visitor_base_path . '/message/new/' . $profile_contact['id'];
 				} elseif ($visitor_is_authenticated && !empty($profile['unkmail'])) {
-					$wallmessage_link = 'wallmessage/' . $profile['nickname'];
+					$wallmessage_link = 'profile/' . $profile['nickname'] . '/unkmail';
 				}
 			}
 		}
