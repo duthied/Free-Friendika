@@ -3690,13 +3690,12 @@ class Item
 		}
 
 		$shared_item = Post::selectFirst(['uri-id'], ['id' => $id]);
-		if (!DBA::isResult($shared_item)) {
-			Logger::warning('Post does not exist.', ['id' => $id, 'url' => $url, 'uid' => $uid]);
-			return 0;
-		} else {
+		if (!empty($shared_item['uri-id'])) {
 			Logger::debug('Fetched shared post', ['id' => $id, 'url' => $url, 'uid' => $uid]);
+			return $shared_item['uri-id'];
 		}
 
-		return $shared_item['uri-id'];
+		Logger::warning('Post does not exist although it was supposed to had been fetched.', ['id' => $id, 'url' => $url, 'uid' => $uid]);
+		return 0;
 	}
 }
