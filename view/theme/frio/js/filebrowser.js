@@ -203,8 +203,9 @@ var FileBrowser = {
 		if ($("#upload-file").length) {
 			//AjaxUpload for files
 			var file_uploader = new window.AjaxUpload("upload-file", {
-				action: "wall_attach/" + FileBrowser.nickname + "?response=json",
+				action: "profile/" + FileBrowser.nickname + "/attachment/upload?response=json",
 				name: "userfile",
+				responseType: "json",
 				onSubmit: function (file, ext) {
 					$(".fbrowser-content").hide();
 					$(".fbrowser .profile-rotator-wrapper").show();
@@ -214,7 +215,7 @@ var FileBrowser = {
 					if (response["error"] != undefined) {
 						$(".error span").html(response["error"]);
 						$(".error").removeClass("hidden");
-						$("#profile-rotator").hide();
+						$(".fbrowser .profile-rotator-wrapper").hide();
 						$(".fbrowser-content").show();
 						return;
 					}

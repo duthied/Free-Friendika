@@ -123,8 +123,9 @@ var FileBrowser = {
 		if ($("#upload-file").length)
 			var file_uploader = new window.AjaxUpload(
 				'upload-file',
-				{ action: 'wall_attach/'+FileBrowser.nickname+'?response=json',
+				{ action: 'profile/' + FileBrowser.nickname + '/attachment/upload?response=json',
 					name: 'userfile',
+					responseType: 'json',
 					onSubmit: function(file,ext) { $('#profile-rotator').show(); $(".error").addClass('hidden'); },
 					onComplete: function(file,response) {
 						if (response['error']!= undefined) {
