@@ -679,10 +679,11 @@ class Profile
 	 * Retrieves the my_url session variable
 	 *
 	 * @return string
+	 * @deprecated since version 2022.12, please use UserSession->getMyUrl instead
 	 */
 	public static function getMyURL(): string
 	{
-		return DI::session()->get('my_url') ?? '';
+		return DI::userSession()->getMyUrl();
 	}
 
 	/**
