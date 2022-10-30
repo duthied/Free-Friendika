@@ -902,7 +902,7 @@ class Contact
 		self::clearFollowerFollowingEndpointCache($contact['uid']);
 
 		// Archive the contact
-		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
+		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'rel' => self::NOTHING, 'deleted' => true], ['id' => $id]);
 
 		if (!DBA::exists('contact', ['uri-id' => $contact['uri-id'], 'deleted' => false])) {
 			Avatar::deleteCache($contact);

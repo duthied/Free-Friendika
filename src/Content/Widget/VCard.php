@@ -70,7 +70,7 @@ class VCard
 				$rel     = $contact['rel'];
 				$pending = $contact['pending'];
 			} else {
-				$pcontact = Contact::selectFirst([], ['uid' => DI::userSession()->getLocalUserId(), 'uri-id' => $contact['uri-id']]);
+				$pcontact = Contact::selectFirst([], ['uid' => DI::userSession()->getLocalUserId(), 'uri-id' => $contact['uri-id'], 'deleted' => false]);
 
 				$id      = $pcontact['id'] ?? 0;
 				$rel     = $pcontact['rel'] ?? Contact::NOTHING;
