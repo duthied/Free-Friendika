@@ -33,14 +33,15 @@ use Friendica\Module;
 $profileRoutes = [
 	''                                         => [Module\Profile\Index::class,             [R::GET]],
 	'/attachment/upload'                       => [Module\Profile\Attachment\Upload::class, [        R::POST]],
-	'/profile'                                 => [Module\Profile\Profile::class,           [R::GET]],
-	'/schedule'                                => [Module\Profile\Schedule::class,          [R::GET, R::POST]],
 	'/contacts/common'                         => [Module\Profile\Common::class,            [R::GET]],
 	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class,          [R::GET]],
-	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,            [R::GET]],
 	'/media'                                   => [Module\Profile\Media::class,             [R::GET]],
-	'/unkmail'                                 => [Module\Profile\UnkMail::class,           [R::GET, R::POST]],
 	'/photos/upload'                           => [Module\Profile\Photos\Upload::class,     [        R::POST]],
+	'/profile'                                 => [Module\Profile\Profile::class,           [R::GET]],
+	'/remote_follow'                           => [Module\Profile\RemoteFollow::class,      [R::GET, R::POST]],
+	'/schedule'                                => [Module\Profile\Schedule::class,          [R::GET, R::POST]],
+	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,            [R::GET]],
+	'/unkmail'                                 => [Module\Profile\UnkMail::class,           [R::GET, R::POST]],
 ];
 
 $apiRoutes = [
@@ -589,7 +590,6 @@ return [
 
 	'/randprof'                      => [Module\RandomProfile::class,         [R::GET]],
 	'/register'                      => [Module\Register::class,              [R::GET, R::POST]],
-	'/remote_follow/{profile}'       => [Module\RemoteFollow::class,          [R::GET, R::POST]],
 	'/robots.txt'                    => [Module\RobotsTxt::class,             [R::GET]],
 	'/rsd.xml'                       => [Module\ReallySimpleDiscovery::class, [R::GET]],
 	'/smilies[/json]'                => [Module\Smilies::class,               [R::GET]],

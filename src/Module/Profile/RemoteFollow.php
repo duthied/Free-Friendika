@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\Profile;
 
 use Friendica\App;
 use Friendica\App\Page;
@@ -30,11 +30,14 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Module\Response;
+use Friendica\Navigation\SystemMessages;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Util\Profiler;
@@ -45,54 +48,61 @@ use Psr\Log\LoggerInterface;
  */
 class RemoteFollow extends BaseModule
 {
-	/** @var array */
-	protected $owner;
+	/** @var SystemMessages */
+	private $systemMessages;
 	/** @var Page */
 	protected $page;
+	/** @var IHandleUserSessions */
+	private $userSession;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, App\Page $page, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	/** @var array */
+	protected $owner;
+
+	public function __construct(IHandleUserSessions $userSession, SystemMessages $systemMessages, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, App\Page $page, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->owner = User::getOwnerDataByNick($this->parameters['profile']);
+		$this->systemMessages = $systemMessages;
+		$this->page           = $page;
+		$this->userSession    = $userSession;
+
+		$this->owner = User::getOwnerDataByNick($this->parameters['nickname']);
 		if (!$this->owner) {
 			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
-
-		$this->page    = $page;
 	}
 
 	protected function post(array $request = [])
 	{
-		if (!empty($_POST['cancel']) || empty($_POST['dfrn_url'])) {
-			$this->baseUrl->redirect();
+		if (!empty($request['cancel']) || empty($request['dfrn_url'])) {
+			$this->baseUrl->redirect('profile/' . $this->parameters['nickname']);
 		}
 	
 		if (empty($this->owner)) {
-			DI::sysmsg()->addNotice($this->t('Profile unavailable.'));
+			$this->systemMessages->addNotice($this->t('Profile unavailable.'));
 			return;
 		}
-		
-		$url = Probe::cleanURI($_POST['dfrn_url']);
+
+		$url = Probe::cleanURI($request['dfrn_url']);
 		if (!strlen($url)) {
-			DI::sysmsg()->addNotice($this->t("Invalid locator"));
+			$this->systemMessages->addNotice($this->t('Invalid locator'));
 			return;
 		}
 
 		// Detect the network, make sure the provided URL is valid
 		$data = Contact::getByURL($url);
 		if (!$data) {
-			DI::sysmsg()->addNotice($this->t("The provided profile link doesn't seem to be valid"));
+			$this->systemMessages->addNotice($this->t("The provided profile link doesn't seem to be valid"));
 			return;
 		}
 
 		if (empty($data['subscribe'])) {
-			DI::sysmsg()->addNotice($this->t("Remote subscription can't be done for your network. Please subscribe directly on your system."));
+			$this->systemMessages->addNotice($this->t("Remote subscription can't be done for your network. Please subscribe directly on your system."));
 			return;
 		}
 
-		Logger::notice('Remote request', ['url' => $url, 'follow' => $this->owner['url'], 'remote' => $data['subscribe']]);
-		
+		$this->logger->notice('Remote request', ['url' => $url, 'follow' => $this->owner['url'], 'remote' => $data['subscribe']]);
+
 		// Substitute our user's feed URL into $data['subscribe']
 		// Send the subscriber home to subscribe
 		// Diaspora needs the uri in the format user@domain.tld
@@ -101,24 +111,20 @@ class RemoteFollow extends BaseModule
 		} else {
 			$uri = urlencode($this->owner['url']);
 		}
-	
+
 		$follow_link = str_replace('{uri}', $uri, $data['subscribe']);
 		System::externalRedirect($follow_link);
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (empty($this->owner)) {
-			return '';
-		}
-
 		$this->page['aside'] = Widget\VCard::getHTML($this->owner);
 
 		$target_addr = $this->owner['addr'];
-		$target_url = $this->owner['url'];
+		$target_url  = $this->owner['url'];
 
 		$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
-		$o = Renderer::replaceMacros($tpl, [
+		return Renderer::replaceMacros($tpl, [
 			'$header'        => $this->t('Friend/Connection Request'),
 			'$page_desc'     => $this->t('Enter your Webfinger address (user@domain.tld) or profile URL here. If this isn\'t supported by your system, you have to subscribe to <strong>%s</strong> or <strong>%s</strong> directly on your system.', $target_addr, $target_url),
 			'$invite_desc'   => $this->t('If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica node and join us today</a>.', Search::getGlobalDirectory() . '/servers'),
@@ -127,10 +133,9 @@ class RemoteFollow extends BaseModule
 			'$submit'        => $this->t('Submit Request'),
 			'$cancel'        => $this->t('Cancel'),
 
-			'$action'        => 'remote_follow/' . $this->parameters['profile'],
+			'$action'        => 'profile/' . $this->parameters['nickname'] . '/remote_follow',
 			'$name'          => $this->owner['name'],
-			'$myaddr'        => Profile::getMyURL(),
+			'$myaddr'        => $this->userSession->getMyUrl(),
 		]);
-		return $o;
 	}
 }
