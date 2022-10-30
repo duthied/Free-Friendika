@@ -774,7 +774,7 @@ class DFRN
 			$entry->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
 		}
 
-		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body'] ?? '');
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
 
 		if ($item['private'] == Item::PRIVATE) {
 			$body = Item::fixPrivatePhotos($body, $owner['uid'], $item, $cid);
@@ -1838,7 +1838,11 @@ class DFRN
 
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 
-		$item['body'] = DI::contentItem()->improveSharedDataInBody($item);
+		$quote_uri_id = Item::getQuoteUriId($item['body'], $item['uid']);
+		if (!empty($quote_uri_id)) {
+			$item['quote-uri-id'] = $quote_uri_id;
+			$item['body']         = BBCode::removeSharedData($item['body']);
+		}
 
 		Tag::storeFromBody($item['uri-id'], $item['body']);
 

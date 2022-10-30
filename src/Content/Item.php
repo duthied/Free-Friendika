@@ -574,57 +574,30 @@ class Item
 	}
 
 	/**
-	 * Add a share block for the given url
-	 *
-	 * @param string $url
-	 * @param integer $uid
-	 * @param bool $add_media
-	 * @return string
-	 */
-	public function createSharedPostByUrl(string $url, int $uid = 0, bool $add_media = false): string
-	{
-		if (!empty($uid)) {
-			$id = ItemModel::searchByLink($url, $uid);
-		}
-
-		if (empty($id)) {
-			$id = ItemModel::fetchByLink($url);
-		}
-
-		if (!$id) {
-			Logger::notice('Post could not be fetched.', ['url' => $url, 'uid' => $uid, 'callstack' => System::callstack()]);
-			return '';
-		}
-
-		Logger::debug('Fetched shared post', ['id' => $id, 'url' => $url, 'uid' => $uid, 'callstack' => System::callstack()]);
-
-		$shared_item = Post::selectFirst(['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'], ['id' => $id]);
-		if (!DBA::isResult($shared_item)) {
-			Logger::warning('Post does not exist.', ['id' => $id, 'url' => $url, 'uid' => $uid]);
-			return '';
-		}
-
-		return $this->createSharedBlockByArray($shared_item, $add_media);
-	}
-
-	/**
 	 * Add a share block for the given uri-id
 	 *
-	 * @param integer $UriId
-	 * @param integer $uid
-	 * @param bool $add_media
+	 * @param array  $item
+	 * @param string $body
 	 * @return string
 	 */
-	public function createSharedPostByUriId(int $UriId, int $uid = 0, bool $add_media = false): string
+	public function addSharedPost(array $item, string $body = ''): string
 	{
-		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
-		$shared_item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
-		if (!DBA::isResult($shared_item)) {
-			Logger::notice('Post does not exist.', ['uri-id' => $UriId, 'uid' => $uid]);
-			return '';
+		if (empty($body)) {
+			$body = $item['body'];
 		}
 
-		return $this->createSharedBlockByArray($shared_item, $add_media);
+		if (empty($item['quote-uri-id'])) {
+			return $body;
+		}
+
+		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
+		$shared_item = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id'], 'uid' => [$item['uid'], 0], 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
+		if (!DBA::isResult($shared_item)) {
+			Logger::notice('Post does not exist.', ['uri-id' => $item['quote-uri-id'], 'uid' => $item['uid']]);
+			return $body;
+		}
+
+		return $body . "\n" . $this->createSharedBlockByArray($shared_item, true);
 	}
 
 	/**
@@ -635,20 +608,13 @@ class Item
 	 * @param bool $add_media
 	 * @return string
 	 */
-	public function createSharedPostByGuid(string $guid, int $uid = 0, string $host = '', bool $add_media = false): string
+	private function createSharedPostByGuid(string $guid, bool $add_media): string
 	{
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
-		$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
-
-		if (!DBA::isResult($shared_item) && !empty($host) && Diaspora::storeByGuid($guid, $host, true)) {
-			Logger::debug('Fetched post', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
-			$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
-		} elseif (DBA::isResult($shared_item)) {
-			Logger::debug('Found existing post', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
-		}
+		$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => 0, 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
 
 		if (!DBA::isResult($shared_item)) {
-			Logger::notice('Post does not exist.', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
+			Logger::notice('Post does not exist.', ['guid' => $guid]);
 			return '';
 		}
 
@@ -669,8 +635,9 @@ class Item
 		} elseif (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
 			$item['guid'] = '';
 			$item['uri']  = '';
-			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
-		} elseif ($add_media) {
+		}
+
+		if ($add_media) {
 			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 		}
 
@@ -684,7 +651,7 @@ class Item
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
 		if (!empty($shared)) {
-			if (!empty($shared['guid']) && ($encaspulated_share = $this->createSharedPostByGuid($shared['guid'], 0, '', $add_media))) {
+			if (!empty($shared['guid']) && ($encaspulated_share = $this->createSharedPostByGuid($shared['guid'], $add_media))) {
 				$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
 			}
 
@@ -731,36 +698,6 @@ class Item
 	}
 
 	/**
-	 * Improve the data in shared posts
-	 *
-	 * @param array $item
-	 * @param bool  $add_media
-	 * @return string body
-	 */
-	public function improveSharedDataInBody(array $item, bool $add_media = false): string
-	{
-		$shared = BBCode::fetchShareAttributes($item['body']);
-		if (empty($shared['guid']) && empty($shared['message_id'])) {
-			return $item['body'];
-		}
-
-		$link = $shared['link'] ?: $shared['message_id'];
-
-		if (empty($shared_content)) {
-			$shared_content = $this->createSharedPostByUrl($link, $item['uid'] ?? 0, $add_media);
-		}
-
-		if (empty($shared_content)) {
-			return $item['body'];
-		}
-
-		$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $shared_content, $item['body']);
-
-		Logger::debug('New shared data', ['uri-id' => $item['uri-id'], 'link' => $link, 'guid' => $item['guid']]);
-		return $item['body'];
-	}
-
-	/**
 	 * Return share data from an item array (if the item is shared item)
 	 * We are providing the complete Item array, because at some time in the future
 	 * we hopefully will define these values not in the body anymore but in some item fields.
@@ -795,5 +732,24 @@ class Item
 		}
 
 		return [];
+	}
+
+	/**
+	 * Add a link to a shared post at the end of the post 
+	 *
+	 * @param string  $body
+	 * @param integer $quote_uri_id
+	 * @return string
+	 */
+	public function addShareLink(string $body, int $quote_uri_id): string
+	{
+		$post = Post::selectFirstPost(['uri', 'plink'], ['uri-id' => $quote_uri_id]);
+		if (empty($post)) {
+			return $body;
+		}
+
+		$body .= "\n♲ " . ($post['plink'] ?: $post['uri']);
+
+		return $body;
 	}
 }

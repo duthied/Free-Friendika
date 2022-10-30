@@ -59,6 +59,7 @@ class Media
 	const XML         = 18;
 	const PLAIN       = 19;
 	const ACTIVITY    = 20;
+	const ACCOUNT     = 21;
 	const DOCUMENT    = 128;
 
 	/**
@@ -222,6 +223,10 @@ class Media
 			$media = self::addActivity($media);
 		}
 
+		if (in_array($media['type'], [self::TEXT, self::APPLICATION, self::HTML, self::XML, self::PLAIN])) {
+			$media = self::addAccount($media);
+		}
+
 		if ($media['type'] == self::HTML) {
 			$data = ParseUrl::getSiteinfoCached($media['url'], false);
 			$media['preview'] = $data['images'][0]['src'] ?? null;
@@ -268,8 +273,6 @@ class Media
 			$media['mimetype'] = 'application/activity+json';
 		} elseif ($item['network'] == Protocol::DIASPORA) {
 			$media['mimetype'] = 'application/xml';
-		} else {
-			$media['mimetype'] = '';
 		}
 
 		$contact = Contact::getById($item['author-id'], ['avatar', 'gsid']);
@@ -281,7 +284,6 @@ class Media
 		$media['media-uri-id'] = $item['uri-id'];
 		$media['height'] = null;
 		$media['width'] = null;
-		$media['size'] = null;
 		$media['preview'] = null;
 		$media['preview-height'] = null;
 		$media['preview-width'] = null;
@@ -295,6 +297,47 @@ class Media
 		$media['publisher-image'] = null;
 
 		Logger::debug('Activity detected', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'plink' => $item['plink'], 'uri' => $item['uri']]);
+		return $media;
+	}
+
+	/**
+	 * Adds the account type if the media entry is linked to an account
+	 *
+	 * @param array $media
+	 * @return array
+	 */
+	private static function addAccount(array $media): array
+	{
+		$contact = Contact::getByURL($media['url'], false);
+		if (empty($contact) || ($contact['network'] == Protocol::PHANTOM)) {
+			return $media;
+		}
+
+		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+			$media['mimetype'] = 'application/activity+json';
+		}
+
+		if (!empty($contact['gsid'])) {
+			$gserver = DBA::selectFirst('gserver', ['url', 'site_name'], ['id' => $contact['gsid']]);
+		}
+
+		$media['type'] = self::ACCOUNT;
+		$media['media-uri-id'] = $contact['uri-id'];
+		$media['height'] = null;
+		$media['width'] = null;
+		$media['preview'] = null;
+		$media['preview-height'] = null;
+		$media['preview-width'] = null;
+		$media['description'] = $contact['about'];
+		$media['name'] = $contact['name'];
+		$media['author-url'] = $contact['url'];
+		$media['author-name'] = $contact['name'];
+		$media['author-image'] = $contact['avatar'];
+		$media['publisher-url'] = $gserver['url'] ?? null;
+		$media['publisher-name'] = $gserver['site_name'] ?? null;
+		$media['publisher-image'] = null;
+
+		Logger::debug('Account detected', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'uri' => $contact['url']]);
 		return $media;
 	}
 
@@ -403,11 +446,6 @@ class Media
 		// Simplify image codes
 		$unshared_body = $body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 
-		// Only remove the shared data from "real" reshares
-		if (BBCode::isNativeReshare($body)) {
-			$unshared_body = BBCode::removeSharedData($body);
-		}
-
 		$attachments = [];
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
@@ -484,12 +522,6 @@ class Media
 	 */
 	public static function insertFromRelevantUrl(int $uriid, string $body)
 	{
-		// Only remove the shared data from "real" reshares
-		if (BBCode::isNativeReshare($body)) {
-			// Don't look at the shared content
-			$body = BBCode::removeSharedData($body);
-		}
-
 		// Remove all hashtags and mentions
 		$body = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '', $body);
 
@@ -519,9 +551,6 @@ class Media
 	 */
 	public static function insertFromAttachmentData(int $uriid, string $body)
 	{
-		// Don't look at the shared content
-		$body = BBCode::removeSharedData($body);
-
 		$data = BBCode::getAttachmentData($body);
 		if (empty($data))  {
 			return;
@@ -647,6 +676,12 @@ class Media
 				if (Strings::compareLink($preview, $medium['url'])) {
 					continue 2;
 				}
+			}
+
+			// Currently these two types are ignored here.
+			// Posts are added differently and contacts are not displayed as attachments.
+			if (in_array($medium['type'], [self::ACCOUNT, self::ACTIVITY])) {
+				continue;
 			}
 
 			if (!empty($medium['preview'])) {

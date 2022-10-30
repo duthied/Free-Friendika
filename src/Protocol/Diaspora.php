@@ -2364,13 +2364,13 @@ class Diaspora
 
 		$datarray = self::setDirection($datarray, $direction);
 
-		$datarray['body'] = DI::contentItem()->createSharedPostByGuid($root_guid, $importer['uid'], $original_person['url']);
-		$datarray['body'] = Diaspora::replacePeopleGuid($datarray['body'], $datarray['author-link']);
+		$datarray['quote-uri-id'] = self::getQuoteUriId($root_guid, $importer['uid'], $original_person['url']);
+		if (empty($datarray['quote-uri-id'])) {
+			return false;
+		}
 
-		/// @todo Copy tag data from original post
-		Tag::storeFromBody($datarray['uri-id'], $datarray['body']);
-
-		$datarray['plink'] = self::plink($author, $guid);
+		$datarray['body']    = '';
+		$datarray['plink']   = self::plink($author, $guid);
 		$datarray['private'] = (($public == 'false') ? Item::PRIVATE : Item::PUBLIC);
 		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = $created_at;
 
@@ -2399,6 +2399,25 @@ class Diaspora
 		} else {
 			return false;
 		}
+	}
+
+	private static function getQuoteUriId(string $guid, int $uid, string $host): int
+	{
+		$shared_item = Post::selectFirst(['uri-id'], ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [Item::PUBLIC, Item::UNLISTED]]);
+
+		if (!DBA::isResult($shared_item) && !empty($host) && Diaspora::storeByGuid($guid, $host, true)) {
+			Logger::debug('Fetched post', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
+			$shared_item = Post::selectFirst(['uri-id'], ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [Item::PUBLIC, Item::UNLISTED]]);
+		} elseif (DBA::isResult($shared_item)) {
+			Logger::debug('Found existing post', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
+		}
+
+		if (!DBA::isResult($shared_item)) {
+			Logger::notice('Post does not exist.', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
+			return 0;
+		}
+
+		return $shared_item['uri-id'];
 	}
 
 	/**
@@ -3305,7 +3324,7 @@ class Diaspora
 			$type = 'reshare';
 		} else {
 			$title = $item['title'];
-			$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
+			$body  = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
 
 			// Fetch the title from an attached link - if there is one
 			if (empty($item['title']) && DI::pConfig()->get($owner['uid'], 'system', 'attach_link_title')) {
@@ -3313,11 +3332,6 @@ class Diaspora
 				if (!empty($page_data['type']) && !empty($page_data['title']) && ($page_data['type'] == 'link')) {
 					$title = $page_data['title'];
 				}
-			}
-
-			// @todo Check if this is obsolete and if we are still using different owners. (Possibly a fragment from the forum functionality)
-			if ($item['author-link'] != $item['owner-link']) {
-				$body = DI::contentItem()->createSharedBlockByArray($item);
 			}
 
 			// convert to markdown
@@ -3527,7 +3541,7 @@ class Diaspora
 			$thread_parent_item = Post::selectFirst(['guid', 'author-id', 'author-link', 'gravity'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
 		}
 
-		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
 
 		// The replied to autor mention is prepended for clarity if:
 		// - Item replied isn't yours
@@ -4022,25 +4036,21 @@ class Diaspora
 
 	public static function performReshare(int $UriId, int $uid): int
 	{
-		$post = DI::contentItem()->createSharedPostByUriId($UriId, $uid);
-		if (empty($post)) {
-			return 0;
-		}
-
 		$owner  = User::getOwnerDataById($uid);
 		$author = Contact::getPublicIdByUserId($uid);
 
 		$item = [
-			'uid'        => $uid,
-			'verb'       => Activity::POST,
-			'contact-id' => $owner['id'],
-			'author-id'  => $author,
-			'owner-id'   => $author,
-			'body'       => $post,
-			'allow_cid'  => $owner['allow_cid'] ?? '',
-			'allow_gid'  => $owner['allow_gid']?? '',
-			'deny_cid'   => $owner['deny_cid'] ?? '',
-			'deny_gid'   => $owner['deny_gid'] ?? '',
+			'uid'          => $uid,
+			'verb'         => Activity::POST,
+			'contact-id'   => $owner['id'],
+			'author-id'    => $author,
+			'owner-id'     => $author,
+			'body'         => '',
+			'quote-uri-id' => $UriId,
+			'allow_cid'    => $owner['allow_cid'] ?? '',
+			'allow_gid'    => $owner['allow_gid']?? '',
+			'deny_cid'     => $owner['deny_cid'] ?? '',
+			'deny_gid'     => $owner['deny_gid'] ?? '',
 		];
 
 		if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
