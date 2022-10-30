@@ -387,6 +387,7 @@ return [
 		'/hidden'                     => [Module\Contact::class,           [R::GET]],
 		'/ignored'                    => [Module\Contact::class,           [R::GET]],
 		'/hovercard'                  => [Module\Contact\Hovercard::class, [R::GET]],
+		'/unfollow'                   => [Module\Contact\Unfollow::class,  [R::GET, R::POST]],
 	],
 
 	'/credits'                  => [Module\Credits::class,          [R::GET]],

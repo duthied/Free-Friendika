@@ -339,9 +339,9 @@ class Profile
 				}
 			} else {
 				if ($visitor_is_following) {
-					$unfollow_link = $visitor_base_path . '/unfollow?url=' . urlencode($profile_url) . '&auto=1';
+					$unfollow_link = $visitor_base_path . '/contact/unfollow?url=' . urlencode($profile_url) . '&auto=1';
 				} else {
-					$follow_link =  $visitor_base_path .'/follow?url=' . urlencode($profile_url) . '&auto=1';
+					$follow_link =  $visitor_base_path . '/follow?url=' . urlencode($profile_url) . '&auto=1';
 				}
 			}
 

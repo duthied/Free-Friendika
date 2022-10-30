@@ -1176,7 +1176,7 @@ class Contact
 		$unfollow_link = '';
 		if (!$contact['self'] && Protocol::supportsFollow($contact['network'])) {
 			if ($contact['uid'] && in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
-				$unfollow_link = 'unfollow?url=' . urlencode($contact['url']) . '&auto=1';
+				$unfollow_link = 'contact/unfollow?url=' . urlencode($contact['url']) . '&auto=1';
 			} elseif(!$contact['pending']) {
 				$follow_link = 'follow?url=' . urlencode($contact['url']) . '&auto=1';
 			}
