@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-31 14:54-0400\n"
+"POT-Creation-Date: 2022-10-31 15:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,8 +32,9 @@ msgstr ""
 #: src/Module/HCard.php:51 src/Module/Profile/Common.php:40
 #: src/Module/Profile/Common.php:51 src/Module/Profile/Contacts.php:39
 #: src/Module/Profile/Contacts.php:49 src/Module/Profile/Media.php:38
-#: src/Module/Profile/Photos/Upload.php:87 src/Module/Profile/Status.php:58
-#: src/Module/Register.php:267 src/Module/RemoteFollow.php:59
+#: src/Module/Profile/Photos/Upload.php:87
+#: src/Module/Profile/RemoteFollow.php:71 src/Module/Profile/Status.php:58
+#: src/Module/Register.php:267
 msgid "User not found."
 msgstr ""
 
@@ -123,13 +124,14 @@ msgstr ""
 #: mod/message.php:114 mod/notes.php:44 mod/ostatus_subscribe.php:33
 #: mod/photos.php:159 mod/photos.php:886 mod/repair_ostatus.php:31
 #: mod/settings.php:40 mod/settings.php:50 mod/settings.php:156
-#: mod/suggest.php:34 mod/uimport.php:33 mod/unfollow.php:35
-#: mod/unfollow.php:50 mod/unfollow.php:82 src/Module/Attach.php:56
+#: mod/suggest.php:34 mod/uimport.php:33 src/Module/Attach.php:56
 #: src/Module/BaseApi.php:94 src/Module/BaseNotifications.php:98
-#: src/Module/Contact/Advanced.php:60 src/Module/Delegation.php:118
-#: src/Module/FollowConfirm.php:38 src/Module/FriendSuggest.php:57
-#: src/Module/Group.php:40 src/Module/Group.php:83 src/Module/Invite.php:42
-#: src/Module/Invite.php:131 src/Module/Notifications/Notification.php:76
+#: src/Module/Contact/Advanced.php:60 src/Module/Contact/Unfollow.php:66
+#: src/Module/Contact/Unfollow.php:80 src/Module/Contact/Unfollow.php:112
+#: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
+#: src/Module/FriendSuggest.php:57 src/Module/Group.php:40
+#: src/Module/Group.php:83 src/Module/Invite.php:42 src/Module/Invite.php:131
+#: src/Module/Notifications/Notification.php:76
 #: src/Module/Notifications/Notification.php:107
 #: src/Module/Profile/Attachment/Upload.php:97 src/Module/Profile/Common.php:55
 #: src/Module/Profile/Contacts.php:55 src/Module/Profile/Photos/Upload.php:108
@@ -268,8 +270,9 @@ msgstr ""
 
 #: mod/editpost.php:130 mod/fbrowser.php:119 mod/fbrowser.php:146
 #: mod/follow.php:144 mod/photos.php:999 mod/photos.php:1100 mod/tagrm.php:35
-#: mod/tagrm.php:127 mod/unfollow.php:97 src/Content/Conversation.php:389
-#: src/Module/Contact/Revoke.php:109 src/Module/RemoteFollow.php:128
+#: mod/tagrm.php:127 src/Content/Conversation.php:389
+#: src/Module/Contact/Revoke.php:109 src/Module/Contact/Unfollow.php:126
+#: src/Module/Profile/RemoteFollow.php:134
 #: src/Module/Security/TwoFactor/SignOut.php:125
 msgid "Cancel"
 msgstr ""
@@ -449,7 +452,8 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-#: mod/follow.php:74 mod/unfollow.php:96 src/Module/RemoteFollow.php:127
+#: mod/follow.php:74 src/Module/Contact/Unfollow.php:125
+#: src/Module/Profile/RemoteFollow.php:133
 msgid "Submit Request"
 msgstr ""
 
@@ -475,17 +479,16 @@ msgstr ""
 msgid "Connect/Follow"
 msgstr ""
 
-#: mod/follow.php:139 src/Module/RemoteFollow.php:126
+#: mod/follow.php:139 src/Module/Profile/RemoteFollow.php:132
 msgid "Please answer the following:"
 msgstr ""
 
-#: mod/follow.php:140 mod/unfollow.php:94
+#: mod/follow.php:140 src/Module/Contact/Unfollow.php:123
 msgid "Your Identity Address:"
 msgstr ""
 
-#: mod/follow.php:141 mod/unfollow.php:100
-#: src/Module/Admin/Blocklist/Contact.php:116
-#: src/Module/Contact/Profile.php:366
+#: mod/follow.php:141 src/Module/Admin/Blocklist/Contact.php:116
+#: src/Module/Contact/Profile.php:366 src/Module/Contact/Unfollow.php:129
 #: src/Module/Notifications/Introductions.php:129
 #: src/Module/Notifications/Introductions.php:198
 msgid "Profile URL"
@@ -506,8 +509,8 @@ msgstr ""
 msgid "Add a personal note:"
 msgstr ""
 
-#: mod/follow.php:163 mod/unfollow.php:109 src/Module/BaseProfile.php:59
-#: src/Module/Contact.php:447
+#: mod/follow.php:163 src/Module/BaseProfile.php:59 src/Module/Contact.php:447
+#: src/Module/Contact/Unfollow.php:138
 msgid "Status Messages and Posts"
 msgstr ""
 
@@ -1481,26 +1484,6 @@ msgstr ""
 msgid ""
 "To export your account, go to \"Settings->Export your personal data\" and "
 "select \"Export account\""
-msgstr ""
-
-#: mod/unfollow.php:65 mod/unfollow.php:134
-msgid "You aren't following this contact."
-msgstr ""
-
-#: mod/unfollow.php:71
-msgid "Unfollowing is currently not supported by your network."
-msgstr ""
-
-#: mod/unfollow.php:92
-msgid "Disconnect/Unfollow"
-msgstr ""
-
-#: mod/unfollow.php:143
-msgid "Contact was successfully unfollowed"
-msgstr ""
-
-#: mod/unfollow.php:146
-msgid "Unable to unfollow this contact, please contact your administrator"
 msgstr ""
 
 #: src/App.php:490
@@ -7198,6 +7181,26 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
+#: src/Module/Contact/Unfollow.php:98 src/Module/Contact/Unfollow.php:167
+msgid "You aren't following this contact."
+msgstr ""
+
+#: src/Module/Contact/Unfollow.php:103
+msgid "Unfollowing is currently not supported by your network."
+msgstr ""
+
+#: src/Module/Contact/Unfollow.php:121
+msgid "Disconnect/Unfollow"
+msgstr ""
+
+#: src/Module/Contact/Unfollow.php:175
+msgid "Contact was successfully unfollowed"
+msgstr ""
+
+#: src/Module/Contact/Unfollow.php:178
+msgid "Unable to unfollow this contact, please contact your administrator"
+msgstr ""
+
 #: src/Module/Conversation/Community.php:73
 msgid ""
 "This community stream shows all public posts received by this node. They may "
@@ -8393,6 +8396,47 @@ msgstr ""
 msgid "%s's comments"
 msgstr ""
 
+#: src/Module/Profile/RemoteFollow.php:82
+msgid "Profile unavailable."
+msgstr ""
+
+#: src/Module/Profile/RemoteFollow.php:88
+msgid "Invalid locator"
+msgstr ""
+
+#: src/Module/Profile/RemoteFollow.php:95
+msgid "The provided profile link doesn't seem to be valid"
+msgstr ""
+
+#: src/Module/Profile/RemoteFollow.php:100
+msgid ""
+"Remote subscription can't be done for your network. Please subscribe "
+"directly on your system."
+msgstr ""
+
+#: src/Module/Profile/RemoteFollow.php:128
+msgid "Friend/Connection Request"
+msgstr ""
+
+#: src/Module/Profile/RemoteFollow.php:129
+#, php-format
+msgid ""
+"Enter your Webfinger address (user@domain.tld) or profile URL here. If this "
+"isn't supported by your system, you have to subscribe to <strong>%s</strong> "
+"or <strong>%s</strong> directly on your system."
+msgstr ""
+
+#: src/Module/Profile/RemoteFollow.php:130
+#, php-format
+msgid ""
+"If you are not yet a member of the free social web, <a href=\"%s\">follow "
+"this link to find a public Friendica node and join us today</a>."
+msgstr ""
+
+#: src/Module/Profile/RemoteFollow.php:131
+msgid "Your Webfinger address or profile URL:"
+msgstr ""
+
 #: src/Module/Profile/Schedule.php:84
 msgid "Scheduled"
 msgstr ""
@@ -8583,47 +8627,6 @@ msgstr ""
 
 #: src/Module/Register.php:402
 msgid "Your registration is pending approval by the site owner."
-msgstr ""
-
-#: src/Module/RemoteFollow.php:72
-msgid "Profile unavailable."
-msgstr ""
-
-#: src/Module/RemoteFollow.php:78
-msgid "Invalid locator"
-msgstr ""
-
-#: src/Module/RemoteFollow.php:85
-msgid "The provided profile link doesn't seem to be valid"
-msgstr ""
-
-#: src/Module/RemoteFollow.php:90
-msgid ""
-"Remote subscription can't be done for your network. Please subscribe "
-"directly on your system."
-msgstr ""
-
-#: src/Module/RemoteFollow.php:122
-msgid "Friend/Connection Request"
-msgstr ""
-
-#: src/Module/RemoteFollow.php:123
-#, php-format
-msgid ""
-"Enter your Webfinger address (user@domain.tld) or profile URL here. If this "
-"isn't supported by your system, you have to subscribe to <strong>%s</strong> "
-"or <strong>%s</strong> directly on your system."
-msgstr ""
-
-#: src/Module/RemoteFollow.php:124
-#, php-format
-msgid ""
-"If you are not yet a member of the free social web, <a href=\"%s\">follow "
-"this link to find a public Friendica node and join us today</a>."
-msgstr ""
-
-#: src/Module/RemoteFollow.php:125
-msgid "Your Webfinger address or profile URL:"
 msgstr ""
 
 #: src/Module/Search/Acl.php:55
