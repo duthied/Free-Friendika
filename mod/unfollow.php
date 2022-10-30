@@ -99,7 +99,7 @@ function unfollow_content(App $a)
 		'$zrl'           => Contact::magicLinkByContact($contact),
 		'$url_label'     => DI::l10n()->t('Profile URL'),
 		'$myaddr'        => $self['url'],
-		'$request'       => $request,
+		'$action'        => $request,
 		'$keywords'      => '',
 		'$keywords_label'=> ''
 	]);

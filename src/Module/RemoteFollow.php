@@ -127,7 +127,7 @@ class RemoteFollow extends BaseModule
 			'$submit'        => $this->t('Submit Request'),
 			'$cancel'        => $this->t('Cancel'),
 
-			'$request'       => 'remote_follow/' . $this->parameters['profile'],
+			'$action'        => 'remote_follow/' . $this->parameters['profile'],
 			'$name'          => $this->owner['name'],
 			'$myaddr'        => Profile::getMyURL(),
 		]);

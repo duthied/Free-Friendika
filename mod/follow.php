@@ -143,7 +143,7 @@ function follow_content(App $a)
 		'$submit'        => $submit,
 		'$cancel'        => DI::l10n()->t('Cancel'),
 
-		'$request'       => $request,
+		'$action'        => $request,
 		'$name'          => $contact['name'],
 		'$url'           => $contact['url'],
 		'$zrl'           => Profile::zrl($contact['url']),
