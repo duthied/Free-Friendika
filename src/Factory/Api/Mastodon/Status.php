@@ -86,7 +86,7 @@ class Status extends BaseFactory
 	public function createFromUriId(int $uriId, int $uid = 0): \Friendica\Object\Api\Mastodon\Status
 	{
 		$fields = ['uri-id', 'uid', 'author-id', 'author-uri-id', 'author-link', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
-			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured', 'has-media'];
+			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured', 'has-media', 'quote-uri-id'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
 			$mail = DBA::selectFirst('mail', ['id'], ['uri-id' => $uriId, 'uid' => $uid]);
@@ -178,6 +178,8 @@ class Status extends BaseFactory
 			$item['title'] = $reshared_item['title'] ?? $item['title'];
 			$item['body']  = $reshared_item['body'] ?? $item['body'];
 		} else {
+			$item['body']     = $this->contentItem->addSharedPost($item);
+			$item['raw-body'] = $this->contentItem->addSharedPost($item, $item['raw-body']);
 			$reshare = [];
 		}
 
