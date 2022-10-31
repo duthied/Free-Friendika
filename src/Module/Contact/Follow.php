@@ -48,20 +48,17 @@ class Follow extends BaseModule
 	protected $session;
 	/** @var SystemMessages */
 	protected $sysMessages;
-	/** @var App */
-	protected $app;
 	/** @var IManageConfigValues */
 	protected $config;
 	/** @var App\Page */
 	protected $page;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IHandleUserSessions $session, SystemMessages $sysMessages, App $app, IManageConfigValues $config, App\Page $page, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IHandleUserSessions $session, SystemMessages $sysMessages, IManageConfigValues $config, App\Page $page, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->session     = $session;
 		$this->sysMessages = $sysMessages;
-		$this->app         = $app;
 		$this->config      = $config;
 		$this->page        = $page;
 	}
@@ -202,9 +199,9 @@ class Follow extends BaseModule
 
 	protected function process(string $url)
 	{
-		$returnPath = 'follow?url=' . urlencode($url);
+		$returnPath = 'contact/follow?url=' . urlencode($url);
 
-		$result = Contact::createFromProbeForUser($this->app->getLoggedInUserId(), $url);
+		$result = Contact::createFromProbeForUser($this->session->getLocalUserId(), $url);
 
 		if (!$result['success']) {
 			// Possibly it is a remote item and not an account
