@@ -170,7 +170,7 @@ class Follow extends BaseModule
 			'$submit'         => $submit,
 			'$cancel'         => $this->t('Cancel'),
 
-			'$request'  => $requestUrl,
+			'$action'   => $requestUrl,
 			'$name'     => $contact['name'],
 			'$url'      => $contact['url'],
 			'$zrl'      => Profile::zrl($contact['url']),
