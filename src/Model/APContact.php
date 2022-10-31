@@ -62,7 +62,7 @@ class APContact
 				'addr'      => $local_owner['addr'],
 				'baseurl'   => $local_owner['baseurl'],
 				'url'       => $local_owner['url'],
-				'subscribe' => $local_owner['baseurl'] . '/follow?url={uri}'];
+				'subscribe' => $local_owner['baseurl'] . '/contact/follow?url={uri}'];
 
 			if (!empty($local_owner['alias']) && ($local_owner['url'] != $local_owner['alias'])) {
 				$data['alias'] = $local_owner['alias'];

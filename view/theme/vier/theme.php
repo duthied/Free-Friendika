@@ -154,7 +154,7 @@ function vier_community_info()
 			foreach ($contacts as $contact) {
 				$entry = Renderer::replaceMacros($tpl, [
 					'$id' => $contact['id'],
-					'$profile_link' => 'follow/?url='.urlencode($contact['url']),
+					'$profile_link' => 'contact/follow?url=' . urlencode($contact['url']),
 					'$photo' => Contact::getMicro($contact),
 					'$alt_text' => $contact['name'],
 				]);

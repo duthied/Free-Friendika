@@ -401,7 +401,7 @@ class Item
 
 			if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
 				in_array($item['network'], Protocol::FEDERATED)) {
-				$menu[$this->l10n->t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']) . '&auto=1';
+				$menu[$this->l10n->t('Connect/Follow')] = 'contact/follow?url=' . urlencode($item['author-link']) . '&auto=1';
 			}
 		} else {
 			$menu = [$this->l10n->t('View Profile') => $item['author-link']];

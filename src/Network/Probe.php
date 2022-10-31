@@ -2185,7 +2185,7 @@ class Probe
 				'xmpp'             => $owner['xmpp'], 'matrix' => $owner['matrix'],
 				'hide'             => !$owner['net-publish'], 'batch' => '', 'notify' => $owner['notify'],
 				'poll'             => $owner['poll'], 'request' => $owner['request'], 'confirm' => $owner['confirm'],
-				'subscribe'        => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $owner['poco'],
+				'subscribe'        => $approfile['generator']['url'] . '/contact/follow?url={uri}', 'poco' => $owner['poco'],
 				'following'        => $approfile['following'], 'followers' => $approfile['followers'],
 				'inbox'            => $approfile['inbox'], 'outbox' => $approfile['outbox'],
 				'sharedinbox'      => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN,
