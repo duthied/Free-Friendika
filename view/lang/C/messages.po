@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-31 15:34-0400\n"
+"POT-Creation-Date: 2022-10-31 19:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,8 +18,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-#: mod/cal.php:45 mod/cal.php:49 mod/follow.php:39 mod/redir.php:35
-#: mod/redir.php:176 src/Module/Conversation/Community.php:193
+#: mod/cal.php:45 mod/cal.php:49 mod/redir.php:35 mod/redir.php:176
+#: src/Module/Contact/Follow.php:69 src/Module/Conversation/Community.php:193
 #: src/Module/Debug/ItemBody.php:38 src/Module/Diaspora/Receive.php:57
 #: src/Module/Item/Follow.php:41 src/Module/Item/Ignore.php:41
 #: src/Module/Item/Pin.php:41 src/Module/Item/Pin.php:56
@@ -119,19 +119,19 @@ msgstr ""
 msgid "The feed for this item is unavailable."
 msgstr ""
 
-#: mod/editpost.php:38 mod/events.php:218 mod/follow.php:56 mod/follow.php:130
-#: mod/item.php:181 mod/item.php:186 mod/item.php:870 mod/message.php:69
-#: mod/message.php:114 mod/notes.php:44 mod/ostatus_subscribe.php:33
-#: mod/photos.php:159 mod/photos.php:886 mod/repair_ostatus.php:31
-#: mod/settings.php:40 mod/settings.php:50 mod/settings.php:156
-#: mod/suggest.php:34 mod/uimport.php:33 src/Module/Attach.php:56
-#: src/Module/BaseApi.php:94 src/Module/BaseNotifications.php:98
-#: src/Module/Contact/Advanced.php:60 src/Module/Contact/Unfollow.php:66
-#: src/Module/Contact/Unfollow.php:80 src/Module/Contact/Unfollow.php:112
-#: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
-#: src/Module/FriendSuggest.php:57 src/Module/Group.php:40
-#: src/Module/Group.php:83 src/Module/Invite.php:42 src/Module/Invite.php:131
-#: src/Module/Notifications/Notification.php:76
+#: mod/editpost.php:38 mod/events.php:218 mod/item.php:181 mod/item.php:186
+#: mod/item.php:870 mod/message.php:69 mod/message.php:114 mod/notes.php:44
+#: mod/ostatus_subscribe.php:33 mod/photos.php:159 mod/photos.php:886
+#: mod/repair_ostatus.php:31 mod/settings.php:40 mod/settings.php:50
+#: mod/settings.php:156 mod/suggest.php:34 mod/uimport.php:33
+#: src/Module/Attach.php:56 src/Module/BaseApi.php:94
+#: src/Module/BaseNotifications.php:98 src/Module/Contact/Advanced.php:60
+#: src/Module/Contact/Follow.php:86 src/Module/Contact/Follow.php:158
+#: src/Module/Contact/Unfollow.php:66 src/Module/Contact/Unfollow.php:80
+#: src/Module/Contact/Unfollow.php:112 src/Module/Delegation.php:118
+#: src/Module/FollowConfirm.php:38 src/Module/FriendSuggest.php:57
+#: src/Module/Group.php:40 src/Module/Group.php:83 src/Module/Invite.php:42
+#: src/Module/Invite.php:131 src/Module/Notifications/Notification.php:76
 #: src/Module/Notifications/Notification.php:107
 #: src/Module/Profile/Attachment/Upload.php:97 src/Module/Profile/Common.php:55
 #: src/Module/Profile/Contacts.php:55 src/Module/Profile/Photos/Upload.php:108
@@ -269,8 +269,8 @@ msgid "Preview"
 msgstr ""
 
 #: mod/editpost.php:130 mod/fbrowser.php:119 mod/fbrowser.php:146
-#: mod/follow.php:144 mod/photos.php:999 mod/photos.php:1100 mod/tagrm.php:35
-#: mod/tagrm.php:127 src/Content/Conversation.php:389
+#: mod/photos.php:999 mod/photos.php:1100 mod/tagrm.php:35 mod/tagrm.php:127
+#: src/Content/Conversation.php:389 src/Module/Contact/Follow.php:171
 #: src/Module/Contact/Revoke.php:109 src/Module/Contact/Unfollow.php:126
 #: src/Module/Profile/RemoteFollow.php:134
 #: src/Module/Security/TwoFactor/SignOut.php:125
@@ -450,72 +450,6 @@ msgstr ""
 
 #: mod/fbrowser.php:143
 msgid "Files"
-msgstr ""
-
-#: mod/follow.php:74 src/Module/Contact/Unfollow.php:125
-#: src/Module/Profile/RemoteFollow.php:133
-msgid "Submit Request"
-msgstr ""
-
-#: mod/follow.php:84
-msgid "You already added this contact."
-msgstr ""
-
-#: mod/follow.php:100
-msgid "The network type couldn't be detected. Contact can't be added."
-msgstr ""
-
-#: mod/follow.php:108
-msgid "Diaspora support isn't enabled. Contact can't be added."
-msgstr ""
-
-#: mod/follow.php:113
-msgid "OStatus support is disabled. Contact can't be added."
-msgstr ""
-
-#: mod/follow.php:138 src/Content/Item.php:404 src/Content/Widget.php:80
-#: src/Model/Contact.php:1194 src/Model/Contact.php:1205
-#: view/theme/vier/theme.php:198
-msgid "Connect/Follow"
-msgstr ""
-
-#: mod/follow.php:139 src/Module/Profile/RemoteFollow.php:132
-msgid "Please answer the following:"
-msgstr ""
-
-#: mod/follow.php:140 src/Module/Contact/Unfollow.php:123
-msgid "Your Identity Address:"
-msgstr ""
-
-#: mod/follow.php:141 src/Module/Admin/Blocklist/Contact.php:116
-#: src/Module/Contact/Profile.php:366 src/Module/Contact/Unfollow.php:129
-#: src/Module/Notifications/Introductions.php:129
-#: src/Module/Notifications/Introductions.php:198
-msgid "Profile URL"
-msgstr ""
-
-#: mod/follow.php:142 src/Module/Contact/Profile.php:378
-#: src/Module/Notifications/Introductions.php:191
-#: src/Module/Profile/Profile.php:206
-msgid "Tags:"
-msgstr ""
-
-#: mod/follow.php:153
-#, php-format
-msgid "%s knows you"
-msgstr ""
-
-#: mod/follow.php:154
-msgid "Add a personal note:"
-msgstr ""
-
-#: mod/follow.php:163 src/Module/BaseProfile.php:59 src/Module/Contact.php:447
-#: src/Module/Contact/Unfollow.php:138
-msgid "Status Messages and Posts"
-msgstr ""
-
-#: mod/follow.php:191
-msgid "The contact could not be added."
 msgstr ""
 
 #: mod/item.php:131 mod/item.php:135
@@ -2282,6 +2216,12 @@ msgstr ""
 
 #: src/Content/Item.php:399 src/Object/Post.php:454
 msgid "Languages"
+msgstr ""
+
+#: src/Content/Item.php:404 src/Content/Widget.php:80
+#: src/Model/Contact.php:1194 src/Model/Contact.php:1205
+#: src/Module/Contact/Follow.php:165 view/theme/vier/theme.php:198
+msgid "Connect/Follow"
 msgstr ""
 
 #: src/Content/Nav.php:90
@@ -4416,6 +4356,13 @@ msgid "%s total blocked contact"
 msgid_plural "%s total blocked contacts"
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Module/Admin/Blocklist/Contact.php:116 src/Module/Contact/Follow.php:168
+#: src/Module/Contact/Profile.php:366 src/Module/Contact/Unfollow.php:129
+#: src/Module/Notifications/Introductions.php:129
+#: src/Module/Notifications/Introductions.php:198
+msgid "Profile URL"
+msgstr ""
 
 #: src/Module/Admin/Blocklist/Contact.php:116
 msgid "URL of the remote contact to block."
@@ -6662,6 +6609,11 @@ msgstr[1] ""
 msgid "Profile Details"
 msgstr ""
 
+#: src/Module/BaseProfile.php:59 src/Module/Contact.php:447
+#: src/Module/Contact/Follow.php:190 src/Module/Contact/Unfollow.php:138
+msgid "Status Messages and Posts"
+msgstr ""
+
 #: src/Module/BaseProfile.php:109
 msgid "Only You Can See This"
 msgstr ""
@@ -6923,6 +6875,54 @@ msgid "Contact (%s)"
 msgid_plural "Contacts (%s)"
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Module/Contact/Follow.php:102 src/Module/Contact/Unfollow.php:125
+#: src/Module/Profile/RemoteFollow.php:133
+msgid "Submit Request"
+msgstr ""
+
+#: src/Module/Contact/Follow.php:113
+msgid "You already added this contact."
+msgstr ""
+
+#: src/Module/Contact/Follow.php:128
+msgid "The network type couldn't be detected. Contact can't be added."
+msgstr ""
+
+#: src/Module/Contact/Follow.php:136
+msgid "Diaspora support isn't enabled. Contact can't be added."
+msgstr ""
+
+#: src/Module/Contact/Follow.php:141
+msgid "OStatus support is disabled. Contact can't be added."
+msgstr ""
+
+#: src/Module/Contact/Follow.php:166 src/Module/Profile/RemoteFollow.php:132
+msgid "Please answer the following:"
+msgstr ""
+
+#: src/Module/Contact/Follow.php:167 src/Module/Contact/Unfollow.php:123
+msgid "Your Identity Address:"
+msgstr ""
+
+#: src/Module/Contact/Follow.php:169 src/Module/Contact/Profile.php:378
+#: src/Module/Notifications/Introductions.php:191
+#: src/Module/Profile/Profile.php:206
+msgid "Tags:"
+msgstr ""
+
+#: src/Module/Contact/Follow.php:180
+#, php-format
+msgid "%s knows you"
+msgstr ""
+
+#: src/Module/Contact/Follow.php:181
+msgid "Add a personal note:"
+msgstr ""
+
+#: src/Module/Contact/Follow.php:219
+msgid "The contact could not be added."
+msgstr ""
 
 #: src/Module/Contact/Profile.php:128
 msgid "Failed to update contact record."
