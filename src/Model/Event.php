@@ -670,7 +670,6 @@ class Event
 		switch ($format) {
 			// Format the exported data as a CSV file.
 			case "csv":
-				header("Content-type: text/csv");
 				$o .= '"Subject", "Start Date", "Start Time", "Description", "End Date", "End Time", "Location"' . PHP_EOL;
 
 				foreach ($events as $event) {
@@ -691,7 +690,6 @@ class Event
 
 			// Format the exported data as a ics file.
 			case "ical":
-				header("Content-type: text/ics");
 				$o = 'BEGIN:VCALENDAR' . PHP_EOL
 					. 'VERSION:2.0' . PHP_EOL
 					. 'PRODID:-//friendica calendar export//0.1//EN' . PHP_EOL;
@@ -705,6 +703,8 @@ class Event
 				//       also long lines SHOULD be split at 75 characters length
 				foreach ($events as $event) {
 					$o .= 'BEGIN:VEVENT' . PHP_EOL;
+					$o .= 'UID:' . $event['id'] . PHP_EOL;
+					$o .= 'DTSTAMP:' . DateTimeFormat::utc($event['created'], 'Ymd\THis\Z') . PHP_EOL;
 
 					if ($event['start']) {
 						$o .= 'DTSTART:' . DateTimeFormat::utc($event['start'], 'Ymd\THis\Z') . PHP_EOL;
@@ -736,7 +736,6 @@ class Event
 					}
 
 					$o .= 'END:VEVENT' . PHP_EOL;
-					$o .= PHP_EOL;
 				}
 
 				$o .= 'END:VCALENDAR' . PHP_EOL;
@@ -768,7 +767,7 @@ class Event
 			return $return;
 		}
 
-		$fields = ['start', 'finish', 'summary', 'desc', 'location', 'nofinish'];
+		$fields = ['id', 'created', 'start', 'finish', 'summary', 'desc', 'location', 'nofinish'];
 
 		$conditions = ['uid' => $uid, 'cid' => 0];
 
