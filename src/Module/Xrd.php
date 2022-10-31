@@ -122,7 +122,7 @@ class Xrd extends BaseModule
 				],
 				[
 					'rel'      => 'http://ostatus.org/schema/1.0/subscribe',
-					'template' => $baseURL . '/follow?url={uri}',
+					'template' => $baseURL . '/contact/follow?url={uri}',
 				],
 				[
 					'rel'  => ActivityNamespace::FEED,
@@ -212,7 +212,7 @@ class Xrd extends BaseModule
 				],
 				[
 					'rel'      => 'http://ostatus.org/schema/1.0/subscribe',
-					'template' => $baseURL . '/follow?url={uri}',
+					'template' => $baseURL . '/contact/follow?url={uri}',
 				],
 				[
 					'rel'  => 'magic-public-key',
@@ -312,7 +312,7 @@ class Xrd extends BaseModule
 				'11:link' => [
 					'@attributes' => [
 						'rel'  => 'http://ostatus.org/schema/1.0/subscribe',
-						'template' => $baseURL . '/follow?url={uri}'
+						'template' => $baseURL . '/contact/follow?url={uri}'
 					]
 				],
 				'12:link' => [

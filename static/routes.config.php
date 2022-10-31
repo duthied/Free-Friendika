@@ -387,6 +387,7 @@ return [
 		'/hidden'                     => [Module\Contact::class,           [R::GET]],
 		'/ignored'                    => [Module\Contact::class,           [R::GET]],
 		'/hovercard'                  => [Module\Contact\Hovercard::class, [R::GET]],
+		'/follow[/{url}]'       	  => [Module\Contact\Follow::class,    [R::GET, R::POST]],
 		'/unfollow'                   => [Module\Contact\Unfollow::class,  [R::GET, R::POST]],
 	],
 
@@ -418,7 +419,6 @@ return [
 	'/filed'                => [Module\Search\Filed::class,          [R::GET]],
 	'/filer[/{id:\d+}]'     => [Module\Filer\SaveTag::class,         [R::GET]],
 	'/filerm/{id:\d+}'      => [Module\Filer\RemoveTag::class,       [R::GET, R::POST]],
-	'/follow[/{url}]'       => [Module\Contact\Follow::class,        [R::GET, R::POST]],
 	'/follow_confirm'       => [Module\FollowConfirm::class,         [R::GET, R::POST]],
 	'/followers/{nickname}' => [Module\ActivityPub\Followers::class, [R::GET]],
 	'/following/{nickname}' => [Module\ActivityPub\Following::class, [R::GET]],

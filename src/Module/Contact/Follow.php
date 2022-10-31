@@ -202,7 +202,7 @@ class Follow extends BaseModule
 
 	protected function process(string $url)
 	{
-		$returnPath = 'follow?rul=' . urlencode($url);
+		$returnPath = 'follow?url=' . urlencode($url);
 
 		$result = Contact::createFromProbeForUser($this->app->getLoggedInUserId(), $url);
 
