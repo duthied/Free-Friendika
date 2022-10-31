@@ -75,7 +75,7 @@ function enableOnUser(){
 
 		var file_uploader = new window.AjaxUpload(
 			'wall-file-upload',
-			{ action: 'wall_attach/{{$nickname}}',
+			{ action: 'profile/{{$nickname}}/attachment/upload',
 				name: 'userfile',
 				onSubmit: function(file,ext) { $('#profile-rotator').show(); },
 				onComplete: function(file,response) {
