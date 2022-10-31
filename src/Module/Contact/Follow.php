@@ -68,8 +68,6 @@ class Follow extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		parent::post($request);
-
 		if (!$this->session->getLocalUserId()) {
 			throw new ForbiddenException($this->t('Access denied.'));
 		}
@@ -79,6 +77,8 @@ class Follow extends BaseModule
 		}
 
 		$url = Probe::cleanURI($this->session->get('url'));
+
+		$this->process($url);
 	}
 
 	protected function content(array $request = []): string
