@@ -73,7 +73,7 @@ class Follow extends BaseModule
 			$this->baseUrl->redirect($request['url']);
 		}
 
-		$url = Probe::cleanURI($this->session->get('url'));
+		$url = Probe::cleanURI($request['url']);
 
 		$this->process($url);
 	}
