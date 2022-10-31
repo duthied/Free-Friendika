@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\Contact;
 
 use Friendica\App;
 use Friendica\BaseModule;
@@ -34,6 +34,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Network\Probe;
