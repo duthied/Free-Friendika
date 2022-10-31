@@ -151,7 +151,7 @@ class Follow extends BaseModule
 		}
 
 		$requestUrl = $this->baseUrl . '/contact/follow';
-		$tpl     = Renderer::getMarkupTemplate('auto_request.tpl');
+		$tpl        = Renderer::getMarkupTemplate('auto_request.tpl');
 
 		$owner = User::getOwnerDataById($uid);
 		if (empty($owner)) {
