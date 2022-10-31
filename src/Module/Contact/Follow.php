@@ -69,8 +69,8 @@ class Follow extends BaseModule
 			throw new ForbiddenException($this->t('Access denied.'));
 		}
 
-		if (!empty($request['url'])) {
-			$this->baseUrl->redirect($request['url']);
+		if (isset($request['cancel']) || empty($request['url'])) {
+			$this->baseUrl->redirect('contact');
 		}
 
 		$url = Probe::cleanURI($request['url']);
@@ -150,7 +150,7 @@ class Follow extends BaseModule
 			$this->process($contact['url']);
 		}
 
-		$request = $this->baseUrl . '/follow';
+		$requestUrl = $this->baseUrl . '/contact/follow';
 		$tpl     = Renderer::getMarkupTemplate('auto_request.tpl');
 
 		$owner = User::getOwnerDataById($uid);
@@ -170,7 +170,7 @@ class Follow extends BaseModule
 			'$submit'         => $submit,
 			'$cancel'         => $this->t('Cancel'),
 
-			'$request'  => $request,
+			'$request'  => $requestUrl,
 			'$name'     => $contact['name'],
 			'$url'      => $contact['url'],
 			'$zrl'      => Profile::zrl($contact['url']),
@@ -181,10 +181,10 @@ class Follow extends BaseModule
 			'$addnote_field' => ['dfrn-request-message', $this->t('Add a personal note:')],
 		]);
 
-		$this['aside'] = '';
+		$this->page['aside'] = '';
 
 		if (!in_array($protocol, [Protocol::PHANTOM, Protocol::MAIL])) {
-			$this['aside'] = VCard::getHTML($contact);
+			$this->page['aside'] = VCard::getHTML($contact);
 
 			$output .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'),
 				['$title' => $this->t('Status Messages and Posts')]
