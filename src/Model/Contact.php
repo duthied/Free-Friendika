@@ -902,7 +902,7 @@ class Contact
 		self::clearFollowerFollowingEndpointCache($contact['uid']);
 
 		// Archive the contact
-		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
+		self::update(['archive' => true, 'network' => Protocol::PHANTOM, 'rel' => self::NOTHING, 'deleted' => true], ['id' => $id]);
 
 		if (!DBA::exists('contact', ['uri-id' => $contact['uri-id'], 'deleted' => false])) {
 			Avatar::deleteCache($contact);
@@ -1176,7 +1176,7 @@ class Contact
 		$unfollow_link = '';
 		if (!$contact['self'] && Protocol::supportsFollow($contact['network'])) {
 			if ($contact['uid'] && in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
-				$unfollow_link = 'unfollow?url=' . urlencode($contact['url']) . '&auto=1';
+				$unfollow_link = 'contact/unfollow?url=' . urlencode($contact['url']) . '&auto=1';
 			} elseif(!$contact['pending']) {
 				$follow_link = 'follow?url=' . urlencode($contact['url']) . '&auto=1';
 			}

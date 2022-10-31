@@ -70,7 +70,7 @@ class VCard
 				$rel     = $contact['rel'];
 				$pending = $contact['pending'];
 			} else {
-				$pcontact = Contact::selectFirst([], ['uid' => DI::userSession()->getLocalUserId(), 'uri-id' => $contact['uri-id']]);
+				$pcontact = Contact::selectFirst([], ['uid' => DI::userSession()->getLocalUserId(), 'uri-id' => $contact['uri-id'], 'deleted' => false]);
 
 				$id      = $pcontact['id'] ?? 0;
 				$rel     = $pcontact['rel'] ?? Contact::NOTHING;
@@ -83,7 +83,7 @@ class VCard
 
 			if (empty($contact['self']) && Protocol::supportsFollow($contact['network'])) {
 				if (in_array($rel, [Contact::SHARING, Contact::FRIEND])) {
-					$unfollow_link = 'unfollow?url=' . urlencode($contact['url']) . '&auto=1';
+					$unfollow_link = 'contact/unfollow?url=' . urlencode($contact['url']) . '&auto=1';
 				} elseif (!$pending) {
 					$follow_link = 'follow?url=' . urlencode($contact['url']) . '&auto=1';
 				}
