@@ -37,11 +37,11 @@ class RemoveUnusedAvatars
 		$sql = "FROM `contact` INNER JOIN `photo` ON `contact`.`id` = `contact-id`
 			WHERE `contact`.`uid` = ? AND NOT `self` AND (`photo` != ? OR `thumb` != ? OR `micro` != ?)
 				AND NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` != ?)
-				AND NOT `contact`.`id` IN (SELECT `author-id` FROM `post-user`)
-				AND NOT `contact`.`id` IN (SELECT `owner-id` FROM `post-user`)
-				AND NOT `contact`.`id` IN (SELECT `causer-id` FROM `post-user` WHERE `causer-id` IS NOT NULL)
-				AND NOT `contact`.`id` IN (SELECT `cid` FROM `post-tag`)
-				AND NOT `contact`.`id` IN (SELECT `contact-id` FROM `post-user`);";
+				AND NOT `contact`.`id` IN (SELECT `author-id` FROM `post-user` WHERE `author-id` = `contact`.`id`)
+				AND NOT `contact`.`id` IN (SELECT `owner-id` FROM `post-user` WHERE `owner-id` = `contact`.`id`)
+				AND NOT `contact`.`id` IN (SELECT `causer-id` FROM `post-user` WHERE `causer-id` IS NOT NULL AND `causer-id` = `contact`.`id`)
+				AND NOT `contact`.`id` IN (SELECT `cid` FROM `post-tag` WHERE `cid` = `contact`.`id`)
+				AND NOT `contact`.`id` IN (SELECT `contact-id` FROM `post-user` WHERE `contact-id` = `contact`.`id`);";
 
 		$ret = DBA::fetchFirst("SELECT COUNT(*) AS `total` " . $sql, 0, '', '', '', 0);
 		$total = $ret['total'] ?? 0;
