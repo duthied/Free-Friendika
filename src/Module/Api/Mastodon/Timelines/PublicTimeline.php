@@ -65,7 +65,7 @@ class PublicTimeline extends BaseApi
 		}
 
 		if ($request['remote']) {
-			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
+			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin` AND `post-user`.`uri-id` = `post-view`.`uri-id`)"]);
 		}
 
 		if ($request['only_media']) {
@@ -92,7 +92,7 @@ class PublicTimeline extends BaseApi
 
 		if (!empty($uid)) {
 			$condition = DBA::mergeConditions($condition,
-				["NOT `parent-author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND (`blocked` OR `ignored`))", $uid]);
+				["NOT `parent-author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND (`blocked` OR `ignored`) AND `cid` = `parent-author-id`)", $uid]);
 		}
 
 		$items = Post::selectPostsForUser($uid, ['uri-id'], $condition, $params);

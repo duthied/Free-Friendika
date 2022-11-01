@@ -77,7 +77,7 @@ class Tag extends BaseApi
 		}
 
 		if ($request['remote']) {
-			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
+			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin` AND `post-user`.`uri-id` = `tag-search-view`.`uri-id`)"]);
 		}
 
 		if ($request['only_media']) {

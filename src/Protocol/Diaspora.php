@@ -54,7 +54,8 @@ use GuzzleHttp\Psr7\Uri;
 use SimpleXMLElement;
 
 /**
- * This class contain functions to create and send Diaspora XML files
+ * This class contain functions to communicate via the Diaspora protocol
+ * @see https://diaspora.github.io/diaspora_federation/
  */
 class Diaspora
 {

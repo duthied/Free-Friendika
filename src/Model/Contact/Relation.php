@@ -284,7 +284,7 @@ class Relation
 		$results = DBA::select('contact', [], ["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
 				(SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ?)
 					AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
-						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
+						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))) AND `id` = `cid`)
 			AND NOT `hidden` AND `network` IN (?, ?, ?, ?)",
 			$cid,
 			0,
@@ -314,7 +314,7 @@ class Relation
 			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
 				(SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ?)
 					AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
-						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
+						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))) AND `id` = `cid`)
 			AND NOT `hidden` AND `network` IN (?, ?, ?, ?)",
 			$cid, 0, $uid, Contact::FRIEND, Contact::SHARING,
 			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
@@ -354,7 +354,7 @@ class Relation
 
 		// The query returns any contact that isn't followed by that user.
 		$results = DBA::select('contact', [],
-			["NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))
+			["NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?) AND `nurl` = `nurl`)
 			AND NOT `hidden` AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
 			$uid, Contact::FRIEND, Contact::SHARING, 0, 
 			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],

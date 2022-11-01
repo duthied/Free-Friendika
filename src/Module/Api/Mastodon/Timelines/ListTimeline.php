@@ -91,7 +91,7 @@ class ListTimeline extends BaseApi
 		}
 
 		if ($request['remote']) {
-			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
+			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin` AND `post-user`.`uri-id` = `post-user-view`.`uri-id`)"]);
 		}
 
 		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);

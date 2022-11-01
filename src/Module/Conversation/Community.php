@@ -335,7 +335,7 @@ class Community extends BaseModule
 			$condition[] = $item_id;
 		} else {
 			if (DI::userSession()->getLocalUserId() && !empty($_REQUEST['no_sharer'])) {
-				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ?)";
+				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-thread-user-view`.`uri-id`)";
 				$condition[] = DI::userSession()->getLocalUserId();
 			}
 	
