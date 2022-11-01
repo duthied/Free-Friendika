@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-02 14:17+0000\n"
+"POT-Creation-Date: 2022-11-02 11:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -105,15 +105,15 @@ msgstr ""
 #: mod/item.php:870 mod/message.php:69 mod/message.php:114 mod/notes.php:44
 #: mod/ostatus_subscribe.php:33 mod/photos.php:159 mod/photos.php:886
 #: mod/repair_ostatus.php:31 mod/settings.php:40 mod/settings.php:50
-#: mod/settings.php:156 mod/suggest.php:34 mod/uimport.php:33
-#: src/Module/Attach.php:56 src/Module/BaseApi.php:94
-#: src/Module/BaseNotifications.php:98 src/Module/Contact/Advanced.php:60
-#: src/Module/Contact/Follow.php:86 src/Module/Contact/Follow.php:158
-#: src/Module/Contact/Unfollow.php:66 src/Module/Contact/Unfollow.php:80
-#: src/Module/Contact/Unfollow.php:112 src/Module/Delegation.php:118
-#: src/Module/FollowConfirm.php:38 src/Module/FriendSuggest.php:57
-#: src/Module/Group.php:40 src/Module/Group.php:83 src/Module/Invite.php:42
-#: src/Module/Invite.php:131 src/Module/Notifications/Notification.php:76
+#: mod/settings.php:156 mod/suggest.php:34 src/Module/Attach.php:56
+#: src/Module/BaseApi.php:94 src/Module/BaseNotifications.php:98
+#: src/Module/Contact/Advanced.php:60 src/Module/Contact/Follow.php:86
+#: src/Module/Contact/Follow.php:158 src/Module/Contact/Unfollow.php:66
+#: src/Module/Contact/Unfollow.php:80 src/Module/Contact/Unfollow.php:112
+#: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
+#: src/Module/FriendSuggest.php:57 src/Module/Group.php:40
+#: src/Module/Group.php:83 src/Module/Invite.php:42 src/Module/Invite.php:131
+#: src/Module/Notifications/Notification.php:76
 #: src/Module/Notifications/Notification.php:107
 #: src/Module/Profile/Attachment/Upload.php:97 src/Module/Profile/Common.php:55
 #: src/Module/Profile/Contacts.php:55 src/Module/Profile/Photos/Upload.php:108
@@ -130,7 +130,8 @@ msgstr ""
 #: src/Module/Settings/UserExport.php:84 src/Module/Settings/UserExport.php:118
 #: src/Module/Settings/UserExport.php:219
 #: src/Module/Settings/UserExport.php:239
-#: src/Module/Settings/UserExport.php:304
+#: src/Module/Settings/UserExport.php:304 src/Module/User/Import.php:84
+#: src/Module/User/Import.php:91
 msgid "Permission denied."
 msgstr ""
 
@@ -1355,51 +1356,6 @@ msgstr ""
 #: mod/tagrm.php:126 src/Module/Settings/Delegation.php:178
 #: src/Module/Settings/TwoFactor/Trusted.php:143
 msgid "Remove"
-msgstr ""
-
-#: mod/uimport.php:46
-msgid "User imports on closed servers can only be done by an administrator."
-msgstr ""
-
-#: mod/uimport.php:55 src/Module/Register.php:99
-msgid ""
-"This site has exceeded the number of allowed daily account registrations. "
-"Please try again tomorrow."
-msgstr ""
-
-#: mod/uimport.php:62 src/Module/Register.php:173
-msgid "Import"
-msgstr ""
-
-#: mod/uimport.php:64
-msgid "Move account"
-msgstr ""
-
-#: mod/uimport.php:65
-msgid "You can import an account from another Friendica server."
-msgstr ""
-
-#: mod/uimport.php:66
-msgid ""
-"You need to export your account from the old server and upload it here. We "
-"will recreate your old account here with all your contacts. We will try also "
-"to inform your friends that you moved here."
-msgstr ""
-
-#: mod/uimport.php:67
-msgid ""
-"This feature is experimental. We can't import contacts from the OStatus "
-"network (GNU Social/Statusnet) or from Diaspora"
-msgstr ""
-
-#: mod/uimport.php:68
-msgid "Account file"
-msgstr ""
-
-#: mod/uimport.php:68
-msgid ""
-"To export your account, go to \"Settings->Export your personal data\" and "
-"select \"Export account\""
 msgstr ""
 
 #: src/App.php:490
@@ -3342,38 +3298,6 @@ msgstr ""
 msgid ""
 "\n"
 "\t\t\t\t\tThe friendica database was successfully updated from %s to %s."
-msgstr ""
-
-#: src/Core/UserImport.php:126
-msgid "Error decoding account file"
-msgstr ""
-
-#: src/Core/UserImport.php:132
-msgid "Error! No version data in file! This is not a Friendica account file?"
-msgstr ""
-
-#: src/Core/UserImport.php:140
-#, php-format
-msgid "User '%s' already exists on this server!"
-msgstr ""
-
-#: src/Core/UserImport.php:176
-msgid "User creation error"
-msgstr ""
-
-#: src/Core/UserImport.php:221
-#, php-format
-msgid "%d contact not imported"
-msgid_plural "%d contacts not imported"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Core/UserImport.php:274
-msgid "User profile creation error"
-msgstr ""
-
-#: src/Core/UserImport.php:327
-msgid "Done. You can now login with your username and password"
 msgstr ""
 
 #: src/Database/DBStructure.php:57
@@ -8490,6 +8414,12 @@ msgstr ""
 msgid "Only parent users can create additional accounts."
 msgstr ""
 
+#: src/Module/Register.php:99 src/Module/User/Import.php:111
+msgid ""
+"This site has exceeded the number of allowed daily account registrations. "
+"Please try again tomorrow."
+msgstr ""
+
 #: src/Module/Register.php:116
 msgid ""
 "You may (optionally) fill in this form via OpenID by supplying your OpenID "
@@ -8563,6 +8493,10 @@ msgstr ""
 
 #: src/Module/Register.php:165
 msgid "Choose a nickname: "
+msgstr ""
+
+#: src/Module/Register.php:173 src/Module/User/Import.php:117
+msgid "Import"
 msgstr ""
 
 #: src/Module/Register.php:174
@@ -10137,6 +10071,73 @@ msgstr ""
 
 #: src/Module/Tos.php:62 src/Module/Tos.php:90
 msgid "Privacy Statement"
+msgstr ""
+
+#: src/Module/User/Import.php:103
+msgid "User imports on closed servers can only be done by an administrator."
+msgstr ""
+
+#: src/Module/User/Import.php:119
+msgid "Move account"
+msgstr ""
+
+#: src/Module/User/Import.php:120
+msgid "You can import an account from another Friendica server."
+msgstr ""
+
+#: src/Module/User/Import.php:121
+msgid ""
+"You need to export your account from the old server and upload it here. We "
+"will recreate your old account here with all your contacts. We will try also "
+"to inform your friends that you moved here."
+msgstr ""
+
+#: src/Module/User/Import.php:122
+msgid ""
+"This feature is experimental. We can't import contacts from the OStatus "
+"network (GNU Social/Statusnet) or from Diaspora"
+msgstr ""
+
+#: src/Module/User/Import.php:123
+msgid "Account file"
+msgstr ""
+
+#: src/Module/User/Import.php:123
+msgid ""
+"To export your account, go to \"Settings->Export your personal data\" and "
+"select \"Export account\""
+msgstr ""
+
+#: src/Module/User/Import.php:217
+msgid "Error decoding account file"
+msgstr ""
+
+#: src/Module/User/Import.php:222
+msgid "Error! No version data in file! This is not a Friendica account file?"
+msgstr ""
+
+#: src/Module/User/Import.php:230
+#, php-format
+msgid "User '%s' already exists on this server!"
+msgstr ""
+
+#: src/Module/User/Import.php:263
+msgid "User creation error"
+msgstr ""
+
+#: src/Module/User/Import.php:312
+#, php-format
+msgid "%d contact not imported"
+msgid_plural "%d contacts not imported"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/User/Import.php:361
+msgid "User profile creation error"
+msgstr ""
+
+#: src/Module/User/Import.php:412
+msgid "Done. You can now login with your username and password"
 msgstr ""
 
 #: src/Module/Welcome.php:44
