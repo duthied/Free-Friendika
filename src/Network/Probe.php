@@ -1721,6 +1721,7 @@ class Probe
 		$xpath = new DOMXPath($doc);
 
 		$feedUrl = $xpath->evaluate('string(/html/head/link[@type="application/rss+xml" and @rel="alternate"]/@href)');
+		$feedUrl = $feedUrl ?: $xpath->evaluate('string(/html/head/link[@type="application/atom+xml" and @rel="alternate"]/@href)');
 
 		$feedUrl = $feedUrl ? self::ensureAbsoluteLinkFromHTMLDoc($feedUrl, $url, $xpath) : '';
 
