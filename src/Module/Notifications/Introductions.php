@@ -128,7 +128,7 @@ class Introductions extends BaseNotifications
 						'$zrl'                   => $Introduction->getZrl(),
 						'$lbl_url'               => $this->t('Profile URL'),
 						'$addr'                  => $Introduction->getAddr(),
-						'$action'                => 'follow',
+						'$action'                => 'contact/follow',
 						'$approve'               => $this->t('Approve'),
 						'$note'                  => $Introduction->getNote(),
 						'$ignore'                => $this->t('Ignore'),

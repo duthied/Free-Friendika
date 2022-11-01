@@ -2,7 +2,7 @@
 <div id="follow-sidebar" class="widget">
 	<h3>{{$connect}}</h3>
 
-	<form action="follow" method="get">
+	<form action="contact/follow" method="get">
 		{{* The input field - For visual consistence we are using a search input field*}}
 		<div class="form-group form-group-search">
 			<input id="side-follow-url" class="search-input form-control form-search" type="text" name="url" value="{{$value}}" placeholder="{{$hint}}" data-toggle="tooltip" title="{{$hint}}" />
