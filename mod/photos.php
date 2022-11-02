@@ -1250,15 +1250,17 @@ function photos_content(App $a)
 		if (!empty($link_item['id'])) {
 			// parse tags and add links
 			$tag_arr = [];
-			foreach (Tag::getByURIId($link_item['uri-id']) as $tag) {
-				$tag_arr[] = [
-					'name' => $tag['name'],
-					'removeurl' => '/tagrm/' . $link_item['id'] . '/' . bin2hex($tag['name'])
-				];
+			foreach (explode(',', Tag::getCSVByURIId($link_item['uri-id'])) as $tag_name) {
+				if ($tag_name) {
+					$tag_arr[] = [
+						'name'      => BBCode::toPlaintext($tag_name),
+						'removeurl' => 'post/' . $link_item['id'] . '/tag/remove/' . bin2hex($tag_name) . '?return=' . urlencode(DI::args()->getCommand()),
+					];
+				}
 			}
 			$tags = ['title' => DI::l10n()->t('Tags: '), 'tags' => $tag_arr];
 			if ($cmd === 'edit') {
-				$tags['removeanyurl'] = 'tagrm/' . $link_item['id'];
+				$tags['removeanyurl'] = 'post/' . $link_item['id'] . '/tag/remove?return=' . urlencode(DI::args()->getCommand());
 				$tags['removetitle'] = DI::l10n()->t('[Select tags to remove]');
 			}
 		}
