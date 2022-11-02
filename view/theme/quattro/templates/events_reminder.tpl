@@ -22,7 +22,7 @@
 			year: yesterday.getFullYear(),
 			month: yesterday.getMonth(),
 			date: yesterday.getDate(),
-			events: '{{$baseurl}}/calendar/json/',
+			events: '{{$baseurl}}/calendar/json',
 			header: false,
 			timeFormat: 'H(:mm)',
 			defaultView: 'basicWeek',
