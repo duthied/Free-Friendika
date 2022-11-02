@@ -611,6 +611,8 @@ return [
 
 	'/update_profile'                => [Module\Update\Profile::class,        [R::GET]],
 
+	'/user/import'                   => [Module\User\Import::class,           [R::GET, R::POST]],
+
 	'/view/theme/{theme}/style.pcss' => [Module\Theme::class,                 [R::GET]],
 	'/viewsrc/{item:\d+}'            => [Module\Debug\ItemBody::class,        [R::GET]],
 	'/webfinger'                     => [Module\Debug\WebFinger::class,       [R::GET]],
