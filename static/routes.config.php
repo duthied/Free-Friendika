@@ -366,7 +366,7 @@ return [
 	'/bookmarklet'         => [Module\Bookmarklet::class,  [R::GET]],
 
 	'/calendar/{nickname}/export[/{format}]' => [Module\Calendar\Export::class, [R::GET]],
-	'/calendar/json'                           => [Module\Calendar\Json::class, [R::GET]],
+	'/calendar/json'                         => [Module\Calendar\Json::class,   [R::GET]],
 
 	'/community[/{content}]' => [Module\Conversation\Community::class, [R::GET]],
 
