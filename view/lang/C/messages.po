@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-31 19:59+0000\n"
+"POT-Creation-Date: 2022-11-02 14:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-#: mod/cal.php:45 mod/cal.php:49 mod/redir.php:35 mod/redir.php:176
+#: mod/cal.php:44 mod/cal.php:48 mod/redir.php:35 mod/redir.php:176
 #: src/Module/Contact/Follow.php:69 src/Module/Conversation/Community.php:193
 #: src/Module/Debug/ItemBody.php:38 src/Module/Diaspora/Receive.php:57
 #: src/Module/Item/Follow.php:41 src/Module/Item/Ignore.php:41
@@ -27,8 +27,9 @@ msgstr ""
 msgid "Access denied."
 msgstr ""
 
-#: mod/cal.php:62 mod/cal.php:79 mod/photos.php:68 mod/photos.php:139
-#: mod/photos.php:793 src/Model/Profile.php:234 src/Module/Feed.php:72
+#: mod/cal.php:61 mod/cal.php:78 mod/photos.php:68 mod/photos.php:139
+#: mod/photos.php:793 src/Model/Profile.php:234
+#: src/Module/Calendar/Export.php:63 src/Module/Feed.php:72
 #: src/Module/HCard.php:51 src/Module/Profile/Common.php:40
 #: src/Module/Profile/Common.php:51 src/Module/Profile/Contacts.php:39
 #: src/Module/Profile/Contacts.php:49 src/Module/Profile/Media.php:38
@@ -38,71 +39,52 @@ msgstr ""
 msgid "User not found."
 msgstr ""
 
-#: mod/cal.php:121 mod/display.php:259 src/Module/Profile/Profile.php:93
+#: mod/cal.php:113 mod/display.php:259 src/Module/Profile/Profile.php:93
 #: src/Module/Profile/Profile.php:108 src/Module/Profile/Status.php:109
 #: src/Module/Update/Profile.php:55
 msgid "Access to this profile has been restricted."
 msgstr ""
 
-#: mod/cal.php:242 mod/events.php:375 src/Content/Nav.php:196
+#: mod/cal.php:234 mod/events.php:375 src/Content/Nav.php:196
 #: src/Content/Nav.php:260 src/Module/BaseProfile.php:84
 #: src/Module/BaseProfile.php:95 view/theme/frio/theme.php:241
 #: view/theme/frio/theme.php:245
 msgid "Events"
 msgstr ""
 
-#: mod/cal.php:243 mod/events.php:376
+#: mod/cal.php:235 mod/events.php:376
 msgid "View"
 msgstr ""
 
-#: mod/cal.php:244 mod/events.php:378
+#: mod/cal.php:236 mod/events.php:378
 msgid "Previous"
 msgstr ""
 
-#: mod/cal.php:245 mod/events.php:379 src/Module/Install.php:214
+#: mod/cal.php:237 mod/events.php:379 src/Module/Install.php:214
 msgid "Next"
 msgstr ""
 
-#: mod/cal.php:248 mod/events.php:384 src/Model/Event.php:460
+#: mod/cal.php:240 mod/events.php:384 src/Model/Event.php:460
 msgid "today"
 msgstr ""
 
-#: mod/cal.php:249 mod/events.php:385 src/Model/Event.php:461
+#: mod/cal.php:241 mod/events.php:385 src/Model/Event.php:461
 #: src/Util/Temporal.php:341
 msgid "month"
 msgstr ""
 
-#: mod/cal.php:250 mod/events.php:386 src/Model/Event.php:462
+#: mod/cal.php:242 mod/events.php:386 src/Model/Event.php:462
 #: src/Util/Temporal.php:342
 msgid "week"
 msgstr ""
 
-#: mod/cal.php:251 mod/events.php:387 src/Model/Event.php:463
+#: mod/cal.php:243 mod/events.php:387 src/Model/Event.php:463
 #: src/Util/Temporal.php:343
 msgid "day"
 msgstr ""
 
-#: mod/cal.php:252 mod/events.php:388
+#: mod/cal.php:244 mod/events.php:388
 msgid "list"
-msgstr ""
-
-#: mod/cal.php:264 src/Console/User.php:182 src/Model/User.php:663
-#: src/Module/Admin/Users/Active.php:73 src/Module/Admin/Users/Blocked.php:74
-#: src/Module/Admin/Users/Index.php:80 src/Module/Admin/Users/Pending.php:71
-#: src/Module/Api/Twitter/ContactEndpoint.php:74
-msgid "User not found"
-msgstr ""
-
-#: mod/cal.php:273
-msgid "This calendar format is not supported"
-msgstr ""
-
-#: mod/cal.php:275
-msgid "No exportable data found"
-msgstr ""
-
-#: mod/cal.php:291
-msgid "calendar"
 msgstr ""
 
 #: mod/display.php:140 mod/photos.php:797
@@ -391,7 +373,7 @@ msgid "Description:"
 msgstr ""
 
 #: mod/events.php:505 src/Content/Widget/VCard.php:104 src/Model/Event.php:80
-#: src/Model/Event.php:107 src/Model/Event.php:469 src/Model/Event.php:919
+#: src/Model/Event.php:107 src/Model/Event.php:469 src/Model/Event.php:918
 #: src/Model/Profile.php:373 src/Module/Contact/Profile.php:370
 #: src/Module/Directory.php:147 src/Module/Notifications/Introductions.php:187
 #: src/Module/Profile/Profile.php:193
@@ -1627,6 +1609,13 @@ msgstr ""
 
 #: src/Console/User.php:158 src/Console/User.php:245
 msgid "Enter user nickname: "
+msgstr ""
+
+#: src/Console/User.php:182 src/Model/User.php:663
+#: src/Module/Admin/Users/Active.php:73 src/Module/Admin/Users/Blocked.php:74
+#: src/Module/Admin/Users/Index.php:80 src/Module/Admin/Users/Pending.php:71
+#: src/Module/Api/Twitter/ContactEndpoint.php:74
+msgid "User not found"
 msgstr ""
 
 #: src/Console/User.php:202
@@ -3548,12 +3537,12 @@ msgid "l F d, Y \\@ g:i A \\G\\M\\TP (e)"
 msgstr ""
 
 #: src/Model/Event.php:73 src/Model/Event.php:90 src/Model/Event.php:467
-#: src/Model/Event.php:901
+#: src/Model/Event.php:900
 msgid "Starts:"
 msgstr ""
 
 #: src/Model/Event.php:76 src/Model/Event.php:96 src/Model/Event.php:468
-#: src/Model/Event.php:905
+#: src/Model/Event.php:904
 msgid "Finishes:"
 msgstr ""
 
@@ -3585,32 +3574,32 @@ msgstr ""
 msgid "Delete event"
 msgstr ""
 
-#: src/Model/Event.php:857 src/Module/Debug/Localtime.php:38
+#: src/Model/Event.php:856 src/Module/Debug/Localtime.php:38
 msgid "l F d, Y \\@ g:i A"
 msgstr ""
 
-#: src/Model/Event.php:858
+#: src/Model/Event.php:857
 msgid "D g:i A"
 msgstr ""
 
-#: src/Model/Event.php:859
+#: src/Model/Event.php:858
 msgid "g:i A"
 msgstr ""
 
-#: src/Model/Event.php:920 src/Model/Event.php:922
+#: src/Model/Event.php:919 src/Model/Event.php:921
 msgid "Show map"
 msgstr ""
 
-#: src/Model/Event.php:921
+#: src/Model/Event.php:920
 msgid "Hide map"
 msgstr ""
 
-#: src/Model/Event.php:1014
+#: src/Model/Event.php:1013
 #, php-format
 msgid "%s's birthday"
 msgstr ""
 
-#: src/Model/Event.php:1015
+#: src/Model/Event.php:1014
 #, php-format
 msgid "Happy Birthday %s"
 msgstr ""
@@ -6675,6 +6664,18 @@ msgstr ""
 
 #: src/Module/Bookmarklet.php:66
 msgid "The post was created"
+msgstr ""
+
+#: src/Module/Calendar/Export.php:73
+msgid "This calendar format is not supported"
+msgstr ""
+
+#: src/Module/Calendar/Export.php:75
+msgid "No exportable data found"
+msgstr ""
+
+#: src/Module/Calendar/Export.php:92
+msgid "calendar"
 msgstr ""
 
 #: src/Module/Contact.php:88
