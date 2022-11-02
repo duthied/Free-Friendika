@@ -58,6 +58,10 @@ class Export extends BaseModule
 
 	protected function rawContent(array $request = [])
 	{
+		if (!$this->session->getLocalUserId()) {
+			throw new HTTPException\UnauthorizedException($this->t('Permission denied.'));
+		}
+
 		$owner = User::getByNickname($this->parameters['nickname'], ['uid']);
 		if (empty($owner)) {
 			throw new HTTPException\NotFoundException($this->t('User not found.'));
