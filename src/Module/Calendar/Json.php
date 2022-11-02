@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module\Events;
+namespace Friendica\Module\Calendar;
 
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -51,17 +51,17 @@ class Json extends \Friendica\BaseModule
 		$start  = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
-		if (!empty($_GET['start'])) {
-			$start = $_GET['start'];
+		if (!empty($request['start'])) {
+			$start = $request['start'];
 		}
 
-		if (!empty($_GET['end'])) {
-			$finish = $_GET['end'];
+		if (!empty($request['end'])) {
+			$finish = $request['end'];
 		}
 
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
-			'event_id' => intval($_GET['id'] ?? 0),
+			'event_id' => intval($request['id'] ?? 0),
 			'start'    => $start,
 			'finish'   => $finish,
 			'ignore'   => 0,
