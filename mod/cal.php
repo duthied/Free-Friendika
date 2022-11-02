@@ -34,7 +34,6 @@ use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
-use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
@@ -101,15 +100,8 @@ function cal_content(App $a)
 	$m = 0;
 	$ignored = (!empty($_REQUEST['ignored']) ? intval($_REQUEST['ignored']) : 0);
 
-	$format = 'ical';
-	if (DI::args()->getArgc() == 4 && DI::args()->getArgv()[2] == 'export') {
-		$mode = 'export';
-		$format = DI::args()->getArgv()[3];
-	}
-
 	// Setup permissions structures
 	$owner_uid = intval($owner['uid']);
-	$nick = $owner['nickname'];
 
 	$contact_id = DI::userSession()->getRemoteContactID($owner['uid']);
 
@@ -257,41 +249,5 @@ function cal_content(App $a)
 		}
 
 		return $o;
-	}
-
-	if ($mode == 'export') {
-		if (!$owner_uid) {
-			DI::sysmsg()->addNotice(DI::l10n()->t('User not found'));
-			return;
-		}
-
-		// Get the export data by uid
-		$evexport = Event::exportListByUserId($owner_uid, $format);
-
-		if (!$evexport["success"]) {
-			if ($evexport["content"]) {
-				DI::sysmsg()->addNotice(DI::l10n()->t('This calendar format is not supported'));
-			} else {
-				DI::sysmsg()->addNotice(DI::l10n()->t('No exportable data found'));
-			}
-
-			// If it the own calendar return to the events page
-			// otherwise to the profile calendar page
-			if (DI::userSession()->getLocalUserId() === $owner_uid) {
-				$return_path = "events";
-			} else {
-				$return_path = "cal/" . $nick;
-			}
-
-			DI::baseUrl()->redirect($return_path);
-		}
-
-		// If nothing went wrong we can echo the export content
-		if ($evexport["success"]) {
-			header('content-disposition: attachment; filename="' . DI::l10n()->t('calendar') . '-' . $nick . '.' . $evexport["extension"] . '"');
-			System::httpExit($evexport["content"], Response::TYPE_BLANK, 'text/calendar');
-		}
-
-		return;
 	}
 }

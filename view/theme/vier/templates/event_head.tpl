@@ -87,7 +87,7 @@
 				week: '{{$i18n.week|escape:'quotes'}}',
 				day: '{{$i18n.day|escape:'quotes'}}'
 			},
-			events: '{{$baseurl}}{{$module_url}}/json/',
+			events: '{{$baseurl}}/calendar/json',
 			header: {
 				left: 'prev,next today',
 				center: 'title',
