@@ -29,7 +29,9 @@ use Friendica\Content\Widget;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
 use Friendica\Core\Hook;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -306,7 +308,7 @@ class Network extends BaseModule
 
 		self::$forumContactId = $this->parameters['contact_id'] ?? 0;
 
-		self::$selectedTab = DI::session()->get('network-tab', DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'network.view', 'selected_tab', ''));
+		self::$selectedTab = self::getTimelineOrderBySession(DI::userSession(), DI::pConfig());
 
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';
@@ -485,5 +487,19 @@ class Network extends BaseModule
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Returns the selected network tab of the currently logged-in user
+	 *
+	 * @param IHandleUserSessions         $session
+	 * @param IManagePersonalConfigValues $pconfig
+	 * @return string
+	 */
+	public static function getTimelineOrderBySession(IHandleUserSessions $session, IManagePersonalConfigValues $pconfig): string
+	{
+		return $session->get('network-tab')
+			?? $pconfig->get($session->getLocalUserId(), 'network.view', 'selected_tab')
+			?? '';
 	}
 }
