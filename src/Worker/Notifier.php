@@ -775,7 +775,7 @@ class Notifier
 		} elseif (!Post\Activity::exists($target_item['uri-id'])) {
 			Logger::info('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.');
 			return ['count' => 0, 'contacts' => []];
-		} elseif ($parent['origin']) {
+		} elseif ($parent['origin'] && (($target_item['gravity'] != Item::GRAVITY_ACTIVITY) || DI::config()->get('system', 'redistribute_activities'))) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, false, $target_item['id']);
 
 			if (in_array($target_item['private'], [Item::PUBLIC])) {
