@@ -190,7 +190,7 @@ class Ping extends BaseModule
 			$owner = User::getOwnerDataById(DI::userSession()->getLocalUserId());
 
 			$navNotifications = array_map(function (Entity\Notification $notification) use ($owner) {
-				if (!DI::notify()->NotifyOnDesktop($notification)) {
+				if (!DI::notify()->shouldShowOnDesktop($notification)) {
 					return null;
 				}
 				if (($notification->type == Post\UserNotification::TYPE_NONE) && in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])) {
