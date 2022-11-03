@@ -168,6 +168,10 @@ return [
 		// Periodically (once an hour) run an "optimize table" command for cache tables
 		'optimize_tables' => false,
 
+		// register_notification (Boolean)
+		// Send a notification mail to the admin for each new registration.
+		'register_notification' => true,
+
 		// relay_deny_tags (String)
 		// Comma separated list of tags that are rejected.
 		'relay_deny_tags' => '',

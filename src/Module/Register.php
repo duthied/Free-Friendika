@@ -333,6 +333,9 @@ class Register extends BaseModule
 
 				if ($res) {
 					DI::sysmsg()->addInfo(DI::l10n()->t('Registration successful. Please check your email for further instructions.'));
+					if (DI::config()->get('system', 'register_notification')) {
+						$this->sendNotification($user, 'SYSTEM_REGISTER_NEW');
+					}
 					DI::baseUrl()->redirect();
 				} else {
 					DI::sysmsg()->addNotice(
@@ -343,6 +346,9 @@ class Register extends BaseModule
 				}
 			} else {
 				DI::sysmsg()->addInfo(DI::l10n()->t('Registration successful.'));
+				if (DI::config()->get('system', 'register_notification')) {
+					$this->sendNotification($user, 'SYSTEM_REGISTER_NEW');
+				}
 				DI::baseUrl()->redirect();
 			}
 		} elseif (intval(DI::config()->get('config', 'register_policy')) === self::APPROVE) {
@@ -367,29 +373,8 @@ class Register extends BaseModule
 				DI::pConfig()->set($user['uid'], 'system', 'invites_remaining', $num_invites);
 			}
 
-			// send email to admins
-			$admins_stmt = DBA::select(
-				'user',
-				['uid', 'language', 'email'],
-				['email' => explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')))]
-			);
-
-			// send notification to admins
-			while ($admin = DBA::fetch($admins_stmt)) {
-				DI::notify()->createFromArray([
-					'type'         => Model\Notification\Type::SYSTEM,
-					'event'        => 'SYSTEM_REGISTER_REQUEST',
-					'uid'          => $admin['uid'],
-					'link'         => DI::baseUrl()->get(true) . '/admin/users/',
-					'source_name'  => $user['username'],
-					'source_mail'  => $user['email'],
-					'source_nick'  => $user['nickname'],
-					'source_link'  => DI::baseUrl()->get(true) . '/admin/users/',
-					'source_photo' => User::getAvatarUrl($user, Proxy::SIZE_THUMB),
-					'show_in_notification_page' => false
-				]);
-			}
-			DBA::close($admins_stmt);
+			// send notification to the admin
+			$this->sendNotification($user, 'SYSTEM_REGISTER_REQUEST');
 
 			// send notification to the user, that the registration is pending
 			Model\User::sendRegisterPendingEmail(
@@ -404,5 +389,32 @@ class Register extends BaseModule
 		}
 
 		return;
+	}
+
+	private function sendNotification(array $user, string $event)
+	{
+		// send email to admins
+		$admins_stmt = DBA::select(
+			'user',
+			['uid', 'language', 'email'],
+			['email' => explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')))]
+		);
+
+		// send notification to admins
+		while ($admin = DBA::fetch($admins_stmt)) {
+			DI::notify()->createFromArray([
+				'type'         => Model\Notification\Type::SYSTEM,
+				'event'        => $event,
+				'uid'          => $admin['uid'],
+				'link'         => DI::baseUrl()->get(true) . '/admin/users/',
+				'source_name'  => $user['username'],
+				'source_mail'  => $user['email'],
+				'source_nick'  => $user['nickname'],
+				'source_link'  => DI::baseUrl()->get(true) . '/admin/users/',
+				'source_photo' => User::getAvatarUrl($user, Proxy::SIZE_THUMB),
+				'show_in_notification_page' => false
+			]);
+		}
+		DBA::close($admins_stmt);		
 	}
 }
