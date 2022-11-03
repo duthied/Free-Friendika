@@ -525,6 +525,10 @@ return [
 		// The authentication password for the redis database
 		'redis_password' => null,
 
+		// redistribute_activities (Boolean)
+		// Redistribute incoming activities via ActivityPub
+		'redistribute_activities' => true,
+
 		// relay_deny_languages (Array)
 		// Array of languages (two digit format) that are rejected.
 		'relay_deny_languages' => [],
