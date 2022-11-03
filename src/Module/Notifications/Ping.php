@@ -25,16 +25,21 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Contact\Introduction\Repository\Introduction;
 use Friendica\Content\ForumManager;
+use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Enum\Duration;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\Group;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
+use Friendica\Module\Conversation\Network;
 use Friendica\Module\Register;
 use Friendica\Module\Response;
 use Friendica\Navigation\Notifications\Entity;
@@ -59,8 +64,22 @@ class Ping extends BaseModule
 	private $introductionRepo;
 	/** @var Factory\FormattedNavNotification */
 	private $formattedNavNotification;
+	/** @var IHandleUserSessions */
+	private $session;
+	/** @var IManageConfigValues */
+	private $config;
+	/** @var IManagePersonalConfigValues */
+	private $pconfig;
+	/** @var Database */
+	private $database;
+	/** @var ICanCache */
+	private $cache;
+	/** @var Repository\Notify */
+	private $notify;
+	/** @var App */
+	private $app;
 
-	public function __construct(SystemMessages $systemMessages, Repository\Notification $notificationRepo, Introduction $introductionRepo, Factory\FormattedNavNotification $formattedNavNotification, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(App $app, Repository\Notify $notify, ICanCache $cache, Database $database, IManagePersonalConfigValues $pconfig, IManageConfigValues $config, IHandleUserSessions $session, SystemMessages $systemMessages, Repository\Notification $notificationRepo, Introduction $introductionRepo, Factory\FormattedNavNotification $formattedNavNotification, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -68,11 +87,18 @@ class Ping extends BaseModule
 		$this->notificationRepo         = $notificationRepo;
 		$this->introductionRepo         = $introductionRepo;
 		$this->formattedNavNotification = $formattedNavNotification;
+		$this->session                  = $session;
+		$this->config                   = $config;
+		$this->pconfig                  = $pconfig;
+		$this->database                 = $database;
+		$this->cache                    = $cache;
+		$this->notify                   = $notify;
+		$this->app                      = $app;
 	}
 
 	protected function rawContent(array $request = [])
 	{
-		$regs             = [];
+		$registrations    = [];
 		$navNotifications = [];
 
 		$intro_count     = 0;
@@ -90,107 +116,95 @@ class Ping extends BaseModule
 		$today_birthday_count = 0;
 
 
-		if (DI::userSession()->getLocalUserId()) {
-			if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'detailed_notif')) {
-				$notifications = $this->notificationRepo->selectDetailedForUser(DI::userSession()->getLocalUserId());
+		if ($this->session->getLocalUserId()) {
+			if ($this->pconfig->get($this->session->getLocalUserId(), 'system', 'detailed_notif')) {
+				$notifications = $this->notificationRepo->selectDetailedForUser($this->session->getLocalUserId());
 			} else {
-				$notifications = $this->notificationRepo->selectDigestForUser(DI::userSession()->getLocalUserId());
+				$notifications = $this->notificationRepo->selectDigestForUser($this->session->getLocalUserId());
 			}
 
 			$condition = [
 				"`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
-				DI::userSession()->getLocalUserId(), Verb::getID(Activity::FOLLOW)
+				$this->session->getLocalUserId(), Verb::getID(Activity::FOLLOW)
 			];
-			$items = Post::selectForUser(DI::userSession()->getLocalUserId(), ['wall', 'uid', 'uri-id'], $condition, ['limit' => 1000]);
-			if (DBA::isResult($items)) {
-				$items_unseen = Post::toArray($items, false);
-				$arr          = ['items' => $items_unseen];
-				Hook::callAll('network_ping', $arr);
 
-				foreach ($items_unseen as $item) {
-					if ($item['wall']) {
-						$home_count++;
-					} else {
-						$network_count++;
-					}
+			$items_unseen = $this->database->toArray(Post::selectForUser(
+				$this->session->getLocalUserId(),
+				['wall', 'uid', 'uri-id'],
+				$condition,
+				['limit' => 1000],
+			));
+			$arr = ['items' => $items_unseen];
+			Hook::callAll('network_ping', $arr);
+
+			foreach ($items_unseen as $item) {
+				if ($item['wall']) {
+					$home_count++;
+				} else {
+					$network_count++;
 				}
 			}
-			DBA::close($items);
 
-			$compute_group_counts = DI::config()->get('system','compute_group_counts');
+			$compute_group_counts = $this->config->get('system','compute_group_counts');
 			if ($network_count && $compute_group_counts) {
 				// Find out how unseen network posts are spread across groups
-				$group_counts = Group::countUnseen();
-				if (DBA::isResult($group_counts)) {
-					foreach ($group_counts as $group_count) {
-						if ($group_count['count'] > 0) {
-							$groups_unseen[] = $group_count;
-						}
+				foreach (Group::countUnseen() as $group_count) {
+					if ($group_count['count'] > 0) {
+						$groups_unseen[] = $group_count;
 					}
 				}
 
-				$forum_counts = ForumManager::countUnseenItems();
-				if (DBA::isResult($forum_counts)) {
-					foreach ($forum_counts as $forum_count) {
-						if ($forum_count['count'] > 0) {
-							$forums_unseen[] = $forum_count;
-						}
+				foreach (ForumManager::countUnseenItems() as $forum_count) {
+					if ($forum_count['count'] > 0) {
+						$forums_unseen[] = $forum_count;
 					}
 				}
 			}
 
-			$intros = $this->introductionRepo->selectForUser(DI::userSession()->getLocalUserId());
+			$intros = $this->introductionRepo->selectForUser($this->session->getLocalUserId());
 
 			$intro_count = $intros->count();
 
-			$myurl      = DI::baseUrl() . '/profile/' . DI::app()->getLoggedInUserNickname();
-			$mail_count = DBA::count('mail', ["`uid` = ? AND NOT `seen` AND `from-url` != ?", DI::userSession()->getLocalUserId(), $myurl]);
+			$myurl      = $this->session->getMyUrl();
+			$mail_count = $this->database->count('mail', ["`uid` = ? AND NOT `seen` AND `from-url` != ?", $this->session->getLocalUserId(), $myurl]);
 
-			if (intval(DI::config()->get('config', 'register_policy')) === Register::APPROVE && DI::app()->isSiteAdmin()) {
-				$regs = \Friendica\Model\Register::getPending();
-
-				if (DBA::isResult($regs)) {
-					$register_count = count($regs);
-				}
+			if (intval($this->config->get('config', 'register_policy')) === Register::APPROVE && $this->app->isSiteAdmin()) {
+				$registrations = \Friendica\Model\Register::getPending();
+				$register_count = count($registrations);
 			}
 
-			$cachekey = 'ping:events:' . DI::userSession()->getLocalUserId();
-			$ev       = DI::cache()->get($cachekey);
-			if (is_null($ev)) {
-				$ev = DBA::selectToArray('event', ['type', 'start'],
+			$cachekey = 'ping:events:' . $this->session->getLocalUserId();
+			$events   = $this->cache->get($cachekey);
+			if (is_null($events)) {
+				$events = $this->database->selectToArray('event', ['type', 'start'],
 					["`uid` = ? AND `start` < ? AND `finish` > ? AND NOT `ignore`",
-						DI::userSession()->getLocalUserId(), DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utcNow()]);
-				DI::cache()->set($cachekey, $ev, Duration::HOUR);
+						$this->session->getLocalUserId(), DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utcNow()]);
+				$this->cache->set($cachekey, $events, Duration::HOUR);
 			}
 
-			if (DBA::isResult($ev)) {
-				$all_events = count($ev);
+			$now_date = DateTimeFormat::localNow('Y-m-d');
+			foreach ($events as $event) {
+				$is_birthday = false;
+				if ($event['type'] === 'birthday') {
+					$birthday_count++;
+					$is_birthday = true;
+				} else {
+					$event_count++;
+				}
 
-				if ($all_events) {
-					$str_now = DateTimeFormat::localNow('Y-m-d');
-					foreach ($ev as $x) {
-						$bd = false;
-						if ($x['type'] === 'birthday') {
-							$birthday_count++;
-							$bd = true;
-						} else {
-							$event_count++;
-						}
-						if (DateTimeFormat::local($x['start'], 'Y-m-d') === $str_now) {
-							if ($bd) {
-								$today_birthday_count++;
-							} else {
-								$today_event_count++;
-							}
-						}
+				if (DateTimeFormat::local($event['start'], 'Y-m-d') === $now_date) {
+					if ($is_birthday) {
+						$today_birthday_count++;
+					} else {
+						$today_event_count++;
 					}
 				}
 			}
 
-			$owner = User::getOwnerDataById(DI::userSession()->getLocalUserId());
+			$owner = User::getOwnerDataById($this->session->getLocalUserId());
 
 			$navNotifications = array_map(function (Entity\Notification $notification) use ($owner) {
-				if (!DI::notify()->shouldShowOnDesktop($notification)) {
+				if (!$this->notify->shouldShowOnDesktop($notification)) {
 					return null;
 				}
 				if (($notification->type == Post\UserNotification::TYPE_NONE) && in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])) {
@@ -213,30 +227,28 @@ class Ping extends BaseModule
 				$navNotifications[] = $this->formattedNavNotification->createFromIntro($intro);
 			}
 
-			if (DBA::isResult($regs)) {
-				if (count($regs) <= 1 || DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'detailed_notif')) {
-					foreach ($regs as $reg) {
-						$navNotifications[] = $this->formattedNavNotification->createFromParams(
-							[
-								'name' => $reg['name'],
-								'url'  => $reg['url'],
-							],
-							DI::l10n()->t('{0} requested registration'),
-							new \DateTime($reg['created'], new \DateTimeZone('UTC')),
-							new Uri(DI::baseUrl()->get(true) . '/admin/users/pending')
-						);
-					}
-				} else {
+			if (count($registrations) <= 1 || $this->pconfig->get($this->session->getLocalUserId(), 'system', 'detailed_notif')) {
+				foreach ($registrations as $reg) {
 					$navNotifications[] = $this->formattedNavNotification->createFromParams(
 						[
-							'name' => $regs[0]['name'],
-							'url'  => $regs[0]['url'],
+							'name' => $reg['name'],
+							'url'  => $reg['url'],
 						],
-						DI::l10n()->t('{0} and %d others requested registration', count($regs) - 1),
-						new \DateTime($regs[0]['created'], new \DateTimeZone('UTC')),
-						new Uri(DI::baseUrl()->get(true) . '/admin/users/pending')
+						$this->l10n->t('{0} requested registration'),
+						new \DateTime($reg['created'], new \DateTimeZone('UTC')),
+						new Uri($this->baseUrl->get(true) . '/admin/users/pending')
 					);
 				}
+			} elseif (count($registrations) > 1) {
+				$navNotifications[] = $this->formattedNavNotification->createFromParams(
+					[
+						'name' => $registrations[0]['name'],
+						'url'  => $registrations[0]['url'],
+					],
+					$this->l10n->t('{0} and %d others requested registration', count($registrations) - 1),
+					new \DateTime($registrations[0]['created'], new \DateTimeZone('UTC')),
+					new Uri($this->baseUrl->get(true) . '/admin/users/pending')
+				);
 			}
 
 			// sort notifications by $[]['date']
