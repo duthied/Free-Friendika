@@ -128,6 +128,11 @@ class Ping extends BaseModule
 				$this->session->getLocalUserId(), Verb::getID(Activity::FOLLOW)
 			];
 
+			// No point showing counts for non-top-level posts when the network page is ordered by received field
+			if (Network::getTimelineOrderBySession($this->session, $this->pconfig) == 'received') {
+				$condition = DBA::mergeConditions($condition, ["`parent` = `id`"]);
+			}
+
 			$items_unseen = $this->database->toArray(Post::selectForUser(
 				$this->session->getLocalUserId(),
 				['wall', 'uid', 'uri-id'],
