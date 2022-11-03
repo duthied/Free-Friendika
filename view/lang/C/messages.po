@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-03 19:45+0000\n"
+"POT-Creation-Date: 2022-11-03 20:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5250,155 +5250,146 @@ msgid ""
 msgstr ""
 
 #: src/Module/Admin/Site.php:477
-msgid "Notify admin on new registration"
-msgstr ""
-
-#: src/Module/Admin/Site.php:477
-msgid ""
-"If enabled, a notification for each new registration is sent to the admin."
-msgstr ""
-
-#: src/Module/Admin/Site.php:478
 msgid "Forbidden Nicknames"
 msgstr ""
 
-#: src/Module/Admin/Site.php:478
+#: src/Module/Admin/Site.php:477
 msgid ""
 "Comma separated list of nicknames that are forbidden from registration. "
 "Preset is a list of role names according RFC 2142."
 msgstr ""
 
-#: src/Module/Admin/Site.php:479
+#: src/Module/Admin/Site.php:478
 msgid "Accounts abandoned after x days"
 msgstr ""
 
-#: src/Module/Admin/Site.php:479
+#: src/Module/Admin/Site.php:478
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
 msgstr ""
 
-#: src/Module/Admin/Site.php:480
+#: src/Module/Admin/Site.php:479
 msgid "Allowed friend domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:480
+#: src/Module/Admin/Site.php:479
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:481
+#: src/Module/Admin/Site.php:480
 msgid "Allowed email domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:481
+#: src/Module/Admin/Site.php:480
 msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:482
+#: src/Module/Admin/Site.php:481
 msgid "No OEmbed rich content"
 msgstr ""
 
-#: src/Module/Admin/Site.php:482
+#: src/Module/Admin/Site.php:481
 msgid ""
 "Don't show the rich content (e.g. embedded PDF), except from the domains "
 "listed below."
 msgstr ""
 
-#: src/Module/Admin/Site.php:483
+#: src/Module/Admin/Site.php:482
 msgid "Trusted third-party domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:483
+#: src/Module/Admin/Site.php:482
 msgid ""
 "Comma separated list of domains from which content is allowed to be embedded "
 "in posts like with OEmbed. All sub-domains of the listed domains are allowed "
 "as well."
 msgstr ""
 
-#: src/Module/Admin/Site.php:484
+#: src/Module/Admin/Site.php:483
 msgid "Block public"
 msgstr ""
 
-#: src/Module/Admin/Site.php:484
+#: src/Module/Admin/Site.php:483
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
 msgstr ""
 
-#: src/Module/Admin/Site.php:485
+#: src/Module/Admin/Site.php:484
 msgid "Force publish"
 msgstr ""
 
-#: src/Module/Admin/Site.php:485
+#: src/Module/Admin/Site.php:484
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
 msgstr ""
 
-#: src/Module/Admin/Site.php:485
+#: src/Module/Admin/Site.php:484
 msgid "Enabling this may violate privacy laws like the GDPR"
 msgstr ""
 
-#: src/Module/Admin/Site.php:486
+#: src/Module/Admin/Site.php:485
 msgid "Global directory URL"
 msgstr ""
 
-#: src/Module/Admin/Site.php:486
+#: src/Module/Admin/Site.php:485
 msgid ""
 "URL to the global directory. If this is not set, the global directory is "
 "completely unavailable to the application."
 msgstr ""
 
-#: src/Module/Admin/Site.php:487
+#: src/Module/Admin/Site.php:486
 msgid "Private posts by default for new users"
 msgstr ""
 
-#: src/Module/Admin/Site.php:487
+#: src/Module/Admin/Site.php:486
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
 msgstr ""
 
-#: src/Module/Admin/Site.php:488
+#: src/Module/Admin/Site.php:487
 msgid "Don't include post content in email notifications"
 msgstr ""
 
-#: src/Module/Admin/Site.php:488
+#: src/Module/Admin/Site.php:487
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
 msgstr ""
 
-#: src/Module/Admin/Site.php:489
+#: src/Module/Admin/Site.php:488
 msgid "Disallow public access to addons listed in the apps menu."
 msgstr ""
 
-#: src/Module/Admin/Site.php:489
+#: src/Module/Admin/Site.php:488
 msgid ""
 "Checking this box will restrict addons listed in the apps menu to members "
 "only."
 msgstr ""
 
-#: src/Module/Admin/Site.php:490
+#: src/Module/Admin/Site.php:489
 msgid "Don't embed private images in posts"
 msgstr ""
 
-#: src/Module/Admin/Site.php:490
+#: src/Module/Admin/Site.php:489
 msgid ""
 "Don't replace locally-hosted private photos in posts with an embedded copy "
 "of the image. This means that contacts who receive posts containing private "
 "photos will have to authenticate and load each image, which may take a while."
 msgstr ""
 
-#: src/Module/Admin/Site.php:491
+#: src/Module/Admin/Site.php:490
 msgid "Explicit Content"
 msgstr ""
 
-#: src/Module/Admin/Site.php:491
+#: src/Module/Admin/Site.php:490
 msgid ""
 "Set this to announce that your node is used mostly for explicit content that "
 "might not be suited for minors. This information will be published in the "
@@ -5407,61 +5398,71 @@ msgid ""
 "will be shown at the user registration page."
 msgstr ""
 
-#: src/Module/Admin/Site.php:492
+#: src/Module/Admin/Site.php:491
 msgid "Proxify external content"
 msgstr ""
 
-#: src/Module/Admin/Site.php:492
+#: src/Module/Admin/Site.php:491
 msgid ""
 "Route external content via the proxy functionality. This is used for example "
 "for some OEmbed accesses and in some other rare cases."
 msgstr ""
 
-#: src/Module/Admin/Site.php:493
+#: src/Module/Admin/Site.php:492
 msgid "Cache contact avatars"
 msgstr ""
 
-#: src/Module/Admin/Site.php:493
+#: src/Module/Admin/Site.php:492
 msgid ""
 "Locally store the avatar pictures of the contacts. This uses a lot of "
 "storage space but it increases the performance."
 msgstr ""
 
-#: src/Module/Admin/Site.php:494
+#: src/Module/Admin/Site.php:493
 msgid "Allow Users to set remote_self"
 msgstr ""
 
-#: src/Module/Admin/Site.php:494
+#: src/Module/Admin/Site.php:493
 msgid ""
 "With checking this, every user is allowed to mark every contact as a "
 "remote_self in the repair contact dialog. Setting this flag on a contact "
 "causes mirroring every posting of that contact in the users stream."
 msgstr ""
 
-#: src/Module/Admin/Site.php:495
+#: src/Module/Admin/Site.php:494
 msgid "Enable multiple registrations"
 msgstr ""
 
-#: src/Module/Admin/Site.php:495
+#: src/Module/Admin/Site.php:494
 msgid "Enable users to register additional accounts for use as pages."
 msgstr ""
 
-#: src/Module/Admin/Site.php:496
+#: src/Module/Admin/Site.php:495
 msgid "Enable OpenID"
 msgstr ""
 
-#: src/Module/Admin/Site.php:496
+#: src/Module/Admin/Site.php:495
 msgid "Enable OpenID support for registration and logins."
 msgstr ""
 
-#: src/Module/Admin/Site.php:497
+#: src/Module/Admin/Site.php:496
 msgid "Enable Fullname check"
+msgstr ""
+
+#: src/Module/Admin/Site.php:496
+msgid ""
+"Enable check to only allow users to register with a space between the first "
+"name and the last name in their full name."
+msgstr ""
+
+#: src/Module/Admin/Site.php:497
+msgid "Email administrators on new registration"
 msgstr ""
 
 #: src/Module/Admin/Site.php:497
 msgid ""
-"Enable check to only allow users to register with a space between the first "
-"name and the last name in their full name."
+"If enabled and the system is set to an open registration, an email for each "
+"new registration is sent to the administrators."
 msgstr ""
 
 #: src/Module/Admin/Site.php:498
@@ -8551,26 +8552,26 @@ msgid ""
 "Registration successful. Please check your email for further instructions."
 msgstr ""
 
-#: src/Module/Register.php:343
+#: src/Module/Register.php:342
 #, php-format
 msgid ""
 "Failed to send email message. Here your accout details:<br> login: %s<br> "
 "password: %s<br><br>You can change your password after login."
 msgstr ""
 
-#: src/Module/Register.php:349
+#: src/Module/Register.php:348
 msgid "Registration successful."
 msgstr ""
 
-#: src/Module/Register.php:357 src/Module/Register.php:364
+#: src/Module/Register.php:356 src/Module/Register.php:363
 msgid "Your registration can not be processed."
 msgstr ""
 
-#: src/Module/Register.php:363
+#: src/Module/Register.php:362
 msgid "You have to leave a request note for the admin."
 msgstr ""
 
-#: src/Module/Register.php:388
+#: src/Module/Register.php:387
 msgid "Your registration is pending approval by the site owner."
 msgstr ""
 
