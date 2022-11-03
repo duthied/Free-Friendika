@@ -68,7 +68,6 @@ class Mode
 		'objects',
 		'outbox',
 		'poco',
-		'post',
 		'pubsub',
 		'pubsubhubbub',
 		'receive',

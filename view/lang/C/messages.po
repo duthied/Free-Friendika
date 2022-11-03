@@ -148,7 +148,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: mod/editpost.php:92 mod/photos.php:1333 src/Content/Conversation.php:341
+#: mod/editpost.php:92 mod/photos.php:1335 src/Content/Conversation.php:341
 #: src/Object/Post.php:987
 msgid "Loading..."
 msgstr ""
@@ -213,7 +213,7 @@ msgid "clear location"
 msgstr ""
 
 #: mod/editpost.php:107 mod/message.php:203 mod/message.php:360
-#: mod/photos.php:1484 src/Content/Conversation.php:371
+#: mod/photos.php:1486 src/Content/Conversation.php:371
 #: src/Content/Conversation.php:717 src/Module/Item/Compose.php:204
 #: src/Module/Profile/UnkMail.php:155 src/Object/Post.php:537
 msgid "Please wait"
@@ -245,16 +245,16 @@ msgstr ""
 msgid "Example: bob@example.com, mary@example.com"
 msgstr ""
 
-#: mod/editpost.php:128 mod/events.php:514 mod/photos.php:1332
-#: mod/photos.php:1388 mod/photos.php:1462 src/Content/Conversation.php:386
+#: mod/editpost.php:128 mod/events.php:514 mod/photos.php:1334
+#: mod/photos.php:1390 mod/photos.php:1464 src/Content/Conversation.php:386
 #: src/Module/Item/Compose.php:199 src/Object/Post.php:997
 msgid "Preview"
 msgstr ""
 
 #: mod/editpost.php:130 mod/fbrowser.php:119 mod/fbrowser.php:146
-#: mod/photos.php:999 mod/photos.php:1100 mod/tagrm.php:35 mod/tagrm.php:127
-#: src/Content/Conversation.php:389 src/Module/Contact/Follow.php:171
-#: src/Module/Contact/Revoke.php:109 src/Module/Contact/Unfollow.php:126
+#: mod/photos.php:999 mod/photos.php:1100 src/Content/Conversation.php:389
+#: src/Module/Contact/Follow.php:171 src/Module/Contact/Revoke.php:109
+#: src/Module/Contact/Unfollow.php:126 src/Module/Post/Tag/Remove.php:109
 #: src/Module/Profile/RemoteFollow.php:134
 #: src/Module/Security/TwoFactor/SignOut.php:125
 msgid "Cancel"
@@ -307,7 +307,7 @@ msgid "Browser"
 msgstr ""
 
 #: mod/editpost.php:145 mod/events.php:519 mod/photos.php:934
-#: mod/photos.php:1286 src/Content/Conversation.php:373
+#: mod/photos.php:1288 src/Content/Conversation.php:373
 msgid "Permissions"
 msgstr ""
 
@@ -390,8 +390,8 @@ msgid "Share this event"
 msgstr ""
 
 #: mod/events.php:516 mod/message.php:204 mod/message.php:359
-#: mod/photos.php:916 mod/photos.php:1020 mod/photos.php:1290
-#: mod/photos.php:1331 mod/photos.php:1387 mod/photos.php:1461
+#: mod/photos.php:916 mod/photos.php:1020 mod/photos.php:1292
+#: mod/photos.php:1333 mod/photos.php:1389 mod/photos.php:1463
 #: src/Module/Admin/Item/Source.php:60 src/Module/Contact/Advanced.php:132
 #: src/Module/Contact/Profile.php:328
 #: src/Module/Debug/ActivityPubConversion.php:140
@@ -785,11 +785,11 @@ msgstr ""
 msgid "Photo Albums"
 msgstr ""
 
-#: mod/photos.php:108 mod/photos.php:1579
+#: mod/photos.php:108 mod/photos.php:1581
 msgid "Recent Photos"
 msgstr ""
 
-#: mod/photos.php:110 mod/photos.php:1068 mod/photos.php:1581
+#: mod/photos.php:110 mod/photos.php:1068 mod/photos.php:1583
 msgid "Upload New Photos"
 msgstr ""
 
@@ -910,7 +910,7 @@ msgstr ""
 msgid "Show Oldest First"
 msgstr ""
 
-#: mod/photos.php:1053 mod/photos.php:1564
+#: mod/photos.php:1053 mod/photos.php:1566
 msgid "View Photo"
 msgstr ""
 
@@ -926,7 +926,7 @@ msgstr ""
 msgid "Do you really want to delete this photo?"
 msgstr ""
 
-#: mod/photos.php:1099 mod/photos.php:1291
+#: mod/photos.php:1099 mod/photos.php:1293
 msgid "Delete Photo"
 msgstr ""
 
@@ -954,84 +954,84 @@ msgstr ""
 msgid "View Full Size"
 msgstr ""
 
-#: mod/photos.php:1259
+#: mod/photos.php:1261
 msgid "Tags: "
 msgstr ""
 
-#: mod/photos.php:1262
+#: mod/photos.php:1264
 msgid "[Select tags to remove]"
 msgstr ""
 
-#: mod/photos.php:1277
+#: mod/photos.php:1279
 msgid "New album name"
 msgstr ""
 
-#: mod/photos.php:1278
+#: mod/photos.php:1280
 msgid "Caption"
 msgstr ""
 
-#: mod/photos.php:1279
+#: mod/photos.php:1281
 msgid "Add a Tag"
 msgstr ""
 
-#: mod/photos.php:1279
+#: mod/photos.php:1281
 msgid "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr ""
 
-#: mod/photos.php:1280
+#: mod/photos.php:1282
 msgid "Do not rotate"
 msgstr ""
 
-#: mod/photos.php:1281
+#: mod/photos.php:1283
 msgid "Rotate CW (right)"
 msgstr ""
 
-#: mod/photos.php:1282
+#: mod/photos.php:1284
 msgid "Rotate CCW (left)"
 msgstr ""
 
-#: mod/photos.php:1328 mod/photos.php:1384 mod/photos.php:1458
+#: mod/photos.php:1330 mod/photos.php:1386 mod/photos.php:1460
 #: src/Module/Contact.php:547 src/Module/Item/Compose.php:188
 #: src/Object/Post.php:983
 msgid "This is you"
 msgstr ""
 
-#: mod/photos.php:1330 mod/photos.php:1386 mod/photos.php:1460
+#: mod/photos.php:1332 mod/photos.php:1388 mod/photos.php:1462
 #: src/Object/Post.php:531 src/Object/Post.php:985
 msgid "Comment"
 msgstr ""
 
-#: mod/photos.php:1419 src/Content/Conversation.php:633 src/Object/Post.php:255
+#: mod/photos.php:1421 src/Content/Conversation.php:633 src/Object/Post.php:255
 msgid "Select"
 msgstr ""
 
-#: mod/photos.php:1420 mod/settings.php:350 src/Content/Conversation.php:634
+#: mod/photos.php:1422 mod/settings.php:350 src/Content/Conversation.php:634
 #: src/Module/Admin/Users/Active.php:139 src/Module/Admin/Users/Blocked.php:140
 #: src/Module/Admin/Users/Index.php:153
 msgid "Delete"
 msgstr ""
 
-#: mod/photos.php:1481 src/Object/Post.php:378
+#: mod/photos.php:1483 src/Object/Post.php:378
 msgid "Like"
 msgstr ""
 
-#: mod/photos.php:1482 src/Object/Post.php:378
+#: mod/photos.php:1484 src/Object/Post.php:378
 msgid "I like this (toggle)"
 msgstr ""
 
-#: mod/photos.php:1483 src/Object/Post.php:379
+#: mod/photos.php:1485 src/Object/Post.php:379
 msgid "Dislike"
 msgstr ""
 
-#: mod/photos.php:1485 src/Object/Post.php:379
+#: mod/photos.php:1487 src/Object/Post.php:379
 msgid "I don't like this (toggle)"
 msgstr ""
 
-#: mod/photos.php:1507
+#: mod/photos.php:1509
 msgid "Map"
 msgstr ""
 
-#: mod/photos.php:1570
+#: mod/photos.php:1572
 msgid "View Album"
 msgstr ""
 
@@ -1344,19 +1344,6 @@ msgstr ""
 #: mod/tagger.php:110 src/Content/Item.php:318
 #, php-format
 msgid "%1$s tagged %2$s's %3$s with %4$s"
-msgstr ""
-
-#: mod/tagrm.php:113
-msgid "Remove Item Tag"
-msgstr ""
-
-#: mod/tagrm.php:115
-msgid "Select a tag to remove: "
-msgstr ""
-
-#: mod/tagrm.php:126 src/Module/Settings/Delegation.php:178
-#: src/Module/Settings/TwoFactor/Trusted.php:143
-msgid "Remove"
 msgstr ""
 
 #: src/App.php:490
@@ -8226,6 +8213,19 @@ msgstr ""
 #: src/Module/Photo.php:176
 #, php-format
 msgid "Invalid photo with id %s."
+msgstr ""
+
+#: src/Module/Post/Tag/Remove.php:106
+msgid "Remove Item Tag"
+msgstr ""
+
+#: src/Module/Post/Tag/Remove.php:107
+msgid "Select a tag to remove: "
+msgstr ""
+
+#: src/Module/Post/Tag/Remove.php:108 src/Module/Settings/Delegation.php:178
+#: src/Module/Settings/TwoFactor/Trusted.php:143
+msgid "Remove"
 msgstr ""
 
 #: src/Module/Profile/Attachment/Upload.php:80
