@@ -333,7 +333,6 @@ class Register extends BaseModule
 
 				if ($res) {
 					DI::sysmsg()->addInfo(DI::l10n()->t('Registration successful. Please check your email for further instructions.'));
-					$this->sendNotification($user, 'SYSTEM_REGISTER_NEW');
 					if (DI::config()->get('system', 'register_notification')) {
 						$this->sendNotification($user, 'SYSTEM_REGISTER_NEW');
 					}
