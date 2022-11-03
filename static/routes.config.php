@@ -531,6 +531,11 @@ return [
 	],
 
 	'/ping'              => [Module\Notifications\Ping::class, [R::GET]],
+
+	'/post' => [
+		'/{item_id}/tag/remove[/{tag_name}]'                       => [Module\Post\Tag\Remove::class, [R::GET, R::POST]],
+	],
+
 	'/pretheme'          => [Module\ThemeDetails::class, [R::GET]],
 	'/probe'             => [Module\Debug\Probe::class,  [R::GET]],
 
