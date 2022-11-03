@@ -98,6 +98,7 @@ class Site extends BaseAdmin
 		$enable_multi_reg       = !empty($_POST['enable_multi_reg']);
 		$enable_openid          = !empty($_POST['enable_openid']);
 		$enable_regfullname     = !empty($_POST['enable_regfullname']);
+		$register_notification  = !empty($_POST['register_notification']);
 		$community_page_style   = (!empty($_POST['community_page_style']) ? intval(trim($_POST['community_page_style'])) : 0);
 		$max_author_posts_community_page = (!empty($_POST['max_author_posts_community_page']) ? intval(trim($_POST['max_author_posts_community_page'])) : 0);
 
@@ -266,6 +267,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'block_extended_register', !$enable_multi_reg);
 		DI::config()->set('system', 'no_openid'              , !$enable_openid);
 		DI::config()->set('system', 'no_regfullname'         , !$enable_regfullname);
+		DI::config()->set('system', 'register_notification'  , $register_notification);
 		DI::config()->set('system', 'community_page_style'   , $community_page_style);
 		DI::config()->set('system', 'max_author_posts_community_page', $max_author_posts_community_page);
 		DI::config()->set('system', 'verifyssl'              , $verifyssl);
@@ -492,6 +494,7 @@ class Site extends BaseAdmin
 			'$enable_multi_reg'       => ['enable_multi_reg', DI::l10n()->t('Enable multiple registrations'), !DI::config()->get('system', 'block_extended_register'), DI::l10n()->t('Enable users to register additional accounts for use as pages.')],
 			'$enable_openid'          => ['enable_openid', DI::l10n()->t('Enable OpenID'), !DI::config()->get('system', 'no_openid'), DI::l10n()->t('Enable OpenID support for registration and logins.')],
 			'$enable_regfullname'     => ['enable_regfullname', DI::l10n()->t('Enable Fullname check'), !DI::config()->get('system', 'no_regfullname'), DI::l10n()->t('Enable check to only allow users to register with a space between the first name and the last name in their full name.')],
+			'$register_notification'  => ['register_notification', DI::l10n()->t('Notify admin on new registration'), DI::config()->get('system', 'register_notification'), DI::l10n()->t('If enabled and the system is set to an open registration, a notification for each new registration is sent to the admin.')],
 			'$community_page_style'   => ['community_page_style', DI::l10n()->t('Community pages for visitors'), DI::config()->get('system', 'community_page_style'), DI::l10n()->t('Which community pages should be available for visitors. Local users always see both pages.'), $community_page_style_choices],
 			'$max_author_posts_community_page' => ['max_author_posts_community_page', DI::l10n()->t('Posts per user on community page'), DI::config()->get('system', 'max_author_posts_community_page'), DI::l10n()->t('The maximum number of posts per user on the community page. (Not valid for "Global Community")')],
 			'$mail_able'              => function_exists('imap_open'),

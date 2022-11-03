@@ -37,6 +37,7 @@
 		{{include file="field_checkbox.tpl" field=$enable_multi_reg}}
 		{{include file="field_checkbox.tpl" field=$enable_openid}}
 		{{include file="field_checkbox.tpl" field=$enable_regfullname}}
+		{{include file="field_checkbox.tpl" field=$register_notification}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$upload}}</h2>

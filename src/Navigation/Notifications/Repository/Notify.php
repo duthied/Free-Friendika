@@ -483,6 +483,27 @@ class Notify extends BaseRepository
 						$hsitelink = sprintf($sitelink, '<a href="' . $params['link'] . '">' . $sitename . '</a><br><br>');
 						break;
 
+					case 'SYSTEM_REGISTER_NEW':
+						$itemlink =  $params['link'];
+						$subject = $l10n->t('[Friendica System Notify]') . ' ' . $l10n->t('new registration');
+
+						$preamble = $l10n->t('You\'ve received a new registration from \'%1$s\' at %2$s', $params['source_name'], $sitename);
+						$epreamble = $l10n->t('You\'ve received a [url=%1$s]new registration[/url] from %2$s.',
+							$itemlink,
+							'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
+						);
+
+						$body = $l10n->t("Full Name:	%s\nSite Location:	%s\nLogin Name:	%s (%s)",
+							$params['source_name'],
+							$siteurl, $params['source_mail'],
+							$params['source_nick']
+						);
+
+						$sitelink = $l10n->t('Please visit %s to have a look at the new registration.');
+						$tsitelink = sprintf($sitelink, $params['link']);
+						$hsitelink = sprintf($sitelink, '<a href="' . $params['link'] . '">' . $sitename . '</a><br><br>');
+						break;
+	
 					case 'SYSTEM_DB_UPDATE_FAIL': // @TODO Unused (only here)
 						break;
 				}
