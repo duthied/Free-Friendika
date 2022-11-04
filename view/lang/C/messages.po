@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-03 22:30-0400\n"
+"POT-Creation-Date: 2022-11-04 08:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -105,10 +105,10 @@ msgstr ""
 #: mod/item.php:870 mod/message.php:69 mod/message.php:114 mod/notes.php:44
 #: mod/ostatus_subscribe.php:33 mod/photos.php:159 mod/photos.php:886
 #: mod/repair_ostatus.php:31 mod/settings.php:40 mod/settings.php:50
-#: mod/settings.php:156 mod/suggest.php:34 src/Module/Attach.php:56
-#: src/Module/BaseApi.php:94 src/Module/BaseNotifications.php:98
-#: src/Module/Contact/Advanced.php:60 src/Module/Contact/Follow.php:86
-#: src/Module/Contact/Follow.php:158 src/Module/Contact/Unfollow.php:66
+#: mod/settings.php:156 src/Module/Attach.php:56 src/Module/BaseApi.php:94
+#: src/Module/BaseNotifications.php:98 src/Module/Contact/Advanced.php:60
+#: src/Module/Contact/Follow.php:86 src/Module/Contact/Follow.php:158
+#: src/Module/Contact/Suggestions.php:54 src/Module/Contact/Unfollow.php:66
 #: src/Module/Contact/Unfollow.php:80 src/Module/Contact/Unfollow.php:112
 #: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
 #: src/Module/FriendSuggest.php:57 src/Module/Group.php:40
@@ -1323,16 +1323,6 @@ msgstr ""
 msgid "Move to folder:"
 msgstr ""
 
-#: mod/suggest.php:44
-msgid ""
-"No suggestions available. If this is a new site, please try again in 24 "
-"hours."
-msgstr ""
-
-#: mod/suggest.php:55 src/Content/Widget.php:83 view/theme/vier/theme.php:201
-msgid "Friend Suggestions"
-msgstr ""
-
 #: src/App.php:490
 msgid "No system theme config value set."
 msgstr ""
@@ -2527,6 +2517,11 @@ msgstr ""
 #: src/Content/Widget.php:82 src/Module/Contact.php:394
 #: src/Module/Directory.php:96 view/theme/vier/theme.php:200
 msgid "Find"
+msgstr ""
+
+#: src/Content/Widget.php:83 src/Module/Contact/Suggestions.php:73
+#: view/theme/vier/theme.php:201
+msgid "Friend Suggestions"
 msgstr ""
 
 #: src/Content/Widget.php:84 view/theme/vier/theme.php:202
@@ -7104,6 +7099,12 @@ msgstr ""
 #: src/Module/OAuth/Acknowledge.php:53 src/Module/Register.php:130
 #: src/Module/Settings/TwoFactor/Trusted.php:125
 msgid "Yes"
+msgstr ""
+
+#: src/Module/Contact/Suggestions.php:62
+msgid ""
+"No suggestions available. If this is a new site, please try again in 24 "
+"hours."
 msgstr ""
 
 #: src/Module/Contact/Unfollow.php:98 src/Module/Contact/Unfollow.php:167
