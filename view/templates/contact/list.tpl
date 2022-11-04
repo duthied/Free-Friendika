@@ -5,7 +5,7 @@
 
 <div id="viewcontact_wrapper-{{$id}}">
 {{foreach $contacts as $contact}}
-	{{include file="contact_template.tpl"}}
+	{{include file="contact/entry.tpl"}}
 {{/foreach}}
 </div>
 <div class="clear"></div>

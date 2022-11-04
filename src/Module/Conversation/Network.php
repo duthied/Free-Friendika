@@ -178,7 +178,7 @@ class Network extends BaseModule
 		} elseif (self::$forumContactId) {
 			$contact = Contact::getById(self::$forumContactId);
 			if (DBA::isResult($contact)) {
-				$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('viewcontact_template.tpl'), [
+				$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('contact/list.tpl'), [
 					'contacts' => [ModuleContact::getContactTemplateVars($contact)],
 					'id' => DI::args()->get(0),
 				]) . $o;
