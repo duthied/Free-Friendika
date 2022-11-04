@@ -141,7 +141,7 @@ function enableOnUser(){
 		if ($('#jot-popup').length != 0) $('#jot-popup').show();
 
 		$('#like-rotator-' + id).show();
-		$.get('share/' + id, function(data) {
+		$.get('post/' + id + '/share', function(data) {
 			if (!editor) $("#profile-jot-text").val("");
 			initEditor(function(){
 				addeditortext(data);

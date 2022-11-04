@@ -210,7 +210,7 @@
 	}
 
 	function jotShare(id) {
-		$.get('share/' + id, function(data) {
+		$.get('post/' + id + '/share', function(data) {
 			// remove the former content of the text input
 			$("#profile-jot-text").val("");
 			initEditor(function(){

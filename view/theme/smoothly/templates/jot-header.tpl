@@ -168,13 +168,13 @@ function enableOnUser(){
 
 	function jotShare(id) {
 		$('#like-rotator-' + id).show();
-		$.get('share/' + id, function(data) {
-				if (!editor) $("#profile-jot-text").val("");
-				initEditor(function(){
-					addeditortext(data);
-					$('#like-rotator-' + id).hide();
-					$(window).scrollTop(0);
-				});
+		$.get('post/' + id + '/share', function(data) {
+			if (!editor) $("#profile-jot-text").val("");
+			initEditor(function(){
+				addeditortext(data);
+				$('#like-rotator-' + id).hide();
+				$(window).scrollTop(0);
+			});
 		});
 	}
 
