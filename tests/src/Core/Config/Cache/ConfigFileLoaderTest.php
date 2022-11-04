@@ -200,7 +200,7 @@ class ConfigFileLoaderTest extends MockedTest
 		self::assertEquals('999', $configCache->get('config', 'max_import_size'));
 		self::assertEquals('666', $configCache->get('system', 'maximagesize'));
 
-		self::assertEquals('frio,quattro,vier,duepuntozero', $configCache->get('system', 'allowed_themes'));
+		self::assertEquals('frio,vier', $configCache->get('system', 'allowed_themes'));
 		self::assertEquals('1', $configCache->get('system', 'no_regfullname'));
 	}
 

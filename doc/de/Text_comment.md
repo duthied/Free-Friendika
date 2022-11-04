@@ -47,13 +47,3 @@ Wähle eine vorhandene Gruppe oder gib einen neuen Namen ein. Die erstellten Gru
 <img src="doc/img/post_choose.png" width="27" height="32" alt="post_choose.png" align="left"> Mit diesem Symbol kannst du mehrere Beiträge auswählen und gesammelt löschen. 
 Hierfür gehst du nach dem Markieren aller gewünschten Beiträge auf "Lösche die markierten Beiträge" am Ende der Seite mit allen Beiträgen.
 <P style="clear: both;"></p>
-
-**Im Folgenden findest du Symbole weiterer Themen**
-
-Darkbubble  <img src="doc/img/darkbubble.png" alt="darkbubble.png" style="padding-left: 20px; vertical-align:middle;">
-
-Darkzero  <img src="doc/img/darkzero.png" alt="darkzero.png" style="padding-left: 35px; vertical-align:middle;">
-
-<span style="padding-left: 10px; font-style:italic;">(inkl. weiterer "zero"-Themen, slackr, comix, easterbunny, facepark)</span>
-
-Dispy  <img src="doc/img/dispy.png" alt="dispy.png" style="padding-left: 57px; vertical-align:middle;"> <i>(inkl. smoothly, testbubble)</i>
