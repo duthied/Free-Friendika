@@ -8,7 +8,7 @@ at the suggest page and also at many other places *}}
 
 <ul id="viewcontact_wrapper{{if $id}}-{{$id}}{{/if}}" class="viewcontact_wrapper media-list">
 {{foreach $contacts as $contact}}
-	<li>{{include file="contact_template.tpl"}}</li>
+	<li>{{include file="contact/entry.tpl"}}</li>
 {{/foreach}}
 </ul>
 <div class="clear"></div>

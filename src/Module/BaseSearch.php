@@ -132,7 +132,7 @@ class BaseSearch extends BaseModule
 			}
 		}
 
-		$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
+		$tpl = Renderer::getMarkupTemplate('contact/list.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'title'     => $header,
 			'$contacts' => $entries,

@@ -93,7 +93,7 @@ function match_content(App $a)
 		DI::sysmsg()->addInfo(DI::l10n()->t('No matches'));
 	}
 
-	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
+	$tpl = Renderer::getMarkupTemplate('contact/list.tpl');
 	$o = Renderer::replaceMacros($tpl, [
 		'$title'    => DI::l10n()->t('Profile Match'),
 		'$contacts' => array_slice($entries, 0, $limit),

@@ -49,7 +49,7 @@ function suggest_content(App $a)
 		$entries[] = ModuleContact::getContactTemplateVars($contact);
 	}
 
-	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
+	$tpl = Renderer::getMarkupTemplate('contact/list.tpl');
 
 	return Renderer::replaceMacros($tpl,[
 		'$title' => DI::l10n()->t('Friend Suggestions'),
