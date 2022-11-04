@@ -48,7 +48,7 @@ interface IHandleSessions
 	 * Handle the case where session_start() hasn't been called and the super global isn't available.
 	 *
 	 * @param string $name
-	 * @param mixed  $defaults
+	 * @param mixed  $defaults Deprecated, use `Session->get($name) ?? $defaults` instead
 	 *
 	 * @return mixed
 	 */
@@ -58,7 +58,7 @@ interface IHandleSessions
 	 * Retrieves a value from the provided key if it exists and removes it from session
 	 *
 	 * @param string $name
-	 * @param mixed  $defaults
+	 * @param mixed  $defaults Deprecated, use `Session->pop($name) ?? $defaults` instead
 	 *
 	 * @return mixed
 	 */

@@ -664,7 +664,7 @@ class Notify extends BaseRepository
 		return false;
 	}
 
-	public function NotifyOnDesktop(Entity\Notification $Notification, string $type = null): bool
+	public function shouldShowOnDesktop(Entity\Notification $Notification, string $type = null): bool
 	{
 		if (is_null($type)) {
 			$type = NotificationFactory::getType($Notification);

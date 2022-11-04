@@ -141,7 +141,7 @@ class Subscription
 	{
 		$type = NotificationFactory::getType($notification);
 
-		if (DI::notify()->NotifyOnDesktop($notification, $type)) {
+		if (DI::notify()->shouldShowOnDesktop($notification, $type)) {
 			DI::notify()->createFromNotification($notification);
 		}
 
