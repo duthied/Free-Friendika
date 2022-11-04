@@ -260,7 +260,7 @@
 				commentBusy = true;
 				$('body').css('cursor', 'wait');
 
-				$.get('tagger/' + id + '?term=' + reply);
+				$.post('post/' + id + '/tag/add', {term: reply});
 				if(timer) clearTimeout(timer);
 				timer = setTimeout(NavUpdate,3000);
 				liking = 1;

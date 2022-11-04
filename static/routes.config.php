@@ -533,6 +533,7 @@ return [
 	'/ping'              => [Module\Notifications\Ping::class, [R::GET]],
 
 	'/post' => [
+		'/{item_id}/tag/add'                                       => [Module\Post\Tag\Add::class,    [        R::POST]],
 		'/{item_id}/tag/remove[/{tag_name}]'                       => [Module\Post\Tag\Remove::class, [R::GET, R::POST]],
 	],
 
