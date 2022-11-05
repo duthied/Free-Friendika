@@ -51,17 +51,9 @@ class Search extends BaseApi
 
 		$accounts = [];
 
-		if (!$request['following']) {
-			if ((strrpos($request['q'], '@') > 0) && $request['resolve']) {
+		if ($request['resolve']) {
+			if ((strrpos($request['q'], '@') > 0)) {
 				$results = CoreSearch::getContactsFromProbe($request['q']);
-			}
-
-			if (empty($results)) {
-				if (DI::config()->get('system', 'poco_local_search')) {
-					$results = CoreSearch::getContactsFromLocalDirectory($request['q'], CoreSearch::TYPE_ALL, 0, $request['limit']);
-				} elseif (CoreSearch::getGlobalDirectory()) {
-					$results = CoreSearch::getContactsFromGlobalDirectory($request['q'], CoreSearch::TYPE_ALL, 1);
-				}
 			}
 
 			if (!empty($results)) {
@@ -77,17 +69,11 @@ class Search extends BaseApi
 					}
 				}
 			}
-		} else {
-			$contacts = Contact::searchByName($request['q'], '', $uid);
+		}
 
-			$counter = 0;
+		if (count($accounts) < $request['limit']) {
+			$contacts = Contact::searchByName($request['q'], '', $request['following'] ? $uid : 0, $request['limit']);
 			foreach ($contacts as $contact) {
-				if (!in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND])) {
-					continue;
-				}
-				if (++$counter > $request['limit']) {
-					continue;
-				}
 				$accounts[] = DI::mstdnAccount()->createFromContactId($contact['id'], $uid);
 			}
 			DBA::close($contacts);
