@@ -600,7 +600,8 @@ return [
 			'/trusted'      => [Module\Settings\TwoFactor\Trusted::class, [R::GET, R::POST]],
 		],
 		'/delegation[/{action}/{user_id}]' => [Module\Settings\Delegation::class,       [R::GET, R::POST]],
-		'/display'                 => [Module\Settings\Display::class,             [R::GET, R::POST]],
+		'/display'                         => [Module\Settings\Display::class,          [R::GET, R::POST]],
+		'/oauth'                           => [Module\Settings\OAuth::class,            [R::GET, R::POST]],
 		'/profile' => [
 			'[/]'                  => [Module\Settings\Profile\Index::class,       [R::GET, R::POST]],
 			'/photo[/new]'         => [Module\Settings\Profile\Photo\Index::class, [R::GET, R::POST]],

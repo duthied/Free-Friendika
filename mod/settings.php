@@ -157,31 +157,6 @@ function settings_content(App $a)
 		return '';
 	}
 
-	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'oauth')) {
-		if ((DI::args()->getArgc() > 3) && (DI::args()->getArgv()[2] === 'delete')) {
-			BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth', 't');
-
-			DBA::delete('application-token', ['application-id' => DI::args()->getArgv()[3], 'uid' => DI::userSession()->getLocalUserId()]);
-			DI::baseUrl()->redirect('settings/oauth/', true);
-			return '';
-		}
-
-		$applications = DBA::selectToArray('application-view', ['id', 'uid', 'name', 'website', 'scopes', 'created_at'], ['uid' => DI::userSession()->getLocalUserId()]);
-
-		$tpl = Renderer::getMarkupTemplate('settings/oauth.tpl');
-		$o .= Renderer::replaceMacros($tpl, [
-			'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
-			'$baseurl'             => DI::baseUrl()->get(true),
-			'$title'               => DI::l10n()->t('Connected Apps'),
-			'$name'                => DI::l10n()->t('Name'),
-			'$website'             => DI::l10n()->t('Home Page'),
-			'$created_at'          => DI::l10n()->t('Created'),
-			'$delete'              => DI::l10n()->t('Remove authorization'),
-			'$apps'                => $applications,
-		]);
-		return $o;
-	}
-
 	if ((DI::args()->getArgc() > 1) && (DI::args()->getArgv()[1] === 'addon')) {
 		$addon_settings_forms = [];
 		foreach (DI::dba()->selectToArray('hook', ['file', 'function'], ['hook' => 'addon_settings']) as $hook) {
