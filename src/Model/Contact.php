@@ -1192,7 +1192,7 @@ class Contact
 				'network' => [DI::l10n()->t('Network Posts') , $posts_link   , false],
 				'edit'    => [DI::l10n()->t('View Contact')  , $contact_url  , false],
 				'follow'  => [DI::l10n()->t('Connect/Follow'), $follow_link  , true],
-				'unfollow'=> [DI::l10n()->t('UnFollow')      , $unfollow_link, true],
+				'unfollow'=> [DI::l10n()->t('Unfollow')      , $unfollow_link, true],
 			];
 		} else {
 			$menu = [
@@ -1203,7 +1203,7 @@ class Contact
 				'edit'    => [DI::l10n()->t('View Contact')  , $contact_url      , false],
 				'pm'      => [DI::l10n()->t('Send PM')       , $pm_url           , false],
 				'follow'  => [DI::l10n()->t('Connect/Follow'), $follow_link      , true],
-				'unfollow'=> [DI::l10n()->t('UnFollow')      , $unfollow_link    , true],
+				'unfollow'=> [DI::l10n()->t('Unfollow')      , $unfollow_link    , true],
 			];
 
 			if (!empty($contact['pending'])) {

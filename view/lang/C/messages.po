@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-04 08:00-0400\n"
+"POT-Creation-Date: 2022-11-05 17:58-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2073,7 +2073,7 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:295 src/Model/Item.php:2875
+#: src/Content/Item.php:295 src/Model/Item.php:2870
 msgid "event"
 msgstr ""
 
@@ -2082,7 +2082,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:304 src/Model/Item.php:2877
+#: src/Content/Item.php:304 src/Model/Item.php:2872
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -2441,8 +2441,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1243 src/Model/Item.php:3476
-#: src/Model/Item.php:3482 src/Model/Item.php:3483
+#: src/Content/Text/BBCode.php:1243 src/Model/Item.php:3471
+#: src/Model/Item.php:3477 src/Model/Item.php:3478
 msgid "Link to source"
 msgstr ""
 
@@ -2675,7 +2675,8 @@ msgstr ""
 msgid "Network:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:111 src/Model/Profile.php:461
+#: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1195
+#: src/Model/Contact.php:1206 src/Model/Profile.php:461
 msgid "Unfollow"
 msgstr ""
 
@@ -3363,10 +3364,6 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
-#: src/Model/Contact.php:1195 src/Model/Contact.php:1206
-msgid "UnFollow"
-msgstr ""
-
 #: src/Model/Contact.php:1212 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
@@ -3557,66 +3554,66 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1987
+#: src/Model/Item.php:1982
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2879
+#: src/Model/Item.php:2874
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2881
+#: src/Model/Item.php:2876
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2884
+#: src/Model/Item.php:2879
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:3025
+#: src/Model/Item.php:3020
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3388
+#: src/Model/Item.php:3383
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3419
+#: src/Model/Item.php:3414
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3421
+#: src/Model/Item.php:3416
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3426
+#: src/Model/Item.php:3421
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3428
+#: src/Model/Item.php:3423
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3430
+#: src/Model/Item.php:3425
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3464 src/Model/Item.php:3465
+#: src/Model/Item.php:3459 src/Model/Item.php:3460
 msgid "View on separate page"
 msgstr ""
 
@@ -6736,7 +6733,7 @@ msgstr ""
 msgid "New photo from this URL"
 msgstr ""
 
-#: src/Module/Contact/Contacts.php:48 src/Module/Conversation/Network.php:186
+#: src/Module/Contact/Contacts.php:48 src/Module/Conversation/Network.php:188
 #: src/Module/Group.php:101
 msgid "Invalid contact."
 msgstr ""
@@ -7174,53 +7171,53 @@ msgstr ""
 msgid "Not available."
 msgstr ""
 
-#: src/Module/Conversation/Network.php:172
+#: src/Module/Conversation/Network.php:174
 msgid "No such group"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:176
+#: src/Module/Conversation/Network.php:178
 #, php-format
 msgid "Group: %s"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:254
+#: src/Module/Conversation/Network.php:256
 msgid "Latest Activity"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:257
+#: src/Module/Conversation/Network.php:259
 msgid "Sort by latest activity"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:262
+#: src/Module/Conversation/Network.php:264
 msgid "Latest Posts"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:265
+#: src/Module/Conversation/Network.php:267
 msgid "Sort by post received date"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:270
+#: src/Module/Conversation/Network.php:272
 msgid "Latest Creation"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:273
+#: src/Module/Conversation/Network.php:275
 msgid "Sort by post creation date"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:278
+#: src/Module/Conversation/Network.php:280
 #: src/Module/Settings/Profile/Index.php:227
 msgid "Personal"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:281
+#: src/Module/Conversation/Network.php:283
 msgid "Posts that mention or involve you"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:286 src/Object/Post.php:350
+#: src/Module/Conversation/Network.php:288 src/Object/Post.php:350
 msgid "Starred"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:289
+#: src/Module/Conversation/Network.php:291
 msgid "Favourite Posts"
 msgstr ""
 
@@ -8111,11 +8108,11 @@ msgstr ""
 msgid "Show unread"
 msgstr ""
 
-#: src/Module/Notifications/Ping.php:224
+#: src/Module/Notifications/Ping.php:242
 msgid "{0} requested registration"
 msgstr ""
 
-#: src/Module/Notifications/Ping.php:235
+#: src/Module/Notifications/Ping.php:253
 #, php-format
 msgid "{0} and %d others requested registration"
 msgstr ""
