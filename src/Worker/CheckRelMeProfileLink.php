@@ -23,13 +23,11 @@ namespace Friendica\Worker;
 
 use DOMDocument;
 use Friendica\DI;
-use Friendica\Database\DBA;
 use Friendica\Core\Logger;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /* This class is used to verify the homepage link of a user profile.
