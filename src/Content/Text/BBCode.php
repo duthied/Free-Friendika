@@ -1305,7 +1305,7 @@ class BBCode
 	/**
 	 * Callback: Expands links from given $match array
 	 *
-	 * @param arrat $match Array with link match
+	 * @param array $match Array with link match
 	 * @return string BBCode
 	 */
 	private static function expandLinksCallback(array $match): string
@@ -1320,7 +1320,7 @@ class BBCode
 	/**
 	 * Callback: Cleans picture links
 	 *
-	 * @param arrat $match Array with link match
+	 * @param array $match Array with link match
 	 * @return string BBCode
 	 */
 	private static function cleanPictureLinksCallback(array $match): string
@@ -1974,6 +1974,9 @@ class BBCode
 				} elseif (in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::API])) {
 					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 						'<bdi>$1<a href="$2" class="userinfo mention" title="$3">$3</a></bdi>',
+						$text);
+					$text = preg_replace("/([#])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+						'<a class="mention hashtag status-link" href="$2" rel="tag">$1<span>$3</span></a>',
 						$text);
 				} else {
 					$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);

@@ -109,7 +109,7 @@ class Status extends BaseDataTransferObject
 		}
 
 		$this->sensitive    = $sensitive;
-		$this->spoiler_text = $item['title'] ?: $item['content-warning'];
+		$this->spoiler_text = $item['title'] ?: $item['content-warning'] ?: '';
 
 		$visibility = ['public', 'private', 'unlisted'];
 		$this->visibility = $visibility[$item['private']];
