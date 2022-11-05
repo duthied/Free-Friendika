@@ -1975,6 +1975,9 @@ class BBCode
 					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 						'<bdi>$1<a href="$2" class="userinfo mention" title="$3">$3</a></bdi>',
 						$text);
+					$text = preg_replace("/([#])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+						'<a class="mention hashtag status-link" href="$2" rel="tag">$1<span>$3</span></a>',
+						$text);
 				} else {
 					$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);
 				}
