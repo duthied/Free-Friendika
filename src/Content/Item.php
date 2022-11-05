@@ -597,7 +597,7 @@ class Item
 			return $body;
 		}
 
-		return $body . "\n" . $this->createSharedBlockByArray($shared_item, true);
+		return BBCode::removeSharedData($body) . "\n" . $this->createSharedBlockByArray($shared_item, true);
 	}
 
 	/**
@@ -747,6 +747,8 @@ class Item
 		if (empty($post)) {
 			return $body;
 		}
+
+		$body = BBCode::removeSharedData($body);
 
 		$body .= "\n♲ " . ($post['plink'] ?: $post['uri']);
 

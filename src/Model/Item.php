@@ -220,10 +220,7 @@ class Item
 				$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
 				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
 
-				if ($item['author-network'] != Protocol::DFRN) {
-					Post\Media::insertFromRelevantUrl($item['uri-id'], $content_fields['raw-body']);
-				}
-
+				Post\Media::insertFromRelevantUrl($item['uri-id'], $content_fields['raw-body']);
 				Post\Content::update($item['uri-id'], $content_fields);
 			}
 
@@ -1148,9 +1145,7 @@ class Item
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
 
-		if (!DBA::exists('contact', ['id' => $item['author-id'], 'network' => Protocol::DFRN])) {
-			Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body']);
-		}
+		Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body']);
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
