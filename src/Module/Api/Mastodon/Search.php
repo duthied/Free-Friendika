@@ -31,6 +31,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Module\BaseApi;
 use Friendica\Object\Search\ContactResult;
+use Friendica\Util\Network;
 
 /**
  * @see https://docs.joinmastodon.org/methods/search/
@@ -84,7 +85,7 @@ class Search extends BaseApi
 		$accounts = [];
 
 		if ($resolve) {
-			if ((strrpos($q, '@') > 0)) {
+			if ((strrpos($q, '@') > 0) || Network::isValidHttpUrl($q)) {
 				$results = CoreSearch::getContactsFromProbe($q);
 			}
 
