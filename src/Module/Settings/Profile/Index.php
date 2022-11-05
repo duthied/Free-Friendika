@@ -213,6 +213,12 @@ class Index extends BaseSettings
 
 		$personal_account = ($profile['account-type'] != User::ACCOUNT_TYPE_COMMUNITY);
 
+		if ($profile['homepage_verified']) {
+			$homepage_help_text = DI::l10n()->t('The homepage is verified. A rel="me" link back to your Friendica profile page was found on the homepage.');
+		} else {
+			$homepage_help_text = DI::l10n()->t('To verify your homepage, add a rel="me" link to it, pointing to your profile URL (%s).', $profile['url']);
+		}
+
 		$tpl = Renderer::getMarkupTemplate('settings/profile/index.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$personal_account' => $personal_account,
@@ -248,7 +254,7 @@ class Index extends BaseSettings
 			'$age' => ((intval($profile['dob'])) ? '(' . DI::l10n()->t('Age: ') . DI::l10n()->tt('%d year old', '%d years old', Temporal::getAgeByTimezone($profile['dob'], $profile['timezone'])) . ')' : ''),
 			'$xmpp' => ['xmpp', DI::l10n()->t('XMPP (Jabber) address:'), $profile['xmpp'], DI::l10n()->t('The XMPP address will be published so that people can follow you there.')],
 			'$matrix' => ['matrix', DI::l10n()->t('Matrix (Element) address:'), $profile['matrix'], DI::l10n()->t('The Matrix address will be published so that people can follow you there.')],
-			'$homepage' => ['homepage', DI::l10n()->t('Homepage URL:'), $profile['homepage']],
+			'$homepage' => ['homepage', DI::l10n()->t('Homepage URL:'), $profile['homepage'], $homepage_help_text],
 			'$pub_keywords' => ['pub_keywords', DI::l10n()->t('Public Keywords:'), $profile['pub_keywords'], DI::l10n()->t('(Used for suggesting potential friends, can be seen by others)')],
 			'$prv_keywords' => ['prv_keywords', DI::l10n()->t('Private Keywords:'), $profile['prv_keywords'], DI::l10n()->t('(Used for searching profiles, never shown to others)')],
 			'$custom_fields_description' => DI::l10n()->t("<p>Custom fields appear on <a href=\"%s\">your profile page</a>.</p>
