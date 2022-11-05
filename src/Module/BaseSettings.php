@@ -126,7 +126,7 @@ class BaseSettings extends BaseModule
 		$tabs[] = [
 			'label'     => $this->t('Social Networks'),
 			'url'       => 'settings/connectors',
-			'selected'  => static::class == Settings\SocialNetworks::class ? 'active' : '',
+			'selected'  => static::class == Settings\Connectors::class ? 'active' : '',
 			'accesskey' => 'w',
 		];
 
@@ -164,7 +164,6 @@ class BaseSettings extends BaseModule
 			'selected'  => static::class === Settings\RemoveMe::class ? 'active' : '',
 			'accesskey' => 'r',
 		];
-
 
 		$tabtpl              = Renderer::getMarkupTemplate('generic_links_widget.tpl');
 		$this->page['aside'] = Renderer::replaceMacros($tabtpl, [

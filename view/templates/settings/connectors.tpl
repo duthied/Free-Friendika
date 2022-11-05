@@ -27,7 +27,6 @@
 </form>
 <div class="clear"></div>
 
-{{if !$mail_disabled}}
 <form action="settings/connectors" method="post" autocomplete="off">
 	<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 	<span id="settings_mail_inflated" class="settings-block fakelink" style="display: block;"
@@ -38,6 +37,9 @@
 		<span class="fakelink" onclick="openClose('settings_mail_expanded'); openClose('settings_mail_inflated');">
 			<img class="connector" src="images/mail.png"/><h3 class="settings-heading connector">{{$h_mail}}</h3>
 		</span>
+    {{if $mail_disabled}}
+		<p>{{$mail_disabled}}</p>
+	{{else}}
 		<p>{{$mail_desc nofilter}}</p>
 		{{include file="field_custom.tpl" field=$mail_lastcheck}}
 		{{include file="field_input.tpl" field=$mail_server}}
@@ -53,9 +55,9 @@
 		<div class="settings-submit-wrapper">
 			<input type="submit" id="mail-submit" name="mail-submit" class="settings-submit" value="{{$submit}}"/>
 		</div>
+	{{/if}}
 	</div>
 </form>
-{{/if}}
 
 {{foreach $connector_settings_forms as $addon => $connector_settings_form}}
 <form action="settings/connectors/{{$addon}}" method="post" autocomplete="off">
