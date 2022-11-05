@@ -1667,7 +1667,6 @@ class Transmitter
 			$body = BBCode::setMentionsToNicknames($body);
 
 			if (!empty($item['quote-uri-id'])) {
-				$body = BBCode::removeSharedData($body);
 				if (Post::exists(['uri-id' => $item['quote-uri-id'], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN]])) {
 					$real_quote = true;
 					$data['quoteUrl'] = $item['quote-uri'];
@@ -1687,7 +1686,6 @@ class Transmitter
 		if (!empty($language)) {
 			$richbody = BBCode::setMentionsToNicknames($item['body'] ?? '');
 			if (!empty($item['quote-uri-id'])) {
-				$richbody = BBCode::removeSharedData($richbody);
 				if ($real_quote) {
 					$richbody = DI::contentItem()->addShareLink($richbody, $item['quote-uri-id']);
 				} else {
@@ -1699,7 +1697,13 @@ class Transmitter
 			$data['contentMap'][$language] = BBCode::convertForUriId($item['uri-id'], $richbody, BBCode::EXTERNAL);
 		}
 
-		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
+		if (!empty($item['quote-uri-id'])) {
+			$source = DI::contentItem()->addSharedPost($item, $item['body']);
+		} else {
+			$source = $item['body'];
+		}
+
+		$data['source'] = ['content' => $source, 'mediaType' => "text/bbcode"];
 
 		if (!empty($item['signed_text']) && ($item['uri'] != $item['thr-parent'])) {
 			$data['diaspora:comment'] = $item['signed_text'];
