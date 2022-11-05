@@ -415,6 +415,24 @@ class Profile extends BaseModule
 
 		$formSecurityToken = self::getFormSecurityToken('contact_action');
 
+		if ($localRelationship->rel & Contact::SHARING) {
+			$contact_actions['unfollow'] = [
+				'label' => $this->t('Unfollow'),
+				'url'   => 'contact/unfollow?url=' . urlencode($contact['url']) . '&auto=1',
+				'title' => '',
+				'sel'   => '',
+				'id'    => 'unfollow',
+			];
+		} else {
+			$contact_actions['follow'] = [
+				'label' => $this->t('Follow'),
+				'url'   => 'contact/follow?url=' . urlencode($contact['url']) . '&auto=1',
+				'title' => '',
+				'sel'   => '',
+				'id'    => 'follow',
+			];
+		}
+
 		// Provide friend suggestion only for Friendica contacts
 		if ($contact['network'] === Protocol::DFRN) {
 			$contact_actions['suggest'] = [
