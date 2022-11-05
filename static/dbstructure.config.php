@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1486);
+	define('DB_UPDATE_VERSION', 1487);
 }
 
 return [
@@ -1580,6 +1580,7 @@ return [
 			"education" => ["type" => "text", "comment" => "Deprecated"],
 			"contact" => ["type" => "text", "comment" => "Deprecated"],
 			"homepage" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"homepage_verified" => ["type" => "boolean", "not null" => 1, "default" => "0", "comment" => "was the homepage verified by a rel-me link back to the profile"],
 			"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "XMPP address"],
 			"matrix" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Matrix address"],
 			"photo" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],

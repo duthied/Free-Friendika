@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.12-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1486
+-- DB_UPDATE_VERSION 1487
 -- ------------------------------------------
 
 
@@ -1577,6 +1577,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`education` text COMMENT 'Deprecated',
 	`contact` text COMMENT 'Deprecated',
 	`homepage` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`homepage_verified` boolean NOT NULL DEFAULT '0' COMMENT 'was the homepage verified by a rel-me link back to the profile',
 	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT 'XMPP address',
 	`matrix` varchar(255) NOT NULL DEFAULT '' COMMENT 'Matrix address',
 	`photo` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
@@ -2674,6 +2675,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`profile`.`postal-code` AS `postal-code`,
 	`profile`.`country-name` AS `country-name`,
 	`profile`.`homepage` AS `homepage`,
+	`profile`.`homepage_verified` AS `homepage_verified`,
 	`profile`.`dob` AS `dob`
 	FROM `user`
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
