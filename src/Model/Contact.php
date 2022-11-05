@@ -3373,11 +3373,13 @@ class Contact
 	 * @param string $search Name or nick
 	 * @param string $mode   Search mode (e.g. "community")
 	 * @param int    $uid    User ID
+	 * @param int    $limit  Maximum amount of returned values
+	 * @param int    $offset Limit offset
 	 *
 	 * @return array with search results
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function searchByName(string $search, string $mode = '', int $uid = 0): array
+	public static function searchByName(string $search, string $mode = '', int $uid = 0, int $limit = 0, int $offset = 0): array
 	{
 		if (empty($search)) {
 			return [];
@@ -3397,6 +3399,8 @@ class Contact
 
 		if ($uid == 0) {
 			$condition['blocked'] = false;
+		} else {
+			$condition['rel'] = [Contact::SHARING, Contact::FRIEND];
 		}
 
 		// check if we search only communities or every contact
@@ -3406,11 +3410,19 @@ class Contact
 
 		$search .= '%';
 
+		$params = [];
+
+		if (!empty($limit) && !empty($offset)) {
+			$params['limit'] = [$offset, $limit];
+		} elseif (!empty($limit)) {
+			$params['limit'] = $limit;
+		}
+
 		$condition = DBA::mergeConditions($condition,
 			["(NOT `unsearchable` OR `nurl` IN (SELECT `nurl` FROM `owner-view` WHERE `publish` OR `net-publish`))
 			AND (`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?)", $search, $search, $search]);
 
-		$contacts = self::selectToArray([], $condition);
+		$contacts = self::selectToArray([], $condition, $params);
 		return $contacts;
 	}
 

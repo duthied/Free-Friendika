@@ -31,6 +31,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Module\BaseApi;
 use Friendica\Object\Search\ContactResult;
+use Friendica\Util\Network;
 
 /**
  * @see https://docs.joinmastodon.org/methods/search/
@@ -83,18 +84,11 @@ class Search extends BaseApi
 	{
 		$accounts = [];
 
-		if (!$following) {
-			if ((strrpos($q, '@') > 0) && $resolve) {
+		if ($resolve) {
+			if ((strrpos($q, '@') > 0) || Network::isValidHttpUrl($q)) {
 				$results = CoreSearch::getContactsFromProbe($q);
 			}
 
-			if (empty($results)) {
-				if (DI::config()->get('system', 'poco_local_search')) {
-					$results = CoreSearch::getContactsFromLocalDirectory($q, CoreSearch::TYPE_ALL, 0, $limit);
-				} elseif (CoreSearch::getGlobalDirectory()) {
-					$results = CoreSearch::getContactsFromGlobalDirectory($q, CoreSearch::TYPE_ALL, 1);
-				}
-			}
 			if (!empty($results)) {
 				$counter = 0;
 				foreach ($results->getResults() as $result) {
@@ -108,17 +102,11 @@ class Search extends BaseApi
 					}
 				}
 			}
-		} else {
-			$contacts = Contact::searchByName($q, '', $uid);
+		}
 
-			$counter = 0;
+		if (count($accounts) < $limit) {
+			$contacts = Contact::searchByName($q, '', $following ? $uid : 0, $limit - count($accounts), $offset);
 			foreach ($contacts as $contact) {
-				if (!in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND])) {
-					continue;
-				}
-				if (++$counter > $limit) {
-					continue;
-				}
 				$accounts[] = DI::mstdnAccount()->createFromContactId($contact['id'], $uid);
 			}
 			DBA::close($contacts);
