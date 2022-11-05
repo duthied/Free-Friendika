@@ -62,7 +62,7 @@ return [
 
 		// allowed_themes (Comma-separated list)
 		// Themes users can change to in their settings.
-		'allowed_themes' => 'frio,quattro,vier,duepuntozero,smoothly',
+		'allowed_themes' => 'frio,vier',
 
 		// cache_contact_avatar (Boolean)
 		// Cache versions of the contact avatars. Uses a lot of storage space

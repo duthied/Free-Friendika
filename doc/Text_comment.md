@@ -30,13 +30,3 @@ Here you can find an overview of the different ways to comment and sort existing
 <P style="clear: both;"></p>
 
 <img src="doc/img/post_choose.png" width="27" height="32" alt="post_choose.png" align="left"> This symbol is used to choose more than one post to delete in a single step. After selecting all posts, go to the end of the page and click "Delete Selected Items".<P style="clear: both;"></p>
-
-**Symbols of other themes**
-
-Darkbubble  <img src="doc/img/darkbubble.png" alt="darkbubble.png" style="padding-left: 20px; vertical-align:middle;">
-
-Darkzero  <img src="doc/img/darkzero.png" alt="darkzero.png" style="padding-left: 35px; vertical-align:middle;">
-
-<span style="padding-left: 10px; font-style:italic;">(incl. more "zero"-themes, slackr, comix, easterbunny, facepark)</span>
-
-Dispy  <img src="doc/img/dispy.png" alt="dispy.png" style="padding-left: 57px; vertical-align:middle;"> <i>(incl. smoothly, testbubble)</i>
