@@ -3094,11 +3094,20 @@ class Item
 	{
 		// Make sure that for example site parameters aren't used when testing if the link is contained in the body
 		$urlparts = parse_url($url);
-		if (!empty($urlparts)) {
-			unset($urlparts['query']);
-			unset($urlparts['fragment']);
+		if (empty($urlparts)) {
+			return false;
+		}
+
+		unset($urlparts['query']);
+		unset($urlparts['fragment']);
+
+		try {
 			$url = (string)Uri::fromParts($urlparts);
-		} else {
+		} catch (\InvalidArgumentException $e) {
+			DI::logger()->notice('Invalid URL', ['$url' => $url, '$urlparts' => $urlparts]);
+			/* See https://github.com/friendica/friendica/issues/12113
+			 * Malformed URLs will result in a Fatal Error
+			 */
 			return false;
 		}
 
@@ -3111,12 +3120,14 @@ class Item
 		if (strpos($body, $url)) {
 			return true;
 		}
+
 		foreach ([0, 1, 2] as $size) {
 			if (preg_match('#/photo/.*-' . $size . '\.#ism', $url) &&
 				strpos(preg_replace('#(/photo/.*)-[012]\.#ism', '$1-' . $size . '.', $body), $url)) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
