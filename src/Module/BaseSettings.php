@@ -132,7 +132,7 @@ class BaseSettings extends BaseModule
 
 		$tabs[] = [
 			'label'     => $this->t('Addons'),
-			'url'       => 'settings/addon',
+			'url'       => 'settings/addons',
 			'selected'  => static::class == Settings\Addons::class ? 'active' : '',
 			'accesskey' => 'l',
 		];

@@ -592,6 +592,7 @@ return [
 			'[/]'     => [Module\Settings\Account::class,               [R::GET, R::POST]],
 			'/{open}' => [Module\Settings\Account::class,               [R::GET, R::POST]],
 		],
+		'/addons[/{addon}]' => [Module\Settings\Addons::class,                [R::GET, R::POST]],
 		'/2fa' => [
 			'[/]'           => [Module\Settings\TwoFactor\Index::class,       [R::GET, R::POST]],
 			'/recovery'     => [Module\Settings\TwoFactor\Recovery::class,    [R::GET, R::POST]],
