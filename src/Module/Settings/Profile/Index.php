@@ -38,6 +38,7 @@ use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
+use Friendica\Core\Worker;
 
 class Index extends BaseSettings
 {
@@ -126,6 +127,8 @@ class Index extends BaseSettings
 			],
 			DI::userSession()->getLocalUserId()
 		);
+
+		Worker::add(Worker::PRIORITY_MEDIUM, 'CheckRelMeProfileLink', DI::userSession()->getLocalUserId());
 
 		if (!$result) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Profile couldn\'t be updated.'));
