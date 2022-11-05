@@ -28,6 +28,7 @@ use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
+use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /* This class is used to verify the homepage link of a user profile.
@@ -74,27 +75,26 @@ class CheckRelMeProfileLink
 					} else {
 						foreach ($doc->getElementsByTagName('a') as $link) {
 							$rel = $link->getAttribute('rel');
-							if ($rel=='me') {
+							if ($rel == 'me') {
 								$href = $link->getAttribute('href');
-								if (strpos($href, 'http')!==false) {
-									if (!$homepageUrlVerified) {
-										$homepageUrlVerified = Strings::compareLink($owner['url'], $href);
-									}
+								if (strpos($href, 'http')!==false && !$homepageUrlVerified && Network::isUrlValid($href)) {
+									$homepageUrlVerified = Strings::compareLink($owner['url'], $href);
 								}
 							}
 						}
 					}
 					if ($homepageUrlVerified) {
-						Profile::update(['homepage_verified' => 1], $uid);
+						Profile::update(['homepage_verified' => true], $uid);
 						Logger::notice('Homepage URL verified', [$uid, $owner['homepage']]);
 					} else {
-						Profile::update(['homepage_verified' => 0], $uid);
+						Profile::update(['homepage_verified' => false], $uid);
 						Logger::notice('Homepage URL could not be verified', [$uid, $owner['homepage']]);
 					}
 				}
 			}
 		} else {
 			Logger::notice('The user has no homepage link.', [$uid]);
+			Profile::update(['homepage_verified' => false], $uid);
 		}
 	}
 }
