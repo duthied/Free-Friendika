@@ -1971,9 +1971,16 @@ class BBCode
 					$text = preg_replace("/([#])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 						'<a href="$2" class="mention hashtag" rel="tag">$1<span>$3</span></a>',
 						$text);
-				} elseif (in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::API])) {
+				} elseif (in_array($simple_html, [self::INTERNAL, self::EXTERNAL])) {
 					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 						'<bdi>$1<a href="$2" class="userinfo mention" title="$3">$3</a></bdi>',
+						$text);
+					$text = preg_replace("/([#])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+						'<a class="mention hashtag status-link" href="$2" rel="tag">$1<span>$3</span></a>',
+						$text);
+				} elseif ($simple_html == self::API) {
+					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+						'<a class="u-url mention status-link" href="$2" rel="nofollow noopener noreferrer" target="_blank" title="$3">$1<span>$3</span></a>',
 						$text);
 					$text = preg_replace("/([#])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 						'<a class="mention hashtag status-link" href="$2" rel="tag">$1<span>$3</span></a>',

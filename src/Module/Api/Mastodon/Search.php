@@ -84,28 +84,16 @@ class Search extends BaseApi
 	{
 		$accounts = [];
 
-		if ($resolve) {
-			if ((strrpos($q, '@') > 0) || Network::isValidHttpUrl($q)) {
-				$results = CoreSearch::getContactsFromProbe($q);
-			}
+		if ((strrpos($q, '@') > 0) || Network::isValidHttpUrl($q)) {
+			$id = Contact::getIdForURL($q, 0, $resolve ? null : false);
 
-			if (!empty($results)) {
-				$counter = 0;
-				foreach ($results->getResults() as $result) {
-					if (++$counter > $limit) {
-						continue;
-					}
-					if ($result instanceof ContactResult) {
-						$id = Contact::getIdForURL($result->getUrl(), 0, false);
-
-						$accounts[] = DI::mstdnAccount()->createFromContactId($id, $uid);
-					}
-				}
+			if (!empty($id)) {
+				$accounts[] = DI::mstdnAccount()->createFromContactId($id, $uid);
 			}
 		}
 
-		if (count($accounts) < $limit) {
-			$contacts = Contact::searchByName($q, '', $following ? $uid : 0, $limit - count($accounts), $offset);
+		if (empty($accounts)) {
+			$contacts = Contact::searchByName($q, '', $following ? $uid : 0, $limit, $offset);
 			foreach ($contacts as $contact) {
 				$accounts[] = DI::mstdnAccount()->createFromContactId($contact['id'], $uid);
 			}
