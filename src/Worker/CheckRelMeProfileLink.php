@@ -61,9 +61,7 @@ class CheckRelMeProfileLink
 		if (!empty($owner['homepage'])) {
 			$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 			$curlResult = DI::httpClient()->get($owner['homepage'], $accept_content = HttpClientAccept::HTML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
-			if ($curlResult->isTimeout()) {
-				Logger::notice('Could not check homepage link of the user because the page loading request timed out.', [$uid, $owner['homepage']]);
-			} else {
+			if ($curlResult->isSuccess()) {
 				$content = $curlResult->getBody();
 				if (!$content) {
 					Logger::notice('Empty body of the fetched homepage link). Cannot verify the relation to profile of UID %s.', [$uid, $owner['homepage']]);
@@ -90,6 +88,8 @@ class CheckRelMeProfileLink
 						Logger::notice('Homepage URL could not be verified', [$uid, $owner['homepage']]);
 					}
 				}
+			} else {
+				Logger::notice('Could not cURL the homepage URL', [$owner['homepage']]);
 			}
 		} else {
 			Logger::notice('The user has no homepage link.', [$uid]);
