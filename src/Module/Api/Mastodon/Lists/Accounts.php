@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Mastodon\Lists;
 
-use Friendica\App\Router;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -116,7 +115,10 @@ class Accounts extends BaseApi
 		$members = DBA::select('group_member', ['contact-id'], $condition, $params);
 		while ($member = DBA::fetch($members)) {
 			self::setBoundaries($member['contact-id']);
-			$accounts[] = DI::mstdnAccount()->createFromContactId($member['contact-id'], $uid);
+			try {
+				$accounts[] = DI::mstdnAccount()->createFromContactId($member['contact-id'], $uid);
+			} catch (\Throwable $th) {
+			}
 		}
 		DBA::close($members);
 
