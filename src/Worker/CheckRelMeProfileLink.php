@@ -59,7 +59,7 @@ class CheckRelMeProfileLink
 		$homepageUrlVerified = false;
 		$owner = User::getOwnerDataById($uid);
 		if (!empty($owner['homepage'])) {
-			$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
+			$xrd_timeout = DI::config()->get('system', 'xrd_timeout' ?? 20);
 			$curlResult = DI::httpClient()->get($owner['homepage'], $accept_content = HttpClientAccept::HTML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 			if ($curlResult->isSuccess()) {
 				$content = $curlResult->getBody();
