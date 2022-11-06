@@ -76,7 +76,7 @@ class CheckRelMeProfileLink
 							$rel = $link->getAttribute('rel');
 							if ($rel == 'me') {
 								$href = $link->getAttribute('href');
-								if (strpos($href, 'http')!==false && !$homepageUrlVerified && Network::isUrlValid($href)) {
+								if (!$homepageUrlVerified && Network::isValidHttpUrl($href)) {
 									$homepageUrlVerified = Strings::compareLink($owner['url'], $href);
 								}
 							}
