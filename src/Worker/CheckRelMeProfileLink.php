@@ -54,7 +54,7 @@ class CheckRelMeProfileLink
 	 */
 	public static function execute(int $uid)
 	{
-		Logger::notice('Verifying the homepage', [$uid]);
+		Logger::notice('Verifying the homepage', ['uid' => $uid]);
 		Profile::update(['homepage_verified' => false], $uid);
 		$homepageUrlVerified = false;
 		$owner = User::getOwnerDataById($uid);
@@ -64,7 +64,7 @@ class CheckRelMeProfileLink
 			if ($curlResult->isSuccess()) {
 				$content = $curlResult->getBody();
 				if (!$content) {
-					Logger::notice('Empty body of the fetched homepage link). Cannot verify the relation to profile of UID %s.', [$uid, $owner['homepage']]);
+					Logger::notice('Empty body of the fetched homepage link). Cannot verify the relation to profile of UID %s.', ['uid' => $uid, 'owner homepage' => $owner['homepage']]);
 				} else {
 					$doc = new DOMDocument();
 					$doc->loadHTML($content);
@@ -83,16 +83,16 @@ class CheckRelMeProfileLink
 					}
 					if ($homepageUrlVerified) {
 						Profile::update(['homepage_verified' => true], $uid);
-						Logger::notice('Homepage URL verified', [$uid, $owner['homepage']]);
+						Logger::notice('Homepage URL verified', ['uid' => $uid, 'owner homepage' => $owner['homepage']]);
 					} else {
-						Logger::notice('Homepage URL could not be verified', [$uid, $owner['homepage']]);
+						Logger::notice('Homepage URL could not be verified', ['uid' => $uid, 'owner homepage' => $owner['homepage']]);
 					}
 				}
 			} else {
-				Logger::notice('Could not cURL the homepage URL', [$owner['homepage']]);
+				Logger::notice('Could not cURL the homepage URL', ['owner homepage' => $owner['homepage']]);
 			}
 		} else {
-			Logger::notice('The user has no homepage link.', [$uid]);
+			Logger::notice('The user has no homepage link.', ['uid' => $uid]);
 		}
 	}
 }
