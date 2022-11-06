@@ -375,7 +375,7 @@ class Account extends BaseSettings
 						// "http" or "@" to be present in the string.
 						// All other fields from the row will be ignored
 						if ((strpos($csvRow[0], '@') !== false) || Network::isValidHttpUrl($csvRow[0])) {
-							Worker::add(Worker::PRIORITY_MEDIUM, 'AddContact', DI::userSession()->getLocalUserId(), $csvRow[0]);
+							Worker::add(Worker::PRIORITY_MEDIUM, 'AddContact', DI::userSession()->getLocalUserId(), trim($csvRow[0], '@'));
 						} else {
 							Logger::notice('Invalid account', ['url' => $csvRow[0]]);
 						}
