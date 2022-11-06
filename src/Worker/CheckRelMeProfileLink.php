@@ -57,10 +57,10 @@ class CheckRelMeProfileLink
 		Logger::notice('Verifying the homepage', ['uid' => $uid]);
 		Profile::update(['homepage_verified' => false], $uid);
 		$homepageUrlVerified = false;
-		$owner = User::getOwnerDataById($uid);
+		$owner               = User::getOwnerDataById($uid);
 		if (!empty($owner['homepage'])) {
 			$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-			$curlResult = DI::httpClient()->get($owner['homepage'], $accept_content = HttpClientAccept::HTML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
+			$curlResult  = DI::httpClient()->get($owner['homepage'], $accept_content = HttpClientAccept::HTML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 			if ($curlResult->isSuccess()) {
 				$content = $curlResult->getBody();
 				if (!$content) {
