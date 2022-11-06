@@ -132,7 +132,7 @@ class Status extends BaseDataTransferObject
 		$this->muted = $userAttributes->muted;
 		$this->bookmarked = $userAttributes->bookmarked;
 		$this->pinned = $userAttributes->pinned;
-		$this->content = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($item['raw-body'] ?? $item['body']), BBCode::API);
+		$this->content = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($item['raw-body'] ?? $item['body']), BBCode::MASTODON_API);
 		$this->reblog = $reblog;
 		$this->application = $application->toArray();
 		$this->account = $account->toArray();

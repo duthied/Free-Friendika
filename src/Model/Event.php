@@ -616,7 +616,7 @@ class Event
 
 			$title = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));
 			if (!$title) {
-				list($title, $_trash) = explode("<br", BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['desc'])), BBCode::API);
+				list($title, $_trash) = explode("<br", BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['desc'])), BBCode::TWITTER_API);
 			}
 
 			$author_link = $event['author-link'];
