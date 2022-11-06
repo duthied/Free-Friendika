@@ -22,7 +22,6 @@
 namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\Protocol;
-use Friendica\Core\Search as CoreSearch;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -30,7 +29,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Module\BaseApi;
-use Friendica\Object\Search\ContactResult;
 use Friendica\Util\Network;
 
 /**
