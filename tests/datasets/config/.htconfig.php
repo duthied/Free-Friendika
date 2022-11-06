@@ -49,7 +49,7 @@ $a->config['php_path'] = '/another/php';
 $a->config['system']['huburl'] = '[internal]';
 
 // allowed themes (change this from admin panel after installation)
-$a->config['system']['allowed_themes'] = 'frio,quattro,vier,duepuntozero';
+$a->config['system']['allowed_themes'] = 'frio,vier';
 
 // default system theme
 $a->config['system']['theme'] = 'frio';
