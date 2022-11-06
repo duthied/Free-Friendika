@@ -218,7 +218,7 @@ class Post
 		if (DI::userSession()->getLocalUserId()) {
 			if (Strings::compareLink(DI::session()->get('my_url'), $item['author-link'])) {
 				if ($item['event-id'] != 0) {
-					$edpost = ['events/event/' . $item['event-id'], DI::l10n()->t('Edit')];
+					$edpost = ['calendar/event/edit/' . $item['event-id'], DI::l10n()->t('Edit')];
 				} else {
 					$edpost = ['editpost/' . $item['id'], DI::l10n()->t('Edit')];
 				}

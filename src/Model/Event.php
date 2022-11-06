@@ -24,15 +24,17 @@ namespace Friendica\Model;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Strings;
+use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
 /**
@@ -499,17 +501,27 @@ class Event
 	 *
 	 * @param int    $owner_uid The User ID of the owner of the event
 	 * @param int    $event_id  The ID of the event in the event table
-	 * @param string $sql_extra
+	 * @param string $nickname  a possible nickname to search for instead of the own uid
 	 * @return array Query result
 	 * @throws \Exception
 	 */
-	public static function getListById(int $owner_uid, int $event_id, string $sql_extra = ''): array
+	public static function getByIdAndUid(int $owner_uid, int $event_id, string $nickname = null): array
 	{
-		$return = [];
+		if (!empty($nickname)) {
+			$owner = static::getOwnerForNickname($nickname, true);
+			$owner_uid = $owner['uid'];
 
-		// Ownly allow events if there is a valid owner_id.
+			// get the permissions
+			$sql_perms = Item::getPermissionsSQLByUserId($owner_uid);
+			// we only want to have the events of the profile owner
+			$sql_extra = " AND `event`.`cid` = 0 " . $sql_perms;
+		} else {
+			$sql_extra = "";
+		}
+
+		// Only allow events if there is a valid owner_id.
 		if ($owner_uid == 0) {
-			return $return;
+			return [];
 		}
 
 		// Query for the event by event id
@@ -518,34 +530,99 @@ class Event
 			WHERE `event`.`uid` = ? AND `event`.`id` = ? $sql_extra",
 			$owner_uid, $event_id));
 
-		if (DBA::isResult($events)) {
-			$return = self::removeDuplicates($events);
+		if (empty($events)) {
+			throw new NotFoundException(DI::l10n()->t('Event not found.'));
+		} else {
+			$events = self::removeDuplicates($events);
+			return $events[0];
+		}
+	}
+
+	/**
+	 * Returns the owner array of a given nickname
+	 * Additionally, it can check if the owner array is selectable
+	 *
+	 * @param string $nickname
+	 * @param bool   $check
+	 *
+	 * @return array the owner array
+	 * @throws NotFoundException The given nickname does not exist
+	 * @throws UnauthorizedException The access for the given nickname is restricted
+	 */
+	public static function getOwnerForNickname(string $nickname, bool $check = true): array
+	{
+		$owner = User::getOwnerDataByNick($nickname);
+		if (empty($owner)) {
+			throw new NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		return $return;
+		if ($check) {
+			$contact_id = DI::userSession()->getRemoteContactID($owner['uid']);
+
+			$remote_contact = $contact_id && DBA::exists('contact', ['id' => $contact_id, 'uid' => $owner['uid']]);
+
+			$is_owner = DI::userSession()->getLocalUserId() == $owner['uid'];
+
+			if ($owner['hidewall'] && !$is_owner && !$remote_contact) {
+				throw new UnauthorizedException(DI::l10n()->t('Access to this profile has been restricted.'));
+			}
+		}
+
+		return $owner;
 	}
 
 	/**
 	 * Get all events in a specific time frame.
 	 *
-	 * @param int    $owner_uid    The User ID of the owner of the events.
-	 * @param array  $event_params An associative array with
-	 *                             int 'ignore' =>
-	 *                             string 'start' => Start time of the timeframe.
-	 *                             string 'finish' => Finish time of the timeframe.
-	 *
-	 * @param string $sql_extra    Additional sql conditions (e.g. permission request).
+	 * @param int         $owner_uid The User ID of the owner of the events.
+	 * @param string|null $start     Start time of the timeframe.
+	 * @param string|null $finish    Finish time of the timeframe.
+	 * @param bool        $ignore
+	 * @param string|null $nickname
 	 *
 	 * @return array Query results.
-	 * @throws \Exception
+	 * @throws NotFoundException
+	 * @throws UnauthorizedException
 	 */
-	public static function getListByDate(int $owner_uid, array $event_params, string $sql_extra = ''): array
+	public static function getListByDate(int $owner_uid, string $start = null, string $finish = null, bool $ignore = false, string $nickname = null): array
 	{
-		$return = [];
+		if (!empty($nickname)) {
+			$owner     = static::getOwnerForNickname($nickname, true);
+			$owner_uid = $owner['uid'];
+
+			// get the permissions
+			$sql_perms = Item::getPermissionsSQLByUserId($owner_uid);
+			// we only want to have the events of the profile owner
+			$sql_extra = " AND `event`.`cid` = 0 " . $sql_perms;
+		} else {
+			$sql_extra = "";
+		}
 
 		// Only allow events if there is a valid owner_id.
 		if ($owner_uid == 0) {
-			return $return;
+			return [];
+		}
+
+		if (empty($start) || empty($finish)) {
+
+			$y = intval(DateTimeFormat::localNow('Y'));
+			$m = intval(DateTimeFormat::localNow('m'));
+
+			// Put some limit on dates. The PHP date functions don't seem to do so well before 1900.
+			if ($y < 1901) {
+				$y = 1900;
+			}
+
+			if ($y > 2099) {
+				$y = 2100;
+			}
+
+			if (empty($start)) {
+				$start = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
+			} else {
+				$dim    = Temporal::getDaysInMonth($y, $m);
+				$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
+			}
 		}
 
 		// Query for the event by date.
@@ -554,15 +631,12 @@ class Event
 				WHERE `event`.`uid` = ? AND `event`.`ignore` = ?
 				AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?
 				" . $sql_extra,
-				$owner_uid, $event_params['ignore'],
-				$event_params['start'], $event_params['start'], $event_params['finish']
+			$owner_uid, $ignore,
+			$start, $start, $finish
 		));
 
-		if (DBA::isResult($events)) {
-			$return = self::removeDuplicates($events);
-		}
-
-		return $return;
+		$events = self::removeDuplicates($events ?? []);
+		return self::sortByDate($events);
 	}
 
 	/**
@@ -577,75 +651,84 @@ class Event
 	{
 		$event_list = [];
 
-		$last_date = '';
-		$fmt = DI::l10n()->t('l, F j');
 		foreach ($event_result as $event) {
-			$item = Post::selectFirst(['plink', 'author-name', 'author-network', 'author-id', 'author-avatar', 'author-link', 'private', 'uri-id'], ['id' => $event['itemid']]);
-			if (!DBA::isResult($item)) {
-				// Using default values when no item had been found
-				$item = ['plink' => '', 'author-name' => '', 'author-avatar' => '', 'author-link' => '', 'private' => Item::PUBLIC, 'uri-id' => ($event['uri-id'] ?? 0)];
-			}
-
-			$event = array_merge($event, $item);
-
-			$start = DateTimeFormat::local($event['start'], 'c');
-			$j     = DateTimeFormat::local($event['start'], 'j');
-			$day   = DateTimeFormat::local($event['start'], $fmt);
-			$day   = DI::l10n()->getDay($day);
-
-			if ($event['nofinish']) {
-				$end = null;
-			} else {
-				$end = DateTimeFormat::local($event['finish'], 'c');
-			}
-
-			$is_first = ($day !== $last_date);
-
-			$last_date = $day;
-
-			// Show edit and drop actions only if the user is the owner of the event and the event
-			// is a real event (no bithdays).
-			$edit = null;
-			$copy = null;
-			$drop = null;
-			if (DI::userSession()->getLocalUserId() && DI::userSession()->getLocalUserId() == $event['uid'] && $event['type'] == 'event') {
-				$edit = !$event['cid'] ? [DI::baseUrl() . '/events/event/' . $event['id'], DI::l10n()->t('Edit event')     , '', ''] : null;
-				$copy = !$event['cid'] ? [DI::baseUrl() . '/events/copy/' . $event['id'] , DI::l10n()->t('Duplicate event'), '', ''] : null;
-				$drop =                  [DI::baseUrl() . '/events/drop/' . $event['id'] , DI::l10n()->t('Delete event')   , '', ''];
-			}
-
-			$title = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));
-			if (!$title) {
-				list($title, $_trash) = explode("<br", BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['desc'])), BBCode::TWITTER_API);
-			}
-
-			$author_link = $event['author-link'];
-
-			$event['author-link'] = Contact::magicLink($author_link);
-
-			$html = self::getHTML($event);
-			$event['summary']  = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));
-			$event['desc']     = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['desc']));
-			$event['location'] = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['location']));
-			$event_list[] = [
-				'id'       => $event['id'],
-				'start'    => $start,
-				'end'      => $end,
-				'allDay'   => false,
-				'title'    => $title,
-				'j'        => $j,
-				'd'        => $day,
-				'edit'     => $edit,
-				'drop'     => $drop,
-				'copy'     => $copy,
-				'is_first' => $is_first,
-				'item'     => $event,
-				'html'     => $html,
-				'plink'    => Item::getPlink($event),
-			];
+			$event_list[] = static::prepareForItem($event);
 		}
 
 		return $event_list;
+	}
+
+	/**
+	 * Convert an one event in an array which could be used by the events template.
+	 *
+	 * @param array $event Event query array.
+	 * @return array Event array for the template.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function prepareForItem(array $event): array
+	{
+		$fmt = DI::l10n()->t('l, F j');
+
+		$item = Post::selectFirst(['plink', 'author-name', 'author-network', 'author-id', 'author-avatar', 'author-link', 'private', 'uri-id'], ['id' => $event['itemid']]);
+		if (!DBA::isResult($item)) {
+			// Using default values when no item had been found
+			$item = ['plink' => '', 'author-name' => '', 'author-avatar' => '', 'author-link' => '', 'private' => Item::PUBLIC, 'uri-id' => ($event['uri-id'] ?? 0)];
+		}
+
+		$event = array_merge($event, $item);
+
+		$start = DateTimeFormat::local($event['start'], 'c');
+		$j     = DateTimeFormat::local($event['start'], 'j');
+		$day   = DateTimeFormat::local($event['start'], $fmt);
+		$day   = DI::l10n()->getDay($day);
+
+		if ($event['nofinish']) {
+			$end = null;
+		} else {
+			$end = DateTimeFormat::local($event['finish'], 'c');
+		}
+
+		// Show edit and drop actions only if the user is the owner of the event and the event
+		// is a real event (no bithdays).
+		$edit = null;
+		$copy = null;
+		$drop = null;
+		if (DI::userSession()->getLocalUserId() && DI::userSession()->getLocalUserId() == $event['uid'] && $event['type'] == 'event') {
+			$edit = !$event['cid'] ? [DI::baseUrl() . '/calendar/event/edit/' . $event['id'], DI::l10n()->t('Edit event')     , '', ''] : null;
+			$copy = !$event['cid'] ? [DI::baseUrl() . '/calendar/event/copy/' . $event['id'] , DI::l10n()->t('Duplicate event'), '', ''] : null;
+			$drop =                  [DI::baseUrl() . '/calendar/api/delete/' . $event['id'] , DI::l10n()->t('Delete event')   , '', ''];
+		}
+
+		$title = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));
+		if (!$title) {
+			[$title, $_trash] = explode("<br", BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['desc'])), BBCode::TWITTER_API);
+		}
+
+		$author_link = $event['author-link'];
+
+		$event['author-link'] = Contact::magicLink($author_link);
+
+		$html = self::getHTML($event);
+		$event['summary']  = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));
+		$event['desc']     = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['desc']));
+		$event['location'] = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['location']));
+
+		return [
+			'id'       => $event['id'],
+			'start'    => $start,
+			'end'      => $end,
+			'allDay'   => false,
+			'title'    => $title,
+			'j'        => $j,
+			'd'        => $day,
+			'edit'     => $edit,
+			'drop'     => $drop,
+			'copy'     => $copy,
+			'item'     => $event,
+			'html'     => $html,
+			'plink'    => Item::getPlink($event),
+		];
 	}
 
 	/**
@@ -1017,5 +1100,10 @@ class Event
 
 		// Check if self::store() was success
 		return (self::store($values) > 0);
+	}
+
+	public static function setIgnore(int $uid, int $eventId, bool $ignore = true)
+	{
+		DBA::update('event', ['ignore' => $ignore], ['id' => $eventId, 'uid' => $uid]);
 	}
 }

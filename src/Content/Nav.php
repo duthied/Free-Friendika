@@ -46,7 +46,7 @@ class Nav
 		'settings'  => null,
 		'contacts'  => null,
 		'delegation'=> null,
-		'events'    => null,
+		'calendar'  => null,
 		'register'  => null
 	];
 
@@ -165,7 +165,7 @@ class Nav
 			'apps'          => null,
 			'community'     => null,
 			'home'          => null,
-			'events'        => null,
+			'calendar'      => null,
 			'login'         => null,
 			'logout'        => null,
 			'langselector'  => null,
@@ -193,7 +193,7 @@ class Nav
 			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname() . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
 			$nav['usermenu'][] = ['photos/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
 			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname() . '/media', DI::l10n()->t('Media'), '', DI::l10n()->t('Your postings with media')];
-			$nav['usermenu'][] = ['events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
+			$nav['usermenu'][] = ['calendar/', DI::l10n()->t('Calendar'), '', DI::l10n()->t('Your calendar')];
 			$nav['usermenu'][] = ['notes/', DI::l10n()->t('Personal notes'), '', DI::l10n()->t('Your personal notes')];
 
 			// user info
@@ -257,7 +257,7 @@ class Nav
 		}
 
 		if (DI::userSession()->getLocalUserId()) {
-			$nav['events'] = ['events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
+			$nav['calendar'] = ['calendar', DI::l10n()->t('Calendar'), '', DI::l10n()->t('Calendar')];
 		}
 
 		$nav['directory'] = [$gdirpath, DI::l10n()->t('Directory'), '', DI::l10n()->t('People directory')];

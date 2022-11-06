@@ -63,9 +63,8 @@
 	aStr.dtendLabel = '{{$i18n.dtend_label|escape:'quotes'}}';
 	aStr.locationLabel = '{{$i18n.location_label|escape:'quotes'}}';
 
-	var moduleUrl = '{{$module_url}}';
-	var modparams = {{$modparams}}
-
+	var calendar_api = '{{$calendar_api}}';
+	var event_api = '{{$event_api}}';
 
 	$(document).ready(function() {
 		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');

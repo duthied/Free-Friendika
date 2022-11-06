@@ -82,9 +82,9 @@ class Export extends BaseModule
 			// If it is the own calendar return to the events page
 			// otherwise to the profile calendar page
 			if ($this->session->getLocalUserId() === $ownerUid) {
-				$returnPath = 'events';
+				$returnPath = 'calendar';
 			} else {
-				$returnPath = 'events/' . $this->parameters['nickname'];
+				$returnPath = 'calendar/show/' . $this->parameters['nickname'];
 			}
 
 			$this->baseUrl->redirect($returnPath);

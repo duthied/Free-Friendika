@@ -81,23 +81,23 @@ class BaseProfile extends BaseModule
 		// the calendar link for the full featured events calendar
 		if ($is_owner && $a->getThemeInfoValue('events_in_profile')) {
 			$tabs[] = [
-				'label' => DI::l10n()->t('Events'),
-				'url'   => DI::baseUrl() . '/events',
-				'sel'   => $current == 'events' ? 'active' : '',
-				'title' => DI::l10n()->t('Events and Calendar'),
-				'id'    => 'events-tab',
-				'accesskey' => 'e',
+				'label' => DI::l10n()->t('Calendar'),
+				'url'   => DI::baseUrl() . '/calendar',
+				'sel'   => $current == 'calendar' ? 'active' : '',
+				'title' => DI::l10n()->t('Calendar'),
+				'id'    => 'calendar-tab',
+				'accesskey' => 'c',
 			];
 			// if the user is not the owner of the calendar we only show a calendar
 			// with the public events of the calendar owner
 		} elseif (!$is_owner) {
 			$tabs[] = [
-				'label' => DI::l10n()->t('Events'),
-				'url'   => DI::baseUrl() . '/cal/' . $nickname,
-				'sel'   => $current == 'cal' ? 'active' : '',
-				'title' => DI::l10n()->t('Events and Calendar'),
-				'id'    => 'events-tab',
-				'accesskey' => 'e',
+				'label' => DI::l10n()->t('Calendar'),
+				'url'   => DI::baseUrl() . '/calendar/show/' . $nickname,
+				'sel'   => $current == 'calendar' ? 'active' : '',
+				'title' => DI::l10n()->t('Calendar'),
+				'id'    => 'calendar-tab',
+				'accesskey' => 'c',
 			];
 		}
 

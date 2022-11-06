@@ -31,7 +31,7 @@
 			</li>
 		{{/if}}
 		{{if $nav.events}}
-			<li role="menuitem" id="nav-events-link" class="nav-menu {{$sel.events}}">
+			<li role="menuitem" id="nav-calendar-link" class="nav-menu {{$sel.events}}">
 				<a accesskey="e" class="{{$nav.events.2}} desktop-view" href="{{$nav.events.0}}" title="{{$nav.events.3}}">{{$nav.events.1}}</a>
 				<a class="{{$nav.events.2}} mobile-view" href="{{$nav.events.0}}" title="{{$nav.events.3}}"><i class="icon s22 icon-calendar"></i></a>
 			</li>
