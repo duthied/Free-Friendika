@@ -1,4 +1,3 @@
-
 # FRIENDICA Distributed Social Network
 # Copyright (C) 2010-2022, the Friendica project
 # This file is distributed under the same license as the Friendica package.
@@ -9,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-05 15:53+0100\n"
+"POT-Creation-Date: 2022-11-06 08:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2074,7 +2073,7 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:295 src/Model/Item.php:2875
+#: src/Content/Item.php:295 src/Model/Item.php:2870
 msgid "event"
 msgstr ""
 
@@ -2083,7 +2082,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:304 src/Model/Item.php:2877
+#: src/Content/Item.php:304 src/Model/Item.php:2872
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -2442,8 +2441,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1243 src/Model/Item.php:3476
-#: src/Model/Item.php:3482 src/Model/Item.php:3483
+#: src/Content/Text/BBCode.php:1243 src/Model/Item.php:3471
+#: src/Model/Item.php:3477 src/Model/Item.php:3478
 msgid "Link to source"
 msgstr ""
 
@@ -2459,11 +2458,11 @@ msgstr ""
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2089
+#: src/Content/Text/BBCode.php:2092
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2104
+#: src/Content/Text/BBCode.php:2107
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2676,7 +2675,8 @@ msgstr ""
 msgid "Network:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:111 src/Model/Profile.php:461
+#: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1195
+#: src/Model/Contact.php:1206 src/Model/Profile.php:461
 msgid "Unfollow"
 msgstr ""
 
@@ -3364,10 +3364,6 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
-#: src/Model/Contact.php:1195 src/Model/Contact.php:1206
-msgid "UnFollow"
-msgstr ""
-
 #: src/Model/Contact.php:1212 src/Module/Admin/Users/Pending.php:107
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
@@ -3558,66 +3554,66 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1987
+#: src/Model/Item.php:1982
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2879
+#: src/Model/Item.php:2874
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2881
+#: src/Model/Item.php:2876
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2884
+#: src/Model/Item.php:2879
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:3025
+#: src/Model/Item.php:3020
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3388
+#: src/Model/Item.php:3383
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3419
+#: src/Model/Item.php:3414
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3421
+#: src/Model/Item.php:3416
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3426
+#: src/Model/Item.php:3421
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3428
+#: src/Model/Item.php:3423
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3430
+#: src/Model/Item.php:3425
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3464 src/Model/Item.php:3465
+#: src/Model/Item.php:3459 src/Model/Item.php:3460
 msgid "View on separate page"
 msgstr ""
 
