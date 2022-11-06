@@ -116,7 +116,7 @@ class Plaintext
 	 * @see   \Friendica\Content\Text\BBCode::getAttachedData
 	 *
 	 */
-	public static function getPost($item, $limit = 0, $includedlinks = false, $htmlmode = BBCode::API, $target_network = '')
+	public static function getPost($item, $limit = 0, $includedlinks = false, $htmlmode = BBCode::MASTODON_API, $target_network = '')
 	{
 		// Remove hashtags
 		$URLSearchString = '^\[\]';

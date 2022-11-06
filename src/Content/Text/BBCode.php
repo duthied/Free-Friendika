@@ -55,15 +55,16 @@ class BBCode
 	// Update this value to the current date whenever changes are made to BBCode::convert
 	const VERSION = '2021-07-28';
 
-	const INTERNAL = 0;
-	const EXTERNAL = 1;
-	const API = 2;
-	const DIASPORA = 3;
-	const CONNECTORS = 4;
-	const OSTATUS = 7;
-	const TWITTER = 8;
-	const BACKLINK = 8;
-	const ACTIVITYPUB = 9;
+	const INTERNAL     = 0;
+	const EXTERNAL     = 1;
+	const MASTODON_API = 2;
+	const DIASPORA     = 3;
+	const CONNECTORS   = 4;
+	const TWITTER_API  = 5;
+	const OSTATUS      = 7;
+	const TWITTER      = 8;
+	const BACKLINK     = 8;
+	const ACTIVITYPUB  = 9;
 
 	const TOP_ANCHOR = '<br class="top-anchor">';
 	const BOTTOM_ANCHOR = '<br class="button-anchor">';
@@ -473,7 +474,7 @@ class BBCode
 	private static function proxyUrl(string $image, int $simplehtml = self::INTERNAL, int $uriid = 0, string $size = ''): string
 	{
 		// Only send proxied pictures to API and for internal display
-		if (!in_array($simplehtml, [self::INTERNAL, self::API])) {
+		if (!in_array($simplehtml, [self::INTERNAL, self::MASTODON_API, self::TWITTER_API])) {
 			return $image;
 		} elseif ($uriid > 0) {
 			return Post\Link::getByLink($uriid, $image, $size);
@@ -1190,7 +1191,8 @@ class BBCode
 		$mention = $attributes['author'] . ' (' . ($author_contact['addr'] ?? '') . ')';
 
 		switch ($simplehtml) {
-			case self::API:
+			case self::MASTODON_API:
+			case self::TWITTER_API:
 				$text = ($is_quote_share? '<br>' : '') .
 				'<b><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672;', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . "</a>:</b><br>\n" .
 				'<blockquote class="shared_content" dir="auto">' . $content . '</blockquote>';
@@ -1634,7 +1636,7 @@ class BBCode
 
 				/// @todo Have a closer look at the different html modes
 				// Handle attached links or videos
-				if (in_array($simple_html, [self::API, self::ACTIVITYPUB])) {
+				if (in_array($simple_html, [self::MASTODON_API, self::TWITTER_API, self::ACTIVITYPUB])) {
 					$text = self::removeAttachment($text);
 				} elseif (!in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::CONNECTORS])) {
 					$text = self::removeAttachment($text, true);
@@ -1971,14 +1973,11 @@ class BBCode
 					$text = preg_replace("/([#])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 						'<a href="$2" class="mention hashtag" rel="tag">$1<span>$3</span></a>',
 						$text);
-				} elseif (in_array($simple_html, [self::INTERNAL, self::EXTERNAL])) {
+				} elseif (in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::TWITTER_API])) {
 					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 						'<bdi>$1<a href="$2" class="userinfo mention" title="$3">$3</a></bdi>',
 						$text);
-					$text = preg_replace("/([#])\[url\=(.*?)\](.*?)\[\/url\]/ism",
-						'<a class="mention hashtag status-link" href="$2" rel="tag">$1<span>$3</span></a>',
-						$text);
-				} elseif ($simple_html == self::API) {
+				} elseif ($simple_html == self::MASTODON_API) {
 					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 						'<a class="u-url mention status-link" href="$2" rel="nofollow noopener noreferrer" target="_blank" title="$3">$1<span>$3</span></a>',
 						$text);
@@ -1990,7 +1989,7 @@ class BBCode
 				}
 
 				if (!$for_plaintext) {
-					if (in_array($simple_html, [self::OSTATUS, self::API, self::ACTIVITYPUB])) {
+					if (in_array($simple_html, [self::OSTATUS, self::MASTODON_API, self::TWITTER_API, self::ACTIVITYPUB])) {
 						$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 						$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 					}

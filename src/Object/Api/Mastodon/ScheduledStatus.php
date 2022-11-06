@@ -67,7 +67,7 @@ class ScheduledStatus extends BaseDataTransferObject
 		$this->scheduled_at = DateTimeFormat::utc($delayed_post['delayed'], DateTimeFormat::JSON);
 
 		$this->params = [
-			'text'           => BBCode::convert(BBCode::setMentionsToNicknames($parameters['item']['body'] ?? ''), false, BBCode::API),
+			'text'           => BBCode::convert(BBCode::setMentionsToNicknames($parameters['item']['body'] ?? ''), false, BBCode::MASTODON_API),
 			'media_ids'      => $media_ids,
 			'sensitive'      => null,
 			'spoiler_text'   => $parameters['item']['title'] ?? '',

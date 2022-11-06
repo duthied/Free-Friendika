@@ -65,13 +65,13 @@ class DirectMessage extends BaseFactory
 		if (!empty($text_mode)) {
 			$title = $mail['title'];
 			if ($text_mode == 'html') {
-				$text = BBCode::convertForUriId($mail['uri-id'], $mail['body'], BBCode::API);
+				$text = BBCode::convertForUriId($mail['uri-id'], $mail['body'], BBCode::TWITTER_API);
 			} elseif ($text_mode == 'plain') {
-				$text = HTML::toPlaintext(BBCode::convertForUriId($mail['uri-id'], $mail['body'], BBCode::API), 0);
+				$text = HTML::toPlaintext(BBCode::convertForUriId($mail['uri-id'], $mail['body'], BBCode::TWITTER_API), 0);
 			}
 		} else {
 			$title = '';
-			$text  = $mail['title'] . "\n" . HTML::toPlaintext(BBCode::convertForUriId($mail['uri-id'], $mail['body'], BBCode::API), 0);
+			$text  = $mail['title'] . "\n" . HTML::toPlaintext(BBCode::convertForUriId($mail['uri-id'], $mail['body'], BBCode::TWITTER_API), 0);
 		}
 
 		$pcid = Contact::getPublicIdByUserId($uid);

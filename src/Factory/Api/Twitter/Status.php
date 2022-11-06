@@ -143,12 +143,12 @@ class Status extends BaseFactory
 			$title = sprintf("[h4]%s[/h4]\n", $item['title']);
 		}
 
-		$statusnetHtml = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($title . ($item['raw-body'] ?? $item['body'])), BBCode::API);
+		$statusnetHtml = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($title . ($item['raw-body'] ?? $item['body'])), BBCode::TWITTER_API);
 		$friendicaHtml = BBCode::convertForUriId($item['uri-id'], $title . $item['body'], BBCode::EXTERNAL);
 
 		$text .= Post\Media::addAttachmentsToBody($item['uri-id'], $this->contentItem->addSharedPost($item));
 
-		$text = trim(HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], $text, BBCode::API), 0));
+		$text = trim(HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], $text, BBCode::TWITTER_API), 0));
 
 		$geo = [];
 
