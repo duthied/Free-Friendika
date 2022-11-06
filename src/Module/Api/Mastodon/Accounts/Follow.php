@@ -40,6 +40,10 @@ class Follow extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
+		$request = $this->getRequest([
+			'notify'   => false, // Notify on new posts.
+		], $request);
+
 		$contact = Contact::getById($this->parameters['id'], ['url']);
 
 		$result = Contact::createFromProbeForUser($uid, $contact['url']);
@@ -47,6 +51,8 @@ class Follow extends BaseApi
 		if (!$result['success']) {
 			DI::mstdnError()->UnprocessableEntity($result['message']);
 		}
+
+		Contact::update(['notify_new_posts' => $request['notify']], ['id' => $result['cid']]);
 
 		System::jsonExit(DI::mstdnRelationship()->createFromContactId($result['cid'], $uid)->toArray());
 	}
