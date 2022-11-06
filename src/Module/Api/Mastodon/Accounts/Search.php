@@ -21,13 +21,11 @@
 
 namespace Friendica\Module\Api\Mastodon\Accounts;
 
-use Friendica\Core\Search as CoreSearch;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Module\BaseApi;
-use Friendica\Object\Search\ContactResult;
 use Friendica\Util\Network;
 
 /**
@@ -52,27 +50,15 @@ class Search extends BaseApi
 
 		$accounts = [];
 
-		if ($request['resolve']) {
-			if ((strrpos($request['q'], '@') > 0) || Network::isValidHttpUrl($request['q'])) {
-				$results = CoreSearch::getContactsFromProbe($request['q']);
-			}
+		if ((strrpos($request['q'], '@') > 0) || Network::isValidHttpUrl($request['q'])) {
+			$id = Contact::getIdForURL($request['q'], 0, $request['resolve'] ? null : false);
 
-			if (!empty($results)) {
-				$counter = 0;
-				foreach ($results->getResults() as $result) {
-					if (++$counter > $request['limit']) {
-						continue;
-					}
-					if ($result instanceof ContactResult) {
-						$id = Contact::getIdForURL($result->getUrl(), 0, false);
-
-						$accounts[] = DI::mstdnAccount()->createFromContactId($id, $uid);
-					}
-				}
+			if (!empty($id)) {
+				$accounts[] = DI::mstdnAccount()->createFromContactId($id, $uid);
 			}
 		}
 
-		if (count($accounts) < $request['limit']) {
+		if (empty($accounts)) {
 			$contacts = Contact::searchByName($request['q'], '', $request['following'] ? $uid : 0, $request['limit']);
 			foreach ($contacts as $contact) {
 				$accounts[] = DI::mstdnAccount()->createFromContactId($contact['id'], $uid);
