@@ -92,7 +92,12 @@
 						<a accesskey="a" class="{{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}">{{$nav.admin.1}}</a>
 					</li>
 					{{/if}}
-					{{if $nav.logout}}<li role="menuitem"><a class="menu-sep {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}">{{$nav.logout.1}}</a></li>{{/if}}
+					{{if $nav.moderation}}
+						<li role="menuitem">
+							<a accesskey="m" class="{{$nav.moderation.2}}" href="{{$nav.moderation.0}}" title="{{$nav.moderation.3}}">{{$nav.moderation.1}}</a>
+						</li>
+						{{/if}}
+						{{if $nav.logout}}<li role="menuitem"><a class="menu-sep {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}">{{$nav.logout.1}}</a></li>{{/if}}
 				</ul>
 			</li>
 		{{/if}}

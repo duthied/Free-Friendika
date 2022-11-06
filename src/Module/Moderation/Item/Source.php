@@ -19,21 +19,19 @@
  *
  */
 
-namespace Friendica\Module\Admin\Item;
+namespace Friendica\Module\Moderation\Item;
 
 use Friendica\Core\Renderer;
-use Friendica\DI;
 use Friendica\Model;
-use Friendica\Module\BaseAdmin;
+use Friendica\Module\BaseModeration;
 
-class Source extends BaseAdmin
-
+class Source extends BaseModeration
 {
 	protected function content(array $request = []): string
 	{
 		parent::content();
 
-		$guid = basename($_REQUEST['guid'] ?? $this->parameters['guid'] ?? '');
+		$guid = basename($request['guid'] ?? $this->parameters['guid'] ?? '');
 
 		$item_uri = '';
 		$item_id = '';
@@ -48,25 +46,23 @@ class Source extends BaseAdmin
 			}
 		}
 
-		$tpl = Renderer::getMarkupTemplate('admin/item/source.tpl');
-		$o = Renderer::replaceMacros($tpl, [
-			'$title'       => DI::l10n()->t('Item Source'),
-			'$guid'        => ['guid', DI::l10n()->t('Item Guid'), $guid, ''],
+		$tpl = Renderer::getMarkupTemplate('moderation/item/source.tpl');
+		return Renderer::replaceMacros($tpl, [
+			'$title'       => $this->t('Item Source'),
+			'$guid'        => ['guid', $this->t('Item Guid'), $guid, ''],
 			'$item_uri'    => $item_uri,
 			'$item_id'     => $item_id,
 			'$terms'       => $terms,
-			'$itemidlbl'   => DI::l10n()->t('Item Id'),
-			'$itemurilbl'  => DI::l10n()->t('Item URI'),
-			'$submit'      => DI::l10n()->t('Submit'),
-			'$termslbl'    => DI::l10n()->t('Terms'),
-			'$taglbl'      => DI::l10n()->t('Tag'),
-			'$typelbl'     => DI::l10n()->t('Type'),
-			'$termlbl'     => DI::l10n()->t('Term'),
-			'$urllbl'      => DI::l10n()->t('URL'),
-			'$mentionlbl'  => DI::l10n()->t('Mention'),
-			'$implicitlbl' => DI::l10n()->t('Implicit Mention'),
+			'$itemidlbl'   => $this->t('Item Id'),
+			'$itemurilbl'  => $this->t('Item URI'),
+			'$submit'      => $this->t('Submit'),
+			'$termslbl'    => $this->t('Terms'),
+			'$taglbl'      => $this->t('Tag'),
+			'$typelbl'     => $this->t('Type'),
+			'$termlbl'     => $this->t('Term'),
+			'$urllbl'      => $this->t('URL'),
+			'$mentionlbl'  => $this->t('Mention'),
+			'$implicitlbl' => $this->t('Implicit Mention'),
 		]);
-
-		return $o;
 	}
 }

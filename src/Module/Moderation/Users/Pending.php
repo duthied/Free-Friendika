@@ -19,43 +19,39 @@
  *
  */
 
-namespace Friendica\Module\Admin\Users;
+namespace Friendica\Module\Moderation\Users;
 
 use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
-use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\Register;
 use Friendica\Model\User;
-use Friendica\Module\Admin\BaseUsers;
-use Friendica\Module\BaseAdmin;
-use Friendica\Util\Temporal;
+use Friendica\Module\Moderation\BaseUsers;
 
 class Pending extends BaseUsers
 {
 	protected function post(array $request = [])
 	{
-		self::checkAdminAccess();
+		$this->checkModerationAccess();
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/users/pending', 'admin_users_pending');
 
-		$pending = $_POST['pending'] ?? [];
+		$pending = $request['pending'] ?? [];
 
-		if (!empty($_POST['page_users_approve'])) {
+		if (!empty($request['page_users_approve'])) {
 			foreach ($pending as $hash) {
 				User::allow($hash);
 			}
-			DI::sysmsg()->addInfo(DI::l10n()->tt('%s user approved', '%s users approved', count($pending)));
+			$this->systemMessages->addInfo($this->tt('%s user approved', '%s users approved', count($pending)));
 		}
 
-		if (!empty($_POST['page_users_deny'])) {
+		if (!empty($request['page_users_deny'])) {
 			foreach ($pending as $hash) {
 				User::deny($hash);
 			}
-			DI::sysmsg()->addInfo(DI::l10n()->tt('%s registration revoked', '%s registrations revoked', count($pending)));
+			$this->systemMessages->addInfo($this->tt('%s registration revoked', '%s registrations revoked', count($pending)));
 		}
 
-		DI::baseUrl()->redirect('admin/users/pending');
+		$this->baseUrl->redirect('admin/users/pending');
 	}
 
 	protected function content(array $request = []): string
@@ -63,14 +59,13 @@ class Pending extends BaseUsers
 		parent::content();
 
 		$action = $this->parameters['action'] ?? '';
-		$uid = $this->parameters['uid'] ?? 0;
+		$uid    = $this->parameters['uid'] ?? 0;
 
 		if ($uid) {
 			$user = User::getById($uid, ['username', 'blocked']);
-			if (!DBA::isResult($user)) {
-				DI::sysmsg()->addNotice(DI::l10n()->t('User not found'));
-				DI::baseUrl()->redirect('admin/users');
-				return ''; // NOTREACHED
+			if (!$user) {
+				$this->systemMessages->addNotice($this->t('User not found'));
+				$this->baseUrl->redirect('admin/users');
 			}
 		}
 
@@ -78,18 +73,18 @@ class Pending extends BaseUsers
 			case 'allow':
 				self::checkFormSecurityTokenRedirectOnError('/admin/users/pending', 'admin_users_pending', 't');
 				User::allow(Register::getPendingForUser($uid)['hash'] ?? '');
-				DI::sysmsg()->addNotice(DI::l10n()->t('Account approved.'));
-				DI::baseUrl()->redirect('admin/users/pending');
+				$this->systemMessages->addNotice($this->t('Account approved.'));
+				$this->baseUrl->redirect('admin/users/pending');
 				break;
 			case 'deny':
 				self::checkFormSecurityTokenRedirectOnError('/admin/users/pending', 'admin_users_pending', 't');
 				User::deny(Register::getPendingForUser($uid)['hash'] ?? '');
-				DI::sysmsg()->addNotice(DI::l10n()->t('Registration revoked'));
-				DI::baseUrl()->redirect('admin/users/pending');
+				$this->systemMessages->addNotice($this->t('Registration revoked'));
+				$this->baseUrl->redirect('admin/users/pending');
 				break;
 		}
 
-		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 100);
+		$pager = new Pager($this->l10n, $this->args->getQueryString(), 100);
 
 		$pending = Register::getPending($pager->getStart(), $pager->getItemsPerPage());
 
@@ -98,20 +93,20 @@ class Pending extends BaseUsers
 		$t = Renderer::getMarkupTemplate('admin/users/pending.tpl');
 		return self::getTabsHTML('pending') . Renderer::replaceMacros($t, [
 			// strings //
-			'$title' => DI::l10n()->t('Administration'),
-			'$page' => DI::l10n()->t('User registrations awaiting review'),
-			'$select_all' => DI::l10n()->t('select all'),
-			'$th_pending' => [DI::l10n()->t('Request date'), DI::l10n()->t('Name'), DI::l10n()->t('Email')],
-			'$no_pending' => DI::l10n()->t('No registrations.'),
-			'$pendingnotetext' => DI::l10n()->t('Note from the user'),
-			'$approve' => DI::l10n()->t('Approve'),
-			'$deny' => DI::l10n()->t('Deny'),
+			'$title' => $this->t('Administration'),
+			'$page' => $this->t('User registrations awaiting review'),
+			'$select_all' => $this->t('select all'),
+			'$th_pending' => [$this->t('Request date'), $this->t('Name'), $this->t('Email')],
+			'$no_pending' => $this->t('No registrations.'),
+			'$pendingnotetext' => $this->t('Note from the user'),
+			'$approve' => $this->t('Approve'),
+			'$deny' => $this->t('Deny'),
 
 			'$form_security_token' => self::getFormSecurityToken('admin_users_pending'),
 
 			// values //
-			'$baseurl' => DI::baseUrl()->get(true),
-			'$query_string' => DI::args()->getQueryString(),
+			'$baseurl' => $this->baseUrl->get(true),
+			'$query_string' => $this->args->getQueryString(),
 
 			'$pending' => $pending,
 			'$count' => $count,

@@ -19,36 +19,36 @@
  *
  */
 
-namespace Friendica\Module\Admin\Users;
+namespace Friendica\Module\Moderation\Users;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\User;
-use Friendica\Module\Admin\BaseUsers;
+use Friendica\Module\Moderation\BaseUsers;
 
 class Create extends BaseUsers
 {
 	protected function post(array $request = [])
 	{
-		self::checkAdminAccess();
+		$this->checkModerationAccess();
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/users/create', 'admin_users_create');
 
-		$nu_name     = $_POST['new_user_name']     ?? '';
-		$nu_nickname = $_POST['new_user_nickname'] ?? '';
-		$nu_email    = $_POST['new_user_email']    ?? '';
+		$nu_name     = $request['new_user_name'] ?? '';
+		$nu_nickname = $request['new_user_nickname'] ?? '';
+		$nu_email    = $request['new_user_email'] ?? '';
 		$nu_language = DI::config()->get('system', 'language');
 
 		if ($nu_name !== '' && $nu_email !== '' && $nu_nickname !== '') {
 			try {
 				User::createMinimal($nu_name, $nu_email, $nu_nickname, $nu_language);
-				DI::baseUrl()->redirect('admin/users');
+				$this->baseUrl->redirect('admin/users');
 			} catch (\Exception $ex) {
-				DI::sysmsg()->addNotice($ex->getMessage());
+				$this->systemMessages->addNotice($ex->getMessage());
 			}
 		}
 
-		DI::baseUrl()->redirect('admin/users/create');
+		$this->baseUrl->redirect('admin/users/create');
 	}
 
 	protected function content(array $request = []): string
@@ -58,19 +58,19 @@ class Create extends BaseUsers
 		$t = Renderer::getMarkupTemplate('admin/users/create.tpl');
 		return self::getTabsHTML('all') . Renderer::replaceMacros($t, [
 			// strings //
-			'$title' => DI::l10n()->t('Administration'),
-			'$page' => DI::l10n()->t('New User'),
-			'$submit' => DI::l10n()->t('Add User'),
+			'$title'  => $this->t('Administration'),
+			'$page'   => $this->t('New User'),
+			'$submit' => $this->t('Add User'),
 
 			'$form_security_token' => self::getFormSecurityToken('admin_users_create'),
 
 			// values //
-			'$baseurl' => DI::baseUrl()->get(true),
-			'$query_string' => DI::args()->getQueryString(),
+			'$baseurl'      => $this->baseUrl->get(true),
+			'$query_string' => $this->args->getQueryString(),
 
-			'$newusername' => ['new_user_name', DI::l10n()->t('Name'), '', DI::l10n()->t('Name of the new user.')],
-			'$newusernickname' => ['new_user_nickname', DI::l10n()->t('Nickname'), '', DI::l10n()->t('Nickname of the new user.')],
-			'$newuseremail' => ['new_user_email', DI::l10n()->t('Email'), '', DI::l10n()->t('Email address of the new user.'), '', '', 'email'],
+			'$newusername'     => ['new_user_name', $this->t('Name'), '', $this->t('Name of the new user.')],
+			'$newusernickname' => ['new_user_nickname', $this->t('Nickname'), '', $this->t('Nickname of the new user.')],
+			'$newuseremail'    => ['new_user_email', $this->t('Email'), '', $this->t('Email address of the new user.'), '', '', 'email'],
 		]);
 	}
 }
