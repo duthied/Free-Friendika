@@ -55,6 +55,7 @@ class CheckRelMeProfileLink
 	public static function execute(int $uid)
 	{
 		Logger::notice('Verifying the homepage', [$uid]);
+		Profile::update(['homepage_verified' => false], $uid);
 		$homepageUrlVerified = false;
 		$owner = User::getOwnerDataById($uid);
 		if (!empty($owner['homepage'])) {
@@ -86,14 +87,12 @@ class CheckRelMeProfileLink
 						Profile::update(['homepage_verified' => true], $uid);
 						Logger::notice('Homepage URL verified', [$uid, $owner['homepage']]);
 					} else {
-						Profile::update(['homepage_verified' => false], $uid);
 						Logger::notice('Homepage URL could not be verified', [$uid, $owner['homepage']]);
 					}
 				}
 			}
 		} else {
 			Logger::notice('The user has no homepage link.', [$uid]);
-			Profile::update(['homepage_verified' => false], $uid);
 		}
 	}
 }
