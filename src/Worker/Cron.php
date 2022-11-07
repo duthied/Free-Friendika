@@ -134,7 +134,7 @@ class Cron
 				Worker::add(Worker::PRIORITY_LOW, 'OptimizeTables');
 			}
 
-			foreach (User::getList($start=1, $limit=PHP_INT_MAX, $type='active') as $user) {
+			foreach (User::getList(1, PHP_INT_MAX, 'active') as $user) {
 				Worker::add(Worker::PRIORITY_LOW, 'CheckRelMeProfileLink', $user['uid']);
 			}
 
