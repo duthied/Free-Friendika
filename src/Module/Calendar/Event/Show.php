@@ -68,8 +68,7 @@ class Show extends BaseModule
 
 		$event_item = [];
 		foreach ($tplEvent['item'] as $k => $v) {
-			$k              = str_replace('-', '_', $k);
-			$event_item[$k] = $v;
+			$event_item[str_replace('-', '_', $k)] = $v;
 		}
 		$tplEvent['item'] = $event_item;
 

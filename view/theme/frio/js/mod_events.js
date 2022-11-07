@@ -35,7 +35,7 @@ $(document).ready(function () {
 		loading: function (isLoading, view) {
 			if (!isLoading) {
 				$("td.fc-day").dblclick(function () {
-					addToModal("/calendar/event/new?start=" + $(this).data("date"));
+					addToModal("calendar/event/new?start=" + $(this).data("date"));
 				});
 			}
 		},

@@ -497,11 +497,44 @@ class Event
 	}
 
 	/**
+	 * Returns the owner array of a given nickname
+	 * Additionally, it can check if the owner array is selectable
+	 *
+	 * @param string $nickname
+	 * @param bool   $check
+	 *
+	 * @return array the owner array
+	 * @throws NotFoundException The given nickname does not exist
+	 * @throws UnauthorizedException The access for the given nickname is restricted
+	 */
+	public static function getOwnerForNickname(string $nickname, bool $check = true): array
+	{
+		$owner = User::getOwnerDataByNick($nickname);
+		if (empty($owner)) {
+			throw new NotFoundException(DI::l10n()->t('User not found.'));
+		}
+
+		if ($check) {
+			$contact_id = DI::userSession()->getRemoteContactID($owner['uid']);
+
+			$remote_contact = $contact_id && DBA::exists('contact', ['id' => $contact_id, 'uid' => $owner['uid']]);
+
+			$is_owner = DI::userSession()->getLocalUserId() == $owner['uid'];
+
+			if ($owner['hidewall'] && !$is_owner && !$remote_contact) {
+				throw new UnauthorizedException(DI::l10n()->t('Access to this profile has been restricted.'));
+			}
+		}
+
+		return $owner;
+	}
+
+	/**
 	 * Get an event by its event ID.
 	 *
-	 * @param int    $owner_uid The User ID of the owner of the event
-	 * @param int    $event_id  The ID of the event in the event table
-	 * @param string $nickname  a possible nickname to search for instead of the own uid
+	 * @param int         $owner_uid The User ID of the owner of the event
+	 * @param int         $event_id  The ID of the event in the event table
+	 * @param string|null $nickname  a possible nickname to search for instead of the owner uid
 	 * @return array Query result
 	 * @throws \Exception
 	 */
@@ -539,39 +572,6 @@ class Event
 	}
 
 	/**
-	 * Returns the owner array of a given nickname
-	 * Additionally, it can check if the owner array is selectable
-	 *
-	 * @param string $nickname
-	 * @param bool   $check
-	 *
-	 * @return array the owner array
-	 * @throws NotFoundException The given nickname does not exist
-	 * @throws UnauthorizedException The access for the given nickname is restricted
-	 */
-	public static function getOwnerForNickname(string $nickname, bool $check = true): array
-	{
-		$owner = User::getOwnerDataByNick($nickname);
-		if (empty($owner)) {
-			throw new NotFoundException(DI::l10n()->t('User not found.'));
-		}
-
-		if ($check) {
-			$contact_id = DI::userSession()->getRemoteContactID($owner['uid']);
-
-			$remote_contact = $contact_id && DBA::exists('contact', ['id' => $contact_id, 'uid' => $owner['uid']]);
-
-			$is_owner = DI::userSession()->getLocalUserId() == $owner['uid'];
-
-			if ($owner['hidewall'] && !$is_owner && !$remote_contact) {
-				throw new UnauthorizedException(DI::l10n()->t('Access to this profile has been restricted.'));
-			}
-		}
-
-		return $owner;
-	}
-
-	/**
 	 * Get all events in a specific time frame.
 	 *
 	 * @param int         $owner_uid The User ID of the owner of the events.
@@ -587,7 +587,7 @@ class Event
 	public static function getListByDate(int $owner_uid, string $start = null, string $finish = null, bool $ignore = false, string $nickname = null): array
 	{
 		if (!empty($nickname)) {
-			$owner     = static::getOwnerForNickname($nickname, true);
+			$owner     = static::getOwnerForNickname($nickname);
 			$owner_uid = $owner['uid'];
 
 			// get the permissions
@@ -607,15 +607,6 @@ class Event
 
 			$y = intval(DateTimeFormat::localNow('Y'));
 			$m = intval(DateTimeFormat::localNow('m'));
-
-			// Put some limit on dates. The PHP date functions don't seem to do so well before 1900.
-			if ($y < 1901) {
-				$y = 1900;
-			}
-
-			if ($y > 2099) {
-				$y = 2100;
-			}
 
 			if (empty($start)) {
 				$start = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
@@ -671,7 +662,7 @@ class Event
 		$fmt = DI::l10n()->t('l, F j');
 
 		$item = Post::selectFirst(['plink', 'author-name', 'author-network', 'author-id', 'author-avatar', 'author-link', 'private', 'uri-id'], ['id' => $event['itemid']]);
-		if (!DBA::isResult($item)) {
+		if (empty($item)) {
 			// Using default values when no item had been found
 			$item = ['plink' => '', 'author-name' => '', 'author-avatar' => '', 'author-link' => '', 'private' => Item::PUBLIC, 'uri-id' => ($event['uri-id'] ?? 0)];
 		}
@@ -695,9 +686,9 @@ class Event
 		$copy = null;
 		$drop = null;
 		if (DI::userSession()->getLocalUserId() && DI::userSession()->getLocalUserId() == $event['uid'] && $event['type'] == 'event') {
-			$edit = !$event['cid'] ? [DI::baseUrl() . '/calendar/event/edit/' . $event['id'], DI::l10n()->t('Edit event')     , '', ''] : null;
-			$copy = !$event['cid'] ? [DI::baseUrl() . '/calendar/event/copy/' . $event['id'] , DI::l10n()->t('Duplicate event'), '', ''] : null;
-			$drop =                  [DI::baseUrl() . '/calendar/api/delete/' . $event['id'] , DI::l10n()->t('Delete event')   , '', ''];
+			$edit = !$event['cid'] ? ['calendar/event/edit/' . $event['id'], DI::l10n()->t('Edit event')     , '', ''] : null;
+			$copy = !$event['cid'] ? ['calendar/event/copy/' . $event['id'] , DI::l10n()->t('Duplicate event'), '', ''] : null;
+			$drop =                  ['calendar/api/delete/' . $event['id'] , DI::l10n()->t('Delete event')   , '', ''];
 		}
 
 		$title = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));

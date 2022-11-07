@@ -75,10 +75,10 @@ class Show extends BaseModule
 
 		$htpl = Renderer::getMarkupTemplate('calendar/calendar_head.tpl');
 		$this->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
-			'$calendar_api' => $this->baseUrl . '/calendar/api/get' . (!empty($this->parameters['nickname']) ? '/' . $this->parameters['nickname'] : ''),
-			'$event_api'    => $this->baseUrl . '/calendar/event/show' . (!empty($this->parameters['nickname']) ? '/' . $this->parameters['nickname'] : ''),
-			'$modparams' => 2,
-			'$i18n' => $i18n,
+			'$calendar_api' => 'calendar/api/get' . (!empty($this->parameters['nickname']) ? '/' . $this->parameters['nickname'] : ''),
+			'$event_api'    => 'calendar/event/show' . (!empty($this->parameters['nickname']) ? '/' . $this->parameters['nickname'] : ''),
+			'$modparams'    => 2,
+			'$i18n'         => $i18n,
 		]);
 
 		$tabs = '';
@@ -119,7 +119,7 @@ class Show extends BaseModule
 			'$tabs'      => $tabs,
 			'$title'     => $this->t('Events'),
 			'$view'      => $this->t('View'),
-			'$new_event' => [$this->baseUrl . '/calendar/event/new', $this->t('Create New Event'), '', ''],
+			'$new_event' => ['calendar/event/new', $this->t('Create New Event'), '', ''],
 
 			'$today' => $this->t('today'),
 			'$month' => $this->t('month'),

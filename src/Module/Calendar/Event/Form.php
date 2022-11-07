@@ -113,8 +113,8 @@ class Form extends BaseModule
 		$this->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 			'$calendar_api' => $this->baseUrl . '/calendar/api/get',
 			'$event_api'    => $this->baseUrl . '/calendar/event/show',
-			'$modparams' => 2,
-			'$i18n' => $i18n,
+			'$modparams'    => 2,
+			'$i18n'         => $i18n,
 		]);
 
 		$share_checked  = '';
@@ -152,18 +152,18 @@ class Form extends BaseModule
 
 		$n_checked = (!empty($orig_event['nofinish']) ? ' checked="checked" ' : '');
 
-		$t_orig = $orig_event['summary'] ?? '';
-		$d_orig = $orig_event['desc'] ?? '';
+		$t_orig = $orig_event['summary']  ?? '';
+		$d_orig = $orig_event['desc']     ?? '';
 		$l_orig = $orig_event['location'] ?? '';
-		$eid    = $orig_event['id'] ?? 0;
-		$cid    = $orig_event['cid'] ?? 0;
-		$uri    = $orig_event['uri'] ?? '';
+		$eid    = $orig_event['id']       ?? 0;
+		$cid    = $orig_event['cid']      ?? 0;
+		$uri    = $orig_event['uri']      ?? '';
 
 		if ($cid || $mode === 'edit') {
 			$share_disabled = 'disabled="disabled"';
 		}
 
-		$sdt = $orig_event['start'] ?? 'now';
+		$sdt = $orig_event['start']  ?? 'now';
 		$fdt = $orig_event['finish'] ?? 'now';
 
 		$syear  = DateTimeFormat::local($sdt, 'Y');
@@ -198,15 +198,15 @@ class Form extends BaseModule
 		$tpl = Renderer::getMarkupTemplate('calendar/event_form.tpl');
 
 		return Renderer::replaceMacros($tpl, [
-			'$post' => $this->baseUrl . '/calendar/api/create',
+			'$post' => 'calendar/api/create',
 			'$eid'  => $eid,
 			'$cid'  => $cid,
 			'$uri'  => $uri,
 
-			'$title'       => $this->t('Event details'),
-			'$desc'        => $this->t('Starting date and Title are required.'),
-			'$s_text'      => $this->t('Event Starts:') . ' <span class="required" title="' . $this->t('Required') . '">*</span>',
-			'$s_dsel'      => Temporal::getDateTimeField(
+			'$title'     => $this->t('Event details'),
+			'$desc'      => $this->t('Starting date and Title are required.'),
+			'$s_text'    => $this->t('Event Starts:') . ' <span class="required" title="' . $this->t('Required') . '">*</span>',
+			'$s_dsel'    => Temporal::getDateTimeField(
 				new \DateTime(),
 				\DateTime::createFromFormat('Y', intval($syear) + 5),
 				\DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"),
@@ -218,10 +218,10 @@ class Form extends BaseModule
 				'',
 				true
 			),
-			'$n_text'      => $this->t('Finish date/time is not known or not relevant'),
-			'$n_checked'   => $n_checked,
-			'$f_text'      => $this->t('Event Finishes:'),
-			'$f_dsel'      => Temporal::getDateTimeField(
+			'$n_text'    => $this->t('Finish date/time is not known or not relevant'),
+			'$n_checked' => $n_checked,
+			'$f_text'    => $this->t('Event Finishes:'),
+			'$f_dsel'    => Temporal::getDateTimeField(
 				new \DateTime(),
 				\DateTime::createFromFormat('Y', intval($fyear) + 5),
 				\DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"),
@@ -231,6 +231,7 @@ class Form extends BaseModule
 				true,
 				'start_text'
 			),
+
 			'$d_text'      => $this->t('Description:'),
 			'$d_orig'      => $d_orig,
 			'$l_text'      => $this->t('Location:'),
@@ -251,3 +252,4 @@ class Form extends BaseModule
 		]);
 	}
 }
+

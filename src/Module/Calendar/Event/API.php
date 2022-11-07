@@ -184,7 +184,6 @@ class API extends BaseModule
 		if (strcmp($finish, $start) < 0 && !$noFinish) {
 			if ($isPreview) {
 				System::httpExit($this->t('Event can not end before it has started.'));
-				return;
 			} else {
 				$this->sysMessages->addNotice($this->t('Event can not end before it has started.'));
 				$this->baseUrl->redirect($redirectOnError);
@@ -194,7 +193,6 @@ class API extends BaseModule
 		if (empty($summary) || ($start === DBA::NULL_DATETIME)) {
 			if ($isPreview) {
 				System::httpExit($this->t('Event title and start time are required.'));
-				return;
 			} else {
 				$this->sysMessages->addNotice($this->t('Event title and start time are required.'));
 				$this->baseUrl->redirect($redirectOnError);
@@ -252,7 +250,6 @@ class API extends BaseModule
 
 		if (intval($request['preview'])) {
 			System::httpExit(Event::getHTML($datarray));
-			return;
 		}
 
 		$eventId = Event::store($datarray);
@@ -269,7 +266,7 @@ class API extends BaseModule
 		}
 
 		if (!$cid && $uriId) {
-			Worker::add(Worker::PRIORITY_HIGH, "Notifier", Delivery::POST, $uriId, $uid);
+			Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::POST, $uriId, $uid);
 		}
 
 		$this->baseUrl->redirect('calendar');

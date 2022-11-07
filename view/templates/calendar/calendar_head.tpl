@@ -1,7 +1,7 @@
 <script>
 	function showEvent(eventid) {
 		$.get(
-			'{{$event_api}}/'+eventid,
+			'{{$event_api}}/' + eventid,
 			function(data){
 				$.colorbox({html:data});
 			}
@@ -10,7 +10,7 @@
 
 	function doEventPreview() {
 		$('#event-edit-preview').val(1);
-		$.post('calendar',$('#event-edit-form').serialize(), function(data) {
+		$.post('calendar', $('#event-edit-form').serialize(), function(data) {
 			$.colorbox({ html: data });
 		});
 		$('#event-edit-preview').val(0);
@@ -93,7 +93,7 @@
 			},
 			loading: function(isLoading, view) {
 				if(!isLoading) {
-					$('td.fc-day').dblclick(function() { window.location.href='/calendar/event/new?start='+$(this).data('date'); });
+					$('td.fc-day').dblclick(function() { window.location.href='calendar/event/new?start=' + $(this).data('date'); });
 				}
 			},
 
