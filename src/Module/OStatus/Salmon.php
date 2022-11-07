@@ -190,7 +190,7 @@ class Salmon extends \Friendica\BaseModule
 				"`network` IN (?, ?)
 		        AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)
 		        AND `uid` = ?",
-                Protocol::OSTATUS, Protocol::DFRN,
+				Protocol::OSTATUS, Protocol::DFRN,
 				Strings::normaliseLink($author_link), $author_link, Strings::normaliseLink($author_link),
 				$importer['uid']
 			]
