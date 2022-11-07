@@ -212,15 +212,15 @@ class API extends BaseModule
 			}
 
 			$strAclContactAllow = isset($request['contact_allow']) ? $aclFormatter->toString($request['contact_allow']) : $user['allow_cid'] ?? '';
-			$strAclGroupAllow   = isset($request['group_allow']) ? $aclFormatter->toString($request['group_allow']) : $user['allow_gid'] ?? '';
-			$strContactDeny     = isset($request['contact_deny']) ? $aclFormatter->toString($request['contact_deny']) : $user['deny_cid'] ?? '';
-			$strGroupDeny       = isset($request['group_deny']) ? $aclFormatter->toString($request['group_deny']) : $user['deny_gid'] ?? '';
+			$strAclGroupAllow   = isset($request['group_allow']) ? $aclFormatter->toString($request['group_allow']) : $user['allow_gid']     ?? '';
+			$strContactDeny     = isset($request['contact_deny']) ? $aclFormatter->toString($request['contact_deny']) : $user['deny_cid']    ?? '';
+			$strGroupDeny       = isset($request['group_deny']) ? $aclFormatter->toString($request['group_deny']) : $user['deny_gid']        ?? '';
 
 			$visibility = $request['visibility'] ?? '';
 			if ($visibility === 'public') {
 				// The ACL selector introduced in version 2019.12 sends ACL input data even when the Public visibility is selected
 				$strAclContactAllow = $strAclGroupAllow = $strContactDeny = $strGroupDeny = '';
-			} else if ($visibility === 'custom') {
+			} elseif ($visibility === 'custom') {
 				// Since we know from the visibility parameter the item should be private, we have to prevent the empty ACL
 				// case that would make it public. So we always append the author's contact id to the allowed contacts.
 				// See https://github.com/friendica/friendica/issues/9672
@@ -228,7 +228,9 @@ class API extends BaseModule
 			}
 		} else {
 			$strAclContactAllow = $aclFormatter->toString($self);
-			$strAclGroupAllow   = $strContactDeny = $strGroupDeny = '';
+			$strAclGroupAllow   =  '';
+			$strContactDeny     =  '';
+			$strGroupDeny       = '';
 		}
 
 		$datarray = [

@@ -52,10 +52,10 @@ class Show extends BaseModule
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->session      = $session;
-		$this->sysMessages  = $sysMessages;
-		$this->page         = $page;
-		$this->app          = $app;
+		$this->session     = $session;
+		$this->sysMessages = $sysMessages;
+		$this->page        = $page;
+		$this->app         = $app;
 	}
 
 	protected function content(array $request = []): string
@@ -73,7 +73,7 @@ class Show extends BaseModule
 		$this->page->registerFooterScript('view/asset/moment/min/moment-with-locales.min.js');
 		$this->page->registerFooterScript('view/asset/fullcalendar/dist/fullcalendar.min.js');
 
-		$htpl = Renderer::getMarkupTemplate('calendar/calendar_head.tpl');
+		$htpl                   = Renderer::getMarkupTemplate('calendar/calendar_head.tpl');
 		$this->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 			'$calendar_api' => 'calendar/api/get' . (!empty($this->parameters['nickname']) ? '/' . $this->parameters['nickname'] : ''),
 			'$event_api'    => 'calendar/event/show' . (!empty($this->parameters['nickname']) ? '/' . $this->parameters['nickname'] : ''),
@@ -115,7 +115,7 @@ class Show extends BaseModule
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
 		$tpl = Renderer::getMarkupTemplate("calendar/calendar.tpl");
-		$o = Renderer::replaceMacros($tpl, [
+		$o   = Renderer::replaceMacros($tpl, [
 			'$tabs'      => $tabs,
 			'$title'     => $this->t('Events'),
 			'$view'      => $this->t('View'),

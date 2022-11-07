@@ -123,7 +123,7 @@ class Form extends BaseModule
 		if (empty($orig_event)) {
 			$orig_event = User::getById($this->session->getLocalUserId(), ['allow_cid', 'allow_gid', 'deny_cid',
 																		   'deny_gid']);;
-		} else if ($orig_event['allow_cid'] !== '<' . $this->session->getLocalUserId() . '>'
+		} elseif ($orig_event['allow_cid'] !== '<' . $this->session->getLocalUserId() . '>'
 				   || $orig_event['allow_gid']
 				   || $orig_event['deny_cid']
 				   || $orig_event['deny_gid']) {
@@ -203,10 +203,10 @@ class Form extends BaseModule
 			'$cid'  => $cid,
 			'$uri'  => $uri,
 
-			'$title'     => $this->t('Event details'),
-			'$desc'      => $this->t('Starting date and Title are required.'),
-			'$s_text'    => $this->t('Event Starts:') . ' <span class="required" title="' . $this->t('Required') . '">*</span>',
-			'$s_dsel'    => Temporal::getDateTimeField(
+			'$title'  => $this->t('Event details'),
+			'$desc'   => $this->t('Starting date and Title are required.'),
+			'$s_text' => $this->t('Event Starts:') . ' <span class="required" title="' . $this->t('Required') . '">*</span>',
+			'$s_dsel' => Temporal::getDateTimeField(
 				new \DateTime(),
 				\DateTime::createFromFormat('Y', intval($syear) + 5),
 				\DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"),
@@ -218,6 +218,7 @@ class Form extends BaseModule
 				'',
 				true
 			),
+
 			'$n_text'    => $this->t('Finish date/time is not known or not relevant'),
 			'$n_checked' => $n_checked,
 			'$f_text'    => $this->t('Event Finishes:'),
@@ -252,4 +253,3 @@ class Form extends BaseModule
 		]);
 	}
 }
-
