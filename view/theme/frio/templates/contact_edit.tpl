@@ -19,6 +19,8 @@
 						</button>
 
 						<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="contact-edit-actions-button" aria-haspopup="true" id="contact-actions-menu">
+							{{if $contact_actions.follow}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.follow.url}}" title="{{$contact_actions.follow.title}}">{{$contact_actions.follow.label}}</a></li>{{/if}}
+							{{if $contact_actions.unfollow}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.unfollow.url}}" title="{{$contact_actions.unfollow.title}}">{{$contact_actions.unfollow.label}}</a></li>{{/if}}
 							{{if $lblsuggest}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.suggest.url}}" title="{{$contact_actions.suggest.title}}">{{$contact_actions.suggest.label}}</a></li>{{/if}}
 							{{if $poll_enabled}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.update.url}}" title="{{$contact_actions.update.title}}">{{$contact_actions.update.label}}</a></li>{{/if}}
 							{{if $contact_actions.updateprofile}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.updateprofile.url}}" title="{{$contact_actions.updateprofile.title}}">{{$contact_actions.updateprofile.label}}</a></li>{{/if}}
@@ -27,7 +29,7 @@
 							{{/if}}
 							<li role="presentation"><a role="menuitem" href="{{$contact_actions.block.url}}" title="{{$contact_actions.block.title}}">{{$contact_actions.block.label}}</a></li>
 							<li role="presentation"><a role="menuitem" href="{{$contact_actions.ignore.url}}" title="{{$contact_actions.ignore.title}}">{{$contact_actions.ignore.label}}</a></li>
-                            {{if $contact_actions.revoke_follow.url}}<li role="presentation"><button role="menuitem" type="button" class="btn-link" title="{{$contact_actions.revoke_follow.title}}" onclick="addToModal('{{$contact_actions.revoke_follow.url}}');">{{$contact_actions.revoke_follow.label}}</button></li>{{/if}}
+							{{if $contact_actions.revoke_follow.url}}<li role="presentation"><button role="menuitem" type="button" class="btn-link" title="{{$contact_actions.revoke_follow.title}}" onclick="addToModal('{{$contact_actions.revoke_follow.url}}');">{{$contact_actions.revoke_follow.label}}</button></li>{{/if}}
 						</ul>
 					</li>
 				</ul>

@@ -15,8 +15,10 @@
 						<a class="btn" rel="#contact-actions-menu" href="#" id="contact-edit-actions-button">{{$contact_action_button}}</a>
 
 						<ul role="menu" aria-haspopup="true" id="contact-actions-menu" class="menu-popup">
-							{{if $lblsuggest}}<li role="menuitem"><a href="#" title="{{$contact_actions.suggest.title}}" onclick="window.location.href='{{$contact_actions.suggest.url}}'; return false;">{{$contact_actions.suggest.label}}</a></li>{{/if}}
-							{{if $poll_enabled}}<li role="menuitem"><a href="#" title="{{$contact_actions.update.title}}" onclick="window.location.href='{{$contact_actions.update.url}}'; return false;">{{$contact_actions.update.label}}</a></li>{{/if}}
+							{{if $contact_actions.follow}}<li role="menuitem"><a href="{{$contact_actions.follow.url}}" title="{{$contact_actions.follow.title}}">{{$contact_actions.follow.label}}</a></li>{{/if}}
+							{{if $contact_actions.unfollow}}<li role="menuitem"><a href="{{$contact_actions.unfollow.url}}" title="{{$contact_actions.unfollow.title}}">{{$contact_actions.unfollow.label}}</a></li>{{/if}}
+							{{if $lblsuggest}}<li role="menuitem"><a href="{{$contact_actions.suggest.url}}" title="{{$contact_actions.suggest.title}}">{{$contact_actions.suggest.label}}</a></li>{{/if}}
+							{{if $poll_enabled}}<li role="menuitem"><a href="{{$contact_actions.update.url}}" title="{{$contact_actions.update.title}}">{{$contact_actions.update.label}}</a></li>{{/if}}
 							{{if $contact_actions.updateprofile}}<li role="menuitem"><a href="{{$contact_actions.updateprofile.url}}" title="{{$contact_actions.updateprofile.title}}">{{$contact_actions.updateprofile.label}}</a></li>{{/if}}
 							<li class="divider"></li>
 							<li role="menuitem"><a href="#" title="{{$contact_actions.block.title}}" onclick="window.location.href='{{$contact_actions.block.url}}'; return false;">{{$contact_actions.block.label}}</a></li>

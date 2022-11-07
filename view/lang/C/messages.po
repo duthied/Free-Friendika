@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-05 17:58-0400\n"
+"POT-Creation-Date: 2022-11-05 19:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2127,12 +2127,12 @@ msgstr ""
 #: src/Content/Item.php:394 src/Module/Admin/Blocklist/Contact.php:100
 #: src/Module/Admin/Users/Active.php:140 src/Module/Admin/Users/Index.php:154
 #: src/Module/Contact.php:401 src/Module/Contact/Profile.php:349
-#: src/Module/Contact/Profile.php:450
+#: src/Module/Contact/Profile.php:468
 msgid "Block"
 msgstr ""
 
 #: src/Content/Item.php:395 src/Module/Contact.php:402
-#: src/Module/Contact/Profile.php:350 src/Module/Contact/Profile.php:458
+#: src/Module/Contact/Profile.php:350 src/Module/Contact/Profile.php:476
 #: src/Module/Notifications/Introductions.php:134
 #: src/Module/Notifications/Introductions.php:206
 #: src/Module/Notifications/Notification.php:89
@@ -2458,11 +2458,11 @@ msgstr ""
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2089
+#: src/Content/Text/BBCode.php:2092
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2104
+#: src/Content/Text/BBCode.php:2107
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2475,7 +2475,7 @@ msgid "The end"
 msgstr ""
 
 #: src/Content/Text/HTML.php:882 src/Content/Widget/VCard.php:109
-#: src/Model/Profile.php:459
+#: src/Model/Profile.php:459 src/Module/Contact/Profile.php:428
 msgid "Follow"
 msgstr ""
 
@@ -2677,6 +2677,7 @@ msgstr ""
 
 #: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1195
 #: src/Model/Contact.php:1206 src/Model/Profile.php:461
+#: src/Module/Contact/Profile.php:420
 msgid "Unfollow"
 msgstr ""
 
@@ -4221,7 +4222,7 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Contact.php:101
 #: src/Module/Admin/Users/Blocked.php:142 src/Module/Admin/Users/Index.php:156
 #: src/Module/Contact.php:401 src/Module/Contact/Profile.php:349
-#: src/Module/Contact/Profile.php:450
+#: src/Module/Contact/Profile.php:468
 msgid "Unblock"
 msgstr ""
 
@@ -6656,7 +6657,7 @@ msgid "Update"
 msgstr ""
 
 #: src/Module/Contact.php:402 src/Module/Contact/Profile.php:350
-#: src/Module/Contact/Profile.php:458
+#: src/Module/Contact/Profile.php:476
 msgid "Unignore"
 msgstr ""
 
@@ -6892,7 +6893,7 @@ msgstr ""
 msgid "(Update was successful)"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:255 src/Module/Contact/Profile.php:421
+#: src/Module/Contact/Profile.php:255 src/Module/Contact/Profile.php:439
 msgid "Suggest friends"
 msgstr ""
 
@@ -6986,7 +6987,7 @@ msgstr ""
 msgid "Update public posts"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:347 src/Module/Contact/Profile.php:431
+#: src/Module/Contact/Profile.php:347 src/Module/Contact/Profile.php:449
 msgid "Update now"
 msgstr ""
 
@@ -7049,23 +7050,23 @@ msgid ""
 "entries from this contact."
 msgstr ""
 
-#: src/Module/Contact/Profile.php:441
+#: src/Module/Contact/Profile.php:459
 msgid "Refetch contact data"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:452
+#: src/Module/Contact/Profile.php:470
 msgid "Toggle Blocked status"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:460
+#: src/Module/Contact/Profile.php:478
 msgid "Toggle Ignored status"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:467 src/Module/Contact/Revoke.php:106
+#: src/Module/Contact/Profile.php:485 src/Module/Contact/Revoke.php:106
 msgid "Revoke Follow"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:469
+#: src/Module/Contact/Profile.php:487
 msgid "Revoke the follow from this contact"
 msgstr ""
 
