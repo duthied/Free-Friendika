@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-06 08:27+0100\n"
+"POT-Creation-Date: 2022-11-07 11:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2127,12 +2127,12 @@ msgstr ""
 #: src/Content/Item.php:394 src/Module/Admin/Blocklist/Contact.php:100
 #: src/Module/Admin/Users/Active.php:140 src/Module/Admin/Users/Index.php:154
 #: src/Module/Contact.php:401 src/Module/Contact/Profile.php:349
-#: src/Module/Contact/Profile.php:450
+#: src/Module/Contact/Profile.php:468
 msgid "Block"
 msgstr ""
 
 #: src/Content/Item.php:395 src/Module/Contact.php:402
-#: src/Module/Contact/Profile.php:350 src/Module/Contact/Profile.php:458
+#: src/Module/Contact/Profile.php:350 src/Module/Contact/Profile.php:476
 #: src/Module/Notifications/Introductions.php:134
 #: src/Module/Notifications/Introductions.php:206
 #: src/Module/Notifications/Notification.php:89
@@ -2430,39 +2430,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1002 src/Content/Text/BBCode.php:1863
-#: src/Content/Text/BBCode.php:1864
+#: src/Content/Text/BBCode.php:1003 src/Content/Text/BBCode.php:1865
+#: src/Content/Text/BBCode.php:1866
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1218
+#: src/Content/Text/BBCode.php:1220
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1243 src/Model/Item.php:3471
-#: src/Model/Item.php:3477 src/Model/Item.php:3478
+#: src/Content/Text/BBCode.php:1245 src/Model/Item.php:3482
+#: src/Model/Item.php:3488 src/Model/Item.php:3489
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1781 src/Content/Text/HTML.php:940
+#: src/Content/Text/BBCode.php:1783 src/Content/Text/HTML.php:940
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1812
+#: src/Content/Text/BBCode.php:1814
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1868 src/Content/Text/BBCode.php:1869
+#: src/Content/Text/BBCode.php:1870 src/Content/Text/BBCode.php:1871
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2092
+#: src/Content/Text/BBCode.php:2098
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2107
+#: src/Content/Text/BBCode.php:2113
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2475,7 +2475,7 @@ msgid "The end"
 msgstr ""
 
 #: src/Content/Text/HTML.php:882 src/Content/Widget/VCard.php:109
-#: src/Model/Profile.php:459
+#: src/Model/Profile.php:459 src/Module/Contact/Profile.php:428
 msgid "Follow"
 msgstr ""
 
@@ -2677,6 +2677,7 @@ msgstr ""
 
 #: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1195
 #: src/Model/Contact.php:1206 src/Model/Profile.php:461
+#: src/Module/Contact/Profile.php:420
 msgid "Unfollow"
 msgstr ""
 
@@ -3576,44 +3577,44 @@ msgstr ""
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3383
+#: src/Model/Item.php:3394
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3414
+#: src/Model/Item.php:3425
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3416
+#: src/Model/Item.php:3427
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3421
+#: src/Model/Item.php:3432
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3423
+#: src/Model/Item.php:3434
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3425
+#: src/Model/Item.php:3436
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3459 src/Model/Item.php:3460
+#: src/Model/Item.php:3470 src/Model/Item.php:3471
 msgid "View on separate page"
 msgstr ""
 
@@ -4221,7 +4222,7 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Contact.php:101
 #: src/Module/Admin/Users/Blocked.php:142 src/Module/Admin/Users/Index.php:156
 #: src/Module/Contact.php:401 src/Module/Contact/Profile.php:349
-#: src/Module/Contact/Profile.php:450
+#: src/Module/Contact/Profile.php:468
 msgid "Unblock"
 msgstr ""
 
@@ -6656,7 +6657,7 @@ msgid "Update"
 msgstr ""
 
 #: src/Module/Contact.php:402 src/Module/Contact/Profile.php:350
-#: src/Module/Contact/Profile.php:458
+#: src/Module/Contact/Profile.php:476
 msgid "Unignore"
 msgstr ""
 
@@ -6892,7 +6893,7 @@ msgstr ""
 msgid "(Update was successful)"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:255 src/Module/Contact/Profile.php:421
+#: src/Module/Contact/Profile.php:255 src/Module/Contact/Profile.php:439
 msgid "Suggest friends"
 msgstr ""
 
@@ -6986,7 +6987,7 @@ msgstr ""
 msgid "Update public posts"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:347 src/Module/Contact/Profile.php:431
+#: src/Module/Contact/Profile.php:347 src/Module/Contact/Profile.php:449
 msgid "Update now"
 msgstr ""
 
@@ -7049,23 +7050,23 @@ msgid ""
 "entries from this contact."
 msgstr ""
 
-#: src/Module/Contact/Profile.php:441
+#: src/Module/Contact/Profile.php:459
 msgid "Refetch contact data"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:452
+#: src/Module/Contact/Profile.php:470
 msgid "Toggle Blocked status"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:460
+#: src/Module/Contact/Profile.php:478
 msgid "Toggle Ignored status"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:467 src/Module/Contact/Revoke.php:106
+#: src/Module/Contact/Profile.php:485 src/Module/Contact/Revoke.php:106
 msgid "Revoke Follow"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:469
+#: src/Module/Contact/Profile.php:487
 msgid "Revoke the follow from this contact"
 msgstr ""
 
