@@ -124,7 +124,7 @@ class Form extends BaseModule
 		if (empty($orig_event)) {
 			$orig_event = User::getById($this->session->getLocalUserId(),
 				['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
-		} else if ($orig_event['allow_cid'] !== '<' . $this->session->getLocalUserId() . '>'
+		} elseif ($orig_event['allow_cid'] !== '<' . $this->session->getLocalUserId() . '>'
 				   || $orig_event['allow_gid']
 				   || $orig_event['deny_cid']
 				   || $orig_event['deny_gid']) {
