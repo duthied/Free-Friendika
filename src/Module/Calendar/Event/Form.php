@@ -109,7 +109,8 @@ class Form extends BaseModule
 		$this->page->registerFooterScript('view/asset/moment/min/moment-with-locales.min.js');
 		$this->page->registerFooterScript('view/asset/fullcalendar/dist/fullcalendar.min.js');
 
-		$htpl                   = Renderer::getMarkupTemplate('calendar/calendar_head.tpl');
+		$htpl = Renderer::getMarkupTemplate('calendar/calendar_head.tpl');
+
 		$this->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 			'$calendar_api' => $this->baseUrl . '/calendar/api/get',
 			'$event_api'    => $this->baseUrl . '/calendar/event/show',
@@ -121,9 +122,9 @@ class Form extends BaseModule
 		$share_disabled = '';
 
 		if (empty($orig_event)) {
-			$orig_event = User::getById($this->session->getLocalUserId(), ['allow_cid', 'allow_gid', 'deny_cid',
-																		   'deny_gid']);;
-		} elseif ($orig_event['allow_cid'] !== '<' . $this->session->getLocalUserId() . '>'
+			$orig_event = User::getById($this->session->getLocalUserId(),
+				['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
+		} else if ($orig_event['allow_cid'] !== '<' . $this->session->getLocalUserId() . '>'
 				   || $orig_event['allow_gid']
 				   || $orig_event['deny_cid']
 				   || $orig_event['deny_gid']) {

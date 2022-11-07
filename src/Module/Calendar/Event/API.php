@@ -228,8 +228,8 @@ class API extends BaseModule
 			}
 		} else {
 			$strAclContactAllow = $aclFormatter->toString($self);
-			$strAclGroupAllow   =  '';
-			$strContactDeny     =  '';
+			$strAclGroupAllow   = '';
+			$strContactDeny     = '';
 			$strGroupDeny       = '';
 		}
 

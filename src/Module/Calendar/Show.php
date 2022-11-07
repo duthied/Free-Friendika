@@ -73,7 +73,8 @@ class Show extends BaseModule
 		$this->page->registerFooterScript('view/asset/moment/min/moment-with-locales.min.js');
 		$this->page->registerFooterScript('view/asset/fullcalendar/dist/fullcalendar.min.js');
 
-		$htpl                   = Renderer::getMarkupTemplate('calendar/calendar_head.tpl');
+		$htpl = Renderer::getMarkupTemplate('calendar/calendar_head.tpl');
+
 		$this->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 			'$calendar_api' => 'calendar/api/get' . (!empty($this->parameters['nickname']) ? '/' . $this->parameters['nickname'] : ''),
 			'$event_api'    => 'calendar/event/show' . (!empty($this->parameters['nickname']) ? '/' . $this->parameters['nickname'] : ''),
