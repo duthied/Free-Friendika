@@ -21,23 +21,40 @@
 
 namespace Friendica\Module\DFRN;
 
+use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\User;
+use Friendica\Module\OStatus\Salmon;
+use Friendica\Module\Response;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Network;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * DFRN Notify
  */
 class Notify extends BaseModule
 {
+	/** @var Database */
+	private $database;
+
+	public function __construct(Database $database, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->database = $database;
+	}
+
 	protected function post(array $request = [])
 	{
 		$postdata = Network::postdata();
@@ -54,8 +71,17 @@ class Notify extends BaseModule
 			}
 			$this->dispatchPrivate($user, $postdata);
 		} elseif (!$this->dispatchPublic($postdata)) {
-			require_once 'mod/salmon.php';
-			salmon_post(DI::app(), $postdata);
+			(new Salmon(
+				$this->database,
+				$this->l10n,
+				$this->baseUrl,
+				$this->args,
+				$this->logger,
+				$this->profiler,
+				$this->response,
+				$this->server,
+				$this->parameters
+			))->rawContent($request);
 		}
 	}
 

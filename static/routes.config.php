@@ -553,6 +553,8 @@ return [
 		'/{sub1}/{sub2}/{url}' => [Module\Proxy::class, [R::GET]],
 	],
 
+	'/salmon/{nickname}'       => [Module\OStatus\Salmon::class, [        R::POST]],
+
 	'/search' => [
 		'[/]'                  => [Module\Search\Index::class, [R::GET]],
 		'/acl'                 => [Module\Search\Acl::class,   [R::GET, R::POST]],
