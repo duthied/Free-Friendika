@@ -4,7 +4,7 @@
 	{{* The event edit navigation menu (text input, permissions, preview, filebrowser) *}}
 	<ul id="event-nav" class="nav nav-tabs event-nav" role="menubar" data-tabs="tabs">
 		{{* Mark the first list entry as active because it is the first which is active after opening
-			the modal. Changing of the activity status is done by js in event_head.tpl *}}
+			the modal. Changing of the activity status is done by js in calendar_head.tpl *}}
 		<li class="active" role="menuitem">
 			<a id="event-edit-lnk" onclick="eventEditActive(); return false;">{{$basic}}</a>
 		</li>

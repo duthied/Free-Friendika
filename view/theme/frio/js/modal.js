@@ -254,10 +254,10 @@ function editpost(url) {
 	// But first we have to test if the url links to an event. So we will split up
 	// the url in its parts.
 	var splitURL = parseUrl(url);
-	// Test if in the url path containing "events/event". If the path containing this
+	// Test if in the url path containing "calendar/event/show". If the path containing this
 	// expression then we will call the addToModal function and exit this function at
 	// this point.
-	if (splitURL.path.indexOf("events/event") > -1) {
+	if (splitURL.path.indexOf("calendar/event/show") > -1) {
 		addToModal(splitURL.path);
 		return;
 	}

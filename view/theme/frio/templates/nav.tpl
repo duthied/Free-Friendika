@@ -81,10 +81,10 @@
 							</li>
 						{{/if}}
 
-						{{if $nav.events}}
+						{{if $nav.calendar}}
 							<li class="nav-segment hidden-xs">
-								<a accesskey="e" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip"
-									aria-label="{{$nav.events.1}}" title="{{$nav.events.1}}" class="nav-menu"><i
+								<a accesskey="e" id="nav-calendar-link" href="{{$nav.calendar.0}}" data-toggle="tooltip"
+									aria-label="{{$nav.calendar.1}}" title="{{$nav.calendar.1}}" class="nav-menu"><i
 										class="fa fa-lg fa-calendar fa-fw"></i></a>
 							</li>
 						{{/if}}

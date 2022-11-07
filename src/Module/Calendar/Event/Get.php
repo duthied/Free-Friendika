@@ -19,90 +19,58 @@
  *
  */
 
-namespace Friendica\Module\Calendar;
+namespace Friendica\Module\Calendar\Event;
 
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
-use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Temporal;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
-class Json extends \Friendica\BaseModule
+/**
+ * GET-Controller for event
+ * returns the result as JSON
+ */
+class Get extends \Friendica\BaseModule
 {
+	/** @var IHandleUserSessions */
+	protected $session;
+
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IHandleUserSessions $session, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->session = $session;
+	}
+
 	protected function rawContent(array $request = [])
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			throw new HTTPException\UnauthorizedException();
 		}
 
-		$y = intval(DateTimeFormat::localNow('Y'));
-		$m = intval(DateTimeFormat::localNow('m'));
-
-		// Put some limit on dates. The PHP date functions don't seem to do so well before 1900.
-		if ($y < 1901) {
-			$y = 1900;
-		}
-
-		$dim    = Temporal::getDaysInMonth($y, $m);
-		$start  = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
-		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
-
-		if (!empty($request['start'])) {
-			$start = $request['start'];
-		}
-
-		if (!empty($request['end'])) {
-			$finish = $request['end'];
-		}
-
-		// put the event parametes in an array so we can better transmit them
-		$event_params = [
-			'event_id' => intval($request['id'] ?? 0),
-			'start'    => $start,
-			'finish'   => $finish,
-			'ignore'   => 0,
-		];
-
 		// get events by id or by date
-		if ($event_params['event_id']) {
-			$r = Event::getListById(DI::userSession()->getLocalUserId(), $event_params['event_id']);
+		if (!empty($request['id'])) {
+			$events = [Event::getByIdAndUid($this->session->getLocalUserId(), $request['id'], $this->parameters['nickname'] ?? null)];
 		} else {
-			$r = Event::getListByDate(DI::userSession()->getLocalUserId(), $event_params);
+			$events = Event::getListByDate($this->session->getLocalUserId(), $request['start'] ?? '', $request['end'] ?? '', false, $this->parameters['nickname'] ?? null);
 		}
 
-		$links = [];
-
-		if (DBA::isResult($r)) {
-			$r = Event::sortByDate($r);
-			foreach ($r as $rr) {
-				$j = DateTimeFormat::utc($rr['start'], 'j');
-				if (empty($links[$j])) {
-					$links[$j] = DI::baseUrl() . '/' . DI::args()->getCommand() . '#link-' . $j;
-				}
-			}
-		}
-
-		$events = [];
-
-		// transform the event in a usable array
-		if (DBA::isResult($r)) {
-			$events = Event::sortByDate($r);
-
-			$events = self::map($events);
-		}
-
-		System::jsonExit($events);
+		System::jsonExit($events ? self::map($events) : []);
 	}
 
 	private static function map(array $events): array
 	{
 		return array_map(function ($event) {
 			$item = Post::selectFirst(['plink', 'author-name', 'author-avatar', 'author-link', 'private', 'uri-id'], ['id' => $event['itemid']]);
-			if (!DBA::isResult($item)) {
+			if (empty($item)) {
 				// Using default values when no item had been found
 				$item = ['plink' => '', 'author-name' => '', 'author-avatar' => '', 'author-link' => '', 'private' => Item::PUBLIC, 'uri-id' => ($event['uri-id'] ?? 0)];
 			}

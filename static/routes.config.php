@@ -365,8 +365,18 @@ return [
 
 	'/bookmarklet'         => [Module\Bookmarklet::class,  [R::GET]],
 
-	'/calendar/{nickname}/export[/{format}]' => [Module\Calendar\Export::class, [R::GET]],
-	'/calendar/json'                         => [Module\Calendar\Json::class,   [R::GET]],
+	'/calendar' => [
+		'[/]'                                           => [Module\Calendar\Show::class,       [R::GET         ]],
+		'/show/{nickname}'                              => [Module\Calendar\Show::class,       [R::GET         ]],
+		'/export/{nickname}[/{format:csv|ical}]'        => [Module\Calendar\Export::class,     [R::GET         ]],
+		'/api/{action:ignore|unignore|delete}/{id:\d+}' => [Module\Calendar\Event\API::class,  [R::GET         ]],
+		'/api/{action:create}'                          => [Module\Calendar\Event\API::class,  [        R::POST]],
+		'/api/get[/{nickname}]'                         => [Module\Calendar\Event\Get::class,  [R::GET         ]],
+		'/event/show/{id:\d+}'                          => [Module\Calendar\Event\Show::class, [R::GET         ]],
+		'/event/show/{nickname}/{id:\d+}'               => [Module\Calendar\Event\Show::class, [R::GET         ]],
+		'/event/{mode:new}'                             => [Module\Calendar\Event\Form::class, [R::GET         ]],
+		'/event/{mode:edit|copy}/{id:\d+}'              => [Module\Calendar\Event\Form::class, [R::GET         ]],
+	],
 
 	'/community[/{content}]' => [Module\Conversation\Community::class, [R::GET]],
 

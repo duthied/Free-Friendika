@@ -58,6 +58,10 @@ class Export extends BaseModule
 
 	protected function rawContent(array $request = [])
 	{
+		if (!$this->session->getLocalUserId()) {
+			throw new HTTPException\UnauthorizedException($this->t('Permission denied.'));
+		}
+
 		$owner = User::getByNickname($this->parameters['nickname'], ['uid']);
 		if (empty($owner)) {
 			throw new HTTPException\NotFoundException($this->t('User not found.'));
@@ -78,9 +82,9 @@ class Export extends BaseModule
 			// If it is the own calendar return to the events page
 			// otherwise to the profile calendar page
 			if ($this->session->getLocalUserId() === $ownerUid) {
-				$returnPath = 'events';
+				$returnPath = 'calendar';
 			} else {
-				$returnPath = 'events/' . $this->parameters['nickname'];
+				$returnPath = 'calendar/show/' . $this->parameters['nickname'];
 			}
 
 			$this->baseUrl->redirect($returnPath);

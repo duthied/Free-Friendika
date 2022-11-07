@@ -7,7 +7,7 @@
 <script>
 	function showEvent(eventid) {
 		$.get(
-			'{{$baseurl}}{{$module_url}}/?id='+eventid,
+			'{{$event_api}}/'+  eventid,
 			function(data){
 				$.colorbox({html:data});
 			}
@@ -87,7 +87,7 @@
 				week: '{{$i18n.week|escape:'quotes'}}',
 				day: '{{$i18n.day|escape:'quotes'}}'
 			},
-			events: '{{$baseurl}}/calendar/json',
+			events: '{{$calendar_api}}',
 			header: {
 				left: 'prev,next today',
 				center: 'title',
@@ -99,7 +99,7 @@
 			},
 			loading: function(isLoading, view) {
 				if(!isLoading) {
-					$('td.fc-day').dblclick(function() { window.location.href='/events/new?start='+$(this).data('date'); });
+					$('td.fc-day').dblclick(function() { window.location.href='/calendar/event/new?start=' + $(this).data('date'); });
 				}
 			},
 
@@ -132,18 +132,6 @@
 			}
 
 		})
-
-		// center on date
-		var args=location.href.replace(baseurl,"").split("/");
-{{if $modparams == 2}}
-		if (args.length>=5) {
-			$("#events-calendar").fullCalendar('gotoDate',args[3] , args[4]-1);
-		}
-{{else}}
-		if (args.length>=4) {
-			$("#events-calendar").fullCalendar('gotoDate',args[2] , args[3]-1);
-		}
-{{/if}}
 
 		// show event popup
 		var hash = location.hash.split("-")
