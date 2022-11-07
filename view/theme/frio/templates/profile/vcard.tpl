@@ -108,7 +108,7 @@
 		{{if $homepage}}
 		<div class="homepage detail">
 			<span class="homepage-label icon"><i class="fa fa-external-link"></i></span>
-			<span class="homepage-url u-url"><a href="{{$profile.homepage}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$profile.homepage}}</a></span>
+			<span class="homepage-url u-url"><a href="{{$profile.homepage}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$profile.homepage}}</a>{{if $profile.homepage_verified}} ✔{{/if}}</span>
 		</div>
 		{{/if}}
 

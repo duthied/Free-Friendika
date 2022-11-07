@@ -27,6 +27,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Tag;
+use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub\Queue;
 use Friendica\Protocol\Relay;
 
@@ -85,6 +86,7 @@ class Cron
 		// Hourly cron calls
 		if (DI::config()->get('system', 'last_cron_hourly', 0) + 3600 < time()) {
 
+
 			// Update trending tags cache for the community page
 			Tag::setLocalTrendingHashtags(24, 20);
 			Tag::setGlobalTrendingHashtags(24, 20);
@@ -130,6 +132,10 @@ class Cron
 
 			if (DI::config()->get('system', 'optimize_tables')) {
 				Worker::add(Worker::PRIORITY_LOW, 'OptimizeTables');
+			}
+
+			foreach (User::getList(1, PHP_INT_MAX, 'active') as $user) {
+				Worker::add(Worker::PRIORITY_LOW, 'CheckRelMeProfileLink', $user['uid']);
 			}
 
 			// Resubscribe to relay servers

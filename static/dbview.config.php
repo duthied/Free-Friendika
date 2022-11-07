@@ -919,6 +919,7 @@
 			"postal-code" => ["profile", "postal-code"],
 			"country-name" => ["profile", "country-name"],
 			"homepage" => ["profile", "homepage"],
+			"homepage_verified" => ["profile", "homepage_verified"],
 			"dob" => ["profile", "dob"],
 		],
 		"query" => "FROM `user`
