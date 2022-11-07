@@ -54,11 +54,7 @@ class Show extends BaseModule
 			throw new HTTPException\UnauthorizedException($this->t('Permission denied.'));
 		}
 
-		if (empty($this->parameters['id'])) {
-			throw new HTTPException\BadRequestException($this->t('Invalid Request'));
-		}
-
-		$event = Event::getByIdAndUid($this->session->getLocalUserId(), (int)$this->parameters['id'], $this->parameters['nickname'] ?? '');
+		$event = Event::getByIdAndUid($this->session->getLocalUserId(), (int)$this->parameters['id'] ?? 0, $this->parameters['nickname'] ?? '');
 
 		if (empty($event)) {
 			throw new HTTPException\NotFoundException($this->t('Event not found.'));
