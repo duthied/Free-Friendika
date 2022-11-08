@@ -467,6 +467,7 @@ class Profile
 			'$account_type' => $account_type,
 			'$location' => $location,
 			'$homepage' => $homepage,
+			'$homepage_verified' => DI::l10n()->t('This website has been verified to belong to the same person.'),
 			'$about' => $about,
 			'$network' => DI::l10n()->t('Network:'),
 			'$contacts' => $contact_count,
