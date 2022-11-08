@@ -331,7 +331,7 @@ function settings_content(App $a)
 			'$attach_link_title' => ['attach_link_title', DI::l10n()->t('Attach the link title'), $attach_link_title, DI::l10n()->t('When activated, the title of the attached link will be added as a title on posts to Diaspora. This is mostly helpful with "remote-self" contacts that share feed content.')],
 			'$legacy_contact' => ['legacy_contact', DI::l10n()->t('Your legacy ActivityPub/GNU Social account'), $legacy_contact, DI::l10n()->t("If you enter your old account name from an ActivityPub based system or your GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.")],
 
-			'$repair_ostatus_url' => DI::baseUrl() . '/repair_ostatus',
+			'$repair_ostatus_url' => 'ostatus/repair',
 			'$repair_ostatus_text' => DI::l10n()->t('Repair OStatus subscriptions'),
 
 			'$connector_settings_forms' => $connector_settings_forms,
