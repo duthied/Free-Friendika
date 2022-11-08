@@ -111,8 +111,8 @@ class BaseSettings extends BaseModule
 
 		$tabs[] = [
 			'label' => DI::l10n()->t('Remove account'),
-			'url' => 'removeme',
-			'selected' => ((DI::args()->getArgc() == 1) && (DI::args()->getArgv() === 'removeme') ? 'active' : ''),
+			'url' => 'settings/removeme',
+			'selected' => static::class === Settings\RemoveMe::class ? 'active' : '',
 			'accesskey' => 'r',
 		];
 

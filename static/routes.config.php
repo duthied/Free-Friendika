@@ -605,6 +605,7 @@ return [
 			'/photo[/new]'         => [Module\Settings\Profile\Photo\Index::class, [R::GET, R::POST]],
 			'/photo/crop/{guid}'   => [Module\Settings\Profile\Photo\Crop::class,  [R::GET, R::POST]],
 		],
+		'/removeme'              => [Module\Settings\RemoveMe::class,              [R::GET, R::POST]],
 		'/userexport[/{action}]' => [Module\Settings\UserExport::class,            [R::GET         ]],
 	],
 

@@ -1418,7 +1418,7 @@ class User
 		If you are new and do not know anybody here, they may help
 		you to make some new and interesting friends.
 
-		If you ever want to delete your account, you can do so at %1$s/removeme
+		If you ever want to delete your account, you can do so at %1$s/settings/removeme
 
 		Thank you and welcome to %4$s.'));
 
@@ -1522,7 +1522,7 @@ class User
 			If you are new and do not know anybody here, they may help
 			you to make some new and interesting friends.
 
-			If you ever want to delete your account, you can do so at %3$s/removeme
+			If you ever want to delete your account, you can do so at %3$s/settings/removeme
 
 			Thank you and welcome to %2$s.',
 			$user['nickname'],
