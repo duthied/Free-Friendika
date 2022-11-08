@@ -127,7 +127,7 @@ class MemcachedCache extends AbstractCache implements ICanCacheInMemory
 		if ($this->memcached->getResultCode() === Memcached::RES_SUCCESS) {
 			return $value;
 		} elseif ($this->memcached->getResultCode() === Memcached::RES_NOTFOUND) {
-			$this->logger->notice('Try to use unknown key.', ['key' => $key]);
+			$this->logger->debug('Try to use unknown key.', ['key' => $key]);
 			return null;
 		} else {
 			throw new CachePersistenceException(sprintf('Cannot get cache entry with key %s', $key), new \MemcachedException($this->memcached->getResultMessage(), $this->memcached->getResultCode()));

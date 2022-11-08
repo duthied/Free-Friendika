@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-08 02:32-0500\n"
+"POT-Creation-Date: 2022-11-08 04:31-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2576,7 +2576,7 @@ msgstr ""
 msgid "Location:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:107 src/Model/Profile.php:471
+#: src/Content/Widget/VCard.php:107 src/Model/Profile.php:472
 #: src/Module/Notifications/Introductions.php:201
 msgid "Network:"
 msgstr ""
@@ -3578,121 +3578,125 @@ msgstr ""
 msgid "Atom feed"
 msgstr ""
 
-#: src/Model/Profile.php:506
+#: src/Model/Profile.php:470
+msgid "This website has been verified to belong to the same person."
+msgstr ""
+
+#: src/Model/Profile.php:507
 msgid "F d"
 msgstr ""
 
-#: src/Model/Profile.php:570 src/Model/Profile.php:659
+#: src/Model/Profile.php:571 src/Model/Profile.php:660
 msgid "[today]"
 msgstr ""
 
-#: src/Model/Profile.php:579
+#: src/Model/Profile.php:580
 msgid "Birthday Reminders"
 msgstr ""
 
-#: src/Model/Profile.php:580
+#: src/Model/Profile.php:581
 msgid "Birthdays this week:"
 msgstr ""
 
-#: src/Model/Profile.php:608
+#: src/Model/Profile.php:609
 msgid "g A l F d"
 msgstr ""
 
-#: src/Model/Profile.php:646
+#: src/Model/Profile.php:647
 msgid "[No description]"
 msgstr ""
 
-#: src/Model/Profile.php:672
+#: src/Model/Profile.php:673
 msgid "Event Reminders"
 msgstr ""
 
-#: src/Model/Profile.php:673
+#: src/Model/Profile.php:674
 msgid "Upcoming events the next 7 days:"
 msgstr ""
 
-#: src/Model/Profile.php:868
+#: src/Model/Profile.php:869
 #, php-format
 msgid "OpenWebAuth: %1$s welcomes %2$s"
 msgstr ""
 
-#: src/Model/Profile.php:1008
+#: src/Model/Profile.php:1009
 msgid "Hometown:"
 msgstr ""
 
-#: src/Model/Profile.php:1009
+#: src/Model/Profile.php:1010
 msgid "Marital Status:"
 msgstr ""
 
-#: src/Model/Profile.php:1010
+#: src/Model/Profile.php:1011
 msgid "With:"
 msgstr ""
 
-#: src/Model/Profile.php:1011
+#: src/Model/Profile.php:1012
 msgid "Since:"
 msgstr ""
 
-#: src/Model/Profile.php:1012
+#: src/Model/Profile.php:1013
 msgid "Sexual Preference:"
 msgstr ""
 
-#: src/Model/Profile.php:1013
+#: src/Model/Profile.php:1014
 msgid "Political Views:"
 msgstr ""
 
-#: src/Model/Profile.php:1014
+#: src/Model/Profile.php:1015
 msgid "Religious Views:"
 msgstr ""
 
-#: src/Model/Profile.php:1015
+#: src/Model/Profile.php:1016
 msgid "Likes:"
 msgstr ""
 
-#: src/Model/Profile.php:1016
+#: src/Model/Profile.php:1017
 msgid "Dislikes:"
 msgstr ""
 
-#: src/Model/Profile.php:1017
+#: src/Model/Profile.php:1018
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1018 src/Module/Admin/Summary.php:215
+#: src/Model/Profile.php:1019 src/Module/Admin/Summary.php:215
 #: src/Module/Moderation/Summary.php:77
 msgid "Summary"
 msgstr ""
 
-#: src/Model/Profile.php:1019
+#: src/Model/Profile.php:1020
 msgid "Musical interests"
 msgstr ""
 
-#: src/Model/Profile.php:1020
+#: src/Model/Profile.php:1021
 msgid "Books, literature"
 msgstr ""
 
-#: src/Model/Profile.php:1021
+#: src/Model/Profile.php:1022
 msgid "Television"
 msgstr ""
 
-#: src/Model/Profile.php:1022
+#: src/Model/Profile.php:1023
 msgid "Film/dance/culture/entertainment"
 msgstr ""
 
-#: src/Model/Profile.php:1023
+#: src/Model/Profile.php:1024
 msgid "Hobbies/Interests"
 msgstr ""
 
-#: src/Model/Profile.php:1024
+#: src/Model/Profile.php:1025
 msgid "Love/romance"
 msgstr ""
 
-#: src/Model/Profile.php:1025
+#: src/Model/Profile.php:1026
 msgid "Work/employment"
 msgstr ""
 
-#: src/Model/Profile.php:1026
+#: src/Model/Profile.php:1027
 msgid "School/education"
 msgstr ""
 
-#: src/Model/Profile.php:1027
+#: src/Model/Profile.php:1028
 msgid "Contact information and Social Networks"
 msgstr ""
 
