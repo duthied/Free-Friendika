@@ -4,7 +4,7 @@
 <div id="admin-users" class="adminpage generic-page-wrapper">
 	<h1>{{$title}} - {{$page}} ({{$count}})</h1>
 	<p>
-		<a href="{{$base_url}}/admin/users/create" class="btn btn-primary"><i class="fa fa-user-plus"></i> {{$h_newuser}}</a>
+		<a href="{{$base_url}}/moderation/users/create" class="btn btn-primary"><i class="fa fa-user-plus"></i> {{$h_newuser}}</a>
 	</p>
 	<form action="{{$baseurl}}/{{$query_string}}" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
@@ -21,7 +21,7 @@
 					{{foreach $th_users as $k=>$th}}
 						{{if $k < 2 || $order_users == $th.1 || ($k==5 && !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1])) }}
 						<th class="th-{{$k}}">
-							<a href="{{$baseurl}}/admin/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}" class="table-order">
+							<a href="{{$baseurl}}/moderation/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}" class="table-order">
 								{{if $order_users == $th.1}}
 									{{if $order_direction_users == "+"}}
 									&#8595;
@@ -102,28 +102,28 @@
 					<td colspan="4">
 					{{if $order_users != $th_users.2.1}}
 						<p>
-							<a href="{{$baseurl}}/admin/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th_users.2.1}}" class="btn-link table-order">
+							<a href="{{$baseurl}}/moderation/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th_users.2.1}}" class="btn-link table-order">
 							&#8597; {{$th_users.2.0}}</a> : {{$u.register_date}}
 						</p>
 					{{/if}}
 
 					{{if $order_users != $th_users.3.1}}
 						<p>
-							<a href="{{$baseurl}}/admin/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th_users.3.1}}" class="btn-link table-order">
+							<a href="{{$baseurl}}/moderation/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th_users.3.1}}" class="btn-link table-order">
 								&#8597; {{$th_users.3.0}}</a> : {{$u.login_date}}
 						</p>
 					{{/if}}
 
 					{{if $order_users != $th_users.4.1}}
 						<p>
-							<a href="{{$baseurl}}/admin/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th_users.4.1}}" class="btn-link table-order">
+							<a href="{{$baseurl}}/moderation/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th_users.4.1}}" class="btn-link table-order">
 								&#8597; {{$th_users.4.0}}</a> : {{$u.lastitem_date}}
 						</p>
 					{{/if}}
 
 					{{if in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1]) }}
 						<p>
-							<a href="{{$baseurl}}/admin/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th_users.5.1}}" class="btn-link table-order">
+							<a href="{{$baseurl}}/moderation/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th_users.5.1}}" class="btn-link table-order">
 								&#8597; {{$th_users.5.0}}</a> : {{$u.page_flags}}{{if $u.page_flags_raw==0 && $u.account_type_raw > 0}}, {{$u.account_type}}{{/if}} {{if $u.is_admin}}({{$siteadmin}}){{/if}} {{if $u.account_expired}}({{$accountexpired}}){{/if}}
 						</p>
 					{{/if}}
@@ -132,15 +132,15 @@
 					<td class="text-right">
 				{{if $u.is_deletable}}
 					{{if $u.blocked}}
-						<a href="{{$baseurl}}/admin/users/unblock/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$unblock}}">
+						<a href="{{$baseurl}}/moderation/users/unblock/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$unblock}}">
 							<i class="fa fa-check-circle-o" aria-hidden="true"></i>
 						</a>
 					{{else}}
-						<a href="{{$baseurl}}/admin/users/block/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$block}}">
+						<a href="{{$baseurl}}/moderation/users/block/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$block}}">
 							<i class="fa fa-ban" aria-hidden="true"></i>
 						</a>
 					{{/if}}
-						<a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$delete}}" onclick="return confirm_delete('{{$confirm_delete}}','{{$u.name}}')">
+						<a href="{{$baseurl}}/moderation/users/delete/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$delete}}" onclick="return confirm_delete('{{$confirm_delete}}','{{$u.name}}')">
 							<i class="fa fa-trash" aria-hidden="true"></i>
 						</a>
 				{{else}}

@@ -22,7 +22,7 @@
 				<th></th>
 			{{foreach $th_users as $th}}
 				<th>
-					<a href="{{$baseurl}}/admin/users/active?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}">
+					<a href="{{$baseurl}}/moderation/users/active?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}">
 					{{if $order_users == $th.1}}
 						{{if $order_direction_users == "+"}}
 							&#8595;
@@ -59,10 +59,10 @@
 					</td>
 					<td class="tools">
 					{{if $u.is_deletable}}
-						<a href="{{$baseurl}}/admin/users/active/block/{{$u.uid}}?t={{$form_security_token}}" title="{{if $u.blocked}}{{$unblock}}{{else}}{{$block}}{{/if}}">
+						<a href="{{$baseurl}}/moderation/users/active/block/{{$u.uid}}?t={{$form_security_token}}" title="{{if $u.blocked}}{{$unblock}}{{else}}{{$block}}{{/if}}">
 							<span class="icon {{if $u.blocked==0}}unlock{{else}}lock{{/if}}"></span>
 						</a>
-						<a href="{{$baseurl}}/admin/users/active/delete/{{$u.uid}}?t={{$form_security_token}}" title="{{$delete}}" onclick="return confirm_delete('{{$u.name}}')">
+						<a href="{{$baseurl}}/moderation/users/active/delete/{{$u.uid}}?t={{$form_security_token}}" title="{{$delete}}" onclick="return confirm_delete('{{$u.name}}')">
 							<span class="icon delete"></span>
 						</a>
 					{{else}}

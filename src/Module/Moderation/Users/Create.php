@@ -32,7 +32,7 @@ class Create extends BaseUsers
 	{
 		$this->checkModerationAccess();
 
-		self::checkFormSecurityTokenRedirectOnError('/admin/users/create', 'admin_users_create');
+		self::checkFormSecurityTokenRedirectOnError('moderation/users/create', 'admin_users_create');
 
 		$nu_name     = $request['new_user_name'] ?? '';
 		$nu_nickname = $request['new_user_nickname'] ?? '';
@@ -42,20 +42,20 @@ class Create extends BaseUsers
 		if ($nu_name !== '' && $nu_email !== '' && $nu_nickname !== '') {
 			try {
 				User::createMinimal($nu_name, $nu_email, $nu_nickname, $nu_language);
-				$this->baseUrl->redirect('admin/users');
+				$this->baseUrl->redirect('moderation/users');
 			} catch (\Exception $ex) {
 				$this->systemMessages->addNotice($ex->getMessage());
 			}
 		}
 
-		$this->baseUrl->redirect('admin/users/create');
+		$this->baseUrl->redirect('moderation/users/create');
 	}
 
 	protected function content(array $request = []): string
 	{
 		parent::content();
 
-		$t = Renderer::getMarkupTemplate('admin/users/create.tpl');
+		$t = Renderer::getMarkupTemplate('moderation/users/create.tpl');
 		return self::getTabsHTML('all') . Renderer::replaceMacros($t, [
 			// strings //
 			'$title'  => $this->t('Administration'),
