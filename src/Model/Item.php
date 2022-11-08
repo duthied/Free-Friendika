@@ -1328,10 +1328,11 @@ class Item
 			}
 		}
 
+		if (!empty($source) && ($transmit || DI::config()->get('debug', 'store_source'))) {
+			Post\Activity::insert($item['uri-id'], $source);
+		}
+
 		if ($transmit) {
-			if (!empty($source)) {
-				Post\Activity::insert($item['uri-id'], $source);
-			}
 			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, (int)$posted_item['uri-id'], (int)$posted_item['uid']);
 		}
 

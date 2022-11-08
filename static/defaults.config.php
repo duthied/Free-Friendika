@@ -731,6 +731,10 @@ return [
 		// ap_log_failure (Boolean)
 		// Logs every ActivityPub activity that couldn't be compacted
 		'ap_log_failure' => false,
+
+		// store_source (Boolean)
+		// Store the source of any post that arrived
+		'store_source' => false,
 	],
 	'smarty3' => [
 		// config_dir (String)
