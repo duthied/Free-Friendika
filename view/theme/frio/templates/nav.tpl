@@ -269,7 +269,7 @@
 										<li role="presentation">
 											<a accesskey="m" role="menuitem" id="nav-moderation-link"
 												class="nav-link {{$nav.moderation.2}}" href="{{$nav.moderation.0}}"
-												title="{{$nav.moderation.3}}"><i class="fa fa-user-secret fa-fw" aria-hidden="true"></i>
+												title="{{$nav.moderation.3}}"><i class="fa fa-gavel fa-fw" aria-hidden="true"></i>
 												{{$nav.moderation.1}}
 											</a>
 										</li>
@@ -389,6 +389,15 @@
 										class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}"><i
 											class="fa fa-user-secret fa-fw" aria-hidden="true"></i>
 										{{$nav.admin.1}}
+									</a>
+								</li>
+							{{/if}}
+							{{if $nav.moderation}}
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem"
+										class="nav-link {{$nav.moderation.2}}" href="{{$nav.moderation.0}}" title="{{$nav.moderation.3}}"><i
+											class="fa fa-gavel fa-fw" aria-hidden="true"></i>
+										{{$nav.moderation.1}}
 									</a>
 								</li>
 							{{/if}}
