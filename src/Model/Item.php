@@ -2962,7 +2962,7 @@ class Item
 
 		$body = $item['body'] ?? '';
 
-		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media'];
+		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media', 'quote-uri-id'];
 
 		$shared_uri_id = 0;
 		$shared_links  = [];

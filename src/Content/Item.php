@@ -37,7 +37,6 @@ use Friendica\Model\Photo;
 use Friendica\Model\Tag;
 use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
-use Friendica\Protocol\Diaspora;
 use Friendica\Util\Profiler;
 use Friendica\Util\Proxy;
 use Friendica\Util\XML;
@@ -590,14 +589,14 @@ class Item
 			return $body;
 		}
 
-		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
+		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'quote-uri-id'];
 		$shared_item = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id'], 'uid' => [$item['uid'], 0], 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
 		if (!DBA::isResult($shared_item)) {
 			Logger::notice('Post does not exist.', ['uri-id' => $item['quote-uri-id'], 'uid' => $item['uid']]);
 			return $body;
 		}
 
-		return BBCode::removeSharedData($body) . "\n" . $this->createSharedBlockByArray($shared_item, true);
+		return trim(BBCode::removeSharedData($body) . "\n" . $this->createSharedBlockByArray($shared_item, true));
 	}
 
 	/**
@@ -651,10 +650,13 @@ class Item
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
 		if (!empty($shared)) {
-			if (!empty($shared['guid']) && ($encaspulated_share = $this->createSharedPostByGuid($shared['guid'], $add_media))) {
-				$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
+			if (!empty($shared['guid']) && ($encaspulated_share = $this->createSharedPostByGuid($shared['guid'], true))) {
+				if (!empty(BBCode::fetchShareAttributes($item['body']))) {
+					$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
+				} else {
+					$item['body'] .= $encaspulated_share;
+				}
 			}
-
 			$item['body'] = HTML::toBBCode(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::ACTIVITYPUB));
 		}
 
