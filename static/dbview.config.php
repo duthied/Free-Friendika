@@ -213,8 +213,6 @@
 			"parent-author-name" => ["parent-post-author", "name"],
 			"parent-author-nick" => ["parent-post-author", "nick"],
 			"parent-author-network" => ["parent-post-author", "network"],
-			"parent-author-blocked" => ["parent-post-author", "blocked"],
-			"parent-author-hidden" => ["parent-post-author", "hidden"],
 		],
 		"query" => "FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
@@ -391,8 +389,6 @@
 			"parent-author-link" => ["parent-post-author", "url"],
 			"parent-author-name" => ["parent-post-author", "name"],
 			"parent-author-network" => ["parent-post-author", "network"],
-			"parent-author-blocked" => ["parent-post-author", "blocked"],
-			"parent-author-hidden" => ["parent-post-author", "hidden"],
 		],
 		"query" => "FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
@@ -536,8 +532,6 @@
 			"parent-author-link" => ["parent-post-author", "url"],
 			"parent-author-name" => ["parent-post-author", "name"],
 			"parent-author-network" => ["parent-post-author", "network"],
-			"parent-author-blocked" => ["parent-post-author", "blocked"],
-			"parent-author-hidden" => ["parent-post-author", "hidden"],
 		],
 		"query" => "FROM `post`
 			STRAIGHT_JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`
@@ -677,8 +671,6 @@
 			"parent-author-link" => ["parent-post-author", "url"],
 			"parent-author-name" => ["parent-post-author", "name"],
 			"parent-author-network" => ["parent-post-author", "network"],
-			"parent-author-blocked" => ["parent-post-author", "blocked"],
-			"parent-author-hidden" => ["parent-post-author", "hidden"],
 		],
 		"query" => "FROM `post-thread`
 			INNER JOIN `post` ON `post`.`uri-id` = `post-thread`.`uri-id`

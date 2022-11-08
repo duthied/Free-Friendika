@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.12-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1487
+-- DB_UPDATE_VERSION 1488
 -- ------------------------------------------
 
 
@@ -1953,9 +1953,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
 	`parent-post-author`.`nick` AS `parent-author-nick`,
-	`parent-post-author`.`network` AS `parent-author-network`,
-	`parent-post-author`.`blocked` AS `parent-author-blocked`,
-	`parent-post-author`.`hidden` AS `parent-author-hidden`
+	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
@@ -2132,9 +2130,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`,
-	`parent-post-author`.`blocked` AS `parent-author-blocked`,
-	`parent-post-author`.`hidden` AS `parent-author-hidden`
+	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
@@ -2278,9 +2274,7 @@ CREATE VIEW `post-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`,
-	`parent-post-author`.`blocked` AS `parent-author-blocked`,
-	`parent-post-author`.`hidden` AS `parent-author-hidden`
+	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post`
 			STRAIGHT_JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post`.`author-id`
@@ -2420,9 +2414,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`,
-	`parent-post-author`.`blocked` AS `parent-author-blocked`,
-	`parent-post-author`.`hidden` AS `parent-author-hidden`
+	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-thread`
 			INNER JOIN `post` ON `post`.`uri-id` = `post-thread`.`uri-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread`.`author-id`
