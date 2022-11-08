@@ -33,7 +33,7 @@ class Pending extends BaseUsers
 	{
 		$this->checkModerationAccess();
 
-		self::checkFormSecurityTokenRedirectOnError('/admin/users/pending', 'admin_users_pending');
+		self::checkFormSecurityTokenRedirectOnError('moderation/users/pending', 'admin_users_pending');
 
 		$pending = $request['pending'] ?? [];
 
@@ -51,7 +51,7 @@ class Pending extends BaseUsers
 			$this->systemMessages->addInfo($this->tt('%s registration revoked', '%s registrations revoked', count($pending)));
 		}
 
-		$this->baseUrl->redirect('admin/users/pending');
+		$this->baseUrl->redirect('moderation/users/pending');
 	}
 
 	protected function content(array $request = []): string
@@ -65,22 +65,22 @@ class Pending extends BaseUsers
 			$user = User::getById($uid, ['username', 'blocked']);
 			if (!$user) {
 				$this->systemMessages->addNotice($this->t('User not found'));
-				$this->baseUrl->redirect('admin/users');
+				$this->baseUrl->redirect('moderation/users');
 			}
 		}
 
 		switch ($action) {
 			case 'allow':
-				self::checkFormSecurityTokenRedirectOnError('/admin/users/pending', 'admin_users_pending', 't');
+				self::checkFormSecurityTokenRedirectOnError('moderation/users/pending', 'admin_users_pending', 't');
 				User::allow(Register::getPendingForUser($uid)['hash'] ?? '');
 				$this->systemMessages->addNotice($this->t('Account approved.'));
-				$this->baseUrl->redirect('admin/users/pending');
+				$this->baseUrl->redirect('moderation/users/pending');
 				break;
 			case 'deny':
-				self::checkFormSecurityTokenRedirectOnError('/admin/users/pending', 'admin_users_pending', 't');
+				self::checkFormSecurityTokenRedirectOnError('moderation/users/pending', 'admin_users_pending', 't');
 				User::deny(Register::getPendingForUser($uid)['hash'] ?? '');
 				$this->systemMessages->addNotice($this->t('Registration revoked'));
-				$this->baseUrl->redirect('admin/users/pending');
+				$this->baseUrl->redirect('moderation/users/pending');
 				break;
 		}
 
@@ -90,7 +90,7 @@ class Pending extends BaseUsers
 
 		$count = Register::getPendingCount();
 
-		$t = Renderer::getMarkupTemplate('admin/users/pending.tpl');
+		$t = Renderer::getMarkupTemplate('moderation/users/pending.tpl');
 		return self::getTabsHTML('pending') . Renderer::replaceMacros($t, [
 			// strings //
 			'$title' => $this->t('Administration'),

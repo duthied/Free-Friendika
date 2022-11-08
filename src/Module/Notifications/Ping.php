@@ -241,7 +241,7 @@ class Ping extends BaseModule
 						],
 						$this->l10n->t('{0} requested registration'),
 						new \DateTime($reg['created'], new \DateTimeZone('UTC')),
-						new Uri($this->baseUrl->get(true) . '/admin/users/pending')
+						new Uri($this->baseUrl->get(true) . '/moderation/users/pending')
 					);
 				}
 			} elseif (count($registrations) > 1) {
@@ -252,7 +252,7 @@ class Ping extends BaseModule
 					],
 					$this->l10n->t('{0} and %d others requested registration', count($registrations) - 1),
 					new \DateTime($registrations[0]['created'], new \DateTimeZone('UTC')),
-					new Uri($this->baseUrl->get(true) . '/admin/users/pending')
+					new Uri($this->baseUrl->get(true) . '/moderation/users/pending')
 				);
 			}
 

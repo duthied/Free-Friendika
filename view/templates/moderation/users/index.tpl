@@ -23,7 +23,7 @@
 				<th></th>
 				{{foreach $th_users as $th}}
 					<th>
-						<a href="{{$baseurl}}/admin/users?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}">
+						<a href="{{$baseurl}}/moderation/users?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}">
 						{{if $order_users == $th.1}}
 							{{if $order_direction_users == "+"}}
 								&#8595;
@@ -61,10 +61,10 @@
 
 					<td class="tools">
 						{{if $u.is_deletable}}
-							<a href="{{$baseurl}}/admin/users/block/{{$u.uid}}?t={{$form_security_token}}" title="{{if $u.blocked}}{{$unblock}}{{else}}{{$block}}{{/if}}">
+							<a href="{{$baseurl}}/moderation/users/block/{{$u.uid}}?t={{$form_security_token}}" title="{{if $u.blocked}}{{$unblock}}{{else}}{{$block}}{{/if}}">
 								<span class="icon block {{if $u.blocked==0}}dim{{/if}}"></span>
 							</a>
-							<a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" title="{{$delete}}" onclick="return confirm_delete('{{$u.name}}')">
+							<a href="{{$baseurl}}/moderation/users/delete/{{$u.uid}}?t={{$form_security_token}}" title="{{$delete}}" onclick="return confirm_delete('{{$u.name}}')">
 								<span class="icon drop"></span>
 							</a>
 						{{else}}
@@ -84,6 +84,6 @@
 	</form>
 	{{$pager nofilter}}
 	<p>
-		<a href="{{$base_url}}/admin/users/create">{{$h_newuser}}</a>
+		<a href="{{$base_url}}/moderation/users/create">{{$h_newuser}}</a>
 	</p>
 </div>

@@ -38,10 +38,10 @@
 						<input type="checkbox" class="pending_ckbx" id="id_pending_{{$u.hash}}" name="pending[]" value="{{$u.hash}}"/>
 					</td>
 					<td class="tools">
-						<a href="{{$baseurl}}/admin/users/pending/allow/{{$u.uid}}?t={{$form_security_token}}" title="{{$approve}}">
+						<a href="{{$baseurl}}/moderation/users/pending/allow/{{$u.uid}}?t={{$form_security_token}}" title="{{$approve}}">
 							<span class="icon like"></span>
 						</a>
-						<a href="{{$baseurl}}/admin/users/pending/deny/{{$u.uid}}?t={{$form_security_token}}" title="{{$deny}}">
+						<a href="{{$baseurl}}/moderation/users/pending/deny/{{$u.uid}}?t={{$form_security_token}}" title="{{$deny}}">
 							<span class="icon dislike"></span>
 						</a>
 					</td>

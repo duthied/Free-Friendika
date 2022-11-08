@@ -406,11 +406,11 @@ class Register extends BaseModule
 				'type'         => Model\Notification\Type::SYSTEM,
 				'event'        => $event,
 				'uid'          => $admin['uid'],
-				'link'         => DI::baseUrl()->get(true) . '/admin/users/',
+				'link'         => DI::baseUrl()->get(true) . '/moderation/users/',
 				'source_name'  => $user['username'],
 				'source_mail'  => $user['email'],
 				'source_nick'  => $user['nickname'],
-				'source_link'  => DI::baseUrl()->get(true) . '/admin/users/',
+				'source_link'  => DI::baseUrl()->get(true) . '/moderation/users/',
 				'source_photo' => User::getAvatarUrl($user, Proxy::SIZE_THUMB),
 				'show_in_notification_page' => false
 			]);
