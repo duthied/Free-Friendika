@@ -162,6 +162,7 @@ class Nav
 
 		$nav = [
 			'admin'         => null,
+			'moderation'    => null,
 			'apps'          => null,
 			'community'     => null,
 			'home'          => null,
@@ -298,7 +299,8 @@ class Nav
 
 		// Show the link to the admin configuration page if user is admin
 		if ($a->isSiteAdmin()) {
-			$nav['admin'] = ['admin/', DI::l10n()->t('Admin'), '', DI::l10n()->t('Site setup and configuration')];
+			$nav['admin']      = ['admin/', DI::l10n()->t('Admin'), '', DI::l10n()->t('Site setup and configuration')];
+			$nav['moderation'] = ['moderation/', DI::l10n()->t('Moderation'), '', DI::l10n()->t('Content and user moderation')];
 		}
 
 		$nav['navigation'] = ['navigation/', DI::l10n()->t('Navigation'), '', DI::l10n()->t('Site map')];

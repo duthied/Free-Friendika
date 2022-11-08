@@ -48,6 +48,7 @@
 			{{if $nav.delegation}}<li><a id="nav-delegation-link" class="nav-commlink {{$nav.delegation.2}}" href="{{$nav.delegation.0}}">{{$nav.delegation.1}}</a></li>{{/if}}
 		
 			{{if $nav.admin}}<li><a id="nav-admin-link" class="nav-commlink {{$nav.admin.2}}" href="{{$nav.admin.0}}">{{$nav.admin.1}}</a></li>{{/if}}
+			{{if $nav.moderation}}<li><a id="nav-moderation-link" class="nav-commlink {{$nav.moderation.2}}" href="{{$nav.moderation.0}}">{{$nav.moderation.1}}</a></li>{{/if}}
 			
 			{{if $nav.help}}<li><a id="nav-help-link" class="nav-link {{$nav.help.2}}" href="{{$nav.help.0}}">{{$nav.help.1}}</a></li>{{/if}}
 			{{if $nav.tos}}<li><a id="nav-tos-link" class="nav-link {{$nav.tos.2}}" href="{{$nav.tos.0}}">{{$nav.tos.1}}</a></li>{{/if}}

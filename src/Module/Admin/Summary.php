@@ -187,27 +187,6 @@ class Summary extends BaseAdmin
 			}
 		}
 
-		$accounts = [
-			[DI::l10n()->t('Normal Account'), 0],
-			[DI::l10n()->t('Automatic Follower Account'), 0],
-			[DI::l10n()->t('Public Forum Account'), 0],
-			[DI::l10n()->t('Automatic Friend Account'), 0],
-			[DI::l10n()->t('Blog Account'), 0],
-			[DI::l10n()->t('Private Forum Account'), 0]
-		];
-
-		$users = 0;
-		$pageFlagsCountStmt = DBA::p('SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` WHERE `uid` != ? GROUP BY `page-flags`', 0);
-		while ($pageFlagsCount = DBA::fetch($pageFlagsCountStmt)) {
-			$accounts[$pageFlagsCount['page-flags']][1] = $pageFlagsCount['count'];
-			$users += $pageFlagsCount['count'];
-		}
-		DBA::close($pageFlagsCountStmt);
-
-		Logger::debug('accounts', ['accounts' => $accounts]);
-
-		$pending = Register::getPendingCount();
-
 		$deferred = DBA::count('workerqueue', ['NOT `done` AND `retrial` > ?', 0]);
 
 		$workerqueue = DBA::count('workerqueue', ['NOT `done` AND `retrial` = ?', 0]);
@@ -235,9 +214,6 @@ class Summary extends BaseAdmin
 			'$title'          => DI::l10n()->t('Administration'),
 			'$page'           => DI::l10n()->t('Summary'),
 			'$queues'         => $queues,
-			'$users'          => [DI::l10n()->t('Registered users'), $users],
-			'$accounts'       => $accounts,
-			'$pending'        => [DI::l10n()->t('Pending registrations'), $pending],
 			'$version'        => [DI::l10n()->t('Version'), App::VERSION],
 			'$platform'       => App::PLATFORM,
 			'$codename'       => App::CODENAME,

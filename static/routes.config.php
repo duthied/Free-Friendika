@@ -315,19 +315,10 @@ return [
 		'/addons'         => [Module\Admin\Addons\Index::class,   [R::GET, R::POST]],
 		'/addons/{addon}' => [Module\Admin\Addons\Details::class, [R::GET, R::POST]],
 
-
-		'/blocklist/contact'       => [Module\Admin\Blocklist\Contact::class,       [R::GET, R::POST]],
-		'/blocklist/server'        => [Module\Admin\Blocklist\Server\Index::class,  [R::GET, R::POST]],
-		'/blocklist/server/add'    => [Module\Admin\Blocklist\Server\Add::class,    [R::GET, R::POST]],
-		'/blocklist/server/import' => [Module\Admin\Blocklist\Server\Import::class, [R::GET, R::POST]],
-
 		'/dbsync[/{action}[/{update:\d+}]]' => [Module\Admin\DBSync::class, [R::GET]],
 
 		'/features'   => [Module\Admin\Features::class,   [R::GET, R::POST]],
 		'/federation' => [Module\Admin\Federation::class, [R::GET]],
-
-		'/item/delete'          => [Module\Admin\Item\Delete::class, [R::GET, R::POST]],
-		'/item/source[/{guid}]' => [Module\Admin\Item\Source::class, [R::GET, R::POST]],
 
 		'/logs/view' => [Module\Admin\Logs\View::class,     [R::GET]],
 		'/logs'      => [Module\Admin\Logs\Settings::class, [R::GET, R::POST]],
@@ -346,13 +337,6 @@ return [
 		'/themes/{theme}/embed' => [Module\Admin\Themes\Embed::class,   [R::GET, R::POST]],
 
 		'/tos' => [Module\Admin\Tos::class, [R::GET, R::POST]],
-
-		'/users[/{action}/{uid}]'         => [Module\Admin\Users\Index::class,   [R::GET, R::POST]],
-		'/users/active[/{action}/{uid}]'  => [Module\Admin\Users\Active::class,  [R::GET, R::POST]],
-		'/users/pending[/{action}/{uid}]' => [Module\Admin\Users\Pending::class, [R::GET, R::POST]],
-		'/users/blocked[/{action}/{uid}]' => [Module\Admin\Users\Blocked::class, [R::GET, R::POST]],
-		'/users/deleted'                  => [Module\Admin\Users\Deleted::class, [R::GET         ]],
-		'/users/create'                   => [Module\Admin\Users\Create::class,  [R::GET, R::POST]],
 	],
 	'/amcd'                => [Module\AccountManagementControlDocument::class, [R::GET]],
 	'/acctlink'            => [Module\Acctlink::class,     [R::GET]],
@@ -474,6 +458,24 @@ return [
 	'/magic'              => [Module\Magic::class,           [R::GET]],
 	'/manifest'           => [Module\Manifest::class,        [R::GET]],
 	'/friendica.webmanifest'  => [Module\Manifest::class,    [R::GET]],
+	'/moderation'               => [
+		'[/]' => [Module\Moderation\Summary::class, [R::GET]],
+
+		'/blocklist/contact'       => [Module\Moderation\Blocklist\Contact::class,       [R::GET, R::POST]],
+		'/blocklist/server'        => [Module\Moderation\Blocklist\Server\Index::class,  [R::GET, R::POST]],
+		'/blocklist/server/add'    => [Module\Moderation\Blocklist\Server\Add::class,    [R::GET, R::POST]],
+		'/blocklist/server/import' => [Module\Moderation\Blocklist\Server\Import::class, [R::GET, R::POST]],
+
+		'/item/delete'          => [Module\Moderation\Item\Delete::class, [R::GET, R::POST]],
+		'/item/source[/{guid}]' => [Module\Moderation\Item\Source::class, [R::GET, R::POST]],
+
+		'/users[/{action}/{uid}]'         => [Module\Moderation\Users\Index::class,   [R::GET, R::POST]],
+		'/users/active[/{action}/{uid}]'  => [Module\Moderation\Users\Active::class,  [R::GET, R::POST]],
+		'/users/pending[/{action}/{uid}]' => [Module\Moderation\Users\Pending::class, [R::GET, R::POST]],
+		'/users/blocked[/{action}/{uid}]' => [Module\Moderation\Users\Blocked::class, [R::GET, R::POST]],
+		'/users/deleted'                  => [Module\Moderation\Users\Deleted::class, [R::GET         ]],
+		'/users/create'                   => [Module\Moderation\Users\Create::class,  [R::GET, R::POST]],
+	],
 	'/modexp/{nick}'      => [Module\PublicRSAKey::class,    [R::GET]],
 	'/newmember'          => [Module\Welcome::class,         [R::GET]],
 	'/nodeinfo/1.0'       => [Module\NodeInfo110::class,     [R::GET]],

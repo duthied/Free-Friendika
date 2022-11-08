@@ -19,36 +19,31 @@
  *
  */
 
-namespace Friendica\Module\Admin\Users;
+namespace Friendica\Module\Moderation\Users;
 
 use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
-use Friendica\Database\DBA;
-use Friendica\DI;
-use Friendica\Model\Register;
 use Friendica\Model\User;
-use Friendica\Module\Admin\BaseUsers;
-use Friendica\Module\BaseAdmin;
-use Friendica\Util\Temporal;
+use Friendica\Module\Moderation\BaseUsers;
 
 class Deleted extends BaseUsers
 {
 	protected function post(array $request = [])
 	{
-		self::checkAdminAccess();
+		$this->checkModerationAccess();
 
-		self::checkFormSecurityTokenRedirectOnError('/admin/users/deleted', 'admin_users_deleted');
+		self::checkFormSecurityTokenRedirectOnError('/moderation/users/deleted', 'moderation_users_deleted');
 
 		// @TODO: Implement user deletion cancellation
 
-		DI::baseUrl()->redirect('admin/users/deleted');
+		$this->baseUrl->redirect('moderation/users/deleted');
 	}
 
 	protected function content(array $request = []): string
 	{
 		parent::content();
 
-		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 100);
+		$pager = new Pager($this->l10n, $this->args->getQueryString(), 100);
 
 		$valid_orders = [
 			'name',
@@ -56,13 +51,13 @@ class Deleted extends BaseUsers
 			'register_date',
 			'login_date',
 			'last-item',
-			'page-flags'
+			'page-flags',
 		];
 
 		$order = 'name';
 		$order_direction = '+';
-		if (!empty($_GET['o'])) {
-			$new_order = $_GET['o'];
+		if (!empty($request['o'])) {
+			$new_order = $request['o'];
 			if ($new_order[0] === '-') {
 				$order_direction = '-';
 				$new_order = substr($new_order, 1);
@@ -75,23 +70,23 @@ class Deleted extends BaseUsers
 
 		$users = User::getList($pager->getStart(), $pager->getItemsPerPage(), 'removed', $order, ($order_direction == '-'));
 
-		$users = array_map(self::setupUserCallback(), $users);
+		$users = array_map($this->setupUserCallback(), $users);
 
-		$count = DBA::count('user', ['account_removed' => true]);
+		$count = $this->database->count('user', ['account_removed' => true]);
 
-		$t = Renderer::getMarkupTemplate('admin/users/deleted.tpl');
+		$t = Renderer::getMarkupTemplate('moderation/users/deleted.tpl');
 		return self::getTabsHTML('deleted') . Renderer::replaceMacros($t, [
 			// strings //
-			'$title' => DI::l10n()->t('Administration'),
-			'$page' => DI::l10n()->t('Users awaiting permanent deletion'),
+			'$title' => $this->t('Moderation'),
+			'$page'  => $this->t('Users awaiting permanent deletion'),
 
-			'$th_deleted' => [DI::l10n()->t('Name'), DI::l10n()->t('Email'), DI::l10n()->t('Register date'), DI::l10n()->t('Last login'), DI::l10n()->t('Last public item'), DI::l10n()->t('Permanent deletion')],
+			'$th_deleted' => [$this->t('Name'), $this->t('Email'), $this->t('Register date'), $this->t('Last login'), $this->t('Last public item'), $this->t('Permanent deletion')],
 
-			'$form_security_token' => self::getFormSecurityToken('admin_users_deleted'),
+			'$form_security_token' => self::getFormSecurityToken('moderation_users_deleted'),
 
 			// values //
-			'$baseurl' => DI::baseUrl()->get(true),
-			'$query_string' => DI::args()->getQueryString(),
+			'$baseurl'      => $this->baseUrl->get(true),
+			'$query_string' => $this->args->getQueryString(),
 
 			'$users' => $users,
 			'$count' => $count,

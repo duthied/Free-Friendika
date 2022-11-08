@@ -265,6 +265,15 @@
 											</a>
 										</li>
 									{{/if}}
+									{{if $nav.moderation}}
+										<li role="presentation">
+											<a accesskey="m" role="menuitem" id="nav-moderation-link"
+												class="nav-link {{$nav.moderation.2}}" href="{{$nav.moderation.0}}"
+												title="{{$nav.moderation.3}}"><i class="fa fa-user-secret fa-fw" aria-hidden="true"></i>
+												{{$nav.moderation.1}}
+											</a>
+										</li>
+									{{/if}}
 									{{if $nav.tos}}
 										<li role="presentation" class="divider"></li>
 										<li role="presentation">

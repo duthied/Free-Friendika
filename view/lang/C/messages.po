@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-07 21:47-0500\n"
+"POT-Creation-Date: 2022-11-08 02:32-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -256,7 +256,7 @@ msgstr ""
 msgid "Open Compose page"
 msgstr ""
 
-#: mod/fbrowser.php:61 src/Content/Nav.php:194 src/Module/BaseProfile.php:64
+#: mod/fbrowser.php:61 src/Content/Nav.php:195 src/Module/BaseProfile.php:64
 #: view/theme/frio/theme.php:239
 msgid "Photos"
 msgstr ""
@@ -446,7 +446,7 @@ msgstr ""
 msgid "Profile Match"
 msgstr ""
 
-#: mod/message.php:46 mod/message.php:129 src/Content/Nav.php:288
+#: mod/message.php:46 mod/message.php:129 src/Content/Nav.php:289
 msgid "New Message"
 msgstr ""
 
@@ -472,7 +472,7 @@ msgstr ""
 msgid "Discard"
 msgstr ""
 
-#: mod/message.php:136 src/Content/Nav.php:285 view/theme/frio/theme.php:246
+#: mod/message.php:136 src/Content/Nav.php:286 view/theme/frio/theme.php:246
 msgid "Messages"
 msgstr ""
 
@@ -510,7 +510,7 @@ msgstr ""
 
 #: mod/message.php:204 mod/message.php:359 mod/photos.php:916
 #: mod/photos.php:1020 mod/photos.php:1292 mod/photos.php:1333
-#: mod/photos.php:1389 mod/photos.php:1463 src/Module/Admin/Item/Source.php:60
+#: mod/photos.php:1389 mod/photos.php:1463
 #: src/Module/Calendar/Event/Form.php:250 src/Module/Contact/Advanced.php:132
 #: src/Module/Contact/Profile.php:328
 #: src/Module/Debug/ActivityPubConversion.php:140
@@ -519,11 +519,11 @@ msgstr ""
 #: src/Module/Delegation.php:147 src/Module/FriendSuggest.php:145
 #: src/Module/Install.php:252 src/Module/Install.php:294
 #: src/Module/Install.php:331 src/Module/Invite.php:178
-#: src/Module/Item/Compose.php:189 src/Module/Profile/Profile.php:246
-#: src/Module/Profile/UnkMail.php:156 src/Module/Settings/Profile/Index.php:231
-#: src/Object/Post.php:986 view/theme/duepuntozero/config.php:85
-#: view/theme/frio/config.php:171 view/theme/quattro/config.php:87
-#: view/theme/vier/config.php:135
+#: src/Module/Item/Compose.php:189 src/Module/Moderation/Item/Source.php:58
+#: src/Module/Profile/Profile.php:246 src/Module/Profile/UnkMail.php:156
+#: src/Module/Settings/Profile/Index.php:231 src/Object/Post.php:986
+#: view/theme/duepuntozero/config.php:85 view/theme/frio/config.php:171
+#: view/theme/quattro/config.php:87 view/theme/vier/config.php:135
 msgid "Submit"
 msgstr ""
 
@@ -872,8 +872,9 @@ msgid "Select"
 msgstr ""
 
 #: mod/photos.php:1422 mod/settings.php:350 src/Content/Conversation.php:634
-#: src/Module/Admin/Users/Active.php:139 src/Module/Admin/Users/Blocked.php:140
-#: src/Module/Admin/Users/Index.php:153
+#: src/Module/Moderation/Users/Active.php:136
+#: src/Module/Moderation/Users/Blocked.php:136
+#: src/Module/Moderation/Users/Index.php:151
 msgid "Delete"
 msgstr ""
 
@@ -968,15 +969,19 @@ msgstr ""
 msgid "Connected Apps"
 msgstr ""
 
-#: mod/settings.php:176 src/Module/Admin/Blocklist/Contact.php:106
-#: src/Module/Admin/Users/Active.php:129 src/Module/Admin/Users/Blocked.php:130
-#: src/Module/Admin/Users/Create.php:71 src/Module/Admin/Users/Deleted.php:88
-#: src/Module/Admin/Users/Index.php:142 src/Module/Admin/Users/Index.php:162
-#: src/Module/Admin/Users/Pending.php:104 src/Module/Contact/Advanced.php:134
+#: mod/settings.php:176 src/Module/Contact/Advanced.php:134
+#: src/Module/Moderation/Blocklist/Contact.php:122
+#: src/Module/Moderation/Users/Active.php:126
+#: src/Module/Moderation/Users/Blocked.php:126
+#: src/Module/Moderation/Users/Create.php:71
+#: src/Module/Moderation/Users/Deleted.php:83
+#: src/Module/Moderation/Users/Index.php:140
+#: src/Module/Moderation/Users/Index.php:160
+#: src/Module/Moderation/Users/Pending.php:99
 msgid "Name"
 msgstr ""
 
-#: mod/settings.php:177 src/Content/Nav.php:214
+#: mod/settings.php:177 src/Content/Nav.php:215
 msgid "Home Page"
 msgstr ""
 
@@ -1174,7 +1179,7 @@ msgstr ""
 msgid "Action after import:"
 msgstr ""
 
-#: mod/settings.php:350 src/Content/Nav.php:282
+#: mod/settings.php:350 src/Content/Nav.php:283
 msgid "Mark as seen"
 msgstr ""
 
@@ -1271,13 +1276,13 @@ msgid "The contact entries have been archived"
 msgstr ""
 
 #: src/Console/GlobalCommunityBlock.php:96
-#: src/Module/Admin/Blocklist/Contact.php:49
+#: src/Module/Moderation/Blocklist/Contact.php:65
 #, php-format
 msgid "Could not find any contact entry for this URL (%s)"
 msgstr ""
 
 #: src/Console/GlobalCommunityBlock.php:101
-#: src/Module/Admin/Blocklist/Contact.php:66
+#: src/Module/Moderation/Blocklist/Contact.php:82
 msgid "The contact has been blocked from the node"
 msgstr ""
 
@@ -1396,9 +1401,11 @@ msgid "Enter user nickname: "
 msgstr ""
 
 #: src/Console/User.php:182 src/Model/User.php:663
-#: src/Module/Admin/Users/Active.php:73 src/Module/Admin/Users/Blocked.php:74
-#: src/Module/Admin/Users/Index.php:80 src/Module/Admin/Users/Pending.php:71
 #: src/Module/Api/Twitter/ContactEndpoint.php:74
+#: src/Module/Moderation/Users/Active.php:71
+#: src/Module/Moderation/Users/Blocked.php:71
+#: src/Module/Moderation/Users/Index.php:78
+#: src/Module/Moderation/Users/Pending.php:67
 msgid "User not found"
 msgstr ""
 
@@ -1501,10 +1508,14 @@ msgstr ""
 msgid "RSS/Atom"
 msgstr ""
 
-#: src/Content/ContactSelector.php:129 src/Module/Admin/Users/Active.php:129
-#: src/Module/Admin/Users/Blocked.php:130 src/Module/Admin/Users/Create.php:73
-#: src/Module/Admin/Users/Deleted.php:88 src/Module/Admin/Users/Index.php:142
-#: src/Module/Admin/Users/Index.php:162 src/Module/Admin/Users/Pending.php:104
+#: src/Content/ContactSelector.php:129
+#: src/Module/Moderation/Users/Active.php:126
+#: src/Module/Moderation/Users/Blocked.php:126
+#: src/Module/Moderation/Users/Create.php:73
+#: src/Module/Moderation/Users/Deleted.php:83
+#: src/Module/Moderation/Users/Index.php:140
+#: src/Module/Moderation/Users/Index.php:160
+#: src/Module/Moderation/Users/Pending.php:99
 msgid "Email"
 msgstr ""
 
@@ -1918,7 +1929,7 @@ msgstr ""
 msgid "Display membership date in profile"
 msgstr ""
 
-#: src/Content/ForumManager.php:151 src/Content/Nav.php:241
+#: src/Content/ForumManager.php:151 src/Content/Nav.php:242
 #: src/Content/Text/HTML.php:903 src/Content/Widget.php:524
 msgid "Forums"
 msgstr ""
@@ -1987,10 +1998,11 @@ msgstr ""
 msgid "Send PM"
 msgstr ""
 
-#: src/Content/Item.php:393 src/Module/Admin/Blocklist/Contact.php:100
-#: src/Module/Admin/Users/Active.php:140 src/Module/Admin/Users/Index.php:154
-#: src/Module/Contact.php:401 src/Module/Contact/Profile.php:349
-#: src/Module/Contact/Profile.php:468
+#: src/Content/Item.php:393 src/Module/Contact.php:401
+#: src/Module/Contact/Profile.php:349 src/Module/Contact/Profile.php:468
+#: src/Module/Moderation/Blocklist/Contact.php:116
+#: src/Module/Moderation/Users/Active.php:137
+#: src/Module/Moderation/Users/Index.php:152
 msgid "Block"
 msgstr ""
 
@@ -2028,60 +2040,60 @@ msgstr ""
 msgid "@name, !forum, #tags, content"
 msgstr ""
 
-#: src/Content/Nav.php:185 src/Module/Security/Login.php:158
+#: src/Content/Nav.php:186 src/Module/Security/Login.php:158
 msgid "Logout"
 msgstr ""
 
-#: src/Content/Nav.php:185
+#: src/Content/Nav.php:186
 msgid "End this session"
 msgstr ""
 
-#: src/Content/Nav.php:187 src/Module/Bookmarklet.php:44
+#: src/Content/Nav.php:188 src/Module/Bookmarklet.php:44
 #: src/Module/Security/Login.php:159
 msgid "Login"
 msgstr ""
 
-#: src/Content/Nav.php:187
+#: src/Content/Nav.php:188
 msgid "Sign in"
 msgstr ""
 
-#: src/Content/Nav.php:192 src/Module/BaseProfile.php:56
+#: src/Content/Nav.php:193 src/Module/BaseProfile.php:56
 #: src/Module/Contact.php:436 src/Module/Contact/Profile.php:381
 #: src/Module/Settings/TwoFactor/Index.php:119 view/theme/frio/theme.php:237
 msgid "Status"
 msgstr ""
 
-#: src/Content/Nav.php:192 src/Content/Nav.php:275
+#: src/Content/Nav.php:193 src/Content/Nav.php:276
 #: view/theme/frio/theme.php:237
 msgid "Your posts and conversations"
 msgstr ""
 
-#: src/Content/Nav.php:193 src/Module/BaseProfile.php:48
+#: src/Content/Nav.php:194 src/Module/BaseProfile.php:48
 #: src/Module/BaseSettings.php:55 src/Module/Contact.php:460
 #: src/Module/Contact/Profile.php:383 src/Module/Profile/Profile.php:240
 #: src/Module/Welcome.php:57 view/theme/frio/theme.php:238
 msgid "Profile"
 msgstr ""
 
-#: src/Content/Nav.php:193 view/theme/frio/theme.php:238
+#: src/Content/Nav.php:194 view/theme/frio/theme.php:238
 msgid "Your profile page"
 msgstr ""
 
-#: src/Content/Nav.php:194 view/theme/frio/theme.php:239
+#: src/Content/Nav.php:195 view/theme/frio/theme.php:239
 msgid "Your photos"
 msgstr ""
 
-#: src/Content/Nav.php:195 src/Module/BaseProfile.php:72
+#: src/Content/Nav.php:196 src/Module/BaseProfile.php:72
 #: src/Module/BaseProfile.php:75 src/Module/Contact.php:452
 #: view/theme/frio/theme.php:240
 msgid "Media"
 msgstr ""
 
-#: src/Content/Nav.php:195 view/theme/frio/theme.php:240
+#: src/Content/Nav.php:196 view/theme/frio/theme.php:240
 msgid "Your postings with media"
 msgstr ""
 
-#: src/Content/Nav.php:196 src/Content/Nav.php:260
+#: src/Content/Nav.php:197 src/Content/Nav.php:261
 #: src/Module/BaseProfile.php:84 src/Module/BaseProfile.php:87
 #: src/Module/BaseProfile.php:95 src/Module/BaseProfile.php:98
 #: src/Module/Settings/Display.php:205 view/theme/frio/theme.php:241
@@ -2089,32 +2101,32 @@ msgstr ""
 msgid "Calendar"
 msgstr ""
 
-#: src/Content/Nav.php:196 view/theme/frio/theme.php:241
+#: src/Content/Nav.php:197 view/theme/frio/theme.php:241
 msgid "Your calendar"
 msgstr ""
 
-#: src/Content/Nav.php:197
+#: src/Content/Nav.php:198
 msgid "Personal notes"
 msgstr ""
 
-#: src/Content/Nav.php:197
+#: src/Content/Nav.php:198
 msgid "Your personal notes"
 msgstr ""
 
-#: src/Content/Nav.php:214 src/Content/Nav.php:275
+#: src/Content/Nav.php:215 src/Content/Nav.php:276
 msgid "Home"
 msgstr ""
 
-#: src/Content/Nav.php:218 src/Module/Register.php:168
+#: src/Content/Nav.php:219 src/Module/Register.php:168
 #: src/Module/Security/Login.php:124
 msgid "Register"
 msgstr ""
 
-#: src/Content/Nav.php:218
+#: src/Content/Nav.php:219
 msgid "Create an account"
 msgstr ""
 
-#: src/Content/Nav.php:224 src/Module/Help.php:67
+#: src/Content/Nav.php:225 src/Module/Help.php:67
 #: src/Module/Settings/TwoFactor/AppSpecific.php:128
 #: src/Module/Settings/TwoFactor/Index.php:118
 #: src/Module/Settings/TwoFactor/Recovery.php:106
@@ -2122,153 +2134,172 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: src/Content/Nav.php:224
+#: src/Content/Nav.php:225
 msgid "Help and documentation"
 msgstr ""
 
-#: src/Content/Nav.php:228
+#: src/Content/Nav.php:229
 msgid "Apps"
 msgstr ""
 
-#: src/Content/Nav.php:228
+#: src/Content/Nav.php:229
 msgid "Addon applications, utilities, games"
 msgstr ""
 
-#: src/Content/Nav.php:232 src/Content/Text/HTML.php:888
+#: src/Content/Nav.php:233 src/Content/Text/HTML.php:888
 #: src/Module/Admin/Logs/View.php:87 src/Module/Search/Index.php:111
 msgid "Search"
 msgstr ""
 
-#: src/Content/Nav.php:232
+#: src/Content/Nav.php:233
 msgid "Search site content"
 msgstr ""
 
-#: src/Content/Nav.php:235 src/Content/Text/HTML.php:897
+#: src/Content/Nav.php:236 src/Content/Text/HTML.php:897
 msgid "Full Text"
 msgstr ""
 
-#: src/Content/Nav.php:236 src/Content/Text/HTML.php:898
+#: src/Content/Nav.php:237 src/Content/Text/HTML.php:898
 #: src/Content/Widget/TagCloud.php:68
 msgid "Tags"
 msgstr ""
 
-#: src/Content/Nav.php:237 src/Content/Nav.php:296
+#: src/Content/Nav.php:238 src/Content/Nav.php:297
 #: src/Content/Text/HTML.php:899 src/Module/BaseProfile.php:125
 #: src/Module/BaseProfile.php:128 src/Module/Contact.php:373
 #: src/Module/Contact.php:467 view/theme/frio/theme.php:248
 msgid "Contacts"
 msgstr ""
 
-#: src/Content/Nav.php:256
+#: src/Content/Nav.php:257
 msgid "Community"
 msgstr ""
 
-#: src/Content/Nav.php:256
+#: src/Content/Nav.php:257
 msgid "Conversations on this and other servers"
 msgstr ""
 
-#: src/Content/Nav.php:263
+#: src/Content/Nav.php:264
 msgid "Directory"
 msgstr ""
 
-#: src/Content/Nav.php:263
+#: src/Content/Nav.php:264
 msgid "People directory"
 msgstr ""
 
-#: src/Content/Nav.php:265 src/Module/BaseAdmin.php:85
+#: src/Content/Nav.php:266 src/Module/BaseAdmin.php:85
+#: src/Module/BaseModeration.php:108
 msgid "Information"
 msgstr ""
 
-#: src/Content/Nav.php:265
+#: src/Content/Nav.php:266
 msgid "Information about this friendica instance"
 msgstr ""
 
-#: src/Content/Nav.php:268 src/Module/Admin/Tos.php:76
-#: src/Module/BaseAdmin.php:96 src/Module/Register.php:176
+#: src/Content/Nav.php:269 src/Module/Admin/Tos.php:76
+#: src/Module/BaseAdmin.php:95 src/Module/Register.php:176
 #: src/Module/Tos.php:87
 msgid "Terms of Service"
 msgstr ""
 
-#: src/Content/Nav.php:268
+#: src/Content/Nav.php:269
 msgid "Terms of Service of this Friendica instance"
 msgstr ""
 
-#: src/Content/Nav.php:273 view/theme/frio/theme.php:244
+#: src/Content/Nav.php:274 view/theme/frio/theme.php:244
 msgid "Network"
 msgstr ""
 
-#: src/Content/Nav.php:273 view/theme/frio/theme.php:244
+#: src/Content/Nav.php:274 view/theme/frio/theme.php:244
 msgid "Conversations from your friends"
 msgstr ""
 
-#: src/Content/Nav.php:279
+#: src/Content/Nav.php:280
 msgid "Introductions"
 msgstr ""
 
-#: src/Content/Nav.php:279
+#: src/Content/Nav.php:280
 msgid "Friend Requests"
 msgstr ""
 
-#: src/Content/Nav.php:280 src/Module/BaseNotifications.php:149
+#: src/Content/Nav.php:281 src/Module/BaseNotifications.php:149
 #: src/Module/Notifications/Introductions.php:75
 msgid "Notifications"
 msgstr ""
 
-#: src/Content/Nav.php:281
+#: src/Content/Nav.php:282
 msgid "See all notifications"
 msgstr ""
 
-#: src/Content/Nav.php:282
+#: src/Content/Nav.php:283
 msgid "Mark all system notifications as seen"
 msgstr ""
 
-#: src/Content/Nav.php:285 view/theme/frio/theme.php:246
+#: src/Content/Nav.php:286 view/theme/frio/theme.php:246
 msgid "Private mail"
 msgstr ""
 
-#: src/Content/Nav.php:286
+#: src/Content/Nav.php:287
 msgid "Inbox"
 msgstr ""
 
-#: src/Content/Nav.php:287
+#: src/Content/Nav.php:288
 msgid "Outbox"
 msgstr ""
 
-#: src/Content/Nav.php:291
+#: src/Content/Nav.php:292
 msgid "Accounts"
 msgstr ""
 
-#: src/Content/Nav.php:291
+#: src/Content/Nav.php:292
 msgid "Manage other pages"
 msgstr ""
 
-#: src/Content/Nav.php:294 src/Module/Admin/Addons/Details.php:114
+#: src/Content/Nav.php:295 src/Module/Admin/Addons/Details.php:114
 #: src/Module/Admin/Themes/Details.php:93 src/Module/BaseSettings.php:122
 #: src/Module/Welcome.php:52 view/theme/frio/theme.php:247
 msgid "Settings"
 msgstr ""
 
-#: src/Content/Nav.php:294 view/theme/frio/theme.php:247
+#: src/Content/Nav.php:295 view/theme/frio/theme.php:247
 msgid "Account settings"
 msgstr ""
 
-#: src/Content/Nav.php:296 view/theme/frio/theme.php:248
+#: src/Content/Nav.php:297 view/theme/frio/theme.php:248
 msgid "Manage/edit friends and contacts"
 msgstr ""
 
-#: src/Content/Nav.php:301 src/Module/BaseAdmin.php:126
+#: src/Content/Nav.php:302 src/Module/BaseAdmin.php:119
 msgid "Admin"
 msgstr ""
 
-#: src/Content/Nav.php:301
+#: src/Content/Nav.php:302
 msgid "Site setup and configuration"
 msgstr ""
 
-#: src/Content/Nav.php:304
+#: src/Content/Nav.php:303 src/Module/BaseModeration.php:127
+#: src/Module/Moderation/Blocklist/Contact.php:110
+#: src/Module/Moderation/Blocklist/Server/Add.php:119
+#: src/Module/Moderation/Blocklist/Server/Import.php:115
+#: src/Module/Moderation/Blocklist/Server/Index.php:92
+#: src/Module/Moderation/Item/Delete.php:61
+#: src/Module/Moderation/Summary.php:76
+#: src/Module/Moderation/Users/Active.php:133
+#: src/Module/Moderation/Users/Blocked.php:133
+#: src/Module/Moderation/Users/Deleted.php:80
+#: src/Module/Moderation/Users/Index.php:147
+msgid "Moderation"
+msgstr ""
+
+#: src/Content/Nav.php:303
+msgid "Content and user moderation"
+msgstr ""
+
+#: src/Content/Nav.php:306
 msgid "Navigation"
 msgstr ""
 
-#: src/Content/Nav.php:304
+#: src/Content/Nav.php:306
 msgid "Site map"
 msgstr ""
 
@@ -2476,7 +2507,7 @@ msgstr ""
 msgid "Account Types"
 msgstr ""
 
-#: src/Content/Widget.php:528 src/Module/Admin/BaseUsers.php:51
+#: src/Content/Widget.php:528 src/Module/Moderation/BaseUsers.php:69
 msgid "All"
 msgstr ""
 
@@ -3240,7 +3271,7 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
-#: src/Model/Contact.php:1212 src/Module/Admin/Users/Pending.php:107
+#: src/Model/Contact.php:1212 src/Module/Moderation/Users/Pending.php:102
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
 msgid "Approve"
@@ -3624,7 +3655,8 @@ msgstr ""
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1018 src/Module/Admin/Summary.php:236
+#: src/Model/Profile.php:1018 src/Module/Admin/Summary.php:215
+#: src/Module/Moderation/Summary.php:77
 msgid "Summary"
 msgstr ""
 
@@ -3947,24 +3979,18 @@ msgid "Enable"
 msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:111 src/Module/Admin/Addons/Index.php:67
-#: src/Module/Admin/Blocklist/Contact.php:94
-#: src/Module/Admin/Blocklist/Server/Add.php:121
-#: src/Module/Admin/Blocklist/Server/Import.php:117
-#: src/Module/Admin/Blocklist/Server/Index.php:91
-#: src/Module/Admin/Federation.php:202 src/Module/Admin/Item/Delete.php:64
-#: src/Module/Admin/Logs/Settings.php:79 src/Module/Admin/Logs/View.php:84
-#: src/Module/Admin/Queue.php:72 src/Module/Admin/Site.php:431
-#: src/Module/Admin/Storage.php:138 src/Module/Admin/Summary.php:235
-#: src/Module/Admin/Themes/Details.php:90 src/Module/Admin/Themes/Index.php:111
-#: src/Module/Admin/Tos.php:75 src/Module/Admin/Users/Active.php:136
-#: src/Module/Admin/Users/Blocked.php:137 src/Module/Admin/Users/Create.php:61
-#: src/Module/Admin/Users/Deleted.php:85 src/Module/Admin/Users/Index.php:149
-#: src/Module/Admin/Users/Pending.php:101
+#: src/Module/Admin/Federation.php:202 src/Module/Admin/Logs/Settings.php:79
+#: src/Module/Admin/Logs/View.php:84 src/Module/Admin/Queue.php:72
+#: src/Module/Admin/Site.php:431 src/Module/Admin/Storage.php:138
+#: src/Module/Admin/Summary.php:214 src/Module/Admin/Themes/Details.php:90
+#: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:75
+#: src/Module/Moderation/Users/Create.php:61
+#: src/Module/Moderation/Users/Pending.php:96
 msgid "Administration"
 msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:112 src/Module/Admin/Addons/Index.php:68
-#: src/Module/BaseAdmin.php:93 src/Module/BaseSettings.php:85
+#: src/Module/BaseAdmin.php:92 src/Module/BaseSettings.php:85
 msgid "Addons"
 msgstr ""
 
@@ -4002,442 +4028,6 @@ msgid ""
 "There are currently no addons available on your node. You can find the "
 "official addon repository at %1$s and might find other interesting addons in "
 "the open addon registry at %2$s"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:54
-msgid "List of all users"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:59
-msgid "Active"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:62
-msgid "List of active accounts"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:67 src/Module/Contact.php:317
-#: src/Module/Contact.php:377
-msgid "Pending"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:70
-msgid "List of pending registrations"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:75 src/Module/Contact.php:325
-#: src/Module/Contact.php:378
-msgid "Blocked"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:78
-msgid "List of blocked users"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:83
-msgid "Deleted"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:86
-msgid "List of pending user deletions"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:100 src/Module/Settings/Account.php:494
-msgid "Normal Account Page"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:101 src/Module/Settings/Account.php:501
-msgid "Soapbox Page"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:102 src/Module/Settings/Account.php:508
-msgid "Public Forum"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:103 src/Module/Settings/Account.php:515
-msgid "Automatic Friend Page"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:104
-msgid "Private Forum"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:107 src/Module/Settings/Account.php:466
-msgid "Personal Page"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:108 src/Module/Settings/Account.php:473
-msgid "Organisation Page"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:109 src/Module/Settings/Account.php:480
-msgid "News Page"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:110 src/Module/Settings/Account.php:487
-msgid "Community Forum"
-msgstr ""
-
-#: src/Module/Admin/BaseUsers.php:111
-msgid "Relay"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:54
-msgid "You can't block a local contact, please block the user instead"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:73
-#, php-format
-msgid "%s contact unblocked"
-msgid_plural "%s contacts unblocked"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Blocklist/Contact.php:95
-msgid "Remote Contact Blocklist"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:96
-msgid ""
-"This page allows you to prevent any message from a remote contact to reach "
-"your node."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:97
-msgid "Block Remote Contact"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:98
-#: src/Module/Admin/Users/Active.php:138 src/Module/Admin/Users/Blocked.php:139
-#: src/Module/Admin/Users/Index.php:151 src/Module/Admin/Users/Pending.php:103
-msgid "select all"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:99
-msgid "select none"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:101
-#: src/Module/Admin/Users/Blocked.php:142 src/Module/Admin/Users/Index.php:156
-#: src/Module/Contact.php:401 src/Module/Contact/Profile.php:349
-#: src/Module/Contact/Profile.php:468
-msgid "Unblock"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:102
-msgid "No remote contact is blocked from this node."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:104
-msgid "Blocked Remote Contacts"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:105
-msgid "Block New Remote Contact"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:106
-msgid "Photo"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:106
-msgid "Reason"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:114
-#, php-format
-msgid "%s total blocked contact"
-msgid_plural "%s total blocked contacts"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Blocklist/Contact.php:116 src/Module/Contact/Follow.php:168
-#: src/Module/Contact/Profile.php:366 src/Module/Contact/Unfollow.php:129
-#: src/Module/Notifications/Introductions.php:129
-#: src/Module/Notifications/Introductions.php:198
-msgid "Profile URL"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:116
-msgid "URL of the remote contact to block."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:117
-msgid "Also purge contact"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:117
-msgid ""
-"Removes all content related to this contact from the node. Keeps the contact "
-"record. This action cannot be undone."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Contact.php:118
-#: src/Module/Admin/Blocklist/Server/Import.php:123
-msgid "Block Reason"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:80
-msgid "Server domain pattern added to the blocklist."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:88
-#, php-format
-msgid "%s server scheduled to be purged."
-msgid_plural "%s servers scheduled to be purged."
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:120
-#: src/Module/Admin/Blocklist/Server/Import.php:116
-msgid "← Return to the list"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:122
-msgid "Block A New Server Domain Pattern"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:123
-#: src/Module/Admin/Blocklist/Server/Index.php:95
-msgid ""
-"<p>The server domain pattern syntax is case-insensitive shell wildcard, "
-"comprising the following special characters:</p>\n"
-"<ul>\n"
-"\t<li><code>*</code>: Any number of characters</li>\n"
-"\t<li><code>?</code>: Any single character</li>\n"
-"</ul>"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:128
-#: src/Module/Admin/Blocklist/Server/Index.php:103
-msgid "Check pattern"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:129
-msgid "Matching known servers"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:130
-msgid "Server Name"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:131
-msgid "Server Domain"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:132
-msgid "Known Contacts"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:133
-#, php-format
-msgid "%d known server"
-msgid_plural "%d known servers"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:134
-msgid "Add pattern to the blocklist"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:136
-#: src/Module/Admin/Blocklist/Server/Index.php:112
-msgid "Server Domain Pattern"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:136
-#: src/Module/Admin/Blocklist/Server/Index.php:112
-msgid ""
-"The domain pattern of the new server to add to the blocklist. Do not include "
-"the protocol."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:136
-#: src/Module/Admin/Blocklist/Server/Add.php:138
-#: src/Module/Admin/Blocklist/Server/Import.php:128
-#: src/Module/Admin/Blocklist/Server/Index.php:82
-#: src/Module/Admin/Blocklist/Server/Index.php:83
-#: src/Module/Admin/Blocklist/Server/Index.php:111
-#: src/Module/Admin/Blocklist/Server/Index.php:112
-#: src/Module/Admin/Item/Delete.php:69 src/Module/Calendar/Event/Form.php:209
-#: src/Module/Calendar/Event/Form.php:241 src/Module/Debug/Probe.php:59
-#: src/Module/Install.php:207 src/Module/Install.php:240
-#: src/Module/Install.php:245 src/Module/Install.php:264
-#: src/Module/Install.php:275 src/Module/Install.php:280
-#: src/Module/Install.php:286 src/Module/Install.php:291
-#: src/Module/Install.php:305 src/Module/Install.php:320
-#: src/Module/Install.php:347 src/Module/Register.php:148
-#: src/Module/Security/TwoFactor/Verify.php:101
-#: src/Module/Settings/TwoFactor/Index.php:140
-#: src/Module/Settings/TwoFactor/Verify.php:154
-msgid "Required"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:137
-msgid "Purge server"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:137
-msgid ""
-"Also purges all the locally stored content authored by the known contacts "
-"registered on that server. Keeps the contacts and the server records. This "
-"action cannot be undone."
-msgid_plural ""
-"Also purges all the locally stored content authored by the known contacts "
-"registered on these servers. Keeps the contacts and the servers records. "
-"This action cannot be undone."
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:138
-msgid "Block reason"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Add.php:138
-msgid ""
-"The reason why you blocked this server domain pattern. This reason will be "
-"shown publicly in the server information page."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:75
-#: src/Module/Admin/Blocklist/Server/Import.php:84
-msgid "Error importing pattern file"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:90
-msgid "Local blocklist replaced with the provided file."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:94
-#, php-format
-msgid "%d pattern was added to the local blocklist."
-msgid_plural "%d patterns were added to the local blocklist."
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:96
-msgid "No pattern was added to the local blocklist."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:118
-msgid "Import a Server Domain Pattern Blocklist"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:119
-msgid ""
-"<p>This file can be downloaded from the <code>/friendica</code> path of any "
-"Friendica server.</p>"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:120
-#: src/Module/Admin/Blocklist/Server/Index.php:102
-msgid "Upload file"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:121
-msgid "Patterns to import"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:122
-msgid "Domain Pattern"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:124
-msgid "Import Mode"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:125
-msgid "Import Patterns"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:126
-#, php-format
-msgid "%d total pattern"
-msgid_plural "%d total patterns"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:128
-#: src/Module/Admin/Blocklist/Server/Index.php:111
-msgid "Server domain pattern blocklist CSV file"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:129
-msgid "Append"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:129
-msgid ""
-"Imports patterns from the file that weren't already existing in the current "
-"blocklist."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:130
-msgid "Replace"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Import.php:130
-msgid "Replaces the current blocklist by the imported patterns."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:82
-#: src/Module/Admin/Blocklist/Server/Index.php:106
-msgid "Blocked server domain pattern"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:83
-#: src/Module/Admin/Blocklist/Server/Index.php:107 src/Module/Friendica.php:83
-msgid "Reason for the block"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:84
-msgid "Delete server domain pattern"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:84
-msgid "Check to delete this entry from the blocklist"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:92
-msgid "Server Domain Pattern Blocklist"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:93
-msgid ""
-"This page can be used to define a blocklist of server domain patterns from "
-"the federated network that are not allowed to interact with your node. For "
-"each domain pattern you should also provide the reason why you block it."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:94
-msgid ""
-"The list of blocked server domain patterns will be made publically available "
-"on the <a href=\"/friendica\">/friendica</a> page so that your users and "
-"people investigating communication problems can find the reason easily."
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:100
-msgid "Import server domain pattern blocklist"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:101
-msgid "Add new entry to the blocklist"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:104
-msgid "Save changes to the blocklist"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:105
-msgid "Current Entries in the Blocklist"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:108
-msgid "Delete entry from the blocklist"
-msgstr ""
-
-#: src/Module/Admin/Blocklist/Server/Index.php:109
-msgid "Delete entry from the blocklist?"
 msgstr ""
 
 #: src/Module/Admin/DBSync.php:51
@@ -4589,84 +4179,6 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Item/Delete.php:53
-msgid "Item marked for deletion."
-msgstr ""
-
-#: src/Module/Admin/Item/Delete.php:65 src/Module/BaseAdmin.php:106
-msgid "Delete Item"
-msgstr ""
-
-#: src/Module/Admin/Item/Delete.php:66
-msgid "Delete this Item"
-msgstr ""
-
-#: src/Module/Admin/Item/Delete.php:67
-msgid ""
-"On this page you can delete an item from your node. If the item is a top "
-"level posting, the entire thread will be deleted."
-msgstr ""
-
-#: src/Module/Admin/Item/Delete.php:68
-msgid ""
-"You need to know the GUID of the item. You can find it e.g. by looking at "
-"the display URL. The last part of http://example.com/display/123456 is the "
-"GUID, here 123456."
-msgstr ""
-
-#: src/Module/Admin/Item/Delete.php:69
-msgid "GUID"
-msgstr ""
-
-#: src/Module/Admin/Item/Delete.php:69
-msgid "The GUID of the item you want to delete."
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:53 src/Module/BaseAdmin.php:116
-msgid "Item Source"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:54
-msgid "Item Guid"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:58
-msgid "Item Id"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:59
-msgid "Item URI"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:61
-msgid "Terms"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:62
-msgid "Tag"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:63 src/Module/Admin/Users/Active.php:129
-#: src/Module/Admin/Users/Blocked.php:130 src/Module/Admin/Users/Index.php:142
-msgid "Type"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:64
-msgid "Term"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:65
-msgid "URL"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:66
-msgid "Mention"
-msgstr ""
-
-#: src/Module/Admin/Item/Source.php:67
-msgid "Implicit Mention"
-msgstr ""
-
 #: src/Module/Admin/Logs/Settings.php:47
 #, php-format
 msgid "The logfile '%s' is not writable. No logging possible"
@@ -4680,8 +4192,8 @@ msgstr ""
 msgid "PHP log currently disabled."
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:80 src/Module/BaseAdmin.php:108
-#: src/Module/BaseAdmin.php:109
+#: src/Module/Admin/Logs/Settings.php:80 src/Module/BaseAdmin.php:102
+#: src/Module/BaseAdmin.php:103
 msgid "Logs"
 msgstr ""
 
@@ -4734,7 +4246,7 @@ msgid ""
 "is readable."
 msgstr ""
 
-#: src/Module/Admin/Logs/View.php:85 src/Module/BaseAdmin.php:110
+#: src/Module/Admin/Logs/View.php:85 src/Module/BaseAdmin.php:104
 msgid "View Logs"
 msgstr ""
 
@@ -5951,51 +5463,19 @@ msgid ""
 "'%s'. Please fix your configuration."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:191
-msgid "Normal Account"
-msgstr ""
-
-#: src/Module/Admin/Summary.php:192
-msgid "Automatic Follower Account"
-msgstr ""
-
-#: src/Module/Admin/Summary.php:193
-msgid "Public Forum Account"
-msgstr ""
-
-#: src/Module/Admin/Summary.php:194
-msgid "Automatic Friend Account"
-msgstr ""
-
 #: src/Module/Admin/Summary.php:195
-msgid "Blog Account"
-msgstr ""
-
-#: src/Module/Admin/Summary.php:196
-msgid "Private Forum Account"
-msgstr ""
-
-#: src/Module/Admin/Summary.php:216
 msgid "Message queues"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:222
+#: src/Module/Admin/Summary.php:201
 msgid "Server Settings"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:238
-msgid "Registered users"
-msgstr ""
-
-#: src/Module/Admin/Summary.php:240
-msgid "Pending registrations"
-msgstr ""
-
-#: src/Module/Admin/Summary.php:241
+#: src/Module/Admin/Summary.php:217
 msgid "Version"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:245
+#: src/Module/Admin/Summary.php:221
 msgid "Active addons"
 msgstr ""
 
@@ -6019,7 +5499,7 @@ msgid "Screenshot"
 msgstr ""
 
 #: src/Module/Admin/Themes/Details.php:91 src/Module/Admin/Themes/Index.php:112
-#: src/Module/BaseAdmin.php:94
+#: src/Module/BaseAdmin.php:93
 msgid "Themes"
 msgstr ""
 
@@ -6084,192 +5564,6 @@ msgid ""
 "of sections should be [h2] and below."
 msgstr ""
 
-#: src/Module/Admin/Users/Active.php:45 src/Module/Admin/Users/Index.php:45
-#, php-format
-msgid "%s user blocked"
-msgid_plural "%s users blocked"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Users/Active.php:53 src/Module/Admin/Users/Active.php:88
-#: src/Module/Admin/Users/Blocked.php:54 src/Module/Admin/Users/Blocked.php:89
-#: src/Module/Admin/Users/Index.php:60 src/Module/Admin/Users/Index.php:95
-msgid "You can't remove yourself"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:57 src/Module/Admin/Users/Blocked.php:58
-#: src/Module/Admin/Users/Index.php:64
-#, php-format
-msgid "%s user deleted"
-msgid_plural "%s users deleted"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Users/Active.php:86 src/Module/Admin/Users/Blocked.php:87
-#: src/Module/Admin/Users/Index.php:93
-#, php-format
-msgid "User \"%s\" deleted"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:96 src/Module/Admin/Users/Index.php:103
-#, php-format
-msgid "User \"%s\" blocked"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:129 src/Module/Admin/Users/Blocked.php:130
-#: src/Module/Admin/Users/Deleted.php:88 src/Module/Admin/Users/Index.php:142
-#: src/Module/Admin/Users/Index.php:162
-msgid "Register date"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:129 src/Module/Admin/Users/Blocked.php:130
-#: src/Module/Admin/Users/Deleted.php:88 src/Module/Admin/Users/Index.php:142
-#: src/Module/Admin/Users/Index.php:162
-msgid "Last login"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:129 src/Module/Admin/Users/Blocked.php:130
-#: src/Module/Admin/Users/Deleted.php:88 src/Module/Admin/Users/Index.php:142
-#: src/Module/Admin/Users/Index.php:162
-msgid "Last public item"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:137
-msgid "Active Accounts"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:141 src/Module/Admin/Users/Blocked.php:141
-#: src/Module/Admin/Users/Index.php:155
-msgid "User blocked"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:142 src/Module/Admin/Users/Blocked.php:143
-#: src/Module/Admin/Users/Index.php:157
-msgid "Site admin"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:143 src/Module/Admin/Users/Blocked.php:144
-#: src/Module/Admin/Users/Index.php:158
-msgid "Account expired"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:144 src/Module/Admin/Users/Index.php:161
-msgid "Create a new user"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:150 src/Module/Admin/Users/Blocked.php:150
-#: src/Module/Admin/Users/Index.php:167
-msgid ""
-"Selected users will be deleted!\\n\\nEverything these users had posted on "
-"this site will be permanently deleted!\\n\\nAre you sure?"
-msgstr ""
-
-#: src/Module/Admin/Users/Active.php:151 src/Module/Admin/Users/Blocked.php:151
-#: src/Module/Admin/Users/Index.php:168
-msgid ""
-"The user {0} will be deleted!\\n\\nEverything this user has posted on this "
-"site will be permanently deleted!\\n\\nAre you sure?"
-msgstr ""
-
-#: src/Module/Admin/Users/Blocked.php:46 src/Module/Admin/Users/Index.php:52
-#, php-format
-msgid "%s user unblocked"
-msgid_plural "%s users unblocked"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Users/Blocked.php:96 src/Module/Admin/Users/Index.php:109
-#, php-format
-msgid "User \"%s\" unblocked"
-msgstr ""
-
-#: src/Module/Admin/Users/Blocked.php:138
-msgid "Blocked Users"
-msgstr ""
-
-#: src/Module/Admin/Users/Create.php:62
-msgid "New User"
-msgstr ""
-
-#: src/Module/Admin/Users/Create.php:63
-msgid "Add User"
-msgstr ""
-
-#: src/Module/Admin/Users/Create.php:71
-msgid "Name of the new user."
-msgstr ""
-
-#: src/Module/Admin/Users/Create.php:72
-msgid "Nickname"
-msgstr ""
-
-#: src/Module/Admin/Users/Create.php:72
-msgid "Nickname of the new user."
-msgstr ""
-
-#: src/Module/Admin/Users/Create.php:73
-msgid "Email address of the new user."
-msgstr ""
-
-#: src/Module/Admin/Users/Deleted.php:86
-msgid "Users awaiting permanent deletion"
-msgstr ""
-
-#: src/Module/Admin/Users/Deleted.php:88 src/Module/Admin/Users/Index.php:162
-msgid "Permanent deletion"
-msgstr ""
-
-#: src/Module/Admin/Users/Index.php:150 src/Module/Admin/Users/Index.php:160
-#: src/Module/BaseAdmin.php:92
-msgid "Users"
-msgstr ""
-
-#: src/Module/Admin/Users/Index.php:152
-msgid "User waiting for permanent deletion"
-msgstr ""
-
-#: src/Module/Admin/Users/Pending.php:48
-#, php-format
-msgid "%s user approved"
-msgid_plural "%s users approved"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Users/Pending.php:55
-#, php-format
-msgid "%s registration revoked"
-msgid_plural "%s registrations revoked"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Admin/Users/Pending.php:81
-msgid "Account approved."
-msgstr ""
-
-#: src/Module/Admin/Users/Pending.php:87
-msgid "Registration revoked"
-msgstr ""
-
-#: src/Module/Admin/Users/Pending.php:102
-msgid "User registrations awaiting review"
-msgstr ""
-
-#: src/Module/Admin/Users/Pending.php:104
-msgid "Request date"
-msgstr ""
-
-#: src/Module/Admin/Users/Pending.php:105
-msgid "No registrations."
-msgstr ""
-
-#: src/Module/Admin/Users/Pending.php:106
-msgid "Note from the user"
-msgstr ""
-
-#: src/Module/Admin/Users/Pending.php:108
-msgid "Deny"
-msgstr ""
-
 #: src/Module/Api/ApiResponse.php:279
 #, php-format
 msgid "API endpoint %s %s is not implemented"
@@ -6327,88 +5621,77 @@ msgid "Item was not found."
 msgstr ""
 
 #: src/Module/BaseAdmin.php:54 src/Module/BaseAdmin.php:58
+#: src/Module/BaseModeration.php:77 src/Module/BaseModeration.php:81
 msgid "Please login to continue."
 msgstr ""
 
-#: src/Module/BaseAdmin.php:63
+#: src/Module/BaseAdmin.php:63 src/Module/BaseModeration.php:86
 msgid "You don't have access to administration pages."
 msgstr ""
 
-#: src/Module/BaseAdmin.php:67
+#: src/Module/BaseAdmin.php:67 src/Module/BaseModeration.php:90
 msgid ""
 "Submanaged account can't access the administration pages. Please log back in "
 "as the main account."
 msgstr ""
 
-#: src/Module/BaseAdmin.php:86
+#: src/Module/BaseAdmin.php:86 src/Module/BaseModeration.php:109
 msgid "Overview"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:89
+#: src/Module/BaseAdmin.php:89 src/Module/BaseModeration.php:111
 msgid "Configuration"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:95 src/Module/BaseSettings.php:63
+#: src/Module/BaseAdmin.php:94 src/Module/BaseSettings.php:63
 msgid "Additional features"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:98
+#: src/Module/BaseAdmin.php:97
 msgid "Database"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:99
+#: src/Module/BaseAdmin.php:98
 msgid "DB updates"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:100
+#: src/Module/BaseAdmin.php:99
 msgid "Inspect Deferred Workers"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:101
+#: src/Module/BaseAdmin.php:100
 msgid "Inspect worker Queue"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:103
-msgid "Tools"
-msgstr ""
-
-#: src/Module/BaseAdmin.php:104
-msgid "Contact Blocklist"
-msgstr ""
-
-#: src/Module/BaseAdmin.php:105
-msgid "Server Blocklist"
-msgstr ""
-
-#: src/Module/BaseAdmin.php:112
+#: src/Module/BaseAdmin.php:106 src/Module/BaseModeration.php:119
 msgid "Diagnostics"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:113
+#: src/Module/BaseAdmin.php:107
 msgid "PHP Info"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:114
+#: src/Module/BaseAdmin.php:108
 msgid "probe address"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:115
+#: src/Module/BaseAdmin.php:109
 msgid "check webfinger"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:117
+#: src/Module/BaseAdmin.php:110
 msgid "Babel"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:118 src/Module/Debug/ActivityPubConversion.php:137
+#: src/Module/BaseAdmin.php:111 src/Module/Debug/ActivityPubConversion.php:137
 msgid "ActivityPub Conversion"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:127
+#: src/Module/BaseAdmin.php:120
 msgid "Addon Features"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:128
+#: src/Module/BaseAdmin.php:121 src/Module/BaseModeration.php:128
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
@@ -6438,6 +5721,31 @@ msgid_plural ""
 "Monthly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Module/BaseModeration.php:112 src/Module/Moderation/Users/Index.php:148
+#: src/Module/Moderation/Users/Index.php:158
+msgid "Users"
+msgstr ""
+
+#: src/Module/BaseModeration.php:114
+msgid "Tools"
+msgstr ""
+
+#: src/Module/BaseModeration.php:115
+msgid "Contact Blocklist"
+msgstr ""
+
+#: src/Module/BaseModeration.php:116
+msgid "Server Blocklist"
+msgstr ""
+
+#: src/Module/BaseModeration.php:117 src/Module/Moderation/Item/Delete.php:62
+msgid "Delete Item"
+msgstr ""
+
+#: src/Module/BaseModeration.php:120 src/Module/Moderation/Item/Source.php:51
+msgid "Item Source"
+msgstr ""
 
 #: src/Module/BaseProfile.php:51 src/Module/Contact.php:463
 msgid "Profile Details"
@@ -6541,6 +5849,28 @@ msgstr ""
 msgid "Event Starts:"
 msgstr ""
 
+#: src/Module/Calendar/Event/Form.php:209
+#: src/Module/Calendar/Event/Form.php:241 src/Module/Debug/Probe.php:59
+#: src/Module/Install.php:207 src/Module/Install.php:240
+#: src/Module/Install.php:245 src/Module/Install.php:264
+#: src/Module/Install.php:275 src/Module/Install.php:280
+#: src/Module/Install.php:286 src/Module/Install.php:291
+#: src/Module/Install.php:305 src/Module/Install.php:320
+#: src/Module/Install.php:347
+#: src/Module/Moderation/Blocklist/Server/Add.php:134
+#: src/Module/Moderation/Blocklist/Server/Add.php:136
+#: src/Module/Moderation/Blocklist/Server/Import.php:126
+#: src/Module/Moderation/Blocklist/Server/Index.php:83
+#: src/Module/Moderation/Blocklist/Server/Index.php:84
+#: src/Module/Moderation/Blocklist/Server/Index.php:112
+#: src/Module/Moderation/Blocklist/Server/Index.php:113
+#: src/Module/Moderation/Item/Delete.php:67 src/Module/Register.php:148
+#: src/Module/Security/TwoFactor/Verify.php:101
+#: src/Module/Settings/TwoFactor/Index.php:140
+#: src/Module/Settings/TwoFactor/Verify.php:154
+msgid "Required"
+msgstr ""
+
 #: src/Module/Calendar/Event/Form.php:223
 #: src/Module/Calendar/Event/Form.php:247
 msgid "Finish date/time is not known or not relevant"
@@ -6609,8 +5939,18 @@ msgstr[1] ""
 msgid "Show all contacts"
 msgstr ""
 
+#: src/Module/Contact.php:317 src/Module/Contact.php:377
+#: src/Module/Moderation/BaseUsers.php:85
+msgid "Pending"
+msgstr ""
+
 #: src/Module/Contact.php:320
 msgid "Only show pending contacts"
+msgstr ""
+
+#: src/Module/Contact.php:325 src/Module/Contact.php:378
+#: src/Module/Moderation/BaseUsers.php:93
+msgid "Blocked"
 msgstr ""
 
 #: src/Module/Contact.php:328
@@ -6657,6 +5997,14 @@ msgstr ""
 
 #: src/Module/Contact.php:400
 msgid "Update"
+msgstr ""
+
+#: src/Module/Contact.php:401 src/Module/Contact/Profile.php:349
+#: src/Module/Contact/Profile.php:468
+#: src/Module/Moderation/Blocklist/Contact.php:117
+#: src/Module/Moderation/Users/Blocked.php:138
+#: src/Module/Moderation/Users/Index.php:154
+msgid "Unblock"
 msgstr ""
 
 #: src/Module/Contact.php:402 src/Module/Contact/Profile.php:350
@@ -6824,6 +6172,14 @@ msgstr ""
 
 #: src/Module/Contact/Follow.php:167 src/Module/Contact/Unfollow.php:123
 msgid "Your Identity Address:"
+msgstr ""
+
+#: src/Module/Contact/Follow.php:168 src/Module/Contact/Profile.php:366
+#: src/Module/Contact/Unfollow.php:129
+#: src/Module/Moderation/Blocklist/Contact.php:133
+#: src/Module/Notifications/Introductions.php:129
+#: src/Module/Notifications/Introductions.php:198
+msgid "Profile URL"
 msgstr ""
 
 #: src/Module/Contact/Follow.php:169 src/Module/Contact/Profile.php:378
@@ -7586,6 +6942,12 @@ msgstr ""
 msgid "On this server the following remote servers are blocked."
 msgstr ""
 
+#: src/Module/Friendica.php:83
+#: src/Module/Moderation/Blocklist/Server/Index.php:84
+#: src/Module/Moderation/Blocklist/Server/Index.php:108
+msgid "Reason for the block"
+msgstr ""
+
 #: src/Module/Friendica.php:85
 msgid "Download this list in CSV format"
 msgstr ""
@@ -8034,6 +7396,701 @@ msgstr ""
 
 #: src/Module/Manifest.php:40
 msgid "A Decentralized Social Network"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:72
+msgid "List of all users"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:77
+msgid "Active"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:80
+msgid "List of active accounts"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:88
+msgid "List of pending registrations"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:96
+msgid "List of blocked users"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:101
+msgid "Deleted"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:104
+msgid "List of pending user deletions"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:119 src/Module/Settings/Account.php:494
+msgid "Normal Account Page"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:120 src/Module/Settings/Account.php:501
+msgid "Soapbox Page"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:121 src/Module/Settings/Account.php:508
+msgid "Public Forum"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:122 src/Module/Settings/Account.php:515
+msgid "Automatic Friend Page"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:123
+msgid "Private Forum"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:126 src/Module/Settings/Account.php:466
+msgid "Personal Page"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:127 src/Module/Settings/Account.php:473
+msgid "Organisation Page"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:128 src/Module/Settings/Account.php:480
+msgid "News Page"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:129 src/Module/Settings/Account.php:487
+msgid "Community Forum"
+msgstr ""
+
+#: src/Module/Moderation/BaseUsers.php:130
+msgid "Relay"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:70
+msgid "You can't block a local contact, please block the user instead"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:89
+#, php-format
+msgid "%s contact unblocked"
+msgid_plural "%s contacts unblocked"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:111
+msgid "Remote Contact Blocklist"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:112
+msgid ""
+"This page allows you to prevent any message from a remote contact to reach "
+"your node."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:113
+msgid "Block Remote Contact"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:114
+#: src/Module/Moderation/Users/Active.php:135
+#: src/Module/Moderation/Users/Blocked.php:135
+#: src/Module/Moderation/Users/Index.php:149
+#: src/Module/Moderation/Users/Pending.php:98
+msgid "select all"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:115
+msgid "select none"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:118
+msgid "No remote contact is blocked from this node."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:120
+msgid "Blocked Remote Contacts"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:121
+msgid "Block New Remote Contact"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:122
+msgid "Photo"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:122
+msgid "Reason"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:130
+#, php-format
+msgid "%s total blocked contact"
+msgid_plural "%s total blocked contacts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:133
+msgid "URL of the remote contact to block."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:134
+msgid "Also purge contact"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:134
+msgid ""
+"Removes all content related to this contact from the node. Keeps the contact "
+"record. This action cannot be undone."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Contact.php:135
+#: src/Module/Moderation/Blocklist/Server/Import.php:121
+msgid "Block Reason"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:78
+msgid "Server domain pattern added to the blocklist."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:86
+#, php-format
+msgid "%s server scheduled to be purged."
+msgid_plural "%s servers scheduled to be purged."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:118
+#: src/Module/Moderation/Blocklist/Server/Import.php:114
+msgid "← Return to the list"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:120
+msgid "Block A New Server Domain Pattern"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:121
+#: src/Module/Moderation/Blocklist/Server/Index.php:96
+msgid ""
+"<p>The server domain pattern syntax is case-insensitive shell wildcard, "
+"comprising the following special characters:</p>\n"
+"<ul>\n"
+"\t<li><code>*</code>: Any number of characters</li>\n"
+"\t<li><code>?</code>: Any single character</li>\n"
+"</ul>"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:126
+#: src/Module/Moderation/Blocklist/Server/Index.php:104
+msgid "Check pattern"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:127
+msgid "Matching known servers"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:128
+msgid "Server Name"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:129
+msgid "Server Domain"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:130
+msgid "Known Contacts"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:131
+#, php-format
+msgid "%d known server"
+msgid_plural "%d known servers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:132
+msgid "Add pattern to the blocklist"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:134
+#: src/Module/Moderation/Blocklist/Server/Index.php:113
+msgid "Server Domain Pattern"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:134
+#: src/Module/Moderation/Blocklist/Server/Index.php:113
+msgid ""
+"The domain pattern of the new server to add to the blocklist. Do not include "
+"the protocol."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:135
+msgid "Purge server"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:135
+msgid ""
+"Also purges all the locally stored content authored by the known contacts "
+"registered on that server. Keeps the contacts and the server records. This "
+"action cannot be undone."
+msgid_plural ""
+"Also purges all the locally stored content authored by the known contacts "
+"registered on these servers. Keeps the contacts and the servers records. "
+"This action cannot be undone."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:136
+msgid "Block reason"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Add.php:136
+msgid ""
+"The reason why you blocked this server domain pattern. This reason will be "
+"shown publicly in the server information page."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:73
+#: src/Module/Moderation/Blocklist/Server/Import.php:82
+msgid "Error importing pattern file"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:88
+msgid "Local blocklist replaced with the provided file."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:92
+#, php-format
+msgid "%d pattern was added to the local blocklist."
+msgid_plural "%d patterns were added to the local blocklist."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:94
+msgid "No pattern was added to the local blocklist."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:116
+msgid "Import a Server Domain Pattern Blocklist"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:117
+msgid ""
+"<p>This file can be downloaded from the <code>/friendica</code> path of any "
+"Friendica server.</p>"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:118
+#: src/Module/Moderation/Blocklist/Server/Index.php:103
+msgid "Upload file"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:119
+msgid "Patterns to import"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:120
+msgid "Domain Pattern"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:122
+msgid "Import Mode"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:123
+msgid "Import Patterns"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:124
+#, php-format
+msgid "%d total pattern"
+msgid_plural "%d total patterns"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:126
+#: src/Module/Moderation/Blocklist/Server/Index.php:112
+msgid "Server domain pattern blocklist CSV file"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:127
+msgid "Append"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:127
+msgid ""
+"Imports patterns from the file that weren't already existing in the current "
+"blocklist."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:128
+msgid "Replace"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Import.php:128
+msgid "Replaces the current blocklist by the imported patterns."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:83
+#: src/Module/Moderation/Blocklist/Server/Index.php:107
+msgid "Blocked server domain pattern"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:85
+msgid "Delete server domain pattern"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:85
+msgid "Check to delete this entry from the blocklist"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:93
+msgid "Server Domain Pattern Blocklist"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:94
+msgid ""
+"This page can be used to define a blocklist of server domain patterns from "
+"the federated network that are not allowed to interact with your node. For "
+"each domain pattern you should also provide the reason why you block it."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:95
+msgid ""
+"The list of blocked server domain patterns will be made publically available "
+"on the <a href=\"/friendica\">/friendica</a> page so that your users and "
+"people investigating communication problems can find the reason easily."
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:101
+msgid "Import server domain pattern blocklist"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:102
+msgid "Add new entry to the blocklist"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:105
+msgid "Save changes to the blocklist"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:106
+msgid "Current Entries in the Blocklist"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:109
+msgid "Delete entry from the blocklist"
+msgstr ""
+
+#: src/Module/Moderation/Blocklist/Server/Index.php:110
+msgid "Delete entry from the blocklist?"
+msgstr ""
+
+#: src/Module/Moderation/Item/Delete.php:50
+msgid "Item marked for deletion."
+msgstr ""
+
+#: src/Module/Moderation/Item/Delete.php:63
+msgid "Delete this Item"
+msgstr ""
+
+#: src/Module/Moderation/Item/Delete.php:64
+msgid ""
+"On this page you can delete an item from your node. If the item is a top "
+"level posting, the entire thread will be deleted."
+msgstr ""
+
+#: src/Module/Moderation/Item/Delete.php:65
+msgid ""
+"You need to know the GUID of the item. You can find it e.g. by looking at "
+"the display URL. The last part of http://example.com/display/123456 is the "
+"GUID, here 123456."
+msgstr ""
+
+#: src/Module/Moderation/Item/Delete.php:67
+msgid "GUID"
+msgstr ""
+
+#: src/Module/Moderation/Item/Delete.php:67
+msgid "The GUID of the item you want to delete."
+msgstr ""
+
+#: src/Module/Moderation/Item/Source.php:52
+msgid "Item Guid"
+msgstr ""
+
+#: src/Module/Moderation/Item/Source.php:56
+msgid "Item Id"
+msgstr ""
+
+#: src/Module/Moderation/Item/Source.php:57
+msgid "Item URI"
+msgstr ""
+
+#: src/Module/Moderation/Item/Source.php:59
+msgid "Terms"
+msgstr ""
+
+#: src/Module/Moderation/Item/Source.php:60
+msgid "Tag"
+msgstr ""
+
+#: src/Module/Moderation/Item/Source.php:61
+#: src/Module/Moderation/Users/Active.php:126
+#: src/Module/Moderation/Users/Blocked.php:126
+#: src/Module/Moderation/Users/Index.php:140
+msgid "Type"
+msgstr ""
+
+#: src/Module/Moderation/Item/Source.php:62
+msgid "Term"
+msgstr ""
+
+#: src/Module/Moderation/Item/Source.php:63
+msgid "URL"
+msgstr ""
+
+#: src/Module/Moderation/Item/Source.php:64
+msgid "Mention"
+msgstr ""
+
+#: src/Module/Moderation/Item/Source.php:65
+msgid "Implicit Mention"
+msgstr ""
+
+#: src/Module/Moderation/Summary.php:53
+msgid "Normal Account"
+msgstr ""
+
+#: src/Module/Moderation/Summary.php:54
+msgid "Automatic Follower Account"
+msgstr ""
+
+#: src/Module/Moderation/Summary.php:55
+msgid "Public Forum Account"
+msgstr ""
+
+#: src/Module/Moderation/Summary.php:56
+msgid "Automatic Friend Account"
+msgstr ""
+
+#: src/Module/Moderation/Summary.php:57
+msgid "Blog Account"
+msgstr ""
+
+#: src/Module/Moderation/Summary.php:58
+msgid "Private Forum Account"
+msgstr ""
+
+#: src/Module/Moderation/Summary.php:78
+msgid "Registered users"
+msgstr ""
+
+#: src/Module/Moderation/Summary.php:80
+msgid "Pending registrations"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:43
+#: src/Module/Moderation/Users/Index.php:43
+#, php-format
+msgid "%s user blocked"
+msgid_plural "%s users blocked"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Users/Active.php:51
+#: src/Module/Moderation/Users/Active.php:85
+#: src/Module/Moderation/Users/Blocked.php:51
+#: src/Module/Moderation/Users/Blocked.php:85
+#: src/Module/Moderation/Users/Index.php:58
+#: src/Module/Moderation/Users/Index.php:92
+msgid "You can't remove yourself"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:55
+#: src/Module/Moderation/Users/Blocked.php:55
+#: src/Module/Moderation/Users/Index.php:62
+#, php-format
+msgid "%s user deleted"
+msgid_plural "%s users deleted"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Users/Active.php:83
+#: src/Module/Moderation/Users/Blocked.php:83
+#: src/Module/Moderation/Users/Index.php:90
+#, php-format
+msgid "User \"%s\" deleted"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:93
+#: src/Module/Moderation/Users/Index.php:100
+#, php-format
+msgid "User \"%s\" blocked"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:126
+#: src/Module/Moderation/Users/Blocked.php:126
+#: src/Module/Moderation/Users/Deleted.php:83
+#: src/Module/Moderation/Users/Index.php:140
+#: src/Module/Moderation/Users/Index.php:160
+msgid "Register date"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:126
+#: src/Module/Moderation/Users/Blocked.php:126
+#: src/Module/Moderation/Users/Deleted.php:83
+#: src/Module/Moderation/Users/Index.php:140
+#: src/Module/Moderation/Users/Index.php:160
+msgid "Last login"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:126
+#: src/Module/Moderation/Users/Blocked.php:126
+#: src/Module/Moderation/Users/Deleted.php:83
+#: src/Module/Moderation/Users/Index.php:140
+#: src/Module/Moderation/Users/Index.php:160
+msgid "Last public item"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:134
+msgid "Active Accounts"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:138
+#: src/Module/Moderation/Users/Blocked.php:137
+#: src/Module/Moderation/Users/Index.php:153
+msgid "User blocked"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:139
+#: src/Module/Moderation/Users/Blocked.php:139
+#: src/Module/Moderation/Users/Index.php:155
+msgid "Site admin"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:140
+#: src/Module/Moderation/Users/Blocked.php:140
+#: src/Module/Moderation/Users/Index.php:156
+msgid "Account expired"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:141
+#: src/Module/Moderation/Users/Index.php:159
+msgid "Create a new user"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:147
+#: src/Module/Moderation/Users/Blocked.php:146
+#: src/Module/Moderation/Users/Index.php:165
+msgid ""
+"Selected users will be deleted!\\n\\nEverything these users had posted on "
+"this site will be permanently deleted!\\n\\nAre you sure?"
+msgstr ""
+
+#: src/Module/Moderation/Users/Active.php:148
+#: src/Module/Moderation/Users/Blocked.php:147
+#: src/Module/Moderation/Users/Index.php:166
+msgid ""
+"The user {0} will be deleted!\\n\\nEverything this user has posted on this "
+"site will be permanently deleted!\\n\\nAre you sure?"
+msgstr ""
+
+#: src/Module/Moderation/Users/Blocked.php:43
+#: src/Module/Moderation/Users/Index.php:50
+#, php-format
+msgid "%s user unblocked"
+msgid_plural "%s users unblocked"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Users/Blocked.php:92
+#: src/Module/Moderation/Users/Index.php:106
+#, php-format
+msgid "User \"%s\" unblocked"
+msgstr ""
+
+#: src/Module/Moderation/Users/Blocked.php:134
+msgid "Blocked Users"
+msgstr ""
+
+#: src/Module/Moderation/Users/Create.php:62
+msgid "New User"
+msgstr ""
+
+#: src/Module/Moderation/Users/Create.php:63
+msgid "Add User"
+msgstr ""
+
+#: src/Module/Moderation/Users/Create.php:71
+msgid "Name of the new user."
+msgstr ""
+
+#: src/Module/Moderation/Users/Create.php:72
+msgid "Nickname"
+msgstr ""
+
+#: src/Module/Moderation/Users/Create.php:72
+msgid "Nickname of the new user."
+msgstr ""
+
+#: src/Module/Moderation/Users/Create.php:73
+msgid "Email address of the new user."
+msgstr ""
+
+#: src/Module/Moderation/Users/Deleted.php:81
+msgid "Users awaiting permanent deletion"
+msgstr ""
+
+#: src/Module/Moderation/Users/Deleted.php:83
+#: src/Module/Moderation/Users/Index.php:160
+msgid "Permanent deletion"
+msgstr ""
+
+#: src/Module/Moderation/Users/Index.php:150
+msgid "User waiting for permanent deletion"
+msgstr ""
+
+#: src/Module/Moderation/Users/Pending.php:44
+#, php-format
+msgid "%s user approved"
+msgid_plural "%s users approved"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Users/Pending.php:51
+#, php-format
+msgid "%s registration revoked"
+msgid_plural "%s registrations revoked"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Users/Pending.php:76
+msgid "Account approved."
+msgstr ""
+
+#: src/Module/Moderation/Users/Pending.php:82
+msgid "Registration revoked"
+msgstr ""
+
+#: src/Module/Moderation/Users/Pending.php:97
+msgid "User registrations awaiting review"
+msgstr ""
+
+#: src/Module/Moderation/Users/Pending.php:99
+msgid "Request date"
+msgstr ""
+
+#: src/Module/Moderation/Users/Pending.php:100
+msgid "No registrations."
+msgstr ""
+
+#: src/Module/Moderation/Users/Pending.php:101
+msgid "Note from the user"
+msgstr ""
+
+#: src/Module/Moderation/Users/Pending.php:103
+msgid "Deny"
 msgstr ""
 
 #: src/Module/Notifications/Introductions.php:99
