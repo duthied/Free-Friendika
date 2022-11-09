@@ -1149,7 +1149,7 @@ class Contact
 		$sparkle = false;
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
 			$sparkle = true;
-			$profile_link = DI::baseUrl() . '/redir/' . $contact['id'];
+			$profile_link = 'redir/' . $contact['id'];
 		} else {
 			$profile_link = $contact['url'];
 		}
@@ -1165,12 +1165,12 @@ class Contact
 		}
 
 		if (self::canReceivePrivateMessages($contact) && empty($contact['pending'])) {
-			$pm_url = DI::baseUrl() . '/message/new/' . $contact['id'];
+			$pm_url = 'message/new/' . $contact['id'];
 		}
 
-		$contact_url = DI::baseUrl() . '/contact/' . $contact['id'];
+		$contact_url = 'contact/' . $contact['id'];
 
-		$posts_link = DI::baseUrl() . '/contact/' . $contact['id'] . '/conversations';
+		$posts_link = 'contact/' . $contact['id'] . '/conversations';
 
 		$follow_link = '';
 		$unfollow_link = '';
