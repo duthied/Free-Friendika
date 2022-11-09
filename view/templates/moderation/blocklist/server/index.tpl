@@ -11,7 +11,7 @@
 	<h2>{{$l10n.importtitle}}</h2>
     {{$l10n.download nofilter}}
 
-	<form action="{{$baseurl}}/admin/blocklist/server/import" method="post" enctype="multipart/form-data">
+	<form action="{{$baseurl}}/moderation/blocklist/server/import" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token_import}}">
         {{include file="field_input.tpl" field=$listfile}}
 		<div class="submit">
@@ -21,7 +21,7 @@
 
 	<h2>{{$l10n.addtitle}}</h2>
     {{$l10n.syntax nofilter}}
-	<form action="{{$baseurl}}/admin/blocklist/server/add" method="get">
+	<form action="{{$baseurl}}/moderation/blocklist/server/add" method="get">
 		{{include file="field_input.tpl" field=$newdomain}}
 		<div class="submit">
 			<button type="submit" class="btn btn-primary">{{$l10n.addsubmit}}</button>
@@ -30,7 +30,7 @@
 
 	{{if $entries}}
 	<h2>{{$l10n.currenttitle}}</h2>
-	<form action="{{$baseurl}}/admin/blocklist/server" method="post">
+	<form action="{{$baseurl}}/moderation/blocklist/server" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 		{{foreach $entries as $e}}
 			{{include file="field_input.tpl" field=$e.domain}}

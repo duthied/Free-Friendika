@@ -1,5 +1,5 @@
 
-<div id='adminpage'>
+<div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 
 	<dl>
