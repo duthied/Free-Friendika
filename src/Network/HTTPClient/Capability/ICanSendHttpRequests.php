@@ -92,7 +92,7 @@ interface ICanSendHttpRequests
 	 * Send POST request to an URL
 	 *
 	 * @param string $url            URL to post
-	 * @param mixed  $params         array of POST variables
+	 * @param mixed  $params         POST variables (if an array is passed, it will automatically set as formular parameters)
 	 * @param array  $headers        HTTP headers
 	 * @param int    $timeout        The timeout in seconds, default system config value or 60 seconds
 	 *
@@ -107,6 +107,7 @@ interface ICanSendHttpRequests
 	 * @param string $url            Url to send to
 	 * @param array  $opts           (optional parameters) associative array with:
 	 *                       	      'body' => (mixed) setting the body for sending data
+	 *                       	      'form_params' => (array) Associative array of form field names to values
 	 *                                'accept_content' => (string array) supply Accept: header with 'accept_content' as the value
 	 *                                'timeout' => int Timeout in seconds, default system config value or 60 seconds
 	 *                                'cookiejar' => path to cookie jar file

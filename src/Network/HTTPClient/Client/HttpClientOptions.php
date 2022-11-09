@@ -59,9 +59,13 @@ class HttpClientOptions
 	const VERIFY = 'verify';
 
 	/**
-	 * body: (mixed) Setting the body for sending data
+	 * body: (string) Setting the body for sending data
 	 */
 	const BODY = RequestOptions::BODY;
+	/**
+	 * form_params: (array) Associative array of form field names to values
+	 */
+	const FORM_PARAMS = RequestOptions::FORM_PARAMS;
 	/**
 	 * auth: (array) Authentication settings for specific requests
 	 */

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-09 06:29-0500\n"
+"POT-Creation-Date: 2022-11-09 21:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,12 +47,12 @@ msgstr ""
 #: src/Module/Calendar/Event/Show.php:54 src/Module/Calendar/Export.php:62
 #: src/Module/Calendar/Show.php:64 src/Module/Contact/Advanced.php:60
 #: src/Module/Contact/Follow.php:86 src/Module/Contact/Follow.php:158
-#: src/Module/Contact/Suggestions.php:54 src/Module/Contact/Unfollow.php:66
-#: src/Module/Contact/Unfollow.php:80 src/Module/Contact/Unfollow.php:112
-#: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
-#: src/Module/FriendSuggest.php:57 src/Module/Group.php:40
-#: src/Module/Group.php:83 src/Module/Invite.php:42 src/Module/Invite.php:131
-#: src/Module/Notifications/Notification.php:76
+#: src/Module/Contact/Match.php:69 src/Module/Contact/Suggestions.php:54
+#: src/Module/Contact/Unfollow.php:66 src/Module/Contact/Unfollow.php:80
+#: src/Module/Contact/Unfollow.php:112 src/Module/Delegation.php:118
+#: src/Module/FollowConfirm.php:38 src/Module/FriendSuggest.php:57
+#: src/Module/Group.php:40 src/Module/Group.php:83 src/Module/Invite.php:42
+#: src/Module/Invite.php:131 src/Module/Notifications/Notification.php:76
 #: src/Module/Notifications/Notification.php:107
 #: src/Module/OStatus/Repair.php:60 src/Module/Profile/Attachment/Upload.php:97
 #: src/Module/Profile/Common.php:55 src/Module/Profile/Contacts.php:55
@@ -434,18 +434,6 @@ msgstr ""
 #: mod/lostpass.php:176
 #, php-format
 msgid "Your password has been changed at %s"
-msgstr ""
-
-#: mod/match.php:62
-msgid "No keywords to match. Please add keywords to your profile."
-msgstr ""
-
-#: mod/match.php:93 src/Module/BaseSearch.php:119
-msgid "No matches"
-msgstr ""
-
-#: mod/match.php:98
-msgid "Profile Match"
 msgstr ""
 
 #: mod/message.php:46 mod/message.php:129 src/Content/Nav.php:289
@@ -5524,6 +5512,10 @@ msgstr ""
 msgid "Forum Search - %s"
 msgstr ""
 
+#: src/Module/BaseSearch.php:119 src/Module/Contact/Match.php:122
+msgid "No matches"
+msgstr ""
+
 #: src/Module/BaseSettings.php:80
 msgid "Account"
 msgstr ""
@@ -5979,6 +5971,21 @@ msgstr ""
 
 #: src/Module/Contact/Follow.php:219
 msgid "The contact could not be added."
+msgstr ""
+
+#: src/Module/Contact/Match.php:77 src/Module/Profile/Attachment/Upload.php:80
+#: src/Module/Profile/Attachment/Upload.php:102
+#: src/Module/Profile/Photos/Upload.php:113
+#: src/Module/Profile/Photos/Upload.php:162
+msgid "Invalid request."
+msgstr ""
+
+#: src/Module/Contact/Match.php:84
+msgid "No keywords to match. Please add keywords to your profile."
+msgstr ""
+
+#: src/Module/Contact/Match.php:127
+msgid "Profile Match"
 msgstr ""
 
 #: src/Module/Contact/Profile.php:128
@@ -8106,13 +8113,6 @@ msgstr ""
 #: src/Module/Post/Tag/Remove.php:108 src/Module/Settings/Delegation.php:178
 #: src/Module/Settings/TwoFactor/Trusted.php:143
 msgid "Remove"
-msgstr ""
-
-#: src/Module/Profile/Attachment/Upload.php:80
-#: src/Module/Profile/Attachment/Upload.php:102
-#: src/Module/Profile/Photos/Upload.php:113
-#: src/Module/Profile/Photos/Upload.php:162
-msgid "Invalid request."
 msgstr ""
 
 #: src/Module/Profile/Attachment/Upload.php:117
