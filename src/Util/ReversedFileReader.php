@@ -60,7 +60,7 @@ class ReversedFileReader implements \Iterator
 		$this->fh = fopen($filename, 'r');
 		if (!$this->fh) {
 			// this should use a custom exception.
-			throw \Exception("Unable to open $filename");
+			throw new \Exception("Unable to open $filename");
 		}
 		$this->filesize = filesize($filename);
 		$this->pos      = -1;
