@@ -67,7 +67,7 @@ class CheckRelMeProfileLink
 					Logger::notice('Empty body of the fetched homepage link). Cannot verify the relation to profile of UID %s.', ['uid' => $uid, 'owner homepage' => $owner['homepage']]);
 				} else {
 					$doc = new DOMDocument();
-					$doc->loadHTML($content);
+					@$doc->loadHTML($content);
 					if (!$doc) {
 						Logger::notice('Could not parse the content');
 					} else {
