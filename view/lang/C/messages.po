@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-08 20:19-0500\n"
+"POT-Creation-Date: 2022-11-09 06:29-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,18 +41,18 @@ msgstr ""
 #: mod/editpost.php:38 mod/item.php:181 mod/item.php:186 mod/item.php:870
 #: mod/message.php:69 mod/message.php:114 mod/notes.php:44
 #: mod/ostatus_subscribe.php:33 mod/photos.php:159 mod/photos.php:886
-#: mod/settings.php:40 mod/settings.php:50 mod/settings.php:156
 #: src/Module/Attach.php:56 src/Module/BaseApi.php:94
-#: src/Module/BaseNotifications.php:98 src/Module/Calendar/Event/API.php:88
-#: src/Module/Calendar/Event/Form.php:84 src/Module/Calendar/Event/Show.php:54
-#: src/Module/Calendar/Export.php:62 src/Module/Calendar/Show.php:64
-#: src/Module/Contact/Advanced.php:60 src/Module/Contact/Follow.php:86
-#: src/Module/Contact/Follow.php:158 src/Module/Contact/Suggestions.php:54
-#: src/Module/Contact/Unfollow.php:66 src/Module/Contact/Unfollow.php:80
-#: src/Module/Contact/Unfollow.php:112 src/Module/Delegation.php:118
-#: src/Module/FollowConfirm.php:38 src/Module/FriendSuggest.php:57
-#: src/Module/Group.php:40 src/Module/Group.php:83 src/Module/Invite.php:42
-#: src/Module/Invite.php:131 src/Module/Notifications/Notification.php:76
+#: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:52
+#: src/Module/Calendar/Event/API.php:88 src/Module/Calendar/Event/Form.php:84
+#: src/Module/Calendar/Event/Show.php:54 src/Module/Calendar/Export.php:62
+#: src/Module/Calendar/Show.php:64 src/Module/Contact/Advanced.php:60
+#: src/Module/Contact/Follow.php:86 src/Module/Contact/Follow.php:158
+#: src/Module/Contact/Suggestions.php:54 src/Module/Contact/Unfollow.php:66
+#: src/Module/Contact/Unfollow.php:80 src/Module/Contact/Unfollow.php:112
+#: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
+#: src/Module/FriendSuggest.php:57 src/Module/Group.php:40
+#: src/Module/Group.php:83 src/Module/Invite.php:42 src/Module/Invite.php:131
+#: src/Module/Notifications/Notification.php:76
 #: src/Module/Notifications/Notification.php:107
 #: src/Module/OStatus/Repair.php:60 src/Module/Profile/Attachment/Upload.php:97
 #: src/Module/Profile/Common.php:55 src/Module/Profile/Contacts.php:55
@@ -661,7 +661,7 @@ msgstr ""
 msgid "Upload New Photos"
 msgstr ""
 
-#: mod/photos.php:128 src/Module/BaseSettings.php:35
+#: mod/photos.php:128 src/Module/BaseSettings.php:74
 msgid "everybody"
 msgstr ""
 
@@ -873,10 +873,11 @@ msgstr ""
 msgid "Select"
 msgstr ""
 
-#: mod/photos.php:1422 mod/settings.php:350 src/Content/Conversation.php:634
+#: mod/photos.php:1422 src/Content/Conversation.php:634
 #: src/Module/Moderation/Users/Active.php:136
 #: src/Module/Moderation/Users/Blocked.php:136
 #: src/Module/Moderation/Users/Index.php:151
+#: src/Module/Settings/Connectors.php:242
 msgid "Delete"
 msgstr ""
 
@@ -902,236 +903,6 @@ msgstr ""
 
 #: mod/photos.php:1572
 msgid "View Album"
-msgstr ""
-
-#: mod/settings.php:122
-msgid "Failed to connect with email account using the settings provided."
-msgstr ""
-
-#: mod/settings.php:175
-msgid "Connected Apps"
-msgstr ""
-
-#: mod/settings.php:176 src/Module/Contact/Advanced.php:134
-#: src/Module/Moderation/Blocklist/Contact.php:122
-#: src/Module/Moderation/Users/Active.php:126
-#: src/Module/Moderation/Users/Blocked.php:126
-#: src/Module/Moderation/Users/Create.php:71
-#: src/Module/Moderation/Users/Deleted.php:83
-#: src/Module/Moderation/Users/Index.php:140
-#: src/Module/Moderation/Users/Index.php:160
-#: src/Module/Moderation/Users/Pending.php:99
-msgid "Name"
-msgstr ""
-
-#: mod/settings.php:177 src/Content/Nav.php:215
-msgid "Home Page"
-msgstr ""
-
-#: mod/settings.php:178 src/Module/Admin/Queue.php:78
-msgid "Created"
-msgstr ""
-
-#: mod/settings.php:179
-msgid "Remove authorization"
-msgstr ""
-
-#: mod/settings.php:205 mod/settings.php:237 mod/settings.php:268
-#: mod/settings.php:352 src/Module/Admin/Addons/Index.php:69
-#: src/Module/Admin/Features.php:87 src/Module/Admin/Logs/Settings.php:81
-#: src/Module/Admin/Site.php:434 src/Module/Admin/Themes/Index.php:113
-#: src/Module/Admin/Tos.php:83 src/Module/Settings/Account.php:563
-#: src/Module/Settings/Delegation.php:169 src/Module/Settings/Display.php:200
-msgid "Save Settings"
-msgstr ""
-
-#: mod/settings.php:213
-msgid "Addon Settings"
-msgstr ""
-
-#: mod/settings.php:214
-msgid "No Addon settings configured"
-msgstr ""
-
-#: mod/settings.php:235
-msgid "Additional Features"
-msgstr ""
-
-#: mod/settings.php:273
-msgid "Diaspora (Socialhome, Hubzilla)"
-msgstr ""
-
-#: mod/settings.php:273 mod/settings.php:274
-msgid "enabled"
-msgstr ""
-
-#: mod/settings.php:273 mod/settings.php:274
-msgid "disabled"
-msgstr ""
-
-#: mod/settings.php:273 mod/settings.php:274
-#, php-format
-msgid "Built-in support for %s connectivity is %s"
-msgstr ""
-
-#: mod/settings.php:274
-msgid "OStatus (GNU Social)"
-msgstr ""
-
-#: mod/settings.php:300
-msgid "Email access is disabled on this site."
-msgstr ""
-
-#: mod/settings.php:305 mod/settings.php:350
-msgid "None"
-msgstr ""
-
-#: mod/settings.php:311 src/Module/BaseSettings.php:78
-msgid "Social Networks"
-msgstr ""
-
-#: mod/settings.php:316
-msgid "General Social Media Settings"
-msgstr ""
-
-#: mod/settings.php:319
-msgid "Followed content scope"
-msgstr ""
-
-#: mod/settings.php:321
-msgid ""
-"By default, conversations in which your follows participated but didn't "
-"start will be shown in your timeline. You can turn this behavior off, or "
-"expand it to the conversations in which your follows liked a post."
-msgstr ""
-
-#: mod/settings.php:323
-msgid "Only conversations my follows started"
-msgstr ""
-
-#: mod/settings.php:324
-msgid "Conversations my follows started or commented on (default)"
-msgstr ""
-
-#: mod/settings.php:325
-msgid "Any conversation my follows interacted with, including likes"
-msgstr ""
-
-#: mod/settings.php:328
-msgid "Enable Content Warning"
-msgstr ""
-
-#: mod/settings.php:328
-msgid ""
-"Users on networks like Mastodon or Pleroma are able to set a content warning "
-"field which collapse their post by default. This enables the automatic "
-"collapsing instead of setting the content warning as the post title. Doesn't "
-"affect any other content filtering you eventually set up."
-msgstr ""
-
-#: mod/settings.php:329
-msgid "Enable intelligent shortening"
-msgstr ""
-
-#: mod/settings.php:329
-msgid ""
-"Normally the system tries to find the best link to add to shortened posts. "
-"If disabled, every shortened post will always point to the original "
-"friendica post."
-msgstr ""
-
-#: mod/settings.php:330
-msgid "Enable simple text shortening"
-msgstr ""
-
-#: mod/settings.php:330
-msgid ""
-"Normally the system shortens posts at the next line feed. If this option is "
-"enabled then the system will shorten the text at the maximum character limit."
-msgstr ""
-
-#: mod/settings.php:331
-msgid "Attach the link title"
-msgstr ""
-
-#: mod/settings.php:331
-msgid ""
-"When activated, the title of the attached link will be added as a title on "
-"posts to Diaspora. This is mostly helpful with \"remote-self\" contacts that "
-"share feed content."
-msgstr ""
-
-#: mod/settings.php:332
-msgid "Your legacy ActivityPub/GNU Social account"
-msgstr ""
-
-#: mod/settings.php:332
-msgid ""
-"If you enter your old account name from an ActivityPub based system or your "
-"GNU Social/Statusnet account name here (in the format user@domain.tld), your "
-"contacts will be added automatically. The field will be emptied when done."
-msgstr ""
-
-#: mod/settings.php:335
-msgid "Repair OStatus subscriptions"
-msgstr ""
-
-#: mod/settings.php:339
-msgid "Email/Mailbox Setup"
-msgstr ""
-
-#: mod/settings.php:340
-msgid ""
-"If you wish to communicate with email contacts using this service "
-"(optional), please specify how to connect to your mailbox."
-msgstr ""
-
-#: mod/settings.php:341
-msgid "Last successful email check:"
-msgstr ""
-
-#: mod/settings.php:343
-msgid "IMAP server name:"
-msgstr ""
-
-#: mod/settings.php:344
-msgid "IMAP port:"
-msgstr ""
-
-#: mod/settings.php:345
-msgid "Security:"
-msgstr ""
-
-#: mod/settings.php:346
-msgid "Email login name:"
-msgstr ""
-
-#: mod/settings.php:347
-msgid "Email password:"
-msgstr ""
-
-#: mod/settings.php:348
-msgid "Reply-to address:"
-msgstr ""
-
-#: mod/settings.php:349
-msgid "Send public posts to all email contacts:"
-msgstr ""
-
-#: mod/settings.php:350
-msgid "Action after import:"
-msgstr ""
-
-#: mod/settings.php:350 src/Content/Nav.php:283
-msgid "Mark as seen"
-msgstr ""
-
-#: mod/settings.php:350
-msgid "Move to folder"
-msgstr ""
-
-#: mod/settings.php:351
-msgid "Move to folder:"
 msgstr ""
 
 #: src/App.php:490
@@ -2012,7 +1783,7 @@ msgid "Your posts and conversations"
 msgstr ""
 
 #: src/Content/Nav.php:194 src/Module/BaseProfile.php:48
-#: src/Module/BaseSettings.php:55 src/Module/Contact.php:460
+#: src/Module/BaseSettings.php:100 src/Module/Contact.php:460
 #: src/Module/Contact/Profile.php:383 src/Module/Profile/Profile.php:240
 #: src/Module/Welcome.php:57 view/theme/frio/theme.php:238
 msgid "Profile"
@@ -2058,6 +1829,10 @@ msgstr ""
 
 #: src/Content/Nav.php:215 src/Content/Nav.php:276
 msgid "Home"
+msgstr ""
+
+#: src/Content/Nav.php:215 src/Module/Settings/OAuth.php:74
+msgid "Home Page"
 msgstr ""
 
 #: src/Content/Nav.php:219 src/Module/Register.php:168
@@ -2174,6 +1949,10 @@ msgstr ""
 msgid "See all notifications"
 msgstr ""
 
+#: src/Content/Nav.php:283 src/Module/Settings/Connectors.php:242
+msgid "Mark as seen"
+msgstr ""
+
 #: src/Content/Nav.php:283
 msgid "Mark all system notifications as seen"
 msgstr ""
@@ -2199,7 +1978,7 @@ msgid "Manage other pages"
 msgstr ""
 
 #: src/Content/Nav.php:295 src/Module/Admin/Addons/Details.php:114
-#: src/Module/Admin/Themes/Details.php:93 src/Module/BaseSettings.php:122
+#: src/Module/Admin/Themes/Details.php:93 src/Module/BaseSettings.php:170
 #: src/Module/Welcome.php:52 view/theme/frio/theme.php:247
 msgid "Settings"
 msgstr ""
@@ -3938,7 +3717,7 @@ msgid "Administration"
 msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:112 src/Module/Admin/Addons/Index.php:68
-#: src/Module/BaseAdmin.php:92 src/Module/BaseSettings.php:85
+#: src/Module/BaseAdmin.php:92 src/Module/BaseSettings.php:134
 msgid "Addons"
 msgstr ""
 
@@ -3964,6 +3743,17 @@ msgstr ""
 #: src/Module/Admin/Addons/Index.php:53
 #, php-format
 msgid "Addon %s failed to install."
+msgstr ""
+
+#: src/Module/Admin/Addons/Index.php:69 src/Module/Admin/Features.php:87
+#: src/Module/Admin/Logs/Settings.php:81 src/Module/Admin/Site.php:434
+#: src/Module/Admin/Themes/Index.php:113 src/Module/Admin/Tos.php:83
+#: src/Module/Settings/Account.php:563 src/Module/Settings/Addons.php:81
+#: src/Module/Settings/Connectors.php:159
+#: src/Module/Settings/Connectors.php:244
+#: src/Module/Settings/Delegation.php:169 src/Module/Settings/Display.php:200
+#: src/Module/Settings/Features.php:76
+msgid "Save Settings"
 msgstr ""
 
 #: src/Module/Admin/Addons/Index.php:70
@@ -4298,6 +4088,10 @@ msgstr ""
 
 #: src/Module/Admin/Queue.php:77
 msgid "Job Parameters"
+msgstr ""
+
+#: src/Module/Admin/Queue.php:78 src/Module/Settings/OAuth.php:75
+msgid "Created"
 msgstr ""
 
 #: src/Module/Admin/Queue.php:79
@@ -5591,7 +5385,7 @@ msgstr ""
 msgid "Configuration"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:94 src/Module/BaseSettings.php:63
+#: src/Module/BaseAdmin.php:94 src/Module/BaseSettings.php:112
 msgid "Additional features"
 msgstr ""
 
@@ -5730,32 +5524,36 @@ msgstr ""
 msgid "Forum Search - %s"
 msgstr ""
 
-#: src/Module/BaseSettings.php:41
+#: src/Module/BaseSettings.php:80
 msgid "Account"
 msgstr ""
 
-#: src/Module/BaseSettings.php:48 src/Module/Security/TwoFactor/Verify.php:96
+#: src/Module/BaseSettings.php:87 src/Module/Security/TwoFactor/Verify.php:96
 #: src/Module/Settings/TwoFactor/Index.php:117
 msgid "Two-factor authentication"
 msgstr ""
 
-#: src/Module/BaseSettings.php:71
+#: src/Module/BaseSettings.php:120
 msgid "Display"
 msgstr ""
 
-#: src/Module/BaseSettings.php:92 src/Module/Settings/Delegation.php:170
+#: src/Module/BaseSettings.php:127 src/Module/Settings/Connectors.php:203
+msgid "Social Networks"
+msgstr ""
+
+#: src/Module/BaseSettings.php:141 src/Module/Settings/Delegation.php:170
 msgid "Manage Accounts"
 msgstr ""
 
-#: src/Module/BaseSettings.php:99
+#: src/Module/BaseSettings.php:148
 msgid "Connected apps"
 msgstr ""
 
-#: src/Module/BaseSettings.php:106 src/Module/Settings/UserExport.php:102
+#: src/Module/BaseSettings.php:155 src/Module/Settings/UserExport.php:102
 msgid "Export personal data"
 msgstr ""
 
-#: src/Module/BaseSettings.php:113
+#: src/Module/BaseSettings.php:162
 msgid "Remove account"
 msgstr ""
 
@@ -6028,6 +5826,18 @@ msgstr ""
 
 #: src/Module/Contact/Advanced.php:130
 msgid "Return to contact editor"
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:134
+#: src/Module/Moderation/Blocklist/Contact.php:122
+#: src/Module/Moderation/Users/Active.php:126
+#: src/Module/Moderation/Users/Blocked.php:126
+#: src/Module/Moderation/Users/Create.php:71
+#: src/Module/Moderation/Users/Deleted.php:83
+#: src/Module/Moderation/Users/Index.php:140
+#: src/Module/Moderation/Users/Index.php:160
+#: src/Module/Moderation/Users/Pending.php:99 src/Module/Settings/OAuth.php:73
+msgid "Name"
 msgstr ""
 
 #: src/Module/Contact/Advanced.php:135
@@ -9379,6 +9189,189 @@ msgstr ""
 msgid "Resend relocate message to contacts"
 msgstr ""
 
+#: src/Module/Settings/Addons.php:89
+msgid "Addon Settings"
+msgstr ""
+
+#: src/Module/Settings/Addons.php:90
+msgid "No Addon settings configured"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:121
+msgid "Failed to connect with email account using the settings provided."
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:165
+#: src/Module/Settings/Connectors.php:166
+msgid "Diaspora (Socialhome, Hubzilla)"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:165
+#: src/Module/Settings/Connectors.php:169
+#, php-format
+msgid "Built-in support for %s connectivity is enabled"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:166
+#: src/Module/Settings/Connectors.php:168
+#, php-format
+msgid "Built-in support for %s connectivity is disabled"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:168
+#: src/Module/Settings/Connectors.php:169
+msgid "OStatus (GNU Social)"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:181
+msgid "Email access is disabled on this site."
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:196
+#: src/Module/Settings/Connectors.php:242
+msgid "None"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:208
+msgid "General Social Media Settings"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:211
+msgid "Followed content scope"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:213
+msgid ""
+"By default, conversations in which your follows participated but didn't "
+"start will be shown in your timeline. You can turn this behavior off, or "
+"expand it to the conversations in which your follows liked a post."
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:215
+msgid "Only conversations my follows started"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:216
+msgid "Conversations my follows started or commented on (default)"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:217
+msgid "Any conversation my follows interacted with, including likes"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:220
+msgid "Enable Content Warning"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:220
+msgid ""
+"Users on networks like Mastodon or Pleroma are able to set a content warning "
+"field which collapse their post by default. This enables the automatic "
+"collapsing instead of setting the content warning as the post title. Doesn't "
+"affect any other content filtering you eventually set up."
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:221
+msgid "Enable intelligent shortening"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:221
+msgid ""
+"Normally the system tries to find the best link to add to shortened posts. "
+"If disabled, every shortened post will always point to the original "
+"friendica post."
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:222
+msgid "Enable simple text shortening"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:222
+msgid ""
+"Normally the system shortens posts at the next line feed. If this option is "
+"enabled then the system will shorten the text at the maximum character limit."
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:223
+msgid "Attach the link title"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:223
+msgid ""
+"When activated, the title of the attached link will be added as a title on "
+"posts to Diaspora. This is mostly helpful with \"remote-self\" contacts that "
+"share feed content."
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:224
+msgid "Your legacy ActivityPub/GNU Social account"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:224
+msgid ""
+"If you enter your old account name from an ActivityPub based system or your "
+"GNU Social/Statusnet account name here (in the format user@domain.tld), your "
+"contacts will be added automatically. The field will be emptied when done."
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:227
+msgid "Repair OStatus subscriptions"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:231
+msgid "Email/Mailbox Setup"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:232
+msgid ""
+"If you wish to communicate with email contacts using this service "
+"(optional), please specify how to connect to your mailbox."
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:233
+msgid "Last successful email check:"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:235
+msgid "IMAP server name:"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:236
+msgid "IMAP port:"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:237
+msgid "Security:"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:238
+msgid "Email login name:"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:239
+msgid "Email password:"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:240
+msgid "Reply-to address:"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:241
+msgid "Send public posts to all email contacts:"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:242
+msgid "Action after import:"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:242
+msgid "Move to folder"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:243
+msgid "Move to folder:"
+msgstr ""
+
 #: src/Module/Settings/Delegation.php:52
 msgid "Delegation successfully granted."
 msgstr ""
@@ -9576,6 +9569,18 @@ msgstr ""
 
 #: src/Module/Settings/Display.php:226
 msgid "Beginning of week:"
+msgstr ""
+
+#: src/Module/Settings/Features.php:74
+msgid "Additional Features"
+msgstr ""
+
+#: src/Module/Settings/OAuth.php:72
+msgid "Connected Apps"
+msgstr ""
+
+#: src/Module/Settings/OAuth.php:76
+msgid "Remove authorization"
 msgstr ""
 
 #: src/Module/Settings/Profile/Index.php:84

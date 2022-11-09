@@ -56,9 +56,9 @@ class OpenID extends BaseModule
 				}
 
 				// NOTE: we search both for normalised and non-normalised form of $authid
-				//       because the normalization step was removed from setting
-				//       mod/settings.php in 8367cad so it might have left mixed
-				//       records in the user table
+				//       because the normalization step was removed from settings
+				//       in commit 8367cadeeffec4b6792a502847304b17ceba5882, so it might
+				//       have left mixed records in the user table
 				//
 				$condition = ['blocked' => false, 'account_expired' => false, 'account_removed' => false, 'verified' => true,
 				              'openid' => [$authId, Strings::normaliseOpenID($authId)]];
