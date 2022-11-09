@@ -1149,7 +1149,7 @@ class Contact
 		$sparkle = false;
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
 			$sparkle = true;
-			$profile_link = 'redir/' . $contact['id'];
+			$profile_link = 'contact/redir/' . $contact['id'];
 		} else {
 			$profile_link = $contact['url'];
 		}
@@ -3324,7 +3324,7 @@ class Contact
 			return $destination;
 		}
 
-		$redirect = 'redir/' . $contact['id'];
+		$redirect = 'contact/redir/' . $contact['id'];
 
 		if (($url != '') && !Strings::compareLink($contact['url'], $url)) {
 			$redirect .= '?url=' . $url;

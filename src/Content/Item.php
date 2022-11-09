@@ -345,7 +345,7 @@ class Item
 			'url' => $item['author-link'],
 		];
 		$profile_link = Contact::magicLinkByContact($author, $item['author-link']);
-		$sparkle = (strpos($profile_link, 'redir/') === 0);
+		$sparkle = (strpos($profile_link, 'contact/redir/') === 0);
 
 		$cid = 0;
 		$pcid = $item['author-id'];

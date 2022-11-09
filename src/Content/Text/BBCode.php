@@ -2090,7 +2090,7 @@ class BBCode
 				$text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $text);
 
 				// sanitizes src attributes (http and redir URLs for displaying in a web page, cid used for inline images in emails)
-				$allowed_src_protocols = ['//', 'http://', 'https://', 'redir/', 'cid:'];
+				$allowed_src_protocols = ['//', 'http://', 'https://', 'contact/redir/', 'cid:'];
 
 				array_walk($allowed_src_protocols, function(&$value) { $value = preg_quote($value, '#');});
 
@@ -2105,7 +2105,7 @@ class BBCode
 				$allowed_link_protocols[] = '//';
 				$allowed_link_protocols[] = 'http://';
 				$allowed_link_protocols[] = 'https://';
-				$allowed_link_protocols[] = 'redir/';
+				$allowed_link_protocols[] = 'contact/redir/';
 
 				array_walk($allowed_link_protocols, function(&$value) { $value = preg_quote($value, '#');});
 

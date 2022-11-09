@@ -385,6 +385,7 @@ return [
 		'/hovercard'                  => [Module\Contact\Hovercard::class,     [R::GET]],
 		'/ignored'                    => [Module\Contact::class,               [R::GET]],
 		'/pending'                    => [Module\Contact::class,               [R::GET]],
+		'/redir/{id:\d+}'             => [Module\Contact\Redir::class,         [R::GET]],
 		'/suggestions'                => [Module\Contact\Suggestions::class,   [R::GET]],
 		'/unfollow'                   => [Module\Contact\Unfollow::class,      [R::GET, R::POST]],
 	],
