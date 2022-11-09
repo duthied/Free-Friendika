@@ -6,8 +6,8 @@ matrix:
       PHP_VERSION: 7.4.33
     - PHP_MAJOR_VERSION: 8.0
       PHP_VERSION: 8.0.25
-    - PHP_MAJOR_VERSION: 8.1
-      PHP_VERSION: 8.1.12
+#    - PHP_MAJOR_VERSION: 8.1
+#      PHP_VERSION: 8.1.12
 
 pipeline:
   php-lint:
