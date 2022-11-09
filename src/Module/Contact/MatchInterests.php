@@ -42,12 +42,10 @@ use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
 /**
- * Controller for /match.
- *
  * It takes keywords from your profile and queries the directory server for
  * matching keywords from other profiles.
  */
-class Match extends BaseModule
+class MatchInterests extends BaseModule
 {
 	const FETCH_PER_PAGE = 100;
 
