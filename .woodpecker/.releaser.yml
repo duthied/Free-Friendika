@@ -37,7 +37,7 @@ pipeline:
       branch: stable
       event: tag
   composer_install:
-    image: friendicaci/php7.4:php7.4.18
+    image: friendicaci/php7.4:php7.4.33
     commands:
       - export COMPOSER_HOME=.composer
       - composer validate
