@@ -1,9 +1,9 @@
 <div id="adminpage">
-	<p><a href="{{$baseurl}}/admin/blocklist/server">{{$l10n.return_list}}</a></p>
+	<p><a href="{{$baseurl}}/moderation/blocklist/server">{{$l10n.return_list}}</a></p>
 	<h1>{{$l10n.title}} - {{$l10n.page}}</h1>
 	{{$l10n.syntax nofilter}}
 
-	<form action="{{$baseurl}}/admin/blocklist/server/add" method="get">
+	<form action="{{$baseurl}}/moderation/blocklist/server/add" method="get">
 		{{include file="field_input.tpl" field=$newdomain}}
 		<div class="submit">
 			<button type="submit" class="btn btn-primary">{{$l10n.submit}}</button>
@@ -11,7 +11,7 @@
 	</form>
 {{if $pattern}}
 	<h2>{{$l10n.matching_servers}}</h2>
-	<form action="{{$baseurl}}/admin/blocklist/server/add" method="post">
+	<form action="{{$baseurl}}/moderation/blocklist/server/add" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
         <input type="hidden" name="pattern" value="{{$pattern}}">
 		<table class="table table-condensed table-striped table-bordered">

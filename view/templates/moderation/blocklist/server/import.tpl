@@ -1,10 +1,10 @@
 <div id="adminpage">
-	<p><a href="{{$baseurl}}/admin/blocklist/server">{{$l10n.return_list}}</a></p>
+	<p><a href="{{$baseurl}}/moderation/blocklist/server">{{$l10n.return_list}}</a></p>
 	<h1>{{$l10n.title}} - {{$l10n.page}}</h1>
 {{if !$blocklist}}
     {{$l10n.download nofilter}}
 
-	<form action="{{$baseurl}}/admin/blocklist/server/import" method="post" enctype="multipart/form-data">
+	<form action="{{$baseurl}}/moderation/blocklist/server/import" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
         {{include file="field_input.tpl" field=$listfile}}
 		<div class="submit">
@@ -13,7 +13,7 @@
 	</form>
 {{else}}
 	<h2>{{$l10n.patterns}}</h2>
-	<form action="{{$baseurl}}/admin/blocklist/server/import" method="post">
+	<form action="{{$baseurl}}/moderation/blocklist/server/import" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
         <input type="hidden" name="blocklist" value="{{$blocklist|json_encode}}">
 		<table class="table table-condensed table-striped table-bordered">
