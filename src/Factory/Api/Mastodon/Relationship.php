@@ -39,12 +39,13 @@ class Relationship extends BaseFactory
 	{
 		$cdata = Contact::getPublicAndUserContactID($contactId, $uid);
 		if (!empty($cdata)) {
-			$cid = $cdata['user'];
+			$cid  = $cdata['user'];
+			$pcid = $cdata['public'];
 		} else {
-			$cid = $contactId;
+			$pcid = $cid = $contactId;
 		}
 
-		return new RelationshipEntity($cdata['public'], Contact::getById($cid),
+		return new RelationshipEntity($pcid, Contact::getById($cid),
 			Contact\User::isBlocked($cid, $uid), Contact\User::isIgnored($cid, $uid));
 	}
 }
