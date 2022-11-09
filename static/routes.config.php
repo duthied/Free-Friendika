@@ -384,6 +384,7 @@ return [
 		'/hidden'                     => [Module\Contact::class,               [R::GET]],
 		'/hovercard'                  => [Module\Contact\Hovercard::class,     [R::GET]],
 		'/ignored'                    => [Module\Contact::class,               [R::GET]],
+		'/match'                      => [Module\Contact\Match::class,         [R::GET]],
 		'/pending'                    => [Module\Contact::class,               [R::GET]],
 		'/redir/{id:\d+}'             => [Module\Contact\Redir::class,         [R::GET]],
 		'/suggestions'                => [Module\Contact\Suggestions::class,   [R::GET]],
@@ -571,10 +572,11 @@ return [
 	'/salmon/{nickname}'       => [Module\OStatus\Salmon::class, [        R::POST]],
 
 	'/search' => [
-		'[/]'                  => [Module\Search\Index::class, [R::GET]],
+		'[/]'                  => [Module\Search\Index::class, [R::GET         ]],
 		'/acl'                 => [Module\Search\Acl::class,   [R::GET, R::POST]],
-		'/saved/add'           => [Module\Search\Saved::class, [R::GET]],
-		'/saved/remove'        => [Module\Search\Saved::class, [R::GET]],
+		'/saved/add'           => [Module\Search\Saved::class, [R::GET         ]],
+		'/saved/remove'        => [Module\Search\Saved::class, [R::GET         ]],
+		'/user/tags'           => [Module\Search\Tags::class,  [        R::POST]],
 	],
 
 	'/receive' => [
