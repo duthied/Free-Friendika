@@ -125,7 +125,7 @@ class MatchInterests extends BaseModule
 			$result = $this->httpClient->post($server . '/search/user/tags', $searchParameters);
 			if (!$result->isSuccess()) {
 				// try legacy endpoint
-				$result = $this->httpClient->post($server . '/contact/search/tags', $searchParameters);
+				$result = $this->httpClient->post($server . '/msearch', $searchParameters);
 				if (!$result->isSuccess()) {
 					$this->logger->notice('Search-Endpoint not available for server.', ['server' => $server]);
 					continue;
