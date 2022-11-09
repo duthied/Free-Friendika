@@ -146,7 +146,7 @@ class Conversation
 					'url'     => $activity['author-link']
 				];
 				$url = Contact::magicLinkByContact($author);
-				if (strpos($url, 'redir/') === 0) {
+				if (strpos($url, 'contact/redir/') === 0) {
 					$sparkle = ' class="sparkle" ';
 				}
 
@@ -612,7 +612,7 @@ class Conversation
 					$profile_link = Contact::magicLinkByContact($author);
 
 					$sparkle = '';
-					if (strpos($profile_link, 'redir/') === 0) {
+					if (strpos($profile_link, 'contact/redir/') === 0) {
 						$sparkle = ' sparkle';
 					}
 

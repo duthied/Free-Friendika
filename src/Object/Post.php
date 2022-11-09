@@ -280,7 +280,7 @@ class Post
 			$profile_link = $item['author-link'];
 		}
 
-		if (strpos($profile_link, 'redir/') === 0) {
+		if (strpos($profile_link, 'contact/redir/') === 0) {
 			$sparkle = ' sparkle';
 		}
 

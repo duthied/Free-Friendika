@@ -44,14 +44,12 @@ class Hovercard extends BaseModule
 			throw new HTTPException\ForbiddenException();
 		}
 
-		// If a contact is connected the url is internally changed to 'redir/CID'. We need the pure url to search for
+		// If a contact is connected the url is internally changed to 'contact/redir/CID'. We need the pure url to search for
 		// the contact. So we strip out the contact id from the internal url and look in the contact table for
 		// the real url (nurl)
-		if (strpos($contact_url, 'redir/') === 0) {
+		if (strpos($contact_url, 'contact/redir/') === 0) {
 			$cid = intval(substr($contact_url, 6));
-		}
-
-		if (strpos($contact_url, 'contact/') === 0) {
+		} elseif (strpos($contact_url, 'contact/') === 0) {
 			$cid = intval(substr($contact_url, 8));
 		}
 

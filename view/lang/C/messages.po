@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-08 17:50-0500\n"
+"POT-Creation-Date: 2022-11-08 20:19-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -902,31 +902,6 @@ msgstr ""
 
 #: mod/photos.php:1572
 msgid "View Album"
-msgstr ""
-
-#: mod/redir.php:35 mod/redir.php:176 src/Module/Contact/Follow.php:69
-#: src/Module/Conversation/Community.php:193 src/Module/Debug/ItemBody.php:38
-#: src/Module/Diaspora/Receive.php:57 src/Module/Item/Follow.php:41
-#: src/Module/Item/Ignore.php:41 src/Module/Item/Pin.php:41
-#: src/Module/Item/Pin.php:56 src/Module/Item/Star.php:42
-msgid "Access denied."
-msgstr ""
-
-#: mod/redir.php:50 mod/redir.php:103
-msgid "Bad Request."
-msgstr ""
-
-#: mod/redir.php:56 mod/redir.php:130 src/Module/Contact/Advanced.php:70
-#: src/Module/Contact/Advanced.php:109 src/Module/Contact/Contacts.php:53
-#: src/Module/Contact/Conversations.php:84
-#: src/Module/Contact/Conversations.php:89
-#: src/Module/Contact/Conversations.php:94 src/Module/Contact/Media.php:43
-#: src/Module/Contact/Posts.php:78 src/Module/Contact/Posts.php:83
-#: src/Module/Contact/Posts.php:88 src/Module/Contact/Profile.php:142
-#: src/Module/Contact/Profile.php:147 src/Module/Contact/Profile.php:152
-#: src/Module/FriendSuggest.php:71 src/Module/FriendSuggest.php:109
-#: src/Module/Group.php:97 src/Module/Group.php:106
-msgid "Contact not found."
 msgstr ""
 
 #: mod/settings.php:122
@@ -6034,6 +6009,19 @@ msgstr ""
 msgid "Visit %s's profile [%s]"
 msgstr ""
 
+#: src/Module/Contact/Advanced.php:70 src/Module/Contact/Advanced.php:109
+#: src/Module/Contact/Contacts.php:53 src/Module/Contact/Conversations.php:84
+#: src/Module/Contact/Conversations.php:89
+#: src/Module/Contact/Conversations.php:94 src/Module/Contact/Media.php:43
+#: src/Module/Contact/Posts.php:78 src/Module/Contact/Posts.php:83
+#: src/Module/Contact/Posts.php:88 src/Module/Contact/Profile.php:142
+#: src/Module/Contact/Profile.php:147 src/Module/Contact/Profile.php:152
+#: src/Module/Contact/Redir.php:94 src/Module/Contact/Redir.php:140
+#: src/Module/FriendSuggest.php:71 src/Module/FriendSuggest.php:109
+#: src/Module/Group.php:97 src/Module/Group.php:106
+msgid "Contact not found."
+msgstr ""
+
 #: src/Module/Contact/Advanced.php:99
 msgid "Contact update failed."
 msgstr ""
@@ -6117,6 +6105,15 @@ msgid "Contact (%s)"
 msgid_plural "Contacts (%s)"
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Module/Contact/Follow.php:69 src/Module/Contact/Redir.php:62
+#: src/Module/Contact/Redir.php:222 src/Module/Conversation/Community.php:193
+#: src/Module/Debug/ItemBody.php:38 src/Module/Diaspora/Receive.php:57
+#: src/Module/Item/Follow.php:41 src/Module/Item/Ignore.php:41
+#: src/Module/Item/Pin.php:41 src/Module/Item/Pin.php:56
+#: src/Module/Item/Star.php:42
+msgid "Access denied."
+msgstr ""
 
 #: src/Module/Contact/Follow.php:102 src/Module/Contact/Unfollow.php:125
 #: src/Module/Profile/RemoteFollow.php:133
@@ -6400,6 +6397,10 @@ msgstr ""
 
 #: src/Module/Contact/Profile.php:487
 msgid "Revoke the follow from this contact"
+msgstr ""
+
+#: src/Module/Contact/Redir.php:134 src/Module/Contact/Redir.php:186
+msgid "Bad Request."
 msgstr ""
 
 #: src/Module/Contact/Revoke.php:63
