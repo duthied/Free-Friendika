@@ -107,7 +107,7 @@ function frio_item_photo_links(App $a, &$body_info)
 			$newlink = str_replace($matches[0], "/photo/{$matches[1]}", $link);
 
 			// Add a "quiet" parameter to any redir links to prevent the "XX welcomes YY" info boxes
-			$newlink = preg_replace('/href="([^"]+)\/redir\/([^"]+)&url=([^"]+)"/', 'href="$1/redir/$2&quiet=1&url=$3"', $newlink);
+			$newlink = preg_replace('#href="([^"]+)/contact/redir/(\d+)&url=([^"]+)"#', 'href="$1/contact/redir/$2&quiet=1&url=$3"', $newlink);
 
 			// Having any arguments to the link for Colorbox causes it to fetch base64 code instead of the image
 			$newlink = preg_replace('/\/[?&]zrl=([^&"]+)/', '', $newlink);

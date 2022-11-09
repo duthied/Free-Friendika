@@ -1408,7 +1408,7 @@ function photos_content(App $a)
 					$author = ['uid' => 0, 'id' => $item['author-id'],
 						'network' => $item['author-network'], 'url' => $item['author-link']];
 					$profile_url = Contact::magicLinkByContact($author);
-					if (strpos($profile_url, 'redir/') === 0) {
+					if (strpos($profile_url, 'contact/redir/') === 0) {
 						$sparkle = ' sparkle';
 					} else {
 						$sparkle = '';
