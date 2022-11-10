@@ -233,23 +233,19 @@ class Ping extends BaseModule
 			}
 
 			if (count($registrations) <= 1 || $this->pconfig->get($this->session->getLocalUserId(), 'system', 'detailed_notif')) {
-				foreach ($registrations as $reg) {
+				foreach ($registrations as $registration) {
 					$navNotifications[] = $this->formattedNavNotification->createFromParams(
-						[
-							'name' => $reg['name'],
-							'url'  => $reg['url'],
-						],
+						$registration['name'],
+						$registration['url'],
 						$this->l10n->t('{0} requested registration'),
-						new \DateTime($reg['created'], new \DateTimeZone('UTC')),
+						new \DateTime($registration['created'], new \DateTimeZone('UTC')),
 						new Uri($this->baseUrl->get(true) . '/moderation/users/pending')
 					);
 				}
 			} elseif (count($registrations) > 1) {
 				$navNotifications[] = $this->formattedNavNotification->createFromParams(
-					[
-						'name' => $registrations[0]['name'],
-						'url'  => $registrations[0]['url'],
-					],
+					$registrations[0]['name'],
+					$registrations[0]['url'],
 					$this->l10n->t('{0} and %d others requested registration', count($registrations) - 1),
 					new \DateTime($registrations[0]['created'], new \DateTimeZone('UTC')),
 					new Uri($this->baseUrl->get(true) . '/moderation/users/pending')
