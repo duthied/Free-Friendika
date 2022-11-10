@@ -79,6 +79,10 @@ class FormattedNavNotification extends BaseFactory
 	{
 		$contact_photo = Contact::getAvatarUrlForUrl($contact_url, $this->userSession->getLocalUserId(), Proxy::SIZE_MICRO);
 
+		// Removing the RTL Override character to prevent a garbled notification message
+		// See https://github.com/friendica/friendica/issues/12084
+		$contact_name = str_replace("\xE2\x80\xAE", '', $contact_name);
+
 		$dateMySQL = $date->format(DateTimeFormat::MYSQL);
 
 		$templateNotify = [
