@@ -485,11 +485,11 @@ class Network
 						$get('host') .
 						($port ? ":$port" : '');
 
-		return	(strlen($scheme) ? $scheme . ':' : '') .
-			(strlen($authority) ? '//' . $authority : '') .
+		return	(!empty($scheme) ? $scheme . ':' : '') .
+			(!empty($authority) ? '//' . $authority : '') .
 			$get('path') .
-			(strlen($query) ? '?' . $query : '') .
-			(strlen($fragment) ? '#' . $fragment : '');
+			(!empty($query) ? '?' . $query : '') .
+			(!empty($fragment) ? '#' . $fragment : '');
 	}
 
 	/**
