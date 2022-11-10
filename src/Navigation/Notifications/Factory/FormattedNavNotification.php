@@ -28,6 +28,7 @@ use Friendica\Model\Contact;
 use Friendica\Navigation\Notifications\Entity;
 use Friendica\Navigation\Notifications\Exception\NoMessageException;
 use Friendica\Navigation\Notifications\ValueObject;
+use Friendica\Network\HTTPException\ServiceUnavailableException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
 use Friendica\Util\Temporal;
@@ -65,32 +66,39 @@ class FormattedNavNotification extends BaseFactory
 	}
 
 	/**
-	 * @param array     $contact A contact array with the following keys: name, url
+	 * @param string    $contact_name
+	 * @param string    $contact_url
 	 * @param string    $message A notification message with the {0} placeholder for the contact name
 	 * @param \DateTime $date
 	 * @param Uri       $href
 	 * @param bool      $seen
 	 * @return ValueObject\FormattedNavNotification
-	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
+	 * @throws ServiceUnavailableException
 	 */
-	public function createFromParams(array $contact, string $message, \DateTime $date, Uri $href, bool $seen = false): ValueObject\FormattedNavNotification
+	public function createFromParams(string $contact_name, string $contact_url, string $message, \DateTime $date, Uri $href, bool $seen = false): ValueObject\FormattedNavNotification
 	{
-		$contact['photo'] = Contact::getAvatarUrlForUrl($contact['url'], $this->userSession->getLocalUserId(), Proxy::SIZE_MICRO);
+		$contact_photo = Contact::getAvatarUrlForUrl($contact_url, $this->userSession->getLocalUserId(), Proxy::SIZE_MICRO);
 
 		$dateMySQL = $date->format(DateTimeFormat::MYSQL);
 
 		$templateNotify = [
-			'contact'   => $contact,
+			'contact' => [
+				'name'  => $contact_name,
+				'url'   => $contact_url,
+				'photo' => $contact_photo,
+			],
 			'href'      => $href->__toString(),
 			'message'   => $message,
 			'seen'      => $seen,
 			'localdate' => DateTimeFormat::local($dateMySQL),
 			'ago'       => Temporal::getRelativeDate($dateMySQL),
-			'richtext'  => Entity\Notify::formatMessage($contact['name'], $message),
+			'richtext'  => Entity\Notify::formatMessage($contact_name, $message),
 		];
 
 		return new ValueObject\FormattedNavNotification(
-			$contact,
+			$contact_name,
+			$contact_url,
+			$contact_photo,
 			$date->getTimestamp(),
 			strip_tags($templateNotify['richtext']),
 			Renderer::replaceMacros($this->tpl, ['notify' => $templateNotify]),
@@ -120,7 +128,8 @@ class FormattedNavNotification extends BaseFactory
 		}
 
 		return $this->createFromParams(
-			self::$contacts[$notification->actorId],
+			self::$contacts[$notification->actorId]['name'],
+			self::$contacts[$notification->actorId]['url'],
 			$message['notification'],
 			$notification->created,
 			new Uri($this->baseUrl->get() . '/notification/' . $notification->id),
@@ -141,7 +150,8 @@ class FormattedNavNotification extends BaseFactory
 		}
 
 		return $this->createFromParams(
-			self::$contacts[$intro->cid],
+			self::$contacts[$intro->cid]['name'],
+			self::$contacts[$intro->cid]['url'],
 			$msg,
 			$intro->datetime,
 			new Uri($this->baseUrl->get() . '/notifications/intros/' . $intro->id)

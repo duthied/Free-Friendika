@@ -42,16 +42,23 @@ class FormattedNavNotification extends BaseEntity
 	protected $seen;
 
 	/**
-	 * @param array  $contact   Contact array with the following keys: name, url, photo
-	 * @param string $timestamp Unix timestamp
-	 * @param string $plaintext Localized notification message with the placeholder replaced by the contact name
-	 * @param string $html      Full HTML string of the notification menu element
-	 * @param string $href      Absolute URL this notification should send the user to when interacted with
-	 * @param bool   $seen      Whether the user interacted with this notification once
+	 * @param string $contact_name  Contact display name
+	 * @param string $contact_url   Contact profile URL
+	 * @param string $contact_photo Contact picture URL
+	 * @param string $timestamp     Unix timestamp
+	 * @param string $plaintext     Localized notification message with the placeholder replaced by the contact name
+	 * @param string $html          Full HTML string of the notification menu element
+	 * @param string $href          Absolute URL this notification should send the user to when interacted with
+	 * @param bool   $seen          Whether the user interacted with this notification once
 	 */
-	public function __construct(array $contact, string $timestamp, string $plaintext, string $html, string $href, bool $seen)
+	public function __construct(string $contact_name, string $contact_url, string $contact_photo, string $timestamp, string $plaintext, string $html, string $href, bool $seen)
 	{
-		$this->contact   = $contact;
+		// Properties differ from constructor because this structure is used in the "nav-update" Javascript event listener
+		$this->contact = [
+			'name'  => $contact_name,
+			'url'   => $contact_url,
+			'photo' => $contact_photo,
+		];
 		$this->timestamp = $timestamp;
 		$this->plaintext = $plaintext;
 		$this->html      = $html;
