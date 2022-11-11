@@ -140,7 +140,7 @@ class Connectors extends BaseSettings
 		$legacy_contact          =         $this->pconfig->get($this->session->getLocalUserId(), 'ostatus', 'legacy_contact');
 
 		if (!empty($legacy_contact)) {
-			$this->baseUrl->redirect('ostatus_subscribe?url=' . urlencode($legacy_contact));
+			$this->baseUrl->redirect('ostatus/subscribe?url=' . urlencode($legacy_contact));
 		}
 
 		$connector_settings_forms = [];

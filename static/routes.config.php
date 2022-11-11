@@ -526,8 +526,6 @@ return [
 	'/openid'            => [Module\Security\OpenID::class,    [R::GET]],
 	'/opensearch'        => [Module\OpenSearch::class,         [R::GET]],
 
-	'/ostatus/repair'                     => [Module\OStatus\Repair::class,    [R::GET]],
-
 	'/parseurl'                           => [Module\ParseUrl::class,          [R::GET]],
 	'/permission/tooltip/{type}/{id:\d+}' => [Module\PermissionTooltip::class, [R::GET]],
 
@@ -569,6 +567,9 @@ return [
 		'/{sub1}/{sub2}/{url}' => [Module\Proxy::class, [R::GET]],
 	],
 
+	// OStatus stack modules
+	'/ostatus/repair'              => [Module\OStatus\Repair::class,           [R::GET         ]],
+	'/ostatus/subscribe'           => [Module\OStatus\Subscribe::class,        [R::GET         ]],
 	'/poco'                        => [Module\User\PortableContacts::class,    [R::GET         ]],
 	'/pubsub/{nickname}/{cid:\d+}' => [Module\OStatus\PubSub::class,           [R::GET, R::POST]],
 	'/pubsubhubbub/{nickname}'     => [Module\OStatus\PubSubHubBub::class,     [        R::POST]],
