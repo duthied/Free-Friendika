@@ -569,8 +569,9 @@ return [
 		'/{sub1}/{sub2}/{url}' => [Module\Proxy::class, [R::GET]],
 	],
 
-	'/pubsubhubbub/{nickname}' => [Module\OStatus\PubSubHubBub::class, [        R::POST]],
-	'/salmon/{nickname}'       => [Module\OStatus\Salmon::class,       [        R::POST]],
+	'/pubsub/{nickname}/{cid:\d+}' => [Module\OStatus\PubSub::class,       [R::GET, R::POST]],
+	'/pubsubhubbub/{nickname}'     => [Module\OStatus\PubSubHubBub::class, [        R::POST]],
+	'/salmon/{nickname}'           => [Module\OStatus\Salmon::class,       [        R::POST]],
 
 	'/search' => [
 		'[/]'                  => [Module\Search\Index::class, [R::GET         ]],
