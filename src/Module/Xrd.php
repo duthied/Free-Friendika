@@ -185,10 +185,6 @@ class Xrd extends BaseModule
 					'href' => $baseURL . '/hcard/' . $owner['nickname'],
 				],
 				[
-					'rel'  => ActivityNamespace::POCO,
-					'href' => $owner['poco'],
-				],
-				[
 					'rel'  => 'http://webfinger.net/rel/avatar',
 					'type' => $avatar['type'],
 					'href' => User::getAvatarUrl($owner),
@@ -273,55 +269,49 @@ class Xrd extends BaseModule
 				],
 				'5:link' => [
 					'@attributes' => [
-						'rel'  => 'http://portablecontacts.net/spec/1.0',
-						'href' => $owner['poco']
-					]
-				],
-				'6:link' => [
-					'@attributes' => [
 						'rel'  => 'http://webfinger.net/rel/avatar',
 						'type' => $avatar['type'],
 						'href' => User::getAvatarUrl($owner)
 					]
 				],
-				'7:link' => [
+				'6:link' => [
 					'@attributes' => [
 						'rel'  => 'http://joindiaspora.com/seed_location',
 						'type' => 'text/html',
 						'href' => $baseURL
 					]
 				],
-				'8:link' => [
+				'7:link' => [
 					'@attributes' => [
 						'rel'  => 'salmon',
 						'href' => $baseURL . '/salmon/' . $owner['nickname']
 					]
 				],
-				'9:link' => [
+				'8:link' => [
 					'@attributes' => [
 						'rel'  => 'http://salmon-protocol.org/ns/salmon-replies',
 						'href' => $baseURL . '/salmon/' . $owner['nickname']
 					]
 				],
-				'10:link' => [
+				'9:link' => [
 					'@attributes' => [
 						'rel'  => 'http://salmon-protocol.org/ns/salmon-mention',
 						'href' => $baseURL . '/salmon/' . $owner['nickname'] . '/mention'
 					]
 				],
-				'11:link' => [
+				'10:link' => [
 					'@attributes' => [
 						'rel'  => 'http://ostatus.org/schema/1.0/subscribe',
 						'template' => $baseURL . '/contact/follow?url={uri}'
 					]
 				],
-				'12:link' => [
+				'11:link' => [
 					'@attributes' => [
 						'rel'  => 'magic-public-key',
 						'href' => 'data:application/magic-public-key,' . Salmon::salmonKey($owner['spubkey'])
 					]
 				],
-				'13:link' => [
+				'12:link' => [
 					'@attributes' => [
 						'rel'  => 'http://purl.org/openwebauth/v1',
 						'type' => 'application/x-zot+json',
