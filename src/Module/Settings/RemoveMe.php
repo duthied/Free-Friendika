@@ -51,11 +51,10 @@ class RemoveMe extends BaseSettings
 	/** @var Cookie */
 	private $cookie;
 
-	public function __construct(Cookie $cookie, SystemMessages $systemMessages, Emailer $emailer, Database $database, IManageConfigValues $config, App\Page $page, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(Cookie $cookie, SystemMessages $systemMessages, Emailer $emailer, Database $database, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->session        = $session;
 		$this->config         = $config;
 		$this->database       = $database;
 		$this->emailer        = $emailer;

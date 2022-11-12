@@ -47,17 +47,13 @@ use Psr\Log\LoggerInterface;
  **/
 class UserExport extends BaseSettings
 {
-	/** @var IHandleUserSessions */
-	private $session;
-
 	/** @var DbaDefinition */
 	private $dbaDefinition;
 
-	public function __construct(DbaDefinition $dbaDefinition, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(DbaDefinition $dbaDefinition, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->session       = $session;
 		$this->dbaDefinition = $dbaDefinition;
 	}
 
