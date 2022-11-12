@@ -1,4 +1,5 @@
 <select name="recipient" class="form-control input-lg" id="recipient" required>
+	<option></option>
 	{{foreach $contacts as $contact}}
 		<option value="{{$contact.id}}"{{if $contact.id == $selected}} selected{{/if}}>{{$contact.name}}</option>
 	{{/foreach}}
