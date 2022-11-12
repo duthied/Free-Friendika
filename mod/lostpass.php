@@ -34,7 +34,7 @@ function lostpass_post(App $a)
 		DI::baseUrl()->redirect();
 	}
 
-	$condition = ['(`email` = ? OR `nickname` = ?) AND `verified` = 1 AND `blocked` = 0', $loginame, $loginame];
+	$condition = ['(`email` = ? OR `nickname` = ?) AND `verified` = 1 AND `blocked` = 0 AND `account_removed` = 0 AND `account_expired` = 0', $loginame, $loginame];
 	$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'email', 'language'], $condition);
 	if (!DBA::isResult($user)) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('No valid account found.'));
