@@ -1588,8 +1588,8 @@ class BBCode
 				$text = str_replace(">", "&gt;", $text);
 
 				// remove some newlines before the general conversion
-				$text = preg_replace("/\s?\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "[share$1]$2[/share]", $text);
-				$text = preg_replace("/\s?\[quote(.*?)\]\s?(.*?)\s?\[\/quote\]\s?/ism", "[quote$1]$2[/quote]", $text);
+				$text = preg_replace("/\s?\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "\n[share$1]$2[/share]\n", $text);
+				$text = preg_replace("/\s?\[quote(.*?)\]\s?(.*?)\s?\[\/quote\]\s?/ism", "\n[quote$1]$2[/quote]\n", $text);
 
 				// when the content is meant exporting to other systems then remove the avatar picture since this doesn't really look good on these systems
 				if (!$try_oembed) {
