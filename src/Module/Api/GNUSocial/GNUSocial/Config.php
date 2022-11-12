@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\GNUSocial\GNUSocial;
 
 use Friendica\App;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Module\Register;
 
@@ -42,7 +43,7 @@ class Config extends BaseApi
 				'logo'         => DI::baseUrl() . '/images/friendica-64.png',
 				'fancy'        => true,
 				'language'     => DI::config()->get('system', 'language'),
-				'email'        => DI::config()->get('config', 'admin_email'),
+				'email'        => implode(',', User::getAdminEmailList()),
 				'broughtby'    => '',
 				'broughtbyurl' => '',
 				'timezone'     => DI::config()->get('system', 'default_timezone'),

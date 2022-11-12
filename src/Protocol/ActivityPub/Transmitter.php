@@ -1710,7 +1710,7 @@ class Transmitter
 		}
 
 		$data['attachment'] = self::createAttachmentList($item);
-		$data['tag'] = self::createTagList($item, $data['quoteUrl'] ?? '');  
+		$data['tag'] = self::createTagList($item, $data['quoteUrl'] ?? '');
 
 		if (empty($data['location']) && (!empty($item['coord']) || !empty($item['location']))) {
 			$data['location'] = self::createLocation($item);
@@ -2073,13 +2073,14 @@ class Transmitter
 		}
 
 		if (empty($uid)) {
-			// Fetch the list of administrators
-			$admin_mail = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
-
 			// We need to use some user as a sender. It doesn't care who it will send. We will use an administrator account.
-			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false, 'email' => $admin_mail];
-			$first_user = DBA::selectFirst('user', ['uid'], $condition);
-			$uid = $first_user['uid'];
+			$admin = User::getFirstAdmin(['uid']);
+			if (!$admin) {
+				Logger::warning('No available admin user for transmission', ['target' => $target]);
+				return false;
+			}
+
+			$uid = $admin['uid'];
 		}
 
 		$condition = ['verb' => Activity::FOLLOW, 'uid' => 0, 'parent-uri' => $object,

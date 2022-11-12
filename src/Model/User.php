@@ -381,17 +381,15 @@ class User
 	 *
 	 * @param array $fields
 	 * @return array user
+	 * @throws Exception
 	 */
 	public static function getFirstAdmin(array $fields = []) : array
 	{
 		if (!empty(DI::config()->get('config', 'admin_nickname'))) {
 			return self::getByNickname(DI::config()->get('config', 'admin_nickname'), $fields);
-		} elseif (!empty(DI::config()->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
-			return self::getByEmail($adminList[0], $fields);
-		} else {
-			return [];
 		}
+
+		return self::getAdminList()[0] ?? [];
 	}
 
 	/**
@@ -1054,11 +1052,8 @@ class User
 
 		// Disallow somebody creating an account using openid that uses the admin email address,
 		// since openid bypasses email verification. We'll allow it if there is not yet an admin account.
-		if (DI::config()->get('config', 'admin_email') && strlen($openid_url)) {
-			$adminlist = explode(',', str_replace(' ', '', strtolower(DI::config()->get('config', 'admin_email'))));
-			if (in_array(strtolower($email), $adminlist)) {
-				throw new Exception(DI::l10n()->t('Cannot use that email.'));
-			}
+		if (strlen($openid_url) && in_array(strtolower($email), self::getAdminEmailList())) {
+			throw new Exception(DI::l10n()->t('Cannot use that email.'));
 		}
 
 		$nickname = $data['nickname'] = strtolower($nickname);
@@ -1782,5 +1777,65 @@ class User
 		}
 
 		return DBA::selectToArray('owner-view', [], $condition, $param);
+	}
+
+	/**
+	 * Returns a list of lowercase admin email addresses from the comma-separated list in the config
+	 *
+	 * @return array
+	 */
+	public static function getAdminEmailList(): array
+	{
+		$adminEmails = strtolower(str_replace(' ', '', DI::config()->get('config', 'admin_email')));
+		if (!$adminEmails) {
+			return [];
+		}
+
+		return explode(',', $adminEmails);
+	}
+
+	/**
+	 * Returns the complete list of admin user accounts
+	 *
+	 * @param array $fields
+	 * @return array
+	 * @throws Exception
+	 */
+	public static function getAdminList(array $fields = []): array
+	{
+		$condition = [
+			'email'           => self::getAdminEmailList(),
+			'parent-uid'      => 0,
+			'blocked'         => 0,
+			'verified'        => true,
+			'account_removed' => false,
+			'account_expired' => false,
+		];
+
+		return DBA::selectToArray('user', $fields, $condition, ['order' => ['uid']]);
+	}
+
+	/**
+	 * Return a list of admin user accounts where each unique email address appears only once.
+	 *
+	 * This method is meant for admin notifications that do not need to be sent multiple times to the same email address.
+	 *
+	 * @param array $fields
+	 * @return array
+	 * @throws Exception
+	 */
+	public static function getAdminListForEmailing(array $fields = []): array
+	{
+		return array_filter(self::getAdminList($fields), function ($user) {
+			static $emails = [];
+
+			if (in_array($user['email'], $emails)) {
+				return false;
+			}
+
+			$emails[] = $user['email'];
+
+			return true;
+		});
 	}
 }

@@ -164,25 +164,16 @@ class Nodeinfo
 	 *
 	 * @param IManageConfigValues $config Configuration instance
 	 * @return array Organization information
+	 * @throws \Exception
 	 */
 	public static function getOrganization(IManageConfigValues $config): array
 	{
-		$organization = [
-			'name' => null,
-			'contact' => null,
-			'account' => null
+		$administrator = User::getFirstAdmin(['username', 'email', 'nickname']);
+
+		return [
+			'name'    => $administrator['username'] ?? null,
+			'contact' => $administrator['email']    ?? null,
+			'account' => $administrator['nickname'] ?? '' ? DI::baseUrl()->get() . '/profile/' . $administrator['nickname'] : null,
 		];
-
-		if (!empty($config->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
-			$organization['contact'] = $adminList[0];
-			$administrator = User::getByEmail($adminList[0], ['username', 'nickname']);
-			if (!empty($administrator)) {
-				$organization['name'] = $administrator['username'];
-				$organization['account'] = DI::baseUrl()->get() . '/profile/' . $administrator['nickname'];
-			}
-		}
-
-		return $organization;
 	}
 }
