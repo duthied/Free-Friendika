@@ -74,6 +74,8 @@ Database Tables
 | [profile_field](help/database/db_profile_field) | Custom profile fields |
 | [push_subscriber](help/database/db_push_subscriber) | Used for OStatus: Contains feed subscribers |
 | [register](help/database/db_register) | registrations requiring admin approval |
+| [report](help/database/db_report) |  |
+| [report-post](help/database/db_report-post) |  |
 | [search](help/database/db_search) |  |
 | [session](help/database/db_session) | web session storage |
 | [storage](help/database/db_storage) | Data stored by Database storage backend |

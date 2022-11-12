@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1488);
+	define('DB_UPDATE_VERSION', 1489);
 }
 
 return [
@@ -1647,6 +1647,33 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid" => ["uid"],
+		]
+	],
+	"report" => [
+		"comment" => "",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "Reporting user"],
+			"cid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["contact" => "id"], "comment" => "Reported contact"],
+			"comment" => ["type" => "text", "comment" => "Report"],
+			"forward" => ["type" => "boolean", "comment" => "Forward the report to the remote server"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uid" => ["uid"],
+			"cid" => ["cid"],
+		]
+	],
+	"report-post" => [
+		"comment" => "",
+		"fields" => [
+			"rid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["report" => "id"], "comment" => "Report id"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Uri-id of the reported post"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["rid", "uri-id"],
+			"uri-id" => ["uri-id"],
 		]
 	],
 	"search" => [
