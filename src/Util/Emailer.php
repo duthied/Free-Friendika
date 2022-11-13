@@ -163,9 +163,9 @@ class Emailer
 
 		// generate a multipart/alternative message header
 		$messageHeader = $email->getAdditionalMailHeaderString() .
-		                 "From: $fromName <{$fromAddress}>\n" .
-		                 "Reply-To: $fromName <{$replyTo}>\n" .
-		                 "MIME-Version: 1.0\n" .
+		                 "From: $fromName <{$fromAddress}>\r\n" .
+		                 "Reply-To: $fromName <{$replyTo}>\r\n" .
+		                 "MIME-Version: 1.0\r\n" .
 		                 "Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
 
 		// assemble the final multipart message body with the text and html types included
