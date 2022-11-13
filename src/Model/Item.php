@@ -2995,14 +2995,14 @@ class Item
 		if (!empty($shared_item['uri-id'])) {
 			$shared_uri_id = $shared_item['uri-id'];
 			$shared_links[] = strtolower($shared_item['plink']);
-			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, $shared_item['guid'], [], $shared_item['has-media']);
+			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, [], $shared_item['has-media']);
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['visual'], 'url'));
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['link'], 'url'));
 			$shared_links = array_merge($shared_links, array_column($shared_attachments['additional'], 'url'));
 			$item['body'] = self::replaceVisualAttachments($shared_attachments, $item['body']);
 		}
 
-		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links, $item['has-media'] ?? false);
+		$attachments = Post\Media::splitAttachments($item['uri-id'], $shared_links, $item['has-media'] ?? false);
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
 
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
@@ -3184,6 +3184,9 @@ class Item
 
 			if (!empty($attachment['preview'])) {
 				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE);
+				if (self::containsLink($item['body'], $preview_url)) {
+					continue;
+				}
 			} else {
 				$preview_url = '';
 			}

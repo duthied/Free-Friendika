@@ -642,12 +642,11 @@ class Media
 	 * Split the attachment media in the three segments "visual", "link" and "additional"
 	 *
 	 * @param int    $uri_id URI id
-	 * @param string $guid GUID
 	 * @param array  $links list of links that shouldn't be added
 	 * @param bool   $has_media
 	 * @return array attachments
 	 */
-	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [], bool $has_media = true): array
+	public static function splitAttachments(int $uri_id, array $links = [], bool $has_media = true): array
 	{
 		$attachments = ['visual' => [], 'link' => [], 'additional' => []];
 
