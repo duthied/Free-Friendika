@@ -398,8 +398,9 @@ return [
 	'/dirfind'                  => [Module\Search\Directory::class, [R::GET]],
 	'/directory'                => [Module\Directory::class,        [R::GET]],
 
-	'/display/feed-item/{uri-id}[.atom]'                     => [Module\Item\Feed::class, [R::GET]],
-	'/display/feed-item/{uri-id}/{mode:conversation}[.atom]' => [Module\Item\Feed::class, [R::GET]],
+	'/display/{guid}'                                        => [Module\Item\Display::class, [R::GET]],
+	'/display/feed-item/{uri-id}[.atom]'                     => [Module\Item\Feed::class,    [R::GET]],
+	'/display/feed-item/{uri-id}/{mode:conversation}[.atom]' => [Module\Item\Feed::class,    [R::GET]],
 
 	'/featured/{nickname}'      => [Module\ActivityPub\Featured::class, [R::GET]],
 
@@ -640,6 +641,8 @@ return [
 	'/tos'                           => [Module\Tos::class,                   [R::GET]],
 
 	'/update_community[/{content}]'  => [Module\Update\Community::class,      [R::GET]],
+
+	'/update_display[/]'             => [Module\Update\Display::class, [R::GET]],
 
 	'/update_network' => [
 		'[/]'                        => [Module\Update\Network::class, [R::GET]],
