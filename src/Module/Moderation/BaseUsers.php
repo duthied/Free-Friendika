@@ -113,7 +113,7 @@ abstract class BaseUsers extends BaseModeration
 
 	protected function setupUserCallback(): \Closure
 	{
-		$adminlist = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
+		$adminlist = User::getAdminEmailList();
 		return function ($user) use ($adminlist) {
 			$page_types = [
 				User::PAGE_FLAGS_NORMAL    => $this->t('Normal Account Page'),

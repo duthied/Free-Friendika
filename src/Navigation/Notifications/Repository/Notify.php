@@ -230,11 +230,15 @@ class Notify extends BaseRepository
 		}
 
 		// Ensure that the important fields are set at any time
-		$fields = ['nickname', 'account-type', 'notify-flags', 'language', 'username', 'email'];
+		$fields = ['nickname', 'account-type', 'notify-flags', 'language', 'username', 'email', 'account_removed', 'account_expired'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $params['uid']]);
 
 		if (!DBA::isResult($user)) {
 			$this->logger->error('Unknown user', ['uid' =>  $params['uid']]);
+			return false;
+		}
+
+		if ($user['account_removed'] || $user['account_expired']) {
 			return false;
 		}
 
@@ -503,7 +507,7 @@ class Notify extends BaseRepository
 						$tsitelink = sprintf($sitelink, $params['link']);
 						$hsitelink = sprintf($sitelink, '<a href="' . $params['link'] . '">' . $sitename . '</a><br><br>');
 						break;
-	
+
 					case 'SYSTEM_DB_UPDATE_FAIL': // @TODO Unused (only here)
 						break;
 				}
@@ -525,8 +529,11 @@ class Notify extends BaseRepository
 		$parent_uri_id = $params['item']['parent-uri-id'] ?? null;
 
 		// Ensure that the important fields are set at any time
-		$fields = ['nickname'];
+		$fields = ['nickname', 'account_removed', 'account_expired'];
 		$user = Model\User::getById($params['uid'], $fields);
+		if ($user['account_removed'] || $user['user_expired']) {
+			return false;
+		}
 
 		$sitename = $this->config->get('config', 'sitename');
 
@@ -711,6 +718,9 @@ class Notify extends BaseRepository
 		$params['otype'] = Model\Notification\ObjectType::ITEM;
 
 		$user = Model\User::getById($Notification->uid);
+		if ($user['account_removed'] || $user['account_expired']) {
+			return false;
+		}
 
 		$params['notify_flags'] = $user['notify-flags'];
 		$params['language']     = $user['language'];

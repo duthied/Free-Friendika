@@ -85,14 +85,8 @@ class RemoveMe extends BaseSettings
 		}
 
 		// send notification to admins so that they can clean up the backups
-		$admin_mails = explode(',', $this->config->get('config', 'admin_email'));
-		foreach ($admin_mails as $mail) {
-			$admin = $this->database->selectFirst('user', ['uid', 'language', 'email', 'username'], ['email' => trim($mail)]);
-			if (!$admin) {
-				continue;
-			}
-
-			$l10n = $this->l10n->withLang($admin['language']);
+		foreach (User::getAdminListForEmailing(['uid', 'language', 'email']) as $admin) {
+			$l10n = $this->l10n->withLang($admin['language'] ?: 'en');
 
 			$email = $this->emailer
 				->newSystemMail()

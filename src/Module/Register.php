@@ -352,7 +352,7 @@ class Register extends BaseModule
 				DI::baseUrl()->redirect();
 			}
 		} elseif (intval(DI::config()->get('config', 'register_policy')) === self::APPROVE) {
-			if (!strlen(DI::config()->get('config', 'admin_email'))) {
+			if (!User::getAdminEmailList()) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Your registration can not be processed.'));
 				DI::baseUrl()->redirect();
 			}
@@ -387,34 +387,23 @@ class Register extends BaseModule
 			DI::sysmsg()->addInfo(DI::l10n()->t('Your registration is pending approval by the site owner.'));
 			DI::baseUrl()->redirect();
 		}
-
-		return;
 	}
 
 	private function sendNotification(array $user, string $event)
 	{
-		// send email to admins
-		$admins_stmt = DBA::select(
-			'user',
-			['uid', 'language', 'email'],
-			['email' => explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')))]
-		);
-
-		// send notification to admins
-		while ($admin = DBA::fetch($admins_stmt)) {
+		foreach (User::getAdminListForEmailing(['uid', 'language', 'email']) as $admin) {
 			DI::notify()->createFromArray([
-				'type'         => Model\Notification\Type::SYSTEM,
-				'event'        => $event,
-				'uid'          => $admin['uid'],
-				'link'         => DI::baseUrl()->get(true) . '/moderation/users/',
-				'source_name'  => $user['username'],
-				'source_mail'  => $user['email'],
-				'source_nick'  => $user['nickname'],
-				'source_link'  => DI::baseUrl()->get(true) . '/moderation/users/',
-				'source_photo' => User::getAvatarUrl($user, Proxy::SIZE_THUMB),
+				'type'                      => Model\Notification\Type::SYSTEM,
+				'event'                     => $event,
+				'uid'                       => $admin['uid'],
+				'link'                      => DI::baseUrl()->get(true) . '/moderation/users/',
+				'source_name'               => $user['username'],
+				'source_mail'               => $user['email'],
+				'source_nick'               => $user['nickname'],
+				'source_link'               => DI::baseUrl()->get(true) . '/moderation/users/',
+				'source_photo'              => User::getAvatarUrl($user, Proxy::SIZE_THUMB),
 				'show_in_notification_page' => false
 			]);
 		}
-		DBA::close($admins_stmt);		
 	}
 }

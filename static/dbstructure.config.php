@@ -136,7 +136,7 @@ return [
 			"pwdreset" => ["type" => "varchar(255)", "comment" => "Password reset request token"],
 			"pwdreset_time" => ["type" => "datetime", "comment" => "Timestamp of the last password reset request"],
 			"maxreq" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
-			"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Delay in days before deleting user-related posts. Scope is controlled by pConfig."],
 			"account_removed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "if 1 the account is removed"],
 			"account_expired" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"account_expires_on" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp when account expires and will be deleted"],

@@ -178,8 +178,12 @@ class UserNotification
 			return;
 		}
 
-		$user = User::getById($uid, ['account-type']);
+		$user = User::getById($uid, ['account-type', 'account_removed', 'account_expired']);
 		if (in_array($user['account-type'], [User::ACCOUNT_TYPE_COMMUNITY, User::ACCOUNT_TYPE_RELAY])) {
+			return;
+		}
+
+		if ($user['account_removed'] || $user['account_expired']) {
 			return;
 		}
 

@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`pwdreset` varchar(255) COMMENT 'Password reset request token',
 	`pwdreset_time` datetime COMMENT 'Timestamp of the last password reset request',
 	`maxreq` int unsigned NOT NULL DEFAULT 10 COMMENT '',
-	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT 'Delay in days before deleting user-related posts. Scope is controlled by pConfig.',
 	`account_removed` boolean NOT NULL DEFAULT '0' COMMENT 'if 1 the account is removed',
 	`account_expired` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`account_expires_on` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp when account expires and will be deleted',

@@ -113,12 +113,9 @@ class Account extends BaseSettings
 					$err .= DI::l10n()->t('Invalid email.');
 				}
 				//  ensure new email is not the admin mail
-				if (DI::config()->get('config', 'admin_email')) {
-					$adminlist = explode(",", str_replace(" ", "", strtolower(DI::config()->get('config', 'admin_email'))));
-					if (in_array(strtolower($email), $adminlist)) {
-						$err .= DI::l10n()->t('Cannot change to that email.');
-						$email = $user['email'];
-					}
+				if (in_array(strtolower($email), User::getAdminEmailList())) {
+					$err .= DI::l10n()->t('Cannot change to that email.');
+					$email = $user['email'];
 				}
 			}
 

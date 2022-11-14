@@ -27,6 +27,7 @@ use Friendica\App\BaseURL;
 use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Model\User;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
 use Friendica\Core\Config\ValueObject\Cache;
@@ -164,14 +165,16 @@ class App
 	 * Check if current user has admin role.
 	 *
 	 * @return bool true if user is an admin
+	 * @throws Exception
 	 */
 	public function isSiteAdmin(): bool
 	{
-		$admin_email = $this->config->get('config', 'admin_email');
-
-		$adminlist = explode(',', str_replace(' ', '', $admin_email));
-
-		return $this->session->getLocalUserId() && $admin_email && $this->database->exists('user', ['uid' => $this->getLoggedInUserId(), 'email' => $adminlist]);
+		return
+			$this->session->getLocalUserId()
+			&& $this->database->exists('user', [
+				'uid'   => $this->getLoggedInUserId(),
+				'email' => User::getAdminEmailList()
+			]);
 	}
 
 	/**
@@ -259,8 +262,8 @@ class App
 	/**
 	 * Set workerqueue information
 	 *
-	 * @param array $queue 
-	 * @return void 
+	 * @param array $queue
+	 * @return void
 	 */
 	public function setQueue(array $queue)
 	{

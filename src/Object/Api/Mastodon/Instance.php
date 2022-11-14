@@ -86,7 +86,7 @@ class Instance extends BaseDataTransferObject
 		$this->uri               = $baseUrl->get();
 		$this->title             = $config->get('config', 'sitename');
 		$this->short_description = $this->description = $config->get('config', 'info');
-		$this->email             = $config->get('config', 'admin_email');
+		$this->email             = implode(',', User::getAdminEmailList());
 		$this->version           = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
 		$this->urls              = null; // Not supported
 		$this->stats             = new Stats($config, $database);
@@ -98,13 +98,10 @@ class Instance extends BaseDataTransferObject
 		$this->invites_enabled   = false;
 		$this->contact_account   = [];
 
-		if (!empty($config->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
-			$administrator = User::getByEmail($adminList[0], ['nickname']);
-			if (!empty($administrator)) {
-				$adminContact = $database->selectFirst('contact', ['id'], ['nick' => $administrator['nickname'], 'self' => true]);
-				$this->contact_account = DI::mstdnAccount()->createFromContactId($adminContact['id']);
-			}
+		$administrator = User::getFirstAdmin(['nickname']);
+		if ($administrator) {
+			$adminContact = $database->selectFirst('contact', ['uri-id'], ['nick' => $administrator['nickname'], 'self' => true]);
+			$this->contact_account = DI::mstdnAccount()->createFromUriId($adminContact['uri-id']);
 		}
 	}
 }
