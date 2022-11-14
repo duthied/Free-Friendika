@@ -102,26 +102,25 @@ class Post
 	}
 
 	/**
-	 * Fills an array with data from an post query
+	 * Fills an array with data from a post query
 	 *
-	 * @param object $stmt statement object
-	 * @param bool   $do_close
+	 * @param object|bool $stmt Return value from Database->select
 	 * @return array Data array
-	 * @todo Find proper type-hint for $stmt and maybe avoid boolean
+	 * @throws \Exception
 	 */
-	public static function toArray($stmt, bool $do_close = true)
+	public static function toArray($stmt): array
 	{
 		if (is_bool($stmt)) {
-			return $stmt;
+			return [];
 		}
 
 		$data = [];
 		while ($row = self::fetch($stmt)) {
 			$data[] = $row;
 		}
-		if ($do_close) {
-			DBA::close($stmt);
-		}
+
+		DBA::close($stmt);
+
 		return $data;
 	}
 
