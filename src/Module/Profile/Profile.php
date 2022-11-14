@@ -334,7 +334,6 @@ class Profile extends BaseProfile
 		foreach ($dfrn_pages as $dfrn) {
 			$htmlhead .= '<link rel="dfrn-' . $dfrn . '" href="' . $baseUrl . '/dfrn_' . $dfrn . '/' . $nickname . '" />' . "\n";
 		}
-		$htmlhead .= '<link rel="dfrn-poco" href="' . $baseUrl . '/poco/' . $nickname . '" />' . "\n";
 
 		return $htmlhead;
 	}

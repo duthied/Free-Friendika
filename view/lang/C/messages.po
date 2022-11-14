@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-09 21:27+0000\n"
+"POT-Creation-Date: 2022-11-11 00:42-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,32 +39,32 @@ msgid "The feed for this item is unavailable."
 msgstr ""
 
 #: mod/editpost.php:38 mod/item.php:181 mod/item.php:186 mod/item.php:870
-#: mod/message.php:69 mod/message.php:114 mod/notes.php:44
-#: mod/ostatus_subscribe.php:33 mod/photos.php:159 mod/photos.php:886
-#: src/Module/Attach.php:56 src/Module/BaseApi.php:94
+#: mod/message.php:69 mod/message.php:114 mod/notes.php:44 mod/photos.php:159
+#: mod/photos.php:886 src/Module/Attach.php:56 src/Module/BaseApi.php:94
 #: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:52
 #: src/Module/Calendar/Event/API.php:88 src/Module/Calendar/Event/Form.php:84
 #: src/Module/Calendar/Event/Show.php:54 src/Module/Calendar/Export.php:62
 #: src/Module/Calendar/Show.php:64 src/Module/Contact/Advanced.php:60
 #: src/Module/Contact/Follow.php:86 src/Module/Contact/Follow.php:158
-#: src/Module/Contact/Match.php:69 src/Module/Contact/Suggestions.php:54
-#: src/Module/Contact/Unfollow.php:66 src/Module/Contact/Unfollow.php:80
-#: src/Module/Contact/Unfollow.php:112 src/Module/Delegation.php:118
-#: src/Module/FollowConfirm.php:38 src/Module/FriendSuggest.php:57
-#: src/Module/Group.php:40 src/Module/Group.php:83 src/Module/Invite.php:42
-#: src/Module/Invite.php:131 src/Module/Notifications/Notification.php:76
+#: src/Module/Contact/MatchInterests.php:86
+#: src/Module/Contact/Suggestions.php:54 src/Module/Contact/Unfollow.php:66
+#: src/Module/Contact/Unfollow.php:80 src/Module/Contact/Unfollow.php:112
+#: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
+#: src/Module/FriendSuggest.php:57 src/Module/Group.php:40
+#: src/Module/Group.php:83 src/Module/Invite.php:42 src/Module/Invite.php:131
+#: src/Module/Notifications/Notification.php:76
 #: src/Module/Notifications/Notification.php:107
-#: src/Module/OStatus/Repair.php:60 src/Module/Profile/Attachment/Upload.php:97
-#: src/Module/Profile/Common.php:55 src/Module/Profile/Contacts.php:55
-#: src/Module/Profile/Photos/Upload.php:108 src/Module/Profile/Schedule.php:39
-#: src/Module/Profile/Schedule.php:56 src/Module/Profile/UnkMail.php:69
-#: src/Module/Profile/UnkMail.php:121 src/Module/Profile/UnkMail.php:132
-#: src/Module/Register.php:77 src/Module/Register.php:90
-#: src/Module/Register.php:206 src/Module/Register.php:245
-#: src/Module/Search/Directory.php:37 src/Module/Settings/Account.php:50
-#: src/Module/Settings/Account.php:410 src/Module/Settings/Delegation.php:41
-#: src/Module/Settings/Delegation.php:69 src/Module/Settings/Display.php:41
-#: src/Module/Settings/Display.php:119
+#: src/Module/OStatus/Repair.php:60 src/Module/OStatus/Subscribe.php:55
+#: src/Module/Profile/Attachment/Upload.php:97 src/Module/Profile/Common.php:55
+#: src/Module/Profile/Contacts.php:55 src/Module/Profile/Photos/Upload.php:108
+#: src/Module/Profile/Schedule.php:39 src/Module/Profile/Schedule.php:56
+#: src/Module/Profile/UnkMail.php:69 src/Module/Profile/UnkMail.php:121
+#: src/Module/Profile/UnkMail.php:132 src/Module/Register.php:77
+#: src/Module/Register.php:90 src/Module/Register.php:206
+#: src/Module/Register.php:245 src/Module/Search/Directory.php:37
+#: src/Module/Settings/Account.php:50 src/Module/Settings/Account.php:410
+#: src/Module/Settings/Delegation.php:41 src/Module/Settings/Delegation.php:69
+#: src/Module/Settings/Display.php:41 src/Module/Settings/Display.php:119
 #: src/Module/Settings/Profile/Photo/Crop.php:165
 #: src/Module/Settings/Profile/Photo/Index.php:111
 #: src/Module/Settings/RemoveMe.php:126 src/Module/Settings/UserExport.php:84
@@ -575,54 +575,6 @@ msgstr ""
 
 #: mod/notes.php:55
 msgid "Personal notes are visible only by yourself."
-msgstr ""
-
-#: mod/ostatus_subscribe.php:38
-msgid "Subscribing to contacts"
-msgstr ""
-
-#: mod/ostatus_subscribe.php:47
-msgid "No contact provided."
-msgstr ""
-
-#: mod/ostatus_subscribe.php:53
-msgid "Couldn't fetch information for contact."
-msgstr ""
-
-#: mod/ostatus_subscribe.php:64
-msgid "Couldn't fetch friends for contact."
-msgstr ""
-
-#: mod/ostatus_subscribe.php:70 mod/ostatus_subscribe.php:81
-msgid "Couldn't fetch following contacts."
-msgstr ""
-
-#: mod/ostatus_subscribe.php:76
-msgid "Couldn't fetch remote profile."
-msgstr ""
-
-#: mod/ostatus_subscribe.php:86
-msgid "Unsupported network"
-msgstr ""
-
-#: mod/ostatus_subscribe.php:102
-msgid "Done"
-msgstr ""
-
-#: mod/ostatus_subscribe.php:116
-msgid "success"
-msgstr ""
-
-#: mod/ostatus_subscribe.php:118
-msgid "failed"
-msgstr ""
-
-#: mod/ostatus_subscribe.php:121
-msgid "ignored"
-msgstr ""
-
-#: mod/ostatus_subscribe.php:126 src/Module/OStatus/Repair.php:84
-msgid "Keep this window open until done."
 msgstr ""
 
 #: mod/photos.php:68 mod/photos.php:139 mod/photos.php:793
@@ -5512,7 +5464,7 @@ msgstr ""
 msgid "Forum Search - %s"
 msgstr ""
 
-#: src/Module/BaseSearch.php:119 src/Module/Contact/Match.php:122
+#: src/Module/BaseSearch.php:119 src/Module/Contact/MatchInterests.php:139
 msgid "No matches"
 msgstr ""
 
@@ -5973,18 +5925,19 @@ msgstr ""
 msgid "The contact could not be added."
 msgstr ""
 
-#: src/Module/Contact/Match.php:77 src/Module/Profile/Attachment/Upload.php:80
+#: src/Module/Contact/MatchInterests.php:94
+#: src/Module/Profile/Attachment/Upload.php:80
 #: src/Module/Profile/Attachment/Upload.php:102
 #: src/Module/Profile/Photos/Upload.php:113
 #: src/Module/Profile/Photos/Upload.php:162
 msgid "Invalid request."
 msgstr ""
 
-#: src/Module/Contact/Match.php:84
+#: src/Module/Contact/MatchInterests.php:101
 msgid "No keywords to match. Please add keywords to your profile."
 msgstr ""
 
-#: src/Module/Contact/Match.php:127
+#: src/Module/Contact/MatchInterests.php:144
 msgid "Profile Match"
 msgstr ""
 
@@ -7982,11 +7935,11 @@ msgstr ""
 msgid "Show unread"
 msgstr ""
 
-#: src/Module/Notifications/Ping.php:242
+#: src/Module/Notifications/Ping.php:240
 msgid "{0} requested registration"
 msgstr ""
 
-#: src/Module/Notifications/Ping.php:253
+#: src/Module/Notifications/Ping.php:249
 #, php-format
 msgid "{0} and %d others requested registration"
 msgstr ""
@@ -8024,12 +7977,60 @@ msgstr ""
 msgid "Resubscribing to OStatus contacts"
 msgstr ""
 
+#: src/Module/OStatus/Repair.php:84 src/Module/OStatus/Subscribe.php:148
+msgid "Keep this window open until done."
+msgstr ""
+
 #: src/Module/OStatus/Repair.php:85
 msgid "✔ Done"
 msgstr ""
 
 #: src/Module/OStatus/Repair.php:86
 msgid "No OStatus contacts to resubscribe to."
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:60
+msgid "Subscribing to contacts"
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:69
+msgid "No contact provided."
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:75
+msgid "Couldn't fetch information for contact."
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:86
+msgid "Couldn't fetch friends for contact."
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:92 src/Module/OStatus/Subscribe.php:103
+msgid "Couldn't fetch following contacts."
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:98
+msgid "Couldn't fetch remote profile."
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:108
+msgid "Unsupported network"
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:124
+msgid "Done"
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:138
+msgid "success"
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:140
+msgid "failed"
+msgstr ""
+
+#: src/Module/OStatus/Subscribe.php:143
+msgid "ignored"
 msgstr ""
 
 #: src/Module/PermissionTooltip.php:49
@@ -10439,11 +10440,11 @@ msgid ""
 "features and resources."
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:138
+#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:151
 msgid "{0} wants to follow you"
 msgstr ""
 
-#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:140
+#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:153
 msgid "{0} has started following you"
 msgstr ""
 

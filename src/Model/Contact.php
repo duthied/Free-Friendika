@@ -729,7 +729,6 @@ class Contact
 			'notify'      => DI::baseUrl() . '/dfrn_notify/'  . $user['nickname'],
 			'poll'        => DI::baseUrl() . '/dfrn_poll/'    . $user['nickname'],
 			'confirm'     => DI::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
-			'poco'        => DI::baseUrl() . '/poco/'         . $user['nickname'],
 			'name-date'   => DateTimeFormat::utcNow(),
 			'uri-date'    => DateTimeFormat::utcNow(),
 			'avatar-date' => DateTimeFormat::utcNow(),
@@ -811,7 +810,6 @@ class Contact
 			'notify'       => DI::baseUrl() . '/dfrn_notify/' . $user['nickname'],
 			'poll'         => DI::baseUrl() . '/dfrn_poll/'. $user['nickname'],
 			'confirm'      => DI::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
-			'poco'         => DI::baseUrl() . '/poco/' . $user['nickname'],
 		];
 
 
