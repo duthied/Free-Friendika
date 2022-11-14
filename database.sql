@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.12-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1488
+-- DB_UPDATE_VERSION 1489
 -- ------------------------------------------
 
 
@@ -1645,6 +1645,35 @@ CREATE TABLE IF NOT EXISTS `register` (
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='registrations requiring admin approval';
+
+--
+-- TABLE report
+--
+CREATE TABLE IF NOT EXISTS `report` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uid` mediumint unsigned NOT NULL COMMENT 'Reporting user',
+	`cid` int unsigned NOT NULL COMMENT 'Reported contact',
+	`comment` text COMMENT 'Report',
+	`forward` boolean COMMENT 'Forward the report to the remote server',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	 INDEX `cid` (`cid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
+
+--
+-- TABLE report-post
+--
+CREATE TABLE IF NOT EXISTS `report-post` (
+	`rid` int unsigned NOT NULL COMMENT 'Report id',
+	`uri-id` int unsigned NOT NULL COMMENT 'Uri-id of the reported post',
+	 PRIMARY KEY(`rid`,`uri-id`),
+	 INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`rid`) REFERENCES `report` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
 -- TABLE search
