@@ -36,7 +36,6 @@ use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
-use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 
 function display_init(App $a)
@@ -49,8 +48,6 @@ function display_init(App $a)
 		return;
 	}
 
-	$nick = ((DI::args()->getArgc() > 1) ? DI::args()->getArgv()[1] : '');
-
 	$item = null;
 	$item_user = DI::userSession()->getLocalUserId();
 
@@ -58,14 +55,9 @@ function display_init(App $a)
 
 	// If there is only one parameter, then check if this parameter could be a guid
 	if (DI::args()->getArgc() == 2) {
-		$nick = '';
-
 		// Does the local user have this item?
 		if (DI::userSession()->getLocalUserId()) {
 			$item = Post::selectFirstForUser(DI::userSession()->getLocalUserId(), $fields, ['guid' => DI::args()->getArgv()[1], 'uid' => DI::userSession()->getLocalUserId()]);
-			if (DBA::isResult($item)) {
-				$nick = $a->getLoggedInUserNickname();
-			}
 		}
 
 		// Is this item private but could be visible to the remove visitor?
@@ -84,20 +76,10 @@ function display_init(App $a)
 		if (!DBA::isResult($item)) {
 			$item = Post::selectFirstForUser(DI::userSession()->getLocalUserId(), $fields, ['guid' => DI::args()->getArgv()[1], 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 		}
-	} elseif (DI::args()->getArgc() >= 3 && $nick == 'feed-item') {
-		$uri_id = DI::args()->getArgv()[2];
-		if (substr($uri_id, -5) == '.atom') {
-			$uri_id = substr($uri_id, 0, -5);
-		}
-		$item = Post::selectFirstForUser(DI::userSession()->getLocalUserId(), $fields, ['uri-id' => $uri_id, 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 	}
 
 	if (!DBA::isResult($item)) {
 		return;
-	}
-
-	if (DI::args()->getArgc() >= 3 && $nick == 'feed-item') {
-		displayShowFeed($item['uri-id'], $item['uid'], DI::args()->getArgc() > 3 && DI::args()->getArgv()[3] == 'conversation.atom');
 	}
 
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {

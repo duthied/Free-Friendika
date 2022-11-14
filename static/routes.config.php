@@ -398,6 +398,9 @@ return [
 	'/dirfind'                  => [Module\Search\Directory::class, [R::GET]],
 	'/directory'                => [Module\Directory::class,        [R::GET]],
 
+	'/display/feed-item/{uri-id}[.atom]'                     => [Module\Item\Feed::class, [R::GET]],
+	'/display/feed-item/{uri-id}/{mode:conversation}[.atom]' => [Module\Item\Feed::class, [R::GET]],
+
 	'/featured/{nickname}'      => [Module\ActivityPub\Featured::class, [R::GET]],
 
 	'/feed'     => [
