@@ -9,7 +9,7 @@ Fields
 | Field   | Description                             | Type               | Null | Key | Default             | Extra          |
 | ------- | --------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id      | sequential ID                           | int unsigned       | NO   | PRI | NULL                | auto_increment |
-| uid     | Reporting user                          | mediumint unsigned | NO   |     | NULL                |                |
+| uid     | Reporting user                          | mediumint unsigned | YES  |     | NULL                |                |
 | cid     | Reported contact                        | int unsigned       | NO   |     | NULL                |                |
 | comment | Report                                  | text               | YES  |     | NULL                |                |
 | forward | Forward the report to the remote server | boolean            | YES  |     | NULL                |                |

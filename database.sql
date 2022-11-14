@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.12-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1489
+-- DB_UPDATE_VERSION 1490
 -- ------------------------------------------
 
 
@@ -1651,7 +1651,7 @@ CREATE TABLE IF NOT EXISTS `register` (
 --
 CREATE TABLE IF NOT EXISTS `report` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`uid` mediumint unsigned NOT NULL COMMENT 'Reporting user',
+	`uid` mediumint unsigned COMMENT 'Reporting user',
 	`cid` int unsigned NOT NULL COMMENT 'Reported contact',
 	`comment` text COMMENT 'Report',
 	`forward` boolean COMMENT 'Forward the report to the remote server',
