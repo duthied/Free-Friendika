@@ -2963,7 +2963,7 @@ class Item
 
 		$body = $item['body'] ?? '';
 
-		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media', 'quote-uri-id'];
+		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media', 'quote-uri-id', 'post-type'];
 
 		$shared_uri_id = 0;
 		$shared_links  = [];
@@ -3050,7 +3050,7 @@ class Item
 		}
 
 		if (!empty($shared_attachments)) {
-			$s = self::addVisualAttachments($shared_attachments, $item, $s, true);
+			$s = self::addVisualAttachments($shared_attachments, $shared_item, $s, true);
 			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, []);
 			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
 			$body = BBCode::removeSharedData($body);
@@ -3182,13 +3182,16 @@ class Item
 				continue;
 			}
 
-			if (!empty($attachment['preview'])) {
+			if ($attachment['filetype'] == 'image') {
+				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
+			} elseif (!empty($attachment['preview'])) {
 				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE);
-				if (self::containsLink($item['body'], $preview_url)) {
-					continue;
-				}
 			} else {
 				$preview_url = '';
+			}
+
+			if ($preview_url && self::containsLink($item['body'], $preview_url)) {
+				continue;
 			}
 
 			if (($attachment['filetype'] == 'video')) {
@@ -3222,10 +3225,14 @@ class Item
 					$trailing .= $media;
 				}
 			} elseif ($attachment['filetype'] == 'image') {
+				$src_url = Post\Media::getUrlForId($attachment['id']);
+				if (self::containsLink($item['body'], $src_url)) {
+					continue;
+				}
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
 					'$image' => [
-						'src'        => Post\Media::getUrlForId($attachment['id']),
-						'preview'    => Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE),
+						'src'        => $src_url,
+						'preview'    => $preview_url,
 						'attachment' => $attachment,
 					],
 				]);
