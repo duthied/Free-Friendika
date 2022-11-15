@@ -788,7 +788,7 @@ function photos_content(App $a)
 	// photos/name/image/xxxxx/edit
 	// photos/name/image/xxxxx/drop
 
-	$user = User::getByNickname(DI::args()->getArgv()[1]);
+	$user = User::getByNickname(DI::args()->getArgv()[1] ?? '');
 	if (!DBA::isResult($user)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
