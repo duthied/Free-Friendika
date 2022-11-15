@@ -642,7 +642,7 @@ return [
 
 	'/update_community[/{content}]'  => [Module\Update\Community::class,      [R::GET]],
 
-	'/update_display[/]'             => [Module\Update\Display::class, [R::GET]],
+	'/update_display'                => [Module\Update\Display::class, [R::GET]],
 
 	'/update_network' => [
 		'[/]'                        => [Module\Update\Network::class, [R::GET]],
