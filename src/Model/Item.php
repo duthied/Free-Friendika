@@ -3006,6 +3006,7 @@ class Item
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
 
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
+		$bbcode = $item['body'];
 		self::putInCache($item);
 		$item['body'] = $body;
 		$s = $item["rendered-html"];
@@ -3050,13 +3051,13 @@ class Item
 		}
 
 		if (!empty($shared_attachments)) {
-			$s = self::addVisualAttachments($shared_attachments, $item, $s, true);
+			$s = self::addVisualAttachments($shared_attachments, $item, $s, true, $bbcode);
 			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, []);
 			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
 			$body = BBCode::removeSharedData($body);
 		}
 
-		$s = self::addVisualAttachments($attachments, $item, $s, false);
+		$s = self::addVisualAttachments($attachments, $item, $s, false, $bbcode);
 		$s = self::addLinkAttachment($item['uri-id'], $attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
 		$s = self::addQuestions($item, $s);
@@ -3165,12 +3166,13 @@ class Item
 	/**
 	 * Add visual attachments to the content
 	 *
-	 * @param array $attachments
-	 * @param array $item
+	 * @param array  $attachments
+	 * @param array  $item
 	 * @param string $content
+	 * @param string $body
 	 * @return string modified content
 	 */
-	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared): string
+	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared, string $body): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$leading = '';
@@ -3182,13 +3184,16 @@ class Item
 				continue;
 			}
 
-			if (!empty($attachment['preview'])) {
+			if ($attachment['filetype'] == 'image') {
+				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
+			} elseif (!empty($attachment['preview'])) {
 				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE);
-				if (self::containsLink($item['body'], $preview_url)) {
-					continue;
-				}
 			} else {
 				$preview_url = '';
+			}
+
+			if ($preview_url && (self::containsLink($item['body'], $preview_url) || self::containsLink($body, $preview_url))) {
+				continue;
 			}
 
 			if (($attachment['filetype'] == 'video')) {
@@ -3222,10 +3227,14 @@ class Item
 					$trailing .= $media;
 				}
 			} elseif ($attachment['filetype'] == 'image') {
+				$src_url = Post\Media::getUrlForId($attachment['id']);
+				if (self::containsLink($item['body'], $src_url) || self::containsLink($body, $src_url)) {
+					continue;
+				}
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
 					'$image' => [
-						'src'        => Post\Media::getUrlForId($attachment['id']),
-						'preview'    => Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE),
+						'src'        => $src_url,
+						'preview'    => $preview_url,
 						'attachment' => $attachment,
 					],
 				]);
