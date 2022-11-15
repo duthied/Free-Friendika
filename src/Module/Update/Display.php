@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * See update_profile.php for documentation
  */
 
 namespace Friendica\Module\Update;
@@ -49,7 +48,7 @@ class Display extends DisplayModule
 		$item = Post::selectFirst(
 			['uid', 'parent-uri-id', 'uri-id'],
 			['uri-id' => $uriId, 'uid' => [0, $profileUid]],
-			['order' => ['uid' => true]]
+			['order'  => ['uid' => true]]
 		);
 
 		if (empty($item)) {

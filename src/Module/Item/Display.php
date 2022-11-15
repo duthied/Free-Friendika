@@ -16,6 +16,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Module\Item;
@@ -321,8 +322,7 @@ class Display extends BaseModule
 		$page = $this->page;
 
 		if (Contact::exists([
-			'unsearchable' => true,
-			'id'           => [$item['contact-id'], $item['author-id'], $item['owner-id']]
+			'unsearchable' => true, 'id' => [$item['contact-id'], $item['author-id'], $item['owner-id']]
 		])) {
 			$page['htmlhead'] .= "<meta content=\"noindex, noarchive\" name=\"robots\" />\n";
 		}
