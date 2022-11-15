@@ -159,7 +159,7 @@ class Edit extends BaseModule
 			'$lockstate'           => $lockstate,
 			'$acl'                 => '', // populate_acl((($group) ? $group_acl : $a->user)),
 			'$bang'                => ($lockstate === 'lock' ? '!' : ''),
-			'$profile_uid'         => $_SESSION['uid'],
+			'$profile_uid'         => $this->session->getLocalUserId(),
 			'$preview'             => $this->t('Preview'),
 			'$jotplugins'          => $jotplugins,
 			'$cancel'              => $this->t('Cancel'),
