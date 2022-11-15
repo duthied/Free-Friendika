@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-14 17:05-0500\n"
+"POT-Creation-Date: 2022-11-15 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,26 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-
-#: mod/display.php:140 mod/photos.php:797
-#: src/Module/Conversation/Community.php:187 src/Module/Directory.php:48
-#: src/Module/Search/Index.php:64
-msgid "Public access denied."
-msgstr ""
-
-#: mod/display.php:210 mod/display.php:284
-msgid "The requested item doesn't exist or has been deleted."
-msgstr ""
-
-#: mod/display.php:259 src/Model/Event.php:525
-#: src/Module/Profile/Profile.php:93 src/Module/Profile/Profile.php:108
-#: src/Module/Profile/Status.php:109 src/Module/Update/Profile.php:55
-msgid "Access to this profile has been restricted."
-msgstr ""
-
-#: mod/display.php:364
-msgid "The feed for this item is unavailable."
-msgstr ""
 
 #: mod/editpost.php:38 mod/item.php:181 mod/item.php:186 mod/item.php:870
 #: mod/message.php:69 mod/message.php:114 mod/notes.php:44 mod/photos.php:159
@@ -294,7 +274,7 @@ msgstr ""
 
 #: mod/item.php:846 src/Module/Admin/Themes/Details.php:39
 #: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:42
-#: src/Module/Debug/ItemBody.php:57
+#: src/Module/Debug/ItemBody.php:57 src/Module/Item/Feed.php:81
 msgid "Item not found."
 msgstr ""
 
@@ -668,6 +648,11 @@ msgstr ""
 #: mod/photos.php:710 src/Module/Profile/Photos/Upload.php:231
 #: src/Module/Settings/Profile/Photo/Index.php:95
 msgid "Image upload failed."
+msgstr ""
+
+#: mod/photos.php:797 src/Module/Conversation/Community.php:187
+#: src/Module/Directory.php:48 src/Module/Search/Index.php:64
+msgid "Public access denied."
 msgstr ""
 
 #: mod/photos.php:802
@@ -3050,6 +3035,12 @@ msgstr ""
 
 #: src/Model/Event.php:467
 msgid "No events to display"
+msgstr ""
+
+#: src/Model/Event.php:525 src/Module/Item/Display.php:221
+#: src/Module/Profile/Profile.php:93 src/Module/Profile/Profile.php:108
+#: src/Module/Profile/Status.php:109 src/Module/Update/Profile.php:55
+msgid "Access to this profile has been restricted."
 msgstr ""
 
 #: src/Model/Event.php:567 src/Module/Calendar/Event/Show.php:60
@@ -5863,9 +5854,10 @@ msgstr[1] ""
 #: src/Module/Contact/Follow.php:69 src/Module/Contact/Redir.php:62
 #: src/Module/Contact/Redir.php:222 src/Module/Conversation/Community.php:193
 #: src/Module/Debug/ItemBody.php:38 src/Module/Diaspora/Receive.php:57
+#: src/Module/Item/Display.php:93 src/Module/Item/Feed.php:60
 #: src/Module/Item/Follow.php:41 src/Module/Item/Ignore.php:41
 #: src/Module/Item/Pin.php:41 src/Module/Item/Pin.php:56
-#: src/Module/Item/Star.php:42
+#: src/Module/Item/Star.php:42 src/Module/Update/Display.php:38
 msgid "Access denied."
 msgstr ""
 
@@ -7122,6 +7114,15 @@ msgstr ""
 msgid ""
 "You can make this page always open when you use the New Post button in the "
 "<a href=\"/settings/display\">Theme Customization settings</a>."
+msgstr ""
+
+#: src/Module/Item/Display.php:133 src/Module/Item/Display.php:247
+#: src/Module/Update/Display.php:56
+msgid "The requested item doesn't exist or has been deleted."
+msgstr ""
+
+#: src/Module/Item/Feed.php:87
+msgid "The feed for this item is unavailable."
 msgstr ""
 
 #: src/Module/Item/Follow.php:51
@@ -10206,6 +10207,10 @@ msgstr ""
 
 #: src/Module/Tos.php:62 src/Module/Tos.php:90
 msgid "Privacy Statement"
+msgstr ""
+
+#: src/Module/Update/Display.php:46
+msgid "Parameter uri_id is missing."
 msgstr ""
 
 #: src/Module/User/Import.php:103

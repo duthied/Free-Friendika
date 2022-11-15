@@ -590,7 +590,7 @@ function liveUpdate(src) {
 
 	var orgHeight = $("section").height();
 
-	var udargs = ((netargs.length) ? '/' + netargs : '');
+	var udargs = ((netargs.length) ? netargs : '');
 
 	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&force=' + (force ? 1 : 0) + '&item=' + update_item;
 

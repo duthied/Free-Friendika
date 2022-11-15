@@ -493,7 +493,7 @@ class Conversation
 			if (!$update) {
 				$live_update_div = '<div id="live-notes"></div>' . "\r\n"
 					. "<script> var profile_uid = " . $this->session->getLocalUserId()
-					. "; var netargs = '/?f='; </script>\r\n";
+					. "; var netargs = '?f='; </script>\r\n";
 			}
 		} elseif ($mode === 'display') {
 			$items = $this->addChildren($items, false, $order, $uid, $mode);
@@ -520,7 +520,7 @@ class Conversation
 			if (!$update) {
 				$live_update_div = '<div id="live-contact"></div>' . "\r\n"
 					. "<script> var profile_uid = -1; var netargs = '" . substr($this->args->getCommand(), 8)
-					."/?f='; </script>\r\n";
+					."?f='; </script>\r\n";
 			}
 		} elseif ($mode === 'search') {
 			$live_update_div = '<div id="live-search"></div>' . "\r\n";

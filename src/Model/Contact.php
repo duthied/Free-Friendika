@@ -3476,4 +3476,17 @@ class Contact
 
 		return [];
 	}
+
+	/**
+	 * Checks, if contacts with the given condition exists
+	 *
+	 * @param array $condition
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public static function exists(array $condition): bool
+	{
+		return DBA::exists('contact', $condition);
+	}
 }
