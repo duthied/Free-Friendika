@@ -2963,7 +2963,7 @@ class Item
 
 		$body = $item['body'] ?? '';
 
-		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media', 'quote-uri-id'];
+		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media', 'quote-uri-id', 'post-type'];
 
 		$shared_uri_id = 0;
 		$shared_links  = [];
@@ -3006,7 +3006,6 @@ class Item
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
 
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
-		$bbcode = $item['body'];
 		self::putInCache($item);
 		$item['body'] = $body;
 		$s = $item["rendered-html"];
@@ -3051,13 +3050,13 @@ class Item
 		}
 
 		if (!empty($shared_attachments)) {
-			$s = self::addVisualAttachments($shared_attachments, $item, $s, true, $bbcode);
+			$s = self::addVisualAttachments($shared_attachments, $shared_item, $s, true);
 			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, []);
 			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
 			$body = BBCode::removeSharedData($body);
 		}
 
-		$s = self::addVisualAttachments($attachments, $item, $s, false, $bbcode);
+		$s = self::addVisualAttachments($attachments, $item, $s, false);
 		$s = self::addLinkAttachment($item['uri-id'], $attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
 		$s = self::addQuestions($item, $s);
@@ -3166,13 +3165,12 @@ class Item
 	/**
 	 * Add visual attachments to the content
 	 *
-	 * @param array  $attachments
-	 * @param array  $item
+	 * @param array $attachments
+	 * @param array $item
 	 * @param string $content
-	 * @param string $body
 	 * @return string modified content
 	 */
-	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared, string $body): string
+	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$leading = '';
@@ -3192,7 +3190,7 @@ class Item
 				$preview_url = '';
 			}
 
-			if ($preview_url && (self::containsLink($item['body'], $preview_url) || self::containsLink($body, $preview_url))) {
+			if ($preview_url && self::containsLink($item['body'], $preview_url)) {
 				continue;
 			}
 
@@ -3228,7 +3226,7 @@ class Item
 				}
 			} elseif ($attachment['filetype'] == 'image') {
 				$src_url = Post\Media::getUrlForId($attachment['id']);
-				if (self::containsLink($item['body'], $src_url) || self::containsLink($body, $src_url)) {
+				if (self::containsLink($item['body'], $src_url)) {
 					continue;
 				}
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
