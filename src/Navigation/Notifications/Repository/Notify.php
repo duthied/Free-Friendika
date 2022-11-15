@@ -531,7 +531,7 @@ class Notify extends BaseRepository
 		// Ensure that the important fields are set at any time
 		$fields = ['nickname', 'account_removed', 'account_expired'];
 		$user = Model\User::getById($params['uid'], $fields);
-		if ($user['account_removed'] || $user['user_expired']) {
+		if ($user['account_removed'] || $user['account_expired']) {
 			return false;
 		}
 
