@@ -138,7 +138,8 @@ class Display extends BaseModule
 				'uid'    => [0, $itemUid],
 				'uri-id' => $item['parent-uri-id']
 			], ['order' => ['uid' => true]]);
-			$item   = $parent ?: $item;
+
+			$item = $parent ?: $item;
 		}
 
 		if (!$this->pConfig->get($this->session->getLocalUserId(), 'system', 'detailed_notif')) {
@@ -224,12 +225,11 @@ class Display extends BaseModule
 		$sql_extra = Item::getPermissionsSQLByUserId($pageUid);
 
 		if ($this->session->getLocalUserId() && ($this->session->getLocalUserId() == $pageUid)) {
-			$condition = [
+			$unseen = Post::exists([
 				'parent-uri-id' => $item['parent-uri-id'],
 				'uid'           => $this->session->getLocalUserId(),
 				'unseen'        => true
-			];
-			$unseen    = Post::exists($condition);
+			]);
 		} else {
 			$unseen = false;
 		}
@@ -239,9 +239,12 @@ class Display extends BaseModule
 		}
 
 		$condition = ["`uri-id` = ? AND `uid` IN (0, ?) " . $sql_extra, $item['uri-id'], $itemUid];
-		$fields    = ['parent-uri-id', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id',
-					  'owner-id', 'contact-id'];
-		$item      = Post::selectFirstForUser($pageUid, $fields, $condition);
+		$fields    = [
+			'parent-uri-id', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id',
+			'owner-id', 'contact-id'
+		];
+
+		$item = Post::selectFirstForUser($pageUid, $fields, $condition);
 
 		if (empty($item)) {
 			throw new HTTPException\NotFoundException($this->t('The requested item doesn\'t exist or has been deleted.'));
@@ -277,11 +280,10 @@ class Display extends BaseModule
 	{
 		if (Post::exists(['uri-id' => $uriId, 'private' => [Item::PUBLIC, Item::UNLISTED]])) {
 			// For the atom feed the nickname doesn't matter at all, we only need the item id.
-			$alternate              = sprintf('display/feed-item/%s.atom', $uriId);
-			$conversation           = sprintf('display/feed-item/%s/conversation.atom', $parentUriId);
-			$this->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('display-head.tpl'),
-				['$alternate'    => $alternate,
-				 '$conversation' => $conversation]);
+			$this->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('display-head.tpl'), [
+				'$alternate'    => sprintf('display/feed-item/%s.atom', $uriId),
+				'$conversation' => sprintf('display/feed-item/%s/conversation.atom', $parentUriId)
+			]);
 		}
 	}
 
@@ -317,8 +319,10 @@ class Display extends BaseModule
 
 		$page = $this->page;
 
-		if (Contact::exists(['unsearchable' => true,
-							 'id'           => [$item['contact-id'], $item['author-id'], $item['owner-id']]])) {
+		if (Contact::exists([
+			'unsearchable' => true,
+			'id'           => [$item['contact-id'], $item['author-id'], $item['owner-id']]
+		])) {
 			$page['htmlhead'] .= "<meta content=\"noindex, noarchive\" name=\"robots\" />\n";
 		}
 

@@ -38,9 +38,9 @@ class Display extends DisplayModule
 			throw new HTTPException\UnauthorizedException($this->t('Access denied.'));
 		}
 
-		$profileUid  = $request['p'] ?? 0;
-		$force       = $request['force'] ?? false;
-		$uriId       = $request['uri_id'] ?? 0;
+		$profileUid = $request['p'] ?? 0;
+		$force      = $request['force'] ?? false;
+		$uriId      = $request['uri_id'] ?? 0;
 
 		if (empty($uriId)) {
 			throw new HTTPException\BadRequestException($this->t('Parameter uri_id is missing.'));
@@ -63,8 +63,10 @@ class Display extends DisplayModule
 			$browserUpdate = $this->pConfig->get($profileUid, 'system', 'update_interval');
 			if (!empty($browserUpdate)) {
 				$updateDate = date(DateTimeFormat::MYSQL, time() - (intval($browserUpdate) / 500));
-				if (!Post::exists(["`parent-uri-id` = ? AND `uid` IN (?, ?) AND `received` > ?", $parentUriId, 0,
-								   $profileUid, $updateDate])) {
+				if (!Post::exists([
+					"`parent-uri-id` = ? AND `uid` IN (?, ?) AND `received` > ?",
+					$parentUriId, 0,
+					$profileUid, $updateDate])) {
 					$this->logger->debug('No updated content. Ending process',
 						['uri-id' => $uriId, 'uid' => $profileUid, 'updated' => $updateDate]);
 					return '';

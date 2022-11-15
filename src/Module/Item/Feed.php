@@ -72,9 +72,9 @@ class Feed extends BaseModule
 			'guid',
 			'gravity',
 		], [
-			'uri-id' => $uriId,
+			'uri-id'  => $uriId,
 			'private' => [Item::PUBLIC, Item::UNLISTED],
-			'uid' => 0,
+			'uid'     => 0,
 		]);
 
 		if (empty($item)) {
