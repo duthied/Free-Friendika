@@ -16,8 +16,6 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- * See update_profile.php for documentation
  */
 
 namespace Friendica\Module\Item;
@@ -47,6 +45,9 @@ use Friendica\Network\HTTPException;
 use Friendica\Content\Widget;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Controller to display one item and its conversation
+ */
 class Display extends BaseModule
 {
 	/** @var App\Page */

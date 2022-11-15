@@ -38,8 +38,8 @@ class Display extends DisplayModule
 			throw new HTTPException\UnauthorizedException($this->t('Access denied.'));
 		}
 
-		$profileUid = $request['p'] ?? 0;
-		$force      = $request['force'] ?? false;
+		$profileUid = $request['p']      ?? 0;
+		$force      = $request['force']  ?? false;
 		$uriId      = $request['uri_id'] ?? 0;
 
 		if (empty($uriId)) {
@@ -56,7 +56,7 @@ class Display extends DisplayModule
 			throw new HTTPException\NotFoundException($this->t('The requested item doesn\'t exist or has been deleted.'));
 		}
 
-		$this->app->setProfileOwner($item['uid'] ?? $profileUid);
+		$this->app->setProfileOwner($item['uid'] ?: $profileUid);
 		$parentUriId = $item['parent-uri-id'];
 
 		if (empty($force)) {
