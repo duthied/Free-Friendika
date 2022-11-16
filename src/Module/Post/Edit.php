@@ -162,18 +162,18 @@ class Edit extends BaseModule
 			'$rand_num'            => Crypto::randomDigits(12),
 
 			// Formatting button labels
-			'$edbold'              => $this->t('Bold'),
-			'$editalic'            => $this->t('Italic'),
-			'$eduline'             => $this->t('Underline'),
-			'$edquote'             => $this->t('Quote'),
-			'$edcode'              => $this->t('Code'),
-			'$edurl'               => $this->t('Link'),
-			'$edattach'            => $this->t('Link or Media'),
+			'$edbold'   => $this->t('Bold'),
+			'$editalic' => $this->t('Italic'),
+			'$eduline'  => $this->t('Underline'),
+			'$edquote'  => $this->t('Quote'),
+			'$edcode'   => $this->t('Code'),
+			'$edurl'    => $this->t('Link'),
+			'$edattach' => $this->t('Link or Media'),
 
 			//jot nav tab (used in some themes)
-			'$message'             => $this->t('Message'),
-			'$browser'             => $this->t('Browser'),
-			'$shortpermset'        => $this->t('Permissions'),
+			'$message'      => $this->t('Message'),
+			'$browser'      => $this->t('Browser'),
+			'$shortpermset' => $this->t('Permissions'),
 
 			'$compose_link_title' => $this->t('Open Compose page'),
 		]);
