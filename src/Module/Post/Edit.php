@@ -104,6 +104,7 @@ class Edit extends BaseModule
 
 		$this->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('jot-header.tpl'), [
 			'$ispublic'  => '&nbsp;',
+			'$geotag'    => '',
 			'$nickname'  => $this->app->getLoggedInUserNickname(),
 			'$is_mobile' => $this->mode->isMobile(),
 		]);

@@ -236,5 +236,7 @@ function enableOnUser(){
 		$("#profile-jot-text").val(currentText + data);
 	}
 
+	{{$geotag nofilter}}
+
 </script>
 
