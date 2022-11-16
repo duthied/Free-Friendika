@@ -82,8 +82,10 @@ class Edit extends BaseModule
 			$this->errorExit($this->t('Post not found.'), HTTPException\BadRequestException::class);
 		}
 
-		$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-				   'body', 'title', 'uri-id', 'wall', 'post-type', 'guid'];
+		$fields = [
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'body', 'title', 'uri-id', 'wall', 'post-type', 'guid'
+		];
 
 		$item = Post::selectFirstForUser($this->session->getLocalUserId(), $fields, [
 			'id'  => $postId,
