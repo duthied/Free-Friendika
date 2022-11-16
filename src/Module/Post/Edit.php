@@ -76,7 +76,7 @@ class Edit extends BaseModule
 			$this->errorExit($this->t('Permission denied.'), HTTPException\UnauthorizedException::class);
 		}
 
-		$postId = $this->parameters['post_id'];
+		$postId = $this->parameters['post_id'] ?? 0;
 
 		if (empty($postId)) {
 			$this->errorExit($this->t('Post not found.'), HTTPException\BadRequestException::class);
@@ -115,7 +115,6 @@ class Edit extends BaseModule
 		}
 
 		$jotplugins = '';
-		$jotnets    = '';
 
 		Hook::callAll('jot_tool', $jotplugins);
 
@@ -150,7 +149,6 @@ class Edit extends BaseModule
 			'$pvisit'              => 'none',
 			'$emailcc'             => $this->t('CC: email addresses'),
 			'$public'              => $this->t('Public post'),
-			'$jotnets'             => $jotnets,
 			'$title'               => $item['title'],
 			'$placeholdertitle'    => $this->t('Set title'),
 			'$category'            => Post\Category::getCSVByURIId($item['uri-id'], $this->session->getLocalUserId(), Post\Category::CATEGORY),
