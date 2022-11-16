@@ -317,8 +317,6 @@
 		autosize.update($("#profile-jot-text"));
 	}
 
-	{{$geotag nofilter}}
-
 	function jotShow() {
 		var modal = $('#jot-modal').modal();
 		jotcache = $("#jot-sections");

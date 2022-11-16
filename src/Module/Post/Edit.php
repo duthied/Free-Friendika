@@ -95,7 +95,6 @@ class Edit extends BaseModule
 		}
 
 		$user   = User::getById($this->session->getLocalUserId());
-		$geoTag = '';
 
 		$output = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
 			'$title' => $this->t('Edit post'),
@@ -103,7 +102,6 @@ class Edit extends BaseModule
 
 		$this->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('jot-header.tpl'), [
 			'$ispublic'  => '&nbsp;', // $this->t('Visible to <strong>everybody</strong>'),
-			'$geotag'    => $geoTag,
 			'$nickname'  => $this->app->getLoggedInUserNickname(),
 			'$is_mobile' => $this->mode->isMobile(),
 		]);
