@@ -179,7 +179,7 @@ function frio_contact_photo_menu(App $a, &$args)
 
 	// Add to pm link a new key with the value 'modal'.
 	// Later we can make conditions in the corresponding templates (e.g.
-	// contact_template.tpl)
+	// contact/entry.tpl)
 	if (strpos($pmlink, 'message/new/' . $cid) !== false) {
 		$args['menu']['pm'][3] = 'modal';
 	}
