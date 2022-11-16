@@ -94,14 +94,14 @@ class Edit extends BaseModule
 			$this->errorExit($this->t('Post not found.'), HTTPException\BadRequestException::class);
 		}
 
-		$user   = User::getById($this->session->getLocalUserId());
+		$user = User::getById($this->session->getLocalUserId());
 
 		$output = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
 			'$title' => $this->t('Edit post'),
 		]);
 
 		$this->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('jot-header.tpl'), [
-			'$ispublic'  => '&nbsp;', // $this->t('Visible to <strong>everybody</strong>'),
+			'$ispublic'  => '&nbsp;',
 			'$nickname'  => $this->app->getLoggedInUserNickname(),
 			'$is_mobile' => $this->mode->isMobile(),
 		]);
@@ -153,7 +153,7 @@ class Edit extends BaseModule
 			'$placeholdercategory' => (Feature::isEnabled($this->session->getLocalUserId(), 'categories') ? $this->t("Categories \x28comma-separated list\x29") : ''),
 			'$emtitle'             => $this->t('Example: bob@example.com, mary@example.com'),
 			'$lockstate'           => $lockstate,
-			'$acl'                 => '', // populate_acl((($group) ? $group_acl : $a->user)),
+			'$acl'                 => '',
 			'$bang'                => ($lockstate === 'lock' ? '!' : ''),
 			'$profile_uid'         => $this->session->getLocalUserId(),
 			'$preview'             => $this->t('Preview'),
