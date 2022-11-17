@@ -35,6 +35,11 @@ a.btn, a.btn:hover {
   text-decoration: overline;
 }
 
+.icon {
+	width: 48px;
+	height: 48px;
+}
+
 /* List of social Networks */
 img.connector, img.connector-disabled {
   height: 40px;
