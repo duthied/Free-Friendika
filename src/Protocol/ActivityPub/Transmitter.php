@@ -657,7 +657,7 @@ class Transmitter
 			$is_forum_thread = false;
 		}
 
-		if (self::isAnnounce($item) || DI::config()->get('debug', 'total_ap_delivery') || self::isAPPost($last_id)) {
+		if (self::isAnnounce($item) || self::isAPPost($last_id)) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
@@ -902,7 +902,7 @@ class Transmitter
 			}
 		}
 
-		if (DI::config()->get('debug', 'total_ap_delivery') || $all_ap) {
+		if ($all_ap) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
