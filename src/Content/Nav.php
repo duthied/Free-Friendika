@@ -245,7 +245,7 @@ class Nav
 
 		$gdirpath = 'directory';
 
-		if (strlen(DI::config()->get('system', 'singleuser'))) {
+		if (empty(DI::config()->get('system', 'singleuser'))) {
 			$gdir = DI::config()->get('system', 'directory');
 			if (strlen($gdir)) {
 				$gdirpath = Profile::zrl($gdir, true);
