@@ -130,7 +130,7 @@ class Page implements ArrayAccess
 	 * The return value will be casted to boolean if non-boolean was returned.
 	 * @since 5.0.0
 	 */
-	public function offsetExists(mixed $offset): bool
+	public function offsetExists($offset): bool
 	{
 		return isset($this->page[$offset]);
 	}
@@ -147,7 +147,7 @@ class Page implements ArrayAccess
 	 * @return mixed Can return all value types.
 	 * @since 5.0.0
 	 */
-	public function offsetGet(mixed $offset): mixed
+	public function offsetGet($offset)
 	{
 		return $this->page[$offset] ?? null;
 	}
@@ -167,7 +167,7 @@ class Page implements ArrayAccess
 	 * @return void
 	 * @since 5.0.0
 	 */
-	public function offsetSet(mixed $offset, mixed $value): void
+	public function offsetSet($offset, $value)
 	{
 		$this->page[$offset] = $value;
 	}
@@ -184,7 +184,7 @@ class Page implements ArrayAccess
 	 * @return void
 	 * @since 5.0.0
 	 */
-	public function offsetUnset(mixed $offset): void
+	public function offsetUnset($offset)
 	{
 		if (isset($this->page[$offset])) {
 			unset($this->page[$offset]);

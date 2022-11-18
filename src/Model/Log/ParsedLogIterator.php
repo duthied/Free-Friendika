@@ -160,7 +160,7 @@ class ParsedLogIterator implements \Iterator
 	 * @see Iterator::next()
 	 * @return void
 	 */
-	public function next(): void
+	public function next()
 	{
 		$parsed = $this->read();
 
@@ -177,7 +177,7 @@ class ParsedLogIterator implements \Iterator
 	 * @see Iterator::rewind()
 	 * @return void
 	 */
-	public function rewind(): void
+	public function rewind()
 	{
 		$this->value = null;
 		$this->reader->rewind();
@@ -202,7 +202,7 @@ class ParsedLogIterator implements \Iterator
 	 * @see Iterator::current()
 	 * @return ?ParsedLogLing
 	 */
-	public function current(): mixed
+	public function current()
 	{
 		return $this->value;
 	}

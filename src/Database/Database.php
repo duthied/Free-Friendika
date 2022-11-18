@@ -117,7 +117,7 @@ class Database
 			$port = trim($serverdata[1]);
 		}
 
-		if (!empty(trim((string) $this->configCache->get('database', 'port')))) {
+		if (!empty(trim($this->configCache->get('database', 'port')))) {
 			$port = trim($this->configCache->get('database', 'port'));
 		}
 

@@ -57,7 +57,7 @@ class Database extends AbstractSessionHandler
 		return true;
 	}
 
-	public function read($id): string|false
+	public function read($id)
 	{
 		if (empty($id)) {
 			return '';
@@ -136,7 +136,7 @@ class Database extends AbstractSessionHandler
 		}
 	}
 
-	public function gc($max_lifetime): int|false
+	public function gc($max_lifetime): bool
 	{
 		try {
 			return $this->dba->delete('session', ["`expire` < ?", time()]);

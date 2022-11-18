@@ -794,10 +794,7 @@ class Conversation
 			return [];
 		}
 
-		$blocked = $this->pConfig->get($this->session->getLocalUserId(), 'system', 'blocked');
-		if (!empty($blocked)) {
-			$str_blocked = str_replace(["\n", "\r"], ",", $blocked);
-		}
+		$str_blocked = str_replace(["\n", "\r"], ",", $this->pConfig->get($this->session->getLocalUserId(), 'system', 'blocked'));
 		if (empty($str_blocked)) {
 			return [];
 		}

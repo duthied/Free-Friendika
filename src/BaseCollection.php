@@ -48,7 +48,7 @@ class BaseCollection extends \ArrayIterator
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetSet(mixed $offset, mixed $value): void
+	public function offsetSet($offset, $value)
 	{
 		if (is_null($offset)) {
 			$this->totalCount++;
@@ -60,7 +60,7 @@ class BaseCollection extends \ArrayIterator
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetUnset(mixed $offset): void
+	public function offsetUnset($offset)
 	{
 		if ($this->offsetExists($offset)) {
 			$this->totalCount--;
