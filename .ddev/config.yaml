@@ -1,7 +1,7 @@
 name: my-friendica
 type: php
 docroot: ""
-php_version: "8.1"
+php_version: "7.3"
 webserver_type: apache-fpm
 router_http_port: "80"
 router_https_port: "443"
@@ -17,7 +17,7 @@ use_dns_when_possible: true
 composer_version: "1"
 web_environment: []
 nodejs_version: "16"
-webimage_extra_packages: [php-gmp]
+webimage_extra_packages: [php7.3-gmp]
 
 # Key features of ddev's config.yaml:
 
