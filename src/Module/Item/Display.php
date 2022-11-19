@@ -136,7 +136,7 @@ class Display extends BaseModule
 		}
 
 		if ($item['gravity'] != Item::GRAVITY_PARENT) {
-			$parent = Post::selectFirstForUser($itemUid, $fields, [
+			$parent = Post::selectFirst($fields, [
 				'uid'    => [0, $itemUid],
 				'uri-id' => $item['parent-uri-id']
 			], ['order' => ['uid' => true]]);
@@ -249,7 +249,15 @@ class Display extends BaseModule
 		$item = Post::selectFirstForUser($pageUid, $fields, $condition);
 
 		if (empty($item)) {
-			throw new HTTPException\NotFoundException($this->t('The requested item doesn\'t exist or has been deleted.'));
+			$this->page['aside'] = '';
+			throw new HTTPException\NotFoundException($this->t('Unfortunately, the requested conversation isn\'t available to you.</p>
+<p>Possible reasons include:</p>
+<ul>
+	<li>The top-level post isn\'t visible.</li>
+	<li>The top-level post was deleted.</li>
+	<li>The node has blocked the top-level author or the author of the shared post.</li>
+	<li>You have ignored or blocked the top-level author or the author of the shared post.</li>
+</ul><p>'));
 		}
 
 		$item['uri-id'] = $item['parent-uri-id'];
