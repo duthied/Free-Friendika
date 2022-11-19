@@ -526,7 +526,7 @@ class Conversation
 			$live_update_div = '<div id="live-search"></div>' . "\r\n";
 		}
 
-		$page_dropping = $this->session->getLocalUserId() && $this->session->getLocalUserId() == $uid;
+		$page_dropping = $this->session->getLocalUserId() && $this->session->getLocalUserId() == $uid && $mode != 'search';
 
 		if (!$update) {
 			$_SESSION['return_path'] = $this->args->getQueryString();
