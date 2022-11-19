@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-15 21:34+0000\n"
+"POT-Creation-Date: 2022-11-19 07:52-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr ""
 #: mod/fbrowser.php:119 mod/fbrowser.php:146 mod/photos.php:999
 #: mod/photos.php:1100 src/Content/Conversation.php:389
 #: src/Module/Contact/Follow.php:171 src/Module/Contact/Revoke.php:109
-#: src/Module/Contact/Unfollow.php:126 src/Module/Post/Edit.php:165
+#: src/Module/Contact/Unfollow.php:126 src/Module/Post/Edit.php:164
 #: src/Module/Post/Tag/Remove.php:109 src/Module/Profile/RemoteFollow.php:134
 #: src/Module/Security/TwoFactor/SignOut.php:125
 msgid "Cancel"
@@ -531,7 +531,7 @@ msgid "Do not show a status post for this upload"
 msgstr ""
 
 #: mod/photos.php:934 mod/photos.php:1288 src/Content/Conversation.php:373
-#: src/Module/Calendar/Event/Form.php:253 src/Module/Post/Edit.php:180
+#: src/Module/Calendar/Event/Form.php:253 src/Module/Post/Edit.php:179
 msgid "Permissions"
 msgstr ""
 
@@ -652,7 +652,7 @@ msgstr ""
 
 #: mod/photos.php:1334 mod/photos.php:1390 mod/photos.php:1464
 #: src/Content/Conversation.php:386 src/Module/Calendar/Event/Form.php:248
-#: src/Module/Item/Compose.php:199 src/Module/Post/Edit.php:163
+#: src/Module/Item/Compose.php:199 src/Module/Post/Edit.php:162
 #: src/Object/Post.php:997
 msgid "Preview"
 msgstr ""
@@ -1228,27 +1228,27 @@ msgid "attach file"
 msgstr ""
 
 #: src/Content/Conversation.php:346 src/Module/Item/Compose.php:190
-#: src/Module/Post/Edit.php:169 src/Object/Post.php:988
+#: src/Module/Post/Edit.php:168 src/Object/Post.php:988
 msgid "Bold"
 msgstr ""
 
 #: src/Content/Conversation.php:347 src/Module/Item/Compose.php:191
-#: src/Module/Post/Edit.php:170 src/Object/Post.php:989
+#: src/Module/Post/Edit.php:169 src/Object/Post.php:989
 msgid "Italic"
 msgstr ""
 
 #: src/Content/Conversation.php:348 src/Module/Item/Compose.php:192
-#: src/Module/Post/Edit.php:171 src/Object/Post.php:990
+#: src/Module/Post/Edit.php:170 src/Object/Post.php:990
 msgid "Underline"
 msgstr ""
 
 #: src/Content/Conversation.php:349 src/Module/Item/Compose.php:193
-#: src/Module/Post/Edit.php:172 src/Object/Post.php:991
+#: src/Module/Post/Edit.php:171 src/Object/Post.php:991
 msgid "Quote"
 msgstr ""
 
 #: src/Content/Conversation.php:350 src/Module/Item/Compose.php:194
-#: src/Module/Post/Edit.php:173 src/Object/Post.php:992
+#: src/Module/Post/Edit.php:172 src/Object/Post.php:992
 msgid "Code"
 msgstr ""
 
@@ -1258,12 +1258,12 @@ msgid "Image"
 msgstr ""
 
 #: src/Content/Conversation.php:352 src/Module/Item/Compose.php:196
-#: src/Module/Post/Edit.php:174 src/Object/Post.php:994
+#: src/Module/Post/Edit.php:173 src/Object/Post.php:994
 msgid "Link"
 msgstr ""
 
 #: src/Content/Conversation.php:353 src/Module/Item/Compose.php:197
-#: src/Module/Post/Edit.php:175 src/Object/Post.php:995
+#: src/Module/Post/Edit.php:174 src/Object/Post.php:995
 msgid "Link or Media"
 msgstr ""
 
@@ -1289,12 +1289,12 @@ msgid "clear location"
 msgstr ""
 
 #: src/Content/Conversation.php:360 src/Module/Item/Compose.php:205
-#: src/Module/Post/Edit.php:155
+#: src/Module/Post/Edit.php:154
 msgid "Set title"
 msgstr ""
 
 #: src/Content/Conversation.php:362 src/Module/Item/Compose.php:206
-#: src/Module/Post/Edit.php:157
+#: src/Module/Post/Edit.php:156
 msgid "Categories (comma-separated list)"
 msgstr ""
 
@@ -1312,16 +1312,16 @@ msgstr ""
 
 #: src/Content/Conversation.php:396 src/Content/Widget/VCard.php:113
 #: src/Model/Profile.php:465 src/Module/Admin/Logs/View.php:93
-#: src/Module/Post/Edit.php:178
+#: src/Module/Post/Edit.php:177
 msgid "Message"
 msgstr ""
 
-#: src/Content/Conversation.php:397 src/Module/Post/Edit.php:179
+#: src/Content/Conversation.php:397 src/Module/Post/Edit.php:178
 #: src/Module/Settings/TwoFactor/Trusted.php:139
 msgid "Browser"
 msgstr ""
 
-#: src/Content/Conversation.php:399 src/Module/Post/Edit.php:182
+#: src/Content/Conversation.php:399 src/Module/Post/Edit.php:181
 msgid "Open Compose page"
 msgstr ""
 
@@ -2246,7 +2246,7 @@ msgstr ""
 msgid "CC: email addresses"
 msgstr ""
 
-#: src/Core/ACL.php:327 src/Module/Post/Edit.php:158
+#: src/Core/ACL.php:327 src/Module/Post/Edit.php:157
 msgid "Example: bob@example.com, mary@example.com"
 msgstr ""
 
@@ -3285,7 +3285,7 @@ msgstr ""
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1019 src/Module/Admin/Summary.php:215
+#: src/Model/Profile.php:1019 src/Module/Admin/Summary.php:217
 #: src/Module/Moderation/Summary.php:77
 msgid "Summary"
 msgstr ""
@@ -3613,7 +3613,7 @@ msgstr ""
 #: src/Module/Admin/Federation.php:202 src/Module/Admin/Logs/Settings.php:79
 #: src/Module/Admin/Logs/View.php:84 src/Module/Admin/Queue.php:72
 #: src/Module/Admin/Site.php:431 src/Module/Admin/Storage.php:138
-#: src/Module/Admin/Summary.php:214 src/Module/Admin/Themes/Details.php:90
+#: src/Module/Admin/Summary.php:216 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:75
 #: src/Module/Moderation/Users/Create.php:61
 #: src/Module/Moderation/Users/Pending.php:96
@@ -5117,11 +5117,11 @@ msgstr ""
 msgid "Server Settings"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:217
+#: src/Module/Admin/Summary.php:219
 msgid "Version"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:221
+#: src/Module/Admin/Summary.php:223
 msgid "Active addons"
 msgstr ""
 
@@ -8081,11 +8081,11 @@ msgstr ""
 msgid "Invalid photo with id %s."
 msgstr ""
 
-#: src/Module/Post/Edit.php:82 src/Module/Post/Edit.php:94
+#: src/Module/Post/Edit.php:82 src/Module/Post/Edit.php:96
 msgid "Post not found."
 msgstr ""
 
-#: src/Module/Post/Edit.php:101
+#: src/Module/Post/Edit.php:102
 msgid "Edit post"
 msgstr ""
 
@@ -8449,15 +8449,20 @@ msgstr ""
 msgid "Registration successful."
 msgstr ""
 
-#: src/Module/Register.php:356 src/Module/Register.php:363
+#: src/Module/Register.php:357 src/Module/Register.php:364
+#: src/Module/Register.php:374
 msgid "Your registration can not be processed."
 msgstr ""
 
-#: src/Module/Register.php:362
+#: src/Module/Register.php:363
 msgid "You have to leave a request note for the admin."
 msgstr ""
 
-#: src/Module/Register.php:387
+#: src/Module/Register.php:373
+msgid "An internal error occured."
+msgstr ""
+
+#: src/Module/Register.php:395
 msgid "Your registration is pending approval by the site owner."
 msgstr ""
 
