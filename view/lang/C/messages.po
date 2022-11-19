@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-19 07:52-0500\n"
+"POT-Creation-Date: 2022-11-19 12:01-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7089,9 +7089,22 @@ msgid ""
 "<a href=\"/settings/display\">Theme Customization settings</a>."
 msgstr ""
 
-#: src/Module/Item/Display.php:135 src/Module/Item/Display.php:252
-#: src/Module/Update/Display.php:55
+#: src/Module/Item/Display.php:135 src/Module/Update/Display.php:55
 msgid "The requested item doesn't exist or has been deleted."
+msgstr ""
+
+#: src/Module/Item/Display.php:253
+msgid ""
+"Unfortunately, the requested conversation isn't available to you.</p>\n"
+"<p>Possible reasons include:</p>\n"
+"<ul>\n"
+"\t<li>The top-level post isn't visible.</li>\n"
+"\t<li>The top-level post was deleted.</li>\n"
+"\t<li>The node has blocked the top-level author or the author of the shared "
+"post.</li>\n"
+"\t<li>You have ignored or blocked the top-level author or the author of the "
+"shared post.</li>\n"
+"</ul><p>"
 msgstr ""
 
 #: src/Module/Item/Feed.php:86
