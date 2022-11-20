@@ -752,8 +752,8 @@ class Database
 				@file_put_contents(
 					$this->config->get('system', 'db_log'),
 					DateTimeFormat::utcNow() . "\t" . $duration . "\t" .
-					basename($backtrace[1]["file"]) . "\t" .
-					$backtrace[1]["line"] . "\t" . $backtrace[2]["function"] . "\t" .
+					basename($backtrace[1]['file']) . "\t" .
+					$backtrace[1]['line'] . "\t" . $backtrace[2]['function'] . "\t" .
 					substr($this->replaceParameters($sql, $args), 0, 4000) . "\n",
 					FILE_APPEND
 				);
