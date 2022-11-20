@@ -244,12 +244,8 @@ class Nav
 		}
 
 		$gdirpath = 'directory';
-
-		if (strlen(DI::config()->get('system', 'singleuser'))) {
-			$gdir = DI::config()->get('system', 'directory');
-			if (strlen($gdir)) {
-				$gdirpath = Profile::zrl($gdir, true);
-			}
+		if (DI::config()->get('system', 'singleuser') && DI::config()->get('system', 'directory')) {
+			$gdirpath = Profile::zrl(DI::config()->get('system', 'directory'), true);
 		}
 
 		if ((DI::userSession()->getLocalUserId() || DI::config()->get('system', 'community_page_style') != Community::DISABLED_VISITOR) &&
