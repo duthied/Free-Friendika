@@ -284,8 +284,7 @@ function photos_post(App $a)
 				DI::baseUrl()->redirect('photos/' . DI::args()->getArgv()[1] . '/image/' . DI::args()->getArgv()[3]);
 			}
 
-			DI::baseUrl()->redirect('photos/' . DI::args()->getArgv()[1]);
-			return; // NOTREACHED
+			DI::baseUrl()->redirect('profile/' . DI::args()->getArgv()[1] . '/photos');
 		}
 	}
 
@@ -778,7 +777,6 @@ function photos_post(App $a)
 function photos_content(App $a)
 {
 	// URLs:
-	// photos/name
 	// photos/name/upload
 	// photos/name/upload/xxxxx (xxxxx is album name)
 	// photos/name/album/xxxxx
@@ -905,7 +903,7 @@ function photos_content(App $a)
 
 		$uploader = '';
 
-		$ret = ['post_url' => 'photos/' . $user['nickname'],
+		$ret = ['post_url' => 'profile/' . $user['nickname'] . '/photos',
 				'addon_text' => $uploader,
 				'default_upload' => true];
 
@@ -1522,68 +1520,4 @@ function photos_content(App $a)
 
 		return $o;
 	}
-
-	// Default - show recent photos with upload link (if applicable)
-	//$o = '';
-	$total = 0;
-	$r = DBA::toArray(DBA::p("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND `photo-type` = ?
-		$sql_extra GROUP BY `resource-id`",
-		$user['uid'],
-		Photo::DEFAULT,
-	));
-	if (DBA::isResult($r)) {
-		$total = count($r);
-	}
-
-	$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 20);
-
-	$r = DBA::toArray(DBA::p("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
-		ANY_VALUE(`type`) AS `type`, ANY_VALUE(`album`) AS `album`, max(`scale`) AS `scale`,
-		ANY_VALUE(`created`) AS `created` FROM `photo`
-		WHERE `uid` = ? AND `photo-type` = ?
-		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT ? , ?",
-		$user['uid'],
-		Photo::DEFAULT,
-		$pager->getStart(),
-		$pager->getItemsPerPage()
-	));
-
-	$photos = [];
-	if (DBA::isResult($r)) {
-		// "Twist" is only used for the duepunto theme with style "slackr"
-		$twist = false;
-		foreach ($r as $rr) {
-			$twist = !$twist;
-			$ext = $phototypes[$rr['type']];
-
-			$alt_e = $rr['filename'];
-			$name_e = $rr['album'];
-
-			$photos[] = [
-				'id'    => $rr['id'],
-				'twist' => ' ' . ($twist ? 'rotleft' : 'rotright') . rand(2,4),
-				'link'  => 'photos/' . $user['nickname'] . '/image/' . $rr['resource-id'],
-				'title' => DI::l10n()->t('View Photo'),
-				'src'   => 'photo/' . $rr['resource-id'] . '-' . ((($rr['scale']) == 6) ? 4 : $rr['scale']) . '.' . $ext,
-				'alt'   => $alt_e,
-				'album' => [
-					'link' => 'photos/' . $user['nickname'] . '/album/' . bin2hex($rr['album']),
-					'name' => $name_e,
-					'alt'  => DI::l10n()->t('View Album'),
-				],
-
-			];
-		}
-	}
-
-	$tpl = Renderer::getMarkupTemplate('photos_recent.tpl');
-	$o .= Renderer::replaceMacros($tpl, [
-		'$title' => DI::l10n()->t('Recent Photos'),
-		'$can_post' => $can_post,
-		'$upload' => [DI::l10n()->t('Upload New Photos'), 'photos/' . $user['nickname'] . '/upload'],
-		'$photos' => $photos,
-		'$paginate' => $pager->renderFull($total),
-	]);
-
-	return $o;
 }

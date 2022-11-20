@@ -62,7 +62,7 @@ class BaseProfile extends BaseModule
 			],
 			[
 				'label' => DI::l10n()->t('Photos'),
-				'url'   => DI::baseUrl() . '/photos/' . $nickname,
+				'url'   => $baseProfileUrl . '/photos',
 				'sel'   => $current == 'photos' ? 'active' : '',
 				'title' => DI::l10n()->t('Photo Albums'),
 				'id'    => 'photo-tab',
@@ -78,7 +78,7 @@ class BaseProfile extends BaseModule
 			],
 		];
 
-		// the calendar link for the full featured events calendar
+		// the calendar link for the full-featured events calendar
 		if ($is_owner && $a->getThemeInfoValue('events_in_profile')) {
 			$tabs[] = [
 				'label' => DI::l10n()->t('Calendar'),

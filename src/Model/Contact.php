@@ -1158,7 +1158,7 @@ class Contact
 
 		if ($sparkle) {
 			$status_link = $profile_link . '/status';
-			$photos_link = str_replace('/profile/', '/photos/', $profile_link);
+			$photos_link = $profile_link . '/photos';
 			$profile_link = $profile_link . '/profile';
 		}
 
