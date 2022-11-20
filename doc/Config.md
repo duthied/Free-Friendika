@@ -38,7 +38,7 @@ All of them have to end with `.config.php` and must not include `-sample` in the
 
 Some examples of common known configuration files:
 - `local.config.php` holds the base node custom configuration.
-- Any other file in this folder is meant for addon configuration.
+- Any other file in this folder is meant for additional configuration (e.g. for addons).
 
 Addons can define their own default configuration values in `addon/[addon]/config/[addon].config.php` which is loaded when the addon is activated.
 
