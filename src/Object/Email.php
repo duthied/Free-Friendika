@@ -110,12 +110,12 @@ class Email implements IEmail
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getMessage(bool $plain = false)
+	public function getMessage(bool $plain = false): string
 	{
 		if ($plain) {
 			return $this->msgText;
 		} else {
-			return $this->msgHtml;
+			return $this->msgHtml ?? '';
 		}
 	}
 
