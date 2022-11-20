@@ -36,6 +36,7 @@ $profileRoutes = [
 	'/contacts/common'                         => [Module\Profile\Common::class,            [R::GET]],
 	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class,          [R::GET]],
 	'/media'                                   => [Module\Profile\Media::class,             [R::GET]],
+	'/photos'                                  => [Module\Profile\Photos\Index::class,      [R::GET         ]],
 	'/photos/upload'                           => [Module\Profile\Photos\Upload::class,     [        R::POST]],
 	'/profile'                                 => [Module\Profile\Profile::class,           [R::GET]],
 	'/remote_follow'                           => [Module\Profile\RemoteFollow::class,      [R::GET, R::POST]],
@@ -552,6 +553,10 @@ return [
 		'/{type}/{customsize:\d+}/{uid_ext:\d+\..*}'               => [Module\Photo::class, [R::GET]],
 		'/{type}/{customsize:\d+}/{nickname_ext}'                  => [Module\Photo::class, [R::GET]],
 	],
+
+	// Kept for backwards-compatibility
+	// @TODO remove by version 2023.12
+	'/photos/{nickname}' => [Module\Profile\Photos\Index::class, [R::GET]],
 
 	'/ping'              => [Module\Notifications\Ping::class, [R::GET]],
 
