@@ -342,6 +342,10 @@ return [
 	'/acctlink'            => [Module\Acctlink::class,     [R::GET]],
 	'/apps'                => [Module\Apps::class,         [R::GET]],
 	'/attach/{item:\d+}'   => [Module\Attach::class,       [R::GET]],
+
+	// Mastodon route used by Fedifind to follow people who set their Webfinger address in their Twitter bio
+	'/authorize_interaction' => [Module\Contact\Follow::class, [R::GET, R::POST]],
+
 	'/babel'               => [Module\Debug\Babel::class,  [R::GET, R::POST]],
 	'/debug/ap'            => [Module\Debug\ActivityPubConversion::class,  [R::GET, R::POST]],
 
