@@ -383,7 +383,7 @@ class APContact
 		// kroeg:blocks, updated
 
 		// When the photo is too large, try to shorten it by removing parts
-		if (strlen($apcontact['photo']) > 255) {
+		if (strlen($apcontact['photo'] ?? '') > 255) {
 			$parts = parse_url($apcontact['photo']);
 			unset($parts['fragment']);
 			$apcontact['photo'] = (string)Uri::fromParts($parts);
@@ -574,7 +574,7 @@ class APContact
 	 *
 	 * @param array $apcontact
 	 *
-	 * @return bool 
+	 * @return bool
 	 */
 	public static function isRelay(array $apcontact): bool
 	{

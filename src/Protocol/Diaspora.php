@@ -3638,7 +3638,7 @@ class Diaspora
 
 		Logger::info('Got relayable data ' . $type . ' for item ' . $item['guid'] . ' (' . $item['id'] . ')');
 
-		$msg = json_decode($item['signed_text'], true);
+		$msg = json_decode($item['signed_text'] ?? '', true);
 
 		$message = [];
 		if (is_array($msg)) {
