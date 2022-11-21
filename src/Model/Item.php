@@ -2693,7 +2693,7 @@ class Item
 		}
 
 		$condition = ['vid' => $vids, 'deleted' => false, 'gravity' => self::GRAVITY_ACTIVITY,
-			'author-id' => $author_id, 'uid' => $item['uid'], 'thr-parent-id' => $uri_id];
+			'author-id' => $author_id, 'uid' => $uid, 'thr-parent-id' => $uri_id];
 		$like_item = Post::selectFirst(['id', 'guid', 'verb'], $condition);
 
 		if (DBA::isResult($like_item)) {
