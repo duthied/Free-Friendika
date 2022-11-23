@@ -2171,6 +2171,11 @@ class Transmitter
 		}
 
 		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			Logger::notice('No user found for actor', ['uid' => $uid]);
+			return false;
+		}
+
 		$data = [
 			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
