@@ -2312,7 +2312,7 @@ class Item
 
 		$datarray2 = $datarray;
 		Logger::info('remote-self start', ['contact' => $contact['url'], 'remote_self'=> $contact['remote_self'], 'item' => $datarray]);
-		if ($contact['remote_self'] == Contact::MIRROR_OWN_POST) {
+		if (in_array($contact['remote_self'], [Contact::MIRROR_OWN_POST, Contact::MIRROR_FORWARDED])) {
 			$self = DBA::selectFirst('contact', ['id', 'name', 'url', 'thumb'],
 					['uid' => $contact['uid'], 'self' => true]);
 			if (DBA::isResult($self)) {
@@ -2358,8 +2358,8 @@ class Item
 			$result = self::insert($datarray2);
 			Logger::info('remote-self post original item', ['contact' => $contact['url'], 'result'=> $result, 'item' => $datarray2]);
 		} else {
-			$datarray["app"] = "Feed";
-			$result = true;
+			Logger::info('No valid mirroring option', ['uid' => $contact['uid'], 'id' => $contact['id'], 'network' => $contact['network'], 'remote_self' => $contact['remote_self']]);
+			return false;
 		}
 
 		return (bool)$result;
