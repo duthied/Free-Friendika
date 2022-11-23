@@ -106,7 +106,7 @@ class Contact
 	 */
 
 	 const MIRROR_DEACTIVATED = 0;
-	 const MIRROR_FORWARDED = 1;
+	 const MIRROR_FORWARDED = 1; // Deprecated, now does the same like MIRROR_OWN_POST
 	 const MIRROR_OWN_POST = 2;
 	 const MIRROR_NATIVE_RESHARE = 3;
 

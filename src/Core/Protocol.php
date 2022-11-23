@@ -205,6 +205,7 @@ class Protocol
 			$slap = OStatus::salmon($item, $user);
 
 			if (empty($contact['notify'])) {
+				return true;
 				throw new \InvalidArgumentException('Missing expected "notify" key in OStatus/DFRN contact');
 			}
 

@@ -823,17 +823,36 @@ class Item
 		$item['protocol'] = Conversation::PARCEL_DIRECT;
 		$item['direction'] = Conversation::PUSH;
 
-		if (!empty($item['author-link']) && !empty($item['author-id'])) {
-			$owner = User::getOwnerDataById($item['uid']);
+		$owner = User::getOwnerDataById($item['uid']);
+
+		if (empty($item['contact-id'])) {
+			$item['contact-id'] = $owner['id'];
+		}
+
+		if (empty($item['author-link']) && empty($item['author-id'])) {
 			$item['author-link']   = $owner['url'];
 			$item['author-name']   = $owner['name'];
 			$item['author-avatar'] = $owner['thumb'];
 		}
 
-		if (!empty($item['owner-link']) && !empty($item['owner-id'])) {
+		if (empty($item['owner-link']) && empty($item['owner-id'])) {
 			$item['owner-link']   = $item['author-link'];
 			$item['owner-name']   = $item['author-name'];
 			$item['owner-avatar'] = $item['author-avatar'];
+		}
+
+		// Setting the object type if not defined before
+		if (empty($item['object-type'])) {
+			$item['object-type'] = Activity\ObjectType::NOTE; // Default value
+			$objectdata = BBCode::getAttachedData($item['body']);
+
+			if ($objectdata['type'] == 'link') {
+				$item['object-type'] = Activity\ObjectType::BOOKMARK;
+			} elseif ($objectdata['type'] == 'video') {
+				$item['object-type'] = Activity\ObjectType::VIDEO;
+			} elseif ($objectdata['type'] == 'photo') {
+				$item['object-type'] = Activity\ObjectType::IMAGE;
+			}
 		}
 
 		return $item;
