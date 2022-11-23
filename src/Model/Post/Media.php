@@ -687,7 +687,7 @@ class Media
 				$previews[] = $medium['preview'];
 			}
 
-			$type = explode('/', explode(';', $medium['mimetype'])[0]);
+			$type = explode('/', explode(';', $medium['mimetype'] ?? '')[0]);
 			if (count($type) < 2) {
 				Logger::info('Unknown MimeType', ['type' => $type, 'media' => $medium]);
 				$filetype = 'unkn';

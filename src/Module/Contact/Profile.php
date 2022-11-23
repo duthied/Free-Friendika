@@ -327,7 +327,7 @@ class Profile extends BaseModule
 			'$submit'                    => $this->t('Submit'),
 			'$lbl_info1'                 => $lbl_info1,
 			'$lbl_info2'                 => $this->t('Their personal note'),
-			'$reason'                    => trim($contact['reason']),
+			'$reason'                    => trim($contact['reason'] ?? ''),
 			'$infedit'                   => $this->t('Edit contact notes'),
 			'$common_link'               => 'contact/' . $contact['id'] . '/contacts/common',
 			'$relation_text'             => $relation_text,
