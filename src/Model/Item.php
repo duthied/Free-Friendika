@@ -2312,7 +2312,7 @@ class Item
 
 		$datarray2 = $datarray;
 		Logger::info('remote-self start', ['contact' => $contact['url'], 'remote_self'=> $contact['remote_self'], 'item' => $datarray]);
-		if (in_array($contact['remote_self'], [Contact::MIRROR_OWN_POST, Contact::MIRROR_FORWARDED])) {
+		if ($contact['remote_self'] == Contact::MIRROR_OWN_POST) {
 			$self = DBA::selectFirst('contact', ['id', 'name', 'url', 'thumb'],
 					['uid' => $contact['uid'], 'self' => true]);
 			if (DBA::isResult($self)) {
