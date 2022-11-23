@@ -200,6 +200,7 @@ class Email implements IEmail
 	/**
 	 * @inheritDoc
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize()
 	{
 		return $this->toArray();
