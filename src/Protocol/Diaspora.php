@@ -224,14 +224,34 @@ class Diaspora
 
 		// Is it a private post? Then decrypt the outer Salmon
 		if (is_object($data)) {
-			$encrypted_aes_key_bundle = base64_decode($data->aes_key);
-			$ciphertext = base64_decode($data->encrypted_magic_envelope);
+			try {
+				if (!isset($data->aes_key) || !isset($data->encrypted_magic_envelope)) {
+					Logger::info('Missing keys "aes_key" and/or "encrypted_magic_envelope"', ['data' => $data]);
+					throw new \RuntimeException('Missing keys "aes_key" and/or "encrypted_magic_envelope"');
+				}
 
-			$outer_key_bundle = '';
-			@openssl_private_decrypt($encrypted_aes_key_bundle, $outer_key_bundle, $privKey);
-			$j_outer_key_bundle = json_decode($outer_key_bundle);
+				$encrypted_aes_key_bundle = base64_decode($data->aes_key);
+				$ciphertext = base64_decode($data->encrypted_magic_envelope);
 
-			if (!is_object($j_outer_key_bundle)) {
+				$outer_key_bundle = '';
+				@openssl_private_decrypt($encrypted_aes_key_bundle, $outer_key_bundle, $privKey);
+				$j_outer_key_bundle = json_decode($outer_key_bundle);
+
+				if (!is_object($j_outer_key_bundle)) {
+					Logger::info('Unable to decode outer key bundle', ['outer_key_bundle' => $outer_key_bundle]);
+					throw new \RuntimeException('Unable to decode outer key bundle');
+				}
+
+				if (!isset($j_outer_key_bundle->iv) || !isset($j_outer_key_bundle->key)) {
+					Logger::info('Missing keys "iv" and/or "key" from outer Salmon', ['j_outer_key_bundle' => $j_outer_key_bundle]);
+					throw new \RuntimeException('Missing keys "iv" and/or "key" from outer Salmon');
+				}
+
+				$outer_iv = base64_decode($j_outer_key_bundle->iv);
+				$outer_key = base64_decode($j_outer_key_bundle->key);
+
+				$xml = self::aesDecrypt($outer_key, $outer_iv, $ciphertext);
+			} catch (\Throwable $e) {
 				Logger::notice('Outer Salmon did not verify. Discarding.');
 				if ($no_exit) {
 					return false;
@@ -239,11 +259,6 @@ class Diaspora
 					throw new \Friendica\Network\HTTPException\BadRequestException();
 				}
 			}
-
-			$outer_iv = base64_decode($j_outer_key_bundle->iv);
-			$outer_key = base64_decode($j_outer_key_bundle->key);
-
-			$xml = self::aesDecrypt($outer_key, $outer_iv, $ciphertext);
 		} else {
 			$xml = $raw;
 		}
