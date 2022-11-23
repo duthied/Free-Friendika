@@ -815,6 +815,49 @@ class Item
 		return self::GRAVITY_UNKNOWN;   // Should not happen
 	}
 
+	private static function prepareOriginPost(array $item): array
+	{
+		$item['wall'] = 1;
+		$item['origin'] = 1;
+		$item['network'] = Protocol::DFRN;
+		$item['protocol'] = Conversation::PARCEL_DIRECT;
+		$item['direction'] = Conversation::PUSH;
+
+		$owner = User::getOwnerDataById($item['uid']);
+
+		if (empty($item['contact-id'])) {
+			$item['contact-id'] = $owner['id'];
+		}
+
+		if (empty($item['author-link']) && empty($item['author-id'])) {
+			$item['author-link']   = $owner['url'];
+			$item['author-name']   = $owner['name'];
+			$item['author-avatar'] = $owner['thumb'];
+		}
+
+		if (empty($item['owner-link']) && empty($item['owner-id'])) {
+			$item['owner-link']   = $item['author-link'];
+			$item['owner-name']   = $item['author-name'];
+			$item['owner-avatar'] = $item['author-avatar'];
+		}
+
+		// Setting the object type if not defined before
+		if (empty($item['object-type'])) {
+			$item['object-type'] = Activity\ObjectType::NOTE; // Default value
+			$objectdata = BBCode::getAttachedData($item['body']);
+
+			if ($objectdata['type'] == 'link') {
+				$item['object-type'] = Activity\ObjectType::BOOKMARK;
+			} elseif ($objectdata['type'] == 'video') {
+				$item['object-type'] = Activity\ObjectType::VIDEO;
+			} elseif ($objectdata['type'] == 'photo') {
+				$item['object-type'] = Activity\ObjectType::IMAGE;
+			}
+		}
+
+		return $item;
+	}
+
 	/**
 	 * Inserts item record
 	 *
@@ -831,11 +874,7 @@ class Item
 
 		// If it is a posting where users should get notifications, then define it as wall posting
 		if ($notify) {
-			$item['wall'] = 1;
-			$item['origin'] = 1;
-			$item['network'] = Protocol::DFRN;
-			$item['protocol'] = Conversation::PARCEL_DIRECT;
-			$item['direction'] = Conversation::PUSH;
+			$item = self::prepareOriginPost($item);
 
 			if (is_int($notify) && in_array($notify, Worker::PRIORITIES)) {
 				$priority = $notify;
@@ -993,6 +1032,7 @@ class Item
 			$item['parent-uri']    = $toplevel_parent['uri'];
 			$item['parent-uri-id'] = $toplevel_parent['uri-id'];
 			$item['deleted']       = $toplevel_parent['deleted'];
+			$item['wall']          = $toplevel_parent['wall'];
 
 			// Reshares have to keep their permissions to allow forums to work
 			if (!$item['origin'] || ($item['verb'] != Activity::ANNOUNCE)) {
@@ -2974,7 +3014,7 @@ class Item
 			$quote_uri_id = $shared['post']['uri-id'];
 			$shared_links[] = strtolower($shared['post']['uri']);
 			$item['body'] = BBCode::removeSharedData($item['body']);
-		} elseif (empty($shared_item['uri-id']) && empty($item['quote-uri-id'])) {
+		} elseif (empty($shared_item['uri-id']) && empty($item['quote-uri-id']) && ($item['network'] != Protocol::DIASPORA)) {
 			$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::ACTIVITY]);
 			if (!empty($media)) {
 				$shared_item = Post::selectFirst($fields, ['plink' => $media[0]['url'], 'uid' => [$item['uid'], 0]]);
