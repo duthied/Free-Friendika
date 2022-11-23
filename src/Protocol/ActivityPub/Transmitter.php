@@ -2031,6 +2031,10 @@ class Transmitter
 		}
 
 		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			Logger::warning('No user found for actor, aborting', ['uid' => $uid]);
+			return false;
+		}
 
 		if (empty($id)) {
 			$id = DI::baseUrl() . '/activity/' . System::createGUID();
