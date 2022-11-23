@@ -36,6 +36,7 @@ $profileRoutes = [
 	'/contacts/common'                         => [Module\Profile\Common::class,            [R::GET]],
 	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class,          [R::GET]],
 	'/media'                                   => [Module\Profile\Media::class,             [R::GET]],
+	'/photos'                                  => [Module\Profile\Photos\Index::class,      [R::GET         ]],
 	'/photos/upload'                           => [Module\Profile\Photos\Upload::class,     [        R::POST]],
 	'/profile'                                 => [Module\Profile\Profile::class,           [R::GET]],
 	'/remote_follow'                           => [Module\Profile\RemoteFollow::class,      [R::GET, R::POST]],
@@ -342,6 +343,10 @@ return [
 	'/acctlink'            => [Module\Acctlink::class,     [R::GET]],
 	'/apps'                => [Module\Apps::class,         [R::GET]],
 	'/attach/{item:\d+}'   => [Module\Attach::class,       [R::GET]],
+
+	// Mastodon route used by Fedifind to follow people who set their Webfinger address in their Twitter bio
+	'/authorize_interaction' => [Module\Contact\Follow::class, [R::GET, R::POST]],
+
 	'/babel'               => [Module\Debug\Babel::class,  [R::GET, R::POST]],
 	'/debug/ap'            => [Module\Debug\ActivityPubConversion::class,  [R::GET, R::POST]],
 
@@ -549,9 +554,14 @@ return [
 		'/{type}/{customsize:\d+}/{nickname_ext}'                  => [Module\Photo::class, [R::GET]],
 	],
 
+	// Kept for backwards-compatibility
+	// @TODO remove by version 2023.12
+	'/photos/{nickname}' => [Module\Profile\Photos\Index::class, [R::GET]],
+
 	'/ping'              => [Module\Notifications\Ping::class, [R::GET]],
 
 	'/post' => [
+		'/{post_id}/edit'                                          => [Module\Post\Edit::class,       [R::GET         ]],
 		'/{post_id}/share'                                         => [Module\Post\Share::class,      [R::GET         ]],
 		'/{item_id}/tag/add'                                       => [Module\Post\Tag\Add::class,    [        R::POST]],
 		'/{item_id}/tag/remove[/{tag_name}]'                       => [Module\Post\Tag\Remove::class, [R::GET, R::POST]],

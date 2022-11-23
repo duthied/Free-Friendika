@@ -220,7 +220,7 @@ class Post
 				if ($item['event-id'] != 0) {
 					$edpost = ['calendar/event/edit/' . $item['event-id'], DI::l10n()->t('Edit')];
 				} else {
-					$edpost = ['editpost/' . $item['id'], DI::l10n()->t('Edit')];
+					$edpost = [sprintf('post/%s/edit', $item['id']), DI::l10n()->t('Edit')];
 				}
 			}
 			$dropping = in_array($item['uid'], [0, DI::userSession()->getLocalUserId()]);

@@ -210,7 +210,7 @@ class Item
 						$fields['raw-body'] = BBCode::removeSharedData($fields['raw-body']);
 					}
 				}
-		
+
 				Post\Media::insertFromAttachmentData($item['uri-id'], $fields['body']);
 
 				$content_fields = ['raw-body' => trim($fields['raw-body'] ?? $fields['body'])];
@@ -337,7 +337,7 @@ class Item
 		 * generate a resource-id and therefore aren't intimately linked to the item.
 		 */
 		/// @TODO: this should first check if photo is used elsewhere
-		if (strlen($item['resource-id'])) {
+		if ($item['resource-id']) {
 			Photo::delete(['resource-id' => $item['resource-id'], 'uid' => $item['uid']]);
 		}
 
@@ -2714,7 +2714,7 @@ class Item
 		}
 
 		$condition = ['vid' => $vids, 'deleted' => false, 'gravity' => self::GRAVITY_ACTIVITY,
-			'author-id' => $author_id, 'uid' => $item['uid'], 'thr-parent-id' => $uri_id];
+			'author-id' => $author_id, 'uid' => $uid, 'thr-parent-id' => $uri_id];
 		$like_item = Post::selectFirst(['id', 'guid', 'verb'], $condition);
 
 		if (DBA::isResult($like_item)) {

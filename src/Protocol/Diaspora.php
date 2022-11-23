@@ -3201,7 +3201,7 @@ class Diaspora
 	 */
 	public static function getReshareDetails(array $item): array
 	{
-		$reshared = DI::contentItem()->getSharedPost($item, ['network', 'author-addr']);
+		$reshared = DI::contentItem()->getSharedPost($item, ['guid', 'network', 'author-addr']);
 		if (empty($reshared)) {
 			return [];
 		}
@@ -3213,7 +3213,7 @@ class Diaspora
 
 		return [
 			'root_handle' => strtolower($reshared['post']['author-addr']),
-			'root_guid'   => $reshared['guid']
+			'root_guid'   => $reshared['post']['guid'],
 		];
 	}
 
@@ -3638,7 +3638,7 @@ class Diaspora
 
 		Logger::info('Got relayable data ' . $type . ' for item ' . $item['guid'] . ' (' . $item['id'] . ')');
 
-		$msg = json_decode($item['signed_text'], true);
+		$msg = json_decode($item['signed_text'] ?? '', true);
 
 		$message = [];
 		if (is_array($msg)) {

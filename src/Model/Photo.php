@@ -1130,8 +1130,8 @@ class Photo
 		$picture['height']      = $photo['height'];
 		$picture['type']        = $photo['type'];
 		$picture['albumpage']   = DI::baseUrl() . '/photos/' . $user['nickname'] . '/image/' . $resource_id;
-		$picture['picture']     = DI::baseUrl() . '/photo/{$resource_id}-0.' . $image->getExt();
-		$picture['preview']     = DI::baseUrl() . '/photo/{$resource_id}-{$smallest}.' . $image->getExt();
+		$picture['picture']     = DI::baseUrl() . '/photo/' . $resource_id . '-0.' . $image->getExt();
+		$picture['preview']     = DI::baseUrl() . '/photo/' . $resource_id . '-' . $smallest . '.' . $image->getExt();
 
 		Logger::info('upload done', ['picture' => $picture]);
 		return $picture;
@@ -1272,4 +1272,3 @@ class Photo
 		return $resource_id;
 	}
 }
-

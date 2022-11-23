@@ -44,6 +44,8 @@ class Attachment extends BaseDataTransferObject
 	protected $text_url;
 	/** @var string */
 	protected $description;
+	/** @var array */
+	protected $meta;
 
 	/**
 	 * Creates an attachment
@@ -60,6 +62,21 @@ class Attachment extends BaseDataTransferObject
 		$this->remote_url = $remote;
 		$this->text_url = $this->remote_url ?? $this->url;
 		$this->description = $attachment['description'];
+		if ($type === 'image') {
+			if ((int) $attachment['width'] > 0 && (int) $attachment['height'] > 0) {
+				$this->meta['original']['width'] = (int) $attachment['width'];
+				$this->meta['original']['height'] = (int) $attachment['height'];
+				$this->meta['original']['size'] = (int) $attachment['width'] . 'x' . (int) $attachment['height'];
+				$this->meta['original']['aspect'] = (float) ((int)  $attachment['width'] / (int) $attachment['height']);
+			}
+
+			if ((int) $attachment['preview-width'] > 0 && (int) $attachment['preview-height'] > 0) {
+				$this->meta['small']['width'] = (int) $attachment['preview-width'];
+				$this->meta['small']['height'] = (int) $attachment['preview-height'];
+				$this->meta['small']['size'] = (int) $attachment['preview-width'] . 'x' . (int) $attachment['preview-height'];
+				$this->meta['small']['aspect'] = (float) ((int)  $attachment['preview-width'] / (int) $attachment['preview-height']);
+			}
+		}
 	}
 
 	/**
