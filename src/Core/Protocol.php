@@ -183,7 +183,7 @@ class Protocol
 	{
 		if (empty($contact['network'])) {
 			Logger::notice('Contact has got no network, we quit here', ['id' => $contact['id']]);
-			return true;
+			return null;
 		}
 
 		$protocol = $contact['network'];
@@ -207,7 +207,7 @@ class Protocol
 
 			if (empty($contact['notify'])) {
 				Logger::notice('OStatus/DFRN Contact is missing notify, we quit here', ['id' => $contact['id']]);
-				return true;
+				return null;
 			}
 
 			return Salmon::slapper($user, $contact['notify'], $slap) === 0;
