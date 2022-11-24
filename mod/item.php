@@ -239,6 +239,8 @@ function item_post(App $a) {
 
 		$att_bbcode = "\n" . PageInfo::getFooterFromData($attachment);
 		$body .= $att_bbcode;
+	} elseif (preg_match("/\[attachment\](.*?)\[\/attachment\]/ism", $body, $matches)) {
+		$body = preg_replace("/\[attachment].*?\[\/attachment\]/ism", PageInfo::getFooterFromUrl($matches[1]), $body);
 	}
 
 	// Convert links with empty descriptions to links without an explicit description
