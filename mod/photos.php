@@ -920,7 +920,7 @@ function photos_content(App $a)
 		*/
 		// init output var in case no number value could be retrieved.
 		$maximagesize_Mbytes = 0;
-		$dom_limitedby = '';
+		$sizelimitedby = '';
 		{
 			// Get the relevant size limits for uploads. Abbreviated var names: MaxImageSize -> mis; upload_max_filesize -> umf
 			$mis_bytes = DI::config()->get('system', 'maximagesize');
@@ -943,7 +943,7 @@ function photos_content(App $a)
 				// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
 				if ($umf_bytes < $mis_bytes) {
 					$maximagesize_Mbytes = ($umf_bytes / (10 ** 6));
-					$dom_limitedby = 'PHP.ini';
+					$sizelimitedby = 'PHP.ini';
 				} else {
 					$maximagesize_Mbytes = ($mis_bytes / (10 ** 6));
 
@@ -952,9 +952,9 @@ function photos_content(App $a)
 		}
 		$usage_message = DI::l10n()->t('The maximum accepted image size is %.3g MB', $maximagesize_Mbytes);
 		// Do we want to bother the end user with this information? If yes uncomment
-		// if (strlen($dom_limitedby) > 0) {
-		//	$usage_message .= ' ('. $dom_limitedby . ')';
-		// }
+		//if (strlen($sizelimitedby) > 0) {
+		//	$usage_message .= ' ('. $sizelimitedby . ')';
+		//}
 
 		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
 
