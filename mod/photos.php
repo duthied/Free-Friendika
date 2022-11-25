@@ -916,7 +916,7 @@ function photos_content(App $a)
 
 		$maximagesize_bytes = DI::config()->get('system', 'maximagesize');
 		$maximagesize_Mbytes = ($maximagesize_bytes / (10**6));
-		$usage_message = DI::l10n()->t('The maximum accepted image size is: ') . $maximagesize_Mbytes . ' MB';
+		$usage_message = DI::l10n()->t('The maximum accepted image size is %.3g MB', $maximagesize_Mbytes);
 
 		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
 
