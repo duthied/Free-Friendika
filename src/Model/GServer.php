@@ -115,11 +115,11 @@ class GServer
 	 */
 	public static function getID(string $url, bool $no_check = false): ?int
 	{
+		$url = self::cleanURL($url);
+
 		if (empty($url)) {
 			return null;
 		}
-
-		$url = self::cleanURL($url);
 
 		$gserver = DBA::selectFirst('gserver', ['id'], ['nurl' => Strings::normaliseLink($url)]);
 		if (DBA::isResult($gserver)) {
@@ -323,6 +323,10 @@ class GServer
 		$url = str_replace('/index.php', '', $url);
 
 		$urlparts = parse_url($url);
+		if (empty($urlparts)) {
+			return '';
+		}
+
 		unset($urlparts['user']);
 		unset($urlparts['pass']);
 		unset($urlparts['query']);
