@@ -324,8 +324,8 @@ class Site extends BaseAdmin
 		/* Installed langs */
 		$lang_choices = DI::l10n()->getAvailableLanguages();
 
-		if (strlen(DI::config()->get('system', 'directory_submit_url')) &&
-			!strlen(DI::config()->get('system', 'directory'))) {
+		if (DI::config()->get('system', 'directory_submit_url') &&
+			!DI::config()->get('system', 'directory')) {
 			DI::config()->set('system', 'directory', dirname(DI::config()->get('system', 'directory_submit_url')));
 			DI::config()->delete('system', 'directory_submit_url');
 		}
