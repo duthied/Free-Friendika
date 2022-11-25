@@ -33,7 +33,7 @@
  * <type> will be one of "image" or "file", and the event handler will
  * get the following params:
  *
- * 		filemane: filename of item choosed by user
+ * 		filename: filename of item chosen by user
  * 		embed: bbcode to embed element into posts
  * 		id: id from caller code
  *
@@ -47,52 +47,51 @@
  *		$("body").on("fbrowser.image.example", function(event, filename, bbcode, id) {
  *			// close colorbox
  *			$.colorbox.close();
- *			// replace textxarea text with bbcode
+ *			// replace textarea text with bbcode
  *			$(id).value = bbcode;
  *		});
  **/
+const FileBrowser = {
+	nickname: '',
+	type: '',
+	event: '',
+	id: null,
 
-var FileBrowser = {
-	nickname : "",
-	type : "",
-	event: "",
-	id : null,
-
-	init: function(nickname, type) {
+	init: function (nickname, type) {
 		FileBrowser.nickname = nickname;
 		FileBrowser.type = type;
-		FileBrowser.event = "fbrowser."+type;
-		if (location['hash']!=="") {
-			var h = location['hash'].replace("#","");
+		FileBrowser.event = "fbrowser." + type;
+		if (location['hash'] !== "") {
+			const h = location['hash'].replace('#', '');
 			FileBrowser.event = FileBrowser.event + "." + h.split("-")[0];
 			FileBrowser.id = h.split("-")[1];
 		}
 
-		console.log("FileBrowser:", nickname, type,FileBrowser.event, FileBrowser.id );
+		console.log('FileBrowser:', nickname, type, FileBrowser.event, FileBrowser.id);
 
-		$(".error a.close").on("click", function(e) {
+		$('.error a.close').on('click', function (e) {
 			e.preventDefault();
-			$(".error").addClass("hidden");
+			$('.error').addClass('hidden');
 		});
 
-		$(".folders a, .path a").on("click", function(e){
+		$('.folders a, .path a').on('click', function (e) {
 			e.preventDefault();
-			location.href = baseurl + "/fbrowser/" + FileBrowser.type + "/" + encodeURIComponent(this.dataset.folder) + "?mode=minimal" + location['hash'];
+			location.href = FileBrowser._getUrl("minimal", location['hash'], this.dataset.folder);
+			location.reload();
 		});
 
-		$(".photo-album-photo-link").on('click', function(e){
+		$(".photo-album-photo-link").on('click', function (e) {
 			e.preventDefault();
 
-			var embed = "";
-			if (FileBrowser.type == "image") {
-				embed = "[url="+this.dataset.link+"][img="+this.dataset.img+"]"+this.dataset.alt+"[/img][/url]";
+			let embed = '';
+			if (FileBrowser.type === "photos") {
+				embed = '[url=' + this.dataset.link + '][img=' + this.dataset.img + ']' + this.dataset.alt + '[/img][/url]';
 			}
-			if (FileBrowser.type=="file") {
-				// attachment links are "baseurl/attach/id"; we need id
-				embed = "[attachment]"+this.dataset.link.split("/").pop()+"[/attachment]";
+			if (FileBrowser.type === "attachment") {
+				embed = '[attachment]' + this.dataset.link + '[/attachment]';
 			}
 			console.log(FileBrowser.event, this.dataset.filename, embed, FileBrowser.id);
-			parent.$("body").trigger(FileBrowser.event, [
+			parent.$('body').trigger(FileBrowser.event, [
 				this.dataset.filename,
 				embed,
 				FileBrowser.id
@@ -100,45 +99,63 @@ var FileBrowser = {
 
 		});
 
-		if ($("#upload-image").length)
-			var image_uploader = new window.AjaxUpload(
-				'upload-image',
-				{ action: 'profile/' + FileBrowser.nickname + '/photos/upload?response=json',
+		if ($('#upload-photos').length)
+		{
+			new window.AjaxUpload(
+				'upload-photos',
+				{
+					action: 'profile/' + FileBrowser.nickname + '/photos/upload?response=json',
 					name: 'userfile',
 					responseType: 'json',
-					onSubmit: function(file,ext) { $('#profile-rotator').show(); $(".error").addClass('hidden'); },
-					onComplete: function(file,response) {
-						if (response['error']!= undefined) {
-							$(".error span").html(response['error']);
-							$(".error").removeClass('hidden');
+					onSubmit: function (file, ext) {
+						$('#profile-rotator').show();
+						$('.error').addClass('hidden');
+					},
+					onComplete: function (file, response) {
+						if (response['error'] !== undefined) {
+							$('.error span').html(response['error']);
+							$('.error').removeClass('hidden');
 							$('#profile-rotator').hide();
 							return;
 						}
-						location = baseurl + "/fbrowser/image/?mode=minimal"+location['hash'];
-						location.reload(true);
+						location.href = FileBrowser._getUrl("minimal", location['hash']);
+						location.reload();
 					}
 				}
 			);
+		}
 
-		if ($("#upload-file").length)
-			var file_uploader = new window.AjaxUpload(
-				'upload-file',
-				{ action: 'profile/' + FileBrowser.nickname + '/attachment/upload?response=json',
+		if ($('#upload-attachment').length)
+		{
+			new window.AjaxUpload(
+				'upload-attachment',
+				{
+					action: 'profile/' + FileBrowser.nickname + '/attachment/upload?response=json',
 					name: 'userfile',
 					responseType: 'json',
-					onSubmit: function(file,ext) { $('#profile-rotator').show(); $(".error").addClass('hidden'); },
-					onComplete: function(file,response) {
-						if (response['error']!= undefined) {
-							$(".error span").html(response['error']);
-							$(".error").removeClass('hidden');
+					onSubmit: function (file, ext) {
+						$('#profile-rotator').show();
+						$('.error').addClass('hidden');
+					},
+					onComplete: function (file, response) {
+						if (response['error'] !== undefined) {
+							$('.error span').html(response['error']);
+							$('.error').removeClass('hidden');
 							$('#profile-rotator').hide();
 							return;
 						}
-						location = baseurl + "/fbrowser/file/?mode=minimal"+location['hash'];
-						location.reload(true);
+						location.href = FileBrowser._getUrl("minimal", location['hash']);
+						location.reload();
 					}
 				}
-		);
+				);
+			}
+	},
+
+	_getUrl: function (mode, hash, folder) {
+		let folderValue = folder !== undefined ? folder : FileBrowser.folder;
+		let folderUrl = folderValue !== undefined ? '/' + encodeURIComponent(folderValue) : '';
+		return 'profile/' + FileBrowser.nickname + '/' + FileBrowser.type + '/browser' + folderUrl + '?mode=' + mode + hash;
 	}
 };
 // @license-end

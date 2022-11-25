@@ -266,7 +266,7 @@ class Router
 	 * @throws HTTPException\MethodNotAllowedException    If a rule matched but the method didn't
 	 * @throws HTTPException\NotFoundException            If no rule matched
 	 */
-	private function getModuleClass(): string
+	public function getModuleClass(): string
 	{
 		$cmd = $this->args->getCommand();
 		$cmd = '/' . ltrim($cmd, '/');

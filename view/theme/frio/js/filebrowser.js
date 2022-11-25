@@ -9,7 +9,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This code handle user interaction for image/file upload/browser dialog.
+ * This code handle user interaction for photo/file upload/browser dialog.
  * Is loaded from filebrowser_plain.tpl
  *
  * To load filebrowser in colorbox, call
@@ -33,7 +33,7 @@
  * <type> will be one of "image" or "file", and the event handler will
  * get the following params:
  *
- * 		filemane: filename of item choosed by user
+ * 		filename: filename of item chosen by user
  * 		embed: bbcode to embed element into posts
  * 		id: id from caller code
  *
@@ -47,7 +47,7 @@
  *		$("body").on("fbrowser.image.example", function(event, filename, bbcode, id) {
  *			// close colorbox
  *			$.colorbox.close();
- *			// replace textxarea text with bbcode
+ *			// replace textarea text with bbcode
  *			$(id).value = bbcode;
  *		});
  **/
@@ -58,194 +58,177 @@
  *  This is a modified version to work with
  *  the frio theme.and bootstrap modals
  *
- *  The origninal file is under:
+ *  The original file is under:
  *  js/filebrowser.js
  *
  */
 
 var FileBrowser = {
-	nickname: "",
-	type: "",
-	event: "",
-	folder: "",
+	nickname: '',
+	type: '',
+	event: '',
+	folder: '',
 	id: null,
 
 	init: function (nickname, type, hash) {
 		FileBrowser.nickname = nickname;
 		FileBrowser.type = type;
-		FileBrowser.event = "fbrowser." + type;
+		FileBrowser.event = 'fbrowser.' + type;
 
-		if (hash !== "") {
-			var h = hash.replace("#", "");
-			var destination = h.split("-")[0];
-			FileBrowser.id = h.split("-")[1];
-			FileBrowser.event = FileBrowser.event + "." + destination;
-			if (destination === "comment") {
-				// Get the comment textimput field
-				var commentElm = document.getElementById("comment-edit-text-" + FileBrowser.id);
+		if (hash !== '') {
+			const h = hash.replace('#', '');
+			const destination = h.split('-')[0];
+			FileBrowser.id = h.split('-')[1];
+			FileBrowser.event = FileBrowser.event + '.' + destination;
+			if (destination === 'comment') {
+				// Get the comment textinput field
+				var commentElm = document.getElementById('comment-edit-text-' + FileBrowser.id);
 			}
 		}
 
-		console.log("FileBrowser: " + nickname, type, FileBrowser.event, FileBrowser.id);
+		console.log('FileBrowser: ' + nickname, type, FileBrowser.event, FileBrowser.id);
 
 		FileBrowser.postLoad();
 
-		$(".error .close").on("click", function (e) {
+		$('.error .close').on('click', function (e) {
 			e.preventDefault();
-			$(".error").addClass("hidden");
+			$('.error').addClass('hidden');
 		});
 
 		// Click on album link
-		$(".fbrowser").on("click", ".folders button, .path button", function (e) {
+		$('.fbrowser').on('click', '.folders button, .path button', function (e) {
 			e.preventDefault();
-			var url =
-				baseurl +
-				"/fbrowser/" +
-				FileBrowser.type +
-				"/" +
-				encodeURIComponent(this.dataset.folder) +
-				"?mode=none&theme=frio";
+			let url = FileBrowser._getUrl("none", this.dataset.folder);
 			FileBrowser.folder = this.dataset.folder;
 
 			FileBrowser.loadContent(url);
 		});
 
 		//Embed on click
-		$(".fbrowser").on("click", ".photo-album-photo-link", function (e) {
+		$('.fbrowser').on('click', '.photo-album-photo-link', function (e) {
 			e.preventDefault();
 
-			var embed = "";
-			if (FileBrowser.type === "image") {
-				embed = "[url=" + this.dataset.link + "][img=" + this.dataset.img + "]" + this.dataset.alt + "[/img][/url]";
+			let embed = '';
+			if (FileBrowser.type === 'photos') {
+				embed = '[url=' + this.dataset.link + '][img=' + this.dataset.img + ']' + this.dataset.alt + '[/img][/url]';
 			}
-			if (FileBrowser.type === "file") {
+			if (FileBrowser.type === 'attachment') {
 				// attachment links are "baseurl/attach/id"; we need id
-				embed = "[attachment]" + this.dataset.link.split("/").pop() + "[/attachment]";
+				embed = '[attachment]' + this.dataset.link + '[/attachment]';
 			}
 
 			// Delete prefilled Text of the comment input
 			// Note: not the best solution but function commentOpenUI don't
 			// work as expected (we need a way to wait until commentOpenUI would be finished).
 			// As for now we insert pieces of this function here
-			if (commentElm !== null && typeof commentElm !== "undefined") {
-				if (commentElm.value === "") {
-					$("#comment-edit-text-" + FileBrowser.id)
-						.addClass("comment-edit-text-full")
-						.removeClass("comment-edit-text-empty");
-					$("#comment-edit-submit-wrapper-" + FileBrowser.id).show();
-					$("#comment-edit-text-" + FileBrowser.id).attr("tabindex", "9");
-					$("#comment-edit-submit-" + FileBrowser.id).attr("tabindex", "10");
+			if (commentElm !== null && typeof commentElm !== 'undefined') {
+				if (commentElm.value === '') {
+					$('#comment-edit-text-' + FileBrowser.id)
+						.addClass('comment-edit-text-full')
+						.removeClass('comment-edit-text-empty');
+					$('#comment-edit-submit-wrapper-' + FileBrowser.id).show();
+					$('#comment-edit-text-' + FileBrowser.id).attr('tabindex', '9');
+					$('#comment-edit-submit-' + FileBrowser.id).attr('tabindex', '10');
 				}
 			}
 
 			console.log(FileBrowser.event, this.dataset.filename, embed, FileBrowser.id);
 
-			$("body").trigger(FileBrowser.event, [this.dataset.filename, embed, FileBrowser.id, this.dataset.img]);
+			$('body').trigger(FileBrowser.event, [this.dataset.filename, embed, FileBrowser.id, this.dataset.img]);
 
 			// Close model
-			$("#modal").modal("hide");
+			$('#modal').modal('hide');
 			// Update autosize for this textarea
-			autosize.update($(".text-autosize"));
+			autosize.update($('.text-autosize'));
 		});
 
-		// EventListener for switching between image and file mode
-		$(".fbrowser").on("click", ".fbswitcher .btn", function (e) {
+		// EventListener for switching between photo and file mode
+		$('.fbrowser').on('click', '.fbswitcher .btn', function (e) {
 			e.preventDefault();
-			FileBrowser.type = this.getAttribute("data-mode");
-			$(".fbrowser")
+			FileBrowser.type = this.getAttribute('data-mode');
+			$('.fbrowser')
 				.removeClass()
-				.addClass("fbrowser " + FileBrowser.type);
-			url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none&theme=frio";
+				.addClass('fbrowser ' + FileBrowser.type);
 
-			FileBrowser.loadContent(url);
+			FileBrowser.loadContent(FileBrowser._getUrl("none"));
 		});
 	},
 
 	// Initialize the AjaxUpload for the upload buttons
 	uploadButtons: function () {
-		if ($("#upload-image").length) {
-			//AjaxUpload for images
-			var image_uploader = new window.AjaxUpload("upload-image", {
-				action:
-					"profile/" +
-					FileBrowser.nickname +
-					"/photos/upload?response=json&album=" +
-					encodeURIComponent(FileBrowser.folder),
-				name: "userfile",
-				responseType: "json",
-				onSubmit: function (file, ext) {
-					$(".fbrowser-content").hide();
-					$(".fbrowser .profile-rotator-wrapper").show();
-					$(".error").addClass("hidden");
-				},
-				onComplete: function (file, response) {
-					if (response["error"] != undefined) {
-						$(".error span").html(response["error"]);
-						$(".error").removeClass("hidden");
-						$(".fbrowser .profile-rotator-wrapper").hide();
-						$(".fbrowser-content").show();
-						return;
-					}
-
-					// load new content to fbrowser window
-					FileBrowser.loadContent(
-						baseurl +
-							"/fbrowser/" +
-							FileBrowser.type +
-							"/" +
-							encodeURIComponent(FileBrowser.folder) +
-							"?mode=none&theme=frio",
-					);
-				},
-			});
+		if ($('#upload-photos').length) {
+			//AjaxUpload for photos
+			new window.AjaxUpload(
+				'upload-photos',
+				{
+					action: 'profile/' + FileBrowser.nickname + '/photos/upload?response=json&album=' + encodeURIComponent(FileBrowser.folder),
+					name: 'userfile',
+					responseType: 'json',
+					onSubmit: function (file, ext) {
+						$('.fbrowser-content').hide();
+						$('.fbrowser .profile-rotator-wrapper').show();
+						$('.error').addClass('hidden');
+					},
+					onComplete: function (file, response) {
+						if (response['error'] !== undefined) {
+							$('.error span').html(response['error']);
+							$('.error').removeClass('hidden');
+							$('.fbrowser .profile-rotator-wrapper').hide();
+							$('.fbrowser-content').show();
+							return;
+						}
+						// load new content to fbrowser window
+						FileBrowser.loadContent(FileBrowser._getUrl("none"));
+					},
+				});
 		}
 
-		if ($("#upload-file").length) {
+		if ($('#upload-attachment').length) {
 			//AjaxUpload for files
-			var file_uploader = new window.AjaxUpload("upload-file", {
-				action: "profile/" + FileBrowser.nickname + "/attachment/upload?response=json",
-				name: "userfile",
-				responseType: "json",
-				onSubmit: function (file, ext) {
-					$(".fbrowser-content").hide();
-					$(".fbrowser .profile-rotator-wrapper").show();
-					$(".error").addClass("hidden");
-				},
-				onComplete: function (file, response) {
-					if (response["error"] != undefined) {
-						$(".error span").html(response["error"]);
-						$(".error").removeClass("hidden");
-						$(".fbrowser .profile-rotator-wrapper").hide();
-						$(".fbrowser-content").show();
-						return;
-					}
-
-					var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none&theme=frio";
-					// Load new content to fbrowser window
-					FileBrowser.loadContent(url);
-				},
-			});
+			new window.AjaxUpload(
+				'upload-attachment',
+				{
+					action: 'profile/' + FileBrowser.nickname + '/attachment/upload?response=json',
+					name: 'userfile',
+					responseType: 'json',
+					onSubmit: function (file, ext) {
+						$('.fbrowser-content').hide();
+						$('.fbrowser .profile-rotator-wrapper').show();
+						$('.error').addClass('hidden');
+					},
+					onComplete: function (file, response) {
+						if (response["error"] !== undefined) {
+							$('.error span').html(response['error']);
+							$('.error').removeClass('hidden');
+							$('.fbrowser .profile-rotator-wrapper').hide();
+							$('.fbrowser-content').show();
+							return;
+						}
+						// Load new content to fbrowser window
+						FileBrowser.loadContent(FileBrowser._getUrl("none"));
+					},
+				});
 		}
 	},
 
-	// Stuff which should be executed if ne content was loaded
+	// Stuff which should be executed if no content was loaded
 	postLoad: function () {
 		FileBrowser.initGallery();
-		$(".fbrowser .fbswitcher .btn").removeClass("active");
-		$(".fbrowser .fbswitcher [data-mode=" + FileBrowser.type + "]").addClass("active");
+		$('.fbrowser .fbswitcher .btn').removeClass('active');
+		$('.fbrowser .fbswitcher [data-mode=' + FileBrowser.type + ']').addClass('active');
 		// We need to add the AjaxUpload to the button
 		FileBrowser.uploadButtons();
 	},
 
 	// Load new content (e.g. change photo album)
 	loadContent: function (url) {
-		$(".fbrowser-content").hide();
-		$(".fbrowser .profile-rotator-wrapper").show();
+		$('.fbrowser-content').hide();
+		$('.fbrowser .profile-rotator-wrapper').show();
 
 		// load new content to fbrowser window
-		$(".fbrowser").load(url, function (responseText, textStatus) {
-			$(".profile-rotator-wrapper").hide();
-			if (textStatus === "success") {
+		$('.fbrowser').load(url, function (responseText, textStatus) {
+			$('.profile-rotator-wrapper').hide();
+			if (textStatus === 'success') {
 				$(".fbrowser_content").show();
 				FileBrowser.postLoad();
 			}
@@ -254,11 +237,17 @@ var FileBrowser = {
 
 	// Initialize justified Gallery
 	initGallery: function () {
-		$(".fbrowser.image .fbrowser-content-container").justifiedGallery({
+		$('.fbrowser.photos .fbrowser-content-container').justifiedGallery({
 			rowHeight: 80,
 			margins: 4,
 			border: 0,
 		});
 	},
+
+	_getUrl: function (mode, folder) {
+		let folderValue = folder !== undefined ? folder : FileBrowser.folder;
+		let folderUrl = folderValue !== undefined ? '/' + encodeURIComponent(folderValue) : '';
+		return 'profile/' + FileBrowser.nickname + '/' + FileBrowser.type + '/browser' + folderUrl + '?mode=' + mode + "&theme=frio";
+	}
 };
 // @license-end
