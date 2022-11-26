@@ -47,6 +47,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`POST /api/v1/accounts/:id/unmute`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/relationships`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/search`](https://docs.joinmastodon.org/methods/accounts)
+- [`PATCH /api/v1/accounts/update_credentials`](https://docs.joinmastodon.org/methods/accounts/#update_credentials)
 - [`GET /api/v1/accounts/verify_credentials`](https://docs.joinmastodon.org/methods/accounts)
 - [`POST /api/v1/apps`](https://docs.joinmastodon.org/methods/apps/)
 - [`GET /api/v1/apps/verify_credentials`](https://docs.joinmastodon.org/methods/apps/)
@@ -138,7 +139,6 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 These emdpoints are planned to be implemented somewhere in the future.
 
-- [`PATCH /api/v1/accounts/update_credentials`](https://docs.joinmastodon.org/methods/accounts/)
 - [`POST /api/v1/accounts/:id/remove_from_followers`](https://github.com/mastodon/mastodon/pull/16864)
 - [`GET /api/v1/accounts/familiar_followers`](https://github.com/mastodon/mastodon/pull/17700)
 - [`GET /api/v1/accounts/lookup`](https://github.com/mastodon/mastodon/pull/15740)
