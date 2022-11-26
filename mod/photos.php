@@ -918,43 +918,19 @@ function photos_content(App $a)
 		 * limit of Friendica ('maximagesize') or upload_max_filesize
 		 * and outputs the lower one.
 		*/
-		// init output var in case no number value could be retrieved.
 		$maximagesize_Mbytes = 0;
-		$sizelimitedby = '';
 		{
 			// Get the relevant size limits for uploads. Abbreviated var names: MaxImageSize -> mis; upload_max_filesize -> umf
 			$mis_bytes = DI::config()->get('system', 'maximagesize');
-			// get_cfg_var('upload_max_filesize') outputs a string in the shorthand notation, need to convert it to bytes
-			$umf_string = get_cfg_var('upload_max_filesize');
-			$umf_bytes = filter_var($umf_string, FILTER_SANITIZE_NUMBER_INT);
-			switch (substr($umf_string, -1)) {
-				// According to https://www.php.net/manual/en/faq.using.php#faq.using.shorthandbytes only K, M, and G is used.
-				case 'M':
-					$umf_bytes *= 10**6;
-					break;
-				case 'K':
-					$umf_bytes *= 10**3;
-					break;
-				case 'G':
-					$umf_bytes *= 10**9;
-					break;
-			}
-			if (is_numeric($mis_bytes) && is_numeric($umf_bytes)) {
-				// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
-				if ($umf_bytes < $mis_bytes) {
-					$maximagesize_Mbytes = ($umf_bytes / (10 ** 6));
-					$sizelimitedby = 'PHP.ini';
-				} else {
-					$maximagesize_Mbytes = ($mis_bytes / (10 ** 6));
+			$umf_bytes = Strings::getBytesFromShorthand(get_cfg_var('upload_max_filesize'));
 
-				}
+			if (is_numeric($mis_bytes)) {
+				// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
+				($umf_bytes < $mis_bytes) ?
+					($maximagesize_Mbytes = ($umf_bytes / (10 ** 6))) : ($maximagesize_Mbytes = ($mis_bytes / (10 ** 6)));
 			}
 		}
-		$usage_message = DI::l10n()->t('The maximum accepted image size is %.3g MB', $maximagesize_Mbytes);
-		// Do we want to bother the end user with this information? If yes uncomment
-		//if (strlen($sizelimitedby) > 0) {
-		//	$usage_message .= ' ('. $sizelimitedby . ')';
-		//}
+		$usage_message = DI::l10n()->t('The maximum accepted image size is %.3g MB', Strings::getBytesFromShorthand(get_cfg_var('upload_max_filesize')));
 
 		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
 
