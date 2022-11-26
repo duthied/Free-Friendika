@@ -1095,7 +1095,7 @@ var Dialog = {
 		if (id !== undefined) {
 			hash = hash + "-" + id;
 		}
-		return '/profile/' + localNickname + '/' + type + '/browser?mode=minimal#' + hash;
+		return 'media/' + type + '/browser?mode=minimal#' + hash;
 	},
 
 	_get_size: function() {

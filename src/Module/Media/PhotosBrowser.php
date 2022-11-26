@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module\Profile\Photos;
+namespace Friendica\Module\Media;
 
 use Friendica\App;
 use Friendica\BaseModule;
@@ -29,6 +29,7 @@ use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Model\Photo;
 use Friendica\Module\Response;
+use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Util\Images;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
@@ -37,7 +38,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Browser for Photos
  */
-class Browser extends BaseModule
+class PhotosBrowser extends BaseModule
 {
 	/** @var IHandleUserSessions */
 	protected $session;
@@ -55,7 +56,7 @@ class Browser extends BaseModule
 	protected function content(array $request = []): string
 	{
 		if (!$this->session->getLocalUserId()) {
-			$this->baseUrl->redirect();
+			throw new UnauthorizedException($this->t('Permission denied.'));
 		}
 
 		// Needed to match the correct template in a module that uses a different theme than the user/site/default
@@ -78,7 +79,7 @@ class Browser extends BaseModule
 
 		$photosArray = array_map([$this, 'map_files'], $photos);
 
-		$tpl    = Renderer::getMarkupTemplate('profile/filebrowser.tpl');
+		$tpl    = Renderer::getMarkupTemplate('media/filebrowser.tpl');
 		$output = Renderer::replaceMacros($tpl, [
 			'$type'     => 'photos',
 			'$path'     => $path,

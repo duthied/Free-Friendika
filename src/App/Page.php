@@ -241,7 +241,6 @@ class Page implements ArrayAccess
 		 * being first
 		 */
 		$this->page['htmlhead'] = Renderer::replaceMacros($tpl, [
-			'$local_nickname'  => $app->getLoggedInUserNickname(),
 			'$local_user'      => $localUID,
 			'$generator'       => 'Friendica' . ' ' . App::VERSION,
 			'$delitem'         => $l10n->t('Delete this item?'),

@@ -155,7 +155,7 @@ const FileBrowser = {
 	_getUrl: function (mode, hash, folder) {
 		let folderValue = folder !== undefined ? folder : FileBrowser.folder;
 		let folderUrl = folderValue !== undefined ? '/' + encodeURIComponent(folderValue) : '';
-		return 'profile/' + FileBrowser.nickname + '/' + FileBrowser.type + '/browser' + folderUrl + '?mode=' + mode + hash;
+		return 'media/' + FileBrowser.type + '/browser' + folderUrl + '?mode=' + mode + hash;
 	}
 };
 // @license-end

@@ -207,7 +207,7 @@ class Photo
 	public static function getBrowsablePhotosForUser(int $uid, string $album = null): array
 	{
 		if (!empty($album)) {
-			$sqlExtra  = sprintf("AND `album` = '%S' ", DBA::escape($album));
+			$sqlExtra  = sprintf("AND `album` = '%s' ", DBA::escape($album));
 			$sqlExtra2 = "";
 		} else {
 			$sqlExtra  = '';

@@ -132,7 +132,7 @@ Dialog.show = function (url, title) {
 Dialog._get_url = function (type, name, id) {
 	var hash = name;
 	if (id !== undefined) hash = hash + "-" + id;
-	return 'profile/' + localNickname + '/' + type + '/browser?mode=none&theme=frio#' + hash;
+	return 'media/' + type + '/browser?mode=none&theme=frio#' + hash;
 };
 
 // Does load the filebrowser into the jot modal.
@@ -159,14 +159,14 @@ Dialog._load = function (url) {
 	let filebrowser = document.getElementById("filebrowser");
 
 	// Try to fetch the hash form the url.
-	let match = url.match(/profile\/[a-z]+\/.*(#.*)/);
+	let match = url.match(/media\/[a-z]+\/.*(#.*)/);
 	if (!filebrowser || match === null) {
 		return; //not fbrowser
 	}
 
 	// Initialize the filebrowser.
 	loadScript("view/js/ajaxupload.js");
-	loadScript("view/theme/frio/js/filebrowser.js", function () {
+	loadScript("view/theme/frio/js/module/media/filebrowser.js", function () {
 		FileBrowser.init(filebrowser.dataset.nickname, filebrowser.dataset.type, match[1]);
 	});
 };

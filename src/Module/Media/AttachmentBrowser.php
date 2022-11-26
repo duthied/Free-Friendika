@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module\Profile\Attachment;
+namespace Friendica\Module\Media;
 
 use Friendica\App;
 use Friendica\BaseModule;
@@ -29,6 +29,7 @@ use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Model\Attach;
 use Friendica\Module\Response;
+use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
@@ -36,7 +37,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Browser for Attachments
  */
-class Browser extends BaseModule
+class AttachmentBrowser extends BaseModule
 {
 	/** @var IHandleUserSessions */
 	protected $session;
@@ -54,7 +55,7 @@ class Browser extends BaseModule
 	protected function content(array $request = []): string
 	{
 		if (!$this->session->getLocalUserId()) {
-			$this->baseUrl->redirect();
+			throw new UnauthorizedException($this->t('Permission denied.'));
 		}
 
 		// Needed to match the correct template in a module that uses a different theme than the user/site/default
@@ -68,7 +69,7 @@ class Browser extends BaseModule
 
 		$fileArray = array_map([$this, 'map_files'], $files);
 
-		$tpl    = Renderer::getMarkupTemplate('profile/filebrowser.tpl');
+		$tpl    = Renderer::getMarkupTemplate('media/filebrowser.tpl');
 		$output = Renderer::replaceMacros($tpl, [
 			'$type'     => 'attachment',
 			'$path'     => ['' => $this->t('Files')],
@@ -88,8 +89,8 @@ class Browser extends BaseModule
 
 	protected function map_files(array $record): array
 	{
-		list($m1, $m2) = explode('/', $record['filetype']);
-		$filetype      = file_exists(sprintf('images/icons/%s.png', $m1) ? $m1 : 'zip');
+		[$m1, $m2] = explode('/', $record['filetype']);
+		$filetype      = file_exists(sprintf('images/icons/%s.png', $m1) ? $m1 : 'text');
 
 		return [
 			sprintf('%s/attach/%s', $this->baseUrl, $record['id']),
