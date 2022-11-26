@@ -185,7 +185,7 @@ class Photo
 	{
 		$photos = DBA::toArray(
 			DBA::p(
-				"SELECT DISTINCT(`album`) AS `albume` FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?)",
+				"SELECT DISTINCT(`album`) AS `album` FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?)",
 				$uid,
 				static::CONTACT_AVATAR,
 				static::CONTACT_BANNER

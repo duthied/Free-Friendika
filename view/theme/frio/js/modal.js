@@ -132,7 +132,7 @@ Dialog.show = function (url, title) {
 Dialog._get_url = function (type, name, id) {
 	var hash = name;
 	if (id !== undefined) hash = hash + "-" + id;
-	return "profile/" + localNickname + "/" + type + "/browser?mode=none&theme=frio#" + hash;
+	return 'profile/' + localNickname + '/' + type + '/browser?mode=none&theme=frio#' + hash;
 };
 
 // Does load the filebrowser into the jot modal.

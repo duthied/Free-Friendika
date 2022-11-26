@@ -60,11 +60,11 @@ const FileBrowser = {
 	init: function (nickname, type) {
 		FileBrowser.nickname = nickname;
 		FileBrowser.type = type;
-		FileBrowser.event = "fbrowser." + type;
-		if (location['hash'] !== "") {
+		FileBrowser.event = 'fbrowser.' + type;
+		if (location['hash'] !== '') {
 			const h = location['hash'].replace('#', '');
-			FileBrowser.event = FileBrowser.event + "." + h.split("-")[0];
-			FileBrowser.id = h.split("-")[1];
+			FileBrowser.event = FileBrowser.event + '.' + h.split('-')[0];
+			FileBrowser.id = h.split('-')[1];
 		}
 
 		console.log('FileBrowser:', nickname, type, FileBrowser.event, FileBrowser.id);

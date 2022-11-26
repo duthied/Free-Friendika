@@ -113,7 +113,6 @@ var FileBrowser = {
 				embed = '[url=' + this.dataset.link + '][img=' + this.dataset.img + ']' + this.dataset.alt + '[/img][/url]';
 			}
 			if (FileBrowser.type === 'attachment') {
-				// attachment links are "baseurl/attach/id"; we need id
 				embed = '[attachment]' + this.dataset.link + '[/attachment]';
 			}
 
