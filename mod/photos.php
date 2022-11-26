@@ -914,17 +914,15 @@ function photos_content(App $a)
 			'$submit' => DI::l10n()->t('Submit'),
 		]);
 
-		// Determine which setting actually limits  upload size of images: limit of Friendica ('maximagesize') or upload_max_filesize
 		$maximagesize_Mbytes = 0;
 		// Get the relevant size limits for uploads. Abbreviated var names: MaxImageSize -> mis; upload_max_filesize -> umf
 		$mis_bytes = DI::config()->get('system', 'maximagesize');
-		$umf_bytes = Strings::getBytesFromShorthand(get_cfg_var('upload_max_filesize'));
+		$umf_bytes = Strings::getBytesFromShorthand(ini_get('upload_max_filesize'));
 
-		if (is_numeric($mis_bytes)) {
-			// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
-			($umf_bytes < $mis_bytes) ?
-				($maximagesize_Mbytes = ($umf_bytes / (10 ** 6))) : ($maximagesize_Mbytes = ($mis_bytes / (10 ** 6)));
-		}
+		// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
+		(($umf_bytes < $mis_bytes) || ! is_numeric($mis_bytes)) ?
+			($maximagesize_Mbytes = ($umf_bytes / (10 ** 6))) : ($maximagesize_Mbytes = ($mis_bytes / (10 ** 6)));
+
 
 		$usage_message = DI::l10n()->t('The maximum accepted image size is %.3g MB', $maximagesize_Mbytes);
 
