@@ -88,8 +88,8 @@ class Browser extends BaseModule
 
 	protected function map_files(array $record): array
 	{
-		[$m1, $m2] = explode('/', $record['filetype']);
-		$filetype   = file_exists(sprintf('images/icons/%s.png', $m1) ? $m1 : 'zip');
+		list($m1, $m2) = explode('/', $record['filetype']);
+		$filetype      = file_exists(sprintf('images/icons/%s.png', $m1) ? $m1 : 'zip');
 
 		return [
 			sprintf('%s/attach/%s', $this->baseUrl, $record['id']),
