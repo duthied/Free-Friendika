@@ -37,6 +37,7 @@ use Friendica\Module\Register;
 use Friendica\Protocol\Relay;
 use Friendica\Util\BasePath;
 use Friendica\Util\EMailer\MailBuilder;
+use Friendica\Util\Strings;
 
 class Site extends BaseAdmin
 {
@@ -467,7 +468,10 @@ class Site extends BaseAdmin
 			'$show_help'        => ['show_help', DI::l10n()->t('Show help entry from navigation menu'), !DI::config()->get('system', 'hide_help'), DI::l10n()->t('Displays the menu entry for the Help pages from the navigation menu. It is always accessible by calling /help directly.')],
 			'$singleuser'       => ['singleuser', DI::l10n()->t('Single user instance'), DI::config()->get('system', 'singleuser', '---'), DI::l10n()->t('Make this instance multi-user or single-user for the named user'), $user_names],
 
-			'$maximagesize'     => ['maximagesize', DI::l10n()->t('Maximum image size'), DI::config()->get('system', 'maximagesize'), DI::l10n()->t('Maximum size in bytes of uploaded images. Default is 0, which means no limits. Be aware that this setting does not affect server-side upload limits.')],
+			'$maximagesize'     => ['maximagesize', DI::l10n()->t('Maximum image size'), DI::config()->get('system', 'maximagesize'), DI::l10n()->t('Maximum size in bytes of uploaded images. Default is 0, which means no limits.') .
+													DI::l10n()->t('The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit. ') .
+													DI::l10n()->t('Currently <code>upload_max_filesize</code> is set to ' . Strings::getBytesFromShorthand(ini_get('upload_max_filesize')) . ' (' . ini_get('upload_max_filesize') . 'B). '),
+													'1 kB = 1 KiB = 1024 Bytes'],
 			'$maximagelength'   => ['maximagelength', DI::l10n()->t('Maximum image length'), DI::config()->get('system', 'max_image_length'), DI::l10n()->t('Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.')],
 			'$jpegimagequality' => ['jpegimagequality', DI::l10n()->t('JPEG image quality'), DI::config()->get('system', 'jpeg_quality'), DI::l10n()->t('Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.')],
 
