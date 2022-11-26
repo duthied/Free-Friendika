@@ -920,9 +920,7 @@ function photos_content(App $a)
 		$umf_bytes = Strings::getBytesFromShorthand(ini_get('upload_max_filesize'));
 
 		// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
-		(($umf_bytes < $mis_bytes) || ! is_numeric($mis_bytes)) ?
-			($maximagesize_Mbytes = ($umf_bytes / 1048576)) : ($maximagesize_Mbytes = ($mis_bytes / 1048576));
-
+		$maximagesize_Mbytes = (is_numeric($mis_bytes) && ($mis_bytes < $umf_bytes) ? $mis_bytes : $umf_bytes) / (1048576);
 
 		$usage_message = DI::l10n()->t('The maximum accepted image size is %.3g MB', $maximagesize_Mbytes);
 
