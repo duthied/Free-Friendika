@@ -546,4 +546,5 @@ class Strings
 
 		return $shorthand;
 	}
+
 }
