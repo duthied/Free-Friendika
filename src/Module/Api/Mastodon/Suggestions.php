@@ -48,7 +48,10 @@ class Suggestions extends BaseApi
 		$accounts = [];
 
 		foreach ($suggestions as $suggestion) {
-			$accounts[] = DI::mstdnAccount()->createFromContactId($suggestion['id'], $uid);
+			$accounts[] = [
+				'source'  => 'past_interactions',
+				'account' => DI::mstdnAccount()->createFromContactId($suggestion['id'], $uid)
+			];
 		}
 
 		System::jsonExit($accounts);
