@@ -525,16 +525,16 @@ class Strings
 	 */
 	public static function getBytesFromShorthand(string $shorthand): int
 	{
-		$shorthand  = trim($shorthand);
+		$shorthand = trim($shorthand);
 
-		if (is_numeric($shorthand))
+		if (is_numeric($shorthand)) {
 			return $shorthand;
+		}
 
-		$last = strtolower($shorthand[strlen($shorthand)-1]);
-		$shorthand  = substr($shorthand, 0, -1); // necessary since PHP 7.1; otherwise optional
+		$last      = strtolower($shorthand[strlen($shorthand)-1]);
+		$shorthand = substr($shorthand, 0, -1);
 
 		switch($last) {
-			// The 'G' modifier is available since PHP 5.1.0
 			case 'g':
 				$shorthand *= 1024;
 			case 'm':
