@@ -56,7 +56,7 @@
  * IMPORTANT
  *
  *  This is a modified version to work with
- *  the frio theme.and bootstrap modals
+ *  the frio theme and Bootstrap modals
  *
  *  The original file is under:
  *  js/module/media/browser.js
@@ -85,8 +85,6 @@ var Browser = {
 				var commentElm = document.getElementById('comment-edit-text-' + Browser.id);
 			}
 		}
-
-		console.log('FileBrowser: ' + nickname, type, Browser.event, Browser.id);
 
 		Browser.postLoad();
 

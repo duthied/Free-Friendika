@@ -66,7 +66,6 @@ class Browser extends BaseModule
 
 		$files = Attach::selectToArray(['id', 'filename', 'filetype'], ['uid' => $this->session->getLocalUserId()]);
 
-
 		$fileArray = array_map([$this, 'map_files'], $files);
 
 		$tpl    = Renderer::getMarkupTemplate('media/browser.tpl');

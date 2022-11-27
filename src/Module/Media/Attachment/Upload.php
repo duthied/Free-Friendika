@@ -74,7 +74,6 @@ class Upload extends \Friendica\BaseModule
 		}
 
 		$owner = User::getOwnerDataById($this->userSession->getLocalUserId());
-
 		if (!$owner) {
 			$this->logger->warning('Owner not found.', ['uid' => $this->userSession->getLocalUserId()]);
 			return $this->return(401, $this->t('Invalid request.'));

@@ -67,8 +67,6 @@ const Browser = {
 			Browser.id = h.split('-')[1];
 		}
 
-		console.log('FileBrowser:', nickname, type, Browser.event, Browser.id);
-
 		$('.error a.close').on('click', function (e) {
 			e.preventDefault();
 			$('.error').addClass('hidden');
@@ -90,7 +88,6 @@ const Browser = {
 			if (Browser.type === "attachment") {
 				embed = '[attachment]' + this.dataset.link + '[/attachment]';
 			}
-			console.log(Browser.event, this.dataset.filename, embed, Browser.id);
 			parent.$('body').trigger(Browser.event, [
 				this.dataset.filename,
 				embed,
