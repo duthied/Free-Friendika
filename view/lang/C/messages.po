@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-26 23:37+0100\n"
+"POT-Creation-Date: 2022-11-27 00:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,36 +18,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-#: mod/fbrowser.php:61 src/Content/Nav.php:195 src/Module/BaseProfile.php:64
-#: view/theme/frio/theme.php:242
-msgid "Photos"
-msgstr ""
-
-#: mod/fbrowser.php:119 mod/fbrowser.php:146 mod/photos.php:1007
-#: mod/photos.php:1108 src/Content/Conversation.php:389
-#: src/Module/Contact/Follow.php:173 src/Module/Contact/Revoke.php:109
-#: src/Module/Contact/Unfollow.php:126 src/Module/Post/Edit.php:164
-#: src/Module/Post/Tag/Remove.php:109 src/Module/Profile/RemoteFollow.php:134
-#: src/Module/Security/TwoFactor/SignOut.php:125
-msgid "Cancel"
-msgstr ""
-
-#: mod/fbrowser.php:121 mod/fbrowser.php:148
-#: src/Module/Settings/Profile/Photo/Index.php:128
-msgid "Upload"
-msgstr ""
-
-#: mod/fbrowser.php:143
-msgid "Files"
-msgstr ""
-
 #: mod/item.php:129 mod/item.php:133
 msgid "Unable to locate original post."
 msgstr ""
 
 #: mod/item.php:179 mod/item.php:184 mod/item.php:855 mod/message.php:69
 #: mod/message.php:114 mod/notes.php:44 mod/photos.php:159 mod/photos.php:884
-#: src/Module/Attach.php:56 src/Module/BaseApi.php:94
+#: src/Module/Attach.php:55 src/Module/BaseApi.php:94
 #: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:52
 #: src/Module/Calendar/Event/API.php:88 src/Module/Calendar/Event/Form.php:84
 #: src/Module/Calendar/Event/Show.php:54 src/Module/Calendar/Export.php:62
@@ -62,9 +39,8 @@ msgstr ""
 #: src/Module/Notifications/Notification.php:76
 #: src/Module/Notifications/Notification.php:107
 #: src/Module/OStatus/Repair.php:60 src/Module/OStatus/Subscribe.php:66
-#: src/Module/Post/Edit.php:76 src/Module/Profile/Attachment/Upload.php:97
-#: src/Module/Profile/Common.php:55 src/Module/Profile/Contacts.php:55
-#: src/Module/Profile/Photos/Upload.php:108 src/Module/Profile/Schedule.php:39
+#: src/Module/Post/Edit.php:76 src/Module/Profile/Common.php:55
+#: src/Module/Profile/Contacts.php:55 src/Module/Profile/Schedule.php:39
 #: src/Module/Profile/Schedule.php:56 src/Module/Profile/UnkMail.php:69
 #: src/Module/Profile/UnkMail.php:121 src/Module/Profile/UnkMail.php:132
 #: src/Module/Register.php:77 src/Module/Register.php:90
@@ -414,31 +390,28 @@ msgstr ""
 #: src/Module/HCard.php:51 src/Module/Profile/Common.php:40
 #: src/Module/Profile/Common.php:51 src/Module/Profile/Contacts.php:39
 #: src/Module/Profile/Contacts.php:49 src/Module/Profile/Media.php:38
-#: src/Module/Profile/Photos/Index.php:77
-#: src/Module/Profile/Photos/Upload.php:87
-#: src/Module/Profile/RemoteFollow.php:71 src/Module/Profile/Status.php:58
-#: src/Module/Register.php:267
+#: src/Module/Profile/Photos.php:77 src/Module/Profile/RemoteFollow.php:71
+#: src/Module/Profile/Status.php:58 src/Module/Register.php:267
 msgid "User not found."
 msgstr ""
 
 #: mod/photos.php:107 src/Module/BaseProfile.php:67
-#: src/Module/Profile/Photos/Index.php:169
+#: src/Module/Profile/Photos.php:169
 msgid "Photo Albums"
 msgstr ""
 
-#: mod/photos.php:108 src/Module/Profile/Photos/Index.php:170
-#: src/Module/Profile/Photos/Index.php:187
+#: mod/photos.php:108 src/Module/Profile/Photos.php:170
+#: src/Module/Profile/Photos.php:187
 msgid "Recent Photos"
 msgstr ""
 
-#: mod/photos.php:110 mod/photos.php:1076
-#: src/Module/Profile/Photos/Index.php:172
-#: src/Module/Profile/Photos/Index.php:189
+#: mod/photos.php:110 mod/photos.php:1066 src/Module/Profile/Photos.php:172
+#: src/Module/Profile/Photos.php:189
 msgid "Upload New Photos"
 msgstr ""
 
 #: mod/photos.php:128 src/Module/BaseSettings.php:74
-#: src/Module/Profile/Photos/Index.php:153
+#: src/Module/Profile/Photos.php:153
 msgid "everybody"
 msgstr ""
 
@@ -472,7 +445,7 @@ msgid "%1$s was tagged in %2$s by %3$s"
 msgstr ""
 
 #: mod/photos.php:630 mod/photos.php:633 mod/photos.php:660
-#: src/Module/Profile/Photos/Upload.php:213
+#: src/Module/Media/Photo/Upload.php:188
 #: src/Module/Settings/Profile/Photo/Index.php:59
 #, php-format
 msgid "Image exceeds size limit of %s"
@@ -496,19 +469,19 @@ msgstr ""
 msgid "Image file is empty."
 msgstr ""
 
-#: mod/photos.php:683 src/Module/Profile/Photos/Upload.php:179
-#: src/Module/Profile/Photos/Upload.php:180
+#: mod/photos.php:683 src/Module/Media/Photo/Upload.php:154
+#: src/Module/Media/Photo/Upload.php:155
 #: src/Module/Settings/Profile/Photo/Index.php:68
 msgid "Unable to process image."
 msgstr ""
 
-#: mod/photos.php:709 src/Module/Profile/Photos/Upload.php:231
+#: mod/photos.php:709 src/Module/Media/Photo/Upload.php:206
 #: src/Module/Settings/Profile/Photo/Index.php:95
 msgid "Image upload failed."
 msgstr ""
 
 #: mod/photos.php:795 src/Module/Conversation/Community.php:187
-#: src/Module/Directory.php:48 src/Module/Profile/Photos/Index.php:72
+#: src/Module/Directory.php:48 src/Module/Profile/Photos.php:72
 #: src/Module/Search/Index.php:64
 msgid "Public access denied."
 msgstr ""
@@ -517,7 +490,7 @@ msgstr ""
 msgid "No photos selected"
 msgstr ""
 
-#: mod/photos.php:869 src/Module/Profile/Photos/Index.php:92
+#: mod/photos.php:869 src/Module/Profile/Photos.php:92
 msgid "Access to this item is restricted."
 msgstr ""
 
@@ -554,7 +527,17 @@ msgstr ""
 msgid "Delete Album"
 msgstr ""
 
-#: mod/photos.php:1033
+#: mod/photos.php:997 mod/photos.php:1098 src/Content/Conversation.php:389
+#: src/Module/Contact/Follow.php:173 src/Module/Contact/Revoke.php:109
+#: src/Module/Contact/Unfollow.php:126
+#: src/Module/Media/Attachment/Browser.php:78
+#: src/Module/Media/Photo/Browser.php:88 src/Module/Post/Edit.php:164
+#: src/Module/Post/Tag/Remove.php:109 src/Module/Profile/RemoteFollow.php:134
+#: src/Module/Security/TwoFactor/SignOut.php:125
+msgid "Cancel"
+msgstr ""
+
+#: mod/photos.php:1023
 msgid "Edit Album"
 msgstr ""
 
@@ -570,7 +553,7 @@ msgstr ""
 msgid "Show Oldest First"
 msgstr ""
 
-#: mod/photos.php:1061 src/Module/Profile/Photos/Index.php:140
+#: mod/photos.php:1051 src/Module/Profile/Photos.php:140
 msgid "View Photo"
 msgstr ""
 
@@ -1688,6 +1671,11 @@ msgstr ""
 
 #: src/Content/Nav.php:194 view/theme/frio/theme.php:238
 msgid "Your profile page"
+msgstr ""
+
+#: src/Content/Nav.php:195 src/Module/BaseProfile.php:64
+#: src/Module/Media/Photo/Browser.php:74 view/theme/frio/theme.php:242
+msgid "Photos"
 msgstr ""
 
 #: src/Content/Nav.php:195 view/theme/frio/theme.php:242
@@ -3184,7 +3172,7 @@ msgstr ""
 msgid "[no subject]"
 msgstr ""
 
-#: src/Model/Photo.php:1086 src/Module/Profile/Photos/Upload.php:223
+#: src/Model/Photo.php:1139 src/Module/Media/Photo/Upload.php:198
 msgid "Wall Photos"
 msgstr ""
 
@@ -5279,7 +5267,7 @@ msgstr ""
 msgid "Applications"
 msgstr ""
 
-#: src/Module/Attach.php:50 src/Module/Attach.php:62
+#: src/Module/Attach.php:49 src/Module/Attach.php:61
 msgid "Item was not found."
 msgstr ""
 
@@ -5908,10 +5896,10 @@ msgid "The contact could not be added."
 msgstr ""
 
 #: src/Module/Contact/MatchInterests.php:94
-#: src/Module/Profile/Attachment/Upload.php:80
-#: src/Module/Profile/Attachment/Upload.php:102
-#: src/Module/Profile/Photos/Upload.php:113
-#: src/Module/Profile/Photos/Upload.php:162
+#: src/Module/Media/Attachment/Upload.php:80
+#: src/Module/Media/Attachment/Upload.php:85
+#: src/Module/Media/Photo/Upload.php:83 src/Module/Media/Photo/Upload.php:88
+#: src/Module/Media/Photo/Upload.php:137
 msgid "Invalid request."
 msgstr ""
 
@@ -7143,6 +7131,38 @@ msgstr ""
 msgid "A Decentralized Social Network"
 msgstr ""
 
+#: src/Module/Media/Attachment/Browser.php:58
+#: src/Module/Media/Photo/Browser.php:59
+msgid "You need to be logged in to access this page."
+msgstr ""
+
+#: src/Module/Media/Attachment/Browser.php:75
+msgid "Files"
+msgstr ""
+
+#: src/Module/Media/Attachment/Browser.php:80
+#: src/Module/Media/Photo/Browser.php:90
+#: src/Module/Settings/Profile/Photo/Index.php:128
+msgid "Upload"
+msgstr ""
+
+#: src/Module/Media/Attachment/Upload.php:100
+msgid "Sorry, maybe your upload is bigger than the PHP configuration allows"
+msgstr ""
+
+#: src/Module/Media/Attachment/Upload.php:100
+msgid "Or - did you try to upload an empty file?"
+msgstr ""
+
+#: src/Module/Media/Attachment/Upload.php:107
+#, php-format
+msgid "File exceeds size limit of %s"
+msgstr ""
+
+#: src/Module/Media/Attachment/Upload.php:117
+msgid "File upload failed."
+msgstr ""
+
 #: src/Module/Moderation/BaseUsers.php:72
 msgid "List of all users"
 msgstr ""
@@ -8148,28 +8168,11 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: src/Module/Profile/Attachment/Upload.php:117
-msgid "Sorry, maybe your upload is bigger than the PHP configuration allows"
-msgstr ""
-
-#: src/Module/Profile/Attachment/Upload.php:117
-msgid "Or - did you try to upload an empty file?"
-msgstr ""
-
-#: src/Module/Profile/Attachment/Upload.php:124
-#, php-format
-msgid "File exceeds size limit of %s"
-msgstr ""
-
-#: src/Module/Profile/Attachment/Upload.php:134
-msgid "File upload failed."
-msgstr ""
-
 #: src/Module/Profile/Contacts.php:119
 msgid "No contacts."
 msgstr ""
 
-#: src/Module/Profile/Photos/Index.php:146
+#: src/Module/Profile/Photos.php:146
 msgid "View Album"
 msgstr ""
 

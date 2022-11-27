@@ -195,7 +195,7 @@ class Delayed
 
 		$id = Item::insert($item, $notify, $preparation_mode == self::PREPARED);
 
-		Logger::notice('Post stored', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id']]);
+		Logger::notice('Post stored', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id'] ?? 'N/A']);
 
 		if (empty($uri) && !empty($item['uri'])) {
 			$uri = $item['uri'];

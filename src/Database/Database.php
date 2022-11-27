@@ -110,7 +110,7 @@ class Database
 		$this->connected = false;
 
 		$port       = 0;
-		$serveraddr = trim($this->configCache->get('database', 'hostname'));
+		$serveraddr = trim($this->configCache->get('database', 'hostname') ?? '');
 		$serverdata = explode(':', $serveraddr);
 		$host       = trim($serverdata[0]);
 		if (count($serverdata) > 1) {

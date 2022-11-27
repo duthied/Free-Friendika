@@ -23,6 +23,7 @@ namespace Friendica\Util;
 
 use Friendica\Content\ContactSelector;
 use Friendica\Core\Logger;
+use ParagonIE\ConstantTime\Base64;
 
 /**
  * This class handles string functions
@@ -245,16 +246,17 @@ class Strings
 	 * @param string $s					URL to encode
 	 * @param boolean $strip_padding	Optional. Default false
 	 * @return string	Encoded URL
+	 * @see https://web.archive.org/web/20160506073138/http://salmon-protocol.googlecode.com:80/svn/trunk/draft-panzer-magicsig-01.html#params
 	 */
 	public static function base64UrlEncode(string $s, bool $strip_padding = false): string
 	{
-		$s = strtr(base64_encode($s), '+/', '-_');
-
 		if ($strip_padding) {
-			$s = str_replace('=', '', $s);
+			$s = Base64::encodeUnpadded($s);
+		} else {
+			$s = Base64::encode($s);
 		}
 
-		return $s;
+		return strtr($s, '+/', '-_');
 	}
 
 	/**
@@ -263,26 +265,11 @@ class Strings
 	 * @param string $s URL to decode
 	 * @return string	Decoded URL
 	 * @throws \Exception
+	 * @see https://web.archive.org/web/20160506073138/http://salmon-protocol.googlecode.com:80/svn/trunk/draft-panzer-magicsig-01.html#params
 	 */
 	public static function base64UrlDecode(string $s): string
 	{
-		/*
-		*  // Placeholder for new rev of salmon which strips base64 padding.
-		*  // PHP base64_decode handles the un-padded input without requiring this step
-		*  // Uncomment if you find you need it.
-		*
-		*	$l = strlen($s);
-		*	if (!strpos($s,'=')) {
-		*		$m = $l % 4;
-		*		if ($m == 2)
-		*			$s .= '==';
-		*		if ($m == 3)
-		*			$s .= '=';
-		*	}
-		*
-		*/
-
-		return base64_decode(strtr($s, '-_', '+/'));
+		return Base64::decode(strtr($s, '-_', '+/'));
 	}
 
 	/**
