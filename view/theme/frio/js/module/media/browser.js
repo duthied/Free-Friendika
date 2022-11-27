@@ -59,11 +59,11 @@
  *  the frio theme.and bootstrap modals
  *
  *  The original file is under:
- *  js/filebrowser.js
+ *  js/module/media/browser.js
  *
  */
 
-var FileBrowser = {
+var Browser = {
 	nickname: '',
 	type: '',
 	event: '',
@@ -71,24 +71,24 @@ var FileBrowser = {
 	id: null,
 
 	init: function (nickname, type, hash) {
-		FileBrowser.nickname = nickname;
-		FileBrowser.type = type;
-		FileBrowser.event = 'fbrowser.' + type;
+		Browser.nickname = nickname;
+		Browser.type = type;
+		Browser.event = 'fbrowser.' + type;
 
 		if (hash !== '') {
 			const h = hash.replace('#', '');
 			const destination = h.split('-')[0];
-			FileBrowser.id = h.split('-')[1];
-			FileBrowser.event = FileBrowser.event + '.' + destination;
+			Browser.id = h.split('-')[1];
+			Browser.event = Browser.event + '.' + destination;
 			if (destination === 'comment') {
 				// Get the comment textinput field
-				var commentElm = document.getElementById('comment-edit-text-' + FileBrowser.id);
+				var commentElm = document.getElementById('comment-edit-text-' + Browser.id);
 			}
 		}
 
-		console.log('FileBrowser: ' + nickname, type, FileBrowser.event, FileBrowser.id);
+		console.log('FileBrowser: ' + nickname, type, Browser.event, Browser.id);
 
-		FileBrowser.postLoad();
+		Browser.postLoad();
 
 		$('.error .close').on('click', function (e) {
 			e.preventDefault();
@@ -98,10 +98,10 @@ var FileBrowser = {
 		// Click on album link
 		$('.fbrowser').on('click', '.folders button, .path button', function (e) {
 			e.preventDefault();
-			let url = FileBrowser._getUrl("none", this.dataset.folder);
-			FileBrowser.folder = this.dataset.folder;
+			let url = Browser._getUrl("none", this.dataset.folder);
+			Browser.folder = this.dataset.folder;
 
-			FileBrowser.loadContent(url);
+			Browser.loadContent(url);
 		});
 
 		//Embed on click
@@ -109,10 +109,10 @@ var FileBrowser = {
 			e.preventDefault();
 
 			let embed = '';
-			if (FileBrowser.type === 'photo') {
+			if (Browser.type === 'photo') {
 				embed = '[url=' + this.dataset.link + '][img=' + this.dataset.img + ']' + this.dataset.alt + '[/img][/url]';
 			}
-			if (FileBrowser.type === 'attachment') {
+			if (Browser.type === 'attachment') {
 				embed = '[attachment]' + this.dataset.link + '[/attachment]';
 			}
 
@@ -122,18 +122,18 @@ var FileBrowser = {
 			// As for now we insert pieces of this function here
 			if (commentElm !== null && typeof commentElm !== 'undefined') {
 				if (commentElm.value === '') {
-					$('#comment-edit-text-' + FileBrowser.id)
+					$('#comment-edit-text-' + Browser.id)
 						.addClass('comment-edit-text-full')
 						.removeClass('comment-edit-text-empty');
-					$('#comment-edit-submit-wrapper-' + FileBrowser.id).show();
-					$('#comment-edit-text-' + FileBrowser.id).attr('tabindex', '9');
-					$('#comment-edit-submit-' + FileBrowser.id).attr('tabindex', '10');
+					$('#comment-edit-submit-wrapper-' + Browser.id).show();
+					$('#comment-edit-text-' + Browser.id).attr('tabindex', '9');
+					$('#comment-edit-submit-' + Browser.id).attr('tabindex', '10');
 				}
 			}
 
-			console.log(FileBrowser.event, this.dataset.filename, embed, FileBrowser.id);
+			console.log(Browser.event, this.dataset.filename, embed, Browser.id);
 
-			$('body').trigger(FileBrowser.event, [this.dataset.filename, embed, FileBrowser.id, this.dataset.img]);
+			$('body').trigger(Browser.event, [this.dataset.filename, embed, Browser.id, this.dataset.img]);
 
 			// Close model
 			$('#modal').modal('hide');
@@ -144,12 +144,12 @@ var FileBrowser = {
 		// EventListener for switching between photo and file mode
 		$('.fbrowser').on('click', '.fbswitcher .btn', function (e) {
 			e.preventDefault();
-			FileBrowser.type = this.getAttribute('data-mode');
+			Browser.type = this.getAttribute('data-mode');
 			$('.fbrowser')
 				.removeClass()
-				.addClass('fbrowser ' + FileBrowser.type);
+				.addClass('fbrowser ' + Browser.type);
 
-			FileBrowser.loadContent(FileBrowser._getUrl("none"));
+			Browser.loadContent(Browser._getUrl("none"));
 		});
 	},
 
@@ -160,7 +160,7 @@ var FileBrowser = {
 			new window.AjaxUpload(
 				'upload-photo',
 				{
-					action: 'media/photo/upload?response=json&album=' + encodeURIComponent(FileBrowser.folder),
+					action: 'media/photo/upload?response=json&album=' + encodeURIComponent(Browser.folder),
 					name: 'userfile',
 					responseType: 'json',
 					onSubmit: function (file, ext) {
@@ -177,7 +177,7 @@ var FileBrowser = {
 							return;
 						}
 						// load new content to fbrowser window
-						FileBrowser.loadContent(FileBrowser._getUrl("none"));
+						Browser.loadContent(Browser._getUrl("none"));
 					},
 				});
 		}
@@ -204,7 +204,7 @@ var FileBrowser = {
 							return;
 						}
 						// Load new content to fbrowser window
-						FileBrowser.loadContent(FileBrowser._getUrl("none"));
+						Browser.loadContent(Browser._getUrl("none"));
 					},
 				});
 		}
@@ -212,11 +212,11 @@ var FileBrowser = {
 
 	// Stuff which should be executed if no content was loaded
 	postLoad: function () {
-		FileBrowser.initGallery();
+		Browser.initGallery();
 		$('.fbrowser .fbswitcher .btn').removeClass('active');
-		$('.fbrowser .fbswitcher [data-mode=' + FileBrowser.type + ']').addClass('active');
+		$('.fbrowser .fbswitcher [data-mode=' + Browser.type + ']').addClass('active');
 		// We need to add the AjaxUpload to the button
-		FileBrowser.uploadButtons();
+		Browser.uploadButtons();
 	},
 
 	// Load new content (e.g. change photo album)
@@ -229,7 +229,7 @@ var FileBrowser = {
 			$('.profile-rotator-wrapper').hide();
 			if (textStatus === 'success') {
 				$(".fbrowser_content").show();
-				FileBrowser.postLoad();
+				Browser.postLoad();
 			}
 		});
 	},
@@ -244,9 +244,9 @@ var FileBrowser = {
 	},
 
 	_getUrl: function (mode, folder) {
-		let folderValue = folder !== undefined ? folder : FileBrowser.folder;
+		let folderValue = folder !== undefined ? folder : Browser.folder;
 		let folderUrl = folderValue !== undefined ? '/' + encodeURIComponent(folderValue) : '';
-		return 'media/' + FileBrowser.type + '/browser' + folderUrl + '?mode=' + mode + "&theme=frio";
+		return 'media/' + Browser.type + '/browser' + folderUrl + '?mode=' + mode + "&theme=frio";
 	}
 };
 // @license-end

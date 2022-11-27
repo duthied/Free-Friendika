@@ -69,7 +69,7 @@ class Browser extends BaseModule
 
 		$fileArray = array_map([$this, 'map_files'], $files);
 
-		$tpl    = Renderer::getMarkupTemplate('media/filebrowser.tpl');
+		$tpl    = Renderer::getMarkupTemplate('media/browser.tpl');
 		$output = Renderer::replaceMacros($tpl, [
 			'$type'     => 'attachment',
 			'$path'     => ['' => $this->t('Files')],

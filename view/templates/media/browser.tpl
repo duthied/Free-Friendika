@@ -2,10 +2,10 @@
 	This is the template used by mod/fbrowser.php
 -->
 <script type="text/javascript" src="view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
-<script type="text/javascript" src="view/js/module/media/filebrowser.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/js/module/media/browser.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script>
 	$(function() {
-		FileBrowser.init("{{$nickname}}", "{{$type}}");
+		Browser.init("{{$nickname}}", "{{$type}}");
 	});
 </script>
 <div class="fbrowser {{$type}}">

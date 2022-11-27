@@ -51,23 +51,23 @@
  *			$(id).value = bbcode;
  *		});
  **/
-const FileBrowser = {
+const Browser = {
 	nickname: '',
 	type: '',
 	event: '',
 	id: null,
 
 	init: function (nickname, type) {
-		FileBrowser.nickname = nickname;
-		FileBrowser.type = type;
-		FileBrowser.event = 'fbrowser.' + type;
+		Browser.nickname = nickname;
+		Browser.type = type;
+		Browser.event = 'fbrowser.' + type;
 		if (location['hash'] !== '') {
 			const h = location['hash'].replace('#', '');
-			FileBrowser.event = FileBrowser.event + '.' + h.split('-')[0];
-			FileBrowser.id = h.split('-')[1];
+			Browser.event = Browser.event + '.' + h.split('-')[0];
+			Browser.id = h.split('-')[1];
 		}
 
-		console.log('FileBrowser:', nickname, type, FileBrowser.event, FileBrowser.id);
+		console.log('FileBrowser:', nickname, type, Browser.event, Browser.id);
 
 		$('.error a.close').on('click', function (e) {
 			e.preventDefault();
@@ -76,7 +76,7 @@ const FileBrowser = {
 
 		$('.folders a, .path a').on('click', function (e) {
 			e.preventDefault();
-			location.href = FileBrowser._getUrl("minimal", location['hash'], this.dataset.folder);
+			location.href = Browser._getUrl("minimal", location['hash'], this.dataset.folder);
 			location.reload();
 		});
 
@@ -84,17 +84,17 @@ const FileBrowser = {
 			e.preventDefault();
 
 			let embed = '';
-			if (FileBrowser.type === "photo") {
+			if (Browser.type === "photo") {
 				embed = '[url=' + this.dataset.link + '][img=' + this.dataset.img + ']' + this.dataset.alt + '[/img][/url]';
 			}
-			if (FileBrowser.type === "attachment") {
+			if (Browser.type === "attachment") {
 				embed = '[attachment]' + this.dataset.link + '[/attachment]';
 			}
-			console.log(FileBrowser.event, this.dataset.filename, embed, FileBrowser.id);
-			parent.$('body').trigger(FileBrowser.event, [
+			console.log(Browser.event, this.dataset.filename, embed, Browser.id);
+			parent.$('body').trigger(Browser.event, [
 				this.dataset.filename,
 				embed,
-				FileBrowser.id
+				Browser.id
 			]);
 
 		});
@@ -117,7 +117,7 @@ const FileBrowser = {
 							$('#profile-rotator').hide();
 							return;
 						}
-						location.href = FileBrowser._getUrl("minimal", location['hash']);
+						location.href = Browser._getUrl("minimal", location['hash']);
 						location.reload();
 					}
 				}
@@ -142,7 +142,7 @@ const FileBrowser = {
 							$('#profile-rotator').hide();
 							return;
 						}
-						location.href = FileBrowser._getUrl("minimal", location['hash']);
+						location.href = Browser._getUrl("minimal", location['hash']);
 						location.reload();
 					}
 				}
@@ -151,9 +151,9 @@ const FileBrowser = {
 	},
 
 	_getUrl: function (mode, hash, folder) {
-		let folderValue = folder !== undefined ? folder : FileBrowser.folder;
+		let folderValue = folder !== undefined ? folder : Browser.folder;
 		let folderUrl = folderValue !== undefined ? '/' + encodeURIComponent(folderValue) : '';
-		return 'media/' + FileBrowser.type + '/browser' + folderUrl + '?mode=' + mode + hash;
+		return 'media/' + Browser.type + '/browser' + folderUrl + '?mode=' + mode + hash;
 	}
 };
 // @license-end

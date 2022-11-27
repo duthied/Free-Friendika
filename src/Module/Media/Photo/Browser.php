@@ -79,7 +79,7 @@ class Browser extends BaseModule
 
 		$photosArray = array_map([$this, 'map_files'], $photos);
 
-		$tpl    = Renderer::getMarkupTemplate('media/filebrowser.tpl');
+		$tpl    = Renderer::getMarkupTemplate('media/browser.tpl');
 		$output = Renderer::replaceMacros($tpl, [
 			'$type'     => 'photo',
 			'$path'     => $path,
