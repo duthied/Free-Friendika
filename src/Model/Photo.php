@@ -206,8 +206,15 @@ class Photo
 	 */
 	public static function getBrowsablePhotosForUser(int $uid, string $album = null): array
 	{
+		$values = [
+			$uid,
+			Photo::CONTACT_AVATAR,
+			Photo::CONTACT_BANNER
+		];
+
 		if (!empty($album)) {
-			$sqlExtra  = sprintf("AND `album` = '%s' ", DBA::escape($album));
+			$sqlExtra  = "AND `album` = ? ";
+			$values[] = $album;
 			$sqlExtra2 = "";
 		} else {
 			$sqlExtra  = '';
@@ -218,11 +225,9 @@ class Photo
 			DBA::p(
 				"SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
 					min(`scale`) AS `hiq`, max(`scale`) AS `loq`, ANY_VALUE(`desc`) AS `desc`, ANY_VALUE(`created`) AS `created`
-					FROM `photo` WHERE `uid` = ? $sqlExtra AND NOT `photo-type` IN (?, ?)
+					FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sqlExtra 
 					GROUP BY `resource-id` $sqlExtra2",
-				$uid,
-				Photo::CONTACT_AVATAR,
-				Photo::CONTACT_BANNER
+				$values
 			));
 	}
 
