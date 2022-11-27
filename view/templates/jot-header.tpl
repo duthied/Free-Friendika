@@ -61,11 +61,11 @@ function enableOnUser(){
 		 **/
 
 		/* callback */
-		$('body').on('fbrowser.photos.main', function(e, filename, embedcode, id) {
+		$('body').on('fbrowser.photo.main', function(e, filename, embedcode, id) {
 			$.colorbox.close();
 			addeditortext(embedcode);
 		});
-		$('body').on('fbrowser.photos.main', function(e, filename, embedcode, id) {
+		$('body').on('fbrowser.attachment.main', function(e, filename, embedcode, id) {
 			$.colorbox.close();
 			addeditortext(embedcode);
 		});

@@ -31,18 +31,16 @@ use Friendica\App\Router as R;
 use Friendica\Module;
 
 $profileRoutes = [
-	''                                         => [Module\Profile\Index::class,             [R::GET]],
-	'/attachment/upload'                       => [Module\Profile\Attachment\Upload::class, [        R::POST]],
-	'/contacts/common'                         => [Module\Profile\Common::class,            [R::GET]],
-	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class,          [R::GET]],
-	'/media'                                   => [Module\Profile\Media::class,             [R::GET]],
-	'/photos'                                  => [Module\Profile\Photos\Index::class,      [R::GET         ]],
-	'/photos/upload'                           => [Module\Profile\Photos\Upload::class,     [        R::POST]],
-	'/profile'                                 => [Module\Profile\Profile::class,           [R::GET]],
-	'/remote_follow'                           => [Module\Profile\RemoteFollow::class,      [R::GET, R::POST]],
-	'/schedule'                                => [Module\Profile\Schedule::class,          [R::GET, R::POST]],
-	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,            [R::GET]],
-	'/unkmail'                                 => [Module\Profile\UnkMail::class,           [R::GET, R::POST]],
+	''                                         => [Module\Profile\Index::class,        [R::GET]],
+	'/contacts/common'                         => [Module\Profile\Common::class,       [R::GET]],
+	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class,     [R::GET]],
+	'/media'                                   => [Module\Profile\Media::class,        [R::GET]],
+	'/photos'                                  => [Module\Profile\Photos::class,       [R::GET         ]],
+	'/profile'                                 => [Module\Profile\Profile::class,      [R::GET]],
+	'/remote_follow'                           => [Module\Profile\RemoteFollow::class, [R::GET, R::POST]],
+	'/schedule'                                => [Module\Profile\Schedule::class,     [R::GET, R::POST]],
+	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,       [R::GET]],
+	'/unkmail'                                 => [Module\Profile\UnkMail::class,      [R::GET, R::POST]],
 ];
 
 $apiRoutes = [
@@ -471,8 +469,10 @@ return [
 	'/friendica.webmanifest'  => [Module\Manifest::class,    [R::GET]],
 
 	'/media' => [
-		'/attachment/browser'       => [Module\Media\AttachmentBrowser::class, [R::GET]],
-		'/photos/browser[/{album}]' => [Module\Media\PhotosBrowser::class, [R::GET]],
+		'/attachment/browser'      => [Module\Media\Attachment\Browser::class, [R::GET]],
+		'/attachment/upload'       => [Module\Media\Attachment\Upload::class,  [       R::POST]],
+		'/photo/browser[/{album}]' => [Module\Media\Photo\Browser::class,      [R::GET]],
+		'/photo/upload'            => [Module\Media\Photo\Upload::class,       [       R::POST]],
 	],
 
 	'/moderation'               => [
@@ -562,7 +562,7 @@ return [
 
 	// Kept for backwards-compatibility
 	// @TODO remove by version 2023.12
-	'/photos/{nickname}' => [Module\Profile\Photos\Index::class, [R::GET]],
+	'/photos/{nickname}' => [Module\Profile\Photos::class, [R::GET]],
 
 	'/ping'              => [Module\Notifications\Ping::class, [R::GET]],
 

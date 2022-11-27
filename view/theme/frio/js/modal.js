@@ -82,7 +82,7 @@ $(document).ready(function () {
 	});
 
 	// Insert filebrowser images into the input field (field_fileinput.tpl).
-	$("body").on("fbrowser.photos.input", function (e, filename, embedcode, id, img) {
+	$("body").on("fbrowser.photo.input", function (e, filename, embedcode, id, img) {
 		// Select the clicked button by it's attribute.
 		var elm = $("[image-input='select']");
 		// Select the input field which belongs to this button.
@@ -137,7 +137,7 @@ Dialog._get_url = function (type, name, id) {
 
 // Does load the filebrowser into the jot modal.
 Dialog.showJot = function () {
-	var type = "photos";
+	var type = "photo";
 	var name = "main";
 
 	var url = Dialog._get_url(type, name);

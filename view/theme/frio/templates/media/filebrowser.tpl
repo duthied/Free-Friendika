@@ -17,7 +17,7 @@
 
 			{{* Switch between image and file mode *}}
 			<div class="fbswitcher btn-group btn-group-xs pull-right" aria-label="Switch between photo and attachment mode">
-				<button type="button" class="btn btn-default" data-mode="photos" aria-label="Photo Mode"><i class="fa fa-picture-o" aria-hidden="true"></i></button>
+				<button type="button" class="btn btn-default" data-mode="photo" aria-label="Photo Mode"><i class="fa fa-picture-o" aria-hidden="true"></i></button>
 				<button type="button" class="btn btn-default" data-mode="attachment" aria-label="Attachment Mode"><i class="fa fa-file-o" aria-hidden="true"></i></button>
 			</div>
 		</ol>

@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module\Media;
+namespace Friendica\Module\Media\Attachment;
 
 use Friendica\App;
 use Friendica\BaseModule;
@@ -27,18 +27,17 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
-use Friendica\Model\Photo;
+use Friendica\Model\Attach;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException\UnauthorizedException;
-use Friendica\Util\Images;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 /**
- * Browser for Photos
+ * Browser for Attachments
  */
-class PhotosBrowser extends BaseModule
+class Browser extends BaseModule
 {
 	/** @var IHandleUserSessions */
 	protected $session;
@@ -65,26 +64,17 @@ class PhotosBrowser extends BaseModule
 			$this->app->setCurrentTheme($theme);
 		}
 
-		$album = $this->parameters['album'] ?? null;
+		$files = Attach::selectToArray(['id', 'filename', 'filetype'], ['uid' => $this->session->getLocalUserId()]);
 
-		$photos = Photo::getBrowsablePhotosForUser($this->session->getLocalUserId(), $album);
-		$albums = $album ? false : Photo::getBrowsableAlbumsForUser($this->session->getLocalUserId());
 
-		$path = [
-			'' => $this->t('Photos'),
-		];
-		if (!empty($album)) {
-			$path[$album] = $album;
-		}
-
-		$photosArray = array_map([$this, 'map_files'], $photos);
+		$fileArray = array_map([$this, 'map_files'], $files);
 
 		$tpl    = Renderer::getMarkupTemplate('media/filebrowser.tpl');
 		$output = Renderer::replaceMacros($tpl, [
-			'$type'     => 'photos',
-			'$path'     => $path,
-			'$folders'  => $albums,
-			'$files'    => $photosArray,
+			'$type'     => 'attachment',
+			'$path'     => ['' => $this->t('Files')],
+			'$folders'  => false,
+			'$files'    => $fileArray,
 			'$cancel'   => $this->t('Cancel'),
 			'$nickname' => $this->app->getLoggedInUserNickname(),
 			'$upload'   => $this->t('Upload'),
@@ -99,27 +89,13 @@ class PhotosBrowser extends BaseModule
 
 	protected function map_files(array $record): array
 	{
-		$types      = Images::supportedTypes();
-		$ext        = $types[$record['type']];
-		$filename_e = $record['filename'];
-
-		// Take the largest picture that is smaller or equal 640 pixels
-		$photo = Photo::selectFirst(
-			['scale'],
-			[
-				"`resource-id` = ? AND `height` <= ? AND `width` <= ?",
-				$record['resource-id'],
-				640,
-				640
-			],
-			['order' => ['scale']]);
-		$scale = $photo['scale'] ?? $record['loq'];
+		[$m1, $m2] = explode('/', $record['filetype']);
+		$filetype      = file_exists(sprintf('images/icons/%s.png', $m1) ? $m1 : 'text');
 
 		return [
-			sprintf('%s/photos/%s/image/%s', $this->baseUrl, $this->app->getLoggedInUserNickname(), $record['resource-id']),
-			$filename_e,
-			sprintf('%s/photo/%s-%s.%s', $this->baseUrl, $record['resource-id'], $scale, $ext),
-			$record['desc'],
+			sprintf('%s/attach/%s', $this->baseUrl, $record['id']),
+			$record['filename'],
+			sprintf('%s/images/icon/16/%s.png', $this->baseUrl, $filetype),
 		];
 	}
 }

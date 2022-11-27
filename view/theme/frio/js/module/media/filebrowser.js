@@ -109,7 +109,7 @@ var FileBrowser = {
 			e.preventDefault();
 
 			let embed = '';
-			if (FileBrowser.type === 'photos') {
+			if (FileBrowser.type === 'photo') {
 				embed = '[url=' + this.dataset.link + '][img=' + this.dataset.img + ']' + this.dataset.alt + '[/img][/url]';
 			}
 			if (FileBrowser.type === 'attachment') {
@@ -155,12 +155,12 @@ var FileBrowser = {
 
 	// Initialize the AjaxUpload for the upload buttons
 	uploadButtons: function () {
-		if ($('#upload-photos').length) {
+		if ($('#upload-photo').length) {
 			//AjaxUpload for photos
 			new window.AjaxUpload(
-				'upload-photos',
+				'upload-photo',
 				{
-					action: 'profile/' + FileBrowser.nickname + '/photos/upload?response=json&album=' + encodeURIComponent(FileBrowser.folder),
+					action: 'media/photo/upload?response=json&album=' + encodeURIComponent(FileBrowser.folder),
 					name: 'userfile',
 					responseType: 'json',
 					onSubmit: function (file, ext) {
@@ -187,7 +187,7 @@ var FileBrowser = {
 			new window.AjaxUpload(
 				'upload-attachment',
 				{
-					action: 'profile/' + FileBrowser.nickname + '/attachment/upload?response=json',
+					action: 'media/attachment/upload?response=json',
 					name: 'userfile',
 					responseType: 'json',
 					onSubmit: function (file, ext) {
@@ -236,7 +236,7 @@ var FileBrowser = {
 
 	// Initialize justified Gallery
 	initGallery: function () {
-		$('.fbrowser.photos .fbrowser-content-container').justifiedGallery({
+		$('.fbrowser.photo .fbrowser-content-container').justifiedGallery({
 			rowHeight: 80,
 			margins: 4,
 			border: 0,

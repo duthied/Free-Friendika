@@ -166,7 +166,7 @@ $(function() {
 
 	/* event from comment textarea button popups */
 	/* insert returned bbcode at cursor position or replace selected text */
-	$('body').on('fbrowser.photos.comment', function(e, filename, bbcode, id) {
+	$('body').on('fbrowser.photo.comment', function(e, filename, bbcode, id) {
 		$.colorbox.close();
 		var textarea = document.getElementById("comment-edit-text-" +id);
 		var start = textarea.selectionStart;
@@ -1069,7 +1069,7 @@ var Dialog = {
 	 * to the event handler
 	 */
 	doImageBrowser : function (name, id) {
-		var url = Dialog._get_url('photos', name, id);
+		var url = Dialog._get_url('photo', name, id);
 		return Dialog.show(url);
 	},
 

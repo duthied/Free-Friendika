@@ -2516,15 +2516,15 @@ footer {
 .fbrowser .list {
   padding: 10px;
 }
-.fbrowser.photos .photo-album-image-wrapper {
+.fbrowser.photo .photo-album-image-wrapper {
   width: 48px;
   height: 48px;
 }
-.fbrowser.photos a img {
+.fbrowser.photo a img {
   width: auto;
   height: 48px;
 }
-.fbrowser.photos a p {
+.fbrowser.photo a p {
   display: none;
 }
 .fbrowser.attachment .photo-album-image-wrapper {

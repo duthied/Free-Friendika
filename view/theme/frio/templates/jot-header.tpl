@@ -61,7 +61,7 @@
 		 **/
 
 		/* callback */
-		$('body').on('fbrowser.photos.main', function(e, filename, embedcode, id) {
+		$('body').on('fbrowser.photo.main', function(e, filename, embedcode, id) {
 			///@todo this part isn't ideal and need to be done in a better way
 			jotTextOpenUI(document.getElementById("profile-jot-text"));
 			jotActive();
