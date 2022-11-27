@@ -235,10 +235,10 @@ return [
 			'/featured_tags'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST]], // not supported
 			'/featured_tags/{id:\d+}'            => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]], // not supported
 			'/featured_tags/suggestions'         => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
-			'/filters'                           => [Module\Api\Mastodon\Filters::class,                  [R::GET         ]], // Dummy, not supported
 			'/filters/{id:\d+}'                  => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST, R::PUT, R::DELETE]], // not supported
 			'/follow_requests'                   => [Module\Api\Mastodon\FollowRequests::class,           [R::GET         ]],
 			'/follow_requests/{id:\d+}/{action}' => [Module\Api\Mastodon\FollowRequests::class,           [        R::POST]],
+			'/followed_tags'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
 			'/instance'                          => [Module\Api\Mastodon\Instance::class,                 [R::GET         ]],
 			'/instance/activity'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
 			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class,           [R::GET         ]],
@@ -289,6 +289,9 @@ return [
 			'/streaming/user'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 			'/streaming/user/notification'       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 			'/suggestions/{id:\d+}'              => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]], // not implemented
+			'/tags/{hashtag}'                    => [Module\Api\Mastodon\Tags::class,                     [R::GET         ]],
+			'/tags/{hashtag}/follow'             => [Module\Api\Mastodon\Tags\Follow::class,              [        R::POST]],
+			'/tags/{hashtag}/unfollow'           => [Module\Api\Mastodon\Tags\Unfollow::class,            [        R::POST]],
 			'/timelines/direct'                  => [Module\Api\Mastodon\Timelines\Direct::class,         [R::GET         ]],
 			'/timelines/home'                    => [Module\Api\Mastodon\Timelines\Home::class,           [R::GET         ]],
 			'/timelines/list/{id:\d+}'           => [Module\Api\Mastodon\Timelines\ListTimeline::class,   [R::GET         ]],
@@ -301,6 +304,7 @@ return [
 		],
 		'/v{version:\d+}' => [
 			'/admin/accounts'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
+			'/filters'                           => [Module\Api\Mastodon\Filters::class,                  [R::GET         ]], // Dummy, not supported
 			'/media'                             => [Module\Api\Mastodon\Media::class,                    [        R::POST]],
 			'/search'                            => [Module\Api\Mastodon\Search::class,                   [R::GET         ]],
 			'/suggestions'                       => [Module\Api\Mastodon\Suggestions::class,              [R::GET         ]],
