@@ -56,7 +56,7 @@ class Browser extends BaseModule
 	protected function content(array $request = []): string
 	{
 		if (!$this->session->getLocalUserId()) {
-			throw new UnauthorizedException($this->t('Permission denied.'));
+			throw new UnauthorizedException($this->t('You need to be logged in to access this page.'));
 		}
 
 		// Needed to match the correct template in a module that uses a different theme than the user/site/default
