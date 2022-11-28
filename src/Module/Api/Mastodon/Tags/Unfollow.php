@@ -40,7 +40,7 @@ class Unfollow extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$term = ['uid' => $uid, 'term' => '#' . $this->parameters['hashtag']];
+		$term = ['uid' => $uid, 'term' => '#' . ltrim($this->parameters['hashtag'], '#')];
 
 		DBA::delete('search', $term);
 

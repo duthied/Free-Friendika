@@ -40,7 +40,7 @@ class Follow extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$fields = ['uid' => $uid, 'term' => '#' . $this->parameters['hashtag']];
+		$fields = ['uid' => $uid, 'term' => '#' . ltrim($this->parameters['hashtag'], '#')];
 		if (!DBA::exists('search', $fields)) {
 			DBA::insert('search', $fields);
 		}
