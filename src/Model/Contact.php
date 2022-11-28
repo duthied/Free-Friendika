@@ -3420,8 +3420,7 @@ class Contact
 			["(NOT `unsearchable` OR `nurl` IN (SELECT `nurl` FROM `owner-view` WHERE `publish` OR `net-publish`))
 			AND (`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?)", $search, $search, $search]);
 
-		$contacts = self::selectToArray([], $condition, $params);
-		return $contacts;
+		return self::selectToArray([], $condition, $params);
 	}
 
 	/**

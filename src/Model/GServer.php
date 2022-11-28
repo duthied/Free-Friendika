@@ -1213,7 +1213,7 @@ class GServer
 
 		if (!empty($data['url'])) {
 			$serverdata['platform'] = strtolower($data['platform']);
-			$serverdata['version'] = $data['version'];
+			$serverdata['version'] = $data['version'] ?? 'N/A';
 		}
 
 		if (!empty($data['plugins'])) {
@@ -2172,7 +2172,7 @@ class GServer
 					foreach ($servers['instances'] as $server) {
 						$url = (is_null($server['https_score']) ? 'http' : 'https') . '://' . $server['name'];
 						self::add($url);
-					}	
+					}
 				}
 			}
 		}

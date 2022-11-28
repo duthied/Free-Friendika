@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module\Profile\Photos;
+namespace Friendica\Module\Profile;
 
 use Friendica\App;
 use Friendica\Content\Pager;
@@ -40,7 +40,7 @@ use Friendica\Util\Images;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
-class Index extends \Friendica\Module\BaseProfile
+class Photos extends \Friendica\Module\BaseProfile
 {
 	/** @var IHandleUserSessions */
 	private $session;

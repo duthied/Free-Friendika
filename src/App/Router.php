@@ -40,6 +40,7 @@ use Friendica\Module\HTTPException\MethodNotAllowed;
 use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Module\Special\Options;
 use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\Router\FriendicaGroupCountBased;
@@ -113,6 +114,9 @@ class Router
 
 	/** @var array */
 	private $server;
+
+	/** @var string|null */
+	protected $moduleClass = null;
 
 	/**
 	 * @param array               $server             The $_SERVER variable
@@ -216,7 +220,7 @@ class Router
 	 *
 	 * @return bool
 	 */
-	private function isGroup(array $config)
+	private function isGroup(array $config): bool
 	{
 		return
 			is_array($config) &&
@@ -252,21 +256,39 @@ class Router
 	 *
 	 * @return RouteCollector|null
 	 */
-	public function getRouteCollector()
+	public function getRouteCollector(): ?RouteCollector
 	{
 		return $this->routeCollector;
 	}
 
 	/**
+	 * Returns the Friendica\BaseModule-extending class name if a route rule matched
+	 *
+	 * @return string
+	 *
+	 * @throws InternalServerErrorException
+	 * @throws MethodNotAllowedException
+	 * @throws NotFoundException
+	 */
+	public function getModuleClass(): string
+	{
+		if (empty($this->moduleClass)) {
+			$this->determineModuleClass();
+		}
+
+		return $this->moduleClass;
+	}
+
+	/**
 	 * Returns the relevant module class name for the given page URI or NULL if no route rule matched.
 	 *
-	 * @return string A Friendica\BaseModule-extending class name if a route rule matched
+	 * @return void
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\MethodNotAllowedException    If a rule matched but the method didn't
 	 * @throws HTTPException\NotFoundException            If no rule matched
 	 */
-	private function getModuleClass(): string
+	private function determineModuleClass(): void
 	{
 		$cmd = $this->args->getCommand();
 		$cmd = '/' . ltrim($cmd, '/');
@@ -277,21 +299,19 @@ class Router
 
 		// Check if the HTTP method is OPTIONS and return the special Options Module with the possible HTTP methods
 		if ($this->args->getMethod() === static::OPTIONS) {
-			$moduleClass      = Options::class;
-			$this->parameters = ['allowedMethods' => $dispatcher->getOptions($cmd)];
+			$this->moduleClass = Options::class;
+			$this->parameters  = ['allowedMethods' => $dispatcher->getOptions($cmd)];
 		} else {
 			$routeInfo = $dispatcher->dispatch($this->args->getMethod(), $cmd);
 			if ($routeInfo[0] === Dispatcher::FOUND) {
-				$moduleClass      = $routeInfo[1];
-				$this->parameters = $routeInfo[2];
+				$this->moduleClass = $routeInfo[1];
+				$this->parameters  = $routeInfo[2];
 			} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
 				throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
 			} else {
 				throw new HTTPException\NotFoundException($this->l10n->t('Page not found.'));
 			}
 		}
-
-		return $moduleClass;
 	}
 
 	public function getModule(?string $module_class = null): ICanHandleRequests
