@@ -5,10 +5,6 @@ function string_plural_select_de($n){
 	$n = intval($n);
 	return intval($n != 1);
 }}
-$a->strings['Photos'] = 'Bilder';
-$a->strings['Cancel'] = 'Abbrechen';
-$a->strings['Upload'] = 'Hochladen';
-$a->strings['Files'] = 'Dateien';
 $a->strings['Unable to locate original post.'] = 'Konnte den Originalbeitrag nicht finden.';
 $a->strings['Permission denied.'] = 'Zugriff verweigert.';
 $a->strings['Empty post discarded.'] = 'Leerer Beitrag wurde verworfen.';
@@ -168,6 +164,7 @@ $a->strings['Do not show a status post for this upload'] = 'Keine Status-Mitteil
 $a->strings['Permissions'] = 'Berechtigungen';
 $a->strings['Do you really want to delete this photo album and all its photos?'] = 'Möchtest du wirklich dieses Foto-Album und all seine Foto löschen?';
 $a->strings['Delete Album'] = 'Album löschen';
+$a->strings['Cancel'] = 'Abbrechen';
 $a->strings['Edit Album'] = 'Album bearbeiten';
 $a->strings['Drop Album'] = 'Album löschen';
 $a->strings['Show Newest First'] = 'Zeige neueste zuerst';
@@ -203,7 +200,6 @@ $a->strings['I like this (toggle)'] = 'Ich mag das (toggle)';
 $a->strings['Dislike'] = 'Mag ich nicht';
 $a->strings['I don\'t like this (toggle)'] = 'Ich mag das nicht (toggle)';
 $a->strings['Map'] = 'Karte';
-$a->strings['View Album'] = 'Album betrachten';
 $a->strings['No system theme config value set.'] = 'Es wurde kein Konfigurationswert für das systemweite Theme gesetzt.';
 $a->strings['Apologies but the website is unavailable at the moment.'] = 'Entschuldigung, aber die Webseite ist derzeit nicht erreichbar.';
 $a->strings['Delete this item?'] = 'Diesen Beitrag löschen?';
@@ -420,6 +416,7 @@ $a->strings['Status'] = 'Status';
 $a->strings['Your posts and conversations'] = 'Deine Beiträge und Unterhaltungen';
 $a->strings['Profile'] = 'Profil';
 $a->strings['Your profile page'] = 'Deine Profilseite';
+$a->strings['Photos'] = 'Bilder';
 $a->strings['Your photos'] = 'Deine Fotos';
 $a->strings['Media'] = 'Medien';
 $a->strings['Your postings with media'] = 'Deine Beiträge die Medien beinhalten';
@@ -1150,7 +1147,7 @@ $a->strings['Displays the menu entry for the Help pages from the navigation menu
 $a->strings['Single user instance'] = 'Ein-Nutzer Instanz';
 $a->strings['Make this instance multi-user or single-user for the named user'] = 'Bestimmt, ob es sich bei dieser Instanz um eine Installation mit nur einen Nutzer oder mit mehreren Nutzern handelt.';
 $a->strings['Maximum image size'] = 'Maximale Bildgröße';
-$a->strings['Maximum size in bytes of uploaded images. Default is 0, which means no limits.'] = 'Maximale Uploadgröße von Bildern in Bytes. Standard ist 0, d.h. ohne Limit.';
+$a->strings['Maximum size in bytes of uploaded images. Default is 0, which means no limits. Be aware that this setting does not affect server-side upload limits.'] = 'Maximal akzeptierte Dateigröße in Bytes eines hochzuladenden Bilds. Der Standard ist 0 und entspricht keiner Beschränkung der Dateigröße. Beachte, dass diese Einstellung nicht die serverseitigen Beschränkungen von Dateigrößen beeinflusst.';
 $a->strings['Maximum image length'] = 'Maximale Bildlänge';
 $a->strings['Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.'] = 'Maximale Länge in Pixeln der längsten Seite eines hochgeladenen Bildes. Grundeinstellung ist -1, was keine Einschränkung bedeutet.';
 $a->strings['JPEG image quality'] = 'Qualität des JPEG Bildes';
@@ -1527,7 +1524,6 @@ $a->strings['Fetch information'] = 'Beziehe Information';
 $a->strings['Fetch keywords'] = 'Schlüsselwörter abrufen';
 $a->strings['Fetch information and keywords'] = 'Beziehe Information und Schlüsselworte';
 $a->strings['No mirroring'] = 'Kein Spiegeln';
-$a->strings['Mirror as forwarded posting'] = 'Spiegeln als weitergeleitete Beiträge';
 $a->strings['Mirror as my own posting'] = 'Spiegeln als meine eigenen Beiträge';
 $a->strings['Native reshare'] = 'Natives Teilen';
 $a->strings['Contact Information / Notes'] = 'Kontakt-Informationen / -Notizen';
@@ -1781,11 +1777,32 @@ $a->strings['Location services are unavailable on your device'] = 'Ortungsdienst
 $a->strings['Location services are disabled. Please check the website\'s permissions on your device'] = 'Ortungsdienste sind deaktiviert. Bitte überprüfe die Berechtigungen der Website auf deinem Gerät';
 $a->strings['You can make this page always open when you use the New Post button in the <a href="/settings/display">Theme Customization settings</a>.'] = 'Wenn du magst, kannst du unter den <a href="/settings/display">Benutzerdefinierte Theme-Einstellungen</a> einstellen, dass diese Seite immer geöffnet wird, wenn du den "Neuer Beitrag" Button verwendest.';
 $a->strings['The requested item doesn\'t exist or has been deleted.'] = 'Der angeforderte Beitrag existiert nicht oder wurde gelöscht.';
+$a->strings['Unfortunately, the requested conversation isn\'t available to you.</p>
+<p>Possible reasons include:</p>
+<ul>
+	<li>The top-level post isn\'t visible.</li>
+	<li>The top-level post was deleted.</li>
+	<li>The node has blocked the top-level author or the author of the shared post.</li>
+	<li>You have ignored or blocked the top-level author or the author of the shared post.</li>
+</ul><p>'] = 'Leider ist die angeforderte Konversation nicht verfügbar für dich.</p>
+<p>Mögliche Gründe können sein:</p>
+	<li> Der übergeordnete Beitrag ist nicht sichtbar.</li>
+	<li>Der übergeordnete Beitrag wurde gelöscht</li>
+	<li>Die Instanz hat den Autor des übergeordneten Beitrags oder den Nutzer, der den Beitrag geteilt hat, geblockt.</li>
+<li>Du hast den Autor des übergeordneten Beitrags oder den Nutzer, der den Beitrag geteilt hat, geblockt oder ignorierst ihn.</li>
+<ul><p>';
 $a->strings['The feed for this item is unavailable.'] = 'Der Feed für diesen Beitrag ist nicht verfügbar.';
 $a->strings['Unable to follow this item.'] = 'Konnte dem Beitrag nicht folgen.';
 $a->strings['System down for maintenance'] = 'System zur Wartung abgeschaltet';
 $a->strings['This Friendica node is currently in maintenance mode, either automatically because it is self-updating or manually by the node administrator. This condition should be temporary, please come back in a few minutes.'] = 'Diese Friendica Instanz befindet sich derzeit im Wartungsmodus, entweder aufgrund von automatischen Updateprozessen oder weil die Administratoren der Instanz den Wartungsmodus aktiviert haben. Dies sollte ein vorübergehender Zustand sein. Bitte versuche es in ein paar Minuten erneut.';
 $a->strings['A Decentralized Social Network'] = 'Ein dezentrales Soziales Netzwerk';
+$a->strings['You need to be logged in to access this page.'] = 'Du musst angemeldet sein, um auf diese Seite zuzugreifen. ';
+$a->strings['Files'] = 'Dateien';
+$a->strings['Upload'] = 'Hochladen';
+$a->strings['Sorry, maybe your upload is bigger than the PHP configuration allows'] = 'Entschuldige, die Datei scheint größer zu sein, als es die PHP-Konfiguration erlaubt.';
+$a->strings['Or - did you try to upload an empty file?'] = 'Oder - hast du versucht, eine leere Datei hochzuladen?';
+$a->strings['File exceeds size limit of %s'] = 'Die Datei ist größer als das erlaubte Limit von %s';
+$a->strings['File upload failed.'] = 'Hochladen der Datei fehlgeschlagen.';
 $a->strings['List of all users'] = 'Liste aller Benutzerkonten';
 $a->strings['Active'] = 'Aktive';
 $a->strings['List of active accounts'] = 'Liste der aktiven Benutzerkonten';
@@ -2041,11 +2058,8 @@ $a->strings['audio link'] = 'Audio-Link';
 $a->strings['Remove Item Tag'] = 'Gegenstands-Tag entfernen';
 $a->strings['Select a tag to remove: '] = 'Wähle ein Tag zum Entfernen aus: ';
 $a->strings['Remove'] = 'Entfernen';
-$a->strings['Sorry, maybe your upload is bigger than the PHP configuration allows'] = 'Entschuldige, die Datei scheint größer zu sein, als es die PHP-Konfiguration erlaubt.';
-$a->strings['Or - did you try to upload an empty file?'] = 'Oder - hast du versucht, eine leere Datei hochzuladen?';
-$a->strings['File exceeds size limit of %s'] = 'Die Datei ist größer als das erlaubte Limit von %s';
-$a->strings['File upload failed.'] = 'Hochladen der Datei fehlgeschlagen.';
 $a->strings['No contacts.'] = 'Keine Kontakte.';
+$a->strings['View Album'] = 'Album betrachten';
 $a->strings['Profile not found.'] = 'Profil nicht gefunden.';
 $a->strings['You\'re currently viewing your profile as <b>%s</b> <a href="%s" class="btn btn-sm pull-right">Cancel</a>'] = 'Du betrachtest dein Profil gerade als <b>%s</b> <a href="%s" class="btn btn-sm pull-right">Abbrechen</a>';
 $a->strings['Full Name:'] = 'Kompletter Name:';
@@ -2121,6 +2135,7 @@ Du kannst das Passwort nach dem Anmelden ändern.';
 $a->strings['Registration successful.'] = 'Registrierung erfolgreich.';
 $a->strings['Your registration can not be processed.'] = 'Deine Registrierung konnte nicht verarbeitet werden.';
 $a->strings['You have to leave a request note for the admin.'] = 'Du musst eine Nachricht für den Administrator als Begründung deiner Anfrage hinterlegen.';
+$a->strings['An internal error occured.'] = 'Ein interner Fehler ist aufgetreten. ';
 $a->strings['Your registration is pending approval by the site owner.'] = 'Deine Registrierung muss noch vom Betreiber der Seite freigegeben werden.';
 $a->strings['You must be logged in to use this module.'] = 'Du musst eingeloggt sein, um dieses Modul benutzen zu können.';
 $a->strings['Only logged in users are permitted to perform a search.'] = 'Nur eingeloggten Benutzern ist das Suchen gestattet.';
