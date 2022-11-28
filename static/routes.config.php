@@ -236,7 +236,7 @@ return [
 			'/filters/{id:\d+}'                  => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST, R::PUT, R::DELETE]], // not supported
 			'/follow_requests'                   => [Module\Api\Mastodon\FollowRequests::class,           [R::GET         ]],
 			'/follow_requests/{id:\d+}/{action}' => [Module\Api\Mastodon\FollowRequests::class,           [        R::POST]],
-			'/followed_tags'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
+			'/followed_tags'                     => [Module\Api\Mastodon\FollowedTags::class,             [R::GET         ]],
 			'/instance'                          => [Module\Api\Mastodon\Instance::class,                 [R::GET         ]],
 			'/instance/activity'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
 			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class,           [R::GET         ]],

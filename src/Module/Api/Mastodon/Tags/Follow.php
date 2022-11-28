@@ -21,7 +21,8 @@
 
 namespace Friendica\Module\Api\Mastodon\Tags;
 
-use Friendica\App\Router;
+use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
 
@@ -39,6 +40,12 @@ class Follow extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$this->response->unsupported(Router::POST, $request);
+		$fields = ['uid' => $uid, 'term' => '#' . $this->parameters['hashtag']];
+		if (!DBA::exists('search', $fields)) {
+			DBA::insert('search', $fields);
+		}
+
+		$hashtag  = new \Friendica\Object\Api\Mastodon\Tag($this->baseUrl, $fields, [], true);
+		System::jsonExit($hashtag->toArray());
 	}
 }

@@ -21,7 +21,8 @@
 
 namespace Friendica\Module\Api\Mastodon\Tags;
 
-use Friendica\App\Router;
+use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
 
@@ -39,6 +40,11 @@ class Unfollow extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$this->response->unsupported(Router::POST, $request);
+		$term = ['uid' => $uid, 'term' => '#' . $this->parameters['hashtag']];
+
+		DBA::delete('search', $term);
+
+		$hashtag  = new \Friendica\Object\Api\Mastodon\Tag($this->baseUrl, $term, [], false);
+		System::jsonExit($hashtag->toArray());
 	}
 }
