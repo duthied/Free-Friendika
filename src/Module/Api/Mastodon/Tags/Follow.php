@@ -45,7 +45,7 @@ class Follow extends BaseApi
 			DBA::insert('search', $fields);
 		}
 
-		$hashtag  = new \Friendica\Object\Api\Mastodon\Tag($this->baseUrl, $fields, [], true);
+		$hashtag = new \Friendica\Object\Api\Mastodon\Tag($this->baseUrl, $fields, [], true);
 		System::jsonExit($hashtag->toArray());
 	}
 }
