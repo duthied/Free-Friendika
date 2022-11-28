@@ -43,7 +43,7 @@ class Statuses extends BaseApi
 			'limit' => 10, // Maximum number of results to return. Defaults to 10.
 		], $request);
 
-		$condition = ["NOT `private` AND `commented` > ?", DateTimeFormat::utc('now -1 day')];
+		$condition = ["NOT `private` AND `commented` > ? AND `created` > ?", DateTimeFormat::utc('now -1 day'), DateTimeFormat::utc('now -1 week')];
 		$condition = DBA::mergeConditions($condition, ['network' => Protocol::FEDERATED]);
 
 		$trending = [];
