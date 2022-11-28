@@ -295,10 +295,10 @@ return [
 			'/timelines/list/{id:\d+}'           => [Module\Api\Mastodon\Timelines\ListTimeline::class,   [R::GET         ]],
 			'/timelines/public'                  => [Module\Api\Mastodon\Timelines\PublicTimeline::class, [R::GET         ]],
 			'/timelines/tag/{hashtag}'           => [Module\Api\Mastodon\Timelines\Tag::class,            [R::GET         ]],
-			'/trends'                            => [Module\Api\Mastodon\Trends::class,                   [R::GET         ]],
+			'/trends'                            => [Module\Api\Mastodon\Trends\Tags::class,              [R::GET         ]],
 			'/trends/links'                      => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
-			'/trends/statuses'                   => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
-			'/trends/tags'                       => [Module\Api\Mastodon\Trends::class,                   [R::GET         ]],
+			'/trends/statuses'                   => [Module\Api\Mastodon\Trends\Statuses::class,          [R::GET         ]],
+			'/trends/tags'                       => [Module\Api\Mastodon\Trends\Tags::class,              [R::GET         ]],
 		],
 		'/v{version:\d+}' => [
 			'/admin/accounts'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
