@@ -50,7 +50,7 @@ class Links extends BaseApi
 		$trending = [];
 		$statuses = Post::selectPostThread(['uri-id', 'total-comments', 'total-actors'], $condition, ['limit' => $request['limit'], 'order' => ['total-actors' => true]]);
 		while ($status = Post::fetch($statuses)) {
-			$history = [['day' => (string)time(), 'uses' => (string)$status['total-comments'], 'accounts' => (string)$status['total-actors']]];
+			$history    = [['day' => (string)time(), 'uses' => (string)$status['total-comments'], 'accounts' => (string)$status['total-actors']]];
 			$trending[] = DI::mstdnCard()->createFromUriId($status['uri-id'], $history)->toArray();
 		}
 		DBA::close($statuses);
