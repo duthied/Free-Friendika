@@ -298,7 +298,7 @@ return [
 			'/trends'                            => [Module\Api\Mastodon\Trends::class,                   [R::GET         ]],
 			'/trends/links'                      => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 			'/trends/statuses'                   => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
-			'/trends/tags'                       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/trends/tags'                       => [Module\Api\Mastodon\Trends::class,                   [R::GET         ]],
 		],
 		'/v{version:\d+}' => [
 			'/admin/accounts'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported

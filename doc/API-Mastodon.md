@@ -135,6 +135,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`GET /api/v1/timelines/public`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/tag/:hashtag`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/trends`](https://docs.joinmastodon.org/methods/instance/trends/)
+- [`GET /api/v1/trends/tags`](https://docs.joinmastodon.org/methods/trends/#tags)
 - [`GET /api/v2/search`](https://docs.joinmastodon.org/methods/search/)
 
 
