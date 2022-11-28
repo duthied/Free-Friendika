@@ -296,7 +296,7 @@ return [
 			'/timelines/public'                  => [Module\Api\Mastodon\Timelines\PublicTimeline::class, [R::GET         ]],
 			'/timelines/tag/{hashtag}'           => [Module\Api\Mastodon\Timelines\Tag::class,            [R::GET         ]],
 			'/trends'                            => [Module\Api\Mastodon\Trends\Tags::class,              [R::GET         ]],
-			'/trends/links'                      => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/trends/links'                      => [Module\Api\Mastodon\Trends\Links::class,             [R::GET         ]],
 			'/trends/statuses'                   => [Module\Api\Mastodon\Trends\Statuses::class,          [R::GET         ]],
 			'/trends/tags'                       => [Module\Api\Mastodon\Trends\Tags::class,              [R::GET         ]],
 		],
