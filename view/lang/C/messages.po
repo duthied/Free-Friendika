@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-27 23:52+0100\n"
+"POT-Creation-Date: 2022-11-28 01:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4275,19 +4275,14 @@ msgid "Maximum image size"
 msgstr ""
 
 #: src/Module/Admin/Site.php:471
+#, php-format
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
-"limits."
-msgstr ""
-
-#: src/Module/Admin/Site.php:472
-msgid ""
-"The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> "
-"needs be set to at least the desired limit. "
-msgstr ""
-
-#: src/Module/Admin/Site.php:473
-msgid "Currently <code>upload_max_filesize</code> is set to "
+"limits.\n"
+"\t\t\t\t\t\t\t\t\t\t\t\t\tThe value of <code>upload_max_filesize</code> in "
+"your <code>PHP.ini</code> needs be set to at least the desired limit.\n"
+"\t\t\t\t\t\t\t\t\t\t\t\t\tCurrently <code>upload_max_filesize</code> is set "
+"to %s (%sB)"
 msgstr ""
 
 #: src/Module/Admin/Site.php:475
