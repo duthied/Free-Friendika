@@ -43,9 +43,10 @@ class Statuses extends BaseApi
 			'limit' => 10, // Maximum number of results to return. Defaults to 10.
 		], $request);
 
-		$trending = [];
 		$condition = ["NOT `private` AND `commented` > ?", DateTimeFormat::utc('now -1 day')];
 		$condition = DBA::mergeConditions($condition, ['network' => Protocol::FEDERATED]);
+
+		$trending = [];
 		$statuses = Post::selectPostThread(['uri-id'], $condition, ['limit' => $request['limit'], 'order' => ['total-comments' => true]]);
 		while ($status = Post::fetch($statuses)) {
 			$trending[] = DI::mstdnStatus()->createFromUriId($status['uri-id']);
