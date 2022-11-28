@@ -665,6 +665,7 @@
 			"has-categories" => "0",
 			"has-media" => "EXISTS(SELECT `id` FROM `post-media` WHERE `post-media`.`uri-id` = `post-thread`.`uri-id`)",
 			"total-comments" => "(SELECT COUNT(*) FROM `post` WHERE `parent-uri-id` = `post-thread`.`uri-id` AND `gravity` = 6)",
+			"total-actors" => "(SELECT COUNT(DISTINCT(`author-id`)) FROM `post` WHERE `parent-uri-id` = `post-thread`.`uri-id` AND `gravity` = 6)",
 			"signed_text" => ["diaspora-interaction", "interaction"],
 			"parent-guid" => ["parent-item-uri", "guid"],
 			"parent-network" => ["parent-post", "network"],
