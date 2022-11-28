@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.12-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1491
+-- DB_UPDATE_VERSION 1493
 -- ------------------------------------------
 
 
@@ -2437,6 +2437,8 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post-question`.`end-time` AS `question-end-time`,
 	0 AS `has-categories`,
 	EXISTS(SELECT `id` FROM `post-media` WHERE `post-media`.`uri-id` = `post-thread`.`uri-id`) AS `has-media`,
+	(SELECT COUNT(*) FROM `post` WHERE `parent-uri-id` = `post-thread`.`uri-id` AND `gravity` = 6) AS `total-comments`,
+	(SELECT COUNT(DISTINCT(`author-id`)) FROM `post` WHERE `parent-uri-id` = `post-thread`.`uri-id` AND `gravity` = 6) AS `total-actors`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
 	`parent-post`.`network` AS `parent-network`,

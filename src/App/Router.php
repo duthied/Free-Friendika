@@ -80,7 +80,7 @@ class Router
 	/**
 	 * @var array Module parameters
 	 */
-	private $parameters = [];
+	protected $parameters = [];
 
 	/** @var L10n */
 	private $l10n;
@@ -268,7 +268,6 @@ class Router
 	 *
 	 * @throws InternalServerErrorException
 	 * @throws MethodNotAllowedException
-	 * @throws NotFoundException
 	 */
 	public function getModuleClass(): string
 	{
@@ -284,9 +283,8 @@ class Router
 	 *
 	 * @return void
 	 *
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws HTTPException\MethodNotAllowedException    If a rule matched but the method didn't
-	 * @throws HTTPException\NotFoundException            If no rule matched
+	 * @throws HTTPException\InternalServerErrorException Unexpected exceptions
+	 * @throws HTTPException\MethodNotAllowedException    If a rule is private only
 	 */
 	private function determineModuleClass(): void
 	{
@@ -295,39 +293,26 @@ class Router
 
 		$dispatcher = new FriendicaGroupCountBased($this->getCachedDispatchData());
 
-		$this->parameters = [];
+		$this->parameters = [$this->server];
 
-		// Check if the HTTP method is OPTIONS and return the special Options Module with the possible HTTP methods
-		if ($this->args->getMethod() === static::OPTIONS) {
-			$this->moduleClass = Options::class;
-			$this->parameters  = ['allowedMethods' => $dispatcher->getOptions($cmd)];
-		} else {
-			$routeInfo = $dispatcher->dispatch($this->args->getMethod(), $cmd);
-			if ($routeInfo[0] === Dispatcher::FOUND) {
-				$this->moduleClass = $routeInfo[1];
-				$this->parameters  = $routeInfo[2];
-			} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-				throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
-			} else {
-				throw new HTTPException\NotFoundException($this->l10n->t('Page not found.'));
-			}
-		}
-	}
-
-	public function getModule(?string $module_class = null): ICanHandleRequests
-	{
-		$module_parameters = [$this->server];
-		/**
-		 * ROUTING
-		 *
-		 * From the request URL, routing consists of obtaining the name of a BaseModule-extending class of which the
-		 * post() and/or content() static methods can be respectively called to produce a data change or an output.
-		 **/
 		try {
-			$module_class        = $module_class ?? $this->getModuleClass();
-			$module_parameters[] = $this->parameters;
+			// Check if the HTTP method is OPTIONS and return the special Options Module with the possible HTTP methods
+			if ($this->args->getMethod() === static::OPTIONS) {
+				$this->moduleClass = Options::class;
+				$this->parameters  = ['allowedMethods' => $dispatcher->getOptions($cmd)];
+			} else {
+				$routeInfo = $dispatcher->dispatch($this->args->getMethod(), $cmd);
+				if ($routeInfo[0] === Dispatcher::FOUND) {
+					$this->moduleClass = $routeInfo[1];
+					$this->parameters[]  = $routeInfo[2];
+				} else if ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+					throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
+				} else {
+					throw new HTTPException\NotFoundException($this->l10n->t('Page not found.'));
+				}
+			}
 		} catch (MethodNotAllowedException $e) {
-			$module_class = MethodNotAllowed::class;
+			$this->moduleClass = MethodNotAllowed::class;
 		} catch (NotFoundException $e) {
 			$moduleName = $this->args->getModuleName();
 			// Then we try addon-provided modules that we wrap in the LegacyModule class
@@ -339,8 +324,8 @@ class Router
 				} else {
 					include_once "addon/{$moduleName}/{$moduleName}.php";
 					if (function_exists($moduleName . '_module')) {
-						$module_parameters[] = "addon/{$moduleName}/{$moduleName}.php";
-						$module_class        = LegacyModule::class;
+						$this->parameters[] = "addon/{$moduleName}/{$moduleName}.php";
+						$this->moduleClass  = LegacyModule::class;
 					}
 				}
 			}
@@ -348,24 +333,29 @@ class Router
 			/* Finally, we look for a 'standard' program module in the 'mod' directory
 			 * We emulate a Module class through the LegacyModule class
 			 */
-			if (!$module_class && file_exists("mod/{$moduleName}.php")) {
-				$module_parameters[] = "mod/{$moduleName}.php";
-				$module_class        = LegacyModule::class;
+			if (!$this->moduleClass && file_exists("mod/{$moduleName}.php")) {
+				$this->parameters[] = "mod/{$moduleName}.php";
+				$this->moduleClass  = LegacyModule::class;
 			}
 
-			$module_class = $module_class ?: PageNotFound::class;
+			$this->moduleClass = $this->moduleClass ?: PageNotFound::class;
 		}
+	}
+
+	public function getModule(?string $module_class = null): ICanHandleRequests
+	{
+		$moduleClass = $module_class ?? $this->getModuleClass();
 
 		$stamp = microtime(true);
 
 		try {
 			/** @var ICanHandleRequests $module */
-			return $this->dice->create($module_class, $module_parameters);
+			return $this->dice->create($moduleClass, $this->parameters);
 		} finally {
 			if ($this->dice_profiler_threshold > 0) {
 				$dur = floatval(microtime(true) - $stamp);
 				if ($dur >= $this->dice_profiler_threshold) {
-					$this->logger->notice('Dice module creation lasts too long.', ['duration' => round($dur, 3), 'module' => $module_class, 'parameters' => $module_parameters]);
+					$this->logger->notice('Dice module creation lasts too long.', ['duration' => round($dur, 3), 'module' => $moduleClass, 'parameters' => $this->parameters]);
 				}
 			}
 		}
