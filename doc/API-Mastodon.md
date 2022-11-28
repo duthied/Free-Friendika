@@ -73,7 +73,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
     - `:id` is a follow request ID, not a regular account id
     - Returns a [Relationship](https://docs.joinmastodon.org/entities/relationship) object.
 
-
+- [`GET /api/v1/followed_tags'](https://docs.joinmastodon.org/methods/followed_tags/)
 - [`GET /api/v1/instance`](https://docs.joinmastodon.org/methods/instance#fetch-instance)
 - `GET /api/v1/instance/rules` Undocumented, returns Terms of Service
 - [`GET /api/v1/instance/peers`](https://docs.joinmastodon.org/methods/instance#list-of-connected-domains)
@@ -126,12 +126,17 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`GET /api/v1/statuses/:id/source`](https://docs.joinmastodon.org/methods/statuses/#source)
 - [`GET /api/v1/statuses/:id/card`](https://docs.joinmastodon.org/methods/statuses/#card)
 - [`GET /api/v1/suggestions`](https://docs.joinmastodon.org/methods/accounts/suggestions/)
+- [`GET /api/v1/tags/:id`](https://docs.joinmastodon.org/methods/tags/#get)
+- [`GET /api/v1/tags/:id/follow`](https://docs.joinmastodon.org/methods/tags/#follow)
+- [`GET /api/v1/tags/:id/unfollow`](https://docs.joinmastodon.org/methods/tags/#unfollow)
 - [`GET /api/v1/timelines/direct`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/home`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/list/:id`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/public`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/tag/:hashtag`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/trends`](https://docs.joinmastodon.org/methods/instance/trends/)
+- [`GET /api/v1/trends/statuses`](https://docs.joinmastodon.org/methods/trends/#statuses)
+- [`GET /api/v1/trends/tags`](https://docs.joinmastodon.org/methods/trends/#tags)
 - [`GET /api/v2/search`](https://docs.joinmastodon.org/methods/search/)
 
 
@@ -143,8 +148,6 @@ These emdpoints are planned to be implemented somewhere in the future.
 - [`GET /api/v1/accounts/familiar_followers`](https://github.com/mastodon/mastodon/pull/17700)
 - [`GET /api/v1/accounts/lookup`](https://github.com/mastodon/mastodon/pull/15740)
 - [`GET /api/v1/trends/links`](https://github.com/mastodon/mastodon/pull/16917)
-- [`GET /api/v1/trends/statuses`](https://github.com/mastodon/mastodon/pull/17431)
-- [`GET /api/v1/trends/tags`](https://github.com/mastodon/mastodon/pull/16917)
 - [`POST /api/v1/polls/:id/votes`](https://docs.joinmastodon.org/methods/statuses/polls/)
 - [`GET /api/v1/featured_tags`](https://docs.joinmastodon.org/methods/accounts/featured_tags/)
 - [`POST /api/v1/featured_tags`](https://docs.joinmastodon.org/methods/accounts/featured_tags/)
