@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.12-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1494
+-- DB_UPDATE_VERSION 1495
 -- ------------------------------------------
 
 
@@ -1656,6 +1656,7 @@ CREATE TABLE IF NOT EXISTS `report` (
 	`comment` text COMMENT 'Report',
 	`forward` boolean COMMENT 'Forward the report to the remote server',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`status` tinyint unsigned COMMENT 'Status of the report',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `cid` (`cid`),
@@ -1669,6 +1670,7 @@ CREATE TABLE IF NOT EXISTS `report` (
 CREATE TABLE IF NOT EXISTS `report-post` (
 	`rid` int unsigned NOT NULL COMMENT 'Report id',
 	`uri-id` int unsigned NOT NULL COMMENT 'Uri-id of the reported post',
+	`status` tinyint unsigned COMMENT 'Status of the reported post',
 	 PRIMARY KEY(`rid`,`uri-id`),
 	 INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`rid`) REFERENCES `report` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
