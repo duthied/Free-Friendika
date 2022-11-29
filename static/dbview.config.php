@@ -723,6 +723,22 @@
 			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`
 			INNER JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`"
 	],
+	"media-view" => [
+		"fields" => [
+			"uri-id" => ["post-media", "uri-id"],
+			"type" => ["post-media", "type"],
+			"received" => ["post", "received"],
+			"created" => ["post", "created"],
+			"private" => ["post", "private"],
+			"visible" => ["post", "visible"],
+			"deleted" => ["post", "deleted"],
+			"thr-parent-id" => ["post", "thr-parent-id"],
+			"author-id" => ["post", "author-id"],
+			"gravity" => ["post", "gravity"],
+		],
+		"query" => "FROM `post-media`
+			INNER JOIN `post` ON `post-media`.`uri-id` = `post`.`uri-id`"
+	],
 	"tag-view" => [
 		"fields" => [
 			"uri-id" => ["post-tag", "uri-id"],
