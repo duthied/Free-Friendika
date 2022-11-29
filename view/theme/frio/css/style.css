@@ -3605,6 +3605,11 @@ section .profile-match-wrapper {
 	font-size: 13px;
 }
 
+
+.generic-page-wrapper.contact-follow-wrapper {
+	min-height: auto;
+}
+
 /* Medium devices (desktops, 992px and up) */
 @media (min-width: 992px) {
 	.mod-home.is-not-singleuser #content,

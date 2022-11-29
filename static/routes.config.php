@@ -239,6 +239,8 @@ return [
 			'/followed_tags'                     => [Module\Api\Mastodon\FollowedTags::class,             [R::GET         ]],
 			'/instance'                          => [Module\Api\Mastodon\Instance::class,                 [R::GET         ]],
 			'/instance/activity'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
+			'/instance/domain_blocks'            => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
+			'/instance/extended_description'     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
 			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class,           [R::GET         ]],
 			'/instance/rules'                    => [Module\Api\Mastodon\Instance\Rules::class,           [R::GET         ]],
 			'/lists'                             => [Module\Api\Mastodon\Lists::class,                    [R::GET, R::POST]],
@@ -299,6 +301,9 @@ return [
 			'/trends/links'                      => [Module\Api\Mastodon\Trends\Links::class,             [R::GET         ]],
 			'/trends/statuses'                   => [Module\Api\Mastodon\Trends\Statuses::class,          [R::GET         ]],
 			'/trends/tags'                       => [Module\Api\Mastodon\Trends\Tags::class,              [R::GET         ]],
+		],
+		'/v2' => [
+			'/instance'                          => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 		],
 		'/v{version:\d+}' => [
 			'/admin/accounts'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
