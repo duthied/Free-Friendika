@@ -70,7 +70,7 @@ class Notifications extends BaseApi
 		$params = ['order' => ['id' => true]];
 
 		$condition = ['uid' => $uid, 'dismissed' => false];
-		if($request['include_all']) {
+		if ($request['include_all']) {
 			$condition = ['uid' => $uid];
 		}
 
