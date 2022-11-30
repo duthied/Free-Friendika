@@ -918,7 +918,10 @@ function photos_content(App $a)
 		// Get the relevant size limits for uploads. Abbreviated var names: MaxImageSize -> mis; upload_max_filesize -> umf
 		$mis_bytes = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
 		$umf_bytes = Strings::getBytesFromShorthand(ini_get('upload_max_filesize'));
-
+		// Per Friendica definition a value of '0' mean unlimited:
+		If ($mis_bytes == 0) {
+			$mis_bytes = INF;
+		}
 		// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
 		$maximagesize_Mbytes = (is_numeric($mis_bytes) && ($mis_bytes < $umf_bytes) ? $mis_bytes : $umf_bytes) / (1048576);
 
