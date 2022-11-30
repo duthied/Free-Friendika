@@ -2271,6 +2271,11 @@ class Item
 			return;
 		}
 
+		$cdata = Contact::getPublicAndUserContactID($item['author-id'], $item['uid']);
+		if (empty($cdata['user']) || ($cdata['user'] != $item['contact-id'])) {
+			return;
+		}
+
 		if (!DBA::exists('contact', ['id' => $item['contact-id'], 'remote_self' => Contact::MIRROR_NATIVE_RESHARE])) {
 			return;
 		}
