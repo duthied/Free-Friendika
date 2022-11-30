@@ -576,6 +576,11 @@ class Photo
 
 			$filesize = strlen($image->asString());
 			$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+
+			if ($maximagesize == 0) {
+				$maximagesize = INF;
+			}
+
 			if (!empty($maximagesize) && ($filesize > $maximagesize)) {
 				Logger::info('Avatar exceeds image limit', ['uid' => $uid, 'cid' => $cid, 'maximagesize' => $maximagesize, 'size' => $filesize, 'type' => $image->getType()]);
 				if ($image->getType() == 'image/gif') {
@@ -967,6 +972,10 @@ class Photo
 		$height   = $image->getHeight();
 
 		$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+
+		if ($maximagesize == 0) {
+			$maximagesize = INF;
+		}
 
 		if (!empty($maximagesize) && ($filesize > $maximagesize)) {
 			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
