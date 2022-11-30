@@ -70,7 +70,7 @@ class Notification extends BaseFactory
 			$status = null;
 		}
 
-		return new MstdnNotification($Notification->id, $type, $Notification->created, $account, $status);
+		return new MstdnNotification($Notification->id, $type, $Notification->created, $account, $status, $Notification->dismissed);
 	}
 
 	/**
