@@ -918,7 +918,6 @@ function photos_content(App $a)
 			'$submit' => DI::l10n()->t('Submit'),
 		]);
 
-		$maximagesize_Mbytes = 0;
 		// Get the relevant size limits for uploads. Abbreviated var names: MaxImageSize -> mis; upload_max_filesize -> umf
 		$mis_bytes = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
 		$umf_bytes = Strings::getBytesFromShorthand(ini_get('upload_max_filesize'));
@@ -929,10 +928,10 @@ function photos_content(App $a)
 		}
 
 		// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
-		$maximagesize_Mbytes = (is_numeric($mis_bytes) && ($mis_bytes < $umf_bytes) ? $mis_bytes : $umf_bytes) / (1048576);
+		$maximagesize_bytes = (is_numeric($mis_bytes) && ($mis_bytes < $umf_bytes) ? $mis_bytes : $umf_bytes);
 
 		// @todo We may be want to use appropriate binary prefixed dynamicly
-		$usage_message = DI::l10n()->t('The maximum accepted image size is %.6g MB', $maximagesize_Mbytes);
+		$usage_message = DI::l10n()->t('The maximum accepted image size is %s', Strings::formatBytes($maximagesize_bytes));
 
 		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
 
