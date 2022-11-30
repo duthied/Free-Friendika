@@ -34,6 +34,7 @@ use Friendica\Model\User;
 use Friendica\Module\BaseAdmin;
 use Friendica\Module\Conversation\Community;
 use Friendica\Module\Register;
+use Friendica\Navigation\SystemMessages;
 use Friendica\Protocol\Relay;
 use Friendica\Util\BasePath;
 use Friendica\Util\EMailer\MailBuilder;
@@ -41,6 +42,8 @@ use Friendica\Util\Strings;
 
 class Site extends BaseAdmin
 {
+//	const SHORTHAND_REGEX = '/*/i';
+
 	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
@@ -68,7 +71,7 @@ class Site extends BaseAdmin
 		$language         = (!empty($_POST['language'])         ? trim($_POST['language'])      : '');
 		$theme            = (!empty($_POST['theme'])            ? trim($_POST['theme'])         : '');
 		$theme_mobile     = (!empty($_POST['theme_mobile'])     ? trim($_POST['theme_mobile'])  : '');
-		$maximagesize     = (!empty($_POST['maximagesize'])     ? intval(trim($_POST['maximagesize']))               : 0);
+		$maximagesize     = (!empty($_POST['maximagesize'])     ? trim($_POST['maximagesize'])              : 0);
 		$maximagelength   = (!empty($_POST['maximagelength'])   ? intval(trim($_POST['maximagelength']))             : -1);
 		$jpegimagequality = (!empty($_POST['jpegimagequality']) ? intval(trim($_POST['jpegimagequality']))           : 100);
 
@@ -240,7 +243,11 @@ class Site extends BaseAdmin
 		} else {
 			DI::config()->set('system', 'singleuser', $singleuser);
 		}
-		DI::config()->set('system', 'maximagesize'           , $maximagesize);
+		if (preg_match('/\d+(?:\s*[kmg])?/i', $maximagesize)) {
+			DI::config()->set('system', 'maximagesize', $maximagesize);
+		} else {
+			DI::sysmsg()->addNotice(DI::l10n()->t('%s is no valid input for maximum image size', $maximagesize));
+		}
 		DI::config()->set('system', 'max_image_length'       , $maximagelength);
 		DI::config()->set('system', 'jpeg_quality'           , $jpegimagequality);
 
@@ -471,7 +478,7 @@ class Site extends BaseAdmin
 			'$maximagesize'     => ['maximagesize', DI::l10n()->t('Maximum image size'), DI::config()->get('system', 'maximagesize'), DI::l10n()->t('Maximum size in bytes of uploaded images. Default is 0, which means no limits.
 													The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit.
 													Currently <code>upload_max_filesize</code> is set to %s (%sB)', Strings::getBytesFromShorthand(ini_get('upload_max_filesize')), ini_get('upload_max_filesize')),
-													'1 kB = 1 KiB = 1024 Bytes'],
+													'', '', '', '\d+(?:\s*[kmg])?'],
 			'$maximagelength'   => ['maximagelength', DI::l10n()->t('Maximum image length'), DI::config()->get('system', 'max_image_length'), DI::l10n()->t('Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.')],
 			'$jpegimagequality' => ['jpegimagequality', DI::l10n()->t('JPEG image quality'), DI::config()->get('system', 'jpeg_quality'), DI::l10n()->t('Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.')],
 
