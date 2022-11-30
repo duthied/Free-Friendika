@@ -109,7 +109,7 @@ class Status extends BaseProfile
 			$this->baseUrl->redirect('profile/' . $profile['nickname'] . '/restricted');
 		}
 
-		$o .= self::getTabsHTML($a, 'status', $is_owner, $profile['nickname'], $profile['hide-friends']);
+		$o .= self::getTabsHTML('status', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		$o .= Widget::commonFriendsVisitor($profile['uid'], $profile['nickname']);
 

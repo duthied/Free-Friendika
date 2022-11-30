@@ -72,8 +72,8 @@ class Photos extends \Friendica\Module\BaseProfile
 			throw new HttpException\ForbiddenException($this->t('Public access denied.'));
 		}
 
-		$owner = User::getOwnerDataByNick($this->parameters['nickname']);
-		if (!isset($owner['account_removed']) || $owner['account_removed']) {
+		$owner = Profile::load($this->app, $this->parameters['nickname'] ?? '');
+		if (!$owner || $owner['account_removed'] || $owner['account_expired']) {
 			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
 
@@ -174,13 +174,11 @@ class Photos extends \Friendica\Module\BaseProfile
 			]);
 		}
 
-		$this->page['aside'] .= Widget\VCard::getHTML($owner);
-
 		if (!empty($photo_albums_widget)) {
 			$this->page['aside'] .= $photo_albums_widget;
 		}
 
-		$o = self::getTabsHTML($this->app, 'photos', $is_owner, $owner['nickname'], Profile::getByUID($owner['uid'])['hide-friends'] ?? false);
+		$o = self::getTabsHTML('photos', $is_owner, $owner['nickname'], Profile::getByUID($owner['uid'])['hide-friends'] ?? false);
 
 		$tpl = Renderer::getMarkupTemplate('photos_recent.tpl');
 		$o .= Renderer::replaceMacros($tpl, [

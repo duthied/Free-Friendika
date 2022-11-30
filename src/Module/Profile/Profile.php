@@ -100,7 +100,7 @@ class Profile extends BaseProfile
 		Nav::setSelected('home');
 
 		$is_owner = DI::userSession()->getLocalUserId() == $profile['uid'];
-		$o = self::getTabsHTML($a, 'profile', $is_owner, $profile['nickname'], $profile['hide-friends']);
+		$o = self::getTabsHTML('profile', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		$view_as_contacts = [];
 		$view_as_contact_id = 0;

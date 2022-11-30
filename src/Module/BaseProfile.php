@@ -32,14 +32,13 @@ class BaseProfile extends BaseModule
 	/**
 	 * Returns the HTML for the profile pages tabs
 	 *
-	 * @param App    $a
 	 * @param string $current
 	 * @param bool   $is_owner
 	 * @param string $nickname
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getTabsHTML(App $a, string $current, bool $is_owner, string $nickname, bool $hide_friends)
+	public static function getTabsHTML(string $current, bool $is_owner, string $nickname, bool $hide_friends)
 	{
 		$baseProfileUrl = DI::baseUrl() . '/profile/' . $nickname;
 

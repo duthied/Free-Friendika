@@ -875,7 +875,7 @@ function photos_content(App $a)
 
 	// tabs
 	$is_owner = (DI::userSession()->getLocalUserId() && (DI::userSession()->getLocalUserId() == $owner_uid));
-	$o .= BaseProfile::getTabsHTML($a, 'photos', $is_owner, $user['nickname'], $profile['hide-friends']);
+	$o .= BaseProfile::getTabsHTML('photos', $is_owner, $user['nickname'], $profile['hide-friends']);
 
 	// Display upload form
 	if ($datatype === 'upload') {
