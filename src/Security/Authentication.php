@@ -39,6 +39,7 @@ use Friendica\Util\Network;
 use LightOpenID;
 use Friendica\Core\L10n;
 use Friendica\Core\Worker;
+use Friendica\Model\Contact;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -358,8 +359,12 @@ class Authentication
 			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()],
 				['parent-uid' => $user_record['uid'], 'account_removed' => false]);
 
-			// Update suggestions upon login
-			Worker::add(Worker::PRIORITY_MEDIUM, 'UpdateSuggestions', $user_record['uid']);
+			User::updateLastActivity($user_record['uid']);
+
+			// Regularly update suggestions
+			if (Contact\Relation::areSuggestionsOutdated($user_record['uid'])) {
+				Worker::add(Worker::PRIORITY_MEDIUM, 'UpdateSuggestions', $user_record['uid']);
+			}
 		}
 
 		if ($login_initial) {

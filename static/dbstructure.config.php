@@ -115,6 +115,7 @@ return [
 			"language" => ["type" => "varchar(32)", "not null" => "1", "default" => "en", "comment" => "default language"],
 			"register_date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of registration"],
 			"login_date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of last login"],
+			"last-activity" => ["type" => "date", "comment" => "Day of the last activity"],
 			"default-location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Default for item.location"],
 			"allow_location" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 allows to display the location"],
 			"theme" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "user theme preference"],

@@ -261,6 +261,17 @@ class Relation
 	}
 
 	/**
+	 * Check if the cached suggestion is outdated
+	 *
+	 * @param integer $uid
+	 * @return boolean
+	 */
+	static public function areSuggestionsOutdated(int $uid): bool
+	{
+		return DI::pConfig()->get($uid, 'suggestion', 'last_update') + 3600 < time();
+	}
+
+	/**
 	 * Update contact suggestions for a given user
 	 *
 	 * @param integer $uid
@@ -268,7 +279,7 @@ class Relation
 	 */
 	static public function updateCachedSuggestions(int $uid)
 	{
-		if (DI::pConfig()->get($uid, 'suggestion', 'last_update') + 3600 > time()) {
+		if (!self::areSuggestionsOutdated($uid)) {
 			return;
 		}
 

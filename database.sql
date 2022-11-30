@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`language` varchar(32) NOT NULL DEFAULT 'en' COMMENT 'default language',
 	`register_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of registration',
 	`login_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of last login',
+	`last-activity` date COMMENT 'Day of the last activity',
 	`default-location` varchar(255) NOT NULL DEFAULT '' COMMENT 'Default for item.location',
 	`allow_location` boolean NOT NULL DEFAULT '0' COMMENT '1 allows to display the location',
 	`theme` varchar(255) NOT NULL DEFAULT '' COMMENT 'user theme preference',

@@ -32,7 +32,7 @@ class UpdateAllSuggestions
 {
 	public static function execute()
 	{
-		$users = DBA::select('user', ['uid'], ["`login_date` > ?", DateTimeFormat::utc('now - 7 days')]);
+		$users = DBA::select('user', ['uid'], ["`last-activity` > ?", DateTimeFormat::utc('now - 3 days', 'Y-m-d')]);
 		while ($user = DBA::fetch($users)) {
 			Contact\Relation::updateCachedSuggestions($user['uid']);
 		}
