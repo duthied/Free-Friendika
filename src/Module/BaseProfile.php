@@ -79,7 +79,7 @@ class BaseProfile extends BaseModule
 		];
 
 		// the calendar link for the full-featured events calendar
-		if ($is_owner && $a->getThemeInfoValue('events_in_profile')) {
+		if ($is_owner) {
 			$tabs[] = [
 				'label' => DI::l10n()->t('Calendar'),
 				'url'   => DI::baseUrl() . '/calendar',
@@ -90,7 +90,7 @@ class BaseProfile extends BaseModule
 			];
 			// if the user is not the owner of the calendar we only show a calendar
 			// with the public events of the calendar owner
-		} elseif (!$is_owner) {
+		} else {
 			$tabs[] = [
 				'label' => DI::l10n()->t('Calendar'),
 				'url'   => DI::baseUrl() . '/calendar/show/' . $nickname,

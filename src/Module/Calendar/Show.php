@@ -85,16 +85,9 @@ class Show extends BaseModule
 		$tabs = '';
 
 		if (empty($this->parameters['nickname'])) {
-			if ($this->app->getThemeInfoValue('events_in_profile')) {
-				Nav::setSelected('home');
-			} else {
-				Nav::setSelected('calendar');
-			}
+			Nav::setSelected('home');
 
-			// tabs
-			if ($this->app->getThemeInfoValue('events_in_profile')) {
-				$tabs = BaseProfile::getTabsHTML($this->app, 'calendar', true, $this->app->getLoggedInUserNickname(), false);
-			}
+			$tabs = BaseProfile::getTabsHTML($this->app, 'calendar', true, $this->app->getLoggedInUserNickname(), false);
 
 			$this->page['aside'] .= Widget\CalendarExport::getHTML($this->session->getLocalUserId());
 		} else {
