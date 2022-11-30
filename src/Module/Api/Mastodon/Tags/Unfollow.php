@@ -44,7 +44,7 @@ class Unfollow extends BaseApi
 
 		DBA::delete('search', $term);
 
-		$hashtag = new \Friendica\Object\Api\Mastodon\Tag($this->baseUrl, $term, [], false);
+		$hashtag = new \Friendica\Object\Api\Mastodon\Tag($this->baseUrl, ['name' => ltrim($this->parameters['hashtag'])], [], false);
 		System::jsonExit($hashtag->toArray());
 	}
 }
