@@ -654,7 +654,7 @@ function photos_post(App $a)
 
 	Logger::info('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes');
 
-	$maximagesize = DI::config()->get('system', 'maximagesize');
+	$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
 
 	if ($maximagesize && ($filesize > $maximagesize)) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
@@ -914,7 +914,20 @@ function photos_content(App $a)
 			'$submit' => DI::l10n()->t('Submit'),
 		]);
 
-		$usage_message = '';
+		// Get the relevant size limits for uploads. Abbreviated var names: MaxImageSize -> mis; upload_max_filesize -> umf
+		$mis_bytes = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+		$umf_bytes = Strings::getBytesFromShorthand(ini_get('upload_max_filesize'));
+
+		// Per Friendica definition a value of '0' means unlimited:
+		If ($mis_bytes == 0) {
+			$mis_bytes = INF;
+		}
+
+		// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
+		$maximagesize_bytes = (is_numeric($mis_bytes) && ($mis_bytes < $umf_bytes) ? $mis_bytes : $umf_bytes);
+
+		// @todo We may be want to use appropriate binary prefixed dynamicly
+		$usage_message = DI::l10n()->t('The maximum accepted image size is %s', Strings::formatBytes($maximagesize_bytes));
 
 		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
 

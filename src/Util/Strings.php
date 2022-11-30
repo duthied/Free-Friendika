@@ -220,7 +220,12 @@ class Strings
 	 */
 	public static function formatBytes(int $bytes, int $precision = 2): string
 	{
-		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
+		// If this method is called for an infinite (== unlimited) amount of bytes:
+		if ($bytes == INF) {
+			return INF;
+		}
+
+		$units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
 		$bytes = max($bytes, 0);
 		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
 		$pow = min($pow, count($units) - 1);
@@ -502,4 +507,35 @@ class Strings
 
 		return $text;
 	}
+
+	/**
+	 * This function converts a PHP's shorhand notation string for file sizes in to an integer number of total bytes.
+	 * For example: The string for shorthand notation of '2M' (which is 2,097,152 Bytes) is converted to 2097152
+	 * @see https://www.php.net/manual/en/faq.using.php#faq.using.shorthandbytes
+	 * @param string $shorthand
+	 * @return int
+	 */
+	public static function getBytesFromShorthand(string $shorthand): int
+	{
+		$shorthand = trim($shorthand);
+
+		if (is_numeric($shorthand)) {
+			return $shorthand;
+		}
+
+		$last      = strtolower($shorthand[strlen($shorthand)-1]);
+		$shorthand = substr($shorthand, 0, -1);
+
+		switch($last) {
+			case 'g':
+				$shorthand *= 1024;
+			case 'm':
+				$shorthand *= 1024;
+			case 'k':
+				$shorthand *= 1024;
+		}
+
+		return $shorthand;
+	}
+
 }
