@@ -26,6 +26,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Module\BaseApi;
@@ -168,7 +169,11 @@ class Upload extends \Friendica\BaseModule
 		$width  = $image->getWidth();
 		$height = $image->getHeight();
 
-		$maximagesize = $this->config->get('system', 'maximagesize');
+		$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+
+		if ($maximagesize == 0) {
+			$maximagesize = INF;
+		}
 
 		if (!empty($maximagesize) && $filesize > $maximagesize) {
 			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore

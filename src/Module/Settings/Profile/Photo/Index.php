@@ -53,7 +53,11 @@ class Index extends BaseSettings
 
 		$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
 
-		$maximagesize = DI::config()->get('system', 'maximagesize', 0);
+		$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize', 0));
+
+		if ($maximagesize == 0) {
+			$maximagesize = INF;
+		}
 
 		if ($maximagesize && $filesize > $maximagesize) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
