@@ -225,7 +225,7 @@ class Strings
 			return INF;
 		}
 
-		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
+		$units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
 		$bytes = max($bytes, 0);
 		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
 		$pow = min($pow, count($units) - 1);
