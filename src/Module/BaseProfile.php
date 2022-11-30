@@ -23,9 +23,11 @@ namespace Friendica\Module;
 
 use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\Content\Feature;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\DI;
+use Friendica\Model\User;
 
 class BaseProfile extends BaseModule
 {
@@ -87,17 +89,18 @@ class BaseProfile extends BaseModule
 				'id'    => 'calendar-tab',
 				'accesskey' => 'c',
 			];
-			// if the user is not the owner of the calendar we only show a calendar
-			// with the public events of the calendar owner
 		} else {
-			$tabs[] = [
-				'label' => DI::l10n()->t('Calendar'),
-				'url'   => DI::baseUrl() . '/calendar/show/' . $nickname,
-				'sel'   => $current == 'calendar' ? 'active' : '',
-				'title' => DI::l10n()->t('Calendar'),
-				'id'    => 'calendar-tab',
-				'accesskey' => 'c',
-			];
+			$owner = User::getByNickname($nickname, ['uid']);
+			if(DI::userSession()->isAuthenticated() || $owner && Feature::isEnabled($owner['uid'], 'public_calendar')) {
+				$tabs[] = [
+					'label' => DI::l10n()->t('Calendar'),
+					'url'   => DI::baseUrl() . '/calendar/show/' . $nickname,
+					'sel'   => $current == 'calendar' ? 'active' : '',
+					'title' => DI::l10n()->t('Calendar'),
+					'id'    => 'calendar-tab',
+					'accesskey' => 'c',
+				];
+			}
 		}
 
 		if ($is_owner) {
