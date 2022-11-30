@@ -473,7 +473,7 @@ class Site extends BaseAdmin
 			'$show_help'        => ['show_help', DI::l10n()->t('Show help entry from navigation menu'), !DI::config()->get('system', 'hide_help'), DI::l10n()->t('Displays the menu entry for the Help pages from the navigation menu. It is always accessible by calling /help directly.')],
 			'$singleuser'       => ['singleuser', DI::l10n()->t('Single user instance'), DI::config()->get('system', 'singleuser', '---'), DI::l10n()->t('Make this instance multi-user or single-user for the named user'), $user_names],
 
-			'$maximagesize'     => ['maximagesize', DI::l10n()->t('Maximum image size'), DI::config()->get('system', 'maximagesize'), DI::l10n()->t('Maximum size in bytes of uploaded images. Default is 0, which means no limits.
+			'$maximagesize'     => ['maximagesize', DI::l10n()->t('Maximum image size'), DI::config()->get('system', 'maximagesize'), DI::l10n()->t('Maximum size in bytes of uploaded images. Default is 0, which means no limits. You can put k, m, or g behind the desired value for KiB, MiB, GiB, respectively.
 													The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit.
 													Currently <code>upload_max_filesize</code> is set to %s (%sB)', Strings::getBytesFromShorthand(ini_get('upload_max_filesize')), ini_get('upload_max_filesize')),
 													'', 'pattern="\d+(?:\s*[kmg])?"'],

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-30 01:19+0100\n"
+"POT-Creation-Date: 2022-11-30 02:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -292,7 +292,7 @@ msgstr ""
 msgid "Insert web link"
 msgstr ""
 
-#: mod/message.php:203 mod/message.php:360 mod/photos.php:1493
+#: mod/message.php:203 mod/message.php:360 mod/photos.php:1496
 #: src/Content/Conversation.php:371 src/Content/Conversation.php:717
 #: src/Module/Item/Compose.php:204 src/Module/Post/Edit.php:142
 #: src/Module/Profile/UnkMail.php:155 src/Object/Post.php:537
@@ -300,8 +300,8 @@ msgid "Please wait"
 msgstr ""
 
 #: mod/message.php:204 mod/message.php:359 mod/photos.php:914
-#: mod/photos.php:1027 mod/photos.php:1299 mod/photos.php:1340
-#: mod/photos.php:1396 mod/photos.php:1470
+#: mod/photos.php:1030 mod/photos.php:1302 mod/photos.php:1343
+#: mod/photos.php:1399 mod/photos.php:1473
 #: src/Module/Calendar/Event/Form.php:250 src/Module/Contact/Advanced.php:132
 #: src/Module/Contact/Profile.php:327
 #: src/Module/Debug/ActivityPubConversion.php:140
@@ -405,7 +405,7 @@ msgstr ""
 msgid "Recent Photos"
 msgstr ""
 
-#: mod/photos.php:110 mod/photos.php:1075 src/Module/Profile/Photos.php:172
+#: mod/photos.php:110 mod/photos.php:1078 src/Module/Profile/Photos.php:172
 #: src/Module/Profile/Photos.php:189
 msgid "Upload New Photos"
 msgstr ""
@@ -494,40 +494,40 @@ msgstr ""
 msgid "Access to this item is restricted."
 msgstr ""
 
-#: mod/photos.php:926
+#: mod/photos.php:929
 msgid "The maximum accepted image size is %.6g MB"
 msgstr ""
 
-#: mod/photos.php:933
+#: mod/photos.php:936
 msgid "Upload Photos"
 msgstr ""
 
-#: mod/photos.php:937 mod/photos.php:1023
+#: mod/photos.php:940 mod/photos.php:1026
 msgid "New album name: "
 msgstr ""
 
-#: mod/photos.php:938
+#: mod/photos.php:941
 msgid "or select existing album:"
 msgstr ""
 
-#: mod/photos.php:939
+#: mod/photos.php:942
 msgid "Do not show a status post for this upload"
 msgstr ""
 
-#: mod/photos.php:941 mod/photos.php:1295 src/Content/Conversation.php:373
+#: mod/photos.php:944 mod/photos.php:1298 src/Content/Conversation.php:373
 #: src/Module/Calendar/Event/Form.php:253 src/Module/Post/Edit.php:179
 msgid "Permissions"
 msgstr ""
 
-#: mod/photos.php:1004
+#: mod/photos.php:1007
 msgid "Do you really want to delete this photo album and all its photos?"
 msgstr ""
 
-#: mod/photos.php:1005 mod/photos.php:1028
+#: mod/photos.php:1008 mod/photos.php:1031
 msgid "Delete Album"
 msgstr ""
 
-#: mod/photos.php:1006 mod/photos.php:1107 src/Content/Conversation.php:389
+#: mod/photos.php:1009 mod/photos.php:1110 src/Content/Conversation.php:389
 #: src/Module/Contact/Follow.php:173 src/Module/Contact/Revoke.php:109
 #: src/Module/Contact/Unfollow.php:126
 #: src/Module/Media/Attachment/Browser.php:77
@@ -537,130 +537,130 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: mod/photos.php:1032
+#: mod/photos.php:1035
 msgid "Edit Album"
 msgstr ""
 
-#: mod/photos.php:1033
+#: mod/photos.php:1036
 msgid "Drop Album"
 msgstr ""
 
-#: mod/photos.php:1037
+#: mod/photos.php:1040
 msgid "Show Newest First"
 msgstr ""
 
-#: mod/photos.php:1039
+#: mod/photos.php:1042
 msgid "Show Oldest First"
 msgstr ""
 
-#: mod/photos.php:1060 src/Module/Profile/Photos.php:140
+#: mod/photos.php:1063 src/Module/Profile/Photos.php:140
 msgid "View Photo"
 msgstr ""
 
-#: mod/photos.php:1093
+#: mod/photos.php:1096
 msgid "Permission denied. Access to this item may be restricted."
 msgstr ""
 
-#: mod/photos.php:1095
+#: mod/photos.php:1098
 msgid "Photo not available"
 msgstr ""
 
-#: mod/photos.php:1105
+#: mod/photos.php:1108
 msgid "Do you really want to delete this photo?"
 msgstr ""
 
-#: mod/photos.php:1106 mod/photos.php:1300
+#: mod/photos.php:1109 mod/photos.php:1303
 msgid "Delete Photo"
 msgstr ""
 
-#: mod/photos.php:1198
+#: mod/photos.php:1201
 msgid "View photo"
 msgstr ""
 
-#: mod/photos.php:1200
+#: mod/photos.php:1203
 msgid "Edit photo"
 msgstr ""
 
-#: mod/photos.php:1201
+#: mod/photos.php:1204
 msgid "Delete photo"
 msgstr ""
 
-#: mod/photos.php:1202
+#: mod/photos.php:1205
 msgid "Use as profile photo"
 msgstr ""
 
-#: mod/photos.php:1209
+#: mod/photos.php:1212
 msgid "Private Photo"
 msgstr ""
 
-#: mod/photos.php:1215
+#: mod/photos.php:1218
 msgid "View Full Size"
 msgstr ""
 
-#: mod/photos.php:1268
+#: mod/photos.php:1271
 msgid "Tags: "
 msgstr ""
 
-#: mod/photos.php:1271
+#: mod/photos.php:1274
 msgid "[Select tags to remove]"
 msgstr ""
 
-#: mod/photos.php:1286
+#: mod/photos.php:1289
 msgid "New album name"
 msgstr ""
 
-#: mod/photos.php:1287
+#: mod/photos.php:1290
 msgid "Caption"
 msgstr ""
 
-#: mod/photos.php:1288
+#: mod/photos.php:1291
 msgid "Add a Tag"
 msgstr ""
 
-#: mod/photos.php:1288
+#: mod/photos.php:1291
 msgid "Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
 msgstr ""
 
-#: mod/photos.php:1289
+#: mod/photos.php:1292
 msgid "Do not rotate"
 msgstr ""
 
-#: mod/photos.php:1290
+#: mod/photos.php:1293
 msgid "Rotate CW (right)"
 msgstr ""
 
-#: mod/photos.php:1291
+#: mod/photos.php:1294
 msgid "Rotate CCW (left)"
 msgstr ""
 
-#: mod/photos.php:1337 mod/photos.php:1393 mod/photos.php:1467
+#: mod/photos.php:1340 mod/photos.php:1396 mod/photos.php:1470
 #: src/Module/Contact.php:547 src/Module/Item/Compose.php:188
 #: src/Object/Post.php:983
 msgid "This is you"
 msgstr ""
 
-#: mod/photos.php:1339 mod/photos.php:1395 mod/photos.php:1469
+#: mod/photos.php:1342 mod/photos.php:1398 mod/photos.php:1472
 #: src/Object/Post.php:531 src/Object/Post.php:985
 msgid "Comment"
 msgstr ""
 
-#: mod/photos.php:1341 mod/photos.php:1397 mod/photos.php:1471
+#: mod/photos.php:1344 mod/photos.php:1400 mod/photos.php:1474
 #: src/Content/Conversation.php:386 src/Module/Calendar/Event/Form.php:248
 #: src/Module/Item/Compose.php:199 src/Module/Post/Edit.php:162
 #: src/Object/Post.php:997
 msgid "Preview"
 msgstr ""
 
-#: mod/photos.php:1342 src/Content/Conversation.php:341
+#: mod/photos.php:1345 src/Content/Conversation.php:341
 #: src/Module/Post/Edit.php:127 src/Object/Post.php:987
 msgid "Loading..."
 msgstr ""
 
-#: mod/photos.php:1428 src/Content/Conversation.php:633 src/Object/Post.php:255
+#: mod/photos.php:1431 src/Content/Conversation.php:633 src/Object/Post.php:255
 msgid "Select"
 msgstr ""
 
-#: mod/photos.php:1429 src/Content/Conversation.php:634
+#: mod/photos.php:1432 src/Content/Conversation.php:634
 #: src/Module/Moderation/Users/Active.php:136
 #: src/Module/Moderation/Users/Blocked.php:136
 #: src/Module/Moderation/Users/Index.php:151
@@ -668,23 +668,23 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: mod/photos.php:1490 src/Object/Post.php:378
+#: mod/photos.php:1493 src/Object/Post.php:378
 msgid "Like"
 msgstr ""
 
-#: mod/photos.php:1491 src/Object/Post.php:378
+#: mod/photos.php:1494 src/Object/Post.php:378
 msgid "I like this (toggle)"
 msgstr ""
 
-#: mod/photos.php:1492 src/Object/Post.php:379
+#: mod/photos.php:1495 src/Object/Post.php:379
 msgid "Dislike"
 msgstr ""
 
-#: mod/photos.php:1494 src/Object/Post.php:379
+#: mod/photos.php:1497 src/Object/Post.php:379
 msgid "I don't like this (toggle)"
 msgstr ""
 
-#: mod/photos.php:1516
+#: mod/photos.php:1519
 msgid "Map"
 msgstr ""
 
@@ -4283,7 +4283,8 @@ msgstr ""
 #, php-format
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
-"limits.\n"
+"limits. You can put k, m, or g behind the desired value for KiB, MiB, GiB, "
+"respectively.\n"
 "\t\t\t\t\t\t\t\t\t\t\t\t\tThe value of <code>upload_max_filesize</code> in "
 "your <code>PHP.ini</code> needs be set to at least the desired limit.\n"
 "\t\t\t\t\t\t\t\t\t\t\t\t\tCurrently <code>upload_max_filesize</code> is set "
