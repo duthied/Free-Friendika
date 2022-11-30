@@ -169,7 +169,7 @@ class Upload extends \Friendica\BaseModule
 		$width  = $image->getWidth();
 		$height = $image->getHeight();
 
-		$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+		$maximagesize = Strings::getBytesFromShorthand($this->config->get('system', 'maximagesize'));
 
 		if ($maximagesize && $filesize > $maximagesize) {
 			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
