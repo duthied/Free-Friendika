@@ -169,13 +169,13 @@ class Status extends BaseFactory
 
 			foreach ($this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy() as $mention) {
 				if (!in_array($mention, $mentions)) {
-						$mentions[] = $mention;
+					$mentions[] = $mention;
 				}
 			}
 
 			foreach ($this->mstdnTagFactory->createFromUriId($shared_uri_id) as $tag) {
 				if (!in_array($tag, $tags)) {
-						$tags[] = $tag;
+					$tags[] = $tag;
 				}
 			}
 
