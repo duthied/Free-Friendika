@@ -76,16 +76,17 @@ class Status extends BaseFactory
 	}
 
 	/**
-	 * @param int $uriId Uri-ID of the item
-	 * @param int $uid   Item user
+	 * @param int  $uriId  Uri-ID of the item
+	 * @param int  $uid    Item user
+	 * @param bool $reblog Check for reblogged post
 	 *
 	 * @return \Friendica\Object\Api\Mastodon\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromUriId(int $uriId, int $uid = 0): \Friendica\Object\Api\Mastodon\Status
+	public function createFromUriId(int $uriId, int $uid = 0, bool $reblog = true): \Friendica\Object\Api\Mastodon\Status
 	{
-		$fields = ['uri-id', 'uid', 'author-id', 'author-uri-id', 'author-link', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
+		$fields = ['uri-id', 'uid', 'author-id', 'author-uri-id', 'author-link', 'causer-uri-id', 'post-reason', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
 			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured', 'has-media', 'quote-uri-id'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
@@ -95,7 +96,10 @@ class Status extends BaseFactory
 			}
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . ' not found' . ($uid ? ' for user ' . $uid : '.'));
 		}
-		$account = $this->mstdnAccountFactory->createFromUriId($item['author-uri-id'], $uid);
+
+		$is_reshare = $reblog && !is_null($item['causer-uri-id']) && ($item['post-reason'] == Item::PR_ANNOUNCEMENT);
+
+		$account = $this->mstdnAccountFactory->createFromUriId($is_reshare ? $item['causer-uri-id']:$item['author-uri-id'], $uid);
 
 		$count_announce = Post::countPosts([
 			'thr-parent-id' => $uriId,
@@ -181,6 +185,10 @@ class Status extends BaseFactory
 			$item['body']     = $this->contentItem->addSharedPost($item);
 			$item['raw-body'] = $this->contentItem->addSharedPost($item, $item['raw-body']);
 			$reshare = [];
+		}
+
+		if ($is_reshare) {
+			$reshare = $this->createFromUriId($uriId, $uid, false)->toArray();
 		}
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare, $poll);

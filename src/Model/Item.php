@@ -385,6 +385,9 @@ class Item
 			Post\ThreadUser::update($item['uri-id'], $item['uid'], ['hidden' => true]);
 		}
 
+		DI::notify()->deleteForItem($item['uri-id']);
+		DI::notification()->deleteForItem($item['uri-id']);
+
 		Logger::info('Item has been marked for deletion.', ['id' => $item_id]);
 
 		return true;
