@@ -91,7 +91,7 @@ class Show extends BaseModule
 
 			$this->page['aside'] .= Widget\CalendarExport::getHTML($this->session->getLocalUserId());
 		} else {
-			$owner = Event::getOwnerForNickname($this->parameters['nickname'], true);
+			$owner = Event::getOwnerForNickname($this->parameters['nickname']);
 
 			Nav::setSelected('calendar');
 

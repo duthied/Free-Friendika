@@ -865,9 +865,8 @@ function photos_content(App $a)
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 	}
 
-	if ($user['hidewall'] && (DI::userSession()->getLocalUserId() != $owner_uid) && !$remote_contact) {
-		DI::sysmsg()->addNotice(DI::l10n()->t('Access to this item is restricted.'));
-		return;
+	if ($user['hidewall'] && !DI::userSession()->isAuthenticated()) {
+		DI::baseUrl()->redirect('profile/' . $user['nickname'] . '/restricted');
 	}
 
 	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid);

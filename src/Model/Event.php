@@ -281,7 +281,7 @@ class Event
 			if (!DBA::isResult($existing_event)) {
 				return 0;
 			}
-			
+
 			if ($existing_event['edited'] === $event['edited']) {
 				return $event['id'];
 			}
@@ -501,29 +501,20 @@ class Event
 	 * Additionally, it can check if the owner array is selectable
 	 *
 	 * @param string $nickname
-	 * @param bool   $check
 	 *
 	 * @return array the owner array
 	 * @throws NotFoundException The given nickname does not exist
 	 * @throws UnauthorizedException The access for the given nickname is restricted
 	 */
-	public static function getOwnerForNickname(string $nickname, bool $check = true): array
+	public static function getOwnerForNickname(string $nickname): array
 	{
 		$owner = User::getOwnerDataByNick($nickname);
-		if (empty($owner)) {
+		if (empty($owner) || $owner['account_removed'] || $owner['account_expired']) {
 			throw new NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		if ($check) {
-			$contact_id = DI::userSession()->getRemoteContactID($owner['uid']);
-
-			$remote_contact = $contact_id && DBA::exists('contact', ['id' => $contact_id, 'uid' => $owner['uid']]);
-
-			$is_owner = DI::userSession()->getLocalUserId() == $owner['uid'];
-
-			if ($owner['hidewall'] && !$is_owner && !$remote_contact) {
-				throw new UnauthorizedException(DI::l10n()->t('Access to this profile has been restricted.'));
-			}
+		if ($owner['hidewall'] && !DI::userSession()->isAuthenticated()) {
+			throw new UnauthorizedException(DI::l10n()->t('Access to this profile has been restricted.'));
 		}
 
 		return $owner;
@@ -541,7 +532,7 @@ class Event
 	public static function getByIdAndUid(int $owner_uid, int $event_id, string $nickname = null): array
 	{
 		if (!empty($nickname)) {
-			$owner = static::getOwnerForNickname($nickname, true);
+			$owner = static::getOwnerForNickname($nickname);
 			$owner_uid = $owner['uid'];
 
 			// get the permissions

@@ -196,8 +196,7 @@ class Display extends BaseModule
 
 	protected function getDisplayData(array $item, bool $update = false, int $updateUid = 0, bool $force = false): string
 	{
-		$isRemoteContact = false;
-		$itemUid         = $this->session->getLocalUserId();
+		$itemUid = $this->session->getLocalUserId();
 
 		$parent = null;
 		if (!$this->session->getLocalUserId() && !empty($item['parent-uri-id'])) {
@@ -206,8 +205,7 @@ class Display extends BaseModule
 
 		if (!empty($parent)) {
 			$pageUid         = $parent['uid'];
-			$isRemoteContact = $this->session->getRemoteContactID($pageUid);
-			if ($isRemoteContact) {
+			if ($this->session->getRemoteContactID($pageUid)) {
 				$itemUid = $parent['uid'];
 			}
 		} else {
@@ -215,13 +213,11 @@ class Display extends BaseModule
 		}
 
 		if (!empty($pageUid) && ($pageUid != $this->session->getLocalUserId())) {
-			$page_user = User::getById($pageUid, ['hidewall']);
+			$page_user = User::getById($pageUid, ['nickname', 'hidewall']);
 		}
 
-		$is_owner = $this->session->getLocalUserId() && (in_array($pageUid, [$this->session->getLocalUserId(), 0]));
-
-		if (!empty($page_user['hidewall']) && !$is_owner && !$isRemoteContact) {
-			throw new HTTPException\ForbiddenException($this->t('Access to this profile has been restricted.'));
+		if (!empty($page_user['hidewall']) && !$this->session->isAuthenticated()) {
+			$this->baseUrl->redirect('profile/' . $page_user['nickname'] . '/restricted');
 		}
 
 		$sql_extra = Item::getPermissionsSQLByUserId($pageUid);
@@ -274,6 +270,8 @@ class Display extends BaseModule
 		$this->addMetaTags($item);
 
 		$output = '';
+
+		$is_owner = $this->session->getLocalUserId() && (in_array($pageUid, [$this->session->getLocalUserId(), 0]));
 
 		// We need the editor here to be able to reshare an item.
 		if ($is_owner && !$update) {

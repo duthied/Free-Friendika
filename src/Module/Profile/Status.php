@@ -105,9 +105,8 @@ class Status extends BaseProfile
 		$is_owner = DI::userSession()->getLocalUserId() == $profile['uid'];
 		$last_updated_key = "profile:" . $profile['uid'] . ":" . DI::userSession()->getLocalUserId() . ":" . $remote_contact;
 
-		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact) {
-			DI::sysmsg()->addNotice(DI::l10n()->t('Access to this profile has been restricted.'));
-			return '';
+		if (!empty($profile['hidewall']) && !DI::userSession()->isAuthenticated()) {
+			$this->baseUrl->redirect('profile/' . $profile['nickname'] . '/restricted');
 		}
 
 		$o .= self::getTabsHTML($a, 'status', $is_owner, $profile['nickname'], $profile['hide-friends']);

@@ -88,8 +88,8 @@ class Photos extends \Friendica\Module\BaseProfile
 			$remote_contact = $contact && !$contact['blocked'] && !$contact['pending'];
 		}
 
-		if ($owner['hidewall'] && !$is_owner && !$remote_contact) {
-			throw new HttpException\ForbiddenException($this->t('Access to this item is restricted.'));
+		if ($owner['hidewall'] && !$this->session->isAuthenticated()) {
+			$this->baseUrl->redirect('profile/' . $owner['nickname'] . '/restricted');
 		}
 
 		$this->session->set('photo_return', $this->args->getCommand());
