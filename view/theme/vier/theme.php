@@ -144,7 +144,7 @@ function vier_community_info()
 
 	// comunity_profiles
 	if ($show_profiles) {
-		$contacts = Contact\Relation::getSuggestions(DI::userSession()->getLocalUserId(), 0, 9);
+		$contacts = Contact\Relation::getCachedSuggestions(DI::userSession()->getLocalUserId(), 0, 9);
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
 		if (DBA::isResult($contacts)) {

@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1495);
+	define('DB_UPDATE_VERSION', 1496);
 }
 
 return [
@@ -369,6 +369,18 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["cookie_hash"],
 			"uid" => ["uid"],
+		]
+	],
+	"account-suggestion" => [
+		"comment" => "Account suggestion",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the account url"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User ID"],
+			"level" => ["type" => "smallint unsigned", "comment" => "level of closeness"],
+			"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "If set, this account will not be suggested again"],		],
+		"indexes" => [
+			"PRIMARY" => ["uid", "uri-id"],
+			"uri-id_uid" => ["uri-id", "uid"],
 		]
 	],
 	"account-user" => [

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.12-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1495
+-- DB_UPDATE_VERSION 1496
 -- ------------------------------------------
 
 
@@ -308,6 +308,20 @@ CREATE TABLE IF NOT EXISTS `2fa_trusted_browser` (
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor authentication trusted browsers';
+
+--
+-- TABLE account-suggestion
+--
+CREATE TABLE IF NOT EXISTS `account-suggestion` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the account url',
+	`uid` mediumint unsigned NOT NULL COMMENT 'User ID',
+	`level` smallint unsigned COMMENT 'level of closeness',
+	`ignore` boolean NOT NULL DEFAULT '0' COMMENT 'If set, this account will not be suggested again',
+	 PRIMARY KEY(`uid`,`uri-id`),
+	 INDEX `uri-id_uid` (`uri-id`,`uid`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Account suggestion';
 
 --
 -- TABLE account-user
