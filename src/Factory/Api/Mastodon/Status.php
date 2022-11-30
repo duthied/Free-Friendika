@@ -204,7 +204,7 @@ class Status extends BaseFactory
 		if ($is_reshare) {
 			$reshare = $this->createFromUriId($uriId, $uid, false)->toArray();
 		}
-//		$mentions = array_unique($mentions);
+
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare, $poll);
 	}
 

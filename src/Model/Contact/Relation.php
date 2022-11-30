@@ -266,7 +266,7 @@ class Relation
 	 * @param integer $uid
 	 * @return void
 	 */
-	static public function updateSuggestions(int $uid)
+	static public function updateCachedSuggestions(int $uid)
 	{
 		if (DI::pConfig()->get($uid, 'suggestion', 'last_update') + 3600 > time()) {
 			return;

@@ -30,6 +30,6 @@ class UpdateSuggestions
 {
 	public static function execute(int $uid)
 	{
-		Contact\Relation::updateSuggestions($uid);
+		Contact\Relation::updateCachedSuggestions($uid);
 	}
 }

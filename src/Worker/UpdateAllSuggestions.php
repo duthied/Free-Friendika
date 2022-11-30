@@ -34,7 +34,7 @@ class UpdateAllSuggestions
 	{
 		$users = DBA::select('user', ['uid'], ["`login_date` > ?", DateTimeFormat::utc('now - 7 days')]);
 		while ($user = DBA::fetch($users)) {
-			Contact\Relation::updateSuggestions($user['uid']);
+			Contact\Relation::updateCachedSuggestions($user['uid']);
 		}
 		DBA::close($users);
 	}
