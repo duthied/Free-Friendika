@@ -42,8 +42,6 @@ use Friendica\Util\Strings;
 
 class Site extends BaseAdmin
 {
-//	const SHORTHAND_REGEX = '/*/i';
-
 	protected function post(array $request = [])
 	{
 		self::checkAdminAccess();
