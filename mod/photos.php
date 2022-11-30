@@ -656,10 +656,6 @@ function photos_post(App $a)
 
 	$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
 
-	if ($maximagesize == 0) {
-		$maximagesize = INF;
-	}
-
 	if ($maximagesize && ($filesize > $maximagesize)) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
 		@unlink($src);
