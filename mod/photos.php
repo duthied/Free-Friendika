@@ -654,7 +654,7 @@ function photos_post(App $a)
 
 	Logger::info('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes');
 
-	$maximagesize = DI::config()->get('system', 'maximagesize');
+	$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
 
 	if ($maximagesize && ($filesize > $maximagesize)) {
 		DI::sysmsg()->addNotice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
