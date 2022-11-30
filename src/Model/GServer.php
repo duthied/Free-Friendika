@@ -70,6 +70,7 @@ class GServer
 	const DETECT_UNSPECIFIC = [self::DETECT_MANUAL, self::DETECT_HEADER, self::DETECT_BODY, self::DETECT_HOST_META, self::DETECT_CONTACTS, self::DETECT_AP_ACTOR];
 
 	// Implementation specific endpoints
+	// @todo Possibly add Lemmy detection via the endpoint /api/v3/site
 	const DETECT_FRIENDIKA = 10;
 	const DETECT_FRIENDICA = 11;
 	const DETECT_STATUSNET = 12;
