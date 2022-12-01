@@ -323,6 +323,10 @@ class Relation
 	 */
 	static public function getSuggestions(int $uid, int $start = 0, int $limit = 80): array
 	{
+		if ($uid == 0) {
+			return [];
+		}
+
 		$cid = Contact::getPublicIdByUserId($uid);
 		$totallimit = $start + $limit;
 		$contacts = [];
