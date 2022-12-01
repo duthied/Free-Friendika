@@ -104,12 +104,12 @@ class OAuth
 		}
 		Logger::debug('Token found', $token);
 
-		User::updateLastActivity($token['uid']);
+//		User::updateLastActivity($token['uid']);
 
 		// Regularly update suggestions
-		if (Contact\Relation::areSuggestionsOutdated($token['uid'])) {
-			Worker::add(Worker::PRIORITY_MEDIUM, 'UpdateSuggestions', $token['uid']);
-		}
+//		if (Contact\Relation::areSuggestionsOutdated($token['uid'])) {
+//			Worker::add(Worker::PRIORITY_MEDIUM, 'UpdateSuggestions', $token['uid']);
+//		}
 		
 		return $token;
 	}
