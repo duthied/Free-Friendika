@@ -43,7 +43,7 @@ class Suggestions extends BaseApi
 			'limit' => 40, // Maximum number of results to return. Defaults to 40.
 		], $request);
 
-		$suggestions = Contact\Relation::getSuggestions($uid, 0, $request['limit']);
+		$suggestions = Contact\Relation::getCachedSuggestions($uid, 0, $request['limit']);
 
 		$accounts = [];
 

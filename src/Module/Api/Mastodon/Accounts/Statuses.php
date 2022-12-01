@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon\Accounts;
 
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -113,7 +114,11 @@ class Statuses extends BaseApi
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
 			self::setBoundaries($item['uri-id']);
-			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
+			try {
+				$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
+			} catch (\Throwable $th) {
+				Logger::info('Post not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
+			}
 		}
 		DBA::close($items);
 

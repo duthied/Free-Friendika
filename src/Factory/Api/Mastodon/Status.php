@@ -167,9 +167,23 @@ class Status extends BaseFactory
 		if (!empty($shared)) {
 			$shared_uri_id = $shared['post']['uri-id'];
 
-			$mentions    = array_merge($mentions, $this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy());
-			$tags        = array_merge($tags, $this->mstdnTagFactory->createFromUriId($shared_uri_id));
-			$attachments = array_merge($attachments, $this->mstdnAttachementFactory->createFromUriId($shared_uri_id));
+			foreach ($this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy() as $mention) {
+				if (!in_array($mention, $mentions)) {
+					$mentions[] = $mention;
+				}
+			}
+
+			foreach ($this->mstdnTagFactory->createFromUriId($shared_uri_id) as $tag) {
+				if (!in_array($tag, $tags)) {
+					$tags[] = $tag;
+				}
+			}
+
+			foreach ($this->mstdnAttachementFactory->createFromUriId($shared_uri_id) as $attachment) {
+				if (!in_array($attachment, $attachments)) {
+					$attachments[] = $attachment;
+				}
+			}
 
 			if (empty($card->toArray())) {
 				$card = $this->mstdnCardFactory->createFromUriId($shared_uri_id);
