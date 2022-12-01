@@ -359,7 +359,7 @@ class Authentication
 			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()],
 				['parent-uid' => $user_record['uid'], 'account_removed' => false]);
 
-//			User::updateLastActivity($user_record['uid']);
+			User::updateLastActivity($user_record['uid']);
 
 			// Regularly update suggestions
 			if (Contact\Relation::areSuggestionsOutdated($user_record['uid'])) {
