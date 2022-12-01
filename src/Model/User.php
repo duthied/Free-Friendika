@@ -674,6 +674,10 @@ class User
 	public static function updateLastActivity(int $uid)
 	{
 		$user = User::getById($uid, ['last-activity']);
+		if (empty($user)) {
+			return;
+		}
+
 		$current_day = DateTimeFormat::utcNow('Y-m-d');
 
 		if ($user['last-activity'] != $current_day) {
