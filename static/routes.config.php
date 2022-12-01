@@ -38,6 +38,7 @@ $profileRoutes = [
 	'/photos'                                  => [Module\Profile\Photos::class,       [R::GET         ]],
 	'/profile'                                 => [Module\Profile\Profile::class,      [R::GET]],
 	'/remote_follow'                           => [Module\Profile\RemoteFollow::class, [R::GET, R::POST]],
+	'/restricted'                              => [Module\Profile\Restricted::class,   [R::GET         ]],
 	'/schedule'                                => [Module\Profile\Schedule::class,     [R::GET, R::POST]],
 	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,       [R::GET]],
 	'/unkmail'                                 => [Module\Profile\UnkMail::class,      [R::GET, R::POST]],
@@ -416,13 +417,8 @@ return [
 
 	'/featured/{nickname}'      => [Module\ActivityPub\Featured::class, [R::GET]],
 
-	'/feed'     => [
-		'/{nickname}'          => [Module\Feed::class, [R::GET]],
-		'/{nickname}/posts'    => [Module\Feed::class, [R::GET]],
-		'/{nickname}/comments' => [Module\Feed::class, [R::GET]],
-		'/{nickname}/replies'  => [Module\Feed::class, [R::GET]],
-		'/{nickname}/activity' => [Module\Feed::class, [R::GET]],
-	],
+	'/feed/{nickname}[/{type:posts|comments|replies|activity}]' => [Module\Feed::class, [R::GET]],
+
 	'/feedtest' => [Module\Debug\Feed::class, [R::GET]],
 
 	'/fetch'             => [

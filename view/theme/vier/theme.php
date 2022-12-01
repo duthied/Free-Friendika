@@ -42,8 +42,6 @@ use Friendica\Util\Strings;
 
 function vier_init(App $a)
 {
-	$a->setThemeInfoValue('events_in_profile', false);
-
 	Renderer::setActiveTemplateEngine('smarty3');
 
 	$args = DI::args();
