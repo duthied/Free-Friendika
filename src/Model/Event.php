@@ -673,7 +673,7 @@ class Event
 
 		$event['author-link'] = Contact::magicLink($event['author-link']);
 		$event['summary']     = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));
-		$event['desc']        = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['desc']));
+		$event['desc']        = Strings::escapeHtml($event['desc']);
 		$event['location']    = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['location']));
 
 		return [
