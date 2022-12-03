@@ -664,7 +664,6 @@ class System
 
 	/**
 	 * Fetch the system rules
-	 * @todo We should have got a better way to store and fetch the rules
 	 *
 	 * @return array
 	 */
@@ -674,7 +673,8 @@ class System
 		$id    = 0;
 
 		if (DI::config()->get('system', 'tosdisplay')) {
-			$html = BBCode::convert(DI::config()->get('system', 'tostext'), false, BBCode::EXTERNAL);
+			$rulelist = DI::config()->get('system', 'tosrules') ?: DI::config()->get('system', 'tostext');
+			$html = BBCode::convert($rulelist, false, BBCode::EXTERNAL);
 
 			$msg = HTML::toPlaintext($html, 0, true);
 			foreach (explode("\n", $msg) as $line) {
