@@ -170,12 +170,12 @@ class API extends BaseModule
 		$type     = 'event';
 
 		$params = [
-			'summary'     => $summary,
-			'description' => $desc,
-			'location'    => $location,
-			'start'       => $strStartDateTime,
-			'finish'      => $strFinishDateTime,
-			'nofinish'    => $noFinish,
+			'summary'  => $summary,
+			'desc'     => $desc,
+			'location' => $location,
+			'start'    => $strStartDateTime,
+			'finish'   => $strFinishDateTime,
+			'nofinish' => $noFinish,
 		];
 
 		$action          = empty($eventId) ? 'new' : 'edit/' . $eventId;
