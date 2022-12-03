@@ -56,7 +56,7 @@ class Followers extends BaseApi
 			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
 		], $request);
 
-		if (false && $id == Contact::getPublicIdByUserId($uid)) {
+		if ($id == Contact::getPublicIdByUserId($uid)) {
 			$params = ['order' => ['pid' => true], 'limit' => $request['limit']];
 
 			$condition = ['uid' => $uid, 'self' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]];
