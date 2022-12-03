@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-03 21:11+0000\n"
+"POT-Creation-Date: 2022-12-04 06:41-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2151,9 +2151,8 @@ msgstr ""
 
 #: src/Content/Widget/VCard.php:104 src/Model/Event.php:82
 #: src/Model/Event.php:109 src/Model/Event.php:471 src/Model/Event.php:958
-#: src/Model/Profile.php:373 src/Module/Calendar/Event/Form.php:239
-#: src/Module/Contact/Profile.php:369 src/Module/Directory.php:147
-#: src/Module/Notifications/Introductions.php:187
+#: src/Model/Profile.php:373 src/Module/Contact/Profile.php:369
+#: src/Module/Directory.php:147 src/Module/Notifications/Introductions.php:187
 #: src/Module/Profile/Profile.php:186
 msgid "Location:"
 msgstr ""
@@ -3295,7 +3294,7 @@ msgstr ""
 msgid "Contact information and Social Networks"
 msgstr ""
 
-#: src/Model/User.php:212 src/Model/User.php:1100
+#: src/Model/User.php:212 src/Model/User.php:1102
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr ""
 
@@ -3307,134 +3306,134 @@ msgstr ""
 msgid "Not enough information to authenticate"
 msgstr ""
 
-#: src/Model/User.php:750
+#: src/Model/User.php:752
 msgid "Password can't be empty"
 msgstr ""
 
-#: src/Model/User.php:792
+#: src/Model/User.php:794
 msgid "Empty passwords are not allowed."
 msgstr ""
 
-#: src/Model/User.php:796
+#: src/Model/User.php:798
 msgid ""
 "The new password has been exposed in a public data dump, please choose "
 "another."
 msgstr ""
 
-#: src/Model/User.php:800
+#: src/Model/User.php:802
 msgid "The password length is limited to 72 characters."
 msgstr ""
 
-#: src/Model/User.php:804
+#: src/Model/User.php:806
 msgid ""
 "The password can't contain accentuated letters, white spaces or colons (:)"
 msgstr ""
 
-#: src/Model/User.php:983
+#: src/Model/User.php:985
 msgid "Passwords do not match. Password unchanged."
 msgstr ""
 
-#: src/Model/User.php:990
+#: src/Model/User.php:992
 msgid "An invitation is required."
 msgstr ""
 
-#: src/Model/User.php:994
+#: src/Model/User.php:996
 msgid "Invitation could not be verified."
 msgstr ""
 
-#: src/Model/User.php:1002
+#: src/Model/User.php:1004
 msgid "Invalid OpenID url"
 msgstr ""
 
-#: src/Model/User.php:1015 src/Security/Authentication.php:241
+#: src/Model/User.php:1017 src/Security/Authentication.php:241
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr ""
 
-#: src/Model/User.php:1015 src/Security/Authentication.php:241
+#: src/Model/User.php:1017 src/Security/Authentication.php:241
 msgid "The error message was:"
 msgstr ""
 
-#: src/Model/User.php:1021
+#: src/Model/User.php:1023
 msgid "Please enter the required information."
 msgstr ""
 
-#: src/Model/User.php:1035
+#: src/Model/User.php:1037
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr ""
 
-#: src/Model/User.php:1042
+#: src/Model/User.php:1044
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1046
+#: src/Model/User.php:1048
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1054
+#: src/Model/User.php:1056
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr ""
 
-#: src/Model/User.php:1059
+#: src/Model/User.php:1061
 msgid "Your email domain is not among those allowed on this site."
 msgstr ""
 
-#: src/Model/User.php:1063
+#: src/Model/User.php:1065
 msgid "Not a valid email address."
 msgstr ""
 
-#: src/Model/User.php:1066
+#: src/Model/User.php:1068
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr ""
 
-#: src/Model/User.php:1070 src/Model/User.php:1076
+#: src/Model/User.php:1072 src/Model/User.php:1078
 msgid "Cannot use that email."
 msgstr ""
 
-#: src/Model/User.php:1082
+#: src/Model/User.php:1084
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr ""
 
-#: src/Model/User.php:1090 src/Model/User.php:1147
+#: src/Model/User.php:1092 src/Model/User.php:1149
 msgid "Nickname is already registered. Please choose another."
 msgstr ""
 
-#: src/Model/User.php:1134 src/Model/User.php:1138
+#: src/Model/User.php:1136 src/Model/User.php:1140
 msgid "An error occurred during registration. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1161
+#: src/Model/User.php:1163
 msgid "An error occurred creating your default profile. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1168
+#: src/Model/User.php:1170
 msgid "An error occurred creating your self contact. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1173
+#: src/Model/User.php:1175
 msgid "Friends"
 msgstr ""
 
-#: src/Model/User.php:1177
+#: src/Model/User.php:1179
 msgid ""
 "An error occurred creating your default contact group. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1216
+#: src/Model/User.php:1218
 msgid "Profile Photos"
 msgstr ""
 
-#: src/Model/User.php:1409
+#: src/Model/User.php:1411
 #, php-format
 msgid ""
 "\n"
@@ -3442,7 +3441,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1412
+#: src/Model/User.php:1414
 #, php-format
 msgid ""
 "\n"
@@ -3480,12 +3479,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1445 src/Model/User.php:1552
+#: src/Model/User.php:1447 src/Model/User.php:1554
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: src/Model/User.php:1465
+#: src/Model/User.php:1467
 #, php-format
 msgid ""
 "\n"
@@ -3501,12 +3500,12 @@ msgid ""
 "\t\t"
 msgstr ""
 
-#: src/Model/User.php:1484
+#: src/Model/User.php:1486
 #, php-format
 msgid "Registration at %s"
 msgstr ""
 
-#: src/Model/User.php:1508
+#: src/Model/User.php:1510
 #, php-format
 msgid ""
 "\n"
@@ -3515,7 +3514,7 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: src/Model/User.php:1516
+#: src/Model/User.php:1518
 #, php-format
 msgid ""
 "\n"
@@ -5492,7 +5491,7 @@ msgid "Event Starts:"
 msgstr ""
 
 #: src/Module/Calendar/Event/Form.php:209
-#: src/Module/Calendar/Event/Form.php:241 src/Module/Debug/Probe.php:59
+#: src/Module/Calendar/Event/Form.php:237 src/Module/Debug/Probe.php:59
 #: src/Module/Install.php:207 src/Module/Install.php:240
 #: src/Module/Install.php:245 src/Module/Install.php:264
 #: src/Module/Install.php:275 src/Module/Install.php:280
@@ -5523,14 +5522,17 @@ msgstr ""
 msgid "Event Finishes:"
 msgstr ""
 
-#: src/Module/Calendar/Event/Form.php:237 src/Module/Profile/Profile.php:164
-#: src/Module/Settings/Profile/Index.php:247
-msgid "Description:"
+#: src/Module/Calendar/Event/Form.php:237
+#: src/Module/Calendar/Event/Form.php:243
+msgid "Title (BBCode not allowed)"
+msgstr ""
+
+#: src/Module/Calendar/Event/Form.php:239
+msgid "Description (BBCode allowed)"
 msgstr ""
 
 #: src/Module/Calendar/Event/Form.php:241
-#: src/Module/Calendar/Event/Form.php:243
-msgid "Title:"
+msgid "Location (BBCode not allowed)"
 msgstr ""
 
 #: src/Module/Calendar/Event/Form.php:244
@@ -8238,6 +8240,10 @@ msgid "%d year old"
 msgid_plural "%d years old"
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Module/Profile/Profile.php:164 src/Module/Settings/Profile/Index.php:247
+msgid "Description:"
+msgstr ""
 
 #: src/Module/Profile/Profile.php:226
 msgid "Forums:"
