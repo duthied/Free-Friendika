@@ -152,7 +152,7 @@ class API extends BaseModule
 		$share     = intval($request['share'] ?? 0);
 		$isPreview = intval($request['preview'] ?? 0);
 
-		$start = DateTimeFormat::convert($strStartDateTime ?? DBA::NULL_DATETIME, $this->timezone);
+		$start = DateTimeFormat::convert($strStartDateTime ?? DBA::NULL_DATETIME, 'UTC', $this->timezone);
 		if (!$noFinish) {
 			$finish = DateTimeFormat::convert($strFinishDateTime ?? DBA::NULL_DATETIME, 'UTC', $this->timezone);
 		} else {
