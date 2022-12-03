@@ -438,11 +438,12 @@ class System
 	/**
 	 * Fetch the load and number of processes
 	 *
+	 * @param bool $get_processes
 	 * @return array
 	 */
-	public static function getLoadAvg(): array
+	public static function getLoadAvg(bool $get_processes = true): array
 	{
-		if (@is_readable('/proc/loadavg')) {
+		if ($get_processes && @is_readable('/proc/loadavg')) {
 			$content = @file_get_contents('/proc/loadavg');
 			if (empty($content)) {
 				$content = shell_exec('uptime | sed "s/.*averages*: //" | sed "s/,//g"');
