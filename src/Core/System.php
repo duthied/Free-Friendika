@@ -21,6 +21,8 @@
 
 namespace Friendica\Core;
 
+use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\DI;
 use Friendica\Module\Response;
@@ -658,5 +660,31 @@ class System
 
 		// Reaching this point means that the operating system is configured badly.
 		return "";
+	}
+
+	/**
+	 * Fetch the system rules
+	 * @todo We should have got a better way to store and fetch the rules
+	 *
+	 * @return array
+	 */
+	public static function getRules(): array
+	{
+		$rules = [];
+		$id    = 0;
+
+		if (DI::config()->get('system', 'tosdisplay')) {
+			$html = BBCode::convert(DI::config()->get('system', 'tostext'), false, BBCode::EXTERNAL);
+
+			$msg = HTML::toPlaintext($html, 0, true);
+			foreach (explode("\n", $msg) as $line) {
+				$line = trim($line);
+				if ($line) {
+					$rules[] = ['id' => (string)++$id, 'text' => $line];
+				}
+			}
+		}
+
+		return $rules;
 	}
 }
