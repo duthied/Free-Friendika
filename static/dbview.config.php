@@ -889,6 +889,7 @@
 			"language" => ["user", "language"],
 			"register_date" => ["user", "register_date"],
 			"login_date" => ["user", "login_date"],
+			"last-activity" => ["user", "last-activity"],
 			"default-location" => ["user", "default-location"],
 			"allow_location" => ["user", "allow_location"],
 			"theme" => ["user", "theme"],
