@@ -76,7 +76,7 @@ class Relation
 	 */
 	public static function discoverByUser(int $uid)
 	{
-		$contact = Contact::selectFirst(['id', 'url'], ['uid' => $uid, 'self' => true]);
+		$contact = Contact::selectFirst(['id', 'url', 'network'], ['uid' => $uid, 'self' => true]);
 		if (empty($contact)) {
 			Logger::warning('Self contact for user not found', ['uid' => $uid]);
 			return;

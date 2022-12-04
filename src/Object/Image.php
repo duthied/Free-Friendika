@@ -26,13 +26,15 @@ use Friendica\DI;
 use Friendica\Util\Images;
 use Imagick;
 use ImagickPixel;
+use GDImage;
+use kornrunner\Blurhash\Blurhash;
 
 /**
  * Class to handle images
  */
 class Image
 {
-	/** @var Imagick|resource */
+	/** @var GDImage|Imagick|resource */
 	private $image;
 
 	/*
@@ -695,14 +697,13 @@ class Image
 			try {
 				/* Clean it */
 				$this->image = $this->image->deconstructImages();
-				$string = $this->image->getImagesBlob();
-				return $string;
+				return $this->image->getImagesBlob();
 			} catch (Exception $e) {
 				return false;
 			}
 		}
 
-		ob_start();
+		$stream = fopen('php://memory','r+');
 
 		// Enable interlacing
 		imageinterlace($this->image, true);
@@ -710,18 +711,82 @@ class Image
 		switch ($this->getType()) {
 			case 'image/png':
 				$quality = DI::config()->get('system', 'png_quality');
-				imagepng($this->image, null, $quality);
+				imagepng($this->image, $stream, $quality);
 				break;
 
 			case 'image/jpeg':
 			case 'image/jpg':
 				$quality = DI::config()->get('system', 'jpeg_quality');
-				imagejpeg($this->image, null, $quality);
+				imagejpeg($this->image, $stream, $quality);
 				break;
 		}
-		$string = ob_get_contents();
-		ob_end_clean();
+		rewind($stream);
+		return stream_get_contents($stream);
+	}
 
-		return $string;
+	/**
+	 * Create a blurhash out of a given image string
+	 *
+	 * @param string $img_str
+	 * @return string
+	 */
+	public function getBlurHash(): string
+	{
+		if ($this->isImagick()) {
+			// Imagick is not supported
+			return '';
+		}
+
+		$width = $this->getWidth();
+		$height = $this->getHeight();
+
+		if (max($width, $height) > 90) {
+			$this->scaleDown(90);
+			$width = $this->getWidth();
+			$height = $this->getHeight();
+		}
+
+		$pixels = [];
+		for ($y = 0; $y < $height; ++$y) {
+			$row = [];
+			for ($x = 0; $x < $width; ++$x) {
+				$index = imagecolorat($this->image, $x, $y);
+				$colors = imagecolorsforindex($this->image, $index);
+
+				$row[] = [$colors['red'], $colors['green'], $colors['blue']];
+			}
+			$pixels[] = $row;
+		}
+
+		// The components define the amount of details (1 to 9).
+		$components_x = 9;
+		$components_y = 9;
+
+		return Blurhash::encode($pixels, $components_x, $components_y);
+	}
+
+	/**
+	 * Create an image out of a blurhash
+	 *
+	 * @param string $blurhash
+	 * @param integer $width
+	 * @param integer $height
+	 * @return void
+	 */
+	public function getFromBlurHash(string $blurhash, int $width, int $height)
+	{
+		if ($this->isImagick()) {
+			// Imagick is not supported
+			return;
+		}
+
+		$pixels = Blurhash::decode($blurhash, $width, $height);
+		$this->image  = imagecreatetruecolor($width, $height);
+		for ($y = 0; $y < $height; ++$y) {
+			for ($x = 0; $x < $width; ++$x) {
+				[$r, $g, $b] = $pixels[$y][$x];
+				imagesetpixel($this->image, $x, $y, imagecolorallocate($this->image, $r, $g, $b));
+			}
+		}
 	}
 }
