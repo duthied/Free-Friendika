@@ -353,7 +353,7 @@ class Photo
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function createPhotoForExternalResource(string $url, int $uid = 0, string $mimetype = '', string $blurhash = '', int $width = 0, int $height = 0): array
+	public static function createPhotoForExternalResource(string $url, int $uid = 0, string $mimetype = '', string $blurhash = null, int $width = null, int $height = null): array
 	{
 		if (empty($mimetype)) {
 			$mimetype = Images::guessTypeByExtension($url);
