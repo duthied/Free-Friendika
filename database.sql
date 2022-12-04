@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.12-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1496
+-- DB_UPDATE_VERSION 1497
 -- ------------------------------------------
 
 
@@ -1088,6 +1088,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	`height` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`width` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`datasize` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`blurhash` varbinary(255) COMMENT 'BlurHash representation of the photo',
 	`data` mediumblob NOT NULL COMMENT '',
 	`scale` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`profile` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -1313,6 +1314,7 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 	`height` smallint unsigned COMMENT 'Height of the media',
 	`width` smallint unsigned COMMENT 'Width of the media',
 	`size` bigint unsigned COMMENT 'Media size',
+	`blurhash` varbinary(255) COMMENT 'BlurHash representation of the image',
 	`preview` varbinary(512) COMMENT 'Preview URL',
 	`preview-height` smallint unsigned COMMENT 'Height of the preview picture',
 	`preview-width` smallint unsigned COMMENT 'Width of the preview picture',
@@ -2693,6 +2695,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`user`.`language` AS `language`,
 	`user`.`register_date` AS `register_date`,
 	`user`.`login_date` AS `login_date`,
+	`user`.`last-activity` AS `last-activity`,
 	`user`.`default-location` AS `default-location`,
 	`user`.`allow_location` AS `allow_location`,
 	`user`.`theme` AS `theme`,

@@ -19,25 +19,18 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon\Instance;
+namespace Friendica\Worker;
 
-use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\HTML;
-use Friendica\Core\System;
-use Friendica\DI;
-use Friendica\Module\BaseApi;
-use Friendica\Network\HTTPException;
+use Friendica\Model\Contact;
 
-/**
- * Undocumented API endpoint
- */
-class Rules extends BaseApi
+class ContactDiscoveryForUser
 {
 	/**
-	 * @throws HTTPException\InternalServerErrorException
+	 * Discover contact relations
+	 * @param string $url
 	 */
-	protected function rawContent(array $request = [])
+	public static function execute(int $uid)
 	{
-		System::jsonExit(System::getRules());
+		Contact\Relation::discoverByUser($uid);
 	}
 }
