@@ -436,6 +436,7 @@ class Photo
 			'height' => $image->getHeight(),
 			'width' => $image->getWidth(),
 			'datasize' => strlen($image->asString()),
+			'blurhash' => $image->getBlurHash(),
 			'data' => $data,
 			'scale' => $scale,
 			'photo-type' => $type,
