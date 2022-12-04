@@ -101,11 +101,10 @@ class NoScrape extends BaseModule
 			$last_active = strtotime($contact['last-item']);
 		}
 
-		$condition = ['uid' => $owner['uid']];
-		$user      = DBA::selectFirst('user', ['login_date'], $condition);
+		$user = User::getOwnerDataById($owner['uid']);
 		if (DBA::isResult($user)) {
-			if ($last_active < strtotime($user['login_date'])) {
-				$last_active = strtotime($user['login_date']);
+			if ($last_active < strtotime($user['last-activity'])) {
+				$last_active = strtotime($user['last-activity']);
 			}
 		}
 		$json_info['last-activity'] = date('o-W', $last_active);
