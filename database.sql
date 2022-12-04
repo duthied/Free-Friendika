@@ -2693,7 +2693,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`user`.`language` AS `language`,
 	`user`.`register_date` AS `register_date`,
 	`user`.`login_date` AS `login_date`,
-	IF (`user`.`last-activity` IS NULL, DATE(`user`.`login_date`), `user`.`last-activity`) AS `last-activity`,
+	`user`.`last-activity` AS `last-activity`,
 	`user`.`default-location` AS `default-location`,
 	`user`.`allow_location` AS `allow_location`,
 	`user`.`theme` AS `theme`,

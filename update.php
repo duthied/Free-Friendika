@@ -1127,3 +1127,9 @@ function update_1491()
 	DBA::update('contact', ['remote_self' => Contact::MIRROR_OWN_POST], ['remote_self' => Contact::MIRROR_FORWARDED]);
 	return Update::SUCCESS;
 }
+
+function update_1497()
+{
+	DBA::e("UPDATE `user` SET `last-activity` = DATE(`login_date`) WHERE `last-activity` IS NULL");
+	return Update::SUCCESS;
+}
