@@ -1325,7 +1325,7 @@ class Photo
 			logger::warning('profile banner upload with scale 3 (960) failed');
 		}
 
-		logger::info('new profile banner upload ended');
+		logger::info('new profile banner upload ended', ['uid' => $uid, 'resource_id' => $resource_id, 'filename' => $filename]);
 
 		$condition = ["`photo-type` = ? AND `resource-id` != ? AND `uid` = ?", self::USER_BANNER, $resource_id, $uid];
 		self::update(['photo-type' => self::DEFAULT], $condition);
