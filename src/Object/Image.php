@@ -780,13 +780,21 @@ class Image
 			return;
 		}
 
-		$pixels = Blurhash::decode($blurhash, $width, $height);
-		$this->image  = imagecreatetruecolor($width, $height);
-		for ($y = 0; $y < $height; ++$y) {
-			for ($x = 0; $x < $width; ++$x) {
+		$scaled = Images::getScalingDimensions($width, $height, 90);
+		$pixels = Blurhash::decode($blurhash, $scaled['width'], $scaled['height']);
+
+		$this->image = imagecreatetruecolor($scaled['width'], $scaled['height']);
+		for ($y = 0; $y < $scaled['height']; ++$y) {
+			for ($x = 0; $x < $scaled['width']; ++$x) {
 				[$r, $g, $b] = $pixels[$y][$x];
 				imagesetpixel($this->image, $x, $y, imagecolorallocate($this->image, $r, $g, $b));
 			}
 		}
+
+		$this->width  = imagesx($this->image);
+		$this->height = imagesy($this->image);
+		$this->valid  = true;
+
+		$this->scaleUp(min($width, $height));
 	}
 }
