@@ -9,6 +9,10 @@ matrix:
     - PHP_MAJOR_VERSION: 8.1
       PHP_VERSION: 8.1.12
 
+# This forces PHP Unit executions at the "opensocial" labeled location (because of much more power...)
+labels:
+  location: opensocial
+
 pipeline:
   php-lint:
     image: php:${PHP_MAJOR_VERSION}
