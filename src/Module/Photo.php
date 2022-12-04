@@ -182,6 +182,12 @@ class Photo extends BaseModule
 			throw new HTTPException\InternalServerErrorException($error);
 		}
 
+		if (!empty($request['static'])) {
+			$img = new Image($imgdata, $photo['type']);
+			$img->toStatic();
+			$imgdata = $img->asString();
+		}
+
 		// if customsize is set and image is not a gif, resize it
 		if ($photo['type'] !== 'image/gif' && $customsize > 0 && $customsize <= Proxy::PIXEL_THUMB && $square_resize) {
 			$img = new Image($imgdata, $photo['type']);

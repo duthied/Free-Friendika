@@ -57,7 +57,7 @@ class Image
 	 */
 	public function __construct(string $data, string $type = null)
 	{
-		$this->imagick = class_exists('Imagick');
+		$this->imagick = class_exists('Imagick') && !class_exists('GDImage');
 		$this->types = Images::supportedTypes();
 		if (!array_key_exists($type, $this->types)) {
 			$type = 'image/jpeg';
@@ -751,7 +751,7 @@ class Image
 			$row = [];
 			for ($x = 0; $x < $width; ++$x) {
 				$index = imagecolorat($this->image, $x, $y);
-				$colors = imagecolorsforindex($this->image, $index);
+				$colors = @imagecolorsforindex($this->image, $index);
 
 				$row[] = [$colors['red'], $colors['green'], $colors['blue']];
 			}

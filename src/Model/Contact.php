@@ -2057,9 +2057,10 @@ class Contact
 	 * @param integer $cid     contact id
 	 * @param string  $size    One of the Proxy::SIZE_* constants
 	 * @param string  $updated Contact update date
+	 * @param bool    $static  If "true" a parameter is added to convert the header to a static one
 	 * @return string avatar link
 	 */
-	public static function getAvatarUrlForId(int $cid, string $size = '', string $updated = '', string $guid = ''): string
+	public static function getAvatarUrlForId(int $cid, string $size = '', string $updated = '', string $guid = '', bool $static = false): string
 	{
 		// We have to fetch the "updated" variable when it wasn't provided
 		// The parameter can be provided to improve performance
@@ -2089,7 +2090,15 @@ class Contact
 				$url .= Proxy::PIXEL_LARGE . '/';
 				break;
 		}
-		return $url . ($guid ?: $cid) . ($updated ? '?ts=' . strtotime($updated) : '');
+		$query_params = [];
+		if ($updated) {
+			$query_params['ts'] = strtotime($updated);
+		}
+		if ($static) {
+			$query_params['static'] = true;
+		}
+		
+		return $url . ($guid ?: $cid) . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
 	}
 
 	/**
@@ -2114,9 +2123,10 @@ class Contact
 	 * @param integer $cid     contact id
 	 * @param string  $size    One of the Proxy::SIZE_* constants
 	 * @param string  $updated Contact update date
+	 * @param bool    $static  If "true" a parameter is added to convert the header to a static one
 	 * @return string header link
 	 */
-	public static function getHeaderUrlForId(int $cid, string $size = '', string $updated = '', string $guid = ''): string
+	public static function getHeaderUrlForId(int $cid, string $size = '', string $updated = '', string $guid = '', bool $static = false): string
 	{
 		// We have to fetch the "updated" variable when it wasn't provided
 		// The parameter can be provided to improve performance
@@ -2147,7 +2157,15 @@ class Contact
 				break;
 		}
 
-		return $url . ($guid ?: $cid) . ($updated ? '?ts=' . strtotime($updated) : '');
+		$query_params = [];
+		if ($updated) {
+			$query_params['ts'] = strtotime($updated);
+		}
+		if ($static) {
+			$query_params['static'] = true;
+		}
+
+		return $url . ($guid ?: $cid) . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
 	}
 
 	/**
