@@ -21,6 +21,8 @@
 
 namespace Friendica\Model;
 
+use DOMDocument;
+use DOMXPath;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -3085,9 +3087,10 @@ class Item
 		];
 		Hook::callAll('prepare_body', $hook_data);
 		// Remove old images
-		$hook_data['html'] = preg_replace('|(<a.*><img.*>.*</a>)|', '', $hook_data['html']);
-		$grid = self::make_image_grid($hook_data);
-		$s = $hook_data['html'] . $grid;
+//		$hook_data['html'] = preg_replace('|(<a.*><img.*>.*</a>)|', '', $hook_data['html']);
+//		$grid = self::make_image_grid($hook_data);
+//		$s = $hook_data['html'] . $grid;
+		$s = $hook_data['html'];
 		unset($hook_data);
 
 		if (!$attach) {
@@ -3131,6 +3134,27 @@ class Item
 		return $hook_data['html'];
 	}
 
+	/**
+	 * This function removes images at the very end of a post based on the assumption that this images are interpreted
+	 * as attachments
+	 * @param array $rendered_html
+	 * @return array
+	 */
+	private function cutAttachedImages(array &$rendered_html) {
+		$doc = new DOMDocument();
+		$doc->loadHTML($rendered_html);
+
+		$xpathsearch = new DOMXPath($doc);
+		$nodes = $xpathsearch->query("*");
+
+		return $nodes;
+	}
+
+	/**
+	 * @param array $data
+	 * @return string|void
+	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
+	 */
 	private function make_image_grid(array &$data)
 	{
 		$item = $data['item'];
@@ -3149,6 +3173,7 @@ class Item
 							'preview' => $preview_url,
 							'attachment' => $attachment,
 					]);
+					// @todo add some fany ai to divide images equally on both columns
 					if ($count % 2 == 0) {
 						$img_tags_fc[] = $img_tag;
 					} else {
