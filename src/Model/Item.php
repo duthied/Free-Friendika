@@ -2991,6 +2991,7 @@ class Item
 		$a = DI::app();
 		Hook::callAll('prepare_body_init', $item);
 
+
 		// In order to provide theme developers more possibilities, event items
 		// are treated differently.
 		if ($item['object-type'] === Activity\ObjectType::EVENT && isset($item['event-id'])) {
@@ -3049,6 +3050,7 @@ class Item
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
 
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
+
 		self::putInCache($item);
 		$item['body'] = $body;
 		$s = $item["rendered-html"];
@@ -3082,7 +3084,10 @@ class Item
 			'filter_reasons' => $filter_reasons
 		];
 		Hook::callAll('prepare_body', $hook_data);
-		$s = $hook_data['html'];
+		// Remove old images
+		$hook_data['html'] = preg_replace('|(<a.*><img.*>.*</a>)|', '', $hook_data['html']);
+		$grid = self::make_image_grid($hook_data);
+		$s = $hook_data['html'] . $grid;
 		unset($hook_data);
 
 		if (!$attach) {
@@ -3124,6 +3129,36 @@ class Item
 		Hook::callAll('prepare_body_final', $hook_data);
 
 		return $hook_data['html'];
+	}
+
+	private function make_image_grid(array &$data)
+	{
+		$item = $data['item'];
+		if ($item['has-media']) {
+			$attachments = Post\Media::splitAttachments($item['uri-id'], [], $item['has-media'] ?? false);
+			if (count($attachments['visual']) > 1) {
+				$img_tags = array();
+				foreach ($attachments['visual'] as $attachment) {
+					$src_url = Post\Media::getUrlForId($attachment['id']);
+					$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
+					$img_tag = array(
+						'$image' => [
+							'src' => $src_url,
+							'preview' => $preview_url,
+							'attachment' => $attachment,
+					]);
+					$img_tags[] = $img_tag;
+				}
+				$img_grid = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
+					'columns' => [
+						'fc' => $img_tags[0],
+						'sc' => $img_tags[1],
+					],
+				]);
+				return $img_grid;
+			}
+		}
+
 	}
 
 	/**
