@@ -3137,7 +3137,9 @@ class Item
 		if ($item['has-media']) {
 			$attachments = Post\Media::splitAttachments($item['uri-id'], [], $item['has-media'] ?? false);
 			if (count($attachments['visual']) > 1) {
-				$img_tags = array();
+				$img_tags_fc = array();
+				$img_tags_sc = array();
+				$count = 0;
 				foreach ($attachments['visual'] as $attachment) {
 					$src_url = Post\Media::getUrlForId($attachment['id']);
 					$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
@@ -3147,12 +3149,18 @@ class Item
 							'preview' => $preview_url,
 							'attachment' => $attachment,
 					]);
-					$img_tags[] = $img_tag;
+					if ($count % 2 == 0) {
+						$img_tags_fc[] = $img_tag;
+					} else {
+						$img_tags_sc[] = $img_tag;
+					}
+					++$count;
 				}
+
 				$img_grid = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
 					'columns' => [
-						'fc' => $img_tags[0],
-						'sc' => $img_tags[1],
+						'fc' => $img_tags_fc,
+						'sc' => $img_tags_sc,
 					],
 				]);
 				return $img_grid;
