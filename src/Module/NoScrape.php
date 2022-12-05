@@ -23,7 +23,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\User;

@@ -751,7 +751,7 @@ class Image
 			$row = [];
 			for ($x = 0; $x < $width; ++$x) {
 				$index = imagecolorat($this->image, $x, $y);
-				$colors = imagecolorsforindex($this->image, $index);
+				$colors = @imagecolorsforindex($this->image, $index);
 
 				$row[] = [$colors['red'], $colors['green'], $colors['blue']];
 			}
