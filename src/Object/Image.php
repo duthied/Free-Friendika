@@ -57,7 +57,7 @@ class Image
 	 */
 	public function __construct(string $data, string $type = null)
 	{
-		$this->imagick = class_exists('Imagick') && !class_exists('GDImage');
+		$this->imagick = class_exists('Imagick');
 		$this->types = Images::supportedTypes();
 		if (!array_key_exists($type, $this->types)) {
 			$type = 'image/jpeg';
