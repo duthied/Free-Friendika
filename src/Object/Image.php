@@ -25,6 +25,7 @@ use Exception;
 use Friendica\DI;
 use Friendica\Util\Images;
 use Imagick;
+use ImagickDraw;
 use ImagickPixel;
 use GDImage;
 use kornrunner\Blurhash\Blurhash;
@@ -64,7 +65,7 @@ class Image
 		}
 		$this->type = $type;
 
-		if ($this->isImagick() && $this->loadData($data)) {
+		if ($this->isImagick() && (empty($data) || $this->loadData($data))) {
 			return;
 		} else {
 			// Failed to load with Imagick, fallback
@@ -732,11 +733,6 @@ class Image
 	 */
 	public function getBlurHash(): string
 	{
-		if ($this->isImagick()) {
-			// Imagick is not supported
-			return '';
-		}
-
 		$width = $this->getWidth();
 		$height = $this->getHeight();
 
@@ -750,10 +746,14 @@ class Image
 		for ($y = 0; $y < $height; ++$y) {
 			$row = [];
 			for ($x = 0; $x < $width; ++$x) {
-				$index = imagecolorat($this->image, $x, $y);
-				$colors = @imagecolorsforindex($this->image, $index);
-
-				$row[] = [$colors['red'], $colors['green'], $colors['blue']];
+				if ($this->isImagick()) {
+					$colors = $this->image->getImagePixelColor($x, $y)->getColor();
+					$row[] = [$colors['r'], $colors['g'], $colors['b']];
+				} else {
+					$index = imagecolorat($this->image, $x, $y);
+					$colors = @imagecolorsforindex($this->image, $index);
+					$row[] = [$colors['red'], $colors['green'], $colors['blue']];
+				}
 			}
 			$pixels[] = $row;
 		}
@@ -775,25 +775,37 @@ class Image
 	 */
 	public function getFromBlurHash(string $blurhash, int $width, int $height)
 	{
-		if ($this->isImagick()) {
-			// Imagick is not supported
-			return;
-		}
-
 		$scaled = Images::getScalingDimensions($width, $height, 90);
 		$pixels = Blurhash::decode($blurhash, $scaled['width'], $scaled['height']);
 
-		$this->image = imagecreatetruecolor($scaled['width'], $scaled['height']);
+		if ($this->isImagick()) {
+			$this->image = new Imagick();
+			$draw  = new ImagickDraw();
+			$this->image->newImage($scaled['width'], $scaled['height'], '', 'png');
+		} else {
+			$this->image = imagecreatetruecolor($scaled['width'], $scaled['height']);
+		}
+
 		for ($y = 0; $y < $scaled['height']; ++$y) {
 			for ($x = 0; $x < $scaled['width']; ++$x) {
 				[$r, $g, $b] = $pixels[$y][$x];
-				imagesetpixel($this->image, $x, $y, imagecolorallocate($this->image, $r, $g, $b));
+				if ($this->isImagick()) {
+					$draw->setFillColor("rgb($r, $g, $b)");
+					$draw->point($x, $y);
+				} else {
+					imagesetpixel($this->image, $x, $y, imagecolorallocate($this->image, $r, $g, $b));
+				}
 			}
 		}
 
-		$this->width  = imagesx($this->image);
-		$this->height = imagesy($this->image);
-		$this->valid  = true;
+		if ($this->isImagick()) {
+			$this->image->drawImage($draw);
+		} else {
+			$this->width  = imagesx($this->image);
+			$this->height = imagesy($this->image);
+		}
+
+		$this->valid = true;
 
 		$this->scaleUp(min($width, $height));
 	}
