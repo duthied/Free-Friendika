@@ -798,11 +798,11 @@ class Image
 			}
 		}
 
-		if (!$this->isImagick()) {
+		if ($this->isImagick()) {
+			$this->image->drawImage($draw);
+		} else {
 			$this->width  = imagesx($this->image);
 			$this->height = imagesy($this->image);
-		} else {
-			$this->image->drawImage($draw);
 		}
 
 		$this->valid = true;
