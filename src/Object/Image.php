@@ -733,25 +733,27 @@ class Image
 	 */
 	public function getBlurHash(): string
 	{
-		$width = $this->getWidth();
-		$height = $this->getHeight();
+		$image = New Image($this->asString());
+
+		$width = $image->getWidth();
+		$height = $image->getHeight();
 
 		if (max($width, $height) > 90) {
-			$this->scaleDown(90);
-			$width = $this->getWidth();
-			$height = $this->getHeight();
+			$image->scaleDown(90);
+			$width = $image->getWidth();
+			$height = $image->getHeight();
 		}
 
 		$pixels = [];
 		for ($y = 0; $y < $height; ++$y) {
 			$row = [];
 			for ($x = 0; $x < $width; ++$x) {
-				if ($this->isImagick()) {
-					$colors = $this->image->getImagePixelColor($x, $y)->getColor();
+				if ($image->isImagick()) {
+					$colors = $image->image->getImagePixelColor($x, $y)->getColor();
 					$row[] = [$colors['r'], $colors['g'], $colors['b']];
 				} else {
-					$index = imagecolorat($this->image, $x, $y);
-					$colors = @imagecolorsforindex($this->image, $index);
+					$index = imagecolorat($image->image, $x, $y);
+					$colors = @imagecolorsforindex($image->image, $index);
 					$row[] = [$colors['red'], $colors['green'], $colors['blue']];
 				}
 			}
