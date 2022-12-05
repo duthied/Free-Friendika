@@ -107,7 +107,7 @@ class Status extends BaseFactory
 			}
 		} else {
 			$is_reshare = $reblog && !is_null($item['causer-uri-id']) && ($item['causer-id'] != $item['author-id']) && ($item['post-reason'] == Item::PR_ANNOUNCEMENT);
-			$account    = $this->mstdnAccountFactory->createFromUriId($is_reshare ? $item['causer-uri-id']:$item['author-uri-id'], $uid);
+			$account    = $this->mstdnAccountFactory->createFromUriId($is_reshare ? $item['causer-uri-id'] : $item['author-uri-id'], $uid);
 		}
 
 		$count_announce = Post::countPosts([
