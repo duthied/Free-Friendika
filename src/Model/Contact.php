@@ -2057,7 +2057,7 @@ class Contact
 	 * @param integer $cid     contact id
 	 * @param string  $size    One of the Proxy::SIZE_* constants
 	 * @param string  $updated Contact update date
-	 * @param bool    $static  If "true" a parameter is added to convert the header to a static one
+	 * @param bool    $static  If "true" a parameter is added to convert the avatar to a static one
 	 * @return string avatar link
 	 */
 	public static function getAvatarUrlForId(int $cid, string $size = '', string $updated = '', string $guid = '', bool $static = false): string
