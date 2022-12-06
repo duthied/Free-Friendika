@@ -957,7 +957,7 @@ class Processor
 		}
 
 		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
-		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB)) {
+		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0)) {
 			Logger::debug('Post is accepted because of the relay settings', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
 			return true;
 		} else {
@@ -1185,7 +1185,7 @@ class Processor
 		if (!empty($item['parent-uri-id'])) {
 			if (Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $receiver])) {
 				$has_parents = true;
-			} elseif ($add_parent && Post::exists(['uri-id' => $item['parent-uri'], 'uid' => 0])) {
+			} elseif ($add_parent && Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => 0])) {
 				$stored = Item::storeForUserByUriId($item['parent-uri-id'], $receiver, $fields);
 				$has_parents = (bool)$stored;
 				if ($stored) {
@@ -1598,7 +1598,7 @@ class Processor
 			}
 		}
 
-		return Relay::isSolicitedPost($messageTags, $body, $authorid, $id, Protocol::ACTIVITYPUB);
+		return Relay::isSolicitedPost($messageTags, $body, $authorid, $id, Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0);
 	}
 
 	/**
