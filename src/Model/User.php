@@ -158,6 +158,7 @@ class User
 		$system['publish'] = false;
 		$system['net-publish'] = false;
 		$system['hide-friends'] = true;
+		$system['hidewall'] = true;
 		$system['prv_keywords'] = '';
 		$system['pub_keywords'] = '';
 		$system['address'] = '';
