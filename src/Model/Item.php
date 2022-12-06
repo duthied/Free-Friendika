@@ -21,6 +21,8 @@
 
 namespace Friendica\Model;
 
+use DOMDocument;
+use DOMXPath;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -3085,9 +3087,10 @@ class Item
 		];
 		Hook::callAll('prepare_body', $hook_data);
 		// Remove old images
-		$hook_data['html'] = preg_replace('|(<a.*><img.*>.*</a>)|', '', $hook_data['html']);
-		$grid = self::make_image_grid($hook_data);
-		$s = $hook_data['html'] . $grid;
+//		$hook_data['html'] = preg_replace('|(<a.*><img.*>.*</a>)|', '', $hook_data['html']);
+//		$grid = self::make_image_grid($hook_data);
+//		$s = $hook_data['html'] . $grid;
+		$s = $hook_data['html'];
 		unset($hook_data);
 
 		if (!$attach) {
@@ -3149,6 +3152,66 @@ class Item
 							'preview' => $preview_url,
 							'attachment' => $attachment,
 					]);
+					if ($count % 2 == 0) {
+						$img_tags_fc[] = $img_tag;
+					} else {
+						$img_tags_sc[] = $img_tag;
+					}
+					++$count;
+				}
+
+				$img_grid = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
+					'columns' => [
+						'fc' => $img_tags_fc,
+						'sc' => $img_tags_sc,
+					],
+				]);
+				return $img_grid;
+			}
+		}
+
+	}
+
+	/**
+	 * This function removes images at the very end of a post based on the assumption that this images are interpreted
+	 * as attachments
+	 * @param array $rendered_html
+	 * @return array
+	 */
+	private function cutAttachedImages(array &$rendered_html) {
+		$doc = new DOMDocument();
+		$doc->loadHTML($rendered_html);
+
+		$xpathsearch = new DOMXPath($doc);
+		$nodes = $xpathsearch->query("*");
+
+		return $nodes;
+	}
+
+	/**
+	 * @param array $data
+	 * @return string|void
+	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
+	 */
+	private function make_image_grid(array &$data)
+	{
+		$item = $data['item'];
+		if ($item['has-media']) {
+			$attachments = Post\Media::splitAttachments($item['uri-id'], [], $item['has-media'] ?? false);
+			if (count($attachments['visual']) > 1) {
+				$img_tags_fc = array();
+				$img_tags_sc = array();
+				$count = 0;
+				foreach ($attachments['visual'] as $attachment) {
+					$src_url = Post\Media::getUrlForId($attachment['id']);
+					$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
+					$img_tag = array(
+						'$image' => [
+							'src' => $src_url,
+							'preview' => $preview_url,
+							'attachment' => $attachment,
+					]);
+					// @todo add some fany ai to divide images equally on both columns
 					if ($count % 2 == 0) {
 						$img_tags_fc[] = $img_tag;
 					} else {
