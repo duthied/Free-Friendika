@@ -108,7 +108,7 @@ class Search extends BaseApi
 	private static function searchAccounts(int $uid, string $q, bool $resolve, int $limit, int $offset, bool $following)
 	{
 		if (
-			(strrpos($q, '@') > 0 || Network::isValidHttpUrl($q))
+			($offset == 0) && (strrpos($q, '@') > 0 || Network::isValidHttpUrl($q))
 			&& $id = Contact::getIdForURL($q, 0, $resolve ? null : false)
 		) {
 			return DI::mstdnAccount()->createFromContactId($id, $uid);
