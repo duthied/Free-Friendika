@@ -21,7 +21,9 @@
 
 namespace Friendica\Module\Settings;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
+use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
@@ -55,6 +57,7 @@ class Display extends BaseSettings
 		$enable_dislike         = !empty($_POST['enable_dislike'])         ? intval($_POST['enable_dislike'])       : 0;
 		$display_resharer       = !empty($_POST['display_resharer'])       ? intval($_POST['display_resharer'])   : 0;
 		$stay_local             = !empty($_POST['stay_local'])             ? intval($_POST['stay_local'])         : 0;
+		$preview_mode           = !empty($_POST['preview_mode'])           ? intval($_POST['preview_mode'])  : 0;
 		$browser_update         = !empty($_POST['browser_update'])         ? intval($_POST['browser_update'])     : 0;
 		if ($browser_update != -1) {
 			$browser_update = $browser_update * 1000;
@@ -91,6 +94,7 @@ class Display extends BaseSettings
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'display_resharer'        , $display_resharer);
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'stay_local'              , $stay_local);
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'first_day_of_week'       , $first_day_of_week);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'preview_mode'            , $preview_mode);
 
 		if (in_array($theme, Theme::getAllowedList())) {
 			if ($theme == $user['theme']) {
@@ -175,7 +179,7 @@ class Display extends BaseSettings
 		$enable_dislike         = !DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'hide_dislike', 0);
 		$display_resharer       =  DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'display_resharer', 0);
 		$stay_local             =  DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'stay_local', 0);
-
+		$preview_mode           =  DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'preview_mode', BBCode::PREVIEW_LARGE);
 
 		$first_day_of_week = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'first_day_of_week', 0);
 		$weekdays = [
@@ -186,6 +190,13 @@ class Display extends BaseSettings
 			4 => DI::l10n()->t("Thursday"),
 			5 => DI::l10n()->t("Friday"),
 			6 => DI::l10n()->t("Saturday")
+		];
+
+		$preview_modes = [
+			BBCode::PREVIEW_NONE     => DI::l10n()->t('No preview'),
+			BBCode::PREVIEW_NO_IMAGE => DI::l10n()->t('No image'),
+			BBCode::PREVIEW_SMALL    => DI::l10n()->t('Small Image'),
+			BBCode::PREVIEW_LARGE    => DI::l10n()->t('Large Image'),
 		];
 
 		$theme_config = '';
@@ -222,6 +233,7 @@ class Display extends BaseSettings
 			'$enable_dislike'           => ['enable_dislike'          , DI::l10n()->t('Display the Dislike feature'), $enable_dislike, DI::l10n()->t('Display the Dislike button and dislike reactions on posts and comments.')],
 			'$display_resharer'         => ['display_resharer'        , DI::l10n()->t('Display the resharer'), $display_resharer, DI::l10n()->t('Display the first resharer as icon and text on a reshared item.')],
 			'$stay_local'               => ['stay_local'              , DI::l10n()->t('Stay local'), $stay_local, DI::l10n()->t("Don't go to a remote system when following a contact link.")],
+			'$preview_mode'             => ['preview_mode'            , DI::l10n()->t('Link preview mode'), $preview_mode, 'Appearance of the link preview that is added to each post with a link.', $preview_modes, false],
 
 			'$first_day_of_week' => ['first_day_of_week', DI::l10n()->t('Beginning of week:'), $first_day_of_week, '', $weekdays, false],
 		]);

@@ -3004,7 +3004,7 @@ class Item
 		$item['hashtags'] = $tags['hashtags'];
 		$item['mentions'] = $tags['mentions'];
 
-		$body = $item['body'] ?? '';
+		$body = $item['body'] = Post\Media::removeFromEndOfBody($item['body'] ?? '');
 
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media', 'quote-uri-id', 'post-type'];
 
@@ -3402,7 +3402,10 @@ class Item
 				}
 
 				// @todo Use a template
-				$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data, $uriid);
+				$preview_mode =  DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'preview_mode', BBCode::PREVIEW_LARGE);
+				if ($preview_mode != BBCode::PREVIEW_NONE) {
+					$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data, $uriid, $preview_mode);
+				}
 			} elseif (!self::containsLink($content, $data['url'], Post\Media::HTML)) {
 				$rendered = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/link.tpl'), [
 					'$url'  => $data['url'],

@@ -446,13 +446,14 @@ class Media
 	 * @param string $body
 	 * @return string Body without media links
 	 */
-	public static function insertFromBody(int $uriid, string $body): string
+	public static function insertFromBody(int $uriid, string $body, bool $endmatch = false): string
 	{
+		$endmatchpattern = $endmatch ? '\z' : '';
 		// Simplify image codes
-		$unshared_body = $body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+		$unshared_body = $body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]$endmatchpattern/ism", '[img]$3[/img]', $body);
 
 		$attachments = [];
-		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]$endmatchpattern#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (!self::isPictureLink($picture[1], $picture[2])) {
 					continue;
@@ -464,14 +465,14 @@ class Media
 			}
 		}
 
-		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]$endmatchpattern/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				$body = str_replace($picture[0], '', $body);
 				$attachments[$picture[1]] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $picture[1], 'description' => $picture[2]];
 			}
 		}
 
-		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]$endmatchpattern#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (!self::isPictureLink($picture[1], $picture[2])) {
 					continue;
@@ -483,39 +484,56 @@ class Media
 			}
 		}
 
-		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/ism", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]$endmatchpattern/ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				$body = str_replace($picture[0], '', $body);
 				$attachments[$picture[1]] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $picture[1]];
 			}
 		}
 
-		if (preg_match_all("/\[audio\]([^\[\]]*)\[\/audio\]/ism", $body, $audios, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[audio\]([^\[\]]*)\[\/audio\]$endmatchpattern/ism", $body, $audios, PREG_SET_ORDER)) {
 			foreach ($audios as $audio) {
 				$body = str_replace($audio[0], '', $body);
 				$attachments[$audio[1]] = ['uri-id' => $uriid, 'type' => self::AUDIO, 'url' => $audio[1]];
 			}
 		}
 
-		if (preg_match_all("/\[video\]([^\[\]]*)\[\/video\]/ism", $body, $videos, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[video\]([^\[\]]*)\[\/video\]$endmatchpattern/ism", $body, $videos, PREG_SET_ORDER)) {
 			foreach ($videos as $video) {
 				$body = str_replace($video[0], '', $body);
 				$attachments[$video[1]] = ['uri-id' => $uriid, 'type' => self::VIDEO, 'url' => $video[1]];
 			}
 		}
 
-		foreach ($attachments as $attachment) {
-			if (Post\Link::exists($uriid, $attachment['preview'] ?? $attachment['url'])) {
-				continue;
-			}
+		if ($uriid != 0) {
+			foreach ($attachments as $attachment) {
+				if (Post\Link::exists($uriid, $attachment['preview'] ?? $attachment['url'])) {
+					continue;
+				}
 
-			// Only store attachments that are part of the unshared body
-			if (Item::containsLink($unshared_body, $attachment['preview'] ?? $attachment['url'], $attachment['type'])) {
-				self::insert($attachment);
+				// Only store attachments that are part of the unshared body
+				if (Item::containsLink($unshared_body, $attachment['preview'] ?? $attachment['url'], $attachment['type'])) {
+					self::insert($attachment);
+				}
 			}
 		}
 
 		return trim($body);
+	}
+
+	/**
+	 * Remove media that is at the end of the body
+	 *
+	 * @param string $body
+	 * @return string
+	 */
+	public static function removeFromEndOfBody(string $body): string
+	{
+		do {
+			$prebody = $body;
+			$body = self::insertFromBody(0, $body, true);
+		} while ($prebody != $body);
+		return $body;
 	}
 
 	/**
