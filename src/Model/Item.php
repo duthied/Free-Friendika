@@ -3143,9 +3143,9 @@ class Item
 	 */
 	private function cutAttachedImages($rendered_html)
 	{
-		$doc = new DOMDocument();
+		$doc = new DOMDocument('1.0', 'UTF-8');
 		libxml_use_internal_errors(true);
-		$doc->loadHTML($rendered_html);
+		$doc->loadHTML(mb_convert_encoding($rendered_html, 'html-entities', 'utf-8'));
 		libxml_clear_errors();
 
 		$root = $doc->getElementsByTagName("p")[0];
