@@ -3086,11 +3086,6 @@ class Item
 			'filter_reasons' => $filter_reasons
 		];
 		Hook::callAll('prepare_body', $hook_data);
-		// Remove old images
-//		$hook_data['html'] = preg_replace('|(<a.*><img.*>.*</a>)|', '', $hook_data['html']);
-//		$grid = self::make_image_grid($hook_data);
-//		$s = $hook_data['html'] . $grid;
-		$s = $hook_data['html'];
 		unset($hook_data);
 
 		if (!$attach) {
@@ -3128,9 +3123,15 @@ class Item
 
 		$s = HTML::applyContentFilter($s, $filter_reasons);
 
+		if (count($attachments['visual']) > 1) {
+			// make imgae grid only for multiple images
+			$s = self::cutAttachedImages($s);
+			$grid = self::make_image_grid($item, $attachments);
+			$s .= $grid;
+		}
+
 		$hook_data = ['item' => $item, 'html' => $s];
 		Hook::callAll('prepare_body_final', $hook_data);
-
 		return $hook_data['html'];
 	}
 
@@ -3140,14 +3141,47 @@ class Item
 	 * @param array $rendered_html
 	 * @return array
 	 */
-	private function cutAttachedImages(array &$rendered_html) {
+	private function cutAttachedImages($rendered_html)
+	{
 		$doc = new DOMDocument();
+		libxml_use_internal_errors(true);
 		$doc->loadHTML($rendered_html);
+		libxml_clear_errors();
 
-		$xpathsearch = new DOMXPath($doc);
-		$nodes = $xpathsearch->query("*");
+		$root = $doc->getElementsByTagName("p")[0];
 
-		return $nodes;
+		$lastTextNode = null;
+		if ($root && $root->childNodes) {
+			foreach ($root->childNodes as $node) {
+				if ($node->nodeName == "#text" && strlen(trim($node->nodeValue)) > 0) {
+					$lastTextNode = $node;
+				}
+			}
+		}
+
+		if ($lastTextNode == null) {
+			// no text at all, return nothing:
+			return '';
+		}
+
+		$toremove = array();
+		if ($lastTextNode) {
+			$sibling = $lastTextNode->nextSibling;
+			while ($sibling) {
+				$toremove[] = array($sibling);
+				$sibling = $sibling->nextSibling;
+			}
+			foreach ($toremove as $remove) {
+				$root->removeChild($remove[0]);
+			}
+			$html = '';
+			foreach ($root->childNodes as $node) {
+				$html .= $node->ownerDocument->saveHTML($node);
+			}
+			return $html;
+		}
+
+		return $rendered_html;
 	}
 
 	/**
@@ -3155,11 +3189,9 @@ class Item
 	 * @return string|void
 	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
 	 */
-	private function make_image_grid(array &$data)
+	private function make_image_grid(array $item, array $attachments)
 	{
-		$item = $data['item'];
 		if ($item['has-media']) {
-			$attachments = Post\Media::splitAttachments($item['uri-id'], [], $item['has-media'] ?? false);
 			if (count($attachments['visual']) > 1) {
 				$img_tags_fc = array();
 				$img_tags_sc = array();
