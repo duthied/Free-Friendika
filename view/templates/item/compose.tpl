@@ -1,5 +1,5 @@
 <div class="generic-page-wrapper">
-	<h2>{{$l10n.compose_title}}</h2>
+	<h4>{{$l10n.compose_title}}</h4>
     {{if $l10n.always_open_compose}}
 	<p>{{$l10n.always_open_compose nofilter}}</p>
 	{{/if}}
@@ -21,27 +21,27 @@
 
 			<p class="comment-edit-bb-{{$id}} comment-icon-list">
 				<span>
-					<button type="button" class="btn btn-sm icon bb-img" aria-label="{{$l10n.edimg}}" title="{{$l10n.edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}" tabindex="7">
+					<button type="button" class="btn btn-sm template-icon bb-img" aria-label="{{$l10n.edimg}}" title="{{$l10n.edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}" tabindex="7">
 						<i class="fa fa-picture-o"></i>
 					</button>
-					<button type="button" class="btn btn-sm icon bb-attach" aria-label="{{$l10n.edattach}}" title="{{$l10n.edattach}}" ondragenter="return commentLinkDrop(event, {{$id}});" ondragover="return commentLinkDrop(event, {{$id}});" ondrop="commentLinkDropper(event);" onclick="commentGetLink({{$id}}, '{{$l10n.prompttext}}');" tabindex="8">
+					<button type="button" class="btn btn-sm template-icon bb-attach" aria-label="{{$l10n.edattach}}" title="{{$l10n.edattach}}" ondragenter="return commentLinkDrop(event, {{$id}});" ondragover="return commentLinkDrop(event, {{$id}});" ondrop="commentLinkDropper(event);" onclick="commentGetLink({{$id}}, '{{$l10n.prompttext}}');" tabindex="8">
 						<i class="fa fa-paperclip"></i>
 					</button>
 				</span>
 				<span>
-					<button type="button" class="btn btn-sm icon bb-url" aria-label="{{$l10n.edurl}}" title="{{$l10n.edurl}}" onclick="insertFormatting('url',{{$id}});" tabindex="9">
+					<button type="button" class="btn btn-sm template-icon bb-url" aria-label="{{$l10n.edurl}}" title="{{$l10n.edurl}}" onclick="insertFormatting('url',{{$id}});" tabindex="9">
 						<i class="fa fa-link"></i>
 					</button>
-					<button type="button" class="btn btn-sm icon underline" aria-label="{{$l10n.eduline}}" title="{{$l10n.eduline}}" onclick="insertFormatting('u',{{$id}});" tabindex="10">
+					<button type="button" class="btn btn-sm template-icon underline" aria-label="{{$l10n.eduline}}" title="{{$l10n.eduline}}" onclick="insertFormatting('u',{{$id}});" tabindex="10">
 						<i class="fa fa-underline"></i>
 					</button>
-					<button type="button" class="btn btn-sm icon italic" aria-label="{{$l10n.editalic}}" title="{{$l10n.editalic}}" onclick="insertFormatting('i',{{$id}});" tabindex="11">
+					<button type="button" class="btn btn-sm template-icon italic" aria-label="{{$l10n.editalic}}" title="{{$l10n.editalic}}" onclick="insertFormatting('i',{{$id}});" tabindex="11">
 						<i class="fa fa-italic"></i>
 					</button>
-					<button type="button" class="btn btn-sm icon bold" aria-label="{{$l10n.edbold}}" title="{{$l10n.edbold}}" onclick="insertFormatting('b',{{$id}});" tabindex="12">
+					<button type="button" class="btn btn-sm template-icon bold" aria-label="{{$l10n.edbold}}" title="{{$l10n.edbold}}" onclick="insertFormatting('b',{{$id}});" tabindex="12">
 						<i class="fa fa-bold"></i>
 					</button>
-					<button type="button" class="btn btn-sm icon quote" aria-label="{{$l10n.edquote}}" title="{{$l10n.edquote}}" onclick="insertFormatting('quote',{{$id}});" tabindex="13">
+					<button type="button" class="btn btn-sm template-icon quote" aria-label="{{$l10n.edquote}}" title="{{$l10n.edquote}}" onclick="insertFormatting('quote',{{$id}});" tabindex="13">
 						<i class="fa fa-quote-left"></i>
 					</button>
 				</span>
@@ -54,7 +54,7 @@
 {{if $type == 'post'}}
 				<span role="presentation" class="form-inline">
 					<input type="text" name="location" class="form-control" id="jot-location" value="{{$location}}" placeholder="{{$l10n.location_set}}"/>
-					<button type="button" class="btn btn-sm icon" id="profile-location"
+					<button type="button" class="btn btn-sm template-icon" id="profile-location"
 					        data-title-set="{{$l10n.location_set}}"
 					        data-title-disabled="{{$l10n.location_disabled}}"
 					        data-title-unavailable="{{$l10n.location_unavailable}}"
