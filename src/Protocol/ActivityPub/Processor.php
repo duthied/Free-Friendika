@@ -1273,8 +1273,11 @@ class Processor
 				foreach ($receivers[$element] as $receiver) {
 					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
 						$name = Receiver::PUBLIC_COLLECTION;
+					} elseif ($path = parse_url($receiver, PHP_URL_PATH)) {
+						$name = trim($path, '/');
 					} else {
-						$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
+						Logger::warning('Unable to coerce name from receiver', ['receiver' => $receiver]);
+						$name = '';
 					}
 
 					$target = Tag::getTargetType($receiver);
