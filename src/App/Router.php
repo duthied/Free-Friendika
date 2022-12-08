@@ -150,6 +150,8 @@ class Router
 		if ($this->baseRoutesFilepath && !file_exists($this->baseRoutesFilepath)) {
 			throw new HTTPException\InternalServerErrorException('Routes file path does\'n exist.');
 		}
+
+		$this->parameters = [$this->server];
 	}
 
 	/**
@@ -292,8 +294,6 @@ class Router
 		$cmd = '/' . ltrim($cmd, '/');
 
 		$dispatcher = new FriendicaGroupCountBased($this->getCachedDispatchData());
-
-		$this->parameters = [$this->server];
 
 		try {
 			// Check if the HTTP method is OPTIONS and return the special Options Module with the possible HTTP methods
