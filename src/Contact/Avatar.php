@@ -125,7 +125,7 @@ class Avatar
 
 	private static function getFilename(string $url): string
 	{
-		$guid = Item::guidFromUri($url, parse_url($url, PHP_URL_HOST));
+		$guid = Item::guidFromUri($url);
 
 		return substr($guid, 0, 2) . '/' . substr($guid, 3, 2) . '/' . substr($guid, 5, 3) . '/' .
 			substr($guid, 9, 2) .'/' . substr($guid, 11, 2) . '/' . substr($guid, 13, 4). '/' . substr($guid, 18) . '-';
