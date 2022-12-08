@@ -3209,8 +3209,9 @@ class Contact
 		self::clearFollowerFollowingEndpointCache($contact['uid']);
 
 		$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
-
-		DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $cdata['public']]);
+		if (!empty($cdata['public'])) {
+			DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $cdata['public']]);
+		}
 	}
 
 	/**
