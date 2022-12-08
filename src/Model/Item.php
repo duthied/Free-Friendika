@@ -220,7 +220,7 @@ class Item
 				$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
 				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
 
-				Post\Media::insertFromRelevantUrl($item['uri-id'], $content_fields['raw-body']);
+				Post\Media::insertFromRelevantUrl($item['uri-id'], $content_fields['raw-body'], $fields['body'], $item['author-network']);
 				Post\Content::update($item['uri-id'], $content_fields);
 			}
 
@@ -1188,7 +1188,8 @@ class Item
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
 
-		Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body']);
+		$author = Contact::getById($item['author-id'], ['network']);
+		Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body'], $item['body'], $author['network'] ?? '');
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);

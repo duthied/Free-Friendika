@@ -499,7 +499,7 @@ class Diaspora
 		}
 
 		if (!($fields = self::validPosting($msg))) {
-			Logger::warning('Invalid posting');
+			Logger::warning('Invalid posting', ['msg' => $msg]);
 			return false;
 		}
 
@@ -534,7 +534,7 @@ class Diaspora
 		if (is_null($fields)) {
 			$private = true;
 			if (!($fields = self::validPosting($msg))) {
-				Logger::warning('Invalid posting');
+				Logger::warning('Invalid posting', ['msg' => $msg]);
 				return false;
 			}
 		} else {
@@ -3387,7 +3387,7 @@ class Diaspora
 				$body = '### ' . html_entity_decode($title) . "\n\n" . $body;
 			}
 
-			$attachments = Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]);
+			$attachments = Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT]);
 			if (!empty($attachments)) {
 				$body .= "\n[hr]\n";
 				foreach ($attachments as $attachment) {
