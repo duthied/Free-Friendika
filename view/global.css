@@ -40,6 +40,11 @@ a.btn, a.btn:hover {
 	height: 48px;
 }
 
+.template-icon {
+	width: 24px;
+	height: 24px;
+}
+
 /* List of social Networks */
 img.connector, img.connector-disabled {
   height: 40px;
