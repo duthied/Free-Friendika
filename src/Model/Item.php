@@ -3217,8 +3217,9 @@ class Item
 	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared): string
 	{
 		DI::profiler()->startRecording('rendering');
-		$leading = '';
+		$leading  = '';
 		$trailing = '';
+		$images   = [];
 
 		// @todo In the future we should make a single for the template engine with all media in it. This allows more flexibilty.
 		foreach ($attachments['visual'] as $attachment) {
@@ -3273,19 +3274,19 @@ class Item
 				if (self::containsLink($item['body'], $src_url)) {
 					continue;
 				}
-				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
-					'$image' => [
-						'src'        => $src_url,
-						'preview'    => $preview_url,
-						'attachment' => $attachment,
-					],
-				]);
-				// On Diaspora posts the attached pictures are leading
-				if ($item['network'] == Protocol::DIASPORA) {
-					$leading .= $media;
-				} else {
-					$trailing .= $media;
-				}
+				$images[] = ['src' => $src_url, 'preview' => $preview_url, 'attachment' => $attachment];
+			}
+		}
+
+		foreach ($images as $image) {
+			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
+				'$image' => $image,
+			]);
+			// On Diaspora posts the attached pictures are leading
+			if ($item['network'] == Protocol::DIASPORA) {
+				$leading .= $media;
+			} else {
+				$trailing .= $media;
 			}
 		}
 
