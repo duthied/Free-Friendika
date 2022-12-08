@@ -13,27 +13,27 @@
 
 		<p class="comment-edit-bb-{{$id}} comment-icon-list">
 			<span>
-				<button type="button" class="btn btn-sm icon bb-img" style="cursor: pointer;" aria-label="{{$edimg}}" title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}">
+				<button type="button" class="btn btn-sm template-icon bb-img" style="cursor: pointer;" aria-label="{{$edimg}}" title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}">
 					<i class="fa fa-picture-o"></i>
 				</button>
-				<button type="button" class="btn btn-sm icon bb-attach" style="cursor: pointer;" aria-label="{{$edattach}}" title="{{$edattach}}" ondragenter="return commentLinkDrop(event, {{$id}});" ondragover="return commentLinkDrop(event, {{$id}});" ondrop="commentLinkDropper(event);" onclick="commentGetLink({{$id}}, '{{$prompttext}}');">
+				<button type="button" class="btn btn-sm template-icon bb-attach" style="cursor: pointer;" aria-label="{{$edattach}}" title="{{$edattach}}" ondragenter="return commentLinkDrop(event, {{$id}});" ondragover="return commentLinkDrop(event, {{$id}});" ondrop="commentLinkDropper(event);" onclick="commentGetLink({{$id}}, '{{$prompttext}}');">
 					<i class="fa fa-paperclip"></i>
 				</button>
 			</span>
 			<span>
-				<button type="button" class="btn btn-sm icon bb-url" style="cursor: pointer;" aria-label="{{$edurl}}" title="{{$edurl}}" onclick="insertFormatting('url',{{$id}});">
+				<button type="button" class="btn btn-sm template-icon bb-url" style="cursor: pointer;" aria-label="{{$edurl}}" title="{{$edurl}}" onclick="insertFormatting('url',{{$id}});">
 					<i class="fa fa-link"></i>
 				</button>
-				<button type="button" class="btn btn-sm icon underline" style="cursor: pointer;" aria-label="{{$eduline}}" title="{{$eduline}}" onclick="insertFormatting('u',{{$id}});">
+				<button type="button" class="btn btn-sm template-icon underline" style="cursor: pointer;" aria-label="{{$eduline}}" title="{{$eduline}}" onclick="insertFormatting('u',{{$id}});">
 					<i class="fa fa-underline"></i>
 				</button>
-				<button type="button" class="btn btn-sm icon italic" style="cursor: pointer;" aria-label="{{$editalic}}" title="{{$editalic}}" onclick="insertFormatting('i',{{$id}});">
+				<button type="button" class="btn btn-sm template-icon italic" style="cursor: pointer;" aria-label="{{$editalic}}" title="{{$editalic}}" onclick="insertFormatting('i',{{$id}});">
 					<i class="fa fa-italic"></i>
 				</button>
-				<button type="button" class="btn btn-sm icon bold" style="cursor: pointer;" aria-label="{{$edbold}}" title="{{$edbold}}" onclick="insertFormatting('b',{{$id}});">
+				<button type="button" class="btn btn-sm template-icon bold" style="cursor: pointer;" aria-label="{{$edbold}}" title="{{$edbold}}" onclick="insertFormatting('b',{{$id}});">
 					<i class="fa fa-bold"></i>
 				</button>
-				<button type="button" class="btn btn-sm icon quote" style="cursor: pointer;" aria-label="{{$edquote}}" title="{{$edquote}}" onclick="insertFormatting('quote',{{$id}});">
+				<button type="button" class="btn btn-sm template-icon quote" style="cursor: pointer;" aria-label="{{$edquote}}" title="{{$edquote}}" onclick="insertFormatting('quote',{{$id}});">
 					<i class="fa fa-quote-left"></i>
 				</button>
 			</span>
