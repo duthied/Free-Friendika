@@ -1395,9 +1395,17 @@ class Contact
 		}
 
 		if ($data['network'] == Protocol::DIASPORA) {
-			DI::dsprContact()->updateFromProbeArray($data);
+			try {
+				DI::dsprContact()->updateFromProbeArray($data);
+			} catch (\InvalidArgumentException $e) {
+				Logger::error($e->getMessage(), ['url' => $url, 'data' => $data]);
+			}
 		} elseif (!empty($data['networks'][Protocol::DIASPORA])) {
-			DI::dsprContact()->updateFromProbeArray($data['networks'][Protocol::DIASPORA]);
+			try {
+				DI::dsprContact()->updateFromProbeArray($data['networks'][Protocol::DIASPORA]);
+			} catch (\InvalidArgumentException $e) {
+				Logger::error($e->getMessage(), ['url' => $url, 'data' => $data['networks'][Protocol::DIASPORA]]);
+			}
 		}
 
 		self::updateFromProbeArray($contact_id, $data);
@@ -2485,15 +2493,23 @@ class Contact
 			return false;
 		}
 
-		$ret = Probe::uri($contact['url'], $network, $contact['uid']);
+		$data = Probe::uri($contact['url'], $network, $contact['uid']);
 
-		if ($ret['network'] == Protocol::DIASPORA) {
-			DI::dsprContact()->updateFromProbeArray($ret);
-		} elseif (!empty($ret['networks'][Protocol::DIASPORA])) {
-			DI::dsprContact()->updateFromProbeArray($ret['networks'][Protocol::DIASPORA]);
+		if ($data['network'] == Protocol::DIASPORA) {
+			try {
+				DI::dsprContact()->updateFromProbeArray($data);
+			} catch (\InvalidArgumentException $e) {
+				Logger::error($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
+			}
+		} elseif (!empty($data['networks'][Protocol::DIASPORA])) {
+			try {
+				DI::dsprContact()->updateFromProbeArray($data['networks'][Protocol::DIASPORA]);
+			} catch (\InvalidArgumentException $e) {
+				Logger::error($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
+			}
 		}
 
-		return self::updateFromProbeArray($id, $ret);
+		return self::updateFromProbeArray($id, $data);
 	}
 
 	/**
