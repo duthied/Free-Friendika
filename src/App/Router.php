@@ -150,6 +150,8 @@ class Router
 		if ($this->baseRoutesFilepath && !file_exists($this->baseRoutesFilepath)) {
 			throw new HTTPException\InternalServerErrorException('Routes file path does\'n exist.');
 		}
+
+		$this->parameters = [$this->server];
 	}
 
 	/**
@@ -293,18 +295,16 @@ class Router
 
 		$dispatcher = new FriendicaGroupCountBased($this->getCachedDispatchData());
 
-		$this->parameters = [$this->server];
-
 		try {
 			// Check if the HTTP method is OPTIONS and return the special Options Module with the possible HTTP methods
 			if ($this->args->getMethod() === static::OPTIONS) {
 				$this->moduleClass = Options::class;
-				$this->parameters  = ['allowedMethods' => $dispatcher->getOptions($cmd)];
+				$this->parameters[] = ['AllowedMethods' => $dispatcher->getOptions($cmd)];
 			} else {
 				$routeInfo = $dispatcher->dispatch($this->args->getMethod(), $cmd);
 				if ($routeInfo[0] === Dispatcher::FOUND) {
 					$this->moduleClass = $routeInfo[1];
-					$this->parameters[]  = $routeInfo[2];
+					$this->parameters[] = $routeInfo[2];
 				} else if ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
 					throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
 				} else {
