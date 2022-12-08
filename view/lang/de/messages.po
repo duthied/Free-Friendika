@@ -50,7 +50,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-04 06:41-0500\n"
+"POT-Creation-Date: 2022-12-07 07:12+0000\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>, 2016-2022\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
@@ -89,7 +89,7 @@ msgstr "Konnte den Originalbeitrag nicht finden."
 #: src/Module/Register.php:245 src/Module/Search/Directory.php:37
 #: src/Module/Settings/Account.php:50 src/Module/Settings/Account.php:407
 #: src/Module/Settings/Delegation.php:41 src/Module/Settings/Delegation.php:69
-#: src/Module/Settings/Display.php:41 src/Module/Settings/Display.php:119
+#: src/Module/Settings/Display.php:43 src/Module/Settings/Display.php:123
 #: src/Module/Settings/Profile/Photo/Crop.php:165
 #: src/Module/Settings/Profile/Photo/Index.php:111
 #: src/Module/Settings/RemoveMe.php:117 src/Module/Settings/UserExport.php:80
@@ -900,7 +900,7 @@ msgstr "Alle ausstehenden Post-Updates wurden ausgeführt."
 msgid "Enter user nickname: "
 msgstr "Spitzname angeben:"
 
-#: src/Console/User.php:182 src/Model/User.php:661
+#: src/Console/User.php:182 src/Model/User.php:662
 #: src/Module/Api/Twitter/ContactEndpoint.php:74
 #: src/Module/Moderation/Users/Active.php:71
 #: src/Module/Moderation/Users/Blocked.php:71
@@ -1713,7 +1713,7 @@ msgstr "Deine Beiträge die Medien beinhalten"
 #: src/Content/Nav.php:197 src/Content/Nav.php:257
 #: src/Module/BaseProfile.php:85 src/Module/BaseProfile.php:88
 #: src/Module/BaseProfile.php:96 src/Module/BaseProfile.php:99
-#: src/Module/Settings/Display.php:205 view/theme/frio/theme.php:242
+#: src/Module/Settings/Display.php:216 view/theme/frio/theme.php:242
 #: view/theme/frio/theme.php:246
 msgid "Calendar"
 msgstr "Kalender"
@@ -1952,38 +1952,38 @@ msgstr "nächste"
 msgid "last"
 msgstr "letzte"
 
-#: src/Content/Text/BBCode.php:1003 src/Content/Text/BBCode.php:1865
-#: src/Content/Text/BBCode.php:1866
+#: src/Content/Text/BBCode.php:1015 src/Content/Text/BBCode.php:1877
+#: src/Content/Text/BBCode.php:1878
 msgid "Image/photo"
 msgstr "Bild/Foto"
 
-#: src/Content/Text/BBCode.php:1220
+#: src/Content/Text/BBCode.php:1232
 #, php-format
 msgid "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a>%3$s"
 
-#: src/Content/Text/BBCode.php:1245 src/Model/Item.php:3536
-#: src/Model/Item.php:3542 src/Model/Item.php:3543
+#: src/Content/Text/BBCode.php:1257 src/Model/Item.php:3539
+#: src/Model/Item.php:3545 src/Model/Item.php:3546
 msgid "Link to source"
 msgstr "Link zum Originalbeitrag"
 
-#: src/Content/Text/BBCode.php:1783 src/Content/Text/HTML.php:940
+#: src/Content/Text/BBCode.php:1795 src/Content/Text/HTML.php:940
 msgid "Click to open/close"
 msgstr "Zum Öffnen/Schließen klicken"
 
-#: src/Content/Text/BBCode.php:1814
+#: src/Content/Text/BBCode.php:1826
 msgid "$1 wrote:"
 msgstr "$1 hat geschrieben:"
 
-#: src/Content/Text/BBCode.php:1870 src/Content/Text/BBCode.php:1871
+#: src/Content/Text/BBCode.php:1882 src/Content/Text/BBCode.php:1883
 msgid "Encrypted content"
 msgstr "Verschlüsselter Inhalt"
 
-#: src/Content/Text/BBCode.php:2098
+#: src/Content/Text/BBCode.php:2110
 msgid "Invalid source protocol"
 msgstr "Ungültiges Quell-Protokoll"
 
-#: src/Content/Text/BBCode.php:2113
+#: src/Content/Text/BBCode.php:2125
 msgid "Invalid link protocol"
 msgstr "Ungültiges Link-Protokoll"
 
@@ -2585,37 +2585,37 @@ msgid "Could not connect to database."
 msgstr "Verbindung zur Datenbank gescheitert."
 
 #: src/Core/L10n.php:403 src/Model/Event.php:430
-#: src/Module/Settings/Display.php:183
+#: src/Module/Settings/Display.php:187
 msgid "Monday"
 msgstr "Montag"
 
 #: src/Core/L10n.php:403 src/Model/Event.php:431
-#: src/Module/Settings/Display.php:184
+#: src/Module/Settings/Display.php:188
 msgid "Tuesday"
 msgstr "Dienstag"
 
 #: src/Core/L10n.php:403 src/Model/Event.php:432
-#: src/Module/Settings/Display.php:185
+#: src/Module/Settings/Display.php:189
 msgid "Wednesday"
 msgstr "Mittwoch"
 
 #: src/Core/L10n.php:403 src/Model/Event.php:433
-#: src/Module/Settings/Display.php:186
+#: src/Module/Settings/Display.php:190
 msgid "Thursday"
 msgstr "Donnerstag"
 
 #: src/Core/L10n.php:403 src/Model/Event.php:434
-#: src/Module/Settings/Display.php:187
+#: src/Module/Settings/Display.php:191
 msgid "Friday"
 msgstr "Freitag"
 
 #: src/Core/L10n.php:403 src/Model/Event.php:435
-#: src/Module/Settings/Display.php:188
+#: src/Module/Settings/Display.php:192
 msgid "Saturday"
 msgstr "Samstag"
 
 #: src/Core/L10n.php:403 src/Model/Event.php:429
-#: src/Module/Settings/Display.php:182
+#: src/Module/Settings/Display.php:186
 msgid "Sunday"
 msgstr "Sonntag"
 
@@ -2916,63 +2916,63 @@ msgstr "Organisation"
 msgid "Forum"
 msgstr "Forum"
 
-#: src/Model/Contact.php:2831
+#: src/Model/Contact.php:2849
 msgid "Disallowed profile URL."
 msgstr "Nicht erlaubte Profil-URL."
 
-#: src/Model/Contact.php:2836 src/Module/Friendica.php:82
+#: src/Model/Contact.php:2854 src/Module/Friendica.php:82
 msgid "Blocked domain"
 msgstr "Blockierte Domain"
 
-#: src/Model/Contact.php:2841
+#: src/Model/Contact.php:2859
 msgid "Connect URL missing."
 msgstr "Connect-URL fehlt"
 
-#: src/Model/Contact.php:2850
+#: src/Model/Contact.php:2868
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "Der Kontakt konnte nicht hinzugefügt werden. Bitte überprüfe die Einstellungen unter Einstellungen -> Soziale Netzwerke"
 
-#: src/Model/Contact.php:2892
+#: src/Model/Contact.php:2910
 msgid "The profile address specified does not provide adequate information."
 msgstr "Die angegebene Profiladresse liefert unzureichende Informationen."
 
-#: src/Model/Contact.php:2894
+#: src/Model/Contact.php:2912
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Es wurden keine kompatiblen Kommunikationsprotokolle oder Feeds gefunden."
 
-#: src/Model/Contact.php:2897
+#: src/Model/Contact.php:2915
 msgid "An author or name was not found."
 msgstr "Es wurde kein Autor oder Name gefunden."
 
-#: src/Model/Contact.php:2900
+#: src/Model/Contact.php:2918
 msgid "No browser URL could be matched to this address."
 msgstr "Zu dieser Adresse konnte keine passende Browser-URL gefunden werden."
 
-#: src/Model/Contact.php:2903
+#: src/Model/Contact.php:2921
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Konnte die @-Adresse mit keinem der bekannten Protokolle oder Email-Kontakte abgleichen."
 
-#: src/Model/Contact.php:2904
+#: src/Model/Contact.php:2922
 msgid "Use mailto: in front of address to force email check."
 msgstr "Verwende mailto: vor der E-Mail-Adresse, um eine Überprüfung der E-Mail-Adresse zu erzwingen."
 
-#: src/Model/Contact.php:2910
+#: src/Model/Contact.php:2928
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "Die Adresse dieses Profils gehört zu einem Netzwerk, mit dem die Kommunikation auf dieser Seite ausgeschaltet wurde."
 
-#: src/Model/Contact.php:2915
+#: src/Model/Contact.php:2933
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Eingeschränktes Profil. Diese Person wird keine direkten/privaten Nachrichten von dir erhalten können."
 
-#: src/Model/Contact.php:2974
+#: src/Model/Contact.php:2992
 msgid "Unable to retrieve contact information."
 msgstr "Konnte die Kontaktinformationen nicht empfangen."
 
@@ -3142,44 +3142,44 @@ msgstr "Beitrag"
 msgid "Content warning: %s"
 msgstr "Inhaltswarnung: %s"
 
-#: src/Model/Item.php:3448
+#: src/Model/Item.php:3451
 msgid "bytes"
 msgstr "Byte"
 
-#: src/Model/Item.php:3479
+#: src/Model/Item.php:3482
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] "%2$s (%3$d%%, %1$d Stimme)"
 msgstr[1] "%2$s (%3$d%%, %1$d Stimmen)"
 
-#: src/Model/Item.php:3481
+#: src/Model/Item.php:3484
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] "%2$s (%1$d Stimme)"
 msgstr[1] "%2$s (%1$d Stimmen)"
 
-#: src/Model/Item.php:3486
+#: src/Model/Item.php:3489
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] "%d Stimme, Abstimmung endet: %s"
 msgstr[1] "%d Stimmen, Abstimmung endet: %s"
 
-#: src/Model/Item.php:3488
+#: src/Model/Item.php:3491
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] "%d Stimme."
 msgstr[1] "%d Stimmen."
 
-#: src/Model/Item.php:3490
+#: src/Model/Item.php:3493
 #, php-format
 msgid "Poll end: %s"
 msgstr "Abstimmung endet: %s"
 
-#: src/Model/Item.php:3524 src/Model/Item.php:3525
+#: src/Model/Item.php:3527 src/Model/Item.php:3528
 msgid "View on separate page"
 msgstr "Auf separater Seite ansehen"
 
@@ -3187,7 +3187,7 @@ msgstr "Auf separater Seite ansehen"
 msgid "[no subject]"
 msgstr "[kein Betreff]"
 
-#: src/Model/Photo.php:1145 src/Module/Media/Photo/Upload.php:198
+#: src/Model/Photo.php:1152 src/Module/Media/Photo/Upload.php:198
 msgid "Wall Photos"
 msgstr "Pinnwand-Bilder"
 
@@ -3336,146 +3336,146 @@ msgstr "Schule/Ausbildung"
 msgid "Contact information and Social Networks"
 msgstr "Kontaktinformationen und Soziale Netzwerke"
 
-#: src/Model/User.php:212 src/Model/User.php:1102
+#: src/Model/User.php:213 src/Model/User.php:1103
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr "FATALER FEHLER: Sicherheitsschlüssel konnten nicht erzeugt werden."
 
-#: src/Model/User.php:570 src/Model/User.php:603
+#: src/Model/User.php:571 src/Model/User.php:604
 msgid "Login failed"
 msgstr "Anmeldung fehlgeschlagen"
 
-#: src/Model/User.php:635
+#: src/Model/User.php:636
 msgid "Not enough information to authenticate"
 msgstr "Nicht genügend Informationen für die Authentifizierung"
 
-#: src/Model/User.php:752
+#: src/Model/User.php:753
 msgid "Password can't be empty"
 msgstr "Das Passwort kann nicht leer sein"
 
-#: src/Model/User.php:794
+#: src/Model/User.php:795
 msgid "Empty passwords are not allowed."
 msgstr "Leere Passwörter sind nicht erlaubt."
 
-#: src/Model/User.php:798
+#: src/Model/User.php:799
 msgid ""
 "The new password has been exposed in a public data dump, please choose "
 "another."
 msgstr "Das neue Passwort wurde in einem öffentlichen Daten-Dump veröffentlicht. Bitte verwende ein anderes Passwort."
 
-#: src/Model/User.php:802
+#: src/Model/User.php:803
 msgid "The password length is limited to 72 characters."
 msgstr "Die Länge des Passworts ist auf 72 Zeichen begrenzt."
 
-#: src/Model/User.php:806
+#: src/Model/User.php:807
 msgid ""
 "The password can't contain accentuated letters, white spaces or colons (:)"
 msgstr "Das Passwort darf keine akzentuierten Buchstaben, Leerzeichen oder Doppelpunkte (:) beinhalten"
 
-#: src/Model/User.php:985
+#: src/Model/User.php:986
 msgid "Passwords do not match. Password unchanged."
 msgstr "Die Passwörter stimmen nicht überein. Das Passwort bleibt unverändert."
 
-#: src/Model/User.php:992
+#: src/Model/User.php:993
 msgid "An invitation is required."
 msgstr "Du benötigst eine Einladung."
 
-#: src/Model/User.php:996
+#: src/Model/User.php:997
 msgid "Invitation could not be verified."
 msgstr "Die Einladung konnte nicht überprüft werden."
 
-#: src/Model/User.php:1004
+#: src/Model/User.php:1005
 msgid "Invalid OpenID url"
 msgstr "Ungültige OpenID URL"
 
-#: src/Model/User.php:1017 src/Security/Authentication.php:241
+#: src/Model/User.php:1018 src/Security/Authentication.php:241
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr "Beim Versuch, dich mit der von dir angegebenen OpenID anzumelden, trat ein Problem auf. Bitte überprüfe, dass du die OpenID richtig geschrieben hast."
 
-#: src/Model/User.php:1017 src/Security/Authentication.php:241
+#: src/Model/User.php:1018 src/Security/Authentication.php:241
 msgid "The error message was:"
 msgstr "Die Fehlermeldung lautete:"
 
-#: src/Model/User.php:1023
+#: src/Model/User.php:1024
 msgid "Please enter the required information."
 msgstr "Bitte trage die erforderlichen Informationen ein."
 
-#: src/Model/User.php:1037
+#: src/Model/User.php:1038
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr "system.username_min_length (%s) and system.username_max_length (%s) schließen sich gegenseitig aus, tausche Werte aus."
 
-#: src/Model/User.php:1044
+#: src/Model/User.php:1045
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] "Der Benutzername sollte aus mindestens %s Zeichen bestehen."
 msgstr[1] "Der Benutzername sollte aus mindestens %s Zeichen bestehen."
 
-#: src/Model/User.php:1048
+#: src/Model/User.php:1049
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] "Der Benutzername sollte aus maximal %s Zeichen bestehen."
 msgstr[1] "Der Benutzername sollte aus maximal %s Zeichen bestehen."
 
-#: src/Model/User.php:1056
+#: src/Model/User.php:1057
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr "Das scheint nicht dein kompletter Name (Vor- und Nachname) zu sein."
 
-#: src/Model/User.php:1061
+#: src/Model/User.php:1062
 msgid "Your email domain is not among those allowed on this site."
 msgstr "Die Domain Deiner E-Mail-Adresse ist auf dieser Seite nicht erlaubt."
 
-#: src/Model/User.php:1065
+#: src/Model/User.php:1066
 msgid "Not a valid email address."
 msgstr "Keine gültige E-Mail-Adresse."
 
-#: src/Model/User.php:1068
+#: src/Model/User.php:1069
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr "Der Admin des Knotens hat den Spitznamen für die Registrierung gesperrt."
 
-#: src/Model/User.php:1072 src/Model/User.php:1078
+#: src/Model/User.php:1073 src/Model/User.php:1079
 msgid "Cannot use that email."
 msgstr "Konnte diese E-Mail-Adresse nicht verwenden."
 
-#: src/Model/User.php:1084
+#: src/Model/User.php:1085
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr "Dein Spitzname darf nur aus Buchstaben und Zahlen (\"a-z\",\"0-9\" und \"_\") bestehen."
 
-#: src/Model/User.php:1092 src/Model/User.php:1149
+#: src/Model/User.php:1093 src/Model/User.php:1150
 msgid "Nickname is already registered. Please choose another."
 msgstr "Dieser Spitzname ist bereits vergeben. Bitte wähle einen anderen."
 
-#: src/Model/User.php:1136 src/Model/User.php:1140
+#: src/Model/User.php:1137 src/Model/User.php:1141
 msgid "An error occurred during registration. Please try again."
 msgstr "Während der Anmeldung ist ein Fehler aufgetreten. Bitte versuche es noch einmal."
 
-#: src/Model/User.php:1163
+#: src/Model/User.php:1164
 msgid "An error occurred creating your default profile. Please try again."
 msgstr "Bei der Erstellung des Standardprofils ist ein Fehler aufgetreten. Bitte versuche es noch einmal."
 
-#: src/Model/User.php:1170
+#: src/Model/User.php:1171
 msgid "An error occurred creating your self contact. Please try again."
 msgstr "Bei der Erstellung deines self-Kontakts ist ein Fehler aufgetreten. Bitte versuche es erneut."
 
-#: src/Model/User.php:1175
+#: src/Model/User.php:1176
 msgid "Friends"
 msgstr "Kontakte"
 
-#: src/Model/User.php:1179
+#: src/Model/User.php:1180
 msgid ""
 "An error occurred creating your default contact group. Please try again."
 msgstr "Bei der Erstellung deiner Standardgruppe für Kontakte ist ein Fehler aufgetreten. Bitte versuche es erneut."
 
-#: src/Model/User.php:1218
+#: src/Model/User.php:1219
 msgid "Profile Photos"
 msgstr "Profilbilder"
 
-#: src/Model/User.php:1411
+#: src/Model/User.php:1412
 #, php-format
 msgid ""
 "\n"
@@ -3483,7 +3483,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr "\nHallo %1$s\nein Admin von %2$s hat dir ein Nutzerkonto angelegt."
 
-#: src/Model/User.php:1414
+#: src/Model/User.php:1415
 #, php-format
 msgid ""
 "\n"
@@ -3515,12 +3515,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr "\nNachfolgend die Anmeldedetails:\n\nAdresse der Seite: %1$s\nBenutzername: %2$s\nPasswort: %3$s\n\nDu kannst dein Passwort unter \"Einstellungen\" ändern, sobald du dich angemeldet hast.Bitte nimm dir ein paar Minuten, um die anderen Einstellungen auf dieser Seite zu kontrollieren.Eventuell magst du ja auch einige Informationen über dich in deinem Profil veröffentlichen, damit andere Leute dich einfacher finden können.Bearbeite hierfür einfach dein Standard-Profil (über die Profil-Seite).Wir empfehlen dir, deinen kompletten Namen anzugeben und ein zu dir passendes Profilbild zu wählen, damit dich alte Bekannte wiederfinden.Außerdem ist es nützlich, wenn du auf deinem Profil Schlüsselwörter angibst. Das erleichtert es, Leute zu finden, die deine Interessen teilen.Wir respektieren deine Privatsphäre - keine dieser Angaben ist nötig.Wenn du neu im Netzwerk bist und noch niemanden kennst, dann können sie allerdings dabei helfen, neue und interessante Kontakte zu knüpfen.\n\nDu kannst dein Nutzerkonto  jederzeit unter %1$s/settings/removeme wieder löschen.\n\nDanke und willkommen auf %4$s."
 
-#: src/Model/User.php:1447 src/Model/User.php:1554
+#: src/Model/User.php:1448 src/Model/User.php:1555
 #, php-format
 msgid "Registration details for %s"
 msgstr "Details der Registration von %s"
 
-#: src/Model/User.php:1467
+#: src/Model/User.php:1468
 #, php-format
 msgid ""
 "\n"
@@ -3535,12 +3535,12 @@ msgid ""
 "\t\t"
 msgstr "\n\t\t\tHallo %1$s,\n\t\t\t\tdanke für deine Registrierung auf %2$s. Dein Account muss noch vom Admin des Knotens freigeschaltet werden.\n\n\t\t\tDeine Zugangsdaten lauten wie folgt:\n\n\t\t\tSeitenadresse:\t%3$s\n\t\t\tAnmeldename:\t\t%4$s\n\t\t\tPasswort:\t\t%5$s\n\t\t"
 
-#: src/Model/User.php:1486
+#: src/Model/User.php:1487
 #, php-format
 msgid "Registration at %s"
 msgstr "Registrierung als %s"
 
-#: src/Model/User.php:1510
+#: src/Model/User.php:1511
 #, php-format
 msgid ""
 "\n"
@@ -3549,7 +3549,7 @@ msgid ""
 "\t\t\t"
 msgstr "\n\t\t\t\tHallo %1$s,\n\t\t\t\tDanke für die Registrierung auf %2$s. Dein Account wurde angelegt.\n\t\t\t"
 
-#: src/Model/User.php:1518
+#: src/Model/User.php:1519
 #, php-format
 msgid ""
 "\n"
@@ -3653,7 +3653,7 @@ msgstr "Addon %s konnte nicht installiert werden"
 #: src/Module/Settings/Account.php:560 src/Module/Settings/Addons.php:81
 #: src/Module/Settings/Connectors.php:159
 #: src/Module/Settings/Connectors.php:244
-#: src/Module/Settings/Delegation.php:169 src/Module/Settings/Display.php:200
+#: src/Module/Settings/Delegation.php:169 src/Module/Settings/Display.php:211
 #: src/Module/Settings/Features.php:76
 msgid "Save Settings"
 msgstr "Einstellungen speichern"
@@ -4005,11 +4005,11 @@ msgstr "Priorität"
 msgid "%s is no valid input for maximum image size"
 msgstr "%s ist keine gültige Angabe der maximalen Größe von Bildern"
 
-#: src/Module/Admin/Site.php:342 src/Module/Settings/Display.php:137
+#: src/Module/Admin/Site.php:342 src/Module/Settings/Display.php:141
 msgid "No special theme for mobile devices"
 msgstr "Kein spezielles Theme für mobile Geräte verwenden."
 
-#: src/Module/Admin/Site.php:359 src/Module/Settings/Display.php:147
+#: src/Module/Admin/Site.php:359 src/Module/Settings/Display.php:151
 #, php-format
 msgid "%s - (Experimental)"
 msgstr "%s - (Experimentell)"
@@ -8146,12 +8146,12 @@ msgstr "Das Foto ist nicht verfügbar."
 msgid "The Photo with id %s is not available."
 msgstr "Das Bild mit ID %s ist nicht verfügbar."
 
-#: src/Module/Photo.php:174
+#: src/Module/Photo.php:178
 #, php-format
 msgid "Invalid external resource with url %s."
 msgstr "Ungültige externe Ressource mit der URL %s"
 
-#: src/Module/Photo.php:176
+#: src/Module/Photo.php:180
 #, php-format
 msgid "Invalid photo with id %s."
 msgstr "Fehlerhaftes Foto mit der ID %s."
@@ -9557,126 +9557,146 @@ msgstr "Hinzufügen"
 msgid "No entries."
 msgstr "Keine Einträge."
 
-#: src/Module/Settings/Display.php:106
+#: src/Module/Settings/Display.php:110
 msgid "The theme you chose isn't available."
 msgstr "Das gewählte Theme ist nicht verfügbar"
 
-#: src/Module/Settings/Display.php:145
+#: src/Module/Settings/Display.php:149
 #, php-format
 msgid "%s - (Unsupported)"
 msgstr "%s - (Nicht unterstützt)"
 
+#: src/Module/Settings/Display.php:196
+msgid "No preview"
+msgstr "Keine Vorschau"
+
+#: src/Module/Settings/Display.php:197
+msgid "No image"
+msgstr "Kein Bild"
+
+#: src/Module/Settings/Display.php:198
+msgid "Small Image"
+msgstr "Kleines Bild"
+
 #: src/Module/Settings/Display.php:199
+msgid "Large Image"
+msgstr "Große Bilder"
+
+#: src/Module/Settings/Display.php:210
 msgid "Display Settings"
 msgstr "Anzeige-Einstellungen"
 
-#: src/Module/Settings/Display.php:201
+#: src/Module/Settings/Display.php:212
 msgid "General Theme Settings"
 msgstr "Allgemeine Theme-Einstellungen"
 
-#: src/Module/Settings/Display.php:202
+#: src/Module/Settings/Display.php:213
 msgid "Custom Theme Settings"
 msgstr "Benutzerdefinierte Theme-Einstellungen"
 
-#: src/Module/Settings/Display.php:203
+#: src/Module/Settings/Display.php:214
 msgid "Content Settings"
 msgstr "Einstellungen zum Inhalt"
 
-#: src/Module/Settings/Display.php:204 view/theme/duepuntozero/config.php:86
+#: src/Module/Settings/Display.php:215 view/theme/duepuntozero/config.php:86
 #: view/theme/frio/config.php:172 view/theme/quattro/config.php:88
 #: view/theme/vier/config.php:136
 msgid "Theme settings"
 msgstr "Theme-Einstellungen"
 
-#: src/Module/Settings/Display.php:211
+#: src/Module/Settings/Display.php:222
 msgid "Display Theme:"
 msgstr "Theme:"
 
-#: src/Module/Settings/Display.php:212
+#: src/Module/Settings/Display.php:223
 msgid "Mobile Theme:"
 msgstr "Mobiles Theme"
 
-#: src/Module/Settings/Display.php:215
+#: src/Module/Settings/Display.php:226
 msgid "Number of items to display per page:"
 msgstr "Zahl der Beiträge, die pro Netzwerkseite angezeigt werden sollen: "
 
-#: src/Module/Settings/Display.php:215 src/Module/Settings/Display.php:216
+#: src/Module/Settings/Display.php:226 src/Module/Settings/Display.php:227
 msgid "Maximum of 100 items"
 msgstr "Maximal 100 Beiträge"
 
-#: src/Module/Settings/Display.php:216
+#: src/Module/Settings/Display.php:227
 msgid "Number of items to display per page when viewed from mobile device:"
 msgstr "Zahl der Beiträge, die pro Netzwerkseite auf mobilen Geräten angezeigt werden sollen:"
 
-#: src/Module/Settings/Display.php:217
+#: src/Module/Settings/Display.php:228
 msgid "Update browser every xx seconds"
 msgstr "Browser alle xx Sekunden aktualisieren"
 
-#: src/Module/Settings/Display.php:217
+#: src/Module/Settings/Display.php:228
 msgid "Minimum of 10 seconds. Enter -1 to disable it."
 msgstr "Minimum sind 10 Sekunden. Gib -1 ein, um abzuschalten."
 
-#: src/Module/Settings/Display.php:218
+#: src/Module/Settings/Display.php:229
 msgid "Automatic updates only at the top of the post stream pages"
 msgstr "Automatische Updates nur, wenn du oben auf den Beitragsstream-Seiten bist."
 
-#: src/Module/Settings/Display.php:218
+#: src/Module/Settings/Display.php:229
 msgid ""
 "Auto update may add new posts at the top of the post stream pages, which can"
 " affect the scroll position and perturb normal reading if it happens "
 "anywhere else the top of the page."
 msgstr "Das automatische Aktualisieren des Streams kann neue Beiträge am Anfang des Stream einfügen. Dies kann die angezeigte Position im Stream beeinflussen, wenn du gerade nicht den Anfang des Streams betrachtest."
 
-#: src/Module/Settings/Display.php:219
+#: src/Module/Settings/Display.php:230
 msgid "Display emoticons"
 msgstr "Zeige Emoticons"
 
-#: src/Module/Settings/Display.php:219
+#: src/Module/Settings/Display.php:230
 msgid "When enabled, emoticons are replaced with matching symbols."
 msgstr "Wenn dies aktiviert ist, werden Text-Emoticons in Beiträgen durch Symbole ersetzt."
 
-#: src/Module/Settings/Display.php:220
+#: src/Module/Settings/Display.php:231
 msgid "Infinite scroll"
 msgstr "Endloses Scrollen"
 
-#: src/Module/Settings/Display.php:220
+#: src/Module/Settings/Display.php:231
 msgid "Automatic fetch new items when reaching the page end."
 msgstr "Automatisch neue Beiträge laden, wenn das Ende der Seite erreicht ist."
 
-#: src/Module/Settings/Display.php:221
+#: src/Module/Settings/Display.php:232
 msgid "Enable Smart Threading"
 msgstr "Intelligentes Threading aktivieren"
 
-#: src/Module/Settings/Display.php:221
+#: src/Module/Settings/Display.php:232
 msgid "Enable the automatic suppression of extraneous thread indentation."
 msgstr "Schaltet das automatische Unterdrücken von überflüssigen Thread-Einrückungen ein."
 
-#: src/Module/Settings/Display.php:222
+#: src/Module/Settings/Display.php:233
 msgid "Display the Dislike feature"
 msgstr "Das \"Nicht-mögen\" Feature anzeigen"
 
-#: src/Module/Settings/Display.php:222
+#: src/Module/Settings/Display.php:233
 msgid ""
 "Display the Dislike button and dislike reactions on posts and comments."
 msgstr "Einen \"Ich mag das nicht\" Button  und die dislike Reaktion auf Beiträge und Kommentare anzeigen."
 
-#: src/Module/Settings/Display.php:223
+#: src/Module/Settings/Display.php:234
 msgid "Display the resharer"
 msgstr "Teilenden anzeigen"
 
-#: src/Module/Settings/Display.php:223
+#: src/Module/Settings/Display.php:234
 msgid "Display the first resharer as icon and text on a reshared item."
 msgstr "Zeige das Profilbild des ersten Kontakts von dem ein Beitrag geteilt wurde."
 
-#: src/Module/Settings/Display.php:224
+#: src/Module/Settings/Display.php:235
 msgid "Stay local"
 msgstr "Bleib lokal"
 
-#: src/Module/Settings/Display.php:224
+#: src/Module/Settings/Display.php:235
 msgid "Don't go to a remote system when following a contact link."
 msgstr "Gehe nicht zu einem Remote-System, wenn einem Kontaktlink gefolgt wird"
 
-#: src/Module/Settings/Display.php:226
+#: src/Module/Settings/Display.php:236
+msgid "Link preview mode"
+msgstr "Vorschau Modus für Links"
+
+#: src/Module/Settings/Display.php:238
 msgid "Beginning of week:"
 msgstr "Wochenbeginn:"
 
@@ -11362,7 +11382,7 @@ msgstr "in %1$d %2$s"
 msgid "%1$d %2$s ago"
 msgstr "%1$d %2$s her"
 
-#: src/Worker/Delivery.php:534
+#: src/Worker/Delivery.php:533
 msgid "(no subject)"
 msgstr "(kein Betreff)"
 
