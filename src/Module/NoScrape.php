@@ -94,7 +94,7 @@ class NoScrape extends BaseModule
 
 		// We display the last activity (post or login), reduced to year and week number
 		$last_active = strtotime($owner['last-item']);
-		if ($last_active < strtotime($owner['last-activity'])) {
+		if ($owner['last-activity'] && $last_active < strtotime($owner['last-activity'])) {
 			$last_active = strtotime($owner['last-activity']);
 		}
 		$json_info['last-activity'] = date('o-W', $last_active);
