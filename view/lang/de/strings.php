@@ -147,16 +147,9 @@ $a->strings['Album was empty.'] = 'Album ist leer.';
 $a->strings['Failed to delete the photo.'] = 'Das Foto konnte nicht gelöscht werden.';
 $a->strings['a photo'] = 'einem Foto';
 $a->strings['%1$s was tagged in %2$s by %3$s'] = '%1$s wurde von %3$s in %2$s getaggt';
-$a->strings['Image exceeds size limit of %s'] = 'Bildgröße überschreitet das Limit von %s';
-$a->strings['Image upload didn\'t complete, please try again'] = 'Der Upload des Bildes war nicht vollständig. Bitte versuche es erneut.';
-$a->strings['Image file is missing'] = 'Bilddatei konnte nicht gefunden werden.';
-$a->strings['Server can\'t accept new file upload at this time, please contact your administrator'] = 'Der Server kann derzeit keine neuen Datei-Uploads akzeptieren. Bitte kontaktiere deinen Administrator.';
-$a->strings['Image file is empty.'] = 'Bilddatei ist leer.';
-$a->strings['Unable to process image.'] = 'Konnte das Bild nicht bearbeiten.';
-$a->strings['Image upload failed.'] = 'Hochladen des Bildes gescheitert.';
 $a->strings['Public access denied.'] = 'Öffentlicher Zugriff verweigert.';
 $a->strings['No photos selected'] = 'Keine Bilder ausgewählt';
-$a->strings['Access to this item is restricted.'] = 'Zugriff zu diesem Eintrag wurde eingeschränkt.';
+$a->strings['The maximum accepted image size is %s'] = 'Die maximale erlaubte Größe von Bildern beträgt %s';
 $a->strings['Upload Photos'] = 'Bilder hochladen';
 $a->strings['New album name: '] = 'Name des neuen Albums: ';
 $a->strings['or select existing album:'] = 'oder wähle ein bestehendes Album:';
@@ -385,6 +378,9 @@ $a->strings['Tag Cloud'] = 'Schlagwortwolke';
 $a->strings['Provide a personal tag cloud on your profile page'] = 'Wortwolke aus den von dir verwendeten Schlagwörtern im Profil anzeigen';
 $a->strings['Display Membership Date'] = 'Mitgliedschaftsdatum anzeigen';
 $a->strings['Display membership date in profile'] = 'Das Datum der Registrierung deines Accounts im Profil anzeigen';
+$a->strings['Advanced Calendar Settings'] = 'Erweiterte Kalender Einstellungen';
+$a->strings['Allow anonymous access to your calendar'] = 'Erlaube anonymen Zugriff auf deinen Kalender';
+$a->strings['Allows anonymous visitors to consult your calendar and your public events. Contact birthday events are private to you.'] = 'Anonyme Besucher können deinen Kalender öffnen und dort deine öffentliche Ereignisse einsehen. Geburtstage deiner Kontakte sind nicht öffentlich.';
 $a->strings['Forums'] = 'Foren';
 $a->strings['External link to forum'] = 'Externer Link zum Forum';
 $a->strings['show less'] = 'weniger anzeigen';
@@ -1083,6 +1079,7 @@ $a->strings['Command'] = 'Befehl';
 $a->strings['Job Parameters'] = 'Parameter der Aufgabe';
 $a->strings['Created'] = 'Erstellt';
 $a->strings['Priority'] = 'Priorität';
+$a->strings['%s is no valid input for maximum image size'] = '%s ist keine gültige Angabe der maximalen Größe von Bildern';
 $a->strings['No special theme for mobile devices'] = 'Kein spezielles Theme für mobile Geräte verwenden.';
 $a->strings['%s - (Experimental)'] = '%s - (Experimentell)';
 $a->strings['No community page'] = 'Keine Gemeinschaftsseite';
@@ -1147,7 +1144,11 @@ $a->strings['Displays the menu entry for the Help pages from the navigation menu
 $a->strings['Single user instance'] = 'Ein-Nutzer Instanz';
 $a->strings['Make this instance multi-user or single-user for the named user'] = 'Bestimmt, ob es sich bei dieser Instanz um eine Installation mit nur einen Nutzer oder mit mehreren Nutzern handelt.';
 $a->strings['Maximum image size'] = 'Maximale Bildgröße';
-$a->strings['Maximum size in bytes of uploaded images. Default is 0, which means no limits. Be aware that this setting does not affect server-side upload limits.'] = 'Maximal akzeptierte Dateigröße in Bytes eines hochzuladenden Bilds. Der Standard ist 0 und entspricht keiner Beschränkung der Dateigröße. Beachte, dass diese Einstellung nicht die serverseitigen Beschränkungen von Dateigrößen beeinflusst.';
+$a->strings['Maximum size in bytes of uploaded images. Default is 0, which means no limits. You can put k, m, or g behind the desired value for KiB, MiB, GiB, respectively.
+													The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit.
+													Currently <code>upload_max_filesize</code> is set to %s (%sB)'] = 'Die maximale Größe von Bildern in Bytes. Grundeinstellung ist 0, welches keine Limitierung durch die Bildgröße bedeutet. Du kannst k, m oder g als Abkürzung hinter der Zahl angeben um KiB, MIB oder GiB zu definieren.
+													Der Wert der <code>1upload_max_filesize1</code> Variable in der <code>php.ini</code> Datei muss diesem Limit mindestens entsprechen.
+													Derzeit ist <code>3upload_max_filesize3</code> auf %s (%sB) gesetzt.';
 $a->strings['Maximum image length'] = 'Maximale Bildlänge';
 $a->strings['Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.'] = 'Maximale Länge in Pixeln der längsten Seite eines hochgeladenen Bildes. Grundeinstellung ist -1, was keine Einschränkung bedeutet.';
 $a->strings['JPEG image quality'] = 'Qualität des JPEG Bildes';
@@ -1331,6 +1332,8 @@ $a->strings['Show some informations regarding the needed information to operate 
 $a->strings['Privacy Statement Preview'] = 'Vorschau: Datenschutzerklärung';
 $a->strings['The Terms of Service'] = 'Die Nutzungsbedingungen';
 $a->strings['Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.'] = 'Füge hier die Nutzungsbedingungen deines Knotens ein. Du kannst BBCode zur Formatierung verwenden. Überschriften sollten [h2] oder darunter sein.';
+$a->strings['The rules'] = 'Die Regeln';
+$a->strings['Enter your system rules here. Each line represents one rule.'] = 'Gib die Regeln deines Server hier ein. Jede Zeile steht für eine Regel.';
 $a->strings['API endpoint %s %s is not implemented'] = 'API Endpunkt %s %s ist nicht implementiert';
 $a->strings['The API endpoint is currently not implemented but might be in the future.'] = 'The API endpoint is currently not implemented but might be in the future.';
 $a->strings['Missing parameters'] = 'Fehlende Parameter';
@@ -1410,8 +1413,9 @@ $a->strings['Event Starts:'] = 'Veranstaltungsbeginn:';
 $a->strings['Required'] = 'Benötigt';
 $a->strings['Finish date/time is not known or not relevant'] = 'Enddatum/-zeit ist nicht bekannt oder nicht relevant';
 $a->strings['Event Finishes:'] = 'Veranstaltungsende:';
-$a->strings['Description:'] = 'Beschreibung';
-$a->strings['Title:'] = 'Titel:';
+$a->strings['Title (BBCode not allowed)'] = 'Titel (BBCode nicht erlaubt)';
+$a->strings['Description (BBCode allowed)'] = 'Beschreibung (BBCode erlaubt)';
+$a->strings['Location (BBCode not allowed)'] = 'Ort (BBCode nicht erlaubt)';
 $a->strings['Share this event'] = 'Veranstaltung teilen';
 $a->strings['Basic'] = 'Allgemein';
 $a->strings['This calendar format is not supported'] = 'Dieses Kalenderformat wird nicht unterstützt.';
@@ -1803,6 +1807,9 @@ $a->strings['Sorry, maybe your upload is bigger than the PHP configuration allow
 $a->strings['Or - did you try to upload an empty file?'] = 'Oder - hast du versucht, eine leere Datei hochzuladen?';
 $a->strings['File exceeds size limit of %s'] = 'Die Datei ist größer als das erlaubte Limit von %s';
 $a->strings['File upload failed.'] = 'Hochladen der Datei fehlgeschlagen.';
+$a->strings['Unable to process image.'] = 'Konnte das Bild nicht bearbeiten.';
+$a->strings['Image exceeds size limit of %s'] = 'Bildgröße überschreitet das Limit von %s';
+$a->strings['Image upload failed.'] = 'Hochladen des Bildes gescheitert.';
 $a->strings['List of all users'] = 'Liste aller Benutzerkonten';
 $a->strings['Active'] = 'Aktive';
 $a->strings['List of active accounts'] = 'Liste der aktiven Benutzerkonten';
@@ -2059,6 +2066,10 @@ $a->strings['Remove Item Tag'] = 'Gegenstands-Tag entfernen';
 $a->strings['Select a tag to remove: '] = 'Wähle ein Tag zum Entfernen aus: ';
 $a->strings['Remove'] = 'Entfernen';
 $a->strings['No contacts.'] = 'Keine Kontakte.';
+$a->strings['Image upload didn\'t complete, please try again'] = 'Der Upload des Bildes war nicht vollständig. Bitte versuche es erneut.';
+$a->strings['Image file is missing'] = 'Bilddatei konnte nicht gefunden werden.';
+$a->strings['Server can\'t accept new file upload at this time, please contact your administrator'] = 'Der Server kann derzeit keine neuen Datei-Uploads akzeptieren. Bitte kontaktiere deinen Administrator.';
+$a->strings['Image file is empty.'] = 'Bilddatei ist leer.';
 $a->strings['View Album'] = 'Album betrachten';
 $a->strings['Profile not found.'] = 'Profil nicht gefunden.';
 $a->strings['You\'re currently viewing your profile as <b>%s</b> <a href="%s" class="btn btn-sm pull-right">Cancel</a>'] = 'Du betrachtest dein Profil gerade als <b>%s</b> <a href="%s" class="btn btn-sm pull-right">Abbrechen</a>';
@@ -2072,6 +2083,7 @@ $a->strings['%d year old'] = [
 	0 => '%d Jahr alt',
 	1 => '%d Jahre alt',
 ];
+$a->strings['Description:'] = 'Beschreibung';
 $a->strings['Forums:'] = 'Foren:';
 $a->strings['View profile as:'] = 'Das Profil aus der Sicht von jemandem anderen betrachten:';
 $a->strings['View as'] = 'Betrachten als';
@@ -2086,6 +2098,8 @@ $a->strings['Friend/Connection Request'] = 'Kontaktanfrage';
 $a->strings['Enter your Webfinger address (user@domain.tld) or profile URL here. If this isn\'t supported by your system, you have to subscribe to <strong>%s</strong> or <strong>%s</strong> directly on your system.'] = 'Gib entweder deine Webfinger- (user@domain.tld) oder die Profil-Adresse an. Wenn dies von deinem System nicht unterstützt wird, folge bitte <strong>%s</strong> oder <strong>%s</strong> direkt von deinem System. ';
 $a->strings['If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica node and join us today</a>.'] = 'Solltest du das freie Soziale Netzwerk noch nicht benutzen, kannst du <a href="%s">diesem Link folgen</a> um eine öffentliche Friendica Instanz zu finden um noch heute dem Netzwerk beizutreten.';
 $a->strings['Your Webfinger address or profile URL:'] = 'Deine Webfinger Adresse oder Profil-URL';
+$a->strings['Restricted profile'] = 'Eingeschränktes Profil';
+$a->strings['This profile has been restricted which prevents access to their public content from anonymous visitors.'] = 'Das Profil wurde eingeschränkt, dies verhindert den Zugriff auf öffentliche Beiträge durch anonyme Besucher des Profils.';
 $a->strings['Scheduled'] = 'Zeitplan';
 $a->strings['Content'] = 'Inhalt';
 $a->strings['Remove post'] = 'Beitrag entfernen';
@@ -2238,8 +2252,8 @@ $a->strings['Allow your profile to be searchable globally?'] = 'Darf dein Profil
 $a->strings['Activate this setting if you want others to easily find and follow you. Your profile will be searchable on remote systems. This setting also determines whether Friendica will inform search engines that your profile should be indexed or not.'] = 'Aktiviere diese Einstellung, wenn du von anderen einfach gefunden und gefolgt werden möchtest. Dei Profil wird dann auf anderen Systemen leicht durchsuchbar. Außerdem regelt diese Einstellung ob Friendica Suchmaschinen mitteilen soll, ob dein Profil indiziert werden soll oder nicht.';
 $a->strings['Hide your contact/friend list from viewers of your profile?'] = 'Liste der Kontakte vor Betrachtern des Profil verbergen?';
 $a->strings['A list of your contacts is displayed on your profile page. Activate this option to disable the display of your contact list.'] = 'Auf deiner Profilseite wird eine Liste deiner Kontakte angezeigt. Aktiviere diese Option wenn du das nicht möchtest.';
-$a->strings['Hide your profile details from anonymous viewers?'] = 'Profil-Details vor unbekannten Betrachtern verbergen?';
-$a->strings['Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.'] = 'Anonyme Besucher deines Profils werden ausschließlich dein Profilbild, deinen Namen sowie deinen Spitznamen sehen. Deine öffentlichen Beiträge und Kommentare werden weiterhin sichtbar sein.';
+$a->strings['Hide your public content from anonymous viewers'] = 'Verbirg die öffentliche Inhalte vor anonymen Besuchern';
+$a->strings['Anonymous visitors will only see your basic profile details. Your public posts and replies will still be freely accessible on the remote servers of your followers and through relays.'] = 'Anonyme Besucher deines Profils werden nur grundlegende Informationen angezeigt bekommen. Deine öffentlichen Beiträge und Kommentare werden weiterhin frei zugänglich auf den Servern deiner Kontakte und über Relays sein.';
 $a->strings['Make public posts unlisted'] = 'Öffentliche Beiträge nicht listen';
 $a->strings['Your public posts will not appear on the community pages or in search results, nor be sent to relay servers. However they can still appear on public feeds on remote servers.'] = 'Deine öffentlichen Beiträge werden nicht auf der Gemeinschaftsseite oder in den Suchergebnissen erscheinen, außerdem werden sie nicht an Relay-Server geschickt. Sie werden aber weiterhin in allen öffentlichen Feeds, auch auf entfernten Servern, erscheinen.';
 $a->strings['Make all posted pictures accessible'] = 'Alle geposteten Bilder zugreifbar machen';
@@ -2552,6 +2566,7 @@ Die E-Mail-Adresse wird nur zur Benachrichtigung des Nutzers verwendet, sie wird
 $a->strings['This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.'] = 'Diese Daten sind für die Kommunikation notwendig und werden an die Knoten der Kommunikationspartner übermittelt und dort gespeichert. Nutzer können weitere, private Angaben machen, die ebenfalls an die verwendeten Server der Kommunikationspartner übermittelt werden können.';
 $a->strings['At any point in time a logged in user can export their account data from the <a href="%1$s/settings/userexport">account settings</a>. If the user wants to delete their account they can do so at <a href="%1$s/settings/removeme">%1$s/settings/removeme</a>. The deletion of the account will be permanent. Deletion of the data will also be requested from the nodes of the communication partners.'] = 'Angemeldete Nutzer können ihre Nutzerdaten jederzeit von den <a href="%1$s/settings/userexport">Kontoeinstellungen</a> aus exportieren. Wenn ein Nutzer wünscht das Nutzerkonto zu löschen, so ist dies jederzeit unter <a href="%1$s/settings/removeme">%1$s/settings/removeme</a> möglich. Die Löschung des Nutzerkontos ist permanent. Die Löschung der Daten wird auch von den Knoten der Kommunikationspartner angefordert.';
 $a->strings['Privacy Statement'] = 'Datenschutzerklärung';
+$a->strings['Rules'] = 'Regeln';
 $a->strings['Parameter uri_id is missing.'] = 'Der Parameter uri_id fehlt.';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'Auf geschlossenen Servern können ausschließlich die Administratoren Benutzerkonten importieren.';
 $a->strings['Move account'] = 'Account umziehen';
