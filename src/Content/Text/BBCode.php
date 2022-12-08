@@ -68,6 +68,12 @@ class BBCode
 
 	const TOP_ANCHOR = '<br class="top-anchor">';
 	const BOTTOM_ANCHOR = '<br class="button-anchor">';
+
+	const PREVIEW_NONE     = 0;
+	const PREVIEW_NO_IMAGE = 1;
+	const PREVIEW_LARGE    = 2;
+	const PREVIEW_SMALL    = 3;
+
 	/**
 	 * Fetches attachment data that were generated the old way
 	 *
@@ -654,7 +660,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convertAttachment(string $text, int $simplehtml = self::INTERNAL, bool $tryoembed = true, array $data = [], int $uriid = 0): string
+	public static function convertAttachment(string $text, int $simplehtml = self::INTERNAL, bool $tryoembed = true, array $data = [], int $uriid = 0, int $preview_mode = self::PREVIEW_LARGE): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$data = $data ?: self::getAttachmentData($text);
@@ -689,12 +695,18 @@ class BBCode
 				$return = sprintf('<div class="type-%s">', $data['type']);
 			}
 
+			if ($preview_mode == self::PREVIEW_NO_IMAGE) {
+				unset($data['image']);
+				unset($data['preview']);
+			}
+
 			if (!empty($data['title']) && !empty($data['url'])) {
+				$preview_class = $preview_mode == self::PREVIEW_LARGE ? 'attachment-image' : 'attachment-preview';
 				if (!empty($data['image']) && empty($data['text']) && ($data['type'] == 'photo')) {
-					$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
+					$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="' . $preview_class . '" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
 				} else {
 					if (!empty($data['image'])) {
-						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
+						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="' . $preview_class . '" /></a><br>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
 					} elseif (!empty($data['preview'])) {
 						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br>', $data['url'], self::proxyUrl($data['preview'], $simplehtml, $uriid), $data['title']);
 					}

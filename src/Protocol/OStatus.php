@@ -1186,7 +1186,7 @@ class OStatus
 			}
 		}
 
-		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT]) as $attachment) {
 			$attributes = ['rel' => 'enclosure',
 				'href' => $attachment['url'],
 				'type' => $attachment['mimetype']];

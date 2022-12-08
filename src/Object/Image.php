@@ -734,6 +734,9 @@ class Image
 	public function getBlurHash(): string
 	{
 		$image = New Image($this->asString());
+		if (empty($image)) {
+			return '';
+		}
 
 		$width = $image->getWidth();
 		$height = $image->getHeight();
@@ -749,7 +752,11 @@ class Image
 			$row = [];
 			for ($x = 0; $x < $width; ++$x) {
 				if ($image->isImagick()) {
-					$colors = $image->image->getImagePixelColor($x, $y)->getColor();
+					try {
+						$colors = $image->image->getImagePixelColor($x, $y)->getColor();
+					} catch (\Throwable $th) {
+						return '';
+					}
 					$row[] = [$colors['r'], $colors['g'], $colors['b']];
 				} else {
 					$index = imagecolorat($image->image, $x, $y);

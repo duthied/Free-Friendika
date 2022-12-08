@@ -222,7 +222,7 @@ class Item
 				$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
 				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
 
-				Post\Media::insertFromRelevantUrl($item['uri-id'], $content_fields['raw-body']);
+				Post\Media::insertFromRelevantUrl($item['uri-id'], $content_fields['raw-body'], $fields['body'], $item['author-network']);
 				Post\Content::update($item['uri-id'], $content_fields);
 			}
 
@@ -1190,7 +1190,8 @@ class Item
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
 
-		Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body']);
+		$author = Contact::getById($item['author-id'], ['network']);
+		Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body'], $item['body'], $author['network'] ?? '');
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
@@ -3007,7 +3008,7 @@ class Item
 		$item['hashtags'] = $tags['hashtags'];
 		$item['mentions'] = $tags['mentions'];
 
-		$body = $item['body'] ?? '';
+		$body = $item['body'] = Post\Media::removeFromEndOfBody($item['body'] ?? '');
 
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media', 'quote-uri-id', 'post-type'];
 
@@ -3328,8 +3329,9 @@ class Item
 	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared): string
 	{
 		DI::profiler()->startRecording('rendering');
-		$leading = '';
+		$leading  = '';
 		$trailing = '';
+		$images   = [];
 
 		// @todo In the future we should make a single for the template engine with all media in it. This allows more flexibilty.
 		foreach ($attachments['visual'] as $attachment) {
@@ -3384,19 +3386,19 @@ class Item
 				if (self::containsLink($item['body'], $src_url)) {
 					continue;
 				}
-				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
-					'$image' => [
-						'src'        => $src_url,
-						'preview'    => $preview_url,
-						'attachment' => $attachment,
-					],
-				]);
-				// On Diaspora posts the attached pictures are leading
-				if ($item['network'] == Protocol::DIASPORA) {
-					$leading .= $media;
-				} else {
-					$trailing .= $media;
-				}
+				$images[] = ['src' => $src_url, 'preview' => $preview_url, 'attachment' => $attachment];
+			}
+		}
+
+		foreach ($images as $image) {
+			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
+				'$image' => $image,
+			]);
+			// On Diaspora posts the attached pictures are leading
+			if ($item['network'] == Protocol::DIASPORA) {
+				$leading .= $media;
+			} else {
+				$trailing .= $media;
 			}
 		}
 
@@ -3514,7 +3516,10 @@ class Item
 				}
 
 				// @todo Use a template
-				$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data, $uriid);
+				$preview_mode =  DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'preview_mode', BBCode::PREVIEW_LARGE);
+				if ($preview_mode != BBCode::PREVIEW_NONE) {
+					$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data, $uriid, $preview_mode);
+				}
 			} elseif (!self::containsLink($content, $data['url'], Post\Media::HTML)) {
 				$rendered = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/link.tpl'), [
 					'$url'  => $data['url'],

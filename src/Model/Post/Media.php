@@ -66,6 +66,7 @@ class Media
 	 * Insert a post-media record
 	 *
 	 * @param array $media
+	 * @param bool  $force
 	 * @return void
 	 */
 	public static function insert(array $media, bool $force = false)
@@ -229,20 +230,9 @@ class Media
 		}
 
 		if ($media['type'] == self::HTML) {
-			$data = ParseUrl::getSiteinfoCached($media['url'], false);
-			$media['preview'] = $data['images'][0]['src'] ?? null;
-			$media['preview-height'] = $data['images'][0]['height'] ?? null;
-			$media['preview-width'] = $data['images'][0]['width'] ?? null;
-			$media['blurhash'] = $data['images'][0]['blurhash'] ?? null;
-			$media['description'] = $data['text'] ?? null;
-			$media['name'] = $data['title'] ?? null;
-			$media['author-url'] = $data['author_url'] ?? null;
-			$media['author-name'] = $data['author_name'] ?? null;
-			$media['author-image'] = $data['author_img'] ?? null;
-			$media['publisher-url'] = $data['publisher_url'] ?? null;
-			$media['publisher-name'] = $data['publisher_name'] ?? null;
-			$media['publisher-image'] = $data['publisher_img'] ?? null;
+			$media = self::addPage($media);
 		}
+
 		return $media;
 	}
 
@@ -342,6 +332,31 @@ class Media
 		$media['publisher-image'] = null;
 
 		Logger::debug('Account detected', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'uri' => $contact['url']]);
+		return $media;
+	}
+
+	/**
+	 * Add page infos for HTML entries
+	 *
+	 * @param array $media
+	 * @return array
+	 */
+	private static function addPage(array $media): array
+	{
+		$data = ParseUrl::getSiteinfoCached($media['url'], false);
+		$media['preview'] = $data['images'][0]['src'] ?? null;
+		$media['preview-height'] = $data['images'][0]['height'] ?? null;
+		$media['preview-width'] = $data['images'][0]['width'] ?? null;
+		$media['blurhash'] = $data['images'][0]['blurhash'] ?? null;
+		$media['description'] = $data['text'] ?? null;
+		$media['name'] = $data['title'] ?? null;
+		$media['author-url'] = $data['author_url'] ?? null;
+		$media['author-name'] = $data['author_name'] ?? null;
+		$media['author-image'] = $data['author_img'] ?? null;
+		$media['publisher-url'] = $data['publisher_url'] ?? null;
+		$media['publisher-name'] = $data['publisher_name'] ?? null;
+		$media['publisher-image'] = $data['publisher_img'] ?? null;
+
 		return $media;
 	}
 
@@ -446,13 +461,14 @@ class Media
 	 * @param string $body
 	 * @return string Body without media links
 	 */
-	public static function insertFromBody(int $uriid, string $body): string
+	public static function insertFromBody(int $uriid, string $body, bool $endmatch = false): string
 	{
+		$endmatchpattern = $endmatch ? '\z' : '';
 		// Simplify image codes
-		$unshared_body = $body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+		$unshared_body = $body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]$endmatchpattern/ism", '[img]$3[/img]', $body);
 
 		$attachments = [];
-		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]$endmatchpattern#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (!self::isPictureLink($picture[1], $picture[2])) {
 					continue;
@@ -464,14 +480,14 @@ class Media
 			}
 		}
 
-		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]$endmatchpattern/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				$body = str_replace($picture[0], '', $body);
 				$attachments[$picture[1]] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $picture[1], 'description' => $picture[2]];
 			}
 		}
 
-		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]$endmatchpattern#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (!self::isPictureLink($picture[1], $picture[2])) {
 					continue;
@@ -483,39 +499,56 @@ class Media
 			}
 		}
 
-		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/ism", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]$endmatchpattern/ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				$body = str_replace($picture[0], '', $body);
 				$attachments[$picture[1]] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $picture[1]];
 			}
 		}
 
-		if (preg_match_all("/\[audio\]([^\[\]]*)\[\/audio\]/ism", $body, $audios, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[audio\]([^\[\]]*)\[\/audio\]$endmatchpattern/ism", $body, $audios, PREG_SET_ORDER)) {
 			foreach ($audios as $audio) {
 				$body = str_replace($audio[0], '', $body);
 				$attachments[$audio[1]] = ['uri-id' => $uriid, 'type' => self::AUDIO, 'url' => $audio[1]];
 			}
 		}
 
-		if (preg_match_all("/\[video\]([^\[\]]*)\[\/video\]/ism", $body, $videos, PREG_SET_ORDER)) {
+		if (preg_match_all("/\[video\]([^\[\]]*)\[\/video\]$endmatchpattern/ism", $body, $videos, PREG_SET_ORDER)) {
 			foreach ($videos as $video) {
 				$body = str_replace($video[0], '', $body);
 				$attachments[$video[1]] = ['uri-id' => $uriid, 'type' => self::VIDEO, 'url' => $video[1]];
 			}
 		}
 
-		foreach ($attachments as $attachment) {
-			if (Post\Link::exists($uriid, $attachment['preview'] ?? $attachment['url'])) {
-				continue;
-			}
+		if ($uriid != 0) {
+			foreach ($attachments as $attachment) {
+				if (Post\Link::exists($uriid, $attachment['preview'] ?? $attachment['url'])) {
+					continue;
+				}
 
-			// Only store attachments that are part of the unshared body
-			if (Item::containsLink($unshared_body, $attachment['preview'] ?? $attachment['url'], $attachment['type'])) {
-				self::insert($attachment);
+				// Only store attachments that are part of the unshared body
+				if (Item::containsLink($unshared_body, $attachment['preview'] ?? $attachment['url'], $attachment['type'])) {
+					self::insert($attachment);
+				}
 			}
 		}
 
 		return trim($body);
+	}
+
+	/**
+	 * Remove media that is at the end of the body
+	 *
+	 * @param string $body
+	 * @return string
+	 */
+	public static function removeFromEndOfBody(string $body): string
+	{
+		do {
+			$prebody = $body;
+			$body = self::insertFromBody(0, $body, true);
+		} while ($prebody != $body);
+		return $body;
 	}
 
 	/**
@@ -525,7 +558,7 @@ class Media
 	 * @param string $body
 	 * @return void
 	 */
-	public static function insertFromRelevantUrl(int $uriid, string $body)
+	public static function insertFromRelevantUrl(int $uriid, string $body, string $fullbody, string $network)
 	{
 		// Remove all hashtags and mentions
 		$body = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '', $body);
@@ -534,7 +567,10 @@ class Media
 		if (preg_match_all("/\[url\](https?:.*?)\[\/url\]/ism", $body, $matches)) {
 			foreach ($matches[1] as $url) {
 				Logger::info('Got page url (link without description)', ['uri-id' => $uriid, 'url' => $url]);
-				self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url]);
+				self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url], false, $network);
+				if ($network == Protocol::DFRN) {
+					self::revertHTMLType($uriid, $url, $fullbody);
+				}
 			}
 		}
 
@@ -542,9 +578,29 @@ class Media
 		if (preg_match_all("/\[url\=(https?:.*?)\].*?\[\/url\]/ism", $body, $matches)) {
 			foreach ($matches[1] as $url) {
 				Logger::info('Got page url (link with description)', ['uri-id' => $uriid, 'url' => $url]);
-				self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url]);
+				self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url], false, $network);
+				if ($network == Protocol::DFRN) {
+					self::revertHTMLType($uriid, $url, $fullbody);
+				}
 			}
 		}
+	}
+
+	/**
+	 * Revert the media type of links to UNKNOWN for DFRN posts when they aren't attached
+	 *
+	 * @param integer $uriid
+	 * @param string $url
+	 * @param string $body
+	 * @return void
+	 */
+	private static function revertHTMLType(int $uriid, string $url, string $body)
+	{
+		$attachment = BBCode::getAttachmentData($body);
+		if (!empty($attachment['url']) && Network::getUrlMatch($attachment['url'], $url)) {
+			return;
+		}
+		DBA::update('post-media', ['type' => self::UNKNOWN], ['uri-id' => $uriid, 'type' => self::HTML, 'url' => $url]);
 	}
 
 	/**
@@ -615,7 +671,7 @@ class Media
 	 */
 	public static function getByURIId(int $uri_id, array $types = [])
 	{
-		$condition = ['uri-id' => $uri_id];
+		$condition = ["`uri-id` = ? AND `type` != ?", $uri_id, self::UNKNOWN];
 
 		if (!empty($types)) {
 			$condition = DBA::mergeConditions($condition, ['type' => $types]);
@@ -634,7 +690,7 @@ class Media
 	 */
 	public static function existsByURIId(int $uri_id, array $types = []): bool
 	{
-		$condition = ['uri-id' => $uri_id];
+		$condition = ["`uri-id` = ? AND `type` != ?", $uri_id, self::UNKNOWN];
 
 		if (!empty($types)) {
 			$condition = DBA::mergeConditions($condition, ['type' => $types]);
