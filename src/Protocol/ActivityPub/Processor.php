@@ -804,7 +804,7 @@ class Processor
 	private static function processContent(array $activity, array $item)
 	{
 		if (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/markdown')) {
-			$item['title'] = strip_tags($activity['name']);
+			$item['title'] = strip_tags($activity['name'] ?? '');
 			$content = Markdown::toBBCode($activity['content']);
 		} elseif (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/bbcode')) {
 			$item['title'] = $activity['name'];
