@@ -209,7 +209,7 @@ class Receiver
 				Logger::notice('No object data found', ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'actor' => $actor, 'activity' => $activity]);
 				return;
 			}
-	
+
 			if (self::routeActivities($object_data, $type, true)) {
 				Logger::debug('Handled activity', ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'actor' => $actor]);
 			} else {
@@ -1472,7 +1472,7 @@ class Receiver
 				continue;
 			}
 
-			$element = ['type' => str_replace('as:', '', JsonLD::fetchElement($tag, '@type')),
+			$element = ['type' => str_replace('as:', '', JsonLD::fetchElement($tag, '@type') ?? ''),
 				'href' => JsonLD::fetchElement($tag, 'as:href', '@id'),
 				'name' => JsonLD::fetchElement($tag, 'as:name', '@value')];
 
