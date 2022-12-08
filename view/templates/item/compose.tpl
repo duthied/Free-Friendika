@@ -1,5 +1,5 @@
 <div class="generic-page-wrapper">
-	<h4>{{$l10n.compose_title}}</h4>
+	<h2>{{$l10n.compose_title}}</h2>
     {{if $l10n.always_open_compose}}
 	<p>{{$l10n.always_open_compose nofilter}}</p>
 	{{/if}}
