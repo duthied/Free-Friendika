@@ -6,7 +6,7 @@ $(function(){
 		var value = this.dataset.filterValue;
 		var re = RegExp(filter+"=[a-z]*");
 		var newhref = location.href;
-		if (!location.href.indexOf("?") < 0) {
+		if (location.href.indexOf("?") < 0) {
 			newhref = location.href + "?" + filter + "=" + value;
 		} else if (location.href.match(re)) {
 			newhref = location.href.replace(RegExp(filter+"=[a-z]*"), filter+"="+value);
