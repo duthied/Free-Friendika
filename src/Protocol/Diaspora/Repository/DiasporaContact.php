@@ -234,6 +234,18 @@ class DiasporaContact extends BaseRepository
 	 */
 	public function updateFromProbeArray(array $data): Entity\DiasporaContact
 	{
+		if (empty($data['url'])) {
+			throw new \InvalidArgumentException('Missing url key in Diaspora probe data array');
+		}
+
+		if (empty($data['guid'])) {
+			throw new \InvalidArgumentException('Missing guid key in Diaspora probe data array');
+		}
+
+		if (empty($data['pubkey'])) {
+			throw new \InvalidArgumentException('Missing pubkey key in Diaspora probe data array');
+		}
+
 		$uriId = ItemURI::insert(['uri' => $data['url'], 'guid' => $data['guid']]);
 
 		$contact   = Contact::getByUriId($uriId, ['id', 'created']);

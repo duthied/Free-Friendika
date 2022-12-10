@@ -48,6 +48,7 @@ use Friendica\Navigation\Notifications\Factory;
 use Friendica\Navigation\Notifications\Repository;
 use Friendica\Navigation\Notifications\ValueObject;
 use Friendica\Navigation\SystemMessages;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -229,7 +230,11 @@ class Ping extends BaseModule
 
 			// merge all notification types in one array
 			foreach ($intros as $intro) {
-				$navNotifications[] = $this->formattedNavNotification->createFromIntro($intro);
+				try {
+					$navNotifications[] = $this->formattedNavNotification->createFromIntro($intro);
+				} catch (HTTPException\NotFoundException $e) {
+					$this->introductionRepo->delete($intro);
+				}
 			}
 
 			if (count($registrations) <= 1 || $this->pconfig->get($this->session->getLocalUserId(), 'system', 'detailed_notif')) {
@@ -242,7 +247,7 @@ class Ping extends BaseModule
 						new Uri($this->baseUrl->get(true) . '/moderation/users/pending')
 					);
 				}
-			} elseif (count($registrations) > 1) {
+			} else {
 				$navNotifications[] = $this->formattedNavNotification->createFromParams(
 					$registrations[0]['name'],
 					$registrations[0]['url'],
