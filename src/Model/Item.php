@@ -21,8 +21,6 @@
 
 namespace Friendica\Model;
 
-use DOMDocument;
-use DOMXPath;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -30,7 +28,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Model\Tag;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
