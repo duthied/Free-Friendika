@@ -1,1 +1,0 @@
-<div class="column">{{$images}}</div>
