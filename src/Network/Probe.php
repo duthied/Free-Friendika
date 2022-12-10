@@ -38,6 +38,7 @@ use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
 use Friendica\Protocol\Salmon;
@@ -358,7 +359,9 @@ class Probe
 			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') != Protocol::DFRN))) {
 				$networks = $data['networks'] ?? [];
 				unset($data['networks']);
-				$networks[$data['network']] = $data;
+				if (!empty($data['network'])) {
+					$networks[$data['network']] = $data;
+				}
 				$data = $ap_profile;
 				$data['networks'] = $networks;
 			} elseif (!empty($ap_profile)) {
@@ -2207,6 +2210,8 @@ class Probe
 			$owner     = User::getOwnerDataById($uid);
 			$approfile = ActivityPub\Transmitter::getProfile($uid);
 
+			$split_name = Diaspora::splitName($owner['name']);
+	
 			if (empty($owner['gsid'])) {
 				$owner['gsid'] = GServer::getID($approfile['generator']['url']);
 			}
@@ -2226,7 +2231,28 @@ class Probe
 				'inbox'            => $approfile['inbox'], 'outbox' => $approfile['outbox'],
 				'sharedinbox'      => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN,
 				'pubkey'           => $owner['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $owner['gsid'],
-				'manually-approve' => in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])
+				'manually-approve' => in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]),
+				'networks' => [
+					Protocol::DIASPORA => [
+						'name'         => $owner['name'],
+						'given_name'   => $split_name['first'],
+						'family_name'  => $split_name['last'],
+						'nick'         => $owner['nick'],
+						'guid'         => $approfile['diaspora:guid'],
+						'url'          => $owner['url'],
+						'addr'         => $owner['addr'],
+						'alias'        => $owner['alias'],
+						'photo'        => $owner['photo'],
+						'photo_medium' => $owner['thumb'],
+						'photo_small'  => $owner['micro'],
+						'batch'        => $approfile['generator']['url'] . '/receive/public',
+						'notify'       => $owner['notify'],
+						'poll'         => $owner['poll'],
+						'poco'         => $owner['poco'],						
+						'network'      => Protocol::DIASPORA,
+						'pubkey'       => $owner['upubkey'],
+					]
+				]
 			];
 		} catch (Exception $e) {
 			// Default values for non existing targets
