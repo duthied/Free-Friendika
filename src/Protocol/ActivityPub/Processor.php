@@ -42,6 +42,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Model\Post;
+use Friendica\Moderation\Entity\Report;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Delivery;
@@ -1893,8 +1894,8 @@ class Processor
 	 */
 	public static function ReportAccount(array $activity)
 	{
-		$account_id = Contact::getIdForURL($activity['object_id']);
-		if (empty($account_id)) {
+		$account = Contact::getByURL($activity['object_id'], null, ['id', 'gsid']);
+		if (empty($account)) {
 			Logger::info('Unknown account', ['activity' => $activity]);
 			Queue::remove($activity);
 			return;
@@ -1915,10 +1916,10 @@ class Processor
 			}
 		}
 
-		$report = DI::reportFactory()->createFromReportsRequest($reporter_id, $account_id, $activity['content'], null, '', false, $uri_ids);
+		$report = DI::reportFactory()->createFromReportsRequest(System::getRules(true), $reporter_id, $account['id'], $account['gsid'], $activity['content'], 'other', false, $uri_ids);
 		DI::report()->save($report);
 
-		Logger::info('Stored report', ['reporter' => $reporter_id, 'account_id' => $account_id, 'comment' => $activity['content'], 'object_ids' => $activity['object_ids']]);
+		Logger::info('Stored report', ['reporter' => $reporter_id, 'account' => $account, 'comment' => $activity['content'], 'object_ids' => $activity['object_ids']]);
 	}
 
 	/**

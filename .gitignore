@@ -19,7 +19,7 @@ robots.txt
 /doc/cache
 
 #ignore reports, should be generated with every build
-report/
+/report/
 
 #ignore config files from eclipse, we don't want IDE files in our repository
 .project

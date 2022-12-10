@@ -77,7 +77,8 @@ Database Tables
 | [push_subscriber](help/database/db_push_subscriber) | Used for OStatus: Contains feed subscribers |
 | [register](help/database/db_register) | registrations requiring admin approval |
 | [report](help/database/db_report) |  |
-| [report-post](help/database/db_report-post) |  |
+| [report-post](help/database/db_report-post) | Individual posts attached to a moderation report |
+| [report-rule](help/database/db_report-rule) | Terms of service rule lines relevant to a moderation report |
 | [search](help/database/db_search) |  |
 | [session](help/database/db_session) | web session storage |
 | [storage](help/database/db_storage) | Data stored by Database storage backend |
