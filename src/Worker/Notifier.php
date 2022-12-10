@@ -191,7 +191,7 @@ class Notifier
 			// when the original comment author does support the Diaspora protocol.
 			if ($thr_parent['author-link'] && $target_item['parent-uri'] != $target_item['thr-parent']) {
 				$diaspora_delivery = Diaspora::isSupportedByContactUrl($thr_parent['author-link']);
-				if ($diaspora_delivery &&  empty($target_item['signed_text'])) {
+				if ($diaspora_delivery && empty($target_item['signed_text'])) {
 					Logger::debug('Post has got no Diaspora signature, so there will be no Diaspora delivery', ['guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id']]);
 					$diaspora_delivery = false;
 				}

@@ -826,9 +826,15 @@ class Diaspora
 	 */
 	public static function isSupportedByContactUrl(string $url, ?bool $update = null): bool
 	{
-		$contact = Contact::getByURL($url, $update);
+		$contact = Contact::getByURL($url, $update, ['uri-id', 'network']);
 
-		return DI::dsprContact()->existsByUriId($contact['uri-id'] ?? 0);
+		$supported = DI::dsprContact()->existsByUriId($contact['uri-id'] ?? 0);
+
+		if (!$supported && is_null($update) && ($contact['network'] == Protocol::DFRN)) {
+			$supported = self::isSupportedByContactUrl($url, true);
+		}
+
+		return $supported;
 	}
 
 	/**
@@ -4035,6 +4041,7 @@ class Diaspora
 
 		if (!self::parentSupportDiaspora($item['thr-parent-id'])) {
 			Logger::info('One of the parents does not support Diaspora. A signature will not be created.', ['uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			echo "5";
 			return false;
 		}
 
@@ -4064,7 +4071,7 @@ class Diaspora
 			return false;
 		}
 
-		if (!self::isSupportedByContactUrl($parent_post['author-link'], false)) {
+		if (!self::isSupportedByContactUrl($parent_post['author-link'])) {
 			Logger::info('Parent author is no Diaspora contact.', ['parent-id' => $parent_id]);
 			return false;
 		}
