@@ -2036,9 +2036,10 @@ class Item
 	 * Posts that are created on this system are using System::createUUID.
 	 * Received ActivityPub posts are using Processor::getGUIDByURL.
 	 *
-	 * @param string      $uri uri of an item entry
+	 * @param string      $uri  uri of an item entry
 	 * @param string|null $host hostname for the GUID prefix
 	 * @return string Unique guid
+	 * @throws \Exception
 	 */
 	public static function guidFromUri(string $uri, string $host = null): string
 	{
@@ -2049,11 +2050,16 @@ class Item
 		// Remove the scheme to make sure that "https" and "http" doesn't make a difference
 		unset($parsed['scheme']);
 
+		$hostPart = $host ?? $parsed['host'] ?? '';
+		if (!$hostPart) {
+			Logger::warning('Empty host GUID part', ['uri' => $uri, 'host' => $host, 'parsed' => $parsed, 'callstack' => System::callstack(10)]);
+		}
+
 		// Glue it together to be able to make a hash from it
 		$host_id = implode('/', $parsed);
 
 		// Use a mixture of several hashes to provide some GUID like experience
-		return hash('crc32', $host) . '-'. hash('joaat', $host_id) . '-'. hash('fnv164', $host_id);
+		return hash('crc32', $hostPart) . '-' . hash('joaat', $host_id) . '-' . hash('fnv164', $host_id);
 	}
 
 	/**

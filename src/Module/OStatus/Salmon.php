@@ -66,11 +66,12 @@ class Salmon extends \Friendica\BaseModule
 	{
 		$xml = Network::postdata();
 
-		$this->logger->debug('New Salmon', ['nickname' => $this->parameters['nickname'], 'xml' => $xml]);
-
-		// Despite having a route with a mandatory nickname parameter, this method can also be called from
-		// \Friendica\Module\DFRN\Notify->post where the same parameter is optional 🤷‍
 		$nickname = $this->parameters['nickname'] ?? '';
+		if (empty($nickname)) {
+			throw new HTTPException\BadRequestException('nickname parameter is mandatory');
+		}
+
+		$this->logger->debug('New Salmon', ['nickname' => $nickname, 'xml' => $xml]);
 
 		$importer = $this->database->selectFirst('user', [], ['nickname' => $nickname, 'account_expired' => false, 'account_removed' => false]);
 		if (!$this->database->isResult($importer)) {

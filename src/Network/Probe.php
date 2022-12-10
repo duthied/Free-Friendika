@@ -38,6 +38,7 @@ use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
 use Friendica\Protocol\Salmon;
@@ -131,6 +132,17 @@ class Probe
 				$newdata[$field] = '';
 			} else {
 				$newdata[$field] = null;
+			}
+		}
+
+		$newdata['networks'] = [];
+		foreach ([Protocol::DIASPORA, Protocol::OSTATUS] as $network) {
+			if (!empty($data['networks'][$network])) {
+				$data['networks'][$network]['subscribe'] = $newdata['subscribe'] ?? '';
+				$data['networks'][$network]['baseurl'] = $newdata['baseurl'] ?? '';
+				$data['networks'][$network]['gsid'] = $newdata['gsid'] ?? 0;
+				$newdata['networks'][$network] = self::rearrangeData($data['networks'][$network]);
+				unset($newdata['networks'][$network]['networks']);
 			}
 		}
 
@@ -345,7 +357,13 @@ class Probe
 				$data = [];
 			}
 			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') != Protocol::DFRN))) {
+				$networks = $data['networks'] ?? [];
+				unset($data['networks']);
+				if (!empty($data['network'])) {
+					$networks[$data['network']] = $data;
+				}
 				$data = $ap_profile;
+				$data['networks'] = $networks;
 			} elseif (!empty($ap_profile)) {
 				$ap_profile['batch'] = '';
 				$data = array_merge($ap_profile, $data);
@@ -669,7 +687,7 @@ class Probe
 		}
 
 		$parts = parse_url($uri);
-		if (empty($parts['scheme']) && empty($parts['host']) && !strstr($parts['path'], '@')) {
+		if (empty($parts['scheme']) && empty($parts['host']) && (empty($parts['path']) || strpos($parts['path'], '@') === false)) {
 			Logger::info('URI was not detectable', ['uri' => $uri]);
 			return [];
 		}
@@ -716,9 +734,13 @@ class Probe
 		}
 		if ((!$result && ($network == '')) || ($network == Protocol::DIASPORA)) {
 			$result = self::diaspora($webfinger);
+		} else {
+			$result['networks'][Protocol::DIASPORA] = self::diaspora($webfinger);
 		}
 		if ((!$result && ($network == '')) || ($network == Protocol::OSTATUS)) {
 			$result = self::ostatus($webfinger);
+		} else {
+			$result['networks'][Protocol::OSTATUS] = self::ostatus($webfinger);
 		}
 		if (in_array($network, ['', Protocol::ZOT])) {
 			$result = self::zot($webfinger, $result, $baseurl);
@@ -2188,6 +2210,8 @@ class Probe
 			$owner     = User::getOwnerDataById($uid);
 			$approfile = ActivityPub\Transmitter::getProfile($uid);
 
+			$split_name = Diaspora::splitName($owner['name']);
+	
 			if (empty($owner['gsid'])) {
 				$owner['gsid'] = GServer::getID($approfile['generator']['url']);
 			}
@@ -2207,7 +2231,28 @@ class Probe
 				'inbox'            => $approfile['inbox'], 'outbox' => $approfile['outbox'],
 				'sharedinbox'      => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN,
 				'pubkey'           => $owner['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $owner['gsid'],
-				'manually-approve' => in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])
+				'manually-approve' => in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]),
+				'networks' => [
+					Protocol::DIASPORA => [
+						'name'         => $owner['name'],
+						'given_name'   => $split_name['first'],
+						'family_name'  => $split_name['last'],
+						'nick'         => $owner['nick'],
+						'guid'         => $approfile['diaspora:guid'],
+						'url'          => $owner['url'],
+						'addr'         => $owner['addr'],
+						'alias'        => $owner['alias'],
+						'photo'        => $owner['photo'],
+						'photo_medium' => $owner['thumb'],
+						'photo_small'  => $owner['micro'],
+						'batch'        => $approfile['generator']['url'] . '/receive/public',
+						'notify'       => $owner['notify'],
+						'poll'         => $owner['poll'],
+						'poco'         => $owner['poco'],						
+						'network'      => Protocol::DIASPORA,
+						'pubkey'       => $owner['upubkey'],
+					]
+				]
 			];
 		} catch (Exception $e) {
 			// Default values for non existing targets

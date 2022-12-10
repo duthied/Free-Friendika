@@ -70,18 +70,8 @@ class Notify extends BaseModule
 				throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 			}
 			$this->dispatchPrivate($user, $postdata);
-		} elseif (!$this->dispatchPublic($postdata)) {
-			(new Salmon(
-				$this->database,
-				$this->l10n,
-				$this->baseUrl,
-				$this->args,
-				$this->logger,
-				$this->profiler,
-				$this->response,
-				$this->server,
-				$this->parameters
-			))->rawContent($request);
+		} else {
+			$this->dispatchPublic($postdata);
 		}
 	}
 

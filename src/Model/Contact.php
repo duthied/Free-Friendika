@@ -1395,7 +1395,17 @@ class Contact
 		}
 
 		if ($data['network'] == Protocol::DIASPORA) {
-			DI::dsprContact()->updateFromProbeArray($data);
+			try {
+				DI::dsprContact()->updateFromProbeArray($data);
+			} catch (\InvalidArgumentException $e) {
+				Logger::error($e->getMessage(), ['url' => $url, 'data' => $data]);
+			}
+		} elseif (!empty($data['networks'][Protocol::DIASPORA])) {
+			try {
+				DI::dsprContact()->updateFromProbeArray($data['networks'][Protocol::DIASPORA]);
+			} catch (\InvalidArgumentException $e) {
+				Logger::error($e->getMessage(), ['url' => $url, 'data' => $data['networks'][Protocol::DIASPORA]]);
+			}
 		}
 
 		self::updateFromProbeArray($contact_id, $data);
@@ -2097,7 +2107,7 @@ class Contact
 		if ($static) {
 			$query_params['static'] = true;
 		}
-		
+
 		return $url . ($guid ?: $cid) . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
 	}
 
@@ -2483,13 +2493,23 @@ class Contact
 			return false;
 		}
 
-		$ret = Probe::uri($contact['url'], $network, $contact['uid']);
+		$data = Probe::uri($contact['url'], $network, $contact['uid']);
 
-		if ($ret['network'] == Protocol::DIASPORA) {
-			DI::dsprContact()->updateFromProbeArray($ret);
+		if ($data['network'] == Protocol::DIASPORA) {
+			try {
+				DI::dsprContact()->updateFromProbeArray($data);
+			} catch (\InvalidArgumentException $e) {
+				Logger::error($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
+			}
+		} elseif (!empty($data['networks'][Protocol::DIASPORA])) {
+			try {
+				DI::dsprContact()->updateFromProbeArray($data['networks'][Protocol::DIASPORA]);
+			} catch (\InvalidArgumentException $e) {
+				Logger::error($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
+			}
 		}
 
-		return self::updateFromProbeArray($id, $ret);
+		return self::updateFromProbeArray($id, $data);
 	}
 
 	/**
@@ -2671,7 +2691,7 @@ class Contact
 		}
 
 		$update = false;
-		$guid = ($ret['guid'] ?? '') ?: Item::guidFromUri($ret['url'], parse_url($ret['url'], PHP_URL_HOST));
+		$guid = ($ret['guid'] ?? '') ?: Item::guidFromUri($ret['url']);
 
 		// make sure to not overwrite existing values with blank entries except some technical fields
 		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];
@@ -3189,8 +3209,9 @@ class Contact
 		self::clearFollowerFollowingEndpointCache($contact['uid']);
 
 		$cdata = self::getPublicAndUserContactID($contact['id'], $contact['uid']);
-
-		DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $cdata['public']]);
+		if (!empty($cdata['public'])) {
+			DI::notification()->deleteForUserByVerb($contact['uid'], Activity::FOLLOW, ['actor-id' => $cdata['public']]);
+		}
 	}
 
 	/**

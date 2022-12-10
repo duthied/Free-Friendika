@@ -77,7 +77,7 @@ class Tos extends BaseModule
 	 */
 	protected function content(array $request = []): string
 	{
-		if (strlen($this->config->get('system', 'singleuser'))) {
+		if ($this->config->get('system', 'singleuser')) {
 			$this->baseUrl->redirect('profile/' . $this->config->get('system', 'singleuser'));
 		}
 

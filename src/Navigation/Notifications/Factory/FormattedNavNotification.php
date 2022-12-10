@@ -28,7 +28,7 @@ use Friendica\Model\Contact;
 use Friendica\Navigation\Notifications\Entity;
 use Friendica\Navigation\Notifications\Exception\NoMessageException;
 use Friendica\Navigation\Notifications\ValueObject;
-use Friendica\Network\HTTPException\ServiceUnavailableException;
+use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
 use Friendica\Util\Temporal;
@@ -73,7 +73,7 @@ class FormattedNavNotification extends BaseFactory
 	 * @param Uri       $href
 	 * @param bool      $seen
 	 * @return ValueObject\FormattedNavNotification
-	 * @throws ServiceUnavailableException
+	 * @throws HTTPException\ServiceUnavailableException
 	 */
 	public function createFromParams(string $contact_name, string $contact_url, string $message, \DateTime $date, Uri $href, bool $seen = false): ValueObject\FormattedNavNotification
 	{
@@ -115,9 +115,9 @@ class FormattedNavNotification extends BaseFactory
 	 * @param Entity\Notification $notification
 	 * @return ValueObject\FormattedNavNotification
 	 * @throws NoMessageException
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \Friendica\Network\HTTPException\NotFoundException
-	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException
+	 * @throws HTTPException\ServiceUnavailableException
 	 */
 	public function createFromNotification(Entity\Notification $notification): ValueObject\FormattedNavNotification
 	{
@@ -141,10 +141,20 @@ class FormattedNavNotification extends BaseFactory
 		);
 	}
 
+	/**
+	 * @param \Friendica\Contact\Introduction\Entity\Introduction $intro
+	 * @return ValueObject\FormattedNavNotification
+	 * @throws HTTPException\NotFoundException when the contact record couldn't be located
+	 * @throws HTTPException\ServiceUnavailableException
+	 */
 	public function createFromIntro(\Friendica\Contact\Introduction\Entity\Introduction $intro): ValueObject\FormattedNavNotification
 	{
-		if (!isset(self::$contacts[$intro->cid])) {
-			self::$contacts[$intro->cid] = Contact::getById($intro->cid, ['name', 'url', 'pending']);
+		if (empty(self::$contacts[$intro->cid])) {
+			if ($contact = Contact::getById($intro->cid, ['name', 'url', 'pending'])) {
+				self::$contacts[$intro->cid] = $contact;
+			} else {
+				throw new HTTPException\NotFoundException('Contact not found with id' . $intro->cid);
+			}
 		}
 
 		if (self::$contacts[$intro->cid]['pending']) {
