@@ -137,7 +137,11 @@ class Probe
 		$newdata['networks'] = [];
 		foreach ([Protocol::DIASPORA, Protocol::OSTATUS] as $network) {
 			if (!empty($data['networks'][$network])) {
-				$newdata['networks'][$network] = $data['networks'][$network];
+				$data['networks'][$network]['subscribe'] = $newdata['subscribe'] ?? '';
+				$data['networks'][$network]['baseurl'] = $newdata['baseurl'] ?? '';
+				$data['networks'][$network]['gsid'] = $newdata['gsid'] ?? 0;
+				$newdata['networks'][$network] = self::rearrangeData($data['networks'][$network]);
+				unset($newdata['networks'][$network]['networks']);
 			}
 		}
 
