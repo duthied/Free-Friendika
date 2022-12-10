@@ -1629,7 +1629,7 @@ class Item
 
 		if (($uid != 0) && (($item['gravity'] == self::GRAVITY_PARENT) || $is_reshare) &&
 			DI::pConfig()->get($uid, 'system', 'accept_only_sharer') == self::COMPLETION_NONE &&
-			!in_array($item['post-reason'], [self::PR_FOLLOWER, self::PR_TAG, self::PR_TO, self::PR_CC])) {
+			!in_array($item['post-reason'], [self::PR_FOLLOWER, self::PR_TAG, self::PR_TO, self::PR_CC, self::PR_ACTIVITY])) {
 			Logger::info('Contact is not a follower, thread will not be stored', ['author' => $item['author-link'], 'uid' => $uid, 'uri-id' => $uri_id, 'post-reason' => $item['post-reason']]);
 			return 0;
 		}
