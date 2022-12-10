@@ -1396,6 +1396,8 @@ class Contact
 
 		if ($data['network'] == Protocol::DIASPORA) {
 			DI::dsprContact()->updateFromProbeArray($data);
+		} elseif (!empty($data['networks'][Protocol::DIASPORA])) {
+			DI::dsprContact()->updateFromProbeArray($data['networks'][Protocol::DIASPORA]);
 		}
 
 		self::updateFromProbeArray($contact_id, $data);
@@ -2487,6 +2489,8 @@ class Contact
 
 		if ($ret['network'] == Protocol::DIASPORA) {
 			DI::dsprContact()->updateFromProbeArray($ret);
+		} elseif (!empty($ret['networks'][Protocol::DIASPORA])) {
+			DI::dsprContact()->updateFromProbeArray($ret['networks'][Protocol::DIASPORA]);
 		}
 
 		return self::updateFromProbeArray($id, $ret);

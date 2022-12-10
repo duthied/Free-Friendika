@@ -134,6 +134,17 @@ class Probe
 			}
 		}
 
+		$newdata['networks'] = [];
+		foreach ([Protocol::DIASPORA, Protocol::OSTATUS] as $network) {
+			if (!empty($data['networks'][$network])) {
+				$data['networks'][$network]['subscribe'] = $newdata['subscribe'] ?? '';
+				$data['networks'][$network]['baseurl'] = $newdata['baseurl'] ?? '';
+				$data['networks'][$network]['gsid'] = $newdata['gsid'] ?? 0;
+				$newdata['networks'][$network] = self::rearrangeData($data['networks'][$network]);
+				unset($newdata['networks'][$network]['networks']);
+			}
+		}
+
 		// We don't use the "priority" field anymore and replace it with a dummy.
 		$newdata['priority'] = 0;
 
@@ -345,7 +356,11 @@ class Probe
 				$data = [];
 			}
 			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') != Protocol::DFRN))) {
+				$networks = $data['networks'] ?? [];
+				unset($data['networks']);
+				$networks[$data['network']] = $data;
 				$data = $ap_profile;
+				$data['networks'] = $networks;
 			} elseif (!empty($ap_profile)) {
 				$ap_profile['batch'] = '';
 				$data = array_merge($ap_profile, $data);
@@ -716,9 +731,13 @@ class Probe
 		}
 		if ((!$result && ($network == '')) || ($network == Protocol::DIASPORA)) {
 			$result = self::diaspora($webfinger);
+		} else {
+			$result['networks'][Protocol::DIASPORA] = self::diaspora($webfinger);
 		}
 		if ((!$result && ($network == '')) || ($network == Protocol::OSTATUS)) {
 			$result = self::ostatus($webfinger);
+		} else {
+			$result['networks'][Protocol::OSTATUS] = self::ostatus($webfinger);
 		}
 		if (in_array($network, ['', Protocol::ZOT])) {
 			$result = self::zot($webfinger, $result, $baseurl);
