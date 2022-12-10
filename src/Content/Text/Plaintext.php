@@ -303,7 +303,7 @@ class Plaintext
 				$limit += mb_strlen(trim($word)) - self::URL_LENGTH;
 			}
 
-			if ((mb_strlen($part . $word) > $limit - 8) && (mb_strlen($part . $word . $message) > $limit)) {
+			if ((mb_strlen($part . $word) > $limit - 8) && ($parts || (mb_strlen($part . $word . $message) > $limit))) {
 				$parts[] = trim($part);
 				$part    = '';
 				$limit   = $baselimit;
