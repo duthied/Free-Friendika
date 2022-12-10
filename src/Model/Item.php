@@ -3090,6 +3090,8 @@ class Item
 			'filter_reasons' => $filter_reasons
 		];
 		Hook::callAll('prepare_body', $hook_data);
+		$s = $hook_data['html'];
+		
 		unset($hook_data);
 
 		if (!$attach) {
