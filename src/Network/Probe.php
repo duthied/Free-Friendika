@@ -134,10 +134,10 @@ class Probe
 			}
 		}
 
-		$newdata['networks'] = $data['networks'] ?? [];
+		$newdata['networks'] = [];
 		foreach ([Protocol::DIASPORA, Protocol::OSTATUS] as $network) {
-			if (empty($newdata['networks'][$network])) {
-				unset($newdata['networks'][$network]);
+			if (!empty($data['networks'][$network])) {
+				$newdata['networks'][$network] = $data['networks'][$network];
 			}
 		}
 
