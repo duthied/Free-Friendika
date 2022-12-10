@@ -273,8 +273,8 @@ class BBCode
 		// Get all linked images with alternative image description
 		if (preg_match_all("/\[img=(http[^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				if (Photo::isLocal($picture[1])) {
-					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => $picture[2]];
+				if ($id = Photo::getIdForName($picture[1])) {
+					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => $picture[2], 'id' => $id];
 				} else {
 					$post['remote_images'][] = ['url' => $picture[1], 'description' => $picture[2]];
 				}
@@ -286,8 +286,8 @@ class BBCode
 
 		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				if (Photo::isLocal($picture[1])) {
-					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => ''];
+				if ($id = Photo::getIdForName($picture[1])) {
+					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => '', 'id' => $id];
 				} else {
 					$post['remote_images'][] = ['url' => $picture[1], 'description' => ''];
 				}
