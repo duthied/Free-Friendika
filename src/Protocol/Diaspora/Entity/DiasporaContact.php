@@ -82,7 +82,7 @@ class DiasporaContact extends \Friendica\BaseEntity
 	protected $notify;
 	/** @var UriInterface */
 	protected $poll;
-	/** @var UriInterface */
+	/** @var string URL pattern string including a placeholder "{uri}" that mustn't be URL-encoded */
 	protected $subscribe;
 	/** @var bool */
 	protected $searchable;
@@ -107,7 +107,7 @@ class DiasporaContact extends \Friendica\BaseEntity
 		UriInterface $url, \DateTime $created, string $guid = null, string $addr = null, UriInterface $alias = null,
 		string $nick = null, string $name = null, string $givenName = null, string $familyName = null,
 		UriInterface $photo = null, UriInterface $photoMedium = null, UriInterface $photoSmall = null,
-		UriInterface $batch = null, UriInterface $notify = null, UriInterface $poll = null, UriInterface $subscribe = null,
+		UriInterface $batch = null, UriInterface $notify = null, UriInterface $poll = null, string $subscribe = null,
 		bool $searchable = null, string $pubKey = null, UriInterface $baseurl = null, int $gsid = null,
 		\DateTime $updated = null, int $interacting_count = 0, int $interacted_count = 0, int $post_count = 0, int $uriId = null
 	) {
