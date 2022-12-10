@@ -3130,13 +3130,6 @@ class Item
 
 		$s = HTML::applyContentFilter($s, $filter_reasons);
 
-//		if (count($attachments['visual']) > 1) {
-//			// make imgae grid only for multiple images
-//			$s = self::cutAttachedImages($s);
-//			$grid = self::make_image_grid($item, $attachments);
-//			$s .= $grid;
-//		}
-
 		$hook_data = ['item' => $item, 'html' => $s];
 		Hook::callAll('prepare_body_final', $hook_data);
 		return $hook_data['html'];
@@ -3178,109 +3171,6 @@ class Item
 			],
 		]);
 		return $media;
-	}
-
-	/**
-	 * This function removes images at the very end of a post based on the assumption that this images are interpreted
-	 * as attachments
-	 * @param array $rendered_html
-	 * @return array
-	 */
-	private function cutAttachedImages($rendered_html)
-	{
-		$doc = new DOMDocument('1.0', 'UTF-8');
-		libxml_use_internal_errors(true);
-		$doc->loadHTML(mb_convert_encoding($rendered_html, 'html-entities', 'utf-8'));
-		libxml_clear_errors();
-
-		$root = $doc->getElementsByTagName("p")[0];
-
-		$lastTextNode = null;
-		if ($root && $root->childNodes) {
-			foreach ($root->childNodes as $node) {
-				if ($node->nodeName == "#text" && strlen(trim($node->nodeValue)) > 0) {
-					$lastTextNode = $node;
-				}
-			}
-		}
-
-		if ($lastTextNode == null) {
-			// no text at all, return nothing:
-			return '';
-		}
-
-		$toremove = array();
-		if ($lastTextNode) {
-			$sibling = $lastTextNode->nextSibling;
-			while ($sibling) {
-				$toremove[] = array($sibling);
-				$sibling = $sibling->nextSibling;
-			}
-			foreach ($toremove as $remove) {
-				$root->removeChild($remove[0]);
-			}
-			$html = '';
-			foreach ($root->childNodes as $node) {
-				$html .= $node->ownerDocument->saveHTML($node);
-			}
-			return $html;
-		}
-
-		return $rendered_html;
-	}
-
-	/**
-	 * @param array $data
-	 * @return string|void
-	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
-	 */
-	private function make_image_grid(array $item, array $attachments)
-	{
-		if ($item['has-media']) {
-			if (count($attachments['visual']) > 1) {
-
-				$img_tags_landscape = array();
-				$img_tags_portrait = array();
-				foreach ($attachments['visual'] as $attachment) {
-					$src_url = Post\Media::getUrlForId($attachment['id']);
-					$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
-					$img_tag = array(
-						'$image' => [
-							'src' => $src_url,
-							'preview' => $preview_url,
-							'attachment' => $attachment,
-					]);
-					($attachment['width'] > $attachment['height']) ? ($img_tags_landscape[] = $img_tag) : ($img_tags_portrait[] = $img_tag);
-				}
-
-				$landscapesCount = count($img_tags_landscape);
-				$portraitsCount = count($img_tags_portrait);
-
-				// @todo add some fany ai to divide images equally on both columns
-				$img_tags_fc = array();
-				$img_tags_sc = array();
-				if ($landscapesCount == 0) {
-					// only portrait
-					for ($i = 0; $i < $portraitsCount; $i++) {
-						($i % 2 == 0) ? ($img_tags_fc[] = $img_tags_portrait[$i]) : ($img_tags_sc[] = $img_tags_portrait[$i]);
-					}
-				}
-				if ($portraitsCount == 0) {
-					// ony landscapes
-					for ($i = 0; $i < $landscapesCount; $i++) {
-						($i % 2 == 0) ? ($img_tags_fc[] = $img_tags_landscape[$i]) : ($img_tags_sc[] = $img_tags_landscape[$i]);
-					}
-				}
-
-				return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
-					'columns' => [
-						'fc' => $img_tags_fc,
-						'sc' => $img_tags_sc,
-					],
-				]);
-			}
-		}
-
 	}
 
 	/**
