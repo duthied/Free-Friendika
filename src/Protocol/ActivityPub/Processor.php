@@ -804,7 +804,7 @@ class Processor
 	private static function processContent(array $activity, array $item)
 	{
 		if (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/markdown')) {
-			$item['title'] = strip_tags($activity['name']);
+			$item['title'] = strip_tags($activity['name'] ?? '');
 			$content = Markdown::toBBCode($activity['content']);
 		} elseif (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/bbcode')) {
 			$item['title'] = $activity['name'];
@@ -1273,8 +1273,11 @@ class Processor
 				foreach ($receivers[$element] as $receiver) {
 					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
 						$name = Receiver::PUBLIC_COLLECTION;
+					} elseif ($path = parse_url($receiver, PHP_URL_PATH)) {
+						$name = trim($path, '/');
 					} else {
-						$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
+						Logger::warning('Unable to coerce name from receiver', ['receiver' => $receiver]);
+						$name = '';
 					}
 
 					$target = Tag::getTargetType($receiver);

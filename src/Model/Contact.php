@@ -2099,7 +2099,7 @@ class Contact
 		if ($static) {
 			$query_params['static'] = true;
 		}
-		
+
 		return $url . ($guid ?: $cid) . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
 	}
 
@@ -2675,7 +2675,7 @@ class Contact
 		}
 
 		$update = false;
-		$guid = ($ret['guid'] ?? '') ?: Item::guidFromUri($ret['url'], parse_url($ret['url'], PHP_URL_HOST));
+		$guid = ($ret['guid'] ?? '') ?: Item::guidFromUri($ret['url']);
 
 		// make sure to not overwrite existing values with blank entries except some technical fields
 		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];

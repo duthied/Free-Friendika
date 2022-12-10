@@ -291,14 +291,11 @@ class APContact
 			return $fetched_contact;
 		}
 
-		$parts = parse_url($apcontact['url']);
-		unset($parts['scheme']);
-		unset($parts['path']);
-
 		if (empty($apcontact['addr'])) {
-			if (!empty($apcontact['nick']) && is_array($parts)) {
-				$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
-			} else {
+			try {
+				$apcontact['addr'] = $apcontact['nick'] . '@' . (new Uri($apcontact['url']))->getAuthority();
+			} catch (\Throwable $e) {
+				Logger::warning('Unable to coerce APContact URL into a UriInterface object', ['url' => $apcontact['url'], 'error' => $e->getMessage()]);
 				$apcontact['addr'] = '';
 			}
 		}

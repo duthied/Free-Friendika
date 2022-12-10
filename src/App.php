@@ -631,10 +631,10 @@ class App
 
 			// ZRL
 			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend() && !$this->session->getLocalUserId()) {
-				// Only continue when the given profile link seems valid
+				// Only continue when the given profile link seems valid.
 				// Valid profile links contain a path with "/profile/" and no query parameters
 				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == '') &&
-					strstr(parse_url($_GET['zrl'], PHP_URL_PATH), '/profile/')) {
+					strpos(parse_url($_GET['zrl'], PHP_URL_PATH) ?? '', '/profile/') !== false) {
 					if ($this->session->get('visitor_home') != $_GET['zrl']) {
 						$this->session->set('my_url', $_GET['zrl']);
 						$this->session->set('authenticated', 0);

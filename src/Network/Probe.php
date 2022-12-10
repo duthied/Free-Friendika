@@ -687,7 +687,7 @@ class Probe
 		}
 
 		$parts = parse_url($uri);
-		if (empty($parts['scheme']) && empty($parts['host']) && !strstr($parts['path'], '@')) {
+		if (empty($parts['scheme']) && empty($parts['host']) && (empty($parts['path']) || strpos($parts['path'], '@') === false)) {
 			Logger::info('URI was not detectable', ['uri' => $uri]);
 			return [];
 		}

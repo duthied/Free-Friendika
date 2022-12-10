@@ -59,8 +59,7 @@ class Mail
 		}
 
 		if (empty($msg['guid'])) {
-			$host = parse_url($msg['from-url'], PHP_URL_HOST);
-			$msg['guid'] = Item::guidFromUri($msg['uri'], $host);
+			$msg['guid'] = Item::guidFromUri($msg['uri'], parse_url($msg['from-url'], PHP_URL_HOST));
 		}
 
 		$msg['created'] = (!empty($msg['created']) ? DateTimeFormat::utc($msg['created']) : DateTimeFormat::utcNow());

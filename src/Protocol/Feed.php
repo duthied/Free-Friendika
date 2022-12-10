@@ -625,8 +625,8 @@ class Feed
 
 			$notify = Item::isRemoteSelf($contact, $item);
 
-			// Distributed items should have a well formatted URI.
-			// Additionally we have to avoid conflicts with identical URI between imported feeds and these items.
+			// Distributed items should have a well-formatted URI.
+			// Additionally, we have to avoid conflicts with identical URI between imported feeds and these items.
 			if ($notify) {
 				$item['guid'] = Item::guidFromUri($orig_plink, DI::baseUrl()->getHostname());
 				$item['uri'] = Item::newURI($item['guid']);
