@@ -2211,8 +2211,6 @@ class Probe
 			$approfile = ActivityPub\Transmitter::getProfile($uid);
 
 			$split_name = Diaspora::splitName($owner['name']);
-			$firstname = $split_name['first'];
-			$lastname = $split_name['last'];
 	
 			if (empty($owner['gsid'])) {
 				$owner['gsid'] = GServer::getID($approfile['generator']['url']);
@@ -2237,8 +2235,8 @@ class Probe
 				'networks' => [
 					Protocol::DIASPORA => [
 						'name'         => $owner['name'],
-						'given_name'   => $firstname,
-						'family_name'  => $lastname,
+						'given_name'   => $split_name['first'],
+						'family_name'  => $split_name['last'],
 						'nick'         => $owner['nick'],
 						'guid'         => $approfile['diaspora:guid'],
 						'url'          => $owner['url'],
