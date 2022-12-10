@@ -3130,16 +3130,54 @@ class Item
 
 		$s = HTML::applyContentFilter($s, $filter_reasons);
 
-		if (count($attachments['visual']) > 1) {
-			// make imgae grid only for multiple images
-			$s = self::cutAttachedImages($s);
-			$grid = self::make_image_grid($item, $attachments);
-			$s .= $grid;
-		}
+//		if (count($attachments['visual']) > 1) {
+//			// make imgae grid only for multiple images
+//			$s = self::cutAttachedImages($s);
+//			$grid = self::make_image_grid($item, $attachments);
+//			$s .= $grid;
+//		}
 
 		$hook_data = ['item' => $item, 'html' => $s];
 		Hook::callAll('prepare_body_final', $hook_data);
 		return $hook_data['html'];
+	}
+
+	/**
+	 * @param array $images
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
+	 */
+	public static function makeImageGrid(array $images): string
+	{
+		$img_tags_landscape = array();
+		$img_tags_portrait = array();
+		foreach ($images as $image) {
+			($image['attachment']['width'] > $image['attachment']['height']) ? ($img_tags_landscape[] = $image) : ($img_tags_portrait[] = $image);
+		}
+
+		// @todo add some fany ai to divide images equally on both columns
+		$img_tags_fc = array();
+		$img_tags_sc = array();
+		if (count($img_tags_landscape) == 0) {
+			// only portrait
+			for ($i = 0; $i < count($img_tags_portrait); $i++) {
+				($i % 2 == 0) ? ($img_tags_fc[] = $img_tags_portrait[$i]) : ($img_tags_sc[] = $img_tags_portrait[$i]);
+			}
+		}
+		if (count($img_tags_portrait) == 0) {
+			// ony landscapes
+			for ($i = 0; $i < count($img_tags_landscape); $i++) {
+				($i % 2 == 0) ? ($img_tags_fc[] = $img_tags_landscape[$i]) : ($img_tags_sc[] = $img_tags_landscape[$i]);
+			}
+		}
+
+		$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
+			'columns' => [
+				'fc' => $img_tags_fc,
+				'sc' => $img_tags_sc,
+			],
+		]);
+		return $media;
 	}
 
 	/**
@@ -3396,16 +3434,21 @@ class Item
 			}
 		}
 
-		foreach ($images as $image) {
-			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
-				'$image' => $image,
+		$media = '';
+		if (count($images) > 1) {
+			$media = self::makeImageGrid($images);
+		}
+		elseif (count($images) == 1) {
+			$media = $media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
+				'$image' => $images[0],
 			]);
-			// On Diaspora posts the attached pictures are leading
-			if ($item['network'] == Protocol::DIASPORA) {
-				$leading .= $media;
-			} else {
-				$trailing .= $media;
-			}
+		}
+
+		// On Diaspora posts the attached pictures are leading
+		if ($item['network'] == Protocol::DIASPORA) {
+			$leading .= $media;
+		} else {
+			$trailing .= $media;
 		}
 
 		if ($shared) {
