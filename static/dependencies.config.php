@@ -264,5 +264,8 @@ return [
 		'constructParams' => [
 			$_SERVER
 		],
+	],
+	\Psr\Clock\ClockInterface::class => [
+		'instanceOf' => Util\Clock\SystemClock::class
 	]
 ];
