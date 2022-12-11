@@ -34,11 +34,15 @@ use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
+use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy;
@@ -2193,7 +2197,7 @@ class Contact
 	 */
 	public static function updateAvatar(int $cid, string $avatar, bool $force = false, bool $create_cache = false)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'xmpp', 'addr', 'nurl', 'url', 'network', 'uri-id'],
+		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'blurhash', 'xmpp', 'addr', 'nurl', 'url', 'network', 'uri-id'],
 			['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
@@ -2203,8 +2207,19 @@ class Contact
 
 		// Only update the cached photo links of public contacts when they already are cached
 		if (($uid == 0) && !$force && empty($contact['thumb']) && empty($contact['micro']) && !$create_cache) {
-			if ($contact['avatar'] != $avatar) {
-				self::update(['avatar' => $avatar], ['id' => $cid]);
+			if (($contact['avatar'] != $avatar) || empty($contact['blurhash'])) {
+				$update_fields = ['avatar' => $avatar];
+				$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
+
+				$img_str = $fetchResult->getBody();
+				if (!empty($img_str)) {
+					$image = new Image($img_str, Images::getMimeTypeByData($img_str));
+					if ($image->isValid()) {
+						$update_fields['blurhash'] = $image->getBlurHash();
+					}
+				}
+
+				self::update($update_fields, ['id' => $cid]);
 				Logger::info('Only update the avatar', ['id' => $cid, 'avatar' => $avatar, 'contact' => $contact]);
 			}
 			return;
@@ -2275,7 +2290,7 @@ class Contact
 				if ($update) {
 					$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
 					if ($photos) {
-						$fields = ['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => DateTimeFormat::utcNow()];
+						$fields = ['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'blurhash' => $photos[3], 'avatar-date' => DateTimeFormat::utcNow()];
 						$update = !empty($fields);
 						Logger::debug('Created new cached avatars', ['id' => $cid, 'uid' => $uid, 'owner-uid' => $local_uid]);
 					} else {

@@ -21,6 +21,7 @@ Fields
 | xmpp                      | XMPP address                                                                                                   | varchar(255)       | NO   |     |                     |                |
 | matrix                    | Matrix address                                                                                                 | varchar(255)       | NO   |     |                     |                |
 | avatar                    |                                                                                                                | varbinary(383)     | NO   |     |                     |                |
+| blurhash                  | BlurHash representation of the avatar                                                                          | varbinary(255)     | YES  |     | NULL                |                |
 | header                    | Header picture                                                                                                 | varbinary(383)     | YES  |     | NULL                |                |
 | url                       |                                                                                                                | varbinary(383)     | NO   |     |                     |                |
 | nurl                      |                                                                                                                | varbinary(383)     | NO   |     |                     |                |

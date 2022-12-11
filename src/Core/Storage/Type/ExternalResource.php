@@ -59,7 +59,7 @@ class ExternalResource implements ICanReadFromStorage
 		} catch (Exception $exception) {
 			throw new ReferenceStorageException(sprintf('External resource failed to get %s', $reference), $exception->getCode(), $exception);
 		}
-		if ($fetchResult->isSuccess()) {
+		if (!empty($fetchResult) && $fetchResult->isSuccess()) {
 			Logger::debug('Got picture', ['Content-Type' => $fetchResult->getHeader('Content-Type'), 'uid' => $data->uid, 'url' => $data->url]);
 			return $fetchResult->getBody();
 		} else {
