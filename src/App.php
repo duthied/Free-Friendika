@@ -717,6 +717,10 @@ class App
 				$this->baseURL->redirect('search');
 			}
 
+			if (in_array($moduleName, ['about', 'about/more'])) {
+				$this->baseURL->redirect('friendica');
+			}
+
 			// Initialize module that can set the current theme in the init() method, either directly or via App->setProfileOwner
 			$page['page_title'] = $moduleName;
 

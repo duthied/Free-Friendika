@@ -318,8 +318,6 @@ return [
 		'/proofs'                                => [Module\Api\Mastodon\Proofs::class,        [R::GET         ]], // Dummy, not supported
 	],
 
-	'/about[/more]'                              => [Module\Friendica::class, [R::GET]],
-
 	'/admin'               => [
 		'[/]' => [Module\Admin\Summary::class, [R::GET]],
 
