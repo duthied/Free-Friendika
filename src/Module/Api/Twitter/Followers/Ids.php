@@ -53,6 +53,8 @@ class Ids extends ContactEndpoint
 
 			$condition = ['uid' => $uid, 'self' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]];
 	
+			$total_count = (int)DBA::count('contact', $condition);
+
 			if (!empty($max_id)) {
 				$condition = DBA::mergeConditions($condition, ["`pid` < ?", $max_id]);
 			}
