@@ -159,8 +159,13 @@ class Cron
 	 */
 	private static function deliverPosts()
 	{
-		$deliveries = DBA::p("SELECT `item-uri`.`uri` AS `inbox`, MAX(`failed`) AS `failed` FROM `post-delivery` INNER JOIN `item-uri` ON `item-uri`.`id` = `post-delivery`.`inbox-id` GROUP BY `inbox`");
+		$deliveries = DBA::p("SELECT `item-uri`.`uri` AS `inbox`, MAX(`failed`) AS `failed` FROM `post-delivery` INNER JOIN `item-uri` ON `item-uri`.`id` = `post-delivery`.`inbox-id` GROUP BY `inbox` ORDER BY RAND()");
 		while ($delivery = DBA::fetch($deliveries)) {
+			if ($delivery['failed'] > 0) {
+				Logger::info('Removing failed deliveries', ['inbox' => $delivery['inbox'], 'failed' => $delivery['failed']]);
+				Post\Delivery::removeFailed($delivery['inbox']);
+			}
+
 			if ($delivery['failed'] == 0) {
 				$result = ActivityPub\Delivery::deliver($delivery['inbox']);
 				Logger::info('Directly deliver inbox', ['inbox' => $delivery['inbox'], 'result' => $result['success']]);
@@ -175,12 +180,7 @@ class Cron
 				$priority = PRIORITY_NEGLIGIBLE;
 			}
 
-			if ($delivery['failed'] >= DI::config()->get('system', 'worker_defer_limit')) {
-				Logger::info('Removing failed deliveries', ['inbox' => $delivery['inbox'], 'failed' => $delivery['failed']]);
-				Post\Delivery::removeFailed($delivery['inbox']);
-			}
-
-			if (Worker::add($priority, 'APDelivery', '', 0, $delivery['inbox'], 0)) {
+			if (Worker::add(['priority' => $priority, 'force_priority' => true], 'APDelivery', '', 0, $delivery['inbox'], 0)) {
 				Logger::info('Missing APDelivery worker added for inbox', ['inbox' => $delivery['inbox'], 'failed' => $delivery['failed'], 'priority' => $priority]);
 			}
 		}

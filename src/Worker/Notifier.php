@@ -764,18 +764,21 @@ class Notifier
 				$relay_inboxes = ActivityPub\Transmitter::addRelayServerInboxes();
 			}
 
-			Logger::info('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.');
+			Logger::info('Origin item will be distributed', ['id' => $target_item['id'], 'url' => $target_item['uri'], 'verb' => $target_item['verb']]);
 		} elseif (!Post\Activity::exists($target_item['uri-id'])) {
-			Logger::info('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.');
+			Logger::info('Remote item is no AP post. It will not be distributed.', ['id' => $target_item['id'], 'url' => $target_item['uri'], 'verb' => $target_item['verb']]);
 			return ['count' => 0, 'contacts' => []];
-		} elseif ($parent['origin']) {
+		} elseif ($parent['origin'] && ($target_item['gravity'] != GRAVITY_ACTIVITY)) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, false, $target_item['id']);
 
 			if (in_array($target_item['private'], [Item::PUBLIC])) {
 				$inboxes = ActivityPub\Transmitter::addRelayServerInboxesForItem($parent['id'], $inboxes);
 			}
 
-			Logger::info('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.');
+			Logger::info('Remote item will be distributed', ['id' => $target_item['id'], 'url' => $target_item['uri'], 'verb' => $target_item['verb']]);
+		} else {
+			Logger::info('Remote activity will not be distributed', ['id' => $target_item['id'], 'url' => $target_item['uri'], 'verb' => $target_item['verb']]);
+			return ['count' => 0, 'contacts' => []];
 		}
 
 		if (empty($inboxes) && empty($relay_inboxes)) {
