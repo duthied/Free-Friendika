@@ -22,7 +22,6 @@
 namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Item;
@@ -38,7 +37,7 @@ class Follow extends BaseModule
 	{
 		$l10n = DI::l10n();
 
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
@@ -48,7 +47,7 @@ class Follow extends BaseModule
 
 		$itemId = intval($this->parameters['id']);
 
-		if (!Item::performActivity($itemId, 'follow', local_user())) {
+		if (!Item::performActivity($itemId, 'follow', DI::userSession()->getLocalUserId())) {
 			throw new HTTPException\BadRequestException($l10n->t('Unable to follow this item.'));
 		}
 

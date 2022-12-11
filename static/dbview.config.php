@@ -72,6 +72,8 @@
 			"thr-parent-id" => ["post-user", "thr-parent-id"],
 			"conversation" => ["conversation-item-uri", "uri"],
 			"conversation-id" => ["post-thread-user", "conversation-id"],
+			"quote-uri" => ["quote-item-uri", "uri"],
+			"quote-uri-id" => ["post-content", "quote-uri-id"],
 			"guid" => ["item-uri", "guid"],
 			"wall" => ["post-user", "wall"],
 			"gravity" => ["post-user", "gravity"],
@@ -153,7 +155,6 @@
 			"author-hidden" => ["author", "hidden"],
 			"author-updated" => ["author", "updated"],
 			"author-gsid" => ["author", "gsid"],
-			"author-uri-id" => ["author", "uri-id"],
 			"owner-id" => ["post-user", "owner-id"],
 			"owner-uri-id" => ["owner", "uri-id"],
 			"owner-link" => ["owner", "url"],
@@ -211,8 +212,6 @@
 			"parent-author-name" => ["parent-post-author", "name"],
 			"parent-author-nick" => ["parent-post-author", "nick"],
 			"parent-author-network" => ["parent-post-author", "network"],
-			"parent-author-blocked" => ["parent-post-author", "blocked"],
-			"parent-author-hidden" => ["parent-post-author", "hidden"],
 		],
 		"query" => "FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
@@ -229,6 +228,7 @@
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id` AND `post-user`.`origin`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
@@ -249,6 +249,8 @@
 			"thr-parent-id" => ["post-user", "thr-parent-id"],
 			"conversation" => ["conversation-item-uri", "uri"],
 			"conversation-id" => ["post-thread-user", "conversation-id"],
+			"quote-uri" => ["quote-item-uri", "uri"],
+			"quote-uri-id" => ["post-content", "quote-uri-id"],
 			"guid" => ["item-uri", "guid"],
 			"wall" => ["post-thread-user", "wall"],
 			"gravity" => ["post-user", "gravity"],
@@ -329,7 +331,6 @@
 			"author-hidden" => ["author", "hidden"],
 			"author-updated" => ["author", "updated"],
 			"author-gsid" => ["author", "gsid"],
-			"author-uri-id" => ["author", "uri-id"],
 			"owner-id" => ["post-thread-user", "owner-id"],
 			"owner-uri-id" => ["owner", "uri-id"],
 			"owner-link" => ["owner", "url"],
@@ -386,8 +387,6 @@
 			"parent-author-link" => ["parent-post-author", "url"],
 			"parent-author-name" => ["parent-post-author", "name"],
 			"parent-author-network" => ["parent-post-author", "network"],
-			"parent-author-blocked" => ["parent-post-author", "blocked"],
-			"parent-author-hidden" => ["parent-post-author", "hidden"],
 		],
 		"query" => "FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
@@ -404,6 +403,7 @@
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread-user`.`uri-id` AND `post-thread-user`.`origin`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
@@ -420,6 +420,8 @@
 			"thr-parent-id" => ["post", "thr-parent-id"],
 			"conversation" => ["conversation-item-uri", "uri"],
 			"conversation-id" => ["post-thread", "conversation-id"],
+			"quote-uri" => ["quote-item-uri", "uri"],
+			"quote-uri-id" => ["post-content", "quote-uri-id"],
 			"guid" => ["item-uri", "guid"],
 			"gravity" => ["post", "gravity"],
 			"extid" => ["external-item-uri", "uri"],
@@ -491,7 +493,6 @@
 			"author-hidden" => ["author", "hidden"],
 			"author-updated" => ["author", "updated"],
 			"author-gsid" => ["author", "gsid"],
-			"author-uri-id" => ["author", "uri-id"],
 			"owner-id" => ["post", "owner-id"],
 			"owner-uri-id" => ["owner", "uri-id"],
 			"owner-link" => ["owner", "url"],
@@ -528,8 +529,6 @@
 			"parent-author-link" => ["parent-post-author", "url"],
 			"parent-author-name" => ["parent-post-author", "name"],
 			"parent-author-network" => ["parent-post-author", "network"],
-			"parent-author-blocked" => ["parent-post-author", "blocked"],
-			"parent-author-hidden" => ["parent-post-author", "hidden"],
 		],
 		"query" => "FROM `post`
 			STRAIGHT_JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`
@@ -544,6 +543,7 @@
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post`.`uri-id`
 			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
@@ -558,6 +558,8 @@
 			"thr-parent-id" => ["post", "thr-parent-id"],
 			"conversation" => ["conversation-item-uri", "uri"],
 			"conversation-id" => ["post-thread", "conversation-id"],
+			"quote-uri" => ["quote-item-uri", "uri"],
+			"quote-uri-id" => ["post-content", "quote-uri-id"],
 			"guid" => ["item-uri", "guid"],
 			"gravity" => ["post", "gravity"],
 			"extid" => ["external-item-uri", "uri"],
@@ -629,7 +631,6 @@
 			"author-hidden" => ["author", "hidden"],
 			"author-updated" => ["author", "updated"],
 			"author-gsid" => ["author", "gsid"],
-			"author-uri-id" => ["author", "uri-id"],
 			"owner-id" => ["post-thread", "owner-id"],
 			"owner-uri-id" => ["owner", "uri-id"],
 			"owner-link" => ["owner", "url"],
@@ -659,6 +660,8 @@
 			"question-end-time" => ["post-question", "end-time"],
 			"has-categories" => "0",
 			"has-media" => "EXISTS(SELECT `id` FROM `post-media` WHERE `post-media`.`uri-id` = `post-thread`.`uri-id`)",
+			"total-comments" => "(SELECT COUNT(*) FROM `post` WHERE `parent-uri-id` = `post-thread`.`uri-id` AND `gravity` = 6)",
+			"total-actors" => "(SELECT COUNT(DISTINCT(`author-id`)) FROM `post` WHERE `parent-uri-id` = `post-thread`.`uri-id` AND `gravity` = 6)",
 			"signed_text" => ["diaspora-interaction", "interaction"],
 			"parent-guid" => ["parent-item-uri", "guid"],
 			"parent-network" => ["parent-post", "network"],
@@ -666,8 +669,6 @@
 			"parent-author-link" => ["parent-post-author", "url"],
 			"parent-author-name" => ["parent-post-author", "name"],
 			"parent-author-network" => ["parent-post-author", "network"],
-			"parent-author-blocked" => ["parent-post-author", "blocked"],
-			"parent-author-hidden" => ["parent-post-author", "hidden"],
 		],
 		"query" => "FROM `post-thread`
 			INNER JOIN `post` ON `post`.`uri-id` = `post-thread`.`uri-id`
@@ -682,6 +683,7 @@
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
@@ -716,6 +718,22 @@
 		"query" => "FROM `post-collection`
 			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`
 			INNER JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`"
+	],
+	"media-view" => [
+		"fields" => [
+			"uri-id" => ["post-media", "uri-id"],
+			"type" => ["post-media", "type"],
+			"received" => ["post", "received"],
+			"created" => ["post", "created"],
+			"private" => ["post", "private"],
+			"visible" => ["post", "visible"],
+			"deleted" => ["post", "deleted"],
+			"thr-parent-id" => ["post", "thr-parent-id"],
+			"author-id" => ["post", "author-id"],
+			"gravity" => ["post", "gravity"],
+		],
+		"query" => "FROM `post-media`
+			INNER JOIN `post` ON `post-media`.`uri-id` = `post`.`uri-id`"
 	],
 	"tag-view" => [
 		"fields" => [
@@ -867,6 +885,7 @@
 			"language" => ["user", "language"],
 			"register_date" => ["user", "register_date"],
 			"login_date" => ["user", "login_date"],
+			"last-activity" => ["user", "last-activity"],
 			"default-location" => ["user", "default-location"],
 			"allow_location" => ["user", "allow_location"],
 			"theme" => ["user", "theme"],
@@ -907,6 +926,7 @@
 			"postal-code" => ["profile", "postal-code"],
 			"country-name" => ["profile", "country-name"],
 			"homepage" => ["profile", "homepage"],
+			"homepage_verified" => ["profile", "homepage_verified"],
 			"dob" => ["profile", "dob"],
 		],
 		"query" => "FROM `user`
@@ -970,11 +990,11 @@
 			"blocked" => ["contact", "blocked"],
 			"dfrn-notify" => ["contact", "notify"],
 			"dfrn-poll" => ["contact", "poll"],
-			"diaspora-guid" => ["fcontact", "guid"],
-			"diaspora-batch" => ["fcontact", "batch"],
-			"diaspora-notify" => ["fcontact", "notify"],
-			"diaspora-poll" => ["fcontact", "poll"],
-			"diaspora-alias" => ["fcontact", "alias"],
+			"diaspora-guid" => ["item-uri", "guid"],
+			"diaspora-batch" => ["diaspora-contact", "batch"],
+			"diaspora-notify" => ["diaspora-contact", "notify"],
+			"diaspora-poll" => ["diaspora-contact", "poll"],
+			"diaspora-alias" => ["diaspora-contact", "alias"],
 			"ap-uuid" => ["apcontact", "uuid"],
 			"ap-type" => ["apcontact", "type"],
 			"ap-following" => ["apcontact", "following"],
@@ -993,9 +1013,9 @@
 		"query" => "FROM `contact`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `contact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `contact`.`uri-id`
-			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = contact.`uri-id`
+			LEFT JOIN `diaspora-contact` ON `diaspora-contact`.`uri-id` = contact.`uri-id`
 			LEFT JOIN `gserver` ON `gserver`.`id` = contact.`gsid`
-			WHERE `contact`.`uid` = 0"			
+			WHERE `contact`.`uid` = 0"
 	],
 	"account-user-view" => [
 		"fields" => [
@@ -1069,14 +1089,14 @@
 			"reason" => ["ucontact", "reason"],
 			"dfrn-notify" => ["contact", "notify"],
 			"dfrn-poll" => ["contact", "poll"],
-			"diaspora-guid" => ["fcontact", "guid"],
-			"diaspora-batch" => ["fcontact", "batch"],
-			"diaspora-notify" => ["fcontact", "notify"],
-			"diaspora-poll" => ["fcontact", "poll"],
-			"diaspora-alias" => ["fcontact", "alias"],
-			"diaspora-interacting_count" => ["fcontact", "interacting_count"],
-			"diaspora-interacted_count" => ["fcontact", "interacted_count"],
-			"diaspora-post_count" => ["fcontact", "post_count"],
+			"diaspora-guid" => ["item-uri", "guid"],
+			"diaspora-batch" => ["diaspora-contact", "batch"],
+			"diaspora-notify" => ["diaspora-contact", "notify"],
+			"diaspora-poll" => ["diaspora-contact", "poll"],
+			"diaspora-alias" => ["diaspora-contact", "alias"],
+			"diaspora-interacting_count" => ["diaspora-contact", "interacting_count"],
+			"diaspora-interacted_count" => ["diaspora-contact", "interacted_count"],
+			"diaspora-post_count" => ["diaspora-contact", "post_count"],
 			"ap-uuid" => ["apcontact", "uuid"],
 			"ap-type" => ["apcontact", "type"],
 			"ap-following" => ["apcontact", "following"],
@@ -1096,7 +1116,7 @@
 			INNER JOIN `contact` ON `contact`.`uri-id` = `ucontact`.`uri-id` AND `contact`.`uid` = 0
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `ucontact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `ucontact`.`uri-id`
-			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = `ucontact`.`uri-id` AND `fcontact`.`network` = 'dspr'
+			LEFT JOIN `diaspora-contact` ON `diaspora-contact`.`uri-id` = `ucontact`.`uri-id`
 			LEFT JOIN `gserver` ON `gserver`.`id` = contact.`gsid`"
 	],
 	"pending-view" => [
@@ -1166,5 +1186,36 @@
 		"query" => "FROM `profile_field`
 			INNER JOIN `permissionset` ON `permissionset`.`id` = `profile_field`.`psid`"
 	],
+	"diaspora-contact-view" => [
+		"fields" => [
+			"uri-id" => ["diaspora-contact", "uri-id"],
+			"url" => ["item-uri", "uri"],
+			"guid" => ["item-uri", "guid"],
+			"addr" => ["diaspora-contact", "addr"],
+			"alias" => ["diaspora-contact", "alias"],
+			"nick" => ["diaspora-contact", "nick"],
+			"name" => ["diaspora-contact", "name"],
+			"given-name" => ["diaspora-contact", "given-name"],
+			"family-name" => ["diaspora-contact", "family-name"],
+			"photo" => ["diaspora-contact", "photo"],
+			"photo-medium" => ["diaspora-contact", "photo-medium"],
+			"photo-small" => ["diaspora-contact", "photo-small"],
+			"batch" => ["diaspora-contact", "batch"],
+			"notify" => ["diaspora-contact", "notify"],
+			"poll" => ["diaspora-contact", "poll"],
+			"subscribe" => ["diaspora-contact", "subscribe"],
+			"searchable" => ["diaspora-contact", "searchable"],
+			"pubkey" => ["diaspora-contact", "pubkey"],
+			"baseurl" => ["gserver", "url"],
+			"gsid" => ["diaspora-contact", "gsid"],
+			"created" => ["diaspora-contact", "created"],
+			"updated" => ["diaspora-contact", "updated"],
+			"interacting_count" => ["diaspora-contact", "interacting_count"],
+			"interacted_count" => ["diaspora-contact", "interacted_count"],
+			"post_count" => ["diaspora-contact", "post_count"],
+		],
+		"query" => "FROM `diaspora-contact`
+			INNER JOIN `item-uri` ON `item-uri`.`id` = `diaspora-contact`.`uri-id`
+			LEFT JOIN `gserver` ON `gserver`.`id` = `diaspora-contact`.`gsid`"
+	],
 ];
-

@@ -29,7 +29,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Module\BaseNotifications;
@@ -53,21 +53,21 @@ class Introduction extends BaseFactory
 	private $l10n;
 	/** @var IManagePersonalConfigValues */
 	private $pConfig;
-	/** @var IHandleSessions */
+	/** @var IHandleUserSessions */
 	private $session;
 	/** @var string */
 	private $nick;
 
-	public function __construct(LoggerInterface $logger, Database $dba, BaseURL $baseUrl, L10n $l10n, App $app, IManagePersonalConfigValues $pConfig, IHandleSessions $session)
+	public function __construct(LoggerInterface $logger, Database $dba, BaseURL $baseUrl, L10n $l10n, App $app, IManagePersonalConfigValues $pConfig, IHandleUserSessions $session)
 	{
 		parent::__construct($logger);
 
-		$this->dba          = $dba;
-		$this->baseUrl      = $baseUrl;
-		$this->l10n         = $l10n;
-		$this->pConfig      = $pConfig;
-		$this->session      = $session;
-		$this->nick         = $app->getLoggedInUserNickname() ?? '';
+		$this->dba     = $dba;
+		$this->baseUrl = $baseUrl;
+		$this->l10n    = $l10n;
+		$this->pConfig = $pConfig;
+		$this->session = $session;
+		$this->nick    = $app->getLoggedInUserNickname() ?? '';
 	}
 
 	/**
@@ -107,7 +107,7 @@ class Introduction extends BaseFactory
 				LEFT JOIN `contact` AS `sugggest-contact` ON `intro`.`suggest-cid` = `sugggest-contact`.`id`
 			WHERE `intro`.`uid` = ? $sql_extra
 			LIMIT ?, ?",
-				$_SESSION['uid'],
+				$this->session->getLocalUserId(),
 				$start,
 				$limit
 			);
@@ -142,7 +142,7 @@ class Introduction extends BaseFactory
 						'url'            => $intro['furl'],
 						'zrl'            => Contact::magicLink($intro['furl']),
 						'hidden'         => $intro['hidden'] == 1,
-						'post_newfriend' => (intval($this->pConfig->get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
+						'post_newfriend' => (intval($this->pConfig->get($this->session->getLocalUserId(), 'system', 'post_newfriend')) ? '1' : 0),
 						'note'           => $intro['note'],
 						'request'        => $intro['frequest'] . '?addr=' . $return_addr]);
 
@@ -158,7 +158,7 @@ class Introduction extends BaseFactory
 						'label'          => (($intro['network'] !== Protocol::OSTATUS) ? 'friend_request' : 'follower'),
 						'str_type'       => (($intro['network'] !== Protocol::OSTATUS) ? $this->l10n->t('Friend/Connect Request') : $this->l10n->t('New Follower')),
 						'dfrn_id'        => $intro['issued-id'],
-						'uid'            => $this->session->get('uid'),
+						'uid'            => $this->session->getLocalUserId(),
 						'intro_id'       => $intro['intro_id'],
 						'contact_id'     => $intro['contact-id'],
 						'photo'          => Contact::getPhoto($intro),
@@ -167,7 +167,7 @@ class Introduction extends BaseFactory
 						'about'          => BBCode::convert($intro['about'], false),
 						'keywords'       => $intro['keywords'],
 						'hidden'         => $intro['hidden'] == 1,
-						'post_newfriend' => (intval($this->pConfig->get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
+						'post_newfriend' => (intval($this->pConfig->get($this->session->getLocalUserId(), 'system', 'post_newfriend')) ? '1' : 0),
 						'url'            => $intro['url'],
 						'zrl'            => Contact::magicLink($intro['url']),
 						'addr'           => $intro['addr'],
@@ -178,7 +178,7 @@ class Introduction extends BaseFactory
 				}
 			}
 		} catch (Exception $e) {
-			$this->logger->warning('Select failed.', ['uid' => $_SESSION['uid'], 'exception' => $e]);
+			$this->logger->warning('Select failed.', ['uid' => $this->session->getLocalUserId(), 'exception' => $e]);
 		}
 
 		return $formattedIntroductions;

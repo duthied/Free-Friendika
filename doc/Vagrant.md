@@ -10,7 +10,7 @@ Getting started
 No need to setup up a webserver, database etc. before actually starting.
 Vagrant creates a virtual machine for you that you can just run inside VirtualBox and start to work directly on Friendica.
 
-It brings an Debian Bullseye with PHP 7.4 and MariaDB 10.5.11.
+It brings an Debian Bullseye with PHP 8.0 and MariaDB 10.5.11.
 
 What you need to do:
 
@@ -24,7 +24,7 @@ This will start the virtual machine.
 Be patient: When it runs for the first time, it downloads a Debian Server image and installs Friendica.
 4. Run `vagrant ssh` to log into the virtual machine to log in to the VM in case you need to debug something on the server.
 5. Open you test installation in a browser.
-Go to friendica.local (or 192.168.22.10).
+Go to friendica.local (or 192.168.56.10).
 friendica.local is using a self-signed TLS certificate, so you will need to add an exception to trust the certificate the first time you are visiting the page.
 The mysql database is called "friendica", the mysql user and password both are "friendica".
 6. Work on Friendica's code in your git clone on your machine (not in the VM).

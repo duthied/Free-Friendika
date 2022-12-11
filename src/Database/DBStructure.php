@@ -74,7 +74,7 @@ class DBStructure
 		$old_tables = ['fserver', 'gcign', 'gcontact', 'gcontact-relation', 'gfollower' ,'glink', 'item-delivery-data',
 			'item-activity', 'item-content', 'item_id', 'participation', 'poll', 'poll_result', 'queue', 'retriever_rule',
 			'deliverq', 'dsprphotoq', 'ffinder', 'sign', 'spam', 'term', 'user-item', 'thread', 'item', 'challenge',
-			'auth_codes', 'tokens', 'clients', 'profile_check', 'host', 'conversation'];
+			'auth_codes', 'tokens', 'clients', 'profile_check', 'host', 'conversation', 'fcontact'];
 
 		$tables = DBA::selectToArray('INFORMATION_SCHEMA.TABLES', ['TABLE_NAME'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_TYPE' => 'BASE TABLE']);
@@ -150,7 +150,7 @@ class DBStructure
 		echo DI::l10n()->t("\nError %d occurred during database update:\n%s\n",
 			DBA::errorNo(), DBA::errorMessage());
 
-		return DI::l10n()->t('Errors encountered performing database changes: ') . $message . EOL;
+		return DI::l10n()->t('Errors encountered performing database changes: ') . $message . '<br />';
 	}
 
 	/**

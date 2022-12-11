@@ -24,6 +24,7 @@ namespace Friendica\Module\Api\Mastodon\Statuses;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 
@@ -46,7 +47,7 @@ class Unmute extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		if ($item['gravity'] != GRAVITY_PARENT) {
+		if ($item['gravity'] != Item::GRAVITY_PARENT) {
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be unmuted'));
 		}
 

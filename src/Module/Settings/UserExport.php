@@ -21,22 +21,42 @@
 
 namespace Friendica\Module\Settings;
 
+use Friendica\App;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
+use Friendica\Database\Definition\DbaDefinition;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseSettings;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\ForbiddenException;
+use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\ServiceUnavailableException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Module to export user data
  **/
 class UserExport extends BaseSettings
 {
+	/** @var DbaDefinition */
+	private $dbaDefinition;
+
+	public function __construct(DbaDefinition $dbaDefinition, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->dbaDefinition = $dbaDefinition;
+	}
+
 	/**
 	 * Handle the request to export data.
 	 * At the moment one can export three different data set
@@ -48,14 +68,16 @@ class UserExport extends BaseSettings
 	 * If there is an action required through the URL / path, react
 	 * accordingly and export the requested data.
 	 *
+	 * @param array $request
 	 * @return string
-	 * @throws HTTPException\ForbiddenException
-	 * @throws HTTPException\InternalServerErrorException
+	 * @throws ForbiddenException
+	 * @throws InternalServerErrorException
+	 * @throws ServiceUnavailableException
 	 */
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
-			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		if (!$this->session->getLocalUserId()) {
+			throw new HTTPException\ForbiddenException($this->l10n->t('Permission denied.'));
 		}
 
 		parent::content();
@@ -65,15 +87,15 @@ class UserExport extends BaseSettings
 		 * list of array( 'link url', 'link text', 'help text' )
 		 */
 		$options = [
-			['settings/userexport/account', DI::l10n()->t('Export account'), DI::l10n()->t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')],
-			['settings/userexport/backup', DI::l10n()->t('Export all'), DI::l10n()->t("Export your account info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account \x28photos are not exported\x29")],
-			['settings/userexport/contact', DI::l10n()->t('Export Contacts to CSV'), DI::l10n()->t("Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.")],
+			['settings/userexport/account', $this->l10n->t('Export account'), $this->l10n->t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')],
+			['settings/userexport/backup', $this->l10n->t('Export all'), $this->l10n->t('Export your account info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account (photos are not exported)')],
+			['settings/userexport/contact', $this->l10n->t('Export Contacts to CSV'), $this->l10n->t('Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.')],
 		];
 		Hook::callAll('uexport_options', $options);
 
-		$tpl = Renderer::getMarkupTemplate("settings/userexport.tpl");
+		$tpl = Renderer::getMarkupTemplate('settings/userexport.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$title' => DI::l10n()->t('Export personal data'),
+			'$title' => $this->l10n->t('Export personal data'),
 			'$options' => $options
 		]);
 	}
@@ -88,29 +110,26 @@ class UserExport extends BaseSettings
 	 */
 	protected function rawContent(array $request = [])
 	{
-		if (!DI::app()->isLoggedIn()) {
-			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		if (!$this->session->getLocalUserId()) {
+			throw new HTTPException\ForbiddenException($this->l10n->t('Permission denied.'));
 		}
 
-		$args = DI::args();
-		if ($args->getArgc() == 3) {
-			// @TODO Replace with router-provided arguments
-			$action = $args->get(2);
-			switch ($action) {
-				case "backup":
-					header("Content-type: application/json");
-					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '.' . $action . '"');
-					self::exportAll(local_user());
+		if (isset($this->parameters['action'])) {
+			switch ($this->parameters['action']) {
+				case 'backup':
+					header('Content-type: application/json');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '.' . $this->parameters['action'] . '"');
+					$this->echoAll($this->session->getLocalUserId());
 					break;
-				case "account":
-					header("Content-type: application/json");
-					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '.' . $action . '"');
-					self::exportAccount(local_user());
+				case 'account':
+					header('Content-type: application/json');
+					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '.' . $this->parameters['action'] . '"');
+					$this->echoAccount($this->session->getLocalUserId());
 					break;
-				case "contact":
-					header("Content-type: application/csv");
+				case 'contact':
+					header('Content-type: application/csv');
 					header('Content-Disposition: attachment; filename="' . DI::app()->getLoggedInUserNickname() . '-contacts.csv' . '"');
-					self::exportContactsAsCSV(local_user());
+					$this->echoContactsAsCSV($this->session->getLocalUserId());
 					break;
 			}
 			System::exit();
@@ -122,11 +141,11 @@ class UserExport extends BaseSettings
 	 * @return array
 	 * @throws \Exception
 	 */
-	private static function exportMultiRow(string $query)
+	private function exportMultiRow(string $query): array
 	{
-		$dbStructure = DI::dbaDefinition()->getAll();
+		$dbStructure = $this->dbaDefinition->getAll();
 
-		preg_match("/\s+from\s+`?([a-z\d_]+)`?/i", $query, $match);
+		preg_match('/\s+from\s+`?([a-z\d_]+)`?/i', $query, $match);
 		$table = $match[1];
 
 		$result = [];
@@ -154,11 +173,11 @@ class UserExport extends BaseSettings
 	 * @return array
 	 * @throws \Exception
 	 */
-	private static function exportRow(string $query)
+	private function exportRow(string $query): array
 	{
-		$dbStructure = DI::dbaDefinition()->getAll();
+		$dbStructure = $this->dbaDefinition->getAll();
 
-		preg_match("/\s+from\s+`?([a-z\d_]+)`?/i", $query, $match);
+		preg_match('/\s+from\s+`?([a-z\d_]+)`?/i', $query, $match);
 		$table = $match[1];
 
 		$result = [];
@@ -190,16 +209,16 @@ class UserExport extends BaseSettings
 	 * @param int $user_id
 	 * @throws \Exception
 	 */
-	private static function exportContactsAsCSV(int $user_id)
+	private function echoContactsAsCSV(int $user_id)
 	{
 		if (!$user_id) {
-			throw new \RuntimeException(DI::l10n()->t('Permission denied.'));
+			throw new \RuntimeException($this->l10n->t('Permission denied.'));
 		}
 
 		// write the table header (like Mastodon)
 		echo "Account address, Show boosts\n";
 		// get all the contacts
-		$contacts = DBA::select('contact', ['addr', 'url'], ['uid' => $user_id, 'self' => false, 'rel' => [1, 3], 'deleted' => false]);
+		$contacts = DBA::select('contact', ['addr', 'url'], ['uid' => $user_id, 'self' => false, 'rel' => [Contact::SHARING, Contact::FRIEND], 'deleted' => false, 'archive' => false]);
 		while ($contact = DBA::fetch($contacts)) {
 			echo ($contact['addr'] ?: $contact['url']) . ", true\n";
 		}
@@ -210,52 +229,52 @@ class UserExport extends BaseSettings
 	 * @param int $user_id
 	 * @throws \Exception
 	 */
-	private static function exportAccount(int $user_id)
+	private function echoAccount(int $user_id)
 	{
 		if (!$user_id) {
-			throw new \RuntimeException(DI::l10n()->t('Permission denied.'));
+			throw new \RuntimeException($this->l10n->t('Permission denied.'));
 		}
 
-		$user = self::exportRow(
+		$user = $this->exportRow(
 			sprintf("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", $user_id)
 		);
 
-		$contact = self::exportMultiRow(
+		$contact = $this->exportMultiRow(
 			sprintf("SELECT * FROM `contact` WHERE `uid` = %d ", $user_id)
 		);
 
 
-		$profile = self::exportMultiRow(
+		$profile = $this->exportMultiRow(
 			sprintf("SELECT *, 'default' AS `profile_name`, 1 AS `is-default` FROM `profile` WHERE `uid` = %d ", $user_id)
 		);
 
-		$profile_fields = self::exportMultiRow(
+		$profile_fields = $this->exportMultiRow(
 			sprintf("SELECT * FROM `profile_field` WHERE `uid` = %d ", $user_id)
 		);
 
-		$photo = self::exportMultiRow(
+		$photo = $this->exportMultiRow(
 			sprintf("SELECT * FROM `photo` WHERE uid = %d AND profile = 1", $user_id)
 		);
 		foreach ($photo as &$p) {
 			$p['data'] = bin2hex($p['data']);
 		}
 
-		$pconfig = self::exportMultiRow(
+		$pconfig = $this->exportMultiRow(
 			sprintf("SELECT * FROM `pconfig` WHERE uid = %d", $user_id)
 		);
 
-		$group = self::exportMultiRow(
+		$group = $this->exportMultiRow(
 			sprintf("SELECT * FROM `group` WHERE uid = %d", $user_id)
 		);
 
-		$group_member = self::exportMultiRow(
+		$group_member = $this->exportMultiRow(
 			sprintf("SELECT `group_member`.`gid`, `group_member`.`contact-id` FROM `group_member` INNER JOIN `group` ON `group`.`id` = `group_member`.`gid` WHERE `group`.`uid` = %d", $user_id)
 		);
 
 		$output = [
-			'version' => FRIENDICA_VERSION,
+			'version' => App::VERSION,
 			'schema' => DB_UPDATE_VERSION,
-			'baseurl' => DI::baseUrl(),
+			'baseurl' => $this->baseUrl,
 			'user' => $user,
 			'contact' => $contact,
 			'profile' => $profile,
@@ -275,13 +294,13 @@ class UserExport extends BaseSettings
 	 * @param int $user_id
 	 * @throws \Exception
 	 */
-	private static function exportAll(int $user_id)
+	private function echoAll(int $user_id)
 	{
 		if (!$user_id) {
-			throw new \RuntimeException(DI::l10n()->t('Permission denied.'));
+			throw new \RuntimeException($this->l10n->t('Permission denied.'));
 		}
 
-		self::exportAccount($user_id);
+		$this->echoAccount($user_id);
 		echo "\n";
 
 		$total = Post::count(['uid' => $user_id]);

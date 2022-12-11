@@ -22,6 +22,7 @@
 namespace Friendica\Util\Writer;
 
 use Exception;
+use Friendica\App;
 use Friendica\Database\Definition\DbaDefinition;
 
 /**
@@ -41,7 +42,7 @@ class DbaDefinitionSqlWriter
 	public static function create(DbaDefinition $definition): string
 	{
 		$sqlString = "-- ------------------------------------------\n";
-		$sqlString .= "-- " . FRIENDICA_PLATFORM . " " . FRIENDICA_VERSION . " (" . FRIENDICA_CODENAME . ")\n";
+		$sqlString .= "-- " . App::PLATFORM . " " . App::VERSION . " (" . App::CODENAME . ")\n";
 		$sqlString .= "-- DB_UPDATE_VERSION " . DB_UPDATE_VERSION . "\n";
 		$sqlString .= "-- ------------------------------------------\n\n\n";
 

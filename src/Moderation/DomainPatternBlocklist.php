@@ -22,7 +22,6 @@
 namespace Friendica\Moderation;
 
 use Exception;
-use Friendica\App\BaseURL;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Database\Database;
@@ -34,25 +33,9 @@ class DomainPatternBlocklist
 	/** @var IManageConfigValues */
 	private $config;
 
-	/** @var Database */
-	private $db;
-
-	/** @var Emailer */
-	private $emailer;
-
-	/** @var L10n */
-	private $l10n;
-
-	/** @var BaseURL */
-	private $baseUrl;
-
-	public function __construct(IManageConfigValues $config, Database $db, Emailer $emailer, L10n $l10n, BaseURL $baseUrl)
+	public function __construct(IManageConfigValues $config)
 	{
-		$this->config  = $config;
-		$this->db      = $db;
-		$this->emailer = $emailer;
-		$this->l10n    = $l10n;
-		$this->baseUrl = $baseUrl;
+		$this->config = $config;
 	}
 
 	public function get(): array
@@ -62,12 +45,7 @@ class DomainPatternBlocklist
 
 	public function set(array $blocklist): bool
 	{
-		$result = $this->config->set('system', 'blocklist', $blocklist);
-		if ($result) {
-			$this->notifyAll();
-		}
-
-		return $result;
+		return $this->config->set('system', 'blocklist', $blocklist);
 	}
 
 	/**
@@ -192,56 +170,10 @@ class DomainPatternBlocklist
 				'reason' => $data[1] ?? '',
 			];
 			if (!in_array($item, $blocklist)) {
-				$blocklist[] = $data;
+				$blocklist[] = $item;
 			}
 		}
 
 		return $blocklist;
-	}
-
-	/**
-	 * Sends a system email to all the node users about a change in the block list. Sends a single email to each unique
-	 * email address among the valid users.
-	 *
-	 * @return int The number of recipients that were sent an email
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws HTTPException\UnprocessableEntityException
-	 */
-	public function notifyAll(): int
-	{
-		// Gathering all non-system parent users who verified their email address and aren't blocked or about to be deleted
-		// We sort on language to minimize the number of actual language switches during the email build loop
-		$recipients = $this->db->selectToArray(
-			'user',
-			['username', 'email', 'language'],
-			['`uid` > 0 AND `parent-uid` = 0 AND `verified` AND NOT `account_removed` AND NOT `account_expired` AND NOT `blocked`'],
-			['group_by' => ['email'], 'order' => ['language']]
-		);
-		if (!$recipients) {
-			return 0;
-		}
-
-		foreach ($recipients as $recipient) {
-			$l10n  = $this->l10n->withLang($recipient['language']);
-			$email = $this->emailer->newSystemMail()
-				->withMessage(
-					$l10n->t('[%s] Notice of remote server domain pattern block list update', $this->emailer->getSiteEmailName()),
-					$l10n->t(
-						'Dear %s,
-
-You are receiving this email because the Friendica node at %s where you are registered as a user updated their remote server domain pattern block list.
-
-Please review the updated list at %s at your earliest convenience.',
-						$recipient['username'],
-						$this->baseUrl->get(),
-						$this->baseUrl . '/friendica'
-					)
-				)
-				->withRecipient($recipient['email'])
-				->build();
-			$this->emailer->send($email);
-		}
-
-		return count($recipients);
 	}
 }

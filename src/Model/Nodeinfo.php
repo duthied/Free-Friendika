@@ -25,6 +25,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use stdClass;
 
 /**
@@ -62,8 +63,8 @@ class Nodeinfo
 		$logger->info('user statistics', $userStats);
 
 		$posts = DBA::count('post-thread', ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE NOT `deleted` AND `origin`)"]);
-		$comments = DBA::count('post', ["NOT `deleted` AND `gravity` = ? AND `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)", GRAVITY_COMMENT]);
-				$config->set('nodeinfo', 'local_posts', $posts);
+		$comments = DBA::count('post', ["NOT `deleted` AND `gravity` = ? AND `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)", Item::GRAVITY_COMMENT]);
+		$config->set('nodeinfo', 'local_posts', $posts);
 		$config->set('nodeinfo', 'local_comments', $comments);
 
 		$logger->info('User actitivy', ['posts' => $posts, 'comments' => $comments]);
@@ -79,19 +80,17 @@ class Nodeinfo
 		$config = DI::config();
 
 		$usage = new stdClass();
-		$usage->users = [];
+		$usage->users = new \stdClass;
 
 		if (!empty($config->get('system', 'nodeinfo'))) {
-			$usage->users = [
-				'total'          => intval($config->get('nodeinfo', 'total_users')),
-				'activeHalfyear' => intval($config->get('nodeinfo', 'active_users_halfyear')),
-				'activeMonth'    => intval($config->get('nodeinfo', 'active_users_monthly'))
-			];
+			$usage->users->total = intval($config->get('nodeinfo', 'total_users'));
+			$usage->users->activeHalfyear = intval($config->get('nodeinfo', 'active_users_halfyear'));
+			$usage->users->activeMonth = intval($config->get('nodeinfo', 'active_users_monthly'));
 			$usage->localPosts = intval($config->get('nodeinfo', 'local_posts'));
 			$usage->localComments = intval($config->get('nodeinfo', 'local_comments'));
 
 			if ($version2) {
-				$usage->users['activeWeek'] = intval($config->get('nodeinfo', 'active_users_weekly'));
+				$usage->users->activeWeek = intval($config->get('nodeinfo', 'active_users_weekly'));
 			}
 		}
 
@@ -163,25 +162,16 @@ class Nodeinfo
 	 *
 	 * @param IManageConfigValues $config Configuration instance
 	 * @return array Organization information
+	 * @throws \Exception
 	 */
 	public static function getOrganization(IManageConfigValues $config): array
 	{
-		$organization = [
-			'name' => null,
-			'contact' => null,
-			'account' => null
+		$administrator = User::getFirstAdmin(['username', 'email', 'nickname']);
+
+		return [
+			'name'    => $administrator['username'] ?? null,
+			'contact' => $administrator['email']    ?? null,
+			'account' => $administrator['nickname'] ?? '' ? DI::baseUrl()->get() . '/profile/' . $administrator['nickname'] : null,
 		];
-
-		if (!empty($config->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
-			$organization['contact'] = $adminList[0];
-			$administrator = User::getByEmail($adminList[0], ['username', 'nickname']);
-			if (!empty($administrator)) {
-				$organization['name'] = $administrator['username'];
-				$organization['account'] = DI::baseUrl()->get() . '/profile/' . $administrator['nickname'];
-			}
-		}
-
-		return $organization;
 	}
 }

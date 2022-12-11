@@ -53,7 +53,7 @@ class PublicTimeline extends BaseApi
 
 		if ($exclude_replies && !$conversation_id) {
 			$condition = ["`gravity` = ? AND `uri-id` > ? AND `private` = ? AND `wall` AND NOT `author-hidden`",
-				GRAVITY_PARENT, $since_id, Item::PUBLIC];
+				Item::GRAVITY_PARENT, $since_id, Item::PUBLIC];
 
 			if ($max_id > 0) {
 				$condition[0] .= " AND `uri-id` <= ?";
@@ -64,7 +64,7 @@ class PublicTimeline extends BaseApi
 			$statuses = Post::selectForUser($uid, [], $condition, $params);
 		} else {
 			$condition = ["`gravity` IN (?, ?) AND `uri-id` > ? AND `private` = ? AND `wall` AND `origin` AND NOT `author-hidden`",
-				GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
+				Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 			if ($max_id > 0) {
 				$condition[0] .= " AND `uri-id` <= ?";

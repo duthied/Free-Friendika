@@ -7,7 +7,6 @@ bin/daemon.php
 bin/testargs.php
 bin/wait-for-connection
 bin/worker.php
-config/addon-sample.config.php
 config/local-sample.config.php
 doc/
 images/
@@ -19,7 +18,6 @@ static/
 vendor/
 view/
 .htaccess-dist
-boot.php
 CHANGELOG
 CREDITS.txt
 database.sql

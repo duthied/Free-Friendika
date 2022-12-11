@@ -35,9 +35,7 @@ class Contacts extends BaseModule
 {
 	protected function content(array $request = []): string
 	{
-		$app = DI::app();
-
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
@@ -55,7 +53,7 @@ class Contacts extends BaseModule
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Contact not found.'));
 		}
 
-		$localContactId = Model\Contact::getPublicIdByUserId(local_user());
+		$localContactId = Model\Contact::getPublicIdByUserId(DI::userSession()->getLocalUserId());
 
 		DI::page()['aside'] = Widget\VCard::getHTML($contact);
 

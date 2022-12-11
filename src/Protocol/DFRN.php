@@ -25,6 +25,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use DOMXPath;
+use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -33,7 +34,6 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
-use Friendica\Model\FContact;
 use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
@@ -44,6 +44,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
+use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -369,8 +370,8 @@ class DFRN
 		XML::addElement($doc, $root, 'id', DI::baseUrl() . '/profile/' . $owner['nick']);
 		XML::addElement($doc, $root, 'title', $owner['name']);
 
-		$attributes = ['uri' => 'https://friendi.ca', 'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION];
-		XML::addElement($doc, $root, 'generator', FRIENDICA_PLATFORM, $attributes);
+		$attributes = ['uri' => 'https://friendi.ca', 'version' => App::VERSION . '-' . DB_UPDATE_VERSION];
+		XML::addElement($doc, $root, 'generator', App::PLATFORM, $attributes);
 
 		$attributes = ['rel' => 'license', 'href' => 'http://creativecommons.org/licenses/by/3.0/'];
 		XML::addElement($doc, $root, 'link', '', $attributes);
@@ -537,7 +538,7 @@ class DFRN
 
 			XML::addElement($doc, $author, 'poco:utcOffset', DateTimeFormat::timezoneNow($profile['timezone'], 'P'));
 
-			if (trim($profile['homepage']) != '') {
+			if (trim($profile['homepage'])) {
 				$urls = $doc->createElement('poco:urls');
 				XML::addElement($doc, $urls, 'poco:type', 'homepage');
 				XML::addElement($doc, $urls, 'poco:value', $profile['homepage']);
@@ -545,7 +546,7 @@ class DFRN
 				$author->appendChild($urls);
 			}
 
-			if (trim($profile['pub_keywords']) != '') {
+			if (trim($profile['pub_keywords'] ?? '')) {
 				$keywords = explode(',', $profile['pub_keywords']);
 
 				foreach ($keywords as $keyword) {
@@ -553,7 +554,7 @@ class DFRN
 				}
 			}
 
-			if (trim($profile['xmpp']) != '') {
+			if (trim($profile['xmpp'])) {
 				$ims = $doc->createElement('poco:ims');
 				XML::addElement($doc, $ims, 'poco:type', 'xmpp');
 				XML::addElement($doc, $ims, 'poco:value', $profile['xmpp']);
@@ -561,7 +562,7 @@ class DFRN
 				$author->appendChild($ims);
 			}
 
-			if (trim($profile['locality'] . $profile['region'] . $profile['country-name']) != '') {
+			if (trim($profile['locality'] . $profile['region'] . $profile['country-name'])) {
 				$element = $doc->createElement('poco:address');
 
 				XML::addElement($doc, $element, 'poco:formatted', Profile::formatLocation($profile));
@@ -710,7 +711,7 @@ class DFRN
 	 */
 	private static function getAttachment($doc, $root, array $item)
 	{
-		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT]) as $attachment) {
 			$attributes = ['rel' => 'enclosure',
 				'href' => $attachment['url'],
 				'type' => $attachment['mimetype']];
@@ -773,7 +774,7 @@ class DFRN
 			$entry->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
 		}
 
-		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body'] ?? '');
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
 
 		if ($item['private'] == Item::PRIVATE) {
 			$body = Item::fixPrivatePhotos($body, $owner['uid'], $item, $cid);
@@ -799,7 +800,7 @@ class DFRN
 		$dfrnowner = self::addEntryAuthor($doc, "dfrn:owner", $item["owner-link"], $item);
 		$entry->appendChild($dfrnowner);
 
-		if ($item['gravity'] != GRAVITY_PARENT) {
+		if ($item['gravity'] != Item::GRAVITY_PARENT) {
 			$parent = Post::selectFirst(['guid', 'plink'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
 			if (DBA::isResult($parent)) {
 				$attributes = ["ref" => $item['thr-parent'], "type" => "text/html",
@@ -888,7 +889,7 @@ class DFRN
 
 		if ($item['object-type'] != '') {
 			XML::addElement($doc, $entry, 'activity:object-type', $item['object-type']);
-		} elseif ($item['gravity'] == GRAVITY_PARENT) {
+		} elseif ($item['gravity'] == Item::GRAVITY_PARENT) {
 			XML::addElement($doc, $entry, 'activity:object-type', Activity\ObjectType::NOTE);
 		} else {
 			XML::addElement($doc, $entry, 'activity:object-type', Activity\ObjectType::COMMENT);
@@ -980,12 +981,12 @@ class DFRN
 				}
 			}
 
-			$fcontact = FContact::getByURL($contact['addr']);
-			if (empty($fcontact)) {
+			try {
+				$pubkey = DI::dsprContact()->getByAddr(WebFingerUri::fromString($contact['addr']))->pubKey;
+			} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
 				Logger::notice('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
 				return -22;
 			}
-			$pubkey = $fcontact['pubkey'] ?? '';
 		} else {
 			$pubkey = '';
 		}
@@ -1612,21 +1613,21 @@ class DFRN
 				|| ($item['verb'] == Activity::ATTENDMAYBE)
 				|| ($item['verb'] == Activity::ANNOUNCE)
 			) {
-				$item['gravity'] = GRAVITY_ACTIVITY;
+				$item['gravity'] = Item::GRAVITY_ACTIVITY;
 				// only one like or dislike per person
 				// split into two queries for performance issues
 				$condition = [
-					'uid' => $item['uid'],
-					'author-id' => $item['author-id'],
-					'gravity' => GRAVITY_ACTIVITY,
-					'verb' => $item['verb'],
+					'uid'        => $item['uid'],
+					'author-id'  => $item['author-id'],
+					'gravity'    => Item::GRAVITY_ACTIVITY,
+					'verb'       => $item['verb'],
 					'parent-uri' => $item['thr-parent'],
 				];
 				if (Post::exists($condition)) {
 					return false;
 				}
 
-				$condition = ['uid' => $item['uid'], 'author-id' => $item['author-id'], 'gravity' => GRAVITY_ACTIVITY,
+				$condition = ['uid' => $item['uid'], 'author-id' => $item['author-id'], 'gravity' => Item::GRAVITY_ACTIVITY,
 					'verb' => $item['verb'], 'thr-parent' => $item['thr-parent']];
 				if (Post::exists($condition)) {
 					return false;
@@ -1837,7 +1838,11 @@ class DFRN
 
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 
-		$item['body'] = Item::improveSharedDataInBody($item);
+		$quote_uri_id = Item::getQuoteUriId($item['body'], $item['uid']);
+		if (!empty($quote_uri_id)) {
+			$item['quote-uri-id'] = $quote_uri_id;
+			$item['body']         = BBCode::removeSharedData($item['body']);
+		}
 
 		Tag::storeFromBody($item['uri-id'], $item['body']);
 
@@ -1938,7 +1943,7 @@ class DFRN
 
 		// Now assign the rest of the values that depend on the type of the message
 		if (in_array($entrytype, [self::REPLY, self::REPLY_RC])) {
-			$item['gravity'] = GRAVITY_COMMENT;
+			$item['gravity'] = Item::GRAVITY_COMMENT;
 
 			if (!isset($item['object-type'])) {
 				$item['object-type'] = Activity\ObjectType::COMMENT;
@@ -1964,7 +1969,7 @@ class DFRN
 		if ($entrytype == self::REPLY_RC) {
 			$item['wall'] = 1;
 		} elseif ($entrytype == self::TOP_LEVEL) {
-			$item['gravity'] = GRAVITY_PARENT;
+			$item['gravity'] = Item::GRAVITY_PARENT;
 
 			if (!isset($item['object-type'])) {
 				$item['object-type'] = Activity\ObjectType::NOTE;
@@ -2034,7 +2039,7 @@ class DFRN
 					Logger::info('Contact is not sharing with the user', ['uid' => $item['uid'], 'owner-id' => $item['owner-id'], 'author-id' => $item['author-id'], 'gravity' => $item['gravity'], 'uri' => $item['uri']]);
 					return;
 				}
-				if (($item['gravity'] == GRAVITY_ACTIVITY) && DI::pConfig()->get($item['uid'], 'system', 'accept_only_sharer') == Item::COMPLETION_COMMENT) {
+				if (($item['gravity'] == Item::GRAVITY_ACTIVITY) && DI::pConfig()->get($item['uid'], 'system', 'accept_only_sharer') == Item::COMPLETION_COMMENT) {
 					Logger::info('Completion is set to "comment", but this is an activity. so we stop here.', ['uid' => $item['uid'], 'owner-id' => $item['owner-id'], 'author-id' => $item['author-id'], 'gravity' => $item['gravity'], 'uri' => $item['uri']]);
 					return;
 				}
@@ -2119,13 +2124,13 @@ class DFRN
 		}
 
 		// When it is a starting post it has to belong to the person that wants to delete it
-		if (($item['gravity'] == GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
+		if (($item['gravity'] == Item::GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
 			Logger::info('Item with URI ' . $uri . ' do not belong to contact ' . $importer['id'] . ' - ignoring deletion.');
 			return;
 		}
 
 		// Comments can be deleted by the thread owner or comment owner
-		if (($item['gravity'] != GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
+		if (($item['gravity'] != Item::GRAVITY_PARENT) && ($item['contact-id'] != $importer['id'])) {
 			$condition = ['id' => $item['parent'], 'contact-id' => $importer['id']];
 			if (!Post::exists($condition)) {
 				Logger::info('Item with URI ' . $uri . ' was not found or must not be deleted by contact ' . $importer['id'] . ' - ignoring deletion.');

@@ -75,6 +75,7 @@
 
 				{{if $nav.settings}}<li><a class="{{$nav.settings.2}}" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}">{{$nav.settings.1}}</a></li>{{/if}}
 				{{if $nav.admin}}<li><a accesskey="a" class="{{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}">{{$nav.admin.1}}</a></li>{{/if}}
+				{{if $nav.moderation}}<li><a accesskey="m" class="{{$nav.moderation.2}}" href="{{$nav.moderation.0}}" title="{{$nav.moderation.3}}">{{$nav.moderation.1}}</a></li>{{/if}}
 
 				{{if $nav.logout}}<li><a class="menu-sep {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}">{{$nav.logout.1}}</a></li>{{/if}}
 				{{if $nav.login}}<li><a class="{{$nav.login.2}}" href="{{$nav.login.0}}" title="{{$nav.login.3}}">{{$nav.login.1}}</a><li>{{/if}}

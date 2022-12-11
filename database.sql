@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2022.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1484
+-- Friendica 2022.12-rc (Giant Rhubarb)
+-- DB_UPDATE_VERSION 1500
 -- ------------------------------------------
 
 
@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`language` varchar(32) NOT NULL DEFAULT 'en' COMMENT 'default language',
 	`register_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of registration',
 	`login_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of last login',
+	`last-activity` date COMMENT 'Day of the last activity',
 	`default-location` varchar(255) NOT NULL DEFAULT '' COMMENT 'Default for item.location',
 	`allow_location` boolean NOT NULL DEFAULT '0' COMMENT '1 allows to display the location',
 	`theme` varchar(255) NOT NULL DEFAULT '' COMMENT 'user theme preference',
@@ -80,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`pwdreset` varchar(255) COMMENT 'Password reset request token',
 	`pwdreset_time` datetime COMMENT 'Timestamp of the last password reset request',
 	`maxreq` int unsigned NOT NULL DEFAULT 10 COMMENT '',
-	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT 'Delay in days before deleting user-related posts. Scope is controlled by pConfig.',
 	`account_removed` boolean NOT NULL DEFAULT '0' COMMENT 'if 1 the account is removed',
 	`account_expired` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`account_expires_on` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp when account expires and will be deleted',
@@ -308,6 +309,20 @@ CREATE TABLE IF NOT EXISTS `2fa_trusted_browser` (
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor authentication trusted browsers';
+
+--
+-- TABLE account-suggestion
+--
+CREATE TABLE IF NOT EXISTS `account-suggestion` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the account url',
+	`uid` mediumint unsigned NOT NULL COMMENT 'User ID',
+	`level` smallint unsigned COMMENT 'level of closeness',
+	`ignore` boolean NOT NULL DEFAULT '0' COMMENT 'If set, this account will not be suggested again',
+	 PRIMARY KEY(`uid`,`uri-id`),
+	 INDEX `uri-id_uid` (`uri-id`,`uid`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Account suggestion';
 
 --
 -- TABLE account-user
@@ -564,6 +579,40 @@ CREATE TABLE IF NOT EXISTS `delayed-post` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Posts that are about to be distributed at a later time';
 
 --
+-- TABLE diaspora-contact
+--
+CREATE TABLE IF NOT EXISTS `diaspora-contact` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the contact URL',
+	`addr` varchar(255) COMMENT '',
+	`alias` varchar(255) COMMENT '',
+	`nick` varchar(255) COMMENT '',
+	`name` varchar(255) COMMENT '',
+	`given-name` varchar(255) COMMENT '',
+	`family-name` varchar(255) COMMENT '',
+	`photo` varchar(255) COMMENT '',
+	`photo-medium` varchar(255) COMMENT '',
+	`photo-small` varchar(255) COMMENT '',
+	`batch` varchar(255) COMMENT '',
+	`notify` varchar(255) COMMENT '',
+	`poll` varchar(255) COMMENT '',
+	`subscribe` varchar(255) COMMENT '',
+	`searchable` boolean COMMENT '',
+	`pubkey` text COMMENT '',
+	`gsid` int unsigned COMMENT 'Global Server ID',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`interacting_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts this contact interactes with',
+	`interacted_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts that interacted with this contact',
+	`post_count` int unsigned DEFAULT 0 COMMENT 'Number of posts and comments',
+	 PRIMARY KEY(`uri-id`),
+	 UNIQUE INDEX `addr` (`addr`),
+	 INDEX `alias` (`alias`),
+	 INDEX `gsid` (`gsid`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Diaspora compatible contacts - used in the Diaspora implementation';
+
+--
 -- TABLE diaspora-interaction
 --
 CREATE TABLE IF NOT EXISTS `diaspora-interaction` (
@@ -617,39 +666,6 @@ CREATE TABLE IF NOT EXISTS `event` (
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Events';
-
---
--- TABLE fcontact
---
-CREATE TABLE IF NOT EXISTS `fcontact` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`guid` varbinary(255) NOT NULL DEFAULT '' COMMENT 'unique id',
-	`url` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
-	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the fcontact url',
-	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`photo` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
-	`request` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
-	`nick` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`addr` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`batch` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
-	`notify` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
-	`poll` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
-	`confirm` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
-	`priority` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
-	`alias` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
-	`pubkey` text COMMENT '',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`interacting_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts this contact interactes with',
-	`interacted_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts that interacted with this contact',
-	`post_count` int unsigned DEFAULT 0 COMMENT 'Number of posts and comments',
-	 PRIMARY KEY(`id`),
-	 INDEX `addr` (`addr`(32)),
-	 UNIQUE INDEX `url` (`url`(190)),
-	 UNIQUE INDEX `uri-id` (`uri-id`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Diaspora compatible contacts - used in the Diaspora implementation';
 
 --
 -- TABLE fetch-entry
@@ -1073,6 +1089,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	`height` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`width` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`datasize` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`blurhash` varbinary(255) COMMENT 'BlurHash representation of the photo',
 	`data` mediumblob NOT NULL COMMENT '',
 	`scale` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`profile` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -1186,6 +1203,7 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	`content-warning` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`body` mediumtext COMMENT 'item body content',
 	`raw-body` mediumtext COMMENT 'Body without embedded media links',
+	`quote-uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the quoted uri',
 	`location` varchar(255) NOT NULL DEFAULT '' COMMENT 'text location where this item originated',
 	`coord` varchar(255) NOT NULL DEFAULT '' COMMENT 'longitude/latitude pair representing location where this item originated',
 	`language` text COMMENT 'Language information about this post',
@@ -1202,7 +1220,9 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	 INDEX `plink` (`plink`(191)),
 	 INDEX `resource-id` (`resource-id`),
 	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `quote-uri-id` (`quote-uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`quote-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
@@ -1289,11 +1309,13 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`url` varbinary(1024) NOT NULL COMMENT 'Media URL',
+	`media-uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the activities uri-id',
 	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Media type',
 	`mimetype` varchar(60) COMMENT '',
 	`height` smallint unsigned COMMENT 'Height of the media',
 	`width` smallint unsigned COMMENT 'Width of the media',
 	`size` bigint unsigned COMMENT 'Media size',
+	`blurhash` varbinary(255) COMMENT 'BlurHash representation of the image',
 	`preview` varbinary(512) COMMENT 'Preview URL',
 	`preview-height` smallint unsigned COMMENT 'Height of the preview picture',
 	`preview-width` smallint unsigned COMMENT 'Width of the preview picture',
@@ -1308,7 +1330,9 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`(512)),
 	 INDEX `uri-id-id` (`uri-id`,`id`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `media-uri-id` (`media-uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`media-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Attached media';
 
 --
@@ -1571,6 +1595,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`education` text COMMENT 'Deprecated',
 	`contact` text COMMENT 'Deprecated',
 	`homepage` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`homepage_verified` boolean NOT NULL DEFAULT '0' COMMENT 'was the homepage verified by a rel-me link back to the profile',
 	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT 'XMPP address',
 	`matrix` varchar(255) NOT NULL DEFAULT '' COMMENT 'Matrix address',
 	`photo` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
@@ -1638,6 +1663,37 @@ CREATE TABLE IF NOT EXISTS `register` (
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='registrations requiring admin approval';
+
+--
+-- TABLE report
+--
+CREATE TABLE IF NOT EXISTS `report` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uid` mediumint unsigned COMMENT 'Reporting user',
+	`cid` int unsigned NOT NULL COMMENT 'Reported contact',
+	`comment` text COMMENT 'Report',
+	`forward` boolean COMMENT 'Forward the report to the remote server',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`status` tinyint unsigned COMMENT 'Status of the report',
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	 INDEX `cid` (`cid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
+
+--
+-- TABLE report-post
+--
+CREATE TABLE IF NOT EXISTS `report-post` (
+	`rid` int unsigned NOT NULL COMMENT 'Report id',
+	`uri-id` int unsigned NOT NULL COMMENT 'Uri-id of the reported post',
+	`status` tinyint unsigned COMMENT 'Status of the reported post',
+	 PRIMARY KEY(`rid`,`uri-id`),
+	 INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`rid`) REFERENCES `report` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
 -- TABLE search
@@ -1807,6 +1863,8 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-user`.`thr-parent-id` AS `thr-parent-id`,
 	`conversation-item-uri`.`uri` AS `conversation`,
 	`post-thread-user`.`conversation-id` AS `conversation-id`,
+	`quote-item-uri`.`uri` AS `quote-uri`,
+	`post-content`.`quote-uri-id` AS `quote-uri-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post-user`.`wall` AS `wall`,
 	`post-user`.`gravity` AS `gravity`,
@@ -1944,9 +2002,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
 	`parent-post-author`.`nick` AS `parent-author-nick`,
-	`parent-post-author`.`network` AS `parent-author-network`,
-	`parent-post-author`.`blocked` AS `parent-author-blocked`,
-	`parent-post-author`.`hidden` AS `parent-author-hidden`
+	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
@@ -1962,6 +2018,7 @@ CREATE VIEW `post-user-view` AS SELECT
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id` AND `post-user`.`origin`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
@@ -1985,6 +2042,8 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-user`.`thr-parent-id` AS `thr-parent-id`,
 	`conversation-item-uri`.`uri` AS `conversation`,
 	`post-thread-user`.`conversation-id` AS `conversation-id`,
+	`quote-item-uri`.`uri` AS `quote-uri`,
+	`post-content`.`quote-uri-id` AS `quote-uri-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post-thread-user`.`wall` AS `wall`,
 	`post-user`.`gravity` AS `gravity`,
@@ -2120,9 +2179,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`,
-	`parent-post-author`.`blocked` AS `parent-author-blocked`,
-	`parent-post-author`.`hidden` AS `parent-author-hidden`
+	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
@@ -2138,6 +2195,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread-user`.`uri-id` AND `post-thread-user`.`origin`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
@@ -2157,6 +2215,8 @@ CREATE VIEW `post-view` AS SELECT
 	`post`.`thr-parent-id` AS `thr-parent-id`,
 	`conversation-item-uri`.`uri` AS `conversation`,
 	`post-thread`.`conversation-id` AS `conversation-id`,
+	`quote-item-uri`.`uri` AS `quote-uri`,
+	`post-content`.`quote-uri-id` AS `quote-uri-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post`.`gravity` AS `gravity`,
 	`external-item-uri`.`uri` AS `extid`,
@@ -2263,9 +2323,7 @@ CREATE VIEW `post-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`,
-	`parent-post-author`.`blocked` AS `parent-author-blocked`,
-	`parent-post-author`.`hidden` AS `parent-author-hidden`
+	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post`
 			STRAIGHT_JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post`.`author-id`
@@ -2279,6 +2337,7 @@ CREATE VIEW `post-view` AS SELECT
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post`.`uri-id`
 			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
@@ -2296,6 +2355,8 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post`.`thr-parent-id` AS `thr-parent-id`,
 	`conversation-item-uri`.`uri` AS `conversation`,
 	`post-thread`.`conversation-id` AS `conversation-id`,
+	`quote-item-uri`.`uri` AS `quote-uri`,
+	`post-content`.`quote-uri-id` AS `quote-uri-id`,
 	`item-uri`.`guid` AS `guid`,
 	`post`.`gravity` AS `gravity`,
 	`external-item-uri`.`uri` AS `extid`,
@@ -2396,15 +2457,15 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post-question`.`end-time` AS `question-end-time`,
 	0 AS `has-categories`,
 	EXISTS(SELECT `id` FROM `post-media` WHERE `post-media`.`uri-id` = `post-thread`.`uri-id`) AS `has-media`,
+	(SELECT COUNT(*) FROM `post` WHERE `parent-uri-id` = `post-thread`.`uri-id` AND `gravity` = 6) AS `total-comments`,
+	(SELECT COUNT(DISTINCT(`author-id`)) FROM `post` WHERE `parent-uri-id` = `post-thread`.`uri-id` AND `gravity` = 6) AS `total-actors`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
 	`parent-item-uri`.`guid` AS `parent-guid`,
 	`parent-post`.`network` AS `parent-network`,
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`,
-	`parent-post-author`.`blocked` AS `parent-author-blocked`,
-	`parent-post-author`.`hidden` AS `parent-author-hidden`
+	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-thread`
 			INNER JOIN `post` ON `post`.`uri-id` = `post-thread`.`uri-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread`.`author-id`
@@ -2418,6 +2479,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread`.`uri-id`
+			LEFT JOIN `item-uri` AS `quote-item-uri` ON `quote-item-uri`.`id` = `post-content`.`quote-uri-id`
 			LEFT JOIN `post-question` ON `post-question`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
@@ -2456,6 +2518,24 @@ CREATE VIEW `collection-view` AS SELECT
 	FROM `post-collection`
 			INNER JOIN `post` ON `post-collection`.`uri-id` = `post`.`uri-id`
 			INNER JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`;
+
+--
+-- VIEW media-view
+--
+DROP VIEW IF EXISTS `media-view`;
+CREATE VIEW `media-view` AS SELECT 
+	`post-media`.`uri-id` AS `uri-id`,
+	`post-media`.`type` AS `type`,
+	`post`.`received` AS `received`,
+	`post`.`created` AS `created`,
+	`post`.`private` AS `private`,
+	`post`.`visible` AS `visible`,
+	`post`.`deleted` AS `deleted`,
+	`post`.`thr-parent-id` AS `thr-parent-id`,
+	`post`.`author-id` AS `author-id`,
+	`post`.`gravity` AS `gravity`
+	FROM `post-media`
+			INNER JOIN `post` ON `post-media`.`uri-id` = `post`.`uri-id`;
 
 --
 -- VIEW tag-view
@@ -2616,6 +2696,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`user`.`language` AS `language`,
 	`user`.`register_date` AS `register_date`,
 	`user`.`login_date` AS `login_date`,
+	`user`.`last-activity` AS `last-activity`,
 	`user`.`default-location` AS `default-location`,
 	`user`.`allow_location` AS `allow_location`,
 	`user`.`theme` AS `theme`,
@@ -2656,6 +2737,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`profile`.`postal-code` AS `postal-code`,
 	`profile`.`country-name` AS `country-name`,
 	`profile`.`homepage` AS `homepage`,
+	`profile`.`homepage_verified` AS `homepage_verified`,
 	`profile`.`dob` AS `dob`
 	FROM `user`
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
@@ -2721,11 +2803,11 @@ CREATE VIEW `account-view` AS SELECT
 	`contact`.`blocked` AS `blocked`,
 	`contact`.`notify` AS `dfrn-notify`,
 	`contact`.`poll` AS `dfrn-poll`,
-	`fcontact`.`guid` AS `diaspora-guid`,
-	`fcontact`.`batch` AS `diaspora-batch`,
-	`fcontact`.`notify` AS `diaspora-notify`,
-	`fcontact`.`poll` AS `diaspora-poll`,
-	`fcontact`.`alias` AS `diaspora-alias`,
+	`item-uri`.`guid` AS `diaspora-guid`,
+	`diaspora-contact`.`batch` AS `diaspora-batch`,
+	`diaspora-contact`.`notify` AS `diaspora-notify`,
+	`diaspora-contact`.`poll` AS `diaspora-poll`,
+	`diaspora-contact`.`alias` AS `diaspora-alias`,
 	`apcontact`.`uuid` AS `ap-uuid`,
 	`apcontact`.`type` AS `ap-type`,
 	`apcontact`.`following` AS `ap-following`,
@@ -2743,7 +2825,7 @@ CREATE VIEW `account-view` AS SELECT
 	FROM `contact`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `contact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `contact`.`uri-id`
-			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = contact.`uri-id`
+			LEFT JOIN `diaspora-contact` ON `diaspora-contact`.`uri-id` = contact.`uri-id`
 			LEFT JOIN `gserver` ON `gserver`.`id` = contact.`gsid`
 			WHERE `contact`.`uid` = 0;
 
@@ -2822,14 +2904,14 @@ CREATE VIEW `account-user-view` AS SELECT
 	`ucontact`.`reason` AS `reason`,
 	`contact`.`notify` AS `dfrn-notify`,
 	`contact`.`poll` AS `dfrn-poll`,
-	`fcontact`.`guid` AS `diaspora-guid`,
-	`fcontact`.`batch` AS `diaspora-batch`,
-	`fcontact`.`notify` AS `diaspora-notify`,
-	`fcontact`.`poll` AS `diaspora-poll`,
-	`fcontact`.`alias` AS `diaspora-alias`,
-	`fcontact`.`interacting_count` AS `diaspora-interacting_count`,
-	`fcontact`.`interacted_count` AS `diaspora-interacted_count`,
-	`fcontact`.`post_count` AS `diaspora-post_count`,
+	`item-uri`.`guid` AS `diaspora-guid`,
+	`diaspora-contact`.`batch` AS `diaspora-batch`,
+	`diaspora-contact`.`notify` AS `diaspora-notify`,
+	`diaspora-contact`.`poll` AS `diaspora-poll`,
+	`diaspora-contact`.`alias` AS `diaspora-alias`,
+	`diaspora-contact`.`interacting_count` AS `diaspora-interacting_count`,
+	`diaspora-contact`.`interacted_count` AS `diaspora-interacted_count`,
+	`diaspora-contact`.`post_count` AS `diaspora-post_count`,
 	`apcontact`.`uuid` AS `ap-uuid`,
 	`apcontact`.`type` AS `ap-type`,
 	`apcontact`.`following` AS `ap-following`,
@@ -2848,7 +2930,7 @@ CREATE VIEW `account-user-view` AS SELECT
 			INNER JOIN `contact` ON `contact`.`uri-id` = `ucontact`.`uri-id` AND `contact`.`uid` = 0
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `ucontact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `ucontact`.`uri-id`
-			LEFT JOIN `fcontact` ON `fcontact`.`uri-id` = `ucontact`.`uri-id` AND `fcontact`.`network` = 'dspr'
+			LEFT JOIN `diaspora-contact` ON `diaspora-contact`.`uri-id` = `ucontact`.`uri-id`
 			LEFT JOIN `gserver` ON `gserver`.`id` = contact.`gsid`;
 
 --
@@ -2925,3 +3007,37 @@ CREATE VIEW `profile_field-view` AS SELECT
 	`profile_field`.`edited` AS `edited`
 	FROM `profile_field`
 			INNER JOIN `permissionset` ON `permissionset`.`id` = `profile_field`.`psid`;
+
+--
+-- VIEW diaspora-contact-view
+--
+DROP VIEW IF EXISTS `diaspora-contact-view`;
+CREATE VIEW `diaspora-contact-view` AS SELECT 
+	`diaspora-contact`.`uri-id` AS `uri-id`,
+	`item-uri`.`uri` AS `url`,
+	`item-uri`.`guid` AS `guid`,
+	`diaspora-contact`.`addr` AS `addr`,
+	`diaspora-contact`.`alias` AS `alias`,
+	`diaspora-contact`.`nick` AS `nick`,
+	`diaspora-contact`.`name` AS `name`,
+	`diaspora-contact`.`given-name` AS `given-name`,
+	`diaspora-contact`.`family-name` AS `family-name`,
+	`diaspora-contact`.`photo` AS `photo`,
+	`diaspora-contact`.`photo-medium` AS `photo-medium`,
+	`diaspora-contact`.`photo-small` AS `photo-small`,
+	`diaspora-contact`.`batch` AS `batch`,
+	`diaspora-contact`.`notify` AS `notify`,
+	`diaspora-contact`.`poll` AS `poll`,
+	`diaspora-contact`.`subscribe` AS `subscribe`,
+	`diaspora-contact`.`searchable` AS `searchable`,
+	`diaspora-contact`.`pubkey` AS `pubkey`,
+	`gserver`.`url` AS `baseurl`,
+	`diaspora-contact`.`gsid` AS `gsid`,
+	`diaspora-contact`.`created` AS `created`,
+	`diaspora-contact`.`updated` AS `updated`,
+	`diaspora-contact`.`interacting_count` AS `interacting_count`,
+	`diaspora-contact`.`interacted_count` AS `interacted_count`,
+	`diaspora-contact`.`post_count` AS `post_count`
+	FROM `diaspora-contact`
+			INNER JOIN `item-uri` ON `item-uri`.`id` = `diaspora-contact`.`uri-id`
+			LEFT JOIN `gserver` ON `gserver`.`id` = `diaspora-contact`.`gsid`;

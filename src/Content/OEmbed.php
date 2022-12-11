@@ -391,7 +391,7 @@ class OEmbed
 	 * @param string $title Optional title (default: what comes from OEmbed object)
 	 * @return string Formatted HTML
 	 */
-	public static function getHTML(string $url, string $title = '')
+	public static function getHTML(string $url, string $title = ''): string
 	{
 		$o = self::fetchURL($url, !self::isAllowedURL($url));
 

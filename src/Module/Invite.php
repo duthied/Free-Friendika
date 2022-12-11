@@ -38,7 +38,7 @@ class Invite extends BaseModule
 {
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -52,7 +52,7 @@ class Invite extends BaseModule
 			$max_invites = 50;
 		}
 
-		$current_invites = intval(DI::pConfig()->get(local_user(), 'system', 'sent_invites'));
+		$current_invites = intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'sent_invites'));
 		if ($current_invites > $max_invites) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Total invitation limit exceeded.'));
 		}
@@ -67,19 +67,19 @@ class Invite extends BaseModule
 
 		if ($config->get('system', 'invitation_only')) {
 			$invitation_only = true;
-			$invites_remaining = DI::pConfig()->get(local_user(), 'system', 'invites_remaining');
+			$invites_remaining = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'invites_remaining');
 			if ((!$invites_remaining) && (!$app->isSiteAdmin())) {
 				throw new HTTPException\ForbiddenException();
 			}
 		}
 
-		$user = User::getById(local_user());
+		$user = User::getById(DI::userSession()->getLocalUserId());
 
 		foreach ($recipients as $recipient) {
 			$recipient = trim($recipient);
 
 			if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
-				notice(DI::l10n()->t('%s : Not a valid email address.', $recipient));
+				DI::sysmsg()->addNotice(DI::l10n()->t('%s : Not a valid email address.', $recipient));
 				continue;
 			}
 
@@ -90,7 +90,7 @@ class Invite extends BaseModule
 				if (!$app->isSiteAdmin()) {
 					$invites_remaining--;
 					if ($invites_remaining >= 0) {
-						DI::pConfig()->set(local_user(), 'system', 'invites_remaining', $invites_remaining);
+						DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'invites_remaining', $invites_remaining);
 					} else {
 						return;
 					}
@@ -112,22 +112,22 @@ class Invite extends BaseModule
 			if ($res) {
 				$total++;
 				$current_invites++;
-				DI::pConfig()->set(local_user(), 'system', 'sent_invites', $current_invites);
+				DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'sent_invites', $current_invites);
 				if ($current_invites > $max_invites) {
-					notice(DI::l10n()->t('Invitation limit exceeded. Please contact your site administrator.'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Invitation limit exceeded. Please contact your site administrator.'));
 					return;
 				}
 			} else {
-				notice(DI::l10n()->t('%s : Message delivery failed.', $recipient));
+				DI::sysmsg()->addNotice(DI::l10n()->t('%s : Message delivery failed.', $recipient));
 			}
 
 		}
-		info(DI::l10n()->tt('%d message sent.', '%d messages sent.', $total));
+		DI::sysmsg()->addInfo(DI::l10n()->tt('%d message sent.', '%d messages sent.', $total));
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -138,7 +138,7 @@ class Invite extends BaseModule
 
 		if ($config->get('system', 'invitation_only')) {
 			$inviteOnly = true;
-			$x = DI::pConfig()->get(local_user(), 'system', 'invites_remaining');
+			$x = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'invites_remaining');
 			if ((!$x) && (!$app->isSiteAdmin())) {
 				throw new HTTPException\ForbiddenException(DI::l10n()->t('You have no more invitations available'));
 			}

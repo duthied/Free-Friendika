@@ -23,7 +23,6 @@ namespace Friendica\Module\Contact;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -41,37 +40,27 @@ class Hovercard extends BaseModule
 		$contact_url = $_REQUEST['url'] ?? '';
 
 		// Get out if the system doesn't have public access allowed
-		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
-		// If a contact is connected the url is internally changed to 'redir/CID'. We need the pure url to search for
-		// the contact. So we strip out the contact id from the internal url and look in the contact table for
-		// the real url (nurl)
-		if (strpos($contact_url, 'redir/') === 0) {
-			$cid = intval(substr($contact_url, 6));
-		}
-
-		if (strpos($contact_url, 'contact/') === 0) {
-			$cid = intval(substr($contact_url, 8));
-		}
-
-		if (!empty($cid)) {			
-			$remote_contact = Contact::selectFirst(['nurl'], ['id' => $cid]);
+		/* Possible formats for relative URLs that need to be converted to the absolute contact URL:
+		 * - contact/redir/123456
+		 * - contact/123456/conversations
+		 */
+		if (strpos($contact_url, 'contact/') === 0 && preg_match('/(\d+)/', $contact_url, $matches)) {
+			$remote_contact = Contact::selectFirst(['nurl'], ['id' => $matches[1]]);
 			$contact_url = $remote_contact['nurl'] ?? '';
 		}
 
-		$contact = [];
-
-		// if it's the url containing https it should be converted to http
 		if (!$contact_url) {
 			throw new HTTPException\BadRequestException();
 		}
 
 		// Search for contact data
 		// Look if the local user has got the contact
-		if (Session::isAuthenticated()) {
-			$contact = Contact::getByURLForUser($contact_url, local_user());
+		if (DI::userSession()->isAuthenticated()) {
+			$contact = Contact::getByURLForUser($contact_url, DI::userSession()->getLocalUserId());
 		} else {
 			$contact = Contact::getByURL($contact_url, false);
 		}
@@ -81,7 +70,7 @@ class Hovercard extends BaseModule
 		}
 
 		// Get the photo_menu - the menu if possible contact actions
-		if (Session::isAuthenticated()) {
+		if (DI::userSession()->isAuthenticated()) {
 			$actions = Contact::photoMenu($contact);
 		} else {
 			$actions = [];

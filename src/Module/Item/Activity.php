@@ -26,7 +26,6 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Core\Session;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Diaspora;
@@ -39,7 +38,7 @@ class Activity extends BaseModule
 {
 	protected function rawContent(array $request = [])
 	{
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
@@ -51,13 +50,13 @@ class Activity extends BaseModule
 		$itemId =  $this->parameters['id'];
 
 		if (in_array($verb, ['announce', 'unannounce'])) {
-			$item = Post::selectFirst(['network', 'uri-id'], ['id' => $itemId, 'uid' => [local_user(), 0]]);
+			$item = Post::selectFirst(['network', 'uri-id'], ['id' => $itemId, 'uid' => [DI::userSession()->getLocalUserId(), 0]]);
 			if ($item['network'] == Protocol::DIASPORA) {
-				Diaspora::performReshare($item['uri-id'], local_user());
+				Diaspora::performReshare($item['uri-id'], DI::userSession()->getLocalUserId());
 			}
 		}
 
-		if (!Item::performActivity($itemId, $verb, local_user())) {
+		if (!Item::performActivity($itemId, $verb, DI::userSession()->getLocalUserId())) {
 			throw new HTTPException\BadRequestException();
 		}
 

@@ -33,9 +33,9 @@ class FollowConfirm extends BaseModule
 	protected function post(array $request = [])
 	{
 		parent::post($request);
-		$uid = local_user();
+		$uid = DI::userSession()->getLocalUserId();
 		if (!$uid) {
-			notice(DI::l10n()->t('Permission denied.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return;
 		}
 
@@ -43,7 +43,7 @@ class FollowConfirm extends BaseModule
 		$duplex   = intval($_POST['duplex']     ?? 0);
 		$hidden   = intval($_POST['hidden']     ?? 0);
 
-		$intro = DI::intro()->selectOneById($intro_id, local_user());
+		$intro = DI::intro()->selectOneById($intro_id, DI::userSession()->getLocalUserId());
 
 		Contact\Introduction::confirm($intro, $duplex, $hidden);
 		DI::intro()->delete($intro);

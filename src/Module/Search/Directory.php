@@ -33,8 +33,8 @@ class Directory extends BaseSearch
 {
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
-			notice(DI::l10n()->t('Permission denied.'));
+		if (!DI::userSession()->getLocalUserId()) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return Login::form();
 		}
 

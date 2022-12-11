@@ -24,6 +24,7 @@ namespace Friendica\Module;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
@@ -49,14 +50,17 @@ class Magic extends BaseModule
 	protected $dba;
 	/** @var ICanSendHttpRequests */
 	protected $httpClient;
+	/** @var IHandleUserSessions */
+	protected $userSession;
 
-	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Database $dba, ICanSendHttpRequests $httpClient, array $server, array $parameters = [])
+	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Database $dba, ICanSendHttpRequests $httpClient, IHandleUserSessions $userSession, $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->app        = $app;
-		$this->dba        = $dba;
-		$this->httpClient = $httpClient;
+		$this->app         = $app;
+		$this->dba         = $dba;
+		$this->httpClient  = $httpClient;
+		$this->userSession = $userSession;
 	}
 
 	protected function rawContent(array $request = [])
@@ -90,8 +94,8 @@ class Magic extends BaseModule
 		}
 
 		// OpenWebAuth
-		if (local_user() && $owa) {
-			$user = User::getById(local_user());
+		if ($this->userSession->getLocalUserId() && $owa) {
+			$user = User::getById($this->userSession->getLocalUserId());
 
 			// Extract the basepath
 			// NOTE: we need another solution because this does only work

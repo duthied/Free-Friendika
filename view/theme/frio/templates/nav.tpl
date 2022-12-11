@@ -81,10 +81,10 @@
 							</li>
 						{{/if}}
 
-						{{if $nav.events}}
+						{{if $nav.calendar}}
 							<li class="nav-segment hidden-xs">
-								<a accesskey="e" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip"
-									aria-label="{{$nav.events.1}}" title="{{$nav.events.1}}" class="nav-menu"><i
+								<a accesskey="e" id="nav-calendar-link" href="{{$nav.calendar.0}}" data-toggle="tooltip"
+									aria-label="{{$nav.calendar.1}}" title="{{$nav.calendar.1}}" class="nav-menu"><i
 										class="fa fa-lg fa-calendar fa-fw"></i></a>
 							</li>
 						{{/if}}
@@ -265,6 +265,15 @@
 											</a>
 										</li>
 									{{/if}}
+									{{if $nav.moderation}}
+										<li role="presentation">
+											<a accesskey="m" role="menuitem" id="nav-moderation-link"
+												class="nav-link {{$nav.moderation.2}}" href="{{$nav.moderation.0}}"
+												title="{{$nav.moderation.3}}"><i class="fa fa-gavel fa-fw" aria-hidden="true"></i>
+												{{$nav.moderation.1}}
+											</a>
+										</li>
+									{{/if}}
 									{{if $nav.tos}}
 										<li role="presentation" class="divider"></li>
 										<li role="presentation">
@@ -380,6 +389,15 @@
 										class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}"><i
 											class="fa fa-user-secret fa-fw" aria-hidden="true"></i>
 										{{$nav.admin.1}}
+									</a>
+								</li>
+							{{/if}}
+							{{if $nav.moderation}}
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem"
+										class="nav-link {{$nav.moderation.2}}" href="{{$nav.moderation.0}}" title="{{$nav.moderation.3}}"><i
+											class="fa fa-gavel fa-fw" aria-hidden="true"></i>
+										{{$nav.moderation.1}}
 									</a>
 								</li>
 							{{/if}}

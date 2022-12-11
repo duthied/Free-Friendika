@@ -24,12 +24,12 @@ namespace Friendica\Content;
 use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Module\Conversation\Community;
 
 class Nav
 {
@@ -46,7 +46,7 @@ class Nav
 		'settings'  => null,
 		'contacts'  => null,
 		'delegation'=> null,
-		'events'    => null,
+		'calendar'  => null,
 		'register'  => null
 	];
 
@@ -126,7 +126,7 @@ class Nav
 
 		//Don't populate apps_menu if apps are private
 		$privateapps = DI::config()->get('config', 'private_addons', false);
-		if (local_user() || !$privateapps) {
+		if (DI::userSession()->getLocalUserId() || !$privateapps) {
 			$arr = ['app_menu' => self::$app_menu];
 
 			Hook::callAll('app_menu', $arr);
@@ -148,7 +148,7 @@ class Nav
 	 */
 	private static function getInfo(App $a): array
 	{
-		$ssl_state = (bool) local_user();
+		$ssl_state = (bool) DI::userSession()->getLocalUserId();
 
 		/*
 		 * Our network is distributed, and as you visit friends some of the
@@ -162,10 +162,11 @@ class Nav
 
 		$nav = [
 			'admin'         => null,
+			'moderation'    => null,
 			'apps'          => null,
 			'community'     => null,
 			'home'          => null,
-			'events'        => null,
+			'calendar'      => null,
 			'login'         => null,
 			'logout'        => null,
 			'langselector'  => null,
@@ -181,7 +182,7 @@ class Nav
 		$userinfo = null;
 
 		// nav links: array of array('href', 'text', 'extra css classes', 'title')
-		if (Session::isAuthenticated()) {
+		if (DI::userSession()->isAuthenticated()) {
 			$nav['logout'] = ['logout', DI::l10n()->t('Logout'), '', DI::l10n()->t('End this session')];
 		} else {
 			$nav['login'] = ['login', DI::l10n()->t('Login'), (DI::args()->getModuleName() == 'login' ? 'selected' : ''), DI::l10n()->t('Sign in')];
@@ -191,9 +192,9 @@ class Nav
 			// user menu
 			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
 			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname() . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
-			$nav['usermenu'][] = ['photos/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
+			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname() . '/photos', DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
 			$nav['usermenu'][] = ['profile/' . $a->getLoggedInUserNickname() . '/media', DI::l10n()->t('Media'), '', DI::l10n()->t('Your postings with media')];
-			$nav['usermenu'][] = ['events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
+			$nav['usermenu'][] = ['calendar/', DI::l10n()->t('Calendar'), '', DI::l10n()->t('Your calendar')];
 			$nav['usermenu'][] = ['notes/', DI::l10n()->t('Personal notes'), '', DI::l10n()->t('Your personal notes')];
 
 			// user info
@@ -207,14 +208,14 @@ class Nav
 		// "Home" should also take you home from an authenticated remote profile connection
 		$homelink = Profile::getMyURL();
 		if (! $homelink) {
-			$homelink = Session::get('visitor_home', '');
+			$homelink = DI::session()->get('visitor_home', '');
 		}
 
-		if ((DI::args()->getModuleName() != 'home') && (! (local_user()))) {
+		if (DI::args()->getModuleName() != 'home' && ! DI::userSession()->getLocalUserId()) {
 			$nav['home'] = [$homelink, DI::l10n()->t('Home'), '', DI::l10n()->t('Home Page')];
 		}
 
-		if (intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !Session::isAuthenticated()) {
+		if (intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !DI::userSession()->isAuthenticated()) {
 			$nav['register'] = ['register', DI::l10n()->t('Register'), '', DI::l10n()->t('Create an account')];
 		}
 
@@ -228,7 +229,7 @@ class Nav
 			$nav['apps'] = ['apps', DI::l10n()->t('Apps'), '', DI::l10n()->t('Addon applications, utilities, games')];
 		}
 
-		if (local_user() || !DI::config()->get('system', 'local_search')) {
+		if (DI::userSession()->getLocalUserId() || !DI::config()->get('system', 'local_search')) {
 			$nav['search'] = ['search', DI::l10n()->t('Search'), '', DI::l10n()->t('Search site content')];
 
 			$nav['searchoption'] = [
@@ -243,21 +244,17 @@ class Nav
 		}
 
 		$gdirpath = 'directory';
-
-		if (strlen(DI::config()->get('system', 'singleuser'))) {
-			$gdir = DI::config()->get('system', 'directory');
-			if (strlen($gdir)) {
-				$gdirpath = Profile::zrl($gdir, true);
-			}
+		if (DI::config()->get('system', 'singleuser') && DI::config()->get('system', 'directory')) {
+			$gdirpath = Profile::zrl(DI::config()->get('system', 'directory'), true);
 		}
 
-		if ((local_user() || DI::config()->get('system', 'community_page_style') != CP_NO_COMMUNITY_PAGE) &&
-			!(DI::config()->get('system', 'community_page_style') == CP_NO_INTERNAL_COMMUNITY)) {
+		if ((DI::userSession()->getLocalUserId() || DI::config()->get('system', 'community_page_style') != Community::DISABLED_VISITOR) &&
+			!(DI::config()->get('system', 'community_page_style') == Community::DISABLED)) {
 			$nav['community'] = ['community', DI::l10n()->t('Community'), '', DI::l10n()->t('Conversations on this and other servers')];
 		}
 
-		if (local_user()) {
-			$nav['events'] = ['events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
+		if (DI::userSession()->getLocalUserId()) {
+			$nav['calendar'] = ['calendar', DI::l10n()->t('Calendar'), '', DI::l10n()->t('Calendar')];
 		}
 
 		$nav['directory'] = [$gdirpath, DI::l10n()->t('Directory'), '', DI::l10n()->t('People directory')];
@@ -269,13 +266,13 @@ class Nav
 		}
 
 		// The following nav links are only show to logged in users
-		if (local_user() && !empty($a->getLoggedInUserNickname())) {
+		if (DI::userSession()->getLocalUserId() && !empty($a->getLoggedInUserNickname())) {
 			$nav['network'] = ['network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
 
 			$nav['home'] = ['profile/' . $a->getLoggedInUserNickname(), DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];
 
 			// Don't show notifications for public communities
-			if (Session::get('page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {
+			if (DI::session()->get('page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {
 				$nav['introductions'] = ['notifications/intros', DI::l10n()->t('Introductions'), '', DI::l10n()->t('Friend Requests')];
 				$nav['notifications'] = ['notifications',	DI::l10n()->t('Notifications'), '', DI::l10n()->t('Notifications')];
 				$nav['notifications']['all'] = ['notifications/system', DI::l10n()->t('See all notifications'), '', ''];
@@ -287,7 +284,7 @@ class Nav
 			$nav['messages']['outbox'] = ['message/sent', DI::l10n()->t('Outbox'), '', DI::l10n()->t('Outbox')];
 			$nav['messages']['new'] = ['message/new', DI::l10n()->t('New Message'), '', DI::l10n()->t('New Message')];
 
-			if (User::hasIdentities(DI::session()->get('submanage') ?: local_user())) {
+			if (User::hasIdentities(DI::userSession()->getSubManagedUserId() ?: DI::userSession()->getLocalUserId())) {
 				$nav['delegation'] = ['delegation', DI::l10n()->t('Accounts'), '', DI::l10n()->t('Manage other pages')];
 			}
 
@@ -298,7 +295,8 @@ class Nav
 
 		// Show the link to the admin configuration page if user is admin
 		if ($a->isSiteAdmin()) {
-			$nav['admin'] = ['admin/', DI::l10n()->t('Admin'), '', DI::l10n()->t('Site setup and configuration')];
+			$nav['admin']      = ['admin/', DI::l10n()->t('Admin'), '', DI::l10n()->t('Site setup and configuration')];
+			$nav['moderation'] = ['moderation/', DI::l10n()->t('Moderation'), '', DI::l10n()->t('Content and user moderation')];
 		}
 
 		$nav['navigation'] = ['navigation/', DI::l10n()->t('Navigation'), '', DI::l10n()->t('Site map')];

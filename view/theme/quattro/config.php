@@ -1,6 +1,22 @@
 <?php
 /**
- * Theme settings
+ * @copyright Copyright (C) 2010-2022, the Friendica project
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 use Friendica\App;
@@ -8,28 +24,28 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 
 function theme_content(App $a) {
-	if (!local_user()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
-	$align = DI::pConfig()->get(local_user(), 'quattro', 'align' );
-	$color = DI::pConfig()->get(local_user(), 'quattro', 'color' );
-	$tfs = DI::pConfig()->get(local_user(),"quattro","tfs");
-	$pfs = DI::pConfig()->get(local_user(),"quattro","pfs");
+	$align = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'quattro', 'align' );
+	$color = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'quattro', 'color' );
+	$tfs = DI::pConfig()->get(DI::userSession()->getLocalUserId(),"quattro","tfs");
+	$pfs = DI::pConfig()->get(DI::userSession()->getLocalUserId(),"quattro","pfs");
 
 	return quattro_form($a,$align, $color, $tfs, $pfs);
 }
 
 function theme_post(App $a) {
-	if (! local_user()) {
+	if (!DI::userSession()->getLocalUserId()) {
 		return;
 	}
 
 	if (isset($_POST['quattro-settings-submit'])){
-		DI::pConfig()->set(local_user(), 'quattro', 'align', $_POST['quattro_align']);
-		DI::pConfig()->set(local_user(), 'quattro', 'color', $_POST['quattro_color']);
-		DI::pConfig()->set(local_user(), 'quattro', 'tfs', $_POST['quattro_tfs']);
-		DI::pConfig()->set(local_user(), 'quattro', 'pfs', $_POST['quattro_pfs']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'quattro', 'align', $_POST['quattro_align']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'quattro', 'color', $_POST['quattro_color']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'quattro', 'tfs', $_POST['quattro_tfs']);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'quattro', 'pfs', $_POST['quattro_pfs']);
 	}
 }
 

@@ -140,6 +140,10 @@ class HttpClient implements ICanSendHttpRequests
 			$conf[RequestOptions::BODY] = $opts[HttpClientOptions::BODY];
 		}
 
+		if (!empty($opts[HttpClientOptions::FORM_PARAMS])) {
+			$conf[RequestOptions::FORM_PARAMS] = $opts[HttpClientOptions::FORM_PARAMS];
+		}
+
 		if (!empty($opts[HttpClientOptions::AUTH])) {
 			$conf[RequestOptions::AUTH] = $opts[HttpClientOptions::AUTH];
 		}
@@ -205,7 +209,11 @@ class HttpClient implements ICanSendHttpRequests
 	{
 		$opts = [];
 
-		$opts[HttpClientOptions::BODY] = $params;
+		if (!is_array($params)) {
+			$opts[HttpClientOptions::BODY] = $params;
+		} else {
+			$opts[HttpClientOptions::FORM_PARAMS] = $params;
+		}
 
 		if (!empty($headers)) {
 			$opts[HttpClientOptions::HEADERS] = $headers;
@@ -246,7 +254,7 @@ class HttpClient implements ICanSendHttpRequests
 		$urlResult = $this->resolver->resolveURL($url);
 
 		if ($urlResult->didErrorOccur()) {
-			throw new TransferException($urlResult->getErrorMessageString(), $urlResult->getHTTPStatusCode());
+			throw new TransferException($urlResult->getErrorMessageString(), $urlResult->getHTTPStatusCode() ?? 0);
 		}
 
 		return $urlResult->getURL();

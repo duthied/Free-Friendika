@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1484);
+	define('DB_UPDATE_VERSION', 1500);
 }
 
 return [
@@ -115,6 +115,7 @@ return [
 			"language" => ["type" => "varchar(32)", "not null" => "1", "default" => "en", "comment" => "default language"],
 			"register_date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of registration"],
 			"login_date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of last login"],
+			"last-activity" => ["type" => "date", "comment" => "Day of the last activity"],
 			"default-location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Default for item.location"],
 			"allow_location" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 allows to display the location"],
 			"theme" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "user theme preference"],
@@ -136,7 +137,7 @@ return [
 			"pwdreset" => ["type" => "varchar(255)", "comment" => "Password reset request token"],
 			"pwdreset_time" => ["type" => "datetime", "comment" => "Timestamp of the last password reset request"],
 			"maxreq" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
-			"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Delay in days before deleting user-related posts. Scope is controlled by pConfig."],
 			"account_removed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "if 1 the account is removed"],
 			"account_expired" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"account_expires_on" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp when account expires and will be deleted"],
@@ -369,6 +370,18 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["cookie_hash"],
 			"uid" => ["uid"],
+		]
+	],
+	"account-suggestion" => [
+		"comment" => "Account suggestion",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the account url"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User ID"],
+			"level" => ["type" => "smallint unsigned", "comment" => "level of closeness"],
+			"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "If set, this account will not be suggested again"],		],
+		"indexes" => [
+			"PRIMARY" => ["uid", "uri-id"],
+			"uri-id_uid" => ["uri-id", "uid"],
 		]
 	],
 	"account-user" => [
@@ -624,6 +637,39 @@ return [
 			"wid" => ["wid"],
 		]
 	],
+	"diaspora-contact" => [
+		"comment" => "Diaspora compatible contacts - used in the Diaspora implementation",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the contact URL"],
+			"addr" => ["type" => "varchar(255)", "comment" => ""],
+			"alias" => ["type" => "varchar(255)", "comment" => ""],
+			"nick" => ["type" => "varchar(255)", "comment" => ""],
+			"name" => ["type" => "varchar(255)", "comment" => ""],
+			"given-name" => ["type" => "varchar(255)", "comment" => ""],
+			"family-name" => ["type" => "varchar(255)", "comment" => ""],
+			"photo" => ["type" => "varchar(255)", "comment" => ""],
+			"photo-medium" => ["type" => "varchar(255)", "comment" => ""],
+			"photo-small" => ["type" => "varchar(255)", "comment" => ""],
+			"batch" => ["type" => "varchar(255)", "comment" => ""],
+			"notify" => ["type" => "varchar(255)", "comment" => ""],
+			"poll" => ["type" => "varchar(255)", "comment" => ""],
+			"subscribe" => ["type" => "varchar(255)", "comment" => ""],
+			"searchable" => ["type" => "boolean", "comment" => ""],
+			"pubkey" => ["type" => "text", "comment" => ""],
+			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"interacting_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts this contact interactes with"],
+			"interacted_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts that interacted with this contact"],
+			"post_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of posts and comments"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
+			"addr" => ["UNIQUE", "addr"],
+			"alias" => ["alias"],
+			"gsid" => ["gsid"],
+		]
+	],
 	"diaspora-interaction" => [
 		"comment" => "Signed Diaspora Interaction",
 		"fields" => [
@@ -675,39 +721,6 @@ return [
 			"uid_start" => ["uid", "start"],
 			"cid" => ["cid"],
 			"uri-id" => ["uri-id"],
-		]
-	],
-	"fcontact" => [
-		"comment" => "Diaspora compatible contacts - used in the Diaspora implementation",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"guid" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => "unique id"],
-			"url" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
-			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the fcontact url"],
-			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"photo" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
-			"request" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
-			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"batch" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
-			"notify" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
-			"poll" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
-			"confirm" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
-			"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
-			"alias" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
-			"pubkey" => ["type" => "text", "comment" => ""],
-			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"interacting_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts this contact interactes with"],
-			"interacted_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts that interacted with this contact"],
-			"post_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of posts and comments"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"addr" => ["addr(32)"],
-			"url" => ["UNIQUE", "url(190)"],
-			"uri-id" => ["UNIQUE", "uri-id"],
 		]
 	],
 	"fetch-entry" => [
@@ -857,7 +870,7 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
-			"fid" => ["type" => "int unsigned", "relation" => ["fcontact" => "id"], "comment" => "deprecated"],
+			"fid" => ["type" => "int unsigned", "comment" => "deprecated"],
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => ""],
 			"suggest-cid" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Suggested contact"],
 			"knowyou" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1116,6 +1129,7 @@ return [
 			"height" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"width" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"datasize" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"blurhash" => ["type" => "varbinary(255)", "comment" => "BlurHash representation of the photo"],
 			"data" => ["type" => "mediumblob", "not null" => "1", "comment" => ""],
 			"scale" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"profile" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1218,6 +1232,7 @@ return [
 			"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"body" => ["type" => "mediumtext", "comment" => "item body content"],
 			"raw-body" => ["type" => "mediumtext", "comment" => "Body without embedded media links"],
+			"quote-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the quoted uri"],
 			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "text location where this item originated"],
 			"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "longitude/latitude pair representing location where this item originated"],
 			"language" => ["type" => "text", "comment" => "Language information about this post"],
@@ -1236,6 +1251,7 @@ return [
 			"plink" => ["plink(191)"],
 			"resource-id" => ["resource-id"],
 			"title-content-warning-body" => ["FULLTEXT", "title", "content-warning", "body"],
+			"quote-uri-id" => ["quote-uri-id"],
 		]
 	],
 	"post-delivery" => [
@@ -1319,11 +1335,13 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"url" => ["type" => "varbinary(1024)", "not null" => "1", "comment" => "Media URL"],
+			"media-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the activities uri-id"],
 			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Media type"],
 			"mimetype" => ["type" => "varchar(60)", "comment" => ""],
 			"height" => ["type" => "smallint unsigned", "comment" => "Height of the media"],
 			"width" => ["type" => "smallint unsigned", "comment" => "Width of the media"],
 			"size" => ["type" => "bigint unsigned", "comment" => "Media size"],
+			"blurhash" => ["type" => "varbinary(255)", "comment" => "BlurHash representation of the image"],
 			"preview" => ["type" => "varbinary(512)", "comment" => "Preview URL"],
 			"preview-height" => ["type" => "smallint unsigned", "comment" => "Height of the preview picture"],
 			"preview-width" => ["type" => "smallint unsigned", "comment" => "Width of the preview picture"],
@@ -1340,6 +1358,7 @@ return [
 			"PRIMARY" => ["id"],
 			"uri-id-url" => ["UNIQUE", "uri-id", "url(512)"],
 			"uri-id-id" => ["uri-id", "id"],
+			"media-uri-id" => ["media-uri-id"],
 		]
 	],
 	"post-question" => [
@@ -1576,6 +1595,7 @@ return [
 			"education" => ["type" => "text", "comment" => "Deprecated"],
 			"contact" => ["type" => "text", "comment" => "Deprecated"],
 			"homepage" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"homepage_verified" => ["type" => "boolean", "not null" => 1, "default" => "0", "comment" => "was the homepage verified by a rel-me link back to the profile"],
 			"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "XMPP address"],
 			"matrix" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Matrix address"],
 			"photo" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1642,6 +1662,35 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid" => ["uid"],
+		]
+	],
+	"report" => [
+		"comment" => "",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Reporting user"],
+			"cid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["contact" => "id"], "comment" => "Reported contact"],
+			"comment" => ["type" => "text", "comment" => "Report"],
+			"forward" => ["type" => "boolean", "comment" => "Forward the report to the remote server"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"status" => ["type" => "tinyint unsigned", "comment" => "Status of the report"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uid" => ["uid"],
+			"cid" => ["cid"],
+		]
+	],
+	"report-post" => [
+		"comment" => "",
+		"fields" => [
+			"rid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["report" => "id"], "comment" => "Report id"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Uri-id of the reported post"],
+			"status" => ["type" => "tinyint unsigned", "comment" => "Status of the reported post"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["rid", "uri-id"],
+			"uri-id" => ["uri-id"],
 		]
 	],
 	"search" => [

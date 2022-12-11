@@ -59,8 +59,7 @@ class Mail
 		}
 
 		if (empty($msg['guid'])) {
-			$host = parse_url($msg['from-url'], PHP_URL_HOST);
-			$msg['guid'] = Item::guidFromUri($msg['uri'], $host);
+			$msg['guid'] = Item::guidFromUri($msg['uri'], parse_url($msg['from-url'], PHP_URL_HOST));
 		}
 
 		$msg['created'] = (!empty($msg['created']) ? DateTimeFormat::utc($msg['created']) : DateTimeFormat::utcNow());
@@ -137,12 +136,12 @@ class Mail
 			$subject = DI::l10n()->t('[no subject]');
 		}
 
-		$me = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
+		$me = DBA::selectFirst('contact', [], ['uid' => DI::userSession()->getLocalUserId(), 'self' => true]);
 		if (!DBA::isResult($me)) {
 			return -2;
 		}
 
-		$contacts = ACL::getValidMessageRecipientsForUser(local_user());
+		$contacts = ACL::getValidMessageRecipientsForUser(DI::userSession()->getLocalUserId());
 
 		$contactIndex = array_search($recipient, array_column($contacts, 'id'));
 		if ($contactIndex === false) {
@@ -151,7 +150,7 @@ class Mail
 
 		$contact = $contacts[$contactIndex];
 
-		Photo::setPermissionFromBody($body, local_user(), $me['id'],  '<' . $contact['id'] . '>', '', '', '');
+		Photo::setPermissionFromBody($body, DI::userSession()->getLocalUserId(), $me['id'],  '<' . $contact['id'] . '>', '', '', '');
 
 		$guid = System::createUUID();
 		$uri = Item::newURI($guid);
@@ -164,7 +163,7 @@ class Mail
 		if (strlen($replyto)) {
 			$reply = true;
 			$condition = ["`uid` = ? AND (`uri` = ? OR `parent-uri` = ?)",
-				local_user(), $replyto, $replyto];
+				DI::userSession()->getLocalUserId(), $replyto, $replyto];
 			$mail = DBA::selectFirst('mail', ['convid'], $condition);
 			if (DBA::isResult($mail)) {
 				$convid = $mail['convid'];
@@ -177,7 +176,7 @@ class Mail
 			$conv_guid = System::createUUID();
 			$convuri = $contact['addr'] . ':' . $conv_guid;
 
-			$fields = ['uid' => local_user(), 'guid' => $conv_guid, 'creator' => $me['addr'],
+			$fields = ['uid' => DI::userSession()->getLocalUserId(), 'guid' => $conv_guid, 'creator' => $me['addr'],
 				'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(),
 				'subject' => $subject, 'recips' => $contact['addr'] . ';' . $me['addr']];
 			if (DBA::insert('conv', $fields)) {
@@ -196,7 +195,7 @@ class Mail
 
 		$post_id = self::insert(
 			[
-				'uid' => local_user(),
+				'uid' => DI::userSession()->getLocalUserId(),
 				'guid' => $guid,
 				'convid' => $convid,
 				'from-name' => $me['name'],
@@ -232,14 +231,14 @@ class Mail
 				foreach ($images as $image) {
 					$image_rid = Photo::ridFromURI($image);
 					if (!empty($image_rid)) {
-						Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => local_user()]);
+						Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => DI::userSession()->getLocalUserId()]);
 					}
 				}
 			}
 		}
 
 		if ($post_id) {
-			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::MAIL, $post_id);
+			Worker::add(Worker::PRIORITY_HIGH, "Notifier", Delivery::MAIL, $post_id);
 			return intval($post_id);
 		} else {
 			return -3;

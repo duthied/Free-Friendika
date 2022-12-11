@@ -62,7 +62,7 @@ class Details extends BaseAdmin
 
 		$addon = Strings::sanitizeFilePathItem($this->parameters['addon']);
 		if (!is_file("addon/$addon/$addon.php")) {
-			notice(DI::l10n()->t('Addon not found.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Addon not found.'));
 			Addon::uninstall($addon);
 			DI::baseUrl()->redirect('admin/addons');
 		}
@@ -73,10 +73,10 @@ class Details extends BaseAdmin
 			// Toggle addon status
 			if (Addon::isEnabled($addon)) {
 				Addon::uninstall($addon);
-				info(DI::l10n()->t('Addon %s disabled.', $addon));
+				DI::sysmsg()->addInfo(DI::l10n()->t('Addon %s disabled.', $addon));
 			} else {
 				Addon::install($addon);
-				info(DI::l10n()->t('Addon %s enabled.', $addon));
+				DI::sysmsg()->addInfo(DI::l10n()->t('Addon %s enabled.', $addon));
 			}
 
 			DI::baseUrl()->redirect('admin/addons/' . $addon);

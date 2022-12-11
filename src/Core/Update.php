@@ -26,6 +26,7 @@ use Friendica\App\Mode;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -34,6 +35,8 @@ class Update
 {
 	const SUCCESS = 0;
 	const FAILED  = 1;
+
+	const NEW_TABLE_STRUCTURE_VERSION = 1288;
 
 	/**
 	 * Function to check if the Database structure needs an update.
@@ -63,7 +66,7 @@ class Update
 		}
 
 		// We don't support upgrading from very old versions anymore
-		if ($build < NEW_TABLE_STRUCTURE_VERSION) {
+		if ($build < self::NEW_TABLE_STRUCTURE_VERSION) {
 			$error = DI::l10n()->t('Updates from version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.', $build);
 			if (DI::mode()->getExecutor() == Mode::INDEX) {
 				die($error);
@@ -73,8 +76,8 @@ class Update
 		}
 
 		// The postupdate has to completed version 1288 for the new post views to take over
-		$postupdate = DI::config()->get('system', 'post_update_version', NEW_TABLE_STRUCTURE_VERSION);
-		if ($postupdate < NEW_TABLE_STRUCTURE_VERSION) {
+		$postupdate = DI::config()->get('system', 'post_update_version', self::NEW_TABLE_STRUCTURE_VERSION);
+		if ($postupdate < self::NEW_TABLE_STRUCTURE_VERSION) {
 			$error = DI::l10n()->t('Updates from postupdate version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.', $postupdate);
 			if (DI::mode()->getExecutor() == Mode::INDEX) {
 				die($error);
@@ -92,7 +95,7 @@ class Update
 				 */
 				self::run($basePath);
 			} else {
-				Worker::add(PRIORITY_CRITICAL, 'DBUpdate');
+				Worker::add(Worker::PRIORITY_CRITICAL, 'DBUpdate');
 			}
 		}
 	}
@@ -146,7 +149,7 @@ class Update
 					}
 
 					DI::config()->set('system', 'maintenance', 1);
-		
+
 					// run the pre_update_nnnn functions in update.php
 					for ($version = $stored + 1; $version <= $current; $version++) {
 						Logger::notice('Execute pre update.', ['version' => $version]);
@@ -287,30 +290,16 @@ class Update
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function updateFailed(int $update_id, string $error_message) {
-		//send the administrators an e-mail
-		$condition = ['email' => explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email'))), 'parent-uid' => 0];
-		$adminlist = DBA::select('user', ['uid', 'language', 'email'], $condition, ['order' => ['uid']]);
-
-		// No valid result?
-		if (!DBA::isResult($adminlist)) {
+	private static function updateFailed(int $update_id, string $error_message)
+	{
+		$adminEmails = User::getAdminListForEmailing(['uid', 'language', 'email']);
+		if (!$adminEmails) {
 			Logger::warning('Cannot notify administrators .', ['update' => $update_id, 'message' => $error_message]);
-
-			// Don't continue
 			return;
 		}
 
-		$sent = [];
-
-		// every admin could had different language
-		while ($admin = DBA::fetch($adminlist)) {
-			if (in_array($admin['email'], $sent)) {
-				continue;
-			}
-			$sent[] = $admin['email'];
-
-			$lang = $admin['language'] ?? 'en';
-			$l10n = DI::l10n()->withLang($lang);
+		foreach($adminEmails as $admin) {
+			$l10n = DI::l10n()->withLang($admin['language'] ?: 'en');
 
 			$preamble = Strings::deindent($l10n->t("
 				The friendica developers released update %s recently,
@@ -341,35 +330,20 @@ class Update
 	 */
 	private static function updateSuccessful(int $from_build, int $to_build)
 	{
-		//send the administrators an e-mail
-		$condition = ['email' => explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email'))), 'parent-uid' => 0];
-		$adminlist = DBA::select('user', ['uid', 'language', 'email'], $condition, ['order' => ['uid']]);
+		foreach(User::getAdminListForEmailing(['uid', 'language', 'email']) as $admin) {
+			$l10n = DI::l10n()->withLang($admin['language'] ?: 'en');
 
-		if (DBA::isResult($adminlist)) {
-			$sent = [];
+			$preamble = Strings::deindent($l10n->t('
+				The friendica database was successfully updated from %s to %s.',
+				$from_build, $to_build));
 
-			// every admin could had different language
-			while ($admin = DBA::fetch($adminlist)) {
-				if (in_array($admin['email'], $sent)) {
-					continue;
-				}
-				$sent[] = $admin['email'];
-
-				$lang = (($admin['language']) ? $admin['language'] : 'en');
-				$l10n = DI::l10n()->withLang($lang);
-
-				$preamble = Strings::deindent($l10n->t('
-					The friendica database was successfully updated from %s to %s.',
-					$from_build, $to_build));
-
-				$email = DI::emailer()
-					->newSystemMail()
-					->withMessage($l10n->t('[Friendica Notify] Database update'), $preamble)
-					->forUser($admin)
-					->withRecipient($admin['email'])
-					->build();
-				DI::emailer()->send($email);
-			}
+			$email = DI::emailer()
+				->newSystemMail()
+				->withMessage($l10n->t('[Friendica Notify] Database update'), $preamble)
+				->forUser($admin)
+				->withRecipient($admin['email'])
+				->build();
+			DI::emailer()->send($email);
 		}
 
 		Logger::debug('Database structure update successful.');

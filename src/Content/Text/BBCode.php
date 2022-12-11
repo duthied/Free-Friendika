@@ -55,18 +55,25 @@ class BBCode
 	// Update this value to the current date whenever changes are made to BBCode::convert
 	const VERSION = '2021-07-28';
 
-	const INTERNAL = 0;
-	const EXTERNAL = 1;
-	const API = 2;
-	const DIASPORA = 3;
-	const CONNECTORS = 4;
-	const OSTATUS = 7;
-	const TWITTER = 8;
-	const BACKLINK = 8;
-	const ACTIVITYPUB = 9;
+	const INTERNAL     = 0;
+	const EXTERNAL     = 1;
+	const MASTODON_API = 2;
+	const DIASPORA     = 3;
+	const CONNECTORS   = 4;
+	const TWITTER_API  = 5;
+	const OSTATUS      = 7;
+	const TWITTER      = 8;
+	const BACKLINK     = 8;
+	const ACTIVITYPUB  = 9;
 
 	const TOP_ANCHOR = '<br class="top-anchor">';
 	const BOTTOM_ANCHOR = '<br class="button-anchor">';
+
+	const PREVIEW_NONE     = 0;
+	const PREVIEW_NO_IMAGE = 1;
+	const PREVIEW_LARGE    = 2;
+	const PREVIEW_SMALL    = 3;
+
 	/**
 	 * Fetches attachment data that were generated the old way
 	 *
@@ -266,8 +273,8 @@ class BBCode
 		// Get all linked images with alternative image description
 		if (preg_match_all("/\[img=(http[^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				if (Photo::isLocal($picture[1])) {
-					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => $picture[2]];
+				if ($id = Photo::getIdForName($picture[1])) {
+					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => $picture[2], 'id' => $id];
 				} else {
 					$post['remote_images'][] = ['url' => $picture[1], 'description' => $picture[2]];
 				}
@@ -279,8 +286,8 @@ class BBCode
 
 		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				if (Photo::isLocal($picture[1])) {
-					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => ''];
+				if ($id = Photo::getIdForName($picture[1])) {
+					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => '', 'id' => $id];
 				} else {
 					$post['remote_images'][] = ['url' => $picture[1], 'description' => ''];
 				}
@@ -473,7 +480,7 @@ class BBCode
 	private static function proxyUrl(string $image, int $simplehtml = self::INTERNAL, int $uriid = 0, string $size = ''): string
 	{
 		// Only send proxied pictures to API and for internal display
-		if (!in_array($simplehtml, [self::INTERNAL, self::API])) {
+		if (!in_array($simplehtml, [self::INTERNAL, self::MASTODON_API, self::TWITTER_API])) {
 			return $image;
 		} elseif ($uriid > 0) {
 			return Post\Link::getByLink($uriid, $image, $size);
@@ -653,7 +660,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convertAttachment(string $text, int $simplehtml = self::INTERNAL, bool $tryoembed = true, array $data = [], int $uriid = 0): string
+	public static function convertAttachment(string $text, int $simplehtml = self::INTERNAL, bool $tryoembed = true, array $data = [], int $uriid = 0, int $preview_mode = self::PREVIEW_LARGE): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$data = $data ?: self::getAttachmentData($text);
@@ -688,12 +695,18 @@ class BBCode
 				$return = sprintf('<div class="type-%s">', $data['type']);
 			}
 
+			if ($preview_mode == self::PREVIEW_NO_IMAGE) {
+				unset($data['image']);
+				unset($data['preview']);
+			}
+
 			if (!empty($data['title']) && !empty($data['url'])) {
+				$preview_class = $preview_mode == self::PREVIEW_LARGE ? 'attachment-image' : 'attachment-preview';
 				if (!empty($data['image']) && empty($data['text']) && ($data['type'] == 'photo')) {
-					$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
+					$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="' . $preview_class . '" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
 				} else {
 					if (!empty($data['image'])) {
-						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
+						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="' . $preview_class . '" /></a><br>', $data['url'], self::proxyUrl($data['image'], $simplehtml, $uriid), $data['title']);
 					} elseif (!empty($data['preview'])) {
 						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br>', $data['url'], self::proxyUrl($data['preview'], $simplehtml, $uriid), $data['title']);
 					}
@@ -1023,6 +1036,7 @@ class BBCode
 	{
 		DI::profiler()->startRecording('rendering');
 		if (preg_match('~(.*?)\[share](.*)\[/share]~ism', $text, $matches)) {
+			DI::profiler()->stopRecording();
 			return [
 				'author'     => '',
 				'profile'    => '',
@@ -1067,6 +1081,17 @@ class BBCode
 		}
 
 		return $attributes;
+	}
+
+	/**
+	 * Remove the share block
+	 *
+	 * @param string $body
+	 * @return string
+	 */
+	public static function removeSharedData(string $body): string
+	{
+		return trim(preg_replace("/\s*\[share.*?\].*?\[\/share\]\s*/ism", '', $body));
 	}
 
 	/**
@@ -1118,7 +1143,7 @@ class BBCode
 		);
 
 		DI::profiler()->stopRecording();
-		return $return;
+		return trim($return);
 	}
 
 	/**
@@ -1178,7 +1203,8 @@ class BBCode
 		$mention = $attributes['author'] . ' (' . ($author_contact['addr'] ?? '') . ')';
 
 		switch ($simplehtml) {
-			case self::API:
+			case self::MASTODON_API:
+			case self::TWITTER_API:
 				$text = ($is_quote_share? '<br>' : '') .
 				'<b><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672;', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . "</a>:</b><br>\n" .
 				'<blockquote class="shared_content" dir="auto">' . $content . '</blockquote>';
@@ -1293,7 +1319,7 @@ class BBCode
 	/**
 	 * Callback: Expands links from given $match array
 	 *
-	 * @param arrat $match Array with link match
+	 * @param array $match Array with link match
 	 * @return string BBCode
 	 */
 	private static function expandLinksCallback(array $match): string
@@ -1308,7 +1334,7 @@ class BBCode
 	/**
 	 * Callback: Cleans picture links
 	 *
-	 * @param arrat $match Array with link match
+	 * @param array $match Array with link match
 	 * @return string BBCode
 	 */
 	private static function cleanPictureLinksCallback(array $match): string
@@ -1574,8 +1600,8 @@ class BBCode
 				$text = str_replace(">", "&gt;", $text);
 
 				// remove some newlines before the general conversion
-				$text = preg_replace("/\s?\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "[share$1]$2[/share]", $text);
-				$text = preg_replace("/\s?\[quote(.*?)\]\s?(.*?)\s?\[\/quote\]\s?/ism", "[quote$1]$2[/quote]", $text);
+				$text = preg_replace("/\s?\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "\n[share$1]$2[/share]\n", $text);
+				$text = preg_replace("/\s?\[quote(.*?)\]\s?(.*?)\s?\[\/quote\]\s?/ism", "\n[quote$1]$2[/quote]\n", $text);
 
 				// when the content is meant exporting to other systems then remove the avatar picture since this doesn't really look good on these systems
 				if (!$try_oembed) {
@@ -1622,7 +1648,7 @@ class BBCode
 
 				/// @todo Have a closer look at the different html modes
 				// Handle attached links or videos
-				if (in_array($simple_html, [self::API, self::ACTIVITYPUB])) {
+				if (in_array($simple_html, [self::MASTODON_API, self::TWITTER_API, self::ACTIVITYPUB])) {
 					$text = self::removeAttachment($text);
 				} elseif (!in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::CONNECTORS])) {
 					$text = self::removeAttachment($text, true);
@@ -1959,16 +1985,23 @@ class BBCode
 					$text = preg_replace("/([#])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 						'<a href="$2" class="mention hashtag" rel="tag">$1<span>$3</span></a>',
 						$text);
-				} elseif (in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::API])) {
+				} elseif (in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::TWITTER_API])) {
 					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 						'<bdi>$1<a href="$2" class="userinfo mention" title="$3">$3</a></bdi>',
+						$text);
+				} elseif ($simple_html == self::MASTODON_API) {
+					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+						'<a class="u-url mention status-link" href="$2" rel="nofollow noopener noreferrer" target="_blank" title="$3">$1<span>$3</span></a>',
+						$text);
+					$text = preg_replace("/([#])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+						'<a class="mention hashtag status-link" href="$2" rel="tag">$1<span>$3</span></a>',
 						$text);
 				} else {
 					$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);
 				}
 
 				if (!$for_plaintext) {
-					if (in_array($simple_html, [self::OSTATUS, self::API, self::ACTIVITYPUB])) {
+					if (in_array($simple_html, [self::OSTATUS, self::MASTODON_API, self::TWITTER_API, self::ACTIVITYPUB])) {
 						$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 						$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 					}
@@ -2069,7 +2102,7 @@ class BBCode
 				$text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $text);
 
 				// sanitizes src attributes (http and redir URLs for displaying in a web page, cid used for inline images in emails)
-				$allowed_src_protocols = ['//', 'http://', 'https://', 'redir/', 'cid:'];
+				$allowed_src_protocols = ['//', 'http://', 'https://', 'contact/redir/', 'cid:'];
 
 				array_walk($allowed_src_protocols, function(&$value) { $value = preg_quote($value, '#');});
 
@@ -2084,7 +2117,7 @@ class BBCode
 				$allowed_link_protocols[] = '//';
 				$allowed_link_protocols[] = 'http://';
 				$allowed_link_protocols[] = 'https://';
-				$allowed_link_protocols[] = 'redir/';
+				$allowed_link_protocols[] = 'contact/redir/';
 
 				array_walk($allowed_link_protocols, function(&$value) { $value = preg_quote($value, '#');});
 

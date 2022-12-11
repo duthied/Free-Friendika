@@ -22,7 +22,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -36,7 +35,7 @@ class HCard extends BaseModule
 {
 	protected function content(array $request = []): string
 	{
-		if ((local_user()) && ($this->parameters['action'] ?? '') === 'view') {
+		if (DI::userSession()->getLocalUserId() && ($this->parameters['action'] ?? '') === 'view') {
 			// A logged in user views a profile of a user
 			$nickname = DI::app()->getLoggedInUserNickname();
 		} elseif (empty($this->parameters['action'])) {
@@ -78,7 +77,7 @@ class HCard extends BaseModule
 			$page['htmlhead'] .= "<link rel=\"dfrn-{$dfrn}\" href=\"" . $baseUrl->get() . "/dfrn_{$dfrn}/{$nickname}\" />\r\n";
 		}
 
-		$block = (DI::config()->get('system', 'block_public') && !Session::isAuthenticated());
+		$block = (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated());
 
 		// check if blocked
 		if ($block) {

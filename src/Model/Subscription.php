@@ -141,7 +141,7 @@ class Subscription
 	{
 		$type = NotificationFactory::getType($notification);
 
-		if (DI::notify()->NotifyOnDesktop($notification, $type)) {
+		if (DI::notify()->shouldShowOnDesktop($notification, $type)) {
 			DI::notify()->createFromNotification($notification);
 		}
 
@@ -152,7 +152,7 @@ class Subscription
 		$subscriptions = DBA::select('subscription', [], ['uid' => $notification->uid, $type => true]);
 		while ($subscription = DBA::fetch($subscriptions)) {
 			Logger::info('Push notification', ['id' => $subscription['id'], 'uid' => $subscription['uid'], 'type' => $type]);
-			Worker::add(PRIORITY_HIGH, 'PushSubscription', $subscription['id'], $notification->id);
+			Worker::add(Worker::PRIORITY_HIGH, 'PushSubscription', $subscription['id'], $notification->id);
 		}
 		DBA::close($subscriptions);
 	}

@@ -21,10 +21,10 @@
 
 namespace Friendica\Module\Api\Mastodon\Lists;
 
-use Friendica\App\Router;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Group;
 use Friendica\Module\BaseApi;
 
 /**
@@ -61,7 +61,7 @@ class Accounts extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		return Group::addMembers($this->parameters['id'], $request['account_ids']);
+		Group::addMembers($this->parameters['id'], $request['account_ids']);
 	}
 
 	/**
@@ -115,7 +115,10 @@ class Accounts extends BaseApi
 		$members = DBA::select('group_member', ['contact-id'], $condition, $params);
 		while ($member = DBA::fetch($members)) {
 			self::setBoundaries($member['contact-id']);
-			$accounts[] = DI::mstdnAccount()->createFromContactId($member['contact-id'], $uid);
+			try {
+				$accounts[] = DI::mstdnAccount()->createFromContactId($member['contact-id'], $uid);
+			} catch (\Throwable $th) {
+			}
 		}
 		DBA::close($members);
 

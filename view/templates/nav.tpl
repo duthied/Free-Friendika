@@ -22,6 +22,8 @@
 
 	{{if $nav.admin}}<a accesskey="a" id="nav-admin-link" class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}">{{$nav.admin.1}}</a>{{/if}}
 
+	{{if $nav.moderation}}<a accesskey="m" id="nav-moderation-link" class="nav-link {{$nav.moderation.2}}" href="{{$nav.moderation.0}}" title="{{$nav.moderation.3}}">{{$nav.moderation.1}}</a>{{/if}}
+
 	{{if $nav.network}}
 	<a accesskey="n" id="nav-network-link" class="nav-commlink {{$nav.network.2}} {{$sel.network}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}">{{$nav.network.1}}</a>
 	<span id="net-update" class="nav-ajax-left"></span>

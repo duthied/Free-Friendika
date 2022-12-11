@@ -29,7 +29,7 @@ return [
 	// ****************************************************************
 
 	'config' => [
-		'hostname' => 'friendica.local',
+		'hostname' => '192.168.56.10',
 		'admin_email' => 'admin@friendica.local',
 		'sitename' => 'Friendica Social Network',
 		'register_policy' => \Friendica\Module\Register::OPEN,

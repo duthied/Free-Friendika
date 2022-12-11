@@ -1,10 +1,59 @@
-Version 2022.09 (unreleased)
+Version 2022.12 (unreleased)
   Friendica Core
+    The rewrite rule in .htaccess-dist has been changed. The change has to be applied manually to the existing .htaccess
 
   Friendica Addons
+    BREAKING: The functions from the boot.php file have been moved into better fitting classes
+              this may break your custom addons. See the pull requests #1293 and #1294 in the
+              addon repository about the needed changes to your addons.
 
   Closed Issues
 
+Version 2022.10 (2022-10-14)
+  Friendica Core
+    Added GD translation, updates to the translations AR, DE, FR, HU, PL, SV, ZH CN
+    Added a check for too long passwords (due Blowfish hashing algorithm) [MrPetovan]
+    Added an API endpoint to create events [MrPetovan, pankraz]
+    Added the possibility to store profile avatars in a separate directory [annando]
+    Added an option to not fetch parent postings [annando]
+    Added an option to reject postings by language received by the relay [annando]
+    Added a notification mail to all users when the server block list is updated [MrPetovan]
+    Added a download link to the CSV file of the server block list on the about page [MrPetovan]
+    Added support for youtube short URLs [annando]
+    Updates to the themes (frio, smoothly) [AlessandroLorenzi, HankG, MrPetovan, tobiasd]
+    General code cleanup [annando, fabrixxm, Quix0r, tobiasd]
+    Enhanced the performance (cache, database, rendering) [annando, Quix0r]
+    Enhanced the language detection [annando]
+    Enhanced the display of the reason why a posting is shown to a user [annando]
+    Enhanced the fetching of missing postings [annando]
+    Enhanced the server detection [annando]
+    Enhanced the UI for 2FA logins [nupplaphil]
+    Enhanced the Woodpecker integration [nupplaphil]
+    Enhanced integration with ejabberd [nupplaphil]
+    Fixed a federation problem with Diaspora* during the author signature check [annando]
+    Fixed a problem with Forwarded-For headers [nupplaphil]
+    Fixed a problem with the encoding of mails send [MrPetovan]
+    Fixed a problem with weird formatted date notations [annando, MrPetovan]
+    Fixed a problem following some RSS feeds [mexon]
+    Fixed a problem with quoted reshares from Twitter [annando]
+    Updated dependencies [MrPetovan]
+    Replace SFTP-publish with docker-publish [nupplaphil]
+    Removed the poke functionality [MrPetovan]
+
+  Friendica Addons
+    Added GD translation, updates to the translation AR, FR
+    Removed the addons: morechoice, morepokes
+    Marked the addon whindowsphonepush as unsupported
+    twitter:
+      Valid post body can be empty [MrPetovan]
+      Support of Twitter threads was added [annando]
+
+  Closed Issues
+    11177, 11317, 11458, 11471, 11566, 11614, 11625, 11635, 11636, 11638,
+    11651, 11661, 11666, 11695, 11700, 11704, 11706, 11708, 11712, 11716,
+    11722, 11723, 11724, 11726, 11731, 11732, 11751, 11765, 11775, 11778,
+    11779, 11794, 11798, 11799, 11800, 11824, 11826, 11851, 11861, 11870,
+    11909, 11920, 11931, 11938, 11943, 11952, 11953, 11969, 11975
 
 Version 2022.06 (2022-06-11)
   Friendica Core

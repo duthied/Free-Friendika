@@ -23,7 +23,6 @@ namespace Friendica\Module\Settings;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -50,23 +49,23 @@ class Delegation extends BaseSettings
 		if ($parent_uid != 0) {
 			try {
 				User::getIdFromPasswordAuthentication($parent_uid, $parent_password);
-				info(DI::l10n()->t('Delegation successfully granted.'));
+				DI::sysmsg()->addInfo(DI::l10n()->t('Delegation successfully granted.'));
 			} catch (\Exception $ex) {
-				notice(DI::l10n()->t('Parent user not found, unavailable or password doesn\'t match.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Parent user not found, unavailable or password doesn\'t match.'));
 				return;
 			}
 		} else {
-			info(DI::l10n()->t('Delegation successfully revoked.'));
+			DI::sysmsg()->addInfo(DI::l10n()->t('Delegation successfully revoked.'));
 		}
 
-		DBA::update('user', ['parent-uid' => $parent_uid], ['uid' => local_user()]);
+		DBA::update('user', ['parent-uid' => $parent_uid], ['uid' => DI::userSession()->getLocalUserId()]);
 	}
 
 	protected function content(array $request = []): string
 	{
 		parent::content();
 
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -77,39 +76,39 @@ class Delegation extends BaseSettings
 		$user_id = $args->get(3);
 
 		if ($action === 'add' && $user_id) {
-			if (Session::get('submanage')) {
-				notice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
+			if (DI::userSession()->getSubManagedUserId()) {
+				DI::sysmsg()->addNotice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
 				DI::baseUrl()->redirect('settings/delegation');
 			}
 
 			$user = User::getById($user_id, ['nickname']);
 			if (DBA::isResult($user)) {
 				$condition = [
-					'uid' => local_user(),
+					'uid' => DI::userSession()->getLocalUserId(),
 					'nurl' => Strings::normaliseLink(DI::baseUrl() . '/profile/' . $user['nickname'])
 				];
 				if (DBA::exists('contact', $condition)) {
-					DBA::insert('manage', ['uid' => $user_id, 'mid' => local_user()]);
+					DBA::insert('manage', ['uid' => $user_id, 'mid' => DI::userSession()->getLocalUserId()]);
 				}
 			} else {
-				notice(DI::l10n()->t('Delegate user not found.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Delegate user not found.'));
 			}
 
 			DI::baseUrl()->redirect('settings/delegation');
 		}
 
 		if ($action === 'remove' && $user_id) {
-			if (Session::get('submanage')) {
-				notice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
+			if (DI::userSession()->getSubManagedUserId()) {
+				DI::sysmsg()->addNotice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
 				DI::baseUrl()->redirect('settings/delegation');
 			}
 
-			DBA::delete('manage', ['uid' => $user_id, 'mid' => local_user()]);
+			DBA::delete('manage', ['uid' => $user_id, 'mid' => DI::userSession()->getLocalUserId()]);
 			DI::baseUrl()->redirect('settings/delegation');
 		}
 
 		// find everybody that currently has delegated management to this account/page
-		$delegates = DBA::selectToArray('user', [], ['`uid` IN (SELECT `uid` FROM `manage` WHERE `mid` = ?)', local_user()]);
+		$delegates = DBA::selectToArray('user', [], ['`uid` IN (SELECT `uid` FROM `manage` WHERE `mid` = ?)', DI::userSession()->getLocalUserId()]);
 
 		$uids = [];
 		foreach ($delegates as $user) {
@@ -120,7 +119,7 @@ class Delegation extends BaseSettings
 		$potentials = [];
 		$nicknames = [];
 
-		$condition = ['baseurl' => DI::baseUrl(), 'self' => false, 'uid' => local_user(), 'blocked' => false];
+		$condition = ['baseurl' => DI::baseUrl(), 'self' => false, 'uid' => DI::userSession()->getLocalUserId(), 'blocked' => false];
 		$contacts = DBA::select('contact', ['nick'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
 			$nicknames[] = $contact['nick'];
@@ -137,8 +136,8 @@ class Delegation extends BaseSettings
 
 		$parent_user = null;
 		$parent_password = null;
-		$user = User::getById(local_user(), ['parent-uid', 'email']);
-		if (DBA::isResult($user) && !DBA::exists('user', ['parent-uid' => local_user()])) {
+		$user = User::getById(DI::userSession()->getLocalUserId(), ['parent-uid', 'email']);
+		if (DBA::isResult($user) && !DBA::exists('user', ['parent-uid' => DI::userSession()->getLocalUserId()])) {
 			$parent_uid = $user['parent-uid'];
 			$parents = [0 => DI::l10n()->t('No parent user')];
 
@@ -146,7 +145,7 @@ class Delegation extends BaseSettings
 			$condition = ['email' => $user['email'], 'verified' => true, 'blocked' => false, 'parent-uid' => 0];
 			$parent_users = DBA::selectToArray('user', $fields, $condition);
 			foreach($parent_users as $parent) {
-				if ($parent['uid'] != local_user()) {
+				if ($parent['uid'] != DI::userSession()->getLocalUserId()) {
 					$parents[$parent['uid']] = sprintf('%s (%s)', $parent['username'], $parent['nickname']);
 				}
 			}

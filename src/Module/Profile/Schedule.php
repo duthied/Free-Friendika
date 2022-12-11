@@ -35,7 +35,7 @@ class Schedule extends BaseProfile
 {
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -43,7 +43,7 @@ class Schedule extends BaseProfile
 			throw new HTTPException\BadRequestException();
 		}
 
-		if (!DBA::exists('delayed-post', ['id' => $_REQUEST['delete'], 'uid' => local_user()])) {
+		if (!DBA::exists('delayed-post', ['id' => $_REQUEST['delete'], 'uid' => DI::userSession()->getLocalUserId()])) {
 			throw new HTTPException\NotFoundException();
 		}
 
@@ -52,16 +52,16 @@ class Schedule extends BaseProfile
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
 		$a = DI::app();
 
-		$o = self::getTabsHTML($a, 'schedule', true, $a->getLoggedInUserNickname(), false);
+		$o = self::getTabsHTML('schedule', true, $a->getLoggedInUserNickname(), false);
 
 		$schedule = [];
-		$delayed = DBA::select('delayed-post', [], ['uid' => local_user()]);
+		$delayed = DBA::select('delayed-post', [], ['uid' => DI::userSession()->getLocalUserId()]);
 		while ($row = DBA::fetch($delayed)) {
 			$parameter = Post\Delayed::getParametersForid($row['id']);
 			if (empty($parameter)) {

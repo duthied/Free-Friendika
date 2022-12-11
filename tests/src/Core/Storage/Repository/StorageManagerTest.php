@@ -87,7 +87,7 @@ class StorageManagerTest extends DatabaseTest
 		$dbaDefinition = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
 		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
 
-		$this->dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition, $this->logger);
+		$this->dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition);
 
 		$configModel  = new Repository\Config($this->dba, new Mode(Mode::DBCONFIGAVAILABLE));
 		$this->config = new PreloadConfig($configCache, $configModel);

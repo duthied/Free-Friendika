@@ -22,7 +22,6 @@
 namespace Friendica\Module\Settings\Profile\Photo;
 
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -35,7 +34,7 @@ class Crop extends BaseSettings
 {
 	protected function post(array $request = [])
 	{
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			return;
 		}
 
@@ -58,7 +57,7 @@ class Crop extends BaseSettings
 
 		$path = 'profile/' . DI::app()->getLoggedInUserNickname();
 
-		$base_image = Photo::selectFirst([], ['resource-id' => $resource_id, 'uid' => local_user(), 'scale' => $scale]);
+		$base_image = Photo::selectFirst([], ['resource-id' => $resource_id, 'uid' => DI::userSession()->getLocalUserId(), 'scale' => $scale]);
 		if (DBA::isResult($base_image)) {
 			$Image = Photo::getImageForPhoto($base_image);
 			if (empty($Image)) {
@@ -67,7 +66,7 @@ class Crop extends BaseSettings
 
 			if ($Image->isValid()) {
 				// If setting for the default profile, unset the profile photo flag from any other photos I own
-				DBA::update('photo', ['profile' => 0], ['uid' => local_user()]);
+				DBA::update('photo', ['profile' => 0], ['uid' => DI::userSession()->getLocalUserId()]);
 
 				// Normalizing expected square crop parameters
 				$selectionW = $selectionH = min($selectionW, $selectionH);
@@ -92,11 +91,11 @@ class Crop extends BaseSettings
 					$Image->scaleDown(300);
 				}
 
-				$condition = ['resource-id' => $resource_id, 'uid' => local_user(), 'contact-id' => 0];
+				$condition = ['resource-id' => $resource_id, 'uid' => DI::userSession()->getLocalUserId(), 'contact-id' => 0];
 
 				$r = Photo::store(
 					$Image,
-					local_user(),
+					DI::userSession()->getLocalUserId(),
 					0,
 					$resource_id,
 					$base_image['filename'],
@@ -105,7 +104,7 @@ class Crop extends BaseSettings
 					Photo::USER_AVATAR
 				);
 				if ($r === false) {
-					notice(DI::l10n()->t('Image size reduction [%s] failed.', '300'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', '300'));
 				} else {
 					Photo::update(['profile' => true], array_merge($condition, ['scale' => 4]));
 				}
@@ -114,7 +113,7 @@ class Crop extends BaseSettings
 
 				$r = Photo::store(
 					$Image,
-					local_user(),
+					DI::userSession()->getLocalUserId(),
 					0,
 					$resource_id,
 					$base_image['filename'],
@@ -123,7 +122,7 @@ class Crop extends BaseSettings
 					Photo::USER_AVATAR
 				);
 				if ($r === false) {
-					notice(DI::l10n()->t('Image size reduction [%s] failed.', '80'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', '80'));
 				} else {
 					Photo::update(['profile' => true], array_merge($condition, ['scale' => 5]));
 				}
@@ -132,7 +131,7 @@ class Crop extends BaseSettings
 
 				$r = Photo::store(
 					$Image,
-					local_user(),
+					DI::userSession()->getLocalUserId(),
 					0,
 					$resource_id,
 					$base_image['filename'],
@@ -141,19 +140,19 @@ class Crop extends BaseSettings
 					Photo::USER_AVATAR
 				);
 				if ($r === false) {
-					notice(DI::l10n()->t('Image size reduction [%s] failed.', '48'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', '48'));
 				} else {
 					Photo::update(['profile' => true], array_merge($condition, ['scale' => 6]));
 				}
 
-				Contact::updateSelfFromUserID(local_user(), true);
+				Contact::updateSelfFromUserID(DI::userSession()->getLocalUserId(), true);
 
-				info(DI::l10n()->t('Shift-reload the page or clear browser cache if the new photo does not display immediately.'));
+				DI::sysmsg()->addInfo(DI::l10n()->t('Shift-reload the page or clear browser cache if the new photo does not display immediately.'));
 
 				// Update global directory in background
-				Profile::publishUpdate(local_user());
+				Profile::publishUpdate(DI::userSession()->getLocalUserId());
 			} else {
-				notice(DI::l10n()->t('Unable to process image'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Unable to process image'));
 			}
 		}
 
@@ -162,7 +161,7 @@ class Crop extends BaseSettings
 
 	protected function content(array $request = []): string
 	{
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -170,7 +169,7 @@ class Crop extends BaseSettings
 
 		$resource_id = $this->parameters['guid'];
 
-		$photos = Photo::selectToArray([], ['resource-id' => $resource_id, 'uid' => local_user()], ['order' => ['scale' => false]]);
+		$photos = Photo::selectToArray([], ['resource-id' => $resource_id, 'uid' => DI::userSession()->getLocalUserId()], ['order' => ['scale' => false]]);
 		if (!DBA::isResult($photos)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Photo not found.'));
 		}
@@ -185,16 +184,16 @@ class Crop extends BaseSettings
 		// set an already uloaded photo as profile photo
 		// if photo is in 'Profile Photos', change it in db
 		if ($photos[0]['photo-type'] == Photo::USER_AVATAR && $havescale) {
-			Photo::update(['profile' => false], ['uid' => local_user()]);
+			Photo::update(['profile' => false], ['uid' => DI::userSession()->getLocalUserId()]);
 
-			Photo::update(['profile' => true], ['resource-id' => $resource_id, 'uid' => local_user()]);
+			Photo::update(['profile' => true], ['resource-id' => $resource_id, 'uid' => DI::userSession()->getLocalUserId()]);
 
-			Contact::updateSelfFromUserID(local_user(), true);
+			Contact::updateSelfFromUserID(DI::userSession()->getLocalUserId(), true);
 
 			// Update global directory in background
-			Profile::publishUpdate(local_user());
+			Profile::publishUpdate(DI::userSession()->getLocalUserId());
 
-			info(DI::l10n()->t('Profile picture successfully updated.'));
+			DI::sysmsg()->addInfo(DI::l10n()->t('Profile picture successfully updated.'));
 
 			DI::baseUrl()->redirect('profile/' . DI::app()->getLoggedInUserNickname());
 		}

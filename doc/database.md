@@ -8,6 +8,7 @@ Database Tables
 | [2fa_app_specific_password](help/database/db_2fa_app_specific_password) | Two-factor app-specific _password |
 | [2fa_recovery_codes](help/database/db_2fa_recovery_codes) | Two-factor authentication recovery codes |
 | [2fa_trusted_browser](help/database/db_2fa_trusted_browser) | Two-factor authentication trusted browsers |
+| [account-suggestion](help/database/db_account-suggestion) | Account suggestion |
 | [account-user](help/database/db_account-user) | Remote and local accounts |
 | [addon](help/database/db_addon) | registered addons |
 | [apcontact](help/database/db_apcontact) | ActivityPub compatible contacts - used in the ActivityPub implementation |
@@ -22,10 +23,10 @@ Database Tables
 | [contact-relation](help/database/db_contact-relation) | Contact relations |
 | [conv](help/database/db_conv) | private messages |
 | [delayed-post](help/database/db_delayed-post) | Posts that are about to be distributed at a later time |
+| [diaspora-contact](help/database/db_diaspora-contact) | Diaspora compatible contacts - used in the Diaspora implementation |
 | [diaspora-interaction](help/database/db_diaspora-interaction) | Signed Diaspora Interaction |
 | [endpoint](help/database/db_endpoint) | ActivityPub endpoints - used in the ActivityPub implementation |
 | [event](help/database/db_event) | Events |
-| [fcontact](help/database/db_fcontact) | Diaspora compatible contacts - used in the Diaspora implementation |
 | [fetch-entry](help/database/db_fetch-entry) |  |
 | [fetched-activity](help/database/db_fetched-activity) | Id of fetched activities |
 | [fsuggest](help/database/db_fsuggest) | friend suggestion stuff |
@@ -74,6 +75,8 @@ Database Tables
 | [profile_field](help/database/db_profile_field) | Custom profile fields |
 | [push_subscriber](help/database/db_push_subscriber) | Used for OStatus: Contains feed subscribers |
 | [register](help/database/db_register) | registrations requiring admin approval |
+| [report](help/database/db_report) |  |
+| [report-post](help/database/db_report-post) |  |
 | [search](help/database/db_search) |  |
 | [session](help/database/db_session) | web session storage |
 | [storage](help/database/db_storage) | Data stored by Database storage backend |

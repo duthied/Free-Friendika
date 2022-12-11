@@ -40,7 +40,7 @@ class Bookmarklet extends BaseModule
 
 		$config = DI::config();
 
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			$output = '<h2>' . DI::l10n()->t('Login') . '</h2>';
 			$output .= Login::form(DI::args()->getQueryString(), intval($config->get('config', 'register_policy')) === Register::CLOSED ? false : true);
 			return $output;

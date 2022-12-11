@@ -158,6 +158,7 @@ class User
 		$system['publish'] = false;
 		$system['net-publish'] = false;
 		$system['hide-friends'] = true;
+		$system['hidewall'] = true;
 		$system['prv_keywords'] = '';
 		$system['pub_keywords'] = '';
 		$system['address'] = '';
@@ -265,7 +266,7 @@ class User
 		// List of possible actor names
 		$possible_accounts = ['friendica', 'actor', 'system', 'internal'];
 		foreach ($possible_accounts as $name) {
-			if (!DBA::exists('user', ['nickname' => $name, 'account_removed' => false, 'expire' => false]) &&
+			if (!DBA::exists('user', ['nickname' => $name, 'account_removed' => false, 'account_expired' => false]) &&
 				!DBA::exists('userd', ['username' => $name])) {
 				DI::config()->set('system', 'actor_name', $name);
 				return $name;
@@ -381,17 +382,15 @@ class User
 	 *
 	 * @param array $fields
 	 * @return array user
+	 * @throws Exception
 	 */
 	public static function getFirstAdmin(array $fields = []) : array
 	{
 		if (!empty(DI::config()->get('config', 'admin_nickname'))) {
 			return self::getByNickname(DI::config()->get('config', 'admin_nickname'), $fields);
-		} elseif (!empty(DI::config()->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
-			return self::getByEmail($adminList[0], $fields);
-		} else {
-			return [];
 		}
+
+		return self::getAdminList()[0] ?? [];
 	}
 
 	/**
@@ -665,6 +664,28 @@ class User
 		}
 
 		return $user;
+	}
+
+	/**
+	 * Update the day of the last activity of the given user
+	 *
+	 * @param integer $uid
+	 * @return void
+	 */
+	public static function updateLastActivity(int $uid)
+	{
+		$user = User::getById($uid, ['last-activity']);
+		if (empty($user)) {
+			return;
+		}
+
+		$current_day = DateTimeFormat::utcNow('Y-m-d');
+
+		if ($user['last-activity'] != $current_day) {
+			User::update(['last-activity' => $current_day], $uid);
+			// Set the last actitivy for all identities of the user
+			DBA::update('user', ['last-activity' => $current_day], ['parent-uid' => $uid, 'account_removed' => false]);
+		}
 	}
 
 	/**
@@ -994,7 +1015,7 @@ class User
 				try {
 					$authurl = $openid->authUrl();
 				} catch (Exception $e) {
-					throw new Exception(DI::l10n()->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . EOL . EOL . DI::l10n()->t('The error message was:') . $e->getMessage(), 0, $e);
+					throw new Exception(DI::l10n()->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br />' . DI::l10n()->t('The error message was:') . $e->getMessage(), 0, $e);
 				}
 				System::externalRedirect($authurl);
 				// NOTREACHED
@@ -1054,11 +1075,8 @@ class User
 
 		// Disallow somebody creating an account using openid that uses the admin email address,
 		// since openid bypasses email verification. We'll allow it if there is not yet an admin account.
-		if (DI::config()->get('config', 'admin_email') && strlen($openid_url)) {
-			$adminlist = explode(',', str_replace(' ', '', strtolower(DI::config()->get('config', 'admin_email'))));
-			if (in_array(strtolower($email), $adminlist)) {
-				throw new Exception(DI::l10n()->t('Cannot use that email.'));
-			}
+		if (strlen($openid_url) && in_array(strtolower($email), self::getAdminEmailList())) {
+			throw new Exception(DI::l10n()->t('Cannot use that email.'));
 		}
 
 		$nickname = $data['nickname'] = strtolower($nickname);
@@ -1317,7 +1335,7 @@ class User
 
 		if (DBA::isResult($profile) && $profile['net-publish'] && Search::getGlobalDirectory()) {
 			$url = DI::baseUrl() . '/profile/' . $user['nickname'];
-			Worker::add(PRIORITY_LOW, "Directory", $url);
+			Worker::add(Worker::PRIORITY_LOW, "Directory", $url);
 		}
 
 		$l10n = DI::l10n()->withLang($register['language']);
@@ -1418,7 +1436,7 @@ class User
 		If you are new and do not know anybody here, they may help
 		you to make some new and interesting friends.
 
-		If you ever want to delete your account, you can do so at %1$s/removeme
+		If you ever want to delete your account, you can do so at %1$s/settings/removeme
 
 		Thank you and welcome to %4$s.'));
 
@@ -1522,7 +1540,7 @@ class User
 			If you are new and do not know anybody here, they may help
 			you to make some new and interesting friends.
 
-			If you ever want to delete your account, you can do so at %3$s/removeme
+			If you ever want to delete your account, you can do so at %3$s/settings/removeme
 
 			Thank you and welcome to %2$s.',
 			$user['nickname'],
@@ -1567,14 +1585,14 @@ class User
 
 		// The user and related data will be deleted in Friendica\Worker\ExpireAndRemoveUsers
 		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc('now + 7 day')], ['uid' => $uid]);
-		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::REMOVAL, $uid);
+		Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::REMOVAL, $uid);
 
 		// Send an update to the directory
 		$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
-		Worker::add(PRIORITY_LOW, 'Directory', $self['url']);
+		Worker::add(Worker::PRIORITY_LOW, 'Directory', $self['url']);
 
 		// Remove the user relevant data
-		Worker::add(PRIORITY_NEGLIGIBLE, 'RemoveUser', $uid);
+		Worker::add(Worker::PRIORITY_NEGLIGIBLE, 'RemoveUser', $uid);
 
 		return true;
 	}
@@ -1714,8 +1732,8 @@ class User
 			'active_users_weekly'   => 0,
 		];
 
-		$userStmt = DBA::select('owner-view', ['uid', 'login_date', 'last-item'],
-			["`verified` AND `login_date` > ? AND NOT `blocked`
+		$userStmt = DBA::select('owner-view', ['uid', 'last-activity', 'last-item'],
+			["`verified` AND `last-activity` > ? AND NOT `blocked`
 			AND NOT `account_removed` AND NOT `account_expired`",
 			DBA::NULL_DATETIME]);
 		if (!DBA::isResult($userStmt)) {
@@ -1729,17 +1747,17 @@ class User
 		while ($user = DBA::fetch($userStmt)) {
 			$statistics['total_users']++;
 
-			if ((strtotime($user['login_date']) > $halfyear) || (strtotime($user['last-item']) > $halfyear)
+			if ((strtotime($user['last-activity']) > $halfyear) || (strtotime($user['last-item']) > $halfyear)
 			) {
 				$statistics['active_users_halfyear']++;
 			}
 
-			if ((strtotime($user['login_date']) > $month) || (strtotime($user['last-item']) > $month)
+			if ((strtotime($user['last-activity']) > $month) || (strtotime($user['last-item']) > $month)
 			) {
 				$statistics['active_users_monthly']++;
 			}
 
-			if ((strtotime($user['login_date']) > $week) || (strtotime($user['last-item']) > $week)
+			if ((strtotime($user['last-activity']) > $week) || (strtotime($user['last-item']) > $week)
 			) {
 				$statistics['active_users_weekly']++;
 			}
@@ -1782,5 +1800,65 @@ class User
 		}
 
 		return DBA::selectToArray('owner-view', [], $condition, $param);
+	}
+
+	/**
+	 * Returns a list of lowercase admin email addresses from the comma-separated list in the config
+	 *
+	 * @return array
+	 */
+	public static function getAdminEmailList(): array
+	{
+		$adminEmails = strtolower(str_replace(' ', '', DI::config()->get('config', 'admin_email')));
+		if (!$adminEmails) {
+			return [];
+		}
+
+		return explode(',', $adminEmails);
+	}
+
+	/**
+	 * Returns the complete list of admin user accounts
+	 *
+	 * @param array $fields
+	 * @return array
+	 * @throws Exception
+	 */
+	public static function getAdminList(array $fields = []): array
+	{
+		$condition = [
+			'email'           => self::getAdminEmailList(),
+			'parent-uid'      => 0,
+			'blocked'         => 0,
+			'verified'        => true,
+			'account_removed' => false,
+			'account_expired' => false,
+		];
+
+		return DBA::selectToArray('user', $fields, $condition, ['order' => ['uid']]);
+	}
+
+	/**
+	 * Return a list of admin user accounts where each unique email address appears only once.
+	 *
+	 * This method is meant for admin notifications that do not need to be sent multiple times to the same email address.
+	 *
+	 * @param array $fields
+	 * @return array
+	 * @throws Exception
+	 */
+	public static function getAdminListForEmailing(array $fields = []): array
+	{
+		return array_filter(self::getAdminList($fields), function ($user) {
+			static $emails = [];
+
+			if (in_array($user['email'], $emails)) {
+				return false;
+			}
+
+			$emails[] = $user['email'];
+
+			return true;
+		});
 	}
 }

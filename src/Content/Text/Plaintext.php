@@ -114,9 +114,8 @@ class Plaintext
 	 * @return array Same array structure than \Friendica\Content\Text\BBCode::getAttachedData
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @see   \Friendica\Content\Text\BBCode::getAttachedData
-	 *
 	 */
-	public static function getPost($item, $limit = 0, $includedlinks = false, $htmlmode = BBCode::API, $target_network = '')
+	public static function getPost(array $item, int $limit = 0, bool $includedlinks = false, int $htmlmode = BBCode::MASTODON_API, string $target_network = '')
 	{
 		// Remove hashtags
 		$URLSearchString = '^\[\]';

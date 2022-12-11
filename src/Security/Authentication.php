@@ -26,8 +26,7 @@ use Friendica\App;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Hook;
-use Friendica\Core\Session;
-use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
@@ -39,6 +38,8 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use LightOpenID;
 use Friendica\Core\L10n;
+use Friendica\Core\Worker;
+use Friendica\Model\Contact;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -60,7 +61,7 @@ class Authentication
 	private $logger;
 	/** @var User\Cookie */
 	private $cookie;
-	/** @var IHandleSessions */
+	/** @var IHandleUserSessions */
 	private $session;
 	/** @var IManagePersonalConfigValues */
 	private $pConfig;
@@ -89,11 +90,11 @@ class Authentication
 	 * @param Database                    $dba
 	 * @param LoggerInterface             $logger
 	 * @param User\Cookie                 $cookie
-	 * @param IHandleSessions             $session
+	 * @param IHandleUserSessions         $session
 	 * @param IManagePersonalConfigValues $pConfig
 	 * @param App\Request                 $request
 	 */
-	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, IHandleSessions $session, IManagePersonalConfigValues $pConfig, App\Request $request)
+	public function __construct(IManageConfigValues $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, IHandleUserSessions $session, IManagePersonalConfigValues $pConfig, App\Request $request)
 	{
 		$this->config        = $config;
 		$this->mode          = $mode;
@@ -223,7 +224,7 @@ class Authentication
 
 		// if it's an email address or doesn't resolve to a URL, fail.
 		if ($noid || strpos($openid_url, '@') || !Network::isUrlValid($openid_url)) {
-			notice($this->l10n->t('Login failed.'));
+			DI::sysmsg()->addNotice($this->l10n->t('Login failed.'));
 			$this->baseUrl->redirect();
 		}
 
@@ -237,7 +238,7 @@ class Authentication
 			$openid->optional  = ['namePerson/friendly', 'contact/email', 'namePerson', 'namePerson/first', 'media/image/aspect11', 'media/image/default'];
 			System::externalRedirect($openid->authUrl());
 		} catch (Exception $e) {
-			notice($this->l10n->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . $this->l10n->t('The error message was:') . ' ' . $e->getMessage());
+			DI::sysmsg()->addNotice($this->l10n->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . $this->l10n->t('The error message was:') . ' ' . $e->getMessage());
 		}
 	}
 
@@ -268,7 +269,7 @@ class Authentication
 			);
 		} catch (Exception $e) {
 			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => $username, 'ip' => $this->remoteAddress]);
-			notice($this->l10n->t('Login failed. Please check your credentials.'));
+			DI::sysmsg()->addNotice($this->l10n->t('Login failed. Please check your credentials.'));
 			$this->baseUrl->redirect();
 		}
 
@@ -331,9 +332,10 @@ class Authentication
 			'my_url'        => $this->baseUrl->get() . '/profile/' . $user_record['nickname'],
 			'my_address'    => $user_record['nickname'] . '@' . substr($this->baseUrl->get(), strpos($this->baseUrl->get(), '://') + 3),
 			'addr'          => $this->remoteAddress,
+			'nickname'      => $user_record['nickname'],
 		]);
 
-		Session::setVisitorsContacts();
+		$this->session->setVisitorsContacts();
 
 		$member_since = strtotime($user_record['register_date']);
 		$this->session->set('new_member', time() < ($member_since + (60 * 60 * 24 * 14)));
@@ -351,11 +353,16 @@ class Authentication
 		$this->setXAccMgmtStatusHeader($user_record);
 
 		if ($login_initial || $login_refresh) {
-			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $user_record['uid']]);
+			$this->dba->update('user', ['last-activity' => DateTimeFormat::utcNow('Y-m-d'), 'login_date' => DateTimeFormat::utcNow()], ['uid' => $user_record['uid']]);
 
 			// Set the login date for all identities of the user
-			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()],
+			$this->dba->update('user', ['last-activity' => DateTimeFormat::utcNow('Y-m-d'), 'login_date' => DateTimeFormat::utcNow()],
 				['parent-uid' => $user_record['uid'], 'account_removed' => false]);
+
+			// Regularly update suggestions
+			if (Contact\Relation::areSuggestionsOutdated($user_record['uid'])) {
+				Worker::add(Worker::PRIORITY_MEDIUM, 'UpdateSuggestions', $user_record['uid']);
+			}
 		}
 
 		if ($login_initial) {
@@ -379,8 +386,8 @@ class Authentication
 
 		if ($interactive) {
 			if ($user_record['login_date'] <= DBA::NULL_DATETIME) {
-				info($this->l10n->t('Welcome %s', $user_record['username']));
-				info($this->l10n->t('Please upload a profile photo.'));
+				DI::sysmsg()->addInfo($this->l10n->t('Welcome %s', $user_record['username']));
+				DI::sysmsg()->addInfo($this->l10n->t('Please upload a profile photo.'));
 				$this->baseUrl->redirect('settings/profile/photo/new');
 			}
 		}

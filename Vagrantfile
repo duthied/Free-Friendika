@@ -1,5 +1,5 @@
 
-server_ip = "192.168.22.10"
+server_ip = "192.168.56.10"
 server_memory = "2048" # MB
 server_timezone = "UTC"
 

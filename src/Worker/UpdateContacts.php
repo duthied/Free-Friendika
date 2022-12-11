@@ -59,7 +59,7 @@ class UpdateContacts
 		$contacts = DBA::select('contact', ['id'], $condition, ['order' => ['next-update'], 'limit' => $limit]);
 		$count = 0;
 		while ($contact = DBA::fetch($contacts)) {
-			if (Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], "UpdateContact", $contact['id'])) {
+			if (Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], "UpdateContact", $contact['id'])) {
 				++$count;
 			}
 			Worker::coolDown();

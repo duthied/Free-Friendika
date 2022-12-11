@@ -24,6 +24,7 @@ namespace Friendica\Module\Filer;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Post;
@@ -40,12 +41,15 @@ class RemoveTag extends BaseModule
 {
 	/** @var SystemMessages */
 	private $systemMessages;
+	/** @var IHandleUserSessions */
+	private $userSession;
 
-	public function __construct(SystemMessages $systemMessages, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(SystemMessages $systemMessages, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IHandleUserSessions $userSession, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->systemMessages = $systemMessages;
+		$this->userSession    = $userSession;
 	}
 
 	protected function post(array $request = [])
@@ -55,7 +59,7 @@ class RemoveTag extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!$this->userSession->getLocalUserId()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
@@ -107,7 +111,7 @@ class RemoveTag extends BaseModule
 			return 404;
 		}
 
-		if (!Post\Category::deleteFileByURIId($item['uri-id'], local_user(), $type, $term)) {
+		if (!Post\Category::deleteFileByURIId($item['uri-id'], $this->userSession->getLocalUserId(), $type, $term)) {
 			$this->systemMessages->addNotice($this->l10n->t('Item was not removed'));
 			return 500;
 		}

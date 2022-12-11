@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\Mastodon\Statuses;
 
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 use Friendica\Protocol\Activity;
@@ -48,7 +49,7 @@ class RebloggedBy extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $id, 'gravity' => GRAVITY_ACTIVITY, 'verb' => Activity::ANNOUNCE]);
+		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $id, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::ANNOUNCE]);
 
 		$accounts = [];
 

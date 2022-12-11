@@ -21,6 +21,7 @@
 
 namespace Friendica\Worker;
 
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
@@ -48,7 +49,7 @@ class RemoveUser {
 		do {
 			$items = Post::select(['id'], $condition, ['limit' => 100]);
 			while ($item = Post::fetch($items)) {
-				Item::markForDeletionById($item['id'], PRIORITY_NEGLIGIBLE);
+				Item::markForDeletionById($item['id'], Worker::PRIORITY_NEGLIGIBLE);
 			}
 			DBA::close($items);
 		} while (Post::exists($condition));

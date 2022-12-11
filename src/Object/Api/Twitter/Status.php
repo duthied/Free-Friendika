@@ -106,7 +106,7 @@ class Status extends BaseDataTransferObject
 
 		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::API);
 
-		if ($item['gravity'] == GRAVITY_COMMENT) {
+		if ($item['gravity'] == Item::GRAVITY_COMMENT) {
 			$this->in_reply_to_status_id     = (int)$item['thr-parent-id'];
 			$this->in_reply_to_status_id_str = (string)$item['thr-parent-id'];
 			$this->in_reply_to_user_id       = (int)$item['parent-author-id'];

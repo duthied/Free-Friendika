@@ -238,7 +238,7 @@ class Temporal
 		bool $required = false): string
 	{
 		// First day of the week (0 = Sunday)
-		$firstDay = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
+		$firstDay = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'first_day_of_week', 0);
 
 		$lang = substr(DI::l10n()->getCurrentLang(), 0, 2);
 
@@ -311,13 +311,16 @@ class Temporal
 	 *
 	 * @return string with relative date
 	 */
-	public static function getRelativeDate(string $posted_date, string $format = null): string
+	public static function getRelativeDate(string $posted_date = null, string $format = null): string
 	{
-		$localtime = $posted_date . ' UTC';
+		if (empty($posted_date) || $posted_date <= DBA::NULL_DATETIME) {
+			return DI::l10n()->t('never');
+		}
 
+		$localtime = $posted_date . ' UTC';
 		$abs = strtotime($localtime);
 
-		if (is_null($posted_date) || $posted_date <= DBA::NULL_DATETIME || $abs === false) {
+		if ($abs === false) {
 			return DI::l10n()->t('never');
 		}
 

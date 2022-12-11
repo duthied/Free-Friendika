@@ -25,6 +25,7 @@ use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
 use Friendica\Database\DBA;
 use Friendica\Factory\Api\Twitter\Status;
+use Friendica\Model\Item;
 use Friendica\Model\Photo as ModelPhoto;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
@@ -116,7 +117,7 @@ class Photo extends BaseFactory
 
 			// retrieve comments on photo
 			$condition = ["`parent` = ? AND `uid` = ? AND `gravity` IN (?, ?)",
-				$item['parent'], $uid, GRAVITY_PARENT, GRAVITY_COMMENT];
+				$item['parent'], $uid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT];
 
 			$statuses = Post::selectForUser($uid, [], $condition);
 

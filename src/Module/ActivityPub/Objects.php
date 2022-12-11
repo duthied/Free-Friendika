@@ -29,6 +29,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
@@ -74,7 +75,9 @@ class Objects extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		$validated = in_array($item['private'], [Item::PUBLIC, Item::UNLISTED]);
+		$owner = User::getById($item['uid'], ['hidewall']);
+
+		$validated = empty($owner['hidewall']) && in_array($item['private'], [Item::PUBLIC, Item::UNLISTED]);
 
 		if (!$validated) {
 			$requester = HTTPSignature::getSigner('', $_SERVER);
@@ -97,7 +100,7 @@ class Objects extends BaseModule
 		$last_modified = $item['changed'];
 		Network::checkEtagModified($etag, $last_modified);
 
-		if (empty($this->parameters['activity']) && ($item['gravity'] != GRAVITY_ACTIVITY)) {
+		if (empty($this->parameters['activity']) && ($item['gravity'] != Item::GRAVITY_ACTIVITY)) {
 			$activity = ActivityPub\Transmitter::createCachedActivityFromItem($item['id'], false, true);
 			if (empty($activity['type'])) {
 				throw new HTTPException\NotFoundException();

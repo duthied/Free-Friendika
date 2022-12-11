@@ -64,7 +64,7 @@ class Directory
 	private static function updateAll() {
 		$users = DBA::select('owner-view', ['url'], ['net-publish' => true, 'account_expired' => false, 'verified' => true]);
 		while ($user = DBA::fetch($users)) {
-			Worker::add(PRIORITY_LOW, 'Directory', $user['url']);
+			Worker::add(Worker::PRIORITY_LOW, 'Directory', $user['url']);
 		}
 		DBA::close($users);
 	}

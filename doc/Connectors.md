@@ -9,8 +9,8 @@ There is also a connector for accessing your email INBOX.
 
 If the following network connectors are installed on your system, select the following links to visit the appropriate settings page and configure them for your account:
 
-* [Twitter](/settings/addon)
-* [GNU Social](/settings/addon)
+* [Twitter](/settings/addons)
+* [GNU Social](/settings/addons)
 * [Email](/settings)
 
 Instructions For Connecting To People On Specific Services

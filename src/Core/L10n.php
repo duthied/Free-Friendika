@@ -188,10 +188,10 @@ class L10n
 	{
 		$lang_variable = $server['HTTP_ACCEPT_LANGUAGE'] ?? null;
 
-		$acceptedLanguages = preg_split('/,\s*/', $lang_variable);
-
-		if (empty($acceptedLanguages)) {
+		if (empty($lang_variable)) {
 			$acceptedLanguages = [];
+		} else {
+			$acceptedLanguages = preg_split('/,\s*/', $lang_variable);
 		}
 
 		// Add get as absolute quality accepted language (except this language isn't valid)

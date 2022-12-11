@@ -22,10 +22,14 @@
 namespace Friendica\Module\Item;
 
 use DateTime;
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Core\ACL;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
@@ -33,13 +37,44 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
+use Friendica\Navigation\SystemMessages;
 use Friendica\Network\HTTPException\NotImplementedException;
+use Friendica\Util\ACLFormatter;
 use Friendica\Util\Crypto;
+use Friendica\Util\Profiler;
 use Friendica\Util\Temporal;
+use Psr\Log\LoggerInterface;
 
 class Compose extends BaseModule
 {
+	/** @var SystemMessages */
+	private $systemMessages;
+
+	/** @var ACLFormatter */
+	private $ACLFormatter;
+
+	/** @var App\Page */
+	private $page;
+
+	/** @var IManagePersonalConfigValues */
+	private $pConfig;
+
+	/** @var IManageConfigValues */
+	private $config;
+
+	public function __construct(IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, ACLFormatter $ACLFormatter, SystemMessages $systemMessages, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->systemMessages = $systemMessages;
+		$this->ACLFormatter   = $ACLFormatter;
+		$this->page           = $page;
+		$this->pConfig        = $pConfig;
+		$this->config         = $config;
+	}
+
 	protected function post(array $request = [])
 	{
 		if (!empty($_REQUEST['body'])) {
@@ -47,23 +82,22 @@ class Compose extends BaseModule
 			require_once 'mod/item.php';
 			item_post(DI::app());
 		} else {
-			notice(DI::l10n()->t('Please enter a post body.'));
+			$this->systemMessages->addNotice($this->l10n->t('Please enter a post body.'));
 		}
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
-			return Login::form('compose', false);
+		if (!DI::userSession()->getLocalUserId()) {
+			return Login::form('compose');
 		}
 
 		$a = DI::app();
 
 		if ($a->getCurrentTheme() !== 'frio') {
-			throw new NotImplementedException(DI::l10n()->t('This feature is only available with the frio theme.'));
+			throw new NotImplementedException($this->l10n->t('This feature is only available with the frio theme.'));
 		}
 
-		/// @TODO Retrieve parameter from router
 		$posttype = $this->parameters['type'] ?? Item::PT_ARTICLE;
 		if (!in_array($posttype, [Item::PT_ARTICLE, Item::PT_PERSONAL_NOTE])) {
 			switch ($posttype) {
@@ -76,18 +110,16 @@ class Compose extends BaseModule
 			}
 		}
 
-		$user = User::getById(local_user(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'default-location']);
+		$user = User::getById(DI::userSession()->getLocalUserId(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'default-location']);
 
-		$aclFormatter = DI::aclFormatter();
-
-		$contact_allow_list = $aclFormatter->expand($user['allow_cid']);
-		$group_allow_list   = $aclFormatter->expand($user['allow_gid']);
-		$contact_deny_list  = $aclFormatter->expand($user['deny_cid']);
-		$group_deny_list    = $aclFormatter->expand($user['deny_gid']);
+		$contact_allow_list = $this->ACLFormatter->expand($user['allow_cid']);
+		$group_allow_list   = $this->ACLFormatter->expand($user['allow_gid']);
+		$contact_deny_list  = $this->ACLFormatter->expand($user['deny_cid']);
+		$group_deny_list    = $this->ACLFormatter->expand($user['deny_gid']);
 
 		switch ($posttype) {
 			case Item::PT_PERSONAL_NOTE:
-				$compose_title = DI::l10n()->t('Compose new personal note');
+				$compose_title = $this->l10n->t('Compose new personal note');
 				$type = 'note';
 				$doesFederate = false;
 				$contact_allow_list = [$a->getContactId()];
@@ -96,7 +128,7 @@ class Compose extends BaseModule
 				$group_deny_list = [];
 				break;
 			default:
-				$compose_title = DI::l10n()->t('Compose new post');
+				$compose_title = $this->l10n->t('Compose new post');
 				$type = 'post';
 				$doesFederate = true;
 
@@ -129,13 +161,13 @@ class Compose extends BaseModule
 		Hook::callAll('jot_tool', $jotplugins);
 
 		// Output
-		DI::page()->registerFooterScript(Theme::getPathForFile('js/ajaxupload.js'));
-		DI::page()->registerFooterScript(Theme::getPathForFile('js/linkPreview.js'));
-		DI::page()->registerFooterScript(Theme::getPathForFile('js/compose.js'));
+		$this->page->registerFooterScript(Theme::getPathForFile('js/ajaxupload.js'));
+		$this->page->registerFooterScript(Theme::getPathForFile('js/linkPreview.js'));
+		$this->page->registerFooterScript(Theme::getPathForFile('js/compose.js'));
 
 		$contact = Contact::getById($a->getContactId());
 
-		if (DI::config()->get(local_user(), 'system', 'set_creation_date')) {
+		if ($this->pConfig->get(DI::userSession()->getLocalUserId(), 'system', 'set_creation_date')) {
 			$created_at = Temporal::getDateTimeField(
 				new \DateTime(DBA::NULL_DATETIME),
 				new \DateTime('now'),
@@ -149,39 +181,45 @@ class Compose extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('item/compose.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$compose_title'=> $compose_title,
-			'$visibility_title'=> DI::l10n()->t('Visibility'),
+			'$l10n' => [
+				'compose_title'        => $compose_title,
+				'default'              => '',
+				'visibility_title'     => $this->l10n->t('Visibility'),
+				'mytitle'              => $this->l10n->t('This is you'),
+				'submit'               => $this->l10n->t('Submit'),
+				'edbold'               => $this->l10n->t('Bold'),
+				'editalic'             => $this->l10n->t('Italic'),
+				'eduline'              => $this->l10n->t('Underline'),
+				'edquote'              => $this->l10n->t('Quote'),
+				'edcode'               => $this->l10n->t('Code'),
+				'edimg'                => $this->l10n->t('Image'),
+				'edurl'                => $this->l10n->t('Link'),
+				'edattach'             => $this->l10n->t('Link or Media'),
+				'prompttext'           => $this->l10n->t('Please enter a image/video/audio/webpage URL:'),
+				'preview'              => $this->l10n->t('Preview'),
+				'location_set'         => $this->l10n->t('Set your location'),
+				'location_clear'       => $this->l10n->t('Clear the location'),
+				'location_unavailable' => $this->l10n->t('Location services are unavailable on your device'),
+				'location_disabled'    => $this->l10n->t('Location services are disabled. Please check the website\'s permissions on your device'),
+				'wait'                 => $this->l10n->t('Please wait'),
+				'placeholdertitle'     => $this->l10n->t('Set title'),
+				'placeholdercategory'  => Feature::isEnabled(DI::userSession()->getLocalUserId(),'categories') ? $this->l10n->t('Categories (comma-separated list)') : '',
+				'always_open_compose'  => $this->pConfig->get(DI::userSession()->getLocalUserId(), 'frio', 'always_open_compose',
+					$this->config->get('frio', 'always_open_compose', false)) ? '' :
+						$this->l10n->t('You can make this page always open when you use the New Post button in the <a href="/settings/display">Theme Customization settings</a>.'),
+			],
+
 			'$id'           => 0,
 			'$posttype'     => $posttype,
 			'$type'         => $type,
 			'$wall'         => $wall,
-			'$default'      => '',
-			'$mylink'       => DI::baseUrl()->remove($contact['url']),
-			'$mytitle'      => DI::l10n()->t('This is you'),
-			'$myphoto'      => DI::baseUrl()->remove($contact['thumb']),
-			'$submit'       => DI::l10n()->t('Submit'),
-			'$edbold'       => DI::l10n()->t('Bold'),
-			'$editalic'     => DI::l10n()->t('Italic'),
-			'$eduline'      => DI::l10n()->t('Underline'),
-			'$edquote'      => DI::l10n()->t('Quote'),
-			'$edcode'       => DI::l10n()->t('Code'),
-			'$edimg'        => DI::l10n()->t('Image'),
-			'$edurl'        => DI::l10n()->t('Link'),
-			'$edattach'     => DI::l10n()->t('Link or Media'),
-			'$prompttext'   => DI::l10n()->t('Please enter a image/video/audio/webpage URL:'),
-			'$preview'      => DI::l10n()->t('Preview'),
-			'$location_set' => DI::l10n()->t('Set your location'),
-			'$location_clear' => DI::l10n()->t('Clear the location'),
-			'$location_unavailable' => DI::l10n()->t('Location services are unavailable on your device'),
-			'$location_disabled' => DI::l10n()->t('Location services are disabled. Please check the website\'s permissions on your device'),
-			'$wait'         => DI::l10n()->t('Please wait'),
-			'$placeholdertitle' => DI::l10n()->t('Set title'),
-			'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? DI::l10n()->t('Categories (comma-separated list)') : ''),
+			'$mylink'       => $this->baseUrl->remove($contact['url']),
+			'$myphoto'      => $this->baseUrl->remove($contact['thumb']),
 			'$scheduled_at' => Temporal::getDateTimeField(
 				new DateTime(),
 				new DateTime('now + 6 months'),
 				null,
-				DI::l10n()->t('Scheduled at'),
+				$this->l10n->t('Scheduled at'),
 				'scheduled_at'
 			),
 			'$created_at'   => $created_at,
@@ -197,7 +235,7 @@ class Compose extends BaseModule
 
 			'$jotplugins'   => $jotplugins,
 			'$rand_num'     => Crypto::randomDigits(12),
-			'$acl_selector'  => ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId(), $doesFederate, [
+			'$acl_selector'  => ACL::getFullSelectorHTML($this->page, $a->getLoggedInUserId(), $doesFederate, [
 				'allow_cid' => $contact_allow_list,
 				'allow_gid' => $group_allow_list,
 				'deny_cid'  => $contact_deny_list,

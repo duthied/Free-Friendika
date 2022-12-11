@@ -60,8 +60,8 @@ class Manifest extends BaseModule
 					'url'   => '/contact'
 				],
 				[
-					'name'  => 'Events',
-					'url'   => '/events'
+					'name'  => 'Calendar',
+					'url'   => '/calendar'
 				]
 			]
 		];

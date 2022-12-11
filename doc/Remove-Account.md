@@ -5,7 +5,7 @@ Remove Account
 
 We don't like to see people leave Friendica, but if you need to remove your account, you should visit the URL
 
-http://sitename/removeme
+http://sitename/settings/removeme
 
 with your web browser.
 You will need to be logged in at the time.

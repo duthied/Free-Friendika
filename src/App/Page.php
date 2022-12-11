@@ -115,76 +115,40 @@ class Page implements ArrayAccess
 		}
 	}
 
+	// ArrayAccess interface
+
 	/**
-	 * Whether a offset exists
-	 *
-	 * @link  https://php.net/manual/en/arrayaccess.offsetexists.php
-	 *
-	 * @param mixed $offset <p>
-	 *                      An offset to check for.
-	 *                      </p>
-	 *
-	 * @return boolean true on success or false on failure.
-	 * </p>
-	 * <p>
-	 * The return value will be casted to boolean if non-boolean was returned.
-	 * @since 5.0.0
+	 * @inheritDoc
 	 */
-	public function offsetExists($offset)
+	#[\ReturnTypeWillChange]
+	public function offsetExists($offset): bool
 	{
 		return isset($this->page[$offset]);
 	}
 
 	/**
-	 * Offset to retrieve
-	 *
-	 * @link  https://php.net/manual/en/arrayaccess.offsetget.php
-	 *
-	 * @param mixed $offset <p>
-	 *                      The offset to retrieve.
-	 *                      </p>
-	 *
-	 * @return mixed Can return all value types.
-	 * @since 5.0.0
+	 * @inheritDoc
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		return $this->page[$offset] ?? null;
 	}
 
 	/**
-	 * Offset to set
-	 *
-	 * @link  https://php.net/manual/en/arrayaccess.offsetset.php
-	 *
-	 * @param mixed $offset <p>
-	 *                      The offset to assign the value to.
-	 *                      </p>
-	 * @param mixed $value  <p>
-	 *                      The value to set.
-	 *                      </p>
-	 *
-	 * @return void
-	 * @since 5.0.0
+	 * @inheritDoc
 	 */
-	public function offsetSet($offset, $value)
+	#[\ReturnTypeWillChange]
+	public function offsetSet($offset, $value): void
 	{
 		$this->page[$offset] = $value;
 	}
 
 	/**
-	 * Offset to unset
-	 *
-	 * @link  https://php.net/manual/en/arrayaccess.offsetunset.php
-	 *
-	 * @param mixed $offset <p>
-	 *                      The offset to unset.
-	 *                      </p>
-	 *
-	 * @return void
-	 * @since 5.0.0
+	 * @inheritDoc
 	 */
-	public function offsetUnset($offset)
+	#[\ReturnTypeWillChange]
+	public function offsetUnset($offset): void
 	{
 		if (isset($this->page[$offset])) {
 			unset($this->page[$offset]);
@@ -202,7 +166,7 @@ class Page implements ArrayAccess
 	 */
 	public function registerStylesheet(string $path, string $media = 'screen')
 	{
-		$path = Network::appendQueryParam($path, ['v' => FRIENDICA_VERSION]);
+		$path = Network::appendQueryParam($path, ['v' => App::VERSION]);
 
 		if (mb_strpos($path, $this->basePath . DIRECTORY_SEPARATOR) === 0) {
 			$path = mb_substr($path, mb_strlen($this->basePath . DIRECTORY_SEPARATOR));
@@ -221,17 +185,18 @@ class Page implements ArrayAccess
 	 * - Infinite scroll data
 	 * - head.tpl template
 	 *
-	 * @param App                         $app     The Friendica App instance
-	 * @param Arguments                   $args    The Friendica App Arguments
-	 * @param L10n                        $l10n    The l10n language instance
-	 * @param IManageConfigValues         $config  The Friendica configuration
-	 * @param IManagePersonalConfigValues $pConfig The Friendica personal configuration (for user)
+	 * @param App                         $app      The Friendica App instance
+	 * @param Arguments                   $args     The Friendica App Arguments
+	 * @param L10n                        $l10n     The l10n language instance
+	 * @param IManageConfigValues         $config   The Friendica configuration
+	 * @param IManagePersonalConfigValues $pConfig  The Friendica personal configuration (for user)
+	 * @param int                         $localUID The local user id
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initHead(App $app, Arguments $args, L10n $l10n, IManageConfigValues $config, IManagePersonalConfigValues $pConfig)
+	private function initHead(App $app, Arguments $args, L10n $l10n, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, int $localUID)
 	{
-		$interval = ((local_user()) ? $pConfig->get(local_user(), 'system', 'update_interval') : 40000);
+		$interval = ($localUID ? $pConfig->get($localUID, 'system', 'update_interval') : 40000);
 
 		// If the update is 'deactivated' set it to the highest integer number (~24 days)
 		if ($interval < 0) {
@@ -276,8 +241,8 @@ class Page implements ArrayAccess
 		 * being first
 		 */
 		$this->page['htmlhead'] = Renderer::replaceMacros($tpl, [
-			'$local_user'      => local_user(),
-			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
+			'$local_user'      => $localUID,
+			'$generator'       => 'Friendica' . ' ' . App::VERSION,
 			'$delitem'         => $l10n->t('Delete this item?'),
 			'$blockAuthor'     => $l10n->t('Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'),
 			'$update_interval' => $interval,
@@ -309,7 +274,7 @@ class Page implements ArrayAccess
 		}
 		return $pageURL;
 	}
-      
+
 	/**
 	 * Initializes Page->page['footer'].
 	 *
@@ -395,7 +360,7 @@ class Page implements ArrayAccess
 	 */
 	public function registerFooterScript($path)
 	{
-		$path = Network::appendQueryParam($path, ['v' => FRIENDICA_VERSION]);
+		$path = Network::appendQueryParam($path, ['v' => App::VERSION]);
 
 		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
 
@@ -443,10 +408,11 @@ class Page implements ArrayAccess
 	 * @param L10n                        $l10n     The l10n language class
 	 * @param IManageConfigValues         $config   The Configuration of this node
 	 * @param IManagePersonalConfigValues $pconfig  The personal/user configuration
+	 * @param int                         $localUID The UID of the local user
 	 *
 	 * @throws HTTPException\InternalServerErrorException|HTTPException\ServiceUnavailableException
 	 */
-	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, ResponseInterface $response, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig)
+	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, ResponseInterface $response, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig, int $localUID)
 	{
 		$moduleName = $args->getModuleName();
 
@@ -480,7 +446,7 @@ class Page implements ArrayAccess
 		 * all the module functions have executed so that all
 		 * theme choices made by the modules can take effect.
 		 */
-		$this->initHead($app, $args, $l10n, $config, $pconfig);
+		$this->initHead($app, $args, $l10n, $config, $pconfig, $localUID);
 
 		/* Build the page ending -- this is stuff that goes right before
 		 * the closing </body> tag
@@ -543,7 +509,7 @@ class Page implements ArrayAccess
 
 		$page    = $this->page;
 
-		header("X-Friendica-Version: " . FRIENDICA_VERSION);
+		header("X-Friendica-Version: " . App::VERSION);
 		header("Content-type: text/html; charset=utf-8");
 
 		if ($config->get('system', 'hsts') && ($baseURL->getSSLPolicy() == BaseURL::SSL_POLICY_FULL)) {

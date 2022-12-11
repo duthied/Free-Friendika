@@ -24,6 +24,7 @@ namespace Friendica\Module\Api\Mastodon;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
@@ -51,7 +52,7 @@ class Favourited extends BaseApi
 
 		$params = ['order' => ['thr-parent-id' => true], 'limit' => $request['limit']];
 
-		$condition = ['gravity' => GRAVITY_ACTIVITY, 'origin' => true, 'verb' => Activity::LIKE, 'uid' => $uid];
+		$condition = ['gravity' => Item::GRAVITY_ACTIVITY, 'origin' => true, 'verb' => Activity::LIKE, 'uid' => $uid];
 
 		if (!empty($request['max_id'])) {
 			$condition = DBA::mergeConditions($condition, ["`thr-parent-id` < ?", $request['max_id']]);

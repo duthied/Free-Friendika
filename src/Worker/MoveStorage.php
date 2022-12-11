@@ -37,7 +37,7 @@ class MoveStorage
 		$moved   = DI::storageManager()->move($current);
 
 		if ($moved) {
-			Worker::add(PRIORITY_LOW, 'MoveStorage');
+			Worker::add(Worker::PRIORITY_LOW, 'MoveStorage');
 		}
 	}
 }

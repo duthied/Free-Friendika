@@ -21,23 +21,40 @@
 
 namespace Friendica\Module\DFRN;
 
+use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\User;
+use Friendica\Module\OStatus\Salmon;
+use Friendica\Module\Response;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Network;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * DFRN Notify
  */
 class Notify extends BaseModule
 {
+	/** @var Database */
+	private $database;
+
+	public function __construct(Database $database, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->database = $database;
+	}
+
 	protected function post(array $request = [])
 	{
 		$postdata = Network::postdata();
@@ -52,37 +69,36 @@ class Notify extends BaseModule
 			if (empty($user)) {
 				throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 			}
-			self::dispatchPrivate($user, $postdata);
-		} elseif (!self::dispatchPublic($postdata)) {
-			require_once 'mod/salmon.php';
-			salmon_post(DI::app(), $postdata);
+			$this->dispatchPrivate($user, $postdata);
+		} else {
+			$this->dispatchPublic($postdata);
 		}
 	}
 
-	private static function dispatchPublic(string $postdata): bool
+	private function dispatchPublic(string $postdata): bool
 	{
 		$msg = Diaspora::decodeRaw($postdata, '', true);
 		if (!is_array($msg)) {
 			// We have to fail silently to be able to hand it over to the salmon parser
-			Logger::warning('Diaspora::decodeRaw() has failed for some reason.');
+			$this->logger->warning('Diaspora::decodeRaw() has failed for some reason.');
 			return false;
 		}
 
 		// Fetch the corresponding public contact
 		$contact_id = Contact::getIdForURL($msg['author']);
 		if (empty($contact_id)) {
-			Logger::notice('Contact not found', ['address' => $msg['author']]);
+			$this->logger->notice('Contact not found', ['address' => $msg['author']]);
 			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
 		// Fetch the importer (Mixture of sender and receiver)
 		$importer = DFRN::getImporter($contact_id);
 		if (empty($importer)) {
-			Logger::notice('Importer contact not found', ['address' => $msg['author']]);
+			$this->logger->notice('Importer contact not found', ['address' => $msg['author']]);
 			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
-		Logger::debug('Importing post with the public envelope.', ['transmitter' => $msg['author']]);
+		$this->logger->debug('Importing post with the public envelope.', ['transmitter' => $msg['author']]);
 
 		// Now we should be able to import it
 		$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::RELAY);
@@ -91,7 +107,7 @@ class Notify extends BaseModule
 		return true;
 	}
 
-	private static function dispatchPrivate(array $user, string $postdata)
+	private function dispatchPrivate(array $user, string $postdata)
 	{
 		$msg = Diaspora::decodeRaw($postdata, $user['prvkey'] ?? '');
 		if (!is_array($msg)) {
@@ -101,23 +117,23 @@ class Notify extends BaseModule
 		// Fetch the contact
 		$contact = Contact::getByURLForUser($msg['author'], $user['uid'], null, ['id', 'blocked', 'pending']);
 		if (empty($contact['id'])) {
-			Logger::notice('Contact not found', ['address' => $msg['author']]);
+			$this->logger->notice('Contact not found', ['address' => $msg['author']]);
 			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
 		if ($contact['pending'] || $contact['blocked']) {
-			Logger::notice('Contact is blocked or pending', ['address' => $msg['author'], 'contact' => $contact]);
+			$this->logger->notice('Contact is blocked or pending', ['address' => $msg['author'], 'contact' => $contact]);
 			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
 		// Fetch the importer (Mixture of sender and receiver)
 		$importer = DFRN::getImporter($contact['id'], $user['uid']);
 		if (empty($importer)) {
-			Logger::notice('Importer contact not found for user', ['uid' => $user['uid'], 'cid' => $contact['id'], 'address' => $msg['author']]);
+			$this->logger->notice('Importer contact not found for user', ['uid' => $user['uid'], 'cid' => $contact['id'], 'address' => $msg['author']]);
 			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
-		Logger::debug('Importing post with the private envelope.', ['transmitter' => $msg['author'], 'receiver' => $user['nickname']]);
+		$this->logger->debug('Importing post with the private envelope.', ['transmitter' => $msg['author'], 'receiver' => $user['nickname']]);
 
 		// Now we should be able to import it
 		$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::PUSH);

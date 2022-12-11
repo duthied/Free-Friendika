@@ -48,7 +48,6 @@ class DatabaseCacheTest extends CacheTest
 
 	protected function getInstance()
 	{
-		$logger = new NullLogger();
 		$profiler = Mockery::mock(Profiler::class);
 		$profiler->shouldReceive('startRecording');
 		$profiler->shouldReceive('stopRecording');
@@ -62,7 +61,7 @@ class DatabaseCacheTest extends CacheTest
 		$dbaDefinition = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
 		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
 
-		$dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition, $logger);
+		$dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition);
 
 		$this->cache = new Cache\Type\DatabaseCache('database', $dba);
 		return $this->cache;

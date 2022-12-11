@@ -22,7 +22,6 @@
 namespace Friendica\Module\Update;
 
 use Friendica\BaseModule;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -42,15 +41,15 @@ class Profile extends BaseModule
 		// Ensure we've got a profile owner if updating.
 		$a->setProfileOwner((int)($_GET['p'] ?? 0));
 
-		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->getProfileOwner())) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->getLocalUserId() && !DI::userSession()->getRemoteContactID($a->getProfileOwner())) {
 			throw new ForbiddenException();
 		}
 
-		$remote_contact = Session::getRemoteContactID($a->getProfileOwner());
-		$is_owner = local_user() == $a->getProfileOwner();
-		$last_updated_key = "profile:" . $a->getProfileOwner() . ":" . local_user() . ":" . $remote_contact;
+		$remote_contact = DI::userSession()->getRemoteContactID($a->getProfileOwner());
+		$is_owner = DI::userSession()->getLocalUserId() == $a->getProfileOwner();
+		$last_updated_key = "profile:" . $a->getProfileOwner() . ":" . DI::userSession()->getLocalUserId() . ":" . $remote_contact;
 
-		if (!$is_owner && !$remote_contact) {
+		if (!DI::userSession()->isAuthenticated()) {
 			$user = User::getById($a->getProfileOwner(), ['hidewall']);
 			if ($user['hidewall']) {
 				throw new ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
@@ -59,20 +58,20 @@ class Profile extends BaseModule
 
 		$o = '';
 
-		if (empty($_GET['force']) && DI::pConfig()->get(local_user(), 'system', 'no_auto_update')) {
+		if (empty($_GET['force']) && DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'no_auto_update')) {
 			System::htmlUpdateExit($o);
 		}
 
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
 		$sql_extra = Item::getPermissionsSQLByUserId($a->getProfileOwner());
 
-		$last_updated_array = Session::get('last_updated', []);
+		$last_updated_array = DI::session()->get('last_updated', []);
 
 		$last_updated = $last_updated_array[$last_updated_key] ?? 0;
 
 		$condition = ["`uid` = ? AND NOT `contact-blocked` AND NOT `contact-pending`
 				AND `visible` AND (NOT `deleted` OR `gravity` = ?)
-				AND `wall` " . $sql_extra, $a->getProfileOwner(), GRAVITY_ACTIVITY];
+				AND `wall` " . $sql_extra, $a->getProfileOwner(), Item::GRAVITY_ACTIVITY];
 
 		if ($_GET['force'] && !empty($_GET['item'])) {
 			// When the parent is provided, we only fetch this
@@ -102,7 +101,7 @@ class Profile extends BaseModule
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)
 		$last_updated_array[$last_updated_key] = time();
-		Session::set('last_updated', $last_updated_array);
+		DI::session()->set('last_updated', $last_updated_array);
 
 		if ($is_owner && !$a->getProfileOwner() && !DI::config()->get('theme', 'hide_eventlist')) {
 			$o .= ProfileModel::getBirthdays();
@@ -110,9 +109,9 @@ class Profile extends BaseModule
 		}
 
 		if ($is_owner) {
-			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => local_user()]);
+			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => DI::userSession()->getLocalUserId()]);
 			if ($unseen) {
-				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => local_user()]);
+				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => DI::userSession()->getLocalUserId()]);
 			}
 		}
 

@@ -43,7 +43,7 @@ class Storage extends BaseAdmin
 			/** @var ICanConfigureStorage|false $newStorageConfig */
 			$newStorageConfig = DI::storageManager()->getConfigurationByName($storagebackend);
 		} catch (InvalidClassStorageException $storageException) {
-			notice(DI::l10n()->t('Storage backend, %s is invalid.', $storagebackend));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Storage backend, %s is invalid.', $storagebackend));
 			DI::baseUrl()->redirect('admin/storage');
 		}
 
@@ -70,7 +70,7 @@ class Storage extends BaseAdmin
 			$storage_form_errors = $newStorageConfig->saveOptions($storage_opts_data);
 			if (count($storage_form_errors)) {
 				foreach ($storage_form_errors as $name => $err) {
-					notice(DI::l10n()->t('Storage backend %s error: %s', $storage_opts[$name][1], $err));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Storage backend %s error: %s', $storage_opts[$name][1], $err));
 				}
 				DI::baseUrl()->redirect('admin/storage');
 			}
@@ -81,10 +81,10 @@ class Storage extends BaseAdmin
 				$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
 
 				if (!DI::storageManager()->setBackend($newstorage)) {
-					notice(DI::l10n()->t('Invalid storage backend setting value.'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('Invalid storage backend setting value.'));
 				}
 			} catch (InvalidClassStorageException $storageException) {
-				notice(DI::l10n()->t('Invalid storage backend setting value.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Invalid storage backend setting value.'));
 			}
 		}
 

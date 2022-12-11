@@ -24,6 +24,7 @@ namespace Friendica\Module\Api\Mastodon\Timelines;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
@@ -60,7 +61,7 @@ class ListTimeline extends BaseApi
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)",
-			$uid, GRAVITY_PARENT, GRAVITY_COMMENT, $this->parameters['id']];
+			$uid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, $this->parameters['id']];
 
 		if (!empty($request['max_id'])) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);
@@ -82,7 +83,7 @@ class ListTimeline extends BaseApi
 		}
 
 		if ($request['exclude_replies']) {
-			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
+			$condition = DBA::mergeConditions($condition, ['gravity' => Item::GRAVITY_PARENT]);
 		}
 
 		if ($request['local']) {
@@ -90,7 +91,7 @@ class ListTimeline extends BaseApi
 		}
 
 		if ($request['remote']) {
-			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
+			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin` AND `post-user`.`uri-id` = `post-user-view`.`uri-id`)"]);
 		}
 
 		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);

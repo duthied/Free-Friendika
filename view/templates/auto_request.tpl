@@ -9,7 +9,7 @@
 </p>
 {{/if}}
 
-<form action="{{$request}}" method="post">
+<form action="{{$action}}" method="post">
 {{if $url}}
 	<dl>
 		<dt>{{$url_label}}</dt>

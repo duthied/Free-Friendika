@@ -42,9 +42,9 @@ class Media extends BaseProfile
 			DI::page()['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 		}
 
-		$is_owner = local_user() == $profile['uid'];
+		$is_owner = DI::userSession()->getLocalUserId() == $profile['uid'];
 
-		$o = self::getTabsHTML($a, 'media', $is_owner, $profile['nickname'], $profile['hide-friends']);
+		$o = self::getTabsHTML('media', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		$o .= Contact::getPostsFromUrl($profile['url'], false, 0, 0, true);
 

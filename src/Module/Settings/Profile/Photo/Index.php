@@ -22,7 +22,6 @@
 namespace Friendica\Module\Settings\Profile\Photo;
 
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo;
@@ -36,14 +35,14 @@ class Index extends BaseSettings
 {
 	protected function post(array $request = [])
 	{
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			return;
 		}
 
 		self::checkFormSecurityTokenRedirectOnError('/settings/profile/photo', 'settings_profile_photo');
 
 		if (empty($_FILES['userfile'])) {
-			notice(DI::l10n()->t('Missing uploaded image.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Missing uploaded image.'));
 			return;
 		}
 
@@ -54,10 +53,10 @@ class Index extends BaseSettings
 
 		$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
 
-		$maximagesize = DI::config()->get('system', 'maximagesize', 0);
+		$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize', 0));
 
 		if ($maximagesize && $filesize > $maximagesize) {
-			notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
 			@unlink($src);
 			return;
 		}
@@ -66,7 +65,7 @@ class Index extends BaseSettings
 		$Image = new Image($imagedata, $filetype);
 
 		if (!$Image->isValid()) {
-			notice(DI::l10n()->t('Unable to process image.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to process image.'));
 			@unlink($src);
 			return;
 		}
@@ -92,14 +91,14 @@ class Index extends BaseSettings
 
 		$filename = '';
 
-		if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 0, Photo::USER_AVATAR)) {
-			notice(DI::l10n()->t('Image upload failed.'));
+		if (!Photo::store($Image, DI::userSession()->getLocalUserId(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 0, Photo::USER_AVATAR)) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('Image upload failed.'));
 		}
 
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
-			if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 1, Photo::USER_AVATAR)) {
-				notice(DI::l10n()->t('Image size reduction [%s] failed.', '640'));
+			if (!Photo::store($Image, DI::userSession()->getLocalUserId(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 1, Photo::USER_AVATAR)) {
+				DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', '640'));
 			}
 		}
 
@@ -108,7 +107,7 @@ class Index extends BaseSettings
 
 	protected function content(array $request = []): string
 	{
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
@@ -118,7 +117,7 @@ class Index extends BaseSettings
 
 		$newuser = $args->get($args->getArgc() - 1) === 'new';
 
-		$contact = Contact::selectFirst(['avatar'], ['uid' => local_user(), 'self' => true]);
+		$contact = Contact::selectFirst(['avatar'], ['uid' => DI::userSession()->getLocalUserId(), 'self' => true]);
 
 		$tpl = Renderer::getMarkupTemplate('settings/profile/photo/index.tpl');
 		$o = Renderer::replaceMacros($tpl, [
@@ -133,7 +132,7 @@ class Index extends BaseSettings
 				DI::l10n()->t('or'),
 				($newuser) ?
 					'<a href="' . DI::baseUrl() . '">' . DI::l10n()->t('skip this step') . '</a>'
-					: '<a href="' . DI::baseUrl() . '/photos/' . DI::app()->getLoggedInUserNickname() . '">'
+					: '<a href="' . DI::baseUrl() . '/profile/' . DI::app()->getLoggedInUserNickname() . '/photos">'
 						. DI::l10n()->t('select a photo from your photo albums') . '</a>'
 			),
 		]);

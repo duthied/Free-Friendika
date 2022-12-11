@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
@@ -82,13 +83,13 @@ class Delivery
 	public static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id): array
 	{
 		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
-			$item = Post::selectFirst(['id', 'parent', 'origin', 'gravity'], ['uri-id' => $uri_id, 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
+			$item = Post::selectFirst(['id', 'parent', 'origin', 'gravity', 'verb'], ['uri-id' => $uri_id, 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
 			if (empty($item['id'])) {
 				Logger::warning('Item not found, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
 				Post\Delivery::remove($uri_id, $inbox);
 				return ['success' => true, 'serverfailure' => false, 'drop' => false];
-			} elseif (!$item['origin'] && ($item['gravity'] == GRAVITY_ACTIVITY)) {
-				Logger::notice('Activities are not relayed, removing delivery', ['uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
+			} elseif (!DI::config()->get('system', 'redistribute_activities') && !$item['origin'] && ($item['gravity'] == Item::GRAVITY_ACTIVITY)) {
+				Logger::notice('Activities are not relayed, removing delivery', ['verb' => $item['verb'], 'uri-id' => $uri_id, 'uid' => $uid, 'cmd' => $cmd, 'inbox' => $inbox]);
 				Post\Delivery::remove($uri_id, $inbox);
 				return ['success' => true, 'serverfailure' => false, 'drop' => false];
 			} else {

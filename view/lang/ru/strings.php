@@ -508,16 +508,20 @@ $a->strings['remove'] = 'удалить';
 $a->strings['Delete Selected Items'] = 'Удалить выбранные позиции';
 $a->strings['You had been addressed (%s).'] = 'К вам обратились (%s).';
 $a->strings['You are following %s.'] = 'Вы подписаны на %s.';
-$a->strings['Tagged'] = 'Отмечено';
+$a->strings['You subscribed to one or more tags in this post.'] = 'Вы подписаны на один или несколько тегов в этой записи.';
 $a->strings['Reshared'] = 'Репост';
 $a->strings['Reshared by %s <%s>'] = 'Репост от %s <%s>';
 $a->strings['%s is participating in this thread.'] = '%s участвует в этом обсуждении';
-$a->strings['Stored'] = 'Сохранено';
-$a->strings['Global'] = 'Глобально';
-$a->strings['Relayed'] = 'Ретранслировано';
-$a->strings['Relayed by %s <%s>'] = 'Ретранслировано %s <%s>';
+$a->strings['Stored for general reasons'] = 'Загружено по необходимости';
+$a->strings['Global post'] = 'Глобальная запись';
+$a->strings['Sent via an relay server'] = 'Прислано через релей';
+$a->strings['Sent via the relay server %s <%s>'] = 'Прислано через релей %s <%s>';
 $a->strings['Fetched'] = 'Загружено';
 $a->strings['Fetched because of %s <%s>'] = 'Загружено из-за %s <%s>';
+$a->strings['Stored because of a child post to complete this thread.'] = 'Загружено из-за комментария в этой ветке.';
+$a->strings['Stored because of your activity (like, comment, star, ...)'] = 'Загружено из-за ваших действий (лайк, комментарий, ...)';
+$a->strings['Distributed'] = 'Распространено';
+$a->strings['Pushed to us'] = 'Прислано нам';
 $a->strings['General Features'] = 'Основные возможности';
 $a->strings['Photo Location'] = 'Место фотографирования';
 $a->strings['Photo metadata is normally stripped. This extracts the location (if present) prior to stripping metadata and links it to a map.'] = 'Метаданные фотографий обычно вырезаются. Эта настройка получает местоположение (если есть) до вырезки метаданных и связывает с координатами на карте.';
@@ -544,7 +548,6 @@ $a->strings['Forums'] = 'Форумы';
 $a->strings['External link to forum'] = 'Внешняя ссылка на форум';
 $a->strings['show less'] = 'показать меньше';
 $a->strings['show more'] = 'показать больше';
-$a->strings['%1$s poked %2$s'] = '%1$s ткнул %2$s';
 $a->strings['event'] = 'мероприятие';
 $a->strings['Follow Thread'] = 'Подписаться на обсуждение';
 $a->strings['View Status'] = 'Просмотреть статус';
@@ -556,7 +559,6 @@ $a->strings['Send PM'] = 'Отправить ЛС';
 $a->strings['Block'] = 'Заблокировать';
 $a->strings['Ignore'] = 'Игнорировать';
 $a->strings['Languages'] = 'Языки';
-$a->strings['Poke'] = 'потыкать';
 $a->strings['Nothing new here'] = 'Ничего нового здесь';
 $a->strings['Go back'] = 'Назад';
 $a->strings['Clear notifications'] = 'Стереть уведомления';
@@ -809,18 +811,6 @@ $a->strings['Sep'] = 'Сен';
 $a->strings['Oct'] = 'Окт';
 $a->strings['Nov'] = 'Нбр';
 $a->strings['Dec'] = 'Дек';
-$a->strings['poke'] = 'poke';
-$a->strings['poked'] = 'ткнут';
-$a->strings['ping'] = 'пинг';
-$a->strings['pinged'] = 'пингуется';
-$a->strings['prod'] = 'толкать';
-$a->strings['prodded'] = 'толкнут';
-$a->strings['slap'] = 'шлепнуть';
-$a->strings['slapped'] = 'шлепнут';
-$a->strings['finger'] = 'указатель';
-$a->strings['fingered'] = 'пощупали';
-$a->strings['rebuff'] = 'ребаф';
-$a->strings['rebuffed'] = 'ребафнут';
 $a->strings['Friendica can\'t display this page at the moment, please contact the administrator.'] = 'Friendica не может отобразить эту страницу в данный момент, пожалуйста, свяжитесь с администратором.';
 $a->strings['Storage base path'] = 'Корневой каталог хранилища';
 $a->strings['Folder where uploaded files are saved. For maximum security, This should be a path outside web server folder tree'] = 'Каталог, куда сохраняются загруженные файлы. Для максимальной безопасности этот каталог должен быть размещён вне каталогов веб-сервера.';
@@ -922,10 +912,30 @@ $a->strings['comment'] = 'комментарий';
 $a->strings['post'] = 'пост';
 $a->strings['Content warning: %s'] = 'Предупреждение о контенте: %s';
 $a->strings['bytes'] = 'байт';
-$a->strings['%s (%d%s, %d votes)'] = '%s (%d%s, %d голосов)';
-$a->strings['%s (%d votes)'] = '%s (%d голосов)';
-$a->strings['%d voters. Poll end: %s'] = '%d голосов. Конец опроса: %s';
-$a->strings['%d voters.'] = '%d голосов.';
+$a->strings['%2$s (%3$d%%, %1$d vote)'] = [
+	0 => '%2$s (%3$d%%, %1$d голос)',
+	1 => '%2$s (%3$d%%, %1$d голоса)',
+	2 => '%2$s (%3$d%%, %1$d голосов)',
+	3 => '%2$s (%3$d%%, %1$d голосов)',
+];
+$a->strings['%2$s (%1$d vote)'] = [
+	0 => '%2$s (%1$d голос)',
+	1 => '%2$s (%1$d голоса)',
+	2 => '%2$s (%1$d голосов)',
+	3 => '%2$s (%1$d голосов)',
+];
+$a->strings['%d voter. Poll end: %s'] = [
+	0 => '%d голос. Конец опроса: %s',
+	1 => '%d голоса. Конец опроса: %s',
+	2 => '%d голосов. Конец опроса: %s',
+	3 => '%d голосов. Конец опроса: %s',
+];
+$a->strings['%d voter.'] = [
+	0 => '%d голос.',
+	1 => '%d голоса.',
+	2 => '%d голосов.',
+	3 => '%d голосов.',
+];
 $a->strings['Poll end: %s'] = 'Конец опроса: %s';
 $a->strings['View on separate page'] = 'Посмотреть в отдельной вкладке';
 $a->strings['[no subject]'] = '[без темы]';
@@ -969,6 +979,7 @@ $a->strings['Not enough information to authenticate'] = 'Недостаточн�
 $a->strings['Password can\'t be empty'] = 'Пароль не может быть пустым';
 $a->strings['Empty passwords are not allowed.'] = 'Пароль не должен быть пустым.';
 $a->strings['The new password has been exposed in a public data dump, please choose another.'] = 'Новый пароль содержится в опубликованных списках украденных паролей, пожалуйста, используйте другой.';
+$a->strings['The password length is limited to 72 characters.'] = 'Длина пароля ограничена 72 символами.';
 $a->strings['The password can\'t contain accentuated letters, white spaces or colons (:)'] = 'Пароль не может содержать символы с акцентами, пробелы или двоеточия (:)';
 $a->strings['Passwords do not match. Password unchanged.'] = 'Пароли не совпадают. Пароль не изменен.';
 $a->strings['An invitation is required.'] = 'Требуется приглашение.';
@@ -1140,6 +1151,16 @@ $a->strings['
 			Если вы захотите удалить свою учётную запись, то сможете сделать это на %3$s/removeme
 
 			Спасибо и добро пожаловать на %2$s.';
+$a->strings['[%s] Notice of remote server domain pattern block list update'] = '[%s] Обновление списка блокировки серверов';
+$a->strings['Dear %s,
+
+You are receiving this email because the Friendica node at %s where you are registered as a user updated their remote server domain pattern block list.
+
+Please review the updated list at %s at your earliest convenience.'] = 'Уважаемый(ая) %s,
+
+Вы получили это письмо, так как на узле Friendica %s, где вы зарегистрированы, обновился список блокировки серверов.
+
+Пожалуйста, ознакомьтесь с новым списком по адресу %s.';
 $a->strings['Addon not found.'] = 'Дополнение не найдено.';
 $a->strings['Addon %s disabled.'] = 'Дополнение %s отключено.';
 $a->strings['Addon %s enabled.'] = 'Дополнение %s включено.';
@@ -1242,18 +1263,46 @@ $a->strings['Also purges all the locally stored content authored by the known co
 ];
 $a->strings['Block reason'] = 'Причина блокировки';
 $a->strings['The reason why you blocked this server domain pattern. This reason will be shown publicly in the server information page.'] = 'Причина, по которой вы заблокировали этот домен. Это будет показано публично на странице с информацией о сервере.';
+$a->strings['Error importing pattern file'] = 'Ошибка импорта файла списка';
+$a->strings['Local blocklist replaced with the provided file.'] = 'Список блокировки заменён на список из файла.';
+$a->strings['%d pattern was added to the local blocklist.'] = [
+	0 => '%d маска была добавлена в список блокировки.',
+	1 => '%d маски были добавлены в список блокировки.',
+	2 => '%d масок было добавлено в список блокировки.',
+	3 => '%d масок было добавлено в список блокировки.',
+];
+$a->strings['No pattern was added to the local blocklist.'] = 'Новых масок не было добавлено.';
+$a->strings['Import a Server Domain Pattern Blocklist'] = 'Импорт списка блокировки серверов';
+$a->strings['<p>This file can be downloaded from the <code>/friendica</code> path of any Friendica server.</p>'] = '<p>Этот файл может быть загружен по ссылке <code>/friendica</code> с любого сервера Friendica.</p>';
+$a->strings['Upload file'] = 'Загрузить файл';
+$a->strings['Patterns to import'] = 'Маски для импорта';
+$a->strings['Domain Pattern'] = 'Маска домена';
+$a->strings['Import Mode'] = 'Режим импорта';
+$a->strings['Import Patterns'] = 'Импорт значений';
+$a->strings['%d total pattern'] = [
+	0 => '%d маска',
+	1 => '%d маски всего',
+	2 => '%d масок всего',
+	3 => '%d масок всего',
+];
+$a->strings['Server domain pattern blocklist CSV file'] = 'Список блокировки серверов в виде файла CSV';
+$a->strings['Append'] = 'Добавить';
+$a->strings['Imports patterns from the file that weren\'t already existing in the current blocklist.'] = 'Добавляет маски из файла, которые ещё не существуют в текущем списке блокировки.';
+$a->strings['Replace'] = 'Заменить';
+$a->strings['Replaces the current blocklist by the imported patterns.'] = 'Заменяет текущий список загруженными значениями.';
 $a->strings['Blocked server domain pattern'] = 'Маска домена блокируемого сервера';
 $a->strings['Reason for the block'] = 'Причина блокировки';
 $a->strings['Delete server domain pattern'] = 'Удалить маску домена';
-$a->strings['Check to delete this entry from the blocklist'] = 'Отметьте, чтобы удалить эту запись из черного списка';
-$a->strings['Server Domain Pattern Blocklist'] = 'Чёрный список доменов';
-$a->strings['This page can be used to define a blocklist of server domain patterns from the federated network that are not allowed to interact with your node. For each domain pattern you should also provide the reason why you block it.'] = 'На этой странице можно настроить чёрный список доменов узлов федеративной сети, которые не должны взаимодействовать с вашим узлом. Для каждой записи вы должны предоставить причину блокировки.';
+$a->strings['Check to delete this entry from the blocklist'] = 'Отметьте, чтобы удалить эту запись из списка блокировки';
+$a->strings['Server Domain Pattern Blocklist'] = 'Список блокировки доменов';
+$a->strings['This page can be used to define a blocklist of server domain patterns from the federated network that are not allowed to interact with your node. For each domain pattern you should also provide the reason why you block it.'] = 'На этой странице можно настроить список блокировки доменов узлов федеративной сети, которые не должны взаимодействовать с вашим узлом. Для каждой записи вы должны предоставить причину блокировки.';
 $a->strings['The list of blocked server domain patterns will be made publically available on the <a href="/friendica">/friendica</a> page so that your users and people investigating communication problems can find the reason easily.'] = 'Список блокируемых доменов будет отображаться публично на странице <a href="/friendica">/friendica</a>, чтобы ваши пользователи и другие люди могли легко понять причину проблем с доставкой записей.';
-$a->strings['Add new entry to the blocklist'] = 'Добавить новую запись в чёрный список';
-$a->strings['Save changes to the blocklist'] = 'Сохранить изменения чёрного списка';
-$a->strings['Current Entries in the Blocklist'] = 'Текущие значения чёрного списка';
-$a->strings['Delete entry from the blocklist'] = 'Удалить запись из чёрного списка';
-$a->strings['Delete entry from the blocklist?'] = 'Удалить запись из чёрного списка?';
+$a->strings['Import server domain pattern blocklist'] = 'Импорт списка блокировки';
+$a->strings['Add new entry to the blocklist'] = 'Добавить новую запись в список блокировки';
+$a->strings['Save changes to the blocklist'] = 'Сохранить изменения списка блокировки';
+$a->strings['Current Entries in the Blocklist'] = 'Текущие значения списка блокировки';
+$a->strings['Delete entry from the blocklist'] = 'Удалить запись из списка';
+$a->strings['Delete entry from the blocklist?'] = 'Удалить запись из списка блокировки?';
 $a->strings['Update has been marked successful'] = 'Обновление было успешно отмечено';
 $a->strings['Database structure update %s was successfully applied.'] = 'Обновление базы данных %s успешно применено.';
 $a->strings['Executing of database structure update %s failed with error: %s'] = 'Выполнение обновления базы данных %s завершено с ошибкой: %s';
@@ -1271,16 +1320,8 @@ $a->strings['Lock feature %s'] = 'Заблокировать %s';
 $a->strings['Manage Additional Features'] = 'Управление дополнительными возможностями';
 $a->strings['Other'] = 'Другой';
 $a->strings['unknown'] = 'неизвестно';
-$a->strings['%s total systems'] = '%s систем всего';
-$a->strings['%s active users last month'] = '%s активных пользователей за месяц';
-$a->strings['%s active users last six months'] = '%s активных пользователей за полгода';
-$a->strings['%s registered users'] = '%s зарегистрированных пользователей';
-$a->strings['%s locally created posts and comments'] = '%s местных записей и комментариев';
-$a->strings['%s posts per user'] = '%s записей на пользователя';
-$a->strings['%s users per system'] = '%s пользователей на систему';
 $a->strings['This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.'] = 'На этой странице вы можете увидеть немного статистики из известной вашему узлу федеративной сети. Эти данные неполные и только отражают ту часть сети, с которой ваш узел взаимодействовал.';
 $a->strings['Federation Statistics'] = 'Статистика федерации';
-$a->strings['Currently this node is aware of %s nodes (%s active users last month, %s active users last six months, %s registered users in total) from the following platforms:'] = 'Сейчас этому узлу известно о %s узлах (%s активных пользователей за месяц, %s активных пользователей за полгода, %s всего зарегистрированных) со следующих платформ:';
 $a->strings['Item marked for deletion.'] = 'Запись помечена для удаления.';
 $a->strings['Delete Item'] = 'Удалить запись';
 $a->strings['Delete this Item'] = 'Удалить эту запись';
@@ -1312,7 +1353,6 @@ $a->strings['Job Parameters'] = 'Параметры задания';
 $a->strings['Priority'] = 'Приоритет';
 $a->strings['No special theme for mobile devices'] = 'Нет специальной темы для мобильных устройств';
 $a->strings['%s - (Experimental)'] = '%s - (экспериментально)';
-$a->strings['No community page for local users'] = 'Нет общей ленты записей локальных пользователей';
 $a->strings['No community page'] = 'Нет общей ленты записей';
 $a->strings['Public postings from users of this site'] = 'Публичные записи от пользователей этого узла';
 $a->strings['Public postings from the federated network'] = 'Публичные записи федеративной сети';
@@ -1498,6 +1538,7 @@ $a->strings['If enabled, the tags from the saved searches will used for the "tag
 $a->strings['Start Relocation'] = 'Начать перемещение';
 $a->strings['Invalid storage backend setting value.'] = 'Недопустимое значение типа хранилища.';
 $a->strings['Database (legacy)'] = 'База данных (устаревшее)';
+$a->strings['There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s'] = 'Новая версия Friendica доступна для загрузки. Ваша текущая версия %1$s, последняя версия %2$s';
 $a->strings['The worker was never executed. Please check your database structure!'] = 'Фоновые задания ни разу не выполнялись. Пожалуйста, проверьте структуру базы данных!';
 $a->strings['The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings.'] = 'Последний раз фоновое задание выполнялось  %s UTC. Это более одного часа назад. Пожалуйста, проверьте настройки crontab.';
 $a->strings['Normal Account'] = 'Обычный аккаунт';
@@ -1625,7 +1666,6 @@ $a->strings['Weekly posting limit of %d post reached. The post was rejected.'] =
 	2 => 'Недельный лимит в %d записей достигнут. Запись была отклонена.',
 	3 => 'Недельный лимит в %d записей достигнут. Запись была отклонена.',
 ];
-$a->strings['Monthly posting limit of %d post reached. The post was rejected.'] = 'Месячный лимит в %d записей достигнут. Запись была отклонена.';
 $a->strings['Profile Details'] = 'Информация о вас';
 $a->strings['Only You Can See This'] = 'Только вы можете это видеть';
 $a->strings['Scheduled Posts'] = 'Запланированные записи';
@@ -1713,12 +1753,6 @@ $a->strings['Contact (%s)'] = [
 	2 => 'Контакты (%s)',
 	3 => 'Контакты (%s)',
 ];
-$a->strings['Error while sending poke, please retry.'] = 'Ошибка при отправке тычка, попробуйте ещё.';
-$a->strings['You must be logged in to use this module.'] = 'Вам нужно войти, чтобы использовать этот модуль.';
-$a->strings['Poke/Prod'] = 'Потыкать/Потолкать';
-$a->strings['poke, prod or do other things to somebody'] = 'Потыкать, потолкать или сделать что-то еще с кем-то';
-$a->strings['Choose what you wish to do to recipient'] = 'Выберите действия для получателя';
-$a->strings['Make this post private'] = 'Сделать эту запись личной';
 $a->strings['Failed to update contact record.'] = 'Не удалось обновить запись контакта.';
 $a->strings['Contact has been unblocked'] = 'Контакт разблокирован';
 $a->strings['Contact has been blocked'] = 'Контакт заблокирован';
@@ -1775,12 +1809,12 @@ $a->strings['Contact is deleted.'] = 'Контакт удалён.';
 $a->strings['Follow was successfully revoked.'] = 'Подписка была успешно отозвана.';
 $a->strings['Do you really want to revoke this contact\'s follow? This cannot be undone and they will have to manually follow you back again.'] = 'Вы действительно хотите отозвать подписку этого контакта на вас? Это нельзя будет отменить позже, им потребуется снова подписаться на вас.';
 $a->strings['Yes'] = 'Да';
+$a->strings['This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.'] = 'Эта общая лента показывает все публичные записи, которые получил этот сервер. Они могут не отражать мнений пользователей этого сервера.';
 $a->strings['Local Community'] = 'Местное сообщество';
 $a->strings['Posts from local users on this server'] = 'Записи пользователей с этого сервера';
 $a->strings['Global Community'] = 'Глобальное сообщество';
 $a->strings['Posts from users of the whole federated network'] = 'Записи пользователей со всей федеративной сети';
 $a->strings['No results.'] = 'Нет результатов.';
-$a->strings['This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.'] = 'Эта общая лента показывает все публичные записи, которые получил этот сервер. Они могут не отражать мнений пользователей этого сервера.';
 $a->strings['Not available.'] = 'Недоступно.';
 $a->strings['No such group'] = 'Нет такой группы';
 $a->strings['Group: %s'] = 'Группа: %s';
@@ -1816,8 +1850,8 @@ $a->strings['No entries (some entries may be hidden).'] = 'Нет записей
 $a->strings['Find on this site'] = 'Найти на этом сайте';
 $a->strings['Results for:'] = 'Результаты для:';
 $a->strings['Site Directory'] = 'Каталог сайта';
-$a->strings['Item was not removed'] = 'Запись не была удалена';
 $a->strings['Item was not deleted'] = 'Запись не была удалена';
+$a->strings['Item was not removed'] = 'Запись не была удалена';
 $a->strings['- select -'] = '- выбрать -';
 $a->strings['Suggested contact not found.'] = 'Рекомендованный контакт не найден.';
 $a->strings['Friend suggestion sent.'] = 'Приглашение в друзья отправлено.';
@@ -1827,6 +1861,7 @@ $a->strings['Installed addons/apps:'] = 'Установленные дополн
 $a->strings['No installed addons/apps'] = 'Нет установленных дополнений';
 $a->strings['Read about the <a href="%1$s/tos">Terms of Service</a> of this node.'] = 'Ознакомьтесь с <a href="%1$s/tos">Условиями Предоставления Услуг</a> этого узла.';
 $a->strings['On this server the following remote servers are blocked.'] = 'На этом сервере заблокированы следующие удалённые серверы.';
+$a->strings['Download this list in CSV format'] = 'Скачать этот список в формате CSV';
 $a->strings['This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.'] = 'Это сервер Friendica, версия %s, работающий по адресу %s. Версия базы данных %s, версия post update %s.';
 $a->strings['Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'] = 'Посетите <a href="https://friendi.ca">Friendi.ca</a>, чтобы узнать больше о проекте Friendica.';
 $a->strings['Bug reports and issues: please visit'] = 'Отчет об ошибках и проблемах: пожалуйста, посетите';
@@ -2013,6 +2048,7 @@ $a->strings['Remote subscription can\'t be done for your network. Please subscri
 $a->strings['Friend/Connection Request'] = 'Запрос в друзья / на подключение';
 $a->strings['If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica node and join us today</a>.'] = 'Если вы ещё не член свободной социальной сети, <a href="%s">пройдите по этой ссылке, чтобы найти публичный узел Friendica и присоединитесь к нам сегодня</a>.';
 $a->strings['Your Webfinger address or profile URL:'] = 'Ваш адрес Webfinger или ссылка на профиль:';
+$a->strings['You must be logged in to use this module.'] = 'Вам нужно войти, чтобы использовать этот модуль.';
 $a->strings['Only logged in users are permitted to perform a search.'] = 'Только зарегистрированные пользователи могут использовать поиск.';
 $a->strings['Only one search per minute is permitted for not logged in users.'] = 'Незарегистрированные пользователи могут выполнять поиск раз в минуту.';
 $a->strings['Items tagged with: %s'] = 'Элементы с тегами: %s';
@@ -2031,6 +2067,11 @@ $a->strings['terms of service'] = 'правила';
 $a->strings['Website Privacy Policy'] = 'Политика конфиденциальности сервера';
 $a->strings['privacy policy'] = 'политика конфиденциальности';
 $a->strings['Logged out.'] = 'Выход из системы.';
+$a->strings['Passwords do not match.'] = 'Пароли не совпадают';
+$a->strings['Password unchanged.'] = 'Пароль не поменялся';
+$a->strings['Current Password:'] = 'Текущий пароль:';
+$a->strings['Your current password to confirm the changes'] = 'Ваш текущий пароль, для подтверждения изменений';
+$a->strings['Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'] = 'Разрешенные символы: a-z, A-Z, 0-9 специальные символы за исключением пробелов, букв с акцентами и двоеточия (:).';
 $a->strings['Remaining recovery codes: %d'] = 'Осталось кодов для восстановления: %d';
 $a->strings['Invalid code, please retry.'] = 'Неправильный код, попробуйте ещё.';
 $a->strings['Two-factor recovery'] = 'Двухфакторное восстановление доступа';
@@ -2041,8 +2082,6 @@ $a->strings['Submit recovery code and complete login'] = 'Отправить к�
 $a->strings['<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'] = '<p>Откройте приложение для двухфакторной аутентификации на вашем устройстве, чтобы получить код аутентификации и подтвердить вашу личность.</p>';
 $a->strings['Please enter a code from your authentication app'] = 'Пожалуйста, введите код из вашего приложения для аутентификации';
 $a->strings['Verify code and complete login'] = 'Введите код для завершения входа';
-$a->strings['Passwords do not match.'] = 'Пароли не совпадают';
-$a->strings['Password unchanged.'] = 'Пароль не поменялся';
 $a->strings['Please use a shorter name.'] = 'Пожалуйста, выберите имя короче.';
 $a->strings['Name too short.'] = 'Имя слишком короткое';
 $a->strings['Wrong Password.'] = 'Неправильный пароль';
@@ -2073,10 +2112,7 @@ $a->strings['Your profile will also be published in the global friendica directo
 $a->strings['Account Settings'] = 'Настройки аккаунта';
 $a->strings['Your Identity Address is <strong>\'%s\'</strong> or \'%s\'.'] = 'Ваш адрес: <strong>\'%s\'</strong> или \'%s\'.';
 $a->strings['Password Settings'] = 'Смена пароля';
-$a->strings['Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'] = 'Разрешенные символы: a-z, A-Z, 0-9 специальные символы за исключением пробелов, букв с акцентами и двоеточия (:).';
 $a->strings['Leave password fields blank unless changing'] = 'Оставьте поля пароля пустыми, если он не изменяется';
-$a->strings['Current Password:'] = 'Текущий пароль:';
-$a->strings['Your current password to confirm the changes'] = 'Ваш текущий пароль, для подтверждения изменений';
 $a->strings['Password:'] = 'Пароль:';
 $a->strings['Your current password to confirm the changes of the email address'] = 'Ваш текущий пароль для подтверждения смены адреса почты';
 $a->strings['Delete OpenID URL'] = 'Удалить ссылку OpenID';
@@ -2128,7 +2164,6 @@ $a->strings['Someone writes a followup comment'] = 'Кто-то пишет по�
 $a->strings['You receive a private message'] = 'Вы получаете личное сообщение';
 $a->strings['You receive a friend suggestion'] = 'Вы полулили предложение о добавлении в друзья';
 $a->strings['You are tagged in a post'] = 'Вы отмечены в записи';
-$a->strings['You are poked/prodded/etc. in a post'] = 'Вас потыкали/подтолкнули/и т.д. в записи';
 $a->strings['Create a desktop notification when:'] = 'Показывать уведомление при:';
 $a->strings['Someone tagged you'] = 'Вас отметили';
 $a->strings['Someone directly commented on your post'] = 'На вашу запись написали комментарий';
@@ -2256,7 +2291,6 @@ $a->strings['skip this step'] = 'пропустить этот шаг';
 $a->strings['select a photo from your photo albums'] = 'выберите фото из ваших фотоальбомов';
 $a->strings['Please enter your password to access this page.'] = 'Пожалуйста, введите ваш пароль для доступа к этой странице.';
 $a->strings['Revoke All'] = 'Отозвать все';
-$a->strings['Wrong Password'] = 'Неверный пароль.';
 $a->strings['Current password:'] = 'Текущий пароль:';
 $a->strings['Enable two-factor authentication'] = 'Включить двухфакторную аутентификацию';
 $a->strings['Show recovery codes'] = 'Показать коды восстановления';
@@ -2358,9 +2392,6 @@ $a->strings['Please visit %s to view and/or reply to the conversation.'] = 'По
 $a->strings['%s %s posted to your profile wall'] = '%s %s размещены на стене вашего профиля';
 $a->strings['%1$s posted to your profile wall at %2$s'] = '%1$s написал на вашей стене на %2$s';
 $a->strings['%1$s posted to [url=%2$s]your wall[/url]'] = '%1$s написал на [url=%2$s]вашей стене[/url]';
-$a->strings['%1$s %2$s poked you'] = '%1$s %2$s продвинул тебя';
-$a->strings['%1$s poked you at %2$s'] = '%1$s потыкал вас на %2$s';
-$a->strings['%1$s [url=%2$s]poked you[/url].'] = '%1$s [url=%2$s]потыкал вас[/url].';
 $a->strings['%s Introduction received'] = '%s Входящих получено';
 $a->strings['You\'ve received an introduction from \'%1$s\' at %2$s'] = 'Вы получили запрос от \'%1$s\' на %2$s';
 $a->strings['You\'ve received [url=%1$s]an introduction[/url] from %2$s.'] = 'Вы получили [url=%1$s]запрос[/url] от %2$s.';
@@ -2517,6 +2548,8 @@ $a->strings['Set the background color'] = 'Установить цвет фон�
 $a->strings['Content background opacity'] = 'Прозрачность фона основного содержимого';
 $a->strings['Set the background image'] = 'Установить фоновую картинку';
 $a->strings['Background image style'] = 'Стиль фонового изображения';
+$a->strings['Always open Compose page'] = 'Всегда открывать страницу редактора';
+$a->strings['The New Post button always open the <a href="/compose">Compose page</a> instead of the modal form. When this is disabled, the Compose page can be accessed with a middle click on the link or from the modal.'] = 'Кнопка создания новой записи всегда будет открывать <a href="/compose">страницу редактора</a> вместо всплывающего окна. Когда это отключено, страница редактора может быть развёрнута из всплывающего окна, либо при открытии ссылки кнопки в новой вкладке.';
 $a->strings['Login page background image'] = 'Фоновое изображение страницы входа';
 $a->strings['Login page background color'] = 'Цвет фона страницы входа';
 $a->strings['Leave background image and color empty for theme defaults'] = 'Оставьте настройки фоновых цвета и изображения пустыми, чтобы применить настройки темы по-умолчанию.';

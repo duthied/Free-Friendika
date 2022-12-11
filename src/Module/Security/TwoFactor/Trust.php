@@ -25,7 +25,8 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Model\User\Cookie;
 use Friendica\Module\Response;
@@ -50,7 +51,7 @@ class Trust extends BaseModule
 	protected $app;
 	/** @var Authentication  */
 	protected $auth;
-	/** @var IHandleSessions  */
+	/** @var IHandleUserSessions  */
 	protected $session;
 	/** @var Cookie  */
 	protected $cookie;
@@ -59,7 +60,7 @@ class Trust extends BaseModule
 	/** @var TwoFactor\Repository\TrustedBrowser  */
 	protected $trustedBrowserRepository;
 
-	public function __construct(App $app, Authentication $auth, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IHandleSessions $session, Cookie $cookie, TwoFactor\Factory\TrustedBrowser $trustedBrowserFactory, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepositoy, Response $response, array $server, array $parameters = [])
+	public function __construct(App $app, Authentication $auth, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IHandleUserSessions $session, Cookie $cookie, TwoFactor\Factory\TrustedBrowser $trustedBrowserFactory, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepositoy, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -73,7 +74,7 @@ class Trust extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		if (!local_user() || !$this->session->get('2fa')) {
+		if (!$this->session->getLocalUserId() || !$this->session->get('2fa')) {
 			$this->logger->info('Invalid call', ['request' => $request]);
 			return;
 		}
@@ -86,13 +87,13 @@ class Trust extends BaseModule
 			switch ($action) {
 				case 'trust':
 				case 'dont_trust':
-					$trustedBrowser = $this->trustedBrowserFactory->createForUserWithUserAgent(local_user(), $this->server['HTTP_USER_AGENT'], $action === 'trust');
+					$trustedBrowser = $this->trustedBrowserFactory->createForUserWithUserAgent($this->session->getLocalUserId(), $this->server['HTTP_USER_AGENT'], $action === 'trust');
 					try {
 						$this->trustedBrowserRepository->save($trustedBrowser);
 
 						// The string is sent to the browser to be sent back with each request
 						if (!$this->cookie->set('2fa_cookie_hash', $trustedBrowser->cookie_hash)) {
-							notice($this->t('Couldn\'t save browser to Cookie.'));
+							DI::sysmsg()->addNotice($this->t('Couldn\'t save browser to Cookie.'));
 						};
 					} catch (TrustedBrowserPersistenceException $exception) {
 						$this->logger->warning('Unexpected error when saving the trusted browser.', ['trustedBrowser' => $trustedBrowser, 'exception' => $exception]);
@@ -114,7 +115,7 @@ class Trust extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user() || !$this->session->get('2fa')) {
+		if (!$this->session->getLocalUserId() || !$this->session->get('2fa')) {
 			$this->baseUrl->redirect();
 		}
 

@@ -102,7 +102,7 @@ class Group
 				$group = DBA::selectFirst('group', ['deleted'], ['id' => $gid]);
 				if (DBA::isResult($group) && $group['deleted']) {
 					DBA::update('group', ['deleted' => 0], ['id' => $gid]);
-					notice(DI::l10n()->t('A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.'));
+					DI::sysmsg()->addNotice(DI::l10n()->t('A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.'));
 				}
 				return true;
 			}
@@ -187,8 +187,8 @@ class Group
 					) AS `count`
 				FROM `group`
 				WHERE `group`.`uid` = ?;",
-			local_user(),
-			local_user()
+			DI::userSession()->getLocalUserId(),
+			DI::userSession()->getLocalUserId()
 		);
 
 		return DBA::toArray($stmt);
@@ -526,7 +526,7 @@ class Group
 	 */
 	public static function sidebarWidget(string $every = 'contact', string $each = 'group', string $editmode = 'standard', $group_id = '', int $cid = 0)
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return '';
 		}
 
@@ -544,7 +544,7 @@ class Group
 			$member_of = self::getIdsByContactId($cid);
 		}
 
-		$stmt = DBA::select('group', [], ['deleted' => false, 'uid' => local_user(), 'cid' => null], ['order' => ['name']]);
+		$stmt = DBA::select('group', [], ['deleted' => false, 'uid' => DI::userSession()->getLocalUserId(), 'cid' => null], ['order' => ['name']]);
 		while ($group = DBA::fetch($stmt)) {
 			$selected = (($group_id == $group['id']) ? ' group-selected' : '');
 

@@ -62,7 +62,7 @@ class ACL
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
-		$contacts = self::getValidMessageRecipientsForUser(local_user());
+		$contacts = self::getValidMessageRecipientsForUser(DI::userSession()->getLocalUserId());
 
 		$tpl = Renderer::getMarkupTemplate('acl/message_recipient.tpl');
 		$o = Renderer::replaceMacros($tpl, [

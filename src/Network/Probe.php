@@ -38,8 +38,10 @@ use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
+use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -52,15 +54,24 @@ use GuzzleHttp\Psr7\Uri;
  */
 class Probe
 {
+	const HOST_META = '/.well-known/host-meta';
 	const WEBFINGER = '/.well-known/webfinger?resource={uri}';
 
+	/**
+	 * @var string Base URL
+	 */
 	private static $baseurl;
-	private static $istimeout;
+
+	/**
+	 * @var boolean Whether a timeout has occured
+	 */
+	private static $isTimeout;
 
 	/**
 	 * Checks if the provided network can be probed
 	 *
 	 * @param string $network
+	 *
 	 * @return boolean
 	 */
 	public static function isProbable(string $network): bool
@@ -100,7 +111,8 @@ class Probe
 	 */
 	private static function rearrangeData(array $data): array
 	{
-		$fields = ['name', 'nick', 'guid', 'url', 'addr', 'alias', 'photo', 'header',
+		$fields = ['name', 'given_name', 'family_name', 'nick', 'guid', 'url', 'addr', 'alias',
+		        'photo', 'photo_medium', 'photo_small', 'header',
 				'account-type', 'community', 'keywords', 'location', 'about', 'xmpp', 'matrix',
 				'hide', 'batch', 'notify', 'poll', 'request', 'confirm', 'subscribe', 'poco',
 				'following', 'followers', 'inbox', 'outbox', 'sharedinbox',
@@ -114,12 +126,23 @@ class Probe
 				if (in_array($field, $numeric_fields)) {
 					$newdata[$field] = (int)$data[$field];
 				} else {
-					$newdata[$field] = $data[$field];
+					$newdata[$field] = trim($data[$field]);
 				}
 			} elseif (!in_array($field, $numeric_fields)) {
 				$newdata[$field] = '';
 			} else {
 				$newdata[$field] = null;
+			}
+		}
+
+		$newdata['networks'] = [];
+		foreach ([Protocol::DIASPORA, Protocol::OSTATUS] as $network) {
+			if (!empty($data['networks'][$network])) {
+				$data['networks'][$network]['subscribe'] = $newdata['subscribe'] ?? '';
+				$data['networks'][$network]['baseurl'] = $newdata['baseurl'] ?? '';
+				$data['networks'][$network]['gsid'] = $newdata['gsid'] ?? 0;
+				$newdata['networks'][$network] = self::rearrangeData($data['networks'][$network]);
+				unset($newdata['networks'][$network]['networks']);
 			}
 		}
 
@@ -142,7 +165,7 @@ class Probe
 		$parts = parse_url($host);
 
 		if (!isset($parts['scheme'])) {
-			$parts = parse_url('http://'.$host);
+			$parts = parse_url('http://' . $host);
 		}
 
 		if (!isset($parts['host'])) {
@@ -158,6 +181,7 @@ class Probe
 	 * It seems as if it was dropped from the standard.
 	 *
 	 * @param string $host The host part of an url
+	 *
 	 * @return array with template and type of the webfinger template for JSON or XML
 	 * @throws HTTPException\InternalServerErrorException
 	 */
@@ -168,10 +192,10 @@ class Probe
 
 		// Handles the case when the hostname contains the scheme
 		if (!parse_url($host, PHP_URL_SCHEME)) {
-			$ssl_url = 'https://' . $host . '/.well-known/host-meta';
-			$url = 'http://' . $host . '/.well-known/host-meta';
+			$ssl_url = 'https://' . $host . self::HOST_META;
+			$url = 'http://' . $host . self::HOST_META;
 		} else {
-			$ssl_url = $host . '/.well-known/host-meta';
+			$ssl_url = $host . self::HOST_META;
 			$url = '';
 		}
 
@@ -192,7 +216,7 @@ class Probe
 			}
 		} elseif ($curlResult->isTimeout()) {
 			Logger::info('Probing timeout', ['url' => $ssl_url]);
-			self::$istimeout = true;
+			self::$isTimeout = true;
 			return [];
 		}
 
@@ -201,10 +225,10 @@ class Probe
 			$connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 			if ($curlResult->isTimeout()) {
 				Logger::info('Probing timeout', ['url' => $url]);
-				self::$istimeout = true;
+				self::$isTimeout = true;
 				return [];
 			} elseif ($connection_error && $ssl_connection_error) {
-				self::$istimeout = true;
+				self::$isTimeout = true;
 				return [];
 			}
 
@@ -305,7 +329,7 @@ class Probe
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function uri($uri, $network = '', $uid = -1)
+	public static function uri(string $uri, string $network = '', int $uid = -1): array
 	{
 		// Local profiles aren't probed via network
 		if (empty($network) && Contact::isLocal($uri)) {
@@ -316,7 +340,7 @@ class Probe
 		}
 
 		if ($uid == -1) {
-			$uid = local_user();
+			$uid = DI::userSession()->getLocalUserId();
 		}
 
 		if (empty($network) || ($network == Protocol::ACTIVITYPUB)) {
@@ -325,7 +349,7 @@ class Probe
 			$ap_profile = [];
 		}
 
-		self::$istimeout = false;
+		self::$isTimeout = false;
 
 		if ($network != Protocol::ACTIVITYPUB) {
 			$data = self::detect($uri, $network, $uid, $ap_profile);
@@ -333,7 +357,13 @@ class Probe
 				$data = [];
 			}
 			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') != Protocol::DFRN))) {
+				$networks = $data['networks'] ?? [];
+				unset($data['networks']);
+				if (!empty($data['network'])) {
+					$networks[$data['network']] = $data;
+				}
 				$data = $ap_profile;
+				$data['networks'] = $networks;
 			} elseif (!empty($ap_profile)) {
 				$ap_profile['batch'] = '';
 				$data = array_merge($ap_profile, $data);
@@ -454,6 +484,7 @@ class Probe
 	 *
 	 * @param array $result Result array
 	 * @param array $webfinger Webfinger data
+	 *
 	 * @return array result Altered/unaltered result array
 	 */
 	private static function getSubscribeLink(array $result, array $webfinger): array
@@ -475,6 +506,7 @@ class Probe
 	 * Get webfinger data from a given URI
 	 *
 	 * @param string $uri URI
+	 *
 	 * @return array Webfinger data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
@@ -532,13 +564,13 @@ class Probe
 			$addr = $uri;
 
 			$webfinger = self::getWebfinger('https://' . $host . self::WEBFINGER, HttpClientAccept::JRD_JSON, $uri, $addr);
-			if (self::$istimeout) {
+			if (self::$isTimeout) {
 				return [];
 			}
 
 			if (empty($webfinger)) {
 				$webfinger = self::getWebfinger('http://' . $host . self::WEBFINGER, HttpClientAccept::JRD_JSON, $uri, $addr);
-				if (self::$istimeout) {
+				if (self::$isTimeout) {
 					return [];
 				}
 			} else {
@@ -547,7 +579,7 @@ class Probe
 
 			if (empty($webfinger)) {
 				$lrdd = self::hostMeta($host);
-				if (self::$istimeout) {
+				if (self::$isTimeout) {
 					return [];
 				}
 				$baseurl = self::$baseurl;
@@ -590,6 +622,7 @@ class Probe
 	 * @param string $type
 	 * @param string $uri
 	 * @param string $addr
+	 *
 	 * @return array webfinger results
 	 */
 	private static function getWebfinger(string $template, string $type, string $uri, string $addr): array
@@ -604,7 +637,7 @@ class Probe
 			$detected = $addr;
 			$path = str_replace('{uri}', urlencode('acct:' . $addr), $template);
 			$webfinger = self::webfinger($path, $type);
-			if (self::$istimeout) {
+			if (self::$isTimeout) {
 				return [];
 			}
 		}
@@ -614,7 +647,7 @@ class Probe
 			$detected = $uri;
 			$path = str_replace('{uri}', urlencode($uri), $template);
 			$webfinger = self::webfinger($path, $type);
-			if (self::$istimeout) {
+			if (self::$isTimeout) {
 				return [];
 			}
 		}
@@ -654,7 +687,7 @@ class Probe
 		}
 
 		$parts = parse_url($uri);
-		if (empty($parts['scheme']) && empty($parts['host']) && !strstr($parts['path'], '@')) {
+		if (empty($parts['scheme']) && empty($parts['host']) && (empty($parts['path']) || strpos($parts['path'], '@') === false)) {
 			Logger::info('URI was not detectable', ['uri' => $uri]);
 			return [];
 		}
@@ -701,9 +734,13 @@ class Probe
 		}
 		if ((!$result && ($network == '')) || ($network == Protocol::DIASPORA)) {
 			$result = self::diaspora($webfinger);
+		} else {
+			$result['networks'][Protocol::DIASPORA] = self::diaspora($webfinger);
 		}
 		if ((!$result && ($network == '')) || ($network == Protocol::OSTATUS)) {
 			$result = self::ostatus($webfinger);
+		} else {
+			$result['networks'][Protocol::OSTATUS] = self::ostatus($webfinger);
 		}
 		if (in_array($network, ['', Protocol::ZOT])) {
 			$result = self::zot($webfinger, $result, $baseurl);
@@ -750,6 +787,7 @@ class Probe
 	 * @param array  $webfinger Webfinger data
 	 * @param array  $data      previously probed data
 	 * @param string $baseUrl   Base URL
+	 *
 	 * @return array Zot data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
@@ -890,6 +928,7 @@ class Probe
 	 *
 	 * @param string $url  Address that should be probed
 	 * @param string $type type
+	 *
 	 * @return array webfinger data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
@@ -899,7 +938,7 @@ class Probe
 
 		$curlResult = DI::httpClient()->get($url, $type, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 		if ($curlResult->isTimeout()) {
-			self::$istimeout = true;
+			self::$isTimeout = true;
 			return [];
 		}
 		$data = $curlResult->getBody();
@@ -960,6 +999,7 @@ class Probe
 	 *
 	 * @param string $noscrape_url Link to the noscrape page
 	 * @param array  $data         The already fetched data
+	 *
 	 * @return array noscrape data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
@@ -967,7 +1007,7 @@ class Probe
 	{
 		$curlResult = DI::httpClient()->get($noscrape_url, HttpClientAccept::JSON);
 		if ($curlResult->isTimeout()) {
-			self::$istimeout = true;
+			self::$isTimeout = true;
 			return $data;
 		}
 		$content = $curlResult->getBody();
@@ -1066,7 +1106,7 @@ class Probe
 	 *
 	 * @return int Number of errors
 	 */
-	public static function validDfrn($data)
+	public static function validDfrn(array $data): int
 	{
 		$errors = 0;
 		if (!isset($data['key'])) {
@@ -1229,7 +1269,7 @@ class Probe
 	{
 		$curlResult = DI::httpClient()->get($hcard_url, HttpClientAccept::HTML);
 		if ($curlResult->isTimeout()) {
-			self::$istimeout = true;
+			self::$isTimeout = true;
 			return [];
 		}
 		$content = $curlResult->getBody();
@@ -1273,9 +1313,19 @@ class Probe
 				$data['name'] = $search->item(0)->nodeValue;
 			}
 
+			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' given_name ')]", $vcard); // */
+			if ($search->length > 0) {
+				$data["given_name"] = $search->item(0)->nodeValue;
+			}
+
+			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' family_name ')]", $vcard); // */
+			if ($search->length > 0) {
+				$data["family_name"] = $search->item(0)->nodeValue;
+			}
+
 			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' searchable ')]", $vcard); // */
 			if ($search->length > 0) {
-				$data['searchable'] = $search->item(0)->nodeValue;
+				$data['hide'] = (strtolower($search->item(0)->nodeValue) != 'true');
 			}
 
 			$search = $xpath->query("//*[contains(concat(' ', @class, ' '), ' key ')]", $vcard); // */
@@ -1292,7 +1342,7 @@ class Probe
 			}
 		}
 
-		$avatar = [];
+		$avatars = [];
 		if (!empty($vcard)) {
 			$photos = $xpath->query("//*[contains(concat(' ', @class, ' '), ' photo ') or contains(concat(' ', @class, ' '), ' avatar ')]", $vcard); // */
 			foreach ($photos as $photo) {
@@ -1302,20 +1352,27 @@ class Probe
 				}
 
 				if (isset($attr['src']) && isset($attr['width'])) {
-					$avatar[$attr['width']] = $attr['src'];
+					$avatars[$attr['width']] = self::fixAvatar($attr['src'], $data['baseurl']);
 				}
 
 				// We don't have a width. So we just take everything that we got.
 				// This is a Hubzilla workaround which doesn't send a width.
-				if ((sizeof($avatar) == 0) && !empty($attr['src'])) {
-					$avatar[] = $attr['src'];
+				if (!$avatars && !empty($attr['src'])) {
+					$avatars[] = self::fixAvatar($attr['src'], $data['baseurl']);
 				}
 			}
 		}
 
-		if (sizeof($avatar)) {
-			ksort($avatar);
-			$data['photo'] = self::fixAvatar(array_pop($avatar), $data['baseurl']);
+		if ($avatars) {
+			ksort($avatars);
+			$data['photo'] = array_pop($avatars);
+			if ($avatars) {
+				$data['photo_medium'] = array_pop($avatars);
+			}
+
+			if ($avatars) {
+				$data['photo_small'] = array_pop($avatars);
+			}
 		}
 
 		if ($dfrn) {
@@ -1339,7 +1396,6 @@ class Probe
 			}
 		}
 
-
 		return $data;
 	}
 
@@ -1347,6 +1403,7 @@ class Probe
 	 * Check for Diaspora contact
 	 *
 	 * @param array $webfinger Webfinger data
+	 *
 	 * @return array Diaspora data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
@@ -1441,6 +1498,7 @@ class Probe
 	 *
 	 * @param array $webfinger Webfinger data
 	 * @param bool  $short     Short detection mode
+	 *
 	 * @return array|bool OStatus data or "false" on error or "true" on short mode
 	 * @throws HTTPException\InternalServerErrorException
 	 */
@@ -1487,19 +1545,17 @@ class Probe
 					} elseif (Strings::normaliseLink($pubkey) == 'http://') {
 						$curlResult = DI::httpClient()->get($pubkey, HttpClientAccept::MAGIC_KEY);
 						if ($curlResult->isTimeout()) {
-							self::$istimeout = true;
+							self::$isTimeout = true;
 							return $short ? false : [];
 						}
 						Logger::debug('Fetched public key', ['Content-Type' => $curlResult->getHeader('Content-Type'), 'url' => $pubkey]);
 						$pubkey = $curlResult->getBody();
 					}
 
-					$key = explode('.', $pubkey);
+					try {
+						$data['pubkey'] = Salmon::magicKeyToPem($pubkey);
+					} catch (\Throwable $e) {
 
-					if (sizeof($key) >= 3) {
-						$m = Strings::base64UrlDecode($key[1]);
-						$e = Strings::base64UrlDecode($key[2]);
-						$data['pubkey'] = Crypto::meToPem($m, $e);
 					}
 				}
 			}
@@ -1522,7 +1578,7 @@ class Probe
 		// Fetch all additional data from the feed
 		$curlResult = DI::httpClient()->get($data['poll'], HttpClientAccept::FEED_XML);
 		if ($curlResult->isTimeout()) {
-			self::$istimeout = true;
+			self::$isTimeout = true;
 			return [];
 		}
 		$feed = $curlResult->getBody();
@@ -1567,6 +1623,7 @@ class Probe
 	 * Fetch data from a pump.io profile page
 	 *
 	 * @param string $profile_link Link to the profile page
+	 *
 	 * @return array Profile data
 	 */
 	private static function pumpioProfileData(string $profile_link): array
@@ -1627,6 +1684,7 @@ class Probe
 	 *
 	 * @param array  $webfinger Webfinger data
 	 * @param string $addr
+	 *
 	 * @return array pump.io data
 	 */
 	private static function pumpio(array $webfinger, string $addr): array
@@ -1684,6 +1742,7 @@ class Probe
 	 *
 	 * @param string $url  Page link
 	 * @param string $body Page body string
+	 *
 	 * @return string|false Feed link or false if body was invalid HTML document
 	 */
 	public static function getFeedLink(string $url, string $body)
@@ -1700,6 +1759,7 @@ class Probe
 		$xpath = new DOMXPath($doc);
 
 		$feedUrl = $xpath->evaluate('string(/html/head/link[@type="application/rss+xml" and @rel="alternate"]/@href)');
+		$feedUrl = $feedUrl ?: $xpath->evaluate('string(/html/head/link[@type="application/atom+xml" and @rel="alternate"]/@href)');
 
 		$feedUrl = $feedUrl ? self::ensureAbsoluteLinkFromHTMLDoc($feedUrl, $url, $xpath) : '';
 
@@ -1716,6 +1776,7 @@ class Probe
 	 * @param string   $href  The potential relative href found in the HTML document
 	 * @param string   $base  The HTML document URL
 	 * @param DOMXPath $xpath The HTML document XPath
+	 *
 	 * @return string Absolute URL
 	 */
 	private static function ensureAbsoluteLinkFromHTMLDoc(string $href, string $base, DOMXPath $xpath): string
@@ -1777,6 +1838,7 @@ class Probe
 	 *
 	 * @param string  $url   Profile link
 	 * @param boolean $probe Do a probe if the page contains a feed link
+	 *
 	 * @return array feed data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
@@ -1784,7 +1846,7 @@ class Probe
 	{
 		$curlResult = DI::httpClient()->get($url, HttpClientAccept::FEED_XML);
 		if ($curlResult->isTimeout()) {
-			self::$istimeout = true;
+			self::$isTimeout = true;
 			return [];
 		}
 		$feed = $curlResult->getBody();
@@ -1833,6 +1895,7 @@ class Probe
 	 *
 	 * @param string  $uri Profile link
 	 * @param integer $uid User ID
+	 *
 	 * @return array mail data
 	 * @throws \Exception
 	 */
@@ -1873,22 +1936,26 @@ class Probe
 
 		$phost = substr($uri, strpos($uri, '@') + 1);
 
-		$data = [];
-		$data['addr']    = $uri;
-		$data['network'] = Protocol::MAIL;
-		$data['name']    = substr($uri, 0, strpos($uri, '@'));
+		$data = [
+			'addr'    => $uri,
+			'network' => Protocol::MAIL,
+			'name'    => substr($uri, 0, strpos($uri, '@')),
+			'photo'   => Network::lookupAvatarByEmail($uri),
+			'url'     => 'mailto:' . $uri,
+			'notify'  => 'smtp ' . Strings::getRandomHex(),
+			'poll'    => 'email ' . Strings::getRandomHex(),
+		];
+
 		$data['nick']    = $data['name'];
-		$data['photo']   = Network::lookupAvatarByEmail($uri);
-		$data['url']     = 'mailto:'.$uri;
-		$data['notify']  = 'smtp ' . Strings::getRandomHex();
-		$data['poll']    = 'email ' . Strings::getRandomHex();
 
 		$x = Email::messageMeta($mbox, $msgs[0]);
+
 		if (stristr($x[0]->from, $uri)) {
 			$adr = imap_rfc822_parse_adrlist($x[0]->from, '');
 		} elseif (stristr($x[0]->to, $uri)) {
 			$adr = imap_rfc822_parse_adrlist($x[0]->to, '');
 		}
+
 		if (isset($adr)) {
 			foreach ($adr as $feadr) {
 				if ((strcasecmp($feadr->mailbox, $data['name']) == 0)
@@ -1907,9 +1974,11 @@ class Probe
 				}
 			}
 		}
+
 		if (!empty($mbox)) {
 			imap_close($mbox);
 		}
+
 		return $data;
 	}
 
@@ -1918,6 +1987,7 @@ class Probe
 	 *
 	 * @param string $avatar Path to the avatar
 	 * @param string $base   Another path that is hopefully complete
+	 *
 	 * @return string fixed avatar path
 	 * @throws \Exception
 	 */
@@ -1954,6 +2024,7 @@ class Probe
 	 * Fetch the last date that the contact had posted something (publically)
 	 *
 	 * @param array $data  probing result
+	 *
 	 * @return string last activity
 	 */
 	public static function getLastUpdate(array $data): string
@@ -1985,6 +2056,7 @@ class Probe
 	 * Fetch the last activity date from the "noscrape" endpoint
 	 *
 	 * @param array $data Probing result
+	 *
 	 * @return string last activity or true if update was successful or the server was unreachable
 	 */
 	private static function updateFromNoScrape(array $data): string
@@ -2017,6 +2089,7 @@ class Probe
 	 *
 	 * @param string $feed
 	 * @param array  $data Probing result
+	 *
 	 * @return string last activity
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -2121,6 +2194,7 @@ class Probe
 	 * Probe data from local profiles without network traffic
 	 *
 	 * @param string $url
+	 *
 	 * @return array probed data
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
@@ -2136,26 +2210,49 @@ class Probe
 			$owner     = User::getOwnerDataById($uid);
 			$approfile = ActivityPub\Transmitter::getProfile($uid);
 
+			$split_name = Diaspora::splitName($owner['name']);
+	
 			if (empty($owner['gsid'])) {
 				$owner['gsid'] = GServer::getID($approfile['generator']['url']);
 			}
 
 			$data = [
-				'name' => $owner['name'], 'nick' => $owner['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
-				'url' => $owner['url'], 'addr' => $owner['addr'], 'alias' => $owner['alias'],
-				'photo' => User::getAvatarUrl($owner),
-				'header' => $owner['header'] ? Contact::getHeaderUrlForId($owner['id'], $owner['updated']) : '',
-				'account-type' => $owner['contact-type'], 'community' => ($owner['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
-				'keywords' => $owner['keywords'], 'location' => $owner['location'], 'about' => $owner['about'],
-				'xmpp' => $owner['xmpp'], 'matrix' => $owner['matrix'],
-				'hide' => !$owner['net-publish'], 'batch' => '', 'notify' => $owner['notify'],
-				'poll' => $owner['poll'], 'request' => $owner['request'], 'confirm' => $owner['confirm'],
-				'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $owner['poco'],
-				'following' => $approfile['following'], 'followers' => $approfile['followers'],
-				'inbox' => $approfile['inbox'], 'outbox' => $approfile['outbox'],
-				'sharedinbox' => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN,
-				'pubkey' => $owner['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $owner['gsid'],
-				'manually-approve' => in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])
+				'name'             => $owner['name'], 'nick' => $owner['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
+				'url'              => $owner['url'], 'addr' => $owner['addr'], 'alias' => $owner['alias'],
+				'photo'            => User::getAvatarUrl($owner),
+				'header'           => $owner['header'] ? Contact::getHeaderUrlForId($owner['id'], $owner['updated']) : '',
+				'account-type'     => $owner['contact-type'], 'community' => ($owner['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
+				'keywords'         => $owner['keywords'], 'location' => $owner['location'], 'about' => $owner['about'],
+				'xmpp'             => $owner['xmpp'], 'matrix' => $owner['matrix'],
+				'hide'             => !$owner['net-publish'], 'batch' => '', 'notify' => $owner['notify'],
+				'poll'             => $owner['poll'], 'request' => $owner['request'], 'confirm' => $owner['confirm'],
+				'subscribe'        => $approfile['generator']['url'] . '/contact/follow?url={uri}', 'poco' => $owner['poco'],
+				'following'        => $approfile['following'], 'followers' => $approfile['followers'],
+				'inbox'            => $approfile['inbox'], 'outbox' => $approfile['outbox'],
+				'sharedinbox'      => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN,
+				'pubkey'           => $owner['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $owner['gsid'],
+				'manually-approve' => in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]),
+				'networks' => [
+					Protocol::DIASPORA => [
+						'name'         => $owner['name'],
+						'given_name'   => $split_name['first'],
+						'family_name'  => $split_name['last'],
+						'nick'         => $owner['nick'],
+						'guid'         => $approfile['diaspora:guid'],
+						'url'          => $owner['url'],
+						'addr'         => $owner['addr'],
+						'alias'        => $owner['alias'],
+						'photo'        => $owner['photo'],
+						'photo_medium' => $owner['thumb'],
+						'photo_small'  => $owner['micro'],
+						'batch'        => $approfile['generator']['url'] . '/receive/public',
+						'notify'       => $owner['notify'],
+						'poll'         => $owner['poll'],
+						'poco'         => $owner['poco'],						
+						'network'      => Protocol::DIASPORA,
+						'pubkey'       => $owner['upubkey'],
+					]
+				]
 			];
 		} catch (Exception $e) {
 			// Default values for non existing targets

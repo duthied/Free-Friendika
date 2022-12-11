@@ -22,7 +22,6 @@
 namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -39,7 +38,7 @@ class Star extends BaseModule
 	{
 		$l10n = DI::l10n();
 
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
@@ -50,13 +49,13 @@ class Star extends BaseModule
 		$itemId = intval($this->parameters['id']);
 
 
-		$item = Post::selectFirstForUser(local_user(), ['uid', 'uri-id', 'starred'], ['uid' => [0, local_user()], 'id' => $itemId]);
+		$item = Post::selectFirstForUser(DI::userSession()->getLocalUserId(), ['uid', 'uri-id', 'starred'], ['uid' => [0, DI::userSession()->getLocalUserId()], 'id' => $itemId]);
 		if (empty($item)) {
 			throw new HTTPException\NotFoundException();
 		}
 
 		if ($item['uid'] == 0) {
-			$stored = Item::storeForUserByUriId($item['uri-id'], local_user(), ['post-reason' => Item::PR_ACTIVITY]);
+			$stored = Item::storeForUserByUriId($item['uri-id'], DI::userSession()->getLocalUserId(), ['post-reason' => Item::PR_ACTIVITY]);
 			if (!empty($stored)) {
 				$item = Post::selectFirst(['starred'], ['id' => $stored]);
 				if (!DBA::isResult($item)) {

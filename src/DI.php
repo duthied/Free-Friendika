@@ -22,6 +22,8 @@
 namespace Friendica;
 
 use Dice\Dice;
+use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Navigation\SystemMessages;
 use Psr\Log\LoggerInterface;
 
@@ -211,12 +213,14 @@ abstract class DI
 		return self::$dice->create(Core\Worker\Repository\Process::class);
 	}
 
-	/**
-	 * @return Core\Session\Capability\IHandleSessions
-	 */
-	public static function session()
+	public static function session(): IHandleSessions
 	{
 		return self::$dice->create(Core\Session\Capability\IHandleSessions::class);
+	}
+
+	public static function userSession(): IHandleUserSessions
+	{
+		return self::$dice->create(Core\Session\Capability\IHandleUserSessions::class);
 	}
 
 	/**
@@ -373,6 +377,14 @@ abstract class DI
 	public static function mstdnStatus()
 	{
 		return self::$dice->create(Factory\Api\Mastodon\Status::class);
+	}
+
+	/**
+	 * @return Factory\Api\Mastodon\StatusSource
+	 */
+	public static function mstdnStatusSource()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\StatusSource::class);
 	}
 
 	/**
@@ -585,6 +597,11 @@ abstract class DI
 	public static function activity()
 	{
 		return self::$dice->create(Protocol\Activity::class);
+	}
+
+	public static function dsprContact(): Protocol\Diaspora\Repository\DiasporaContact
+	{
+		return self::$dice->create(Protocol\Diaspora\Repository\DiasporaContact::class);
 	}
 
 	//

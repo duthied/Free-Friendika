@@ -21,10 +21,10 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\App\Router;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -34,6 +34,7 @@ use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Module\BaseApi;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Images;
 
@@ -47,7 +48,47 @@ class Statuses extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$this->response->unsupported(Router::PUT, $request);
+		$request = $this->getRequest([
+			'status'         => '',    // Text content of the status. If media_ids is provided, this becomes optional. Attaching a poll is optional while status is provided.
+			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
+			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
+			'language'       => '',    // ISO 639 language code for this status.
+		], $request);
+
+		$owner = User::getOwnerDataById($uid);
+
+		$condition = [
+			'uid'        => $uid,
+			'uri-id'     => $this->parameters['id'],
+			'contact-id' => $owner['id'],
+			'author-id'  => Contact::getPublicIdByUserId($uid),
+			'origin'     => true,
+		];
+
+		$post = Post::selectFirst(['uri-id', 'id'], $condition);
+		if (empty($post['id'])) {
+			throw new HTTPException\NotFoundException('Item with URI ID ' . $this->parameters['id'] . ' not found for user ' . $uid . '.');
+		}
+
+		// The imput is defined as text. So we can use Markdown for some enhancements
+		$item = ['body' => Markdown::toBBCode($request['status']), 'app' => $this->getApp()];
+
+		if (!empty($request['language'])) {
+			$item['language'] = json_encode([$request['language'] => 1]);
+		}
+
+		if (!empty($request['spoiler_text'])) {
+			if ($request['in_reply_to_id'] != $post['uri-id']) {
+				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
+			} else {
+				$item['title'] = $request['spoiler_text'];
+			}
+		}
+
+		Item::update($item, ['id' => $post['id']]);
+		Item::updateDisplayCache($post['uri-id']);
+
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($post['uri-id'], $uid));
 	}
 
 	protected function post(array $request = [])
@@ -79,14 +120,7 @@ class Statuses extends BaseApi
 		$item['contact-id'] = $owner['id'];
 		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
 		$item['body']       = $body;
-
-		if (!empty(self::getCurrentApplication()['name'])) {
-			$item['app'] = self::getCurrentApplication()['name'];
-		}
-
-		if (empty($item['app'])) {
-			$item['app'] = 'API';
-		}
+		$item['app']        = $this->getApp();
 
 		switch ($request['visibility']) {
 			case 'public':
@@ -151,13 +185,13 @@ class Statuses extends BaseApi
 			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
 
 			$item['thr-parent']  = $parent['uri'];
-			$item['gravity']     = GRAVITY_COMMENT;
+			$item['gravity']     = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 			$item['body']        = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
 		} else {
 			self::checkThrottleLimit();
 
-			$item['gravity']     = GRAVITY_PARENT;
+			$item['gravity']     = Item::GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
 			$item['title']       = $request['spoiler_text'];
 		}
@@ -204,7 +238,7 @@ class Statuses extends BaseApi
 		if (!empty($request['scheduled_at'])) {
 			$item['guid'] = Item::guid($item, true);
 			$item['uri'] = Item::newURI($item['guid']);
-			$id = Post\Delayed::add($item['uri'], $item, PRIORITY_HIGH, Post\Delayed::PREPARED, $request['scheduled_at']);
+			$id = Post\Delayed::add($item['uri'], $item, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED, $request['scheduled_at']);
 			if (empty($id)) {
 				DI::mstdnError()->InternalError();
 			}
@@ -255,5 +289,14 @@ class Statuses extends BaseApi
 		}
 
 		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid));
+	}
+
+	private function getApp(): string
+	{
+		if (!empty(self::getCurrentApplication()['name'])) {
+			return self::getCurrentApplication()['name'];
+		} else {
+			return 'API';
+		}
 	}
 }

@@ -23,10 +23,12 @@ namespace Friendica\Navigation\Notifications\Factory;
 
 use Friendica\BaseFactory;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Model\Contact;
 use Friendica\Navigation\Notifications\Entity;
 use Friendica\Navigation\Notifications\Exception\NoMessageException;
 use Friendica\Navigation\Notifications\ValueObject;
+use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
 use Friendica\Util\Temporal;
@@ -46,47 +48,61 @@ class FormattedNavNotification extends BaseFactory
 	private $baseUrl;
 	/** @var \Friendica\Core\L10n */
 	private $l10n;
+	/** @var IHandleUserSessions */
+	private $userSession;
 	/** @var string */
 	private $tpl;
 
-	public function __construct(Notification $notification, \Friendica\App\BaseURL $baseUrl, \Friendica\Core\L10n $l10n, LoggerInterface $logger)
+	public function __construct(Notification $notification, \Friendica\App\BaseURL $baseUrl, \Friendica\Core\L10n $l10n, LoggerInterface $logger, IHandleUserSessions $userSession)
 	{
 		parent::__construct($logger);
 
 		$this->notification = $notification;
 		$this->baseUrl      = $baseUrl;
 		$this->l10n         = $l10n;
+		$this->userSession  = $userSession;
 
 		$this->tpl = Renderer::getMarkupTemplate('notifications/nav/notify.tpl');
 	}
 
 	/**
-	 * @param array     $contact A contact array with the following keys: name, url
+	 * @param string    $contact_name
+	 * @param string    $contact_url
 	 * @param string    $message A notification message with the {0} placeholder for the contact name
 	 * @param \DateTime $date
 	 * @param Uri       $href
 	 * @param bool      $seen
 	 * @return ValueObject\FormattedNavNotification
-	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
+	 * @throws HTTPException\ServiceUnavailableException
 	 */
-	public function createFromParams(array $contact, string $message, \DateTime $date, Uri $href, bool $seen = false): ValueObject\FormattedNavNotification
+	public function createFromParams(string $contact_name, string $contact_url, string $message, \DateTime $date, Uri $href, bool $seen = false): ValueObject\FormattedNavNotification
 	{
-		$contact['photo'] = Contact::getAvatarUrlForUrl($contact['url'], local_user(), Proxy::SIZE_MICRO);
+		$contact_photo = Contact::getAvatarUrlForUrl($contact_url, $this->userSession->getLocalUserId(), Proxy::SIZE_MICRO);
+
+		// Removing the RTL Override character to prevent a garbled notification message
+		// See https://github.com/friendica/friendica/issues/12084
+		$contact_name = str_replace("\xE2\x80\xAE", '', $contact_name);
 
 		$dateMySQL = $date->format(DateTimeFormat::MYSQL);
 
 		$templateNotify = [
-			'contact'   => $contact,
+			'contact' => [
+				'name'  => $contact_name,
+				'url'   => $contact_url,
+				'photo' => $contact_photo,
+			],
 			'href'      => $href->__toString(),
 			'message'   => $message,
 			'seen'      => $seen,
 			'localdate' => DateTimeFormat::local($dateMySQL),
 			'ago'       => Temporal::getRelativeDate($dateMySQL),
-			'richtext'  => Entity\Notify::formatMessage($contact['name'], $message),
+			'richtext'  => Entity\Notify::formatMessage($contact_name, $message),
 		];
 
 		return new ValueObject\FormattedNavNotification(
-			$contact,
+			$contact_name,
+			$contact_url,
+			$contact_photo,
 			$date->getTimestamp(),
 			strip_tags($templateNotify['richtext']),
 			Renderer::replaceMacros($this->tpl, ['notify' => $templateNotify]),
@@ -99,9 +115,9 @@ class FormattedNavNotification extends BaseFactory
 	 * @param Entity\Notification $notification
 	 * @return ValueObject\FormattedNavNotification
 	 * @throws NoMessageException
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \Friendica\Network\HTTPException\NotFoundException
-	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException
+	 * @throws HTTPException\ServiceUnavailableException
 	 */
 	public function createFromNotification(Entity\Notification $notification): ValueObject\FormattedNavNotification
 	{
@@ -116,7 +132,8 @@ class FormattedNavNotification extends BaseFactory
 		}
 
 		return $this->createFromParams(
-			self::$contacts[$notification->actorId],
+			self::$contacts[$notification->actorId]['name'],
+			self::$contacts[$notification->actorId]['url'],
 			$message['notification'],
 			$notification->created,
 			new Uri($this->baseUrl->get() . '/notification/' . $notification->id),
@@ -124,10 +141,20 @@ class FormattedNavNotification extends BaseFactory
 		);
 	}
 
+	/**
+	 * @param \Friendica\Contact\Introduction\Entity\Introduction $intro
+	 * @return ValueObject\FormattedNavNotification
+	 * @throws HTTPException\NotFoundException when the contact record couldn't be located
+	 * @throws HTTPException\ServiceUnavailableException
+	 */
 	public function createFromIntro(\Friendica\Contact\Introduction\Entity\Introduction $intro): ValueObject\FormattedNavNotification
 	{
-		if (!isset(self::$contacts[$intro->cid])) {
-			self::$contacts[$intro->cid] = Contact::getById($intro->cid, ['name', 'url', 'pending']);
+		if (empty(self::$contacts[$intro->cid])) {
+			if ($contact = Contact::getById($intro->cid, ['name', 'url', 'pending'])) {
+				self::$contacts[$intro->cid] = $contact;
+			} else {
+				throw new HTTPException\NotFoundException('Contact not found with id' . $intro->cid);
+			}
 		}
 
 		if (self::$contacts[$intro->cid]['pending']) {
@@ -137,7 +164,8 @@ class FormattedNavNotification extends BaseFactory
 		}
 
 		return $this->createFromParams(
-			self::$contacts[$intro->cid],
+			self::$contacts[$intro->cid]['name'],
+			self::$contacts[$intro->cid]['url'],
 			$msg,
 			$intro->datetime,
 			new Uri($this->baseUrl->get() . '/notifications/intros/' . $intro->id)

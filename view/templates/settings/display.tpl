@@ -20,6 +20,7 @@
 	{{include file="field_checkbox.tpl" field=$enable_dislike}}
 	{{include file="field_checkbox.tpl" field=$display_resharer}}
 	{{include file="field_checkbox.tpl" field=$stay_local}}
+	{{include file="field_select.tpl" field=$preview_mode}}
 
 	<h2>{{$calendar_title}}</h2>
 	{{include file="field_select.tpl" field=$first_day_of_week}}

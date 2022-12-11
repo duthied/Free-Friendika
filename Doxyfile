@@ -1,4 +1,4 @@
-INPUT = README.md index.php boot.php update.php bin/ mod/ include/ view/ src/ VERSION
+INPUT = README.md index.php update.php bin/ mod/ view/ src/ VERSION
 RECURSIVE = YES
 PROJECT_NAME = "Friendica"
 PROJECT_LOGO = images/friendica-64.png

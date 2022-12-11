@@ -1,4 +1,4 @@
-<script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script src="{{$baseurl}}/view/theme/frio/js/jquery.tools.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 <div class="form-group field select">
@@ -208,6 +208,8 @@
 		}
 	});
 </script>
+
+{{include file="field_checkbox.tpl" field=$always_open_compose}}
 
 <div class="settings-submit-wrapper pull-right">
 	<button type="submit" value="{{$submit}}" class="settings-submit btn btn-primary" name="frio-settings-submit">{{$submit}}</button>

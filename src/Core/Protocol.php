@@ -22,6 +22,7 @@
 namespace Friendica\Core;
 
 use Friendica\Database\DBA;
+use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
@@ -139,7 +140,7 @@ class Protocol
 			// create a follow slap
 			$item = [
 				'verb'    => Activity::FOLLOW,
-				'gravity' => GRAVITY_ACTIVITY,
+				'gravity' => Item::GRAVITY_ACTIVITY,
 				'follow'  => $contact['url'],
 				'body'    => '',
 				'title'   => '',
@@ -181,7 +182,8 @@ class Protocol
 	public static function unfollow(array $contact, array $user): ?bool
 	{
 		if (empty($contact['network'])) {
-			throw new \InvalidArgumentException('Missing network key in contact array');
+			Logger::notice('Contact has got no network, we quit here', ['id' => $contact['id']]);
+			return null;
 		}
 
 		$protocol = $contact['network'];
@@ -191,18 +193,21 @@ class Protocol
 
 		if (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
 			// create an unfollow slap
-			$item = [];
-			$item['verb'] = Activity::O_UNFOLLOW;
-			$item['gravity'] = GRAVITY_ACTIVITY;
-			$item['follow'] = $contact['url'];
-			$item['body'] = '';
-			$item['title'] = '';
-			$item['guid'] = '';
-			$item['uri-id'] = 0;
+			$item = [
+				'verb'    => Activity::O_UNFOLLOW,
+				'gravity' => Item::GRAVITY_ACTIVITY,
+				'follow'  => $contact['url'],
+				'body'    => '',
+				'title'   => '',
+				'guid'    => '',
+				'uri-id'  => 0,
+			];
+
 			$slap = OStatus::salmon($item, $user);
 
 			if (empty($contact['notify'])) {
-				throw new \InvalidArgumentException('Missing expected "notify" key in OStatus/DFRN contact');
+				Logger::notice('OStatus/DFRN Contact is missing notify, we quit here', ['id' => $contact['id']]);
+				return null;
 			}
 
 			return Salmon::slapper($user, $contact['notify'], $slap) === 0;

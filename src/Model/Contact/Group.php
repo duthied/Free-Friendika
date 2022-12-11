@@ -22,6 +22,7 @@
 namespace Friendica\Model\Contact;
 
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 
 /**
@@ -53,7 +54,7 @@ class Group
 				AND NOT `contact`.`pending`
 				ORDER BY `contact`.`name` ASC',
 				$gid,
-				local_user()
+				DI::userSession()->getLocalUserId()
 			);
 
 			if (DBA::isResult($stmt)) {
@@ -78,7 +79,7 @@ class Group
 	{
 		return Contact::selectToArray([], ["`uid` = ? AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `failed`
 			AND `id` NOT IN (SELECT DISTINCT(`contact-id`) FROM `group_member` INNER JOIN `group` ON `group`.`id` = `group_member`.`gid`
-			   	WHERE `group`.`uid` = ?)", $uid, $uid]);
+			   	WHERE `group`.`uid` = ? AND `contact-id` = `contact`.`id`)", $uid, $uid]);
 	}
 
 	/**

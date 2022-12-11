@@ -19,6 +19,7 @@ General
 * c - Community
 * s - Search
 * a - Admin
+* m - Moderation
 * f - Notifications
 * u - User menu
 

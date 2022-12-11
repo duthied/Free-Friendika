@@ -44,7 +44,7 @@ class OnePoll
 {
 	public static function execute(int $contact_id = 0, string $command = '')
 	{
-		Logger::notice('Start polling/probing contact', ['id' => $contact_id]);
+		Logger::notice('Start polling/probing contact', ['id' => $contact_id, 'command' => $command]);
 
 		$force = ($command == 'force');
 
@@ -119,6 +119,7 @@ class OnePoll
 	 *
 	 * @param array $contact The personal contact entry
 	 * @param array $fields  The fields that are updated
+	 *
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -148,7 +149,7 @@ class OnePoll
 	 * @return bool   Success
 	 * @throws \Exception
 	 */
-	private static function pollFeed(array $contact, $importer)
+	private static function pollFeed(array $contact, array $importer): bool
 	{
 		// Are we allowed to import from this person?
 		if ($contact['rel'] == Contact::FOLLOWER || $contact['blocked']) {
@@ -187,9 +188,11 @@ class OnePoll
 	 * @param  array   $contact      The personal contact entry
 	 * @param  integer $importer_uid The UID of the importer
 	 * @param  string  $updated      The updated date
+	 *
+	 * @return bool Success
 	 * @throws \Exception
 	 */
-	private static function pollMail(array $contact, $importer_uid, $updated)
+	private static function pollMail(array $contact, int $importer_uid, string $updated): bool
 	{
 		Logger::info('Fetching mails', ['addr' => $contact['addr']]);
 
@@ -242,25 +245,25 @@ class OnePoll
 				foreach ($msgs as $msg_uid => $meta) {
 					Logger::info('Parsing mail', ['message-uid' => $msg_uid]);
 
-					$datarray = [];
-					$datarray['uid'] = $importer_uid;
-					$datarray['contact-id'] = $contact['id'];
-					$datarray['verb'] = Activity::POST;
-					$datarray['object-type'] = Activity\ObjectType::NOTE;
-					$datarray['network'] = Protocol::MAIL;
-					$datarray['protocol'] = Conversation::PARCEL_IMAP;
-					$datarray['direction'] = Conversation::PULL;
-				
-					// $meta = Email::messageMeta($mbox, $msg_uid);
-
+					$datarray = [
+						'uid'         => $importer_uid,
+						'contact-id'  => $contact['id'],
+						'verb'        => Activity::POST,
+						'object-type' => Activity\ObjectType::NOTE,
+						'network'     => Protocol::MAIL,
+						'protocol'    => Conversation::PARCEL_IMAP,
+						'direction'   => Conversation::PULL,
+					];
 					$datarray['thr-parent'] = $datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));
+
+					// $meta = Email::messageMeta($mbox, $msg_uid);
 
 					// Have we seen it before?
 					$fields = ['deleted', 'id'];
 					$condition = ['uid' => $importer_uid, 'uri' => $datarray['uri']];
 					$item = Post::selectFirst($fields, $condition);
 					if (DBA::isResult($item)) {
-						Logger::info("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri']);
+						Logger::info('Mail: Seen before ' . $msg_uid . ' for ' . $mailconf['user'] . ' UID: ' . $importer_uid . ' URI: ' . $datarray['uri']);
 
 						// Only delete when mails aren't automatically moved or deleted
 						if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
@@ -271,20 +274,23 @@ class OnePoll
 
 						switch ($mailconf['action']) {
 							case 0:
-								Logger::info("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.");
+								Logger::info('Mail: Seen before ' . $msg_uid . ' for ' . $mailconf['user'] . '. Doing nothing.');
 								break;
+
 							case 1:
-								Logger::notice("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
+								Logger::notice('Mail: Deleting ' . $msg_uid . ' for ' . $mailconf['user']);
 								imap_delete($mbox, $msg_uid, FT_UID);
 								break;
+
 							case 2:
-								Logger::notice("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
+								Logger::notice('Mail: Mark as seen ' . $msg_uid . ' for ' . $mailconf['user']);
 								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
 								break;
+
 							case 3:
-								Logger::notice("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
+								Logger::notice('Mail: Moving ' . $msg_uid . ' to ' . $mailconf['movetofolder'] . ' for ' . $mailconf['user']);
 								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-								if ($mailconf['movetofolder'] != "") {
+								if ($mailconf['movetofolder'] != '') {
 									imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
 								}
 								break;
@@ -329,12 +335,12 @@ class OnePoll
 					$datarray['created'] = DateTimeFormat::utc($meta->date);
 
 					// Is it a reply?
-					$reply = ((substr(strtolower($datarray['title']), 0, 3) == "re:") ||
-						(substr(strtolower($datarray['title']), 0, 3) == "re-") ||
-						($raw_refs != ""));
+					$reply = ((substr(strtolower($datarray['title']), 0, 3) == 're:') ||
+						(substr(strtolower($datarray['title']), 0, 3) == 're-') ||
+						($raw_refs != ''));
 
 					// Remove Reply-signs in the subject
-					$datarray['title'] = self::RemoveReply($datarray['title']);
+					$datarray['title'] = self::removeReply($datarray['title']);
 
 					// If it seems to be a reply but a header couldn't be found take the last message with matching subject
 					if (empty($datarray['thr-parent']) && $reply) {
@@ -376,11 +382,11 @@ class OnePoll
 					}
 
 					$datarray['author-name'] = $fromname;
-					$datarray['author-link'] = "mailto:".$frommail;
+					$datarray['author-link'] = 'mailto:' . $frommail;
 					$datarray['author-avatar'] = $contact['photo'];
 
 					$datarray['owner-name'] = $contact['name'];
-					$datarray['owner-link'] = "mailto:".$contact['addr'];
+					$datarray['owner-link'] = 'mailto:' . $contact['addr'];
 					$datarray['owner-avatar'] = $contact['photo'];
 
 					if (empty($datarray['thr-parent']) || ($datarray['thr-parent'] === $datarray['uri'])) {
@@ -398,26 +404,29 @@ class OnePoll
 						continue;
 					}
 
-					Logger::notice("Mail: Importing ".$msg_uid." for ".$mailconf['user']);
+					Logger::notice('Mail: Importing ' . $msg_uid . ' for ' . $mailconf['user']);
 
 					Item::insert($datarray);
 
 					switch ($mailconf['action']) {
 						case 0:
-							Logger::info("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.");
+							Logger::info('Mail: Seen before ' . $msg_uid . ' for ' . $mailconf['user'] . '. Doing nothing.');
 							break;
+
 						case 1:
-							Logger::notice("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
+							Logger::notice('Mail: Deleting ' . $msg_uid . ' for ' . $mailconf['user']);
 							imap_delete($mbox, $msg_uid, FT_UID);
 							break;
+
 						case 2:
-							Logger::notice("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
+							Logger::notice('Mail: Mark as seen ' . $msg_uid . ' for ' . $mailconf['user']);
 							imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
 							break;
+
 						case 3:
-							Logger::notice("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
+							Logger::notice('Mail: Moving ' . $msg_uid . ' to ' . $mailconf['movetofolder'] . ' for ' . $mailconf['user']);
 							imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-							if ($mailconf['movetofolder'] != "") {
+							if ($mailconf['movetofolder'] != '') {
 								imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
 							}
 							break;
@@ -435,9 +444,9 @@ class OnePoll
 		return true;
 	}
 
-	private static function RemoveReply($subject)
+	private static function removeReply(string $subject): string
 	{
-		while (in_array(strtolower(substr($subject, 0, 3)), ["re:", "aw:"])) {
+		while (in_array(strtolower(substr($subject, 0, 3)), ['re:', 'aw:'])) {
 			$subject = trim(substr($subject, 4));
 		}
 
@@ -449,9 +458,11 @@ class OnePoll
 	 * @param array  $importer
 	 * @param array  $contact
 	 * @param string $hubmode
+	 *
+	 * @return bool Success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function subscribeToHub(string $url, array $importer, array $contact, string $hubmode = 'subscribe')
+	private static function subscribeToHub(string $url, array $importer, array $contact, string $hubmode = 'subscribe'): bool
 	{
 		$push_url = DI::baseUrl() . '/pubsub/' . $importer['nick'] . '/' . $contact['id'];
 

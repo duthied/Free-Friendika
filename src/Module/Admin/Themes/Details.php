@@ -36,7 +36,7 @@ class Details extends BaseAdmin
 
 		$theme = Strings::sanitizeFilePathItem($this->parameters['theme']);
 		if (!is_dir("view/theme/$theme")) {
-			notice(DI::l10n()->t("Item not found."));
+			DI::sysmsg()->addNotice(DI::l10n()->t("Item not found."));
 			return '';
 		}
 
@@ -54,11 +54,11 @@ class Details extends BaseAdmin
 
 			if ($isEnabled) {
 				Theme::uninstall($theme);
-				info(DI::l10n()->t('Theme %s disabled.', $theme));
+				DI::sysmsg()->addInfo(DI::l10n()->t('Theme %s disabled.', $theme));
 			} elseif (Theme::install($theme)) {
-				info(DI::l10n()->t('Theme %s successfully enabled.', $theme));
+				DI::sysmsg()->addInfo(DI::l10n()->t('Theme %s successfully enabled.', $theme));
 			} else {
-				notice(DI::l10n()->t('Theme %s failed to install.', $theme));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Theme %s failed to install.', $theme));
 			}
 
 			DI::baseUrl()->redirect('admin/themes/' . $theme);

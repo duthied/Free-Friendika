@@ -73,6 +73,7 @@
 			<label id="profile-edit-homepage-label" for="profile-edit-homepage">{{$homepage.1}} </label>
 			<input type="url" size="32" name="homepage" id="profile-edit-homepage" value="{{$homepage.2}}"/>
 		</div>
+		<div id="profile-edit-homepage-desc">{{$homepage.3}}</div>
 		<div id="profile-edit-homepage-end"></div>
 		<div id="profile-edit-xmpp-wrapper">
 			<label id="profile-edit-xmpp-label" for="profile-edit-xmpp">{{$xmpp.1}} </label>

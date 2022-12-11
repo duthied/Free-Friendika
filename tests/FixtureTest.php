@@ -27,8 +27,8 @@ use Friendica\App\Arguments;
 use Friendica\App\Router;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Session;
 use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Type\Memory;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -55,7 +55,7 @@ abstract class FixtureTest extends DatabaseTest
 		$this->dice = (new Dice())
 			->addRules(include __DIR__ . '/../static/dependencies.config.php')
 			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
-			->addRule(IHandleSessions::class, ['instanceOf' => Session\Type\Memory::class, 'shared' => true, 'call' => null])
+			->addRule(IHandleSessions::class, ['instanceOf' => Memory::class, 'shared' => true, 'call' => null])
 			->addRule(Arguments::class, [
 				'instanceOf' => Arguments::class,
 				'call'       => [

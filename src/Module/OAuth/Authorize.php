@@ -70,7 +70,7 @@ class Authorize extends BaseApi
 		unset($redirect_request['pagename']);
 		$redirect = 'oauth/authorize?' . http_build_query($redirect_request);
 
-		$uid = local_user();
+		$uid = DI::userSession()->getLocalUserId();
 		if (empty($uid)) {
 			Logger::info('Redirect to login');
 			DI::app()->redirect('login?return_path=' . urlencode($redirect));

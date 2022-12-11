@@ -30,6 +30,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Subscription;
 use Friendica\Model\Tag;
@@ -177,8 +178,12 @@ class UserNotification
 			return;
 		}
 
-		$user = User::getById($uid, ['account-type']);
+		$user = User::getById($uid, ['account-type', 'account_removed', 'account_expired']);
 		if (in_array($user['account-type'], [User::ACCOUNT_TYPE_COMMUNITY, User::ACCOUNT_TYPE_RELAY])) {
+			return;
+		}
+
+		if ($user['account_removed'] || $user['account_expired']) {
 			return;
 		}
 
@@ -288,7 +293,7 @@ class UserNotification
 		}
 
 		// Only create notifications for posts and comments, not for activities
-		if (($item['gravity'] == GRAVITY_ACTIVITY) && ($item['verb'] != Activity::ANNOUNCE)) {
+		if (($item['gravity'] == Item::GRAVITY_ACTIVITY) && ($item['verb'] != Activity::ANNOUNCE)) {
 			return;
 		}
 
@@ -310,7 +315,7 @@ class UserNotification
 	 */
 	private static function insertNotificationByItem(int $type, int $uid, array $item): void
 	{
-		if (($item['verb'] != Activity::ANNOUNCE) && ($item['gravity'] == GRAVITY_ACTIVITY) &&
+		if (($item['verb'] != Activity::ANNOUNCE) && ($item['gravity'] == Item::GRAVITY_ACTIVITY) &&
 			!in_array($type, [self::TYPE_DIRECT_COMMENT, self::TYPE_DIRECT_THREAD_COMMENT])) {
 			// Activities are only stored when performed on the user's post or comment
 			return;
@@ -321,7 +326,7 @@ class UserNotification
 			$item['vid'],
 			$type,
 			$item['author-id'],
-			$item['gravity'] == GRAVITY_ACTIVITY ? $item['thr-parent-id'] : $item['uri-id'],
+			$item['gravity'] == Item::GRAVITY_ACTIVITY ? $item['thr-parent-id'] : $item['uri-id'],
 			$item['parent-uri-id']
 		);
 
@@ -423,14 +428,14 @@ class UserNotification
 	private static function checkShared(array $item, int $uid): bool
 	{
 		// Only check on original posts and reshare ("announce") activities, otherwise return
-		if (($item['gravity'] != GRAVITY_PARENT) && ($item['verb'] != Activity::ANNOUNCE)) {
+		if (($item['gravity'] != Item::GRAVITY_PARENT) && ($item['verb'] != Activity::ANNOUNCE)) {
 			return false;
 		}
 
 		// Don't notify about reshares by communities of our own posts or each time someone comments
 		if (($item['verb'] == Activity::ANNOUNCE) && DBA::exists('contact', ['id' => $item['contact-id'], 'contact-type' => Contact::TYPE_COMMUNITY])) {
 			$post = Post::selectFirst(['origin', 'gravity'], ['uri-id' => $item['thr-parent-id'], 'uid' => $uid]);
-			if ($post['origin'] || ($post['gravity'] != GRAVITY_PARENT)) {
+			if (!$post || $post['origin'] || ($post['gravity'] != Item::GRAVITY_PARENT)) {
 				return false;
 			}
 		}
@@ -497,7 +502,7 @@ class UserNotification
 	 */
 	private static function checkCommentedThread(array $item, array $contacts): bool
 	{
-		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_PARENT];
+		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => Item::GRAVITY_PARENT];
 		return Post::exists($condition);
 	}
 
@@ -511,7 +516,7 @@ class UserNotification
 	 */
 	private static function checkDirectComment(array $item, array $contacts): bool
 	{
-		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
+		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => Item::GRAVITY_COMMENT];
 		return Post::exists($condition);
 	}
 
@@ -525,7 +530,7 @@ class UserNotification
 	 */
 	private static function checkDirectCommentedThread(array $item, array $contacts): bool
 	{
-		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_PARENT];
+		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => Item::GRAVITY_PARENT];
 		return Post::exists($condition);
 	}
 
@@ -539,7 +544,7 @@ class UserNotification
 	 */
 	private static function checkCommentedParticipation(array $item, array $contacts): bool
 	{
-		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
+		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => Item::GRAVITY_COMMENT];
 		return Post::exists($condition);
 	}
 
@@ -553,7 +558,7 @@ class UserNotification
 	 */
 	private static function checkFollowParticipation(array $item, array $contacts): bool
 	{
-		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY, 'verb' => Activity::FOLLOW];
+		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::FOLLOW];
 		return Post::exists($condition);
 	}
 
@@ -567,7 +572,7 @@ class UserNotification
 	 */
 	private static function checkActivityParticipation(array $item, array $contacts): bool
 	{
-		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY];
+		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => Item::GRAVITY_ACTIVITY];
 		return Post::exists($condition);
 	}
 }

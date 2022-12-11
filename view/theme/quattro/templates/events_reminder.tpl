@@ -10,7 +10,7 @@
 
 	function showEvent(eventid) {
 		$.get(
-			'{{$baseurl}}/events/?id='+eventid,
+			'{{$event_api}}/'+eventid,
 			function(data){
 				$.colorbox({html:data});
 			}
@@ -22,7 +22,7 @@
 			year: yesterday.getFullYear(),
 			month: yesterday.getMonth(),
 			date: yesterday.getDate(),
-			events: '{{$baseurl}}/events/json/',
+			events: 'calendar/api/get',
 			header: false,
 			timeFormat: 'H(:mm)',
 			defaultView: 'basicWeek',

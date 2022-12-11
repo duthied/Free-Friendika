@@ -20,8 +20,7 @@
 
 <script language="javascript" type="text/javascript">
 	// This js part changes the state of page-flags radio buttons according
-	// to the selected account type. For a translation of the different
-	// account-types and page-flags have a look in the define section in boot.php
+	// to the selected account type.
 	var accountType = {{$account_type}};
 
 	$(document).ready(function(){

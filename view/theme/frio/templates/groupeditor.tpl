@@ -6,12 +6,12 @@
 
 		{{* The contacts who are already members of the contact group *}}
 		{{foreach $groupeditor.members as $contact}}
-			<li class="members active">{{include file="contact_template.tpl"}}</li>
+			<li class="members active">{{include file="contact/entry.tpl"}}</li>
 		{{/foreach}}
 
 		{{* The contacts who are not members of the contact group *}}
 		{{foreach $groupeditor.contacts as $contact}}
-			<li class="contacts">{{include file="contact_template.tpl"}}</li>
+			<li class="contacts">{{include file="contact/entry.tpl"}}</li>
 		{{/foreach}}
 
 	</ul>

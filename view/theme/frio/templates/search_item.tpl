@@ -1,32 +1,7 @@
-<!-- TODO => Unknow block -->
-<div class="wall-item-decor" style="display:none;">
-	{{if $item.star}}<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>{{/if}}
-	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock" aria-hidden="true"></span>{{/if}}
-</div>
-<!-- ./TODO => Unknow block -->
-
-
-<div class="panel item-{{$item.id}}" id="item-{{$item.guid}}">
-	<span class="commented" style="display: none;">{{$item.commented}}</span>
-	<span class="received" style="display: none;">{{$item.received}}</span>
-	<span class="created" style="display: none;">{{$item.created_date}}</span>
-	<span class="uriid" style="display: none;">{{$item.uriid}}</span>
+<div id="item-{{$item.guid}}" class="item-{{$item.id}}">
 	<div class="wall-item-container panel-body{{$item.indent}} {{$item.shiny}} {{$item.previewing}}">
 		<div class="media">
 			{{* Put additional actions in a top-right dropdown menu *}}
-
-			<div class="preferences">
-			{{if $item.network_icon != ""}}
-				<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
-			{{else}}
-				<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
-			{{/if}}
-			{{if $item.plink}}	{{*link to the original source of the item *}}
-				<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.plink.title}}">
-					<i class="fa fa-external-link"></i>
-				</a>
-			{{/if}}
-			</div>
 
 			{{* The avatar picture and the photo-menu *}}
 			<div class="dropdown pull-left"><!-- Dropdown -->
@@ -49,6 +24,18 @@
 
 			{{* contact info header*}}
 			<div role="heading" class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
+				<div class="preferences">
+					{{if $item.network_icon != ""}}
+						<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
+					{{else}}
+						<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
+					{{/if}}
+					{{if $item.plink}}	{{*link to the original source of the item *}}
+						<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.plink.title}}">
+							<i class="fa fa-external-link"></i>
+						</a>
+					{{/if}}
+				</div>
 				<h4 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card">
 						<span class="wall-item-name {{$item.sparkle}}">{{$item.name}}</span>
@@ -90,7 +77,19 @@
 			</div>
 
 			{{* contact info header for smartphones *}}
-			<div role="heading " class="contact-info-xs hidden-lg hidden-md">
+			<div role="heading" class="contact-info-xs hidden-lg hidden-md">
+				<div class="preferences">
+					{{if $item.network_icon != ""}}
+						<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
+					{{else}}
+						<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
+					{{/if}}
+					{{if $item.plink}}	{{*link to the original source of the item *}}
+						<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.plink.title}}">
+							<i class="fa fa-external-link"></i>
+						</a>
+					{{/if}}
+				</div>
 				<h5 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span>{{$item.name}}</span></a>
 					<p class="text-muted"><small>
@@ -298,5 +297,5 @@
 			{{/if}}
 			</div>
 		</div><!--./media>-->
-	</div><!-- ./panel-body -->
-</div><!--./panel-->
+	</div><!--./scrollable-->
+</div><!-- ./panel-body -->

@@ -23,6 +23,7 @@ namespace Friendica\Module\Api\GNUSocial\GNUSocial;
 
 use Friendica\App;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Module\Register;
 
@@ -42,7 +43,7 @@ class Config extends BaseApi
 				'logo'         => DI::baseUrl() . '/images/friendica-64.png',
 				'fancy'        => true,
 				'language'     => DI::config()->get('system', 'language'),
-				'email'        => DI::config()->get('config', 'admin_email'),
+				'email'        => implode(',', User::getAdminEmailList()),
 				'broughtby'    => '',
 				'broughtbyurl' => '',
 				'timezone'     => DI::config()->get('system', 'default_timezone'),
@@ -53,9 +54,8 @@ class Config extends BaseApi
 				'sslserver'    => null,
 				'ssl'          => DI::config()->get('system', 'ssl_policy') == App\BaseURL::SSL_POLICY_FULL ? 'always' : '0',
 				'friendica'    => [
-					'FRIENDICA_PLATFORM'    => FRIENDICA_PLATFORM,
-					'FRIENDICA_VERSION'     => FRIENDICA_VERSION,
-					'DFRN_PROTOCOL_VERSION' => DFRN_PROTOCOL_VERSION,
+					'FRIENDICA_PLATFORM'    => App::PLATFORM,
+					'FRIENDICA_VERSION'     => App::VERSION,
 					'DB_UPDATE_VERSION'     => DB_UPDATE_VERSION,
 				]
 			],

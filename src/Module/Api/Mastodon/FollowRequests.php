@@ -47,7 +47,12 @@ class FollowRequests extends BaseApi
 		self::checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
-		$introduction = DI::intro()->selectOneById($this->parameters['id'], $uid);
+		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
+		if (empty($cdata['user'])) {
+			throw new HTTPException\NotFoundException('Contact not found');
+		}
+
+		$introduction = DI::intro()->selectForContact($cdata['user']);
 
 		$contactId = $introduction->cid;
 

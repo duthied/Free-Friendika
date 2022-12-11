@@ -28,8 +28,8 @@ use Friendica\Content\Widget;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Module\Contact;
 use Friendica\Module\Response;
@@ -56,7 +56,7 @@ class Advanced extends BaseModule
 		$this->dba  = $dba;
 		$this->page = $page;
 
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			throw new ForbiddenException($this->t('Permission denied.'));
 		}
 	}
@@ -65,7 +65,7 @@ class Advanced extends BaseModule
 	{
 		$cid = $this->parameters['id'];
 
-		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
+		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => DI::userSession()->getLocalUserId()]);
 		if (empty($contact)) {
 			throw new BadRequestException($this->t('Contact not found.'));
 		}
@@ -86,7 +86,7 @@ class Advanced extends BaseModule
 				'nurl'        => $nurl,
 				'poll'        => $poll,
 			],
-			['id' => $contact['id'], 'uid' => local_user()]
+			['id' => $contact['id'], 'uid' => DI::userSession()->getLocalUserId()]
 		);
 
 		if ($photo) {
@@ -96,7 +96,7 @@ class Advanced extends BaseModule
 		}
 
 		if (!$r) {
-			notice($this->t('Contact update failed.'));
+			DI::sysmsg()->addNotice($this->t('Contact update failed.'));
 		}
 	}
 
@@ -104,7 +104,7 @@ class Advanced extends BaseModule
 	{
 		$cid = $this->parameters['id'];
 
-		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
+		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => DI::userSession()->getLocalUserId()]);
 		if (empty($contact)) {
 			throw new BadRequestException($this->t('Contact not found.'));
 		}

@@ -53,7 +53,7 @@
 
 	{{if $homepage}}
 	<dl class="homepage"><dt class="homepage-label">{{$homepage}}</dt>
-		<dd class="homepage-url"><a href="{{$profile.homepage}}" class="u-url" rel="me" target="external-link">{{$profile.homepage}}</a></dd>
+		<dd class="homepage-url"><a href="{{$profile.homepage}}" class="u-url" rel="me" target="external-link">{{$profile.homepage}}</a>{{if $profile.homepage_verified}} <span title="{{$homepage_verified}}">✔</span>{{/if}}</dd>
 	</dl>
 	{{/if}}
 

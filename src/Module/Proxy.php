@@ -74,7 +74,7 @@ class Proxy extends BaseModule
 			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			Logger::debug('Redirecting not logged in user to original address', ['url' => $request['url']]);
 			System::externalRedirect($request['url']);
 		}
@@ -83,7 +83,7 @@ class Proxy extends BaseModule
 		$request['url'] = str_replace(' ', '+', $request['url']);
 
 		// Fetch the content with the local user
-		$fetchResult = HTTPSignature::fetchRaw($request['url'], local_user(), [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE], 'timeout' => 10]);
+		$fetchResult = HTTPSignature::fetchRaw($request['url'], DI::userSession()->getLocalUserId(), [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE], 'timeout' => 10]);
 		$img_str = $fetchResult->getBody();
 
 		if (!$fetchResult->isSuccess() || empty($img_str)) {
@@ -92,7 +92,7 @@ class Proxy extends BaseModule
 			// stop.
 		}
 
-		Logger::debug('Got picture', ['Content-Type' => $fetchResult->getHeader('Content-Type'), 'uid' => local_user(), 'image' => $request['url']]);
+		Logger::debug('Got picture', ['Content-Type' => $fetchResult->getHeader('Content-Type'), 'uid' => DI::userSession()->getLocalUserId(), 'image' => $request['url']]);
 
 		$mime = Images::getMimeTypeByData($img_str);
 

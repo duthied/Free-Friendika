@@ -23,7 +23,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\User;
@@ -42,7 +41,7 @@ class NoScrape extends BaseModule
 		if (isset($this->parameters['nick'])) {
 			// Get infos about a specific nick (public)
 			$which = $this->parameters['nick'];
-		} elseif (local_user() && isset($this->parameters['profile']) && DI::args()->get(2) == 'view') {
+		} elseif (DI::userSession()->getLocalUserId() && isset($this->parameters['profile']) && DI::args()->get(2) == 'view') {
 			// view infos about a known profile (needs a login)
 			$which = $a->getLoggedInUserNickname();
 		} else {
@@ -94,19 +93,9 @@ class NoScrape extends BaseModule
 		}
 
 		// We display the last activity (post or login), reduced to year and week number
-		$last_active = 0;
-		$condition   = ['uid' => $owner['uid'], 'self' => true];
-		$contact     = DBA::selectFirst('contact', ['last-item'], $condition);
-		if (DBA::isResult($contact)) {
-			$last_active = strtotime($contact['last-item']);
-		}
-
-		$condition = ['uid' => $owner['uid']];
-		$user      = DBA::selectFirst('user', ['login_date'], $condition);
-		if (DBA::isResult($user)) {
-			if ($last_active < strtotime($user['login_date'])) {
-				$last_active = strtotime($user['login_date']);
-			}
+		$last_active = strtotime($owner['last-item']);
+		if ($owner['last-activity'] && $last_active < strtotime($owner['last-activity'])) {
+			$last_active = strtotime($owner['last-activity']);
 		}
 		$json_info['last-activity'] = date('o-W', $last_active);
 

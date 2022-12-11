@@ -44,7 +44,7 @@ class Settings extends BaseAdmin
 
 		if (is_file($logfile) &&
 		!is_writeable($logfile)) {
-			notice(DI::l10n()->t('The logfile \'%s\' is not writable. No logging possible', $logfile));
+			DI::sysmsg()->addNotice(DI::l10n()->t('The logfile \'%s\' is not writable. No logging possible', $logfile));
 			return;
 		}
 

@@ -21,15 +21,13 @@
 
 namespace Friendica\Core\Session\Handler;
 
-use Friendica\Core\Session;
 use Friendica\Database\Database as DBA;
 use Psr\Log\LoggerInterface;
-use SessionHandlerInterface;
 
 /**
  * SessionHandler using database
  */
-class Database implements SessionHandlerInterface
+class Database extends AbstractSessionHandler
 {
 	/** @var DBA */
 	private $dba;
@@ -37,6 +35,8 @@ class Database implements SessionHandlerInterface
 	private $logger;
 	/** @var array The $_SERVER variable */
 	private $server;
+	/** @var bool global check, if the current Session exists */
+	private $sessionExists = false;
 
 	/**
 	 * DatabaseSessionHandler constructor.
@@ -57,6 +57,7 @@ class Database implements SessionHandlerInterface
 		return true;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function read($id)
 	{
 		if (empty($id)) {
@@ -66,11 +67,11 @@ class Database implements SessionHandlerInterface
 		try {
 			$session = $this->dba->selectFirst('session', ['data'], ['sid' => $id]);
 			if ($this->dba->isResult($session)) {
-				Session::$exists = true;
+				$this->sessionExists = true;
 				return $session['data'];
 			}
 		} catch (\Exception $exception) {
-			$this->logger->warning('Cannot read session.'. ['id' => $id, 'exception' => $exception]);
+			$this->logger->warning('Cannot read session.', ['id' => $id, 'exception' => $exception]);
 			return '';
 		}
 
@@ -101,11 +102,11 @@ class Database implements SessionHandlerInterface
 			return $this->destroy($id);
 		}
 
-		$expire         = time() + Session::$expire;
+		$expire         = time() + static::EXPIRE;
 		$default_expire = time() + 300;
 
 		try {
-			if (Session::$exists) {
+			if ($this->sessionExists) {
 				$fields    = ['data' => $data, 'expire' => $expire];
 				$condition = ["`sid` = ? AND (`data` != ? OR `expire` != ?)", $id, $data, $expire];
 				$this->dba->update('session', $fields, $condition);
@@ -114,7 +115,7 @@ class Database implements SessionHandlerInterface
 				$this->dba->insert('session', $fields);
 			}
 		} catch (\Exception $exception) {
-			$this->logger->warning('Cannot write session.'. ['id' => $id, 'exception' => $exception]);
+			$this->logger->warning('Cannot write session.', ['id' => $id, 'exception' => $exception]);
 			return false;
 		}
 
@@ -131,17 +132,18 @@ class Database implements SessionHandlerInterface
 		try {
 			return $this->dba->delete('session', ['sid' => $id]);
 		} catch (\Exception $exception) {
-			$this->logger->warning('Cannot destroy session.'. ['id' => $id, 'exception' => $exception]);
+			$this->logger->warning('Cannot destroy session.', ['id' => $id, 'exception' => $exception]);
 			return false;
 		}
 	}
 
+	#[\ReturnTypeWillChange]
 	public function gc($max_lifetime): bool
 	{
 		try {
 			return $this->dba->delete('session', ["`expire` < ?", time()]);
 		} catch (\Exception $exception) {
-			$this->logger->warning('Cannot use garbage collector.'. ['exception' => $exception]);
+			$this->logger->warning('Cannot use garbage collector.', ['exception' => $exception]);
 			return false;
 		}
 	}

@@ -46,7 +46,7 @@ class TagCloud
 	 * @return string       HTML formatted output.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getHTML($uid, $count = 0, $owner_id = 0, $flags = '', $type = Tag::HASHTAG)
+	public static function getHTML(int $uid, int $count = 0, int $owner_id = 0, string $flags = '', int $type = Tag::HASHTAG): string
 	{
 		$o = '';
 		$r = self::tagadelic($uid, $count, $owner_id, $flags, $type);
@@ -56,17 +56,17 @@ class TagCloud
 
 			$tags = [];
 			foreach ($r as $rr) {
-				$tag['level'] = $rr[2];
-				$tag['url'] = $url . '?tag=' . urlencode($rr[0]);
-				$tag['name'] = $rr[0];
-
-				$tags[] = $tag;
+				$tags[] = [
+					'level' => $rr[2],
+					'url'   => $url . '?tag=' . urlencode($rr[0]),
+					'name'  => $rr[0],
+				];
 			}
 
 			$tpl = Renderer::getMarkupTemplate('widget/tagcloud.tpl');
 			$o = Renderer::replaceMacros($tpl, [
 				'$title' => DI::l10n()->t('Tags'),
-				'$tags' => $tags
+				'$tags'  => $tags
 			]);
 		}
 		return $o;

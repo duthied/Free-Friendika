@@ -22,6 +22,7 @@
 namespace Friendica\Factory\Api\Twitter;
 
 use Friendica\BaseFactory;
+use Friendica\Content\Item as ContentItem;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Database\Database;
@@ -53,8 +54,10 @@ class Status extends BaseFactory
 	private $activities;
 	/** @var Activities entity */
 	private $attachment;
+	/** @var ContentItem */
+	private $contentItem;
 
-	public function __construct(LoggerInterface $logger, Database $dba, TwitterUser $twitteruser, Hashtag $hashtag, Media $media, Url $url, Mention $mention, Activities $activities, Attachment $attachment)
+	public function __construct(LoggerInterface $logger, Database $dba, TwitterUser $twitteruser, Hashtag $hashtag, Media $media, Url $url, Mention $mention, Activities $activities, Attachment $attachment, ContentItem $contentItem)
 	{
 		parent::__construct($logger);
 		$this->dba         = $dba;
@@ -65,6 +68,7 @@ class Status extends BaseFactory
 		$this->mention     = $mention;
 		$this->activities  = $activities;
 		$this->attachment  = $attachment;
+		$this->contentItem = $contentItem;
 	}
 
 	/**
@@ -80,7 +84,7 @@ class Status extends BaseFactory
 	{
 		$fields = ['parent-uri-id', 'uri-id', 'uid', 'author-id', 'author-link', 'author-network', 'owner-id', 'causer-id',
 			'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network','post-reason', 'language', 'gravity',
-			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'uri', 'plink', 'private', 'vid', 'coord'];
+			'thr-parent-id', 'parent-author-id', 'parent-author-nick', 'uri', 'plink', 'private', 'vid', 'coord', 'quote-uri-id'];
 		$item = Post::selectFirst($fields, ['id' => $id], ['order' => ['uid' => true]]);
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with ID ' . $id . ' not found.');
@@ -128,7 +132,7 @@ class Status extends BaseFactory
 			$owner = $this->twitterUser->createFromContactId($item['owner-id'], $uid, true);
 		}
 
-		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => GRAVITY_COMMENT]);
+		$friendica_comments = Post::countPosts(['thr-parent-id' => $item['uri-id'], 'deleted' => false, 'gravity' => Item::GRAVITY_COMMENT]);
 
 		$text  = '';
 		$title = '';
@@ -139,12 +143,12 @@ class Status extends BaseFactory
 			$title = sprintf("[h4]%s[/h4]\n", $item['title']);
 		}
 
-		$statusnetHtml = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($title . ($item['raw-body'] ?? $item['body'])), BBCode::API);
+		$statusnetHtml = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($title . ($item['raw-body'] ?? $item['body'])), BBCode::TWITTER_API);
 		$friendicaHtml = BBCode::convertForUriId($item['uri-id'], $title . $item['body'], BBCode::EXTERNAL);
 
-		$text .= Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
+		$text .= Post\Media::addAttachmentsToBody($item['uri-id'], $this->contentItem->addSharedPost($item));
 
-		$text = trim(HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], $text, BBCode::API), 0));
+		$text = trim(HTML::toPlaintext(BBCode::convertForUriId($item['uri-id'], $text, BBCode::TWITTER_API), 0));
 
 		$geo = [];
 
@@ -162,7 +166,7 @@ class Status extends BaseFactory
 			'thr-parent-id' => $item['uri-id'],
 			'uid'           => $uid,
 			'origin'        => true,
-			'gravity'       => GRAVITY_ACTIVITY,
+			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::LIKE),
 			'deleted'       => false
 		]);
@@ -178,11 +182,9 @@ class Status extends BaseFactory
 
 		$friendica_activities = $this->activities->createFromUriId($item['uri-id'], $uid);
 
-		$shared = BBCode::fetchShareAttributes($item['body']);
-		if (!empty($shared['guid'])) {
-			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
-
-			$shared_uri_id = $shared_item['uri-id'] ?? 0;
+		$shared = $this->contentItem->getSharedPost($item, ['uri-id']);
+		if (!empty($shared)) {
+			$shared_uri_id = $shared['post']['uri-id'];
 
 			if ($include_entities) {
 				$hashtags = array_merge($hashtags, $this->hashtag->createFromUriId($shared_uri_id, $text));

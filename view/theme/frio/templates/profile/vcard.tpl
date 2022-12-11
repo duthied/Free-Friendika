@@ -77,7 +77,7 @@
 
 		{{if $location}}
 		<div class="location detail">
-			<span class="location-label icon"><i class="fa fa-map-marker"></i></span>
+			<span class="location-label icon"><i class="fa fa-map-marker" title="{{$location}}"></i></span>
 			<span class="adr">
 				{{if $profile.address}}<p class="street-address p-street-address">{{$profile.address nofilter}}</p>{{/if}}
 				{{if $profile.location}}<p class="p-location">{{$profile.location}}</p>{{/if}}
@@ -87,14 +87,14 @@
 
 		{{if $profile.xmpp}}
 		<div class="xmpp">
-			<span class="xmpp-label icon"><i class="fa fa-xmpp"></i></span>
+			<span class="xmpp-label icon"><i class="fa fa-xmpp" title="{{$xmpp}}"></i></span>
 			<span class="xmpp-data"><a href="xmpp:{{$profile.xmpp}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$profile.xmpp}}</a></span>
 		</div>
 		{{/if}}
 
 		{{if $profile.matrix}}
 		<div class="matrix">
-			<span class="matrix-label icon"><i class="fa fa-matrix-org"></i></span>
+			<span class="matrix-label icon"><i class="fa fa-matrix-org" title="{{$matrix}}"></i></span>
 			<span class="matrix-data"><a href="matrix:{{$profile.matrix}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$profile.matrix}}</a></span>
 		</div>
 		{{/if}}
@@ -107,8 +107,8 @@
 
 		{{if $homepage}}
 		<div class="homepage detail">
-			<span class="homepage-label icon"><i class="fa fa-external-link"></i></span>
-			<span class="homepage-url u-url"><a href="{{$profile.homepage}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$profile.homepage}}</a></span>
+			<span class="homepage-label icon"><i class="fa fa-external-link" title="{{$homepage}}"></i></span>
+			<span class="homepage-url u-url"><a href="{{$profile.homepage}}" rel="me" target="_blank" rel="noopener noreferrer">{{include file="sub/punct_wrap.tpl" text=$profile.homepage}}</a>{{if $profile.homepage_verified}} <span title="{{$homepage_verified}}">✔</span>{{/if}}</span>
 		</div>
 		{{/if}}
 

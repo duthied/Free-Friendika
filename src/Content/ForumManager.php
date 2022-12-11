@@ -223,7 +223,7 @@ class ForumManager
 				AND NOT `contact`.`pending` AND NOT `contact`.`archive`
 				AND `contact`.`uid` = ?
 				GROUP BY `contact`.`id`",
-			local_user(), Protocol::DFRN, Protocol::ACTIVITYPUB, Contact::TYPE_COMMUNITY, local_user()
+			DI::userSession()->getLocalUserId(), Protocol::DFRN, Protocol::ACTIVITYPUB, Contact::TYPE_COMMUNITY, DI::userSession()->getLocalUserId()
 		);
 
 		return DBA::toArray($stmtContacts);

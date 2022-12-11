@@ -281,7 +281,7 @@ $data = [
 	'submit' => [
 		'catavatar-usecat'   => DI::l10n()->t('Use Cat as Avatar'),
 		'catavatar-morecat'  => DI::l10n()->t('Another random Cat!'),
-		'catavatar-emailcat' => DI::pConfig()->get(local_user(), 'catavatar', 'seed', false) ? DI::l10n()->t('Reset to email Cat') : null,
+		'catavatar-emailcat' => DI::pConfig()->get(Session::getLocalUser(), 'catavatar', 'seed', false) ? DI::l10n()->t('Reset to email Cat') : null,
 	],
 ];
 ```
@@ -790,10 +790,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('post_local', $datarray);
     Hook::callAll('post_local_end', $datarray);
 
-### mod/editpost.php
-
-    Hook::callAll('jot_tool', $jotplugins);
-
 ### src/Render/FriendicaSmartyEngine.php
 
     Hook::callAll("template_vars", $arr);
@@ -854,6 +850,10 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 ### src/Module/PermissionTooltip.php
 
     Hook::callAll('lockview_content', $item);
+
+### src/Module/Post/Edit.php
+
+    Hook::callAll('jot_tool', $jotplugins);
 
 ### src/Module/Settings/Delegation.php
 
@@ -918,6 +918,10 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('revoke_follow', $hook_data);
     Hook::callAll('block', $hook_data);
     Hook::callAll('unblock', $hook_data);
+
+### src/Core/Logger/Factory.php
+
+    Hook::callAll('logger_instance', $data);
 
 ### src/Core/StorageManager
 

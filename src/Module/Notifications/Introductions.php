@@ -30,6 +30,8 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\BaseNotifications;
 use Friendica\Module\Response;
@@ -48,9 +50,9 @@ class Introductions extends BaseNotifications
 	/** @var Mode */
 	protected $mode;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Mode $mode, IntroductionFactory $notificationIntro, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, Mode $mode, IntroductionFactory $notificationIntro, IHandleUserSessions $userSession, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $userSession, $server, $parameters);
 
 		$this->notificationIntro = $notificationIntro;
 		$this->mode              = $mode;
@@ -97,7 +99,7 @@ class Introductions extends BaseNotifications
 			'text' => (!$all ? $this->t('Show Ignored Requests') : $this->t('Hide Ignored Requests')),
 		];
 
-		$owner = User::getOwnerDataById(local_user());
+		$owner = User::getOwnerDataById(DI::userSession()->getLocalUserId());
 	
 		// Loop through all introduction notifications.This creates an array with the output html for each
 		// introduction
@@ -126,7 +128,7 @@ class Introductions extends BaseNotifications
 						'$zrl'                   => $Introduction->getZrl(),
 						'$lbl_url'               => $this->t('Profile URL'),
 						'$addr'                  => $Introduction->getAddr(),
-						'$action'                => 'follow',
+						'$action'                => 'contact/follow',
 						'$approve'               => $this->t('Approve'),
 						'$note'                  => $Introduction->getNote(),
 						'$ignore'                => $this->t('Ignore'),
@@ -211,7 +213,7 @@ class Introductions extends BaseNotifications
 		}
 
 		if (count($notifications['notifications']) == 0) {
-			notice($this->t('No introductions.'));
+			DI::sysmsg()->addNotice($this->t('No introductions.'));
 			$notificationNoContent = $this->t('No more %s notifications.', $notifications['ident']);
 		}
 

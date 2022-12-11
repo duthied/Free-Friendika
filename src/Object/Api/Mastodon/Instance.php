@@ -21,11 +21,11 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
+use Friendica\App;
 use Friendica\App\BaseURL;
 use Friendica\BaseDataTransferObject;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\Database;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\Register;
@@ -75,19 +75,20 @@ class Instance extends BaseDataTransferObject
 	 * @param IManageConfigValues $config
 	 * @param BaseURL             $baseUrl
 	 * @param Database            $database
+	 * @param array               $rules
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public function __construct(IManageConfigValues $config, BaseURL $baseUrl, Database $database)
+	public function __construct(IManageConfigValues $config, BaseURL $baseUrl, Database $database, array $rules = [])
 	{
 		$register_policy = intval($config->get('config', 'register_policy'));
 
 		$this->uri               = $baseUrl->get();
 		$this->title             = $config->get('config', 'sitename');
 		$this->short_description = $this->description = $config->get('config', 'info');
-		$this->email             = $config->get('config', 'admin_email');
-		$this->version           = '2.8.0 (compatible; Friendica ' . FRIENDICA_VERSION . ')';
+		$this->email             = implode(',', User::getAdminEmailList());
+		$this->version           = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
 		$this->urls              = null; // Not supported
 		$this->stats             = new Stats($config, $database);
 		$this->thumbnail         = $baseUrl->get() . ($config->get('system', 'shortcut_icon') ?? 'images/friendica-32.png');
@@ -97,14 +98,12 @@ class Instance extends BaseDataTransferObject
 		$this->approval_required = ($register_policy == Register::APPROVE);
 		$this->invites_enabled   = false;
 		$this->contact_account   = [];
+		$this->rules             = $rules;
 
-		if (!empty($config->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
-			$administrator = User::getByEmail($adminList[0], ['nickname']);
-			if (!empty($administrator)) {
-				$adminContact = $database->selectFirst('contact', ['id'], ['nick' => $administrator['nickname'], 'self' => true]);
-				$this->contact_account = DI::mstdnAccount()->createFromContactId($adminContact['id']);
-			}
+		$administrator = User::getFirstAdmin(['nickname']);
+		if ($administrator) {
+			$adminContact = $database->selectFirst('contact', ['uri-id'], ['nick' => $administrator['nickname'], 'self' => true]);
+			$this->contact_account = DI::mstdnAccount()->createFromUriId($adminContact['uri-id']);
 		}
 	}
 }

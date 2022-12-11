@@ -70,7 +70,7 @@ class Search
 				return $emptyResultList;
 			}
 
-			$contactDetails = Contact::getByURLForUser($user_data['url'] ?? '', local_user());
+			$contactDetails = Contact::getByURLForUser($user_data['url'] ?? '', DI::userSession()->getLocalUserId());
 
 			$result = new ContactResult(
 				$user_data['name'] ?? '',
@@ -136,7 +136,7 @@ class Search
 
 		foreach ($profiles as $profile) {
 			$profile_url = $profile['profile_url'] ?? '';
-			$contactDetails = Contact::getByURLForUser($profile_url, local_user());
+			$contactDetails = Contact::getByURLForUser($profile_url, DI::userSession()->getLocalUserId());
 
 			$result = new ContactResult(
 				$profile['name'] ?? '',
@@ -192,7 +192,7 @@ class Search
 		}
 
 		// Add found profiles from the global directory to the local directory
-		Worker::add(PRIORITY_LOW, 'SearchDirectory', $search);
+		Worker::add(Worker::PRIORITY_LOW, 'SearchDirectory', $search);
 
 		return $resultList;
 	}
@@ -211,7 +211,7 @@ class Search
 	{
 		Logger::info('Searching', ['search' => $search, 'mode' => $mode, 'page' => $page]);
 
-		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
 			return [];
 		}
 

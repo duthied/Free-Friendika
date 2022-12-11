@@ -230,11 +230,15 @@ class Notify extends BaseRepository
 		}
 
 		// Ensure that the important fields are set at any time
-		$fields = ['nickname', 'account-type', 'notify-flags', 'language', 'username', 'email'];
+		$fields = ['nickname', 'account-type', 'notify-flags', 'language', 'username', 'email', 'account_removed', 'account_expired'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $params['uid']]);
 
 		if (!DBA::isResult($user)) {
 			$this->logger->error('Unknown user', ['uid' =>  $params['uid']]);
+			return false;
+		}
+
+		if ($user['account_removed'] || $user['account_expired']) {
 			return false;
 		}
 
@@ -483,6 +487,27 @@ class Notify extends BaseRepository
 						$hsitelink = sprintf($sitelink, '<a href="' . $params['link'] . '">' . $sitename . '</a><br><br>');
 						break;
 
+					case 'SYSTEM_REGISTER_NEW':
+						$itemlink =  $params['link'];
+						$subject = $l10n->t('[Friendica System Notify]') . ' ' . $l10n->t('new registration');
+
+						$preamble = $l10n->t('You\'ve received a new registration from \'%1$s\' at %2$s', $params['source_name'], $sitename);
+						$epreamble = $l10n->t('You\'ve received a [url=%1$s]new registration[/url] from %2$s.',
+							$itemlink,
+							'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
+						);
+
+						$body = $l10n->t("Full Name:	%s\nSite Location:	%s\nLogin Name:	%s (%s)",
+							$params['source_name'],
+							$siteurl, $params['source_mail'],
+							$params['source_nick']
+						);
+
+						$sitelink = $l10n->t('Please visit %s to have a look at the new registration.');
+						$tsitelink = sprintf($sitelink, $params['link']);
+						$hsitelink = sprintf($sitelink, '<a href="' . $params['link'] . '">' . $sitename . '</a><br><br>');
+						break;
+
 					case 'SYSTEM_DB_UPDATE_FAIL': // @TODO Unused (only here)
 						break;
 				}
@@ -504,8 +529,11 @@ class Notify extends BaseRepository
 		$parent_uri_id = $params['item']['parent-uri-id'] ?? null;
 
 		// Ensure that the important fields are set at any time
-		$fields = ['nickname'];
+		$fields = ['nickname', 'account_removed', 'account_expired'];
 		$user = Model\User::getById($params['uid'], $fields);
+		if ($user['account_removed'] || $user['account_expired']) {
+			return false;
+		}
 
 		$sitename = $this->config->get('config', 'sitename');
 
@@ -585,7 +613,7 @@ class Notify extends BaseRepository
 					DBA::insert('notify-threads', $fields);
 
 					$emailBuilder->setHeader('Message-ID', $message_id);
-					$log_msg = "include/enotify: No previous notification found for this parent:\n" .
+					$log_msg = "No previous notification found for this parent:\n" .
 						"  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
 					$this->logger->info($log_msg);
 				} else {
@@ -643,7 +671,7 @@ class Notify extends BaseRepository
 		return false;
 	}
 
-	public function NotifyOnDesktop(Entity\Notification $Notification, string $type = null): bool
+	public function shouldShowOnDesktop(Entity\Notification $Notification, string $type = null): bool
 	{
 		if (is_null($type)) {
 			$type = NotificationFactory::getType($Notification);
@@ -690,6 +718,9 @@ class Notify extends BaseRepository
 		$params['otype'] = Model\Notification\ObjectType::ITEM;
 
 		$user = Model\User::getById($Notification->uid);
+		if ($user['account_removed'] || $user['account_expired']) {
+			return false;
+		}
 
 		$params['notify_flags'] = $user['notify-flags'];
 		$params['language']     = $user['language'];
@@ -775,5 +806,11 @@ class Notify extends BaseRepository
 		$this->logger->info('Perform notification', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
 
 		return $this->storeAndSend($params, $sitelink, $tsitelink, $hsitelink, $title, $subject, $preamble, $epreamble, $item['body'], $itemlink, true);
+	}
+
+	public function deleteForItem(int $itemUriId): void
+	{
+		$this->db->delete('notify', ['otype' => 'item', 'uri-id' => $itemUriId]);
+		$this->db->delete('notify', ['otype' => 'item', 'parent-uri-id' => $itemUriId]);
 	}
 }

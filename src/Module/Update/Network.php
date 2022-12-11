@@ -23,6 +23,7 @@ namespace Friendica\Module\Update;
 
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\Conversation\Network as NetworkModule;
 
@@ -55,7 +56,7 @@ class Network extends NetworkModule
 			} elseif (self::$order === 'received') {
 				// Only load new toplevel posts
 				$conditionFields['unseen'] = true;
-				$conditionFields['gravity'] = GRAVITY_PARENT;
+				$conditionFields['gravity'] = Item::GRAVITY_PARENT;
 			} else {
 				// Load all unseen items
 				$conditionFields['unseen'] = true;
@@ -74,7 +75,7 @@ class Network extends NetworkModule
 				$ordering = '`commented`';
 			}
 
-			$o = DI::conversation()->create($items, 'network', $profile_uid, false, $ordering, local_user());
+			$o = DI::conversation()->create($items, 'network', $profile_uid, false, $ordering, DI::userSession()->getLocalUserId());
 		}
 
 		System::htmlUpdateExit($o);

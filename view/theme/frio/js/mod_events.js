@@ -22,7 +22,7 @@ $(document).ready(function () {
 			week: aStr.week,
 			day: aStr.day,
 		},
-		events: baseurl + moduleUrl + "/json/",
+		events: calendar_api,
 		header: {
 			left: "",
 			//	center: 'title',
@@ -35,7 +35,7 @@ $(document).ready(function () {
 		loading: function (isLoading, view) {
 			if (!isLoading) {
 				$("td.fc-day").dblclick(function () {
-					addToModal("/events/new?start=" + $(this).data("date"));
+					addToModal("calendar/event/new?start=" + $(this).data("date"));
 				});
 			}
 		},
@@ -102,18 +102,6 @@ $(document).ready(function () {
 			});
 		},
 	});
-
-	// center on date
-	var args = location.href.replace(baseurl, "").split("/");
-	if (modparams == 2) {
-		if (args.length >= 5) {
-			$("#events-calendar").fullCalendar("gotoDate", args[3], args[4] - 1);
-		}
-	} else {
-		if (args.length >= 4) {
-			$("#events-calendar").fullCalendar("gotoDate", args[2], args[3] - 1);
-		}
-	}
 
 	// echo the title
 	var view = $("#events-calendar").fullCalendar("getView");
@@ -186,7 +174,7 @@ $(document).ready(function () {
 
 // loads the event into a modal
 function showEvent(eventid) {
-	addToModal(baseurl + moduleUrl + "/?id=" + eventid);
+	addToModal(event_api + '/' + eventid);
 }
 
 function changeView(action, viewName) {
@@ -329,7 +317,7 @@ function formatListViewEvent(event) {
 // event-edit section.
 function doEventPreview() {
 	$("#event-edit-preview").val(1);
-	$.post("events", $("#event-edit-form").serialize(), function (data) {
+	$.post("calendar/api/create", $("#event-edit-form").serialize(), function (data) {
 		$("#event-preview").append(data);
 	});
 	$("#event-edit-preview").val(0);

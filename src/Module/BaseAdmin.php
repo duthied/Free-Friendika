@@ -24,11 +24,8 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
-
-require_once 'boot.php';
 
 /**
  * This abstract module is meant to be extended by all modules that are reserved to administrator users.
@@ -52,10 +49,10 @@ abstract class BaseAdmin extends BaseModule
 	 */
 	public static function checkAdminAccess(bool $interactive = false)
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			if ($interactive) {
-				notice(DI::l10n()->t('Please login to continue.'));
-				Session::set('return_path', DI::args()->getQueryString());
+				DI::sysmsg()->addNotice(DI::l10n()->t('Please login to continue.'));
+				DI::session()->set('return_path', DI::args()->getQueryString());
 				DI::baseUrl()->redirect('login');
 			} else {
 				throw new HTTPException\UnauthorizedException(DI::l10n()->t('Please login to continue.'));
@@ -66,7 +63,7 @@ abstract class BaseAdmin extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('You don\'t have access to administration pages.'));
 		}
 
-		if (!empty($_SESSION['submanage'])) {
+		if (DI::userSession()->getSubManagedUserId()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Submanaged account can\'t access the administration pages. Please log back in as the main account.'));
 		}
 	}
@@ -92,7 +89,6 @@ abstract class BaseAdmin extends BaseModule
 			'configuration' => [DI::l10n()->t('Configuration'), [
 				'site'         => ['admin/site'        , DI::l10n()->t('Site')                    , 'site'],
 				'storage'      => ['admin/storage'     , DI::l10n()->t('Storage')                 , 'storage'],
-				'users'        => ['admin/users'       , DI::l10n()->t('Users')                   , 'users'],
 				'addons'       => ['admin/addons'      , DI::l10n()->t('Addons')                  , 'addons'],
 				'themes'       => ['admin/themes'      , DI::l10n()->t('Themes')                  , 'themes'],
 				'features'     => ['admin/features'    , DI::l10n()->t('Additional features')     , 'features'],
@@ -103,11 +99,6 @@ abstract class BaseAdmin extends BaseModule
 				'deferred'     => ['admin/queue/deferred', DI::l10n()->t('Inspect Deferred Workers'), 'deferred'],
 				'workerqueue'  => ['admin/queue'       , DI::l10n()->t('Inspect worker Queue')    , 'workerqueue'],
 			]],
-			'tools' => [DI::l10n()->t('Tools'), [
-				'contactblock' => ['admin/blocklist/contact', DI::l10n()->t('Contact Blocklist')  , 'contactblock'],
-				'blocklist'    => ['admin/blocklist/server' , DI::l10n()->t('Server Blocklist')   , 'blocklist'],
-				'deleteitem'   => ['admin/item/delete' , DI::l10n()->t('Delete Item')             , 'deleteitem'],
-			]],
 			'logs' => [DI::l10n()->t('Logs'), [
 				'logsconfig'   => ['admin/logs/', DI::l10n()->t('Logs')                           , 'logs'],
 				'logsview'     => ['admin/logs/view'    , DI::l10n()->t('View Logs')              , 'viewlogs'],
@@ -116,7 +107,6 @@ abstract class BaseAdmin extends BaseModule
 				'phpinfo'      => ['admin/phpinfo'           , DI::l10n()->t('PHP Info')          , 'phpinfo'],
 				'probe'        => ['probe'             , DI::l10n()->t('probe address')           , 'probe'],
 				'webfinger'    => ['webfinger'         , DI::l10n()->t('check webfinger')         , 'webfinger'],
-				'itemsource'   => ['admin/item/source' , DI::l10n()->t('Item Source')             , 'itemsource'],
 				'babel'        => ['babel'             , DI::l10n()->t('Babel')                   , 'babel'],
 				'debug/ap'     => ['debug/ap'          , DI::l10n()->t('ActivityPub Conversion')  , 'debug/ap'],
 			]],

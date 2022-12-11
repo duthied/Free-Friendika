@@ -110,12 +110,12 @@ class Email implements IEmail
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getMessage(bool $plain = false)
+	public function getMessage(bool $plain = false): string
 	{
 		if ($plain) {
 			return $this->msgText;
 		} else {
-			return $this->msgHtml;
+			return $this->msgHtml ?? '';
 		}
 	}
 
@@ -135,14 +135,15 @@ class Email implements IEmail
 		$headerString = '';
 
 		foreach ($this->additionalMailHeader as $name => $values) {
-			if (is_array($values)) {
-				foreach ($values as $value) {
-					$headerString .= "$name: $value\n";
-				}
-			} else {
-				$headerString .= "$name: $values\n";
+			if (!is_array($values)) {
+				$values = [$values];
+			}
+
+			foreach ($values as $value) {
+				$headerString .= "$name: $value\r\n";
 			}
 		}
+
 		return $headerString;
 	}
 
@@ -199,6 +200,7 @@ class Email implements IEmail
 	/**
 	 * @inheritDoc
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize()
 	{
 		return $this->toArray();

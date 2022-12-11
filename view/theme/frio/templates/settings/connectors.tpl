@@ -1,5 +1,5 @@
 <div class="generic-page-wrapper">
-    {{include file="section_title.tpl" title=$title}}
+	{{include file="section_title.tpl" title=$title}}
 
 	<p class="connector_statusmsg">{{$diasp_enabled}}</p>
 	<p class="connector_statusmsg">{{$ostat_enabled}}</p>
@@ -38,8 +38,6 @@
 			</div>
 		</form>
 
-{{if !$mail_disabled}}
-
 		<form action="settings/connectors" method="post" autocomplete="off" class="panel">
 			<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
@@ -52,7 +50,9 @@
 			</div>
 			<div id="mail-settings-content" class="panel-collapse collapse" role="tabpanel" aria-labelledby="mail-settings-title">
 				<div class="panel-body">
-
+			{{if $mail_disabled}}
+					<p>{{$mail_disabled}}</p>
+			{{else}}
 					<p>{{$mail_desc nofilter}}</p>
 
 					{{include file="field_custom.tpl" field=$mail_lastcheck}}
@@ -68,15 +68,15 @@
 				</div>
 				<div class="panel-footer">
 					<button type="submit" id="mail-submit" name="mail-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+			{{/if}}
 				</div>
 			</div>
 		</form>
-{{/if}}
 
 {{foreach $connector_settings_forms as $addon => $connector_settings_form}}
 		<form action="settings/connectors/{{$addon}}" method="post" autocomplete="off" class="panel">
 			<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
-	        {{$connector_settings_form nofilter}}
+			{{$connector_settings_form nofilter}}
 		</form>
 {{/foreach}}
 	</div>

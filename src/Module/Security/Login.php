@@ -27,7 +27,7 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\DI;
 use Friendica\Module\Register;
 use Friendica\Module\Response;
@@ -46,10 +46,10 @@ class Login extends BaseModule
 	/** @var IManageConfigValues */
 	private $config;
 
-	/** @var IHandleSessions */
+	/** @var IHandleUserSessions */
 	private $session;
 
-	public function __construct(Authentication $auth, IManageConfigValues $config, IHandleSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(Authentication $auth, IManageConfigValues $config, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -62,7 +62,7 @@ class Login extends BaseModule
 	{
 		$return_path = $request['return_path'] ?? $this->session->pop('return_path', '') ;
 
-		if (local_user()) {
+		if ($this->session->getLocalUserId()) {
 			$this->baseUrl->redirect($return_path);
 		}
 
@@ -126,7 +126,7 @@ class Login extends BaseModule
 			];
 		}
 
-		if (local_user()) {
+		if (DI::userSession()->getLocalUserId()) {
 			$tpl = Renderer::getMarkupTemplate('logout.tpl');
 		} else {
 			DI::page()['htmlhead'] .= Renderer::replaceMacros(

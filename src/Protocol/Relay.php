@@ -56,7 +56,7 @@ class Relay
 	 * @param string $url
 	 * @return boolean "true" is the post is wanted by the system
 	 */
-	public static function isSolicitedPost(array $tags, string $body, int $authorid, string $url, string $network = ''): bool
+	public static function isSolicitedPost(array $tags, string $body, int $authorid, string $url, string $network = '', int $causerid = 0): bool
 	{
 		$config = DI::config();
 
@@ -75,6 +75,13 @@ class Relay
 		if (Contact::isHidden($authorid)) {
 			Logger::info('Author is hidden - rejected', ['author' => $authorid, 'network' => $network, 'url' => $url]);
 			return false;
+		}
+
+		if (!empty($causerid)) {
+			$contact = Contact::getById($causerid, ['url']);
+			$causer = $contact['url'] ?? '';
+		} else {
+			$causer = '';
 		}
 
 		$body = ActivityPub\Processor::normalizeMentionLinks($body);
@@ -110,19 +117,19 @@ class Relay
 			foreach ($tags as $tag) {
 				$tag = mb_strtolower($tag);
 				if (in_array($tag, $denyTags)) {
-					Logger::info('Unwanted hashtag found - rejected', ['hashtag' => $tag, 'network' => $network, 'url' => $url]);
+					Logger::info('Unwanted hashtag found - rejected', ['hashtag' => $tag, 'network' => $network, 'url' => $url, 'causer' => $causer]);
 					return false;
 				}
 
 				if (in_array($tag, $tagList)) {
-					Logger::info('Subscribed hashtag found - accepted', ['hashtag' => $tag, 'network' => $network, 'url' => $url]);
+					Logger::info('Subscribed hashtag found - accepted', ['hashtag' => $tag, 'network' => $network, 'url' => $url, 'causer' => $causer]);
 					return true;
 				}
 
 				// We check with "strpos" for performance issues. Only when this is true, the regular expression check is used
 				// RegExp is taken from here: https://medium.com/@shiba1014/regex-word-boundaries-with-unicode-207794f6e7ed
 				if ((strpos($content, $tag) !== false) && preg_match('/(?<=[\s,.:;"\']|^)' . preg_quote($tag, '/') . '(?=[\s,.:;"\']|$)/', $content)) {
-					Logger::info('Subscribed hashtag found in content - accepted', ['hashtag' => $tag, 'network' => $network, 'url' => $url]);
+					Logger::info('Subscribed hashtag found in content - accepted', ['hashtag' => $tag, 'network' => $network, 'url' => $url, 'causer' => $causer]);
 					return true;
 				}
 			}
@@ -135,24 +142,24 @@ class Relay
 			}
 		}
 
-		Logger::debug('Got languages', ['languages' => $languages, 'body' => $body]);
+		Logger::debug('Got languages', ['languages' => $languages, 'body' => $body, 'causer' => $causer]);
 
 		if (!empty($languages)) {
 			if (in_array($languages[0], $config->get('system', 'relay_deny_languages'))) {
-				Logger::info('Unwanted language found - rejected', ['language' => $languages[0], 'network' => $network, 'url' => $url]);
+				Logger::info('Unwanted language found - rejected', ['language' => $languages[0], 'network' => $network, 'url' => $url, 'causer' => $causer]);
 				return false;
 			}
 		} elseif ($config->get('system', 'relay_deny_undetected_language')) {
-			Logger::info('Undetected language found - rejected', ['body' => $body, 'network' => $network, 'url' => $url]);
+			Logger::info('Undetected language found - rejected', ['body' => $body, 'network' => $network, 'url' => $url, 'causer' => $causer]);
 			return false;
 		}
 
 		if ($scope == self::SCOPE_ALL) {
-			Logger::info('Server accept all posts - accepted', ['network' => $network, 'url' => $url]);
+			Logger::info('Server accept all posts - accepted', ['network' => $network, 'url' => $url, 'causer' => $causer]);
 			return true;
 		}
 
-		Logger::info('No matching hashtags found - rejected', ['network' => $network, 'url' => $url]);
+		Logger::info('No matching hashtags found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer]);
 		return false;
 	}
 

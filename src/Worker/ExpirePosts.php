@@ -53,10 +53,10 @@ class ExpirePosts
 		}
 
 		// Set the expiry for origin posta
-		Worker::add(PRIORITY_LOW, 'Expire');
+		Worker::add(Worker::PRIORITY_LOW, 'Expire');
 
 		// update nodeinfo data after everything is cleaned up
-		Worker::add(PRIORITY_LOW, 'NodeInfo');
+		Worker::add(Worker::PRIORITY_LOW, 'NodeInfo');
 	}
 
 	/**
@@ -68,7 +68,7 @@ class ExpirePosts
 	{
 		Logger::notice('Delete expired posts');
 		// physically remove anything that has been deleted for more than two months
-		$condition = ["`gravity` = ? AND `deleted` AND `changed` < ?", GRAVITY_PARENT, DateTimeFormat::utc('now - 60 days')];
+		$condition = ["`gravity` = ? AND `deleted` AND `changed` < ?", Item::GRAVITY_PARENT, DateTimeFormat::utc('now - 60 days')];
 		$rows = Post::select(['guid', 'uri-id', 'uid'],  $condition);
 		while ($row = Post::fetch($rows)) {
 			Logger::info('Delete expired item', ['uri-id' => $row['uri-id'], 'guid' => $row['guid']]);
@@ -134,7 +134,7 @@ class ExpirePosts
 		}
 
 		$rows = 0;
-		$userposts = DBA::select('post-user', [], ["`gravity` = ? AND `uri-id` not in (select `uri-id` from `post-thread`)", GRAVITY_PARENT]);
+		$userposts = DBA::select('post-user', [], ["`gravity` = ? AND `uri-id` not in (select `uri-id` from `post-thread`)", Item::GRAVITY_PARENT]);
 		while ($fields = DBA::fetch($userposts)) {
 			$post_fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread', $fields);
 			$post_fields['commented'] = $post_fields['changed'] = $post_fields['created'];
@@ -149,7 +149,7 @@ class ExpirePosts
 		}
 
 		$rows = 0;
-		$userposts = DBA::select('post-user', [], ["`gravity` = ? AND `id` not in (select `post-user-id` from `post-thread-user`)", GRAVITY_PARENT]);
+		$userposts = DBA::select('post-user', [], ["`gravity` = ? AND `id` not in (select `post-user-id` from `post-thread-user`)", Item::GRAVITY_PARENT]);
 		while ($fields = DBA::fetch($userposts)) {
 			$post_fields = DI::dbaDefinition()->truncateFieldsForTable('post-thread-user', $fields);
 			$post_fields['commented'] = $post_fields['changed'] = $post_fields['created'];
@@ -189,7 +189,7 @@ class ExpirePosts
 			AND NOT EXISTS(SELECT `uri-id` FROM `user-contact` WHERE `uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `uri-id` FROM `contact` WHERE `uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `uri-id` FROM `apcontact` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `uri-id` FROM `fcontact` WHERE `uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `uri-id` FROM `diaspora-contact` WHERE `uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `uri-id` FROM `inbox-status` WHERE `uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `uri-id` FROM `post-delivery` WHERE `uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `uri-id` FROM `post-delivery` WHERE `inbox-id` = `item-uri`.`id`)
@@ -264,7 +264,7 @@ class ExpirePosts
 						AND `i`.`parent-uri-id` = `post-user`.`uri-id`)
 					AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `post-user` AS `i` WHERE `i`.`uid` = ?
 						AND `i`.`parent-uri-id` = `post-user`.`uri-id` AND `i`.`received` > ?))",
-				GRAVITY_PARENT, 0, DateTimeFormat::utc('now - ' . (int)$expire_days_unclaimed . ' days'), 0, 0, DateTimeFormat::utc('now - ' . (int)$expire_days_unclaimed . ' days')]);
+				Item::GRAVITY_PARENT, 0, DateTimeFormat::utc('now - ' . (int)$expire_days_unclaimed . ' days'), 0, 0, DateTimeFormat::utc('now - ' . (int)$expire_days_unclaimed . ' days')]);
 
 			Logger::notice('Start deleting unclaimed public items');
 			$affected_count = 0;

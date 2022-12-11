@@ -170,7 +170,7 @@ class Processor
 	}
 
 	/**
-	 * Stire attachment data
+	 * Store attachment data
 	 *
 	 * @param array   $activity
 	 * @param array   $item
@@ -187,7 +187,7 @@ class Processor
 	}
 
 	/**
-	 * Store attachment data
+	 * Store question data
 	 *
 	 * @param array   $activity
 	 * @param array   $item
@@ -308,10 +308,10 @@ class Processor
 		$item['thr-parent'] = $activity['reply-to-id'];
 
 		if ($activity['reply-to-id'] == $activity['id']) {
-			$item['gravity'] = GRAVITY_PARENT;
+			$item['gravity'] = Item::GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
 		} else {
-			$item['gravity'] = GRAVITY_COMMENT;
+			$item['gravity'] = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 		}
 
@@ -356,7 +356,7 @@ class Processor
 
 		$item['diaspora_signed_text'] = $activity['diaspora:comment'] ?? '';
 
-		if (empty($conversation) && empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Post::exists(['uri' => $item['thr-parent']])) {
+		if (empty($conversation) && empty($activity['directmessage']) && ($item['gravity'] != Item::GRAVITY_PARENT) && !Post::exists(['uri' => $item['thr-parent']])) {
 			Logger::notice('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
 			if (!$fetch_parents) {
 				Queue::remove($activity);
@@ -431,7 +431,7 @@ class Processor
 			$item['owner-id'] = $item['author-id'];
 		} else {
 			$actor = APContact::getByURL($item['owner-link'], false);
-			$item['isForum'] = ($actor['type'] == 'Group');
+			$item['isForum'] = ($actor['type'] ?? 'Person') == 'Group';
 		}
 
 		$item['uri'] = $activity['id'];
@@ -552,7 +552,7 @@ class Processor
 			Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 			Fetch::add($activity['reply-to-id']);
 			$activity['recursion-depth'] = 0;
-			$wid = Worker::add(PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+			$wid = Worker::add(Worker::PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 			Fetch::setWorkerId($activity['reply-to-id'], $wid);
 		} else {
 			Logger::debug('Activity will already be fetched via a worker.', ['url' => $activity['reply-to-id']]);
@@ -663,7 +663,7 @@ class Processor
 
 		$item['verb'] = $verb;
 		$item['thr-parent'] = $activity['object_id'];
-		$item['gravity'] = GRAVITY_ACTIVITY;
+		$item['gravity'] = Item::GRAVITY_ACTIVITY;
 		unset($item['post-type']);
 		$item['object-type'] = Activity\ObjectType::NOTE;
 
@@ -804,7 +804,7 @@ class Processor
 	private static function processContent(array $activity, array $item)
 	{
 		if (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/markdown')) {
-			$item['title'] = strip_tags($activity['name']);
+			$item['title'] = strip_tags($activity['name'] ?? '');
 			$content = Markdown::toBBCode($activity['content']);
 		} elseif (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/bbcode')) {
 			$item['title'] = $activity['name'];
@@ -827,13 +827,29 @@ class Processor
 
 		$content = self::addMentionLinks($content, $activity['tags']);
 
+		if (!empty($activity['quote-url'])) {
+			$id = Item::fetchByLink($activity['quote-url']);
+			if ($id) {
+				$shared_item = Post::selectFirst(['uri-id'], ['id' => $id]);
+				$item['quote-uri-id'] = $shared_item['uri-id'];
+			} else {
+				Logger::info('Quote was not fetched', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'quote' => $activity['quote-url']]);
+			}
+		}
+
 		if (!empty($activity['source'])) {
 			$item['body'] = $activity['source'];
 			$item['raw-body'] = $content;
-			$item['body'] = Item::improveSharedDataInBody($item);
+
+			$quote_uri_id = Item::getQuoteUriId($item['body']);
+			if (empty($item['quote-uri-id']) && !empty($quote_uri_id)) {
+				$item['quote-uri-id'] = $quote_uri_id;
+			}
+
+			$item['body'] = BBCode::removeSharedData($item['body']);
 		} else {
 			$parent_uri = $item['parent-uri'] ?? $item['thr-parent'];
-			if (empty($activity['directmessage']) && ($parent_uri != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+			if (empty($activity['directmessage']) && ($parent_uri != $item['uri']) && ($item['gravity'] == Item::GRAVITY_COMMENT)) {
 				$parent = Post::selectFirst(['id', 'uri-id', 'private', 'author-link', 'alias'], ['uri' => $parent_uri]);
 				if (!DBA::isResult($parent)) {
 					Logger::warning('Unknown parent item.', ['uri' => $parent_uri]);
@@ -848,10 +864,6 @@ class Processor
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary'] ?? '');
 			$item['raw-body'] = $item['body'] = $content;
-
-			if (!empty($activity['quote-url'])) {
-				$item['body'] .= DI::contentItem()->createSharedPostByUrl($activity['quote-url']);
-			}
 		}
 
 		self::storeFromBody($item);
@@ -937,7 +949,7 @@ class Processor
 			return true;
 		}
 
-		if ($item['gravity'] != GRAVITY_PARENT) {
+		if ($item['gravity'] != Item::GRAVITY_PARENT) {
 			// We cannot reliably check at this point if a comment or activity belongs to an accepted post or needs to be fetched
 			// This can possibly be improved in the future.
 			Logger::debug('Message is no parent - accepted', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
@@ -945,7 +957,7 @@ class Processor
 		}
 
 		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
-		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB)) {
+		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0)) {
 			Logger::debug('Post is accepted because of the relay settings', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
 			return true;
 		} else {
@@ -1035,7 +1047,7 @@ class Processor
 				// When a post arrives via a relay and we follow the author, we have to override the causer.
 				// Otherwise the system assumes that we follow the relay. (See "addRowInformation")
 				Logger::debug('Relay post for follower', ['receiver' => $receiver, 'guid' => $item['guid'], 'relay' => $activity['from-relay']]);
-				$item['causer-id'] = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
+				$item['causer-id'] = ($item['gravity'] == Item::GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
 			}
 
 			if ($item['isForum'] ?? false) {
@@ -1053,7 +1065,7 @@ class Processor
 				continue;
 			}
 
-			if (($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) && !in_array($item['post-reason'], [Item::PR_FOLLOWER, Item::PR_TAG, item::PR_TO, Item::PR_CC])) {
+			if (($receiver != 0) && ($item['gravity'] == Item::GRAVITY_PARENT) && !in_array($item['post-reason'], [Item::PR_FOLLOWER, Item::PR_TAG, item::PR_TO, Item::PR_CC])) {
 				if (!($item['isForum'] ?? false)) {
 					if ($item['post-reason'] == Item::PR_BCC) {
 						Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id'], 'url' => $item['uri']]);
@@ -1088,7 +1100,7 @@ class Processor
 				continue;
 			}
 
-			if (($item['gravity'] != GRAVITY_ACTIVITY) && ($activity['object_type'] == 'as:Event')) {
+			if (($item['gravity'] != Item::GRAVITY_ACTIVITY) && ($activity['object_type'] == 'as:Event')) {
 				$event_id = self::createEvent($activity, $item);
 
 				$item = Event::getItemArrayForImportedId($event_id, $item);
@@ -1118,7 +1130,7 @@ class Processor
 		}
 
 		// Store send a follow request for every reshare - but only when the item had been stored
-		if ($stored && ($item['private'] != Item::PRIVATE) && ($item['gravity'] == GRAVITY_PARENT) && !empty($item['author-link']) && ($item['author-link'] != $item['owner-link'])) {
+		if ($stored && ($item['private'] != Item::PRIVATE) && ($item['gravity'] == Item::GRAVITY_PARENT) && !empty($item['author-link']) && ($item['author-link'] != $item['owner-link'])) {
 			$author = APContact::getByURL($item['owner-link'], false);
 			// We send automatic follow requests for reshared messages. (We don't need though for forum posts)
 			if ($author['type'] != 'Group') {
@@ -1138,7 +1150,7 @@ class Processor
 	 */
 	private static function hasParents(array $item, int $receiver)
 	{
-		if (($receiver == 0) || ($item['gravity'] == GRAVITY_PARENT)) {
+		if (($receiver == 0) || ($item['gravity'] == Item::GRAVITY_PARENT)) {
 			return true;
 		}
 
@@ -1149,7 +1161,7 @@ class Processor
 		if ($item['verb'] != Activity::ANNOUNCE) {
 			switch (DI::pConfig()->get($receiver, 'system', 'accept_only_sharer')) {
 				case Item::COMPLETION_COMMENT:
-					$add_parent = ($item['gravity'] != GRAVITY_ACTIVITY);
+					$add_parent = ($item['gravity'] != Item::GRAVITY_ACTIVITY);
 					break;
 
 				case Item::COMPLETION_NONE:
@@ -1173,7 +1185,7 @@ class Processor
 		if (!empty($item['parent-uri-id'])) {
 			if (Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $receiver])) {
 				$has_parents = true;
-			} elseif ($add_parent && Post::exists(['uri-id' => $item['parent-uri'], 'uid' => 0])) {
+			} elseif ($add_parent && Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => 0])) {
 				$stored = Item::storeForUserByUriId($item['parent-uri-id'], $receiver, $fields);
 				$has_parents = (bool)$stored;
 				if ($stored) {
@@ -1261,8 +1273,11 @@ class Processor
 				foreach ($receivers[$element] as $receiver) {
 					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
 						$name = Receiver::PUBLIC_COLLECTION;
+					} elseif ($path = parse_url($receiver, PHP_URL_PATH)) {
+						$name = trim($path, '/');
 					} else {
-						$name = trim(parse_url($receiver, PHP_URL_PATH), '/');
+						Logger::warning('Unable to coerce name from receiver', ['receiver' => $receiver]);
+						$name = '';
 					}
 
 					$target = Tag::getTargetType($receiver);
@@ -1283,7 +1298,7 @@ class Processor
 	 */
 	private static function postMail(array $activity, array $item)
 	{
-		if (($item['gravity'] != GRAVITY_PARENT) && !DBA::exists('mail', ['uri' => $item['thr-parent'], 'uid' => $item['uid']])) {
+		if (($item['gravity'] != Item::GRAVITY_PARENT) && !DBA::exists('mail', ['uri' => $item['thr-parent'], 'uid' => $item['uid']])) {
 			Logger::info('Parent not found, mail will be discarded.', ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
 			return false;
 		}
@@ -1586,7 +1601,7 @@ class Processor
 			}
 		}
 
-		return Relay::isSolicitedPost($messageTags, $body, $authorid, $id, Protocol::ACTIVITYPUB);
+		return Relay::isSolicitedPost($messageTags, $body, $authorid, $id, Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0);
 	}
 
 	/**
@@ -1665,9 +1680,9 @@ class Processor
 			}
 			if (DI::config()->get('system', 'bulk_delivery')) {
 				Post\Delivery::add($post['uri-id'], $uid, $inbox, $post['created'], Delivery::POST, [$cid]);
-				Worker::add(PRIORITY_HIGH, 'APDelivery', '', 0, $inbox, 0);
+				Worker::add(Worker::PRIORITY_HIGH, 'APDelivery', '', 0, $inbox, 0);
 			} else {
-				Worker::add(PRIORITY_HIGH, 'APDelivery', Delivery::POST, $post['id'], $inbox, $uid, [$cid], $post['uri-id']);
+				Worker::add(Worker::PRIORITY_HIGH, 'APDelivery', Delivery::POST, $post['id'], $inbox, $uid, [$cid], $post['uri-id']);
 			}
 		}
 	}
@@ -1859,7 +1874,7 @@ class Processor
 			return;
 		}
 
-		Item::markForDeletion(['uri' => $activity['object_id'], 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
+		Item::markForDeletion(['uri' => $activity['object_id'], 'author-id' => $author_id, 'gravity' => Item::GRAVITY_ACTIVITY]);
 		Queue::remove($activity);
 	}
 

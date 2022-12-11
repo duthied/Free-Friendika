@@ -23,6 +23,7 @@ namespace Friendica\Factory\Api\Friendica;
 
 use Friendica\BaseFactory;
 use Friendica\Database\DBA;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
@@ -62,7 +63,7 @@ class Activities extends BaseFactory
 			'announce'    => [],
 		];
 
-		$condition = ['uid' => $uid, 'thr-parent-id' => $uriId, 'gravity' => GRAVITY_ACTIVITY];
+		$condition = ['uid' => $uid, 'thr-parent-id' => $uriId, 'gravity' => Item::GRAVITY_ACTIVITY];
 
 		$ret = Post::selectForUser($uid, ['author-id', 'verb'], $condition);
 

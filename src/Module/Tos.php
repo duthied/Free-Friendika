@@ -56,7 +56,7 @@ class Tos extends BaseModule
 
 		$this->privacy_operate    = $this->t('At the time of registration, and for providing communications between the user account and their contacts, the user has to provide a display name (pen name), an username (nickname) and a working email address. The names will be accessible on the profile page of the account by any visitor of the page, even if other profile details are not displayed. The email address will only be used to send the user notifications about interactions, but wont be visibly displayed. The listing of an account in the node\'s user directory or the global user directory is optional and can be controlled in the user settings, it is not necessary for communication.');
 		$this->privacy_distribute = $this->t('This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.');
-		$this->privacy_delete     = $this->t('At any point in time a logged in user can export their account data from the <a href="%1$s/settings/userexport">account settings</a>. If the user wants to delete their account they can do so at <a href="%1$s/removeme">%1$s/removeme</a>. The deletion of the account will be permanent. Deletion of the data will also be requested from the nodes of the communication partners.', $this->baseUrl);
+		$this->privacy_delete     = $this->t('At any point in time a logged in user can export their account data from the <a href="%1$s/settings/userexport">account settings</a>. If the user wants to delete their account they can do so at <a href="%1$s/settings/removeme">%1$s/settings/removeme</a>. The deletion of the account will be permanent. Deletion of the data will also be requested from the nodes of the communication partners.', $this->baseUrl);
 		// In some cases we don't need every single one of the above separate, but all in one block.
 		// So here is an array to look over
 		$this->privacy_complete = [$this->t('Privacy Statement'), $this->privacy_operate,
@@ -77,20 +77,33 @@ class Tos extends BaseModule
 	 */
 	protected function content(array $request = []): string
 	{
-		if (strlen($this->config->get('system', 'singleuser'))) {
+		if ($this->config->get('system', 'singleuser')) {
 			$this->baseUrl->redirect('profile/' . $this->config->get('system', 'singleuser'));
 		}
 
 		$tpl = Renderer::getMarkupTemplate('tos.tpl');
 		if ($this->config->get('system', 'tosdisplay')) {
+			$lines = $this->config->get('system', 'tosrules');
+			if (!empty($lines)) {
+				$rules = "[list=1]";
+				foreach (explode("\n", $lines) as $line) {
+					$rules .= "\n[*]" . $line;
+				}
+				$rules .= "\n[/list]\n";
+			} else {
+				$rules = '';
+			}
+
 			return Renderer::replaceMacros($tpl, [
 				'$title'                => $this->t('Terms of Service'),
 				'$tostext'              => BBCode::convert($this->config->get('system', 'tostext')),
+				'$rulestitle'           => $this->t('Rules'),
+				'$rules'                => BBCode::convert($rules),
 				'$displayprivstatement' => $this->config->get('system', 'tosprivstatement'),
 				'$privstatementtitle'   => $this->t('Privacy Statement'),
 				'$privacy_operate'      => $this->t('At the time of registration, and for providing communications between the user account and their contacts, the user has to provide a display name (pen name), an username (nickname) and a working email address. The names will be accessible on the profile page of the account by any visitor of the page, even if other profile details are not displayed. The email address will only be used to send the user notifications about interactions, but wont be visibly displayed. The listing of an account in the node\'s user directory or the global user directory is optional and can be controlled in the user settings, it is not necessary for communication.'),
 				'$privacy_distribute'   => $this->t('This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.'),
-				'$privacy_delete'       => $this->t('At any point in time a logged in user can export their account data from the <a href="%1$s/settings/userexport">account settings</a>. If the user wants to delete their account they can do so at <a href="%1$s/removeme">%1$s/removeme</a>. The deletion of the account will be permanent. Deletion of the data will also be requested from the nodes of the communication partners.', $this->baseUrl)
+				'$privacy_delete'       => $this->t('At any point in time a logged in user can export their account data from the <a href="%1$s/settings/userexport">account settings</a>. If the user wants to delete their account they can do so at <a href="%1$s/settings/removeme">%1$s/settings/removeme</a>. The deletion of the account will be permanent. Deletion of the data will also be requested from the nodes of the communication partners.', $this->baseUrl)
 			]);
 		} else {
 			return '';

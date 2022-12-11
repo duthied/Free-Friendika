@@ -42,11 +42,11 @@ class Home extends BaseModule
 
 		Hook::callAll('home_init', $ret);
 
-		if (local_user() && ($app->getLoggedInUserNickname())) {
+		if (DI::userSession()->getLocalUserId() && ($app->getLoggedInUserNickname())) {
 			DI::baseUrl()->redirect('network');
 		}
 
-		if (strlen($config->get('system', 'singleuser'))) {
+		if ($config->get('system', 'singleuser')) {
 			DI::baseUrl()->redirect('/profile/' . $config->get('system', 'singleuser'));
 		}
 

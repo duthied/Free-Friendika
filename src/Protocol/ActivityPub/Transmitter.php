@@ -21,6 +21,7 @@
 
 namespace Friendica\Protocol\ActivityPub;
 
+use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Enum\Duration;
@@ -40,6 +41,7 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
@@ -266,7 +268,7 @@ class Transmitter
 		$condition = array_merge($condition, [
 			'uid'           => $owner['uid'],
 			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
-			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'gravity'        => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
 			'network'        => Protocol::FEDERATED,
 			'parent-network' => Protocol::FEDERATED,
 			'origin'         => true,
@@ -351,7 +353,7 @@ class Transmitter
 			'uid'           => $owner['uid'],
 			'author-id'      => $owner_cid,
 			'private'        => [Item::PUBLIC, Item::UNLISTED],
-			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'gravity'        => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
 			'network'        => Protocol::FEDERATED,
 			'parent-network' => Protocol::FEDERATED,
 			'origin'         => true,
@@ -415,7 +417,7 @@ class Transmitter
 	{
 		return [
 			'type' => 'Service',
-			'name' =>  FRIENDICA_PLATFORM . " '" . FRIENDICA_CODENAME . "' " . FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
+			'name' =>  App::PLATFORM . " '" . App::CODENAME . "' " . App::VERSION . '-' . DB_UPDATE_VERSION,
 			'url' => DI::baseUrl()->get()
 		];
 	}
@@ -577,7 +579,7 @@ class Transmitter
 		$item_profile = APContact::getByURL($item['author-link']);
 		$exclude[] = $item['author-link'];
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == Item::GRAVITY_PARENT) {
 			$exclude[] = $item['owner-link'];
 		}
 
@@ -655,7 +657,7 @@ class Transmitter
 			$is_forum_thread = false;
 		}
 
-		if (self::isAnnounce($item) || DI::config()->get('debug', 'total_ap_delivery') || self::isAPPost($last_id)) {
+		if (self::isAnnounce($item) || self::isAPPost($last_id)) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
@@ -665,7 +667,7 @@ class Transmitter
 
 		$data = ['to' => [], 'cc' => [], 'bcc' => []];
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == Item::GRAVITY_PARENT) {
 			$actor_profile = APContact::getByURL($item['owner-link']);
 		} else {
 			$actor_profile = APContact::getByURL($item['author-link']);
@@ -753,10 +755,10 @@ class Transmitter
 		if (!empty($item['parent'])) {
 			$parents = Post::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']], ['order' => ['id']]);
 			while ($parent = Post::fetch($parents)) {
-				if ($parent['gravity'] == GRAVITY_PARENT) {
+				if ($parent['gravity'] == Item::GRAVITY_PARENT) {
 					$profile = APContact::getByURL($parent['owner-link'], false);
 					if (!empty($profile)) {
-						if ($item['gravity'] != GRAVITY_PARENT) {
+						if ($item['gravity'] != Item::GRAVITY_PARENT) {
 							// Comments to forums are directed to the forum
 							// But comments to forums aren't directed to the followers collection
 							// This rule is only valid when the actor isn't the forum.
@@ -900,7 +902,7 @@ class Transmitter
 			}
 		}
 
-		if (DI::config()->get('debug', 'total_ap_delivery') || $all_ap) {
+		if ($all_ap) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
@@ -971,7 +973,7 @@ class Transmitter
 
 		$inboxes = [];
 
-		if ($item['gravity'] == GRAVITY_ACTIVITY) {
+		if ($item['gravity'] == Item::GRAVITY_ACTIVITY) {
 			$item_profile = APContact::getByURL($item['author-link'], false);
 		} else {
 			$item_profile = APContact::getByURL($item['owner-link'], false);
@@ -1060,7 +1062,7 @@ class Transmitter
 		$mail['parent-uri']       = $reply['uri'];
 		$mail['parent-uri-id']    = $reply['uri-id'];
 		$mail['parent-author-id'] = Contact::getIdForURL($reply['from-url'], 0, false);
-		$mail['gravity']          = ($mail['reply'] ? GRAVITY_COMMENT: GRAVITY_PARENT);
+		$mail['gravity']          = ($mail['reply'] ? Item::GRAVITY_COMMENT: Item::GRAVITY_PARENT);
 		$mail['event-type']       = '';
 		$mail['language']         = '';
 		$mail['parent']           = 0;
@@ -1245,7 +1247,7 @@ class Transmitter
 		if (!$object_mode) {
 			$data = ['@context' => $context ?? ActivityPub::CONTEXT];
 
-			if ($item['deleted'] && ($item['gravity'] == GRAVITY_ACTIVITY)) {
+			if ($item['deleted'] && ($item['gravity'] == Item::GRAVITY_ACTIVITY)) {
 				$type = 'Undo';
 			} elseif ($item['deleted']) {
 				$type = 'Delete';
@@ -1256,7 +1258,7 @@ class Transmitter
 
 		if ($type == 'Delete') {
 			$data['id'] = Item::newURI($item['guid']) . '/' . $type;;
-		} elseif (($item['gravity'] == GRAVITY_ACTIVITY) && ($type != 'Undo')) {
+		} elseif (($item['gravity'] == Item::GRAVITY_ACTIVITY) && ($type != 'Undo')) {
 			$data['id'] = $item['uri'];
 		} else {
 			$data['id'] = $item['uri'] . '/' . $type;
@@ -1264,7 +1266,7 @@ class Transmitter
 
 		$data['type'] = $type;
 
-		if (($type != 'Announce') || ($item['gravity'] != GRAVITY_PARENT)) {
+		if (($type != 'Announce') || ($item['gravity'] != Item::GRAVITY_PARENT)) {
 			$data['actor'] = $item['author-link'];
 		} else {
 			$data['actor'] = $item['owner-link'];
@@ -1557,7 +1559,7 @@ class Transmitter
 		// We are treating posts differently when they are directed to a community.
 		// This is done to better support Lemmy. Most of the changes should work with other systems as well.
 		// But to not risk compatibility issues we currently perform the changes only for communities.
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == Item::GRAVITY_PARENT) {
 			$isCommunityPost = !empty(Tag::getByURIId($item['uri-id'], [Tag::EXCLUSIVE_MENTION]));
 			$links = Post\Media::getByURIId($item['uri-id'], [Post\Media::HTML]);
 			if ($isCommunityPost && (count($links) == 1)) {
@@ -1621,6 +1623,8 @@ class Transmitter
 
 		$permission_block = self::createPermissionBlockForItem($item, false);
 
+		$real_quote = false;
+
 		$body = $item['body'];
 
 		if ($type == 'Note') {
@@ -1662,10 +1666,14 @@ class Transmitter
 
 			$body = BBCode::setMentionsToNicknames($body);
 
-			$shared = BBCode::fetchShareAttributes($body);
-			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
-				$body = self::replaceSharedData($body);
-				$data['quoteUrl'] = $shared['link'];
+			if (!empty($item['quote-uri-id'])) {
+				if (Post::exists(['uri-id' => $item['quote-uri-id'], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN]])) {
+					$real_quote = true;
+					$data['quoteUrl'] = $item['quote-uri'];
+					$body = DI::contentItem()->addShareLink($body, $item['quote-uri-id']);
+				} else {
+					$body = DI::contentItem()->addSharedPost($item, $body);
+				}
 			}
 
 			$data['content'] = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
@@ -1677,25 +1685,32 @@ class Transmitter
 		$language = self::getLanguage($item);
 		if (!empty($language)) {
 			$richbody = BBCode::setMentionsToNicknames($item['body'] ?? '');
-
-			$shared = BBCode::fetchShareAttributes($richbody);
-			if (!empty($shared['link']) && !empty($shared['guid']) && !empty($shared['comment'])) {
-				$richbody = self::replaceSharedData($richbody);
+			if (!empty($item['quote-uri-id'])) {
+				if ($real_quote) {
+					$richbody = DI::contentItem()->addShareLink($richbody, $item['quote-uri-id']);
+				} else {
+					$richbody = DI::contentItem()->addSharedPost($item, $richbody);
+				}
 			}
-
 			$richbody = BBCode::removeAttachment($richbody);
 
 			$data['contentMap'][$language] = BBCode::convertForUriId($item['uri-id'], $richbody, BBCode::EXTERNAL);
 		}
 
-		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
+		if (!empty($item['quote-uri-id'])) {
+			$source = DI::contentItem()->addSharedPost($item, $item['body']);
+		} else {
+			$source = $item['body'];
+		}
+
+		$data['source'] = ['content' => $source, 'mediaType' => "text/bbcode"];
 
 		if (!empty($item['signed_text']) && ($item['uri'] != $item['thr-parent'])) {
 			$data['diaspora:comment'] = $item['signed_text'];
 		}
 
 		$data['attachment'] = self::createAttachmentList($item);
-		$data['tag'] = self::createTagList($item, $data['quoteUrl'] ?? '');  
+		$data['tag'] = self::createTagList($item, $data['quoteUrl'] ?? '');
 
 		if (empty($data['location']) && (!empty($item['coord']) || !empty($item['location']))) {
 			$data['location'] = self::createLocation($item);
@@ -1708,22 +1723,6 @@ class Transmitter
 		$data = array_merge($data, $permission_block);
 
 		return $data;
-	}
-
-	/**
-	 * Replace the share block with a link
-	 *
-	 * @param string $body
-	 * @return string
-	 */
-	private static function replaceSharedData(string $body): string
-	{
-		return BBCode::convertShare(
-			$body,
-			function (array $attributes) {
-				return '♲ ' . $attributes['link'];
-			}
-		);
 	}
 
 	/**
@@ -1821,28 +1820,23 @@ class Transmitter
 	 * @param array $item
 	 * @return array Announcement array
 	 */
-	public static function getAnnounceArray(array $item): array
+	private static function getAnnounceArray(array $item): array
 	{
-		$reshared = Item::getShareArray($item);
-		if (empty($reshared['guid'])) {
+		$reshared = DI::contentItem()->getSharedPost($item, Item::DELIVER_FIELDLIST);
+		if (empty($reshared)) {
 			return [];
 		}
 
-		$reshared_item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['guid' => $reshared['guid']]);
-		if (!DBA::isResult($reshared_item)) {
+		if (!in_array($reshared['post']['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
 			return [];
 		}
 
-		if (!in_array($reshared_item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
-			return [];
-		}
-
-		$profile = APContact::getByURL($reshared_item['author-link'], false);
+		$profile = APContact::getByURL($reshared['post']['author-link'], false);
 		if (empty($profile)) {
 			return [];
 		}
 
-		return ['object' => $reshared_item, 'actor' => $profile, 'comment' => $reshared['comment']];
+		return ['object' => $reshared['post'], 'actor' => $profile, 'comment' => $reshared['comment']];
 	}
 
 	/**
@@ -2037,6 +2031,10 @@ class Transmitter
 		}
 
 		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			Logger::warning('No user found for actor, aborting', ['uid' => $uid]);
+			return false;
+		}
 
 		if (empty($id)) {
 			$id = DI::baseUrl() . '/activity/' . System::createGUID();
@@ -2079,13 +2077,14 @@ class Transmitter
 		}
 
 		if (empty($uid)) {
-			// Fetch the list of administrators
-			$admin_mail = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
-
 			// We need to use some user as a sender. It doesn't care who it will send. We will use an administrator account.
-			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false, 'email' => $admin_mail];
-			$first_user = DBA::selectFirst('user', ['uid'], $condition);
-			$uid = $first_user['uid'];
+			$admin = User::getFirstAdmin(['uid']);
+			if (!$admin) {
+				Logger::warning('No available admin user for transmission', ['target' => $target]);
+				return false;
+			}
+
+			$uid = $admin['uid'];
 		}
 
 		$condition = ['verb' => Activity::FOLLOW, 'uid' => 0, 'parent-uri' => $object,
@@ -2172,6 +2171,11 @@ class Transmitter
 		}
 
 		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			Logger::notice('No user found for actor', ['uid' => $uid]);
+			return false;
+		}
+
 		$data = [
 			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),

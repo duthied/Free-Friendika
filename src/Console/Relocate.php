@@ -131,9 +131,9 @@ HELP;
 			$this->out('Updating event table fields');
 			$this->database->replaceInTableFields('event', ['uri'], $old_url, $new_url);
 
-			$this->out('Updating fcontact table fields');
-			$this->database->replaceInTableFields('fcontact', ['url', 'photo', 'request', 'batch', 'poll', 'confirm', 'alias'], $old_url, $new_url);
-			$this->database->replaceInTableFields('fcontact', ['addr'], $old_host, $new_host);
+			$this->out('Updating diaspora-contact table fields');
+			$this->database->replaceInTableFields('diaspora-contact', ['alias', 'photo', 'photo-medium', 'photo-small', 'batch', 'notify', 'poll', 'subscribe'], $old_url, $new_url);
+			$this->database->replaceInTableFields('diaspora-contact', ['addr'], $old_host, $new_host);
 
 			$this->out('Updating fsuggest table fields');
 			$this->database->replaceInTableFields('fsuggest', ['url', 'request', 'photo'], $old_url, $new_url);
@@ -197,7 +197,7 @@ HELP;
 		$this->out('Schedule relocation messages to remote Friendica and Diaspora hosts');
 		$users = $this->database->selectToArray('user', ['uid'], ['account_removed' => false, 'account_expired' => false]);
 		foreach ($users as $user) {
-			Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $user['uid']);
+			Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $user['uid']);
 		}
 
 		return 0;

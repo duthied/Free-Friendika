@@ -25,7 +25,6 @@ use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Core\Storage\Type\ExternalResource;
 use Friendica\Core\Storage\Exception\InvalidClassStorageException;
@@ -175,6 +174,64 @@ class Photo
 	}
 
 	/**
+	 * Returns all browsable albums for a given user
+	 *
+	 * @param int $uid The given user
+	 *
+	 * @return array An array of albums
+	 * @throws \Exception
+	 */
+	public static function getBrowsableAlbumsForUser(int $uid): array
+	{
+		$photos = DBA::toArray(
+			DBA::p(
+				"SELECT DISTINCT(`album`) AS `album` FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?)",
+				$uid,
+				static::CONTACT_AVATAR,
+				static::CONTACT_BANNER
+			)
+		);
+
+		return array_column($photos, 'album');
+	}
+
+	/**
+	 * Returns browsable photos for a given user (optional and a given album)
+	 *
+	 * @param int         $uid   The given user id
+	 * @param string|null $album (optional) The given album
+	 *
+	 * @return array All photos of the user/album
+	 * @throws \Exception
+	 */
+	public static function getBrowsablePhotosForUser(int $uid, string $album = null): array
+	{
+		$values = [
+			$uid,
+			Photo::CONTACT_AVATAR,
+			Photo::CONTACT_BANNER
+		];
+
+		if (!empty($album)) {
+			$sqlExtra  = "AND `album` = ? ";
+			$values[] = $album;
+			$sqlExtra2 = "";
+		} else {
+			$sqlExtra  = '';
+			$sqlExtra2 = ' ORDER BY created DESC LIMIT 0, 10';
+		}
+
+		return DBA::toArray(
+			DBA::p(
+				"SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
+					min(`scale`) AS `hiq`, max(`scale`) AS `loq`, ANY_VALUE(`desc`) AS `desc`, ANY_VALUE(`created`) AS `created`
+					FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sqlExtra 
+					GROUP BY `resource-id` $sqlExtra2",
+				$values
+			));
+	}
+
+	/**
 	 * Check if photo with given conditions exists
 	 *
 	 * @param array $conditions Array of extra conditions
@@ -289,11 +346,14 @@ class Photo
 	 * @param string $url      Image URL
 	 * @param int    $uid      User ID of the requesting person
 	 * @param string $mimetype Image mime type. Is guessed by file name when empty.
+	 * @param string $blurhash The blurhash that will be used to generate a picture when the original picture can't be fetched
+	 * @param int    $width    Image width
+	 * @param int    $height   Image height
 	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function createPhotoForExternalResource(string $url, int $uid = 0, string $mimetype = ''): array
+	public static function createPhotoForExternalResource(string $url, int $uid = 0, string $mimetype = '', string $blurhash = null, int $width = null, int $height = null): array
 	{
 		if (empty($mimetype)) {
 			$mimetype = Images::guessTypeByExtension($url);
@@ -307,6 +367,9 @@ class Photo
 		$photo['backend-ref']   = json_encode(['url' => $url, 'uid' => $uid]);
 		$photo['type']          = $mimetype;
 		$photo['cacheable']     = true;
+		$photo['blurhash']      = $blurhash;
+		$photo['width']         = $width;
+		$photo['height']        = $height;
 
 		return $photo;
 	}
@@ -379,6 +442,7 @@ class Photo
 			'height' => $image->getHeight(),
 			'width' => $image->getWidth(),
 			'datasize' => strlen($image->asString()),
+			'blurhash' => $image->getBlurHash(),
 			'data' => $data,
 			'scale' => $scale,
 			'photo-type' => $type,
@@ -518,8 +582,9 @@ class Photo
 			$image->scaleToSquare(300);
 
 			$filesize = strlen($image->asString());
-			$maximagesize = DI::config()->get('system', 'maximagesize');
-			if (!empty($maximagesize) && ($filesize > $maximagesize)) {
+			$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+
+			if ($maximagesize && ($filesize > $maximagesize)) {
 				Logger::info('Avatar exceeds image limit', ['uid' => $uid, 'cid' => $cid, 'maximagesize' => $maximagesize, 'size' => $filesize, 'type' => $image->getType()]);
 				if ($image->getType() == 'image/gif') {
 					$image->toStatic();
@@ -639,10 +704,10 @@ class Photo
 	{
 		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
-		$avatar_type = (local_user() && (local_user() == $uid)) ? self::USER_AVATAR : self::DEFAULT;
-		$banner_type = (local_user() && (local_user() == $uid)) ? self::USER_BANNER : self::DEFAULT;
+		$avatar_type = (DI::userSession()->getLocalUserId() && (DI::userSession()->getLocalUserId() == $uid)) ? self::USER_AVATAR : self::DEFAULT;
+		$banner_type = (DI::userSession()->getLocalUserId() && (DI::userSession()->getLocalUserId() == $uid)) ? self::USER_BANNER : self::DEFAULT;
 
-		$key = 'photo_albums:' . $uid . ':' . local_user() . ':' . remote_user();
+		$key = 'photo_albums:' . $uid . ':' . DI::userSession()->getLocalUserId() . ':' . DI::userSession()->getRemoteUserId();
 		$albums = DI::cache()->get($key);
 
 		if (is_null($albums) || $update) {
@@ -681,7 +746,7 @@ class Photo
 	 */
 	public static function clearAlbumCache(int $uid)
 	{
-		$key = 'photo_albums:' . $uid . ':' . local_user() . ':' . remote_user();
+		$key = 'photo_albums:' . $uid . ':' . DI::userSession()->getLocalUserId() . ':' . DI::userSession()->getRemoteUserId();
 		DI::cache()->set($key, null, Duration::DAY);
 	}
 
@@ -909,9 +974,9 @@ class Photo
 		$width    = $image->getWidth();
 		$height   = $image->getHeight();
 
-		$maximagesize = DI::config()->get('system', 'maximagesize');
+		$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
 
-		if (!empty($maximagesize) && ($filesize > $maximagesize)) {
+		if ($maximagesize && ($filesize > $maximagesize)) {
 			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
 			foreach ([5120, 2560, 1280, 640] as $pixels) {
 				if (($filesize > $maximagesize) && (max($width, $height) > $pixels)) {
@@ -1131,8 +1196,8 @@ class Photo
 		$picture['height']      = $photo['height'];
 		$picture['type']        = $photo['type'];
 		$picture['albumpage']   = DI::baseUrl() . '/photos/' . $user['nickname'] . '/image/' . $resource_id;
-		$picture['picture']     = DI::baseUrl() . '/photo/{$resource_id}-0.' . $image->getExt();
-		$picture['preview']     = DI::baseUrl() . '/photo/{$resource_id}-{$smallest}.' . $image->getExt();
+		$picture['picture']     = DI::baseUrl() . '/photo/' . $resource_id . '-0.' . $image->getExt();
+		$picture['preview']     = DI::baseUrl() . '/photo/' . $resource_id . '-' . $smallest . '.' . $image->getExt();
 
 		Logger::info('upload done', ['picture' => $picture]);
 		return $picture;
@@ -1260,7 +1325,7 @@ class Photo
 			logger::warning('profile banner upload with scale 3 (960) failed');
 		}
 
-		logger::info('new profile banner upload ended');
+		logger::info('new profile banner upload ended', ['uid' => $uid, 'resource_id' => $resource_id, 'filename' => $filename]);
 
 		$condition = ["`photo-type` = ? AND `resource-id` != ? AND `uid` = ?", self::USER_BANNER, $resource_id, $uid];
 		self::update(['photo-type' => self::DEFAULT], $condition);
@@ -1273,4 +1338,3 @@ class Photo
 		return $resource_id;
 	}
 }
-

@@ -51,7 +51,7 @@ interface IManageConfigValues
 	 *
 	 * @param string  $cat        The category of the configuration value
 	 * @param string  $key           The configuration key to query
-	 * @param mixed   $default_value optional, The value to return if key is not set (default: null)
+	 * @param mixed   $default_value Deprecated, use `Config->get($cat, $key, null, $refresh) ?? $default_value` instead
 	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
 	 *
 	 * @return mixed Stored value or null if it does not exist

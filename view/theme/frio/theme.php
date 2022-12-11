@@ -29,11 +29,12 @@ use Friendica\Content\Widget;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\Item;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 use Friendica\Module;
 use Friendica\Util\Strings;
 
@@ -52,8 +53,6 @@ function frio_init(App $a)
 	global $frio;
 	$frio = 'view/theme/frio';
 
-	// disable the events module link in the profile tab
-	$a->setThemeInfoValue('events_in_profile', false);
 	$a->setThemeInfoValue('videowidth', 622);
 
 	Renderer::setActiveTemplateEngine('smarty3');
@@ -106,7 +105,7 @@ function frio_item_photo_links(App $a, &$body_info)
 			$newlink = str_replace($matches[0], "/photo/{$matches[1]}", $link);
 
 			// Add a "quiet" parameter to any redir links to prevent the "XX welcomes YY" info boxes
-			$newlink = preg_replace('/href="([^"]+)\/redir\/([^"]+)&url=([^"]+)"/', 'href="$1/redir/$2&quiet=1&url=$3"', $newlink);
+			$newlink = preg_replace('#href="([^"]+)/contact/redir/(\d+)&url=([^"]+)"#', 'href="$1/contact/redir/$2&quiet=1&url=$3"', $newlink);
 
 			// Having any arguments to the link for Colorbox causes it to fetch base64 code instead of the image
 			$newlink = preg_replace('/\/[?&]zrl=([^&"]+)/', '', $newlink);
@@ -178,7 +177,7 @@ function frio_contact_photo_menu(App $a, &$args)
 
 	// Add to pm link a new key with the value 'modal'.
 	// Later we can make conditions in the corresponding templates (e.g.
-	// contact_template.tpl)
+	// contact/entry.tpl)
 	if (strpos($pmlink, 'message/new/' . $cid) !== false) {
 		$args['menu']['pm'][3] = 'modal';
 	}
@@ -203,9 +202,9 @@ function frio_remote_nav(App $a, array &$nav_info)
 {
 	if (DI::mode()->has(App\Mode::MAINTENANCEDISABLED)) {
 		// get the homelink from $_SESSION
-		$homelink = Model\Profile::getMyURL();
+		$homelink = Profile::getMyURL();
 		if (!$homelink) {
-			$homelink = Session::get('visitor_home', '');
+			$homelink = DI::session()->get('visitor_home', '');
 		}
 
 		// since $userinfo isn't available for the hook we write it to the nav array
@@ -213,10 +212,10 @@ function frio_remote_nav(App $a, array &$nav_info)
 		$fields = ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl', 'updated'];
 		if ($a->isLoggedIn()) {
 			$remoteUser = Contact::selectFirst($fields, ['uid' => $a->getLoggedInUserId(), 'self' => true]);
-		} elseif (!local_user() && remote_user()) {
-			$remoteUser                = Contact::getById(remote_user(), $fields);
+		} elseif (!DI::userSession()->getLocalUserId() && DI::userSession()->getRemoteUserId()) {
+			$remoteUser                = Contact::getById(DI::userSession()->getRemoteUserId(), $fields);
 			$nav_info['nav']['remote'] = DI::l10n()->t('Guest');
-		} elseif (Model\Profile::getMyURL()) {
+		} elseif (Profile::getMyURL()) {
 			$remoteUser                = Contact::getByURL($homelink, null, $fields);
 			$nav_info['nav']['remote'] = DI::l10n()->t('Visitor');
 		} else {
@@ -231,17 +230,20 @@ function frio_remote_nav(App $a, array &$nav_info)
 			$server_url           = $remoteUser['baseurl'];
 		}
 
-		if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
+		if (!DI::userSession()->getLocalUserId() && !empty($server_url) && !is_null($remoteUser)) {
 			// user menu
 			$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
 			$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+			// Kept for backwards-compatibility reasons, the remote server may not have updated to version 2022.12 yet
+			// @TODO Switch with the new routes by version 2023.12
+			//$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/photos', DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
 			$nav_info['nav']['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
 			$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/media', DI::l10n()->t('Media'), '', DI::l10n()->t('Your postings with media')];
-			$nav_info['nav']['usermenu'][] = [$server_url . '/events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
+			$nav_info['nav']['usermenu'][] = [$server_url . '/calendar/', DI::l10n()->t('Calendar'), '', DI::l10n()->t('Your calendar')];
 
 			// navbar links
 			$nav_info['nav']['network']  = [$server_url . '/network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
-			$nav_info['nav']['events']   = [$server_url . '/events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
+			$nav_info['nav']['calendar'] = [$server_url . '/calendar', DI::l10n()->t('Calendar'), '', DI::l10n()->t('Calendar')];
 			$nav_info['nav']['messages'] = [$server_url . '/message', DI::l10n()->t('Messages'), '', DI::l10n()->t('Private mail')];
 			$nav_info['nav']['settings'] = [$server_url . '/settings', DI::l10n()->t('Settings'), '', DI::l10n()->t('Account settings')];
 			$nav_info['nav']['contacts'] = [$server_url . '/contact', DI::l10n()->t('Contacts'), '', DI::l10n()->t('Manage/edit friends and contacts')];
@@ -255,9 +257,9 @@ function frio_display_item(App $a, &$arr)
 	// Add follow to the item menu
 	$followThread = [];
 	if (
-		local_user()
-		&& in_array($arr['item']['uid'], [0, local_user()])
-		&& $arr['item']['gravity'] == GRAVITY_PARENT
+		DI::userSession()->getLocalUserId()
+		&& in_array($arr['item']['uid'], [0, DI::userSession()->getLocalUserId()])
+		&& $arr['item']['gravity'] == Item::GRAVITY_PARENT
 		&& !$arr['item']['self']
 		&& !$arr['item']['mention']
 	) {

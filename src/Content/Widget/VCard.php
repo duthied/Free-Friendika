@@ -44,7 +44,7 @@ class VCard
 	 * @template widget/vcard.tpl
 	 * @return string
 	 */
-	public static function getHTML(array $contact)
+	public static function getHTML(array $contact): string
 	{
 		if (!isset($contact['network']) || !isset($contact['id'])) {
 			Logger::warning('Incomplete contact', ['contact' => $contact ?? [], 'callstack' => System::callstack(20)]);
@@ -64,13 +64,13 @@ class VCard
 
 		$photo   = Contact::getPhoto($contact);
 
-		if (local_user()) {
+		if (DI::userSession()->getLocalUserId()) {
 			if ($contact['uid']) {
 				$id      = $contact['id'];
 				$rel     = $contact['rel'];
 				$pending = $contact['pending'];
 			} else {
-				$pcontact = Contact::selectFirst([], ['uid' => local_user(), 'uri-id' => $contact['uri-id']]);
+				$pcontact = Contact::selectFirst([], ['uid' => DI::userSession()->getLocalUserId(), 'uri-id' => $contact['uri-id'], 'deleted' => false]);
 
 				$id      = $pcontact['id'] ?? 0;
 				$rel     = $pcontact['rel'] ?? Contact::NOTHING;
@@ -83,9 +83,9 @@ class VCard
 
 			if (empty($contact['self']) && Protocol::supportsFollow($contact['network'])) {
 				if (in_array($rel, [Contact::SHARING, Contact::FRIEND])) {
-					$unfollow_link = 'unfollow?url=' . urlencode($contact['url']) . '&auto=1';
+					$unfollow_link = 'contact/unfollow?url=' . urlencode($contact['url']) . '&auto=1';
 				} elseif (!$pending) {
-					$follow_link = 'follow?url=' . urlencode($contact['url']) . '&auto=1';
+					$follow_link = 'contact/follow?url=' . urlencode($contact['url']) . '&auto=1';
 				}
 			}
 

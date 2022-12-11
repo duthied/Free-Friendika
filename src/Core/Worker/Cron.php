@@ -47,10 +47,10 @@ class Cron
 		Logger::info('Add cron entries');
 
 		// Check for spooled items
-		Worker::add(['priority' => PRIORITY_HIGH, 'force_priority' => true], 'SpoolPost');
+		Worker::add(['priority' => Worker::PRIORITY_HIGH, 'force_priority' => true], 'SpoolPost');
 
 		// Run the cron job that calls all other jobs
-		Worker::add(['priority' => PRIORITY_MEDIUM, 'force_priority' => true], 'Cron');
+		Worker::add(['priority' => Worker::PRIORITY_MEDIUM, 'force_priority' => true], 'Cron');
 
 		// Cleaning dead processes
 		self::killStaleWorkers();
@@ -112,12 +112,12 @@ class Cron
 					// To avoid a blocking situation we reschedule the process at the beginning of the queue.
 					// Additionally we are lowering the priority. (But not PRIORITY_CRITICAL)
 					$new_priority = $entry['priority'];
-					if ($entry['priority'] == PRIORITY_HIGH) {
-						$new_priority = PRIORITY_MEDIUM;
-					} elseif ($entry['priority'] == PRIORITY_MEDIUM) {
-						$new_priority = PRIORITY_LOW;
-					} elseif ($entry['priority'] != PRIORITY_CRITICAL) {
-						$new_priority = PRIORITY_NEGLIGIBLE;
+					if ($entry['priority'] == Worker::PRIORITY_HIGH) {
+						$new_priority = Worker::PRIORITY_MEDIUM;
+					} elseif ($entry['priority'] == Worker::PRIORITY_MEDIUM) {
+						$new_priority = Worker::PRIORITY_LOW;
+					} elseif ($entry['priority'] != Worker::PRIORITY_CRITICAL) {
+						$new_priority = Worker::PRIORITY_NEGLIGIBLE;
 					}
 					DBA::update('workerqueue', ['executed' => DBA::NULL_DATETIME, 'created' => DateTimeFormat::utcNow(), 'priority' => $new_priority, 'pid' => 0], ['id' => $entry["id"]]
 					);
@@ -171,18 +171,25 @@ class Cron
 				Logger::info('Directly deliver inbox', ['inbox' => $delivery['inbox'], 'result' => $result['success']]);
 				continue;
 			} elseif ($delivery['failed'] < 3) {
-				$priority = PRIORITY_HIGH;
+				$priority = Worker::PRIORITY_HIGH;
 			} elseif ($delivery['failed'] < 6) {
-				$priority = PRIORITY_MEDIUM;
+				$priority = Worker::PRIORITY_MEDIUM;
 			} elseif ($delivery['failed'] < 8) {
-				$priority = PRIORITY_LOW;
+				$priority = Worker::PRIORITY_LOW;
 			} else {
-				$priority = PRIORITY_NEGLIGIBLE;
+				$priority = Worker::PRIORITY_NEGLIGIBLE;
 			}
 
 			if (Worker::add(['priority' => $priority, 'force_priority' => true], 'APDelivery', '', 0, $delivery['inbox'], 0)) {
 				Logger::info('Missing APDelivery worker added for inbox', ['inbox' => $delivery['inbox'], 'failed' => $delivery['failed'], 'priority' => $priority]);
 			}
+		}
+
+		// Optimizing this table only last seconds
+		if (DI::config()->get('system', 'optimize_tables')) {
+			Logger::info('Optimize start');
+			DBA::e("OPTIMIZE TABLE `post-delivery`");
+			Logger::info('Optimize end');
 		}
 	}
 

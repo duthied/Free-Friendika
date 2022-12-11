@@ -26,7 +26,6 @@ use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -92,26 +91,25 @@ class Status extends BaseProfile
 
 		$hashtags = $_GET['tag'] ?? '';
 
-		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($profile['uid'])) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->getLocalUserId() && !DI::userSession()->getRemoteContactID($profile['uid'])) {
 			return Login::form();
 		}
 
 		$o = '';
 
-		if ($profile['uid'] == local_user()) {
+		if ($profile['uid'] == DI::userSession()->getLocalUserId()) {
 			Nav::setSelected('home');
 		}
 
-		$remote_contact = Session::getRemoteContactID($profile['uid']);
-		$is_owner = local_user() == $profile['uid'];
-		$last_updated_key = "profile:" . $profile['uid'] . ":" . local_user() . ":" . $remote_contact;
+		$remote_contact = DI::userSession()->getRemoteContactID($profile['uid']);
+		$is_owner = DI::userSession()->getLocalUserId() == $profile['uid'];
+		$last_updated_key = "profile:" . $profile['uid'] . ":" . DI::userSession()->getLocalUserId() . ":" . $remote_contact;
 
-		if (!empty($profile['hidewall']) && !$is_owner && !$remote_contact) {
-			notice(DI::l10n()->t('Access to this profile has been restricted.'));
-			return '';
+		if (!empty($profile['hidewall']) && !DI::userSession()->isAuthenticated()) {
+			$this->baseUrl->redirect('profile/' . $profile['nickname'] . '/restricted');
 		}
 
-		$o .= self::getTabsHTML($a, 'status', $is_owner, $profile['nickname'], $profile['hide-friends']);
+		$o .= self::getTabsHTML('status', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
 		$o .= Widget::commonFriendsVisitor($profile['uid'], $profile['nickname']);
 
@@ -139,7 +137,7 @@ class Status extends BaseProfile
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
 		$condition = Item::getPermissionsConditionArrayByUserId($profile['uid']);
 
-		$last_updated_array = Session::get('last_updated', []);
+		$last_updated_array = DI::session()->get('last_updated', []);
 
 		if (!empty($category)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `category-view` WHERE `name` = ? AND `type` = ? AND `uid` = ?)",
@@ -166,17 +164,17 @@ class Status extends BaseProfile
 		}
 
 		if (DI::mode()->isMobile()) {
-			$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			$itemspage_network = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			$itemspage_network = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
 		$condition = DBA::mergeConditions($condition, ["((`gravity` = ? AND `wall`) OR
 			(`gravity` = ? AND `vid` = ? AND `origin`
-			AND `thr-parent-id` IN (SELECT `uri-id` FROM `post` WHERE `gravity` = ? AND `network` = ?)))",
-			GRAVITY_PARENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), GRAVITY_PARENT, Protocol::ACTIVITYPUB]);
+			AND EXISTS(SELECT `uri-id` FROM `post` WHERE `uri-id` = `post-user-view`.`thr-parent-id` AND `gravity` = ? AND `network` IN (?, ?))))",
+			Item::GRAVITY_PARENT, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), Item::GRAVITY_PARENT, Protocol::ACTIVITYPUB, Protocol::DFRN]);
 
 		$condition = DBA::mergeConditions($condition, ['uid' => $profile['uid'], 'network' => Protocol::FEDERATED,
 			'visible' => true, 'deleted' => false]);
@@ -189,7 +187,7 @@ class Status extends BaseProfile
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)
 		$last_updated_array[$last_updated_key] = time();
-		Session::set('last_updated', $last_updated_array);
+		DI::session()->set('last_updated', $last_updated_array);
 
 		if ($is_owner && !DI::config()->get('theme', 'hide_eventlist')) {
 			$o .= ProfileModel::getBirthdays();
@@ -197,9 +195,9 @@ class Status extends BaseProfile
 		}
 
 		if ($is_owner) {
-			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => local_user()]);
+			$unseen = Post::exists(['wall' => true, 'unseen' => true, 'uid' => DI::userSession()->getLocalUserId()]);
 			if ($unseen) {
-				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => local_user()]);
+				Item::update(['unseen' => false], ['wall' => true, 'unseen' => true, 'uid' => DI::userSession()->getLocalUserId()]);
 			}
 		}
 

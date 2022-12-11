@@ -22,7 +22,6 @@
 namespace Friendica\Module\Admin;
 
 use Friendica\App;
-use Friendica\Core\Relocate;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\Core\System;
@@ -33,14 +32,13 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Module\BaseAdmin;
+use Friendica\Module\Conversation\Community;
 use Friendica\Module\Register;
+use Friendica\Navigation\SystemMessages;
 use Friendica\Protocol\Relay;
 use Friendica\Util\BasePath;
 use Friendica\Util\EMailer\MailBuilder;
 use Friendica\Util\Strings;
-use Friendica\Worker\Delivery;
-
-require_once __DIR__ . '/../../../boot.php';
 
 class Site extends BaseAdmin
 {
@@ -53,7 +51,7 @@ class Site extends BaseAdmin
 		$a = DI::app();
 
 		if (!empty($_POST['republish_directory'])) {
-			Worker::add(PRIORITY_LOW, 'Directory');
+			Worker::add(Worker::PRIORITY_LOW, 'Directory');
 			return;
 		}
 
@@ -71,7 +69,7 @@ class Site extends BaseAdmin
 		$language         = (!empty($_POST['language'])         ? trim($_POST['language'])      : '');
 		$theme            = (!empty($_POST['theme'])            ? trim($_POST['theme'])         : '');
 		$theme_mobile     = (!empty($_POST['theme_mobile'])     ? trim($_POST['theme_mobile'])  : '');
-		$maximagesize     = (!empty($_POST['maximagesize'])     ? intval(trim($_POST['maximagesize']))               : 0);
+		$maximagesize     = (!empty($_POST['maximagesize'])     ? trim($_POST['maximagesize'])              : 0);
 		$maximagelength   = (!empty($_POST['maximagelength'])   ? intval(trim($_POST['maximagelength']))             : -1);
 		$jpegimagequality = (!empty($_POST['jpegimagequality']) ? intval(trim($_POST['jpegimagequality']))           : 100);
 
@@ -102,6 +100,7 @@ class Site extends BaseAdmin
 		$enable_multi_reg       = !empty($_POST['enable_multi_reg']);
 		$enable_openid          = !empty($_POST['enable_openid']);
 		$enable_regfullname     = !empty($_POST['enable_regfullname']);
+		$register_notification  = !empty($_POST['register_notification']);
 		$community_page_style   = (!empty($_POST['community_page_style']) ? intval(trim($_POST['community_page_style'])) : 0);
 		$max_author_posts_community_page = (!empty($_POST['max_author_posts_community_page']) ? intval(trim($_POST['max_author_posts_community_page'])) : 0);
 
@@ -150,7 +149,7 @@ class Site extends BaseAdmin
 		// Has the directory url changed? If yes, then resubmit the existing profiles there
 		if ($global_directory != DI::config()->get('system', 'directory') && ($global_directory != '')) {
 			DI::config()->set('system', 'directory', $global_directory);
-			Worker::add(PRIORITY_LOW, 'Directory');
+			Worker::add(Worker::PRIORITY_LOW, 'Directory');
 		}
 
 		if (DI::baseUrl()->getUrlPath() != "") {
@@ -242,7 +241,11 @@ class Site extends BaseAdmin
 		} else {
 			DI::config()->set('system', 'singleuser', $singleuser);
 		}
-		DI::config()->set('system', 'maximagesize'           , $maximagesize);
+		if (preg_match('/\d+(?:\s*[kmg])?/i', $maximagesize)) {
+			DI::config()->set('system', 'maximagesize', $maximagesize);
+		} else {
+			DI::sysmsg()->addNotice(DI::l10n()->t('%s is no valid input for maximum image size', $maximagesize));
+		}
 		DI::config()->set('system', 'max_image_length'       , $maximagelength);
 		DI::config()->set('system', 'jpeg_quality'           , $jpegimagequality);
 
@@ -270,6 +273,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'block_extended_register', !$enable_multi_reg);
 		DI::config()->set('system', 'no_openid'              , !$enable_openid);
 		DI::config()->set('system', 'no_regfullname'         , !$enable_regfullname);
+		DI::config()->set('system', 'register_notification'  , $register_notification);
 		DI::config()->set('system', 'community_page_style'   , $community_page_style);
 		DI::config()->set('system', 'max_author_posts_community_page', $max_author_posts_community_page);
 		DI::config()->set('system', 'verifyssl'              , $verifyssl);
@@ -326,8 +330,8 @@ class Site extends BaseAdmin
 		/* Installed langs */
 		$lang_choices = DI::l10n()->getAvailableLanguages();
 
-		if (strlen(DI::config()->get('system', 'directory_submit_url')) &&
-			!strlen(DI::config()->get('system', 'directory'))) {
+		if (DI::config()->get('system', 'directory_submit_url') &&
+			!DI::config()->get('system', 'directory')) {
 			DI::config()->set('system', 'directory', dirname(DI::config()->get('system', 'directory_submit_url')));
 			DI::config()->delete('system', 'directory_submit_url');
 		}
@@ -364,11 +368,11 @@ class Site extends BaseAdmin
 
 		/* Community page style */
 		$community_page_style_choices = [
-			CP_NO_INTERNAL_COMMUNITY => DI::l10n()->t('No community page for local users'),
-			CP_NO_COMMUNITY_PAGE => DI::l10n()->t('No community page'),
-			CP_USERS_ON_SERVER => DI::l10n()->t('Public postings from users of this site'),
-			CP_GLOBAL_COMMUNITY => DI::l10n()->t('Public postings from the federated network'),
-			CP_USERS_AND_GLOBAL => DI::l10n()->t('Public postings from local users and the federated network')
+			Community::DISABLED         => DI::l10n()->t('No community page'),
+			Community::DISABLED_VISITOR => DI::l10n()->t('No community page for visitors'),
+			Community::LOCAL            => DI::l10n()->t('Public postings from users of this site'),
+			Community::GLOBAL           => DI::l10n()->t('Public postings from the federated network'),
+			Community::LOCAL_AND_GLOBAL => DI::l10n()->t('Public postings from local users and the federated network')
 		];
 
 		/* get user names to make the install a personal install of X */
@@ -469,7 +473,10 @@ class Site extends BaseAdmin
 			'$show_help'        => ['show_help', DI::l10n()->t('Show help entry from navigation menu'), !DI::config()->get('system', 'hide_help'), DI::l10n()->t('Displays the menu entry for the Help pages from the navigation menu. It is always accessible by calling /help directly.')],
 			'$singleuser'       => ['singleuser', DI::l10n()->t('Single user instance'), DI::config()->get('system', 'singleuser', '---'), DI::l10n()->t('Make this instance multi-user or single-user for the named user'), $user_names],
 
-			'$maximagesize'     => ['maximagesize', DI::l10n()->t('Maximum image size'), DI::config()->get('system', 'maximagesize'), DI::l10n()->t('Maximum size in bytes of uploaded images. Default is 0, which means no limits.')],
+			'$maximagesize'     => ['maximagesize', DI::l10n()->t('Maximum image size'), DI::config()->get('system', 'maximagesize'), DI::l10n()->t('Maximum size in bytes of uploaded images. Default is 0, which means no limits. You can put k, m, or g behind the desired value for KiB, MiB, GiB, respectively.
+													The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit.
+													Currently <code>upload_max_filesize</code> is set to %s (%sB)', Strings::getBytesFromShorthand(ini_get('upload_max_filesize')), ini_get('upload_max_filesize')),
+													'', 'pattern="\d+(?:\s*[kmg])?"'],
 			'$maximagelength'   => ['maximagelength', DI::l10n()->t('Maximum image length'), DI::config()->get('system', 'max_image_length'), DI::l10n()->t('Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.')],
 			'$jpegimagequality' => ['jpegimagequality', DI::l10n()->t('JPEG image quality'), DI::config()->get('system', 'jpeg_quality'), DI::l10n()->t('Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.')],
 
@@ -496,6 +503,7 @@ class Site extends BaseAdmin
 			'$enable_multi_reg'       => ['enable_multi_reg', DI::l10n()->t('Enable multiple registrations'), !DI::config()->get('system', 'block_extended_register'), DI::l10n()->t('Enable users to register additional accounts for use as pages.')],
 			'$enable_openid'          => ['enable_openid', DI::l10n()->t('Enable OpenID'), !DI::config()->get('system', 'no_openid'), DI::l10n()->t('Enable OpenID support for registration and logins.')],
 			'$enable_regfullname'     => ['enable_regfullname', DI::l10n()->t('Enable Fullname check'), !DI::config()->get('system', 'no_regfullname'), DI::l10n()->t('Enable check to only allow users to register with a space between the first name and the last name in their full name.')],
+			'$register_notification'  => ['register_notification', DI::l10n()->t('Email administrators on new registration'), DI::config()->get('system', 'register_notification'), DI::l10n()->t('If enabled and the system is set to an open registration, an email for each new registration is sent to the administrators.')],
 			'$community_page_style'   => ['community_page_style', DI::l10n()->t('Community pages for visitors'), DI::config()->get('system', 'community_page_style'), DI::l10n()->t('Which community pages should be available for visitors. Local users always see both pages.'), $community_page_style_choices],
 			'$max_author_posts_community_page' => ['max_author_posts_community_page', DI::l10n()->t('Posts per user on community page'), DI::config()->get('system', 'max_author_posts_community_page'), DI::l10n()->t('The maximum number of posts per user on the community page. (Not valid for "Global Community")')],
 			'$mail_able'              => function_exists('imap_open'),

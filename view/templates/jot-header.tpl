@@ -61,11 +61,11 @@ function enableOnUser(){
 		 **/
 
 		/* callback */
-		$('body').on('fbrowser.image.main', function(e, filename, embedcode, id) {
+		$('body').on('fbrowser.photo.main', function(e, filename, embedcode, id) {
 			$.colorbox.close();
 			addeditortext(embedcode);
 		});
-		$('body').on('fbrowser.file.main', function(e, filename, embedcode, id) {
+		$('body').on('fbrowser.attachment.main', function(e, filename, embedcode, id) {
 			$.colorbox.close();
 			addeditortext(embedcode);
 		});
@@ -141,7 +141,7 @@ function enableOnUser(){
 		if ($('#jot-popup').length != 0) $('#jot-popup').show();
 
 		$('#like-rotator-' + id).show();
-		$.get('share/' + id, function(data) {
+		$.get('post/' + id + '/share', function(data) {
 			if (!editor) $("#profile-jot-text").val("");
 			initEditor(function(){
 				addeditortext(data);
@@ -184,7 +184,7 @@ function enableOnUser(){
 				commentBusy = true;
 				$('body').css('cursor', 'wait');
 
-				$.get('tagger/' + id + '?term=' + reply);
+				$.post('post/' + id + '/tag/add', {term: reply});
 				if(timer) clearTimeout(timer);
 				timer = setTimeout(NavUpdate,3000);
 				liking = 1;

@@ -26,6 +26,7 @@ use Friendica\Database\DBA;
 use Friendica\Module\BaseApi;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException\BadRequestException;
 
@@ -60,10 +61,10 @@ class Show extends BaseApi
 		$item_id = $item['id'];
 
 		if ($conversation) {
-			$condition = ['parent' => $item_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+			$condition = ['parent' => $item_id, 'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]];
 			$params    = ['order' => ['uri-id' => true]];
 		} else {
-			$condition = ['id' => $item_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+			$condition = ['id' => $item_id, 'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]];
 			$params    = [];
 		}
 

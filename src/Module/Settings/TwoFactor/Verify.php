@@ -29,7 +29,8 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\DI;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
@@ -47,32 +48,32 @@ class Verify extends BaseSettings
 	/** @var IManagePersonalConfigValues */
 	protected $pConfig;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManagePersonalConfigValues $pConfig, array $server, array $parameters = [])
+	public function __construct(IManagePersonalConfigValues $pConfig, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->pConfig = $pConfig;
 
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
-		$secret   = $this->pConfig->get(local_user(), '2fa', 'secret');
-		$verified = $this->pConfig->get(local_user(), '2fa', 'verified');
+		$secret   = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'secret');
+		$verified = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'verified');
 
 		if ($secret && $verified) {
 			$this->baseUrl->redirect('settings/2fa');
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice($this->t('Please enter your password to access this page.'));
+			DI::sysmsg()->addNotice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
 
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
@@ -81,32 +82,32 @@ class Verify extends BaseSettings
 
 			$google2fa = new Google2FA();
 
-			$valid = $google2fa->verifyKey($this->pConfig->get(local_user(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
+			$valid = $google2fa->verifyKey($this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
 
 			if ($valid) {
-				$this->pConfig->set(local_user(), '2fa', 'verified', true);
-				Session::set('2fa', true);
+				$this->pConfig->set(DI::userSession()->getLocalUserId(), '2fa', 'verified', true);
+				DI::session()->set('2fa', true);
 
-				info($this->t('Two-factor authentication successfully activated.'));
+				DI::sysmsg()->addInfo($this->t('Two-factor authentication successfully activated.'));
 
 				$this->baseUrl->redirect('settings/2fa');
 			} else {
-				notice($this->t('Invalid code, please retry.'));
+				DI::sysmsg()->addNotice($this->t('Invalid code, please retry.'));
 			}
 		}
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return Login::form('settings/2fa/verify');
 		}
 
 		parent::content();
 
 		$company = 'Friendica';
-		$holder = Session::get('my_address');
-		$secret = $this->pConfig->get(local_user(), '2fa', 'secret');
+		$holder = DI::session()->get('my_address');
+		$secret = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'secret');
 
 		$otpauthUrl = (new Google2FA())->getQRCodeUrl($company, $holder, $secret);
 

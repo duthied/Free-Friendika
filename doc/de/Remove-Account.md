@@ -5,7 +5,7 @@ Accounts löschen
 
 Wir freuen uns nicht, wenn Leute Friendica verlassen, aber wenn du deinen Account löschen willst, dann besuche die folgende URL
 
-[Lösche mich (http://NamederSeite/removeme)](../removeme)
+[Lösche mich (http://NamederSeite/settings/removeme)](../settings/removeme)
 
 in deinem Webbrowser. Du musst dabei eingeloggt sein. 
 

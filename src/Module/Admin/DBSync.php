@@ -48,7 +48,7 @@ class DBSync extends BaseAdmin
 						DI::config()->set('system', 'build', intval($curr) + 1);
 					}
 
-					info(DI::l10n()->t('Update has been marked successful'));
+					DI::sysmsg()->addInfo(DI::l10n()->t('Update has been marked successful'));
 				}
 
 				break;

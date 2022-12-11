@@ -30,6 +30,6 @@ class RemoveUnusedTags
 	 */
 	public static function execute()
 	{
-		DBA::delete('tag', ["NOT `id` IN (SELECT `tid` FROM `post-category`) AND NOT `id` IN (SELECT `tid` FROM `post-tag`)"]);
+		DBA::delete('tag', ["NOT `id` IN (SELECT `tid` FROM `post-category` WHERE `tid` = `tag`.`id`) AND NOT `id` IN (SELECT `tid` FROM `post-tag` WHERE `tid` = `tag`.`id`)"]);
 	}
 }

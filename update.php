@@ -131,7 +131,7 @@ function update_1309()
 			continue;
 		}
 
-		$deliver_options = ['priority' => PRIORITY_MEDIUM, 'dont_fork' => true];
+		$deliver_options = ['priority' => Worker::PRIORITY_MEDIUM, 'dont_fork' => true];
 		Worker::add($deliver_options, 'Delivery', Delivery::POST, $item['id'], $entry['cid']);
 		Logger::info('Added delivery worker', ['item' => $item['id'], 'contact' => $entry['cid']]);
 		DBA::delete('queue', ['id' => $entry['id']]);
@@ -152,7 +152,7 @@ function update_1318()
 	DBA::update('profile', ['marital' => 'In a relation'], ['marital' => 'Unavailable']);
 	DBA::update('profile', ['marital' => 'Single'], ['marital' => 'Available']);
 
-	Worker::add(PRIORITY_LOW, 'ProfileUpdate');
+	Worker::add(Worker::PRIORITY_LOW, 'ProfileUpdate');
 	return Update::SUCCESS;
 }
 
@@ -299,7 +299,7 @@ function update_1349()
 	}
 
 	if (!DBA::e("UPDATE `item` INNER JOIN `item-activity` ON `item`.`uri-id` = `item-activity`.`uri-id`
-		SET `vid` = `item-activity`.`activity` + 1 WHERE `gravity` = ? AND (`vid` IS NULL OR `vid` = 0)", GRAVITY_ACTIVITY)) {
+		SET `vid` = `item-activity`.`activity` + 1 WHERE `gravity` = ? AND (`vid` IS NULL OR `vid` = 0)", Item::GRAVITY_ACTIVITY)) {
 		return Update::FAILED;
 	}
 
@@ -974,7 +974,7 @@ function update_1429()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("UPDATE `fcontact` SET `uri-id` = null WHERE NOT `uri-id` IS NULL")) {
+	if (DBStructure::existsTable('fcontact') && !DBA::e("UPDATE `fcontact` SET `uri-id` = null WHERE NOT `uri-id` IS NULL")) {
 		return Update::FAILED;
 	}
 
@@ -1013,6 +1013,10 @@ function update_1438()
 
 function update_1439()
 {
+	if (!DBStructure::existsTable('fcontact')) {
+		return Update::SUCCESS;
+	}
+
 	$intros = DBA::select('intro', ['id', 'fid'], ["NOT `fid` IS NULL AND `fid` != ?", 0]);
 	while ($intro = DBA::fetch($intros)) {
 		$fcontact = DBA::selectFirst('fcontact', ['url'], ['id' => $intro['fid']]);
@@ -1024,6 +1028,8 @@ function update_1439()
 		}
 	}
 	DBA::close($intros);
+
+	return Update::SUCCESS;
 }
 
 function update_1440()
@@ -1119,5 +1125,17 @@ function update_1480()
 function update_1481()
 {
 	DBA::e("UPDATE `post-collection` INNER JOIN `post` ON `post`.`uri-id` = `post-collection`.`uri-id` SET `post-collection`.`author-id` = `post`.`author-id` WHERE `post-collection`.`author-id` IS null");
+	return Update::SUCCESS;
+}
+
+function update_1491()
+{
+	DBA::update('contact', ['remote_self' => Contact::MIRROR_OWN_POST], ['remote_self' => Contact::MIRROR_FORWARDED]);
+	return Update::SUCCESS;
+}
+
+function update_1497()
+{
+	DBA::e("UPDATE `user` SET `last-activity` = DATE(`login_date`) WHERE `last-activity` IS NULL");
 	return Update::SUCCESS;
 }

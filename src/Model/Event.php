@@ -21,18 +21,20 @@
 
 namespace Friendica\Model;
 
+use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Strings;
+use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
 /**
@@ -279,7 +281,7 @@ class Event
 			if (!DBA::isResult($existing_event)) {
 				return 0;
 			}
-			
+
 			if ($existing_event['edited'] === $event['edited']) {
 				return $event['id'];
 			}
@@ -410,7 +412,7 @@ class Event
 	public static function getStrings(): array
 	{
 		// First day of the week (0 = Sunday).
-		$firstDay = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
+		$firstDay = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'first_day_of_week', 0);
 
 		$i18n = [
 			"firstDay" => $firstDay,
@@ -495,157 +497,197 @@ class Event
 	}
 
 	/**
-	 * Get an event by its event ID.
+	 * Returns the owner array of a given nickname
+	 * Additionally, it can check if the owner array is selectable
 	 *
-	 * @param int    $owner_uid The User ID of the owner of the event
-	 * @param int    $event_id  The ID of the event in the event table
-	 * @param string $sql_extra
+	 * @param string $nickname
+	 *
+	 * @return array the owner array
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException The given nickname does not exist
+	 * @throws HTTPException\UnauthorizedException The access for the given nickname is restricted
+	 */
+	public static function getOwnerForNickname(string $nickname): array
+	{
+		$owner = User::getOwnerDataByNick($nickname);
+		if (empty($owner) || $owner['account_removed'] || $owner['account_expired']) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		}
+
+		if (!DI::userSession()->isAuthenticated() && $owner['hidewall']) {
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Access to this profile has been restricted.'));
+		}
+
+		if (!DI::userSession()->isAuthenticated() && !Feature::isEnabled($owner['uid'], 'public_calendar')) {
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
+		}
+
+		return $owner;
+	}
+
+	/**
+	 * Get an event by its event ID. Checks permissions.
+	 *
+	 * @param int         $owner_uid The User ID of the owner of the event
+	 * @param int         $event_id  The ID of the event in the event table
+	 * @param string|null $nickname  a possible nickname to search for instead of the owner uid
 	 * @return array Query result
 	 * @throws \Exception
 	 */
-	public static function getListById(int $owner_uid, int $event_id, string $sql_extra = ''): array
+	public static function getByIdAndUid(int $owner_uid, int $event_id): array
 	{
-		$return = [];
-
-		// Ownly allow events if there is a valid owner_id.
+		// Only allow events if there is a valid owner_id.
 		if ($owner_uid == 0) {
-			return $return;
+			return [];
 		}
+
+		// get the permissions
+		$sql_perms = Item::getPermissionsSQLByUserId($owner_uid);
 
 		// Query for the event by event id
-		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-user`.`id` AS `itemid` FROM `event`
-			LEFT JOIN `post-user` ON `post-user`.`event-id` = `event`.`id` AND `post-user`.`uid` = `event`.`uid`
-			WHERE `event`.`uid` = ? AND `event`.`id` = ? $sql_extra",
-			$owner_uid, $event_id));
-
-		if (DBA::isResult($events)) {
-			$return = self::removeDuplicates($events);
+		$events = DBA::toArray(DBA::p(
+			"SELECT `event`.*, `post-user`.`id` AS `itemid` FROM `event`
+			LEFT JOIN `post-user` 
+				ON `post-user`.`event-id` = `event`.`id` 
+				AND `post-user`.`uid` = `event`.`uid`
+			WHERE `event`.`id` = ?
+			  AND `event`.`uid` = ?
+			  $sql_perms",
+			$event_id, $owner_uid
+		));
+		if (empty($events)) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('Event not found.'));
 		}
 
-		return $return;
+		return $events[0];
 	}
 
 	/**
 	 * Get all events in a specific time frame.
 	 *
-	 * @param int    $owner_uid    The User ID of the owner of the events.
-	 * @param array  $event_params An associative array with
-	 *                             int 'ignore' =>
-	 *                             string 'start' => Start time of the timeframe.
-	 *                             string 'finish' => Finish time of the timeframe.
-	 *
-	 * @param string $sql_extra    Additional sql conditions (e.g. permission request).
+	 * @param int         $owner_uid The User ID of the owner of the events.
+	 * @param string|null $start     Start time of the timeframe.
+	 * @param string|null $finish    Finish time of the timeframe.
+	 * @param bool|null   $ignore    Filters ignored events (false: unignored events, true: ignored events, null: all events)
 	 *
 	 * @return array Query results.
-	 * @throws \Exception
+	 * @throws HTTPException\NotFoundException
+	 * @throws HTTPException\UnauthorizedException
 	 */
-	public static function getListByDate(int $owner_uid, array $event_params, string $sql_extra = ''): array
+	public static function getListByDate(int $owner_uid, string $start = null, string $finish = null, ?bool $ignore = false): array
 	{
-		$return = [];
-
 		// Only allow events if there is a valid owner_id.
 		if ($owner_uid == 0) {
-			return $return;
+			return [];
+		}
+
+		// get the permissions
+		$sql_perms = Item::getPermissionsSQLByUserId($owner_uid);
+
+		if (empty($start) || empty($finish)) {
+			$y = intval(DateTimeFormat::localNow('Y'));
+			$m = intval(DateTimeFormat::localNow('m'));
+
+			if (empty($start)) {
+				$start = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
+			} else {
+				$dim    = Temporal::getDaysInMonth($y, $m);
+				$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
+			}
+		}
+
+		if ($ignore === true) {
+			$sql_ignore = " AND `event`.`ignore` = 1";
+		} elseif ($ignore === false) {
+			$sql_ignore = " AND `event`.`ignore` = 0";
+		} else {
+			$sql_ignore = "";
 		}
 
 		// Query for the event by date.
-		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-user`.`id` AS `itemid` FROM `event`
-				LEFT JOIN `post-user` ON `post-user`.`event-id` = `event`.`id` AND `post-user`.`uid` = `event`.`uid`
-				WHERE `event`.`uid` = ? AND `event`.`ignore` = ?
-				AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?
-				" . $sql_extra,
-				$owner_uid, $event_params['ignore'],
-				$event_params['start'], $event_params['start'], $event_params['finish']
+		$events = DBA::toArray(DBA::p(
+			"SELECT `event`.*, `post-user`.`id` AS `itemid` FROM `event`
+			LEFT JOIN `post-user`
+			    ON `post-user`.`event-id` = `event`.`id`
+	            AND `post-user`.`uid` = `event`.`uid`
+			WHERE `event`.`uid` = ?
+			  $sql_ignore
+			  AND (`finish` >= ? OR (`nofinish` AND `start` >= ?))
+			  AND `start` <= ?
+			  $sql_perms",
+			$owner_uid,
+			$start, $start,
+			$finish
 		));
 
-		if (DBA::isResult($events)) {
-			$return = self::removeDuplicates($events);
-		}
-
-		return $return;
+		$events = self::removeDuplicates($events);
+		return self::sortByDate($events);
 	}
 
 	/**
-	 * Convert an array query results in an array which could be used by the events template.
+	 * Convert an event in an array which could be used by the event template.
 	 *
-	 * @param array $event_result Event query array.
+	 * @param array $event Event query array.
 	 * @return array Event array for the template.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function prepareListForTemplate(array $event_result): array
+	public static function prepareForItem(array $event): array
 	{
-		$event_list = [];
-
-		$last_date = '';
 		$fmt = DI::l10n()->t('l, F j');
-		foreach ($event_result as $event) {
-			$item = Post::selectFirst(['plink', 'author-name', 'author-avatar', 'author-link', 'private', 'uri-id'], ['id' => $event['itemid']]);
-			if (!DBA::isResult($item)) {
-				// Using default values when no item had been found
-				$item = ['plink' => '', 'author-name' => '', 'author-avatar' => '', 'author-link' => '', 'private' => Item::PUBLIC, 'uri-id' => ($event['uri-id'] ?? 0)];
-			}
 
-			$event = array_merge($event, $item);
-
-			$start = DateTimeFormat::local($event['start'], 'c');
-			$j     = DateTimeFormat::local($event['start'], 'j');
-			$day   = DateTimeFormat::local($event['start'], $fmt);
-			$day   = DI::l10n()->getDay($day);
-
-			if ($event['nofinish']) {
-				$end = null;
-			} else {
-				$end = DateTimeFormat::local($event['finish'], 'c');
-			}
-
-			$is_first = ($day !== $last_date);
-
-			$last_date = $day;
-
-			// Show edit and drop actions only if the user is the owner of the event and the event
-			// is a real event (no bithdays).
-			$edit = null;
-			$copy = null;
-			$drop = null;
-			if (local_user() && local_user() == $event['uid'] && $event['type'] == 'event') {
-				$edit = !$event['cid'] ? [DI::baseUrl() . '/events/event/' . $event['id'], DI::l10n()->t('Edit event')     , '', ''] : null;
-				$copy = !$event['cid'] ? [DI::baseUrl() . '/events/copy/' . $event['id'] , DI::l10n()->t('Duplicate event'), '', ''] : null;
-				$drop =                  [DI::baseUrl() . '/events/drop/' . $event['id'] , DI::l10n()->t('Delete event')   , '', ''];
-			}
-
-			$title = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));
-			if (!$title) {
-				list($title, $_trash) = explode("<br", BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['desc'])), BBCode::API);
-			}
-
-			$author_link = $event['author-link'];
-
-			$event['author-link'] = Contact::magicLink($author_link);
-
-			$html = self::getHTML($event);
-			$event['summary']  = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));
-			$event['desc']     = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['desc']));
-			$event['location'] = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['location']));
-			$event_list[] = [
-				'id'       => $event['id'],
-				'start'    => $start,
-				'end'      => $end,
-				'allDay'   => false,
-				'title'    => $title,
-				'j'        => $j,
-				'd'        => $day,
-				'edit'     => $edit,
-				'drop'     => $drop,
-				'copy'     => $copy,
-				'is_first' => $is_first,
-				'item'     => $event,
-				'html'     => $html,
-				'plink'    => Item::getPlink($event),
-			];
+		$item = Post::selectFirst(['plink', 'author-name', 'author-network', 'author-id', 'author-avatar', 'author-link', 'private', 'uri-id'], ['id' => $event['itemid']]);
+		if (empty($item)) {
+			// Using default values when no item had been found
+			$item = ['plink' => '', 'author-name' => '', 'author-avatar' => '', 'author-link' => '', 'private' => Item::PUBLIC, 'uri-id' => ($event['uri-id'] ?? 0)];
 		}
 
-		return $event_list;
+		$event = array_merge($event, $item);
+
+		$start = DateTimeFormat::local($event['start'], 'c');
+		$j     = DateTimeFormat::local($event['start'], 'j');
+		$day   = DateTimeFormat::local($event['start'], $fmt);
+		$day   = DI::l10n()->getDay($day);
+
+		if ($event['nofinish']) {
+			$end = null;
+		} else {
+			$end = DateTimeFormat::local($event['finish'], 'c');
+		}
+
+		// Show edit and drop actions only if the user is the owner of the event and the event
+		// is a real event (no bithdays).
+		$edit = null;
+		$copy = null;
+		$drop = null;
+		if (DI::userSession()->getLocalUserId() && DI::userSession()->getLocalUserId() == $event['uid'] && $event['type'] == 'event') {
+			$edit = !$event['cid'] ? ['calendar/event/edit/' . $event['id'], DI::l10n()->t('Edit event')     , '', ''] : null;
+			$copy = !$event['cid'] ? ['calendar/event/copy/' . $event['id'] , DI::l10n()->t('Duplicate event'), '', ''] : null;
+			$drop =                  ['calendar/api/delete/' . $event['id'] , DI::l10n()->t('Delete event')   , '', ''];
+		}
+
+		$title = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));
+		if (!$title) {
+			[$title, $_trash] = explode("<br", BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['desc'])), BBCode::TWITTER_API);
+		}
+
+		$event['author-link'] = Contact::magicLink($event['author-link']);
+
+		return [
+			'id'     => $event['id'],
+			'start'  => $start,
+			'end'    => $end,
+			'allDay' => false,
+			'title'  => $title,
+			'j'      => $j,
+			'd'      => $day,
+			'edit'   => $edit,
+			'drop'   => $drop,
+			'copy'   => $copy,
+			'item'   => $event,
+			'html'   => self::getHTML($event),
+			'plink'  => Item::getPlink($event),
+		];
 	}
 
 	/**
@@ -653,8 +695,6 @@ class Event
 	 *
 	 * @param array  $events Query result for events.
 	 * @param string $format The output format (ical/csv).
-	 *
-	 * @param string $timezone Timezone (missing parameter!)
 	 * @return string Content according to selected export format.
 	 *
 	 * @todo  Implement timezone support
@@ -670,14 +710,13 @@ class Event
 		switch ($format) {
 			// Format the exported data as a CSV file.
 			case "csv":
-				header("Content-type: text/csv");
 				$o .= '"Subject", "Start Date", "Start Time", "Description", "End Date", "End Time", "Location"' . PHP_EOL;
 
 				foreach ($events as $event) {
 					/// @todo The time / date entries don't include any information about the
 					/// timezone the event is scheduled in :-/
-					$tmp1 = strtotime($event['start']);
-					$tmp2 = strtotime($event['finish']);
+					$tmp1        = strtotime($event['start']);
+					$tmp2        = strtotime($event['finish']);
 					$time_format = "%H:%M:%S";
 					$date_format = "%Y-%m-%d";
 
@@ -691,7 +730,6 @@ class Event
 
 			// Format the exported data as a ics file.
 			case "ical":
-				header("Content-type: text/ics");
 				$o = 'BEGIN:VCALENDAR' . PHP_EOL
 					. 'VERSION:2.0' . PHP_EOL
 					. 'PRODID:-//friendica calendar export//0.1//EN' . PHP_EOL;
@@ -705,6 +743,8 @@ class Event
 				//       also long lines SHOULD be split at 75 characters length
 				foreach ($events as $event) {
 					$o .= 'BEGIN:VEVENT' . PHP_EOL;
+					$o .= 'UID:' . $event['id'] . PHP_EOL;
+					$o .= 'DTSTAMP:' . DateTimeFormat::utc($event['created'], 'Ymd\THis\Z') . PHP_EOL;
 
 					if ($event['start']) {
 						$o .= 'DTSTART:' . DateTimeFormat::utc($event['start'], 'Ymd\THis\Z') . PHP_EOL;
@@ -718,25 +758,24 @@ class Event
 						$tmp = $event['summary'];
 						$tmp = str_replace(PHP_EOL, PHP_EOL . ' ', $tmp);
 						$tmp = addcslashes($tmp, ',;');
-						$o .= 'SUMMARY:' . $tmp . PHP_EOL;
+						$o   .= 'SUMMARY:' . $tmp . PHP_EOL;
 					}
 
 					if ($event['desc']) {
 						$tmp = $event['desc'];
 						$tmp = str_replace(PHP_EOL, PHP_EOL . ' ', $tmp);
 						$tmp = addcslashes($tmp, ',;');
-						$o .= 'DESCRIPTION:' . $tmp . PHP_EOL;
+						$o   .= 'DESCRIPTION:' . $tmp . PHP_EOL;
 					}
 
 					if ($event['location']) {
 						$tmp = $event['location'];
 						$tmp = str_replace(PHP_EOL, PHP_EOL . ' ', $tmp);
 						$tmp = addcslashes($tmp, ',;');
-						$o .= 'LOCATION:' . $tmp . PHP_EOL;
+						$o   .= 'LOCATION:' . $tmp . PHP_EOL;
 					}
 
 					$o .= 'END:VEVENT' . PHP_EOL;
-					$o .= PHP_EOL;
 				}
 
 				$o .= 'END:VCALENDAR' . PHP_EOL;
@@ -768,14 +807,14 @@ class Event
 			return $return;
 		}
 
-		$fields = ['start', 'finish', 'summary', 'desc', 'location', 'nofinish'];
+		$fields = ['id', 'created', 'start', 'finish', 'summary', 'desc', 'location', 'nofinish'];
 
 		$conditions = ['uid' => $uid, 'cid' => 0];
 
 		// Does the user who requests happen to be the owner of the events
 		// requested? then show all of your events, otherwise only those that
 		// don't have limitations set in allow_cid and allow_gid.
-		if (local_user() != $uid) {
+		if (DI::userSession()->getLocalUserId() != $uid) {
 			$conditions += ['allow_cid' => '', 'allow_gid' => ''];
 		}
 
@@ -859,42 +898,42 @@ class Event
 		$tformat       = DI::l10n()->t('g:i A'); // 8:01 AM.
 
 		// Convert the time to different formats.
-		$dtstart_dt = DI::l10n()->getDay(DateTimeFormat::local($item['event-start'], $dformat));
+		$dtstart_dt    = DI::l10n()->getDay(DateTimeFormat::local($item['event-start'], $dformat));
 		$dtstart_title = DateTimeFormat::utc($item['event-start'], DateTimeFormat::ATOM);
 		// Format: Jan till Dec.
 		$month_short = DI::l10n()->getDayShort(DateTimeFormat::local($item['event-start'], 'M'));
 		// Format: 1 till 31.
-		$date_short = DateTimeFormat::local($item['event-start'], 'j');
-		$start_time = DateTimeFormat::local($item['event-start'], $tformat);
+		$date_short  = DateTimeFormat::local($item['event-start'], 'j');
+		$start_time  = DateTimeFormat::local($item['event-start'], $tformat);
 		$start_short = DI::l10n()->getDayShort(DateTimeFormat::local($item['event-start'], $dformat_short));
 
 		// If the option 'nofinisch' isn't set, we need to format the finish date/time.
 		if (!$item['event-nofinish']) {
-			$finish = true;
-			$dtend_dt  = DI::l10n()->getDay(DateTimeFormat::local($item['event-finish'], $dformat));
+			$finish      = true;
+			$dtend_dt    = DI::l10n()->getDay(DateTimeFormat::local($item['event-finish'], $dformat));
 			$dtend_title = DateTimeFormat::utc($item['event-finish'], DateTimeFormat::ATOM);
-			$end_short = DI::l10n()->getDayShort(DateTimeFormat::utc($item['event-finish'], $dformat_short));
-			$end_time = DateTimeFormat::local($item['event-finish'], $tformat);
+			$end_short   = DI::l10n()->getDayShort(DateTimeFormat::utc($item['event-finish'], $dformat_short));
+			$end_time    = DateTimeFormat::local($item['event-finish'], $tformat);
 			// Check if start and finish time is at the same day.
 			if (substr($dtstart_title, 0, 10) === substr($dtend_title, 0, 10)) {
 				$same_date = true;
 			}
 		} else {
 			$dtend_title = '';
-			$dtend_dt = '';
-			$end_time = '';
-			$end_short = '';
+			$dtend_dt    = '';
+			$end_time    = '';
+			$end_short   = '';
 		}
 
 		// Format the event location.
 		$location = self::locationToArray($item['event-location']);
 
 		// Construct the profile link (magic-auth).
-		$author = ['uid' => 0, 'id' => $item['author-id'],
-				'network' => $item['author-network'], 'url' => $item['author-link']];
+		$author       = ['uid'     => 0, 'id' => $item['author-id'],
+		                 'network' => $item['author-network'], 'url' => $item['author-link']];
 		$profile_link = Contact::magicLinkByContact($author);
 
-		$tpl = Renderer::getMarkupTemplate('event_stream_item.tpl');
+		$tpl    = Renderer::getMarkupTemplate('event_stream_item.tpl');
 		$return = Renderer::replaceMacros($tpl, [
 			'$id'             => $item['event-id'],
 			'$title'          => BBCode::convertForUriId($item['uri-id'], $item['event-summary']),
@@ -952,15 +991,15 @@ class Event
 		if (strpos($s, '[/map]') !== false) {
 			$found = preg_match("/\[map\](.*?)\[\/map\]/ism", $s, $match);
 			if (intval($found) > 0 && array_key_exists(1, $match)) {
-				$location['address'] =  $match[1];
+				$location['address'] = $match[1];
 				// Remove the map bbcode from the location name.
 				$location['name'] = str_replace($match[0], "", $s);
 			}
-		// Map tag with coordinates - e.g. [map=48.864716,2.349014].
+			// Map tag with coordinates - e.g. [map=48.864716,2.349014].
 		} elseif (strpos($s, '[map=') !== false) {
 			$found = preg_match("/\[map=(.*?)\]/ism", $s, $match);
 			if (intval($found) > 0 && array_key_exists(1, $match)) {
-				$location['coordinates'] =  $match[1];
+				$location['coordinates'] = $match[1];
 				// Remove the map bbcode from the location name.
 				$location['name'] = str_replace($match[0], "", $s);
 			}
@@ -990,10 +1029,10 @@ class Event
 	{
 		// Check for duplicates
 		$condition = [
-			'uid' => $contact['uid'],
-			'cid' => $contact['id'],
+			'uid'   => $contact['uid'],
+			'cid'   => $contact['id'],
 			'start' => DateTimeFormat::utc($birthday),
-			'type' => 'birthday'
+			'type'  => 'birthday'
 		];
 		if (DBA::exists('event', $condition)) {
 			return false;
@@ -1018,5 +1057,10 @@ class Event
 
 		// Check if self::store() was success
 		return (self::store($values) > 0);
+	}
+
+	public static function setIgnore(int $uid, int $eventId, bool $ignore = true)
+	{
+		DBA::update('event', ['ignore' => $ignore], ['id' => $eventId, 'uid' => $uid]);
 	}
 }

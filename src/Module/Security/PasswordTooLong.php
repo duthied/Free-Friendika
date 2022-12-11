@@ -24,6 +24,7 @@ namespace Friendica\Module\Security;
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Module\Response;
@@ -35,12 +36,15 @@ class PasswordTooLong extends \Friendica\BaseModule
 {
 	/** @var SystemMessages */
 	private $sysmsg;
+	/** @var IHandleUserSessions */
+	private $userSession;
 
-	public function __construct(SystemMessages $sysmsg, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(SystemMessages $sysmsg, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IHandleUserSessions $userSession, $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->sysmsg = $sysmsg;
+		$this->sysmsg      = $sysmsg;
+		$this->userSession = $userSession;
 	}
 
 	protected function post(array $request = [])
@@ -54,13 +58,13 @@ class PasswordTooLong extends \Friendica\BaseModule
 			}
 
 			//  check if the old password was supplied correctly before changing it to the new value
-			User::getIdFromPasswordAuthentication(local_user(), $request['password_current']);
+			User::getIdFromPasswordAuthentication($this->userSession->getLocalUserId(), $request['password_current']);
 
 			if (strlen($request['password_current']) <= 72) {
 				throw new \Exception($this->l10n->t('Password does not need changing.'));
 			}
 
-			$result = User::updatePassword(local_user(), $newpass);
+			$result = User::updatePassword($this->userSession->getLocalUserId(), $newpass);
 			if (!DBA::isResult($result)) {
 				throw new \Exception($this->l10n->t('Password update failed. Please try again.'));
 			}

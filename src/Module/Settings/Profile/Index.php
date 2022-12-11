@@ -38,16 +38,17 @@ use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
+use Friendica\Core\Worker;
 
 class Index extends BaseSettings
 {
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
-		$profile = Profile::getByUID(local_user());
+		$profile = Profile::getByUID(DI::userSession()->getLocalUserId());
 		if (!DBA::isResult($profile)) {
 			return;
 		}
@@ -80,7 +81,7 @@ class Index extends BaseSettings
 
 		$name = trim($_POST['name'] ?? '');
 		if (!strlen($name)) {
-			notice(DI::l10n()->t('Profile Name is required.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Profile Name is required.'));
 			return;
 		}
 
@@ -101,12 +102,12 @@ class Index extends BaseSettings
 		}
 
 		$profileFieldsNew = self::getProfileFieldsFromInput(
-			local_user(),
+			DI::userSession()->getLocalUserId(),
 			$_REQUEST['profile_field'],
 			$_REQUEST['profile_field_order']
 		);
 
-		DI::profileField()->saveCollectionForUser(local_user(), $profileFieldsNew);
+		DI::profileField()->saveCollectionForUser(DI::userSession()->getLocalUserId(), $profileFieldsNew);
 
 		$result = Profile::update(
 			[
@@ -124,11 +125,13 @@ class Index extends BaseSettings
 				'pub_keywords' => $pub_keywords,
 				'prv_keywords' => $prv_keywords,
 			],
-			local_user()
+			DI::userSession()->getLocalUserId()
 		);
 
+		Worker::add(Worker::PRIORITY_MEDIUM, 'CheckRelMeProfileLink', DI::userSession()->getLocalUserId());
+
 		if (!$result) {
-			notice(DI::l10n()->t('Profile couldn\'t be updated.'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('Profile couldn\'t be updated.'));
 			return;
 		}
 
@@ -137,8 +140,8 @@ class Index extends BaseSettings
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
-			notice(DI::l10n()->t('You must be logged in to use this module'));
+		if (!DI::userSession()->getLocalUserId()) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('You must be logged in to use this module'));
 			return Login::form();
 		}
 
@@ -146,7 +149,7 @@ class Index extends BaseSettings
 
 		$o = '';
 
-		$profile = User::getOwnerDataById(local_user());
+		$profile = User::getOwnerDataById(DI::userSession()->getLocalUserId());
 		if (!DBA::isResult($profile)) {
 			throw new HTTPException\NotFoundException();
 		}
@@ -158,7 +161,7 @@ class Index extends BaseSettings
 
 		$custom_fields = [];
 
-		$profileFields = DI::profileField()->selectByUserId(local_user());
+		$profileFields = DI::profileField()->selectByUserId(DI::userSession()->getLocalUserId());
 		foreach ($profileFields as $profileField) {
 			/** @var ProfileField $profileField */
 			$defaultPermissions = $profileField->permissionSet->withAllowedContacts(
@@ -210,6 +213,12 @@ class Index extends BaseSettings
 
 		$personal_account = ($profile['account-type'] != User::ACCOUNT_TYPE_COMMUNITY);
 
+		if ($profile['homepage_verified']) {
+			$homepage_help_text = DI::l10n()->t('The homepage is verified. A rel="me" link back to your Friendica profile page was found on the homepage.');
+		} else {
+			$homepage_help_text = DI::l10n()->t('To verify your homepage, add a rel="me" link to it, pointing to your profile URL (%s).', $profile['url']);
+		}
+
 		$tpl = Renderer::getMarkupTemplate('settings/profile/index.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$personal_account' => $personal_account,
@@ -221,7 +230,7 @@ class Index extends BaseSettings
 			'$banner' => DI::l10n()->t('Edit Profile Details'),
 			'$submit' => DI::l10n()->t('Submit'),
 			'$profpic' => DI::l10n()->t('Change Profile Photo'),
-			'$profpiclink' => '/photos/' . $profile['nickname'],
+			'$profpiclink' => '/profile/' . $profile['nickname'] . '/photos',
 			'$viewprof' => DI::l10n()->t('View Profile'),
 
 			'$lbl_personal_section' => DI::l10n()->t('Personal'),
@@ -245,7 +254,7 @@ class Index extends BaseSettings
 			'$age' => ((intval($profile['dob'])) ? '(' . DI::l10n()->t('Age: ') . DI::l10n()->tt('%d year old', '%d years old', Temporal::getAgeByTimezone($profile['dob'], $profile['timezone'])) . ')' : ''),
 			'$xmpp' => ['xmpp', DI::l10n()->t('XMPP (Jabber) address:'), $profile['xmpp'], DI::l10n()->t('The XMPP address will be published so that people can follow you there.')],
 			'$matrix' => ['matrix', DI::l10n()->t('Matrix (Element) address:'), $profile['matrix'], DI::l10n()->t('The Matrix address will be published so that people can follow you there.')],
-			'$homepage' => ['homepage', DI::l10n()->t('Homepage URL:'), $profile['homepage']],
+			'$homepage' => ['homepage', DI::l10n()->t('Homepage URL:'), $profile['homepage'], $homepage_help_text],
 			'$pub_keywords' => ['pub_keywords', DI::l10n()->t('Public Keywords:'), $profile['pub_keywords'], DI::l10n()->t('(Used for suggesting potential friends, can be seen by others)')],
 			'$prv_keywords' => ['prv_keywords', DI::l10n()->t('Private Keywords:'), $profile['prv_keywords'], DI::l10n()->t('(Used for searching profiles, never shown to others)')],
 			'$custom_fields_description' => DI::l10n()->t("<p>Custom fields appear on <a href=\"%s\">your profile page</a>.</p>

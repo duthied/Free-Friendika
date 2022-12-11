@@ -28,6 +28,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
@@ -61,7 +62,7 @@ class APContact
 				'addr'      => $local_owner['addr'],
 				'baseurl'   => $local_owner['baseurl'],
 				'url'       => $local_owner['url'],
-				'subscribe' => $local_owner['baseurl'] . '/follow?url={uri}'];
+				'subscribe' => $local_owner['baseurl'] . '/contact/follow?url={uri}'];
 
 			if (!empty($local_owner['alias']) && ($local_owner['url'] != $local_owner['alias'])) {
 				$data['alias'] = $local_owner['alias'];
@@ -290,22 +291,19 @@ class APContact
 			return $fetched_contact;
 		}
 
-		$parts = parse_url($apcontact['url']);
-		unset($parts['scheme']);
-		unset($parts['path']);
-
 		if (empty($apcontact['addr'])) {
-			if (!empty($apcontact['nick']) && is_array($parts)) {
-				$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
-			} else {
+			try {
+				$apcontact['addr'] = $apcontact['nick'] . '@' . (new Uri($apcontact['url']))->getAuthority();
+			} catch (\Throwable $e) {
+				Logger::warning('Unable to coerce APContact URL into a UriInterface object', ['url' => $apcontact['url'], 'error' => $e->getMessage()]);
 				$apcontact['addr'] = '';
 			}
 		}
 
 		$apcontact['pubkey'] = null;
 		if (!empty($compacted['w3id:publicKey'])) {
-			$apcontact['pubkey'] = trim(JsonLD::fetchElement($compacted['w3id:publicKey'], 'w3id:publicKeyPem', '@value'));
-			if (strstr($apcontact['pubkey'], 'RSA ')) {
+			$apcontact['pubkey'] = trim(JsonLD::fetchElement($compacted['w3id:publicKey'], 'w3id:publicKeyPem', '@value') ?? '');
+			if (strpos($apcontact['pubkey'], 'RSA ') !== false) {
 				$apcontact['pubkey'] = Crypto::rsaToPem($apcontact['pubkey']);
 			}
 		}
@@ -382,7 +380,7 @@ class APContact
 		// kroeg:blocks, updated
 
 		// When the photo is too large, try to shorten it by removing parts
-		if (strlen($apcontact['photo']) > 255) {
+		if (strlen($apcontact['photo'] ?? '') > 255) {
 			$parts = parse_url($apcontact['photo']);
 			unset($parts['fragment']);
 			$apcontact['photo'] = (string)Uri::fromParts($parts);
@@ -495,13 +493,13 @@ class APContact
 	private static function getStatusesCount(array $owner): int
 	{
 		$condition = [
-			'private' => [Item::PUBLIC, Item::UNLISTED],
+			'private'        => [Item::PUBLIC, Item::UNLISTED],
 			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
-			'gravity'        => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'gravity'        => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
 			'network'        => Protocol::DFRN,
 			'parent-network' => Protocol::FEDERATED,
 			'deleted'        => false,
-			'visible'        => true
+			'visible'        => true,
 		];
 
 		$count = Post::countPosts($condition);
@@ -573,7 +571,7 @@ class APContact
 	 *
 	 * @param array $apcontact
 	 *
-	 * @return bool 
+	 * @return bool
 	 */
 	public static function isRelay(array $apcontact): bool
 	{

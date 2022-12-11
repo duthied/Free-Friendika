@@ -62,7 +62,7 @@ return [
 
 		// allowed_themes (Comma-separated list)
 		// Themes users can change to in their settings.
-		'allowed_themes' => 'frio,quattro,vier,duepuntozero,smoothly',
+		'allowed_themes' => 'frio,vier',
 
 		// cache_contact_avatar (Boolean)
 		// Cache versions of the contact avatars. Uses a lot of storage space
@@ -167,6 +167,10 @@ return [
 		// optimize_tables (Boolean)
 		// Periodically (once an hour) run an "optimize table" command for cache tables
 		'optimize_tables' => false,
+
+		// register_notification (Boolean)
+		// Send a notification mail to the admin for each new registration.
+		'register_notification' => true,
 
 		// relay_deny_tags (String)
 		// Comma separated list of tags that are rejected.

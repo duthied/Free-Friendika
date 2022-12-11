@@ -24,7 +24,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Notification;
@@ -39,15 +38,15 @@ class Delegation extends BaseModule
 {
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
-		$uid = local_user();
+		$uid = DI::userSession()->getLocalUserId();
 		$orig_record = User::getById(DI::app()->getLoggedInUserId());
 
-		if (Session::get('submanage')) {
-			$user = User::getById(Session::get('submanage'));
+		if (DI::userSession()->getSubManagedUserId()) {
+			$user = User::getById(DI::userSession()->getSubManagedUserId());
 			if (DBA::isResult($user)) {
 				$uid = intval($user['uid']);
 				$orig_record = $user;
@@ -97,29 +96,29 @@ class Delegation extends BaseModule
 			return;
 		}
 
-		Session::clear();
+		DI::session()->clear();
 
 		DI::auth()->setForUser(DI::app(), $user, true, true);
 
 		if ($limited_id) {
-			Session::set('submanage', $original_id);
+			DI::userSession()->setSubManagedUserId($original_id);
 		}
 
 		$ret = [];
 		Hook::callAll('home_init', $ret);
 
-		notice($this->t('You are now logged in as %s', $user['username']));
+		DI::sysmsg()->addNotice($this->t('You are now logged in as %s', $user['username']));
 
 		DI::baseUrl()->redirect('network');
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		$identities = User::identities(DI::session()->get('submanage', local_user()));
+		$identities = User::identities(DI::userSession()->getSubManagedUserId() ?: DI::userSession()->getLocalUserId());
 
 		//getting additinal information for each identity
 		foreach ($identities as $key => $identity) {

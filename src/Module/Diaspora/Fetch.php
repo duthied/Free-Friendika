@@ -49,7 +49,7 @@ class Fetch extends BaseModule
 
 		// Fetch the item
 		$condition = ['origin' => true, 'private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $guid,
-			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
+			'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
 		$item = Post::selectFirst([], $condition);
 		if (empty($item)) {
 			$condition = ['guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
@@ -76,7 +76,7 @@ class Fetch extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		if ($item['gravity'] == GRAVITY_PARENT) {
+		if ($item['gravity'] == Item::GRAVITY_PARENT) {
 			$status = Diaspora::buildStatus($item, $user);
 		} else {
 			$status = ['type' => 'comment', 'message' => Diaspora::createCommentSignature($item)];

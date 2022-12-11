@@ -20,6 +20,8 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Module\Response;
@@ -93,9 +95,9 @@ function oexchange_init(App $a)
 	System::httpExit($xml->saveXML(), Response::TYPE_XML, 'application/xrd+xml');
 }
 
-function oexchange_content(App $a) {
-
-	if (!local_user()) {
+function oexchange_content(App $a)
+{
+	if (!DI::userSession()->getLocalUserId()) {
 		$o = Login::form();
 		return $o;
 	}
@@ -109,7 +111,7 @@ function oexchange_content(App $a) {
 	$description = !empty($_REQUEST['description']) ? trim($_REQUEST['description']) : '';
 	$tags        = !empty($_REQUEST['tags'])        ? trim($_REQUEST['tags'])        : '';
 
-	$s = \Friendica\Content\Text\BBCode::embedURL($url, true, $title, $description, $tags);
+	$s = BBCode::embedURL($url, true, $title, $description, $tags);
 
 	if (!strlen($s)) {
 		return;
@@ -117,11 +119,10 @@ function oexchange_content(App $a) {
 
 	$post = [];
 
-	$post['profile_uid'] = local_user();
 	$post['return'] = '/oexchange/done';
-	$post['body'] = Friendica\Content\Text\HTML::toBBCode($s);
+	$post['body'] = HTML::toBBCode($s);
 
 	$_REQUEST = $post;
-	require_once('mod/item.php');
+	require_once 'mod/item.php';
 	item_post($a);
 }

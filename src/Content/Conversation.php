@@ -32,7 +32,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -77,8 +77,10 @@ class Conversation
 	private $page;
 	/** @var App\Mode */
 	private $mode;
+	/** @var IHandleUserSessions */
+	private $session;
 
-	public function __construct(LoggerInterface $logger, Profiler $profiler, Activity $activity, L10n $l10n, Item $item, Arguments $args, BaseURL $baseURL, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, App\Mode $mode, App $app)
+	public function __construct(LoggerInterface $logger, Profiler $profiler, Activity $activity, L10n $l10n, Item $item, Arguments $args, BaseURL $baseURL, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, App\Mode $mode, App $app, IHandleUserSessions $session)
 	{
 		$this->activity = $activity;
 		$this->item     = $item;
@@ -92,6 +94,7 @@ class Conversation
 		$this->pConfig  = $pConfig;
 		$this->page     = $page;
 		$this->app      = $app;
+		$this->session  = $session;
 	}
 
 	/**
@@ -135,7 +138,7 @@ class Conversation
 					return;
 			}
 
-			if (!empty($activity['verb']) && $this->activity->match($activity['verb'], $verb) && ($activity['gravity'] != GRAVITY_PARENT)) {
+			if (!empty($activity['verb']) && $this->activity->match($activity['verb'], $verb) && ($activity['gravity'] != ItemModel::GRAVITY_PARENT)) {
 				$author = [
 					'uid'     => 0,
 					'id'      => $activity['author-id'],
@@ -143,7 +146,7 @@ class Conversation
 					'url'     => $activity['author-link']
 				];
 				$url = Contact::magicLinkByContact($author);
-				if (strpos($url, 'redir/') === 0) {
+				if (strpos($url, 'contact/redir/') === 0) {
 					$sparkle = ' class="sparkle" ';
 				}
 
@@ -168,7 +171,7 @@ class Conversation
 					continue;
 				}
 
-				if (public_contact() == $activity['author-id']) {
+				if ($this->session->getPublicContactId() == $activity['author-id']) {
 					$conv_responses[$mode][$activity['thr-parent-id']]['self'] = 1;
 				}
 
@@ -261,7 +264,7 @@ class Conversation
 					break;
 			}
 
-			$expanded .= "\t" . '<p class="wall-item-' . $verb . '-expanded" id="' . $verb . 'list-' . $id . '" style="display: none;" >' . $explikers . EOL . '</p>';
+			$expanded .= "\t" . '<p class="wall-item-' . $verb . '-expanded" id="' . $verb . 'list-' . $id . '" style="display: none;" >' . $explikers . '</p>';
 		}
 
 		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
@@ -293,7 +296,7 @@ class Conversation
 		$x['bang']             = $x['bang']             ?? '';
 		$x['visitor']          = $x['visitor']          ?? 'block';
 		$x['is_owner']         = $x['is_owner']         ?? true;
-		$x['profile_uid']      = $x['profile_uid']      ?? local_user();
+		$x['profile_uid']      = $x['profile_uid']      ?? $this->session->getLocalUserId();
 
 
 		$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
@@ -328,7 +331,7 @@ class Conversation
 			$created_at = '';
 		}
 
-		$tpl = Renderer::getMarkupTemplate("jot.tpl");
+		$tpl = Renderer::getMarkupTemplate('jot.tpl');
 
 		$o .= Renderer::replaceMacros($tpl, [
 			'$new_post'            => $this->l10n->t('New Post'),
@@ -356,7 +359,7 @@ class Conversation
 			'$title'               => $x['title'] ?? '',
 			'$placeholdertitle'    => $this->l10n->t('Set title'),
 			'$category'            => $x['category'] ?? '',
-			'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? $this->l10n->t("Categories \x28comma-separated list\x29") : '',
+			'$placeholdercategory' => Feature::isEnabled($this->session->getLocalUserId(), 'categories') ? $this->l10n->t("Categories \x28comma-separated list\x29") : '',
 			'$scheduled_at'        => Temporal::getDateTimeField(
 				new \DateTime(),
 				new \DateTime('now + 6 months'),
@@ -393,7 +396,8 @@ class Conversation
 			'$message' => $this->l10n->t('Message'),
 			'$browser' => $this->l10n->t('Browser'),
 
-			'$compose_link_title' => $this->l10n->t('Open Compose page'),
+			'$compose_link_title'  => $this->l10n->t('Open Compose page'),
+			'$always_open_compose' => $this->pConfig->get($this->session->getLocalUserId(), 'frio', 'always_open_compose', false),
 		]);
 
 
@@ -432,7 +436,7 @@ class Conversation
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
-		$ssl_state = (local_user() ? true : false);
+		$ssl_state = (bool)$this->session->getLocalUserId();
 
 		$live_update_div = '';
 
@@ -484,19 +488,19 @@ class Conversation
 				}
 			}
 		} elseif ($mode === 'notes') {
-			$items = $this->addChildren($items, false, $order, local_user(), $mode);
+			$items = $this->addChildren($items, false, $order, $this->session->getLocalUserId(), $mode);
 
 			if (!$update) {
 				$live_update_div = '<div id="live-notes"></div>' . "\r\n"
-					. "<script> var profile_uid = " . local_user()
-					. "; var netargs = '/?f='; </script>\r\n";
+					. "<script> var profile_uid = " . $this->session->getLocalUserId()
+					. "; var netargs = '?f='; </script>\r\n";
 			}
 		} elseif ($mode === 'display') {
 			$items = $this->addChildren($items, false, $order, $uid, $mode);
 
 			if (!$update) {
 				$live_update_div = '<div id="live-display"></div>' . "\r\n"
-					. "<script> var profile_uid = " . Session::get('uid', 0) . ";"
+					. "<script> var profile_uid = " . ($this->session->getLocalUserId() ?: 0) . ";"
 					. "</script>";
 			}
 		} elseif ($mode === 'community') {
@@ -516,13 +520,13 @@ class Conversation
 			if (!$update) {
 				$live_update_div = '<div id="live-contact"></div>' . "\r\n"
 					. "<script> var profile_uid = -1; var netargs = '" . substr($this->args->getCommand(), 8)
-					."/?f='; </script>\r\n";
+					."?f='; </script>\r\n";
 			}
 		} elseif ($mode === 'search') {
 			$live_update_div = '<div id="live-search"></div>' . "\r\n";
 		}
 
-		$page_dropping = ((local_user() && local_user() == $uid) ? true : false);
+		$page_dropping = $this->session->getLocalUserId() && $this->session->getLocalUserId() == $uid && $mode != 'search';
 
 		if (!$update) {
 			$_SESSION['return_path'] = $this->args->getQueryString();
@@ -542,7 +546,7 @@ class Conversation
 			'announce'    => [],
 		];
 
-		if ($this->pConfig->get(local_user(), 'system', 'hide_dislike')) {
+		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'hide_dislike')) {
 			unset($conv_responses['dislike']);
 		}
 
@@ -560,7 +564,7 @@ class Conversation
 				$writable = $items[0]['writable'] || ($items[0]['uid'] == 0) && in_array($items[0]['network'], Protocol::FEDERATED);
 			}
 
-			if (!local_user()) {
+			if (!$this->session->getLocalUserId()) {
 				$writable = false;
 			}
 
@@ -593,7 +597,7 @@ class Conversation
 					$threadsid++;
 
 					// prevent private email from leaking.
-					if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
+					if ($item['network'] === Protocol::MAIL && $this->session->getLocalUserId() != $item['uid']) {
 						continue;
 					}
 
@@ -608,7 +612,7 @@ class Conversation
 					$profile_link = Contact::magicLinkByContact($author);
 
 					$sparkle = '';
-					if (strpos($profile_link, 'redir/') === 0) {
+					if (strpos($profile_link, 'contact/redir/') === 0) {
 						$sparkle = ' sparkle';
 					}
 
@@ -637,17 +641,17 @@ class Conversation
 						'announce' => null,
 					];
 
-					if ($this->pConfig->get(local_user(), 'system', 'hide_dislike')) {
+					if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'hide_dislike')) {
 						unset($likebuttons['dislike']);
 					}
 
 					$body_html = ItemModel::prepareBody($item, true, $preview);
 
-					[$categories, $folders] = $this->item->determineCategoriesTerms($item, local_user());
+					[$categories, $folders] = $this->item->determineCategoriesTerms($item, $this->session->getLocalUserId());
 
 					if (!empty($item['title'])) {
 						$title = $item['title'];
-					} elseif (!empty($item['content-warning']) && $this->pConfig->get(local_user(), 'system', 'disable_cw', false)) {
+					} elseif (!empty($item['content-warning']) && $this->pConfig->get($this->session->getLocalUserId(), 'system', 'disable_cw', false)) {
 						$title = ucfirst($item['content-warning']);
 					} else {
 						$title = '';
@@ -741,7 +745,7 @@ class Conversation
 					$this->builtinActivityPuller($item, $conv_responses);
 
 					// Only add what is visible
-					if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
+					if ($item['network'] === Protocol::MAIL && $this->session->getLocalUserId() != $item['uid']) {
 						continue;
 					}
 
@@ -755,7 +759,7 @@ class Conversation
 
 					$item['pagedrop'] = $page_dropping;
 
-					if ($item['gravity'] == GRAVITY_PARENT) {
+					if ($item['gravity'] == ItemModel::GRAVITY_PARENT) {
 						$item_object = new PostObject($item);
 						$conv->addParent($item_object);
 					}
@@ -786,11 +790,11 @@ class Conversation
 
 	private function getBlocklist(): array
 	{
-		if (!local_user()) {
+		if (!$this->session->getLocalUserId()) {
 			return [];
 		}
 
-		$str_blocked = str_replace(["\n", "\r"], ",", $this->pConfig->get(local_user(), 'system', 'blocked'));
+		$str_blocked = str_replace(["\n", "\r"], ",", $this->pConfig->get($this->session->getLocalUserId(), 'system', 'blocked') ?? '');
 		if (empty($str_blocked)) {
 			return [];
 		}
@@ -825,7 +829,7 @@ class Conversation
 		}
 
 		if (!empty($activity)) {
-			if (($row['gravity'] == GRAVITY_PARENT)) {
+			if (($row['gravity'] == ItemModel::GRAVITY_PARENT)) {
 				$row['post-reason'] = ItemModel::PR_ANNOUNCEMENT;
 
 				$row     = array_merge($row, $activity);
@@ -834,7 +838,7 @@ class Conversation
 				$row['causer-link']   = $contact['url'];
 				$row['causer-avatar'] = $contact['thumb'];
 				$row['causer-name']   = $contact['name'];
-			} elseif (($row['gravity'] == GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
+			} elseif (($row['gravity'] == ItemModel::GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
 				($row['author-id'] == $activity['causer-id'])) {
 				return $row;
 			}
@@ -860,14 +864,14 @@ class Conversation
 				$row['direction'] = ['direction' => 4, 'title' => $this->l10n->t('You subscribed to one or more tags in this post.')];
 				break;
 			case ItemModel::PR_ANNOUNCEMENT:
-				if (!empty($row['causer-id']) && $this->pConfig->get(local_user(), 'system', 'display_resharer')) {
+				if (!empty($row['causer-id']) && $this->pConfig->get($this->session->getLocalUserId(), 'system', 'display_resharer')) {
 					$row['owner-id']     = $row['causer-id'];
 					$row['owner-link']   = $row['causer-link'];
 					$row['owner-avatar'] = $row['causer-avatar'];
 					$row['owner-name']   = $row['causer-name'];
 				}
 
-				if (in_array($row['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) && !empty($row['causer-id'])) {
+				if (in_array($row['gravity'], [ItemModel::GRAVITY_PARENT, ItemModel::GRAVITY_COMMENT]) && !empty($row['causer-id'])) {
 					$causer = ['uid' => 0, 'id' => $row['causer-id'], 'network' => $row['causer-network'], 'url' => $row['causer-link']];
 
 					$row['reshared'] = $this->l10n->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($row['causer-name']) . '</a>');
@@ -941,7 +945,7 @@ class Conversation
 		$activitycounter = [];
 
 		foreach ($parents as $parent) {
-			if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == GRAVITY_ACTIVITY)) {
+			if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == ItemModel::GRAVITY_ACTIVITY)) {
 				$uriid = $parent['thr-parent-id'];
 				if (!empty($parent['author-id'])) {
 					$activities[$uriid] = ['causer-id' => $parent['author-id']];
@@ -966,7 +970,7 @@ class Conversation
 		}
 
 		$condition = DBA::mergeConditions($condition,
-			["`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW)]);
+			["`uid` IN (0, ?) AND (NOT `vid` IN (?, ?) OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW), Verb::getID(Activity::VIEW)]);
 
 		$thread_parents = Post::select(['uri-id', 'causer-id'], $condition, ['order' => ['uri-id' => false, 'uid']]);
 
@@ -993,10 +997,10 @@ class Conversation
 			}
 
 			if ($max_comments > 0) {
-				if (($row['gravity'] == GRAVITY_COMMENT) && (++$commentcounter[$row['parent-uri-id']] > $max_comments)) {
+				if (($row['gravity'] == ItemModel::GRAVITY_COMMENT) && (++$commentcounter[$row['parent-uri-id']] > $max_comments)) {
 					continue;
 				}
-				if (($row['gravity'] == GRAVITY_ACTIVITY) && (++$activitycounter[$row['parent-uri-id']] > $max_comments)) {
+				if (($row['gravity'] == ItemModel::GRAVITY_ACTIVITY) && (++$activitycounter[$row['parent-uri-id']] > $max_comments)) {
 					continue;
 				}
 			}
@@ -1025,7 +1029,7 @@ class Conversation
 		$this->profiler->startRecording('rendering');
 		$children = [];
 		foreach ($item_list as $i => $item) {
-			if ($item['gravity'] != GRAVITY_PARENT) {
+			if ($item['gravity'] != ItemModel::GRAVITY_PARENT) {
 				if ($recursive) {
 					// Fallback to parent-uri if thr-parent is not set
 					$thr_parent = $item['thr-parent-id'];
@@ -1182,7 +1186,7 @@ class Conversation
 
 		// Extract the top level items
 		foreach ($item_array as $item) {
-			if ($item['gravity'] == GRAVITY_PARENT) {
+			if ($item['gravity'] == ItemModel::GRAVITY_PARENT) {
 				$parents[] = $item;
 			}
 		}
@@ -1212,7 +1216,7 @@ class Conversation
 			$parents[$i]['children'] = $this->sortItemChildren($parents[$i]['children']);
 		}
 
-		if (!$this->pConfig->get(local_user(), 'system', 'no_smart_threading', 0)) {
+		if (!$this->pConfig->get($this->session->getLocalUserId(), 'system', 'no_smart_threading', 0)) {
 			foreach ($parents as $i => $parent) {
 				$parents[$i] = $this->smartFlattenConversation($parent);
 			}

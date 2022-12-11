@@ -26,7 +26,6 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\Hook;
-use Friendica\Core\Session;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\DI;
@@ -44,12 +43,12 @@ class Directory extends BaseModule
 		$app = DI::app();
 		$config = DI::config();
 
-		if (($config->get('system', 'block_public') && !Session::isAuthenticated()) ||
-			($config->get('system', 'block_local_dir') && !Session::isAuthenticated())) {
+		if (($config->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) ||
+			($config->get('system', 'block_local_dir') && !DI::userSession()->isAuthenticated())) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
 		}
 
-		if (local_user()) {
+		if (DI::userSession()->getLocalUserId()) {
 			DI::page()['aside'] .= Widget::findPeople();
 			DI::page()['aside'] .= Widget::follow();
 		}
@@ -72,10 +71,10 @@ class Directory extends BaseModule
 		$profiles = Profile::searchProfiles($pager->getStart(), $pager->getItemsPerPage(), $search);
 
 		if ($profiles['total'] === 0) {
-			notice(DI::l10n()->t('No entries (some entries may be hidden).'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('No entries (some entries may be hidden).'));
 		} else {
 			foreach ($profiles['entries'] as $entry) {
-				$contact = Model\Contact::getByURLForUser($entry['url'], local_user());
+				$contact = Model\Contact::getByURLForUser($entry['url'], DI::userSession()->getLocalUserId());
 				if (!empty($contact)) {
 					$entries[] = Contact::getContactTemplateVars($contact);
 				}

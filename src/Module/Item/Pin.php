@@ -22,7 +22,6 @@
 namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -38,7 +37,7 @@ class Pin extends BaseModule
 	{
 		$l10n = DI::l10n();
 
-		if (!Session::isAuthenticated()) {
+		if (!DI::userSession()->isAuthenticated()) {
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
@@ -53,16 +52,16 @@ class Pin extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		if (!in_array($item['uid'], [0, local_user()])) {
+		if (!in_array($item['uid'], [0, DI::userSession()->getLocalUserId()])) {
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
 		$pinned = !$item['featured'];
 
 		if ($pinned) {
-			Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, $item['author-id'], local_user());
+			Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, $item['author-id'], DI::userSession()->getLocalUserId());
 		} else {
-			Post\Collection::remove($item['uri-id'], Post\Collection::FEATURED, local_user());
+			Post\Collection::remove($item['uri-id'], Post\Collection::FEATURED, DI::userSession()->getLocalUserId());
 		}
 
 		// See if we've been passed a return path to redirect to

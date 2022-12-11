@@ -22,21 +22,21 @@
 namespace Friendica\Content;
 
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\Markdown;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
-use Friendica\Model\Item as ModelItem;
+use Friendica\Model\Item as ItemModel;
 use Friendica\Model\Photo;
 use Friendica\Model\Tag;
 use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
-use Friendica\Protocol\Diaspora;
 use Friendica\Util\Profiler;
 use Friendica\Util\Proxy;
 use Friendica\Util\XML;
@@ -52,12 +52,15 @@ class Item
 	private $l10n;
 	/** @var Profiler */
 	private $profiler;
+	/** @var IHandleUserSessions */
+	private $userSession;
 
-	public function __construct(Profiler $profiler, Activity $activity, L10n $l10n)
+	public function __construct(Profiler $profiler, Activity $activity, L10n $l10n, IHandleUserSessions $userSession)
 	{
-		$this->profiler = $profiler;
-		$this->activity = $activity;
-		$this->l10n   = $l10n;
+		$this->profiler    = $profiler;
+		$this->activity    = $activity;
+		$this->l10n        = $l10n;
+		$this->userSession = $userSession;
 	}
 
 	/**
@@ -109,7 +112,7 @@ class Item
 			$categories[] = [
 				'name' => $savedFolderName,
 				'url' => $url,
-				'removeurl' => local_user() == $uid ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : '',
+				'removeurl' => $this->userSession->getLocalUserId() == $uid ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : '',
 				'first' => $first,
 				'last' => false
 			];
@@ -120,12 +123,12 @@ class Item
 			$categories[count($categories) - 1]['last'] = true;
 		}
 
-		if (local_user() == $uid) {
+		if ($this->userSession->getLocalUserId() == $uid) {
 			foreach (Post\Category::getArrayByURIId($item['uri-id'], $uid, Post\Category::FILE) as $savedFolderName) {
 				$folders[] = [
 					'name' => $savedFolderName,
 					'url' => "#",
-					'removeurl' => local_user() == $uid ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : '',
+					'removeurl' => $this->userSession->getLocalUserId() == $uid ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : '',
 					'first' => $first,
 					'last' => false
 				];
@@ -331,7 +334,7 @@ class Item
 		$sub_link = $contact_url = $pm_url = $status_link = '';
 		$photos_link = $posts_link = $block_link = $ignore_link = '';
 
-		if (local_user() && local_user() == $item['uid'] && $item['gravity'] == GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
+		if ($this->userSession->getLocalUserId() && $this->userSession->getLocalUserId() == $item['uid'] && $item['gravity'] == ItemModel::GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
 			$sub_link = 'javascript:doFollowThread(' . $item['id'] . '); return false;';
 		}
 
@@ -342,13 +345,13 @@ class Item
 			'url' => $item['author-link'],
 		];
 		$profile_link = Contact::magicLinkByContact($author, $item['author-link']);
-		$sparkle = (strpos($profile_link, 'redir/') === 0);
+		$sparkle = (strpos($profile_link, 'contact/redir/') === 0);
 
 		$cid = 0;
 		$pcid = $item['author-id'];
 		$network = '';
 		$rel = 0;
-		$condition = ['uid' => local_user(), 'uri-id' => $item['author-uri-id']];
+		$condition = ['uid' => $this->userSession->getLocalUserId(), 'uri-id' => $item['author-uri-id']];
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'rel'], $condition);
 		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
@@ -358,7 +361,7 @@ class Item
 
 		if ($sparkle) {
 			$status_link = $profile_link . '/status';
-			$photos_link = str_replace('/profile/', '/photos/', $profile_link);
+			$photos_link = $profile_link . '/photos';
 			$profile_link = $profile_link . '/profile';
 		}
 
@@ -378,7 +381,7 @@ class Item
 			}
 		}
 
-		if (local_user()) {
+		if ($this->userSession->getLocalUserId()) {
 			$menu = [
 				$this->l10n->t('Follow Thread') => $sub_link,
 				$this->l10n->t('View Status') => $status_link,
@@ -392,12 +395,12 @@ class Item
 			];
 
 			if (!empty($item['language'])) {
-				$menu[$this->l10n->t('Languages')] = 'javascript:alert(\'' . ModelItem::getLanguageMessage($item) . '\');';
+				$menu[$this->l10n->t('Languages')] = 'javascript:alert(\'' . ItemModel::getLanguageMessage($item) . '\');';
 			}
 
 			if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
 				in_array($item['network'], Protocol::FEDERATED)) {
-				$menu[$this->l10n->t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']) . '&auto=1';
+				$menu[$this->l10n->t('Connect/Follow')] = 'contact/follow?url=' . urlencode($item['author-link']) . '&auto=1';
 			}
 		} else {
 			$menu = [$this->l10n->t('View Profile') => $item['author-link']];
@@ -439,7 +442,7 @@ class Item
 		return (!($this->activity->match($item['verb'], Activity::FOLLOW) &&
 			$item['object-type'] === Activity\ObjectType::NOTE &&
 			empty($item['self']) &&
-			$item['uid'] == local_user())
+			$item['uid'] == $this->userSession->getLocalUserId())
 		);
 	}
 
@@ -470,7 +473,7 @@ class Item
 			}
 			$item['inform'] .= 'cid:' . $contact['id'];
 
-			if (($item['gravity'] == GRAVITY_COMMENT) || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
+			if (($item['gravity'] == ItemModel::GRAVITY_COMMENT) || empty($contact['cid']) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY)) {
 				continue;
 			}
 
@@ -492,9 +495,9 @@ class Item
 		}
 		Logger::info('Got inform', ['inform' => $item['inform']]);
 
-		if (($item['gravity'] == GRAVITY_PARENT) && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
+		if (($item['gravity'] == ItemModel::GRAVITY_PARENT) && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
 			// we tagged a forum in a top level post. Now we change the post
-			$item['private'] = $private_forum ? ModelItem::PRIVATE : ModelItem::UNLISTED;
+			$item['private'] = $private_forum ? ItemModel::PRIVATE : ItemModel::UNLISTED;
 
 			if ($only_to_forum) {
 				$item['postopts'] = '';
@@ -510,14 +513,14 @@ class Item
 				$item['allow_cid'] = '';
 				$item['allow_gid'] = '';
 			}
-		} elseif ($setPermissions && ($item['gravity'] == GRAVITY_PARENT)) {
+		} elseif ($setPermissions && ($item['gravity'] == ItemModel::GRAVITY_PARENT)) {
 			if (empty($receivers)) {
 				// For security reasons direct posts without any receiver will be posts to yourself
 				$self = Contact::selectFirst(['id'], ['uid' => $item['uid'], 'self' => true]);
 				$receivers[] = $self['id'];
 			}
 
-			$item['private']   = ModelItem::PRIVATE;
+			$item['private']   = ItemModel::PRIVATE;
 			$item['allow_cid'] = '';
 			$item['allow_gid'] = '';
 			$item['deny_cid']  = '';
@@ -570,55 +573,30 @@ class Item
 	}
 
 	/**
-	 * Add a share block for the given url
-	 *
-	 * @param string $url
-	 * @param integer $uid
-	 * @return string
-	 */
-	public function createSharedPostByUrl(string $url, int $uid = 0): string
-	{
-		if (!empty($uid)) {
-			$id = ModelItem::searchByLink($url, $uid);
-		}
-
-		if (empty($id)) {
-			$id = ModelItem::fetchByLink($url);
-		}
-
-		if (!$id) {
-			Logger::notice('Post could not be fetched.', ['url' => $url, 'uid' => $uid, 'callstack' => System::callstack()]);
-			return '';
-		}
-
-		Logger::debug('Fetched shared post', ['id' => $id, 'url' => $url, 'uid' => $uid, 'callstack' => System::callstack()]);
-
-		$shared_item = Post::selectFirst(['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'], ['id' => $id]);
-		if (!DBA::isResult($shared_item)) {
-			Logger::warning('Post does not exist.', ['id' => $id, 'url' => $url, 'uid' => $uid]);
-			return '';
-		}
-
-		return $this->createSharedBlockByArray($shared_item);
-	}
-
-	/**
 	 * Add a share block for the given uri-id
 	 *
-	 * @param integer $UriId
-	 * @param integer $uid
+	 * @param array  $item
+	 * @param string $body
 	 * @return string
 	 */
-	public function createSharedPostByUriId(int $UriId, int $uid = 0): string
+	public function addSharedPost(array $item, string $body = ''): string
 	{
-		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
-		$shared_item = Post::selectFirst($fields, ['uri-id' => $UriId, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
-		if (!DBA::isResult($shared_item)) {
-			Logger::notice('Post does not exist.', ['uri-id' => $UriId, 'uid' => $uid]);
-			return '';
+		if (empty($body)) {
+			$body = $item['body'];
 		}
 
-		return $this->createSharedBlockByArray($shared_item);
+		if (empty($item['quote-uri-id'])) {
+			return $body;
+		}
+
+		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'quote-uri-id'];
+		$shared_item = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id'], 'uid' => [$item['uid'], 0], 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
+		if (!DBA::isResult($shared_item)) {
+			Logger::notice('Post does not exist.', ['uri-id' => $item['quote-uri-id'], 'uid' => $item['uid']]);
+			return $body;
+		}
+
+		return trim(BBCode::removeSharedData($body) . "\n" . $this->createSharedBlockByArray($shared_item, true));
 	}
 
 	/**
@@ -626,39 +604,40 @@ class Item
 	 *
 	 * @param string $guid
 	 * @param integer $uid
+	 * @param bool $add_media
 	 * @return string
 	 */
-	public function createSharedPostByGuid(string $guid, int $uid = 0, string $host = ''): string
+	private function createSharedPostByGuid(string $guid, bool $add_media): string
 	{
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network'];
-		$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
-
-		if (!DBA::isResult($shared_item) && !empty($host) && Diaspora::storeByGuid($guid, $host, true)) {
-			Logger::debug('Fetched post', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
-			$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => [$uid, 0], 'private' => [ModelItem::PUBLIC, ModelItem::UNLISTED]]);
-		} elseif (DBA::isResult($shared_item)) {
-			Logger::debug('Found existing post', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
-		}
+		$shared_item = Post::selectFirst($fields, ['guid' => $guid, 'uid' => 0, 'private' => [ItemModel::PUBLIC, ItemModel::UNLISTED]]);
 
 		if (!DBA::isResult($shared_item)) {
-			Logger::notice('Post does not exist.', ['guid' => $guid, 'host' => $host, 'uid' => $uid]);
+			Logger::notice('Post does not exist.', ['guid' => $guid]);
 			return '';
 		}
 
-		return $this->createSharedBlockByArray($shared_item);
+		return $this->createSharedBlockByArray($shared_item, $add_media);
 	}
 
 	/**
 	 * Add a share block for the given item array
 	 *
 	 * @param array $item
+	 * @param bool $add_media
 	 * @return string
 	 */
-	public function createSharedBlockByArray(array $item): string
+	public function createSharedBlockByArray(array $item, bool $add_media = false): string
 	{
-		if (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
+		if ($item['network'] == Protocol::FEED) {
+			return PageInfo::getFooterFromUrl($item['plink']);
+		} elseif (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
 			$item['guid'] = '';
 			$item['uri']  = '';
+		}
+
+		if ($add_media) {
+			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 		}
 
 		$shared_content = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid'], $item['uri']);
@@ -667,14 +646,114 @@ class Item
 			$shared_content .= '[h3]' . $item['title'] . "[/h3]\n";
 		}
 
+		$shared = $this->getShareArray($item);
+
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
-		if (Diaspora::isReshare($item['body'], false)) {
-			$item['body'] = Markdown::toBBCode(BBCode::toMarkdown($item['body']));
-			$item['body'] = Diaspora::replacePeopleGuid($item['body'], $item['author-link']);
+		if (!empty($shared)) {
+			if (!empty($shared['guid']) && ($encaspulated_share = $this->createSharedPostByGuid($shared['guid'], true))) {
+				if (!empty(BBCode::fetchShareAttributes($item['body']))) {
+					$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
+				} else {
+					$item['body'] .= $encaspulated_share;
+				}
+			}
+			$item['body'] = HTML::toBBCode(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::ACTIVITYPUB));
 		}
 
 		$shared_content .= $item['body'] . '[/share]';
 
 		return $shared_content;
+	}
+
+	/**
+	 * Return the shared post from an item array (if the item is shared item)
+	 *
+	 * @param array $item
+	 * @param array $fields
+	 *
+	 * @return array with the shared post
+	 */
+	public function getSharedPost(array $item, array $fields = []): array
+	{
+		if (!empty($item['quote-uri-id'])) {
+			$shared = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id'], 'uid' => [0, $item['uid'] ?? 0]]);
+			if (is_array($shared)) {
+				return [
+					'comment' => BBCode::removeSharedData($item['body'] ?? ''),
+					'post'    => $shared
+				];
+			}
+		}
+
+		$attributes = BBCode::fetchShareAttributes($item['body'] ?? '');
+		if (!empty($attributes)) {
+			$shared = Post::selectFirst($fields, ['guid' => $attributes['guid'], 'uid' => [0, $item['uid'] ?? 0]]);
+			if (is_array($shared)) {
+				return [
+					'comment' => $attributes['comment'],
+					'post'    => $shared
+				];
+			}
+		}
+
+		return [];
+	}
+
+	/**
+	 * Return share data from an item array (if the item is shared item)
+	 * We are providing the complete Item array, because at some time in the future
+	 * we hopefully will define these values not in the body anymore but in some item fields.
+	 * This function is meant to replace all similar functions in the system.
+	 *
+	 * @param array $item
+	 *
+	 * @return array with share information
+	 */
+	private function getShareArray(array $item): array
+	{
+		$attributes = BBCode::fetchShareAttributes($item['body'] ?? '');
+		if (!empty($attributes)) {
+			return $attributes;
+		}
+
+		if (!empty($item['quote-uri-id'])) {
+			$shared = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'uri', 'body'], ['uri-id' => $item['quote-uri-id']]);
+			if (!empty($shared)) {
+				return [
+					'author'     => $shared['author-name'],
+					'profile'    => $shared['author-link'],
+					'avatar'     => $shared['author-avatar'],
+					'link'       => $shared['plink'],
+					'posted'     => $shared['created'],
+					'guid'       => $shared['guid'],
+					'message_id' => $shared['uri'],
+					'comment'    => $item['body'],
+					'shared'     => $shared['body'],
+				];
+			}
+		}
+
+		return [];
+	}
+
+	/**
+	 * Add a link to a shared post at the end of the post
+	 *
+	 * @param string  $body
+	 * @param integer $quote_uri_id
+	 * @return string
+	 */
+	public function addShareLink(string $body, int $quote_uri_id): string
+	{
+		$post = Post::selectFirstPost(['uri', 'plink'], ['uri-id' => $quote_uri_id]);
+		if (empty($post)) {
+			return $body;
+		}
+
+		$body = BBCode::removeSharedData($body);
+
+		$body .= "\n♲ " . ($post['plink'] ?: $post['uri']);
+
+		return $body;
 	}
 }

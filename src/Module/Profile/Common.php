@@ -25,7 +25,6 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Module;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -37,7 +36,7 @@ class Common extends BaseProfile
 {
 	protected function content(array $request = []): string
 	{
-		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
@@ -56,13 +55,13 @@ class Common extends BaseProfile
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		$displayCommonTab = Session::isAuthenticated() && $profile['uid'] != local_user();
+		$displayCommonTab = DI::userSession()->isAuthenticated() && $profile['uid'] != DI::userSession()->getLocalUserId();
 
 		if (!$displayCommonTab) {
 			$a->redirect('profile/' . $nickname . '/contacts');
 		};
 
-		$o = self::getTabsHTML($a, 'contacts', false, $profile['nickname'], $profile['hide-friends']);
+		$o = self::getTabsHTML('contacts', false, $profile['nickname'], $profile['hide-friends']);
 
 		$tabs = self::getContactFilterTabs('profile/' . $nickname, 'common', $displayCommonTab);
 

@@ -59,12 +59,12 @@ class Contact extends BaseModule
 
 		self::checkFormSecurityTokenRedirectOnError($redirectUrl, 'contact_batch_actions');
 
-		$orig_records = Model\Contact::selectToArray(['id', 'uid'], ['id' => $_POST['contact_batch'], 'uid' => [0, local_user()], 'self' => false, 'deleted' => false]);
+		$orig_records = Model\Contact::selectToArray(['id', 'uid'], ['id' => $_POST['contact_batch'], 'uid' => [0, DI::userSession()->getLocalUserId()], 'self' => false, 'deleted' => false]);
 
 		$count_actions = 0;
 		foreach ($orig_records as $orig_record) {
-			$cdata = Model\Contact::getPublicAndUserContactID($orig_record['id'], local_user());
-			if (empty($cdata) || public_contact() === $cdata['public']) {
+			$cdata = Model\Contact::getPublicAndUserContactID($orig_record['id'], DI::userSession()->getLocalUserId());
+			if (empty($cdata) || DI::userSession()->getPublicContactId() === $cdata['public']) {
 				// No action available on your own contact
 				continue;
 			}
@@ -75,7 +75,7 @@ class Contact extends BaseModule
 			}
 
 			if (!empty($_POST['contacts_batch_block'])) {
-				self::toggleBlockContact($cdata['public'], local_user());
+				self::toggleBlockContact($cdata['public'], DI::userSession()->getLocalUserId());
 				$count_actions++;
 			}
 
@@ -85,7 +85,7 @@ class Contact extends BaseModule
 			}
 		}
 		if ($count_actions > 0) {
-			info(DI::l10n()->tt('%d contact edited.', '%d contacts edited.', $count_actions));
+			DI::sysmsg()->addInfo(DI::l10n()->tt('%d contact edited.', '%d contacts edited.', $count_actions));
 		}
 
 		DI::baseUrl()->redirect($redirectUrl);
@@ -93,7 +93,7 @@ class Contact extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
@@ -113,7 +113,7 @@ class Contact extends BaseModule
 	 */
 	public static function updateContactFromPoll(int $contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
+		$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => DI::userSession()->getLocalUserId(), 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
@@ -126,9 +126,9 @@ class Contact extends BaseModule
 			}
 
 			// pull feed and consume it, which should subscribe to the hub.
-			Worker::add(PRIORITY_HIGH, 'OnePoll', $contact_id, 'force');
+			Worker::add(Worker::PRIORITY_HIGH, 'OnePoll', $contact_id, 'force');
 		} else {
-			Worker::add(PRIORITY_HIGH, 'UpdateContact', $contact_id);
+			Worker::add(Worker::PRIORITY_HIGH, 'UpdateContact', $contact_id);
 		}
 	}
 
@@ -153,13 +153,13 @@ class Contact extends BaseModule
 	 */
 	private static function toggleIgnoreContact(int $contact_id)
 	{
-		$ignored = !Model\Contact\User::isIgnored($contact_id, local_user());
-		Model\Contact\User::setIgnored($contact_id, local_user(), $ignored);
+		$ignored = !Model\Contact\User::isIgnored($contact_id, DI::userSession()->getLocalUserId());
+		Model\Contact\User::setIgnored($contact_id, DI::userSession()->getLocalUserId(), $ignored);
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return Login::form($_SERVER['REQUEST_URI']);
 		}
 
@@ -203,7 +203,7 @@ class Contact extends BaseModule
 
 		$_SESSION['return_path'] = DI::args()->getQueryString();
 
-		$sql_values = [local_user()];
+		$sql_values = [DI::userSession()->getLocalUserId()];
 
 		// @TODO: Replace with parameter from router
 		$type = DI::args()->getArgv()[1] ?? '';
@@ -229,7 +229,7 @@ class Contact extends BaseModule
 				$sql_extra = " AND `pending` AND NOT `archive` AND NOT `failed` AND ((`rel` = ?)
 					OR `id` IN (SELECT `contact-id` FROM `intro` WHERE `intro`.`uid` = ? AND NOT `ignore`))";
 				$sql_values[] = Model\Contact::SHARING;
-				$sql_values[] = local_user();
+				$sql_values[] = DI::userSession()->getLocalUserId();
 				break;
 			default:
 				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending`";
@@ -298,8 +298,8 @@ class Contact extends BaseModule
 		$stmt = DBA::select('contact', [], $condition, ['order' => ['name'], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]]);
 
 		while ($contact = DBA::fetch($stmt)) {
-			$contact['blocked'] = Model\Contact\User::isBlocked($contact['id'], local_user());
-			$contact['readonly'] = Model\Contact\User::isIgnored($contact['id'], local_user());
+			$contact['blocked'] = Model\Contact\User::isBlocked($contact['id'], DI::userSession()->getLocalUserId());
+			$contact['readonly'] = Model\Contact\User::isIgnored($contact['id'], DI::userSession()->getLocalUserId());
 			$contacts[] = self::getContactTemplateVars($contact);
 		}
 		DBA::close($stmt);
@@ -423,7 +423,7 @@ class Contact extends BaseModule
 	public static function getTabsHTML(array $contact, int $active_tab)
 	{
 		$cid = $pcid = $contact['id'];
-		$data = Model\Contact::getPublicAndUserContactID($contact['id'], local_user());
+		$data = Model\Contact::getPublicAndUserContactID($contact['id'], DI::userSession()->getLocalUserId());
 		if (!empty($data['user']) && ($contact['id'] == $data['public'])) {
 			$cid = $data['user'];
 		} elseif (!empty($data['public'])) {
@@ -499,8 +499,8 @@ class Contact extends BaseModule
 	{
 		$alt_text = '';
 
-		if (!empty($contact['url']) && isset($contact['uid']) && ($contact['uid'] == 0) && local_user()) {
-			$personal = Model\Contact::getByURL($contact['url'], false, ['uid', 'rel', 'self'], local_user());
+		if (!empty($contact['url']) && isset($contact['uid']) && ($contact['uid'] == 0) && DI::userSession()->getLocalUserId()) {
+			$personal = Model\Contact::getByURL($contact['url'], false, ['uid', 'rel', 'self'], DI::userSession()->getLocalUserId());
 			if (!empty($personal)) {
 				$contact['uid'] = $personal['uid'];
 				$contact['rel'] = $personal['rel'];
@@ -508,7 +508,7 @@ class Contact extends BaseModule
 			}
 		}
 
-		if (!empty($contact['uid']) && !empty($contact['rel']) && local_user() == $contact['uid']) {
+		if (!empty($contact['uid']) && !empty($contact['rel']) && DI::userSession()->getLocalUserId() == $contact['uid']) {
 			switch ($contact['rel']) {
 				case Model\Contact::FRIEND:
 					$alt_text = DI::l10n()->t('Mutual Friendship');
@@ -529,7 +529,7 @@ class Contact extends BaseModule
 
 		$url = Model\Contact::magicLinkByContact($contact);
 
-		if (strpos($url, 'redir/') === 0) {
+		if (strpos($url, 'contact/redir/') === 0) {
 			$sparkle = ' class="sparkle" ';
 		} else {
 			$sparkle = '';

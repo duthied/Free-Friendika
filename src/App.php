@@ -26,6 +26,8 @@ use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
 use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Core\Config\Factory\Config;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Model\User;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
 use Friendica\Core\Config\ValueObject\Cache;
@@ -58,12 +60,15 @@ use Psr\Log\LoggerInterface;
  */
 class App
 {
+	const PLATFORM = 'Friendica';
+	const CODENAME = 'Giant Rhubarb';
+	const VERSION  = '2022.12-rc';
+
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
 	private $theme_info = [
 		'videowidth'        => 425,
 		'videoheight'       => 350,
-		'events_in_profile' => true
 	];
 
 	private $user_id       = 0;
@@ -124,6 +129,11 @@ class App
 	private $pConfig;
 
 	/**
+	 * @var IHandleUserSessions
+	 */
+	private $session;
+
+	/**
 	 * Set the user ID
 	 *
 	 * @param int $user_id
@@ -147,21 +157,23 @@ class App
 
 	public function isLoggedIn(): bool
 	{
-		return local_user() && $this->user_id && ($this->user_id == local_user());
+		return $this->session->getLocalUserId() && $this->user_id && ($this->user_id == $this->session->getLocalUserId());
 	}
 
 	/**
 	 * Check if current user has admin role.
 	 *
 	 * @return bool true if user is an admin
+	 * @throws Exception
 	 */
 	public function isSiteAdmin(): bool
 	{
-		$admin_email = $this->config->get('config', 'admin_email');
-
-		$adminlist = explode(',', str_replace(' ', '', $admin_email));
-
-		return local_user() && $admin_email && $this->database->exists('user', ['uid' => $this->getLoggedInUserId(), 'email' => $adminlist]);
+		return
+			$this->session->getLocalUserId()
+			&& $this->database->exists('user', [
+				'uid'   => $this->getLoggedInUserId(),
+				'email' => User::getAdminEmailList()
+			]);
 	}
 
 	/**
@@ -249,8 +261,8 @@ class App
 	/**
 	 * Set workerqueue information
 	 *
-	 * @param array $queue 
-	 * @return void 
+	 * @param array $queue
+	 * @return void
 	 */
 	public function setQueue(array $queue)
 	{
@@ -324,8 +336,9 @@ class App
 	 * @param L10n                        $l10n     The translator instance
 	 * @param App\Arguments               $args     The Friendica Arguments of the call
 	 * @param IManagePersonalConfigValues $pConfig  Personal configuration
+	 * @param IHandleUserSessions         $session  The (User)Session handler
 	 */
-	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig)
+	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig, IHandleUserSessions $session)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -336,6 +349,7 @@ class App
 		$this->l10n     = $l10n;
 		$this->args     = $args;
 		$this->pConfig  = $pConfig;
+		$this->session  = $session;
 
 		$this->load();
 	}
@@ -346,6 +360,11 @@ class App
 	public function load()
 	{
 		set_time_limit(0);
+
+		// Normally this constant is defined - but not if "pcntl" isn't installed
+		if (!defined('SIGTERM')) {
+			define('SIGTERM', 15);
+		}
 
 		// Ensure that all "strtotime" operations do run timezone independent
 		date_default_timezone_set('UTC');
@@ -406,7 +425,7 @@ class App
 		}
 
 		// Specific mobile theme override
-		if (($this->mode->isMobile() || $this->mode->isTablet()) && Core\Session::get('show-mobile', true)) {
+		if (($this->mode->isMobile() || $this->mode->isTablet()) && $this->session->get('show-mobile', true)) {
 			$user_mobile_theme = $this->getCurrentMobileTheme();
 
 			// --- means same mobile theme as desktop
@@ -478,16 +497,16 @@ class App
 
 		$page_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
-		if (!empty($this->profile_owner) && ($this->profile_owner != local_user())) {
+		if (!empty($this->profile_owner) && ($this->profile_owner != $this->session->getLocalUserId())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
 			$user = $this->database->selectFirst('user', ['theme'], ['uid' => $this->profile_owner]);
-			if ($this->database->isResult($user) && !local_user()) {
+			if ($this->database->isResult($user) && !$this->session->getLocalUserId()) {
 				$page_theme = $user['theme'];
 			}
 		}
 
-		$theme_name = $page_theme ?: Core\Session::get('theme', $system_theme);
+		$theme_name = $page_theme ?: $this->session->get('theme', $system_theme);
 
 		$theme_name = Strings::sanitizeFilePathItem($theme_name);
 		if ($theme_name
@@ -511,15 +530,15 @@ class App
 
 		$page_mobile_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
-		if (!empty($this->profile_owner) && ($this->profile_owner != local_user())) {
+		if (!empty($this->profile_owner) && ($this->profile_owner != $this->session->getLocalUserId())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
-			if (!local_user()) {
+			if (!$this->session->getLocalUserId()) {
 				$page_mobile_theme = $this->pConfig->get($this->profile_owner, 'system', 'mobile-theme');
 			}
 		}
 
-		$mobile_theme_name = $page_mobile_theme ?: Core\Session::get('mobile-theme', $system_mobile_theme);
+		$mobile_theme_name = $page_mobile_theme ?: $this->session->get('mobile-theme', $system_mobile_theme);
 
 		$mobile_theme_name = Strings::sanitizeFilePathItem($mobile_theme_name);
 		if ($mobile_theme_name == '---'
@@ -611,14 +630,14 @@ class App
 			}
 
 			// ZRL
-			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend() && !local_user()) {
-				// Only continue when the given profile link seems valid
+			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend() && !$this->session->getLocalUserId()) {
+				// Only continue when the given profile link seems valid.
 				// Valid profile links contain a path with "/profile/" and no query parameters
 				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == '') &&
-					strstr(parse_url($_GET['zrl'], PHP_URL_PATH), '/profile/')) {
-					if (Core\Session::get('visitor_home') != $_GET['zrl']) {
-						Core\Session::set('my_url', $_GET['zrl']);
-						Core\Session::set('authenticated', 0);
+					strpos(parse_url($_GET['zrl'], PHP_URL_PATH) ?? '', '/profile/') !== false) {
+					if ($this->session->get('visitor_home') != $_GET['zrl']) {
+						$this->session->set('my_url', $_GET['zrl']);
+						$this->session->set('authenticated', 0);
 
 						$remote_contact = Contact::getByURL($_GET['zrl'], false, ['subscribe']);
 						if (!empty($remote_contact['subscribe'])) {
@@ -719,7 +738,7 @@ class App
 			$response = $module->run($input);
 			$this->profiler->set(microtime(true) - $timestamp, 'content');
 			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
-				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig);
+				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig, $this->session->getLocalUserId());
 			} else {
 				$page->exit($response);
 			}

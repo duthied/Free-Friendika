@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Admin;
 
+use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Logger;
@@ -34,6 +35,7 @@ use Friendica\Model\Register;
 use Friendica\Module\BaseAdmin;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException\ServiceUnavailableException;
+use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 
 class Summary extends BaseAdmin
@@ -79,8 +81,8 @@ class Summary extends BaseAdmin
 		// the local version of Friendica. Check is opt-in, source may be stable or develop branch
 		if (DI::config()->get('system', 'check_new_version_url', 'none') != 'none') {
 			$gitversion = DI::config()->get('system', 'git_friendica_version');
-			if (version_compare(FRIENDICA_VERSION, $gitversion) < 0) {
-				$warningtext[] = DI::l10n()->t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s', FRIENDICA_VERSION, $gitversion);
+			if (version_compare(App::VERSION, $gitversion) < 0) {
+				$warningtext[] = DI::l10n()->t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s', App::VERSION, $gitversion);
 			}
 		}
 
@@ -114,7 +116,7 @@ class Summary extends BaseAdmin
 
 		// Check server vitality
 		if (!self::checkSelfHostMeta()) {
-			$well_known = DI::baseUrl()->get() . '/.well-known/host-meta';
+			$well_known = DI::baseUrl()->get() . Probe::HOST_META;
 			$warningtext[] = DI::l10n()->t('<a href="%s">%s</a> is not reachable on your system. This is a severe configuration issue that prevents server to server communication. See <a href="%s">the installation page</a> for help.',
 				$well_known, $well_known, DI::baseUrl()->get() . '/help/Install');
 		}
@@ -185,27 +187,6 @@ class Summary extends BaseAdmin
 			}
 		}
 
-		$accounts = [
-			[DI::l10n()->t('Normal Account'), 0],
-			[DI::l10n()->t('Automatic Follower Account'), 0],
-			[DI::l10n()->t('Public Forum Account'), 0],
-			[DI::l10n()->t('Automatic Friend Account'), 0],
-			[DI::l10n()->t('Blog Account'), 0],
-			[DI::l10n()->t('Private Forum Account'), 0]
-		];
-
-		$users = 0;
-		$pageFlagsCountStmt = DBA::p('SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` WHERE `uid` != ? GROUP BY `page-flags`', 0);
-		while ($pageFlagsCount = DBA::fetch($pageFlagsCountStmt)) {
-			$accounts[$pageFlagsCount['page-flags']][1] = $pageFlagsCount['count'];
-			$users += $pageFlagsCount['count'];
-		}
-		DBA::close($pageFlagsCountStmt);
-
-		Logger::debug('accounts', ['accounts' => $accounts]);
-
-		$pending = Register::getPendingCount();
-
 		$deferred = DBA::count('workerqueue', ['NOT `done` AND `retrial` > ?', 0]);
 
 		$workerqueue = DBA::count('workerqueue', ['NOT `done` AND `retrial` = ?', 0]);
@@ -218,10 +199,12 @@ class Summary extends BaseAdmin
 
 		$server_settings = [
 			'label' => DI::l10n()->t('Server Settings'),
-			'php' => [
+			'php'   => [
+				'version'             => phpversion(),
+				'php.ini'             => php_ini_loaded_file(),
 				'upload_max_filesize' => ini_get('upload_max_filesize'),
-				'post_max_size' => ini_get('post_max_size'),
-				'memory_limit' => ini_get('memory_limit')
+				'post_max_size'       => ini_get('post_max_size'),
+				'memory_limit'        => ini_get('memory_limit')
 			],
 			'mysql' => [
 				'max_allowed_packet' => $max_allowed_packet
@@ -230,26 +213,23 @@ class Summary extends BaseAdmin
 
 		$t = Renderer::getMarkupTemplate('admin/summary.tpl');
 		return Renderer::replaceMacros($t, [
-			'$title' => DI::l10n()->t('Administration'),
-			'$page' => DI::l10n()->t('Summary'),
-			'$queues' => $queues,
-			'$users' => [DI::l10n()->t('Registered users'), $users],
-			'$accounts' => $accounts,
-			'$pending' => [DI::l10n()->t('Pending registrations'), $pending],
-			'$version' => [DI::l10n()->t('Version'), FRIENDICA_VERSION],
-			'$platform' => FRIENDICA_PLATFORM,
-			'$codename' => FRIENDICA_CODENAME,
-			'$build' => DI::config()->get('system', 'build'),
-			'$addons' => [DI::l10n()->t('Active addons'), Addon::getEnabledList()],
+			'$title'          => DI::l10n()->t('Administration'),
+			'$page'           => DI::l10n()->t('Summary'),
+			'$queues'         => $queues,
+			'$version'        => [DI::l10n()->t('Version'), App::VERSION],
+			'$platform'       => App::PLATFORM,
+			'$codename'       => App::CODENAME,
+			'$build'          => DI::config()->get('system', 'build'),
+			'$addons'         => [DI::l10n()->t('Active addons'), Addon::getEnabledList()],
 			'$serversettings' => $server_settings,
-			'$warningtext' => $warningtext
+			'$warningtext'    => $warningtext,
 		]);
 	}
 
 	private static function checkSelfHostMeta()
 	{
 		// Fetch the host-meta to check if this really is a vital server
-		return DI::httpClient()->get(DI::baseUrl()->get() . '/.well-known/host-meta', HttpClientAccept::XRD_XML)->isSuccess();
+		return DI::httpClient()->get(DI::baseUrl()->get() . Probe::HOST_META, HttpClientAccept::XRD_XML)->isSuccess();
 	}
 
 }

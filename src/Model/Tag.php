@@ -257,17 +257,16 @@ class Tag
 	 * @param string $hash
 	 * @param string $name
 	 * @param string $url
-	 * @param boolean $probing Whether probing is active
 	 * @return void
 	 */
-	public static function storeByHash(int $uriId, string $hash, string $name, string $url = '', bool $probing = true)
+	public static function storeByHash(int $uriId, string $hash, string $name, string $url = '')
 	{
 		$type = self::getTypeForHash($hash);
 		if ($type == self::UNKNOWN) {
 			return;
 		}
 
-		self::store($uriId, $type, $name, $url, $probing);
+		self::store($uriId, $type, $name, $url);
 	}
 
 	/**
@@ -297,34 +296,39 @@ class Tag
 	 * @param integer $uriId   URI-Id
 	 * @param string  $body    Body of the post
 	 * @param string  $tags    Accepted tags
-	 * @param boolean $probing Perform a probing for contacts, adding them if needed
 	 * @return void
 	 */
-	public static function storeFromBody(int $uriId, string $body, string $tags = null, bool $probing = true)
+	public static function storeFromBody(int $uriId, string $body, string $tags = null)
 	{
-		Logger::info('Check for tags', ['uri-id' => $uriId, 'hash' => $tags, 'callstack' => System::callstack()]);
+		$item = ['uri-id' => $uriId, 'body' => $body, 'quote-uri-id' => null];
+		self::storeFromArray($item, $tags);
+	}
+
+	/**
+	 * Store tags and mentions from the item array
+	 *
+	 * @param array   $item    Item array
+	 * @param string  $tags    Accepted tags
+	 * @return void
+	 */
+	public static function storeFromArray(array $item, string $tags = null)
+	{
+		Logger::info('Check for tags', ['uri-id' => $item['uri-id'], 'hash' => $tags, 'callstack' => System::callstack()]);
 
 		if (is_null($tags)) {
 			$tags = self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
 		}
 
-		// Only remove the shared data from "real" reshares
-		$shared = BBCode::fetchShareAttributes($body);
-		if (!empty($shared['guid'])) {
-			if (preg_match("/\s*\[share .*?\](.*?)\[\/share\]\s*/ism",  $body, $matches)) {
-				$share_body = $matches[1];
-			}
-			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+		foreach (self::getFromBody($item['body'], $tags) as $tag) {
+			self::storeByHash($item['uri-id'], $tag[1], $tag[3], $tag[2]);
 		}
 
-		foreach (self::getFromBody($body, $tags) as $tag) {
-			self::storeByHash($uriId, $tag[1], $tag[3], $tag[2], $probing);
-		}
+		$shared = DI::contentItem()->getSharedPost($item, ['uri-id']);
 
 		// Search for hashtags in the shared body (but only if hashtags are wanted)
-		if (!empty($share_body) && (strpos($tags, self::TAG_CHARACTER[self::HASHTAG]) !== false)) {
-			foreach (self::getFromBody($share_body, self::TAG_CHARACTER[self::HASHTAG]) as $tag) {
-				self::storeByHash($uriId, $tag[1], $tag[3], $tag[2], $probing);
+		if (!empty($shared) && (strpos($tags, self::TAG_CHARACTER[self::HASHTAG]) !== false)) {
+			foreach (self::getByURIId($shared['post']['uri-id'], [self::HASHTAG]) as $tag) {
+				self::store($item['uri-id'], $tag['type'], $tag['name'], $tag['url']);
 			}
 		}
 	}

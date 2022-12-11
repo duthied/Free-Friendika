@@ -25,6 +25,8 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\DI;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
 use Friendica\Security\TwoFactor;
@@ -44,32 +46,32 @@ class Trusted extends BaseSettings
 	/** @var TwoFactor\Repository\TrustedBrowser */
 	protected $trustedBrowserRepo;
 
-	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManagePersonalConfigValues $pConfig, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, array $server, array $parameters = [])
+	public function __construct(IManagePersonalConfigValues $pConfig, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->pConfig            = $pConfig;
 		$this->trustedBrowserRepo = $trustedBrowserRepo;
 
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
-		$verified = $this->pConfig->get(local_user(), '2fa', 'verified');
+		$verified = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'verified');
 
 		if (!$verified) {
 			$this->baseUrl->redirect('settings/2fa');
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice($this->t('Please enter your password to access this page.'));
+			DI::sysmsg()->addNotice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
 
 	protected function post(array $request = [])
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return;
 		}
 
@@ -78,8 +80,8 @@ class Trusted extends BaseSettings
 
 			switch ($_POST['action']) {
 				case 'remove_all':
-					$this->trustedBrowserRepo->removeAllForUser(local_user());
-					info($this->t('Trusted browsers successfully removed.'));
+					$this->trustedBrowserRepo->removeAllForUser(DI::userSession()->getLocalUserId());
+					DI::sysmsg()->addInfo($this->t('Trusted browsers successfully removed.'));
 					$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					break;
 			}
@@ -88,8 +90,8 @@ class Trusted extends BaseSettings
 		if (!empty($_POST['remove_id'])) {
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/trusted', 'settings_2fa_trusted');
 
-			if ($this->trustedBrowserRepo->removeForUser(local_user(), $_POST['remove_id'])) {
-				info($this->t('Trusted browser successfully removed.'));
+			if ($this->trustedBrowserRepo->removeForUser(DI::userSession()->getLocalUserId(), $_POST['remove_id'])) {
+				DI::sysmsg()->addInfo($this->t('Trusted browser successfully removed.'));
 			}
 
 			$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
@@ -101,7 +103,7 @@ class Trusted extends BaseSettings
 	{
 		parent::content();
 
-		$trustedBrowsers = $this->trustedBrowserRepo->selectAllByUid(local_user());
+		$trustedBrowsers = $this->trustedBrowserRepo->selectAllByUid(DI::userSession()->getLocalUserId());
 
 		$parser = Parser::create();
 

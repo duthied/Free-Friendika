@@ -28,7 +28,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -87,7 +86,7 @@ class Post
 		$this->setTemplate('wall');
 		$this->toplevel = $this->getId() == $this->getDataValue('parent');
 
-		if (!empty(Session::getUserIDForVisitorContactID($this->getDataValue('contact-id')))) {
+		if (!empty(DI::userSession()->getUserIDForVisitorContactID($this->getDataValue('contact-id')))) {
 			$this->visiting = true;
 		}
 
@@ -104,14 +103,14 @@ class Post
 		if (!empty($data['children'])) {
 			foreach ($data['children'] as $item) {
 				// Only add will be displayed
-				if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
+				if ($item['network'] === Protocol::MAIL && DI::userSession()->getLocalUserId() != $item['uid']) {
 					continue;
 				} elseif (!DI::contentItem()->isVisibleActivity($item)) {
 					continue;
 				}
 
 				// You can always comment on Diaspora and OStatus items
-				if (in_array($item['network'], [Protocol::OSTATUS, Protocol::DIASPORA]) && (local_user() == $item['uid'])) {
+				if (in_array($item['network'], [Protocol::OSTATUS, Protocol::DIASPORA]) && (DI::userSession()->getLocalUserId() == $item['uid'])) {
 					$item['writable'] = true;
 				}
 
@@ -206,25 +205,25 @@ class Post
 		$lock      = ($item['private'] == Item::PRIVATE) ? $privacy : false;
 		$connector = !in_array($item['network'], Protocol::NATIVE_SUPPORT) ? DI::l10n()->t('Connector Message') : false;
 
-		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != Item::PRIVATE;
+		$shareable = in_array($conv->getProfileOwner(), [0, DI::userSession()->getLocalUserId()]) && $item['private'] != Item::PRIVATE;
 		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER]);
 
 		// On Diaspora only toplevel posts can be reshared
-		if ($announceable && ($item['network'] == Protocol::DIASPORA) && ($item['gravity'] != GRAVITY_PARENT)) {
+		if ($announceable && ($item['network'] == Protocol::DIASPORA) && ($item['gravity'] != Item::GRAVITY_PARENT)) {
 			$announceable = false;
 		}
 
 		$edpost = false;
 
-		if (local_user()) {
-			if (Strings::compareLink(Session::get('my_url'), $item['author-link'])) {
+		if (DI::userSession()->getLocalUserId()) {
+			if (Strings::compareLink(DI::session()->get('my_url'), $item['author-link'])) {
 				if ($item['event-id'] != 0) {
-					$edpost = ['events/event/' . $item['event-id'], DI::l10n()->t('Edit')];
+					$edpost = ['calendar/event/edit/' . $item['event-id'], DI::l10n()->t('Edit')];
 				} else {
-					$edpost = ['editpost/' . $item['id'], DI::l10n()->t('Edit')];
+					$edpost = [sprintf('post/%s/edit', $item['id']), DI::l10n()->t('Edit')];
 				}
 			}
-			$dropping = in_array($item['uid'], [0, local_user()]);
+			$dropping = in_array($item['uid'], [0, DI::userSession()->getLocalUserId()]);
 		}
 
 		// Editing on items of not subscribed users isn't currently possible
@@ -234,7 +233,7 @@ class Post
 			$edpost = false;
 		}
 
-		if (($this->getDataValue('uid') == local_user()) || $this->isVisiting()) {
+		if (($this->getDataValue('uid') == DI::userSession()->getLocalUserId()) || $this->isVisiting()) {
 			$dropping = true;
 		}
 
@@ -249,7 +248,7 @@ class Post
 
 		$drop = false;
 		$block = false;
-		if (local_user()) {
+		if (DI::userSession()->getLocalUserId()) {
 			$drop = [
 				'dropping' => $dropping,
 				'pagedrop' => $item['pagedrop'],
@@ -258,7 +257,7 @@ class Post
 			];
 		}
 
-		if (!$item['self'] && local_user()) {
+		if (!$item['self'] && DI::userSession()->getLocalUserId()) {
 			$block = [
 				'blocking' => true,
 				'block'   => DI::l10n()->t('Block %s', $item['author-name']),
@@ -266,14 +265,14 @@ class Post
 			];
 		}
 
-		$filer = local_user() ? DI::l10n()->t('Save to folder') : false;
+		$filer = DI::userSession()->getLocalUserId() ? DI::l10n()->t('Save to folder') : false;
 
 		$profile_name = $item['author-name'];
 		if (!empty($item['author-link']) && empty($item['author-name'])) {
 			$profile_name = $item['author-link'];
 		}
 
-		if (Session::isAuthenticated()) {
+		if (DI::userSession()->isAuthenticated()) {
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$profile_link = Contact::magicLinkByContact($author);
@@ -281,7 +280,7 @@ class Post
 			$profile_link = $item['author-link'];
 		}
 
-		if (strpos($profile_link, 'redir/') === 0) {
+		if (strpos($profile_link, 'contact/redir/') === 0) {
 			$sparkle = ' sparkle';
 		}
 
@@ -327,8 +326,8 @@ class Post
 		$tagger = '';
 
 		if ($this->isToplevel()) {
-			if (local_user()) {
-				$ignored = PostModel\ThreadUser::getIgnored($item['uri-id'], local_user());
+			if (DI::userSession()->getLocalUserId()) {
+				$ignored = PostModel\ThreadUser::getIgnored($item['uri-id'], DI::userSession()->getLocalUserId());
 				if ($item['mention'] || $ignored) {
 					$ignore = [
 						'do'        => DI::l10n()->t('Ignore thread'),
@@ -351,7 +350,7 @@ class Post
 					'starred'   => DI::l10n()->t('Starred'),
 				];
 
-				if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
+				if ($conv->getProfileOwner() == DI::userSession()->getLocalUserId() && ($item['uid'] != 0)) {
 					if ($origin && in_array($item['private'], [Item::PUBLIC, Item::UNLISTED])) {
 						$ispinned = ($item['featured'] ? 'pinned' : 'unpinned');
 
@@ -397,17 +396,17 @@ class Post
 
 		$body_html = Item::prepareBody($item, true);
 
-		list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item, local_user());
+		list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item, DI::userSession()->getLocalUserId());
 
 		if (!empty($item['title'])) {
 			$title = $item['title'];
-		} elseif (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
+		} elseif (!empty($item['content-warning']) && DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'disable_cw', false)) {
 			$title = ucfirst($item['content-warning']);
 		} else {
 			$title = '';
 		}
 
-		if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'hide_dislike')) {
 			$buttons['dislike'] = false;
 		}
 
@@ -434,9 +433,9 @@ class Post
 		}
 
 		// Fetching of Diaspora posts doesn't always work. There are issues with reshares and possibly comments
-		if (!local_user() && ($item['network'] != Protocol::DIASPORA) && !empty(Session::get('remote_comment'))) {
+		if (!DI::userSession()->getLocalUserId() && ($item['network'] != Protocol::DIASPORA) && !empty(DI::session()->get('remote_comment'))) {
 			$remote_comment = [DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('Remote comment'),
-				str_replace('{uri}', urlencode($item['uri']), Session::get('remote_comment'))];
+				str_replace('{uri}', urlencode($item['uri']), DI::session()->get('remote_comment'))];
 
 			// Ensure to either display the remote comment or the local activities
 			$buttons = [];
@@ -507,7 +506,7 @@ class Post
 			'location_html'   => $location_html,
 			'indent'          => $indent,
 			'shiny'           => $shiny,
-			'owner_self'      => $item['author-link'] == Session::get('my_url'),
+			'owner_self'      => $item['author-link'] == DI::session()->get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
 			'owner_photo'     => DI::baseUrl()->remove(DI::contentItem()->getOwnerAvatar($item)),
 			'owner_name'      => $this->getOwnerName(),
@@ -586,18 +585,12 @@ class Post
 			}
 		}
 
+		// Copy values/set defaults
 		$result['total_comments_num'] = $this->isToplevel() ? $total_children : 0;
-
-		$result['private'] = $item['private'];
-		$result['toplevel'] = ($this->isToplevel() ? 'toplevel_item' : '');
-
-		if ($this->isThreaded()) {
-			$result['flatten'] = false;
-			$result['threaded'] = true;
-		} else {
-			$result['flatten'] = true;
-			$result['threaded'] = false;
-		}
+		$result['private']            = $item['private'];
+		$result['toplevel']           = ($this->isToplevel() ? 'toplevel_item' : '');
+		$result['flatten']            = !$this->isThreaded();
+		$result['threaded']           = $this->isThreaded();
 
 		return $result;
 	}
@@ -619,33 +612,32 @@ class Post
 	}
 
 	/**
-	 * Add a child item
+	 * Add a child post
 	 *
-	 * @param Post $item The child item to add
+	 * @param Post $item The child post to add
 	 *
-	 * @return mixed
+	 * @return Post|bool Last Post object or bool on any error
 	 * @throws \Exception
 	 */
 	public function addChild(Post $item)
 	{
-		$item_id = $item->getId();
-		if (!$item_id) {
-			Logger::info('[ERROR] Post::addChild : Item has no ID!!');
+		if (!$item->getId()) {
+			Logger::error('Post object has no id', ['post' => $item]);
 			return false;
 		} elseif ($this->getChild($item->getId())) {
-			Logger::info('[WARN] Post::addChild : Item already exists (' . $item->getId() . ').');
+			Logger::warning('Post object already exists', ['post' => $item]);
 			return false;
 		}
-
-		$activity = DI::activity();
 
 		/*
 		 * Only add what will be displayed
 		 */
-		if ($item->getDataValue('network') === Protocol::MAIL && local_user() != $item->getDataValue('uid')) {
+		if ($item->getDataValue('network') === Protocol::MAIL && DI::userSession()->getLocalUserId() != $item->getDataValue('uid')) {
+			Logger::warning('Post object does not belong to local user', ['post' => $item, 'local_user' => DI::userSession()->getLocalUserId()]);
 			return false;
-		} elseif ($activity->match($item->getDataValue('verb'), Activity::LIKE) ||
-		          $activity->match($item->getDataValue('verb'), Activity::DISLIKE)) {
+		} elseif (DI::activity()->match($item->getDataValue('verb'), Activity::LIKE) ||
+		          DI::activity()->match($item->getDataValue('verb'), Activity::DISLIKE)) {
+			Logger::warning('Post objects is a like/dislike', ['post' => $item]);
 			return false;
 		}
 
@@ -659,7 +651,7 @@ class Post
 	 * Get a child by its ID
 	 *
 	 * @param integer $id The child id
-	 * @return mixed
+	 * @return Thread|null Thread or NULL if not found
 	 */
 	public function getChild(int $id)
 	{
@@ -748,6 +740,7 @@ class Post
 	 * Set conversation thread
 	 *
 	 * @param Thread|null $thread
+	 *
 	 * @return void
 	 */
 	public function setThread(Thread $thread = null)
@@ -786,6 +779,7 @@ class Post
 	 * Get a data value
 	 *
 	 * @param string $name key
+	 *
 	 * @return mixed value on success, false on failure
 	 */
 	public function getDataValue(string $name)
@@ -799,13 +793,14 @@ class Post
 	}
 
 	/**
-	 * Set template
+	 * Set template by name
 	 *
 	 * @param string $name Template name
-	 * @return bool If template was set
+	 *
+	 * @return void
 	 * @throws InvalidArgumentException
 	 */
-	private function setTemplate(string $name): bool
+	private function setTemplate(string $name)
 	{
 		if (empty($this->available_templates[$name])) {
 			// Throw exception
@@ -813,8 +808,6 @@ class Post
 		}
 
 		$this->template = $this->available_templates[$name];
-
-		return true;
 	}
 
 	/**
@@ -850,7 +843,7 @@ class Post
 			// This will allow us to comment on wall-to-wall items owned by our friends
 			// and community forums even if somebody else wrote the post.
 			// bug #517 - this fixes for conversation owner
-			if ($conv->getMode() == 'profile' && $conv->getProfileOwner() == local_user()) {
+			if ($conv->getMode() == 'profile' && $conv->getProfileOwner() == DI::userSession()->getLocalUserId()) {
 				return true;
 			}
 
@@ -898,24 +891,24 @@ class Post
 	{
 		$a = DI::app();
 
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return '';
 		}
 
 		$owner = User::getOwnerDataById($a->getLoggedInUserId());
 		$item = $this->getData();
 
-		if (!empty($item['content-warning']) && Feature::isEnabled(local_user(), 'add_abstract')) {
+		if (!empty($item['content-warning']) && Feature::isEnabled(DI::userSession()->getLocalUserId(), 'add_abstract')) {
 			$text = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $item['content-warning'] . "[/abstract]\n";
 		} else {
 			$text = '';
 		}
 
-		if (!Feature::isEnabled(local_user(), 'explicit_mentions')) {
+		if (!Feature::isEnabled(DI::userSession()->getLocalUserId(), 'explicit_mentions')) {
 			return $text;
 		}
 
-		if (($item['author-addr'] != $owner['addr']) && (($item['gravity'] != GRAVITY_PARENT) || !in_array($item['network'], [Protocol::DIASPORA]))) {
+		if (($item['author-addr'] != $owner['addr']) && (($item['gravity'] != Item::GRAVITY_PARENT) || !in_array($item['network'], [Protocol::DIASPORA]))) {
 			$text .= '@' . $item['author-addr'] . ' ';
 		}
 
@@ -940,6 +933,7 @@ class Post
 	 * Get the comment box
 	 *
 	 * @param string $indent Indent value
+	 *
 	 * @return mixed The comment box string (empty if no comment box), false on failure
 	 * @throws \Exception
 	 * @todo return false is nowhere in this method?
@@ -958,7 +952,7 @@ class Post
 			 */
 			$qcomment = null;
 			if (Addon::isEnabled('qcomment')) {
-				$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+				$words = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'qcomment', 'words');
 				$qcomment = $words ? explode("\n", $words) : [];
 			}
 
@@ -1050,10 +1044,10 @@ class Post
 						$this->wall_to_wall = true;
 
 						$owner = [
-							'uid' => 0,
-							'id' => $this->getDataValue('owner-id'),
+							'uid'     => 0,
+							'id'      => $this->getDataValue('owner-id'),
 							'network' => $this->getDataValue('owner-network'),
-							'url' => $this->getDataValue('owner-link'),
+							'url'     => $this->getDataValue('owner-link'),
 						];
 						$this->owner_url = Contact::magicLinkByContact($owner);
 					}

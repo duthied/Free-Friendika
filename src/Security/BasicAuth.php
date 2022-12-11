@@ -24,7 +24,6 @@ namespace Friendica\Security;
 use Exception;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -191,7 +190,7 @@ class BasicAuth
 
 		Hook::callAll('logged_in', $record);
 
-		self::$current_user_id = local_user();
+		self::$current_user_id = DI::userSession()->getLocalUserId();
 
 		return self::$current_user_id;
 	}

@@ -82,10 +82,10 @@ class BaseSearch extends BaseModule
 		$search = Network::convertToIdn($search);
 
 		if (DI::mode()->isMobile()) {
-			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -116,7 +116,7 @@ class BaseSearch extends BaseModule
 	protected static function printResult(ResultList $results, Pager $pager, string $header = ''): string
 	{
 		if ($results->getTotal() == 0) {
-			notice(DI::l10n()->t('No matches'));
+			DI::sysmsg()->addNotice(DI::l10n()->t('No matches'));
 			return '';
 		}
 
@@ -125,14 +125,14 @@ class BaseSearch extends BaseModule
 
 			// in case the result is a contact result, add a contact-specific entry
 			if ($result instanceof ContactResult) {
-				$contact = Model\Contact::getByURLForUser($result->getUrl(), local_user());
+				$contact = Model\Contact::getByURLForUser($result->getUrl(), DI::userSession()->getLocalUserId());
 				if (!empty($contact)) {
 					$entries[] = Contact::getContactTemplateVars($contact);
 				}
 			}
 		}
 
-		$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
+		$tpl = Renderer::getMarkupTemplate('contact/list.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'title'     => $header,
 			'$contacts' => $entries,

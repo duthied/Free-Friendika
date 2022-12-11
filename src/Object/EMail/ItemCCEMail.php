@@ -41,8 +41,8 @@ class ItemCCEMail extends Email
 
 		$disclaimer = '<hr />' . $l10n->t('This message was sent to you by %s, a member of the Friendica social network.', $user['username'])
 		              . '<br />';
-		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->getLoggedInUserNickname()) . EOL;
-		$disclaimer .= $l10n->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
+		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->getLoggedInUserNickname()) . '<br />';
+		$disclaimer .= $l10n->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . '<br />';
 		if (!$item['title'] == '') {
 			$subject = $item['title'];
 		} else {

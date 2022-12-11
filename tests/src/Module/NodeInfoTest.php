@@ -21,12 +21,12 @@
 
 namespace Friendica\Test\src\Module;
 
+use Friendica\App;
 use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\DI;
 use Friendica\Module\NodeInfo110;
 use Friendica\Module\NodeInfo120;
 use Friendica\Module\NodeInfo210;
-use Friendica\Module\Response;
 use Friendica\Test\FixtureTest;
 
 class NodeInfoTest extends FixtureTest
@@ -44,7 +44,7 @@ class NodeInfoTest extends FixtureTest
 		self::assertEquals('1.0', $json->version);
 
 		self::assertEquals('friendica', $json->software->name);
-		self::assertEquals(FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION, $json->software->version);
+		self::assertEquals(App::VERSION . '-' . DB_UPDATE_VERSION, $json->software->version);
 
 		self::assertIsArray($json->protocols->inbound);
 		self::assertIsArray($json->protocols->outbound);
@@ -65,7 +65,7 @@ class NodeInfoTest extends FixtureTest
 		self::assertEquals('2.0', $json->version);
 
 		self::assertEquals('friendica', $json->software->name);
-		self::assertEquals(FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION, $json->software->version);
+		self::assertEquals(App::VERSION . '-' . DB_UPDATE_VERSION, $json->software->version);
 
 		self::assertIsArray($json->protocols);
 		self::assertIsArray($json->services->inbound);
@@ -85,7 +85,7 @@ class NodeInfoTest extends FixtureTest
 		self::assertEquals('1.0', $json->version);
 
 		self::assertEquals('friendica', $json->server->software);
-		self::assertEquals(FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION, $json->server->version);
+		self::assertEquals(App::VERSION . '-' . DB_UPDATE_VERSION, $json->server->version);
 
 		self::assertIsArray($json->protocols);
 		self::assertIsArray($json->services->inbound);

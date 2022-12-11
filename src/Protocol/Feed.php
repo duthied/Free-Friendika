@@ -24,12 +24,14 @@ namespace Friendica\Protocol;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
+use Friendica\App;
 use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -38,6 +40,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
+use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
@@ -252,20 +255,21 @@ class Feed
 			$author['owner-avatar'] = $contact['thumb'];
 		}
 
-		$header = [];
-		$header['uid'] = $importer['uid'] ?? 0;
-		$header['network'] = Protocol::FEED;
+		$header = [
+			'uid'         => $importer['uid'] ?? 0,
+			'network'     => Protocol::FEED,
+			'wall'        => 0,
+			'origin'      => 0,
+			'gravity'     => Item::GRAVITY_PARENT,
+			'private'     => Item::PUBLIC,
+			'verb'        => Activity::POST,
+			'object-type' => Activity\ObjectType::NOTE,
+			'post-type'   => Item::PT_ARTICLE,
+			'contact-id'  => $contact['id'] ?? 0,
+		];
+
 		$datarray['protocol'] = $protocol;
 		$datarray['direction'] = Conversation::PULL;
-		$header['wall'] = 0;
-		$header['origin'] = 0;
-		$header['gravity'] = GRAVITY_PARENT;
-		$header['private'] = Item::PUBLIC;
-		$header['verb'] = Activity::POST;
-		$header['object-type'] = Activity\ObjectType::NOTE;
-		$header['post-type'] = Item::PT_ARTICLE;
-
-		$header['contact-id'] = $contact['id'] ?? 0;
 
 		if (!is_object($entries)) {
 			Logger::info("There are no entries in this feed.");
@@ -435,7 +439,7 @@ class Feed
 				}
 
 				if (!empty($href)) {
-					$attachment = ['type' => Post\Media::UNKNOWN, 'url' => $href, 'mimetype' => $type, 'size' => $length];
+					$attachment = ['uri-id' => -1, 'type' => Post\Media::UNKNOWN, 'url' => $href, 'mimetype' => $type, 'size' => $length];
 
 					$attachment = Post\Media::fetchAdditionalData($attachment);
 
@@ -621,8 +625,8 @@ class Feed
 
 			$notify = Item::isRemoteSelf($contact, $item);
 
-			// Distributed items should have a well formatted URI.
-			// Additionally we have to avoid conflicts with identical URI between imported feeds and these items.
+			// Distributed items should have a well-formatted URI.
+			// Additionally, we have to avoid conflicts with identical URI between imported feeds and these items.
 			if ($notify) {
 				$item['guid'] = Item::guidFromUri($orig_plink, DI::baseUrl()->getHostname());
 				$item['uri'] = Item::newURI($item['guid']);
@@ -630,7 +634,7 @@ class Feed
 				unset($item['parent-uri']);
 
 				// Set the delivery priority for "remote self" to "medium"
-				$notify = PRIORITY_MEDIUM;
+				$notify = Worker::PRIORITY_MEDIUM;
 			}
 
 			$condition = ['uid' => $item['uid'], 'uri' => $item['uri']];
@@ -912,28 +916,23 @@ class Feed
 	 * Updates the provided last_update parameter if the result comes from the
 	 * cache or it is empty
 	 *
-	 * @param string  $owner_nick  Nickname of the feed owner
+	 * @param array   $owner       owner-view record of the feed owner
 	 * @param string  $last_update Date of the last update
 	 * @param integer $max_items   Number of maximum items to fetch
 	 * @param string  $filter      Feed items filter (activity, posts or comments)
 	 * @param boolean $nocache     Wether to bypass caching
 	 *
 	 * @return string Atom feed
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function atom(string $owner_nick, string $last_update, int $max_items = 300, string $filter = 'activity', bool $nocache = false)
+	public static function atom(array $owner, string $last_update, int $max_items = 300, string $filter = 'activity', bool $nocache = false)
 	{
 		$stamp = microtime(true);
 
-		$owner = User::getOwnerDataByNick($owner_nick);
-		if (!$owner) {
-			return;
-		}
+		$cachekey = 'feed:feed:' . $owner['nickname'] . ':' . $filter . ':' . $last_update;
 
-		$cachekey = 'feed:feed:' . $owner_nick . ':' . $filter . ':' . $last_update;
-
-		// Display events in the users's timezone
+		// Display events in the user's timezone
 		if (strlen($owner['timezone'])) {
 			DI::app()->setTimeZone($owner['timezone']);
 		}
@@ -944,7 +943,7 @@ class Feed
 		if ((time() - strtotime($owner['last-item'])) < 15*60) {
 			$result = DI::cache()->get($cachekey);
 			if (!$nocache && !is_null($result)) {
-				Logger::info('Cached feed duration', ['seconds' => number_format(microtime(true) - $stamp, 3), 'nick' => $owner_nick, 'filter' => $filter, 'created' => $previous_created]);
+				Logger::info('Cached feed duration', ['seconds' => number_format(microtime(true) - $stamp, 3), 'nick' => $owner['nickname'], 'filter' => $filter, 'created' => $previous_created]);
 				return $result['feed'];
 			}
 		}
@@ -954,13 +953,13 @@ class Feed
 
 		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted` AND `gravity` IN (?, ?)
 			AND `private` != ? AND `visible` AND `wall` AND `parent-network` IN (?, ?, ?, ?)",
-			$owner['uid'], $check_date, GRAVITY_PARENT, GRAVITY_COMMENT,
+			$owner['uid'], $check_date, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT,
 			Item::PRIVATE, Protocol::ACTIVITYPUB,
 			Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA];
 
 		if ($filter === 'comments') {
 			$condition[0] .= " AND `gravity` = ? ";
-			$condition[] = GRAVITY_COMMENT;
+			$condition[] = Item::GRAVITY_COMMENT;
 		}
 
 		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
@@ -998,7 +997,7 @@ class Feed
 		$msg = ['feed' => $feeddata, 'last_update' => $last_update];
 		DI::cache()->set($cachekey, $msg, Duration::QUARTER_HOUR);
 
-		Logger::info('Feed duration', ['seconds' => number_format(microtime(true) - $stamp, 3), 'nick' => $owner_nick, 'filter' => $filter, 'created' => $previous_created]);
+		Logger::info('Feed duration', ['seconds' => number_format(microtime(true) - $stamp, 3), 'nick' => $owner['nickname'], 'filter' => $filter, 'created' => $previous_created]);
 
 		return $feeddata;
 	}
@@ -1034,8 +1033,8 @@ class Feed
 				break;
 		}
 
-		$attributes = ['uri' => 'https://friendi.ca', 'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION];
-		XML::addElement($doc, $root, 'generator', FRIENDICA_PLATFORM, $attributes);
+		$attributes = ['uri' => 'https://friendi.ca', 'version' => App::VERSION . '-' . DB_UPDATE_VERSION];
+		XML::addElement($doc, $root, 'generator', App::PLATFORM, $attributes);
 		XML::addElement($doc, $root, 'id', DI::baseUrl() . '/profile/' . $owner['nick']);
 		XML::addElement($doc, $root, 'title', $title);
 		XML::addElement($doc, $root, 'subtitle', sprintf("Updates from %s on %s", $owner['name'], DI::config()->get('config', 'sitename')));
@@ -1087,7 +1086,7 @@ class Feed
 	 */
 	private static function noteEntry(DOMDocument $doc, array $item, array $owner): DOMElement
 	{
-		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
+		if (($item['gravity'] != Item::GRAVITY_PARENT) && (Strings::normaliseLink($item['author-link']) != Strings::normaliseLink($owner['url']))) {
 			Logger::info('Feed entry author does not match feed owner', ['owner' => $owner['url'], 'author' => $item['author-link']]);
 		}
 
@@ -1151,7 +1150,7 @@ class Feed
 	{
 		$mentioned = [];
 
-		if ($item['gravity'] != GRAVITY_PARENT) {
+		if ($item['gravity'] != Item::GRAVITY_PARENT) {
 			$parent = Post::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item['parent']]);
 
 			$thrparent = Post::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner['uid'], 'uri' => $item['thr-parent']]);

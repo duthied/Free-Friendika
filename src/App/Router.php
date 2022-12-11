@@ -34,11 +34,13 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock\Capability\ICanLock;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\LegacyModule;
 use Friendica\Module\HTTPException\MethodNotAllowed;
 use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Module\Special\Options;
 use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\Router\FriendicaGroupCountBased;
@@ -78,7 +80,7 @@ class Router
 	/**
 	 * @var array Module parameters
 	 */
-	private $parameters = [];
+	protected $parameters = [];
 
 	/** @var L10n */
 	private $l10n;
@@ -98,6 +100,9 @@ class Router
 	/** @var LoggerInterface */
 	private $logger;
 
+	/** @var bool */
+	private $isLocalUser;
+
 	/** @var float */
 	private $dice_profiler_threshold;
 
@@ -110,6 +115,9 @@ class Router
 	/** @var array */
 	private $server;
 
+	/** @var string|null */
+	protected $moduleClass = null;
+
 	/**
 	 * @param array               $server             The $_SERVER variable
 	 * @param string              $baseRoutesFilepath The path to a base routes file to leverage cache, can be empty
@@ -120,9 +128,10 @@ class Router
 	 * @param Arguments           $args
 	 * @param LoggerInterface     $logger
 	 * @param Dice                $dice
+	 * @param IHandleUserSessions $userSession
 	 * @param RouteCollector|null $routeCollector
 	 */
-	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICanCache $cache, ICanLock $lock, IManageConfigValues $config, Arguments $args, LoggerInterface $logger, Dice $dice, RouteCollector $routeCollector = null)
+	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICanCache $cache, ICanLock $lock, IManageConfigValues $config, Arguments $args, LoggerInterface $logger, Dice $dice, IHandleUserSessions $userSession, RouteCollector $routeCollector = null)
 	{
 		$this->baseRoutesFilepath      = $baseRoutesFilepath;
 		$this->l10n                    = $l10n;
@@ -133,6 +142,7 @@ class Router
 		$this->dice                    = $dice;
 		$this->server                  = $server;
 		$this->logger                  = $logger;
+		$this->isLocalUser             = !empty($userSession->getLocalUserId());
 		$this->dice_profiler_threshold = $config->get('system', 'dice_profiler_threshold', 0);
 
 		$this->routeCollector = $routeCollector ?? new RouteCollector(new Std(), new GroupCountBased());
@@ -140,6 +150,8 @@ class Router
 		if ($this->baseRoutesFilepath && !file_exists($this->baseRoutesFilepath)) {
 			throw new HTTPException\InternalServerErrorException('Routes file path does\'n exist.');
 		}
+
+		$this->parameters = [$this->server];
 	}
 
 	/**
@@ -210,7 +222,7 @@ class Router
 	 *
 	 * @return bool
 	 */
-	private function isGroup(array $config)
+	private function isGroup(array $config): bool
 	{
 		return
 			is_array($config) &&
@@ -246,75 +258,74 @@ class Router
 	 *
 	 * @return RouteCollector|null
 	 */
-	public function getRouteCollector()
+	public function getRouteCollector(): ?RouteCollector
 	{
 		return $this->routeCollector;
 	}
 
 	/**
+	 * Returns the Friendica\BaseModule-extending class name if a route rule matched
+	 *
+	 * @return string
+	 *
+	 * @throws InternalServerErrorException
+	 * @throws MethodNotAllowedException
+	 */
+	public function getModuleClass(): string
+	{
+		if (empty($this->moduleClass)) {
+			$this->determineModuleClass();
+		}
+
+		return $this->moduleClass;
+	}
+
+	/**
 	 * Returns the relevant module class name for the given page URI or NULL if no route rule matched.
 	 *
-	 * @return string A Friendica\BaseModule-extending class name if a route rule matched
+	 * @return void
 	 *
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws HTTPException\MethodNotAllowedException    If a rule matched but the method didn't
-	 * @throws HTTPException\NotFoundException            If no rule matched
+	 * @throws HTTPException\InternalServerErrorException Unexpected exceptions
+	 * @throws HTTPException\MethodNotAllowedException    If a rule is private only
 	 */
-	private function getModuleClass(): string
+	private function determineModuleClass(): void
 	{
 		$cmd = $this->args->getCommand();
 		$cmd = '/' . ltrim($cmd, '/');
 
 		$dispatcher = new FriendicaGroupCountBased($this->getCachedDispatchData());
 
-		$this->parameters = [];
-
-		// Check if the HTTP method is OPTIONS and return the special Options Module with the possible HTTP methods
-		if ($this->args->getMethod() === static::OPTIONS) {
-			$moduleClass      = Options::class;
-			$this->parameters = ['allowedMethods' => $dispatcher->getOptions($cmd)];
-		} else {
-			$routeInfo = $dispatcher->dispatch($this->args->getMethod(), $cmd);
-			if ($routeInfo[0] === Dispatcher::FOUND) {
-				$moduleClass      = $routeInfo[1];
-				$this->parameters = $routeInfo[2];
-			} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-				throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
-			} else {
-				throw new HTTPException\NotFoundException($this->l10n->t('Page not found.'));
-			}
-		}
-
-		return $moduleClass;
-	}
-
-	public function getModule(?string $module_class = null): ICanHandleRequests
-	{
-		$module_parameters = [$this->server];
-		/**
-		 * ROUTING
-		 *
-		 * From the request URL, routing consists of obtaining the name of a BaseModule-extending class of which the
-		 * post() and/or content() static methods can be respectively called to produce a data change or an output.
-		 **/
 		try {
-			$module_class        = $module_class ?? $this->getModuleClass();
-			$module_parameters[] = $this->parameters;
+			// Check if the HTTP method is OPTIONS and return the special Options Module with the possible HTTP methods
+			if ($this->args->getMethod() === static::OPTIONS) {
+				$this->moduleClass = Options::class;
+				$this->parameters[] = ['AllowedMethods' => $dispatcher->getOptions($cmd)];
+			} else {
+				$routeInfo = $dispatcher->dispatch($this->args->getMethod(), $cmd);
+				if ($routeInfo[0] === Dispatcher::FOUND) {
+					$this->moduleClass = $routeInfo[1];
+					$this->parameters[] = $routeInfo[2];
+				} else if ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+					throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
+				} else {
+					throw new HTTPException\NotFoundException($this->l10n->t('Page not found.'));
+				}
+			}
 		} catch (MethodNotAllowedException $e) {
-			$module_class = MethodNotAllowed::class;
+			$this->moduleClass = MethodNotAllowed::class;
 		} catch (NotFoundException $e) {
 			$moduleName = $this->args->getModuleName();
 			// Then we try addon-provided modules that we wrap in the LegacyModule class
 			if (Addon::isEnabled($moduleName) && file_exists("addon/{$moduleName}/{$moduleName}.php")) {
 				//Check if module is an app and if public access to apps is allowed or not
 				$privateapps = $this->config->get('config', 'private_addons', false);
-				if ((!local_user()) && Hook::isAddonApp($moduleName) && $privateapps) {
+				if (!$this->isLocalUser && Hook::isAddonApp($moduleName) && $privateapps) {
 					throw new MethodNotAllowedException($this->l10n->t("You must be logged in to use addons. "));
 				} else {
 					include_once "addon/{$moduleName}/{$moduleName}.php";
 					if (function_exists($moduleName . '_module')) {
-						$module_parameters[] = "addon/{$moduleName}/{$moduleName}.php";
-						$module_class        = LegacyModule::class;
+						$this->parameters[] = "addon/{$moduleName}/{$moduleName}.php";
+						$this->moduleClass  = LegacyModule::class;
 					}
 				}
 			}
@@ -322,24 +333,29 @@ class Router
 			/* Finally, we look for a 'standard' program module in the 'mod' directory
 			 * We emulate a Module class through the LegacyModule class
 			 */
-			if (!$module_class && file_exists("mod/{$moduleName}.php")) {
-				$module_parameters[] = "mod/{$moduleName}.php";
-				$module_class        = LegacyModule::class;
+			if (!$this->moduleClass && file_exists("mod/{$moduleName}.php")) {
+				$this->parameters[] = "mod/{$moduleName}.php";
+				$this->moduleClass  = LegacyModule::class;
 			}
 
-			$module_class = $module_class ?: PageNotFound::class;
+			$this->moduleClass = $this->moduleClass ?: PageNotFound::class;
 		}
+	}
+
+	public function getModule(?string $module_class = null): ICanHandleRequests
+	{
+		$moduleClass = $module_class ?? $this->getModuleClass();
 
 		$stamp = microtime(true);
 
 		try {
 			/** @var ICanHandleRequests $module */
-			return $this->dice->create($module_class, $module_parameters);
+			return $this->dice->create($moduleClass, $this->parameters);
 		} finally {
 			if ($this->dice_profiler_threshold > 0) {
 				$dur = floatval(microtime(true) - $stamp);
 				if ($dur >= $this->dice_profiler_threshold) {
-					$this->logger->notice('Dice module creation lasts too long.', ['duration' => round($dur, 3), 'module' => $module_class, 'parameters' => $module_parameters]);
+					$this->logger->notice('Dice module creation lasts too long.', ['duration' => round($dur, 3), 'module' => $moduleClass, 'parameters' => $this->parameters]);
 				}
 			}
 		}

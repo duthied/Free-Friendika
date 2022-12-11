@@ -75,7 +75,7 @@ class Thread
 		switch ($mode) {
 			case 'network':
 			case 'notes':
-				$this->profile_owner = local_user();
+				$this->profile_owner = DI::userSession()->getLocalUserId();
 				$this->writable = true;
 				break;
 			case 'profile':
@@ -168,7 +168,7 @@ class Thread
 		/*
 		 * Only add will be displayed
 		 */
-		if ($item->getDataValue('network') === Protocol::MAIL && local_user() != $item->getDataValue('uid')) {
+		if ($item->getDataValue('network') === Protocol::MAIL && DI::userSession()->getLocalUserId() != $item->getDataValue('uid')) {
 			Logger::info('[WARN] Conversation::addThread : Thread is a mail ('. $item->getId() .').');
 			return false;
 		}
@@ -201,7 +201,7 @@ class Thread
 		$result = [];
 
 		foreach ($this->parents as $item) {
-			if ($item->getDataValue('network') === Protocol::MAIL && local_user() != $item->getDataValue('uid')) {
+			if ($item->getDataValue('network') === Protocol::MAIL && DI::userSession()->getLocalUserId() != $item->getDataValue('uid')) {
 				continue;
 			}
 

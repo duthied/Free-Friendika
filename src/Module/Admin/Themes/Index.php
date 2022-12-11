@@ -48,7 +48,7 @@ class Index extends BaseAdmin
 					}
 					Theme::setAllowedList($allowed_themes);
 
-					info(DI::l10n()->t('Themes reloaded'));
+					DI::sysmsg()->addInfo(DI::l10n()->t('Themes reloaded'));
 					break;
 
 				case 'toggle' :
@@ -56,17 +56,17 @@ class Index extends BaseAdmin
 					if ($theme) {
 						$theme = Strings::sanitizeFilePathItem($theme);
 						if (!is_dir("view/theme/$theme")) {
-							notice(DI::l10n()->t('Item not found.'));
+							DI::sysmsg()->addNotice(DI::l10n()->t('Item not found.'));
 							return '';
 						}
 
 						if (in_array($theme, Theme::getAllowedList())) {
 							Theme::uninstall($theme);
-							info(DI::l10n()->t('Theme %s disabled.', $theme));
+							DI::sysmsg()->addInfo(DI::l10n()->t('Theme %s disabled.', $theme));
 						} elseif (Theme::install($theme)) {
-							info(DI::l10n()->t('Theme %s successfully enabled.', $theme));
+							DI::sysmsg()->addInfo(DI::l10n()->t('Theme %s successfully enabled.', $theme));
 						} else {
-							notice(DI::l10n()->t('Theme %s failed to install.', $theme));
+							DI::sysmsg()->addNotice(DI::l10n()->t('Theme %s failed to install.', $theme));
 						}
 					}
 

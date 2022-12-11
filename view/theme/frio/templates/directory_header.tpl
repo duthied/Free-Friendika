@@ -28,10 +28,10 @@
 
 	<div id="directory-search-end" class="clear"></div>
 
-	{{* format each contact with the contact_template.tpl *}}
+	{{* format each contact with the contact/entry.tpl *}}
 	<ul id="viewcontact_wrapper" class="viewcontact_wrapper media-list">
 	{{foreach $contacts as $contact}}
-		<li>{{include file="contact_template.tpl"}}</li>
+		<li>{{include file="contact/entry.tpl"}}</li>
 	{{/foreach}}
 	</ul>
 

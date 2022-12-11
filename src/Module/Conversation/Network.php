@@ -29,8 +29,9 @@ use Friendica\Content\Widget;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
 use Friendica\Core\Hook;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -78,7 +79,7 @@ class Network extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!DI::userSession()->getLocalUserId()) {
 			return Login::form();
 		}
 
@@ -88,8 +89,8 @@ class Network extends BaseModule
 
 		DI::page()['aside'] .= Widget::accountTypes($module, self::$accountTypeString);
 		DI::page()['aside'] .= Group::sidebarWidget($module, $module . '/group', 'standard', self::$groupId);
-		DI::page()['aside'] .= ForumManager::widget($module . '/forum', local_user(), self::$forumContactId);
-		DI::page()['aside'] .= Widget::postedByYear($module . '/archive', local_user(), false);
+		DI::page()['aside'] .= ForumManager::widget($module . '/forum', DI::userSession()->getLocalUserId(), self::$forumContactId);
+		DI::page()['aside'] .= Widget::postedByYear($module . '/archive', DI::userSession()->getLocalUserId(), false);
 		DI::page()['aside'] .= Widget::networks($module, !self::$forumContactId ? self::$network : '');
 		DI::page()['aside'] .= Widget\SavedSearches::getHTML(DI::args()->getQueryString());
 		DI::page()['aside'] .= Widget::fileAs('filed', '');
@@ -105,7 +106,7 @@ class Network extends BaseModule
 
 		$items = self::getItems($table, $params);
 
-		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		}
@@ -138,7 +139,7 @@ class Network extends BaseModule
 				$allowedCids[] = (int) self::$forumContactId;
 			} elseif (self::$network) {
 				$condition = [
-					'uid'     => local_user(),
+					'uid'     => DI::userSession()->getLocalUserId(),
 					'network' => self::$network,
 					'self'    => false,
 					'blocked' => false,
@@ -168,9 +169,9 @@ class Network extends BaseModule
 		}
 
 		if (self::$groupId) {
-			$group = DBA::selectFirst('group', ['name'], ['id' => self::$groupId, 'uid' => local_user()]);
+			$group = DBA::selectFirst('group', ['name'], ['id' => self::$groupId, 'uid' => DI::userSession()->getLocalUserId()]);
 			if (!DBA::isResult($group)) {
-				notice(DI::l10n()->t('No such group'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('No such group'));
 			}
 
 			$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
@@ -179,12 +180,12 @@ class Network extends BaseModule
 		} elseif (self::$forumContactId) {
 			$contact = Contact::getById(self::$forumContactId);
 			if (DBA::isResult($contact)) {
-				$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('viewcontact_template.tpl'), [
+				$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('contact/list.tpl'), [
 					'contacts' => [ModuleContact::getContactTemplateVars($contact)],
 					'id' => DI::args()->get(0),
 				]) . $o;
 			} else {
-				notice(DI::l10n()->t('Invalid contact.'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Invalid contact.'));
 			}
 		} elseif (!DI::config()->get('theme', 'hide_eventlist')) {
 			$o .= Profile::getBirthdays();
@@ -199,9 +200,9 @@ class Network extends BaseModule
 			$ordering = '`commented`';
 		}
 
-		$o .= DI::conversation()->create($items, 'network', false, false, $ordering, local_user());
+		$o .= DI::conversation()->create($items, 'network', false, false, $ordering, DI::userSession()->getLocalUserId());
 
-		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
 		} else {
 			$pager = new BoundariesPager(
@@ -307,7 +308,7 @@ class Network extends BaseModule
 
 		self::$forumContactId = $this->parameters['contact_id'] ?? 0;
 
-		self::$selectedTab = Session::get('network-tab', DI::pConfig()->get(local_user(), 'network.view', 'selected_tab', ''));
+		self::$selectedTab = self::getTimelineOrderBySession(DI::userSession(), DI::pConfig());
 
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';
@@ -345,8 +346,8 @@ class Network extends BaseModule
 			self::$star = false;
 		}
 
-		Session::set('network-tab', self::$selectedTab);
-		DI::pConfig()->set(local_user(), 'network.view', 'selected_tab', self::$selectedTab);
+		DI::session()->set('network-tab', self::$selectedTab);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'network.view', 'selected_tab', self::$selectedTab);
 
 		self::$accountTypeString = $get['accounttype'] ?? $this->parameters['accounttype'] ?? '';
 		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
@@ -357,10 +358,10 @@ class Network extends BaseModule
 		self::$dateTo = $this->parameters['to'] ?? '';
 
 		if (DI::mode()->isMobile()) {
-			self::$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			self::$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
 				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			self::$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			self::$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
@@ -385,7 +386,7 @@ class Network extends BaseModule
 
 	protected static function getItems(string $table, array $params, array $conditionFields = [])
 	{
-		$conditionFields['uid'] = local_user();
+		$conditionFields['uid'] = DI::userSession()->getLocalUserId();
 		$conditionStrings = [];
 
 		if (!is_null(self::$accountType)) {
@@ -414,7 +415,7 @@ class Network extends BaseModule
 		} elseif (self::$forumContactId) {
 			$conditionStrings = DBA::mergeConditions($conditionStrings, 
 				["((`contact-id` = ?) OR `uri-id` IN (SELECT `parent-uri-id` FROM `post-user-view` WHERE (`contact-id` = ? AND `gravity` = ? AND `vid` = ? AND `uid` = ?)))",
-				self::$forumContactId, self::$forumContactId, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), local_user()]);
+				self::$forumContactId, self::$forumContactId, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), DI::userSession()->getLocalUserId()]);
 		}
 
 		// Currently only the order modes "received" and "commented" are in use
@@ -478,13 +479,27 @@ class Network extends BaseModule
 		// level which items you've seen and which you haven't. If you're looking
 		// at the top level network page just mark everything seen.
 		if (!self::$groupId && !self::$forumContactId && !self::$star && !self::$mention) {
-			$condition = ['unseen' => true, 'uid' => local_user()];
+			$condition = ['unseen' => true, 'uid' => DI::userSession()->getLocalUserId()];
 			self::setItemsSeenByCondition($condition);
 		} elseif (!empty($parents)) {
-			$condition = ['unseen' => true, 'uid' => local_user(), 'parent-uri-id' => $parents];
+			$condition = ['unseen' => true, 'uid' => DI::userSession()->getLocalUserId(), 'parent-uri-id' => $parents];
 			self::setItemsSeenByCondition($condition);
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Returns the selected network tab of the currently logged-in user
+	 *
+	 * @param IHandleUserSessions         $session
+	 * @param IManagePersonalConfigValues $pconfig
+	 * @return string
+	 */
+	public static function getTimelineOrderBySession(IHandleUserSessions $session, IManagePersonalConfigValues $pconfig): string
+	{
+		return $session->get('network-tab')
+			?? $pconfig->get($session->getLocalUserId(), 'network.view', 'selected_tab')
+			?? '';
 	}
 }

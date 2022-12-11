@@ -29,6 +29,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\Theme;
 use Friendica\Model;
 use Friendica\Module\Contact;
@@ -55,25 +56,30 @@ class Conversations extends BaseModule
 	 * @var LocalRelationship
 	 */
 	private $localRelationship;
+	/**
+	 * @var IHandleUserSessions
+	 */
+	private $userSession;
 
-	public function __construct(L10n $l10n, LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Page $page, Conversation $conversation, array $server, array $parameters = [])
+	public function __construct(L10n $l10n, LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Page $page, Conversation $conversation, IHandleUserSessions $userSession, $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->page              = $page;
 		$this->conversation      = $conversation;
 		$this->localRelationship = $localRelationship;
+		$this->userSession       = $userSession;
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (!local_user()) {
+		if (!$this->userSession->getLocalUserId()) {
 			return Login::form($_SERVER['REQUEST_URI']);
 		}
 
 		// Backward compatibility: Ensure to use the public contact when the user contact is provided
 		// Remove by version 2022.03
-		$data = Model\Contact::getPublicAndUserContactID(intval($this->parameters['id']), local_user());
+		$data = Model\Contact::getPublicAndUserContactID(intval($this->parameters['id']), $this->userSession->getLocalUserId());
 		if (empty($data)) {
 			throw new NotFoundException($this->t('Contact not found.'));
 		}
@@ -88,7 +94,7 @@ class Conversations extends BaseModule
 			throw new NotFoundException($this->t('Contact not found.'));
 		}
 
-		$localRelationship = $this->localRelationship->getForUserContact(local_user(), $contact['id']);
+		$localRelationship = $this->localRelationship->getForUserContact($this->userSession->getLocalUserId(), $contact['id']);
 		if ($localRelationship->rel === Model\Contact::SELF) {
 			$this->baseUrl->redirect('profile/' . $contact['nick']);
 		}

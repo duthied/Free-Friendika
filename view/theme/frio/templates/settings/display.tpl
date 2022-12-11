@@ -67,6 +67,7 @@
 						{{include file="field_checkbox.tpl" field=$enable_dislike}}
 						{{include file="field_checkbox.tpl" field=$display_resharer}}
 						{{include file="field_checkbox.tpl" field=$stay_local}}
+						{{include file="field_select.tpl" field=$preview_mode}}
 					</div>
 					<div class="panel-footer">
 						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>

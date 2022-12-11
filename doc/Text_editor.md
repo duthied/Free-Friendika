@@ -24,10 +24,6 @@ Below are examples of the post editor in 3 of Friendica's common themes:
 <figcaption>Post editor, with the <b>Vier</b> theme.</figcaption>
 </figure>
 <p style="clear:both;"></p>
-<figure>
-<img src="doc/img/editor_dpzero.png" alt="duepuntozero editor">
-<figcaption>Post editor, with the <b>Duepuntozero</b> theme.</figcaption>
-</figure>
 
 Post title is optional, you can set it by clicking on "Set title".
 
@@ -71,11 +67,6 @@ These icons can change depending on the theme. Some examples:
 <tr>
     <td>Vier: </td>
     <td><img src="doc/img/vier_icons.png" alt="vier.png" style="vertical-align:middle;"></td>
-    <td>&nbsp;</td>
-</tr>
-<tr>
-    <td>Smoothly: </td>
-    <td><img src="doc/img/editor_darkbubble.png" alt="darkbubble.png" style="vertical-align:middle;"></td>
     <td>&nbsp;</td>
 </tr>
 </table>

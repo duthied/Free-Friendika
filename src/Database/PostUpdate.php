@@ -359,7 +359,7 @@ class PostUpdate
                 }
 			}
 
-			Tag::store($term['uri-id'], $term['type'], $term['term'], $term['url'], false);
+			Tag::store($term['uri-id'], $term['type'], $term['term'], $term['url']);
 
 			$id = $term['tid'];
 			++$rows;
@@ -563,7 +563,7 @@ class PostUpdate
 		$items = DBA::p("SELECT `item`.`id`, `item`.`verb` AS `item-verb`, `item-content`.`verb`, `item-activity`.`activity`
 			FROM `item` LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`
 			LEFT JOIN `item-activity` ON `item-activity`.`uri-id` = `item`.`uri-id` AND `item`.`gravity` = ?
-			WHERE `item`.`id` >= ? AND `item`.`vid` IS NULL ORDER BY `item`.`id` LIMIT 10000", GRAVITY_ACTIVITY, $id);
+			WHERE `item`.`id` >= ? AND `item`.`vid` IS NULL ORDER BY `item`.`id` LIMIT 10000", Item::GRAVITY_ACTIVITY, $id);
 
 		if (DBA::errorNo() != 0) {
 			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
@@ -896,6 +896,11 @@ class PostUpdate
 	{
 		// Was the script completed?
 		if (DI::config()->get('system', 'post_update_version') >= 1425) {
+			return true;
+		}
+
+		if (!DBStructure::existsTable('fcontact')) {
+			DI::config()->set('system', 'post_update_version', 1425);
 			return true;
 		}
 

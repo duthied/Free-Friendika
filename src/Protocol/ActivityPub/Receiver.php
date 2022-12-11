@@ -209,7 +209,7 @@ class Receiver
 				Logger::notice('No object data found', ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'actor' => $actor, 'activity' => $activity]);
 				return;
 			}
-	
+
 			if (self::routeActivities($object_data, $type, true)) {
 				Logger::debug('Handled activity', ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'actor' => $actor]);
 			} else {
@@ -264,7 +264,7 @@ class Receiver
 			}
 		}
 
-		if (Post::exists(['uri' => $object_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]])) {
+		if (Post::exists(['uri' => $object_id, 'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]])) {
 			// We just assume "note" since it doesn't make a difference for the further processing
 			return 'as:Note';
 		}
@@ -657,7 +657,7 @@ class Receiver
 				// We delay by 5 seconds to allow to accumulate all receivers
 				$delayed = date(DateTimeFormat::MYSQL, time() + 5);
 				Logger::debug('Initiate processing', ['id' => $object_data['entry-id'], 'uri' => $object_data['object_id']]);
-				$wid = Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'ProcessQueue', $object_data['entry-id']);
+				$wid = Worker::add(['priority' => Worker::PRIORITY_HIGH, 'delayed' => $delayed], 'ProcessQueue', $object_data['entry-id']);
 				Queue::setWorkerId($object_data['entry-id'], $wid);
 			} else {
 				Logger::debug('Other queue entries need to be processed first.', ['id' => $object_data['entry-id']]);
@@ -1472,7 +1472,7 @@ class Receiver
 				continue;
 			}
 
-			$element = ['type' => str_replace('as:', '', JsonLD::fetchElement($tag, '@type')),
+			$element = ['type' => str_replace('as:', '', JsonLD::fetchElement($tag, '@type') ?? ''),
 				'href' => JsonLD::fetchElement($tag, 'as:href', '@id'),
 				'name' => JsonLD::fetchElement($tag, 'as:name', '@value')];
 
