@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1500);
+	define('DB_UPDATE_VERSION', 1501);
 }
 
 return [
@@ -186,6 +186,7 @@ return [
 			"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "XMPP address"],
 			"matrix" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Matrix address"],
 			"avatar" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
+			"blurhash" => ["type" => "varbinary(255)", "comment" => "BlurHash representation of the avatar"],
 			"header" => ["type" => "varbinary(383)", "comment" => "Header picture"],
 			"url" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
 			"nurl" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1323,6 +1324,9 @@ return [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"url" => ["type" => "varbinary(511)", "not null" => "1", "comment" => "External URL"],
 			"mimetype" => ["type" => "varchar(60)", "comment" => ""],
+			"height" => ["type" => "smallint unsigned", "comment" => "Height of the media"],
+			"width" => ["type" => "smallint unsigned", "comment" => "Width of the media"],
+			"blurhash" => ["type" => "varbinary(255)", "comment" => "BlurHash representation of the link"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],

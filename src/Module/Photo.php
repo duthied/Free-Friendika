@@ -285,14 +285,14 @@ class Photo extends BaseModule
 
 				return MPhoto::createPhotoForExternalResource($media['url'], (int)DI::userSession()->getLocalUserId(), $media['mimetype'], $media['blurhash'], $media['width'], $media['height']);
 			case 'link':
-				$link = DBA::selectFirst('post-link', ['url', 'mimetype'], ['id' => $id]);
+				$link = DBA::selectFirst('post-link', ['url', 'mimetype', 'blurhash', 'width', 'height'], ['id' => $id]);
 				if (empty($link)) {
 					return false;
 				}
 
-				return MPhoto::createPhotoForExternalResource($link['url'], (int)DI::userSession()->getLocalUserId(), $link['mimetype'] ?? '');
+				return MPhoto::createPhotoForExternalResource($link['url'], (int)DI::userSession()->getLocalUserId(), $link['mimetype'] ?? '', $link['blurhash'] ?? '', $link['width'] ?? 0, $link['height'] ?? 0);
 			case 'contact':
-				$fields = ['uid', 'uri-id', 'url', 'nurl', 'avatar', 'photo', 'xmpp', 'addr', 'network', 'failed', 'updated'];
+				$fields = ['uid', 'uri-id', 'url', 'nurl', 'avatar', 'photo', 'blurhash', 'xmpp', 'addr', 'network', 'failed', 'updated'];
 				$contact = Contact::getById($id, $fields);
 				if (empty($contact)) {
 					return false;
@@ -364,7 +364,11 @@ class Photo extends BaseModule
 						Logger::debug('Expected Content-Type', ['mime' => $mimetext, 'url' => $url]);
 					}
 				}
-				if (empty($mimetext)) {
+				if (empty($mimetext) && !empty($contact['blurhash'])) {
+					$image = New Image('', 'image/png');
+					$image->getFromBlurHash($contact['blurhash'], $customsize, $customsize);
+					return MPhoto::createPhotoForImageData($image->asString());
+				} elseif (empty($mimetext)) {
 					if ($customsize <= Proxy::PIXEL_MICRO) {
 						$url = Contact::getDefaultAvatar($contact ?: [], Proxy::SIZE_MICRO);
 					} elseif ($customsize <= Proxy::PIXEL_THUMB) {
@@ -373,7 +377,7 @@ class Photo extends BaseModule
 						$url = Contact::getDefaultAvatar($contact ?: [], Proxy::SIZE_SMALL);
 					}
 				}
-				return MPhoto::createPhotoForExternalResource($url, 0, $mimetext);
+				return MPhoto::createPhotoForExternalResource($url, 0, $mimetext, $contact['blurhash'], $customsize, $customsize);
 			case 'header':
 				$fields = ['uid', 'url', 'header', 'network', 'gsid'];
 				$contact = Contact::getById($id, $fields);

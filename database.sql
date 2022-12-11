@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2022.12-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1500
+-- DB_UPDATE_VERSION 1501
 -- ------------------------------------------
 
 
@@ -129,6 +129,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT 'XMPP address',
 	`matrix` varchar(255) NOT NULL DEFAULT '' COMMENT 'Matrix address',
 	`avatar` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
+	`blurhash` varbinary(255) COMMENT 'BlurHash representation of the avatar',
 	`header` varbinary(383) COMMENT 'Header picture',
 	`url` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
 	`nurl` varbinary(383) NOT NULL DEFAULT '' COMMENT '',
@@ -1297,6 +1298,9 @@ CREATE TABLE IF NOT EXISTS `post-link` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`url` varbinary(511) NOT NULL COMMENT 'External URL',
 	`mimetype` varchar(60) COMMENT '',
+	`height` smallint unsigned COMMENT 'Height of the media',
+	`width` smallint unsigned COMMENT 'Width of the media',
+	`blurhash` varbinary(255) COMMENT 'BlurHash representation of the link',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE

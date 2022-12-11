@@ -90,6 +90,8 @@ class Avatar
 		$filename  = self::getFilename($contact['url']);
 		$timestamp = time();
 
+		$fields['blurhash'] = $image->getBlurHash();
+
 		$fields['photo'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_SMALL, $timestamp);
 		$fields['thumb'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_THUMB, $timestamp);
 		$fields['micro'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_MICRO, $timestamp);

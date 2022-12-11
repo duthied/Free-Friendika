@@ -28,7 +28,10 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
+use Friendica\Util\HTTPSignature;
+use Friendica\Util\Images;
 use Friendica\Util\Proxy;
+use Friendica\Object\Image;
 
 /**
  * Class Link
@@ -72,12 +75,14 @@ class Link
 		if (!empty($link['id'])) {
 			$id = $link['id'];
 			Logger::info('Found', ['id' => $id, 'uri-id' => $uriId, 'url' => $url]);
-		} else {
-			$mime = self::fetchMimeType($url);
+		} else { 
+			$fields = self::fetchMimeType($url);
+			$fields['uri-id'] = $uriId;
+			$fields['url'] = $url;
 
-			DBA::insert('post-link', ['uri-id' => $uriId, 'url' => $url, 'mimetype' => $mime], Database::INSERT_IGNORE);
+			DBA::insert('post-link', $fields, Database::INSERT_IGNORE);
 			$id = DBA::lastInsertId();
-			Logger::info('Inserted', ['id' => $id, 'uri-id' => $uriId, 'url' => $url]);
+			Logger::info('Inserted', $fields);
 		}
 
 		if (empty($id)) {
@@ -114,19 +119,28 @@ class Link
 	 *
 	 * @param string $url URL to fetch
 	 * @param string $accept Comma-separated list of expected response MIME type(s)
-	 * @return string Discovered MIME type or empty string on failure
+	 * @return array Discovered MIME type and blurhash or empty array on failure
 	 */
-	private static function fetchMimeType(string $url, string $accept = HttpClientAccept::DEFAULT): string
+	private static function fetchMimeType(string $url, string $accept = HttpClientAccept::DEFAULT): array
 	{
 		$timeout = DI::config()->get('system', 'xrd_timeout');
 
-		$curlResult = DI::httpClient()->head($url, [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => $accept]);
+		$curlResult = HTTPSignature::fetchRaw($url, 0, [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => $accept]);
+		if (!$curlResult->isSuccess()) {
+			return [];
+		}
+		$fields = ['mimetype' => $curlResult->getHeader('Content-Type')[0]];
 
-		if ($curlResult->isSuccess() && empty($media['mimetype'])) {
-			return $curlResult->getHeader('Content-Type')[0] ?? '';
+		$img_str = $curlResult->getBody();
+		$image = new Image($img_str, Images::getMimeTypeByData($img_str));
+		if ($image->isValid()) {
+			$fields['mimetype'] = $image->getType();
+			$fields['width']    = $image->getWidth();
+			$fields['height']   = $image->getHeight();
+			$fields['blurhash'] = $image->getBlurHash();
 		}
 
-		return '';
+		return $fields;
 	}
 
 	/**

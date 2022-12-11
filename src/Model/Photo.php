@@ -314,6 +314,28 @@ class Photo
 	}
 
 	/**
+	 * Construct a photo array for a given image data string
+	 *
+	 * @param string $image_data Image data
+	 * @param string $mimetype   Image mime type. Is guessed by file name when empty.
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function createPhotoForImageData(string $image_data, string $mimetype = ''): array
+	{
+		$fields = self::getFields();
+		$values = array_fill(0, count($fields), '');
+
+		$photo                  = array_combine($fields, $values);
+		$photo['data']          = $image_data;
+		$photo['type']          = $mimetype ?: Images::getMimeTypeByData($image_data);
+		$photo['cacheable']     = false;
+
+		return $photo;
+	}
+
+	/**
 	 * Construct a photo array for a system resource image
 	 *
 	 * @param string $filename Image file name relative to code root
@@ -647,7 +669,11 @@ class Photo
 			$micro = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
 		}
 
-		return [$image_url, $thumb, $micro];
+		$photo = DBA::selectFirst(
+			'photo', ['blurhash'], ['uid' => $uid, 'contact-id' => $cid, 'scale' => 4, 'photo-type' => self::CONTACT_AVATAR]
+		);
+
+		return [$image_url, $thumb, $micro, $photo['blurhash']];
 	}
 
 	/**
