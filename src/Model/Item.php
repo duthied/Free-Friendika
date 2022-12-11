@@ -3141,78 +3141,117 @@ class Item
 	 */
 	public static function makeImageGrid(array $images): string
 	{
-		$img_tags_landscape = array();
-		$img_tags_portrait = array();
+		$landscapeimages = array();
+		$portraitimages = array();
+
 		foreach ($images as $image) {
-			($image['attachment']['width'] > $image['attachment']['height']) ? ($img_tags_landscape[] = $image) : ($img_tags_portrait[] = $image);
+			($image['attachment']['width'] > $image['attachment']['height']) ? ($landscapeimages[] = $image) : ($portraitimages[] = $image);
 		}
 
-		// @todo add some fany ai to divide images equally on both columns
 		// Image for first column (fc) and second column (sc)
-		$imgs_fc = array();
-		$imgs_sc = array();
-		if (count($img_tags_landscape) == 0 || count($img_tags_portrait) == 0) {
-			if (count($img_tags_landscape) == 0) {
+		$images_fc = array();
+		$images_sc = array();
+		$lcount = count($landscapeimages);
+		$pcount = count($portraitimages);
+		if ($lcount == 0 || $pcount == 0) {
+			if ($lcount == 0) {
 				// only portrait
-				for ($i = 0; $i < count($img_tags_portrait); $i++) {
-					($i % 2 == 0) ? ($imgs_fc[] = $img_tags_portrait[$i]) : ($imgs_sc[] = $img_tags_portrait[$i]);
+				for ($i = 0; $i < $pcount; $i++) {
+					($i % 2 == 0) ? ($images_fc[] = $portraitimages[$i]) : ($images_sc[] = $portraitimages[$i]);
 				}
 			}
-			if (count($img_tags_portrait) == 0) {
+			if ($pcount == 0) {
 				// ony landscapes
-				for ($i = 0; $i < count($img_tags_landscape); $i++) {
-					($i % 2 == 0) ? ($imgs_fc[] = $img_tags_landscape[$i]) : ($imgs_sc[] = $img_tags_landscape[$i]);
+				for ($i = 0; $i < $lcount; $i++) {
+					($i % 2 == 0) ? ($images_fc[] = $landscapeimages[$i]) : ($images_sc[] = $landscapeimages[$i]);
 				}
 			}
 		} else {
-			// Mix of landscape and portrait images. Which format is dominating (domformat)?
-			$domformat = (count($img_tags_landscape) >= count($img_tags_portrait)) ? 'landscape' : 'portrait';
-			if ($domformat == 'landscape') {
-				// More or equal landscapes than portraits
-				for ($l = 0; $l < count($img_tags_landscape); $l++) {
-					// use two landscapes for on portrait
-					if ((count($img_tags_landscape) > $l + 1) && (count($img_tags_portrait) > $l)) {
-						// we have one more landscape that can be used for the l-th portrait
-						$imgs_fc[] = $img_tags_landscape[$l];
-						$imgs_fc[] = $img_tags_landscape[$l + 1];
-						$imgs_sc[] = $img_tags_portrait[$l];
-						$l++;
-					} elseif (count($img_tags_portrait) <= $l) {
-						// no more portraits available but landscapes
-						$imgs_fc[] = $img_tags_landscape[$l];
-					}
-				}
-			}
-			if ($domformat == 'portrait') {
-				// More  portraits than landscapes
-				$l = 0;
-				for ($p = 0; $p < count($img_tags_portrait); $p++) {
-					// use two landscapes for on portrait
-					if ((count($img_tags_landscape) > $l + 1)) {
-						// we have at least one more landscape that can be used for the p-th portrait
-						$imgs_sc[] = $img_tags_landscape[$l];
-						$imgs_sc[] = $img_tags_landscape[$l + 1];
-						$imgs_fc[] = $img_tags_portrait[$p];
-						// used to landscapes:
-						$l += 2;
+			// Mix of landscape and portrait images.
+			if ($lcount == $pcount) {
+				// equal amount of landscapes and portraits
+				for ($l = 0; $l < $lcount; $l++) {
+					if ($l % 2 == 0) {
+						$images_fc[] = $landscapeimages[$l];
+						$images_fc[] = $portraitimages[$l];
 					} else {
-						// no more landscapes available
-						if ($p % 2 == 0 ) {
-							$imgs_fc[] = $img_tags_portrait[$p];
-						} else {
-							$imgs_sc[] = $img_tags_portrait[$p];
-						}
-
+						$images_sc[] = $portraitimages[$l];
+						$images_sc[] = $landscapeimages[$l];
 					}
 				}
 			}
+			if ($lcount > $pcount) {
+				// More landscapes than portraits
+				$p = 0;
+				$l = 0;
+				while ($l < $lcount) {
+					if (($lcount > $l + 1) && ($pcount > $l)) {
+						// we have one more landscape that can be used for the l-th portrait
+						$images_fc[] = $landscapeimages[$l++];
+					}
+					$images_fc[] = $landscapeimages[$l++];
+					if ($pcount > $p) {
+						$images_sc[] = $portraitimages[$p++];
+					}
 
+				}
+			}
+			if ($lcount < $pcount) {
+				// More  portraits than landscapes
+				if ($lcount % 2 == 0 && $pcount % 2 == 0) {
+					/*
+					 * even number of landscapes and portraits, but fewer landscapes than portraits. Iterate to the end
+					 * of landscapes array
+					 */
+					$i = 0;
+					while ($i < $lcount) {
+						if ($i % 2 == 0) {
+							$images_fc[] = $landscapeimages[$i];
+							$images_fc[] = $portraitimages[$i];
+						} else {
+							$images_sc[] = $portraitimages[$i];
+							$images_sc[] = $landscapeimages[$i];
+						}
+						$i++;
+					}
+					// Rest portraits
+					while ($i < $pcount) {
+						if ($i % 2 == 0) {
+							$images_fc[] = $portraitimages[$i];
+						} else {
+							$images_sc[] = $portraitimages[$i];
+						}
+						$i++;
+					}
+
+				}
+				if ($lcount % 2 != 0 && $pcount % 2 == 0) {
+					// uneven landscapes count even portraits count.
+					for ($p = 0; $p < $pcount; $p++) {
+						// --> First all portraits until
+						if ($p % 2 == 0) {
+							$images_fc[] = $portraitimages[$p];
+						} else {
+							$images_sc[] = $portraitimages[$p];
+						}
+					}
+					// and now the (uneven) landscapes
+					for ($l = 0; $l < $lcount; $l++) {
+						// --> First all portraits until
+						if ($l % 2 == 0) {
+							$images_fc[] = $landscapeimages[$l];
+						} else {
+							$images_sc[] = $landscapeimages[$l];
+						}
+					}
+				}
+			}
 		}
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
 			'columns' => [
-				'fc' => $imgs_fc,
-				'sc' => $imgs_sc,
+				'fc' => $images_fc,
+				'sc' => $images_sc,
 			],
 		]);
 	}
