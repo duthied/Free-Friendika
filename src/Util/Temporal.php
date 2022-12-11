@@ -305,13 +305,14 @@ class Temporal
 	 * Results relative to current timezone.
 	 * Limited to range of timestamps.
 	 *
-	 * @param string $posted_date MySQL-formatted date string (YYYY-MM-DD HH:MM:SS)
-	 * @param string $format (optional) Parsed with sprintf()
+	 * @param string $posted_date       MySQL-formatted date string (YYYY-MM-DD HH:MM:SS)
+	 * @param string $format            (optional) Parsed with sprintf()
+	 * @param bool   $compare_date_time Compare date (false) or datetime (true). "true" is default.
 	 *    <tt>%1$d %2$s ago</tt>, e.g. 22 hours ago, 1 minute ago
 	 *
 	 * @return string with relative date
 	 */
-	public static function getRelativeDate(string $posted_date = null, string $format = null): string
+	public static function getRelativeDate(string $posted_date = null, string $format = null, bool $compare_date_time = true): string
 	{
 		if (empty($posted_date) || $posted_date <= DBA::NULL_DATETIME) {
 			return DI::l10n()->t('never');
@@ -324,11 +325,18 @@ class Temporal
 			return DI::l10n()->t('never');
 		}
 
+		$now = time();
+	
+		if (!$compare_date_time) {
+			$now = mktime(0, 0, 0, date('m', $now), date('d', $now), date('Y', $now));
+			$abs = mktime(0, 0, 0, date('m', $abs), date('d', $abs), date('Y', $abs));
+		}
+
 		$isfuture = false;
-		$etime = time() - $abs;
+		$etime = $now - $abs;
 
 		if ($etime < 1 && $etime >= 0) {
-			return DI::l10n()->t('less than a second ago');
+			return $compare_date_time ? DI::l10n()->t('less than a second ago') : DI::l10n()->t('today');
 		}
 
 		if ($etime < 0){
