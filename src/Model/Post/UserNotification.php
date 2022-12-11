@@ -440,6 +440,12 @@ class UserNotification
 			}
 		}
 
+		// Only check on posts by the user itself
+		$cdata = Contact::getPublicAndUserContactID($item['contact-id'], $item['uid']);
+		if (empty($cdata['user']) || ($item['author-id'] != $cdata['public'])) {
+			return false;
+		}
+
 		// Check if the contact posted or shared something directly
 		if (DBA::exists('contact', ['id' => $item['contact-id'], 'notify_new_posts' => true])) {
 			return true;
