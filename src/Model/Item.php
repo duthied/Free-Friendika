@@ -3148,37 +3148,38 @@ class Item
 		}
 
 		// @todo add some fany ai to divide images equally on both columns
-		$img_tags_fc = array();
-		$img_tags_sc = array();
+		// Image for first column (fc) and second column (sc)
+		$imgs_fc = array();
+		$imgs_sc = array();
 		if (count($img_tags_landscape) == 0 || count($img_tags_portrait) == 0) {
 			if (count($img_tags_landscape) == 0) {
 				// only portrait
 				for ($i = 0; $i < count($img_tags_portrait); $i++) {
-					($i % 2 == 0) ? ($img_tags_fc[] = $img_tags_portrait[$i]) : ($img_tags_sc[] = $img_tags_portrait[$i]);
+					($i % 2 == 0) ? ($imgs_fc[] = $img_tags_portrait[$i]) : ($imgs_sc[] = $img_tags_portrait[$i]);
 				}
 			}
 			if (count($img_tags_portrait) == 0) {
 				// ony landscapes
 				for ($i = 0; $i < count($img_tags_landscape); $i++) {
-					($i % 2 == 0) ? ($img_tags_fc[] = $img_tags_landscape[$i]) : ($img_tags_sc[] = $img_tags_landscape[$i]);
+					($i % 2 == 0) ? ($imgs_fc[] = $img_tags_landscape[$i]) : ($imgs_sc[] = $img_tags_landscape[$i]);
 				}
 			}
 		} else {
-			// Mix of landscape and portrait images
-			$domformat = (count($img_tags_landscape) > count($img_tags_portrait)) ? 'landscape' : 'portrait';
+			// Mix of landscape and portrait images. Which format is dominating (domformat)?
+			$domformat = (count($img_tags_landscape) >= count($img_tags_portrait)) ? 'landscape' : 'portrait';
 			if ($domformat == 'landscape') {
-				// More landscapes than portraits
+				// More or equal landscapes than portraits
 				for ($l = 0; $l < count($img_tags_landscape); $l++) {
 					// use two landscapes for on portrait
 					if ((count($img_tags_landscape) > $l + 1) && (count($img_tags_portrait) > $l)) {
 						// we have one more landscape that can be used for the l-th portrait
-						$img_tags_fc[] = $img_tags_landscape[$l];
-						$img_tags_fc[] = $img_tags_landscape[$l + 1];
-						$img_tags_sc[] = $img_tags_portrait[$l];
+						$imgs_fc[] = $img_tags_landscape[$l];
+						$imgs_fc[] = $img_tags_landscape[$l + 1];
+						$imgs_sc[] = $img_tags_portrait[$l];
 						$l++;
 					} elseif (count($img_tags_portrait) <= $l) {
 						// no more portraits available but landscapes
-						$img_tags_fc[] = $img_tags_landscape[$l];
+						$imgs_fc[] = $img_tags_landscape[$l];
 					}
 				}
 			}
@@ -3188,18 +3189,18 @@ class Item
 				for ($p = 0; $p < count($img_tags_portrait); $p++) {
 					// use two landscapes for on portrait
 					if ((count($img_tags_landscape) > $l + 1)) {
-						// we have one more landscape that can be used for the p-th portrait
-						$img_tags_sc[] = $img_tags_landscape[$l];
-						$img_tags_sc[] = $img_tags_landscape[$l + 1];
-						$img_tags_fc[] = $img_tags_portrait[$p];
+						// we have at least one more landscape that can be used for the p-th portrait
+						$imgs_sc[] = $img_tags_landscape[$l];
+						$imgs_sc[] = $img_tags_landscape[$l + 1];
+						$imgs_fc[] = $img_tags_portrait[$p];
 						// used to landscapes:
 						$l += 2;
 					} else {
 						// no more landscapes available
 						if ($p % 2 == 0 ) {
-							$img_tags_fc[] = $img_tags_landscape[$l];
+							$imgs_fc[] = $img_tags_portrait[$p];
 						} else {
-							$img_tags_sc[] = $img_tags_landscape[$l];
+							$imgs_sc[] = $img_tags_portrait[$p];
 						}
 
 					}
@@ -3210,8 +3211,8 @@ class Item
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
 			'columns' => [
-				'fc' => $img_tags_fc,
-				'sc' => $img_tags_sc,
+				'fc' => $imgs_fc,
+				'sc' => $imgs_sc,
 			],
 		]);
 	}
