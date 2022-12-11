@@ -165,7 +165,7 @@ class Cron
 				Logger::info('Removing failed deliveries', ['inbox' => $delivery['inbox'], 'failed' => $delivery['failed']]);
 				Post\Delivery::removeFailed($delivery['inbox']);
 			}
-				
+
 			if ($delivery['failed'] == 0) {
 				$result = ActivityPub\Delivery::deliver($delivery['inbox']);
 				Logger::info('Directly deliver inbox', ['inbox' => $delivery['inbox'], 'result' => $result['success']]);
