@@ -199,8 +199,11 @@ class Status extends BaseFactory
 			}
 		}
 
-		$item['body']     = $this->contentItem->addSharedPost($item);
-		$item['raw-body'] = $this->contentItem->addSharedPost($item, $item['raw-body']);
+		$item['body'] = $this->contentItem->addSharedPost($item);
+
+		if (!is_null($item['raw-body'])) {
+			$item['raw-body'] = $this->contentItem->addSharedPost($item, $item['raw-body']);
+		}
 
 		if ($is_reshare) {
 			$reshare = $this->createFromUriId($uriId, $uid, false)->toArray();

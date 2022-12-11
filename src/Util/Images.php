@@ -247,8 +247,11 @@ class Images
 		if ($data) {
 			$image = new Image($img_str);
 
-			$data['blurhash'] = $image->getBlurHash();
-			$data['size']     = $filesize;
+			if ($image->isValid()) {
+				$data['blurhash'] = $image->getBlurHash();
+			}
+
+			$data['size'] = $filesize;
 		}
 
 		return is_array($data) ? $data : [];
