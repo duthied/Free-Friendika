@@ -49,6 +49,8 @@ class Update extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
+		$owner = User::getOwnerDataById($uid);
+
 		$request = self::getRequest([
 			'htmlstatus'            => '',
 			'status'                => '',
@@ -59,9 +61,11 @@ class Update extends BaseApi
 			'media_ids'             => '',
 			'source'                => '',
 			'include_entities'      => false,
+			'contact_allow'         => $owner['allow_cid'],
+			'group_allow'           => $owner['allow_gid'],
+			'contact_deny'          => $owner['deny_cid'],
+			'group_deny'            => $owner['deny_gid'],
 		], $request);
-
-		$owner = User::getOwnerDataById($uid);
 
 		if (!empty($request['htmlstatus'])) {
 			$body = HTML::toBBCodeVideo($request['htmlstatus']);
@@ -96,10 +100,11 @@ class Update extends BaseApi
 			$item['coord'] = sprintf("%s %s", $request['lat'], $request['long']);
 		}
 
-		$item['allow_cid'] = $owner['allow_cid'] ?? '';
-		$item['allow_gid'] = $owner['allow_gid'] ?? '';
-		$item['deny_cid']  = $owner['deny_cid'] ?? '';
-		$item['deny_gid']  = $owner['deny_gid'] ?? '';
+		$aclFormatter = DI::aclFormatter();
+		$item['allow_cid'] = $aclFormatter->toString($request['contact_allow']);
+		$item['allow_gid'] = $aclFormatter->toString($request['group_allow']);
+		$item['deny_cid']  = $aclFormatter->toString($request['contact_deny']);
+		$item['deny_gid']  = $aclFormatter->toString($request['group_deny']);
 
 		if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
 			$item['private'] = Item::PRIVATE;
