@@ -65,7 +65,7 @@ class Update extends BaseApi
 			'group_allow'           => $owner['allow_gid'],
 			'contact_deny'          => $owner['deny_cid'],
 			'group_deny'            => $owner['deny_gid'],
-			], $request);
+		], $request);
 
 		if (!empty($request['htmlstatus'])) {
 			$body = HTML::toBBCodeVideo($request['htmlstatus']);
