@@ -110,9 +110,9 @@ class Lists extends ContactEndpoint
 			$ids = array_reverse($ids);
 		}
 
-		self::setLinkHeader();
-
 		$return = self::list($ids, $total_count, $uid, $cursor, $count, $skip_status, $include_user_entities);
+
+		$this->response->setHeader(self::getLinkHeader());	
 
 		$this->response->exit('lists', ['lists' => $return]);
 	}
