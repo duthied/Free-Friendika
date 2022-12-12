@@ -23,12 +23,3 @@
 	vertical-align: middle;
 	width: 100%;
 }
-
-/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
-@media screen and (max-width: 150px) {
-	.column {
-		-ms-flex: 100%;
-		flex: 100%;
-		max-width: 100%;
-	}
-}
