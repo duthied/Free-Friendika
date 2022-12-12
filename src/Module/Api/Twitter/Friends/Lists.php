@@ -51,7 +51,7 @@ class Lists extends ContactEndpoint
 		if ($cid == Contact::getPublicIdByUserId($uid)) {
 			$params = ['order' => ['pid' => true], 'limit' => $count];
 
-			$condition = ['uid' => $uid, 'self' => false, 'rel' => [Contact::SHARING, Contact::FRIEND]];
+			$condition = ['uid' => $uid, 'self' => false, 'pending' => false, 'rel' => [Contact::SHARING, Contact::FRIEND]];
 	
 			$total_count = (int)DBA::count('contact', $condition);
 
