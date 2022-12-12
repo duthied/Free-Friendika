@@ -3175,13 +3175,22 @@ class Item
 			// Mix of landscape and portrait images.
 			if ($lcount == $pcount) {
 				// equal amount of landscapes and portraits
-				for ($l = 0; $l < $lcount; $l++) {
-					if ($l % 2 == 0) {
-						$images_fc[] = $landscapeimages[$l];
-						$images_fc[] = $portraitimages[$l];
-					} else {
-						$images_sc[] = $portraitimages[$l];
-						$images_sc[] = $landscapeimages[$l];
+				if ($lcount == 1) {
+					// one left / one right
+					$images_fc[] = $landscapeimages[0];
+					$images_sc[] = $portraitimages[0];
+				} else {
+					// Distribute equal to both columns
+					for ($l = 0; $l < $lcount; $l++) {
+						if ($l % 2 == 0) {
+							// landscape left and portrait right for even numbers
+							$images_fc[] = $landscapeimages[$l];
+							$images_fc[] = $portraitimages[$l];
+						} else {
+							// portraits left and landscape right for odd numbers
+							$images_sc[] = $portraitimages[$l];
+							$images_sc[] = $landscapeimages[$l];
+						}
 					}
 				}
 			}
