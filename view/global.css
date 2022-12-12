@@ -680,3 +680,33 @@ span.required {
 audio {
   width: 100%;
 }
+
+/**
+ * Image grid settings START
+ **/
+.imagegrid-row {
+	display: -ms-flexbox; /* IE10 */
+	display: flex;
+	-ms-flex-wrap: wrap; /* IE10 */
+	flex-wrap: wrap;
+	padding: 0 4px;
+	box-sizing: border-box;
+}
+
+/* Create four equal columns that sits next to each other */
+.imagegrid-column {
+	-ms-flex: 50%; /* IE10 */
+	flex: 50%;
+	max-width: 50%;
+	padding: 0 4px;
+	box-sizing: border-box;
+}
+
+.imagegrid-column img {
+	margin-top: 8px;
+	vertical-align: middle;
+	width: 100%;
+}
+/**
+ * Image grid settings END
+ **/

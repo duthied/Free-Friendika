@@ -28,7 +28,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Model\Tag;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -3003,6 +3002,7 @@ class Item
 		$a = DI::app();
 		Hook::callAll('prepare_body_init', $item);
 
+
 		// In order to provide theme developers more possibilities, event items
 		// are treated differently.
 		if ($item['object-type'] === Activity\ObjectType::EVENT && isset($item['event-id'])) {
@@ -3061,6 +3061,7 @@ class Item
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
 
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
+
 		self::putInCache($item);
 		$item['body'] = $body;
 		$s = $item["rendered-html"];
@@ -3095,6 +3096,7 @@ class Item
 		];
 		Hook::callAll('prepare_body', $hook_data);
 		$s = $hook_data['html'];
+		
 		unset($hook_data);
 
 		if (!$attach) {
@@ -3134,8 +3136,129 @@ class Item
 
 		$hook_data = ['item' => $item, 'html' => $s];
 		Hook::callAll('prepare_body_final', $hook_data);
-
 		return $hook_data['html'];
+	}
+
+	/**
+	 * @param array $images
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
+	 */
+	public static function makeImageGrid(array $images): string
+	{
+		$landscapeimages = array();
+		$portraitimages = array();
+
+		foreach ($images as $image) {
+			($image['attachment']['width'] > $image['attachment']['height']) ? ($landscapeimages[] = $image) : ($portraitimages[] = $image);
+		}
+
+		// Image for first column (fc) and second column (sc)
+		$images_fc = array();
+		$images_sc = array();
+		$lcount = count($landscapeimages);
+		$pcount = count($portraitimages);
+		if ($lcount == 0 || $pcount == 0) {
+			if ($lcount == 0) {
+				// only portrait
+				for ($i = 0; $i < $pcount; $i++) {
+					($i % 2 == 0) ? ($images_fc[] = $portraitimages[$i]) : ($images_sc[] = $portraitimages[$i]);
+				}
+			}
+			if ($pcount == 0) {
+				// ony landscapes
+				for ($i = 0; $i < $lcount; $i++) {
+					($i % 2 == 0) ? ($images_fc[] = $landscapeimages[$i]) : ($images_sc[] = $landscapeimages[$i]);
+				}
+			}
+		} else {
+			// Mix of landscape and portrait images.
+			if ($lcount == $pcount) {
+				// equal amount of landscapes and portraits
+				for ($l = 0; $l < $lcount; $l++) {
+					if ($l % 2 == 0) {
+						$images_fc[] = $landscapeimages[$l];
+						$images_fc[] = $portraitimages[$l];
+					} else {
+						$images_sc[] = $portraitimages[$l];
+						$images_sc[] = $landscapeimages[$l];
+					}
+				}
+			}
+			if ($lcount > $pcount) {
+				// More landscapes than portraits
+				$p = 0;
+				$l = 0;
+				while ($l < $lcount) {
+					if (($lcount > $l + 1) && ($pcount > $l)) {
+						// we have one more landscape that can be used for the l-th portrait
+						$images_fc[] = $landscapeimages[$l++];
+					}
+					$images_fc[] = $landscapeimages[$l++];
+					if ($pcount > $p) {
+						$images_sc[] = $portraitimages[$p++];
+					}
+
+				}
+			}
+			if ($lcount < $pcount) {
+				// More  portraits than landscapes
+				if ($lcount % 2 == 0 && $pcount % 2 == 0) {
+					/*
+					 * even number of landscapes and portraits, but fewer landscapes than portraits. Iterate to the end
+					 * of landscapes array
+					 */
+					$i = 0;
+					while ($i < $lcount) {
+						if ($i % 2 == 0) {
+							$images_fc[] = $landscapeimages[$i];
+							$images_fc[] = $portraitimages[$i];
+						} else {
+							$images_sc[] = $portraitimages[$i];
+							$images_sc[] = $landscapeimages[$i];
+						}
+						$i++;
+					}
+					// Rest portraits
+					while ($i < $pcount) {
+						if ($i % 2 == 0) {
+							$images_fc[] = $portraitimages[$i];
+						} else {
+							$images_sc[] = $portraitimages[$i];
+						}
+						$i++;
+					}
+
+				}
+				if ($lcount % 2 != 0 && $pcount % 2 == 0) {
+					// uneven landscapes count even portraits count.
+					for ($p = 0; $p < $pcount; $p++) {
+						// --> First all portraits until
+						if ($p % 2 == 0) {
+							$images_fc[] = $portraitimages[$p];
+						} else {
+							$images_sc[] = $portraitimages[$p];
+						}
+					}
+					// and now the (uneven) landscapes
+					for ($l = 0; $l < $lcount; $l++) {
+						// --> First all portraits until
+						if ($l % 2 == 0) {
+							$images_fc[] = $landscapeimages[$l];
+						} else {
+							$images_sc[] = $landscapeimages[$l];
+						}
+					}
+				}
+			}
+		}
+
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
+			'columns' => [
+				'fc' => $images_fc,
+				'sc' => $images_sc,
+			],
+		]);
 	}
 
 	/**
@@ -3289,16 +3412,21 @@ class Item
 			}
 		}
 
-		foreach ($images as $image) {
-			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
-				'$image' => $image,
+		$media = '';
+		if (count($images) > 1) {
+			$media = self::makeImageGrid($images);
+		}
+		elseif (count($images) == 1) {
+			$media = $media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
+				'$image' => $images[0],
 			]);
-			// On Diaspora posts the attached pictures are leading
-			if ($item['network'] == Protocol::DIASPORA) {
-				$leading .= $media;
-			} else {
-				$trailing .= $media;
-			}
+		}
+
+		// On Diaspora posts the attached pictures are leading
+		if ($item['network'] == Protocol::DIASPORA) {
+			$leading .= $media;
+		} else {
+			$trailing .= $media;
 		}
 
 		if ($shared) {
