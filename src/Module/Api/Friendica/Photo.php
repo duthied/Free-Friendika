@@ -54,7 +54,7 @@ class Photo extends BaseApi
 			throw new HTTPException\BadRequestException('No photo id.');
 		}
 
-		$scale    = (!empty($request['scale']) ? intval($request['scale']) : false);
+		$scale    = (!empty($request['scale']) ? intval($request['scale']) : null);
 		$photo_id = $request['photo_id'];
 
 		// prepare json/xml output with data from database for the requested photo
