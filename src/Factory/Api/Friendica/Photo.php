@@ -57,14 +57,14 @@ class Photo extends BaseFactory
 	 * @param string $type
 	 * @return Array
 	 */
-	public function createFromId(string $photo_id, int $scale = null, int $uid, string $type = 'json', bool $with_posts = true): array
+	public function createFromId(string $photo_id, int $scale, int $uid, string $type = 'json', bool $with_posts = true): array
 	{
 		$fields = ['resource-id', 'created', 'edited', 'title', 'desc', 'album', 'filename','type',
 			'height', 'width', 'datasize', 'profile', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid',
 			'backend-class', 'backend-ref', 'id', 'scale'];
 
 		$condition = ['uid' => $uid, 'resource-id' => $photo_id];
-		if (is_int($scale)) {
+		if ($scale >= 0) {
 			$fields = array_merge(['data'], $fields);
 
 			$condition['scale'] = $scale;
