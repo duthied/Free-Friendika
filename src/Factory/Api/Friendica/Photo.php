@@ -64,7 +64,7 @@ class Photo extends BaseFactory
 			'backend-class', 'backend-ref', 'id', 'scale'];
 
 		$condition = ['uid' => $uid, 'resource-id' => $photo_id];
-		if (intval($scale)) {
+		if (is_int($scale)) {
 			$fields = array_merge(['data'], $fields);
 
 			$condition['scale'] = $scale;
