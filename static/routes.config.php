@@ -93,6 +93,7 @@ $apiRoutes = [
 		'/group_delete[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Group\Delete::class,           [        R::POST]],
 		'/group_update[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Group\Update::class,           [        R::POST]],
 		'/profile/show[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Profile\Show::class,           [R::GET         ]],
+		'/photoalbums[.{extension:json|xml|rss|atom}]'             => [Module\Api\Friendica\Photoalbum\Index::class,       [R::GET         ]],
 		'/photoalbum/delete[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Photoalbum\Delete::class,      [        R::POST]],
 		'/photoalbum/update[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Photoalbum\Update::class,      [        R::POST]],
 		'/photos/list[.{extension:json|xml|rss|atom}]'             => [Module\Api\Friendica\Photo\Lists::class,            [R::GET         ]],
