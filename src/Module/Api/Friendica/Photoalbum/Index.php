@@ -26,7 +26,7 @@ use Friendica\Model\Photo;
 use Friendica\Module\BaseApi;
 
 /**
- * api/friendica/photoalbums
+ * api/friendica/photoalbum
  *
  * @package  Friendica\Module\Api\Friendica\Photoalbum
  */
