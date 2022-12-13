@@ -3096,7 +3096,7 @@ class Item
 		];
 		Hook::callAll('prepare_body', $hook_data);
 		$s = $hook_data['html'];
-		
+
 		unset($hook_data);
 
 		if (!$attach) {
@@ -3146,18 +3146,18 @@ class Item
 	 */
 	public static function makeImageGrid(array $images): string
 	{
-		$landscapeimages = array();
-		$portraitimages = array();
+		$landscapeimages = [];
+		$portraitimages  = [];
 
 		foreach ($images as $image) {
 			($image['attachment']['width'] > $image['attachment']['height']) ? ($landscapeimages[] = $image) : ($portraitimages[] = $image);
 		}
 
 		// Image for first column (fc) and second column (sc)
-		$images_fc = array();
-		$images_sc = array();
-		$lcount = count($landscapeimages);
-		$pcount = count($portraitimages);
+		$images_fc = [];
+		$images_sc = [];
+		$lcount    = count($landscapeimages);
+		$pcount    = count($portraitimages);
 		if ($lcount == 0 || $pcount == 0) {
 			if ($lcount == 0) {
 				// only portrait
@@ -3424,9 +3424,8 @@ class Item
 		$media = '';
 		if (count($images) > 1) {
 			$media = self::makeImageGrid($images);
-		}
-		elseif (count($images) == 1) {
-			$media = $media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
+		} elseif (count($images) == 1) {
+			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
 				'$image' => $images[0],
 			]);
 		}
