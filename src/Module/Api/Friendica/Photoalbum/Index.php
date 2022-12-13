@@ -42,9 +42,9 @@ class Index extends BaseApi
 		$items = [];
 		foreach ($albums as $album) {
 			$items[] = [
-				'name'         => $album['album'],
-				'created'      => $album['created'],
-				'count'        => $album['total'],
+				'name'    => $album['album'],
+				'created' => $album['created'],
+				'count'   => $album['total'],
 			];
 		}
 
