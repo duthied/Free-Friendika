@@ -60,7 +60,7 @@ class Delete extends BaseApi
 			// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
 			$condition = ['uid' => $uid, 'resource-id' => $request['photo_id'], 'post-type' => Item::PT_IMAGE, 'origin' => true];
 			Item::deleteForUser($condition, $uid);
-
+			Photo::clearAlbumCache($uid);
 			$result = ['result' => 'deleted', 'message' => 'photo with id `' . $request['photo_id'] . '` has been deleted from server.'];
 			$this->response->exit('photo_delete', ['$result' => $result], $this->parameters['extension'] ?? null);
 		} else {

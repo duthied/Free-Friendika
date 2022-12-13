@@ -66,6 +66,7 @@ class Delete extends BaseApi
 
 		// return success of deletion or error message
 		if ($result) {
+			Photo::clearAlbumCache($uid);
 			$answer = ['result' => 'deleted', 'message' => 'album `' . $request['album'] . '` with all containing photos has been deleted.'];
 			$this->response->exit('photoalbum_delete', ['$result' => $answer], $this->parameters['extension'] ?? null);
 		} else {

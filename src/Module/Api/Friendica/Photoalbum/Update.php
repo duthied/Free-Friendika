@@ -58,6 +58,7 @@ class Update extends BaseApi
 
 		// return success of updating or error message
 		if ($result) {
+			Photo::clearAlbumCache($uid);
 			$answer = ['result' => 'updated', 'message' => 'album `' . $request['album'] . '` with all containing photos has been renamed to `' . $request['album_new'] . '`.'];
 			$this->response->exit('photoalbum_update', ['$result' => $answer], $this->parameters['extension'] ?? null);
 		} else {
