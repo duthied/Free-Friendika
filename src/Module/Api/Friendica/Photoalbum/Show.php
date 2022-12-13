@@ -90,20 +90,18 @@ class Show extends BaseApi
 		$photos = Photo::selectToArray(['resource-id'], $condition, $params);
 
 		$data = ['photo' => []];
-		if (DBA::isResult($photos)) {
-			foreach ($photos as $photo) {
-				$element = $this->friendicaPhoto->createFromId($photo['resource-id'], null, $uid, 'json', false);
+		foreach ($photos as $photo) {
+			$element = $this->friendicaPhoto->createFromId($photo['resource-id'], null, $uid, 'json', false);
 
-				$element['thumb'] = end($element['link']);
-				unset($element['link']);
+			$element['thumb'] = end($element['link']);
+			unset($element['link']);
 
-				if ($type == 'xml') {
-					$thumb = $element['thumb'];
-					unset($element['thumb']);
-					$data['photo'][] = ['@attributes' => $element, '1' => $thumb];
-				} else {
-					$data['photo'][] = $element;
-				}
+			if ($type == 'xml') {
+				$thumb = $element['thumb'];
+				unset($element['thumb']);
+				$data['photo'][] = ['@attributes' => $element, '1' => $thumb];
+			} else {
+				$data['photo'][] = $element;
 			}
 		}
 
