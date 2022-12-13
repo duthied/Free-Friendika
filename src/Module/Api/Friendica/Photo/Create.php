@@ -88,6 +88,7 @@ class Create extends BaseApi
 
 		// return success of updating or error message
 		if (!empty($photo)) {
+			Photo::clearAlbumCache($uid);
 			$data = ['photo' => $this->friendicaPhoto->createFromId($photo['resource_id'], null, $uid, $type)];
 			$this->response->exit('photo_create', $data, $this->parameters['extension'] ?? null);
 		} else {
