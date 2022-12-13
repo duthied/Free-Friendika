@@ -60,15 +60,17 @@ class Show extends BaseApi
 			'album'           => '',    // Get pictures in this album
 			'offset'          => 0,     // Return results offset by this value
 			'limit'           => 50,    // Maximum number of results to return. Defaults to 50. Max 500
+			'latest_first'    => false, // Whether to reverse the order so newest are first
 		], $request);
 		if (empty($request['album'])) {
 			throw new HTTPException\BadRequestException('No album name specified.');
 		}
 
 
+		$orderDescending = $request['latest_first'];
 		$album = $request['album'];
 		$condition = ["`uid` = ? AND `album` = ?", $uid, $album];
-		$params = ['order' => ['id'], 'group_by' => ['resource-id']];
+		$params = ['order' => ['id' => $orderDescending], 'group_by' => ['resource-id']];
 
 		//'limit' => [$request['offset'], $request['limit']]
 		$limit = $request['limit'];
