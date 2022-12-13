@@ -68,9 +68,9 @@ class Show extends BaseApi
 		}
 
 		$orderDescending = $request['latest_first'];
-		$album = $request['album'];
-		$condition = ["`uid` = ? AND `album` = ?", $uid, $album];
-		$params = ['order' => ['id' => $orderDescending], 'group_by' => ['resource-id']];
+		$album           = $request['album'];
+		$condition       = ["`uid` = ? AND `album` = ?", $uid, $album];
+		$params          = ['order' => ['id' => $orderDescending], 'group_by' => ['resource-id']];
 
 		$limit = $request['limit'];
 		if ($limit > 500) {
