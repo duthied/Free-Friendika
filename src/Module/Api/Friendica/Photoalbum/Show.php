@@ -82,7 +82,7 @@ class Show extends BaseApi
 			$limit = 1;
 		}
 
-		if(!empty($request['offset'])) {
+		if (!empty($request['offset'])) {
 			$params['limit'] = [$request['offset'], $limit];
 		} else {
 			$params['limit'] = $limit;
