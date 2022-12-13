@@ -117,7 +117,8 @@ class Status extends BaseFactory
 			'deleted'       => false
 		]) + Post::countPosts([
 			'quote-uri-id' => $uriId,
-			'deleted'       => false
+			'body'         => '',
+			'deleted'      => false
 		]);
 
 		$count_like = Post::countPosts([
@@ -152,6 +153,7 @@ class Status extends BaseFactory
 			'quote-uri-id' => $uriId,
 			'uid'           => $uid,
 			'origin'        => true,
+			'body'          => '',
 			'deleted'       => false
 		]);
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(

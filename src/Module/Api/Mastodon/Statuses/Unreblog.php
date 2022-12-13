@@ -50,7 +50,7 @@ class Unreblog extends BaseApi
 		}
 
 		if ($item['network'] == Protocol::DIASPORA) {
-			$item = Post::selectFirstForUser($uid, ['id'], ['quote-uri-id' => $this->parameters['id'], 'origin' => true, 'uid' => $uid]);
+			$item = Post::selectFirstForUser($uid, ['id'], ['quote-uri-id' => $this->parameters['id'], 'body' => '', 'origin' => true, 'uid' => $uid]);
 			if (empty($item['id'])) {
 				DI::mstdnError()->RecordNotFound();
 			}

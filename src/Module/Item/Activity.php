@@ -53,7 +53,7 @@ class Activity extends BaseModule
 		if (in_array($verb, ['announce', 'unannounce'])) {
 			$item = Post::selectFirst(['network', 'uri-id'], ['id' => $itemId, 'uid' => [DI::userSession()->getLocalUserId(), 0]]);
 			if ($item['network'] == Protocol::DIASPORA) {
-				$quote = Post::selectFirst(['id'], ['quote-uri-id' => $item['uri-id'], 'origin' => true, 'uid' => DI::userSession()->getLocalUserId()]);
+				$quote = Post::selectFirst(['id'], ['quote-uri-id' => $item['uri-id'], 'body' => '', 'origin' => true, 'uid' => DI::userSession()->getLocalUserId()]);
 				if (!empty($quote['id'])) {
 					if (!Item::markForDeletionById($quote['id'])) {
 						throw new HTTPException\BadRequestException();

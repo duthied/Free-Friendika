@@ -1020,7 +1020,7 @@ class Conversation
 
 		DBA::close($thread_items);
 
-		$quotes = Post::select(array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), ['quote-uri-id' => array_column($quoteuriids, 'uri-id'), 'uid' => 0]);
+		$quotes = Post::select(array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), ['quote-uri-id' => array_column($quoteuriids, 'uri-id'), 'body' => '', 'uid' => 0]);
 		while ($quote = Post::fetch($quotes)) {
 			$row = $quote;
 
