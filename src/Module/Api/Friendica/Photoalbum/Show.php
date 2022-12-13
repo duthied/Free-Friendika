@@ -54,13 +54,13 @@ class Show extends BaseApi
 	protected function rawContent(array $request = [])
 	{
 		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
-		$uid = BaseApi::getCurrentUserID();
-		$type = $this->getRequestValue($this->parameters, 'extension', 'json');
+		$uid     = BaseApi::getCurrentUserID();
+		$type    = $this->getRequestValue($this->parameters, 'extension', 'json');
 		$request = $this->getRequest([
-			'album'           => '',    // Get pictures in this album
-			'offset'          => 0,     // Return results offset by this value
-			'limit'           => 50,    // Maximum number of results to return. Defaults to 50. Max 500
-			'latest_first'    => false, // Whether to reverse the order so newest are first
+			'album'        => '',    // Get pictures in this album
+			'offset'       => 0,     // Return results offset by this value
+			'limit'        => 50,    // Maximum number of results to return. Defaults to 50. Max 500
+			'latest_first' => false, // Whether to reverse the order so newest are first
 		], $request);
 
 		if (empty($request['album'])) {
