@@ -2286,65 +2286,6 @@ class Diaspora
 	}
 
 	/**
-	 * Stores a reshare activity
-	 *
-	 * @param array        $item              Array of reshare post
-	 * @param integer      $parent_message_id Id of the parent post
-	 * @param string       $guid              GUID string of reshare action
-	 * @param WebFingerUri $author            Author handle
-	 * @return false|void
-	 * @throws InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	private static function addReshareActivity(array $item, int $parent_message_id, string $guid, WebFingerUri $author)
-	{
-		$parent = Post::selectFirst(['uri', 'guid'], ['id' => $parent_message_id]);
-
-		$datarray = [];
-
-		$datarray['uid'] = $item['uid'];
-		$datarray['contact-id'] = $item['contact-id'];
-		$datarray['network'] = $item['network'];
-
-		$datarray['author-link'] = $item['author-link'];
-		$datarray['author-id'] = $item['author-id'];
-
-		$datarray['owner-link'] = $datarray['author-link'];
-		$datarray['owner-id'] = $datarray['author-id'];
-
-		$datarray['guid'] = $parent['guid'] . '-' . $guid;
-		$datarray['uri'] = self::getUriFromGuid($datarray['guid'], $author);
-		$datarray['thr-parent'] = $parent['uri'];
-
-		$datarray['verb'] = $datarray['body'] = Activity::ANNOUNCE;
-		$datarray['gravity'] = Item::GRAVITY_ACTIVITY;
-		$datarray['object-type'] = Activity\ObjectType::NOTE;
-
-		$datarray['protocol'] = $item['protocol'];
-		$datarray['source'] = $item['source'];
-		$datarray['direction'] = $item['direction'];
-		$datarray['post-reason'] = $item['post-reason'];
-
-		$datarray['plink'] = self::plink($author, $datarray['guid']);
-		$datarray['private'] = $item['private'];
-		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = $item['created'];
-
-		if (Item::isTooOld($datarray)) {
-			Logger::info('Reshare activity is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
-			return false;
-		}
-
-		$message_id = Item::insert($datarray);
-
-		if ($message_id) {
-			Logger::info('Stored reshare activity.', ['guid' => $guid, 'id' => $message_id]);
-			if ($datarray['uid'] == 0) {
-				Item::distribute($message_id);
-			}
-		}
-	}
-
-	/**
 	 * Processes a reshare message
 	 *
 	 * @param array  $importer  Array of the importer user
@@ -2435,11 +2376,6 @@ class Diaspora
 		$message_id = Item::insert($datarray);
 
 		self::sendParticipation($contact, $datarray);
-
-		$root_message_id = self::messageExists($importer['uid'], $root_guid);
-		if ($root_message_id) {
-			self::addReshareActivity($datarray, $root_message_id, $guid, $author);
-		}
 
 		if ($message_id) {
 			Logger::info('Stored reshare ' . $datarray['guid'] . ' with message id ' . $message_id);
