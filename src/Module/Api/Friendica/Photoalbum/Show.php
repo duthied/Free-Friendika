@@ -23,7 +23,6 @@ namespace Friendica\Module\Api\Friendica\Photoalbum;
 
 use Friendica\App;
 use Friendica\Core\L10n;
-use Friendica\Database\DBA;
 use Friendica\Factory\Api\Friendica\Photo as FriendicaPhoto;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo;
