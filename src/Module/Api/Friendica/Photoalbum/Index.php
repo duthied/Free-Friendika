@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Friendica\Photoalbum;
 
-use Friendica\Database\DBA;
 use Friendica\Model\Photo;
 use Friendica\Module\BaseApi;
 
