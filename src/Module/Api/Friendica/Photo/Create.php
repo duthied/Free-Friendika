@@ -64,8 +64,8 @@ class Create extends BaseApi
 
 		// do several checks on input parameters
 		// we do not allow calls without album string
-		if ($album == null) {
-			throw new HTTPException\BadRequestException('no albumname specified');
+		if ($album === null) {
+			throw new HTTPException\BadRequestException('no album name specified');
 		}
 
 		// error if no media posted in create-mode
