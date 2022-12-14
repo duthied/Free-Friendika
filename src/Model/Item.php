@@ -3438,15 +3438,15 @@ class Item
 		}
 
 		if ($shared) {
-			$content = str_replace(BBCode::TOP_ANCHOR, '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . BBCode::TOP_ANCHOR, $content);
-			$content = str_replace(BBCode::BOTTOM_ANCHOR, '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>' . BBCode::BOTTOM_ANCHOR, $content);
+			$content = str_replace(BBCode::TOP_ANCHOR, '<div class="body-attach">' . $leading . '</div>' . BBCode::TOP_ANCHOR, $content);
+			$content = str_replace(BBCode::BOTTOM_ANCHOR, '<div class="body-attach">' . $trailing . '</div>' . BBCode::BOTTOM_ANCHOR, $content);
 		} else {
 			if ($leading != '') {
-				$content = '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . $content;
+				$content = '<div class="body-attach">' . $leading . '</div>' . $content;
 			}
 
 			if ($trailing != '') {
-				$content .= '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>';
+				$content .= '<div class="body-attach">' . $trailing . '</div>';
 			}
 		}
 
@@ -3606,7 +3606,7 @@ class Item
 		}
 
 		if ($trailing != '') {
-			$content .= '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>';
+			$content .= '<div class="body-attach">' . $trailing . '</div>';
 		}
 
 		DI::profiler()->stopRecording();
