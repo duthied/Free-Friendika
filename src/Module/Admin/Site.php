@@ -475,7 +475,7 @@ class Site extends BaseAdmin
 
 			'$maximagesize'     => ['maximagesize', DI::l10n()->t('Maximum image size'), DI::config()->get('system', 'maximagesize'), DI::l10n()->t('Maximum size in bytes of uploaded images. Default is 0, which means no limits. You can put k, m, or g behind the desired value for KiB, MiB, GiB, respectively.
 													The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit.
-													Currently <code>upload_max_filesize</code> is set to %s (%sB)', Strings::getBytesFromShorthand(ini_get('upload_max_filesize')), ini_get('upload_max_filesize')),
+													Currently <code>upload_max_filesize</code> is set to %s (%s byte)', Strings::formatBytes(Strings::getBytesFromShorthand(ini_get('upload_max_filesize'))), Strings::getBytesFromShorthand(ini_get('upload_max_filesize'))),
 													'', 'pattern="\d+(?:\s*[kmg])?"'],
 			'$maximagelength'   => ['maximagelength', DI::l10n()->t('Maximum image length'), DI::config()->get('system', 'max_image_length'), DI::l10n()->t('Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.')],
 			'$jpegimagequality' => ['jpegimagequality', DI::l10n()->t('JPEG image quality'), DI::config()->get('system', 'jpeg_quality'), DI::l10n()->t('Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.')],
