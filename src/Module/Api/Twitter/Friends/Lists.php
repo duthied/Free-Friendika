@@ -21,8 +21,8 @@
 
 namespace Friendica\Module\Api\Twitter\Friends;
 
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Module\Api\Twitter\ContactEndpoint;
 use Friendica\Module\BaseApi;
 
@@ -48,34 +48,63 @@ class Lists extends ContactEndpoint
 		$max_id   = $this->getRequestValue($request, 'max_id', 0, 0);
 		$min_id   = $this->getRequestValue($request, 'min_id', 0, 0);
 
-		$params = ['order' => ['cid' => true], 'limit' => $count];
+		if ($cid == Contact::getPublicIdByUserId($uid)) {
+			$params = ['order' => ['pid' => true], 'limit' => $count];
 
-		$condition = ['relation-cid' => $cid, 'follows' => true];
+			$condition = ['uid' => $uid, 'self' => false, 'pending' => false, 'rel' => [Contact::SHARING, Contact::FRIEND]];
+	
+			$total_count = (int)DBA::count('contact', $condition);
 
-		$total_count = (int)DBA::count('contact-relation', $condition);
+			if (!empty($max_id)) {
+				$condition = DBA::mergeConditions($condition, ["`pid` < ?", $max_id]);
+			}
+	
+			if (!empty($since_id)) {
+				$condition = DBA::mergeConditions($condition, ["`pid` > ?", $since_id]);
+			}
+	
+			if (!empty($min_id)) {
+				$condition = DBA::mergeConditions($condition, ["`pid` > ?", $min_id]);
+	
+				$params['order'] = ['pid'];
+			}
+	
+			$ids = [];
+	
+			foreach (Contact::selectAccountToArray(['pid'], $condition, $params) as $follower) {
+				self::setBoundaries($follower['pid']);
+				$ids[] = $follower['pid'];
+			}
+		} else {
+			$params = ['order' => ['cid' => true], 'limit' => $count];
 
-		if (!empty($max_id)) {
-			$condition = DBA::mergeConditions($condition, ["`cid` < ?", $max_id]);
+			$condition = ['relation-cid' => $cid, 'follows' => true];
+
+			$total_count = (int)DBA::count('contact-relation', $condition);
+
+			if (!empty($max_id)) {
+				$condition = DBA::mergeConditions($condition, ["`cid` < ?", $max_id]);
+			}
+
+			if (!empty($since_id)) {
+				$condition = DBA::mergeConditions($condition, ["`cid` > ?", $since_id]);
+			}
+
+			if (!empty($min_id)) {
+				$condition = DBA::mergeConditions($condition, ["`cid` > ?", $min_id]);
+
+				$params['order'] = ['cid'];
+			}
+
+			$ids = [];
+
+			$followers = DBA::select('contact-relation', ['cid'], $condition, $params);
+			while ($follower = DBA::fetch($followers)) {
+				self::setBoundaries($follower['cid']);
+				$ids[] = $follower['cid'];
+			}
+			DBA::close($followers);
 		}
-
-		if (!empty($since_id)) {
-			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $since_id]);
-		}
-
-		if (!empty($min_id)) {
-			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $min_id]);
-
-			$params['order'] = ['cid'];
-		}
-
-		$ids = [];
-
-		$followers = DBA::select('contact-relation', ['cid'], $condition, $params);
-		while ($follower = DBA::fetch($followers)) {
-			self::setBoundaries($follower['cid']);
-			$ids[] = $follower['cid'];
-		}
-		DBA::close($followers);
 
 		if (!empty($min_id)) {
 			$ids = array_reverse($ids);
@@ -83,7 +112,7 @@ class Lists extends ContactEndpoint
 
 		$return = self::list($ids, $total_count, $uid, $cursor, $count, $skip_status, $include_user_entities);
 
-		self::setLinkHeader();
+		$this->response->setHeader(self::getLinkHeader());	
 
 		$this->response->exit('lists', ['lists' => $return]);
 	}
