@@ -64,8 +64,8 @@ class Create extends BaseApi
 
 		// do several checks on input parameters
 		// we do not allow calls without album string
-		if ($album == null) {
-			throw new HTTPException\BadRequestException('no albumname specified');
+		if ($album === null) {
+			throw new HTTPException\BadRequestException('no album name specified');
 		}
 
 		// error if no media posted in create-mode
@@ -88,6 +88,7 @@ class Create extends BaseApi
 
 		// return success of updating or error message
 		if (!empty($photo)) {
+			Photo::clearAlbumCache($uid);
 			$data = ['photo' => $this->friendicaPhoto->createFromId($photo['resource_id'], null, $uid, $type)];
 			$this->response->exit('photo_create', $data, $this->parameters['extension'] ?? null);
 		} else {
