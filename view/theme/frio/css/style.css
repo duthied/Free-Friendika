@@ -2554,13 +2554,13 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 }
 #group-update-wrapper .viewcontact_wrapper .contact-group-actions {
 	height: 100%;
-	margin-top: -10px;
 	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 #group-update-wrapper .viewcontact_wrapper .contact-group-link {
 	opacity: 0.8;
 	font-size: 20px;
-	line-height: 50px;
 }
 #group-update-wrapper .viewcontact_wrapper .contact-action-link:hover {
 	opacity: 1;
