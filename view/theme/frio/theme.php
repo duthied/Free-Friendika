@@ -18,9 +18,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * Name: frio
- * Description: Bootstrap V3 theme. The theme is currently under construction, so it is far from finished. For further information have a look at the <a href="https://github.com/friendica/friendica/tree/develop/view/theme/frio/README.md">ReadMe</a>.
- * Version: V.0.8.5
+ * Description: Responsive theme based on a modern HTML/CSS/Javascript framework.
+ * Version: V.1.0
  * Author: Rabuzarus <https://friendica.kommune4.de/profile/rabuzarus>
+ * Maintainer: Hypolite Petovan <https://friendica.mrpetovan.com/profile/hypolite>
  */
 
 use Friendica\App;
