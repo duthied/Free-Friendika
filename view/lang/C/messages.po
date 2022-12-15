@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2022.12-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-14 23:18+0100\n"
+"POT-Creation-Date: 2022-12-14 21:56-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2201,6 +2201,12 @@ msgid ""
 "This content will be shown only to the people in the first box, to the "
 "exception of the people mentioned in the second box. It won't appear "
 "anywhere public."
+msgstr ""
+
+#: src/Core/ACL.php:323
+msgid ""
+"Start typing the name of a contact or a group to show a filtered list. You "
+"can also mention the special groups \"Followers\" and \"Mutuals\"."
 msgstr ""
 
 #: src/Core/ACL.php:324
