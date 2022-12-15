@@ -35,7 +35,7 @@ class ACL
 {
 	/**
 	 * Returns the default lock state for the given user id
-	 * @param int $uid 
+	 * @param int $uid
 	 * @return bool "true" if the default settings are non public
 	 */
 	public static function getLockstateForUserId(int $uid)
@@ -294,7 +294,7 @@ class ACL
 							!empty($mailacct['pubmail'])
 						]
 					];
-	
+
 				}
 			}
 			Hook::callAll('jot_networks', $jotnets_fields);
@@ -320,7 +320,7 @@ class ACL
 			'$public_title'   => DI::l10n()->t('Public'),
 			'$public_desc'    => DI::l10n()->t('This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'),
 			'$custom_title'   => DI::l10n()->t('Limited/Private'),
-			'$custom_desc'    => DI::l10n()->t('This content will be shown only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.'),
+			'$custom_desc'    => DI::l10n()->t('This content will be shown only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.') . DI::l10n()->t('Start typing the name of a contact or a group to show a filtered list. You can also mention the special groups "Followers" and "Mutuals".'),
 			'$allow_label'    => DI::l10n()->t('Show to:'),
 			'$deny_label'     => DI::l10n()->t('Except to:'),
 			'$emailcc'        => DI::l10n()->t('CC: email addresses'),
