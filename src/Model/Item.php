@@ -3144,122 +3144,14 @@ class Item
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
 	 */
-	public static function makeImageGrid(array $images): string
+	private static function makeImageGrid(array $images): string
 	{
-		$landscapeimages = [];
-		$portraitimages  = [];
-
-		foreach ($images as $image) {
-			($image['attachment']['width'] > $image['attachment']['height']) ? ($landscapeimages[] = $image) : ($portraitimages[] = $image);
-		}
-
 		// Image for first column (fc) and second column (sc)
 		$images_fc = [];
 		$images_sc = [];
-		$lcount    = count($landscapeimages);
-		$pcount    = count($portraitimages);
-		if ($lcount == 0 || $pcount == 0) {
-			if ($lcount == 0) {
-				// only portrait
-				for ($i = 0; $i < $pcount; $i++) {
-					($i % 2 == 0) ? ($images_fc[] = $portraitimages[$i]) : ($images_sc[] = $portraitimages[$i]);
-				}
-			}
-			if ($pcount == 0) {
-				// ony landscapes
-				for ($i = 0; $i < $lcount; $i++) {
-					($i % 2 == 0) ? ($images_fc[] = $landscapeimages[$i]) : ($images_sc[] = $landscapeimages[$i]);
-				}
-			}
-		} else {
-			// Mix of landscape and portrait images.
-			if ($lcount == $pcount) {
-				// equal amount of landscapes and portraits
-				if ($lcount == 1) {
-					// one left / one right
-					$images_fc[] = $landscapeimages[0];
-					$images_sc[] = $portraitimages[0];
-				} else {
-					// Distribute equal to both columns
-					for ($l = 0; $l < $lcount; $l++) {
-						if ($l % 2 == 0) {
-							// landscape left and portrait right for even numbers
-							$images_fc[] = $landscapeimages[$l];
-							$images_fc[] = $portraitimages[$l];
-						} else {
-							// portraits left and landscape right for odd numbers
-							$images_sc[] = $portraitimages[$l];
-							$images_sc[] = $landscapeimages[$l];
-						}
-					}
-				}
-			}
-			if ($lcount > $pcount) {
-				// More landscapes than portraits
-				$p = 0;
-				$l = 0;
-				while ($l < $lcount) {
-					if (($lcount > $l + 1) && ($pcount > $l)) {
-						// we have one more landscape that can be used for the l-th portrait
-						$images_fc[] = $landscapeimages[$l++];
-					}
-					$images_fc[] = $landscapeimages[$l++];
-					if ($pcount > $p) {
-						$images_sc[] = $portraitimages[$p++];
-					}
 
-				}
-			}
-			if ($lcount < $pcount) {
-				// More  portraits than landscapes
-				if ($lcount % 2 == 0 && $pcount % 2 == 0) {
-					/*
-					 * even number of landscapes and portraits, but fewer landscapes than portraits. Iterate to the end
-					 * of landscapes array
-					 */
-					$i = 0;
-					while ($i < $lcount) {
-						if ($i % 2 == 0) {
-							$images_fc[] = $landscapeimages[$i];
-							$images_fc[] = $portraitimages[$i];
-						} else {
-							$images_sc[] = $portraitimages[$i];
-							$images_sc[] = $landscapeimages[$i];
-						}
-						$i++;
-					}
-					// Rest portraits
-					while ($i < $pcount) {
-						if ($i % 2 == 0) {
-							$images_fc[] = $portraitimages[$i];
-						} else {
-							$images_sc[] = $portraitimages[$i];
-						}
-						$i++;
-					}
-
-				}
-				if ($lcount % 2 != 0 && $pcount % 2 == 0) {
-					// uneven landscapes count even portraits count.
-					for ($p = 0; $p < $pcount; $p++) {
-						// --> First all portraits until
-						if ($p % 2 == 0) {
-							$images_fc[] = $portraitimages[$p];
-						} else {
-							$images_sc[] = $portraitimages[$p];
-						}
-					}
-					// and now the (uneven) landscapes
-					for ($l = 0; $l < $lcount; $l++) {
-						// --> First all portraits until
-						if ($l % 2 == 0) {
-							$images_fc[] = $landscapeimages[$l];
-						} else {
-							$images_sc[] = $landscapeimages[$l];
-						}
-					}
-				}
-			}
+		for ($i = 0; $i < count($images); $i++) {
+			($i % 2 == 0) ? ($images_fc[] = $images[$i]) : ($images_sc[] = $images[$i]);
 		}
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
@@ -3269,6 +3161,7 @@ class Item
 			],
 		]);
 	}
+	
 
 	/**
 	 * Check if the body contains a link
