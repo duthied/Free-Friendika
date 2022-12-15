@@ -116,8 +116,8 @@ class Ping extends BaseModule
 		$birthday_count       = 0;
 		$today_birthday_count = 0;
 
-
-		if ($this->session->getLocalUserId()) {
+		// Suppress notification display for forum accounts
+		if ($this->session->getLocalUserId() && $this->session->get('page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {
 			if ($this->pconfig->get($this->session->getLocalUserId(), 'system', 'detailed_notif')) {
 				$notifications = $this->notificationRepo->selectDetailedForUser($this->session->getLocalUserId());
 			} else {
