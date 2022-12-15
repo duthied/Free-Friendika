@@ -191,7 +191,7 @@ class Contact extends BaseModule
 		$rel_widget = Widget::contactRels($_SERVER['REQUEST_URI'], $rel);
 		$groups_widget = Widget::groups($_SERVER['REQUEST_URI'], $group);
 
-		DI::page()['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $account_widget . $groups_widget . $networks_widget . $rel_widget;
+		DI::page()['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $rel_widget . $groups_widget . $networks_widget . $account_widget;
 
 		$tpl = Renderer::getMarkupTemplate('contacts-head.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
