@@ -191,7 +191,7 @@ code</code></td>
       You should not read any further if you want to be surprised.<br>
       <span id="spoiler-wrap-0716e642" class="spoiler-wrap fakelink" onclick="openClose('spoiler-0716e642');">Click to open/close</span>
       <blockquote class="spoiler" id="spoiler-0716e642" style="display: none;">There is a happy end.</blockquote>
-      <div class="body-attach"><div class="clear"></div></div>
+      <div class="body-attach"></div>
     </div>
   </td>
 </tr>
@@ -202,7 +202,7 @@ code</code></td>
       <strong class="spoiler">Author wrote:</strong><br>
       <span id="spoiler-wrap-a893765a" class="spoiler-wrap fakelink" onclick="openClose('spoiler-a893765a');">Click to open/close</span>
       <blockquote class="spoiler" id="spoiler-a893765a" style="display: none;">Spoiler quote</blockquote>
-      <div class="body-attach"><div class="clear"></div></div>
+      <div class="body-attach"></div>
     </div>
   </td>
 </tr>
