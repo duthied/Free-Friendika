@@ -1260,7 +1260,7 @@ aside .vcard #wallmessage-link {
 	color: $font_color;
 	font-size: 12px;
 }
-.network-content-wrapper > #viewcontact_wrapper-network,
+.network-content-wrapper > .generic-page-wrapper,
 #nav-short-info .contact-wrapper .contact-photo-overlay,
 #nav-short-info .contact-wrapper .contact-actions {
 	display: none;
