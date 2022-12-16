@@ -31,6 +31,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\Theme;
 use Friendica\Model\Event;
+use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Response;
@@ -68,7 +69,7 @@ class Show extends BaseModule
 			throw new HTTPException\UnauthorizedException();
 		}
 
-		$owner = User::getOwnerDataByNick($nickname);
+		$owner = Profile::load($this->app, $nickname, false);
 		if (!$owner || $owner['account_expired'] || $owner['account_removed']) {
 			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
@@ -102,8 +103,9 @@ class Show extends BaseModule
 
 		Nav::setSelected($is_owner ? 'home' : 'calendar');
 
-		if (!$is_owner) {
-			$this->page['aside'] .= Widget\VCard::getHTML($owner);
+		if ($is_owner) {
+			// Removing the vCard added by Profile::load for owners
+			$this->page['aside'] = '';
 		}
 
 		$this->page['aside'] .= Widget\CalendarExport::getHTML($owner['uid']);
