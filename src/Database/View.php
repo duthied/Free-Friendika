@@ -49,7 +49,8 @@ class View
 			}
 		}
 
-		$definition = DI::viewDefinition()->getAll();
+		// just for Create purpose, reload the view definition with addons to explicit get the whole definition
+		$definition = DI::viewDefinition()->load(true)->getAll();
 
 		foreach ($definition as $name => $structure) {
 			if (self::isView($name)) {
