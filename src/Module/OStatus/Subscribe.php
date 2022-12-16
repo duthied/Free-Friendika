@@ -142,7 +142,7 @@ class Subscribe extends \Friendica\BaseModule
 		$o .= '<p>' . $counter . '/' . $total . ': ' . $url;
 
 		$probed = Contact::getByURL($url);
-		if (in_array($probed['network'], Protocol::FEDERATED)) {
+		if (!empty($probed['network']) && in_array($probed['network'], Protocol::FEDERATED)) {
 			$result = Contact::createFromProbeForUser($this->session->getLocalUserId(), $probed['url']);
 			if ($result['success']) {
 				$o .= ' - ' . $this->t('success');
