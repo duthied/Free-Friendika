@@ -25,7 +25,7 @@ use Friendica\BaseEntity;
 
 /**
  * @property-read int $uid
- * @property-read int $cid
+ * @property-read int $cid Either a public contact id (DFRN suggestion) or user-specific id (Contact::addRelationship)
  * @property-read int|null $sid
  * @property-read bool $knowyou
  * @property-read string $note
