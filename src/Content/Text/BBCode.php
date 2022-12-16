@@ -2599,7 +2599,7 @@ class BBCode
 		// Bypass attachment if parse url for a comment
 		if (!$tryAttachment) {
 			DI::profiler()->stopRecording();
-			return "\n" . '[url=' . $url . ']' . $siteinfo['title'] . '[/url]';
+			return "\n" . '[url=' . $url . ']' . ($siteinfo['title'] ?? $url) . '[/url]';
 		}
 
 		// Format it as BBCode attachment
