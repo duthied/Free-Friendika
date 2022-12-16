@@ -377,7 +377,7 @@ class Photo extends BaseModule
 						$url = Contact::getDefaultAvatar($contact ?: [], Proxy::SIZE_SMALL);
 					}
 				}
-				return MPhoto::createPhotoForExternalResource($url, 0, $mimetext, $contact['blurhash'], $customsize, $customsize);
+				return MPhoto::createPhotoForExternalResource($url, 0, $mimetext, $contact['blurhash'] ?? null, $customsize, $customsize);
 			case 'header':
 				$fields = ['uid', 'url', 'header', 'network', 'gsid'];
 				$contact = Contact::getById($id, $fields);
