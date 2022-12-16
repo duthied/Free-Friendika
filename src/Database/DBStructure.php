@@ -249,7 +249,8 @@ class DBStructure
 
 		// Get the definition
 		if (is_null($definition)) {
-			$definition = DI::dbaDefinition()->getAll();
+			// just for Update purpose, reload the DBA definition with addons to explicit get the whole definition
+			$definition = DI::dbaDefinition()->load(true)->getAll();
 		}
 
 		// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
