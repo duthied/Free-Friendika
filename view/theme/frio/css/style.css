@@ -1556,11 +1556,11 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
 }
 .fbrowser .fbrowser-content-container {
 	overflow-y: auto;
-	max-height: calc(100vh - 175px);
+	max-height: calc(100vh - 233px);
 }
 @media (min-width: 768px) {
 	.fbrowser .fbrowser-content-container {
-		max-height: calc(100vh - 220px);
+		max-height: calc(100vh - 277px);
 	}
 }
 .fbrowser.photo .photo-album-image-wrapper {
