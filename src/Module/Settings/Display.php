@@ -51,6 +51,7 @@ class Display extends BaseSettings
 		$mobile_theme           = !empty($_POST['mobile_theme'])           ? trim($_POST['mobile_theme'])         : '';
 		$enable_smile           = !empty($_POST['enable_smile'])           ? intval($_POST['enable_smile'])       : 0;
 		$first_day_of_week      = !empty($_POST['first_day_of_week'])      ? intval($_POST['first_day_of_week'])  : 0;
+		$calendar_default_view  = !empty($_POST['calendar_default_view'])  ? trim($_POST['calendar_default_view']): 'month';
 		$infinite_scroll        = !empty($_POST['infinite_scroll'])        ? intval($_POST['infinite_scroll'])    : 0;
 		$no_auto_update         = !empty($_POST['no_auto_update'])         ? intval($_POST['no_auto_update'])     : 0;
 		$enable_smart_threading = !empty($_POST['enable_smart_threading']) ? intval($_POST['enable_smart_threading']) : 0;
@@ -93,8 +94,10 @@ class Display extends BaseSettings
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'hide_dislike'            , !$enable_dislike);
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'display_resharer'        , $display_resharer);
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'stay_local'              , $stay_local);
-		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'first_day_of_week'       , $first_day_of_week);
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'preview_mode'            , $preview_mode);
+
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'calendar', 'first_day_of_week'     , $first_day_of_week);
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'calendar', 'default_view'           , $calendar_default_view);
 
 		if (in_array($theme, Theme::getAllowedList())) {
 			if ($theme == $user['theme']) {
@@ -199,6 +202,14 @@ class Display extends BaseSettings
 			BBCode::PREVIEW_LARGE    => DI::l10n()->t('Large Image'),
 		];
 
+		$calendar_default_view = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'calendar', 'default_view', 'month');
+		$calendarViews = [
+			'month'      => DI::l10n()->t('month'),
+			'agendaWeek' => DI::l10n()->t('week'),
+			'agendaDay'  => DI::l10n()->t('day'),
+			'listMonth'  => DI::l10n()->t('list')
+		];
+
 		$theme_config = '';
 		if ($themeconfigfile = Theme::getConfigFile($theme_selected)) {
 			require_once $themeconfigfile;
@@ -235,7 +246,8 @@ class Display extends BaseSettings
 			'$stay_local'               => ['stay_local'              , DI::l10n()->t('Stay local'), $stay_local, DI::l10n()->t("Don't go to a remote system when following a contact link.")],
 			'$preview_mode'             => ['preview_mode'            , DI::l10n()->t('Link preview mode'), $preview_mode, 'Appearance of the link preview that is added to each post with a link.', $preview_modes, false],
 
-			'$first_day_of_week' => ['first_day_of_week', DI::l10n()->t('Beginning of week:'), $first_day_of_week, '', $weekdays, false],
+			'$first_day_of_week'     => ['first_day_of_week'    , DI::l10n()->t('Beginning of week:')    , $first_day_of_week    , '', $weekdays     , false],
+			'$calendar_default_view' => ['calendar_default_view', DI::l10n()->t('Default calendar view:'), $calendar_default_view, '', $calendarViews, false],
 		]);
 
 		return $o;
