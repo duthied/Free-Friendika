@@ -143,7 +143,18 @@ class Contacts extends BaseModule
 
 		$tabs = self::getContactFilterTabs('contact/' . $cid, $type, true);
 
-		$contacts = array_map([Module\Contact::class, 'getContactTemplateVars'], $friends);
+		// Contact list is obtained from the visited contact, but the contact display is visitor dependent
+		$contacts = array_map(
+			function ($contact) {
+				$contact = Model\Contact::selectFirst(
+					[],
+					['uri-id' => $contact['uri-id'], 'uid' => [0, $this->userSession->getLocalUserId()]],
+					['order' => ['uid' => 'DESC']]
+				);
+				return Module\Contact::getContactTemplateVars($contact);
+			},
+			$friends
+		);
 
 		$tpl = Renderer::getMarkupTemplate('profile/contacts.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
