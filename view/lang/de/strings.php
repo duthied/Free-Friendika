@@ -545,6 +545,7 @@ $a->strings['Public'] = 'Öffentlich';
 $a->strings['This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'] = 'Dieser Inhalt wird all deine Abonenten sowie auf der Gemeinschaftsseite angezeigt. Außerdem kann ihn jeder sehen, der den Link kennt.';
 $a->strings['Limited/Private'] = 'Begrenzt/Privat';
 $a->strings['This content will be shown only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.'] = 'Dieser Inhalt wird außschließlich den Kontakten gezeigt, die du in der ersten Box ausgewählt hast, mit den Ausnahmen derer die du in der zweiten Box auflistest. Er wird nicht öffentlich zugänglich sein.';
+$a->strings['Start typing the name of a contact or a group to show a filtered list. You can also mention the special groups "Followers" and "Mutuals".'] = 'Fange an den Namen eines Kontakts oder einer Gruppe zu schreiben, diese werden dir dann in einer Liste angezeigt. Außerdem kannst du spezielle Gruppen wie "Folgende" oder "Beidseitige Freundschaft" verwenden.';
 $a->strings['Show to:'] = 'Sichtbar für:';
 $a->strings['Except to:'] = 'Ausgenommen:';
 $a->strings['CC: email addresses'] = 'Cc: E-Mail-Addressen';
@@ -1146,9 +1147,9 @@ $a->strings['Make this instance multi-user or single-user for the named user'] =
 $a->strings['Maximum image size'] = 'Maximale Bildgröße';
 $a->strings['Maximum size in bytes of uploaded images. Default is 0, which means no limits. You can put k, m, or g behind the desired value for KiB, MiB, GiB, respectively.
 													The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit.
-													Currently <code>upload_max_filesize</code> is set to %s (%sB)'] = 'Die maximale Größe von Bildern in Bytes. Grundeinstellung ist 0, welches keine Limitierung durch die Bildgröße bedeutet. Du kannst k, m oder g als Abkürzung hinter der Zahl angeben um KiB, MIB oder GiB zu definieren.
+													Currently <code>upload_max_filesize</code> is set to %s (%s byte)'] = 'Die maximale Größe von Bildern in Bytes. Grundeinstellung ist 0, welches keine Limitierung durch die Bildgröße bedeutet. Du kannst k, m oder g als Abkürzung hinter der Zahl angeben um KiB, MIB oder GiB zu definieren.
 													Der Wert der <code>1upload_max_filesize1</code> Variable in der <code>php.ini</code> Datei muss diesem Limit mindestens entsprechen.
-													Derzeit ist <code>3upload_max_filesize3</code> auf %s (%sB) gesetzt.';
+													Derzeit ist <code>3upload_max_filesize3</code> auf %s (%sByte) gesetzt.';
 $a->strings['Maximum image length'] = 'Maximale Bildlänge';
 $a->strings['Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.'] = 'Maximale Länge in Pixeln der längsten Seite eines hochgeladenen Bildes. Grundeinstellung ist -1, was keine Einschränkung bedeutet.';
 $a->strings['JPEG image quality'] = 'Qualität des JPEG Bildes';
