@@ -314,25 +314,20 @@ class GServer
 	/**
 	 * Remove unwanted content from the given URL
 	 *
-	 * @param string $url
+	 * @param string $dirtyUrl
 	 *
 	 * @return string cleaned URL
+	 * @throws Exception
 	 */
-	public static function cleanURL(string $url): string
+	public static function cleanURL(string $dirtyUrl): string
 	{
-		$url = trim($url, '/');
-		$url = str_replace('/index.php', '', $url);
-
-		$urlparts = parse_url($url);
-		if (empty($urlparts)) {
+		try {
+			$url = str_replace('/index.php', '', trim($dirtyUrl, '/'));
+			return (string)(new Uri($url))->withUserInfo('')->withQuery('')->withFragment('');
+		} catch (\Throwable $e) {
+			Logger::warning('Invalid URL', ['dirtyUrl' => $dirtyUrl, 'url' => $url]);
 			return '';
 		}
-
-		unset($urlparts['user']);
-		unset($urlparts['pass']);
-		unset($urlparts['query']);
-		unset($urlparts['fragment']);
-		return (string)Uri::fromParts($urlparts);
 	}
 
 	/**
