@@ -139,13 +139,13 @@ class BaseApi extends BaseModule
 	}
 
 	/**
-	 * Set the "link" header with "next" and "prev" links
-	 * @return void
+	 * Get the "link" header with "next" and "prev" links
+	 * @return string
 	 */
-	protected static function setLinkHeader()
+	protected static function getLinkHeader(): string
 	{
 		if (empty(self::$boundaries)) {
-			return;
+			return '';
 		}
 
 		$request = self::$request;
@@ -164,7 +164,19 @@ class BaseApi extends BaseModule
 		$prev = $command . '?' . http_build_query($prev_request);
 		$next = $command . '?' . http_build_query($next_request);
 
-		header('Link: <' . $next . '>; rel="next", <' . $prev . '>; rel="prev"');
+		return 'Link: <' . $next . '>; rel="next", <' . $prev . '>; rel="prev"';
+	}
+
+	/**
+	 * Set the "link" header with "next" and "prev" links
+	 * @return void
+	 */
+	protected static function setLinkHeader()
+	{
+		$header = self::getLinkHeader();
+		if (!empty($header)) {
+			header($header);
+		}
 	}
 
 	/**

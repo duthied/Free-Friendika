@@ -1260,7 +1260,7 @@ aside .vcard #wallmessage-link {
 	color: $font_color;
 	font-size: 12px;
 }
-.network-content-wrapper > #viewcontact_wrapper-network,
+.network-content-wrapper > .generic-page-wrapper,
 #nav-short-info .contact-wrapper .contact-photo-overlay,
 #nav-short-info .contact-wrapper .contact-actions {
 	display: none;
@@ -1556,11 +1556,11 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
 }
 .fbrowser .fbrowser-content-container {
 	overflow-y: auto;
-	max-height: calc(100vh - 175px);
+	max-height: calc(100vh - 233px);
 }
 @media (min-width: 768px) {
 	.fbrowser .fbrowser-content-container {
-		max-height: calc(100vh - 220px);
+		max-height: calc(100vh - 277px);
 	}
 }
 .fbrowser.photo .photo-album-image-wrapper {
@@ -2554,13 +2554,13 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 }
 #group-update-wrapper .viewcontact_wrapper .contact-group-actions {
 	height: 100%;
-	margin-top: -10px;
 	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 #group-update-wrapper .viewcontact_wrapper .contact-group-link {
 	opacity: 0.8;
 	font-size: 20px;
-	line-height: 50px;
 }
 #group-update-wrapper .viewcontact_wrapper .contact-action-link:hover {
 	opacity: 1;

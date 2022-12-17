@@ -35,11 +35,6 @@ a.btn, a.btn:hover {
   text-decoration: overline;
 }
 
-.icon {
-	width: 48px;
-	height: 48px;
-}
-
 .template-icon {
 	width: 24px;
 	height: 24px;
@@ -707,3 +702,8 @@ audio {
 /**
  * Image grid settings END
  **/
+
+#contactblock .icon {
+	width: 48px;
+	height: 48px;
+}

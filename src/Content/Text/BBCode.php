@@ -2355,7 +2355,7 @@ class BBCode
 		DI::profiler()->startRecording('rendering');
 		$ret = [];
 
-		self::performWithEscapedTags($string, ['noparse', 'pre', 'code', 'img'], function ($string) use (&$ret) {
+		self::performWithEscapedTags($string, ['noparse', 'pre', 'code', 'img', 'attachment'], function ($string) use (&$ret) {
 			// Convert hashtag links to hashtags
 			$string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2 ', $string);
 
@@ -2599,7 +2599,7 @@ class BBCode
 		// Bypass attachment if parse url for a comment
 		if (!$tryAttachment) {
 			DI::profiler()->stopRecording();
-			return "\n" . '[url=' . $url . ']' . $siteinfo['title'] . '[/url]';
+			return "\n" . '[url=' . $url . ']' . ($siteinfo['title'] ?? $url) . '[/url]';
 		}
 
 		// Format it as BBCode attachment

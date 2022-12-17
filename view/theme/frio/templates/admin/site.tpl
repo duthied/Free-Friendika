@@ -39,7 +39,6 @@
 						{{include file="field_input.tpl" field=$sitename}}
 						{{include file="field_input.tpl" field=$sender_email}}
 						{{include file="field_input.tpl" field=$system_actor_name}}
-						{{include file="field_textarea.tpl" field=$banner}}
 						{{include file="field_input.tpl" field=$shortcut_icon}}
 						{{include file="field_input.tpl" field=$touch_icon}}
 						{{include file="field_textarea.tpl" field=$additional_info}}

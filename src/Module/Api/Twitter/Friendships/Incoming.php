@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Twitter\Friendships;
 
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\Api\Twitter\ContactEndpoint;
 use Friendica\Module\BaseApi;
@@ -81,7 +80,7 @@ class Incoming extends ContactEndpoint
 
 		$return = self::ids($ids, $total_count, $cursor, $count, $stringify_ids);
 
-		self::setLinkHeader();
+		$this->response->setHeader(self::getLinkHeader());	
 
 		$this->response->exit('incoming', ['incoming' => $return]);
 	}

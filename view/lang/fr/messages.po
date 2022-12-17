@@ -34,7 +34,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-07 07:12+0000\n"
+"POT-Creation-Date: 2022-12-14 21:56-0500\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
 "Last-Translator: Nicolas Derive, 2022\n"
 "Language-Team: French (http://www.transifex.com/Friendica/friendica/language/fr/)\n"
@@ -1543,7 +1543,7 @@ msgstr "voir moins"
 msgid "show more"
 msgstr "montrer plus"
 
-#: src/Content/Item.php:294 src/Model/Item.php:2914
+#: src/Content/Item.php:294 src/Model/Item.php:2925
 msgid "event"
 msgstr "évènement"
 
@@ -1552,7 +1552,7 @@ msgstr "évènement"
 msgid "status"
 msgstr "le statut"
 
-#: src/Content/Item.php:303 src/Model/Item.php:2916
+#: src/Content/Item.php:303 src/Model/Item.php:2927
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr "photo"
@@ -1566,32 +1566,32 @@ msgstr "%1$s a mentionné %3$s de %2$s avec %4$s"
 msgid "Follow Thread"
 msgstr "Suivre le fil"
 
-#: src/Content/Item.php:387 src/Model/Contact.php:1209
+#: src/Content/Item.php:387 src/Model/Contact.php:1213
 msgid "View Status"
 msgstr "Voir les statuts"
 
 #: src/Content/Item.php:388 src/Content/Item.php:406
-#: src/Model/Contact.php:1147 src/Model/Contact.php:1201
-#: src/Model/Contact.php:1210 src/Module/Directory.php:157
+#: src/Model/Contact.php:1151 src/Model/Contact.php:1205
+#: src/Model/Contact.php:1214 src/Module/Directory.php:157
 #: src/Module/Settings/Profile/Index.php:234
 msgid "View Profile"
 msgstr "Voir le profil"
 
-#: src/Content/Item.php:389 src/Model/Contact.php:1211
+#: src/Content/Item.php:389 src/Model/Contact.php:1215
 msgid "View Photos"
 msgstr "Voir les photos"
 
-#: src/Content/Item.php:390 src/Model/Contact.php:1202
-#: src/Model/Contact.php:1212
+#: src/Content/Item.php:390 src/Model/Contact.php:1206
+#: src/Model/Contact.php:1216
 msgid "Network Posts"
 msgstr "Publications du réseau"
 
-#: src/Content/Item.php:391 src/Model/Contact.php:1203
-#: src/Model/Contact.php:1213
+#: src/Content/Item.php:391 src/Model/Contact.php:1207
+#: src/Model/Contact.php:1217
 msgid "View Contact"
 msgstr "Voir Contact"
 
-#: src/Content/Item.php:392 src/Model/Contact.php:1214
+#: src/Content/Item.php:392 src/Model/Contact.php:1218
 msgid "Send PM"
 msgstr "Message privé"
 
@@ -1616,7 +1616,7 @@ msgid "Languages"
 msgstr "Langues"
 
 #: src/Content/Item.php:403 src/Content/Widget.php:80
-#: src/Model/Contact.php:1204 src/Model/Contact.php:1215
+#: src/Model/Contact.php:1208 src/Model/Contact.php:1219
 #: src/Module/Contact/Follow.php:167 view/theme/vier/theme.php:196
 msgid "Connect/Follow"
 msgstr "Se connecter/Suivre"
@@ -1947,8 +1947,8 @@ msgstr "Image/photo"
 msgid "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 
-#: src/Content/Text/BBCode.php:1257 src/Model/Item.php:3539
-#: src/Model/Item.php:3545 src/Model/Item.php:3546
+#: src/Content/Text/BBCode.php:1257 src/Model/Item.php:3688
+#: src/Model/Item.php:3694 src/Model/Item.php:3695
 msgid "Link to source"
 msgstr "Lien vers la source"
 
@@ -2110,7 +2110,7 @@ msgstr "Personnes"
 msgid "Organisations"
 msgstr "Organisations"
 
-#: src/Content/Widget.php:523 src/Model/Contact.php:1641
+#: src/Content/Widget.php:523 src/Model/Contact.php:1655
 msgid "News"
 msgstr "Nouvelles"
 
@@ -2193,8 +2193,8 @@ msgstr "Localisation :"
 msgid "Network:"
 msgstr "Réseau"
 
-#: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1205
-#: src/Model/Contact.php:1216 src/Model/Profile.php:465
+#: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1209
+#: src/Model/Contact.php:1220 src/Model/Profile.php:465
 #: src/Module/Contact/Profile.php:419
 msgid "Unfollow"
 msgstr "Se désabonner"
@@ -2233,6 +2233,12 @@ msgid ""
 "exception of the people mentioned in the second box. It won't appear "
 "anywhere public."
 msgstr "Ce contenu sera visible uniquement par les groupes et contacts listés dans le premier champ, sauf par les groupes et contacts listés dans le second champ. Il ne sera pas visible publiquement."
+
+#: src/Core/ACL.php:323
+msgid ""
+"Start typing the name of a contact or a group to show a filtered list. You "
+"can also mention the special groups \"Followers\" and \"Mutuals\"."
+msgstr ""
 
 #: src/Core/ACL.php:324
 msgid "Show to:"
@@ -2891,77 +2897,77 @@ msgstr "Erreur du site"
 msgid "Legacy module file not found: %s"
 msgstr "Module original non trouvé: %s"
 
-#: src/Model/Contact.php:1222 src/Module/Moderation/Users/Pending.php:102
+#: src/Model/Contact.php:1226 src/Module/Moderation/Users/Pending.php:102
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
 msgid "Approve"
 msgstr "Approuver"
 
-#: src/Model/Contact.php:1637
+#: src/Model/Contact.php:1651
 msgid "Organisation"
 msgstr "Organisation"
 
-#: src/Model/Contact.php:1645
+#: src/Model/Contact.php:1659
 msgid "Forum"
 msgstr "Forum"
 
-#: src/Model/Contact.php:2849
+#: src/Model/Contact.php:2884
 msgid "Disallowed profile URL."
 msgstr "URL de profil interdite."
 
-#: src/Model/Contact.php:2854 src/Module/Friendica.php:82
+#: src/Model/Contact.php:2889 src/Module/Friendica.php:82
 msgid "Blocked domain"
 msgstr "Domaine bloqué"
 
-#: src/Model/Contact.php:2859
+#: src/Model/Contact.php:2894
 msgid "Connect URL missing."
 msgstr "URL de connexion manquante."
 
-#: src/Model/Contact.php:2868
+#: src/Model/Contact.php:2903
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr "Le contact n'a pu être ajouté. Veuillez vérifier les identifiants du réseau concerné dans la page Réglages -> Réseaux Sociaux si pertinent."
 
-#: src/Model/Contact.php:2910
+#: src/Model/Contact.php:2945
 msgid "The profile address specified does not provide adequate information."
 msgstr "L'adresse de profil indiquée ne fournit par les informations adéquates."
 
-#: src/Model/Contact.php:2912
+#: src/Model/Contact.php:2947
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr "Aucun protocole de communication ni aucun flux n'a pu être découvert."
 
-#: src/Model/Contact.php:2915
+#: src/Model/Contact.php:2950
 msgid "An author or name was not found."
 msgstr "Aucun auteur ou nom d'auteur n'a pu être trouvé."
 
-#: src/Model/Contact.php:2918
+#: src/Model/Contact.php:2953
 msgid "No browser URL could be matched to this address."
 msgstr "Aucune URL de navigation ne correspond à cette adresse."
 
-#: src/Model/Contact.php:2921
+#: src/Model/Contact.php:2956
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr "Impossible de faire correspondre l'adresse d'identité en \"@\" avec un protocole connu ou un contact courriel."
 
-#: src/Model/Contact.php:2922
+#: src/Model/Contact.php:2957
 msgid "Use mailto: in front of address to force email check."
 msgstr "Utilisez mailto: en face d'une adresse pour l'obliger à être reconnue comme courriel."
 
-#: src/Model/Contact.php:2928
+#: src/Model/Contact.php:2963
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr "L'adresse de profil spécifiée correspond à un réseau qui a été désactivé sur ce site."
 
-#: src/Model/Contact.php:2933
+#: src/Model/Contact.php:2968
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr "Profil limité. Cette personne ne sera pas capable de recevoir des notifications directes/personnelles de votre part."
 
-#: src/Model/Contact.php:2992
+#: src/Model/Contact.php:3027
 msgid "Unable to retrieve contact information."
 msgstr "Impossible de récupérer les informations du contact."
 
@@ -2988,21 +2994,22 @@ msgid "Sept"
 msgstr "Sep"
 
 #: src/Model/Event.php:462 src/Module/Calendar/Show.php:126
+#: src/Util/Temporal.php:339
 msgid "today"
 msgstr "aujourd'hui"
 
 #: src/Model/Event.php:463 src/Module/Calendar/Show.php:127
-#: src/Util/Temporal.php:341
+#: src/Util/Temporal.php:349
 msgid "month"
 msgstr "mois"
 
 #: src/Model/Event.php:464 src/Module/Calendar/Show.php:128
-#: src/Util/Temporal.php:342
+#: src/Util/Temporal.php:350
 msgid "week"
 msgstr "semaine"
 
 #: src/Model/Event.php:465 src/Module/Calendar/Show.php:129
-#: src/Util/Temporal.php:343
+#: src/Util/Temporal.php:351
 msgid "day"
 msgstr "jour"
 
@@ -3114,28 +3121,28 @@ msgstr "Modifier les groupes"
 msgid "Detected languages in this post:\\n%s"
 msgstr "Langues détectées dans cette publication :\\n%s"
 
-#: src/Model/Item.php:2918
+#: src/Model/Item.php:2929
 msgid "activity"
 msgstr "activité"
 
-#: src/Model/Item.php:2920
+#: src/Model/Item.php:2931
 msgid "comment"
 msgstr "commentaire"
 
-#: src/Model/Item.php:2923
+#: src/Model/Item.php:2934
 msgid "post"
 msgstr "publication"
 
-#: src/Model/Item.php:3064
+#: src/Model/Item.php:3077
 #, php-format
 msgid "Content warning: %s"
 msgstr "Avertissement de contenu: %s"
 
-#: src/Model/Item.php:3451
+#: src/Model/Item.php:3600
 msgid "bytes"
 msgstr "octets"
 
-#: src/Model/Item.php:3482
+#: src/Model/Item.php:3631
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
@@ -3143,7 +3150,7 @@ msgstr[0] "%2$s (%3$d%%, %1$d vote)"
 msgstr[1] "%2$s (%3$d%%, %1$d votes)"
 msgstr[2] "%2$s (%3$d%%, %1$d vote)"
 
-#: src/Model/Item.php:3484
+#: src/Model/Item.php:3633
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
@@ -3151,7 +3158,7 @@ msgstr[0] "%2$s (%1$d vote)"
 msgstr[1] "%2$s (%1$d votes)"
 msgstr[2] "%2$s (%1$d vote)"
 
-#: src/Model/Item.php:3489
+#: src/Model/Item.php:3638
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
@@ -3159,7 +3166,7 @@ msgstr[0] "%d votant. Fin du sondage : %s"
 msgstr[1] "%d votants. Fin du sondage : %s"
 msgstr[2] "%d votant. Fin du sondage : %s"
 
-#: src/Model/Item.php:3491
+#: src/Model/Item.php:3640
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
@@ -3167,20 +3174,20 @@ msgstr[0] "%d votant."
 msgstr[1] "%d votants."
 msgstr[2] "%d votant."
 
-#: src/Model/Item.php:3493
+#: src/Model/Item.php:3642
 #, php-format
 msgid "Poll end: %s"
 msgstr "Fin du sondage : %s"
 
-#: src/Model/Item.php:3527 src/Model/Item.php:3528
+#: src/Model/Item.php:3676 src/Model/Item.php:3677
 msgid "View on separate page"
 msgstr "Voir dans une nouvelle page"
 
-#: src/Model/Mail.php:137 src/Model/Mail.php:265
+#: src/Model/Mail.php:136 src/Model/Mail.php:264
 msgid "[no subject]"
 msgstr "[pas de sujet]"
 
-#: src/Model/Photo.php:1152 src/Module/Media/Photo/Upload.php:198
+#: src/Model/Photo.php:1178 src/Module/Media/Photo/Upload.php:198
 msgid "Wall Photos"
 msgstr "Photos du mur"
 
@@ -4290,8 +4297,8 @@ msgstr "Taille maximale des images"
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no limits. You can put k, m, or g behind the desired value for KiB, MiB, GiB, respectively.\n"
 "\t\t\t\t\t\t\t\t\t\t\t\t\tThe value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit.\n"
-"\t\t\t\t\t\t\t\t\t\t\t\t\tCurrently <code>upload_max_filesize</code> is set to %s (%sB)"
-msgstr "La taille maximum en octets des images téléversées. La valeur par défaut est 0, ce qui signifie aucune limite. Vous pouvez indiquer k, m ou g derrière la valeur désirée pour Kio, Mio et Gio respectivement.\n\t\t\t\t\t\t\t\t\t\t\t\t\tLa valeur de <code>upload_max_filesize</code> dans votre <code>PHP.ini</code> doit être définie a minima à la valeur désirée.\n\t\t\t\t\t\t\t\t\t\t\t\t\tActuellement, <code>upload_max_filesize</code> est défini à %s (%so) "
+"\t\t\t\t\t\t\t\t\t\t\t\t\tCurrently <code>upload_max_filesize</code> is set to %s (%s byte)"
+msgstr ""
 
 #: src/Module/Admin/Site.php:480
 msgid "Maximum image length"
@@ -5359,12 +5366,12 @@ msgstr "Fonctionnalités des addons"
 msgid "User registrations waiting for confirmation"
 msgstr "Inscriptions en attente de confirmation"
 
-#: src/Module/BaseApi.php:242 src/Module/BaseApi.php:258
-#: src/Module/BaseApi.php:274
+#: src/Module/BaseApi.php:254 src/Module/BaseApi.php:270
+#: src/Module/BaseApi.php:286
 msgid "Too Many Requests"
 msgstr "Trop de requêtes"
 
-#: src/Module/BaseApi.php:243
+#: src/Module/BaseApi.php:255
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
@@ -5372,7 +5379,7 @@ msgstr[0] "Limite quotidienne d'%d publication atteinte. La publication a été 
 msgstr[1] "Limite quotidienne de %d publications atteinte.  La publication a été rejetée."
 msgstr[2] "Limite quotidienne de %d publications atteinte.  La publication a été rejetée."
 
-#: src/Module/BaseApi.php:259
+#: src/Module/BaseApi.php:271
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural ""
@@ -5381,7 +5388,7 @@ msgstr[0] "Limite hebdomadaire d'%d unique publication atteinte, votre soumissio
 msgstr[1] "Limite hebdomadaire de %d publications atteinte, votre soumission a été rejetée."
 msgstr[2] "Limite hebdomadaire de %d publications atteinte, votre soumission a été rejetée."
 
-#: src/Module/BaseApi.php:275
+#: src/Module/BaseApi.php:287
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgid_plural ""
@@ -8014,11 +8021,11 @@ msgstr "Notifications de page d'accueil"
 msgid "Show unread"
 msgstr "Afficher non-lus"
 
-#: src/Module/Notifications/Ping.php:240
+#: src/Module/Notifications/Ping.php:245
 msgid "{0} requested registration"
 msgstr "{0} a demandé à s'inscrire"
 
-#: src/Module/Notifications/Ping.php:249
+#: src/Module/Notifications/Ping.php:254
 #, php-format
 msgid "{0} and %d others requested registration"
 msgstr "{0} et %d autres attendent la confirmation de leur inscription."
@@ -9595,19 +9602,19 @@ msgstr "%s- (non supporté)"
 
 #: src/Module/Settings/Display.php:196
 msgid "No preview"
-msgstr ""
+msgstr "Pas d'aperçu"
 
 #: src/Module/Settings/Display.php:197
 msgid "No image"
-msgstr ""
+msgstr "Pas d'image"
 
 #: src/Module/Settings/Display.php:198
 msgid "Small Image"
-msgstr ""
+msgstr "Petite image"
 
 #: src/Module/Settings/Display.php:199
 msgid "Large Image"
-msgstr ""
+msgstr "Grande image"
 
 #: src/Module/Settings/Display.php:210
 msgid "Display Settings"
@@ -9721,7 +9728,7 @@ msgstr "Ne pas aller sur un système distant lors du suivi du lien d'un contact.
 
 #: src/Module/Settings/Display.php:236
 msgid "Link preview mode"
-msgstr ""
+msgstr "Mode de prévisualisation des liens"
 
 #: src/Module/Settings/Display.php:238
 msgid "Beginning of week:"
@@ -10605,11 +10612,11 @@ msgid ""
 " features and resources."
 msgstr "Nos pages d'<strong>aide</strong> peuvent être consultées pour davantage de détails sur les fonctionnalités ou les ressources."
 
-#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:151
+#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:161
 msgid "{0} wants to follow you"
 msgstr "{0} souhaite vous suivre"
 
-#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:153
+#: src/Navigation/Notifications/Factory/FormattedNavNotification.php:163
 msgid "{0} has started following you"
 msgstr "{0} a commencé à vous suivre"
 
@@ -11349,64 +11356,64 @@ msgstr "AAAA-MM-JJ ou MM-JJ"
 msgid "Time zone: <strong>%s</strong> <a href=\"%s\">Change in Settings</a>"
 msgstr "Fuseau horaire : <strong>%s</strong> <a href=\"%s\">Le changer dans les paramètres</a>"
 
-#: src/Util/Temporal.php:317 src/Util/Temporal.php:324
+#: src/Util/Temporal.php:318 src/Util/Temporal.php:325
 msgid "never"
 msgstr "jamais"
 
-#: src/Util/Temporal.php:331
+#: src/Util/Temporal.php:339
 msgid "less than a second ago"
 msgstr "il y a moins d'une seconde"
 
-#: src/Util/Temporal.php:340
+#: src/Util/Temporal.php:348
 msgid "year"
 msgstr "année"
 
-#: src/Util/Temporal.php:340
+#: src/Util/Temporal.php:348
 msgid "years"
 msgstr "années"
 
-#: src/Util/Temporal.php:341
+#: src/Util/Temporal.php:349
 msgid "months"
 msgstr "mois"
 
-#: src/Util/Temporal.php:342
+#: src/Util/Temporal.php:350
 msgid "weeks"
 msgstr "semaines"
 
-#: src/Util/Temporal.php:343
+#: src/Util/Temporal.php:351
 msgid "days"
 msgstr "jours"
 
-#: src/Util/Temporal.php:344
+#: src/Util/Temporal.php:352
 msgid "hour"
 msgstr "heure"
 
-#: src/Util/Temporal.php:344
+#: src/Util/Temporal.php:352
 msgid "hours"
 msgstr "heures"
 
-#: src/Util/Temporal.php:345
+#: src/Util/Temporal.php:353
 msgid "minute"
 msgstr "minute"
 
-#: src/Util/Temporal.php:345
+#: src/Util/Temporal.php:353
 msgid "minutes"
 msgstr "minutes"
 
-#: src/Util/Temporal.php:346
+#: src/Util/Temporal.php:354
 msgid "second"
 msgstr "seconde"
 
-#: src/Util/Temporal.php:346
+#: src/Util/Temporal.php:354
 msgid "seconds"
 msgstr "secondes"
 
-#: src/Util/Temporal.php:356
+#: src/Util/Temporal.php:364
 #, php-format
 msgid "in %1$d %2$s"
 msgstr "dans %1$d %2$s"
 
-#: src/Util/Temporal.php:359
+#: src/Util/Temporal.php:367
 #, php-format
 msgid "%1$d %2$s ago"
 msgstr "Il y a %1$d %2$s"

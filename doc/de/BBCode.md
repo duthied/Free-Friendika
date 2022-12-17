@@ -192,7 +192,7 @@ Zeilen</code></td>
       Du solltest nicht weiter lesen, wenn du das Ende des Films nicht vorher erfahren willst. <br>
       <span id="spoiler-wrap-0716e642" class="spoiler-wrap fakelink" onclick="openClose('spoiler-0716e642');">Zum &ouml;ffnen/schlie&szlig;en klicken</span>
       <blockquote class="spoiler" id="spoiler-0716e642" style="display: none;">Es gibt ein Happy End.</blockquote>
-      <div class="body-attach"><div class="clear"></div></div>
+      <div class="body-attach"></div>
     </div>
   </td>
 </tr>
@@ -203,7 +203,7 @@ Zeilen</code></td>
       <strong class="spoiler">Autor hat geschrieben</strong><br>
       <span id="spoiler-wrap-a893765a" class="spoiler-wrap fakelink" onclick="openClose('spoiler-a893765a');">Zum &ouml;ffnen/schlie&szlig;en klicken</span>
       <blockquote class="spoiler" id="spoiler-a893765a" style="display: none;">Spoiler Alarm</blockquote>
-      <div class="body-attach"><div class="clear"></div></div>
+      <div class="body-attach"></div>
     </div>
   </td>
 </tr>

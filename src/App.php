@@ -27,6 +27,8 @@ use Friendica\App\BaseURL;
 use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Database\Definition\DbaDefinition;
+use Friendica\Database\Definition\ViewDefinition;
 use Friendica\Model\User;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
@@ -337,27 +339,29 @@ class App
 	 * @param App\Arguments               $args     The Friendica Arguments of the call
 	 * @param IManagePersonalConfigValues $pConfig  Personal configuration
 	 * @param IHandleUserSessions         $session  The (User)Session handler
+	 * @param DbaDefinition               $dbaDefinition
+	 * @param ViewDefinition              $viewDefinition
 	 */
-	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig, IHandleUserSessions $session)
+	public function __construct(Database $database, IManageConfigValues $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, IManagePersonalConfigValues $pConfig, IHandleUserSessions $session, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition)
 	{
-		$this->database = $database;
-		$this->config   = $config;
-		$this->mode     = $mode;
-		$this->baseURL  = $baseURL;
-		$this->profiler = $profiler;
-		$this->logger   = $logger;
-		$this->l10n     = $l10n;
-		$this->args     = $args;
-		$this->pConfig  = $pConfig;
-		$this->session  = $session;
+		$this->database       = $database;
+		$this->config         = $config;
+		$this->mode           = $mode;
+		$this->baseURL        = $baseURL;
+		$this->profiler       = $profiler;
+		$this->logger         = $logger;
+		$this->l10n           = $l10n;
+		$this->args           = $args;
+		$this->pConfig        = $pConfig;
+		$this->session        = $session;
 
-		$this->load();
+		$this->load($dbaDefinition, $viewDefinition);
 	}
 
 	/**
 	 * Load the whole app instance
 	 */
-	public function load()
+	protected function load(DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition)
 	{
 		set_time_limit(0);
 
@@ -386,6 +390,10 @@ class App
 			Core\Hook::loadHooks();
 			$loader = (new Config())->createConfigFileLoader($this->getBasePath(), $_SERVER);
 			Core\Hook::callAll('load_config', $loader);
+
+			// Hooks are now working, reload the whole definitions with hook enabled
+			$dbaDefinition->load(true);
+			$viewDefinition->load(true);
 		}
 
 		$this->loadDefaultTimezone();
