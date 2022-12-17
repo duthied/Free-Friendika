@@ -3030,6 +3030,7 @@ class Item
 		$shared = DI::contentItem()->getSharedPost($item, $fields);
 		if (!empty($shared['post'])) {
 			$shared_item  = $shared['post'];
+			$shared_item['body'] = Post\Media::removeFromEndOfBody($shared_item['body']);
 			$quote_uri_id = $shared['post']['uri-id'];
 			$shared_links[] = strtolower($shared['post']['uri']);
 			$item['body'] = BBCode::removeSharedData($item['body']);
