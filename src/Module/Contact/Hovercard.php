@@ -90,7 +90,7 @@ class Hovercard extends BaseModule
 
 		// Get the photo_menu - the menu if possible contact actions
 		if ($this->userSession->isAuthenticated()) {
-			$actions = Contact::photoMenu($contact);
+			$actions = Contact::photoMenu($contact, $this->userSession->getLocalUserId());
 		} else {
 			$actions = [];
 		}
