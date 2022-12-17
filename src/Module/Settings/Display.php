@@ -93,9 +93,9 @@ class Display extends BaseSettings
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'hide_dislike'            , !$enable_dislike);
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'display_resharer'        , $display_resharer);
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'stay_local'              , $stay_local);
-		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'first_day_of_week'       , $first_day_of_week);
 		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'preview_mode'            , $preview_mode);
 
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'calendar', 'first_day_of_week'     , $first_day_of_week);
 		if (in_array($theme, Theme::getAllowedList())) {
 			if ($theme == $user['theme']) {
 				// call theme_post only if theme has not been changed

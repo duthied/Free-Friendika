@@ -412,66 +412,64 @@ class Event
 	public static function getStrings(): array
 	{
 		// First day of the week (0 = Sunday).
-		$firstDay = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'first_day_of_week', 0);
+		$firstDay    = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'calendar', 'first_day_of_week') ?? 0;
 
-		$i18n = [
-			"firstDay" => $firstDay,
-			"allday"   => DI::l10n()->t("all-day"),
+		return [
+			'firstDay'    => $firstDay,
+			'allday'      => DI::l10n()->t('all-day'),
 
-			"Sun" => DI::l10n()->t("Sun"),
-			"Mon" => DI::l10n()->t("Mon"),
-			"Tue" => DI::l10n()->t("Tue"),
-			"Wed" => DI::l10n()->t("Wed"),
-			"Thu" => DI::l10n()->t("Thu"),
-			"Fri" => DI::l10n()->t("Fri"),
-			"Sat" => DI::l10n()->t("Sat"),
+			'Sun' => DI::l10n()->t('Sun'),
+			'Mon' => DI::l10n()->t('Mon'),
+			'Tue' => DI::l10n()->t('Tue'),
+			'Wed' => DI::l10n()->t('Wed'),
+			'Thu' => DI::l10n()->t('Thu'),
+			'Fri' => DI::l10n()->t('Fri'),
+			'Sat' => DI::l10n()->t('Sat'),
 
-			"Sunday"    => DI::l10n()->t("Sunday"),
-			"Monday"    => DI::l10n()->t("Monday"),
-			"Tuesday"   => DI::l10n()->t("Tuesday"),
-			"Wednesday" => DI::l10n()->t("Wednesday"),
-			"Thursday"  => DI::l10n()->t("Thursday"),
-			"Friday"    => DI::l10n()->t("Friday"),
-			"Saturday"  => DI::l10n()->t("Saturday"),
+			'Sunday'    => DI::l10n()->t('Sunday'),
+			'Monday'    => DI::l10n()->t('Monday'),
+			'Tuesday'   => DI::l10n()->t('Tuesday'),
+			'Wednesday' => DI::l10n()->t('Wednesday'),
+			'Thursday'  => DI::l10n()->t('Thursday'),
+			'Friday'    => DI::l10n()->t('Friday'),
+			'Saturday'  => DI::l10n()->t('Saturday'),
 
-			"Jan" => DI::l10n()->t("Jan"),
-			"Feb" => DI::l10n()->t("Feb"),
-			"Mar" => DI::l10n()->t("Mar"),
-			"Apr" => DI::l10n()->t("Apr"),
-			"May" => DI::l10n()->t("May"),
-			"Jun" => DI::l10n()->t("Jun"),
-			"Jul" => DI::l10n()->t("Jul"),
-			"Aug" => DI::l10n()->t("Aug"),
-			"Sep" => DI::l10n()->t("Sept"),
-			"Oct" => DI::l10n()->t("Oct"),
-			"Nov" => DI::l10n()->t("Nov"),
-			"Dec" => DI::l10n()->t("Dec"),
+			'Jan' => DI::l10n()->t('Jan'),
+			'Feb' => DI::l10n()->t('Feb'),
+			'Mar' => DI::l10n()->t('Mar'),
+			'Apr' => DI::l10n()->t('Apr'),
+			'May' => DI::l10n()->t('May'),
+			'Jun' => DI::l10n()->t('Jun'),
+			'Jul' => DI::l10n()->t('Jul'),
+			'Aug' => DI::l10n()->t('Aug'),
+			'Sep' => DI::l10n()->t('Sept'),
+			'Oct' => DI::l10n()->t('Oct'),
+			'Nov' => DI::l10n()->t('Nov'),
+			'Dec' => DI::l10n()->t('Dec'),
 
-			"January"   => DI::l10n()->t("January"),
-			"February"  => DI::l10n()->t("February"),
-			"March"     => DI::l10n()->t("March"),
-			"April"     => DI::l10n()->t("April"),
-			"June"      => DI::l10n()->t("June"),
-			"July"      => DI::l10n()->t("July"),
-			"August"    => DI::l10n()->t("August"),
-			"September" => DI::l10n()->t("September"),
-			"October"   => DI::l10n()->t("October"),
-			"November"  => DI::l10n()->t("November"),
-			"December"  => DI::l10n()->t("December"),
+			'January'   => DI::l10n()->t('January'),
+			'February'  => DI::l10n()->t('February'),
+			'March'     => DI::l10n()->t('March'),
+			'April'     => DI::l10n()->t('April'),
+			'June'      => DI::l10n()->t('June'),
+			'July'      => DI::l10n()->t('July'),
+			'August'    => DI::l10n()->t('August'),
+			'September' => DI::l10n()->t('September'),
+			'October'   => DI::l10n()->t('October'),
+			'November'  => DI::l10n()->t('November'),
+			'December'  => DI::l10n()->t('December'),
 
-			"today" => DI::l10n()->t("today"),
-			"month" => DI::l10n()->t("month"),
-			"week"  => DI::l10n()->t("week"),
-			"day"   => DI::l10n()->t("day"),
+			'today' => DI::l10n()->t('today'),
+			'month' => DI::l10n()->t('month'),
+			'week'  => DI::l10n()->t('week'),
+			'day'   => DI::l10n()->t('day'),
 
-			"noevent" => DI::l10n()->t("No events to display"),
+			'noevent' => DI::l10n()->t('No events to display'),
 
-			"dtstart_label"  => DI::l10n()->t("Starts:"),
-			"dtend_label"    => DI::l10n()->t("Finishes:"),
-			"location_label" => DI::l10n()->t("Location:")
+			'dtstart_label'  => DI::l10n()->t('Starts:'),
+			'dtend_label'    => DI::l10n()->t('Finishes:'),
+			'location_label' => DI::l10n()->t('Location:')
 		];
-
-		return $i18n;
 	}
 
 	/**
