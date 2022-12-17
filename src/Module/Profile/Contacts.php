@@ -113,9 +113,17 @@ class Contacts extends Module\BaseProfile
 
 		$params = ['order' => ['name' => false], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
+		// Contact list is obtained from the visited profile user, but the contact display is visitor dependent
 		$contacts = array_map(
-			[Module\Contact::class, 'getContactTemplateVars'],
-			Model\Contact::selectToArray([], $condition, $params)
+			function ($contact) {
+				$contact = Model\Contact::selectFirst(
+					[],
+					['uri-id' => $contact['uri-id'], 'uid' => [0, $this->userSession->getLocalUserId()]],
+					['order' => ['uid' => 'DESC']]
+				);
+				return Module\Contact::getContactTemplateVars($contact);
+			},
+			Model\Contact::selectToArray(['uri-id'], $condition, $params)
 		);
 
 		$desc = '';
