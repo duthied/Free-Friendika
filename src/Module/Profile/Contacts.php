@@ -21,45 +21,68 @@
 
 namespace Friendica\Module\Profile;
 
+use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Database\Database;
 use Friendica\Model;
 use Friendica\Module;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class Contacts extends Module\BaseProfile
 {
+	/** @var IManageConfigValues */
+	private $config;
+	/** @var IHandleUserSessions */
+	private $userSession;
+	/** @var App */
+	private $app;
+	/** @var Database */
+	private $database;
+
+	public function __construct(Database $database, App $app, IHandleUserSessions $userSession, IManageConfigValues $config, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->config      = $config;
+		$this->userSession = $userSession;
+		$this->app         = $app;
+		$this->database    = $database;
+	}
+
 	protected function content(array $request = []): string
 	{
-		if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
-			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		if ($this->config->get('system', 'block_public') && !$this->userSession->isAuthenticated()) {
+			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
-
-		$a = DI::app();
 
 		$nickname = $this->parameters['nickname'];
-		$type = $this->parameters['type'] ?? 'all';
+		$type     = $this->parameters['type'] ?? 'all';
 
-		$profile = Model\Profile::load($a, $nickname);
+		$profile = Model\Profile::load($this->app, $nickname);
 		if (empty($profile)) {
-			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
 
-		$is_owner = $profile['uid'] == DI::userSession()->getLocalUserId();
+		$is_owner = $profile['uid'] == $this->userSession->getLocalUserId();
 
 		if ($profile['hide-friends'] && !$is_owner) {
-			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
 		}
 
 		Nav::setSelected('home');
 
 		$o = self::getTabsHTML('contacts', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
-		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, DI::userSession()->isAuthenticated() && $profile['uid'] != DI::userSession()->getLocalUserId());
+		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, $this->userSession->isAuthenticated() && $profile['uid'] != $this->userSession->getLocalUserId());
 
 		$condition = [
 			'uid'     => $profile['uid'],
@@ -73,14 +96,20 @@ class Contacts extends Module\BaseProfile
 		];
 
 		switch ($type) {
-			case 'followers': $condition['rel'] = [Model\Contact::FOLLOWER, Model\Contact::FRIEND]; break;
-			case 'following': $condition['rel'] = [Model\Contact::SHARING,  Model\Contact::FRIEND]; break;
-			case 'mutuals':   $condition['rel'] = Model\Contact::FRIEND; break;
+			case 'followers':
+				$condition['rel'] = [Model\Contact::FOLLOWER, Model\Contact::FRIEND];
+				break;
+			case 'following':
+				$condition['rel'] = [Model\Contact::SHARING, Model\Contact::FRIEND];
+				break;
+			case 'mutuals':
+				$condition['rel'] = Model\Contact::FRIEND;
+				break;
 		}
 
-		$total = DBA::count('contact', $condition);
+		$total = $this->database->count('contact', $condition);
 
-		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 30);
+		$pager = new Pager($this->l10n, $this->args->getQueryString(), 30);
 
 		$params = ['order' => ['name' => false], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
@@ -92,31 +121,31 @@ class Contacts extends Module\BaseProfile
 		$desc = '';
 		switch ($type) {
 			case 'followers':
-				$title = DI::l10n()->tt('Follower (%s)', 'Followers (%s)', $total);
+				$title = $this->tt('Follower (%s)', 'Followers (%s)', $total);
 				break;
 			case 'following':
-				$title = DI::l10n()->tt('Following (%s)', 'Following (%s)', $total);
+				$title = $this->tt('Following (%s)', 'Following (%s)', $total);
 				break;
 			case 'mutuals':
-				$title = DI::l10n()->tt('Mutual friend (%s)', 'Mutual friends (%s)', $total);
-				$desc = DI::l10n()->t(
+				$title = $this->tt('Mutual friend (%s)', 'Mutual friends (%s)', $total);
+				$desc  = $this->t(
 					'These contacts both follow and are followed by <strong>%s</strong>.',
 					htmlentities($profile['name'], ENT_COMPAT, 'UTF-8')
 				);
 				break;
 			case 'all':
 			default:
-				$title = DI::l10n()->tt('Contact (%s)', 'Contacts (%s)', $total);
+				$title = $this->tt('Contact (%s)', 'Contacts (%s)', $total);
 				break;
 		}
 
 		$tpl = Renderer::getMarkupTemplate('profile/contacts.tpl');
-		$o .= Renderer::replaceMacros($tpl, [
-			'$title'    => $title,
-			'$desc'     => $desc,
-			'$tabs'     => $tabs,
+		$o   .= Renderer::replaceMacros($tpl, [
+			'$title' => $title,
+			'$desc'  => $desc,
+			'$tabs'  => $tabs,
 
-			'$noresult_label'  => DI::l10n()->t('No contacts.'),
+			'$noresult_label' => $this->t('No contacts.'),
 
 			'$contacts' => $contacts,
 			'$paginate' => $pager->renderFull($total),
