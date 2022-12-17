@@ -1,13 +1,65 @@
 Version 2022.12 (unreleased)
   Friendica Core
-    The rewrite rule in .htaccess-dist has been changed. The change has to be applied manually to the existing .htaccess
+    Updates to the translations DE, FR, HU, PL, RU
+    Updated to the documentation [foss-, MarekBenjamin, MrPetovan]
+    Updates to the themes (frio, vier) [loma-one, MarekBenjamin, MrPetovan, tobiasd]
+    Improved the display of the system settings in the admin panel [MarekBenjamin]
+    Improved the API [annando, HankG, Schnoop]
+    Improved getting system information [VVelox]
+    Improved the PHP 8.1 compatibility [MrPetovan]
+    Improved the bulk delivery of postings [annando]
+    General code cleanup [annando, MrPetovan, nupplaphil, Quix0r]
+    Added a blur hash for images else not displayable [annando]
+    Added a /about route for the /friendica page [nupplaphil]
+    Added reporting endpoints to the API [annando]
+    Added support for the "fedifinder" [annando]
+    Added rel-me verification for the profile homepage [tobiasd]
+    Added admin notification for new registrations [annando]
+    Added a moderation section to the admin panel [annando]
+    Added an option to make the calendar public [matthiasmoritz]
+    Fixed a bug in the federation with Diaspora* [annando]
+    Deprecated old themes (duepuntozero, quattro, smoothy)
+    
+    NOTE: The Apache2 rewrite rule in the .htaccess-dist has been changed.
+          The change has to be applied manually to the existing .htaccess.
 
   Friendica Addons
+    Updates to the translations DE, FR, SV
+    fancybox:
+      Added an addon to display images in postings with a fancybox [brockhaus]
+    impressum:
+      Fixed a bug when saving informations [tobiasd]
+    js_upload:
+      Improved wording [MarekBenjamin]
+    monolog:
+      Moved the functionality into an addon [nupplaphil]
+    nitter:
+      Updated the wording [AndyHee]
+    nsfw:
+      Enhanced regex handling [MrPetovan]
+    pumpio:
+      Fixed logger message [MrPetovan]
+    rendertime:
+      Fixed empty minimal time [nupplaphil]
+      Adapt ignored_modules [nupplaphil]
+    twitter:
+      Fixed a problem when the image array was missing [MrPetovan]
+      Added an option to automatically follow contacts in the Fediverse [annando]
+    
+    Deprecated unmaintained addons: namethingy, superblock, windowsphonepush
+      
     BREAKING: The functions from the boot.php file have been moved into better fitting classes
               this may break your custom addons. See the pull requests #1293 and #1294 in the
               addon repository about the needed changes to your addons.
 
   Closed Issues
+     5095,  7574,  9286,  9920, 10100, 10188, 10518, 10875, 11011, 11284, 
+    11553, 11774, 11804, 11875, 11911, 11941, 11998, 12009, 12013, 12023,
+    12035, 12054, 12059, 12073, 12084, 12085, 12090, 12096, 12112, 12149,
+    12163, 12182, 12191, 12192, 12193, 12197, 12199, 12201, 12219, 12220,
+    12229, 12237, 12245, 12262, 12266, 12273, 12275, 12285, 12312, 12327,
+    12338, 12339, 12342, 12344, 12345, 12355, 12373, 12376, 12382, 12386,
+    12399, 12401, 12405, 12406, 12408, 12411, 12413, 12421, 12431, 12437
 
 Version 2022.10 (2022-10-14)
   Friendica Core
