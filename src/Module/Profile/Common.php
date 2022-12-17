@@ -21,51 +21,71 @@
 
 namespace Friendica\Module\Profile;
 
+use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Module;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Module\BaseProfile;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class Common extends BaseProfile
 {
+	/** @var IManageConfigValues */
+	private $config;
+	/** @var IHandleUserSessions */
+	private $userSession;
+	/** @var App */
+	private $app;
+
+	public function __construct(App $app, IHandleUserSessions $userSession, IManageConfigValues $config, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->config = $config;
+		$this->userSession = $userSession;
+		$this->app = $app;
+	}
+
 	protected function content(array $request = []): string
 	{
-		if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
-			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		if ($this->config->get('system', 'block_public') && !$this->userSession->isAuthenticated()) {
+			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
-
-		$a = DI::app();
 
 		Nav::setSelected('home');
 
 		$nickname = $this->parameters['nickname'];
 
-		$profile = Profile::load($a, $nickname);
+		$profile = Profile::load($this->app, $nickname);
 		if (empty($profile)) {
-			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
 
 		if (!empty($profile['hide-friends'])) {
-			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
 		}
 
-		$displayCommonTab = DI::userSession()->isAuthenticated() && $profile['uid'] != DI::userSession()->getLocalUserId();
+		$displayCommonTab = $this->userSession->isAuthenticated() && $profile['uid'] != $this->userSession->getLocalUserId();
 
 		if (!$displayCommonTab) {
-			$a->redirect('profile/' . $nickname . '/contacts');
+			$this->baseUrl->redirect('profile/' . $nickname . '/contacts');
 		};
 
 		$o = self::getTabsHTML('contacts', false, $profile['nickname'], $profile['hide-friends']);
 
 		$tabs = self::getContactFilterTabs('profile/' . $nickname, 'common', $displayCommonTab);
 
-		$sourceId = Contact::getIdForURL(Profile::getMyURL());
+		$sourceId = Contact::getIdForURL($this->userSession->getMyUrl());
 		$targetId = Contact::getPublicIdByUserId($profile['uid']);
 
 		$condition = [
@@ -76,14 +96,14 @@ class Common extends BaseProfile
 
 		$total = Contact\Relation::countCommon($sourceId, $targetId, $condition);
 
-		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 30);
+		$pager = new Pager($this->l10n, $this->args->getQueryString(), 30);
 
 		$commonFollows = Contact\Relation::listCommon($sourceId, $targetId, $condition, $pager->getItemsPerPage(), $pager->getStart());
 
 		$contacts = array_map([Module\Contact::class, 'getContactTemplateVars'], $commonFollows);
 
-		$title = DI::l10n()->tt('Common contact (%s)', 'Common contacts (%s)', $total);
-		$desc = DI::l10n()->t(
+		$title = $this->tt('Common contact (%s)', 'Common contacts (%s)', $total);
+		$desc = $this->t(
 			'Both <strong>%s</strong> and yourself have publicly interacted with these contacts (follow, comment or likes on public posts).',
 			htmlentities($profile['name'], ENT_COMPAT, 'UTF-8')
 		);
@@ -94,7 +114,7 @@ class Common extends BaseProfile
 			'$desc'     => $desc,
 			'$tabs'     => $tabs,
 
-			'$noresult_label'  => DI::l10n()->t('No common contacts.'),
+			'$noresult_label'  => $this->t('No common contacts.'),
 
 			'$contacts' => $contacts,
 			'$paginate' => $pager->renderFull($total),
