@@ -1173,11 +1173,6 @@ $a->strings['Displays the menu entry for the Help pages from the navigation menu
 $a->strings['Single user instance'] = 'Instance mono-utilisateur';
 $a->strings['Make this instance multi-user or single-user for the named user'] = 'Transformer cette en instance en multi-utilisateur ou mono-utilisateur pour cet l\'utilisateur.';
 $a->strings['Maximum image size'] = 'Taille maximale des images';
-$a->strings['Maximum size in bytes of uploaded images. Default is 0, which means no limits. You can put k, m, or g behind the desired value for KiB, MiB, GiB, respectively.
-													The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit.
-													Currently <code>upload_max_filesize</code> is set to %s (%sB)'] = 'La taille maximum en octets des images téléversées. La valeur par défaut est 0, ce qui signifie aucune limite. Vous pouvez indiquer k, m ou g derrière la valeur désirée pour Kio, Mio et Gio respectivement.
-													La valeur de <code>upload_max_filesize</code> dans votre <code>PHP.ini</code> doit être définie a minima à la valeur désirée.
-													Actuellement, <code>upload_max_filesize</code> est défini à %s (%so) ';
 $a->strings['Maximum image length'] = 'Longueur maximale des images';
 $a->strings['Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.'] = 'Longueur maximale en pixels du plus long côté des images téléversées. La valeur par défaut est -1 : absence de limite.';
 $a->strings['JPEG image quality'] = 'Qualité JPEG des images';
@@ -2418,6 +2413,10 @@ $a->strings['Add'] = 'Ajouter';
 $a->strings['No entries.'] = 'Aucune entrée.';
 $a->strings['The theme you chose isn\'t available.'] = 'Le thème que vous avez choisi n\'est pas disponible.';
 $a->strings['%s - (Unsupported)'] = '%s- (non supporté)';
+$a->strings['No preview'] = 'Pas d\'aperçu';
+$a->strings['No image'] = 'Pas d\'image';
+$a->strings['Small Image'] = 'Petite image';
+$a->strings['Large Image'] = 'Grande image';
 $a->strings['Display Settings'] = 'Affichage';
 $a->strings['General Theme Settings'] = 'Paramètres généraux de thème';
 $a->strings['Custom Theme Settings'] = 'Paramètres personnalisés de thème';
@@ -2444,6 +2443,7 @@ $a->strings['Display the resharer'] = 'Afficher le repartageur';
 $a->strings['Display the first resharer as icon and text on a reshared item.'] = 'Afficher le premier repartageur en tant qu\'icône et texte sur un élément repartagé.';
 $a->strings['Stay local'] = 'Rester local';
 $a->strings['Don\'t go to a remote system when following a contact link.'] = 'Ne pas aller sur un système distant lors du suivi du lien d\'un contact.';
+$a->strings['Link preview mode'] = 'Mode de prévisualisation des liens';
 $a->strings['Beginning of week:'] = 'Début de la semaine :';
 $a->strings['Additional Features'] = 'Fonctions supplémentaires';
 $a->strings['Connected Apps'] = 'Applications connectées';
