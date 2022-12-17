@@ -413,9 +413,11 @@ class Event
 	{
 		// First day of the week (0 = Sunday).
 		$firstDay    = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'calendar', 'first_day_of_week') ?? 0;
+		$defaultView = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'calendar', 'defaultView') ?? 'month';
 
 		return [
 			'firstDay'    => $firstDay,
+			'defaultView' => $defaultView,
 			'allday'      => DI::l10n()->t('all-day'),
 
 			'Sun' => DI::l10n()->t('Sun'),

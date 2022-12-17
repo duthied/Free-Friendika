@@ -31,6 +31,7 @@
 
 	$(document).ready(function() {
 		$('#events-calendar').fullCalendar({
+			defaultView: '{{$i18n.defaultView|escape:'quotes'}}',
 			firstDay: '{{$i18n.firstDay|escape:'quotes'}}',
 			monthNames: [
 				'{{$i18n.January|escape:'quotes'}}',
