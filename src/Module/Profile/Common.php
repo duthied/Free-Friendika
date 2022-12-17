@@ -100,7 +100,18 @@ class Common extends BaseProfile
 
 		$commonFollows = Contact\Relation::listCommon($sourceId, $targetId, $condition, $pager->getItemsPerPage(), $pager->getStart());
 
-		$contacts = array_map([Module\Contact::class, 'getContactTemplateVars'], $commonFollows);
+		// Contact list is obtained from the visited profile user, but the contact display is visitor dependent
+		$contacts = array_map(
+			function ($contact) {
+				$contact = Contact::selectFirst(
+					[],
+					['uri-id' => $contact['uri-id'], 'uid' => [0, $this->userSession->getLocalUserId()]],
+					['order' => ['uid' => 'DESC']]
+				);
+				return Module\Contact::getContactTemplateVars($contact);
+			},
+			$commonFollows
+		);
 
 		$title = $this->tt('Common contact (%s)', 'Common contacts (%s)', $total);
 		$desc = $this->t(
