@@ -1,4 +1,3 @@
-23n
 Abdullah Alsabi
 abidin toumi
 Abinoam P. Marques Jr.
@@ -26,6 +25,7 @@ Andrej Stieben
 André Alves
 André Lohan
 Andy
+Andy H3
 Andy Hee
 Angristan
 Anthronaut
@@ -38,6 +38,7 @@ aweiher
 axelt
 balderino
 Balázs Úr
+Bartosz Małkowski
 Beanow
 beardyunixer
 Beatriz Vital
@@ -109,6 +110,7 @@ Filip H.F. "FiXato" Slagter
 Finn Dean
 FlxAlbroscheit
 foss
+foss-
 Francesco Apruzzese
 Frank Dieckmann
 Frederico Gonçalves Guimarães
@@ -119,9 +121,12 @@ Gidi Kroon
 GLComo
 greeneyedred
 Gregory Smith
+Grischa Brockhaus
 gudzpoz
+GunChleoc
 guzzisti
 Haakon Meland Eriksen
+Hank G
 Hank Grabowski
 Hans Meine
 Hauke
@@ -164,6 +169,7 @@ Koyu Berteon
 kPherox
 Kris
 Kristoffer Grundström
+KulikAlex
 Lea1995polish
 Leberwurscht
 Leonard Lausen
@@ -175,10 +181,13 @@ Ludovic Grossard
 Lynn Stephenson
 maase2
 Mai Anh Nguyen
+Makary
 Manuel Pérez Monís
 Marcin Klessa
 Marcin Mikołajczak
 Marcus Müller
+Marek Bachmann
+MarekBenjamin
 Marie Olive
 Mariusz Pisz
 marmor
@@ -201,7 +210,6 @@ miqrogroove
 mpanhans
 mytbk
 nathilia-peirce
-Nicola Spanti
 Nicolas Derive
 nobody
 nupplaPhil
@@ -216,6 +224,7 @@ pankraz
 Paolo Wave
 Pascal
 Pascal Deklerck
+Paul Saunders
 Pavel Morozov
 PerigGouanvic
 peter
@@ -251,11 +260,13 @@ RJ Madsen
 Roger Meyer
 Roland Häder
 rwa
+Ryan Voots
 S.Krumbholz
 Sakałoŭ Alaksiej
 Sam
 Samuli Valavuo
 Sandro Santilli
+Schnoop
 Sebastian Egbers
 sella
 Senex Petrovic
@@ -287,6 +298,7 @@ teho
 Thecross
 Thomas
 Thomas Willingham
+Thorsten
 thorsten23
 Till Mohr
 Tim Stahel
@@ -300,7 +312,6 @@ Tom Hu
 tomamplius
 tomtom84
 Tony Baldwin
-Torbjörn Andersson
 TORminator
 trebor
 tschlotfeldt
@@ -318,7 +329,6 @@ very-ape
 Viktor Nilsson
 Vinzenz Vietzke
 vislav
-vladimir N
 Vladimir Núñez
 VVelox
 Vít Šesták 'v6ak'
