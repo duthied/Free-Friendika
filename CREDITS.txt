@@ -26,7 +26,6 @@ Andrej Stieben
 André Alves
 André Lohan
 Andy
-Andy H3
 Andy Hee
 Angristan
 Anthronaut
@@ -111,7 +110,6 @@ Filip H.F. "FiXato" Slagter
 Finn Dean
 FlxAlbroscheit
 foss
-foss-
 Francesco Apruzzese
 Frank Dieckmann
 Frederico Gonçalves Guimarães
@@ -313,6 +311,7 @@ Tom Hu
 tomamplius
 tomtom84
 Tony Baldwin
+Torbjörn Andersson
 TORminator
 trebor
 tschlotfeldt
