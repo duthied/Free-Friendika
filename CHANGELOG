@@ -8,6 +8,7 @@ Version 2022.12 (unreleased)
     Improved getting system information [VVelox]
     Improved the PHP 8.1 compatibility [MrPetovan]
     Improved the bulk delivery of postings [annando]
+    Improved the display of attached images to postings [MarekBenjamin]
     General code cleanup [annando, MrPetovan, nupplaphil, Quix0r]
     Added a blur hash for images else not displayable [annando]
     Added a /about route for the /friendica page [nupplaphil]
