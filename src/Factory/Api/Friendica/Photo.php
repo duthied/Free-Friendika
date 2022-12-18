@@ -74,12 +74,13 @@ class Photo extends BaseFactory
 		if (empty($photos)) {
 			throw new HTTPException\NotFoundException();
 		}
-		$data       = $photos[0];
-		$data['id'] = $data['resource-id'];
+		$data = $photos[0];
+
+		$data['media-id'] = $data['id'];
+		$data['id']       = $data['resource-id'];
+
 		if (is_int($scale)) {
 			$data['data'] = base64_encode(ModelPhoto::getImageDataForPhoto($data));
-		} else {
-			unset($data['datasize']); //needed only with scale param
 		}
 
 		if ($type == 'xml') {
@@ -99,12 +100,21 @@ class Photo extends BaseFactory
 			} else {
 				$data['link'][$id] = $link;
 			}
+			if (is_null($scale)) {
+				$data['scales'][] = [
+					'id'     => $photo['id'],
+					'scale'  => $photo['scale'],
+					'link'   => $link,
+					'width'  => $photo['width'],
+					'height' => $photo['height'],
+					'size'   => $photo['datasize'],
+				];
+			}
 		}
 
 		unset($data['backend-class']);
 		unset($data['backend-ref']);
 		unset($data['resource-id']);
-		unset($data['scale']);
 
 		if ($with_posts) {
 			// retrieve item element for getting activities (like, dislike etc.) related to photo
