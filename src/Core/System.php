@@ -251,7 +251,7 @@ class System
 
 				// Don't show multiple calls from the Database classes to show the essential parts of the callstack
 				$func['database'] = in_array($func['class'], ['Friendica\Database\DBA', 'Friendica\Database\Database']);
-				if (!$previous['database'] || !$func['database']) {	
+				if (!$previous['database'] || !$func['database']) {
 					$classparts = explode("\\", $func['class']);
 					$callstack[] = array_pop($classparts).'::'.$func['function'];
 					$previous = $func;
@@ -678,7 +678,7 @@ class System
 			$html = BBCode::convert($rulelist, false, BBCode::EXTERNAL);
 
 			$msg = HTML::toPlaintext($html, 0, true);
-			foreach (explode("\n", $msg) as $line) {
+			foreach (explode("\n", trim($msg)) as $line) {
 				$line = trim($line);
 				if ($line) {
 					$rules[] = ['id' => (string)++$id, 'text' => $line];
