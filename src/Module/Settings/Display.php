@@ -272,7 +272,7 @@ class Display extends BaseSettings
 			'$enable_dislike'           => ['enable_dislike'          , $this->t('Display the Dislike feature'), $enable_dislike, $this->t('Display the Dislike button and dislike reactions on posts and comments.')],
 			'$display_resharer'         => ['display_resharer'        , $this->t('Display the resharer'), $display_resharer, $this->t('Display the first resharer as icon and text on a reshared item.')],
 			'$stay_local'               => ['stay_local'              , $this->t('Stay local'), $stay_local, $this->t("Don't go to a remote system when following a contact link.")],
-			'$preview_mode'             => ['preview_mode'            , $this->t('Link preview mode'), $preview_mode, 'Appearance of the link preview that is added to each post with a link.', $preview_modes, false],
+			'$preview_mode'             => ['preview_mode'            , $this->t('Link preview mode'), $preview_mode, $this->t('Appearance of the link preview that is added to each post with a link.'), $preview_modes, false],
 
 			'$first_day_of_week'     => ['first_day_of_week'    , $this->t('Beginning of week:')    , $first_day_of_week    , '', $weekdays     , false],
 			'$calendar_default_view' => ['calendar_default_view', $this->t('Default calendar view:'), $calendar_default_view, '', $calendarViews, false],
