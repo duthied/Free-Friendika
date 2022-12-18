@@ -2923,15 +2923,8 @@ class Contact
 		}
 
 		// check if we already have a contact
-		// the poll url is more reliable than the profile url, as we may have
-		// indirect links or webfinger links
-
-		$condition = ['uid' => $uid, 'poll' => [$ret['poll'], Strings::normaliseLink($ret['poll'])], 'network' => $ret['network'], 'pending' => false];
-		$contact = DBA::selectFirst('contact', ['id', 'rel'], $condition);
-		if (!DBA::isResult($contact)) {
-			$condition = ['uid' => $uid, 'nurl' => Strings::normaliseLink($ret['url']), 'network' => $ret['network'], 'pending' => false];
-			$contact = DBA::selectFirst('contact', ['id', 'rel'], $condition);
-		}
+		$condition = ['uid' => $uid, 'nurl' => Strings::normaliseLink($ret['url'])];
+		$contact = DBA::selectFirst('contact', ['id', 'rel', 'url', 'pending', 'hub-verify'], $condition);
 
 		$protocol = self::getProtocol($ret['url'], $ret['network']);
 
@@ -2987,7 +2980,13 @@ class Contact
 			// update contact
 			$new_relation = (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND]) ? self::FRIEND : self::SHARING);
 
-			$fields = ['rel' => $new_relation, 'subhub' => $subhub, 'readonly' => false];
+			$fields = ['rel' => $new_relation, 'subhub' => $subhub, 'readonly' => false, 'network' => $ret['network']];
+
+			if ($contact['pending'] && !empty($contact['hub-verify'])) {
+				ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $uid);
+				$fields['pending'] = false;
+			}
+
 			self::update($fields, ['id' => $contact['id']]);
 		} else {
 			$new_relation = (in_array($protocol, [Protocol::MAIL]) ? self::FRIEND : self::SHARING);
