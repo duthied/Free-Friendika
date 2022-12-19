@@ -114,7 +114,7 @@ class Status extends BaseDataTransferObject
 		$visibility = ['public', 'private', 'unlisted'];
 		$this->visibility = $visibility[$item['private']];
 
-		$languages = json_decode($item['language'], true);
+		$languages = json_decode($item['language'] ?? '', true);
 		if (is_array($languages)) {
 			reset($languages);
 			$this->language = key($languages);
