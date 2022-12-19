@@ -1477,28 +1477,28 @@ class Transmitter
 	 */
 	private static function removePictures(string $body): string
 	{
-		// Simplify image codes
-		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
-		$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
+		return BBCode::performWithEscapedTags($body, ['code', 'noparse', 'nobb', 'pre'], function ($text) {
+			// Simplify image codes
+			$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $text);
+			$text = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $text);
 
-		// Now remove local links
-		$body = preg_replace_callback(
-			'/\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]/Usi',
-			function ($match) {
-				// We remove the link when it is a link to a local photo page
-				if (Photo::isLocalPage($match[1])) {
-					return '';
-				}
-				// otherwise we just return the link
-				return '[url]' . $match[1] . '[/url]';
-			},
-			$body
-		);
+			// Now remove local links
+			$text = preg_replace_callback(
+				'/\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]/Usi',
+				function ($match) {
+					// We remove the link when it is a link to a local photo page
+					if (Photo::isLocalPage($match[1])) {
+						return '';
+					}
+					// otherwise we just return the link
+					return '[url]' . $match[1] . '[/url]';
+				},
+				$text
+			);
 
-		// Remove all pictures
-		$body = preg_replace("/\[img\]([^\[\]]*)\[\/img\]/Usi", '', $body);
-
-		return $body;
+			// Remove all pictures
+			return preg_replace("/\[img\]([^\[\]]*)\[\/img\]/Usi", '', $text);
+		});
 	}
 
 	/**
