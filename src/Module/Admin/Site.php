@@ -388,10 +388,6 @@ class Site extends BaseAdmin
 		/* Banner */
 		$banner = DI::config()->get('system', 'banner');
 
-		if ($banner == false) {
-			$banner = '<a href="https://friendi.ca"><img id="logo-img" width="32" height="32" src="images/friendica.svg" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
-		}
-
 		$email_banner = DI::config()->get('system', 'email_banner');
 
 		if ($email_banner == false) {

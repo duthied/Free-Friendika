@@ -64,6 +64,10 @@ return [
 		// Themes users can change to in their settings.
 		'allowed_themes' => 'frio,vier',
 
+		// banner (HTML string)
+		// HTML snippet of the top navigation banner. Not supported by frio.
+		'banner' => '<a href="https://friendi.ca"><img id="logo-img" width="32" height="32" src="images/friendica.svg" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>',
+
 		// cache_contact_avatar (Boolean)
 		// Cache versions of the contact avatars. Uses a lot of storage space
 		'cache_contact_avatar' => true,

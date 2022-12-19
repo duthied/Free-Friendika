@@ -140,7 +140,7 @@ class JsonLD
 	 * @return array Compacted JSON array
 	 * @throws Exception
 	 */
-	public static function compact($json, bool $logfailed = true)
+	public static function compact($json, bool $logfailed = true): array
 	{
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
@@ -202,6 +202,11 @@ class JsonLD
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
+
+		if ($json === false) {
+			Logger::notice('JSON encode->decode failed', ['orig_json' => $orig_json, 'compacted' => $compacted]);
+			$json = [];
+		}
 
 		return $json;
 	}
