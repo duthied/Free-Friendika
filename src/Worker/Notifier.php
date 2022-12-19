@@ -100,7 +100,7 @@ class Notifier
 			$uid = $target_id;
 
 			$condition = ['uid' => $target_id, 'self' => false, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
-			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'addr', 'network', 'protocol', 'baseurl', 'batch'], $condition);
+			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'addr', 'network', 'protocol', 'baseurl', 'gsid', 'batch'], $condition);
 		} else {
 			$post = Post::selectFirst(['id'], ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
 			if (!DBA::isResult($post)) {
@@ -426,7 +426,7 @@ class Notifier
 			if (!empty($networks)) {
 				$condition['network'] = $networks;
 			}
-			$delivery_contacts_stmt = DBA::select('contact', ['id', 'addr', 'url', 'network', 'protocol', 'baseurl', 'batch'], $condition);
+			$delivery_contacts_stmt = DBA::select('contact', ['id', 'addr', 'url', 'network', 'protocol', 'baseurl', 'gsid', 'batch'], $condition);
 		}
 
 		$conversants = [];
@@ -438,7 +438,7 @@ class Notifier
 			if ($diaspora_delivery && !$unlisted) {
 				$batch_delivery = true;
 
-				$participants = DBA::selectToArray('contact', ['batch', 'network', 'protocol', 'baseurl', 'id', 'url', 'name'],
+				$participants = DBA::selectToArray('contact', ['batch', 'network', 'protocol', 'baseurl', 'gsid', 'id', 'url', 'name'],
 					["`network` = ? AND `batch` != '' AND `uid` = ? AND `rel` != ? AND NOT `blocked` AND NOT `pending` AND NOT `archive`", Protocol::DIASPORA, $owner['uid'], Contact::SHARING],
 					['group_by' => ['batch', 'network', 'protocol']]);
 
@@ -450,7 +450,7 @@ class Notifier
 			$condition = ['network' => Protocol::DFRN, 'uid' => $owner['uid'], 'blocked' => false,
 				'pending' => false, 'archive' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]];
 
-			$contacts = DBA::selectToArray('contact', ['id', 'url', 'addr', 'name', 'network', 'protocol', 'baseurl'], $condition);
+			$contacts = DBA::selectToArray('contact', ['id', 'url', 'addr', 'name', 'network', 'protocol', 'baseurl', 'gsid'], $condition);
 
 			$conversants = array_merge($contacts, $participants);
 
@@ -564,7 +564,7 @@ class Notifier
 				continue;
 			}
 
-			if (!GServer::reachable($contact['url'], $contact['baseurl'], $contact['network'])) {
+			if (!GServer::reachable($contact)) {
 				Logger::info('Server is not reachable', ['id' => $post_uriid, 'uid' => $sender_uid, 'contact' => $contact]);
 				continue;
 			}
