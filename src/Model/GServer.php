@@ -183,7 +183,7 @@ class GServer
 			} elseif ($contact['network'] == Protocol::DIASPORA) {
 				$parts = parse_url($profile);
 				unset($parts['path']);
-				$server =  (string)Uri::fromParts($parts);
+				$server = (string)Uri::fromParts($parts);
 			}
 		}
 
