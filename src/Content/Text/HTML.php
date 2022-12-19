@@ -736,22 +736,22 @@ class HTML
 			'[youtube]$2[/youtube]',
 			$s
 		);
-	
+
 		$s = preg_replace(
 			'#<iframe[^>](.*?)https?://www.youtube.com/embed/([A-Za-z0-9\-_=]+)(.*?)</iframe>#ism',
 			'[youtube]$2[/youtube]',
 			$s
 		);
-	
+
 		$s = preg_replace(
 			'#<iframe[^>](.*?)https?://player.vimeo.com/video/([0-9]+)(.*?)</iframe>#ism',
 			'[vimeo]$2[/vimeo]',
 			$s
 		);
-	
+
 		return $s;
 	}
-	
+
 	/**
 	 * transform link href and img src from relative to absolute
 	 *
@@ -764,30 +764,30 @@ class HTML
 		if (empty($base)) {
 			return $text;
 		}
-	
+
 		$base = rtrim($base, '/');
-	
+
 		$base2 = $base . "/";
-	
+
 		// Replace links
 		$pattern = "/<a([^>]*) href=\"(?!http|https|\/)([^\"]*)\"/";
 		$replace = "<a\${1} href=\"" . $base2 . "\${2}\"";
 		$text = preg_replace($pattern, $replace, $text);
-	
+
 		$pattern = "/<a([^>]*) href=\"(?!http|https)([^\"]*)\"/";
 		$replace = "<a\${1} href=\"" . $base . "\${2}\"";
 		$text = preg_replace($pattern, $replace, $text);
-	
+
 		// Replace images
 		$pattern = "/<img([^>]*) src=\"(?!http|https|\/)([^\"]*)\"/";
 		$replace = "<img\${1} src=\"" . $base2 . "\${2}\"";
 		$text = preg_replace($pattern, $replace, $text);
-	
+
 		$pattern = "/<img([^>]*) src=\"(?!http|https)([^\"]*)\"/";
 		$replace = "<img\${1} src=\"" . $base . "\${2}\"";
 		$text = preg_replace($pattern, $replace, $text);
-	
-	
+
+
 		// Done
 		return $text;
 	}
@@ -905,19 +905,6 @@ class HTML
 		}
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('searchbox.tpl'), $values);
-	}
-
-	/**
-	 * Replace naked text hyperlink with HTML formatted hyperlink
-	 *
-	 * @param string $s
-	 * @return string
-	 */
-	public static function toLink(string $s): string
-	{
-		$s = preg_replace("/(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\'\%\$\!\+]*)/", ' <a href="$1" target="_blank" rel="noopener noreferrer">$1</a>', $s);
-		$s = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism", '<$1$2=$3&$4>', $s);
-		return $s;
 	}
 
 	/**
