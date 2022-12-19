@@ -177,6 +177,12 @@ class JsonLD
 			if (!in_array('https://w3id.org/security/v1', $json['@context'])) {
 				$json['@context'][] = 'https://w3id.org/security/v1';
 			}
+
+			// Issue 12419: Workaround for GoToSocial
+			$pos = array_search('http://joinmastodon.org/ns', $json['@context']);
+			if (is_int($pos)) {
+				$json['@context'][$pos] = ['toot' => 'http://joinmastodon.org/ns#'];
+			}
 		}
 
 		// Bookwyrm transmits "id" fields with "null", which isn't allowed.
