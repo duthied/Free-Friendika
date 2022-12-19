@@ -191,7 +191,6 @@ The available features are client specific and may differ.
 
 #### iOS
 
-* [Fedi](https://github.com/Big-Fig/Fediverse.app) ([AppStore](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281))
 * [Mastodon](https://joinmastodon.org/apps) ([AppStore](https://apps.apple.com/us/app/mastodon-for-iphone/id1571998974))
 * [Stella*](https://www.stella-app.net/) ([AppStore](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048))
 * [Tooot](https://github.com/tooot-app) ([AppStore](https://apps.apple.com/app/id1549772269)
