@@ -177,9 +177,13 @@ class GServer
 	public static function reachable(string $profile, string $server = '', string $network = '', bool $force = false): bool
 	{
 		if ($server == '') {
-			$contact = Contact::getByURL($profile, null, ['baseurl']);
+			$contact = Contact::getByURL($profile, null, ['baseurl', 'network']);
 			if (!empty($contact['baseurl'])) {
 				$server = $contact['baseurl'];
+			} elseif ($contact['network'] == Protocol::DIASPORA) {
+				$parts = parse_url($profile);
+				unset($parts['path']);
+				$server =  (string)Uri::fromParts($parts);
 			}
 		}
 
