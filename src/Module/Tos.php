@@ -85,11 +85,13 @@ class Tos extends BaseModule
 		if ($this->config->get('system', 'tosdisplay')) {
 			$lines = trim($this->config->get('system', 'tosrules') ?: '');
 			if ($lines) {
-				$rules = "[list=1]";
+				$rules = "[ol]";
 				foreach (explode("\n", $lines) as $line) {
-					$rules .= "\n[*]" . $line;
+					if (trim($line)) {
+						$rules .= "\n[*]" . trim($line);
+					}
 				}
-				$rules .= "\n[/list]\n";
+				$rules .= "\n[/ol]\n";
 			} else {
 				$rules = '';
 			}
