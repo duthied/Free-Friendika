@@ -26,7 +26,6 @@ use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\HTML;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -48,6 +47,7 @@ use Friendica\Profile\ProfileField\Repository\ProfileField;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 use Psr\Log\LoggerInterface;
 
@@ -204,7 +204,11 @@ class Profile extends BaseProfile
 		}
 
 		if ($profile['homepage']) {
-			$basic_fields += self::buildField('homepage', $this->t('Homepage:'), HTML::toLink($profile['homepage']));
+			$basic_fields += self::buildField(
+				'homepage',
+				$this->t('Homepage:'),
+				$this->tryRelMe($profile['homepage']) ?: $profile['homepage']
+			);
 		}
 
 		if (
@@ -245,7 +249,7 @@ class Profile extends BaseProfile
 			$custom_fields += self::buildField(
 				'custom_' . $profile_field->order,
 				$profile_field->label,
-				BBCode::convertForUriId($profile['uri-id'], $profile_field->value),
+				$this->tryRelMe($profile_field->value) ?: BBCode::convertForUriId($profile['uri-id'], $profile_field->value),
 				'aprofile custom'
 			);
 		}
@@ -358,5 +362,20 @@ class Profile extends BaseProfile
 		}
 
 		return $htmlhead;
+	}
+
+	/**
+	 * Check if the input is an HTTP(S) link and returns a rel="me" link if yes, empty string if not
+	 *
+	 * @param string $input
+	 * @return string
+	 */
+	private function tryRelMe(string $input): string
+	{
+		if (preg_match(Strings::onlyLinkRegEx(), trim($input))) {
+			return '<a href="' . trim($input) . '" target="_blank" rel="noopener noreferrer me">' . trim($input) . '</a>';
+		}
+
+		return '';
 	}
 }
