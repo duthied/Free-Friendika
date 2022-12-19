@@ -262,7 +262,7 @@ class Index extends BaseSettings
 				<p>Reorder by dragging the field title.</p>
 				<p>Empty the label field to remove a custom field.</p>
 				<p>Non-public fields can only be seen by the selected Friendica contacts or the Friendica contacts in the selected groups.</p>",
-				'profile/' . $profile['nickname']
+				'profile/' . $profile['nickname'] . '/profile'
 			),
 			'$custom_fields' => $custom_fields,
 		]);
