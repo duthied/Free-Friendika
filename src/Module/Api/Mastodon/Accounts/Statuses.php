@@ -26,6 +26,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
@@ -81,11 +82,11 @@ class Statuses extends BaseApi
 
 		if (!$request['pinned'] && !$request['only_media']) {
 			if ($request['exclude_replies']) {
-				$condition = DBA::mergeConditions($condition, ["(`gravity` = ? OR (`gravity` = ? AND `vid` = ?))",
-					Item::GRAVITY_PARENT, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE)]);
+				$condition = DBA::mergeConditions($condition, ["(`gravity` = ? OR (`gravity` = ? AND `vid` = ? AND `protocol` != ?))",
+					Item::GRAVITY_PARENT, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), Conversation::PARCEL_DIASPORA]);
 			} else {
-				$condition = DBA::mergeConditions($condition, ["(`gravity` IN (?, ?) OR (`gravity` = ? AND `vid` = ?))",
-					Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE)]);
+				$condition = DBA::mergeConditions($condition, ["(`gravity` IN (?, ?) OR (`gravity` = ? AND `vid` = ? AND `protocol` != ?))",
+					Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), Conversation::PARCEL_DIASPORA]);
 			}
 		} elseif ($request['exclude_replies']) {
 			$condition = DBA::mergeConditions($condition, ['gravity' => Item::GRAVITY_PARENT]);
