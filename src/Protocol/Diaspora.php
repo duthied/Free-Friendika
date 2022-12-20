@@ -499,7 +499,7 @@ class Diaspora
 		}
 
 		if (!($fields = self::validPosting($msg))) {
-			Logger::warning('Invalid posting', ['msg' => $msg]);
+			Logger::notice('Invalid posting', ['msg' => $msg]);
 			return false;
 		}
 
