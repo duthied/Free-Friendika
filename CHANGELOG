@@ -19,6 +19,7 @@ Version 2022.12 (unreleased)
     Added a moderation section to the admin panel [annando]
     Added an option to make the calendar public [matthiasmoritz]
     Fixed a bug in the federation with Diaspora* [annando]
+    Fixec a problem in the federation with GoTo Social and Owncast [annando]
     Deprecated old themes (duepuntozero, quattro, smoothy)
 
     NOTE: The Apache2 rewrite rule in the .htaccess-dist has been changed.
@@ -62,7 +63,7 @@ Version 2022.12 (unreleased)
     12229, 12237, 12245, 12262, 12266, 12273, 12275, 12285, 12312, 12327,
     12338, 12339, 12342, 12344, 12345, 12355, 12373, 12376, 12382, 12386,
     12399, 12401, 12405, 12406, 12408, 12411, 12413, 12421, 12431, 12437,
-    12448, 12450, 12456, 12466, 12468
+    12441, 12448, 12450, 12456, 12466, 12468, 12476
 
 Version 2022.10 (2022-10-14)
   Friendica Core
