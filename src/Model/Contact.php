@@ -1130,39 +1130,25 @@ class Contact
 	 * Returns the data array for the photo menu of a given contact
 	 *
 	 * @param array $contact contact
-	 * @param int   $uid     optional, default 0
+	 * @param int   $uid     Visitor user id
 	 * @return array
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function photoMenu(array $contact, int $uid = 0): array
+	public static function photoMenu(array $contact, int $uid): array
 	{
-		$pm_url = '';
+		// Anonymous visitor
+		if (!$uid) {
+			return ['profile' => [DI::l10n()->t('View Profile'), self::magicLinkByContact($contact), true]];
+		}
+
+		$pm_url      = '';
 		$status_link = '';
 		$photos_link = '';
 
-		if ($uid == 0) {
-			$uid = DI::userSession()->getLocalUserId();
-		}
-
-		if (empty($contact['uid']) || ($contact['uid'] != $uid)) {
-			if ($uid == 0) {
-				$profile_link = self::magicLinkByContact($contact);
-				$menu = ['profile' => [DI::l10n()->t('View Profile'), $profile_link, true]];
-
-				return $menu;
-			}
-
-			// Look for our own contact if the uid doesn't match and isn't public
-			$contact_own = DBA::selectFirst('contact', [], ['nurl' => $contact['nurl'], 'network' => $contact['network'], 'uid' => $uid]);
-			if (DBA::isResult($contact_own)) {
-				return self::photoMenu($contact_own, $uid);
-			}
-		}
-
 		$sparkle = false;
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
-			$sparkle = true;
+			$sparkle      = true;
 			$profile_link = 'contact/redir/' . $contact['id'];
 		} else {
 			$profile_link = $contact['url'];
@@ -1173,8 +1159,8 @@ class Contact
 		}
 
 		if ($sparkle) {
-			$status_link = $profile_link . '/status';
-			$photos_link = $profile_link . '/photos';
+			$status_link  = $profile_link . '/status';
+			$photos_link  = $profile_link . '/photos';
 			$profile_link = $profile_link . '/profile';
 		}
 
@@ -1183,15 +1169,14 @@ class Contact
 		}
 
 		$contact_url = 'contact/' . $contact['id'];
-
 		$posts_link = 'contact/' . $contact['id'] . '/conversations';
 
-		$follow_link = '';
+		$follow_link   = '';
 		$unfollow_link = '';
 		if (!$contact['self'] && Protocol::supportsFollow($contact['network'])) {
 			if ($contact['uid'] && in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
 				$unfollow_link = 'contact/unfollow?url=' . urlencode($contact['url']) . '&auto=1';
-			} elseif(!$contact['pending']) {
+			} elseif (!$contact['pending']) {
 				$follow_link = 'contact/follow?url=' . urlencode($contact['url']) . '&auto=1';
 			}
 		}
@@ -1202,27 +1187,27 @@ class Contact
 		 */
 		if (empty($contact['uid'])) {
 			$menu = [
-				'profile' => [DI::l10n()->t('View Profile')  , $profile_link , true],
-				'network' => [DI::l10n()->t('Network Posts') , $posts_link   , false],
-				'edit'    => [DI::l10n()->t('View Contact')  , $contact_url  , false],
-				'follow'  => [DI::l10n()->t('Connect/Follow'), $follow_link  , true],
-				'unfollow'=> [DI::l10n()->t('Unfollow')      , $unfollow_link, true],
+				'profile'  => [DI::l10n()->t('View Profile')  , $profile_link , true ],
+				'network'  => [DI::l10n()->t('Network Posts') , $posts_link   , false],
+				'edit'     => [DI::l10n()->t('View Contact')  , $contact_url  , false],
+				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link  , true ],
+				'unfollow' => [DI::l10n()->t('Unfollow')      , $unfollow_link, true ],
 			];
 		} else {
 			$menu = [
-				'status'  => [DI::l10n()->t('View Status')   , $status_link      , true],
-				'profile' => [DI::l10n()->t('View Profile')  , $profile_link     , true],
-				'photos'  => [DI::l10n()->t('View Photos')   , $photos_link      , true],
-				'network' => [DI::l10n()->t('Network Posts') , $posts_link       , false],
-				'edit'    => [DI::l10n()->t('View Contact')  , $contact_url      , false],
-				'pm'      => [DI::l10n()->t('Send PM')       , $pm_url           , false],
-				'follow'  => [DI::l10n()->t('Connect/Follow'), $follow_link      , true],
-				'unfollow'=> [DI::l10n()->t('Unfollow')      , $unfollow_link    , true],
+				'status'   => [DI::l10n()->t('View Status')   , $status_link  , true ],
+				'profile'  => [DI::l10n()->t('View Profile')  , $profile_link , true ],
+				'photos'   => [DI::l10n()->t('View Photos')   , $photos_link  , true ],
+				'network'  => [DI::l10n()->t('Network Posts') , $posts_link   , false],
+				'edit'     => [DI::l10n()->t('View Contact')  , $contact_url  , false],
+				'pm'       => [DI::l10n()->t('Send PM')       , $pm_url       , false],
+				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link  , true ],
+				'unfollow' => [DI::l10n()->t('Unfollow')      , $unfollow_link, true ],
 			];
 
 			if (!empty($contact['pending'])) {
 				try {
-					$intro = DI::intro()->selectForContact($contact['id']);
+					$intro          = DI::intro()->selectForContact($contact['id']);
 					$menu['follow'] = [DI::l10n()->t('Approve'), 'notifications/intros/' . $intro->id, true];
 				} catch (IntroductionNotFoundException $exception) {
 					DI::logger()->error('Pending contact doesn\'t have an introduction.', ['exception' => $exception]);
@@ -1401,14 +1386,18 @@ class Contact
 		if ($data['network'] == Protocol::DIASPORA) {
 			try {
 				DI::dsprContact()->updateFromProbeArray($data);
+			} catch (HTTPException\NotFoundException $e) {
+				Logger::notice($e->getMessage(), ['url' => $url, 'data' => $data]);
 			} catch (\InvalidArgumentException $e) {
-				Logger::error($e->getMessage(), ['url' => $url, 'data' => $data]);
+				Logger::notice($e->getMessage(), ['url' => $url, 'data' => $data]);
 			}
 		} elseif (!empty($data['networks'][Protocol::DIASPORA])) {
 			try {
 				DI::dsprContact()->updateFromProbeArray($data['networks'][Protocol::DIASPORA]);
+			} catch (HTTPException\NotFoundException $e) {
+				Logger::notice($e->getMessage(), ['url' => $url, 'data' => $data['networks'][Protocol::DIASPORA]]);
 			} catch (\InvalidArgumentException $e) {
-				Logger::error($e->getMessage(), ['url' => $url, 'data' => $data['networks'][Protocol::DIASPORA]]);
+				Logger::notice($e->getMessage(), ['url' => $url, 'data' => $data['networks'][Protocol::DIASPORA]]);
 			}
 		}
 
@@ -2513,14 +2502,18 @@ class Contact
 		if ($data['network'] == Protocol::DIASPORA) {
 			try {
 				DI::dsprContact()->updateFromProbeArray($data);
+			} catch (HTTPException\NotFoundException $e) {
+				Logger::notice($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
 			} catch (\InvalidArgumentException $e) {
-				Logger::error($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
+				Logger::notice($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
 			}
 		} elseif (!empty($data['networks'][Protocol::DIASPORA])) {
 			try {
 				DI::dsprContact()->updateFromProbeArray($data['networks'][Protocol::DIASPORA]);
+			} catch (HTTPException\NotFoundException $e) {
+				Logger::notice($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
 			} catch (\InvalidArgumentException $e) {
-				Logger::error($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
+				Logger::notice($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
 			}
 		}
 
@@ -2923,15 +2916,8 @@ class Contact
 		}
 
 		// check if we already have a contact
-		// the poll url is more reliable than the profile url, as we may have
-		// indirect links or webfinger links
-
-		$condition = ['uid' => $uid, 'poll' => [$ret['poll'], Strings::normaliseLink($ret['poll'])], 'network' => $ret['network'], 'pending' => false];
-		$contact = DBA::selectFirst('contact', ['id', 'rel'], $condition);
-		if (!DBA::isResult($contact)) {
-			$condition = ['uid' => $uid, 'nurl' => Strings::normaliseLink($ret['url']), 'network' => $ret['network'], 'pending' => false];
-			$contact = DBA::selectFirst('contact', ['id', 'rel'], $condition);
-		}
+		$condition = ['uid' => $uid, 'nurl' => Strings::normaliseLink($ret['url'])];
+		$contact = DBA::selectFirst('contact', ['id', 'rel', 'url', 'pending', 'hub-verify'], $condition);
 
 		$protocol = self::getProtocol($ret['url'], $ret['network']);
 
@@ -2987,7 +2973,13 @@ class Contact
 			// update contact
 			$new_relation = (in_array($contact['rel'], [self::FOLLOWER, self::FRIEND]) ? self::FRIEND : self::SHARING);
 
-			$fields = ['rel' => $new_relation, 'subhub' => $subhub, 'readonly' => false];
+			$fields = ['rel' => $new_relation, 'subhub' => $subhub, 'readonly' => false, 'network' => $ret['network']];
+
+			if ($contact['pending'] && !empty($contact['hub-verify'])) {
+				ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $uid);
+				$fields['pending'] = false;
+			}
+
 			self::update($fields, ['id' => $contact['id']]);
 		} else {
 			$new_relation = (in_array($protocol, [Protocol::MAIL]) ? self::FRIEND : self::SHARING);

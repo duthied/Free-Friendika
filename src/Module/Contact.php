@@ -35,6 +35,7 @@ use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\NotFoundException;
 
 /**
@@ -494,16 +495,18 @@ class Contact extends BaseModule
 	 *
 	 * @param array $contact Contact array
 	 * @return array Template fields
+	 * @throws InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function getContactTemplateVars(array $contact)
+	public static function getContactTemplateVars(array $contact): array
 	{
 		$alt_text = '';
 
 		if (!empty($contact['url']) && isset($contact['uid']) && ($contact['uid'] == 0) && DI::userSession()->getLocalUserId()) {
 			$personal = Model\Contact::getByURL($contact['url'], false, ['uid', 'rel', 'self'], DI::userSession()->getLocalUserId());
 			if (!empty($personal)) {
-				$contact['uid'] = $personal['uid'];
-				$contact['rel'] = $personal['rel'];
+				$contact['uid']  = $personal['uid'];
+				$contact['rel']  = $personal['rel'];
 				$contact['self'] = $personal['self'];
 			}
 		}
@@ -545,15 +548,15 @@ class Contact extends BaseModule
 
 		if ($contact['self']) {
 			$alt_text = DI::l10n()->t('This is you');
-			$url = $contact['url'];
-			$sparkle = '';
+			$url      = $contact['url'];
+			$sparkle  = '';
 		}
 
 		return [
 			'id'           => $contact['id'],
 			'url'          => $url,
 			'img_hover'    => DI::l10n()->t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
-			'photo_menu'   => Model\Contact::photoMenu($contact),
+			'photo_menu'   => Model\Contact::photoMenu($contact, DI::userSession()->getLocalUserId()),
 			'thumb'        => Model\Contact::getThumb($contact, true),
 			'alt_text'     => $alt_text,
 			'name'         => $contact['name'],

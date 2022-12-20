@@ -37,14 +37,12 @@ class FollowRequest extends Account
 	 *
 	 * @param BaseURL $baseUrl
 	 * @param int     $introduction_id Introduction record id
-	 * @param array   $publicContact   Full contact table record with uid = 0
-	 * @param array   $apcontact       Optional full apcontact table record
-	 * @param array   $userContact     Optional full contact table record with uid != 0
+	 * @param array   $account         entry of "account-user-view"
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(BaseURL $baseUrl, int $introduction_id, array $publicContact, array $apcontact = [], array $userContact = [])
+	public function __construct(BaseURL $baseUrl, int $introduction_id, array $account)
 	{
-		parent::__construct($baseUrl, $publicContact, new Fields(), $apcontact, $userContact);
+		parent::__construct($baseUrl, $account, new Fields());
 
 		$this->id = $introduction_id;
 	}

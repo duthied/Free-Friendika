@@ -78,7 +78,7 @@ class Photos extends \Friendica\Module\BaseProfile
 		$this->systemMessages = $systemMessages;
 		$this->aclFormatter   = $aclFormatter;
 
-		$owner = Profile::load($this->app, $this->parameters['nickname'] ?? '');
+		$owner = Profile::load($this->app, $this->parameters['nickname'] ?? '', false);
 		if (!$owner || $owner['account_removed'] || $owner['account_expired']) {
 			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
@@ -318,16 +318,8 @@ class Photos extends \Friendica\Module\BaseProfile
 		$owner_uid = $this->owner['uid'];
 		$is_owner  = $this->session->getLocalUserId() == $owner_uid;
 
-		$remote_contact = false;
-		if ($this->session->getRemoteContactID($owner_uid)) {
-			$contact_id = $this->session->getRemoteContactID($owner_uid);
-
-			$contact        = Contact::getContactForUser($contact_id, $owner_uid, ['blocked', 'pending']);
-			$remote_contact = $contact && !$contact['blocked'] && !$contact['pending'];
-		}
-
 		if ($this->owner['hidewall'] && !$this->session->isAuthenticated()) {
-			$this->baseUrl->redirect('profile/' . $owner['nickname'] . '/restricted');
+			$this->baseUrl->redirect('profile/' . $this->owner['nickname'] . '/restricted');
 		}
 
 		$this->session->set('photo_return', $this->args->getCommand());
@@ -410,6 +402,11 @@ class Photos extends \Friendica\Module\BaseProfile
 				'$upload'   => [$this->t('Upload New Photos'), 'photos/' . $this->owner['nickname'] . '/upload'],
 				'$can_post' => $this->session->getLocalUserId() && $this->owner['uid'] == $this->session->getLocalUserId(),
 			]);
+		}
+
+		// Removing vCard for owner
+		if ($is_owner) {
+			$this->page['aside'] = '';
 		}
 
 		if (!empty($photo_albums_widget)) {

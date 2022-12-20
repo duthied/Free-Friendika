@@ -140,7 +140,7 @@ class JsonLD
 	 * @return array Compacted JSON array
 	 * @throws Exception
 	 */
-	public static function compact($json, bool $logfailed = true)
+	public static function compact($json, bool $logfailed = true): array
 	{
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
@@ -177,6 +177,12 @@ class JsonLD
 			if (!in_array('https://w3id.org/security/v1', $json['@context'])) {
 				$json['@context'][] = 'https://w3id.org/security/v1';
 			}
+
+			// Issue 12419: Workaround for GoToSocial
+			$pos = array_search('http://joinmastodon.org/ns', $json['@context']);
+			if (is_int($pos)) {
+				$json['@context'][$pos] = ['toot' => 'http://joinmastodon.org/ns#'];
+			}
 		}
 
 		// Bookwyrm transmits "id" fields with "null", which isn't allowed.
@@ -202,6 +208,11 @@ class JsonLD
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
+
+		if ($json === false) {
+			Logger::notice('JSON encode->decode failed', ['orig_json' => $orig_json, 'compacted' => $compacted]);
+			$json = [];
+		}
 
 		return $json;
 	}

@@ -1,3 +1,8 @@
+<link rel="stylesheet" type="text/css" href="{{$baseurl}}/view/asset/fullcalendar/dist/fullcalendar.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" />
+<link rel="stylesheet" type="text/css" href="{{$baseurl}}/view/asset/fullcalendar/dist/fullcalendar.print.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" media="print" />
+<script type="text/javascript" src="{{$baseurl}}/view/asset/moment/min/moment-with-locales.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="{{$baseurl}}/view/asset/fullcalendar/dist/fullcalendar.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+
 <script>
 	function showEvent(eventid) {
 		$.get(
@@ -10,7 +15,7 @@
 
 	function doEventPreview() {
 		$('#event-edit-preview').val(1);
-		$.post('calendar', $('#event-edit-form').serialize(), function(data) {
+		$.post('events', $('#event-edit-form').serialize(), function(data) {
 			$.colorbox({ html: data });
 		});
 		$('#event-edit-preview').val(0);
@@ -26,6 +31,7 @@
 
 	$(document).ready(function() {
 		$('#events-calendar').fullCalendar({
+			defaultView: '{{$i18n.defaultView|escape:'quotes'}}',
 			firstDay: '{{$i18n.firstDay|escape:'quotes'}}',
 			monthNames: [
 				'{{$i18n.January|escape:'quotes'}}',
@@ -87,13 +93,13 @@
 				center: 'title',
 				right: 'month,agendaWeek,agendaDay'
 			},
-			timeFormat: 'H(:mm)',
-			eventClick: function(calEvent, jsEvent, view) {
+			timeFormat: 'H:mm',
+			eventClick: function(calEvent) {
 				showEvent(calEvent.id);
 			},
-			loading: function(isLoading, view) {
+			loading: function(isLoading) {
 				if(!isLoading) {
-					$('td.fc-day').dblclick(function() { window.location.href='calendar/event/new?start=' + $(this).data('date'); });
+					$('td.fc-day').dblclick(function() { window.location.href='/calendar/event/new?start=' + $(this).data('date'); });
 				}
 			},
 
@@ -101,57 +107,39 @@
 				if (event.item['author-name']==null) return;
 				switch(view.name){
 					case "month":
-					element.find(".fc-title").html(
-						"<img src='{0}' style='height:10px;width:10px'>{1} : {2}".format(
-							event.item['author-avatar'],
-							event.item['author-name'],
-							event.title
-					));
-					break;
+						element.find(".fc-title").html(
+							"{0}".format(
+								event.title
+							));
+						break;
 					case "agendaWeek":
-					element.find(".fc-title").html(
-						"<img src='{0}' style='height:12px; width:12px'>{1}<p>{2}</p><p>{3}</p>".format(
-							event.item['author-avatar'],
-							event.item['author-name'],
-							event.item.desc,
-							event.item.location
-					));
-					break;
+						element.find(".fc-title").html(
+							"{0}<p>{1}</p><p>{2}</p>".format(
+								event.item['author-name'],
+								event.item.desc,
+								event.item.location
+							));
+						break;
 					case "agendaDay":
-					element.find(".fc-title").html(
-						"<img src='{0}' style='height:24px;width:24px'>{1}<p>{2}</p><p>{3}</p>".format(
-							event.item['author-avatar'],
-							event.item['author-name'],
-							event.item.desc,
-							event.item.location
-					));
-					break;
+						element.find(".fc-title").html(
+							"{0}<p>{1}</p><p>{2}</p>".format(
+								event.item['author-name'],
+								event.item.desc,
+								event.item.location
+							));
+						break;
 				}
 			}
 
 		})
 
-		// center on date
-		var args=location.href.replace(baseurl,"").split("/");
-{{if $modparams == 2}}
-		if (args.length>=5) {
-			$("#events-calendar").fullCalendar('gotoDate',args[3] , args[4]-1);
-		}
-{{else}}
-		if (args.length>=4) {
-			$("#events-calendar").fullCalendar('gotoDate',args[2] , args[3]-1);
-		}
-{{/if}}
-
 		// show event popup
-		var hash = location.hash.split("-")
-		if (hash.length==2 && hash[0]=="#link") showEvent(hash[1]);
-
+		let hash = location.hash.split("-");
+		if (hash.length === 2 && hash[0] === "#link") showEvent(hash[1]);
 	});
 </script>
 
 <script language="javascript" type="text/javascript">
-
 	$(document).ready(function() {
 		$("#comment-edit-text-desc").bbco_autocomplete('bbcode');
 
@@ -166,7 +154,7 @@
 		}).trigger('change');
 
 		$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
-			var selstr;
+			let selstr;
 			$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
 				selstr = $(this).html();
 				$('#jot-public').hide();
@@ -174,15 +162,12 @@
 			if(selstr == null) {
 				$('#jot-public').show();
 			}
-
 		}).trigger('change');
 
 		// disable the finish time input if the user disable it
 		$('#id_nofinish').change(function() {
 			enableDisableFinishDate()
 		}).trigger('change');
-
 	});
-
 </script>
 

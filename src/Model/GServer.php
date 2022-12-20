@@ -167,27 +167,43 @@ class GServer
 	/**
 	 * Checks if the given server is reachable
 	 *
-	 * @param string  $profile URL of the given profile
-	 * @param string  $server  URL of the given server (If empty, taken from profile)
-	 * @param string  $network Network value that is used, when detection failed
-	 * @param boolean $force   Force an update.
+	 * @param array $contact Contact that should be checked
 	 *
 	 * @return boolean 'true' if server seems vital
 	 */
-	public static function reachable(string $profile, string $server = '', string $network = '', bool $force = false): bool
+	public static function reachable(array $contact): bool
 	{
-		if ($server == '') {
-			$contact = Contact::getByURL($profile, null, ['baseurl']);
-			if (!empty($contact['baseurl'])) {
-				$server = $contact['baseurl'];
-			}
-		}
-
-		if ($server == '') {
+		if (!empty($contact['gsid'])) {
+			$gsid = $contact['gsid'];
+		} elseif (!empty($contact['baseurl'])) {
+			$server = $contact['baseurl'];
+		} elseif ($contact['network'] == Protocol::DIASPORA) {
+			$parts = parse_url($contact['url']);
+			unset($parts['path']);
+			$server = (string)Uri::fromParts($parts);
+		} else {
 			return true;
 		}
 
-		return self::check($server, $network, $force);
+		if (!empty($gsid)) {
+			$condition = ['id' => $gsid];
+		} else {
+			$condition = ['nurl' => Strings::normaliseLink($server)];
+		}
+
+		$gserver = DBA::selectFirst('gserver', ['url', 'next_contact', 'failed'], $condition);
+		if (empty($gserver)) {
+			$reachable = true;
+		} else {
+			$reachable = !$gserver['failed'];
+			$server    = $gserver['url'];
+		}
+
+		if (!empty($server) && (empty($gserver) || strtotime($gserver['next_contact']) < time())) {
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $server, false);
+		}
+
+		return $reachable;
 	}
 
 	/**
