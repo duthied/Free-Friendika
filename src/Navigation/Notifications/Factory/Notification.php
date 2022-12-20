@@ -311,6 +311,10 @@ class Notification extends BaseFactory implements ICanCreateFromTableRow
 								$msg = $l10n->t('%1$s shared a post');
 							}
 							break;
+
+						case Post\UserNotification::TYPE_QUOTED:
+							$msg = $l10n->t('%1$s shared your post %2$s');
+							break;
 					}
 					break;
 			}

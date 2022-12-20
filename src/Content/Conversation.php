@@ -985,7 +985,8 @@ class Conversation
 
 		$thread_items = Post::selectForUser($uid, array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
-		$items = [];
+		$items         = [];
+		$quote_uri_ids = [];
 
 		while ($row = Post::fetch($thread_items)) {
 			if (!empty($items[$row['uri-id']]) && ($row['uid'] == 0)) {
@@ -1005,10 +1006,36 @@ class Conversation
 				}
 			}
 
+			if (in_array($row['gravity'], [ItemModel::GRAVITY_PARENT, ItemModel::GRAVITY_COMMENT])) {
+				$quote_uri_ids[$row['uri-id']] = [
+					'uri-id'        => $row['uri-id'],
+					'uri'           => $row['uri'],
+					'parent-uri-id' => $row['parent-uri-id'],
+					'parent-uri'    => $row['parent-uri'],
+				];
+			}
+
 			$items[$row['uri-id']] = $this->addRowInformation($row, $activities[$row['uri-id']] ?? [], $thr_parent[$row['thr-parent-id']] ?? []);
 		}
 
 		DBA::close($thread_items);
+
+		$quotes = Post::select(array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), ['quote-uri-id' => array_column($quote_uri_ids, 'uri-id'), 'body' => '', 'uid' => 0]);
+		while ($quote = Post::fetch($quotes)) {
+			$row = $quote;
+
+			$row['uid']           = $uid;
+			$row['verb']          = $row['body'] = $row['raw-body'] = Activity::ANNOUNCE;
+			$row['gravity']       = ItemModel::GRAVITY_ACTIVITY;
+			$row['object-type']   = Activity\ObjectType::NOTE;
+			$row['parent-uri']    = $quote_uri_ids[$quote['quote-uri-id']]['parent-uri'];
+			$row['parent-uri-id'] = $quote_uri_ids[$quote['quote-uri-id']]['parent-uri-id'];
+			$row['thr-parent']    = $quote_uri_ids[$quote['quote-uri-id']]['uri'];
+			$row['thr-parent-id'] = $quote_uri_ids[$quote['quote-uri-id']]['uri-id'];
+
+			$items[$row['uri-id']] = $this->addRowInformation($row, [], []);
+		}
+		DBA::close($quotes);
 
 		$items = $this->convSort($items, $order);
 

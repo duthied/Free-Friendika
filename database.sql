@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.03-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1502
+-- DB_UPDATE_VERSION 1503
 -- ------------------------------------------
 
 
@@ -1439,7 +1439,7 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	`event-id` int unsigned COMMENT 'Used to link to the event.id',
 	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'post has not been seen',
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide the post from the user',
-	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`notification-type` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
 	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
 	`psid` int unsigned COMMENT 'ID of the permission set of this post',

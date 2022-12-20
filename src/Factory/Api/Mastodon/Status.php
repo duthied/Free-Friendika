@@ -115,13 +115,18 @@ class Status extends BaseFactory
 			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::ANNOUNCE),
 			'deleted'       => false
-		], []);
+		]) + Post::countPosts([
+			'quote-uri-id' => $uriId,
+			'body'         => '',
+			'deleted'      => false
+		]);
+
 		$count_like = Post::countPosts([
 			'thr-parent-id' => $uriId,
 			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::LIKE),
 			'deleted'       => false
-		], []);
+		]);
 
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
 			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => Item::GRAVITY_COMMENT, 'deleted' => false], []),
@@ -143,6 +148,12 @@ class Status extends BaseFactory
 			'origin'        => true,
 			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::ANNOUNCE),
+			'deleted'       => false
+		]) || Post::exists([
+			'quote-uri-id' => $uriId,
+			'uid'           => $uid,
+			'origin'        => true,
+			'body'          => '',
 			'deleted'       => false
 		]);
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(

@@ -27,7 +27,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -52,6 +51,7 @@ class UserNotification
 	const TYPE_DIRECT_THREAD_COMMENT  = 64;
 	const TYPE_SHARED                 = 128;
 	const TYPE_FOLLOW                 = 256;
+	const TYPE_QUOTED                 = 512;
 
 	/**
 	 * Insert a new user notification entry
@@ -269,6 +269,14 @@ class UserNotification
 			$notification_type = $notification_type | self::TYPE_COMMENT_PARTICIPATION;
 			if (!$notified) {
 				self::insertNotificationByItem(self::TYPE_COMMENT_PARTICIPATION, $uid, $item);
+				$notified = true;
+			}
+		}
+
+		if (($item['verb'] != Activity::ANNOUNCE) && self::checkQuoted($item, $contacts)) {
+			$notification_type = $notification_type | self::TYPE_QUOTED;
+			if (!$notified) {
+				self::insertNotificationByItem(self::TYPE_QUOTED, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -581,4 +589,23 @@ class UserNotification
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => Item::GRAVITY_ACTIVITY];
 		return Post::exists($condition);
 	}
+
+	/**
+	 * Check for a quoted post of a post of the given user
+	 *
+	 * @param array $item
+	 * @param array $contacts Array of contact IDs
+	 * @return bool The item is a quoted post of a user's post or comment
+	 * @throws Exception
+	 */
+	private static function checkQuoted(array $item, array $contacts): bool
+	{
+		if (empty($item['quote-uri-id'])) {
+			return false;
+		}
+		$condition = ['uri-id' => $item['quote-uri-id'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => [item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]];
+		return Post::exists($condition);
+	}
+
+	
 }
