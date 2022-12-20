@@ -1386,14 +1386,18 @@ class Contact
 		if ($data['network'] == Protocol::DIASPORA) {
 			try {
 				DI::dsprContact()->updateFromProbeArray($data);
+			} catch (HTTPException\NotFoundException $e) {
+				Logger::notice($e->getMessage(), ['url' => $url, 'data' => $data]);
 			} catch (\InvalidArgumentException $e) {
-				Logger::error($e->getMessage(), ['url' => $url, 'data' => $data]);
+				Logger::notice($e->getMessage(), ['url' => $url, 'data' => $data]);
 			}
 		} elseif (!empty($data['networks'][Protocol::DIASPORA])) {
 			try {
 				DI::dsprContact()->updateFromProbeArray($data['networks'][Protocol::DIASPORA]);
+			} catch (HTTPException\NotFoundException $e) {
+				Logger::notice($e->getMessage(), ['url' => $url, 'data' => $data['networks'][Protocol::DIASPORA]]);
 			} catch (\InvalidArgumentException $e) {
-				Logger::error($e->getMessage(), ['url' => $url, 'data' => $data['networks'][Protocol::DIASPORA]]);
+				Logger::notice($e->getMessage(), ['url' => $url, 'data' => $data['networks'][Protocol::DIASPORA]]);
 			}
 		}
 
@@ -2498,14 +2502,18 @@ class Contact
 		if ($data['network'] == Protocol::DIASPORA) {
 			try {
 				DI::dsprContact()->updateFromProbeArray($data);
+			} catch (HTTPException\NotFoundException $e) {
+				Logger::notice($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
 			} catch (\InvalidArgumentException $e) {
-				Logger::error($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
+				Logger::notice($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
 			}
 		} elseif (!empty($data['networks'][Protocol::DIASPORA])) {
 			try {
 				DI::dsprContact()->updateFromProbeArray($data['networks'][Protocol::DIASPORA]);
+			} catch (HTTPException\NotFoundException $e) {
+				Logger::notice($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
 			} catch (\InvalidArgumentException $e) {
-				Logger::error($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
+				Logger::notice($e->getMessage(), ['id' => $id, 'network' => $network, 'contact' => $contact, 'data' => $data]);
 			}
 		}
 

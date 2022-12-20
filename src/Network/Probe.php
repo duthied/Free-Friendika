@@ -139,8 +139,17 @@ class Probe
 		foreach ([Protocol::DIASPORA, Protocol::OSTATUS] as $network) {
 			if (!empty($data['networks'][$network])) {
 				$data['networks'][$network]['subscribe'] = $newdata['subscribe'] ?? '';
-				$data['networks'][$network]['baseurl'] = $newdata['baseurl'] ?? '';
-				$data['networks'][$network]['gsid'] = $newdata['gsid'] ?? 0;
+				if (empty($data['networks'][$network]['baseurl'])) {
+					$data['networks'][$network]['baseurl'] = $newdata['baseurl'] ?? '';
+				} else {
+					$newdata['baseurl'] = $data['networks'][$network]['baseurl'];
+				}
+				if (!empty($newdata['baseurl'])) {
+					$newdata['gsid'] = $data['networks'][$network]['gsid'] = GServer::getID($newdata['baseurl']);
+				} else {
+					$newdata['gsid'] = $data['networks'][$network]['gsid'] = null;
+				}
+
 				$newdata['networks'][$network] = self::rearrangeData($data['networks'][$network]);
 				unset($newdata['networks'][$network]['networks']);
 			}

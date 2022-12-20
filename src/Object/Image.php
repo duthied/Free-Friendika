@@ -66,6 +66,7 @@ class Image
 		$this->type = $type;
 
 		if ($this->isImagick() && (empty($data) || $this->loadData($data))) {
+			$this->valid = !empty($data);
 			return;
 		} else {
 			// Failed to load with Imagick, fallback
@@ -158,12 +159,11 @@ class Image
 					$this->image->setCompressionQuality($quality);
 			}
 
-			// The 'width' and 'height' properties are only used by non-Imagick routines.
 			$this->width  = $this->image->getImageWidth();
 			$this->height = $this->image->getImageHeight();
-			$this->valid  = true;
+			$this->valid  = !empty($this->image);
 
-			return true;
+			return $this->valid;
 		}
 
 		$this->valid = false;
@@ -210,9 +210,6 @@ class Image
 			return false;
 		}
 
-		if ($this->isImagick()) {
-			return $this->image->getImageWidth();
-		}
 		return $this->width;
 	}
 
@@ -225,9 +222,6 @@ class Image
 			return false;
 		}
 
-		if ($this->isImagick()) {
-			return $this->image->getImageHeight();
-		}
 		return $this->height;
 	}
 
@@ -353,6 +347,9 @@ class Image
 			do {
 				$this->image->rotateImage(new ImagickPixel(), -$degrees); // ImageMagick rotates in the opposite direction of imagerotate()
 			} while ($this->image->nextImage());
+
+			$this->width  = $this->image->getImageWidth();
+			$this->height = $this->image->getImageHeight();
 			return;
 		}
 
@@ -576,7 +573,6 @@ class Image
 				}
 			} while ($this->image->nextImage());
 
-			// These may not be necessary anymore
 			$this->width  = $this->image->getImageWidth();
 			$this->height = $this->image->getImageHeight();
 		} else {
@@ -659,7 +655,7 @@ class Image
 		if ($this->image) {
 			imagedestroy($this->image);
 		}
-		$this->image = $dest;
+		$this->image  = $dest;
 		$this->width  = imagesx($this->image);
 		$this->height = imagesy($this->image);
 
@@ -734,7 +730,7 @@ class Image
 	public function getBlurHash(): string
 	{
 		$image = New Image($this->asString());
-		if (empty($image)) {
+		if (empty($image) || !$this->isValid()) {
 			return '';
 		}
 
@@ -809,12 +805,14 @@ class Image
 
 		if ($this->isImagick()) {
 			$this->image->drawImage($draw);
+			$this->width  = $this->image->getImageWidth();
+			$this->height = $this->image->getImageHeight();
 		} else {
 			$this->width  = imagesx($this->image);
 			$this->height = imagesy($this->image);
 		}
 
-		$this->valid = true;
+		$this->valid = !empty($this->image);
 
 		$this->scaleUp(min($width, $height));
 	}
