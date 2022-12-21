@@ -734,13 +734,17 @@ class Image
 			return '';
 		}
 
-		$width = $image->getWidth();
+		$width  = $image->getWidth();
 		$height = $image->getHeight();
 
 		if (max($width, $height) > 90) {
 			$image->scaleDown(90);
-			$width = $image->getWidth();
+			$width  = $image->getWidth();
 			$height = $image->getHeight();
+		}
+
+		if (empty($width) || empty($height)) {
+			return '';
 		}
 
 		$pixels = [];
