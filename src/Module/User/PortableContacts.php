@@ -223,10 +223,6 @@ class PortableContacts extends BaseModule
 
 			if ($selectedFields['network']) {
 				$entry['network'] = $contact['network'];
-				if ($entry['network'] == Protocol::STATUSNET) {
-					$entry['network'] = Protocol::OSTATUS;
-				}
-
 				if (($entry['network'] == '') && ($contact['self'])) {
 					$entry['network'] = Protocol::DFRN;
 				}

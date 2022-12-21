@@ -105,11 +105,10 @@ class Follow extends BaseModule
 
 		// Don't try to add a pending contact
 		$userContact = Contact::selectFirst(['pending'], [
-			"`uid` = ? AND ((`rel` != ?) OR (`network` = ?)) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
+			"`uid` = ? AND ((`rel` != ?) OR (`network` = ?)) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 			$uid, Contact::FOLLOWER, Protocol::DFRN,
 			Strings::normaliseLink($url),
-			Strings::normaliseLink($url), $url,
-			Protocol::STATUSNET]);
+			Strings::normaliseLink($url), $url]);
 
 		if (!empty($userContact['pending'])) {
 			$this->sysMessages->addNotice($this->t('You already added this contact.'));
