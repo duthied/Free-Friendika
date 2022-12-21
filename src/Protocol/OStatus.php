@@ -103,9 +103,9 @@ class OStatus
 */
 		if ($aliaslink != '') {
 			$contact = DBA::selectFirst('contact', [], [
-				"`uid` = ? AND `alias` = ? AND `network` != ? AND `rel` IN (?, ?)",
+				"`uid` = ? AND `alias` = ? AND `rel` IN (?, ?)",
 				$importer['uid'],
-				$aliaslink, Protocol::STATUSNET,
+				$aliaslink,
 				Contact::SHARING, Contact::FRIEND,
 			]);
 		}
@@ -116,11 +116,10 @@ class OStatus
 			}
 
 			$contact = DBA::selectFirst('contact', [], [
-				"`uid` = ? AND `nurl` IN (?, ?) AND `network` != ? AND `rel` IN (?, ?)",
+				"`uid` = ? AND `nurl` IN (?, ?) AND `rel` IN (?, ?)",
 				$importer['uid'],
 				Strings::normaliseLink($author['author-link']),
 				Strings::normaliseLink($aliaslink),
-				Protocol::STATUSNET,
 				Contact::SHARING,
 				Contact::FRIEND,
 			]);
@@ -128,10 +127,9 @@ class OStatus
 
 		if (!DBA::isResult($contact) && ($addr != '')) {
 			$contact = DBA::selectFirst('contact', [], [
-				"`uid` = ? AND `addr` = ? AND `network` != ? AND `rel` IN (?, ?)",
+				"`uid` = ? AND `addr` = ? AND `rel` IN (?, ?)",
 				$importer['uid'],
 				$addr,
-				Protocol::STATUSNET,
 				Contact::SHARING,
 				Contact::FRIEND,
 			]);
