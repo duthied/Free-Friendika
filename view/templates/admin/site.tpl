@@ -31,7 +31,7 @@
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$registration}}</h2>
-		{{include file="field_input.tpl" field=$register_text}}
+		{{include file="field_textarea.tpl" field=$register_text}}
 		{{include file="field_select.tpl" field=$register_policy}}
 		{{include file="field_input.tpl" field=$daily_registrations}}
 		{{include file="field_checkbox.tpl" field=$enable_multi_reg}}
