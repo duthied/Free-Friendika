@@ -451,7 +451,7 @@ class Receiver
 			$object_data['object_id'] = $object_id;
 			$object_data['object_type'] = ''; // Since we don't fetch the object, we don't know the type
 			$object_data['push'] = $push;
-		} elseif (in_array($type, ['as:Add', 'as:Remove'])) {
+		} elseif (in_array($type, ['as:Add', 'as:Remove', 'as:Move'])) {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
 			$object_data['target_id'] = JsonLD::fetchElement($activity, 'as:target', '@id');
@@ -669,10 +669,6 @@ class Receiver
 			$object_data['recursion-depth'] = $activity['recursion-depth'];
 		}
 
-		if (in_array('as:Question', [$object_data['object_type'] ?? '', $object_data['object_object_type'] ?? ''])) {
-			self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
-		}
-
 		if (!self::routeActivities($object_data, $type, $push)) {
 			self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 			Queue::remove($object_data);
@@ -702,6 +698,8 @@ class Receiver
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
 					Queue::remove($object_data);
+				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
+					ActivityPub\Processor::updatePerson($object_data);
 				} else {
 					return false;
 				}
@@ -739,7 +737,8 @@ class Receiver
 						$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
 						if (empty($item)) {
 							Logger::debug('announced id was not created', ['id' => $object_data['id']]);
-							return false;
+							Queue::remove($object_data);
+							return true;
 						}
 
 						$item['post-reason'] = Item::PR_ANNOUNCEMENT;
@@ -775,7 +774,7 @@ class Receiver
 			case 'as:Like':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::LIKE);
-				} elseif ($object_data['object_type'] == '') {
+				} elseif (in_array($object_data['object_type'], ['', 'as:Tombstone'])) {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
@@ -786,7 +785,7 @@ class Receiver
 			case 'as:Dislike':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::DISLIKE);
-				} elseif ($object_data['object_type'] == '') {
+				} elseif (in_array($object_data['object_type'], ['', 'as:Tombstone'])) {
 					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
@@ -828,6 +827,14 @@ class Receiver
 				}
 				break;
 
+			case 'as:Move':
+				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
+					ActivityPub\Processor::movePerson($object_data);
+				} else {
+					return false;
+				}
+				break;
+	
 			case 'as:Block':
 				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::blockAccount($object_data);
@@ -867,6 +874,9 @@ class Receiver
 					}
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::ATTEND);
+				} elseif (!empty($object_data['object_id']) && empty($object_data['object_actor']) && empty($object_data['object_type'])) {
+					// Follow acceptances from gup.pe only contain the object id
+					ActivityPub\Processor::acceptFollowUser($object_data);
 				} else {
 					return false;
 				}
@@ -905,6 +915,9 @@ class Receiver
 				} elseif (in_array($object_data['object_type'], ['as:Create']) &&
 					in_array($object_data['object_object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
+					Queue::remove($object_data);
+				} elseif (in_array($object_data['object_type'], ['as:Delete'])) {
+					// We cannot undo deletions, so we just ignore this
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -972,7 +985,7 @@ class Receiver
 
 		$tempfile = tempnam(System::getTempPath(), $file);
 		file_put_contents($tempfile, json_encode(['activity' => $activity, 'body' => $body, 'uid' => $uid, 'trust_source' => $trust_source, 'push' => $push, 'signer' => $signer, 'object_data' => $object_data], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-		Logger::notice('Unknown activity stored', ['type' => $type, 'object_type' => $object_data['object_type'], $object_data['object_object_type'] ?? '', 'file' => $tempfile]);
+		Logger::notice('Unknown activity stored', ['type' => $type, 'object_type' => $object_data['object_type'], 'object_object_type' => $object_data['object_object_type'] ?? '', 'file' => $tempfile]);
 	}
 
 	/**
