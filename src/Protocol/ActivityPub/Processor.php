@@ -1715,11 +1715,13 @@ class Processor
 	{
 		if (empty($activity['object_id']) || empty($activity['actor'])) {
 			Logger::info('Empty object id or actor.');
+			Queue::remove($activity);
 			return;
 		}
 
 		if ($activity['object_id'] != $activity['actor']) {
 			Logger::info('Object id does not match actor.');
+			Queue::remove($activity);
 			return;
 		}
 
@@ -1730,6 +1732,42 @@ class Processor
 		DBA::close($contacts);
 
 		Logger::info('Deleted contact', ['object' => $activity['object_id']]);
+		Queue::remove($activity);
+	}
+
+	/**
+	 * Add moved contacts as followers for all subscribers of the old contact
+	 *
+	 * @param array $activity
+	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function movePerson(array $activity)
+	{
+		if (empty($activity['target_id']) || empty($activity['object_id'])) {
+			Queue::remove($activity);
+			return;
+		}
+
+		if ($activity['object_id'] != $activity['actor']) {
+			Logger::notice('Object is not the actor', ['activity' => $activity]);
+			Queue::remove($activity);
+			return;
+		}
+
+		$from = Contact::getByURL($activity['object_id'], false, ['uri-id']);
+		if (empty($from['uri-id'])) {
+			Logger::info('Object not found', ['activity' => $activity]);
+			Queue::remove($activity);
+			return;
+		}
+
+		$contacts = DBA::select('contact', ['uid', 'url'], ["`uri-id` = ? AND `uid` != ? AND `rel` IN (?, ?)", $from['uri-id'], 0, Contact::FRIEND, Contact::SHARING]);
+		while ($from_contact = DBA::fetch($contacts)) {
+			$result = Contact::createFromProbeForUser($from_contact['uid'], $activity['target_id']);
+			Logger::debug('Follower added', ['from' => $from_contact, 'result' => $result]);
+		}
+		DBA::close($contacts);
 		Queue::remove($activity);
 	}
 
@@ -1792,15 +1830,36 @@ class Processor
 	 */
 	public static function acceptFollowUser(array $activity)
 	{
-		$uid = User::getIdForURL($activity['object_actor']);
+		if (!empty($activity['object_actor'])) {
+			$uid      = User::getIdForURL($activity['object_actor']);
+			$check_id = false;
+		} elseif (!empty($activity['receiver']) && (count($activity['receiver']) == 1)) {
+			$uid      = array_shift($activity['receiver']);
+			$check_id = true;
+		}
+
 		if (empty($uid)) {
+			Logger::notice('User could not be detected', ['activity' => $activity]);
+			Queue::remove($activity);
 			return;
 		}
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			Logger::info('No contact found', ['actor' => $activity['actor']]);
+			Logger::notice('No contact found', ['actor' => $activity['actor']]);
+			Queue::remove($activity);
 			return;
+		}
+
+		$id = Transmitter::activityIDFromContact($cid);
+		if ($id == $activity['object_id']) {
+			Logger::info('Successful id check', ['uid' => $uid, 'cid' => $cid]);
+		} else {
+			Logger::info('Unsuccessful id check', ['uid' => $uid, 'cid' => $cid, 'id' => $id, 'object_id' => $activity['object_id']]);
+			if ($check_id) {
+				Queue::remove($activity);
+				return;
+			}
 		}
 
 		self::switchContact($cid);
