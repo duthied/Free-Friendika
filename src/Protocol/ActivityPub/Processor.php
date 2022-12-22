@@ -1715,11 +1715,13 @@ class Processor
 	{
 		if (empty($activity['object_id']) || empty($activity['actor'])) {
 			Logger::info('Empty object id or actor.');
+			Queue::remove($activity);
 			return;
 		}
 
 		if ($activity['object_id'] != $activity['actor']) {
 			Logger::info('Object id does not match actor.');
+			Queue::remove($activity);
 			return;
 		}
 
@@ -1743,17 +1745,20 @@ class Processor
 	public static function movePerson(array $activity)
 	{
 		if (empty($activity['target_id']) || empty($activity['object_id'])) {
+			Queue::remove($activity);
 			return;
 		}
 
 		if ($activity['object_id'] != $activity['actor']) {
 			Logger::notice('Object is not the actor', ['activity' => $activity]);
+			Queue::remove($activity);
 			return;
 		}
 
 		$from = Contact::getByURL($activity['object_id'], false, ['uri-id']);
 		if (empty($from['uri-id'])) {
 			Logger::info('Object not found', ['activity' => $activity]);
+			Queue::remove($activity);
 			return;
 		}
 
@@ -1763,6 +1768,7 @@ class Processor
 			Logger::debug('Follower added', ['from' => $from_contact, 'result' => $result]);
 		}
 		DBA::close($contacts);
+		Queue::remove($activity);
 	}
 
 	/**
