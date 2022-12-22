@@ -783,8 +783,14 @@ class Notify extends BaseRepository
 			$subject        = $l10n->t('%s %s shared a new post', $subjectPrefix, $contact['name']);
 		} else {
 			$params['type'] = Model\Notification\Type::COMMENT;
-			$subject        = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
+			if ($params['verb'] = Activity::LIKE) {
+				$subject    = $l10n->t('%1$s Like in conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
+			} else {
+				$subject    = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
+			}
 		}
+
+
 
 		$msg = $this->notification->getMessageFromNotification($Notification);
 		if (empty($msg)) {
