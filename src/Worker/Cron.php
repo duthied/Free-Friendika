@@ -136,7 +136,7 @@ class Cron
 				Worker::add(Worker::PRIORITY_LOW, 'OptimizeTables');
 			}
 
-			$users = DBA::select('owner-view', ['uid'], ["`last-activity` > ? AND (`homepage_verified` OR `homepage` != ?)", DateTimeFormat::utc('now - 30 days', 'Y-m-d'), '']);
+			$users = DBA::select('owner-view', ['uid'], ["`homepage_verified` OR (`last-activity` > ? AND `homepage` != ?)", DateTimeFormat::utc('now - 7 days', 'Y-m-d'), '']);
 			while ($user = DBA::fetch($users)) {
 				Worker::add(Worker::PRIORITY_LOW, 'CheckRelMeProfileLink', $user['uid']);
 			}
