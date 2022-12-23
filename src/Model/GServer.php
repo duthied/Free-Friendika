@@ -191,11 +191,11 @@ class GServer
 			$condition = ['nurl' => Strings::normaliseLink($server)];
 		}
 
-		$gserver = DBA::selectFirst('gserver', ['url', 'next_contact', 'failed'], $condition);
+		$gserver = DBA::selectFirst('gserver', ['url', 'next_contact', 'failed', 'network'], $condition);
 		if (empty($gserver)) {
 			$reachable = true;
 		} else {
-			$reachable = !$gserver['failed'];
+			$reachable = !$gserver['failed'] && in_array($gserver['network'], Protocol::FEDERATED);
 			$server    = $gserver['url'];
 		}
 
