@@ -27,9 +27,9 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Tag;
-use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub\Queue;
 use Friendica\Protocol\Relay;
+use Friendica\Util\DateTimeFormat;
 
 class Cron
 {
@@ -136,10 +136,12 @@ class Cron
 				Worker::add(Worker::PRIORITY_LOW, 'OptimizeTables');
 			}
 
-			foreach (User::getList(1, PHP_INT_MAX, 'active') as $user) {
+			$users = DBA::select('owner-view', ['uid'], ["`homepage_verified` OR (`last-activity` > ? AND `homepage` != ?)", DateTimeFormat::utc('now - 7 days', 'Y-m-d'), '']);
+			while ($user = DBA::fetch($users)) {
 				Worker::add(Worker::PRIORITY_LOW, 'CheckRelMeProfileLink', $user['uid']);
 			}
-
+			DBA::close($users);
+	
 			// Resubscribe to relay servers
 			Relay::reSubscribe();
 
