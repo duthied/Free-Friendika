@@ -1848,6 +1848,7 @@ class Processor
 			}
 		}
 
+		// @todo We should store the actor
 		$report = DI::reportFactory()->createFromReportsRequest(0, $account_id, $activity['content'], false, $uri_ids);
 		DI::report()->save($report);
 
