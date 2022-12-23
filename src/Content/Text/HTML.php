@@ -33,6 +33,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use League\HTMLToMarkdown\HtmlConverter;
+use Psr\Http\Message\UriInterface;
 
 class HTML
 {
@@ -1006,5 +1007,52 @@ class HTML
 		//var_dump($errorCollector->getRaw());
 
 		return $text;
+	}
+
+	/**
+	 * XPath arbitrary string quoting
+	 *
+	 * @see https://stackoverflow.com/a/45228168
+	 * @param string $value
+	 * @return string
+	 */
+	public static function xpathQuote(string $value): string
+	{
+		if (false === strpos($value, '"')) {
+			return '"' . $value . '"';
+		}
+
+		if (false === strpos($value, "'")) {
+			return "'" . $value . "'";
+		}
+
+		// if the value contains both single and double quotes, construct an
+		// expression that concatenates all non-double-quote substrings with
+		// the quotes, e.g.:
+		//
+		//    concat("'foo'", '"', "bar")
+		return 'concat(' . implode(', \'"\', ', array_map(['self', 'xpathQuote'], explode('"', $value))) . ')';
+	}
+
+	/**
+	 * Checks if the provided URL is present in the DOM document in an element with the rel="me" attribute
+	 *
+	 * XHTML Friends Network http://gmpg.org/xfn/
+	 *
+	 * @param DOMDocument  $doc
+	 * @param UriInterface $meUrl
+	 * @return bool
+	 */
+	public static function checkRelMeLink(DOMDocument $doc, UriInterface $meUrl): bool
+	{
+		$xpath = new \DOMXpath($doc);
+
+		// This expression checks that "me" is among the space-delimited values of the "rel" attribute.
+		// And that the href attribute contains exactly the provided URL
+		$expression = "//*[contains(concat(' ', normalize-space(@rel), ' '), ' me ')][@href = " . self::xpathQuote($meUrl) . "]";
+
+		$result = $xpath->query($expression);
+
+		return $result !== false && $result->length > 0;
 	}
 }

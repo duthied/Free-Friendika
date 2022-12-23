@@ -25,6 +25,8 @@ use Exception;
 use Friendica\Content\Text\HTML;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Test\FixtureTest;
+use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\UriInterface;
 
 class HTMLTest extends FixtureTest
 {
@@ -104,5 +106,153 @@ its surprisingly good",
 		$actual = HTML::toBBCode($html);
 
 		self::assertEquals($expectedBBCode, $actual);
+	}
+
+	public function dataXpathQuote(): array
+	{
+		return [
+			'no quotes' => [
+				'value' => "foo",
+			],
+			'double quotes only' => [
+				'value' => "\"foo",
+			],
+			'single quotes only' => [
+				'value' => "'foo",
+			],
+			'both; double quotes in mid-string' => [
+				'value' => "'foo\"bar",
+			],
+			'multiple double quotes in mid-string' => [
+				'value' => "'foo\"bar\"baz",
+			],
+			'string ends with double quotes' => [
+				'value' => "'foo\"",
+			],
+			'string ends with run of double quotes' => [
+				'value' => "'foo\"\"",
+			],
+			'string begins with double quotes' => [
+				'value' => "\"'foo",
+			],
+			'string begins with run of double quotes' => [
+				'value' => "\"\"'foo",
+			],
+			'run of double quotes in mid-string' => [
+				'value' => "'foo\"\"bar",
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataXpathQuote
+	 * @param string $value
+	 * @return void
+	 * @throws \DOMException
+	 */
+	public function testXpathQuote(string $value)
+	{
+		$dom = new \DOMDocument();
+		$element = $dom->createElement('test');
+		$attribute = $dom->createAttribute('value');
+		$attribute->value = $value;
+		$element->appendChild($attribute);
+		$dom->appendChild($element);
+
+		$xpath = new \DOMXPath($dom);
+
+		$result = $xpath->query('//test[@value = ' . HTML::xpathQuote($value) . ']');
+
+		$this->assertInstanceOf(\DOMNodeList::class, $result);
+		$this->assertEquals(1, $result->length);
+	}
+
+	public function dataCheckRelMeLink(): array
+	{
+		$aSingleRelValue = new \DOMDocument();
+		$aSingleRelValue->load(__DIR__ . '/../../../datasets/dom/relme/a-single-rel-value.html');
+
+		$aMultipleRelValueStart = new \DOMDocument();
+		$aMultipleRelValueStart->load(__DIR__ . '/../../../datasets/dom/relme/a-multiple-rel-value-start.html');
+
+		$aMultipleRelValueMiddle = new \DOMDocument();
+		$aMultipleRelValueMiddle->load(__DIR__ . '/../../../datasets/dom/relme/a-multiple-rel-value-middle.html');
+
+		$aMultipleRelValueEnd = new \DOMDocument();
+		$aMultipleRelValueEnd->load(__DIR__ . '/../../../datasets/dom/relme/a-multiple-rel-value-end.html');
+
+		$linkSingleRelValue = new \DOMDocument();
+		$linkSingleRelValue->load(__DIR__ . '/../../../datasets/dom/relme/link-single-rel-value.html');
+
+		$meUrl = new Uri('https://example.com/profile/me');
+
+		return [
+			'a-single-rel-value' => [
+				'doc' => $aSingleRelValue,
+				'meUrl' => $meUrl
+			],
+			'a-multiple-rel-value-start' => [
+				'doc' => $aMultipleRelValueStart,
+				'meUrl' => $meUrl
+			],
+			'a-multiple-rel-value-middle' => [
+				'doc' => $aMultipleRelValueMiddle,
+				'meUrl' => $meUrl
+			],
+			'a-multiple-rel-value-end' => [
+				'doc' => $aMultipleRelValueEnd,
+				'meUrl' => $meUrl
+			],
+			'link-single-rel-value' => [
+				'doc' => $linkSingleRelValue,
+				'meUrl' => $meUrl
+			],
+		];
+	}
+
+
+	/**
+	 * @dataProvider dataCheckRelMeLink
+	 * @param \DOMDocument $doc
+	 * @param UriInterface $meUrl
+	 * @return void
+	 */
+	public function testCheckRelMeLink(\DOMDocument $doc, UriInterface $meUrl)
+	{
+		$this->assertTrue(HTML::checkRelMeLink($doc, $meUrl));
+	}
+
+	public function dataCheckRelMeLinkFail(): array
+	{
+		$aSingleRelValueFail = new \DOMDocument();
+		$aSingleRelValueFail->load(__DIR__ . '/../../../datasets/dom/relme/a-single-rel-value-fail.html');
+
+		$linkSingleRelValueFail = new \DOMDocument();
+		$linkSingleRelValueFail->load(__DIR__ . '/../../../datasets/dom/relme/link-single-rel-value-fail.html');
+
+		$meUrl = new Uri('https://example.com/profile/me');
+
+		return [
+			'a-single-rel-value-fail' => [
+				'doc' => $aSingleRelValueFail,
+				'meUrl' => $meUrl
+			],
+			'link-single-rel-value-fail' => [
+				'doc' => $linkSingleRelValueFail,
+				'meUrl' => $meUrl
+			],
+		];
+	}
+
+
+	/**
+	 * @dataProvider dataCheckRelMeLinkFail
+	 * @param \DOMDocument $doc
+	 * @param UriInterface $meUrl
+	 * @return void
+	 */
+	public function testCheckRelMeLinkFail(\DOMDocument $doc, UriInterface $meUrl)
+	{
+		$this->assertFalse(HTML::checkRelMeLink($doc, $meUrl));
 	}
 }
