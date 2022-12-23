@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-23 01:05+0100\n"
+"POT-Creation-Date: 2022-12-23 02:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10793,7 +10793,7 @@ msgid "%1$s commented on their %2$s %3$s"
 msgstr ""
 
 #: src/Navigation/Notifications/Repository/Notify.php:341
-#: src/Navigation/Notifications/Repository/Notify.php:789
+#: src/Navigation/Notifications/Repository/Notify.php:796
 #, php-format
 msgid "%1$s Comment to conversation #%2$d by %3$s"
 msgstr ""
@@ -10805,7 +10805,7 @@ msgstr ""
 
 #: src/Navigation/Notifications/Repository/Notify.php:347
 #: src/Navigation/Notifications/Repository/Notify.php:362
-#: src/Navigation/Notifications/Repository/Notify.php:807
+#: src/Navigation/Notifications/Repository/Notify.php:812
 #, php-format
 msgid "Please visit %s to view and/or reply to the conversation."
 msgstr ""
@@ -11008,9 +11008,14 @@ msgstr ""
 msgid "%s %s shared a new post"
 msgstr ""
 
-#: src/Navigation/Notifications/Repository/Notify.php:787
+#: src/Navigation/Notifications/Repository/Notify.php:789
 #, php-format
-msgid "%1$s Like in conversation #%2$d by %3$s"
+msgid "%1$s %2$s liked your post #%3$d"
+msgstr ""
+
+#: src/Navigation/Notifications/Repository/Notify.php:792
+#, php-format
+msgid "%1$s %2$s liked your comment on #%3$d"
 msgstr ""
 
 #: src/Object/EMail/ItemCCEMail.php:42
