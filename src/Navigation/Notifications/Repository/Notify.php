@@ -771,7 +771,7 @@ class Notify extends BaseRepository
 			$title = '"' . trim(str_replace("\n", " ", $title)) . '"';
 		}
 
-		// Some mail software relies on subject field for threading.
+		// Some mail software rely on subject field for threading.
 		// So, we cannot have different subjects for notifications of the same thread.
 		// Before this we have the name of the replier on the subject rendering
 		// different subjects for messages on the same thread.
