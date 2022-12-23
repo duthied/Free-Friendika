@@ -1822,6 +1822,39 @@ class Processor
 	}
 
 	/**
+	 * Report a user
+	 *
+	 * @param array $activity
+	 * @return void
+	 * @throws \Exception
+	 */
+	public static function ReportAccount(array $activity)
+	{
+		$account_id = Contact::getIdForURL($activity['object_id']);
+		if (empty($account_id)) {
+			Logger::info('Unknown account', ['activity' => $activity]);
+			Queue::remove($activity);
+			return;
+		}
+
+		$status_ids = $activity['object_ids'];
+		array_shift($status_ids);
+
+		$uri_ids = [];
+		foreach ($status_ids as $status_id) {
+			$post = Post::selectFirst(['uri-id'], ['uri' => $status_id]);
+			if (!empty($post['uri-id'])) {
+				$uri_ids[] = $post['uri-id'];
+			}
+		}
+
+		$report = DI::reportFactory()->createFromReportsRequest(0, $account_id, $activity['content'], false, $uri_ids);
+		DI::report()->save($report);
+
+		Logger::info('Stored report', ['account_id' => $account_id, 'comment' => $activity['content'], 'status_ids' => $status_ids]);
+	}
+
+	/**
 	 * Accept a follow request
 	 *
 	 * @param array $activity
