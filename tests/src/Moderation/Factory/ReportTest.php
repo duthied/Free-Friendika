@@ -38,6 +38,7 @@ class ReportTest extends MockedTest
 					'reporter-id' => 14,
 					'cid'         => 13,
 					'comment'     => '',
+					'category'    => null,
 					'forward'     => false,
 					'created'     => null
 				],
@@ -61,6 +62,7 @@ class ReportTest extends MockedTest
 					'reporter-id' => 14,
 					'cid'         => 13,
 					'comment'     => 'Report',
+					'category'    => 'violation',
 					'forward'     => true,
 					'created'     => '2021-10-12 12:23:00'
 				],
@@ -115,6 +117,7 @@ class ReportTest extends MockedTest
 				'reporter-id' => 14,
 				'cid'         => 13,
 				'comment'     => '',
+				'category'    => null,
 				'forward'     => false,
 				'postUriIds'  => [],
 				'assertion'   => new Entity\Report(
@@ -134,6 +137,7 @@ class ReportTest extends MockedTest
 				'reporter-id' => 14,
 				'cid'         => 13,
 				'comment'     => 'Report',
+				'category'    => 'violation',
 				'forward'     => true,
 				'postUriIds'  => [89, 90],
 				'assertion'   => new Entity\Report(
