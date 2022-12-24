@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1503);
+	define('DB_UPDATE_VERSION', 1504);
 }
 
 return [
@@ -1673,6 +1673,7 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Reporting user"],
+			"reporter-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Reporting contact"],
 			"cid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["contact" => "id"], "comment" => "Reported contact"],
 			"comment" => ["type" => "text", "comment" => "Report"],
 			"forward" => ["type" => "boolean", "comment" => "Forward the report to the remote server"],
@@ -1683,6 +1684,7 @@ return [
 			"PRIMARY" => ["id"],
 			"uid" => ["uid"],
 			"cid" => ["cid"],
+			"reporter-id" => ["reporter-id"],
 		]
 	],
 	"report-post" => [

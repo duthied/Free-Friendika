@@ -53,10 +53,11 @@ class Report extends \Friendica\BaseRepository
 	public function save(\Friendica\Moderation\Entity\Report $Report)
 	{
 		$fields = [
-			'uid'     => $Report->uid,
-			'cid'     => $Report->cid,
-			'comment' => $Report->comment,
-			'forward' => $Report->forward,
+			'uid'         => $Report->uid,
+			'reporter-id' => $Report->reporterId,
+			'cid'         => $Report->cid,
+			'comment'     => $Report->comment,
+			'forward'     => $Report->forward,
 		];
 
 		$postUriIds = $Report->postUriIds;

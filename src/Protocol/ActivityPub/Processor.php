@@ -1837,6 +1837,13 @@ class Processor
 			return;
 		}
 
+		$reporter_id = Contact::getIdForURL($activity['actor']);
+		if (empty($account_id)) {
+			Logger::info('Unknown actor', ['activity' => $activity]);
+			Queue::remove($activity);
+			return;
+		}
+
 		$status_ids = $activity['object_ids'];
 		array_shift($status_ids);
 
@@ -1848,11 +1855,10 @@ class Processor
 			}
 		}
 
-		// @todo We should store the actor
-		$report = DI::reportFactory()->createFromReportsRequest(0, $account_id, $activity['content'], false, $uri_ids);
+		$report = DI::reportFactory()->createFromReportsRequest(null, $reporter_id, $account_id, $activity['content'], false, $uri_ids);
 		DI::report()->save($report);
 
-		Logger::info('Stored report', ['account_id' => $account_id, 'comment' => $activity['content'], 'status_ids' => $status_ids]);
+		Logger::info('Stored report', ['reporter' => $reporter_id, 'account_id' => $account_id, 'comment' => $activity['content'], 'status_ids' => $status_ids]);
 	}
 
 	/**

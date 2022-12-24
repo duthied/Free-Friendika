@@ -35,6 +35,8 @@ class Report extends \Friendica\BaseEntity
 	/** @var int|null */
 	protected $id;
 	/** @var int ID of the user making a moderation report*/
+	protected $reporterId;
+	/** @var int ID of the contact making a moderation report*/
 	protected $uid;
 	/** @var int ID of the contact being reported*/
 	protected $cid;
@@ -47,9 +49,10 @@ class Report extends \Friendica\BaseEntity
 	/** @var array Optional list of URI IDs of posts supporting the report*/
 	protected $postUriIds;
 
-	public function __construct(int $uid, int $cid, \DateTime $created, string $comment = '', bool $forward = false, array $postUriIds = [], int $id = null)
+	public function __construct(int $uid = null, int $reporterId, int $cid, \DateTime $created, string $comment = '', bool $forward = false, array $postUriIds = [], int $id = null)
 	{
 		$this->uid        = $uid;
+		$this->reporterId = $reporterId;
 		$this->cid        = $cid;
 		$this->created    = $created;
 		$this->comment    = $comment;

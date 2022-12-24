@@ -33,16 +33,18 @@ class ReportTest extends MockedTest
 		return [
 			'default' => [
 				'row' => [
-					'id'      => 11,
-					'uid'     => 12,
-					'cid'     => 13,
-					'comment' => '',
-					'forward' => false,
-					'created' => null
+					'id'          => 11,
+					'uid'         => 12,
+					'reporter-id' => 14,
+					'cid'         => 13,
+					'comment'     => '',
+					'forward'     => false,
+					'created'     => null
 				],
 				'postUriIds' => [],
 				'assertion'  => new Entity\Report(
 					12,
+					14,
 					13,
 					new \DateTime('now', new \DateTimeZone('UTC')),
 					'',
@@ -53,16 +55,18 @@ class ReportTest extends MockedTest
 			],
 			'full' => [
 				'row' => [
-					'id'      => 11,
-					'uid'     => 12,
-					'cid'     => 13,
-					'comment' => 'Report',
-					'forward' => true,
-					'created' => '2021-10-12 12:23:00'
+					'id'          => 11,
+					'uid'         => 12,
+					'reporter-id' => 14,
+					'cid'         => 13,
+					'comment'     => 'Report',
+					'forward'     => true,
+					'created'     => '2021-10-12 12:23:00'
 				],
 				'postUriIds' => [89, 90],
 				'assertion'  => new Entity\Report(
 					12,
+					14,
 					13,
 					new \DateTime('2021-10-12 12:23:00', new \DateTimeZone('UTC')),
 					'Report',
@@ -81,6 +85,7 @@ class ReportTest extends MockedTest
 			$report->id
 		);
 		self::assertEquals($assertion->uid, $report->uid);
+		self::assertEquals($assertion->reporterId, $report->reporterId);
 		self::assertEquals($assertion->cid, $report->cid);
 		self::assertEquals($assertion->comment, $report->comment);
 		self::assertEquals($assertion->forward, $report->forward);
@@ -103,13 +108,15 @@ class ReportTest extends MockedTest
 	{
 		return [
 			'default' => [
-				'uid'        => 12,
-				'cid'        => 13,
-				'comment'    => '',
-				'forward'    => false,
-				'postUriIds' => [],
-				'assertion'  => new Entity\Report(
+				'uid'         => 12,
+				'reporter-id' => 14,
+				'cid'         => 13,
+				'comment'     => '',
+				'forward'     => false,
+				'postUriIds'  => [],
+				'assertion'   => new Entity\Report(
 					12,
+					14,
 					13,
 					new \DateTime('now', new \DateTimeZone('UTC')),
 					'',
@@ -119,13 +126,15 @@ class ReportTest extends MockedTest
 				),
 			],
 			'full' => [
-				'uid'        => 12,
-				'cid'        => 13,
-				'comment'    => 'Report',
-				'forward'    => true,
-				'postUriIds' => [89, 90],
-				'assertion'  => new Entity\Report(
+				'uid'         => 12,
+				'reporter-id' => 14,
+				'cid'         => 13,
+				'comment'     => 'Report',
+				'forward'     => true,
+				'postUriIds'  => [89, 90],
+				'assertion'   => new Entity\Report(
 					12,
+					14,
 					13,
 					new \DateTime('now', new \DateTimeZone('UTC')),
 					'Report',
@@ -140,10 +149,10 @@ class ReportTest extends MockedTest
 	/**
 	 * @dataProvider dataCreateFromReportsRequest
 	 */
-	public function testCreateFromReportsRequest(int $uid, int $cid, string $comment, bool $forward, array $postUriIds, Entity\Report $assertion)
+	public function testCreateFromReportsRequest(int $uid, int $reporter, int $cid, string $comment, bool $forward, array $postUriIds, Entity\Report $assertion)
 	{
 		$factory = new Factory\Report(new NullLogger());
 
-		$this->assertReport($factory->createFromReportsRequest($uid, $cid, $comment, $forward, $postUriIds), $assertion);
+		$this->assertReport($factory->createFromReportsRequest($uid, $reporter, $cid, $comment, $forward, $postUriIds), $assertion);
 	}
 }

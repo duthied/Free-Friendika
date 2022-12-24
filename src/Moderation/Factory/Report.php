@@ -36,6 +36,7 @@ class Report extends \Friendica\BaseFactory implements ICanCreateFromTableRow
 	{
 		return new Entity\Report(
 			$row['uid'],
+			$row['reporter-id'],
 			$row['cid'],
 			new \DateTime($row['created'] ?? 'now', new \DateTimeZone('UTC')),
 			$row['comment'],
@@ -51,6 +52,7 @@ class Report extends \Friendica\BaseFactory implements ICanCreateFromTableRow
 	 * @see \Friendica\Module\Api\Mastodon\Reports::post()
 	 *
 	 * @param int    $uid
+	 * @param int    $reporterId
 	 * @param int    $cid
 	 * @param string $comment
 	 * @param bool   $forward
@@ -58,10 +60,11 @@ class Report extends \Friendica\BaseFactory implements ICanCreateFromTableRow
 	 * @return Entity\Report
 	 * @throws \Exception
 	 */
-	public function createFromReportsRequest(int $uid, int $cid, string $comment = '', bool $forward = false, array $postUriIds = []): Entity\Report
+	public function createFromReportsRequest(int $uid = null, int $reporterId, int $cid, string $comment = '', bool $forward = false, array $postUriIds = []): Entity\Report
 	{
 		return new Entity\Report(
 			$uid,
+			$reporterId,
 			$cid,
 			new \DateTime('now', new \DateTimeZone('UTC')),
 			$comment,

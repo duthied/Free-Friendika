@@ -65,7 +65,7 @@ class Reports extends BaseApi
 			throw new HTTPException\NotFoundException('Account ' . $request['account_id'] . ' not found');
 		}
 
-		$report = $this->reportFactory->createFromReportsRequest(self::getCurrentUserID(), $request['account_id'], $request['comment'], $request['forward'], $request['status_ids']);
+		$report = $this->reportFactory->createFromReportsRequest(self::getCurrentUserID(), Contact::getPublicIdByUserId(self::getCurrentUserID()), $request['account_id'], $request['comment'], $request['forward'], $request['status_ids']);
 
 		$this->reportRepo->save($report);
 
