@@ -406,7 +406,14 @@ class Receiver
 		}
 
 		// Any activities on account types must not be altered
-		if (in_array($object_type, self::ACCOUNT_TYPES)) {
+		if (in_array($type, ['as:Flag'])) {
+			$object_data = [];
+			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
+			$object_data['object_id'] = JsonLD::fetchElement($activity, 'as:object', '@id');
+			$object_data['object_ids'] = JsonLD::fetchElementArray($activity, 'as:object', '@id');
+			$object_data['content'] = JsonLD::fetchElement($activity, 'as:content', '@type');
+			$object_data['push'] = $push;
+		} elseif (in_array($object_type, self::ACCOUNT_TYPES)) {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
 			$object_data['object_id'] = JsonLD::fetchElement($activity, 'as:object', '@id');
@@ -843,6 +850,14 @@ class Receiver
 				}
 				break;
 
+			case 'as:Flag':
+				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
+					ActivityPub\Processor::ReportAccount($object_data);
+				} else {
+					return false;
+				}
+				break;
+	
 			case 'as:Remove':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::removeFromFeaturedCollection($object_data);
