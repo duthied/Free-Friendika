@@ -40,6 +40,7 @@ class Report extends \Friendica\BaseFactory implements ICanCreateFromTableRow
 			$row['cid'],
 			new \DateTime($row['created'] ?? 'now', new \DateTimeZone('UTC')),
 			$row['comment'],
+			$row['category'],
 			$row['forward'],
 			$postUriIds,
 			$row['id'],
@@ -60,7 +61,7 @@ class Report extends \Friendica\BaseFactory implements ICanCreateFromTableRow
 	 * @return Entity\Report
 	 * @throws \Exception
 	 */
-	public function createFromReportsRequest(int $uid = null, int $reporterId, int $cid, string $comment = '', bool $forward = false, array $postUriIds = []): Entity\Report
+	public function createFromReportsRequest(int $uid = null, int $reporterId, int $cid, string $comment = '', string $category = null, bool $forward = false, array $postUriIds = []): Entity\Report
 	{
 		return new Entity\Report(
 			$uid,
@@ -68,6 +69,7 @@ class Report extends \Friendica\BaseFactory implements ICanCreateFromTableRow
 			$cid,
 			new \DateTime('now', new \DateTimeZone('UTC')),
 			$comment,
+			$category,
 			$forward,
 			$postUriIds,
 		);

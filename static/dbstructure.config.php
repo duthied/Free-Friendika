@@ -1676,6 +1676,7 @@ return [
 			"reporter-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Reporting contact"],
 			"cid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["contact" => "id"], "comment" => "Reported contact"],
 			"comment" => ["type" => "text", "comment" => "Report"],
+			"category" => ["type" => "varchar(20)", "comment" => "Category of the report (spam, violation, other)"],
 			"forward" => ["type" => "boolean", "comment" => "Forward the report to the remote server"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"status" => ["type" => "tinyint unsigned", "comment" => "Status of the report"],

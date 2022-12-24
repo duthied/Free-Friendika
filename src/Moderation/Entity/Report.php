@@ -42,6 +42,8 @@ class Report extends \Friendica\BaseEntity
 	protected $cid;
 	/** @var string Optional comment */
 	protected $comment;
+	/** @var string Optional category */
+	protected $category;
 	/** @var bool Whether this report should be forwarded to the remote server */
 	protected $forward;
 	/** @var \DateTime|null When the report was created */
@@ -49,13 +51,14 @@ class Report extends \Friendica\BaseEntity
 	/** @var array Optional list of URI IDs of posts supporting the report*/
 	protected $postUriIds;
 
-	public function __construct(int $uid = null, int $reporterId, int $cid, \DateTime $created, string $comment = '', bool $forward = false, array $postUriIds = [], int $id = null)
+	public function __construct(int $uid = null, int $reporterId, int $cid, \DateTime $created, string $comment = '', string $category = null, bool $forward = false, array $postUriIds = [], int $id = null)
 	{
 		$this->uid        = $uid;
 		$this->reporterId = $reporterId;
 		$this->cid        = $cid;
 		$this->created    = $created;
 		$this->comment    = $comment;
+		$this->category   = $category;
 		$this->forward    = $forward;
 		$this->postUriIds = $postUriIds;
 		$this->id         = $id;

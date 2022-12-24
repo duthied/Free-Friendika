@@ -48,6 +48,7 @@ class ReportTest extends MockedTest
 					13,
 					new \DateTime('now', new \DateTimeZone('UTC')),
 					'',
+					null,
 					false,
 					[],
 					11,
@@ -70,6 +71,7 @@ class ReportTest extends MockedTest
 					13,
 					new \DateTime('2021-10-12 12:23:00', new \DateTimeZone('UTC')),
 					'Report',
+					'violation',
 					true,
 					[89, 90],
 					11
@@ -88,6 +90,7 @@ class ReportTest extends MockedTest
 		self::assertEquals($assertion->reporterId, $report->reporterId);
 		self::assertEquals($assertion->cid, $report->cid);
 		self::assertEquals($assertion->comment, $report->comment);
+		self::assertEquals($assertion->category, $report->category);
 		self::assertEquals($assertion->forward, $report->forward);
 		// No way to test "now" at the moment
 		//self::assertEquals($assertion->created, $report->created);
@@ -120,6 +123,7 @@ class ReportTest extends MockedTest
 					13,
 					new \DateTime('now', new \DateTimeZone('UTC')),
 					'',
+					null,
 					false,
 					[],
 					null
@@ -138,6 +142,7 @@ class ReportTest extends MockedTest
 					13,
 					new \DateTime('now', new \DateTimeZone('UTC')),
 					'Report',
+					'violation',
 					true,
 					[89, 90],
 					null
@@ -149,10 +154,10 @@ class ReportTest extends MockedTest
 	/**
 	 * @dataProvider dataCreateFromReportsRequest
 	 */
-	public function testCreateFromReportsRequest(int $uid, int $reporter, int $cid, string $comment, bool $forward, array $postUriIds, Entity\Report $assertion)
+	public function testCreateFromReportsRequest(int $uid, int $reporter, int $cid, string $comment, string $category = null, bool $forward, array $postUriIds, Entity\Report $assertion)
 	{
 		$factory = new Factory\Report(new NullLogger());
 
-		$this->assertReport($factory->createFromReportsRequest($uid, $reporter, $cid, $comment, $forward, $postUriIds), $assertion);
+		$this->assertReport($factory->createFromReportsRequest($uid, $reporter, $cid, $comment, $category, $forward, $postUriIds), $assertion);
 	}
 }

@@ -1677,6 +1677,7 @@ CREATE TABLE IF NOT EXISTS `report` (
 	`reporter-id` int unsigned COMMENT 'Reporting contact',
 	`cid` int unsigned NOT NULL COMMENT 'Reported contact',
 	`comment` text COMMENT 'Report',
+	`category` varchar(20) COMMENT 'Category of the report (spam, violation, other)',
 	`forward` boolean COMMENT 'Forward the report to the remote server',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`status` tinyint unsigned COMMENT 'Status of the report',

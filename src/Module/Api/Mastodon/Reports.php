@@ -54,10 +54,11 @@ class Reports extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 
 		$request = $this->getRequest([
-			'account_id' => '',    // ID of the account to report
-			'status_ids' => [],    // Array of Statuses to attach to the report, for context
-			'comment'    => '',    // Reason for the report (default max 1000 characters)
-			'forward'    => false, // If the account is remote, should the report be forwarded to the remote admin?
+			'account_id' => '',      // ID of the account to report
+			'status_ids' => [],      // Array of Statuses to attach to the report, for context
+			'comment'    => '',      // Reason for the report (default max 1000 characters)
+			'category'   => 'other', // Specify if the report is due to spam, violation of enumerated instance rules, or some other reason.
+			'forward'    => false,   // If the account is remote, should the report be forwarded to the remote admin?
 		], $request);
 
 		$contact = Contact::getById($request['account_id'], ['id']);
@@ -65,7 +66,7 @@ class Reports extends BaseApi
 			throw new HTTPException\NotFoundException('Account ' . $request['account_id'] . ' not found');
 		}
 
-		$report = $this->reportFactory->createFromReportsRequest(self::getCurrentUserID(), Contact::getPublicIdByUserId(self::getCurrentUserID()), $request['account_id'], $request['comment'], $request['forward'], $request['status_ids']);
+		$report = $this->reportFactory->createFromReportsRequest(self::getCurrentUserID(), Contact::getPublicIdByUserId(self::getCurrentUserID()), $request['account_id'], $request['comment'], $request['category'], $request['forward'], $request['status_ids']);
 
 		$this->reportRepo->save($report);
 
