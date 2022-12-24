@@ -1838,7 +1838,7 @@ class Processor
 		}
 
 		$reporter_id = Contact::getIdForURL($activity['actor']);
-		if (empty($account_id)) {
+		if (empty($reporter_id)) {
 			Logger::info('Unknown actor', ['activity' => $activity]);
 			Queue::remove($activity);
 			return;
