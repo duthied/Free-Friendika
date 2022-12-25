@@ -44,6 +44,8 @@ class Report extends \Friendica\BaseEntity
 	protected $comment;
 	/** @var string Optional category */
 	protected $category;
+	/** @var string Violated rules */
+	protected $rules;
 	/** @var bool Whether this report should be forwarded to the remote server */
 	protected $forward;
 	/** @var \DateTime|null When the report was created */
@@ -53,13 +55,14 @@ class Report extends \Friendica\BaseEntity
 	/** @var int ID of the user making a moderation report*/
 	protected $uid;
 
-	public function __construct(int $reporterId, int $cid, \DateTime $created, string $comment = '', string $category = null, bool $forward = false, array $postUriIds = [], int $uid = null, int $id = null)
+	public function __construct(int $reporterId, int $cid, \DateTime $created, string $comment = '', string $category = null, string $rules = '', bool $forward = false, array $postUriIds = [], int $uid = null, int $id = null)
 	{
 		$this->reporterId = $reporterId;
 		$this->cid        = $cid;
 		$this->created    = $created;
 		$this->comment    = $comment;
 		$this->category   = $category;
+		$this->rules      = $rules;
 		$this->forward    = $forward;
 		$this->postUriIds = $postUriIds;
 		$this->uid        = $uid;

@@ -58,6 +58,7 @@ class Report extends \Friendica\BaseRepository
 			'cid'         => $Report->cid,
 			'comment'     => $Report->comment,
 			'category'    => $Report->category,
+			'rules'       => $Report->rules,
 			'forward'     => $Report->forward,
 		];
 

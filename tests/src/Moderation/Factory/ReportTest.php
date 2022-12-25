@@ -49,6 +49,7 @@ class ReportTest extends MockedTest
 					new \DateTime('now', new \DateTimeZone('UTC')),
 					'',
 					null,
+					'',
 					false,
 					[],
 					12,
@@ -63,6 +64,7 @@ class ReportTest extends MockedTest
 					'cid'         => 13,
 					'comment'     => 'Report',
 					'category'    => 'violation',
+					'rules'       => 'Rules',
 					'forward'     => true,
 					'created'     => '2021-10-12 12:23:00'
 				],
@@ -73,6 +75,7 @@ class ReportTest extends MockedTest
 					new \DateTime('2021-10-12 12:23:00', new \DateTimeZone('UTC')),
 					'Report',
 					'violation',
+					'Rules',
 					true,
 					[89, 90],
 					12,
@@ -117,6 +120,7 @@ class ReportTest extends MockedTest
 				'cid'         => 13,
 				'comment'     => '',
 				'category'    => null,
+				'rules'       => null,
 				'forward'     => false,
 				'postUriIds'  => [],
 				'uid'         => 12,
@@ -126,6 +130,7 @@ class ReportTest extends MockedTest
 					new \DateTime('now', new \DateTimeZone('UTC')),
 					'',
 					null,
+					'',
 					false,
 					[],
 					12,
@@ -146,6 +151,7 @@ class ReportTest extends MockedTest
 					new \DateTime('now', new \DateTimeZone('UTC')),
 					'Report',
 					'violation',
+					'Rules',
 					true,
 					[89, 90],
 					12,
@@ -158,10 +164,10 @@ class ReportTest extends MockedTest
 	/**
 	 * @dataProvider dataCreateFromReportsRequest
 	 */
-	public function testCreateFromReportsRequest(int $reporter, int $cid, string $comment, string $category = null, bool $forward, array $postUriIds, int $uid, Entity\Report $assertion)
+	public function testCreateFromReportsRequest(int $reporter, int $cid, string $comment, string $category = null, string $rules = null, bool $forward, array $postUriIds, int $uid, Entity\Report $assertion)
 	{
 		$factory = new Factory\Report(new NullLogger());
 
-		$this->assertReport($factory->createFromReportsRequest($reporter, $cid, $comment, $category, $forward, $postUriIds, $uid), $assertion);
+		$this->assertReport($factory->createFromReportsRequest($reporter, $cid, $comment, $category, $rules, $forward, $postUriIds, $uid), $assertion);
 	}
 }

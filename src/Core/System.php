@@ -665,10 +665,11 @@ class System
 
 	/**
 	 * Fetch the system rules
+	 * @param bool $numeric_id If set to "true", the rules are returned with a numeric id as key.
 	 *
 	 * @return array
 	 */
-	public static function getRules(): array
+	public static function getRules(bool $numeric_id = false): array
 	{
 		$rules = [];
 		$id    = 0;
@@ -681,7 +682,11 @@ class System
 			foreach (explode("\n", trim($msg)) as $line) {
 				$line = trim($line);
 				if ($line) {
-					$rules[] = ['id' => (string)++$id, 'text' => $line];
+					if ($numeric_id) {
+						$rules[++$id] = $line;
+					} else {
+						$rules[] = ['id' => (string)++$id, 'text' => $line];
+					}
 				}
 			}
 		}

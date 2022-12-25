@@ -58,6 +58,7 @@ class Reports extends BaseApi
 			'status_ids' => [],      // Array of Statuses to attach to the report, for context
 			'comment'    => '',      // Reason for the report (default max 1000 characters)
 			'category'   => 'other', // Specify if the report is due to spam, violation of enumerated instance rules, or some other reason.
+			'rule_ids'   => [],      // For violation category reports, specify the ID of the exact rules broken.
 			'forward'    => false,   // If the account is remote, should the report be forwarded to the remote admin?
 		], $request);
 
@@ -66,7 +67,16 @@ class Reports extends BaseApi
 			throw new HTTPException\NotFoundException('Account ' . $request['account_id'] . ' not found');
 		}
 
-		$report = $this->reportFactory->createFromReportsRequest(Contact::getPublicIdByUserId(self::getCurrentUserID()), $request['account_id'], $request['comment'], $request['category'], $request['forward'], $request['status_ids'], self::getCurrentUserID());
+		$violation = '';
+		$rules     = System::getRules(true);
+
+		foreach ($request['rule_ids'] as $key) {
+			if (!empty($rules[$key])) {
+				$violation .= $rules[$key] . "\n";
+			}
+		}
+
+		$report = $this->reportFactory->createFromReportsRequest(Contact::getPublicIdByUserId(self::getCurrentUserID()), $request['account_id'], $request['comment'], $request['category'], trim($violation), $request['forward'], $request['status_ids'], self::getCurrentUserID());
 
 		$this->reportRepo->save($report);
 
