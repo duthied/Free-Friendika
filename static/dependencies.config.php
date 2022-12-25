@@ -176,6 +176,12 @@ return [
 			['createDev', [], Dice::CHAIN_CALL],
 		]
 	],
+	\Friendica\Core\Logger\Capabilities\IHaveCallIntrospections::class => [
+		'instanceOf' => \Friendica\Core\Logger\Util\Introspection::class,
+		'constructParams' => [
+			\Friendica\Core\Logger\Util\Introspection::IGNORE_CLASS_LIST,
+		],
+	],
 	Cache\Capability\ICanCache::class => [
 		'instanceOf' => Cache\Factory\Cache::class,
 		'call'       => [

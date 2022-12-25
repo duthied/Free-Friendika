@@ -21,10 +21,12 @@
 
 namespace Friendica\Core\Logger\Util;
 
+use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
+
 /**
  * Get Introspection information about the current call
  */
-class Introspection
+class Introspection implements IHaveCallIntrospections
 {
 	/** @var int  */
 	private $skipStackFramesCount;
@@ -52,7 +54,7 @@ class Introspection
 	 *
 	 * @param array $classNames
 	 */
-	public function addClasses(array $classNames)
+	public function addClasses(array $classNames): void
 	{
 		$this->skipClassesPartials = array_merge($this->skipClassesPartials, $classNames);
 	}

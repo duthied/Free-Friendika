@@ -23,11 +23,11 @@ namespace Friendica\Core\Logger\Factory;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core;
+use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
 use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Database\Database;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\FileSystem;
-use Friendica\Core\Logger\Util\Introspection;
 use Friendica\Core\Logger\Type\ProfilerLogger;
 use Friendica\Core\Logger\Type\StreamLogger;
 use Friendica\Core\Logger\Type\SyslogLogger;
@@ -42,17 +42,6 @@ use Psr\Log\NullLogger;
 class Logger
 {
 	const DEV_CHANNEL = 'dev';
-
-	/**
-	 * A list of classes, which shouldn't get logged
-	 *
-	 * @var string[]
-	 */
-	private static $ignoreClassList = [
-		Core\Logger::class,
-		Profiler::class,
-		'Friendica\\Core\\Logger\\Type',
-	];
 
 	/** @var string The log-channel (app, worker, ...) */
 	private $channel;
@@ -79,7 +68,7 @@ class Logger
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 */
-	public function create(Database $database, IManageConfigValues $config, Profiler $profiler, FileSystem $fileSystem, ?string $minLevel = null): LoggerInterface
+	public function create(Database $database, IManageConfigValues $config, Profiler $profiler, FileSystem $fileSystem, IHaveCallIntrospections $introspection, ?string $minLevel = null): LoggerInterface
 	{
 		if (empty($config->get('system', 'debugging', false))) {
 			$logger = new NullLogger();
@@ -87,7 +76,6 @@ class Logger
 			return $logger;
 		}
 
-		$introspection = new Introspection(self::$ignoreClassList);
 		$minLevel      = $minLevel ?? $config->get('system', 'loglevel');
 		$loglevel      = self::mapLegacyConfigDebugLevel((string)$minLevel);
 
@@ -99,7 +87,7 @@ class Logger
 					$logger = new SyslogLogger($this->channel, $introspection, $loglevel, $config->get('system', 'syslog_flags', SyslogLogger::DEFAULT_FLAGS), $config->get('system', 'syslog_facility', SyslogLogger::DEFAULT_FACILITY));
 				} catch (LogLevelException $exception) {
 					// If there's a wrong config value for loglevel, try again with standard
-					$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
+					$logger = $this->create($database, $config, $profiler, $fileSystem,  $introspection, LogLevel::NOTICE);
 					$logger->warning('Invalid loglevel set in config.', ['loglevel' => $loglevel]);
 				} catch (\Throwable $e) {
 					// No logger ...
@@ -134,7 +122,7 @@ class Logger
 							$logger = new StreamLogger($this->channel, $stream, $introspection, $fileSystem, $loglevel);
 						} catch (LogLevelException $exception) {
 							// If there's a wrong config value for loglevel, try again with standard
-							$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
+							$logger = $this->create($database, $config, $profiler, $fileSystem, $introspection, LogLevel::NOTICE);
 							$logger->warning('Invalid loglevel set in config.', ['loglevel' => $loglevel]);
 						} catch (\Throwable $t) {
 							// No logger ...
@@ -145,7 +133,7 @@ class Logger
 							$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
 						} catch (LogLevelException $exception) {
 							// If there's a wrong config value for loglevel, try again with standard
-							$logger = $this->create($database, $config, $profiler, $fileSystem, LogLevel::NOTICE);
+							$logger = $this->create($database, $config, $profiler, $fileSystem, $introspection, LogLevel::NOTICE);
 							$logger->warning('Invalid loglevel set in config.', ['loglevel' => $loglevel]);
 						} catch (\Throwable $e) {
 							// No logger ...
@@ -182,7 +170,7 @@ class Logger
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 * @throws \Exception
 	 */
-	public static function createDev(IManageConfigValues $config, Profiler $profiler, FileSystem $fileSystem)
+	public static function createDev(IManageConfigValues $config, Profiler $profiler, FileSystem $fileSystem, IHaveCallIntrospections $introspection)
 	{
 		$debugging   = $config->get('system', 'debugging');
 		$stream      = $config->get('system', 'dlogfile');
@@ -192,8 +180,6 @@ class Logger
 			(!is_file($stream) || is_writable($stream))) {
 			return new NullLogger();
 		}
-
-		$introspection = new Introspection(self::$ignoreClassList);
 
 		$name = $config->get('system', 'logger_config', 'stream');
 
