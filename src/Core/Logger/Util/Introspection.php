@@ -21,6 +21,7 @@
 
 namespace Friendica\Core\Logger\Util;
 
+use Friendica\App\Request;
 use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
 
 /**
@@ -28,6 +29,9 @@ use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
  */
 class Introspection implements IHaveCallIntrospections
 {
+	/** @var string */
+	private $requestId;
+
 	/** @var int  */
 	private $skipStackFramesCount;
 
@@ -43,8 +47,9 @@ class Introspection implements IHaveCallIntrospections
 	 * @param string[] $skipClassesPartials  An array of classes to skip during logging
 	 * @param int      $skipStackFramesCount If the logger should use information from other hierarchy levels of the call
 	 */
-	public function __construct(array $skipClassesPartials = [], int $skipStackFramesCount = 0)
+	public function __construct(Request $request, array $skipClassesPartials = [], int $skipStackFramesCount = 0)
 	{
+		$this->requestId            = $request->getRequestId();
 		$this->skipClassesPartials  = $skipClassesPartials;
 		$this->skipStackFramesCount = $skipStackFramesCount;
 	}
@@ -77,9 +82,10 @@ class Introspection implements IHaveCallIntrospections
 		$i += $this->skipStackFramesCount;
 
 		return [
-			'file'     => isset($trace[$i - 1]['file']) ? basename($trace[$i - 1]['file']) : null,
-			'line'     => $trace[$i - 1]['line'] ?? null,
-			'function' => $trace[$i]['function'] ?? null,
+			'file'       => isset($trace[$i - 1]['file']) ? basename($trace[$i - 1]['file']) : null,
+			'line'       => $trace[$i - 1]['line'] ?? null,
+			'function'   => $trace[$i]['function'] ?? null,
+			'request-id' => $this->requestId,
 		];
 	}
 
