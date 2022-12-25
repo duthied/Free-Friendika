@@ -122,7 +122,7 @@ class ReportTest extends MockedTest
 				'cid'         => 13,
 				'comment'     => '',
 				'category'    => null,
-				'rules'       => null,
+				'rules'       => '',
 				'forward'     => false,
 				'postUriIds'  => [],
 				'uid'         => 12,
