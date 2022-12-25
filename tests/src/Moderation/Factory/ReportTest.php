@@ -39,6 +39,7 @@ class ReportTest extends MockedTest
 					'cid'         => 13,
 					'comment'     => '',
 					'category'    => null,
+					'rules'       => '',
 					'forward'     => false,
 					'created'     => null
 				],
@@ -96,6 +97,7 @@ class ReportTest extends MockedTest
 		self::assertEquals($assertion->cid, $report->cid);
 		self::assertEquals($assertion->comment, $report->comment);
 		self::assertEquals($assertion->category, $report->category);
+		self::assertEquals($assertion->rules, $report->rules);
 		self::assertEquals($assertion->forward, $report->forward);
 		// No way to test "now" at the moment
 		//self::assertEquals($assertion->created, $report->created);
@@ -142,6 +144,7 @@ class ReportTest extends MockedTest
 				'cid'         => 13,
 				'comment'     => 'Report',
 				'category'    => 'violation',
+				'rules'       => 'Rules',
 				'forward'     => true,
 				'postUriIds'  => [89, 90],
 				'uid'         => 12,
@@ -164,7 +167,7 @@ class ReportTest extends MockedTest
 	/**
 	 * @dataProvider dataCreateFromReportsRequest
 	 */
-	public function testCreateFromReportsRequest(int $reporter, int $cid, string $comment, string $category = null, string $rules = null, bool $forward, array $postUriIds, int $uid, Entity\Report $assertion)
+	public function testCreateFromReportsRequest(int $reporter, int $cid, string $comment, string $category = null, string $rules = '', bool $forward, array $postUriIds, int $uid, Entity\Report $assertion)
 	{
 		$factory = new Factory\Report(new NullLogger());
 
