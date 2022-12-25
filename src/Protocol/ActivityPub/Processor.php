@@ -1852,7 +1852,7 @@ class Processor
 			}
 		}
 
-		$report = DI::reportFactory()->createFromReportsRequest(null, $reporter_id, $account_id, $activity['content'], null, false, $uri_ids);
+		$report = DI::reportFactory()->createFromReportsRequest($reporter_id, $account_id, $activity['content'], null, false, $uri_ids);
 		DI::report()->save($report);
 
 		Logger::info('Stored report', ['reporter' => $reporter_id, 'account_id' => $account_id, 'comment' => $activity['content'], 'object_ids' => $activity['object_ids']]);

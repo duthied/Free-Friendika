@@ -44,7 +44,6 @@ class ReportTest extends MockedTest
 				],
 				'postUriIds' => [],
 				'assertion'  => new Entity\Report(
-					12,
 					14,
 					13,
 					new \DateTime('now', new \DateTimeZone('UTC')),
@@ -52,6 +51,7 @@ class ReportTest extends MockedTest
 					null,
 					false,
 					[],
+					12,
 					11,
 				),
 			],
@@ -68,7 +68,6 @@ class ReportTest extends MockedTest
 				],
 				'postUriIds' => [89, 90],
 				'assertion'  => new Entity\Report(
-					12,
 					14,
 					13,
 					new \DateTime('2021-10-12 12:23:00', new \DateTimeZone('UTC')),
@@ -76,6 +75,7 @@ class ReportTest extends MockedTest
 					'violation',
 					true,
 					[89, 90],
+					12,
 					11
 				),
 			],
@@ -121,7 +121,6 @@ class ReportTest extends MockedTest
 				'forward'     => false,
 				'postUriIds'  => [],
 				'assertion'   => new Entity\Report(
-					12,
 					14,
 					13,
 					new \DateTime('now', new \DateTimeZone('UTC')),
@@ -129,6 +128,7 @@ class ReportTest extends MockedTest
 					null,
 					false,
 					[],
+					12,
 					null
 				),
 			],
@@ -141,7 +141,6 @@ class ReportTest extends MockedTest
 				'forward'     => true,
 				'postUriIds'  => [89, 90],
 				'assertion'   => new Entity\Report(
-					12,
 					14,
 					13,
 					new \DateTime('now', new \DateTimeZone('UTC')),
@@ -149,6 +148,7 @@ class ReportTest extends MockedTest
 					'violation',
 					true,
 					[89, 90],
+					12,
 					null
 				),
 			],
@@ -158,10 +158,10 @@ class ReportTest extends MockedTest
 	/**
 	 * @dataProvider dataCreateFromReportsRequest
 	 */
-	public function testCreateFromReportsRequest(int $uid, int $reporter, int $cid, string $comment, string $category = null, bool $forward, array $postUriIds, Entity\Report $assertion)
+	public function testCreateFromReportsRequest(int $reporter, int $cid, string $comment, string $category = null, bool $forward, array $postUriIds, int $uid, Entity\Report $assertion)
 	{
 		$factory = new Factory\Report(new NullLogger());
 
-		$this->assertReport($factory->createFromReportsRequest($uid, $reporter, $cid, $comment, $category, $forward, $postUriIds), $assertion);
+		$this->assertReport($factory->createFromReportsRequest($reporter, $cid, $comment, $category, $forward, $postUriIds, $uid), $assertion);
 	}
 }
