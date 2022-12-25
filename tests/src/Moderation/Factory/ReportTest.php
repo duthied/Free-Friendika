@@ -113,13 +113,13 @@ class ReportTest extends MockedTest
 	{
 		return [
 			'default' => [
-				'uid'         => 12,
 				'reporter-id' => 14,
 				'cid'         => 13,
 				'comment'     => '',
 				'category'    => null,
 				'forward'     => false,
 				'postUriIds'  => [],
+				'uid'         => 12,
 				'assertion'   => new Entity\Report(
 					14,
 					13,
@@ -133,13 +133,13 @@ class ReportTest extends MockedTest
 				),
 			],
 			'full' => [
-				'uid'         => 12,
 				'reporter-id' => 14,
 				'cid'         => 13,
 				'comment'     => 'Report',
 				'category'    => 'violation',
 				'forward'     => true,
 				'postUriIds'  => [89, 90],
+				'uid'         => 12,
 				'assertion'   => new Entity\Report(
 					14,
 					13,
