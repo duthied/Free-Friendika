@@ -219,7 +219,7 @@ class Display extends BaseSettings
 		];
 
 
-		$first_day_of_week = $this->pConfig->get($uid, 'system', 'first_day_of_week', 0);
+		$first_day_of_week = $this->pConfig->get($uid, 'calendar', 'first_day_of_week', 0);
 		$weekdays          = [
 			0 => $this->t('Sunday'),
 			1 => $this->t('Monday'),
