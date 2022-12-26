@@ -29,7 +29,6 @@ use Friendica\Core\Config\Factory\Config;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\Definition\DbaDefinition;
 use Friendica\Database\Definition\ViewDefinition;
-use Friendica\Model\User;
 use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
 use Friendica\Core\Config\ValueObject\Cache;
@@ -73,8 +72,6 @@ class App
 		'videoheight'       => 350,
 	];
 
-	private $user_id       = 0;
-	private $nickname      = '';
 	private $timezone      = '';
 	private $profile_owner = 0;
 	private $contact_id    = 0;
@@ -136,64 +133,39 @@ class App
 	private $session;
 
 	/**
-	 * Set the user ID
-	 *
-	 * @param int $user_id
-	 * @return void
+	 * @deprecated 2022.03
+	 * @see IHandleUserSessions::isAuthenticated()
 	 */
-	public function setLoggedInUserId(int $user_id)
-	{
-		$this->user_id = $user_id;
-	}
-
-	/**
-	 * Set the nickname
-	 *
-	 * @param int $user_id
-	 * @return void
-	 */
-	public function setLoggedInUserNickname(string $nickname)
-	{
-		$this->nickname = $nickname;
-	}
-
 	public function isLoggedIn(): bool
 	{
-		return $this->session->getLocalUserId() && $this->user_id && ($this->user_id == $this->session->getLocalUserId());
+		return $this->session->isAuthenticated();
 	}
 
 	/**
-	 * Check if current user has admin role.
-	 *
-	 * @return bool true if user is an admin
-	 * @throws Exception
+	 * @deprecated 2022.03
+	 * @see IHandleUserSessions::isSiteAdmin()
 	 */
 	public function isSiteAdmin(): bool
 	{
-		return
-			$this->session->getLocalUserId()
-			&& $this->database->exists('user', [
-				'uid'   => $this->getLoggedInUserId(),
-				'email' => User::getAdminEmailList()
-			]);
+		return $this->session->isSiteAdmin();
 	}
 
 	/**
-	 * Fetch the user id
-	 * @return int User id
+	 * @deprecated 2022.03
+	 * @see IHandleUserSessions::getLocalUserId()
 	 */
 	public function getLoggedInUserId(): int
 	{
-		return $this->user_id;
+		return $this->session->getLocalUserId();
 	}
 
 	/**
-	 * Fetch the user nick name
-	 * @return string User's nickname
+	 * @deprecated 2022.03
+	 * @see IHandleUserSessions::getLocalUserNickname()
 	 */
 	public function getLoggedInUserNickname(): string
 	{
-		return $this->nickname;
+		return $this->session->getLocalUserNickname();
 	}
 
 	/**

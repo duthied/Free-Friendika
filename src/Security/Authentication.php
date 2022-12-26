@@ -392,9 +392,6 @@ class Authentication
 			}
 		}
 
-		$a->setLoggedInUserId($user_record['uid']);
-		$a->setLoggedInUserNickname($user_record['nickname']);
-
 		if ($login_initial) {
 			Hook::callAll('logged_in', $user_record);
 		}

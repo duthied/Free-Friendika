@@ -88,7 +88,7 @@ class NewDMTest extends ApiTest
 	 */
 	public function testApiDirectMessagesNewWithScreenName()
 	{
-		DI::app()->setLoggedInUserNickname('selfcontact');
+		DI::session()->set('nickname', 'selfcontact');
 
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
@@ -112,7 +112,7 @@ class NewDMTest extends ApiTest
 	 */
 	public function testApiDirectMessagesNewWithTitle()
 	{
-		DI::app()->setLoggedInUserNickname('selfcontact');
+		DI::session()->set('nickname', 'selfcontact');
 
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
@@ -138,7 +138,7 @@ class NewDMTest extends ApiTest
 	 */
 	public function testApiDirectMessagesNewWithRss()
 	{
-		DI::app()->setLoggedInUserNickname('selfcontact');
+		DI::session()->set('nickname', 'selfcontact');
 
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
