@@ -783,6 +783,8 @@ class Notify extends BaseRepository
 			$subject        = $l10n->t('%s %s shared a new post', $subjectPrefix, $contact['name']);
 		} else {
 			$params['type'] = Model\Notification\Type::COMMENT;
+			$subject        = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
+
 			if ($params['verb'] = Activity::LIKE) {
 				switch ($Notification->type) {
 					case Model\Post\UserNotification::TYPE_DIRECT_COMMENT:
@@ -792,8 +794,6 @@ class Notify extends BaseRepository
 						$subject = $l10n->t('%1$s %2$s liked your comment on #%3$d', $subjectPrefix, $contact['name'], $item['parent']);
 						break;
 				}
-			} else {
-				$subject = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
 			}
 		}
 
