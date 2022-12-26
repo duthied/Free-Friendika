@@ -63,7 +63,7 @@ class Receiver
 	const PUBLIC_COLLECTION = 'as:Public';
 	const ACCOUNT_TYPES = ['as:Person', 'as:Organization', 'as:Service', 'as:Group', 'as:Application'];
 	const CONTENT_TYPES = ['as:Note', 'as:Article', 'as:Video', 'as:Image', 'as:Event', 'as:Audio', 'as:Page', 'as:Question'];
-	const ACTIVITY_TYPES = ['as:Like', 'as:Dislike', 'as:Accept', 'as:Reject', 'as:TentativeAccept', 'as:Read'];
+	const ACTIVITY_TYPES = ['as:Like', 'as:Dislike', 'as:Accept', 'as:Reject', 'as:TentativeAccept', 'as:View', 'as:Read', 'litepub:EmojiReact'];
 
 	const TARGET_UNKNOWN = 0;
 	const TARGET_TO = 1;
@@ -449,7 +449,7 @@ class Receiver
 			} else {
 				$object_data['directmessage'] = JsonLD::fetchElement($activity, 'litepub:directMessage');
 			}
-		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow', 'litepub:EmojiReact', 'as:View'])) && in_array($object_type, self::CONTENT_TYPES)) {
+		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of each individual array element.
 			$object_data = self::processObject($activity);
@@ -726,8 +726,8 @@ class Receiver
 					ActivityPub\Processor::addTag($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::addToFeaturedCollection($object_data);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -781,8 +781,8 @@ class Receiver
 			case 'as:Like':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::LIKE);
-				} elseif (in_array($object_data['object_type'], ['', 'as:Tombstone'])) {
-					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -792,8 +792,8 @@ class Receiver
 			case 'as:Dislike':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::DISLIKE);
-				} elseif (in_array($object_data['object_type'], ['', 'as:Tombstone'])) {
-					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -861,8 +861,8 @@ class Receiver
 			case 'as:Remove':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::removeFromFeaturedCollection($object_data);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -945,8 +945,8 @@ class Receiver
 			case 'as:View':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::VIEW);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -955,8 +955,8 @@ class Receiver
 			case 'as:Read':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::READ);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -966,8 +966,8 @@ class Receiver
 			case 'litepub:EmojiReact':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::EMOJIREACT);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
