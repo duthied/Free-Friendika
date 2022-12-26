@@ -970,7 +970,7 @@ class Conversation
 		}
 
 		$condition = DBA::mergeConditions($condition,
-			["`uid` IN (0, ?) AND (NOT `vid` IN (?, ?) OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW), Verb::getID(Activity::VIEW)]);
+			["`uid` IN (0, ?) AND (NOT `vid` IN (?, ?, ?) OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW), Verb::getID(Activity::VIEW), Verb::getID(Activity::READ)]);
 
 		$thread_parents = Post::select(['uri-id', 'causer-id'], $condition, ['order' => ['uri-id' => false, 'uid']]);
 
