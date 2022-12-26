@@ -31,7 +31,7 @@ class TestTest extends ApiTest
 	public function testJson()
 	{
 		$response = (new Test(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
-			->run();
+			->run($this->httpExceptionMock);
 
 		$json = $this->toJson($response);
 
@@ -45,7 +45,7 @@ class TestTest extends ApiTest
 	public function testXml()
 	{
 		$response = (new Test(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'xml']))
-			->run();
+			->run($this->httpExceptionMock);
 
 		self::assertEquals([
 			'Content-type'                => ['text/xml'],

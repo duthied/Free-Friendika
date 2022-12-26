@@ -37,7 +37,7 @@ class NetworkPublicTimelineTest extends ApiTest
 	public function testApiStatusesNetworkpublicTimeline()
 	{
 		$response = (new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run([
+			->run($this->httpExceptionMock, [
 				'max_id' => 10
 			]);
 
@@ -59,7 +59,7 @@ class NetworkPublicTimelineTest extends ApiTest
 	public function testApiStatusesNetworkpublicTimelineWithNegativePage()
 	{
 		$response = (new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run([
+			->run($this->httpExceptionMock, [
 				'page' => -2
 			]);
 
@@ -96,7 +96,7 @@ class NetworkPublicTimelineTest extends ApiTest
 	{
 		$response = (new NetworkPublicTimeline(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], [
 			'extension' => ICanCreateResponses::TYPE_RSS
-		]))->run([
+		]))->run($this->httpExceptionMock, [
 			'page' => -2
 		]);
 

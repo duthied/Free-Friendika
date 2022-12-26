@@ -33,6 +33,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Module\Api\ApiResponse;
+use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
@@ -80,7 +81,7 @@ class BaseApi extends BaseModule
 	 *
 	 * @throws HTTPException\ForbiddenException
 	 */
-	public function run(array $request = [], bool $scopecheck = true): ResponseInterface
+	public function run(ModuleHTTPException $httpException, array $request = [], bool $scopecheck = true): ResponseInterface
 	{
 		if ($scopecheck) {
 			switch ($this->args->getMethod()) {
@@ -97,7 +98,7 @@ class BaseApi extends BaseModule
 			}	
 		}
 
-		return parent::run($request);
+		return parent::run($httpException, $request);
 	}
 
 	/**

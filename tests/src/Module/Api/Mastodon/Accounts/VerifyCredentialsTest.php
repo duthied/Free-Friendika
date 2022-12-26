@@ -36,7 +36,7 @@ class VerifyCredentialsTest extends ApiTest
 	public function testApiAccountVerifyCredentials()
 	{
 		$response = (new VerifyCredentials(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run();
+			->run($this->httpExceptionMock);
 
 		$json = $this->toJson($response);
 

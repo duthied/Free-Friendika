@@ -40,7 +40,7 @@ class ShowTest extends ApiTest
 
 
 		(new Show(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run();
+			->run($this->httpExceptionMock);
 	}
 
 	/**
@@ -51,7 +51,7 @@ class ShowTest extends ApiTest
 	public function testApiStatusesShowWithId()
 	{
 		$response = (new Show(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run([
+			->run($this->httpExceptionMock, [
 				'id' => 1
 			]);
 
@@ -69,7 +69,7 @@ class ShowTest extends ApiTest
 	public function testApiStatusesShowWithConversation()
 	{
 		$response = (new Show(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run([
+			->run($this->httpExceptionMock, [
 				'id'           => 1,
 				'conversation' => 1
 			]);

@@ -37,7 +37,7 @@ class ConfigTest extends ApiTest
 		DI::config()->set('system', 'ssl_policy', BaseURL::SSL_POLICY_FULL);
 
 		$response = (new Config(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run();
+			->run($this->httpExceptionMock);
 		$json = $this->toJson($response);
 
 		self::assertEquals('localhost', $json->site->server);

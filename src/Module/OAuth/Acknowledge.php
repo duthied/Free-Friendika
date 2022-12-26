@@ -24,6 +24,7 @@ namespace Friendica\Module\OAuth;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Module\Special\HTTPException;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -31,9 +32,9 @@ use Psr\Http\Message\ResponseInterface;
  */
 class Acknowledge extends BaseApi
 {
-	public function run(array $request = [], bool $scopecheck = true): ResponseInterface
+	public function run(HTTPException $httpException, array $request = [], bool $scopecheck = true): ResponseInterface
 	{
-		return parent::run($request, false);
+		return parent::run($httpException, $request, false);
 	}
 
 	protected function post(array $request = [])

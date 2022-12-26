@@ -34,6 +34,13 @@ interface IHandleUserSessions extends IHandleSessions
 	public function getLocalUserId();
 
 	/**
+	 * Returns the user nickname of locally logged-in user.
+	 *
+	 * @return string|false User's nickname or false
+	 */
+	public function getLocalUserNickname();
+
+	/**
 	 * Returns the public contact id of logged-in user or false.
 	 *
 	 * @return int|bool public contact id or false
@@ -78,6 +85,13 @@ interface IHandleUserSessions extends IHandleSessions
 	 * @return bool "true" when visitor is either a local or remote user
 	 */
 	public function isAuthenticated(): bool;
+
+	/**
+	 * Check if current user has admin role.
+	 *
+	 * @return bool true if user is an admin
+	 */
+	public function isSiteAdmin(): bool;
 
 	/**
 	 * Returns User ID of the managed user in case it's a different identity

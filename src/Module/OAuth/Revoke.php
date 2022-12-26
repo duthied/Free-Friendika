@@ -26,6 +26,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Module\Special\HTTPException;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -33,9 +34,9 @@ use Psr\Http\Message\ResponseInterface;
  */
 class Revoke extends BaseApi
 {
-	public function run(array $request = [], bool $scopecheck = true): ResponseInterface
+	public function run(HTTPException $httpException, array $request = [], bool $scopecheck = true): ResponseInterface
 	{
-		return parent::run($request, false);
+		return parent::run($httpException, $request, false);
 	}
 
 	protected function post(array $request = [])

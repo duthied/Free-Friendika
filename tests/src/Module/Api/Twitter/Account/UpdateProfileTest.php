@@ -36,7 +36,7 @@ class UpdateProfileTest extends ApiTest
 		$this->useHttpMethod(Router::POST);
 
 		$response = (new UpdateProfile(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
-			->run([
+			->run($this->httpExceptionMock, [
 				'name'        => 'new_name',
 				'description' => 'new_description'
 			]);

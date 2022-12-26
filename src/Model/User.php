@@ -831,6 +831,22 @@ class User
 	}
 
 	/**
+	 * Returns if the given uid is valid and in the admin list
+	 *
+	 * @param int $uid
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public static function isSiteAdmin(int $uid): bool
+	{
+		return DBA::exists('user', [
+			'uid'   => $uid,
+			'email' => self::getAdminEmailList()
+		]);
+	}
+
+	/**
 	 * Checks if a nickname is in the list of the forbidden nicknames
 	 *
 	 * Check if a nickname is forbidden from registration on the node by the

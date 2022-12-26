@@ -67,7 +67,7 @@ class NotificationTest extends ApiTest
 XML;
 
 		$response = (new Notification(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'xml']))
-			->run();
+			->run($this->httpExceptionMock);
 
 		self::assertXmlStringEqualsXmlString($assertXml, (string)$response->getBody());
 		self::assertEquals([
@@ -79,7 +79,7 @@ XML;
 	public function testWithJsonResult()
 	{
 		$response = (new Notification(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
-			->run();
+			->run($this->httpExceptionMock);
 
 		$json = $this->toJson($response);
 

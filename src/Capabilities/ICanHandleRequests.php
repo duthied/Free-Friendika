@@ -21,6 +21,7 @@
 
 namespace Friendica\Capabilities;
 
+use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Psr\Http\Message\ResponseInterface;
 
@@ -30,11 +31,12 @@ use Psr\Http\Message\ResponseInterface;
 interface ICanHandleRequests
 {
 	/**
-	 * @param array $request The $_REQUEST content (including content from the PHP input stream)
+	 * @param ModuleHTTPException $httpException The special HTTPException Module in case of underlying errors
+	 * @param array               $request       The $_REQUEST content (including content from the PHP input stream)
 	 *
 	 * @return ResponseInterface responding to the request handling
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function run(array $request = []): ResponseInterface;
+	public function run(ModuleHTTPException $httpException, array $request = []): ResponseInterface;
 }

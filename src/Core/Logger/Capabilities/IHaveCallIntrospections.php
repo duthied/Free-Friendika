@@ -19,15 +19,34 @@
  *
  */
 
-namespace Friendica\Module\HTTPException;
+namespace Friendica\Core\Logger\Capabilities;
+use Friendica\Core\Logger\Factory\Logger;
+use Friendica\Util\Profiler;
 
-use Friendica\BaseModule;
-use Friendica\Network\HTTPException;
-
-class MethodNotAllowed extends BaseModule
+interface IHaveCallIntrospections
 {
-	protected function content(array $request = []): string
-	{
-		throw new HTTPException\MethodNotAllowedException($this->t('Method Not Allowed.'));
-	}
+	/**
+	 * A list of classes, which shouldn't get logged
+	 *
+	 * @var string[]
+	 */
+	public const IGNORE_CLASS_LIST = [
+		Logger::class,
+		Profiler::class,
+		'Friendica\\Core\\Logger\\Type',
+	];
+
+	/**
+	 * Adds new classes to get skipped
+	 *
+	 * @param array $classNames
+	 */
+	public function addClasses(array $classNames): void;
+
+	/**
+	 * Returns the introspection record of the current call
+	 *
+	 * @return array
+	 */
+	public function getRecord(): array;
 }
