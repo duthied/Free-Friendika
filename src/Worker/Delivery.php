@@ -276,14 +276,16 @@ class Delivery
 	 */
 	private static function deliverDFRN(string $cmd, array $contact, array $owner, array $items, array $target_item, bool $public_message, bool $top_level, bool $followup, int $server_protocol = null)
 	{
+		$target_item_id = $target_item['guid'] ?? '' ?: $target_item['id'] ?? null;
+
 		// Transmit Diaspora reshares via Diaspora if the Friendica contact support Diaspora
-		if (Diaspora::getReshareDetails($target_item ?? []) && Diaspora::isSupportedByContactUrl($contact['addr'])) {
-			Logger::info('Reshare will be transmitted via Diaspora', ['url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
+		if (Diaspora::getReshareDetails($target_item) && Diaspora::isSupportedByContactUrl($contact['addr'])) {
+			Logger::info('Reshare will be transmitted via Diaspora', ['url' => $contact['url'], 'guid' => $target_item_id]);
 			self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 			return;
 		}
 
-		Logger::info('Deliver ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' via DFRN to ' . (($contact['addr'] ?? '') ?: $contact['url']));
+		Logger::info('Deliver ' . ($target_item_id ?? 'relocation') . ' via DFRN to ' . ($contact['addr'] ?? '' ?: $contact['url']));
 
 		if ($cmd == self::MAIL) {
 			$item = $target_item;
@@ -315,7 +317,7 @@ class Delivery
 			$atom = DFRN::entries($msgitems, $owner);
 		}
 
-		Logger::debug('Notifier entry: ' . $contact['url'] . ' ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' entry: ' . $atom);
+		Logger::debug('Notifier entry: ' . $contact['url'] . ' ' . ($target_item_id ?? 'relocation') . ' entry: ' . $atom);
 
 		$protocol = Post\DeliveryData::DFRN;
 
@@ -353,7 +355,7 @@ class Delivery
 			$deliver_status = DFRN::transmit($owner, $contact, $atom);
 		}
 
-		Logger::info('DFRN Delivery', ['cmd' => $cmd, 'url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id'], 'return' => $deliver_status]);
+		Logger::info('DFRN Delivery', ['cmd' => $cmd, 'url' => $contact['url'], 'guid' => $target_item_id, 'return' => $deliver_status]);
 
 		if (($deliver_status >= 200) && ($deliver_status <= 299)) {
 			// We successfully delivered a message, the contact is alive
@@ -368,7 +370,7 @@ class Delivery
 			// The message could not be delivered. We mark the contact as "dead"
 			Contact::markForArchival($contact);
 
-			Logger::info('Delivery failed: defer message', ['id' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
+			Logger::info('Delivery failed: defer message', ['id' => $target_item_id]);
 			if (!Worker::defer() && $cmd == Delivery::POST) {
 				Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
 			}
