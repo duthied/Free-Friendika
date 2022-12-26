@@ -63,7 +63,7 @@ class Receiver
 	const PUBLIC_COLLECTION = 'as:Public';
 	const ACCOUNT_TYPES = ['as:Person', 'as:Organization', 'as:Service', 'as:Group', 'as:Application'];
 	const CONTENT_TYPES = ['as:Note', 'as:Article', 'as:Video', 'as:Image', 'as:Event', 'as:Audio', 'as:Page', 'as:Question'];
-	const ACTIVITY_TYPES = ['as:Like', 'as:Dislike', 'as:Accept', 'as:Reject', 'as:TentativeAccept'];
+	const ACTIVITY_TYPES = ['as:Like', 'as:Dislike', 'as:Accept', 'as:Reject', 'as:TentativeAccept', 'as:Read'];
 
 	const TARGET_UNKNOWN = 0;
 	const TARGET_TO = 1;
@@ -934,6 +934,9 @@ class Receiver
 				} elseif (in_array($object_data['object_type'], ['as:Delete'])) {
 					// We cannot undo deletions, so we just ignore this
 					Queue::remove($object_data);
+				} elseif (in_array($object_data['object_object_type'], ['as:Tombstone'])) {
+					// The object is a tombstone, we ignore any actions on it.
+					Queue::remove($object_data);
 				} else {
 					return false;
 				}
@@ -942,6 +945,16 @@ class Receiver
 			case 'as:View':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::VIEW);
+				} elseif ($object_data['object_type'] == '') {
+					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
+					Queue::remove($object_data);
+				} else {
+					return false;
+				}
+				break;
+			case 'as:Read':
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createActivity($object_data, Activity::READ);
 				} elseif ($object_data['object_type'] == '') {
 					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
 					Queue::remove($object_data);

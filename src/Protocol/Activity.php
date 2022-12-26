@@ -163,6 +163,13 @@ final class Activity
 	 * @var string
 	 */
 	const ANNOUNCE   = ActivityNamespace::ACTIVITY2 . 'Announce';
+	/**
+	 * Indicates that the actor has read the object.
+	 *
+	 * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-read
+	 * @var string
+	 */
+	const READ       = ActivityNamespace::ACTIVITY2 . 'read';
 
 	const O_UNFOLLOW    = ActivityNamespace::OSTATUS . '/unfollow';
 	const O_UNFAVOURITE = ActivityNamespace::OSTATUS . '/unfavorite';
@@ -194,6 +201,7 @@ final class Activity
 		self::ANNOUNCE,
 		self::EMOJIREACT,
 		self::VIEW,
+		self::READ,
 	];
 
 	/**
