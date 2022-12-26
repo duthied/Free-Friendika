@@ -273,5 +273,10 @@ return [
 	],
 	\Psr\Clock\ClockInterface::class => [
 		'instanceOf' => Util\Clock\SystemClock::class
-	]
+	],
+	\Friendica\Module\Special\HTTPException::class => [
+		'constructParams' => [
+			$_SERVER
+		],
+	],
 ];

@@ -39,7 +39,7 @@ class NewDMTest extends ApiTest
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
 		$response = (new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
-			->run();
+			->run($this->httpExceptionMock);
 
 		self::assertEmpty((string)$response->getBody());
 	}
@@ -71,7 +71,7 @@ class NewDMTest extends ApiTest
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
 		$response = (new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
-			->run([
+			->run($this->httpExceptionMock, [
 				'text'    => 'message_text',
 				'user_id' => 43
 			]);
@@ -93,7 +93,7 @@ class NewDMTest extends ApiTest
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
 		$response = (new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
-			->run([
+			->run($this->httpExceptionMock, [
 				'text'    => 'message_text',
 				'user_id' => 44
 			]);
@@ -117,7 +117,7 @@ class NewDMTest extends ApiTest
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
 		$response = (new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
-			->run([
+			->run($this->httpExceptionMock, [
 				'text'    => 'message_text',
 				'user_id' => 44,
 				'title'   => 'message_title',
@@ -143,7 +143,7 @@ class NewDMTest extends ApiTest
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
 		$response = (new NewDM($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'rss']))
-			->run([
+			->run($this->httpExceptionMock, [
 				'text'    => 'message_text',
 				'user_id' => 44,
 				'title'   => 'message_title',

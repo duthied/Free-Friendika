@@ -22,13 +22,12 @@
 namespace Friendica\Module\HTTPException;
 
 use Friendica\BaseModule;
-use Friendica\DI;
 use Friendica\Network\HTTPException;
 
 class MethodNotAllowed extends BaseModule
 {
 	protected function content(array $request = []): string
 	{
-		throw new HTTPException\MethodNotAllowedException(DI::l10n()->t('Method Not Allowed.'));
+		throw new HTTPException\MethodNotAllowedException($this->t('Method Not Allowed.'));
 	}
 }

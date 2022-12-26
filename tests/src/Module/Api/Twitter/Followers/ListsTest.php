@@ -34,7 +34,7 @@ class ListsTest extends ApiTest
 	public function testApiStatusesFWithFollowers()
 	{
 		$response = (new Lists(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run();
+			->run($this->httpExceptionMock);
 
 		$json = $this->toJson($response);
 

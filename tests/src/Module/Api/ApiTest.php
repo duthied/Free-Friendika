@@ -27,12 +27,14 @@ use Friendica\Core\Addon;
 use Friendica\Core\Hook;
 use Friendica\Database\Database;
 use Friendica\DI;
+use Friendica\Module\Special\HTTPException;
 use Friendica\Security\Authentication;
 use Friendica\Security\BasicAuth;
 use Friendica\Test\FixtureTest;
 use Friendica\Test\Util\AppDouble;
 use Friendica\Test\Util\AuthenticationDouble;
 use Friendica\Test\Util\AuthTestConfig;
+use Mockery\MockInterface;
 use Psr\Http\Message\ResponseInterface;
 
 abstract class ApiTest extends FixtureTest
@@ -58,6 +60,9 @@ abstract class ApiTest extends FixtureTest
 		'nick' => 'othercontact',
 		'nurl' => 'http://localhost/profile/othercontact'
 	];
+
+	/** @var HTTPException */
+	protected $httpExceptionMock;
 
 	// User ID that we know is not in the database
 	const WRONG_USER_ID = 666;
@@ -174,6 +179,8 @@ abstract class ApiTest extends FixtureTest
 
 		// Manual override to bypass API authentication
 		DI::app()->setIsLoggedIn(true);
+
+		$this->httpExceptionMock = $this->dice->create(HTTPException::class);
 
 		AuthTestConfig::$authenticated = true;
 		AuthTestConfig::$user_id       = 42;

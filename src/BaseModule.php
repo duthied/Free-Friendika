@@ -181,7 +181,7 @@ abstract class BaseModule implements ICanHandleRequests
 	/**
 	 * {@inheritDoc}
 	 */
-	public function run(array $request = []): ResponseInterface
+	public function run(ModuleHTTPException $httpException, array $request = []): ResponseInterface
 	{
 		// @see https://github.com/tootsuite/mastodon/blob/c3aef491d66aec743a3a53e934a494f653745b61/config/initializers/cors.rb
 		if (substr($this->args->getQueryString(), 0, 12) == '.well-known/') {
@@ -243,7 +243,7 @@ abstract class BaseModule implements ICanHandleRequests
 			$this->response->addContent($arr['content']);
 			$this->response->addContent($this->content($request));
 		} catch (HTTPException $e) {
-			$this->response->addContent((new ModuleHTTPException())->content($e));
+			$this->response->addContent($httpException->content($e));
 		} finally {
 			$this->profiler->set(microtime(true) - $timestamp, 'content');
 		}

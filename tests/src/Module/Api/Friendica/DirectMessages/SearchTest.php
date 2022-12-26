@@ -35,7 +35,7 @@ class SearchTest extends ApiTest
 		$directMessage = new DirectMessage(new NullLogger(), DI::dba(), DI::twitterUser());
 
 		$response = (new Search($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run();
+			->run($this->httpExceptionMock);
 
 		$json = $this->toJson($response);
 
@@ -53,7 +53,7 @@ class SearchTest extends ApiTest
 		$directMessage = new DirectMessage(new NullLogger(), DI::dba(), DI::twitterUser());
 
 		$response = (new Search($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run([
+			->run($this->httpExceptionMock, [
 				'searchstring' => 'item_body'
 			]);
 
@@ -74,7 +74,7 @@ class SearchTest extends ApiTest
 		$directMessage = new DirectMessage(new NullLogger(), DI::dba(), DI::twitterUser());
 
 		$response = (new Search($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run([
+			->run($this->httpExceptionMock, [
 				'searchstring' => 'test'
 			]);
 

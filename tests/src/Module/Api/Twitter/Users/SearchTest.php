@@ -38,7 +38,7 @@ class SearchTest extends ApiTest
 	public function testApiUsersSearch()
 	{
 		$respone = (new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run([
+			->run($this->httpExceptionMock, [
 				'q' => static::OTHER_USER['name']
 			]);
 
@@ -56,7 +56,7 @@ class SearchTest extends ApiTest
 	{
 		$respone = (new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], [
 			'extension' => ICanCreateResponses::TYPE_XML
-		]))->run([
+		]))->run($this->httpExceptionMock, [
 			'q' => static::OTHER_USER['name']
 		]);
 
@@ -73,6 +73,6 @@ class SearchTest extends ApiTest
 		$this->expectException(BadRequestException::class);
 
 		(new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run();
+			->run($this->httpExceptionMock);
 	}
 }

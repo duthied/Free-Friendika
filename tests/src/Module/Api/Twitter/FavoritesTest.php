@@ -37,7 +37,7 @@ class FavoritesTest extends ApiTest
 	public function testApiFavorites()
 	{
 		$response = (new Favorites(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run([
+			->run($this->httpExceptionMock, [
 				'page'   => -1,
 				'max_id' => 10,
 			]);
@@ -58,7 +58,7 @@ class FavoritesTest extends ApiTest
 	{
 		$response = (new Favorites(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], [
 			'extension' => ICanCreateResponses::TYPE_RSS
-		]))->run();
+		]))->run($this->httpExceptionMock);
 
 		self::assertEquals(ICanCreateResponses::TYPE_RSS, $response->getHeaderLine(ICanCreateResponses::X_HEADER));
 
