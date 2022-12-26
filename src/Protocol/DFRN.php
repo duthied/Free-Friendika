@@ -301,15 +301,14 @@ class DFRN
 			DI::config()->set('system', 'site_pubkey', $res['pubkey']);
 		}
 
-		$profilephotos = Photo::selectToArray(['resource-id' , 'scale'], ['profile' => true, 'uid' => $uid], ['order' => ['scale']]);
+		$profilephotos = Photo::selectToArray(['resource-id', 'scale', 'type'], ['profile' => true, 'uid' => $uid], ['order' => ['scale']]);
 
 		$photos = [];
 		$ext = Images::supportedTypes();
 
 		foreach ($profilephotos as $p) {
-			$photos[$p['scale']] = DI::baseUrl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
+			$photos[$p['scale']] = DI::baseUrl() . '/photo/' . $p['resource-id'] . '-' . $p['scale'] . '.' . $ext[$p['type']];
 		}
-
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
