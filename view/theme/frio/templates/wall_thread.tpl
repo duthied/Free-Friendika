@@ -28,29 +28,17 @@ as the value of $top_child_total (this is done at the end of this file)
 {{if $mode == display}}
 {{else}}
 {{if $item.comment_firstcollapsed}}
-	{{*
-	<div align="center" style="margin-top:-34px;">
-		<div class="hide-comments-outer btn btn-default" onclick="showHideComments({{$item.id}});">
-			<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">{{$item.num_comments}}</span>
-			<span id="hide-comments-{{$item.id}}" class="hide-comments fakelink">{{$item.hide_text}}</span>
-		</div>
-	</div>
-	<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
-	*}}
-
 	{{if $item.thread_level<3}}
-		<div class="hide-comments-outer-wrapper">
-			<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
-				<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">
-					<i class="fa fa-caret-right" aria-hidden="true"></i>
-					{{$item.num_comments}} - {{$item.show_text}}
-				</span>
-				<span id="hide-comments-{{$item.id}}" class="hide-comments" style="display: none">
-					<i class="fa fa-caret-down" aria-hidden="true"></i>
-					{{$item.num_comments}} - {{$item.hide_text}}
-				</span>
-			</div>
-		</div>
+		<button type="button" class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
+			<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">
+				<i class="fa fa-caret-right" aria-hidden="true"></i>
+				{{$item.num_comments}} - {{$item.show_text}}
+			</span>
+			<span id="hide-comments-{{$item.id}}" class="hide-comments" style="display: none">
+				<i class="fa fa-caret-down" aria-hidden="true"></i>
+				{{$item.num_comments}} - {{$item.hide_text}}
+			</span>
+		</button>
 		<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 	{{else}}
 		<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: block;">
