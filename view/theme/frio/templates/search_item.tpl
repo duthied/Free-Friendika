@@ -23,7 +23,7 @@
 
 
 			{{* contact info header*}}
-			<div role="heading" class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
+			<div class="contact-info hidden-sm hidden-xs media-body"><!-- Desktop -->
 				<div class="preferences">
 					{{if $item.network_icon != ""}}
 						<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
@@ -77,7 +77,7 @@
 			</div>
 
 			{{* contact info header for smartphones *}}
-			<div role="heading" class="contact-info-xs hidden-lg hidden-md">
+			<div class="contact-info contact-info-xs hidden-lg hidden-md">
 				<div class="preferences">
 					{{if $item.network_icon != ""}}
 						<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
