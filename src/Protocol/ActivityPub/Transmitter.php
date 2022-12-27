@@ -674,6 +674,7 @@ class Transmitter
 		}
 
 		$exclusive = false;
+		$mention   = false;
 
 		if ($is_forum_thread) {
 			foreach (Tag::getByURIId($item['parent-uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $term) {
@@ -682,7 +683,7 @@ class Transmitter
 					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
 						$exclusive = true;
 					} elseif ($term['type'] == Tag::MENTION) {
-						$exclusive = false;
+						$mention = true;
 					}
 				}
 			}
@@ -718,7 +719,7 @@ class Transmitter
 							$data['cc'][] = $profile['followers'];
 						}
 					} elseif (($term['type'] == Tag::MENTION) && ($profile['type'] == 'Group')) {
-						$exclusive = false;
+						$mention = true;
 					}
 					$data['to'][] = $profile['url'];
 				}
@@ -742,11 +743,15 @@ class Transmitter
 								$data['cc'][] = $profile['followers'];
 							}
 						} elseif (($term['type'] == Tag::MENTION) && ($profile['type'] == 'Group')) {
-							$exclusive = false;
+							$mention = true;
 						}
 						$data['to'][] = $profile['url'];
 					}
 				}
+			}
+
+			if ($mention) {
+				$exclusive = false;
 			}
 
 			if ($is_forum && !$exclusive && !empty($follower)) {
