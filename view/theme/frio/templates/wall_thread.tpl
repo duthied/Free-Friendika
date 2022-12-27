@@ -132,7 +132,7 @@ as the value of $top_child_total (this is done at the end of this file)
 	{{/if}}
 
 			{{* contact info header*}}
-		<div role="heading" aria-level="{{$item.thread_level}}">
+		<div class="contact-info">
 			<div class="preferences">
 				{{if $item.network_icon != ""}}
 					<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>

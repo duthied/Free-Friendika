@@ -52,7 +52,7 @@
 			</div>
 			{{/if}}
 		</div>
-		<div role="heading" aria-level="{{$item.thread_level}}" class="wall-item-actions-author">
+		<div class="wall-item-actions-author">
 			<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}">{{$item.name}}</span></a>
 			{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
 			<span class="wall-item-ago">
