@@ -675,6 +675,19 @@ class Transmitter
 
 		$exclusive = false;
 
+		if ($is_forum_thread) {
+			foreach (Tag::getByURIId($item['parent-uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $term) {
+				$profile = APContact::getByURL($term['url'], false);
+				if (!empty($profile) && ($profile['type'] == 'Group')) {
+					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
+						$exclusive = true;
+					} elseif ($term['type'] == Tag::MENTION) {
+						$exclusive = false;
+					}
+				}
+			}
+		}
+
 		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
 		if ($item['private'] != Item::PRIVATE) {
@@ -704,6 +717,8 @@ class Transmitter
 						if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
 							$data['cc'][] = $profile['followers'];
 						}
+					} elseif (($term['type'] == Tag::MENTION) && ($profile['type'] == 'Group')) {
+						$exclusive = false;
 					}
 					$data['to'][] = $profile['url'];
 				}
@@ -726,6 +741,8 @@ class Transmitter
 							if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
 								$data['cc'][] = $profile['followers'];
 							}
+						} elseif (($term['type'] == Tag::MENTION) && ($profile['type'] == 'Group')) {
+							$exclusive = false;
 						}
 						$data['to'][] = $profile['url'];
 					}

@@ -52,7 +52,6 @@ class Protocol
 
 	// Supported through a connector
 	const DIASPORA2 = 'dspc';    // Diaspora connector
-	const LINKEDIN  = 'lnkd';    // LinkedIn
 	const PUMPIO    = 'pump';    // pump.io
 	const STATUSNET = 'stac';    // Statusnet connector
 	const TWITTER   = 'twit';    // Twitter
@@ -66,6 +65,7 @@ class Protocol
 	// Currently unsupported
 	const ICALENDAR = 'ical';    // iCalendar
 	const MYSPACE   = 'mysp';    // MySpace
+	const LINKEDIN  = 'lnkd';    // LinkedIn
 	const NEWS      = 'nntp';    // Network News Transfer Protocol
 	const PNUT      = 'pnut';    // pnut.io
 	const XMPP      = 'xmpp';    // XMPP
