@@ -1178,12 +1178,6 @@ function update_1505()
 
 function update_1508()
 {
-	$categories = DBA::toArray(DBA::p("SELECT DISTINCT `cat` AS 'cat' FROM `config`"));
-
-	foreach ($categories as $category) {
-		DI::config()->load($category['cat']);
-	}
-
 	$config = DBA::selectToArray('config');
 
 	foreach ($config as $entry) {
