@@ -381,7 +381,7 @@ class Image
 					$this->rotate( 180);
 					break;
 				case Imagick::ORIENTATION_RIGHTTOP:
-					$this->rotate( -90);
+					$this->rotate(-90);
 					break;
 				case Imagick::ORIENTATION_LEFTBOTTOM:
 					$this->rotate(90);
