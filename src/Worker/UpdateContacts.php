@@ -72,7 +72,7 @@ class UpdateContacts
 				++$count;
 			}
 			Worker::coolDown();
-	}
+		}
 		DBA::close($contacts);
 
 		Logger::info('Initiated update for federated contacts', ['count' => $count]);
