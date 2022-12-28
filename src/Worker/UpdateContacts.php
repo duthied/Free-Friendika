@@ -66,9 +66,10 @@ class UpdateContacts
 			if ((!empty($contact['gsid']) || !empty($contact['baseurl'])) && GServer::reachable($contact)) {
 				$stamp = (float)microtime(true);
 				$success = Contact::updateFromProbe($contact['id']);
-				Logger::debug('Direct update', ['id' => $contact['id'], 'duration' => round((float)microtime(true) - $stamp, 3), 'success' => $success]);
+				Logger::debug('Direct update', ['id' => $contact['id'], 'count' => $count, 'duration' => round((float)microtime(true) - $stamp, 3), 'success' => $success]);
 				++$count;
 			} elseif (Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id'])) {
+				Logger::debug('Update by worker', ['id' => $contact['id'], 'count' => $count]);
 				++$count;
 			}
 			Worker::coolDown();
