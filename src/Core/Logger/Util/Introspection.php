@@ -75,7 +75,7 @@ class Introspection implements IHaveCallIntrospections
 
 		$i = 1;
 
-		while ($this->isTraceClassOrSkippedFunction($trace, $i)) {
+		while ($this->isTraceClassOrSkippedFunction($trace[$i] ?? [])) {
 			$i++;
 		}
 
@@ -92,24 +92,23 @@ class Introspection implements IHaveCallIntrospections
 	/**
 	 * Checks if the current trace class or function has to be skipped
 	 *
-	 * @param array $trace The current trace array
-	 * @param int   $index The index of the current hierarchy level
+	 * @param array $traceItem The current trace item
 	 *
 	 * @return bool True if the class or function should get skipped, otherwise false
 	 */
-	private function isTraceClassOrSkippedFunction(array $trace, int $index): bool
+	private function isTraceClassOrSkippedFunction(array $traceItem): bool
 	{
-		if (!isset($trace[$index])) {
+		if (!$traceItem) {
 			return false;
 		}
 
-		if (isset($trace[$index]['class'])) {
+		if (isset($traceItem['class'])) {
 			foreach ($this->skipClassesPartials as $part) {
-				if (strpos($trace[$index]['class'], $part) !== false) {
+				if (strpos($traceItem['class'], $part) !== false) {
 					return true;
 				}
 			}
-		} elseif (in_array($trace[$index]['function'], $this->skipFunctions)) {
+		} elseif (in_array($traceItem['function'], $this->skipFunctions)) {
 			return true;
 		}
 
