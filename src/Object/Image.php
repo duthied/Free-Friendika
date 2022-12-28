@@ -285,12 +285,13 @@ class Image
 		$width = $this->getWidth();
 		$height = $this->getHeight();
 
-		if ((! $width)|| (! $height)) {
+		$scale = Images::getScalingDimensions($width, $height,$max);
+		if ($scale) {
+			return $this->scale($scale['width'], $scale['height']);
+		} else {
 			return false;
 		}
 
-		$scale = Images::getScalingDimensions($width, $height,$max);
-		return $this->scale($scale['width'], $scale['height']);
 	}
 
 	/**
