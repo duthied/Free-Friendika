@@ -20,8 +20,6 @@
  */
 
 namespace Friendica\Core\Logger\Capabilities;
-use Friendica\Core\Logger\Factory\Logger;
-use Friendica\Util\Profiler;
 
 interface IHaveCallIntrospections
 {
@@ -31,9 +29,10 @@ interface IHaveCallIntrospections
 	 * @var string[]
 	 */
 	public const IGNORE_CLASS_LIST = [
-		Logger::class,
-		Profiler::class,
+		\Friendica\Core\Logger::class,
+		\Friendica\Core\Logger\Factory\Logger::class,
 		'Friendica\\Core\\Logger\\Type',
+		\Friendica\Util\Profiler::class,
 	];
 
 	/**
