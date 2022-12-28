@@ -1530,6 +1530,12 @@ class Processor
 
 		$ldactivity['recursion-depth'] = !empty($child['recursion-depth']) ? $child['recursion-depth'] + 1 : 0;
 
+		if ($object_actor != $actor) {
+			Contact::updateByUrlIfNeeded($object_actor);
+		}
+
+		Contact::updateByUrlIfNeeded($actor);
+
 		if (!empty($relay_actor)) {
 			$ldactivity['thread-completion'] = $ldactivity['from-relay'] = Contact::getIdForURL($relay_actor);
 			$ldactivity['completion-mode']   = Receiver::COMPLETION_RELAY;

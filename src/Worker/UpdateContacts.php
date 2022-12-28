@@ -22,10 +22,11 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
-use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\GServer;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -56,10 +57,19 @@ class UpdateContacts
 		}
 
 		$condition = DBA::mergeConditions(["`next-update` < ?", DateTimeFormat::utcNow()], $condition);
-		$contacts = DBA::select('contact', ['id'], $condition, ['order' => ['next-update'], 'limit' => $limit]);
+		$contacts = DBA::select('contact', ['id', 'url', 'gsid', 'baseurl'], $condition, ['order' => ['next-update'], 'limit' => $limit]);
 		$count = 0;
 		while ($contact = DBA::fetch($contacts)) {
-			if (Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], "UpdateContact", $contact['id'])) {
+			if (Contact::isLocal($contact['url'])) {
+				continue;
+			}
+			if ((!empty($contact['gsid']) || !empty($contact['baseurl'])) && GServer::reachable($contact)) {
+				$stamp = (float)microtime(true);
+				$success = Contact::updateFromProbe($contact['id']);
+				Logger::debug('Direct update', ['id' => $contact['id'], 'count' => $count, 'duration' => round((float)microtime(true) - $stamp, 3), 'success' => $success]);
+				++$count;
+			} elseif (Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id'])) {
+				Logger::debug('Update by worker', ['id' => $contact['id'], 'count' => $count]);
 				++$count;
 			}
 			Worker::coolDown();
