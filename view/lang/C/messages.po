@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-23 02:32+0100\n"
+"POT-Creation-Date: 2022-12-28 00:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgstr ""
 
 #: mod/item.php:179 mod/item.php:184 mod/item.php:855 mod/message.php:69
 #: mod/message.php:114 mod/notes.php:44 mod/photos.php:157 mod/photos.php:674
-#: src/Model/Event.php:522 src/Module/Attach.php:55 src/Module/BaseApi.php:94
+#: src/Model/Event.php:522 src/Module/Attach.php:55 src/Module/BaseApi.php:95
 #: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:52
 #: src/Module/Calendar/Event/API.php:88 src/Module/Calendar/Event/Form.php:84
 #: src/Module/Calendar/Export.php:62 src/Module/Calendar/Show.php:82
@@ -377,7 +377,7 @@ msgstr ""
 msgid "Personal notes are visible only by yourself."
 msgstr ""
 
-#: mod/notes.php:56 src/Content/Text/HTML.php:882
+#: mod/notes.php:56 src/Content/Text/HTML.php:883
 #: src/Module/Admin/Storage.php:142 src/Module/Filer/SaveTag.php:74
 #: src/Module/Post/Edit.php:126
 msgid "Save"
@@ -649,11 +649,11 @@ msgstr ""
 msgid "Map"
 msgstr ""
 
-#: src/App.php:500
+#: src/App.php:472
 msgid "No system theme config value set."
 msgstr ""
 
-#: src/App.php:621
+#: src/App.php:594
 msgid "Apologies but the website is unavailable at the moment."
 msgstr ""
 
@@ -684,31 +684,31 @@ msgstr ""
 msgid "You must be logged in to use addons. "
 msgstr ""
 
-#: src/BaseModule.php:392
+#: src/BaseModule.php:400
 msgid ""
 "The form security token was not correct. This probably happened because the "
 "form has been opened for too long (>3 hours) before submitting it."
 msgstr ""
 
-#: src/BaseModule.php:419
+#: src/BaseModule.php:427
 msgid "All contacts"
 msgstr ""
 
-#: src/BaseModule.php:424 src/Content/Widget.php:235 src/Core/ACL.php:194
+#: src/BaseModule.php:432 src/Content/Widget.php:235 src/Core/ACL.php:194
 #: src/Module/Contact.php:371 src/Module/PermissionTooltip.php:122
 #: src/Module/PermissionTooltip.php:144
 msgid "Followers"
 msgstr ""
 
-#: src/BaseModule.php:429 src/Content/Widget.php:236 src/Module/Contact.php:372
+#: src/BaseModule.php:437 src/Content/Widget.php:236 src/Module/Contact.php:372
 msgid "Following"
 msgstr ""
 
-#: src/BaseModule.php:434 src/Content/Widget.php:237 src/Module/Contact.php:373
+#: src/BaseModule.php:442 src/Content/Widget.php:237 src/Module/Contact.php:373
 msgid "Mutual friends"
 msgstr ""
 
-#: src/BaseModule.php:442
+#: src/BaseModule.php:450
 msgid "Common"
 msgstr ""
 
@@ -1076,7 +1076,7 @@ msgstr ""
 
 #: src/Content/Conversation.php:242
 #, php-format
-msgid "<span  %1$s>%2$d people</span> like this"
+msgid "<button type=\"button\" %1$s>%2$d people</button> like this"
 msgstr ""
 
 #: src/Content/Conversation.php:243
@@ -1086,7 +1086,7 @@ msgstr ""
 
 #: src/Content/Conversation.php:246
 #, php-format
-msgid "<span  %1$s>%2$d people</span> don't like this"
+msgid "<button type=\"button\" %1$s>%2$d people</button> don't like this"
 msgstr ""
 
 #: src/Content/Conversation.php:247
@@ -1096,7 +1096,7 @@ msgstr ""
 
 #: src/Content/Conversation.php:250
 #, php-format
-msgid "<span  %1$s>%2$d people</span> attend"
+msgid "<button type=\"button\" %1$s>%2$d people</button> attend"
 msgstr ""
 
 #: src/Content/Conversation.php:251
@@ -1106,7 +1106,7 @@ msgstr ""
 
 #: src/Content/Conversation.php:254
 #, php-format
-msgid "<span  %1$s>%2$d people</span> don't attend"
+msgid "<button type=\"button\" %1$s>%2$d people</button> don't attend"
 msgstr ""
 
 #: src/Content/Conversation.php:255
@@ -1116,7 +1116,7 @@ msgstr ""
 
 #: src/Content/Conversation.php:258
 #, php-format
-msgid "<span  %1$s>%2$d people</span> attend maybe"
+msgid "<button type=\"button\" %1$s>%2$d people</button> attend maybe"
 msgstr ""
 
 #: src/Content/Conversation.php:259
@@ -1126,7 +1126,7 @@ msgstr ""
 
 #: src/Content/Conversation.php:262
 #, php-format
-msgid "<span  %1$s>%2$d people</span> reshared this"
+msgid "<button type=\"button\" %1$s>%2$d people</button> reshared this"
 msgstr ""
 
 #: src/Content/Conversation.php:310
@@ -1499,7 +1499,7 @@ msgid ""
 msgstr ""
 
 #: src/Content/ForumManager.php:151 src/Content/Nav.php:242
-#: src/Content/Text/HTML.php:903 src/Content/Widget.php:524
+#: src/Content/Text/HTML.php:904 src/Content/Widget.php:524
 msgid "Forums"
 msgstr ""
 
@@ -1597,7 +1597,7 @@ msgstr ""
 msgid "Nothing new here"
 msgstr ""
 
-#: src/Content/Nav.php:94 src/Module/Special/HTTPException.php:50
+#: src/Content/Nav.php:94 src/Module/Special/HTTPException.php:77
 msgid "Go back"
 msgstr ""
 
@@ -1605,7 +1605,7 @@ msgstr ""
 msgid "Clear notifications"
 msgstr ""
 
-#: src/Content/Nav.php:96 src/Content/Text/HTML.php:890
+#: src/Content/Nav.php:96 src/Content/Text/HTML.php:891
 msgid "@name, !forum, #tags, content"
 msgstr ""
 
@@ -1724,7 +1724,7 @@ msgstr ""
 msgid "Addon applications, utilities, games"
 msgstr ""
 
-#: src/Content/Nav.php:233 src/Content/Text/HTML.php:888
+#: src/Content/Nav.php:233 src/Content/Text/HTML.php:889
 #: src/Module/Admin/Logs/View.php:87 src/Module/Search/Index.php:111
 msgid "Search"
 msgstr ""
@@ -1733,17 +1733,17 @@ msgstr ""
 msgid "Search site content"
 msgstr ""
 
-#: src/Content/Nav.php:236 src/Content/Text/HTML.php:897
+#: src/Content/Nav.php:236 src/Content/Text/HTML.php:898
 msgid "Full Text"
 msgstr ""
 
-#: src/Content/Nav.php:237 src/Content/Text/HTML.php:898
+#: src/Content/Nav.php:237 src/Content/Text/HTML.php:899
 #: src/Content/Widget/TagCloud.php:68
 msgid "Tags"
 msgstr ""
 
 #: src/Content/Nav.php:238 src/Content/Nav.php:293
-#: src/Content/Text/HTML.php:899 src/Module/BaseProfile.php:127
+#: src/Content/Text/HTML.php:900 src/Module/BaseProfile.php:127
 #: src/Module/BaseProfile.php:130 src/Module/Contact.php:374
 #: src/Module/Contact.php:468 view/theme/frio/theme.php:250
 msgid "Contacts"
@@ -1925,7 +1925,7 @@ msgstr ""
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1795 src/Content/Text/HTML.php:927
+#: src/Content/Text/BBCode.php:1795 src/Content/Text/HTML.php:928
 msgid "Click to open/close"
 msgstr ""
 
@@ -1945,15 +1945,15 @@ msgstr ""
 msgid "Invalid link protocol"
 msgstr ""
 
-#: src/Content/Text/HTML.php:805
+#: src/Content/Text/HTML.php:806
 msgid "Loading more entries..."
 msgstr ""
 
-#: src/Content/Text/HTML.php:806
+#: src/Content/Text/HTML.php:807
 msgid "The end"
 msgstr ""
 
-#: src/Content/Text/HTML.php:882 src/Content/Widget/VCard.php:109
+#: src/Content/Text/HTML.php:883 src/Content/Widget/VCard.php:109
 #: src/Model/Profile.php:463 src/Module/Contact/Profile.php:427
 msgid "Follow"
 msgstr ""
@@ -3301,7 +3301,7 @@ msgstr ""
 msgid "Contact information and Social Networks"
 msgstr ""
 
-#: src/Model/User.php:213 src/Model/User.php:1103
+#: src/Model/User.php:213 src/Model/User.php:1119
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr ""
 
@@ -3336,111 +3336,111 @@ msgid ""
 "The password can't contain accentuated letters, white spaces or colons (:)"
 msgstr ""
 
-#: src/Model/User.php:986
+#: src/Model/User.php:1002
 msgid "Passwords do not match. Password unchanged."
 msgstr ""
 
-#: src/Model/User.php:993
+#: src/Model/User.php:1009
 msgid "An invitation is required."
 msgstr ""
 
-#: src/Model/User.php:997
+#: src/Model/User.php:1013
 msgid "Invitation could not be verified."
 msgstr ""
 
-#: src/Model/User.php:1005
+#: src/Model/User.php:1021
 msgid "Invalid OpenID url"
 msgstr ""
 
-#: src/Model/User.php:1018 src/Security/Authentication.php:241
+#: src/Model/User.php:1034 src/Security/Authentication.php:241
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr ""
 
-#: src/Model/User.php:1018 src/Security/Authentication.php:241
+#: src/Model/User.php:1034 src/Security/Authentication.php:241
 msgid "The error message was:"
 msgstr ""
 
-#: src/Model/User.php:1024
+#: src/Model/User.php:1040
 msgid "Please enter the required information."
 msgstr ""
 
-#: src/Model/User.php:1038
+#: src/Model/User.php:1054
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr ""
 
-#: src/Model/User.php:1045
+#: src/Model/User.php:1061
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1049
+#: src/Model/User.php:1065
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1057
+#: src/Model/User.php:1073
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr ""
 
-#: src/Model/User.php:1062
+#: src/Model/User.php:1078
 msgid "Your email domain is not among those allowed on this site."
 msgstr ""
 
-#: src/Model/User.php:1066
+#: src/Model/User.php:1082
 msgid "Not a valid email address."
 msgstr ""
 
-#: src/Model/User.php:1069
+#: src/Model/User.php:1085
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr ""
 
-#: src/Model/User.php:1073 src/Model/User.php:1079
+#: src/Model/User.php:1089 src/Model/User.php:1095
 msgid "Cannot use that email."
 msgstr ""
 
-#: src/Model/User.php:1085
+#: src/Model/User.php:1101
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr ""
 
-#: src/Model/User.php:1093 src/Model/User.php:1150
+#: src/Model/User.php:1109 src/Model/User.php:1166
 msgid "Nickname is already registered. Please choose another."
 msgstr ""
 
-#: src/Model/User.php:1137 src/Model/User.php:1141
+#: src/Model/User.php:1153 src/Model/User.php:1157
 msgid "An error occurred during registration. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1164
+#: src/Model/User.php:1180
 msgid "An error occurred creating your default profile. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1171
+#: src/Model/User.php:1187
 msgid "An error occurred creating your self contact. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1176
+#: src/Model/User.php:1192
 msgid "Friends"
 msgstr ""
 
-#: src/Model/User.php:1180
+#: src/Model/User.php:1196
 msgid ""
 "An error occurred creating your default contact group. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1219
+#: src/Model/User.php:1235
 msgid "Profile Photos"
 msgstr ""
 
-#: src/Model/User.php:1412
+#: src/Model/User.php:1428
 #, php-format
 msgid ""
 "\n"
@@ -3448,7 +3448,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1415
+#: src/Model/User.php:1431
 #, php-format
 msgid ""
 "\n"
@@ -3486,12 +3486,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1448 src/Model/User.php:1555
+#: src/Model/User.php:1464 src/Model/User.php:1571
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: src/Model/User.php:1468
+#: src/Model/User.php:1484
 #, php-format
 msgid ""
 "\n"
@@ -3507,12 +3507,12 @@ msgid ""
 "\t\t"
 msgstr ""
 
-#: src/Model/User.php:1487
+#: src/Model/User.php:1503
 #, php-format
 msgid "Registration at %s"
 msgstr ""
 
-#: src/Model/User.php:1511
+#: src/Model/User.php:1527
 #, php-format
 msgid ""
 "\n"
@@ -3521,7 +3521,7 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: src/Model/User.php:1519
+#: src/Model/User.php:1535
 #, php-format
 msgid ""
 "\n"
@@ -5214,7 +5214,7 @@ msgid ""
 "The API endpoint is currently not implemented but might be in the future."
 msgstr ""
 
-#: src/Module/Api/Mastodon/Apps.php:63
+#: src/Module/Api/Mastodon/Apps.php:64
 msgid "Missing parameters"
 msgstr ""
 
@@ -5335,26 +5335,26 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: src/Module/BaseApi.php:254 src/Module/BaseApi.php:270
-#: src/Module/BaseApi.php:286
+#: src/Module/BaseApi.php:255 src/Module/BaseApi.php:271
+#: src/Module/BaseApi.php:287
 msgid "Too Many Requests"
 msgstr ""
 
-#: src/Module/BaseApi.php:255
+#: src/Module/BaseApi.php:256
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:271
+#: src/Module/BaseApi.php:272
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:287
+#: src/Module/BaseApi.php:288
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgid_plural ""
@@ -6155,7 +6155,7 @@ msgstr ""
 
 #: src/Module/Contact/Revoke.php:108
 #: src/Module/Notifications/Introductions.php:144
-#: src/Module/OAuth/Acknowledge.php:53 src/Module/Register.php:130
+#: src/Module/OAuth/Acknowledge.php:54 src/Module/Register.php:130
 #: src/Module/Settings/TwoFactor/Trusted.php:126
 msgid "Yes"
 msgstr ""
@@ -6765,7 +6765,7 @@ msgstr ""
 msgid "No profile"
 msgstr ""
 
-#: src/Module/HTTPException/MethodNotAllowed.php:32
+#: src/Module/HTTPException/MethodNotAllowed.php:31
 msgid "Method Not Allowed."
 msgstr ""
 
@@ -7904,7 +7904,7 @@ msgid "Claims to be known to you: "
 msgstr ""
 
 #: src/Module/Notifications/Introductions.php:144
-#: src/Module/OAuth/Acknowledge.php:54 src/Module/Register.php:131
+#: src/Module/OAuth/Acknowledge.php:55 src/Module/Register.php:131
 #: src/Module/Settings/TwoFactor/Trusted.php:126
 msgid "No"
 msgstr ""
@@ -7978,11 +7978,11 @@ msgstr ""
 msgid "{0} and %d others requested registration"
 msgstr ""
 
-#: src/Module/OAuth/Acknowledge.php:50
+#: src/Module/OAuth/Acknowledge.php:51
 msgid "Authorize application connection"
 msgstr ""
 
-#: src/Module/OAuth/Acknowledge.php:52
+#: src/Module/OAuth/Acknowledge.php:53
 msgid ""
 "Do you want to authorize this application to access your posts and contacts, "
 "and/or create new posts for you?"
@@ -7992,7 +7992,7 @@ msgstr ""
 msgid "Unsupported or missing response type"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:72
+#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:73
 msgid "Incomplete request data"
 msgstr ""
 
@@ -8003,7 +8003,7 @@ msgid ""
 "close this window: %s"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:96
+#: src/Module/OAuth/Token.php:97
 msgid "Unsupported or missing grant type"
 msgstr ""
 
@@ -10278,11 +10278,11 @@ msgid ""
 "e.g. Mastodon."
 msgstr ""
 
-#: src/Module/Special/HTTPException.php:51
+#: src/Module/Special/HTTPException.php:78
 msgid "Stack trace:"
 msgstr ""
 
-#: src/Module/Special/HTTPException.php:55
+#: src/Module/Special/HTTPException.php:83
 #, php-format
 msgid "Exception thrown in %s:%d"
 msgstr ""
@@ -10793,7 +10793,7 @@ msgid "%1$s commented on their %2$s %3$s"
 msgstr ""
 
 #: src/Navigation/Notifications/Repository/Notify.php:341
-#: src/Navigation/Notifications/Repository/Notify.php:796
+#: src/Navigation/Notifications/Repository/Notify.php:786
 #, php-format
 msgid "%1$s Comment to conversation #%2$d by %3$s"
 msgstr ""
@@ -11008,12 +11008,12 @@ msgstr ""
 msgid "%s %s shared a new post"
 msgstr ""
 
-#: src/Navigation/Notifications/Repository/Notify.php:789
+#: src/Navigation/Notifications/Repository/Notify.php:791
 #, php-format
 msgid "%1$s %2$s liked your post #%3$d"
 msgstr ""
 
-#: src/Navigation/Notifications/Repository/Notify.php:792
+#: src/Navigation/Notifications/Repository/Notify.php:794
 #, php-format
 msgid "%1$s %2$s liked your comment on #%3$d"
 msgstr ""
@@ -11376,7 +11376,7 @@ msgstr ""
 msgid "%1$d %2$s ago"
 msgstr ""
 
-#: src/Worker/Delivery.php:533
+#: src/Worker/Delivery.php:535
 msgid "(no subject)"
 msgstr ""
 
