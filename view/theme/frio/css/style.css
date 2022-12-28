@@ -76,6 +76,13 @@ blockquote {
 .fakelink {
 	cursor: pointer;
 }
+.btn.btn-link.fakelink {
+	box-shadow: none;
+	padding: 0 2px;
+	vertical-align: baseline;
+	outline-offset: 0;
+}
+
 .hidden {
 	display: none !important;
 }

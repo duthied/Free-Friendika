@@ -234,32 +234,32 @@ class Conversation
 				$likers .= ' ' . $this->l10n->t('and %d other people', $total - $this->config->get('system', 'max_likers'));
 			}
 
-			$spanatts = "class=\"fakelink\" onclick=\"openClose('{$verb}list-$id');\"";
+			$spanatts = "class=\"btn btn-link fakelink\" onclick=\"openClose('{$verb}list-$id');\"";
 
 			$explikers = '';
 			switch ($verb) {
 				case 'like':
-					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> like this', $spanatts, $total);
+					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> like this', $spanatts, $total);
 					$explikers = $this->l10n->t('%s like this.', $likers);
 					break;
 				case 'dislike':
-					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> don\'t like this', $spanatts, $total);
+					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> don\'t like this', $spanatts, $total);
 					$explikers = $this->l10n->t('%s don\'t like this.', $likers);
 					break;
 				case 'attendyes':
-					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> attend', $spanatts, $total);
+					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> attend', $spanatts, $total);
 					$explikers = $this->l10n->t('%s attend.', $likers);
 					break;
 				case 'attendno':
-					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> don\'t attend', $spanatts, $total);
+					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> don\'t attend', $spanatts, $total);
 					$explikers = $this->l10n->t('%s don\'t attend.', $likers);
 					break;
 				case 'attendmaybe':
-					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $total);
+					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> attend maybe', $spanatts, $total);
 					$explikers = $this->l10n->t('%s attend maybe.', $likers);
 					break;
 				case 'announce':
-					$phrase    = $this->l10n->t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $total);
+					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> reshared this', $spanatts, $total);
 					$explikers = $this->l10n->t('%s reshared this.', $likers);
 					break;
 			}
