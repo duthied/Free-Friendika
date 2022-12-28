@@ -243,6 +243,14 @@ abstract class BaseModule implements ICanHandleRequests
 			$this->response->addContent($arr['content']);
 			$this->response->addContent($this->content($request));
 		} catch (HTTPException $e) {
+			// In case of System::externalRedirects(), we don't want to prettyprint the exception
+			// just redirect to the new location
+			if (($e instanceof HTTPException\FoundException) ||
+				($e instanceof HTTPException\MovedPermanentlyException) ||
+				($e instanceof HTTPException\TemporaryRedirectException)) {
+				throw $e;
+			}
+
 			$this->response->addContent($httpException->content($e));
 		} finally {
 			$this->profiler->set(microtime(true) - $timestamp, 'content');

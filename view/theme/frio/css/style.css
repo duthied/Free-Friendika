@@ -76,6 +76,13 @@ blockquote {
 .fakelink {
 	cursor: pointer;
 }
+.btn.btn-link.fakelink {
+	box-shadow: none;
+	padding: 0 2px;
+	vertical-align: baseline;
+	outline-offset: 0;
+}
+
 .hidden {
 	display: none !important;
 }
@@ -1740,6 +1747,10 @@ aside .panel-body {
 	border-top: none;
 	color: inherit;
 }
+.preferences .plink {
+	margin-left: 5px;
+}
+
 blockquote.shared_content {
 	padding: 0px;
 	margin-inline-start: 0px;
