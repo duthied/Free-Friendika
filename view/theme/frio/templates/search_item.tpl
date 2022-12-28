@@ -140,12 +140,6 @@
 			<p class="wall-item-actions">
 				{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
 				<span class="wall-item-actions-left">
-					<!--comment this out to try something different {{if $item.threaded}}{{if $item.comment_html}}
-					<div id="button-reply" class="pull-left">
-						<button type="button" class="btn-link" id="comment-{{$item.id}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"><i class="fa fa-reply" title="{{$item.switchcomment}}"></i> </span>
-					</div>
-					{{/if}}{{/if}}-->
-
 					{{if $item.threaded}}{{/if}}
 
 					{{* Buttons for like and dislike *}}
