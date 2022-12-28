@@ -329,7 +329,7 @@ class Contact
 		// Add internal fields
 		$removal = [];
 		if (!empty($fields)) {
-			foreach (['id', 'next-update', 'network'] as $internal) {
+			foreach (['id', 'next-update', 'network', 'local-data'] as $internal) {
 				if (!in_array($internal, $fields)) {
 					$fields[] = $internal;
 					$removal[] = $internal;
@@ -358,8 +358,10 @@ class Contact
 			return [];
 		}
 
+		$background_update = DI::config()->get('system', 'update_active_contacts') ? $contact['local-data'] : true;
+
 		// Update the contact in the background if needed
-		if (Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+		if ($background_update && !self::isLocal($url) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
 			Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
 		}
 
@@ -1266,12 +1268,14 @@ class Contact
 			return 0;
 		}
 
-		$contact = self::getByURL($url, false, ['id', 'network', 'uri-id', 'next-update'], $uid);
+		$contact = self::getByURL($url, false, ['id', 'network', 'uri-id', 'next-update', 'local-data'], $uid);
 
 		if (!empty($contact)) {
 			$contact_id = $contact['id'];
 
-			if (Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+			$background_update = DI::config()->get('system', 'update_active_contacts') ? $contact['local-data'] : true;
+
+			if ($background_update && !self::isLocal($url) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
 				Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
 			}
 
@@ -2479,6 +2483,44 @@ class Contact
 		DBA::close($duplicates);
 		Logger::info('Duplicates handled', ['uid' => $uid, 'nurl' => $nurl, 'callstack' => System::callstack(20)]);
 		return true;
+	}
+
+	/**
+	 * Perform a contact update if the contact is outdated
+	 *
+	 * @param integer $id contact id
+	 * @return bool
+	 */
+	public static function updateByIdIfNeeded(int $id): bool
+	{
+		$contact = self::selectFirst(['url'], ["`id` = ? AND `next-update` < ?", $id, DateTimeFormat::utcNow()]);
+		if (empty($contact['url'])) {
+			return false;
+		}
+
+		if (self::isLocal($contact['url'])) {
+			return true;
+		}
+
+		$stamp = (float)microtime(true);
+		self::updateFromProbe($id);
+		Logger::debug('Contact data is updated.', ['duration' => round((float)microtime(true) - $stamp, 3), 'id' => $id, 'url' => $contact['url'], 'callstack' => System::callstack(20)]);
+		return true;
+	}
+
+	/**
+	 * Perform a contact update if the contact is outdated
+	 *
+	 * @param string $url contact url
+	 * @return bool
+	 */
+	public static function updateByUrlIfNeeded(string $url): bool
+	{
+		$id = self::getIdForURL($url, 0, false);
+		if (!empty($id)) {
+			return self::updateByIdIfNeeded($id);
+		}
+		return (bool)self::getIdForURL($url);
 	}
 
 	/**

@@ -205,9 +205,15 @@ class Delivery
 	 */
 	private static function setSuccess(array $receivers, bool $success)
 	{
-		$gsid = null;
+		$gsid           = null;
+		$update_counter = 0;
 
 		foreach ($receivers as $receiver) {
+			// Only update the first 10 receivers to avoid flooding the remote system with requests
+			if ($success && ($update_counter < 10) && Contact::updateByIdIfNeeded($receiver)) {
+				$update_counter++;
+			}
+
 			$contact = Contact::getById($receiver);
 			if (empty($contact)) {
 				continue;

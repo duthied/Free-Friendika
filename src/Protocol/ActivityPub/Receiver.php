@@ -315,12 +315,15 @@ class Receiver
 			$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
 		}
 
+		$fetched = false;
+
 		if (!empty($id) && !$trust_source) {
 			$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
 
 			$fetched_activity = Processor::fetchCachedActivity($fetch_id, $fetch_uid);
 			if (!empty($fetched_activity)) {
-				$object = JsonLD::compact($fetched_activity);
+				$fetched = true;
+				$object  = JsonLD::compact($fetched_activity);
 
 				$fetched_id   = JsonLD::fetchElement($object, '@id');
 				$fetched_type = JsonLD::fetchElement($object, '@type');
@@ -351,7 +354,7 @@ class Receiver
 		$type = JsonLD::fetchElement($activity, '@type');
 
 		// Fetch all receivers from to, cc, bto and bcc
-		$receiverdata = self::getReceivers($activity, $actor);
+		$receiverdata = self::getReceivers($activity, $actor, [], false, $push || $fetched);
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];
@@ -1029,7 +1032,7 @@ class Receiver
 		$uid = 0;
 		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id') ?? '';
 
-		$receivers = self::getReceivers($activity, $actor);
+		$receivers = self::getReceivers($activity, $actor, [], false, false);
 		foreach ($receivers as $receiver) {
 			if ($receiver['type'] == self::TARGET_GLOBAL) {
 				return 0;
@@ -1076,14 +1079,15 @@ class Receiver
 	 * Fetch the receiver list from an activity array
 	 *
 	 * @param array   $activity
-	 * @param string  $actor
-	 * @param array   $tags
-	 * @param boolean $fetch_unlisted
+	 * @param string $actor
+	 * @param array  $tags
+	 * @param bool   $fetch_unlisted
+	 * @param bool   $push
 	 *
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceivers(array $activity, string $actor, array $tags = [], bool $fetch_unlisted = false): array
+	private static function getReceivers(array $activity, string $actor, array $tags, bool $fetch_unlisted, bool $push): array
 	{
 		$reply = $receivers = $profile = [];
 
@@ -1117,6 +1121,9 @@ class Receiver
 			$profile   = APContact::getByURL($actor);
 			$followers = $profile['followers'] ?? '';
 			$is_forum  = ($actor['type'] ?? '') == 'Group';
+			if ($push) {
+				Contact::updateByUrlIfNeeded($actor);
+			}
 			Logger::info('Got actor and followers', ['actor' => $actor, 'followers' => $followers]);
 		} else {
 			Logger::info('Empty actor', ['activity' => $activity]);
@@ -2006,7 +2013,7 @@ class Receiver
 			$object_data['question'] = self::processQuestion($object);
 		}
 
-		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true);
+		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true, false);
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];

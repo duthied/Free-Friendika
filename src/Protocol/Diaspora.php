@@ -534,7 +534,7 @@ class Diaspora
 		if (is_null($fields)) {
 			$private = true;
 			if (!($fields = self::validPosting($msg))) {
-				Logger::warning('Invalid posting', ['msg' => $msg]);
+				Logger::notice('Invalid posting', ['msg' => $msg]);
 				return false;
 			}
 		} else {
@@ -812,6 +812,7 @@ class Diaspora
 	 */
 	private static function contactByHandle(int $uid, WebFingerUri $uri): array
 	{
+		Contact::updateByUrlIfNeeded($uri->getAddr());
 		return Contact::getByURL($uri->getAddr(), null, [], $uid);
 	}
 
