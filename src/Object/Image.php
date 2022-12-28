@@ -285,49 +285,13 @@ class Image
 		$width = $this->getWidth();
 		$height = $this->getHeight();
 
-		if ((! $width)|| (! $height)) {
+		$scale = Images::getScalingDimensions($width, $height, $max);
+		if ($scale) {
+			return $this->scale($scale['width'], $scale['height']);
+		} else {
 			return false;
 		}
 
-		if ($width > $max && $height > $max) {
-			// very tall image (greater than 16:9)
-			// constrain the width - let the height float.
-
-			if ((($height * 9) / 16) > $width) {
-				$dest_width = $max;
-				$dest_height = intval(($height * $max) / $width);
-			} elseif ($width > $height) {
-				// else constrain both dimensions
-				$dest_width = $max;
-				$dest_height = intval(($height * $max) / $width);
-			} else {
-				$dest_width = intval(($width * $max) / $height);
-				$dest_height = $max;
-			}
-		} else {
-			if ($width > $max) {
-				$dest_width = $max;
-				$dest_height = intval(($height * $max) / $width);
-			} else {
-				if ($height > $max) {
-					// very tall image (greater than 16:9)
-					// but width is OK - don't do anything
-
-					if ((($height * 9) / 16) > $width) {
-						$dest_width = $width;
-						$dest_height = $height;
-					} else {
-						$dest_width = intval(($width * $max) / $height);
-						$dest_height = $max;
-					}
-				} else {
-					$dest_width = $width;
-					$dest_height = $height;
-				}
-			}
-		}
-
-		return $this->scale($dest_width, $dest_height);
 	}
 
 	/**
