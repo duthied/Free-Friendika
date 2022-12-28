@@ -60,5 +60,23 @@ class TemporalTest extends TestCase
 			Temporal::getRelativeDate($minuteAgo, true, $clock),
 			sprintf($format, 1, DI::l10n()->t('minute'))
 		);
+
+		$almostAnHourAgoInterval = new \DateInterval('PT59M59S');
+		$almostAnHourAgoInterval->invert = 1;
+		$almostAnHourAgo = (clone $clock->now())->add($almostAnHourAgoInterval);
+
+		self::assertEquals(
+			Temporal::getRelativeDate($almostAnHourAgo->format(DateTimeFormat::MYSQL), true, $clock),
+			sprintf($format, 59, DI::l10n()->t('minutes'))
+		);
+
+		$anHourAgoInterval = new \DateInterval('PT1H');
+		$anHourAgoInterval->invert = 1;
+		$anHourAgo = (clone $clock->now())->add($anHourAgoInterval);
+
+		self::assertEquals(
+			Temporal::getRelativeDate($anHourAgo->format(DateTimeFormat::MYSQL), true, $clock),
+			sprintf($format, 1, DI::l10n()->t('hour'))
+		);
 	}
 }

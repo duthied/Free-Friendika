@@ -361,7 +361,7 @@ class Temporal
 		foreach ($a as $secs => $str) {
 			$d = $etime / $secs;
 			if ($d >= 1) {
-				$r = round($d);
+				$r = floor($d);
 				// translators - e.g. 22 hours ago, 1 minute ago
 				if($isfuture){
 					$format = DI::l10n()->t('in %1$d %2$s');
