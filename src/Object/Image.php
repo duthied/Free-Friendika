@@ -289,7 +289,7 @@ class Image
 			return false;
 		}
 
-		$scale = Images::getScalingDimensions($width, $height,$max);
+		$scale = Images::getScalingDimensions($width, $height, $max);
 		return $this->scale($scale['width'], $scale['height']);
 	}
 
