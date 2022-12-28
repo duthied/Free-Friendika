@@ -378,7 +378,7 @@ class Image
 			$orientation = $this->image->getImageOrientation();
 			switch ($orientation) {
 				case Imagick::ORIENTATION_BOTTOMRIGHT:
-					$this->rotate( 180);
+					$this->rotate(180);
 					break;
 				case Imagick::ORIENTATION_RIGHTTOP:
 					$this->rotate(-90);
