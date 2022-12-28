@@ -1740,6 +1740,10 @@ aside .panel-body {
 	border-top: none;
 	color: inherit;
 }
+.preferences .plink {
+	margin-left: 5px;
+}
+
 blockquote.shared_content {
 	padding: 0px;
 	margin-inline-start: 0px;
