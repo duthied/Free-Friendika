@@ -146,7 +146,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{/if}}
 			</div>
 		{{if $item.thread_level==1}}
-			<div class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
+			<div class="hidden-sm hidden-xs media-body"><!-- <= For computer -->
 				<h4 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card">
 						<span class="wall-item-name {{$item.sparkle}}">{{$item.name}}</span>
