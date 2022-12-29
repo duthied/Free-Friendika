@@ -100,12 +100,12 @@ Examples
 HELP;
 	}
 
-	public function __construct(App\Mode $appMode, Cache $keyValueCache, IManageConfigValues $config, Database $dba, array $argv = null)
+	public function __construct(App\Mode $appMode, Cache $configCache, IManageConfigValues $config, Database $dba, array $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->appMode     = $appMode;
-		$this->configCache = $keyValueCache;
+		$this->configCache = $configCache;
 		$this->config      = $config;
 		$this->dba         = $dba;
 	}
