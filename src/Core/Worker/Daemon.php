@@ -47,7 +47,7 @@ class Daemon
 			return true;
 		}
 
-		$daemon_mode = DI::config()->get('system', 'worker_daemon_mode', false, true);
+		$daemon_mode = DI::keyValue()->get('worker_daemon_mode') ?? false;
 		if ($daemon_mode) {
 			return $daemon_mode;
 		}

@@ -115,7 +115,7 @@ if (is_readable($pidfile)) {
 }
 
 if (empty($pid) && in_array($mode, ['stop', 'status'])) {
-	DI::config()->set('system', 'worker_daemon_mode', false);
+	DI::keyValue()->set('worker_daemon_mode', false);
 	die("Pidfile wasn't found. Is the daemon running?\n");
 }
 
@@ -137,7 +137,7 @@ if ($mode == 'stop') {
 
 	Logger::notice('Worker daemon process was killed', ['pid' => $pid]);
 
-	DI::config()->set('system', 'worker_daemon_mode', false);
+	DI::keyValue()->set('worker_daemon_mode', false);
 	die("Worker daemon process $pid was killed.\n");
 }
 
@@ -181,7 +181,7 @@ if (!$foreground) {
 	DBA::connect();
 }
 
-DI::config()->set('system', 'worker_daemon_mode', true);
+DI::keyValue()->set('worker_daemon_mode', true);
 
 // Just to be sure that this script really runs endlessly
 set_time_limit(0);
