@@ -1148,11 +1148,19 @@ function update_1502()
 
 function update_1505()
 {
-	$postUpdateEntries = DBA::selectToArray('config', ['k', 'v'], ["`k` LIKE ?", "post_update_%"]);
+	$conditions = [
+		"(`k` LIKE ?) OR (`k` = ?) OR (`cat` = ? AND `k` LIKE ?)",
+		"post_update_%",
+		"worker_last_cleaned",
+		"system",
+		"last%"
+	];
+
+	$postUpdateEntries = DBA::selectToArray('config', ['k', 'v'], $conditions);
 
 	foreach ($postUpdateEntries as $postUpdateEntry) {
 		DI::keyValue()->set($postUpdateEntry['k'], $postUpdateEntry['v']);
 	}
 
-	return DBA::delete('config', ["`k` LIKE ?", "post_update_%"]) ? Update::SUCCESS : Update::FAILED;
+	return DBA::delete('config', $conditions) ? Update::SUCCESS : Update::FAILED;
 }

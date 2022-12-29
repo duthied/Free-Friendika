@@ -89,9 +89,9 @@ class Worker
 		self::$process = $process;
 
 		// Kill stale processes every 5 minutes
-		$last_cleanup = DI::config()->get('system', 'worker_last_cleaned', 0);
+		$last_cleanup = DI::keyValue()->get('worker_last_cleaned') ?? 0;
 		if (time() > ($last_cleanup + 300)) {
-			DI::config()->set('system', 'worker_last_cleaned', time());
+			DI::keyValue()->set( 'worker_last_cleaned', time());
 			Worker\Cron::killStaleWorkers();
 		}
 
@@ -388,7 +388,7 @@ class Worker
 			$stamp = (float)microtime(true);
 			$condition = ["`id` = ? AND `next_try` < ?", $queue['id'], DateTimeFormat::utcNow()];
 			if (DBA::update('workerqueue', ['done' => true], $condition)) {
-				DI::config()->set('system', 'last_worker_execution', DateTimeFormat::utcNow());
+				DI::keyValue()->set('last_worker_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
 			self::$db_duration_write += (microtime(true) - $stamp);
@@ -429,7 +429,7 @@ class Worker
 
 			$stamp = (float)microtime(true);
 			if (DBA::update('workerqueue', ['done' => true], ['id' => $queue['id']])) {
-				DI::config()->set('system', 'last_worker_execution', DateTimeFormat::utcNow());
+				DI::keyValue()->set('last_worker_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
 			self::$db_duration_write += (microtime(true) - $stamp);
@@ -1422,7 +1422,7 @@ class Worker
 			$duration = max($start, $end) - min($start, $end);
 
 			// Quit when the last cron execution had been after the previous window
-			$last_cron = DI::config()->get('system', 'last_cron_daily');
+			$last_cron = DI::keyValue()->get('last_cron_daily');
 			if ($last_cron + $duration > time()) {
 				Logger::info('The Daily cron had been executed recently', ['last' => date(DateTimeFormat::MYSQL, $last_cron), 'start' => date('H:i:s', $start), 'end' => date('H:i:s', $end)]);
 				return false;

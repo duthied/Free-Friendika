@@ -93,11 +93,11 @@ class Daemon
 		}
 
 		// Check every minute if the daemon is running
-		if (DI::config()->get('system', 'last_daemon_check', 0) + 60 > time()) {
+		if ((DI::keyValue()->get('last_daemon_check') ?? 0) + 60 > time()) {
 			return;
 		}
 
-		DI::config()->set('system', 'last_daemon_check', time());
+		DI::keyValue()->set('last_daemon_check', time());
 
 		$pidfile = DI::config()->get('system', 'pidfile');
 		if (empty($pidfile)) {
