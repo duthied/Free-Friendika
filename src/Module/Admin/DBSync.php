@@ -42,7 +42,7 @@ class DBSync extends BaseAdmin
 		switch ($action) {
 			case 'mark':
 				if ($update) {
-					DI::config()->set('database', 'update_' . $update, 'success');
+					DI::keyValue()->set('database_update_' . $update, 'success');
 					$curr = DI::config()->get('system', 'build');
 					if (intval($curr) == $update) {
 						DI::config()->set('system', 'build', intval($curr) + 1);

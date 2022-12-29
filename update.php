@@ -1150,7 +1150,8 @@ function update_1505()
 {
 	$conditions = [
 		"((`cat`  = ?) AND ((`k` LIKE ?) OR (`k` = ?) OR (`k` LIKE ?) OR (`k` = ?))) OR " .
-		"((`cat` != ?) AND  (`k` LIKE ?))",
+		"((`cat` != ?) AND  (`k` LIKE ?)) OR " .
+		"((`cat`  = ?) AND  (`k` LIKE ?))",
 		"system",
 		"post_update_%",
 		"worker_last_cleaned",
@@ -1158,6 +1159,8 @@ function update_1505()
 		"worker_daemon_mode",
 		"system",
 		"last_%",
+		"database",
+		"update_%",
 	];
 
 	$postUpdateEntries = DBA::selectToArray('config', ['cat', 'k', 'v'], $conditions);
