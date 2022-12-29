@@ -2953,7 +2953,7 @@ class Contact
 		}
 
 		if (($network != '') && ($ret['network'] != $network)) {
-			Logger::notice('Expected network ' . $network . ' does not match actual network ' . $ret['network']);
+			$result['message'] = DI::l10n()->t('Expected network %s does not match actual network %s', $network, $ret['network']);
 			return $result;
 		}
 
