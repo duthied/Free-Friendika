@@ -26,7 +26,7 @@ use Friendica\Core\KeyValueStorage\Exceptions\KeyValueStoragePersistenceExceptio
 /**
  * Interface for Friendica specific Key-Value pair storage
  */
-interface ICanManageKeyValuePairs extends \ArrayAccess
+interface IManageKeyValuePairs extends \ArrayAccess
 {
 	/**
 	 * Get a particular value from the KeyValue Storage

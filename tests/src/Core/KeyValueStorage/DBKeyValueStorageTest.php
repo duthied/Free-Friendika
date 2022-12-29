@@ -22,7 +22,7 @@
 namespace Friendica\Test\src\Core\KeyValueStorage;
 
 use Friendica\Core\Config\ValueObject\Cache;
-use Friendica\Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs;
+use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
 use Friendica\Core\KeyValueStorage\Type\DBKeyValueStorage;
 use Friendica\Database\Database;
 use Friendica\Database\Definition\DbaDefinition;
@@ -53,7 +53,7 @@ class DBKeyValueStorageTest extends KeyValueStorageTest
 		$this->tearDownDb();
 	}
 
-	public function getInstance(): ICanManageKeyValuePairs
+	public function getInstance(): IManageKeyValuePairs
 	{
 		$cache = new Cache();
 		$cache->set('database', 'disable_pdo', true);

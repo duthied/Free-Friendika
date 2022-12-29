@@ -181,9 +181,9 @@ abstract class DI
 		return self::$dice->create(Core\Config\Capability\IManageConfigValues::class);
 	}
 
-	public static function keyValue(): Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs
+	public static function keyValue(): Core\KeyValueStorage\Capabilities\IManageKeyValuePairs
 	{
-		return self::$dice->create(Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs::class);
+		return self::$dice->create(Core\KeyValueStorage\Capabilities\IManageKeyValuePairs::class);
 	}
 
 	/**

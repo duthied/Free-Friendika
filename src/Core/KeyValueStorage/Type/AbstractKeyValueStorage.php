@@ -21,12 +21,12 @@
 
 namespace Friendica\Core\KeyValueStorage\Type;
 
-use Friendica\Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs;
+use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
 
 /**
  * An abstract helper class for Key-Value storage classes
  */
-abstract class AbstractKeyValueStorage implements ICanManageKeyValuePairs
+abstract class AbstractKeyValueStorage implements IManageKeyValuePairs
 {
 	/** {@inheritDoc} */
 	public function get(string $key)

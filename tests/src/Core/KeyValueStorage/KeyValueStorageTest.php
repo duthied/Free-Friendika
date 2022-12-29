@@ -21,18 +21,18 @@
 
 namespace Friendica\Test\src\Core\KeyValueStorage;
 
-use Friendica\Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs;
+use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
 use Friendica\Test\MockedTest;
 
 abstract class KeyValueStorageTest extends MockedTest
 {
-	abstract public function getInstance(): ICanManageKeyValuePairs;
+	abstract public function getInstance(): IManageKeyValuePairs;
 
 	public function testInstance()
 	{
 		$instance = $this->getInstance();
 
-		self::assertInstanceOf(ICanManageKeyValuePairs::class, $instance);
+		self::assertInstanceOf(IManageKeyValuePairs::class, $instance);
 	}
 
 	public function dataTests(): array

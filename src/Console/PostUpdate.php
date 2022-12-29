@@ -22,7 +22,7 @@
 namespace Friendica\Console;
 
 use Friendica\App;
-use Friendica\Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs;
+use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
 use Friendica\Core\L10n;
 use Friendica\Core\Update;
 
@@ -38,7 +38,7 @@ class PostUpdate extends \Asika\SimpleConsole\Console
 	 */
 	private $appMode;
 	/**
-	 * @var ICanManageKeyValuePairs
+	 * @var IManageKeyValuePairs
 	 */
 	private $keyValue;
 	/**
@@ -60,7 +60,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, ICanManageKeyValuePairs $keyValue, L10n $l10n, array $argv = null)
+	public function __construct(App\Mode $appMode, IManageKeyValuePairs $keyValue, L10n $l10n, array $argv = null)
 	{
 		parent::__construct($argv);
 
