@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.03-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1504
+-- DB_UPDATE_VERSION 1505
 -- ------------------------------------------
 
 
@@ -838,6 +838,17 @@ CREATE TABLE IF NOT EXISTS `intro` (
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`suggest-cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
+
+--
+-- TABLE key-value
+--
+CREATE TABLE IF NOT EXISTS `key-value` (
+	`id` int unsigned NOT NULL auto_increment COMMENT '',
+	`k` varbinary(50) NOT NULL DEFAULT '' COMMENT '',
+	`v` mediumtext COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `k` (`k`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='A key value storage';
 
 --
 -- TABLE locks

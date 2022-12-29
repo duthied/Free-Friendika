@@ -40,6 +40,7 @@ Database Tables
 | [inbox-status](help/database/db_inbox-status) | Status of ActivityPub inboxes |
 | [intro](help/database/db_intro) |  |
 | [item-uri](help/database/db_item-uri) | URI and GUID for items |
+| [key-value](help/database/db_key-value) | A key value storage |
 | [locks](help/database/db_locks) |  |
 | [mail](help/database/db_mail) | private messages |
 | [mailacct](help/database/db_mailacct) | Mail account data for fetching mails |
