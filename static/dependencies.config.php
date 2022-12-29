@@ -245,6 +245,9 @@ return [
 			['getBackend', [], Dice::CHAIN_CALL],
 		],
 	],
+	\Friendica\Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs::class => [
+		'instanceOf' => \Friendica\Core\KeyValueStorage\Type\DBKeyValueStorage::class,
+	],
 	Network\HTTPClient\Capability\ICanSendHttpRequests::class => [
 		'instanceOf' => Network\HTTPClient\Factory\HttpClient::class,
 		'call'       => [
