@@ -1149,18 +1149,25 @@ function update_1502()
 function update_1505()
 {
 	$conditions = [
-		"(`cat` = ?) AND ((`k` LIKE ?) OR (`k` = ?) OR (`k` LIKE ?) OR (`k` = ?))",
+		"((`cat`  = ?) AND ((`k` LIKE ?) OR (`k` = ?) OR (`k` LIKE ?) OR (`k` = ?))) OR " .
+		"((`cat` != ?) AND  (`k` LIKE ?))",
 		"system",
 		"post_update_%",
 		"worker_last_cleaned",
 		"last%",
 		"worker_daemon_mode",
+		"system",
+		"last_%",
 	];
 
-	$postUpdateEntries = DBA::selectToArray('config', ['k', 'v'], $conditions);
+	$postUpdateEntries = DBA::selectToArray('config', ['cat', 'k', 'v'], $conditions);
 
 	foreach ($postUpdateEntries as $postUpdateEntry) {
-		DI::keyValue()->set($postUpdateEntry['k'], $postUpdateEntry['v']);
+		if ($postUpdateEntry['cat'] === 'system') {
+			DI::keyValue()->set($postUpdateEntry['k'], $postUpdateEntry['v']);
+		} else {
+			DI::keyValue()->set(sprintf('%s_%s', $postUpdateEntry['cat'], $postUpdateEntry['k']), $postUpdateEntry['v']);
+		}
 	}
 
 	return DBA::delete('config', $conditions) ? Update::SUCCESS : Update::FAILED;
