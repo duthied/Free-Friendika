@@ -157,7 +157,7 @@ HELP;
 
 		$url = Probe::cleanURI($url);
 
-		$contact = ContactModel::getByURLForUser($url, $user['uid']);
+		$contact = ContactModel::getByURL($url, null, [], $user['uid']);
 		if (!empty($contact)) {
 			throw new RuntimeException('Contact already exists');
 		}
