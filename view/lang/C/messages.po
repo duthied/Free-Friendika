@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-29 20:06+0100\n"
+"POT-Creation-Date: 2022-12-29 20:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2428,8 +2428,8 @@ msgstr ""
 
 #: src/Core/Installer.php:514
 msgid ""
-"The web installer needs to be able to create a file called \"local.config."
-"php\" in the \"config\" folder of your web server and it is unable to do so."
+"The web installer needs to be able to create a file called \"local.config.php"
+"\" in the \"config\" folder of your web server and it is unable to do so."
 msgstr ""
 
 #: src/Core/Installer.php:515
@@ -5027,9 +5027,9 @@ msgstr ""
 
 #: src/Module/Admin/Summary.php:98
 msgid ""
-"The last update failed. Please run \"php bin/console.php dbstructure "
-"update\" from the command line and have a look at the errors that might "
-"appear. (Some of the errors are possibly inside the logfile.)"
+"The last update failed. Please run \"php bin/console.php dbstructure update"
+"\" from the command line and have a look at the errors that might appear. "
+"(Some of the errors are possibly inside the logfile.)"
 msgstr ""
 
 #: src/Module/Admin/Summary.php:103
@@ -5183,8 +5183,8 @@ msgstr ""
 #, php-format
 msgid ""
 "Show some informations regarding the needed information to operate the node "
-"according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener "
-"noreferrer\">EU-GDPR</a>."
+"according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer"
+"\">EU-GDPR</a>."
 msgstr ""
 
 #: src/Module/Admin/Tos.php:81
@@ -8216,8 +8216,8 @@ msgstr ""
 #: src/Module/Profile/Profile.php:158
 #, php-format
 msgid ""
-"You're currently viewing your profile as <b>%s</b> <a href=\"%s\" "
-"class=\"btn btn-sm pull-right\">Cancel</a>"
+"You're currently viewing your profile as <b>%s</b> <a href=\"%s\" class="
+"\"btn btn-sm pull-right\">Cancel</a>"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:167 src/Module/Settings/Account.php:576
@@ -8784,8 +8784,8 @@ msgstr ""
 #: src/Module/Security/TwoFactor/Verify.php:100
 #, php-format
 msgid ""
-"If you do not have access to your authentication code you can use a <a "
-"href=\"%s\">two-factor recovery code</a>."
+"If you do not have access to your authentication code you can use a <a href="
+"\"%s\">two-factor recovery code</a>."
 msgstr ""
 
 #: src/Module/Security/TwoFactor/Verify.php:101
@@ -10244,8 +10244,8 @@ msgstr ""
 #: src/Module/Settings/TwoFactor/Verify.php:149
 #, php-format
 msgid ""
-"<p>Or you can open the following URL in your mobile device:</p><p><a "
-"href=\"%s\">%s</a></p>"
+"<p>Or you can open the following URL in your mobile device:</p><p><a href="
+"\"%s\">%s</a></p>"
 msgstr ""
 
 #: src/Module/Settings/TwoFactor/Verify.php:156
@@ -10317,9 +10317,9 @@ msgstr ""
 msgid ""
 "At any point in time a logged in user can export their account data from the "
 "<a href=\"%1$s/settings/userexport\">account settings</a>. If the user wants "
-"to delete their account they can do so at <a href=\"%1$s/settings/"
-"removeme\">%1$s/settings/removeme</a>. The deletion of the account will be "
-"permanent. Deletion of the data will also be requested from the nodes of the "
+"to delete their account they can do so at <a href=\"%1$s/settings/removeme\">"
+"%1$s/settings/removeme</a>. The deletion of the account will be permanent. "
+"Deletion of the data will also be requested from the nodes of the "
 "communication partners."
 msgstr ""
 
