@@ -176,14 +176,14 @@ class DBStructure
 	public static function performUpdate(bool $enable_maintenance_mode = true, bool $verbose = false): string
 	{
 		if ($enable_maintenance_mode) {
-			DI::keyValue()->set('maintenance', 1);
+			DI::config()->set('system', 'maintenance', 1);
 		}
 
 		$status = self::update($verbose, true);
 
 		if ($enable_maintenance_mode) {
-			DI::keyValue()->set('maintenance', 0);
-			DI::keyValue()->set('maintenance_reason', '');
+			DI::config()->set('system', 'maintenance', 0);
+			DI::config()->set('system', 'maintenance_reason', '');
 		}
 
 		return $status;
@@ -213,7 +213,7 @@ class DBStructure
 	 */
 	private static function update(bool $verbose, bool $action, bool $install = false, array $tables = null, array $definition = null): string
 	{
-		$in_maintenance_mode = DI::keyValue()->get('system', 'maintenance');
+		$in_maintenance_mode = DI::config()->get('system', 'maintenance');
 
 		if ($action && !$install && self::isUpdating()) {
 			return DI::l10n()->t('Another database update is currently running.');
