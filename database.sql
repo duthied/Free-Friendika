@@ -1843,21 +1843,6 @@ CREATE TABLE IF NOT EXISTS `worker-ipc` (
 ) ENGINE=MEMORY DEFAULT COLLATE utf8mb4_general_ci COMMENT='Inter process communication between the frontend and the worker';
 
 --
--- TABLE advancedcontentfilter_rules
---
-CREATE TABLE IF NOT EXISTS `advancedcontentfilter_rules` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'Auto incremented rule id',
-	`uid` int unsigned NOT NULL COMMENT 'Owner user id',
-	`name` varchar(255) NOT NULL COMMENT 'Rule name',
-	`expression` mediumtext NOT NULL COMMENT 'Expression text',
-	`serialized` mediumtext NOT NULL COMMENT 'Serialized parsed expression',
-	`active` boolean NOT NULL DEFAULT '1' COMMENT 'Whether the rule is active or not',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date',
-	 PRIMARY KEY(`id`),
-	 INDEX `uid_active` (`uid`,`active`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Advancedcontentfilter addon rules';
-
---
 -- VIEW application-view
 --
 DROP VIEW IF EXISTS `application-view`;
