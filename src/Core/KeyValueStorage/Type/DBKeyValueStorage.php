@@ -90,7 +90,7 @@ class DBKeyValueStorage extends AbstractKeyValueStorage
 			$dbValue = ValueConversion::toDbValue($value);
 
 			$return = $this->database->update(self::DB_KEY_VALUE_TABLE, [
-				'v' => $dbValue,
+				'v'          => $dbValue,
 				'updated_at' => time()
 			], ['k' => $offset], true);
 
