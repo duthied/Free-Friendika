@@ -53,7 +53,7 @@ class DBStructure
 			throw new \Asika\SimpleConsole\CommandArgsException('The version number must be numeric');
 		}
 
-		DI::config()->set('system', 'build', $version);
+		DI::keyValue()->set( 'build',  $version);
 		echo DI::l10n()->t('The database version had been set to %s.', $version);
 	}
 
@@ -65,7 +65,7 @@ class DBStructure
 	 */
 	public static function dropTables(bool $execute)
 	{
-		$postupdate = DI::config()->get('system', 'post_update_version', PostUpdate::VERSION);
+		$postupdate = DI::keyValue()->get('post_update_version') ?? PostUpdate::VERSION;
 		if ($postupdate < PostUpdate::VERSION) {
 			echo DI::l10n()->t('The post update is at version %d, it has to be at %d to safely drop the tables.', $postupdate, PostUpdate::VERSION);
 			return;
@@ -176,14 +176,14 @@ class DBStructure
 	public static function performUpdate(bool $enable_maintenance_mode = true, bool $verbose = false): string
 	{
 		if ($enable_maintenance_mode) {
-			DI::config()->set('system', 'maintenance', 1);
+			DI::keyValue()->set( 'maintenance',  1);
 		}
 
 		$status = self::update($verbose, true);
 
 		if ($enable_maintenance_mode) {
-			DI::config()->set('system', 'maintenance', 0);
-			DI::config()->set('system', 'maintenance_reason', '');
+			DI::keyValue()->set( 'maintenance',  0);
+			DI::keyValue()->set( 'maintenance_reason',  '');
 		}
 
 		return $status;
@@ -213,7 +213,7 @@ class DBStructure
 	 */
 	private static function update(bool $verbose, bool $action, bool $install = false, array $tables = null, array $definition = null): string
 	{
-		$in_maintenance_mode = DI::config()->get('system', 'maintenance');
+		$in_maintenance_mode = DI::keyValue()->get('system',  'maintenance');
 
 		if ($action && !$install && self::isUpdating()) {
 			return DI::l10n()->t('Another database update is currently running.');
@@ -494,9 +494,9 @@ class DBStructure
 
 		if ($action && !$install) {
 			if ($errors) {
-				DI::config()->set('system', 'dbupdate', self::UPDATE_FAILED);
+				DI::config()->set('system',  'dbupdate',  self::UPDATE_FAILED);
 			} else {
-				DI::config()->set('system', 'dbupdate', self::UPDATE_SUCCESSFUL);
+				DI::config()->set( 'system', 'dbupdate',  self::UPDATE_SUCCESSFUL);
 			}
 		}
 

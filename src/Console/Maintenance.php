@@ -69,12 +69,12 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, IManageConfigValues $config, $argv = null)
+	public function __construct(App\Mode $appMode, IManageConfigValues $keyValue, $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->appMode = $appMode;
-		$this->config = $config;
+		$this->config = $keyValue;
 	}
 
 	protected function doExecute(): int

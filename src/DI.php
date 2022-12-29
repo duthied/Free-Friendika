@@ -22,7 +22,6 @@
 namespace Friendica;
 
 use Dice\Dice;
-use Friendica\Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Navigation\SystemMessages;
@@ -182,7 +181,7 @@ abstract class DI
 		return self::$dice->create(Core\Config\Capability\IManageConfigValues::class);
 	}
 
-	public static function keyValue(): ICanManageKeyValuePairs
+	public static function keyValue(): Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs
 	{
 		return self::$dice->create(Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs::class);
 	}

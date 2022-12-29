@@ -982,7 +982,7 @@ function update_1429()
 		return Update::FAILED;
 	}
 
-	DI::config()->set('system', 'post_update_version', 1423);
+	DI::keyValue()->set('post_update_version', 1423);
 
 	return Update::SUCCESS;
 }
@@ -1144,4 +1144,15 @@ function update_1502()
 {
 	DBA::e("UPDATE `pconfig` SET `cat` = 'calendar' WHERE `k` = 'first_day_of_week'");
 	return Update::SUCCESS;
+}
+
+function update_1505()
+{
+	$postUpdateEntries = DBA::selectToArray('config', ['k', 'v'], ["`k` LIKE ?", "post_update_%"]);
+
+	foreach ($postUpdateEntries as $postUpdateEntry) {
+		DI::keyValue()->set($postUpdateEntry['k'], $postUpdateEntry['v']);
+	}
+
+	return DBA::delete('config', ["`k` LIKE ?", "post_update_%"]) ? Update::SUCCESS : Update::FAILED;
 }
