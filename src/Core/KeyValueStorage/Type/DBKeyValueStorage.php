@@ -89,7 +89,10 @@ class DBKeyValueStorage extends AbstractKeyValueStorage
 
 			$dbValue = ValueConversion::toDbValue($value);
 
-			$return = $this->database->update(self::DB_KEY_VALUE_TABLE, ['v' => $dbValue], ['k' => $offset], true);
+			$return = $this->database->update(self::DB_KEY_VALUE_TABLE, [
+				'v' => $dbValue,
+				'updated_at' => time()
+			], ['k' => $offset], true);
 
 			if (!$return) {
 				throw new \Exception(sprintf('database update failed: %s', $this->database->errorMessage()));

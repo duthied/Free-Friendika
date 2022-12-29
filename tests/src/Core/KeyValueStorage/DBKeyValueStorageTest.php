@@ -24,6 +24,7 @@ namespace Friendica\Test\src\Core\KeyValueStorage;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\KeyValueStorage\Capabilities\ICanManageKeyValuePairs;
 use Friendica\Core\KeyValueStorage\Type\DBKeyValueStorage;
+use Friendica\Database\Database;
 use Friendica\Database\Definition\DbaDefinition;
 use Friendica\Database\Definition\ViewDefinition;
 use Friendica\Test\DatabaseTestTrait;
@@ -34,6 +35,9 @@ use Friendica\Util\Profiler;
 class DBKeyValueStorageTest extends KeyValueStorageTest
 {
 	use DatabaseTestTrait;
+
+	/** @var Database */
+	protected $database;
 
 	protected function setUp(): void
 	{
@@ -56,9 +60,37 @@ class DBKeyValueStorageTest extends KeyValueStorageTest
 
 		$basePath = new BasePath(dirname(__FILE__, 5), $_SERVER);
 
-		$database = new StaticDatabase($cache, new Profiler($cache), (new DbaDefinition($basePath->getPath()))->load(), (new ViewDefinition($basePath->getPath()))->load());
-		$database->setTestmode(true);
+		$this->database = new StaticDatabase($cache, new Profiler($cache), (new DbaDefinition($basePath->getPath()))->load(), (new ViewDefinition($basePath->getPath()))->load());
+		$this->database->setTestmode(true);
 
-		return new DBKeyValueStorage($database);
+		return new DBKeyValueStorage($this->database);
+	}
+
+	/** @dataProvider dataTests */
+	public function testUpdatedAt($k, $v)
+	{
+		$instance = $this->getInstance();
+
+		$instance->set($k, $v);
+
+		self::assertEquals($v, $instance->get($k));
+		self::assertEquals($v, $instance[$k]);
+
+		$entry = $this->database->selectFirst(DBKeyValueStorage::DB_KEY_VALUE_TABLE, ['updated_at'], ['k' => $k]);
+		self::assertNotEmpty($entry);
+
+		$updateAt = $entry['updated_at'];
+
+		$instance->set($k, 'another_value');
+
+		self::assertEquals('another_value', $instance->get($k));
+		self::assertEquals('another_value', $instance[$k]);
+
+		$entry = $this->database->selectFirst(DBKeyValueStorage::DB_KEY_VALUE_TABLE, ['updated_at'], ['k' => $k]);
+		self::assertNotEmpty($entry);
+
+		$updateAtAfter = $entry['updated_at'];
+
+		self::assertLessThanOrEqual($updateAt, $updateAtAfter);
 	}
 }

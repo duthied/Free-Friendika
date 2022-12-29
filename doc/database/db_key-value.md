@@ -6,19 +6,18 @@ A key value storage
 Fields
 ------
 
-| Field | Description | Type          | Null | Key | Default | Extra          |
-| ----- | ----------- | ------------- | ---- | --- | ------- | -------------- |
-| id    |             | int unsigned  | NO   | PRI | NULL    | auto_increment |
-| k     |             | varbinary(50) | NO   |     |         |                |
-| v     |             | mediumtext    | YES  |     | NULL    |                |
+| Field      | Description                  | Type          | Null | Key | Default | Extra |
+| ---------- | ---------------------------- | ------------- | ---- | --- | ------- | ----- |
+| k          |                              | varbinary(50) | NO   | PRI | NULL    |       |
+| v          |                              | mediumtext    | YES  |     | NULL    |       |
+| updated_at | timestamp of the last update | int unsigned  | YES  |     | NULL    |       |
 
 Indexes
 ------------
 
-| Name    | Fields    |
-| ------- | --------- |
-| PRIMARY | id        |
-| k       | UNIQUE, k |
+| Name    | Fields |
+| ------- | ------ |
+| PRIMARY | k      |
 
 
 Return to [database documentation](help/database)

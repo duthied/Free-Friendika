@@ -892,13 +892,12 @@ return [
 	"key-value" => [
 		"comment" => "A key value storage",
 		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-			"k" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
+			"k" => ["type" => "varbinary(50)", "not null" => "1", "primary" => "1", "comment" => ""],
 			"v" => ["type" => "mediumtext", "comment" => ""],
+			"updated_at" => ["type" => "int unsigned", "not null" => "0", "comment" => "timestamp of the last update"],
 		],
 		"indexes" => [
-			"PRIMARY" => ["id"],
-			"k" => ["UNIQUE", "k"],
+			"PRIMARY" => ["k"],
 		],
 	],
 	"locks" => [
