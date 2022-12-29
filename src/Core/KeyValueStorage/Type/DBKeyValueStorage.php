@@ -104,9 +104,7 @@ class DBKeyValueStorage extends AbstractKeyValueStorage
 	public function offsetUnset($offset)
 	{
 		try {
-			$return = $this->database->delete(self::DB_KEY_VALUE_TABLE, ['k' => $offset]);
-
-			if (!$return) {
+			if (!$this->database->delete(self::DB_KEY_VALUE_TABLE, ['k' => $offset])) {
 				throw new \Exception(sprintf('database deletion failed: %s', $this->database->errorMessage()));
 			}
 		} catch (\Exception $exception) {
