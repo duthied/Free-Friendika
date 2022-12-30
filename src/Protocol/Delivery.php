@@ -120,7 +120,7 @@ class Delivery
 				return;
 			}
 
-			$condition = ['uri' => $target_item['thr-parent'], 'uid' => $target_item['uid']];
+			$condition  = ['uri' => $target_item['thr-parent'], 'uid' => $target_item['uid']];
 			$thr_parent = Post::selectFirst(['network', 'object'], $condition);
 			if (!DBA::isResult($thr_parent)) {
 				// Shouldn't happen. But when this does, we just take the parent as thread parent.
@@ -527,7 +527,7 @@ class Delivery
 			$reply_to = $mailacct['reply_to'];
 		}
 
-		$subject  = ($target_item['title'] ? Email::encodeHeader($target_item['title'], 'UTF-8') : DI::l10n()->t("\x28no subject\x29"));
+		$subject = ($target_item['title'] ? Email::encodeHeader($target_item['title'], 'UTF-8') : DI::l10n()->t("\x28no subject\x29"));
 
 		// only expose our real email address to true friends
 
