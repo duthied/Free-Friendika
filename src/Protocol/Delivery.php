@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Worker;
+namespace Friendica\Protocol;
 
 use Friendica\Contact\FriendSuggest\Collection\FriendSuggests;
 use Friendica\Contact\FriendSuggest\Exception\FriendSuggestNotFoundException;
@@ -50,7 +50,7 @@ class Delivery
 	const REMOVAL       = 'removeme';
 	const PROFILEUPDATE = 'profileupdate';
 
-	public static function execute(string $cmd, int $post_uriid, int $contact_id, int $sender_uid = 0)
+	public static function deliver(string $cmd, int $post_uriid, int $contact_id, int $sender_uid = 0)
 	{
 		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $post_uriid, 'sender_uid' => $sender_uid, 'contact' => $contact_id]);
 

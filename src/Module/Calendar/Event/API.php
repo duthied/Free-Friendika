@@ -39,11 +39,11 @@ use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\UnauthorizedException;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
-use Friendica\Worker\Delivery;
 use Psr\Log\LoggerInterface;
 
 /**

@@ -24,8 +24,8 @@ namespace Friendica\Console;
 use Asika\SimpleConsole\Console;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Worker;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\Strings;
-use Friendica\Worker\Delivery;
 
 class Relocate extends Console
 {

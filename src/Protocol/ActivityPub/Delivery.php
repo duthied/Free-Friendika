@@ -30,8 +30,8 @@ use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Delivery as ProtocolDelivery;
 use Friendica\Util\HTTPSignature;
-use Friendica\Worker\Delivery as WorkerDelivery;
 
 class Delivery
 {
@@ -101,18 +101,18 @@ class Delivery
 		$serverfail = false;
 		$drop       = false;
 
-		if ($cmd == WorkerDelivery::MAIL) {
+		if ($cmd == ProtocolDelivery::MAIL) {
 			$data = ActivityPub\Transmitter::createActivityFromMail($item_id);
 			if (!empty($data)) {
 				$success = HTTPSignature::transmit($data, $inbox, $uid);
 			}
-		} elseif ($cmd == WorkerDelivery::SUGGESTION) {
+		} elseif ($cmd == ProtocolDelivery::SUGGESTION) {
 			$success = ActivityPub\Transmitter::sendContactSuggestion($uid, $inbox, $item_id);
-		} elseif ($cmd == WorkerDelivery::RELOCATION) {
+		} elseif ($cmd == ProtocolDelivery::RELOCATION) {
 			// @todo Implementation pending
-		} elseif ($cmd == WorkerDelivery::REMOVAL) {
+		} elseif ($cmd == ProtocolDelivery::REMOVAL) {
 			$success = ActivityPub\Transmitter::sendProfileDeletion($uid, $inbox);
-		} elseif ($cmd == WorkerDelivery::PROFILEUPDATE) {
+		} elseif ($cmd == ProtocolDelivery::PROFILEUPDATE) {
 			$success = ActivityPub\Transmitter::sendProfileUpdate($uid, $inbox);
 		} else {
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
@@ -149,7 +149,7 @@ class Delivery
 						if (!empty($actor)) {
 							$drop = !ActivityPub\Transmitter::sendRelayFollow($actor);
 							Logger::notice('Resubscribed to relay', ['url' => $actor, 'success' => !$drop]);
-						} elseif ($cmd = WorkerDelivery::DELETION) {
+						} elseif ($cmd = ProtocolDelivery::DELETION) {
 							// Remote systems not always accept our deletion requests, so we drop them if rejected.
 							// Situation is: In Friendica we allow the thread owner to delete foreign comments to their thread.
 							// Most AP systems don't allow this, so they will reject the deletion request.
@@ -176,7 +176,7 @@ class Delivery
 
 		Logger::debug('Delivered', ['uri-id' => $uri_id, 'uid' => $uid, 'item_id' => $item_id, 'cmd' => $cmd, 'inbox' => $inbox, 'success' => $success, 'serverfailure' => $serverfail, 'drop' => $drop]);
 
-		if (($success || $drop) && in_array($cmd, [WorkerDelivery::POST])) {
+		if (($success || $drop) && in_array($cmd, [ProtocolDelivery::POST])) {
 			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
 		}
 

@@ -28,8 +28,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Worker\Delivery;
 
 /**
  * Class to handle private messages

@@ -44,13 +44,13 @@ use Friendica\Model\User;
 use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Delivery;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
-use Friendica\Worker\Delivery;
 
 /**
  * ActivityPub Processor Protocol class
