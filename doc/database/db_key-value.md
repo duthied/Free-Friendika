@@ -10,7 +10,7 @@ Fields
 | ---------- | ---------------------------- | ------------- | ---- | --- | ------- | ----- |
 | k          |                              | varbinary(50) | NO   | PRI | NULL    |       |
 | v          |                              | mediumtext    | YES  |     | NULL    |       |
-| updated_at | timestamp of the last update | int unsigned  | YES  |     | NULL    |       |
+| updated_at | timestamp of the last update | int unsigned  | NO   |     | NULL    |       |
 
 Indexes
 ------------

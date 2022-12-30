@@ -894,7 +894,7 @@ return [
 		"fields" => [
 			"k" => ["type" => "varbinary(50)", "not null" => "1", "primary" => "1", "comment" => ""],
 			"v" => ["type" => "mediumtext", "comment" => ""],
-			"updated_at" => ["type" => "int unsigned", "comment" => "timestamp of the last update"],
+			"updated_at" => ["type" => "int unsigned", "not null" => "1", "comment" => "timestamp of the last update"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["k"],

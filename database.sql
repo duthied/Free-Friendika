@@ -845,7 +845,7 @@ CREATE TABLE IF NOT EXISTS `intro` (
 CREATE TABLE IF NOT EXISTS `key-value` (
 	`k` varbinary(50) NOT NULL COMMENT '',
 	`v` mediumtext COMMENT '',
-	`updated_at` int unsigned COMMENT 'timestamp of the last update',
+	`updated_at` int unsigned NOT NULL COMMENT 'timestamp of the last update',
 	 PRIMARY KEY(`k`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='A key value storage';
 
