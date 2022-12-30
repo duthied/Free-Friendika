@@ -33,11 +33,6 @@ use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\User;
-use Friendica\Protocol\Activity;
-use Friendica\Protocol\DFRN;
-use Friendica\Protocol\Diaspora;
-use Friendica\Protocol\Email;
-use Friendica\Protocol\Relay;
 use Friendica\Util\Network;
 
 class Delivery
@@ -54,8 +49,8 @@ class Delivery
 	{
 		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $post_uriid, 'sender_uid' => $sender_uid, 'contact' => $contact_id]);
 
-		$top_level = false;
-		$followup = false;
+		$top_level      = false;
+		$followup       = false;
 		$public_message = false;
 
 		$items = [];
@@ -74,7 +69,7 @@ class Delivery
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::RELOCATION) {
-			$uid = $post_uriid;
+			$uid         = $post_uriid;
 			$target_item = [];
 		} else {
 			$item = Post::selectFirst(['id', 'parent'], ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
@@ -86,8 +81,8 @@ class Delivery
 			$parent_id = intval($item['parent']);
 
 			$condition = ['id' => [$target_id, $parent_id], 'visible' => true];
-			$params = ['order' => ['id']];
-			$itemdata = Post::select(Item::DELIVER_FIELDLIST, $condition, $params);
+			$params    = ['order' => ['id']];
+			$itemdata  = Post::select(Item::DELIVER_FIELDLIST, $condition, $params);
 
 			while ($item = Post::fetch($itemdata)) {
 				if ($item['verb'] == Activity::ANNOUNCE) {
@@ -288,9 +283,9 @@ class Delivery
 		Logger::info('Deliver ' . ($target_item_id ?? 'relocation') . ' via DFRN to ' . ($contact['addr'] ?? '' ?: $contact['url']));
 
 		if ($cmd == self::MAIL) {
-			$item = $target_item;
+			$item         = $target_item;
 			$item['body'] = Item::fixPrivatePhotos($item['body'], $owner['uid'], null, $item['contact-id']);
-			$atom = DFRN::mail($item, $owner);
+			$atom         = DFRN::mail($item, $owner);
 		} elseif ($cmd == self::SUGGESTION) {
 			$item = $target_item;
 			$atom = DFRN::fsuggest($item, $owner);
@@ -299,7 +294,7 @@ class Delivery
 			$atom = DFRN::relocate($owner, $owner['uid']);
 		} elseif ($followup) {
 			$msgitems = [$target_item];
-			$atom = DFRN::entries($msgitems, $owner);
+			$atom     = DFRN::entries($msgitems, $owner);
 		} else {
 			if ($target_item['deleted']) {
 				$msgitems = [$target_item];
@@ -309,8 +304,8 @@ class Delivery
 					// Only add the parent when we don't delete other items.
 					if (($target_item['id'] == $item['id']) || ($cmd != self::DELETION)) {
 						$item['entry:comment-allow'] = true;
-						$item['entry:cid'] = ($top_level ? $contact['id'] : 0);
-						$msgitems[] = $item;
+						$item['entry:cid']           = ($top_level ? $contact['id'] : 0);
+						$msgitems[]                  = $item;
 					}
 				}
 			}
@@ -538,14 +533,14 @@ class Delivery
 
 		if (($contact['rel'] == Contact::FRIEND) && !$contact['blocked']) {
 			if ($reply_to) {
-				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $reply_to . '>' . "\n";
+				$headers = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $reply_to . '>' . "\n";
 				$headers .= 'Sender: ' . $local_user['email'] . "\n";
 			} else {
-				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $local_user['email'] . '>' . "\n";
+				$headers = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $local_user['email'] . '>' . "\n";
 			}
 		} else {
-			$sender = DI::config()->get('config', 'sender_email', 'noreply@' . DI::baseUrl()->getHostname());
-			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <' . $sender . '>' . "\n";
+			$sender  = DI::config()->get('config', 'sender_email', 'noreply@' . DI::baseUrl()->getHostname());
+			$headers = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <' . $sender . '>' . "\n";
 		}
 
 		$headers .= 'Message-Id: <' . Email::iri2msgid($target_item['uri']) . '>' . "\n";
@@ -562,13 +557,13 @@ class Delivery
 
 			if (empty($target_item['title'])) {
 				$condition = ['uri' => $target_item['parent-uri'], 'uid' => $owner['uid']];
-				$title = Post::selectFirst(['title'], $condition);
+				$title     = Post::selectFirst(['title'], $condition);
 
 				if (DBA::isResult($title) && ($title['title'] != '')) {
 					$subject = $title['title'];
 				} else {
 					$condition = ['parent-uri' => $target_item['parent-uri'], 'uid' => $owner['uid']];
-					$title = Post::selectFirst(['title'], $condition);
+					$title     = Post::selectFirst(['title'], $condition);
 
 					if (DBA::isResult($title) && ($title['title'] != '')) {
 						$subject = $title['title'];
