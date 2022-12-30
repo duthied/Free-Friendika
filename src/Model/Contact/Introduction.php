@@ -122,7 +122,10 @@ class Introduction
 			}
 
 			if ($protocol == Protocol::ACTIVITYPUB) {
-				ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $contact['uid']);
+				$owner = User::getOwnerDataById($contact['uid']);
+				if ($owner) {
+					ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $owner);
+				}
 			}
 		}
 	}

@@ -138,7 +138,7 @@ class Transmitter
 			return false;
 		}
 
-		$success = self::sendContactUndo($url, $contact['id'], 0);
+		$success = self::sendContactUndo($url, $contact['id'], User::getSystemAccount());
 
 		if ($success || $force) {
 			Contact::update(['rel' => Contact::NOTHING], ['id' => $contact['id']]);
@@ -1903,16 +1903,14 @@ class Transmitter
 	/**
 	 * Transmits a contact suggestion to a given inbox
 	 *
-	 * @param integer $uid           User ID
+	 * @param array   $owner         Sender owner-view record
 	 * @param string  $inbox         Target inbox
 	 * @param integer $suggestion_id Suggestion ID
 	 * @return boolean was the transmission successful?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function sendContactSuggestion(int $uid, string $inbox, int $suggestion_id): bool
+	public static function sendContactSuggestion(array $owner, string $inbox, int $suggestion_id): bool
 	{
-		$owner = User::getOwnerDataById($uid);
-
 		$suggestion = DI::fsuggest()->selectOneById($suggestion_id);
 
 		$data = [
@@ -1929,22 +1927,20 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::info('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub');
-		return HTTPSignature::transmit($signed, $inbox, $uid);
+		Logger::info('Deliver profile deletion for user ' . $owner['uid'] . ' to ' . $inbox . ' via ActivityPub');
+		return HTTPSignature::transmit($signed, $inbox, $owner);
 	}
 
 	/**
 	 * Transmits a profile relocation to a given inbox
 	 *
-	 * @param integer $uid   User ID
-	 * @param string  $inbox Target inbox
+	 * @param array  $owner Sender owner-view record
+	 * @param string $inbox Target inbox
 	 * @return boolean was the transmission successful?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function sendProfileRelocation(int $uid, string $inbox): bool
+	public static function sendProfileRelocation(array $owner, string $inbox): bool
 	{
-		$owner = User::getOwnerDataById($uid);
-
 		$data = [
 			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
@@ -1959,29 +1955,22 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::info('Deliver profile relocation for user ' . $uid . ' to ' . $inbox . ' via ActivityPub');
-		return HTTPSignature::transmit($signed, $inbox, $uid);
+		Logger::info('Deliver profile relocation for user ' . $owner['uid'] . ' to ' . $inbox . ' via ActivityPub');
+		return HTTPSignature::transmit($signed, $inbox, $owner);
 	}
 
 	/**
 	 * Transmits a profile deletion to a given inbox
 	 *
-	 * @param integer $uid   User ID
-	 * @param string  $inbox Target inbox
+	 * @param array  $owner Sender owner-view record
+	 * @param string $inbox Target inbox
 	 * @return boolean was the transmission successful?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function sendProfileDeletion(int $uid, string $inbox): bool
+	public static function sendProfileDeletion(array $owner, string $inbox): bool
 	{
-		$owner = User::getOwnerDataById($uid);
-
-		if (empty($owner)) {
-			Logger::error('No owner data found, the deletion message cannot be processed.', ['user' => $uid]);
-			return false;
-		}
-
 		if (empty($owner['uprvkey'])) {
-			Logger::error('No private key for owner found, the deletion message cannot be processed.', ['user' => $uid]);
+			Logger::error('No private key for owner found, the deletion message cannot be processed.', ['user' => $owner['uid']]);
 			return false;
 		}
 
@@ -1997,30 +1986,29 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::info('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub');
-		return HTTPSignature::transmit($signed, $inbox, $uid);
+		Logger::info('Deliver profile deletion for user ' . $owner['uid'] . ' to ' . $inbox . ' via ActivityPub');
+		return HTTPSignature::transmit($signed, $inbox, $owner);
 	}
 
 	/**
 	 * Transmits a profile change to a given inbox
 	 *
-	 * @param integer $uid   User ID
-	 * @param string  $inbox Target inbox
+	 * @param array  $owner Sender owner-view record
+	 * @param string $inbox Target inbox
 	 * @return boolean was the transmission successful?
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function sendProfileUpdate(int $uid, string $inbox): bool
+	public static function sendProfileUpdate(array $owner, string $inbox): bool
 	{
-		$owner = User::getOwnerDataById($uid);
 		$profile = APContact::getByURL($owner['url']);
 
 		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Update',
 			'actor' => $owner['url'],
-			'object' => self::getProfile($uid),
+			'object' => self::getProfile($owner['uid']),
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 			'instrument' => self::getService(),
 			'to' => [$profile['followers']],
@@ -2028,8 +2016,8 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::info('Deliver profile update for user ' . $uid . ' to ' . $inbox . ' via ActivityPub');
-		return HTTPSignature::transmit($signed, $inbox, $uid);
+		Logger::info('Deliver profile update for user ' . $owner['uid'] . ' to ' . $inbox . ' via ActivityPub');
+		return HTTPSignature::transmit($signed, $inbox, $owner);
 	}
 
 	/**
@@ -2075,7 +2063,7 @@ class Transmitter
 		Logger::info('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid);
 
 		$signed = LDSignature::sign($data, $owner);
-		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $owner);
 	}
 
 	/**
@@ -2131,7 +2119,7 @@ class Transmitter
 		Logger::info('Sending follow ' . $object . ' to ' . $target . ' for user ' . $uid);
 
 		$signed = LDSignature::sign($data, $owner);
-		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $owner);
 	}
 
 	/**
@@ -2153,6 +2141,11 @@ class Transmitter
 		}
 
 		$owner = User::getOwnerDataById($uid);
+		if (!$owner) {
+			Logger::notice('No user found for actor', ['uid' => $uid]);
+			return;
+		}
+
 		$data = [
 			'@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
@@ -2171,7 +2164,7 @@ class Transmitter
 		Logger::debug('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
 		$signed = LDSignature::sign($data, $owner);
-		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		HTTPSignature::transmit($signed, $profile['inbox'], $owner);
 	}
 
 	/**
@@ -2179,22 +2172,16 @@ class Transmitter
 	 *
 	 * @param string $target   Target profile
 	 * @param string $objectId Object id
-	 * @param int    $uid      User ID
+	 * @param array  $owner    Sender owner-view record
 	 * @return bool Operation success
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendContactReject(string $target, string $objectId, int $uid): bool
+	public static function sendContactReject(string $target, string $objectId, array $owner): bool
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
 			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
-			return false;
-		}
-
-		$owner = User::getOwnerDataById($uid);
-		if (empty($owner)) {
-			Logger::notice('No user found for actor', ['uid' => $uid]);
 			return false;
 		}
 
@@ -2213,10 +2200,10 @@ class Transmitter
 			'to' => [$profile['url']],
 		];
 
-		Logger::debug('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $objectId);
+		Logger::debug('Sending reject to ' . $target . ' for user ' . $owner['uid'] . ' with id ' . $objectId);
 
 		$signed = LDSignature::sign($data, $owner);
-		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $owner);
 	}
 
 	/**
@@ -2224,13 +2211,13 @@ class Transmitter
 	 *
 	 * @param string  $target Target profile
 	 * @param integer $cid    Contact id
-	 * @param integer $uid    User ID
+	 * @param array   $owner  Sender owner-view record
 	 * @return bool success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @throws \Exception
 	 */
-	public static function sendContactUndo(string $target, int $cid, int $uid): bool
+	public static function sendContactUndo(string $target, int $cid, array $owner): bool
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
@@ -2245,7 +2232,6 @@ class Transmitter
 
 		$objectId = DI::baseUrl() . '/activity/' . System::createGUID();
 
-		$owner = User::getOwnerDataById($uid);
 		$data = [
 			'@context' => ActivityPub::CONTEXT,
 			'id' => $objectId,
@@ -2261,10 +2247,10 @@ class Transmitter
 			'to' => [$profile['url']],
 		];
 
-		Logger::info('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $objectId);
+		Logger::info('Sending undo to ' . $target . ' for user ' . $owner['uid'] . ' with id ' . $objectId);
 
 		$signed = LDSignature::sign($data, $owner);
-		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $owner);
 	}
 
 	/**

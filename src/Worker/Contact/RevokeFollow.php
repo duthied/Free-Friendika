@@ -24,6 +24,8 @@ namespace Friendica\Worker\Contact;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
+use Friendica\Network\HTTPException;
 
 class RevokeFollow
 {
@@ -43,8 +45,12 @@ class RevokeFollow
 			return;
 		}
 
-		$result = Protocol::revokeFollow($contact, $uid);
-		if ($result === false) {
+		$owner = User::getOwnerDataById($uid, false);
+		if (empty($owner)) {
+			return;
+		}
+
+		if (!Protocol::revokeFollow($contact, $owner)) {
 			Worker::defer();
 		}
 	}
