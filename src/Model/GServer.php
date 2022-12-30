@@ -2145,7 +2145,7 @@ class GServer
 	 */
 	private static function discoverFederation()
 	{
-		$last = DI::config()->get('poco', 'last_federation_discovery');
+		$last = DI::keyValue()->get('poco_last_federation_discovery');
 
 		if ($last) {
 			$next = $last + (24 * 60 * 60);
@@ -2189,7 +2189,7 @@ class GServer
 			}
 		}
 
-		DI::config()->set('poco', 'last_federation_discovery', time());
+		DI::keyValue()->set('poco_last_federation_discovery', time());
 	}
 
 	/**

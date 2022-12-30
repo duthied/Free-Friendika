@@ -19,39 +19,41 @@
  *
  */
 
-namespace Friendica\Test\src\Core\Lock;
+namespace Friendica\Test\src\Core\KeyValueStorage;
 
 use Friendica\Core\Config\ValueObject\Cache;
-use Friendica\Core\Lock\Type\DatabaseLock;
+use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
+use Friendica\Core\KeyValueStorage\Type\DBKeyValueStorage;
 use Friendica\Database\Database;
 use Friendica\Database\Definition\DbaDefinition;
 use Friendica\Database\Definition\ViewDefinition;
 use Friendica\Test\DatabaseTestTrait;
 use Friendica\Test\Util\Database\StaticDatabase;
-use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\BasePath;
 use Friendica\Util\Profiler;
 
-class DatabaseLockDriverTest extends LockTest
+class DBKeyValueStorageTest extends KeyValueStorageTest
 {
-	use VFSTrait;
 	use DatabaseTestTrait;
-
-	protected $pid = 123;
 
 	/** @var Database */
 	protected $database;
 
 	protected function setUp(): void
 	{
-		$this->setUpVfsDir();
+		parent::setUp();
 
 		$this->setUpDb();
-
-		parent::setUp();
 	}
 
-	protected function getInstance()
+	protected function tearDown(): void
+	{
+		parent::tearDown();
+
+		$this->tearDownDb();
+	}
+
+	public function getInstance(): IManageKeyValuePairs
 	{
 		$cache = new Cache();
 		$cache->set('database', 'disable_pdo', true);
@@ -61,13 +63,34 @@ class DatabaseLockDriverTest extends LockTest
 		$this->database = new StaticDatabase($cache, new Profiler($cache), (new DbaDefinition($basePath->getPath()))->load(), (new ViewDefinition($basePath->getPath()))->load());
 		$this->database->setTestmode(true);
 
-		return new DatabaseLock($this->database, $this->pid);
+		return new DBKeyValueStorage($this->database);
 	}
 
-	protected function tearDown(): void
+	/** @dataProvider dataTests */
+	public function testUpdatedAt($k, $v)
 	{
-		$this->tearDownDb();
+		$instance = $this->getInstance();
 
-		parent::tearDown();
+		$instance->set($k, $v);
+
+		self::assertEquals($v, $instance->get($k));
+		self::assertEquals($v, $instance[$k]);
+
+		$entry = $this->database->selectFirst(DBKeyValueStorage::DB_KEY_VALUE_TABLE, ['updated_at'], ['k' => $k]);
+		self::assertNotEmpty($entry);
+
+		$updateAt = $entry['updated_at'];
+
+		$instance->set($k, 'another_value');
+
+		self::assertEquals('another_value', $instance->get($k));
+		self::assertEquals('another_value', $instance[$k]);
+
+		$entry = $this->database->selectFirst(DBKeyValueStorage::DB_KEY_VALUE_TABLE, ['updated_at'], ['k' => $k]);
+		self::assertNotEmpty($entry);
+
+		$updateAtAfter = $entry['updated_at'];
+
+		self::assertLessThanOrEqual($updateAt, $updateAtAfter);
 	}
 }
