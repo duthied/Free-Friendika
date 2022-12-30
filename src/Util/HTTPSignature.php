@@ -332,6 +332,7 @@ class HTTPSignature
 	 * @param string  $url     The URL of the inbox
 	 * @param boolean $success Transmission status
 	 * @param boolean $shared  The inbox is a shared inbox
+	 * @throws \Exception
 	 */
 	static public function setInboxStatus(string $url, bool $success, bool $shared = false)
 	{
@@ -339,7 +340,12 @@ class HTTPSignature
 
 		$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
 		if (!DBA::isResult($status)) {
-			DBA::insert('inbox-status', ['url' => $url, 'uri-id' => ItemURI::getIdByURI($url), 'created' => $now, 'shared' => $shared], Database::INSERT_IGNORE);
+			$insertFields = ['url' => $url, 'uri-id' => ItemURI::getIdByURI($url), 'created' => $now, 'shared' => $shared];
+			if (!DBA::insert('inbox-status', $insertFields, Database::INSERT_IGNORE)) {
+				Logger::warning('Unable to insert inbox-status row', $insertFields);
+				return;
+			}
+
 			$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
 		}
 
