@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-28 00:37-0500\n"
+"POT-Creation-Date: 2022-12-30 21:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1539,31 +1539,31 @@ msgstr ""
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:387 src/Model/Contact.php:1198
+#: src/Content/Item.php:387 src/Model/Contact.php:1200
 msgid "View Status"
 msgstr ""
 
-#: src/Content/Item.php:388 src/Content/Item.php:406 src/Model/Contact.php:1142
-#: src/Model/Contact.php:1190 src/Model/Contact.php:1199
+#: src/Content/Item.php:388 src/Content/Item.php:406 src/Model/Contact.php:1144
+#: src/Model/Contact.php:1192 src/Model/Contact.php:1201
 #: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:234
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:389 src/Model/Contact.php:1200
+#: src/Content/Item.php:389 src/Model/Contact.php:1202
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:390 src/Model/Contact.php:1191
-#: src/Model/Contact.php:1201
+#: src/Content/Item.php:390 src/Model/Contact.php:1193
+#: src/Model/Contact.php:1203
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:391 src/Model/Contact.php:1192
-#: src/Model/Contact.php:1202
+#: src/Content/Item.php:391 src/Model/Contact.php:1194
+#: src/Model/Contact.php:1204
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:392 src/Model/Contact.php:1203
+#: src/Content/Item.php:392 src/Model/Contact.php:1205
 msgid "Send PM"
 msgstr ""
 
@@ -1588,7 +1588,7 @@ msgid "Languages"
 msgstr ""
 
 #: src/Content/Item.php:403 src/Content/Widget.php:80
-#: src/Model/Contact.php:1193 src/Model/Contact.php:1204
+#: src/Model/Contact.php:1195 src/Model/Contact.php:1206
 #: src/Module/Contact/Follow.php:166 view/theme/vier/theme.php:196
 msgid "Connect/Follow"
 msgstr ""
@@ -2081,7 +2081,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:523 src/Model/Contact.php:1644
+#: src/Content/Widget.php:523 src/Model/Contact.php:1648
 msgid "News"
 msgstr ""
 
@@ -2162,8 +2162,8 @@ msgstr ""
 msgid "Network:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1194
-#: src/Model/Contact.php:1205 src/Model/Profile.php:465
+#: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1196
+#: src/Model/Contact.php:1207 src/Model/Profile.php:465
 #: src/Module/Contact/Profile.php:419
 msgid "Unfollow"
 msgstr ""
@@ -2866,77 +2866,77 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
-#: src/Model/Contact.php:1211 src/Module/Moderation/Users/Pending.php:102
+#: src/Model/Contact.php:1213 src/Module/Moderation/Users/Pending.php:102
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1640
+#: src/Model/Contact.php:1644
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1648
+#: src/Model/Contact.php:1652
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2877
+#: src/Model/Contact.php:2919
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2882 src/Module/Friendica.php:82
+#: src/Model/Contact.php:2924 src/Module/Friendica.php:82
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:2887
+#: src/Model/Contact.php:2929
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2896
+#: src/Model/Contact.php:2938
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2931
+#: src/Model/Contact.php:2973
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2933
+#: src/Model/Contact.php:2975
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2936
+#: src/Model/Contact.php:2978
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2939
+#: src/Model/Contact.php:2981
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2942
+#: src/Model/Contact.php:2984
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2943
+#: src/Model/Contact.php:2985
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:2949
+#: src/Model/Contact.php:2991
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:2954
+#: src/Model/Contact.php:2996
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:3019
+#: src/Model/Contact.php:3061
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -2963,22 +2963,22 @@ msgid "Sept"
 msgstr ""
 
 #: src/Model/Event.php:464 src/Module/Calendar/Show.php:128
-#: src/Util/Temporal.php:339
+#: src/Util/Temporal.php:343
 msgid "today"
 msgstr ""
 
 #: src/Model/Event.php:465 src/Module/Calendar/Show.php:129
-#: src/Module/Settings/Display.php:235 src/Util/Temporal.php:349
+#: src/Module/Settings/Display.php:235 src/Util/Temporal.php:353
 msgid "month"
 msgstr ""
 
 #: src/Model/Event.php:466 src/Module/Calendar/Show.php:130
-#: src/Module/Settings/Display.php:236 src/Util/Temporal.php:350
+#: src/Module/Settings/Display.php:236 src/Util/Temporal.php:354
 msgid "week"
 msgstr ""
 
 #: src/Model/Event.php:467 src/Module/Calendar/Show.php:131
-#: src/Module/Settings/Display.php:237 src/Util/Temporal.php:351
+#: src/Module/Settings/Display.php:237 src/Util/Temporal.php:355
 msgid "day"
 msgstr ""
 
@@ -8231,17 +8231,17 @@ msgstr ""
 msgid "j F"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:187 src/Util/Temporal.php:166
+#: src/Module/Profile/Profile.php:187 src/Util/Temporal.php:168
 msgid "Birthday:"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:190 src/Module/Settings/Profile/Index.php:254
-#: src/Util/Temporal.php:168
+#: src/Util/Temporal.php:170
 msgid "Age: "
 msgstr ""
 
 #: src/Module/Profile/Profile.php:190 src/Module/Settings/Profile/Index.php:254
-#: src/Util/Temporal.php:168
+#: src/Util/Temporal.php:170
 #, php-format
 msgid "%d year old"
 msgid_plural "%d years old"
@@ -9763,8 +9763,8 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
-#: src/Module/Settings/Profile/Index.php:239 src/Util/Temporal.php:95
-#: src/Util/Temporal.php:97
+#: src/Module/Settings/Profile/Index.php:239 src/Util/Temporal.php:97
+#: src/Util/Temporal.php:99
 msgid "Miscellaneous"
 msgstr ""
 
@@ -11242,6 +11242,10 @@ msgstr ""
 msgid "Show fewer"
 msgstr ""
 
+#: src/Protocol/Delivery.php:535
+msgid "(no subject)"
+msgstr ""
+
 #: src/Protocol/OStatus.php:1470
 #, php-format
 msgid "%s is now following %s."
@@ -11305,79 +11309,75 @@ msgstr ""
 msgid "thanks"
 msgstr ""
 
-#: src/Util/Temporal.php:170
+#: src/Util/Temporal.php:172
 msgid "YYYY-MM-DD or MM-DD"
 msgstr ""
 
-#: src/Util/Temporal.php:278
+#: src/Util/Temporal.php:280
 #, php-format
 msgid "Time zone: <strong>%s</strong> <a href=\"%s\">Change in Settings</a>"
 msgstr ""
 
-#: src/Util/Temporal.php:318 src/Util/Temporal.php:325
+#: src/Util/Temporal.php:320 src/Util/Temporal.php:329
 msgid "never"
 msgstr ""
 
-#: src/Util/Temporal.php:339
+#: src/Util/Temporal.php:343
 msgid "less than a second ago"
 msgstr ""
 
-#: src/Util/Temporal.php:348
+#: src/Util/Temporal.php:352
 msgid "year"
 msgstr ""
 
-#: src/Util/Temporal.php:348
+#: src/Util/Temporal.php:352
 msgid "years"
 msgstr ""
 
-#: src/Util/Temporal.php:349
+#: src/Util/Temporal.php:353
 msgid "months"
 msgstr ""
 
-#: src/Util/Temporal.php:350
+#: src/Util/Temporal.php:354
 msgid "weeks"
 msgstr ""
 
-#: src/Util/Temporal.php:351
+#: src/Util/Temporal.php:355
 msgid "days"
 msgstr ""
 
-#: src/Util/Temporal.php:352
+#: src/Util/Temporal.php:356
 msgid "hour"
 msgstr ""
 
-#: src/Util/Temporal.php:352
+#: src/Util/Temporal.php:356
 msgid "hours"
 msgstr ""
 
-#: src/Util/Temporal.php:353
+#: src/Util/Temporal.php:357
 msgid "minute"
 msgstr ""
 
-#: src/Util/Temporal.php:353
+#: src/Util/Temporal.php:357
 msgid "minutes"
 msgstr ""
 
-#: src/Util/Temporal.php:354
+#: src/Util/Temporal.php:358
 msgid "second"
 msgstr ""
 
-#: src/Util/Temporal.php:354
+#: src/Util/Temporal.php:358
 msgid "seconds"
-msgstr ""
-
-#: src/Util/Temporal.php:364
-#, php-format
-msgid "in %1$d %2$s"
 msgstr ""
 
 #: src/Util/Temporal.php:367
 #, php-format
-msgid "%1$d %2$s ago"
+msgid "in %1$d %2$s"
 msgstr ""
 
-#: src/Worker/Delivery.php:535
-msgid "(no subject)"
+#: src/Util/Temporal.php:370
+#, php-format
+msgid "%1$d %2$s ago"
 msgstr ""
 
 #: src/Worker/PushSubscription.php:110
