@@ -59,8 +59,8 @@ use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Protocol\Delivery;
 use Friendica\Security\PermissionSet\Repository\PermissionSet;
-use Friendica\Worker\Delivery;
 
 // Post-update script of PR 5751
 function update_1298()

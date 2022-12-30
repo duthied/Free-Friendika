@@ -32,9 +32,9 @@ use Friendica\DI;
 use Friendica\Model\Contact as ContactModel;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
-use Friendica\Worker\Delivery;
 use Psr\Log\LoggerInterface;
 
 /**

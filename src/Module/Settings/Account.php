@@ -38,9 +38,9 @@ use Friendica\Model\Verb;
 use Friendica\Module\BaseSettings;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\Network;
 use Friendica\Util\Temporal;
-use Friendica\Worker\Delivery;
 
 class Account extends BaseSettings
 {

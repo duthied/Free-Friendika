@@ -33,9 +33,9 @@ use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Module\Response;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\Profiler;
 use Friendica\Util\XML;
-use Friendica\Worker\Delivery;
 use Psr\Log\LoggerInterface;
 
 /**

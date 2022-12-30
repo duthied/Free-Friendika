@@ -11247,6 +11247,10 @@ msgstr ""
 msgid "Show fewer"
 msgstr ""
 
+#: src/Protocol/Delivery.php:535
+msgid "(no subject)"
+msgstr ""
+
 #: src/Protocol/OStatus.php:1470
 #, php-format
 msgid "%s is now following %s."
@@ -11379,10 +11383,6 @@ msgstr ""
 #: src/Util/Temporal.php:370
 #, php-format
 msgid "%1$d %2$s ago"
-msgstr ""
-
-#: src/Worker/Delivery.php:535
-msgid "(no subject)"
 msgstr ""
 
 #: src/Worker/PushSubscription.php:110

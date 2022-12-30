@@ -43,13 +43,13 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
-use Friendica\Worker\Delivery;
 use GuzzleHttp\Psr7\Uri;
 use SimpleXMLElement;
 

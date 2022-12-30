@@ -33,6 +33,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Delivery;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
@@ -40,7 +41,6 @@ use Friendica\Util\Network;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
-use Friendica\Worker\Delivery;
 use GuzzleHttp\Psr7\Uri;
 use LanguageDetection\Language;
 

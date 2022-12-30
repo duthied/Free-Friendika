@@ -30,8 +30,8 @@ use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Worker\Delivery;
 
 /**
  * API endpoint: /api/friendica/event_create
