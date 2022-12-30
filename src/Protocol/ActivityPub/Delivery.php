@@ -29,6 +29,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Delivery as ProtocolDelivery;
 use Friendica\Util\HTTPSignature;
@@ -48,8 +49,15 @@ class Delivery
 		$serverfail = false;
 
 		foreach ($posts as $post) {
+			$owner = User::getOwnerDataById($post['uid']);
+			if (!$owner) {
+				Post\Delivery::remove($post['uri-id'], $inbox);
+				Post\Delivery::incrementFailed($post['uri-id'], $inbox);
+				continue;
+			}
+
 			if (!$serverfail) {
-				$result = self::deliverToInbox($post['command'], 0, $inbox, $post['uid'], $post['receivers'], $post['uri-id']);
+				$result = self::deliverToInbox($post['command'], 0, $inbox, $owner, $post['receivers'], $post['uri-id']);
 
 				if ($result['serverfailure']) {
 					// In a timeout situation we assume that every delivery to that inbox will time out.
@@ -75,13 +83,16 @@ class Delivery
 	 * @param string $cmd
 	 * @param integer $item_id
 	 * @param string $inbox
-	 * @param integer $uid
+	 * @param array $owner Sender owner-view record
 	 * @param array $receivers
 	 * @param integer $uri_id
 	 * @return array
 	 */
-	public static function deliverToInbox(string $cmd, int $item_id, string $inbox, int $uid, array $receivers, int $uri_id): array
+	public static function deliverToInbox(string $cmd, int $item_id, string $inbox, array $owner, array $receivers, int $uri_id): array
 	{
+		/** @var int $uid */
+		$uid = $owner['uid'];
+
 		if (empty($item_id) && !empty($uri_id) && !empty($uid)) {
 			$item = Post::selectFirst(['id', 'parent', 'origin', 'gravity', 'verb'], ['uri-id' => $uri_id, 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
 			if (empty($item['id'])) {
@@ -104,21 +115,21 @@ class Delivery
 		if ($cmd == ProtocolDelivery::MAIL) {
 			$data = ActivityPub\Transmitter::createActivityFromMail($item_id);
 			if (!empty($data)) {
-				$success = HTTPSignature::transmit($data, $inbox, $uid);
+				$success = HTTPSignature::transmit($data, $inbox, $owner);
 			}
 		} elseif ($cmd == ProtocolDelivery::SUGGESTION) {
-			$success = ActivityPub\Transmitter::sendContactSuggestion($uid, $inbox, $item_id);
+			$success = ActivityPub\Transmitter::sendContactSuggestion($owner, $inbox, $item_id);
 		} elseif ($cmd == ProtocolDelivery::RELOCATION) {
 			// @todo Implementation pending
 		} elseif ($cmd == ProtocolDelivery::REMOVAL) {
-			$success = ActivityPub\Transmitter::sendProfileDeletion($uid, $inbox);
+			$success = ActivityPub\Transmitter::sendProfileDeletion($owner, $inbox);
 		} elseif ($cmd == ProtocolDelivery::PROFILEUPDATE) {
-			$success = ActivityPub\Transmitter::sendProfileUpdate($uid, $inbox);
+			$success = ActivityPub\Transmitter::sendProfileUpdate($owner, $inbox);
 		} else {
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
 				$timestamp  = microtime(true);
-				$response   = HTTPSignature::post($data, $inbox, $uid);
+				$response   = HTTPSignature::post($data, $inbox, $owner);
 				$runtime    = microtime(true) - $timestamp;
 				$success    = $response->isSuccess();
 				$serverfail = $response->isTimeout();

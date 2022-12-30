@@ -267,21 +267,14 @@ class HTTPSignature
 	/**
 	 * Post given data to a target for a user, returns the result class
 	 *
-	 * @param array   $data   Data that is about to be send
-	 * @param string  $target The URL of the inbox
-	 * @param integer $uid    User id of the sender
+	 * @param array  $data   Data that is about to be sent
+	 * @param string $target The URL of the inbox
+	 * @param array  $owner  Sender owner-view record
 	 *
 	 * @return ICanHandleHttpResponses
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function post(array $data, string $target, int $uid): ICanHandleHttpResponses
+	public static function post(array $data, string $target, array $owner): ICanHandleHttpResponses
 	{
-		$owner = User::getOwnerDataById($uid);
-
-		if (!$owner) {
-			return null;
-		}
-
 		$content = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
 		// Header data that is about to be signed.
@@ -319,16 +312,15 @@ class HTTPSignature
 	/**
 	 * Transmit given data to a target for a user
 	 *
-	 * @param array   $data   Data that is about to be send
-	 * @param string  $target The URL of the inbox
-	 * @param integer $uid    User id of the sender
+	 * @param array  $data   Data that is about to be sent
+	 * @param string $target The URL of the inbox
+	 * @param array  $owner  Sender owner-vew record
 	 *
 	 * @return boolean Was the transmission successful?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function transmit(array $data, string $target, int $uid): bool
+	public static function transmit(array $data, string $target, array $owner): bool
 	{
-		$postResult = self::post($data, $target, $uid);
+		$postResult = self::post($data, $target, $owner);
 		$return_code = $postResult->getReturnCode();
 
 		return ($return_code >= 200) && ($return_code <= 299);
