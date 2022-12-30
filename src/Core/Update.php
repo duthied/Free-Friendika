@@ -76,7 +76,7 @@ class Update
 		}
 
 		// The postupdate has to completed version 1288 for the new post views to take over
-		$postupdate = DI::config()->get('system', 'post_update_version', self::NEW_TABLE_STRUCTURE_VERSION);
+		$postupdate = DI::keyValue()->get('post_update_version') ?? self::NEW_TABLE_STRUCTURE_VERSION;
 		if ($postupdate < self::NEW_TABLE_STRUCTURE_VERSION) {
 			$error = DI::l10n()->t('Updates from postupdate version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.', $postupdate);
 			if (DI::mode()->getExecutor() == Mode::INDEX) {

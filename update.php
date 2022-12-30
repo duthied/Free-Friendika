@@ -982,7 +982,7 @@ function update_1429()
 		return Update::FAILED;
 	}
 
-	DI::config()->set('system', 'post_update_version', 1423);
+	DI::keyValue()->set('post_update_version', 1423);
 
 	return Update::SUCCESS;
 }
@@ -1144,4 +1144,34 @@ function update_1502()
 {
 	DBA::e("UPDATE `pconfig` SET `cat` = 'calendar' WHERE `k` = 'first_day_of_week'");
 	return Update::SUCCESS;
+}
+
+function update_1505()
+{
+	$conditions = [
+		"((`cat`  = ?) AND ((`k` LIKE ?) OR (`k` = ?) OR (`k` LIKE ?) OR (`k` = ?))) OR " .
+		"((`cat` != ?) AND  (`k` LIKE ?)) OR " .
+		"((`cat`  = ?) AND  (`k` LIKE ?))",
+		"system",
+		"post_update_%",
+		"worker_last_cleaned",
+		"last%",
+		"worker_daemon_mode",
+		"system",
+		"last_%",
+		"database",
+		"update_%",
+	];
+
+	$postUpdateEntries = DBA::selectToArray('config', ['cat', 'k', 'v'], $conditions);
+
+	foreach ($postUpdateEntries as $postUpdateEntry) {
+		if ($postUpdateEntry['cat'] === 'system') {
+			DI::keyValue()->set($postUpdateEntry['k'], $postUpdateEntry['v']);
+		} else {
+			DI::keyValue()->set(sprintf('%s_%s', $postUpdateEntry['cat'], $postUpdateEntry['k']), $postUpdateEntry['v']);
+		}
+	}
+
+	return DBA::delete('config', $conditions) ? Update::SUCCESS : Update::FAILED;
 }

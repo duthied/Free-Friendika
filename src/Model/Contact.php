@@ -624,7 +624,7 @@ class Contact
 	public static function getPublicAndUserContactID(int $cid, int $uid): array
 	{
 		// We have to use the legacy function as long as the post update hasn't finished
-		if (DI::config()->get('system', 'post_update_version') < 1427) {
+		if (DI::keyValue()->get('post_update_version') < 1427) {
 			return self::legacyGetPublicAndUserContactID($cid, $uid);
 		}
 
@@ -2953,7 +2953,7 @@ class Contact
 		}
 
 		if (($network != '') && ($ret['network'] != $network)) {
-			Logger::notice('Expected network ' . $network . ' does not match actual network ' . $ret['network']);
+			$result['message'] = DI::l10n()->t('Expected network %s does not match actual network %s', $network, $ret['network']);
 			return $result;
 		}
 

@@ -37,7 +37,7 @@ class Cron
 	{
 		$a = DI::app();
 
-		$last = DI::config()->get('system', 'last_cron');
+		$last = DI::keyValue()->get('last_cron');
 
 		$poll_interval = intval(DI::config()->get('system', 'cron_interval'));
 
@@ -84,7 +84,7 @@ class Cron
 		Worker::add(Worker::PRIORITY_LOW, 'PostUpdate');
 
 		// Hourly cron calls
-		if (DI::config()->get('system', 'last_cron_hourly', 0) + 3600 < time()) {
+		if ((DI::keyValue()->get('last_cron_hourly') ?? 0) + 3600 < time()) {
 
 
 			// Update trending tags cache for the community page
@@ -105,7 +105,7 @@ class Cron
 			// Clear cache entries
 			Worker::add(Worker::PRIORITY_LOW, 'ClearCache');
 
-			DI::config()->set('system', 'last_cron_hourly', time());
+			DI::keyValue()->set('last_cron_hourly', time());
 		}
 
 		// Daily maintenance cron calls
@@ -145,12 +145,12 @@ class Cron
 			// Resubscribe to relay servers
 			Relay::reSubscribe();
 
-			DI::config()->set('system', 'last_cron_daily', time());
+			DI::keyValue()->set('last_cron_daily', time());
 		}
 
 		Logger::notice('end');
 
-		DI::config()->set('system', 'last_cron', time());
+		DI::keyValue()->set('last_cron', time());
 	}
 
 	/**

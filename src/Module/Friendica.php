@@ -42,6 +42,7 @@ class Friendica extends BaseModule
 	protected function content(array $request = []): string
 	{
 		$config = DI::config();
+		$keyValue = DI::keyValue();
 
 		$visibleAddonList = Addon::getVisibleList();
 		if (!empty($visibleAddonList)) {
@@ -100,7 +101,7 @@ class Friendica extends BaseModule
 				'<strong>' . App::VERSION . '</strong>',
 				DI::baseUrl()->get(),
 				'<strong>' . $config->get('system', 'build') . '/' . DB_UPDATE_VERSION . '</strong>',
-				'<strong>' . $config->get('system', 'post_update_version') . '/' . PostUpdate::VERSION . '</strong>'),
+				'<strong>' . $keyValue->get('post_update_version') . '/' . PostUpdate::VERSION . '</strong>'),
 			'friendica' => DI::l10n()->t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'),
 			'bugs'      => DI::l10n()->t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">' . DI::l10n()->t('the bugtracker at github') . '</a>',
 			'info'      => DI::l10n()->t('Suggestions, praise, etc. - please email "info" at "friendi - dot - ca'),

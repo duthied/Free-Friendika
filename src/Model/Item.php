@@ -3016,6 +3016,8 @@ class Item
 		$item['hashtags'] = $tags['hashtags'];
 		$item['mentions'] = $tags['mentions'];
 
+		$item['body'] = preg_replace("#\s*\[attachment .*?].*?\[/attachment]\s*#ism", "\n", $item['body']);
+
 		if (!$is_preview) {
 			$item['body'] = Post\Media::removeFromEndOfBody($item['body'] ?? '');
 		}
@@ -3064,8 +3066,6 @@ class Item
 
 		$attachments = Post\Media::splitAttachments($item['uri-id'], $shared_links, $item['has-media'] ?? false);
 		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
-
-		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
 
 		self::putInCache($item);
 		$item['body'] = $body;
@@ -3166,7 +3166,7 @@ class Item
 			],
 		]);
 	}
-	
+
 
 	/**
 	 * Check if the body contains a link

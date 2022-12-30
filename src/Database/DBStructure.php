@@ -53,7 +53,7 @@ class DBStructure
 			throw new \Asika\SimpleConsole\CommandArgsException('The version number must be numeric');
 		}
 
-		DI::config()->set('system', 'build', $version);
+		DI::keyValue()->set('build', $version);
 		echo DI::l10n()->t('The database version had been set to %s.', $version);
 	}
 
@@ -65,7 +65,7 @@ class DBStructure
 	 */
 	public static function dropTables(bool $execute)
 	{
-		$postupdate = DI::config()->get('system', 'post_update_version', PostUpdate::VERSION);
+		$postupdate = DI::keyValue()->get('post_update_version') ?? PostUpdate::VERSION;
 		if ($postupdate < PostUpdate::VERSION) {
 			echo DI::l10n()->t('The post update is at version %d, it has to be at %d to safely drop the tables.', $postupdate, PostUpdate::VERSION);
 			return;
