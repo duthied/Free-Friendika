@@ -165,6 +165,25 @@ class GServer
 	}
 
 	/**
+	 * Checks if the given server id is reachable
+	 *
+	 * @param integer $gsid
+	 * @return boolean
+	 */
+	public static function reachableById(int $gsid): bool
+	{
+		$gserver = DBA::selectFirst('gserver', ['url', 'next_contact', 'failed', 'network'], ['id' => $gsid]);
+		if (empty($gserver)) {
+			return true;
+		} else {
+			if (strtotime($gserver['next_contact']) < time()) {
+				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+			}
+			return !$gserver['failed'] && in_array($gserver['network'], Protocol::FEDERATED);
+		}
+	}
+
+	/**
 	 * Checks if the given server is reachable
 	 *
 	 * @param array $contact Contact that should be checked
@@ -303,6 +322,42 @@ class GServer
 		}
 
 		return self::detect($server_url, $network, $only_nodeinfo);
+	}
+
+	/**
+	 * Reset failed server status by gserver id
+	 *
+	 * @param int $gsid
+	 */
+	public static function setReachableById(int $gsid)
+	{
+		$gserver = DBA::selectFirst('gserver', ['url', 'failed', 'next_contact'], ['id' => $gsid]);
+		if (DBA::isResult($gserver) && $gserver['failed']) {
+			self::update(['failed' => false, 'last_contact' => DateTimeFormat::utcNow()], ['id' => $gsid]);
+			Logger::info('Reset failed status for server', ['url' => $gserver['url']]);
+
+			if (strtotime($gserver['next_contact']) < time()) {
+				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+			}
+		}
+	}
+
+	/**
+	 * Set failed server status by gserver id
+	 *
+	 * @param int $gsid
+	 */
+	public static function setFailureById(int $gsid)
+	{
+		$gserver = DBA::selectFirst('gserver', ['url', 'failed', 'next_contact'], ['id' => $gsid]);
+		if (DBA::isResult($gserver) && !$gserver['failed']) {
+			self::update(['failed' => true, 'last_failure' => DateTimeFormat::utcNow()], ['id' => $gsid]);
+			Logger::info('Set failed status for server', ['url' => $gserver['url']]);
+
+			if (strtotime($gserver['next_contact']) < time()) {
+				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+			}
+		}
 	}
 
 	/**

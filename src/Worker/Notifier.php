@@ -565,7 +565,16 @@ class Notifier
 				continue;
 			}
 
-			if (!GServer::reachable($contact)) {
+			if (empty($contact['gsid'])) {
+				$reachable = !GServer::reachable($contact);
+			} elseif (!DI::config()->get('system', 'bulk_delivery')) {
+				$reachable = !GServer::reachableById($contact['gsid']);
+			} else {
+				// On bulk delivery we don't check the server status at this point
+				$reachable = true;
+			}
+
+			if (!$reachable) {
 				Logger::info('Server is not reachable', ['id' => $post_uriid, 'uid' => $sender_uid, 'contact' => $contact]);
 				continue;
 			}
@@ -582,9 +591,16 @@ class Notifier
 				$deliver_options = ['priority' => $a->getQueueValue('priority'), 'created' => $a->getQueueValue('created'), 'dont_fork' => true];
 			}
 
-			if (Worker::add($deliver_options, 'Delivery', $cmd, $post_uriid, (int)$contact['id'], $sender_uid)) {
+			if (!empty($contact['gsid']) && DI::config()->get('system', 'bulk_delivery')) {
 				$delivery_queue_count++;
+				Delivery::addQueue($cmd, $post_uriid, $target_item['created'], $contact['id'], $contact['gsid'], $sender_uid);
+				Worker::add(['priority' => Worker::PRIORITY_HIGH, 'dont_fork' => true], 'BulkDelivery', $contact['gsid']);
+			} else {
+				if (Worker::add($deliver_options, 'Delivery', $cmd, $post_uriid, (int)$contact['id'], $sender_uid)) {
+					$delivery_queue_count++;
+				}
 			}
+
 			Worker::coolDown();
 		}
 		return $delivery_queue_count;
@@ -834,7 +850,7 @@ class Notifier
 			if (DI::config()->get('system', 'bulk_delivery')) {
 				$delivery_queue_count++;
 				Post\Delivery::add($target_item['uri-id'], $uid, $inbox, $target_item['created'], $cmd, $receivers);
-				Worker::add(Worker::PRIORITY_HIGH, 'APDelivery', '', 0, $inbox, 0);
+				Worker::add([Worker::PRIORITY_HIGH, 'dont_fork' => true], 'APDelivery', '', 0, $inbox, 0);
 			} else {
 				if (Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
 						'APDelivery', $cmd, $target_item['id'], $inbox, $uid, $receivers, $target_item['uri-id'])) {
@@ -851,7 +867,7 @@ class Notifier
 			if (DI::config()->get('system', 'bulk_delivery')) {
 				$delivery_queue_count++;
 				Post\Delivery::add($target_item['uri-id'], $uid, $inbox, $target_item['created'], $cmd, []);
-				Worker::add(Worker::PRIORITY_MEDIUM, 'APDelivery', '', 0, $inbox, 0);
+				Worker::add([Worker::PRIORITY_MEDIUM, 'dont_fork' => true], 'APDelivery', '', 0, $inbox, 0);
 			} else {
 				if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, $target_item['id'], $inbox, $uid, [], $target_item['uri-id'])) {
 					$delivery_queue_count++;

@@ -2955,6 +2955,12 @@ class Diaspora
 			return 200;
 		}
 
+		if (!empty($contact['gsid']) && (empty($return_code) || $postResult->isTimeout())) {
+			GServer::setFailureById($contact['gsid']);
+		} elseif (!empty($contact['gsid']) && ($return_code >= 200) && ($return_code <= 299)) {
+			GServer::setReachableById($contact['gsid']);
+		}
+
 		Logger::notice('transmit: ' . $logid . '-' . $guid . ' to ' . $dest_url . ' returns: ' . $return_code);
 
 		return $return_code ? $return_code : -1;

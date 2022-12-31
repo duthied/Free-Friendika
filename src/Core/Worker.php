@@ -1264,7 +1264,7 @@ class Worker
 
 		$command = array_shift($args);
 		$parameters = json_encode($args);
-		$found = DBA::exists('workerqueue', ['command' => $command, 'parameter' => $parameters, 'done' => false]);
+		$queue = DBA::selectFirst('workerqueue', [], ['command' => $command, 'parameter' => $parameters, 'done' => false]);
 		$added = 0;
 
 		if (!is_int($priority) || !in_array($priority, self::PRIORITIES)) {
@@ -1277,14 +1277,17 @@ class Worker
 			return 0;
 		}
 
-		if (!$found) {
+		if (empty($queue)) {
 			if (!DBA::insert('workerqueue', ['command' => $command, 'parameter' => $parameters, 'created' => $created,
 				'priority' => $priority, 'next_try' => $delayed])) {
 				return 0;
 			}
 			$added = DBA::lastInsertId();
 		} elseif ($force_priority) {
-			DBA::update('workerqueue', ['priority' => $priority], ['command' => $command, 'parameter' => $parameters, 'done' => false, 'pid' => 0]);
+			$ret = DBA::update('workerqueue', ['priority' => $priority], ['command' => $command, 'parameter' => $parameters, 'done' => false, 'pid' => 0]);
+			if ($ret && ($priority != $queue['priority'])) {
+				$added = $queue['id'];
+			}
 		}
 
 		// Set the IPC flag to ensure an immediate process execution via daemon
