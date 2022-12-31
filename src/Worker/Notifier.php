@@ -592,7 +592,8 @@ class Notifier
 
 			if (!empty($contact['gsid']) && DI::config()->get('system', 'bulk_delivery')) {
 				$delivery_queue_count++;
-				Delivery::addQueue($cmd, $post_uriid, $target_item['created'], $contact['id'], $contact['gsid'], $sender_uid);
+				$deliveryQueueItem = DI::deliveryQueueItemFactory()->createFromDelivery($cmd, $post_uriid, new \DateTimeImmutable($target_item['created']), $contact['id'], $contact['gsid'], $sender_uid);
+				DI::deliveryQueueItemRepo()->save($deliveryQueueItem);
 				Worker::add(['priority' => Worker::PRIORITY_HIGH, 'dont_fork' => true], 'BulkDelivery', $contact['gsid']);
 			} else {
 				if (Worker::add($deliver_options, 'Delivery', $cmd, $post_uriid, (int)$contact['id'], $sender_uid)) {

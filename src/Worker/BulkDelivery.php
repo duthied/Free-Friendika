@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
+use Friendica\DI;
 use Friendica\Model\GServer;
 use Friendica\Protocol\Delivery as ProtocolDelivery;
 
@@ -33,19 +34,19 @@ class BulkDelivery
 		$server_failure   = false;
 		$delivery_failure = false;
 
-		$posts = ProtocolDelivery::selectQueueForServer($gsid);
-		foreach ($posts as $post) {
-			if (!$server_failure && ProtocolDelivery::deliver($post['command'], $post['uri-id'], $post['cid'], $post['uid'])) {
-				ProtocolDelivery::removeQueue($post['uri-id'], $post['gsid']);
-				Logger::debug('Delivery successful', $post);
+		$deliveryQueueItems = DI::deliveryQueueItemRepo()->selectByServerId($gsid, DI::config()->get('system', 'worker_defer_limit'));
+		foreach ($deliveryQueueItems as $deliveryQueueItem) {
+			if (!$server_failure && ProtocolDelivery::deliver($deliveryQueueItem->command, $deliveryQueueItem->postUriId, $deliveryQueueItem->targetContactId, $deliveryQueueItem->senderUserId)) {
+				DI::deliveryQueueItemRepo()->remove($deliveryQueueItem);
+				Logger::debug('Delivery successful', $deliveryQueueItem->toArray());
 			} else {
-				ProtocolDelivery::incrementFailedQueue($post['uri-id'], $post['gsid']);
+				DI::deliveryQueueItemRepo()->incrementFailed($deliveryQueueItem);
 				$delivery_failure = true;
 
 				if (!$server_failure) {
 					$server_failure = !GServer::isReachableById($gsid);
 				}
-				Logger::debug('Delivery failed', ['server_failure' => $server_failure, 'post' => $post]);
+				Logger::debug('Delivery failed', ['server_failure' => $server_failure, 'post' => $deliveryQueueItem]);
 			}
 		}
 
@@ -54,7 +55,7 @@ class BulkDelivery
 		}
 
 		if ($delivery_failure) {
-			ProtocolDelivery::removeFailedQueue($gsid);
+			DI::deliveryQueueItemRepo()->removeFailedByServerId($gsid, DI::config()->get('system', 'worker_defer_limit'));
 		}
 	}
 }

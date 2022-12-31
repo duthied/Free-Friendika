@@ -517,7 +517,7 @@ class DBA
 	 * Build the table query substring from one or more tables, with or without a schema.
 	 *
 	 * Expected formats:
-	 * - table
+	 * - [table]
 	 * - [table1, table2, ...]
 	 * - [schema1 => table1, schema2 => table2, table3, ...]
 	 *
