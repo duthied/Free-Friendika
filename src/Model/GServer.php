@@ -165,6 +165,39 @@ class GServer
 	}
 
 	/**
+	 * Checks if the given server array is unreachable for a long time now
+	 *
+	 * @param integer $gsid
+	 * @return boolean
+	 */
+	private static function defunctByArray(array $gserver): bool
+	{
+		return ($gserver['failed'] || in_array($gserver['network'], Protocol::FEDERATED)) &&
+			($gserver['last_contact'] >= $gserver['created']) &&
+			($gserver['last_contact'] < $gserver['last_failure']) &&
+			($gserver['last_contact'] < DateTimeFormat::utc('now - 90 days'));
+	}
+
+	/**
+	 * Checks if the given server id is unreachable for a long time now
+	 *
+	 * @param integer $gsid
+	 * @return boolean
+	 */
+	public static function defunct(int $gsid): bool
+	{
+		$gserver = DBA::selectFirst('gserver', ['url', 'next_contact', 'last_contact', 'last_failure', 'created', 'failed', 'network'], ['id' => $gsid]);
+		if (empty($gserver)) {
+			return false;
+		} else {
+			if (strtotime($gserver['next_contact']) < time()) {
+				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+			}
+			return self::defunctByArray($gserver);
+		}
+	}
+
+	/**
 	 * Checks if the given server id is reachable
 	 *
 	 * @param integer $gsid
@@ -374,6 +407,9 @@ class GServer
 			'next_contact' => $next_update, 'network' => Protocol::PHANTOM, 'detection-method' => null],
 			['nurl' => Strings::normaliseLink($url)]);
 			Logger::info('Set failed status for existing server', ['url' => $url]);
+			if (self::defunctByArray($gserver)) {
+				Contact::update(['archive' => true], ['gsid' => $gserver['id']]);
+			}
 			return;
 		}
 		self::insert(['url' => $url, 'nurl' => Strings::normaliseLink($url),
@@ -615,6 +651,11 @@ class GServer
 		if (self::getID($url, true) && (in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED]) ||
 			in_array($serverdata['detection-method'], [self::DETECT_MANUAL, self::DETECT_HEADER, self::DETECT_BODY, self::DETECT_HOST_META]))) {
 			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
+		}
+
+		if (($serverdata['network'] == Protocol::PHANTOM) && in_array($serverdata['detection-method'], [self::DETECT_MANUAL, self::DETECT_BODY])) {
+			self::setFailure($url);
+			return false;
 		}
 
 		// Detect the directory type

@@ -570,8 +570,7 @@ class Notifier
 			} elseif (!DI::config()->get('system', 'bulk_delivery')) {
 				$reachable = !GServer::reachableById($contact['gsid']);
 			} else {
-				// On bulk delivery we don't check the server status at this point
-				$reachable = true;
+				$reachable = !GServer::defunct($contact['gsid']);
 			}
 
 			if (!$reachable) {
