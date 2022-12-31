@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1506);
+	define('DB_UPDATE_VERSION', 1507);
 }
 
 return [
@@ -872,6 +872,7 @@ return [
 		"fields" => [
 			"url" => ["type" => "varbinary(383)", "not null" => "1", "primary" => "1", "comment" => "URL of the inbox"],
 			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of inbox url"],
+			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "ID of the related server"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation date of this entry"],
 			"success" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last successful delivery"],
 			"failure" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last failed delivery"],
@@ -882,6 +883,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["url"],
 			"uri-id" => ["uri-id"],
+			"gsid" => ["gsid"],
 		]
 	],
 	"intro" => [
