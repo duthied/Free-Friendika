@@ -43,7 +43,7 @@ class BulkDelivery
 				$delivery_failure = true;
 
 				if (!$server_failure) {
-					$server_failure = !GServer::reachableById($gsid);
+					$server_failure = !GServer::isReachableById($gsid);
 				}
 				Logger::debug('Delivery failed', ['server_failure' => $server_failure, 'post' => $post]);
 			}

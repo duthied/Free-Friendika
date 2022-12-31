@@ -170,7 +170,7 @@ class GServer
 	 * @param integer $gsid
 	 * @return boolean
 	 */
-	private static function defunctByArray(array $gserver): bool
+	private static function isDefunct(array $gserver): bool
 	{
 		return ($gserver['failed'] || in_array($gserver['network'], Protocol::FEDERATED)) &&
 			($gserver['last_contact'] >= $gserver['created']) &&
@@ -184,7 +184,7 @@ class GServer
 	 * @param integer $gsid
 	 * @return boolean
 	 */
-	public static function defunct(int $gsid): bool
+	public static function isDefunctById(int $gsid): bool
 	{
 		$gserver = DBA::selectFirst('gserver', ['url', 'next_contact', 'last_contact', 'last_failure', 'created', 'failed', 'network'], ['id' => $gsid]);
 		if (empty($gserver)) {
@@ -193,7 +193,7 @@ class GServer
 			if (strtotime($gserver['next_contact']) < time()) {
 				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
 			}
-			return self::defunctByArray($gserver);
+			return self::isDefunct($gserver);
 		}
 	}
 
@@ -203,7 +203,7 @@ class GServer
 	 * @param integer $gsid
 	 * @return boolean
 	 */
-	public static function reachableById(int $gsid): bool
+	public static function isReachableById(int $gsid): bool
 	{
 		$gserver = DBA::selectFirst('gserver', ['url', 'next_contact', 'failed', 'network'], ['id' => $gsid]);
 		if (empty($gserver)) {
@@ -398,7 +398,7 @@ class GServer
 	 *
 	 * @param string $url
 	 */
-	public static function setFailure(string $url)
+	public static function setFailureByUrl(string $url)
 	{
 		$gserver = DBA::selectFirst('gserver', [], ['nurl' => Strings::normaliseLink($url)]);
 		if (DBA::isResult($gserver)) {
@@ -407,7 +407,7 @@ class GServer
 			'next_contact' => $next_update, 'network' => Protocol::PHANTOM, 'detection-method' => null],
 			['nurl' => Strings::normaliseLink($url)]);
 			Logger::info('Set failed status for existing server', ['url' => $url]);
-			if (self::defunctByArray($gserver)) {
+			if (self::isDefunct($gserver)) {
 				Contact::update(['archive' => true], ['gsid' => $gserver['id']]);
 			}
 			return;
@@ -462,7 +462,7 @@ class GServer
 
 		// If the URL missmatches, then we mark the old entry as failure
 		if (!Strings::compareLink($url, $original_url)) {
-			self::setFailure($original_url);
+			self::setFailureByUrl($original_url);
 			if (!self::getID($url, true)) {
 				self::detect($url, $network, $only_nodeinfo);
 			}
@@ -471,7 +471,7 @@ class GServer
 
 		$valid_url = Network::isUrlValid($url);
 		if (!$valid_url) {
-			self::setFailure($url);
+			self::setFailureByUrl($url);
 			return false;
 		} else {
 			$valid_url = rtrim($valid_url, '/');
@@ -483,7 +483,7 @@ class GServer
 			if (((parse_url($url, PHP_URL_HOST) != parse_url($valid_url, PHP_URL_HOST)) && (parse_url($url, PHP_URL_PATH) == parse_url($valid_url, PHP_URL_PATH))) ||
 				(((parse_url($url, PHP_URL_HOST) != parse_url($valid_url, PHP_URL_HOST)) || (parse_url($url, PHP_URL_PATH) != parse_url($valid_url, PHP_URL_PATH))) && empty(parse_url($valid_url, PHP_URL_PATH)))) {
 				Logger::debug('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $valid_url]);
-				self::setFailure($url);
+				self::setFailureByUrl($url);
 				if (!self::getID($valid_url, true)) {
 					self::detect($valid_url, $network, $only_nodeinfo);
 				}
@@ -497,7 +497,7 @@ class GServer
 				unset($parts['path']);
 				$valid_url = (string)Uri::fromParts($parts);
 
-				self::setFailure($url);
+				self::setFailureByUrl($url);
 				if (!self::getID($valid_url, true)) {
 					self::detect($valid_url, $network, $only_nodeinfo);
 				}
@@ -517,7 +517,7 @@ class GServer
 		// When a nodeinfo is present, we don't need to dig further
 		$curlResult = DI::httpClient()->get($url . '/.well-known/x-nodeinfo2', HttpClientAccept::JSON);
 		if ($curlResult->isTimeout()) {
-			self::setFailure($url);
+			self::setFailureByUrl($url);
 			return false;
 		}
 
@@ -529,7 +529,7 @@ class GServer
 
 		if ($only_nodeinfo && empty($serverdata)) {
 			Logger::info('Invalid nodeinfo in nodeinfo-mode, server is marked as failure', ['url' => $url]);
-			self::setFailure($url);
+			self::setFailureByUrl($url);
 			return false;
 		} elseif (empty($serverdata)) {
 			$serverdata = ['detection-method' => self::DETECT_MANUAL, 'network' => Protocol::PHANTOM, 'platform' => '', 'version' => '', 'site_name' => '', 'info' => ''];
@@ -568,7 +568,7 @@ class GServer
 				}
 
 				if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-					self::setFailure($url);
+					self::setFailureByUrl($url);
 					return false;
 				}
 
@@ -637,7 +637,7 @@ class GServer
 
 		// Most servers aren't installed in a subdirectory, so we declare this entry as failed
 		if (($serverdata['network'] == Protocol::PHANTOM) && !empty(parse_url($url, PHP_URL_PATH)) && in_array($serverdata['detection-method'], [self::DETECT_MANUAL])) {
-			self::setFailure($url);
+			self::setFailureByUrl($url);
 			return false;
 		}
 
@@ -654,7 +654,7 @@ class GServer
 		}
 
 		if (($serverdata['network'] == Protocol::PHANTOM) && in_array($serverdata['detection-method'], [self::DETECT_MANUAL, self::DETECT_BODY])) {
-			self::setFailure($url);
+			self::setFailureByUrl($url);
 			return false;
 		}
 

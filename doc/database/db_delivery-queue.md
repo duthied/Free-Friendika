@@ -6,15 +6,15 @@ Delivery data for posts for the batch processing
 Fields
 ------
 
-| Field   | Description                                               | Type               | Null | Key | Default | Extra |
-| ------- | --------------------------------------------------------- | ------------------ | ---- | --- | ------- | ----- |
-| gsid    | Global Server ID                                          | int unsigned       | NO   | PRI | NULL    |       |
-| uri-id  | Id of the item-uri table entry that contains the item uri | int unsigned       | NO   | PRI | NULL    |       |
-| created |                                                           | datetime           | YES  |     | NULL    |       |
-| command |                                                           | varbinary(32)      | YES  |     | NULL    |       |
-| cid     | contact_id (ID of the contact in contact table)           | int unsigned       | YES  |     | NULL    |       |
-| uid     | Delivering user                                           | mediumint unsigned | YES  |     | NULL    |       |
-| failed  | Number of times the delivery has failed                   | tinyint            | YES  |     | 0       |       |
+| Field   | Description                             | Type               | Null | Key | Default | Extra |
+| ------- | --------------------------------------- | ------------------ | ---- | --- | ------- | ----- |
+| gsid    | Target server                           | int unsigned       | NO   | PRI | NULL    |       |
+| uri-id  | Delivered post                          | int unsigned       | NO   | PRI | NULL    |       |
+| created |                                         | datetime           | YES  |     | NULL    |       |
+| command |                                         | varbinary(32)      | YES  |     | NULL    |       |
+| cid     | Target contact                          | int unsigned       | YES  |     | NULL    |       |
+| uid     | Delivering user                         | mediumint unsigned | YES  |     | NULL    |       |
+| failed  | Number of times the delivery has failed | tinyint            | YES  |     | 0       |       |
 
 Indexes
 ------------

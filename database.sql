@@ -583,11 +583,11 @@ CREATE TABLE IF NOT EXISTS `delayed-post` (
 -- TABLE delivery-queue
 --
 CREATE TABLE IF NOT EXISTS `delivery-queue` (
-	`gsid` int unsigned NOT NULL COMMENT 'Global Server ID',
-	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`gsid` int unsigned NOT NULL COMMENT 'Target server',
+	`uri-id` int unsigned NOT NULL COMMENT 'Delivered post',
 	`created` datetime COMMENT '',
 	`command` varbinary(32) COMMENT '',
-	`cid` int unsigned COMMENT 'contact_id (ID of the contact in contact table)',
+	`cid` int unsigned COMMENT 'Target contact',
 	`uid` mediumint unsigned COMMENT 'Delivering user',
 	`failed` tinyint DEFAULT 0 COMMENT 'Number of times the delivery has failed',
 	 PRIMARY KEY(`uri-id`,`gsid`),

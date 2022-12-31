@@ -641,11 +641,11 @@ return [
 	"delivery-queue" => [
 		"comment" => "Delivery data for posts for the batch processing",
 		"fields" => [
-			"gsid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID"],
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"gsid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Target server"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Delivered post"],
 			"created" => ["type" => "datetime", "comment" => ""],
 			"command" => ["type" => "varbinary(32)", "comment" => ""],
-			"cid" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "contact_id (ID of the contact in contact table)"],
+			"cid" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Target contact"],
 			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Delivering user"],
 			"failed" => ["type" => "tinyint", "default" => 0, "comment" => "Number of times the delivery has failed"],
 		],

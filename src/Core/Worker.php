@@ -1264,7 +1264,7 @@ class Worker
 
 		$command = array_shift($args);
 		$parameters = json_encode($args);
-		$queue = DBA::selectFirst('workerqueue', [], ['command' => $command, 'parameter' => $parameters, 'done' => false]);
+		$queue = DBA::selectFirst('workerqueue', ['id', 'priority'], ['command' => $command, 'parameter' => $parameters, 'done' => false]);
 		$added = 0;
 
 		if (!is_int($priority) || !in_array($priority, self::PRIORITIES)) {

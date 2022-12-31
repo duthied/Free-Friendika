@@ -210,7 +210,7 @@ class Cron
 				Delivery::removeFailedQueue($delivery['gsid']);
 			}
 
-			if (($delivery['failed'] < 3) || GServer::reachableById($delivery['gsid'])) {
+			if (($delivery['failed'] < 3) || GServer::isReachableById($delivery['gsid'])) {
 				$priority = Worker::PRIORITY_HIGH;
 			} elseif ($delivery['failed'] < 6) {
 				$priority = Worker::PRIORITY_MEDIUM;
