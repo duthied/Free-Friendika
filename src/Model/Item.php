@@ -3449,13 +3449,15 @@ class Item
 				}
 
 				// @todo Use a template
-				$preview_mode =  DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'preview_mode', BBCode::PREVIEW_LARGE);
+				$preview_mode = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'preview_mode', BBCode::PREVIEW_LARGE);
 				if ($preview_mode != BBCode::PREVIEW_NONE) {
 					$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data, $uriid, $preview_mode);
+				} else {
+					$rendered = '';
 				}
 			} elseif (!self::containsLink($content, $data['url'], Post\Media::HTML)) {
 				$rendered = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/link.tpl'), [
-					'$url'  => $data['url'],
+					'$url'   => $data['url'],
 					'$title' => $data['title'],
 				]);
 			} else {
