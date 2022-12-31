@@ -41,7 +41,7 @@ class BulkDelivery
 			} else {
 				ProtocolDelivery::incrementFailedQueue($post['uri-id'], $post['gsid']);
 				$delivery_failure = true;
-		
+
 				if (!$server_failure) {
 					$server_failure = !GServer::reachableById($gsid);
 				}
