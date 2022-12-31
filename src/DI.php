@@ -603,6 +603,20 @@ abstract class DI
 	}
 
 	//
+	// "Federation" namespace instances
+	//
+
+	public static function deliveryQueueItemFactory(): Federation\Factory\DeliveryQueueItem
+	{
+		return self::$dice->create(Federation\Factory\DeliveryQueueItem::class);
+	}
+
+	public static function deliveryQueueItemRepo(): Federation\Repository\DeliveryQueueItem
+	{
+		return self::$dice->create(Federation\Repository\DeliveryQueueItem::class);
+	}
+
+	//
 	// "Protocol" namespace instances
 	//
 
