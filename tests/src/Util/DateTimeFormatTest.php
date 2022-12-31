@@ -126,6 +126,10 @@ class DateTimeFormatTest extends MockedTest
 			'German date time string' => [
 				'expectedDate' => '2022-10-05T16:34:00+02:00',
 				'dateString' => '05 Okt 2022 16:34:00 +0200',
+			],
+			'(Coordinated Universal Time)' => [
+				'expectedDate' => '2022-12-30T14:29:10+00:00',
+				'dateString' => 'Fri Dec 30 2022 14:29:10 GMT+0000 (Coordinated Universal Time)',
 			]
 		];
 	}
