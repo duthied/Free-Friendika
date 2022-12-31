@@ -182,8 +182,8 @@ class DateTimeFormat
 	 */
 	public static function fix(string $dateString): string
 	{
-		$search  = ['Mär', 'März', 'Mai', 'Juni', 'Juli', 'Okt', 'Dez', 'ET' , 'ZZ', ' - ', '&#x2B;'];
-		$replace = ['Mar', 'Mar' , 'May', 'Jun' , 'Jul' , 'Oct', 'Dec', 'EST', 'Z' , ', ' , '+'     ];
+		$search  = ['Mär', 'März', 'Mai', 'Juni', 'Juli', 'Okt', 'Dez', 'ET' , 'ZZ', ' - ', '&#x2B;', ' (Coordinated Universal Time)'];
+		$replace = ['Mar', 'Mar' , 'May', 'Jun' , 'Jul' , 'Oct', 'Dec', 'EST', 'Z' , ', ' , '+'     , ''];
 
 		$dateString = str_replace($search, $replace, $dateString);
 
