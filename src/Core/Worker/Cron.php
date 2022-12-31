@@ -26,8 +26,10 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\GServer;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
@@ -58,7 +60,10 @@ class Cron
 		// Remove old entries from the workerqueue
 		self::cleanWorkerQueue();
 
-		// Directly deliver or requeue posts
+		// Directly deliver or requeue posts to ActivityPub systems
+		self::deliverAPPosts();
+
+		// Directly deliver or requeue posts to other systems
 		self::deliverPosts();
 	}
 
@@ -157,7 +162,7 @@ class Cron
 	 *
 	 * This function is placed here as a safeguard. Even when the worker queue is completely blocked, messages will be delivered.
 	 */
-	private static function deliverPosts()
+	private static function deliverAPPosts()
 	{
 		$deliveries = DBA::p("SELECT `item-uri`.`uri` AS `inbox`, MAX(`failed`) AS `failed` FROM `post-delivery` INNER JOIN `item-uri` ON `item-uri`.`id` = `post-delivery`.`inbox-id` GROUP BY `inbox` ORDER BY RAND()");
 		while ($delivery = DBA::fetch($deliveries)) {
@@ -181,7 +186,7 @@ class Cron
 			}
 
 			if (Worker::add(['priority' => $priority, 'force_priority' => true], 'APDelivery', '', 0, $delivery['inbox'], 0)) {
-				Logger::info('Missing APDelivery worker added for inbox', ['inbox' => $delivery['inbox'], 'failed' => $delivery['failed'], 'priority' => $priority]);
+				Logger::info('Priority for APDelivery worker adjusted', ['inbox' => $delivery['inbox'], 'failed' => $delivery['failed'], 'priority' => $priority]);
 			}
 		}
 
@@ -189,6 +194,41 @@ class Cron
 		if (DI::config()->get('system', 'optimize_tables')) {
 			Logger::info('Optimize start');
 			DBA::e("OPTIMIZE TABLE `post-delivery`");
+			Logger::info('Optimize end');
+		}
+	}
+
+	/**
+	 * Directly deliver messages or requeue them.
+	 */
+	private static function deliverPosts()
+	{
+		$deliveries = DBA::p("SELECT `gsid`, MAX(`failed`) AS `failed` FROM `delivery-queue` GROUP BY `gsid` ORDER BY RAND()");
+		while ($delivery = DBA::fetch($deliveries)) {
+			if ($delivery['failed'] > 0) {
+				Logger::info('Removing failed deliveries', ['gsid' => $delivery['gsid'], 'failed' => $delivery['failed']]);
+				Delivery::removeFailedQueue($delivery['gsid']);
+			}
+
+			if (($delivery['failed'] < 3) || GServer::isReachableById($delivery['gsid'])) {
+				$priority = Worker::PRIORITY_HIGH;
+			} elseif ($delivery['failed'] < 6) {
+				$priority = Worker::PRIORITY_MEDIUM;
+			} elseif ($delivery['failed'] < 8) {
+				$priority = Worker::PRIORITY_LOW;
+			} else {
+				$priority = Worker::PRIORITY_NEGLIGIBLE;
+			}
+
+			if (Worker::add(['priority' => $priority, 'force_priority' => true], 'BulkDelivery', $delivery['gsid'])) {
+				Logger::info('Priority for BulkDelivery worker adjusted', ['gsid' => $delivery['gsid'], 'failed' => $delivery['failed'], 'priority' => $priority]);
+			}
+		}
+
+		// Optimizing this table only last seconds
+		if (DI::config()->get('system', 'optimize_tables')) {
+			Logger::info('Optimize start');
+			DBA::e("OPTIMIZE TABLE `delivery-queue`");
 			Logger::info('Optimize end');
 		}
 	}

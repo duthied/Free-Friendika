@@ -1014,6 +1014,10 @@ class DFRN
 		$xml = $postResult->getBody();
 
 		$curl_stat = $postResult->getReturnCode();
+		if (!empty($contact['gsid']) && ($postResult->isTimeout() || empty($curl_stat))) {
+			GServer::setFailureById($contact['gsid']);
+		}
+
 		if (empty($curl_stat) || empty($xml)) {
 			Logger::notice('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
 			return -9; // timed out
@@ -1033,6 +1037,10 @@ class DFRN
 
 		if (empty($res->status)) {
 			return -23;
+		}
+
+		if (!empty($contact['gsid'])) {
+			GServer::setReachableById($contact['gsid']);
 		}
 
 		if (!empty($res->message)) {

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.03-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1505
+-- DB_UPDATE_VERSION 1506
 -- ------------------------------------------
 
 
@@ -578,6 +578,27 @@ CREATE TABLE IF NOT EXISTS `delayed-post` (
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`wid`) REFERENCES `workerqueue` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Posts that are about to be distributed at a later time';
+
+--
+-- TABLE delivery-queue
+--
+CREATE TABLE IF NOT EXISTS `delivery-queue` (
+	`gsid` int unsigned NOT NULL COMMENT 'Target server',
+	`uri-id` int unsigned NOT NULL COMMENT 'Delivered post',
+	`created` datetime COMMENT '',
+	`command` varbinary(32) COMMENT '',
+	`cid` int unsigned COMMENT 'Target contact',
+	`uid` mediumint unsigned COMMENT 'Delivering user',
+	`failed` tinyint DEFAULT 0 COMMENT 'Number of times the delivery has failed',
+	 PRIMARY KEY(`uri-id`,`gsid`),
+	 INDEX `gsid_created` (`gsid`,`created`),
+	 INDEX `uid` (`uid`),
+	 INDEX `cid` (`cid`),
+	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for posts for the batch processing';
 
 --
 -- TABLE diaspora-contact

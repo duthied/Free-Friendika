@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1505);
+	define('DB_UPDATE_VERSION', 1506);
 }
 
 return [
@@ -636,6 +636,24 @@ return [
 			"PRIMARY" => ["id"],
 			"uid_uri" => ["UNIQUE", "uid", "uri(190)"],
 			"wid" => ["wid"],
+		]
+	],
+	"delivery-queue" => [
+		"comment" => "Delivery data for posts for the batch processing",
+		"fields" => [
+			"gsid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Target server"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Delivered post"],
+			"created" => ["type" => "datetime", "comment" => ""],
+			"command" => ["type" => "varbinary(32)", "comment" => ""],
+			"cid" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Target contact"],
+			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Delivering user"],
+			"failed" => ["type" => "tinyint", "default" => 0, "comment" => "Number of times the delivery has failed"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id", "gsid"],
+			"gsid_created" => ["gsid", "created"],
+			"uid" => ["uid"],
+			"cid" => ["cid"],
 		]
 	],
 	"diaspora-contact" => [

@@ -43,18 +43,18 @@ class UpdateGServer
 
 		$filtered = filter_var($server_url, FILTER_SANITIZE_URL);
 		if (substr(Strings::normaliseLink($filtered), 0, 7) != 'http://') {
-			GServer::setFailure($server_url);
+			GServer::setFailureByUrl($server_url);
 			return;
 		}
 
 		if (($filtered != $server_url) && DBA::exists('gserver', ['nurl' => Strings::normaliseLink($server_url)])) {
-			GServer::setFailure($server_url);
+			GServer::setFailureByUrl($server_url);
 			return;
 		}
 
 		$cleaned = GServer::cleanURL($server_url);
 		if (($cleaned != $server_url) && DBA::exists('gserver', ['nurl' => Strings::normaliseLink($server_url)])) {
-			GServer::setFailure($server_url);
+			GServer::setFailureByUrl($server_url);
 			return;
 		}
 
