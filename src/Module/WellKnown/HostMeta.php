@@ -80,13 +80,6 @@ class HostMeta extends BaseModule
 						'href' => $domain . '/amcd'
 					]
 				],
-				'5:link' => [
-					'@attributes' => [
-						'rel'  => 'http://oexchange.org/spec/0.8/rel/resident-target',
-						'type' => 'application/xrd+xml',
-						'href' => $domain . '/oexchange/xrd'
-					]
-				],
 				'Property' => [
 					'@attributes' => [
 						'type'      => 'http://salmon-protocol.org/ns/magic-key',
