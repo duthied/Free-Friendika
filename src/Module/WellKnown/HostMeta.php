@@ -48,7 +48,6 @@ class HostMeta extends BaseModule
 
 		$domain = DI::baseUrl()->get();
 
-		$xml = null;
 		XML::fromArray([
 			'XRD' => [
 				'@attributes' => [

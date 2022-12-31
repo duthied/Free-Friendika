@@ -294,7 +294,7 @@ class System
 		}
 
 		DI::apiResponse()->setType(Response::TYPE_XML);
-		DI::apiResponse()->addContent(XML::fromArray(["result" => $result], $xml));
+		DI::apiResponse()->addContent(XML::fromArray(['result' => $result]));
 		DI::page()->exit(DI::apiResponse()->generate());
 
 		self::exit();

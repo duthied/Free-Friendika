@@ -36,9 +36,7 @@ function oexchange_init(App $a)
 
 	$baseURL = DI::baseUrl()->get();
 
-	$xml = null;
-
-	XML::fromArray([
+	$xmlString = XML::fromArray([
 		'XRD' => [
 			'@attributes' => [
 				'xmlns'    => 'http://docs.oasis-open.org/ns/xri/xrd-1.0',
@@ -90,9 +88,9 @@ function oexchange_init(App $a)
 				]
 			],
 		],
-	], $xml);
+	]);
 
-	System::httpExit($xml->saveXML(), Response::TYPE_XML, 'application/xrd+xml');
+	System::httpExit($xmlString, Response::TYPE_XML, 'application/xrd+xml');
 }
 
 function oexchange_content(App $a)

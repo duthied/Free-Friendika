@@ -230,9 +230,7 @@ class Xrd extends BaseModule
 	{
 		$baseURL = $this->baseUrl->get();
 
-		$xml = null;
-
-		XML::fromArray([
+		$xmlString = XML::fromArray([
 			'XRD' => [
 				'@attributes' => [
 					'xmlns'    => 'http://docs.oasis-open.org/ns/xri/xrd-1.0',
@@ -319,10 +317,10 @@ class Xrd extends BaseModule
 					]
 				],
 			],
-		], $xml);
+		]);
 
 		header('Access-Control-Allow-Origin: *');
 
-		System::httpExit($xml->saveXML(), Response::TYPE_XML, 'application/xrd+xml');
+		System::httpExit($xmlString, Response::TYPE_XML, 'application/xrd+xml');
 	}
 }

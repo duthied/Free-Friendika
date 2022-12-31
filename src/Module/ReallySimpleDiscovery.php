@@ -34,7 +34,6 @@ class ReallySimpleDiscovery extends BaseModule
 {
 	protected function rawContent(array $request = [])
 	{
-		$xml = null;
 		$content = XML::fromArray([
 			'rsd' => [
 				'@attributes' => [
@@ -67,7 +66,7 @@ class ReallySimpleDiscovery extends BaseModule
 					],
 				],
 			],
-		], $xml);
+		]);
 		System::httpExit($content, Response::TYPE_XML);
 	}
 }
