@@ -566,9 +566,9 @@ class Notifier
 			}
 
 			if (empty($contact['gsid'])) {
-				$reachable = !GServer::reachable($contact);
+				$reachable = GServer::reachable($contact);
 			} elseif (!DI::config()->get('system', 'bulk_delivery')) {
-				$reachable = !GServer::isReachableById($contact['gsid']);
+				$reachable = GServer::isReachableById($contact['gsid']);
 			} else {
 				$reachable = !GServer::isDefunctById($contact['gsid']);
 			}
