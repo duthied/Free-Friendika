@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -1224,7 +1224,8 @@ class PostUpdate
 			if (!empty($apcontact['sharedinbox'])) {
 				$inbox[] = $apcontact['sharedinbox'];
 			}
-			$condition = DBA::mergeConditions(['url' => $inbox], ["`gsid` IS NULL"]);
+//			$condition = DBA::mergeConditions(['url' => $inbox], ["`gsid` IS NULL"]);
+			$condition = ['url' => $inbox];
 			DBA::update('inbox-status', ['gsid' => $apcontact['gsid'], 'archive' => GServer::isDefunctById($apcontact['gsid'])], $condition);
 			++$rows;
 		}
