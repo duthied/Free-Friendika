@@ -31,6 +31,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -923,7 +924,7 @@ function photos_content(App $a)
 
 			if ($order_field === 'created') {
 				$params = ['order' => [$order_field]];
-			} elseif (!empty($order_field)) {
+			} elseif (!empty($order_field) && DBStructure::existsColumn('photo', [$order_field])) {
 				$params = ['order' => [$order_field => true]];
 			} else {
 				$params = [];
