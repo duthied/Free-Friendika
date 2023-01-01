@@ -63,15 +63,21 @@ class UpdateContacts
 			if (Contact::isLocal($contact['url'])) {
 				continue;
 			}
-			if ((!empty($contact['gsid']) || !empty($contact['baseurl'])) && GServer::reachable($contact)) {
-				$stamp = (float)microtime(true);
-				$success = Contact::updateFromProbe($contact['id']);
-				Logger::debug('Direct update', ['id' => $contact['id'], 'count' => $count, 'duration' => round((float)microtime(true) - $stamp, 3), 'success' => $success]);
-				++$count;
-			} elseif (Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id'])) {
-				Logger::debug('Update by worker', ['id' => $contact['id'], 'count' => $count]);
-				++$count;
+
+			try {
+				if ((!empty($contact['gsid']) || !empty($contact['baseurl'])) && GServer::reachable($contact)) {
+					$stamp = (float)microtime(true);
+					$success = Contact::updateFromProbe($contact['id']);
+					Logger::debug('Direct update', ['id' => $contact['id'], 'count' => $count, 'duration' => round((float)microtime(true) - $stamp, 3), 'success' => $success]);
+					++$count;
+				} elseif (UpdateContact::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], $contact['id'])) {
+					Logger::debug('Update by worker', ['id' => $contact['id'], 'count' => $count]);
+					++$count;
+				}
+			} catch (\InvalidArgumentException $e) {
+				Logger::notice($e->getMessage(), ['contact' => $contact]);
 			}
+
 			Worker::coolDown();
 		}
 		DBA::close($contacts);

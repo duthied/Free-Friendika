@@ -26,8 +26,10 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -37,6 +39,7 @@ use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Worker\UpdateContact;
 
 /**
  *  Manages and show Contacts and their content
@@ -129,7 +132,11 @@ class Contact extends BaseModule
 			// pull feed and consume it, which should subscribe to the hub.
 			Worker::add(Worker::PRIORITY_HIGH, 'OnePoll', $contact_id, 'force');
 		} else {
-			Worker::add(Worker::PRIORITY_HIGH, 'UpdateContact', $contact_id);
+			try {
+				UpdateContact::add(Worker::PRIORITY_HIGH, $contact_id);
+			} catch (\InvalidArgumentException $e) {
+				Logger::notice($e->getMessage(), ['contact' => $contact, 'callstack' => System::callstack()]);
+			}
 		}
 	}
 

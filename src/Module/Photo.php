@@ -44,6 +44,7 @@ use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy;
+use Friendica\Worker\UpdateContact;
 
 /**
  * Photo Module
@@ -351,8 +352,12 @@ class Photo extends BaseModule
 							Logger::debug('Got return code for avatar', ['return code' => $curlResult->getReturnCode(), 'cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
 						}
 						if ($update) {
-							Logger::info('Invalid file, contact update initiated', ['cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
-							Worker::add(Worker::PRIORITY_LOW, 'UpdateContact', $id);
+							try {
+								UpdateContact::add(Worker::PRIORITY_LOW, $id);
+								Logger::info('Invalid file, contact update initiated', ['cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
+							} catch (\InvalidArgumentException $e) {
+								Logger::notice($e->getMessage(), ['id' => $id, 'contact' => $contact]);
+							}
 						} else {
 							Logger::info('Invalid file', ['cid' => $id, 'url' => $contact['url'], 'avatar' => $url]);
 						}

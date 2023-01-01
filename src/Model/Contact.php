@@ -47,6 +47,7 @@ use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
+use Friendica\Worker\UpdateContact;
 
 /**
  * functions for interacting with a contact
@@ -362,7 +363,11 @@ class Contact
 
 		// Update the contact in the background if needed
 		if ($background_update && !self::isLocal($url) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
-			Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
+			try {
+				UpdateContact::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], $contact['id']);
+			} catch (\InvalidArgumentException $e) {
+				Logger::notice($e->getMessage(), ['contact' => $contact]);
+			}
 		}
 
 		// Remove the internal fields
@@ -1276,7 +1281,11 @@ class Contact
 			$background_update = DI::config()->get('system', 'update_active_contacts') ? $contact['local-data'] : true;
 
 			if ($background_update && !self::isLocal($url) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
-				Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
+				try {
+					UpdateContact::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], $contact['id']);
+				} catch (\InvalidArgumentException $e) {
+					Logger::notice($e->getMessage(), ['contact' => $contact]);
+				}
 			}
 
 			if (empty($update) && (!empty($contact['uri-id']) || is_bool($update))) {
@@ -3078,7 +3087,11 @@ class Contact
 		if ($probed) {
 			self::updateFromProbeArray($contact_id, $ret);
 		} else {
-			Worker::add(Worker::PRIORITY_HIGH, 'UpdateContact', $contact_id);
+			try {
+				UpdateContact::add(Worker::PRIORITY_HIGH, $contact['id']);
+			} catch (\InvalidArgumentException $e) {
+				Logger::notice($e->getMessage(), ['contact' => $contact]);
+			}
 		}
 
 		$result['success'] = Protocol::follow($uid, $contact, $protocol);
@@ -3549,8 +3562,12 @@ class Contact
 				Worker::add(Worker::PRIORITY_LOW, 'AddContact', 0, $url);
 				++$added;
 			} elseif (!empty($contact['network']) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
-				Worker::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], 'UpdateContact', $contact['id']);
-				++$updated;
+				try {
+					UpdateContact::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], $contact['id']);
+					++$updated;
+				} catch (\InvalidArgumentException $e) {
+					Logger::notice($e->getMessage(), ['contact' => $contact]);
+				}
 			} else {
 				++$unchanged;
 			}
