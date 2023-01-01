@@ -1040,7 +1040,7 @@ class DFRN
 		}
 
 		if (!empty($contact['gsid'])) {
-			GServer::setReachableById($contact['gsid']);
+			GServer::setReachableById($contact['gsid'], Protocol::DFRN);
 		}
 
 		if (!empty($res->message)) {
