@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.03-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1506
+-- DB_UPDATE_VERSION 1507
 -- ------------------------------------------
 
 
@@ -824,6 +824,7 @@ CREATE TABLE IF NOT EXISTS `inbox-entry-receiver` (
 CREATE TABLE IF NOT EXISTS `inbox-status` (
 	`url` varbinary(383) NOT NULL COMMENT 'URL of the inbox',
 	`uri-id` int unsigned COMMENT 'Item-uri id of inbox url',
+	`gsid` int unsigned COMMENT 'ID of the related server',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date of this entry',
 	`success` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last successful delivery',
 	`failure` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last failed delivery',
@@ -832,7 +833,9 @@ CREATE TABLE IF NOT EXISTS `inbox-status` (
 	`shared` boolean NOT NULL DEFAULT '0' COMMENT 'Is it a shared inbox?',
 	 PRIMARY KEY(`url`),
 	 INDEX `uri-id` (`uri-id`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `gsid` (`gsid`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Status of ActivityPub inboxes';
 
 --

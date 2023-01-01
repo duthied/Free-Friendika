@@ -332,15 +332,19 @@ class HTTPSignature
 	 * @param string  $url     The URL of the inbox
 	 * @param boolean $success Transmission status
 	 * @param boolean $shared  The inbox is a shared inbox
+	 * @param int     $gsid    Server ID
 	 * @throws \Exception
 	 */
-	static public function setInboxStatus(string $url, bool $success, bool $shared = false)
+	static public function setInboxStatus(string $url, bool $success, bool $shared = false, int $gsid = null)
 	{
 		$now = DateTimeFormat::utcNow();
 
 		$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
 		if (!DBA::isResult($status)) {
 			$insertFields = ['url' => $url, 'uri-id' => ItemURI::getIdByURI($url), 'created' => $now, 'shared' => $shared];
+			if (!empty($gsid)) {
+				$insertFields['gsid'] = $gsid;
+			}
 			if (!DBA::insert('inbox-status', $insertFields, Database::INSERT_IGNORE)) {
 				Logger::warning('Unable to insert inbox-status row', $insertFields);
 				return;
@@ -353,6 +357,10 @@ class HTTPSignature
 			$fields = ['success' => $now];
 		} else {
 			$fields = ['failure' => $now];
+		}
+
+		if (!empty($gsid)) {
+			$fields['gsid'] = $gsid;
 		}
 
 		if ($status['failure'] > DBA::NULL_DATETIME) {

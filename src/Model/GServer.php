@@ -408,7 +408,7 @@ class GServer
 			['nurl' => Strings::normaliseLink($url)]);
 			Logger::info('Set failed status for existing server', ['url' => $url]);
 			if (self::isDefunct($gserver)) {
-				Contact::update(['archive' => true], ['gsid' => $gserver['id']]);
+				self::archiveContacts($gserver['id']);
 			}
 			return;
 		}
@@ -416,6 +416,18 @@ class GServer
 			'network' => Protocol::PHANTOM, 'created' => DateTimeFormat::utcNow(),
 			'failed' => true, 'last_failure' => DateTimeFormat::utcNow()]);
 		Logger::info('Set failed status for new server', ['url' => $url]);
+	}
+
+	/**
+	 * Archive server related contacts and inboxes
+	 *
+	 * @param integer $gsid
+	 * @return void
+	 */
+	private static function archiveContacts(int $gsid)
+	{
+		Contact::update(['archive' => true], ['gsid' => $gsid]);
+		DBA::update('inbox-status', ['archive' => true], ['gsid' => $gsid]);
 	}
 
 	/**

@@ -226,14 +226,11 @@ class APContact
 		$apcontact['following'] = JsonLD::fetchElement($compacted, 'as:following', '@id');
 		$apcontact['followers'] = JsonLD::fetchElement($compacted, 'as:followers', '@id');
 		$apcontact['inbox'] = (JsonLD::fetchElement($compacted, 'ldp:inbox', '@id') ?? '');
-		self::unarchiveInbox($apcontact['inbox'], false);
-
 		$apcontact['outbox'] = JsonLD::fetchElement($compacted, 'as:outbox', '@id');
 
 		$apcontact['sharedinbox'] = '';
 		if (!empty($compacted['as:endpoints'])) {
 			$apcontact['sharedinbox'] = (JsonLD::fetchElement($compacted['as:endpoints'], 'as:sharedInbox', '@id') ?? '');
-			self::unarchiveInbox($apcontact['sharedinbox'], true);
 		}
 
 		$apcontact['featured']      = JsonLD::fetchElement($compacted, 'toot:featured', '@id');
@@ -427,6 +424,12 @@ class APContact
 			$apcontact['gsid'] = null;
 		}
 
+		self::unarchiveInbox($apcontact['inbox'], false, $apcontact['gsid']);
+
+		if (!empty($apcontact['sharedinbox'])) {
+			self::unarchiveInbox($apcontact['sharedinbox'], true, $apcontact['gsid']);
+		}
+
 		if ($apcontact['url'] == $apcontact['alias']) {
 			$apcontact['alias'] = null;
 		}
@@ -517,7 +520,7 @@ class APContact
 	{
 		if (!empty($apcontact['inbox'])) {
 			Logger::info('Set inbox status to failure', ['inbox' => $apcontact['inbox']]);
-			HTTPSignature::setInboxStatus($apcontact['inbox'], false);
+			HTTPSignature::setInboxStatus($apcontact['inbox'], false, false, $apcontact['gsid']);
 		}
 
 		if (!empty($apcontact['sharedinbox'])) {
@@ -527,7 +530,7 @@ class APContact
 			if (!$available) {
 				// If all known personal inboxes are failing then set their shared inbox to failure as well
 				Logger::info('Set shared inbox status to failure', ['sharedinbox' => $apcontact['sharedinbox']]);
-				HTTPSignature::setInboxStatus($apcontact['sharedinbox'], false, true);
+				HTTPSignature::setInboxStatus($apcontact['sharedinbox'], false, true, $apcontact['gsid']);
 			}
 		}
 	}
@@ -542,11 +545,11 @@ class APContact
 	{
 		if (!empty($apcontact['inbox'])) {
 			Logger::info('Set inbox status to success', ['inbox' => $apcontact['inbox']]);
-			HTTPSignature::setInboxStatus($apcontact['inbox'], true);
+			HTTPSignature::setInboxStatus($apcontact['inbox'], true, false, $apcontact['gsid']);
 		}
 		if (!empty($apcontact['sharedinbox'])) {
 			Logger::info('Set shared inbox status to success', ['sharedinbox' => $apcontact['sharedinbox']]);
-			HTTPSignature::setInboxStatus($apcontact['sharedinbox'], true, true);
+			HTTPSignature::setInboxStatus($apcontact['sharedinbox'], true, true, $apcontact['gsid']);
 		}
 	}
 
@@ -555,15 +558,16 @@ class APContact
 	 *
 	 * @param string  $url    inbox url
 	 * @param boolean $shared Shared Inbox
+	 * @param int     $gsid   Global server id
 	 * @return void
 	 */
-	private static function unarchiveInbox(string $url, bool $shared)
+	private static function unarchiveInbox(string $url, bool $shared, int $gsid = null)
 	{
 		if (empty($url)) {
 			return;
 		}
 
-		HTTPSignature::setInboxStatus($url, true, $shared);
+		HTTPSignature::setInboxStatus($url, true, $shared, $gsid);
 	}
 
 	/**
