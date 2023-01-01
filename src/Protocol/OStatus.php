@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -1551,7 +1551,7 @@ class OStatus
 
 			if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
 				$contact = Contact::getByURL($item['author-link']) ?: $owner;
-				$contact['nickname'] = $contact['nickname'] ?? $contact['nick']; 
+				$contact['nickname'] = $contact['nickname'] ?? $contact['nick'];
 				$author = self::addAuthor($doc, $contact, false);
 				$entry->appendChild($author);
 			}

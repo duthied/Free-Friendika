@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -54,7 +54,7 @@ class Unreblog extends BaseApi
 			if (empty($item['id'])) {
 				DI::mstdnError()->RecordNotFound();
 			}
-	
+
 			if (!Item::markForDeletionById($item['id'])) {
 				DI::mstdnError()->RecordNotFound();
 			}

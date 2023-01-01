@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -75,7 +75,7 @@ class Link
 		if (!empty($link['id'])) {
 			$id = $link['id'];
 			Logger::info('Found', ['id' => $id, 'uri-id' => $uriId, 'url' => $url]);
-		} else { 
+		} else {
 			$fields = self::fetchMimeType($url);
 			$fields['uri-id'] = $uriId;
 			$fields['url'] = $url;

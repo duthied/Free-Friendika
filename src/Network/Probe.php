@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -2220,7 +2220,7 @@ class Probe
 			$approfile = ActivityPub\Transmitter::getProfile($uid);
 
 			$split_name = Diaspora::splitName($owner['name']);
-	
+
 			if (empty($owner['gsid'])) {
 				$owner['gsid'] = GServer::getID($approfile['generator']['url']);
 			}
@@ -2257,7 +2257,7 @@ class Probe
 						'batch'        => $approfile['generator']['url'] . '/receive/public',
 						'notify'       => $owner['notify'],
 						'poll'         => $owner['poll'],
-						'poco'         => $owner['poco'],						
+						'poco'         => $owner['poco'],
 						'network'      => Protocol::DIASPORA,
 						'pubkey'       => $owner['upubkey'],
 					]
