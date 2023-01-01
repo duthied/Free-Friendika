@@ -38,6 +38,7 @@ use Friendica\Protocol\ActivityPub\Processor;
 use Friendica\Protocol\ActivityPub\Receiver;
 use Friendica\Util\JsonLD;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Uri;
 
 /**
  * These database-intensive post update routines are meant to be executed in the background by the cronjob.
@@ -115,6 +116,9 @@ class PostUpdate
 			return false;
 		}
 		if (!self::update1484()) {
+			return false;
+		}
+		if (!self::update1506()) {
 			return false;
 		}
 		if (!self::update1507()) {
@@ -1189,6 +1193,63 @@ class PostUpdate
 	}
 
 	/**
+	 * update the "gsid" (global server id) field in the contact table
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1506()
+	{
+		// Was the script completed?
+		if (DI::keyValue()->get('post_update_version') >= 1506) {
+			return true;
+		}
+
+		$id = DI::keyValue()->get('post_update_version_1506_id') ?? 0;
+
+		Logger::info('Start', ['contact' => $id]);
+
+		$start_id = $id;
+		$rows = 0;
+		$condition = ["`id` > ? AND `gsid` IS NULL AND `network` = ?", $id, Protocol::DIASPORA];
+		$params = ['order' => ['id'], 'limit' => 10000];
+		$contacts = DBA::select('contact', ['id', 'url'], $condition, $params);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($contact = DBA::fetch($contacts)) {
+			$id = $contact['id'];
+
+			$parts = parse_url($contact['url']);
+			unset($parts['path']);
+			$server = (string)Uri::fromParts($parts);
+		
+			DBA::update('contact',
+				['gsid' => GServer::getID($server, true), 'baseurl' => GServer::cleanURL($server)],
+				['id' => $contact['id']]);
+
+			++$rows;
+		}
+		DBA::close($contacts);
+
+		DI::keyValue()->set('post_update_version_1506_id', $id);
+
+		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
+
+		if ($start_id == $id) {
+			DI::keyValue()->set('post_update_version', 1506);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * update the "gsid" (global server id) field in the inbox-status table
 	 *
 	 * @return bool "true" when the job is done
@@ -1224,8 +1285,7 @@ class PostUpdate
 			if (!empty($apcontact['sharedinbox'])) {
 				$inbox[] = $apcontact['sharedinbox'];
 			}
-//			$condition = DBA::mergeConditions(['url' => $inbox], ["`gsid` IS NULL"]);
-			$condition = ['url' => $inbox];
+			$condition = DBA::mergeConditions(['url' => $inbox], ["`gsid` IS NULL"]);
 			DBA::update('inbox-status', ['gsid' => $apcontact['gsid'], 'archive' => GServer::isDefunctById($apcontact['gsid'])], $condition);
 			++$rows;
 		}
