@@ -164,16 +164,18 @@ class Cron
 	 */
 	private static function deliverAPPosts()
 	{
-		$deliveries = DBA::p("SELECT `item-uri`.`uri` AS `inbox`, MAX(`failed`) AS `failed` FROM `post-delivery` INNER JOIN `item-uri` ON `item-uri`.`id` = `post-delivery`.`inbox-id` GROUP BY `inbox` ORDER BY RAND()");
+		$deliveries = DBA::p("SELECT `item-uri`.`uri` AS `inbox`, MAX(`gsid`) AS `gsid`, MAX(`failed`) AS `failed` FROM `post-delivery` INNER JOIN `item-uri` ON `item-uri`.`id` = `post-delivery`.`inbox-id` LEFT JOIN `inbox-status` ON `inbox-status`.`url` = `item-uri`.`uri` GROUP BY `inbox` ORDER BY RAND()");
 		while ($delivery = DBA::fetch($deliveries)) {
 			if ($delivery['failed'] > 0) {
 				Logger::info('Removing failed deliveries', ['inbox' => $delivery['inbox'], 'failed' => $delivery['failed']]);
 				Post\Delivery::removeFailed($delivery['inbox']);
 			}
-
-			if ($delivery['failed'] == 0) {
+			if (($delivery['failed'] == 0) && !empty($delivery['gsid']) && GServer::isReachableById($delivery['gsid'])) {
 				$result = ActivityPub\Delivery::deliver($delivery['inbox']);
 				Logger::info('Directly deliver inbox', ['inbox' => $delivery['inbox'], 'result' => $result['success']]);
+				if (!$result['success']) {
+					GServer::setFailureById($delivery['gsid']);
+				}
 				continue;
 			} elseif ($delivery['failed'] < 3) {
 				$priority = Worker::PRIORITY_HIGH;
