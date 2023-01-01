@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -50,7 +50,7 @@ class Tag extends BaseApi
 		/**
 		 * @todo Respect missing parameters
 		 * @see https://github.com/tootsuite/mastodon/blob/main/app/controllers/api/v1/timelines/tag_controller.rb
-		 * 
+		 *
 		 * There seem to be the parameters "any", "all", and "none".
 		 */
 

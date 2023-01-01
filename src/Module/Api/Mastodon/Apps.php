@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -59,7 +59,7 @@ class Apps extends BaseApi
 				$request = array_merge($request, $postrequest);
 			}
 		}
-			
+
 		if (empty($request['client_name']) || empty($request['redirect_uris'])) {
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Missing parameters'));
 		}
