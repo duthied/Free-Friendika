@@ -35,6 +35,9 @@ class ConfigFileTransformerTest extends MockedTest
 			'extended' => [
 				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/B.node.config.php'),
 			],
+			'friendica.local' => [
+				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/C.node.config.php'),
+			],
 		];
 	}
 
