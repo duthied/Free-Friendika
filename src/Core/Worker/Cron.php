@@ -192,6 +192,8 @@ class Cron
 			}
 		}
 
+		DBA::close($deliveries);
+
 		// Optimizing this table only last seconds
 		if (DI::config()->get('system', 'optimize_tables')) {
 			Logger::info('Optimize start');
