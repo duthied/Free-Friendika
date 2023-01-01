@@ -42,6 +42,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Delivery;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
+use Friendica\Util\LDSignature;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
@@ -794,6 +795,7 @@ class Notifier
 			}
 
 			Logger::info('Origin item will be distributed', ['id' => $target_item['id'], 'url' => $target_item['uri'], 'verb' => $target_item['verb']]);
+			$check_signature = false;
 		} elseif (!Post\Activity::exists($target_item['uri-id'])) {
 			Logger::info('Remote item is no AP post. It will not be distributed.', ['id' => $target_item['id'], 'url' => $target_item['uri'], 'verb' => $target_item['verb']]);
 			return ['count' => 0, 'contacts' => []];
@@ -805,6 +807,7 @@ class Notifier
 			}
 
 			Logger::info('Remote item will be distributed', ['id' => $target_item['id'], 'url' => $target_item['uri'], 'verb' => $target_item['verb']]);
+			$check_signature = ($target_item['gravity'] == Item::GRAVITY_ACTIVITY); 
 		} else {
 			Logger::info('Remote activity will not be distributed', ['id' => $target_item['id'], 'url' => $target_item['uri'], 'verb' => $target_item['verb']]);
 			return ['count' => 0, 'contacts' => []];
@@ -816,9 +819,14 @@ class Notifier
 		}
 
 		// Fill the item cache
-		$cache = ActivityPub\Transmitter::createCachedActivityFromItem($target_item['id'], true);
-		if (empty($cache)) {
+		$activity = ActivityPub\Transmitter::createCachedActivityFromItem($target_item['id'], true);
+		if (empty($activity)) {
 			Logger::info('Item cache was not created. The post will not be distributed.', ['id' => $target_item['id'], 'url' => $target_item['uri'], 'verb' => $target_item['verb']]);
+			return ['count' => 0, 'contacts' => []];
+		}
+
+		if ($check_signature && !LDSignature::isSigned($activity)) {
+			Logger::info('Unsigned remote activity will not be distributed', ['id' => $target_item['id'], 'url' => $target_item['uri'], 'verb' => $target_item['verb']]);
 			return ['count' => 0, 'contacts' => []];
 		}
 
