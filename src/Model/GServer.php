@@ -360,13 +360,18 @@ class GServer
 	/**
 	 * Reset failed server status by gserver id
 	 *
-	 * @param int $gsid
+	 * @param int    $gsid
+	 * @param string $network
 	 */
-	public static function setReachableById(int $gsid)
+	public static function setReachableById(int $gsid, string $network)
 	{
-		$gserver = DBA::selectFirst('gserver', ['url', 'failed', 'next_contact'], ['id' => $gsid]);
+		$gserver = DBA::selectFirst('gserver', ['url', 'failed', 'next_contact', 'network'], ['id' => $gsid]);
 		if (DBA::isResult($gserver) && $gserver['failed']) {
-			self::update(['failed' => false, 'last_contact' => DateTimeFormat::utcNow()], ['id' => $gsid]);
+			$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow()];
+			if (!empty($network) && !in_array($gserver['network'], Protocol::FEDERATED)) {
+				$fields['network'] = $network;
+			}
+			self::update($fields, ['id' => $gsid]);
 			Logger::info('Reset failed status for server', ['url' => $gserver['url']]);
 
 			if (strtotime($gserver['next_contact']) < time()) {

@@ -22,11 +22,13 @@
 namespace Friendica\Util;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
+use Friendica\Model\GServer;
 use Friendica\Model\ItemURI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Capability\ICanHandleHttpResponses;
@@ -398,6 +400,14 @@ class HTTPSignature
 		}
 
 		DBA::update('inbox-status', $fields, ['url' => $url]);
+
+		if (!empty($status['gsid'])) {
+			if ($success) {
+				GServer::setReachableById($status['gsid'], Protocol::ACTIVITYPUB);
+			} elseif ($status['shared']) {
+				GServer::setFailureById($status['gsid']);
+			}
+		}
 	}
 
 	/**
