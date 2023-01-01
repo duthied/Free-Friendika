@@ -204,32 +204,31 @@ class Cron
 	 */
 	private static function deliverPosts()
 	{
-		$deliveries = DBA::p("SELECT `gsid`, MAX(`failed`) AS `failed` FROM `delivery-queue` GROUP BY `gsid` ORDER BY RAND()");
-		while ($delivery = DBA::fetch($deliveries)) {
-			if ($delivery['failed'] > 0) {
-				Logger::info('Removing failed deliveries', ['gsid' => $delivery['gsid'], 'failed' => $delivery['failed']]);
-				Delivery::removeFailedQueue($delivery['gsid']);
+		foreach(DI::deliveryQueueItemRepo()->selectAggregateByServerId() as $delivery) {
+			if ($delivery->failed > 0) {
+				Logger::info('Removing failed deliveries', ['gsid' => $delivery->targetServerId, 'failed' => $delivery->failed]);
+				DI::deliveryQueueItemRepo()->removeFailedByServerId($delivery->targetServerId, DI::config()->get('system', 'worker_defer_limit'));
 			}
 
-			if (($delivery['failed'] < 3) || GServer::isReachableById($delivery['gsid'])) {
+			if (($delivery->failed < 3) || GServer::isReachableById($delivery->targetServerId)) {
 				$priority = Worker::PRIORITY_HIGH;
-			} elseif ($delivery['failed'] < 6) {
+			} elseif ($delivery->failed < 6) {
 				$priority = Worker::PRIORITY_MEDIUM;
-			} elseif ($delivery['failed'] < 8) {
+			} elseif ($delivery->failed < 8) {
 				$priority = Worker::PRIORITY_LOW;
 			} else {
 				$priority = Worker::PRIORITY_NEGLIGIBLE;
 			}
 
-			if (Worker::add(['priority' => $priority, 'force_priority' => true], 'BulkDelivery', $delivery['gsid'])) {
-				Logger::info('Priority for BulkDelivery worker adjusted', ['gsid' => $delivery['gsid'], 'failed' => $delivery['failed'], 'priority' => $priority]);
+			if (Worker::add(['priority' => $priority, 'force_priority' => true], 'BulkDelivery', $delivery->targetServerId)) {
+				Logger::info('Priority for BulkDelivery worker adjusted', ['gsid' => $delivery->targetServerId, 'failed' => $delivery->failed, 'priority' => $priority]);
 			}
 		}
 
 		// Optimizing this table only last seconds
 		if (DI::config()->get('system', 'optimize_tables')) {
 			Logger::info('Optimize start');
-			DBA::e("OPTIMIZE TABLE `delivery-queue`");
+			DI::deliveryQueueItemRepo()->optimizeStorage();
 			Logger::info('Optimize end');
 		}
 	}
