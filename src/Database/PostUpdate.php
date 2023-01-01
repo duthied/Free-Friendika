@@ -1225,7 +1225,7 @@ class PostUpdate
 				$inbox[] = $apcontact['sharedinbox'];
 			}
 			$condition = DBA::mergeConditions(['url' => $inbox], ["`gsid` IS NULL"]);
-			DBA::update('inbox-status', ['gsid' => $apcontact['gsid']], $condition);
+			DBA::update('inbox-status', ['gsid' => $apcontact['gsid'], 'archive' => GServer::isDefunctById($apcontact['gsid'])], $condition);
 			++$rows;
 		}
 		DBA::close($apcontacts);
