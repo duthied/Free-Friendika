@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -141,7 +141,7 @@ class Cron
 				Worker::add(Worker::PRIORITY_LOW, 'CheckRelMeProfileLink', $user['uid']);
 			}
 			DBA::close($users);
-	
+
 			// Resubscribe to relay servers
 			Relay::reSubscribe();
 
@@ -161,7 +161,7 @@ class Cron
 	private static function deleteSleepingProcesses()
 	{
 		Logger::info('Looking for sleeping processes');
-		
+
 		$processes = DBA::p("SHOW FULL PROCESSLIST");
 		while ($process = DBA::fetch($processes)) {
 			if (($process['Command'] != 'Sleep') || ($process['Time'] < 300) || ($process['db'] != DBA::databaseName())) {

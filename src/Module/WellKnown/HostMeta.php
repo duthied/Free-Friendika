@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -84,7 +84,7 @@ class HostMeta extends BaseModule
 				'5:link' => [
 					'@attributes' => [
 						'rel'  => 'http://oexchange.org/spec/0.8/rel/resident-target',
-						'type' => 'application/xrd+xml', 
+						'type' => 'application/xrd+xml',
 						'href' => $domain . '/oexchange/xrd'
 					]
 				],
@@ -97,7 +97,7 @@ class HostMeta extends BaseModule
 				]
 			],
 		], $xml, false, ['hm' => 'http://host-meta.net/xrd/1.0', 'mk' => 'http://salmon-protocol.org/ns/magic-key']);
-		
+
 		System::httpExit($xml->saveXML(), Response::TYPE_XML, 'application/xrd+xml');
 	}
 }

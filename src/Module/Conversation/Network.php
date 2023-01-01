@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -413,7 +413,7 @@ class Network extends BaseModule
 		if (self::$groupId) {
 			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", self::$groupId]);
 		} elseif (self::$forumContactId) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings, 
+			$conditionStrings = DBA::mergeConditions($conditionStrings,
 				["((`contact-id` = ?) OR `uri-id` IN (SELECT `parent-uri-id` FROM `post-user-view` WHERE (`contact-id` = ? AND `gravity` = ? AND `vid` = ? AND `uid` = ?)))",
 				self::$forumContactId, self::$forumContactId, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), DI::userSession()->getLocalUserId()]);
 		}

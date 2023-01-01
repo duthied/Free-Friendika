@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -607,7 +607,7 @@ class Installer
 				$tls = true;
 			}
 		}
-		
+
 		if (!$tls) {
 			$help = DI::l10n()->t('The detection of TLS to secure the communication between the browser and the new Friendica server failed.');
 			$help .= ' ' . DI::l10n()->t('It is highly encouraged to use Friendica only over a secure connection as sensitive information like passwords will be transmitted.');

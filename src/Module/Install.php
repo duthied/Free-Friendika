@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -171,7 +171,7 @@ class Install extends BaseModule
 				}
 
 				$this->installer->installDatabase();
-			
+
 				// install allowed themes to register theme hooks
 				// this is same as "Reload active theme" in /admin/themes
 				$allowed_themes = Theme::getAllowedList();

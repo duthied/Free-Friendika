@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -568,7 +568,7 @@ class DBA
 	public static function buildCondition(array &$condition = []): string
 	{
 		$condition = self::collapseCondition($condition);
-		
+
 		$condition_string = '';
 		if (count($condition) > 0) {
 			$condition_string = " WHERE (" . array_shift($condition) . ")";

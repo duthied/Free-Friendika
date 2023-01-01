@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -175,7 +175,7 @@ final class Activity
 	const O_UNFAVOURITE = ActivityNamespace::OSTATUS . '/unfavorite';
 
 	/**
-	 * React to a post via an emoji 
+	 * React to a post via an emoji
 	 *
 	 * @var string
 	 */

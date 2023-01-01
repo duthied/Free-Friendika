@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -844,7 +844,7 @@ class Receiver
 					return false;
 				}
 				break;
-	
+
 			case 'as:Block':
 				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::blockAccount($object_data);
@@ -860,7 +860,7 @@ class Receiver
 					return false;
 				}
 				break;
-	
+
 			case 'as:Remove':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::removeFromFeaturedCollection($object_data);
