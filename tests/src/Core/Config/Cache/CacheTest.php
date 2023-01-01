@@ -21,7 +21,7 @@
 
 namespace Friendica\Test\src\Core\Config\Cache;
 
-use Friendica\Core\Config\Cache;
+use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Test\MockedTest;
 use ParagonIE\HiddenString\HiddenString;
 use stdClass;
@@ -49,7 +49,7 @@ class CacheTest extends MockedTest
 		];
 	}
 
-	private function assertConfigValues($data, \Friendica\Core\Config\ValueObject\Cache $configCache)
+	private function assertConfigValues($data, Cache $configCache)
 	{
 		foreach ($data as $cat => $values) {
 			foreach ($values as $key => $value) {
@@ -64,7 +64,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testLoadConfigArray($data)
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 		$configCache->load($data);
 
 		self::assertConfigValues($data, $configCache);
@@ -83,27 +83,27 @@ class CacheTest extends MockedTest
 			]
 		];
 
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
-		$configCache->load($data, \Friendica\Core\Config\ValueObject\Cache::SOURCE_DB);
+		$configCache = new Cache();
+		$configCache->load($data, Cache::SOURCE_DATA);
 		// doesn't override - Low Priority due Config file
-		$configCache->load($override, \Friendica\Core\Config\ValueObject\Cache::SOURCE_FILE);
+		$configCache->load($override, Cache::SOURCE_FILE);
 
 		self::assertConfigValues($data, $configCache);
 
 		// override the value - High Prio due Server Env
-		$configCache->load($override, \Friendica\Core\Config\ValueObject\Cache::SOURCE_ENV);
+		$configCache->load($override, Cache::SOURCE_ENV);
 
 		self::assertEquals($override['system']['test'], $configCache->get('system', 'test'));
 		self::assertEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
 
 		// Don't overwrite server ENV variables - even in load mode
-		$configCache->load($data, \Friendica\Core\Config\ValueObject\Cache::SOURCE_DB);
+		$configCache->load($data, Cache::SOURCE_DATA);
 
 		self::assertEquals($override['system']['test'], $configCache->get('system', 'test'));
 		self::assertEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
 
 		// Overwrite ENV variables with ENV variables
-		$configCache->load($data, \Friendica\Core\Config\ValueObject\Cache::SOURCE_ENV);
+		$configCache->load($data, Cache::SOURCE_ENV);
 
 		self::assertConfigValues($data, $configCache);
 		self::assertNotEquals($override['system']['test'], $configCache->get('system', 'test'));
@@ -115,7 +115,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testLoadConfigArrayWrong()
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		// empty dataset
 		$configCache->load([]);
@@ -136,7 +136,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testGetAll($data)
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 		$configCache->load($data);
 
 		$all = $configCache->getAll();
@@ -151,7 +151,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testSetGet($data)
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		foreach ($data as $cat => $values) {
 			foreach ($values as $key => $value) {
@@ -167,7 +167,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testGetEmpty()
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		self::assertNull($configCache->get('something', 'value'));
 	}
@@ -177,7 +177,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testGetCat()
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache([
+		$configCache = new Cache([
 			'system' => [
 				'key1' => 'value1',
 				'key2' => 'value2',
@@ -205,7 +205,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testDelete($data)
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache($data);
+		$configCache = new Cache($data);
 
 		foreach ($data as $cat => $values) {
 			foreach ($values as $key => $value) {
@@ -222,7 +222,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testKeyDiffWithResult($data)
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache($data);
+		$configCache = new Cache($data);
 
 		$diffConfig = [
 			'fakeCat' => [
@@ -239,7 +239,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testKeyDiffWithoutResult($data)
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache($data);
+		$configCache = new Cache($data);
 
 		$diffConfig = $configCache->getAll();
 
@@ -251,7 +251,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testPasswordHide()
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache([
+		$configCache = new Cache([
 			'database' => [
 				'password' => 'supersecure',
 				'username' => 'notsecured',
@@ -268,7 +268,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testPasswordShow()
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache([
+		$configCache = new Cache([
 			'database' => [
 				'password' => 'supersecure',
 				'username' => 'notsecured',
@@ -285,7 +285,7 @@ class CacheTest extends MockedTest
 	 */
 	public function testEmptyPassword()
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache([
+		$configCache = new Cache([
 			'database' => [
 				'password' => '',
 				'username' => '',
@@ -299,7 +299,7 @@ class CacheTest extends MockedTest
 
 	public function testWrongTypePassword()
 	{
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache([
+		$configCache = new Cache([
 			'database' => [
 				'password' => new stdClass(),
 				'username' => '',
@@ -309,7 +309,7 @@ class CacheTest extends MockedTest
 		self::assertNotEmpty($configCache->get('database', 'password'));
 		self::assertEmpty($configCache->get('database', 'username'));
 
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache([
+		$configCache = new Cache([
 			'database' => [
 				'password' => 23,
 				'username' => '',
@@ -327,19 +327,35 @@ class CacheTest extends MockedTest
 	public function testSetOverrides($data)
 	{
 
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
-		$configCache->load($data, \Friendica\Core\Config\ValueObject\Cache::SOURCE_DB);
+		$configCache = new Cache();
+		$configCache->load($data, Cache::SOURCE_DATA);
 
 		// test with wrong override
-		self::assertFalse($configCache->set('system', 'test', '1234567', \Friendica\Core\Config\ValueObject\Cache::SOURCE_FILE));
+		self::assertFalse($configCache->set('system', 'test', '1234567', Cache::SOURCE_FILE));
 		self::assertEquals($data['system']['test'], $configCache->get('system', 'test'));
 
 		// test with override (equal)
-		self::assertTrue($configCache->set('system', 'test', '8910', \Friendica\Core\Config\ValueObject\Cache::SOURCE_DB));
+		self::assertTrue($configCache->set('system', 'test', '8910', Cache::SOURCE_DATA));
 		self::assertEquals('8910', $configCache->get('system', 'test'));
 
 		// test with override (over)
-		self::assertTrue($configCache->set('system', 'test', '111213', \Friendica\Core\Config\ValueObject\Cache::SOURCE_ENV));
+		self::assertTrue($configCache->set('system', 'test', '111213', Cache::SOURCE_ENV));
 		self::assertEquals('111213', $configCache->get('system', 'test'));
+	}
+
+	/**
+	 * @dataProvider dataTests
+	 *
+	 * @return void
+	 */
+	public function testSetData($data)
+	{
+		$configCache = new Cache();
+		$configCache->load($data, Cache::SOURCE_FILE);
+
+		$configCache->set('system', 'test_2','with_data', Cache::SOURCE_DATA);
+
+		$this->assertEquals(['system' => ['test_2' => 'with_data']], $configCache->getDataBySource(Cache::SOURCE_DATA));
+		$this->assertEquals($data, $configCache->getDataBySource(Cache::SOURCE_FILE));
 	}
 }
