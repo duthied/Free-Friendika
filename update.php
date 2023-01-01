@@ -1148,6 +1148,10 @@ function update_1502()
 
 function update_1505()
 {
+	if (!DBStructure::existsTable('config')) {
+		return Update::SUCCESS;
+	}
+
 	$conditions = [
 		"((`cat`  = ?) AND ((`k` LIKE ?) OR (`k` = ?) OR (`k` LIKE ?) OR (`k` = ?))) OR " .
 		"((`cat` != ?) AND  (`k` LIKE ?)) OR " .
