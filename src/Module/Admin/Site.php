@@ -211,19 +211,19 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'touch_icon'            , $touch_icon, false);
 
 		if ($banner == "") {
-			DI::config()->set('system', 'banner', false);
+			DI::config()->delete('system', 'banner', false);
 		} else {
 			DI::config()->set('system', 'banner', $banner, false);
 		}
 
 		if (empty($email_banner)) {
-			DI::config()->set('system', 'email_banner', false);
+			DI::config()->delete('system', 'email_banner', false);
 		} else {
 			DI::config()->set('system', 'email_banner', $email_banner, false);
 		}
 
 		if (empty($additional_info)) {
-			DI::config()->set('config', 'info', false);
+			DI::config()->delete('config', 'info', false);
 		} else {
 			DI::config()->set('config', 'info', $additional_info, false);
 		}
@@ -232,12 +232,12 @@ class Site extends BaseAdmin
 		Theme::install($theme);
 
 		if ($theme_mobile == '---') {
-			DI::config()->set('system', 'mobile-theme', false);
+			DI::config()->delete('system', 'mobile-theme', false);
 		} else {
 			DI::config()->set('system', 'mobile-theme', $theme_mobile, false);
 		}
 		if ($singleuser == '---') {
-			DI::config()->set('system', 'singleuser', false);
+			DI::config()->delete('system', 'singleuser', false);
 		} else {
 			DI::config()->set('system', 'singleuser', $singleuser, false);
 		}
