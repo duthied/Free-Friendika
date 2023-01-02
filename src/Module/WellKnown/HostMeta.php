@@ -48,7 +48,6 @@ class HostMeta extends BaseModule
 
 		$domain = DI::baseUrl()->get();
 
-		$xml = null;
 		XML::fromArray([
 			'XRD' => [
 				'@attributes' => [
@@ -79,13 +78,6 @@ class HostMeta extends BaseModule
 					'@attributes' => [
 						'rel'  => 'http://services.mozilla.com/amcd/0.1',
 						'href' => $domain . '/amcd'
-					]
-				],
-				'5:link' => [
-					'@attributes' => [
-						'rel'  => 'http://oexchange.org/spec/0.8/rel/resident-target',
-						'type' => 'application/xrd+xml',
-						'href' => $domain . '/oexchange/xrd'
 					]
 				],
 				'Property' => [

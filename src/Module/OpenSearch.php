@@ -43,8 +43,6 @@ class OpenSearch extends BaseModule
 		$baseUrl  = DI::baseUrl()->get();
 
 		/** @var DOMDocument $xml */
-		$xml = null;
-
 		XML::fromArray([
 			'OpenSearchDescription' => [
 				'@attributes' => [
