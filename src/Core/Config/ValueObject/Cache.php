@@ -212,13 +212,10 @@ class Cache
 			return null;
 		}
 
-		switch (true) {
-			// manage array value
-			case preg_match("|^a:[0-9]+:{.*}$|s", $value):
-				return unserialize($value);
-
-			default:
-				return $value;
+		if (preg_match("|^a:[0-9]+:{.*}$|s", $value)) {
+			return unserialize($value);
+		} else {
+			return $value;
 		}
 	}
 

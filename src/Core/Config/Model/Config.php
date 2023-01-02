@@ -32,9 +32,7 @@ use Friendica\Core\Config\ValueObject\Cache;
  */
 class Config implements IManageConfigValues
 {
-	/**
-	 * @var Cache
-	 */
+	/** @var Cache */
 	protected $configCache;
 
 	/** @var ConfigFileManager */

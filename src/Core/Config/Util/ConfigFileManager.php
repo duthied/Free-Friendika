@@ -401,7 +401,7 @@ class ConfigFileManager
 	private function loadConfigFile(string $filepath): array
 	{
 		if (file_exists($filepath)) {
-			$config = include($filepath);
+			$config = include $filepath;
 
 			if (!is_array($config)) {
 				throw new ConfigFileException('Error loading config file ' . $filepath);
