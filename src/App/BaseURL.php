@@ -177,7 +177,7 @@ class BaseURL
 		$currURLPath   = $this->urlPath;
 
 		if (!empty($hostname) && $hostname !== $this->hostname) {
-			if ($this->config->set('config', 'hostname', $hostname, false)) {
+			if ($this->config->set('config', 'hostname', $hostname)) {
 				$this->hostname = $hostname;
 			} else {
 				return false;
@@ -185,44 +185,39 @@ class BaseURL
 		}
 
 		if (isset($sslPolicy) && $sslPolicy !== $this->sslPolicy) {
-			if ($this->config->set('system', 'ssl_policy', $sslPolicy, false)) {
+			if ($this->config->set('system', 'ssl_policy', $sslPolicy)) {
 				$this->sslPolicy = $sslPolicy;
 			} else {
 				$this->hostname = $currHostname;
-				$this->config->set('config', 'hostname', $this->hostname, false);
-				$this->config->save();
+				$this->config->set('config', 'hostname', $this->hostname);
 				return false;
 			}
 		}
 
 		if (isset($urlPath) && $urlPath !== $this->urlPath) {
-			if ($this->config->set('system', 'urlpath', $urlPath, false)) {
+			if ($this->config->set('system', 'urlpath', $urlPath)) {
 				$this->urlPath = $urlPath;
 			} else {
 				$this->hostname  = $currHostname;
 				$this->sslPolicy = $currSSLPolicy;
-				$this->config->set('config', 'hostname', $this->hostname, false);
-				$this->config->set('system', 'ssl_policy', $this->sslPolicy, false);
-				$this->config->save();
+				$this->config->set('config', 'hostname', $this->hostname);
+				$this->config->set('system', 'ssl_policy', $this->sslPolicy);
 				return false;
 			}
 		}
 
 		$this->determineBaseUrl();
-		if (!$this->config->set('system', 'url', $this->url, false)) {
+		if (!$this->config->set('system', 'url', $this->url)) {
 			$this->hostname  = $currHostname;
 			$this->sslPolicy = $currSSLPolicy;
 			$this->urlPath   = $currURLPath;
 			$this->determineBaseUrl();
 
-			$this->config->set('config', 'hostname', $this->hostname, false);
-			$this->config->set('system', 'ssl_policy', $this->sslPolicy, false);
-			$this->config->set('system', 'urlpath', $this->urlPath, false);
-			$this->config->save();
+			$this->config->set('config', 'hostname', $this->hostname);
+			$this->config->set('system', 'ssl_policy', $this->sslPolicy);
+			$this->config->set('system', 'urlpath', $this->urlPath);
 			return false;
 		}
-
-		$this->config->save();
 
 		return true;
 	}
@@ -300,21 +295,17 @@ class BaseURL
 		$this->sslPolicy = $this->config->get('system', 'ssl_policy');
 		$this->url       = $this->config->get('system', 'url');
 
-		$savable = false;
-
 		if (empty($this->hostname)) {
 			$this->determineHostname();
 
 			if (!empty($this->hostname)) {
-				$this->config->set('config', 'hostname', $this->hostname, false);
-				$savable = true;
+				$this->config->set('config', 'hostname', $this->hostname);
 			}
 		}
 
 		if (!isset($this->urlPath)) {
 			$this->determineURLPath();
-			$this->config->set('system', 'urlpath', $this->urlPath, false);
-			$savable = true;
+			$this->config->set('system', 'urlpath', $this->urlPath);
 		}
 
 		if (!isset($this->sslPolicy)) {
@@ -323,21 +314,15 @@ class BaseURL
 			} else {
 				$this->sslPolicy = self::DEFAULT_SSL_SCHEME;
 			}
-			$this->config->set('system', 'ssl_policy', $this->sslPolicy, false);
-			$savable = true;
+			$this->config->set('system', 'ssl_policy', $this->sslPolicy);
 		}
 
 		if (empty($this->url)) {
 			$this->determineBaseUrl();
 
 			if (!empty($this->url)) {
-				$this->config->set('system', 'url', $this->url, false);
-				$savable = true;
+				$this->config->set('system', 'url', $this->url);
 			}
-		}
-
-		if ($savable) {
-			$this->config->save();
 		}
 	}
 
