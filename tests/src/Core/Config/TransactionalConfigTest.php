@@ -1,6 +1,7 @@
 <?php
 
 namespace Friendica\Test\src\Core\Config;
+
 use Friendica\Core\Config\Capability\ISetConfigValuesTransactional;
 use Friendica\Core\Config\Model\Config;
 use Friendica\Core\Config\Model\TransactionalConfig;
@@ -36,7 +37,7 @@ class TransactionalConfigTest extends MockedTest
 
 	public function testInstance()
 	{
-		$config = new Config($this->configFileManager, new Cache());
+		$config              = new Config($this->configFileManager, new Cache());
 		$transactionalConfig = new TransactionalConfig($config);
 
 		self::assertInstanceOf(ISetConfigValuesTransactional::class, $transactionalConfig);
