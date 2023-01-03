@@ -58,7 +58,8 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	 *
 	 * @throws ConfigPersistenceException In case the persistence layer throws errors
 	 *
-	 */	public function get(string $cat, string $key)
+	 */
+	public function get(string $cat, string $key)
 	{
 		return !$this->delCache->get($cat, $key) ?
 			($this->cache->get($cat, $key) ?? $this->config->get($cat, $key)) :
