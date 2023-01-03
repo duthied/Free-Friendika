@@ -358,4 +358,52 @@ class CacheTest extends MockedTest
 		$this->assertEquals(['system' => ['test_2' => 'with_data']], $configCache->getDataBySource(Cache::SOURCE_DATA));
 		$this->assertEquals($data, $configCache->getDataBySource(Cache::SOURCE_FILE));
 	}
+
+	/**
+	 * @dataProvider dataTests
+	 */
+	public function testMerge($data)
+	{
+		$configCache = new Cache();
+		$configCache->load($data, Cache::SOURCE_FILE);
+
+		$configCache->set('system', 'test_2','with_data', Cache::SOURCE_DATA);
+		$configCache->set('config', 'test_override','with_another_data', Cache::SOURCE_DATA);
+
+		$newCache = new Cache();
+		$newCache->set('config', 'test_override','override it again', Cache::SOURCE_DATA);
+		$newCache->set('system', 'test_3','new value', Cache::SOURCE_DATA);
+
+		$mergedCache = $configCache->merge($newCache);
+
+		self::assertEquals('with_data', $mergedCache->get('system', 'test_2'));
+		self::assertEquals('override it again', $mergedCache->get('config', 'test_override'));
+		self::assertEquals('new value', $mergedCache->get('system', 'test_3'));
+	}
+
+	/**
+	 * @dataProvider dataTests
+	 */
+	public function testDiff($data)
+	{
+		$configCache = new Cache();
+		$configCache->load($data, Cache::SOURCE_FILE);
+
+		$configCache->set('system', 'test_2','with_data', Cache::SOURCE_DATA);
+		$configCache->set('config', 'test_override','with_another_data', Cache::SOURCE_DATA);
+
+		$newCache = new Cache();
+		$newCache->set('config', 'test_override','override it again', Cache::SOURCE_DATA);
+		$newCache->set('system', 'test_3','new value', Cache::SOURCE_DATA);
+
+		$mergedCache = $configCache->diff($newCache);
+
+		print_r($mergedCache);
+
+		self::assertEquals('with_data', $mergedCache->get('system', 'test_2'));
+		// existing entry was dropped
+		self::assertNull($mergedCache->get('config', 'test_override'));
+		// the newCache entry wasn't set, because we Diff
+		self::assertNull($mergedCache->get('system', 'test_3'));
+	}
 }

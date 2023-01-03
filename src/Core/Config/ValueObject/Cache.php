@@ -279,4 +279,71 @@ class Cache
 
 		return $return;
 	}
+
+	/**
+	 * Merges a new Cache into the existing one and returns the merged Cache
+	 *
+	 * @param Cache $cache The cache, which should get merged into this Cache
+	 *
+	 * @return Cache The merged Cache
+	 */
+	public function merge(Cache $cache): Cache
+	{
+		$newConfig = $this->config;
+		$newSource = $this->source;
+
+		$categories = array_keys($cache->config);
+
+		foreach ($categories as $category) {
+			if (is_array($cache->config[$category])) {
+				$keys = array_keys($cache->config[$category]);
+
+				foreach ($keys as $key) {
+					$newConfig[$category][$key] = $cache->config[$category][$key];
+					$newSource[$category][$key] = $cache->source[$category][$key];
+				}
+			}
+		}
+
+		$newCache = new Cache();
+		$newCache->config = $newConfig;
+		$newCache->source = $newSource;
+
+		return $newCache;
+	}
+
+
+	/**
+	 * Diffs a new Cache into the existing one and returns the diffed Cache
+	 *
+	 * @param Cache $cache The cache, which should get deleted for the current Cache
+	 *
+	 * @return Cache The diffed Cache
+	 */
+	public function diff(Cache $cache): Cache
+	{
+		$newConfig = $this->config;
+		$newSource = $this->source;
+
+		$categories = array_keys($cache->config);
+
+		foreach ($categories as $category) {
+			if (is_array($cache->config[$category])) {
+				$keys = array_keys($cache->config[$category]);
+
+				foreach ($keys as $key) {
+					if (!is_null($newConfig[$category][$key] ?? null)) {
+						unset($newConfig[$category][$key]);
+						unset($newSource[$category][$key]);
+					}
+				}
+			}
+		}
+
+		$newCache = new Cache();
+		$newCache->config = $newConfig;
+		$newCache->source = $newSource;
+
+		return $newCache;
+	}
 }

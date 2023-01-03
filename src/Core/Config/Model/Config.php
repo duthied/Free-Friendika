@@ -22,6 +22,7 @@
 namespace Friendica\Core\Config\Model;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\Config\Capability\ISetConfigValuesTransactional;
 use Friendica\Core\Config\Exception\ConfigFileException;
 use Friendica\Core\Config\Exception\ConfigPersistenceException;
 use Friendica\Core\Config\Util\ConfigFileManager;
@@ -61,8 +62,17 @@ class Config implements IManageConfigValues
 		return $this->configCache;
 	}
 
-	/** {@inheritDoc} */
-	public function save()
+	/**	{@inheritDoc} */
+	public function transactional(): ISetConfigValuesTransactional
+	{
+		return new TransactionalConfig($this);
+	}
+
+	/**
+	 * Saves the current Configuration back into the data config.
+	 * @see ConfigFileManager::CONFIG_DATA_FILE
+	 */
+	protected function save()
 	{
 		try {
 			$this->configFileManager->saveData($this->configCache);
@@ -85,32 +95,37 @@ class Config implements IManageConfigValues
 	}
 
 	/** {@inheritDoc} */
+	public function load(Cache $cache)
+	{
+		$this->configCache = $cache;
+		$this->save();
+	}
+
+	/** {@inheritDoc} */
 	public function get(string $cat, string $key, $default_value = null)
 	{
 		return $this->configCache->get($cat, $key) ?? $default_value;
 	}
 
 	/** {@inheritDoc} */
-	public function set(string $cat, string $key, $value, bool $autosave = true): bool
+	public function set(string $cat, string $key, $value): bool
 	{
-		$stored = $this->configCache->set($cat, $key, $value, Cache::SOURCE_DATA);
-
-		if ($stored && $autosave) {
+		if ($this->configCache->set($cat, $key, $value, Cache::SOURCE_DATA)) {
 			$this->save();
+			return true;
+		} else {
+			return false;
 		}
-
-		return $stored;
 	}
 
 	/** {@inheritDoc} */
-	public function delete(string $cat, string $key, bool $autosave = true): bool
+	public function delete(string $cat, string $key): bool
 	{
-		$removed = $this->configCache->delete($cat, $key);
-
-		if ($removed && $autosave) {
+		if ($this->configCache->delete($cat, $key)) {
 			$this->save();
+			return true;
+		} else {
+			return false;
 		}
-
-		return $removed;
 	}
 }

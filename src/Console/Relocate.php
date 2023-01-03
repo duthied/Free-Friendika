@@ -189,9 +189,10 @@ HELP;
 			return 1;
 		} finally {
 			$this->out('Leaving maintenance mode');
-			$this->config->set('system', 'maintenance', false, false);
-			$this->config->set('system', 'maintenance_reason', '', false);
-			$this->config->save();
+			$this->config->transactional()
+						 ->set('system', 'maintenance', false)
+						 ->delete('system', 'maintenance_reason')
+						 ->save();
 		}
 
 		// send relocate

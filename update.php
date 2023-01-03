@@ -1184,11 +1184,13 @@ function update_1508()
 {
 	$config = DBA::selectToArray('config');
 
+	$newConfig = DI::config()->transactional();
+
 	foreach ($config as $entry) {
-		DI::config()->set($entry['cat'], $entry['k'], $entry['v'], false);
+		$newConfig->set($entry['cat'], $entry['k'], $entry['v']);
 	}
 
-	DI::config()->save();
+	$newConfig->save();
 
 	DBA::e("DELETE FROM `config`");
 }

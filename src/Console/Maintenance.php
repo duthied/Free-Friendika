@@ -100,17 +100,19 @@ HELP;
 
 		$enabled = intval($this->getArgument(0));
 
-		$this->config->set('system', 'maintenance', $enabled, false);
+		$transactionConfig = $this->config->transactional();
+
+		$transactionConfig->set('system', 'maintenance', $enabled);
 
 		$reason = $this->getArgument(1);
 
 		if ($enabled && $this->getArgument(1)) {
-			$this->config->set('system', 'maintenance_reason', $this->getArgument(1), false);
+			$transactionConfig->set('system', 'maintenance_reason', $this->getArgument(1));
 		} else {
-			$this->config->set('system', 'maintenance_reason', '', false);
+			$transactionConfig->delete('system', 'maintenance_reason');
 		}
 
-		$this->config->save();
+		$transactionConfig->save();
 
 		if ($enabled) {
 			$mode_str = "maintenance mode";

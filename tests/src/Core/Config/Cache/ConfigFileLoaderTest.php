@@ -21,8 +21,8 @@
 
 namespace Friendica\Test\src\Core\Config\Cache;
 
-use Friendica\Core\Config\Cache;
 use Friendica\Core\Config\Factory\Config;
+use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Core\Config\Util\ConfigFileManager;
@@ -51,7 +51,7 @@ class ConfigFileLoaderTest extends MockedTest
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -77,7 +77,7 @@ class ConfigFileLoaderTest extends MockedTest
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 	}
@@ -106,7 +106,7 @@ class ConfigFileLoaderTest extends MockedTest
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -143,7 +143,7 @@ class ConfigFileLoaderTest extends MockedTest
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -179,7 +179,7 @@ class ConfigFileLoaderTest extends MockedTest
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -270,7 +270,7 @@ class ConfigFileLoaderTest extends MockedTest
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -304,7 +304,7 @@ class ConfigFileLoaderTest extends MockedTest
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -338,7 +338,7 @@ class ConfigFileLoaderTest extends MockedTest
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -354,7 +354,7 @@ class ConfigFileLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$configFileLoader = (new Config())->createConfigFileLoader($this->root->url(), ['FRIENDICA_CONFIG_DIR' => '/a/wrong/dir/']);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -380,7 +380,7 @@ class ConfigFileLoaderTest extends MockedTest
 				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
 
 		$configFileLoader = (new Config())->createConfigFileLoader($this->root->url(), ['FRIENDICA_CONFIG_DIR' => $this->root->getChild('config2')->url()]);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -403,18 +403,18 @@ class ConfigFileLoaderTest extends MockedTest
 				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
 
 		$configFileLoader = (new Config())->createConfigFileLoader($this->root->url(), ['FRIENDICA_CONFIG_DIR' => $this->root->getChild('config2')->url()]);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
 		// overwrite some data and save it back to the config file
-		$configCache->set('system', 'test', 'it', \Friendica\Core\Config\ValueObject\Cache::SOURCE_DATA);
-		$configCache->set('config', 'test', 'it', \Friendica\Core\Config\ValueObject\Cache::SOURCE_DATA);
-		$configCache->set('system', 'test_2', 2, \Friendica\Core\Config\ValueObject\Cache::SOURCE_DATA);
+		$configCache->set('system', 'test', 'it', Cache::SOURCE_DATA);
+		$configCache->set('config', 'test', 'it', Cache::SOURCE_DATA);
+		$configCache->set('system', 'test_2', 2, Cache::SOURCE_DATA);
 		$configFileLoader->saveData($configCache);
 
 		// Reload the configCache with the new values
-		$configCache2 = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache2 = new Cache();
 		$configFileLoader->setupCache($configCache2);
 
 		self::assertEquals($configCache, $configCache2);
@@ -425,6 +425,6 @@ class ConfigFileLoaderTest extends MockedTest
 			],
 			'config' => [
 				'test' => 'it'
-			]], $configCache2->getDataBySource(\Friendica\Core\Config\ValueObject\Cache::SOURCE_DATA));
+			]], $configCache2->getDataBySource(Cache::SOURCE_DATA));
 	}
 }
