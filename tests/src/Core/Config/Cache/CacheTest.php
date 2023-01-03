@@ -410,4 +410,133 @@ class CacheTest extends MockedTest
 		// the newCache entry wasn't set, because we Diff
 		self::assertNull($mergedCache->get('system', 'test_3'));
 	}
+
+	public function dataTestCat()
+	{
+		return [
+			'test_with_hashmap'     => [
+				'data'      => [
+					'test_with_hashmap' => [
+						'notifyall' => [
+							'last_update' => 1671051565,
+							'admin'       => true,
+						],
+						'blockbot'  => [
+							'last_update' => 1658952852,
+							'admin'       => true,
+						],
+					],
+					'config'            => [
+						'register_policy' => 2,
+						'register_text'   => '',
+						'sitename'        => 'Friendica Social Network23',
+						'hostname'        => 'friendica.local',
+						'private_addons'  => false,
+					],
+					'system'            => [
+						'dbclean_expire_conversation' => 90,
+					],
+				],
+				'cat'       => 'test_with_hashmap',
+				'assertion' => [
+					'notifyall' => [
+						'last_update' => 1671051565,
+						'admin'       => true,
+					],
+					'blockbot'  => [
+						'last_update' => 1658952852,
+						'admin'       => true,
+					],
+				],
+			],
+			'test_with_keys'        => [
+				'data'      => [
+					'test_with_keys' => [
+						[
+							'last_update' => 1671051565,
+							'admin'       => true,
+						],
+						[
+							'last_update' => 1658952852,
+							'admin'       => true,
+						],
+					],
+					'config'            => [
+						'register_policy' => 2,
+						'register_text'   => '',
+						'sitename'        => 'Friendica Social Network23',
+						'hostname'        => 'friendica.local',
+						'private_addons'  => false,
+					],
+					'system'            => [
+						'dbclean_expire_conversation' => 90,
+					],
+				],
+				'cat'       => 'test_with_keys',
+				'assertion' => [
+					[
+						'last_update' => 1671051565,
+						'admin'       => true,
+					],
+					[
+						'last_update' => 1658952852,
+						'admin'       => true,
+					],
+				],
+			],
+			'test_with_inner_array' => [
+				'data'      => [
+					'test_with_inner_array' => [
+						'notifyall' => [
+							'last_update' => 1671051565,
+							'admin'       => [
+								'yes' => true,
+								'no'  => 1.5,
+							],
+						],
+						'blogbot'   => [
+							'last_update' => 1658952852,
+							'admin'       => true,
+						],
+					],
+					'config'                => [
+						'register_policy' => 2,
+						'register_text'   => '',
+						'sitename'        => 'Friendica Social Network23',
+						'hostname'        => 'friendica.local',
+						'private_addons'  => false,
+					],
+					'system'                => [
+						'dbclean_expire_conversation' => 90,
+					],
+				],
+				'cat'       => 'test_with_inner_array',
+				'assertion' => [
+					'notifyall' => [
+						'last_update' => 1671051565,
+						'admin'       => [
+							'yes' => true,
+							'no'  => 1.5,
+						],
+					],
+					'blogbot'   => [
+						'last_update' => 1658952852,
+						'admin'       => true,
+					],
+				],
+			],
+		];
+	}
+
+	/**
+	 * Tests that the Cache can return a whole category at once
+	 *
+	 * @dataProvider dataTestCat
+	 */
+	public function testGetCategory(array $data, string $category, array $assertion)
+	{
+		$cache = new Cache($data);
+
+		self::assertEquals($assertion, $cache->get($category));
+	}
 }

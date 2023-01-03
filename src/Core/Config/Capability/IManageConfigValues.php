@@ -47,8 +47,8 @@ interface IManageConfigValues
 	 *
 	 * Get a particular config value from the given category ($cat)
 	 *
-	 * @param string  $cat        The category of the configuration value
-	 * @param string  $key           The configuration key to query
+	 * @param string  $cat           The category of the configuration value
+	 * @param ?string $key           The configuration key to query (if null, the whole array at the category will get returned)
 	 * @param mixed   $default_value Deprecated, use `Config->get($cat, $key, null, $refresh) ?? $default_value` instead
 	 *
 	 * @return mixed Stored value or null if it does not exist
@@ -56,7 +56,7 @@ interface IManageConfigValues
 	 * @throws ConfigPersistenceException In case the persistence layer throws errors
 	 *
 	 */
-	public function get(string $cat, string $key, $default_value = null);
+	public function get(string $cat, string $key = null, $default_value = null);
 
 	/**
 	 * Load all configuration values from a given cache and saves it back in the configuration node store
