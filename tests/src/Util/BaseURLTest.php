@@ -231,6 +231,21 @@ class BaseURLTest extends MockedTest
 	public function dataSave()
 	{
 		return [
+			'no_change' => [
+				'input' => [
+					'hostname'  => 'friendica.local',
+					'urlPath'   => 'path',
+					'sslPolicy' => BaseURL::SSL_POLICY_FULL,
+					'url'       => 'https://friendica.local/path',
+					'force_ssl' => true,
+				],
+				'save' => [
+					'hostname'  => 'friendica.local',
+					'urlPath'   => 'path',
+					'sslPolicy' => BaseURL::SSL_POLICY_FULL,
+				],
+				'url' => 'https://friendica.local/path',
+			],
 			'default' => [
 				'input' => [
 					'hostname'  => 'friendica.old',
@@ -324,19 +339,21 @@ class BaseURLTest extends MockedTest
 
 		$baseUrl = new BaseURL($configMock, []);
 
-		if (isset($save['hostname'])) {
+		if (isset($save['hostname']) && ($save['hostname'] !== $input['hostname'])) {
 			$configMock->shouldReceive('set')->with('config', 'hostname', $save['hostname'])->andReturn(true)->once();
 		}
 
-		if (isset($save['urlPath'])) {
+		if (isset($save['urlPath']) && ($save['urlPath'] !== $input['urlPath'])) {
 			$configMock->shouldReceive('set')->with('system', 'urlpath', $save['urlPath'])->andReturn(true)->once();
 		}
 
-		if (isset($save['sslPolicy'])) {
+		if (isset($save['sslPolicy']) && ($save['sslPolicy'] !== $input['sslPolicy'])) {
 			$configMock->shouldReceive('set')->with('system', 'ssl_policy', $save['sslPolicy'])->andReturn(true)->once();
 		}
 
-		$configMock->shouldReceive('set')->with('system', 'url', $url)->andReturn(true)->once();
+		if ($input['url'] !== $url) {
+			$configMock->shouldReceive('set')->with('system', 'url', $url)->andReturn(true)->once();
+		}
 
 		$baseUrl->save($save['hostname'], $save['sslPolicy'], $save['urlPath']);
 
@@ -362,19 +379,21 @@ class BaseURLTest extends MockedTest
 
 		$baseUrl = new BaseURL($configMock, []);
 
-		if (isset($save['hostname'])) {
+		if (isset($save['hostname']) && ($save['hostname'] !== $input['hostname'])) {
 			$configMock->shouldReceive('set')->with('config', 'hostname', $save['hostname'])->andReturn(true)->once();
 		}
 
-		if (isset($save['urlPath'])) {
+		if (isset($save['urlPath']) && ($save['urlPath'] !== $input['urlPath'])) {
 			$configMock->shouldReceive('set')->with('system', 'urlpath', $save['urlPath'])->andReturn(true)->once();
 		}
 
-		if (isset($save['sslPolicy'])) {
+		if (isset($save['sslPolicy']) && ($save['sslPolicy'] !== $input['sslPolicy'])) {
 			$configMock->shouldReceive('set')->with('system', 'ssl_policy', $save['sslPolicy'])->andReturn(true)->once();
 		}
 
-		$configMock->shouldReceive('set')->with('system', 'url', $url)->andReturn(true)->once();
+		if ($input['url'] !== $url) {
+			$configMock->shouldReceive('set')->with('system', 'url', $url)->andReturn(true)->once();
+		}
 
 		$baseUrl->saveByURL($url);
 

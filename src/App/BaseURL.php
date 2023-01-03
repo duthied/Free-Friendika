@@ -175,6 +175,7 @@ class BaseURL
 		$currHostname  = $this->hostname;
 		$currSSLPolicy = $this->sslPolicy;
 		$currURLPath   = $this->urlPath;
+		$currUrl       = $this->url;
 
 		if (!empty($hostname) && $hostname !== $this->hostname) {
 			if ($this->config->set('config', 'hostname', $hostname)) {
@@ -207,16 +208,18 @@ class BaseURL
 		}
 
 		$this->determineBaseUrl();
-		if (!$this->config->set('system', 'url', $this->url)) {
-			$this->hostname  = $currHostname;
-			$this->sslPolicy = $currSSLPolicy;
-			$this->urlPath   = $currURLPath;
-			$this->determineBaseUrl();
+		if ($this->url !== $currUrl) {
+			if (!$this->config->set('system', 'url', $this->url)) {
+				$this->hostname  = $currHostname;
+				$this->sslPolicy = $currSSLPolicy;
+				$this->urlPath   = $currURLPath;
+				$this->determineBaseUrl();
 
-			$this->config->set('config', 'hostname', $this->hostname);
-			$this->config->set('system', 'ssl_policy', $this->sslPolicy);
-			$this->config->set('system', 'urlpath', $this->urlPath);
-			return false;
+				$this->config->set('config', 'hostname', $this->hostname);
+				$this->config->set('system', 'ssl_policy', $this->sslPolicy);
+				$this->config->set('system', 'urlpath', $this->urlPath);
+				return false;
+			}
 		}
 
 		return true;
