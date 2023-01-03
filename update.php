@@ -1192,5 +1192,23 @@ function update_1508()
 
 	$newConfig->commit();
 
-	DBA::e("TRUNCATE TABLE `config`");
+	return DBA::e("TRUNCATE TABLE `config`") ? Update::SUCCESS : Update::FAILED;
+}
+
+function update_1509()
+{
+	$addons = DBA::selectToArray('addon');
+
+	$newConfig = DI::config()->beginTransaction();
+
+	foreach ($addons as $addon) {
+		$newConfig->set('addons', $addon['name'], [
+			'last_update' => $addon['timestamp'],
+			'admin' => (bool)$addon['plugin_admin'],
+		]);
+	}
+
+	$newConfig->commit();
+
+	return DBA::e("TRUNCATE TABLE `addon`") ? Update::SUCCESS : Update::FAILED;
 }
