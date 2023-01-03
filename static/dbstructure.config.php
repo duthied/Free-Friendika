@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1507);
+	define('DB_UPDATE_VERSION', 1508);
 }
 
 return [
@@ -551,19 +551,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["k"],
 			"k_expires" => ["k", "expires"],
-		]
-	],
-	"config" => [
-		"comment" => "main configuration storage",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-			"cat" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
-			"k" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
-			"v" => ["type" => "mediumtext", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"cat_k" => ["UNIQUE", "cat", "k"],
 		]
 	],
 	"contact-relation" => [

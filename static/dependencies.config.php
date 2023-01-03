@@ -76,7 +76,7 @@ return [
 			$_SERVER
 		]
 	],
-	Config\Util\ConfigFileLoader::class => [
+	Config\Util\ConfigFileManager::class => [
 		'instanceOf' => Config\Factory\Config::class,
 		'call'       => [
 			['createConfigFileLoader', [
@@ -98,9 +98,9 @@ return [
 		],
 	],
 	Config\Capability\IManageConfigValues::class => [
-		'instanceOf' => Config\Factory\Config::class,
-		'call'       => [
-			['create', [], Dice::CHAIN_CALL],
+		'instanceOf' => Config\Model\Config::class,
+		'constructParams' => [
+			$_SERVER,
 		],
 	],
 	PConfig\Capability\IManagePersonalConfigValues::class => [

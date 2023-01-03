@@ -21,13 +21,13 @@
 
 namespace Friendica\Core\Config\ValueObject;
 
-use Friendica\Core\Config\Util\ConfigFileLoader;
+use Friendica\Core\Config\Util\ConfigFileManager;
 use ParagonIE\HiddenString\HiddenString;
 
 /**
  * The Friendica config cache for the application
  * Initial, all *.config.php files are loaded into this cache with the
- * ConfigFileLoader ( @see ConfigFileLoader )
+ * ConfigFileManager ( @see ConfigFileManager )
  */
 class Cache
 {
@@ -35,8 +35,8 @@ class Cache
 	const SOURCE_STATIC = 0;
 	/** @var int Indicates that the cache entry is set by file - Low Priority */
 	const SOURCE_FILE = 1;
-	/** @var int Indicates that the cache entry is set by the DB config table - Middle Priority */
-	const SOURCE_DB = 2;
+	/** @var int Indicates that the cache entry is manually set by the application (per admin page/console) - Middle Priority */
+	const SOURCE_DATA = 2;
 	/** @var int Indicates that the cache entry is set by a server environment variable - High Priority */
 	const SOURCE_ENV = 3;
 	/** @var int Indicates that the cache entry is fixed and must not be changed */
@@ -129,6 +129,34 @@ class Cache
 	}
 
 	/**
+	 * Returns the whole config array based on the given source type
+	 *
+	 * @param int $source Indicates the source of the config entry
+	 *
+	 * @return array The config array part of the given source
+	 */
+	public function getDataBySource(int $source): array
+	{
+		$data = [];
+
+		$categories = array_keys($this->source);
+
+		foreach ($categories as $category) {
+			if (is_array($this->source[$category])) {
+				$keys = array_keys($this->source[$category]);
+
+				foreach ($keys as $key) {
+					if ($this->source[$category][$key] === $source) {
+						$data[$category][$key] = $this->config[$category][$key];
+					}
+				}
+			}
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Sets a value in the config cache. Accepts raw output from the config table
 	 *
 	 * @param string $cat    Config category
@@ -154,6 +182,8 @@ class Cache
 			$key == 'password' &&
 			is_string($value)) {
 			$this->config[$cat][$key] = new HiddenString((string)$value);
+		} else if (is_string($value)) {
+			$this->config[$cat][$key] = self::toConfigValue($value);
 		} else {
 			$this->config[$cat][$key] = $value;
 		}
@@ -161,6 +191,32 @@ class Cache
 		$this->source[$cat][$key] = $source;
 
 		return true;
+	}
+
+	/**
+	 * Formats a DB value to a config value
+	 * - null   = The db-value isn't set
+	 * - bool   = The db-value is either '0' or '1'
+	 * - array  = The db-value is a serialized array
+	 * - string = The db-value is a string
+	 *
+	 * Keep in mind that there aren't any numeric/integer config values in the database
+	 *
+	 * @param string|null $value
+	 *
+	 * @return null|array|string
+	 */
+	public static function toConfigValue(?string $value)
+	{
+		if (!isset($value)) {
+			return null;
+		}
+
+		if (preg_match("|^a:[0-9]+:{.*}$|s", $value)) {
+			return unserialize($value);
+		} else {
+			return $value;
+		}
 	}
 
 	/**
@@ -222,5 +278,70 @@ class Cache
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Merges a new Cache into the existing one and returns the merged Cache
+	 *
+	 * @param Cache $cache The cache, which should get merged into this Cache
+	 *
+	 * @return Cache The merged Cache
+	 */
+	public function merge(Cache $cache): Cache
+	{
+		$newConfig = $this->config;
+		$newSource = $this->source;
+
+		$categories = array_keys($cache->config);
+
+		foreach ($categories as $category) {
+			if (is_array($cache->config[$category])) {
+				$keys = array_keys($cache->config[$category]);
+
+				foreach ($keys as $key) {
+					$newConfig[$category][$key] = $cache->config[$category][$key];
+					$newSource[$category][$key] = $cache->source[$category][$key];
+				}
+			}
+		}
+
+		$newCache = new Cache();
+		$newCache->config = $newConfig;
+		$newCache->source = $newSource;
+
+		return $newCache;
+	}
+
+
+	/**
+	 * Diffs a new Cache into the existing one and returns the diffed Cache
+	 *
+	 * @param Cache $cache The cache, which should get deleted for the current Cache
+	 *
+	 * @return Cache The diffed Cache
+	 */
+	public function diff(Cache $cache): Cache
+	{
+		$newConfig = $this->config;
+		$newSource = $this->source;
+
+		$categories = array_keys($cache->config);
+
+		foreach ($categories as $category) {
+			if (is_array($cache->config[$category])) {
+				$keys = array_keys($cache->config[$category]);
+
+				foreach ($keys as $key) {
+					unset($newConfig[$category][$key]);
+					unset($newSource[$category][$key]);
+				}
+			}
+		}
+
+		$newCache = new Cache();
+		$newCache->config = $newConfig;
+		$newCache->source = $newSource;
+
+		return $newCache;
 	}
 }

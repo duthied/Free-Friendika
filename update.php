@@ -1148,6 +1148,10 @@ function update_1502()
 
 function update_1505()
 {
+	if (!DBStructure::existsTable('config')) {
+		return Update::SUCCESS;
+	}
+
 	$conditions = [
 		"((`cat`  = ?) AND ((`k` LIKE ?) OR (`k` = ?) OR (`k` LIKE ?) OR (`k` = ?))) OR " .
 		"((`cat` != ?) AND  (`k` LIKE ?)) OR " .
@@ -1174,4 +1178,19 @@ function update_1505()
 	}
 
 	return DBA::delete('config', $conditions) ? Update::SUCCESS : Update::FAILED;
+}
+
+function update_1508()
+{
+	$config = DBA::selectToArray('config');
+
+	$newConfig = DI::config()->beginTransaction();
+
+	foreach ($config as $entry) {
+		$newConfig->set($entry['cat'], $entry['k'], $entry['v']);
+	}
+
+	$newConfig->commit();
+
+	DBA::e("TRUNCATE TABLE `config`");
 }
