@@ -182,10 +182,10 @@ class DBStructure
 		$status = self::update($verbose, true);
 
 		if ($enable_maintenance_mode) {
-			DI::config()->transactional()
+			DI::config()->beginTransaction()
 						->set('system', 'maintenance', false)
 						->delete('system', 'maintenance_reason')
-						->save();
+						->commit();
 		}
 
 		return $status;

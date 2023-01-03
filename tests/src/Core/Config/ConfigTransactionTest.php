@@ -2,15 +2,15 @@
 
 namespace Friendica\Test\src\Core\Config;
 
-use Friendica\Core\Config\Capability\ISetConfigValuesTransactional;
+use Friendica\Core\Config\Capability\ISetConfigValuesTransactionally;
 use Friendica\Core\Config\Model\Config;
-use Friendica\Core\Config\Model\TransactionalConfig;
+use Friendica\Core\Config\Model\ConfigTransaction;
 use Friendica\Core\Config\Util\ConfigFileManager;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
 
-class TransactionalConfigTest extends MockedTest
+class ConfigTransactionTest extends MockedTest
 {
 	use VFSTrait;
 
@@ -37,14 +37,14 @@ class TransactionalConfigTest extends MockedTest
 
 	public function testInstance()
 	{
-		$config              = new Config($this->configFileManager, new Cache());
-		$transactionalConfig = new TransactionalConfig($config);
+		$config            = new Config($this->configFileManager, new Cache());
+		$configTransaction = new ConfigTransaction($config);
 
-		self::assertInstanceOf(ISetConfigValuesTransactional::class, $transactionalConfig);
-		self::assertInstanceOf(TransactionalConfig::class, $transactionalConfig);
+		self::assertInstanceOf(ISetConfigValuesTransactionally::class, $configTransaction);
+		self::assertInstanceOf(ConfigTransaction::class, $configTransaction);
 	}
 
-	public function testTransactionalConfig()
+	public function testConfigTransaction()
 	{
 		$config = new Config($this->configFileManager, new Cache());
 		$config->set('config', 'key1', 'value1');
@@ -52,24 +52,24 @@ class TransactionalConfigTest extends MockedTest
 		$config->set('system', 'keyDel', 'valueDel');
 		$config->set('delete', 'keyDel', 'catDel');
 
-		$transactionalConfig = new TransactionalConfig($config);
-		self::assertEquals('value1', $transactionalConfig->get('config', 'key1'));
-		self::assertEquals('value2', $transactionalConfig->get('system', 'key2'));
-		self::assertEquals('valueDel', $transactionalConfig->get('system', 'keyDel'));
-		self::assertEquals('catDel', $transactionalConfig->get('delete', 'keyDel'));
+		$configTransaction = new ConfigTransaction($config);
+		self::assertEquals('value1', $configTransaction->get('config', 'key1'));
+		self::assertEquals('value2', $configTransaction->get('system', 'key2'));
+		self::assertEquals('valueDel', $configTransaction->get('system', 'keyDel'));
+		self::assertEquals('catDel', $configTransaction->get('delete', 'keyDel'));
 		// the config file knows it as well immediately
 		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
 		self::assertEquals('value1', $tempData['config']['key1'] ?? null);
 		self::assertEquals('value2', $tempData['system']['key2'] ?? null);
 
 		// new key-value
-		$transactionalConfig->set('transaction', 'key3', 'value3');
+		$configTransaction->set('transaction', 'key3', 'value3');
 		// overwrite key-value
-		$transactionalConfig->set('config', 'key1', 'changedValue1');
+		$configTransaction->set('config', 'key1', 'changedValue1');
 		// delete key-value
-		$transactionalConfig->delete('system', 'keyDel');
+		$configTransaction->delete('system', 'keyDel');
 		// delete last key of category - so the category is gone
-		$transactionalConfig->delete('delete', 'keyDel');
+		$configTransaction->delete('delete', 'keyDel');
 
 		// The main config still doesn't know about the change
 		self::assertNull($config->get('transaction', 'key3'));
@@ -77,10 +77,10 @@ class TransactionalConfigTest extends MockedTest
 		self::assertEquals('valueDel', $config->get('system', 'keyDel'));
 		self::assertEquals('catDel', $config->get('delete', 'keyDel'));
 		// but the transaction config of course knows it
-		self::assertEquals('value3', $transactionalConfig->get('transaction', 'key3'));
-		self::assertEquals('changedValue1', $transactionalConfig->get('config', 'key1'));
-		self::assertNull($transactionalConfig->get('system', 'keyDel'));
-		self::assertNull($transactionalConfig->get('delete', 'keyDel'));
+		self::assertEquals('value3', $configTransaction->get('transaction', 'key3'));
+		self::assertEquals('changedValue1', $configTransaction->get('config', 'key1'));
+		self::assertNull($configTransaction->get('system', 'keyDel'));
+		self::assertNull($configTransaction->get('delete', 'keyDel'));
 		// The config file still doesn't know it either
 		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
 		self::assertEquals('value1', $tempData['config']['key1'] ?? null);
@@ -89,16 +89,16 @@ class TransactionalConfigTest extends MockedTest
 		self::assertNull($tempData['transaction']['key3'] ?? null);
 
 		// save it back!
-		$transactionalConfig->save();
+		$configTransaction->commit();
 
 		// Now every config and file knows the change
 		self::assertEquals('changedValue1', $config->get('config', 'key1'));
 		self::assertEquals('value3', $config->get('transaction', 'key3'));
 		self::assertNull($config->get('system', 'keyDel'));
 		self::assertNull($config->get('delete', 'keyDel'));
-		self::assertEquals('value3', $transactionalConfig->get('transaction', 'key3'));
-		self::assertEquals('changedValue1', $transactionalConfig->get('config', 'key1'));
-		self::assertNull($transactionalConfig->get('system', 'keyDel'));
+		self::assertEquals('value3', $configTransaction->get('transaction', 'key3'));
+		self::assertEquals('changedValue1', $configTransaction->get('config', 'key1'));
+		self::assertNull($configTransaction->get('system', 'keyDel'));
 		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
 		self::assertEquals('changedValue1', $tempData['config']['key1'] ?? null);
 		self::assertEquals('value2', $tempData['system']['key2'] ?? null);

@@ -101,9 +101,10 @@ HELP;
 		$old_host = str_replace('http://', '@', Strings::normaliseLink($old_url));
 
 		$this->out('Entering maintenance mode');
-		$this->config->set('system', 'maintenance', true, false);
-		$this->config->set('system', 'maintenance_reason', 'Relocating node to ' . $new_url, false);
-
+		$this->config->beginTransaction()
+					 ->set('system', 'maintenance', true)
+					 ->set('system', 'maintenance_reason', 'Relocating node to ' . $new_url)
+					 ->commit();
 		try {
 			if (!$this->database->transaction()) {
 				throw new \Exception('Unable to start a transaction, please retry later.');
@@ -189,10 +190,10 @@ HELP;
 			return 1;
 		} finally {
 			$this->out('Leaving maintenance mode');
-			$this->config->transactional()
+			$this->config->beginTransaction()
 						 ->set('system', 'maintenance', false)
 						 ->delete('system', 'maintenance_reason')
-						 ->save();
+						 ->commit();
 		}
 
 		// send relocate

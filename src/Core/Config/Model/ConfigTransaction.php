@@ -22,14 +22,14 @@
 namespace Friendica\Core\Config\Model;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Config\Capability\ISetConfigValuesTransactional;
+use Friendica\Core\Config\Capability\ISetConfigValuesTransactionally;
 use Friendica\Core\Config\Exception\ConfigPersistenceException;
 use Friendica\Core\Config\ValueObject\Cache;
 
 /**
- * config class, which sets values into a temporary buffer until "save()" is called
+ * Transaction class for configurations, which sets values into a temporary buffer until "save()" is called
  */
-class TransactionalConfig implements ISetConfigValuesTransactional
+class ConfigTransaction implements ISetConfigValuesTransactionally
 {
 	/** @var IManageConfigValues */
 	protected $config;
@@ -54,7 +54,7 @@ class TransactionalConfig implements ISetConfigValuesTransactional
 	}
 
 	/** {@inheritDoc} */
-	public function set(string $cat, string $key, $value): ISetConfigValuesTransactional
+	public function set(string $cat, string $key, $value): ISetConfigValuesTransactionally
 	{
 		$this->cache->set($cat, $key, $value, Cache::SOURCE_DATA);
 
@@ -63,7 +63,7 @@ class TransactionalConfig implements ISetConfigValuesTransactional
 
 
 	/** {@inheritDoc} */
-	public function delete(string $cat, string $key): ISetConfigValuesTransactional
+	public function delete(string $cat, string $key): ISetConfigValuesTransactionally
 	{
 		$this->cache->delete($cat, $key);
 		$this->delCache->set($cat, $key, 'deleted');
@@ -72,7 +72,7 @@ class TransactionalConfig implements ISetConfigValuesTransactional
 	}
 
 	/** {@inheritDoc} */
-	public function save(): void
+	public function commit(): void
 	{
 		try {
 			$newCache = $this->config->getCache()->merge($this->cache);

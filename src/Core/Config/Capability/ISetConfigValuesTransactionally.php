@@ -27,7 +27,7 @@ use Friendica\Core\Config\Exception\ConfigPersistenceException;
  * Interface for transactional saving of config values
  * It buffers every set/delete until "save()" is called
  */
-interface ISetConfigValuesTransactional
+interface ISetConfigValuesTransactionally
 {
 	/**
 	 * Get a particular user's config variable given the category name
@@ -76,9 +76,9 @@ interface ISetConfigValuesTransactional
 	public function delete(string $cat, string $key): self;
 
 	/**
-	 * Saves the node specific config values
+	 * Commits the changes of the current transaction
 	 *
 	 * @throws ConfigPersistenceException In case the persistence layer throws errors
 	 */
-	public function save(): void;
+	public function commit(): void;
 }

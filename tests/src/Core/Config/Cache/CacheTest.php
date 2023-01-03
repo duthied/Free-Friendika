@@ -369,16 +369,20 @@ class CacheTest extends MockedTest
 
 		$configCache->set('system', 'test_2','with_data', Cache::SOURCE_DATA);
 		$configCache->set('config', 'test_override','with_another_data', Cache::SOURCE_DATA);
+		$configCache->set('old_category', 'test_45','given category', Cache::SOURCE_DATA);
 
 		$newCache = new Cache();
 		$newCache->set('config', 'test_override','override it again', Cache::SOURCE_DATA);
 		$newCache->set('system', 'test_3','new value', Cache::SOURCE_DATA);
+		$newCache->set('new_category', 'test_23','added category', Cache::SOURCE_DATA);
 
 		$mergedCache = $configCache->merge($newCache);
 
 		self::assertEquals('with_data', $mergedCache->get('system', 'test_2'));
 		self::assertEquals('override it again', $mergedCache->get('config', 'test_override'));
 		self::assertEquals('new value', $mergedCache->get('system', 'test_3'));
+		self::assertEquals('given category', $mergedCache->get('old_category', 'test_45'));
+		self::assertEquals('added category', $mergedCache->get('new_category', 'test_23'));
 	}
 
 	/**

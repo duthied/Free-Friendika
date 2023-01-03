@@ -22,7 +22,7 @@
 namespace Friendica\Core\Config\Model;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Config\Capability\ISetConfigValuesTransactional;
+use Friendica\Core\Config\Capability\ISetConfigValuesTransactionally;
 use Friendica\Core\Config\Exception\ConfigFileException;
 use Friendica\Core\Config\Exception\ConfigPersistenceException;
 use Friendica\Core\Config\Util\ConfigFileManager;
@@ -63,9 +63,9 @@ class Config implements IManageConfigValues
 	}
 
 	/**	{@inheritDoc} */
-	public function transactional(): ISetConfigValuesTransactional
+	public function beginTransaction(): ISetConfigValuesTransactionally
 	{
-		return new TransactionalConfig($this);
+		return new ConfigTransaction($this);
 	}
 
 	/**

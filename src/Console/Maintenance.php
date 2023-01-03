@@ -100,7 +100,7 @@ HELP;
 
 		$enabled = intval($this->getArgument(0));
 
-		$transactionConfig = $this->config->transactional();
+		$transactionConfig = $this->config->beginTransaction();
 
 		$transactionConfig->set('system', 'maintenance', $enabled);
 
@@ -112,7 +112,7 @@ HELP;
 			$transactionConfig->delete('system', 'maintenance_reason');
 		}
 
-		$transactionConfig->save();
+		$transactionConfig->commit();
 
 		if ($enabled) {
 			$mode_str = "maintenance mode";

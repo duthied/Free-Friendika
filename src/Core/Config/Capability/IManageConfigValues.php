@@ -94,9 +94,9 @@ interface IManageConfigValues
 	 *
 	 * It relies on the current instance, so after save(), the values of this config class will get altered at once too.
 	 *
-	 * @return ISetConfigValuesTransactional
+	 * @return ISetConfigValuesTransactionally
 	 */
-	public function transactional(): ISetConfigValuesTransactional;
+	public function beginTransaction(): ISetConfigValuesTransactionally;
 
 	/**
 	 * Deletes the given key from the system configuration.

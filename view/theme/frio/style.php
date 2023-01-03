@@ -49,7 +49,7 @@ $login_bg_color   = '';
 $modified         = time();
 
 if (DI::mode()->has(\Friendica\App\Mode::MAINTENANCEDISABLED)) {
-	DI::config()->reload('frio');
+	DI::config()->reload();
 
 	// Default to hard-coded values for empty settings
 	$scheme           = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));

@@ -332,10 +332,8 @@ class Cache
 				$keys = array_keys($cache->config[$category]);
 
 				foreach ($keys as $key) {
-					if (!is_null($newConfig[$category][$key] ?? null)) {
-						unset($newConfig[$category][$key]);
-						unset($newSource[$category][$key]);
-					}
+					unset($newConfig[$category][$key]);
+					unset($newSource[$category][$key]);
 				}
 			}
 		}

@@ -144,7 +144,7 @@ class Site extends BaseAdmin
 		$relay_user_tags   = !empty($_POST['relay_user_tags']);
 		$active_panel      = (!empty($_POST['active_panel'])      ? "#" . trim($_POST['active_panel']) : '');
 
-		$transactionConfig = DI::config()->transactional();
+		$transactionConfig = DI::config()->beginTransaction();
 
 		// Has the directory url changed? If yes, then resubmit the existing profiles there
 		if ($global_directory != DI::config()->get('system', 'directory') && ($global_directory != '')) {
@@ -320,7 +320,7 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'relay_deny_tags'  , $relay_deny_tags);
 		$transactionConfig->set('system', 'relay_user_tags'  , $relay_user_tags);
 
-		$transactionConfig->save();
+		$transactionConfig->commit();
 
 		DI::baseUrl()->redirect('admin/site' . $active_panel);
 	}
