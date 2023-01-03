@@ -30,22 +30,6 @@ use Friendica\Core\Config\Exception\ConfigPersistenceException;
 interface ISetConfigValuesTransactionally
 {
 	/**
-	 * Get a particular user's config variable given the category name
-	 * ($cat) and a $key.
-	 *
-	 * Get a particular config value from the given category ($cat)
-	 *
-	 * @param string  $cat        The category of the configuration value
-	 * @param string  $key           The configuration key to query
-	 *
-	 * @return mixed Stored value or null if it does not exist
-	 *
-	 * @throws ConfigPersistenceException In case the persistence layer throws errors
-	 *
-	 */
-	public function get(string $cat, string $key);
-
-	/**
 	 * Sets a configuration value for system config
 	 *
 	 * Stores a config value ($value) in the category ($cat) under the key ($key)

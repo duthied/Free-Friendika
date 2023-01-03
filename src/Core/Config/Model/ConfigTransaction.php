@@ -45,8 +45,20 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 		$this->delCache = new Cache();
 	}
 
-	/** {@inheritDoc} */
-	public function get(string $cat, string $key)
+	/**
+	 * Get a particular user's config variable given the category name
+	 * ($cat) and a $key from the current transaction.
+	 *
+	 * Isn't part of the interface because of it's rare use case
+	 *
+	 * @param string  $cat        The category of the configuration value
+	 * @param string  $key           The configuration key to query
+	 *
+	 * @return mixed Stored value or null if it does not exist
+	 *
+	 * @throws ConfigPersistenceException In case the persistence layer throws errors
+	 *
+	 */	public function get(string $cat, string $key)
 	{
 		return !$this->delCache->get($cat, $key) ?
 			($this->cache->get($cat, $key) ?? $this->config->get($cat, $key)) :
