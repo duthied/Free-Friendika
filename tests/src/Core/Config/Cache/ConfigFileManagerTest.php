@@ -28,7 +28,7 @@ use Friendica\Test\Util\VFSTrait;
 use Friendica\Core\Config\Util\ConfigFileManager;
 use org\bovigo\vfs\vfsStream;
 
-class ConfigFileLoaderTest extends MockedTest
+class ConfigFileManagerTest extends MockedTest
 {
 	use VFSTrait;
 
@@ -407,10 +407,13 @@ class ConfigFileLoaderTest extends MockedTest
 
 		$configFileLoader->setupCache($configCache);
 
+		$specialChars = '!"§$%&/()(/&%$\'><?$a,;:[]}{}\\';
+
 		// overwrite some data and save it back to the config file
 		$configCache->set('system', 'test', 'it', Cache::SOURCE_DATA);
 		$configCache->set('config', 'test', 'it', Cache::SOURCE_DATA);
 		$configCache->set('system', 'test_2', 2, Cache::SOURCE_DATA);
+		$configCache->set('special_chars', 'special', $specialChars, Cache::SOURCE_DATA);
 		$configFileLoader->saveData($configCache);
 
 		// Reload the configCache with the new values
@@ -424,7 +427,10 @@ class ConfigFileLoaderTest extends MockedTest
 				'test_2' => 2
 			],
 			'config' => [
-				'test' => 'it'
+				'test' => 'it',
+			],
+			'special_chars' => [
+				'special' => $specialChars,
 			]], $configCache2->getDataBySource(Cache::SOURCE_DATA));
 	}
 }

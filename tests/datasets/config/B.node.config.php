@@ -34,5 +34,6 @@ return [
 		'theme' => 'frio',
 		'int' => 23,
 		'float' => 2.5,
+		'with special chars' => 'I can\'t follow this "$&§%"$%§$%&\'[),',
 	],
 ];

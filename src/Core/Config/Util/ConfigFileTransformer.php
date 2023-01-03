@@ -75,7 +75,7 @@ class ConfigFileTransformer
 		} elseif (is_numeric($value)) {
 			$string .= $value . ",";
 		} else {
-			$string .= sprintf('\'%s\',', $value);
+			$string .= sprintf('\'%s\',', addcslashes($value, '\'\\'));
 		}
 
 		$string .= PHP_EOL;
