@@ -173,7 +173,21 @@ class ConfigFileManager
 		$filename = $this->configDir . '/' . self::CONFIG_DATA_FILE;
 
 		if (file_exists($filename)) {
-			$dataArray = include $filename;
+
+			$content = '<?php return [];';
+
+			$configStream = fopen($filename, 'r');
+			if (flock($configStream, LOCK_SH)) {
+				$content = fread($configStream, filesize($filename));
+				if (!$content) {
+					throw new ConfigFileException(sprintf('Couldn\'t read file %s', $filename));
+				}
+				flock($configStream, LOCK_UN);
+			}
+
+			fclose($configStream);
+
+			$dataArray = eval('?>' . $content);
 
 			if (!is_array($dataArray)) {
 				throw new ConfigFileException(sprintf('Error loading config file %s', $filename));
@@ -200,8 +214,13 @@ class ConfigFileManager
 			throw new ConfigFileException('config source cannot get encoded');
 		}
 
-		if (!file_put_contents($this->configDir . '/' . self::CONFIG_DATA_FILE, $encodedData)) {
-			throw new ConfigFileException(sprintf('Cannot save data to file %s/%s', $this->configDir, self::CONFIG_DATA_FILE));
+		$configStream = fopen($this->configDir . '/' . self::CONFIG_DATA_FILE, 'w+');
+
+		if (flock($configStream, LOCK_EX)) {
+			ftruncate($configStream, 0);
+			fwrite($configStream, $encodedData);
+			fflush($configStream);
+			flock($configStream, LOCK_UN);
 		}
 	}
 
