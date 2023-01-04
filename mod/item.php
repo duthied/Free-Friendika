@@ -54,13 +54,7 @@ function item_post(App $a) {
 	}
 
 	if (!empty($_REQUEST['dropitems'])) {
-		$arr_drop = explode(',', $_REQUEST['dropitems']);
-		foreach ($arr_drop as $item) {
-			Item::deleteForUser(['id' => $item], $uid);
-		}
-
-		$json = ['success' => 1];
-		System::jsonExit($json);
+		item_drop($uid, $_REQUEST['dropitems']);
 	}
 
 	Hook::callAll('post_local_start', $_REQUEST);
@@ -82,39 +76,87 @@ function item_post(App $a) {
 		}
 	}
 
-	$post_id = intval($_REQUEST['post_id'] ?? 0);
-
-	// is this an edited post?
-	if ($post_id > 0) {
-		$orig_post = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
+	if (empty($_REQUEST['post_id'])) {
+		item_insert($uid, $_REQUEST, $preview, $return_path);
 	} else {
-		$orig_post = null;
+		item_edit($uid, $_REQUEST, $preview, $return_path);
+	}
+}
+
+function item_drop(int $uid, string $dropitems)
+{
+	$arr_drop = explode(',', $dropitems);
+	foreach ($arr_drop as $item) {
+		Item::deleteForUser(['id' => $item], $uid);
 	}
 
-	$emailcc = trim($_REQUEST['emailcc']  ?? '');
+	$json = ['success' => 1];
+	System::jsonExit($json);
+}
+
+function item_edit(int $uid, array $request, bool $preview, string $return_path)
+{
+	$post = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $request['post_id'], 'uid' => $uid]);
+	if (!DBA::isResult($post)) {
+		DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate original post.'));
+		if ($return_path) {
+			DI::baseUrl()->redirect($return_path);
+		}
+		throw new HTTPException\NotFoundException(DI::l10n()->t('Unable to locate original post.'));
+	}
+
+	$post['edit'] = $post;
+	$post['file'] = Post\Category::getTextByURIId($post['uri-id'], $post['uid']);	
+
+	$post = item_process($post, $request, $preview, $return_path);
+
+	$fields = [
+		'title'    => $post['title'],
+		'body'     => $post['body'],
+		'attach'   => $post['attach'],
+		'file'     => $post['file'],
+		'location' => $post['location'],
+		'coord'    => $post['coord'],
+		'edited'   => DateTimeFormat::utcNow(),
+		'changed'  => DateTimeFormat::utcNow()
+	];
+
+	$fields['body'] = Item::setHashtags($fields['body']);
+
+	$quote_uri_id = Item::getQuoteUriId($fields['body'], $post['uid']);
+	if (!empty($quote_uri_id)) {
+		$fields['quote-uri-id'] = $quote_uri_id;
+		$fields['body']         = BBCode::removeSharedData($post['body']);
+	}
+
+	Item::update($fields, ['id' => $post['id']]);
+	Item::updateDisplayCache($post['uri-id']);
+
+	if ($return_path) {
+		DI::baseUrl()->redirect($return_path);
+	}
+
+	throw new HTTPException\OKException(DI::l10n()->t('Post updated.'));
+}
+
+function item_insert(int $uid, array $request, bool $preview, string $return_path)
+{
+	$emailcc = trim($request['emailcc']  ?? '');
 
 	$post = ['uid' => $uid];
-
 	$post = DI::contentItem()->initializePost($post);
 
-	$post['edit']       = $orig_post;
-	$post['self']       = true;
-	$post['api_source'] = false;
-	$post['file']       = '';
-	$post['attach']     = '';
-	$post['inform']     = '';
-	$post['postopts']   = '';
-	$post['wall']       = $_REQUEST['wall'] ?? true;
-	$post['post-type']  = $_REQUEST['post_type'] ?? '';
-	$post['title']      = trim($_REQUEST['title'] ?? '');
-	$post['body']       = $_REQUEST['body'] ?? '';
-	$post['location']   = trim($_REQUEST['location'] ?? '');
-	$post['coord']      = trim($_REQUEST['coord'] ?? '');
-	$post['parent']     = intval($_REQUEST['parent'] ?? 0);
-	$post['pubmail']    = $_REQUEST['pubmail_enable'] ?? false;
-	$post['created']    = $_REQUEST['created_at'] ?? DateTimeFormat::utcNow();
-	$post['edited']     = $post['changed'] = $post['commented'] = $post['created'];
-	$post['app']        = '';
+	$post['edit']      = null;
+	$post['post-type'] = $request['post_type'] ?? '';
+	$post['wall']      = $request['wall'] ?? true;
+	$post['parent']    = intval($request['parent'] ?? 0);
+	$post['pubmail']   = $request['pubmail_enable'] ?? false;
+	$post['created']   = $request['created_at'] ?? DateTimeFormat::utcNow();
+	$post['edited']    = $post['changed'] = $post['commented'] = $post['created'];
+	$post['app']       = '';
+	$post['inform']    = '';
+	$post['postopts']  = '';
+	$post['file']      = '';
 
 	if ($post['parent']) {
 		if ($post['parent']) {
@@ -160,15 +202,53 @@ function item_post(App $a) {
 		$post['thr-parent']  = $post['uri'];
 	}
 
-	$post = DI::contentItem()->getACL($post, $parent_item, $_REQUEST);
+	$post = DI::contentItem()->getACL($post, $parent_item, $request);
 
 	$post['pubmail'] = $post['pubmail'] && !$post['private'];
 
-	if (!empty($orig_post)) {
-		$post['file'] = Post\Category::getTextByURIId($orig_post['uri-id'], $orig_post['uid']);
+	$post = item_process($post, $request, $preview, $return_path);
+
+	$post_id = Item::insert($post);
+	if (!$post_id) {
+		DI::sysmsg()->addNotice(DI::l10n()->t('Item wasn\'t stored.'));
+		if ($return_path) {
+			DI::baseUrl()->redirect($return_path);
+		}
+
+		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item wasn\'t stored.'));
 	}
 
-	$post = DI::contentItem()->addCategories($post, $_REQUEST['category'] ?? '');
+	$post = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
+	if (!DBA::isResult($post)) {
+		Logger::error('Item couldn\'t be fetched.', ['post_id' => $post_id]);
+		if ($return_path) {
+			DI::baseUrl()->redirect($return_path);
+		}
+
+		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item couldn\'t be fetched.'));
+	}
+
+	$recipients = explode(',', $emailcc);
+
+	DI::contentItem()->postProcessPost($post, $recipients);
+
+	Logger::debug('post_complete');
+
+	item_post_return(DI::baseUrl(), $return_path);
+	// NOTREACHED
+}
+
+function item_process(array $post, array $request, bool $preview, string $return_path): array
+{
+	$post['self']       = true;
+	$post['api_source'] = false;
+	$post['attach']     = '';
+	$post['title']      = trim($request['title'] ?? '');
+	$post['body']       = $request['body'] ?? '';
+	$post['location']   = trim($request['location'] ?? '');
+	$post['coord']      = trim($request['coord'] ?? '');
+
+	$post = DI::contentItem()->addCategories($post, $request['category'] ?? '');
 
 	if (!$preview) {
 		if (Photo::setPermissionFromBody($post['body'], $post['uid'], $post['contact-id'], $post['allow_cid'], $post['allow_gid'], $post['deny_cid'], $post['deny_gid'])) {
@@ -179,8 +259,8 @@ function item_post(App $a) {
 	}
 
 	// Add the attachment to the body.
-	if (!empty($_REQUEST['has_attachment'])) {
-		$post['body'] .= DI::contentItem()->storeAttachmentFromRequest($_REQUEST);
+	if (!empty($request['has_attachment'])) {
+		$post['body'] .= DI::contentItem()->storeAttachmentFromRequest($request);
 	}
 
 	$post = DI::contentItem()->finalizePost($post);
@@ -224,8 +304,8 @@ function item_post(App $a) {
 	unset($post['self']);
 	unset($post['api_source']);
 
-	if (!empty($_REQUEST['scheduled_at'])) {
-		$scheduled_at = DateTimeFormat::convert($_REQUEST['scheduled_at'], 'UTC', $a->getTimeZone());
+	if (!empty($request['scheduled_at'])) {
+		$scheduled_at = DateTimeFormat::convert($request['scheduled_at'], 'UTC', DI::app()->getTimeZone());
 		if ($scheduled_at > DateTimeFormat::utcNow()) {
 			unset($post['created']);
 			unset($post['edited']);
@@ -245,69 +325,14 @@ function item_post(App $a) {
 		}
 
 		$json = ['cancel' => 1];
-		if (!empty($_REQUEST['jsreload'])) {
-			$json['reload'] = DI::baseUrl() . '/' . $_REQUEST['jsreload'];
+		if (!empty($request['jsreload'])) {
+			$json['reload'] = DI::baseUrl() . '/' . $request['jsreload'];
 		}
 
 		System::jsonExit($json);
 	}
 
-	if ($orig_post) {
-		$fields = [
-			'title'        => $post['title'],
-			'body'         => $post['body'],
-			'attach'       => $post['attach'],
-			'file'         => $post['file'],
-			'edited'       => DateTimeFormat::utcNow(),
-			'changed'      => DateTimeFormat::utcNow()
-		];
-
-		$fields['body'] = Item::setHashtags($fields['body']);
-
-		$quote_uri_id = Item::getQuoteUriId($fields['body'], $post['uid']);
-		if (!empty($quote_uri_id)) {
-			$fields['quote-uri-id'] = $quote_uri_id;
-			$fields['body']         = BBCode::removeSharedData($post['body']);
-		}
-
-		Item::update($fields, ['id' => $post_id]);
-		Item::updateDisplayCache($orig_post['uri-id']);
-
-		if ($return_path) {
-			DI::baseUrl()->redirect($return_path);
-		}
-
-		throw new HTTPException\OKException(DI::l10n()->t('Post updated.'));
-	}
-
-	$post_id = Item::insert($post);
-	if (!$post_id) {
-		DI::sysmsg()->addNotice(DI::l10n()->t('Item wasn\'t stored.'));
-		if ($return_path) {
-			DI::baseUrl()->redirect($return_path);
-		}
-
-		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item wasn\'t stored.'));
-	}
-
-	$post = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
-	if (!DBA::isResult($post)) {
-		Logger::error('Item couldn\'t be fetched.', ['post_id' => $post_id]);
-		if ($return_path) {
-			DI::baseUrl()->redirect($return_path);
-		}
-
-		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item couldn\'t be fetched.'));
-	}
-
-	$recipients = explode(',', $emailcc);
-
-	DI::contentItem()->postProcessPost($post, $recipients);
-
-	Logger::debug('post_complete');
-
-	item_post_return(DI::baseUrl(), $return_path);
-	// NOTREACHED
+	return $post;
 }
 
 function item_post_return($baseurl, $return_path)
