@@ -23,10 +23,25 @@ namespace Friendica\Test\src\Util;
 
 use Friendica\App\BaseURL;
 use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\Config\Capability\ISetConfigValuesTransactionally;
+use Friendica\Core\Config\Model\Config;
+use Friendica\Core\Config\Model\ConfigTransaction;
+use Friendica\Core\Config\Util\ConfigFileManager;
+use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Test\MockedTest;
+use Friendica\Test\Util\VFSTrait;
 
 class BaseURLTest extends MockedTest
 {
+	use VFSTrait;
+
+	protected function setUp(): void
+	{
+		parent::setUp();
+
+		$this->setUpVfsDir();
+	}
+
 	public function dataDefault()
 	{
 		return [
@@ -231,6 +246,21 @@ class BaseURLTest extends MockedTest
 	public function dataSave()
 	{
 		return [
+			'no_change' => [
+				'input' => [
+					'hostname'  => 'friendica.local',
+					'urlPath'   => 'path',
+					'sslPolicy' => BaseURL::SSL_POLICY_FULL,
+					'url'       => 'https://friendica.local/path',
+					'force_ssl' => true,
+				],
+				'save' => [
+					'hostname'  => 'friendica.local',
+					'urlPath'   => 'path',
+					'sslPolicy' => BaseURL::SSL_POLICY_FULL,
+				],
+				'url' => 'https://friendica.local/path',
+			],
 			'default' => [
 				'input' => [
 					'hostname'  => 'friendica.old',
@@ -315,28 +345,20 @@ class BaseURLTest extends MockedTest
 	 */
 	public function testSave($input, $save, $url)
 	{
-		$configMock = \Mockery::mock(IManageConfigValues::class);
-		$configMock->shouldReceive('get')->with('config', 'hostname')->andReturn($input['hostname']);
-		$configMock->shouldReceive('get')->with('system', 'urlpath')->andReturn($input['urlPath']);
-		$configMock->shouldReceive('get')->with('system', 'ssl_policy')->andReturn($input['sslPolicy']);
-		$configMock->shouldReceive('get')->with('system', 'url')->andReturn($input['url']);
-		$configMock->shouldReceive('get')->with('system', 'force_ssl')->andReturn($input['force_ssl']);
+		$configFileManager = new ConfigFileManager($this->root->url(), $this->root->url() . '/config/', $this->root->url() . '/static/');
+		$config = new Config($configFileManager, new Cache([
+			'config' => [
+				'hostname' => $input['hostname'] ?? null,
+			],
+			'system' => [
+				'urlpath' => $input['urlPath'] ?? null,
+				'ssl_policy' => $input['sslPolicy'] ?? null,
+				'url' => $input['url'] ?? null,
+				'force_ssl' => $input['force_ssl'] ?? null,
+			],
+		]));
 
-		$baseUrl = new BaseURL($configMock, []);
-
-		if (isset($save['hostname'])) {
-			$configMock->shouldReceive('set')->with('config', 'hostname', $save['hostname'])->andReturn(true)->once();
-		}
-
-		if (isset($save['urlPath'])) {
-			$configMock->shouldReceive('set')->with('system', 'urlpath', $save['urlPath'])->andReturn(true)->once();
-		}
-
-		if (isset($save['sslPolicy'])) {
-			$configMock->shouldReceive('set')->with('system', 'ssl_policy', $save['sslPolicy'])->andReturn(true)->once();
-		}
-
-		$configMock->shouldReceive('set')->with('system', 'url', $url)->andReturn(true)->once();
+		$baseUrl = new BaseURL($config, []);
 
 		$baseUrl->save($save['hostname'], $save['sslPolicy'], $save['urlPath']);
 
@@ -353,28 +375,20 @@ class BaseURLTest extends MockedTest
 	 */
 	public function testSaveByUrl($input, $save, $url)
 	{
-		$configMock = \Mockery::mock(IManageConfigValues::class);
-		$configMock->shouldReceive('get')->with('config', 'hostname')->andReturn($input['hostname']);
-		$configMock->shouldReceive('get')->with('system', 'urlpath')->andReturn($input['urlPath']);
-		$configMock->shouldReceive('get')->with('system', 'ssl_policy')->andReturn($input['sslPolicy']);
-		$configMock->shouldReceive('get')->with('system', 'url')->andReturn($input['url']);
-		$configMock->shouldReceive('get')->with('system', 'force_ssl')->andReturn($input['force_ssl']);
+		$configFileManager = new ConfigFileManager($this->root->url(), $this->root->url() . '/config/', $this->root->url() . '/static/');
+		$config = new Config($configFileManager, new Cache([
+			'config' => [
+				'hostname' => $input['hostname'] ?? null,
+			],
+			'system' => [
+				'urlpath' => $input['urlPath'] ?? null,
+				'ssl_policy' => $input['sslPolicy'] ?? null,
+				'url' => $input['url'] ?? null,
+				'force_ssl' => $input['force_ssl'] ?? null,
+			],
+		]));
 
-		$baseUrl = new BaseURL($configMock, []);
-
-		if (isset($save['hostname'])) {
-			$configMock->shouldReceive('set')->with('config', 'hostname', $save['hostname'])->andReturn(true)->once();
-		}
-
-		if (isset($save['urlPath'])) {
-			$configMock->shouldReceive('set')->with('system', 'urlpath', $save['urlPath'])->andReturn(true)->once();
-		}
-
-		if (isset($save['sslPolicy'])) {
-			$configMock->shouldReceive('set')->with('system', 'ssl_policy', $save['sslPolicy'])->andReturn(true)->once();
-		}
-
-		$configMock->shouldReceive('set')->with('system', 'url', $url)->andReturn(true)->once();
+		$baseUrl = new BaseURL($config, []);
 
 		$baseUrl->saveByURL($url);
 
@@ -497,66 +511,5 @@ class BaseURLTest extends MockedTest
 		$baseUrl = new BaseURL($configMock, $server);
 
 		self::assertEquals($redirect, $baseUrl->checkRedirectHttps());
-	}
-
-	public function dataWrongSave()
-	{
-		return [
-			'wrongHostname' => [
-				'fail' => 'hostname',
-			],
-			'wrongSSLPolicy' => [
-				'fail' => 'sslPolicy',
-			],
-			'wrongURLPath' => [
-				'fail' => 'urlPath',
-			],
-			'wrongURL' => [
-				'fail' => 'url',
-			],
-		];
-	}
-
-	/**
-	 * Test the save() method with wrong parameters
-	 * @dataProvider dataWrongSave
-	 */
-	public function testWrongSave($fail)
-	{
-		$configMock = \Mockery::mock(IManageConfigValues::class);
-		$configMock->shouldReceive('get')->with('config', 'hostname')->andReturn('friendica.local');
-		$configMock->shouldReceive('get')->with('system', 'urlpath')->andReturn('new/test');
-		$configMock->shouldReceive('get')->with('system', 'ssl_policy')->andReturn(BaseURL::DEFAULT_SSL_SCHEME);
-		$configMock->shouldReceive('get')->with('system', 'url')->andReturn('http://friendica.local/new/test');
-
-		switch ($fail) {
-			case 'hostname':
-				$configMock->shouldReceive('set')->with('config', 'hostname', \Mockery::any())->andReturn(false)->once();
-				break;
-			case 'sslPolicy':
-				$configMock->shouldReceive('set')->with('config', 'hostname', \Mockery::any())->andReturn(true)->twice();
-				$configMock->shouldReceive('set')->with('system', 'ssl_policy', \Mockery::any())->andReturn(false)->once();
-				break;
-			case 'urlPath':
-				$configMock->shouldReceive('set')->with('config', 'hostname', \Mockery::any())->andReturn(true)->twice();
-				$configMock->shouldReceive('set')->with('system', 'ssl_policy', \Mockery::any())->andReturn(true)->twice();
-				$configMock->shouldReceive('set')->with('system', 'urlpath', \Mockery::any())->andReturn(false)->once();
-				break;
-			case 'url':
-				$configMock->shouldReceive('set')->with('config', 'hostname', \Mockery::any())->andReturn(true)->twice();
-				$configMock->shouldReceive('set')->with('system', 'ssl_policy', \Mockery::any())->andReturn(true)->twice();
-				$configMock->shouldReceive('set')->with('system', 'urlpath', \Mockery::any())->andReturn(true)->twice();
-				$configMock->shouldReceive('set')->with('system', 'url', \Mockery::any())->andReturn(false)->once();
-				break;
-		}
-
-		$baseUrl = new BaseURL($configMock, []);
-		self::assertFalse($baseUrl->save('test', 10, 'nope'));
-
-		// nothing should have changed because we never successfully saved anything
-		self::assertEquals('friendica.local', $baseUrl->getHostname());
-		self::assertEquals('new/test', $baseUrl->getUrlPath());
-		self::assertEquals(BaseURL::DEFAULT_SSL_SCHEME, $baseUrl->getSSLPolicy());
-		self::assertEquals('http://friendica.local/new/test', $baseUrl->get());
 	}
 }

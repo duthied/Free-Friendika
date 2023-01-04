@@ -41,8 +41,6 @@ interface ISetConfigValuesTransactionally
 	 * @param mixed  $value  The value to store
 	 *
 	 * @return static the current instance
-	 *
-	 * @throws ConfigPersistenceException In case the persistence layer throws errors
 	 */
 	public function set(string $cat, string $key, $value): self;
 
@@ -53,8 +51,6 @@ interface ISetConfigValuesTransactionally
 	 * @param string $key The configuration key to delete
 	 *
 	 * @return static the current instance
-	 *
-	 * @throws ConfigPersistenceException In case the persistence layer throws errors
 	 *
 	 */
 	public function delete(string $cat, string $key): self;

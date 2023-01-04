@@ -126,7 +126,7 @@ if ($mode == 'status') {
 
 	unlink($pidfile);
 
-	DI::config()->set('system', 'worker_daemon_mode', false);
+	DI::keyValue()->set('worker_daemon_mode', false);
 	die("Daemon process $pid isn't running.\n");
 }
 

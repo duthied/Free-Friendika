@@ -407,7 +407,7 @@ class ConfigFileManagerTest extends MockedTest
 
 		$configFileLoader->setupCache($configCache);
 
-		$specialChars = '!"§$%&/()(/&%$\'><?$a,;:[]}{}\\';
+		$specialChars = '!"§$%&/()(/&%$\'><?$a,;:[]}{}\\?¿¿ß';
 
 		// overwrite some data and save it back to the config file
 		$configCache->set('system', 'test', 'it', Cache::SOURCE_DATA);
