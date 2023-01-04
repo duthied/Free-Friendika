@@ -172,54 +172,37 @@ class BaseURL
 	 */
 	public function save($hostname = null, $sslPolicy = null, $urlPath = null): bool
 	{
-		$currHostname  = $this->hostname;
-		$currSSLPolicy = $this->sslPolicy;
-		$currURLPath   = $this->urlPath;
-		$currUrl       = $this->url;
+		$currUrl = $this->url;
+
+		$configTransaction = $this->config->beginTransaction();
+		$savable           = false;
 
 		if (!empty($hostname) && $hostname !== $this->hostname) {
-			if ($this->config->set('config', 'hostname', $hostname)) {
-				$this->hostname = $hostname;
-			} else {
-				return false;
-			}
+			$configTransaction->set('config', 'hostname', $hostname);
+			$this->hostname = $hostname;
+			$savable        = true;
 		}
 
 		if (isset($sslPolicy) && $sslPolicy !== $this->sslPolicy) {
-			if ($this->config->set('system', 'ssl_policy', $sslPolicy)) {
-				$this->sslPolicy = $sslPolicy;
-			} else {
-				$this->hostname = $currHostname;
-				$this->config->set('config', 'hostname', $this->hostname);
-				return false;
-			}
+			$configTransaction->set('system', 'ssl_policy', $sslPolicy);
+			$this->sslPolicy = $sslPolicy;
+			$savable         = true;
 		}
 
 		if (isset($urlPath) && $urlPath !== $this->urlPath) {
-			if ($this->config->set('system', 'urlpath', $urlPath)) {
-				$this->urlPath = $urlPath;
-			} else {
-				$this->hostname  = $currHostname;
-				$this->sslPolicy = $currSSLPolicy;
-				$this->config->set('config', 'hostname', $this->hostname);
-				$this->config->set('system', 'ssl_policy', $this->sslPolicy);
-				return false;
-			}
+			$configTransaction->set('system', 'urlpath', $urlPath);
+			$this->urlPath = $urlPath;
+			$savable       = true;
 		}
 
 		$this->determineBaseUrl();
 		if ($this->url !== $currUrl) {
-			if (!$this->config->set('system', 'url', $this->url)) {
-				$this->hostname  = $currHostname;
-				$this->sslPolicy = $currSSLPolicy;
-				$this->urlPath   = $currURLPath;
-				$this->determineBaseUrl();
+			$configTransaction->set('system', 'url', $this->url);
+			$savable = true;
+		}
 
-				$this->config->set('config', 'hostname', $this->hostname);
-				$this->config->set('system', 'ssl_policy', $this->sslPolicy);
-				$this->config->set('system', 'urlpath', $this->urlPath);
-				return false;
-			}
+		if ($savable) {
+			$configTransaction->commit();
 		}
 
 		return true;
