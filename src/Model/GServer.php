@@ -45,6 +45,7 @@ use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Network\HTTPException;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\UriInterface;
 
 /**
  * This class handles GServer related functions
@@ -334,16 +335,39 @@ class GServer
 	 *
 	 * @return string cleaned URL
 	 * @throws Exception
+	 * @deprecated since 2023.03 Use cleanUri instead
 	 */
 	public static function cleanURL(string $dirtyUrl): string
 	{
 		try {
-			$url = str_replace('/index.php', '', trim($dirtyUrl, '/'));
-			return (string)(new Uri($url))->withUserInfo('')->withQuery('')->withFragment('');
+			return (string)self::cleanUri(new Uri($dirtyUrl));
 		} catch (\Throwable $e) {
-			Logger::warning('Invalid URL', ['dirtyUrl' => $dirtyUrl, 'url' => $url]);
+			Logger::warning('Invalid URL', ['dirtyUrl' => $dirtyUrl]);
 			return '';
 		}
+	}
+
+	/**
+	 * Remove unwanted content from the given URI
+	 *
+	 * @param UriInterface $dirtyUri
+	 *
+	 * @return UriInterface cleaned URI
+	 * @throws Exception
+	 */
+	public static function cleanUri(UriInterface $dirtyUri): string
+	{
+		return $dirtyUri
+			->withUserInfo('')
+			->withQuery('')
+			->withFragment('')
+			->withPath(
+				preg_replace(
+					'#(?:^|/)index\.php#',
+					'',
+					rtrim($dirtyUri->getPath(), '/')
+				)
+			);
 	}
 
 	/**
