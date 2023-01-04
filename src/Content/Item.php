@@ -21,22 +21,33 @@
 
 namespace Friendica\Content;
 
+use Friendica\App\BaseURL;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\BBCode\Video;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\Attach;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
+use Friendica\Model\FileTag;
 use Friendica\Model\Group;
 use Friendica\Model\Item as ItemModel;
 use Friendica\Model\Photo;
 use Friendica\Model\Tag;
 use Friendica\Model\Post;
+use Friendica\Model\User;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
+use Friendica\Util\ACLFormatter;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\ParseUrl;
 use Friendica\Util\Profiler;
 use Friendica\Util\Proxy;
 use Friendica\Util\XML;
@@ -54,13 +65,25 @@ class Item
 	private $profiler;
 	/** @var IHandleUserSessions */
 	private $userSession;
+	/** @var Video */
+	private $bbCodeVideo;
+	/** @var ACLFormatter */
+	private $aclFormatter;
+	/** @var IManagePersonalConfigValues */
+	private $pConfig;
+	/** @var BaseURL */
+	private $baseURL;
 
-	public function __construct(Profiler $profiler, Activity $activity, L10n $l10n, IHandleUserSessions $userSession)
+	public function __construct(Profiler $profiler, Activity $activity, L10n $l10n, IHandleUserSessions $userSession, Video $bbCodeVideo, ACLFormatter $aclFormatter, IManagePersonalConfigValues $pConfig, BaseURL $baseURL)
 	{
-		$this->profiler    = $profiler;
-		$this->activity    = $activity;
-		$this->l10n        = $l10n;
-		$this->userSession = $userSession;
+		$this->profiler     = $profiler;
+		$this->activity     = $activity;
+		$this->l10n         = $l10n;
+		$this->userSession  = $userSession;
+		$this->bbCodeVideo  = $bbCodeVideo;
+		$this->aclFormatter = $aclFormatter;
+		$this->baseURL      = $baseURL;
+		$this->pConfig      = $pConfig;
 	}
 
 	/**
@@ -755,5 +778,217 @@ class Item
 		$body .= "\n♲ " . ($post['plink'] ?: $post['uri']);
 
 		return $body;
+	}
+
+	public function storeAttachmentFromRequest(array $request): string
+	{
+		$attachment_type  = $request['attachment_type'] ??  '';
+		$attachment_title = $request['attachment_title'] ?? '';
+		$attachment_text  = $request['attachment_text'] ??  '';
+
+		$attachment_url     = hex2bin($request['attachment_url'] ??     '');
+		$attachment_img_src = hex2bin($request['attachment_img_src'] ?? '');
+
+		$attachment_img_width  = $request['attachment_img_width'] ??  0;
+		$attachment_img_height = $request['attachment_img_height'] ?? 0;
+
+		// Fetch the basic attachment data
+		$attachment = ParseUrl::getSiteinfoCached($attachment_url);
+		unset($attachment['keywords']);
+
+		// Overwrite the basic data with possible changes from the frontend
+		$attachment['type'] = $attachment_type;
+		$attachment['title'] = $attachment_title;
+		$attachment['text'] = $attachment_text;
+		$attachment['url'] = $attachment_url;
+
+		if (!empty($attachment_img_src)) {
+			$attachment['images'] = [
+				0 => [
+					'src'    => $attachment_img_src,
+					'width'  => $attachment_img_width,
+					'height' => $attachment_img_height
+				]
+			];
+		} else {
+			unset($attachment['images']);
+		}
+
+		return "\n" . PageInfo::getFooterFromData($attachment);
+	}
+
+	public function addCategories(array $post, string $category): array
+	{
+		if (!empty($post['file'])) {
+			// get the "fileas" tags for this post
+			$filedas = FileTag::fileToArray($post['file']);
+		}
+	
+		$list_array = explode(',', trim($category));
+		$post['file'] = FileTag::arrayToFile($list_array, 'category');
+	
+		if (!empty($filedas) && is_array($filedas)) {
+			// append the fileas stuff to the new categories list
+			$post['file'] .= FileTag::arrayToFile($filedas);
+		}
+		return $post;
+	}
+
+	public function getACL(array $post, array $toplevel_item, array $request): array
+	{
+		// If this is a comment, set the permissions from the parent.
+		if ($toplevel_item) {
+			$post['allow_cid'] = $toplevel_item['allow_cid'] ?? '';
+			$post['allow_gid'] = $toplevel_item['allow_gid'] ?? '';
+			$post['deny_cid']  = $toplevel_item['deny_cid'] ?? '';
+			$post['deny_gid']  = $toplevel_item['deny_gid'] ?? '';
+			$post['private']   = $toplevel_item['private'];
+			return $post;
+		}
+
+		$user = User::getById($post['uid'], ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
+		if (!DBA::isResult($user)) {
+			throw new HTTPException\NotFoundException($this->l10n->t('Unable to locate original post.'));
+		}
+	
+		$post['allow_cid'] = isset($request['contact_allow']) ? $this->aclFormatter->toString($request['contact_allow']) : $user['allow_cid'] ?? '';
+		$post['allow_gid'] = isset($request['group_allow'])   ? $this->aclFormatter->toString($request['group_allow'])   : $user['allow_gid'] ?? '';
+		$post['deny_cid']  = isset($request['contact_deny'])  ? $this->aclFormatter->toString($request['contact_deny'])  : $user['deny_cid']  ?? '';
+		$post['deny_gid']  = isset($request['group_deny'])    ? $this->aclFormatter->toString($request['group_deny'])    : $user['deny_gid']  ?? '';
+	
+		$visibility = $request['visibility'] ?? '';
+		if ($visibility === 'public') {
+			// The ACL selector introduced in version 2019.12 sends ACL input data even when the Public visibility is selected
+			$post['allow_cid'] = $post['allow_gid'] = $post['deny_cid'] = $post['deny_gid'] = '';
+		} else if ($visibility === 'custom') {
+			// Since we know from the visibility parameter the item should be private, we have to prevent the empty ACL
+			// case that would make it public. So we always append the author's contact id to the allowed contacts.
+			// See https://github.com/friendica/friendica/issues/9672
+			$post['allow_cid'] .= $this->aclFormatter->toString(Contact::getPublicIdByUserId($post['uid']));
+		}
+
+		if (strlen($post['allow_gid']) || strlen($post['allow_cid']) || strlen($post['deny_gid']) || strlen($post['deny_cid'])) {
+			$post['private'] = ItemModel::PRIVATE;
+		} elseif ($this->pConfig->get($post['uid'], 'system', 'unlisted')) {
+			$post['private'] = ItemModel::UNLISTED;
+		} else {
+			$post['private'] = ItemModel::PUBLIC;
+		}
+	
+		return $post;
+	}
+
+	public function moveAttachmentsFromBodyToAttach(array $post): array
+	{
+		if (!preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/',$post['body'], $match)) {
+			return $post;
+		}
+
+		foreach ($match[2] as $attachment_id) {
+			$attachment = Attach::selectFirst(['id', 'uid', 'filename', 'filesize', 'filetype'], ['id' => $attachment_id, 'uid' => $post['uid']]);
+			if (empty($attachment)) {
+				continue;
+			}
+			if (strlen($post['attach'])) {
+				$post['attach'] .= ',';
+			}
+			$post['attach'] .= Post\Media::getAttachElement($this->baseURL->get() . '/attach/' . $attachment['id'],
+				$attachment['filesize'], $attachment['filetype'], $attachment['filename'] ?? '');
+
+			$fields = ['allow_cid' => $post['allow_cid'], 'allow_gid' => $post['allow_gid'],
+					'deny_cid' => $post['deny_cid'], 'deny_gid' => $post['deny_gid']];
+			$condition = ['id' => $attachment_id];
+			Attach::update($fields, $condition);
+		}
+
+		$post['body'] = str_replace($match[1], '', $post['body']);
+
+		return $post;
+	}
+
+	private function setObjectType(array $post): array
+	{
+		if (empty($post['post-type'])) {
+			$post['post-type'] = empty($post['title']) ? ItemModel::PT_NOTE : ItemModel::PT_ARTICLE;
+		}
+
+		// embedded bookmark or attachment in post? set bookmark flag
+		$data = BBCode::getAttachmentData($post['body']);
+		if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $post['body'], $match, PREG_SET_ORDER) || isset($data['type']))
+			&& ($post['post-type'] != ItemModel::PT_PERSONAL_NOTE)) {
+			$post['post-type'] = ItemModel::PT_PAGE;
+			$post['object-type'] = Activity\ObjectType::BOOKMARK;
+		}
+
+		// Setting the object type if not defined before
+		if (empty($post['object-type'])) {
+			$post['object-type'] = ($post['gravity'] == ItemModel::GRAVITY_PARENT) ? Activity\ObjectType::NOTE : Activity\ObjectType::COMMENT;
+
+			$objectdata = BBCode::getAttachedData($post['body']);
+
+			if ($objectdata['type'] == 'link') {
+				$post['object-type'] = Activity\ObjectType::BOOKMARK;
+			} elseif ($objectdata['type'] == 'video') {
+				$post['object-type'] = Activity\ObjectType::VIDEO;
+			} elseif ($objectdata['type'] == 'photo') {
+				$post['object-type'] = Activity\ObjectType::IMAGE;
+			}
+		}
+		return $post;
+	}
+
+	public function initializePost(array $post): array
+	{
+		$post['wall']       = true;
+		$post['origin']     = true;
+		$post['network']    = Protocol::DFRN;
+		$post['protocol']   = Conversation::PARCEL_DIRECT;
+		$post['direction']  = Conversation::PUSH;
+		$post['guid']       = System::createUUID();
+		$post['uri']        = ItemModel::newURI($post['guid']);
+		$post['verb']       = Activity::POST;
+		$post['received']   = DateTimeFormat::utcNow();	
+		$owner = User::getOwnerDataById($post['uid']);
+
+		if (empty($post['contact-id'])) {
+			$post['contact-id'] = $owner['id'];
+		}
+
+		if (empty($post['author-link']) && empty($post['author-id'])) {
+			$post['author-link']   = $owner['url'];
+			$post['author-id']     = Contact::getIdForURL($post['author-link']);
+			$post['author-name']   = $owner['name'];
+			$post['author-avatar'] = $owner['thumb'];
+		}
+
+		if (empty($post['owner-link']) && empty($post['owner-id'])) {
+			$post['owner-link']   = $post['author-link'];
+			$post['owner-id']     = Contact::getIdForURL($post['owner-link']);
+			$post['owner-name']   = $post['author-name'];
+			$post['owner-avatar'] = $post['author-avatar'];
+		}
+
+		return $post;
+	}
+
+	public function finalizePost(array $post): array
+	{
+		if (preg_match("/\[attachment\](.*?)\[\/attachment\]/ism", $post['body'], $matches)) {
+			$post['body'] = preg_replace("/\[attachment].*?\[\/attachment\]/ism", PageInfo::getFooterFromUrl($matches[1]), $post['body']);
+		}
+
+		// Convert links with empty descriptions to links without an explicit description
+		$post['body'] = trim(preg_replace('#\[url=([^\]]*?)\]\[/url\]#ism', '[url]$1[/url]', $post['body']));
+		$post['body'] = $this->bbCodeVideo->transform($post['body']);
+		$post['body'] = BBCode::scaleExternalImages($post['body']);
+		$post = $this->setObjectType($post);
+
+		// Personal notes must never be altered to a forum post.
+		if ($post['post-type'] != ItemModel::PT_PERSONAL_NOTE) {
+			// Look for any tags and linkify them
+			$post = $this->expandTags($post);
+		}
+
+		return $post;
 	}
 }
