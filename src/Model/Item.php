@@ -2984,13 +2984,15 @@ class Item
 		$item['hashtags'] = $tags['hashtags'];
 		$item['mentions'] = $tags['mentions'];
 
-		$item['body'] = preg_replace("#\s*\[attachment .*?].*?\[/attachment]\s*#ism", "\n", $item['body']);
-
 		if (!$is_preview) {
+			$item['body'] = preg_replace("#\s*\[attachment .*?].*?\[/attachment]\s*#ism", "\n", $item['body']);
 			$item['body'] = Post\Media::removeFromEndOfBody($item['body'] ?? '');
 		}
 
 		$body = $item['body'];
+		if ($is_preview) {
+			$item['body'] = preg_replace("#\s*\[attachment .*?].*?\[/attachment]\s*#ism", "\n", $item['body']);
+		}
 
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media', 'quote-uri-id', 'post-type'];
 

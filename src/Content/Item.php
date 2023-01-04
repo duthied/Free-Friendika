@@ -948,15 +948,15 @@ class Item
 
 	public function initializePost(array $post): array
 	{
-		$post['wall']       = true;
-		$post['origin']     = true;
-		$post['network']    = Protocol::DFRN;
-		$post['protocol']   = Conversation::PARCEL_DIRECT;
-		$post['direction']  = Conversation::PUSH;
-		$post['guid']       = System::createUUID();
-		$post['uri']        = ItemModel::newURI($post['guid']);
-		$post['verb']       = Activity::POST;
-		$post['received']   = DateTimeFormat::utcNow();
+		$post['network']   = Protocol::DFRN;
+		$post['protocol']  = Conversation::PARCEL_DIRECT;
+		$post['direction'] = Conversation::PUSH;
+		$post['received']  = DateTimeFormat::utcNow();
+		$post['origin']    = true;
+		$post['wall']      = $post['wall'] ?? true;
+		$post['guid']      = $post['guid'] ?? System::createUUID();
+		$post['uri']       = $post['uri']  ?? ItemModel::newURI($post['guid']);
+		$post['verb']      = $post['verb'] ?? Activity::POST;
 		$owner = User::getOwnerDataById($post['uid']);
 
 		if (empty($post['contact-id'])) {
