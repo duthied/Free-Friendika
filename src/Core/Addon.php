@@ -170,7 +170,7 @@ class Addon
 			$func(DI::app());
 		}
 
-		DI::config()->set('addons', $addon,[
+		DI::config()->set('addons', $addon, [
 			'last_update' => $t,
 			'admin' => function_exists($addon . '_addon_admin'),
 		]);
