@@ -102,7 +102,7 @@ class Config implements IManageConfigValues
 	}
 
 	/** {@inheritDoc} */
-	public function get(string $cat, string $key, $default_value = null)
+	public function get(string $cat, string $key = null, $default_value = null)
 	{
 		return $this->configCache->get($cat, $key) ?? $default_value;
 	}
