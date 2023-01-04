@@ -937,10 +937,16 @@ function photos_content(App $a)
 				$nxt = null;
 				foreach ($prvnxt as $z => $entry) {
 					if ($entry['resource-id'] == $ph[0]['resource-id']) {
-						$prv = $z - 1;
-						$nxt = $z + 1;
+						$prv = $order_field === 'created' ? $z - 1 : $z + 1;
+						$nxt = $order_field === 'created' ? $z + 1 : $z - 1;
 						if ($prv < 0) {
 							$prv = count($prvnxt) - 1;
+						}
+						if ($nxt < 0) {
+							$nxt = count($prvnxt) - 1;
+						}
+						if ($prv >= count($prvnxt)) {
+							$prv = 0;
 						}
 						if ($nxt >= count($prvnxt)) {
 							$nxt = 0;
