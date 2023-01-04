@@ -214,10 +214,9 @@ class ConfigFileManager
 			throw new ConfigFileException('config source cannot get encoded');
 		}
 
-		$configStream = fopen($this->configDir . '/' . self::CONFIG_DATA_FILE, 'w+');
+		$configStream = fopen($this->configDir . '/' . self::CONFIG_DATA_FILE, 'w');
 
 		if (flock($configStream, LOCK_EX)) {
-			ftruncate($configStream, 0);
 			fwrite($configStream, $encodedData);
 			fflush($configStream);
 			flock($configStream, LOCK_UN);
