@@ -44,6 +44,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Network\HTTPException;
+use Friendica\Worker\UpdateGServer;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\UriInterface;
 
@@ -100,11 +101,11 @@ class GServer
 	 */
 	public static function add(string $url, bool $only_nodeinfo = false)
 	{
-		if (self::getID($url, false)) {
+		if (self::getID($url)) {
 			return;
 		}
 
-		Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $url, $only_nodeinfo);
+		UpdateGServer::add(Worker::PRIORITY_LOW, $url, $only_nodeinfo);
 	}
 
 	/**
@@ -192,8 +193,9 @@ class GServer
 			return false;
 		} else {
 			if (strtotime($gserver['next_contact']) < time()) {
-				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
 			}
+
 			return self::isDefunct($gserver);
 		}
 	}
@@ -211,8 +213,9 @@ class GServer
 			return true;
 		} else {
 			if (strtotime($gserver['next_contact']) < time()) {
-				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
 			}
+
 			return !$gserver['failed'] && in_array($gserver['network'], Protocol::FEDERATED);
 		}
 	}
@@ -253,7 +256,7 @@ class GServer
 		}
 
 		if (!empty($server) && (empty($gserver) || strtotime($gserver['next_contact']) < time())) {
-			Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $server, false);
+			UpdateGServer::add(Worker::PRIORITY_LOW, $server);
 		}
 
 		return $reachable;
@@ -376,7 +379,7 @@ class GServer
 			Logger::info('Reset failed status for server', ['url' => $gserver['url']]);
 
 			if (strtotime($gserver['next_contact']) < time()) {
-				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
 			}
 		}
 	}
@@ -394,7 +397,7 @@ class GServer
 			Logger::info('Set failed status for server', ['url' => $gserver['url']]);
 
 			if (strtotime($gserver['next_contact']) < time()) {
-				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
 			}
 		}
 	}
