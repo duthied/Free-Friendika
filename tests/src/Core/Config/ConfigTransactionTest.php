@@ -9,6 +9,7 @@ use Friendica\Core\Config\Util\ConfigFileManager;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
+use Mockery\Exception\InvalidCountException;
 
 class ConfigTransactionTest extends MockedTest
 {
@@ -107,5 +108,28 @@ class ConfigTransactionTest extends MockedTest
 		self::assertNull($tempData['delete']['keyDel'] ?? null);
 		// the whole category should be gone
 		self::assertNull($tempData['delete'] ?? null);
+	}
+
+	/**
+	 * This test asserts that in empty transactions, no saveData is called, thus no config file writing was performed
+	 */
+	public function testNothingToDo()
+	{
+		$this->configFileManager = \Mockery::spy(ConfigFileManager::class);
+
+		$config = new Config($this->configFileManager, new Cache());
+		$configTransaction = new ConfigTransaction($config);
+
+		// commit empty transaction
+		$configTransaction->commit();
+
+		try {
+			$this->configFileManager->shouldNotHaveReceived('saveData');
+		} catch (InvalidCountException $exception) {
+			self::fail($exception);
+		}
+
+		// If not failed, the test ends successfully :)
+		self::assertTrue(true);
 	}
 }

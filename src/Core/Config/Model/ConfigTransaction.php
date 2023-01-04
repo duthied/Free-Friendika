@@ -37,6 +37,8 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	protected $cache;
 	/** @var Cache */
 	protected $delCache;
+	/** @var bool field to check if something is to save */
+	protected $changedConfig = false;
 
 	public function __construct(IManageConfigValues $config)
 	{
@@ -70,6 +72,7 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	public function set(string $cat, string $key, $value): ISetConfigValuesTransactionally
 	{
 		$this->cache->set($cat, $key, $value, Cache::SOURCE_DATA);
+		$this->changedConfig = true;
 
 		return $this;
 	}
@@ -80,6 +83,7 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	{
 		$this->cache->delete($cat, $key);
 		$this->delCache->set($cat, $key, 'deleted');
+		$this->changedConfig = true;
 
 		return $this;
 	}
@@ -87,6 +91,11 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	/** {@inheritDoc} */
 	public function commit(): void
 	{
+		// If nothing changed, just do nothing :)
+		if (!$this->changedConfig) {
+			return;
+		}
+
 		try {
 			$newCache = $this->config->getCache()->merge($this->cache);
 			$newCache = $newCache->diff($this->delCache);

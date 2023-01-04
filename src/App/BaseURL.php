@@ -175,35 +175,28 @@ class BaseURL
 		$currUrl = $this->url;
 
 		$configTransaction = $this->config->beginTransaction();
-		$savable           = false;
 
 		if (!empty($hostname) && $hostname !== $this->hostname) {
 			$configTransaction->set('config', 'hostname', $hostname);
 			$this->hostname = $hostname;
-			$savable        = true;
 		}
 
 		if (isset($sslPolicy) && $sslPolicy !== $this->sslPolicy) {
 			$configTransaction->set('system', 'ssl_policy', $sslPolicy);
 			$this->sslPolicy = $sslPolicy;
-			$savable         = true;
 		}
 
 		if (isset($urlPath) && $urlPath !== $this->urlPath) {
 			$configTransaction->set('system', 'urlpath', $urlPath);
 			$this->urlPath = $urlPath;
-			$savable       = true;
 		}
 
 		$this->determineBaseUrl();
 		if ($this->url !== $currUrl) {
 			$configTransaction->set('system', 'url', $this->url);
-			$savable = true;
 		}
 
-		if ($savable) {
-			$configTransaction->commit();
-		}
+		$configTransaction->commit();
 
 		return true;
 	}
