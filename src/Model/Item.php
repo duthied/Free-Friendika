@@ -820,6 +820,12 @@ class Item
 	private static function prepareOriginPost(array $item): array
 	{
 		$item = DI::contentItem()->initializePost($item);
+
+		if (Photo::setPermissionFromBody($item['body'], $item['uid'], $item['contact-id'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid'])) {
+			$item['object-type'] = Activity\ObjectType::IMAGE;
+		}
+
+		$item = DI::contentItem()->moveAttachmentsFromBodyToAttach($item);
 		$item = DI::contentItem()->finalizePost($item);
 
 		return $item;
@@ -1301,10 +1307,7 @@ class Item
 		}
 
 		if ($notify) {
-			if (!\Friendica\Content\Feature::isEnabled($posted_item['uid'], 'explicit_mentions') && ($posted_item['gravity'] == self::GRAVITY_COMMENT)) {
-				Tag::createImplicitMentions($posted_item['uri-id'], $posted_item['thr-parent-id']);
-			}
-			Hook::callAll('post_local_end', $posted_item);
+			DI::contentItem()->postProcessPost($posted_item);
 		} else {
 			Hook::callAll('post_remote_end', $posted_item);
 		}

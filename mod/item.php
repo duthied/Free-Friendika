@@ -42,9 +42,7 @@ use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
-use Friendica\Model\Tag;
 use Friendica\Network\HTTPException;
-use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 
@@ -99,25 +97,24 @@ function item_post(App $a) {
 
 	$post = DI::contentItem()->initializePost($post);
 
-	$post['self']        = true;
-	$post['api_source']  = false;
-	$post['edit']        = $orig_post;
-	$post['file']        = '';
-	$post['attach']      = '';
-	$post['inform']      = '';
-	$post['postopts']    = '';
-
-	$post['wall']        = $_REQUEST['wall'] ?? true;
-	$post['post-type']   = $_REQUEST['post_type'] ?? '';
-	$post['title']       = trim($_REQUEST['title'] ?? '');
-	$post['body']        = $_REQUEST['body'] ?? '';
-	$post['location']    = trim($_REQUEST['location'] ?? '');
-	$post['coord']       = trim($_REQUEST['coord'] ?? '');
-	$post['parent']      = intval($_REQUEST['parent'] ?? 0);
-	$post['pubmail']     = $_REQUEST['pubmail_enable'] ?? false;
-	$post['created']     = $_REQUEST['created_at'] ?? DateTimeFormat::utcNow();
-	$post['edited']      = $post['changed'] = $post['commented'] = $post['created'];
-	$post['app']         = '';
+	$post['edit']       = $orig_post;
+	$post['self']       = true;
+	$post['api_source'] = false;
+	$post['file']       = '';
+	$post['attach']     = '';
+	$post['inform']     = '';
+	$post['postopts']   = '';
+	$post['wall']       = $_REQUEST['wall'] ?? true;
+	$post['post-type']  = $_REQUEST['post_type'] ?? '';
+	$post['title']      = trim($_REQUEST['title'] ?? '');
+	$post['body']       = $_REQUEST['body'] ?? '';
+	$post['location']   = trim($_REQUEST['location'] ?? '');
+	$post['coord']      = trim($_REQUEST['coord'] ?? '');
+	$post['parent']     = intval($_REQUEST['parent'] ?? 0);
+	$post['pubmail']    = $_REQUEST['pubmail_enable'] ?? false;
+	$post['created']    = $_REQUEST['created_at'] ?? DateTimeFormat::utcNow();
+	$post['edited']     = $post['changed'] = $post['commented'] = $post['created'];
+	$post['app']        = '';
 
 	if ($post['parent']) {
 		if ($post['parent']) {
@@ -168,7 +165,6 @@ function item_post(App $a) {
 	$post['pubmail'] = $post['pubmail'] && !$post['private'];
 
 	if (!empty($orig_post)) {
-		$post['uri']  = $orig_post['uri'];
 		$post['file'] = Post\Category::getTextByURIId($orig_post['uri-id'], $orig_post['uid']);
 	}
 
@@ -202,26 +198,20 @@ function item_post(App $a) {
 		throw new HTTPException\BadRequestException(DI::l10n()->t('Empty post discarded.'));
 	}
 
-	// Check for hashtags in the body and repair or add hashtag links
-	if ($preview || $orig_post) {
-		$post['body'] = Item::setHashtags($post['body']);
-	}
-
 	// preview mode - prepare the body for display and send it via json
 	if ($preview) {
-		// We set the datarray ID to -1 because in preview mode the dataray
-		// doesn't have an ID.
-		$post['id'] = -1;
-		$post['uri-id'] = -1;
+		// We have to preset some fields, so that the conversation can be displayed
+		$post['id']             = -1;
+		$post['uri-id']         = -1;
 		$post['author-network'] = Protocol::DFRN;
 		$post['author-updated'] = '';
-		$post['author-gsid'] = 0;
-		$post['author-uri-id'] = ItemURI::getIdByURI($post['author-link']);
-		$post['owner-updated'] = '';
-		$post['has-media'] = false;
-		$post['quote-uri-id'] = Item::getQuoteUriId($post['body'], $post['uid']);
-		$post['body'] = BBCode::removeSharedData($post['body']);
-		$post['writable'] = true;
+		$post['author-gsid']    = 0;
+		$post['author-uri-id']  = ItemURI::getIdByURI($post['author-link']);
+		$post['owner-updated']  = '';
+		$post['has-media']      = false;
+		$post['quote-uri-id']   = Item::getQuoteUriId($post['body'], $post['uid']);
+		$post['body']           = BBCode::removeSharedData(Item::setHashtags($post['body']));
+		$post['writable']       = true;
 
 		$o = DI::conversation()->create([$post], 'search', false, true);
 
@@ -229,6 +219,10 @@ function item_post(App $a) {
 	}
 
 	Hook::callAll('post_local',$post);
+
+	unset($post['edit']);
+	unset($post['self']);
+	unset($post['api_source']);
 
 	if (!empty($_REQUEST['scheduled_at'])) {
 		$scheduled_at = DateTimeFormat::convert($_REQUEST['scheduled_at'], 'UTC', $a->getTimeZone());
@@ -238,9 +232,6 @@ function item_post(App $a) {
 			unset($post['commented']);
 			unset($post['received']);
 			unset($post['changed']);
-			unset($post['edit']);
-			unset($post['self']);
-			unset($post['api_source']);
 
 			Post\Delayed::add($post['uri'], $post, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED_NO_HOOK, $scheduled_at);
 			item_post_return(DI::baseUrl(), $return_path);
@@ -261,26 +252,26 @@ function item_post(App $a) {
 		System::jsonExit($json);
 	}
 
-	$post['uri-id'] = ItemURI::getIdByURI($post['uri']);
-
-	$quote_uri_id = Item::getQuoteUriId($post['body'], $post['uid']);
-	if (!empty($quote_uri_id)) {
-		$post['quote-uri-id'] = $quote_uri_id;
-		$post['body']         = BBCode::removeSharedData($post['body']);
-	}
-
 	if ($orig_post) {
 		$fields = [
-			'title'   => $post['title'],
-			'body'    => $post['body'],
-			'attach'  => $post['attach'],
-			'file'    => $post['file'],
-			'edited'  => DateTimeFormat::utcNow(),
-			'changed' => DateTimeFormat::utcNow()
+			'title'        => $post['title'],
+			'body'         => $post['body'],
+			'attach'       => $post['attach'],
+			'file'         => $post['file'],
+			'edited'       => DateTimeFormat::utcNow(),
+			'changed'      => DateTimeFormat::utcNow()
 		];
 
+		$fields['body'] = Item::setHashtags($fields['body']);
+
+		$quote_uri_id = Item::getQuoteUriId($fields['body'], $post['uid']);
+		if (!empty($quote_uri_id)) {
+			$fields['quote-uri-id'] = $quote_uri_id;
+			$fields['body']         = BBCode::removeSharedData($post['body']);
+		}
+
 		Item::update($fields, ['id' => $post_id]);
-		Item::updateDisplayCache($post['uri-id']);
+		Item::updateDisplayCache($orig_post['uri-id']);
 
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
@@ -288,10 +279,6 @@ function item_post(App $a) {
 
 		throw new HTTPException\OKException(DI::l10n()->t('Post updated.'));
 	}
-
-	unset($post['edit']);
-	unset($post['self']);
-	unset($post['api_source']);
 
 	$post_id = Item::insert($post);
 	if (!$post_id) {
@@ -313,26 +300,9 @@ function item_post(App $a) {
 		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item couldn\'t be fetched.'));
 	}
 
-	if (!\Friendica\Content\Feature::isEnabled($post['uid'], 'explicit_mentions') && ($post['gravity'] == Item::GRAVITY_COMMENT)) {
-		Tag::createImplicitMentions($post['uri-id'], $post['thr-parent-id']);
-	}
-
-	Hook::callAll('post_local_end', $post);
-
 	$recipients = explode(',', $emailcc);
-	if (count($recipients)) {
-		foreach ($recipients as $recipient) {
-			$address = trim($recipient);
-			if (!strlen($address)) {
-				continue;
-			}
 
-			$author = DBA::selectFirst('contact', ['thumb'], ['uid' => $uid, 'self' => true]);
-
-			DI::emailer()->send(new ItemCCEMail(DI::app(), DI::l10n(), DI::baseUrl(),
-				$post, $address, $author['thumb'] ?? ''));
-		}
-	}
+	DI::contentItem()->postProcessPost($post, $recipients);
 
 	Logger::debug('post_complete');
 

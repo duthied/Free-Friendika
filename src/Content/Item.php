@@ -21,6 +21,7 @@
 
 namespace Friendica\Content;
 
+use Friendica\App;
 use Friendica\App\BaseURL;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\BBCode\Video;
@@ -44,9 +45,11 @@ use Friendica\Model\Tag;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
+use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Emailer;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Profiler;
 use Friendica\Util\Proxy;
@@ -73,8 +76,12 @@ class Item
 	private $pConfig;
 	/** @var BaseURL */
 	private $baseURL;
+	/** @var Emailer */
+	private $emailer;
+	/** @var App */
+	private $app;
 
-	public function __construct(Profiler $profiler, Activity $activity, L10n $l10n, IHandleUserSessions $userSession, Video $bbCodeVideo, ACLFormatter $aclFormatter, IManagePersonalConfigValues $pConfig, BaseURL $baseURL)
+	public function __construct(Profiler $profiler, Activity $activity, L10n $l10n, IHandleUserSessions $userSession, Video $bbCodeVideo, ACLFormatter $aclFormatter, IManagePersonalConfigValues $pConfig, BaseURL $baseURL, Emailer $emailer, App $app)
 	{
 		$this->profiler     = $profiler;
 		$this->activity     = $activity;
@@ -84,6 +91,8 @@ class Item
 		$this->aclFormatter = $aclFormatter;
 		$this->baseURL      = $baseURL;
 		$this->pConfig      = $pConfig;
+		$this->emailer      = $emailer;
+		$this->app          = $app;
 	}
 
 	/**
@@ -823,10 +832,10 @@ class Item
 			// get the "fileas" tags for this post
 			$filedas = FileTag::fileToArray($post['file']);
 		}
-	
+
 		$list_array = explode(',', trim($category));
 		$post['file'] = FileTag::arrayToFile($list_array, 'category');
-	
+
 		if (!empty($filedas) && is_array($filedas)) {
 			// append the fileas stuff to the new categories list
 			$post['file'] .= FileTag::arrayToFile($filedas);
@@ -850,12 +859,12 @@ class Item
 		if (!DBA::isResult($user)) {
 			throw new HTTPException\NotFoundException($this->l10n->t('Unable to locate original post.'));
 		}
-	
+
 		$post['allow_cid'] = isset($request['contact_allow']) ? $this->aclFormatter->toString($request['contact_allow']) : $user['allow_cid'] ?? '';
 		$post['allow_gid'] = isset($request['group_allow'])   ? $this->aclFormatter->toString($request['group_allow'])   : $user['allow_gid'] ?? '';
 		$post['deny_cid']  = isset($request['contact_deny'])  ? $this->aclFormatter->toString($request['contact_deny'])  : $user['deny_cid']  ?? '';
 		$post['deny_gid']  = isset($request['group_deny'])    ? $this->aclFormatter->toString($request['group_deny'])    : $user['deny_gid']  ?? '';
-	
+
 		$visibility = $request['visibility'] ?? '';
 		if ($visibility === 'public') {
 			// The ACL selector introduced in version 2019.12 sends ACL input data even when the Public visibility is selected
@@ -874,7 +883,7 @@ class Item
 		} else {
 			$post['private'] = ItemModel::PUBLIC;
 		}
-	
+
 		return $post;
 	}
 
@@ -947,7 +956,7 @@ class Item
 		$post['guid']       = System::createUUID();
 		$post['uri']        = ItemModel::newURI($post['guid']);
 		$post['verb']       = Activity::POST;
-		$post['received']   = DateTimeFormat::utcNow();	
+		$post['received']   = DateTimeFormat::utcNow();
 		$owner = User::getOwnerDataById($post['uid']);
 
 		if (empty($post['contact-id'])) {
@@ -990,5 +999,26 @@ class Item
 		}
 
 		return $post;
+	}
+
+	public function postProcessPost(array $post, array $recipients = [])
+	{
+		if (!\Friendica\Content\Feature::isEnabled($post['uid'], 'explicit_mentions') && ($post['gravity'] == ItemModel::GRAVITY_COMMENT)) {
+			Tag::createImplicitMentions($post['uri-id'], $post['thr-parent-id']);
+		}
+
+		Hook::callAll('post_local_end', $post);
+
+		$author = DBA::selectFirst('contact', ['thumb'], ['uid' => $post['uid'], 'self' => true]);
+
+		foreach ($recipients as $recipient) {
+			$address = trim($recipient);
+			if (!strlen($address)) {
+				continue;
+			}
+
+			$this->emailer->send(new ItemCCEMail($this->app, $this->l10n, $this->baseURL,
+				$post, $address, $author['thumb'] ?? ''));
+		}
 	}
 }
