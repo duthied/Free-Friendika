@@ -85,6 +85,7 @@ class Addon
 	{
 		$addons_admin = [];
 		$addons = DI::config()->get('addons');
+		ksort($addons);
 		foreach ($addons as $name => $data) {
 			if (empty($data['admin'])) {
 				continue;
