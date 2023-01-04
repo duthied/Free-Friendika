@@ -29,6 +29,7 @@ use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException\NotModifiedException;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\UriInterface;
 
 class Network
 {
@@ -177,11 +178,28 @@ class Network
 	 * @param string $url The url to check the domain from
 	 *
 	 * @return boolean
+	 *
+	 * @deprecated since 2023.03 Use isUriBlocked instead
 	 */
 	public static function isUrlBlocked(string $url): bool
 	{
-		$host = @parse_url($url, PHP_URL_HOST);
-		if (!$host) {
+		try {
+			return self::isUriBlocked(new Uri($url));
+		} catch (\Throwable $e) {
+			Logger::warning('Invalid URL', ['url' => $url]);
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if the provided URI domain is on the domain blocklist.
+	 *
+	 * @param UriInterface $uri
+	 * @return boolean
+	 */
+	public static function isUriBlocked(UriInterface $uri): bool
+	{
+		if (!$uri->getHost()) {
 			return false;
 		}
 
@@ -191,7 +209,7 @@ class Network
 		}
 
 		foreach ($domain_blocklist as $domain_block) {
-			if (fnmatch(strtolower($domain_block['domain']), strtolower($host))) {
+			if (fnmatch(strtolower($domain_block['domain']), strtolower($uri->getHost()))) {
 				return true;
 			}
 		}
