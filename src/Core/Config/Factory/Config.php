@@ -56,7 +56,7 @@ class Config
 	 *
 	 * @return Util\ConfigFileManager
 	 */
-	public function createConfigFileLoader(string $basePath, array $server = []): Util\ConfigFileManager
+	public function createConfigFileManager(string $basePath, array $server = []): Util\ConfigFileManager
 	{
 		if (!empty($server[self::CONFIG_DIR_ENV]) && is_dir($server[self::CONFIG_DIR_ENV])) {
 			$configDir = $server[self::CONFIG_DIR_ENV];
@@ -65,19 +65,18 @@ class Config
 		}
 		$staticDir = $basePath . DIRECTORY_SEPARATOR . self::STATIC_DIR;
 
-		return new Util\ConfigFileManager($basePath, $configDir, $staticDir, new Util\ConfigFileTransformer());
+		return new Util\ConfigFileManager($basePath, $configDir, $staticDir, $server);
 	}
 
 	/**
 	 * @param Util\ConfigFileManager $configFileManager The Config Cache manager (INI/config/.htconfig)
-	 * @param array                  $server
 	 *
 	 * @return Cache
 	 */
-	public function createCache(Util\ConfigFileManager $configFileManager, array $server = []): Cache
+	public function createCache(Util\ConfigFileManager $configFileManager): Cache
 	{
 		$configCache = new Cache();
-		$configFileManager->setupCache($configCache, $server);
+		$configFileManager->setupCache($configCache);
 
 		return $configCache;
 	}

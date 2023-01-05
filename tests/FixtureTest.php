@@ -62,7 +62,7 @@ abstract class FixtureTest extends DatabaseTest
 			->addRules(include __DIR__ . '/../static/dependencies.config.php')
 			->addRule(ConfigFileManager::class, [
 				'instanceOf' => Config::class,
-				'call'       => [['createConfigFileLoader', [$this->root->url(), $server,],
+				'call'       => [['createConfigFileManager', [$this->root->url(), $server,],
 								  Dice::CHAIN_CALL]]])
 			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
 			->addRule(IHandleSessions::class, ['instanceOf' => Memory::class, 'shared' => true, 'call' => null])

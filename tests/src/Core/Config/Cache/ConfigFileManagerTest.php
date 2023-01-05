@@ -51,6 +51,7 @@ class ConfigFileManagerTest extends MockedTest
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
+
 		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
@@ -69,15 +70,15 @@ class ConfigFileManagerTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		vfsStream::newFile('local.config.php')
-			->at($this->root->getChild('config'))
-			->setContent('<?php return true;');
+				 ->at($this->root->getChild('config'))
+				 ->setContent('<?php return true;');
 
 		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 	}
@@ -90,23 +91,23 @@ class ConfigFileManagerTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'A.config.php';
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'datasets' . DIRECTORY_SEPARATOR .
+				'config' . DIRECTORY_SEPARATOR .
+				'A.config.php';
 
 		vfsStream::newFile('local.config.php')
-			->at($this->root->getChild('config'))
-			->setContent(file_get_contents($file));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($file));
 
 		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -127,23 +128,23 @@ class ConfigFileManagerTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'A.ini.php';
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'datasets' . DIRECTORY_SEPARATOR .
+				'config' . DIRECTORY_SEPARATOR .
+				'A.ini.php';
 
 		vfsStream::newFile('local.ini.php')
-			->at($this->root->getChild('config'))
-			->setContent(file_get_contents($file));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($file));
 
 		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -163,23 +164,23 @@ class ConfigFileManagerTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'.htconfig.php';
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'datasets' . DIRECTORY_SEPARATOR .
+				'config' . DIRECTORY_SEPARATOR .
+				'.htconfig.php';
 
 		vfsStream::newFile('.htconfig.php')
-			->at($this->root)
-			->setContent(file_get_contents($file));
+				 ->at($this->root)
+				 ->setContent(file_get_contents($file));
 
 		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -217,16 +218,16 @@ class ConfigFileManagerTest extends MockedTest
 		vfsStream::create($structure, $this->root);
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'A.config.php';
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'datasets' . DIRECTORY_SEPARATOR .
+				'config' . DIRECTORY_SEPARATOR .
+				'A.config.php';
 
 		vfsStream::newFile('test.config.php')
-			->at($this->root->getChild('addon')->getChild('test')->getChild('config'))
-			->setContent(file_get_contents($file));
+				 ->at($this->root->getChild('addon')->getChild('test')->getChild('config'))
+				 ->setContent(file_get_contents($file));
 
 		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
@@ -252,25 +253,25 @@ class ConfigFileManagerTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-		        '..' . DIRECTORY_SEPARATOR .
-			   '..' . DIRECTORY_SEPARATOR .
-		        '..' . DIRECTORY_SEPARATOR .
-		        'datasets' . DIRECTORY_SEPARATOR .
-		        'config' . DIRECTORY_SEPARATOR;
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
 
 		vfsStream::newFile('A.config.php')
-		         ->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'A.config.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'A.config.php'));
 		vfsStream::newFile('B.config.php')
-				->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'B.config.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
 
 		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -286,25 +287,25 @@ class ConfigFileManagerTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-		           '..' . DIRECTORY_SEPARATOR .
-		           '..' . DIRECTORY_SEPARATOR .
 				   '..' . DIRECTORY_SEPARATOR .
-		           'datasets' . DIRECTORY_SEPARATOR .
-		           'config' . DIRECTORY_SEPARATOR;
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
 
 		vfsStream::newFile('A.ini.php')
-		         ->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'A.ini.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'A.ini.php'));
 		vfsStream::newFile('B.ini.php')
-		         ->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'B.ini.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'B.ini.php'));
 
 		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -320,24 +321,25 @@ class ConfigFileManagerTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-		           '..' . DIRECTORY_SEPARATOR .
 				   '..' . DIRECTORY_SEPARATOR .
-		           '..' . DIRECTORY_SEPARATOR .
-		           'datasets' . DIRECTORY_SEPARATOR .
-		           'config' . DIRECTORY_SEPARATOR;
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
 
 		vfsStream::newFile('A.ini.php')
-		         ->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'A.ini.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'A.ini.php'));
 		vfsStream::newFile('B-sample.ini.php')
-		         ->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'B.ini.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'B.ini.php'));
 
 		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
+
 		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
@@ -353,10 +355,10 @@ class ConfigFileManagerTest extends MockedTest
 	{
 		$this->delConfigFile('local.config.php');
 
-		$configFileLoader = (new Config())->createConfigFileLoader($this->root->url(), ['FRIENDICA_CONFIG_DIR' => '/a/wrong/dir/']);
-		$configCache = new Cache();
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url(), ['FRIENDICA_CONFIG_DIR' => '/a/wrong/dir/']);
+		$configCache       = new Cache();
 
-		$configFileLoader->setupCache($configCache);
+		$configFileManager->setupCache($configCache);
 
 		self::assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
 	}
@@ -379,10 +381,13 @@ class ConfigFileManagerTest extends MockedTest
 				 ->at($this->root->getChild('config2'))
 				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
 
-		$configFileLoader = (new Config())->createConfigFileLoader($this->root->url(), ['FRIENDICA_CONFIG_DIR' => $this->root->getChild('config2')->url()]);
-		$configCache = new Cache();
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url(),
+			[
+				'FRIENDICA_CONFIG_DIR' => $this->root->getChild('config2')->url(),
+			]);
+		$configCache       = new Cache();
 
-		$configFileLoader->setupCache($configCache);
+		$configFileManager->setupCache($configCache);
 
 		self::assertEquals('newValue', $configCache->get('system', 'newKey'));
 	}
@@ -402,10 +407,13 @@ class ConfigFileManagerTest extends MockedTest
 				 ->at($this->root->getChild('config2'))
 				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
 
-		$configFileLoader = (new Config())->createConfigFileLoader($this->root->url(), ['FRIENDICA_CONFIG_DIR' => $this->root->getChild('config2')->url()]);
-		$configCache = new Cache();
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url(),
+			[
+				'FRIENDICA_CONFIG_DIR' => $this->root->getChild('config2')->url(),
+			]);
+		$configCache       = new Cache();
 
-		$configFileLoader->setupCache($configCache);
+		$configFileManager->setupCache($configCache);
 
 		$specialChars = '!"§$%&/()(/&%$\'><?$a,;:[]}{}\\?¿¿ß';
 
@@ -414,19 +422,19 @@ class ConfigFileManagerTest extends MockedTest
 		$configCache->set('config', 'test', 'it', Cache::SOURCE_DATA);
 		$configCache->set('system', 'test_2', 2, Cache::SOURCE_DATA);
 		$configCache->set('special_chars', 'special', $specialChars, Cache::SOURCE_DATA);
-		$configFileLoader->saveData($configCache);
+		$configFileManager->saveData($configCache);
 
 		// Reload the configCache with the new values
 		$configCache2 = new Cache();
-		$configFileLoader->setupCache($configCache2);
+		$configFileManager->setupCache($configCache2);
 
 		self::assertEquals($configCache, $configCache2);
 		self::assertEquals([
-			'system' => [
-				'test' => 'it',
+			'system'        => [
+				'test'   => 'it',
 				'test_2' => 2
 			],
-			'config' => [
+			'config'        => [
 				'test' => 'it',
 			],
 			'special_chars' => [

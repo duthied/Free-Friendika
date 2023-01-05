@@ -76,7 +76,7 @@ class ConfigTest extends MockedTest
 	 */
 	public function getInstance()
 	{
-		$this->configFileManager->setupCache($this->configCache, []);
+		$this->configFileManager->setupCache($this->configCache);
 		return new Config($this->configFileManager, $this->configCache);
 	}
 

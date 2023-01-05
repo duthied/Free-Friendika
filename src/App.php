@@ -359,7 +359,7 @@ class App
 			$this->profiler->update($this->config);
 
 			Core\Hook::loadHooks();
-			$loader = (new Config())->createConfigFileLoader($this->getBasePath(), $_SERVER);
+			$loader = (new Config())->createConfigFileManager($this->getBasePath(), $_SERVER);
 			Core\Hook::callAll('load_config', $loader);
 
 			// Hooks are now working, reload the whole definitions with hook enabled

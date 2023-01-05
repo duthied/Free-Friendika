@@ -70,15 +70,21 @@ class ConfigFileManager
 	private $staticDir;
 
 	/**
+	 * @var array
+	 */
+	private $server;
+
+	/**
 	 * @param string $baseDir   The base
 	 * @param string $configDir
 	 * @param string $staticDir
 	 */
-	public function __construct(string $baseDir, string $configDir, string $staticDir)
+	public function __construct(string $baseDir, string $configDir, string $staticDir, array $server = [])
 	{
 		$this->baseDir   = $baseDir;
 		$this->configDir = $configDir;
 		$this->staticDir = $staticDir;
+		$this->server    = $server;
 	}
 
 	/**
@@ -88,12 +94,11 @@ class ConfigFileManager
 	 * expected local.config.php
 	 *
 	 * @param Cache $config The config cache to load to
-	 * @param array $server The $_SERVER array
 	 * @param bool  $raw    Set up the raw config format
 	 *
 	 * @throws ConfigFileException
 	 */
-	public function setupCache(Cache $config, array $server = [], bool $raw = false)
+	public function setupCache(Cache $config, bool $raw = false)
 	{
 		// Load static config files first, the order is important
 		$config->load($this->loadStaticConfig('defaults'), Cache::SOURCE_STATIC);
@@ -109,7 +114,7 @@ class ConfigFileManager
 		// Now load the node.config.php file with the node specific config values (based on admin gui/console actions)
 		$this->loadDataConfig($config);
 
-		$config->load($this->loadEnvConfig($server), Cache::SOURCE_ENV);
+		$config->load($this->loadEnvConfig(), Cache::SOURCE_ENV);
 
 		// In case of install mode, add the found basepath (because there isn't a basepath set yet
 		if (!$raw && empty($config->get('system', 'basepath'))) {
@@ -250,13 +255,11 @@ class ConfigFileManager
 	/**
 	 * Tries to load environment specific variables, based on the `env.config.php` mapping table
 	 *
-	 * @param array $server The $_SERVER variable
-	 *
 	 * @return array The config array (empty if no config was found)
 	 *
 	 * @throws ConfigFileException if the configuration file isn't readable
 	 */
-	public function loadEnvConfig(array $server): array
+	protected function loadEnvConfig(): array
 	{
 		$filepath = $this->staticDir . DIRECTORY_SEPARATOR .   // /var/www/html/static/
 					"env.config.php";                          // env.config.php
@@ -270,8 +273,8 @@ class ConfigFileManager
 		$return = [];
 
 		foreach ($envConfig as $envKey => $configStructure) {
-			if (isset($server[$envKey])) {
-				$return[$configStructure[0]][$configStructure[1]] = $server[$envKey];
+			if (isset($this->server[$envKey])) {
+				$return[$configStructure[0]][$configStructure[1]] = $this->server[$envKey];
 			}
 		}
 
@@ -296,7 +299,9 @@ class ConfigFileManager
 		$sampleEnd = self::SAMPLE_END . ($ini ? '.ini.php' : '.config.php');
 
 		foreach ($files as $filename) {
-			if (fnmatch($filePattern, $filename) && substr_compare($filename, $sampleEnd, -strlen($sampleEnd))) {
+			if (fnmatch($filePattern, $filename) &&
+				substr_compare($filename, $sampleEnd, -strlen($sampleEnd)) &&
+				$filename !== self::CONFIG_DATA_FILE) {
 				$found[] = $this->configDir . '/' . $filename;
 			}
 		}

@@ -79,7 +79,7 @@ return [
 	Config\Util\ConfigFileManager::class => [
 		'instanceOf' => Config\Factory\Config::class,
 		'call'       => [
-			['createConfigFileLoader', [
+			['createConfigFileManager', [
 				[Dice::INSTANCE => '$basepath'],
 				$_SERVER,
 			], Dice::CHAIN_CALL],
@@ -88,7 +88,7 @@ return [
 	Config\ValueObject\Cache::class => [
 		'instanceOf' => Config\Factory\Config::class,
 		'call'       => [
-			['createCache', [$_SERVER], Dice::CHAIN_CALL],
+			['createCache', [], Dice::CHAIN_CALL],
 		],
 	],
 	App\Mode::class              => [
