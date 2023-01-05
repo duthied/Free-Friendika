@@ -38,7 +38,7 @@ class Community extends CommunityModule
 		$this->parseRequest();
 
 		$o = '';
-		if (!empty($request['force']) || !DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'no_auto_update')) {
+		if (!empty($request['force'])) {
 			$o = DI::conversation()->create(self::getItems(), 'community', true, false, 'commented', DI::userSession()->getLocalUserId());
 		}
 

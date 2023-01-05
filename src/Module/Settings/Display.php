@@ -79,7 +79,6 @@ class Display extends BaseSettings
 		$first_day_of_week      = !empty($request['first_day_of_week'])      ? intval($request['first_day_of_week'])      : 0;
 		$calendar_default_view  = !empty($request['calendar_default_view'])  ? trim($request['calendar_default_view'])    : 'month';
 		$infinite_scroll        = !empty($request['infinite_scroll'])        ? intval($request['infinite_scroll'])        : 0;
-		$no_auto_update         = !empty($request['no_auto_update'])         ? intval($request['no_auto_update'])         : 0;
 		$enable_smart_threading = !empty($request['enable_smart_threading']) ? intval($request['enable_smart_threading']) : 0;
 		$enable_dislike         = !empty($request['enable_dislike'])         ? intval($request['enable_dislike'])         : 0;
 		$display_resharer       = !empty($request['display_resharer'])       ? intval($request['display_resharer'])       : 0;
@@ -113,7 +112,6 @@ class Display extends BaseSettings
 		$this->pConfig->set($uid, 'system', 'itemspage_network'       , $itemspage_network);
 		$this->pConfig->set($uid, 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
 		$this->pConfig->set($uid, 'system', 'update_interval'         , $browser_update);
-		$this->pConfig->set($uid, 'system', 'no_auto_update'          , $no_auto_update);
 		$this->pConfig->set($uid, 'system', 'no_smilies'              , !$enable_smile);
 		$this->pConfig->set($uid, 'system', 'infinite_scroll'         , $infinite_scroll);
 		$this->pConfig->set($uid, 'system', 'no_smart_threading'      , !$enable_smart_threading);
@@ -202,7 +200,6 @@ class Display extends BaseSettings
 			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
 		}
 
-		$no_auto_update         =  $this->pConfig->get($uid, 'system', 'no_auto_update', 0);
 		$enable_smile           = !$this->pConfig->get($uid, 'system', 'no_smilies', 0);
 		$infinite_scroll        =  $this->pConfig->get($uid, 'system', 'infinite_scroll', 0);
 		$enable_smart_threading = !$this->pConfig->get($uid, 'system', 'no_smart_threading', 0);
@@ -265,7 +262,6 @@ class Display extends BaseSettings
 			'$itemspage_network'        => ['itemspage_network'       , $this->t('Number of items to display per page:'), $itemspage_network, $this->t('Maximum of 100 items')],
 			'$itemspage_mobile_network' => ['itemspage_mobile_network', $this->t('Number of items to display per page when viewed from mobile device:'), $itemspage_mobile_network, $this->t('Maximum of 100 items')],
 			'$ajaxint'                  => ['browser_update'          , $this->t('Update browser every xx seconds'), $browser_update, $this->t('Minimum of 10 seconds. Enter -1 to disable it.')],
-			'$no_auto_update'           => ['no_auto_update'          , $this->t('Automatic updates only at the top of the post stream pages'), $no_auto_update, $this->t('Auto update may add new posts at the top of the post stream pages, which can affect the scroll position and perturb normal reading if it happens anywhere else the top of the page.')],
 			'$enable_smile'	            => ['enable_smile'            , $this->t('Display emoticons'), $enable_smile, $this->t('When enabled, emoticons are replaced with matching symbols.')],
 			'$infinite_scroll'          => ['infinite_scroll'         , $this->t('Infinite scroll'), $infinite_scroll, $this->t('Automatic fetch new items when reaching the page end.')],
 			'$enable_smart_threading'   => ['enable_smart_threading'  , $this->t('Enable Smart Threading'), $enable_smart_threading, $this->t('Enable the automatic suppression of extraneous thread indentation.')],

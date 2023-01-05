@@ -58,7 +58,7 @@ class Profile extends BaseModule
 
 		$o = '';
 
-		if (empty($request['force']) && DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'no_auto_update')) {
+		if (empty($request['force'])) {
 			System::htmlUpdateExit($o);
 		}
 
