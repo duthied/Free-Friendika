@@ -50,11 +50,11 @@ class Subscription extends BaseDataTransferObject
 		$this->id       = (string)$subscription['id'];
 		$this->endpoint = $subscription['endpoint'];
 		$this->alerts   = [
-			Notification::TYPE_FOLLOW  => $subscription[Notification::TYPE_FOLLOW],
-			Notification::TYPE_LIKE    => $subscription[Notification::TYPE_LIKE],
-			Notification::TYPE_RESHARE => $subscription[Notification::TYPE_RESHARE],
-			Notification::TYPE_MENTION => $subscription[Notification::TYPE_MENTION],
-			Notification::TYPE_POLL    => $subscription[Notification::TYPE_POLL],
+			Notification::TYPE_FOLLOW  => (bool)$subscription[Notification::TYPE_FOLLOW],
+			Notification::TYPE_LIKE    => (bool)$subscription[Notification::TYPE_LIKE],
+			Notification::TYPE_RESHARE => (bool)$subscription[Notification::TYPE_RESHARE],
+			Notification::TYPE_MENTION => (bool)$subscription[Notification::TYPE_MENTION],
+			Notification::TYPE_POLL    => (bool)$subscription[Notification::TYPE_POLL],
 		];
 
 		$this->server_key = $vapid;
