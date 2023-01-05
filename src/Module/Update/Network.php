@@ -31,19 +31,19 @@ class Network extends NetworkModule
 {
 	protected function rawContent(array $request = [])
 	{
-		if (!isset($_GET['p']) || !isset($_GET['item'])) {
+		if (!isset($request['p']) || !isset($request['item'])) {
 			System::exit();
 		}
 
-		$this->parseRequest($_GET);
+		$this->parseRequest($request);
 
-		$profile_uid = intval($_GET['p']);
+		$profile_uid = intval($request['p']);
 
 		$o = '';
 
-		if (!DI::pConfig()->get($profile_uid, 'system', 'no_auto_update') || ($_GET['force'] == 1)) {
-			if (!empty($_GET['item'])) {
-				$item = Post::selectFirst(['parent'], ['id' => $_GET['item']]);
+		if (!DI::pConfig()->get($profile_uid, 'system', 'no_auto_update') || ($request['force'] == 1)) {
+			if (!empty($request['item'])) {
+				$item = Post::selectFirst(['parent'], ['id' => $request['item']]);
 				$parent = $item['parent'] ?? 0;
 			} else {
 				$parent = 0;
