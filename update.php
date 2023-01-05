@@ -1192,7 +1192,7 @@ function update_1508()
 
 	$newConfig->commit();
 
-	return DBA::e("TRUNCATE TABLE `config`") ? Update::SUCCESS : Update::FAILED;
+	return Update::SUCCESS;
 }
 
 function update_1509()
@@ -1210,5 +1210,5 @@ function update_1509()
 
 	$newConfig->commit();
 
-	return DBA::e("TRUNCATE TABLE `addon`") ? Update::SUCCESS : Update::FAILED;
+	return Update::SUCCESS;
 }
