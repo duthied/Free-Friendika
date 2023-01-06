@@ -33,6 +33,7 @@ if (php_sapi_name() !== 'cli') {
 use Dice\Dice;
 use Friendica\App\Mode;
 use Friendica\Core\Logger;
+use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -192,6 +193,9 @@ $last_cron = 0;
 
 // Now running as a daemon.
 while (true) {
+	// Check the database structure and possibly fixes it
+	Update::check(DI::basePath(), true);
+
 	if (!$do_cron && ($last_cron + $wait_interval) < time()) {
 		Logger::info('Forcing cron worker call.', ['pid' => $pid]);
 		$do_cron = true;
