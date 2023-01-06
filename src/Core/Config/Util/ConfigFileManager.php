@@ -203,11 +203,12 @@ class ConfigFileManager
 			}
 
 			/**
-			 * Evaluate the fetched content
+			 * Evaluate the content string as PHP code
+			 *
+			 * @see https://www.php.net/manual/en/function.eval.php
 			 *
 			 * @note
-			 * Because `eval()` directly evaluates PHP content, we need to "close" the expected PHP content again with
-			 * the prefixed "?>". Now we're in plain HTML again and can evaluate any PHP file :-)
+			 * To leave the PHP mode, we have to use the appropriate PHP tags '?>' as prefix.
 			 */
 			$dataArray = eval('?>' . $content);
 
