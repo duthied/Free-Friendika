@@ -67,8 +67,6 @@ class CacheTest extends MockedTest
 		$configCache = new Cache();
 		$configCache->load($data);
 
-		print_r($configCache);
-
 		self::assertConfigValues($data, $configCache);
 	}
 
