@@ -182,15 +182,17 @@ class ConfigFileManager
 			$content = '<?php return [];';
 
 			$configStream = fopen($filename, 'r');
-			if (flock($configStream, LOCK_SH)) {
-				$content = fread($configStream, filesize($filename));
-				if (!$content) {
-					throw new ConfigFileException(sprintf('Couldn\'t read file %s', $filename));
+			try {
+				if (flock($configStream, LOCK_SH)) {
+					$content = fread($configStream, filesize($filename));
+					if (!$content) {
+						throw new ConfigFileException(sprintf('Couldn\'t read file %s', $filename));
+					}
 				}
+			} finally {
 				flock($configStream, LOCK_UN);
+				fclose($configStream);
 			}
-
-			fclose($configStream);
 
 			$dataArray = eval('?>' . $content);
 
@@ -250,12 +252,12 @@ class ConfigFileManager
 				clearstatcache(true, $filename);
 				if (!ftruncate($configStream, 0) ||
 					!fwrite($configStream, $encodedData) ||
-					!fflush($configStream) ||
-					!flock($configStream, LOCK_UN)) {
+					!fflush($configStream)) {
 					throw new ConfigFileException(sprintf('Cannot modify locked file %s', $filename));
 				}
 			}
 		} finally {
+			flock($configStream, LOCK_UN);
 			fclose($configStream);
 		}
 	}
