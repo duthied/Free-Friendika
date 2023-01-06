@@ -203,7 +203,7 @@ class ConfigFileManager
 	}
 
 	/**
-	 * Saves overridden config entries back into the data.config.phpR
+	 * Saves overridden config entries back into the data.config.php
 	 *
 	 * @param Cache $configCache The config cache
 	 *
