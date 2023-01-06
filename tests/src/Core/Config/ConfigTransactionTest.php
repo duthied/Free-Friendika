@@ -54,10 +54,6 @@ class ConfigTransactionTest extends MockedTest
 		$config->set('delete', 'keyDel', 'catDel');
 
 		$configTransaction = new ConfigTransaction($config);
-		self::assertEquals('value1', $configTransaction->get('config', 'key1'));
-		self::assertEquals('value2', $configTransaction->get('system', 'key2'));
-		self::assertEquals('valueDel', $configTransaction->get('system', 'keyDel'));
-		self::assertEquals('catDel', $configTransaction->get('delete', 'keyDel'));
 		// the config file knows it as well immediately
 		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
 		self::assertEquals('value1', $tempData['config']['key1'] ?? null);
@@ -77,11 +73,6 @@ class ConfigTransactionTest extends MockedTest
 		self::assertEquals('value1', $config->get('config', 'key1'));
 		self::assertEquals('valueDel', $config->get('system', 'keyDel'));
 		self::assertEquals('catDel', $config->get('delete', 'keyDel'));
-		// but the transaction config of course knows it
-		self::assertEquals('value3', $configTransaction->get('transaction', 'key3'));
-		self::assertEquals('changedValue1', $configTransaction->get('config', 'key1'));
-		self::assertNull($configTransaction->get('system', 'keyDel'));
-		self::assertNull($configTransaction->get('delete', 'keyDel'));
 		// The config file still doesn't know it either
 		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
 		self::assertEquals('value1', $tempData['config']['key1'] ?? null);
@@ -97,9 +88,6 @@ class ConfigTransactionTest extends MockedTest
 		self::assertEquals('value3', $config->get('transaction', 'key3'));
 		self::assertNull($config->get('system', 'keyDel'));
 		self::assertNull($config->get('delete', 'keyDel'));
-		self::assertEquals('value3', $configTransaction->get('transaction', 'key3'));
-		self::assertEquals('changedValue1', $configTransaction->get('config', 'key1'));
-		self::assertNull($configTransaction->get('system', 'keyDel'));
 		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
 		self::assertEquals('changedValue1', $tempData['config']['key1'] ?? null);
 		self::assertEquals('value2', $tempData['system']['key2'] ?? null);

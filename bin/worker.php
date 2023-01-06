@@ -58,12 +58,11 @@ $dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['worker']])
 
 DI::init($dice);
 \Friendica\Core\Logger\Handler\ErrorHandler::register($dice->create(\Psr\Log\LoggerInterface::class));
-$a = DI::app();
 
 DI::mode()->setExecutor(Mode::WORKER);
 
 // Check the database structure and possibly fixes it
-Update::check($a->getBasePath(), true, DI::mode());
+Update::check(DI::basePath(), true, DI::mode());
 
 // Quit when in maintenance
 if (!DI::mode()->has(App\Mode::MAINTENANCEDISABLED)) {

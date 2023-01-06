@@ -116,7 +116,7 @@ class Config implements IManageConfigValues
 	/** {@inheritDoc} */
 	public function delete(string $cat, string $key): bool
 	{
-		if ($this->configCache->delete($cat, $key)) {
+		if ($this->configCache->delete($cat, $key, Cache::SOURCE_DATA)) {
 			$this->save();
 			return true;
 		} else {

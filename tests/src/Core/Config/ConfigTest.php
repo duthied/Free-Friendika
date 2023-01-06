@@ -364,7 +364,7 @@ class ConfigTest extends MockedTest
 		self::assertNull($this->testedConfig->get('test', 'it'));
 		self::assertNull($this->testedConfig->getCache()->get('test', 'it'));
 
-		self::assertEmpty($this->testedConfig->getCache()->getAll());
+		self::assertEquals(['test' => null], $this->testedConfig->getCache()->getAll());
 	}
 
 	/**

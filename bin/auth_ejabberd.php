@@ -82,6 +82,10 @@ $dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['auth_ejabb
 
 \Friendica\DI::init($dice);
 \Friendica\Core\Logger\Handler\ErrorHandler::register($dice->create(\Psr\Log\LoggerInterface::class));
+
+// Check the database structure and possibly fixes it
+\Friendica\Core\Update::check(\Friendica\DI::basePath(), true, \Friendica\DI::mode());
+
 $appMode = $dice->create(Mode::class);
 
 if ($appMode->isNormal()) {

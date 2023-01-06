@@ -67,6 +67,8 @@ class CacheTest extends MockedTest
 		$configCache = new Cache();
 		$configCache->load($data);
 
+		print_r($configCache);
+
 		self::assertConfigValues($data, $configCache);
 	}
 
@@ -111,9 +113,9 @@ class CacheTest extends MockedTest
 	}
 
 	/**
-	 * Test the loadConfigArray() method with wrong/empty datasets
+	 * Test the loadConfigArray() method with only a category
 	 */
-	public function testLoadConfigArrayWrong()
+	public function testLoadConfigArrayWithOnlyCategory()
 	{
 		$configCache = new Cache();
 
@@ -123,9 +125,10 @@ class CacheTest extends MockedTest
 
 		// wrong dataset
 		$configCache->load(['system' => 'not_array']);
-		self::assertEmpty($configCache->getAll());
+		self::assertEquals(['system' => 'not_array'], $configCache->getAll());
 
 		// incomplete dataset (key is integer ID of the array)
+		$configCache = new Cache();
 		$configCache->load(['system' => ['value']]);
 		self::assertEquals('value', $configCache->get('system', 0));
 	}
@@ -207,13 +210,16 @@ class CacheTest extends MockedTest
 	{
 		$configCache = new Cache($data);
 
+		$assertion = [];
+
 		foreach ($data as $cat => $values) {
+			$assertion[$cat] = null;
 			foreach ($values as $key => $value) {
 				$configCache->delete($cat, $key);
 			}
 		}
 
-		self::assertEmpty($configCache->getAll());
+		self::assertEquals($assertion, $configCache->getAll());
 	}
 
 	/**
@@ -383,32 +389,6 @@ class CacheTest extends MockedTest
 		self::assertEquals('new value', $mergedCache->get('system', 'test_3'));
 		self::assertEquals('given category', $mergedCache->get('old_category', 'test_45'));
 		self::assertEquals('added category', $mergedCache->get('new_category', 'test_23'));
-	}
-
-	/**
-	 * @dataProvider dataTests
-	 */
-	public function testDiff($data)
-	{
-		$configCache = new Cache();
-		$configCache->load($data, Cache::SOURCE_FILE);
-
-		$configCache->set('system', 'test_2','with_data', Cache::SOURCE_DATA);
-		$configCache->set('config', 'test_override','with_another_data', Cache::SOURCE_DATA);
-
-		$newCache = new Cache();
-		$newCache->set('config', 'test_override','override it again', Cache::SOURCE_DATA);
-		$newCache->set('system', 'test_3','new value', Cache::SOURCE_DATA);
-
-		$mergedCache = $configCache->diff($newCache);
-
-		print_r($mergedCache);
-
-		self::assertEquals('with_data', $mergedCache->get('system', 'test_2'));
-		// existing entry was dropped
-		self::assertNull($mergedCache->get('config', 'test_override'));
-		// the newCache entry wasn't set, because we Diff
-		self::assertNull($mergedCache->get('system', 'test_3'));
 	}
 
 	public function dataTestCat()

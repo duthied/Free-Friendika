@@ -441,4 +441,74 @@ class ConfigFileManagerTest extends MockedTest
 				'special' => $specialChars,
 			]], $configCache2->getDataBySource(Cache::SOURCE_DATA));
 	}
+
+	/**
+	 * If we delete something with the Cache::delete() functionality, be sure to override the underlying source as well
+	 */
+	public function testDeleteKeyOverwrite()
+	{
+		$this->delConfigFile('node.config.php');
+
+		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
+
+		vfsStream::newFile('B.config.php')
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
+
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url());
+		$configCache       = new Cache();
+
+		$configFileManager->setupCache($configCache);
+
+		$configCache->delete('system', 'default_timezone', Cache::SOURCE_DATA);
+
+		$configFileManager->saveData($configCache);
+
+		// assert that system.default_timezone is now null, even it's set with settings.conf.php
+		$configCache       = new Cache();
+
+		$configFileManager->setupCache($configCache);
+
+		self::assertNull($configCache->get('system', 'default_timezone'));
+	}
+
+	/**
+	 * If we delete something with the Cache::delete() functionality, be sure to override the underlying source as well
+	 */
+	public function testDeleteCategoryOverwrite()
+	{
+		$this->delConfigFile('node.config.php');
+
+		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
+
+		vfsStream::newFile('B.config.php')
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
+
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url());
+		$configCache       = new Cache();
+
+		$configFileManager->setupCache($configCache);
+
+		$configCache->delete('system');
+
+		$configFileManager->saveData($configCache);
+
+		// assert that system.default_timezone is now null, even it's set with settings.conf.php
+		$configCache       = new Cache();
+
+		$configFileManager->setupCache($configCache);
+
+		self::assertNull($configCache->get('system', 'default_timezone'));
+	}
 }
