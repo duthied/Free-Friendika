@@ -179,8 +179,15 @@ class ConfigFileManager
 
 		if (file_exists($filename)) {
 
+			// The fallback empty return content
 			$content = '<?php return [];';
 
+			/**
+			 * This code-block creates a readonly node.config.php content stream (fopen() with "r")
+			 * The stream is locked shared (LOCK_SH), so not exclusively, but the OS knows that there's a lock
+			 *
+			 * Any exclusive locking (LOCK_EX) would need to wait until all LOCK_SHs are unlocked
+			 */
 			$configStream = fopen($filename, 'r');
 			try {
 				if (flock($configStream, LOCK_SH)) {
@@ -190,10 +197,18 @@ class ConfigFileManager
 					}
 				}
 			} finally {
+				// unlock and close the stream for every circumstances
 				flock($configStream, LOCK_UN);
 				fclose($configStream);
 			}
 
+			/**
+			 * Evaluate the fetched content
+			 *
+			 * @note
+			 * Because `eval()` directly evaluates PHP content, we need to "close" the expected PHP content again with
+			 * the prefixed "?>". Now we're in plain HTML again and can evaluate any PHP file :-)
+			 */
 			$dataArray = eval('?>' . $content);
 
 			if (is_array($dataArray)) {
@@ -229,7 +244,7 @@ class ConfigFileManager
 					$content = fread($configStream, filesize($filename));
 					rewind($configStream);
 					if (!$content) {
-						throw new ConfigFileException(sprintf('Couldn\'t read file %s', $filename));
+						throw new ConfigFileException(sprintf('Cannot read file %s', $filename));
 					}
 
 					$dataArray = eval('?>' . $content);
