@@ -250,7 +250,7 @@ class ConfigFileManager
 			if (flock($configStream, LOCK_EX)) {
 
 				/**
-				 * If the file exists, read the whole file again
+				 * If the file exists, we read the whole file again to avoid a race condition with concurrent threads that could have modified the file between the first config read of this thread and now
 				 * Since we're currently exclusive locked, no other process can now change the config again
 				 */
 				if ($fileExists) {
