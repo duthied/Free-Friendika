@@ -162,10 +162,20 @@ class Update
 
 					// Checks if the build changed during Lock acquiring (so no double update occurs)
 					$retryBuild = DI::config()->get('system', 'build');
-					if ($retryBuild !== $build) {
-						Logger::notice('Update already done.', ['from' => $stored, 'to' => $current]);
-						DI::lock()->release('dbupdate');
-						return '';
+					if ($retryBuild != $build) {
+						// legacy option - check if there's something in the Config table
+						if (DBStructure::existsTable('config')) {
+							$dbConfig = DBA::selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'build']);
+							if (!empty($dbConfig)) {
+								$retryBuild = intval($dbConfig['v']);
+							}
+						}
+
+						if ($retryBuild != $build) {
+							Logger::notice('Update already done.', ['from' => $build, 'retry' => $retryBuild, 'to' => $current]);
+							DI::lock()->release('dbupdate');
+							return '';
+						}
 					}
 
 					DI::config()->set('system', 'maintenance', 1);
