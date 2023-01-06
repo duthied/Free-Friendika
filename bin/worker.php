@@ -62,7 +62,7 @@ DI::init($dice);
 DI::mode()->setExecutor(Mode::WORKER);
 
 // Check the database structure and possibly fixes it
-Update::check(DI::basePath(), true, DI::mode());
+Update::check(DI::basePath(), true);
 
 // Quit when in maintenance
 if (!DI::mode()->has(App\Mode::MAINTENANCEDISABLED)) {

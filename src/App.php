@@ -659,7 +659,7 @@ class App
 				$this->baseURL->redirect('install');
 			} else {
 				$this->checkURL();
-				Core\Update::check($this->getBasePath(), false, $this->mode);
+				Core\Update::check($this->getBasePath(), false);
 				Core\Addon::loadAddons();
 				Core\Hook::loadHooks();
 			}

@@ -47,7 +47,7 @@ class Update
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function check(string $basePath, bool $via_worker, App\Mode $mode)
+	public static function check(string $basePath, bool $via_worker)
 	{
 		if (!DBA::connected()) {
 			return;

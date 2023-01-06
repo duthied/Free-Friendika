@@ -33,7 +33,6 @@ if (php_sapi_name() !== 'cli') {
 use Dice\Dice;
 use Friendica\App\Mode;
 use Friendica\Core\Logger;
-use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -64,9 +63,6 @@ $dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['daemon']])
 
 DI::init($dice);
 \Friendica\Core\Logger\Handler\ErrorHandler::register($dice->create(\Psr\Log\LoggerInterface::class));
-
-// Check the database structure and possibly fixes it
-Update::check(DI::basePath(), true, DI::mode());
 
 if (DI::mode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");
