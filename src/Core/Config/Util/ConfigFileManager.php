@@ -234,14 +234,31 @@ class ConfigFileManager
 			$fileExists = false;
 		}
 
+		/**
+		 * Creates a read-write stream
+		 *
+		 * @see https://www.php.net/manual/en/function.fopen.php
+		 * @note Open the file for reading and writing. If the file does not exist, it is created.
+		 * If it exists, it is neither truncated (as opposed to 'w'), nor the call to this function fails
+		 * (as is the case with 'x'). The file pointer is positioned on the beginning of the file.
+		 *
+		 */
 		$configStream = fopen($filename, 'c+');
 
 		try {
+			// We do want an exclusive lock, so we wait until every LOCK_SH (config reading) is unlocked
 			if (flock($configStream, LOCK_EX)) {
 
+				/**
+				 * If the file exists, read the whole file again
+				 * Since we're currently exclusive locked, no other process can now change the config again
+				 */
 				if ($fileExists) {
+					// When reading the config file too fast, we get a wrong filesize, "clearstatcache" prevents that
 					clearstatcache(true, $filename);
 					$content = fread($configStream, filesize($filename));
+					// Event truncating the whole content wouldn't automatically rewind the stream,
+					// so we need to do it manually
 					rewind($configStream);
 					if (!$content) {
 						throw new ConfigFileException(sprintf('Cannot read file %s', $filename));
@@ -249,6 +266,8 @@ class ConfigFileManager
 
 					$dataArray = eval('?>' . $content);
 
+					// Merge the new content into the existing file based config cache and use it
+					// as the new config cache
 					if (is_array($dataArray)) {
 						$fileConfigCache = new Cache();
 						$fileConfigCache->load($dataArray, Cache::SOURCE_DATA);
@@ -256,6 +275,7 @@ class ConfigFileManager
 					}
 				}
 
+				// Only SOURCE_DATA is wanted, the rest isn't part of the node.config.php file
 				$data = $configCache->getDataBySource(Cache::SOURCE_DATA);
 
 				$encodedData = ConfigFileTransformer::encode($data);
@@ -264,6 +284,7 @@ class ConfigFileManager
 					throw new ConfigFileException('config source cannot get encoded');
 				}
 
+				// Once again to avoid wrong, implicit "filesize" calls during the fwrite() or ftruncate() call
 				clearstatcache(true, $filename);
 				if (!ftruncate($configStream, 0) ||
 					!fwrite($configStream, $encodedData) ||
@@ -272,6 +293,7 @@ class ConfigFileManager
 				}
 			}
 		} finally {
+			// unlock and close the stream for every circumstances
 			flock($configStream, LOCK_UN);
 			fclose($configStream);
 		}
