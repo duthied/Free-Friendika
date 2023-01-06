@@ -182,7 +182,7 @@ class Cache
 		if ($this->hidePasswordOutput &&
 			$key == 'password' &&
 			is_string($value)) {
-			$this->setCatKeyValueSource($cat, $key, new HiddenString((string)$value), $source);
+			$this->setCatKeyValueSource($cat, $key, new HiddenString($value), $source);
 		} else if (is_string($value)) {
 			$this->setCatKeyValueSource($cat, $key, self::toConfigValue($value), $source);
 		} else {
