@@ -257,12 +257,13 @@ class ConfigFileManager
 					// When reading the config file too fast, we get a wrong filesize, "clearstatcache" prevents that
 					clearstatcache(true, $filename);
 					$content = fread($configStream, filesize($filename));
-					// Event truncating the whole content wouldn't automatically rewind the stream,
-					// so we need to do it manually
-					rewind($configStream);
 					if (!$content) {
 						throw new ConfigFileException(sprintf('Cannot read file %s', $filename));
 					}
+
+					// Event truncating the whole content wouldn't automatically rewind the stream,
+					// so we need to do it manually
+					rewind($configStream);
 
 					$dataArray = eval('?>' . $content);
 
@@ -279,7 +280,6 @@ class ConfigFileManager
 				$data = $configCache->getDataBySource(Cache::SOURCE_DATA);
 
 				$encodedData = ConfigFileTransformer::encode($data);
-
 				if (!$encodedData) {
 					throw new ConfigFileException('config source cannot get encoded');
 				}

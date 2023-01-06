@@ -34,7 +34,6 @@ class ConfigFileTransformer
 		$categories = array_keys($data);
 
 		foreach ($categories as $category) {
-
 			if (is_null($data[$category])) {
 				$dataString .= "\t'$category' => null," . PHP_EOL;
 				continue;
