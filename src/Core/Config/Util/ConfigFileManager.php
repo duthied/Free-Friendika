@@ -245,11 +245,6 @@ class ConfigFileManager
 	{
 		$filename = $this->configDir . '/' . self::CONFIG_DATA_FILE;
 
-		// fail at a early stage, if we already know that we cannot save the data
-		if (!$this->dataIsWritable()) {
-			throw new ConfigFileException(sprintf('Cannot open file "%s" in mode c+', $filename));
-		}
-
 		if (file_exists($filename)) {
 			$fileExists = true;
 		} else {
