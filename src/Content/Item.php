@@ -876,7 +876,7 @@ class Item
 			$post['allow_cid'] .= $this->aclFormatter->toString(Contact::getPublicIdByUserId($post['uid']));
 		}
 
-		if (strlen($post['allow_gid']) || strlen($post['allow_cid']) || strlen($post['deny_gid']) || strlen($post['deny_cid'])) {
+		if ($post['allow_gid'] || $post['allow_cid'] || $post['deny_gid'] || $post['deny_cid']) {
 			$post['private'] = ItemModel::PRIVATE;
 		} elseif ($this->pConfig->get($post['uid'], 'system', 'unlisted')) {
 			$post['private'] = ItemModel::UNLISTED;
@@ -898,7 +898,7 @@ class Item
 			if (empty($attachment)) {
 				continue;
 			}
-			if (strlen($post['attach'])) {
+			if ($post['attach']) {
 				$post['attach'] .= ',';
 			}
 			$post['attach'] .= Post\Media::getAttachElement($this->baseURL->get() . '/attach/' . $attachment['id'],
@@ -1013,7 +1013,7 @@ class Item
 
 		foreach ($recipients as $recipient) {
 			$address = trim($recipient);
-			if (!strlen($address)) {
+			if (!$address) {
 				continue;
 			}
 
