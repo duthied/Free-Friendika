@@ -51,7 +51,7 @@ class Addon
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getAvailableList()
+	public static function getAvailableList(): array
 	{
 		$addons = [];
 		$files = glob('addon/*/');
@@ -81,14 +81,10 @@ class Addon
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getAdminList()
+	public static function getAdminList(): array
 	{
 		$addons_admin = [];
-		$addons = DI::config()->get('addons');
-
-		if (empty($addons)) {
-			return $addons_admin;
-		}
+		$addons = DI::config()->get('addons') ?? [];
 
 		ksort($addons);
 		foreach ($addons as $name => $data) {
@@ -191,14 +187,12 @@ class Addon
 	 * reload all updated addons
 	 *
 	 * @return void
+	 * @throws \Exception
+	 *
 	 */
 	public static function reload()
 	{
-		$addons = DI::config()->get('addons');
-
-		if (empty($addons)) {
-			return;
-		}
+		$addons = DI::config()->get('addons') ?? [];
 
 		foreach ($addons as $name => $data) {
 			$addonname = Strings::sanitizeFilePathItem(trim($name));
@@ -321,11 +315,7 @@ class Addon
 	public static function getVisibleList(): array
 	{
 		$visible_addons = [];
-		$addons = DI::config()->get('addons');
-
-		if (empty($addons)) {
-			return $visible_addons;
-		}
+		$addons = DI::config()->get('addons') ?? [];
 
 		foreach ($addons as $name => $data) {
 			$visible_addons[] = $name;
