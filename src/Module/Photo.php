@@ -137,6 +137,18 @@ class Photo extends BaseModule
 				$scale = intval(substr($photoid, -1, 1));
 				$photoid = substr($photoid, 0, -2);
 			}
+
+			if (!empty($this->parameters['size'])) {
+				switch ($this->parameters['size']) {
+					case 'thumb_small':
+						$scale = 2;
+						break;
+					case 'scaled_full':
+						$scale = 1;
+						break;
+					}
+			}
+
 			$photo = MPhoto::getPhoto($photoid, $scale);
 			if ($photo === false) {
 				throw new HTTPException\NotFoundException(DI::l10n()->t('The Photo with id %s is not available.', $photoid));

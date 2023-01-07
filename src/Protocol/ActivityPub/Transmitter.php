@@ -1707,6 +1707,7 @@ class Transmitter
 		$language = self::getLanguage($item);
 		if (!empty($language)) {
 			$richbody = BBCode::setMentionsToNicknames($item['body'] ?? '');
+			$richbody = Post\Media::removeFromEndOfBody($richbody);
 			if (!empty($item['quote-uri-id'])) {
 				if ($real_quote) {
 					$richbody = DI::contentItem()->addShareLink($richbody, $item['quote-uri-id']);

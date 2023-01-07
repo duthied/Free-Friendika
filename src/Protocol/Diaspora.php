@@ -3316,8 +3316,16 @@ class Diaspora
 
 			$type = 'reshare';
 		} else {
+			$native_photos = DI::config()->get('diaspora', 'native_photos');
+			if ($native_photos) {
+				$item['body'] = Post\Media::removeFromEndOfBody($item['body']);
+				$attach_media = [Post\Media::AUDIO, Post\Media::VIDEO];
+			} else {
+				$attach_media = [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO];
+			}
+
 			$title = $item['title'];
-			$body  = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
+			$body  = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item), $attach_media);
 
 			// Fetch the title from an attached link - if there is one
 			if (empty($item['title']) && DI::pConfig()->get($owner['uid'], 'system', 'attach_link_title')) {
@@ -3365,6 +3373,10 @@ class Diaspora
 				'location' => $location
 			];
 
+			if ($native_photos) {
+				$message = self::addPhotos($item, $message);
+			}
+
 			// Diaspora rejects messages when they contain a location without "lat" or "lng"
 			if (!isset($location['lat']) || !isset($location['lng'])) {
 				unset($message['location']);
@@ -3397,6 +3409,44 @@ class Diaspora
 		DI::cache()->set($cachekey, $msg, Duration::QUARTER_HOUR);
 
 		return $msg;
+	}
+
+	/**
+	 * Add photo elements to the message array
+	 *
+	 * @param array $item
+	 * @param array $message
+	 * @return array
+	 */
+	private static function addPhotos(array $item, array $message): array
+	{
+		$medias = Post\Media::getByURIId($item['uri-id'], [Post\Media::IMAGE]);
+		$public = ($item['private'] == Item::PRIVATE ? 'false' : 'true');
+
+		$counter = 0;
+		foreach ($medias as $media) {
+			if (Item::containsLink($item['body'], $media['preview'] ?? $media['url'], $media['type'])) {
+				continue;
+			}
+
+			$name = basename($media['url']);
+			$path = str_replace($name, '', $media['url']);
+
+			$message[++$counter . ':photo'] = [
+				'guid'                => Item::guid(['uri' => $media['url']], false),
+				'author'              => $item['author-addr'],
+				'public'              => $public,
+				'created_at'          => $item['created'],
+				'remote_photo_path'   => $path,
+				'remote_photo_name'   => $name,
+				'status_message_guid' => $item['guid'],
+				'height'              => $media['height'],
+				'width'               => $media['width'],
+				'text'                => $media['description'],
+			];
+		}
+
+		return $message;
 	}
 
 	private static function prependParentAuthorMention(string $body, string $profile_url): string

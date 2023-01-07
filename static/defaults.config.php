@@ -711,6 +711,13 @@ return [
 		// Must be writable by the ejabberd process. if set then it will prevent the running of multiple processes.
 		'lockpath' => '',
 	],
+	'diaspora' => [
+		// native_photos (Boolean)
+		// If enabled, photos to Diaspora will be transmitted via the "photo" element instead of embedding them to the body.
+		// This is some visual improvement over the embedding but comes with the cost of losing accessibility.
+		// Is is disabled by default until Diaspora eventually will work on issue https://github.com/diaspora/diaspora/issues/8297
+		'native_photos' => false,
+	],
 	'debug' => [
 		// ap_inbox_log (Boolean)
 		// Logs every call to /inbox as a JSON file in Friendica's temporary directory

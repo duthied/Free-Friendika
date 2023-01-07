@@ -554,6 +554,7 @@ return [
 	'/permission/tooltip/{type}/{id:\d+}' => [Module\PermissionTooltip::class, [R::GET]],
 
 	'/photo' => [
+		'/{size:thumb_small|scaled_full}_{name}'                   => [Module\Photo::class, [R::GET]],
 		'/{name}'                                                  => [Module\Photo::class, [R::GET]],
 		'/{type}/{id:\d+}'                                         => [Module\Photo::class, [R::GET]],
 		'/{type:contact|header}/{guid}'                            => [Module\Photo::class, [R::GET]],
