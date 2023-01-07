@@ -31,52 +31,54 @@ class Network extends NetworkModule
 {
 	protected function rawContent(array $request = [])
 	{
-		if (!isset($_GET['p']) || !isset($_GET['item'])) {
+		if (!isset($request['p']) || !isset($request['item'])) {
 			System::exit();
 		}
 
-		$this->parseRequest($_GET);
+		$this->parseRequest($request);
 
-		$profile_uid = intval($_GET['p']);
+		$profile_uid = intval($request['p']);
 
 		$o = '';
 
-		if (!DI::pConfig()->get($profile_uid, 'system', 'no_auto_update') || ($_GET['force'] == 1)) {
-			if (!empty($_GET['item'])) {
-				$item = Post::selectFirst(['parent'], ['id' => $_GET['item']]);
-				$parent = $item['parent'] ?? 0;
-			} else {
-				$parent = 0;
-			}
-
-			$conditionFields = [];
-			if (!empty($parent)) {
-				// Load only a single thread
-				$conditionFields['parent'] = $parent;
-			} elseif (self::$order === 'received') {
-				// Only load new toplevel posts
-				$conditionFields['unseen'] = true;
-				$conditionFields['gravity'] = Item::GRAVITY_PARENT;
-			} else {
-				// Load all unseen items
-				$conditionFields['unseen'] = true;
-			}
-
-			$params = ['limit' => 100];
-			$table = 'network-item-view';
-
-			$items = self::getItems($table, $params, $conditionFields);
-
-			if (self::$order === 'received') {
-				$ordering = '`received`';
-			} elseif (self::$order === 'created') {
-				$ordering = '`created`';
-			} else {
-				$ordering = '`commented`';
-			}
-
-			$o = DI::conversation()->create($items, 'network', $profile_uid, false, $ordering, DI::userSession()->getLocalUserId());
+		if (empty($request['force'])) {
+			System::htmlUpdateExit($o);
 		}
+
+		if (!empty($request['item'])) {
+			$item = Post::selectFirst(['parent'], ['id' => $request['item']]);
+			$parent = $item['parent'] ?? 0;
+		} else {
+			$parent = 0;
+		}
+
+		$conditionFields = [];
+		if (!empty($parent)) {
+			// Load only a single thread
+			$conditionFields['parent'] = $parent;
+		} elseif (self::$order === 'received') {
+			// Only load new toplevel posts
+			$conditionFields['unseen'] = true;
+			$conditionFields['gravity'] = Item::GRAVITY_PARENT;
+		} else {
+			// Load all unseen items
+			$conditionFields['unseen'] = true;
+		}
+
+		$params = ['limit' => 100];
+		$table = 'network-item-view';
+
+		$items = self::getItems($table, $params, $conditionFields);
+
+		if (self::$order === 'received') {
+			$ordering = '`received`';
+		} elseif (self::$order === 'created') {
+			$ordering = '`created`';
+		} else {
+			$ordering = '`commented`';
+		}
+
+		$o = DI::conversation()->create($items, 'network', $profile_uid, false, $ordering, DI::userSession()->getLocalUserId());
 
 		System::htmlUpdateExit($o);
 	}

@@ -160,7 +160,7 @@ class Salmon
 
 		$namespaces = ['me' => ActivityNamespace::SALMON_ME];
 
-		$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
+		$salmon = XML::fromArray($xmldata, $dummy, false, $namespaces);
 
 		// slap them
 		$postResult = DI::httpClient()->post($url, $salmon, [
@@ -187,9 +187,7 @@ class Salmon
 				]
 			];
 
-			$namespaces = ['me' => ActivityNamespace::SALMON_ME];
-
-			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
+			$salmon = XML::fromArray($xmldata, $dummy, false, $namespaces);
 
 			// slap them
 			$postResult = DI::httpClient()->post($url, $salmon, [
@@ -214,9 +212,7 @@ class Salmon
 				]
 			];
 
-			$namespaces = ['me' => ActivityNamespace::SALMON_ME];
-
-			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
+			$salmon = XML::fromArray($xmldata, $dummy, false, $namespaces);
 
 			// slap them
 			$postResult = DI::httpClient()->post($url, $salmon, [

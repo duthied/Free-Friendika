@@ -52,10 +52,6 @@ return [
 		// Enter 0 for no time limit.
 		'account_abandon_days' => 0,
 
-		// addon (Comma-separated list)
-		// Manual list of addons which are enabled on this system.
-		'addon' => '',
-
 		// add_missing_posts (boolean)
 		// Checks for missing entries in "post", "post-thread" or "post-thread-user" and creates them
 		'add_missing_posts' => false,

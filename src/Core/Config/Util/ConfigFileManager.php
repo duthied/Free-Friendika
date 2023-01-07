@@ -26,28 +26,28 @@ use Friendica\Core\Config\Exception\ConfigFileException;
 use Friendica\Core\Config\ValueObject\Cache;
 
 /**
- * The ConfigFileLoader loads config-files and stores them in a ConfigCache ( @see Cache )
+ * The ConfigFileLoader loads and saves config-files and stores them in a ConfigCache ( @see Cache )
  *
  * It is capable of loading the following config files:
  * - *.config.php   (current)
  * - *.ini.php      (deprecated)
  * - *.htconfig.php (deprecated)
  */
-class ConfigFileLoader
+class ConfigFileManager
 {
-	/**
-	 * The default name of the user defined ini file
-	 *
-	 * @var string
-	 */
-	const CONFIG_INI = 'local';
-
 	/**
 	 * The default name of the user defined legacy config file
 	 *
 	 * @var string
 	 */
 	const CONFIG_HTCONFIG = 'htconfig';
+
+	/**
+	 * The config file, where overrides per admin page/console are saved at
+	 *
+	 * @var string
+	 */
+	const CONFIG_DATA_FILE = 'node.config.php';
 
 	/**
 	 * The sample string inside the configs, which shouldn't get loaded
@@ -70,15 +70,21 @@ class ConfigFileLoader
 	private $staticDir;
 
 	/**
+	 * @var array
+	 */
+	private $server;
+
+	/**
 	 * @param string $baseDir   The base
 	 * @param string $configDir
 	 * @param string $staticDir
 	 */
-	public function __construct(string $baseDir, string $configDir, string $staticDir)
+	public function __construct(string $baseDir, string $configDir, string $staticDir, array $server = [])
 	{
 		$this->baseDir   = $baseDir;
 		$this->configDir = $configDir;
 		$this->staticDir = $staticDir;
+		$this->server    = $server;
 	}
 
 	/**
@@ -87,31 +93,33 @@ class ConfigFileLoader
 	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
 	 * expected local.config.php
 	 *
-	 * @param Cache $config The config cache to load to
-	 * @param array $server The $_SERVER array
-	 * @param bool  $raw    Setup the raw config format
+	 * @param Cache $configCache The config cache to load to
+	 * @param bool  $raw         Set up the raw config format
 	 *
 	 * @throws ConfigFileException
 	 */
-	public function setupCache(Cache $config, array $server = [], bool $raw = false)
+	public function setupCache(Cache $configCache, bool $raw = false)
 	{
 		// Load static config files first, the order is important
-		$config->load($this->loadStaticConfig('defaults'), Cache::SOURCE_STATIC);
-		$config->load($this->loadStaticConfig('settings'), Cache::SOURCE_STATIC);
+		$configCache->load($this->loadStaticConfig('defaults'), Cache::SOURCE_STATIC);
+		$configCache->load($this->loadStaticConfig('settings'), Cache::SOURCE_STATIC);
 
 		// try to load the legacy config first
-		$config->load($this->loadLegacyConfig('htpreconfig'), Cache::SOURCE_FILE);
-		$config->load($this->loadLegacyConfig('htconfig'), Cache::SOURCE_FILE);
+		$configCache->load($this->loadLegacyConfig('htpreconfig'), Cache::SOURCE_FILE);
+		$configCache->load($this->loadLegacyConfig('htconfig'), Cache::SOURCE_FILE);
 
 		// Now load every other config you find inside the 'config/' directory
-		$this->loadCoreConfig($config);
+		$this->loadCoreConfig($configCache);
 
-		$config->load($this->loadEnvConfig($server), Cache::SOURCE_ENV);
+		// Now load the node.config.php file with the node specific config values (based on admin gui/console actions)
+		$this->loadDataConfig($configCache);
+
+		$configCache->load($this->loadEnvConfig(), Cache::SOURCE_ENV);
 
 		// In case of install mode, add the found basepath (because there isn't a basepath set yet
-		if (!$raw && empty($config->get('system', 'basepath'))) {
+		if (!$raw && empty($configCache->get('system', 'basepath'))) {
 			// Setting at least the basepath we know
-			$config->set('system', 'basepath', $this->baseDir, Cache::SOURCE_FILE);
+			$configCache->set('system', 'basepath', $this->baseDir, Cache::SOURCE_FILE);
 		}
 	}
 
@@ -131,7 +139,7 @@ class ConfigFileLoader
 
 		if (file_exists($configName)) {
 			return $this->loadConfigFile($configName);
-		} elseif (file_exists($iniName)) {
+		} else if (file_exists($iniName)) {
 			return $this->loadINIConfigFile($iniName);
 		} else {
 			return [];
@@ -141,20 +149,172 @@ class ConfigFileLoader
 	/**
 	 * Tries to load the specified core-configuration into the config cache.
 	 *
-	 * @param Cache $config The Config cache
+	 * @param Cache $configCache The Config cache
 	 *
 	 * @throws ConfigFileException if the configuration file isn't readable
 	 */
-	private function loadCoreConfig(Cache $config)
+	private function loadCoreConfig(Cache $configCache)
 	{
 		// try to load legacy ini-files first
 		foreach ($this->getConfigFiles(true) as $configFile) {
-			$config->load($this->loadINIConfigFile($configFile), Cache::SOURCE_FILE);
+			$configCache->load($this->loadINIConfigFile($configFile), Cache::SOURCE_FILE);
 		}
 
 		// try to load supported config at last to overwrite it
 		foreach ($this->getConfigFiles() as $configFile) {
-			$config->load($this->loadConfigFile($configFile), Cache::SOURCE_FILE);
+			$configCache->load($this->loadConfigFile($configFile), Cache::SOURCE_FILE);
+		}
+	}
+
+	/**
+	 * Tries to load the data config file with the overridden data
+	 *
+	 * @param Cache $configCache The Config cache
+	 *
+	 * @throws ConfigFileException In case the config file isn't loadable
+	 */
+	private function loadDataConfig(Cache $configCache)
+	{
+		$filename = $this->configDir . '/' . self::CONFIG_DATA_FILE;
+
+		if (file_exists($filename)) {
+
+			// The fallback empty return content
+			$content = '<?php return [];';
+
+			/**
+			 * This code-block creates a readonly node.config.php content stream (fopen() with "r")
+			 * The stream is locked shared (LOCK_SH), so not exclusively, but the OS knows that there's a lock
+			 *
+			 * Any exclusive locking (LOCK_EX) would need to wait until all LOCK_SHs are unlocked
+			 */
+			$configStream = fopen($filename, 'r');
+			try {
+				if (flock($configStream, LOCK_SH)) {
+					$content = fread($configStream, filesize($filename));
+					if (!$content) {
+						throw new ConfigFileException(sprintf('Couldn\'t read file %s', $filename));
+					}
+				}
+			} finally {
+				// unlock and close the stream for every circumstances
+				flock($configStream, LOCK_UN);
+				fclose($configStream);
+			}
+
+			/**
+			 * Evaluate the content string as PHP code
+			 *
+			 * @see https://www.php.net/manual/en/function.eval.php
+			 *
+			 * @note
+			 * To leave the PHP mode, we have to use the appropriate PHP tags '?>' as prefix.
+			 */
+			$dataArray = eval('?>' . $content);
+
+			if (is_array($dataArray)) {
+				$configCache->load($dataArray, Cache::SOURCE_DATA);
+			}
+		}
+	}
+
+	/**
+	 * Checks, if the node.config.php is writable
+	 *
+	 * @return bool
+	 */
+	public function dataIsWritable(): bool
+	{
+		$filename = $this->configDir . '/' . self::CONFIG_DATA_FILE;
+
+		if (file_exists($filename)) {
+			return is_writable($filename);
+		} else {
+			return is_writable($this->configDir);
+		}
+	}
+
+	/**
+	 * Saves overridden config entries back into the data.config.php
+	 *
+	 * @param Cache $configCache The config cache
+	 *
+	 * @throws ConfigFileException In case the config file isn't writeable or the data is invalid
+	 */
+	public function saveData(Cache $configCache)
+	{
+		$filename = $this->configDir . '/' . self::CONFIG_DATA_FILE;
+
+		if (file_exists($filename)) {
+			$fileExists = true;
+		} else {
+			$fileExists = false;
+		}
+
+		/**
+		 * Creates a read-write stream
+		 *
+		 * @see  https://www.php.net/manual/en/function.fopen.php
+		 * @note Open the file for reading and writing. If the file does not exist, it is created.
+		 * If it exists, it is neither truncated (as opposed to 'w'), nor the call to this function fails
+		 * (as is the case with 'x'). The file pointer is positioned on the beginning of the file.
+		 *
+		 */
+		if (($configStream = @fopen($filename, 'c+')) === false) {
+			throw new ConfigFileException(sprintf('Cannot open file "%s" in mode c+', $filename));
+		}
+
+		try {
+			// We do want an exclusive lock, so we wait until every LOCK_SH (config reading) is unlocked
+			if (flock($configStream, LOCK_EX)) {
+
+				/**
+				 * If the file exists, we read the whole file again to avoid a race condition with concurrent threads that could have modified the file between the first config read of this thread and now
+				 * Since we're currently exclusive locked, no other process can now change the config again
+				 */
+				if ($fileExists) {
+					// When reading the config file too fast, we get a wrong filesize, "clearstatcache" prevents that
+					clearstatcache(true, $filename);
+					$content = fread($configStream, filesize($filename));
+					if (!$content) {
+						throw new ConfigFileException(sprintf('Cannot read file %s', $filename));
+					}
+
+					// Event truncating the whole content wouldn't automatically rewind the stream,
+					// so we need to do it manually
+					rewind($configStream);
+
+					$dataArray = eval('?>' . $content);
+
+					// Merge the new content into the existing file based config cache and use it
+					// as the new config cache
+					if (is_array($dataArray)) {
+						$fileConfigCache = new Cache();
+						$fileConfigCache->load($dataArray, Cache::SOURCE_DATA);
+						$configCache = $fileConfigCache->merge($configCache);
+					}
+				}
+
+				// Only SOURCE_DATA is wanted, the rest isn't part of the node.config.php file
+				$data = $configCache->getDataBySource(Cache::SOURCE_DATA);
+
+				$encodedData = ConfigFileTransformer::encode($data);
+				if (!$encodedData) {
+					throw new ConfigFileException('config source cannot get encoded');
+				}
+
+				// Once again to avoid wrong, implicit "filesize" calls during the fwrite() or ftruncate() call
+				clearstatcache(true, $filename);
+				if (!ftruncate($configStream, 0) ||
+					!fwrite($configStream, $encodedData) ||
+					!fflush($configStream)) {
+					throw new ConfigFileException(sprintf('Cannot modify locked file %s', $filename));
+				}
+			}
+		} finally {
+			// unlock and close the stream for every circumstances
+			flock($configStream, LOCK_UN);
+			fclose($configStream);
 		}
 	}
 
@@ -172,7 +332,7 @@ class ConfigFileLoader
 		$filepath = $this->baseDir . DIRECTORY_SEPARATOR .   // /var/www/html/
 					Addon::DIRECTORY . DIRECTORY_SEPARATOR . // addon/
 					$name . DIRECTORY_SEPARATOR .            // openstreetmap/
-					'config'. DIRECTORY_SEPARATOR . 		 // config/
+					'config' . DIRECTORY_SEPARATOR .         // config/
 					$name . ".config.php";                   // openstreetmap.config.php
 
 		if (file_exists($filepath)) {
@@ -185,13 +345,11 @@ class ConfigFileLoader
 	/**
 	 * Tries to load environment specific variables, based on the `env.config.php` mapping table
 	 *
-	 * @param array $server The $_SERVER variable
-	 *
 	 * @return array The config array (empty if no config was found)
 	 *
 	 * @throws ConfigFileException if the configuration file isn't readable
 	 */
-	public function loadEnvConfig(array $server): array
+	protected function loadEnvConfig(): array
 	{
 		$filepath = $this->staticDir . DIRECTORY_SEPARATOR .   // /var/www/html/static/
 					"env.config.php";                          // env.config.php
@@ -205,8 +363,8 @@ class ConfigFileLoader
 		$return = [];
 
 		foreach ($envConfig as $envKey => $configStructure) {
-			if (isset($server[$envKey])) {
-				$return[$configStructure[0]][$configStructure[1]] = $server[$envKey];
+			if (isset($this->server[$envKey])) {
+				$return[$configStructure[0]][$configStructure[1]] = $this->server[$envKey];
 			}
 		}
 
@@ -231,7 +389,9 @@ class ConfigFileLoader
 		$sampleEnd = self::SAMPLE_END . ($ini ? '.ini.php' : '.config.php');
 
 		foreach ($files as $filename) {
-			if (fnmatch($filePattern, $filename) && substr_compare($filename, $sampleEnd, -strlen($sampleEnd))) {
+			if (fnmatch($filePattern, $filename) &&
+				substr_compare($filename, $sampleEnd, -strlen($sampleEnd)) &&
+				$filename !== self::CONFIG_DATA_FILE) {
 				$found[] = $this->configDir . '/' . $filename;
 			}
 		}
@@ -353,12 +513,16 @@ class ConfigFileLoader
 	 */
 	private function loadConfigFile(string $filepath): array
 	{
-		$config = include($filepath);
+		if (file_exists($filepath)) {
+			$config = include $filepath;
 
-		if (!is_array($config)) {
-			throw new ConfigFileException('Error loading config file ' . $filepath);
+			if (!is_array($config)) {
+				throw new ConfigFileException('Error loading config file ' . $filepath);
+			}
+
+			return $config;
+		} else {
+			return [];
 		}
-
-		return $config;
 	}
 }

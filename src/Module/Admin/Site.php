@@ -48,8 +48,6 @@ class Site extends BaseAdmin
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/site', 'admin_site');
 
-		$a = DI::app();
-
 		if (!empty($_POST['republish_directory'])) {
 			Worker::add(Worker::PRIORITY_LOW, 'Directory');
 			return;
@@ -146,9 +144,11 @@ class Site extends BaseAdmin
 		$relay_user_tags   = !empty($_POST['relay_user_tags']);
 		$active_panel      = (!empty($_POST['active_panel'])      ? "#" . trim($_POST['active_panel']) : '');
 
+		$transactionConfig = DI::config()->beginTransaction();
+
 		// Has the directory url changed? If yes, then resubmit the existing profiles there
 		if ($global_directory != DI::config()->get('system', 'directory') && ($global_directory != '')) {
-			DI::config()->set('system', 'directory', $global_directory);
+			$transactionConfig->set('system', 'directory', $global_directory);
 			Worker::add(Worker::PRIORITY_LOW, 'Directory');
 		}
 
@@ -194,131 +194,133 @@ class Site extends BaseAdmin
 				);
 			}
 		}
-		DI::config()->set('system', 'ssl_policy'            , $ssl_policy);
-		DI::config()->set('system', 'maxloadavg'            , $maxloadavg);
-		DI::config()->set('system', 'min_memory'            , $min_memory);
-		DI::config()->set('system', 'optimize_tables'       , $optimize_tables);
-		DI::config()->set('system', 'contact_discovery'     , $contact_discovery);
-		DI::config()->set('system', 'synchronize_directory' , $synchronize_directory);
-		DI::config()->set('system', 'poco_requery_days'     , $poco_requery_days);
-		DI::config()->set('system', 'poco_discovery'        , $poco_discovery);
-		DI::config()->set('system', 'poco_local_search'     , $poco_local_search);
-		DI::config()->set('system', 'nodeinfo'              , $nodeinfo);
-		DI::config()->set('config', 'sitename'              , $sitename);
-		DI::config()->set('config', 'sender_email'          , $sender_email);
-		DI::config()->set('system', 'suppress_tags'         , $suppress_tags);
-		DI::config()->set('system', 'shortcut_icon'         , $shortcut_icon);
-		DI::config()->set('system', 'touch_icon'            , $touch_icon);
+		$transactionConfig->set('system', 'ssl_policy'            , $ssl_policy);
+		$transactionConfig->set('system', 'maxloadavg'            , $maxloadavg);
+		$transactionConfig->set('system', 'min_memory'            , $min_memory);
+		$transactionConfig->set('system', 'optimize_tables'       , $optimize_tables);
+		$transactionConfig->set('system', 'contact_discovery'     , $contact_discovery);
+		$transactionConfig->set('system', 'synchronize_directory' , $synchronize_directory);
+		$transactionConfig->set('system', 'poco_requery_days'     , $poco_requery_days);
+		$transactionConfig->set('system', 'poco_discovery'        , $poco_discovery);
+		$transactionConfig->set('system', 'poco_local_search'     , $poco_local_search);
+		$transactionConfig->set('system', 'nodeinfo'              , $nodeinfo);
+		$transactionConfig->set('config', 'sitename'              , $sitename);
+		$transactionConfig->set('config', 'sender_email'          , $sender_email);
+		$transactionConfig->set('system', 'suppress_tags'         , $suppress_tags);
+		$transactionConfig->set('system', 'shortcut_icon'         , $shortcut_icon);
+		$transactionConfig->set('system', 'touch_icon'            , $touch_icon);
 
 		if ($banner == "") {
-			DI::config()->delete('system', 'banner');
+			$transactionConfig->delete('system', 'banner');
 		} else {
-			DI::config()->set('system', 'banner', $banner);
+			$transactionConfig->set('system', 'banner', $banner);
 		}
 
 		if (empty($email_banner)) {
-			DI::config()->delete('system', 'email_banner');
+			$transactionConfig->delete('system', 'email_banner');
 		} else {
-			DI::config()->set('system', 'email_banner', $email_banner);
+			$transactionConfig->set('system', 'email_banner', $email_banner);
 		}
 
 		if (empty($additional_info)) {
-			DI::config()->delete('config', 'info');
+			$transactionConfig->delete('config', 'info');
 		} else {
-			DI::config()->set('config', 'info', $additional_info);
+			$transactionConfig->set('config', 'info', $additional_info);
 		}
-		DI::config()->set('system', 'language', $language);
-		DI::config()->set('system', 'theme', $theme);
+		$transactionConfig->set('system', 'language', $language);
+		$transactionConfig->set('system', 'theme', $theme);
 		Theme::install($theme);
 
 		if ($theme_mobile == '---') {
-			DI::config()->delete('system', 'mobile-theme');
+			$transactionConfig->delete('system', 'mobile-theme');
 		} else {
-			DI::config()->set('system', 'mobile-theme', $theme_mobile);
+			$transactionConfig->set('system', 'mobile-theme', $theme_mobile);
 		}
 		if ($singleuser == '---') {
-			DI::config()->delete('system', 'singleuser');
+			$transactionConfig->delete('system', 'singleuser');
 		} else {
-			DI::config()->set('system', 'singleuser', $singleuser);
+			$transactionConfig->set('system', 'singleuser', $singleuser);
 		}
 		if (preg_match('/\d+(?:\s*[kmg])?/i', $maximagesize)) {
-			DI::config()->set('system', 'maximagesize', $maximagesize);
+			$transactionConfig->set('system', 'maximagesize', $maximagesize);
 		} else {
 			DI::sysmsg()->addNotice(DI::l10n()->t('%s is no valid input for maximum image size', $maximagesize));
 		}
-		DI::config()->set('system', 'max_image_length'       , $maximagelength);
-		DI::config()->set('system', 'jpeg_quality'           , $jpegimagequality);
+		$transactionConfig->set('system', 'max_image_length'       , $maximagelength);
+		$transactionConfig->set('system', 'jpeg_quality'           , $jpegimagequality);
 
-		DI::config()->set('config', 'register_policy'        , $register_policy);
-		DI::config()->set('system', 'max_daily_registrations', $daily_registrations);
-		DI::config()->set('system', 'account_abandon_days'   , $abandon_days);
-		DI::config()->set('config', 'register_text'          , $register_text);
-		DI::config()->set('system', 'allowed_sites'          , $allowed_sites);
-		DI::config()->set('system', 'allowed_email'          , $allowed_email);
-		DI::config()->set('system', 'forbidden_nicknames'    , $forbidden_nicknames);
-		DI::config()->set('system', 'system_actor_name'      , $system_actor_name);
-		DI::config()->set('system', 'no_oembed_rich_content' , $no_oembed_rich_content);
-		DI::config()->set('system', 'allowed_oembed'         , $allowed_oembed);
-		DI::config()->set('system', 'block_public'           , $block_public);
-		DI::config()->set('system', 'publish_all'            , $force_publish);
-		DI::config()->set('system', 'newuser_private'        , $newuser_private);
-		DI::config()->set('system', 'enotify_no_content'     , $enotify_no_content);
-		DI::config()->set('system', 'disable_embedded'       , $disable_embedded);
-		DI::config()->set('system', 'allow_users_remote_self', $allow_users_remote_self);
-		DI::config()->set('system', 'explicit_content'       , $explicit_content);
-		DI::config()->set('system', 'proxify_content'        , $proxify_content);
-		DI::config()->set('system', 'cache_contact_avatar'   , $cache_contact_avatar);
-		DI::config()->set('system', 'check_new_version_url'  , $check_new_version_url);
+		$transactionConfig->set('config', 'register_policy'        , $register_policy);
+		$transactionConfig->set('system', 'max_daily_registrations', $daily_registrations);
+		$transactionConfig->set('system', 'account_abandon_days'   , $abandon_days);
+		$transactionConfig->set('config', 'register_text'          , $register_text);
+		$transactionConfig->set('system', 'allowed_sites'          , $allowed_sites);
+		$transactionConfig->set('system', 'allowed_email'          , $allowed_email);
+		$transactionConfig->set('system', 'forbidden_nicknames'    , $forbidden_nicknames);
+		$transactionConfig->set('system', 'system_actor_name'      , $system_actor_name);
+		$transactionConfig->set('system', 'no_oembed_rich_content' , $no_oembed_rich_content);
+		$transactionConfig->set('system', 'allowed_oembed'         , $allowed_oembed);
+		$transactionConfig->set('system', 'block_public'           , $block_public);
+		$transactionConfig->set('system', 'publish_all'            , $force_publish);
+		$transactionConfig->set('system', 'newuser_private'        , $newuser_private);
+		$transactionConfig->set('system', 'enotify_no_content'     , $enotify_no_content);
+		$transactionConfig->set('system', 'disable_embedded'       , $disable_embedded);
+		$transactionConfig->set('system', 'allow_users_remote_self', $allow_users_remote_self);
+		$transactionConfig->set('system', 'explicit_content'       , $explicit_content);
+		$transactionConfig->set('system', 'proxify_content'        , $proxify_content);
+		$transactionConfig->set('system', 'cache_contact_avatar'   , $cache_contact_avatar);
+		$transactionConfig->set('system', 'check_new_version_url'  , $check_new_version_url);
 
-		DI::config()->set('system', 'block_extended_register', !$enable_multi_reg);
-		DI::config()->set('system', 'no_openid'              , !$enable_openid);
-		DI::config()->set('system', 'no_regfullname'         , !$enable_regfullname);
-		DI::config()->set('system', 'register_notification'  , $register_notification);
-		DI::config()->set('system', 'community_page_style'   , $community_page_style);
-		DI::config()->set('system', 'max_author_posts_community_page', $max_author_posts_community_page);
-		DI::config()->set('system', 'verifyssl'              , $verifyssl);
-		DI::config()->set('system', 'proxyuser'              , $proxyuser);
-		DI::config()->set('system', 'proxy'                  , $proxy);
-		DI::config()->set('system', 'curl_timeout'           , $timeout);
-		DI::config()->set('system', 'imap_disabled'          , !$mail_enabled && function_exists('imap_open'));
-		DI::config()->set('system', 'ostatus_disabled'       , !$ostatus_enabled);
-		DI::config()->set('system', 'diaspora_enabled'       , $diaspora_enabled);
+		$transactionConfig->set('system', 'block_extended_register', !$enable_multi_reg);
+		$transactionConfig->set('system', 'no_openid'              , !$enable_openid);
+		$transactionConfig->set('system', 'no_regfullname'         , !$enable_regfullname);
+		$transactionConfig->set('system', 'register_notification'  , $register_notification);
+		$transactionConfig->set('system', 'community_page_style'   , $community_page_style);
+		$transactionConfig->set('system', 'max_author_posts_community_page', $max_author_posts_community_page);
+		$transactionConfig->set('system', 'verifyssl'              , $verifyssl);
+		$transactionConfig->set('system', 'proxyuser'              , $proxyuser);
+		$transactionConfig->set('system', 'proxy'                  , $proxy);
+		$transactionConfig->set('system', 'curl_timeout'           , $timeout);
+		$transactionConfig->set('system', 'imap_disabled'          , !$mail_enabled && function_exists('imap_open'));
+		$transactionConfig->set('system', 'ostatus_disabled'       , !$ostatus_enabled);
+		$transactionConfig->set('system', 'diaspora_enabled'       , $diaspora_enabled);
 
-		DI::config()->set('config', 'private_addons'         , $private_addons);
+		$transactionConfig->set('config', 'private_addons'         , $private_addons);
 
-		DI::config()->set('system', 'force_ssl'              , $force_ssl);
-		DI::config()->set('system', 'hide_help'              , !$show_help);
+		$transactionConfig->set('system', 'force_ssl'              , $force_ssl);
+		$transactionConfig->set('system', 'hide_help'              , !$show_help);
 
-		DI::config()->set('system', 'dbclean'                , $dbclean);
-		DI::config()->set('system', 'dbclean-expire-days'    , $dbclean_expire_days);
-		DI::config()->set('system', 'dbclean_expire_conversation', $dbclean_expire_conv);
+		$transactionConfig->set('system', 'dbclean'                , $dbclean);
+		$transactionConfig->set('system', 'dbclean-expire-days'    , $dbclean_expire_days);
+		$transactionConfig->set('system', 'dbclean_expire_conversation', $dbclean_expire_conv);
 
 		if ($dbclean_unclaimed == 0) {
 			$dbclean_unclaimed = $dbclean_expire_days;
 		}
 
-		DI::config()->set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
+		$transactionConfig->set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
 
-		DI::config()->set('system', 'max_comments', $max_comments);
-		DI::config()->set('system', 'max_display_comments', $max_display_comments);
+		$transactionConfig->set('system', 'max_comments', $max_comments);
+		$transactionConfig->set('system', 'max_display_comments', $max_display_comments);
 
 		if ($temppath != '') {
 			$temppath = BasePath::getRealPath($temppath);
 		}
 
-		DI::config()->set('system', 'temppath', $temppath);
+		$transactionConfig->set('system', 'temppath', $temppath);
 
-		DI::config()->set('system', 'only_tag_search'  , $only_tag_search);
-		DI::config()->set('system', 'compute_group_counts', $compute_group_counts);
+		$transactionConfig->set('system', 'only_tag_search'  , $only_tag_search);
+		$transactionConfig->set('system', 'compute_group_counts', $compute_group_counts);
 
-		DI::config()->set('system', 'worker_queues'    , $worker_queues);
-		DI::config()->set('system', 'worker_fastlane'  , $worker_fastlane);
+		$transactionConfig->set('system', 'worker_queues'    , $worker_queues);
+		$transactionConfig->set('system', 'worker_fastlane'  , $worker_fastlane);
 
-		DI::config()->set('system', 'relay_directly'   , $relay_directly);
-		DI::config()->set('system', 'relay_scope'      , $relay_scope);
-		DI::config()->set('system', 'relay_server_tags', $relay_server_tags);
-		DI::config()->set('system', 'relay_deny_tags'  , $relay_deny_tags);
-		DI::config()->set('system', 'relay_user_tags'  , $relay_user_tags);
+		$transactionConfig->set('system', 'relay_directly'   , $relay_directly);
+		$transactionConfig->set('system', 'relay_scope'      , $relay_scope);
+		$transactionConfig->set('system', 'relay_server_tags', $relay_server_tags);
+		$transactionConfig->set('system', 'relay_deny_tags'  , $relay_deny_tags);
+		$transactionConfig->set('system', 'relay_user_tags'  , $relay_user_tags);
+
+		$transactionConfig->commit();
 
 		DI::baseUrl()->redirect('admin/site' . $active_panel);
 	}

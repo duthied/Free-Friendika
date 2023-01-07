@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Uri;
 
 class UpdateGServers
 {
@@ -63,12 +64,12 @@ class UpdateGServers
 			// There are duplicated "url" but not "nurl". So we check both addresses instead of just overwriting them,
 			// since that would mean loosing data.
 			if (!empty($gserver['url'])) {
-				if (Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'])) {
+				if (UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url'])) {
 					$count++;
 				}
 			}
 			if (!empty($gserver['nurl']) && ($gserver['nurl'] != Strings::normaliseLink($gserver['url']))) {
-				if (Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['nurl'])) {
+				if (UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['nurl'])) {
 					$count++;
 				}
 			}

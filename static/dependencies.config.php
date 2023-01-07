@@ -76,10 +76,10 @@ return [
 			$_SERVER
 		]
 	],
-	Config\Util\ConfigFileLoader::class => [
+	Config\Util\ConfigFileManager::class => [
 		'instanceOf' => Config\Factory\Config::class,
 		'call'       => [
-			['createConfigFileLoader', [
+			['createConfigFileManager', [
 				[Dice::INSTANCE => '$basepath'],
 				$_SERVER,
 			], Dice::CHAIN_CALL],
@@ -88,7 +88,7 @@ return [
 	Config\ValueObject\Cache::class => [
 		'instanceOf' => Config\Factory\Config::class,
 		'call'       => [
-			['createCache', [$_SERVER], Dice::CHAIN_CALL],
+			['createCache', [], Dice::CHAIN_CALL],
 		],
 	],
 	App\Mode::class              => [
@@ -98,9 +98,9 @@ return [
 		],
 	],
 	Config\Capability\IManageConfigValues::class => [
-		'instanceOf' => Config\Factory\Config::class,
-		'call'       => [
-			['create', [], Dice::CHAIN_CALL],
+		'instanceOf' => Config\Model\Config::class,
+		'constructParams' => [
+			$_SERVER,
 		],
 	],
 	PConfig\Capability\IManagePersonalConfigValues::class => [

@@ -44,7 +44,9 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Network\HTTPException;
+use Friendica\Worker\UpdateGServer;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\UriInterface;
 
 /**
  * This class handles GServer related functions
@@ -99,11 +101,11 @@ class GServer
 	 */
 	public static function add(string $url, bool $only_nodeinfo = false)
 	{
-		if (self::getID($url, false)) {
+		if (self::getID($url)) {
 			return;
 		}
 
-		Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $url, $only_nodeinfo);
+		UpdateGServer::add(Worker::PRIORITY_LOW, $url, $only_nodeinfo);
 	}
 
 	/**
@@ -191,8 +193,9 @@ class GServer
 			return false;
 		} else {
 			if (strtotime($gserver['next_contact']) < time()) {
-				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
 			}
+
 			return self::isDefunct($gserver);
 		}
 	}
@@ -210,8 +213,9 @@ class GServer
 			return true;
 		} else {
 			if (strtotime($gserver['next_contact']) < time()) {
-				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
 			}
+
 			return !$gserver['failed'] && in_array($gserver['network'], Protocol::FEDERATED);
 		}
 	}
@@ -252,7 +256,7 @@ class GServer
 		}
 
 		if (!empty($server) && (empty($gserver) || strtotime($gserver['next_contact']) < time())) {
-			Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $server, false);
+			UpdateGServer::add(Worker::PRIORITY_LOW, $server);
 		}
 
 		return $reachable;
@@ -375,7 +379,7 @@ class GServer
 			Logger::info('Reset failed status for server', ['url' => $gserver['url']]);
 
 			if (strtotime($gserver['next_contact']) < time()) {
-				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
 			}
 		}
 	}
@@ -393,7 +397,7 @@ class GServer
 			Logger::info('Set failed status for server', ['url' => $gserver['url']]);
 
 			if (strtotime($gserver['next_contact']) < time()) {
-				Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false);
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
 			}
 		}
 	}
@@ -442,16 +446,39 @@ class GServer
 	 *
 	 * @return string cleaned URL
 	 * @throws Exception
+	 * @deprecated since 2023.03 Use cleanUri instead
 	 */
 	public static function cleanURL(string $dirtyUrl): string
 	{
 		try {
-			$url = str_replace('/index.php', '', trim($dirtyUrl, '/'));
-			return (string)(new Uri($url))->withUserInfo('')->withQuery('')->withFragment('');
+			return (string)self::cleanUri(new Uri($dirtyUrl));
 		} catch (\Throwable $e) {
-			Logger::warning('Invalid URL', ['dirtyUrl' => $dirtyUrl, 'url' => $url]);
+			Logger::warning('Invalid URL', ['dirtyUrl' => $dirtyUrl]);
 			return '';
 		}
+	}
+
+	/**
+	 * Remove unwanted content from the given URI
+	 *
+	 * @param UriInterface $dirtyUri
+	 *
+	 * @return UriInterface cleaned URI
+	 * @throws Exception
+	 */
+	public static function cleanUri(UriInterface $dirtyUri): string
+	{
+		return $dirtyUri
+			->withUserInfo('')
+			->withQuery('')
+			->withFragment('')
+			->withPath(
+				preg_replace(
+					'#(?:^|/)index\.php#',
+					'',
+					rtrim($dirtyUri->getPath(), '/')
+				)
+			);
 	}
 
 	/**

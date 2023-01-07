@@ -181,6 +181,11 @@ abstract class DI
 		return self::$dice->create(Core\Config\Capability\IManageConfigValues::class);
 	}
 
+	public static function configFileManager(): Core\Config\Util\ConfigFileManager
+	{
+		return self::$dice->create(Core\Config\Util\ConfigFileManager::class);
+	}
+
 	public static function keyValue(): Core\KeyValueStorage\Capabilities\IManageKeyValuePairs
 	{
 		return self::$dice->create(Core\KeyValueStorage\Capabilities\IManageKeyValuePairs::class);

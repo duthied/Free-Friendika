@@ -23,6 +23,7 @@ namespace Friendica\Module\Admin;
 
 use Friendica\App;
 use Friendica\Core\Addon;
+use Friendica\Core\Config\Util\ConfigFileManager;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -114,6 +115,10 @@ class Summary extends BaseAdmin
 			$warningtext[] = DI::l10n()->t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>config/local.ini.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', DI::baseUrl()->get() . '/help/Config');
 		}
 
+		if (!DI::configFileManager()->dataIsWritable()) {
+			$warningtext[] = DI::l10n()->t('Friendica\'s configuration store "%s" isn\'t writable. Until then database updates won\'t be applied automatically, admin settings and console configuration changes won\'t be saved.', ConfigFileManager::CONFIG_DATA_FILE);
+		}
+
 		// Check server vitality
 		if (!self::checkSelfHostMeta()) {
 			$well_known = DI::baseUrl()->get() . Probe::HOST_META;
@@ -154,7 +159,7 @@ class Summary extends BaseAdmin
 		}
 
 		// check legacy basepath settings
-		$configLoader = (new Config())->createConfigFileLoader($a->getBasePath(), $_SERVER);
+		$configLoader = (new Config())->createConfigFileManager($a->getBasePath(), $_SERVER);
 		$configCache = new Cache();
 		$configLoader->setupCache($configCache);
 		$confBasepath = $configCache->get('system', 'basepath');
