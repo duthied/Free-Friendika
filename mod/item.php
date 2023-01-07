@@ -156,7 +156,7 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 
 	if (!empty($request['parent'])) {
 		$parent_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $request['parent']]);
-		if (DBA::isResult($parent_item)) {
+		if ($parent_item) {
 			// if this isn't the top-level parent of the conversation, find it
 			if ($parent_item['gravity'] != Item::GRAVITY_PARENT) {
 				$toplevel_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $parent_item['parent']]);
@@ -206,7 +206,7 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 	}
 
 	$post = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
-	if (!DBA::isResult($post)) {
+	if (!$post) {
 		Logger::error('Item couldn\'t be fetched.', ['post_id' => $post_id]);
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);

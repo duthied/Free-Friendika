@@ -856,7 +856,7 @@ class Item
 		}
 
 		$user = User::getById($post['uid'], ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
-		if (!DBA::isResult($user)) {
+		if (!$user) {
 			throw new HTTPException\NotFoundException($this->l10n->t('Unable to locate original post.'));
 		}
 
