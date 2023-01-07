@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-07 14:18+0000\n"
+"POT-Creation-Date: 2023-01-07 14:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5064,8 +5064,9 @@ msgstr ""
 #: src/Module/Admin/Summary.php:119
 #, php-format
 msgid ""
-"Friendica's configuration store \"%s\" isn't writable. Beware that updates, "
-"gui changes and console changes aren't working reliable."
+"Friendica's configuration store \"%s\" isn't writable. Until then database "
+"updates won't be applied automatically, admin settings and console "
+"configuration changes won't be saved."
 msgstr ""
 
 #: src/Module/Admin/Summary.php:125
