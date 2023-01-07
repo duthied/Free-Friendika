@@ -141,9 +141,6 @@ function item_edit(int $uid, array $request, bool $preview, string $return_path)
 
 function item_insert(int $uid, array $request, bool $preview, string $return_path)
 {
-	$emailcc   = trim($request['emailcc']  ?? '');
-	$parent_id = intval($request['parent'] ?? 0);
-
 	$post = ['uid' => $uid];
 	$post = DI::contentItem()->initializePost($post);
 
@@ -158,8 +155,8 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 	$post['postopts']  = '';
 	$post['file']      = '';
 
-	if ($parent_id) {
-		$parent_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $parent_id]);
+	if (!empty($request['parent'])) {
+		$parent_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $request['parent']]);
 		if (DBA::isResult($parent_item)) {
 			// if this isn't the top-level parent of the conversation, find it
 			if ($parent_item['gravity'] != Item::GRAVITY_PARENT) {
@@ -219,7 +216,7 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item couldn\'t be fetched.'));
 	}
 
-	$recipients = explode(',', $emailcc);
+	$recipients = explode(',', $request['emailcc'] ?? '');
 
 	DI::contentItem()->postProcessPost($post, $recipients);
 
