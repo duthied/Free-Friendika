@@ -3316,10 +3316,16 @@ class Diaspora
 
 			$type = 'reshare';
 		} else {
-			$item['body'] = Post\Media::removeFromEndOfBody($item['body']);
+			$native_photos = DI::config()->get('diaspora', 'native_photos');
+			if ($native_photos) {
+				$item['body'] = Post\Media::removeFromEndOfBody($item['body']);
+				$attach_media = [Post\Media::AUDIO, Post\Media::VIDEO];
+			} else {
+				$attach_media = [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO];
+			}
 
 			$title = $item['title'];
-			$body  = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item), [Post\Media::AUDIO, Post\Media::VIDEO]);
+			$body  = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item), $attach_media);
 
 			// Fetch the title from an attached link - if there is one
 			if (empty($item['title']) && DI::pConfig()->get($owner['uid'], 'system', 'attach_link_title')) {
@@ -3367,7 +3373,9 @@ class Diaspora
 				'location' => $location
 			];
 
-			$message = self::addPhotos($item, $message);
+			if ($native_photos) {
+				$message = self::addPhotos($item, $message);
+			}
 
 			// Diaspora rejects messages when they contain a location without "lat" or "lng"
 			if (!isset($location['lat']) || !isset($location['lng'])) {
@@ -3403,6 +3411,13 @@ class Diaspora
 		return $msg;
 	}
 
+	/**
+	 * Add photo elements to the message array
+	 *
+	 * @param array $item
+	 * @param array $message
+	 * @return array
+	 */
 	private static function addPhotos(array $item, array $message): array
 	{
 		$medias = Post\Media::getByURIId($item['uri-id'], [Post\Media::IMAGE]);
