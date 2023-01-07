@@ -21,14 +21,14 @@
 
 namespace Friendica\Test\src\Core\Config\Cache;
 
-use Friendica\Core\Config\Cache;
 use Friendica\Core\Config\Factory\Config;
+use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Core\Config\Util\ConfigFileLoader;
+use Friendica\Core\Config\Util\ConfigFileManager;
 use org\bovigo\vfs\vfsStream;
 
-class ConfigFileLoaderTest extends MockedTest
+class ConfigFileManagerTest extends MockedTest
 {
 	use VFSTrait;
 
@@ -46,12 +46,13 @@ class ConfigFileLoaderTest extends MockedTest
 	{
 		$this->delConfigFile('local.config.php');
 
-		$configFileLoader = new ConfigFileLoader(
+		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -69,15 +70,15 @@ class ConfigFileLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		vfsStream::newFile('local.config.php')
-			->at($this->root->getChild('config'))
-			->setContent('<?php return true;');
+				 ->at($this->root->getChild('config'))
+				 ->setContent('<?php return true;');
 
-		$configFileLoader = new ConfigFileLoader(
+		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 	}
@@ -90,23 +91,23 @@ class ConfigFileLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'A.config.php';
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'datasets' . DIRECTORY_SEPARATOR .
+				'config' . DIRECTORY_SEPARATOR .
+				'A.config.php';
 
 		vfsStream::newFile('local.config.php')
-			->at($this->root->getChild('config'))
-			->setContent(file_get_contents($file));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($file));
 
-		$configFileLoader = new ConfigFileLoader(
+		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -127,23 +128,23 @@ class ConfigFileLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'A.ini.php';
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'datasets' . DIRECTORY_SEPARATOR .
+				'config' . DIRECTORY_SEPARATOR .
+				'A.ini.php';
 
 		vfsStream::newFile('local.ini.php')
-			->at($this->root->getChild('config'))
-			->setContent(file_get_contents($file));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($file));
 
-		$configFileLoader = new ConfigFileLoader(
+		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -163,23 +164,23 @@ class ConfigFileLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'.htconfig.php';
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'datasets' . DIRECTORY_SEPARATOR .
+				'config' . DIRECTORY_SEPARATOR .
+				'.htconfig.php';
 
 		vfsStream::newFile('.htconfig.php')
-			->at($this->root)
-			->setContent(file_get_contents($file));
+				 ->at($this->root)
+				 ->setContent(file_get_contents($file));
 
-		$configFileLoader = new ConfigFileLoader(
+		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -217,18 +218,18 @@ class ConfigFileLoaderTest extends MockedTest
 		vfsStream::create($structure, $this->root);
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'A.config.php';
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'..' . DIRECTORY_SEPARATOR .
+				'datasets' . DIRECTORY_SEPARATOR .
+				'config' . DIRECTORY_SEPARATOR .
+				'A.config.php';
 
 		vfsStream::newFile('test.config.php')
-			->at($this->root->getChild('addon')->getChild('test')->getChild('config'))
-			->setContent(file_get_contents($file));
+				 ->at($this->root->getChild('addon')->getChild('test')->getChild('config'))
+				 ->setContent(file_get_contents($file));
 
-		$configFileLoader = new ConfigFileLoader(
+		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
@@ -252,25 +253,25 @@ class ConfigFileLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-		        '..' . DIRECTORY_SEPARATOR .
-			   '..' . DIRECTORY_SEPARATOR .
-		        '..' . DIRECTORY_SEPARATOR .
-		        'datasets' . DIRECTORY_SEPARATOR .
-		        'config' . DIRECTORY_SEPARATOR;
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
 
 		vfsStream::newFile('A.config.php')
-		         ->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'A.config.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'A.config.php'));
 		vfsStream::newFile('B.config.php')
-				->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'B.config.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
 
-		$configFileLoader = new ConfigFileLoader(
+		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -286,25 +287,25 @@ class ConfigFileLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-		           '..' . DIRECTORY_SEPARATOR .
-		           '..' . DIRECTORY_SEPARATOR .
 				   '..' . DIRECTORY_SEPARATOR .
-		           'datasets' . DIRECTORY_SEPARATOR .
-		           'config' . DIRECTORY_SEPARATOR;
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
 
 		vfsStream::newFile('A.ini.php')
-		         ->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'A.ini.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'A.ini.php'));
 		vfsStream::newFile('B.ini.php')
-		         ->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'B.ini.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'B.ini.php'));
 
-		$configFileLoader = new ConfigFileLoader(
+		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configCache      = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -320,25 +321,26 @@ class ConfigFileLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-		           '..' . DIRECTORY_SEPARATOR .
 				   '..' . DIRECTORY_SEPARATOR .
-		           '..' . DIRECTORY_SEPARATOR .
-		           'datasets' . DIRECTORY_SEPARATOR .
-		           'config' . DIRECTORY_SEPARATOR;
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
 
 		vfsStream::newFile('A.ini.php')
-		         ->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'A.ini.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'A.ini.php'));
 		vfsStream::newFile('B-sample.ini.php')
-		         ->at($this->root->getChild('config'))
-		         ->setContent(file_get_contents($fileDir . 'B.ini.php'));
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'B.ini.php'));
 
-		$configFileLoader = new ConfigFileLoader(
+		$configFileLoader = new ConfigFileManager(
 			$this->root->url(),
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::CONFIG_DIR,
 			$this->root->url() . DIRECTORY_SEPARATOR . Config::STATIC_DIR
 		);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -353,10 +355,10 @@ class ConfigFileLoaderTest extends MockedTest
 	{
 		$this->delConfigFile('local.config.php');
 
-		$configFileLoader = (new Config())->createConfigFileLoader($this->root->url(), ['FRIENDICA_CONFIG_DIR' => '/a/wrong/dir/']);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url(), ['FRIENDICA_CONFIG_DIR' => '/a/wrong/dir/']);
+		$configCache       = new Cache();
 
-		$configFileLoader->setupCache($configCache);
+		$configFileManager->setupCache($configCache);
 
 		self::assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
 	}
@@ -379,11 +381,134 @@ class ConfigFileLoaderTest extends MockedTest
 				 ->at($this->root->getChild('config2'))
 				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
 
-		$configFileLoader = (new Config())->createConfigFileLoader($this->root->url(), ['FRIENDICA_CONFIG_DIR' => $this->root->getChild('config2')->url()]);
-		$configCache = new \Friendica\Core\Config\ValueObject\Cache();
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url(),
+			[
+				'FRIENDICA_CONFIG_DIR' => $this->root->getChild('config2')->url(),
+			]);
+		$configCache       = new Cache();
 
-		$configFileLoader->setupCache($configCache);
+		$configFileManager->setupCache($configCache);
 
 		self::assertEquals('newValue', $configCache->get('system', 'newKey'));
+	}
+
+	public function testSaveData()
+	{
+		$this->delConfigFile('local.config.php');
+
+		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
+
+		vfsStream::newFile('B.config.php')
+				 ->at($this->root->getChild('config2'))
+				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
+
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url(),
+			[
+				'FRIENDICA_CONFIG_DIR' => $this->root->getChild('config2')->url(),
+			]);
+		$configCache       = new Cache();
+
+		$configFileManager->setupCache($configCache);
+
+		$specialChars = '!"§$%&/()(/&%$\'><?$a,;:[]}{}\\?¿¿ß';
+
+		// overwrite some data and save it back to the config file
+		$configCache->set('system', 'test', 'it', Cache::SOURCE_DATA);
+		$configCache->set('config', 'test', 'it', Cache::SOURCE_DATA);
+		$configCache->set('system', 'test_2', 2, Cache::SOURCE_DATA);
+		$configCache->set('special_chars', 'special', $specialChars, Cache::SOURCE_DATA);
+		$configFileManager->saveData($configCache);
+
+		// Reload the configCache with the new values
+		$configCache2 = new Cache();
+		$configFileManager->setupCache($configCache2);
+
+		self::assertEquals($configCache, $configCache2);
+		self::assertEquals([
+			'system'        => [
+				'test'   => 'it',
+				'test_2' => 2
+			],
+			'config'        => [
+				'test' => 'it',
+			],
+			'special_chars' => [
+				'special' => $specialChars,
+			]], $configCache2->getDataBySource(Cache::SOURCE_DATA));
+	}
+
+	/**
+	 * If we delete something with the Cache::delete() functionality, be sure to override the underlying source as well
+	 */
+	public function testDeleteKeyOverwrite()
+	{
+		$this->delConfigFile('node.config.php');
+
+		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
+
+		vfsStream::newFile('B.config.php')
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
+
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url());
+		$configCache       = new Cache();
+
+		$configFileManager->setupCache($configCache);
+
+		$configCache->delete('system', 'default_timezone', Cache::SOURCE_DATA);
+
+		$configFileManager->saveData($configCache);
+
+		// assert that system.default_timezone is now null, even it's set with settings.conf.php
+		$configCache       = new Cache();
+
+		$configFileManager->setupCache($configCache);
+
+		self::assertNull($configCache->get('system', 'default_timezone'));
+	}
+
+	/**
+	 * If we delete something with the Cache::delete() functionality, be sure to override the underlying source as well
+	 */
+	public function testDeleteCategoryOverwrite()
+	{
+		$this->delConfigFile('node.config.php');
+
+		$fileDir = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   '..' . DIRECTORY_SEPARATOR .
+				   'datasets' . DIRECTORY_SEPARATOR .
+				   'config' . DIRECTORY_SEPARATOR;
+
+		vfsStream::newFile('B.config.php')
+				 ->at($this->root->getChild('config'))
+				 ->setContent(file_get_contents($fileDir . 'B.config.php'));
+
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url());
+		$configCache       = new Cache();
+
+		$configFileManager->setupCache($configCache);
+
+		$configCache->delete('system');
+
+		$configFileManager->saveData($configCache);
+
+		// assert that system.default_timezone is now null, even it's set with settings.conf.php
+		$configCache       = new Cache();
+
+		$configFileManager->setupCache($configCache);
+
+		self::assertNull($configCache->get('system', 'default_timezone'));
 	}
 }

@@ -47,22 +47,32 @@ class Update
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function check(string $basePath, bool $via_worker, App\Mode $mode)
+	public static function check(string $basePath, bool $via_worker)
 	{
 		if (!DBA::connected()) {
 			return;
 		}
 
 		// Don't check the status if the last update was failed
-		if (DI::config()->get('system', 'update', Update::SUCCESS, true) == Update::FAILED) {
+		if (DI::config()->get('system', 'update', Update::SUCCESS) == Update::FAILED) {
 			return;
 		}
 
 		$build = DI::config()->get('system', 'build');
 
 		if (empty($build)) {
-			DI::config()->set('system', 'build', DB_UPDATE_VERSION - 1);
-			$build = DB_UPDATE_VERSION - 1;
+			// legacy option - check if there's something in the Config table
+			if (DBStructure::existsTable('config')) {
+				$dbConfig = DBA::selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'build']);
+				if (!empty($dbConfig)) {
+					$build = $dbConfig['v'];
+				}
+			}
+
+			if (empty($build)) {
+				DI::config()->set('system', 'build', DB_UPDATE_VERSION - 1);
+				$build = DB_UPDATE_VERSION - 1;
+			}
 		}
 
 		// We don't support upgrading from very old versions anymore
@@ -119,11 +129,21 @@ class Update
 			DI::lock()->release('dbupdate', true);
 		}
 
-		$build = DI::config()->get('system', 'build', null, true);
+		$build = DI::config()->get('system', 'build');
 
-		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
-			$build = DB_UPDATE_VERSION - 1;
-			DI::config()->set('system', 'build', $build);
+		if (empty($build)) {
+			// legacy option - check if there's something in the Config table
+			if (DBStructure::existsTable('config')) {
+				$dbConfig = DBA::selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'build']);
+				if (!empty($dbConfig)) {
+					$build = $dbConfig['v'];
+				}
+			}
+
+			if (empty($build) || ($build > DB_UPDATE_VERSION)) {
+				DI::config()->set('system', 'build', DB_UPDATE_VERSION - 1);
+				$build = DB_UPDATE_VERSION - 1;
+			}
 		}
 
 		if ($build != DB_UPDATE_VERSION || $force) {
@@ -132,7 +152,7 @@ class Update
 			$stored = intval($build);
 			$current = intval(DB_UPDATE_VERSION);
 			if ($stored < $current || $force) {
-				DI::config()->load('database');
+				DI::config()->reload();
 
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
@@ -141,11 +161,21 @@ class Update
 					Logger::notice('Update starting.', ['from' => $stored, 'to' => $current]);
 
 					// Checks if the build changed during Lock acquiring (so no double update occurs)
-					$retryBuild = DI::config()->get('system', 'build', null, true);
-					if ($retryBuild !== $build) {
-						Logger::notice('Update already done.', ['from' => $stored, 'to' => $current]);
-						DI::lock()->release('dbupdate');
-						return '';
+					$retryBuild = DI::config()->get('system', 'build');
+					if ($retryBuild != $build) {
+						// legacy option - check if there's something in the Config table
+						if (DBStructure::existsTable('config')) {
+							$dbConfig = DBA::selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'build']);
+							if (!empty($dbConfig)) {
+								$retryBuild = intval($dbConfig['v']);
+							}
+						}
+
+						if ($retryBuild != $build) {
+							Logger::notice('Update already done.', ['from' => $build, 'retry' => $retryBuild, 'to' => $current]);
+							DI::lock()->release('dbupdate');
+							return '';
+						}
 					}
 
 					DI::config()->set('system', 'maintenance', 1);
@@ -160,8 +190,10 @@ class Update
 							Logger::warning('Pre update failed', ['version' => $version]);
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
-							DI::config()->set('system', 'maintenance', 0);
-							DI::config()->set('system', 'maintenance_reason', '');
+							DI::config()->beginTransaction()
+										->set('system', 'maintenance', false)
+										->delete('system', 'maintenance_reason')
+										->commit();
 							return $r;
 						} else {
 							Logger::notice('Pre update executed.', ['version' => $version]);
@@ -181,8 +213,10 @@ class Update
 						Logger::error('Update ERROR.', ['from' => $stored, 'to' => $current, 'retval' => $retval]);
 						DI::config()->set('system', 'update', Update::FAILED);
 						DI::lock()->release('dbupdate');
-						DI::config()->set('system', 'maintenance', 0);
-						DI::config()->set('system', 'maintenance_reason', '');
+						DI::config()->beginTransaction()
+									->set('system', 'maintenance', false)
+									->delete('system', 'maintenance_reason')
+									->commit();
 						return $retval;
 					} else {
 						Logger::notice('Database structure update finished.', ['from' => $stored, 'to' => $current]);
@@ -198,8 +232,10 @@ class Update
 							Logger::warning('Post update failed', ['version' => $version]);
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
-							DI::config()->set('system', 'maintenance', 0);
-							DI::config()->set('system', 'maintenance_reason', '');
+							DI::config()->beginTransaction()
+										->set('system', 'maintenance', false)
+										->delete('system', 'maintenance_reason')
+										->commit();
 							return $r;
 						} else {
 							DI::config()->set('system', 'build', $version);
@@ -210,8 +246,10 @@ class Update
 					DI::config()->set('system', 'build', $current);
 					DI::config()->set('system', 'update', Update::SUCCESS);
 					DI::lock()->release('dbupdate');
-					DI::config()->set('system', 'maintenance', 0);
-					DI::config()->set('system', 'maintenance_reason', '');
+					DI::config()->beginTransaction()
+								->set('system', 'maintenance', false)
+								->delete('system', 'maintenance_reason')
+								->commit();
 
 					Logger::notice('Update success.', ['from' => $stored, 'to' => $current]);
 					if ($sendMail) {

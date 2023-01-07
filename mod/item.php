@@ -49,7 +49,7 @@ use Friendica\Util\DateTimeFormat;
 function item_post(App $a) {
 	$uid = DI::userSession()->getLocalUserId();
 
-	if (!DI::userSession()->isAuthenticated() || !$uid) {
+	if (!$uid) {
 		throw new HTTPException\ForbiddenException();
 	}
 
@@ -68,11 +68,11 @@ function item_post(App $a) {
 	 * after it's been previewed
 	 */
 	if (!$preview && !empty($_REQUEST['post_id_random'])) {
-		if (!empty($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
+		if (DI::session()->get('post-random') == $_REQUEST['post_id_random']) {
 			Logger::warning('duplicate post');
 			item_post_return(DI::baseUrl(), $return_path);
 		} else {
-			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
+			DI::session()->set('post-random', $_REQUEST['post_id_random']);
 		}
 	}
 
@@ -90,16 +90,15 @@ function item_drop(int $uid, string $dropitems)
 		Item::deleteForUser(['id' => $item], $uid);
 	}
 
-	$json = ['success' => 1];
-	System::jsonExit($json);
+	System::jsonExit(['success' => 1]);
 }
 
 function item_edit(int $uid, array $request, bool $preview, string $return_path)
 {
 	$post = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $request['post_id'], 'uid' => $uid]);
 	if (!DBA::isResult($post)) {
-		DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate original post.'));
 		if ($return_path) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate original post.'));
 			DI::baseUrl()->redirect($return_path);
 		}
 		throw new HTTPException\NotFoundException(DI::l10n()->t('Unable to locate original post.'));
@@ -141,15 +140,12 @@ function item_edit(int $uid, array $request, bool $preview, string $return_path)
 
 function item_insert(int $uid, array $request, bool $preview, string $return_path)
 {
-	$emailcc = trim($request['emailcc']  ?? '');
-
 	$post = ['uid' => $uid];
 	$post = DI::contentItem()->initializePost($post);
 
 	$post['edit']      = null;
 	$post['post-type'] = $request['post_type'] ?? '';
 	$post['wall']      = $request['wall'] ?? true;
-	$post['parent']    = intval($request['parent'] ?? 0);
 	$post['pubmail']   = $request['pubmail_enable'] ?? false;
 	$post['created']   = $request['created_at'] ?? DateTimeFormat::utcNow();
 	$post['edited']    = $post['changed'] = $post['commented'] = $post['created'];
@@ -158,25 +154,20 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 	$post['postopts']  = '';
 	$post['file']      = '';
 
-	if ($post['parent']) {
-		if ($post['parent']) {
-			$parent_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post['parent']]);
-		}
-
-		// if this isn't the top-level parent of the conversation, find it
-		if (DBA::isResult($parent_item)) {
-			// The URI and the contact is taken from the direct parent which needn't to be the top parent
-			$post['thr-parent'] = $parent_item['uri'];
-			$toplevel_item = $parent_item;
-
+	if (!empty($request['parent'])) {
+		$parent_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $request['parent']]);
+		if ($parent_item) {
+			// if this isn't the top-level parent of the conversation, find it
 			if ($parent_item['gravity'] != Item::GRAVITY_PARENT) {
-				$toplevel_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $toplevel_item['parent']]);
+				$toplevel_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $parent_item['parent']]);
+			} else {
+				$toplevel_item = $parent_item;
 			}
 		}
 
-		if (!DBA::isResult($toplevel_item)) {
-			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate original post.'));
+		if (empty($toplevel_item)) {
 			if ($return_path) {
+				DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate original post.'));
 				DI::baseUrl()->redirect($return_path);
 			}
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Unable to locate original post.'));
@@ -187,17 +178,13 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 		if ($toplevel_item['uid'] == 0) {
 			$stored = Item::storeForUserByUriId($toplevel_item['uri-id'], $post['uid'], ['post-reason' => Item::PR_ACTIVITY]);
 			Logger::info('Public item stored for user', ['uri-id' => $toplevel_item['uri-id'], 'uid' => $post['uid'], 'stored' => $stored]);
-			if ($stored) {
-				$toplevel_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $stored]);
-			}
 		}
 
-		$post['parent']      = $toplevel_item['id'];
 		$post['gravity']     = Item::GRAVITY_COMMENT;
+		$post['thr-parent']  = $parent_item['uri'];
 		$post['wall']        = $toplevel_item['wall'];
 	} else {
 		$parent_item         = [];
-		$post['parent']      = 0;
 		$post['gravity']     = Item::GRAVITY_PARENT;
 		$post['thr-parent']  = $post['uri'];
 	}
@@ -210,8 +197,8 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 
 	$post_id = Item::insert($post);
 	if (!$post_id) {
-		DI::sysmsg()->addNotice(DI::l10n()->t('Item wasn\'t stored.'));
 		if ($return_path) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('Item wasn\'t stored.'));
 			DI::baseUrl()->redirect($return_path);
 		}
 
@@ -219,7 +206,7 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 	}
 
 	$post = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
-	if (!DBA::isResult($post)) {
+	if (!$post) {
 		Logger::error('Item couldn\'t be fetched.', ['post_id' => $post_id]);
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
@@ -228,7 +215,7 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item couldn\'t be fetched.'));
 	}
 
-	$recipients = explode(',', $emailcc);
+	$recipients = explode(',', $request['emailcc'] ?? '');
 
 	DI::contentItem()->postProcessPost($post, $recipients);
 
@@ -270,8 +257,8 @@ function item_process(array $post, array $request, bool $preview, string $return
 			System::jsonExit(['preview' => '']);
 		}
 
-		DI::sysmsg()->addNotice(DI::l10n()->t('Empty post discarded.'));
 		if ($return_path) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('Empty post discarded.'));
 			DI::baseUrl()->redirect($return_path);
 		}
 

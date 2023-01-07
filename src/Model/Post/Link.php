@@ -126,7 +126,7 @@ class Link
 		$timeout = DI::config()->get('system', 'xrd_timeout');
 
 		$curlResult = HTTPSignature::fetchRaw($url, 0, [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => $accept]);
-		if (!$curlResult->isSuccess()) {
+		if (empty($curlResult) || !$curlResult->isSuccess()) {
 			return [];
 		}
 		$fields = ['mimetype' => $curlResult->getHeader('Content-Type')[0]];

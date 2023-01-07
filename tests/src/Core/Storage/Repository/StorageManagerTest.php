@@ -22,9 +22,7 @@
 namespace Friendica\Test\src\Core\Storage\Repository;
 
 use Dice\Dice;
-use Friendica\App\Mode;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Config\Type\PreloadConfig;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Session\Capability\IHandleSessions;
@@ -41,7 +39,6 @@ use Friendica\Database\Definition\DbaDefinition;
 use Friendica\Database\Definition\ViewDefinition;
 use Friendica\DI;
 use Friendica\Core\Config\Factory\Config;
-use Friendica\Core\Config\Repository;
 use Friendica\Core\Storage\Type;
 use Friendica\Test\DatabaseTest;
 use Friendica\Test\Util\Database\StaticDatabase;
@@ -55,6 +52,7 @@ use Friendica\Test\Util\SampleStorageBackend;
 class StorageManagerTest extends DatabaseTest
 {
 	use VFSTrait;
+
 	/** @var Database */
 	private $dba;
 	/** @var IManageConfigValues */
@@ -80,19 +78,19 @@ class StorageManagerTest extends DatabaseTest
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
 
 		// load real config to avoid mocking every config-entry which is related to the Database class
-		$configFactory = new Config();
-		$loader        = $configFactory->createConfigFileLoader($this->root->url(), []);
-		$configCache   = $configFactory->createCache($loader);
+		$configFactory     = new Config();
+		$configFileManager = $configFactory->createConfigFileManager($this->root->url());
+		$configCache       = $configFactory->createCache($configFileManager);
 
-		$dbaDefinition = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
+		$dbaDefinition  = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
 		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
 
 		$this->dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition);
 
-		$configModel  = new Repository\Config($this->dba, new Mode(Mode::DBCONFIGAVAILABLE));
-		$this->config = new PreloadConfig($configCache, $configModel);
+		$this->config = new \Friendica\Core\Config\Model\Config($configFileManager, $configCache);
 		$this->config->set('storage', 'name', 'Database');
-		$this->config->set('storage', 'filesystem_path', $this->root->getChild(Type\FilesystemConfig::DEFAULT_BASE_FOLDER)->url());
+		$this->config->set('storage', 'filesystem_path', $this->root->getChild(Type\FilesystemConfig::DEFAULT_BASE_FOLDER)
+																	->url());
 
 		$this->l10n = \Mockery::mock(L10n::class);
 	}
@@ -117,21 +115,21 @@ class StorageManagerTest extends DatabaseTest
 	public function dataStorages()
 	{
 		return [
-			'empty' => [
+			'empty'          => [
 				'name'       => '',
 				'valid'      => false,
 				'interface'  => ICanReadFromStorage::class,
 				'assert'     => null,
 				'assertName' => '',
 			],
-			'database' => [
+			'database'       => [
 				'name'       => Type\Database::NAME,
 				'valid'      => true,
 				'interface'  => ICanWriteToStorage::class,
 				'assert'     => Type\Database::class,
 				'assertName' => Type\Database::NAME,
 			],
-			'filesystem' => [
+			'filesystem'     => [
 				'name'       => Filesystem::NAME,
 				'valid'      => true,
 				'interface'  => ICanWriteToStorage::class,
@@ -145,7 +143,7 @@ class StorageManagerTest extends DatabaseTest
 				'assert'     => SystemResource::class,
 				'assertName' => SystemResource::NAME,
 			],
-			'invalid' => [
+			'invalid'        => [
 				'name'        => 'invalid',
 				'valid'       => false,
 				'interface'   => null,

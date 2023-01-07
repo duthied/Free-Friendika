@@ -2855,7 +2855,7 @@ class Diaspora
 
 		$namespaces = ['me' => ActivityNamespace::SALMON_ME];
 
-		return XML::fromArray($xmldata, $xml, false, $namespaces);
+		return XML::fromArray($xmldata, $dummy, false, $namespaces);
 	}
 
 	/**
@@ -2974,12 +2974,11 @@ class Diaspora
 	 * @param array  $message The message data
 	 *
 	 * @return string The post XML
+	 * @throws \Exception
 	 */
 	public static function buildPostXml(string $type, array $message): string
 	{
-		$data = [$type => $message];
-
-		return XML::fromArray($data, $xml);
+		return XML::fromArray([$type => $message]);
 	}
 
 	/**

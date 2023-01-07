@@ -99,7 +99,7 @@ class ApiResponse extends Response
 
 		$data3 = [$root_element => $data2];
 
-		return XML::fromArray($data3, $xml, false, $namespaces);
+		return XML::fromArray($data3, $dummy, false, $namespaces);
 	}
 
 	/**

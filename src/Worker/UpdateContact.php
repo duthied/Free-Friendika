@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\Network;
 
 class UpdateContact
 {
@@ -38,6 +39,11 @@ class UpdateContact
 	 */
 	public static function execute(int $contact_id)
 	{
+		// Silently dropping the task if the contact is blocked
+		if (Contact::isBlocked($contact_id)) {
+			return;
+		}
+
 		$success = Contact::updateFromProbe($contact_id);
 
 		Logger::info('Updated from probe', ['id' => $contact_id, 'success' => $success]);
@@ -53,6 +59,11 @@ class UpdateContact
 	{
 		if (!$contact_id) {
 			throw new \InvalidArgumentException('Invalid value provided for contact_id');
+		}
+
+		// Dropping the task if the contact is blocked
+		if (Contact::isBlocked($contact_id)) {
+			return 0;
 		}
 
 		return Worker::add($run_parameters, 'UpdateContact', $contact_id);
