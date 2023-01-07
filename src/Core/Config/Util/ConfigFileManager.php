@@ -260,7 +260,7 @@ class ConfigFileManager
 		 * (as is the case with 'x'). The file pointer is positioned on the beginning of the file.
 		 *
 		 */
-		if (($configStream = @fopen($filename, 'c+')) !== false) {
+		if (($configStream = @fopen($filename, 'c+')) === false) {
 			throw new ConfigFileException(sprintf('Cannot open file "%s" in mode c+', $filename));
 		}
 
