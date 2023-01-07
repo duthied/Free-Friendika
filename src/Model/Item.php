@@ -819,43 +819,14 @@ class Item
 
 	private static function prepareOriginPost(array $item): array
 	{
-		$item['wall'] = 1;
-		$item['origin'] = 1;
-		$item['network'] = Protocol::DFRN;
-		$item['protocol'] = Conversation::PARCEL_DIRECT;
-		$item['direction'] = Conversation::PUSH;
+		$item = DI::contentItem()->initializePost($item);
 
-		$owner = User::getOwnerDataById($item['uid']);
-
-		if (empty($item['contact-id'])) {
-			$item['contact-id'] = $owner['id'];
+		if (Photo::setPermissionFromBody($item['body'], $item['uid'], $item['contact-id'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid'])) {
+			$item['object-type'] = Activity\ObjectType::IMAGE;
 		}
 
-		if (empty($item['author-link']) && empty($item['author-id'])) {
-			$item['author-link']   = $owner['url'];
-			$item['author-name']   = $owner['name'];
-			$item['author-avatar'] = $owner['thumb'];
-		}
-
-		if (empty($item['owner-link']) && empty($item['owner-id'])) {
-			$item['owner-link']   = $item['author-link'];
-			$item['owner-name']   = $item['author-name'];
-			$item['owner-avatar'] = $item['author-avatar'];
-		}
-
-		// Setting the object type if not defined before
-		if (empty($item['object-type'])) {
-			$item['object-type'] = Activity\ObjectType::NOTE; // Default value
-			$objectdata = BBCode::getAttachedData($item['body']);
-
-			if ($objectdata['type'] == 'link') {
-				$item['object-type'] = Activity\ObjectType::BOOKMARK;
-			} elseif ($objectdata['type'] == 'video') {
-				$item['object-type'] = Activity\ObjectType::VIDEO;
-			} elseif ($objectdata['type'] == 'photo') {
-				$item['object-type'] = Activity\ObjectType::IMAGE;
-			}
-		}
+		$item = DI::contentItem()->moveAttachmentsFromBodyToAttach($item);
+		$item = DI::contentItem()->finalizePost($item);
 
 		return $item;
 	}
@@ -1336,10 +1307,7 @@ class Item
 		}
 
 		if ($notify) {
-			if (!\Friendica\Content\Feature::isEnabled($posted_item['uid'], 'explicit_mentions') && ($posted_item['gravity'] == self::GRAVITY_COMMENT)) {
-				Tag::createImplicitMentions($posted_item['uri-id'], $posted_item['thr-parent-id']);
-			}
-			Hook::callAll('post_local_end', $posted_item);
+			DI::contentItem()->postProcessPost($posted_item);
 		} else {
 			Hook::callAll('post_remote_end', $posted_item);
 		}
@@ -3016,13 +2984,15 @@ class Item
 		$item['hashtags'] = $tags['hashtags'];
 		$item['mentions'] = $tags['mentions'];
 
-		$item['body'] = preg_replace("#\s*\[attachment .*?].*?\[/attachment]\s*#ism", "\n", $item['body']);
-
 		if (!$is_preview) {
+			$item['body'] = preg_replace("#\s*\[attachment .*?].*?\[/attachment]\s*#ism", "\n", $item['body']);
 			$item['body'] = Post\Media::removeFromEndOfBody($item['body'] ?? '');
 		}
 
 		$body = $item['body'];
+		if ($is_preview) {
+			$item['body'] = preg_replace("#\s*\[attachment .*?].*?\[/attachment]\s*#ism", "\n", $item['body']);
+		}
 
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media', 'quote-uri-id', 'post-type'];
 

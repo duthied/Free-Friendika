@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-07 14:32+0000\n"
+"POT-Creation-Date: 2023-01-07 17:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,36 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-#: mod/item.php:129 mod/item.php:133
+#: mod/item.php:101 mod/item.php:105 mod/item.php:178 mod/item.php:182
+#: src/Content/Item.php:860
 msgid "Unable to locate original post."
 msgstr ""
 
-#: mod/item.php:179 mod/item.php:184 mod/item.php:855 mod/message.php:69
-#: mod/message.php:114 mod/notes.php:44 mod/photos.php:158 mod/photos.php:675
-#: src/Model/Event.php:522 src/Module/Attach.php:55 src/Module/BaseApi.php:95
+#: mod/item.php:139
+msgid "Post updated."
+msgstr ""
+
+#: mod/item.php:213 mod/item.php:218
+msgid "Item wasn't stored."
+msgstr ""
+
+#: mod/item.php:228
+msgid "Item couldn't be fetched."
+msgstr ""
+
+#: mod/item.php:273 mod/item.php:278
+msgid "Empty post discarded."
+msgstr ""
+
+#: mod/item.php:414 src/Module/Admin/Themes/Details.php:39
+#: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:42
+#: src/Module/Debug/ItemBody.php:57 src/Module/Item/Feed.php:80
+msgid "Item not found."
+msgstr ""
+
+#: mod/item.php:438 mod/message.php:69 mod/message.php:114 mod/notes.php:44
+#: mod/photos.php:158 mod/photos.php:675 src/Model/Event.php:522
+#: src/Module/Attach.php:55 src/Module/BaseApi.php:95
 #: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:52
 #: src/Module/Calendar/Event/API.php:88 src/Module/Calendar/Event/Form.php:84
 #: src/Module/Calendar/Export.php:62 src/Module/Calendar/Show.php:82
@@ -57,28 +80,6 @@ msgstr ""
 #: src/Module/Settings/UserExport.php:300 src/Module/User/Import.php:84
 #: src/Module/User/Import.php:91
 msgid "Permission denied."
-msgstr ""
-
-#: mod/item.php:330 mod/item.php:335
-msgid "Empty post discarded."
-msgstr ""
-
-#: mod/item.php:673
-msgid "Post updated."
-msgstr ""
-
-#: mod/item.php:683 mod/item.php:688
-msgid "Item wasn't stored."
-msgstr ""
-
-#: mod/item.php:699
-msgid "Item couldn't be fetched."
-msgstr ""
-
-#: mod/item.php:831 src/Module/Admin/Themes/Details.php:39
-#: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:42
-#: src/Module/Debug/ItemBody.php:57 src/Module/Item/Feed.php:80
-msgid "Item not found."
 msgstr ""
 
 #: mod/lostpass.php:40
@@ -1516,58 +1517,58 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:294 src/Model/Item.php:2925
+#: src/Content/Item.php:326 src/Model/Item.php:2893
 msgid "event"
 msgstr ""
 
-#: src/Content/Item.php:297 src/Content/Item.php:307
+#: src/Content/Item.php:329 src/Content/Item.php:339
 #: src/Module/Post/Tag/Add.php:123
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:303 src/Model/Item.php:2927
+#: src/Content/Item.php:335 src/Model/Item.php:2895
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
 
-#: src/Content/Item.php:317 src/Module/Post/Tag/Add.php:141
+#: src/Content/Item.php:349 src/Module/Post/Tag/Add.php:141
 #, php-format
 msgid "%1$s tagged %2$s's %3$s with %4$s"
 msgstr ""
 
-#: src/Content/Item.php:386 view/theme/frio/theme.php:269
+#: src/Content/Item.php:418 view/theme/frio/theme.php:269
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:387 src/Model/Contact.php:1205
+#: src/Content/Item.php:419 src/Model/Contact.php:1205
 msgid "View Status"
 msgstr ""
 
-#: src/Content/Item.php:388 src/Content/Item.php:406 src/Model/Contact.php:1149
+#: src/Content/Item.php:420 src/Content/Item.php:438 src/Model/Contact.php:1149
 #: src/Model/Contact.php:1197 src/Model/Contact.php:1206
 #: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:234
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:389 src/Model/Contact.php:1207
+#: src/Content/Item.php:421 src/Model/Contact.php:1207
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:390 src/Model/Contact.php:1198
+#: src/Content/Item.php:422 src/Model/Contact.php:1198
 #: src/Model/Contact.php:1208
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:391 src/Model/Contact.php:1199
+#: src/Content/Item.php:423 src/Model/Contact.php:1199
 #: src/Model/Contact.php:1209
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:392 src/Model/Contact.php:1210
+#: src/Content/Item.php:424 src/Model/Contact.php:1210
 msgid "Send PM"
 msgstr ""
 
-#: src/Content/Item.php:393 src/Module/Contact.php:409
+#: src/Content/Item.php:425 src/Module/Contact.php:409
 #: src/Module/Contact/Profile.php:348 src/Module/Contact/Profile.php:467
 #: src/Module/Moderation/Blocklist/Contact.php:116
 #: src/Module/Moderation/Users/Active.php:137
@@ -1575,7 +1576,7 @@ msgstr ""
 msgid "Block"
 msgstr ""
 
-#: src/Content/Item.php:394 src/Module/Contact.php:410
+#: src/Content/Item.php:426 src/Module/Contact.php:410
 #: src/Module/Contact/Profile.php:349 src/Module/Contact/Profile.php:475
 #: src/Module/Notifications/Introductions.php:134
 #: src/Module/Notifications/Introductions.php:206
@@ -1583,11 +1584,11 @@ msgstr ""
 msgid "Ignore"
 msgstr ""
 
-#: src/Content/Item.php:398 src/Object/Post.php:454
+#: src/Content/Item.php:430 src/Object/Post.php:454
 msgid "Languages"
 msgstr ""
 
-#: src/Content/Item.php:403 src/Content/Widget.php:80
+#: src/Content/Item.php:435 src/Content/Widget.php:80
 #: src/Model/Contact.php:1200 src/Model/Contact.php:1211
 #: src/Module/Contact/Follow.php:166 view/theme/vier/theme.php:196
 msgid "Connect/Follow"
@@ -1920,8 +1921,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1257 src/Model/Item.php:3588
-#: src/Model/Item.php:3594 src/Model/Item.php:3595
+#: src/Content/Text/BBCode.php:1257 src/Model/Item.php:3558
+#: src/Model/Item.php:3564 src/Model/Item.php:3565
 msgid "Link to source"
 msgstr ""
 
@@ -3090,66 +3091,66 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:2026
+#: src/Model/Item.php:1994
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2929
+#: src/Model/Item.php:2897
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2931
+#: src/Model/Item.php:2899
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2934
+#: src/Model/Item.php:2902
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:3082
+#: src/Model/Item.php:3052
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3500
+#: src/Model/Item.php:3470
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3531
+#: src/Model/Item.php:3501
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3533
+#: src/Model/Item.php:3503
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3538
+#: src/Model/Item.php:3508
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3540
+#: src/Model/Item.php:3510
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3542
+#: src/Model/Item.php:3512
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3576 src/Model/Item.php:3577
+#: src/Model/Item.php:3546 src/Model/Item.php:3547
 msgid "View on separate page"
 msgstr ""
 
