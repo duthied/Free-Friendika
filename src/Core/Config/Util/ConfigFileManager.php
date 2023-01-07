@@ -219,6 +219,22 @@ class ConfigFileManager
 	}
 
 	/**
+	 * Checks, if the node.config.php is writable
+	 *
+	 * @return bool
+	 */
+	public function dataIsWritable(): bool
+	{
+		$filename = $this->configDir . '/' . self::CONFIG_DATA_FILE;
+
+		if (file_exists($filename)) {
+			return is_writable($filename);
+		} else {
+			return is_writable($this->configDir);
+		}
+	}
+
+	/**
 	 * Saves overridden config entries back into the data.config.php
 	 *
 	 * @param Cache $configCache The config cache
@@ -238,13 +254,15 @@ class ConfigFileManager
 		/**
 		 * Creates a read-write stream
 		 *
-		 * @see https://www.php.net/manual/en/function.fopen.php
+		 * @see  https://www.php.net/manual/en/function.fopen.php
 		 * @note Open the file for reading and writing. If the file does not exist, it is created.
 		 * If it exists, it is neither truncated (as opposed to 'w'), nor the call to this function fails
 		 * (as is the case with 'x'). The file pointer is positioned on the beginning of the file.
 		 *
 		 */
-		$configStream = fopen($filename, 'c+');
+		if (($configStream = @fopen($filename, 'c+')) === false) {
+			throw new ConfigFileException(sprintf('Cannot open file "%s" in mode c+', $filename));
+		}
 
 		try {
 			// We do want an exclusive lock, so we wait until every LOCK_SH (config reading) is unlocked

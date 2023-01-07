@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-05 10:33-0500\n"
+"POT-Creation-Date: 2023-01-07 14:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2731,36 +2731,36 @@ msgstr ""
 msgid "Enter a valid existing folder"
 msgstr ""
 
-#: src/Core/Update.php:70
+#: src/Core/Update.php:80
 #, php-format
 msgid ""
 "Updates from version %s are not supported. Please update at least to version "
 "2021.01 and wait until the postupdate finished version 1383."
 msgstr ""
 
-#: src/Core/Update.php:81
+#: src/Core/Update.php:91
 #, php-format
 msgid ""
 "Updates from postupdate version %s are not supported. Please update at least "
 "to version 2021.01 and wait until the postupdate finished version 1383."
 msgstr ""
 
-#: src/Core/Update.php:156
+#: src/Core/Update.php:186
 #, php-format
 msgid "%s: executing pre update %d"
 msgstr ""
 
-#: src/Core/Update.php:198
+#: src/Core/Update.php:228
 #, php-format
 msgid "%s: executing post update %d"
 msgstr ""
 
-#: src/Core/Update.php:272
+#: src/Core/Update.php:302
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr ""
 
-#: src/Core/Update.php:312
+#: src/Core/Update.php:342
 #, php-format
 msgid ""
 "\n"
@@ -2772,16 +2772,16 @@ msgid ""
 "might be invalid."
 msgstr ""
 
-#: src/Core/Update.php:318
+#: src/Core/Update.php:348
 #, php-format
 msgid "The error message is\\n[pre]%s[/pre]"
 msgstr ""
 
-#: src/Core/Update.php:322 src/Core/Update.php:350
+#: src/Core/Update.php:352 src/Core/Update.php:380
 msgid "[Friendica Notify] Database update"
 msgstr ""
 
-#: src/Core/Update.php:344
+#: src/Core/Update.php:374
 #, php-format
 msgid ""
 "\n"
@@ -3265,7 +3265,7 @@ msgstr ""
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:217
+#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:222
 #: src/Module/Moderation/Summary.php:77
 msgid "Summary"
 msgstr ""
@@ -3593,7 +3593,7 @@ msgstr ""
 #: src/Module/Admin/Federation.php:207 src/Module/Admin/Logs/Settings.php:79
 #: src/Module/Admin/Logs/View.php:84 src/Module/Admin/Queue.php:72
 #: src/Module/Admin/Site.php:435 src/Module/Admin/Storage.php:138
-#: src/Module/Admin/Summary.php:216 src/Module/Admin/Themes/Details.php:90
+#: src/Module/Admin/Summary.php:221 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:77
 #: src/Module/Moderation/Users/Create.php:61
 #: src/Module/Moderation/Users/Pending.php:96
@@ -4976,12 +4976,12 @@ msgstr ""
 msgid "Database (legacy)"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:56
+#: src/Module/Admin/Summary.php:57
 #, php-format
 msgid "Template engine (%s) error: %s"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:60
+#: src/Module/Admin/Summary.php:61
 #, php-format
 msgid ""
 "Your DB still runs with MyISAM tables. You should change the engine type to "
@@ -4992,7 +4992,7 @@ msgid ""
 "automatic conversion.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:65
+#: src/Module/Admin/Summary.php:66
 #, php-format
 msgid ""
 "Your DB still runs with InnoDB tables in the Antelope file format. You "
@@ -5003,7 +5003,7 @@ msgid ""
 "installation for an automatic conversion.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:75
+#: src/Module/Admin/Summary.php:76
 #, php-format
 msgid ""
 "Your table_definition_cache is too low (%d). This can lead to the database "
@@ -5011,39 +5011,39 @@ msgid ""
 "to %d. See <a href=\"%s\">here</a> for more information.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:85
+#: src/Module/Admin/Summary.php:86
 #, php-format
 msgid ""
 "There is a new version of Friendica available for download. Your current "
 "version is %1$s, upstream version is %2$s"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:94
+#: src/Module/Admin/Summary.php:95
 msgid ""
 "The database update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:98
+#: src/Module/Admin/Summary.php:99
 msgid ""
 "The last update failed. Please run \"php bin/console.php dbstructure update"
 "\" from the command line and have a look at the errors that might appear. "
 "(Some of the errors are possibly inside the logfile.)"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:103
+#: src/Module/Admin/Summary.php:104
 msgid "The worker was never executed. Please check your database structure!"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:105
+#: src/Module/Admin/Summary.php:106
 #, php-format
 msgid ""
 "The last worker execution was on %s UTC. This is older than one hour. Please "
 "check your crontab settings."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:110
+#: src/Module/Admin/Summary.php:111
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -5052,7 +5052,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:114
+#: src/Module/Admin/Summary.php:115
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -5061,7 +5061,15 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:120
+#: src/Module/Admin/Summary.php:119
+#, php-format
+msgid ""
+"Friendica's configuration store \"%s\" isn't writable. Until then database "
+"updates won't be applied automatically, admin settings and console "
+"configuration changes won't be saved."
+msgstr ""
+
+#: src/Module/Admin/Summary.php:125
 #, php-format
 msgid ""
 "<a href=\"%s\">%s</a> is not reachable on your system. This is a severe "
@@ -5069,50 +5077,50 @@ msgid ""
 "href=\"%s\">the installation page</a> for help."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:138
+#: src/Module/Admin/Summary.php:143
 #, php-format
 msgid "The logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:152
+#: src/Module/Admin/Summary.php:157
 #, php-format
 msgid "The debug logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:168
+#: src/Module/Admin/Summary.php:173
 #, php-format
 msgid ""
 "Friendica's system.basepath was updated from '%s' to '%s'. Please remove the "
 "system.basepath from your db to avoid differences."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:176
+#: src/Module/Admin/Summary.php:181
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is wrong and the config file '%s' "
 "isn't used."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:184
+#: src/Module/Admin/Summary.php:189
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is not equal to the config file "
 "'%s'. Please fix your configuration."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:195
+#: src/Module/Admin/Summary.php:200
 msgid "Message queues"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:201
+#: src/Module/Admin/Summary.php:206
 msgid "Server Settings"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:219
+#: src/Module/Admin/Summary.php:224
 msgid "Version"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:223
+#: src/Module/Admin/Summary.php:228
 msgid "Active addons"
 msgstr ""
 
