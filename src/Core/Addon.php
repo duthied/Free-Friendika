@@ -196,6 +196,10 @@ class Addon
 	{
 		$addons = DI::config()->get('addons');
 
+		if (empty($addons)) {
+			return;
+		}
+
 		foreach ($addons as $name => $data) {
 			$addonname = Strings::sanitizeFilePathItem(trim($name));
 			$addon_file_path = 'addon/' . $addonname . '/' . $addonname . '.php';
@@ -318,6 +322,11 @@ class Addon
 	{
 		$visible_addons = [];
 		$addons = DI::config()->get('addons');
+
+		if (empty($addons)) {
+			return $visible_addons;
+		}
+
 		foreach ($addons as $name => $data) {
 			$visible_addons[] = $name;
 		}
