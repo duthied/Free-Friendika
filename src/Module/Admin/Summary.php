@@ -116,7 +116,7 @@ class Summary extends BaseAdmin
 		}
 
 		if (!DI::configFileManager()->dataIsWritable()) {
-			$warningtext[] = DI::l10n()->t('Friendica\'s configuration store "%s" isn\'t writable. Beware that updates, gui changes and console changes aren\'t working reliable.', ConfigFileManager::CONFIG_DATA_FILE);
+			$warningtext[] = DI::l10n()->t('Friendica\'s configuration store "%s" isn\'t writable. Until then database updates won't be applied automatically, admin settings and console configuration changes won't be saved.', ConfigFileManager::CONFIG_DATA_FILE);
 		}
 
 		// Check server vitality
