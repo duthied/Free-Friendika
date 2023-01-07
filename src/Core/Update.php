@@ -47,7 +47,7 @@ class Update
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function check(string $basePath, bool $via_worker, App\Mode $mode)
+	public static function check(string $basePath, bool $via_worker)
 	{
 		if (!DBA::connected()) {
 			return;
@@ -61,8 +61,18 @@ class Update
 		$build = DI::config()->get('system', 'build');
 
 		if (empty($build)) {
-			DI::config()->set('system', 'build', DB_UPDATE_VERSION - 1);
-			$build = DB_UPDATE_VERSION - 1;
+			// legacy option - check if there's something in the Config table
+			if (DBStructure::existsTable('config')) {
+				$dbConfig = DBA::selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'build']);
+				if (!empty($dbConfig)) {
+					$build = $dbConfig['v'];
+				}
+			}
+
+			if (empty($build)) {
+				DI::config()->set('system', 'build', DB_UPDATE_VERSION - 1);
+				$build = DB_UPDATE_VERSION - 1;
+			}
 		}
 
 		// We don't support upgrading from very old versions anymore
@@ -119,11 +129,21 @@ class Update
 			DI::lock()->release('dbupdate', true);
 		}
 
-		$build = DI::config()->get('system', 'build', null);
+		$build = DI::config()->get('system', 'build');
 
-		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
-			$build = DB_UPDATE_VERSION - 1;
-			DI::config()->set('system', 'build', $build);
+		if (empty($build)) {
+			// legacy option - check if there's something in the Config table
+			if (DBStructure::existsTable('config')) {
+				$dbConfig = DBA::selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'build']);
+				if (!empty($dbConfig)) {
+					$build = $dbConfig['v'];
+				}
+			}
+
+			if (empty($build) || ($build > DB_UPDATE_VERSION)) {
+				DI::config()->set('system', 'build', DB_UPDATE_VERSION - 1);
+				$build = DB_UPDATE_VERSION - 1;
+			}
 		}
 
 		if ($build != DB_UPDATE_VERSION || $force) {
@@ -141,11 +161,21 @@ class Update
 					Logger::notice('Update starting.', ['from' => $stored, 'to' => $current]);
 
 					// Checks if the build changed during Lock acquiring (so no double update occurs)
-					$retryBuild = DI::config()->get('system', 'build', null);
-					if ($retryBuild !== $build) {
-						Logger::notice('Update already done.', ['from' => $stored, 'to' => $current]);
-						DI::lock()->release('dbupdate');
-						return '';
+					$retryBuild = DI::config()->get('system', 'build');
+					if ($retryBuild != $build) {
+						// legacy option - check if there's something in the Config table
+						if (DBStructure::existsTable('config')) {
+							$dbConfig = DBA::selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'build']);
+							if (!empty($dbConfig)) {
+								$retryBuild = intval($dbConfig['v']);
+							}
+						}
+
+						if ($retryBuild != $build) {
+							Logger::notice('Update already done.', ['from' => $build, 'retry' => $retryBuild, 'to' => $current]);
+							DI::lock()->release('dbupdate');
+							return '';
+						}
 					}
 
 					DI::config()->set('system', 'maintenance', 1);

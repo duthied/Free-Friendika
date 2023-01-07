@@ -35,37 +35,13 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	protected $config;
 	/** @var Cache */
 	protected $cache;
-	/** @var Cache */
-	protected $delCache;
 	/** @var bool field to check if something is to save */
 	protected $changedConfig = false;
 
 	public function __construct(IManageConfigValues $config)
 	{
-		$this->config   = $config;
-		$this->cache    = new Cache();
-		$this->delCache = new Cache();
-	}
-
-	/**
-	 * Get a particular user's config variable given the category name
-	 * ($cat) and a $key from the current transaction.
-	 *
-	 * Isn't part of the interface because of it's rare use case
-	 *
-	 * @param string  $cat        The category of the configuration value
-	 * @param string  $key           The configuration key to query
-	 *
-	 * @return mixed Stored value or null if it does not exist
-	 *
-	 * @throws ConfigPersistenceException In case the persistence layer throws errors
-	 *
-	 */
-	public function get(string $cat, string $key)
-	{
-		return !$this->delCache->get($cat, $key) ?
-			($this->cache->get($cat, $key) ?? $this->config->get($cat, $key)) :
-			null;
+		$this->config = $config;
+		$this->cache  = clone $config->getCache();
 	}
 
 	/** {@inheritDoc} */
@@ -81,8 +57,7 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	/** {@inheritDoc} */
 	public function delete(string $cat, string $key): ISetConfigValuesTransactionally
 	{
-		$this->cache->delete($cat, $key);
-		$this->delCache->set($cat, $key, 'deleted');
+		$this->cache->delete($cat, $key, Cache::SOURCE_DATA);
 		$this->changedConfig = true;
 
 		return $this;
@@ -97,13 +72,8 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 		}
 
 		try {
-			$newCache = $this->config->getCache()->merge($this->cache);
-			$newCache = $newCache->diff($this->delCache);
-			$this->config->load($newCache);
-
-			// flush current cache
-			$this->cache    = new Cache();
-			$this->delCache = new Cache();
+			$this->config->load($this->cache);
+			$this->cache = clone $this->config->getCache();
 		} catch (\Exception $e) {
 			throw new ConfigPersistenceException('Cannot save config', $e);
 		}

@@ -1,4 +1,23 @@
 <?php
+/**
+ * @copyright Copyright (C) 2010-2023, the Friendica project
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Test\src\Core\Config;
 
@@ -54,10 +73,6 @@ class ConfigTransactionTest extends MockedTest
 		$config->set('delete', 'keyDel', 'catDel');
 
 		$configTransaction = new ConfigTransaction($config);
-		self::assertEquals('value1', $configTransaction->get('config', 'key1'));
-		self::assertEquals('value2', $configTransaction->get('system', 'key2'));
-		self::assertEquals('valueDel', $configTransaction->get('system', 'keyDel'));
-		self::assertEquals('catDel', $configTransaction->get('delete', 'keyDel'));
 		// the config file knows it as well immediately
 		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
 		self::assertEquals('value1', $tempData['config']['key1'] ?? null);
@@ -77,11 +92,6 @@ class ConfigTransactionTest extends MockedTest
 		self::assertEquals('value1', $config->get('config', 'key1'));
 		self::assertEquals('valueDel', $config->get('system', 'keyDel'));
 		self::assertEquals('catDel', $config->get('delete', 'keyDel'));
-		// but the transaction config of course knows it
-		self::assertEquals('value3', $configTransaction->get('transaction', 'key3'));
-		self::assertEquals('changedValue1', $configTransaction->get('config', 'key1'));
-		self::assertNull($configTransaction->get('system', 'keyDel'));
-		self::assertNull($configTransaction->get('delete', 'keyDel'));
 		// The config file still doesn't know it either
 		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
 		self::assertEquals('value1', $tempData['config']['key1'] ?? null);
@@ -97,9 +107,6 @@ class ConfigTransactionTest extends MockedTest
 		self::assertEquals('value3', $config->get('transaction', 'key3'));
 		self::assertNull($config->get('system', 'keyDel'));
 		self::assertNull($config->get('delete', 'keyDel'));
-		self::assertEquals('value3', $configTransaction->get('transaction', 'key3'));
-		self::assertEquals('changedValue1', $configTransaction->get('config', 'key1'));
-		self::assertNull($configTransaction->get('system', 'keyDel'));
 		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
 		self::assertEquals('changedValue1', $tempData['config']['key1'] ?? null);
 		self::assertEquals('value2', $tempData['system']['key2'] ?? null);

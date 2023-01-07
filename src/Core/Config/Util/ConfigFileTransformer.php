@@ -34,6 +34,11 @@ class ConfigFileTransformer
 		$categories = array_keys($data);
 
 		foreach ($categories as $category) {
+			if (is_null($data[$category])) {
+				$dataString .= "\t'$category' => null," . PHP_EOL;
+				continue;
+			}
+
 			$dataString .= "\t'$category' => [" . PHP_EOL;
 
 			if (is_array($data[$category])) {
@@ -66,7 +71,9 @@ class ConfigFileTransformer
 	{
 		$string = str_repeat("\t", $level + 2) . "'$key' => ";
 
-		if (is_array($value)) {
+		if (is_null($value)) {
+			$string .= "null,";
+		} elseif (is_array($value)) {
 			$string .= "[" . PHP_EOL;
 			$string .= static::extractArray($value, ++$level);
 			$string .= str_repeat("\t", $level + 1) . '],';

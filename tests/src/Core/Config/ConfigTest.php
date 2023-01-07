@@ -76,7 +76,7 @@ class ConfigTest extends MockedTest
 	 */
 	public function getInstance()
 	{
-		$this->configFileManager->setupCache($this->configCache, []);
+		$this->configFileManager->setupCache($this->configCache);
 		return new Config($this->configFileManager, $this->configCache);
 	}
 
@@ -364,7 +364,7 @@ class ConfigTest extends MockedTest
 		self::assertNull($this->testedConfig->get('test', 'it'));
 		self::assertNull($this->testedConfig->getCache()->get('test', 'it'));
 
-		self::assertEmpty($this->testedConfig->getCache()->getAll());
+		self::assertEquals(['test' => null], $this->testedConfig->getCache()->getAll());
 	}
 
 	/**

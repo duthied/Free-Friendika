@@ -39,19 +39,14 @@ class Config implements IManageConfigValues
 	/** @var ConfigFileManager */
 	protected $configFileManager;
 
-	/** @var array */
-	protected $server;
-
 	/**
 	 * @param ConfigFileManager $configFileManager The configuration file manager to save back configs
 	 * @param Cache             $configCache       The configuration cache (based on the config-files)
-	 * @param array             $server            The $_SERVER variable
 	 */
-	public function __construct(ConfigFileManager $configFileManager, Cache $configCache, array $server = [])
+	public function __construct(ConfigFileManager $configFileManager, Cache $configCache)
 	{
 		$this->configFileManager = $configFileManager;
 		$this->configCache       = $configCache;
-		$this->server            = $server;
 	}
 
 	/**
@@ -87,7 +82,7 @@ class Config implements IManageConfigValues
 		$configCache = new Cache();
 
 		try {
-			$this->configFileManager->setupCache($configCache, $this->server);
+			$this->configFileManager->setupCache($configCache);
 		} catch (ConfigFileException $e) {
 			throw new ConfigPersistenceException('Cannot reload config', $e);
 		}
@@ -121,7 +116,7 @@ class Config implements IManageConfigValues
 	/** {@inheritDoc} */
 	public function delete(string $cat, string $key): bool
 	{
-		if ($this->configCache->delete($cat, $key)) {
+		if ($this->configCache->delete($cat, $key, Cache::SOURCE_DATA)) {
 			$this->save();
 			return true;
 		} else {

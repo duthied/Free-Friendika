@@ -54,11 +54,11 @@ class DatabaseCacheTest extends CacheTest
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
 
 		// load real config to avoid mocking every config-entry which is related to the Database class
-		$configFactory = new Config();
-		$loader = (new Config())->createConfigFileLoader($this->root->url(), []);
-		$configCache = $configFactory->createCache($loader);
+		$configFactory     = new Config();
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url(), []);
+		$configCache       = $configFactory->createCache($configFileManager);
 
-		$dbaDefinition = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
+		$dbaDefinition  = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
 		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
 
 		$dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition);

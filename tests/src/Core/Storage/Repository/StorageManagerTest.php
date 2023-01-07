@@ -52,6 +52,7 @@ use Friendica\Test\Util\SampleStorageBackend;
 class StorageManagerTest extends DatabaseTest
 {
 	use VFSTrait;
+
 	/** @var Database */
 	private $dba;
 	/** @var IManageConfigValues */
@@ -77,18 +78,19 @@ class StorageManagerTest extends DatabaseTest
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
 
 		// load real config to avoid mocking every config-entry which is related to the Database class
-		$configFactory = new Config();
-		$loader        = $configFactory->createConfigFileLoader($this->root->url(), []);
-		$configCache   = $configFactory->createCache($loader);
+		$configFactory     = new Config();
+		$configFileManager = $configFactory->createConfigFileManager($this->root->url());
+		$configCache       = $configFactory->createCache($configFileManager);
 
-		$dbaDefinition = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
+		$dbaDefinition  = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
 		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
 
 		$this->dba = new StaticDatabase($configCache, $profiler, $dbaDefinition, $viewDefinition);
 
-		$this->config = new \Friendica\Core\Config\Model\Config($loader, $configCache);
+		$this->config = new \Friendica\Core\Config\Model\Config($configFileManager, $configCache);
 		$this->config->set('storage', 'name', 'Database');
-		$this->config->set('storage', 'filesystem_path', $this->root->getChild(Type\FilesystemConfig::DEFAULT_BASE_FOLDER)->url());
+		$this->config->set('storage', 'filesystem_path', $this->root->getChild(Type\FilesystemConfig::DEFAULT_BASE_FOLDER)
+																	->url());
 
 		$this->l10n = \Mockery::mock(L10n::class);
 	}
@@ -113,21 +115,21 @@ class StorageManagerTest extends DatabaseTest
 	public function dataStorages()
 	{
 		return [
-			'empty' => [
+			'empty'          => [
 				'name'       => '',
 				'valid'      => false,
 				'interface'  => ICanReadFromStorage::class,
 				'assert'     => null,
 				'assertName' => '',
 			],
-			'database' => [
+			'database'       => [
 				'name'       => Type\Database::NAME,
 				'valid'      => true,
 				'interface'  => ICanWriteToStorage::class,
 				'assert'     => Type\Database::class,
 				'assertName' => Type\Database::NAME,
 			],
-			'filesystem' => [
+			'filesystem'     => [
 				'name'       => Filesystem::NAME,
 				'valid'      => true,
 				'interface'  => ICanWriteToStorage::class,
@@ -141,7 +143,7 @@ class StorageManagerTest extends DatabaseTest
 				'assert'     => SystemResource::class,
 				'assertName' => SystemResource::NAME,
 			],
-			'invalid' => [
+			'invalid'        => [
 				'name'        => 'invalid',
 				'valid'       => false,
 				'interface'   => null,

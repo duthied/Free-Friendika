@@ -359,7 +359,7 @@ class App
 			$this->profiler->update($this->config);
 
 			Core\Hook::loadHooks();
-			$loader = (new Config())->createConfigFileLoader($this->getBasePath(), $_SERVER);
+			$loader = (new Config())->createConfigFileManager($this->getBasePath(), $_SERVER);
 			Core\Hook::callAll('load_config', $loader);
 
 			// Hooks are now working, reload the whole definitions with hook enabled
@@ -659,7 +659,7 @@ class App
 				$this->baseURL->redirect('install');
 			} else {
 				$this->checkURL();
-				Core\Update::check($this->getBasePath(), false, $this->mode);
+				Core\Update::check($this->getBasePath(), false);
 				Core\Addon::loadAddons();
 				Core\Hook::loadHooks();
 			}

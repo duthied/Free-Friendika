@@ -65,7 +65,7 @@ class Cache
 	 * @param bool  $hidePasswordOutput True, if cache variables should take extra care of password values
 	 * @param int   $source             Sets a source of the initial config values
 	 */
-	public function __construct(array $config = [], bool $hidePasswordOutput = true, $source = self::SOURCE_DEFAULT)
+	public function __construct(array $config = [], bool $hidePasswordOutput = true, int $source = self::SOURCE_DEFAULT)
 	{
 		$this->hidePasswordOutput = $hidePasswordOutput;
 		$this->load($config, $source);
@@ -87,11 +87,10 @@ class Cache
 				$keys = array_keys($config[$category]);
 
 				foreach ($keys as $key) {
-					$value = $config[$category][$key];
-					if (isset($value)) {
-						$this->set($category, $key, $value, $source);
-					}
+					$this->set($category, $key, $config[$category][$key] ?? null, $source);
 				}
+			} else {
+				$this->set($category, null, $config[$category], $source);
 			}
 		}
 	}
@@ -150,6 +149,8 @@ class Cache
 						$data[$category][$key] = $this->config[$category][$key];
 					}
 				}
+			} elseif (is_int($this->source[$category])) {
+				$data[$category] = null;
 			}
 		}
 
@@ -159,38 +160,47 @@ class Cache
 	/**
 	 * Sets a value in the config cache. Accepts raw output from the config table
 	 *
-	 * @param string $cat    Config category
-	 * @param string $key    Config key
-	 * @param mixed  $value  Value to set
-	 * @param int    $source The source of the current config key
+	 * @param string  $cat    Config category
+	 * @param ?string $key    Config key
+	 * @param ?mixed  $value  Value to set
+	 * @param int     $source The source of the current config key
 	 *
 	 * @return bool True, if the value is set
 	 */
-	public function set(string $cat, string $key, $value, int $source = self::SOURCE_DEFAULT): bool
+	public function set(string $cat, string $key = null, $value = null, int $source = self::SOURCE_DEFAULT): bool
 	{
-		if (!isset($this->config[$cat])) {
+		if (!isset($this->config[$cat]) && $key !== null) {
 			$this->config[$cat] = [];
 			$this->source[$cat] = [];
 		}
 
-		if (isset($this->source[$cat][$key]) &&
-			$source < $this->source[$cat][$key]) {
+		if ((isset($this->source[$cat][$key]) && $source < $this->source[$cat][$key]) ||
+			(is_int($this->source[$cat] ?? null) && $source < $this->source[$cat])) {
 			return false;
 		}
 
 		if ($this->hidePasswordOutput &&
 			$key == 'password' &&
 			is_string($value)) {
-			$this->config[$cat][$key] = new HiddenString((string)$value);
+			$this->setCatKeyValueSource($cat, $key, new HiddenString($value), $source);
 		} else if (is_string($value)) {
-			$this->config[$cat][$key] = self::toConfigValue($value);
+			$this->setCatKeyValueSource($cat, $key, self::toConfigValue($value), $source);
 		} else {
-			$this->config[$cat][$key] = $value;
+			$this->setCatKeyValueSource($cat, $key, $value, $source);
 		}
 
-		$this->source[$cat][$key] = $source;
-
 		return true;
+	}
+
+	private function setCatKeyValueSource(string $cat, string $key = null, $value = null, int $source = self::SOURCE_DEFAULT)
+	{
+		if (isset($key)) {
+			$this->config[$cat][$key] = $value;
+			$this->source[$cat][$key] = $source;
+		} else {
+			$this->config[$cat] = $value;
+			$this->source[$cat] = $source;
+		}
 	}
 
 	/**
@@ -222,24 +232,27 @@ class Cache
 	/**
 	 * Deletes a value from the config cache.
 	 *
-	 * @param string $cat Config category
-	 * @param string $key Config key
+	 * @param string  $cat Config category
+	 * @param ?string $key Config key (if not set, the whole category will get deleted)
+	 * @param int     $source The source of the current config key
 	 *
 	 * @return bool true, if deleted
 	 */
-	public function delete(string $cat, string $key): bool
+	public function delete(string $cat, string $key = null, int $source = self::SOURCE_DEFAULT): bool
 	{
 		if (isset($this->config[$cat][$key])) {
-			unset($this->config[$cat][$key]);
-			unset($this->source[$cat][$key]);
-			if (count($this->config[$cat]) == 0) {
-				unset($this->config[$cat]);
-				unset($this->source[$cat]);
+			$this->config[$cat][$key] = null;
+			$this->source[$cat][$key] = $source;
+			if (empty(array_filter($this->config[$cat], function($value) { return !is_null($value); }))) {
+				$this->config[$cat] = null;
+				$this->source[$cat] = $source;
 			}
-			return true;
-		} else {
-			return false;
+		} elseif (isset($this->config[$cat])) {
+			$this->config[$cat] = null;
+			$this->source[$cat] = $source;
 		}
+
+		return true;
 	}
 
 	/**
@@ -302,39 +315,9 @@ class Cache
 					$newConfig[$category][$key] = $cache->config[$category][$key];
 					$newSource[$category][$key] = $cache->source[$category][$key];
 				}
-			}
-		}
-
-		$newCache = new Cache();
-		$newCache->config = $newConfig;
-		$newCache->source = $newSource;
-
-		return $newCache;
-	}
-
-
-	/**
-	 * Diffs a new Cache into the existing one and returns the diffed Cache
-	 *
-	 * @param Cache $cache The cache, which should get deleted for the current Cache
-	 *
-	 * @return Cache The diffed Cache
-	 */
-	public function diff(Cache $cache): Cache
-	{
-		$newConfig = $this->config;
-		$newSource = $this->source;
-
-		$categories = array_keys($cache->config);
-
-		foreach ($categories as $category) {
-			if (is_array($cache->config[$category])) {
-				$keys = array_keys($cache->config[$category]);
-
-				foreach ($keys as $key) {
-					unset($newConfig[$category][$key]);
-					unset($newSource[$category][$key]);
-				}
+			} else {
+				$newConfig[$category] = $cache->config[$category];
+				$newSource[$category] = $cache->source[$category];
 			}
 		}
 
