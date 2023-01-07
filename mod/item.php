@@ -49,7 +49,7 @@ use Friendica\Util\DateTimeFormat;
 function item_post(App $a) {
 	$uid = DI::userSession()->getLocalUserId();
 
-	if (!DI::userSession()->isAuthenticated() || !$uid) {
+	if (!$uid) {
 		throw new HTTPException\ForbiddenException();
 	}
 
@@ -68,11 +68,11 @@ function item_post(App $a) {
 	 * after it's been previewed
 	 */
 	if (!$preview && !empty($_REQUEST['post_id_random'])) {
-		if (!empty($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
+		if (DI::session()->get('post-random') == $_REQUEST['post_id_random']) {
 			Logger::warning('duplicate post');
 			item_post_return(DI::baseUrl(), $return_path);
 		} else {
-			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
+			DI::session()->set('post-random', $_REQUEST['post_id_random']);
 		}
 	}
 
@@ -90,16 +90,15 @@ function item_drop(int $uid, string $dropitems)
 		Item::deleteForUser(['id' => $item], $uid);
 	}
 
-	$json = ['success' => 1];
-	System::jsonExit($json);
+	System::jsonExit(['success' => 1]);
 }
 
 function item_edit(int $uid, array $request, bool $preview, string $return_path)
 {
 	$post = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $request['post_id'], 'uid' => $uid]);
 	if (!DBA::isResult($post)) {
-		DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate original post.'));
 		if ($return_path) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate original post.'));
 			DI::baseUrl()->redirect($return_path);
 		}
 		throw new HTTPException\NotFoundException(DI::l10n()->t('Unable to locate original post.'));
@@ -167,8 +166,8 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 		}
 
 		if (empty($toplevel_item)) {
-			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate original post.'));
 			if ($return_path) {
+				DI::sysmsg()->addNotice(DI::l10n()->t('Unable to locate original post.'));
 				DI::baseUrl()->redirect($return_path);
 			}
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Unable to locate original post.'));
@@ -198,8 +197,8 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 
 	$post_id = Item::insert($post);
 	if (!$post_id) {
-		DI::sysmsg()->addNotice(DI::l10n()->t('Item wasn\'t stored.'));
 		if ($return_path) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('Item wasn\'t stored.'));
 			DI::baseUrl()->redirect($return_path);
 		}
 
@@ -258,8 +257,8 @@ function item_process(array $post, array $request, bool $preview, string $return
 			System::jsonExit(['preview' => '']);
 		}
 
-		DI::sysmsg()->addNotice(DI::l10n()->t('Empty post discarded.'));
 		if ($return_path) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('Empty post discarded.'));
 			DI::baseUrl()->redirect($return_path);
 		}
 
