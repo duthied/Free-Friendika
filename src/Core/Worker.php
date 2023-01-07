@@ -1315,8 +1315,8 @@ class Worker
 			return $added;
 		}
 
-		// Quit on daemon mode
-		if (Worker\Daemon::isMode()) {
+		// Quit on daemon mode, except the priority is critical (like for db updates)
+		if (Worker\Daemon::isMode() && $priority !== self::PRIORITY_CRITICAL) {
 			return $added;
 		}
 
