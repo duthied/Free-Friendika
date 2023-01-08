@@ -62,9 +62,10 @@ class Salmon extends \Friendica\BaseModule
 	 * @throws HTTPException\OKException
 	 * @throws \ImagickException
 	 */
-	protected function rawContent(array $request = [])
+	protected function post(array $request = [])
 	{
 		$xml = Network::postdata();
+		$this->logger->debug('Got request data.', ['request' => $request]);
 
 		$nickname = $this->parameters['nickname'] ?? '';
 		if (empty($nickname)) {

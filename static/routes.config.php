@@ -598,12 +598,13 @@ return [
 	],
 
 	// OStatus stack modules
-	'/ostatus/repair'              => [Module\OStatus\Repair::class,           [R::GET         ]],
-	'/ostatus/subscribe'           => [Module\OStatus\Subscribe::class,        [R::GET         ]],
-	'/poco'                        => [Module\User\PortableContacts::class,    [R::GET         ]],
-	'/pubsub/{nickname}/{cid:\d+}' => [Module\OStatus\PubSub::class,           [R::GET, R::POST]],
-	'/pubsubhubbub/{nickname}'     => [Module\OStatus\PubSubHubBub::class,     [        R::POST]],
-	'/salmon/{nickname}'           => [Module\OStatus\Salmon::class,           [        R::POST]],
+	'/ostatus/repair'                => [Module\OStatus\Repair::class,           [R::GET         ]],
+	'/ostatus/subscribe'             => [Module\OStatus\Subscribe::class,        [R::GET         ]],
+	'/poco'                          => [Module\User\PortableContacts::class,    [R::GET         ]],
+	'/pubsub'                        => [Module\OStatus\PubSub::class,           [R::GET, R::POST]],
+	'/pubsub/{nickname}[/{cid:\d+}]' => [Module\OStatus\PubSub::class,           [R::GET, R::POST]],
+	'/pubsubhubbub[/{nickname}]'     => [Module\OStatus\PubSubHubBub::class,     [        R::POST]],
+	'/salmon[/{nickname}]'           => [Module\OStatus\Salmon::class,           [        R::POST]],
 
 	'/search' => [
 		'[/]'                  => [Module\Search\Index::class, [R::GET         ]],
