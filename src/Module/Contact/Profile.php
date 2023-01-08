@@ -207,7 +207,7 @@ class Profile extends BaseModule
 					// @TODO Backward compatibility, replace with $localRelationship->unblock()
 					Contact\User::setCollapsed($contact['id'], DI::userSession()->getLocalUserId(), false);
 
-					$message = $this->t('Contact has been collapsed');
+					$message = $this->t('Contact has been uncollapsed');
 				} else {
 					// @TODO Backward compatibility, replace with $localRelationship->block()
 					Contact\User::setCollapsed($contact['id'], DI::userSession()->getLocalUserId(), true);
