@@ -311,6 +311,11 @@ class Cache
 			if (is_array($cache->config[$category])) {
 				$keys = array_keys($cache->config[$category]);
 
+				if (is_null($newConfig[$category] ?? null)) {
+					$newConfig[$category] = [];
+					$newSource[$category] = [];
+				}
+
 				foreach ($keys as $key) {
 					$newConfig[$category][$key] = $cache->config[$category][$key];
 					$newSource[$category][$key] = $cache->source[$category][$key];
