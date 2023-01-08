@@ -71,7 +71,7 @@ class PubSubHubBub extends \Friendica\BaseModule
 			throw new HTTPException\ForbiddenException();
 		}
 
-		$this->logger->debug('Gut request data.', ['request' => $request]);
+		$this->logger->debug('Got request data.', ['request' => $request]);
 
 		// Subscription request from subscriber
 		// https://pubsubhubbub.github.io/PubSubHubbub/pubsubhubbub-core-0.4.html#rfc.section.5.1
