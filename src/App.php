@@ -25,6 +25,7 @@ use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
 use Friendica\Capabilities\ICanCreateResponses;
+use Friendica\Content\Nav;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\Definition\DbaDefinition;
@@ -579,7 +580,7 @@ class App
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, ModuleHTTPException $httpException, HTTPInputData $httpInput, float $start_time)
+	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, Nav $nav, ModuleHTTPException $httpException, HTTPInputData $httpInput, float $start_time)
 	{
 		$this->profiler->set($start_time, 'start');
 		$this->profiler->set(microtime(true), 'classinit');
@@ -718,7 +719,7 @@ class App
 			$response = $module->run($httpException, $input);
 			$this->profiler->set(microtime(true) - $timestamp, 'content');
 			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
-				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig, $this->session->getLocalUserId());
+				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig, $nav, $this->session->getLocalUserId());
 			} else {
 				$page->exit($response);
 			}
