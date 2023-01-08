@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-07 17:15+0000\n"
+"POT-Creation-Date: 2023-01-07 22:48-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,34 +18,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-#: mod/item.php:101 mod/item.php:105 mod/item.php:178 mod/item.php:182
+#: mod/item.php:101 mod/item.php:104 mod/item.php:170 mod/item.php:173
 #: src/Content/Item.php:860
 msgid "Unable to locate original post."
 msgstr ""
 
-#: mod/item.php:139
+#: mod/item.php:138
 msgid "Post updated."
 msgstr ""
 
-#: mod/item.php:213 mod/item.php:218
+#: mod/item.php:201 mod/item.php:205
 msgid "Item wasn't stored."
 msgstr ""
 
-#: mod/item.php:228
+#: mod/item.php:215
 msgid "Item couldn't be fetched."
 msgstr ""
 
-#: mod/item.php:273 mod/item.php:278
+#: mod/item.php:261 mod/item.php:265
 msgid "Empty post discarded."
 msgstr ""
 
-#: mod/item.php:414 src/Module/Admin/Themes/Details.php:39
+#: mod/item.php:401 src/Module/Admin/Themes/Details.php:39
 #: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:42
 #: src/Module/Debug/ItemBody.php:57 src/Module/Item/Feed.php:80
 msgid "Item not found."
 msgstr ""
 
-#: mod/item.php:438 mod/message.php:69 mod/message.php:114 mod/notes.php:44
+#: mod/item.php:425 mod/message.php:69 mod/message.php:114 mod/notes.php:44
 #: mod/photos.php:158 mod/photos.php:675 src/Model/Event.php:522
 #: src/Module/Attach.php:55 src/Module/BaseApi.php:95
 #: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:52
@@ -5220,12 +5220,7 @@ msgstr ""
 
 #: src/Module/Api/ApiResponse.php:279
 #, php-format
-msgid "API endpoint %s %s is not implemented"
-msgstr ""
-
-#: src/Module/Api/ApiResponse.php:280
-msgid ""
-"The API endpoint is currently not implemented but might be in the future."
+msgid "API endpoint %s %s is not implemented but might be in the future."
 msgstr ""
 
 #: src/Module/Api/Mastodon/Apps.php:64
@@ -8136,17 +8131,17 @@ msgstr ""
 msgid "The Photo is not available."
 msgstr ""
 
-#: src/Module/Photo.php:142
+#: src/Module/Photo.php:154
 #, php-format
 msgid "The Photo with id %s is not available."
 msgstr ""
 
-#: src/Module/Photo.php:179
+#: src/Module/Photo.php:191
 #, php-format
 msgid "Invalid external resource with url %s."
 msgstr ""
 
-#: src/Module/Photo.php:181
+#: src/Module/Photo.php:193
 #, php-format
 msgid "Invalid photo with id %s."
 msgstr ""
