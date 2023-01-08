@@ -42,7 +42,7 @@ use Psr\Log\LoggerInterface;
  * ActivityPub endpoint, but it should show statuses to web users.
  *
  * Both these view have dedicated sub-paths,
- * respectively https://domain.tld/profile/nickname/profile and https://domain.tld/profile/nickname/status
+ * respectively https://domain.tld/profile/nickname/profile and https://domain.tld/profile/nickname/conversations
  */
 class Index extends BaseModule
 {
@@ -90,6 +90,6 @@ class Index extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		return (new Status($this->mode, $this->pConfig, $this->conversation, $this->session, $this->config, $this->dateTimeFormat, $this->page, $this->app, $this->l10n, $this->baseUrl, $this->args, $this->logger, $this->profiler, $this->response, $this->server, $this->parameters))->content();
+		return (new Conversations($this->mode, $this->pConfig, $this->conversation, $this->session, $this->config, $this->dateTimeFormat, $this->page, $this->app, $this->l10n, $this->baseUrl, $this->args, $this->logger, $this->profiler, $this->response, $this->server, $this->parameters))->content();
 	}
 }

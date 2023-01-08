@@ -54,10 +54,10 @@ class BaseProfile extends BaseModule
 				'accesskey' => 'r',
 			],
 			[
-				'label' => DI::l10n()->t('Status'),
-				'url'   => $baseProfileUrl . '/status',
+				'label' => DI::l10n()->t('Conversations'),
+				'url'   => $baseProfileUrl . '/conversations',
 				'sel'   => $current == 'status' ? 'active' : '',
-				'title' => DI::l10n()->t('Status Messages and Posts'),
+				'title' => DI::l10n()->t('Conversations started'),
 				'id'    => 'status-tab',
 				'accesskey' => 'm',
 			],

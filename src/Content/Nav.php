@@ -226,7 +226,7 @@ class Nav
 
 		if ($this->session->isAuthenticated()) {
 			// user menu
-			$nav['usermenu'][] = ['profile/' . $this->session->getLocalUserNickname(), $this->l10n->t('Status'), '', $this->l10n->t('Your posts and conversations')];
+			$nav['usermenu'][] = ['profile/' . $this->session->getLocalUserNickname(), $this->l10n->t('Conversations'), '', $this->l10n->t('Conversations you started')];
 			$nav['usermenu'][] = ['profile/' . $this->session->getLocalUserNickname() . '/profile', $this->l10n->t('Profile'), '', $this->l10n->t('Your profile page')];
 			$nav['usermenu'][] = ['profile/' . $this->session->getLocalUserNickname() . '/photos', $this->l10n->t('Photos'), '', $this->l10n->t('Your photos')];
 			$nav['usermenu'][] = ['profile/' . $this->session->getLocalUserNickname() . '/media', $this->l10n->t('Media'), '', $this->l10n->t('Your postings with media')];

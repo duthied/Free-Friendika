@@ -451,7 +451,7 @@ class Contact extends BaseModule
 	/**
 	 * List of pages for the Contact TabBar
 	 *
-	 * Available Pages are 'Status', 'Profile', 'Contacts' and 'Common Friends'
+	 * Available Pages are 'Conversations', 'Profile', 'Contacts' and 'Common Friends'
 	 *
 	 * @param array $contact    The contact array
 	 * @param int   $active_tab 1 if tab should be marked as active
@@ -473,7 +473,15 @@ class Contact extends BaseModule
 		// tabs
 		$tabs = [
 			[
-				'label' => DI::l10n()->t('Status'),
+				'label' => DI::l10n()->t('Profile'),
+				'url'   => 'contact/' . $cid,
+				'sel'   => (($active_tab == self::TAB_PROFILE) ? 'active' : ''),
+				'title' => DI::l10n()->t('Profile Details'),
+				'id'    => 'profile-tab',
+				'accesskey' => 'o',
+			],
+			[
+				'label' => DI::l10n()->t('Conversations'),
 				'url'   => 'contact/' . $pcid . '/conversations',
 				'sel'   => (($active_tab == self::TAB_CONVERSATIONS) ? 'active' : ''),
 				'title' => DI::l10n()->t('Conversations started by this contact'),
@@ -484,7 +492,7 @@ class Contact extends BaseModule
 				'label' => DI::l10n()->t('Posts and Comments'),
 				'url'   => 'contact/' . $pcid . '/posts',
 				'sel'   => (($active_tab == self::TAB_POSTS) ? 'active' : ''),
-				'title' => DI::l10n()->t('Status Messages and Posts'),
+				'title' => DI::l10n()->t('Individual Posts and Replies'),
 				'id'    => 'posts-tab',
 				'accesskey' => 'p',
 			],
@@ -495,14 +503,6 @@ class Contact extends BaseModule
 				'title' => DI::l10n()->t('Posts containing media objects'),
 				'id'    => 'media-tab',
 				'accesskey' => 'd',
-			],
-			[
-				'label' => DI::l10n()->t('Profile'),
-				'url'   => 'contact/' . $cid,
-				'sel'   => (($active_tab == self::TAB_PROFILE) ? 'active' : ''),
-				'title' => DI::l10n()->t('Profile Details'),
-				'id'    => 'profile-tab',
-				'accesskey' => 'o',
 			],
 			['label' => DI::l10n()->t('Contacts'),
 				'url'   => 'contact/' . $pcid . '/contacts',

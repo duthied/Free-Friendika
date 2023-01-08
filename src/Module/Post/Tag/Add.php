@@ -120,7 +120,7 @@ EOT;
 
 		$tagger_link  = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 		$aauthor_link = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-		$post_link    = '[url=' . $item['plink'] . ']' . ($item['resource-id'] ? $this->t('photo') : $this->t('status')) . '[/url]';
+		$post_link    = '[url=' . $item['plink'] . ']' . ($item['resource-id'] ? $this->t('photo') : $this->t('post')) . '[/url]';
 		$term_link    = '#[url=' . $tagid . ']' . $term . '[/url]';
 
 		$post = [
