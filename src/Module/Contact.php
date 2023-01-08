@@ -416,7 +416,7 @@ class Contact extends BaseModule
 			case 'blocked':	  $header .= ' - ' . DI::l10n()->t('Blocked'); break;
 			case 'hidden':    $header .= ' - ' . DI::l10n()->t('Hidden'); break;
 			case 'ignored':   $header .= ' - ' . DI::l10n()->t('Ignored'); break;
-			case 'collapsed': $header .= ' - ' . DI::l10n()->t('collapsed'); break;
+			case 'collapsed': $header .= ' - ' . DI::l10n()->t('Collapsed'); break;
 			case 'archived':  $header .= ' - ' . DI::l10n()->t('Archived'); break;
 		}
 
