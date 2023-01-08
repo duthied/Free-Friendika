@@ -398,10 +398,11 @@ class Item
 		}
 
 		if (!empty($pcid)) {
-			$contact_url = 'contact/' . $pcid;
-			$posts_link  = $contact_url . '/posts';
-			$block_link  = $item['self'] ? '' : $contact_url . '/block?t=' . $formSecurityToken;
-			$ignore_link = $item['self'] ? '' : $contact_url . '/ignore?t=' . $formSecurityToken;
+			$contact_url   = 'contact/' . $pcid;
+			$posts_link    = $contact_url . '/posts';
+			$block_link    = $item['self'] ? '' : $contact_url . '/block?t=' . $formSecurityToken;
+			$ignore_link   = $item['self'] ? '' : $contact_url . '/ignore?t=' . $formSecurityToken;
+			$collapse_link = $item['self'] ? '' : $contact_url . '/collapse?t=' . $formSecurityToken;
 		}
 
 		if ($cid && !$item['self']) {
@@ -423,7 +424,8 @@ class Item
 				$this->l10n->t('View Contact') => $contact_url,
 				$this->l10n->t('Send PM') => $pm_url,
 				$this->l10n->t('Block') => $block_link,
-				$this->l10n->t('Ignore') => $ignore_link
+				$this->l10n->t('Ignore') => $ignore_link,
+				$this->l10n->t('Collapse') => $collapse_link
 			];
 
 			if (!empty($item['language'])) {

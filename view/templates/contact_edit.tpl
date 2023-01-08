@@ -23,6 +23,7 @@
 							<li class="divider"></li>
 							<li role="menuitem"><a href="#" title="{{$contact_actions.block.title}}" onclick="window.location.href='{{$contact_actions.block.url}}'; return false;">{{$contact_actions.block.label}}</a></li>
 							<li role="menuitem"><a href="#" title="{{$contact_actions.ignore.title}}" onclick="window.location.href='{{$contact_actions.ignore.url}}'; return false;">{{$contact_actions.ignore.label}}</a></li>
+							<li role="menuitem"><a href="#" title="{{$contact_actions.collapse.title}}" onclick="window.location.href='{{$contact_actions.collapse.url}}'; return false;">{{$contact_actions.collapse.label}}</a></li>
 							{{if $contact_actions.revoke_follow.url}}<li role="menuitem"><a href="{{$contact_actions.revoke_follow.url}}" title="{{$contact_actions.revoke_follow.title}}">{{$contact_actions.revoke_follow.label}}</a></li>{{/if}}
 						</ul>
 					</div>
@@ -44,6 +45,7 @@
 						{{if $blocked && !$pending}}<li><div id="block-message">{{$blocked}}</div></li>{{/if}}
 						{{if $pending}}<li><div id="pending-message">{{$pending}}</div></li>{{/if}}
 						{{if $ignored}}<li><div id="ignore-message">{{$ignored}}</div></li>{{/if}}
+						{{if $collapsed}}<li><div id="collapse-message">{{$collapsed}}</div></li>{{/if}}
 						{{if $archived}}<li><div id="archive-message">{{$archived}}</div></li>{{/if}}
 					</ul>
 				</div> {{* End of contact-edit-status-wrapper *}}

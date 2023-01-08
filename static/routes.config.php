@@ -386,7 +386,7 @@ return [
 	'/contact'   => [
 		'[/]'                         => [Module\Contact::class,                [R::GET]],
 		'/{id:\d+}[/]'                => [Module\Contact\Profile::class,        [R::GET, R::POST]],
-		'/{id:\d+}/{action:block|ignore|update|updateprofile}'
+		'/{id:\d+}/{action:block|ignore|collapse|update|updateprofile}'
 		                              => [Module\Contact\Profile::class,        [R::GET]],
 		'/{id:\d+}/advanced'          => [Module\Contact\Advanced::class,       [R::GET, R::POST]],
 		'/{id:\d+}/conversations'     => [Module\Contact\Conversations::class,  [R::GET]],

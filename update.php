@@ -1202,6 +1202,7 @@ function update_1509()
 	$newConfig = DI::config()->beginTransaction();
 
 	foreach ($addons as $addon) {
+		print_r($addon);
 		$newConfig->set('addons', $addon['name'], [
 			'last_update' => $addon['timestamp'],
 			'admin' => (bool)$addon['plugin_admin'],

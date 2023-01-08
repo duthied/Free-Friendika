@@ -29,6 +29,7 @@
 							{{/if}}
 							<li role="presentation"><a role="menuitem" href="{{$contact_actions.block.url}}" title="{{$contact_actions.block.title}}">{{$contact_actions.block.label}}</a></li>
 							<li role="presentation"><a role="menuitem" href="{{$contact_actions.ignore.url}}" title="{{$contact_actions.ignore.title}}">{{$contact_actions.ignore.label}}</a></li>
+							<li role="presentation"><a role="menuitem" href="{{$contact_actions.collapse.url}}" title="{{$contact_actions.collapse.title}}">{{$contact_actions.collapse.label}}</a></li>
 							{{if $contact_actions.revoke_follow.url}}<li role="presentation"><button role="menuitem" type="button" class="btn-link" title="{{$contact_actions.revoke_follow.title}}" onclick="addToModal('{{$contact_actions.revoke_follow.url}}');">{{$contact_actions.revoke_follow.label}}</button></li>{{/if}}
 						</ul>
 					</li>
@@ -58,6 +59,7 @@
 						{{if $blocked && !$pending}}<li><div id="block-message">{{$blocked}}</div></li>{{/if}}
 						{{if $pending}}<li><div id="pending-message">{{$pending}}</div></li>{{/if}}
 						{{if $ignored}}<li><div id="ignore-message">{{$ignored}}</div></li>{{/if}}
+						{{if $collapsed}}<li><div id="collapse-message">{{$collapsed}}</div></li>{{/if}}
 						{{if $archived}}<li><div id="archive-message">{{$archived}}</div></li>{{/if}}
 					</ul>
 				</div> {{* End of contact-edit-status-wrapper *}}
