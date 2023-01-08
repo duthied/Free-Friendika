@@ -283,7 +283,7 @@ class Cache
 				$keys = array_keys($config[$category]);
 
 				foreach ($keys as $key) {
-					if (!isset($this->config[$category][$key])) {
+					if (!key_exists($key, $this->config[$category] ?? [])) {
 						$return[$category][$key] = $config[$category][$key];
 					}
 				}

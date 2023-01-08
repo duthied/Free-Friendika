@@ -40,6 +40,7 @@ class CacheTest extends MockedTest
 						'int' => 235,
 						'dec' => 2.456,
 						'array' => ['1', 2, '3', true, false],
+						'null' => null,
 					],
 					'config' => [
 						'a' => 'value',
@@ -503,6 +504,24 @@ class CacheTest extends MockedTest
 					],
 				],
 			],
+			/** @see https://github.com/friendica/friendica/issues/12486#issuecomment-1374609349 */
+			'test_with_null' => [
+				'data'      => [
+					'test_with_null' => null,
+					'config'                => [
+						'register_policy' => 2,
+						'register_text'   => '',
+						'sitename'        => 'Friendica Social Network23',
+						'hostname'        => 'friendica.local',
+						'private_addons'  => false,
+					],
+					'system'                => [
+						'dbclean_expire_conversation' => 90,
+					],
+				],
+				'cat'       => 'test_with_null',
+				'assertion' => null,
+			],
 		];
 	}
 
@@ -511,10 +530,28 @@ class CacheTest extends MockedTest
 	 *
 	 * @dataProvider dataTestCat
 	 */
-	public function testGetCategory(array $data, string $category, array $assertion)
+	public function testGetCategory($data, string $category, $assertion)
 	{
 		$cache = new Cache($data);
 
 		self::assertEquals($assertion, $cache->get($category));
+	}
+
+	/**
+	 * Test that the cache can get merged with different categories
+	 *
+	 * @dataProvider dataTestCat
+	 */
+	public function testCatMerge($data, string $category)
+	{
+		$cache = new Cache($data);
+
+		$newCache = $cache->merge(new Cache([
+			$category => [
+				'new_key' => 'new_value',
+			],
+		]));
+
+		self::assertEquals('new_value', $newCache->get($category, 'new_key'));
 	}
 }

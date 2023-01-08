@@ -194,11 +194,13 @@ class ConfigFileManager
 
 			try {
 				if (flock($configStream, LOCK_SH)) {
+					clearstatcache(true, $filename);
+
 					if (($filesize = filesize($filename)) === 0) {
 						return;
 					}
 
-					$content = fread($configStream, filesize($filename));
+					$content = fread($configStream, $filesize);
 					if (!$content) {
 						throw new ConfigFileException(sprintf('Couldn\'t read file %s', $filename));
 					}
