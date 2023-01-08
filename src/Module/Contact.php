@@ -247,6 +247,11 @@ class Contact extends BaseModule
 				// This makes the query look for contact.uid = 0
 				array_unshift($sql_values, 0);
 				break;
+			case 'collapsed':
+				$sql_extra = " AND `id` IN (SELECT `cid` FROM `user-contact` WHERE `user-contact`.`uid` = ? AND `user-contact`.`collapsed`)";
+				// This makes the query look for contact.uid = 0
+				array_unshift($sql_values, 0);
+				break;
 			case 'archived':
 				$sql_extra = " AND `archive` AND NOT `blocked` AND NOT `pending`";
 				break;
@@ -363,6 +368,14 @@ class Contact extends BaseModule
 				'accesskey' => 'i',
 			],
 			[
+				'label' => DI::l10n()->t('Collapsed'),
+				'url'   => 'contact/collapsed',
+				'sel'   => $type == 'collapsed' ? 'active' : '',
+				'title' => DI::l10n()->t('Only show collapsed contacts'),
+				'id'    => 'showcollapsed-tab',
+				'accesskey' => 'c',
+			],
+			[
 				'label' => DI::l10n()->t('Archived'),
 				'url'   => 'contact/archived',
 				'sel'   => $type == 'archived' ? 'active' : '',
@@ -399,11 +412,12 @@ class Contact extends BaseModule
 		}
 
 		switch ($type) {
-			case 'pending':	 $header .= ' - ' . DI::l10n()->t('Pending'); break;
-			case 'blocked':	 $header .= ' - ' . DI::l10n()->t('Blocked'); break;
-			case 'hidden':   $header .= ' - ' . DI::l10n()->t('Hidden'); break;
-			case 'ignored':  $header .= ' - ' . DI::l10n()->t('Ignored'); break;
-			case 'archived': $header .= ' - ' . DI::l10n()->t('Archived'); break;
+			case 'pending':	  $header .= ' - ' . DI::l10n()->t('Pending'); break;
+			case 'blocked':	  $header .= ' - ' . DI::l10n()->t('Blocked'); break;
+			case 'hidden':    $header .= ' - ' . DI::l10n()->t('Hidden'); break;
+			case 'ignored':   $header .= ' - ' . DI::l10n()->t('Ignored'); break;
+			case 'collapsed': $header .= ' - ' . DI::l10n()->t('collapsed'); break;
+			case 'archived':  $header .= ' - ' . DI::l10n()->t('Archived'); break;
 		}
 
 		$header .= $nets ? ' - ' . ContactSelector::networkToName($nets) : '';

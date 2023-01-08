@@ -401,6 +401,7 @@ return [
 		'/hidden'                     => [Module\Contact::class,                [R::GET]],
 		'/hovercard'                  => [Module\Contact\Hovercard::class,      [R::GET]],
 		'/ignored'                    => [Module\Contact::class,                [R::GET]],
+		'/collapsed'                  => [Module\Contact::class,                [R::GET]],
 		'/match'                      => [Module\Contact\MatchInterests::class, [R::GET]],
 		'/pending'                    => [Module\Contact::class,                [R::GET]],
 		'/redir/{id:\d+}'             => [Module\Contact\Redir::class,          [R::GET]],
