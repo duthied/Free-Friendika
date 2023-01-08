@@ -177,7 +177,7 @@ class ConfigFileManager
 	{
 		$filename = $this->configDir . '/' . self::CONFIG_DATA_FILE;
 
-		if (file_exists($filename)) {
+		if (file_exists($filename) && (filesize($filename) > 0)) {
 
 			// The fallback empty return content
 			$content = '<?php return [];';
@@ -188,9 +188,16 @@ class ConfigFileManager
 			 *
 			 * Any exclusive locking (LOCK_EX) would need to wait until all LOCK_SHs are unlocked
 			 */
-			$configStream = fopen($filename, 'r');
+			if (($configStream = @fopen($filename, 'r')) === false) {
+				throw new ConfigFileException(sprintf('Cannot open file "%s" in mode r', $filename));
+			}
+
 			try {
 				if (flock($configStream, LOCK_SH)) {
+					if (($filesize = filesize($filename)) === 0) {
+						return;
+					}
+
 					$content = fread($configStream, filesize($filename));
 					if (!$content) {
 						throw new ConfigFileException(sprintf('Couldn\'t read file %s', $filename));

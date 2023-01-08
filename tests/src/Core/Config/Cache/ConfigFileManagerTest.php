@@ -511,4 +511,23 @@ class ConfigFileManagerTest extends MockedTest
 
 		self::assertNull($configCache->get('system', 'default_timezone'));
 	}
+
+	/**
+	 * Test for empty node.config.php
+	 */
+	public function testEmptyFile()
+	{
+		$this->delConfigFile('node.config.php');
+
+		vfsStream::newFile('node.config.php')
+				 ->at($this->root->getChild('config'))
+				 ->setContent('');
+
+		$configFileManager = (new Config())->createConfigFileManager($this->root->url());
+		$configCache       = new Cache();
+
+		$configFileManager->setupCache($configCache);
+
+		self::assertEquals(1,1);
+	}
 }
