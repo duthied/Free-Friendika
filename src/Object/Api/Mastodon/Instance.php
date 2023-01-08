@@ -54,7 +54,7 @@ class Instance extends BaseDataTransferObject
 	protected $urls;
 	/** @var Stats */
 	protected $stats;
-	/** @var string|null */
+	/** @var string|null This is meant as a server banner, default Mastodon "thumbnail" is 1600×620px */
 	protected $thumbnail = null;
 	/** @var array */
 	protected $languages;
@@ -91,7 +91,7 @@ class Instance extends BaseDataTransferObject
 		$this->version           = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
 		$this->urls              = null; // Not supported
 		$this->stats             = new Stats($config, $database);
-		$this->thumbnail         = $baseUrl->get() . ($config->get('system', 'shortcut_icon') ?? 'images/friendica-32.png');
+		$this->thumbnail         = $baseUrl->get() . 'images/friendica-banner.jpg';
 		$this->languages         = [$config->get('system', 'language')];
 		$this->max_toot_chars    = (int)$config->get('config', 'api_import_size', $config->get('config', 'max_import_size'));
 		$this->registrations     = ($register_policy != Register::CLOSED);

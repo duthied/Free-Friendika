@@ -65,7 +65,7 @@ class Salmon extends \Friendica\BaseModule
 	protected function post(array $request = [])
 	{
 		$xml = Network::postdata();
-		$this->logger->debug('Gut request data.', ['request' => $request]);
+		$this->logger->debug('Got request data.', ['request' => $request]);
 
 		$nickname = $this->parameters['nickname'] ?? '';
 		if (empty($nickname)) {

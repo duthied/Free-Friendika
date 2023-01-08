@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-08 17:39+0000\n"
+"POT-Creation-Date: 2023-01-08 17:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5230,12 +5230,7 @@ msgstr ""
 
 #: src/Module/Api/ApiResponse.php:279
 #, php-format
-msgid "API endpoint %s %s is not implemented"
-msgstr ""
-
-#: src/Module/Api/ApiResponse.php:280
-msgid ""
-"The API endpoint is currently not implemented but might be in the future."
+msgid "API endpoint %s %s is not implemented but might be in the future."
 msgstr ""
 
 #: src/Module/Api/Mastodon/Apps.php:64
