@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-08 23:14+0000\n"
+"POT-Creation-Date: 2023-01-08 23:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1926,8 +1926,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1257 src/Model/Item.php:3561
-#: src/Model/Item.php:3567 src/Model/Item.php:3568
+#: src/Content/Text/BBCode.php:1257 src/Model/Item.php:3562
+#: src/Model/Item.php:3568 src/Model/Item.php:3569
 msgid "Link to source"
 msgstr ""
 
@@ -3118,49 +3118,49 @@ msgstr ""
 msgid "Content from %s is collapsed"
 msgstr ""
 
-#: src/Model/Item.php:3055
+#: src/Model/Item.php:3056
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3473
+#: src/Model/Item.php:3474
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3504
+#: src/Model/Item.php:3505
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3506
+#: src/Model/Item.php:3507
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3511
+#: src/Model/Item.php:3512
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3513
+#: src/Model/Item.php:3514
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3515
+#: src/Model/Item.php:3516
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3549 src/Model/Item.php:3550
+#: src/Model/Item.php:3550 src/Model/Item.php:3551
 msgid "View on separate page"
 msgstr ""
 
@@ -5636,7 +5636,7 @@ msgstr ""
 msgid "Only show ignored contacts"
 msgstr ""
 
-#: src/Module/Contact.php:371
+#: src/Module/Contact.php:371 src/Module/Contact.php:419
 msgid "Collapsed"
 msgstr ""
 
@@ -5662,10 +5662,6 @@ msgstr ""
 
 #: src/Module/Contact.php:398
 msgid "Organize your contact groups"
-msgstr ""
-
-#: src/Module/Contact.php:419
-msgid "collapsed"
 msgstr ""
 
 #: src/Module/Contact.php:431
@@ -5958,7 +5954,11 @@ msgstr ""
 msgid "Contact has been ignored"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:210 src/Module/Contact/Profile.php:214
+#: src/Module/Contact/Profile.php:210
+msgid "Contact has been uncollapsed"
+msgstr ""
+
+#: src/Module/Contact/Profile.php:214
 msgid "Contact has been collapsed"
 msgstr ""
 
