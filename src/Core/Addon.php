@@ -84,7 +84,7 @@ class Addon
 	public static function getAdminList(): array
 	{
 		$addons_admin = [];
-		$addons = DI::config()->get('addons') ?? [];
+		$addons = array_filter(DI::config()->get('addons') ?? []);
 
 		ksort($addons);
 		foreach ($addons as $name => $data) {
@@ -117,7 +117,7 @@ class Addon
 	 */
 	public static function loadAddons()
 	{
-		self::$addons = array_keys(DI::config()->get('addons') ?? []);
+		self::$addons = array_keys(array_filter(DI::config()->get('addons') ?? []));
 	}
 
 	/**
@@ -192,7 +192,7 @@ class Addon
 	 */
 	public static function reload()
 	{
-		$addons = DI::config()->get('addons') ?? [];
+		$addons = array_filter(DI::config()->get('addons') ?? []);
 
 		foreach ($addons as $name => $data) {
 			$addonname = Strings::sanitizeFilePathItem(trim($name));
@@ -315,7 +315,7 @@ class Addon
 	public static function getVisibleList(): array
 	{
 		$visible_addons = [];
-		$addons = DI::config()->get('addons') ?? [];
+		$addons = array_filter(DI::config()->get('addons') ?? []);
 
 		foreach ($addons as $name => $data) {
 			$visible_addons[] = $name;
