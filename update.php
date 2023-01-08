@@ -1213,3 +1213,18 @@ function update_1509()
 
 	return Update::SUCCESS;
 }
+
+function update_1510()
+{
+	$blocks = DBA::select('pconfig', ['uid', 'v'], ['cat' => 'blockem', 'k' => 'words']);
+	while ($block = DBA::fetch($blocks)) {
+		foreach (explode(',', $block['v']) as $account) {
+			$id = Contact::getIdForURL(trim($account), 0, false);
+			if (empty($id)) {
+				continue;
+			}
+			Contact\User::setCollapsed($id, $block['uid'], true);
+		}
+	}
+	return Update::SUCCESS;
+}
