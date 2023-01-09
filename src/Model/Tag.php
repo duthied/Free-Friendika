@@ -119,7 +119,7 @@ class Tag
 				$tag = DBA::selectFirst('tag', ['name', 'type'], ['url' => $url]);
 				if (!empty($tag)) {
 					if ($tag['name'] != substr($name, 0, 96)) {
-						DBA::update('tag', ['name' => substr($name, 0, 96)], ['url' => $url]);
+						DBA::update('tag', ['name' => substr($name, 0, 96)], ['url' => $url, 'type' => $tag['type']]);
 					}
 					if (!empty($target) && ($tag['type'] != $target)) {
 						DBA::update('tag', ['type' => $target], ['url' => $url]);
