@@ -133,7 +133,8 @@ class UserNotification
 	public static function setNotification(int $uri_id, int $uid)
 	{
 		$fields = ['id', 'uri-id', 'parent-uri-id', 'uid', 'body', 'parent', 'gravity', 'vid', 'gravity',
-		           'private', 'contact-id', 'thr-parent', 'thr-parent-id', 'parent-uri-id', 'parent-uri', 'author-id', 'verb'];
+			'contact-id', 'author-id', 'owner-id', 'causer-id', 
+			'private', 'thr-parent', 'thr-parent-id', 'parent-uri-id', 'parent-uri', 'verb'];
 		$item   = Post::selectFirst($fields, ['uri-id' => $uri_id, 'uid' => $uid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
@@ -174,6 +175,18 @@ class UserNotification
 	 */
 	private static function setNotificationForUser(array $item, int $uid)
 	{
+		if (Contact\User::isBlocked($item['author-id'], $uid) || Contact\User::isIgnored($item['author-id'], $uid) || Contact\User::isCollapsed($item['author-id'], $uid)) {
+			return;
+		}
+
+		if (Contact\User::isBlocked($item['owner-id'], $uid) || Contact\User::isIgnored($item['owner-id'], $uid) || Contact\User::isCollapsed($item['owner-id'], $uid)) {
+			return;
+		}
+
+		if (!empty($item['causer-id']) && (Contact\User::isBlocked($item['causer-id'], $uid) || Contact\User::isIgnored($item['causer-id'], $uid) || Contact\User::isCollapsed($item['causer-id'], $uid))) {
+			return;
+		}
+
 		if (Post\ThreadUser::getIgnored($item['parent-uri-id'], $uid)) {
 			return;
 		}

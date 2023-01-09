@@ -404,7 +404,12 @@ as the value of $top_child_total (this is done at the end of this file)
 							<a class="btn-link navicon block" href="javascript:blockAuthor('item/block/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.block.block}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.block.block}}</a>
 						</li>
 						{{/if}}
-					</ul>
+						{{if $item.ignore_author}}
+							<li role="menuitem">
+								<a class="btn-link navicon ignore" href="javascript:ignoreAuthor('item/ignore/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.ignore_author.ignore}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.ignore_author.ignore}}</a>
+							</li>
+							{{/if}}
+						</ul>
 					<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 				</span>
 			{{else}}
