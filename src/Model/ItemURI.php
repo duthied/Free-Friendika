@@ -81,4 +81,14 @@ class ItemURI
 
 		return $itemuri['id'] ?? 0;
 	}
+
+	/**
+	 * @param int $uriId
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public static function exists(int $uriId): bool
+	{
+		return DBA::exists('item-uri', ['id' => $uriId]);
+	}
 }

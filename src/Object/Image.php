@@ -196,7 +196,7 @@ class Image
 	public function isValid(): bool
 	{
 		if ($this->isImagick()) {
-			return ($this->image !== false);
+			return !empty($this->image);
 		}
 		return $this->valid;
 	}

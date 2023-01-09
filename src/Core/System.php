@@ -253,12 +253,12 @@ class System
 				$func['database'] = in_array($func['class'], ['Friendica\Database\DBA', 'Friendica\Database\Database']);
 				if (!$previous['database'] || !$func['database']) {
 					$classparts = explode("\\", $func['class']);
-					$callstack[] = array_pop($classparts).'::'.$func['function'];
+					$callstack[] = array_pop($classparts).'::'.$func['function'] . '(' . $func['line'] . ')';
 					$previous = $func;
 				}
 			} elseif (!in_array($func['function'], $ignore)) {
 				$func['database'] = ($func['function'] == 'q');
-				$callstack[] = $func['function'];
+				$callstack[] = $func['function'] . '(' . $func['line'] . ')';
 				$func['class'] = '';
 				$previous = $func;
 			}
