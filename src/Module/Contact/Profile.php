@@ -197,7 +197,23 @@ class Profile extends BaseModule
 					Contact\User::setIgnored($contact['id'], DI::userSession()->getLocalUserId(), true);
 					$message = $this->t('Contact has been ignored');
 				}
+	
+				// @TODO: add $this->localRelationship->save($localRelationship);
+				DI::sysmsg()->addInfo($message);
+			}
 
+			if ($cmd === 'collapse') {
+				if ($localRelationship->collapsed) {
+					// @TODO Backward compatibility, replace with $localRelationship->unblock()
+					Contact\User::setCollapsed($contact['id'], DI::userSession()->getLocalUserId(), false);
+
+					$message = $this->t('Contact has been uncollapsed');
+				} else {
+					// @TODO Backward compatibility, replace with $localRelationship->block()
+					Contact\User::setCollapsed($contact['id'], DI::userSession()->getLocalUserId(), true);
+					$message = $this->t('Contact has been collapsed');
+				}
+					
 				// @TODO: add $this->localRelationship->save($localRelationship);
 				DI::sysmsg()->addInfo($message);
 			}
@@ -352,6 +368,7 @@ class Profile extends BaseModule
 			'$cinfo'                     => ['info', '', $localRelationship->info, ''],
 			'$blocked'                   => ($contact['blocked'] ? $this->t('Currently blocked') : ''),
 			'$ignored'                   => ($contact['readonly'] ? $this->t('Currently ignored') : ''),
+			'$collapsed'                 => (Contact\User::isCollapsed($contact['id'], DI::userSession()->getLocalUserId()) ? $this->t('Currently collapsed') : ''),
 			'$archived'                  => ($contact['archive'] ? $this->t('Currently archived') : ''),
 			'$pending'                   => ($contact['pending'] ? $this->t('Awaiting connection acknowledge') : ''),
 			'$hidden'                    => ['hidden', $this->t('Hide this contact from others'), $localRelationship->hidden, $this->t('Replies/likes to your public posts <strong>may</strong> still be visible')],
@@ -477,6 +494,14 @@ class Profile extends BaseModule
 			'title' => $this->t('Toggle Ignored status'),
 			'sel'   => $localRelationship->ignored ? 'active' : '',
 			'id'    => 'toggle-ignore',
+		];
+
+		$contact_actions['collapse'] = [
+			'label' => $localRelationship->collapsed ? $this->t('Uncollapse') : $this->t('Collapse'),
+			'url'   => 'contact/' . $contact['id'] . '/collapse?t=' . $formSecurityToken,
+			'title' => $this->t('Toggle Collapsed status'),
+			'sel'   => $localRelationship->collapsed ? 'active' : '',
+			'id'    => 'toggle-collapse',
 		];
 
 		if (Protocol::supportsRevokeFollow($contact['network']) && in_array($localRelationship->rel, [Contact::FOLLOWER, Contact::FRIEND])) {

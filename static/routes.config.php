@@ -386,7 +386,7 @@ return [
 	'/contact'   => [
 		'[/]'                         => [Module\Contact::class,                [R::GET]],
 		'/{id:\d+}[/]'                => [Module\Contact\Profile::class,        [R::GET, R::POST]],
-		'/{id:\d+}/{action:block|ignore|update|updateprofile}'
+		'/{id:\d+}/{action:block|ignore|collapse|update|updateprofile}'
 		                              => [Module\Contact\Profile::class,        [R::GET]],
 		'/{id:\d+}/advanced'          => [Module\Contact\Advanced::class,       [R::GET, R::POST]],
 		'/{id:\d+}/conversations'     => [Module\Contact\Conversations::class,  [R::GET]],
@@ -401,6 +401,7 @@ return [
 		'/hidden'                     => [Module\Contact::class,                [R::GET]],
 		'/hovercard'                  => [Module\Contact\Hovercard::class,      [R::GET]],
 		'/ignored'                    => [Module\Contact::class,                [R::GET]],
+		'/collapsed'                  => [Module\Contact::class,                [R::GET]],
 		'/match'                      => [Module\Contact\MatchInterests::class, [R::GET]],
 		'/pending'                    => [Module\Contact::class,                [R::GET]],
 		'/redir/{id:\d+}'             => [Module\Contact\Redir::class,          [R::GET]],

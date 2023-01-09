@@ -87,6 +87,11 @@ class Contact extends BaseModule
 				self::toggleIgnoreContact($cdata['public']);
 				$count_actions++;
 			}
+
+			if (!empty($_POST['contacts_batch_collapse'])) {
+				self::toggleCollapseContact($cdata['public']);
+				$count_actions++;
+			}
 		}
 		if ($count_actions > 0) {
 			DI::sysmsg()->addInfo(DI::l10n()->tt('%d contact edited.', '%d contacts edited.', $count_actions));
@@ -165,6 +170,18 @@ class Contact extends BaseModule
 		Model\Contact\User::setIgnored($contact_id, DI::userSession()->getLocalUserId(), $ignored);
 	}
 
+	/**
+	 * Toggles the collapsed status of a contact identified by id.
+	 *
+	 * @param int $contact_id Id of the contact with uid = 0
+	 * @throws \Exception
+	 */
+	private static function toggleCollapseContact(int $contact_id)
+	{
+		$collapsed = !Model\Contact\User::isCollapsed($contact_id, DI::userSession()->getLocalUserId());
+		Model\Contact\User::setCollapsed($contact_id, DI::userSession()->getLocalUserId(), $collapsed);
+	}
+
 	protected function content(array $request = []): string
 	{
 		if (!DI::userSession()->getLocalUserId()) {
@@ -227,6 +244,11 @@ class Contact extends BaseModule
 				break;
 			case 'ignored':
 				$sql_extra = " AND `id` IN (SELECT `cid` FROM `user-contact` WHERE `user-contact`.`uid` = ? AND `user-contact`.`ignored`)";
+				// This makes the query look for contact.uid = 0
+				array_unshift($sql_values, 0);
+				break;
+			case 'collapsed':
+				$sql_extra = " AND `id` IN (SELECT `cid` FROM `user-contact` WHERE `user-contact`.`uid` = ? AND `user-contact`.`collapsed`)";
 				// This makes the query look for contact.uid = 0
 				array_unshift($sql_values, 0);
 				break;
@@ -346,6 +368,14 @@ class Contact extends BaseModule
 				'accesskey' => 'i',
 			],
 			[
+				'label' => DI::l10n()->t('Collapsed'),
+				'url'   => 'contact/collapsed',
+				'sel'   => $type == 'collapsed' ? 'active' : '',
+				'title' => DI::l10n()->t('Only show collapsed contacts'),
+				'id'    => 'showcollapsed-tab',
+				'accesskey' => 'c',
+			],
+			[
 				'label' => DI::l10n()->t('Archived'),
 				'url'   => 'contact/archived',
 				'sel'   => $type == 'archived' ? 'active' : '',
@@ -382,11 +412,12 @@ class Contact extends BaseModule
 		}
 
 		switch ($type) {
-			case 'pending':	 $header .= ' - ' . DI::l10n()->t('Pending'); break;
-			case 'blocked':	 $header .= ' - ' . DI::l10n()->t('Blocked'); break;
-			case 'hidden':   $header .= ' - ' . DI::l10n()->t('Hidden'); break;
-			case 'ignored':  $header .= ' - ' . DI::l10n()->t('Ignored'); break;
-			case 'archived': $header .= ' - ' . DI::l10n()->t('Archived'); break;
+			case 'pending':	  $header .= ' - ' . DI::l10n()->t('Pending'); break;
+			case 'blocked':	  $header .= ' - ' . DI::l10n()->t('Blocked'); break;
+			case 'hidden':    $header .= ' - ' . DI::l10n()->t('Hidden'); break;
+			case 'ignored':   $header .= ' - ' . DI::l10n()->t('Ignored'); break;
+			case 'collapsed': $header .= ' - ' . DI::l10n()->t('Collapsed'); break;
+			case 'archived':  $header .= ' - ' . DI::l10n()->t('Archived'); break;
 		}
 
 		$header .= $nets ? ' - ' . ContactSelector::networkToName($nets) : '';
@@ -405,9 +436,10 @@ class Contact extends BaseModule
 			'$form_security_token'  => BaseModule::getFormSecurityToken('contact_batch_actions'),
 			'multiselect' => 1,
 			'$batch_actions' => [
-				'contacts_batch_update'  => DI::l10n()->t('Update'),
-				'contacts_batch_block'   => DI::l10n()->t('Block') . '/' . DI::l10n()->t('Unblock'),
-				'contacts_batch_ignore'  => DI::l10n()->t('Ignore') . '/' . DI::l10n()->t('Unignore'),
+				'contacts_batch_update'    => DI::l10n()->t('Update'),
+				'contacts_batch_block'     => DI::l10n()->t('Block') . '/' . DI::l10n()->t('Unblock'),
+				'contacts_batch_ignore'    => DI::l10n()->t('Ignore') . '/' . DI::l10n()->t('Unignore'),
+				'contacts_batch_collapse'  => DI::l10n()->t('Collapse') . '/' . DI::l10n()->t('Uncollapse'),
 			],
 			'$h_batch_actions' => DI::l10n()->t('Batch Actions'),
 			'$paginate'   => $pager->renderFull($total),
