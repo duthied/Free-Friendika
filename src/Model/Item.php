@@ -1224,6 +1224,8 @@ class Item
 			Post\Content::insert($item['uri-id'], $item);
 		}
 
+		$item['parent'] = $parent_id;
+
 		// Create Diaspora signature
 		if ($item['origin'] && empty($item['diaspora_signed_text']) && ($item['gravity'] != self::GRAVITY_PARENT)) {
 			$signed = Diaspora::createCommentSignature($item);
@@ -1741,16 +1743,16 @@ class Item
 		$item['origin'] = 0;
 		$item['wall'] = 0;
 
-		$item['contact-id'] = self::contactId($item);
-
 		$notify = false;
 		if ($item['gravity'] == self::GRAVITY_PARENT) {
 			$contact = DBA::selectFirst('contact', [], ['id' => $item['contact-id'], 'self' => false]);
 			if (DBA::isResult($contact)) {
 				$notify = self::isRemoteSelf($contact, $item);
+				$item['wall'] = (bool)$notify;
 			}
 		}
 
+		$item['contact-id'] = self::contactId($item);
 		$distributed = self::insert($item, $notify);
 
 		if (!$distributed) {

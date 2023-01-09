@@ -2079,6 +2079,7 @@ class DFRN
 			// This is my contact on another system, but it's really me.
 			// Turn this into a wall post.
 			$notify = Item::isRemoteSelf($importer, $item);
+			$item['wall'] = (bool)$notify;
 
 			$posted_id = Item::insert($item, $notify);
 

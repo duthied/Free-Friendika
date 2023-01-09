@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-08 23:25+0000\n"
+"POT-Creation-Date: 2023-01-09 16:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,6 @@ msgstr ""
 
 
 #: mod/item.php:101 mod/item.php:104 mod/item.php:170 mod/item.php:173
-#: src/Content/Item.php:862
 msgid "Unable to locate original post."
 msgstr ""
 
@@ -1517,7 +1516,7 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:326 src/Model/Item.php:2893
+#: src/Content/Item.php:326 src/Model/Item.php:2895
 msgid "event"
 msgstr ""
 
@@ -1526,7 +1525,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:335 src/Model/Item.php:2895
+#: src/Content/Item.php:335 src/Model/Item.php:2897
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -1597,6 +1596,10 @@ msgstr ""
 #: src/Model/Contact.php:1200 src/Model/Contact.php:1211
 #: src/Module/Contact/Follow.php:166 view/theme/vier/theme.php:196
 msgid "Connect/Follow"
+msgstr ""
+
+#: src/Content/Item.php:862
+msgid "Unable to fetch user."
 msgstr ""
 
 #: src/Content/Nav.php:90
@@ -1926,8 +1929,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1257 src/Model/Item.php:3562
-#: src/Model/Item.php:3568 src/Model/Item.php:3569
+#: src/Content/Text/BBCode.php:1257 src/Model/Item.php:3564
+#: src/Model/Item.php:3570 src/Model/Item.php:3571
 msgid "Link to source"
 msgstr ""
 
@@ -3096,71 +3099,71 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1994
+#: src/Model/Item.php:1996
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2897
+#: src/Model/Item.php:2899
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2899
+#: src/Model/Item.php:2901
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2902
+#: src/Model/Item.php:2904
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:3052
+#: src/Model/Item.php:3054
 #, php-format
 msgid "Content from %s is collapsed"
 msgstr ""
 
-#: src/Model/Item.php:3056
+#: src/Model/Item.php:3058
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3474
+#: src/Model/Item.php:3476
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3505
+#: src/Model/Item.php:3507
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3507
+#: src/Model/Item.php:3509
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3512
+#: src/Model/Item.php:3514
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3514
+#: src/Model/Item.php:3516
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3516
+#: src/Model/Item.php:3518
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3550 src/Model/Item.php:3551
+#: src/Model/Item.php:3552 src/Model/Item.php:3553
 msgid "View on separate page"
 msgstr ""
 
@@ -8313,19 +8316,19 @@ msgstr ""
 
 #: src/Module/Profile/Profile.php:351 src/Module/Profile/Profile.php:354
 #: src/Module/Profile/Status.php:106 src/Module/Profile/Status.php:109
-#: src/Protocol/Feed.php:1024 src/Protocol/OStatus.php:1045
+#: src/Protocol/Feed.php:1025 src/Protocol/OStatus.php:1045
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:352 src/Module/Profile/Status.php:107
-#: src/Protocol/Feed.php:1028 src/Protocol/OStatus.php:1050
+#: src/Protocol/Feed.php:1029 src/Protocol/OStatus.php:1050
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:353 src/Module/Profile/Status.php:108
-#: src/Protocol/Feed.php:1031 src/Protocol/OStatus.php:1054
+#: src/Protocol/Feed.php:1032 src/Protocol/OStatus.php:1054
 #, php-format
 msgid "%s's comments"
 msgstr ""
