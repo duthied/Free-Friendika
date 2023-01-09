@@ -859,7 +859,7 @@ class Item
 
 		$user = User::getById($post['uid'], ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
 		if (!$user) {
-			throw new HTTPException\NotFoundException($this->l10n->t('Unable to locate original post.'));
+			throw new HTTPException\NotFoundException($this->l10n->t('Unable to fetch user.'));
 		}
 
 		$post['allow_cid'] = isset($request['contact_allow']) ? $this->aclFormatter->toString($request['contact_allow']) : $user['allow_cid'] ?? '';
@@ -957,9 +957,29 @@ class Item
 		$post['origin']    = true;
 		$post['wall']      = $post['wall'] ?? true;
 		$post['guid']      = $post['guid'] ?? System::createUUID();
-		$post['uri']       = $post['uri']  ?? ItemModel::newURI($post['guid']);
 		$post['verb']      = $post['verb'] ?? Activity::POST;
+
+		if (empty($post['uri'])) {
+			$post['thr-parent'] = $post['uri'] = ItemModel::newURI($post['guid']);
+			$post['gravity']    = ItemModel::GRAVITY_PARENT;
+		}
+
 		$owner = User::getOwnerDataById($post['uid']);
+
+		if (!isset($post['allow_cid']) || !isset($post['allow_gid']) || !isset($post['deny_cid']) || !isset($post['deny_gid'])) {
+			$post['allow_cid'] = $owner['allow_cid'];
+			$post['allow_gid'] = $owner['allow_gid'];
+			$post['deny_cid']  = $owner['deny_cid'];
+			$post['deny_gid']  = $owner['deny_gid'];
+		}
+		
+		if ($post['allow_gid'] || $post['allow_cid'] || $post['deny_gid'] || $post['deny_cid']) {
+			$post['private'] = ItemModel::PRIVATE;
+		} elseif ($this->pConfig->get($post['uid'], 'system', 'unlisted')) {
+			$post['private'] = ItemModel::UNLISTED;
+		} else {
+			$post['private'] = ItemModel::PUBLIC;
+		}
 
 		if (empty($post['contact-id'])) {
 			$post['contact-id'] = $owner['id'];

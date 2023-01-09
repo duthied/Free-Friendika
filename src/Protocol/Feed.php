@@ -624,6 +624,7 @@ class Feed
 			Logger::info('Stored feed', ['item' => $item]);
 
 			$notify = Item::isRemoteSelf($contact, $item);
+			$item['wall'] = (bool)$notify;
 
 			// Distributed items should have a well-formatted URI.
 			// Additionally, we have to avoid conflicts with identical URI between imported feeds and these items.
