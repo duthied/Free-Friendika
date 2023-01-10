@@ -820,12 +820,6 @@ class Item
 	private static function prepareOriginPost(array $item): array
 	{
 		$item = DI::contentItem()->initializePost($item);
-
-		if (Photo::setPermissionFromBody($item['body'], $item['uid'], $item['contact-id'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid'])) {
-			$item['object-type'] = Activity\ObjectType::IMAGE;
-		}
-
-		$item = DI::contentItem()->moveAttachmentsFromBodyToAttach($item);
 		$item = DI::contentItem()->finalizePost($item);
 
 		return $item;
@@ -1050,6 +1044,14 @@ class Item
 			if ($item['wall'] && empty($item['conversation'])) {
 				$item['conversation'] = $item['parent-uri'] . '#context';
 			}
+		}
+
+		if ($notify) {
+			if (Photo::setPermissionFromBody($item['body'], $item['uid'], $item['contact-id'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid'])) {
+				$item['object-type'] = Activity\ObjectType::IMAGE;
+			}
+
+			$item = DI::contentItem()->moveAttachmentsFromBodyToAttach($item);
 		}
 
 		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);

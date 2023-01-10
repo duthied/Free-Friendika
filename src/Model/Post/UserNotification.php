@@ -140,6 +140,11 @@ class UserNotification
 			return;
 		}
 
+		$parent = Post::selectFirstPost(['author-id', 'owner-id', 'causer-id'], ['uri-id' => $item['parent-uri-id']]);
+		if (!DBA::isResult($parent)) {
+			return;
+		}
+
 		// "Activity::FOLLOW" is an automated activity, so we ignore it here
 		if ($item['verb'] == Activity::FOLLOW) {
 			return;
@@ -162,33 +167,32 @@ class UserNotification
 		DBA::close($users);
 
 		foreach (array_unique($uids) as $uid) {
-			self::setNotificationForUser($item, $uid);
+			self::setNotificationForUser($item, $parent, $uid);
 		}
 	}
 
 	/**
 	 * Checks an item for notifications for the given user and sets the "notification-type" field
 	 *
-	 * @param array $item Item array
-	 * @param int   $uid  User ID
+	 * @param array $item   Item array
+	 * @param array $parent Parent item array
+	 * @param int   $uid    User ID
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function setNotificationForUser(array $item, int $uid)
+	private static function setNotificationForUser(array $item, array $parent, int $uid)
 	{
-		if (Contact\User::isBlocked($item['author-id'], $uid) || Contact\User::isIgnored($item['author-id'], $uid) || Contact\User::isCollapsed($item['author-id'], $uid)) {
-			return;
-		}
-
-		if (Contact\User::isBlocked($item['owner-id'], $uid) || Contact\User::isIgnored($item['owner-id'], $uid) || Contact\User::isCollapsed($item['owner-id'], $uid)) {
-			return;
-		}
-
-		if (!empty($item['causer-id']) && (Contact\User::isBlocked($item['causer-id'], $uid) || Contact\User::isIgnored($item['causer-id'], $uid) || Contact\User::isCollapsed($item['causer-id'], $uid))) {
-			return;
-		}
-
 		if (Post\ThreadUser::getIgnored($item['parent-uri-id'], $uid)) {
 			return;
+		}
+
+		foreach (array_unique([$parent['author-id'], $parent['owner-id'], $parent['causer-id'], $item['author-id'], $item['owner-id'], $item['causer-id']]) as $author_id) {
+			if (empty($author_id)) {
+				continue;
+			}
+			if (Contact\User::isBlocked($author_id, $uid) || Contact\User::isIgnored($author_id, $uid) || Contact\User::isCollapsed($author_id, $uid)) {
+				Logger::debug('Author is blocked/ignored/collapsed by user', ['uid' => $uid, 'author' => $author_id, 'uri-id' => $item['uri-id']]);
+				return;
+			}
 		}
 
 		$user = User::getById($uid, ['account-type', 'account_removed', 'account_expired']);
