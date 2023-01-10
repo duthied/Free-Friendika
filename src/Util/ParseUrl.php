@@ -24,6 +24,8 @@ namespace Friendica\Util;
 use DOMDocument;
 use DOMXPath;
 use Friendica\Content\OEmbed;
+use Friendica\Content\Text\HTML;
+use Friendica\Protocol\HTTP\MediaType;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Database\Database;
@@ -283,25 +285,13 @@ class ParseUrl
 		}
 
 		$charset = '';
-		// Look for a charset, first in headers
-		// Expected form: Content-Type: text/html; charset=ISO-8859-4
-		if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $curlResult->getContentType(), $matches)) {
-			$charset = trim(trim(trim(array_pop($matches)), ';,'));
-		} else {
-			// Then in body that gets precedence
-			// Expected forms:
-			// - <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-			// - <meta charset="utf-8">
-			// - <meta charset=utf-8>
-			// - <meta charSet="utf-8">
-			// We escape <style> and <script> tags since they can contain irrelevant charset information
-			// (see https://github.com/friendica/friendica/issues/9251#issuecomment-698636806)
-			Strings::performWithEscapedBlocks($body, '#<(?:style|script).*?</(?:style|script)>#ism', function ($body) use (&$charset) {
-				if (preg_match('/charset=["\']?([a-z0-9-_.\/]+)/i', $body, $matches)) {
-					$charset = trim(trim(trim(array_pop($matches)), ';,'));
-				}
-			});
-		}
+		try {
+			// Look for a charset, first in headers
+			$mediaType = MediaType::fromContentType($curlResult->getContentType());
+			if (isset($mediaType->parameters['charset'])) {
+				$charset = $mediaType->parameters['charset'];
+			}
+		} catch(\InvalidArgumentException $e) {}
 
 		$siteinfo['charset'] = $charset;
 
@@ -321,6 +311,8 @@ class ParseUrl
 
 		$doc = new DOMDocument();
 		@$doc->loadHTML($body);
+
+		$siteinfo['charset'] = HTML::extractCharset($doc) ?? $siteinfo['charset'];
 
 		XML::deleteNode($doc, 'style');
 		XML::deleteNode($doc, 'option');
