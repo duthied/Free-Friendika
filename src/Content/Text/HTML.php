@@ -23,6 +23,7 @@ namespace Friendica\Content\Text;
 
 use DOMDocument;
 use DOMXPath;
+use Friendica\Protocol\HTTP\MediaType;
 use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
@@ -1054,5 +1055,31 @@ class HTML
 		$result = $xpath->query($expression);
 
 		return $result !== false && $result->length > 0;
+	}
+
+	/**
+	 * @param DOMDocument $doc
+	 * @return string|null Lowercase charset
+	 */
+	public static function extractCharset(DOMDocument $doc): ?string
+	{
+		$xpath = new DOMXPath($doc);
+
+		$expression = "string(//meta[@charset]/@charset)";
+		if ($charset = $xpath->evaluate($expression)) {
+			return strtolower($charset);
+		}
+
+		try {
+			// This expression looks for a meta tag with the http-equiv attribute set to "content-type" ignoring case
+			// whose content attribute contains a "charset" string and returns its value
+			$expression = "string(//meta[@http-equiv][translate(@http-equiv, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'content-type'][contains(translate(@content, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'charset')]/@content)";
+			$mediaType = MediaType::fromContentType($xpath->evaluate($expression));
+			if (isset($mediaType->parameters['charset'])) {
+				return strtolower($mediaType->parameters['charset']);
+			}
+		} catch(\InvalidArgumentException $e) {}
+
+		return null;
 	}
 }
