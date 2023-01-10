@@ -191,7 +191,7 @@ class Post
 		$pinned = '';
 		$pin = false;
 		$star = false;
-		$ignore = false;
+		$ignore_thread = false;
 		$ispinned = 'unpinned';
 		$isstarred = 'unstarred';
 		$indent = '';
@@ -246,8 +246,9 @@ class Post
 		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
 		$delete = $origin ? DI::l10n()->t('Delete globally') : DI::l10n()->t('Remove locally');
 
-		$drop = false;
-		$block = false;
+		$drop   = false;
+		$block  = false;
+		$ignore = false;
 		if (DI::userSession()->getLocalUserId()) {
 			$drop = [
 				'dropping' => $dropping,
@@ -259,9 +260,14 @@ class Post
 
 		if (!$item['self'] && DI::userSession()->getLocalUserId()) {
 			$block = [
-				'blocking' => true,
-				'block'   => DI::l10n()->t('Block %s', $item['author-name']),
-				'author_id'   => $item['author-id'],
+				'blocking'  => true,
+				'block'     => DI::l10n()->t('Block %s', $item['author-name']),
+				'author_id' => $item['author-id'],
+			];
+			$ignore = [
+				'ignoring'  => true,
+				'ignore'    => DI::l10n()->t('Ignore %s', $item['author-name']),
+				'author_id' => $item['author-id'],
 			];
 		}
 
@@ -327,14 +333,14 @@ class Post
 
 		if ($this->isToplevel()) {
 			if (DI::userSession()->getLocalUserId()) {
-				$ignored = PostModel\ThreadUser::getIgnored($item['uri-id'], DI::userSession()->getLocalUserId());
-				if ($item['mention'] || $ignored) {
-					$ignore = [
+				$ignored_thread = PostModel\ThreadUser::getIgnored($item['uri-id'], DI::userSession()->getLocalUserId());
+				if ($item['mention'] || $ignored_thread) {
+					$ignore_thread = [
 						'do'        => DI::l10n()->t('Ignore thread'),
 						'undo'      => DI::l10n()->t('Unignore thread'),
 						'toggle'    => DI::l10n()->t('Toggle ignore status'),
-						'classdo'   => $ignored ? 'hidden' : '',
-						'classundo' => $ignored ? '' : 'hidden',
+						'classdo'   => $ignored_thread ? 'hidden' : '',
+						'classundo' => $ignored_thread ? '' : 'hidden',
 						'ignored'   => DI::l10n()->t('Ignored'),
 					];
 				}
@@ -518,12 +524,13 @@ class Post
 			'pinned'          => $pinned,
 			'isstarred'       => $isstarred,
 			'star'            => $star,
-			'ignore'          => $ignore,
+			'ignore'          => $ignore_thread,
 			'tagger'          => $tagger,
 			'filer'           => $filer,
 			'language'        => $languages,
 			'drop'            => $drop,
 			'block'           => $block,
+			'ignore_author'   => $ignore,
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],

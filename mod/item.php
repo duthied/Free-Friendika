@@ -180,11 +180,13 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 			Logger::info('Public item stored for user', ['uri-id' => $toplevel_item['uri-id'], 'uid' => $post['uid'], 'stored' => $stored]);
 		}
 
+		$post['parent']      = $toplevel_item['id'];
 		$post['gravity']     = Item::GRAVITY_COMMENT;
 		$post['thr-parent']  = $parent_item['uri'];
 		$post['wall']        = $toplevel_item['wall'];
 	} else {
 		$parent_item         = [];
+		$post['parent']      = 0;
 		$post['gravity']     = Item::GRAVITY_PARENT;
 		$post['thr-parent']  = $post['uri'];
 	}
@@ -236,14 +238,6 @@ function item_process(array $post, array $request, bool $preview, string $return
 	$post['coord']      = trim($request['coord'] ?? '');
 
 	$post = DI::contentItem()->addCategories($post, $request['category'] ?? '');
-
-	if (!$preview) {
-		if (Photo::setPermissionFromBody($post['body'], $post['uid'], $post['contact-id'], $post['allow_cid'], $post['allow_gid'], $post['deny_cid'], $post['deny_gid'])) {
-			$post['object-type'] = Activity\ObjectType::IMAGE;
-		}
-
-		$post = DI::contentItem()->moveAttachmentsFromBodyToAttach($post);
-	}
 
 	// Add the attachment to the body.
 	if (!empty($request['has_attachment'])) {
@@ -373,6 +367,22 @@ function item_content(App $a)
 			}
 
 			Contact\User::setBlocked($item['author-id'], DI::userSession()->getLocalUserId(), true);
+
+			if (DI::mode()->isAjax()) {
+				// ajax return: [<item id>, 0 (no perm) | <owner id>]
+				System::jsonExit([intval($args->get(2)), DI::userSession()->getLocalUserId()]);
+			} else {
+				item_redirect_after_action($item, $args->get(3));
+			}
+			break;
+
+		case 'ignore':
+			$item = Post::selectFirstForUser(DI::userSession()->getLocalUserId(), ['guid', 'author-id', 'parent', 'gravity'], ['id' => $args->get(2)]);
+			if (empty($item['author-id'])) {
+				throw new HTTPException\NotFoundException('Item not found');
+			}
+
+			Contact\User::setIgnored($item['author-id'], DI::userSession()->getLocalUserId(), true);
 
 			if (DI::mode()->isAjax()) {
 				// ajax return: [<item id>, 0 (no perm) | <owner id>]

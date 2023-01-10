@@ -820,12 +820,6 @@ class Item
 	private static function prepareOriginPost(array $item): array
 	{
 		$item = DI::contentItem()->initializePost($item);
-
-		if (Photo::setPermissionFromBody($item['body'], $item['uid'], $item['contact-id'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid'])) {
-			$item['object-type'] = Activity\ObjectType::IMAGE;
-		}
-
-		$item = DI::contentItem()->moveAttachmentsFromBodyToAttach($item);
 		$item = DI::contentItem()->finalizePost($item);
 
 		return $item;
@@ -1050,6 +1044,14 @@ class Item
 			if ($item['wall'] && empty($item['conversation'])) {
 				$item['conversation'] = $item['parent-uri'] . '#context';
 			}
+		}
+
+		if ($notify) {
+			if (Photo::setPermissionFromBody($item['body'], $item['uid'], $item['contact-id'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid'])) {
+				$item['object-type'] = Activity\ObjectType::IMAGE;
+			}
+
+			$item = DI::contentItem()->moveAttachmentsFromBodyToAttach($item);
 		}
 
 		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
@@ -1333,6 +1335,19 @@ class Item
 		$transmit = $notify || ($posted_item['visible'] && ($parent_origin || $posted_item['origin']));
 
 		if ($transmit) {
+			if ($posted_item['uid'] && Contact\User::isBlocked($posted_item['author-id'], $posted_item['uid'])) {
+				Logger::info('Message from blocked author will not be relayed', ['item' => $posted_item['id'], 'uri' => $posted_item['uri'], 'cid' => $posted_item['author-id']]);
+				$transmit = false;
+			}
+			if ($transmit && $posted_item['uid'] && Contact\User::isBlocked($posted_item['owner-id'], $posted_item['uid'])) {
+				Logger::info('Message from blocked owner will not be relayed', ['item' => $posted_item['id'], 'uri' => $posted_item['uri'], 'cid' => $posted_item['owner-id']]);
+				$transmit = false;
+			}
+			if ($transmit && !empty($posted_item['causer-id']) && $posted_item['uid'] && Contact\User::isBlocked($posted_item['causer-id'], $posted_item['uid'])) {
+				Logger::info('Message from blocked causer will not be relayed', ['item' => $posted_item['id'], 'uri' => $posted_item['uri'], 'cid' => $posted_item['causer-id']]);
+				$transmit = false;
+			}
+
 			// Don't relay participation messages
 			if (($posted_item['verb'] == Activity::FOLLOW) &&
 				(!$posted_item['origin'] || ($posted_item['author-id'] != Contact::getPublicIdByUserId($uid)))) {
@@ -3720,7 +3735,17 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['causer-id']) && ($item['gravity'] === self::GRAVITY_PARENT) && Contact\User::isIgnored($item['causer-id'], $user_id)) {
+		if (!empty($item['author-id']) && Contact\User::isIgnored($item['author-id'], $user_id)) {
+			Logger::notice('Author is ignored by user', ['author-link' => $item['author-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['owner-id']) && Contact\User::isIgnored($item['owner-id'], $user_id)) {
+			Logger::notice('Owner is ignored by user', ['owner-link' => $item['owner-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['causer-id']) && Contact\User::isIgnored($item['causer-id'], $user_id)) {
 			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'] ?? $item['causer-id'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
 			return false;
 		}
