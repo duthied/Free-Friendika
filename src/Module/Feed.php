@@ -65,7 +65,7 @@ class Feed extends BaseModule
 			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
 
-		if ($owner['blocked'] || $owner['hidewall']) {
+		if ($owner['blocked']) {
 			throw new HTTPException\UnauthorizedException($this->t('Access to this profile has been restricted.'));
 		}
 
