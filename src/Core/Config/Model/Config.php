@@ -50,6 +50,24 @@ class Config implements IManageConfigValues
 	}
 
 	/**
+	 * Load all configuration values from a given cache and saves it back in the configuration node store
+	 * @see	ConfigFileManager::CONFIG_DATA_FILE
+	 *
+	 * All configuration values of the system are stored in the cache.
+	 *
+	 * @param Cache $cache a new cache
+	 *
+	 * @return void
+	 *
+	 * @throws ConfigPersistenceException In case the persistence layer throws errors
+	 */
+	public function setCacheAndSave(Cache $cache)
+	{
+		$this->configCache = $cache;
+		$this->save();
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function getCache(): Cache
@@ -71,6 +89,8 @@ class Config implements IManageConfigValues
 	{
 		try {
 			$this->configFileManager->saveData($this->configCache);
+			// reload after the save to possible reload default values of lower source-priorities again
+			$this->reload();
 		} catch (ConfigFileException $e) {
 			throw new ConfigPersistenceException('Cannot save config', $e);
 		}
@@ -87,13 +107,6 @@ class Config implements IManageConfigValues
 			throw new ConfigPersistenceException('Cannot reload config', $e);
 		}
 		$this->configCache = $configCache;
-	}
-
-	/** {@inheritDoc} */
-	public function load(Cache $cache)
-	{
-		$this->configCache = $cache;
-		$this->save();
 	}
 
 	/** {@inheritDoc} */
@@ -116,7 +129,7 @@ class Config implements IManageConfigValues
 	/** {@inheritDoc} */
 	public function delete(string $cat, string $key): bool
 	{
-		if ($this->configCache->delete($cat, $key, Cache::SOURCE_DATA)) {
+		if ($this->configCache->delete($cat, $key)) {
 			$this->save();
 			return true;
 		} else {

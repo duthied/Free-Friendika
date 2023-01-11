@@ -40,7 +40,6 @@ class CacheTest extends MockedTest
 						'int' => 235,
 						'dec' => 2.456,
 						'array' => ['1', 2, '3', true, false],
-						'null' => null,
 					],
 					'config' => [
 						'a' => 'value',
@@ -124,7 +123,7 @@ class CacheTest extends MockedTest
 
 		// wrong dataset
 		$configCache->load(['system' => 'not_array']);
-		self::assertEquals(['system' => 'not_array'], $configCache->getAll());
+		self::assertEquals([], $configCache->getAll());
 
 		// incomplete dataset (key is integer ID of the array)
 		$configCache = new Cache();
@@ -209,16 +208,13 @@ class CacheTest extends MockedTest
 	{
 		$configCache = new Cache($data);
 
-		$assertion = [];
-
 		foreach ($data as $cat => $values) {
-			$assertion[$cat] = null;
 			foreach ($values as $key => $value) {
 				$configCache->delete($cat, $key);
 			}
 		}
 
-		self::assertEquals($assertion, $configCache->getAll());
+		self::assertEmpty($configCache->getAll());
 	}
 
 	/**
@@ -553,5 +549,52 @@ class CacheTest extends MockedTest
 		]));
 
 		self::assertEquals('new_value', $newCache->get($category, 'new_key'));
+	}
+
+	/**
+	 * Test that keys are removed after a deletion
+	 *
+	 * @dataProvider dataTests
+	 *
+	 */
+	public function testDeleteRemovesKey($data)
+	{
+		$cache = new Cache();
+		$cache->load($data, Cache::SOURCE_FILE);
+
+		$cache->set('system', 'test', 'overwrite!', Cache::SOURCE_DATA);
+		self::assertEquals('overwrite!', $cache->get('system', 'test'));
+
+		// array should now be removed
+		$cache->delete('system', 'test');
+		self::assertArrayNotHasKey('test', $cache->getAll()['system']);
+
+		self::assertArrayHasKey('config', $cache->getAll());
+		self::assertArrayHasKey('a', $cache->getAll()['config']);
+
+		// category should now be removed
+		$cache->delete('config', 'a');
+		self::assertArrayNotHasKey('config', $cache->getAll());
+	}
+
+	/**
+	 * Test that deleted keys are working with merge
+	 *
+	 * @dataProvider dataTests
+	 */
+	public function testDeleteAndMergeWithDefault($data)
+	{
+		$cache = new Cache();
+		$cache->load($data, Cache::SOURCE_FILE);
+
+		$cache2 = new Cache();
+		$cache2->set('system', 'test', 'overrride');
+		$cache2->delete('system', 'test');
+
+		self::assertEquals('it', $cache->get('system', 'test'));
+		self::assertNull($cache2->get('system', 'test'));
+
+		$mergedCache = $cache->merge($cache2);
+		self::assertNull($mergedCache->get('system', 'test'));
 	}
 }
