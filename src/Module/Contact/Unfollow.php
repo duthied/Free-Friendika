@@ -135,7 +135,7 @@ class Unfollow extends \Friendica\BaseModule
 
 		$this->page['aside'] = Widget\VCard::getHTML(Contact::getByURL($contact['url'], false));
 
-		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => $this->t('Status Messages and Posts')]);
+		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => $this->t('Posts and Replies')]);
 
 		// Show last public posts
 		$o .= Contact::getPostsFromUrl($contact['url']);

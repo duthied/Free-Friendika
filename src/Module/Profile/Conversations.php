@@ -51,7 +51,7 @@ use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
-class Status extends BaseProfile
+class Conversations extends BaseProfile
 {
 	/** @var App */
 	private $app;
@@ -147,8 +147,8 @@ class Status extends BaseProfile
 		$commpage    = $profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$commvisitor = $commpage && $remote_contact;
 
-		$this->page['aside'] .= Widget::postedByYear($this->baseUrl . '/profile/' . $profile['nickname'] . '/status', $profile['profile_uid'] ?? 0, true);
-		$this->page['aside'] .= Widget::categories($profile['uid'], $this->baseUrl . '/profile/' . $profile['nickname'] . '/status', $category);
+		$this->page['aside'] .= Widget::postedByYear($this->baseUrl . '/profile/' . $profile['nickname'] . '/conversations', $profile['profile_uid'] ?? 0, true);
+		$this->page['aside'] .= Widget::categories($profile['uid'], $this->baseUrl . '/profile/' . $profile['nickname'] . '/conversations', $category);
 		$this->page['aside'] .= Widget::tagCloud($profile['uid']);
 
 		if (Security::canWriteToUserWall($profile['uid'])) {

@@ -188,7 +188,7 @@ class Follow extends BaseModule
 			$this->page['aside'] = VCard::getHTML($contact);
 
 			$output .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'),
-				['$title' => $this->t('Status Messages and Posts')]
+				['$title' => $this->t('Posts and Replies')]
 			);
 
 			// Show last public posts

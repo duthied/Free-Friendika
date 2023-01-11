@@ -31,17 +31,17 @@ use Friendica\App\Router as R;
 use Friendica\Module;
 
 $profileRoutes = [
-	''                                         => [Module\Profile\Index::class,        [R::GET]],
-	'/contacts/common'                         => [Module\Profile\Common::class,       [R::GET]],
-	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class,     [R::GET]],
-	'/media'                                   => [Module\Profile\Media::class,        [R::GET]],
-	'/photos'                                  => [Module\Profile\Photos::class,       [R::GET, R::POST]],
-	'/profile'                                 => [Module\Profile\Profile::class,      [R::GET]],
-	'/remote_follow'                           => [Module\Profile\RemoteFollow::class, [R::GET, R::POST]],
-	'/restricted'                              => [Module\Profile\Restricted::class,   [R::GET         ]],
-	'/schedule'                                => [Module\Profile\Schedule::class,     [R::GET, R::POST]],
-	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,       [R::GET]],
-	'/unkmail'                                 => [Module\Profile\UnkMail::class,      [R::GET, R::POST]],
+	''                                                => [Module\Profile\Index::class,         [R::GET]],
+	'/contacts/common'                                => [Module\Profile\Common::class,        [R::GET]],
+	'/contacts[/{type}]'                              => [Module\Profile\Contacts::class,      [R::GET]],
+	'/media'                                          => [Module\Profile\Media::class,         [R::GET]],
+	'/photos'                                         => [Module\Profile\Photos::class,        [R::GET, R::POST]],
+	'/profile'                                        => [Module\Profile\Profile::class,       [R::GET]],
+	'/remote_follow'                                  => [Module\Profile\RemoteFollow::class,  [R::GET, R::POST]],
+	'/restricted'                                     => [Module\Profile\Restricted::class,    [R::GET         ]],
+	'/schedule'                                       => [Module\Profile\Schedule::class,      [R::GET, R::POST]],
+	'/conversations[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Conversations::class, [R::GET]],
+	'/unkmail'                                        => [Module\Profile\UnkMail::class,       [R::GET, R::POST]],
 ];
 
 $apiRoutes = [
