@@ -363,8 +363,6 @@ class ConfigTest extends MockedTest
 		self::assertTrue($this->testedConfig->delete('test', 'it'));
 		self::assertNull($this->testedConfig->get('test', 'it'));
 		self::assertNull($this->testedConfig->getCache()->get('test', 'it'));
-
-		self::assertEquals(['test' => null], $this->testedConfig->getCache()->getAll());
 	}
 
 	/**
@@ -531,5 +529,23 @@ class ConfigTest extends MockedTest
 		$config = new Config($this->configFileManager, $this->configCache);
 
 		self::assertEquals($assertion, $config->get($category));
+	}
+
+	/**
+	 * Tests, if an overwritten value of an existing key will reset to it's default after deletion
+	 */
+	public function testDeleteReturnsDefault()
+	{
+		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
+				 ->at($this->root->getChild('config'))
+				 ->setContent(ConfigFileTransformer::encode([
+					 'config' => ['sitename' => 'overritten'],
+				 ]));
+
+		$config = $this->getInstance();
+		self::assertEquals('overritten', $config->get('config', 'sitename'));
+
+		$config->delete('config', 'sitename');
+		self::assertEquals('Friendica Social Network', $config->get('config', 'sitename'));
 	}
 }

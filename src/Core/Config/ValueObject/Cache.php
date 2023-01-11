@@ -56,6 +56,11 @@ class Cache
 	private $source = [];
 
 	/**
+	 * @var array
+	 */
+	private $delConfig = [];
+
+	/**
 	 * @var bool
 	 */
 	private $hidePasswordOutput;
@@ -232,6 +237,7 @@ class Cache
 		if (isset($this->config[$cat][$key])) {
 			unset($this->config[$cat][$key]);
 			unset($this->source[$cat][$key]);
+			$this->delConfig[$cat][$key] = true;
 			if (count($this->config[$cat]) == 0) {
 				unset($this->config[$cat]);
 				unset($this->source[$cat]);
@@ -310,6 +316,19 @@ class Cache
 			} else {
 				$newConfig[$category] = $cache->config[$category];
 				$newSource[$category] = $cache->source[$category];
+			}
+		}
+
+		$delCategories = array_keys($cache->delConfig);
+
+		foreach ($delCategories as $category) {
+			if (is_array($cache->delConfig[$category])) {
+				$keys = array_keys($cache->delConfig[$category]);
+
+				foreach ($keys as $key) {
+					unset($newConfig[$category][$key]);
+					unset($newSource[$category][$key]);
+				}
 			}
 		}
 

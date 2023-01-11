@@ -576,4 +576,25 @@ class CacheTest extends MockedTest
 		$cache->delete('config', 'a');
 		self::assertArrayNotHasKey('config', $cache->getAll());
 	}
+
+	/**
+	 * Test that deleted keys are working with merge
+	 *
+	 * @dataProvider dataTests
+	 */
+	public function testDeleteAndMergeWithDefault($data)
+	{
+		$cache = new Cache();
+		$cache->load($data, Cache::SOURCE_FILE);
+
+		$cache2 = new Cache();
+		$cache2->set('system', 'test', 'overrride');
+		$cache2->delete('system', 'test');
+
+		self::assertEquals('it', $cache->get('system', 'test'));
+		self::assertNull($cache2->get('system', 'test'));
+
+		$mergedCache = $cache->merge($cache2);
+		self::assertNull($mergedCache->get('system', 'test'));
+	}
 }

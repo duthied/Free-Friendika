@@ -71,6 +71,8 @@ class Config implements IManageConfigValues
 	{
 		try {
 			$this->configFileManager->saveData($this->configCache);
+			// reload after the save to possible reload default values of lower source-priorities again
+			$this->reload();
 		} catch (ConfigFileException $e) {
 			throw new ConfigPersistenceException('Cannot save config', $e);
 		}
@@ -116,7 +118,7 @@ class Config implements IManageConfigValues
 	/** {@inheritDoc} */
 	public function delete(string $cat, string $key): bool
 	{
-		if ($this->configCache->delete($cat, $key, Cache::SOURCE_DATA)) {
+		if ($this->configCache->delete($cat, $key)) {
 			$this->save();
 			return true;
 		} else {
