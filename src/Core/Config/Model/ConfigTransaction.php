@@ -57,7 +57,7 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	/** {@inheritDoc} */
 	public function delete(string $cat, string $key): ISetConfigValuesTransactionally
 	{
-		$this->cache->delete($cat, $key, Cache::SOURCE_DATA);
+		$this->cache->delete($cat, $key);
 		$this->changedConfig = true;
 
 		return $this;
@@ -72,7 +72,7 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 		}
 
 		try {
-			$this->config->load($this->cache);
+			$this->config->setCacheAndSave($this->cache);
 			$this->cache = clone $this->config->getCache();
 		} catch (\Exception $e) {
 			throw new ConfigPersistenceException('Cannot save config', $e);

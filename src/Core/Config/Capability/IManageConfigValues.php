@@ -59,20 +59,6 @@ interface IManageConfigValues
 	public function get(string $cat, string $key = null, $default_value = null);
 
 	/**
-	 * Load all configuration values from a given cache and saves it back in the configuration node store
-	 * @see	ConfigFileManager::CONFIG_DATA_FILE
-	 *
-	 * All configuration values of the system are stored in the cache.
-	 *
-	 * @param Cache $cache a new cache
-	 *
-	 * @return void
-	 *
-	 * @throws ConfigPersistenceException In case the persistence layer throws errors
-	 */
-	public function load(Cache $cache);
-
-	/**
 	 * Sets a configuration value for system config
 	 *
 	 * Stores a config value ($value) in the category ($cat) under the key ($key)

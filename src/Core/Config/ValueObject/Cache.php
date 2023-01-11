@@ -56,7 +56,7 @@ class Cache
 	private $source = [];
 
 	/**
-	 * @var array
+	 * @var bool[][]
 	 */
 	private $delConfig = [];
 
