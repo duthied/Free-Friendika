@@ -62,7 +62,7 @@ function photos_init(App $a)
 	Nav::setSelected('home');
 
 	if (DI::args()->getArgc() > 1) {
-		$owner = User::getOwnerDataByNick(DI::args()->getArgv()[1]);
+		$owner = Profile::load(DI::app(), DI::args()->getArgv()[1], false);
 		if (!isset($owner['account_removed']) || $owner['account_removed']) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
@@ -110,12 +110,6 @@ function photos_init(App $a)
 				'$can_post' => $can_post
 			]);
 		}
-
-		if (empty(DI::page()['aside'])) {
-			DI::page()['aside'] = '';
-		}
-
-		DI::page()['aside'] .= Widget\VCard::getHTML($owner);
 
 		if (!empty($photo_albums_widget)) {
 			DI::page()['aside'] .= $photo_albums_widget;
