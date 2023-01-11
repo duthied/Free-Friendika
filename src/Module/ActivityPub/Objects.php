@@ -75,9 +75,7 @@ class Objects extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		$owner = User::getById($item['uid'], ['hidewall']);
-
-		$validated = empty($owner['hidewall']) && in_array($item['private'], [Item::PUBLIC, Item::UNLISTED]);
+		$validated = in_array($item['private'], [Item::PUBLIC, Item::UNLISTED]);
 
 		if (!$validated) {
 			$requester = HTTPSignature::getSigner('', $_SERVER);
