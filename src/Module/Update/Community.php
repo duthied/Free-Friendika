@@ -22,6 +22,7 @@
 
 namespace Friendica\Module\Update;
 
+use Friendica\Content\Conversation;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Module\Conversation\Community as CommunityModule;
@@ -39,7 +40,7 @@ class Community extends CommunityModule
 
 		$o = '';
 		if (!empty($request['force'])) {
-			$o = DI::conversation()->create(self::getItems(), 'community', true, false, 'commented', DI::userSession()->getLocalUserId());
+			$o = DI::conversation()->create(self::getItems(), Conversation::MODE_COMMUNITY, true, false, 'commented', DI::userSession()->getLocalUserId());
 		}
 
 		System::htmlUpdateExit($o);

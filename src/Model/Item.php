@@ -623,10 +623,6 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['uid']) && !self::isAllowedByUser($item, $item['uid'])) {
-			return false;
-		}
-
 		if ($item['verb'] == Activity::FOLLOW) {
 			if (!$item['origin'] && ($item['author-id'] == Contact::getPublicIdByUserId($item['uid']))) {
 				// Our own follow request can be relayed to us. We don't store it to avoid notification chaos.
@@ -985,13 +981,6 @@ class Item
 		if ($item['gravity'] !== self::GRAVITY_PARENT) {
 			$toplevel_parent = self::getTopLevelParent($item);
 			if (empty($toplevel_parent)) {
-				return 0;
-			}
-
-			// If the thread originated from this node, we check the permission against the thread starter
-			$condition = ['uri-id' => $toplevel_parent['uri-id'], 'wall' => true];
-			$localTopLevelParent = Post::selectFirst(['uid'], $condition);
-			if (!empty($localTopLevelParent['uid']) && !self::isAllowedByUser($item, $localTopLevelParent['uid'])) {
 				return 0;
 			}
 
@@ -3065,7 +3054,11 @@ class Item
 		// Compile eventual content filter reasons
 		$filter_reasons = [];
 		if (!$is_preview && DI::userSession()->getPublicContactId() != $item['author-id']) {
-			if (Contact\User::isCollapsed($item['author-id'], $item['uid'])) {
+			if (!empty($item['user-blocked-author']) || !empty($item['user-blocked-owner'])) {
+				$filter_reasons[] = DI::l10n()->t('%s is blocked', $item['author-name']);
+			} elseif (!empty($item['user-ignored-author']) || !empty($item['user-ignored-owner'])) {
+				$filter_reasons[] = DI::l10n()->t('%s is ignored', $item['author-name']);
+			} elseif (!empty($item['user-collapsed-author']) || !empty($item['user-collapsed-owner'])) {
 				$filter_reasons[] = DI::l10n()->t('Content from %s is collapsed', $item['author-name']);
 			}
 
@@ -3704,53 +3697,6 @@ class Item
 
 		Logger::info('Link not found', ['uid' => $uid, 'uri' => $uri]);
 		return 0;
-	}
-
-	/**
-	 * Check a prospective item array against user-level permissions
-	 *
-	 * @param array $item Expected keys: uri, gravity, and
-	 *                    author-link if is author-id is set,
-	 *                    owner-link if is owner-id is set,
-	 *                    causer-link if is causer-id is set.
-	 * @param int   $user_id Local user ID
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected static function isAllowedByUser(array $item, int $user_id): bool
-	{
-		if (!empty($item['author-id']) && Contact\User::isBlocked($item['author-id'], $user_id)) {
-			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
-			return false;
-		}
-
-		if (!empty($item['owner-id']) && Contact\User::isBlocked($item['owner-id'], $user_id)) {
-			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
-			return false;
-		}
-
-		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
-		if (!empty($item['causer-id']) && Contact\User::isBlocked($item['causer-id'], $user_id)) {
-			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'] ?? $item['causer-id'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
-			return false;
-		}
-
-		if (!empty($item['author-id']) && Contact\User::isIgnored($item['author-id'], $user_id)) {
-			Logger::notice('Author is ignored by user', ['author-link' => $item['author-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
-			return false;
-		}
-
-		if (!empty($item['owner-id']) && Contact\User::isIgnored($item['owner-id'], $user_id)) {
-			Logger::notice('Owner is ignored by user', ['owner-link' => $item['owner-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
-			return false;
-		}
-
-		if (!empty($item['causer-id']) && Contact\User::isIgnored($item['causer-id'], $user_id)) {
-			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'] ?? $item['causer-id'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
-			return false;
-		}
-
-		return true;
 	}
 
 	/**

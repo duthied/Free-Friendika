@@ -29,6 +29,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Conversation;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -274,7 +275,7 @@ function item_process(array $post, array $request, bool $preview, string $return
 		$post['body']           = BBCode::removeSharedData(Item::setHashtags($post['body']));
 		$post['writable']       = true;
 
-		$o = DI::conversation()->create([$post], 'search', false, true);
+		$o = DI::conversation()->create([$post], Conversation::MODE_SEARCH, false, true);
 
 		System::jsonExit(['preview' => $o]);
 	}

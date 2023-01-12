@@ -511,7 +511,7 @@ class Strings
 		);
 
 		if (is_null($return)) {
-			Logger::warning('Received null value from preg_replace_callback', ['text' => $text, 'regex' => $regex, 'blocks' => $blocks, 'executionId' => $executionId, 'callstack' => System::callstack(10)]);
+			Logger::notice('Received null value from preg_replace_callback', ['text' => $text, 'regex' => $regex, 'blocks' => $blocks, 'executionId' => $executionId, 'callstack' => System::callstack(10)]);
 		}
 
 		$text = $callback($return ?? $text) ?? '';

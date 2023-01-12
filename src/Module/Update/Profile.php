@@ -22,6 +22,7 @@
 namespace Friendica\Module\Update;
 
 use Friendica\BaseModule;
+use Friendica\Content\Conversation;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -115,7 +116,7 @@ class Profile extends BaseModule
 			}
 		}
 
-		$o .= DI::conversation()->create($items, 'profile', $a->getProfileOwner(), false, 'received', $a->getProfileOwner());
+		$o .= DI::conversation()->create($items, Conversation::MODE_PROFILE, $a->getProfileOwner(), false, 'received', $a->getProfileOwner());
 
 		System::htmlUpdateExit($o);
 	}

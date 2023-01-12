@@ -23,6 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\Contact\Avatar;
 use Friendica\Contact\Introduction\Exception\IntroductionNotFoundException;
+use Friendica\Content\Conversation As ConversationContent;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -1609,7 +1610,7 @@ class Contact
 				}
 			}
 
-			$o .= DI::conversation()->create($items, 'contacts', $update, false, 'pinned_commented', DI::userSession()->getLocalUserId());
+			$o .= DI::conversation()->create($items, ConversationContent::MODE_CONTACTS, $update, false, 'pinned_commented', DI::userSession()->getLocalUserId());
 		} else {
 			$fields = array_merge(Item::DISPLAY_FIELDLIST, ['featured']);
 			$items = Post::toArray(Post::selectForUser(DI::userSession()->getLocalUserId(), $fields, $condition, $params));
@@ -1624,7 +1625,7 @@ class Contact
 				}
 			}
 
-			$o .= DI::conversation()->create($items, 'contact-posts', $update);
+			$o .= DI::conversation()->create($items, ConversationContent::MODE_CONTACT_POSTS, $update);
 		}
 
 		if (!$update) {
