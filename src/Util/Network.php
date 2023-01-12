@@ -376,6 +376,7 @@ class Network
 	 */
 	public static function addBasePath(string $url, string $basepath): string
 	{
+		$url = trim($url);
 		if (!empty(parse_url($url, PHP_URL_SCHEME)) || empty(parse_url($basepath, PHP_URL_SCHEME)) || empty($url) || empty(parse_url($url))) {
 			return $url;
 		}
