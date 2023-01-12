@@ -240,7 +240,7 @@ class Conversations extends BaseProfile
 			$items  = array_merge($items, $pinned);
 		}
 
-		$o .= $this->conversation->create($items, 'profile', false, false, 'pinned_received', $profile['uid']);
+		$o .= $this->conversation->create($items, Conversation::MODE_PROFILE, false, false, 'pinned_received', $profile['uid']);
 
 		$o .= $pager->renderMinimal(count($items));
 

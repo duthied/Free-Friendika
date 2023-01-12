@@ -24,6 +24,7 @@ namespace Friendica\Module\Conversation;
 
 use Friendica\BaseModule;
 use Friendica\Content\BoundariesPager;
+use Friendica\Content\Conversation;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
@@ -156,7 +157,7 @@ class Community extends BaseModule
 			return $o;
 		}
 
-		$o .= DI::conversation()->create($items, 'community', false, false, 'commented', DI::userSession()->getLocalUserId());
+		$o .= DI::conversation()->create($items, Conversation::MODE_COMMUNITY, false, false, 'commented', DI::userSession()->getLocalUserId());
 
 		$pager = new BoundariesPager(
 			DI::l10n(),

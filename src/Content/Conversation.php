@@ -53,6 +53,16 @@ use Psr\Log\LoggerInterface;
 
 class Conversation
 {
+	const MODE_COMMUNITY     = 'community';
+	const MODE_CONTACTS      = 'contacts';
+	const MODE_CONTACT_POSTS = 'contact-posts';
+	const MODE_DISPLAY       = 'display';
+	const MODE_FILED         = 'filed';
+	const MODE_NETWORK       = 'network';
+	const MODE_NOTES         = 'notes';
+	const MODE_SEARCH        = 'search';
+	const MODE_PROFILE       = 'profile';
+
 	/** @var Activity */
 	private $activity;
 	/** @var L10n */
@@ -444,7 +454,7 @@ class Conversation
 
 		$previewing = (($preview) ? ' preview ' : '');
 
-		if ($mode === 'network') {
+		if ($mode === self::MODE_NETWORK) {
 			$items = $this->addChildren($items, false, $order, $uid, $mode);
 			if (!$update) {
 				/*
@@ -470,7 +480,7 @@ class Conversation
 
 					. "'; </script>\r\n";
 			}
-		} elseif ($mode === 'profile') {
+		} elseif ($mode === self::MODE_PROFILE) {
 			$items = $this->addChildren($items, false, $order, $uid, $mode);
 
 			if (!$update) {
@@ -487,7 +497,7 @@ class Conversation
 						. "; var netargs = '?f='; </script>\r\n";
 				}
 			}
-		} elseif ($mode === 'notes') {
+		} elseif ($mode === self::MODE_NOTES) {
 			$items = $this->addChildren($items, false, $order, $this->session->getLocalUserId(), $mode);
 
 			if (!$update) {
@@ -495,7 +505,7 @@ class Conversation
 					. "<script> var profile_uid = " . $this->session->getLocalUserId()
 					. "; var netargs = '?f='; </script>\r\n";
 			}
-		} elseif ($mode === 'display') {
+		} elseif ($mode === self::MODE_DISPLAY) {
 			$items = $this->addChildren($items, false, $order, $uid, $mode);
 
 			if (!$update) {
@@ -503,7 +513,7 @@ class Conversation
 					. "<script> var profile_uid = " . ($this->session->getLocalUserId() ?: 0) . ";"
 					. "</script>";
 			}
-		} elseif ($mode === 'community') {
+		} elseif ($mode === self::MODE_COMMUNITY) {
 			$items = $this->addChildren($items, true, $order, $uid, $mode);
 
 			if (!$update) {
@@ -514,7 +524,7 @@ class Conversation
 					. (!empty($_GET['accounttype']) ? '&accounttype=' . rawurlencode($_GET['accounttype']) : '')
 					. "'; </script>\r\n";
 			}
-		} elseif ($mode === 'contacts') {
+		} elseif ($mode === self::MODE_CONTACTS) {
 			$items = $this->addChildren($items, false, $order, $uid, $mode);
 
 			if (!$update) {
@@ -522,11 +532,11 @@ class Conversation
 					. "<script> var profile_uid = -1; var netargs = '" . substr($this->args->getCommand(), 8)
 					."?f='; </script>\r\n";
 			}
-		} elseif ($mode === 'search') {
+		} elseif ($mode === self::MODE_SEARCH) {
 			$live_update_div = '<div id="live-search"></div>' . "\r\n";
 		}
 
-		$page_dropping = $this->session->getLocalUserId() && $this->session->getLocalUserId() == $uid && $mode != 'search';
+		$page_dropping = $this->session->getLocalUserId() && $this->session->getLocalUserId() == $uid && $mode != self::MODE_SEARCH;
 
 		if (!$update) {
 			$_SESSION['return_path'] = $this->args->getQueryString();
@@ -558,7 +568,7 @@ class Conversation
 		$formSecurityToken = BaseModule::getFormSecurityToken('contact_action');
 
 		if (!empty($items)) {
-			if (in_array($mode, ['community', 'contacts', 'profile'])) {
+			if (in_array($mode, [self::MODE_COMMUNITY, self::MODE_CONTACTS, self::MODE_PROFILE])) {
 				$writable = true;
 			} else {
 				$writable = $items[0]['writable'] || ($items[0]['uid'] == 0) && in_array($items[0]['network'], Protocol::FEDERATED);
@@ -568,7 +578,7 @@ class Conversation
 				$writable = false;
 			}
 
-			if (in_array($mode, ['filed', 'search', 'contact-posts'])) {
+			if (in_array($mode, [self::MODE_FILED, self::MODE_SEARCH, self::MODE_CONTACT_POSTS])) {
 
 				/*
 				* "New Item View" on network page or search page results
@@ -621,7 +631,7 @@ class Conversation
 					$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 					$this->item->localize($item);
-					if ($mode === 'filed') {
+					if ($mode === self::MODE_FILED) {
 						$dropping = true;
 					} else {
 						$dropping = false;
@@ -972,6 +982,11 @@ class Conversation
 		$condition = DBA::mergeConditions($condition,
 			["`uid` IN (0, ?) AND (NOT `vid` IN (?, ?, ?) OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW), Verb::getID(Activity::VIEW), Verb::getID(Activity::READ)]);
 
+		$condition = DBA::mergeConditions($condition,
+			["`visible` AND NOT `deleted` AND NOT `author-blocked` AND NOT `owner-blocked`
+			AND ((NOT `contact-pending` AND (`contact-rel` IN (?, ?))) OR `self` OR `contact-uid` = ?)",
+			Contact::SHARING, Contact::FRIEND, 0]);
+
 		$thread_parents = Post::select(['uri-id', 'causer-id'], $condition, ['order' => ['uri-id' => false, 'uid']]);
 
 		$thr_parent = [];
@@ -983,17 +998,18 @@ class Conversation
 
 		$params = ['order' => ['uri-id' => true, 'uid' => true]];
 
-		$thread_items = Post::selectForUser($uid, array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
+		$thread_items = Post::select(array_merge(ItemModel::DISPLAY_FIELDLIST, ['featured', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
 		$items         = [];
 		$quote_uri_ids = [];
+		$authors       = [];
 
 		while ($row = Post::fetch($thread_items)) {
 			if (!empty($items[$row['uri-id']]) && ($row['uid'] == 0)) {
 				continue;
 			}
 
-			if (($mode != 'contacts') && !$row['origin']) {
+			if (($mode != self::MODE_CONTACTS) && !$row['origin']) {
 				$row['featured'] = false;
 			}
 
@@ -1005,6 +1021,9 @@ class Conversation
 					continue;
 				}
 			}
+
+			$authors[] = $row['author-id'];
+			$authors[] = $row['owner-id'];
 
 			if (in_array($row['gravity'], [ItemModel::GRAVITY_PARENT, ItemModel::GRAVITY_COMMENT])) {
 				$quote_uri_ids[$row['uri-id']] = [
@@ -1033,9 +1052,49 @@ class Conversation
 			$row['thr-parent']    = $quote_uri_ids[$quote['quote-uri-id']]['uri'];
 			$row['thr-parent-id'] = $quote_uri_ids[$quote['quote-uri-id']]['uri-id'];
 
+			$authors[] = $row['author-id'];
+			$authors[] = $row['owner-id'];
+
 			$items[$row['uri-id']] = $this->addRowInformation($row, [], []);
 		}
 		DBA::close($quotes);
+
+		$authors = array_unique($authors);
+
+		$blocks    = [];
+		$ignores   = [];
+		$collapses = [];
+		if (!empty($authors)) {
+			$usercontacts = DBA::select('user-contact', ['cid', 'blocked', 'ignored', 'collapsed'], ['uid' => $uid, 'cid' => $authors]);
+			while ($usercontact = DBA::fetch($usercontacts)) {
+				if ($usercontact['blocked']) {
+					$blocks[] = $usercontact['cid'];
+				}
+				if ($usercontact['ignored']) {
+					$ignores[] = $usercontact['cid'];
+				}
+				if ($usercontact['collapsed']) {
+					$collapses[] = $usercontact['cid'];
+				}
+			}
+			DBA::close($usercontacts);
+		}
+
+		foreach ($items as $key => $row) {
+			$always_display = in_array($mode, [self::MODE_CONTACTS, self::MODE_CONTACT_POSTS]);
+
+			$items[$key]['user-blocked-author']   = !$always_display && in_array($row['author-id'], $blocks);
+			$items[$key]['user-ignored-author']   = !$always_display && in_array($row['author-id'], $ignores);
+			$items[$key]['user-blocked-owner']    = !$always_display && in_array($row['owner-id'], $blocks);
+			$items[$key]['user-ignored-owner']    = !$always_display && in_array($row['owner-id'], $ignores);
+			$items[$key]['user-collapsed-author'] = !$always_display && in_array($row['author-id'], $collapses);
+			$items[$key]['user-collapsed-owner']  = !$always_display && in_array($row['owner-id'], $collapses);
+
+			if (in_array($mode, [self::MODE_COMMUNITY, self::MODE_NETWORK]) &&
+				(in_array($row['author-id'], $blocks) || in_array($row['owner-id'], $blocks) || in_array($row['author-id'], $ignores) || in_array($row['owner-id'], $ignores))) {
+				unset($items[$key]);
+			}
+		}
 
 		$items = $this->convSort($items, $order);
 
