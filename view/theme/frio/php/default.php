@@ -77,7 +77,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 ?>
 	</head>
 
-	<body id="top" class="mod-<?php echo DI::args()->getModuleName() . " " . $is_singleuser_class . " " . $view_mode_class;?>">
+	<body id="top" class="mod-<?php echo $page['module'] . " " . $is_singleuser_class . " " . $view_mode_class;?>">
 		<a href="#content" class="sr-only sr-only-focusable"><?php echo DI::l10n()->t('Skip to main content'); ?></a>
 <?php
 	if (!empty($page['nav']) && !$minimal) {
@@ -125,7 +125,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 
 					<div class="col-lg-7 col-md-7 col-sm-12 col-xs-12" id="content">
 						<section class="sectiontop ';
-							echo DI::args()->get(0, 'generic');
+							echo $page['section'] ?? '';
 							echo '-content-wrapper">';
 							if (!empty($page['content'])) {
 								echo $page['content'];

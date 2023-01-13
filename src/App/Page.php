@@ -73,6 +73,8 @@ class Page implements ArrayAccess
 		'right_aside' => '',
 		'template'    => '',
 		'title'       => '',
+		'section'     => '',
+		'module'      => '',
 	];
 	/**
 	 * @var string The basepath of the page
@@ -512,6 +514,11 @@ class Page implements ArrayAccess
 		}
 
 		$page    = $this->page;
+
+		// add and escape some common but crucial content for direct "echo" in HTML (security)
+		$page['title']   = htmlspecialchars($page['title'] ?? '');
+		$page['section'] = htmlspecialchars($args->get(0) ?? 'generic');
+		$page['module']  = htmlspecialchars($args->getModuleName() ?? '');
 
 		header("X-Friendica-Version: " . App::VERSION);
 		header("Content-type: text/html; charset=utf-8");
