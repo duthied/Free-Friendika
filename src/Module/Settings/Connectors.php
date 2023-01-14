@@ -49,10 +49,8 @@ class Connectors extends BaseSettings
 	private $database;
 	/** @var SystemMessages */
 	private $systemMessages;
-	/** @var App */
-	private $app;
 
-	public function __construct(App $app, SystemMessages $systemMessages, Database $database, IManagePersonalConfigValues $pconfig, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(SystemMessages $systemMessages, Database $database, IManagePersonalConfigValues $pconfig, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -60,7 +58,6 @@ class Connectors extends BaseSettings
 		$this->pconfig        = $pconfig;
 		$this->database       = $database;
 		$this->systemMessages = $systemMessages;
-		$this->app            = $app;
 	}
 
 	protected function post(array $request = [])
@@ -146,7 +143,7 @@ class Connectors extends BaseSettings
 		$connector_settings_forms = [];
 		foreach ($this->database->selectToArray('hook', ['file', 'function'], ['hook' => 'connector_settings']) as $hook) {
 			$data = [];
-			Hook::callSingle($this->app, 'connector_settings', [$hook['file'], $hook['function']], $data);
+			Hook::callSingle('connector_settings', [$hook['file'], $hook['function']], $data);
 
 			$tpl                                          = Renderer::getMarkupTemplate('settings/addons/connector.tpl');
 			$connector_settings_forms[$data['connector']] = Renderer::replaceMacros($tpl, [
@@ -160,7 +157,7 @@ class Connectors extends BaseSettings
 			]);
 		}
 
-		if ($this->app->isSiteAdmin()) {
+		if ($this->session->isSiteAdmin()) {
 			$diasp_enabled = $this->config->get('system', 'diaspora_enabled') ?
 				$this->t('Built-in support for %s connectivity is enabled', $this->t('Diaspora (Socialhome, Hubzilla)')) :
 				$this->t('Built-in support for %s connectivity is disabled', $this->t('Diaspora (Socialhome, Hubzilla)'));

@@ -51,7 +51,7 @@ class Expire
 			foreach (Hook::getByName('expire') as $hook) {
 				if ($hook[1] == $hook_function) {
 					Logger::info('Calling expire hook', ['hook' => $hook[1]]);
-					Hook::callSingle($a, 'expire', $hook, $data);
+					Hook::callSingle('expire', $hook, $data);
 				}
 			}
 			return;
