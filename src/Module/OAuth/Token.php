@@ -32,7 +32,7 @@ use Friendica\Util\DateTimeFormat;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * @see https://docs.joinmastodon.org/spec/oauth/
+ * @see https://docs.joinmastodon.org/methods/oauth/#token
  * @see https://aaronparecki.com/oauth-2-simplified/
  */
 class Token extends BaseApi
@@ -69,13 +69,13 @@ class Token extends BaseApi
 		}
 
 		if (empty($request['client_id']) || empty($request['client_secret'])) {
-			Logger::warning('Incomplete request data', ['request' => $_REQUEST]);
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Incomplete request data'));
+			Logger::warning('Incomplete request data', ['request' => $request]);
+			DI::mstdnError()->Unauthorized('invalid_client', DI::l10n()->t('Incomplete request data'));
 		}
 
 		$application = OAuth::getApplication($request['client_id'], $request['client_secret'], $request['redirect_uri']);
 		if (empty($application)) {
-			DI::mstdnError()->UnprocessableEntity();
+			DI::mstdnError()->Unauthorized('invalid_client', DI::l10n()->t('Invalid data or unknown client'));
 		}
 
 		if ($request['grant_type'] == 'client_credentials') {
