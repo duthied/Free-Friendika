@@ -246,13 +246,16 @@ class Avatar
 	 * Delete locally cached avatar pictures of a contact
 	 *
 	 * @param string $avatar
-	 * @return void
+	 * @return bool
 	 */
-	public static function deleteCache(array $contact)
+	public static function deleteCache(array $contact): bool
 	{
+		$existed = (self::isCacheFile($contact['photo']) || self::isCacheFile($contact['thumb']) || self::isCacheFile($contact['micro']));
 		self::deleteCacheFile($contact['photo']);
 		self::deleteCacheFile($contact['thumb']);
 		self::deleteCacheFile($contact['micro']);
+
+		return $existed;
 	}
 
 	/**

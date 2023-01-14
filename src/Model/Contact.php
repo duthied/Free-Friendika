@@ -2252,7 +2252,9 @@ class Contact
 		}
 
 		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) || $cache_avatar) {
-			Avatar::deleteCache($contact);
+			if (Avatar::deleteCache($contact)) {
+				$force = true;
+			}
 
 			if ($default_avatar && Proxy::isLocalImage($avatar)) {
 				$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
