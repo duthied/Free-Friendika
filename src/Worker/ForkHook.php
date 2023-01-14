@@ -28,8 +28,6 @@ Class ForkHook
 {
 	public static function execute($name, $hook, $data)
 	{
-		$a = DI::app();
-
-		Hook::callSingle($a, $name, $hook, $data);
+		Hook::callSingle($name, $hook, $data);
 	}
 }
