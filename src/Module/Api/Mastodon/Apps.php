@@ -31,6 +31,7 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Apps class to register new OAuth clients
+ * @see https://docs.joinmastodon.org/methods/apps/#create
  */
 class Apps extends BaseApi
 {
