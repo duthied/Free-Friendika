@@ -364,6 +364,11 @@ return [
 		// If activated, all hashtags will point to the local server.
 		'local_tags' => false,
 
+		// lock_driver (semaphore|database|memcache|memcached|redis|apcu)
+		// Whether to use semaphores, the database, Memcache, Memcached, Redis or APCu to handle locks.
+		// Default is auto detection which tries semaphores first, then falls back to the cache driver.
+		'lock_driver' => '',
+
 		// logger_config (String)
 		// Sets the logging adapter of Friendica globally (monolog, syslog, stream)
 		'logger_config' => 'stream',
