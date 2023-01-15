@@ -31,6 +31,7 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Apps class to register new OAuth clients
+ * @see https://docs.joinmastodon.org/methods/apps/#create
  */
 class Apps extends BaseApi
 {
@@ -44,6 +45,10 @@ class Apps extends BaseApi
 	 */
 	protected function post(array $request = [])
 	{
+		if (!empty($request['redirect_uris']) && is_array($request['redirect_uris'])) {
+			$request['redirect_uris'] = $request['redirect_uris'][0];
+		}
+
 		$request = $this->getRequest([
 			'client_name'   => '',
 			'redirect_uris' => '',
@@ -58,6 +63,10 @@ class Apps extends BaseApi
 			if (!empty($postrequest) && is_array($postrequest)) {
 				$request = array_merge($request, $postrequest);
 			}
+
+			if (!empty($request['redirect_uris']) && is_array($request['redirect_uris'])) {
+				$request['redirect_uris'] = $request['redirect_uris'][0];
+			}	
 		}
 
 		if (empty($request['client_name']) || empty($request['redirect_uris'])) {
