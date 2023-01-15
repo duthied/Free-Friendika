@@ -6,8 +6,6 @@ Version 2023.01 (2023-01-15)
     Fixed the forum post distribution [annando]
     Fixed a security bug in the 404 page [nupplaphil]
 
-    NOTE: This Release contains a critical bugfix
-
   Closed Issues
     12539, 12540, 12655, 12615, 12663
 
