@@ -94,7 +94,9 @@ return [
 	App\Mode::class              => [
 		'call' => [
 			['determineRunMode', [true, $_SERVER], Dice::CHAIN_CALL],
-			['determine', [], Dice::CHAIN_CALL],
+			['determine', [
+				[Dice::INSTANCE => '$basepath']
+			], Dice::CHAIN_CALL],
 		],
 	],
 	Config\Capability\IManageConfigValues::class => [

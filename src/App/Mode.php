@@ -24,7 +24,6 @@ namespace Friendica\App;
 use Detection\MobileDetect;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Database\Database;
-use Friendica\Util\BasePath;
 
 /**
  * Mode of the current Friendica Node
@@ -129,15 +128,13 @@ class Mode
 	 *
 	 * @throws \Exception
 	 */
-	public function determine(BasePath $basepath, Database $database, Cache $configCache): Mode
+	public function determine(string $basePath, Database $database, Cache $configCache): Mode
 	{
 		$mode = 0;
 
-		$basepathName = $basepath->getPath();
-
-		if (!file_exists($basepathName . '/config/local.config.php')
-		    && !file_exists($basepathName . '/config/local.ini.php')
-		    && !file_exists($basepathName . '/.htconfig.php')) {
+		if (!file_exists($basePath . '/config/local.config.php') &&
+			!file_exists($basePath . '/config/local.ini.php') &&
+			!file_exists($basePath . '/.htconfig.php')) {
 			return new Mode($mode);
 		}
 
