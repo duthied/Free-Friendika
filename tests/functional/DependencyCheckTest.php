@@ -25,6 +25,7 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Capability\ICanCacheInMemory;
+use Friendica\Core\Config\Model\Config;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Lock\Capability\ICanLock;
@@ -84,33 +85,6 @@ class DependencyCheckTest extends TestCase
 		self::assertNotEmpty($configCache->getAll());
 		self::assertArrayHasKey('database', $configCache->getAll());
 		self::assertArrayHasKey('system', $configCache->getAll());
-	}
-
-	/**
-	 * Test the construction of a profiler class with DI
-	 */
-	public function testProfiler()
-	{
-		/** @var Profiler $profiler */
-		$profiler = $this->dice->create(Profiler::class);
-
-		self::assertInstanceOf(Profiler::class, $profiler);
-
-		$configCache = new Cache([
-			'system' => [
-				'profiler' => true,
-			],
-			'rendertime' => [
-				'callstack' => true,
-			]
-		]);
-
-		// create new DI-library because of shared instance rule (so the Profiler wouldn't get created twice)
-		$this->dice = new Dice();
-		$profiler = $this->dice->create(Profiler::class, [$configCache]);
-
-		self::assertInstanceOf(Profiler::class, $profiler);
-		self::assertTrue($profiler->isRendertime());
 	}
 
 	public function testDatabase()

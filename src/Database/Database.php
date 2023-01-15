@@ -21,7 +21,7 @@
 
 namespace Friendica\Database;
 
-use Friendica\Core\Config\ValueObject\Cache;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\System;
 use Friendica\Database\Definition\DbaDefinition;
 use Friendica\Database\Definition\ViewDefinition;
@@ -53,9 +53,9 @@ class Database
 	protected $connected = false;
 
 	/**
-	 * @var \Friendica\Core\Config\ValueObject\Cache
+	 * @var IManageConfigValues
 	 */
-	protected $configCache;
+	protected $config;
 	/**
 	 * @var Profiler
 	 */
@@ -81,11 +81,11 @@ class Database
 	/** @var ViewDefinition */
 	protected $viewDefinition;
 
-	public function __construct(Cache $configCache, Profiler $profiler, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition)
+	public function __construct(IManageConfigValues $config, Profiler $profiler, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition)
 	{
 		// We are storing these values for being able to perform a reconnect
-		$this->configCache    = $configCache;
-		$this->profiler       = $profiler;
+		$this->config   = $config;
+		$this->profiler = $profiler;
 		$this->dbaDefinition  = $dbaDefinition;
 		$this->viewDefinition = $viewDefinition;
 
@@ -110,32 +110,32 @@ class Database
 		$this->connected = false;
 
 		$port       = 0;
-		$serveraddr = trim($this->configCache->get('database', 'hostname') ?? '');
+		$serveraddr = trim($this->config->get('database', 'hostname') ?? '');
 		$serverdata = explode(':', $serveraddr);
 		$host       = trim($serverdata[0]);
 		if (count($serverdata) > 1) {
 			$port = trim($serverdata[1]);
 		}
 
-		if (trim($this->configCache->get('database', 'port') ?? 0)) {
-			$port = trim($this->configCache->get('database', 'port') ?? 0);
+		if (trim($this->config->get('database', 'port') ?? 0)) {
+			$port = trim($this->config->get('database', 'port') ?? 0);
 		}
 
-		$user     = trim($this->configCache->get('database', 'username'));
-		$pass     = trim($this->configCache->get('database', 'password'));
-		$database = trim($this->configCache->get('database', 'database'));
-		$charset  = trim($this->configCache->get('database', 'charset'));
-		$socket   = trim($this->configCache->get('database', 'socket'));
+		$user     = trim($this->config->get('database', 'username'));
+		$pass     = trim($this->config->get('database', 'password'));
+		$database = trim($this->config->get('database', 'database'));
+		$charset  = trim($this->config->get('database', 'charset'));
+		$socket   = trim($this->config->get('database', 'socket'));
 
 		if (!$host && !$socket || !$user) {
 			return false;
 		}
 
-		$persistent = (bool)$this->configCache->get('database', 'persistent');
+		$persistent = (bool)$this->config->get('database', 'persistent');
 
-		$this->pdo_emulate_prepares = (bool)$this->configCache->get('database', 'pdo_emulate_prepares');
+		$this->pdo_emulate_prepares = (bool)$this->config->get('database', 'pdo_emulate_prepares');
 
-		if (!$this->configCache->get('database', 'disable_pdo') && class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
+		if (!$this->config->get('database', 'disable_pdo') && class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
 			$this->driver = self::PDO;
 			if ($socket) {
 				$connect = 'mysql:unix_socket=' . $socket;
@@ -317,7 +317,7 @@ class Database
 	private function logIndex(string $query)
 	{
 
-		if (!$this->configCache->get('system', 'db_log_index')) {
+		if (!$this->config->get('system', 'db_log_index')) {
 			return;
 		}
 
@@ -336,18 +336,18 @@ class Database
 			return;
 		}
 
-		$watchlist = explode(',', $this->configCache->get('system', 'db_log_index_watch'));
-		$denylist  = explode(',', $this->configCache->get('system', 'db_log_index_denylist'));
+		$watchlist = explode(',', $this->config->get('system', 'db_log_index_watch'));
+		$denylist  = explode(',', $this->config->get('system', 'db_log_index_denylist'));
 
 		while ($row = $this->fetch($r)) {
-			if ((intval($this->configCache->get('system', 'db_loglimit_index')) > 0)) {
+			if ((intval($this->config->get('system', 'db_loglimit_index')) > 0)) {
 				$log = (in_array($row['key'], $watchlist) &&
-					($row['rows'] >= intval($this->configCache->get('system', 'db_loglimit_index'))));
+					($row['rows'] >= intval($this->config->get('system', 'db_loglimit_index'))));
 			} else {
 				$log = false;
 			}
 
-			if ((intval($this->configCache->get('system', 'db_loglimit_index_high')) > 0) && ($row['rows'] >= intval($this->configCache->get('system', 'db_loglimit_index_high')))) {
+			if ((intval($this->config->get('system', 'db_loglimit_index_high')) > 0) && ($row['rows'] >= intval($this->config->get('system', 'db_loglimit_index_high')))) {
 				$log = true;
 			}
 
@@ -358,7 +358,7 @@ class Database
 			if ($log) {
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 				@file_put_contents(
-					$this->configCache->get('system', 'db_log_index'),
+					$this->config->get('system', 'db_log_index'),
 					DateTimeFormat::utcNow() . "\t" .
 					$row['key'] . "\t" . $row['rows'] . "\t" . $row['Extra'] . "\t" .
 					basename($backtrace[1]["file"]) . "\t" .
@@ -533,7 +533,7 @@ class Database
 
 		$orig_sql = $sql;
 
-		if ($this->configCache->get('system', 'db_callstack') !== null) {
+		if ($this->config->get('system', 'db_callstack') !== null) {
 			$sql = "/*" . System::callstack() . " */ " . $sql;
 		}
 
@@ -738,16 +738,16 @@ class Database
 
 		$this->profiler->stopRecording();
 
-		if ($this->configCache->get('system', 'db_log')) {
+		if ($this->config->get('system', 'db_log')) {
 			$stamp2   = microtime(true);
 			$duration = (float)($stamp2 - $stamp1);
 
-			if (($duration > $this->configCache->get('system', 'db_loglimit'))) {
+			if (($duration > $this->config->get('system', 'db_loglimit'))) {
 				$duration  = round($duration, 3);
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
 				@file_put_contents(
-					$this->configCache->get('system', 'db_log'),
+					$this->config->get('system', 'db_log'),
 					DateTimeFormat::utcNow() . "\t" . $duration . "\t" .
 					basename($backtrace[1]["file"]) . "\t" .
 					$backtrace[1]["line"] . "\t" . $backtrace[2]["function"] . "\t" .

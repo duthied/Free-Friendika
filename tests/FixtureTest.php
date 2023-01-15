@@ -25,9 +25,9 @@ namespace Friendica\Test;
 use Dice\Dice;
 use Friendica\App\Arguments;
 use Friendica\App\Router;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Config\Factory\Config;
 use Friendica\Core\Config\Util\ConfigFileManager;
-use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Session\Type\Memory;
 use Friendica\Database\Database;
@@ -74,8 +74,8 @@ abstract class FixtureTest extends DatabaseTest
 			]);
 		DI::init($this->dice);
 
-		$configCache = $this->dice->create(Cache::class);
-		$configCache->set('database', 'disable_pdo', true);
+		$config = $this->dice->create(IManageConfigValues::class);
+		$config->set('database', 'disable_pdo', true);
 
 		/** @var Database $dba */
 		$dba = $this->dice->create(Database::class);
