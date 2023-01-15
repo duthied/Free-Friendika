@@ -44,7 +44,9 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Network\HTTPException;
+use Friendica\Worker\UpdateGServer;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\UriInterface;
 
 /**
  * This class handles GServer related functions
@@ -99,11 +101,11 @@ class GServer
 	 */
 	public static function add(string $url, bool $only_nodeinfo = false)
 	{
-		if (self::getID($url, false)) {
+		if (self::getID($url)) {
 			return;
 		}
 
-		Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $url, $only_nodeinfo);
+		UpdateGServer::add(Worker::PRIORITY_LOW, $url, $only_nodeinfo);
 	}
 
 	/**
@@ -165,6 +167,60 @@ class GServer
 	}
 
 	/**
+	 * Checks if the given server array is unreachable for a long time now
+	 *
+	 * @param integer $gsid
+	 * @return boolean
+	 */
+	private static function isDefunct(array $gserver): bool
+	{
+		return ($gserver['failed'] || in_array($gserver['network'], Protocol::FEDERATED)) &&
+			($gserver['last_contact'] >= $gserver['created']) &&
+			($gserver['last_contact'] < $gserver['last_failure']) &&
+			($gserver['last_contact'] < DateTimeFormat::utc('now - 90 days'));
+	}
+
+	/**
+	 * Checks if the given server id is unreachable for a long time now
+	 *
+	 * @param integer $gsid
+	 * @return boolean
+	 */
+	public static function isDefunctById(int $gsid): bool
+	{
+		$gserver = DBA::selectFirst('gserver', ['url', 'next_contact', 'last_contact', 'last_failure', 'created', 'failed', 'network'], ['id' => $gsid]);
+		if (empty($gserver)) {
+			return false;
+		} else {
+			if (strtotime($gserver['next_contact']) < time()) {
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
+			}
+
+			return self::isDefunct($gserver);
+		}
+	}
+
+	/**
+	 * Checks if the given server id is reachable
+	 *
+	 * @param integer $gsid
+	 * @return boolean
+	 */
+	public static function isReachableById(int $gsid): bool
+	{
+		$gserver = DBA::selectFirst('gserver', ['url', 'next_contact', 'failed', 'network'], ['id' => $gsid]);
+		if (empty($gserver)) {
+			return true;
+		} else {
+			if (strtotime($gserver['next_contact']) < time()) {
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
+			}
+
+			return !$gserver['failed'] && in_array($gserver['network'], Protocol::FEDERATED);
+		}
+	}
+
+	/**
 	 * Checks if the given server is reachable
 	 *
 	 * @param array $contact Contact that should be checked
@@ -200,7 +256,7 @@ class GServer
 		}
 
 		if (!empty($server) && (empty($gserver) || strtotime($gserver['next_contact']) < time())) {
-			Worker::add(Worker::PRIORITY_LOW, 'UpdateGServer', $server, false);
+			UpdateGServer::add(Worker::PRIORITY_LOW, $server);
 		}
 
 		return $reachable;
@@ -306,6 +362,47 @@ class GServer
 	}
 
 	/**
+	 * Reset failed server status by gserver id
+	 *
+	 * @param int    $gsid
+	 * @param string $network
+	 */
+	public static function setReachableById(int $gsid, string $network)
+	{
+		$gserver = DBA::selectFirst('gserver', ['url', 'failed', 'next_contact', 'network'], ['id' => $gsid]);
+		if (DBA::isResult($gserver) && $gserver['failed']) {
+			$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow()];
+			if (!empty($network) && !in_array($gserver['network'], Protocol::FEDERATED)) {
+				$fields['network'] = $network;
+			}
+			self::update($fields, ['id' => $gsid]);
+			Logger::info('Reset failed status for server', ['url' => $gserver['url']]);
+
+			if (strtotime($gserver['next_contact']) < time()) {
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
+			}
+		}
+	}
+
+	/**
+	 * Set failed server status by gserver id
+	 *
+	 * @param int $gsid
+	 */
+	public static function setFailureById(int $gsid)
+	{
+		$gserver = DBA::selectFirst('gserver', ['url', 'failed', 'next_contact'], ['id' => $gsid]);
+		if (DBA::isResult($gserver) && !$gserver['failed']) {
+			self::update(['failed' => true, 'last_failure' => DateTimeFormat::utcNow()], ['id' => $gsid]);
+			Logger::info('Set failed status for server', ['url' => $gserver['url']]);
+
+			if (strtotime($gserver['next_contact']) < time()) {
+				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
+			}
+		}
+	}
+
+	/**
 	 * Set failed server status
 	 *
 	 * @param string $url
@@ -334,16 +431,39 @@ class GServer
 	 *
 	 * @return string cleaned URL
 	 * @throws Exception
+	 * @deprecated since 2023.03 Use cleanUri instead
 	 */
 	public static function cleanURL(string $dirtyUrl): string
 	{
 		try {
-			$url = str_replace('/index.php', '', trim($dirtyUrl, '/'));
-			return (string)(new Uri($url))->withUserInfo('')->withQuery('')->withFragment('');
+			return (string)self::cleanUri(new Uri($dirtyUrl));
 		} catch (\Throwable $e) {
-			Logger::warning('Invalid URL', ['dirtyUrl' => $dirtyUrl, 'url' => $url]);
+			Logger::warning('Invalid URL', ['dirtyUrl' => $dirtyUrl]);
 			return '';
 		}
+	}
+
+	/**
+	 * Remove unwanted content from the given URI
+	 *
+	 * @param UriInterface $dirtyUri
+	 *
+	 * @return UriInterface cleaned URI
+	 * @throws Exception
+	 */
+	public static function cleanUri(UriInterface $dirtyUri): string
+	{
+		return $dirtyUri
+			->withUserInfo('')
+			->withQuery('')
+			->withFragment('')
+			->withPath(
+				preg_replace(
+					'#(?:^|/)index\.php#',
+					'',
+					rtrim($dirtyUri->getPath(), '/')
+				)
+			);
 	}
 
 	/**

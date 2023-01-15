@@ -37,13 +37,13 @@ class Poll extends BaseModule
 	{
 		$owner = User::getByNickname(
 			$this->parameters['nickname'] ?? '',
-			['nickname', 'blocked', 'account_expired', 'account_removed', 'hidewall']
+			['nickname', 'blocked', 'account_expired', 'account_removed']
 		);
 		if (!$owner || $owner['account_expired'] || $owner['account_removed']) {
 			throw new HTTPException\NotFoundException($this->t('User not found.'));
 		}
 
-		if ($owner['blocked'] || $owner['hidewall']) {
+		if ($owner['blocked']) {
 			throw new HTTPException\UnauthorizedException($this->t('Access to this profile has been restricted.'));
 		}
 
