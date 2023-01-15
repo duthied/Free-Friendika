@@ -21,26 +21,14 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Lock\Type\DatabaseLock;
-use Friendica\Database\Database;
-use Friendica\Database\Definition\DbaDefinition;
-use Friendica\Database\Definition\ViewDefinition;
-use Friendica\Test\DatabaseTestTrait;
-use Friendica\Test\Util\Database\StaticDatabase;
-use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\BasePath;
-use Friendica\Util\Profiler;
+use Friendica\Test\Util\CreateDatabaseTrait;
 
 class DatabaseLockDriverTest extends LockTest
 {
-	use VFSTrait;
-	use DatabaseTestTrait;
+	use CreateDatabaseTrait;
 
 	protected $pid = 123;
-
-	/** @var Database */
-	protected $database;
 
 	protected function setUp(): void
 	{
@@ -53,21 +41,13 @@ class DatabaseLockDriverTest extends LockTest
 
 	protected function getInstance()
 	{
-		$cache = new Cache();
-		$cache->set('database', 'disable_pdo', true);
-
-		$basePath = new BasePath(dirname(__FILE__, 5), $_SERVER);
-
-		$this->database = new StaticDatabase($cache, new Profiler($cache), (new DbaDefinition($basePath->getPath()))->load(), (new ViewDefinition($basePath->getPath()))->load());
-		$this->database->setTestmode(true);
-
-		return new DatabaseLock($this->database, $this->pid);
+		return new DatabaseLock($this->getDbInstance(), $this->pid);
 	}
 
 	protected function tearDown(): void
 	{
-		$this->tearDownDb();
-
 		parent::tearDown();
+
+		$this->tearDownDb();
 	}
 }

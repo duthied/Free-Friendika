@@ -22,7 +22,7 @@
 namespace Friendica\App;
 
 use Detection\MobileDetect;
-use Friendica\Core\Config\ValueObject\Cache;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\Database;
 
 /**
@@ -128,7 +128,7 @@ class Mode
 	 *
 	 * @throws \Exception
 	 */
-	public function determine(string $basePath, Database $database, Cache $configCache): Mode
+	public function determine(string $basePath, Database $database, IManageConfigValues $config): Mode
 	{
 		$mode = 0;
 
@@ -146,7 +146,7 @@ class Mode
 
 		$mode |= Mode::DBAVAILABLE;
 
-		if (!empty($configCache->get('system', 'maintenance'))) {
+		if (!empty($config->get('system', 'maintenance'))) {
 			return new Mode($mode);
 		}
 

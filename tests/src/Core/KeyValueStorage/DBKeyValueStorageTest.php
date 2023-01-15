@@ -21,20 +21,14 @@
 
 namespace Friendica\Test\src\Core\KeyValueStorage;
 
-use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
 use Friendica\Core\KeyValueStorage\Type\DBKeyValueStorage;
 use Friendica\Database\Database;
-use Friendica\Database\Definition\DbaDefinition;
-use Friendica\Database\Definition\ViewDefinition;
-use Friendica\Test\DatabaseTestTrait;
-use Friendica\Test\Util\Database\StaticDatabase;
-use Friendica\Util\BasePath;
-use Friendica\Util\Profiler;
+use Friendica\Test\Util\CreateDatabaseTrait;
 
 class DBKeyValueStorageTest extends KeyValueStorageTest
 {
-	use DatabaseTestTrait;
+	use CreateDatabaseTrait;
 
 	/** @var Database */
 	protected $database;
@@ -43,6 +37,7 @@ class DBKeyValueStorageTest extends KeyValueStorageTest
 	{
 		parent::setUp();
 
+		$this->setUpVfsDir();
 		$this->setUpDb();
 	}
 
@@ -55,13 +50,7 @@ class DBKeyValueStorageTest extends KeyValueStorageTest
 
 	public function getInstance(): IManageKeyValuePairs
 	{
-		$cache = new Cache();
-		$cache->set('database', 'disable_pdo', true);
-
-		$basePath = new BasePath(dirname(__FILE__, 5), $_SERVER);
-
-		$this->database = new StaticDatabase($cache, new Profiler($cache), (new DbaDefinition($basePath->getPath()))->load(), (new ViewDefinition($basePath->getPath()))->load());
-		$this->database->setTestmode(true);
+		$this->database = $this->getDbInstance();
 
 		return new DBKeyValueStorage($this->database);
 	}
