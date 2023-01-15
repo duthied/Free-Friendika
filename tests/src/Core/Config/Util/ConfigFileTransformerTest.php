@@ -36,8 +36,25 @@ class ConfigFileTransformerTest extends MockedTest
 				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/B.node.config.php'),
 			],
 			'friendica.local' => [
-				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/C.node.config.php'),
+				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/C.node.config.php'),
 			],
+			'friendica.local.2' => [
+				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/D.node.config.php'),
+			],
+			'object_invalid' => [
+				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/object.node.config.php'),
+				'assertException' => true,
+			],
+			'ressource_invalid' => [
+				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/ressource.node.config.php'),
+				'assertException' => true,
+			],
+			'test_types' => [
+				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/types.node.config.php'),
+			],
+			'small_types' => [
+				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/small_types.node.config.php'),
+			]
 		];
 	}
 
@@ -46,9 +63,13 @@ class ConfigFileTransformerTest extends MockedTest
 	 *
 	 * @dataProvider dataTests
 	 */
-	public function testConfigFile(string $configFile)
+	public function testConfigFile(string $configFile, bool $assertException = false)
 	{
 		$dataArray = include $configFile;
+
+		if ($assertException) {
+			self::expectException(\InvalidArgumentException::class);
+		}
 
 		$newConfig = ConfigFileTransformer::encode($dataArray);
 
