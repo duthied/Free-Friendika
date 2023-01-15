@@ -102,7 +102,7 @@ class Details extends BaseAdmin
 		if (array_key_exists($addon, $addons_admin)) {
 			require_once "addon/$addon/$addon.php";
 			$func = $addon . '_addon_admin';
-			$func($a, $admin_form);
+			$func($admin_form);
 		}
 
 		$t = Renderer::getMarkupTemplate('admin/addons/details.tpl');
