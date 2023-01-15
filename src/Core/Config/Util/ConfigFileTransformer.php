@@ -27,7 +27,17 @@ namespace Friendica\Core\Config\Util;
 class ConfigFileTransformer
 {
 	/**
-	 * The public method to start the encoding
+	 * This method takes an array of config values and applies some standard rules for formatting on it
+	 *
+	 * Beware that the applied rules follow some basic formatting principles for node.config.php
+	 * and doesn't support any custom formatting rules.
+	 *
+	 * f.e. associative array and list formatting are very complex with newlines and indentations, thus there are
+	 * three hardcoded types of formatting for them.
+	 *
+	 * a negative example, what's NOT working:
+	 * key => [ value1, [inner_value1, inner_value2], value2]
+	 * Since this isn't necessary for config values, there's no further logic handling such complex-list-in-list scenarios
 	 *
 	 * @param array $data A full config array
 	 *
@@ -49,20 +59,20 @@ class ConfigFileTransformer
 
 	/**
 	 * Extracts an inner config array.
-	 * Either as a Key => Value pair array or as an assoziative array
+	 * Either as an associative array or as a list
 	 *
-	 * @param array $config             The config array which should get extracted
-	 * @param int   $level              The current level of recursion (necessary for tab-indentation calculation)
-	 * @param bool  $inAssoziativeArray If true, the current array resides inside another assoziative array. Different rules may be applicable
+	 * @param array $config The config array which should get extracted
+	 * @param int   $level  The current level of recursion (necessary for tab-indentation calculation)
+	 * @param bool  $inList If true, the current array resides inside another list. Different rules may be applicable
 	 *
 	 * @return string The config string
 	 */
-	protected static function extractArray(array $config, int $level = 0, bool $inAssoziativeArray = false): string
+	protected static function extractArray(array $config, int $level = 0, bool $inList = false): string
 	{
 		if (array_values($config) === $config) {
-			return self::extractAssoziativeArray($config, $level, $inAssoziativeArray);
+			return self::extractList($config, $level, $inList);
 		} else {
-			return self::extractKeyValueArray($config, $level, $inAssoziativeArray);
+			return self::extractAssociativeArray($config, $level, $inList);
 		}
 	}
 
@@ -75,18 +85,18 @@ class ConfigFileTransformer
 	 *    ...
 	 * ]
 	 *
-	 * @param array $config             The key-value array
-	 * @param int   $level              The current level of recursion (necessary for tab-indentation calculation)
-	 * @param bool  $inAssoziativeArray If true, the current array resides inside another assoziative array. Different rules may be applicable
+	 * @param array $config The associative/key-value array
+	 * @param int   $level  The current level of recursion (necessary for tab-indentation calculation)
+	 * @param bool  $inList If true, the current array resides inside another list. Different rules may be applicable
 	 *
 	 * @return string The config string
 	 */
-	protected static function extractKeyValueArray(array $config, int $level = 0, bool $inAssoziativeArray = false): string
+	protected static function extractAssociativeArray(array $config, int $level = 0, bool $inList = false): string
 	{
 		$string = '';
 
-		// Because we're in an assoziative array, we have to add a line-break first
-		if ($inAssoziativeArray) {
+		// Because we're in a list, we have to add a line-break first
+		if ($inList) {
 			$string .= PHP_EOL . str_repeat("\t", $level);
 		}
 
@@ -106,7 +116,7 @@ class ConfigFileTransformer
 	}
 
 	/**
-	 * Extracts an assoziative array and save it into a string
+	 * Extracts a list and save it into a string
 	 * output1 - simple:
 	 * [ value, value, value ]
 	 *
@@ -120,13 +130,13 @@ class ConfigFileTransformer
 	 *    ],
 	 * ]
 	 *
-	 * @param array $config             The assoziative array
-	 * @param int   $level              The current level of recursion (necessary for tab-indentation calculation)
-	 * @param bool  $inAssoziativeArray If true, the current array resides inside another assoziative array. Different rules may be applicable
+	 * @param array $config The list
+	 * @param int   $level  The current level of recursion (necessary for tab-indentation calculation)
+	 * @param bool  $inList If true, the current array resides inside another list. Different rules may be applicable
 	 *
 	 * @return string The config string
 	 */
-	protected static function extractAssoziativeArray(array $config, int $level = 0, bool $inAssoziativeArray = false): string
+	protected static function extractList(array $config, int $level = 0, bool $inList = false): string
 	{
 		$string = '[';
 
@@ -150,8 +160,8 @@ class ConfigFileTransformer
 			 * Skip any other logic since this isn't applicable for an array in an array
 			 */
 			if ($isArray) {
-				$string   .= PHP_EOL . str_repeat("\t", $level + 1);
-				$string   .= static::extractArray($config[$i], $level + 1, $inAssoziativeArray) . ',';
+				$string .= PHP_EOL . str_repeat("\t", $level + 1);
+				$string .= static::extractArray($config[$i], $level + 1, $inList) . ',';
 				continue;
 			}
 
@@ -183,13 +193,13 @@ class ConfigFileTransformer
 	/**
 	 * Transforms one config value and returns the corresponding text-representation
 	 *
-	 * @param mixed $value              Any value to transform
-	 * @param int   $level              The current level of recursion (necessary for tab-indentation calculation)
-	 * @param bool  $inAssoziativeArray If true, the current array resides inside another assoziative array. Different rules may be applicable
+	 * @param mixed $value  Any value to transform
+	 * @param int   $level  The current level of recursion (necessary for tab-indentation calculation)
+	 * @param bool  $inList If true, the current array resides inside another list. Different rules may be applicable
 	 *
 	 * @return string
 	 */
-	protected static function transformConfigValue($value, int $level = 0, bool $inAssoziativeArray = false): string
+	protected static function transformConfigValue($value, int $level = 0, bool $inList = false): string
 	{
 		switch (gettype($value)) {
 			case "boolean":
@@ -200,7 +210,7 @@ class ConfigFileTransformer
 			case "string":
 				return sprintf('\'%s\'', addcslashes($value, '\'\\'));
 			case "array":
-				return static::extractArray($value, ++$level, $inAssoziativeArray);
+				return static::extractArray($value, ++$level, $inList);
 			case "NULL":
 				return "null";
 			case "object":
