@@ -21,6 +21,8 @@
 
 namespace Friendica\Core\Logger\Type;
 
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\Hooks\Capabilities\IAmAStrategy;
 use Friendica\Core\Logger\Exception\LoggerArgumentException;
 use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core\Logger\Exception\LogLevelException;
@@ -32,7 +34,7 @@ use Psr\Log\LogLevel;
 /**
  * A Logger instance for logging into a stream (file, stdout, stderr)
  */
-class StreamLogger extends AbstractLogger
+class StreamLogger extends AbstractLogger implements IAmAStrategy
 {
 	/**
 	 * The minimum loglevel at which this logger will be triggered
@@ -80,15 +82,19 @@ class StreamLogger extends AbstractLogger
 
 	/**
 	 * {@inheritdoc}
-	 * @param string|resource $stream The stream to write with this logger (either a file or a stream, i.e. stdout)
 	 * @param string          $level  The minimum loglevel at which this logger will be triggered
 	 *
 	 * @throws LoggerArgumentException
 	 * @throws LogLevelException
 	 */
-	public function __construct($channel, $stream, Introspection $introspection, FileSystem $fileSystem, string $level = LogLevel::DEBUG)
+	public function __construct(string $channel, IManageConfigValues $config, Introspection $introspection, FileSystem $fileSystem, string $level = LogLevel::DEBUG)
 	{
 		$this->fileSystem = $fileSystem;
+
+		$stream = $this->logfile ?? $config->get('system', 'logfile');
+		if ((file_exists($stream) && !is_writable($stream)) || is_writable(basename($stream))) {
+			throw new LoggerArgumentException(sprintf('%s is not a valid logfile', $stream));
+		}
 
 		parent::__construct($channel, $introspection);
 

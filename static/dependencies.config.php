@@ -37,6 +37,8 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hooks\Capabilities\ICanManageInstances;
+use Friendica\Core\Hooks\Model\InstanceManager;
 use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock;
@@ -75,6 +77,12 @@ return [
 			dirname(__FILE__, 2),
 			$_SERVER
 		]
+	],
+	ICanManageInstances::class => [
+		'instanceOf' => InstanceManager::class,
+		'constructParams' => [
+			[Dice::INSTANCE => Dice::SELF],
+		],
 	],
 	Config\Util\ConfigFileManager::class => [
 		'instanceOf' => Config\Factory\Config::class,

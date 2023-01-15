@@ -25,7 +25,6 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Capability\ICanCacheInMemory;
-use Friendica\Core\Config\Model\Config;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Lock\Capability\ICanLock;
@@ -33,7 +32,6 @@ use Friendica\Database\Database;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\BasePath;
 use Friendica\Core\Config\Util\ConfigFileManager;
-use Friendica\Util\Profiler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -53,7 +51,18 @@ class DependencyCheckTest extends TestCase
 		$this->setUpVfsDir();
 
 		$this->dice = (new Dice())
-			->addRules(include __DIR__ . '/../../static/dependencies.config.php');
+			->addRules(include __DIR__ . '/../../static/dependencies.config.php')
+			->addRule(BasePath::class, [
+				'constructParams' => [
+					$this->root->url(),
+					[],
+				],
+			])
+			->addRule(LoggerInterface::class, ['constructParams' => ['test']]);
+
+		/** @var IManageConfigValues $config */
+		$config = $this->dice->create(IManageConfigValues::class);
+		$config->set('system', 'logfile', $this->root->url() . '/logs/friendica.log');
 	}
 
 	/**
@@ -142,7 +151,7 @@ class DependencyCheckTest extends TestCase
 	public function testLogger()
 	{
 		/** @var LoggerInterface $logger */
-		$logger = $this->dice->create(LoggerInterface::class, ['test']);
+		$logger = $this->dice->create(LoggerInterface::class, [['$channel' => 'test']]);
 
 		self::assertInstanceOf(LoggerInterface::class, $logger);
 	}
@@ -154,7 +163,7 @@ class DependencyCheckTest extends TestCase
 		$config->set('system', 'dlogfile', $this->root->url() . '/friendica.log');
 
 		/** @var LoggerInterface $logger */
-		$logger = $this->dice->create('$devLogger', ['dev']);
+		$logger = $this->dice->create('$devLogger', [['$channel' => 'dev']]);
 
 		self::assertInstanceOf(LoggerInterface::class, $logger);
 	}
@@ -163,6 +172,7 @@ class DependencyCheckTest extends TestCase
 	{
 		/** @var ICanCache $cache */
 		$cache = $this->dice->create(ICanCache::class);
+
 
 		self::assertInstanceOf(ICanCache::class, $cache);
 	}
