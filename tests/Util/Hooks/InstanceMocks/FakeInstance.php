@@ -31,16 +31,16 @@ class FakeInstance implements IAmADecoratedInterface, IAmAStrategy
 
 	public function __construct(string $aText = null, bool $cBool = null, string $bText = null)
 	{
-		$this->aText         = $aText;
-		$this->cBool         = $cBool;
-		$this->bText         = $bText;
+		$this->aText = $aText;
+		$this->cBool = $cBool;
+		$this->bText = $bText;
 	}
 
 	public function createSomething(string $aText, bool $cBool, string $bText): string
 	{
-		$this->aText         = $aText;
-		$this->cBool         = $cBool;
-		$this->bText         = $bText;
+		$this->aText = $aText;
+		$this->cBool = $cBool;
+		$this->bText = $bText;
 	}
 
 	public function getAText(): ?string

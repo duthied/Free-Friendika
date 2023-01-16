@@ -53,26 +53,26 @@ class InstanceManagerTest extends MockedTest
 	public function dataTests(): array
 	{
 		return [
-			'only_a'           => [
+			'only_a' => [
 				'aString' => 'test',
 			],
-			'a_b'              => [
+			'a_b' => [
 				'aString' => 'test',
-				'cBool' => false,
+				'cBool'   => false,
 				'bString' => 'test23',
 
 			],
-			'a_c'              => [
+			'a_c' => [
 				'aString' => 'test',
 				'cBool'   => false,
 				'bString' => null,
 			],
-			'a_b_c'            => [
+			'a_b_c' => [
 				'aString' => 'test',
 				'cBool'   => false,
 				'bString' => 'test23',
 			],
-			'null'             => [],
+			'null' => [],
 		];
 	}
 

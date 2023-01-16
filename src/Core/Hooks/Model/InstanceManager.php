@@ -92,8 +92,8 @@ class InstanceManager implements ICanManageInstances
 				'instanceOf'      => $decorator['class'],
 				'constructParams' => empty($decorator['arguments']) ? null : $decorator['arguments'],
 				/// @todo maybe support call structures for hooks as well in a later stage - could make factory calls easier
-				'call'            => null,
-				'substitutions'   => [$class => $instance],
+				'call'          => null,
+				'substitutions' => [$class => $instance],
 			]);
 
 			$instance = $this->dice->create($class);
