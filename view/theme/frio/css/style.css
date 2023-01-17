@@ -2928,6 +2928,10 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .section-subtitle-wrapper {
 	padding: 1px 10px;
 }
+.accordion-toggle {
+	width: 100%;
+    text-align: left;
+}
 details.profile-jot-net[open] summary:before,
 .panel .section-subtitle-wrapper .accordion-toggle:before {
 	font-family: ForkAwesome;
@@ -2991,6 +2995,12 @@ details.profile-jot-net[open] summary:before {
 	font-size: 18px;
 	margin-top: 10px;
 	margin-bottom: 10px;
+}
+.section-subtitle-wrapper > h2 .accordion-toggle {
+	margin-top: -10px;
+	margin-bottom: -10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 }
 
 .section-subtitle-wrapper > h3 {
