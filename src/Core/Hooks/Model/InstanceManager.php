@@ -67,7 +67,7 @@ class InstanceManager implements ICanManageInstances
 	public function registerDecorator(string $class, string $decoratorClass, array $arguments = []): ICanManageInstances
 	{
 		if (!is_a($decoratorClass, $class, true)) {
-			throw new HookRegisterArgumentException(sprintf('%s is not a valid subsituation for the given class or interface %s', $decoratorClass, $class));
+			throw new HookRegisterArgumentException(sprintf('%s is not a valid substitution for the given class or interface %s', $decoratorClass, $class));
 		}
 
 		$this->decorator[$class][] = [

@@ -35,8 +35,8 @@ interface ICanManageInstances
 	 * @see https://refactoring.guru/design-patterns/strategy
 	 *
 	 * @param string $interface The interface, which the given class implements
-	 * @param string $name      The name of the given class, which will be used for factories, dependency injections etc.
-	 * @param string $class     The class of the given class
+	 * @param string $name      An arbitrary identifier for the given class, which will be used for factories, dependency injections etc.
+	 * @param string $class     The fully-qualified given class name
 	 * @param ?array  $arguments Additional arguments, which can be passed to the constructor
 	 *
 	 * @return $this This interface for chain-calls
@@ -51,8 +51,8 @@ interface ICanManageInstances
 	 *
 	 * @note Decorator attach new behaviors to classes without changing them or without letting them know about it.
 	 *
-	 * @param string $class          The class or interface, which gets decorated by a class
-	 * @param string $decoratorClass The class, which mimics the given class or interface and adds new functionality
+	 * @param string $class          The fully-qualified class or interface name, which gets decorated by a class
+	 * @param string $decoratorClass The fully-qualified name of the class which mimics the given class or interface and adds new functionality
 	 * @param array  $arguments      Additional arguments, which can be passed to the constructor of "decoratorClass"
 	 *
 	 * @return $this This interface for chain-calls
@@ -69,7 +69,7 @@ interface ICanManageInstances
 	 * In case, there are registered decorators for this class as well, all decorators of the list will be wrapped
 	 * around the instance before returning it
 	 *
-	 * @param string $class     A given class or interface, which will get returned
+	 * @param string $class     The fully-qualified name of the given class or interface which will get returned
 	 * @param string $name      The name of the concrete class, wich
 	 * @param array  $arguments Additional arguments, which can be passed to the constructor of "$class" at runtime
 	 *
