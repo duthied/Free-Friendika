@@ -55,6 +55,7 @@ class UpdateGServer
 
 		// Silently dropping the worker task if the server domain is blocked
 		if (Network::isUrlBlocked($filtered)) {
+			GServer::setBlockedByUrl($filtered);
 			return;
 		}
 
@@ -84,6 +85,7 @@ class UpdateGServer
 	{
 		// Dropping the worker task if the server domain is blocked
 		if (Network::isUrlBlocked($serverUrl)) {
+			GServer::setBlockedByUrl($serverUrl);
 			return 0;
 		}
 

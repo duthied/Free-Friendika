@@ -75,6 +75,8 @@ class Add extends BaseModeration
 		//  Add new item to blocklist
 		$this->blocklist->addPattern($pattern, trim($request['reason']));
 
+		Worker::add(Worker::PRIORITY_LOW, 'UpdateBlockedServers');
+
 		$this->systemMessages->addInfo($this->t('Server domain pattern added to the blocklist.'));
 
 		if (!empty($request['purge'])) {

@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1510);
+	define('DB_UPDATE_VERSION', 1511);
 }
 
 return [
@@ -89,6 +89,7 @@ return [
 			"last_poco_query" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Last successful connection request"],
 			"last_failure" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Last failed connection request"],
+			"blocked" => ["type" => "boolean", "comment" => "Server is blocked"],
 			"failed" => ["type" => "boolean", "comment" => "Connection failed"],
 			"next_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Next connection request"],
 		],

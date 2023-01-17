@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.03-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1510
+-- DB_UPDATE_VERSION 1511
 -- ------------------------------------------
 
 
@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`last_poco_query` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Last successful connection request',
 	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Last failed connection request',
+	`blocked` boolean COMMENT 'Server is blocked',
 	`failed` boolean COMMENT 'Connection failed',
 	`next_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Next connection request',
 	 PRIMARY KEY(`id`),
