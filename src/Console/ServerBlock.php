@@ -24,6 +24,7 @@ namespace Friendica\Console;
 use Asika\SimpleConsole\CommandArgsException;
 use Asika\SimpleConsole\Console;
 use Console_Table;
+use Friendica\Core\Worker;
 use Friendica\Moderation\DomainPatternBlocklist;
 
 /**
@@ -127,6 +128,7 @@ HELP;
 
 		if ($this->blocklist->append($newBlockList)) {
 			$this->out(sprintf("Entries from %s that were not blocked before are now blocked", $filename));
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateBlockedServers');
 			return 0;
 		} else {
 			$this->out("Couldn't save the block list");
@@ -169,6 +171,7 @@ HELP;
 			} else {
 				$this->out(sprintf("The domain pattern '%s' is now blocked. (Reason: '%s')", $pattern, $reason));
 			}
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateBlockedServers');
 			return 0;
 		} else {
 			$this->out(sprintf("Couldn't save '%s' as blocked domain pattern", $pattern));
@@ -193,6 +196,7 @@ HELP;
 		if ($result) {
 			if ($result == 2) {
 				$this->out(sprintf("The domain pattern '%s' isn't blocked anymore", $pattern));
+				Worker::add(Worker::PRIORITY_LOW, 'UpdateBlockedServers');
 				return 0;
 			} else {
 				$this->out(sprintf("The domain pattern '%s' wasn't blocked.", $pattern));

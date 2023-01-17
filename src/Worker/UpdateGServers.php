@@ -27,7 +27,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
-use GuzzleHttp\Psr7\Uri;
 
 class UpdateGServers
 {
@@ -49,7 +48,7 @@ class UpdateGServers
 		}
 
 		$total = DBA::count('gserver');
-		$condition = ["`next_contact` < ? AND (`nurl` != ? OR `url` != ?)",  DateTimeFormat::utcNow(), '', ''];
+		$condition = ["NOT `blocked` AND `next_contact` < ? AND (`nurl` != ? OR `url` != ?)",  DateTimeFormat::utcNow(), '', ''];
 		$outdated = DBA::count('gserver', $condition);
 		Logger::info('Server status', ['total' => $total, 'outdated' => $outdated, 'updating' => $limit]);
 

@@ -127,6 +127,13 @@ class GServer
 		$gserver = DBA::selectFirst('gserver', ['id'], ['nurl' => Strings::normaliseLink($url)]);
 		if (DBA::isResult($gserver)) {
 			Logger::debug('Got ID for URL', ['id' => $gserver['id'], 'url' => $url, 'callstack' => System::callstack(20)]);
+
+			if (Network::isUrlBlocked($url)) {
+				self::setBlockedById($gserver['id']);
+			} else {
+				self::setUnblockedById($gserver['id']);
+			}
+
 			return $gserver['id'];
 		}
 
@@ -341,6 +348,12 @@ class GServer
 			return false;
 		}
 
+		if (Network::isUrlBlocked($server_url)) {
+			Logger::info('Server is blocked', ['url' => $server_url]);
+			self::setBlockedByUrl($server_url);
+			return false;
+		}
+
 		$gserver = DBA::selectFirst('gserver', [], ['nurl' => Strings::normaliseLink($server_url)]);
 		if (DBA::isResult($gserver)) {
 			if ($gserver['created'] <= DBA::NULL_DATETIME) {
@@ -370,8 +383,13 @@ class GServer
 	public static function setReachableById(int $gsid, string $network)
 	{
 		$gserver = DBA::selectFirst('gserver', ['url', 'failed', 'next_contact', 'network'], ['id' => $gsid]);
-		if (DBA::isResult($gserver) && $gserver['failed']) {
-			$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow()];
+		if (!DBA::isResult($gserver)) {
+			return;
+		}
+
+		$blocked = Network::isUrlBlocked($gserver['url']);
+		if ($gserver['failed']) {
+			$fields = ['failed' => false, 'blocked' => $blocked, 'last_contact' => DateTimeFormat::utcNow()];
 			if (!empty($network) && !in_array($gserver['network'], Protocol::FEDERATED)) {
 				$fields['network'] = $network;
 			}
@@ -381,6 +399,10 @@ class GServer
 			if (strtotime($gserver['next_contact']) < time()) {
 				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
 			}
+		} elseif ($blocked) {
+			self::setBlockedById($gsid);
+		} else {
+			self::setUnblockedById($gsid);
 		}
 	}
 
@@ -393,12 +415,39 @@ class GServer
 	{
 		$gserver = DBA::selectFirst('gserver', ['url', 'failed', 'next_contact'], ['id' => $gsid]);
 		if (DBA::isResult($gserver) && !$gserver['failed']) {
-			self::update(['failed' => true, 'last_failure' => DateTimeFormat::utcNow()], ['id' => $gsid]);
+			self::update(['failed' => true, 'blocked' => Network::isUrlBlocked($gserver['url']), 'last_failure' => DateTimeFormat::utcNow()], ['id' => $gsid]);
 			Logger::info('Set failed status for server', ['url' => $gserver['url']]);
 
 			if (strtotime($gserver['next_contact']) < time()) {
 				UpdateGServer::add(Worker::PRIORITY_LOW, $gserver['url']);
 			}
+		}
+	}
+
+	public static function setUnblockedById(int $gsid)
+	{
+		$gserver = DBA::selectFirst('gserver', ['url'], ["(`blocked` OR `blocked` IS NULL) AND `id` = ?", $gsid]);
+		if (DBA::isResult($gserver)) {
+			self::update(['blocked' => false], ['id' => $gsid]);
+			Logger::info('Set unblocked status for server', ['url' => $gserver['url']]);
+		}
+	}
+
+	public static function setBlockedById(int $gsid)
+	{
+		$gserver = DBA::selectFirst('gserver', ['url'], ["(NOT `blocked` OR `blocked` IS NULL) AND `id` = ?", $gsid]);
+		if (DBA::isResult($gserver)) {
+			self::update(['blocked' => true, 'failed' => true], ['id' => $gsid]);
+			Logger::info('Set blocked status for server', ['url' => $gserver['url']]);
+		}
+	}
+
+	public static function setBlockedByUrl(string $url)
+	{
+		$gserver = DBA::selectFirst('gserver', ['url', 'id'], ["(NOT `blocked` OR `blocked` IS NULL) AND `nurl` = ?", Strings::normaliseLink($url)]);
+		if (DBA::isResult($gserver)) {
+			self::update(['blocked' => true, 'failed' => true], ['id' => $gserver['id']]);
+			Logger::info('Set blocked status for server', ['url' => $gserver['url']]);
 		}
 	}
 
@@ -412,7 +461,7 @@ class GServer
 		$gserver = DBA::selectFirst('gserver', [], ['nurl' => Strings::normaliseLink($url)]);
 		if (DBA::isResult($gserver)) {
 			$next_update = self::getNextUpdateDate(false, $gserver['created'], $gserver['last_contact']);
-			self::update(['url' => $url, 'failed' => true, 'last_failure' => DateTimeFormat::utcNow(),
+			self::update(['url' => $url, 'failed' => true, 'blocked' => Network::isUrlBlocked($url), 'last_failure' => DateTimeFormat::utcNow(),
 			'next_contact' => $next_update, 'network' => Protocol::PHANTOM, 'detection-method' => null],
 			['nurl' => Strings::normaliseLink($url)]);
 			Logger::info('Set failed status for existing server', ['url' => $url]);
@@ -491,7 +540,7 @@ class GServer
 	 *
 	 * @return boolean 'true' if server could be detected
 	 */
-	public static function detect(string $url, string $network = '', bool $only_nodeinfo = false): bool
+	private static function detect(string $url, string $network = '', bool $only_nodeinfo = false): bool
 	{
 		Logger::info('Detect server type', ['server' => $url]);
 
@@ -732,9 +781,9 @@ class GServer
 		}
 
 		$serverdata['next_contact'] = self::getNextUpdateDate(true, '', '', in_array($serverdata['network'], [Protocol::PHANTOM, Protocol::FEED]));
-
 		$serverdata['last_contact'] = DateTimeFormat::utcNow();
-		$serverdata['failed'] = false;
+		$serverdata['failed']       = false;
+		$serverdata['blocked']      = false;
 
 		$gserver = DBA::selectFirst('gserver', ['network'], ['nurl' => Strings::normaliseLink($url)]);
 		if (!DBA::isResult($gserver)) {
@@ -2259,7 +2308,7 @@ class GServer
 		$last_update = date('c', time() - (60 * 60 * 24 * $requery_days));
 
 		$gservers = DBA::select('gserver', ['id', 'url', 'nurl', 'network', 'poco', 'directory-type'],
-			["NOT `failed` AND `directory-type` != ? AND `last_poco_query` < ?", GServer::DT_NONE, $last_update],
+			["NOT `blocked` AND NOT `failed` AND `directory-type` != ? AND `last_poco_query` < ?", GServer::DT_NONE, $last_update],
 			['order' => ['RAND()']]);
 
 		while ($gserver = DBA::fetch($gservers)) {

@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Core\Worker;
 use Friendica\Moderation\DomainPatternBlocklist;
 use Friendica\Module\BaseModeration;
 use Friendica\Module\Response;
@@ -69,6 +70,8 @@ class Index extends BaseModeration
 		}
 
 		$this->blocklist->set($blocklist);
+
+		Worker::add(Worker::PRIORITY_LOW, 'UpdateBlockedServers');
 
 		$this->baseUrl->redirect('moderation/blocklist/server');
 	}

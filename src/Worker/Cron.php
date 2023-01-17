@@ -85,8 +85,6 @@ class Cron
 
 		// Hourly cron calls
 		if ((DI::keyValue()->get('last_cron_hourly') ?? 0) + 3600 < time()) {
-
-
 			// Update trending tags cache for the community page
 			Tag::setLocalTrendingHashtags(24, 20);
 			Tag::setGlobalTrendingHashtags(24, 20);
@@ -144,6 +142,9 @@ class Cron
 
 			// Resubscribe to relay servers
 			Relay::reSubscribe();
+
+			// Update "blocked" status of servers
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateBlockedServers');
 
 			DI::keyValue()->set('last_cron_daily', time());
 		}

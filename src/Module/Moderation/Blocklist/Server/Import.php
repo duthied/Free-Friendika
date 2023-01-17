@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Core\Worker;
 use Friendica\Moderation\DomainPatternBlocklist;
 use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
@@ -94,6 +95,8 @@ class Import extends \Friendica\Module\BaseModeration
 					$this->systemMessages->addNotice($this->t('No pattern was added to the local blocklist.'));
 				}
 			}
+
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateBlockedServers');
 
 			$this->baseUrl->redirect('/moderation/blocklist/server');
 		}
