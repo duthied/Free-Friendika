@@ -34,9 +34,9 @@ interface ICanManageInstances
 	 *
 	 * @see https://refactoring.guru/design-patterns/strategy
 	 *
-	 * @param string $interface The interface, which the given class implements
-	 * @param string $name      An arbitrary identifier for the given class, which will be used for factories, dependency injections etc.
-	 * @param string $class     The fully-qualified given class name
+	 * @param string $interface  The interface, which the given class implements
+	 * @param string $name       An arbitrary identifier for the given class, which will be used for factories, dependency injections etc.
+	 * @param string $class      The fully-qualified given class name
 	 * @param ?array  $arguments Additional arguments, which can be passed to the constructor
 	 *
 	 * @return $this This interface for chain-calls
