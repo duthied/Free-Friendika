@@ -376,11 +376,11 @@ class Feed
 			}
 
 			if ($published != '') {
-				$item['created'] = $published;
+				$item['created'] = trim($published);
 			}
 
 			if ($updated != '') {
-				$item['edited'] = $updated;
+				$item['edited'] = trim($updated);
 			}
 
 			if (!$dryRun) {
