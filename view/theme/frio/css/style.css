@@ -367,6 +367,10 @@ btn-eventnav:hover {
 aside .badge {
 	opacity: 0.7;
 }
+.forum-widget-entry .badge,
+.sidebar-group-li .badge {
+	margin-top: 6px;
+}
 
 /* disabled elements */
 .community-content-wrapper > h3,
@@ -1044,7 +1048,6 @@ aside .widget,
 	position: relative;
 	margin-bottom: 20px;
 	padding: 10px;
-	font-size: 13px;
 	overflow: auto;
 }
 aside .widget h3,
@@ -1052,7 +1055,7 @@ aside .widget h3,
 	font-weight: bold;
 	font-size: 16px;
 	margin: 0;
-	padding-bottom: 20px;
+	padding-bottom: 10px;
 }
 
 aside .widget ul,
@@ -1065,10 +1068,11 @@ aside .widget ul,
 	list-style: none;
 }
 
+aside .widget li .label {
+	float: left;
+}
 aside .widget li,
 .nav-container .widget li {
-	padding-top: 2px;
-	padding-bottom: 2px;
 	padding-left: 20px;
 	padding-right: 10px;
 }
@@ -1080,6 +1084,12 @@ aside .widget li.selected,
 	background-color: rgba(247, 247, 247, $contentbg_transp);
 	border-left: 3px solid $link_color !important;
 	padding-left: 17px;
+}
+.side-link-link,
+aside .widget li a {
+	display: block;
+	padding-top: 6px;
+	padding-bottom: 6px;
 }
 aside .widget li a,
 aside .widget li a:hover {
@@ -1300,7 +1310,11 @@ div#sidebar-group-list {
 }
 
 .group-edit-tool {
+	padding-top: 0;
 	color: $font_color_darker;
+}
+.sidebar-widget-header .group-edit-tool {
+	margin-top: -5px;
 }
 
 .faded-icon {
@@ -1316,9 +1330,12 @@ div#sidebar-group-list {
 	margin-left: 20px;
 }
 
-aside #group-sidebar .sidebar-group-li:hover .group-edit-tool.faded-icon,
-aside #saved-search-list .saved-search-li:hover .savedsearchdrop.faded-icon,
-aside .widget:hover .widget-action.faded-icon {
+aside .widget-action {
+	padding: 5px 10px;
+}
+aside #group-sidebar .sidebar-group-li .group-edit-tool.faded-icon:hover,
+aside #saved-search-list .saved-search-li .savedsearchdrop.faded-icon:hover,
+aside .widget.widget-action.faded-icon:hover {
 	opacity: 0.8;
 	transition: all 0.25s ease-in-out;
 }
@@ -1328,7 +1345,7 @@ aside .widget .widget-action.faded-icon:hover {
 	opacity: 1;
 }
 aside #group-sidebar li .group-checkbox {
-	margin: 0;
+	margin: 6px 0 0;
 }
 aside #group-sidebar li .group-edit-tool {
 	padding-right: 10px;
