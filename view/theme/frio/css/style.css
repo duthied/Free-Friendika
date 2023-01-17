@@ -816,8 +816,8 @@ nav.navbar .nav > li > button:focus {
 	font-weight: bold;
 }
 #topbar-first .dropdown.account li#nav-sitename {
-	padding-left: 15px;
-	padding-right: 15px;
+	padding-left: 20px;
+	padding-right: 20px;
 	font-weight: bold;
 	word-break: break-word;
 }
@@ -967,13 +967,15 @@ ul li .intro-wrapper button.intro-action-link {
 	background-color: $nav_bg;
 	border: none;
 }
+.dropdown-menu .divider {
+	margin: 5px 0;
+}
 .nav-pills .dropdown-menu li.divider,
 .nav-tabs .dropdown-menu li.divider,
 .account .dropdown-menu li.divider,
 .contact-photo-wrapper .dropdown-menu li.divider {
 	background-color: $menu_background_hover_color;
 	border-bottom: none;
-	margin: 9px 1px !important;
 }
 .nav-pills .dropdown-menu li > a,
 .nav-tabs .dropdown-menu li > a,
@@ -991,8 +993,6 @@ ul li .intro-wrapper button.intro-action-link {
 .contact-photo-wrapper .dropdown-menu li .btn-link {
 	color: $nav_icon_color;
 	font-weight: 400;
-	font-size: 13px;
-	padding: 4px 15px;
 	width: 100%;
 	text-align: left;
 }
@@ -2188,6 +2188,10 @@ the section element. Only after we have
 moved it to the nav through js */
 	display: none !important;
 }
+.tabbar-wrapper__link {
+	padding-right: 10px;
+	padding-left: 10px;
+}
 #tabmenu,
 .tabbar-wrapper,
 .tabbar,
@@ -2217,7 +2221,8 @@ ul.tabs li {
 }
 ul.tabs li a {
 	display: block;
-	padding: 11px 10px;
+	padding-top: 11px;
+	padding-bottom: 11px;
 }
 ul.tabs li:hover,
 ul.tabs li.active {
@@ -2249,6 +2254,12 @@ ul.dropdown-menu li:hover {
 	box-sizing: border-box;
 }
 /* Dropdown Menu */
+.dropdown-menu li .btn-link,
+.dropdown-menu li a,
+.tabs .dropdown-menu li a {
+	padding: 6px 20px;
+	font-size: 14px;
+}
 .dropdown-menu li a,
 .dropdown-menu li .btn-link {
 	color: $font_color_darker;
