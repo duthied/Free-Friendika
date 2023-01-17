@@ -811,6 +811,8 @@ nav.navbar .nav > li > button:focus {
 }
 #offcanvasUsermenu a {
 	display: block;
+	margin: -10px -15px;
+	padding: 10px 15px;
 }
 #offcanvasUsermenu li.nav-sitename {
 	font-weight: bold;
