@@ -23,9 +23,9 @@ namespace Friendica\Core\Logger\Type;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hooks\Capabilities\IAmAStrategy;
+use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
 use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core\Logger\Exception\LogLevelException;
-use Friendica\Core\Logger\Util\Introspection;
 use Psr\Log\LogLevel;
 
 /**
@@ -106,7 +106,7 @@ class SyslogLogger extends AbstractLogger implements IAmAStrategy
 	 * @throws LogLevelException
 	 * @throws LoggerException
 	 */
-	public function __construct(string $channel, IManageConfigValues $config, Introspection $introspection, string $level = LogLevel::NOTICE)
+	public function __construct(string $channel, IManageConfigValues $config, IHaveCallIntrospections $introspection, string $level = LogLevel::NOTICE)
 	{
 		parent::__construct($channel, $introspection);
 

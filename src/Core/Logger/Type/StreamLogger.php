@@ -23,12 +23,12 @@ namespace Friendica\Core\Logger\Type;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hooks\Capabilities\IAmAStrategy;
+use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
 use Friendica\Core\Logger\Exception\LoggerArgumentException;
 use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\FileSystem;
-use Friendica\Core\Logger\Util\Introspection;
 use Psr\Log\LogLevel;
 
 /**
@@ -87,7 +87,7 @@ class StreamLogger extends AbstractLogger implements IAmAStrategy
 	 * @throws LoggerArgumentException
 	 * @throws LogLevelException
 	 */
-	public function __construct(string $channel, IManageConfigValues $config, Introspection $introspection, FileSystem $fileSystem, string $level = LogLevel::DEBUG)
+	public function __construct(string $channel, IManageConfigValues $config, IHaveCallIntrospections $introspection, FileSystem $fileSystem, string $level = LogLevel::DEBUG)
 	{
 		$this->fileSystem = $fileSystem;
 
