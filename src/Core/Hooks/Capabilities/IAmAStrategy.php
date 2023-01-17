@@ -22,7 +22,7 @@
 namespace Friendica\Core\Hooks\Capabilities;
 
 /**
- * All interfaces, marking this interface are valid Strategies for Hook calls
+ * All classes, implementing this interface are valid Strategies for Hook calls
  */
 interface IAmAStrategy
 {

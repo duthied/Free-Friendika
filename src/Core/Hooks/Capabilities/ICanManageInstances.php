@@ -70,7 +70,7 @@ interface ICanManageInstances
 	 * around the instance before returning it
 	 *
 	 * @param string $class     The fully-qualified name of the given class or interface which will get returned
-	 * @param string $name      The name of the concrete class, wich
+	 * @param string $name      An arbitrary identifier to find a concrete instance strategy.
 	 * @param array  $arguments Additional arguments, which can be passed to the constructor of "$class" at runtime
 	 *
 	 * @return object The concrete instance of the type "$class"

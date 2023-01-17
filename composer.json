@@ -140,7 +140,7 @@
 	"extra": {
 		"patches": {
 			"level-2/dice": [
-			  "mods/patches/level-2-dice-dice-php.patch"
+				"mods/patches/level-2-dice-dice-php.patch"
 			]
 		}
 	}
