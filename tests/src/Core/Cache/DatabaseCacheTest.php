@@ -62,7 +62,7 @@ class DatabaseCacheTest extends CacheTest
 		$dbaDefinition  = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
 		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
 
-		$dba = new StaticDatabase($config, $profiler, $dbaDefinition, $viewDefinition);
+		$dba = new StaticDatabase($config, $profiler, $dbaDefinition, $viewDefinition, new NullLogger());
 
 		$this->cache = new Cache\Type\DatabaseCache('database', $dba);
 		return $this->cache;

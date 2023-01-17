@@ -30,6 +30,7 @@ use Friendica\Database\Definition\ViewDefinition;
 use Friendica\Test\DatabaseTestTrait;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Util\Profiler;
+use Psr\Log\NullLogger;
 
 trait CreateDatabaseTrait
 {
@@ -45,7 +46,7 @@ trait CreateDatabaseTrait
 			],
 		]));
 
-		$database = new StaticDatabase($config, new Profiler($config), (new DbaDefinition($this->root->url()))->load(), (new ViewDefinition($this->root->url()))->load());
+		$database = new StaticDatabase($config, new Profiler($config), (new DbaDefinition($this->root->url()))->load(), (new ViewDefinition($this->root->url()))->load(), new NullLogger());
 		$database->setTestmode(true);
 
 		return $database;

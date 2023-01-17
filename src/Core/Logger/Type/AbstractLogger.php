@@ -21,8 +21,8 @@
 
 namespace Friendica\Core\Logger\Type;
 
+use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
 use Friendica\Core\Logger\Exception\LoggerException;
-use Friendica\Core\Logger\Util\Introspection;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -46,7 +46,7 @@ abstract class AbstractLogger implements LoggerInterface
 
 	/**
 	 * The Introspection for the current call
-	 * @var Introspection
+	 * @var IHaveCallIntrospections
 	 */
 	protected $introspection;
 
@@ -69,11 +69,11 @@ abstract class AbstractLogger implements LoggerInterface
 
 	/**
 	 * @param string        $channel       The output channel
-	 * @param Introspection $introspection The introspection of the current call
+	 * @param IHaveCallIntrospections $introspection The introspection of the current call
 	 *
 	 * @throws LoggerException
 	 */
-	public function __construct(string $channel, Introspection $introspection)
+	public function __construct(string $channel, IHaveCallIntrospections $introspection)
 	{
 		$this->channel       = $channel;
 		$this->introspection = $introspection;

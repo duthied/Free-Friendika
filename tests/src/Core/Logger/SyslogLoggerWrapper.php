@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Core\Logger;
 
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Logger\Type\SyslogLogger;
 use Friendica\Core\Logger\Util\Introspection;
 use Psr\Log\LogLevel;
@@ -32,9 +33,9 @@ class SyslogLoggerWrapper extends SyslogLogger
 {
 	private $content;
 
-	public function __construct($channel, Introspection $introspection, $level = LogLevel::NOTICE, $logOpts = LOG_PID, $logFacility = LOG_USER)
+	public function __construct($channel, IManageConfigValues $config, Introspection $introspection, $level = LogLevel::NOTICE)
 	{
-		parent::__construct($channel, $introspection, $level, $logOpts, $logFacility);
+		parent::__construct($channel, $config, $introspection, $level);
 
 		$this->content = '';
 	}

@@ -36,7 +36,6 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 /**
  * This class is for the low level database stuff that does driver specific things.
@@ -81,16 +80,14 @@ class Database
 	/** @var ViewDefinition */
 	protected $viewDefinition;
 
-	public function __construct(IManageConfigValues $config, Profiler $profiler, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition)
+	public function __construct(IManageConfigValues $config, Profiler $profiler, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition, LoggerInterface $logger)
 	{
 		// We are storing these values for being able to perform a reconnect
-		$this->config   = $config;
-		$this->profiler = $profiler;
+		$this->config         = $config;
+		$this->profiler       = $profiler;
 		$this->dbaDefinition  = $dbaDefinition;
 		$this->viewDefinition = $viewDefinition;
-
-		// Temporary NullLogger until we can fetch the logger class from the config
-		$this->logger = new NullLogger();
+		$this->logger         = $logger;
 
 		$this->connect();
 	}
@@ -194,21 +191,6 @@ class Database
 	public function setTestmode(bool $test)
 	{
 		$this->testmode = $test;
-	}
-
-	/**
-	 * Sets the logger for DBA
-	 *
-	 * @note this is necessary because if we want to load the logger configuration
-	 *       from the DB, but there's an error, we would print out an exception.
-	 *       So the logger gets updated after the logger configuration can be retrieved
-	 *       from the database
-	 *
-	 * @param LoggerInterface $logger
-	 */
-	public function setLogger(LoggerInterface $logger)
-	{
-		$this->logger = $logger;
 	}
 
 	/**
