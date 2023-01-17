@@ -2190,7 +2190,6 @@ ul.tabs {
 	list-style: none;
 	height: 100%;
 	padding: 0;
-	padding-top: 10px;
 	margin: 0;
 }
 ul.tabs li {
@@ -2203,8 +2202,8 @@ ul.tabs li {
 	transition: all 0.15s ease;
 }
 ul.tabs li a {
-	margin-left: 10px;
-	margin-right: 10px;
+	display: block;
+	padding: 11px 10px;
 }
 ul.tabs li:hover,
 ul.tabs li.active {
@@ -2214,7 +2213,7 @@ ul.tabs li.active {
 	padding-top: 0;
 }
 #dropdownMenuTools-xs {
-	padding: 9px 10px;
+	padding: 9px 15px;
 }
 ul.tabbar ul.tabs-extended:hover li.dropdown {
 	border-bottom: 0;
