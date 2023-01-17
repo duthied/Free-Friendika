@@ -357,8 +357,6 @@ class App
 		$this->profiler->reset();
 
 		if ($this->mode->has(App\Mode::DBAVAILABLE)) {
-			$this->profiler->update($this->config);
-
 			Core\Hook::loadHooks();
 			$loader = (new Config())->createConfigFileManager($this->getBasePath(), $_SERVER);
 			Core\Hook::callAll('load_config', $loader);

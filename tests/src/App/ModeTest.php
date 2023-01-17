@@ -24,7 +24,7 @@ namespace Friendica\Test\src\App;
 use Detection\MobileDetect;
 use Friendica\App\Arguments;
 use Friendica\App\Mode;
-use Friendica\Core\Config\ValueObject\Cache;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\Database;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
@@ -47,9 +47,9 @@ class ModeTest extends MockedTest
 	private $databaseMock;
 
 	/**
-	 * @var Cache|MockInterface
+	 * @var IManageConfigValues|MockInterface
 	 */
-	private $configCacheMock;
+	private $configMock;
 
 	protected function setUp(): void
 	{
@@ -57,9 +57,8 @@ class ModeTest extends MockedTest
 
 		$this->setUpVfsDir();
 
-		$this->basePathMock    = Mockery::mock(BasePath::class);
-		$this->databaseMock    = Mockery::mock(Database::class);
-		$this->configCacheMock = Mockery::mock(Cache::class);
+		$this->databaseMock = Mockery::mock(Database::class);
+		$this->configMock   = Mockery::mock(IManageConfigValues::class);
 	}
 
 	public function testItEmpty()
@@ -71,15 +70,13 @@ class ModeTest extends MockedTest
 
 	public function testWithoutConfig()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
-
 		self::assertTrue($this->root->hasChild('config/local.config.php'));
 
 		$this->delConfigFile('local.config.php');
 
 		self::assertFalse($this->root->hasChild('config/local.config.php'));
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode = (new Mode())->determine($this->root->url(), $this->databaseMock, $this->configMock);
 
 		self::assertTrue($mode->isInstall());
 		self::assertFalse($mode->isNormal());
@@ -89,11 +86,9 @@ class ModeTest extends MockedTest
 
 	public function testWithoutDatabase()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
-
 		$this->databaseMock->shouldReceive('connected')->andReturn(false)->once();
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode = (new Mode())->determine($this->root->url(), $this->databaseMock, $this->configMock);
 
 		self::assertFalse($mode->isNormal());
 		self::assertTrue($mode->isInstall());
@@ -104,13 +99,11 @@ class ModeTest extends MockedTest
 
 	public function testWithMaintenanceMode()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
-
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
-		$this->configCacheMock->shouldReceive('get')->with('system', 'maintenance')
+		$this->configMock->shouldReceive('get')->with('system', 'maintenance')
 							  ->andReturn(true)->once();
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode = (new Mode())->determine($this->root->url(), $this->databaseMock, $this->configMock);
 
 		self::assertFalse($mode->isNormal());
 		self::assertFalse($mode->isInstall());
@@ -120,13 +113,11 @@ class ModeTest extends MockedTest
 
 	public function testNormalMode()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
-
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
-		$this->configCacheMock->shouldReceive('get')->with('system', 'maintenance')
+		$this->configMock->shouldReceive('get')->with('system', 'maintenance')
 							  ->andReturn(false)->once();
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode = (new Mode())->determine($this->root->url(), $this->databaseMock, $this->configMock);
 
 		self::assertTrue($mode->isNormal());
 		self::assertFalse($mode->isInstall());
@@ -139,13 +130,11 @@ class ModeTest extends MockedTest
 	 */
 	public function testDisabledMaintenance()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
-
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
-		$this->configCacheMock->shouldReceive('get')->with('system', 'maintenance')
+		$this->configMock->shouldReceive('get')->with('system', 'maintenance')
 							  ->andReturn(false)->once();
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode = (new Mode())->determine($this->root->url(), $this->databaseMock, $this->configMock);
 
 		self::assertTrue($mode->isNormal());
 		self::assertFalse($mode->isInstall());
@@ -158,11 +147,9 @@ class ModeTest extends MockedTest
 	 */
 	public function testImmutable()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn(null)->once();
-
 		$mode = new Mode();
 
-		$modeNew = $mode->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$modeNew = $mode->determine('', $this->databaseMock, $this->configMock);
 
 		self::assertNotSame($modeNew, $mode);
 	}

@@ -23,9 +23,7 @@ namespace Friendica\Test\src\Util;
 
 use Friendica\App\BaseURL;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Config\Capability\ISetConfigValuesTransactionally;
 use Friendica\Core\Config\Model\Config;
-use Friendica\Core\Config\Model\ConfigTransaction;
 use Friendica\Core\Config\Util\ConfigFileManager;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Test\MockedTest;
