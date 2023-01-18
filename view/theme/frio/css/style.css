@@ -828,6 +828,10 @@ nav.navbar .nav > li > button:focus {
 	background-color: $nav_bg;
 }
 /* Nav Search */
+.menu-popup {
+	max-height: calc(100vh - 55px);
+	overflow-y: auto;
+}
 #topbar-first #search-box .navbar-form {
 	margin: 0px;
 	padding: 12px 12px;
