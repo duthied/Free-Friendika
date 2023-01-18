@@ -1227,3 +1227,20 @@ function update_1510()
 	}
 	return Update::SUCCESS;
 }
+
+function update_1512()
+{
+	DI::keyValue()->set('nodeinfo_total_users', DI::config()->get('nodeinfo', 'total_users'));
+	DI::keyValue()->set('nodeinfo_active_users_halfyear', DI::config()->get('nodeinfo', 'active_users_halfyear'));
+	DI::keyValue()->set('nodeinfo_active_users_monthly', DI::config()->get('nodeinfo', 'active_users_monthly'));
+	DI::keyValue()->set('nodeinfo_active_users_weekly', DI::config()->get('nodeinfo', 'active_users_weekly'));
+	DI::keyValue()->set('nodeinfo_local_posts', DI::config()->get('nodeinfo', 'local_posts'));
+	DI::keyValue()->set('nodeinfo_local_comments', DI::config()->get('nodeinfo', 'local_comments'));
+
+	DI::config()->delete('nodeinfo', 'total_users');
+	DI::config()->delete('nodeinfo', 'active_users_halfyear');
+	DI::config()->delete('nodeinfo', 'active_users_monthly');
+	DI::config()->delete('nodeinfo', 'active_users_weekly');
+	DI::config()->delete('nodeinfo', 'local_posts');
+	DI::config()->delete('nodeinfo', 'local_comments');
+}
