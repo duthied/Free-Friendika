@@ -1972,14 +1972,17 @@ code > .hl-main {
 	margin: 0;
 	justify-content: space-between;
 }
+.wall-item-actions .btn,
 .wall-item-actions a,
 .wall-item-actions button {
 	font-size: 13px;
 	color: $font_color_darker;
+	background-color: transparent;
 }
 .wall-item-actions .active {
 	font-weight: bold;
 	color: $link_color;
+	box-shadow: none;
 }
 .wall-item-actions-left {
 	display: table-cell;
@@ -1989,11 +1992,23 @@ code > .hl-main {
 	display: flex;
 }
 .wall-item-actions .checkbox {
-	margin: 0;
-	margin-left: 20px;
+	margin: 0 0 0 15px;
+}
+@media screen and (max-width: 767px) {
+	.wall-item-actions .btn,
+	.wall-item-actions a,
+	.wall-item-actions button {
+		padding-right: 12px;
+		padding-left: 12px;
+	}
+	.wall-item-actions .checkbox {
+		margin-top: 8px;
+	}
+	.wall-item-actions .like-rotator {
+		padding-top: 8px;	
+	}
 }
 .wall-item-actions button:hover {
-	color: $font_color_darker;
 	text-decoration: underline;
 }
 .wall-item-actions .separator {
