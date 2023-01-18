@@ -2545,20 +2545,18 @@ ul.viewcontact_wrapper > li {
 }
 .contact-wrapper .contact-actions {
 	display: flex;
+	position: relative;
+	margin: -8px -8px 0 0;
 }
 .contact-wrapper .contact-action-link,
 .contact-wrapper .contact-action-link:hover,
 .textcomplete-item .contact-wrapper .contact-action-link {
-	padding: 0 5px;
 	color: $font_color_darker;
 	border: 0;
 }
 .contact-wrapper .contact-action-link {
-	opacity: 0.1;
-	transition: all 0.25s ease-in-out;
-}
-ul li:hover .contact-wrapper .contact-action-link {
-	opacity: 0.8;
+	background-color: transparent;
+	opacity: 0.3;
 	transition: all 0.25s ease-in-out;
 }
 ul li:hover .contact-wrapper .contact-action-link:hover {
