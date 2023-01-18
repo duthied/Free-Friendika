@@ -1946,6 +1946,9 @@ code > .hl-main {
 	margin: 10px 0;
 	font-size: 13px;
 }
+.wall-item-tags:empty {
+	margin: 0;
+}
 
 .wall-item-tags a {
 	color: $font_color_darker;
@@ -1996,7 +1999,10 @@ code > .hl-main {
 .wall-item-actions .separator {
 	margin: 0 0.3em;
 }
-
+.wall-item-responses {
+	margin-top: .3em;
+	font-size: 13px;
+}
 .wall-item-responses > div > p {
 	margin: 0;
 }
