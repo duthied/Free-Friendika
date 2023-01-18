@@ -1979,6 +1979,11 @@ code > .hl-main {
 	color: $font_color_darker;
 	background-color: transparent;
 }
+@media screen and (max-width: 767px) {
+	.wall-item-actions .like-rotator {
+		padding-top: 8px;	
+	}
+}
 .wall-item-actions .active {
 	font-weight: bold;
 	color: $link_color;

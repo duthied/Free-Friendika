@@ -436,28 +436,24 @@ as the value of $top_child_total (this is done at the end of this file)
 				</span>
 			</span>
 
-			<div class="btn-toolbar visible-xs" role="toolbar">
+			<div class="btn-toolbar btn-group visible-xs" role="group">
 			{{* Buttons for like and dislike *}}
 			{{if $item.vote}}
-				<div class="btn-group" role="group">
 				{{if $item.vote.like}}
 					<button type="button" class="btn button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doActivityItemAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-thumbs-up" aria-hidden="true"></i></button>
 				{{/if}}
 				{{if $item.vote.dislike}}
 					<button type="button" class="btn button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doActivityItemAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-thumbs-down" aria-hidden="true"></i></button>
 				{{/if}}
-				</div>
 			{{/if}}
 
 			{{* Button to open the comment text field *}}
 			{{if $item.comment_html}}
-				<div class="btn-group" role="group">
-					<button type="button" class="btn button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i></button>
-				</div>
+				<button type="button" class="btn button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i></button>
 			{{/if}}
 
 			{{if $item.vote.announce OR $item.vote.share}}
-				<div class="share-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}">
+				<div class="share-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}" role="group">
 					<button type="button" class="btn dropdown-toggle{{if $item.responses.announce.self}} active{{/if}}" data-toggle="dropdown" id="shareMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}">
 						<i class="fa fa-share" aria-hidden="true"></i>
 					</button>
@@ -491,9 +487,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 
 			{{* Put additional actions in a dropdown menu *}}
-				<div class="btn-group" role="group">
-					<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
-				</div>
+				<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 			</div>
 
 			<div class="wall-item-actions-right visible-xs">
