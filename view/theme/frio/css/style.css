@@ -1975,14 +1975,8 @@ code > .hl-main {
 .wall-item-actions .btn,
 .wall-item-actions a,
 .wall-item-actions button {
-	font-size: 13px;
 	color: $font_color_darker;
 	background-color: transparent;
-}
-@media screen and (max-width: 767px) {
-	.wall-item-actions .like-rotator {
-		padding-top: 8px;	
-	}
 }
 .wall-item-actions .active {
 	font-weight: bold;
@@ -2021,7 +2015,6 @@ code > .hl-main {
 }
 .wall-item-responses {
 	margin-top: .3em;
-	font-size: 13px;
 }
 .wall-item-responses > div > p {
 	margin: 0;
