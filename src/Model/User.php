@@ -776,7 +776,7 @@ class User
 			$allowed_characters = preg_quote($allowed_characters, $delimiter);
 		}
 
-		return '^[a-zA-Z0-9' . $allowed_characters . ']' . (PASSWORD_DEFAULT !== PASSWORD_BCRYPT ? '{1,72}' : '+') . '$';
+		return '^[a-zA-Z0-9' . $allowed_characters . ']' . (PASSWORD_DEFAULT === PASSWORD_BCRYPT ? '{1,72}' : '+') . '$';
 	}
 
 	/**
