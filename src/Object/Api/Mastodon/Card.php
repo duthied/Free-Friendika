@@ -54,6 +54,8 @@ class Card extends BaseDataTransferObject
 	protected $image;
 	/** @var string */
 	protected $blurhash;
+	/** @var array */
+	protected $history;
 
 	/**
 	 * Creates a card record from an attachment array.
