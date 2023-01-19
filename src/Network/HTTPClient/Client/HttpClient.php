@@ -69,6 +69,10 @@ class HttpClient implements ICanSendHttpRequests
 		$this->logger->debug('Request start.', ['url' => $url, 'method' => $method]);
 
 		$host = parse_url($url, PHP_URL_HOST);
+		if (empty($host)) {
+			throw new \InvalidArgumentException('Unable to retrieve the host in URL: ' . $url);
+		}
+
 		if(!filter_var($host, FILTER_VALIDATE_IP) && !@dns_get_record($host . '.', DNS_A + DNS_AAAA) && !gethostbyname($host)) {
 			$this->logger->debug('URL cannot be resolved.', ['url' => $url, 'callstack' => System::callstack(20)]);
 			$this->profiler->stopRecording();
