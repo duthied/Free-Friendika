@@ -549,7 +549,7 @@ class Account extends BaseSettings
 
 		$notify_type = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'notify_type');
 
-		$passwordRules = DI::l10n()->t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).')
+		$passwordRules = DI::l10n()->t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces and accentuated letters.')
 			. (PASSWORD_DEFAULT === PASSWORD_BCRYPT ? ' ' . DI::l10n()->t('Password length is limited to 72 characters.') : '');
 
 		$tpl = Renderer::getMarkupTemplate('settings/account.tpl');

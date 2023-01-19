@@ -757,7 +757,7 @@ class User
 	}
 
 	/**
-	 * Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).
+	 * Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces and accentuated letters.
 	 *
 	 * Password length is limited to 72 characters if the current default password hashing algorithm is Blowfish.
 	 * From the manual: "Using the PASSWORD_BCRYPT as the algorithm, will result in the password parameter being
@@ -770,7 +770,7 @@ class User
 	 */
 	public static function getPasswordRegExp(string $delimiter = null): string
 	{
-		$allowed_characters = '!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
+		$allowed_characters = ':!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
 
 		if ($delimiter) {
 			$allowed_characters = preg_quote($allowed_characters, $delimiter);
@@ -804,7 +804,7 @@ class User
 		}
 
 		if (!preg_match('/' . self::getPasswordRegExp('/') . '/', $password)) {
-			throw new Exception(DI::l10n()->t('The password can\'t contain accentuated letters, white spaces or colons (:)'));
+			throw new Exception(DI::l10n()->t("The password can't contain white spaces nor accentuated letters"));
 		}
 
 		return self::updatePasswordHashed($uid, self::hashPassword($password));

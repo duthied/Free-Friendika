@@ -98,7 +98,7 @@ class PasswordTooLong extends \Friendica\BaseModule
 			'$return_url'          => $request['return_url'] ?? '',
 
 			'$password_current' => ['password_current', $this->l10n->t('Current Password:'), '', $this->l10n->t('Your current password to confirm the changes'), 'required', 'autocomplete="off"'],
-			'$password'         => ['password', $this->l10n->t('New Password:'), '', $this->l10n->t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).') . ' ' . $this->l10n->t('Password length is limited to 72 characters.'), 'required', 'autocomplete="off"', User::getPasswordRegExp()],
+			'$password'         => ['password', $this->l10n->t('New Password:'), '', $this->l10n->t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces and accentuated letters.') . ' ' . $this->l10n->t('Password length is limited to 72 characters.'), 'required', 'autocomplete="off"', User::getPasswordRegExp()],
 			'$password_confirm' => ['password_confirm', $this->l10n->t('Confirm:'), '', '', 'required', 'autocomplete="off"'],
 		]);
 
