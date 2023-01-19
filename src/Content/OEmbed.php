@@ -316,7 +316,7 @@ class OEmbed
 		if ($stopoembed == true) {
 			return preg_replace("/\[embed\](.+?)\[\/embed\]/is", "<!-- oembed $1 --><i>" . DI::l10n()->t('Embedding disabled') . " : $1</i><!-- /oembed $1 -->", $text);
 		}
-		return preg_replace_callback("/\[embed\](.+?)\[\/embed\]/is", ['self', 'replaceCallback'], $text);
+		return preg_replace_callback("/\[embed\](.+?)\[\/embed\]/is", [self::class, 'replaceCallback'], $text);
 	}
 
 	/**

@@ -1415,8 +1415,8 @@ class BBCode
 	public static function cleanPictureLinks(string $text): string
 	{
 		DI::profiler()->startRecording('rendering');
-		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img=(.*)\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $text);
-		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $return);
+		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img=(.*)\](.*)\[\/img\]\[\/url\]&Usi", [self::class, 'cleanPictureLinksCallback'], $text);
+		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", [self::class, 'cleanPictureLinksCallback'], $return);
 		DI::profiler()->stopRecording();
 		return $return;
 	}
@@ -1450,7 +1450,7 @@ class BBCode
 	{
 		DI::profiler()->startRecording('rendering');
 		$regexp = "/([@!])\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
-		$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
+		$body = preg_replace_callback($regexp, [self::class, 'mentionCallback'], $body);
 		DI::profiler()->stopRecording();
 		return $body;
 	}
@@ -2002,12 +2002,12 @@ class BBCode
 
 				if (!$for_plaintext) {
 					if (in_array($simple_html, [self::OSTATUS, self::MASTODON_API, self::TWITTER_API, self::ACTIVITYPUB])) {
-						$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
-						$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
+						$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", [self::class, 'convertUrlForActivityPubCallback'], $text);
+						$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", [self::class, 'convertUrlForActivityPubCallback'], $text);
 					}
 				} else {
 					$text = preg_replace("(\[url\](.*?)\[\/url\])ism", " $1 ", $text);
-					$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::removePictureLinksCallback', $text);
+					$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", [self::class, 'removePictureLinksCallback'], $text);
 				}
 
 				// Bookmarks in red - will be converted to bookmarks in friendica
@@ -2017,7 +2017,7 @@ class BBCode
 							"[bookmark=$1]$2[/bookmark]", $text);
 
 				if (in_array($simple_html, [self::OSTATUS, self::TWITTER])) {
-					$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "self::expandLinksCallback", $text);
+					$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", [self::class, 'expandLinksCallback'], $text);
 					//$text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $text);
 					$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]', $text);
 				}
@@ -2327,7 +2327,7 @@ class BBCode
 			$url_search_string = "^\[\]";
 			$text = preg_replace_callback(
 				"/([@!])\[(.*?)\]\(([$url_search_string]*?)\)/ism",
-				['self', 'bbCodeMention2DiasporaCallback'],
+				[self::class, 'bbCodeMention2DiasporaCallback'],
 				$text
 			);
 		}

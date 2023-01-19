@@ -198,7 +198,7 @@ class Event
 
 	public static function sortByDate(array $event_list): array
 	{
-		usort($event_list, ['self', 'compareDatesCallback']);
+		usort($event_list, [self::class, 'compareDatesCallback']);
 		return $event_list;
 	}
 

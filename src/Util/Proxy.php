@@ -141,7 +141,7 @@ class Proxy
 	{
 		$html = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/', DI::baseUrl() . '/', $html);
 
-		return preg_replace_callback('/(<img [^>]*src *= *["\'])([^"\']+)(["\'][^>]*>)/siU', 'self::replaceUrl', $html);
+		return preg_replace_callback('/(<img [^>]*src *= *["\'])([^"\']+)(["\'][^>]*>)/siU', [self::class, 'replaceUrl'], $html);
 	}
 
 	/**
