@@ -57,13 +57,13 @@ class UpdateServerPeers
 		$total = 0;
 		$added = 0;
 		foreach ($peers as $peer) {
-			if (Network::isUrlBlocked('http://' . $peer)) {
+			if (Network::isUrlBlocked('https://' . $peer)) {
 				// Ignore blocked systems as soon as possible in the loop to avoid being slowed down by tar pits
 				continue;
 			}
 
 			++$total;
-			if (DBA::exists('gserver', ['nurl' => Strings::normaliseLink('http://' . $peer)])) {
+			if (DBA::exists('gserver', ['nurl' => Strings::normaliseLink('https://' . $peer)])) {
 				// We already know this server
 				continue;
 			}
