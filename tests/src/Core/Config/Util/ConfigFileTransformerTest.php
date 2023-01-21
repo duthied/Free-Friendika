@@ -48,7 +48,7 @@ class ConfigFileTransformerTest extends MockedTest
 				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/object.node.config.php'),
 				'assertException' => true,
 			],
-			'ressource' => [
+			'resource' => [
 				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/ressource.node.config.php'),
 				'assertException' => false,
 				'assertion' => <<<EOF
