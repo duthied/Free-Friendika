@@ -21,7 +21,7 @@
 
 namespace Friendica\Test\Util;
 
-class SerializableObjectDouble implements \Serializable#
+class SerializableObjectDouble implements \Serializable
 {
 	public function serialize()
 	{
