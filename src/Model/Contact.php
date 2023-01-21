@@ -2968,7 +2968,7 @@ class Contact
 		}
 
 		// check if we already have a contact
-		$condition = ['uid' => $uid, 'nurl' => Strings::normaliseLink($ret['url'])];
+		$condition = ['uid' => $uid, 'nurl' => Strings::normaliseLink($ret['url']), 'deleted' => false];
 		$contact = DBA::selectFirst('contact', ['id', 'rel', 'url', 'pending', 'hub-verify'], $condition);
 
 		$protocol = self::getProtocol($ret['url'], $ret['network']);
