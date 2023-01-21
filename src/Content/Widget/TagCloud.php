@@ -144,7 +144,7 @@ class TagCloud
 			$x ++;
 		}
 
-		usort($tags, 'self::tagsSort');
+		usort($tags, [self::class, 'tagsSort']);
 		$range = max(0.01, $max - $min) * 1.0001;
 
 		for ($x = 0; $x < count($tags); $x ++) {

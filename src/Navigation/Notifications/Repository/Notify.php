@@ -614,7 +614,7 @@ class Notify extends BaseRepository
 
 					$emailBuilder->setHeader('Message-ID', $message_id);
 					$log_msg = "No previous notification found for this parent:\n" .
-						"  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
+						"  parent: {$params['parent']}\n" . "  uid   : {$params['uid']}\n";
 					$this->logger->info($log_msg);
 				} else {
 					// If not, just "follow" the thread.
