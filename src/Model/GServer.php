@@ -455,22 +455,34 @@ class GServer
 	 * Set failed server status
 	 *
 	 * @param string $url
+	 * @return void
 	 */
 	public static function setFailureByUrl(string $url)
 	{
-		$gserver = DBA::selectFirst('gserver', [], ['nurl' => Strings::normaliseLink($url)]);
+		$nurl = Strings::normaliseLink($url);
+
+		$gserver = DBA::selectFirst('gserver', [], ['nurl' => $nurl]);
 		if (DBA::isResult($gserver)) {
 			$next_update = self::getNextUpdateDate(false, $gserver['created'], $gserver['last_contact']);
 			self::update(['url' => $url, 'failed' => true, 'blocked' => Network::isUrlBlocked($url), 'last_failure' => DateTimeFormat::utcNow(),
 			'next_contact' => $next_update, 'network' => Protocol::PHANTOM, 'detection-method' => null],
-			['nurl' => Strings::normaliseLink($url)]);
+			['nurl' => $nurl]);
 			Logger::info('Set failed status for existing server', ['url' => $url]);
 			if (self::isDefunct($gserver)) {
 				self::archiveContacts($gserver['id']);
 			}
 			return;
 		}
-		self::insert(['url' => $url, 'nurl' => Strings::normaliseLink($url),
+
+		if (Network::isUrlBlocked($url)) {
+			Logger::info('Server domain is blocked', ['url' => $url]);
+			return;
+		} elseif (Network::isUrlBlocked($nurl)) {
+			Logger::info('Server domain is blocked', ['nurl' => $nurl]);
+			return;
+		}
+
+		self::insert(['url' => $url, 'nurl' => $nurl,
 			'network' => Protocol::PHANTOM, 'created' => DateTimeFormat::utcNow(),
 			'failed' => true, 'last_failure' => DateTimeFormat::utcNow()]);
 		Logger::info('Set failed status for new server', ['url' => $url]);
@@ -559,6 +571,9 @@ class GServer
 			if (!self::getID($url, true)) {
 				self::detect($url, $network, $only_nodeinfo);
 			}
+			return false;
+		} elseif (Network::isUrlBlocked($url)) {
+			Logger::info('Server domain is blocked', ['url' => $url]);
 			return false;
 		}
 
