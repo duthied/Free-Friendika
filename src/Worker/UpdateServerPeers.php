@@ -63,7 +63,7 @@ class UpdateServerPeers
 			}
 
 			++$total;
-			if (DBA::exists('gserver', ['nurl' => Strings::normaliseLink('https://' . $peer)])) {
+			if (DBA::exists('gserver', ['nurl' => 'http://' . $peer])) {
 				// We already know this server
 				continue;
 			}

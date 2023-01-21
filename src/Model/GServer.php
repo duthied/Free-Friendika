@@ -455,18 +455,11 @@ class GServer
 	 * Set failed server status
 	 *
 	 * @param string $url
+	 * @return void
 	 */
 	public static function setFailureByUrl(string $url)
 	{
 		$nurl = Strings::normaliseLink($url);
-
-		if (Network::isUrlBlocked($url)) {
-			Logger::info('Server domain is blocked', ['url' => $url]);
-			return;
-		} elseif (Network::isUrlBlocked($nurl)) {
-			Logger::info('Server domain is blocked', ['nurl' => $nurl]);
-			return;
-		}
 
 		$gserver = DBA::selectFirst('gserver', [], ['nurl' => $nurl]);
 		if (DBA::isResult($gserver)) {
@@ -478,6 +471,14 @@ class GServer
 			if (self::isDefunct($gserver)) {
 				self::archiveContacts($gserver['id']);
 			}
+			return;
+		}
+
+		if (Network::isUrlBlocked($url)) {
+			Logger::info('Server domain is blocked', ['url' => $url]);
+			return;
+		} elseif (Network::isUrlBlocked($nurl)) {
+			Logger::info('Server domain is blocked', ['nurl' => $nurl]);
 			return;
 		}
 
