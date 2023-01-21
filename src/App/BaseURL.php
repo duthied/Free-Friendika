@@ -264,6 +264,10 @@ class BaseURL
 		$this->sslPolicy = $this->config->get('system', 'ssl_policy') ?? static::DEFAULT_SSL_SCHEME;
 		$this->url       = $this->config->get('system', 'url');
 
+		if (empty($this->hostname) || empty($this->url)) {
+			throw new \Exception('Invalid config - Missing system.url or config.hostname');
+		}
+
 		$this->determineSchema();
 	}
 
