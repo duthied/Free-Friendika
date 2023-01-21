@@ -541,25 +541,6 @@ class App
 	}
 
 	/**
-	 * Sets the base url for use in cmdline programs which don't have
-	 * $_SERVER variables
-	 */
-	public function checkURL()
-	{
-		$url = $this->config->get('system', 'url');
-
-		// if the url isn't set or the stored url is radically different
-		// than the currently visited url, store the current value accordingly.
-		// "Radically different" ignores common variations such as http vs https
-		// and www.example.com vs example.com.
-		// We will only change the url to an ip address if there is no existing setting
-
-		if (empty($url) || (!Util\Strings::compareLink($url, $this->baseURL->get())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $this->baseURL->getHostname()))) {
-			$this->config->set('system', 'url', $this->baseURL->get());
-		}
-	}
-
-	/**
 	 * Frontend App script
 	 *
 	 * The App object behaves like a container and a dispatcher at the same time, including a representation of the
@@ -657,7 +638,6 @@ class App
 			if ($this->mode->isInstall() && $moduleName !== 'install') {
 				$this->baseURL->redirect('install');
 			} else {
-				$this->checkURL();
 				Core\Update::check($this->getBasePath(), false);
 				Core\Addon::loadAddons();
 				Core\Hook::loadHooks();
