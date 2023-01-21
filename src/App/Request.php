@@ -74,7 +74,7 @@ class Request
 	public function __construct(IManageConfigValues $config, array $server = [])
 	{
 		$this->remoteAddress = $this->determineRemoteAddress($config, $server);
-		$this->requestId = $server[static::DEFAULT_REQUEST_ID_HEADER] ?? System::createGUID(8);
+		$this->requestId = $server[static::DEFAULT_REQUEST_ID_HEADER] ?? System::createGUID(8, false);
 	}
 
 	/**

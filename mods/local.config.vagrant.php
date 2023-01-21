@@ -40,5 +40,7 @@ return [
 		'language' => 'en',
 		'basepath' => '/vagrant',
 		'ssl_policy' => \Friendica\App\BaseURL::SSL_POLICY_SELFSIGN,
+		'url' => 'https://192.168.56.10',
+		'urlpath' => '',
 	],
 ];
