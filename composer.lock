@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0bbc4011b7628c0d563f80f361e98cdd",
+    "content-hash": "5af9ac9003f4653f3aa1860dd5a4d821",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -367,50 +367,6 @@
                 }
             ],
             "time": "2022-07-20T07:14:26+00:00"
-        },
-        {
-            "name": "cweagans/composer-patches",
-            "version": "1.7.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cweagans/composer-patches.git",
-                "reference": "e190d4466fe2b103a55467dfa83fc2fecfcaf2db"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/e190d4466fe2b103a55467dfa83fc2fecfcaf2db",
-                "reference": "e190d4466fe2b103a55467dfa83fc2fecfcaf2db",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0 || ^2.0",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "composer/composer": "~1.0 || ~2.0",
-                "phpunit/phpunit": "~4.6"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "cweagans\\Composer\\Patches"
-            },
-            "autoload": {
-                "psr-4": {
-                    "cweagans\\Composer\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Cameron Eagans",
-                    "email": "me@cweagans.net"
-                }
-            ],
-            "description": "Provides a way to patch Composer packages.",
-            "time": "2022-12-20T22:53:13+00:00"
         },
         {
             "name": "dasprid/enum",
@@ -1289,16 +1245,16 @@
         },
         {
             "name": "level-2/dice",
-            "version": "4.0.3",
+            "version": "4.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Level-2/Dice.git",
-                "reference": "3e9a8548398c01e2527110c916a93f6efa17ac9c"
+                "reference": "e04c98d96bcc932a917b2b7e7944887e4839056a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Level-2/Dice/zipball/3e9a8548398c01e2527110c916a93f6efa17ac9c",
-                "reference": "3e9a8548398c01e2527110c916a93f6efa17ac9c",
+                "url": "https://api.github.com/repos/Level-2/Dice/zipball/e04c98d96bcc932a917b2b7e7944887e4839056a",
+                "reference": "e04c98d96bcc932a917b2b7e7944887e4839056a",
                 "shasum": ""
             },
             "require": {
@@ -1309,9 +1265,7 @@
             },
             "type": "library",
             "extra": {
-                "patches_applied": [
-                    "mods/patches/level-2-dice-dice-php.patch"
-                ]
+                "patches_applied": []
             },
             "autoload": {
                 "psr-4": {
@@ -1336,7 +1290,7 @@
                 "di",
                 "ioc"
             ],
-            "time": "2021-04-20T14:06:06+00:00"
+            "time": "2022-03-28T21:20:23+00:00"
         },
         {
             "name": "lightopenid/lightopenid",
@@ -6417,50 +6371,6 @@
                 }
             ],
             "time": "2020-09-28T06:39:44+00:00"
-        },
-        {
-            "name": "symplify/vendor-patches",
-            "version": "11.2.0.72",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symplify/vendor-patches.git",
-                "reference": "83204e1a7a33ca958f9d1cc9c3b1b25f75270775"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symplify/vendor-patches/zipball/83204e1a7a33ca958f9d1cc9c3b1b25f75270775",
-                "reference": "83204e1a7a33ca958f9d1cc9c3b1b25f75270775",
-                "shasum": ""
-            },
-            "require": {
-                "cweagans/composer-patches": "^1.7",
-                "php": ">=7.2"
-            },
-            "bin": [
-                "bin/vendor-patches"
-            ],
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "10.3-dev"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Generate vendor patches for packages with single command",
-            "funding": [
-                {
-                    "url": "https://www.paypal.me/rectorphp",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/tomasvotruba",
-                    "type": "github"
-                }
-            ],
-            "time": "2023-01-11T09:41:31+00:00"
         },
         {
             "name": "theseer/tokenizer",
