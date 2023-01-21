@@ -23,6 +23,9 @@ namespace Friendica\Test\src\Core\Config\Util;
 
 use Friendica\Core\Config\Util\ConfigFileTransformer;
 use Friendica\Test\MockedTest;
+use Friendica\Test\Util\SerializableObjectDouble;
+use ParagonIE\HiddenString\HiddenString;
+use function PHPUnit\Framework\assertEquals;
 
 class ConfigFileTransformerTest extends MockedTest
 {
@@ -45,9 +48,34 @@ class ConfigFileTransformerTest extends MockedTest
 				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/object.node.config.php'),
 				'assertException' => true,
 			],
-			'ressource_invalid' => [
+			'resource' => [
 				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/ressource.node.config.php'),
-				'assertException' => true,
+				'assertException' => false,
+				'assertion' => <<<EOF
+<?php
+
+return [
+	'ressource' => [
+		'ressources_not_allowed' => '',
+	],
+];
+
+EOF,
+			],
+			'object_valid' => [
+				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/object_valid.node.config.php'),
+				'assertException' => false,
+				'assertion' => <<<EOF
+<?php
+
+return [
+	'object' => [
+		'toString' => 'test',
+		'serializable' => 'serialized',
+	],
+];
+
+EOF,
 			],
 			'test_types' => [
 				'configFile' => (dirname(__DIR__, 4) . '/datasets/config/transformer/types.node.config.php'),
@@ -63,7 +91,7 @@ class ConfigFileTransformerTest extends MockedTest
 	 *
 	 * @dataProvider dataTests
 	 */
-	public function testConfigFile(string $configFile, bool $assertException = false)
+	public function testConfigFile(string $configFile, bool $assertException = false, $assertion = null)
 	{
 		$dataArray = include $configFile;
 
@@ -73,6 +101,10 @@ class ConfigFileTransformerTest extends MockedTest
 
 		$newConfig = ConfigFileTransformer::encode($dataArray);
 
-		self::assertEquals(file_get_contents($configFile), $newConfig);
+		if (empty($assertion)) {
+			self::assertEquals(file_get_contents($configFile), $newConfig);
+		} else {
+			self::assertEquals($assertion, $newConfig);
+		}
 	}
 }

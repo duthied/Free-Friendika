@@ -214,6 +214,17 @@ class ConfigFileTransformer
 			case "NULL":
 				return "null";
 			case "object":
+				if (method_exists($value, '__toString')) {
+					return sprintf('\'%s\'', $value);
+				} elseif ($value instanceof \Serializable) {
+					try {
+						return $value->serialize();
+					} catch (\Exception $e) {
+						throw new \InvalidArgumentException(sprintf('Cannot serialize %s.', gettype($value)), $e);
+					}
+				} else {
+					throw new \InvalidArgumentException(sprintf('%s is an object without stringify.', gettype($value)));
+				}
 			case "resource":
 			case "resource (closed)":
 				throw new \InvalidArgumentException(sprintf('%s in configs are not supported yet.', gettype($value)));
