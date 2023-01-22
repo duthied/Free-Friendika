@@ -71,17 +71,17 @@ class Statuses extends BaseApi
 		}
 
 		// The imput is defined as text. So we can use Markdown for some enhancements
-		$item = ['body' => Markdown::toBBCode($request['status']), 'app' => $this->getApp()];
+		$item = ['body' => Markdown::toBBCode($request['status']), 'app' => $this->getApp(), 'title' => ''];
 
 		if (!empty($request['language'])) {
 			$item['language'] = json_encode([$request['language'] => 1]);
 		}
 
 		if (!empty($request['spoiler_text'])) {
-			if ($request['in_reply_to_id'] != $post['uri-id']) {
-				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
-			} else {
+			if (($request['in_reply_to_id'] == $post['uri-id']) && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
 				$item['title'] = $request['spoiler_text'];
+			} else {
+				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
 			}
 		}
 
@@ -119,6 +119,7 @@ class Statuses extends BaseApi
 		$item['verb']       = Activity::POST;
 		$item['contact-id'] = $owner['id'];
 		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
+		$item['title']      = '';
 		$item['body']       = $body;
 		$item['app']        = $this->getApp();
 
@@ -187,13 +188,19 @@ class Statuses extends BaseApi
 			$item['thr-parent']  = $parent['uri'];
 			$item['gravity']     = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
-			$item['body']        = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
 		} else {
 			self::checkThrottleLimit();
 
 			$item['gravity']     = Item::GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
-			$item['title']       = $request['spoiler_text'];
+		}
+
+		if (!empty($request['spoiler_text'])) {
+			if (!$request['in_reply_to_id'] && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
+				$item['title'] = $request['spoiler_text'];
+			} else {
+				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
+			}
 		}
 
 		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
