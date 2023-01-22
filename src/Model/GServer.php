@@ -455,22 +455,26 @@ class GServer
 	 * Set failed server status
 	 *
 	 * @param string $url
+	 * @return void
 	 */
 	public static function setFailureByUrl(string $url)
 	{
-		$gserver = DBA::selectFirst('gserver', [], ['nurl' => Strings::normaliseLink($url)]);
+		$nurl = Strings::normaliseLink($url);
+
+		$gserver = DBA::selectFirst('gserver', [], ['nurl' => $nurl]);
 		if (DBA::isResult($gserver)) {
 			$next_update = self::getNextUpdateDate(false, $gserver['created'], $gserver['last_contact']);
 			self::update(['url' => $url, 'failed' => true, 'blocked' => Network::isUrlBlocked($url), 'last_failure' => DateTimeFormat::utcNow(),
 			'next_contact' => $next_update, 'network' => Protocol::PHANTOM, 'detection-method' => null],
-			['nurl' => Strings::normaliseLink($url)]);
+			['nurl' => $nurl]);
 			Logger::info('Set failed status for existing server', ['url' => $url]);
 			if (self::isDefunct($gserver)) {
 				self::archiveContacts($gserver['id']);
 			}
 			return;
 		}
-		self::insert(['url' => $url, 'nurl' => Strings::normaliseLink($url),
+
+		self::insert(['url' => $url, 'nurl' => $nurl,
 			'network' => Protocol::PHANTOM, 'created' => DateTimeFormat::utcNow(),
 			'failed' => true, 'last_failure' => DateTimeFormat::utcNow()]);
 		Logger::info('Set failed status for new server', ['url' => $url]);
@@ -556,7 +560,7 @@ class GServer
 		// If the URL missmatches, then we mark the old entry as failure
 		if (!Strings::compareLink($url, $original_url)) {
 			self::setFailureByUrl($original_url);
-			if (!self::getID($url, true)) {
+			if (!self::getID($url, true) && !Network::isUrlBlocked($url)) {
 				self::detect($url, $network, $only_nodeinfo);
 			}
 			return false;
@@ -577,7 +581,7 @@ class GServer
 				(((parse_url($url, PHP_URL_HOST) != parse_url($valid_url, PHP_URL_HOST)) || (parse_url($url, PHP_URL_PATH) != parse_url($valid_url, PHP_URL_PATH))) && empty(parse_url($valid_url, PHP_URL_PATH)))) {
 				Logger::debug('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $valid_url]);
 				self::setFailureByUrl($url);
-				if (!self::getID($valid_url, true)) {
+				if (!self::getID($valid_url, true) && !Network::isUrlBlocked($valid_url)) {
 					self::detect($valid_url, $network, $only_nodeinfo);
 				}
 				return false;
@@ -591,7 +595,7 @@ class GServer
 				$valid_url = (string)Uri::fromParts($parts);
 
 				self::setFailureByUrl($url);
-				if (!self::getID($valid_url, true)) {
+				if (!self::getID($valid_url, true) && !Network::isUrlBlocked($valid_url)) {
 					self::detect($valid_url, $network, $only_nodeinfo);
 				}
 				return false;

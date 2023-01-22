@@ -783,7 +783,7 @@ class DBStructure
 			}
 
 			if (!DBA::exists('verb', ['id' => 0])) {
-				DBA::insert('verb', ['name' => '']);
+				DBA::insert('verb', ['name' => ''], Database::INSERT_IGNORE);
 				$lastid = DBA::lastInsertId();
 				if ($lastid != 0) {
 					DBA::update('verb', ['id' => 0], ['id' => $lastid]);
@@ -819,7 +819,7 @@ class DBStructure
 		}
 
 		if (self::existsTable('contact') && !DBA::exists('contact', ['id' => 0])) {
-			DBA::insert('contact', ['nurl' => '']);
+			DBA::insert('contact', ['nurl' => ''], Database::INSERT_IGNORE);
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
 				DBA::update('contact', ['id' => 0], ['id' => $lastid]);
@@ -834,7 +834,7 @@ class DBStructure
 		}
 
 		if (self::existsTable('tag') && !DBA::exists('tag', ['id' => 0])) {
-			DBA::insert('tag', ['name' => '']);
+			DBA::insert('tag', ['name' => ''], Database::INSERT_IGNORE);
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
 				DBA::update('tag', ['id' => 0], ['id' => $lastid]);
@@ -850,7 +850,7 @@ class DBStructure
 
 		if (self::existsTable('permissionset')) {
 			if (!DBA::exists('permissionset', ['id' => 0])) {
-				DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);
+				DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => ''], Database::INSERT_IGNORE);
 				$lastid = DBA::lastInsertId();
 				if ($lastid != 0) {
 					DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
@@ -878,7 +878,7 @@ class DBStructure
 					}
 					$fields = ['id' => $set['psid'], 'uid' => $set['uid'], 'allow_cid' => $permission,
 						'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => ''];
-					DBA::insert('permissionset', $fields);
+					DBA::insert('permissionset', $fields, Database::INSERT_IGNORE);
 				}
 				DBA::close($sets);
 			}

@@ -1661,7 +1661,7 @@ class Transmitter
 		 *
 		 * } elseif (($type == 'Article') && empty($data['summary'])) {
 		 * 		$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
-		 * 		$summary = preg_replace_callback($regexp, ['self', 'mentionAddrCallback'], $body);
+		 * 		$summary = preg_replace_callback($regexp, [self::class, 'mentionAddrCallback'], $body);
 		 * 		$data['summary'] = BBCode::toPlaintext(Plaintext::shorten(self::removePictures($summary), 1000));
 		 * }
 		 */

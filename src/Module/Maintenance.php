@@ -36,7 +36,7 @@ class Maintenance extends BaseModule
 {
 	protected function content(array $request = []): string
 	{
-		$reason = DI::config()->get('system', 'maintenance_reason');
+		$reason = DI::config()->get('system', 'maintenance_reason') ?? '';
 
 		if ((substr(Strings::normaliseLink($reason), 0, 7) === 'http://') ||
 			(substr(Strings::normaliseLink($reason), 0, 8) === 'https://')) {

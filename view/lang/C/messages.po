@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-14 21:19+0000\n"
+"POT-Creation-Date: 2023-01-21 09:22-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,7 +49,7 @@ msgstr ""
 #: src/Module/Attach.php:55 src/Module/BaseApi.php:95
 #: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:52
 #: src/Module/Calendar/Event/API.php:88 src/Module/Calendar/Event/Form.php:84
-#: src/Module/Calendar/Export.php:62 src/Module/Calendar/Show.php:82
+#: src/Module/Calendar/Export.php:82 src/Module/Calendar/Show.php:82
 #: src/Module/Contact/Advanced.php:60 src/Module/Contact/Follow.php:86
 #: src/Module/Contact/Follow.php:159 src/Module/Contact/MatchInterests.php:86
 #: src/Module/Contact/Suggestions.php:54 src/Module/Contact/Unfollow.php:66
@@ -302,7 +302,7 @@ msgstr ""
 #: mod/photos.php:819 mod/photos.php:1097 mod/photos.php:1138
 #: mod/photos.php:1194 mod/photos.php:1268
 #: src/Module/Calendar/Event/Form.php:250 src/Module/Contact/Advanced.php:132
-#: src/Module/Contact/Profile.php:343
+#: src/Module/Contact/Profile.php:340
 #: src/Module/Debug/ActivityPubConversion.php:140
 #: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
 #: src/Module/Debug/Probe.php:54 src/Module/Debug/WebFinger.php:51
@@ -385,7 +385,7 @@ msgstr ""
 
 #: mod/photos.php:67 mod/photos.php:132 mod/photos.php:577
 #: src/Model/Event.php:514 src/Model/Profile.php:234
-#: src/Module/Calendar/Export.php:67 src/Module/Calendar/Show.php:74
+#: src/Module/Calendar/Export.php:74 src/Module/Calendar/Show.php:74
 #: src/Module/DFRN/Poll.php:43 src/Module/Feed.php:65 src/Module/HCard.php:51
 #: src/Module/Profile/Common.php:62 src/Module/Profile/Common.php:71
 #: src/Module/Profile/Contacts.php:64 src/Module/Profile/Contacts.php:72
@@ -649,11 +649,11 @@ msgstr ""
 msgid "Map"
 msgstr ""
 
-#: src/App.php:472
+#: src/App.php:470
 msgid "No system theme config value set."
 msgstr ""
 
-#: src/App.php:594
+#: src/App.php:592
 msgid "Apologies but the website is unavailable at the moment."
 msgstr ""
 
@@ -1544,36 +1544,36 @@ msgstr ""
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:420 src/Model/Contact.php:1206
+#: src/Content/Item.php:420 src/Model/Contact.php:1204
 msgid "View Status"
 msgstr ""
 
-#: src/Content/Item.php:421 src/Content/Item.php:440 src/Model/Contact.php:1150
-#: src/Model/Contact.php:1198 src/Model/Contact.php:1207
+#: src/Content/Item.php:421 src/Content/Item.php:440 src/Model/Contact.php:1148
+#: src/Model/Contact.php:1196 src/Model/Contact.php:1205
 #: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:234
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:422 src/Model/Contact.php:1208
+#: src/Content/Item.php:422 src/Model/Contact.php:1206
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:423 src/Model/Contact.php:1199
-#: src/Model/Contact.php:1209
+#: src/Content/Item.php:423 src/Model/Contact.php:1197
+#: src/Model/Contact.php:1207
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:424 src/Model/Contact.php:1200
-#: src/Model/Contact.php:1210
+#: src/Content/Item.php:424 src/Model/Contact.php:1198
+#: src/Model/Contact.php:1208
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:425 src/Model/Contact.php:1211
+#: src/Content/Item.php:425 src/Model/Contact.php:1209
 msgid "Send PM"
 msgstr ""
 
 #: src/Content/Item.php:426 src/Module/Contact.php:440
-#: src/Module/Contact/Profile.php:364 src/Module/Contact/Profile.php:484
+#: src/Module/Contact/Profile.php:478
 #: src/Module/Moderation/Blocklist/Contact.php:116
 #: src/Module/Moderation/Users/Active.php:137
 #: src/Module/Moderation/Users/Index.php:152
@@ -1581,7 +1581,7 @@ msgid "Block"
 msgstr ""
 
 #: src/Content/Item.php:427 src/Module/Contact.php:441
-#: src/Module/Contact/Profile.php:365 src/Module/Contact/Profile.php:492
+#: src/Module/Contact/Profile.php:486
 #: src/Module/Notifications/Introductions.php:134
 #: src/Module/Notifications/Introductions.php:206
 #: src/Module/Notifications/Notification.php:89
@@ -1589,7 +1589,7 @@ msgid "Ignore"
 msgstr ""
 
 #: src/Content/Item.php:428 src/Module/Contact.php:442
-#: src/Module/Contact/Profile.php:500
+#: src/Module/Contact/Profile.php:494
 msgid "Collapse"
 msgstr ""
 
@@ -1598,7 +1598,7 @@ msgid "Languages"
 msgstr ""
 
 #: src/Content/Item.php:437 src/Content/Widget.php:80
-#: src/Model/Contact.php:1201 src/Model/Contact.php:1212
+#: src/Model/Contact.php:1199 src/Model/Contact.php:1210
 #: src/Module/Contact/Follow.php:166 view/theme/vier/theme.php:196
 msgid "Connect/Follow"
 msgstr ""
@@ -1651,7 +1651,7 @@ msgstr ""
 
 #: src/Content/Nav.php:230 src/Module/BaseProfile.php:49
 #: src/Module/BaseSettings.php:100 src/Module/Contact.php:476
-#: src/Module/Contact/Profile.php:399 src/Module/Profile/Profile.php:268
+#: src/Module/Contact/Profile.php:393 src/Module/Profile/Profile.php:268
 #: src/Module/Welcome.php:57 view/theme/frio/theme.php:230
 msgid "Profile"
 msgstr ""
@@ -1877,9 +1877,9 @@ msgstr ""
 
 #: src/Content/Nav.php:335 src/Module/BaseModeration.php:127
 #: src/Module/Moderation/Blocklist/Contact.php:110
-#: src/Module/Moderation/Blocklist/Server/Add.php:119
-#: src/Module/Moderation/Blocklist/Server/Import.php:115
-#: src/Module/Moderation/Blocklist/Server/Index.php:92
+#: src/Module/Moderation/Blocklist/Server/Add.php:121
+#: src/Module/Moderation/Blocklist/Server/Import.php:118
+#: src/Module/Moderation/Blocklist/Server/Index.php:95
 #: src/Module/Moderation/Item/Delete.php:61
 #: src/Module/Moderation/Summary.php:76
 #: src/Module/Moderation/Users/Active.php:133
@@ -1970,7 +1970,7 @@ msgid "The end"
 msgstr ""
 
 #: src/Content/Text/HTML.php:884 src/Content/Widget/VCard.php:109
-#: src/Model/Profile.php:463 src/Module/Contact/Profile.php:444
+#: src/Model/Profile.php:463 src/Module/Contact/Profile.php:438
 msgid "Follow"
 msgstr ""
 
@@ -2097,7 +2097,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:523 src/Model/Contact.php:1658
+#: src/Content/Widget.php:523 src/Model/Contact.php:1656
 msgid "News"
 msgstr ""
 
@@ -2156,18 +2156,18 @@ msgid "More Trending Tags"
 msgstr ""
 
 #: src/Content/Widget/VCard.php:102 src/Model/Profile.php:378
-#: src/Module/Contact/Profile.php:388 src/Module/Profile/Profile.php:199
+#: src/Module/Contact/Profile.php:382 src/Module/Profile/Profile.php:199
 msgid "XMPP:"
 msgstr ""
 
 #: src/Content/Widget/VCard.php:103 src/Model/Profile.php:379
-#: src/Module/Contact/Profile.php:390 src/Module/Profile/Profile.php:203
+#: src/Module/Contact/Profile.php:384 src/Module/Profile/Profile.php:203
 msgid "Matrix:"
 msgstr ""
 
 #: src/Content/Widget/VCard.php:104 src/Model/Event.php:82
 #: src/Model/Event.php:109 src/Model/Event.php:473 src/Model/Event.php:958
-#: src/Model/Profile.php:373 src/Module/Contact/Profile.php:386
+#: src/Model/Profile.php:373 src/Module/Contact/Profile.php:380
 #: src/Module/Directory.php:147 src/Module/Notifications/Introductions.php:187
 #: src/Module/Profile/Profile.php:221
 msgid "Location:"
@@ -2178,9 +2178,9 @@ msgstr ""
 msgid "Network:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1202
-#: src/Model/Contact.php:1213 src/Model/Profile.php:465
-#: src/Module/Contact/Profile.php:436
+#: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1200
+#: src/Model/Contact.php:1211 src/Model/Profile.php:465
+#: src/Module/Contact/Profile.php:430
 msgid "Unfollow"
 msgstr ""
 
@@ -2882,82 +2882,82 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
-#: src/Model/Contact.php:1219 src/Module/Moderation/Users/Pending.php:102
+#: src/Model/Contact.php:1217 src/Module/Moderation/Users/Pending.php:102
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1654
+#: src/Model/Contact.php:1652
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1662
+#: src/Model/Contact.php:1660
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2931
+#: src/Model/Contact.php:2929
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2936 src/Module/Friendica.php:83
+#: src/Model/Contact.php:2934 src/Module/Friendica.php:83
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:2941
+#: src/Model/Contact.php:2939
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2950
+#: src/Model/Contact.php:2948
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2968
+#: src/Model/Contact.php:2966
 #, php-format
 msgid "Expected network %s does not match actual network %s"
 msgstr ""
 
-#: src/Model/Contact.php:2985
+#: src/Model/Contact.php:2983
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2987
+#: src/Model/Contact.php:2985
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2990
+#: src/Model/Contact.php:2988
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2993
+#: src/Model/Contact.php:2991
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2996
+#: src/Model/Contact.php:2994
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2997
+#: src/Model/Contact.php:2995
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:3003
+#: src/Model/Contact.php:3001
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:3008
+#: src/Model/Contact.php:3006
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:3073
+#: src/Model/Contact.php:3071
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -3206,7 +3206,7 @@ msgstr ""
 msgid "Homepage:"
 msgstr ""
 
-#: src/Model/Profile.php:377 src/Module/Contact/Profile.php:392
+#: src/Model/Profile.php:377 src/Module/Contact/Profile.php:386
 #: src/Module/Notifications/Introductions.php:189
 msgid "About:"
 msgstr ""
@@ -3296,7 +3296,7 @@ msgstr ""
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:222
+#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:220
 #: src/Module/Moderation/Summary.php:77
 msgid "Summary"
 msgstr ""
@@ -3368,8 +3368,7 @@ msgid "The password length is limited to 72 characters."
 msgstr ""
 
 #: src/Model/User.php:807
-msgid ""
-"The password can't contain accentuated letters, white spaces or colons (:)"
+msgid "The password can't contain white spaces nor accentuated letters"
 msgstr ""
 
 #: src/Model/User.php:1002
@@ -3624,7 +3623,7 @@ msgstr ""
 #: src/Module/Admin/Federation.php:207 src/Module/Admin/Logs/Settings.php:79
 #: src/Module/Admin/Logs/View.php:84 src/Module/Admin/Queue.php:72
 #: src/Module/Admin/Site.php:435 src/Module/Admin/Storage.php:138
-#: src/Module/Admin/Summary.php:221 src/Module/Admin/Themes/Details.php:90
+#: src/Module/Admin/Summary.php:219 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:77
 #: src/Module/Moderation/Users/Create.php:61
 #: src/Module/Moderation/Users/Pending.php:96
@@ -4918,7 +4917,7 @@ msgid ""
 "received."
 msgstr ""
 
-#: src/Module/Admin/Site.php:551 src/Module/Contact/Profile.php:290
+#: src/Module/Admin/Site.php:551 src/Module/Contact/Profile.php:287
 #: src/Module/Settings/TwoFactor/Index.php:125
 msgid "Disabled"
 msgstr ""
@@ -5007,12 +5006,12 @@ msgstr ""
 msgid "Database (legacy)"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:57
+#: src/Module/Admin/Summary.php:55
 #, php-format
 msgid "Template engine (%s) error: %s"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:61
+#: src/Module/Admin/Summary.php:59
 #, php-format
 msgid ""
 "Your DB still runs with MyISAM tables. You should change the engine type to "
@@ -5023,7 +5022,7 @@ msgid ""
 "automatic conversion.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:66
+#: src/Module/Admin/Summary.php:64
 #, php-format
 msgid ""
 "Your DB still runs with InnoDB tables in the Antelope file format. You "
@@ -5034,7 +5033,7 @@ msgid ""
 "installation for an automatic conversion.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:76
+#: src/Module/Admin/Summary.php:74
 #, php-format
 msgid ""
 "Your table_definition_cache is too low (%d). This can lead to the database "
@@ -5042,39 +5041,39 @@ msgid ""
 "to %d. See <a href=\"%s\">here</a> for more information.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:86
+#: src/Module/Admin/Summary.php:84
 #, php-format
 msgid ""
 "There is a new version of Friendica available for download. Your current "
 "version is %1$s, upstream version is %2$s"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:95
+#: src/Module/Admin/Summary.php:93
 msgid ""
 "The database update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:99
+#: src/Module/Admin/Summary.php:97
 msgid ""
 "The last update failed. Please run \"php bin/console.php dbstructure update"
 "\" from the command line and have a look at the errors that might appear. "
 "(Some of the errors are possibly inside the logfile.)"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:104
+#: src/Module/Admin/Summary.php:102
 msgid "The worker was never executed. Please check your database structure!"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:106
+#: src/Module/Admin/Summary.php:104
 #, php-format
 msgid ""
 "The last worker execution was on %s UTC. This is older than one hour. Please "
 "check your crontab settings."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:111
+#: src/Module/Admin/Summary.php:109
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -5083,7 +5082,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:115
+#: src/Module/Admin/Summary.php:113
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -5092,7 +5091,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:119
+#: src/Module/Admin/Summary.php:117
 #, php-format
 msgid ""
 "Friendica's configuration store \"%s\" isn't writable. Until then database "
@@ -5100,7 +5099,7 @@ msgid ""
 "configuration changes won't be saved."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:125
+#: src/Module/Admin/Summary.php:123
 #, php-format
 msgid ""
 "<a href=\"%s\">%s</a> is not reachable on your system. This is a severe "
@@ -5108,50 +5107,50 @@ msgid ""
 "href=\"%s\">the installation page</a> for help."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:143
+#: src/Module/Admin/Summary.php:141
 #, php-format
 msgid "The logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:157
+#: src/Module/Admin/Summary.php:155
 #, php-format
 msgid "The debug logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:173
+#: src/Module/Admin/Summary.php:171
 #, php-format
 msgid ""
 "Friendica's system.basepath was updated from '%s' to '%s'. Please remove the "
 "system.basepath from your db to avoid differences."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:181
+#: src/Module/Admin/Summary.php:179
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is wrong and the config file '%s' "
 "isn't used."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:189
+#: src/Module/Admin/Summary.php:187
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is not equal to the config file "
 "'%s'. Please fix your configuration."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:200
+#: src/Module/Admin/Summary.php:198
 msgid "Message queues"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:206
+#: src/Module/Admin/Summary.php:204
 msgid "Server Settings"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:224
+#: src/Module/Admin/Summary.php:222
 msgid "Version"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:228
+#: src/Module/Admin/Summary.php:226
 msgid "Active addons"
 msgstr ""
 
@@ -5543,13 +5542,13 @@ msgstr ""
 #: src/Module/Install.php:286 src/Module/Install.php:291
 #: src/Module/Install.php:305 src/Module/Install.php:320
 #: src/Module/Install.php:347
-#: src/Module/Moderation/Blocklist/Server/Add.php:134
 #: src/Module/Moderation/Blocklist/Server/Add.php:136
-#: src/Module/Moderation/Blocklist/Server/Import.php:126
-#: src/Module/Moderation/Blocklist/Server/Index.php:83
-#: src/Module/Moderation/Blocklist/Server/Index.php:84
-#: src/Module/Moderation/Blocklist/Server/Index.php:112
-#: src/Module/Moderation/Blocklist/Server/Index.php:113
+#: src/Module/Moderation/Blocklist/Server/Add.php:138
+#: src/Module/Moderation/Blocklist/Server/Import.php:129
+#: src/Module/Moderation/Blocklist/Server/Index.php:86
+#: src/Module/Moderation/Blocklist/Server/Index.php:87
+#: src/Module/Moderation/Blocklist/Server/Index.php:115
+#: src/Module/Moderation/Blocklist/Server/Index.php:116
 #: src/Module/Moderation/Item/Delete.php:67 src/Module/Register.php:148
 #: src/Module/Security/TwoFactor/Verify.php:101
 #: src/Module/Settings/TwoFactor/Index.php:140
@@ -5589,15 +5588,15 @@ msgstr ""
 msgid "Basic"
 msgstr ""
 
-#: src/Module/Calendar/Export.php:77
+#: src/Module/Calendar/Export.php:94
 msgid "This calendar format is not supported"
 msgstr ""
 
-#: src/Module/Calendar/Export.php:79
+#: src/Module/Calendar/Export.php:96
 msgid "No exportable data found"
 msgstr ""
 
-#: src/Module/Calendar/Export.php:96
+#: src/Module/Calendar/Export.php:113
 msgid "calendar"
 msgstr ""
 
@@ -5696,20 +5695,18 @@ msgstr ""
 msgid "Update"
 msgstr ""
 
-#: src/Module/Contact.php:440 src/Module/Contact/Profile.php:364
-#: src/Module/Contact/Profile.php:484
+#: src/Module/Contact.php:440 src/Module/Contact/Profile.php:478
 #: src/Module/Moderation/Blocklist/Contact.php:117
 #: src/Module/Moderation/Users/Blocked.php:138
 #: src/Module/Moderation/Users/Index.php:154
 msgid "Unblock"
 msgstr ""
 
-#: src/Module/Contact.php:441 src/Module/Contact/Profile.php:365
-#: src/Module/Contact/Profile.php:492
+#: src/Module/Contact.php:441 src/Module/Contact/Profile.php:486
 msgid "Unignore"
 msgstr ""
 
-#: src/Module/Contact.php:442 src/Module/Contact/Profile.php:500
+#: src/Module/Contact.php:442 src/Module/Contact/Profile.php:494
 msgid "Uncollapse"
 msgstr ""
 
@@ -5761,7 +5758,7 @@ msgstr ""
 msgid "Pending incoming contact request"
 msgstr ""
 
-#: src/Module/Contact.php:597 src/Module/Contact/Profile.php:350
+#: src/Module/Contact.php:597 src/Module/Contact/Profile.php:347
 #, php-format
 msgid "Visit %s's profile [%s]"
 msgstr ""
@@ -5914,7 +5911,7 @@ msgstr ""
 msgid "Your Identity Address:"
 msgstr ""
 
-#: src/Module/Contact/Follow.php:169 src/Module/Contact/Profile.php:382
+#: src/Module/Contact/Follow.php:169 src/Module/Contact/Profile.php:376
 #: src/Module/Contact/Unfollow.php:129
 #: src/Module/Moderation/Blocklist/Contact.php:133
 #: src/Module/Notifications/Introductions.php:129
@@ -5922,7 +5919,7 @@ msgstr ""
 msgid "Profile URL"
 msgstr ""
 
-#: src/Module/Contact/Follow.php:170 src/Module/Contact/Profile.php:394
+#: src/Module/Contact/Follow.php:170 src/Module/Contact/Profile.php:388
 #: src/Module/Notifications/Introductions.php:191
 #: src/Module/Profile/Profile.php:234
 msgid "Tags:"
@@ -5989,220 +5986,220 @@ msgstr ""
 msgid "Contact has been collapsed"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:246
+#: src/Module/Contact/Profile.php:243
 #, php-format
 msgid "You are mutual friends with %s"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:247
+#: src/Module/Contact/Profile.php:244
 #, php-format
 msgid "You are sharing with %s"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:248
+#: src/Module/Contact/Profile.php:245
 #, php-format
 msgid "%s is sharing with you"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:264
+#: src/Module/Contact/Profile.php:261
 msgid "Private communications are not available for this contact."
 msgstr ""
 
-#: src/Module/Contact/Profile.php:266
+#: src/Module/Contact/Profile.php:263
 msgid "Never"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:269
+#: src/Module/Contact/Profile.php:266
 msgid "(Update was not successful)"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:269
+#: src/Module/Contact/Profile.php:266
 msgid "(Update was successful)"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:271 src/Module/Contact/Profile.php:455
+#: src/Module/Contact/Profile.php:268 src/Module/Contact/Profile.php:449
 msgid "Suggest friends"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:275
+#: src/Module/Contact/Profile.php:272
 #, php-format
 msgid "Network type: %s"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:280
+#: src/Module/Contact/Profile.php:277
 msgid "Communications lost with this contact!"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:286
+#: src/Module/Contact/Profile.php:283
 msgid "Fetch further information for feeds"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:288
+#: src/Module/Contact/Profile.php:285
 msgid ""
 "Fetch information like preview pictures, title and teaser from the feed "
 "item. You can activate this if the feed doesn't contain much text. Keywords "
 "are taken from the meta header in the feed item and are posted as hash tags."
 msgstr ""
 
-#: src/Module/Contact/Profile.php:291
+#: src/Module/Contact/Profile.php:288
 msgid "Fetch information"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:292
+#: src/Module/Contact/Profile.php:289
 msgid "Fetch keywords"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:293
+#: src/Module/Contact/Profile.php:290
 msgid "Fetch information and keywords"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:303 src/Module/Contact/Profile.php:308
-#: src/Module/Contact/Profile.php:313 src/Module/Contact/Profile.php:319
+#: src/Module/Contact/Profile.php:300 src/Module/Contact/Profile.php:305
+#: src/Module/Contact/Profile.php:310 src/Module/Contact/Profile.php:316
 msgid "No mirroring"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:304 src/Module/Contact/Profile.php:314
-#: src/Module/Contact/Profile.php:320
+#: src/Module/Contact/Profile.php:301 src/Module/Contact/Profile.php:311
+#: src/Module/Contact/Profile.php:317
 msgid "Mirror as my own posting"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:309 src/Module/Contact/Profile.php:315
+#: src/Module/Contact/Profile.php:306 src/Module/Contact/Profile.php:312
 msgid "Native reshare"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:332
+#: src/Module/Contact/Profile.php:329
 msgid "Contact Information / Notes"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:333
+#: src/Module/Contact/Profile.php:330
 msgid "Contact Settings"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:341
+#: src/Module/Contact/Profile.php:338
 msgid "Contact"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:345
+#: src/Module/Contact/Profile.php:342
 msgid "Their personal note"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:347
+#: src/Module/Contact/Profile.php:344
 msgid "Edit contact notes"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:351
+#: src/Module/Contact/Profile.php:348
 msgid "Block/Unblock contact"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:352
+#: src/Module/Contact/Profile.php:349
 msgid "Ignore contact"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:353
+#: src/Module/Contact/Profile.php:350
 msgid "View conversations"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:358
+#: src/Module/Contact/Profile.php:355
 msgid "Last update:"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:360
+#: src/Module/Contact/Profile.php:357
 msgid "Update public posts"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:362 src/Module/Contact/Profile.php:465
+#: src/Module/Contact/Profile.php:359 src/Module/Contact/Profile.php:459
 msgid "Update now"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:369
-msgid "Currently blocked"
-msgstr ""
-
-#: src/Module/Contact/Profile.php:370
-msgid "Currently ignored"
-msgstr ""
-
-#: src/Module/Contact/Profile.php:371
-msgid "Currently collapsed"
-msgstr ""
-
-#: src/Module/Contact/Profile.php:372
-msgid "Currently archived"
-msgstr ""
-
-#: src/Module/Contact/Profile.php:373
+#: src/Module/Contact/Profile.php:361
 msgid "Awaiting connection acknowledge"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:374
+#: src/Module/Contact/Profile.php:362
+msgid "Currently blocked"
+msgstr ""
+
+#: src/Module/Contact/Profile.php:363
+msgid "Currently ignored"
+msgstr ""
+
+#: src/Module/Contact/Profile.php:364
+msgid "Currently collapsed"
+msgstr ""
+
+#: src/Module/Contact/Profile.php:365
+msgid "Currently archived"
+msgstr ""
+
+#: src/Module/Contact/Profile.php:368
 #: src/Module/Notifications/Introductions.php:192
 msgid "Hide this contact from others"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:374
+#: src/Module/Contact/Profile.php:368
 msgid ""
 "Replies/likes to your public posts <strong>may</strong> still be visible"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:375
+#: src/Module/Contact/Profile.php:369
 msgid "Notification for new posts"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:375
+#: src/Module/Contact/Profile.php:369
 msgid "Send a notification of every new post of this contact"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:377
+#: src/Module/Contact/Profile.php:371
 msgid "Keyword Deny List"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:377
+#: src/Module/Contact/Profile.php:371
 msgid ""
 "Comma separated list of keywords that should not be converted to hashtags, "
 "when \"Fetch information and keywords\" is selected"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:395
+#: src/Module/Contact/Profile.php:389
 #: src/Module/Settings/TwoFactor/Index.php:139
 msgid "Actions"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:397
+#: src/Module/Contact/Profile.php:391
 #: src/Module/Settings/TwoFactor/Index.php:119 view/theme/frio/theme.php:229
 msgid "Status"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:403
+#: src/Module/Contact/Profile.php:397
 msgid "Mirror postings from this contact"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:405
+#: src/Module/Contact/Profile.php:399
 msgid ""
 "Mark this contact as remote_self, this will cause friendica to repost new "
 "entries from this contact."
 msgstr ""
 
-#: src/Module/Contact/Profile.php:475
+#: src/Module/Contact/Profile.php:469
 msgid "Refetch contact data"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:486
+#: src/Module/Contact/Profile.php:480
 msgid "Toggle Blocked status"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:494
+#: src/Module/Contact/Profile.php:488
 msgid "Toggle Ignored status"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:502
+#: src/Module/Contact/Profile.php:496
 msgid "Toggle Collapsed status"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:509 src/Module/Contact/Revoke.php:106
+#: src/Module/Contact/Profile.php:503 src/Module/Contact/Revoke.php:106
 msgid "Revoke Follow"
 msgstr ""
 
-#: src/Module/Contact/Profile.php:511
+#: src/Module/Contact/Profile.php:505
 msgid "Revoke the follow from this contact"
 msgstr ""
 
@@ -6725,8 +6722,8 @@ msgid "On this server the following remote servers are blocked."
 msgstr ""
 
 #: src/Module/Friendica.php:84
-#: src/Module/Moderation/Blocklist/Server/Index.php:84
-#: src/Module/Moderation/Blocklist/Server/Index.php:108
+#: src/Module/Moderation/Blocklist/Server/Index.php:87
+#: src/Module/Moderation/Blocklist/Server/Index.php:111
 msgid "Reason for the block"
 msgstr ""
 
@@ -7399,32 +7396,32 @@ msgid ""
 msgstr ""
 
 #: src/Module/Moderation/Blocklist/Contact.php:135
-#: src/Module/Moderation/Blocklist/Server/Import.php:121
+#: src/Module/Moderation/Blocklist/Server/Import.php:124
 msgid "Block Reason"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:78
+#: src/Module/Moderation/Blocklist/Server/Add.php:80
 msgid "Server domain pattern added to the blocklist."
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:86
+#: src/Module/Moderation/Blocklist/Server/Add.php:88
 #, php-format
 msgid "%s server scheduled to be purged."
 msgid_plural "%s servers scheduled to be purged."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:118
-#: src/Module/Moderation/Blocklist/Server/Import.php:114
+#: src/Module/Moderation/Blocklist/Server/Add.php:120
+#: src/Module/Moderation/Blocklist/Server/Import.php:117
 msgid "← Return to the list"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:120
+#: src/Module/Moderation/Blocklist/Server/Add.php:122
 msgid "Block A New Server Domain Pattern"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:121
-#: src/Module/Moderation/Blocklist/Server/Index.php:96
+#: src/Module/Moderation/Blocklist/Server/Add.php:123
+#: src/Module/Moderation/Blocklist/Server/Index.php:99
 msgid ""
 "<p>The server domain pattern syntax is case-insensitive shell wildcard, "
 "comprising the following special characters:</p>\n"
@@ -7434,55 +7431,55 @@ msgid ""
 "</ul>"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:126
-#: src/Module/Moderation/Blocklist/Server/Index.php:104
+#: src/Module/Moderation/Blocklist/Server/Add.php:128
+#: src/Module/Moderation/Blocklist/Server/Index.php:107
 msgid "Check pattern"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:127
+#: src/Module/Moderation/Blocklist/Server/Add.php:129
 msgid "Matching known servers"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:128
+#: src/Module/Moderation/Blocklist/Server/Add.php:130
 msgid "Server Name"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:129
+#: src/Module/Moderation/Blocklist/Server/Add.php:131
 msgid "Server Domain"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:130
+#: src/Module/Moderation/Blocklist/Server/Add.php:132
 msgid "Known Contacts"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:131
+#: src/Module/Moderation/Blocklist/Server/Add.php:133
 #, php-format
 msgid "%d known server"
 msgid_plural "%d known servers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:132
+#: src/Module/Moderation/Blocklist/Server/Add.php:134
 msgid "Add pattern to the blocklist"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:134
-#: src/Module/Moderation/Blocklist/Server/Index.php:113
+#: src/Module/Moderation/Blocklist/Server/Add.php:136
+#: src/Module/Moderation/Blocklist/Server/Index.php:116
 msgid "Server Domain Pattern"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:134
-#: src/Module/Moderation/Blocklist/Server/Index.php:113
+#: src/Module/Moderation/Blocklist/Server/Add.php:136
+#: src/Module/Moderation/Blocklist/Server/Index.php:116
 msgid ""
 "The domain pattern of the new server to add to the blocklist. Do not include "
 "the protocol."
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:135
+#: src/Module/Moderation/Blocklist/Server/Add.php:137
 msgid "Purge server"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:135
+#: src/Module/Moderation/Blocklist/Server/Add.php:137
 msgid ""
 "Also purges all the locally stored content authored by the known contacts "
 "registered on that server. Keeps the contacts and the server records. This "
@@ -7494,149 +7491,149 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:136
+#: src/Module/Moderation/Blocklist/Server/Add.php:138
 msgid "Block reason"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Add.php:136
+#: src/Module/Moderation/Blocklist/Server/Add.php:138
 msgid ""
 "The reason why you blocked this server domain pattern. This reason will be "
 "shown publicly in the server information page."
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:73
-#: src/Module/Moderation/Blocklist/Server/Import.php:82
+#: src/Module/Moderation/Blocklist/Server/Import.php:74
+#: src/Module/Moderation/Blocklist/Server/Import.php:83
 msgid "Error importing pattern file"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:88
+#: src/Module/Moderation/Blocklist/Server/Import.php:89
 msgid "Local blocklist replaced with the provided file."
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:92
+#: src/Module/Moderation/Blocklist/Server/Import.php:93
 #, php-format
 msgid "%d pattern was added to the local blocklist."
 msgid_plural "%d patterns were added to the local blocklist."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:94
+#: src/Module/Moderation/Blocklist/Server/Import.php:95
 msgid "No pattern was added to the local blocklist."
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:116
+#: src/Module/Moderation/Blocklist/Server/Import.php:119
 msgid "Import a Server Domain Pattern Blocklist"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:117
+#: src/Module/Moderation/Blocklist/Server/Import.php:120
 msgid ""
 "<p>This file can be downloaded from the <code>/friendica</code> path of any "
 "Friendica server.</p>"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:118
-#: src/Module/Moderation/Blocklist/Server/Index.php:103
+#: src/Module/Moderation/Blocklist/Server/Import.php:121
+#: src/Module/Moderation/Blocklist/Server/Index.php:106
 msgid "Upload file"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:119
+#: src/Module/Moderation/Blocklist/Server/Import.php:122
 msgid "Patterns to import"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:120
+#: src/Module/Moderation/Blocklist/Server/Import.php:123
 msgid "Domain Pattern"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:122
+#: src/Module/Moderation/Blocklist/Server/Import.php:125
 msgid "Import Mode"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:123
+#: src/Module/Moderation/Blocklist/Server/Import.php:126
 msgid "Import Patterns"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:124
+#: src/Module/Moderation/Blocklist/Server/Import.php:127
 #, php-format
 msgid "%d total pattern"
 msgid_plural "%d total patterns"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:126
-#: src/Module/Moderation/Blocklist/Server/Index.php:112
+#: src/Module/Moderation/Blocklist/Server/Import.php:129
+#: src/Module/Moderation/Blocklist/Server/Index.php:115
 msgid "Server domain pattern blocklist CSV file"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:127
+#: src/Module/Moderation/Blocklist/Server/Import.php:130
 msgid "Append"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:127
+#: src/Module/Moderation/Blocklist/Server/Import.php:130
 msgid ""
 "Imports patterns from the file that weren't already existing in the current "
 "blocklist."
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:128
+#: src/Module/Moderation/Blocklist/Server/Import.php:131
 msgid "Replace"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Import.php:128
+#: src/Module/Moderation/Blocklist/Server/Import.php:131
 msgid "Replaces the current blocklist by the imported patterns."
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:83
-#: src/Module/Moderation/Blocklist/Server/Index.php:107
+#: src/Module/Moderation/Blocklist/Server/Index.php:86
+#: src/Module/Moderation/Blocklist/Server/Index.php:110
 msgid "Blocked server domain pattern"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:85
+#: src/Module/Moderation/Blocklist/Server/Index.php:88
 msgid "Delete server domain pattern"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:85
+#: src/Module/Moderation/Blocklist/Server/Index.php:88
 msgid "Check to delete this entry from the blocklist"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:93
+#: src/Module/Moderation/Blocklist/Server/Index.php:96
 msgid "Server Domain Pattern Blocklist"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:94
+#: src/Module/Moderation/Blocklist/Server/Index.php:97
 msgid ""
 "This page can be used to define a blocklist of server domain patterns from "
 "the federated network that are not allowed to interact with your node. For "
 "each domain pattern you should also provide the reason why you block it."
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:95
+#: src/Module/Moderation/Blocklist/Server/Index.php:98
 msgid ""
 "The list of blocked server domain patterns will be made publically available "
 "on the <a href=\"/friendica\">/friendica</a> page so that your users and "
 "people investigating communication problems can find the reason easily."
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:101
+#: src/Module/Moderation/Blocklist/Server/Index.php:104
 msgid "Import server domain pattern blocklist"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:102
+#: src/Module/Moderation/Blocklist/Server/Index.php:105
 msgid "Add new entry to the blocklist"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:105
+#: src/Module/Moderation/Blocklist/Server/Index.php:108
 msgid "Save changes to the blocklist"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:106
+#: src/Module/Moderation/Blocklist/Server/Index.php:109
 msgid "Current Entries in the Blocklist"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:109
+#: src/Module/Moderation/Blocklist/Server/Index.php:112
 msgid "Delete entry from the blocklist"
 msgstr ""
 
-#: src/Module/Moderation/Blocklist/Server/Index.php:110
+#: src/Module/Moderation/Blocklist/Server/Index.php:113
 msgid "Delete entry from the blocklist?"
 msgstr ""
 
@@ -8071,7 +8068,7 @@ msgstr ""
 msgid "Unsupported or missing response type"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:73
+#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:76
 msgid "Incomplete request data"
 msgstr ""
 
@@ -8082,11 +8079,11 @@ msgid ""
 "close this window: %s"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:78
+#: src/Module/OAuth/Token.php:81
 msgid "Invalid data or unknown client"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:97
+#: src/Module/OAuth/Token.php:100
 msgid "Unsupported or missing grant type"
 msgstr ""
 
@@ -8767,7 +8764,7 @@ msgstr ""
 #: src/Module/Settings/Account.php:552
 msgid ""
 "Allowed characters are a-z, A-Z, 0-9 and special characters except white "
-"spaces, accentuated letters and colon (:)."
+"spaces and accentuated letters."
 msgstr ""
 
 #: src/Module/Security/PasswordTooLong.php:101

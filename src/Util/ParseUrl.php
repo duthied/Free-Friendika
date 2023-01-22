@@ -646,7 +646,7 @@ class ParseUrl
 		$arr_tags = str_getcsv($string);
 		if (count($arr_tags)) {
 			// add the # sign to every tag
-			array_walk($arr_tags, ['self', 'arrAddHashes']);
+			array_walk($arr_tags, [self::class, 'arrAddHashes']);
 
 			return $arr_tags;
 		}

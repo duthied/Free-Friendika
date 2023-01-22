@@ -257,109 +257,18 @@ class BaseURL
 	 */
 	public function __construct(IManageConfigValues $config, array $server)
 	{
-		$this->config = $config;
-		$this->server = $server;
-
-		$this->determineSchema();
-		$this->checkConfig();
-	}
-
-	/**
-	 * Check the current config during loading
-	 */
-	public function checkConfig()
-	{
+		$this->config    = $config;
+		$this->server    = $server;
 		$this->hostname  = $this->config->get('config', 'hostname');
-		$this->urlPath   = $this->config->get('system', 'urlpath');
-		$this->sslPolicy = $this->config->get('system', 'ssl_policy');
+		$this->urlPath   = $this->config->get('system', 'urlpath') ?? '';
+		$this->sslPolicy = $this->config->get('system', 'ssl_policy') ?? static::DEFAULT_SSL_SCHEME;
 		$this->url       = $this->config->get('system', 'url');
 
-		if (empty($this->hostname)) {
-			$this->determineHostname();
-
-			if (!empty($this->hostname)) {
-				$this->config->set('config', 'hostname', $this->hostname);
-			}
+		if (empty($this->hostname) || empty($this->url)) {
+			throw new \Exception('Invalid config - Missing system.url or config.hostname');
 		}
 
-		if (!isset($this->urlPath)) {
-			$this->determineURLPath();
-			$this->config->set('system', 'urlpath', $this->urlPath);
-		}
-
-		if (!isset($this->sslPolicy)) {
-			if ($this->scheme == 'https') {
-				$this->sslPolicy = self::SSL_POLICY_FULL;
-			} else {
-				$this->sslPolicy = self::DEFAULT_SSL_SCHEME;
-			}
-			$this->config->set('system', 'ssl_policy', $this->sslPolicy);
-		}
-
-		if (empty($this->url)) {
-			$this->determineBaseUrl();
-
-			if (!empty($this->url)) {
-				$this->config->set('system', 'url', $this->url);
-			}
-		}
-	}
-
-	/**
-	 * Determines the hostname of this node if not set already
-	 */
-	private function determineHostname()
-	{
-		$this->hostname = '';
-
-		if (!empty($this->server['SERVER_NAME'])) {
-			$this->hostname = $this->server['SERVER_NAME'];
-
-			if (!empty($this->server['SERVER_PORT']) && $this->server['SERVER_PORT'] != 80 && $this->server['SERVER_PORT'] != 443) {
-				$this->hostname .= ':' . $this->server['SERVER_PORT'];
-			}
-		}
-	}
-
-	/**
-	 * Figure out if we are running at the top of a domain or in a sub-directory
-	 */
-	private function determineURLPath()
-	{
-		$this->urlPath = '';
-
-		/*
-		 * The automatic path detection in this function is currently deactivated,
-		 * see issue https://github.com/friendica/friendica/issues/6679
-		 *
-		 * The problem is that the function seems to be confused with some url.
-		 * These then confuses the detection which changes the url path.
-		 */
-
-		/* Relative script path to the web server root
-		 * Not all of those $_SERVER properties can be present, so we do by inverse priority order
-		 */
-		$relative_script_path =
-			($this->server['REDIRECT_URL']        ?? '') ?:
-			($this->server['REDIRECT_URI']        ?? '') ?:
-			($this->server['REDIRECT_SCRIPT_URL'] ?? '') ?:
-			($this->server['SCRIPT_URL']          ?? '') ?:
-			 $this->server['REQUEST_URI']         ?? '';
-
-		/* $relative_script_path gives /relative/path/to/friendica/module/parameter
-		 * QUERY_STRING gives pagename=module/parameter
-		 *
-		 * To get /relative/path/to/friendica we perform dirname() for as many levels as there are slashes in the QUERY_STRING
-		 */
-		if (!empty($relative_script_path)) {
-			// Module
-			if (!empty($this->server['QUERY_STRING'])) {
-				$this->urlPath = trim(dirname($relative_script_path, substr_count(trim($this->server['QUERY_STRING'], '/'), '/') + 1), '/');
-			} else {
-				// Root page
-				$this->urlPath = trim($relative_script_path, '/');
-			}
-		}
+		$this->determineSchema();
 	}
 
 	/**

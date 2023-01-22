@@ -243,15 +243,13 @@ class Contact
 	 * @throws \Exception
 	 * @todo Let's get rid of boolean type of $old_fields
 	 */
-	public static function update(array $fields, array $condition, $old_fields = [])
+	public static function update(array $fields, array $condition, $old_fields = []): bool
 	{
-		$fields = DI::dbaDefinition()->truncateFieldsForTable('contact', $fields);
-		$ret = DBA::update('contact', $fields, $condition, $old_fields);
-
 		// Apply changes to the "user-contact" table on dedicated fields
 		Contact\User::updateByContactUpdate($fields, $condition);
 
-		return $ret;
+		$fields = DI::dbaDefinition()->truncateFieldsForTable('contact', $fields);
+		return DBA::update('contact', $fields, $condition, $old_fields);
 	}
 
 	/**
@@ -2970,7 +2968,7 @@ class Contact
 		}
 
 		// check if we already have a contact
-		$condition = ['uid' => $uid, 'nurl' => Strings::normaliseLink($ret['url'])];
+		$condition = ['uid' => $uid, 'nurl' => Strings::normaliseLink($ret['url']), 'deleted' => false];
 		$contact = DBA::selectFirst('contact', ['id', 'rel', 'url', 'pending', 'hub-verify'], $condition);
 
 		$protocol = self::getProtocol($ret['url'], $ret['network']);
@@ -3293,7 +3291,7 @@ class Contact
 		if ($contact['rel'] == self::SHARING || in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
 			self::remove($contact['id']);
 		} else {
-			self::update(['rel' => self::FOLLOWER], ['id' => $contact['id']]);
+			self::update(['rel' => self::FOLLOWER, 'pending' => false], ['id' => $contact['id']]);
 		}
 
 		Worker::add(Worker::PRIORITY_LOW, 'ContactDiscoveryForUser', $contact['uid']);

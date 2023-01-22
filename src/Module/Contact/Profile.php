@@ -197,7 +197,7 @@ class Profile extends BaseModule
 					Contact\User::setIgnored($contact['id'], DI::userSession()->getLocalUserId(), true);
 					$message = $this->t('Contact has been ignored');
 				}
-	
+
 				// @TODO: add $this->localRelationship->save($localRelationship);
 				DI::sysmsg()->addInfo($message);
 			}
@@ -213,7 +213,7 @@ class Profile extends BaseModule
 					Contact\User::setCollapsed($contact['id'], DI::userSession()->getLocalUserId(), true);
 					$message = $this->t('Contact has been collapsed');
 				}
-					
+
 				// @TODO: add $this->localRelationship->save($localRelationship);
 				DI::sysmsg()->addInfo($message);
 			}
@@ -238,9 +238,6 @@ class Profile extends BaseModule
 		$this->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_head.tpl'), [
 			'$baseurl' => $this->baseUrl->get(true),
 		]);
-
-		$contact['blocked']  = Contact\User::isBlocked($contact['id'], DI::userSession()->getLocalUserId());
-		$contact['readonly'] = Contact\User::isIgnored($contact['id'], DI::userSession()->getLocalUserId());
 
 		switch ($localRelationship->rel) {
 			case Contact::FRIEND:   $relation_text = $this->t('You are mutual friends with %s', $contact['name']); break;
@@ -361,16 +358,13 @@ class Profile extends BaseModule
 			'$last_update'               => $last_update,
 			'$udnow'                     => $this->t('Update now'),
 			'$contact_id'                => $contact['id'],
-			'$block_text'                => ($contact['blocked'] ? $this->t('Unblock') : $this->t('Block')),
-			'$ignore_text'               => ($contact['readonly'] ? $this->t('Unignore') : $this->t('Ignore')),
-			'$insecure'                  => (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA]) ? '' : $insecure),
-			'$info'                      => $localRelationship->info,
-			'$cinfo'                     => ['info', '', $localRelationship->info, ''],
-			'$blocked'                   => ($contact['blocked'] ? $this->t('Currently blocked') : ''),
-			'$ignored'                   => ($contact['readonly'] ? $this->t('Currently ignored') : ''),
-			'$collapsed'                 => (Contact\User::isCollapsed($contact['id'], DI::userSession()->getLocalUserId()) ? $this->t('Currently collapsed') : ''),
+			'$pending'                   => $localRelationship->pending   ? $this->t('Awaiting connection acknowledge') : '',
+			'$blocked'                   => $localRelationship->blocked   ? $this->t('Currently blocked') : '',
+			'$ignored'                   => $localRelationship->ignored   ? $this->t('Currently ignored') : '',
+			'$collapsed'                 => $localRelationship->collapsed ? $this->t('Currently collapsed') : '',
 			'$archived'                  => ($contact['archive'] ? $this->t('Currently archived') : ''),
-			'$pending'                   => ($contact['pending'] ? $this->t('Awaiting connection acknowledge') : ''),
+			'$insecure'                  => (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA]) ? '' : $insecure),
+			'$cinfo'                     => ['info', '', $localRelationship->info, ''],
 			'$hidden'                    => ['hidden', $this->t('Hide this contact from others'), $localRelationship->hidden, $this->t('Replies/likes to your public posts <strong>may</strong> still be visible')],
 			'$notify_new_posts'          => ['notify_new_posts', $this->t('Notification for new posts'), ($localRelationship->notifyNewPosts), $this->t('Send a notification of every new post of this contact')],
 			'$fetch_further_information' => $fetch_further_information,
