@@ -27,8 +27,6 @@ use Friendica\Core\Config\Exception\ConfigFileException;
 use Friendica\Core\Config\Exception\ConfigPersistenceException;
 use Friendica\Core\Config\Util\ConfigFileManager;
 use Friendica\Core\Config\ValueObject\Cache;
-use Friendica\Core\Logger;
-use Friendica\Core\System;
 
 /**
  * Configuration model, which manages the whole system configuration
@@ -120,7 +118,6 @@ class Config implements IManageConfigValues
 	/** {@inheritDoc} */
 	public function set(string $cat, string $key, $value): bool
 	{
-		Logger::debug('Set config value', ['cat' => $cat, 'key' => $key, 'value' => $value, 'callstack' => System::callstack(20)]);
 		if ($this->configCache->set($cat, $key, $value, Cache::SOURCE_DATA)) {
 			$this->save();
 			return true;
