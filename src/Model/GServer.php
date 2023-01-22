@@ -474,14 +474,6 @@ class GServer
 			return;
 		}
 
-		if (Network::isUrlBlocked($url)) {
-			Logger::info('Server domain is blocked', ['url' => $url]);
-			return;
-		} elseif (Network::isUrlBlocked($nurl)) {
-			Logger::info('Server domain is blocked', ['nurl' => $nurl]);
-			return;
-		}
-
 		self::insert(['url' => $url, 'nurl' => $nurl,
 			'network' => Protocol::PHANTOM, 'created' => DateTimeFormat::utcNow(),
 			'failed' => true, 'last_failure' => DateTimeFormat::utcNow()]);
@@ -568,12 +560,9 @@ class GServer
 		// If the URL missmatches, then we mark the old entry as failure
 		if (!Strings::compareLink($url, $original_url)) {
 			self::setFailureByUrl($original_url);
-			if (!self::getID($url, true)) {
+			if (!self::getID($url, true) && !Network::isUrlBlocked($url)) {
 				self::detect($url, $network, $only_nodeinfo);
 			}
-			return false;
-		} elseif (Network::isUrlBlocked($url)) {
-			Logger::info('Server domain is blocked', ['url' => $url]);
 			return false;
 		}
 
@@ -592,7 +581,7 @@ class GServer
 				(((parse_url($url, PHP_URL_HOST) != parse_url($valid_url, PHP_URL_HOST)) || (parse_url($url, PHP_URL_PATH) != parse_url($valid_url, PHP_URL_PATH))) && empty(parse_url($valid_url, PHP_URL_PATH)))) {
 				Logger::debug('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $valid_url]);
 				self::setFailureByUrl($url);
-				if (!self::getID($valid_url, true)) {
+				if (!self::getID($valid_url, true) && !Network::isUrlBlocked($valid_url)) {
 					self::detect($valid_url, $network, $only_nodeinfo);
 				}
 				return false;
@@ -606,7 +595,7 @@ class GServer
 				$valid_url = (string)Uri::fromParts($parts);
 
 				self::setFailureByUrl($url);
-				if (!self::getID($valid_url, true)) {
+				if (!self::getID($valid_url, true) && !Network::isUrlBlocked($valid_url)) {
 					self::detect($valid_url, $network, $only_nodeinfo);
 				}
 				return false;
