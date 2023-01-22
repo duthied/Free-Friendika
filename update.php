@@ -1244,3 +1244,12 @@ function update_1512()
 	DI::config()->delete('nodeinfo', 'local_posts');
 	DI::config()->delete('nodeinfo', 'local_comments');
 }
+
+function update_1513()
+{
+	DI::keyValue()->set('git_friendica_version', DI::config()->get('system', 'git_friendica_version'));
+	DI::keyValue()->set('twitter_application_name', DI::config()->get('twitter', 'application_name'));
+
+	DI::config()->delete('system', 'git_friendica_version');
+	DI::config()->delete('twitter', 'application_name');
+}

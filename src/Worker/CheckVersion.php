@@ -58,7 +58,7 @@ class CheckVersion
 		$gitversion = DBA::escape(trim(DI::httpClient()->fetch($checked_url, HttpClientAccept::TEXT)));
 		Logger::notice("Upstream VERSION is: ".$gitversion);
 
-		DI::config()->set('system', 'git_friendica_version', $gitversion);
+		DI::keyValue()->set('git_friendica_version', $gitversion);
 
 		Logger::notice('checkversion: end');
 
