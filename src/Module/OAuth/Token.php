@@ -68,7 +68,8 @@ class Token extends BaseApi
 			}
 		}
 
-		if (empty($request['client_id']) || empty($request['client_secret'])) {
+		// "client_secret" is required for "client_credentials": https://www.oauth.com/oauth2-servers/access-tokens/client-credentials/
+		if (empty($request['client_id']) || (($request['grant_type'] == 'client_credentials') && empty($request['client_secret']))) {
 			Logger::warning('Incomplete request data', ['request' => $request]);
 			DI::mstdnError()->Unauthorized('invalid_client', DI::l10n()->t('Incomplete request data'));
 		}
