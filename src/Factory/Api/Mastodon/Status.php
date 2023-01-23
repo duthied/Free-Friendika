@@ -81,12 +81,13 @@ class Status extends BaseFactory
 	 * @param int  $uid             Item user
 	 * @param bool $reblog          Check for reblogged post
 	 * @param bool $in_reply_status Add an "in_reply_status" element
+	 * @param bool $display_quote   Display quoted posts
 	 *
 	 * @return \Friendica\Object\Api\Mastodon\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromUriId(int $uriId, int $uid = 0, bool $reblog = true, bool $in_reply_status = true, bool $diplay_quote = false): \Friendica\Object\Api\Mastodon\Status
+	public function createFromUriId(int $uriId, int $uid = 0, bool $reblog = true, bool $in_reply_status = true, bool $display_quote = false): \Friendica\Object\Api\Mastodon\Status
 	{
 		$fields = ['uri-id', 'uid', 'author-id', 'causer-id', 'author-uri-id', 'author-link', 'causer-uri-id', 'post-reason', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
 			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured', 'has-media', 'quote-uri-id'];
@@ -224,7 +225,7 @@ class Status extends BaseFactory
 			}
 		}
 
-		if ($diplay_quote) {
+		if ($display_quote) {
 			$quote = self::createQuote($item, $uid);
 
 			$item['body'] = BBCode::removeSharedData($item['body']);
