@@ -101,6 +101,7 @@ class Statuses extends BaseApi
 			'media_ids'      => [],    // Array of Attachment ids to be attached as media. If provided, status becomes optional, and poll cannot be used.
 			'poll'           => [],    // Poll data. If provided, media_ids cannot be used, and poll[expires_in] must be provided.
 			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
+			'quote_id'       => 0,     // ID of the message to quote
 			'sensitive'      => false, // Mark status and attached media as sensitive?
 			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
 			'visibility'     => '',    // Visibility of the posted status. One of: "public", "unlisted", "private" or "direct".
@@ -153,6 +154,7 @@ class Statuses extends BaseApi
 				$item['private'] = Item::PRIVATE;
 				break;
 			case 'direct':
+				$item['private'] = Item::PRIVATE;
 				// The permissions are assigned in "expandTags"
 				break;
 			default:
@@ -183,16 +185,27 @@ class Statuses extends BaseApi
 		}
 
 		if ($request['in_reply_to_id']) {
-			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
+			$parent = Post::selectFirst(['uri', 'private'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
 
 			$item['thr-parent']  = $parent['uri'];
 			$item['gravity']     = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
+
+			if (in_array($parent['private'], [Item::UNLISTED, Item::PUBLIC]) && ($item['private'] == Item::PRIVATE)) {
+				throw new HTTPException\NotImplementedException('Private replies for public posts are not implemented.');
+			}
 		} else {
 			self::checkThrottleLimit();
 
 			$item['gravity']     = Item::GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
+		}
+
+		if ($request['quote_id']) {
+			if (!Post::exists(['uri-id' => $request['quote_id'], 'uid' => [0, $uid]])) {
+				throw new HTTPException\NotFoundException('Item with URI ID ' . $request['quote_id'] . ' not found for user ' . $uid . '.');
+			}
+			$item['quote-uri-id'] = $request['quote_id'];
 		}
 
 		if (!empty($request['spoiler_text'])) {

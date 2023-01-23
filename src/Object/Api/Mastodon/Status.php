@@ -41,6 +41,8 @@ class Status extends BaseDataTransferObject
 	protected $created_at;
 	/** @var string|null */
 	protected $in_reply_to_id = null;
+	/** @var Status|null - Fedilab extension, see issue https://github.com/friendica/friendica/issues/12672 */
+	protected $in_reply_to_status = null;
 	/** @var string|null */
 	protected $in_reply_to_account_id = null;
 	/** @var bool */
@@ -75,6 +77,8 @@ class Status extends BaseDataTransferObject
 	protected $content;
 	/** @var Status|null */
 	protected $reblog = null;
+	/** @var Status|null - Akkoma extension, see issue https://github.com/friendica/friendica/issues/12603 */
+	protected $quote = null;
 	/** @var Application */
 	protected $application = null;
 	/** @var Account */
@@ -98,13 +102,14 @@ class Status extends BaseDataTransferObject
 	 * @param array   $item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $reblog, array $poll = null)
+	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $in_reply, array $reblog, array $quote = null, array $poll = null)
 	{
 		$this->id         = (string)$item['uri-id'];
 		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::JSON);
 
 		if ($item['gravity'] == Item::GRAVITY_COMMENT) {
 			$this->in_reply_to_id         = (string)$item['thr-parent-id'];
+			$this->in_reply_to_status     = $in_reply;
 			$this->in_reply_to_account_id = (string)$item['parent-author-id'];
 		}
 
@@ -134,6 +139,7 @@ class Status extends BaseDataTransferObject
 		$this->pinned = $userAttributes->pinned;
 		$this->content = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($item['raw-body'] ?? $item['body']), BBCode::MASTODON_API);
 		$this->reblog = $reblog;
+		$this->quote = $quote;
 		$this->application = $application->toArray();
 		$this->account = $account->toArray();
 		$this->media_attachments = $attachments;
@@ -163,6 +169,14 @@ class Status extends BaseDataTransferObject
 
 		if (empty($status['reblog'])) {
 			$status['reblog'] = null;
+		}
+
+		if (empty($status['quote'])) {
+			$status['quote'] = null;
+		}
+
+		if (empty($status['in_reply_to_status'])) {
+			$status['in_reply_to_status'] = null;
 		}
 
 		return $status;
