@@ -41,25 +41,16 @@ class Block extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$owner = User::getOwnerDataById($uid);
-		if (empty($owner)) {
-			DI::mstdnError()->Forbidden();
-		}
+		Contact\User::setBlocked($this->parameters['id'], $uid, true);
 
 		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
-		if (empty($cdata['user'])) {
-			DI::mstdnError()->RecordNotFound();
+		if (!empty($cdata['user'])) {
+			$contact = Contact::getById($cdata['user']);
+			if (!empty($contact)) {
+				// Mastodon-expected behavior: relationship is severed on block
+				Contact::terminateFriendship($contact);
+			}
 		}
-
-		$contact = Contact::getById($cdata['user']);
-		if (empty($contact)) {
-			DI::mstdnError()->RecordNotFound();
-		}
-
-		Contact\User::setBlocked($cdata['user'], $uid, true);
-
-		// Mastodon-expected behavior: relationship is severed on block
-		Contact::terminateFriendship($contact);
 
 		System::jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
 	}
