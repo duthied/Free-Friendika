@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-22 17:07+0000\n"
+"POT-Creation-Date: 2023-01-23 06:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3296,7 +3296,7 @@ msgstr ""
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:220
+#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:221
 #: src/Module/Moderation/Summary.php:77
 msgid "Summary"
 msgstr ""
@@ -3623,7 +3623,7 @@ msgstr ""
 #: src/Module/Admin/Federation.php:207 src/Module/Admin/Logs/Settings.php:79
 #: src/Module/Admin/Logs/View.php:84 src/Module/Admin/Queue.php:72
 #: src/Module/Admin/Site.php:435 src/Module/Admin/Storage.php:138
-#: src/Module/Admin/Summary.php:219 src/Module/Admin/Themes/Details.php:90
+#: src/Module/Admin/Summary.php:220 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:77
 #: src/Module/Moderation/Users/Create.php:61
 #: src/Module/Moderation/Users/Pending.php:96
@@ -5041,39 +5041,39 @@ msgid ""
 "to %d. See <a href=\"%s\">here</a> for more information.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:84
+#: src/Module/Admin/Summary.php:85
 #, php-format
 msgid ""
 "There is a new version of Friendica available for download. Your current "
 "version is %1$s, upstream version is %2$s"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:93
+#: src/Module/Admin/Summary.php:94
 msgid ""
 "The database update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:97
+#: src/Module/Admin/Summary.php:98
 msgid ""
 "The last update failed. Please run \"php bin/console.php dbstructure update"
 "\" from the command line and have a look at the errors that might appear. "
 "(Some of the errors are possibly inside the logfile.)"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:102
+#: src/Module/Admin/Summary.php:103
 msgid "The worker was never executed. Please check your database structure!"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:104
+#: src/Module/Admin/Summary.php:105
 #, php-format
 msgid ""
 "The last worker execution was on %s UTC. This is older than one hour. Please "
 "check your crontab settings."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:109
+#: src/Module/Admin/Summary.php:110
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -5082,7 +5082,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:113
+#: src/Module/Admin/Summary.php:114
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -5091,7 +5091,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:117
+#: src/Module/Admin/Summary.php:118
 #, php-format
 msgid ""
 "Friendica's configuration store \"%s\" isn't writable. Until then database "
@@ -5099,7 +5099,7 @@ msgid ""
 "configuration changes won't be saved."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:123
+#: src/Module/Admin/Summary.php:124
 #, php-format
 msgid ""
 "<a href=\"%s\">%s</a> is not reachable on your system. This is a severe "
@@ -5107,50 +5107,50 @@ msgid ""
 "href=\"%s\">the installation page</a> for help."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:141
+#: src/Module/Admin/Summary.php:142
 #, php-format
 msgid "The logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:155
+#: src/Module/Admin/Summary.php:156
 #, php-format
 msgid "The debug logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:171
+#: src/Module/Admin/Summary.php:172
 #, php-format
 msgid ""
 "Friendica's system.basepath was updated from '%s' to '%s'. Please remove the "
 "system.basepath from your db to avoid differences."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:179
+#: src/Module/Admin/Summary.php:180
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is wrong and the config file '%s' "
 "isn't used."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:187
+#: src/Module/Admin/Summary.php:188
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is not equal to the config file "
 "'%s'. Please fix your configuration."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:198
+#: src/Module/Admin/Summary.php:199
 msgid "Message queues"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:204
+#: src/Module/Admin/Summary.php:205
 msgid "Server Settings"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:222
+#: src/Module/Admin/Summary.php:223
 msgid "Version"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:226
+#: src/Module/Admin/Summary.php:227
 msgid "Active addons"
 msgstr ""
 
@@ -9478,8 +9478,8 @@ msgstr ""
 #: src/Module/Settings/Connectors.php:223
 msgid ""
 "When activated, the \"spoiler_text\" field in the API will be used for the "
-"title on staring posts. When deactivated it will be used for spoiler text. "
-"For comments it will be used for spoiler text in any case."
+"title on standalone posts. When deactivated it will be used for spoiler "
+"text. For comments it will be always be used for spoiler text."
 msgstr ""
 
 #: src/Module/Settings/Connectors.php:224
