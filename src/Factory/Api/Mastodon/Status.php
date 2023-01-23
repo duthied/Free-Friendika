@@ -97,17 +97,29 @@ class Status extends BaseFactory
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . ' not found' . ($uid ? ' for user ' . $uid : '.'));
 		}
 
+		$activity_fields = ['uri-id', 'thr-parent-id', 'uri', 'author-id', 'author-uri-id', 'author-link', 'app', 'created', 'network', 'parent-author-id', 'private'];
+
 		if (($item['gravity'] == Item::GRAVITY_ACTIVITY) && ($item['vid'] == Verb::getID(Activity::ANNOUNCE))) {
 			$is_reshare = true;
 			$account    = $this->mstdnAccountFactory->createFromUriId($item['author-uri-id'], $uid);
 			$uriId      = $item['thr-parent-id'];
+			$activity   = $item;
 			$item       = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 			if (!$item) {
 				throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . ' not found' . ($uid ? ' for user ' . $uid : '.'));
 			}
+			foreach ($activity_fields as $field) {
+				$item[$field] = $activity[$field];
+			}
 		} else {
 			$is_reshare = $reblog && !is_null($item['causer-uri-id']) && ($item['causer-id'] != $item['author-id']) && ($item['post-reason'] == Item::PR_ANNOUNCEMENT);
 			$account    = $this->mstdnAccountFactory->createFromUriId($is_reshare ? $item['causer-uri-id'] : $item['author-uri-id'], $uid);
+			if ($is_reshare) {
+				$activity = Post::selectFirstPost($activity_fields, ['thr-parent-id' => $item['uri-id'], 'author-id' => $item['causer-id'], 'verb' => Activity::ANNOUNCE]);
+				if ($activity) {
+					$item = array_merge($item, $activity);
+				}
+			}
 		}
 
 		$count_announce = Post::countPosts([
