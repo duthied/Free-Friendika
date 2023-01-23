@@ -234,7 +234,13 @@ class Status extends BaseFactory
 			$reshare = [];
 		}
 
-		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare, $poll);
+		if (!empty($item['quote-uri-id'])) {
+			$quote = $this->createFromUriId($item['quote-uri-id'], $uid, false)->toArray();
+		} else {
+			$quote = [];
+		}
+
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare, $quote, $poll);
 	}
 
 	/**
