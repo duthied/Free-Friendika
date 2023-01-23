@@ -295,7 +295,7 @@ class Statuses extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid));
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, false));
 	}
 
 	private function getApp(): string
