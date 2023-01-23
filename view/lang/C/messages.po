@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-21 09:22-0500\n"
+"POT-Creation-Date: 2023-01-23 06:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -625,7 +625,7 @@ msgstr ""
 #: src/Module/Moderation/Users/Active.php:136
 #: src/Module/Moderation/Users/Blocked.php:136
 #: src/Module/Moderation/Users/Index.php:151
-#: src/Module/Settings/Connectors.php:239
+#: src/Module/Settings/Connectors.php:241
 msgid "Delete"
 msgstr ""
 
@@ -653,7 +653,7 @@ msgstr ""
 msgid "No system theme config value set."
 msgstr ""
 
-#: src/App.php:592
+#: src/App.php:573
 msgid "Apologies but the website is unavailable at the moment."
 msgstr ""
 
@@ -1825,7 +1825,7 @@ msgstr ""
 msgid "See all notifications"
 msgstr ""
 
-#: src/Content/Nav.php:315 src/Module/Settings/Connectors.php:239
+#: src/Content/Nav.php:315 src/Module/Settings/Connectors.php:241
 msgid "Mark as seen"
 msgstr ""
 
@@ -3296,7 +3296,7 @@ msgstr ""
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:220
+#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:221
 #: src/Module/Moderation/Summary.php:77
 msgid "Summary"
 msgstr ""
@@ -3623,7 +3623,7 @@ msgstr ""
 #: src/Module/Admin/Federation.php:207 src/Module/Admin/Logs/Settings.php:79
 #: src/Module/Admin/Logs/View.php:84 src/Module/Admin/Queue.php:72
 #: src/Module/Admin/Site.php:435 src/Module/Admin/Storage.php:138
-#: src/Module/Admin/Summary.php:219 src/Module/Admin/Themes/Details.php:90
+#: src/Module/Admin/Summary.php:220 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:77
 #: src/Module/Moderation/Users/Create.php:61
 #: src/Module/Moderation/Users/Pending.php:96
@@ -3663,8 +3663,8 @@ msgstr ""
 #: src/Module/Admin/Logs/Settings.php:81 src/Module/Admin/Site.php:438
 #: src/Module/Admin/Themes/Index.php:113 src/Module/Admin/Tos.php:86
 #: src/Module/Settings/Account.php:560 src/Module/Settings/Addons.php:78
-#: src/Module/Settings/Connectors.php:156
-#: src/Module/Settings/Connectors.php:241
+#: src/Module/Settings/Connectors.php:158
+#: src/Module/Settings/Connectors.php:243
 #: src/Module/Settings/Delegation.php:169 src/Module/Settings/Display.php:247
 #: src/Module/Settings/Features.php:76
 msgid "Save Settings"
@@ -5041,39 +5041,39 @@ msgid ""
 "to %d. See <a href=\"%s\">here</a> for more information.<br />"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:84
+#: src/Module/Admin/Summary.php:85
 #, php-format
 msgid ""
 "There is a new version of Friendica available for download. Your current "
 "version is %1$s, upstream version is %2$s"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:93
+#: src/Module/Admin/Summary.php:94
 msgid ""
 "The database update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:97
+#: src/Module/Admin/Summary.php:98
 msgid ""
 "The last update failed. Please run \"php bin/console.php dbstructure update"
 "\" from the command line and have a look at the errors that might appear. "
 "(Some of the errors are possibly inside the logfile.)"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:102
+#: src/Module/Admin/Summary.php:103
 msgid "The worker was never executed. Please check your database structure!"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:104
+#: src/Module/Admin/Summary.php:105
 #, php-format
 msgid ""
 "The last worker execution was on %s UTC. This is older than one hour. Please "
 "check your crontab settings."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:109
+#: src/Module/Admin/Summary.php:110
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -5082,7 +5082,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:113
+#: src/Module/Admin/Summary.php:114
 #, php-format
 msgid ""
 "Friendica's configuration now is stored in config/local.config.php, please "
@@ -5091,7 +5091,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:117
+#: src/Module/Admin/Summary.php:118
 #, php-format
 msgid ""
 "Friendica's configuration store \"%s\" isn't writable. Until then database "
@@ -5099,7 +5099,7 @@ msgid ""
 "configuration changes won't be saved."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:123
+#: src/Module/Admin/Summary.php:124
 #, php-format
 msgid ""
 "<a href=\"%s\">%s</a> is not reachable on your system. This is a severe "
@@ -5107,50 +5107,50 @@ msgid ""
 "href=\"%s\">the installation page</a> for help."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:141
+#: src/Module/Admin/Summary.php:142
 #, php-format
 msgid "The logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:155
+#: src/Module/Admin/Summary.php:156
 #, php-format
 msgid "The debug logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:171
+#: src/Module/Admin/Summary.php:172
 #, php-format
 msgid ""
 "Friendica's system.basepath was updated from '%s' to '%s'. Please remove the "
 "system.basepath from your db to avoid differences."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:179
+#: src/Module/Admin/Summary.php:180
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is wrong and the config file '%s' "
 "isn't used."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:187
+#: src/Module/Admin/Summary.php:188
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is not equal to the config file "
 "'%s'. Please fix your configuration."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:198
+#: src/Module/Admin/Summary.php:199
 msgid "Message queues"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:204
+#: src/Module/Admin/Summary.php:205
 msgid "Server Settings"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:222
+#: src/Module/Admin/Summary.php:223
 msgid "Version"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:226
+#: src/Module/Admin/Summary.php:227
 msgid "Active addons"
 msgstr ""
 
@@ -5476,7 +5476,7 @@ msgstr ""
 msgid "Display"
 msgstr ""
 
-#: src/Module/BaseSettings.php:127 src/Module/Settings/Connectors.php:200
+#: src/Module/BaseSettings.php:127 src/Module/Settings/Connectors.php:202
 msgid "Social Networks"
 msgstr ""
 
@@ -9365,73 +9365,73 @@ msgstr ""
 msgid "No Addon settings configured"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:118
+#: src/Module/Settings/Connectors.php:119
 msgid "Failed to connect with email account using the settings provided."
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:162
-#: src/Module/Settings/Connectors.php:163
+#: src/Module/Settings/Connectors.php:164
+#: src/Module/Settings/Connectors.php:165
 msgid "Diaspora (Socialhome, Hubzilla)"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:162
-#: src/Module/Settings/Connectors.php:166
+#: src/Module/Settings/Connectors.php:164
+#: src/Module/Settings/Connectors.php:168
 #, php-format
 msgid "Built-in support for %s connectivity is enabled"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:163
 #: src/Module/Settings/Connectors.php:165
+#: src/Module/Settings/Connectors.php:167
 #, php-format
 msgid "Built-in support for %s connectivity is disabled"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:165
-#: src/Module/Settings/Connectors.php:166
+#: src/Module/Settings/Connectors.php:167
+#: src/Module/Settings/Connectors.php:168
 msgid "OStatus (GNU Social)"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:178
+#: src/Module/Settings/Connectors.php:180
 msgid "Email access is disabled on this site."
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:193
-#: src/Module/Settings/Connectors.php:239
+#: src/Module/Settings/Connectors.php:195
+#: src/Module/Settings/Connectors.php:241
 msgid "None"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:205
+#: src/Module/Settings/Connectors.php:207
 msgid "General Social Media Settings"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:208
+#: src/Module/Settings/Connectors.php:210
 msgid "Followed content scope"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:210
+#: src/Module/Settings/Connectors.php:212
 msgid ""
 "By default, conversations in which your follows participated but didn't "
 "start will be shown in your timeline. You can turn this behavior off, or "
 "expand it to the conversations in which your follows liked a post."
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:212
+#: src/Module/Settings/Connectors.php:214
 msgid "Only conversations my follows started"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:213
+#: src/Module/Settings/Connectors.php:215
 msgid "Conversations my follows started or commented on (default)"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:214
+#: src/Module/Settings/Connectors.php:216
 msgid "Any conversation my follows interacted with, including likes"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:217
+#: src/Module/Settings/Connectors.php:219
 msgid "Enable Content Warning"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:217
+#: src/Module/Settings/Connectors.php:219
 msgid ""
 "Users on networks like Mastodon or Pleroma are able to set a content warning "
 "field which collapse their post by default. This enables the automatic "
@@ -9439,104 +9439,115 @@ msgid ""
 "affect any other content filtering you eventually set up."
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:218
+#: src/Module/Settings/Connectors.php:220
 msgid "Enable intelligent shortening"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:218
+#: src/Module/Settings/Connectors.php:220
 msgid ""
 "Normally the system tries to find the best link to add to shortened posts. "
 "If disabled, every shortened post will always point to the original "
 "friendica post."
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:219
+#: src/Module/Settings/Connectors.php:221
 msgid "Enable simple text shortening"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:219
+#: src/Module/Settings/Connectors.php:221
 msgid ""
 "Normally the system shortens posts at the next line feed. If this option is "
 "enabled then the system will shorten the text at the maximum character limit."
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:220
+#: src/Module/Settings/Connectors.php:222
 msgid "Attach the link title"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:220
+#: src/Module/Settings/Connectors.php:222
 msgid ""
 "When activated, the title of the attached link will be added as a title on "
 "posts to Diaspora. This is mostly helpful with \"remote-self\" contacts that "
 "share feed content."
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:221
+#: src/Module/Settings/Connectors.php:223
+msgid "API: Use spoiler field as title"
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:223
+msgid ""
+"When activated, the \"spoiler_text\" field in the API will be used for the "
+"title on standalone posts. When deactivated it will be used for spoiler "
+"text. For comments it will always be used for spoiler text."
+msgstr ""
+
+#: src/Module/Settings/Connectors.php:224
 msgid "Your legacy ActivityPub/GNU Social account"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:221
+#: src/Module/Settings/Connectors.php:224
 msgid ""
 "If you enter your old account name from an ActivityPub based system or your "
 "GNU Social/Statusnet account name here (in the format user@domain.tld), your "
 "contacts will be added automatically. The field will be emptied when done."
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:224
+#: src/Module/Settings/Connectors.php:226
 msgid "Repair OStatus subscriptions"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:228
+#: src/Module/Settings/Connectors.php:230
 msgid "Email/Mailbox Setup"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:229
+#: src/Module/Settings/Connectors.php:231
 msgid ""
 "If you wish to communicate with email contacts using this service "
 "(optional), please specify how to connect to your mailbox."
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:230
+#: src/Module/Settings/Connectors.php:232
 msgid "Last successful email check:"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:232
+#: src/Module/Settings/Connectors.php:234
 msgid "IMAP server name:"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:233
+#: src/Module/Settings/Connectors.php:235
 msgid "IMAP port:"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:234
+#: src/Module/Settings/Connectors.php:236
 msgid "Security:"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:235
+#: src/Module/Settings/Connectors.php:237
 msgid "Email login name:"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:236
+#: src/Module/Settings/Connectors.php:238
 msgid "Email password:"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:237
+#: src/Module/Settings/Connectors.php:239
 msgid "Reply-to address:"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:238
+#: src/Module/Settings/Connectors.php:240
 msgid "Send public posts to all email contacts:"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:239
+#: src/Module/Settings/Connectors.php:241
 msgid "Action after import:"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:239
+#: src/Module/Settings/Connectors.php:241
 msgid "Move to folder"
 msgstr ""
 
-#: src/Module/Settings/Connectors.php:240
+#: src/Module/Settings/Connectors.php:242
 msgid "Move to folder:"
 msgstr ""
 
