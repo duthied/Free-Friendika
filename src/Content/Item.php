@@ -972,7 +972,7 @@ class Item
 			$post['deny_cid']  = $owner['deny_cid'];
 			$post['deny_gid']  = $owner['deny_gid'];
 		}
-		
+
 		if ($post['allow_gid'] || $post['allow_cid'] || $post['deny_gid'] || $post['deny_cid']) {
 			$post['private'] = ItemModel::PRIVATE;
 		} elseif ($this->pConfig->get($post['uid'], 'system', 'unlisted')) {
@@ -1011,7 +1011,6 @@ class Item
 		// Convert links with empty descriptions to links without an explicit description
 		$post['body'] = trim(preg_replace('#\[url=([^\]]*?)\]\[/url\]#ism', '[url]$1[/url]', $post['body']));
 		$post['body'] = $this->bbCodeVideo->transform($post['body']);
-		$post['body'] = BBCode::scaleExternalImages($post['body']);
 		$post = $this->setObjectType($post);
 
 		// Personal notes must never be altered to a forum post.
