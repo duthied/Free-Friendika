@@ -145,9 +145,6 @@ class Markdown
 		// remove duplicate adjacent code tags
 		$s = preg_replace('/(\[code\])+(.*?)(\[\/code\])+/ism', '[code]$2[/code]', $s);
 
-		// Don't show link to full picture (until it is fixed)
-		$s = BBCode::scaleExternalImages($s);
-
 		DI::profiler()->stopRecording();
 		return $s;
 	}
