@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon\Timelines;
 
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -101,7 +102,11 @@ class ListTimeline extends BaseApi
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
 			self::setBoundaries($item['uri-id']);
-			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, $display_quotes);
+			try {
+				$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, $display_quotes);
+			} catch (\Throwable $th) {
+				Logger::info('Post not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
+			}
 		}
 		DBA::close($items);
 
