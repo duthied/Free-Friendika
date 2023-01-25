@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Mastodon\Timelines;
 
-use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
