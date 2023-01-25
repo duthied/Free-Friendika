@@ -48,6 +48,6 @@ class Unpin extends BaseApi
 
 		Post\Collection::remove($this->parameters['id'], Post\Collection::FEATURED, $uid);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, true, true, self::appSupportsQuotes())->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
 	}
 }

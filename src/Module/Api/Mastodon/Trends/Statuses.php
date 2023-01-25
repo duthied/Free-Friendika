@@ -53,7 +53,7 @@ class Statuses extends BaseApi
 		$trending = [];
 		$statuses = Post::selectPostThread(['uri-id'], $condition, ['limit' => $request['limit'], 'order' => ['total-actors' => true]]);
 		while ($status = Post::fetch($statuses)) {
-			$trending[] = DI::mstdnStatus()->createFromUriId($status['uri-id'], $uid, true, true, $display_quotes);
+			$trending[] = DI::mstdnStatus()->createFromUriId($status['uri-id'], $uid, $display_quotes);
 		}
 		DBA::close($statuses);
 

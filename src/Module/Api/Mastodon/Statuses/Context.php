@@ -115,7 +115,7 @@ class Context extends BaseApi
 		$display_quotes = self::appSupportsQuotes();
 
 		foreach (array_slice($ancestors, 0, $request['limit']) as $ancestor) {
-			$statuses['ancestors'][] = DI::mstdnStatus()->createFromUriId($ancestor, $uid, true, true, $display_quotes);;
+			$statuses['ancestors'][] = DI::mstdnStatus()->createFromUriId($ancestor, $uid, $display_quotes);
 		}
 
 		$descendants = self::getChildren($id, $children);
@@ -123,7 +123,7 @@ class Context extends BaseApi
 		asort($descendants);
 
 		foreach (array_slice($descendants, 0, $request['limit']) as $descendant) {
-			$statuses['descendants'][] = DI::mstdnStatus()->createFromUriId($descendant, $uid, true, true, $display_quotes);
+			$statuses['descendants'][] = DI::mstdnStatus()->createFromUriId($descendant, $uid, $display_quotes);
 		}
 
 		System::jsonExit($statuses);

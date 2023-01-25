@@ -76,7 +76,7 @@ class Favourited extends BaseApi
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
 			self::setBoundaries($item['thr-parent-id']);
-			$statuses[] = DI::mstdnStatus()->createFromUriId($item['thr-parent-id'], $uid, true, true, $display_quotes);
+			$statuses[] = DI::mstdnStatus()->createFromUriId($item['thr-parent-id'], $uid, $display_quotes);
 		}
 		DBA::close($items);
 

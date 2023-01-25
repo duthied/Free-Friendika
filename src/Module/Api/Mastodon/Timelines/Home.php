@@ -96,7 +96,7 @@ class Home extends BaseApi
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
 			self::setBoundaries($item['uri-id']);
-			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, true, true, $display_quotes);
+			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, $display_quotes);
 		}
 		DBA::close($items);
 
