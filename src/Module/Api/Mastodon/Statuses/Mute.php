@@ -53,6 +53,6 @@ class Mute extends BaseApi
 
 		Post\ThreadUser::setIgnored($this->parameters['id'], $uid, true);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, true, true, self::appSupportsQuotes())->toArray());
 	}
 }

@@ -58,6 +58,6 @@ class Reblog extends BaseApi
 			Item::performActivity($item['id'], 'announce', $uid);
 		}
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, true, true, self::appSupportsQuotes())->toArray());
 	}
 }

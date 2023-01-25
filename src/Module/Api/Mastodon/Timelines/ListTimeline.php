@@ -96,10 +96,12 @@ class ListTimeline extends BaseApi
 
 		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);
 
+		$display_quotes = self::appSupportsQuotes();
+
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
 			self::setBoundaries($item['uri-id']);
-			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
+			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, true, true, $display_quotes);
 		}
 		DBA::close($items);
 

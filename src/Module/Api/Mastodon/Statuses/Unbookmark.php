@@ -65,6 +65,6 @@ class Unbookmark extends BaseApi
 
 		Item::update(['starred' => false], ['id' => $item['id']]);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, true, true, self::appSupportsQuotes())->toArray());
 	}
 }

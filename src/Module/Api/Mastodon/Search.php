@@ -142,7 +142,7 @@ class Search extends BaseApi
 			// If the user-specific search failed, we search and probe a public post
 			$item_id = Item::fetchByLink($q, $uid) ?: Item::fetchByLink($q);
 			if ($item_id && $item = Post::selectFirst(['uri-id'], ['id' => $item_id])) {
-				return DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
+				return DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, true, true, self::appSupportsQuotes());
 			}
 		}
 
@@ -176,10 +176,12 @@ class Search extends BaseApi
 
 		$items = DBA::select($table, ['uri-id'], $condition, $params);
 
+		$display_quotes = self::appSupportsQuotes();
+
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
 			self::setBoundaries($item['uri-id']);
-			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
+			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, true, true, $display_quotes);
 		}
 		DBA::close($items);
 

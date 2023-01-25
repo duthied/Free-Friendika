@@ -49,6 +49,6 @@ class Unfavourite extends BaseApi
 
 		Item::performActivity($item['id'], 'unlike', $uid);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, true, true, self::appSupportsQuotes())->toArray());
 	}
 }

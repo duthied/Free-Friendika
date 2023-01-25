@@ -198,33 +198,6 @@ class Status extends BaseFactory
 			$poll = null;
 		}
 
-		$shared = $this->contentItem->getSharedPost($item, ['uri-id']);
-		if (!empty($shared)) {
-			$shared_uri_id = $shared['post']['uri-id'];
-
-			foreach ($this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy() as $mention) {
-				if (!in_array($mention, $mentions)) {
-					$mentions[] = $mention;
-				}
-			}
-
-			foreach ($this->mstdnTagFactory->createFromUriId($shared_uri_id) as $tag) {
-				if (!in_array($tag, $tags)) {
-					$tags[] = $tag;
-				}
-			}
-
-			foreach ($this->mstdnAttachementFactory->createFromUriId($shared_uri_id) as $attachment) {
-				if (!in_array($attachment, $attachments)) {
-					$attachments[] = $attachment;
-				}
-			}
-
-			if (empty($card->toArray())) {
-				$card = $this->mstdnCardFactory->createFromUriId($shared_uri_id);
-			}
-		}
-
 		if ($display_quote) {
 			$quote = self::createQuote($item, $uid);
 
@@ -237,6 +210,33 @@ class Status extends BaseFactory
 			// We can always safely add attached activities. Real quotes are added to the body via "addSharedPost".
 			if (empty($item['quote-uri-id'])) {
 				$quote = self::createQuote($item, $uid);
+			}
+
+			$shared = $this->contentItem->getSharedPost($item, ['uri-id']);
+			if (!empty($shared)) {
+				$shared_uri_id = $shared['post']['uri-id'];
+
+				foreach ($this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy() as $mention) {
+					if (!in_array($mention, $mentions)) {
+						$mentions[] = $mention;
+					}
+				}
+
+				foreach ($this->mstdnTagFactory->createFromUriId($shared_uri_id) as $tag) {
+					if (!in_array($tag, $tags)) {
+						$tags[] = $tag;
+					}
+				}
+
+				foreach ($this->mstdnAttachementFactory->createFromUriId($shared_uri_id) as $attachment) {
+					if (!in_array($attachment, $attachments)) {
+						$attachments[] = $attachment;
+					}
+				}
+
+				if (empty($card->toArray())) {
+					$card = $this->mstdnCardFactory->createFromUriId($shared_uri_id);
+				}
 			}
 
 			$item['body'] = $this->contentItem->addSharedPost($item);
