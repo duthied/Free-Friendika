@@ -65,6 +65,6 @@ class Bookmark extends BaseApi
 
 		Item::update(['starred' => true], ['id' => $item['id']]);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
 	}
 }

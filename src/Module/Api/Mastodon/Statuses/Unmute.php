@@ -53,6 +53,6 @@ class Unmute extends BaseApi
 
 		Post\ThreadUser::setIgnored($this->parameters['id'], $uid, false);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
 	}
 }

@@ -113,11 +113,13 @@ class Statuses extends BaseApi
 			$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);
 		}
 
+		$display_quotes = self::appSupportsQuotes();
+
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
 			self::setBoundaries($item['uri-id']);
 			try {
-				$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
+				$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, $display_quotes);
 			} catch (\Throwable $th) {
 				Logger::info('Post not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
 			}

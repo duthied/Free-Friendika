@@ -79,15 +79,15 @@ class Status extends BaseFactory
 	/**
 	 * @param int  $uriId           Uri-ID of the item
 	 * @param int  $uid             Item user
+	 * @param bool $display_quote   Display quoted posts
 	 * @param bool $reblog          Check for reblogged post
 	 * @param bool $in_reply_status Add an "in_reply_status" element
-	 * @param bool $display_quote   Display quoted posts
 	 *
 	 * @return \Friendica\Object\Api\Mastodon\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromUriId(int $uriId, int $uid = 0, bool $reblog = true, bool $in_reply_status = true, bool $display_quote = false): \Friendica\Object\Api\Mastodon\Status
+	public function createFromUriId(int $uriId, int $uid = 0, bool $display_quote = false, bool $reblog = true, bool $in_reply_status = true): \Friendica\Object\Api\Mastodon\Status
 	{
 		$fields = ['uri-id', 'uid', 'author-id', 'causer-id', 'author-uri-id', 'author-link', 'causer-uri-id', 'post-reason', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
 			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured', 'has-media', 'quote-uri-id'];
@@ -198,33 +198,6 @@ class Status extends BaseFactory
 			$poll = null;
 		}
 
-		$shared = $this->contentItem->getSharedPost($item, ['uri-id']);
-		if (!empty($shared)) {
-			$shared_uri_id = $shared['post']['uri-id'];
-
-			foreach ($this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy() as $mention) {
-				if (!in_array($mention, $mentions)) {
-					$mentions[] = $mention;
-				}
-			}
-
-			foreach ($this->mstdnTagFactory->createFromUriId($shared_uri_id) as $tag) {
-				if (!in_array($tag, $tags)) {
-					$tags[] = $tag;
-				}
-			}
-
-			foreach ($this->mstdnAttachementFactory->createFromUriId($shared_uri_id) as $attachment) {
-				if (!in_array($attachment, $attachments)) {
-					$attachments[] = $attachment;
-				}
-			}
-
-			if (empty($card->toArray())) {
-				$card = $this->mstdnCardFactory->createFromUriId($shared_uri_id);
-			}
-		}
-
 		if ($display_quote) {
 			$quote = self::createQuote($item, $uid);
 
@@ -237,6 +210,35 @@ class Status extends BaseFactory
 			// We can always safely add attached activities. Real quotes are added to the body via "addSharedPost".
 			if (empty($item['quote-uri-id'])) {
 				$quote = self::createQuote($item, $uid);
+			} else {
+				$quote = [];
+			}
+
+			$shared = $this->contentItem->getSharedPost($item, ['uri-id']);
+			if (!empty($shared)) {
+				$shared_uri_id = $shared['post']['uri-id'];
+
+				foreach ($this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy() as $mention) {
+					if (!in_array($mention, $mentions)) {
+						$mentions[] = $mention;
+					}
+				}
+
+				foreach ($this->mstdnTagFactory->createFromUriId($shared_uri_id) as $tag) {
+					if (!in_array($tag, $tags)) {
+						$tags[] = $tag;
+					}
+				}
+
+				foreach ($this->mstdnAttachementFactory->createFromUriId($shared_uri_id) as $attachment) {
+					if (!in_array($attachment, $attachments)) {
+						$attachments[] = $attachment;
+					}
+				}
+
+				if (empty($card->toArray())) {
+					$card = $this->mstdnCardFactory->createFromUriId($shared_uri_id);
+				}
 			}
 
 			$item['body'] = $this->contentItem->addSharedPost($item);
@@ -247,13 +249,13 @@ class Status extends BaseFactory
 		}
 
 		if ($is_reshare) {
-			$reshare = $this->createFromUriId($uriId, $uid, false, false)->toArray();
+			$reshare = $this->createFromUriId($uriId, $uid, $display_quote, false, false)->toArray();
 		} else {
 			$reshare = [];
 		}
 
 		if ($in_reply_status && ($item['gravity'] == Item::GRAVITY_COMMENT)) {
-			$in_reply = $this->createFromUriId($item['thr-parent-id'], $uid, false, false)->toArray();
+			$in_reply = $this->createFromUriId($item['thr-parent-id'], $uid, $display_quote, false, false)->toArray();
 		} else {
 			$in_reply = [];
 		}
@@ -281,7 +283,7 @@ class Status extends BaseFactory
 		}
 
 		if (!empty($quote_id)) {
-			$quote = $this->createFromUriId($quote_id, $uid, false, false)->toArray();
+			$quote = $this->createFromUriId($quote_id, $uid, false, false, false)->toArray();
 		} else {
 			$quote = [];
 		}
