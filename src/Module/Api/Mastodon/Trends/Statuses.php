@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon\Trends;
 
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -53,7 +54,11 @@ class Statuses extends BaseApi
 		$trending = [];
 		$statuses = Post::selectPostThread(['uri-id'], $condition, ['limit' => $request['limit'], 'order' => ['total-actors' => true]]);
 		while ($status = Post::fetch($statuses)) {
-			$trending[] = DI::mstdnStatus()->createFromUriId($status['uri-id'], $uid, $display_quotes);
+			try {
+				$trending[] = DI::mstdnStatus()->createFromUriId($status['uri-id'], $uid, $display_quotes);
+			} catch (\Throwable $th) {
+				Logger::info('Post not fetchable', ['uri-id' => $status['uri-id'], 'uid' => $uid, 'error' => $th]);
+			}
 		}
 		DBA::close($statuses);
 

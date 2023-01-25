@@ -25,6 +25,7 @@ use Friendica\BaseFactory;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Item as ContentItem;
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -249,13 +250,23 @@ class Status extends BaseFactory
 		}
 
 		if ($is_reshare) {
-			$reshare = $this->createFromUriId($uriId, $uid, $display_quote, false, false)->toArray();
+			try {
+				$reshare = $this->createFromUriId($uriId, $uid, $display_quote, false, false)->toArray();
+			} catch (\Throwable $th) {
+				Logger::info('Reshare not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
+				$reshare = [];
+			}
 		} else {
 			$reshare = [];
 		}
 
 		if ($in_reply_status && ($item['gravity'] == Item::GRAVITY_COMMENT)) {
-			$in_reply = $this->createFromUriId($item['thr-parent-id'], $uid, $display_quote, false, false)->toArray();
+			try {
+				$in_reply = $this->createFromUriId($item['thr-parent-id'], $uid, $display_quote, false, false)->toArray();
+			} catch (\Throwable $th) {
+				Logger::info('Reply post not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
+				$in_reply = [];
+			}
 		} else {
 			$in_reply = [];
 		}
@@ -283,7 +294,12 @@ class Status extends BaseFactory
 		}
 
 		if (!empty($quote_id)) {
-			$quote = $this->createFromUriId($quote_id, $uid, false, false, false)->toArray();
+			try {
+				$quote = $this->createFromUriId($quote_id, $uid, false, false, false)->toArray();
+			} catch (\Throwable $th) {
+				Logger::info('Quote not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
+				$quote = [];
+			}
 		} else {
 			$quote = [];
 		}
