@@ -87,7 +87,7 @@ class Status extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromUriId(int $uriId, int $uid = 0, bool $display_quote = false, bool $reblog = true, bool $in_reply_status = true): \Friendica\Object\Api\Mastodon\Status
+	public function createFromUriId(int $uriId, int $uid = 0, bool $display_quote, bool $reblog = true, bool $in_reply_status = true): \Friendica\Object\Api\Mastodon\Status
 	{
 		$fields = ['uri-id', 'uid', 'author-id', 'causer-id', 'author-uri-id', 'author-link', 'causer-uri-id', 'post-reason', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
 			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured', 'has-media', 'quote-uri-id'];
