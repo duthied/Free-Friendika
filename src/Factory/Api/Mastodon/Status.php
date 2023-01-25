@@ -210,6 +210,8 @@ class Status extends BaseFactory
 			// We can always safely add attached activities. Real quotes are added to the body via "addSharedPost".
 			if (empty($item['quote-uri-id'])) {
 				$quote = self::createQuote($item, $uid);
+			} else {
+				$quote = [];
 			}
 
 			$shared = $this->contentItem->getSharedPost($item, ['uri-id']);
