@@ -761,7 +761,7 @@ class Probe
 			$result = self::feed($uri);
 		} else {
 			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
-			// Additionally it is overwritten when the nickname doesn't make sense (contains spaces).
+			// Additionally, it is overwritten when the nickname doesn't make sense (contains spaces).
 			if ((empty($result['nick']) || (strstr($result['nick'], ' '))) && ($nick != '')) {
 				$result['nick'] = $nick;
 			}
@@ -1853,11 +1853,18 @@ class Probe
 	 */
 	private static function feed(string $url, bool $probe = true): array
 	{
-		$curlResult = DI::httpClient()->get($url, HttpClientAccept::FEED_XML);
+		try {
+			$curlResult = DI::httpClient()->get($url, HttpClientAccept::FEED_XML);
+		} catch(\Throwable $e) {
+			DI::logger()->info('Error requesting feed URL', ['url' => $url, 'exception' => $e]);
+			return [];
+		}
+
 		if ($curlResult->isTimeout()) {
 			self::$isTimeout = true;
 			return [];
 		}
+
 		$feed = $curlResult->getBody();
 		$feed_data = Feed::import($feed);
 
