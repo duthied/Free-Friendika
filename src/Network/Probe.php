@@ -519,7 +519,7 @@ class Probe
 	 * @return array Webfinger data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function getWebfingerArray(string $uri): array
+	public static function getWebfingerArray(string $uri): array
 	{
 		$parts = parse_url($uri);
 
