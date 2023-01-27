@@ -45,7 +45,7 @@ class Stats extends BaseDataTransferObject
 	{
 		if (!empty($config->get('system', 'nodeinfo'))) {
 			$this->user_count   = intval(DI::keyValue()->get('nodeinfo_total_users'));
-			$this->status_count = DI::keyValue()->get('nodeinfo_local_posts') + DI::keyValue()->get('nodeinfo_local_comments');
+			$this->status_count = (int)DI::keyValue()->get('nodeinfo_local_posts') + (int)DI::keyValue()->get('nodeinfo_local_comments');
 			$this->domain_count = $database->count('gserver', ["`network` in (?, ?) AND NOT `failed` AND NOT `blocked`", Protocol::DFRN, Protocol::ACTIVITYPUB]);
 		}
 	}

@@ -583,7 +583,7 @@ class Photo
 		$photo_failure = false;
 
 		$filename = basename($image_url);
-		if (!empty($image_url)) {
+		if (!empty($image_url) && @parse_url($image_url, PHP_URL_HOST)) {
 			$ret = DI::httpClient()->get($image_url, HttpClientAccept::IMAGE);
 			Logger::debug('Got picture', ['Content-Type' => $ret->getHeader('Content-Type'), 'url' => $image_url]);
 			$img_str = $ret->getBody();
