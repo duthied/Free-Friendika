@@ -1122,7 +1122,7 @@ class Feed
 		XML::addElement($doc, $entry, 'id', $item['uri']);
 		XML::addElement($doc, $entry, 'title', html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 
-		$body = OStatus::formatPicturePost($item['body'], $item['uri-id']);
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
 
 		$body = BBCode::convertForUriId($item['uri-id'], $body, BBCode::ACTIVITYPUB);
 

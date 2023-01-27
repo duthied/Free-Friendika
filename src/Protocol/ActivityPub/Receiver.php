@@ -1065,6 +1065,10 @@ class Receiver
 			}
 
 			foreach ($receiver_list as $receiver) {
+				if ($receiver == 'Public') {
+					Logger::notice('Not compacted public collection found', ['activity' => $activity, 'callstack' => System::callstack(20)]);
+					$receiver = ActivityPub::PUBLIC_COLLECTION;
+				}
 				if ($receiver == self::PUBLIC_COLLECTION) {
 					$receiver = ActivityPub::PUBLIC_COLLECTION;
 				}

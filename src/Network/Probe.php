@@ -120,6 +120,11 @@ class Probe
 
 		$numeric_fields = ['gsid', 'hide', 'account-type', 'manually-approve'];
 
+		if (!empty($data['photo']) && !Network::isValidHttpUrl($data['photo'])) {
+			Logger::info('Invalid URL for photo', ['url' => $data['url'], 'photo' => $data['photo']]);
+			unset($data['photo']);
+		}
+
 		$newdata = [];
 		foreach ($fields as $field) {
 			if (isset($data[$field])) {
@@ -755,7 +760,7 @@ class Probe
 			$result = self::zot($webfinger, $result, $baseurl);
 		}
 		if ((!$result && ($network == '')) || ($network == Protocol::PUMPIO)) {
-			$result = self::pumpio($webfinger, $addr);
+			$result = self::pumpio($webfinger, $addr, $baseurl);
 		}
 		if (empty($result['network']) && empty($ap_profile['network']) || ($network == Protocol::FEED)) {
 			$result = self::feed($uri);
@@ -1635,7 +1640,7 @@ class Probe
 	 *
 	 * @return array Profile data
 	 */
-	private static function pumpioProfileData(string $profile_link): array
+	private static function pumpioProfileData(string $profile_link, string $baseurl): array
 	{
 		$curlResult = DI::httpClient()->get($profile_link, HttpClientAccept::HTML);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
@@ -1681,6 +1686,9 @@ class Probe
 			foreach ($avatar->attributes as $attribute) {
 				if ($attribute->name == 'src') {
 					$data['photo'] = trim($attribute->value);
+					if (!empty($data['photo']) && !parse_url($data['photo'], PHP_URL_SCHEME) && !parse_url($data['photo'], PHP_URL_HOST)) {
+						$data['photo'] = $baseurl . $data['photo'];
+					}
 				}
 			}
 		}
@@ -1696,7 +1704,7 @@ class Probe
 	 *
 	 * @return array pump.io data
 	 */
-	private static function pumpio(array $webfinger, string $addr): array
+	private static function pumpio(array $webfinger, string $addr, string $baseurl): array
 	{
 		$data = [];
 		// The array is reversed to take into account the order of preference for same-rel links
@@ -1728,7 +1736,7 @@ class Probe
 			return [];
 		}
 
-		$profile_data = self::pumpioProfileData($data['url']);
+		$profile_data = self::pumpioProfileData($data['url'], $baseurl);
 
 		if (!$profile_data) {
 			return [];

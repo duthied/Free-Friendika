@@ -31,6 +31,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
@@ -193,7 +194,7 @@ class Tag
 			} elseif (Contact::getIdForURL($url, 0, $fetch ? null : false)) {
 				$target = self::ACCOUNT;
 				Logger::debug('URL is an account', ['url' => $url]);
-			} elseif ($fetch && ($target != self::GENERAL_COLLECTION)) {
+			} elseif ($fetch && ($target != self::GENERAL_COLLECTION) && Network::isValidHttpUrl($url)) {
 				$content = ActivityPub::fetchContent($url);
 				if (!empty($content['type']) && ($content['type'] == 'OrderedCollection')) {
 					$target = self::GENERAL_COLLECTION;

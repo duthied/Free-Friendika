@@ -517,7 +517,11 @@ class Notifier
 
 		foreach ($contacts as $contact) {
 			// Direct delivery of local contacts
-			if (!in_array($cmd, [Delivery::RELOCATION, Delivery::SUGGESTION, Delivery::DELETION, Delivery::MAIL]) && $target_uid = User::getIdForURL($contact['url'])) {
+			if (!in_array($cmd, [Delivery::RELOCATION, Delivery::SUGGESTION, Delivery::MAIL]) && $target_uid = User::getIdForURL($contact['url'])) {
+				if ($cmd == Delivery::DELETION) {
+					Logger::info('No need to deliver deletions internally', ['uid' => $target_uid, 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'uri' => $target_item['uri']]);
+					continue;
+				}
 				if ($target_item['origin'] || ($target_item['network'] != Protocol::ACTIVITYPUB)) {
 					if ($target_uid != $target_item['uid']) {
 						$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH, 'post-reason' => Item::PR_DIRECT];
@@ -839,7 +843,11 @@ class Notifier
 
 			if ((count($receivers) == 1) && Network::isLocalLink($inbox)) {
 				$contact = Contact::getById($receivers[0], ['url']);
-				if (!in_array($cmd, [Delivery::RELOCATION, Delivery::SUGGESTION, Delivery::DELETION, Delivery::MAIL]) && ($target_uid = User::getIdForURL($contact['url']))) {
+				if (!in_array($cmd, [Delivery::RELOCATION, Delivery::SUGGESTION, Delivery::MAIL]) && ($target_uid = User::getIdForURL($contact['url']))) {
+					if ($cmd == Delivery::DELETION) {
+						Logger::info('No need to deliver deletions internally', ['uid' => $target_uid, 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'uri' => $target_item['uri']]);
+						continue;
+					}
 					if ($target_item['origin'] || ($target_item['network'] != Protocol::ACTIVITYPUB)) {
 						if ($target_uid != $target_item['uid']) {
 							$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH, 'post-reason' => Item::PR_BCC];
