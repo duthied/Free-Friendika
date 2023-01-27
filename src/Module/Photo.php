@@ -353,7 +353,6 @@ class Photo extends BaseModule
 				// If it is a local link, we save resources by just redirecting to it.
 				if (Network::isLocalLink($url)) {
 					System::externalRedirect($url);
-					System::exit();
 				}
 
 				$mimetext = '';
@@ -402,7 +401,6 @@ class Photo extends BaseModule
 					}
 					if (Network::isLocalLink($url)) {
 						System::externalRedirect($url);
-						System::exit();
 					}
 				}
 				return MPhoto::createPhotoForExternalResource($url, 0, $mimetext, $contact['blurhash'] ?? null, $customsize, $customsize);
@@ -430,7 +428,6 @@ class Photo extends BaseModule
 					$url = Contact::getDefaultHeader($contact);
 					if (Network::isLocalLink($url)) {
 						System::externalRedirect($url);
-						System::exit();
 					}
 				}
 				return MPhoto::createPhotoForExternalResource($url);
@@ -467,7 +464,6 @@ class Photo extends BaseModule
 
 			if (Network::isLocalLink($default)) {
 				System::externalRedirect($default);
-				System::exit();
 			}
 
 			$parts = parse_url($default);
