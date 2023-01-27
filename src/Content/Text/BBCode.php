@@ -305,7 +305,7 @@ class BBCode
 		// if nothing is found, it maybe having an image.
 		if (!isset($post['type'])) {
 			if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $post['text'], $pictures, PREG_SET_ORDER)) {
-				if ((count($pictures) == 1) && !$has_title) {
+				if ((count($pictures) == 1) && !$has_title && !Photo::isLocal($pictures[0][2])) {
 					if (!empty($item['object-type']) && ($item['object-type'] == Activity\ObjectType::IMAGE)) {
 						// Replace the preview picture with the real picture
 						$url = str_replace('-1.', '-0.', $pictures[0][2]);

@@ -349,6 +349,13 @@ class Photo extends BaseModule
 				} elseif (!empty($contact['avatar'])) {
 					$url = $contact['avatar'];
 				}
+
+				// If it is a local link, we save resources by just redirecting to it.
+				if (Network::isLocalLink($url)) {
+					System::externalRedirect($url);
+					System::exit();
+				}
+
 				$mimetext = '';
 				if (!empty($url)) {
 					$mime = ParseUrl::getContentType($url, HttpClientAccept::IMAGE);
@@ -393,6 +400,10 @@ class Photo extends BaseModule
 					} else {
 						$url = Contact::getDefaultAvatar($contact ?: [], Proxy::SIZE_SMALL);
 					}
+					if (Network::isLocalLink($url)) {
+						System::externalRedirect($url);
+						System::exit();
+					}
 				}
 				return MPhoto::createPhotoForExternalResource($url, 0, $mimetext, $contact['blurhash'] ?? null, $customsize, $customsize);
 			case 'header':
@@ -401,6 +412,15 @@ class Photo extends BaseModule
 				if (empty($contact)) {
 					return false;
 				}
+
+				if (Network::isLocalLink($contact['url'])) {
+					$header_uid = User::getIdForURL($contact['url']);
+					if (empty($header_uid)) {
+						throw new HTTPException\NotFoundException();
+					}
+					return self::getBannerForUser($header_uid);
+				}
+
 				If (($contact['uid'] != 0) && empty($contact['header'])) {
 					$contact = Contact::getByURL($contact['url'], false, $fields);
 				}
@@ -408,14 +428,14 @@ class Photo extends BaseModule
 					$url = $contact['header'];
 				} else {
 					$url = Contact::getDefaultHeader($contact);
+					if (Network::isLocalLink($url)) {
+						System::externalRedirect($url);
+						System::exit();
+					}
 				}
 				return MPhoto::createPhotoForExternalResource($url);
 			case 'banner':
-				$photo = MPhoto::selectFirst([], ['scale' => 3, 'uid' => $id, 'photo-type' => MPhoto::USER_BANNER]);
-				if (!empty($photo)) {
-					return $photo;
-				}
-				return MPhoto::createPhotoForExternalResource(DI::baseUrl() . '/images/friendica-banner.jpg');
+				return self::getBannerForUser($id);
 			case 'profile':
 			case 'custom':
 				$scale = 4;
@@ -445,6 +465,11 @@ class Photo extends BaseModule
 					$default = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
 			}
 
+			if (Network::isLocalLink($default)) {
+				System::externalRedirect($default);
+				System::exit();
+			}
+
 			$parts = parse_url($default);
 			if (!empty($parts['scheme']) || !empty($parts['host'])) {
 				$photo = MPhoto::createPhotoForExternalResource($default);
@@ -453,5 +478,14 @@ class Photo extends BaseModule
 			}
 		}
 		return $photo;
+	}
+
+	private static function getBannerForUser(int $uid): array
+	{
+		$photo = MPhoto::selectFirst([], ['scale' => 3, 'uid' => $uid, 'photo-type' => MPhoto::USER_BANNER]);
+		if (!empty($photo)) {
+			return $photo;
+		}
+		return MPhoto::createPhotoForImageData(file_get_contents(DI::basePath() . '/images/friendica-banner.jpg'));
 	}
 }

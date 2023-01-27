@@ -2210,14 +2210,22 @@ class Contact
 		if (($uid == 0) && !$force && empty($contact['thumb']) && empty($contact['micro']) && !$create_cache) {
 			if (($contact['avatar'] != $avatar) || empty($contact['blurhash'])) {
 				$update_fields = ['avatar' => $avatar];
-				$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
+				if (!Network::isLocalLink($avatar) && Network::isValidHttpUrl($avatar)) {
+					$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
 
-				$img_str = $fetchResult->getBody();
-				if (!empty($img_str)) {
-					$image = new Image($img_str, Images::getMimeTypeByData($img_str));
-					if ($image->isValid()) {
-						$update_fields['blurhash'] = $image->getBlurHash();
+					$img_str = $fetchResult->getBody();
+					if (!empty($img_str)) {
+						$image = new Image($img_str, Images::getMimeTypeByData($img_str));
+						if ($image->isValid()) {
+							$update_fields['blurhash'] = $image->getBlurHash();
+						} else {
+							return;
+						}
 					}
+				} elseif (!empty($contact['blurhash'])) {
+					$update_fields['blurhash'] = null;
+				} else {
+					return;
 				}
 
 				self::update($update_fields, ['id' => $cid]);

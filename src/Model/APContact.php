@@ -376,6 +376,11 @@ class APContact
 		// Unhandled from Kroeg
 		// kroeg:blocks, updated
 
+		if (!empty($apcontact['photo']) && !Network::isValidHttpUrl($apcontact['photo'])) {
+			Logger::info('Invalid URL for photo', ['url' => $apcontact['url'], 'photo' => $apcontact['photo']]);
+			$apcontact['photo'] = null;
+		}
+
 		// When the photo is too large, try to shorten it by removing parts
 		if (strlen($apcontact['photo'] ?? '') > 255) {
 			$parts = parse_url($apcontact['photo']);

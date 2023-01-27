@@ -977,44 +977,6 @@ class OStatus
 	}
 
 	/**
-	 * Cleans the body of a post if it contains picture links
-	 *
-	 * @param string $body The body
-	 * @param integer $uriId
-	 * @return string The cleaned body
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function formatPicturePost(string $body, int $uriid): string
-	{
-		$siteinfo = BBCode::getAttachedData($body);
-
-		if (($siteinfo['type'] == 'photo') && (!empty($siteinfo['preview']) || !empty($siteinfo['image']))) {
-			if (isset($siteinfo['preview'])) {
-				$preview = $siteinfo['preview'];
-			} else {
-				$preview = $siteinfo['image'];
-			}
-
-			// Is it a remote picture? Then make a smaller preview here
-			$preview = Post\Link::getByLink($uriid, $preview, Proxy::SIZE_SMALL);
-
-			// Is it a local picture? Then make it smaller here
-			$preview = str_replace(['-0.jpg', '-0.png'], ['-2.jpg', '-2.png'], $preview);
-			$preview = str_replace(['-1.jpg', '-1.png'], ['-2.jpg', '-2.png'], $preview);
-
-			if (isset($siteinfo['url'])) {
-				$url = $siteinfo['url'];
-			} else {
-				$url = $siteinfo['image'];
-			}
-
-			$body = trim($siteinfo['text']) . ' [url]' . $url . "[/url]\n[img]" . $preview . '[/img]';
-		}
-
-		return $body;
-	}
-
-	/**
 	 * Adds the header elements to the XML document
 	 *
 	 * @param DOMDocument $doc       XML document
@@ -1140,51 +1102,7 @@ class OStatus
 	 */
 	public static function getAttachment(DOMDocument $doc, DOMElement $root, array $item)
 	{
-		$siteinfo = BBCode::getAttachedData($item['body']);
-
-		switch ($siteinfo['type']) {
-			case 'photo':
-				if (!empty($siteinfo['image'])) {
-					$imgdata = Images::getInfoFromURLCached($siteinfo['image']);
-					if ($imgdata) {
-						$attributes = [
-							'rel' => 'enclosure',
-							'href' => $siteinfo['image'],
-							'type' => $imgdata['mime'],
-							'length' => intval($imgdata['size']),
-						];
-						XML::addElement($doc, $root, 'link', '', $attributes);
-					}
-				}
-				break;
-
-			case 'video':
-				$attributes = [
-					'rel' => 'enclosure',
-					'href' => $siteinfo['url'],
-					'type' => 'text/html; charset=UTF-8',
-					'length' => '0',
-					'title' => ($siteinfo['title'] ?? '') ?: $siteinfo['url'],
-				];
-				XML::addElement($doc, $root, 'link', '', $attributes);
-				break;
-		}
-
-		if (!DI::config()->get('system', 'ostatus_not_attach_preview') && ($siteinfo['type'] != 'photo') && isset($siteinfo['image'])) {
-			$imgdata = Images::getInfoFromURLCached($siteinfo['image']);
-			if ($imgdata) {
-				$attributes = [
-					'rel' => 'enclosure',
-					'href' => $siteinfo['image'],
-					'type' => $imgdata['mime'],
-					'length' => intval($imgdata['size']),
-				];
-
-				XML::addElement($doc, $root, 'link', '', $attributes);
-			}
-		}
-
-		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT]) as $attachment) {
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO, Post\Media::DOCUMENT, Post\Media::TORRENT]) as $attachment) {
 			$attributes = ['rel' => 'enclosure',
 				'href' => $attachment['url'],
 				'type' => $attachment['mimetype']];
@@ -1597,7 +1515,6 @@ class OStatus
 		XML::addElement($doc, $entry, 'title', html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 
 		$body = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
-		$body = self::formatPicturePost($body, $item['uri-id']);
 
 		if (!empty($item['title'])) {
 			$body = '[b]' . $item['title'] . "[/b]\n\n" . $body;
