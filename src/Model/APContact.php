@@ -71,21 +71,14 @@ class APContact
 			return $data;
 		}
 
-		$data = ['addr' => $addr];
-		$template = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
-		$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), HttpClientAccept::JRD_JSON);
-		if (empty($webfinger['links'])) {
-			$template = 'http://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
-			$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), HttpClientAccept::JRD_JSON);
-			if (empty($webfinger['links'])) {
-				return [];
-			}
-			$data['baseurl'] = 'http://' . $addr_parts[1];
-		} else {
-			$data['baseurl'] = 'https://' . $addr_parts[1];
+		$webfinger = Probe::getWebfingerArray($addr);
+		if (empty($webfinger['webfinger']['links'])) {
+			return [];
 		}
 
-		foreach ($webfinger['links'] as $link) {
+		$data['baseurl'] = $webfinger['baseurl'];
+
+		foreach ($webfinger['webfinger']['links'] as $link) {
 			if (empty($link['rel'])) {
 				continue;
 			}
