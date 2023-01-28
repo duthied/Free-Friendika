@@ -29,7 +29,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityNamespace;
@@ -358,16 +357,6 @@ class APContact
 
 		$apcontact['discoverable'] = JsonLD::fetchElement($compacted, 'toot:discoverable', '@value');
 
-		// To-Do
-
-		// Unhandled
-		// tag, attachment, image, nomadicLocations, signature, movedTo, liked
-
-		// Unhandled from Misskey
-		// sharedInbox, isCat
-
-		// Unhandled from Kroeg
-		// kroeg:blocks, updated
 		if (!empty($apcontact['photo'])) {
 			$apcontact['photo'] = trim($apcontact['photo']);
 		}
