@@ -236,7 +236,7 @@ class Queue
 		}
 		DBA::close($receivers);
 
-		if (!Receiver::routeActivities($activity, $type, $push, $fetch_parents)) {
+		if (!Receiver::routeActivities($activity, $type, $push, $fetch_parents, $activity['receiver'][0] ?? 0)) {
 			self::remove($activity);
 		}
 

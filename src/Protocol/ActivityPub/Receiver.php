@@ -415,7 +415,6 @@ class Receiver
 			$object_data['object_id'] = JsonLD::fetchElement($activity, 'as:object', '@id');
 			$object_data['object_ids'] = JsonLD::fetchElementArray($activity, 'as:object', '@id');
 			$object_data['content'] = JsonLD::fetchElement($activity, 'as:content', '@type');
-			$object_data['push'] = $push;
 		} elseif (in_array($object_type, self::ACCOUNT_TYPES)) {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
@@ -423,16 +422,14 @@ class Receiver
 			$object_data['object_actor'] = JsonLD::fetchElement($activity['as:object'], 'as:actor', '@id');
 			$object_data['object_object'] = JsonLD::fetchElement($activity['as:object'], 'as:object');
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
-			$object_data['push'] = $push;
 			if (!$trust_source && ($type == 'as:Delete')) {
 				$apcontact = APContact::getByURL($object_data['object_id'], true);
 				$trust_source = empty($apcontact) || ($apcontact['type'] == 'Tombstone') || $apcontact['suspended'];
 			}
-		} elseif (in_array($type, ['as:Create', 'as:Update', 'as:Announce', 'as:Invite']) || strpos($type, '#emojiReaction')) {
+		} elseif (in_array($type, ['as:Create', 'as:Update', 'as:Invite']) || strpos($type, '#emojiReaction')) {
 			// Fetch the content only on activities where this matters
 			// We can receive "#emojiReaction" when fetching content from Hubzilla systems
-			// Always fetch on "Announce"
-			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $fetch_uid);
+			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source, $fetch_uid);
 			if (empty($object_data)) {
 				Logger::info("Object data couldn't be processed");
 				return [];
@@ -440,19 +437,13 @@ class Receiver
 
 			$object_data['object_id'] = $object_id;
 
-			if ($type == 'as:Announce') {
-				$object_data['push'] = false;
-			} else {
-				$object_data['push'] = $push;
-			}
-
 			// Test if it is an answer to a mail
 			if (DBA::exists('mail', ['uri' => $object_data['reply-to-id']])) {
 				$object_data['directmessage'] = true;
 			} else {
 				$object_data['directmessage'] = JsonLD::fetchElement($activity, 'litepub:directMessage');
 			}
-		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
+		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Announce', 'as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of each individual array element.
 			$object_data = self::processObject($activity);
@@ -460,7 +451,6 @@ class Receiver
 			$object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
 			$object_data['object_id'] = $object_id;
 			$object_data['object_type'] = ''; // Since we don't fetch the object, we don't know the type
-			$object_data['push'] = $push;
 		} elseif (in_array($type, ['as:Add', 'as:Remove', 'as:Move'])) {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
@@ -468,7 +458,6 @@ class Receiver
 			$object_data['object_id'] = JsonLD::fetchElement($activity, 'as:object', '@id');
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
 			$object_data['object_content'] = JsonLD::fetchElement($activity['as:object'], 'as:content', '@type');
-			$object_data['push'] = $push;
 		} else {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
@@ -476,7 +465,6 @@ class Receiver
 			$object_data['object_actor'] = JsonLD::fetchElement($activity['as:object'], 'as:actor', '@id');
 			$object_data['object_object'] = JsonLD::fetchElement($activity['as:object'], 'as:object');
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
-			$object_data['push'] = $push;
 
 			// An Undo is done on the object of an object, so we need that type as well
 			if (($type == 'as:Undo') && !empty($object_data['object_object'])) {
@@ -490,6 +478,8 @@ class Receiver
 				}
 			}
 		}
+
+		$object_data['push'] = $push;
 
 		$object_data = self::addActivityFields($object_data, $activity);
 
@@ -653,7 +643,9 @@ class Receiver
 			}
 		}
 
-		if (DI::config()->get('system', 'decoupled_receiver') && ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted'))) {
+		$decouple = DI::config()->get('system', 'decoupled_receiver') && !in_array($completion, [self::COMPLETION_MANUAL, self::COMPLETION_ANNOUCE]);
+
+		if ($decouple && ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted'))) {
 			$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push, $trust_source);
 		}
 
@@ -662,7 +654,7 @@ class Receiver
 			return true;
 		}
 
-		if (!empty($object_data['entry-id']) && DI::config()->get('system', 'decoupled_receiver') && ($push || ($completion == self::COMPLETION_RELAY))) {
+		if (!empty($object_data['entry-id']) && $decouple && ($push || ($completion == self::COMPLETION_RELAY))) {
 			if (Queue::isProcessable($object_data['entry-id'])) {
 				// We delay by 5 seconds to allow to accumulate all receivers
 				$delayed = date(DateTimeFormat::MYSQL, time() + 5);
@@ -679,7 +671,7 @@ class Receiver
 			$object_data['recursion-depth'] = $activity['recursion-depth'];
 		}
 
-		if (!self::routeActivities($object_data, $type, $push)) {
+		if (!self::routeActivities($object_data, $type, $push, true, $uid)) {
 			self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 			Queue::remove($object_data);
 		}
@@ -693,10 +685,11 @@ class Receiver
 	 * @param string $type
 	 * @param bool   $push
 	 * @param bool   $fetch_parents
+	 * @param int    $uid
 	 *
 	 * @return boolean Could the activity be routed?
 	 */
-	public static function routeActivities(array $object_data, string $type, bool $push, bool $fetch_parents = true): bool
+	public static function routeActivities(array $object_data, string $type, bool $push, bool $fetch_parents = true, int $uid = 0): bool
 	{
 		$activity = $object_data['object_activity']	?? [];
 
@@ -739,43 +732,24 @@ class Receiver
 
 			case 'as:Announce':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
-					$object_data['thread-completion'] = Contact::getIdForURL($actor);
-					$object_data['completion-mode']   = self::COMPLETION_ANNOUCE;
-
-					if (!Post::exists(['uri' => $object_data['id'], 'uid' => 0])) {
-						$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
-						if (empty($item)) {
-							Logger::debug('announced id was not created', ['id' => $object_data['id']]);
+					if (!Item::searchByLink($object_data['object_id'], $uid)) {
+						if (ActivityPub\Processor::fetchMissingActivity($object_data['object_id'], [], $object_data['actor'], self::COMPLETION_ANNOUCE, $uid)) {
+							Logger::debug('Created announced id', ['uid' => $uid, 'id' => $object_data['object_id']]);
+							Queue::remove($object_data);
+						} else {
+							Logger::debug('Announced id was not created', ['uid' => $uid, 'id' => $object_data['object_id']]);
 							Queue::remove($object_data);
 							return true;
 						}
-
-						$item['post-reason'] = Item::PR_ANNOUNCEMENT;
-						ActivityPub\Processor::postItem($object_data, $item);
-						Logger::debug('Created announced id', ['id' => $object_data['id']]);
 					} else {
-						Logger::info('Announced id already exists', ['id' => $object_data['id']]);
+						Logger::info('Announced id already exists', ['uid' => $uid, 'id' => $object_data['object_id']]);
 						Queue::remove($object_data);
 					}
 
-					if (!empty($activity)) {
-						$announce_object_data = self::processObject($activity);
-						$announce_object_data['name'] = $type;
-						$announce_object_data['author'] = $actor;
-						$announce_object_data['object_id'] = $object_data['id'];
-						$announce_object_data['object_type'] = $object_data['object_type'];
-						$announce_object_data['push'] = $push;
-						Logger::debug('Create announce activity', ['id' => $announce_object_data['id'], 'object_data' => $announce_object_data]);
-
-						if (!empty($object_data['raw'])) {
-							$announce_object_data['raw'] = $object_data['raw'];
-						}
-						if (!empty($object_data['raw-object'])) {
-							$announce_object_data['raw-object'] = $object_data['raw-object'];
-						}
-						ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
-					}
+					ActivityPub\Processor::createActivity($object_data, Activity::ANNOUNCE);
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
+					Queue::remove($object_data);
 				} else {
 					return false;
 				}
@@ -1066,7 +1040,7 @@ class Receiver
 
 			foreach ($receiver_list as $receiver) {
 				if ($receiver == 'Public') {
-					Logger::notice('Not compacted public collection found', ['activity' => $activity, 'callstack' => System::callstack(20)]);
+					Logger::warning('Not compacted public collection found', ['activity' => $activity, 'callstack' => System::callstack(20)]);
 					$receiver = ActivityPub::PUBLIC_COLLECTION;
 				}
 				if ($receiver == self::PUBLIC_COLLECTION) {
@@ -1472,14 +1446,6 @@ class Receiver
 				$object_data['raw-object'] = json_encode($data);
 			}
 			return $object_data;
-		}
-
-		if ($type == 'as:Announce') {
-			$object_id = JsonLD::fetchElement($object, 'object', '@id');
-			if (empty($object_id) || !is_string($object_id)) {
-				return false;
-			}
-			return self::fetchObject($object_id, [], false, $uid);
 		}
 
 		Logger::info('Unhandled object type: ' . $type);
@@ -1899,7 +1865,7 @@ class Receiver
 			$object_data['reply-to-id'] = $object_data['id'];
 
 			// On activities the "reply to" is the id of the object it refers to
-			if (in_array($object_data['object_type'], self::ACTIVITY_TYPES)) {
+			if (in_array($object_data['object_type'], array_merge(self::ACTIVITY_TYPES, ['as:Announce']))) {
 				$object_id = JsonLD::fetchElement($object, 'as:object', '@id');
 				if (!empty($object_id)) {
 					$object_data['reply-to-id'] = $object_id;

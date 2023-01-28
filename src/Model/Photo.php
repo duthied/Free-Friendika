@@ -36,6 +36,7 @@ use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Security\Security;
+use Friendica\Util\Network;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
@@ -582,8 +583,13 @@ class Photo
 
 		$photo_failure = false;
 
+		if (!Network::isValidHttpUrl($image_url)) {
+			Logger::warning('Invalid image url', ['image_url' => $image_url, 'uid' => $uid, 'cid' => $cid, 'callstack' => System::callstack(20)]);
+			return false;
+		}
+
 		$filename = basename($image_url);
-		if (!empty($image_url) && @parse_url($image_url, PHP_URL_HOST)) {
+		if (!empty($image_url)) {
 			$ret = DI::httpClient()->get($image_url, HttpClientAccept::IMAGE);
 			Logger::debug('Got picture', ['Content-Type' => $ret->getHeader('Content-Type'), 'url' => $image_url]);
 			$img_str = $ret->getBody();

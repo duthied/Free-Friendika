@@ -194,7 +194,7 @@ class Tag
 			} elseif (Contact::getIdForURL($url, 0, $fetch ? null : false)) {
 				$target = self::ACCOUNT;
 				Logger::debug('URL is an account', ['url' => $url]);
-			} elseif ($fetch && ($target != self::GENERAL_COLLECTION) && Network::isValidHttpUrl($url)) {
+			} elseif ($fetch && ($target != self::GENERAL_COLLECTION)) {
 				$content = ActivityPub::fetchContent($url);
 				if (!empty($content['type']) && ($content['type'] == 'OrderedCollection')) {
 					$target = self::GENERAL_COLLECTION;
