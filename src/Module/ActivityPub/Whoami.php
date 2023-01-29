@@ -29,7 +29,7 @@ use Friendica\Module\BaseApi;
 use Friendica\Protocol\ActivityPub;
 
 /**
- * Dummy class for all currently unimplemented endpoints
+ * "who am i" endpoint for ActivityPub C2S
  */
 class Whoami extends BaseApi
 {
