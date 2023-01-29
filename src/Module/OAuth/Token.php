@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Module\Special\HTTPException;
 use Friendica\Security\OAuth;
@@ -85,22 +86,25 @@ class Token extends BaseApi
 			// the "client_credentials" are used as a token for the application itself.
 			// see https://aaronparecki.com/oauth-2-simplified/#client-credentials
 			$token = OAuth::createTokenForUser($application, 0, '');
+			$me = null;
 		} elseif ($request['grant_type'] == 'authorization_code') {
 			// For security reasons only allow freshly created tokens
 			$condition = ["`redirect_uri` = ? AND `id` = ? AND `code` = ? AND `created_at` > ?",
 				$request['redirect_uri'], $application['id'], $request['code'], DateTimeFormat::utc('now - 5 minutes')];
 
-			$token = DBA::selectFirst('application-view', ['access_token', 'created_at'], $condition);
+			$token = DBA::selectFirst('application-view', ['access_token', 'created_at', 'uid'], $condition);
 			if (!DBA::isResult($token)) {
 				Logger::notice('Token not found or outdated', $condition);
 				DI::mstdnError()->Unauthorized();
 			}
+			$owner = User::getOwnerDataById($token['uid']);
+			$me = $owner['url'];
 		} else {
 			Logger::warning('Unsupported or missing grant type', ['request' => $_REQUEST]);
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Unsupported or missing grant type'));
 		}
 
-		$object = new \Friendica\Object\Api\Mastodon\Token($token['access_token'], 'Bearer', $application['scopes'], $token['created_at']);
+		$object = new \Friendica\Object\Api\Mastodon\Token($token['access_token'], 'Bearer', $application['scopes'], $token['created_at'], $me);
 
 		System::jsonExit($object->toArray());
 	}
