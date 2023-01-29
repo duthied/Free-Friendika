@@ -351,7 +351,7 @@ class Photo extends BaseModule
 				}
 
 				// If it is a local link, we save resources by just redirecting to it.
-				if (Network::isLocalLink($url)) {
+				if (!empty($url) && Network::isLocalLink($url)) {
 					System::externalRedirect($url);
 				}
 
