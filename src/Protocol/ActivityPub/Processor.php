@@ -1467,13 +1467,14 @@ class Processor
 	 * @param array      $child       activity array with the child of this message
 	 * @param string     $relay_actor Relay actor
 	 * @param int        $completion  Completion mode, see Receiver::COMPLETION_*
+	 * @param int        $uid         User id that is used to fetch the activity
 	 * @return string fetched message URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL): string
+	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL, int $uid = 0): string
 	{
-		$object = self::fetchCachedActivity($url, 0);
+		$object = self::fetchCachedActivity($url, $uid);
 		if (empty($object)) {
 			return '';
 		}
@@ -1536,15 +1537,19 @@ class Processor
 
 		Contact::updateByUrlIfNeeded($actor);
 
-		if (!empty($relay_actor)) {
-			$ldactivity['thread-completion'] = $ldactivity['from-relay'] = Contact::getIdForURL($relay_actor);
-			$ldactivity['completion-mode']   = Receiver::COMPLETION_RELAY;
-		} elseif (!empty($child['thread-completion'])) {
+		if (!empty($child['thread-completion'])) {
 			$ldactivity['thread-completion'] = $child['thread-completion'];
 			$ldactivity['completion-mode']   = $child['completion-mode'] ?? Receiver::COMPLETION_NONE;
 		} else {
-			$ldactivity['thread-completion'] = Contact::getIdForURL($actor);
+			$ldactivity['thread-completion'] = Contact::getIdForURL($relay_actor ?: $actor);
 			$ldactivity['completion-mode']   = $completion;
+		}
+
+		if ($completion == Receiver::COMPLETION_RELAY) {
+			$ldactivity['from-relay'] = $ldactivity['thread-completion'];
+			if (!self::acceptIncomingMessage($ldactivity, $object['id'])) {
+				return '';
+			}
 		}
 
 		if (!empty($child['thread-children-type'])) {
@@ -1555,13 +1560,9 @@ class Processor
 			$ldactivity['thread-children-type'] = 'as:Create';
 		}
 
-		if (!empty($relay_actor) && !self::acceptIncomingMessage($ldactivity, $object['id'])) {
-			return '';
-		}
-
 		if (($completion == Receiver::COMPLETION_RELAY) && Queue::exists($url, 'as:Create')) {
 			Logger::notice('Activity has already been queued.', ['url' => $url, 'object' => $activity['id']]);
-		} elseif (ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), 0, true, false, $signer, '', $completion)) {
+		} elseif (ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer, '', $completion)) {
 			Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'entry' => $child['entry-id'] ?? 0, 'completion' => $completion, 'object' => $activity['id']]);
 		} else {
 			Logger::notice('Activity had been fetched and will be processed later.', ['url' => $url, 'entry' => $child['entry-id'] ?? 0, 'completion' => $completion, 'object' => $activity['id']]);

@@ -2204,13 +2204,18 @@ class Contact
 			return;
 		}
 
+		if (!Network::isValidHttpUrl($avatar)) {
+			Logger::warning('Invalid avatar', ['cid' => $cid, 'avatar' => $avatar]);
+			$avatar = '';
+		}
+
 		$uid = $contact['uid'];
 
 		// Only update the cached photo links of public contacts when they already are cached
 		if (($uid == 0) && !$force && empty($contact['thumb']) && empty($contact['micro']) && !$create_cache) {
 			if (($contact['avatar'] != $avatar) || empty($contact['blurhash'])) {
 				$update_fields = ['avatar' => $avatar];
-				if (!Network::isLocalLink($avatar) && Network::isValidHttpUrl($avatar)) {
+				if (!Network::isLocalLink($avatar)) {
 					$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
 
 					$img_str = $fetchResult->getBody();

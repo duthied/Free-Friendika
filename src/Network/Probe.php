@@ -121,7 +121,7 @@ class Probe
 		$numeric_fields = ['gsid', 'hide', 'account-type', 'manually-approve'];
 
 		if (!empty($data['photo']) && !Network::isValidHttpUrl($data['photo'])) {
-			Logger::info('Invalid URL for photo', ['url' => $data['url'], 'photo' => $data['photo']]);
+			Logger::warning('Invalid URL for photo', ['url' => $data['url'], 'photo' => $data['photo']]);
 			unset($data['photo']);
 		}
 

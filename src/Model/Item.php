@@ -3682,7 +3682,7 @@ class Item
 			return is_numeric($hookData['item_id']) ? $hookData['item_id'] : 0;
 		}
 
-		$fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri);
+		$fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri, [], '', ActivityPub\Receiver::COMPLETION_MANUAL, $uid);
 
 		if ($fetched_uri) {
 			$item_id = self::searchByLink($fetched_uri, $uid);

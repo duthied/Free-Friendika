@@ -159,7 +159,7 @@ class OnePoll
 		}
 
 		if (!Network::isValidHttpUrl($contact['poll'])) {
-			Logger::notice('Poll address is not valid', ['id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url'], 'poll' => $contact['poll']]);
+			Logger::warning('Poll address is not valid', ['id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url'], 'poll' => $contact['poll']]);
 			return false;
 		}
 

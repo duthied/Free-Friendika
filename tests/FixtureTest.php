@@ -82,7 +82,10 @@ abstract class FixtureTest extends DatabaseTest
 
 		$dba->setTestmode(true);
 
-		DBStructure::checkInitialValues();
+		if (DI::lock()->acquire('Test-checkInitialValues', 0)) {
+			DBStructure::checkInitialValues();
+			DI::lock()->release('Test-checkInitialValues');
+		}
 
 		// Load the API dataset for the whole API
 		$this->loadFixture(__DIR__ . '/datasets/api.fixture.php', $dba);
