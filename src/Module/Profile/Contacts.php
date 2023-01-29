@@ -92,7 +92,7 @@ class Contacts extends Module\BaseProfile
 			'archive' => false,
 			'failed'  => false,
 			'self'    => false,
-			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED]
+			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]
 		];
 
 		switch ($type) {
