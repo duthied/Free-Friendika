@@ -630,7 +630,8 @@ class Feed
 			// Additionally, we have to avoid conflicts with identical URI between imported feeds and these items.
 			if ($notify) {
 				$item['guid'] = Item::guidFromUri($orig_plink, DI::baseUrl()->getHostname());
-				$item['uri'] = Item::newURI($item['guid']);
+				$item['uri']  = Item::newURI($item['guid']);
+				unset($item['plink']);
 				unset($item['thr-parent']);
 				unset($item['parent-uri']);
 
