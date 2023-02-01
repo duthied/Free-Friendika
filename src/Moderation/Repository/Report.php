@@ -56,7 +56,7 @@ final class Report extends \Friendica\BaseRepository
 		return $this->_selectOne(['id' => $lastInsertId]);
 	}
 
-	public function save(\Friendica\Moderation\Entity\Report $Report)
+	public function save(\Friendica\Moderation\Entity\Report $Report): \Friendica\Moderation\Entity\Report
 	{
 		$fields = [
 			'reporter-id'     => $Report->reporterCid,
@@ -95,7 +95,7 @@ final class Report extends \Friendica\BaseRepository
 				$this->db->insert('report-rule', ['rid' => $newReportId, 'line-id' => $rule->lineId, 'text' => $rule->text]);
 			}
 
-			$Report = $this->selectOneById($this->db->lastInsertId());
+			$Report = $this->selectOneById($newReportId);
 		}
 
 		return $Report;

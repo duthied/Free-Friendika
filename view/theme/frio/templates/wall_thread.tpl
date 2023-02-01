@@ -409,6 +409,11 @@ as the value of $top_child_total (this is done at the end of this file)
                                                 <a class="btn-link navicon collapse" href="javascript:collapseAuthor('item/collapse/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.collapse.collapse}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.collapse.collapse}}</a>
                                         </li>
                                         {{/if}}
+                                        {{if $item.report}}
+                                        <li role="menuitem">
+                                                <a class="btn-link navicon ignore" href="{{$item.report.href}}"><i class="fa fa-flag" aria-hidden="true"></i> {{$item.report.label}}</a>
+                                        </li>
+                                        {{/if}}
                                     </ul>
                             </span>
                         </span>

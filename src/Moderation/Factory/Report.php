@@ -23,6 +23,7 @@ namespace Friendica\Moderation\Factory;
 
 use Friendica\Capabilities\ICanCreateFromTableRow;
 use Friendica\Core\System;
+use Friendica\Model\Contact;
 use Friendica\Moderation\Collection;
 use Friendica\Moderation\Entity;
 use Psr\Clock\ClockInterface;
@@ -109,6 +110,35 @@ class Report extends \Friendica\BaseFactory implements ICanCreateFromTableRow
 			new Collection\Report\Posts(array_map(function ($uriId) {
 				return new Entity\Report\Post($uriId);
 			}, $postUriIds)),
+			new Collection\Report\Rules(array_map(function ($lineId) use ($rules) {
+				return new Entity\Report\Rule($lineId, $rules[$lineId] ?? '');
+			}, $ruleIds)),
+		);
+	}
+
+	public function createFromForm(array $rules, int $cid, int $reporterId, int $categoryId, array $ruleIds, string $comment, array $uriIds, bool $forward): Entity\Report
+	{
+		$contact = Contact::getById($cid, ['gsid']);
+		if (!$contact) {
+			throw new \InvalidArgumentException('Contact with id: ' . $cid . ' not found');
+		}
+
+		if (!in_array($categoryId, Entity\Report::CATEGORIES)) {
+			throw new \OutOfBoundsException('Category with id: ' . $categoryId . ' not found in set: [' . implode(', ', Entity\Report::CATEGORIES) . ']');
+		}
+
+		return new Entity\Report(
+			Contact::getPublicIdByUserId($reporterId),
+			$cid,
+			$contact['gsid'],
+			$this->clock->now(),
+			$categoryId,
+			$reporterId,
+			$comment,
+			$forward,
+			new Collection\Report\Posts(array_map(function ($uriId) {
+				return new Entity\Report\Post($uriId);
+			}, $uriIds)),
 			new Collection\Report\Rules(array_map(function ($lineId) use ($rules) {
 				return new Entity\Report\Rule($lineId, $rules[$lineId] ?? '');
 			}, $ruleIds)),

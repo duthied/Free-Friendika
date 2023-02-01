@@ -255,6 +255,7 @@ class Post
 		$block    = false;
 		$ignore   = false;
 		$collapse = false;
+		$report   = false;
 		if (DI::userSession()->getLocalUserId()) {
 			$drop = [
 				'dropping' => $dropping,
@@ -279,6 +280,10 @@ class Post
 				'collapsing' => true,
 				'collapse'   => DI::l10n()->t('Collapse %s', $item['author-name']),
 				'author_id'  => $item['author-id'],
+			];
+			$report = [
+				'label' => DI::l10n()->t('Report post'),
+				'href'  => 'moderation/report/create?' . http_build_query(['cid' => $item['author-id'], 'uri-ids' => [$item['uri-id']]]),
 			];
 		}
 
@@ -554,6 +559,7 @@ class Post
 			'block'           => $block,
 			'ignore_author'   => $ignore,
 			'collapse'        => $collapse,
+			'report'          => $report,
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],
