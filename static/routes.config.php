@@ -156,6 +156,7 @@ $apiRoutes = [
 		'/show[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Twitter\Users\Show::class,   [R::GET         ]],
 		'/show/{id:\d+}[.{extension:json|xml|rss|atom}]'           => [Module\Api\Twitter\Users\Show::class,   [R::GET         ]],
 	],
+	'/whoami'                                                      => [Module\ActivityPub\Whoami::class, [R::GET         ]],
 ];
 
 return [

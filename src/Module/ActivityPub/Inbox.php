@@ -21,21 +21,55 @@
 
 namespace Friendica\Module\ActivityPub;
 
-use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\User;
+use Friendica\Module\BaseApi;
+use Friendica\Module\Special\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * ActivityPub Inbox
  */
-class Inbox extends BaseModule
+class Inbox extends BaseApi
 {
+	public function run(HTTPException $httpException, array $request = [], bool $scopecheck = true): ResponseInterface
+	{
+		return parent::run($httpException, $request, false);
+	}
+
 	protected function rawContent(array $request = [])
+	{
+		self::checkAllowedScope(self::SCOPE_READ);
+		$uid  = self::getCurrentUserID();
+		$page = $request['page'] ?? null;
+
+		if (empty($page) && empty($request['max_id'])) {
+			$page = 1;
+		}
+
+		if (!empty($this->parameters['nickname'])) {
+			$owner = User::getOwnerDataByNick($this->parameters['nickname']);
+			if (empty($owner)) {
+				throw new \Friendica\Network\HTTPException\NotFoundException();
+			}
+			if ($owner['uid'] != $uid) {
+				throw new \Friendica\Network\HTTPException\ForbiddenException();
+			}
+			$outbox = ActivityPub\Transmitter::getInbox($uid, $page, $request['max_id'] ?? null);
+		} else {
+			$outbox = ActivityPub\Transmitter::getPublicInbox($uid, $page, $request['max_id'] ?? null);
+		}
+
+		System::jsonExit($outbox, 'application/activity+json');
+	}
+
+	protected function post(array $request = [])
 	{
 		$postdata = Network::postdata();
 

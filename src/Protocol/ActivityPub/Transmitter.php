@@ -244,15 +244,16 @@ class Transmitter
 	 *
 	 * @param array   $owner     Owner array
 	 * @param integer $page      Page number
+	 * @param integer $max_id    Maximum ID
 	 * @param string  $requester URL of requesting account
 	 * @param boolean $nocache   Wether to bypass caching
 	 * @return array of posts
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getOutbox(array $owner, int $page = null, string $requester = '', bool $nocache = false): array
+	public static function getOutbox(array $owner, int $page = null, int $max_id = null, string $requester = ''): array
 	{
-		$condition = ['private' => [Item::PUBLIC, Item::UNLISTED]];
+		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'private' => [Item::PUBLIC, Item::UNLISTED]];
 
 		if (!empty($requester)) {
 			$requester_id = Contact::getIdForURL($requester, $owner['uid']);
@@ -278,44 +279,86 @@ class Transmitter
 
 		$apcontact = APContact::getByURL($owner['url']);
 
+		return self::getCollection($condition, DI::baseUrl() . '/outbox/' . $owner['nickname'], $page, $max_id, null, $apcontact['statuses_count']);
+	}
+
+	public static function getInbox(int $uid, int $page = null, int $max_id = null)
+	{
+		$owner = User::getOwnerDataById($uid);
+
+		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], [Protocol::ACTIVITYPUB, Protocol::DFRN], 'uid' => $uid];
+
+		return self::getCollection($condition, DI::baseUrl() . '/inbox/' . $owner['nickname'], $page, $max_id, $uid, null);
+	}
+
+	public static function getPublicInbox(int $uid, int $page = null, int $max_id = null)
+	{
+		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'private' => Item::PUBLIC,
+			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN], 'author-blocked' => false, 'author-hidden' => false];
+
+		return self::getCollection($condition, DI::baseUrl() . '/inbox', $page, $max_id, $uid, null);
+	}
+
+	private static function getCollection(array $condition, string $path, int $page = null, int $max_id = null, int $uid = null, int $total_items = null)
+	{
 		$data = ['@context' => ActivityPub::CONTEXT];
-		$data['id'] = DI::baseUrl() . '/outbox/' . $owner['nickname'];
+		$data['id'] = $path;
 		$data['type'] = 'OrderedCollection';
-		$data['totalItems'] = $apcontact['statuses_count'] ?? 0;
+
+		if (!is_null($total_items)) {
+			$data['totalItems'] = $total_items;
+		}
 
 		if (!empty($page)) {
 			$data['id'] .= '?' . http_build_query(['page' => $page]);
 		}
 
-		if (empty($page)) {
-			$data['first'] = DI::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=1';
+		if (empty($page) && empty($max_id)) {
+			$data['first'] = $path . '?page=1';
 		} else {
 			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
 
-			$items = Post::select(['id'], $condition, ['limit' => [($page - 1) * 20, 20], 'order' => ['created' => true]]);
-			while ($item = Post::fetch($items)) {
-				$activity = self::createActivityFromItem($item['id'], true);
-				$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
+			if (!empty($max_id)) {
+				$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $max_id]);
+			}
+	
+			if (!empty($page)) {
+				$params = ['limit' => [($page - 1) * 20, 20], 'order' => ['uri-id' => true]];
+			} else {
+				$params = ['limit' => 20, 'order' => ['uri-id' => true]];
+			}
 
-				// Only list "Create" activity objects here, no reshares
-				if (!empty($activity['object']) && ($activity['type'] == 'Create')) {
-					$list[] = $activity['object'];
+			if (!is_null($uid)) {
+				$items = Post::selectForUser($uid, ['id', 'uri-id'], $condition, $params);
+			} else {
+				$items = Post::select(['id', 'uri-id'], $condition, $params);
+			}
+
+			$last_id = 0;
+			while ($item = Post::fetch($items)) {
+				$activity = self::createActivityFromItem($item['id'], false, !is_null($uid));
+				if (!empty($activity)) {
+					$list[]  = $activity;
+					$last_id = $item['uri-id'];
+					continue;
 				}
 			}
 			DBA::close($items);
 
 			if (count($list) == 20) {
-				$data['next'] = DI::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=' . ($page + 1);
+				$data['next'] = $path . '?max_id=' . $last_id;
 			}
 
 			// Fix the cached total item count when it is lower than the real count
-			$total = (($page - 1) * 20) + $data['totalItems'];
-			if ($total > $data['totalItems']) {
-				$data['totalItems'] = $total;
+			if (!is_null($total_items)) {
+				$total = (($page - 1) * 20) + $data['totalItems'];
+				if ($total > $data['totalItems']) {
+					$data['totalItems'] = $total;
+				}
 			}
 
-			$data['partOf'] = DI::baseUrl() . '/outbox/' . $owner['nickname'];
+			$data['partOf'] = $path;
 
 			$data['orderedItems'] = $list;
 		}
@@ -382,11 +425,8 @@ class Transmitter
 
 		while ($item = Post::fetch($items)) {
 			$activity = self::createActivityFromItem($item['id'], true);
-			$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
-
-			// Only list "Create" activity objects here, no reshares
-			if (!empty($activity['object']) && ($activity['type'] == 'Create')) {
-				$list[] = $activity['object'];
+			if (!empty($activity)) {
+				$list[] = $activity;
 			}
 		}
 		DBA::close($items);
@@ -413,7 +453,7 @@ class Transmitter
 	 *
 	 * @return array with service data
 	 */
-	private static function getService(): array
+	public static function getService(): array
 	{
 		return [
 			'type' => 'Service',
@@ -1231,36 +1271,75 @@ class Transmitter
 	 *
 	 * @param integer $item_id
 	 * @param boolean $object_mode Is the activity item is used inside another object?
+	 * @param boolean $api_mode    "true" if used for the API
 	 * @return false|array
 	 * @throws \Exception
 	 */
-	public static function createActivityFromItem(int $item_id, bool $object_mode = false)
+	public static function createActivityFromItem(int $item_id, bool $object_mode = false, $api_mode = false)
 	{
-		Logger::info('Fetching activity', ['item' => $item_id]);
-		$item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
+		$condition = ['id' => $item_id];
+		if (!$api_mode) {
+			$condition['parent-network'] = Protocol::NATIVE_SUPPORT;
+		}
+		Logger::info('Fetching activity', $condition);
+		$item = Post::selectFirst(Item::DELIVER_FIELDLIST, $condition);
+		if (!DBA::isResult($item)) {
+			return false;
+		}
+		return self::createActivityFromArray($item, $object_mode, $api_mode);
+	}
+
+	/**
+	 * Creates an activity array for a given URI-Id and uid
+	 *
+	 * @param integer $uri_id
+	 * @param integer $uid
+	 * @param boolean $object_mode Is the activity item is used inside another object?
+	 * @param boolean $api_mode    "true" if used for the API
+	 * @return false|array
+	 * @throws \Exception
+	 */
+	public static function createActivityFromUriId(int $uri_id, int $uid, bool $object_mode = false, $api_mode = false)
+	{
+		$condition = ['uri-id' => $uri_id, 'uid' => [0, $uid]];
+		if (!$api_mode) {
+			$condition['parent-network'] = Protocol::NATIVE_SUPPORT;
+		}
+		Logger::info('Fetching activity', $condition);
+		$item = Post::selectFirst(Item::DELIVER_FIELDLIST, $condition, ['order' => ['uid' => true]]);
 		if (!DBA::isResult($item)) {
 			return false;
 		}
 
-		if (empty($item['uri-id'])) {
-			Logger::warning('Item without uri-id', ['item' => $item]);
-			return false;
-		}
+		return self::createActivityFromArray($item, $object_mode, $api_mode);
+	}
 
-		if (!$item['deleted']) {
+	/**
+	 * Creates an activity array for a given item id
+	 *
+	 * @param integer $item_id
+	 * @param boolean $object_mode Is the activity item is used inside another object?
+	 * @param boolean $api_mode    "true" if used for the API
+	 * @return false|array
+	 * @throws \Exception
+	 */
+	private static function createActivityFromArray(array $item, bool $object_mode = false, $api_mode = false)
+	{
+		if (!$item['deleted'] && $item['network'] == Protocol::ACTIVITYPUB) {
 			$data = Post\Activity::getByURIId($item['uri-id']);
 			if (!$item['origin'] && !empty($data)) {
-				if ($object_mode) {
-					unset($data['@context']);
-					unset($data['signature']);
+				if (!$object_mode) {
+					Logger::info('Return stored conversation', ['item' => $item['id']]);
+					return $data;
+				} elseif (!empty($data['object'])) {
+					Logger::info('Return stored conversation object', ['item' => $item['id']]);
+					return $data['object'];
 				}
-				Logger::info('Return stored conversation', ['item' => $item_id]);
-				return $data;
 			}
 		}
 
-		if (!$item['origin'] && empty($object)) {
-			Logger::debug('Post is not ours and is not stored', ['id' => $item_id, 'uri-id' => $item['uri-id']]);
+		if (!$api_mode && !$item['origin']) {
+			Logger::debug('Post is not ours and is not stored', ['id' => $item['id'], 'uri-id' => $item['uri-id']]);
 			return false;
 		}
 
@@ -1301,7 +1380,7 @@ class Transmitter
 		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
-			$data['object'] = $object ?? self::createNote($item);
+			$data['object'] = self::createNote($item);
 			$data['published'] = DateTimeFormat::utcNow(DateTimeFormat::ATOM);
 		} elseif ($data['type'] == 'Add') {
 			$data = self::createAddTag($item, $data);
@@ -1314,7 +1393,7 @@ class Transmitter
 		} elseif ($data['type'] == 'Follow') {
 			$data['object'] = $item['parent-uri'];
 		} elseif ($data['type'] == 'Undo') {
-			$data['object'] = self::createActivityFromItem($item_id, true);
+			$data['object'] = self::createActivityFromItem($item['id'], true);
 		} else {
 			$data['diaspora:guid'] = $item['guid'];
 			if (!empty($item['signed_text'])) {
@@ -1329,12 +1408,11 @@ class Transmitter
 			$uid = $item['uid'];
 		}
 
-		$owner = User::getOwnerDataById($uid);
+		Logger::info('Fetched activity', ['item' => $item['id'], 'uid' => $uid]);
 
-		Logger::info('Fetched activity', ['item' => $item_id, 'uid' => $uid]);
-
-		// We don't sign if we aren't the actor. This is important for relaying content especially for forums
-		if (!$object_mode && !empty($owner) && ($data['actor'] == $owner['url'])) {
+		// We only sign our own activities
+		if (!$api_mode && !$object_mode && $item['origin']) {
+			$owner = User::getOwnerDataById($uid);
 			return LDSignature::sign($data, $owner);
 		} else {
 			return $data;

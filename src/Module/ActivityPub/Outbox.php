@@ -21,16 +21,16 @@
 
 namespace Friendica\Module\ActivityPub;
 
-use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\Model\User;
+use Friendica\Module\BaseApi;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
 
 /**
  * ActivityPub Outbox
  */
-class Outbox extends BaseModule
+class Outbox extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
@@ -43,10 +43,15 @@ class Outbox extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		$page = !empty($request['page']) ? (int)$request['page'] : null;
+		$uid  = self::getCurrentUserID();
+		$page = $request['page'] ?? null;
+
+		if (empty($page) && empty($request['max_id']) && !empty($uid)) {
+			$page = 1;
+		}
 
 		$requester = HTTPSignature::getSigner('', $_SERVER);
-		$outbox = ActivityPub\Transmitter::getOutbox($owner, $page, $requester);
+		$outbox = ActivityPub\Transmitter::getOutbox($owner, $page, $request['max_id'] ?? null, $requester);
 
 		System::jsonExit($outbox, 'application/activity+json');
 	}
