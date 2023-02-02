@@ -1416,7 +1416,7 @@ class GServer
 			$serverdata['detection-method'] = self::DETECT_SITEINFO_JSON;
 		}
 
-		if (!empty($data['url'])) {
+		if (!empty($data['platform'])) {
 			$serverdata['platform'] = strtolower($data['platform']);
 			$serverdata['version'] = $data['version'] ?? 'N/A';
 		}
