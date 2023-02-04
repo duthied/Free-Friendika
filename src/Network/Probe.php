@@ -120,9 +120,13 @@ class Probe
 
 		$numeric_fields = ['gsid', 'hide', 'account-type', 'manually-approve'];
 
-		if (!empty($data['photo']) && !Network::isValidHttpUrl($data['photo'])) {
-			Logger::warning('Invalid URL for photo', ['url' => $data['url'], 'photo' => $data['photo']]);
-			unset($data['photo']);
+		if (!empty($data['photo'])) {
+			$data['photo'] = Network::addBasePath($data['photo'], $data['url']);
+
+			if (!Network::isValidHttpUrl($data['photo'])) {
+				Logger::warning('Invalid URL for photo', ['url' => $data['url'], 'photo' => $data['photo']]);
+				unset($data['photo']);
+			}
 		}
 
 		$newdata = [];
@@ -1684,11 +1688,8 @@ class Probe
 		}
 		if ($avatar) {
 			foreach ($avatar->attributes as $attribute) {
-				if ($attribute->name == 'src') {
-					$data['photo'] = trim($attribute->value);
-					if (!empty($data['photo']) && !parse_url($data['photo'], PHP_URL_SCHEME) && !parse_url($data['photo'], PHP_URL_HOST)) {
-						$data['photo'] = $baseurl . $data['photo'];
-					}
+				if (($attribute->name == 'src') && !empty($attribute->value)) {
+					$data['photo'] = Network::addBasePath($attribute->value, $baseurl);
 				}
 			}
 		}
