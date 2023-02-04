@@ -57,12 +57,12 @@ class DatabaseCacheTest extends CacheTest
 		$configFactory     = new Config();
 		$configFileManager = (new Config())->createConfigFileManager($this->root->url(), []);
 		$configCache       = $configFactory->createCache($configFileManager);
-		$config            = new \Friendica\Core\Config\Model\Config($configFileManager, $configCache);
+		$config            = new \Friendica\Core\Config\Model\ReadOnlyFileConfig($configCache);
 
 		$dbaDefinition  = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
 		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
 
-		$dba = new StaticDatabase($config, $profiler, $dbaDefinition, $viewDefinition, new NullLogger());
+		$dba = new StaticDatabase($config, $dbaDefinition, $viewDefinition);
 
 		$this->cache = new Cache\Type\DatabaseCache('database', $dba);
 		return $this->cache;

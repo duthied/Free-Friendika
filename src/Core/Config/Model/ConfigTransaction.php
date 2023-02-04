@@ -34,20 +34,23 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	/** @var IManageConfigValues */
 	protected $config;
 	/** @var Cache */
-	protected $cache;
+	protected $setCache;
+	/** @var Cache */
+	protected $delCache;
 	/** @var bool field to check if something is to save */
 	protected $changedConfig = false;
 
-	public function __construct(IManageConfigValues $config)
+	public function __construct(DatabaseConfig $config)
 	{
-		$this->config = $config;
-		$this->cache  = clone $config->getCache();
+		$this->config   = $config;
+		$this->setCache = new Cache();
+		$this->delCache = new Cache();
 	}
 
 	/** {@inheritDoc} */
 	public function set(string $cat, string $key, $value): ISetConfigValuesTransactionally
 	{
-		$this->cache->set($cat, $key, $value, Cache::SOURCE_DATA);
+		$this->setCache->set($cat, $key, $value, Cache::SOURCE_DATA);
 		$this->changedConfig = true;
 
 		return $this;
@@ -57,7 +60,7 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	/** {@inheritDoc} */
 	public function delete(string $cat, string $key): ISetConfigValuesTransactionally
 	{
-		$this->cache->delete($cat, $key);
+		$this->delCache->delete($cat, $key);
 		$this->changedConfig = true;
 
 		return $this;
@@ -72,8 +75,9 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 		}
 
 		try {
-			$this->config->setCacheAndSave($this->cache);
-			$this->cache = clone $this->config->getCache();
+			$this->config->setAndSave($this->setCache, $this->delCache);
+			$this->setCache = new Cache();
+			$this->delCache = new Cache();
 		} catch (\Exception $e) {
 			throw new ConfigPersistenceException('Cannot save config', $e);
 		}

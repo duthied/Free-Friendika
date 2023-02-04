@@ -1253,3 +1253,33 @@ function update_1513()
 	DI::config()->delete('system', 'git_friendica_version');
 	DI::config()->delete('twitter', 'application_name');
 }
+
+function update_1514()
+{
+	if (file_exists(dirname(__FILE__) . '/config/node.config.php')) {
+
+		$transactionalConfig = DI::config()->beginTransaction();
+		$oldConfig = include dirname(__FILE__) . '/config/node.config.php';
+
+		if (is_array($oldConfig)) {
+			$categories = array_keys($oldConfig);
+
+			foreach ($categories as $category) {
+				if (is_array($oldConfig[$category])) {
+					$keys = array_keys($oldConfig[$category]);
+
+					foreach ($keys as $key) {
+						$transactionalConfig->set($category, $key, $oldConfig[$category][$key]);
+					}
+				}
+			}
+		}
+
+		$transactionalConfig->commit();
+
+		// Rename the node.config.php so it won't get used, but it isn't deleted.
+		rename(dirname(__FILE__) . '/config/node.config.php', dirname(__FILE__) . '/config/node.config.php.bak');
+	}
+
+	return Update::SUCCESS;
+}

@@ -37,9 +37,24 @@ abstract class DI
 	/** @var Dice */
 	private static $dice;
 
-	public static function init(Dice $dice)
+	public static function init(Dice $dice, bool $disableDepByHand = false)
 	{
 		self::$dice = $dice;
+
+		if (!$disableDepByHand) {
+			self::setCompositeRootDependencyByHand();
+		}
+	}
+
+	/**
+	 * I HATE this method, but everything else needs refactoring at the database itself
+	 *
+	 * @return void
+	 */
+	public static function setCompositeRootDependencyByHand()
+	{
+		$database = static::dba();
+		$database->setDependency(static::config(), static::profiler(), static::logger());
 	}
 
 	/**

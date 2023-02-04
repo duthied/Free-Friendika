@@ -23,18 +23,21 @@ namespace Friendica\Test\src\Core\Config;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Config\Model\Config;
+use Friendica\Core\Config\Model\DatabaseConfig;
+use Friendica\Core\Config\Model\ReadOnlyFileConfig;
 use Friendica\Core\Config\Util\ConfigFileManager;
 use Friendica\Core\Config\Util\ConfigFileTransformer;
 use Friendica\Core\Config\ValueObject\Cache;
-use Friendica\Test\MockedTest;
+use Friendica\Test\DatabaseTest;
+use Friendica\Test\Util\CreateDatabaseTrait;
 use Friendica\Test\Util\VFSTrait;
 use org\bovigo\vfs\vfsStream;
 
-class ConfigTest extends MockedTest
+class ConfigTest extends DatabaseTest
 {
 	use ArraySubsetAsserts;
 	use VFSTrait;
+	use CreateDatabaseTrait;
 
 	/** @var Cache */
 	protected $configCache;
@@ -77,7 +80,7 @@ class ConfigTest extends MockedTest
 	public function getInstance()
 	{
 		$this->configFileManager->setupCache($this->configCache);
-		return new Config($this->configFileManager, $this->configCache);
+		return new DatabaseConfig($this->getDbInstance(), $this->configCache);
 	}
 
 	public function dataTests()
@@ -170,7 +173,7 @@ class ConfigTest extends MockedTest
 	{
 		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
 				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode($data));
+				 ->setContent(print_r($data, true));
 
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
@@ -191,7 +194,7 @@ class ConfigTest extends MockedTest
 	{
 		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
 				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode($data));
+				 ->setContent(print_r($data, true));
 
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
@@ -276,7 +279,7 @@ class ConfigTest extends MockedTest
 	{
 		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
 				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode($data1));
+				 ->setContent(print_r($data1, true));
 
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
@@ -288,7 +291,7 @@ class ConfigTest extends MockedTest
 
 		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
 				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode($data2));
+				 ->setContent(print_r($data2, true));
 
 		$this->testedConfig->reload();
 
@@ -302,7 +305,7 @@ class ConfigTest extends MockedTest
 	 */
 	public function testLoadWrong()
 	{
-		$this->testedConfig = new Config($this->configFileManager, new Cache());
+		$this->testedConfig = new ReadOnlyFileConfig(new Cache());
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
 		self::assertEmpty($this->testedConfig->getCache()->getAll());
@@ -354,7 +357,7 @@ class ConfigTest extends MockedTest
 	{
 		$this->configCache->load(['test' => ['it' => $data]], Cache::SOURCE_FILE);
 
-		$this->testedConfig = new Config($this->configFileManager, $this->configCache);
+		$this->testedConfig = new DatabaseConfig($this->getDbInstance(), $this->configCache);
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
 		self::assertEquals($data, $this->testedConfig->get('test', 'it'));
@@ -388,9 +391,9 @@ class ConfigTest extends MockedTest
 	{
 		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
 				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode([
+				 ->setContent(print_r([
 					 'config' => ['test' => 'it'],
-				 ]));
+				 ], true));
 
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
@@ -526,7 +529,7 @@ class ConfigTest extends MockedTest
 	public function testGetCategory(array $data, string $category, array $assertion)
 	{
 		$this->configCache = new Cache($data);
-		$config = new Config($this->configFileManager, $this->configCache);
+		$config = new ReadOnlyFileConfig($this->configCache);
 
 		self::assertEquals($assertion, $config->get($category));
 	}
@@ -538,9 +541,9 @@ class ConfigTest extends MockedTest
 	{
 		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
 				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode([
+				 ->setContent(print_r([
 					 'config' => ['sitename' => 'overritten'],
-				 ]));
+				 ], true));
 
 		$config = $this->getInstance();
 		self::assertEquals('overritten', $config->get('config', 'sitename'));

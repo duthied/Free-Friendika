@@ -22,26 +22,27 @@
 namespace Friendica\Test\src\Core\Config;
 
 use Friendica\Core\Config\Capability\ISetConfigValuesTransactionally;
-use Friendica\Core\Config\Model\Config;
+use Friendica\Core\Config\Model\DatabaseConfig;
+use Friendica\Core\Config\Model\ReadOnlyFileConfig;
 use Friendica\Core\Config\Model\ConfigTransaction;
 use Friendica\Core\Config\Util\ConfigFileManager;
 use Friendica\Core\Config\ValueObject\Cache;
+use Friendica\Database\Database;
+use Friendica\Test\DatabaseTest;
+use Friendica\Test\FixtureTest;
 use Friendica\Test\MockedTest;
+use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
 use Mockery\Exception\InvalidCountException;
 
-class ConfigTransactionTest extends MockedTest
+class ConfigTransactionTest extends FixtureTest
 {
-	use VFSTrait;
-
 	/** @var ConfigFileManager */
 	protected $configFileManager;
 
 	protected function setUp(): void
 	{
 		parent::setUp();
-
-		$this->setUpVfsDir();
 
 		$this->configFileManager = new ConfigFileManager($this->root->url(), $this->root->url() . '/config/', $this->root->url() . '/static/');
 	}
@@ -57,7 +58,7 @@ class ConfigTransactionTest extends MockedTest
 
 	public function testInstance()
 	{
-		$config            = new Config($this->configFileManager, new Cache());
+		$config            = new DatabaseConfig($this->dice->create(Database::class), new Cache());
 		$configTransaction = new ConfigTransaction($config);
 
 		self::assertInstanceOf(ISetConfigValuesTransactionally::class, $configTransaction);
@@ -66,17 +67,13 @@ class ConfigTransactionTest extends MockedTest
 
 	public function testConfigTransaction()
 	{
-		$config = new Config($this->configFileManager, new Cache());
+		$config = new DatabaseConfig($this->dice->create(Database::class), new Cache());
 		$config->set('config', 'key1', 'value1');
 		$config->set('system', 'key2', 'value2');
 		$config->set('system', 'keyDel', 'valueDel');
 		$config->set('delete', 'keyDel', 'catDel');
 
 		$configTransaction = new ConfigTransaction($config);
-		// the config file knows it as well immediately
-		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
-		self::assertEquals('value1', $tempData['config']['key1'] ?? null);
-		self::assertEquals('value2', $tempData['system']['key2'] ?? null);
 
 		// new key-value
 		$configTransaction->set('transaction', 'key3', 'value3');
@@ -93,11 +90,6 @@ class ConfigTransactionTest extends MockedTest
 		self::assertEquals('valueDel', $config->get('system', 'keyDel'));
 		self::assertEquals('catDel', $config->get('delete', 'keyDel'));
 		// The config file still doesn't know it either
-		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
-		self::assertEquals('value1', $tempData['config']['key1'] ?? null);
-		self::assertEquals('value2', $tempData['system']['key2'] ?? null);
-		self::assertEquals('catDel', $tempData['delete']['keyDel'] ?? null);
-		self::assertNull($tempData['transaction']['key3'] ?? null);
 
 		// save it back!
 		$configTransaction->commit();
@@ -107,12 +99,6 @@ class ConfigTransactionTest extends MockedTest
 		self::assertEquals('value3', $config->get('transaction', 'key3'));
 		self::assertNull($config->get('system', 'keyDel'));
 		self::assertNull($config->get('delete', 'keyDel'));
-		$tempData = include $this->root->url() . '/config/' . ConfigFileManager::CONFIG_DATA_FILE;
-		self::assertEquals('changedValue1', $tempData['config']['key1'] ?? null);
-		self::assertEquals('value2', $tempData['system']['key2'] ?? null);
-		self::assertEquals('value3', $tempData['transaction']['key3'] ?? null);
-		self::assertNull($tempData['system']['keyDel'] ?? null);
-		self::assertNull($tempData['delete']['keyDel'] ?? null);
 		// the whole category should be gone
 		self::assertNull($tempData['delete'] ?? null);
 	}
@@ -124,7 +110,7 @@ class ConfigTransactionTest extends MockedTest
 	{
 		$this->configFileManager = \Mockery::spy(ConfigFileManager::class);
 
-		$config = new Config($this->configFileManager, new Cache());
+		$config = new DatabaseConfig($this->dice->create(Database::class), new Cache());
 		$configTransaction = new ConfigTransaction($config);
 
 		// commit empty transaction

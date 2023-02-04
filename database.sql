@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.03-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1513
+-- DB_UPDATE_VERSION 1514
 -- ------------------------------------------
 
 
@@ -499,10 +499,12 @@ CREATE TABLE IF NOT EXISTS `cache` (
 -- TABLE config
 --
 CREATE TABLE IF NOT EXISTS `config` (
+	`id` int unsigned NOT NULL auto_increment COMMENT '',
 	`cat` varbinary(50) NOT NULL DEFAULT '' COMMENT 'The category of the entry',
 	`k` varbinary(50) NOT NULL DEFAULT '' COMMENT 'The key of the entry',
 	`v` mediumtext COMMENT '',
-	 PRIMARY KEY(`cat`,`k`)
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `cat_k` (`cat`,`k`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='main configuration storage';
 
 --

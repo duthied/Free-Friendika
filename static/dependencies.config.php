@@ -108,7 +108,7 @@ return [
 		],
 	],
 	Config\Capability\IManageConfigValues::class => [
-		'instanceOf' => Config\Model\Config::class,
+		'instanceOf' => Config\Model\DatabaseConfig::class,
 		'constructParams' => [
 			$_SERVER,
 		],
@@ -137,7 +137,7 @@ return [
 	],
 	Database::class                         => [
 		'constructParams' => [
-			[Dice::INSTANCE => \Psr\Log\NullLogger::class],
+			[Dice::INSTANCE => Config\Model\ReadOnlyFileConfig::class],
 		],
 	],
 	/**
