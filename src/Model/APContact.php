@@ -29,6 +29,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityNamespace;
@@ -358,12 +359,12 @@ class APContact
 		$apcontact['discoverable'] = JsonLD::fetchElement($compacted, 'toot:discoverable', '@value');
 
 		if (!empty($apcontact['photo'])) {
-			$apcontact['photo'] = trim($apcontact['photo']);
-		}
+			$apcontact['photo'] = Network::addBasePath($apcontact['photo'], $apcontact['url']);
 
-		if (!empty($apcontact['photo']) && !Network::isValidHttpUrl($apcontact['photo'])) {
-			Logger::warning('Invalid URL for photo', ['url' => $apcontact['url'], 'photo' => $apcontact['photo']]);
-			$apcontact['photo'] = '';
+			if (!Network::isValidHttpUrl($apcontact['photo'])) {
+				Logger::warning('Invalid URL for photo', ['url' => $apcontact['url'], 'photo' => $apcontact['photo']]);
+				$apcontact['photo'] = '';
+			}
 		}
 
 		// When the photo is too large, try to shorten it by removing parts
