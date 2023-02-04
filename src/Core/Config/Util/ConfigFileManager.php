@@ -204,6 +204,8 @@ class ConfigFileManager
 					if (!$content) {
 						throw new ConfigFileException(sprintf('Couldn\'t read file %s', $filename));
 					}
+				} else {
+					throw new ConfigFileException(sprintf('Cannot lock file %s', $filename));
 				}
 			} finally {
 				// unlock and close the stream for every circumstances
@@ -319,6 +321,8 @@ class ConfigFileManager
 					!fflush($configStream)) {
 					throw new ConfigFileException(sprintf('Cannot modify locked file %s', $filename));
 				}
+			} else {
+				throw new ConfigFileException(sprintf('Cannot lock file %s', $filename));
 			}
 		} finally {
 			// unlock and close the stream for every circumstances
