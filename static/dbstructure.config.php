@@ -554,6 +554,17 @@ return [
 			"k_expires" => ["k", "expires"],
 		]
 	],
+	"config" => [
+		"comment" => "main configuration storage",
+		"fields" => [
+			"cat" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => "The category of the entry"],
+			"k" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => "The key of the entry"],
+			"v" => ["type" => "mediumtext", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["cat", "k"],
+		]
+	],
 	"contact-relation" => [
 		"comment" => "Contact relations",
 		"fields" => [
