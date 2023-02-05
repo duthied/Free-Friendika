@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 06:47+0000\n"
+"POT-Creation-Date: 2023-02-04 19:53-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1925,39 +1925,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1015 src/Content/Text/BBCode.php:1877
-#: src/Content/Text/BBCode.php:1878
+#: src/Content/Text/BBCode.php:949 src/Content/Text/BBCode.php:1811
+#: src/Content/Text/BBCode.php:1812
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1232
+#: src/Content/Text/BBCode.php:1166
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1257 src/Model/Item.php:3572
+#: src/Content/Text/BBCode.php:1191 src/Model/Item.php:3572
 #: src/Model/Item.php:3578 src/Model/Item.php:3579
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1795 src/Content/Text/HTML.php:929
+#: src/Content/Text/BBCode.php:1729 src/Content/Text/HTML.php:929
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1826
+#: src/Content/Text/BBCode.php:1760
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1882 src/Content/Text/BBCode.php:1883
+#: src/Content/Text/BBCode.php:1816 src/Content/Text/BBCode.php:1817
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2110
+#: src/Content/Text/BBCode.php:2044
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:2125
+#: src/Content/Text/BBCode.php:2059
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2896,68 +2896,68 @@ msgstr ""
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2929
+#: src/Model/Contact.php:2942
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2934 src/Module/Friendica.php:83
+#: src/Model/Contact.php:2947 src/Module/Friendica.php:83
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:2939
+#: src/Model/Contact.php:2952
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2948
+#: src/Model/Contact.php:2961
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2966
+#: src/Model/Contact.php:2979
 #, php-format
 msgid "Expected network %s does not match actual network %s"
 msgstr ""
 
-#: src/Model/Contact.php:2983
+#: src/Model/Contact.php:2996
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2985
+#: src/Model/Contact.php:2998
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2988
+#: src/Model/Contact.php:3001
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2991
+#: src/Model/Contact.php:3004
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2994
+#: src/Model/Contact.php:3007
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2995
+#: src/Model/Contact.php:3008
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:3001
+#: src/Model/Contact.php:3014
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:3006
+#: src/Model/Contact.php:3019
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:3071
+#: src/Model/Contact.php:3084
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -3188,7 +3188,7 @@ msgstr ""
 msgid "[no subject]"
 msgstr ""
 
-#: src/Model/Photo.php:1178 src/Module/Media/Photo/Upload.php:198
+#: src/Model/Photo.php:1184 src/Module/Media/Photo/Upload.php:198
 msgid "Wall Photos"
 msgstr ""
 
@@ -5373,26 +5373,26 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: src/Module/BaseApi.php:255 src/Module/BaseApi.php:271
-#: src/Module/BaseApi.php:287
+#: src/Module/BaseApi.php:266 src/Module/BaseApi.php:282
+#: src/Module/BaseApi.php:298
 msgid "Too Many Requests"
 msgstr ""
 
-#: src/Module/BaseApi.php:256
+#: src/Module/BaseApi.php:267
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:272
+#: src/Module/BaseApi.php:283
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:288
+#: src/Module/BaseApi.php:299
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgid_plural ""
@@ -5875,7 +5875,7 @@ msgstr[1] ""
 #: src/Module/Contact/Follow.php:69 src/Module/Contact/Redir.php:62
 #: src/Module/Contact/Redir.php:222 src/Module/Conversation/Community.php:194
 #: src/Module/Debug/ItemBody.php:38 src/Module/Diaspora/Receive.php:57
-#: src/Module/Item/Display.php:95 src/Module/Item/Feed.php:59
+#: src/Module/Item/Display.php:96 src/Module/Item/Feed.php:59
 #: src/Module/Item/Follow.php:41 src/Module/Item/Ignore.php:41
 #: src/Module/Item/Pin.php:41 src/Module/Item/Pin.php:56
 #: src/Module/Item/Star.php:42 src/Module/Update/Display.php:37
@@ -7158,22 +7158,8 @@ msgid ""
 "<a href=\"/settings/display\">Theme Customization settings</a>."
 msgstr ""
 
-#: src/Module/Item/Display.php:135 src/Module/Update/Display.php:55
+#: src/Module/Item/Display.php:136 src/Module/Update/Display.php:55
 msgid "The requested item doesn't exist or has been deleted."
-msgstr ""
-
-#: src/Module/Item/Display.php:249
-msgid ""
-"Unfortunately, the requested conversation isn't available to you.</p>\n"
-"<p>Possible reasons include:</p>\n"
-"<ul>\n"
-"\t<li>The top-level post isn't visible.</li>\n"
-"\t<li>The top-level post was deleted.</li>\n"
-"\t<li>The node has blocked the top-level author or the author of the shared "
-"post.</li>\n"
-"\t<li>You have ignored or blocked the top-level author or the author of the "
-"shared post.</li>\n"
-"</ul><p>"
 msgstr ""
 
 #: src/Module/Item/Feed.php:86
@@ -8068,7 +8054,7 @@ msgstr ""
 msgid "Unsupported or missing response type"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:76
+#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:77
 msgid "Incomplete request data"
 msgstr ""
 
@@ -8079,11 +8065,11 @@ msgid ""
 "close this window: %s"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:81
+#: src/Module/OAuth/Token.php:82
 msgid "Invalid data or unknown client"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:100
+#: src/Module/OAuth/Token.php:104
 msgid "Unsupported or missing grant type"
 msgstr ""
 
@@ -8264,20 +8250,20 @@ msgstr ""
 
 #: src/Module/Profile/Conversations.php:106
 #: src/Module/Profile/Conversations.php:109 src/Module/Profile/Profile.php:351
-#: src/Module/Profile/Profile.php:354 src/Protocol/Feed.php:1025
-#: src/Protocol/OStatus.php:1045
+#: src/Module/Profile/Profile.php:354 src/Protocol/Feed.php:1026
+#: src/Protocol/OStatus.php:1007
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
 #: src/Module/Profile/Conversations.php:107 src/Module/Profile/Profile.php:352
-#: src/Protocol/Feed.php:1029 src/Protocol/OStatus.php:1050
+#: src/Protocol/Feed.php:1030 src/Protocol/OStatus.php:1012
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
 #: src/Module/Profile/Conversations.php:108 src/Module/Profile/Profile.php:353
-#: src/Protocol/Feed.php:1032 src/Protocol/OStatus.php:1054
+#: src/Protocol/Feed.php:1033 src/Protocol/OStatus.php:1016
 #, php-format
 msgid "%s's comments"
 msgstr ""
@@ -10359,6 +10345,24 @@ msgid ""
 "e.g. Mastodon."
 msgstr ""
 
+#: src/Module/Special/DisplayNotFound.php:37
+msgid "Not Found"
+msgstr ""
+
+#: src/Module/Special/DisplayNotFound.php:38
+msgid ""
+"<p>Unfortunately, the requested conversation isn't available to you.</p>\n"
+"<p>Possible reasons include:</p>\n"
+"<ul>\n"
+"\t<li>The top-level post isn't visible.</li>\n"
+"\t<li>The top-level post was deleted.</li>\n"
+"\t<li>The node has blocked the top-level author or the author of the shared "
+"post.</li>\n"
+"\t<li>You have ignored or blocked the top-level author or the author of the "
+"shared post.</li>\n"
+"</ul>"
+msgstr ""
+
 #: src/Module/Special/HTTPException.php:78
 msgid "Stack trace:"
 msgstr ""
@@ -11332,21 +11336,21 @@ msgstr ""
 msgid "(no subject)"
 msgstr ""
 
-#: src/Protocol/OStatus.php:1470
+#: src/Protocol/OStatus.php:1388
 #, php-format
 msgid "%s is now following %s."
 msgstr ""
 
-#: src/Protocol/OStatus.php:1471
+#: src/Protocol/OStatus.php:1389
 msgid "following"
 msgstr ""
 
-#: src/Protocol/OStatus.php:1474
+#: src/Protocol/OStatus.php:1392
 #, php-format
 msgid "%s stopped following %s."
 msgstr ""
 
-#: src/Protocol/OStatus.php:1475
+#: src/Protocol/OStatus.php:1393
 msgid "stopped following"
 msgstr ""
 

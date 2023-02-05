@@ -341,7 +341,7 @@ class BaseURL
 	public function redirect(string $toUrl = '', bool $ssl = false)
 	{
 		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
-			throw new HTTPException\InternalServerErrorException("'$toUrl is not a relative path, please use System::externalRedirectTo");
+			throw new HTTPException\InternalServerErrorException("$toUrl is not a relative path, please use System::externalRedirectTo");
 		}
 
 		$redirectTo = $this->get($ssl) . '/' . ltrim($toUrl, '/');
