@@ -438,17 +438,17 @@ class Conversation
 	 * The $mode parameter decides between the various renderings and also
 	 * figures out how to determine page owner and other contextual items
 	 * that are based on unique features of the calling module.
-	 * @param array  $items
-	 * @param string $mode
-	 * @param        $update @TODO Which type?
-	 * @param bool   $preview
-	 * @param string $order
+	 * @param array  $items   An array of Posts
+	 * @param string $mode    One of self::MODE_*
+	 * @param bool   $update  Asynchronous update rendering
+	 * @param bool   $preview Post preview (no actual database record)
+	 * @param string $order   Either "received" or "commented"
 	 * @param int    $uid
 	 * @return string
 	 * @throws ImagickException
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function create(array $items, string $mode, $update, bool $preview = false, string $order = 'commented', int $uid = 0): string
+	public function render(array $items, string $mode, bool $update = false, bool $preview = false, string $order = 'commented', int $uid = 0): string
 	{
 		$this->profiler->startRecording('rendering');
 
@@ -458,10 +458,6 @@ class Conversation
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
 		$live_update_div = '';
-
-		$blocklist = $this->getBlocklist();
-
-		$previewing = (($preview) ? ' preview ' : '');
 
 		if ($mode === self::MODE_NETWORK) {
 			$items = $this->addChildren($items, false, $order, $uid, $mode);
@@ -556,246 +552,14 @@ class Conversation
 
 		$items = $cb['items'];
 
-		$conv_responses = [
-			'like'        => [],
-			'dislike'     => [],
-			'attendyes'   => [],
-			'attendno'    => [],
-			'attendmaybe' => [],
-			'announce'    => [],
-		];
-
-		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'hide_dislike')) {
-			unset($conv_responses['dislike']);
-		}
-
-		// array with html for each thread (parent+comments)
-		$threads   = [];
-		$threadsid = -1;
-
-		$page_template     = Renderer::getMarkupTemplate("conversation.tpl");
 		$formSecurityToken = BaseModule::getFormSecurityToken('contact_action');
 
-		if (!empty($items)) {
-			if (in_array($mode, [self::MODE_COMMUNITY, self::MODE_CONTACTS, self::MODE_PROFILE])) {
-				$writable = true;
-			} else {
-				$writable = $items[0]['writable'] || ($items[0]['uid'] == 0) && in_array($items[0]['network'], Protocol::FEDERATED);
-			}
+		$threads = $this->getThreadList($items, $mode, $preview, $page_dropping, $formSecurityToken);
 
-			if (!$this->session->getLocalUserId()) {
-				$writable = false;
-			}
-
-			if (in_array($mode, [self::MODE_FILED, self::MODE_SEARCH, self::MODE_CONTACT_POSTS])) {
-
-				/*
-				* "New Item View" on network page or search page results
-				* - just loop through the items and format them minimally for display
-				*/
-
-				$tpl = 'search_item.tpl';
-
-				$uriids = [];
-
-				foreach ($items as $item) {
-					if (in_array($item['uri-id'], $uriids)) {
-						continue;
-					}
-
-					$uriids[] = $item['uri-id'];
-
-					if (!$this->item->isVisibleActivity($item)) {
-						continue;
-					}
-
-					if (in_array($item['author-id'], $blocklist)) {
-						continue;
-					}
-
-					$threadsid++;
-
-					// prevent private email from leaking.
-					if ($item['network'] === Protocol::MAIL && $this->session->getLocalUserId() != $item['uid']) {
-						continue;
-					}
-
-					$profile_name = $item['author-name'];
-					if (!empty($item['author-link']) && empty($item['author-name'])) {
-						$profile_name = $item['author-link'];
-					}
-
-					$tags = Tag::populateFromItem($item);
-
-					$author = [
-						'uid'     => 0,
-						'id'      => $item['author-id'],
-						'network' => $item['author-network'],
-						'url'     => $item['author-link'],
-						'alias'   => $item['author-alias'],
-					];
-					$profile_link = Contact::magicLinkByContact($author);
-
-					$sparkle = '';
-					if (strpos($profile_link, 'contact/redir/') === 0) {
-						$sparkle = ' sparkle';
-					}
-
-					$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
-					Hook::callAll('render_location', $locate);
-					$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
-
-					$this->item->localize($item);
-					if ($mode === self::MODE_FILED) {
-						$dropping = true;
-					} else {
-						$dropping = false;
-					}
-
-					$drop = [
-						'dropping' => $dropping,
-						'pagedrop' => $page_dropping,
-						'select'   => $this->l10n->t('Select'),
-						'delete'   => $this->l10n->t('Delete'),
-					];
-
-					$likebuttons = [
-						'like'     => null,
-						'dislike'  => null,
-						'share'    => null,
-						'announce' => null,
-					];
-
-					if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'hide_dislike')) {
-						unset($likebuttons['dislike']);
-					}
-
-					$body_html = ItemModel::prepareBody($item, true, $preview);
-
-					[$categories, $folders] = $this->item->determineCategoriesTerms($item, $this->session->getLocalUserId());
-
-					if (!empty($item['title'])) {
-						$title = $item['title'];
-					} elseif (!empty($item['content-warning']) && $this->pConfig->get($this->session->getLocalUserId(), 'system', 'disable_cw', false)) {
-						$title = ucfirst($item['content-warning']);
-					} else {
-						$title = '';
-					}
-
-					if (!empty($item['featured'])) {
-						$pinned = $this->l10n->t('Pinned item');
-					} else {
-						$pinned = '';
-					}
-
-					$tmp_item = [
-						'template'             => $tpl,
-						'id'                   => ($preview ? 'P0' : $item['id']),
-						'guid'                 => ($preview ? 'Q0' : $item['guid']),
-						'commented'            => $item['commented'],
-						'received'             => $item['received'],
-						'created_date'         => $item['created'],
-						'uriid'                => $item['uri-id'],
-						'network'              => $item['network'],
-						'network_name'         => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network'], $item['author-gsid']),
-						'network_icon'         => ContactSelector::networkToIcon($item['network'], $item['author-link'], $item['author-gsid']),
-						'linktitle'            => $this->l10n->t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
-						'profile_url'          => $profile_link,
-						'item_photo_menu_html' => $this->item->photoMenu($item, $formSecurityToken),
-						'name'                 => $profile_name,
-						'sparkle'              => $sparkle,
-						'lock'                 => false,
-						'thumb'                => $this->baseURL->remove($this->item->getAuthorAvatar($item)),
-						'title'                => $title,
-						'body_html'            => $body_html,
-						'tags'                 => $tags['tags'],
-						'hashtags'             => $tags['hashtags'],
-						'mentions'             => $tags['mentions'],
-						'implicit_mentions'    => $tags['implicit_mentions'],
-						'txt_cats'             => $this->l10n->t('Categories:'),
-						'txt_folders'          => $this->l10n->t('Filed under:'),
-						'has_cats'             => ((count($categories)) ? 'true' : ''),
-						'has_folders'          => ((count($folders)) ? 'true' : ''),
-						'categories'           => $categories,
-						'folders'              => $folders,
-						'text'                 => strip_tags($body_html),
-						'localtime'            => DateTimeFormat::local($item['created'], 'r'),
-						'utc'                  => DateTimeFormat::utc($item['created'], 'c'),
-						'ago'                  => (($item['app']) ? $this->l10n->t('%s from %s', Temporal::getRelativeDate($item['created']), $item['app']) : Temporal::getRelativeDate($item['created'])),
-						'location_html'        => $location_html,
-						'indent'               => '',
-						'owner_name'           => '',
-						'owner_url'            => '',
-						'owner_photo'          => $this->baseURL->remove($this->item->getOwnerAvatar($item)),
-						'plink'                => ItemModel::getPlink($item),
-						'edpost'               => false,
-						'pinned'               => $pinned,
-						'isstarred'            => 'unstarred',
-						'star'                 => false,
-						'drop'                 => $drop,
-						'vote'                 => $likebuttons,
-						'like_html'            => '',
-						'dislike_html '        => '',
-						'comment_html'         => '',
-						'conv'                 => ($preview ? '' : ['href' => 'display/' . $item['guid'], 'title' => $this->l10n->t('View in context')]),
-						'previewing'           => $previewing,
-						'wait'                 => $this->l10n->t('Please wait'),
-						'thread_level'         => 1,
-					];
-
-					$arr = ['item' => $item, 'output' => $tmp_item];
-					Hook::callAll('display_item', $arr);
-
-					$threads[$threadsid]['id']      = $item['id'];
-					$threads[$threadsid]['network'] = $item['network'];
-					$threads[$threadsid]['items']   = [$arr['output']];
-				}
-			} else {
-				// Normal View
-				$page_template = Renderer::getMarkupTemplate("threaded_conversation.tpl");
-
-				$conv = new Thread($mode, $preview, $writable);
-
-				/*
-				* get all the topmost parents
-				* this shouldn't be needed, as we should have only them in our array
-				* But for now, this array respects the old style, just in case
-				*/
-				foreach ($items as $item) {
-					if (in_array($item['author-id'], $blocklist)) {
-						continue;
-					}
-
-					// Can we put this after the visibility check?
-					$this->builtinActivityPuller($item, $conv_responses);
-
-					// Only add what is visible
-					if ($item['network'] === Protocol::MAIL && $this->session->getLocalUserId() != $item['uid']) {
-						continue;
-					}
-
-					if (!$this->item->isVisibleActivity($item)) {
-						continue;
-					}
-
-					/// @todo Check if this call is needed or not
-					$arr = ['item' => $item];
-					Hook::callAll('display_item', $arr);
-
-					$item['pagedrop'] = $page_dropping;
-
-					if ($item['gravity'] == ItemModel::GRAVITY_PARENT) {
-						$item_object = new PostObject($item);
-						$conv->addParent($item_object);
-					}
-				}
-
-				$threads = $conv->getTemplateData($conv_responses, $formSecurityToken);
-				if (!$threads) {
-					$this->logger->info('[ERROR] conversation : Failed to get template data.');
-					$threads = [];
-				}
-			}
+		if (in_array($mode, [self::MODE_FILED, self::MODE_SEARCH, self::MODE_CONTACT_POSTS])) {
+			$page_template = Renderer::getMarkupTemplate('conversation.tpl');
+		} else {
+			$page_template = Renderer::getMarkupTemplate('threaded_conversation.tpl');
 		}
 
 		$o = Renderer::replaceMacros($page_template, [
@@ -811,6 +575,91 @@ class Conversation
 
 		$this->profiler->stopRecording();
 		return $o;
+	}
+
+	/**
+	 * @param array  $items
+	 * @param string $mode One of self::MODE_*
+	 * @param bool   $preview
+	 * @param bool   $pagedrop Whether to enable the user to select the thread for deletion
+	 * @param string $formSecurityToken A 'contact_action' form security token
+	 * @return array
+	 * @throws InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public function getThreadList(array $items, string $mode, bool $preview, bool $pagedrop, string $formSecurityToken): array
+	{
+		if (in_array($mode, [self::MODE_FILED, self::MODE_SEARCH, self::MODE_CONTACT_POSTS])) {
+			$threads = $this->getContextLessThreadList($items, $mode, $preview, $pagedrop, $formSecurityToken);
+		} else {
+			$conv_responses = [
+				'like'        => [],
+				'dislike'     => [],
+				'attendyes'   => [],
+				'attendno'    => [],
+				'attendmaybe' => [],
+				'announce'    => [],
+			];
+
+			if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'hide_dislike')) {
+				unset($conv_responses['dislike']);
+			}
+
+			if (in_array($mode, [self::MODE_COMMUNITY, self::MODE_CONTACTS, self::MODE_PROFILE])) {
+				$writable = true;
+			} else {
+				$writable = $items[0]['writable'] || ($items[0]['uid'] == 0) && in_array($items[0]['network'], Protocol::FEDERATED);
+			}
+
+			if (!$this->session->getLocalUserId()) {
+				$writable = false;
+			}
+
+			// Normal View
+			$conv = new Thread($mode, $preview, $writable);
+
+			/*
+			* get all the topmost parents
+			* this shouldn't be needed, as we should have only them in our array
+			* But for now, this array respects the old style, just in case
+			*/
+			foreach ($items as $item) {
+				if (in_array($item['author-id'], $this->getBlocklist())) {
+					continue;
+				}
+
+				// Can we put this after the visibility check?
+				$this->builtinActivityPuller($item, $conv_responses);
+
+				// Only add what is visible
+				if ($item['network'] === Protocol::MAIL && $this->session->getLocalUserId() != $item['uid']) {
+					continue;
+				}
+
+				if (!$this->item->isVisibleActivity($item)) {
+					continue;
+				}
+
+				/// @todo Check if this call is needed or not
+				$arr = ['item' => $item];
+				Hook::callAll('display_item', $arr);
+
+				$item['pagedrop'] = $pagedrop;
+
+				if ($item['gravity'] == ItemModel::GRAVITY_PARENT) {
+					$item_object = new PostObject($item);
+					$conv->addParent($item_object);
+				}
+			}
+
+			$threads = $conv->getTemplateData($conv_responses, $formSecurityToken);
+			if (!$threads) {
+				$this->logger->info('[ERROR] conversation : Failed to get template data.');
+				$threads = [];
+			}
+		}
+
+		return $threads;
 	}
 
 	private function getBlocklist(): array
@@ -1493,5 +1342,181 @@ class Conversation
 	private function sortThrCreated(array $a, array $b): int
 	{
 		return strcmp($b['created'], $a['created']);
+	}
+
+	/**
+	 * "New Item View" on network page or search page results
+	 * - just loop through the items and format them minimally for display
+	 *
+	 * @param array  $items
+	 * @param string $mode              One of self::MODE_*
+	 * @param bool   $preview           Whether the display is a preview
+	 * @param bool   $pagedrop          Whether the user can select the threads for deletion
+	 * @param string $formSecurityToken A 'contact_action' form security token
+	 * @return array
+	 * @throws InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public function getContextLessThreadList(array $items, string $mode, bool $preview, bool $pagedrop, string $formSecurityToken): array
+	{
+		$threads = [];
+		$uriids = [];
+
+		foreach ($items as $item) {
+			if (in_array($item['uri-id'], $uriids)) {
+				continue;
+			}
+
+			$uriids[] = $item['uri-id'];
+
+			if (!$this->item->isVisibleActivity($item)) {
+				continue;
+			}
+
+			if (in_array($item['author-id'], $this->getBlocklist())) {
+				continue;
+			}
+
+			$threadsid++;
+
+			// prevent private email from leaking.
+			if ($item['network'] === Protocol::MAIL && $this->session->getLocalUserId() != $item['uid']) {
+				continue;
+			}
+
+			$profile_name = $item['author-name'];
+			if (!empty($item['author-link']) && empty($item['author-name'])) {
+				$profile_name = $item['author-link'];
+			}
+
+			$tags = Tag::populateFromItem($item);
+
+			$author       = [
+				'uid'     => 0,
+				'id'      => $item['author-id'],
+				'network' => $item['author-network'],
+				'url'     => $item['author-link'],
+				'alias'   => $item['author-alias'],
+			];
+			$profile_link = Contact::magicLinkByContact($author);
+
+			$sparkle = '';
+			if (strpos($profile_link, 'contact/redir/') === 0) {
+				$sparkle = ' sparkle';
+			}
+
+			$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
+			Hook::callAll('render_location', $locate);
+			$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
+
+			$this->item->localize($item);
+			if ($mode === self::MODE_FILED) {
+				$dropping = true;
+			} else {
+				$dropping = false;
+			}
+
+			$drop = [
+				'dropping' => $dropping,
+				'pagedrop' => $pagedrop,
+				'select'   => $this->l10n->t('Select'),
+				'delete'   => $this->l10n->t('Delete'),
+			];
+
+			$likebuttons = [
+				'like'     => null,
+				'dislike'  => null,
+				'share'    => null,
+				'announce' => null,
+			];
+
+			if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'hide_dislike')) {
+				unset($likebuttons['dislike']);
+			}
+
+			$body_html = ItemModel::prepareBody($item, true, $preview);
+
+			[$categories, $folders] = $this->item->determineCategoriesTerms($item, $this->session->getLocalUserId());
+
+			if (!empty($item['title'])) {
+				$title = $item['title'];
+			} elseif (!empty($item['content-warning']) && $this->pConfig->get($this->session->getLocalUserId(), 'system', 'disable_cw', false)) {
+				$title = ucfirst($item['content-warning']);
+			} else {
+				$title = '';
+			}
+
+			if (!empty($item['featured'])) {
+				$pinned = $this->l10n->t('Pinned item');
+			} else {
+				$pinned = '';
+			}
+
+			$tmp_item = [
+				'template'             => 'search_item.tpl',
+				'id'                   => ($preview ? 'P0' : $item['id']),
+				'guid'                 => ($preview ? 'Q0' : $item['guid']),
+				'commented'            => $item['commented'],
+				'received'             => $item['received'],
+				'created_date'         => $item['created'],
+				'uriid'                => $item['uri-id'],
+				'network'              => $item['network'],
+				'network_name'         => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network'], $item['author-gsid']),
+				'network_icon'         => ContactSelector::networkToIcon($item['network'], $item['author-link'], $item['author-gsid']),
+				'linktitle'            => $this->l10n->t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
+				'profile_url'          => $profile_link,
+				'item_photo_menu_html' => $this->item->photoMenu($item, $formSecurityToken),
+				'name'                 => $profile_name,
+				'sparkle'              => $sparkle,
+				'lock'                 => false,
+				'thumb'                => $this->baseURL->remove($this->item->getAuthorAvatar($item)),
+				'title'                => $title,
+				'body_html'            => $body_html,
+				'tags'                 => $tags['tags'],
+				'hashtags'             => $tags['hashtags'],
+				'mentions'             => $tags['mentions'],
+				'implicit_mentions'    => $tags['implicit_mentions'],
+				'txt_cats'             => $this->l10n->t('Categories:'),
+				'txt_folders'          => $this->l10n->t('Filed under:'),
+				'has_cats'             => ((count($categories)) ? 'true' : ''),
+				'has_folders'          => ((count($folders)) ? 'true' : ''),
+				'categories'           => $categories,
+				'folders'              => $folders,
+				'text'                 => strip_tags($body_html),
+				'localtime'            => DateTimeFormat::local($item['created'], 'r'),
+				'utc'                  => DateTimeFormat::utc($item['created'], 'c'),
+				'ago'                  => (($item['app']) ? $this->l10n->t('%s from %s', Temporal::getRelativeDate($item['created']), $item['app']) : Temporal::getRelativeDate($item['created'])),
+				'location_html'        => $location_html,
+				'indent'               => '',
+				'owner_name'           => '',
+				'owner_url'            => '',
+				'owner_photo'          => $this->baseURL->remove($this->item->getOwnerAvatar($item)),
+				'plink'                => ItemModel::getPlink($item),
+				'edpost'               => false,
+				'pinned'               => $pinned,
+				'isstarred'            => 'unstarred',
+				'star'                 => false,
+				'drop'                 => $drop,
+				'vote'                 => $likebuttons,
+				'like_html'            => '',
+				'dislike_html '        => '',
+				'comment_html'         => '',
+				'conv'                 => $preview ? '' : ['href' => 'display/' . $item['guid'], 'title' => $this->l10n->t('View in context')],
+				'previewing'           => $preview ? ' preview ' : '',
+				'wait'                 => $this->l10n->t('Please wait'),
+				'thread_level'         => 1,
+			];
+
+			$arr = ['item' => $item, 'output' => $tmp_item];
+			Hook::callAll('display_item', $arr);
+
+			$threads[] = [
+				'id'      => $item['id'],
+				'network' => $item['network'],
+				'items'   => [$arr['output']],
+			];
+		}
+
+		return $threads;
 	}
 }

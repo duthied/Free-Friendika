@@ -40,7 +40,7 @@ class Community extends CommunityModule
 
 		$o = '';
 		if (!empty($request['force'])) {
-			$o = DI::conversation()->create(self::getItems(), Conversation::MODE_COMMUNITY, true, false, 'commented', DI::userSession()->getLocalUserId());
+			$o = DI::conversation()->render(self::getItems(), Conversation::MODE_COMMUNITY, true, false, 'commented', DI::userSession()->getLocalUserId());
 		}
 
 		System::htmlUpdateExit($o);

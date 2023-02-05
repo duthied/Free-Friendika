@@ -275,7 +275,7 @@ class Display extends BaseModule
 			$output .= $this->conversation->statusEditor([], 0, true);
 		}
 
-		$output .= $this->conversation->create([$item], Conversation::MODE_DISPLAY, $updateUid, false, 'commented', $itemUid);
+		$output .= $this->conversation->render([$item], Conversation::MODE_DISPLAY, $updateUid, false, 'commented', $itemUid);
 
 		return $output;
 	}

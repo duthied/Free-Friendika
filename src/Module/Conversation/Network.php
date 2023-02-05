@@ -201,7 +201,7 @@ class Network extends BaseModule
 			$ordering = '`commented`';
 		}
 
-		$o .= DI::conversation()->create($items, Conversation::MODE_NETWORK, false, false, $ordering, DI::userSession()->getLocalUserId());
+		$o .= DI::conversation()->render($items, Conversation::MODE_NETWORK, false, false, $ordering, DI::userSession()->getLocalUserId());
 
 		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();

@@ -85,7 +85,7 @@ function notes_content(App $a, bool $update = false)
 
 		$count = count($notes);
 
-		$o .= DI::conversation()->create($notes, Conversation::MODE_NOTES, $update);
+		$o .= DI::conversation()->render($notes, Conversation::MODE_NOTES, $update);
 	}
 
 	$o .= $pager->renderMinimal($count);

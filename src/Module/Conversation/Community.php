@@ -92,7 +92,7 @@ class Community extends BaseModule
 					'accesskey' => 'l'
 				];
 			}
-	
+
 			if (DI::userSession()->isAuthenticated() || in_array(self::$page_style, [self::LOCAL_AND_GLOBAL, self::GLOBAL])) {
 				$tabs[] = [
 					'label' => DI::l10n()->t('Global Community'),
@@ -110,14 +110,14 @@ class Community extends BaseModule
 			Nav::setSelected('community');
 
 			DI::page()['aside'] .= Widget::accountTypes('community/' . self::$content, self::$accountTypeString);
-	
+
 			if (DI::userSession()->getLocalUserId() && DI::config()->get('system', 'community_no_sharer')) {
 				$path = self::$content;
 				if (!empty($this->parameters['accounttype'])) {
 					$path .= '/' . $this->parameters['accounttype'];
 				}
 				$query_parameters = [];
-		
+
 				if (!empty($_GET['min_id'])) {
 					$query_parameters['min_id'] = $_GET['min_id'];
 				}
@@ -127,7 +127,7 @@ class Community extends BaseModule
 				if (!empty($_GET['last_commented'])) {
 					$query_parameters['max_id'] = $_GET['last_commented'];
 				}
-		
+
 				$path_all = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
 				$path_no_sharer = $path . '?' . http_build_query(array_merge($query_parameters, ['no_sharer' => true]));
 				DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_sharer.tpl'), [
@@ -139,7 +139,7 @@ class Community extends BaseModule
 					'$no_sharer_label' => DI::l10n()->t('Hide'),
 				]);
 			}
-	
+
 			if (Feature::isEnabled(DI::userSession()->getLocalUserId(), 'trending_tags')) {
 				DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
 			}
@@ -157,7 +157,7 @@ class Community extends BaseModule
 			return $o;
 		}
 
-		$o .= DI::conversation()->create($items, Conversation::MODE_COMMUNITY, false, false, 'commented', DI::userSession()->getLocalUserId());
+		$o .= DI::conversation()->render($items, Conversation::MODE_COMMUNITY, false, false, 'commented', DI::userSession()->getLocalUserId());
 
 		$pager = new BoundariesPager(
 			DI::l10n(),
@@ -339,7 +339,7 @@ class Community extends BaseModule
 				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-thread-user-view`.`uri-id`)";
 				$condition[] = DI::userSession()->getLocalUserId();
 			}
-	
+
 			if (isset($max_id)) {
 				$condition[0] .= " AND `commented` < ?";
 				$condition[] = $max_id;

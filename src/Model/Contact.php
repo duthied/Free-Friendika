@@ -1626,7 +1626,7 @@ class Contact
 				}
 			}
 
-			$o .= DI::conversation()->create($items, ConversationContent::MODE_CONTACTS, $update, false, 'pinned_commented', DI::userSession()->getLocalUserId());
+			$o .= DI::conversation()->render($items, ConversationContent::MODE_CONTACTS, $update, false, 'pinned_commented', DI::userSession()->getLocalUserId());
 		} else {
 			$fields = array_merge(Item::DISPLAY_FIELDLIST, ['featured']);
 			$items = Post::toArray(Post::selectForUser(DI::userSession()->getLocalUserId(), $fields, $condition, $params));
@@ -1643,7 +1643,7 @@ class Contact
 				}
 			}
 
-			$o .= DI::conversation()->create($items, ConversationContent::MODE_CONTACT_POSTS, $update);
+			$o .= DI::conversation()->render($items, ConversationContent::MODE_CONTACT_POSTS, $update);
 		}
 
 		if (!$update) {

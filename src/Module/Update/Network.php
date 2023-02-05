@@ -79,7 +79,7 @@ class Network extends NetworkModule
 			$ordering = '`commented`';
 		}
 
-		$o = DI::conversation()->create($items, Conversation::MODE_NETWORK, $profile_uid, false, $ordering, DI::userSession()->getLocalUserId());
+		$o = DI::conversation()->render($items, Conversation::MODE_NETWORK, $profile_uid, false, $ordering, DI::userSession()->getLocalUserId());
 
 		System::htmlUpdateExit($o);
 	}
