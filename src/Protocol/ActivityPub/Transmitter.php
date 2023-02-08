@@ -41,7 +41,6 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
@@ -115,8 +114,8 @@ class Transmitter
 			return false;
 		}
 
-		$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact['id']);
-		$success = ActivityPub\Transmitter::sendActivity('Follow', $url, 0, $activity_id);
+		$activity_id = self::activityIDFromContact($contact['id']);
+		$success = self::sendActivity('Follow', $url, 0, $activity_id);
 		if ($success) {
 			Contact::update(['rel' => Contact::FRIEND], ['id' => $contact['id']]);
 		}
@@ -243,6 +242,7 @@ class Transmitter
 	 * Public posts for the given owner
 	 *
 	 * @param array   $owner     Owner array
+	 * @param integer $uid       User id
 	 * @param integer $page      Page number
 	 * @param integer $max_id    Maximum ID
 	 * @param string  $requester URL of requesting account
@@ -251,7 +251,7 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getOutbox(array $owner, int $page = null, int $max_id = null, string $requester = ''): array
+	public static function getOutbox(array $owner, int $uid, int $page = null, int $max_id = null, string $requester = ''): array
 	{
 		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'private' => [Item::PUBLIC, Item::UNLISTED]];
 
@@ -267,7 +267,7 @@ class Transmitter
 		}
 
 		$condition = array_merge($condition, [
-			'uid'           => $owner['uid'],
+			'uid'            => $owner['uid'],
 			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
 			'gravity'        => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
 			'network'        => Protocol::FEDERATED,
@@ -279,14 +279,14 @@ class Transmitter
 
 		$apcontact = APContact::getByURL($owner['url']);
 
-		return self::getCollection($condition, DI::baseUrl() . '/outbox/' . $owner['nickname'], $page, $max_id, null, $apcontact['statuses_count']);
+		return self::getCollection($condition, DI::baseUrl() . '/outbox/' . $owner['nickname'], $page, $max_id, $uid, $apcontact['statuses_count']);
 	}
 
 	public static function getInbox(int $uid, int $page = null, int $max_id = null)
 	{
 		$owner = User::getOwnerDataById($uid);
 
-		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], [Protocol::ACTIVITYPUB, Protocol::DFRN], 'uid' => $uid];
+		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN], 'uid' => $uid];
 
 		return self::getCollection($condition, DI::baseUrl() . '/inbox/' . $owner['nickname'], $page, $max_id, $uid, null);
 	}
@@ -527,45 +527,75 @@ class Transmitter
 			'owner' => $owner['url'],
 			'publicKeyPem' => $owner['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => DI::baseUrl() . '/inbox'];
-		$data['icon'] = ['type' => 'Image', 'url' => User::getAvatarUrl($owner)];
+		if ($uid != 0) {
+			$data['icon'] = ['type' => 'Image', 'url' => User::getAvatarUrl($owner)];
 
-		$resourceid = Photo::ridFromURI($owner['photo']);
-		if (!empty($resourceid)) {
-			$photo = Photo::selectFirst(['type'], ["resource-id" => $resourceid]);
-			if (!empty($photo['type'])) {
-				$data['icon']['mediaType'] = $photo['type'];
-			}
-		}
-
-		if (!empty($owner['header'])) {
-			$data['image'] = ['type' => 'Image', 'url' => Contact::getHeaderUrlForId($owner['id'], '', $owner['updated'])];
-
-			$resourceid = Photo::ridFromURI($owner['header']);
+			$resourceid = Photo::ridFromURI($owner['photo']);
 			if (!empty($resourceid)) {
 				$photo = Photo::selectFirst(['type'], ["resource-id" => $resourceid]);
 				if (!empty($photo['type'])) {
-					$data['image']['mediaType'] = $photo['type'];
+					$data['icon']['mediaType'] = $photo['type'];
 				}
 			}
-		}
 
-		$custom_fields = [];
+			if (!empty($owner['header'])) {
+				$data['image'] = ['type' => 'Image', 'url' => Contact::getHeaderUrlForId($owner['id'], '', $owner['updated'])];
 
-		foreach (DI::profileField()->selectByContactId(0, $uid) as $profile_field) {
-			$custom_fields[] = [
-				'type' => 'PropertyValue',
-				'name' => $profile_field->label,
-				'value' => BBCode::convertForUriId($owner['uri-id'], $profile_field->value)
-			];
-		};
+				$resourceid = Photo::ridFromURI($owner['header']);
+				if (!empty($resourceid)) {
+					$photo = Photo::selectFirst(['type'], ["resource-id" => $resourceid]);
+					if (!empty($photo['type'])) {
+						$data['image']['mediaType'] = $photo['type'];
+					}
+				}
+			}
 
-		if (!empty($custom_fields)) {
-			$data['attachment'] = $custom_fields;
+			$custom_fields = [];
+
+			foreach (DI::profileField()->selectByContactId(0, $uid) as $profile_field) {
+				$custom_fields[] = [
+					'type' => 'PropertyValue',
+					'name' => $profile_field->label,
+					'value' => BBCode::convertForUriId($owner['uri-id'], $profile_field->value)
+				];
+			};
+
+			if (!empty($custom_fields)) {
+				$data['attachment'] = $custom_fields;
+			}
 		}
 
 		$data['generator'] = self::getService();
 
 		// tags: https://kitty.town/@inmysocks/100656097926961126.json
+		return $data;
+	}
+
+	/**
+	 * Get a minimal actror array for the C2S API
+	 *
+	 * @param integer $cid
+	 * @return array
+	 */
+	private static function getActorArrayByCid(int $cid): array
+	{
+		$contact = Contact::getById($cid);
+		$data = [
+			'id'                        => $contact['url'],
+			'type'                      => $data['type'] = ActivityPub::ACCOUNT_TYPES[$contact['contact-type']],
+			'url'                       => $contact['alias'],
+			'preferredUsername'         => $contact['nick'],
+			'name'                      => $contact['name'],
+			'icon'                      => ['type' => 'Image', 'url' => Contact::getAvatarUrlForId($cid, '', $contact['updated'])],
+			'image'                     => ['type' => 'Image', 'url' => Contact::getHeaderUrlForId($cid, '', $contact['updated'])],
+			'manuallyApprovesFollowers' => (bool)$contact['manually-approve'],
+			'discoverable'              => !$contact['unsearchable'],
+		];
+
+		if (empty($data['url'])) {
+			$data['url'] = $data['id'];
+		}
+
 		return $data;
 	}
 
@@ -1325,7 +1355,7 @@ class Transmitter
 	 */
 	private static function createActivityFromArray(array $item, bool $object_mode = false, $api_mode = false)
 	{
-		if (!$item['deleted'] && $item['network'] == Protocol::ACTIVITYPUB) {
+		if (!$api_mode && !$item['deleted'] && $item['network'] == Protocol::ACTIVITYPUB) {
 			$data = Post\Activity::getByURIId($item['uri-id']);
 			if (!$item['origin'] && !empty($data)) {
 				if (!$object_mode) {
@@ -1368,9 +1398,17 @@ class Transmitter
 		$data['type'] = $type;
 
 		if (($type != 'Announce') || ($item['gravity'] != Item::GRAVITY_PARENT)) {
-			$data['actor'] = $item['author-link'];
+			$link = $item['author-link'];
+			$id   = $item['author-id'];
 		} else {
-			$data['actor'] = $item['owner-link'];
+			$link = $item['owner-link'];
+			$id   = $item['owner-id'];
+		}
+
+		if ($api_mode) {
+			$data['actor'] = self::getActorArrayByCid($id);
+		} else {
+			$data['actor'] = $link;
 		}
 
 		$data['published'] = DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM);
@@ -1380,15 +1418,14 @@ class Transmitter
 		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
-			$data['object'] = self::createNote($item);
-			$data['published'] = DateTimeFormat::utcNow(DateTimeFormat::ATOM);
+			$data['object'] = self::createNote($item, $api_mode);
 		} elseif ($data['type'] == 'Add') {
 			$data = self::createAddTag($item, $data);
 		} elseif ($data['type'] == 'Announce') {
 			if ($item['verb'] == ACTIVITY::ANNOUNCE) {
 				$data['object'] = $item['thr-parent'];
 			} else {
-				$data = self::createAnnounce($item, $data);
+				$data = self::createAnnounce($item, $data, $api_mode);
 			}
 		} elseif ($data['type'] == 'Follow') {
 			$data['object'] = $item['parent-uri'];
@@ -1646,11 +1683,12 @@ class Transmitter
 	 * Creates a note/article object array
 	 *
 	 * @param array $item
+	 * @param bool  $api_mode
 	 * @return array with the object data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createNote(array $item): array
+	public static function createNote(array $item, bool $api_mode = false): array
 	{
 		if (empty($item)) {
 			return [];
@@ -1710,7 +1748,11 @@ class Transmitter
 		}
 
 		$data['url'] = $link ?? $item['plink'];
-		$data['attributedTo'] = $item['author-link'];
+		if ($api_mode) {
+			$data['attributedTo'] = self::getActorArrayByCid($item['author-id']);
+		} else {
+			$data['attributedTo'] = $item['author-link'];
+		}
 		$data['sensitive'] = self::isSensitive($item['uri-id']);
 
 		if (!empty($item['conversation']) && ($item['conversation'] != './')) {
@@ -1882,17 +1924,18 @@ class Transmitter
 	 *
 	 * @param array $item Item array
 	 * @param array $activity activity data
+	 * @param bool  $api_mode
 	 * @return array with activity data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function createAnnounce(array $item, array $activity): array
+	private static function createAnnounce(array $item, array $activity, bool $api_mode = false): array
 	{
 		$orig_body = $item['body'];
 		$announce = self::getAnnounceArray($item);
 		if (empty($announce)) {
 			$activity['type'] = 'Create';
-			$activity['object'] = self::createNote($item);
+			$activity['object'] = self::createNote($item, $api_mode);
 			return $activity;
 		}
 
@@ -1906,7 +1949,7 @@ class Transmitter
 		// Quote
 		$activity['type'] = 'Create';
 		$item['body'] = $announce['comment'] . "\n" . $announce['object']['plink'];
-		$activity['object'] = self::createNote($item);
+		$activity['object'] = self::createNote($item, $api_mode);
 
 		/// @todo Finally descide how to implement this in AP. This is a possible way:
 		$activity['object']['attachment'][] = self::createNote($announce['object']);
