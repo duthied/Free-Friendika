@@ -49,7 +49,7 @@ use Friendica\Worker\UpdateContact;
 /**
  * Photo Module
  */
-class Photo extends BaseModule
+class Photo extends BaseApi
 {
 	/**
 	 * Module initializer
@@ -149,7 +149,7 @@ class Photo extends BaseModule
 					}
 			}
 
-			$photo = MPhoto::getPhoto($photoid, $scale);
+			$photo = MPhoto::getPhoto($photoid, $scale, self::getCurrentUserID());
 			if ($photo === false) {
 				throw new HTTPException\NotFoundException(DI::l10n()->t('The Photo with id %s is not available.', $photoid));
 			}
@@ -282,7 +282,7 @@ class Photo extends BaseModule
 				}
 
 				if (Network::isLocalLink($url) && preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $url, $matches)) {
-					return MPhoto::getPhoto($matches[1], $matches[2]);
+					return MPhoto::getPhoto($matches[1], $matches[2], self::getCurrentUserID());
 				}
 
 				return MPhoto::createPhotoForExternalResource($url, (int)DI::userSession()->getLocalUserId(), $media['mimetype'] ?? '', $media['blurhash'], $width, $height);
@@ -293,7 +293,7 @@ class Photo extends BaseModule
 				}
 
 				if (Network::isLocalLink($media['url']) && preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $media['url'], $matches)) {
-					return MPhoto::getPhoto($matches[1], $matches[2]);
+					return MPhoto::getPhoto($matches[1], $matches[2], self::getCurrentUserID());
 				}
 
 				return MPhoto::createPhotoForExternalResource($media['url'], (int)DI::userSession()->getLocalUserId(), $media['mimetype'], $media['blurhash'], $media['width'], $media['height']);

@@ -148,13 +148,14 @@ class Photo
 	 * on success, "no sign" image info, if user has no permission,
 	 * false if photo does not exists
 	 *
-	 * @param string  $resourceid Rescource ID of the photo
-	 * @param integer $scale      Scale of the photo. Defaults to 0
+	 * @param string  $resourceid  Rescource ID of the photo
+	 * @param integer $scale       Scale of the photo. Defaults to 0
+	 * @param integer $visitor_uid UID of the visitor
 	 *
 	 * @return boolean|array
 	 * @throws \Exception
 	 */
-	public static function getPhoto(string $resourceid, int $scale = 0)
+	public static function getPhoto(string $resourceid, int $scale = 0, int $visitor_uid = 0)
 	{
 		$r = self::selectFirst(['uid'], ['resource-id' => $resourceid]);
 		if (!DBA::isResult($r)) {
@@ -165,7 +166,11 @@ class Photo
 
 		$accessible = $uid ? (bool)DI::pConfig()->get($uid, 'system', 'accessible-photos', false) : false;
 
-		$sql_acl = Security::getPermissionsSQLByUserId($uid, $accessible);
+		if (!empty($visitor_uid) && ($uid == $visitor_uid)) {
+			$sql_acl = '';
+		} else {
+			$sql_acl = Security::getPermissionsSQLByUserId($uid, $accessible);
+		}
 
 		$conditions = ["`resource-id` = ? AND `scale` <= ? " . $sql_acl, $resourceid, $scale];
 		$params = ['order' => ['scale' => true]];
@@ -226,7 +231,7 @@ class Photo
 			DBA::p(
 				"SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
 					min(`scale`) AS `hiq`, max(`scale`) AS `loq`, ANY_VALUE(`desc`) AS `desc`, ANY_VALUE(`created`) AS `created`
-					FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sqlExtra 
+					FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sqlExtra
 					GROUP BY `resource-id` $sqlExtra2",
 				$values
 			));
