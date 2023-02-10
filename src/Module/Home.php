@@ -25,13 +25,22 @@ use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Module\Security\Login;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * Home module - Landing page of the current node
  */
 class Home extends BaseModule
 {
+	protected function rawContent(array $request = [])
+	{
+		if (ActivityPub::isRequest()) {
+			DI::baseUrl()->redirect(User::getActorName());
+		}
+	}
+
 	protected function content(array $request = []): string
 	{
 		$app = DI::app();
