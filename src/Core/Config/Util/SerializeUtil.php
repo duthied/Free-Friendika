@@ -107,10 +107,11 @@ class SerializeUtil
 					if ('"' !== substr($data, -2, 1)) {
 						return false;
 					}
-				} else if (false === strpos($data, '"')) {
+				} elseif (false === strpos($data, '"')) {
 					return false;
 				}
 			// Or else fall through.
+			// no break
 			case 'a':
 			case 'O':
 			case 'E':
