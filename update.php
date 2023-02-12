@@ -1278,7 +1278,11 @@ function update_1514()
 		$transactionalConfig->commit();
 
 		// Rename the node.config.php so it won't get used, but it isn't deleted.
-		rename(dirname(__FILE__) . '/config/node.config.php', dirname(__FILE__) . '/config/node.config.php.bak');
+		if (rename(dirname(__FILE__) . '/config/node.config.php', dirname(__FILE__) . '/config/node.config.php.bak')) {
+			return Update::SUCCESS;
+		} else {
+			return Update::FAILED;
+		}
 	}
 
 	return Update::SUCCESS;
