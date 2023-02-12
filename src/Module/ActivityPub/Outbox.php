@@ -26,6 +26,7 @@ use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
+use Friendica\Util\Network;
 
 /**
  * ActivityPub Outbox
@@ -54,5 +55,31 @@ class Outbox extends BaseApi
 		$outbox = ActivityPub\Transmitter::getOutbox($owner, $uid, $page, $request['max_id'] ?? null, $requester);
 
 		System::jsonExit($outbox, 'application/activity+json');
+	}
+
+	protected function post(array $request = [])
+	{
+		self::checkAllowedScope(self::SCOPE_WRITE);
+		$uid      = self::getCurrentUserID();
+		$postdata = Network::postdata();
+
+		if (empty($postdata) || empty($this->parameters['nickname'])) {
+			throw new \Friendica\Network\HTTPException\BadRequestException();
+		}
+
+		$owner = User::getOwnerDataByNick($this->parameters['nickname']);
+		if (empty($owner)) {
+			throw new \Friendica\Network\HTTPException\NotFoundException();
+		}
+		if ($owner['uid'] != $uid) {
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
+		}
+
+		$activity = json_decode($postdata, true);
+		if (empty($activity)) {
+			throw new \Friendica\Network\HTTPException\BadRequestException();
+		}
+
+		ActivityPub\Receiver::processC2SActivity($activity, $uid, self::getCurrentApplication() ?? []);
 	}
 }

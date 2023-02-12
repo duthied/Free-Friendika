@@ -547,7 +547,7 @@ return [
 		'/h2b'    => [Module\Oembed::class, [R::GET]],
 		'/{hash}' => [Module\Oembed::class, [R::GET]],
 	],
-	'/outbox/{nickname}' => [Module\ActivityPub\Outbox::class, [R::GET]],
+	'/outbox/{nickname}' => [Module\ActivityPub\Outbox::class, [R::GET, R::POST]],
 	'/owa'               => [Module\Owa::class,                [R::GET]],
 	'/openid'            => [Module\Security\OpenID::class,    [R::GET]],
 	'/opensearch'        => [Module\OpenSearch::class,         [R::GET]],

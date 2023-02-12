@@ -446,7 +446,7 @@ class Receiver
 		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Announce', 'as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of each individual array element.
-			$object_data = self::processObject($activity);
+			$object_data = self::processObject($activity, false);
 			$object_data['name'] = $type;
 			$object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
 			$object_data['object_id'] = $object_id;
@@ -691,8 +691,6 @@ class Receiver
 	 */
 	public static function routeActivities(array $object_data, string $type, bool $push, bool $fetch_parents = true, int $uid = 0): bool
 	{
-		$activity = $object_data['object_activity']	?? [];
-
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
@@ -1435,12 +1433,12 @@ class Receiver
 				Logger::info('Empty type');
 				return false;
 			}
-			$object_data = self::processObject($object);
+			$object_data = self::processObject($object, false);
 		}
 
 		// We currently don't handle 'pt:CacheFile', but with this step we avoid logging
 		if (in_array($type, self::CONTENT_TYPES) || ($type == 'pt:CacheFile')) {
-			$object_data = self::processObject($object);
+			$object_data = self::processObject($object, false);
 
 			if (!empty($data)) {
 				$object_data['raw-object'] = json_encode($data);
@@ -1849,9 +1847,9 @@ class Receiver
 	 * @return array|bool Object data or FALSE if $object does not contain @id element
 	 * @throws \Exception
 	 */
-	private static function processObject(array $object)
+	private static function processObject(array $object, bool $c2s)
 	{
-		if (!JsonLD::fetchElement($object, '@id')) {
+		if (!$c2s && !JsonLD::fetchElement($object, '@id')) {
 			return false;
 		}
 
@@ -1983,21 +1981,25 @@ class Receiver
 			$object_data['question'] = self::processQuestion($object);
 		}
 
-		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true, false);
-		$receivers = $reception_types = [];
-		foreach ($receiverdata as $key => $data) {
-			$receivers[$key] = $data['uid'];
-			$reception_types[$data['uid']] = $data['type'] ?? 0;
+		if ($c2s) {
+			$object_data['target']   = self::getTargets($object, $object_data['actor'] ?? '');
+			$object_data['receiver'] = [];
+		} else {
+			$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true, false);
+			$receivers = $reception_types = [];
+			foreach ($receiverdata as $key => $data) {
+				$receivers[$key] = $data['uid'];
+				$reception_types[$data['uid']] = $data['type'] ?? 0;
+			}
+
+			$object_data['receiver_urls']  = self::getReceiverURL($object);
+			$object_data['receiver']       = $receivers;
+			$object_data['reception_type'] = $reception_types;
+
+			$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
+			unset($object_data['receiver'][-1]);
+			unset($object_data['reception_type'][-1]);
 		}
-
-		$object_data['receiver_urls']  = self::getReceiverURL($object);
-		$object_data['receiver']       = $receivers;
-		$object_data['reception_type'] = $reception_types;
-
-		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
-		unset($object_data['receiver'][-1]);
-		unset($object_data['reception_type'][-1]);
-
 		return $object_data;
 	}
 
@@ -2024,5 +2026,138 @@ class Receiver
 	private static function hasArrived(string $id): bool
 	{
 		return DBA::exists('arrived-activity', ['object-id' => $id]);
+	}
+
+	public static function processC2SActivity(array $activity, int $uid, array $application)
+	{
+		$ldactivity = JsonLD::compact($activity);
+		if (empty($ldactivity)) {
+			Logger::notice('Invalid activity', ['activity' => $activity, 'uid' => $uid]);
+			return;
+		}
+
+		$type = JsonLD::fetchElement($ldactivity, '@type');
+		if (!$type) {
+			Logger::notice('Empty type', ['activity' => $ldactivity, 'uid' => $uid]);
+			return;
+		}
+
+		$object_id   = JsonLD::fetchElement($ldactivity, 'as:object', '@id') ?? '';
+		$object_type = self::fetchObjectType($ldactivity, $object_id, $uid);
+		if (!$object_type && !$object_id) {
+			Logger::notice('Empty object type or id', ['activity' => $ldactivity, 'uid' => $uid]);
+			return;
+		}
+
+		Logger::debug('Processing activity', ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'activity' => $ldactivity]);
+		self::routeC2SActivities($type, $object_type, $object_id, $uid, $application, $ldactivity);
+		throw new \Friendica\Network\HTTPException\AcceptedException();
+	}
+
+	private static function getTargets(array $object, string $actor): array
+	{
+		$profile   = APContact::getByURL($actor);
+		$followers = $profile['followers'];
+
+		$targets = [];
+
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
+			switch ($element) {
+				case 'as:to':
+					$type = self::TARGET_TO;
+					break;
+				case 'as:cc':
+					$type = self::TARGET_CC;
+					break;
+				case 'as:bto':
+					$type = self::TARGET_BTO;
+					break;
+				case 'as:bcc':
+					$type = self::TARGET_BCC;
+					break;
+			}
+			$receiver_list = JsonLD::fetchElementArray($object, $element, '@id');
+			if (empty($receiver_list)) {
+				continue;
+			}
+
+			foreach ($receiver_list as $receiver) {
+				if ($receiver == self::PUBLIC_COLLECTION) {
+					$targets[self::TARGET_GLOBAL] = ($element == 'as:to');
+					continue;
+				}
+
+				if ($receiver == $followers) {
+					$targets[self::TARGET_FOLLOWER] = true;
+					continue;
+				}
+				$targets[$type][] = Contact::getIdForURL($receiver);
+			}
+		}
+		return $targets;
+	}
+
+	private static function routeC2SActivities(string $type, string $object_type, string $object_id, int $uid, array $application, array $ldactivity)
+	{
+		switch ($type) {
+			case 'as:Create':
+				if (in_array($object_type, self::CONTENT_TYPES)) {
+					self::createContent($uid, $application, $ldactivity);
+				}
+				break;
+			case 'as:Update':
+				if (in_array($object_type, self::CONTENT_TYPES) && !empty($object_id)) {
+					self::updateContent($uid, $object_id, $application, $ldactivity);
+				}
+				break;
+			case 'as:Follow':
+				if (in_array($object_type, self::ACCOUNT_TYPES) && !empty($object_id)) {
+					self::followAccount($uid, $object_id, $ldactivity);
+				}
+				break;
+		}
+	}
+
+	private static function createContent(int $uid, array $application, array $ldactivity)
+	{
+		$object_data = self::processObject($ldactivity['as:object'], true);
+		$item = Processor::processC2SContent($object_data, $application, $uid);
+		Logger::debug('Got data', ['item' => $item, 'object' => $object_data]);
+
+		$id = Item::insert($item, true);
+		if (!empty($id)) {
+			$item = Post::selectFirst(['uri-id'], ['id' => $id]);
+			if (!empty($item['uri-id'])) {
+				System::jsonExit(Transmitter::createActivityFromItem($id));
+			}
+		}
+	}
+
+	private static function updateContent(int $uid, string $object_id, array $application, array $ldactivity)
+	{
+		$id = Item::fetchByLink($object_id, $uid);
+		$original_post = Post::selectFirst(['uri-id'], ['uid' => $uid, 'origin' => true, 'id' => $id]);
+		if (empty($original_post)) {
+			Logger::debug('Item not found or does not belong to the user', ['id' => $id, 'uid' => $uid, 'object_id' => $object_id, 'activity' => $ldactivity]);
+			return;
+		}
+
+		$object_data = self::processObject($ldactivity['as:object'], true);
+		$item = Processor::processC2SContent($object_data, $application, $uid);
+		if (empty($item['title']) && empty($item['body'])) {
+			Logger::debug('Empty body and title', ['id' => $id, 'uid' => $uid, 'object_id' => $object_id, 'activity' => $ldactivity]);
+			return;
+		}
+		$post = ['title' => $item['title'], 'body' => $item['body']];
+		Logger::debug('Got data', ['id' => $id, 'uid' => $uid, 'item' => $post]);
+		Item::update($post, ['id' => $id]);
+		Item::updateDisplayCache($original_post['uri-id']);
+
+		System::jsonExit(Transmitter::createActivityFromItem($id));
+	}
+
+	private static function followAccount($uid, $object_id, $ldactivity)
+	{
+
 	}
 }

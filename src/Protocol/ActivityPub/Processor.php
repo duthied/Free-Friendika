@@ -35,6 +35,7 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
+use Friendica\Model\Group;
 use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
@@ -2142,5 +2143,62 @@ class Processor
 		});
 
 		return $body;
+	}
+
+	public static function processC2SContent(array $object_data, array $application, int $uid): array
+	{
+		$owner = User::getOwnerDataById($uid);
+
+		$item = [];
+
+		$item['network']    = Protocol::DFRN;
+		$item['uid']        = $uid;
+		$item['verb']       = Activity::POST;
+		$item['contact-id'] = $owner['id'];
+		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
+		$item['title']      = $object_data['name'];
+		$item['body']       = Markdown::toBBCode($object_data['content']);
+		$item['app']        = $application['name'] ?? 'API';
+
+		if (!empty($object_data['target'][Receiver::TARGET_GLOBAL])) {
+			$item['allow_cid'] = '';
+			$item['allow_gid'] = '';
+			$item['deny_cid']  = '';
+			$item['deny_gid']  = '';
+			$item['private']   = Item::PUBLIC;
+		} elseif (isset($object_data['target'][Receiver::TARGET_GLOBAL])) {
+			$item['allow_cid'] = '';
+			$item['allow_gid'] = '';
+			$item['deny_cid']  = '';
+			$item['deny_gid']  = '';
+			$item['private']   = Item::UNLISTED;
+		} elseif (!empty($object_data['target'][Receiver::TARGET_FOLLOWER])) {
+			$item['allow_cid'] = '';
+			$item['allow_gid'] = '<' . Group::FOLLOWERS . '>';
+			$item['deny_cid']  = '';
+			$item['deny_gid']  = '';
+			$item['private'] = Item::PRIVATE;
+		} else {
+			// @todo Set permissions via the $object_data['target'] array
+			$item['allow_cid'] = '<' . $owner['id'] . '>';
+			$item['allow_gid'] = '';
+			$item['deny_cid']  = '';
+			$item['deny_gid']  = '';
+			$item['private'] = Item::PRIVATE;
+		}
+
+		if (!empty($object_data['summary'])) {
+			$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $object_data['summary'] . "[/abstract]\n" . $item['body'];
+		}
+
+		if ($object_data['reply-to-id']) {
+			$item['gravity'] = Item::GRAVITY_COMMENT;
+		} else {
+			$item['gravity'] = Item::GRAVITY_PARENT;
+		}
+
+		$item = DI::contentItem()->expandTags($item);
+
+		return $item;
 	}
 }
