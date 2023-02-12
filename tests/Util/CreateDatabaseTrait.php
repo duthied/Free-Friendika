@@ -37,8 +37,15 @@ trait CreateDatabaseTrait
 	use DatabaseTestTrait;
 	use VFSTrait;
 
+	/** @var Database|null */
+	protected $dba = null;
+
 	public function getDbInstance(): Database
 	{
+		if (isset($this->dba)) {
+			return $this->dba;
+		}
+
 		$configFileManager = new ConfigFileManager($this->root->url(), $this->root->url() . '/config/', $this->root->url() . '/static/');
 		$config            = new ReadOnlyFileConfig(new Cache([
 			'database' => [

@@ -41,12 +41,12 @@ class ConfigTest extends ApiTest
 			->run($this->httpExceptionMock);
 		$json = $this->toJson($response);
 
-		self::assertEquals('localhost', $json->site->server);
-		self::assertEquals('frio', $json->site->theme);
+		self::assertEquals(DI::config()->get('config', 'hostname'), $json->site->server);
+		self::assertEquals(DI::config()->get('system', 'theme'), $json->site->theme);
 		self::assertEquals(DI::baseUrl() . '/images/friendica-64.png', $json->site->logo);
 		self::assertTrue($json->site->fancy);
-		self::assertEquals('en', $json->site->language);
-		self::assertEquals('UTC', $json->site->timezone);
+		self::assertEquals(DI::config()->get('system', 'language'), $json->site->language);
+		self::assertEquals(DI::config()->get('system', 'default_timezone'), $json->site->timezone);
 		self::assertEquals(200000, $json->site->textlimit);
 		self::assertFalse($json->site->private);
 		self::assertEquals('always', $json->site->ssl);
