@@ -60,7 +60,7 @@ class ConfigTransaction implements ISetConfigValuesTransactionally
 	/** {@inheritDoc} */
 	public function delete(string $cat, string $key): ISetConfigValuesTransactionally
 	{
-		$this->delCache->delete($cat, $key);
+		$this->delCache->set($cat, $key, true, Cache::SOURCE_DATA);
 		$this->changedConfig = true;
 
 		return $this;
