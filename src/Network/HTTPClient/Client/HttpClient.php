@@ -76,7 +76,7 @@ class HttpClient implements ICanSendHttpRequests
 		if(!filter_var($host, FILTER_VALIDATE_IP) && !@dns_get_record($host . '.', DNS_A + DNS_AAAA) && !gethostbyname($host)) {
 			$this->logger->debug('URL cannot be resolved.', ['url' => $url, 'callstack' => System::callstack(20)]);
 			$this->profiler->stopRecording();
-			return CurlResult::createErrorCurl($url);
+			return CurlResult::createErrorCurl($this->logger, $url);
 		}
 
 		if (Network::isLocalLink($url)) {
@@ -86,7 +86,7 @@ class HttpClient implements ICanSendHttpRequests
 		if (strlen($url) > 1000) {
 			$this->logger->debug('URL is longer than 1000 characters.', ['url' => $url, 'callstack' => System::callstack(20)]);
 			$this->profiler->stopRecording();
-			return CurlResult::createErrorCurl(substr($url, 0, 200));
+			return CurlResult::createErrorCurl($this->logger, substr($url, 0, 200));
 		}
 
 		$parts2     = [];
@@ -105,7 +105,7 @@ class HttpClient implements ICanSendHttpRequests
 		if (Network::isUrlBlocked($url)) {
 			$this->logger->info('Domain is blocked.', ['url' => $url]);
 			$this->profiler->stopRecording();
-			return CurlResult::createErrorCurl($url);
+			return CurlResult::createErrorCurl($this->logger, $url);
 		}
 
 		$conf = [];
@@ -176,11 +176,11 @@ class HttpClient implements ICanSendHttpRequests
 				$exception->hasResponse()) {
 				return new GuzzleResponse($exception->getResponse(), $url, $exception->getCode(), '');
 			} else {
-				return new CurlResult($url, '', ['http_code' => 500], $exception->getCode(), '');
+				return new CurlResult($this->logger, $url, '', ['http_code' => 500], $exception->getCode(), '');
 			}
 		} catch (InvalidArgumentException | \InvalidArgumentException $argumentException) {
 			$this->logger->info('Invalid Argument for HTTP call.', ['url' => $url, 'method' => $method, 'exception' => $argumentException]);
-			return new CurlResult($url, '', ['http_code' => 500], $argumentException->getCode(), $argumentException->getMessage());
+			return new CurlResult($this->logger, $url, '', ['http_code' => 500], $argumentException->getCode(), $argumentException->getMessage());
 		} finally {
 			unlink($conf['sink']);
 			$this->logger->debug('Request stop.', ['url' => $url, 'method' => $method]);
