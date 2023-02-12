@@ -28,19 +28,6 @@ namespace Friendica\Core\Config\Util;
  */
 class SerializeUtil
 {
-	public static function maybeSerialize($value): string
-	{
-		if (is_array($value) || is_object($value)) {
-			return serialize($value);
-		}
-
-		if (static::isSerialized($value, false)) {
-			return serialize($value);
-		}
-
-		return $value;
-	}
-
 	public static function maybeUnserialize($value)
 	{
 		if (static::isSerialized($value)) {
