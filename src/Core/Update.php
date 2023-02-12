@@ -132,7 +132,7 @@ class Update
 		$build = DI::config()->get('system', 'build');
 
 		if (empty($build)) {
-			// legacy option - check if there's something in the Config table
+			// legacy option - check if the Config table exists
 			if (DBStructure::existsTable('config')) {
 				$dbConfig = DBA::selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'build']);
 				if (!empty($dbConfig)) {
@@ -141,7 +141,10 @@ class Update
 			}
 
 			if (empty($build) || ($build > DB_UPDATE_VERSION)) {
-				DI::config()->set('system', 'build', DB_UPDATE_VERSION - 1);
+				// legacy option - check if the Config table exists
+				if (DBStructure::existsTable('config')) {
+					DI::config()->set('system', 'build', DB_UPDATE_VERSION - 1);
+				}
 				$build = DB_UPDATE_VERSION - 1;
 			}
 		}
