@@ -54,7 +54,7 @@ trait VFSTrait
 		$this->setConfigFile('static' . DIRECTORY_SEPARATOR . 'defaults.config.php', true);
 		$this->setConfigFile('static' . DIRECTORY_SEPARATOR . 'settings.config.php', true);
 		$this->setConfigFile(
-			'mods' . DIRECTORY_SEPARATOR . 'local.config.vagrant.php',
+			'mods' . DIRECTORY_SEPARATOR . 'local.config.ci.php',
 			false, 'local.config.php'
 		);
 	}
