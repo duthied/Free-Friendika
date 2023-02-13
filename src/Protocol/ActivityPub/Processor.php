@@ -2145,6 +2145,14 @@ class Processor
 		return $body;
 	}
 
+	/**
+	 * Create an item array from client to server object data
+	 *
+	 * @param array $object_data
+	 * @param array $application
+	 * @param integer $uid
+	 * @return array
+	 */
 	public static function processC2SContent(array $object_data, array $application, int $uid): array
 	{
 		$owner = User::getOwnerDataById($uid);
