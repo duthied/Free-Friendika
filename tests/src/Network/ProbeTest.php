@@ -23,10 +23,10 @@ namespace Friendica\Test\src\Network;
 
 use Friendica\Network\Probe;
 use Friendica\Test\DiceHttpMockHandlerTrait;
-use Friendica\Test\FixtureTest;
+use Friendica\Test\MockedTest;
 use GuzzleHttp\Middleware;
 
-class ProbeTest extends FixtureTest
+class ProbeTest extends MockedTest
 {
 	use DiceHttpMockHandlerTrait;
 
@@ -35,6 +35,13 @@ class ProbeTest extends FixtureTest
 		parent::setUp();
 
 		$this->setupHttpMockHandler();
+	}
+
+	protected function tearDown(): void
+	{
+		$this->tearDownHandler();
+
+		parent::tearDown();
 	}
 
 	const TEMPLATENOBASE = '
