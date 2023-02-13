@@ -35,22 +35,6 @@ return [
 	'workerqueue',
 	'mail',
 	'post-delivery-data',
-	'gserver' => [
-		[
-			'id'                    => 42,
-			'url'                   => 'https://friendica.test',
-			'info'                  => 'test_node',
-			'active-week-users'     => 1,
-			'active-month-users'    => 1,
-			'active-halfyear-users' => 1,
-			'local-posts'           => 42,
-			'local-comments'        => 42,
-			'protocol'              => 'apub',
-			'detection-method'      => 'none',
-			'blocked'               => 0,
-			'failed'                => 0,
-		],
-	],
 	// Base test config to avoid notice messages
 	'user' => [
 		[
