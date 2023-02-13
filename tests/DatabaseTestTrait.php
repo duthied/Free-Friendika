@@ -71,7 +71,11 @@ trait DatabaseTestTrait
 			}
 
 			foreach ($rows as $row) {
-				$dba->insert($tableName, $row, true);
+				if (is_array($row)) {
+					$dba->insert($tableName, $row, true);
+				} else {
+					throw new \Exception('row isn\'t an array');
+				}
 			}
 		}
 	}

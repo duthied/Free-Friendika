@@ -21,9 +21,9 @@
 
 namespace Friendica\Test\src\Content;
 
-use Friendica\Test\MockedTest;
+use Friendica\Test\DatabaseTest;
 
-class PageInfoTest extends MockedTest
+class PageInfoTest extends DatabaseTest
 {
 	public function dataGetRelevantUrlFromBody()
 	{

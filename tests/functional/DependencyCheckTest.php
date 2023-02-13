@@ -21,7 +21,6 @@
 
 namespace Friendica\Test\functional;
 
-use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Capability\ICanCacheInMemory;
@@ -29,36 +28,16 @@ use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Lock\Capability\ICanLock;
 use Friendica\Database\Database;
-use Friendica\Test\Util\VFSTrait;
+use Friendica\Test\FixtureTest;
 use Friendica\Util\BasePath;
 use Friendica\Core\Config\Util\ConfigFileManager;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class DependencyCheckTest extends TestCase
+class DependencyCheckTest extends FixtureTest
 {
-	use VFSTrait;
-
-	/**
-	 * @var Dice
-	 */
-	private $dice;
-
 	protected function setUp() : void
 	{
 		parent::setUp();
-
-		$this->setUpVfsDir();
-
-		$this->dice = (new Dice())
-			->addRules(include __DIR__ . '/../../static/dependencies.config.php')
-			->addRule(BasePath::class, [
-				'constructParams' => [
-					$this->root->url(),
-					[],
-				],
-			])
-			->addRule(LoggerInterface::class, ['constructParams' => ['test']]);
 
 		/** @var IManageConfigValues $config */
 		$config = $this->dice->create(IManageConfigValues::class);
@@ -75,6 +54,9 @@ class DependencyCheckTest extends TestCase
 
 		self::assertInstanceOf(BasePath::class, $basePath);
 		self::assertEquals($this->root->url(), $basePath->getPath());
+
+		/** @var Database $dba */
+		$dba = $this->dice->create(Database::class);
 	}
 
 	/**
