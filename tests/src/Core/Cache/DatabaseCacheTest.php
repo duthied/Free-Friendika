@@ -22,19 +22,14 @@
 namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache;
-use Friendica\Core\Config\Factory\Config;
-use Friendica\Database\Definition\DbaDefinition;
-use Friendica\Database\Definition\ViewDefinition;
 use Friendica\Test\DatabaseTestTrait;
-use Friendica\Test\Util\Database\StaticDatabase;
+use Friendica\Test\Util\CreateDatabaseTrait;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\Profiler;
-use Mockery;
-use Psr\Log\NullLogger;
 
 class DatabaseCacheTest extends CacheTest
 {
 	use DatabaseTestTrait;
+	use CreateDatabaseTrait;
 	use VFSTrait;
 
 	protected function setUp(): void
@@ -48,23 +43,7 @@ class DatabaseCacheTest extends CacheTest
 
 	protected function getInstance()
 	{
-		$profiler = Mockery::mock(Profiler::class);
-		$profiler->shouldReceive('startRecording');
-		$profiler->shouldReceive('stopRecording');
-		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
-
-		// load real config to avoid mocking every config-entry which is related to the Database class
-		$configFactory     = new Config();
-		$configFileManager = (new Config())->createConfigFileManager($this->root->url(), []);
-		$configCache       = $configFactory->createCache($configFileManager);
-		$config            = new \Friendica\Core\Config\Model\Config($configFileManager, $configCache);
-
-		$dbaDefinition  = (new DbaDefinition($configCache->get('system', 'basepath')))->load();
-		$viewDefinition = (new ViewDefinition($configCache->get('system', 'basepath')))->load();
-
-		$dba = new StaticDatabase($config, $profiler, $dbaDefinition, $viewDefinition, new NullLogger());
-
-		$this->cache = new Cache\Type\DatabaseCache('database', $dba);
+		$this->cache = new Cache\Type\DatabaseCache('database', $this->getDbInstance());
 		return $this->cache;
 	}
 

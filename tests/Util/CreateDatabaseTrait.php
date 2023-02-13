@@ -21,7 +21,7 @@
 
 namespace Friendica\Test\Util;
 
-use Friendica\Core\Config\Model\Config;
+use Friendica\Core\Config\Model\ReadOnlyFileConfig;
 use Friendica\Core\Config\Util\ConfigFileManager;
 use Friendica\Core\Config\ValueObject\Cache;
 use Friendica\Database\Database;
@@ -37,16 +37,23 @@ trait CreateDatabaseTrait
 	use DatabaseTestTrait;
 	use VFSTrait;
 
+	/** @var Database|null */
+	protected $dba = null;
+
 	public function getDbInstance(): Database
 	{
+		if (isset($this->dba)) {
+			return $this->dba;
+		}
+
 		$configFileManager = new ConfigFileManager($this->root->url(), $this->root->url() . '/config/', $this->root->url() . '/static/');
-		$config            = new Config($configFileManager, new Cache([
+		$config            = new ReadOnlyFileConfig(new Cache([
 			'database' => [
 				'disable_pdo' => true
 			],
 		]));
 
-		$database = new StaticDatabase($config, new Profiler($config), (new DbaDefinition($this->root->url()))->load(), (new ViewDefinition($this->root->url()))->load(), new NullLogger());
+		$database = new StaticDatabase($config, (new DbaDefinition($this->root->url()))->load(), (new ViewDefinition($this->root->url()))->load());
 		$database->setTestmode(true);
 
 		return $database;

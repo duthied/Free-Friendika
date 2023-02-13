@@ -37,9 +37,34 @@ abstract class DI
 	/** @var Dice */
 	private static $dice;
 
-	public static function init(Dice $dice)
+	/**
+	 * Initialize the singleton DI container with the Dice instance
+	 *
+	 * @param Dice $dice             The Dice instance
+	 * @param bool $disableDepByHand If true, the database dependencies aren't set, thus any occurrence of logging or
+	 *                               profiling in database methods would lead to an error. This flag is for testing only.
+	 *
+	 * @return void
+	 */
+	public static function init(Dice $dice, bool $disableDepByHand = false)
 	{
 		self::$dice = $dice;
+
+		if (!$disableDepByHand) {
+			self::setCompositeRootDependencyByHand();
+		}
+	}
+
+	/**
+	 * I HATE this method, but everything else needs refactoring at the database itself
+	 * Set the database dependencies manually, because of current, circular dependencies between the database and the config table
+	 *
+	 * @todo Instead of this madness, split the database in a core driver-dependent (mysql, mariadb, postgresql, ..) part without any other dependency unlike credentials and in the full-featured, driver-independent database class with all dependencies
+	 */
+	public static function setCompositeRootDependencyByHand()
+	{
+		$database = static::dba();
+		$database->setDependency(static::config(), static::profiler(), static::logger());
 	}
 
 	/**

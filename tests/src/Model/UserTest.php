@@ -47,7 +47,7 @@ class UserTest extends MockedTest
 		/** @var Dice|MockInterface $diceMock */
 		$diceMock = $diceMock->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
 		$diceMock->shouldReceive('create')->withArgs([Database::class])->andReturn($this->dbMock);
-		DI::init($diceMock);
+		DI::init($diceMock, true);
 
 		$this->parent = [
 			'uid'      => 1,

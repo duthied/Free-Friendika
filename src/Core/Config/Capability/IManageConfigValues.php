@@ -31,7 +31,7 @@ use Friendica\Core\Config\ValueObject\Cache;
 interface IManageConfigValues
 {
 	/**
-	 * Reloads all configuration values (from filesystem and environment variables)
+	 * Reloads all configuration values from the persistence layer
 	 *
 	 * All configuration values of the system are stored in the cache.
 	 *

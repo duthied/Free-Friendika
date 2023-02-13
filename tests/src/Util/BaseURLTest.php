@@ -23,15 +23,18 @@ namespace Friendica\Test\src\Util;
 
 use Friendica\App\BaseURL;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Config\Model\Config;
+use Friendica\Core\Config\Model\DatabaseConfig;
+use Friendica\Core\Config\Model\ReadOnlyFileConfig;
 use Friendica\Core\Config\Util\ConfigFileManager;
 use Friendica\Core\Config\ValueObject\Cache;
-use Friendica\Test\MockedTest;
+use Friendica\Test\DatabaseTest;
+use Friendica\Test\Util\CreateDatabaseTrait;
 use Friendica\Test\Util\VFSTrait;
 
-class BaseURLTest extends MockedTest
+class BaseURLTest extends DatabaseTest
 {
 	use VFSTrait;
+	use CreateDatabaseTrait;
 
 	protected function setUp(): void
 	{
@@ -302,8 +305,7 @@ class BaseURLTest extends MockedTest
 	 */
 	public function testSave($input, $save, $url)
 	{
-		$configFileManager = new ConfigFileManager($this->root->url(), $this->root->url() . '/config/', $this->root->url() . '/static/');
-		$config = new Config($configFileManager, new Cache([
+		$config = new DatabaseConfig($this->getDbInstance(), new Cache([
 			'config' => [
 				'hostname' => $input['hostname'] ?? null,
 			],
@@ -332,8 +334,7 @@ class BaseURLTest extends MockedTest
 	 */
 	public function testSaveByUrl($input, $save, $url)
 	{
-		$configFileManager = new ConfigFileManager($this->root->url(), $this->root->url() . '/config/', $this->root->url() . '/static/');
-		$config = new Config($configFileManager, new Cache([
+		$config = new DatabaseConfig($this->getDbInstance(), new Cache([
 			'config' => [
 				'hostname' => $input['hostname'] ?? null,
 			],
