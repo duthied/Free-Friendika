@@ -140,7 +140,7 @@ class ClientToServer
 	 * @param array $ldactivity
 	 * @return array
 	 */
-	private static function updateContent(int $uid, string $object_id, array $application, array $ldactivity):array
+	private static function updateContent(int $uid, string $object_id, array $application, array $ldactivity): array
 	{
 		$id            = Item::fetchByLink($object_id, $uid);
 		$original_post = Post::selectFirst(['uri-id'], ['uid' => $uid, 'origin' => true, 'id' => $id]);
@@ -325,7 +325,10 @@ class ClientToServer
 	 */
 	public static function getOutbox(array $owner, int $uid, int $page = null, int $max_id = null, string $requester = ''): array
 	{
-		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'private' => [Item::PUBLIC, Item::UNLISTED]];
+		$condition = [
+			'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
+			'private' => [Item::PUBLIC, Item::UNLISTED]
+		];
 
 		if (!empty($requester)) {
 			$requester_id = Contact::getIdForURL($requester, $owner['uid']);
