@@ -63,7 +63,6 @@ class Notifications extends BaseApi
 			'exclude_types' => [],    // Array of types to exclude (follow, favourite, reblog, mention, poll, follow_request)
 			'account_id'    => 0,     // Return only notifications received from this account
 			'with_muted'    => false, // Pleroma extension: return activities by muted (not by blocked!) users.
-			'count'         => 0,
 			'include_all'   => false  // Include dismissed and undismissed
 		], $request);
 
