@@ -19,19 +19,6 @@
  *
  */
 
-// Local configuration
-
-/* If automatic system installation fails:
- *
- * Copy this file to local.config.php
- *
- * Why local.config.php? Because it contains sensitive information which could
- * give somebody complete control of your database. Apache's default
- * configuration will interpret any .php file as a script and won't show the values
- *
- * Then set the following for your MySQL installation
- */
-
 return [
 	'database' => [
 		'hostname' => 'localhost',
