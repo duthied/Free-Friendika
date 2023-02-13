@@ -38,6 +38,13 @@ class HTTPClientTest extends MockedTest
 		$this->setupHttpMockHandler();
 	}
 
+	protected function tearDown(): void
+	{
+		$this->tearDownHandler();
+
+		parent::tearDown();
+	}
+
 	/**
 	 * Test for issue https://github.com/friendica/friendica/issues/10473#issuecomment-907749093
 	 */

@@ -39,66 +39,21 @@ use Friendica\Test\Util\VFSTrait;
 /**
  * Parent class for test cases requiring fixtures
  */
-abstract class FixtureTest extends DatabaseTest
+abstract class FixtureTest extends MockedTest
 {
-	use VFSTrait;
+	use FixtureTestTrait;
 
-	/** @var Dice */
-	protected $dice;
-
-	/**
-	 * Create variables used by tests.
-	 */
 	protected function setUp(): void
 	{
-		$this->setUpVfsDir();
-
 		parent::setUp();
 
-		$server                   = $_SERVER;
-		$server['REQUEST_METHOD'] = Router::GET;
-
-		$this->dice = (new Dice())
-			->addRules(include __DIR__ . '/../static/dependencies.config.php')
-			->addRule(ConfigFileManager::class, [
-				'instanceOf' => Config::class,
-				'call'       => [['createConfigFileManager', [$this->root->url(), $server,],
-								  Dice::CHAIN_CALL]]])
-			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
-			->addRule(IHandleSessions::class, ['instanceOf' => Memory::class, 'shared' => true, 'call' => null])
-			->addRule(Arguments::class, [
-				'instanceOf' => Arguments::class,
-				'call'       => [
-					['determine', [$server, $_GET], Dice::CHAIN_CALL],
-				],
-			]);
-		DI::init($this->dice);
-
-		$config = $this->dice->create(IManageConfigValues::class);
-		$config->set('database', 'disable_pdo', true);
-
-		/** @var Database $dba */
-		$dba = $this->dice->create(Database::class);
-
-		$dba->setTestmode(true);
-
-		// Load the API dataset for the whole API
-		$this->loadFixture(__DIR__ . '/datasets/api.fixture.php', $dba);
+		$this->setUpFixtures();
 	}
 
-	protected function useHttpMethod(string $method = Router::GET)
+	protected function tearDown(): void
 	{
-		$server                   = $_SERVER;
-		$server['REQUEST_METHOD'] = $method;
+		$this->tearDownFixtures();
 
-		$this->dice = $this->dice
-			->addRule(Arguments::class, [
-				'instanceOf' => Arguments::class,
-				'call'       => [
-					['determine', [$server, $_GET], Dice::CHAIN_CALL],
-				],
-			]);
-
-		DI::init($this->dice);
+		parent::tearDown();
 	}
 }

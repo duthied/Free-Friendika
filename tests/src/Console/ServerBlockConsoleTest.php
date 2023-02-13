@@ -21,15 +21,15 @@
 
 namespace Friendica\Test\src\Console;
 
-use Dice\Dice;
 use Friendica\Console\ServerBlock;
-use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\DI;
 use Friendica\Moderation\DomainPatternBlocklist;
+use Friendica\Test\FixtureTestTrait;
 use Mockery;
 
 class ServerBlockConsoleTest extends ConsoleTest
 {
+	use FixtureTestTrait;
+
 	protected $defaultBlockList = [
 		[
 			'domain' => 'social.nobodyhasthe.biz',
@@ -49,7 +49,16 @@ class ServerBlockConsoleTest extends ConsoleTest
 	{
 		parent::setUp();
 
+		$this->setUpFixtures();
+
 		$this->blocklistMock = Mockery::mock(DomainPatternBlocklist::class);
+	}
+
+	protected function tearDown(): void
+	{
+		$this->tearDownFixtures();
+
+		parent::tearDown();
 	}
 
 	/**
@@ -80,11 +89,6 @@ CONS;
 	 */
 	public function testAddBlockedServer()
 	{
-		$dice = new Dice();
-		$dice = $dice->addRules(include  __DIR__ . '/../../../static/dependencies.config.php');
-
-		DI::init($dice, true);
-
 		$this->blocklistMock
 			->shouldReceive('addPattern')
 			->with('testme.now', 'I like it!')
@@ -105,11 +109,6 @@ CONS;
 	 */
 	public function testUpdateBlockedServer()
 	{
-		$dice = new Dice();
-		$dice = $dice->addRules(include  __DIR__ . '/../../../static/dependencies.config.php');
-
-		DI::init($dice, true);
-
 		$this->blocklistMock
 			->shouldReceive('addPattern')
 			->with('pod.ordoevangelistarum.com', 'Other reason')
@@ -130,11 +129,6 @@ CONS;
 	 */
 	public function testRemoveBlockedServer()
 	{
-		$dice = new Dice();
-		$dice = $dice->addRules(include  __DIR__ . '/../../../static/dependencies.config.php');
-
-		DI::init($dice, true);
-
 		$this->blocklistMock
 			->shouldReceive('removePattern')
 			->with('pod.ordoevangelistarum.com')

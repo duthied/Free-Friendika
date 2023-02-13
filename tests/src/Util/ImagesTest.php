@@ -40,6 +40,13 @@ class ImagesTest extends MockedTest
 		$this->setupHttpMockHandler();
 	}
 
+	protected function tearDown(): void
+	{
+		$this->tearDownFixtures();
+
+		parent::tearDown();
+	}
+
 	public function dataImages()
 	{
 		return [
