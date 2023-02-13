@@ -255,7 +255,7 @@ class Receiver
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchObjectType(array $activity, string $object_id, int $uid = 0)
+	public static function fetchObjectType(array $activity, string $object_id, int $uid = 0)
 	{
 		if (!empty($activity['as:object'])) {
 			$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
@@ -1874,30 +1874,13 @@ class Receiver
 	}
 
 	/**
-	 * Fetches data from the object part of an client to server activity
-	 *
-	 * @param array $object
-	 *
-	 * @return array Object data
-	 */
-	private static function processC2SObject(array $object): array
-	{
-		$object_data = self::getObjectDataFromActivity($object);
-
-		$object_data['target']   = self::getTargets($object, $object_data['actor'] ?? '');
-		$object_data['receiver'] = [];
-
-		return $object_data;
-	}
-
-	/**
 	 * Create an object data array from a given activity
 	 *
 	 * @param array $object
 	 *
 	 * @return array Object data
 	 */
-	private static function getObjectDataFromActivity(array $object): array
+	public static function getObjectDataFromActivity(array $object): array
 	{
 		$object_data = [];
 		$object_data['object_type'] = JsonLD::fetchElement($object, '@type');
@@ -2053,191 +2036,5 @@ class Receiver
 	private static function hasArrived(string $id): bool
 	{
 		return DBA::exists('arrived-activity', ['object-id' => $id]);
-	}
-
-	/**
-	 * Process client to server activities
-	 *
-	 * @param array $activity
-	 * @param integer $uid
-	 * @param array $application
-	 * @return array
-	 */
-	public static function processC2SActivity(array $activity, int $uid, array $application): array
-	{
-		$ldactivity = JsonLD::compact($activity);
-		if (empty($ldactivity)) {
-			Logger::notice('Invalid activity', ['activity' => $activity, 'uid' => $uid]);
-			return [];
-		}
-
-		$type = JsonLD::fetchElement($ldactivity, '@type');
-		if (!$type) {
-			Logger::notice('Empty type', ['activity' => $ldactivity, 'uid' => $uid]);
-			return [];
-		}
-
-		$object_id   = JsonLD::fetchElement($ldactivity, 'as:object', '@id') ?? '';
-		$object_type = self::fetchObjectType($ldactivity, $object_id, $uid);
-		if (!$object_type && !$object_id) {
-			Logger::notice('Empty object type or id', ['activity' => $ldactivity, 'uid' => $uid]);
-			return [];
-		}
-
-		Logger::debug('Processing activity', ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'activity' => $ldactivity]);
-		return self::routeC2SActivities($type, $object_type, $object_id, $uid, $application, $ldactivity);
-	}
-
-	/**
-	 * Accumulate the targets and visibility of this post
-	 *
-	 * @param array $object
-	 * @param string $actor
-	 * @return array
-	 */
-	private static function getTargets(array $object, string $actor): array
-	{
-		$profile   = APContact::getByURL($actor);
-		$followers = $profile['followers'];
-
-		$targets = [];
-
-		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
-			switch ($element) {
-				case 'as:to':
-					$type = self::TARGET_TO;
-					break;
-				case 'as:cc':
-					$type = self::TARGET_CC;
-					break;
-				case 'as:bto':
-					$type = self::TARGET_BTO;
-					break;
-				case 'as:bcc':
-					$type = self::TARGET_BCC;
-					break;
-			}
-			$receiver_list = JsonLD::fetchElementArray($object, $element, '@id');
-			if (empty($receiver_list)) {
-				continue;
-			}
-
-			foreach ($receiver_list as $receiver) {
-				if ($receiver == self::PUBLIC_COLLECTION) {
-					$targets[self::TARGET_GLOBAL] = ($element == 'as:to');
-					continue;
-				}
-
-				if ($receiver == $followers) {
-					$targets[self::TARGET_FOLLOWER] = true;
-					continue;
-				}
-				$targets[$type][] = Contact::getIdForURL($receiver);
-			}
-		}
-		return $targets;
-	}
-
-	/**
-	 * Route client to server activities
-	 *
-	 * @param string $type
-	 * @param string $object_type
-	 * @param string $object_id
-	 * @param integer $uid
-	 * @param array $application
-	 * @param array $ldactivity
-	 * @return array
-	 */
-	private static function routeC2SActivities(string $type, string $object_type, string $object_id, int $uid, array $application, array $ldactivity): array
-	{
-		switch ($type) {
-			case 'as:Create':
-				if (in_array($object_type, self::CONTENT_TYPES)) {
-					return self::createContent($uid, $application, $ldactivity);
-				}
-				break;
-			case 'as:Update':
-				if (in_array($object_type, self::CONTENT_TYPES) && !empty($object_id)) {
-					return self::updateContent($uid, $object_id, $application, $ldactivity);
-				}
-				break;
-			case 'as:Follow':
-				if (in_array($object_type, self::ACCOUNT_TYPES) && !empty($object_id)) {
-					return self::followAccount($uid, $object_id, $ldactivity);
-				}
-				break;
-		}
-		return [];
-	}
-
-	/**
-	 * Create a new post or comment
-	 *
-	 * @param integer $uid
-	 * @param array $application
-	 * @param array $ldactivity
-	 * @return array
-	 */
-	private static function createContent(int $uid, array $application, array $ldactivity): array
-	{
-		$object_data = self::processC2SObject($ldactivity['as:object']);
-		$item = Processor::processC2SContent($object_data, $application, $uid);
-		Logger::debug('Got data', ['item' => $item, 'object' => $object_data]);
-
-		$id = Item::insert($item, true);
-		if (!empty($id)) {
-			$item = Post::selectFirst(['uri-id'], ['id' => $id]);
-			if (!empty($item['uri-id'])) {
-				return Transmitter::createActivityFromItem($id);
-			}
-		}
-		return [];
-	}
-
-	/**
-	 * Update an existing post or comment
-	 *
-	 * @param integer $uid
-	 * @param string $object_id
-	 * @param array $application
-	 * @param array $ldactivity
-	 * @return array
-	 */
-	private static function updateContent(int $uid, string $object_id, array $application, array $ldactivity):array
-	{
-		$id = Item::fetchByLink($object_id, $uid);
-		$original_post = Post::selectFirst(['uri-id'], ['uid' => $uid, 'origin' => true, 'id' => $id]);
-		if (empty($original_post)) {
-			Logger::debug('Item not found or does not belong to the user', ['id' => $id, 'uid' => $uid, 'object_id' => $object_id, 'activity' => $ldactivity]);
-			return [];
-		}
-
-		$object_data = self::processC2SObject($ldactivity['as:object']);
-		$item = Processor::processC2SContent($object_data, $application, $uid);
-		if (empty($item['title']) && empty($item['body'])) {
-			Logger::debug('Empty body and title', ['id' => $id, 'uid' => $uid, 'object_id' => $object_id, 'activity' => $ldactivity]);
-			return [];
-		}
-		$post = ['title' => $item['title'], 'body' => $item['body']];
-		Logger::debug('Got data', ['id' => $id, 'uid' => $uid, 'item' => $post]);
-		Item::update($post, ['id' => $id]);
-		Item::updateDisplayCache($original_post['uri-id']);
-
-		return Transmitter::createActivityFromItem($id);
-	}
-
-	/**
-	 * Follow a given account
-	 * @todo Check the expected return value
-	 *
-	 * @param integer $uid
-	 * @param string $object_id
-	 * @param array $ldactivity
-	 * @return array
-	 */
-	private static function followAccount(int $uid, string $object_id, array $ldactivity): array
-	{
-		return [];
 	}
 }
