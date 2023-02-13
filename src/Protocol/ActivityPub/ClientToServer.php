@@ -336,7 +336,7 @@ class ClientToServer
 				$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $owner['uid']);
 				if (!empty($permissionSets)) {
 					$condition = ['psid' => array_merge($permissionSets->column('id'),
-							[DI::permissionSet()->selectPublicForUser($owner['uid'])])];
+						[DI::permissionSet()->selectPublicForUser($owner['uid'])])];
 				}
 			}
 		}
@@ -361,15 +361,24 @@ class ClientToServer
 	{
 		$owner = User::getOwnerDataById($uid);
 
-		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN], 'uid' => $uid];
+		$condition = [
+			'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
+			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN],
+			'uid'     => $uid
+		];
 
 		return self::getCollection($condition, DI::baseUrl() . '/inbox/' . $owner['nickname'], $page, $max_id, $uid, null);
 	}
 
 	public static function getPublicInbox(int $uid, int $page = null, int $max_id = null)
 	{
-		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'private' => Item::PUBLIC,
-			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN], 'author-blocked' => false, 'author-hidden' => false];
+		$condition = [
+			'gravity'        => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
+			'private'        => Item::PUBLIC,
+			'network'        => [Protocol::ACTIVITYPUB, Protocol::DFRN],
+			'author-blocked' => false,
+			'author-hidden'  => false
+		];
 
 		return self::getCollection($condition, DI::baseUrl() . '/inbox', $page, $max_id, $uid, null);
 	}
