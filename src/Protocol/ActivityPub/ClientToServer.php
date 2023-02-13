@@ -116,7 +116,7 @@ class ClientToServer
 	private static function createContent(int $uid, array $application, array $ldactivity): array
 	{
 		$object_data = self::processObject($ldactivity['as:object']);
-		$item = ClientToServer::processContent($object_data, $application, $uid);
+		$item        = ClientToServer::processContent($object_data, $application, $uid);
 		Logger::debug('Got data', ['item' => $item, 'object' => $object_data]);
 
 		$id = Item::insert($item, true);
@@ -140,7 +140,7 @@ class ClientToServer
 	 */
 	private static function updateContent(int $uid, string $object_id, array $application, array $ldactivity):array
 	{
-		$id = Item::fetchByLink($object_id, $uid);
+		$id            = Item::fetchByLink($object_id, $uid);
 		$original_post = Post::selectFirst(['uri-id'], ['uid' => $uid, 'origin' => true, 'id' => $id]);
 		if (empty($original_post)) {
 			Logger::debug('Item not found or does not belong to the user', ['id' => $id, 'uid' => $uid, 'object_id' => $object_id, 'activity' => $ldactivity]);
@@ -148,7 +148,7 @@ class ClientToServer
 		}
 
 		$object_data = self::processObject($ldactivity['as:object']);
-		$item = ClientToServer::processContent($object_data, $application, $uid);
+		$item        = ClientToServer::processContent($object_data, $application, $uid);
 		if (empty($item['title']) && empty($item['body'])) {
 			Logger::debug('Empty body and title', ['id' => $id, 'uid' => $uid, 'object_id' => $object_id, 'activity' => $ldactivity]);
 			return [];
@@ -260,7 +260,7 @@ class ClientToServer
 		$item['uid']        = $uid;
 		$item['verb']       = Activity::POST;
 		$item['contact-id'] = $owner['id'];
-		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
+		$item['author-id']  = $item['owner-id']  = Contact::getPublicIdByUserId($uid);
 		$item['title']      = $object_data['name'];
 		$item['body']       = Markdown::toBBCode($object_data['content']);
 		$item['app']        = $application['name'] ?? 'API';
@@ -282,14 +282,14 @@ class ClientToServer
 			$item['allow_gid'] = '<' . Group::FOLLOWERS . '>';
 			$item['deny_cid']  = '';
 			$item['deny_gid']  = '';
-			$item['private'] = Item::PRIVATE;
+			$item['private']   = Item::PRIVATE;
 		} else {
 			// @todo Set permissions via the $object_data['target'] array
 			$item['allow_cid'] = '<' . $owner['id'] . '>';
 			$item['allow_gid'] = '';
 			$item['deny_cid']  = '';
 			$item['deny_gid']  = '';
-			$item['private'] = Item::PRIVATE;
+			$item['private']   = Item::PRIVATE;
 		}
 
 		if (!empty($object_data['summary'])) {
@@ -298,7 +298,7 @@ class ClientToServer
 
 		if ($object_data['reply-to-id']) {
 			$item['thr-parent'] = $object_data['reply-to-id'];
-			$item['gravity'] = Item::GRAVITY_COMMENT;
+			$item['gravity']    = Item::GRAVITY_COMMENT;
 		} else {
 			$item['gravity'] = Item::GRAVITY_PARENT;
 		}
