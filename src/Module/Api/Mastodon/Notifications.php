@@ -84,15 +84,21 @@ class Notifications extends BaseApi
 		}
 
 		if (in_array(Notification::TYPE_INTRODUCTION, $request['exclude_types'])) {
-			$condition = DBA::mergeConditions($condition,
+			$condition = DBA::mergeConditions(
+				$condition,
 				["(`vid` != ? OR `type` != ? OR NOT `actor-id` IN (SELECT `id` FROM `contact` WHERE `pending`))",
-				Verb::getID(Activity::FOLLOW), Post\UserNotification::TYPE_NONE]);
+				Verb::getID(Activity::FOLLOW),
+				Post\UserNotification::TYPE_NONE]
+			);
 		}
 
 		if (in_array(Notification::TYPE_FOLLOW, $request['exclude_types'])) {
-			$condition = DBA::mergeConditions($condition,
+			$condition = DBA::mergeConditions(
+				$condition,
 				["(`vid` != ? OR `type` != ? OR NOT `actor-id` IN (SELECT `id` FROM `contact` WHERE NOT `pending`))",
-				Verb::getID(Activity::FOLLOW), Post\UserNotification::TYPE_NONE]);
+				Verb::getID(Activity::FOLLOW),
+				Post\UserNotification::TYPE_NONE]
+			);
 		}
 
 		if (in_array(Notification::TYPE_LIKE, $request['exclude_types'])) {
@@ -134,7 +140,7 @@ class Notifications extends BaseApi
 			$request['limit']
 		);
 
-		foreach($Notifications as $Notification) {
+		foreach ($Notifications as $Notification) {
 			try {
 				$mstdnNotifications[] = DI::mstdnNotification()->createFromNotification($Notification, self::appSupportsQuotes());
 				self::setBoundaries($Notification->id);
