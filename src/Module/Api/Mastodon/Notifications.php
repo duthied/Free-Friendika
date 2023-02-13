@@ -68,9 +68,12 @@ class Notifications extends BaseApi
 
 		$params = ['order' => ['id' => true]];
 
-		$condition = ['uid' => $uid, 'dismissed' => false];
-		if ($request['include_all']) {
-			$condition = ['uid' => $uid];
+		$condition = ["`uid` = ? AND (NOT `type` IN (?, ?))", $uid,
+			Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION,
+			POST\UserNotification::TYPE_COMMENT_PARTICIPATION];
+
+		if (!$request['include_all']) {
+			$condition = DBA::mergeConditions($condition, ['dismissed' => false]);
 		}
 
 		if (!empty($request['account_id'])) {
