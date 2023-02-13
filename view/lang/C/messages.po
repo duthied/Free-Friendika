@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-04 19:53-0500\n"
+"POT-Creation-Date: 2023-02-12 12:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3188,7 +3188,7 @@ msgstr ""
 msgid "[no subject]"
 msgstr ""
 
-#: src/Model/Photo.php:1184 src/Module/Media/Photo/Upload.php:198
+#: src/Model/Photo.php:1189 src/Module/Media/Photo/Upload.php:198
 msgid "Wall Photos"
 msgstr ""
 
@@ -3296,7 +3296,7 @@ msgstr ""
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:221
+#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:217
 #: src/Module/Moderation/Summary.php:77
 msgid "Summary"
 msgstr ""
@@ -3623,7 +3623,7 @@ msgstr ""
 #: src/Module/Admin/Federation.php:207 src/Module/Admin/Logs/Settings.php:79
 #: src/Module/Admin/Logs/View.php:84 src/Module/Admin/Queue.php:72
 #: src/Module/Admin/Site.php:435 src/Module/Admin/Storage.php:138
-#: src/Module/Admin/Summary.php:220 src/Module/Admin/Themes/Details.php:90
+#: src/Module/Admin/Summary.php:216 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:77
 #: src/Module/Moderation/Users/Create.php:61
 #: src/Module/Moderation/Users/Pending.php:96
@@ -5091,15 +5091,7 @@ msgid ""
 "with the transition."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:118
-#, php-format
-msgid ""
-"Friendica's configuration store \"%s\" isn't writable. Until then database "
-"updates won't be applied automatically, admin settings and console "
-"configuration changes won't be saved."
-msgstr ""
-
-#: src/Module/Admin/Summary.php:124
+#: src/Module/Admin/Summary.php:120
 #, php-format
 msgid ""
 "<a href=\"%s\">%s</a> is not reachable on your system. This is a severe "
@@ -5107,50 +5099,50 @@ msgid ""
 "href=\"%s\">the installation page</a> for help."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:142
+#: src/Module/Admin/Summary.php:138
 #, php-format
 msgid "The logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:156
+#: src/Module/Admin/Summary.php:152
 #, php-format
 msgid "The debug logfile '%s' is not usable. No logging possible (error: '%s')"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:172
+#: src/Module/Admin/Summary.php:168
 #, php-format
 msgid ""
 "Friendica's system.basepath was updated from '%s' to '%s'. Please remove the "
 "system.basepath from your db to avoid differences."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:180
+#: src/Module/Admin/Summary.php:176
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is wrong and the config file '%s' "
 "isn't used."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:188
+#: src/Module/Admin/Summary.php:184
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is not equal to the config file "
 "'%s'. Please fix your configuration."
 msgstr ""
 
-#: src/Module/Admin/Summary.php:199
+#: src/Module/Admin/Summary.php:195
 msgid "Message queues"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:205
+#: src/Module/Admin/Summary.php:201
 msgid "Server Settings"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:223
+#: src/Module/Admin/Summary.php:219
 msgid "Version"
 msgstr ""
 
-#: src/Module/Admin/Summary.php:227
+#: src/Module/Admin/Summary.php:223
 msgid "Active addons"
 msgstr ""
 

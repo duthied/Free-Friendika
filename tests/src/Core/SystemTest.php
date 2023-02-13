@@ -36,7 +36,7 @@ class SystemTest extends TestCase
 		$dice = \Mockery::mock(Dice::class);
 		$dice->shouldReceive('create')->with(BaseURL::class)->andReturn($baseUrl);
 
-		DI::init($dice);
+		DI::init($dice, true);
 	}
 
 	private function assertGuid($guid, $length, $prefix = '')

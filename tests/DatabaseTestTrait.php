@@ -53,16 +53,14 @@ trait DatabaseTestTrait
 	/**
 	 * Loads a given DB fixture for this DB test
 	 *
-	 * @param string   $fixture The path to the fixture
+	 * @param string[][] $fixture The fixture array
 	 * @param Database $dba     The DB connection
 	 *
 	 * @throws \Exception
 	 */
-	protected function loadFixture(string $fixture, Database $dba)
+	protected function loadDirectFixture(array $fixture, Database $dba)
 	{
-		$data = include $fixture;
-
-		foreach ($data as $tableName => $rows) {
+		foreach ($fixture as $tableName => $rows) {
 			if (is_numeric($tableName)) {
 				continue;
 			}
@@ -76,5 +74,20 @@ trait DatabaseTestTrait
 				$dba->insert($tableName, $row, true);
 			}
 		}
+	}
+
+	/**
+	 * Loads a given DB fixture-file for this DB test
+	 *
+	 * @param string   $fixture The path to the fixture
+	 * @param Database $dba     The DB connection
+	 *
+	 * @throws \Exception
+	 */
+	protected function loadFixture(string $fixture, Database $dba)
+	{
+		$data = include $fixture;
+
+		$this->loadDirectFixture($data, $dba);
 	}
 }

@@ -75,19 +75,19 @@ class StorageManagerTest extends DatabaseTest
 		vfsStream::newDirectory(Type\FilesystemConfig::DEFAULT_BASE_FOLDER, 0777)->at($this->root);
 
 		$this->logger = new NullLogger();
+		$this->database = $this->getDbInstance();
 
 		$configFactory     = new Config();
 		$configFileManager = $configFactory->createConfigFileManager($this->root->url());
 		$configCache       = $configFactory->createCache($configFileManager);
 
-		$this->config = new \Friendica\Core\Config\Model\Config($configFileManager, $configCache);
+		$this->config = new \Friendica\Core\Config\Model\DatabaseConfig($this->database, $configCache);
 		$this->config->set('storage', 'name', 'Database');
 		$this->config->set('storage', 'filesystem_path', $this->root->getChild(Type\FilesystemConfig::DEFAULT_BASE_FOLDER)
 																	->url());
 
 		$this->l10n = \Mockery::mock(L10n::class);
 
-		$this->database = $this->getDbInstance();
 	}
 
 	protected function tearDown(): void

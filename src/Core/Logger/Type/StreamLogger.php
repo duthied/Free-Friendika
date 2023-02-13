@@ -92,7 +92,7 @@ class StreamLogger extends AbstractLogger implements IAmAStrategy
 		$this->fileSystem = $fileSystem;
 
 		$stream = $this->logfile ?? $config->get('system', 'logfile');
-		if ((file_exists($stream) && !is_writable($stream)) || is_writable(basename($stream))) {
+		if ((@file_exists($stream) && !@is_writable($stream)) && !@is_writable(basename($stream))) {
 			throw new LoggerArgumentException(sprintf('%s is not a valid logfile', $stream));
 		}
 

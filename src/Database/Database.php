@@ -36,6 +36,7 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * This class is for the low level database stuff that does driver specific things.
@@ -54,15 +55,15 @@ class Database
 	/**
 	 * @var IManageConfigValues
 	 */
-	protected $config;
+	protected $config = null;
 	/**
 	 * @var Profiler
 	 */
-	protected $profiler;
+	protected $profiler = null;
 	/**
 	 * @var LoggerInterface
 	 */
-	protected $logger;
+	protected $logger = null;
 	protected $server_info = '';
 	/** @var PDO|mysqli */
 	protected $connection;
@@ -80,16 +81,34 @@ class Database
 	/** @var ViewDefinition */
 	protected $viewDefinition;
 
-	public function __construct(IManageConfigValues $config, Profiler $profiler, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition, LoggerInterface $logger)
+	public function __construct(IManageConfigValues $config, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition)
 	{
 		// We are storing these values for being able to perform a reconnect
 		$this->config         = $config;
-		$this->profiler       = $profiler;
 		$this->dbaDefinition  = $dbaDefinition;
 		$this->viewDefinition = $viewDefinition;
-		$this->logger         = $logger;
+
+		// Use dummy values - necessary for the first factory call of the logger itself
+		$this->logger = new NullLogger();
+		$this->profiler = new Profiler($config);
 
 		$this->connect();
+	}
+
+	/**
+	 * @param IManageConfigValues $config
+	 * @param Profiler            $profiler
+	 * @param LoggerInterface     $logger
+	 *
+	 * @return void
+	 *
+	 * @todo Make this method obsolet - use a clean pattern instead ...
+	 */
+	public function setDependency(IManageConfigValues $config, Profiler $profiler, LoggerInterface $logger)
+	{
+		$this->logger   = $logger;
+		$this->profiler = $profiler;
+		$this->config   = $config;
 	}
 
 	/**

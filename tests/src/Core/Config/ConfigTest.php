@@ -23,18 +23,20 @@ namespace Friendica\Test\src\Core\Config;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Config\Model\Config;
+use Friendica\Core\Config\Model\DatabaseConfig;
+use Friendica\Core\Config\Model\ReadOnlyFileConfig;
 use Friendica\Core\Config\Util\ConfigFileManager;
-use Friendica\Core\Config\Util\ConfigFileTransformer;
 use Friendica\Core\Config\ValueObject\Cache;
-use Friendica\Test\MockedTest;
+use Friendica\Test\DatabaseTest;
+use Friendica\Test\Util\CreateDatabaseTrait;
 use Friendica\Test\Util\VFSTrait;
 use org\bovigo\vfs\vfsStream;
 
-class ConfigTest extends MockedTest
+class ConfigTest extends DatabaseTest
 {
 	use ArraySubsetAsserts;
 	use VFSTrait;
+	use CreateDatabaseTrait;
 
 	/** @var Cache */
 	protected $configCache;
@@ -77,7 +79,7 @@ class ConfigTest extends MockedTest
 	public function getInstance()
 	{
 		$this->configFileManager->setupCache($this->configCache);
-		return new Config($this->configFileManager, $this->configCache);
+		return new DatabaseConfig($this->getDbInstance(), $this->configCache);
 	}
 
 	public function dataTests()
@@ -162,15 +164,30 @@ class ConfigTest extends MockedTest
 		];
 	}
 
+	public function configToDbArray(array $config): array
+	{
+		$dbarray = [];
+
+		foreach ($config as $category => $data) {
+			foreach ($data as $key => $value) {
+				$dbarray[] = [
+					'cat' => $category,
+					'k'   => $key,
+					'v'   => $value,
+				];
+			}
+		}
+
+		return ['config' => $dbarray];
+	}
+
 	/**
 	 * Test the configuration initialization
 	 * @dataProvider dataConfigLoad
 	 */
 	public function testSetUp(array $data)
 	{
-		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
-				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode($data));
+		$this->loadDirectFixture($this->configToDbArray($data) , $this->getDbInstance());
 
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
@@ -189,9 +206,7 @@ class ConfigTest extends MockedTest
 	 */
 	public function testReload(array $data, array $load)
 	{
-		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
-				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode($data));
+		$this->loadDirectFixture($this->configToDbArray($data), $this->getDbInstance());
 
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
@@ -274,9 +289,7 @@ class ConfigTest extends MockedTest
 	 */
 	public function testCacheLoadDouble(array $data1, array $data2, array $expect = [])
 	{
-		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
-				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode($data1));
+		$this->loadDirectFixture($this->configToDbArray($data1), $this->getDbInstance());
 
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
@@ -286,9 +299,7 @@ class ConfigTest extends MockedTest
 			self::assertConfig($cat, $data);
 		}
 
-		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
-				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode($data2));
+		$this->loadDirectFixture($this->configToDbArray($data2), $this->getDbInstance());
 
 		$this->testedConfig->reload();
 
@@ -302,7 +313,7 @@ class ConfigTest extends MockedTest
 	 */
 	public function testLoadWrong()
 	{
-		$this->testedConfig = new Config($this->configFileManager, new Cache());
+		$this->testedConfig = new ReadOnlyFileConfig(new Cache());
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
 		self::assertEmpty($this->testedConfig->getCache()->getAll());
@@ -354,7 +365,7 @@ class ConfigTest extends MockedTest
 	{
 		$this->configCache->load(['test' => ['it' => $data]], Cache::SOURCE_FILE);
 
-		$this->testedConfig = new Config($this->configFileManager, $this->configCache);
+		$this->testedConfig = new DatabaseConfig($this->getDbInstance(), $this->configCache);
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
 		self::assertEquals($data, $this->testedConfig->get('test', 'it'));
@@ -386,19 +397,15 @@ class ConfigTest extends MockedTest
 	 */
 	public function testSetGetLowPrio()
 	{
-		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
-				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode([
-					 'config' => ['test' => 'it'],
-				 ]));
+		$this->loadDirectFixture(['config' => [['cat' => 'config', 'k' => 'test', 'v' => 'it']]], $this->getDbInstance());
 
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 		self::assertEquals('it', $this->testedConfig->get('config', 'test'));
 
 		$this->testedConfig->getCache()->set('config', 'test', 'prio', Cache::SOURCE_ENV);
-		// now you have to get the env variable entry as output, even with a new set (which failed) and a get refresh
-		self::assertFalse($this->testedConfig->set('config', 'test', '123'));
+		// You can set a config value, but if there's a value with a higher priority (environment), this value will persist when retrieving
+		self::assertTrue($this->testedConfig->set('config', 'test', '123'));
 		self::assertEquals('prio', $this->testedConfig->get('config', 'test', '', true));
 	}
 
@@ -526,26 +533,8 @@ class ConfigTest extends MockedTest
 	public function testGetCategory(array $data, string $category, array $assertion)
 	{
 		$this->configCache = new Cache($data);
-		$config = new Config($this->configFileManager, $this->configCache);
+		$config = new ReadOnlyFileConfig($this->configCache);
 
 		self::assertEquals($assertion, $config->get($category));
-	}
-
-	/**
-	 * Tests, if an overwritten value of an existing key will reset to it's default after deletion
-	 */
-	public function testDeleteReturnsDefault()
-	{
-		vfsStream::newFile(ConfigFileManager::CONFIG_DATA_FILE)
-				 ->at($this->root->getChild('config'))
-				 ->setContent(ConfigFileTransformer::encode([
-					 'config' => ['sitename' => 'overritten'],
-				 ]));
-
-		$config = $this->getInstance();
-		self::assertEquals('overritten', $config->get('config', 'sitename'));
-
-		$config->delete('config', 'sitename');
-		self::assertEquals('Friendica Social Network', $config->get('config', 'sitename'));
 	}
 }
