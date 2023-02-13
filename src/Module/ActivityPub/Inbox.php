@@ -61,9 +61,9 @@ class Inbox extends BaseApi
 			if ($owner['uid'] != $uid) {
 				throw new \Friendica\Network\HTTPException\ForbiddenException();
 			}
-			$outbox = ActivityPub\Transmitter::getInbox($uid, $page, $request['max_id'] ?? null);
+			$outbox = ActivityPub\ClientToServer::getInbox($uid, $page, $request['max_id'] ?? null);
 		} else {
-			$outbox = ActivityPub\Transmitter::getPublicInbox($uid, $page, $request['max_id'] ?? null);
+			$outbox = ActivityPub\ClientToServer::getPublicInbox($uid, $page, $request['max_id'] ?? null);
 		}
 
 		System::jsonExit($outbox, 'application/activity+json');

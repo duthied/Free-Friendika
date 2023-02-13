@@ -24,6 +24,7 @@ namespace Friendica\Protocol\ActivityPub;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
@@ -32,6 +33,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\JsonLD;
 
 /**
@@ -306,5 +308,136 @@ class ClientToServer
 		$item = DI::contentItem()->expandTags($item);
 
 		return $item;
+	}
+
+	/**
+	 * Public posts for the given owner
+	 *
+	 * @param array   $owner     Owner array
+	 * @param integer $uid       User id
+	 * @param integer $page      Page number
+	 * @param integer $max_id    Maximum ID
+	 * @param string  $requester URL of requesting account
+	 * @param boolean $nocache   Wether to bypass caching
+	 * @return array of posts
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function getOutbox(array $owner, int $uid, int $page = null, int $max_id = null, string $requester = ''): array
+	{
+		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'private' => [Item::PUBLIC, Item::UNLISTED]];
+
+		if (!empty($requester)) {
+			$requester_id = Contact::getIdForURL($requester, $owner['uid']);
+			if (!empty($requester_id)) {
+				$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $owner['uid']);
+				if (!empty($permissionSets)) {
+					$condition = ['psid' => array_merge($permissionSets->column('id'),
+							[DI::permissionSet()->selectPublicForUser($owner['uid'])])];
+				}
+			}
+		}
+
+		$condition = array_merge($condition, [
+			'uid'            => $owner['uid'],
+			'author-id'      => Contact::getIdForURL($owner['url'], 0, false),
+			'gravity'        => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT],
+			'network'        => Protocol::FEDERATED,
+			'parent-network' => Protocol::FEDERATED,
+			'origin'         => true,
+			'deleted'        => false,
+			'visible'        => true
+		]);
+
+		$apcontact = APContact::getByURL($owner['url']);
+
+		return self::getCollection($condition, DI::baseUrl() . '/outbox/' . $owner['nickname'], $page, $max_id, $uid, $apcontact['statuses_count']);
+	}
+
+	public static function getInbox(int $uid, int $page = null, int $max_id = null)
+	{
+		$owner = User::getOwnerDataById($uid);
+
+		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN], 'uid' => $uid];
+
+		return self::getCollection($condition, DI::baseUrl() . '/inbox/' . $owner['nickname'], $page, $max_id, $uid, null);
+	}
+
+	public static function getPublicInbox(int $uid, int $page = null, int $max_id = null)
+	{
+		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'private' => Item::PUBLIC,
+			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN], 'author-blocked' => false, 'author-hidden' => false];
+
+		return self::getCollection($condition, DI::baseUrl() . '/inbox', $page, $max_id, $uid, null);
+	}
+
+	private static function getCollection(array $condition, string $path, int $page = null, int $max_id = null, int $uid = null, int $total_items = null)
+	{
+		$data = ['@context' => ActivityPub::CONTEXT];
+
+		$data['id']   = $path;
+		$data['type'] = 'OrderedCollection';
+
+		if (!is_null($total_items)) {
+			$data['totalItems'] = $total_items;
+		}
+
+		if (!empty($page)) {
+			$data['id'] .= '?' . http_build_query(['page' => $page]);
+		}
+
+		if (empty($page) && empty($max_id)) {
+			$data['first'] = $path . '?page=1';
+		} else {
+			$data['type'] = 'OrderedCollectionPage';
+
+			$list = [];
+
+			if (!empty($max_id)) {
+				$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $max_id]);
+			}
+
+			if (!empty($page)) {
+				$params = ['limit' => [($page - 1) * 20, 20], 'order' => ['uri-id' => true]];
+			} else {
+				$params = ['limit' => 20, 'order' => ['uri-id' => true]];
+			}
+
+			if (!is_null($uid)) {
+				$items = Post::selectForUser($uid, ['id', 'uri-id'], $condition, $params);
+			} else {
+				$items = Post::select(['id', 'uri-id'], $condition, $params);
+			}
+
+			$last_id = 0;
+
+			while ($item = Post::fetch($items)) {
+				$activity = Transmitter::createActivityFromItem($item['id'], false, !is_null($uid));
+				if (!empty($activity)) {
+					$list[]  = $activity;
+					$last_id = $item['uri-id'];
+					continue;
+				}
+			}
+			DBA::close($items);
+
+			if (count($list) == 20) {
+				$data['next'] = $path . '?max_id=' . $last_id;
+			}
+
+			// Fix the cached total item count when it is lower than the real count
+			if (!is_null($total_items)) {
+				$total = (($page - 1) * 20) + $data['totalItems'];
+				if ($total > $data['totalItems']) {
+					$data['totalItems'] = $total;
+				}
+			}
+
+			$data['partOf'] = $path;
+
+			$data['orderedItems'] = $list;
+		}
+
+		return $data;
 	}
 }
