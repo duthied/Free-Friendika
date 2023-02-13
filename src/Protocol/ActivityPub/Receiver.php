@@ -1843,6 +1843,7 @@ class Receiver
 	 * Fetches data from the object part of an activity
 	 *
 	 * @param array $object
+	 * @param bool  $c2s    "true" = The object is a "client to server" object
 	 *
 	 * @return array|bool Object data or FALSE if $object does not contain @id element
 	 * @throws \Exception
@@ -2028,32 +2029,46 @@ class Receiver
 		return DBA::exists('arrived-activity', ['object-id' => $id]);
 	}
 
-	public static function processC2SActivity(array $activity, int $uid, array $application)
+	/**
+	 * Process client to server activities
+	 *
+	 * @param array $activity
+	 * @param integer $uid
+	 * @param array $application
+	 * @return array
+	 */
+	public static function processC2SActivity(array $activity, int $uid, array $application): array
 	{
 		$ldactivity = JsonLD::compact($activity);
 		if (empty($ldactivity)) {
 			Logger::notice('Invalid activity', ['activity' => $activity, 'uid' => $uid]);
-			return;
+			return [];
 		}
 
 		$type = JsonLD::fetchElement($ldactivity, '@type');
 		if (!$type) {
 			Logger::notice('Empty type', ['activity' => $ldactivity, 'uid' => $uid]);
-			return;
+			return [];
 		}
 
 		$object_id   = JsonLD::fetchElement($ldactivity, 'as:object', '@id') ?? '';
 		$object_type = self::fetchObjectType($ldactivity, $object_id, $uid);
 		if (!$object_type && !$object_id) {
 			Logger::notice('Empty object type or id', ['activity' => $ldactivity, 'uid' => $uid]);
-			return;
+			return [];
 		}
 
 		Logger::debug('Processing activity', ['type' => $type, 'object_type' => $object_type, 'object_id' => $object_id, 'activity' => $ldactivity]);
-		self::routeC2SActivities($type, $object_type, $object_id, $uid, $application, $ldactivity);
-		throw new \Friendica\Network\HTTPException\AcceptedException();
+		return self::routeC2SActivities($type, $object_type, $object_id, $uid, $application, $ldactivity);
 	}
 
+	/**
+	 * Accumulate the targets and visibility of this post
+	 *
+	 * @param array $object
+	 * @param string $actor
+	 * @return array
+	 */
 	private static function getTargets(array $object, string $actor): array
 	{
 		$profile   = APContact::getByURL($actor);
@@ -2097,28 +2112,48 @@ class Receiver
 		return $targets;
 	}
 
-	private static function routeC2SActivities(string $type, string $object_type, string $object_id, int $uid, array $application, array $ldactivity)
+	/**
+	 * Route client to server activities
+	 *
+	 * @param string $type
+	 * @param string $object_type
+	 * @param string $object_id
+	 * @param integer $uid
+	 * @param array $application
+	 * @param array $ldactivity
+	 * @return array
+	 */
+	private static function routeC2SActivities(string $type, string $object_type, string $object_id, int $uid, array $application, array $ldactivity): array
 	{
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_type, self::CONTENT_TYPES)) {
-					self::createContent($uid, $application, $ldactivity);
+					return self::createContent($uid, $application, $ldactivity);
 				}
 				break;
 			case 'as:Update':
 				if (in_array($object_type, self::CONTENT_TYPES) && !empty($object_id)) {
-					self::updateContent($uid, $object_id, $application, $ldactivity);
+					return self::updateContent($uid, $object_id, $application, $ldactivity);
 				}
 				break;
 			case 'as:Follow':
 				if (in_array($object_type, self::ACCOUNT_TYPES) && !empty($object_id)) {
-					self::followAccount($uid, $object_id, $ldactivity);
+					return self::followAccount($uid, $object_id, $ldactivity);
 				}
 				break;
 		}
+		return [];
 	}
 
-	private static function createContent(int $uid, array $application, array $ldactivity)
+	/**
+	 * Create a new post or comment
+	 *
+	 * @param integer $uid
+	 * @param array $application
+	 * @param array $ldactivity
+	 * @return array
+	 */
+	private static function createContent(int $uid, array $application, array $ldactivity): array
 	{
 		$object_data = self::processObject($ldactivity['as:object'], true);
 		$item = Processor::processC2SContent($object_data, $application, $uid);
@@ -2128,36 +2163,55 @@ class Receiver
 		if (!empty($id)) {
 			$item = Post::selectFirst(['uri-id'], ['id' => $id]);
 			if (!empty($item['uri-id'])) {
-				System::jsonExit(Transmitter::createActivityFromItem($id));
+				return Transmitter::createActivityFromItem($id);
 			}
 		}
+		return [];
 	}
 
-	private static function updateContent(int $uid, string $object_id, array $application, array $ldactivity)
+	/**
+	 * Update an existing post or comment
+	 *
+	 * @param integer $uid
+	 * @param string $object_id
+	 * @param array $application
+	 * @param array $ldactivity
+	 * @return array
+	 */
+	private static function updateContent(int $uid, string $object_id, array $application, array $ldactivity):array
 	{
 		$id = Item::fetchByLink($object_id, $uid);
 		$original_post = Post::selectFirst(['uri-id'], ['uid' => $uid, 'origin' => true, 'id' => $id]);
 		if (empty($original_post)) {
 			Logger::debug('Item not found or does not belong to the user', ['id' => $id, 'uid' => $uid, 'object_id' => $object_id, 'activity' => $ldactivity]);
-			return;
+			return [];
 		}
 
 		$object_data = self::processObject($ldactivity['as:object'], true);
 		$item = Processor::processC2SContent($object_data, $application, $uid);
 		if (empty($item['title']) && empty($item['body'])) {
 			Logger::debug('Empty body and title', ['id' => $id, 'uid' => $uid, 'object_id' => $object_id, 'activity' => $ldactivity]);
-			return;
+			return [];
 		}
 		$post = ['title' => $item['title'], 'body' => $item['body']];
 		Logger::debug('Got data', ['id' => $id, 'uid' => $uid, 'item' => $post]);
 		Item::update($post, ['id' => $id]);
 		Item::updateDisplayCache($original_post['uri-id']);
 
-		System::jsonExit(Transmitter::createActivityFromItem($id));
+		return Transmitter::createActivityFromItem($id);
 	}
 
-	private static function followAccount($uid, $object_id, $ldactivity)
+	/**
+	 * Follow a given account
+	 * @todo Check the expected return value
+	 *
+	 * @param integer $uid
+	 * @param string $object_id
+	 * @param array $ldactivity
+	 * @return array
+	 */
+	private static function followAccount(int $uid, string $object_id, array $ldactivity): array
 	{
-
+		return [];
 	}
 }

@@ -2192,6 +2192,7 @@ class Processor
 		}
 
 		if ($object_data['reply-to-id']) {
+			$item['thr-parent'] = $object_data['reply-to-id'];
 			$item['gravity'] = Item::GRAVITY_COMMENT;
 		} else {
 			$item['gravity'] = Item::GRAVITY_PARENT;

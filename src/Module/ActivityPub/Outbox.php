@@ -80,6 +80,6 @@ class Outbox extends BaseApi
 			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
-		ActivityPub\Receiver::processC2SActivity($activity, $uid, self::getCurrentApplication() ?? []);
+		System::jsonExit(ActivityPub\Receiver::processC2SActivity($activity, $uid, self::getCurrentApplication() ?? []));
 	}
 }
