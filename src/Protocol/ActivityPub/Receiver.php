@@ -446,7 +446,7 @@ class Receiver
 		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Announce', 'as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of each individual array element.
-			$object_data = self::processObject($activity, false);
+			$object_data = self::processObject($activity);
 			$object_data['name'] = $type;
 			$object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
 			$object_data['object_id'] = $object_id;
@@ -1433,12 +1433,12 @@ class Receiver
 				Logger::info('Empty type');
 				return false;
 			}
-			$object_data = self::processObject($object, false);
+			$object_data = self::processObject($object);
 		}
 
 		// We currently don't handle 'pt:CacheFile', but with this step we avoid logging
 		if (in_array($type, self::CONTENT_TYPES) || ($type == 'pt:CacheFile')) {
-			$object_data = self::processObject($object, false);
+			$object_data = self::processObject($object);
 
 			if (!empty($data)) {
 				$object_data['raw-object'] = json_encode($data);
@@ -1843,17 +1843,62 @@ class Receiver
 	 * Fetches data from the object part of an activity
 	 *
 	 * @param array $object
-	 * @param bool  $c2s    "true" = The object is a "client to server" object
 	 *
 	 * @return array|bool Object data or FALSE if $object does not contain @id element
 	 * @throws \Exception
 	 */
-	private static function processObject(array $object, bool $c2s)
+	private static function processObject(array $object)
 	{
-		if (!$c2s && !JsonLD::fetchElement($object, '@id')) {
+		if (!JsonLD::fetchElement($object, '@id')) {
 			return false;
 		}
 
+		$object_data = self::getObjectDataFromActivity($object);
+
+		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true, false);
+		$receivers = $reception_types = [];
+		foreach ($receiverdata as $key => $data) {
+			$receivers[$key] = $data['uid'];
+			$reception_types[$data['uid']] = $data['type'] ?? 0;
+		}
+
+		$object_data['receiver_urls']  = self::getReceiverURL($object);
+		$object_data['receiver']       = $receivers;
+		$object_data['reception_type'] = $reception_types;
+
+		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
+		unset($object_data['receiver'][-1]);
+		unset($object_data['reception_type'][-1]);
+
+		return $object_data;
+	}
+
+	/**
+	 * Fetches data from the object part of an client to server activity
+	 *
+	 * @param array $object
+	 *
+	 * @return array Object data
+	 */
+	private static function processC2SObject(array $object): array
+	{
+		$object_data = self::getObjectDataFromActivity($object);
+
+		$object_data['target']   = self::getTargets($object, $object_data['actor'] ?? '');
+		$object_data['receiver'] = [];
+
+		return $object_data;
+	}
+
+	/**
+	 * Create an object data array from a given activity
+	 *
+	 * @param array $object
+	 *
+	 * @return array Object data
+	 */
+	private static function getObjectDataFromActivity(array $object): array
+	{
 		$object_data = [];
 		$object_data['object_type'] = JsonLD::fetchElement($object, '@type');
 		$object_data['id'] = JsonLD::fetchElement($object, '@id');
@@ -1982,25 +2027,6 @@ class Receiver
 			$object_data['question'] = self::processQuestion($object);
 		}
 
-		if ($c2s) {
-			$object_data['target']   = self::getTargets($object, $object_data['actor'] ?? '');
-			$object_data['receiver'] = [];
-		} else {
-			$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true, false);
-			$receivers = $reception_types = [];
-			foreach ($receiverdata as $key => $data) {
-				$receivers[$key] = $data['uid'];
-				$reception_types[$data['uid']] = $data['type'] ?? 0;
-			}
-
-			$object_data['receiver_urls']  = self::getReceiverURL($object);
-			$object_data['receiver']       = $receivers;
-			$object_data['reception_type'] = $reception_types;
-
-			$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
-			unset($object_data['receiver'][-1]);
-			unset($object_data['reception_type'][-1]);
-		}
 		return $object_data;
 	}
 
@@ -2155,7 +2181,7 @@ class Receiver
 	 */
 	private static function createContent(int $uid, array $application, array $ldactivity): array
 	{
-		$object_data = self::processObject($ldactivity['as:object'], true);
+		$object_data = self::processC2SObject($ldactivity['as:object']);
 		$item = Processor::processC2SContent($object_data, $application, $uid);
 		Logger::debug('Got data', ['item' => $item, 'object' => $object_data]);
 
@@ -2187,7 +2213,7 @@ class Receiver
 			return [];
 		}
 
-		$object_data = self::processObject($ldactivity['as:object'], true);
+		$object_data = self::processC2SObject($ldactivity['as:object']);
 		$item = Processor::processC2SContent($object_data, $application, $uid);
 		if (empty($item['title']) && empty($item['body'])) {
 			Logger::debug('Empty body and title', ['id' => $id, 'uid' => $uid, 'object_id' => $object_id, 'activity' => $ldactivity]);
