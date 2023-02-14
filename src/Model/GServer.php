@@ -1060,10 +1060,11 @@ class GServer
 				Logger::info('Invalid nodeinfo format', ['url' => $url]);
 				continue;
 			}
+
 			if ($link['rel'] == 'http://nodeinfo.diaspora.software/ns/schema/1.0') {
-				$nodeinfo1_url = $link['href'];
+				$nodeinfo1_url = Network::addBasePath($link['href'], $httpResult->getUrl());
 			} elseif ($link['rel'] == 'http://nodeinfo.diaspora.software/ns/schema/2.0') {
-				$nodeinfo2_url = $link['href'];
+				$nodeinfo2_url = Network::addBasePath($link['href'], $httpResult->getUrl());
 			}
 		}
 
