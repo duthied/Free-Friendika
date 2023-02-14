@@ -255,7 +255,7 @@ class Receiver
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchObjectType(array $activity, string $object_id, int $uid = 0)
+	public static function fetchObjectType(array $activity, string $object_id, int $uid = 0)
 	{
 		if (!empty($activity['as:object'])) {
 			$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
@@ -691,8 +691,6 @@ class Receiver
 	 */
 	public static function routeActivities(array $object_data, string $type, bool $push, bool $fetch_parents = true, int $uid = 0): bool
 	{
-		$activity = $object_data['object_activity']	?? [];
-
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
@@ -1855,6 +1853,35 @@ class Receiver
 			return false;
 		}
 
+		$object_data = self::getObjectDataFromActivity($object);
+
+		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true, false);
+		$receivers = $reception_types = [];
+		foreach ($receiverdata as $key => $data) {
+			$receivers[$key] = $data['uid'];
+			$reception_types[$data['uid']] = $data['type'] ?? 0;
+		}
+
+		$object_data['receiver_urls']  = self::getReceiverURL($object);
+		$object_data['receiver']       = $receivers;
+		$object_data['reception_type'] = $reception_types;
+
+		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
+		unset($object_data['receiver'][-1]);
+		unset($object_data['reception_type'][-1]);
+
+		return $object_data;
+	}
+
+	/**
+	 * Create an object data array from a given activity
+	 *
+	 * @param array $object
+	 *
+	 * @return array Object data
+	 */
+	public static function getObjectDataFromActivity(array $object): array
+	{
 		$object_data = [];
 		$object_data['object_type'] = JsonLD::fetchElement($object, '@type');
 		$object_data['id'] = JsonLD::fetchElement($object, '@id');
@@ -1982,21 +2009,6 @@ class Receiver
 		if ($object_data['object_type'] == 'as:Question') {
 			$object_data['question'] = self::processQuestion($object);
 		}
-
-		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true, false);
-		$receivers = $reception_types = [];
-		foreach ($receiverdata as $key => $data) {
-			$receivers[$key] = $data['uid'];
-			$reception_types[$data['uid']] = $data['type'] ?? 0;
-		}
-
-		$object_data['receiver_urls']  = self::getReceiverURL($object);
-		$object_data['receiver']       = $receivers;
-		$object_data['reception_type'] = $reception_types;
-
-		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
-		unset($object_data['receiver'][-1]);
-		unset($object_data['reception_type'][-1]);
 
 		return $object_data;
 	}
