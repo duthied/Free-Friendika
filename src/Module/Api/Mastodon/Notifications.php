@@ -63,15 +63,17 @@ class Notifications extends BaseApi
 			'exclude_types' => [],    // Array of types to exclude (follow, favourite, reblog, mention, poll, follow_request)
 			'account_id'    => 0,     // Return only notifications received from this account
 			'with_muted'    => false, // Pleroma extension: return activities by muted (not by blocked!) users.
-			'count'         => 0,
 			'include_all'   => false  // Include dismissed and undismissed
 		], $request);
 
 		$params = ['order' => ['id' => true]];
 
-		$condition = ['uid' => $uid, 'dismissed' => false];
-		if ($request['include_all']) {
-			$condition = ['uid' => $uid];
+		$condition = ["`uid` = ? AND (NOT `type` IN (?, ?))", $uid,
+			Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION,
+			POST\UserNotification::TYPE_COMMENT_PARTICIPATION];
+
+		if (!$request['include_all']) {
+			$condition = DBA::mergeConditions($condition, ['dismissed' => false]);
 		}
 
 		if (!empty($request['account_id'])) {
@@ -82,15 +84,21 @@ class Notifications extends BaseApi
 		}
 
 		if (in_array(Notification::TYPE_INTRODUCTION, $request['exclude_types'])) {
-			$condition = DBA::mergeConditions($condition,
+			$condition = DBA::mergeConditions(
+				$condition,
 				["(`vid` != ? OR `type` != ? OR NOT `actor-id` IN (SELECT `id` FROM `contact` WHERE `pending`))",
-				Verb::getID(Activity::FOLLOW), Post\UserNotification::TYPE_NONE]);
+				Verb::getID(Activity::FOLLOW),
+				Post\UserNotification::TYPE_NONE]
+			);
 		}
 
 		if (in_array(Notification::TYPE_FOLLOW, $request['exclude_types'])) {
-			$condition = DBA::mergeConditions($condition,
+			$condition = DBA::mergeConditions(
+				$condition,
 				["(`vid` != ? OR `type` != ? OR NOT `actor-id` IN (SELECT `id` FROM `contact` WHERE NOT `pending`))",
-				Verb::getID(Activity::FOLLOW), Post\UserNotification::TYPE_NONE]);
+				Verb::getID(Activity::FOLLOW),
+				Post\UserNotification::TYPE_NONE]
+			);
 		}
 
 		if (in_array(Notification::TYPE_LIKE, $request['exclude_types'])) {
@@ -132,7 +140,7 @@ class Notifications extends BaseApi
 			$request['limit']
 		);
 
-		foreach($Notifications as $Notification) {
+		foreach ($Notifications as $Notification) {
 			try {
 				$mstdnNotifications[] = DI::mstdnNotification()->createFromNotification($Notification, self::appSupportsQuotes());
 				self::setBoundaries($Notification->id);
