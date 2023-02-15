@@ -23,6 +23,7 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
+use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Contact\Introduction\Entity\Introduction;
 use Friendica\Database\DBA;
 use Friendica\Model\APContact;
@@ -45,10 +46,10 @@ class FollowRequest extends BaseFactory
 
 	/**
 	 * @param Introduction $introduction
-	 * @return \Friendica\Object\Api\Mastodon\FollowRequest
+	 * @return \Friendica\Object\Api\Mastodon\Account
 	 * @throws ImagickException|HTTPException\InternalServerErrorException
 	 */
-	public function createFromIntroduction(Introduction $introduction): \Friendica\Object\Api\Mastodon\FollowRequest
+	public function createFromIntroduction(Introduction $introduction): \Friendica\Object\Api\Mastodon\Account
 	{
 		$account = DBA::selectFirst('account-user-view', [], ['id' => $introduction->cid, 'uid' => [0, $introduction->uid]]);
 		if (empty($account)) {
@@ -56,6 +57,6 @@ class FollowRequest extends BaseFactory
 			throw new HTTPException\InternalServerErrorException('Wrong introduction data');
 		}
 
-		return new \Friendica\Object\Api\Mastodon\FollowRequest($this->baseUrl, $introduction->id, $account);
+		return new \Friendica\Object\Api\Mastodon\Account($this->baseUrl, $account, new Fields());
 	}
 }
