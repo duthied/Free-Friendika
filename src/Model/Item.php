@@ -1211,7 +1211,8 @@ class Item
 			Post\Thread::insert($item['uri-id'], $item);
 		}
 
-		if (!in_array($item['verb'], self::ACTIVITIES)) {
+		// The content of activities normally doesn't matter - except for likes from Misskey 
+		if (!in_array($item['verb'], self::ACTIVITIES) || in_array($item['verb'], [Activity::LIKE, Activity::DISLIKE]) && !empty($item['body']) && ($item['body'] != $item['verb'])) {
 			Post\Content::insert($item['uri-id'], $item);
 		}
 
