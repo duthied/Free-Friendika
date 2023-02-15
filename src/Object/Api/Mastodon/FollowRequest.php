@@ -43,7 +43,5 @@ class FollowRequest extends Account
 	public function __construct(BaseURL $baseUrl, int $introduction_id, array $account)
 	{
 		parent::__construct($baseUrl, $account, new Fields());
-
-		$this->id = $introduction_id;
 	}
 }
