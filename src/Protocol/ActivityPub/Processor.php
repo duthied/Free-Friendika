@@ -505,7 +505,7 @@ class Processor
 		$recursion_depth = $activity['recursion-depth'] ?? 0;
 
 		if (!$in_background && ($recursion_depth < DI::config()->get('system', 'max_recursion_depth'))) {
-			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+			Logger::info('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 			$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 			if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
 				Logger::notice('The activity is gone, the queue entry will be deleted', ['parent' => $activity['reply-to-id']]);
@@ -516,10 +516,10 @@ class Processor
 			} elseif (!empty($result)) {
 				$exists = Post::exists(['uri' => [$result, $activity['reply-to-id']]]);
 				if ($exists) {
-					Logger::notice('The activity has been fetched and created.', ['parent' => $result]);
+					Logger::info('The activity has been fetched and created.', ['parent' => $result]);
 					return $result;
 				} elseif (DI::config()->get('system', 'fetch_by_worker') || DI::config()->get('system', 'decoupled_receiver')) {
-					Logger::notice('The activity has been fetched and will hopefully be created later.', ['parent' => $result]);
+					Logger::info('The activity has been fetched and will hopefully be created later.', ['parent' => $result]);
 				} else {
 					Logger::notice('The activity exists but has not been created, the queue entry will be deleted.', ['parent' => $result]);
 					if (!empty($activity['entry-id'])) {
@@ -1561,11 +1561,11 @@ class Processor
 		}
 
 		if (($completion == Receiver::COMPLETION_RELAY) && Queue::exists($url, 'as:Create')) {
-			Logger::notice('Activity has already been queued.', ['url' => $url, 'object' => $activity['id']]);
+			Logger::info('Activity has already been queued.', ['url' => $url, 'object' => $activity['id']]);
 		} elseif (ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer, '', $completion)) {
-			Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'entry' => $child['entry-id'] ?? 0, 'completion' => $completion, 'object' => $activity['id']]);
+			Logger::info('Activity had been fetched and processed.', ['url' => $url, 'entry' => $child['entry-id'] ?? 0, 'completion' => $completion, 'object' => $activity['id']]);
 		} else {
-			Logger::notice('Activity had been fetched and will be processed later.', ['url' => $url, 'entry' => $child['entry-id'] ?? 0, 'completion' => $completion, 'object' => $activity['id']]);
+			Logger::info('Activity had been fetched and will be processed later.', ['url' => $url, 'entry' => $child['entry-id'] ?? 0, 'completion' => $completion, 'object' => $activity['id']]);
 		}
 
 		return $activity['id'];

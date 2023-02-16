@@ -141,7 +141,7 @@ class Worker
 				if (DI::lock()->acquire(self::LOCK_WORKER, 0)) {
 				// Count active workers and compare them with a maximum value that depends on the load
 					if (self::tooMuchWorkers()) {
-						Logger::notice('Active worker limit reached, quitting.');
+						Logger::info('Active worker limit reached, quitting.');
 						DI::lock()->release(self::LOCK_WORKER);
 						return;
 					}
@@ -188,7 +188,7 @@ class Worker
 	{
 		// Count active workers and compare them with a maximum value that depends on the load
 		if (self::tooMuchWorkers()) {
-			Logger::notice('Active worker limit reached, quitting.');
+			Logger::info('Active worker limit reached, quitting.');
 			return false;
 		}
 
@@ -511,7 +511,7 @@ class Worker
 		while ($load = System::getLoadAvg($processes_cooldown != 0)) {
 			if (($load_cooldown > 0) && ($load['average1'] > $load_cooldown)) {
 				if (!$sleeping) {
-					Logger::notice('Load induced pre execution cooldown.', ['max' => $load_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
+					Logger::info('Load induced pre execution cooldown.', ['max' => $load_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
 					$sleeping = true;
 				}
 				sleep(1);
@@ -519,7 +519,7 @@ class Worker
 			}
 			if (($processes_cooldown > 0) && ($load['scheduled'] > $processes_cooldown)) {
 				if (!$sleeping) {
-					Logger::notice('Process induced pre execution cooldown.', ['max' => $processes_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
+					Logger::info('Process induced pre execution cooldown.', ['max' => $processes_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
 					$sleeping = true;
 				}
 				sleep(1);
@@ -529,7 +529,7 @@ class Worker
 		}
 
 		if ($sleeping) {
-			Logger::notice('Cooldown ended.', ['max-load' => $load_cooldown, 'max-processes' => $processes_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
+			Logger::info('Cooldown ended.', ['max-load' => $load_cooldown, 'max-processes' => $processes_cooldown, 'load' => $load, 'called-by' => System::callstack(1)]);
 		}
 	}
 
@@ -814,7 +814,7 @@ class Worker
 				}
 			}
 
-			Logger::notice('Load: ' . $load . '/' . $maxsysload . ' - processes: ' . $deferred . '/' . $active . '/' . $waiting_processes . $processlist . ' - maximum: ' . $queues . '/' . $maxqueues);
+			Logger::info('Load: ' . $load . '/' . $maxsysload . ' - processes: ' . $deferred . '/' . $active . '/' . $waiting_processes . $processlist . ' - maximum: ' . $queues . '/' . $maxqueues);
 
 			// Are there fewer workers running as possible? Then fork a new one.
 			if (!DI::config()->get('system', 'worker_dont_fork', false) && ($queues > ($active + 1)) && self::entriesExists() && !self::systemLimitReached()) {

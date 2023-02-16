@@ -169,7 +169,7 @@ class APContact
 		$cachekey = 'apcontact:' . ItemURI::getIdByURI($url);
 		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
-			Logger::notice('Multiple requests for the address', ['url' => $url, 'update' => $update, 'callstack' => System::callstack(20), 'result' => $result]);
+			Logger::info('Multiple requests for the address', ['url' => $url, 'update' => $update, 'callstack' => System::callstack(20), 'result' => $result]);
 			if (!empty($fetched_contact)) {
 				return $fetched_contact;
 			}
