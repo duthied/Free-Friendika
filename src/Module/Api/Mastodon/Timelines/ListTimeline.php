@@ -95,6 +95,13 @@ class ListTimeline extends BaseApi
 			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin` AND `post-user`.`uri-id` = `post-user-view`.`uri-id`)"]);
 		}
 
+		if (!empty($uid)) {
+			$condition = DBA::mergeConditions(
+				$condition,
+				["NOT `parent-author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND (`blocked` OR `ignored`) AND `cid` = `parent-author-id`)", $uid]
+			);
+		}
+
 		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);
 
 		$display_quotes = self::appSupportsQuotes();
