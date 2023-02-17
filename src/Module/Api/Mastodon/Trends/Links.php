@@ -41,7 +41,7 @@ class Links extends BaseApi
 	{
 		$request = $this->getRequest([
 			'limit' => 10, // Maximum number of results to return. Defaults to 10.
-			'offset' => 0, // Offset page, Defaults to 0.
+			'offset' => 0, // Offset in set, Defaults to 0.
 		], $request);
 
 		$condition = ["EXISTS(SELECT `id` FROM `post-media` WHERE `post-media`.`uri-id` = `post-thread-view`.`uri-id` AND `type` = ? AND NOT `name` IS NULL AND NOT `description` IS NULL) AND NOT `private` AND `commented` > ? AND `created` > ?",
@@ -55,6 +55,10 @@ class Links extends BaseApi
 			$trending[] = DI::mstdnCard()->createFromUriId($status['uri-id'], $history)->toArray();
 		}
 		DBA::close($statuses);
+
+		if (!empty($trending)) {
+			self::setLinkHeaderByOffsetLimit($request['offset'], $request['limit']);
+		}
 
 		System::jsonExit($trending);
 	}

@@ -44,7 +44,7 @@ class Statuses extends BaseApi
 
 		$request = $this->getRequest([
 			'limit' => 10, // Maximum number of results to return. Defaults to 10.
-			'offset' => 0, // Offset page, Defaults to 0.
+			'offset' => 0, // Offset in set, Defaults to 0.
 		], $request);
 
 		$condition = ["NOT `private` AND `commented` > ? AND `created` > ?", DateTimeFormat::utc('now -1 day'), DateTimeFormat::utc('now -1 week')];
@@ -62,6 +62,10 @@ class Statuses extends BaseApi
 			}
 		}
 		DBA::close($statuses);
+
+		if (!empty($trending)) {
+			self::setLinkHeaderByOffsetLimit($request['offset'], $request['limit']);
+		}
 
 		System::jsonExit($trending);
 	}

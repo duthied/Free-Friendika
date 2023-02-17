@@ -38,7 +38,7 @@ class Tags extends BaseApi
 	{
 		$request = $this->getRequest([
 			'limit' => 20, // Maximum number of results to return. Defaults to 20.
-			'offset' => 0, // Offset page. Defaults to 0.
+			'offset' => 0, // Offset in set. Defaults to 0.
 			'friendica_local' => false, // Whether to return local tag trends instead of global, defaults to false
 		], $request);
 
@@ -56,6 +56,10 @@ class Tags extends BaseApi
 			$trending[] = $hashtag->toArray();
 		}
 
-		System::jsonExit(array_slice($trending, 0, $request['limit']));
+		if (!empty($trending)) {
+			self::setLinkHeaderByOffsetLimit($request['offset'], $request['limit']);
+		}
+
+		System::jsonExit($trending);
 	}
 }
