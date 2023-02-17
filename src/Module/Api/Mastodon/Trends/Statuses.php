@@ -44,6 +44,7 @@ class Statuses extends BaseApi
 
 		$request = $this->getRequest([
 			'limit' => 10, // Maximum number of results to return. Defaults to 10.
+			'offset' => 0, // Offset page, Defaults to 0.
 		], $request);
 
 		$condition = ["NOT `private` AND `commented` > ? AND `created` > ?", DateTimeFormat::utc('now -1 day'), DateTimeFormat::utc('now -1 week')];
@@ -52,7 +53,7 @@ class Statuses extends BaseApi
 		$display_quotes = self::appSupportsQuotes();
 
 		$trending = [];
-		$statuses = Post::selectPostThread(['uri-id'], $condition, ['limit' => $request['limit'], 'order' => ['total-actors' => true]]);
+		$statuses = Post::selectPostThread(['uri-id'], $condition, ['limit' => [$request['offset'], $request['limit']],  'order' => ['total-actors' => true]]);
 		while ($status = Post::fetch($statuses)) {
 			try {
 				$trending[] = DI::mstdnStatus()->createFromUriId($status['uri-id'], $uid, $display_quotes);
