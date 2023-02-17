@@ -383,14 +383,6 @@ abstract class DI
 	}
 
 	/**
-	 * @return Factory\Api\Mastodon\FollowRequest
-	 */
-	public static function mstdnFollowRequest()
-	{
-		return self::$dice->create(Factory\Api\Mastodon\FollowRequest::class);
-	}
-
-	/**
 	 * @return Factory\Api\Mastodon\Poll
 	 */
 	public static function mstdnPoll()
