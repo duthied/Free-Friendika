@@ -38,8 +38,8 @@ class Tags extends BaseApi
 	{
 		$request = $this->getRequest([
 			'limit' => 20, // Maximum number of results to return. Defaults to 20.
-			'offset' => 0,
-			'friendica_local' => false,
+			'offset' => 0, // Offset page. Defaults to 0.
+			'friendica_local' => false, // Whether to return local tag trends instead of global, defaults to false
 		], $request);
 
 		$trending = [];
