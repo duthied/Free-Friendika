@@ -77,7 +77,7 @@ class Search extends BaseApi
 			}
 		}
 
-		if ((empty($request['type']) || ($request['type'] == 'statuses')) && (strpos($request['q'], '@') == false)) {
+		if (empty($request['type']) || ($request['type'] == 'statuses')) {
 			$result['statuses'] = self::searchStatuses($uid, $request['q'], $request['account_id'], $request['max_id'], $request['min_id'], $limit, $request['offset']);
 
 			if (!is_array($result['statuses'])) {
@@ -108,8 +108,7 @@ class Search extends BaseApi
 	 */
 	private static function searchAccounts(int $uid, string $q, bool $resolve, int $limit, int $offset, bool $following)
 	{
-		if (
-			($offset == 0) && (strrpos($q, '@') > 0 || Network::isValidHttpUrl($q))
+		if (($offset == 0) && (strrpos($q, '@') > 0 || Network::isValidHttpUrl($q))
 			&& $id = Contact::getIdForURL($q, 0, $resolve ? null : false)
 		) {
 			return DI::mstdnAccount()->createFromContactId($id, $uid);
