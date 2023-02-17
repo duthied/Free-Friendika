@@ -652,7 +652,7 @@ class Tag
 		if (empty($tags)) {
 			$tags = self::setGlobalTrendingHashtags($period, 1000);
 		}
-		return array_slice($tags, $limit * $offset, $limit);
+		return array_slice($tags, $offset, $limit);
 	}
 
 	/**
@@ -735,7 +735,7 @@ class Tag
 		if (empty($tags)) {
 			$tags = self::setLocalTrendingHashtags($period, 1000);
 		}
-		return array_slice($tags, $limit * $offset, $limit);
+		return array_slice($tags, $offset, $limit);
 	}
 
 	/**
