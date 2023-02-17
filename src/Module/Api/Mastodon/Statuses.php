@@ -107,6 +107,7 @@ class Statuses extends BaseApi
 			'visibility'     => '',    // Visibility of the posted status. One of: "public", "unlisted", "private" or "direct".
 			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this paramter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
 			'language'       => '',    // ISO 639 language code for this status.
+			'friendica'		 => [],	   // Friendica extensions to the standard Mastodon API spec
 		], $request);
 
 		$owner = User::getOwnerDataById($uid);
@@ -208,8 +209,13 @@ class Statuses extends BaseApi
 			$item['quote-uri-id'] = $request['quote_id'];
 		}
 
+		$has_title = array_key_exists('title', $request['friendica']);
+		if ($has_title != null && !$request['in_reply_to_id']) {
+			$item['title'] = $request['friendica']['title'];
+		}
+
 		if (!empty($request['spoiler_text'])) {
-			if (!$request['in_reply_to_id'] && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
+			if (!$has_title && !$request['in_reply_to_id'] && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
 				$item['title'] = $request['spoiler_text'];
 			} else {
 				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
