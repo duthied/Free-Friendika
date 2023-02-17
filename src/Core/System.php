@@ -166,7 +166,7 @@ class System
 		$load = System::currentLoad();
 		if ($load) {
 			if (intval($load) > $maxsysload) {
-				$this->logger->warning('system load for process too high.', ['load' => $load, 'process' => 'backend', 'maxsysload' => $maxsysload]);
+				$this->logger->notice('system load for process too high.', ['load' => $load, 'process' => 'backend', 'maxsysload' => $maxsysload]);
 				return true;
 			}
 		}

@@ -83,7 +83,7 @@ class HttpClient extends BaseFactory
 			ResponseInterface $response,
 			UriInterface $uri
 		) use ($logger) {
-			$logger->notice('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri, 'method' => $request->getMethod()]);
+			$logger->info('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri, 'method' => $request->getMethod()]);
 		};
 
 		$userAgent = App::PLATFORM . " '" .

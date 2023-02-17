@@ -347,12 +347,13 @@ class HTTPSignature
 			if (!empty($gsid)) {
 				$insertFields['gsid'] = $gsid;
 			}
-			if (!DBA::insert('inbox-status', $insertFields, Database::INSERT_IGNORE)) {
+			DBA::insert('inbox-status', $insertFields, Database::INSERT_IGNORE);
+
+			$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
+			if (empty($status)) {
 				Logger::warning('Unable to insert inbox-status row', $insertFields);
 				return;
 			}
-
-			$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
 		}
 
 		if ($success) {

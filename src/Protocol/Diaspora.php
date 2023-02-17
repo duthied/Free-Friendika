@@ -792,7 +792,7 @@ class Diaspora
 	 */
 	private static function key(WebFingerUri $uri): string
 	{
-		Logger::notice('Fetching diaspora key', ['handle' => $uri->getAddr(), 'callstack' => System::callstack(20)]);
+		Logger::info('Fetching diaspora key', ['handle' => $uri->getAddr(), 'callstack' => System::callstack(20)]);
 		try {
 			return DI::dsprContact()->getByAddr($uri)->pubKey;
 		} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
