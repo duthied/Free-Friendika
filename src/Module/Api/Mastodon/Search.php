@@ -77,7 +77,7 @@ class Search extends BaseApi
 			}
 		}
 
-		if ((empty($request['type']) || ($request['type'] == 'statuses')) && (!strpos($request['q'], '@') || $request['resolve'])) {
+		if (empty($request['type']) || ($request['type'] == 'statuses')) {
 			$result['statuses'] = self::searchStatuses($uid, $request['q'], $request['account_id'], $request['max_id'], $request['min_id'], $limit, $request['offset']);
 
 			if (!is_array($result['statuses'])) {
