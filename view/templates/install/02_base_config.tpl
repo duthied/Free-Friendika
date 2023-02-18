@@ -12,13 +12,9 @@
 	<input type="hidden" name="config-php_path" value="{{$php_path}}" />
 	<input type="hidden" name="pass" value="3" />
 
-	{{include file="field_select.tpl" field=$ssl_policy}}
-	<br />
-	{{include file="field_input.tpl" field=$hostname}}
-	<br />
 	{{include file="field_input.tpl" field=$basepath}}
 	<br />
-	{{include file="field_input.tpl" field=$urlpath}}
+	{{include file="field_input.tpl" field=$system_url}}
 
 	<input id="install-submit" type="submit" name="submit" value="{{$submit}}" />
 
