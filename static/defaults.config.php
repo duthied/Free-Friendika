@@ -282,6 +282,10 @@ return [
 		// restricts develop log writes to requests originating from this IP address.
 		'dlogip' => '',
 
+		// emoji_activities (Boolean)
+		// Display received activities (like, dislike, reshare) as emojis
+		'emoji_activities' => false,
+
 		// expire-notify-priority (integer)
 		// Priority for the expirary notification
 		'expire-notify-priority' => Friendica\Core\Worker::PRIORITY_LOW,
