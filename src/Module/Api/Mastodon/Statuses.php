@@ -209,13 +209,10 @@ class Statuses extends BaseApi
 			$item['quote-uri-id'] = $request['quote_id'];
 		}
 
-		$has_title = array_key_exists('title', $request['friendica']);
-		if ($has_title != null && !$request['in_reply_to_id']) {
-			$item['title'] = $request['friendica']['title'];
-		}
+		$item['title'] = $request['friendica']['title'] ?? '';
 
 		if (!empty($request['spoiler_text'])) {
-			if (!$has_title && !$request['in_reply_to_id'] && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
+			if (!isset($request['friendica']['title']) && !$request['in_reply_to_id'] && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
 				$item['title'] = $request['spoiler_text'];
 			} else {
 				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
