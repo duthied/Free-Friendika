@@ -1287,3 +1287,15 @@ function update_1514()
 
 	return Update::SUCCESS;
 }
+
+function update_1515()
+{
+	DI::config()
+	  ->beginTransaction()
+	  ->delete('config', 'hostname')
+	  ->delete('system', 'urlpath')
+	  ->delete('system', 'ssl_policy')
+	  ->commit();
+
+	return Update::SUCCESS;
+}
