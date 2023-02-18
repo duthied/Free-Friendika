@@ -83,7 +83,7 @@ class Index extends BaseUsers
 		switch ($action) {
 			case 'delete':
 				if ($this->session->getLocalUserId() != $uid) {
-					self::checkFormSecurityTokenRedirectOnError($this->baseUrl->get(true), 'moderation_users', 't');
+					self::checkFormSecurityTokenRedirectOnError($this->baseUrl, 'moderation_users', 't');
 					// delete user
 					User::remove($uid);
 
@@ -168,7 +168,7 @@ class Index extends BaseUsers
 			'$form_security_token' => self::getFormSecurityToken('moderation_users'),
 
 			// values //
-			'$baseurl'      => $this->baseUrl->get(true),
+			'$baseurl'      => $this->baseUrl,
 			'$query_string' => $this->args->getQueryString(),
 
 			'$users' => $users,

@@ -62,7 +62,7 @@ abstract class ContactEndpoint extends BaseApi
 			if (!$screen_name) {
 				$contact = Contact::getById($contact_id, ['nick', 'url']);
 				// We don't have the followers of remote accounts so we check for locality
-				if (empty($contact) || !Strings::startsWith($contact['url'], DI::baseUrl()->get())) {
+				if (empty($contact) || !Strings::startsWith($contact['url'], DI::baseUrl())) {
 					throw new HTTPException\NotFoundException(DI::l10n()->t('Contact not found'));
 				}
 

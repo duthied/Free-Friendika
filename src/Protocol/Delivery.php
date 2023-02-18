@@ -161,7 +161,7 @@ class Delivery
 			// if $parent['wall'] == 1 we will already have the parent message in our array
 			// and we will relay the whole lot.
 
-			$localhost = DI::baseUrl()->getHostname();
+			$localhost = DI::baseUrl()->getHost();
 			if (strpos($localhost, ':')) {
 				$localhost = substr($localhost, 0, strpos($localhost, ':'));
 			}
@@ -556,7 +556,7 @@ class Delivery
 				$headers = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $local_user['email'] . '>' . "\n";
 			}
 		} else {
-			$sender  = DI::config()->get('config', 'sender_email', 'noreply@' . DI::baseUrl()->getHostname());
+			$sender  = DI::config()->get('config', 'sender_email', 'noreply@' . DI::baseUrl()->getHost());
 			$headers = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <' . $sender . '>' . "\n";
 		}
 

@@ -58,7 +58,7 @@ class Localtime extends BaseModule
 			$output .= '<p>' . DI::l10n()->t('Converted localtime: %s', self::$mod_localtime) . '</p>';
 		}
 
-		$output .= '<form action ="' . DI::baseUrl()->get() . '/localtime?time=' . $time . '" method="post" >';
+		$output .= '<form action ="' . DI::baseUrl() . '/localtime?time=' . $time . '" method="post" >';
 		$output .= '<p>' . DI::l10n()->t('Please select your timezone:') . '</p>';
 		$output .= Temporal::getTimezoneSelect(($_REQUEST['timezone'] ?? '') ?: Installer::DEFAULT_TZ);
 		$output .= '<input type="submit" name="submit" value="' . DI::l10n()->t('Submit') . '" /></form>';

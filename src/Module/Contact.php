@@ -220,7 +220,7 @@ class Contact extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('contacts-head.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => DI::baseUrl()->get(true),
+			'$baseurl' => DI::baseUrl(),
 		]);
 
 		$o = '';

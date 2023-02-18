@@ -65,7 +65,7 @@ class Create extends BaseUsers
 			'$form_security_token' => self::getFormSecurityToken('admin_users_create'),
 
 			// values //
-			'$baseurl'      => $this->baseUrl->get(true),
+			'$baseurl'      => $this->baseUrl,
 			'$query_string' => $this->args->getQueryString(),
 
 			'$newusername'     => ['new_user_name', $this->t('Name'), '', $this->t('Name of the new user.')],

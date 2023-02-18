@@ -208,7 +208,7 @@ class Index extends BaseSettings
 		];
 
 		DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/profile/index_head.tpl'), [
-			'$baseurl' => DI::baseUrl()->get(true),
+			'$baseurl' => DI::baseUrl(),
 		]);
 
 		$personal_account = ($profile['account-type'] != User::ACCOUNT_TYPE_COMMUNITY);
@@ -241,7 +241,7 @@ class Index extends BaseSettings
 
 			'$lbl_profile_photo' => DI::l10n()->t('Upload Profile Photo'),
 
-			'$baseurl' => DI::baseUrl()->get(true),
+			'$baseurl' => DI::baseUrl(),
 			'$nickname' => $profile['nickname'],
 			'$name' => ['name', DI::l10n()->t('Display name:'), $profile['name']],
 			'$about' => ['about', DI::l10n()->t('Description:'), $profile['about']],

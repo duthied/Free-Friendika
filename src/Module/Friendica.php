@@ -71,7 +71,7 @@ class Friendica extends BaseModule
 		}
 
 		$tos = ($config->get('system', 'tosdisplay')) ?
-			DI::l10n()->t('Read about the <a href="%1$s/tos">Terms of Service</a> of this node.', DI::baseUrl()->get()) :
+			DI::l10n()->t('Read about the <a href="%1$s/tos">Terms of Service</a> of this node.', DI::baseUrl()) :
 			'';
 
 		$blockList = $config->get('system', 'blocklist');
@@ -99,7 +99,7 @@ class Friendica extends BaseModule
 		return Renderer::replaceMacros($tpl, [
 			'about'     => DI::l10n()->t('This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.',
 				'<strong>' . App::VERSION . '</strong>',
-				DI::baseUrl()->get(),
+				DI::baseUrl(),
 				'<strong>' . $config->get('system', 'build') . '/' . DB_UPDATE_VERSION . '</strong>',
 				'<strong>' . $keyValue->get('post_update_version') . '/' . PostUpdate::VERSION . '</strong>'),
 			'friendica' => DI::l10n()->t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'),
@@ -151,7 +151,7 @@ class Friendica extends BaseModule
 		if (!empty($administrator)) {
 			$admin = [
 				'name'    => $administrator['username'],
-				'profile' => DI::baseUrl()->get() . '/profile/' . $administrator['nickname'],
+				'profile' => DI::baseUrl() . '/profile/' . $administrator['nickname'],
 			];
 		}
 
@@ -172,7 +172,7 @@ class Friendica extends BaseModule
 
 		$data = [
 			'version'          => App::VERSION,
-			'url'              => DI::baseUrl()->get(),
+			'url'              => DI::baseUrl(),
 			'addons'           => $visible_addons,
 			'locked_features'  => $locked_features,
 			'explicit_content' => intval($config->get('system', 'explicit_content', 0)),
@@ -182,7 +182,7 @@ class Friendica extends BaseModule
 			'site_name'        => $config->get('config', 'sitename'),
 			'platform'         => strtolower(App::PLATFORM),
 			'info'             => $config->get('config', 'info'),
-			'no_scrape_url'    => DI::baseUrl()->get() . '/noscrape',
+			'no_scrape_url'    => DI::baseUrl() . '/noscrape',
 		];
 
 		System::jsonExit($data);

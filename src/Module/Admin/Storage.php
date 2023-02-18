@@ -144,7 +144,7 @@ class Storage extends BaseAdmin
 			'$use'                   => DI::l10n()->t('Use storage backend'),
 			'$save_reload'           => DI::l10n()->t('Save & Reload'),
 			'$noconfig'              => DI::l10n()->t('This backend doesn\'t have custom settings'),
-			'$baseurl'               => DI::baseUrl()->get(true),
+			'$baseurl'               => DI::baseUrl(),
 			'$form_security_token'   => self::getFormSecurityToken("admin_storage"),
 			'$storagebackend'        => $current_storage_backend instanceof ICanWriteToStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
 			'$availablestorageforms' => $available_storage_forms,

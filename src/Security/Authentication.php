@@ -230,11 +230,11 @@ class Authentication
 
 		// Otherwise it's probably an openid.
 		try {
-			$openid           = new LightOpenID($this->baseUrl->getHostname());
+			$openid           = new LightOpenID($this->baseUrl->getHost());
 			$openid->identity = $openid_url;
 			$this->session->set('openid', $openid_url);
 			$this->session->set('remember', $remember);
-			$openid->returnUrl = $this->baseUrl->get(true) . '/openid';
+			$openid->returnUrl = $this->baseUrl . '/openid';
 			$openid->optional  = ['namePerson/friendly', 'contact/email', 'namePerson', 'namePerson/first', 'media/image/aspect11', 'media/image/default'];
 			System::externalRedirect($openid->authUrl());
 		} catch (Exception $e) {
@@ -329,8 +329,8 @@ class Authentication
 			'mobile-theme'  => $this->pConfig->get($user_record['uid'], 'system', 'mobile_theme'),
 			'authenticated' => 1,
 			'page_flags'    => $user_record['page-flags'],
-			'my_url'        => $this->baseUrl->get() . '/profile/' . $user_record['nickname'],
-			'my_address'    => $user_record['nickname'] . '@' . substr($this->baseUrl->get(), strpos($this->baseUrl->get(), '://') + 3),
+			'my_url'        => $this->baseUrl . '/profile/' . $user_record['nickname'],
+			'my_address'    => $user_record['nickname'] . '@' . substr($this->baseUrl, strpos($this->baseUrl, '://') + 3),
 			'addr'          => $this->remoteAddress,
 			'nickname'      => $user_record['nickname'],
 		]);

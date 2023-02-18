@@ -178,7 +178,7 @@ class Probe
 	 */
 	private static function ownHost(string $host): bool
 	{
-		$own_host = DI::baseUrl()->getHostname();
+		$own_host = DI::baseUrl()->getHost();
 
 		$parts = parse_url($host);
 

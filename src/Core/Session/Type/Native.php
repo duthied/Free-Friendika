@@ -37,7 +37,7 @@ class Native extends AbstractSession implements IHandleSessions
 		ini_set('session.use_only_cookies', 1);
 		ini_set('session.cookie_httponly', (int)Cookie::HTTPONLY);
 
-		if ($baseURL->getSSLPolicy() == App\BaseURL::SSL_POLICY_FULL) {
+		if ($baseURL->getScheme() === 'https') {
 			ini_set('session.cookie_secure', 1);
 		}
 

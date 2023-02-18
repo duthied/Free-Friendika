@@ -59,7 +59,7 @@ class Download extends \Friendica\BaseModule
 
 		header('Content-Type: text/csv');
 		header('Content-Transfer-Encoding: Binary');
-		header('Content-disposition: attachment; filename="' . $this->baseUrl->getHostname() . '_domain_blocklist_' . substr($hash, 0, 6) . '.csv"');
+		header('Content-disposition: attachment; filename="' . $this->baseUrl->getHost() . '_domain_blocklist_' . substr($hash, 0, 6) . '.csv"');
 		header("Etag: $etag");
 
 		$this->blocklist->exportToFile('php://output');

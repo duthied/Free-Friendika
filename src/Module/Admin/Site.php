@@ -118,7 +118,6 @@ class Site extends BaseAdmin
 		$mail_enabled           = !empty($_POST['mail_enabled']);
 		$ostatus_enabled        = !empty($_POST['ostatus_enabled']);
 		$diaspora_enabled       = !empty($_POST['diaspora_enabled']);
-		$ssl_policy             = (!empty($_POST['ssl_policy'])             ? intval($_POST['ssl_policy'])                    : 0);
 		$force_ssl              = !empty($_POST['force_ssl']);
 		$show_help              = !empty($_POST['show_help']);
 		$dbclean                = !empty($_POST['dbclean']);
@@ -152,49 +151,10 @@ class Site extends BaseAdmin
 			Worker::add(Worker::PRIORITY_LOW, 'Directory');
 		}
 
-		if (DI::baseUrl()->getUrlPath() != "") {
+		if (DI::baseUrl()->getPath() != "") {
 			$diaspora_enabled = false;
 		}
-		if ($ssl_policy != intval(DI::config()->get('system', 'ssl_policy'))) {
-			if ($ssl_policy == App\BaseURL::SSL_POLICY_FULL) {
-				DBA::e("UPDATE `contact` SET
-				`url`     = REPLACE(`url`    , 'http:' , 'https:'),
-				`photo`   = REPLACE(`photo`  , 'http:' , 'https:'),
-				`thumb`   = REPLACE(`thumb`  , 'http:' , 'https:'),
-				`micro`   = REPLACE(`micro`  , 'http:' , 'https:'),
-				`request` = REPLACE(`request`, 'http:' , 'https:'),
-				`notify`  = REPLACE(`notify` , 'http:' , 'https:'),
-				`poll`    = REPLACE(`poll`   , 'http:' , 'https:'),
-				`confirm` = REPLACE(`confirm`, 'http:' , 'https:'),
-				`poco`    = REPLACE(`poco`   , 'http:' , 'https:')
-				WHERE `self` = 1"
-				);
-				DBA::e("UPDATE `profile` SET
-				`photo`   = REPLACE(`photo`  , 'http:' , 'https:'),
-				`thumb`   = REPLACE(`thumb`  , 'http:' , 'https:')
-				WHERE 1 "
-				);
-			} elseif ($ssl_policy == App\BaseURL::SSL_POLICY_SELFSIGN) {
-				DBA::e("UPDATE `contact` SET
-				`url`     = REPLACE(`url`    , 'https:' , 'http:'),
-				`photo`   = REPLACE(`photo`  , 'https:' , 'http:'),
-				`thumb`   = REPLACE(`thumb`  , 'https:' , 'http:'),
-				`micro`   = REPLACE(`micro`  , 'https:' , 'http:'),
-				`request` = REPLACE(`request`, 'https:' , 'http:'),
-				`notify`  = REPLACE(`notify` , 'https:' , 'http:'),
-				`poll`    = REPLACE(`poll`   , 'https:' , 'http:'),
-				`confirm` = REPLACE(`confirm`, 'https:' , 'http:'),
-				`poco`    = REPLACE(`poco`   , 'https:' , 'http:')
-				WHERE `self` = 1"
-				);
-				DBA::e("UPDATE `profile` SET
-				`photo`   = REPLACE(`photo`  , 'https:' , 'http:'),
-				`thumb`   = REPLACE(`thumb`  , 'https:' , 'http:')
-				WHERE 1 "
-				);
-			}
-		}
-		$transactionConfig->set('system', 'ssl_policy'            , $ssl_policy);
+
 		$transactionConfig->set('system', 'maxloadavg'            , $maxloadavg);
 		$transactionConfig->set('system', 'min_memory'            , $min_memory);
 		$transactionConfig->set('system', 'optimize_tables'       , $optimize_tables);
@@ -408,12 +368,6 @@ class Site extends BaseAdmin
 			Register::OPEN => DI::l10n()->t('Open')
 		];
 
-		$ssl_choices = [
-			App\BaseURL::SSL_POLICY_NONE => DI::l10n()->t('No SSL policy, links will track page SSL state'),
-			App\BaseURL::SSL_POLICY_FULL => DI::l10n()->t('Force all links to use SSL'),
-			App\BaseURL::SSL_POLICY_SELFSIGN => DI::l10n()->t('Self-signed certificate, use SSL for local links only (discouraged)')
-		];
-
 		$check_git_version_choices = [
 			'none' => DI::l10n()->t('Don\'t check'),
 			'stable' => DI::l10n()->t('check the stable version'),
@@ -428,7 +382,7 @@ class Site extends BaseAdmin
 			// ContactRelation::DISCOVERY_ALL => DI::l10n()->t('All'),
 		];
 
-		$diaspora_able = (DI::baseUrl()->getUrlPath() == '');
+		$diaspora_able = (DI::baseUrl()->getPath() == '');
 
 		$t = Renderer::getMarkupTemplate('admin/site.tpl');
 		return Renderer::replaceMacros($t, [
@@ -452,7 +406,7 @@ class Site extends BaseAdmin
 			'$relocate'          => DI::l10n()->t('Relocate Node'),
 			'$relocate_msg'      => DI::l10n()->t('Relocating your node enables you to change the DNS domain of this node and keep all the existing users and posts. This process takes a while and can only be started from the relocate console command like this:'),
 			'$relocate_cmd'      => DI::l10n()->t('(Friendica directory)# bin/console relocate https://newdomain.com'),
-			'$baseurl'           => DI::baseUrl()->get(true),
+			'$baseurl'           => DI::baseUrl(),
 
 			// name, label, value, help string, extra data...
 			'$sitename'         => ['sitename', DI::l10n()->t('Site name'), DI::config()->get('config', 'sitename'), ''],
@@ -464,9 +418,8 @@ class Site extends BaseAdmin
 			'$touch_icon'       => ['touch_icon', DI::l10n()->t('Touch icon'), DI::config()->get('system', 'touch_icon'), DI::l10n()->t('Link to an icon that will be used for tablets and mobiles.')],
 			'$additional_info'  => ['additional_info', DI::l10n()->t('Additional Info'), $additional_info, DI::l10n()->t('For public servers: you can add additional information here that will be listed at %s/servers.', Search::getGlobalDirectory())],
 			'$language'         => ['language', DI::l10n()->t('System language'), DI::config()->get('system', 'language'), '', $lang_choices],
-			'$theme'            => ['theme', DI::l10n()->t('System theme'), DI::config()->get('system', 'theme'), DI::l10n()->t('Default system theme - may be over-ridden by user profiles - <a href="%s" id="cnftheme">Change default theme settings</a>', DI::baseUrl()->get(true) . '/admin/themes'), $theme_choices],
+			'$theme'            => ['theme', DI::l10n()->t('System theme'), DI::config()->get('system', 'theme'), DI::l10n()->t('Default system theme - may be over-ridden by user profiles - <a href="%s" id="cnftheme">Change default theme settings</a>', DI::baseUrl() . '/admin/themes'), $theme_choices],
 			'$theme_mobile'     => ['theme_mobile', DI::l10n()->t('Mobile system theme'), DI::config()->get('system', 'mobile-theme', '---'), DI::l10n()->t('Theme for mobile devices'), $theme_choices_mobile],
-			'$ssl_policy'       => ['ssl_policy', DI::l10n()->t('SSL link policy'), DI::config()->get('system', 'ssl_policy'), DI::l10n()->t('Determines whether generated links should be forced to use SSL'), $ssl_choices],
 			'$force_ssl'        => ['force_ssl', DI::l10n()->t('Force SSL'), DI::config()->get('system', 'force_ssl'), DI::l10n()->t('Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.')],
 			'$show_help'        => ['show_help', DI::l10n()->t('Show help entry from navigation menu'), !DI::config()->get('system', 'hide_help'), DI::l10n()->t('Displays the menu entry for the Help pages from the navigation menu. It is always accessible by calling /help directly.')],
 			'$singleuser'       => ['singleuser', DI::l10n()->t('Single user instance'), DI::config()->get('system', 'singleuser', '---'), DI::l10n()->t('Make this instance multi-user or single-user for the named user'), $user_names],

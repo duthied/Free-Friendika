@@ -52,7 +52,7 @@ class NodeInfo210 extends BaseModule
 		$nodeinfo = [
 			'version' => '1.0',
 			'server'  => [
-				'baseUrl'  => $this->baseUrl->get(),
+				'baseUrl'  => $this->baseUrl,
 				'name'     => $this->config->get('config', 'sitename'),
 				'software' => 'friendica',
 				'version'  => App::VERSION . '-' . DB_UPDATE_VERSION,

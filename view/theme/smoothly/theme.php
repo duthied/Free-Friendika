@@ -1,4 +1,30 @@
 <?php
+/**
+ * @copyright Copyright (C) 2010-2023, the Friendica project
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Name: Vier
+ * Version: 1.2
+ * Author: Fabio <http://kirgroup.com/profile/fabrixxm>
+ * Author: Ike <http://pirati.ca/profile/heluecht>
+ * Author: Beanow <https://fc.oscp.info/profile/beanow>
+ * Maintainer: Ike <http://pirati.ca/profile/heluecht>
+ * Description: "Vier" is a very compact and modern theme. It uses the font awesome font library: http://fortawesome.github.com/Font-Awesome/
+ */
 
 /*
  * Name: Smoothly
@@ -23,7 +49,7 @@ function smoothly_init(App $a) {
 
 	$cssFile = null;
 	$ssl_state = false;
-	$baseurl = DI::baseUrl()->get($ssl_state);
+	$baseurl = DI::baseUrl();
 	DI::page()['htmlhead'] .= <<< EOT
 
 <script>
@@ -90,7 +116,7 @@ if (! function_exists('_js_in_foot')) {
 		/** @purpose insert stuff in bottom of page
 		*/
 		$ssl_state = false;
-		$baseurl = DI::baseUrl()->get($ssl_state);
+		$baseurl = DI::baseUrl();
 		$bottom['$baseurl'] = $baseurl;
 		$tpl = Renderer::getMarkupTemplate('bottom.tpl');
 

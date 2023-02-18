@@ -58,7 +58,7 @@ function message_init(App $a)
 
 	$head_tpl = Renderer::getMarkupTemplate('message-head.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($head_tpl, [
-		'$baseurl' => DI::baseUrl()->get(true),
+		'$baseurl' => DI::baseUrl(),
 		'$base'    => $base
 	]);
 }
@@ -178,7 +178,7 @@ function message_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => DI::baseUrl()->get(true),
+			'$baseurl' => DI::baseUrl(),
 			'$nickname' => $a->getLoggedInUserNickname(),
 			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
@@ -284,7 +284,7 @@ function message_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => DI::baseUrl()->get(true),
+			'$baseurl' => DI::baseUrl(),
 			'$nickname' => $a->getLoggedInUserNickname(),
 			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);

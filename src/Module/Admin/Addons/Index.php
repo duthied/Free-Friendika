@@ -68,7 +68,7 @@ class Index extends BaseAdmin
 			'$page' => DI::l10n()->t('Addons'),
 			'$submit' => DI::l10n()->t('Save Settings'),
 			'$reload' => DI::l10n()->t('Reload active addons'),
-			'$baseurl' => DI::baseUrl()->get(true),
+			'$baseurl' => DI::baseUrl(),
 			'$function' => 'addons',
 			'$addons' => $addons,
 			'$pcount' => count($addons),

@@ -194,7 +194,7 @@ class Nav
 
 		$myident = !empty($this->session->getLocalUserNickname()) ? $this->session->getLocalUserNickname() . '@' : '';
 
-		$sitelocation = $myident . substr($this->baseUrl->get($ssl_state), strpos($this->baseUrl->get($ssl_state), '//') + 2);
+		$sitelocation = $myident . substr($this->baseUrl, strpos($this->baseUrl, '//') + 2);
 
 		$nav = [
 			'admin'         => null,

@@ -76,7 +76,7 @@ class Renderer
 		DI::profiler()->startRecording('rendering');
 
 		// pass $baseurl to all templates if it isn't set
-		$vars = array_merge(['$baseurl' => DI::baseUrl()->get(), '$APP' => DI::app()], $vars);
+		$vars = array_merge(['$baseurl' => DI::baseUrl(), '$APP' => DI::app()], $vars);
 
 		$t = self::getTemplateEngine();
 
