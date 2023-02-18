@@ -105,8 +105,10 @@ class FollowRequests extends BaseApi
 		foreach ($introductions as $key => $introduction) {
 			try {
 				self::setBoundaries($introduction->id);
-				$return[] = DI::mstdnFollowRequest()->createFromIntroduction($introduction);
-			} catch (HTTPException\InternalServerErrorException $exception) {
+				$return[] = DI::mstdnAccount()->createFromContactId($introduction->cid, $introduction->uid);
+			} catch (HTTPException\InternalServerErrorException
+				| HTTPException\NotFoundException
+				| \ImagickException $exception) {
 				DI::intro()->delete($introduction);
 				unset($introductions[$key]);
 			}

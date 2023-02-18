@@ -80,7 +80,7 @@ class Notify extends BaseModule
 		$msg = Diaspora::decodeRaw($postdata, '', true);
 		if (!is_array($msg)) {
 			// We have to fail silently to be able to hand it over to the salmon parser
-			$this->logger->warning('Diaspora::decodeRaw() has failed for some reason.');
+			$this->logger->warning('Diaspora::decodeRaw() has failed for some reason.', ['post-data' => $postdata]);
 			return false;
 		}
 

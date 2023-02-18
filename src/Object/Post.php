@@ -534,6 +534,7 @@ class Post
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],
+			'emojis'          => $this->getEmojis($item),
 			'responses'       => $responses,
 			'switchcomment'   => DI::l10n()->t('Comment'),
 			'reply_label'     => DI::l10n()->t('Reply to %s', $profile_name),
@@ -600,6 +601,70 @@ class Post
 		$result['threaded']           = $this->isThreaded();
 
 		return $result;
+	}
+
+	/**
+	 * Fetch emojis
+	 *
+	 * @param array $item
+	 * @return array
+	 */
+	private function getEmojis(array $item): array
+	{
+		if (empty($item['emojis'])) {
+			return [];
+		}
+
+		$emojis = [];
+		foreach ($item['emojis'] as $index => $element) {
+			$actors = implode(', ', $element['title']);
+			switch ($element['verb']) {
+				case Activity::ANNOUNCE:
+					$title = DI::l10n()->t('Reshared by: %s', $actors);
+					$icon  = ['fa' => 'fa-retweet', 'icon' => 'icon-retweet'];
+					break;
+
+				case Activity::VIEW:
+					$title = DI::l10n()->t('Viewed by: %s', $actors);
+					$icon  = ['fa' => 'fa-eye', 'icon' => 'icon-eye-open'];
+					break;
+
+				case Activity::LIKE:
+					$title = DI::l10n()->t('Liked by: %s', $actors);
+					$icon  = ['fa' => 'fa-thumbs-up', 'icon' => 'icon-thumbs-up'];
+					break;
+
+				case Activity::DISLIKE:
+					$title = DI::l10n()->t('Disliked by: %s', $actors);
+					$icon  = ['fa' => 'fa-thumbs-down', 'icon' => 'icon-thumbs-down'];
+					break;
+
+				case Activity::ATTEND:
+					$title = DI::l10n()->t('Attended by: %s', $actors);
+					$icon  = ['fa' => 'fa-check', 'icon' => 'icon-ok'];
+					break;
+
+				case Activity::ATTENDMAYBE:
+					$title = DI::l10n()->t('Maybe attended by: %s', $actors);
+					$icon  = ['fa' => 'fa-question', 'icon' => 'icon-question'];
+					break;
+
+				case Activity::ATTENDNO:
+					$title = DI::l10n()->t('Not attended by: %s', $actors);
+					$icon  = ['fa' => 'fa-times', 'icon' => 'icon-remove'];
+					break;
+
+				default:
+					$title = DI::l10n()->t('Reacted with %s by: %s', $element['emoji'], $actors);
+					$icon  = [];
+					break;
+				break;
+			}
+			$emojis[$index] = ['emoji' => $element['emoji'], 'total' => $element['total'], 'title' => $title, 'icon' => $icon];
+		}
+		ksort($emojis);
+
+		return $emojis;
 	}
 
 	/**

@@ -282,7 +282,7 @@ class Notification extends BaseRepository
 			'parent-uri-id' => $itemUriId,
 		];
 
-		$this->logger->notice('deleteForItem', ['conditionTarget' => $conditionTarget, 'conditionParent' => $conditionParent]);
+		$this->logger->info('deleteForItem', ['conditionTarget' => $conditionTarget, 'conditionParent' => $conditionParent]);
 
 		return
 			$this->db->delete(self::$table_name, $conditionTarget)

@@ -178,7 +178,15 @@
 					<div class="wall-item-bottom">
 						<div class="wall-item-links">
 						</div>
-                        {{if $item.responses}}
+						{{if $item.emojis}}
+							{{foreach $item.emojis as $emoji}}
+								{{if $emoji.icon.icon}}
+									<span class="wall-item-emoji" title="{{$emoji.title}}"><i class="{{$emoji.icon.icon}} icon-large" aria-hidden="true"></i> {{$emoji.total}}</span>
+								{{else}}
+									<span class="wall-item-emoji" title="{{$emoji.title}}">{{$emoji.emoji}} {{$emoji.total}}</span>
+								{{/if}}
+							{{/foreach}}
+                        {{elseif $item.responses}}
                             {{foreach $item.responses as $verb=>$response}}
 								<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output nofilter}}</div>
                             {{/foreach}}
