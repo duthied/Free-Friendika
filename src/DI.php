@@ -126,10 +126,7 @@ abstract class DI
 		return self::$dice->create(App\Arguments::class);
 	}
 
-	/**
-	 * @return App\BaseURL
-	 */
-	public static function baseUrl()
+	public static function baseUrl(): App\BaseURL
 	{
 		return self::$dice->create(App\BaseURL::class);
 	}
