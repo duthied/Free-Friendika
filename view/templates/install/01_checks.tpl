@@ -1,7 +1,7 @@
 
 <h1><img width="32" height="32" src="{{$baseurl}}/images/friendica.svg"> {{$title}}</h1>
 <h2>{{$pass}}</h2>
-<form  action="{{$baseurl}}/install" method="post">
+<form  action="{{$baseurl}}/index.php?pagename=install" method="post">
 <table>
 {{foreach $checks as $check}}
 	<tr><td>{{$check.title nofilter}} </td><td>

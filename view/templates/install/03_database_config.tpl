@@ -19,7 +19,7 @@
 	{{/foreach}}
 </table>
 
-<form id="install-form" action="{{$baseurl}}/install" method="post">
+<form id="install-form" action="{{$baseurl}}/index.php?pagename=install" method="post">
 
 	<input type="hidden" name="config-php_path" value="{{$php_path}}" />
 	<input type="hidden" name="system-basepath" value="{{$basepath}}" />
