@@ -446,8 +446,6 @@ class Conversation
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
-		$ssl_state = (bool)$this->session->getLocalUserId();
-
 		$live_update_div = '';
 
 		$blocklist = $this->getBlocklist();

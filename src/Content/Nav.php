@@ -184,8 +184,6 @@ class Nav
 	 */
 	private function getInfo(): array
 	{
-		$ssl_state = (bool) $this->session->getLocalUserId();
-
 		/*
 		 * Our network is distributed, and as you visit friends some
 		 * sites look exactly the same - it isn't always easy to know where you are.
