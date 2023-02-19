@@ -406,7 +406,6 @@ class Site extends BaseAdmin
 			'$relocate'          => DI::l10n()->t('Relocate Node'),
 			'$relocate_msg'      => DI::l10n()->t('Relocating your node enables you to change the DNS domain of this node and keep all the existing users and posts. This process takes a while and can only be started from the relocate console command like this:'),
 			'$relocate_cmd'      => DI::l10n()->t('(Friendica directory)# bin/console relocate https://newdomain.com'),
-			'$baseurl'           => DI::baseUrl(),
 
 			// name, label, value, help string, extra data...
 			'$sitename'         => ['sitename', DI::l10n()->t('Site name'), DI::config()->get('config', 'sitename'), ''],

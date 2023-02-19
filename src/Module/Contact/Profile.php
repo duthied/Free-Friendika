@@ -236,7 +236,6 @@ class Profile extends BaseModule
 		$_SESSION['return_path'] = $this->args->getQueryString();
 
 		$this->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_head.tpl'), [
-			'$baseurl' => $this->baseUrl,
 		]);
 
 		switch ($localRelationship->rel) {

@@ -80,7 +80,6 @@ class Settings extends BaseAdmin
 			'$page' => DI::l10n()->t('Logs'),
 			'$submit' => DI::l10n()->t('Save Settings'),
 			'$clear' => DI::l10n()->t('Clear'),
-			'$baseurl' => DI::baseUrl(),
 			'$logname' => DI::config()->get('system', 'logfile'),
 			// see /help/smarty3-templates#1_1 on any Friendica node
 			'$debugging' => ['debugging', DI::l10n()->t("Enable Debugging"), DI::config()->get('system', 'debugging'), ""],

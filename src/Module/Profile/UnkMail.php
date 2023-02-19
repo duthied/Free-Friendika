@@ -141,7 +141,6 @@ class UnkMail extends \Friendica\BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('profile/unkmail-header.tpl');
 		$this->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl'  => $this->baseUrl,
 			'$nickname' => $user['nickname'],
 			'$linkurl'  => $this->l10n->t('Please enter a link URL:')
 		]);

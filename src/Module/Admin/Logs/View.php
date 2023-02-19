@@ -80,7 +80,6 @@ class View extends BaseAdmin
 			}
 		}
 		return Renderer::replaceMacros($t, [
-			'$baseurl'       => DI::baseUrl(),
 			'$title'         => DI::l10n()->t('Administration'),
 			'$page'          => DI::l10n()->t('View Logs'),
 			'$l10n'          => [

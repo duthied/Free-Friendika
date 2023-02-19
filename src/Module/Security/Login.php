@@ -132,7 +132,6 @@ class Login extends BaseModule
 			DI::page()['htmlhead'] .= Renderer::replaceMacros(
 				Renderer::getMarkupTemplate('login_head.tpl'),
 				[
-					'$baseurl' => DI::baseUrl()
 				]
 			);
 

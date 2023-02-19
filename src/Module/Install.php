@@ -228,7 +228,7 @@ class Install extends BaseModule
 					'$system_url'    => ['system-url',
 						$this->t('The Friendica system URL'),
 						(string)$baseUrl,
-						$this->t('Overwrite this field in case the system URL determination isn\'t right, otherwise leave it as is.'),
+						$this->t("Overwrite this field in case the system URL determination isn't right, otherwise leave it as is."),
 						$this->t('Required')],
 					'$php_path'   => $configCache->get('config', 'php_path'),
 					'$submit'     => $this->t('Submit'),

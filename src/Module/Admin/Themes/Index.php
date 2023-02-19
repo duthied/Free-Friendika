@@ -112,7 +112,6 @@ class Index extends BaseAdmin
 			'$page'                => DI::l10n()->t('Themes'),
 			'$submit'              => DI::l10n()->t('Save Settings'),
 			'$reload'              => DI::l10n()->t('Reload active themes'),
-			'$baseurl'             => DI::baseUrl(),
 			'$function'            => 'themes',
 			'$addons'              => $addons,
 			'$pcount'              => count($themes),

@@ -168,7 +168,6 @@ class Index extends BaseUsers
 			'$form_security_token' => self::getFormSecurityToken('moderation_users'),
 
 			// values //
-			'$baseurl'      => $this->baseUrl,
 			'$query_string' => $this->args->getQueryString(),
 
 			'$users' => $users,

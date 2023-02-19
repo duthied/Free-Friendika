@@ -208,7 +208,6 @@ class Index extends BaseSettings
 		];
 
 		DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/profile/index_head.tpl'), [
-			'$baseurl' => DI::baseUrl(),
 		]);
 
 		$personal_account = ($profile['account-type'] != User::ACCOUNT_TYPE_COMMUNITY);

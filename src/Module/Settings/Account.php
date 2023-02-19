@@ -558,7 +558,6 @@ class Account extends BaseSettings
 			'$desc'   => DI::l10n()->t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . DI::baseUrl()->getHost() . DI::baseUrl()->getPath(), DI::baseUrl() . '/profile/' . $nickname),
 
 			'$submit'              => DI::l10n()->t('Save Settings'),
-			'$baseurl'             => DI::baseUrl(),
 			'$uid'                 => DI::userSession()->getLocalUserId(),
 			'$form_security_token' => self::getFormSecurityToken('settings'),
 			'$open'                => $this->parameters['open'] ?? 'password',

@@ -105,7 +105,6 @@ class Pending extends BaseUsers
 			'$form_security_token' => self::getFormSecurityToken('admin_users_pending'),
 
 			// values //
-			'$baseurl' => $this->baseUrl,
 			'$query_string' => $this->args->getQueryString(),
 
 			'$pending' => $pending,

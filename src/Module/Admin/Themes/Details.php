@@ -91,7 +91,6 @@ class Details extends BaseAdmin
 			'$page' => DI::l10n()->t('Themes'),
 			'$toggle' => DI::l10n()->t('Toggle'),
 			'$settings' => DI::l10n()->t('Settings'),
-			'$baseurl' => DI::baseUrl(),
 			'$addon' => $theme,
 			'$status' => $status,
 			'$action' => $action,

@@ -78,7 +78,6 @@ class Schedule extends BaseProfile
 		$tpl = Renderer::getMarkupTemplate('profile/schedule.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("profile_schedule"),
-			'$baseurl'             => DI::baseUrl(),
 			'$title'               => DI::l10n()->t('Scheduled Posts'),
 			'$nickname'            => $this->parameters['nickname'] ?? '',
 			'$scheduled_at'        => DI::l10n()->t('Scheduled'),
