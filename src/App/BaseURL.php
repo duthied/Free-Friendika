@@ -44,11 +44,9 @@ class BaseURL extends Uri implements UriInterface
 			$url = ServerRequest::getUriFromGlobals()
 								->withQuery('')
 								->withPath($this->determineURLPath($server));
-
-			parent::__construct((string)$url);
-		} else {
-			parent::__construct($url);
 		}
+
+		parent::__construct($url);
 	}
 
 	/**
