@@ -34,7 +34,7 @@ use Friendica\Network\HTTPException;
 /**
  * Class Instance
  *
- * @see https://docs.joinmastodon.org/api/entities/#instance
+ * @see https://docs.joinmastodon.org/entities/V1_Instance/
  */
 class Instance extends BaseDataTransferObject
 {
