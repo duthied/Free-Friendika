@@ -17,13 +17,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Name: Vier
- * Version: 1.2
- * Author: Fabio <http://kirgroup.com/profile/fabrixxm>
- * Author: Ike <http://pirati.ca/profile/heluecht>
- * Author: Beanow <https://fc.oscp.info/profile/beanow>
- * Maintainer: Ike <http://pirati.ca/profile/heluecht>
- * Description: "Vier" is a very compact and modern theme. It uses the font awesome font library: http://fortawesome.github.com/Font-Awesome/
+ * Name: smoothly
+ *
+ * BEWARE: currently UNSUPPORTED
  */
 
 /*
