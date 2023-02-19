@@ -45,9 +45,4 @@ class FriendicaExtension extends BaseDataTransferObject
 	{
 		$this->title = $title;
 	}
-
-	public function __get($name)
-	{
-		return $this->$name;
-	}
 }
