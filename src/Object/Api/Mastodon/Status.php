@@ -96,8 +96,8 @@ class Status extends BaseDataTransferObject
 	protected $card = null;
 	/** @var Poll|null */
 	protected $poll = null;
-	/** @var FriendicaExtension|null */
-	protected $friendica = null;
+	/** @var FriendicaExtension */
+	protected $friendica;
 
 	/**
 	 * Creates a status record from an item record.
