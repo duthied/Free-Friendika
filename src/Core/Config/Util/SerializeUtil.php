@@ -31,14 +31,14 @@ class SerializeUtil
 	/**
 	 * Checks if the value needs to get unserialized and returns the unserialized value
 	 *
-	 * @param mixed $value A possible serialized value
+	 * @param mixed $value A possibly serialized value
 	 *
 	 * @return mixed The unserialized value
 	 */
 	public static function maybeUnserialize($value)
 	{
 		// This checks for possible multiple serialized values
-		while (SerializeUtil::isSerialized($value)) {
+		while (static::isSerialized($value)) {
 			$oldValue = $value;
 			$value = @unserialize($value);
 
