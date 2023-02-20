@@ -57,6 +57,7 @@ class OptimizeTables
 		DBA::e("OPTIMIZE TABLE `notify`");
 		DBA::e("OPTIMIZE TABLE `oembed`");
 		DBA::e("OPTIMIZE TABLE `parsed_url`");
+		DBA::e("OPTIMIZE TABLE `session`");
 		DBA::e("OPTIMIZE TABLE `photo`");
 		DBA::e("OPTIMIZE TABLE `post`");
 		DBA::e("OPTIMIZE TABLE `post-content`");
