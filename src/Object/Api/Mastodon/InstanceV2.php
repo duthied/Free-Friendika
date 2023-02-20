@@ -21,12 +21,7 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\App;
-use Friendica\App\BaseURL;
 use Friendica\BaseDataTransferObject;
-use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Database\Database;
-use Friendica\Network\HTTPException;
 use Friendica\Object\Api\Mastodon\InstanceV2\Configuration;
 use Friendica\Object\Api\Mastodon\InstanceV2\Contact;
 use Friendica\Object\Api\Mastodon\InstanceV2\FriendicaExtensions;
@@ -69,28 +64,45 @@ class InstanceV2 extends BaseDataTransferObject
 	protected $friendica;
 
 	/**
-	 * @param IManageConfigValues $config
-	 * @param BaseURL             $baseUrl
-	 * @param Database            $database
-	 * @param array               $rules
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws HTTPException\NotFoundException
-	 * @throws \ImagickException
+	 * @param string $domain
+	 * @param string $title
+	 * @param $version
+	 * @param string $description
+	 * @param Usage $usage
+	 * @param Thumbnail $thumbnail
+	 * @param array $languages
+	 * @param Configuration $configuration
+	 * @param Registrations $registrations
+	 * @param Contact $contact
+	 * @param FriendicaExtensions $friendica_extensions
+	 * @param array $rules
 	 */
-	public function __construct(IManageConfigValues $config, BaseURL $baseUrl, Database $database, array $rules = [])
-	{
-		$this->domain        = $baseUrl->getHostname();
-		$this->title         = $config->get('config', 'sitename');
-		$this->version       = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
-		$this->source_url	 = null; //not supported yet
-		$this->description   = $config->get('config', 'info');
-		$this->usage         = new Usage($config);
-		$this->thumbnail     = new Thumbnail($baseUrl);
-		$this->languages     = [$config->get('system', 'language')];
-		$this->configuration = new Configuration();
-		$this->registrations = new Registrations();
-		$this->contact       = new Contact($database);
+	public function __construct(
+		string              $domain,
+		string              $title,
+		string              $version,
+		string              $description,
+		Usage               $usage,
+		Thumbnail           $thumbnail,
+		array               $languages,
+		Configuration       $configuration,
+		Registrations       $registrations,
+		Contact             $contact,
+		FriendicaExtensions $friendica_extensions,
+		array $rules
+	) {
+		$this->domain        = $domain;
+		$this->title         = $title;
+		$this->version       = $version;
+		$this->source_url    = null; //not supported yet
+		$this->description   = $description;
+		$this->usage         = $usage;
+		$this->thumbnail     = $thumbnail;
+		$this->languages     = $languages;
+		$this->configuration = $configuration;
+		$this->registrations = $registrations;
+		$this->contact       = $contact;
 		$this->rules         = $rules;
-		$this->friendica     = new FriendicaExtensions();
+		$this->friendica     = $friendica_extensions;
 	}
 }

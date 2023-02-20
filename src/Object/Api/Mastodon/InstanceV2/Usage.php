@@ -33,8 +33,11 @@ class Usage extends BaseDataTransferObject
 	/** @var UserStats */
 	protected $users;
 
-	public function __construct()
+	/**
+	 * @param UserStats $users
+	 */
+	public function __construct(UserStats $users)
 	{
-		$this->users = new UserStats();
+		$this->users = $users;
 	}
 }

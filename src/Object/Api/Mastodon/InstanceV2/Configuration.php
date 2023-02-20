@@ -22,7 +22,6 @@
 namespace Friendica\Object\Api\Mastodon\InstanceV2;
 
 use Friendica\BaseDataTransferObject;
-use Friendica\DI;
 
 /**
  * Class Configuration
@@ -33,15 +32,23 @@ class Configuration extends BaseDataTransferObject
 {
 	/** @var StatusesConfig */
 	protected $statuses;
-	/** @var MediaAttachmentsConfig  */
+	/** @var MediaAttachmentsConfig */
 	protected $media_attachments;
 	/** @var int */
 	protected $image_size_limit;
 
-	public function __construct()
-	{
-		$this->statuses          = new StatusesConfig();
-		$this->media_attachments = new MediaAttachmentsConfig();
-		$this->image_size_limit  = DI::config()->get('system', 'maximagesize');
+	/**
+	 * @param StatusesConfig $statuses
+	 * @param MediaAttachmentsConfig $media_attachments
+	 * @param int $image_size_limit
+	 */
+	public function __construct(
+		StatusesConfig $statuses,
+		MediaAttachmentsConfig $media_attachments,
+		int $image_size_limit
+	) {
+		$this->statuses          = $statuses;
+		$this->media_attachments = $media_attachments;
+		$this->image_size_limit  = $image_size_limit;
 	}
 }

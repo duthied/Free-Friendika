@@ -22,8 +22,6 @@
 namespace Friendica\Object\Api\Mastodon\InstanceV2;
 
 use Friendica\BaseDataTransferObject;
-use Friendica\DI;
-use Friendica\Module\Register;
 
 /**
  * Class Registrations
@@ -37,11 +35,13 @@ class Registrations extends BaseDataTransferObject
 	/** @var bool */
 	protected $approval_required;
 
-	public function __construct()
+	/**
+	 * @param bool $enabled
+	 * @param bool $approval_required
+	 */
+	public function __construct(bool $enabled, bool $approval_required)
 	{
-		$config                  = DI::config();
-		$register_policy         = intval($config->get('config', 'register_policy'));
-		$this->enabled           =  ($register_policy != Register::CLOSED);
-		$this->approval_required = ($register_policy == Register::APPROVE);
+		$this->enabled           = $enabled;
+		$this->approval_required = $approval_required;
 	}
 }

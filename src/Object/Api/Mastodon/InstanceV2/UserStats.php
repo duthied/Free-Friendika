@@ -22,7 +22,6 @@
 namespace Friendica\Object\Api\Mastodon\InstanceV2;
 
 use Friendica\BaseDataTransferObject;
-use Friendica\DI;
 
 /**
  * Class UserStats
@@ -34,11 +33,11 @@ class UserStats extends BaseDataTransferObject
 	/** @var int */
 	protected $active_monthly = 0;
 
-	public function __construct()
+	/**
+	 * @param $active_monthly
+	 */
+	public function __construct($active_monthly)
 	{
-		$config = DI::config();
-		if (!empty($config->get('system', 'nodeinfo'))) {
-			$this->active_monthly = intval(DI::keyValue()->get('nodeinfo_active_users_monthly'));
-		}
+		$this->active_monthly = $active_monthly;
 	}
 }

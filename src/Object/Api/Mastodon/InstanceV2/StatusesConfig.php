@@ -22,7 +22,6 @@
 namespace Friendica\Object\Api\Mastodon\InstanceV2;
 
 use Friendica\BaseDataTransferObject;
-use Friendica\DI;
 
 /**
  * Class StatusConfig
@@ -31,16 +30,14 @@ use Friendica\DI;
  */
 class StatusesConfig extends BaseDataTransferObject
 {
-	/** @var int  */
+	/** @var int */
 	protected $max_characters = 0;
 
-	public function __construct()
+	/**
+	 * @param int $max_characters
+	 */
+	public function __construct(int $max_characters)
 	{
-		$config               = DI::config();
-		$this->max_characters = (int)$config->get(
-			'config',
-			'api_import_size',
-			$config->get('config', 'max_import_size')
-		);
+		$this->max_characters = $max_characters;
 	}
 }

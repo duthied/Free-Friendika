@@ -21,9 +21,7 @@
 
 namespace Friendica\Object\Api\Mastodon\InstanceV2;
 
-use Friendica\App;
 use Friendica\BaseDataTransferObject;
-use Friendica\DI;
 
 /**
  * Class FriendicaExtensions
@@ -41,10 +39,15 @@ class FriendicaExtensions extends BaseDataTransferObject
 	/** @var int */
 	protected $db_version;
 
-	public function __construct()
+	/**
+	 * @param string $version
+	 * @param string $codename
+	 * @param int $db_version
+	 */
+	public function __construct(string $version, string $codename, int $db_version)
 	{
-		$this->version    = App::VERSION;
-		$this->codename   = App::CODENAME;
-		$this->db_version = DI::config()->get('system', 'build');
+		$this->version    = $version;
+		$this->codename   = $codename;
+		$this->db_version = $db_version;
 	}
 }

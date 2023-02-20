@@ -22,9 +22,6 @@
 namespace Friendica\Object\Api\Mastodon\InstanceV2;
 
 use Friendica\BaseDataTransferObject;
-use Friendica\Database\Database;
-use Friendica\DI;
-use Friendica\Model\User;
 use Friendica\Object\Api\Mastodon\Account;
 
 /**
@@ -36,21 +33,17 @@ class Contact extends BaseDataTransferObject
 {
 	/** @var string */
 	protected $email;
-	/** @var Account */
+	/** @var Account|null */
 	protected $account = null;
 
 
-	public function __construct(Database $database)
+	/**
+	 * @param string $email
+	 * @param Account $account
+	 */
+	public function __construct(string $email, Account $account)
 	{
-		$this->email   = implode(',', User::getAdminEmailList());
-		$administrator = User::getFirstAdmin();
-		if ($administrator) {
-			$adminContact = $database->selectFirst(
-				'contact',
-				['uri-id'],
-				['nick' => $administrator['nickname'], 'self' => true]
-			);
-			$this->account = DI::mstdnAccount()->createFromUriId($adminContact['uri-id']);
-		}
+		$this->email   = $email;
+		$this->account = $account;
 	}
 }

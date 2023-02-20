@@ -22,7 +22,6 @@
 namespace Friendica\Object\Api\Mastodon\InstanceV2;
 
 use Friendica\BaseDataTransferObject;
-use Friendica\Util\Images;
 
 /**
  * Class MediaAttachmentsConfig
@@ -33,8 +32,12 @@ class MediaAttachmentsConfig extends BaseDataTransferObject
 {
 	/** @var string[] */
 	protected $supported_mime_types;
-	public function __construct()
+
+	/**
+	 * @param array $supported_mime_types
+	 */
+	public function __construct(array $supported_mime_types)
 	{
-		$this->supported_mime_types = Images::supportedTypes();
+		$this->supported_mime_types = $supported_mime_types;
 	}
 }

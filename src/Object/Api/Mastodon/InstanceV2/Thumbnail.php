@@ -21,7 +21,6 @@
 
 namespace Friendica\Object\Api\Mastodon\InstanceV2;
 
-use Friendica\App\BaseURL;
 use Friendica\BaseDataTransferObject;
 
 /**
@@ -34,8 +33,11 @@ class Thumbnail extends BaseDataTransferObject
 	/** @var string (URL) */
 	protected $url;
 
-	public function __construct(BaseURL $baseUrl)
+	/**
+	 * @param string $url
+	 */
+	public function __construct(string $url)
 	{
-		$this->url = $baseUrl->get() . 'images/friendica-banner.jpg';
+		$this->url = $url;
 	}
 }
