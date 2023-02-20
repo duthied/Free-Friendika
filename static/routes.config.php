@@ -310,7 +310,7 @@ return [
 			'/trends/tags'                       => [Module\Api\Mastodon\Trends\Tags::class,              [R::GET         ]],
 		],
 		'/v2' => [
-			'/instance'                          => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
+			'/instance'                          => [Module\Api\Mastodon\InstanceV2::class,            [R::GET         ]], // not supported
 		],
 		'/v{version:\d+}' => [
 			'/admin/accounts'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
