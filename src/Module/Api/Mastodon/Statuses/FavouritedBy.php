@@ -49,7 +49,7 @@ class FavouritedBy extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $id, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::LIKE]);
+		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $id, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::LIKE, 'deleted' => false]);
 
 		$accounts = [];
 
