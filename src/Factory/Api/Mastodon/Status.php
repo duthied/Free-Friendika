@@ -144,10 +144,18 @@ class Status extends BaseFactory
 			'deleted'       => false
 		]);
 
+		$count_dislike = Post::countPosts([
+			'thr-parent-id' => $uriId,
+			'gravity'       => Item::GRAVITY_ACTIVITY,
+			'vid'           => Verb::getID(Activity::DISLIKE),
+			'deleted'       => false
+		]);
+
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
 			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => Item::GRAVITY_COMMENT, 'deleted' => false], []),
 			$count_announce,
-			$count_like
+			$count_like,
+			$count_dislike
 		);
 
 		$origin_like = ($count_like == 0) ? false : Post::exists([
@@ -323,7 +331,7 @@ class Status extends BaseFactory
 
 		$replies = $this->dba->count('mail', ['thr-parent-id' => $item['uri-id'], 'reply' => true]);
 
-		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts($replies, 0, 0);
+		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts($replies, 0, 0, 0);
 
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(false, false, false, false, false);
 

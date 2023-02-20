@@ -151,7 +151,7 @@ class Status extends BaseDataTransferObject
 		$this->emojis = [];
 		$this->card = $card->toArray() ?: null;
 		$this->poll = $poll;
-		$this->friendica = new FriendicaExtension($item['title']);
+		$this->friendica = new FriendicaExtension($item['title'], $counts->dislikes);
 	}
 
 	/**
