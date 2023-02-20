@@ -1291,6 +1291,7 @@ function update_1514()
 
 function update_1515()
 {
+	DBA::update('verb', ['name' => Activity::READ], ['name' => 'https://www.w3.org/ns/activitystreams#read']);
 	DBA::update('verb', ['name' => Activity::VIEW], ['name' => 'https://joinpeertube.org/view']);
 	return Update::SUCCESS;
 }
