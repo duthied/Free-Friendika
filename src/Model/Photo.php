@@ -918,7 +918,7 @@ class Photo
 	 */
 	public static function getResourceData(string $name): array
 	{
-		$base = DI::baseUrl()->get();
+		$base = DI::baseUrl();
 
 		$guid = str_replace([Strings::normaliseLink($base), '/photo/'], '', Strings::normaliseLink($name));
 
@@ -982,7 +982,7 @@ class Photo
 	 */
 	public static function isLocalPage(string $name): bool
 	{
-		$base = DI::baseUrl()->get();
+		$base = DI::baseUrl();
 
 		$guid = str_replace(Strings::normaliseLink($base), '', Strings::normaliseLink($name));
 		$guid = preg_replace("=/photos/.*/image/(.*)=ism", '$1', $guid);

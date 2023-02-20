@@ -212,7 +212,7 @@ class Notifier
 			// if $parent['wall'] == 1 we will already have the parent message in our array
 			// and we will relay the whole lot.
 
-			$localhost = str_replace('www.','', DI::baseUrl()->getHostname());
+			$localhost = str_replace('www.','', DI::baseUrl()->getHost());
 			if (strpos($localhost,':')) {
 				$localhost = substr($localhost,0,strpos($localhost,':'));
 			}

@@ -903,7 +903,7 @@ class Item
 			if ($post['attach']) {
 				$post['attach'] .= ',';
 			}
-			$post['attach'] .= Post\Media::getAttachElement($this->baseURL->get() . '/attach/' . $attachment['id'],
+			$post['attach'] .= Post\Media::getAttachElement($this->baseURL . '/attach/' . $attachment['id'],
 				$attachment['filesize'], $attachment['filetype'], $attachment['filename'] ?? '');
 
 			$fields = ['allow_cid' => $post['allow_cid'], 'allow_gid' => $post['allow_gid'],

@@ -37,9 +37,9 @@ class Config extends BaseApi
 		$config = [
 			'site' => [
 				'name'         => DI::config()->get('config', 'sitename'),
-				'server'       => DI::baseUrl()->getHostname(),
+				'server'       => DI::baseUrl()->getHost(),
 				'theme'        => DI::config()->get('system', 'theme'),
-				'path'         => DI::baseUrl()->getUrlPath(),
+				'path'         => DI::baseUrl()->getPath(),
 				'logo'         => DI::baseUrl() . '/images/friendica-64.png',
 				'fancy'        => true,
 				'language'     => DI::config()->get('system', 'language'),
@@ -52,7 +52,7 @@ class Config extends BaseApi
 				'private'      => (bool)DI::config()->get('system', 'block_public'),
 				'textlimit'    => (string) DI::config()->get('config', 'api_import_size', DI::config()->get('config', 'max_import_size')),
 				'sslserver'    => null,
-				'ssl'          => DI::config()->get('system', 'ssl_policy') == App\BaseURL::SSL_POLICY_FULL ? 'always' : '0',
+				'ssl'          => DI::baseUrl()->getScheme() === 'https' ? 'always' : '0',
 				'friendica'    => [
 					'FRIENDICA_PLATFORM'    => App::PLATFORM,
 					'FRIENDICA_VERSION'     => App::VERSION,

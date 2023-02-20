@@ -90,7 +90,7 @@ class HttpClient extends BaseFactory
 					 App::CODENAME . "' " .
 					 App::VERSION . '-' .
 					 DB_UPDATE_VERSION . '; ' .
-					 $this->baseUrl->get();
+					 $this->baseUrl;
 
 		$guzzle = new GuzzleHttp\Client([
 			RequestOptions::ALLOW_REDIRECTS => [

@@ -93,7 +93,6 @@ class PasswordTooLong extends \Friendica\BaseModule
 				'submit' => $this->l10n->t('Update Password'),
 			],
 
-			'$baseurl'             => $this->baseUrl->get(true),
 			'$form_security_token' => self::getFormSecurityToken('security/password_too_long'),
 			'$return_url'          => $request['return_url'] ?? '',
 

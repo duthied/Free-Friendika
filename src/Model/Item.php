@@ -408,7 +408,7 @@ class Item
 		if ($notify) {
 			// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
 			// We add the hash of our own host because our host is the original creator of the post.
-			$prefix_host = DI::baseUrl()->getHostname();
+			$prefix_host = DI::baseUrl()->getHost();
 		} else {
 			$prefix_host = '';
 
@@ -2048,7 +2048,7 @@ class Item
 			$guid = System::createUUID();
 		}
 
-		return DI::baseUrl()->get() . '/objects/' . $guid;
+		return DI::baseUrl() . '/objects/' . $guid;
 	}
 
 	/**
@@ -2288,7 +2288,7 @@ class Item
 		}
 
 		// Prevent to forward already forwarded posts
-		if ($datarray['app'] == DI::baseUrl()->getHostname()) {
+		if ($datarray['app'] == DI::baseUrl()->getHost()) {
 			Logger::info('Already forwarded (second test)');
 			return false;
 		}

@@ -33,7 +33,7 @@ class NodeInfo
 		Logger::info('start');
 		ModelNodeInfo::update();
 		// Now trying to register
-		$url = 'http://the-federation.info/register/' . DI::baseUrl()->getHostname();
+		$url = 'http://the-federation.info/register/' . DI::baseUrl()->getHost();
 		Logger::debug('Check registering url', ['url' => $url]);
 		$ret = DI::httpClient()->fetch($url, HttpClientAccept::HTML);
 		Logger::debug('Check registering answer', ['answer' => $ret]);

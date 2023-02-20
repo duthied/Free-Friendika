@@ -555,11 +555,12 @@ class App
 	 * @param ModuleHTTPException         $httpException The possible HTTP Exception container
 	 * @param HTTPInputData               $httpInput  A library for processing PHP input streams
 	 * @param float                       $start_time The start time of the overall script execution
+	 * @param array                       $server     The $_SERVER array
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, Nav $nav, ModuleHTTPException $httpException, HTTPInputData $httpInput, float $start_time)
+	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, Nav $nav, ModuleHTTPException $httpException, HTTPInputData $httpInput, float $start_time, array $server)
 	{
 		$this->profiler->set($start_time, 'start');
 		$this->profiler->set(microtime(true), 'classinit');
@@ -575,10 +576,12 @@ class App
 
 			if (!$this->mode->isInstall()) {
 				// Force SSL redirection
-				if ($this->baseURL->checkRedirectHttps()) {
-					System::externalRedirect($this->baseURL->get() . '/' . $this->args->getQueryString());
+				if ($this->config->get('system', 'force_ssl') &&
+					(empty($server['HTTPS']) || $server['HTTPS'] === 'off') &&
+					!empty($server['REQUEST_METHOD']) &&
+					$server['REQUEST_METHOD'] === 'GET') {
+					System::externalRedirect($this->baseURL . '/' . $this->args->getQueryString());
 				}
-
 				Core\Hook::callAll('init_1');
 			}
 

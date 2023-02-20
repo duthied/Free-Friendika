@@ -36,7 +36,6 @@ return [
 		'sitename' => 'Friendica Social Network',
 		'register_policy' => \Friendica\Module\Register::OPEN,
 		'register_text' => '',
-		'hostname' => 'friendica.local',
 	],
 	'system' => [
 		'default_timezone' => 'UTC',
