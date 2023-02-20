@@ -104,6 +104,13 @@ class Tag extends BaseApi
 			$params['order'] = ['uri-id'];
 		}
 
+		if (!empty($uid)) {
+			$condition = DBA::mergeConditions(
+				$condition,
+				["NOT `parent-author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND (`blocked` OR `ignored`) AND `cid` = `parent-author-id`)", $uid]
+			);
+		}
+
 		$items = DBA::select('tag-search-view', ['uri-id'], $condition, $params);
 
 		$display_quotes = self::appSupportsQuotes();

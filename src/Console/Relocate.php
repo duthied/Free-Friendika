@@ -92,9 +92,9 @@ HELP;
 			throw new \InvalidArgumentException('Can not parse new base URL. Must have at least <scheme>://<domain>');
 		}
 
-		$this->out(sprintf('Relocation started from %s to %s. Could take a while to complete.', $this->baseUrl->get(true), $this->getArgument(0)));
+		$this->out(sprintf('Relocation started from %s to %s. Could take a while to complete.', $this->baseUrl, $this->getArgument(0)));
 
-		$old_url = $this->baseUrl->get(true);
+		$old_url = $this->baseUrl;
 
 		// Generate host names for relocation the addresses in the format user@address.tld
 		$new_host = str_replace('http://', '@', Strings::normaliseLink($new_url));
@@ -179,7 +179,6 @@ HELP;
 			// update config
 			$this->out('Updating config values');
 			$this->config->set('system', 'url', $new_url);
-			$this->baseUrl->saveByURL($new_url);
 
 			$this->database->commit();
 		} catch (\Throwable $e) {

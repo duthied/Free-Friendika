@@ -98,6 +98,10 @@ class Summary extends BaseAdmin
 			$warningtext[] = DI::l10n()->t('The last update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear. (Some of the errors are possibly inside the logfile.)');
 		}
 
+		if (empty(DI::config()->get('system', 'url'))) {
+			$warningtext[] = DI::l10n()->t('The system.url entry is missing. This is a low level setting and can lead to unexpected behavior. Please add a valid entry as soon as possible in the config file or per console command!');
+		}
+
 		$last_worker_call = DI::keyValue()->get('last_worker_execution');
 		if (!$last_worker_call) {
 			$warningtext[] = DI::l10n()->t('The worker was never executed. Please check your database structure!');
@@ -107,18 +111,18 @@ class Summary extends BaseAdmin
 
 		// Legacy config file warning
 		if (file_exists('.htconfig.php')) {
-			$warningtext[] = DI::l10n()->t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', DI::baseUrl()->get() . '/help/Config');
+			$warningtext[] = DI::l10n()->t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', DI::baseUrl() . '/help/Config');
 		}
 
 		if (file_exists('config/local.ini.php')) {
-			$warningtext[] = DI::l10n()->t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>config/local.ini.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', DI::baseUrl()->get() . '/help/Config');
+			$warningtext[] = DI::l10n()->t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>config/local.ini.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', DI::baseUrl() . '/help/Config');
 		}
 
 		// Check server vitality
 		if (!self::checkSelfHostMeta()) {
-			$well_known = DI::baseUrl()->get() . Probe::HOST_META;
+			$well_known = DI::baseUrl() . Probe::HOST_META;
 			$warningtext[] = DI::l10n()->t('<a href="%s">%s</a> is not reachable on your system. This is a severe configuration issue that prevents server to server communication. See <a href="%s">the installation page</a> for help.',
-				$well_known, $well_known, DI::baseUrl()->get() . '/help/Install');
+				$well_known, $well_known, DI::baseUrl() . '/help/Install');
 		}
 
 		// Check logfile permission
@@ -229,7 +233,7 @@ class Summary extends BaseAdmin
 	private static function checkSelfHostMeta()
 	{
 		// Fetch the host-meta to check if this really is a vital server
-		return DI::httpClient()->get(DI::baseUrl()->get() . Probe::HOST_META, HttpClientAccept::XRD_XML)->isSuccess();
+		return DI::httpClient()->get(DI::baseUrl() . Probe::HOST_META, HttpClientAccept::XRD_XML)->isSuccess();
 	}
 
 }

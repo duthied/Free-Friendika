@@ -171,7 +171,7 @@ class Nodeinfo
 		return [
 			'name'    => $administrator['username'] ?? null,
 			'contact' => $administrator['email']    ?? null,
-			'account' => $administrator['nickname'] ?? '' ? DI::baseUrl()->get() . '/profile/' . $administrator['nickname'] : null,
+			'account' => $administrator['nickname'] ?? '' ? DI::baseUrl() . '/profile/' . $administrator['nickname'] : null,
 		];
 	}
 }

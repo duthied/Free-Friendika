@@ -125,8 +125,8 @@ class Introduction extends BaseFactory
 						continue;
 					}
 					$return_addr = bin2hex($this->nick . '@' .
-					                       $this->baseUrl->getHostname() .
-					                       (($this->baseUrl->getUrlPath()) ? '/' . $this->baseUrl->getUrlPath() : ''));
+					                       $this->baseUrl->getHost() .
+										   (($this->baseUrl->getPath()) ? '/' . $this->baseUrl->getPath() : ''));
 
 					$formattedIntroductions[] = new ValueObject\Introduction([
 						'label'          => 'friend_suggestion',

@@ -32,7 +32,7 @@ class Active extends BaseUsers
 	{
 		$this->checkModerationAccess();
 
-		self::checkFormSecurityTokenRedirectOnError($this->baseUrl->get(true), 'moderation_users_active');
+		self::checkFormSecurityTokenRedirectOnError($this->baseUrl, 'moderation_users_active');
 
 		$users = $request['user'] ?? [];
 
@@ -150,7 +150,7 @@ class Active extends BaseUsers
 			'$form_security_token' => self::getFormSecurityToken('moderation_users_active'),
 
 			// values //
-			'$baseurl'      => $this->baseUrl->get(true),
+			'$baseurl'      => $this->baseUrl,
 			'$query_string' => $this->args->getQueryString(),
 
 			'$users' => $users,

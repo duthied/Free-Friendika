@@ -201,7 +201,7 @@ class ExAuth
 		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
-		if ($this->baseURL->getHostname() == $aCommand[2]) {
+		if ($this->baseURL->getHost() == $aCommand[2]) {
 			$this->writeLog(LOG_INFO, 'internal user check for ' . $sUser . '@' . $aCommand[2]);
 			$found = $this->dba->exists('user', ['nickname' => $sUser]);
 		} else {
@@ -282,7 +282,7 @@ class ExAuth
 
 		$Error = false;
 		// Does the hostname match? So we try directly
-		if ($this->baseURL->getHostname() == $aCommand[2]) {
+		if ($this->baseURL->getHost() == $aCommand[2]) {
 			try {
 				$this->writeLog(LOG_INFO, 'internal auth for ' . $sUser . '@' . $aCommand[2]);
 				User::getIdFromPasswordAuthentication($sUser, $aCommand[3], true);

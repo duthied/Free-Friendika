@@ -138,7 +138,7 @@ class Add extends BaseModeration
 			'$newreason'           => ['reason', $this->t('Block reason'), $request['reason'] ?? '', $this->t('The reason why you blocked this server domain pattern. This reason will be shown publicly in the server information page.'), $this->t('Required'), '', ''],
 			'$pattern'             => $pattern,
 			'$gservers'            => $gservers,
-			'$baseurl'             => $this->baseUrl->get(true),
+			'$baseurl'             => $this->baseUrl,
 			'$form_security_token' => self::getFormSecurityToken('moderation_blocklist_add')
 		]);
 	}

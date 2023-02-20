@@ -537,4 +537,33 @@ class ConfigTest extends DatabaseTest
 
 		self::assertEquals($assertion, $config->get($category));
 	}
+
+	public function dataSerialized(): array
+	{
+		return [
+			'default' => [
+				'value' => ['test' => ['array']],
+				'assertion' => ['test' => ['array']],
+			],
+			'issue-12803' => [
+				'value' => 's:48:"s:40:"s:32:"https://punkrock-underground.com";";";',
+				'assertion' => 'https://punkrock-underground.com',
+			],
+			'double-serialized-array' => [
+				'value' => 's:53:"a:1:{s:9:"testArray";a:1:{s:4:"with";s:7:"entries";}}";',
+				'assertion' => ['testArray' => ['with' => 'entries']],
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataSerialized
+	 */
+	public function testSerializedValues($value, $assertion)
+	{
+		$config = $this->getInstance();
+
+		$config->set('test', 'it', $value);
+		self:self::assertEquals($assertion, $config->get('test', 'it'));
+	}
 }

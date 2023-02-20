@@ -85,7 +85,6 @@ class Deleted extends BaseUsers
 			'$form_security_token' => self::getFormSecurityToken('moderation_users_deleted'),
 
 			// values //
-			'$baseurl'      => $this->baseUrl->get(true),
 			'$query_string' => $this->args->getQueryString(),
 
 			'$users' => $users,

@@ -408,7 +408,7 @@ class Item
 		if ($notify) {
 			// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
 			// We add the hash of our own host because our host is the original creator of the post.
-			$prefix_host = DI::baseUrl()->getHostname();
+			$prefix_host = DI::baseUrl()->getHost();
 		} else {
 			$prefix_host = '';
 
@@ -1211,7 +1211,7 @@ class Item
 			Post\Thread::insert($item['uri-id'], $item);
 		}
 
-		// The content of activities normally doesn't matter - except for likes from Misskey 
+		// The content of activities normally doesn't matter - except for likes from Misskey
 		if (!in_array($item['verb'], self::ACTIVITIES) || in_array($item['verb'], [Activity::LIKE, Activity::DISLIKE]) && !empty($item['body']) && ($item['body'] != $item['verb'])) {
 			Post\Content::insert($item['uri-id'], $item);
 		}
@@ -1715,7 +1715,7 @@ class Item
 			if (!empty($item['event-id'])) {
 				$event_post = Post::selectFirst(['event-id'], ['uri-id' => $item['uri-id'], 'uid' => $uid]);
 				if (!empty($event_post['event-id'])) {
-					$event = DBA::selectFirst('event', ['edited', 'start', 'finish', 'summary', 'desc', 'location', 'nofinish', 'adjust'], ['id' => $item['event-id']]);
+					$event = DBA::selectFirst('event', ['edited', 'start', 'finish', 'summary', 'desc', 'location', 'nofinish'], ['id' => $item['event-id']]);
 					if (!empty($event)) {
 						// We aren't using "Event::store" here, since we don't want to trigger any further action
 						$ret = DBA::update('event', $event, ['id' => $event_post['event-id']]);
@@ -2048,7 +2048,7 @@ class Item
 			$guid = System::createUUID();
 		}
 
-		return DI::baseUrl()->get() . '/objects/' . $guid;
+		return DI::baseUrl() . '/objects/' . $guid;
 	}
 
 	/**
@@ -2288,7 +2288,7 @@ class Item
 		}
 
 		// Prevent to forward already forwarded posts
-		if ($datarray['app'] == DI::baseUrl()->getHostname()) {
+		if ($datarray['app'] == DI::baseUrl()->getHost()) {
 			Logger::info('Already forwarded (second test)');
 			return false;
 		}

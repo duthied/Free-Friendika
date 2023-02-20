@@ -252,7 +252,6 @@ class Display extends BaseSettings
 			'$calendar_title' => $this->t('Calendar'),
 
 			'$form_security_token' => self::getFormSecurityToken('settings_display'),
-			'$baseurl'             => $this->baseUrl->get(true),
 			'$uid'                 => $uid,
 
 			'$theme'	    => ['theme', $this->t('Display Theme:'), $theme_selected, '', $themes, true],

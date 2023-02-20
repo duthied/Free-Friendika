@@ -21,12 +21,9 @@
 
 namespace Friendica\Test\src\Module\Api\GnuSocial\GnuSocial;
 
-use Friendica\App\BaseURL;
-use Friendica\App\Router;
 use Friendica\DI;
 use Friendica\Module\Api\GNUSocial\GNUSocial\Config;
 use Friendica\Test\src\Module\Api\ApiTest;
-use Friendica\Test\Util\VFSTrait;
 
 class ConfigTest extends ApiTest
 {
@@ -35,13 +32,11 @@ class ConfigTest extends ApiTest
 	 */
 	public function testApiStatusnetConfig()
 	{
-		DI::config()->set('system', 'ssl_policy', BaseURL::SSL_POLICY_FULL);
-
 		$response = (new Config(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock);
 		$json = $this->toJson($response);
 
-		self::assertEquals(DI::config()->get('config', 'hostname'), $json->site->server);
+		self::assertEquals(DI::baseUrl()->getHost(), $json->site->server);
 		self::assertEquals(DI::config()->get('system', 'theme'), $json->site->theme);
 		self::assertEquals(DI::baseUrl() . '/images/friendica-64.png', $json->site->logo);
 		self::assertTrue($json->site->fancy);

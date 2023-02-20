@@ -264,7 +264,7 @@ class Notify extends BaseRepository
 			}
 		}
 
-		$siteurl = $this->baseUrl->get(true);
+		$siteurl = $this->baseUrl;
 		$sitename = $this->config->get('config', 'sitename');
 
 		// with $params['show_in_notification_page'] == false, the notification isn't inserted into
@@ -539,7 +539,7 @@ class Notify extends BaseRepository
 
 		$nickname = $user['nickname'];
 
-		$hostname = $this->baseUrl->getHostname();
+		$hostname = $this->baseUrl->getHost();
 		if (strpos($hostname, ':')) {
 			$hostname = substr($hostname, 0, strpos($hostname, ':'));
 		}
@@ -590,7 +590,7 @@ class Notify extends BaseRepository
 			$Notify->updateMsgFromPreamble($epreamble);
 			$Notify = $this->save($Notify);
 
-			$itemlink  = $this->baseUrl->get() . '/notify/' . $Notify->id;
+			$itemlink  = $this->baseUrl . '/notify/' . $Notify->id;
 			$notify_id = $Notify->id;
 		}
 
@@ -747,7 +747,7 @@ class Notify extends BaseRepository
 
 		$params['item']   = $item;
 		$params['parent'] = $item['parent'];
-		$params['link']   = $this->baseUrl->get() . '/display/' . urlencode($item['guid']);
+		$params['link']   = $this->baseUrl . '/display/' . urlencode($item['guid']);
 
 		$subjectPrefix = $l10n->t('[Friendica:Notify]');
 
@@ -807,7 +807,7 @@ class Notify extends BaseRepository
 		$epreamble = $msg['rich'];
 
 		$sitename = $this->config->get('config', 'sitename');
-		$siteurl  = $this->baseUrl->get(true);
+		$siteurl  = $this->baseUrl;
 
 		$sitelink  = $l10n->t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);

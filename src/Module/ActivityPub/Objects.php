@@ -56,7 +56,7 @@ class Objects extends BaseModule
 			Logger::info('Provided GUID found.', ['guid' => $this->parameters['guid'], 'uri-id' => $itemuri['id']]);
 		} else {
 			// The item URI does not always contain the GUID. This means that we have to search the URL instead
-			$url = DI::baseUrl()->get() . '/' . DI::args()->getQueryString();
+			$url = DI::baseUrl() . '/' . DI::args()->getQueryString();
 			$nurl = Strings::normaliseLink($url);
 			$ssl_url = str_replace('http://', 'https://', $nurl);
 

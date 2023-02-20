@@ -555,10 +555,9 @@ class Account extends BaseSettings
 		$tpl = Renderer::getMarkupTemplate('settings/account.tpl');
 		$o   = Renderer::replaceMacros($tpl, [
 			'$ptitle' => DI::l10n()->t('Account Settings'),
-			'$desc'   => DI::l10n()->t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . DI::baseUrl()->getHostname() . DI::baseUrl()->getUrlPath(), DI::baseUrl() . '/profile/' . $nickname),
+			'$desc'   => DI::l10n()->t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . DI::baseUrl()->getHost() . DI::baseUrl()->getPath(), DI::baseUrl() . '/profile/' . $nickname),
 
 			'$submit'              => DI::l10n()->t('Save Settings'),
-			'$baseurl'             => DI::baseUrl()->get(true),
 			'$uid'                 => DI::userSession()->getLocalUserId(),
 			'$form_security_token' => self::getFormSecurityToken('settings'),
 			'$open'                => $this->parameters['open'] ?? 'password',

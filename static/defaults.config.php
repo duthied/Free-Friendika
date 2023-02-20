@@ -487,6 +487,10 @@ return [
 		// Don't show smilies.
 		'no_smilies' => false,
 
+		// optimize_all_tables (Boolean)
+		// Optimizes all tables instead of only tables like workerqueue or the cache
+		'optimize_all_tables' => false,
+
 		// paranoia (Boolean)
 		// Log out users if their IP address changed.
 		'paranoia' => false,

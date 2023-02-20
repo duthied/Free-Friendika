@@ -54,8 +54,8 @@ class SystemMailBuilderTest extends MockedTest
 			return $msg;
 		});
 		$this->baseUrl = \Mockery::mock(BaseURL::class);
-		$this->baseUrl->shouldReceive('getHostname')->andReturn('friendica.local');
-		$this->baseUrl->shouldReceive('get')->andReturn('http://friendica.local');
+		$this->baseUrl->shouldReceive('getHost')->andReturn('friendica.local');
+		$this->baseUrl->shouldReceive('__toString')->andReturn('http://friendica.local');
 	}
 
 	/**
