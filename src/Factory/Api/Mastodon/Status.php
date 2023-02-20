@@ -59,12 +59,18 @@ class Status extends BaseFactory
 	/** @var ContentItem */
 	private $contentItem;
 
-	public function __construct(LoggerInterface $logger, Database $dba,
-		Account $mstdnAccountFactory, Mention $mstdnMentionFactory,
-		Tag $mstdnTagFactory, Card $mstdnCardFactory,
-		Attachment $mstdnAttachementFactory, Error $mstdnErrorFactory,
-		Poll $mstdnPollFactory, ContentItem $contentItem)
-	{
+	public function __construct(
+		LoggerInterface $logger,
+		Database $dba,
+		Account $mstdnAccountFactory,
+		Mention $mstdnMentionFactory,
+		Tag $mstdnTagFactory,
+		Card $mstdnCardFactory,
+		Attachment $mstdnAttachementFactory,
+		Error $mstdnErrorFactory,
+		Poll $mstdnPollFactory,
+		ContentItem $contentItem
+	) {
 		parent::__construct($logger);
 		$this->dba                     = $dba;
 		$this->mstdnAccountFactory     = $mstdnAccountFactory;
