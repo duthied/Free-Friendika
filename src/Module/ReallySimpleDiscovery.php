@@ -48,7 +48,7 @@ class ReallySimpleDiscovery extends BaseModule
 							'@attributes' => [
 								'name'      => 'Twitter',
 								'preferred' => 'true',
-								'apiLink'   => DI::baseUrl()->get(),
+								'apiLink'   => DI::baseUrl(),
 								'blogID'    => '',
 							],
 							'settings'    => [

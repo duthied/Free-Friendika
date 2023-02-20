@@ -65,7 +65,7 @@ class Emailer
 
 		$this->siteEmailAddress = $this->config->get('config', 'sender_email');
 		if (empty($this->siteEmailAddress)) {
-			$hostname = $this->baseUrl->getHostname();
+			$hostname = $this->baseUrl->getHost();
 			if (strpos($hostname, ':')) {
 				$hostname = substr($hostname, 0, strpos($hostname, ':'));
 			}

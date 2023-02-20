@@ -130,7 +130,7 @@ class Import extends \Friendica\Module\BaseModeration
 			'$mode_append'         => ['mode', $this->t('Append'), 'append', $this->t('Imports patterns from the file that weren\'t already existing in the current blocklist.'), 'checked="checked"'],
 			'$mode_replace'        => ['mode', $this->t('Replace'), 'replace', $this->t('Replaces the current blocklist by the imported patterns.')],
 			'$blocklist'           => $this->blocklist,
-			'$baseurl'             => $this->baseUrl->get(true),
+			'$baseurl'             => $this->baseUrl,
 			'$form_security_token' => self::getFormSecurityToken('moderation_blocklist_import')
 		]);
 	}

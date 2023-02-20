@@ -32,7 +32,7 @@ class SystemTest extends TestCase
 	private function useBaseUrl()
 	{
 		$baseUrl = \Mockery::mock(BaseURL::class);
-		$baseUrl->shouldReceive('getHostname')->andReturn('friendica.local')->once();
+		$baseUrl->shouldReceive('getHost')->andReturn('friendica.local')->once();
 		$dice = \Mockery::mock(Dice::class);
 		$dice->shouldReceive('create')->with(BaseURL::class)->andReturn($baseUrl);
 

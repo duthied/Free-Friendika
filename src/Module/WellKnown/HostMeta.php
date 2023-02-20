@@ -46,14 +46,14 @@ class HostMeta extends BaseModule
 			$config->set('system', 'site_pubkey', $res['pubkey']);
 		}
 
-		$domain = DI::baseUrl()->get();
+		$domain = DI::baseUrl();
 
 		XML::fromArray([
 			'XRD' => [
 				'@attributes' => [
 					'xmlns'    => 'http://docs.oasis-open.org/ns/xri/xrd-1.0',
 				],
-				'hm:Host' => DI::baseUrl()->getHostname(),
+				'hm:Host' => DI::baseUrl()->getHost(),
 				'1:link' => [
 					'@attributes' => [
 						'rel'      => 'lrdd',

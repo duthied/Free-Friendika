@@ -35,7 +35,7 @@ if (!isset($minimal)) {
 	$minimal = false;
 }
 
-$basepath = DI::baseUrl()->getUrlPath() ? "/" . DI::baseUrl()->getUrlPath() . "/" : "/";
+$basepath = DI::baseUrl()->getPath() ? "/" . DI::baseUrl()->getPath() . "/" : "/";
 $frio = "view/theme/frio";
 $view_mode_class = (DI::mode()->isMobile() || DI::mode()->isMobile()) ? 'mobile-view' : 'desktop-view';
 $is_singleuser = DI::config()->get('system', 'singleuser');

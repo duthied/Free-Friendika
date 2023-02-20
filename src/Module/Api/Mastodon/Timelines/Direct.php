@@ -65,6 +65,13 @@ class Direct extends BaseApi
 			$params['order'] = ['uri-id'];
 		}
 
+		if (!empty($uid)) {
+			$condition = DBA::mergeConditions(
+				$condition,
+				["NOT `parent-author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND (`blocked` OR `ignored`) AND `cid` = `parent-author-id`)", $uid]
+			);
+		}
+
 		$mails = DBA::select('mail', ['id', 'uri-id'], $condition, $params);
 
 		$statuses = [];

@@ -34,12 +34,10 @@ class BBCodeTest extends FixtureTest
 		DI::config()->set('system', 'remove_multiplicated_lines', false);
 		DI::config()->set('system', 'no_oembed', false);
 		DI::config()->set('system', 'allowed_link_protocols', []);
-		DI::config()->set('system', 'url', 'friendica.local');
+		DI::config()->set('system', 'url', 'https://friendica.local');
 		DI::config()->set('system', 'no_smilies', false);
 		DI::config()->set('system', 'big_emojis', false);
 		DI::config()->set('system', 'allowed_oembed', '');
-
-		DI::baseUrl()->save('friendica.local', DI::baseUrl()::SSL_POLICY_FULL, '');
 
 		$config = \HTMLPurifier_HTML5Config::createDefault();
 		$config->set('HTML.Doctype', 'HTML5');
