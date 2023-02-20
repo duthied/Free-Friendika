@@ -169,7 +169,21 @@ final class Activity
 	 * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-read
 	 * @var string
 	 */
-	const READ       = ActivityNamespace::ACTIVITY2 . 'read';
+	const READ       = ActivityNamespace::ACTIVITY2 . 'Read';
+	/**
+	 *  Indicates that the actor has listened to the object. 
+	 *
+	 * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-listen
+	 * @var string
+	 */
+	const LISTEN     = ActivityNamespace::ACTIVITY2 . 'Listen';
+	/**
+	 * Indicates that the actor has viewed the object.
+	 *
+	 * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-view
+	 * @var string
+	 */
+	const VIEW       = ActivityNamespace::ACTIVITY2 . 'View';
 
 	const O_UNFOLLOW    = ActivityNamespace::OSTATUS . '/unfollow';
 	const O_UNFAVOURITE = ActivityNamespace::OSTATUS . '/unfavorite';
@@ -180,13 +194,6 @@ final class Activity
 	 * @var string
 	 */
 	const EMOJIREACT = ActivityNamespace::LITEPUB . '/emojireact';
-
-	/**
-	 * View notification from Peertube
-	 *
-	 * @var string
-	 */
-	const VIEW       = ActivityNamespace::PEERTUBE . '/view';
 
 	/**
 	 * likes (etc.) can apply to other things besides posts. Check if they are post children,
