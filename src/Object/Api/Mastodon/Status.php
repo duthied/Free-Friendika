@@ -25,6 +25,7 @@ use Friendica\BaseDataTransferObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Model\Item;
 use Friendica\Object\Api\Mastodon\Status\Counts;
+use Friendica\Object\Api\Mastodon\Status\FriendicaExtension;
 use Friendica\Object\Api\Mastodon\Status\UserAttributes;
 use Friendica\Util\DateTimeFormat;
 
@@ -95,6 +96,8 @@ class Status extends BaseDataTransferObject
 	protected $card = null;
 	/** @var Poll|null */
 	protected $poll = null;
+	/** @var FriendicaExtension */
+	protected $friendica;
 
 	/**
 	 * Creates a status record from an item record.
@@ -148,6 +151,7 @@ class Status extends BaseDataTransferObject
 		$this->emojis = [];
 		$this->card = $card->toArray() ?: null;
 		$this->poll = $poll;
+		$this->friendica = new FriendicaExtension($item['title']);
 	}
 
 	/**

@@ -523,7 +523,7 @@ class Page implements ArrayAccess
 		header("X-Friendica-Version: " . App::VERSION);
 		header("Content-type: text/html; charset=utf-8");
 
-		if ($config->get('system', 'hsts') && ($baseURL->getSSLPolicy() == BaseURL::SSL_POLICY_FULL)) {
+		if ($config->get('system', 'hsts') && ($baseURL->getScheme() === 'https')) {
 			header("Strict-Transport-Security: max-age=31536000");
 		}
 

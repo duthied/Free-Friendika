@@ -115,7 +115,7 @@ class PushSubscription
 
 		$auth = [
 			'VAPID' => [
-				'subject'    => DI::baseUrl()->getHostname(),
+				'subject'    => DI::baseUrl()->getHost(),
 				'publicKey'  => ModelSubscription::getPublicVapidKey(),
 				'privateKey' => ModelSubscription::getPrivateVapidKey(),
 			],

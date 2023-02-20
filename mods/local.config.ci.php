@@ -35,7 +35,6 @@ return [
 	// ****************************************************************
 
 	'config' => [
-		'hostname' => 'friendica.local',
 		'admin_email' => 'admin@friendica.local',
 		'sitename' => 'Friendica Social Network',
 		'register_policy' => \Friendica\Module\Register::OPEN,
@@ -44,9 +43,7 @@ return [
 	'system' => [
 		'default_timezone' => 'UTC',
 		'language' => 'en',
-		'ssl_policy' => \Friendica\App\BaseURL::SSL_POLICY_SELFSIGN,
 		'url' => 'https://friendica.local',
-		'urlpath' => '',
 		// don't start unexpected worker.php processes during test!
 		'worker_dont_fork' => true,
 	],

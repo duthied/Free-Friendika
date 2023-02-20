@@ -102,13 +102,11 @@ class DBSync extends BaseAdmin
 
 				if (!count($failed)) {
 					$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('admin/dbsync/structure_check.tpl'), [
-						'$base' => DI::baseUrl()->get(true),
 						'$banner' => DI::l10n()->t('No failed updates.'),
 						'$check' => DI::l10n()->t('Check database structure'),
 					]);
 				} else {
 					$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('admin/dbsync/failed_updates.tpl'), [
-						'$base' => DI::baseUrl()->get(true),
 						'$banner' => DI::l10n()->t('Failed Updates'),
 						'$desc' => DI::l10n()->t('This does not include updates prior to 1139, which did not return a status.'),
 						'$mark' => DI::l10n()->t("Mark success \x28if update was manually applied\x29"),

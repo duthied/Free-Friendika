@@ -158,23 +158,20 @@ class Installer
 	{
 		$basepath = $configCache->get('system', 'basepath');
 
-		$tpl = Renderer::getMarkupTemplate('local.config.tpl');
+		$tpl = Renderer::getMarkupTemplate('install/local.config.tpl');
 		$txt = Renderer::replaceMacros($tpl, [
-			'$dbhost'    => $configCache->get('database', 'hostname'),
-			'$dbuser'    => $configCache->get('database', 'username'),
-			'$dbpass'    => $configCache->get('database', 'password'),
-			'$dbdata'    => $configCache->get('database', 'database'),
+			'$dbhost'     => $configCache->get('database', 'hostname'),
+			'$dbuser'     => $configCache->get('database', 'username'),
+			'$dbpass'     => $configCache->get('database', 'password'),
+			'$dbdata'     => $configCache->get('database', 'database'),
 
-			'$phpath'    => $configCache->get('config', 'php_path'),
-			'$adminmail' => $configCache->get('config', 'admin_email'),
-			'$hostname'  => $configCache->get('config', 'hostname'),
+			'$phpath'     => $configCache->get('config', 'php_path'),
+			'$adminmail'  => $configCache->get('config', 'admin_email'),
 
-			'$urlpath'   => $configCache->get('system', 'urlpath'),
-			'$baseurl'   => $configCache->get('system', 'url'),
-			'$sslpolicy' => $configCache->get('system', 'ssl_policy'),
-			'$basepath'  => $basepath,
-			'$timezone'  => $configCache->get('system', 'default_timezone'),
-			'$language'  => $configCache->get('system', 'language'),
+			'$system_url' => $configCache->get('system', 'url'),
+			'$basepath'   => $basepath,
+			'$timezone'   => $configCache->get('system', 'default_timezone'),
+			'$language'   => $configCache->get('system', 'language'),
 		]);
 
 		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php', $txt);

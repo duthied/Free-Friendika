@@ -69,7 +69,7 @@ class Home extends BaseModule
 			$customHome = $homeFilePath;
 
 			if (file_exists($cssFilePath)) {
-				DI::page()['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="' . DI::baseUrl()->get() . '/home.css' . '" media="all" />';
+				DI::page()->registerStylesheet('home.css', 'all');
 			}
 		}
 

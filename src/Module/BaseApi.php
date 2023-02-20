@@ -169,12 +169,52 @@ class BaseApi extends BaseModule
 	}
 
 	/**
+	 * Get the "link" header with "next" and "prev" links for an offset/limit type call
+	 * @return string
+	 */
+	protected static function getOffsetAndLimitLinkHeader(int $offset, int $limit): string
+	{
+		$request = self::$request;
+
+		unset($request['offset']);
+		$request['limit'] = $limit;
+
+		$prev_request = $next_request = $request;
+
+		$prev_request['offset'] = $offset - $limit;
+		$next_request['offset'] = $offset + $limit;
+
+		$command = DI::baseUrl() . '/' . DI::args()->getCommand();
+
+		$prev = $command . '?' . http_build_query($prev_request);
+		$next = $command . '?' . http_build_query($next_request);
+
+		if ($prev_request['offset'] >= 0) {
+			return 'Link: <' . $next . '>; rel="next", <' . $prev . '>; rel="prev"';
+		} else {
+			return 'Link: <' . $next . '>; rel="next"';
+		}
+	}
+
+	/**
 	 * Set the "link" header with "next" and "prev" links
 	 * @return void
 	 */
 	protected static function setLinkHeader()
 	{
 		$header = self::getLinkHeader();
+		if (!empty($header)) {
+			header($header);
+		}
+	}
+
+	/**
+	 * Set the "link" header with "next" and "prev" links
+	 * @return void
+	 */
+	protected static function setLinkHeaderByOffsetLimit(int $offset, int $limit)
+	{
+		$header = self::getOffsetAndLimitLinkHeader($offset, $limit);
 		if (!empty($header)) {
 			header($header);
 		}

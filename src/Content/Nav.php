@@ -184,8 +184,6 @@ class Nav
 	 */
 	private function getInfo(): array
 	{
-		$ssl_state = (bool) $this->session->getLocalUserId();
-
 		/*
 		 * Our network is distributed, and as you visit friends some
 		 * sites look exactly the same - it isn't always easy to know where you are.
@@ -194,7 +192,7 @@ class Nav
 
 		$myident = !empty($this->session->getLocalUserNickname()) ? $this->session->getLocalUserNickname() . '@' : '';
 
-		$sitelocation = $myident . substr($this->baseUrl->get($ssl_state), strpos($this->baseUrl->get($ssl_state), '//') + 2);
+		$sitelocation = $myident . substr($this->baseUrl, strpos($this->baseUrl, '//') + 2);
 
 		$nav = [
 			'admin'         => null,

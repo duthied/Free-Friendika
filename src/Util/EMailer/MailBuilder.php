@@ -72,7 +72,7 @@ abstract class MailBuilder
 		$this->config  = $config;
 		$this->logger  = $logger;
 
-		$hostname = $baseUrl->getHostname();
+		$hostname = $baseUrl->getHost();
 		if (strpos($hostname, ':')) {
 			$hostname = substr($hostname, 0, strpos($hostname, ':'));
 		}
@@ -83,7 +83,7 @@ abstract class MailBuilder
 			'X-Friendica-Platform' => [App::PLATFORM],
 			'X-Friendica-Version'  => [App::VERSION],
 			'List-ID'              => ['<notification.' . $hostname . '>'],
-			'List-Archive'         => ['<' . $baseUrl->get() . '/notifications/system>'],
+			'List-Archive'         => ['<' . $baseUrl . '/notifications/system>'],
 		];
 	}
 
@@ -262,7 +262,7 @@ abstract class MailBuilder
 				'$htmlversion' => $msgHtml,
 				'$sitename'    => $this->config->get('config', 'sitename'),
 				'$banner'      => $this->config->get('system', 'email_banner',
-					$this->baseUrl->get(true) . DIRECTORY_SEPARATOR . self::DEFAULT_EMAIL_BANNER),
+					$this->baseUrl . DIRECTORY_SEPARATOR . self::DEFAULT_EMAIL_BANNER),
 			]);
 		}
 

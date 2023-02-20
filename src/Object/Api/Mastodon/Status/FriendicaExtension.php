@@ -19,39 +19,30 @@
  *
  */
 
-namespace Friendica\Core\Session\Type;
+namespace Friendica\Object\Api\Mastodon\Status;
 
-use Friendica\App;
-use Friendica\Core\Session\Capability\IHandleSessions;
-use Friendica\Model\User\Cookie;
-use SessionHandlerInterface;
+use Friendica\BaseDataTransferObject;
 
 /**
- * The native Session class which uses the PHP internal Session functions
+ * Class FriendicaExtension
+ *
+ * Additional fields on Mastodon Statuses for storing Friendica specific data
+ *
+ * @see https://docs.joinmastodon.org/entities/status
  */
-class Native extends AbstractSession implements IHandleSessions
+class FriendicaExtension extends BaseDataTransferObject
 {
-	public function __construct(App\BaseURL $baseURL, SessionHandlerInterface $handler = null)
-	{
-		ini_set('session.gc_probability', 50);
-		ini_set('session.use_only_cookies', 1);
-		ini_set('session.cookie_httponly', (int)Cookie::HTTPONLY);
-
-		if ($baseURL->getScheme() === 'https') {
-			ini_set('session.cookie_secure', 1);
-		}
-
-		if (isset($handler)) {
-			session_set_save_handler($handler);
-		}
-	}
+	/** @var string */
+	protected $title;
 
 	/**
-	 * {@inheritDoc}
+	 * Creates a status count object
+	 *
+	 * @param string $title
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function start(): IHandleSessions
+	public function __construct(string $title)
 	{
-		session_start();
-		return $this;
+		$this->title = $title;
 	}
 }

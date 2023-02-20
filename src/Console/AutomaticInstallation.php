@@ -199,8 +199,7 @@ HELP;
 				$this->out('The Friendica URL has to be set during CLI installation.');
 				return 1;
 			} else {
-				$baseUrl = new BaseURL($this->config, []);
-				$baseUrl->saveByURL($url);
+				$configCache->set('system', 'url', $url);
 			}
 
 			$installer->createConfig($configCache);

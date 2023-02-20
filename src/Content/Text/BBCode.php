@@ -1274,7 +1274,7 @@ class BBCode
 	private static function cleanPictureLinksCallback(array $match): string
 	{
 		// When the picture link is the own photo path then we can avoid fetching the link
-		$own_photo_url = preg_quote(Strings::normaliseLink(DI::baseUrl()->get()) . '/photos/');
+		$own_photo_url = preg_quote(Strings::normaliseLink(DI::baseUrl()) . '/photos/');
 		if (preg_match('|' . $own_photo_url . '.*?/image/|', Strings::normaliseLink($match[1]))) {
 			if (!empty($match[3])) {
 				$text = '[img=' . str_replace('-1.', '-0.', $match[2]) . ']' . $match[3] . '[/img]';
@@ -2099,8 +2099,8 @@ class BBCode
 
 		// Default iframe allowed domains/path
 		$allowedIframeDomains = [
-			DI::baseUrl()->getHostname()
-			. (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : '')
+			DI::baseUrl()->getHost()
+			. (DI::baseUrl()->getPath() ? '/' . DI::baseUrl()->getPath() : '')
 			. '/oembed/', # The path part has to change with the source in Content\Oembed::iframe
 			'www.youtube.com/embed/',
 			'player.vimeo.com/video/',
