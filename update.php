@@ -1295,3 +1295,23 @@ function update_1515()
 	DBA::update('verb', ['name' => Activity::VIEW], ['name' => 'https://joinpeertube.org/view']);
 	return Update::SUCCESS;
 }
+
+function update_1516()
+{
+	// Fixes https://github.com/friendica/friendica/issues/12803
+	// de-serialize multiple serialized values
+	$configTrans = DI::config()->beginTransaction();
+	$configArray = DI::config()->getCache()->getDataBySource(Cache::SOURCE_DATA);
+
+	foreach ($configArray as $category => $keyValues) {
+		if (is_array($keyValues)) {
+			foreach ($keyValues as $key => $value) {
+				$configTrans->set($category, $key, $value);
+			}
+		}
+	}
+
+	$configTrans->commit();
+
+	return Update::SUCCESS;
+}

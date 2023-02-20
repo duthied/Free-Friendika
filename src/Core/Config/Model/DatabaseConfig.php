@@ -61,15 +61,13 @@ class DatabaseConfig implements IManageConfigValues
 
 		foreach ($setCache->getAll() as $category => $data) {
 			foreach ($data as $key => $value) {
-				$this->cache->set($category, $key, $value, Cache::SOURCE_DATA);
-				$this->database->insert('config', ['cat' => $category, 'k' => $key, 'v' => serialize($value)], Database::INSERT_UPDATE);
+				$this->set($category, $key, $value);
 			}
 		}
 
 		foreach ($delCache->getAll() as $category => $keys) {
 			foreach ($keys as $key => $value) {
-				$this->cache->delete($category, $key);
-				$this->database->delete('config', ['cat' => $category, 'k' => $key]);
+				$this->delete($category, $key);
 			}
 		}
 
@@ -85,6 +83,10 @@ class DatabaseConfig implements IManageConfigValues
 	/** {@inheritDoc} */
 	public function set(string $cat, string $key, $value): bool
 	{
+		// In case someone or something already serialized a config entry, unserialize it first
+		// We serialize values just once
+		$value = SerializeUtil::maybeUnserialize($value);
+
 		$this->cache->set($cat, $key, $value, Cache::SOURCE_DATA);
 		return $this->database->insert('config', ['cat' => $cat, 'k' => $key, 'v' => serialize($value)], Database::INSERT_UPDATE);
 	}
