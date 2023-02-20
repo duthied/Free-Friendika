@@ -503,6 +503,10 @@ return [
 		// Sets the ImageMagick compression level for PNG images. Values range from 0 (uncompressed) to 9 (most compressed).
 		'png_quality' => 8,
 
+		// process_view (Boolean)
+		// Process the "View" activity that is used by Peertube. View activities are displayed, when "emoji_activities" are enabled. 
+		'process_view' => false,
+
 		// profiler (Boolean)
 		// Enable internal timings to help optimize code. Needed for "rendertime" addon.
 		'profiler' => false,
