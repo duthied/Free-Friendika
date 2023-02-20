@@ -56,14 +56,15 @@ class Notifications extends BaseApi
 		}
 
 		$request = $this->getRequest([
-			'max_id'        => 0,     // Return results older than this ID
-			'since_id'      => 0,     // Return results newer than this ID
-			'min_id'        => 0,     // Return results immediately newer than this ID
-			'limit'         => 20,    // Maximum number of results to return (default 20)
+			'max_id' => 0,     // Return results older than this ID
+			'since_id' => 0,     // Return results newer than this ID
+			'min_id' => 0,     // Return results immediately newer than this ID
+			'limit' => 20,    // Maximum number of results to return (default 20)
 			'exclude_types' => [],    // Array of types to exclude (follow, favourite, reblog, mention, poll, follow_request)
-			'account_id'    => 0,     // Return only notifications received from this account
-			'with_muted'    => false, // Pleroma extension: return activities by muted (not by blocked!) users.
-			'include_all'   => false  // Include dismissed and undismissed
+			'account_id' => 0,     // Return only notifications received from this account
+			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+			'include_all' => false,  // Include dismissed and undismissed
+			'summary' => false,
 		], $request);
 
 		$params = ['order' => ['id' => true]];
@@ -87,8 +88,8 @@ class Notifications extends BaseApi
 			$condition = DBA::mergeConditions(
 				$condition,
 				["(`vid` != ? OR `type` != ? OR NOT `actor-id` IN (SELECT `id` FROM `contact` WHERE `pending`))",
-				Verb::getID(Activity::FOLLOW),
-				Post\UserNotification::TYPE_NONE]
+					Verb::getID(Activity::FOLLOW),
+					Post\UserNotification::TYPE_NONE]
 			);
 		}
 
@@ -96,8 +97,8 @@ class Notifications extends BaseApi
 			$condition = DBA::mergeConditions(
 				$condition,
 				["(`vid` != ? OR `type` != ? OR NOT `actor-id` IN (SELECT `id` FROM `contact` WHERE NOT `pending`))",
-				Verb::getID(Activity::FOLLOW),
-				Post\UserNotification::TYPE_NONE]
+					Verb::getID(Activity::FOLLOW),
+					Post\UserNotification::TYPE_NONE]
 			);
 		}
 
@@ -130,26 +131,31 @@ class Notifications extends BaseApi
 				Verb::getID(Activity::POST), Post\UserNotification::TYPE_SHARED]);
 		}
 
-		$mstdnNotifications = [];
+		if ($request['summary']) {
+			$count = DI::notification()->countForUser($uid, $condition);
+			System::jsonExit(['count' => $count]);
+		} else {
+			$mstdnNotifications = [];
 
-		$Notifications = DI::notification()->selectByBoundaries(
-			$condition,
-			$params,
-			$request['min_id'] ?: $request['since_id'],
-			$request['max_id'],
-			$request['limit']
-		);
+			$Notifications = DI::notification()->selectByBoundaries(
+				$condition,
+				$params,
+				$request['min_id'] ?: $request['since_id'],
+				$request['max_id'],
+				$request['limit']
+			);
 
-		foreach ($Notifications as $Notification) {
-			try {
-				$mstdnNotifications[] = DI::mstdnNotification()->createFromNotification($Notification, self::appSupportsQuotes());
-				self::setBoundaries($Notification->id);
-			} catch (\Exception $e) {
-				// Skip this notification
+			foreach ($Notifications as $Notification) {
+				try {
+					$mstdnNotifications[] = DI::mstdnNotification()->createFromNotification($Notification, self::appSupportsQuotes());
+					self::setBoundaries($Notification->id);
+				} catch (\Exception $e) {
+					// Skip this notification
+				}
 			}
-		}
 
-		self::setLinkHeader();
-		System::jsonExit($mstdnNotifications);
+			self::setLinkHeader();
+			System::jsonExit($mstdnNotifications);
+		}
 	}
 }
