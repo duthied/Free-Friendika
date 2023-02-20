@@ -76,12 +76,12 @@ class InstanceV2 extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		$domain               = $this->baseUrl->getHostname();
+		$domain               = $this->baseUrl->getHost();
 		$title                = $this->config->get('config', 'sitename');
 		$version              = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
 		$description          = $this->config->get('config', 'info');
 		$usage                = $this->buildUsageInfo();
-		$thumbnail            = new InstanceEntity\Thumbnail($this->baseUrl->get() . 'images/friendica-banner.jpg');
+		$thumbnail            = new InstanceEntity\Thumbnail($this->baseUrl->withPath('images/friendica-banner.jpg'));
 		$languages            = [$this->config->get('system', 'language')];
 		$configuration        = $this->buildConfigurationInfo();
 		$registration         = $this->buildRegistrationsInfo();
