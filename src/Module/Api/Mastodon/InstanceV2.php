@@ -104,7 +104,7 @@ class InstanceV2 extends BaseApi
 		));
 	}
 
-	private function buildConfigurationInfo():InstanceEntity\Configuration
+	private function buildConfigurationInfo(): InstanceEntity\Configuration
 	{
 		$statuses_config = new InstanceEntity\StatusesConfig((int)$this->config->get(
 			'config',
@@ -119,7 +119,7 @@ class InstanceV2 extends BaseApi
 		);
 	}
 
-	private function buildContactInfo():InstanceEntity\Contact
+	private function buildContactInfo(): InstanceEntity\Contact
 	{
 		$email         = implode(',', User::getAdminEmailList());
 		$administrator = User::getFirstAdmin();
@@ -137,7 +137,7 @@ class InstanceV2 extends BaseApi
 		return new InstanceEntity\Contact($email, $account);
 	}
 
-	private function buildFriendicaExtensionInfo():InstanceEntity\FriendicaExtensions
+	private function buildFriendicaExtensionInfo(): InstanceEntity\FriendicaExtensions
 	{
 		return new InstanceEntity\FriendicaExtensions(
 			App::VERSION,
@@ -146,7 +146,7 @@ class InstanceV2 extends BaseApi
 		);
 	}
 
-	private function buildRegistrationsInfo():InstanceEntity\Registrations
+	private function buildRegistrationsInfo(): InstanceEntity\Registrations
 	{
 		$register_policy   = intval($this->config->get('config', 'register_policy'));
 		$enabled           = ($register_policy != Register::CLOSED);
@@ -155,7 +155,7 @@ class InstanceV2 extends BaseApi
 		return new InstanceEntity\Registrations($enabled, $approval_required);
 	}
 
-	private function buildUsageInfo():InstanceEntity\Usage
+	private function buildUsageInfo(): InstanceEntity\Usage
 	{
 		if (!empty($this->config->get('system', 'nodeinfo'))) {
 			$active_monthly = intval(DI::keyValue()->get('nodeinfo_active_users_monthly'));
