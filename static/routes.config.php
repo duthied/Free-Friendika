@@ -81,6 +81,7 @@ $apiRoutes = [
 		'/activity/{verb:attendmaybe|attendno|attendyes|dislike|like|unattendmaybe|unattendno|unattendyes|undislike|unlike}[.{extension:json|xml|rss|atom}]'
 			=> [Module\Api\Friendica\Activity::class, [        R::POST]],
 		'/statuses/{id:\d+}/dislike'                               => [Module\Api\Friendica\Statuses\Dislike::class,       [        R::POST]],
+		'/statuses/{id:\d+}/disliked_by'                           => [Module\Api\Friendica\Statuses\DislikedBy::class,    [R::GET         ]],
 		'/statuses/{id:\d+}/undislike'                             => [Module\Api\Friendica\Statuses\Undislike::class,     [        R::POST]],
 		'/notification/seen[.{extension:json|xml|rss|atom}]'       => [Module\Api\Friendica\Notification\Seen::class,      [        R::POST]],
 		'/notification[.{extension:json|xml|rss|atom}]'            => [Module\Api\Friendica\Notification::class,           [R::GET         ]],
