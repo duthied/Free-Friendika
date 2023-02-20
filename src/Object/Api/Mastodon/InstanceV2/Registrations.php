@@ -39,9 +39,9 @@ class Registrations extends BaseDataTransferObject
 
 	public function __construct()
 	{
-		$config = DI::config();
-		$register_policy = intval($config->get('config', 'register_policy'));
-		$this->enabled =  ($register_policy != Register::CLOSED);
+		$config                  = DI::config();
+		$register_policy         = intval($config->get('config', 'register_policy'));
+		$this->enabled           =  ($register_policy != Register::CLOSED);
 		$this->approval_required = ($register_policy == Register::APPROVE);
 	}
 }

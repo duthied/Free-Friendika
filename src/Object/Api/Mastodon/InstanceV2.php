@@ -79,18 +79,18 @@ class InstanceV2 extends BaseDataTransferObject
 	 */
 	public function __construct(IManageConfigValues $config, BaseURL $baseUrl, Database $database, array $rules = [])
 	{
-		$this->domain            = $baseUrl->getHostname();
-		$this->title             = $config->get('config', 'sitename');
-		$this->version           = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
-		$this->source_url		 = null; //not supported yet
-		$this->description       = $config->get('config', 'info');
-		$this->usage             = new Usage($config);
-		$this->thumbnail         = new Thumbnail($baseUrl);
-		$this->languages         = [$config->get('system', 'language')];
-		$this->configuration     = new Configuration();
-		$this->registrations     = new Registrations();
-		$this->contact           = new Contact($database);
-		$this->rules             = $rules;
-		$this->friendica         = new FriendicaExtensions();
+		$this->domain        = $baseUrl->getHostname();
+		$this->title         = $config->get('config', 'sitename');
+		$this->version       = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
+		$this->source_url	 = null; //not supported yet
+		$this->description   = $config->get('config', 'info');
+		$this->usage         = new Usage($config);
+		$this->thumbnail     = new Thumbnail($baseUrl);
+		$this->languages     = [$config->get('system', 'language')];
+		$this->configuration = new Configuration();
+		$this->registrations = new Registrations();
+		$this->contact       = new Contact($database);
+		$this->rules         = $rules;
+		$this->friendica     = new FriendicaExtensions();
 	}
 }

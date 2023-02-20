@@ -24,8 +24,8 @@ class FriendicaExtensions extends BaseDataTransferObject
 
 	public function __construct()
 	{
-		$this->version = App::VERSION;
-		$this->codename = App::CODENAME;
+		$this->version    = App::VERSION;
+		$this->codename   = App::CODENAME;
 		$this->db_version = DI::config()->get('system', 'build');
 	}
 }

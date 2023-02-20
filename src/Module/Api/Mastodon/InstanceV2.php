@@ -59,7 +59,7 @@ class InstanceV2 extends BaseApi
 		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->database = $database;
-		$this->config = $config;
+		$this->config   = $config;
 	}
 
 	/**

@@ -36,7 +36,7 @@ class StatusesConfig extends BaseDataTransferObject
 
 	public function __construct()
 	{
-		$config = DI::config();
+		$config               = DI::config();
 		$this->max_characters = (int)$config->get(
 			'config',
 			'api_import_size',

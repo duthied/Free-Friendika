@@ -42,7 +42,7 @@ class Contact extends BaseDataTransferObject
 
 	public function __construct(Database $database)
 	{
-		$this->email = implode(',', User::getAdminEmailList());
+		$this->email   = implode(',', User::getAdminEmailList());
 		$administrator = User::getFirstAdmin();
 		if ($administrator) {
 			$adminContact = $database->selectFirst(
