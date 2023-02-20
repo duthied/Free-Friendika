@@ -84,14 +84,14 @@ class Instance extends BaseDataTransferObject
 	{
 		$register_policy = intval($config->get('config', 'register_policy'));
 
-		$this->uri               = $baseUrl->get();
+		$this->uri               = $baseUrl;
 		$this->title             = $config->get('config', 'sitename');
 		$this->short_description = $this->description = $config->get('config', 'info');
 		$this->email             = implode(',', User::getAdminEmailList());
 		$this->version           = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
 		$this->urls              = null; // Not supported
 		$this->stats             = new Stats($config, $database);
-		$this->thumbnail         = $baseUrl->get() . 'images/friendica-banner.jpg';
+		$this->thumbnail         = $baseUrl . 'images/friendica-banner.jpg';
 		$this->languages         = [$config->get('system', 'language')];
 		$this->max_toot_chars    = (int)$config->get('config', 'api_import_size', $config->get('config', 'max_import_size'));
 		$this->registrations     = ($register_policy != Register::CLOSED);

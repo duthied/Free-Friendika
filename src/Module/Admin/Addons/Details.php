@@ -112,7 +112,6 @@ class Details extends BaseAdmin
 			'$page' => DI::l10n()->t('Addons'),
 			'$toggle' => DI::l10n()->t('Toggle'),
 			'$settings' => DI::l10n()->t('Settings'),
-			'$baseurl' => DI::baseUrl()->get(true),
 
 			'$addon' => $addon,
 			'$status' => $status,

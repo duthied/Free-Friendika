@@ -48,5 +48,6 @@ $a->runFrontend(
 	$dice->create(\Friendica\Content\Nav::class),
 	$dice->create(Friendica\Module\Special\HTTPException::class),
 	new \Friendica\Util\HTTPInputData($_SERVER),
-	$start_time
+	$start_time,
+	$_SERVER
 );

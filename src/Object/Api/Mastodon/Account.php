@@ -95,7 +95,7 @@ class Account extends BaseDataTransferObject
 		$this->id              = (string)$account['pid'];
 		$this->username        = $account['nick'];
 		$this->acct            =
-			strpos($account['url'], $baseUrl->get() . '/') === 0 ?
+			strpos($account['url'], $baseUrl . '/') === 0 ?
 				$account['nick'] :
 				$account['addr'];
 		$this->display_name    = $account['name'];

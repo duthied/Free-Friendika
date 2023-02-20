@@ -559,7 +559,7 @@ class Receiver
 			return true;
 		}
 
-		if ($type == 'as:View') {
+		if (!DI::config()->get('system', 'process_view') && ($type == 'as:View')) {
 			Logger::info('View activities are ignored.', ['signer' => $signer, 'http_signer' => $http_signer]);
 			return true;
 		}

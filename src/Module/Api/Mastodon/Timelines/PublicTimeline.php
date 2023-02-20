@@ -90,11 +90,6 @@ class PublicTimeline extends BaseApi
 			$condition = DBA::mergeConditions($condition, ['gravity' => Item::GRAVITY_PARENT]);
 		}
 
-		if (!empty($uid)) {
-			$condition = DBA::mergeConditions($condition,
-				["NOT `parent-author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND (`blocked` OR `ignored`) AND `cid` = `parent-author-id`)", $uid]);
-		}
-
 		$items = Post::selectPostsForUser($uid, ['uri-id'], $condition, $params);
 
 		$display_quotes = self::appSupportsQuotes();

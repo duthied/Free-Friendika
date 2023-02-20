@@ -330,7 +330,7 @@ class Transmitter
 		return [
 			'type' => 'Service',
 			'name' =>  App::PLATFORM . " '" . App::CODENAME . "' " . App::VERSION . '-' . DB_UPDATE_VERSION,
-			'url' => DI::baseUrl()->get()
+			'url' => DI::baseUrl()
 		];
 	}
 

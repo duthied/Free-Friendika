@@ -166,7 +166,7 @@ class User
 		$system['region'] = '';
 		$system['postal-code'] = '';
 		$system['country-name'] = '';
-		$system['homepage'] = DI::baseUrl()->get();
+		$system['homepage'] = DI::baseUrl();
 		$system['dob'] = '0000-00-00';
 
 		// Ensure that the user contains data
@@ -219,7 +219,7 @@ class User
 			'self'         => true,
 			'network'      => Protocol::ACTIVITYPUB,
 			'name'         => 'System Account',
-			'addr'         => $system_actor_name . '@' . DI::baseUrl()->getHostname(),
+			'addr'         => $system_actor_name . '@' . DI::baseUrl()->getHost(),
 			'nick'         => $system_actor_name,
 			'url'          => DI::baseUrl() . '/friendica',
 			'pubkey'       => $keys['pubkey'],
@@ -1023,7 +1023,7 @@ class User
 				$_SESSION['register'] = 1;
 				$_SESSION['openid'] = $openid_url;
 
-				$openid = new LightOpenID(DI::baseUrl()->getHostname());
+				$openid = new LightOpenID(DI::baseUrl()->getHost());
 				$openid->identity = $openid_url;
 				$openid->returnUrl = DI::baseUrl() . '/openid';
 				$openid->required = ['namePerson/friendly', 'contact/email', 'namePerson'];
@@ -1360,7 +1360,7 @@ class User
 			$l10n,
 			$user,
 			DI::config()->get('config', 'sitename'),
-			DI::baseUrl()->get(),
+			DI::baseUrl(),
 			($register['password'] ?? '') ?: 'Sent in a previous email'
 		);
 	}
@@ -1457,7 +1457,7 @@ class User
 		Thank you and welcome to %4$s.'));
 
 		$preamble = sprintf($preamble, $user['username'], DI::config()->get('config', 'sitename'));
-		$body = sprintf($body, DI::baseUrl()->get(), $user['nickname'], $result['password'], DI::config()->get('config', 'sitename'));
+		$body = sprintf($body, DI::baseUrl(), $user['nickname'], $result['password'], DI::config()->get('config', 'sitename'));
 
 		$email = DI::emailer()
 			->newSystemMail()

@@ -95,7 +95,7 @@ class Embed extends BaseAdmin
 
 		$t = Renderer::getMarkupTemplate('admin/addons/embed.tpl');
 		return Renderer::replaceMacros($t, [
-			'$action' => DI::baseUrl()->get(true) . '/admin/themes/' . $theme . '/embed?mode=minimal',
+			'$action' => 'admin/themes/' . $theme . '/embed?mode=minimal',
 			'$form' => $admin_form,
 			'$form_security_token' => self::getFormSecurityToken("admin_theme_settings"),
 		]);

@@ -73,7 +73,7 @@ class Cache
 
 	public function __construct(BaseURL $baseURL, IManageConfigValues $config, Database $dba, Profiler $profiler, LoggerInterface $logger)
 	{
-		$this->hostname = $baseURL->getHostname();
+		$this->hostname = $baseURL->getHost();
 		$this->config   = $config;
 		$this->dba      = $dba;
 		$this->profiler = $profiler;

@@ -401,7 +401,7 @@ class System
 		if (is_bool($prefix) && !$prefix) {
 			$prefix = '';
 		} elseif (empty($prefix)) {
-			$prefix = hash('crc32', DI::baseUrl()->getHostname());
+			$prefix = hash('crc32', DI::baseUrl()->getHost());
 		}
 
 		while (strlen($prefix) < ($size - 13)) {
@@ -604,7 +604,7 @@ class System
 			$temppath = BasePath::getRealPath($temppath);
 
 			// To avoid any interferences with other systems we create our own directory
-			$new_temppath = $temppath . "/" . DI::baseUrl()->getHostname();
+			$new_temppath = $temppath . "/" . DI::baseUrl()->getHost();
 			if (!is_dir($new_temppath)) {
 				/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
 				mkdir($new_temppath);

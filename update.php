@@ -59,6 +59,7 @@ use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\Delivery;
 use Friendica\Security\PermissionSet\Repository\PermissionSet;
 
@@ -1284,6 +1285,33 @@ function update_1514()
 			return Update::FAILED;
 		}
 	}
+
+	return Update::SUCCESS;
+}
+
+function update_1515()
+{
+	DBA::update('verb', ['name' => Activity::READ], ['name' => 'https://www.w3.org/ns/activitystreams#read']);
+	DBA::update('verb', ['name' => Activity::VIEW], ['name' => 'https://joinpeertube.org/view']);
+	return Update::SUCCESS;
+}
+
+function update_1516()
+{
+	// Fixes https://github.com/friendica/friendica/issues/12803
+	// de-serialize multiple serialized values
+	$configTrans = DI::config()->beginTransaction();
+	$configArray = DI::config()->getCache()->getDataBySource(Cache::SOURCE_DATA);
+
+	foreach ($configArray as $category => $keyValues) {
+		if (is_array($keyValues)) {
+			foreach ($keyValues as $key => $value) {
+				$configTrans->set($category, $key, $value);
+			}
+		}
+	}
+
+	$configTrans->commit();
 
 	return Update::SUCCESS;
 }

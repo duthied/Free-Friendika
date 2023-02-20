@@ -68,7 +68,6 @@ class OAuth extends BaseSettings
 		$tpl = Renderer::getMarkupTemplate('settings/oauth.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseSettings::getFormSecurityToken('settings_oauth'),
-			'$baseurl'             => $this->baseUrl->get(true),
 			'$title'               => $this->t('Connected Apps'),
 			'$name'                => $this->t('Name'),
 			'$website'             => $this->t('Home Page'),

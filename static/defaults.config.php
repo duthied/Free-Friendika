@@ -487,6 +487,10 @@ return [
 		// Don't show smilies.
 		'no_smilies' => false,
 
+		// optimize_all_tables (Boolean)
+		// Optimizes all tables instead of only tables like workerqueue or the cache
+		'optimize_all_tables' => false,
+
 		// paranoia (Boolean)
 		// Log out users if their IP address changed.
 		'paranoia' => false,
@@ -502,6 +506,10 @@ return [
 		// png_quality (Integer)
 		// Sets the ImageMagick compression level for PNG images. Values range from 0 (uncompressed) to 9 (most compressed).
 		'png_quality' => 8,
+
+		// process_view (Boolean)
+		// Process the "View" activity that is used by Peertube. View activities are displayed, when "emoji_activities" are enabled. 
+		'process_view' => false,
 
 		// profiler (Boolean)
 		// Enable internal timings to help optimize code. Needed for "rendertime" addon.

@@ -28,10 +28,24 @@ namespace Friendica\Core\Config\Util;
  */
 class SerializeUtil
 {
+	/**
+	 * Checks if the value needs to get unserialized and returns the unserialized value
+	 *
+	 * @param mixed $value A possibly serialized value
+	 *
+	 * @return mixed The unserialized value
+	 */
 	public static function maybeUnserialize($value)
 	{
-		if (static::isSerialized($value)) {
-			return @unserialize(trim($value));
+		// This checks for possible multiple serialized values
+		while (static::isSerialized($value)) {
+			$oldValue = $value;
+			$value = @unserialize($value);
+
+			// If there's no change after the unserialize call, break the loop (avoid endless loops)
+			if ($oldValue === $value) {
+				break;
+			}
 		}
 
 		return $value;
