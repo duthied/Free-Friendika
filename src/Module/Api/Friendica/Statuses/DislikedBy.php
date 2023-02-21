@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon\Statuses;
+namespace Friendica\Module\Api\Friendica\Statuses;
 
 use Friendica\Core\System;
 use Friendica\DI;
@@ -31,7 +31,7 @@ use Friendica\Protocol\Activity;
 /**
  * @see https://docs.joinmastodon.org/methods/statuses/
  */
-class FavouritedBy extends BaseApi
+class DislikedBy extends BaseApi
 {
 	/**
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -49,7 +49,7 @@ class FavouritedBy extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $id, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::LIKE, 'deleted' => false]);
+		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $id, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::DISLIKE, 'deleted' => false]);
 
 		$accounts = [];
 
