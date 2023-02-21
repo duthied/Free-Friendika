@@ -73,6 +73,13 @@ class Context extends BaseApi
 				$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
 				$params['order'] = ['uri-id'];
 			}
+
+			if (!empty($uid)) {
+				$condition = DBA::mergeConditions(
+					$condition,
+					["NOT `author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND (`blocked` OR `ignored`))", $uid]
+				);
+			}
 	
 			$posts = Post::selectPosts(['uri-id', 'thr-parent-id'], $condition, $params);
 			while ($post = Post::fetch($posts)) {
