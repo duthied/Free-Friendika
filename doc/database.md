@@ -10,7 +10,6 @@ Database Tables
 | [2fa_trusted_browser](help/database/db_2fa_trusted_browser) | Two-factor authentication trusted browsers |
 | [account-suggestion](help/database/db_account-suggestion) | Account suggestion |
 | [account-user](help/database/db_account-user) | Remote and local accounts |
-| [addon](help/database/db_addon) | registered addons |
 | [apcontact](help/database/db_apcontact) | ActivityPub compatible contacts - used in the ActivityPub implementation |
 | [application](help/database/db_application) | OAuth application |
 | [application-marker](help/database/db_application-marker) | Timeline marker |

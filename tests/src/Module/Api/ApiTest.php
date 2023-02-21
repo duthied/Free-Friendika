@@ -24,6 +24,7 @@ namespace Friendica\Test\src\Module\Api;
 use Friendica\App;
 use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Core\Addon;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Database\Database;
 use Friendica\DI;
@@ -212,15 +213,14 @@ abstract class ApiTest extends FixtureTest
 			$func(DI::app());
 		}
 
-		/** @var Database $dba */
-		$dba = $this->dice->create(Database::class);
+		/** @var $config IManageConfigValues */
+		$config = $this->dice->create(IManageConfigValues::class);
 
-		$dba->insert('addon', [
+		$config->set('addons', $addon, [
 			'name'         => $addon,
 			'installed'    => true,
 			'timestamp'    => $t,
 			'plugin_admin' => function_exists($addon . '_addon_admin'),
-			'hidden'       => file_exists('addon/' . $addon . '/.hidden')
 		]);
 
 		Addon::loadAddons();

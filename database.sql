@@ -341,22 +341,6 @@ CREATE TABLE IF NOT EXISTS `account-user` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Remote and local accounts';
 
 --
--- TABLE addon
---
-CREATE TABLE IF NOT EXISTS `addon` (
-	`id` int unsigned NOT NULL auto_increment COMMENT '',
-	`name` varchar(50) NOT NULL DEFAULT '' COMMENT 'addon base (file)name',
-	`version` varchar(50) NOT NULL DEFAULT '' COMMENT 'currently unused',
-	`installed` boolean NOT NULL DEFAULT '0' COMMENT 'currently always 1',
-	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'currently unused',
-	`timestamp` int unsigned NOT NULL DEFAULT 0 COMMENT 'file timestamp to check for reloads',
-	`plugin_admin` boolean NOT NULL DEFAULT '0' COMMENT '1 = has admin config, 0 = has no admin config',
-	 PRIMARY KEY(`id`),
-	 INDEX `installed_name` (`installed`,`name`),
-	 UNIQUE INDEX `name` (`name`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='registered addons';
-
---
 -- TABLE apcontact
 --
 CREATE TABLE IF NOT EXISTS `apcontact` (
