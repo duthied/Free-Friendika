@@ -29,6 +29,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
+use Friendica\Object\Api\Mastodon\TimelineOrderByTypes;
 
 /**
  * @see https://docs.joinmastodon.org/methods/timelines/
@@ -53,28 +54,19 @@ class Home extends BaseApi
 			'only_media'      => false, // Show only statuses with media attached? Defaults to false.
 			'remote'          => false, // Show only remote statuses? Defaults to false.
 			'exclude_replies' => false, // Don't show comments
+			'min_time'        => '',
+			'max_time'        => '',
+			'friendica_order' => TimelineOrderByTypes::ID,
 		], $request);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'uid' => $uid];
 
+		$condition = $this->addPagingConditions($request, $condition);
+
 		if ($request['local']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
-		}
-
-		if (!empty($request['max_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);
-		}
-
-		if (!empty($request['since_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['since_id']]);
-		}
-
-		if (!empty($request['min_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
-
-			$params['order'] = ['uri-id'];
 		}
 
 		if ($request['only_media']) {
@@ -96,9 +88,17 @@ class Home extends BaseApi
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
-			self::setBoundaries($item['uri-id']);
 			try {
-				$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, $display_quotes);
+				$status =  DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, $display_quotes);
+				switch ($request['friendica_order']) {
+					case TimelineOrderByTypes::CREATED_AT:
+						self::setBoundaries($status->createdAtTimestamp());
+						break;
+					case TimelineOrderByTypes::ID:
+					default:
+						self::setBoundaries($item['uri-id']);
+				}
+				$statuses[] = $status;
 			} catch (\Throwable $th) {
 				Logger::info('Post not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
 			}
@@ -109,7 +109,8 @@ class Home extends BaseApi
 			$statuses = array_reverse($statuses);
 		}
 
-		self::setLinkHeader();
+
+		self::setLinkHeader($request['friendica_order'] != TimelineOrderByTypes::ID);
 		System::jsonExit($statuses);
 	}
 }

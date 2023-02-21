@@ -21,12 +21,14 @@
 
 namespace Friendica\Module;
 
+use DateTime;
 use Friendica\App;
 use Friendica\App\Router;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -35,6 +37,7 @@ use Friendica\Model\User;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
+use Friendica\Object\Api\Mastodon\TimelineOrderByTypes;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
@@ -110,6 +113,53 @@ class BaseApi extends BaseModule
 	 * @return array request data
 	 * @throws \Exception
 	 */
+	public function addPagingConditions(array $request, array $condition): array
+	{
+		$requested_order = $request['friendica_order'];
+		if ($requested_order == TimelineOrderByTypes::ID) {
+			if (!empty($request['max_id'])) {
+				$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);
+			}
+
+			if (!empty($request['since_id'])) {
+				$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['since_id']]);
+			}
+
+			if (!empty($request['min_id'])) {
+				$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
+			}
+		} else {
+			switch ($requested_order) {
+				case TimelineOrderByTypes::CREATED_AT:
+					$order_field = 'created';
+					break;
+				default:
+					$order_field = 'uri-id';
+			}
+			if (!empty($request['max_time'])) {
+				$condition = DBA::mergeConditions($condition, ["`$order_field` < ?", DateTimeFormat::convert($request['max_time'], DateTimeFormat::MYSQL)]);
+			}
+
+
+			if (!empty($request['min_time'])) {
+				$condition = DBA::mergeConditions($condition, ["`$order_field` > ?", DateTimeFormat::convert($request['min_time'], DateTimeFormat::MYSQL)]);
+
+				$params['order'] = [$order_field];
+			}
+		}
+
+		return $condition;
+	}
+
+	/**
+	 * Processes data from GET requests and sets defaults
+	 *
+	 * @param array      $defaults Associative array of expected request keys and their default typed value. A null
+	 *                             value will remove the request key from the resulting value array.
+	 * @param array $request       Custom REQUEST array, superglobal instead
+	 * @return array request data
+	 * @throws \Exception
+	 */
 	public function getRequest(array $defaults, array $request): array
 	{
 		self::$request    = $request;
@@ -143,7 +193,7 @@ class BaseApi extends BaseModule
 	 * Get the "link" header with "next" and "prev" links
 	 * @return string
 	 */
-	protected static function getLinkHeader(): string
+	protected static function getLinkHeader(bool $asDate): string
 	{
 		if (empty(self::$boundaries)) {
 			return '';
@@ -154,11 +204,22 @@ class BaseApi extends BaseModule
 		unset($request['min_id']);
 		unset($request['max_id']);
 		unset($request['since_id']);
+		unset($request['min_time']);
+		unset($request['max_time']);
 
 		$prev_request = $next_request = $request;
 
-		$prev_request['min_id'] = self::$boundaries['max'];
-		$next_request['max_id'] = self::$boundaries['min'];
+		if ($asDate) {
+			$max_date = new DateTime();
+			$max_date->setTimestamp(self::$boundaries['max']);
+			$min_date = new DateTime();
+			$min_date->setTimestamp(self::$boundaries['min']);
+			$prev_request['min_time'] = $max_date->format(DateTimeFormat::JSON);
+			$next_request['max_time'] = $min_date->format(DateTimeFormat::JSON);
+		} else {
+			$prev_request['min_id'] = self::$boundaries['max'];
+			$next_request['max_id'] = self::$boundaries['min'];
+		}
 
 		$command = DI::baseUrl() . '/' . DI::args()->getCommand();
 
@@ -200,9 +261,9 @@ class BaseApi extends BaseModule
 	 * Set the "link" header with "next" and "prev" links
 	 * @return void
 	 */
-	protected static function setLinkHeader()
+	protected static function setLinkHeader(bool $asDate = false)
 	{
-		$header = self::getLinkHeader();
+		$header = self::getLinkHeader($asDate);
 		if (!empty($header)) {
 			header($header);
 		}

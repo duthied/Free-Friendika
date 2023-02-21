@@ -155,6 +155,21 @@ class Status extends BaseDataTransferObject
 	}
 
 	/**
+	 * Returns the current created_at DateTime as an integer timestamp
+	 * @return int
+	 * @throws \Exception
+	 */
+	public function createdAtTimestamp(): int
+	{
+		$result = strtotime($this->created_at);
+		if (!$result) {
+			throw new \Exception('Unknown date-time format');
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Returns the current entity as an array
 	 *
 	 * @return array
