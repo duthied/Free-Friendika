@@ -19,44 +19,36 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon\Statuses;
+namespace Friendica\Module\Api\Friendica\Statuses;
 
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
-use Friendica\Protocol\Activity;
 
 /**
  * @see https://docs.joinmastodon.org/methods/statuses/
  */
-class FavouritedBy extends BaseApi
+class Undislike extends BaseApi
 {
-	/**
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	protected function rawContent(array $request = [])
+	protected function post(array $request = [])
 	{
+		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $this->parameters['id'];
-		if (!Post::exists(['uri-id' => $id, 'uid' => [0, $uid]])) {
+		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
+		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $id, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::LIKE, 'deleted' => false]);
+		Item::performActivity($item['id'], 'undislike', $uid);
 
-		$accounts = [];
-
-		while ($activity = Post::fetch($activities)) {
-			$accounts[] = DI::mstdnAccount()->createFromContactId($activity['author-id'], $uid);
-		}
-
-		System::jsonExit($accounts);
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
 	}
 }

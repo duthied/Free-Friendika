@@ -19,34 +19,31 @@
  *
  */
 
-namespace Friendica\Object\Api\Mastodon\Status;
+namespace Friendica\Object\Api\Mastodon\InstanceV2;
 
 use Friendica\BaseDataTransferObject;
+use Friendica\Object\Api\Mastodon\Account;
 
 /**
- * Class FriendicaExtension
+ * Class Contact
  *
- * Additional fields on Mastodon Statuses for storing Friendica specific data
- *
- * @see https://docs.joinmastodon.org/entities/status
+ * @see https://docs.joinmastodon.org/entities/Instance/
  */
-class FriendicaExtension extends BaseDataTransferObject
+class Contact extends BaseDataTransferObject
 {
 	/** @var string */
-	protected $title;
+	protected $email;
+	/** @var Account|null */
+	protected $account = null;
 
-	/** @var int */
-	protected $dislikes_count;
 
 	/**
-	 * Creates a status count object
-	 *
-	 * @param string $title
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param string $email
+	 * @param Account $account
 	 */
-	public function __construct(string $title, int $dislikes_count)
+	public function __construct(string $email, Account $account)
 	{
-		$this->title          = $title;
-		$this->dislikes_count = $dislikes_count;
+		$this->email   = $email;
+		$this->account = $account;
 	}
 }

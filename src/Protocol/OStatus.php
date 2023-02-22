@@ -496,7 +496,7 @@ class OStatus
 				$orig_uri = $xpath->query('activity:object/atom:id', $entry)->item(0)->nodeValue;
 				Logger::notice('Favorite', ['uri' => $orig_uri, 'item' => $item]);
 
-				$item['verb'] = Activity::LIKE;
+				$item['body'] = $item['verb'] = Activity::LIKE;
 				$item['thr-parent'] = $orig_uri;
 				$item['gravity'] = Item::GRAVITY_ACTIVITY;
 				$item['object-type'] = Activity\ObjectType::NOTE;

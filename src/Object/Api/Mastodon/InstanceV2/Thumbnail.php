@@ -19,34 +19,25 @@
  *
  */
 
-namespace Friendica\Object\Api\Mastodon\Status;
+namespace Friendica\Object\Api\Mastodon\InstanceV2;
 
 use Friendica\BaseDataTransferObject;
 
 /**
- * Class FriendicaExtension
+ * Class Thumbnail
  *
- * Additional fields on Mastodon Statuses for storing Friendica specific data
- *
- * @see https://docs.joinmastodon.org/entities/status
+ * @see https://docs.joinmastodon.org/entities/Instance/
  */
-class FriendicaExtension extends BaseDataTransferObject
+class Thumbnail extends BaseDataTransferObject
 {
-	/** @var string */
-	protected $title;
-
-	/** @var int */
-	protected $dislikes_count;
+	/** @var string (URL) */
+	protected $url;
 
 	/**
-	 * Creates a status count object
-	 *
-	 * @param string $title
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param string $url
 	 */
-	public function __construct(string $title, int $dislikes_count)
+	public function __construct(string $url)
 	{
-		$this->title          = $title;
-		$this->dislikes_count = $dislikes_count;
+		$this->url = $url;
 	}
 }
