@@ -107,6 +107,11 @@ HELP;
 	{
 		$filename = $this->getArgument(1);
 
+		if (empty($filename)) {
+			$this->out('A file name is required, e.g. ./bin/console serverblock export backup.csv');
+			return 1;
+		}
+
 		$this->blocklist->exportToFile($filename);
 
 		// Success

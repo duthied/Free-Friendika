@@ -1146,8 +1146,8 @@ class Conversation
 
 			$emojis[$row['thr-parent-id']][$index]['emoji'] = $emoji;
 			$emojis[$row['thr-parent-id']][$index]['verb']  = $row['verb'];
-			$emojis[$row['thr-parent-id']][$index]['total'] = $emojis[$row['thr-parent-id']][$emoji]['total'] ?? 0 + $row['total'];
-			$emojis[$row['thr-parent-id']][$index]['title'] = array_unique(array_merge($emojis[$row['thr-parent-id']][$emoji]['title'] ?? [], explode($separator, $row['title'])));
+			$emojis[$row['thr-parent-id']][$index]['total'] = ($emojis[$row['thr-parent-id']][$index]['total'] ?? 0) + $row['total'];
+			$emojis[$row['thr-parent-id']][$index]['title'] = array_unique(array_merge($emojis[$row['thr-parent-id']][$index]['title'] ?? [], explode($separator, $row['title'])));
 		}
 		DBA::close($rows);
 

@@ -399,23 +399,6 @@ return [
 			"uid_uri-id" => ["uid", "uri-id"],
 		]
 	],
-	"addon" => [
-		"comment" => "registered addons",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-			"name" => ["type" => "varchar(50)", "not null" => "1", "default" => "", "comment" => "addon base (file)name"],
-			"version" => ["type" => "varchar(50)", "not null" => "1", "default" => "", "comment" => "currently unused"],
-			"installed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "currently always 1"],
-			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "currently unused"],
-			"timestamp" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "file timestamp to check for reloads"],
-			"plugin_admin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 = has admin config, 0 = has no admin config"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"installed_name" => ["installed", "name"],
-			"name" => ["UNIQUE", "name"],
-		]
-	],
 	"apcontact" => [
 		"comment" => "ActivityPub compatible contacts - used in the ActivityPub implementation",
 		"fields" => [
