@@ -28,5 +28,5 @@ namespace Friendica\Object\Api\Mastodon;
 abstract class TimelineOrderByTypes
 {
 	const ID         = 'id';
-	const CREATED_AT = 'created_at';
+	const CREATED    = 'created';
 }

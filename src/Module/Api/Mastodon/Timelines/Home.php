@@ -45,17 +45,15 @@ class Home extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		$request = $this->getRequest([
-			'max_id'          => 0,     // Return results older than id
+			'max_id'          => '0',     // Return results older than id
 			'since_id'        => 0,     // Return results newer than id
-			'min_id'          => 0,     // Return results immediately newer than id
+			'min_id'          => '0',     // Return results immediately newer than id
 			'limit'           => 20,    // Maximum number of results to return. Defaults to 20.
 			'local'           => false, // Return only local statuses?
 			'with_muted'      => false, // Pleroma extension: return activities by muted (not by blocked!) users.
 			'only_media'      => false, // Show only statuses with media attached? Defaults to false.
 			'remote'          => false, // Show only remote statuses? Defaults to false.
 			'exclude_replies' => false, // Don't show comments
-			'min_time'        => '',
-			'max_time'        => '',
 			'friendica_order' => TimelineOrderByTypes::ID,
 		], $request);
 
@@ -91,7 +89,7 @@ class Home extends BaseApi
 			try {
 				$status =  DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, $display_quotes);
 				switch ($request['friendica_order']) {
-					case TimelineOrderByTypes::CREATED_AT:
+					case TimelineOrderByTypes::CREATED:
 						self::setBoundaries($status->createdAtTimestamp());
 						break;
 					case TimelineOrderByTypes::ID:

@@ -118,31 +118,31 @@ class BaseApi extends BaseModule
 		$requested_order = $request['friendica_order'];
 		if ($requested_order == TimelineOrderByTypes::ID) {
 			if (!empty($request['max_id'])) {
-				$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);
+				$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", intval($request['max_id'])]);
 			}
 
 			if (!empty($request['since_id'])) {
-				$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['since_id']]);
+				$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", intval($request['since_id'])]);
 			}
 
 			if (!empty($request['min_id'])) {
-				$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
+				$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", intval($request['min_id'])]);
 			}
 		} else {
 			switch ($requested_order) {
-				case TimelineOrderByTypes::CREATED_AT:
+				case TimelineOrderByTypes::CREATED:
 					$order_field = 'created';
 					break;
 				default:
 					$order_field = 'uri-id';
 			}
-			if (!empty($request['max_time'])) {
-				$condition = DBA::mergeConditions($condition, ["`$order_field` < ?", DateTimeFormat::convert($request['max_time'], DateTimeFormat::MYSQL)]);
+			if (!empty($request['max_id'])) {
+				$condition = DBA::mergeConditions($condition, ["`$order_field` < ?", DateTimeFormat::convert($request['max_id'], DateTimeFormat::MYSQL)]);
 			}
 
 
-			if (!empty($request['min_time'])) {
-				$condition = DBA::mergeConditions($condition, ["`$order_field` > ?", DateTimeFormat::convert($request['min_time'], DateTimeFormat::MYSQL)]);
+			if (!empty($request['min_id'])) {
+				$condition = DBA::mergeConditions($condition, ["`$order_field` > ?", DateTimeFormat::convert($request['min_id'], DateTimeFormat::MYSQL)]);
 
 				$params['order'] = [$order_field];
 			}
@@ -204,8 +204,6 @@ class BaseApi extends BaseModule
 		unset($request['min_id']);
 		unset($request['max_id']);
 		unset($request['since_id']);
-		unset($request['min_time']);
-		unset($request['max_time']);
 
 		$prev_request = $next_request = $request;
 
@@ -214,8 +212,8 @@ class BaseApi extends BaseModule
 			$max_date->setTimestamp(self::$boundaries['max']);
 			$min_date = new DateTime();
 			$min_date->setTimestamp(self::$boundaries['min']);
-			$prev_request['min_time'] = $max_date->format(DateTimeFormat::JSON);
-			$next_request['max_time'] = $min_date->format(DateTimeFormat::JSON);
+			$prev_request['min_id'] = $max_date->format(DateTimeFormat::JSON);
+			$next_request['max_id'] = $min_date->format(DateTimeFormat::JSON);
 		} else {
 			$prev_request['min_id'] = self::$boundaries['max'];
 			$next_request['max_id'] = self::$boundaries['min'];
