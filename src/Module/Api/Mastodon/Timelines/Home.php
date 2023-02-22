@@ -57,11 +57,12 @@ class Home extends BaseApi
 			'friendica_order' => TimelineOrderByTypes::ID,
 		], $request);
 
-		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
+
 
 		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'uid' => $uid];
 
 		$condition = $this->addPagingConditions($request, $condition);
+		$params = $this->buildOrderAndLimitParams($request);
 
 		if ($request['local']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);

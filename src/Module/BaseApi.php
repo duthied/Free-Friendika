@@ -105,12 +105,11 @@ class BaseApi extends BaseModule
 	}
 
 	/**
-	 * Processes data from GET requests and sets defaults
+	 * Processes data from GET requests and sets paging conditions
 	 *
-	 * @param array      $defaults Associative array of expected request keys and their default typed value. A null
-	 *                             value will remove the request key from the resulting value array.
-	 * @param array $request       Custom REQUEST array, superglobal instead
-	 * @return array request data
+	 * @param array $request       Custom REQUEST array
+	 * @param array $condition     Existing conditions to merge
+	 * @return array paging data condition parameters data
 	 * @throws \Exception
 	 */
 	public function addPagingConditions(array $request, array $condition): array
@@ -149,6 +148,37 @@ class BaseApi extends BaseModule
 		}
 
 		return $condition;
+	}
+
+	/**
+	 * Processes data from GET requests and sets paging conditions
+	 *
+	 * @param array $request  Custom REQUEST array
+	 * @param array $params   Existing $params element to build on
+	 * @return array ordering data added to the params blocks that was passed in
+	 * @throws \Exception
+	 */
+	public function buildOrderAndLimitParams(array $request, array $params = []): array
+	{
+		$requested_order = $request['friendica_order'];
+		switch ($requested_order) {
+			case TimelineOrderByTypes::CREATED:
+				$order_field = 'created';
+				break;
+			case TimelineOrderByTypes::ID:
+			default:
+				$order_field = 'uri-id';
+		}
+
+		if(!empty($request['min_id'])) {
+			$params['order'] = [$order_field];
+		} else {
+			$params['order'] = [$order_field => true];
+		}
+
+		$params['limit']= $request['limit'];
+
+		return $params;
 	}
 
 	/**
