@@ -150,6 +150,10 @@ Example:
 - [`PUT /api/v1/media/:id`](https://docs.joinmastodon.org/methods/statuses/media/)
 - [`GET /api/v1/mutes`](https://docs.joinmastodon.org/methods/accounts/mutes/)
 - [`GET /api/v1/notifications`](https://docs.joinmastodon.org/methods/notifications/)
+	- Additional field `include_all` to return read and unread statuses, defaults to `false`
+    - Additional field `summary` returns a count of all of the statuses that match the type filter
+    - Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
+    - Does not support the `type` field, which is the mirror image of the supported `exclude_types` field
 - [`GET /api/v1/notifications/:id`](https://docs.joinmastodon.org/methods/notifications/)
 - [`POST /api/v1/notifications/clear`](https://docs.joinmastodon.org/methods/notifications/)
 - [`POST /api/v1/notifications/:id/dismiss`](https://docs.joinmastodon.org/methods/notifications/)
@@ -166,9 +170,15 @@ Example:
 - [`GET /api/v1/search`](https://docs.joinmastodon.org/methods/search/)
 - [`POST /api/v1/statuses`](https://docs.joinmastodon.org/methods/statuses/#create)
     - Additionally to the static values `public`, `unlisted` and `private`, the `visibility` parameter can contain a numeric value with a group id.
+    - Additional field `quote_id` for the post that is being quote reshared
+    - Additional fields `friendica` for Friendica specific parameters:
+       - `title`: Explicitly sets the title for a post status, ignored if used on a comment status. For post statuses the legacy behavior is to use any "spoiler text" as the title if it is provided. If both the title and spoiler text are provided for a post status then they will each be used for their respective roles. If no title is provided then the legacy behavior will persist. If you want to create a post with no title but spoiler text then explicitly set the title but set it to an empty string `""`. 
 - [`GET /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/#get)
 - [`DELETE /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/#delete)
 - [`GET /api/v1/statuses/:id/context`](https://docs.joinmastodon.org/methods/statuses/#context)
+    - Additional support for paging using `min_id`, `max_id`, `since_id` parameters
+    - Additional support for previous/next Link Headers to support paging
+    - Additional flag `show_all` to allow including posts from blocked and ignored/muted users, defaults to `false`
 - [`GET /api/v1/statuses/:id/reblogged_by`](https://docs.joinmastodon.org/methods/statuses/#reblogged_by)
 - [`GET /api/v1/statuses/:id/favourited_by`](https://docs.joinmastodon.org/methods/statuses/#favourited_by)
 - [`POST /api/v1/statuses/:id/favourite`](https://docs.joinmastodon.org/methods/statuses/#favourite)
@@ -197,6 +207,7 @@ Example:
 - [`GET /api/v1/trends/links`](https://github.com/mastodon/mastodon/pull/16917)
 - [`GET /api/v1/trends/statuses`](https://docs.joinmastodon.org/methods/trends/#statuses)
 - [`GET /api/v1/trends/tags`](https://docs.joinmastodon.org/methods/trends/#tags)
+	- Additional field `friendica_local` to return local trending tags instead of global tags, defaults to `false`
 - [`GET /api/v2/instance`](https://docs.joinmastodon.org/methods/instance/#v2)
 - [`GET /api/v2/search`](https://docs.joinmastodon.org/methods/search/)
 
