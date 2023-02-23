@@ -139,11 +139,12 @@ class BaseApi extends BaseModule
 				$condition = DBA::mergeConditions($condition, ["`$order_field` < ?", DateTimeFormat::convert($request['max_id'], DateTimeFormat::MYSQL)]);
 			}
 
+            if (!empty($request['since_id'])) {
+                $condition = DBA::mergeConditions($condition, ["`$order_field` > ?", DateTimeFormat::convert($request['since_id'], DateTimeFormat::MYSQL)]);
+            }
 
 			if (!empty($request['min_id'])) {
 				$condition = DBA::mergeConditions($condition, ["`$order_field` > ?", DateTimeFormat::convert($request['min_id'], DateTimeFormat::MYSQL)]);
-
-				$params['order'] = [$order_field];
 			}
 		}
 
