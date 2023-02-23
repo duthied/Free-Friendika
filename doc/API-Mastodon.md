@@ -31,6 +31,10 @@ For supported apps please have a look at the [FAQ](help/FAQ#clients)
 
 These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/entities/). With some additional extensions listed below.
 
+### Notification Entities
+Extensions to the [Mastodon Notification Entities](https://docs.joinmastodon.org/entities/Notification/)
+* `dismissed`: whether the object has been dismissed or not
+
 ### Status Entities
 Extensions to the [Mastodon Status Entities](https://docs.joinmastodon.org/entities/Status/)
 * `in_reply_to_status`: A fully populated Mastodon Status entity for the replied to status or null it is a post rather than a response
