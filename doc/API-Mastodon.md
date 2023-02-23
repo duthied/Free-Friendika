@@ -204,9 +204,18 @@ Example:
 - [`GET /api/v1/tags/:id/unfollow`](https://docs.joinmastodon.org/methods/tags/#unfollow)
 - [`GET /api/v1/timelines/direct`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/home`](https://docs.joinmastodon.org/methods/timelines/)
+	- Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
+    - Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
 - [`GET /api/v1/timelines/list/:id`](https://docs.joinmastodon.org/methods/timelines/)
+	- Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
+	- Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
 - [`GET /api/v1/timelines/public`](https://docs.joinmastodon.org/methods/timelines/)
+	- Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
+	- Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
 - [`GET /api/v1/timelines/tag/:hashtag`](https://docs.joinmastodon.org/methods/timelines/)
+	- Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
+	- Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
+    - Does not support the `any[]`, `all[]`, or `none[]` query parameters
 - [`GET /api/v1/trends`](https://docs.joinmastodon.org/methods/instance/trends/)
 - [`GET /api/v1/trends/links`](https://github.com/mastodon/mastodon/pull/16917)
 - [`GET /api/v1/trends/statuses`](https://docs.joinmastodon.org/methods/trends/#statuses)
