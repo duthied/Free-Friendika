@@ -29,7 +29,65 @@ For supported apps please have a look at the [FAQ](help/FAQ#clients)
 
 ## Entities
 
-These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/entities/).
+These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/entities/). With some additional extensions listed below.
+
+### Status Entities
+Extensions to the [Mastodon Status Entities](https://docs.joinmastodon.org/entities/Status/)
+* `in_reply_to_status`: A fully populated Mastodon Status entity for the replied to status or null it is a post rather than a response
+* `friendica`: Friendica specific properties of a status including:
+  * `title`: The Friendica title for a post, or empty if the status is a comment
+  * `dislikes_count`: The number of dislikes that a status has accumulated according to the server.
+
+Example:
+```json
+{
+  "id": "358",
+  "created_at": "2023-02-23T02:45:46.000Z",
+  "in_reply_to_id": "356",
+  "in_reply_to_status": {
+	"id": "356",
+	"created_at": "2023-02-23T02:45:35.000Z",
+	"in_reply_to_id": null,
+	"in_reply_to_status": null,
+	"in_reply_to_account_id": null,
+	...
+	"content": "A post from testuser1",
+	...
+	"account": {
+	  "id": "6",
+	  "username": "testuser1",
+	  "acct": "testuser1",
+	  "display_name": "testuser1",
+	  ...
+	},
+	...
+	"friendica": {
+	  "title": "",
+	  "dislikes_count": 0
+	}
+  },
+  "in_reply_to_account_id": "6",
+  ...
+  "replies_count": 0,
+  "reblogs_count": 0,
+  "favourites_count": 0,
+  ...
+  "content": "A reply from testuser2",
+  ...
+  "account": {
+	"id": "8",
+	"username": "testuser2",
+	"acct": "testuser2",
+	"display_name": "testuser2",
+	...
+  },
+  ...
+  "friendica": {
+	"title": "",
+	"dislikes_count": 0
+  }
+}
+```
 
 ## Implemented endpoints
 
