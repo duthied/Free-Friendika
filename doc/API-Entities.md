@@ -1170,6 +1170,40 @@ Mutually exclusive with <code>link</code>.
 </tbody>
 </table>
 
+
+## Photo Album
+
+<table class="table table-condensed table-striped table-bordered">
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<td><code>name</code></td>
+<td>String</td>
+<td>The name of the photo album</td>
+</tr>
+
+<tr>
+<td><code>created</code></td>
+<td>String (Date)</td>
+<td>The creation date of the album. Format <code>YYYY-MM-DD HH:MM:SS</code></td>
+</tr>
+
+<tr>
+<td><code>count</code></td>
+<td>Integer</td>
+<td>The number of images in the album</td>
+</tr>
+
+</tbody>
+</table>
+
 ## Private message
 
 <table class="table table-condensed table-striped table-bordered">
