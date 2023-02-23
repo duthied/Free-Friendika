@@ -172,7 +172,12 @@ Example:
 - [`DELETE /api/v1/scheduled_statuses/:id`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 - [`GET /api/v1/scheduled_statuses/:id`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 - [`GET /api/v1/search`](https://docs.joinmastodon.org/methods/search/)
+- [`PUT /api/v1/statuses`](https://docs.joinmastodon.org/methods/statuses/#edit)
+    - Does not support `polls` argument as Friendica does not have polls
+	- Additional fields `friendica` for Friendica specific parameters:
+		- `title`: Explicitly sets the title for a post status, ignored if used on a comment status. For post statuses the legacy behavior is to use any "spoiler text" as the title if it is provided. If both the title and spoiler text are provided for a post status then they will each be used for their respective roles. If no title is provided then the legacy behavior will persist. If you want to create a post with no title but spoiler text then explicitly set the title but set it to an empty string `""`.
 - [`POST /api/v1/statuses`](https://docs.joinmastodon.org/methods/statuses/#create)
+	- Does not support `polls` argument as Friendica does not have polls
     - Additionally to the static values `public`, `unlisted` and `private`, the `visibility` parameter can contain a numeric value with a group id.
     - Additional field `quote_id` for the post that is being quote reshared
     - Additional fields `friendica` for Friendica specific parameters:
