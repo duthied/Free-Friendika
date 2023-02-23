@@ -911,7 +911,7 @@ Identical to [the Twitter Media Object](https://developer.twitter.com/en/docs/tw
 <tr>
 <td><code>media-id</code></td>
 <td>String (Integer) </td>
-<td>ID used for attaching to a Mastodon Post Status</td>
+<td>ID used for attaching images to a Mastodon Post Status</td>
 </tr>
 
 
