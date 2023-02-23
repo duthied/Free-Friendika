@@ -73,8 +73,8 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
     - `:id` is a follow request ID, not a regular account id
     - Returns a [Relationship](https://docs.joinmastodon.org/entities/relationship) object.
 
-- [`GET /api/v1/followed_tags'](https://docs.joinmastodon.org/methods/followed_tags/)
-- [`GET /api/v1/instance`](https://docs.joinmastodon.org/methods/instance#fetch-instance)
+- [`GET /api/v1/followed_tags`](https://docs.joinmastodon.org/methods/followed_tags/)
+- [`GET /api/v1/instance`](https://docs.joinmastodon.org/methods/instance/#v1)
 - `GET /api/v1/instance/rules` Undocumented, returns Terms of Service
 - [`GET /api/v1/instance/peers`](https://docs.joinmastodon.org/methods/instance#list-of-connected-domains)
 - [`GET /api/v1/lists`](https://docs.joinmastodon.org/methods/timelines/lists/)
@@ -139,6 +139,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`GET /api/v1/trends/links`](https://github.com/mastodon/mastodon/pull/16917)
 - [`GET /api/v1/trends/statuses`](https://docs.joinmastodon.org/methods/trends/#statuses)
 - [`GET /api/v1/trends/tags`](https://docs.joinmastodon.org/methods/trends/#tags)
+- [`GET /api/v2/instance`](https://docs.joinmastodon.org/methods/instance/#v2)
 - [`GET /api/v2/search`](https://docs.joinmastodon.org/methods/search/)
 
 
