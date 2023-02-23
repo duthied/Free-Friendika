@@ -715,6 +715,127 @@ General description of profile data in API returns:
 
 ---
 
+### POST api/friendica/statuses/:id/dislike
+
+Marks the given status as disliked by this user
+
+#### Path Parameter
+
+* `id`: the status ID that is being marked
+
+#### Return values
+
+A Mastodon [Status Entity](https://docs.joinmastodon.org/entities/Status/)
+
+#### Example:
+`https://<server_name>/api/friendica/statuses/341/dislike`
+
+```json
+{
+  "id": "341",
+  "created_at": "2023-02-23T01:50:00.000Z",
+  "in_reply_to_id": null,
+  "in_reply_to_status": null,
+  "in_reply_to_account_id": null,
+  "sensitive": false,
+  "spoiler_text": "",
+  "visibility": "public",
+  "language": "en",
+   ...
+  "account": {
+    "id": "8",
+    "username": "testuser2",
+	  ...
+  },
+  "media_attachments": [],
+  "mentions": [],
+  "tags": [],
+  "emojis": [],
+  "card": null,
+  "poll": null,
+  "friendica": {
+    "title": "",
+    "dislikes_count": 1
+  }
+}
+```
+
+
+### GET api/friendica/statuses/:id/disliked_by
+
+Returns the list of accounts that have disliked the status as known by the current server
+
+#### Path Parameter
+
+* `id`: the status ID that is being marked
+
+#### Return values
+
+A list of [Mastodon Account](https://docs.joinmastodon.org/entities/Account/) objects
+in the body and next/previous link headers in the header
+
+#### Example:
+`https://<server_name>/api/friendica/statuses/341/disliked_by`
+
+```json
+[
+	{
+		"id": "6",
+		"username": "testuser1",
+		...
+	}
+]
+```
+
+
+
+### POST api/friendica/statuses/:id/undislike
+
+Removes the dislike mark (if it exists) on this status for this user
+
+#### Path Parameter
+
+* `id`: the status ID that is being marked
+
+#### Return values
+
+A Mastodon [Status Entity](https://docs.joinmastodon.org/entities/Status/)
+
+#### Example:
+`https://<server_name>/api/friendica/statuses/341/dislike`
+
+```json
+{
+  "id": "341",
+  "created_at": "2023-02-23T01:50:00.000Z",
+  "in_reply_to_id": null,
+  "in_reply_to_status": null,
+  "in_reply_to_account_id": null,
+  "sensitive": false,
+  "spoiler_text": "",
+  "visibility": "public",
+  "language": "en",
+   ...
+  "account": {
+    "id": "8",
+    "username": "testuser2",
+	  ...
+  },
+  "media_attachments": [],
+  "mentions": [],
+  "tags": [],
+  "emojis": [],
+  "card": null,
+  "poll": null,
+  "friendica": {
+    "title": "",
+    "dislikes_count": 0
+  }
+}
+```
+
+---
+
 ## Deprecated endpoints
 
 - POST api/statuses/mediap
