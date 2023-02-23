@@ -31,6 +31,28 @@ For supported apps please have a look at the [FAQ](help/FAQ#clients)
 
 These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/entities/). With some additional extensions listed below.
 
+### Instance (Version 2) Entities
+Extensions to the [Mastodon Instance::V2 Entities](https://docs.joinmastodon.org/entities/Instance/)
+* `friendica`: Friendica specific properties of the V2 Instance including:
+	* `version`: The Friendica version string
+    * `codename`: The Friendica version code name
+    * `db_version`: The database schema version number
+
+Example: 
+```json
+{
+  "domain": "friendicadevtest1.myportal.social",
+  "title": "Friendica Social Network",
+  "version": "2.8.0 (compatible; Friendica 2023.03-dev)",
+  ...
+  "friendica": {
+    "version": "2023.03-dev",
+    "codename": "Giant Rhubarb",
+    "db_version": 1516
+  }
+}
+```
+
 ### Notification Entities
 Extensions to the [Mastodon Notification Entities](https://docs.joinmastodon.org/entities/Notification/)
 * `dismissed`: whether the object has been dismissed or not
