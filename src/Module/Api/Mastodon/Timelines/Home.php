@@ -45,9 +45,9 @@ class Home extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		$request = $this->getRequest([
-			'max_id'          => '0',     // Return results older than id
-			'since_id'        => 0,     // Return results newer than id
-			'min_id'          => '0',     // Return results immediately newer than id
+			'max_id'          => null,  // Return results older than id
+			'since_id'        => null,  // Return results newer than id
+			'min_id'          => null,  // Return results immediately newer than id
 			'limit'           => 20,    // Maximum number of results to return. Defaults to 20.
 			'local'           => false, // Return only local statuses?
 			'with_muted'      => false, // Pleroma extension: return activities by muted (not by blocked!) users.
