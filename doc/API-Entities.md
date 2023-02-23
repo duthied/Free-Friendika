@@ -909,6 +909,13 @@ Identical to [the Twitter Media Object](https://developer.twitter.com/en/docs/tw
 </tr>
 
 <tr>
+<td><code>media-id</code></td>
+<td>String (Integer) </td>
+<td>ID used for attaching to a Mastodon Post Status</td>
+</tr>
+
+
+<tr>
 <td><code>created</code></td>
 <td>String (Date)</td>
 <td>Format <code>YYYY-MM-DD HH:MM:SS</code></td>
@@ -1002,6 +1009,14 @@ Mutually exclusive with <code>data</code> <code>datasize</code>.
 </tr>
 
 <tr>
+<td><code>scales</code></td>
+<td>Array of Photo Scales</td>
+<td>
+List of Scale objects listing the id, scale, link, etc. of each scale
+</td>
+</tr>
+
+<tr>
 <td><code>datasize</code></td>
 <td>Integer</td>
 <td>
@@ -1039,6 +1054,58 @@ Mutually exclusive with <code>link</code>.
 
 </tbody>
 </table>
+
+## Photo Scale
+
+<table class="table table-condensed table-striped table-bordered">
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th align="center">Nullable</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<td><code>id</code></td>
+<td>String (Integer)</td>
+<td>Row ID of this photo scale</td>
+</tr>
+
+<tr>
+<td><code>scale</code></td>
+<td>Integer</td>
+<td>Scale number</td>
+</tr>
+
+<tr>
+<td><code>link</code></td>
+<td>String (URL)</td>
+<td>URL to this scale's image</td>
+</tr>
+
+<tr>
+<td><code>height</code></td>
+<td>Integer</td>
+<td>Image height in pixels</td>
+</tr>
+
+<tr>
+<td><code>width</code></td>
+<td>Integer</td>
+<td>Image width in pixels</td>
+</tr>
+
+<tr>
+<td><code>size</code></td>
+<td>Integer</td>
+<td>Image size in bytes</td>
+</tr>
+
+</tbody>
+</table>
+
 
 ## Photo List Item
 
