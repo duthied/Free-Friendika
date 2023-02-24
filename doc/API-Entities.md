@@ -1012,7 +1012,7 @@ Mutually exclusive with <code>data</code> <code>datasize</code>.
 <td><code>scales</code></td>
 <td>Array of Photo Scales</td>
 <td>
-List of Scale objects listing the id, scale, link, etc. of each scale
+List of the various resized versions of the Photo
 </td>
 </tr>
 

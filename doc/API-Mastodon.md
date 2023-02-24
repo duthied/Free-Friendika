@@ -29,12 +29,13 @@ For supported apps please have a look at the [FAQ](help/FAQ#clients)
 
 ## Entities
 
-These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/entities/). With some additional extensions listed below.
+These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/entities/).
+With some additional extensions listed below.
 
 ### Instance (Version 2) Entities
 Extensions to the [Mastodon Instance::V2 Entities](https://docs.joinmastodon.org/entities/Instance/)
 * `friendica`: Friendica specific properties of the V2 Instance including:
-	* `version`: The Friendica version string
+    * `version`: The Friendica version string
     * `codename`: The Friendica version code name
     * `db_version`: The database schema version number
 
@@ -176,7 +177,7 @@ Example:
 - [`PUT /api/v1/media/:id`](https://docs.joinmastodon.org/methods/statuses/media/)
 - [`GET /api/v1/mutes`](https://docs.joinmastodon.org/methods/accounts/mutes/)
 - [`GET /api/v1/notifications`](https://docs.joinmastodon.org/methods/notifications/)
-	- Additional field `include_all` to return read and unread statuses, defaults to `false`
+    - Additional field `include_all` to return read and unread statuses, defaults to `false`
     - Additional field `summary` returns a count of all of the statuses that match the type filter
     - Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
     - Does not support the `type` field, which is the mirror image of the supported `exclude_types` field
@@ -196,10 +197,10 @@ Example:
 - [`GET /api/v1/search`](https://docs.joinmastodon.org/methods/search/)
 - [`PUT /api/v1/statuses`](https://docs.joinmastodon.org/methods/statuses/#edit)
     - Does not support `polls` argument as Friendica does not have polls
-	- Additional fields `friendica` for Friendica specific parameters:
-		- `title`: Explicitly sets the title for a post status, ignored if used on a comment status. For post statuses the legacy behavior is to use any "spoiler text" as the title if it is provided. If both the title and spoiler text are provided for a post status then they will each be used for their respective roles. If no title is provided then the legacy behavior will persist. If you want to create a post with no title but spoiler text then explicitly set the title but set it to an empty string `""`.
+    - Additional fields `friendica` for Friendica specific parameters:
+        - `title`: Explicitly sets the title for a post status, ignored if used on a comment status. For post statuses the legacy behavior is to use any "spoiler text" as the title if it is provided. If both the title and spoiler text are provided for a post status then they will each be used for their respective roles. If no title is provided then the legacy behavior will persist. If you want to create a post with no title but spoiler text then explicitly set the title but set it to an empty string `""`.
 - [`POST /api/v1/statuses`](https://docs.joinmastodon.org/methods/statuses/#create)
-	- Does not support `polls` argument as Friendica does not have polls
+    - Does not support `polls` argument as Friendica does not have polls
     - Additionally to the static values `public`, `unlisted` and `private`, the `visibility` parameter can contain a numeric value with a group id.
     - Additional field `quote_id` for the post that is being quote reshared
     - Additional fields `friendica` for Friendica specific parameters:
@@ -231,7 +232,7 @@ Example:
 - [`GET /api/v1/tags/:id/unfollow`](https://docs.joinmastodon.org/methods/tags/#unfollow)
 - [`GET /api/v1/timelines/direct`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/home`](https://docs.joinmastodon.org/methods/timelines/)
-	- Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
+    - Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
     - Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
 - [`GET /api/v1/timelines/list/:id`](https://docs.joinmastodon.org/methods/timelines/)
 	- Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
@@ -240,14 +241,14 @@ Example:
 	- Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
 	- Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
 - [`GET /api/v1/timelines/tag/:hashtag`](https://docs.joinmastodon.org/methods/timelines/)
-	- Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
-	- Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
+    - Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
+    - Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
     - Does not support the `any[]`, `all[]`, or `none[]` query parameters
 - [`GET /api/v1/trends`](https://docs.joinmastodon.org/methods/instance/trends/)
 - [`GET /api/v1/trends/links`](https://github.com/mastodon/mastodon/pull/16917)
 - [`GET /api/v1/trends/statuses`](https://docs.joinmastodon.org/methods/trends/#statuses)
 - [`GET /api/v1/trends/tags`](https://docs.joinmastodon.org/methods/trends/#tags)
-	- Additional field `friendica_local` to return local trending tags instead of global tags, defaults to `false`
+    - Additional field `friendica_local` to return local trending tags instead of global tags, defaults to `false`
 - [`GET /api/v2/instance`](https://docs.joinmastodon.org/methods/instance/#v2)
 - [`GET /api/v2/search`](https://docs.joinmastodon.org/methods/search/)
 
