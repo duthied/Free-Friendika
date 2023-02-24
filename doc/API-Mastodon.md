@@ -235,11 +235,11 @@ Example:
     - Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
     - Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
 - [`GET /api/v1/timelines/list/:id`](https://docs.joinmastodon.org/methods/timelines/)
-	- Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
-	- Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
+    - Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
+    - Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
 - [`GET /api/v1/timelines/public`](https://docs.joinmastodon.org/methods/timelines/)
-	- Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
-	- Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
+    - Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
+    - Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
 - [`GET /api/v1/timelines/tag/:hashtag`](https://docs.joinmastodon.org/methods/timelines/)
     - Additional field `with_muted` Pleroma extension to return notifications from muted users, defaults to `false`
     - Additional field `exclude_replies` to only return post statuses not replies/comments, defaults to `false`
