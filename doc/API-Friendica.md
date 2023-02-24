@@ -690,14 +690,14 @@ On success a list of photo album objects:
 ```json
 [
   {
-	"name": "Wall Photos",
-	"created": "2023-01-22 02:03:19",
-	"count": 4
+    "name": "Wall Photos",
+    "created": "2023-01-22 02:03:19",
+    "count": 4
   },
   {
-	"name": "Profile photos",
-	"created": "2022-11-20 14:40:06",
-	"count": 1
+    "name": "Profile photos",
+    "created": "2022-11-20 14:40:06",
+    "count": 1
   }
 ]
 ```
