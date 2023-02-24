@@ -72,26 +72,26 @@ Example:
   "created_at": "2023-02-23T02:45:46.000Z",
   "in_reply_to_id": "356",
   "in_reply_to_status": {
-	"id": "356",
-	"created_at": "2023-02-23T02:45:35.000Z",
-	"in_reply_to_id": null,
-	"in_reply_to_status": null,
-	"in_reply_to_account_id": null,
-	...
-	"content": "A post from testuser1",
-	...
-	"account": {
-	  "id": "6",
-	  "username": "testuser1",
-	  "acct": "testuser1",
-	  "display_name": "testuser1",
-	  ...
-	},
-	...
-	"friendica": {
-	  "title": "",
-	  "dislikes_count": 0
-	}
+    "id": "356",
+    "created_at": "2023-02-23T02:45:35.000Z",
+    "in_reply_to_id": null,
+    "in_reply_to_status": null,
+    "in_reply_to_account_id": null,
+    ...
+    "content": "A post from testuser1",
+    ...
+    "account": {
+      "id": "6",
+      "username": "testuser1",
+      "acct": "testuser1",
+      "display_name": "testuser1",
+      ...
+    },
+    ...
+    "friendica": {
+      "title": "",
+      "dislikes_count": 0
+    }
   },
   "in_reply_to_account_id": "6",
   ...
@@ -102,16 +102,16 @@ Example:
   "content": "A reply from testuser2",
   ...
   "account": {
-	"id": "8",
-	"username": "testuser2",
-	"acct": "testuser2",
-	"display_name": "testuser2",
-	...
+    "id": "8",
+    "username": "testuser2",
+    "acct": "testuser2",
+    "display_name": "testuser2",
+    ...
   },
   ...
   "friendica": {
-	"title": "",
-	"dislikes_count": 0
+    "title": "",
+    "dislikes_count": 0
   }
 }
 ```

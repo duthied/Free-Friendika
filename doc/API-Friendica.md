@@ -724,36 +724,36 @@ On success:
 ```json
 [
   {
-	"created": "2023-02-14 14:31:06",
-	"edited": "2023-02-14 14:31:14",
-	"title": "",
-	"desc": "",
-	"album": "Wall Photos",
-	"filename": "image.png",
-	"type": "image/png",
-	"height": 835,
-	"width": 693,
-	"datasize": 119523,
-	"profile": 0,
-	"allow_cid": "",
-	"deny_cid": "",
-	"allow_gid": "",
-	"deny_gid": "",
-	"id": "899184972463eb9b2ae3dc2580502826",
-	"scale": 0,
-	"media-id": 52,
-	"scales": [
-	  {
-		"id": 52,
-		"scale": 0,
-		"link": "https://<server>/photo/899184972463eb9b2ae3dc2580502826-0.png",
-		"width": 693,
-		"height": 835,
-		"size": 119523
-	  },
-	  ...
-	],
-	"thumb": "https://<server>/photo/899184972463eb9b2ae3dc2580502826-2.png"
+    "created": "2023-02-14 14:31:06",
+    "edited": "2023-02-14 14:31:14",
+    "title": "",
+    "desc": "",
+    "album": "Wall Photos",
+    "filename": "image.png",
+    "type": "image/png",
+    "height": 835,
+    "width": 693,
+    "datasize": 119523,
+    "profile": 0,
+    "allow_cid": "",
+    "deny_cid": "",
+    "allow_gid": "",
+    "deny_gid": "",
+    "id": "899184972463eb9b2ae3dc2580502826",
+    "scale": 0,
+    "media-id": 52,
+    "scales": [
+      {
+        "id": 52,
+        "scale": 0,
+        "link": "https://<server>/photo/899184972463eb9b2ae3dc2580502826-0.png",
+        "width": 693,
+        "height": 835,
+        "size": 119523
+      },
+      ...
+    ],
+    "thumb": "https://<server>/photo/899184972463eb9b2ae3dc2580502826-2.png"
   },
   ...
 ]
@@ -825,11 +825,11 @@ A Mastodon [Status Entity](https://docs.joinmastodon.org/entities/Status/)
   "spoiler_text": "",
   "visibility": "public",
   "language": "en",
-   ...
+  ...
   "account": {
     "id": "8",
     "username": "testuser2",
-	  ...
+    ...
   },
   "media_attachments": [],
   "mentions": [],
@@ -863,11 +863,11 @@ in the body and next/previous link headers in the header
 
 ```json
 [
-	{
-		"id": "6",
-		"username": "testuser1",
-		...
-	}
+  {
+    "id": "6",
+    "username": "testuser1",
+    ...
+  }
 ]
 ```
 
@@ -899,11 +899,11 @@ A Mastodon [Status Entity](https://docs.joinmastodon.org/entities/Status/)
   "spoiler_text": "",
   "visibility": "public",
   "language": "en",
-   ...
+  ...
   "account": {
     "id": "8",
     "username": "testuser2",
-	  ...
+    ...
   },
   "media_attachments": [],
   "mentions": [],
