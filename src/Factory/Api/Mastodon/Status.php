@@ -288,10 +288,7 @@ class Status extends BaseFactory
 			$in_reply = [];
 		}
 
-		$queue_count   = $item['delivery_queue_count'];
-		$queue_done    = $item['delivery_queue_done'];
-		$queue_failed  = $item['delivery_queue_failed'];
-		$delivery_data = new FriendicaDeliveryData($queue_count, $queue_done, $queue_failed);
+		$delivery_data = new FriendicaDeliveryData($item['delivery_queue_count'] ?? 0, $item['delivery_queue_done'] ?? 0, $item['delivery_queue_failed'] ?? 0);
 		$friendica     = new FriendicaExtension($item['title'], $counts->dislikes, $delivery_data);
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica, $quote, $poll);
