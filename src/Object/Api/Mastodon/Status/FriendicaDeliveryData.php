@@ -32,13 +32,13 @@ use Friendica\BaseDataTransferObject;
  */
 class FriendicaDeliveryData extends BaseDataTransferObject
 {
-	/** @var int */
+	/** @var int|null */
 	protected $delivery_queue_count;
 
-	/** @var int */
+	/** @var int|null */
 	protected $delivery_queue_done;
 
-	/** @var int */
+	/** @var int|null */
 	protected $delivery_queue_failed;
 
 	/**
@@ -46,7 +46,7 @@ class FriendicaDeliveryData extends BaseDataTransferObject
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(int $delivery_queue_count, int $delivery_queue_done, int $delivery_queue_failed)
+	public function __construct(?int $delivery_queue_count, ?int $delivery_queue_done, ?int $delivery_queue_failed)
 	{
 		$this->delivery_queue_count  = $delivery_queue_count;
 		$this->delivery_queue_done   = $delivery_queue_done;
