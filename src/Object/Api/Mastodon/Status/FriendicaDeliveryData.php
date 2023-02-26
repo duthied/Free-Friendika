@@ -24,33 +24,32 @@ namespace Friendica\Object\Api\Mastodon\Status;
 use Friendica\BaseDataTransferObject;
 
 /**
- * Class FriendicaExtension
+ * Class FriendicaDeliveryData
  *
- * Additional fields on Mastodon Statuses for storing Friendica specific data
+ * Additional fields on Mastodon Statuses for storing Friendica delivery data
  *
  * @see https://docs.joinmastodon.org/entities/status
  */
-class FriendicaExtension extends BaseDataTransferObject
+class FriendicaDeliveryData extends BaseDataTransferObject
 {
-	/** @var string */
-	protected $title;
+	/** @var int|null */
+	protected $delivery_queue_count;
 
-	/** @var FriendicaDeliveryData */
-	protected $delivery_data;
-	/** @var int */
-	protected $dislikes_count;
+	/** @var int|null */
+	protected $delivery_queue_done;
+
+	/** @var int|null */
+	protected $delivery_queue_failed;
 
 	/**
-	 * Creates a status count object
+	 * Creates a FriendicaDeliveryData object
 	 *
-	 * @param string $title
-	 * @param int $dislikes_count
-	 * @param FriendicaDeliveryData $delivery_data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(string $title, int $dislikes_count, FriendicaDeliveryData $delivery_data)
+	public function __construct(?int $delivery_queue_count, ?int $delivery_queue_done, ?int $delivery_queue_failed)
 	{
-		$this->title          = $title;
-		$this->delivery_data  = $delivery_data;
-		$this->dislikes_count = $dislikes_count;
+		$this->delivery_queue_count  = $delivery_queue_count;
+		$this->delivery_queue_done   = $delivery_queue_done;
+		$this->delivery_queue_failed = $delivery_queue_failed;
 	}
 }

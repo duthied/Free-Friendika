@@ -63,6 +63,10 @@ Extensions to the [Mastodon Status Entities](https://docs.joinmastodon.org/entit
 * `in_reply_to_status`: A fully populated Mastodon Status entity for the replied to status or null it is a post rather than a response
 * `friendica`: Friendica specific properties of a status including:
   * `title`: The Friendica title for a post, or empty if the status is a comment
+  * `delivery_data`: Information about the state of federating a message from the server
+    * `delivery_queue_count`: Total number of remote servers that the status needs to be federated to.
+    * `delivery_queue_done`: Total number of remote servers that have successfully been federated to so far.
+    * `delivery_queue_failed`: Total number of remote servers that have we failed to federate to so far.
   * `dislikes_count`: The number of dislikes that a status has accumulated according to the server.
 
 Example:
@@ -111,6 +115,11 @@ Example:
   ...
   "friendica": {
     "title": "",
+    "delivery_data": {
+      "delivery_queue_count": 10,
+      "delivery_queue_done": 3, 
+      "delivery_queue_failed": 0
+    },
     "dislikes_count": 0
   }
 }

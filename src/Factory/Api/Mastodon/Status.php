@@ -33,6 +33,8 @@ use Friendica\Model\Post;
 use Friendica\Model\Tag as TagModel;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
+use Friendica\Object\Api\Mastodon\Status\FriendicaDeliveryData;
+use Friendica\Object\Api\Mastodon\Status\FriendicaExtension;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use ImagickException;
@@ -97,7 +99,8 @@ class Status extends BaseFactory
 	public function createFromUriId(int $uriId, int $uid = 0, bool $display_quote = false, bool $reblog = true, bool $in_reply_status = true): \Friendica\Object\Api\Mastodon\Status
 	{
 		$fields = ['uri-id', 'uid', 'author-id', 'causer-id', 'author-uri-id', 'author-link', 'causer-uri-id', 'post-reason', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
-			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured', 'has-media', 'quote-uri-id'];
+			'created', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured', 'has-media', 'quote-uri-id',
+			'delivery_queue_count', 'delivery_queue_done','delivery_queue_failed'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
 			$mail = DBA::selectFirst('mail', ['id'], ['uri-id' => $uriId, 'uid' => $uid]);
@@ -285,7 +288,10 @@ class Status extends BaseFactory
 			$in_reply = [];
 		}
 
-		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $quote, $poll);
+		$delivery_data = new FriendicaDeliveryData($item['delivery_queue_count'], $item['delivery_queue_done'], $item['delivery_queue_failed']);
+		$friendica     = new FriendicaExtension($item['title'], $counts->dislikes, $delivery_data);
+
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica, $quote, $poll);
 	}
 
 	/**
@@ -349,7 +355,8 @@ class Status extends BaseFactory
 		$attachments = [];
 		$in_reply    = [];
 		$reshare     = [];
+		$friendica   = new FriendicaExtension('', 0, new FriendicaDeliveryData(0, 0, 0));
 
-		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare);
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica);
 	}
 }
