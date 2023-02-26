@@ -125,8 +125,13 @@ class Link
 	{
 		$timeout = DI::config()->get('system', 'xrd_timeout');
 
-		$curlResult = HTTPSignature::fetchRaw($url, 0, [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => $accept]);
-		if (empty($curlResult) || !$curlResult->isSuccess()) {
+		try {
+			$curlResult = HTTPSignature::fetchRaw($url, 0, [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => $accept]);
+			if (empty($curlResult) || !$curlResult->isSuccess()) {
+				return [];
+			}
+		} catch (\Throwable $th) {
+			Logger::notice('Error fetching url', ['url' => $url, 'error' => $th]);
 			return [];
 		}
 		$fields = ['mimetype' => $curlResult->getHeader('Content-Type')[0]];

@@ -73,7 +73,12 @@ class Avatar
 			return $fields;
 		}
 
-		$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
+		try {
+			$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
+		} catch (\Throwable $th) {
+			Logger::notice('Avatar is invalid', ['avatar' => $avatar, 'error' => $th]);
+			return $fields;
+		}
 
 		$img_str = $fetchResult->getBody();
 		if (empty($img_str)) {

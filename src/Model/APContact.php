@@ -189,17 +189,22 @@ class APContact
 		if (empty($data)) {
 			$local_owner = [];
 
-			$curlResult = HTTPSignature::fetchRaw($url);
-			$failed = empty($curlResult) || empty($curlResult->getBody()) ||
-				(!$curlResult->isSuccess() && ($curlResult->getReturnCode() != 410));
+			try {
+				$curlResult = HTTPSignature::fetchRaw($url);
+				$failed = empty($curlResult) || empty($curlResult->getBody()) ||
+					(!$curlResult->isSuccess() && ($curlResult->getReturnCode() != 410));
+	
+				if (!$failed) {
+					$data = json_decode($curlResult->getBody(), true);
+					$failed = empty($data) || !is_array($data);
+				}
 
-			if (!$failed) {
-				$data = json_decode($curlResult->getBody(), true);
-				$failed = empty($data) || !is_array($data);
-			}
-
-			if (!$failed && ($curlResult->getReturnCode() == 410)) {
-				$data = ['@context' => ActivityPub::CONTEXT, 'id' => $url, 'type' => 'Tombstone'];
+				if (!$failed && ($curlResult->getReturnCode() == 410)) {
+					$data = ['@context' => ActivityPub::CONTEXT, 'id' => $url, 'type' => 'Tombstone'];
+				}
+			} catch (\Throwable $th) {
+				Logger::notice('Error fetching url', ['url' => $url, 'error' => $th]);
+				$failed = true;
 			}
 
 			if ($failed) {

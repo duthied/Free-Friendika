@@ -57,6 +57,7 @@ class ExternalResource implements ICanReadFromStorage
 		try {
 			$fetchResult = HTTPSignature::fetchRaw($data->url, $data->uid, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
 		} catch (Exception $exception) {
+			Logger::notice('URL is invalid', ['url' => $data->url, 'error' => $exception]);
 			throw new ReferenceStorageException(sprintf('External resource failed to get %s', $reference), $exception->getCode(), $exception);
 		}
 		if (!empty($fetchResult) && $fetchResult->isSuccess()) {
