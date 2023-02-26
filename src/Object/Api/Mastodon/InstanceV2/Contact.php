@@ -39,9 +39,9 @@ class Contact extends BaseDataTransferObject
 
 	/**
 	 * @param string $email
-	 * @param Account $account
+	 * @param Account|null $account
 	 */
-	public function __construct(string $email, Account $account)
+	public function __construct(string $email, ?Account $account)
 	{
 		$this->email   = $email;
 		$this->account = $account;
