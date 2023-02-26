@@ -2228,8 +2228,8 @@ class Contact
 								return;
 							}
 						}
-					} catch (\Throwable $th) {
-						Logger::notice('Error fetching avatar', ['avatar' => $avatar, 'error' => $th]);
+					} catch (\Exception $exception) {
+						Logger::notice('Error fetching avatar', ['avatar' => $avatar, 'exception' => $exception]);
 						return;
 					}
 				} elseif (!empty($contact['blurhash'])) {

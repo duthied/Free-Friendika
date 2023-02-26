@@ -718,7 +718,7 @@ class Image
 				if ($image->isImagick()) {
 					try {
 						$colors = $image->image->getImagePixelColor($x, $y)->getColor();
-					} catch (\Throwable $th) {
+					} catch (\Exception $exception) {
 						return '';
 					}
 					$row[] = [$colors['r'], $colors['g'], $colors['b']];

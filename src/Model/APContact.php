@@ -202,8 +202,8 @@ class APContact
 				if (!$failed && ($curlResult->getReturnCode() == 410)) {
 					$data = ['@context' => ActivityPub::CONTEXT, 'id' => $url, 'type' => 'Tombstone'];
 				}
-			} catch (\Throwable $th) {
-				Logger::notice('Error fetching url', ['url' => $url, 'error' => $th]);
+			} catch (\Exception $exception) {
+				Logger::notice('Error fetching url', ['url' => $url, 'exception' => $exception]);
 				$failed = true;
 			}
 

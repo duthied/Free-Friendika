@@ -92,8 +92,8 @@ class Proxy extends BaseModule
 				self::responseError();
 				// stop.
 			}
-		} catch (\Throwable $th) {
-			Logger::notice('Error fetching image', ['image' => $request['url'], 'error' => $th]);
+		} catch (\Exception $exception) {
+			Logger::notice('Error fetching image', ['image' => $request['url'], 'exception' => $exception]);
 			self::responseError();
 		}
 

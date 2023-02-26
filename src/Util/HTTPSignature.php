@@ -424,8 +424,8 @@ class HTTPSignature
 	{
 		try {
 			$curlResult = self::fetchRaw($request, $uid);
-		} catch (\Throwable $th) {
-			Logger::notice('Error fetching url', ['url' => $request, 'error' => $th]);
+		} catch (\Exception $exception) {
+			Logger::notice('Error fetching url', ['url' => $request, 'exception' => $exception]);
 			return [];
 		}
 

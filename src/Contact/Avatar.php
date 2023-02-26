@@ -75,8 +75,8 @@ class Avatar
 
 		try {
 			$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
-		} catch (\Throwable $th) {
-			Logger::notice('Avatar is invalid', ['avatar' => $avatar, 'error' => $th]);
+		} catch (\Exception $exception) {
+			Logger::notice('Avatar is invalid', ['avatar' => $avatar, 'exception' => $exception]);
 			return $fields;
 		}
 

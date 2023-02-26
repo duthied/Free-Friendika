@@ -572,8 +572,8 @@ class Processor
 	{
 		try {
 			$curlResult = HTTPSignature::fetchRaw($url, 0);
-		} catch (\Throwable $th) {
-			Logger::notice('Error fetching url', ['url' => $url, 'error' => $th]);
+		} catch (\Exception $exception) {
+			Logger::notice('Error fetching url', ['url' => $url, 'exception' => $exception]);
 			return true;
 		}
 
