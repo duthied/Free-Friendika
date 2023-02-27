@@ -210,8 +210,6 @@ class Item
 					}
 				}
 
-				Post\Media::insertFromAttachmentData($item['uri-id'], $fields['body']);
-
 				$content_fields = ['raw-body' => trim($fields['raw-body'] ?? $fields['body'])];
 
 				// Remove all media attachments from the body and store them in the post-media table
@@ -220,6 +218,10 @@ class Item
 				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
 
 				Post\Media::insertFromRelevantUrl($item['uri-id'], $content_fields['raw-body'], $fields['body'], $item['author-network']);
+
+				Post\Media::insertFromAttachmentData($item['uri-id'], $fields['body']);
+				$content_fields['raw-body'] = BBCode::removeAttachment($content_fields['raw-body']);
+
 				Post\Content::update($item['uri-id'], $content_fields);
 			}
 
@@ -1143,14 +1145,16 @@ class Item
 			$item['body']     = BBCode::removeSharedData($item['body']);
 		}
 
-		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
-
 		// Remove all media attachments from the body and store them in the post-media table
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
 
 		$author = Contact::getById($item['author-id'], ['network']);
 		Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body'], $item['body'], $author['network'] ?? '');
+
+		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
+		$item['body']     = BBCode::removeAttachment($item['body']);
+		$item['raw-body'] = BBCode::removeAttachment($item['raw-body']);
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
@@ -3003,8 +3007,9 @@ class Item
 
 		$fields = ['uri-id', 'uri', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink', 'network', 'has-media', 'quote-uri-id', 'post-type'];
 
-		$shared_uri_id = 0;
-		$shared_links  = [];
+		$shared_uri_id      = 0;
+		$shared_links       = [];
+		$quote_shared_links = [];
 
 		$shared = DI::contentItem()->getSharedPost($item, $fields);
 		if (!empty($shared['post'])) {
@@ -3023,7 +3028,14 @@ class Item
 					$shared_links[] = strtolower($media[0]['url']);
 				}
 
-				$quote_uri_id = $shared_item['uri-id'] ?? 0;
+				if (!empty($shared_item['uri-id'])) {
+					$data = BBCode::getAttachmentData($shared_item['body']);
+					if (!empty($data['url'])) {
+						$quote_shared_links[] = $data['url'];
+					}
+
+					$quote_uri_id = $shared_item['uri-id'];
+				}
 			}
 		}
 
@@ -3098,7 +3110,7 @@ class Item
 
 		if (!empty($shared_attachments)) {
 			$s = self::addVisualAttachments($shared_attachments, $shared_item, $s, true);
-			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, []);
+			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, $quote_shared_links);
 			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
 			$body = BBCode::removeSharedData($body);
 		}
@@ -3418,7 +3430,7 @@ class Item
 		DI::profiler()->stopRecording();
 
 		if (isset($data['url']) && !in_array(strtolower($data['url']), $ignore_links)) {
-			if (!empty($data['description']) || !empty($data['image']) || !empty($data['preview'])) {
+			if (!empty($data['description']) || !empty($data['image']) || !empty($data['preview']) || (!empty($data['title']) && !Strings::compareLink($data['title'], $data['url']))) {
 				$parts = parse_url($data['url']);
 				if (!empty($parts['scheme']) && !empty($parts['host'])) {
 					if (empty($data['provider_name'])) {

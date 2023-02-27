@@ -1675,7 +1675,7 @@ class Transmitter
 			if ($type == 'Page') {
 				// When we transmit "Page" posts we have to remove the attachment.
 				// The attachment contains the link that we already transmit in the "url" field.
-				$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
+				$body = BBCode::removeAttachment($body);
 			}
 
 			$body = BBCode::setMentionsToNicknames($body);
@@ -1707,7 +1707,7 @@ class Transmitter
 					$richbody = DI::contentItem()->addSharedPost($item, $richbody);
 				}
 			}
-			$richbody = BBCode::removeAttachment($richbody);
+			$richbody = BBCode::replaceAttachment($richbody);
 
 			$data['contentMap'][$language] = BBCode::convertForUriId($item['uri-id'], $richbody, BBCode::EXTERNAL);
 		}
