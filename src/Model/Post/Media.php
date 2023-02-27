@@ -68,18 +68,18 @@ class Media
 	 *
 	 * @param array $media
 	 * @param bool  $force
-	 * @return void
+	 * @return bool
 	 */
-	public static function insert(array $media, bool $force = false)
+	public static function insert(array $media, bool $force = false): bool
 	{
 		if (empty($media['url']) || empty($media['uri-id']) || !isset($media['type'])) {
 			Logger::warning('Incomplete media data', ['media' => $media]);
-			return;
+			return false;
 		}
 
 		if (DBA::exists('post-media', ['uri-id' => $media['uri-id'], 'preview' => $media['url']])) {
 			Logger::info('Media already exists as preview', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'callstack' => System::callstack()]);
-			return;
+			return false;
 		}
 
 		// "document" has got the lowest priority. So when the same file is both attached as document
@@ -87,12 +87,12 @@ class Media
 		$found = DBA::selectFirst('post-media', ['type'], ['uri-id' => $media['uri-id'], 'url' => $media['url']]);
 		if (!$force && !empty($found) && (($found['type'] != self::DOCUMENT) || ($media['type'] == self::DOCUMENT))) {
 			Logger::info('Media already exists', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'callstack' => System::callstack()]);
-			return;
+			return false;
 		}
 
 		if (!ItemURI::exists($media['uri-id'])) {
 			Logger::info('Media referenced URI ID not found', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'callstack' => System::callstack()]);
-			return;
+			return false;
 		}
 
 		$media = self::unsetEmptyFields($media);
@@ -114,6 +114,7 @@ class Media
 		} else {
 			Logger::info('Nothing to update', ['media' => $media]);
 		}
+		return $result;
 	}
 
 	/**
@@ -573,9 +574,14 @@ class Media
 		if (preg_match_all("/\[url\](https?:.*?)\[\/url\]/ism", $body, $matches)) {
 			foreach ($matches[1] as $url) {
 				Logger::info('Got page url (link without description)', ['uri-id' => $uriid, 'url' => $url]);
-				self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url], false, $network);
-				if ($network == Protocol::DFRN) {
+				$result = self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url], false, $network);
+				if ($result && ($network == Protocol::DFRN)) {
 					self::revertHTMLType($uriid, $url, $fullbody);
+					Logger::debug('Revert HTML type', ['uri-id' => $uriid, 'url' => $url]);
+				} elseif ($result) {
+					Logger::debug('Media had been added', ['uri-id' => $uriid, 'url' => $url]);
+				} else {
+					Logger::debug('Media had not been added', ['uri-id' => $uriid, 'url' => $url]);
 				}
 			}
 		}
@@ -584,9 +590,14 @@ class Media
 		if (preg_match_all("/\[url\=(https?:.*?)\].*?\[\/url\]/ism", $body, $matches)) {
 			foreach ($matches[1] as $url) {
 				Logger::info('Got page url (link with description)', ['uri-id' => $uriid, 'url' => $url]);
-				self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url], false, $network);
-				if ($network == Protocol::DFRN) {
+				$result = self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url], false, $network);
+				if ($result && ($network == Protocol::DFRN)) {
 					self::revertHTMLType($uriid, $url, $fullbody);
+					Logger::debug('Revert HTML type', ['uri-id' => $uriid, 'url' => $url]);
+				} elseif ($result) {
+					Logger::debug('Media had been added', ['uri-id' => $uriid, 'url' => $url]);
+				} else {
+					Logger::debug('Media had not been added', ['uri-id' => $uriid, 'url' => $url]);
 				}
 			}
 		}
@@ -703,6 +714,25 @@ class Media
 		}
 
 		return DBA::exists('post-media', $condition);
+	}
+
+	/**
+	 * Delete media by uri-id and media type
+	 *
+	 * @param int $uri_id URI id
+	 * @param array $types Media types
+	 * @return bool Whether media attachment exists
+	 * @throws \Exception
+	 */
+	public static function deleteByURIId(int $uri_id, array $types = []): bool
+	{
+		$condition = ['uri-id' => $uri_id];
+
+		if (!empty($types)) {
+			$condition = DBA::mergeConditions($condition, ['type' => $types]);
+		}
+
+		return DBA::delete('post-media', $condition);
 	}
 
 	/**
@@ -830,7 +860,7 @@ class Media
 		}
 		$original_body = $body;
 
-		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
+		$body = BBCode::removeAttachment($body);
 
 		foreach (self::getByURIId($uriid, $types) as $media) {
 			if (Item::containsLink($body, $media['preview'] ?? $media['url'], $media['type'])) {
