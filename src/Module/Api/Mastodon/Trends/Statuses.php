@@ -57,8 +57,8 @@ class Statuses extends BaseApi
 		while ($status = Post::fetch($statuses)) {
 			try {
 				$trending[] = DI::mstdnStatus()->createFromUriId($status['uri-id'], $uid, $display_quotes);
-			} catch (\Throwable $th) {
-				Logger::info('Post not fetchable', ['uri-id' => $status['uri-id'], 'uid' => $uid, 'error' => $th]);
+			} catch (\Exception $exception) {
+				Logger::info('Post not fetchable', ['uri-id' => $status['uri-id'], 'uid' => $uid, 'exception' => $exception]);
 			}
 		}
 		DBA::close($statuses);

@@ -79,8 +79,8 @@ class Favourited extends BaseApi
 			self::setBoundaries($item['thr-parent-id']);
 			try {
 				$statuses[] = DI::mstdnStatus()->createFromUriId($item['thr-parent-id'], $uid, $display_quotes);
-			} catch (\Throwable $th) {
-				Logger::info('Post not fetchable', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'error' => $th]);
+			} catch (\Exception $exception) {
+				Logger::info('Post not fetchable', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'exception' => $exception]);
 			}
 		}
 		DBA::close($items);

@@ -2216,16 +2216,21 @@ class Contact
 			if (($contact['avatar'] != $avatar) || empty($contact['blurhash'])) {
 				$update_fields = ['avatar' => $avatar];
 				if (!Network::isLocalLink($avatar)) {
-					$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
+					try {
+						$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
 
-					$img_str = $fetchResult->getBody();
-					if (!empty($img_str)) {
-						$image = new Image($img_str, Images::getMimeTypeByData($img_str));
-						if ($image->isValid()) {
-							$update_fields['blurhash'] = $image->getBlurHash();
-						} else {
-							return;
+						$img_str = $fetchResult->getBody();
+						if (!empty($img_str)) {
+							$image = new Image($img_str, Images::getMimeTypeByData($img_str));
+							if ($image->isValid()) {
+								$update_fields['blurhash'] = $image->getBlurHash();
+							} else {
+								return;
+							}
 						}
+					} catch (\Exception $exception) {
+						Logger::notice('Error fetching avatar', ['avatar' => $avatar, 'exception' => $exception]);
+						return;
 					}
 				} elseif (!empty($contact['blurhash'])) {
 					$update_fields['blurhash'] = null;

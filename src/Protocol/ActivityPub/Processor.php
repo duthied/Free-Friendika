@@ -570,7 +570,12 @@ class Processor
 	 */
 	public static function isActivityGone(string $url): bool
 	{
-		$curlResult = HTTPSignature::fetchRaw($url, 0);
+		try {
+			$curlResult = HTTPSignature::fetchRaw($url, 0);
+		} catch (\Exception $exception) {
+			Logger::notice('Error fetching url', ['url' => $url, 'exception' => $exception]);
+			return true;
+		}
 
 		if (Network::isUrlBlocked($url)) {
 			return true;

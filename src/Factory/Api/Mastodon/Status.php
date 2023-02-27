@@ -269,8 +269,8 @@ class Status extends BaseFactory
 		if ($is_reshare) {
 			try {
 				$reshare = $this->createFromUriId($uriId, $uid, $display_quote, false, false)->toArray();
-			} catch (\Throwable $th) {
-				Logger::info('Reshare not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
+			} catch (\Exception $exception) {
+				Logger::info('Reshare not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'exception' => $exception]);
 				$reshare = [];
 			}
 		} else {
@@ -280,8 +280,8 @@ class Status extends BaseFactory
 		if ($in_reply_status && ($item['gravity'] == Item::GRAVITY_COMMENT)) {
 			try {
 				$in_reply = $this->createFromUriId($item['thr-parent-id'], $uid, $display_quote, false, false)->toArray();
-			} catch (\Throwable $th) {
-				Logger::info('Reply post not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
+			} catch (\Exception $exception) {
+				Logger::info('Reply post not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'exception' => $exception]);
 				$in_reply = [];
 			}
 		} else {
@@ -315,8 +315,8 @@ class Status extends BaseFactory
 		if (!empty($quote_id)) {
 			try {
 				$quote = $this->createFromUriId($quote_id, $uid, false, false, false)->toArray();
-			} catch (\Throwable $th) {
-				Logger::info('Quote not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
+			} catch (\Exception $exception) {
+				Logger::info('Quote not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'exception' => $exception]);
 				$quote = [];
 			}
 		} else {
