@@ -34,7 +34,7 @@ class UserStats extends BaseDataTransferObject
 	protected $active_month = 0;
 
 	/**
-	 * @param $active_monthly
+	 * @param $active_month
 	 */
 	public function __construct($active_month)
 	{
