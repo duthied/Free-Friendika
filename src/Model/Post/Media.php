@@ -595,9 +595,9 @@ class Media
 					self::revertHTMLType($uriid, $url, $fullbody);
 					Logger::debug('Revert HTML type', ['uri-id' => $uriid, 'url' => $url]);
 				} elseif ($result) {
-					Logger::debug('Media had been added', ['uri-id' => $uriid, 'url' => $url]);
+					Logger::debug('Media has been added', ['uri-id' => $uriid, 'url' => $url]);
 				} else {
-					Logger::debug('Media had not been added', ['uri-id' => $uriid, 'url' => $url]);
+					Logger::debug('Media has not been added', ['uri-id' => $uriid, 'url' => $url]);
 				}
 			}
 		}
