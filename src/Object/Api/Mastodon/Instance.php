@@ -91,7 +91,7 @@ class Instance extends BaseDataTransferObject
 		$this->version           = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
 		$this->urls              = null; // Not supported
 		$this->stats             = new Stats($config, $database);
-		$this->thumbnail         = $baseUrl->__toString() . '/images/friendica-banner.jpg';
+		$this->thumbnail         = $baseUrl . '/images/friendica-banner.jpg';
 		$this->languages         = [$config->get('system', 'language')];
 		$this->max_toot_chars    = (int)$config->get('config', 'api_import_size', $config->get('config', 'max_import_size'));
 		$this->registrations     = ($register_policy != Register::CLOSED);
