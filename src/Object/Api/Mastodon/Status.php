@@ -40,6 +40,8 @@ class Status extends BaseDataTransferObject
 	protected $id;
 	/** @var string|null (Datetime) */
 	protected $created_at;
+	/** @var string|null (Datetime) */
+	protected $edited_at;
 	/** @var string|null */
 	protected $in_reply_to_id = null;
 	/** @var Status|null - Fedilab extension, see issue https://github.com/friendica/friendica/issues/12672 */
@@ -109,6 +111,7 @@ class Status extends BaseDataTransferObject
 	{
 		$this->id           = (string)$item['uri-id'];
 		$this->created_at   = $item['created'];
+		$this->edited_at    = $item['edited'];
 
 		if ($item['gravity'] == Item::GRAVITY_COMMENT) {
 			$this->in_reply_to_id         = (string)$item['thr-parent-id'];
@@ -161,6 +164,15 @@ class Status extends BaseDataTransferObject
 	public function createdAt(): ?string
 	{
 		return $this->created_at;
+	}
+
+	/**
+	 * Returns the current edited_at string or null if not set
+	 * @return ?string
+	 */
+	public function editedAt(): ?string
+	{
+		return $this->edited_at;
 	}
 
 	/**
