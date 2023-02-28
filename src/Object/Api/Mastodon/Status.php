@@ -38,7 +38,7 @@ class Status extends BaseDataTransferObject
 {
 	/** @var string */
 	protected $id;
-	/** @var string (Datetime) */
+	/** @var string|null (Datetime) */
 	protected $created_at;
 	/** @var string|null */
 	protected $in_reply_to_id = null;
@@ -107,8 +107,8 @@ class Status extends BaseDataTransferObject
 	 */
 	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $in_reply, array $reblog, FriendicaExtension $friendica, array $quote = null, array $poll = null)
 	{
-		$this->id         = (string)$item['uri-id'];
-		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::JSON);
+		$this->id           = (string)$item['uri-id'];
+		$this->created_at   = $item['created'];
 
 		if ($item['gravity'] == Item::GRAVITY_COMMENT) {
 			$this->in_reply_to_id         = (string)$item['thr-parent-id'];
@@ -152,6 +152,24 @@ class Status extends BaseDataTransferObject
 		$this->card = $card->toArray() ?: null;
 		$this->poll = $poll;
 		$this->friendica = $friendica;
+	}
+
+	/**
+	 * Returns the current created_at string or null if not set
+	 * @return \DateTime|null
+	 */
+	public function createdAt(): ?string
+	{
+		return $this->created_at;
+	}
+
+	/**
+	 * Returns the Friendica Extension properties
+	 * @return FriendicaExtension
+	 */
+	public function friendicaExtension(): FriendicaExtension
+	{
+		return $this->friendica;
 	}
 
 	/**
