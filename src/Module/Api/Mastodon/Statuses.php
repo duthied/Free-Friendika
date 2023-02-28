@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -50,9 +51,9 @@ class Statuses extends BaseApi
 
 		$request = $this->getRequest([
 			'status'         => '',    // Text content of the status. If media_ids is provided, this becomes optional. Attaching a poll is optional while status is provided.
-			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
 			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
 			'language'       => '',    // ISO 639 language code for this status.
+			'friendica'      => [],
 		], $request);
 
 		$owner = User::getOwnerDataById($uid);
@@ -65,7 +66,7 @@ class Statuses extends BaseApi
 			'origin'     => true,
 		];
 
-		$post = Post::selectFirst(['uri-id', 'id'], $condition);
+		$post = Post::selectFirst(['uri-id', 'id', 'gravity'], $condition);
 		if (empty($post['id'])) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $this->parameters['id'] . ' not found for user ' . $uid . '.');
 		}
@@ -77,12 +78,23 @@ class Statuses extends BaseApi
 			$item['language'] = json_encode([$request['language'] => 1]);
 		}
 
-		if (!empty($request['spoiler_text'])) {
-			if (($request['in_reply_to_id'] == $post['uri-id']) && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
-				$item['title'] = $request['spoiler_text'];
+		if ($post['gravity'] == 0) {
+			$item['title'] = $request['friendica']['title'] ?? '';
+		}
+
+		$spoiler_text = $request['spoiler_text'];
+
+		if (!empty($spoiler_text)) {
+			if (!isset($request['friendica']['title']) && $post['gravity'] == 0 && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
+				$item['title'] = $spoiler_text;
 			} else {
-				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
+				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $spoiler_text . "[/abstract]\n" . $item['body'];
+				$item['content-warning'] = BBCode::toPlaintext($spoiler_text);
 			}
+		}
+
+		if (!Item::isValid($item)) {
+			throw new \Exception('Missing parameters in definitien');
 		}
 
 		Item::update($item, ['id' => $post['id']]);
