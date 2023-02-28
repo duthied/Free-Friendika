@@ -278,7 +278,7 @@ class BaseApi extends BaseModule
 	 * Get the "link" header with "next" and "prev" links
 	 * @return string
 	 */
-	protected static function getLinkHeader(bool $asDate): string
+	protected static function getLinkHeader(bool $asDate = false): string
 	{
 		if (empty(self::$boundaries)) {
 			return '';
