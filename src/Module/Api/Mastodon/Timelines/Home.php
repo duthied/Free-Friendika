@@ -89,14 +89,7 @@ class Home extends BaseApi
 		while ($item = Post::fetch($items)) {
 			try {
 				$status =  DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, $display_quotes);
-				switch ($request['friendica_order']) {
-					case TimelineOrderByTypes::CREATED:
-						self::setBoundaries($status->createdAtTimestamp());
-						break;
-					case TimelineOrderByTypes::ID:
-					default:
-						self::setBoundaries($item['uri-id']);
-				}
+				$this->updateBoundaries($status, $item, $request['friendica_order']);
 				$statuses[] = $status;
 			} catch (\Throwable $th) {
 				Logger::info('Post not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);

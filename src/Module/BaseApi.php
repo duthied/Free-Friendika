@@ -37,6 +37,7 @@ use Friendica\Model\User;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
+use Friendica\Object\Api\Mastodon\Status;
 use Friendica\Object\Api\Mastodon\TimelineOrderByTypes;
 use Friendica\Security\BasicAuth;
 use Friendica\Security\OAuth;
@@ -128,13 +129,7 @@ class BaseApi extends BaseModule
 				$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", intval($request['min_id'])]);
 			}
 		} else {
-			switch ($requested_order) {
-				case TimelineOrderByTypes::CREATED:
-					$order_field = 'created';
-					break;
-				default:
-					$order_field = 'uri-id';
-			}
+			$order_field = $requested_order;
 			if (!empty($request['max_id'])) {
 				$condition = DBA::mergeConditions($condition, ["`$order_field` < ?", DateTimeFormat::convert($request['max_id'], DateTimeFormat::MYSQL)]);
 			}
@@ -163,8 +158,20 @@ class BaseApi extends BaseModule
 	{
 		$requested_order = $request['friendica_order'];
 		switch ($requested_order) {
+			case TimelineOrderByTypes::CHANGED:
+				$order_field = 'changed';
+				break;
 			case TimelineOrderByTypes::CREATED:
 				$order_field = 'created';
+				break;
+			case TimelineOrderByTypes::COMMENTED:
+				$order_field = 'commented';
+				break;
+			case TimelineOrderByTypes::EDITED:
+				$order_field = 'edited';
+				break;
+			case TimelineOrderByTypes::RECEIVED:
+				$order_field = 'received';
 				break;
 			case TimelineOrderByTypes::ID:
 			default:
@@ -180,6 +187,44 @@ class BaseApi extends BaseModule
 		$params['limit']= $request['limit'];
 
 		return $params;
+	}
+
+	protected function updateBoundaries(Status $status, array $post_item, string $order) {
+		;
+		try {
+			switch ($order) {
+				case TimelineOrderByTypes::CHANGED:
+					if (!empty($status->friendicaExtension()->changedAt())){
+						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->friendicaExtension()->changedAt(), DateTimeFormat::JSON)));
+					}
+					break;
+				case TimelineOrderByTypes::CREATED:
+					if (!empty($status->createdAt())){
+						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->createdAt(), DateTimeFormat::JSON)));
+					}
+					break;
+				case TimelineOrderByTypes::COMMENTED:
+					if (!empty($status->friendicaExtension()->commentedAt())){
+						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->friendicaExtension()->commentedAt(), DateTimeFormat::JSON)));
+					}
+					break;
+				case TimelineOrderByTypes::EDITED:
+					if (!empty($status->friendicaExtension()->editedAt())){
+						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->friendicaExtension()->editedAt(), DateTimeFormat::JSON)));
+					}
+					break;
+				case TimelineOrderByTypes::RECEIVED:
+					if (!empty($status->friendicaExtension()->receivedAt())){
+						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->friendicaExtension()->receivedAt(), DateTimeFormat::JSON)));
+					}
+					break;
+				case TimelineOrderByTypes::ID:
+				default:
+					self::setBoundaries($post_item['uri-id']);
+			}
+		} catch (\Exception $e) {
+			Logger::debug('Error processing page boundary calculation, skipping', ['error' => $e]);
+		}
 	}
 
 	/**
