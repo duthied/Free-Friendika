@@ -19,7 +19,6 @@
  *
  */
 
-
 namespace Friendica\Object\Api\Mastodon;
 
 /**
