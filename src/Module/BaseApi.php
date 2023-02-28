@@ -129,7 +129,18 @@ class BaseApi extends BaseModule
 				$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", intval($request['min_id'])]);
 			}
 		} else {
-			$order_field = $requested_order;
+			switch ($requested_order) {
+				case TimelineOrderByTypes::RECEIVED:
+				case TimelineOrderByTypes::CHANGED:
+				case TimelineOrderByTypes::EDITED:
+				case TimelineOrderByTypes::CREATED:
+				case TimelineOrderByTypes::COMMENTED:
+					$order_field = $requested_order;
+					break;
+				default:
+					throw new \Exception("Unrecognized request order: $requested_order");
+			}
+
 			if (!empty($request['max_id'])) {
 				$condition = DBA::mergeConditions($condition, ["`$order_field` < ?", DateTimeFormat::convert($request['max_id'], DateTimeFormat::MYSQL)]);
 			}
