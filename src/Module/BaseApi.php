@@ -170,19 +170,11 @@ class BaseApi extends BaseModule
 		$requested_order = $request['friendica_order'];
 		switch ($requested_order) {
 			case TimelineOrderByTypes::CHANGED:
-				$order_field = 'changed';
-				break;
 			case TimelineOrderByTypes::CREATED:
-				$order_field = 'created';
-				break;
 			case TimelineOrderByTypes::COMMENTED:
-				$order_field = 'commented';
-				break;
 			case TimelineOrderByTypes::EDITED:
-				$order_field = 'edited';
-				break;
 			case TimelineOrderByTypes::RECEIVED:
-				$order_field = 'received';
+				$order_field = $requested_order;
 				break;
 			case TimelineOrderByTypes::ID:
 			default:
