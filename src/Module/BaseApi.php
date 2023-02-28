@@ -112,7 +112,7 @@ class BaseApi extends BaseModule
 	 * @return array paging data condition parameters data
 	 * @throws \Exception
 	 */
-	public function addPagingConditions(array $request, array $condition): array
+	protected function addPagingConditions(array $request, array $condition): array
 	{
 		$requested_order = $request['friendica_order'];
 		if ($requested_order == TimelineOrderByTypes::ID) {
@@ -139,9 +139,9 @@ class BaseApi extends BaseModule
 				$condition = DBA::mergeConditions($condition, ["`$order_field` < ?", DateTimeFormat::convert($request['max_id'], DateTimeFormat::MYSQL)]);
 			}
 
-            if (!empty($request['since_id'])) {
-                $condition = DBA::mergeConditions($condition, ["`$order_field` > ?", DateTimeFormat::convert($request['since_id'], DateTimeFormat::MYSQL)]);
-            }
+			if (!empty($request['since_id'])) {
+				$condition = DBA::mergeConditions($condition, ["`$order_field` > ?", DateTimeFormat::convert($request['since_id'], DateTimeFormat::MYSQL)]);
+			}
 
 			if (!empty($request['min_id'])) {
 				$condition = DBA::mergeConditions($condition, ["`$order_field` > ?", DateTimeFormat::convert($request['min_id'], DateTimeFormat::MYSQL)]);
@@ -159,7 +159,7 @@ class BaseApi extends BaseModule
 	 * @return array ordering data added to the params blocks that was passed in
 	 * @throws \Exception
 	 */
-	public function buildOrderAndLimitParams(array $request, array $params = []): array
+	protected function buildOrderAndLimitParams(array $request, array $params = []): array
 	{
 		$requested_order = $request['friendica_order'];
 		switch ($requested_order) {
@@ -171,7 +171,7 @@ class BaseApi extends BaseModule
 				$order_field = 'uri-id';
 		}
 
-		if(!empty($request['min_id'])) {
+		if (!empty($request['min_id'])) {
 			$params['order'] = [$order_field];
 		} else {
 			$params['order'] = [$order_field => true];
@@ -204,9 +204,9 @@ class BaseApi extends BaseModule
 	/**
 	 * Set boundaries for the "link" header
 	 * @param array $boundaries
-	 * @param int $id
+	 * @param int|\DateTime $id
 	 */
-	protected static function setBoundaries(int $id)
+	protected static function setBoundaries($id)
 	{
 		if (!isset(self::$boundaries['min'])) {
 			self::$boundaries['min'] = $id;
@@ -239,10 +239,8 @@ class BaseApi extends BaseModule
 		$prev_request = $next_request = $request;
 
 		if ($asDate) {
-			$max_date = new DateTime();
-			$max_date->setTimestamp(self::$boundaries['max']);
-			$min_date = new DateTime();
-			$min_date->setTimestamp(self::$boundaries['min']);
+			$max_date = self::$boundaries['max'];
+			$min_date = self::$boundaries['min'];
 			$prev_request['min_id'] = $max_date->format(DateTimeFormat::JSON);
 			$next_request['max_id'] = $min_date->format(DateTimeFormat::JSON);
 		} else {

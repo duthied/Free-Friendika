@@ -156,12 +156,12 @@ class Status extends BaseDataTransferObject
 
 	/**
 	 * Returns the current created_at DateTime as an integer timestamp
-	 * @return int
+	 * @return \DateTime
 	 * @throws \Exception
 	 */
-	public function createdAtTimestamp(): int
+	public function createdAtTimestamp(): \DateTime
 	{
-		$result = strtotime($this->created_at);
+		$result = new \DateTime($this->created_at);
 		if (!$result) {
 			throw new \Exception('Unknown date-time format');
 		}
