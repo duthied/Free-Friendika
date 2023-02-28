@@ -35,6 +35,8 @@ class FriendicaExtension extends BaseDataTransferObject
 	/** @var string */
 	protected $title;
 
+	/** @var FriendicaDeliveryData */
+	protected $delivery_data;
 	/** @var int */
 	protected $dislikes_count;
 
@@ -42,11 +44,13 @@ class FriendicaExtension extends BaseDataTransferObject
 	 * Creates a status count object
 	 *
 	 * @param string $title
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param int $dislikes_count
+	 * @param FriendicaDeliveryData $delivery_data
 	 */
-	public function __construct(string $title, int $dislikes_count)
+	public function __construct(string $title, int $dislikes_count, FriendicaDeliveryData $delivery_data)
 	{
 		$this->title          = $title;
+		$this->delivery_data  = $delivery_data;
 		$this->dislikes_count = $dislikes_count;
 	}
 }

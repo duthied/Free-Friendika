@@ -41,10 +41,8 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
-use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
-use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 
 function item_post(App $a) {
@@ -108,6 +106,7 @@ function item_edit(int $uid, array $request, bool $preview, string $return_path)
 	$post['edit'] = $post;
 	$post['file'] = Post\Category::getTextByURIId($post['uri-id'], $post['uid']);	
 
+	Post\Media::deleteByURIId($post['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE]);
 	$post = item_process($post, $request, $preview, $return_path);
 
 	$fields = [

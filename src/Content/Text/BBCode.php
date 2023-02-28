@@ -437,7 +437,7 @@ class BBCode
 	 * @param boolean $no_link_desc No link description
 	 * @return string with replaced body
 	 */
-	public static function removeAttachment(string $body, bool $no_link_desc = false): string
+	public static function replaceAttachment(string $body, bool $no_link_desc = false): string
 	{
 		return preg_replace_callback("/\s*\[attachment (.*?)\](.*?)\[\/attachment\]\s*/ism",
 			function ($match) use ($body, $no_link_desc) {
@@ -455,6 +455,17 @@ class BBCode
 	}
 
 	/**
+	 * Remove [attachment] BBCode
+	 *
+	 * @param string  $body
+	 * @return string with removed attachment
+	 */
+	public static function removeAttachment(string $body): string
+	{
+		return trim(preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body));
+	}
+
+	/**
 	 * Converts a BBCode text into plaintext
 	 *
 	 * @param string $text
@@ -469,7 +480,7 @@ class BBCode
 		$text = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $text);
 
 		// Remove attachment
-		$text = self::removeAttachment($text);
+		$text = self::replaceAttachment($text);
 
 		$naked_text = HTML::toPlaintext(self::convert($text, false, 0, true), 0, !$keep_urls);
 
@@ -1583,9 +1594,9 @@ class BBCode
 				/// @todo Have a closer look at the different html modes
 				// Handle attached links or videos
 				if (in_array($simple_html, [self::MASTODON_API, self::TWITTER_API, self::ACTIVITYPUB])) {
-					$text = self::removeAttachment($text);
+					$text = self::replaceAttachment($text);
 				} elseif (!in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::CONNECTORS])) {
-					$text = self::removeAttachment($text, true);
+					$text = self::replaceAttachment($text, true);
 				} else {
 					$text = self::convertAttachment($text, $simple_html, $try_oembed, [], $uriid);
 				}

@@ -168,7 +168,7 @@ class StorageManager
 
 					return $data['storage_config'];
 				} catch (InternalServerErrorException $exception) {
-					throw new StorageException(sprintf('Failed calling hook::storage_config for backend %s', $name), $exception);
+					throw new StorageException(sprintf('Failed calling hook::storage_config for backend %s', $name), $exception->__toString());
 				}
 		}
 	}
@@ -208,7 +208,7 @@ class StorageManager
 					$this->backendInstances[$name] = new Type\SystemResource();
 					break;
 				case Type\ExternalResource::getName():
-					$this->backendInstances[$name] = new Type\ExternalResource();
+					$this->backendInstances[$name] = new Type\ExternalResource($this->logger);
 					break;
 				default:
 					$data = [
@@ -223,7 +223,7 @@ class StorageManager
 
 						$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
 					} catch (InternalServerErrorException $exception) {
-						throw new StorageException(sprintf('Failed calling hook::storage_instance for backend %s', $name), $exception);
+						throw new StorageException(sprintf('Failed calling hook::storage_instance for backend %s', $name), $exception->__toString());
 					}
 					break;
 			}

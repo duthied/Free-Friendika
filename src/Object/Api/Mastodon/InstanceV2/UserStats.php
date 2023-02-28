@@ -31,13 +31,13 @@ use Friendica\BaseDataTransferObject;
 class UserStats extends BaseDataTransferObject
 {
 	/** @var int */
-	protected $active_monthly = 0;
+	protected $active_month = 0;
 
 	/**
-	 * @param $active_monthly
+	 * @param int $active_month
 	 */
-	public function __construct($active_monthly)
+	public function __construct(int $active_month)
 	{
-		$this->active_monthly = $active_monthly;
+		$this->active_month = $active_month;
 	}
 }

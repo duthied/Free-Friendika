@@ -19,31 +19,37 @@
  *
  */
 
-namespace Friendica\Object\Api\Mastodon\InstanceV2;
+namespace Friendica\Object\Api\Mastodon\Status;
 
 use Friendica\BaseDataTransferObject;
-use Friendica\Object\Api\Mastodon\Account;
 
 /**
- * Class Contact
+ * Class FriendicaDeliveryData
  *
- * @see https://docs.joinmastodon.org/entities/Instance/
+ * Additional fields on Mastodon Statuses for storing Friendica delivery data
+ *
+ * @see https://docs.joinmastodon.org/entities/status
  */
-class Contact extends BaseDataTransferObject
+class FriendicaDeliveryData extends BaseDataTransferObject
 {
-	/** @var string */
-	protected $email;
-	/** @var Account|null */
-	protected $account = null;
+	/** @var int|null */
+	protected $delivery_queue_count;
 
+	/** @var int|null */
+	protected $delivery_queue_done;
+
+	/** @var int|null */
+	protected $delivery_queue_failed;
 
 	/**
-	 * @param string $email
-	 * @param Account|null $account
+	 * Creates a FriendicaDeliveryData object
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(string $email, ?Account $account)
+	public function __construct(?int $delivery_queue_count, ?int $delivery_queue_done, ?int $delivery_queue_failed)
 	{
-		$this->email   = $email;
-		$this->account = $account;
+		$this->delivery_queue_count  = $delivery_queue_count;
+		$this->delivery_queue_done   = $delivery_queue_done;
+		$this->delivery_queue_failed = $delivery_queue_failed;
 	}
 }

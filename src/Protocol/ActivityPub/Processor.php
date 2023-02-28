@@ -242,6 +242,7 @@ class Processor
 		$item['changed'] = DateTimeFormat::utcNow();
 		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 
+		Post\Media::deleteByURIId($item['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE]);
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
 			Queue::remove($activity);
@@ -570,7 +571,12 @@ class Processor
 	 */
 	public static function isActivityGone(string $url): bool
 	{
-		$curlResult = HTTPSignature::fetchRaw($url, 0);
+		try {
+			$curlResult = HTTPSignature::fetchRaw($url, 0);
+		} catch (\Exception $exception) {
+			Logger::notice('Error fetching url', ['url' => $url, 'exception' => $exception]);
+			return true;
+		}
 
 		if (Network::isUrlBlocked($url)) {
 			return true;

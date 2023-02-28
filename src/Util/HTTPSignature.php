@@ -422,7 +422,12 @@ class HTTPSignature
 	 */
 	public static function fetch(string $request, int $uid): array
 	{
-		$curlResult = self::fetchRaw($request, $uid);
+		try {
+			$curlResult = self::fetchRaw($request, $uid);
+		} catch (\Exception $exception) {
+			Logger::notice('Error fetching url', ['url' => $request, 'exception' => $exception]);
+			return [];
+		}
 
 		if (empty($curlResult)) {
 			return [];

@@ -45,10 +45,11 @@ class Context extends BaseApi
 		}
 
 		$request = $this->getRequest([
-			'max_id'   => 0,  // Return results older than this id
-			'since_id' => 0,  // Return results newer than this id
-			'min_id'   => 0,  // Return results immediately newer than this id
-			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
+			'max_id'   => 0,     // Return results older than this id
+			'since_id' => 0,     // Return results newer than this id
+			'min_id'   => 0,     // Return results immediately newer than this id
+			'limit'    => 40,    // Maximum number of results to return. Defaults to 40.
+			'show_all' => false, // shows posts for all users including blocked and ignored users
 		], $request);
 
 		$id = $this->parameters['id'];
@@ -72,6 +73,13 @@ class Context extends BaseApi
 			if (!empty($request['min_id'])) {
 				$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
 				$params['order'] = ['uri-id'];
+			}
+
+			if (!empty($uid) && !$request['show_all']) {
+				$condition = DBA::mergeConditions(
+					$condition,
+					["NOT `author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND (`blocked` OR `ignored`))", $uid]
+				);
 			}
 	
 			$posts = Post::selectPosts(['uri-id', 'thr-parent-id'], $condition, $params);

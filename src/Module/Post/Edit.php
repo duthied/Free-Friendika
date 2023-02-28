@@ -115,6 +115,8 @@ class Edit extends BaseModule
 			$lockstate = 'unlock';
 		}
 
+		$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
+
 		$jotplugins = '';
 
 		Hook::callAll('jot_tool', $jotplugins);

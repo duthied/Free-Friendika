@@ -104,8 +104,8 @@ class ListTimeline extends BaseApi
 			self::setBoundaries($item['uri-id']);
 			try {
 				$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, $display_quotes);
-			} catch (\Throwable $th) {
-				Logger::info('Post not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'error' => $th]);
+			} catch (\Exception $exception) {
+				Logger::info('Post not fetchable', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'exception' => $exception]);
 			}
 		}
 		DBA::close($items);

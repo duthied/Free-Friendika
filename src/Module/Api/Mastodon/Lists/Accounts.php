@@ -117,7 +117,7 @@ class Accounts extends BaseApi
 			self::setBoundaries($member['contact-id']);
 			try {
 				$accounts[] = DI::mstdnAccount()->createFromContactId($member['contact-id'], $uid);
-			} catch (\Throwable $th) {
+			} catch (\Exception $exception) {
 			}
 		}
 		DBA::close($members);
