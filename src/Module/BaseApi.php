@@ -189,32 +189,41 @@ class BaseApi extends BaseModule
 		return $params;
 	}
 
-	protected function updateBoundaries(Status $status, array $post_item, string $order) {
-		;
+	/**
+	 * Update the ID/time boundaries for this result set. Used for building Link Headers
+	 *
+	 * @param Status $status
+	 * @param array $post_item
+	 * @param string $order
+	 * @return void
+	 * @throws \Exception
+	 */
+	protected function updateBoundaries(Status $status, array $post_item, string $order)
+	{
 		try {
 			switch ($order) {
 				case TimelineOrderByTypes::CHANGED:
-					if (!empty($status->friendicaExtension()->changedAt())){
+					if (!empty($status->friendicaExtension()->changedAt())) {
 						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->friendicaExtension()->changedAt(), DateTimeFormat::JSON)));
 					}
 					break;
 				case TimelineOrderByTypes::CREATED:
-					if (!empty($status->createdAt())){
+					if (!empty($status->createdAt())) {
 						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->createdAt(), DateTimeFormat::JSON)));
 					}
 					break;
 				case TimelineOrderByTypes::COMMENTED:
-					if (!empty($status->friendicaExtension()->commentedAt())){
+					if (!empty($status->friendicaExtension()->commentedAt())) {
 						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->friendicaExtension()->commentedAt(), DateTimeFormat::JSON)));
 					}
 					break;
 				case TimelineOrderByTypes::EDITED:
-					if (!empty($status->friendicaExtension()->editedAt())){
+					if (!empty($status->friendicaExtension()->editedAt())) {
 						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->friendicaExtension()->editedAt(), DateTimeFormat::JSON)));
 					}
 					break;
 				case TimelineOrderByTypes::RECEIVED:
-					if (!empty($status->friendicaExtension()->receivedAt())){
+					if (!empty($status->friendicaExtension()->receivedAt())) {
 						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->friendicaExtension()->receivedAt(), DateTimeFormat::JSON)));
 					}
 					break;

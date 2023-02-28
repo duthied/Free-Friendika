@@ -52,16 +52,27 @@ class FriendicaExtension extends BaseDataTransferObject
 	/** @var int */
 	protected $dislikes_count;
 
+
 	/**
 	 * Creates a status count object
 	 *
 	 * @param string $title
+	 * @param string|null $changed_at
+	 * @param string|null $commented_at
+	 * @param string|null $edited_at
+	 * @param string|null $received_at
 	 * @param int $dislikes_count
 	 * @param FriendicaDeliveryData $delivery_data
 	 */
-	public function __construct(string $title, ?string $changed_at, ?string $commented_at, ?string $edited_at, ?string $received_at,
-								int $dislikes_count, FriendicaDeliveryData $delivery_data)
-	{
+	public function __construct(
+		string $title,
+		?string $changed_at,
+		?string $commented_at,
+		?string $edited_at,
+		?string $received_at,
+		int $dislikes_count,
+		FriendicaDeliveryData $delivery_data
+	) {
 		$this->title          = $title;
 		$this->changed_at     = $changed_at;
 		$this->commented_at   = $commented_at;
@@ -106,5 +117,4 @@ class FriendicaExtension extends BaseDataTransferObject
 	{
 		return $this->received_at;
 	}
-
 }

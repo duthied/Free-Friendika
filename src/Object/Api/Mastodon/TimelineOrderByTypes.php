@@ -38,5 +38,4 @@ abstract class TimelineOrderByTypes
 	const ID        = 'id';
 
 	const RECEIVED  = 'received';
-
 }
