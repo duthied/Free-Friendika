@@ -221,8 +221,8 @@ class BaseApi extends BaseModule
 					}
 					break;
 				case TimelineOrderByTypes::EDITED:
-					if (!empty($status->friendicaExtension()->editedAt())) {
-						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->friendicaExtension()->editedAt(), DateTimeFormat::JSON)));
+					if (!empty($status->editedAt())) {
+						self::setBoundaries(new DateTime(DateTimeFormat::utc($status->editedAt(), DateTimeFormat::JSON)));
 					}
 					break;
 				case TimelineOrderByTypes::RECEIVED:

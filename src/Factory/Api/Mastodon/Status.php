@@ -289,7 +289,7 @@ class Status extends BaseFactory
 		}
 
 		$delivery_data = new FriendicaDeliveryData($item['delivery_queue_count'], $item['delivery_queue_done'], $item['delivery_queue_failed']);
-		$friendica     = new FriendicaExtension($item['title'], $item['changed'], $item['commented'], $item['edited'], $item['received'], $counts->dislikes, $delivery_data);
+		$friendica     = new FriendicaExtension($item['title'], $item['changed'], $item['commented'], $item['received'], $counts->dislikes, $delivery_data);
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica, $quote, $poll);
 	}
@@ -355,7 +355,7 @@ class Status extends BaseFactory
 		$attachments = [];
 		$in_reply    = [];
 		$reshare     = [];
-		$friendica   = new FriendicaExtension('', null, null, null, null, 0, new FriendicaDeliveryData(0, 0, 0));
+		$friendica   = new FriendicaExtension('', null, null, null, 0, new FriendicaDeliveryData(0, 0, 0));
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica);
 	}
