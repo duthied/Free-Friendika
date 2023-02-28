@@ -184,7 +184,7 @@ class BaseApi extends BaseModule
 			$params['order'] = [$order_field => true];
 		}
 
-		$params['limit']= $request['limit'];
+		$params['limit'] = $request['limit'];
 
 		return $params;
 	}
