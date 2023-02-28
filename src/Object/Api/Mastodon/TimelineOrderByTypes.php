@@ -27,14 +27,9 @@ namespace Friendica\Object\Api\Mastodon;
 abstract class TimelineOrderByTypes
 {
 	const CHANGED   = 'changed';
-
 	const CREATED   = 'created';
-
 	const COMMENTED = 'commented';
-
 	const EDITED    = 'edited';
-
 	const ID        = 'id';
-
 	const RECEIVED  = 'received';
 }
