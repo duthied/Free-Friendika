@@ -54,10 +54,8 @@ class Home extends BaseApi
 			'only_media'      => false, // Show only statuses with media attached? Defaults to false.
 			'remote'          => false, // Show only remote statuses? Defaults to false.
 			'exclude_replies' => false, // Don't show comments
-			'friendica_order' => TimelineOrderByTypes::ID,
+			'friendica_order' => TimelineOrderByTypes::ID, // Sort order options (defaults to ID)
 		], $request);
-
-
 
 		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'uid' => $uid];
 
