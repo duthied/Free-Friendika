@@ -41,7 +41,7 @@ class StatusSource extends BaseFactory
 		$post = Post::selectFirst(['uri-id', 'raw-body', 'body', 'title'], ['uri-id' => $uriId, 'uid' => [0, $uid]]);
 
 		$spoiler_text = $post['title'] ?: BBCode::toPlaintext(BBCode::getAbstract($post['body'], Protocol::ACTIVITYPUB));
-		$body         = BBCode::toMarkdown($post['body']);
+		$body         = BBCode::toMarkdown(Post\Media::removeFromEndOfBody($post['body']));
 
 		return new \Friendica\Object\Api\Mastodon\StatusSource($post['uri-id'], $body, $spoiler_text);
 	}

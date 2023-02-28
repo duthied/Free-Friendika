@@ -721,7 +721,7 @@ class Media
 	 *
 	 * @param int $uri_id URI id
 	 * @param array $types Media types
-	 * @return bool Whether media attachment exists
+	 * @return bool result of deletion
 	 * @throws \Exception
 	 */
 	public static function deleteByURIId(int $uri_id, array $types = []): bool
@@ -733,6 +733,18 @@ class Media
 		}
 
 		return DBA::delete('post-media', $condition);
+	}
+
+	/**
+	 * Delete media by id
+	 *
+	 * @param int $id media id
+	 * @return bool result of deletion
+	 * @throws \Exception
+	 */
+	public static function deleteById(int $id): bool
+	{
+		return DBA::delete('post-media', ['id' => $id]);
 	}
 
 	/**
