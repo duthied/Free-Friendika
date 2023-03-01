@@ -35,22 +35,72 @@ class FriendicaExtension extends BaseDataTransferObject
 	/** @var string */
 	protected $title;
 
+	/** @var string|null (Datetime) */
+	protected $changed_at;
+
+	/** @var string|null (Datetime) */
+	protected $commented_at;
+
+	/** @var string|null (Datetime) */
+	protected $received_at;
+
 	/** @var FriendicaDeliveryData */
 	protected $delivery_data;
 	/** @var int */
 	protected $dislikes_count;
 
+
 	/**
 	 * Creates a status count object
 	 *
 	 * @param string $title
+	 * @param string|null $changed_at
+	 * @param string|null $commented_at
+	 * @param string|null $edited_at
+	 * @param string|null $received_at
 	 * @param int $dislikes_count
 	 * @param FriendicaDeliveryData $delivery_data
 	 */
-	public function __construct(string $title, int $dislikes_count, FriendicaDeliveryData $delivery_data)
-	{
+	public function __construct(
+		string $title,
+		?string $changed_at,
+		?string $commented_at,
+		?string $received_at,
+		int $dislikes_count,
+		FriendicaDeliveryData $delivery_data
+	) {
 		$this->title          = $title;
+		$this->changed_at     = $changed_at;
+		$this->commented_at   = $commented_at;
+		$this->received_at    = $received_at;
 		$this->delivery_data  = $delivery_data;
 		$this->dislikes_count = $dislikes_count;
+	}
+
+	/**
+	 * Returns the current changed_at string or null if not set
+	 * @return ?string
+	 */
+	public function changedAt(): ?string
+	{
+		return $this->changed_at;
+	}
+
+	/**
+	 * Returns the current commented_at string or null if not set
+	 * @return ?string
+	 */
+	public function commentedAt(): ?string
+	{
+		return $this->commented_at;
+	}
+
+	/**
+	 * Returns the current received_at string or null if not set
+	 * @return ?string
+	 */
+	public function receivedAt(): ?string
+	{
+		return $this->received_at;
 	}
 }
