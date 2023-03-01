@@ -479,12 +479,15 @@ as the value of $top_child_total (this is done at the end of this file)
 									</a>
 								</li>
 								{{/if}}
+								{{if $item.browsershare}}
+								<li role="menuitem">
+									<button type="button" class="btn-link button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})" title="{{$item.browsershare.1}}">
+										<i class="fa fa-share-alt" aria-hidden="true"></i> {{$item.browsershare.0}}
+									</button>
+								</li>
+								{{/if}}
 							</ul>
 						</div>
-					{{/if}}
-
-					{{if $item.browsershare}}
-						<button type="button" class="btn button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})" title="{{$item.browsershare.1}}"><i class="fa fa-share-alt"></i></button>
 					{{/if}}
 
 					{{* Put additional actions in a dropdown menu *}}
