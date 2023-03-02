@@ -116,8 +116,8 @@ class Account extends BaseDataTransferObject
 		$this->following_count = $account['ap-following_count'] ?? $account['diaspora-interacting_count'] ?? 0;
 		$this->statuses_count  = $account['ap-statuses_count'] ?? $account['diaspora-post_count'] ?? 0;
 
-		$lastItem = $account['last-item'] ?: DBA::NULL_DATETIME;
-		$this->last_status_at  = $lastItem != DBA::NULL_DATETIME ? DateTimeFormat::utc($lastItem, 'Y-m-d') : null;
+		$lastItem = $account['last-item'] ? DateTimeFormat::utc($account['last-item'], 'Y-m-d') : DBA::NULL_DATETIME;
+		$this->last_status_at  = $lastItem != DBA::NULL_DATETIME ? DateTimeFormat::utc($lastItem, DateTimeFormat::JSON) : null;
 
 		// No custom emojis per account in Friendica
 		$this->emojis          = [];
