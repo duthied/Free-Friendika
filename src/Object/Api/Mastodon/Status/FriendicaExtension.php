@@ -22,6 +22,7 @@
 namespace Friendica\Object\Api\Mastodon\Status;
 
 use Friendica\BaseDataTransferObject;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * Class FriendicaExtension
@@ -70,9 +71,9 @@ class FriendicaExtension extends BaseDataTransferObject
 		FriendicaDeliveryData $delivery_data
 	) {
 		$this->title          = $title;
-		$this->changed_at     = $changed_at;
-		$this->commented_at   = $commented_at;
-		$this->received_at    = $received_at;
+		$this->changed_at     = $changed_at ? DateTimeFormat::utc($changed_at, DateTimeFormat::JSON) : null;
+		$this->commented_at   = $commented_at ? DateTimeFormat::utc($commented_at, DateTimeFormat::JSON) : null;
+		$this->received_at    = $received_at ? DateTimeFormat::utc($received_at, DateTimeFormat::JSON) : null;
 		$this->delivery_data  = $delivery_data;
 		$this->dislikes_count = $dislikes_count;
 	}
