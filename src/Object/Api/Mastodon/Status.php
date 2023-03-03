@@ -110,8 +110,8 @@ class Status extends BaseDataTransferObject
 	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $in_reply, array $reblog, FriendicaExtension $friendica, array $quote = null, array $poll = null)
 	{
 		$this->id           = (string)$item['uri-id'];
-		$this->created_at   = $item['created'];
-		$this->edited_at    = $item['edited'];
+		$this->created_at   = DateTimeFormat::utc($item['created'], DateTimeFormat::JSON);
+		$this->edited_at    = DateTimeFormat::utc($item['edited'], DateTimeFormat::JSON);
 
 		if ($item['gravity'] == Item::GRAVITY_COMMENT) {
 			$this->in_reply_to_id         = (string)$item['thr-parent-id'];
