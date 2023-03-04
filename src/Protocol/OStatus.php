@@ -1515,7 +1515,7 @@ class OStatus
 		XML::addElement($doc, $entry, 'title', html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 
 		$body = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
-		$body = Post\Media::addHTMLAttachmentToBody($item['uri-id'], $body);
+		$body = Post\Media::addHTMLLinkToBody($item['uri-id'], $body);
 
 		if (!empty($item['title'])) {
 			$body = '[b]' . $item['title'] . "[/b]\n\n" . $body;
