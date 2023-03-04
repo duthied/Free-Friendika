@@ -114,6 +114,7 @@ class Notifier
 			// find ancestors
 			$condition = ['id' => $target_id, 'visible' => true];
 			$target_item = Post::selectFirst(Item::DELIVER_FIELDLIST, $condition);
+			$target_item = Post\Media::addHTMLAttachmentToItem($target_item);
 
 			if (!DBA::isResult($target_item) || !intval($target_item['parent'])) {
 				Logger::info('No target item', ['cmd' => $cmd, 'target' => $target_id]);

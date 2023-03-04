@@ -3326,6 +3326,7 @@ class Diaspora
 
 			$title = $item['title'];
 			$body  = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item), $attach_media);
+			$body  = Post\Media::addHTMLLinkToBody($item['uri-id'], $body);
 
 			// Fetch the title from an attached link - if there is one
 			if (empty($item['title']) && DI::pConfig()->get($owner['uid'], 'system', 'attach_link_title')) {
@@ -3585,6 +3586,7 @@ class Diaspora
 		}
 
 		$body = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
+		$body = Post\Media::addHTMLLinkToBody($item['uri-id'], $body);
 
 		// The replied to autor mention is prepended for clarity if:
 		// - Item replied isn't yours
