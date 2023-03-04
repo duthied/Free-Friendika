@@ -124,6 +124,7 @@ class Status extends BaseFactory
 	 */
 	private function createFromArray(array $item, int $uid, bool $include_entities): \Friendica\Object\Api\Twitter\Status
 	{
+		$item = Post\Media::addHTMLAttachmentToItem($item);
 		$author = $this->twitterUser->createFromContactId($item['author-id'], $uid, true);
 
 		if (!empty($item['causer-id']) && ($item['post-reason'] == Item::PR_ANNOUNCEMENT)) {

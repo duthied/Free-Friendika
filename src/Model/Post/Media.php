@@ -21,6 +21,7 @@
 
 namespace Friendica\Model\Post;
 
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -893,6 +894,72 @@ class Media
 		}
 
 		return $body;
+	}
+
+	public static function addHTMLAttachmentToBody(int $uriid, string $body): string
+	{
+		if (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {
+			return $body;
+		}
+
+		$links = self::getByURIId($uriid, [self::HTML]);
+		if (empty($links)) {
+			return $body;
+		}
+
+		$data = [
+			'type' => 'link',
+			'url'  => $links[0]['url'],
+			'title' => $links[0]['name'],
+			'text' => $links[0]['description'],
+			'publisher_name' => $links[0]['publisher-name'],
+			'publisher_url' => $links[0]['publisher-url'],
+			'publisher_img' => $links[0]['publisher-image'],
+			'author_name' => $links[0]['author-name'],
+			'author_url' => $links[0]['author-url'],
+			'author_img' => $links[0]['author-image'],
+			'images' => [[
+				'src' => $links[0]['preview'],
+				'height' => $links[0]['preview-height'],
+				'width' => $links[0]['preview-width'],
+			]]
+		];
+		$body .= "\n" . PageInfo::getFooterFromData($data);
+
+		return $body;
+	}
+
+	public static function addHTMLLinkToBody(int $uriid, string $body): string
+	{
+		$links = self::getByURIId($uriid, [self::HTML]);
+		if (empty($links)) {
+			return $body;
+		}
+
+		if (strpos($body, $links[0]['url'])) {
+			return $body;
+		}
+
+		if (!empty($links[0]['name']) && ($links[0]['name'] != $links[0]['url'])) {
+			return $body . "\n[url=" . $links[0]['url'] . ']' . $links[0]['name'] . "[/url]";
+		} else {
+			return $body . "\n[url]" . $links[0]['url'] . "[/url]";
+		}
+	}
+
+	public static function addHTMLAttachmentToItem(array $item): array
+	{
+		if (($item['gravity'] == Item::GRAVITY_ACTIVITY) || empty($item['uri-id'])) {
+			return $item;
+		}
+
+		$item['body'] = self::addHTMLAttachmentToBody($item['uri-id'], $item['body']);
+
+		if (!empty($item['raw-body'])) {
+			$item['raw-body'] = self::addHTMLLinkToBody($item['uri-id'], $item['raw-body']);
+		}
+
+		return $item;
 	}
 
 	/**
