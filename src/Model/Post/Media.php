@@ -912,12 +912,11 @@ class Media
 			'url'  => $links[0]['url'],
 			'title' => $links[0]['name'],
 			'text' => $links[0]['description'],
-			'alternative_title' => '', 
-			'publisher_name' => $links[0]['publisher-name'], 
-			'publisher_url' => $links[0]['publisher-url'], 
-			'publisher_img' => $links[0]['publisher-image'], 
-			'author_name' => $links[0]['author-name'], 
-			'author_url' => $links[0]['author-url'], 
+			'publisher_name' => $links[0]['publisher-name'],
+			'publisher_url' => $links[0]['publisher-url'],
+			'publisher_img' => $links[0]['publisher-image'],
+			'author_name' => $links[0]['author-name'],
+			'author_url' => $links[0]['author-url'],
 			'author_img' => $links[0]['author-image'],
 			'images' => [[
 				'src' => $links[0]['preview'],
@@ -926,7 +925,7 @@ class Media
 			]]
 		];
 		$body .= "\n" . PageInfo::getFooterFromData($data);
-		
+
 		return $body;
 	}
 
