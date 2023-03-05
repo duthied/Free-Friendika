@@ -3330,9 +3330,9 @@ class Diaspora
 
 			// Fetch the title from an attached link - if there is one
 			if (empty($item['title']) && DI::pConfig()->get($owner['uid'], 'system', 'attach_link_title')) {
-				$page_data = BBCode::getAttachmentData($item['body']);
-				if (!empty($page_data['type']) && !empty($page_data['title']) && ($page_data['type'] == 'link')) {
-					$title = $page_data['title'];
+				$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::HTML]);
+				if (!empty($media) && !empty($media[0]['name']) && ($media[0]['name'] != $media[0]['url'])) {
+					$title = $media[0]['name'];
 				}
 			}
 

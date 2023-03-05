@@ -925,7 +925,7 @@ class Item
 
 		// embedded bookmark or attachment in post? set bookmark flag
 		$data = BBCode::getAttachmentData($post['body']);
-		if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $post['body'], $match, PREG_SET_ORDER) || isset($data['type']))
+		if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $post['body'], $match, PREG_SET_ORDER) || !empty($data['type']))
 			&& ($post['post-type'] != ItemModel::PT_PERSONAL_NOTE)) {
 			$post['post-type'] = ItemModel::PT_PAGE;
 			$post['object-type'] = Activity\ObjectType::BOOKMARK;
@@ -934,16 +934,6 @@ class Item
 		// Setting the object type if not defined before
 		if (empty($post['object-type'])) {
 			$post['object-type'] = ($post['gravity'] == ItemModel::GRAVITY_PARENT) ? Activity\ObjectType::NOTE : Activity\ObjectType::COMMENT;
-
-			$objectdata = BBCode::getAttachedData($post['body']);
-
-			if ($objectdata['type'] == 'link') {
-				$post['object-type'] = Activity\ObjectType::BOOKMARK;
-			} elseif ($objectdata['type'] == 'video') {
-				$post['object-type'] = Activity\ObjectType::VIDEO;
-			} elseif ($objectdata['type'] == 'photo') {
-				$post['object-type'] = Activity\ObjectType::IMAGE;
-			}
 		}
 		return $post;
 	}

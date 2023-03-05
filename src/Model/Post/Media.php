@@ -896,6 +896,13 @@ class Media
 		return $body;
 	}
 
+	/**
+	 * Add an [attachment] element to the body for a given uri-id with a HTML media element
+	 *
+	 * @param integer $uriid
+	 * @param string $body
+	 * @return string
+	 */
 	public static function addHTMLAttachmentToBody(int $uriid, string $body): string
 	{
 		if (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {
@@ -929,6 +936,13 @@ class Media
 		return $body;
 	}
 
+	/**
+	 * Add a link to the body for a given uri-id with a HTML media element
+	 *
+	 * @param integer $uriid
+	 * @param string $body
+	 * @return string
+	 */
 	public static function addHTMLLinkToBody(int $uriid, string $body): string
 	{
 		$links = self::getByURIId($uriid, [self::HTML]);
@@ -947,6 +961,12 @@ class Media
 		}
 	}
 
+	/**
+	 * Add an [attachment] element to the body and a link to raw-body for a given uri-id with a HTML media element
+	 *
+	 * @param array $item
+	 * @return array
+	 */
 	public static function addHTMLAttachmentToItem(array $item): array
 	{
 		if (($item['gravity'] == Item::GRAVITY_ACTIVITY) || empty($item['uri-id'])) {

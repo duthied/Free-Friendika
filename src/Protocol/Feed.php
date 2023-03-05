@@ -1211,9 +1211,9 @@ class Feed
 		}
 
 		// Fetch information about the post
-		$siteinfo = BBCode::getAttachedData($item['body']);
-		if (isset($siteinfo['title'])) {
-			return $siteinfo['title'];
+		$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::HTML]);
+		if (!empty($media) && !empty($media[0]['name']) && ($media[0]['name'] != $media[0]['url'])) {
+			return $media[0]['name'];
 		}
 
 		// If no bookmark is found then take the first line

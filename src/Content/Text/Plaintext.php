@@ -129,7 +129,7 @@ class Plaintext
 		$body = BBCode::stripAbstract($body);
 
 		// At first look at data that is attached via "type-..." stuff
-		$post = BBCode::getAttachedData($body, $item);
+		$post = BBCode::getAttachmentData($body, $item);
 
 		if (($item['title'] != '') && ($post['text'] != '')) {
 			$post['text'] = trim($item['title'] . "\n\n" . $post['text']);
