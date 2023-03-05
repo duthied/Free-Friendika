@@ -223,15 +223,19 @@ class Item
 
 				// select someone by nick in the current network
 				if (!DBA::isResult($contact) && ($network != '')) {
-					$condition = ["`nick` = ? AND `network` = ? AND `uid` = ?",
-						$name, $network, $profile_uid];
+					$condition = [
+						"`nick` = ? AND `network` = ? AND `uid` = ?",
+						$name, $network, $profile_uid
+					];
 					$contact = DBA::selectFirst('contact', $fields, $condition);
 				}
 
 				// select someone by attag in the current network
 				if (!DBA::isResult($contact) && ($network != '')) {
-					$condition = ["`attag` = ? AND `network` = ? AND `uid` = ?",
-						$name, $network, $profile_uid];
+					$condition = [
+						"`attag` = ? AND `network` = ? AND `uid` = ?",
+						$name, $network, $profile_uid
+					];
 					$contact = DBA::selectFirst('contact', $fields, $condition);
 				}
 
@@ -271,7 +275,7 @@ class Item
 				$replaced = true;
 				// create profile link
 				$profile = str_replace(',', '%2c', $profile);
-				$newtag = $tag_type.'[url=' . $profile . ']' . $newname . '[/url]';
+				$newtag = $tag_type . '[url=' . $profile . ']' . $newname . '[/url]';
 				$body = str_replace($tag_type . $name, $newtag, $body);
 			}
 		}
@@ -295,8 +299,10 @@ class Item
 			$xmlhead = '<?xml version="1.0" encoding="UTF-8" ?>';
 
 			if ($this->activity->match($item['verb'], Activity::TAG)) {
-				$fields = ['author-id', 'author-link', 'author-name', 'author-network',
-					'verb', 'object-type', 'resource-id', 'body', 'plink'];
+				$fields = [
+					'author-id', 'author-link', 'author-name', 'author-network',
+					'verb', 'object-type', 'resource-id', 'body', 'plink'
+				];
 				$obj = Post::selectFirst($fields, ['uri' => $item['parent-uri']]);
 				if (!DBA::isResult($obj)) {
 					$this->profiler->stopRecording();
@@ -333,7 +339,8 @@ class Item
 					default:
 						if ($obj['resource-id']) {
 							$post_type = $this->l10n->t('photo');
-							$m=[]; preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
+							$m = [];
+							preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
 							$rr['plink'] = $m[1];
 						} else {
 							$post_type = $this->l10n->t('status');
@@ -433,7 +440,8 @@ class Item
 			}
 
 			if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
-				in_array($item['network'], Protocol::FEDERATED)) {
+				in_array($item['network'], Protocol::FEDERATED)
+			) {
 				$menu[$this->l10n->t('Connect/Follow')] = 'contact/follow?url=' . urlencode($item['author-link']) . '&auto=1';
 			}
 		} else {
@@ -891,7 +899,7 @@ class Item
 
 	public function moveAttachmentsFromBodyToAttach(array $post): array
 	{
-		if (!preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/',$post['body'], $match)) {
+		if (!preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/', $post['body'], $match)) {
 			return $post;
 		}
 
@@ -903,11 +911,17 @@ class Item
 			if ($post['attach']) {
 				$post['attach'] .= ',';
 			}
-			$post['attach'] .= Post\Media::getAttachElement($this->baseURL . '/attach/' . $attachment['id'],
-				$attachment['filesize'], $attachment['filetype'], $attachment['filename'] ?? '');
+			$post['attach'] .= Post\Media::getAttachElement(
+				$this->baseURL . '/attach/' . $attachment['id'],
+				$attachment['filesize'],
+				$attachment['filetype'],
+				$attachment['filename'] ?? ''
+			);
 
-			$fields = ['allow_cid' => $post['allow_cid'], 'allow_gid' => $post['allow_gid'],
-					'deny_cid' => $post['deny_cid'], 'deny_gid' => $post['deny_gid']];
+			$fields = [
+				'allow_cid' => $post['allow_cid'], 'allow_gid' => $post['allow_gid'],
+				'deny_cid' => $post['deny_cid'], 'deny_gid' => $post['deny_gid']
+			];
 			$condition = ['id' => $attachment_id];
 			Attach::update($fields, $condition);
 		}
@@ -926,7 +940,8 @@ class Item
 		// embedded bookmark or attachment in post? set bookmark flag
 		$data = BBCode::getAttachmentData($post['body']);
 		if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $post['body'], $match, PREG_SET_ORDER) || !empty($data['type']))
-			&& ($post['post-type'] != ItemModel::PT_PERSONAL_NOTE)) {
+			&& ($post['post-type'] != ItemModel::PT_PERSONAL_NOTE)
+		) {
 			$post['post-type'] = ItemModel::PT_PAGE;
 			$post['object-type'] = Activity\ObjectType::BOOKMARK;
 		}
@@ -1029,8 +1044,14 @@ class Item
 				continue;
 			}
 
-			$this->emailer->send(new ItemCCEMail($this->app, $this->l10n, $this->baseURL,
-				$post, $address, $author['thumb'] ?? ''));
+			$this->emailer->send(new ItemCCEMail(
+				$this->app,
+				$this->l10n,
+				$this->baseURL,
+				$post,
+				$address,
+				$author['thumb'] ?? ''
+			));
 		}
 	}
 }

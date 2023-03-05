@@ -384,8 +384,10 @@ class Feed
 			}
 
 			if (!$dryRun) {
-				$condition = ["`uid` = ? AND `uri` = ? AND `network` IN (?, ?)",
-					$importer['uid'], $item['uri'], Protocol::FEED, Protocol::DFRN];
+				$condition = [
+					"`uid` = ? AND `uri` = ? AND `network` IN (?, ?)",
+					$importer['uid'], $item['uri'], Protocol::FEED, Protocol::DFRN
+				];
 				$previous = Post::selectFirst(['id', 'created'], $condition);
 				if (DBA::isResult($previous)) {
 					// Use the creation date when the post had been stored. It can happen this date changes in the feed.
@@ -644,8 +646,10 @@ class Feed
 				if (!$notify) {
 					Post\Delayed::publish($item, $notify, $taglist, $attachments);
 				} else {
-					$postings[] = ['item' => $item, 'notify' => $notify,
-						'taglist' => $taglist, 'attachments' => $attachments];
+					$postings[] = [
+						'item' => $item, 'notify' => $notify,
+						'taglist' => $taglist, 'attachments' => $attachments
+					];
 				}
 			} else {
 				Logger::info('Post already created or exists in the delayed posts queue', ['uid' => $item['uid'], 'uri' => $item['uri']]);
@@ -852,7 +856,7 @@ class Feed
 
 		$min_poll_interval = max(1, DI::config()->get('system', 'min_poll_interval'));
 
-		$poll_intervals = [$min_poll_interval, 15, 30, 60, 120, 180, 360, 720 ,1440, 10080, 43200];
+		$poll_intervals = [$min_poll_interval, 15, 30, 60, 120, 180, 360, 720, 1440, 10080, 43200];
 
 		//$poll_intervals = [$min_poll_interval . ' minute', '15 minute', '30 minute',
 		//	'1 hour', '2 hour', '3 hour', '6 hour', '12 hour' ,'1 day', '1 week', '1 month'];
@@ -942,7 +946,7 @@ class Feed
 		$previous_created = $last_update;
 
 		// Don't cache when the last item was posted less then 15 minutes ago (Cache duration)
-		if ((time() - strtotime($owner['last-item'])) < 15*60) {
+		if ((time() - strtotime($owner['last-item'])) < 15 * 60) {
 			$result = DI::cache()->get($cachekey);
 			if (!$nocache && !is_null($result)) {
 				Logger::info('Cached feed duration', ['seconds' => number_format(microtime(true) - $stamp, 3), 'nick' => $owner['nickname'], 'filter' => $filter, 'created' => $previous_created]);
@@ -953,11 +957,13 @@ class Feed
 		$check_date = empty($last_update) ? '' : DateTimeFormat::utc($last_update);
 		$authorid = Contact::getIdForURL($owner['url']);
 
-		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted` AND `gravity` IN (?, ?)
+		$condition = [
+			"`uid` = ? AND `received` > ? AND NOT `deleted` AND `gravity` IN (?, ?)
 			AND `private` != ? AND `visible` AND `wall` AND `parent-network` IN (?, ?, ?, ?)",
 			$owner['uid'], $check_date, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT,
 			Item::PRIVATE, Protocol::ACTIVITYPUB,
-			Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA];
+			Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA
+		];
 
 		if ($filter === 'comments') {
 			$condition[0] .= " AND `gravity` = ? ";
@@ -1130,8 +1136,15 @@ class Feed
 
 		XML::addElement($doc, $entry, 'content', $body, ['type' => 'html']);
 
-		XML::addElement($doc, $entry, 'link', '', ['rel' => 'alternate', 'type' => 'text/html',
-								'href' => DI::baseUrl() . '/display/' . $item['guid']]
+		XML::addElement(
+			$doc,
+			$entry,
+			'link',
+			'',
+			[
+				'rel' => 'alternate', 'type' => 'text/html',
+				'href' => DI::baseUrl() . '/display/' . $item['guid']
+			]
 		);
 
 		XML::addElement($doc, $entry, 'published', DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM));
@@ -1173,12 +1186,14 @@ class Feed
 			if (isset($parent_plink)) {
 				$attributes = [
 					'ref'  => $item['thr-parent'],
-					'href' => $parent_plink];
+					'href' => $parent_plink
+				];
 				XML::addElement($doc, $entry, 'thr:in-reply-to', '', $attributes);
 
 				$attributes = [
 					'rel'  => 'related',
-					'href' => $parent_plink];
+					'href' => $parent_plink
+				];
 				XML::addElement($doc, $entry, 'link', '', $attributes);
 			}
 		}
@@ -1220,7 +1235,7 @@ class Feed
 		// Remove the share element before fetching the first line
 		$title = trim(preg_replace("/\[share.*?\](.*?)\[\/share\]/ism", "\n$1\n", $item['body']));
 
-		$title = BBCode::toPlaintext($title)."\n";
+		$title = BBCode::toPlaintext($title) . "\n";
 		$pos = strpos($title, "\n");
 		$trailer = '';
 		if (($pos == 0) || ($pos > 100)) {
