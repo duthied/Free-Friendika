@@ -40,7 +40,7 @@ class Card extends BaseFactory
 	public function createFromUriId(int $uriId, array $history = []): \Friendica\Object\Api\Mastodon\Card
 	{
 		$media = Post\Media::getByURIId($uriId, [Post\Media::HTML]);
-		if (empty($media) && empty($media[0]['description']) && !empty($media[0]['image']) && !empty($media[0]['preview'])) {
+		if (empty($media) || (empty($media[0]['description']) && empty($media[0]['image']) && empty($media[0]['preview']))) {
 			return new \Friendica\Object\Api\Mastodon\Card([], $history);
 		}
 
