@@ -870,8 +870,7 @@ class BBCode
 					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
 
-				$img_str = '<img src="' .
-					self::proxyUrl($match[2], $simplehtml, $uriid) . '"';
+				$img_str = '<img src="' . self::proxyUrl($match[2], $simplehtml, $uriid) . '"';
 				foreach ($attributes as $key => $value) {
 					if (!empty($value)) {
 						$img_str .= ' ' . $key . '="' . htmlspecialchars($value, ENT_COMPAT) . '"';

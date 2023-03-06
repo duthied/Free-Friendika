@@ -223,19 +223,13 @@ class Item
 
 				// select someone by nick in the current network
 				if (!DBA::isResult($contact) && ($network != '')) {
-					$condition = [
-						"`nick` = ? AND `network` = ? AND `uid` = ?",
-						$name, $network, $profile_uid
-					];
+					$condition = ['nick' => $name, 'network' => $network, 'uid' => $profile_uid];
 					$contact = DBA::selectFirst('contact', $fields, $condition);
 				}
 
 				// select someone by attag in the current network
 				if (!DBA::isResult($contact) && ($network != '')) {
-					$condition = [
-						"`attag` = ? AND `network` = ? AND `uid` = ?",
-						$name, $network, $profile_uid
-					];
+					$condition = ['attag' => $name, 'network' => $network, 'uid' => $profile_uid];
 					$contact = DBA::selectFirst('contact', $fields, $condition);
 				}
 
@@ -247,13 +241,13 @@ class Item
 
 				// select someone by nick in any network
 				if (!DBA::isResult($contact)) {
-					$condition = ["`nick` = ? AND `uid` = ?", $name, $profile_uid];
+					$condition = ['nick' => $name, 'uid' => $profile_uid];
 					$contact = DBA::selectFirst('contact', $fields, $condition);
 				}
 
 				// select someone by attag in any network
 				if (!DBA::isResult($contact)) {
-					$condition = ["`attag` = ? AND `uid` = ?", $name, $profile_uid];
+					$condition = ['attag' => $name, 'uid' => $profile_uid];
 					$contact = DBA::selectFirst('contact', $fields, $condition);
 				}
 
@@ -339,9 +333,8 @@ class Item
 					default:
 						if ($obj['resource-id']) {
 							$post_type = $this->l10n->t('photo');
-							$m = [];
-							preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
-							$rr['plink'] = $m[1];
+							preg_match("/\[url=([^]]*)\]/", $obj['body'], $matches);
+							$rr['plink'] = $matches[1];
 						} else {
 							$post_type = $this->l10n->t('status');
 						}
