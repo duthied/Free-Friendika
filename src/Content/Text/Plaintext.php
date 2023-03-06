@@ -122,14 +122,17 @@ class Plaintext
 		$body = preg_replace("/([#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $item['body']);
 
 		// Add an URL element if the text contains a raw link
-		$body = preg_replace('/([^\]\=\'"]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism',
-			'$1[url]$2[/url]', $body);
+		$body = preg_replace(
+			'/([^\]\=\'"]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism',
+			'$1[url]$2[/url]',
+			$body
+		);
 
 		// Remove the abstract
 		$body = BBCode::stripAbstract($body);
 
 		// At first look at data that is attached via "type-..." stuff
-		$post = BBCode::getAttachedData($body, $item);
+		$post = BBCode::getAttachmentData($body, $item);
 
 		if (($item['title'] != '') && ($post['text'] != '')) {
 			$post['text'] = trim($item['title'] . "\n\n" . $post['text']);
@@ -149,7 +152,7 @@ class Plaintext
 			if (($limit == 0) && ($abstract == $default_abstract)) {
 				$abstract = '';
 			}
-		} else {// Try to guess the correct target network
+		} else { // Try to guess the correct target network
 			switch ($htmlmode) {
 				case BBCode::TWITTER:
 					$abstract = BBCode::getAbstract($item['body'], Protocol::TWITTER);

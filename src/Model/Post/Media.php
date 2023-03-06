@@ -162,8 +162,10 @@ class Media
 	 */
 	public static function getAttachElement(string $href, int $length, string $type, string $title = ''): string
 	{
-		$media = self::fetchAdditionalData(['type' => self::DOCUMENT, 'url' => $href,
-			'size' => $length, 'mimetype' => $type, 'description' => $title]);
+		$media = self::fetchAdditionalData([
+			'type' => self::DOCUMENT, 'url' => $href,
+			'size' => $length, 'mimetype' => $type, 'description' => $title
+		]);
 
 		return '[attach]href="' . $media['url'] . '" length="' . $media['size'] .
 			'" type="' . $media['mimetype'] . '" title="' . $media['description'] . '"[/attach]';
@@ -263,8 +265,10 @@ class Media
 			return $media;
 		}
 
-		if (!empty($item['plink']) && Strings::compareLink($item['plink'], $media['url']) &&
-			parse_url($item['plink'], PHP_URL_HOST) != parse_url($item['uri'], PHP_URL_HOST)) {
+		if (
+			!empty($item['plink']) && Strings::compareLink($item['plink'], $media['url']) &&
+			parse_url($item['plink'], PHP_URL_HOST) != parse_url($item['uri'], PHP_URL_HOST)
+		) {
 			Logger::debug('Not a link to an activity', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'plink' => $item['plink'], 'uri' => $item['uri']]);
 			return $media;
 		}
@@ -483,8 +487,10 @@ class Media
 				}
 				$body = str_replace($picture[0], '', $body);
 				$image = str_replace('-1.', '-0.', $picture[2]);
-				$attachments[$image] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
-					'preview' => $picture[2], 'description' => $picture[3]];
+				$attachments[$image] = [
+					'uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
+					'preview' => $picture[2], 'description' => $picture[3]
+				];
 			}
 		}
 
@@ -502,8 +508,10 @@ class Media
 				}
 				$body = str_replace($picture[0], '', $body);
 				$image = str_replace('-1.', '-0.', $picture[2]);
-				$attachments[$image] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
-					'preview' => $picture[2], 'description' => null];
+				$attachments[$image] = [
+					'uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
+					'preview' => $picture[2], 'description' => null
+				];
 			}
 		}
 
@@ -631,7 +639,7 @@ class Media
 	public static function insertFromAttachmentData(int $uriid, string $body)
 	{
 		$data = BBCode::getAttachmentData($body);
-		if (empty($data))  {
+		if (empty($data)) {
 			return;
 		}
 
@@ -803,8 +811,10 @@ class Media
 				continue;
 			}
 
-			if (in_array($medium['type'], [self::AUDIO, self::IMAGE]) ||
-				in_array($filetype, ['audio', 'image'])) {
+			if (
+				in_array($medium['type'], [self::AUDIO, self::IMAGE]) ||
+				in_array($filetype, ['audio', 'image'])
+			) {
 				$attachments['visual'][] = $medium;
 			} elseif (($medium['type'] == self::VIDEO) || ($filetype == 'video')) {
 				if (!empty($medium['height'])) {
@@ -871,15 +881,15 @@ class Media
 			if ($media['type'] == self::IMAGE) {
 				if (!empty($media['preview'])) {
 					if (!empty($media['description'])) {
-						$body .= "\n[url=" . $media['url'] . "][img=" . $media['preview'] . ']' . $media['description'] .'[/img][/url]';
+						$body .= "\n[url=" . $media['url'] . "][img=" . $media['preview'] . ']' . $media['description'] . '[/img][/url]';
 					} else {
-						$body .= "\n[url=" . $media['url'] . "][img]" . $media['preview'] .'[/img][/url]';
+						$body .= "\n[url=" . $media['url'] . "][img]" . $media['preview'] . '[/img][/url]';
 					}
 				} else {
 					if (!empty($media['description'])) {
-						$body .= "\n[img=" . $media['url'] . ']' . $media['description'] .'[/img]';
+						$body .= "\n[img=" . $media['url'] . ']' . $media['description'] . '[/img]';
 					} else {
-						$body .= "\n[img]" . $media['url'] .'[/img]';
+						$body .= "\n[img]" . $media['url'] . '[/img]';
 					}
 				}
 			} elseif ($media['type'] == self::AUDIO) {
@@ -896,6 +906,13 @@ class Media
 		return $body;
 	}
 
+	/**
+	 * Add an [attachment] element to the body for a given uri-id with a HTML media element
+	 *
+	 * @param integer $uriid
+	 * @param string $body
+	 * @return string
+	 */
 	public static function addHTMLAttachmentToBody(int $uriid, string $body): string
 	{
 		if (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {
@@ -929,6 +946,13 @@ class Media
 		return $body;
 	}
 
+	/**
+	 * Add a link to the body for a given uri-id with a HTML media element
+	 *
+	 * @param integer $uriid
+	 * @param string $body
+	 * @return string
+	 */
 	public static function addHTMLLinkToBody(int $uriid, string $body): string
 	{
 		$links = self::getByURIId($uriid, [self::HTML]);
@@ -947,6 +971,12 @@ class Media
 		}
 	}
 
+	/**
+	 * Add an [attachment] element to the body and a link to raw-body for a given uri-id with a HTML media element
+	 *
+	 * @param array $item
+	 * @return array
+	 */
 	public static function addHTMLAttachmentToItem(array $item): array
 	{
 		if (($item['gravity'] == Item::GRAVITY_ACTIVITY) || empty($item['uri-id'])) {

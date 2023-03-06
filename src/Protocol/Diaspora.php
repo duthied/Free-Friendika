@@ -83,14 +83,21 @@ class Diaspora
 			return $contacts;
 		}
 
-		$items = Post::select(['author-id', 'author-link', 'parent-author-link', 'parent-guid', 'guid'],
-			['parent' => $item['parent'], 'gravity' => [Item::GRAVITY_COMMENT, Item::GRAVITY_ACTIVITY]]);
+		$items = Post::select(
+			['author-id', 'author-link', 'parent-author-link', 'parent-guid', 'guid'],
+			['parent' => $item['parent'], 'gravity' => [Item::GRAVITY_COMMENT, Item::GRAVITY_ACTIVITY]]
+		);
 		while ($item = Post::fetch($items)) {
-			$contact = DBA::selectFirst('contact', ['id', 'url', 'name', 'protocol', 'batch', 'network'],
-				['id' => $item['author-id']]);
-			if (!DBA::isResult($contact) || empty($contact['batch']) ||
+			$contact = DBA::selectFirst(
+				'contact',
+				['id', 'url', 'name', 'protocol', 'batch', 'network'],
+				['id' => $item['author-id']]
+			);
+			if (
+				!DBA::isResult($contact) || empty($contact['batch']) ||
 				($contact['network'] != Protocol::DIASPORA) ||
-				Strings::compareLink($item['parent-author-link'], $item['author-link'])) {
+				Strings::compareLink($item['parent-author-link'], $item['author-link'])
+			) {
 				continue;
 			}
 
@@ -270,7 +277,7 @@ class Diaspora
 		$basedom = XML::parseString($xml, true);
 
 		if (!is_object($basedom)) {
-			Logger::notice('Received data does not seem to be an XML. Discarding. '.$xml);
+			Logger::notice('Received data does not seem to be an XML. Discarding. ' . $xml);
 			if ($no_exit) {
 				return false;
 			} else {
@@ -438,7 +445,7 @@ class Diaspora
 		$alg = $base->alg;
 
 
-		$signed_data = $data.'.'.Strings::base64UrlEncode($type).'.'.Strings::base64UrlEncode($encoding).'.'.Strings::base64UrlEncode($alg);
+		$signed_data = $data . '.' . Strings::base64UrlEncode($type) . '.' . Strings::base64UrlEncode($encoding) . '.' . Strings::base64UrlEncode($alg);
 
 
 		// decode the data
@@ -719,7 +726,8 @@ class Diaspora
 
 				$signed_data .= $entry;
 			}
-			if (!in_array($fieldname, ['parent_author_signature', 'target_author_signature'])
+			if (
+				!in_array($fieldname, ['parent_author_signature', 'target_author_signature'])
 				|| ($orig_type == 'relayable_retraction')
 			) {
 				XML::copy($entry, $fields, $fieldname);
@@ -795,7 +803,7 @@ class Diaspora
 		Logger::info('Fetching diaspora key', ['handle' => $uri->getAddr(), 'callstack' => System::callstack(20)]);
 		try {
 			return DI::dsprContact()->getByAddr($uri)->pubKey;
-		} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
+		} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
 			return '';
 		}
 	}
@@ -1185,9 +1193,11 @@ class Diaspora
 	 */
 	private static function parentItem(int $uid, string $guid, WebFingerUri $author, array $contact)
 	{
-		$fields = ['id', 'parent', 'body', 'wall', 'uri', 'guid', 'private', 'origin',
+		$fields = [
+			'id', 'parent', 'body', 'wall', 'uri', 'guid', 'private', 'origin',
 			'author-name', 'author-link', 'author-avatar', 'gravity',
-			'owner-name', 'owner-link', 'owner-avatar'];
+			'owner-name', 'owner-link', 'owner-avatar'
+		];
 
 		$condition = ['uid' => $uid, 'guid' => $guid];
 		$item = Post::selectFirst($fields, $condition);
@@ -1435,7 +1445,7 @@ class Diaspora
 		} elseif ($person_uri) {
 			try {
 				return DI::dsprContact()->selectOneByAddr($person_uri)->baseurl . '/objects/' . $guid;
-			} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
+			} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
 				return '';
 			}
 		}
@@ -1472,7 +1482,6 @@ class Diaspora
 				$contact = DI::dsprContact()->getByUrl(new Uri($match[3]));
 				Tag::storeByHash($uriid, $match[1], $contact->name ?: $contact->nick, $contact->url);
 			} catch (\Throwable $e) {
-
 			}
 		}
 	}
@@ -1531,7 +1540,7 @@ class Diaspora
 
 		try {
 			$author_url = (string)DI::dsprContact()->getByAddr($author)->url;
-		} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
+		} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
 			Logger::notice('Unable to find author details', ['author' => $author->getAddr()]);
 			return false;
 		}
@@ -1783,7 +1792,7 @@ class Diaspora
 
 		try {
 			$author_url = (string)DI::dsprContact()->getByAddr($author)->url;
-		} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
+		} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
 			Logger::notice('Unable to find author details', ['author' => $author->getAddr()]);
 			return false;
 		}
@@ -1896,7 +1905,7 @@ class Diaspora
 
 		try {
 			$author = DI::dsprContact()->getByAddr($author_uri);
-		} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
+		} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
 			Logger::notice('Unable to find author details', ['author' => $author_uri->getAddr()]);
 			return false;
 		}
@@ -1968,7 +1977,7 @@ class Diaspora
 
 		try {
 			$author_url = (string)DI::dsprContact()->getByAddr($author)->url;
-		} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
+		} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
 			Logger::notice('unable to find author details', ['author' => $author->getAddr()]);
 			return false;
 		}
@@ -2013,8 +2022,10 @@ class Diaspora
 		Logger::info('Participation stored', ['id' => $message_id, 'guid' => $guid, 'parent_guid' => $parent_guid, 'author' => $author]);
 
 		// Send all existing comments and likes to the requesting server
-		$comments = Post::select(['id', 'uri-id', 'parent-author-network', 'author-network', 'verb', 'gravity'],
-			['parent' => $toplevel_parent_item['id'], 'gravity' => [Item::GRAVITY_COMMENT, Item::GRAVITY_ACTIVITY]]);
+		$comments = Post::select(
+			['id', 'uri-id', 'parent-author-network', 'author-network', 'verb', 'gravity'],
+			['parent' => $toplevel_parent_item['id'], 'gravity' => [Item::GRAVITY_COMMENT, Item::GRAVITY_ACTIVITY]]
+		);
 		while ($comment = Post::fetch($comments)) {
 			if (($comment['gravity'] == Item::GRAVITY_ACTIVITY) && !in_array($comment['verb'], [Activity::LIKE, Activity::DISLIKE])) {
 				Logger::info('Unsupported activities are not relayed', ['item' => $comment['id'], 'verb' => $comment['verb']]);
@@ -2089,7 +2100,7 @@ class Diaspora
 			return false;
 		}
 
-		$name = XML::unescape($data->first_name).((strlen($data->last_name)) ? ' ' . XML::unescape($data->last_name) : '');
+		$name = XML::unescape($data->first_name) . ((strlen($data->last_name)) ? ' ' . XML::unescape($data->last_name) : '');
 		$image_url = XML::unescape($data->image_url);
 		$birthday = XML::unescape($data->birthday);
 		$about = Markdown::toBBCode(XML::unescape($data->bio));
@@ -2136,10 +2147,12 @@ class Diaspora
 			$birthday = $contact['bd'];
 		}
 
-		$fields = ['name' => $name, 'location' => $location,
+		$fields = [
+			'name' => $name, 'location' => $location,
 			'name-date' => DateTimeFormat::utcNow(), 'about' => $about,
 			'addr' => $author->getAddr(), 'nick' => $author->getUser(), 'keywords' => $keywords,
-			'unsearchable' => !$searchable, 'sensitive' => $nsfw];
+			'unsearchable' => !$searchable, 'sensitive' => $nsfw
+		];
 
 		if (!empty($birthday)) {
 			$fields['bd'] = $birthday;
@@ -2249,7 +2262,7 @@ class Diaspora
 
 		try {
 			$author_url = (string)DI::dsprContact()->getByAddr($author)->url;
-		} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
+		} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
 			Logger::notice('Cannot resolve diaspora handle for recipient', ['author' => $author->getAddr(), 'recipient' => $recipient]);
 			return false;
 		}
@@ -2426,7 +2439,7 @@ class Diaspora
 
 		try {
 			$author = DI::dsprContact()->getByAddr($author_uri);
-		} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
+		} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
 			Logger::notice('Unable to find details for author', ['author' => $author_uri->getAddr()]);
 			return false;
 		}
@@ -2561,7 +2574,7 @@ class Diaspora
 	private static function storePhotoAsMedia(int $uriid, $photo)
 	{
 		// @TODO Need to find object type, roland@f.haeder.net
-		Logger::debug('photo='.get_class($photo));
+		Logger::debug('photo=' . get_class($photo));
 		$data = [];
 		$data['uri-id'] = $uriid;
 		$data['type'] = Post\Media::IMAGE;
@@ -2930,8 +2943,7 @@ class Diaspora
 		try {
 			$target = DI::dsprContact()->getByAddr(WebFingerUri::fromString($contact['addr']));
 			$dest_url = $public_batch ? $target->batch : $target->notify;
-		} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
-
+		} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
 		}
 
 		if (empty($dest_url)) {
@@ -3011,8 +3023,7 @@ class Diaspora
 		if (!empty($contact['addr'])) {
 			try {
 				$pubkey = DI::dsprContact()->getByAddr(WebFingerUri::fromString($contact['addr']))->pubKey;
-			} catch (HTTPException\NotFoundException|\InvalidArgumentException $e) {
-
+			} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
 			}
 		} else {
 			// The "addr" field should always be filled.
@@ -3058,8 +3069,10 @@ class Diaspora
 		// If the item belongs to a user, we take this user id.
 		if ($item['uid'] == 0) {
 			// @todo Possibly use an administrator account?
-			$condition = ['verified' => true, 'blocked' => false,
-				'account_removed' => false, 'account_expired' => false, 'account-type' => User::ACCOUNT_TYPE_PERSON];
+			$condition = [
+				'verified' => true, 'blocked' => false,
+				'account_removed' => false, 'account_expired' => false, 'account-type' => User::ACCOUNT_TYPE_PERSON
+			];
 			$first_user = DBA::selectFirst('user', ['uid'], $condition, ['order' => ['uid']]);
 			$owner = User::getOwnerDataById($first_user['uid']);
 		} else {
@@ -3099,7 +3112,7 @@ class Diaspora
 		$old_handle = DI::pConfig()->get($uid, 'system', 'previous_addr');
 		$profile = self::createProfileData($uid);
 
-		$signed_text = 'AccountMigration:'.$old_handle.':'.$profile['author'];
+		$signed_text = 'AccountMigration:' . $old_handle . ':' . $profile['author'];
 		$signature = base64_encode(Crypto::rsaSign($signed_text, $owner['uprvkey'], 'sha256'));
 
 		$message = [
@@ -3330,9 +3343,9 @@ class Diaspora
 
 			// Fetch the title from an attached link - if there is one
 			if (empty($item['title']) && DI::pConfig()->get($owner['uid'], 'system', 'attach_link_title')) {
-				$page_data = BBCode::getAttachmentData($item['body']);
-				if (!empty($page_data['type']) && !empty($page_data['title']) && ($page_data['type'] == 'link')) {
-					$title = $page_data['title'];
+				$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::HTML]);
+				if (!empty($media) && !empty($media[0]['name']) && ($media[0]['name'] != $media[0]['url'])) {
+					$title = $media[0]['name'];
 				}
 			}
 
@@ -3388,9 +3401,11 @@ class Diaspora
 				if (count($event)) {
 					$message['event'] = $event;
 
-					if (!empty($event['location']['address']) &&
+					if (
+						!empty($event['location']['address']) &&
 						!empty($event['location']['lat']) &&
-						!empty($event['location']['lng'])) {
+						!empty($event['location']['lng'])
+					) {
 						$message['location'] = $event['location'];
 					}
 
@@ -3453,7 +3468,8 @@ class Diaspora
 	private static function prependParentAuthorMention(string $body, string $profile_url): string
 	{
 		$profile = Contact::getByURL($profile_url, false, ['addr', 'name']);
-		if (!empty($profile['addr'])
+		if (
+			!empty($profile['addr'])
 			&& !strstr($body, $profile['addr'])
 			&& !strstr($body, $profile_url)
 		) {
@@ -3908,9 +3924,9 @@ class Diaspora
 				$kw = str_replace('  ', ' ', $kw);
 				$arr = explode(' ', $kw);
 				if (count($arr)) {
-					for ($x = 0; $x < 5; $x ++) {
+					for ($x = 0; $x < 5; $x++) {
 						if (!empty($arr[$x])) {
-							$data['tag_string'] .= '#'. trim($arr[$x]) .' ';
+							$data['tag_string'] .= '#' . trim($arr[$x]) . ' ';
 						}
 					}
 				}
@@ -4095,7 +4111,7 @@ class Diaspora
 			'body'         => '',
 			'quote-uri-id' => $UriId,
 			'allow_cid'    => $owner['allow_cid'] ?? '',
-			'allow_gid'    => $owner['allow_gid']?? '',
+			'allow_gid'    => $owner['allow_gid'] ?? '',
 			'deny_cid'     => $owner['deny_cid'] ?? '',
 			'deny_gid'     => $owner['deny_gid'] ?? '',
 		];
