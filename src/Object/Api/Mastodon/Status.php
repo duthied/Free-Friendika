@@ -40,6 +40,8 @@ class Status extends BaseDataTransferObject
 	protected $id;
 	/** @var string|null (Datetime) */
 	protected $created_at;
+	/** @var string|null (Datetime) */
+	protected $edited_at;
 	/** @var string|null */
 	protected $in_reply_to_id = null;
 	/** @var Status|null - Fedilab extension, see issue https://github.com/friendica/friendica/issues/12672 */
@@ -108,7 +110,8 @@ class Status extends BaseDataTransferObject
 	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $in_reply, array $reblog, FriendicaExtension $friendica, array $quote = null, array $poll = null)
 	{
 		$this->id           = (string)$item['uri-id'];
-		$this->created_at   = $item['created'];
+		$this->created_at   = DateTimeFormat::utc($item['created'], DateTimeFormat::JSON);
+		$this->edited_at    = DateTimeFormat::utc($item['edited'], DateTimeFormat::JSON);
 
 		if ($item['gravity'] == Item::GRAVITY_COMMENT) {
 			$this->in_reply_to_id         = (string)$item['thr-parent-id'];
@@ -161,6 +164,15 @@ class Status extends BaseDataTransferObject
 	public function createdAt(): ?string
 	{
 		return $this->created_at;
+	}
+
+	/**
+	 * Returns the current edited_at string or null if not set
+	 * @return ?string
+	 */
+	public function editedAt(): ?string
+	{
+		return $this->edited_at;
 	}
 
 	/**

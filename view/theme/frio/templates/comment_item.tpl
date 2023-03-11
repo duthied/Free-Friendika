@@ -54,7 +54,7 @@
 
 		<p class="comment-edit-submit-wrapper">
 {{if $preview}}
-			<button type="button" class="btn btn-defaul comment-edit-preview" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
+			<button type="button" class="btn btn-default comment-edit-preview" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
 {{/if}}
 			<button type="submit" class="btn btn-primary comment-edit-submit" id="comment-edit-submit-{{$id}}" name="submit" data-loading-text="{{$loading}}"><i class="fa fa-envelope"></i> {{$submit}}</button>
 		</p>

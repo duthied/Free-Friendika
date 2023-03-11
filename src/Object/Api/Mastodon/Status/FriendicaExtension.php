@@ -22,6 +22,7 @@
 namespace Friendica\Object\Api\Mastodon\Status;
 
 use Friendica\BaseDataTransferObject;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * Class FriendicaExtension
@@ -40,9 +41,6 @@ class FriendicaExtension extends BaseDataTransferObject
 
 	/** @var string|null (Datetime) */
 	protected $commented_at;
-
-	/** @var string|null (Datetime) */
-	protected $edited_at;
 
 	/** @var string|null (Datetime) */
 	protected $received_at;
@@ -68,16 +66,14 @@ class FriendicaExtension extends BaseDataTransferObject
 		string $title,
 		?string $changed_at,
 		?string $commented_at,
-		?string $edited_at,
 		?string $received_at,
 		int $dislikes_count,
 		FriendicaDeliveryData $delivery_data
 	) {
 		$this->title          = $title;
-		$this->changed_at     = $changed_at;
-		$this->commented_at   = $commented_at;
-		$this->edited_at      = $edited_at;
-		$this->received_at    = $received_at;
+		$this->changed_at     = $changed_at ? DateTimeFormat::utc($changed_at, DateTimeFormat::JSON) : null;
+		$this->commented_at   = $commented_at ? DateTimeFormat::utc($commented_at, DateTimeFormat::JSON) : null;
+		$this->received_at    = $received_at ? DateTimeFormat::utc($received_at, DateTimeFormat::JSON) : null;
 		$this->delivery_data  = $delivery_data;
 		$this->dislikes_count = $dislikes_count;
 	}
@@ -98,15 +94,6 @@ class FriendicaExtension extends BaseDataTransferObject
 	public function commentedAt(): ?string
 	{
 		return $this->commented_at;
-	}
-
-	/**
-	 * Returns the current edited_at string or null if not set
-	 * @return ?string
-	 */
-	public function editedAt(): ?string
-	{
-		return $this->edited_at;
 	}
 
 	/**

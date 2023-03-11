@@ -774,6 +774,7 @@ class DFRN
 		}
 
 		$body = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
+		$body = Post\Media::addHTMLAttachmentToBody($item['uri-id'], $body);
 
 		if ($item['private'] == Item::PRIVATE) {
 			$body = Item::fixPrivatePhotos($body, $owner['uid'], $item, $cid);

@@ -1994,6 +1994,18 @@ code > .hl-main {
 .wall-item-actions-right {
 	display: flex;
 }
+.wall-item-actions-items {
+	flex-grow: 1;
+}
+.wall-item-actions-row {
+	display: flex;
+}
+.wall-item-actions-row .btn {
+	width: 100%;
+}
+.wall-item-actions-row > * {
+	flex: 1 1 0;
+}
 .wall-item-actions .checkbox {
 	margin: 0 0 0 15px;
 }
@@ -2001,14 +2013,17 @@ code > .hl-main {
 	.wall-item-actions .btn,
 	.wall-item-actions a,
 	.wall-item-actions button {
-		padding-right: 12px;
-		padding-left: 12px;
+		padding-right: 0;
+		padding-left: 0;
 	}
 	.wall-item-actions .checkbox {
 		margin-top: 8px;
+		flex: 0 1 auto;
 	}
 	.wall-item-actions .like-rotator {
-		padding-top: 8px;	
+		position: absolute;
+		top: 8px;
+		right: 0;
 	}
 }
 .wall-item-actions button:hover {
@@ -2023,7 +2038,10 @@ code > .hl-main {
 .wall-item-responses > div > p {
 	margin: 0;
 }
-
+.btn-group-event {
+	display: flex;
+	flex-basis: auto;
+}
 /* wall item hover effects */
 
 @media (min-width: 768px) {
