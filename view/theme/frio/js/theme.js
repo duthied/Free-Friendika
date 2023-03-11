@@ -791,7 +791,7 @@ function doActivityItemAction(ident, verb, un) {
 				.addClass('fa')
 				.appendTo($('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child' )).show();
 		} else {
-			$('img[id^=waitfor-' + verb + '-' + ident.toString() + ']').show()
+			$('<img>').attr({id: 'waitfor-' + verb + '-' + ident.toString(), src: 'images/rotator.gif'})
 		}
 	}
 	$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').removeClass(thumbsClass);
