@@ -16,5 +16,4 @@
                 <i class="fa fa-thumbs-down" aria-hidden="true"></i>&nbsp;{{$dislike}}
 	</button>
 	{{/if}}
-	<img id="like-rotator-{{$id}}" class="like-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
 </div>
