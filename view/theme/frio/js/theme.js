@@ -851,7 +851,8 @@ function doActivityItemAction(ident, verb, un) {
 			$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').addClass('fa-share');
 			$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
 			$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
-      $.jGrowl(aActSrvErr[verb], {sticky: false, theme: 'info', life: 5000});
+			$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
+      $.jGrowl(aActErr[verb] + '<br>(' + aErrType['srvErr'] + ')', {sticky: false, theme: 'info', life: 5000});
 		}
 	})
 	.error(function(data){
@@ -860,7 +861,7 @@ function doActivityItemAction(ident, verb, un) {
 			$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').addClass('fa-share');
 			$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
 			$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
-      $.jGrowl(aActNetErr[verb], {sticky: false, theme: 'info', life: 5000});
+      $.jGrowl(aActErr[verb] + '<br>(' + aErrType['netErr'] + ')', {sticky: false, theme: 'info', life: 5000});
 	});
 }
 

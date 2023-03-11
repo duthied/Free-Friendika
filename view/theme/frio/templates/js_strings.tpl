@@ -10,14 +10,13 @@ They are loaded into the html <head> so that js functions can use them *}}
 		'blockAuthor'  : "{{$blockAuthor|escape:'javascript' nofilter}}",
 		'ignoreAuthor' : "{{$ignoreAuthor|escape:'javascript' nofilter}}",
 	};
-        var aActNetErr = {
-               'like'         : "{{$likeNetError}}",                                                                                                                                                             
-               'dislike'      : "{{$dislikeNetError}}",
-               'announce'     : "{{$annonNetError}}",
+        var aActErr = {
+               'like'          : "{{$likeError}}",
+               'dislike'       : "{{$dislikeError}}",
+               'announce'      : "{{$announceError}}",
         };
-        var aActSrvErr = {
-               'like'         : "{{$likeSrvError}}",
-               'dislike'      : "{{$dislikeSrvError}}",
-               'announce'     : "{{$annonSrvError}}",
+        var aErrType = {
+               'srvErr'        : "{{$srvError}}",
+               'netErr'        : "{{$netError}}",
         };
 </script>
