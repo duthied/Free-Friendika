@@ -485,7 +485,6 @@ as the value of $top_child_total (this is done at the end of this file)
 					{{/if}}
 
 					{{* Put additional actions in a dropdown menu *}}
-					<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 
 				{{* Event attendance buttons *}}
 				{{if $item.isevent}}
@@ -563,7 +562,6 @@ as the value of $top_child_total (this is done at the end of this file)
 							</li>
 							{{/if}}
 						</ul>
-						<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 					</div>
 				{{/if}}
 				<span class="pull-right checkbox">
