@@ -776,8 +776,6 @@ function doActivityItemAction(ident, verb, un) {
 		case 'announce':
 			thumbsClass = 'fa-retweet';
 	}
-	// remindert to remove the like-rotator from templates
-	//$('#like-rotator-' + ident.toString()).show();
 	if (verb.indexOf('announce') === 0 ) {
 		// Share-Button(s)
 		// remove share-symbol, to replace it by rotator
@@ -858,8 +856,6 @@ function doActivityItemAction(ident, verb, un) {
 	})
 	.error(function(data){
 			/* Server could not be reaches successfully */
-			// remindert to remove the like-rotator from templates
-			//$('#like-rotator-' + ident.toString()).hide();
 			$('img[id^=waitfor-' + verb + '-' + ident.toString() + ']').remove();
 			$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').addClass('fa-share');
 			$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
