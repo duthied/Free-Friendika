@@ -851,7 +851,7 @@ function doActivityItemAction(ident, verb, un) {
 			$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').addClass('fa-share');
 			$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
 			$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
-			$.jGrowl(verb + ' not successful (server error)', {sticky: false, theme: 'info', life: 5000});
+      $.jGrowl(aActSrvErr[verb], {sticky: false, theme: 'info', life: 5000});
 		}
 	})
 	.error(function(data){
@@ -860,7 +860,7 @@ function doActivityItemAction(ident, verb, un) {
 			$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').addClass('fa-share');
 			$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
 			$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
-			$.jGrowl(verb + ' not successful (network error)', {sticky: false, theme: 'info', life: 5000});
+      $.jGrowl(aActNetErr[verb], {sticky: false, theme: 'info', life: 5000});
 	});
 }
 

@@ -253,6 +253,12 @@ class Page implements ArrayAccess
 			'$touch_icon'      => $touch_icon,
 			'$block_public'    => intval($config->get('system', 'block_public')),
 			'$stylesheets'     => $this->stylesheets,
+                        '$likeNetError'    => $l10n->t('Like not successfull (Network error)'),
+                        '$dislikeNetError' => $l10n->t('Dislike not successfull (Network error)'),
+                        '$annonNetError'   => $l10n->t('Sharing not successfull (Network error)'),
+                        '$likeSrvError'    => $l10n->t('Like not successfull (Backend error)'),                                                                                                                  
+                        '$dislikeSrvError' => $l10n->t('Dislike not successfull (Backend error)'),
+                        '$annonSrvError'   => $l10n->t('Sharing not successfull (Backend error)'),
 		]) . $this->page['htmlhead'];
 	}
 
