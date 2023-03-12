@@ -78,14 +78,14 @@ class Statuses extends BaseApi
 			$item['language'] = json_encode([$request['language'] => 1]);
 		}
 
-		if ($post['gravity'] == 0) {
+		if ($post['gravity'] == Item::GRAVITY_PARENT) {
 			$item['title'] = $request['friendica']['title'] ?? '';
 		}
 
 		$spoiler_text = $request['spoiler_text'];
 
 		if (!empty($spoiler_text)) {
-			if (!isset($request['friendica']['title']) && $post['gravity'] == 0 && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
+			if (!isset($request['friendica']['title']) && $post['gravity'] == Item::GRAVITY_PARENT && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
 				$item['title'] = $spoiler_text;
 			} else {
 				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $spoiler_text . "[/abstract]\n" . $item['body'];
