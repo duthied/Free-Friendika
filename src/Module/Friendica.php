@@ -172,7 +172,7 @@ class Friendica extends BaseModule
 
 		$data = [
 			'version'          => App::VERSION,
-			'url'              => DI::baseUrl(),
+			'url'              => (string)DI::baseUrl(),
 			'addons'           => $visible_addons,
 			'locked_features'  => $locked_features,
 			'explicit_content' => intval($config->get('system', 'explicit_content', 0)),
