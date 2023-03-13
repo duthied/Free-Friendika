@@ -70,7 +70,7 @@
 			</div>
 		</div>
 
-		<div id="jot-modal-body" class="modal-body">
+		<div id="jot-modal-body" class="modal-body dropzone">
 			<form id="profile-jot-form" action="{{$action}}" method="post">
 				<div id="profile-jot-wrapper" aria-labelledby="jot-text-lnk" role="tabpanel" aria-hidden="false">
 					<div>
@@ -152,6 +152,7 @@
 				<div id="jot-fbrowser-wrapper" class="minimize" aria-labelledby="jot-browser-link" role="tabpanel" aria-hidden="true"></div>
 
 			</form>
+                        <div id="dz-preview-jot" class="dropzone-preview"></div>
 
 			{{if $content}}<script type="text/javascript">initEditor();</script>{{/if}}
 		</div>
@@ -178,3 +179,48 @@ can load different content into the jot moadl (e.g. the item edit jot)
 		this.style.height = this.contentWindow.document.body.offsetHeight + 'px';
 	});
 </script>
+<script>
+  Dropzone.autoDiscover = false;
+  var dropzoneJot = new Dropzone( '#jot-modal-body', {
+  //var dropzone{{$id}} = new Dropzone( document.body, {
+    paramName: "userfile", // The name that will be used to transfer the file
+    maxFilesize: 6, // MB
+    previewsContainer: '#dz-preview-jot',
+    url: "/media/photo/upload?response=url&album=",
+    accept: function(file, done) {
+      if (file.name == "justinbieber.jpg") {
+        done("Naha, you don't.");
+      } else {
+        done();
+      }
+    },
+    init: function() {
+      this.on("success", function(file, serverResponse) {
+        var target = $('#profile-jot-text')
+        var resp = $(serverResponse).find('div#content').text()
+        if (target.setRangeText) {
+          //if setRangeText function is supported by current browser
+          target.setRangeText(" " + $.trim(resp) + " ")
+        } else {
+          target.focus()
+          document.execCommand('insertText', false /*no UI*/, " " + $.trim(resp) + " ");
+        }
+      });
+    },
+  });
+
+//  document.onpaste = function(event){
+  $('#jot-modal-body').on('paste', function(event){
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    items.forEach((item) => {
+      if (item.kind === 'file') {
+        // adds the file to your dropzone instance
+        console.log(item);
+        dropzoneJot.addFile(item.getAsFile())
+      }
+    })
+  })
+
+
+</script>
+

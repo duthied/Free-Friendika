@@ -164,7 +164,7 @@ class Compose extends BaseModule
 		$this->page->registerFooterScript(Theme::getPathForFile('js/ajaxupload.js'));
 		$this->page->registerFooterScript(Theme::getPathForFile('js/linkPreview.js'));
 		$this->page->registerFooterScript(Theme::getPathForFile('js/compose.js'));
-
+                $this->page->registerFooterScript(Theme::getPathForFile('../vendor/enyo/dropzone/dist/min/dropzone.min.js'));
 		$contact = Contact::getById($a->getContactId());
 
 		if ($this->pConfig->get(DI::userSession()->getLocalUserId(), 'system', 'set_creation_date')) {

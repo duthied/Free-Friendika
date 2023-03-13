@@ -1,8 +1,8 @@
 
 {{if $threaded}}
-<div class="comment-wwedit-wrapper threaded" id="comment-edit-wrapper-{{$id}}">
+<div class="comment-wwedit-wrapper threaded dropzone" id="comment-edit-wrapper-{{$id}}">
 {{else}}
-<div class="comment-wwedit-wrapper" id="comment-edit-wrapper-{{$id}}">
+<div class="comment-wwedit-wrapper dropzone" id="comment-edit-wrapper-{{$id}}">
 {{/if}}
 	<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="item" method="post">
 		<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
@@ -61,6 +61,50 @@
 
 		<div class="comment-edit-end clear"></div>
 	</form>
+        <div id="dz-preview-{{$id}}" class="dropzone-preview"></div>
 	<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
 </div>
 
+<script>
+  Dropzone.autoDiscover = false;
+  var dropzone{{$id}} = new Dropzone( '#comment-edit-wrapper-{{$id}}', {
+  //var dropzone{{$id}} = new Dropzone( document.body, {
+    paramName: "userfile", // The name that will be used to transfer the file
+    maxFilesize: 6, // MB
+    previewsContainer: '#dz-preview-{{$id}}',
+    preventDuplicates: true,
+    clickable: true,
+    thumbnailWidth: 100,
+    thumbnailHeight: 100,
+    url: "/media/photo/upload?response=url&album=",
+    accept: function(file, done) {
+      done();
+    },
+    init: function() {
+      this.on("success", function(file, serverResponse) {
+        var target = $('#comment-edit-text-{{$id}}')
+        var resp = $(serverResponse).find('div#content').text()
+        if (target.setRangeText) {
+          //if setRangeText function is supported by current browser
+          target.setRangeText(" " + $.trim(resp) + " ")
+        } else {
+          target.focus()
+          document.execCommand('insertText', false /*no UI*/, " " + $.trim(resp) + " ");
+        }
+      });
+    },
+  });
+
+  $('#comment-edit-wrapper-{{$id}}').on('paste', function(event){
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    items.forEach((item) => {
+      if (item.kind === 'file') {
+        // adds the file to your dropzone instance
+        console.log(item);
+        dropzone{{$id}}.addFile(item.getAsFile())
+      }
+    })
+  })
+
+
+</script>

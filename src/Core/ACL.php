@@ -59,8 +59,10 @@ class ACL
 
 		$page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
 		$page->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
+		$page->registerFooterScript(Theme::getPathForFile('../vendor/enyo/dropzone/dist/min/dropzone.min.js'));
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
+		$page->registerStylesheet(Theme::getPathForFile('../vendor/enyo/dropzone/dist/min/dropzone.min.css'));
 
 		$contacts = self::getValidMessageRecipientsForUser(DI::userSession()->getLocalUserId());
 

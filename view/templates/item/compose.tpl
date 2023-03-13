@@ -1,10 +1,17 @@
-<div class="generic-page-wrapper">
+<div class="generic-page-wrapper"css>
 	<h2>{{$l10n.compose_title}}</h2>
     {{if $l10n.always_open_compose}}
 	<p>{{$l10n.always_open_compose nofilter}}</p>
 	{{/if}}
 	<div id="profile-jot-wrapper">
-		<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="compose/{{$type}}" method="post">
+                <!--form action="/media/photo/upload?response=url&album="
+                class="dropzone" id="my-great-dropzone"></form-->
+                <!--form id="dropzone" action="/media/photo/upload?response=json&album=" class="dropzone" method="post" enctype="multipart/form-data">
+                    <div class="fallback">
+                        <input name="file" type="file" multiple />
+                    </div>
+                </form-->
+		<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="compose/{{$type}}" method="post"  class="dropzone">
 		    {{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}
 			<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
 			<input type="hidden" name="post_type" value="{{$posttype}}" />
@@ -71,6 +78,7 @@
 				<span role="presentation" id="character-counter" class="grey text-info"></span>
 				<button type="button" class="btn btn-defaul" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}" tabindex="5"><i class="fa fa-eye"></i> {{$l10n.preview}}</button>
 				<button type="submit" class="btn btn-primary" id="comment-edit-submit-{{$id}}" name="submit" tabindex="4"><i class="fa fa-envelope"></i> {{$l10n.submit}}</button>
+                                <div id="dz-previewsCompose" class="dropzone-previews"></div>
 			</p>
 
 			<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
@@ -94,3 +102,41 @@
 		</form>
 	</div>
 </div>
+<script>
+    var dropzoneCompose = new Dropzone(document.body,  { // camelized version of the `id`
+    paramName: "userfile", // The name that will be used to transfer the file
+    maxFilesize: 2, // MB
+    previewsContainer: '#dz-previewsCompose',
+    preventDuplicates: true,
+    clickable: true,
+    thumbnailWidth: 100,
+    thumbnailHeight: 100,
+    url: "/media/photo/upload?response=url&album=",
+    accept: function(file, done) {
+      done();
+    },
+    init: function() {
+        this.on("success", function(file, serverResponse) {
+                var target = $(':focus').closest('.comment-edit-form').find('.comment-edit-text');
+                var resp = $(serverResponse).find('div#content').text()
+                if (target.setRangeText) {
+                    //if setRangeText function is supported by current browser
+                    target.setRangeText(" " + $.trim(resp) + " ")
+                } else {
+                    target.focus()
+                    document.execCommand('insertText', false /*no UI*/, $.trim(resp));
+                }
+        });
+    },
+  });
+  document.onpaste = function(event){
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    items.forEach((item) => {
+      if (item.kind === 'file') {
+        // adds the file to your dropzone instance
+        console.log(item);
+        dropzoneCompose.addFile(item.getAsFile())
+      }
+    })
+  }
+</script>
