@@ -97,7 +97,6 @@
 </div>
 <script>
 	Dropzone.autoDiscover = false;
-	console.log('compose.tpl', {{$max_imagesize}} / 100000);
 	var maxis = {{$max_imagesize}} / 100000;
 	var dropzoneCompose = new Dropzone( '#comment-edit-form-{{$id}}',  { 
 		paramName: "userfile", // The name that will be used to transfer the file

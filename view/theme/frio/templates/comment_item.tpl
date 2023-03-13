@@ -67,7 +67,6 @@
 
 <script>
 	Dropzone.autoDiscover = false;
-	console.log('comment_item.tpl', {{$max_imagesize}} / 100000);
 	var maxis = {{$max_imagesize}} / 100000;
 	var dropzone{{$id}} = new Dropzone( '#comment-edit-wrapper-{{$id}}', {
 		paramName: "userfile", // The name that will be used to transfer the file

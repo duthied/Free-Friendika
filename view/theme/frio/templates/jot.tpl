@@ -181,7 +181,6 @@ can load different content into the jot moadl (e.g. the item edit jot)
 </script>
 <script>
 	Dropzone.autoDiscover = false;
-	console.log('jot.tpl', {{$max_imagesize}} / 100000);
 	var maxis = {{$max_imagesize}} / 100000;
 	var dropzoneJot = new Dropzone( '#jot-modal-body', {
 		paramName: "userfile", // The name that will be used to transfer the file
