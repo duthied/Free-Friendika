@@ -23,7 +23,10 @@ namespace Friendica\Content\Text;
 
 use Friendica\Core\Protocol;
 use Friendica\DI;
+use Friendica\Model\Photo;
+use Friendica\Model\Post;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 class Plaintext
 {
@@ -109,30 +112,15 @@ class Plaintext
 	 * @param int    $limit          The maximum number of characters when posting to that network
 	 * @param bool   $includedlinks  Has an attached link to be included into the message?
 	 * @param int    $htmlmode       This controls the behavior of the BBCode conversion
-	 * @param string $target_network Name of the network where the post should go to.
 	 *
 	 * @return array Same array structure than \Friendica\Content\Text\BBCode::getAttachedData
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @see   \Friendica\Content\Text\BBCode::getAttachedData
 	 */
-	public static function getPost(array $item, int $limit = 0, bool $includedlinks = false, int $htmlmode = BBCode::MASTODON_API, string $target_network = '')
+	public static function getPost(array $item, int $limit = 0, bool $includedlinks = false, int $htmlmode = BBCode::MASTODON_API)
 	{
-		// Remove hashtags
-		$URLSearchString = '^\[\]';
-		$body = preg_replace("/([#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $item['body']);
-
-		// Add an URL element if the text contains a raw link
-		$body = preg_replace(
-			'/([^\]\=\'"]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism',
-			'$1[url]$2[/url]',
-			$body
-		);
-
-		// Remove the abstract
-		$body = BBCode::stripAbstract($body);
-
-		// At first look at data that is attached via "type-..." stuff
-		$post = BBCode::getAttachedData($body, $item);
+		// Fetch attached media information
+		$post = self::getPostMedia($item);
 
 		if (($item['title'] != '') && ($post['text'] != '')) {
 			$post['text'] = trim($item['title'] . "\n\n" . $post['text']);
@@ -140,34 +128,21 @@ class Plaintext
 			$post['text'] = trim($item['title']);
 		}
 
-		$abstract = '';
-
 		// Fetch the abstract from the given target network
-		if ($target_network != '') {
-			$default_abstract = BBCode::getAbstract($item['body']);
-			$abstract = BBCode::getAbstract($item['body'], $target_network);
+		switch ($htmlmode) {
+			case BBCode::TWITTER:
+				$abstract = BBCode::getAbstract($item['body'], Protocol::TWITTER);
+				break;
 
-			// If we post to a network with no limit we only fetch
-			// an abstract exactly for this network
-			if (($limit == 0) && ($abstract == $default_abstract)) {
-				$abstract = '';
-			}
-		} else { // Try to guess the correct target network
-			switch ($htmlmode) {
-				case BBCode::TWITTER:
-					$abstract = BBCode::getAbstract($item['body'], Protocol::TWITTER);
-					break;
+			case BBCode::OSTATUS:
+				$abstract = BBCode::getAbstract($item['body'], Protocol::STATUSNET);
+				break;
 
-				case BBCode::OSTATUS:
-					$abstract = BBCode::getAbstract($item['body'], Protocol::STATUSNET);
-					break;
-
-				default: // We don't know the exact target.
-					// We fetch an abstract since there is a posting limit.
-					if ($limit > 0) {
-						$abstract = BBCode::getAbstract($item['body']);
-					}
-			}
+			default: // We don't know the exact target.
+				// We fetch an abstract since there is a posting limit.
+				if ($limit > 0) {
+					$abstract = BBCode::getAbstract($item['body']);
+				}
 		}
 
 		if ($abstract != '') {
@@ -322,5 +297,88 @@ class Plaintext
 		}
 
 		return $parts;
+	}
+
+	/**
+	 * Fetch attached media to the post and simplify the body.
+	 *
+	 * @param array $item
+	 * @return array
+	 */
+	private static function getPostMedia(array $item): array
+	{
+		$post = ['type' => 'text', 'images' => [], 'remote_images' => []];
+
+		// Remove mentions and hashtag links
+		$URLSearchString = '^\[\]';
+		$post['text'] = preg_replace("/([#!@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $item['body']);
+
+		// Remove abstract
+		$post['text'] = BBCode::stripAbstract($post['text']);
+		// Remove attached links
+		$post['text'] = BBCode::removeAttachment($post['text']);
+		// Remove any links
+		$post['text'] = Post\Media::removeFromBody($post['text']);
+
+		$images = Post\Media::getByURIId($item['uri-id'], [Post\Media::IMAGE]);
+		if (!empty($item['quote-uri-id'])) {
+			$images = array_merge($images, Post\Media::getByURIId($item['quote-uri-id'], [Post\Media::IMAGE]));
+		}
+		foreach ($images as $image) {
+			if ($id = Photo::getIdForName($image['url'])) {
+				$post['images'][] = ['url' => $image['url'], 'description' => $image['description'], 'id' => $id];
+			} else {
+				$post['remote_images'][] = ['url' => $image['url'], 'description' => $image['description']];
+			}
+		}
+
+		if (empty($post['images'])) {
+			unset($post['images']);
+		}
+
+		if (empty($post['remote_images'])) {
+			unset($post['remote_images']);
+		}
+
+		if (!empty($post['images'])) {
+			$post['type']              = 'photo';
+			$post['image']             = $post['images'][0]['url'];
+			$post['image_description'] = $post['images'][0]['description'];
+		} elseif (!empty($post['remote_images'])) {
+			$post['type']              = 'photo';
+			$post['image']             = $post['remote_images'][0]['url'];
+			$post['image_description'] = $post['remote_images'][0]['description'];
+		}
+
+		// Look for audio or video links
+		$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO]);
+		if (!empty($item['quote-uri-id'])) {
+			$media = array_merge($media, Post\Media::getByURIId($item['quote-uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO]));
+		}
+
+		foreach ($media as $medium) {
+			if (in_array($medium['type'], [Post\Media::AUDIO, Post\Media::VIDEO])) {
+				$post['type'] = 'link';
+				$post['url']  = $medium['url'];
+			}
+		}
+
+		// Look for an attached link
+		$page = Post\Media::getByURIId($item['uri-id'], [Post\Media::HTML]);
+		if (!empty($item['quote-uri-id']) && empty($page)) {
+			$page = Post\Media::getByURIId($item['quote-uri-id'], [Post\Media::HTML]);
+		}
+		if (!empty($page)) {
+			$post['type']          = 'link';
+			$post['url']           = $page[0]['url'];
+			$post['description']   = $page[0]['description'];
+			$post['title']         = $page[0]['name'];
+
+			if (empty($post['image']) && !empty($page[0]['preview'])) {
+				$post['image'] = $page[0]['preview'];
+			}
+		}
+
+		return $post;
 	}
 }
