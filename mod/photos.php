@@ -1141,9 +1141,7 @@ function photos_content(App $a)
 						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12),
 						// Dropzone
-						//'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
-						// don't know, if DI::config.. does not work here, so it is set to a manual value
-						'$max_imagesize' => 100000,
+						'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
 					]);
 				}
 			}
@@ -1200,9 +1198,7 @@ function photos_content(App $a)
 						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12),
 						// Dropzone
-						//'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
-						// don't know, if DI::config.. does not work here, so it is set to a manual value
-						'$max_imagesize' => 200000
+						'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
 					]);
 				}
 
@@ -1278,9 +1274,7 @@ function photos_content(App $a)
 							'$qcomment' => $qcomment,
 							'$rand_num' => Crypto::randomDigits(12),
 							// Dropzone
-							//'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
-							// don't know, if DI::config.. does not work here, so it is set to a manual value
-							'$max_imagesize' => 300000
+							'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
 						]);
 					}
 				}

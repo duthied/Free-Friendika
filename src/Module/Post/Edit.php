@@ -36,6 +36,7 @@ use Friendica\Navigation\SystemMessages;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Crypto;
 use Friendica\Util\Profiler;
+use Friendica\DI;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -183,10 +184,7 @@ class Edit extends BaseModule
 
 			'$compose_link_title' => $this->t('Open Compose page'),
 			// Dropzone
-			//'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
-			// DI::config.. does not work here, so it is set to a manual value
-			'$max_imagesize'       => 500000,
-
+			'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
 		]);
 
 		return $output;
