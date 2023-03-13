@@ -70,7 +70,7 @@
 			</div>
 		</div>
 
-		<div id="jot-modal-body" class="modal-body dropzone">
+		<div id="jot-modal-body" class="modal-body">
 			<form id="profile-jot-form" action="{{$action}}" method="post">
 				<div id="profile-jot-wrapper" aria-labelledby="jot-text-lnk" role="tabpanel" aria-hidden="false">
 					<div>
@@ -163,26 +163,26 @@
 {{* The jot modal - We use a own modal for the jot and not the standard modal
 from the page template. This is because the special structure of the jot
 (e.g.jot navigation tabs in the modal titel area).
-The in the frio theme the jot will loaded regulary and is hidden by default.)
+Then in the frio theme the jot will loaded regulary and is hidden by default.)
 The js function jotShow() loads the jot into the modal. With this structure we
-can load different content into the jot moadl (e.g. the item edit jot)
+can load different content into the jot modal (e.g. the item edit jot)
 *}}
 <div id="jot-modal" class="modal fade" role="dialog">
 	<div class="modal-dialog">
-		<div id="jot-modal-content" class="modal-content"></div>
+		<div id="jot-modal-content" class="modal-content dropzone"></div>
 	</div>
 </div>
-
 
 <script type="text/javascript">
 	$('iframe').load(function() {
 		this.style.height = this.contentWindow.document.body.offsetHeight + 'px';
 	});
 </script>
+
 <script>
 	Dropzone.autoDiscover = false;
-	var maxis = {{$max_imagesize}} / 100000;
-	var dropzoneJot = new Dropzone( '#jot-modal-body', {
+	var maxis = {{$max_filesize}} / 10^6;
+	var dropzoneJot = new Dropzone( '#jot-modal-content', {
 		paramName: "userfile", // The name that will be used to transfer the file
 		maxFilesize: maxis, // MB
 		previewsContainer: '#dz-preview-jot',
@@ -205,7 +205,7 @@ can load different content into the jot moadl (e.g. the item edit jot)
 		},
 	});
 
-	$('#jot-modal-body').on('paste', function(event){
+	$('#jot-modal-content').on('paste', function(event){
 		const items = (event.clipboardData || event.originalEvent.clipboardData).items;
 		items.forEach((item) => {
 			if (item.kind === 'file') {

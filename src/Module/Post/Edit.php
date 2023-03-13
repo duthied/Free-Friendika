@@ -28,6 +28,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\User;
@@ -35,8 +36,8 @@ use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Crypto;
+use Friendica\Util\Strings;
 use Friendica\Util\Profiler;
-use Friendica\DI;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -184,6 +185,9 @@ class Edit extends BaseModule
 
 			'$compose_link_title' => $this->t('Open Compose page'),
 			// Dropzone
+			//'$max_imagesize'       => Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+			//'$max_imagesize'       => \Friendica\\Util\\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+                        // both not working, so just workaround here until fixed
 			'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
 		]);
 

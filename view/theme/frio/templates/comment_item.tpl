@@ -67,7 +67,7 @@
 
 <script>
 	Dropzone.autoDiscover = false;
-	var maxis = {{$max_imagesize}} / 100000;
+	var maxis = {{$max_imagesize}} / 10^6;
 	var dropzone{{$id}} = new Dropzone( '#comment-edit-wrapper-{{$id}}', {
 		paramName: "userfile", // The name that will be used to transfer the file
 		maxFilesize: maxis, // MB

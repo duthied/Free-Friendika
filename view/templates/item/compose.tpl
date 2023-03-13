@@ -1,4 +1,4 @@
-<div class="generic-page-wrapper">
+<div class="generic-page-wrapper"css>
 	<h2>{{$l10n.compose_title}}</h2>
 	{{if $l10n.always_open_compose}}
 	<p>{{$l10n.always_open_compose nofilter}}</p>
@@ -97,7 +97,7 @@
 </div>
 <script>
 	Dropzone.autoDiscover = false;
-	var maxis = {{$max_imagesize}} / 100000;
+	var maxis = {{$max_imagesize}} / 10^6;
 	var dropzoneCompose = new Dropzone( '#comment-edit-form-{{$id}}',  { 
 		paramName: "userfile", // The name that will be used to transfer the file
 		maxFilesize: maxis, // MB
