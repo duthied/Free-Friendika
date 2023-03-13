@@ -1,17 +1,10 @@
-<div class="generic-page-wrapper"css>
+<div class="generic-page-wrapper">
 	<h2>{{$l10n.compose_title}}</h2>
     {{if $l10n.always_open_compose}}
 	<p>{{$l10n.always_open_compose nofilter}}</p>
 	{{/if}}
 	<div id="profile-jot-wrapper">
-                <!--form action="/media/photo/upload?response=url&album="
-                class="dropzone" id="my-great-dropzone"></form-->
-                <!--form id="dropzone" action="/media/photo/upload?response=json&album=" class="dropzone" method="post" enctype="multipart/form-data">
-                    <div class="fallback">
-                        <input name="file" type="file" multiple />
-                    </div>
-                </form-->
-		<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="compose/{{$type}}" method="post"  class="dropzone">
+		<form class="comment-edit-form dropzone" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="compose/{{$type}}" method="post">
 		    {{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}
 			<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
 			<input type="hidden" name="post_type" value="{{$posttype}}" />
