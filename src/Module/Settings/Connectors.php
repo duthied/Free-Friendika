@@ -73,6 +73,7 @@ class Connectors extends BaseSettings
 			$this->pconfig->set($this->session->getLocalUserId(), 'system', 'simple_shortening', intval($request['simple_shortening']));
 			$this->pconfig->set($this->session->getLocalUserId(), 'system', 'attach_link_title', intval($request['attach_link_title']));
 			$this->pconfig->set($this->session->getLocalUserId(), 'system', 'api_spoiler_title', intval($request['api_spoiler_title']));
+			$this->pconfig->set($this->session->getLocalUserId(), 'system', 'api_auto_attach', intval($request['api_auto_attach']));
 			$this->pconfig->set($this->session->getLocalUserId(), 'ostatus', 'legacy_contact', $request['legacy_contact']);
 		} elseif (!empty($request['mail-submit']) && function_exists('imap_open') && !$this->config->get('system', 'imap_disabled')) {
 			$mail_server       =                 $request['mail_server'] ?? '';
@@ -136,6 +137,7 @@ class Connectors extends BaseSettings
 		$simple_shortening       =  intval($this->pconfig->get($this->session->getLocalUserId(), 'system', 'simple_shortening'));
 		$attach_link_title       =  intval($this->pconfig->get($this->session->getLocalUserId(), 'system', 'attach_link_title'));
 		$api_spoiler_title       =  intval($this->pconfig->get($this->session->getLocalUserId(), 'system', 'api_spoiler_title', true));
+		$api_auto_attach         =  intval($this->pconfig->get($this->session->getLocalUserId(), 'system', 'api_auto_attach', false));
 		$legacy_contact          =         $this->pconfig->get($this->session->getLocalUserId(), 'ostatus', 'legacy_contact');
 
 		if (!empty($legacy_contact)) {
@@ -221,6 +223,7 @@ class Connectors extends BaseSettings
 			'$simple_shortening'       => ['simple_shortening', $this->t('Enable simple text shortening'), $simple_shortening, $this->t('Normally the system shortens posts at the next line feed. If this option is enabled then the system will shorten the text at the maximum character limit.')],
 			'$attach_link_title'       => ['attach_link_title', $this->t('Attach the link title'), $attach_link_title, $this->t('When activated, the title of the attached link will be added as a title on posts to Diaspora. This is mostly helpful with "remote-self" contacts that share feed content.')],
 			'$api_spoiler_title'       => ['api_spoiler_title', $this->t('API: Use spoiler field as title'), $api_spoiler_title, $this->t('When activated, the "spoiler_text" field in the API will be used for the title on standalone posts. When deactivated it will be used for spoiler text. For comments it will always be used for spoiler text.')],
+			'$api_auto_attach'         => ['api_auto_attach', $this->t('API: Automatically links at the end of the post as attached posts'), $api_auto_attach, $this->t('When activated, added links at the end of the post react the same way as added links in the web interface.')],
 			'$legacy_contact'          => ['legacy_contact', $this->t('Your legacy ActivityPub/GNU Social account'), $legacy_contact, $this->t('If you enter your old account name from an ActivityPub based system or your GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.')],
 			'$repair_ostatus_url'  => 'ostatus/repair',
 			'$repair_ostatus_text' => $this->t('Repair OStatus subscriptions'),
