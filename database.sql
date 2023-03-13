@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 2023.03-dev (Giant Rhubarb)
+-- Friendica 2023.03-rc (Giant Rhubarb)
 -- DB_UPDATE_VERSION 1517
 -- ------------------------------------------
 
