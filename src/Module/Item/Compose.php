@@ -240,6 +240,9 @@ class Compose extends BaseModule
 				'deny_cid'  => $contact_deny_list,
 				'deny_gid'  => $group_deny_list,
 			]),
+
+			// Dropzone
+			'$max_imagesize'    => DI::config()->get('system', 'maximagesize')
 		]);
 	}
 }

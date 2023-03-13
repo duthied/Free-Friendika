@@ -181,9 +181,11 @@ can load different content into the jot moadl (e.g. the item edit jot)
 </script>
 <script>
 	Dropzone.autoDiscover = false;
+	console.log('jot.tpl', {{$max_imagesize}} / 100000);
+	var maxis = {{$max_imagesize}} / 100000;
 	var dropzoneJot = new Dropzone( '#jot-modal-body', {
 		paramName: "userfile", // The name that will be used to transfer the file
-		maxFilesize: 6, // MB - change this to use systemsettings
+		maxFilesize: maxis, // MB
 		previewsContainer: '#dz-preview-jot',
 		url: "/media/photo/upload?response=url&album=",
 		accept: function(file, done) {
@@ -208,7 +210,6 @@ can load different content into the jot moadl (e.g. the item edit jot)
 		},
 	});
 
-	//  document.onpaste = function(event){
 	$('#jot-modal-body').on('paste', function(event){
 		const items = (event.clipboardData || event.originalEvent.clipboardData).items;
 		items.forEach((item) => {

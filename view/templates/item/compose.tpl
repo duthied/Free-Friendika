@@ -97,9 +97,11 @@
 </div>
 <script>
 	Dropzone.autoDiscover = false;
+	console.log('compose.tpl', {{$max_imagesize}} / 100000);
+	var maxis = {{$max_imagesize}} / 100000;
 	var dropzoneCompose = new Dropzone( '#comment-edit-form-{{$id}}',  { 
 		paramName: "userfile", // The name that will be used to transfer the file
-		maxFilesize: 6, // MB - change this to use systemsettings
+		maxFilesize: maxis, // MB
 		previewsContainer: '#dz-previewsCompose',
 		preventDuplicates: true,
 		clickable: true,

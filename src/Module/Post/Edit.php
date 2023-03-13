@@ -182,6 +182,11 @@ class Edit extends BaseModule
 			'$shortpermset' => $this->t('Permissions'),
 
 			'$compose_link_title' => $this->t('Open Compose page'),
+			// Dropzone
+			//'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
+			// DI::config.. does not work here, so it is set to a manual value
+			'$max_imagesize'       => 500000,
+
 		]);
 
 		return $output;
