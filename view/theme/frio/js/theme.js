@@ -820,7 +820,8 @@ function doActivityItemAction(ident, verb, un) {
 				// link in share-menu
 				$('a[id^=' + verb + '-' + ident.toString() + ']' )
 					.removeClass('active')
-					.attr('href', 'javascript:doActivityItemAction(' + ident +', "' + verb + '",false )').change();
+					.attr('href', 'javascript:doActivityItemAction(' + ident +', "' + verb + '",false )')
+					.change();
 				$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child' ).addClass('fa-retweet').removeClass('fa-ban');
 			} else {
 				// like/dislike buttons
