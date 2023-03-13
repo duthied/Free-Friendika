@@ -96,7 +96,8 @@
 	</div>
 </div>
 <script>
-    var dropzoneCompose = new Dropzone(document.body,  { // camelized version of the `id`
+  Dropzone.autoDiscover = false;
+  var dropzoneCompose = new Dropzone( '#comment-edit-form-{{$id}}',  { 
     paramName: "userfile", // The name that will be used to transfer the file
     maxFilesize: 2, // MB
     previewsContainer: '#dz-previewsCompose',
@@ -110,7 +111,7 @@
     },
     init: function() {
         this.on("success", function(file, serverResponse) {
-                var target = $(':focus').closest('.comment-edit-form').find('.comment-edit-text');
+                var target = $('#comment-edit-text-{{$id}}')
                 var resp = $(serverResponse).find('div#content').text()
                 if (target.setRangeText) {
                     //if setRangeText function is supported by current browser
@@ -122,7 +123,8 @@
         });
     },
   });
-  document.onpaste = function(event){
+
+  $('#comment-edit-form-{{$id}}').on('paste', function(event){
     const items = (event.clipboardData || event.originalEvent.clipboardData).items;
     items.forEach((item) => {
       if (item.kind === 'file') {
@@ -131,5 +133,5 @@
         dropzoneCompose.addFile(item.getAsFile())
       }
     })
-  }
+  });
 </script>

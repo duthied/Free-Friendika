@@ -68,7 +68,6 @@
 <script>
   Dropzone.autoDiscover = false;
   var dropzone{{$id}} = new Dropzone( '#comment-edit-wrapper-{{$id}}', {
-  //var dropzone{{$id}} = new Dropzone( document.body, {
     paramName: "userfile", // The name that will be used to transfer the file
     maxFilesize: 6, // MB
     previewsContainer: '#dz-preview-{{$id}}',
@@ -104,7 +103,7 @@
         dropzone{{$id}}.addFile(item.getAsFile())
       }
     })
-  })
+  });
 
 
 </script>
