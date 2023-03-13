@@ -784,8 +784,8 @@ function doActivityItemAction(ident, verb, un) {
 		// if no wait-rotator for activity(verb) is added, add it. or just show it, if exists
 		if ($('img[id^=waitfor-' + verb + '-' + ident.toString() + ']').length == 0) {
 			// append rotator to the shareMenu-button for small media
-			$('<img id="waitfor-' + verb + '-' + ident.toString() + '">')
-				.attr('src', 'images/rotator.gif')
+      $('<img>')
+        .attr('id', 'waitfor-' + verb + '-' + ident.toString())
 				.addClass('fa')
 				.appendTo($('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child' )).show();
 		} else {
@@ -795,7 +795,8 @@ function doActivityItemAction(ident, verb, un) {
 	$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').removeClass(thumbsClass);
 	// if verb is announce, then one rotator is added above to the shareMedia-dropdown button
 	if ($('button:not(button.dropdown-toggle) img#waitfor-' + verb + '-' + ident.toString()).length == 0) {
-		$('<img id="waitfor-' + verb + '-' + ident.toString() + '">')
+		$('<img>')
+      .attr('id', 'waitfor-' + verb + '-' + ident.toString())
 			.attr('src', 'images/rotator.gif')
 			.addClass('fa')
 			.appendTo($('button[id^=' + verb + '-' + ident.toString() + '] i:first-child')).show();
