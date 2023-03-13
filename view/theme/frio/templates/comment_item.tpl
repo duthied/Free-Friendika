@@ -61,49 +61,46 @@
 
 		<div class="comment-edit-end clear"></div>
 	</form>
-        <div id="dz-preview-{{$id}}" class="dropzone-preview"></div>
+	<div id="dz-preview-{{$id}}" class="dropzone-preview"></div>
 	<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
 </div>
 
 <script>
-  Dropzone.autoDiscover = false;
-  var dropzone{{$id}} = new Dropzone( '#comment-edit-wrapper-{{$id}}', {
-    paramName: "userfile", // The name that will be used to transfer the file
-    maxFilesize: 6, // MB
-    previewsContainer: '#dz-preview-{{$id}}',
-    preventDuplicates: true,
-    clickable: true,
-    thumbnailWidth: 100,
-    thumbnailHeight: 100,
-    url: "/media/photo/upload?response=url&album=",
-    accept: function(file, done) {
-      done();
-    },
-    init: function() {
-      this.on("success", function(file, serverResponse) {
-        var target = $('#comment-edit-text-{{$id}}')
-        var resp = $(serverResponse).find('div#content').text()
-        if (target.setRangeText) {
-          //if setRangeText function is supported by current browser
-          target.setRangeText(" " + $.trim(resp) + " ")
-        } else {
-          target.focus()
-          document.execCommand('insertText', false /*no UI*/, " " + $.trim(resp) + " ");
-        }
-      });
-    },
-  });
-
-  $('#comment-edit-wrapper-{{$id}}').on('paste', function(event){
-    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
-    items.forEach((item) => {
-      if (item.kind === 'file') {
-        // adds the file to your dropzone instance
-        console.log(item);
-        dropzone{{$id}}.addFile(item.getAsFile())
-      }
-    })
-  });
-
-
+	Dropzone.autoDiscover = false;
+	var dropzone{{$id}} = new Dropzone( '#comment-edit-wrapper-{{$id}}', {
+		paramName: "userfile", // The name that will be used to transfer the file
+		maxFilesize: 6, // MB - change this to use systemsettings
+		previewsContainer: '#dz-preview-{{$id}}',
+		preventDuplicates: true,
+		clickable: true,
+		thumbnailWidth: 100,
+		thumbnailHeight: 100,
+		url: "/media/photo/upload?response=url&album=",
+		accept: function(file, done) {
+			done();
+		},
+		init: function() {
+			this.on("success", function(file, serverResponse) {
+				var target = $('#comment-edit-text-{{$id}}')
+				var resp = $(serverResponse).find('div#content').text()
+				if (target.setRangeText) {
+					//if setRangeText function is supported by current browser
+					target.setRangeText(" " + $.trim(resp) + " ")
+				} else {
+					target.focus()
+					document.execCommand('insertText', false /*no UI*/, " " + $.trim(resp) + " ");
+				}
+			});
+		},
+	});
+	
+	$('#comment-edit-wrapper-{{$id}}').on('paste', function(event){
+		const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+		items.forEach((item) => {
+			if (item.kind === 'file') {
+				// adds the file to your dropzone instance
+				dropzone{{$id}}.addFile(item.getAsFile())
+			}
+		})
+	});
 </script>

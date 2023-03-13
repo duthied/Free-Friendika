@@ -1,11 +1,11 @@
 <div class="generic-page-wrapper">
 	<h2>{{$l10n.compose_title}}</h2>
-    {{if $l10n.always_open_compose}}
+	{{if $l10n.always_open_compose}}
 	<p>{{$l10n.always_open_compose nofilter}}</p>
 	{{/if}}
 	<div id="profile-jot-wrapper">
 		<form class="comment-edit-form dropzone" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="compose/{{$type}}" method="post">
-		    {{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}
+			{{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}
 			<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
 			<input type="hidden" name="post_type" value="{{$posttype}}" />
 			<input type="hidden" name="wall" value="{{$wall}}" />
@@ -13,11 +13,11 @@
 			<div id="jot-title-wrap">
 				<input type="text" name="title" id="jot-title" class="jothidden jotforms form-control" placeholder="{{$l10n.placeholdertitle}}" title="{{$l10n.placeholdertitle}}" value="{{$title}}" tabindex="1" dir="auto" />
 			</div>
-		    {{if $l10n.placeholdercategory}}
+			{{if $l10n.placeholdercategory}}
 				<div id="jot-category-wrap">
 					<input name="category" id="jot-category" class="jothidden jotforms form-control" type="text" placeholder="{{$l10n.placeholdercategory}}" title="{{$l10n.placeholdercategory}}" value="{{$category}}" tabindex="2" dir="auto" />
 				</div>
-		    {{/if}}
+			{{/if}}
 
 			<p class="comment-edit-bb-{{$id}} comment-icon-list">
 				<span>
@@ -55,12 +55,12 @@
 				<span role="presentation" class="form-inline">
 					<input type="text" name="location" class="form-control" id="jot-location" value="{{$location}}" placeholder="{{$l10n.location_set}}"/>
 					<button type="button" class="btn btn-sm template-icon" id="profile-location"
-					        data-title-set="{{$l10n.location_set}}"
-					        data-title-disabled="{{$l10n.location_disabled}}"
-					        data-title-unavailable="{{$l10n.location_unavailable}}"
-					        data-title-clear="{{$l10n.location_clear}}"
-					        title="{{$l10n.location_set}}"
-					        tabindex="6">
+						data-title-set="{{$l10n.location_set}}"
+						data-title-disabled="{{$l10n.location_disabled}}"
+						data-title-unavailable="{{$l10n.location_unavailable}}"
+						data-title-clear="{{$l10n.location_clear}}"
+						title="{{$l10n.location_set}}"
+						tabindex="6">
 						<i class="fa fa-map-marker" aria-hidden="true"></i>
 					</button>
 				</span>
@@ -71,7 +71,7 @@
 				<span role="presentation" id="character-counter" class="grey text-info"></span>
 				<button type="button" class="btn btn-defaul" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}" tabindex="5"><i class="fa fa-eye"></i> {{$l10n.preview}}</button>
 				<button type="submit" class="btn btn-primary" id="comment-edit-submit-{{$id}}" name="submit" tabindex="4"><i class="fa fa-envelope"></i> {{$l10n.submit}}</button>
-                                <div id="dz-previewsCompose" class="dropzone-previews"></div>
+				<div id="dz-previewsCompose" class="dropzone-previews"></div>
 			</p>
 
 			<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
@@ -96,42 +96,41 @@
 	</div>
 </div>
 <script>
-  Dropzone.autoDiscover = false;
-  var dropzoneCompose = new Dropzone( '#comment-edit-form-{{$id}}',  { 
-    paramName: "userfile", // The name that will be used to transfer the file
-    maxFilesize: 2, // MB
-    previewsContainer: '#dz-previewsCompose',
-    preventDuplicates: true,
-    clickable: true,
-    thumbnailWidth: 100,
-    thumbnailHeight: 100,
-    url: "/media/photo/upload?response=url&album=",
-    accept: function(file, done) {
-      done();
-    },
-    init: function() {
-        this.on("success", function(file, serverResponse) {
-                var target = $('#comment-edit-text-{{$id}}')
-                var resp = $(serverResponse).find('div#content').text()
-                if (target.setRangeText) {
-                    //if setRangeText function is supported by current browser
-                    target.setRangeText(" " + $.trim(resp) + " ")
-                } else {
-                    target.focus()
-                    document.execCommand('insertText', false /*no UI*/, $.trim(resp));
-                }
-        });
-    },
-  });
-
-  $('#comment-edit-form-{{$id}}').on('paste', function(event){
-    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
-    items.forEach((item) => {
-      if (item.kind === 'file') {
-        // adds the file to your dropzone instance
-        console.log(item);
-        dropzoneCompose.addFile(item.getAsFile())
-      }
-    })
-  });
+	Dropzone.autoDiscover = false;
+	var dropzoneCompose = new Dropzone( '#comment-edit-form-{{$id}}',  { 
+		paramName: "userfile", // The name that will be used to transfer the file
+		maxFilesize: 6, // MB - change this to use systemsettings
+		previewsContainer: '#dz-previewsCompose',
+		preventDuplicates: true,
+		clickable: true,
+		thumbnailWidth: 100,
+		thumbnailHeight: 100,
+		url: "/media/photo/upload?response=url&album=",
+		accept: function(file, done) {
+			done();
+		},
+		init: function() {
+			this.on("success", function(file, serverResponse) {
+				var target = $('#comment-edit-text-{{$id}}')
+				var resp = $(serverResponse).find('div#content').text()
+				if (target.setRangeText) {
+					//if setRangeText function is supported by current browser
+					target.setRangeText(" " + $.trim(resp) + " ")
+				} else {
+					target.focus()
+					document.execCommand('insertText', false /*no UI*/, $.trim(resp));
+				}
+			});
+		},
+	});
+	
+	$('#comment-edit-form-{{$id}}').on('paste', function(event){
+		const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+		items.forEach((item) => {
+			if (item.kind === 'file') {
+				// adds the file to your dropzone instance
+				dropzoneCompose.addFile(item.getAsFile())
+			}
+		})
+	});
 </script>

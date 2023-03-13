@@ -445,7 +445,6 @@ class Conversation
 		$this->page->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
 		$this->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
-		$this->page->registerStylesheet(Theme::getPathForFile('vendor/enyo/dropzone/dist/min/dropzone.min.css'));
 
 		$live_update_div = '';
 
