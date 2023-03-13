@@ -22,6 +22,10 @@
 			</div>
 		</ol>
 
+		<div class="upload">
+			<button id="upload-{{$type}}" type="button" class="btn btn-primary">{{$upload}}</button>
+		</div>
+
 		<div class="media">
 
 			{{* List of photo albums *}}
@@ -52,9 +56,6 @@
 			</div>
 		</div>
 
-		<div class="upload">
-			<button id="upload-{{$type}}" type="button" class="btn btn-primary">{{$upload}}</button>
-		</div>
 	</div>
 
 	{{* This part contains the conent loader icon which is visible when new conent is loaded *}}
