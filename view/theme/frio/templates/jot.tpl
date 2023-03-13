@@ -189,11 +189,7 @@ can load different content into the jot moadl (e.g. the item edit jot)
 		previewsContainer: '#dz-preview-jot',
 		url: "/media/photo/upload?response=url&album=",
 		accept: function(file, done) {
-			if (file.name == "justinbieber.jpg") {
-				done("Naha, you don't.");
-			} else {
-				done();
-			}
+			done();
 		},
 		init: function() {
 			this.on("success", function(file, serverResponse) {

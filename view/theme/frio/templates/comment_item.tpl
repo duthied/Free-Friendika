@@ -75,8 +75,6 @@
 		previewsContainer: '#dz-preview-{{$id}}',
 		preventDuplicates: true,
 		clickable: true,
-		thumbnailWidth: 100,
-		thumbnailHeight: 100,
 		url: "/media/photo/upload?response=url&album=",
 		accept: function(file, done) {
 			done();
