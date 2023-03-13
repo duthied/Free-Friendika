@@ -259,10 +259,12 @@ class Status extends BaseFactory
 				}
 			}
 
-			$item['body'] = $this->contentItem->addSharedPost($item);
-
 			if (!is_null($item['raw-body'])) {
 				$item['raw-body'] = $this->contentItem->addSharedPost($item, $item['raw-body']);
+				$item['raw-body'] = Post\Media::addHTMLLinkToBody($uriId, $item['raw-body']);
+			} else {
+				$item['body'] = $this->contentItem->addSharedPost($item);
+				$item['body'] = Post\Media::addHTMLLinkToBody($uriId, $item['body']);
 			}
 		}
 

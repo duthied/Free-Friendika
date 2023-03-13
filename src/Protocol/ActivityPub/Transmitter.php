@@ -1639,6 +1639,8 @@ class Transmitter
 
 		$real_quote = false;
 
+		$item = Post\Media::addHTMLAttachmentToItem($item);
+
 		$body = $item['body'];
 
 		if ($type == 'Note') {

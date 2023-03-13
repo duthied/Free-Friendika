@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -54,6 +55,7 @@ class Statuses extends BaseApi
 			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
 			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
 			'language'       => '',    // ISO 639 language code for this status.
+			'friendica'      => [],
 		], $request);
 
 		$owner = User::getOwnerDataById($uid);
@@ -66,7 +68,7 @@ class Statuses extends BaseApi
 			'origin'     => true,
 		];
 
-		$post = Post::selectFirst(['uri-id', 'id', 'uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], $condition);
+		$post = Post::selectFirst(['uri-id', 'id', 'gravity', 'uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], $condition);
 		if (empty($post['id'])) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $this->parameters['id'] . ' not found for user ' . $uid . '.');
 		}
@@ -78,11 +80,18 @@ class Statuses extends BaseApi
 			$item['language'] = json_encode([$request['language'] => 1]);
 		}
 
-		if (!empty($request['spoiler_text'])) {
-			if (($request['in_reply_to_id'] == $post['uri-id']) && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
-				$item['title'] = $request['spoiler_text'];
+		if ($post['gravity'] == Item::GRAVITY_PARENT) {
+			$item['title'] = $request['friendica']['title'] ?? '';
+		}
+
+		$spoiler_text = $request['spoiler_text'];
+
+		if (!empty($spoiler_text)) {
+			if (!isset($request['friendica']['title']) && $post['gravity'] == Item::GRAVITY_PARENT && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
+				$item['title'] = $spoiler_text;
 			} else {
-				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
+				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $spoiler_text . "[/abstract]\n" . $item['body'];
+				$item['content-warning'] = BBCode::toPlaintext($spoiler_text);
 			}
 		}
 
@@ -122,6 +131,9 @@ class Statuses extends BaseApi
 				Post\Media::insert($attachment);
 			}
 			unset($item['attachments']);
+		}
+		if (!Item::isValid($item)) {
+			throw new \Exception('Missing parameters in definitien');
 		}
 
 		Item::update($item, ['id' => $post['id']]);

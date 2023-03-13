@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.03-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1516
+-- DB_UPDATE_VERSION 1517
 -- ------------------------------------------
 
 
@@ -1570,7 +1570,7 @@ CREATE TABLE IF NOT EXISTS `post-user-notification` (
 --
 CREATE TABLE IF NOT EXISTS `process` (
 	`pid` int unsigned NOT NULL COMMENT 'The ID of the process',
-	`hostname` varchar(32) NOT NULL COMMENT 'The name of the host the process is ran on',
+	`hostname` varchar(255) NOT NULL COMMENT 'The name of the host the process is ran on',
 	`command` varbinary(32) NOT NULL DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`pid`,`hostname`),

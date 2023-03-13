@@ -2038,7 +2038,10 @@ code > .hl-main {
 .wall-item-responses > div > p {
 	margin: 0;
 }
-
+.btn-group-event {
+	display: flex;
+	flex-basis: auto;
+}
 /* wall item hover effects */
 
 @media (min-width: 768px) {
