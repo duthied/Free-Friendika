@@ -180,11 +180,12 @@ can load different content into the jot modal (e.g. the item edit jot)
 </script>
 
 <script>
+	// getMByte() is from view/theme/frio/js/dropzone-frio.js
+	// to workaround dysfunctional php Strings:getBytesFromShorthand
 	Dropzone.autoDiscover = false;
-	var maxis = {{$max_filesize}} / 10^6;
 	var dropzoneJot = new Dropzone( '#jot-modal-content', {
 		paramName: "userfile", // The name that will be used to transfer the file
-		maxFilesize: maxis, // MB
+		maxFilesize: getMBytes('{{$max_imagesize}}'), // MB
 		previewsContainer: '#dz-preview-jot',
 		url: "/media/photo/upload?response=url&album=",
 		accept: function(file, done) {

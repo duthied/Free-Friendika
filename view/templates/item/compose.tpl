@@ -96,11 +96,12 @@
 	</div>
 </div>
 <script>
+	// getMByte() is from view/theme/frio/js/dropzone-frio.js
+	// to workaround dysfunctional php Strings:getBytesFromShorthand
 	Dropzone.autoDiscover = false;
-	var maxis = {{$max_imagesize}} / 10^6;
 	var dropzoneCompose = new Dropzone( '#comment-edit-form-{{$id}}',  { 
 		paramName: "userfile", // The name that will be used to transfer the file
-		maxFilesize: maxis, // MB
+		maxFilesize: getMBytes('{{$max_imagesize}}'), // MB
 		previewsContainer: '#dz-previewsCompose',
 		preventDuplicates: true,
 		clickable: true,

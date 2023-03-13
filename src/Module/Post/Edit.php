@@ -185,9 +185,9 @@ class Edit extends BaseModule
 
 			'$compose_link_title' => $this->t('Open Compose page'),
 			// Dropzone
-			//'$max_imagesize'       => Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
 			//'$max_imagesize'       => \Friendica\\Util\\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
-                        // both not working, so just workaround here until fixed
+			//'$max_imagesize'       => Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+                        // both not working, so just workaround in template and serve the bare value
 			'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
 		]);
 

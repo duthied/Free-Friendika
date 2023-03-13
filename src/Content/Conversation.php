@@ -35,6 +35,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item as ItemModel;
 use Friendica\Model\Post;
@@ -408,10 +409,11 @@ class Conversation
 
 			'$compose_link_title'  => $this->l10n->t('Open Compose page'),
 			'$always_open_compose' => $this->pConfig->get($this->session->getLocalUserId(), 'frio', 'always_open_compose', false),
+
 			// Dropzone
-			//'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
-			// DI::config.. does not work here, so it is set to a manual value
-			'$max_imagesize'       => 600000,
+                        //'$max_imagesize'       => Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+                        // Strings::getBytresFromShorthand not working, so just workaround in template and serve the bare value
+			'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
 
 		]);
 
