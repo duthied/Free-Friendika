@@ -99,11 +99,11 @@
 					{{/if}}
 
 					{{* The jot text field in which the post text is inserted *}}
-					<div id="dropzone-jot" class="dropzone">
-						<div id="jot-text-wrap">
+					<!--div id="dropzone-jot" class="dropzone"-->
+						<div id="jot-text-wrap" class="dropzone">
 							<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;" dir="auto">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
 						</div>
-					</div>
+					<!--/div-->
 
 					<ul id="profile-jot-submit-wrapper" class="jothidden nav nav-pills">
 						<li role="presentation"><button type="button" class="hidden-xs btn-link icon underline" style="cursor: pointer;" aria-label="{{$eduline}}" title="{{$eduline}}" onclick="insertFormattingToPost('u');"><i class="fa fa-underline"></i></button></li>
@@ -185,7 +185,7 @@ can load different content into the jot modal (e.g. the item edit jot)
 	// getMByte() is from view/theme/frio/js/dropzone-frio.js
 	// to workaround dysfunctional php Strings:getBytesFromShorthand
 	Dropzone.autoDiscover = false;
-	var dropzoneJot = new Dropzone( '#dropzone-jot', {
+	var dropzoneJot = new Dropzone( '#jot-text-wrap', {
 		paramName: "userfile", // The name that will be used to transfer the file
 		maxFilesize: getMBytes('{{$max_imagesize}}'), // MB
 		url: "/media/photo/upload?response=url&album=",
@@ -209,13 +209,15 @@ can load different content into the jot modal (e.g. the item edit jot)
 				// Image can be seen in posting-preview
 				// We need preview to get optical feedback about upload-progress.
 				// you see success, when the bb-code link for image is inserted
-				this.removeFile(file);
+				setTimeout(function(){
+					dropzoneJot.removeFile(file);
+				},5000);
 			});
 		},
 	});
 
 	// Enables Copy&Paste for this dropzone
-	$('#dropzone-jot').on('paste', function(event){
+	$('#jot-text-wrap').on('paste', function(event){
 		const items = (event.clipboardData || event.originalEvent.clipboardData).items;
 		items.forEach((item) => {
 			if (item.kind === 'file') {

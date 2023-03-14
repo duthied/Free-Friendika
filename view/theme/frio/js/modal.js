@@ -293,7 +293,7 @@ function editpost(url) {
 
 			// To make dropzone fileupload work on editing a comment, we need to
 			// attach a new dropzone to modal
-			dropzoneJotEdit = new Dropzone( '#dropzone-jot', {
+			dropzoneJotEdit = new Dropzone( '#jot-text-wrap', {
 				paramName: "userfile", // The name that will be used to transfer the file
 				maxFilesize: getMBytes('{{$max_imagesize}}'), // MB
 				url: "/media/photo/upload?response=url&album=",
@@ -317,13 +317,15 @@ function editpost(url) {
 						// Image can be seen in posting-preview
 						// We need preview to get optical feedback about upload-progress.
 						// you see success, when the bb-code link for image is inserted
-						this.removeFile(file);
+						setTimeout(function(){
+							dropzoneJotEdit.removeFile(file);
+						},5000);
 					});
 				},
 			});
 
 			// Enables Copy&Paste for this dropzone
-			$('#dropzone-jot').on('paste', function(event){
+			$('#jot-text-wrap').on('paste', function(event){
 				const items = (event.clipboardData || event.originalEvent.clipboardData).items;
 				items.forEach((item) => {
 					if (item.kind === 'file') {
