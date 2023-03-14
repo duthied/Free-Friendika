@@ -93,7 +93,9 @@
 				// Image can be seen in posting-preview
 				// We need preview to get optical feedback about upload-progress.
 				// you see success, when the bb-code link for image is inserted
-				this.removeFile(file);
+				setTimeout(function(){
+					dropzone{{$id}}.removeFile(file);
+				},5000);
 			});
 		},
 	});
