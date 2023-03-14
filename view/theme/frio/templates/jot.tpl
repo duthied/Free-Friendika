@@ -99,8 +99,10 @@
 					{{/if}}
 
 					{{* The jot text field in which the post text is inserted *}}
-					<div id="jot-text-wrap">
-						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;" dir="auto">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
+					<div id="dropzone-jot" class="dropzone">
+						<div id="jot-text-wrap">
+							<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;" dir="auto">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
+						</div>
 					</div>
 
 					<ul id="profile-jot-submit-wrapper" class="jothidden nav nav-pills">
@@ -169,7 +171,7 @@ can load different content into the jot modal (e.g. the item edit jot)
 *}}
 <div id="jot-modal" class="modal fade" role="dialog">
 	<div class="modal-dialog">
-		<div id="jot-modal-content" class="modal-content dropzone"></div>
+		<div id="jot-modal-content" class="modal-content"></div>
 	</div>
 </div>
 
@@ -183,10 +185,9 @@ can load different content into the jot modal (e.g. the item edit jot)
 	// getMByte() is from view/theme/frio/js/dropzone-frio.js
 	// to workaround dysfunctional php Strings:getBytesFromShorthand
 	Dropzone.autoDiscover = false;
-	var dropzoneJot = new Dropzone( '#jot-modal-content', {
+	var dropzoneJot = new Dropzone( '#dropzone-jot', {
 		paramName: "userfile", // The name that will be used to transfer the file
 		maxFilesize: getMBytes('{{$max_imagesize}}'), // MB
-		previewsContainer: '#dz-preview-jot',
 		url: "/media/photo/upload?response=url&album=",
 		accept: function(file, done) {
 			done();
@@ -203,10 +204,18 @@ can load different content into the jot modal (e.g. the item edit jot)
 					document.execCommand('insertText', false /*no UI*/, " " + $.trim(resp) + " ");
 				}
 			});
+			this.on("complete", function(file) {
+				// Remove just uploaded file from dropzone, makes interface more clear.
+				// Image can be seen in posting-preview
+				// We need preview to get optical feedback about upload-progress.
+				// you see success, when the bb-code link for image is inserted
+				this.removeFile(file);
+			});
 		},
 	});
 
-	$('#jot-modal-content').on('paste', function(event){
+	// Enables Copy&Paste for this dropzone
+	$('#dropzone-jot').on('paste', function(event){
 		const items = (event.clipboardData || event.originalEvent.clipboardData).items;
 		items.forEach((item) => {
 			if (item.kind === 'file') {

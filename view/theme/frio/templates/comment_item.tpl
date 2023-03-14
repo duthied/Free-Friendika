@@ -1,8 +1,8 @@
 
 {{if $threaded}}
-<div class="comment-wwedit-wrapper threaded dropzone" id="comment-edit-wrapper-{{$id}}">
+<div class="comment-wwedit-wrapper threaded" id="comment-edit-wrapper-{{$id}}">
 {{else}}
-<div class="comment-wwedit-wrapper dropzone" id="comment-edit-wrapper-{{$id}}">
+<div class="comment-wwedit-wrapper" id="comment-edit-wrapper-{{$id}}">
 {{/if}}
 	<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="item" method="post">
 		<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
@@ -37,12 +37,14 @@
 					<i class="fa fa-quote-left"></i>
 				</button>
 			</span>
-		</p>
-		<p>
-			<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty form-control text-autosize" name="body" placeholder="{{$comment}}" rows="3" data-default="{{$default}}" dir="auto">{{$default}}</textarea>
-		</p>
-{{if $qcomment}}
-		<p>
+			</p>
+			<div id="dropzone-{{$id}}" class="dropzone">
+				<p>
+					<textarea id="comment-edit-text-{{$id}}" class="dropzone comment-edit-text-empty form-control text-autosize" name="body" placeholder="{{$comment}}" rows="3" data-default="{{$default}}" dir="auto">{{$default}}</textarea>
+				</p>
+			</div>
+	{{if $qcomment}}
+			<p>
 			<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});">
 				<option value=""></option>
 	{{foreach $qcomment as $qc}}
@@ -51,7 +53,6 @@
 			</select>
 		</p>
 {{/if}}
-
 		<p class="comment-edit-submit-wrapper">
 {{if $preview}}
 			<button type="button" class="btn btn-default comment-edit-preview" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
@@ -61,7 +62,6 @@
 
 		<div class="comment-edit-end clear"></div>
 	</form>
-	<div id="dz-preview-{{$id}}" class="dropzone-preview"></div>
 	<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
 </div>
 
@@ -69,12 +69,9 @@
 	// getMByte() is from view/theme/frio/js/dropzone-frio.js
 	// to workaround dysfunctional php Strings:getBytesFromShorthand
 	Dropzone.autoDiscover = false;
-	var dropzone{{$id}} = new Dropzone( '#comment-edit-wrapper-{{$id}}', {
+	var dropzone{{$id}} = new Dropzone( '#dropzone-{{$id}}', {
 		paramName: "userfile", // The name that will be used to transfer the file
 		maxFilesize: getMBytes('{{$max_imagesize}}'), // MB
-		previewsContainer: '#dz-preview-{{$id}}',
-		preventDuplicates: true,
-		clickable: true,
 		url: "/media/photo/upload?response=url&album=",
 		accept: function(file, done) {
 			done();
@@ -91,10 +88,18 @@
 					document.execCommand('insertText', false /*no UI*/, " " + $.trim(resp) + " ");
 				}
 			});
+			this.on("complete", function(file) {
+				// Remove just uploaded file from dropzone, makes interface more clear.
+				// Image can be seen in posting-preview
+				// We need preview to get optical feedback about upload-progress.
+				// you see success, when the bb-code link for image is inserted
+				this.removeFile(file);
+			});
 		},
 	});
 	
-	$('#comment-edit-wrapper-{{$id}}').on('paste', function(event){
+	// Enables Copy&Paste for this dropzone
+	$('#dropzone-{{$id}}').on('paste', function(event){
 		const items = (event.clipboardData || event.originalEvent.clipboardData).items;
 		items.forEach((item) => {
 			if (item.kind === 'file') {

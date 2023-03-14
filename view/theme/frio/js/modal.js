@@ -291,6 +291,49 @@ function editpost(url) {
 				$("#profile-jot-form #jot-category-wrap").hide();
 			}
 
+			// To make dropzone fileupload work on editing a comment, we need to
+			// attach a new dropzone to modal
+			dropzoneJotEdit = new Dropzone( '#dropzone-jot', {
+				paramName: "userfile", // The name that will be used to transfer the file
+				maxFilesize: getMBytes('{{$max_imagesize}}'), // MB
+				url: "/media/photo/upload?response=url&album=",
+				accept: function(file, done) {
+					done();
+				},
+				init: function() {
+					this.on("success", function(file, serverResponse) {
+						var target = $('#profile-jot-text')
+						var resp = $(serverResponse).find('div#content').text()
+						if (target.setRangeText) {
+							//if setRangeText function is supported by current browser
+							target.setRangeText(" " + $.trim(resp) + " ")
+						} else {
+							target.focus()
+							document.execCommand('insertText', false /*no UI*/, " " + $.trim(resp) + " ");
+						}
+					});
+					this.on("complete", function(file) {
+						// Remove just uploaded file from dropzone, makes interface more clear.
+						// Image can be seen in posting-preview
+						// We need preview to get optical feedback about upload-progress.
+						// you see success, when the bb-code link for image is inserted
+						this.removeFile(file);
+					});
+				},
+			});
+
+			// Enables Copy&Paste for this dropzone
+			$('#dropzone-jot').on('paste', function(event){
+				const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+				items.forEach((item) => {
+					if (item.kind === 'file') {
+						// adds the file to your dropzone instance
+						dropzoneJotEdit.addFile(item.getAsFile())
+					}
+				})
+			})
+
+
 			modal.show();
 			$("#jot-popup").show();
 			linkPreview = $("#profile-jot-text").linkPreview();

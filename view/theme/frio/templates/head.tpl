@@ -55,7 +55,7 @@
 	media="screen" />
 <link rel="stylesheet" href="view/theme/frio/css/font-awesome.custom.css?v={{$smarty.const.FRIENDICA_VERSION}}"
 	type="text/css" media="screen" />
-<link rel="stylesheet" href="vendor/enyo/dropzone/dist/min/dropzone.min.css?v={{$smarty.const.FRIENDICA_VERSION}}"
+<link rel="stylesheet" href="view/theme/frio/css/dropzone.min.frio.css?v={{$smarty.const.FRIENDICA_VERSION}}"
 	type="text/css" media="screen" />
 
 {{foreach $stylesheets as $stylesheetUrl => $media}}
