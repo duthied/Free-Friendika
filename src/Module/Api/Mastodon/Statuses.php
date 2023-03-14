@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Protocol;
@@ -37,6 +38,7 @@ use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 
 /**
@@ -126,6 +128,10 @@ class Statuses extends BaseApi
 
 		// The imput is defined as text. So we can use Markdown for some enhancements
 		$body = Markdown::toBBCode($request['status']);
+
+		if (DI::pConfig()->get($uid, 'system', 'api_auto_attach', false) && preg_match("/\[url=[^\[\]]*\](.*)\[\/url\]\z/ism", $body, $matches)) {
+			$body = preg_replace("/\[url=[^\[\]]*\].*\[\/url\]\z/ism", PageInfo::getFooterFromUrl($matches[1]), $body);
+		}
 
 		$item               = [];
 		$item['network']    = Protocol::DFRN;
@@ -273,7 +279,7 @@ class Statuses extends BaseApi
 		if (!empty($request['scheduled_at'])) {
 			$item['guid'] = Item::guid($item, true);
 			$item['uri'] = Item::newURI($item['guid']);
-			$id = Post\Delayed::add($item['uri'], $item, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED, $request['scheduled_at']);
+			$id = Post\Delayed::add($item['uri'], $item, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED, DateTimeFormat::utc($request['scheduled_at']));
 			if (empty($id)) {
 				DI::mstdnError()->InternalError();
 			}
