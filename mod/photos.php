@@ -1141,9 +1141,7 @@ function photos_content(App $a)
 						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12),
 						// Dropzone
-                                                //'$max_imagesize'       => Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
-                                                // Strings::getBytresFromShorthand not working, so just workaround in template and serve the bare value
-						'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
+						'$max_imagesize' => floor(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000),
 					]);
 				}
 			}
@@ -1200,9 +1198,7 @@ function photos_content(App $a)
 						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12),
 						// Dropzone
-                                                //'$max_imagesize'       => Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
-                                                // Strings::getBytresFromShorthand not working, so just workaround in template and serve the bare value
-						'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
+						'$max_imagesize' => floor(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000),
 					]);
 				}
 
@@ -1278,9 +1274,7 @@ function photos_content(App $a)
 							'$qcomment' => $qcomment,
 							'$rand_num' => Crypto::randomDigits(12),
 							// Dropzone
-                                                        //'$max_imagesize'       => Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
-                                                        // Strings::getBytresFromShorthand not working, so just workaround in template and serve the bare value
-							'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
+							'$max_imagesize' => floor(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000),
 						]);
 					}
 				}

@@ -411,9 +411,7 @@ class Conversation
 			'$always_open_compose' => $this->pConfig->get($this->session->getLocalUserId(), 'frio', 'always_open_compose', false),
 
 			// Dropzone
-                        //'$max_imagesize'       => Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
-                        // Strings::getBytresFromShorthand not working, so just workaround in template and serve the bare value
-			'$max_imagesize'       => DI::config()->get('system', 'maximagesize'),
+			'$max_imagesize' => floor(\Friendica\Util\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000),
 
 		]);
 

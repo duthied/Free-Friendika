@@ -242,7 +242,7 @@ class Compose extends BaseModule
 			]),
 
 			// Dropzone
-			'$max_imagesize'    => DI::config()->get('system', 'maximagesize')
+			'$max_imagesize' => floor(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000),
 		]);
 	}
 }
