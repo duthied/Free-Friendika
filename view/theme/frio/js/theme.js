@@ -788,8 +788,6 @@ function doActivityItemAction(ident, verb, un) {
 				.attr({id: 'waitfor-' + verb + '-' + ident.toString(), src: 'images/rotator.gif'})
 				.addClass('fa')
 				.appendTo($('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child' ));
-		} else {
-			$('<img>').attr({id: 'waitfor-' + verb + '-' + ident.toString(), src: 'images/rotator.gif'})
 		}
 	}
 	$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').removeClass(thumbsClass);
@@ -799,11 +797,7 @@ function doActivityItemAction(ident, verb, un) {
 			.attr({id: 'waitfor-' + verb + '-' + ident.toString(), src: 'images/rotator.gif'})
 			.addClass('fa')
 			.appendTo($('button[id^=' + verb + '-' + ident.toString() + '] i:first-child'));
-	} else {
-		// show existing rotator for activity
-		$('img[id^=waitfor-' + verb + '-' + ident.toString() + ']')
 	}
-
 	// do request for activity
 	$.post('item/' + ident.toString() + '/activity/' + _verb)
 	.success(function(data){
