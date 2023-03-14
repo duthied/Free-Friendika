@@ -214,7 +214,7 @@ class Status extends BaseDataTransferObject
 		}
 
 		if ($status['created_at'] == $status['edited_at']) {
-			unset($status['edited_at']);
+			$status['edited_at'] = null;
 		}
 
 		return $status;
