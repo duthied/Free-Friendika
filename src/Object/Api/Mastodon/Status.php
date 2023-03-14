@@ -213,6 +213,10 @@ class Status extends BaseDataTransferObject
 			$status['in_reply_to_status'] = null;
 		}
 
+		if ($status['created_at'] == $status['edited_at']) {
+			$status['edited_at'] = null;
+		}
+
 		return $status;
 	}
 }
