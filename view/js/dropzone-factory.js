@@ -1,6 +1,6 @@
 var DzFactory = function () {
-	this.createDropzone = function(element, target, maxImagesize) {
-		return new Dropzone( element, {
+	this.createDropzone = function(dropSelector, textareaSelector, maxImagesize) {
+		return new Dropzone( dropSelector, {
 			paramName: 'userfile', // The name that will be used to transfer the file
 			maxFilesize: maxImagesize, // MB
 			url: '/media/photo/upload?response=url&album=',
@@ -9,14 +9,14 @@ var DzFactory = function () {
 			},
 			init: function() {
 				this.on('success', function(file, serverResponse) {
-					var _target = $(target)
-					var resp = $(serverResponse).find('div#content').text()
-					if (_target.setRangeText) {
+					const targetTextarea = document.getElementById(textareaSelector);
+					const bbcodeString = $(serverResponse).find('div#content').text();
+					if (targetTextarea.setRangeText) {
 						//if setRangeText function is supported by current browser
-						_target.setRangeText(' ' + $.trim(resp) + ' ')
+						targetTextarea.setRangeText(' ' + $.trim(bbcodeString) + ' ');
 					} else {
-						_target.focus()
-						document.execCommand('insertText', false /*no UI*/, ' ' + $.trim(resp) + ' ');
+						targetTextarea.focus();
+						document.execCommand('insertText', false /*no UI*/, '\n' + $.trim(bbcodeString) + '\n');
 					}
 				});
 				this.on('complete', function(file) {
@@ -35,7 +35,7 @@ var DzFactory = function () {
 				items.forEach((item) => {
 					if (item.kind === 'file') {
 						// adds the file to your dropzone instance
-						dz.addFile(item.getAsFile())
+						dz.addFile(item.getAsFile());
 					}
 				})
 			},
@@ -47,15 +47,14 @@ var DzFactory = function () {
 		items.forEach((item) => {
 			if (item.kind === 'file') {
 				// adds the file to your dropzone instance
-				dz.addFile(item.getAsFile())
+				dz.addFile(item.getAsFile());
 			}
 		})
 	};
 
-	this.setupDropzone = function(element, target, maxImagesize) {
-		var dropzone = this.createDropzone(element, target, maxImagesize)
-		$(element).on('paste', function(event) {
-
+	this.setupDropzone = function(dropSelector, textareaSelector, maxImagesize) {
+		var dropzone = this.createDropzone(dropSelector, textareaSelector, maxImagesize);
+		$(dropSelector).on('paste', function(event) {
 			dzFactory.copyPaste(event, dropzone);
 		})
 	};

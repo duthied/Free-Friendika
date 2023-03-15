@@ -180,5 +180,5 @@ can load different content into the jot modal (e.g. the item edit jot)
 </script>
 
 <script>
-	dzFactory.setupDropzone('#jot-text-wrap', $('#profile-jot-text'), {{$max_imagesize}}); 
+	dzFactory.setupDropzone('#jot-text-wrap', 'profile-jot-text', {{$max_imagesize}}); 
 </script>
