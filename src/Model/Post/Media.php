@@ -470,10 +470,12 @@ class Media
 	 * Add media links and remove them from the body
 	 *
 	 * @param integer $uriid
-	 * @param string $body
+	 * @param string  $body
+	 * @param bool    $endmatch
+	 * @param bool    $removepicturelinks
 	 * @return string Body without media links
 	 */
-	public static function insertFromBody(int $uriid, string $body, bool $endmatch = false): string
+	public static function insertFromBody(int $uriid, string $body, bool $endmatch = false, bool $removepicturelinks = false): string
 	{
 		$endmatchpattern = $endmatch ? '\z' : '';
 		// Simplify image codes
@@ -489,7 +491,7 @@ class Media
 						'uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
 						'preview' => $picture[2], 'description' => $picture[3]
 					];
-				} else {
+				} elseif ($removepicturelinks) {
 					$body = str_replace($picture[0], '', $body);
 					$attachments[$picture[1]] = [
 						'uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $picture[1],
@@ -515,7 +517,7 @@ class Media
 						'uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
 						'preview' => $picture[2], 'description' => null
 					];
-				} else {
+				} elseif ($removepicturelinks) {
 					$body = str_replace($picture[0], '', $body);
 					$attachments[$picture[1]] = [
 						'uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $picture[1],
@@ -587,7 +589,7 @@ class Media
 	{
 		do {
 			$prebody = $body;
-			$body = self::insertFromBody(0, $body);
+			$body = self::insertFromBody(0, $body, false, true);
 		} while ($prebody != $body);
 		return $body;
 	}
