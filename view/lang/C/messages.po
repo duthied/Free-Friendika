@@ -673,7 +673,27 @@ msgid ""
 "notifications."
 msgstr ""
 
-#: src/App/Page.php:320
+#: src/App/Page.php:256
+msgid "Like not successfull"
+msgstr ""
+
+#: src/App/Page.php:257
+msgid "Dislike not successfull"
+msgstr ""
+
+#: src/App/Page.php:258
+msgid "Sharing not successfull"
+msgstr ""
+
+#: src/App/Page.php:259
+msgid "Backend error"
+msgstr ""
+
+#: src/App/Page.php:260
+msgid "Network error"
+msgstr ""
+
+#: src/App/Page.php:325
 msgid "toggle mobile"
 msgstr ""
 
