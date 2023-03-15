@@ -96,5 +96,5 @@
 	</div>
 </div>
 <script>
-	dzFactory.setupDropzone('#dropzone-{{$id}}', 'comment-edit-text-{{$id}}', {{$max_imagesize}}); 
+	dzFactory.setupDropzone('#dropzone-{{$id}}', 'comment-edit-text-{{$id}}'); 
 </script>

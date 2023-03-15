@@ -240,9 +240,6 @@ class Compose extends BaseModule
 				'deny_cid'  => $contact_deny_list,
 				'deny_gid'  => $group_deny_list,
 			]),
-
-			// Dropzone
-			'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand($this->config->get('system', 'maximagesize')) / 1000000, 1),
 		]);
 	}
 }

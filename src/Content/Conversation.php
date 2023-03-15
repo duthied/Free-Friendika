@@ -409,9 +409,6 @@ class Conversation
 			'$compose_link_title'  => $this->l10n->t('Open Compose page'),
 			'$always_open_compose' => $this->pConfig->get($this->session->getLocalUserId(), 'frio', 'always_open_compose', false),
 
-			// Dropzone
-			'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand($this->config->get('system', 'maximagesize')) / 1000000, 1),
-
 		]);
 
 

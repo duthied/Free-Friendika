@@ -1139,8 +1139,6 @@ function photos_content(App $a)
 						'$loading' => DI::l10n()->t('Loading...'),
 						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12),
-						// Dropzone
-						'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000, 1),
 					]);
 				}
 			}
@@ -1196,8 +1194,6 @@ function photos_content(App $a)
 						'$preview' => DI::l10n()->t('Preview'),
 						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12),
-						// Dropzone
-						'$max_imagesize' => round(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000, 1),
 					]);
 				}
 
@@ -1272,8 +1268,6 @@ function photos_content(App $a)
 							'$preview' => DI::l10n()->t('Preview'),
 							'$qcomment' => $qcomment,
 							'$rand_num' => Crypto::randomDigits(12),
-							// Dropzone
-							'$max_imagesize' => round(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000, 1),
 						]);
 					}
 				}

@@ -1,8 +1,8 @@
 var DzFactory = function () {
-	this.createDropzone = function(dropSelector, textareaSelector, maxImagesize) {
+	this.createDropzone = function(dropSelector, textareaSelector) {
 		return new Dropzone( dropSelector, {
 			paramName: 'userfile', // The name that will be used to transfer the file
-			maxFilesize: maxImagesize, // MB
+			maxFilesize: max_imagesize, // MB
 			url: '/media/photo/upload?response=url&album=',
 			accept: function(file, done) {
 				done();
@@ -52,8 +52,8 @@ var DzFactory = function () {
 		})
 	};
 
-	this.setupDropzone = function(dropSelector, textareaSelector, maxImagesize) {
-		var dropzone = this.createDropzone(dropSelector, textareaSelector, maxImagesize);
+	this.setupDropzone = function(dropSelector, textareaSelector) {
+		var dropzone = this.createDropzone(dropSelector, textareaSelector);
 		$(dropSelector).on('paste', function(event) {
 			dzFactory.copyPaste(event, dropzone);
 		})

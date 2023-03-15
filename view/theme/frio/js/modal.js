@@ -293,8 +293,7 @@ function editpost(url) {
 
 			// To make dropzone fileupload work on editing a comment, we need to
 			// attach a new dropzone to modal
-			console.log("modal.js max_imagesize",'{{$max_imagesize}}');
-			dzFactory.setupDropzone('#jot-text-wrap', 'profile-jot-text', '{{$max_imagesize}}'); 
+			dzFactory.setupDropzone('#jot-text-wrap', 'profile-jot-text'); 
 
 			modal.show();
 			$("#jot-popup").show();
