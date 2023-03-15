@@ -445,34 +445,28 @@ class System
 	 */
 	public static function getLoadAvg(bool $get_processes = true): array
 	{
+		$load_arr = sys_getloadavg();
+		if (empty($load_arr)) {
+			return [];
+		}
+
+		$load = [
+			'average1'  => $load_arr[0],
+			'average5'  => $load_arr[1],
+			'average15' => $load_arr[2],
+			'runnable'  => 0,
+			'scheduled' => 0
+		];
+
 		if ($get_processes && @is_readable('/proc/loadavg')) {
 			$content = @file_get_contents('/proc/loadavg');
-			if (empty($content)) {
-				$content = shell_exec('uptime | sed "s/.*averages*: //" | sed "s/,//g"');
+			if (!empty($content) && preg_match("#([.\d]+)\s([.\d]+)\s([.\d]+)\s(\d+)/(\d+)#", $content, $matches)) {
+				$load['runnable']  = (float)$matches[4];
+				$load['scheduled'] = (float)$matches[5];
 			}
 		}
 
-		if (empty($content) || !preg_match("#([.\d]+)\s([.\d]+)\s([.\d]+)\s(\d+)/(\d+)#", $content, $matches)) {
-			$load_arr = sys_getloadavg();
-			if (empty($load_arr)) {
-				return [];
-			}
-			return [
-				'average1'  => $load_arr[0],
-				'average5'  => $load_arr[1],
-				'average15' => $load_arr[2],
-				'runnable'  => 0,
-				'scheduled' => 0
-			];
-		}
-
-		return [
-			'average1'  => (float)$matches[1],
-			'average5'  => (float)$matches[2],
-			'average15' => (float)$matches[3],
-			'runnable'  => (float)$matches[4],
-			'scheduled' => (float)$matches[5]
-		];
+		return $load;
 	}
 
 	/**
