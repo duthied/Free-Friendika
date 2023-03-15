@@ -781,7 +781,7 @@ function doActivityItemAction(ident, verb, un) {
 		// remove share-symbol, to replace it by rotator
 		$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').removeClass('fa-share');
 		$('button[id^=announce-' + ident.toString() + '] i:first-child').removeClass('fa-retweet');
-		// if no wait-rotator for activity(verb) is added, add it. or just show it, if exists
+		// avoid multiple rotators on like/share-button if klicked multiple times.
 		if ($('img[id^=waitfor-' + verb + '-' + ident.toString() + ']').length == 0) {
 			// append rotator to the shareMenu-button for small media
 			$('<img>')
@@ -798,12 +798,10 @@ function doActivityItemAction(ident, verb, un) {
 			.addClass('fa')
 			.appendTo($('button[id^=' + verb + '-' + ident.toString() + '] i:first-child'));
 	}
-	// do request for activity
 	$.post('item/' + ident.toString() + '/activity/' + _verb)
 	.success(function(data){
 		$('img[id^=waitfor-' + verb + '-' + ident.toString() + ']').remove();
 		if (data.status == 'ok') {
-			// response from server was ok
 			if (data.verb == 'un' + verb) {
 				// like/dislike buttons
 				$('button[id^=' + verb + '-' + ident.toString() + ']' )
