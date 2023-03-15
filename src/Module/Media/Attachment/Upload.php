@@ -25,7 +25,7 @@ use Friendica\App;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\Database\Database;
+use Friendica\Core\System;
 use Friendica\Model\Attach;
 use Friendica\Model\User;
 use Friendica\Module\Response;
@@ -42,9 +42,6 @@ use Psr\Log\LoggerInterface;
  */
 class Upload extends \Friendica\BaseModule
 {
-	/** @var Database */
-	private $database;
-
 	/** @var IHandleUserSessions */
 	private $userSession;
 
@@ -57,31 +54,32 @@ class Upload extends \Friendica\BaseModule
 	/** @var bool */
 	private $isJson;
 
-	public function __construct(SystemMessages $systemMessages, IManageConfigValues $config, IHandleUserSessions $userSession, Database $database, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	/** @var App\Page */
+	private $page;
+
+	public function __construct(App\Page $page, SystemMessages $systemMessages, IManageConfigValues $config, IHandleUserSessions $userSession, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->database       = $database;
 		$this->userSession    = $userSession;
 		$this->config         = $config;
 		$this->systemMessages = $systemMessages;
+		$this->page           = $page;
 	}
 
 	protected function post(array $request = [])
 	{
-		if ($this->isJson = !empty($request['response']) && $request['response'] == 'json') {
-			$this->response->setType(Response::TYPE_JSON, 'application/json');
-		}
+		$this->isJson = !empty($request['response']) && $request['response'] == 'json';
 
 		$owner = User::getOwnerDataById($this->userSession->getLocalUserId());
 		if (!$owner) {
 			$this->logger->warning('Owner not found.', ['uid' => $this->userSession->getLocalUserId()]);
-			return $this->return(401, $this->t('Invalid request.'));
+			$this->return(401, $this->t('Invalid request.'));
 		}
 
 		if (empty($_FILES['userfile'])) {
 			$this->logger->warning('No file uploaded (empty userfile)');
-			return $this->return(401, $this->t('Invalid request.'), true);
+			$this->return(401, $this->t('Invalid request.'), true);
 		}
 
 		$tempFileName = $_FILES['userfile']['tmp_name'];
@@ -98,14 +96,14 @@ class Upload extends \Friendica\BaseModule
 			@unlink($tempFileName);
 			$msg = $this->t('Sorry, maybe your upload is bigger than the PHP configuration allows') . '<br />' . $this->t('Or - did you try to upload an empty file?');
 			$this->logger->warning($msg, ['fileSize' => $fileSize]);
-			return $this->return(401, $msg, true);
+			$this->return(401, $msg, true);
 		}
 
 		if ($maxFileSize && $fileSize > $maxFileSize) {
 			@unlink($tempFileName);
 			$msg = $this->t('File exceeds size limit of %s', Strings::formatBytes($maxFileSize));
 			$this->logger->warning($msg, ['fileSize' => $fileSize]);
-			return $this->return(401, $msg);
+			$this->return(401, $msg);
 		}
 
 		$newid = Attach::storeFile($tempFileName, $owner['uid'], $fileName, '<' . $owner['id'] . '>');
@@ -115,16 +113,16 @@ class Upload extends \Friendica\BaseModule
 		if ($newid === false) {
 			$msg = $this->t('File upload failed.');
 			$this->logger->warning($msg);
-			return $this->return(500, $msg);
+			$this->return(500, $msg);
 		}
 
 		if ($this->isJson) {
-			$content = json_encode(['ok' => true, 'id' => $newid], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+			$content = $newid;
 		} else {
 			$content = "\n\n" . '[attachment]' . $newid . '[/attachment]' . "\n";
 		}
 
-		return $this->response->addContent($content);
+		$this->return(200, $content);
 	}
 
 	/**
@@ -136,16 +134,23 @@ class Upload extends \Friendica\BaseModule
 	 */
 	private function return(int $httpCode, string $message, bool $systemMessage = false): void
 	{
-		$this->response->setStatus($httpCode, $message);
-
 		if ($this->isJson) {
-			$this->response->addContent(json_encode(['error' => $message], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+			$message = $httpCode >= 400 ? ['error' => $message] : ['ok' => true, 'id' => $message];
+			$this->response->setType(Response::TYPE_JSON, 'application/json');
+			$this->response->addContent(json_encode($message, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 		} else {
 			if ($systemMessage) {
 				$this->systemMessages->addNotice($message);
 			}
 
+			if ($httpCode >= 400) {
+				$this->response->setStatus($httpCode, $message);
+			}
+
 			$this->response->addContent($message);
 		}
+
+		$this->page->exit($this->response->generate());
+		System::exit();
 	}
 }
