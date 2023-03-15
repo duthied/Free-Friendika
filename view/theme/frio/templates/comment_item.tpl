@@ -67,5 +67,8 @@
 
 <script>
 	Dropzone.autoDiscover = false;
-	dzFactory.setupDropzone('#dropzone-{{$id}}', $('#comment-edit-text-{{$id}}'), {{$max_imagesize}}); 
+	$('[id=comment-{{$id}}]').on('click', function() {
+		dzFactory.setupDropzone('#dropzone-{{$id}}', $('#comment-edit-text-{{$id}}'), {{$max_imagesize}}); 
+		$('[id=comment-{{$id}}]').prop('click', null).off('click')
+	});
 </script>
