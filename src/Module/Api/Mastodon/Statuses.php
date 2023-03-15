@@ -53,6 +53,8 @@ class Statuses extends BaseApi
 
 		$request = $this->getRequest([
 			'status'         => '',    // Text content of the status. If media_ids is provided, this becomes optional. Attaching a poll is optional while status is provided.
+			'media_ids'      => [],    // Array of Attachment ids to be attached as media. If provided, status becomes optional, and poll cannot be used.
+			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
 			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
 			'language'       => '',    // ISO 639 language code for this status.
 			'friendica'      => [],
@@ -68,7 +70,7 @@ class Statuses extends BaseApi
 			'origin'     => true,
 		];
 
-		$post = Post::selectFirst(['uri-id', 'id', 'gravity'], $condition);
+		$post = Post::selectFirst(['uri-id', 'id', 'gravity', 'uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], $condition);
 		if (empty($post['id'])) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $this->parameters['id'] . ' not found for user ' . $uid . '.');
 		}
@@ -95,6 +97,43 @@ class Statuses extends BaseApi
 			}
 		}
 
+		if (!empty($request['media_ids'])) {
+			/*
+			The provided ids in the request value consists of these two sources:
+			- The id in the "photo" table for newly uploaded media
+			- The id in the "post-media" table for already attached media
+
+			Because of this we have to add all media that isn't already attached.
+			Also we have to delete all media that isn't provided anymore.
+			
+			There is a possible situation where the newly uploaded media
+			could have the same id as an existing, but deleted media.
+
+			We can't do anything about this, but the probability for this is extremely low.
+			*/
+			$media_ids      = [];
+			$existing_media = array_column(Post\Media::getByURIId($post['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE]), 'id');
+
+			foreach ($request['media_ids'] as $media) {
+				if (!in_array($media, $existing_media)) {
+					$media_ids[] = $media;
+				}
+			}
+
+			foreach ($existing_media as $media) {
+				if (!in_array($media, $request['media_ids'])) {
+					Post\Media::deleteById($media);
+				}
+			}
+
+			$item = $this->storeMediaIds($media_ids, array_merge($post, $item));
+
+			foreach ($item['attachments'] as $attachment) {
+				$attachment['uri-id'] = $post['uri-id'];
+				Post\Media::insert($attachment);
+			}
+			unset($item['attachments']);
+		}
 		if (!Item::isValid($item)) {
 			throw new \Exception('Missing parameters in definitien');
 		}
@@ -240,40 +279,7 @@ class Statuses extends BaseApi
 		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
 
 		if (!empty($request['media_ids'])) {
-			$item['object-type'] = Activity\ObjectType::IMAGE;
-			$item['post-type']   = Item::PT_IMAGE;
-			$item['attachments'] = [];
-
-			foreach ($request['media_ids'] as $id) {
-				$media = DBA::toArray(DBA::p("SELECT `resource-id`, `scale`, `type`, `desc`, `filename`, `datasize`, `width`, `height` FROM `photo`
-						WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = ?) AND `photo`.`uid` = ?
-						ORDER BY `photo`.`width` DESC LIMIT 2", $id, $uid));
-
-				if (empty($media)) {
-					continue;
-				}
-
-				Photo::setPermissionForRessource($media[0]['resource-id'], $uid, $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
-
-				$ressources[] = $media[0]['resource-id'];
-				$phototypes = Images::supportedTypes();
-				$ext = $phototypes[$media[0]['type']];
-
-				$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
-					'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
-					'size' => $media[0]['datasize'],
-					'name' => $media[0]['filename'] ?: $media[0]['resource-id'],
-					'description' => $media[0]['desc'] ?? '',
-					'width' => $media[0]['width'],
-					'height' => $media[0]['height']];
-
-				if (count($media) > 1) {
-					$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
-					$attachment['preview-width'] = $media[1]['width'];
-					$attachment['preview-height'] = $media[1]['height'];
-				}
-				$item['attachments'][] = $attachment;
-			}
+			$item = $this->storeMediaIds($request['media_ids'], $item);
 		}
 
 		if (!empty($request['scheduled_at'])) {
@@ -339,5 +345,51 @@ class Statuses extends BaseApi
 		} else {
 			return 'API';
 		}
+	}
+
+	/**
+	 * Store provided media ids in the item array and adjust permissions
+	 *
+	 * @param array $media_ids
+	 * @param array $item
+	 * @return array
+	 */
+	private function storeMediaIds(array $media_ids, array $item): array
+	{
+		$item['object-type'] = Activity\ObjectType::IMAGE;
+		$item['post-type']   = Item::PT_IMAGE;
+		$item['attachments'] = [];
+
+		foreach ($media_ids as $id) {
+			$media = DBA::toArray(DBA::p("SELECT `resource-id`, `scale`, `type`, `desc`, `filename`, `datasize`, `width`, `height` FROM `photo`
+					WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = ?) AND `photo`.`uid` = ?
+					ORDER BY `photo`.`width` DESC LIMIT 2", $id, $item['uid']));
+
+			if (empty($media)) {
+				continue;
+			}
+
+			Photo::setPermissionForRessource($media[0]['resource-id'], $item['uid'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
+
+			$ressources[] = $media[0]['resource-id'];
+			$phototypes = Images::supportedTypes();
+			$ext = $phototypes[$media[0]['type']];
+
+			$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
+				'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
+				'size' => $media[0]['datasize'],
+				'name' => $media[0]['filename'] ?: $media[0]['resource-id'],
+				'description' => $media[0]['desc'] ?? '',
+				'width' => $media[0]['width'],
+				'height' => $media[0]['height']];
+
+			if (count($media) > 1) {
+				$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
+				$attachment['preview-width'] = $media[1]['width'];
+				$attachment['preview-height'] = $media[1]['height'];
+			}
+			$item['attachments'][] = $attachment;
+		}
+		return $item;
 	}
 }

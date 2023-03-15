@@ -732,6 +732,30 @@ class Media
 	}
 
 	/**
+	 * Retrieves the media attachment with the provided media id.
+	 *
+	 * @param int $id  id
+	 * @return array|bool Array on success, false on error
+	 * @throws \Exception
+	 */
+	public static function getById(int $id)
+	{
+		return DBA::selectFirst('post-media', [], ['id' => $id]);
+	}
+
+	/**
+	 * Update post-media entries
+	 *
+	 * @param array $fields
+	 * @param int $id
+	 * @return bool
+	 */
+	public static function updateById(array $fields, int $id): bool
+	{
+		return DBA::update('post-media', $fields, ['id' => $id]);
+	}
+
+	/**
 	 * Checks if media attachments are associated with the provided item ID.
 	 *
 	 * @param int $uri_id URI id
@@ -755,7 +779,7 @@ class Media
 	 *
 	 * @param int $uri_id URI id
 	 * @param array $types Media types
-	 * @return bool Whether media attachment exists
+	 * @return bool result of deletion
 	 * @throws \Exception
 	 */
 	public static function deleteByURIId(int $uri_id, array $types = []): bool
@@ -767,6 +791,18 @@ class Media
 		}
 
 		return DBA::delete('post-media', $condition);
+	}
+
+	/**
+	 * Delete media by id
+	 *
+	 * @param int $id media id
+	 * @return bool result of deletion
+	 * @throws \Exception
+	 */
+	public static function deleteById(int $id): bool
+	{
+		return DBA::delete('post-media', ['id' => $id]);
 	}
 
 	/**

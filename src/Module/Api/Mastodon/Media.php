@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Photo;
+use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 
 /**
@@ -71,7 +72,15 @@ class Media extends BaseApi
 
 		$photo = Photo::selectFirst(['resource-id'], ['id' => $this->parameters['id'], 'uid' => $uid]);
 		if (empty($photo['resource-id'])) {
-			DI::mstdnError()->RecordNotFound();
+			$media = Post\Media::getById($this->parameters['id']);
+			if (empty($media['uri-id'])) {
+				DI::mstdnError()->RecordNotFound();
+			}
+			if (!Post::exists(['uri-id' => $media['uri-id'], 'uid' => $uid, 'origin' => true])) {
+				DI::mstdnError()->RecordNotFound();
+			}
+			Post\Media::updateById(['description' => $request['description']], $this->parameters['id']);
+			System::jsonExit(DI::mstdnAttachment()->createFromId($this->parameters['id']));
 		}
 
 		Photo::update(['desc' => $request['description']], ['resource-id' => $photo['resource-id']]);
