@@ -99,11 +99,9 @@
 					{{/if}}
 
 					{{* The jot text field in which the post text is inserted *}}
-					<!--div id="dropzone-jot" class="dropzone"-->
-						<div id="jot-text-wrap" class="dropzone">
-							<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;" dir="auto">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
-						</div>
-					<!--/div-->
+					<div id="jot-text-wrap" class="dropzone" style="overflow:scroll">
+						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;" dir="auto">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
+					</div>
 
 					<ul id="profile-jot-submit-wrapper" class="jothidden nav nav-pills">
 						<li role="presentation"><button type="button" class="hidden-xs btn-link icon underline" style="cursor: pointer;" aria-label="{{$eduline}}" title="{{$eduline}}" onclick="insertFormattingToPost('u');"><i class="fa fa-underline"></i></button></li>
