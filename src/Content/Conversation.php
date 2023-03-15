@@ -411,7 +411,7 @@ class Conversation
 			'$always_open_compose' => $this->pConfig->get($this->session->getLocalUserId(), 'frio', 'always_open_compose', false),
 
 			// Dropzone
-			'$max_imagesize' => floor(\Friendica\Util\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000),
+			'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000,1),
 
 		]);
 

@@ -242,7 +242,7 @@ class Compose extends BaseModule
 			]),
 
 			// Dropzone
-			'$max_imagesize' => floor(\Friendica\Util\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000),
+			'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000,1),
 		]);
 	}
 }

@@ -186,7 +186,7 @@ class Edit extends BaseModule
 			'$compose_link_title' => $this->t('Open Compose page'),
 
 			// Dropzone
-			'$max_imagesize'       => floor(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000),
+			'$max_imagesize'       => round(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000,1),
 		]);
 		return $output;
 	}
