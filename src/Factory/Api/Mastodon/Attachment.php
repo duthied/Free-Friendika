@@ -59,10 +59,10 @@ class Attachment extends BaseFactory
 
 	/**
 	 * @param int $id id of the media
-	 * @return array
+	 * @return \Friendica\Object\Api\Mastodon\Attachment
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function createFromId(int $id): array
+	public function createFromId(int $id): \Friendica\Object\Api\Mastodon\Attachment
 	{
 		$attachment = Post\Media::getById($id);
 		if (empty($attachment)) {
@@ -73,10 +73,10 @@ class Attachment extends BaseFactory
 
 	/**
 	 * @param array $attachment
-	 * @return array
+	 * @return \Friendica\Object\Api\Mastodon\Attachment
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function createFromMediaArray(array $attachment): array
+	private function createFromMediaArray(array $attachment):  \Friendica\Object\Api\Mastodon\Attachment
 	{
 		$filetype = !empty($attachment['mimetype']) ? strtolower(substr($attachment['mimetype'], 0, strpos($attachment['mimetype'], '/'))) : '';
 
@@ -106,8 +106,7 @@ class Attachment extends BaseFactory
 			}
 		}
 
-		$object        = new \Friendica\Object\Api\Mastodon\Attachment($attachment, $type, $url, $preview, $remote);
-		return $object->toArray();
+		return new \Friendica\Object\Api\Mastodon\Attachment($attachment, $type, $url, $preview, $remote);
 	}
 
 	/**
