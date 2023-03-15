@@ -66,7 +66,6 @@
 </div>
 
 <script>
-	Dropzone.autoDiscover = false;
 	$('[id=comment-fake-text-{{$id}}]').on('focus', function() {
 		dzFactory.setupDropzone('#dropzone-{{$id}}', $('#comment-edit-text-{{$id}}'), {{$max_imagesize}}); 
 		$('[id=comment-fake-text-{{$id}}]') .prop('focus', null).off('focus')

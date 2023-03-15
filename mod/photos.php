@@ -32,7 +32,6 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
@@ -1141,7 +1140,7 @@ function photos_content(App $a)
 						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12),
 						// Dropzone
-						'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000,1),
+						'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000, 1),
 					]);
 				}
 			}
@@ -1198,7 +1197,7 @@ function photos_content(App $a)
 						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12),
 						// Dropzone
-						'$max_imagesize' => round(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000,1),
+						'$max_imagesize' => round(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000, 1),
 					]);
 				}
 
@@ -1274,7 +1273,7 @@ function photos_content(App $a)
 							'$qcomment' => $qcomment,
 							'$rand_num' => Crypto::randomDigits(12),
 							// Dropzone
-							'$max_imagesize' => round(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000,1),
+							'$max_imagesize' => round(Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000, 1),
 						]);
 					}
 				}

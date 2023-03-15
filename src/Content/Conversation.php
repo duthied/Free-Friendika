@@ -35,7 +35,6 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item as ItemModel;
 use Friendica\Model\Post;
@@ -411,7 +410,7 @@ class Conversation
 			'$always_open_compose' => $this->pConfig->get($this->session->getLocalUserId(), 'frio', 'always_open_compose', false),
 
 			// Dropzone
-			'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')) / 1000000,1),
+			'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand($this->config->get('system', 'maximagesize')) / 1000000, 1),
 
 		]);
 
