@@ -110,43 +110,42 @@ class Statuses extends BaseApi
 
 		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
 
-		if (!empty($request['media_ids'])) {
-			/*
-			The provided ids in the request value consists of these two sources:
-			- The id in the "photo" table for newly uploaded media
-			- The id in the "post-media" table for already attached media
+		/*
+		The provided ids in the request value consists of these two sources:
+		- The id in the "photo" table for newly uploaded media
+		- The id in the "post-media" table for already attached media
 
-			Because of this we have to add all media that isn't already attached.
-			Also we have to delete all media that isn't provided anymore.
-			
-			There is a possible situation where the newly uploaded media
-			could have the same id as an existing, but deleted media.
+		Because of this we have to add all media that isn't already attached.
+		Also we have to delete all media that isn't provided anymore.
 
-			We can't do anything about this, but the probability for this is extremely low.
-			*/
-			$media_ids      = [];
-			$existing_media = array_column(Post\Media::getByURIId($post['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE]), 'id');
+		There is a possible situation where the newly uploaded media
+		could have the same id as an existing, but deleted media.
 
-			foreach ($request['media_ids'] as $media) {
-				if (!in_array($media, $existing_media)) {
-					$media_ids[] = $media;
-				}
+		We can't do anything about this, but the probability for this is extremely low.
+		*/
+		$media_ids      = [];
+		$existing_media = array_column(Post\Media::getByURIId($post['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE]), 'id');
+
+		foreach ($request['media_ids'] as $media) {
+			if (!in_array($media, $existing_media)) {
+				$media_ids[] = $media;
 			}
-
-			foreach ($existing_media as $media) {
-				if (!in_array($media, $request['media_ids'])) {
-					Post\Media::deleteById($media);
-				}
-			}
-
-			$item = $this->storeMediaIds($media_ids, array_merge($post, $item));
-
-			foreach ($item['attachments'] as $attachment) {
-				$attachment['uri-id'] = $post['uri-id'];
-				Post\Media::insert($attachment);
-			}
-			unset($item['attachments']);
 		}
+
+		foreach ($existing_media as $media) {
+			if (!in_array($media, $request['media_ids'])) {
+				Post\Media::deleteById($media);
+			}
+		}
+
+		$item = $this->storeMediaIds($media_ids, array_merge($post, $item));
+
+		foreach ($item['attachments'] as $attachment) {
+			$attachment['uri-id'] = $post['uri-id'];
+			Post\Media::insert($attachment);
+		}
+		unset($item['attachments']);
+
 		if (!Item::isValid($item)) {
 			throw new \Exception('Missing parameters in definition');
 		}
