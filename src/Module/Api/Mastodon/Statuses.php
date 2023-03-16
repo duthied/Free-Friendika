@@ -34,6 +34,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
@@ -70,13 +71,23 @@ class Statuses extends BaseApi
 			'origin'     => true,
 		];
 
-		$post = Post::selectFirst(['uri-id', 'id', 'gravity', 'uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], $condition);
+		$post = Post::selectFirst(['uri-id', 'id', 'gravity', 'uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'network'], $condition);
 		if (empty($post['id'])) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $this->parameters['id'] . ' not found for user ' . $uid . '.');
 		}
 
 		// The imput is defined as text. So we can use Markdown for some enhancements
-		$item = ['body' => Markdown::toBBCode($request['status']), 'app' => $this->getApp(), 'title' => ''];
+		$body = Markdown::toBBCode($request['status']);
+
+		if (DI::pConfig()->get($uid, 'system', 'api_auto_attach', false) && preg_match("/\[url=[^\[\]]*\](.*)\[\/url\]\z/ism", $body, $matches)) {
+			$body = preg_replace("/\[url=[^\[\]]*\].*\[\/url\]\z/ism", PageInfo::getFooterFromUrl($matches[1]), $body);
+		}
+
+		$item['title']      = '';
+		$item['uid']        = $post['uid'];
+		$item['body']       = $body;
+		$item['network']    = $post['network'];
+		$item['app']        = $this->getApp();
 
 		if (!empty($request['language'])) {
 			$item['language'] = json_encode([$request['language'] => 1]);
@@ -96,6 +107,8 @@ class Statuses extends BaseApi
 				$item['content-warning'] = BBCode::toPlaintext($spoiler_text);
 			}
 		}
+
+		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
 
 		if (!empty($request['media_ids'])) {
 			/*
@@ -135,10 +148,18 @@ class Statuses extends BaseApi
 			unset($item['attachments']);
 		}
 		if (!Item::isValid($item)) {
-			throw new \Exception('Missing parameters in definitien');
+			throw new \Exception('Missing parameters in definition');
 		}
 
 		Item::update($item, ['id' => $post['id']]);
+
+		foreach (Tag::getByURIId($post['uri-id']) as $tagToRemove) {
+			Tag::remove($post['uri-id'], $tagToRemove['type'], $tagToRemove['name'], $tagToRemove['url']);
+		}
+		// Store tags from the body if this hadn't been handled previously in the protocol classes
+
+		Tag::storeFromBody($post['uri-id'], Item::setHashtags($item['body']));
+
 		Item::updateDisplayCache($post['uri-id']);
 
 		System::jsonExit(DI::mstdnStatus()->createFromUriId($post['uri-id'], $uid, self::appSupportsQuotes()));
