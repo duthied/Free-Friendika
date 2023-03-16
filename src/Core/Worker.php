@@ -662,16 +662,24 @@ class Worker
 			DBA::close($r);
 		}
 
+		$stamp = (float)microtime(true);
+		$used  = 0;
+		$sleep = 0;
+		$data = DBA::p("SHOW PROCESSLIST");
+		while ($row = DBA::fetch($data)) {
+			if ($row['Command'] != 'Sleep') {
+				++$used;
+			} else {
+				++$sleep;
+			}
+		}
+		DBA::close($data);
+		self::$db_duration += (microtime(true) - $stamp);
+
 		// If $max is set we will use the processlist to determine the current number of connections
 		// The processlist only shows entries of the current user
 		if ($max != 0) {
-			$stamp = (float)microtime(true);
-			$r = DBA::p('SHOW PROCESSLIST');
-			self::$db_duration += (microtime(true) - $stamp);
-			$used = DBA::numRows($r);
-			DBA::close($r);
-
-			Logger::info('Connection usage (user values)', ['usage' => $used, 'max' => $max]);
+			Logger::info('Connection usage (user values)', ['working' => $used, 'sleeping' => $sleep, 'max' => $max]);
 
 			$level = ($used / $max) * 100;
 
@@ -695,11 +703,11 @@ class Worker
 		if (!DBA::isResult($r)) {
 			return false;
 		}
-		$used = intval($r['Value']);
+		$used = max($used, intval($r['Value'])) - $sleep;
 		if ($used == 0) {
 			return false;
 		}
-		Logger::info('Connection usage (system values)', ['used' => $used, 'max' => $max]);
+		Logger::info('Connection usage (system values)', ['working' => $used, 'sleeping' => $sleep, 'max' => $max]);
 
 		$level = $used / $max * 100;
 
