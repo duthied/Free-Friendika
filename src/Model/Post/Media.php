@@ -461,9 +461,21 @@ class Media
 	 * @param string $preview Preview picture
 	 * @return boolean
 	 */
-	private static function isPictureLink(string $page, string $preview): bool
+	private static function isLinkToPhoto(string $page, string $preview): bool
 	{
-		return (preg_match('#/photo/.*-0\.#ism', $page) || preg_match('#/photos/.*/image/#ism', $page)) && preg_match('#/photo/.*-[01]\.#ism', $preview);
+		return preg_match('#/photo/.*-0\.#ism', $page) && preg_match('#/photo/.*-[01]\.#ism', $preview);
+	}
+
+	/**
+	 * Tests for path patterns that are usef for picture links in Friendica
+	 *
+	 * @param string $page    Link to the image page
+	 * @param string $preview Preview picture
+	 * @return boolean
+	 */
+	private static function isLinkToImagePage(string $page, string $preview): bool
+	{
+		return preg_match('#/photos/.*/image/#ism', $page) && preg_match('#/photo/.*-[01]\.#ism', $preview);
 	}
 
 	/**
@@ -484,11 +496,17 @@ class Media
 		$attachments = [];
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]$endmatchpattern#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				if (self::isPictureLink($picture[1], $picture[2])) {
+				if (self::isLinkToImagePage($picture[1], $picture[2])) {
 					$body = str_replace($picture[0], '', $body);
 					$image = str_replace('-1.', '-0.', $picture[2]);
 					$attachments[$image] = [
 						'uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
+						'preview' => $picture[2], 'description' => $picture[3]
+					];
+				} elseif (self::isLinkToPhoto($picture[1], $picture[2])) {
+					$body = str_replace($picture[0], '', $body);
+					$attachments[$picture[1]] = [
+						'uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $picture[1],
 						'preview' => $picture[2], 'description' => $picture[3]
 					];
 				} elseif ($removepicturelinks) {
@@ -510,11 +528,17 @@ class Media
 
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]$endmatchpattern#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				if (self::isPictureLink($picture[1], $picture[2])) {
+				if (self::isLinkToImagePage($picture[1], $picture[2])) {
 					$body = str_replace($picture[0], '', $body);
 					$image = str_replace('-1.', '-0.', $picture[2]);
 					$attachments[$image] = [
 						'uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
+						'preview' => $picture[2], 'description' => null
+					];
+				} elseif (self::isLinkToPhoto($picture[1], $picture[2])) {
+					$body = str_replace($picture[0], '', $body);
+					$attachments[$picture[1]] = [
+						'uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $picture[1],
 						'preview' => $picture[2], 'description' => null
 					];
 				} elseif ($removepicturelinks) {
