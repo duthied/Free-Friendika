@@ -151,6 +151,9 @@ class Statuses extends BaseApi
 			throw new \Exception('Missing parameters in definition');
 		}
 
+		// Link Preview Attachment Processing
+		Post\Media::deleteByURIId($post['uri-id'], [Post\Media::HTML]);
+
 		Item::update($item, ['id' => $post['id']]);
 
 		foreach (Tag::getByURIId($post['uri-id']) as $tagToRemove) {
