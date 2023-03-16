@@ -4,6 +4,9 @@ var DzFactory = function () {
 			paramName: 'userfile', // The name that will be used to transfer the file
 			maxFilesize: max_imagesize, // MB
 			url: '/media/photo/upload?response=url&album=',
+			addRemoveLinks: true,
+			acceptedFiles: 'image/*',
+			clickable: true,
 			accept: function(file, done) {
 				done();
 			},
