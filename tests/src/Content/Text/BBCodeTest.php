@@ -146,7 +146,7 @@ class BBCodeTest extends FixtureTest
 	public function testAutoLinking(string $data, bool $assertHTML)
 	{
 		$output = BBCode::convert($data);
-		$assert = $this->HTMLPurifier->purify('<a href="' . $data . '" target="_blank" rel="noopener noreferrer">' . $data . '</a>');
+		$assert = $this->HTMLPurifier->purify('<p><a href="' . $data . '" target="_blank" rel="noopener noreferrer">' . $data . '</a></p>');
 		if ($assertHTML) {
 			self::assertEquals($assert, $output);
 		} else {
@@ -278,7 +278,7 @@ Karl Marx - Die ursprüngliche Akkumulation
 	{
 		$actual = BBCode::convert($text, $try_oembed, $simpleHtml, $forPlaintext);
 
-		self::assertEquals($expectedHtml, $actual);
+		self::assertEquals('<p>' . $expectedHtml . '</p>', $actual);
 	}
 
 	public function dataBBCodesToMarkdown()
