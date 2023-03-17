@@ -36,14 +36,10 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
-use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
-use Friendica\Object\Image;
-use Friendica\Protocol\Activity;
-use Friendica\Util\Images;
 use Friendica\Util\Map;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy;
@@ -1939,7 +1935,11 @@ class BBCode
 				: []
 		);
 
-		$text = HTML::purify('<p>' . $text . '</p>', $allowedIframeDomains);
+		if (strpos($text, '<p>') !== false || strpos($text, '</p>') !== false) {
+			$text = '<p>' . $text . '</p>';
+		}
+
+		$text = HTML::purify($text, $allowedIframeDomains);
 		DI::profiler()->stopRecording();
 
 		return trim($text);
