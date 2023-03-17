@@ -141,7 +141,7 @@ class Status extends BaseFactory
 		// Add the title to text / html if set
 		if (!empty($item['title'])) {
 			$text .= $item['title'] . ' ';
-			$title = sprintf("[h4]%s[/h4]\n", $item['title']);
+			$title = sprintf("[h4]%s[/h4]", $item['title']);
 		}
 
 		$statusnetHtml = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($title . ($item['raw-body'] ?? $item['body'])), BBCode::TWITTER_API);
