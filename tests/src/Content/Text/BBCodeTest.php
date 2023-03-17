@@ -178,74 +178,74 @@ class BBCodeTest extends FixtureTest
 [/ul]',
 			],
 			'bug-2199-named-size' => [
-				'expectedHtml' => '<span style="font-size:xx-large;line-height:normal;">Test text</span>',
+				'expectedHtml' => '<p><span style="font-size:xx-large;line-height:normal;">Test text</span></p>',
 				'text' => '[size=xx-large]Test text[/size]',
 			],
 			'bug-2199-numeric-size' => [
-				'expectedHtml' => '<span style="font-size:24px;line-height:normal;">Test text</span>',
+				'expectedHtml' => '<p><span style="font-size:24px;line-height:normal;">Test text</span></p>',
 				'text' => '[size=24]Test text[/size]',
 			],
 			'bug-2199-diaspora-no-named-size' => [
-				'expectedHtml' => 'Test text',
+				'expectedHtml' => '<p>Test text</p>',
 				'text' => '[size=xx-large]Test text[/size]',
 				'try_oembed' => false,
 				// Triggers the diaspora compatible output
 				'simpleHtml' => BBCode::DIASPORA,
 			],
 			'bug-2199-diaspora-no-numeric-size' => [
-				'expectedHtml' => 'Test text',
+				'expectedHtml' => '<p>Test text</p>',
 				'text' => '[size=24]Test text[/size]',
 				'try_oembed' => false,
 				// Triggers the diaspora compatible output
 				'simpleHtml' => BBCode::DIASPORA,
 			],
 			'bug-7665-audio-tag' => [
-				'expectedHtml' => '<audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio>',
+				'expectedHtml' => '<p><audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio></p>',
 				'text' => '[audio]http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3[/audio]',
 				'try_oembed' => true,
 			],
 			'bug-7808-code-lt' => [
-				'expectedHtml' => '<code>&lt;</code>',
+				'expectedHtml' => '<p><code>&lt;</code></p>',
 				'text' => '[code]<[/code]',
 			],
 			'bug-7808-code-gt' => [
-				'expectedHtml' => '<code>&gt;</code>',
+				'expectedHtml' => '<p><code>&gt;</code></p>',
 				'text' => '[code]>[/code]',
 			],
 			'bug-7808-code-amp' => [
-				'expectedHtml' => '<code>&amp;</code>',
+				'expectedHtml' => '<p><code>&amp;</code></p>',
 				'text' => '[code]&[/code]',
 			],
 			'task-8800-pre-spaces-notag' => [
-				'expectedHtml' => '[test] Space',
+				'expectedHtml' => '<p>[test] Space</p>',
 				'text' => '[test] Space',
 			],
 			'task-8800-pre-spaces' => [
-				'expectedHtml' => '    Spaces',
+				'expectedHtml' => '<p>    Spaces</p>',
 				'text' => '[pre]    Spaces[/pre]',
 			],
 			'bug-9611-purify-xss-nobb' => [
-				'expectedHTML' => '<span>dare to move your mouse here</span>',
+				'expectedHTML' => '<p><span>dare to move your mouse here</span></p>',
 				'text' => '[nobb]<span onmouseover="alert(0)">dare to move your mouse here</span>[/nobb]'
 			],
 			'bug-9611-purify-xss-noparse' => [
-				'expectedHTML' => '<span>dare to move your mouse here</span>',
+				'expectedHTML' => '<p><span>dare to move your mouse here</span></p>',
 				'text' => '[noparse]<span onmouseover="alert(0)">dare to move your mouse here</span>[/noparse]'
 			],
 			'bug-9611-purify-xss-attributes' => [
-				'expectedHTML' => '<span>dare to move your mouse here</span>',
+				'expectedHTML' => '<p><span>dare to move your mouse here</span></p>',
 				'text' => '[color="onmouseover=alert(0) style="]dare to move your mouse here[/color]'
 			],
 			'bug-9611-purify-attributes-correct' => [
-				'expectedHTML' => '<span style="color:#FFFFFF;">dare to move your mouse here</span>',
+				'expectedHTML' => '<p><span style="color:#FFFFFF;">dare to move your mouse here</span></p>',
 				'text' => '[color=FFFFFF]dare to move your mouse here[/color]'
 			],
 			'bug-9639-span-classes' => [
-				'expectedHTML' => '<span class="arbitrary classes">Test</span>',
+				'expectedHTML' => '<p><span class="arbitrary classes">Test</span></p>',
 				'text' => '[class=arbitrary classes]Test[/class]',
 			],
 			'bug-10772-duplicated-links' => [
-				'expectedHTML' => 'Jetzt wird mir klar, warum Kapitalisten jedes Mal durchdrehen wenn Marx und das Kapital ins Gespräch kommt. Soziopathen.<br>Karl Marx - Die ursprüngliche Akkumulation<br><a href="https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation" target="_blank" rel="noopener noreferrer">https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation</a><br>#Podcast #Kapitalismus',
+				'expectedHTML' => '<p>Jetzt wird mir klar, warum Kapitalisten jedes Mal durchdrehen wenn Marx und das Kapital ins Gespräch kommt. Soziopathen.<br>Karl Marx - Die ursprüngliche Akkumulation<br><a href="https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation" target="_blank" rel="noopener noreferrer">https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation</a><br>#Podcast #Kapitalismus</p>',
 				'text' => "Jetzt wird mir klar, warum Kapitalisten jedes Mal durchdrehen wenn Marx und das Kapital ins Gespräch kommt. Soziopathen.
 Karl Marx - Die ursprüngliche Akkumulation
 [url=https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation]https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation[/url]
@@ -255,7 +255,7 @@ Karl Marx - Die ursprüngliche Akkumulation
 				'simpleHtml' => BBCode::TWITTER,
 			],
 			'task-10886-deprecate-class' => [
-				'expectedHTML' => '<span class="mastodon emoji"><img src="https://fedi.underscore.world/emoji/custom/custom/heart_nb.png" alt=":heart_nb:" title=":heart_nb:"></span>',
+				'expectedHTML' => '<p><span class="mastodon emoji"><img src="https://fedi.underscore.world/emoji/custom/custom/heart_nb.png" alt=":heart_nb:" title=":heart_nb:"></span></p>',
 				'text' => '[emoji=https://fedi.underscore.world/emoji/custom/custom/heart_nb.png]:heart_nb:[/emoji]',
 			]
 		];
@@ -278,7 +278,7 @@ Karl Marx - Die ursprüngliche Akkumulation
 	{
 		$actual = BBCode::convert($text, $try_oembed, $simpleHtml, $forPlaintext);
 
-		self::assertEquals('<p>' . $expectedHtml . '</p>', $actual);
+		self::assertEquals($expectedHtml, $actual);
 	}
 
 	public function dataBBCodesToMarkdown()
