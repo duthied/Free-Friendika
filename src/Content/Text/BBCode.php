@@ -36,14 +36,10 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
-use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
-use Friendica\Object\Image;
-use Friendica\Protocol\Activity;
-use Friendica\Util\Images;
 use Friendica\Util\Map;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy;
@@ -1402,12 +1398,12 @@ class BBCode
 				}
 
 				// Check for headers
-				$text = preg_replace("(\[h1\](.*?)\[\/h1\])ism", '<h1>$1</h1>', $text);
-				$text = preg_replace("(\[h2\](.*?)\[\/h2\])ism", '<h2>$1</h2>', $text);
-				$text = preg_replace("(\[h3\](.*?)\[\/h3\])ism", '<h3>$1</h3>', $text);
-				$text = preg_replace("(\[h4\](.*?)\[\/h4\])ism", '<h4>$1</h4>', $text);
-				$text = preg_replace("(\[h5\](.*?)\[\/h5\])ism", '<h5>$1</h5>', $text);
-				$text = preg_replace("(\[h6\](.*?)\[\/h6\])ism", '<h6>$1</h6>', $text);
+				$text = preg_replace("(\[h1\](.*?)\[\/h1\])ism", '</p><h1>$1</h1><p>', $text);
+				$text = preg_replace("(\[h2\](.*?)\[\/h2\])ism", '</p><h2>$1</h2><p>', $text);
+				$text = preg_replace("(\[h3\](.*?)\[\/h3\])ism", '</p><h3>$1</h3><p>', $text);
+				$text = preg_replace("(\[h4\](.*?)\[\/h4\])ism", '</p><h4>$1</h4><p>', $text);
+				$text = preg_replace("(\[h5\](.*?)\[\/h5\])ism", '</p><h5>$1</h5><p>', $text);
+				$text = preg_replace("(\[h6\](.*?)\[\/h6\])ism", '</p><h6>$1</h6><p>', $text);
 
 				// Check for paragraph
 				$text = preg_replace("(\[p\](.*?)\[\/p\])ism", '<p>$1</p>', $text);
@@ -1460,6 +1456,7 @@ class BBCode
 				// @deprecated since 2021.12, left for backward-compatibility reasons
 				$text = preg_replace("(\[class=(.*?)\](.*?)\[\/class\])ism", '<span class="$1">$2</span>', $text);
 				// Add HTML new lines
+				$text = str_replace("\n\n", '</p><p>', $text);
 				$text = str_replace("\n", '<br>', $text);
 
 				// handle nested lists
@@ -1469,27 +1466,27 @@ class BBCode
 					((strpos($text, "[/ol]") !== false) && (strpos($text, "[ol]") !== false)) ||
 					((strpos($text, "[/ul]") !== false) && (strpos($text, "[ul]") !== false)) ||
 					((strpos($text, "[/li]") !== false) && (strpos($text, "[li]") !== false))) && (++$endlessloop < 20)) {
-					$text = preg_replace("/\[list\](.*?)\[\/list\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $text);
-					$text = preg_replace("/\[list=\](.*?)\[\/list\]/ism", '<ul class="listnone" style="list-style-type: none;">$1</ul>', $text);
-					$text = preg_replace("/\[list=1\](.*?)\[\/list\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
-					$text = preg_replace("/\[list=((?-i)i)\](.*?)\[\/list\]/ism", '<ul class="listlowerroman" style="list-style-type: lower-roman;">$2</ul>', $text);
-					$text = preg_replace("/\[list=((?-i)I)\](.*?)\[\/list\]/ism", '<ul class="listupperroman" style="list-style-type: upper-roman;">$2</ul>', $text);
-					$text = preg_replace("/\[list=((?-i)a)\](.*?)\[\/list\]/ism", '<ul class="listloweralpha" style="list-style-type: lower-alpha;">$2</ul>', $text);
-					$text = preg_replace("/\[list=((?-i)A)\](.*?)\[\/list\]/ism", '<ul class="listupperalpha" style="list-style-type: upper-alpha;">$2</ul>', $text);
-					$text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $text);
-					$text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
+					$text = preg_replace("/\[list\](.*?)\[\/list\]/ism", '</p><ul class="listbullet" style="list-style-type: circle;">$1</ul><p>', $text);
+					$text = preg_replace("/\[list=\](.*?)\[\/list\]/ism", '</p><ul class="listnone" style="list-style-type: none;">$1</ul><p>', $text);
+					$text = preg_replace("/\[list=1\](.*?)\[\/list\]/ism", '</p><ul class="listdecimal" style="list-style-type: decimal;">$1</ul><p>', $text);
+					$text = preg_replace("/\[list=((?-i)i)\](.*?)\[\/list\]/ism", '</p><ul class="listlowerroman" style="list-style-type: lower-roman;">$2</ul><p>', $text);
+					$text = preg_replace("/\[list=((?-i)I)\](.*?)\[\/list\]/ism", '</p><ul class="listupperroman" style="list-style-type: upper-roman;">$2</ul><p>', $text);
+					$text = preg_replace("/\[list=((?-i)a)\](.*?)\[\/list\]/ism", '</p><ul class="listloweralpha" style="list-style-type: lower-alpha;">$2</ul><p>', $text);
+					$text = preg_replace("/\[list=((?-i)A)\](.*?)\[\/list\]/ism", '</p><ul class="listupperalpha" style="list-style-type: upper-alpha;">$2</ul><p>', $text);
+					$text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '</p><ul class="listbullet" style="list-style-type: circle;">$1</ul><p>', $text);
+					$text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '</p><ul class="listdecimal" style="list-style-type: decimal;">$1</ul><p>', $text);
 					$text = preg_replace("/\[li\](.*?)\[\/li\]/ism", '<li>$1</li>', $text);
 				}
 
 				$text = preg_replace("/\[th\](.*?)\[\/th\]/sm", '<th>$1</th>', $text);
 				$text = preg_replace("/\[td\](.*?)\[\/td\]/sm", '<td>$1</td>', $text);
 				$text = preg_replace("/\[tr\](.*?)\[\/tr\]/sm", '<tr>$1</tr>', $text);
-				$text = preg_replace("/\[table\](.*?)\[\/table\]/sm", '<table>$1</table>', $text);
+				$text = preg_replace("/\[table\](.*?)\[\/table\]/sm", '</p><table>$1</table><p>', $text);
 
-				$text = preg_replace("/\[table border=1\](.*?)\[\/table\]/sm", '<table border="1" >$1</table>', $text);
-				$text = preg_replace("/\[table border=0\](.*?)\[\/table\]/sm", '<table border="0" >$1</table>', $text);
+				$text = preg_replace("/\[table border=1\](.*?)\[\/table\]/sm", '</p><table border="1" >$1</table><p>', $text);
+				$text = preg_replace("/\[table border=0\](.*?)\[\/table\]/sm", '</p><table border="0" >$1</table><p>', $text);
 
-				$text = str_replace('[hr]', '<hr />', $text);
+				$text = str_replace('[hr]', '</p><hr /><p>', $text);
 
 				if (!$for_plaintext) {
 					$text = self::performWithEscapedTags($text, ['url', 'img', 'audio', 'video', 'youtube', 'vimeo', 'share', 'attachment', 'iframe', 'bookmark'], function ($text) {
@@ -1523,7 +1520,7 @@ class BBCode
 				}
 
 				// Declare the format for [quote] layout
-				$QuoteLayout = '<blockquote>$1</blockquote>';
+				$QuoteLayout = '</p><blockquote>$1</blockquote><p>';
 
 				// Check for [quote] text
 				// handle nested quotes
@@ -1937,6 +1934,10 @@ class BBCode
 				explode(',', DI::config()->get('system', 'allowed_oembed'))
 				: []
 		);
+
+		if (strpos($text, '<p>') !== false || strpos($text, '</p>') !== false) {
+			$text = '<p>' . $text . '</p>';
+		}
 
 		$text = HTML::purify($text, $allowedIframeDomains);
 		DI::profiler()->stopRecording();

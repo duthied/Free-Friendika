@@ -64,7 +64,7 @@ class StatusTest extends FixtureTest
 			->toArray();
 
 		self::assertStringStartsWith('item_title', $status['text']);
-		self::assertStringStartsWith('<h4>item_title</h4><br>perspiciatis impedit voluptatem', $status['friendica_html']);
+		self::assertStringStartsWith('<h4>item_title</h4><p>perspiciatis impedit voluptatem', $status['friendica_html']);
 	}
 
 	/**
