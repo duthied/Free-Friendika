@@ -1,6 +1,6 @@
 var DzFactory = function () {
-	this.createDropzone = function(dropSelector, textareaSelector) {
-		return new Dropzone( dropSelector, {
+	this.createDropzone = function(dropSelector, textareaElementId) {
+		return new Dropzone(dropSelector, {
 			paramName: 'userfile', // The name that will be used to transfer the file
 			maxFilesize: max_imagesize, // MB
 			url: '/media/photo/upload?response=url&album=',
@@ -12,7 +12,7 @@ var DzFactory = function () {
 			},
 			init: function() {
 				this.on('success', function(file, serverResponse) {
-					const targetTextarea = document.getElementById(textareaSelector);
+					const targetTextarea = document.getElementById(textareaElementId);
 					const bbcodeString = $(serverResponse).find('div#content').text();
 					if (targetTextarea.setRangeText) {
 						//if setRangeText function is supported by current browser
@@ -23,7 +23,7 @@ var DzFactory = function () {
 					}
 				});
 				this.on('complete', function(file) {
-					var dz = this;
+					const dz = this;
 					// Remove just uploaded file from dropzone, makes interface more clear.
 					// Image can be seen in posting-preview
 					// We need preview to get optical feedback about upload-progress.
@@ -55,8 +55,8 @@ var DzFactory = function () {
 		})
 	};
 
-	this.setupDropzone = function(dropSelector, textareaSelector) {
-		var dropzone = this.createDropzone(dropSelector, textareaSelector);
+	this.setupDropzone = function(dropSelector, textareaElementId) {
+		var dropzone = this.createDropzone(dropSelector, textareaElementId);
 		$(dropSelector).on('paste', function(event) {
 			dzFactory.copyPaste(event, dropzone);
 		})
