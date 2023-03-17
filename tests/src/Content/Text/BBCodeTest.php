@@ -221,7 +221,7 @@ class BBCodeTest extends FixtureTest
 				'text' => '[test] Space',
 			],
 			'task-8800-pre-spaces' => [
-				'expectedHtml' => '    Spaces',
+				'expectedHtml' => '    Spaces',
 				'text' => '[pre]    Spaces[/pre]',
 			],
 			'bug-9611-purify-xss-nobb' => [
