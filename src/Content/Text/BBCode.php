@@ -1460,6 +1460,7 @@ class BBCode
 				// @deprecated since 2021.12, left for backward-compatibility reasons
 				$text = preg_replace("(\[class=(.*?)\](.*?)\[\/class\])ism", '<span class="$1">$2</span>', $text);
 				// Add HTML new lines
+				$text = str_replace("\n\n", '</p><p>', $text);
 				$text = str_replace("\n", '<br>', $text);
 
 				// handle nested lists
@@ -1938,7 +1939,7 @@ class BBCode
 				: []
 		);
 
-		$text = HTML::purify($text, $allowedIframeDomains);
+		$text = HTML::purify('<p>' . $text . '</p>', $allowedIframeDomains);
 		DI::profiler()->stopRecording();
 
 		return trim($text);
