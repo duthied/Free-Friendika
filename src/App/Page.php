@@ -261,7 +261,6 @@ class Page implements ArrayAccess
 			// Dropzone
 			'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand($config->get('system', 'maximagesize')) / 1000000, 1),
 
-
 		]) . $this->page['htmlhead'];
 	}
 

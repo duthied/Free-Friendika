@@ -28,7 +28,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\User;
@@ -36,7 +35,6 @@ use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Crypto;
-use Friendica\Util\Strings;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -184,8 +182,8 @@ class Edit extends BaseModule
 			'$shortpermset' => $this->t('Permissions'),
 
 			'$compose_link_title' => $this->t('Open Compose page'),
-
 		]);
+
 		return $output;
 	}
 
