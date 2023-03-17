@@ -237,7 +237,7 @@ return [
 	IHandleSessions::class => [
 		'instanceOf' => \Friendica\Core\Session\Factory\Session::class,
 		'call' => [
-			['createSession', [$_SERVER], Dice::CHAIN_CALL],
+			['create', [$_SERVER], Dice::CHAIN_CALL],
 			['start', [], Dice::CHAIN_CALL],
 		],
 	],
