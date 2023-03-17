@@ -34,21 +34,16 @@ class Configuration extends BaseDataTransferObject
 	protected $statuses;
 	/** @var MediaAttachmentsConfig */
 	protected $media_attachments;
-	/** @var int */
-	protected $image_size_limit;
 
 	/**
 	 * @param StatusesConfig $statuses
 	 * @param MediaAttachmentsConfig $media_attachments
-	 * @param int $image_size_limit
 	 */
 	public function __construct(
 		StatusesConfig $statuses,
-		MediaAttachmentsConfig $media_attachments,
-		int $image_size_limit
+		MediaAttachmentsConfig $media_attachments
 	) {
 		$this->statuses          = $statuses;
 		$this->media_attachments = $media_attachments;
-		$this->image_size_limit  = $image_size_limit;
 	}
 }
