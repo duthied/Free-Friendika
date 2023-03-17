@@ -112,10 +112,11 @@ class InstanceV2 extends BaseApi
 			$this->config->get('config', 'max_import_size')
 		));
 
+		$image_size_limit = $this->config->get('system', 'maximagesize');
+
 		return new InstanceEntity\Configuration(
 			$statuses_config,
-			new InstanceEntity\MediaAttachmentsConfig(Images::supportedTypes()),
-			$this->config->get('system', 'maximagesize')
+			new InstanceEntity\MediaAttachmentsConfig(Images::supportedTypes(), $image_size_limit),
 		);
 	}
 
