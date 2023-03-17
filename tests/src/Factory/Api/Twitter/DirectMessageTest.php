@@ -67,7 +67,7 @@ class DirectMessageTest extends FixtureTest
 			->toArray();
 
 		self::assertEquals('item_title', $directMessage['title']);
-		self::assertEquals('<p><strong>item_body</strong></p>', $directMessage['text']);
+		self::assertEquals('<strong>item_body</strong>', $directMessage['text']);
 	}
 
 	/**

@@ -146,7 +146,7 @@ class BBCodeTest extends FixtureTest
 	public function testAutoLinking(string $data, bool $assertHTML)
 	{
 		$output = BBCode::convert($data);
-		$assert = $this->HTMLPurifier->purify('<p><a href="' . $data . '" target="_blank" rel="noopener noreferrer">' . $data . '</a></p>');
+		$assert = $this->HTMLPurifier->purify('<a href="' . $data . '" target="_blank" rel="noopener noreferrer">' . $data . '</a>');
 		if ($assertHTML) {
 			self::assertEquals($assert, $output);
 		} else {
@@ -178,74 +178,74 @@ class BBCodeTest extends FixtureTest
 [/ul]',
 			],
 			'bug-2199-named-size' => [
-				'expectedHtml' => '<p><span style="font-size:xx-large;line-height:normal;">Test text</span></p>',
+				'expectedHtml' => '<span style="font-size:xx-large;line-height:normal;">Test text</span>',
 				'text' => '[size=xx-large]Test text[/size]',
 			],
 			'bug-2199-numeric-size' => [
-				'expectedHtml' => '<p><span style="font-size:24px;line-height:normal;">Test text</span></p>',
+				'expectedHtml' => '<span style="font-size:24px;line-height:normal;">Test text</span>',
 				'text' => '[size=24]Test text[/size]',
 			],
 			'bug-2199-diaspora-no-named-size' => [
-				'expectedHtml' => '<p>Test text</p>',
+				'expectedHtml' => 'Test text',
 				'text' => '[size=xx-large]Test text[/size]',
 				'try_oembed' => false,
 				// Triggers the diaspora compatible output
 				'simpleHtml' => BBCode::DIASPORA,
 			],
 			'bug-2199-diaspora-no-numeric-size' => [
-				'expectedHtml' => '<p>Test text</p>',
+				'expectedHtml' => 'Test text',
 				'text' => '[size=24]Test text[/size]',
 				'try_oembed' => false,
 				// Triggers the diaspora compatible output
 				'simpleHtml' => BBCode::DIASPORA,
 			],
 			'bug-7665-audio-tag' => [
-				'expectedHtml' => '<p><audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio></p>',
+				'expectedHtml' => '<audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio>',
 				'text' => '[audio]http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3[/audio]',
 				'try_oembed' => true,
 			],
 			'bug-7808-code-lt' => [
-				'expectedHtml' => '<p><code>&lt;</code></p>',
+				'expectedHtml' => '<code>&lt;</code>',
 				'text' => '[code]<[/code]',
 			],
 			'bug-7808-code-gt' => [
-				'expectedHtml' => '<p><code>&gt;</code></p>',
+				'expectedHtml' => '<code>&gt;</code>',
 				'text' => '[code]>[/code]',
 			],
 			'bug-7808-code-amp' => [
-				'expectedHtml' => '<p><code>&amp;</code></p>',
+				'expectedHtml' => '<code>&amp;</code>',
 				'text' => '[code]&[/code]',
 			],
 			'task-8800-pre-spaces-notag' => [
-				'expectedHtml' => '<p>[test] Space</p>',
+				'expectedHtml' => '[test] Space',
 				'text' => '[test] Space',
 			],
 			'task-8800-pre-spaces' => [
-				'expectedHtml' => '<p>    Spaces</p>',
+				'expectedHtml' => '    Spaces',
 				'text' => '[pre]    Spaces[/pre]',
 			],
 			'bug-9611-purify-xss-nobb' => [
-				'expectedHTML' => '<p><span>dare to move your mouse here</span></p>',
+				'expectedHTML' => '<span>dare to move your mouse here</span>',
 				'text' => '[nobb]<span onmouseover="alert(0)">dare to move your mouse here</span>[/nobb]'
 			],
 			'bug-9611-purify-xss-noparse' => [
-				'expectedHTML' => '<p><span>dare to move your mouse here</span></p>',
+				'expectedHTML' => '<span>dare to move your mouse here</span>',
 				'text' => '[noparse]<span onmouseover="alert(0)">dare to move your mouse here</span>[/noparse]'
 			],
 			'bug-9611-purify-xss-attributes' => [
-				'expectedHTML' => '<p><span>dare to move your mouse here</span></p>',
+				'expectedHTML' => '<span>dare to move your mouse here</span>',
 				'text' => '[color="onmouseover=alert(0) style="]dare to move your mouse here[/color]'
 			],
 			'bug-9611-purify-attributes-correct' => [
-				'expectedHTML' => '<p><span style="color:#FFFFFF;">dare to move your mouse here</span></p>',
+				'expectedHTML' => '<span style="color:#FFFFFF;">dare to move your mouse here</span>',
 				'text' => '[color=FFFFFF]dare to move your mouse here[/color]'
 			],
 			'bug-9639-span-classes' => [
-				'expectedHTML' => '<p><span class="arbitrary classes">Test</span></p>',
+				'expectedHTML' => '<span class="arbitrary classes">Test</span>',
 				'text' => '[class=arbitrary classes]Test[/class]',
 			],
 			'bug-10772-duplicated-links' => [
-				'expectedHTML' => '<p>Jetzt wird mir klar, warum Kapitalisten jedes Mal durchdrehen wenn Marx und das Kapital ins Gespräch kommt. Soziopathen.<br>Karl Marx - Die ursprüngliche Akkumulation<br><a href="https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation" target="_blank" rel="noopener noreferrer">https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation</a><br>#Podcast #Kapitalismus</p>',
+				'expectedHTML' => 'Jetzt wird mir klar, warum Kapitalisten jedes Mal durchdrehen wenn Marx und das Kapital ins Gespräch kommt. Soziopathen.<br>Karl Marx - Die ursprüngliche Akkumulation<br><a href="https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation" target="_blank" rel="noopener noreferrer">https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation</a><br>#Podcast #Kapitalismus',
 				'text' => "Jetzt wird mir klar, warum Kapitalisten jedes Mal durchdrehen wenn Marx und das Kapital ins Gespräch kommt. Soziopathen.
 Karl Marx - Die ursprüngliche Akkumulation
 [url=https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation]https://wohlstandfueralle.podigee.io/107-urspruengliche-akkumulation[/url]
@@ -255,7 +255,7 @@ Karl Marx - Die ursprüngliche Akkumulation
 				'simpleHtml' => BBCode::TWITTER,
 			],
 			'task-10886-deprecate-class' => [
-				'expectedHTML' => '<p><span class="mastodon emoji"><img src="https://fedi.underscore.world/emoji/custom/custom/heart_nb.png" alt=":heart_nb:" title=":heart_nb:"></span></p>',
+				'expectedHTML' => '<span class="mastodon emoji"><img src="https://fedi.underscore.world/emoji/custom/custom/heart_nb.png" alt=":heart_nb:" title=":heart_nb:"></span>',
 				'text' => '[emoji=https://fedi.underscore.world/emoji/custom/custom/heart_nb.png]:heart_nb:[/emoji]',
 			]
 		];
