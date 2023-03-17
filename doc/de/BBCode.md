@@ -612,8 +612,8 @@ Dieses Feld wird von Mastodon f&uuml;r die Inhaltswarnung (content warning) verw
 <tr>
   <td>Benutzerdefinierte Inline-Styles<br>
 <br>
-[style=text-shadow: 0 0 4px #CC0000;]Du kannst alle CSS-Eigenschaften eines Blocks &auml;ndern-[/style]</td>
-  <td>Du kannst alle <span style="text-shadow: 0 0 4px #cc0000;;">CSS-Eigenschaften dieses Inline-Textes &auml;ndern-</span></td>
+Du kannst alle [style=text-shadow: 0 0 4px #CC0000;]CSS-Eigenschaften[/style] dieses Inline-Textes &auml;ndern-</td>
+  <td>Du kannst alle <span style="text-shadow: 0 0 4px #cc0000;;">CSS-Eigenschaften</span> dieses Inline-Textes &auml;ndern-</td>
 </tr>
 </table>
 
