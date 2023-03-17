@@ -13,13 +13,12 @@ var DzFactory = function () {
 			init: function() {
 				this.on('success', function(file, serverResponse) {
 					const targetTextarea = document.getElementById(textareaElementId);
-					const bbcodeString = serverResponse;
 					if (targetTextarea.setRangeText) {
 						//if setRangeText function is supported by current browser
-						targetTextarea.setRangeText(' ' + $.trim(bbcodeString) + ' ');
+						targetTextarea.setRangeText(' ' + $.trim(serverResponse) + ' ');
 					} else {
 						targetTextarea.focus();
-						document.execCommand('insertText', false /*no UI*/, '\n' + $.trim(bbcodeString) + '\n');
+						document.execCommand('insertText', false /*no UI*/, '\n' + $.trim(serverResponse) + '\n');
 					}
 				});
 				this.on('complete', function(file) {
