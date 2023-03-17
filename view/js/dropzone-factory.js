@@ -3,7 +3,7 @@ var DzFactory = function () {
 		return new Dropzone(dropSelector, {
 			paramName: 'userfile', // The name that will be used to transfer the file
 			maxFilesize: max_imagesize, // MB
-			url: '/media/photo/upload?response=url&album=',
+			url: '/media/photo/upload?album=',
 			addRemoveLinks: true,
 			acceptedFiles: 'image/*',
 			clickable: true,
