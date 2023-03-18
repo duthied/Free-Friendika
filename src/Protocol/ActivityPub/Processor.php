@@ -93,7 +93,9 @@ class Processor
 	 */
 	public static function normalizeMentionLinks(string $body): string
 	{
-		return preg_replace('%\[url=([^\[\]]*)]([#@!])(.*?)\[/url]%ism', '$2[url=$1]$3[/url]', $body);
+		$body = preg_replace('%\[url=([^\[\]]*)]([#@!])(.*?)\[/url]%ism', '$2[url=$1]$3[/url]', $body);
+		$body = preg_replace('%([#@!])\[zrl=([^\[\]]*)](.*?)\[/zrl]%ism', '$1[url=$2]$3[/url]', $body);
+		return $body;
 	}
 
 	/**
