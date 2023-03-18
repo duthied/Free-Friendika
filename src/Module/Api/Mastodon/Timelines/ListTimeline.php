@@ -104,7 +104,7 @@ class ListTimeline extends BaseApi
 			$statuses = array_reverse($statuses);
 		}
 
-		self::setLinkHeader();
+		self::setLinkHeader($request['friendica_order'] != TimelineOrderByTypes::ID);
 		System::jsonExit($statuses);
 	}
 }
