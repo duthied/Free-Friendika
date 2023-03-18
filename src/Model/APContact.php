@@ -29,7 +29,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityNamespace;
@@ -259,6 +258,11 @@ class APContact
 		$apcontact['photo'] = JsonLD::fetchElement($compacted, 'as:icon', '@id');
 		if (is_array($apcontact['photo']) || !empty($compacted['as:icon']['as:url']['@id'])) {
 			$apcontact['photo'] = JsonLD::fetchElement($compacted['as:icon'], 'as:url', '@id');
+		} elseif (empty($apcontact['photo'])) {
+			$photo = JsonLD::fetchElementArray($compacted, 'as:icon', 'as:url');
+			if (!empty($photo[0]['@id'])) {
+				$apcontact['photo'] = $photo[0]['@id'];
+			}
 		}
 
 		$apcontact['header'] = JsonLD::fetchElement($compacted, 'as:image', '@id');

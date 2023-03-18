@@ -229,7 +229,12 @@ class Images
 		}
 
 		if (empty($img_str)) {
-			$img_str = DI::httpClient()->fetch($url, HttpClientAccept::IMAGE, 4);
+			try {
+				$img_str = DI::httpClient()->fetch($url, HttpClientAccept::IMAGE, 4);
+			} catch (\Exception $exception) {
+				Logger::notice('Image is invalid', ['url' => $url, 'exception' => $exception]);
+				return [];
+			}
 		}
 
 		if (!$img_str) {
