@@ -237,6 +237,10 @@ return [
 		// Periodically delete waiting database processes.
 		'delete_sleeping_processes' => false,
 
+		// delete-blocked-servers (Boolean)
+		// Delete blocked servers if possible.
+		'delete-blocked-servers' => false,
+
 		// dice_profiler_threshold (Float)
 		// For profiling Dice class creation (0 = disabled, >0 = seconds threshold for profiling)
 		'dice_profiler_threshold' => 0.5,
@@ -508,7 +512,7 @@ return [
 		'png_quality' => 8,
 
 		// process_view (Boolean)
-		// Process the "View" activity that is used by Peertube. View activities are displayed, when "emoji_activities" are enabled. 
+		// Process the "View" activity that is used by Peertube. View activities are displayed, when "emoji_activities" are enabled.
 		'process_view' => false,
 
 		// profiler (Boolean)
