@@ -1503,7 +1503,7 @@ class GServer
 				$generator = explode(' ', JsonLD::fetchElement($actor['as:generator'], 'as:name', '@value'));
 				$serverdata['platform'] = strtolower(array_shift($generator));
 				$serverdata['detection-method'] = self::DETECT_SYSTEM_ACTOR;
-				if (self::isNomad($actor['@id'])) {
+				if (self::isNomad($actor)) {
 					$serverdata['version']  = $serverdata['platform'];
 					$serverdata['platform'] = 'nomad';
 				}
@@ -1530,15 +1530,20 @@ class GServer
 	}
 
 	/**
-	 * Detect if the given url belongs to a nomad account
+	 * Detect if the given actor is a nomad account
 	 *
-	 * @param string $url
+	 * @param array $actor
 	 * @return boolean
 	 */
-	private static function isNomad(string $url): bool
+	private static function isNomad(array $actor): bool
 	{
-		foreach (Probe::lrdd($url) as $attribute) {
-			if ((($attribute['@attributes']['rel'] ?? '') == 'http://purl.org/nomad') && (($attribute['@attributes']['type'] ?? '') == 'application/x-nomad+json')) {
+		$tags = JsonLD::fetchElementArray($actor, 'as:tag');
+		if (empty($tags)) {
+			return false;
+		}
+
+		foreach ($tags as $tag) {
+			if ((($tag['as:name'] ?? '') == 'Protocol') && (($tag['sc:value'] ?? '') == 'nomad')) {
 				return true;
 			}
 		}
