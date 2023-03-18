@@ -238,7 +238,7 @@ return [
 		'delete_sleeping_processes' => false,
 
 		// delete-blocked-servers (Boolean)
-		// Delete blocked servers if possible.
+		// Delete blocked servers if there are no foreign key violations.
 		'delete-blocked-servers' => false,
 
 		// dice_profiler_threshold (Float)

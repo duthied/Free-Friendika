@@ -57,8 +57,8 @@ class UpdateBlockedServers
 
 		if (DI::config()->get('system', 'delete-blocked-servers')) {
 			Logger::info('Delete blocked servers - start');
-			DBA::p("DELETE FROM `gserver` WHERE `blocked` AND NOT EXISTS(SELECT `gsid` FROM `inbox-status` WHERE `gsid` = `gserver`.`id`) AND NOT EXISTS(SELECT `gsid` FROM `contact` WHERE gsid= `gserver`.`id`) AND NOT EXISTS(SELECT `gsid` FROM `apcontact` WHERE `gsid` = `gserver`.`id`) AND NOT EXISTS(SELECT `gsid` FROM `delivery-queue` WHERE `gsid` = `gserver`.`id`) AND NOT EXISTS(SELECT `gsid` FROM `diaspora-contact` WHERE `gsid` = `gserver`.`id`) AND NOT EXISTS(SELECT `gserver-id` FROM `gserver-tag` WHERE `gserver-id` = `gserver`.`id`)");
-			Logger::info('Delete blocked servers - done', ['rows' => DBA::affectedRows()]);
+			$ret = DBA::delete('gserver', ["`blocked` AND NOT EXISTS(SELECT `gsid` FROM `inbox-status` WHERE `gsid` = `gserver`.`id`) AND NOT EXISTS(SELECT `gsid` FROM `contact` WHERE gsid= `gserver`.`id`) AND NOT EXISTS(SELECT `gsid` FROM `apcontact` WHERE `gsid` = `gserver`.`id`) AND NOT EXISTS(SELECT `gsid` FROM `delivery-queue` WHERE `gsid` = `gserver`.`id`) AND NOT EXISTS(SELECT `gsid` FROM `diaspora-contact` WHERE `gsid` = `gserver`.`id`) AND NOT EXISTS(SELECT `gserver-id` FROM `gserver-tag` WHERE `gserver-id` = `gserver`.`id`)"]);
+			Logger::info('Delete blocked servers - done', ['ret' => $ret, 'rows' => DBA::affectedRows()]);
 		}
 	}
 }
