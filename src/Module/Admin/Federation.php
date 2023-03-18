@@ -59,7 +59,7 @@ class Federation extends BaseAdmin
 			'misskey'      => ['name' => 'Misskey', 'color' => '#ccfefd'], // Font color of the homepage
 			'mobilizon'    => ['name' => 'Mobilizon', 'color' => '#ffd599'], // Background color of parts of the homepage
 			'nextcloud'    => ['name' => 'Nextcloud', 'color' => '#1cafff'], // Logo color
-			'mistpark'     => ['name' => 'Nomad projects (Mistpark, Osada, Roadhouse, Zap)', 'color' => '#348a4a'], // Green like the Mistpark green
+			'nomad'        => ['name' => 'Nomad projects (Mistpark, Osada, Roadhouse, Streams. Zap)', 'color' => '#348a4a'], // Green like the Mistpark green
 			'owncast'      => ['name' => 'Owncast', 'color' => '#007bff'], // Font color of the homepage
 			'peertube'     => ['name' => 'Peertube', 'color' => '#ffad5c'], // One of the logo colors
 			'pixelfed'     => ['name' => 'Pixelfed', 'color' => '#11da47'], // One of the logo colors
@@ -67,6 +67,8 @@ class Federation extends BaseAdmin
 			'plume'        => ['name' => 'Plume', 'color' => '#7765e3'], // From the homepage
 			'relay'        => ['name' => 'ActivityPub Relay', 'color' => '#888888'], // Grey like the second color of the ActivityPub logo
 			'socialhome'   => ['name' => 'SocialHome', 'color' => '#52056b'], // lilac from the Django Image used at the Socialhome homepage
+			'takahe'       => ['name' => 'Takahē', 'color' => '#26323c'], // Background color of the homepage
+			'wildebeest'   => ['name' => 'Wildebeest', 'color' => '#0055dc'], // Color of the mascot
 			'wordpress'    => ['name' => 'WordPress', 'color' => '#016087'], // Background color of the homepage
 			'write.as'     => ['name' => 'Write.as', 'color' => '#00ace3'], // Border color of the homepage
 			'writefreely'  => ['name' => 'WriteFreely', 'color' => '#292929'], // Font color of the homepage
@@ -125,8 +127,8 @@ class Federation extends BaseAdmin
 				$platform = 'friendica';
 			} elseif (in_array($platform, ['red matrix', 'redmatrix', 'red'])) {
 				$platform = 'hubzilla';
-			} elseif (in_array($platform, ['osada', 'mistpark', 'roadhouse', 'zap', 'macgirvin', 'mkultra'])) {
-				$platform = 'mistpark';
+			} elseif (in_array($platform, ['nomad', 'osada', 'mistpark', 'roadhouse', 'zap', 'macgirvin', 'mkultra'])) {
+				$platform = 'nomad';
 			} elseif(stristr($platform, 'pleroma')) {
 				$platform = 'pleroma';
 			} elseif(stristr($platform, 'statusnet')) {
