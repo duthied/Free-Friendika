@@ -1562,7 +1562,7 @@ class BBCode
 				$text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: $1px;" >', $text);
 
 				$text = preg_replace_callback(
-					"/\[img\=(.*?)\](.*?)\[\/img\]/ism",
+					"/\[[iz]mg\=(.*?)\](.*?)\[\/[iz]mg\]/ism",
 					function ($matches) use ($simple_html, $uriid) {
 						$matches[1] = self::proxyUrl($matches[1], $simple_html, $uriid);
 						$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
@@ -1574,7 +1574,7 @@ class BBCode
 				// Images
 				// [img]pathtoimage[/img]
 				$text = preg_replace_callback(
-					"/\[img\](.*?)\[\/img\]/ism",
+					"/\[[iz]mg\](.*?)\[\/[iz]mg\]/ism",
 					function ($matches) use ($simple_html, $uriid) {
 						if (strpos($matches[1], "data:image/") === 0) {
 							return $matches[0];
