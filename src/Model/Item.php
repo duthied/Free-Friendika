@@ -589,7 +589,7 @@ class Item
 	public static function isValid(array $item): bool
 	{
 		// When there is no content then we don't post it
-		if (($item['body'] . $item['title'] == '') && empty($item['quote-uri-id']) && (empty($item['uri-id']) || !Post\Media::existsByURIId($item['uri-id']))) {
+		if (($item['body'] . $item['title'] == '') && empty($item['quote-uri-id']) && empty($item['attachments']) && (empty($item['uri-id']) || !Post\Media::existsByURIId($item['uri-id']))) {
 			Logger::notice('No body, no title.');
 			return false;
 		}
