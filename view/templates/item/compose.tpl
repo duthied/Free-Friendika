@@ -1,11 +1,11 @@
 <div class="generic-page-wrapper">
 	<h2>{{$l10n.compose_title}}</h2>
-    {{if $l10n.always_open_compose}}
+	{{if $l10n.always_open_compose}}
 	<p>{{$l10n.always_open_compose nofilter}}</p>
 	{{/if}}
 	<div id="profile-jot-wrapper">
 		<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="compose/{{$type}}" method="post">
-		    {{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}
+			{{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}
 			<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
 			<input type="hidden" name="post_type" value="{{$posttype}}" />
 			<input type="hidden" name="wall" value="{{$wall}}" />
@@ -13,11 +13,11 @@
 			<div id="jot-title-wrap">
 				<input type="text" name="title" id="jot-title" class="jothidden jotforms form-control" placeholder="{{$l10n.placeholdertitle}}" title="{{$l10n.placeholdertitle}}" value="{{$title}}" tabindex="1" dir="auto" />
 			</div>
-		    {{if $l10n.placeholdercategory}}
+			{{if $l10n.placeholdercategory}}
 				<div id="jot-category-wrap">
 					<input name="category" id="jot-category" class="jothidden jotforms form-control" type="text" placeholder="{{$l10n.placeholdercategory}}" title="{{$l10n.placeholdercategory}}" value="{{$category}}" tabindex="2" dir="auto" />
 				</div>
-		    {{/if}}
+			{{/if}}
 
 			<p class="comment-edit-bb-{{$id}} comment-icon-list">
 				<span>
@@ -46,21 +46,22 @@
 					</button>
 				</span>
 			</p>
-			<p>
-				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text form-control text-autosize" name="body" placeholder="{{$l10n.default}}" rows="7" tabindex="3" dir="auto" dir="auto">{{$body}}</textarea>
-			</p>
-
+			<div id="dropzone-{{$id}}" class="dropzone" style="overflow:scroll">
+				<p>
+					<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text form-control text-autosize" name="body" placeholder="{{$l10n.default}}" rows="7" tabindex="3" dir="auto" dir="auto">{{$body}}</textarea>
+				</p>
+			</div>
 			<p class="comment-edit-submit-wrapper">
 {{if $type == 'post'}}
 				<span role="presentation" class="form-inline">
 					<input type="text" name="location" class="form-control" id="jot-location" value="{{$location}}" placeholder="{{$l10n.location_set}}"/>
 					<button type="button" class="btn btn-sm template-icon" id="profile-location"
-					        data-title-set="{{$l10n.location_set}}"
-					        data-title-disabled="{{$l10n.location_disabled}}"
-					        data-title-unavailable="{{$l10n.location_unavailable}}"
-					        data-title-clear="{{$l10n.location_clear}}"
-					        title="{{$l10n.location_set}}"
-					        tabindex="6">
+						data-title-set="{{$l10n.location_set}}"
+						data-title-disabled="{{$l10n.location_disabled}}"
+						data-title-unavailable="{{$l10n.location_unavailable}}"
+						data-title-clear="{{$l10n.location_clear}}"
+						title="{{$l10n.location_set}}"
+						tabindex="6">
 						<i class="fa fa-map-marker" aria-hidden="true"></i>
 					</button>
 				</span>
@@ -94,3 +95,6 @@
 		</form>
 	</div>
 </div>
+<script>
+	dzFactory.setupDropzone('#dropzone-{{$id}}', 'comment-edit-text-{{$id}}'); 
+</script>

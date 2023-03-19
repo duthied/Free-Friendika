@@ -55,6 +55,8 @@
 	media="screen" />
 <link rel="stylesheet" href="view/theme/frio/css/font-awesome.custom.css?v={{$smarty.const.FRIENDICA_VERSION}}"
 	type="text/css" media="screen" />
+<link rel="stylesheet" href="view/theme/frio/css/dropzone.min.frio.css?v={{$smarty.const.FRIENDICA_VERSION}}"
+	type="text/css" media="screen" />
 
 {{foreach $stylesheets as $stylesheetUrl => $media}}
 	<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="{{$media}}" />
@@ -137,6 +139,9 @@
 		<script type="text/javascript" src="view/theme/frio/js/hovercard.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 	{{/if}}
 	<script type="text/javascript" src="view/theme/frio/js/textedit.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+	<script type="text/javascript" src="vendor/enyo/dropzone/dist/min/dropzone.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+	<script type="text/javascript" src="view/js/dropzone-factory.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+	<script type="text/javascript"> max_imagesize = {{$max_imagesize}}; var dzFactory = new DzFactory(); Dropzone.autoDiscover = false; </script>
 
 	{{* Include the strings which are needed for some js functions (e.g. translation)
 They are loaded into the html <head> so that js functions can use them *}}

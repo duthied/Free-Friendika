@@ -99,7 +99,7 @@
 					{{/if}}
 
 					{{* The jot text field in which the post text is inserted *}}
-					<div id="jot-text-wrap">
+					<div id="jot-text-wrap" class="dropzone" style="overflow:scroll">
 						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;" dir="auto">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
 					</div>
 
@@ -152,6 +152,7 @@
 				<div id="jot-fbrowser-wrapper" class="minimize" aria-labelledby="jot-browser-link" role="tabpanel" aria-hidden="true"></div>
 
 			</form>
+			<div id="dz-preview-jot" class="dropzone-preview"></div>
 
 			{{if $content}}<script type="text/javascript">initEditor();</script>{{/if}}
 		</div>
@@ -162,9 +163,9 @@
 {{* The jot modal - We use a own modal for the jot and not the standard modal
 from the page template. This is because the special structure of the jot
 (e.g.jot navigation tabs in the modal titel area).
-The in the frio theme the jot will loaded regulary and is hidden by default.)
+Then in the frio theme the jot will loaded regulary and is hidden by default.)
 The js function jotShow() loads the jot into the modal. With this structure we
-can load different content into the jot moadl (e.g. the item edit jot)
+can load different content into the jot modal (e.g. the item edit jot)
 *}}
 <div id="jot-modal" class="modal fade" role="dialog">
 	<div class="modal-dialog">
@@ -172,9 +173,12 @@ can load different content into the jot moadl (e.g. the item edit jot)
 	</div>
 </div>
 
-
 <script type="text/javascript">
 	$('iframe').load(function() {
 		this.style.height = this.contentWindow.document.body.offsetHeight + 'px';
 	});
+</script>
+
+<script>
+	dzFactory.setupDropzone('#jot-text-wrap', 'profile-jot-text'); 
 </script>
