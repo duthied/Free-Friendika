@@ -281,9 +281,9 @@ class HTML
 			self::tagToBBCode($doc, 'div', [], "\r", "\r");
 			self::tagToBBCode($doc, 'p', [], "\n", "\n");
 
-			self::tagToBBCode($doc, 'ul', [], "[ul]", "[/ul]");
-			self::tagToBBCode($doc, 'ol', [], "[ol]", "[/ol]");
-			self::tagToBBCode($doc, 'li', [], "[*]", "");
+			self::tagToBBCode($doc, 'ul', [], "[ul]", "\n[/ul]");
+			self::tagToBBCode($doc, 'ol', [], "[ol]", "\n[/ol]");
+			self::tagToBBCode($doc, 'li', [], "\n[*]", "");
 
 			self::tagToBBCode($doc, 'hr', [], "[hr]", "");
 
@@ -348,33 +348,6 @@ class HTML
 				$oldmessage = $message;
 				$message = str_replace("\n\n\n", "\n\n", $message);
 			} while ($oldmessage != $message);
-
-			do {
-				$oldmessage = $message;
-				$message = str_replace(
-					[
-						"[/size]\n\n",
-						"\n[hr]",
-						"[hr]\n",
-						"\n[list",
-						"[/list]\n",
-						"\n[/",
-						"[list]\n",
-						"[list=1]\n",
-						"\n[*]"],
-					[
-						"[/size]\n",
-						"[hr]",
-						"[hr]",
-						"[list",
-						"[/list]",
-						"[/",
-						"[list]",
-						"[list=1]",
-						"[*]"],
-					$message
-				);
-			} while ($message != $oldmessage);
 
 			$message = str_replace(
 				['[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'],

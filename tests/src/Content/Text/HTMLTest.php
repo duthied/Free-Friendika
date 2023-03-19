@@ -88,6 +88,24 @@ its surprisingly good",
 				'expectedBBCode' => '[url=https://dev-friendica.mrpetovan.com/profile/hypolite]@hypolite[/url] 0',
 				'html' => '<p><span class="h-card"><a href="https://dev-friendica.mrpetovan.com/profile/hypolite" class="u-url mention">@<span>hypolite</span></a></span> 0</p>',
 			],
+			'bug-12842-ul-new-lines' => [
+				'expectedBBCode' => 'This is:
+[ul]
+[*]some
+[*]amazing
+[*]list
+[/ul]',
+				'html'=> '<p>This is:</p><ul><li>some</li><li>amazing</li><li>list</li></ul>',
+			],
+			'bug-12842-ol-new-lines' => [
+				'expectedBBCode' => 'This is:
+[ol]
+[*]some
+[*]amazing
+[*]list
+[/ol]',
+				'html'=> '<p>This is:</p><ol><li>some</li><li>amazing</li><li>list</li></ol>',
+			],
 		];
 	}
 
