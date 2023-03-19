@@ -282,8 +282,9 @@ Karl Marx - Die ursprüngliche Akkumulation
 	 *
 	 * @throws InternalServerErrorException
 	 */
-	public function testConvert(string $expectedHtml, string $text, $try_oembed = false, int $simpleHtml = 0, bool $forPlaintext = false)
+	public function testConvert(string $expectedHtml, string $text, bool $try_oembed = true, int $simpleHtml = BBCode::INTERNAL, bool $forPlaintext = false)
 	{
+		// This assumes system.remove_multiplicated_lines = false
 		$actual = BBCode::convert($text, $try_oembed, $simpleHtml, $forPlaintext);
 
 		self::assertEquals($expectedHtml, $actual);
