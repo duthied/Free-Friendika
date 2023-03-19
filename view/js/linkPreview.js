@@ -548,12 +548,12 @@
 
 			matches = attributes.match(/url='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				url = matches[1].toLowerCase();
+				url = matches[1];
 			}
 
 			matches = attributes.match(/url="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				url = matches[1].toLowerCase();
+				url = matches[1];
 			}
 
 			if(url !== '') {
@@ -564,12 +564,12 @@
 
 			matches = attributes.match(/title='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				title = matches[1].toLowerCase();
+				title = trim(matches[1]);
 			}
 
 			matches = attributes.match(/title="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				title = matches[1].toLowerCase();
+				title = trim(matches[1]);
 			}
 
 			if (title !== '') {
@@ -580,12 +580,12 @@
 
 			matches = attributes.match(/image='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				image = matches[1].toLowerCase();
+				image = trim(matches[1]);
 			}
 
 			matches = attributes.match(/image="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				image = matches[1].toLowerCase();
+				image = trim(matches[1]);
 			}
 
 			if (image !== '') {
@@ -596,12 +596,12 @@
 
 			matches = attributes.match(/preview='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				preview = matches[1].toLowerCase();
+				preview = trim(matches[1]);
 			}
 
 			matches = attributes.match(/preview="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				preview = matches[1].toLowerCase();
+				preview = trim(matches[1]);
 			}
 
 			if (preview !== '') {
