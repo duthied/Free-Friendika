@@ -281,8 +281,8 @@ class HTML
 			self::tagToBBCode($doc, 'div', [], "\r", "\r");
 			self::tagToBBCode($doc, 'p', [], "\n", "\n");
 
-			self::tagToBBCode($doc, 'ul', [], "[list]", "[/list]");
-			self::tagToBBCode($doc, 'ol', [], "[list=1]", "[/list]");
+			self::tagToBBCode($doc, 'ul', [], "[ul]", "[/ul]");
+			self::tagToBBCode($doc, 'ol', [], "[ol]", "[/ol]");
 			self::tagToBBCode($doc, 'li', [], "[*]", "");
 
 			self::tagToBBCode($doc, 'hr', [], "[hr]", "");
