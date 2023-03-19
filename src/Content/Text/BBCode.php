@@ -1338,11 +1338,11 @@ class BBCode
 				// removing multiplicated newlines
 				if (DI::config()->get('system', 'remove_multiplicated_lines')) {
 					$search = [
-						"\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[*]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
+						"\n\n\n", "\n ", " \n", "\n\t", "\t\n", "\n\r", "\r\n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[*]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
 						"\n[h1]", "[/h1]\n", "\n[h2]", "[/h2]\n", "\n[h3]", "[/h3]\n", "\n[h4]", "[/h4]\n", "\n[h5]", "[/h5]\n", "\n[h6]", "[/h6]\n"
 					];
 					$replace = [
-						"\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[*]", "[ul]", "[/ul]", "\n[share ", "[/attachment]",
+						"\n\n", "\n", "\n", "\n", "\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[*]", "[ul]", "[/ul]", "\n[share ", "[/attachment]",
 						"[h1]", "[/h1]", "[h2]", "[/h2]", "[h3]", "[/h3]", "[h4]", "[/h4]", "[h5]", "[/h5]", "[h6]", "[/h6]"
 					];
 					do {
