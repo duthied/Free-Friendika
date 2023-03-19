@@ -463,7 +463,7 @@ class Diaspora
 		// Once we have the author URI, go to the web and try to find their public key
 		// (first this will look it up locally if it is in the diaspora-contact cache)
 		// This will also convert diaspora public key from pkcs#1 to pkcs#8
-		Logger::notice('Fetching key for ' . $author);
+		Logger::info('Fetching key for ' . $author);
 		$key = self::key($author);
 		if (!$key) {
 			Logger::notice('Could not retrieve author key.');
@@ -477,7 +477,7 @@ class Diaspora
 			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
-		Logger::notice('Message verified.');
+		Logger::info('Message verified.');
 
 		return [
 			'message' => $inner_decrypted,
@@ -1154,7 +1154,7 @@ class Diaspora
 	{
 		// Check for Diaspora (and Friendica) typical paths
 		if (!preg_match('=(https?://.+)/(?:posts|display|objects)/([a-zA-Z0-9-_@.:%]+[a-zA-Z0-9])=i', $url, $matches)) {
-			Logger::info('Invalid url', ['url' => $url]);
+			Logger::notice('Invalid url', ['url' => $url]);
 			return false;
 		}
 
@@ -1175,7 +1175,7 @@ class Diaspora
 			Logger::info('Found', ['id' => $item['id']]);
 			return $item['id'];
 		} else {
-			Logger::info('Not found', ['guid' => $guid, 'uid' => $uid]);
+			Logger::notice('Not found', ['guid' => $guid, 'uid' => $uid]);
 			return false;
 		}
 	}
@@ -1225,7 +1225,7 @@ class Diaspora
 			Logger::notice('Parent item not found: parent: ' . $guid . ' - user: ' . $uid);
 			return false;
 		} else {
-			Logger::notice('Parent item found: parent: ' . $guid . ' - user: ' . $uid);
+			Logger::info('Parent item found: parent: ' . $guid . ' - user: ' . $uid);
 			return $item;
 		}
 	}
@@ -1365,7 +1365,7 @@ class Diaspora
 			return false;
 		}
 
-		Logger::notice('Got migration for ' . $old_author . ', to ' . $new_author . ' with user ' . $importer['uid']);
+		Logger::info('Got migration for ' . $old_author . ', to ' . $new_author . ' with user ' . $importer['uid']);
 
 		// Check signature
 		$signed_text = 'AccountMigration:' . $old_author . ':' . $new_author;
@@ -1399,7 +1399,7 @@ class Diaspora
 
 		Contact::update($fields, ['addr' => $old_author->getAddr()]);
 
-		Logger::notice('Contacts are updated.');
+		Logger::info('Contacts are updated.');
 
 		return true;
 	}
@@ -1422,7 +1422,7 @@ class Diaspora
 		}
 		DBA::close($contacts);
 
-		Logger::notice('Removed contacts for ' . $author_handle);
+		Logger::info('Removed contacts for ' . $author_handle);
 
 		return true;
 	}
@@ -2955,7 +2955,7 @@ class Diaspora
 			return 0;
 		}
 
-		Logger::notice('transmit: ' . $logid . '-' . $guid . ' ' . $dest_url);
+		Logger::info('transmit: ' . $logid . '-' . $guid . ' ' . $dest_url);
 
 		if (!intval(DI::config()->get('system', 'diaspora_test'))) {
 			$content_type = (($public_batch) ? 'application/magic-envelope+xml' : 'application/json');
@@ -2973,7 +2973,7 @@ class Diaspora
 			GServer::setReachableById($contact['gsid'], Protocol::DIASPORA);
 		}
 
-		Logger::notice('transmit: ' . $logid . '-' . $guid . ' to ' . $dest_url . ' returns: ' . $return_code);
+		Logger::info('transmit: ' . $logid . '-' . $guid . ' to ' . $dest_url . ' returns: ' . $return_code);
 
 		return $return_code ? $return_code : -1;
 	}
