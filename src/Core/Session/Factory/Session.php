@@ -55,19 +55,17 @@ class Session
 	 * @param LoggerInterface     $logger
 	 * @param Profiler            $profiler
 	 * @param array               $server
+	 * @return IHandleSessions
 	 */
-	public function createSession(App\Mode $mode, App\BaseURL $baseURL, IManageConfigValues $config, Database $dba, Cache $cacheFactory, LoggerInterface $logger, Profiler $profiler, array $server = []): IHandleSessions
+	public function create(App\Mode $mode, App\BaseURL $baseURL, IManageConfigValues $config, Database $dba, Cache $cacheFactory, LoggerInterface $logger, Profiler $profiler, array $server = []): IHandleSessions
 	{
 		$profiler->startRecording('session');
-		$session = null;
+		$session_handler = $config->get('system', 'session_handler', self::HANDLER_DEFAULT);
 
 		try {
 			if ($mode->isInstall() || $mode->isBackend()) {
 				$session = new Type\Memory();
 			} else {
-				$session_handler = $config->get('system', 'session_handler', self::HANDLER_DEFAULT);
-				$handler         = null;
-
 				switch ($session_handler) {
 					case self::HANDLER_DATABASE:
 						$handler = new Handler\Database($dba, $logger, $server);
@@ -82,10 +80,15 @@ class Session
 							$handler = new Handler\Cache($cache, $logger);
 						}
 						break;
+					default:
+						$handler = null;
 				}
 
 				$session = new Type\Native($baseURL, $handler);
 			}
+		} catch (\Throwable $e) {
+			$logger->notice('Unable to create session', ['mode' => $mode, 'session_handler' => $session_handler, 'exception' => $e]);
+			$session = new Type\Memory();
 		} finally {
 			$profiler->stopRecording();
 			return $session;

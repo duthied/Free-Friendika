@@ -37,12 +37,14 @@
 					<i class="fa fa-quote-left"></i>
 				</button>
 			</span>
-		</p>
-		<p>
-			<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty form-control text-autosize" name="body" placeholder="{{$comment}}" rows="3" data-default="{{$default}}" dir="auto">{{$default}}</textarea>
-		</p>
-{{if $qcomment}}
-		<p>
+			</p>
+			<div id="dropzone-{{$id}}" class="dropzone" style="overflow:scroll">
+				<p>
+					<textarea id="comment-edit-text-{{$id}}" class="dropzone comment-edit-text-empty form-control text-autosize" name="body" placeholder="{{$comment}}" rows="3" data-default="{{$default}}" dir="auto">{{$default}}</textarea>
+				</p>
+			</div>
+	{{if $qcomment}}
+			<p>
 			<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});">
 				<option value=""></option>
 	{{foreach $qcomment as $qc}}
@@ -51,7 +53,6 @@
 			</select>
 		</p>
 {{/if}}
-
 		<p class="comment-edit-submit-wrapper">
 {{if $preview}}
 			<button type="button" class="btn btn-default comment-edit-preview" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
@@ -64,3 +65,15 @@
 	<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
 </div>
 
+<script>
+	$('[id=comment-fake-text-{{$id}}]').on('focus', function() {
+		dzFactory.setupDropzone('#dropzone-{{$id}}', 'comment-edit-text-{{$id}}'); 
+		$('[id=comment-fake-text-{{$id}}]').prop('focus', null).off('focus');
+		$('[id=comment-{{$id}}]').prop('click', null).off('click');
+	});
+	$('[id=comment-{{$id}}]').on('click', function() {
+		dzFactory.setupDropzone('#dropzone-{{$id}}', 'comment-edit-text-{{$id}}'); 
+		$('[id=comment-fake-text-{{$id}}]').prop('focus', null).off('focus');
+		$('[id=comment-{{$id}}]').prop('click', null).off('click');
+	});
+</script>

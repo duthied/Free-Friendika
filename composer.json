@@ -29,6 +29,7 @@
 		"asika/simple-console": "^1.0",
 		"bacon/bacon-qr-code": "^2.0.0",
 		"divineomega/password_exposed": "^2.8",
+		"enyo/dropzone": "^5.9",
 		"ezyang/htmlpurifier": "^4.7",
 		"friendica/json-ld": "^1.0",
 		"geekwright/po": "^2.0",

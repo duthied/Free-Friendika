@@ -1139,7 +1139,7 @@ function photos_content(App $a)
 						'$preview' => DI::l10n()->t('Preview'),
 						'$loading' => DI::l10n()->t('Loading...'),
 						'$qcomment' => $qcomment,
-						'$rand_num' => Crypto::randomDigits(12)
+						'$rand_num' => Crypto::randomDigits(12),
 					]);
 				}
 			}
@@ -1194,7 +1194,7 @@ function photos_content(App $a)
 						'$submit' => DI::l10n()->t('Submit'),
 						'$preview' => DI::l10n()->t('Preview'),
 						'$qcomment' => $qcomment,
-						'$rand_num' => Crypto::randomDigits(12)
+						'$rand_num' => Crypto::randomDigits(12),
 					]);
 				}
 
@@ -1268,7 +1268,7 @@ function photos_content(App $a)
 							'$submit' => DI::l10n()->t('Submit'),
 							'$preview' => DI::l10n()->t('Preview'),
 							'$qcomment' => $qcomment,
-							'$rand_num' => Crypto::randomDigits(12)
+							'$rand_num' => Crypto::randomDigits(12),
 						]);
 					}
 				}

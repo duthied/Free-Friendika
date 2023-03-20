@@ -158,21 +158,21 @@ class BBCodeTest extends FixtureTest
 	{
 		return [
 			'bug-7271-condensed-space' => [
-				'expectedHtml' => '<ul class="listdecimal" style="list-style-type:decimal;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ol><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ol>',
 				'text' => '[ol][*] http://example.com/[/ol]',
 			],
 			'bug-7271-condensed-nospace' => [
-				'expectedHtml' => '<ul class="listdecimal" style="list-style-type:decimal;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ol><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ol>',
 				'text' => '[ol][*]http://example.com/[/ol]',
 			],
 			'bug-7271-indented-space' => [
-				'expectedHtml' => '<ul class="listbullet" style="list-style-type:circle;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ul]
 [*] http://example.com/
 [/ul]',
 			],
 			'bug-7271-indented-nospace' => [
-				'expectedHtml' => '<ul class="listbullet" style="list-style-type:circle;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ul]
 [*]http://example.com/
 [/ul]',
@@ -259,13 +259,21 @@ Karl Marx - Die ursprüngliche Akkumulation
 				'text' => '[emoji=https://fedi.underscore.world/emoji/custom/custom/heart_nb.png]:heart_nb:[/emoji]',
 			],
 			'task-12900-multiple-paragraphs' => [
-				'expectedHTML' => '<h1>Header</h1><ul class="listbullet" style="list-style-type:circle;"><li>One</li><li>Two</li></ul><p>This is a paragraph<br>with a line feed.</p><p>Second Chapter</p>',
+				'expectedHTML' => '<h1>Header</h1><ul><li>One</li><li>Two</li></ul><p>This is a paragraph<br>with a line feed.</p><p>Second Chapter</p>',
 				'text' => "[h1]Header[/h1][ul][*]One[*]Two[/ul]\n\nThis is a paragraph\nwith a line feed.\n\nSecond Chapter",
 			],
 			'task-12900-header-with-paragraphs' => [
 				'expectedHTML' => '<h1>Header</h1><p>Some Chapter</p>',
 				'text' => '[h1]Header[/h1]Some Chapter',
-			]
+			],
+			'bug-12842-ul-newlines' => [
+				'expectedHTML' => '<p>This is:</p><ul><li>some<br></li><li>amazing<br></li><li>list</li></ul>',
+				'text' => "This is:\r\n[ul]\r\n[*]some\r\n[*]amazing\r\n[*]list\r\n[/ul]",
+			],
+			'bug-12842-ol-newlines' => [
+				'expectedHTML' => '<p>This is:</p><ol><li>some<br></li><li>amazing<br></li><li>list</li></ol>',
+				'text' => "This is:\r\n[ol]\r\n[*]some\r\n[*]amazing\r\n[*]list\r\n[/ol]",
+			],
 		];
 	}
 
@@ -282,8 +290,9 @@ Karl Marx - Die ursprüngliche Akkumulation
 	 *
 	 * @throws InternalServerErrorException
 	 */
-	public function testConvert(string $expectedHtml, string $text, $try_oembed = false, int $simpleHtml = 0, bool $forPlaintext = false)
+	public function testConvert(string $expectedHtml, string $text, bool $try_oembed = true, int $simpleHtml = BBCode::INTERNAL, bool $forPlaintext = false)
 	{
+		// This assumes system.remove_multiplicated_lines = false
 		$actual = BBCode::convert($text, $try_oembed, $simpleHtml, $forPlaintext);
 
 		self::assertEquals($expectedHtml, $actual);

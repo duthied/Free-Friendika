@@ -80,6 +80,6 @@ class DBKeyValueStorageTest extends KeyValueStorageTest
 
 		$updateAtAfter = $entry['updated_at'];
 
-		self::assertLessThanOrEqual($updateAt, $updateAtAfter);
+		self::assertGreaterThanOrEqual($updateAt, $updateAtAfter);
 	}
 }

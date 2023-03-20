@@ -88,6 +88,24 @@ its surprisingly good",
 				'expectedBBCode' => '[url=https://dev-friendica.mrpetovan.com/profile/hypolite]@hypolite[/url] 0',
 				'html' => '<p><span class="h-card"><a href="https://dev-friendica.mrpetovan.com/profile/hypolite" class="u-url mention">@<span>hypolite</span></a></span> 0</p>',
 			],
+			'bug-12842-ul-new-lines' => [
+				'expectedBBCode' => 'This is:
+[ul]
+[*]some
+[*]amazing
+[*]list
+[/ul]',
+				'html'=> '<p>This is:</p><ul><li>some</li><li>amazing</li><li>list</li></ul>',
+			],
+			'bug-12842-ol-new-lines' => [
+				'expectedBBCode' => 'This is:
+[ol]
+[*]some
+[*]amazing
+[*]list
+[/ol]',
+				'html'=> '<p>This is:</p><ol><li>some</li><li>amazing</li><li>list</li></ol>',
+			],
 		];
 	}
 
@@ -627,13 +645,13 @@ its surprisingly good",
             e.preventDefault();
 //            console.log('[id=\"' + this.getAttribute('href') + '\"]');
 //            console.log(document.getElementById('[id=\"' + this.getAttribute('href') + '\"]'));
-            
+
             document.querySelector('[ez-toc-data-id=\"' + decodeURI(this.getAttribute('href')) + '\"]').scrollIntoView({
                 behavior: 'smooth'
             });
         });
     });
-};           
+};
 document.addEventListener('DOMContentLoaded', ezTocScrollScriptJS, false);</script> <script   type='text/javascript' src='https://blog.austria-insiderinfo.com/wp-includes/js/jquery/jquery.min.js?ver=3.6.1' id='jquery-core-js'></script> <link rel=\"https://api.w.org/\" href=\"https://blog.austria-insiderinfo.com/wp-json/\" /><link rel=\"alternate\" type=\"application/json\" href=\"https://blog.austria-insiderinfo.com/wp-json/wp/v2/posts/17543\" /><link rel=\"EditURI\" type=\"application/rsd+xml\" title=\"RSD\" href=\"https://blog.austria-insiderinfo.com/xmlrpc.php?rsd\" /><link rel='shortlink' href='https://blog.austria-insiderinfo.com/?p=17543' /><link rel=\"icon\" href=\"https://blog.austria-insiderinfo.com/wp-content/uploads/2016/11/cropped-fav_icon-2-32x32.png\" sizes=\"32x32\" /><link rel=\"icon\" href=\"https://blog.austria-insiderinfo.com/wp-content/uploads/2016/11/cropped-fav_icon-2-192x192.png\" sizes=\"192x192\" /><link rel=\"apple-touch-icon\" href=\"https://blog.austria-insiderinfo.com/wp-content/uploads/2016/11/cropped-fav_icon-2-180x180.png\" /><meta name=\"msapplication-TileImage\" content=\"https://blog.austria-insiderinfo.com/wp-content/uploads/2016/11/cropped-fav_icon-2-270x270.png\" /> <script type=\"text/javascript\">var doc = document.documentElement;
 \t\t\tdoc.setAttribute( 'data-useragent', navigator.userAgent );</script> <script type=\"text/javascript\">(function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -658,7 +676,7 @@ Du kannst Kommentare auch <a href=\"https://blog.austria-insiderinfo.com/comment
                         <div class=\"row\">
                             <div class=\"col-12\">
                                 <div class=\"_brlbs-flex-center\">
-                                    
+
                                     <span role=\"heading\" aria-level=\"3\" class=\"_brlbs-h3\" id=\"CookieBoxTextHeadline\">Cookie Einstellungen</span>
                                 </div>
 
@@ -685,7 +703,7 @@ Externe Medien<br />
                                                 >
                                                     Externe Medien                                                </li>
                                                                                 </ul>
-                                
+
                                 <p class=\"_brlbs-accept\">
                                     <a
                                         href=\"#\"
@@ -708,7 +726,7 @@ Externe Medien<br />
                                         >
                                             Nur essenzielle Cookies akzeptieren                                        </a>
                                     </p>
-                                
+
                                 <p class=\"_brlbs-manage\">
                                     <a
                                         href=\"#\"
@@ -736,7 +754,7 @@ Externe Medien<br />
                                             href=\"https://blog.austria-insiderinfo.com/rechtshinweis/\"
                                         >
                                             Datenschutzerklärung                                        </a>
-                                    
+
                                                                             <span class=\"_brlbs-separator\"></span>
                                         <a
                                             tabindex=\"0\"
@@ -760,7 +778,7 @@ Externe Medien<br />
         <div class=\"row no-gutters\">
             <div class=\"col-12\">
                 <div class=\"row no-gutters align-items-top\">
-                    
+
                     <div class=\"col-12\">
                         <span role=\"heading\" aria-level=\"3\" class=\"_brlbs-h3\">Datenschutzeinstellungen</span>
 
@@ -778,7 +796,7 @@ Externe Medien<br />
                                             data-cookie-accept-all
                                         >
                                             Alle Cookies akzeptieren                                        </a>
-                                        
+
                                     <a
                                         href=\"#\"
                                         id=\"CookiePrefSave\"
@@ -853,7 +871,7 @@ Externe Medien<br />
                                         data-cookie-accordion-parent=\"essential\"
                                     >
                                                                                     <table>
-                                                
+
                                                 <tr>
                                                     <th>Name</th>
                                                     <td>
@@ -871,21 +889,21 @@ Externe Medien<br />
                                                         <th>Zweck</th>
                                                         <td>Speichert die Einstellungen der Besucher, die in der Cookie Box von Borlabs Cookie ausgewählt wurden.</td>
                                                     </tr>
-                                                    
-                                                
-                                                
+
+
+
                                                                                                     <tr>
                                                         <th>Cookie Name</th>
                                                         <td>borlabs-cookie</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Laufzeit</th>
                                                         <td>1 Jahr</td>
                                                     </tr>
                                                                                                 </table>
                                                                                         <table>
-                                                
+
                                                 <tr>
                                                     <th>Name</th>
                                                     <td>
@@ -905,7 +923,7 @@ Externe Medien<br />
 
 Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezogenen Daten erfasst.</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Datenschutzerklärung</th>
                                                         <td class=\"_brlbs-pp-url\">
@@ -917,24 +935,24 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                                 https://www.vgwort.de/hilfsseiten/datenschutz.html                                                            </a>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Host(s)</th>
                                                         <td>*.vgwort.de</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Name</th>
                                                         <td>srp</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Laufzeit</th>
                                                         <td>Sitzung</td>
                                                     </tr>
                                                                                                 </table>
                                                                                         <table>
-                                                
+
                                                 <tr>
                                                     <th>Name</th>
                                                     <td>
@@ -952,7 +970,7 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                         <th>Zweck</th>
                                                         <td>Content Delivery Netzwerk und DNS Verwaltung</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Datenschutzerklärung</th>
                                                         <td class=\"_brlbs-pp-url\">
@@ -964,24 +982,24 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                                 https://www.cloudflare.com/privacypolicy/                                                            </a>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Host(s)</th>
                                                         <td>www.cloudflare.com</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Name</th>
                                                         <td>__cfduid</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Laufzeit</th>
                                                         <td>1 Jahr</td>
                                                     </tr>
                                                                                                 </table>
                                                                                         <table>
-                                                
+
                                                 <tr>
                                                     <th>Name</th>
                                                     <td>
@@ -999,7 +1017,7 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                         <th>Zweck</th>
                                                         <td>Wird für den Austria Insiderinfo WebShop verwendet, um zum Beispiel den Inhalt des Warenkorbes zu sichern oder um die Versandkosten abhängig von deinem Standort berechnen zu können.</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Datenschutzerklärung</th>
                                                         <td class=\"_brlbs-pp-url\">
@@ -1011,17 +1029,17 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                                 https://blog.austria-insiderinfo.com/rechtshinweis/#Shop_der_Austria_Insiderinfo                                                            </a>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Host(s)</th>
                                                         <td>blog.austria-insiderinfo.com</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Name</th>
                                                         <td>tk_ai</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Laufzeit</th>
                                                         <td>Sitzung</td>
@@ -1104,7 +1122,7 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                             </label>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                 <tr>
                                                     <th>Name</th>
                                                     <td>
@@ -1122,7 +1140,7 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                         <th>Zweck</th>
                                                         <td>Cookie von Matomo für Website-Analysen. Erzeugt statistische Daten darüber, wie der Besucher die Website nutzt.</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Datenschutzerklärung</th>
                                                         <td class=\"_brlbs-pp-url\">
@@ -1134,17 +1152,17 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                                 https://blog.austria-insiderinfo.com/rechtshinweis/                                                            </a>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Host(s)</th>
                                                         <td>analytics.austria-insiderinfo.com</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Name</th>
                                                         <td>_pk_*.*</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Laufzeit</th>
                                                         <td>13 Monate</td>
@@ -1227,7 +1245,7 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                             </label>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                 <tr>
                                                     <th>Name</th>
                                                     <td>
@@ -1245,7 +1263,7 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                         <th>Zweck</th>
                                                         <td>Wird verwendet, um OpenStreetMap-Inhalte zu entsperren.</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Datenschutzerklärung</th>
                                                         <td class=\"_brlbs-pp-url\">
@@ -1257,17 +1275,17 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                                 https://wiki.osmfoundation.org/wiki/Privacy_Policy                                                            </a>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Host(s)</th>
                                                         <td>.openstreetmap.org</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Name</th>
                                                         <td>_osm_location, _osm_session, _osm_totp_token, _osm_welcome, _pk_id., _pk_ref., _pk_ses., qos_token</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Laufzeit</th>
                                                         <td>1-10 Jahre</td>
@@ -1298,7 +1316,7 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                             </label>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                 <tr>
                                                     <th>Name</th>
                                                     <td>
@@ -1316,7 +1334,7 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                         <th>Zweck</th>
                                                         <td>Wird verwendet, um Twitter-Inhalte zu entsperren.</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Datenschutzerklärung</th>
                                                         <td class=\"_brlbs-pp-url\">
@@ -1328,17 +1346,17 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                                 https://twitter.com/privacy                                                            </a>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Host(s)</th>
                                                         <td>.twimg.com, .twitter.com</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Name</th>
                                                         <td>__widgetsettings, local_storage_support_test</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Laufzeit</th>
                                                         <td>Unbegrenzt</td>
@@ -1369,7 +1387,7 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                             </label>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                 <tr>
                                                     <th>Name</th>
                                                     <td>
@@ -1387,7 +1405,7 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                         <th>Zweck</th>
                                                         <td>Wird verwendet, um YouTube-Inhalte zu entsperren.</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Datenschutzerklärung</th>
                                                         <td class=\"_brlbs-pp-url\">
@@ -1399,17 +1417,17 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                                                                 https://policies.google.com/privacy                                                            </a>
                                                         </td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Host(s)</th>
                                                         <td>google.com</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Name</th>
                                                         <td>NID</td>
                                                     </tr>
-                                                    
+
                                                                                                     <tr>
                                                         <th>Cookie Laufzeit</th>
                                                         <td>6 Monate</td>
@@ -1426,9 +1444,9 @@ Deine IP-Adresse wird nur anonymisiert verarbeitet, es werden keine personenbezo
                     <p class=\"_brlbs-legal flex-fill\">
                                                     <a href=\"https://blog.austria-insiderinfo.com/rechtshinweis/\">
                                 Datenschutzerklärung                            </a>
-                            
+
                                                     <span class=\"_brlbs-separator\"></span>
-                            
+
                                                     <a href=\"https://blog.austria-insiderinfo.com/impressum/\">
                                 Impressum                            </a>
                                                 </p>
@@ -1461,7 +1479,7 @@ BorlabsCookieInitCheck();});</script> <script type=\"application/ld+json\">{\"@c
 <!--
 Performance optimized by W3 Total Cache. Learn more: https://www.boldgrid.com/w3-total-cache/
 
-Seiten-Caching mit disk: enhanced 
+Seiten-Caching mit disk: enhanced
 
 Served from: blog.austria-insiderinfo.com @ 2023-01-07 10:50:10 by W3 Total Cache
 -->",

@@ -1475,8 +1475,8 @@ class BBCode
 					$text = preg_replace("/\[list=((?-i)I)\](.*?)\[\/list\]/ism", '</p><ul class="listupperroman" style="list-style-type: upper-roman;">$2</ul><p>', $text);
 					$text = preg_replace("/\[list=((?-i)a)\](.*?)\[\/list\]/ism", '</p><ul class="listloweralpha" style="list-style-type: lower-alpha;">$2</ul><p>', $text);
 					$text = preg_replace("/\[list=((?-i)A)\](.*?)\[\/list\]/ism", '</p><ul class="listupperalpha" style="list-style-type: upper-alpha;">$2</ul><p>', $text);
-					$text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '</p><ul class="listbullet" style="list-style-type: circle;">$1</ul><p>', $text);
-					$text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '</p><ul class="listdecimal" style="list-style-type: decimal;">$1</ul><p>', $text);
+					$text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '</p><ul>$1</ul><p>', $text);
+					$text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '</p><ol>$1</ol><p>', $text);
 					$text = preg_replace("/\[li\](.*?)\[\/li\]/ism", '<li>$1</li>', $text);
 				}
 

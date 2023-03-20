@@ -291,6 +291,10 @@ function editpost(url) {
 				$("#profile-jot-form #jot-category-wrap").hide();
 			}
 
+			// To make dropzone fileupload work on editing a comment, we need to
+			// attach a new dropzone to modal
+			dzFactory.setupDropzone('#jot-text-wrap', 'profile-jot-text'); 
+
 			modal.show();
 			$("#jot-popup").show();
 			linkPreview = $("#profile-jot-text").linkPreview();
