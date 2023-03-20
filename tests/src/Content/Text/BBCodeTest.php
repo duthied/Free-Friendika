@@ -267,11 +267,11 @@ Karl Marx - Die ursprüngliche Akkumulation
 				'text' => '[h1]Header[/h1]Some Chapter',
 			],
 			'bug-12842-ul-newlines' => [
-				'expectedHTML' => '<p>This is:</p><ul><li>some<br></li><li>amazing<br></li><li>list</li></ul>',
+				'expectedHTML' => '<p>This is:</p><ul><li>some</li><li>amazing</li><li>list</li></ul>',
 				'text' => "This is:\r\n[ul]\r\n[*]some\r\n[*]amazing\r\n[*]list\r\n[/ul]",
 			],
 			'bug-12842-ol-newlines' => [
-				'expectedHTML' => '<p>This is:</p><ol><li>some<br></li><li>amazing<br></li><li>list</li></ol>',
+				'expectedHTML' => '<p>This is:</p><ol><li>some</li><li>amazing</li><li>list</li></ol>',
 				'text' => "This is:\r\n[ol]\r\n[*]some\r\n[*]amazing\r\n[*]list\r\n[/ol]",
 			],
 		];
