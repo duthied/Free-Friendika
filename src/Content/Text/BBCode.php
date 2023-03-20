@@ -1567,8 +1567,13 @@ class BBCode
 					"/\[[iz]mg\=(.*?)\](.*?)\[\/[iz]mg\]/ism",
 					function ($matches) use ($simple_html, $uriid) {
 						$matches[1] = self::proxyUrl($matches[1], $simple_html, $uriid);
-						$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
-						return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '" title="' . $matches[2] . '">';
+						$alt = htmlspecialchars($matches[2], ENT_COMPAT);
+						// Fix for Markdown problems wirh Diaspora, see issue #12701
+						if (($simple_html != self::DIASPORA) || strpos($matches[2], '"') === false) {
+							return '<img src="' . $matches[1] . '" alt="' . $alt . '" title="' . $alt . '">';
+						} else {
+							return '<img src="' . $matches[1] . '" alt="' . $alt . '">';
+						}
 					},
 					$text
 				);
