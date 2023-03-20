@@ -274,6 +274,10 @@ Karl Marx - Die ursprüngliche Akkumulation
 				'expectedHTML' => '<p>This is:</p><ol><li>some</li><li>amazing</li><li>list</li></ol>',
 				'text' => "This is:\r\n[ol]\r\n[*]some\r\n[*]amazing\r\n[*]list\r\n[/ol]",
 			],
+			'task-12917-tabs-between-linebreaks' => [
+				'expectedHTML' => '<p>Paragraph</p><p>New Paragraph</p>',
+				'text' => "Paragraph\n\t\nNew Paragraph",
+			],
 		];
 	}
 
