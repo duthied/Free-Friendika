@@ -201,8 +201,6 @@ class Item
 		$notify_items = [];
 
 		while ($item = DBA::fetch($items)) {
-			Post\Media::deleteByURIId($item['uri-id'], [Post\Media::HTML]);
-
 			if (!empty($fields['body'])) {
 				if (!empty($item['quote-uri-id'])) {
 					$fields['body'] = BBCode::removeSharedData($fields['body']);
