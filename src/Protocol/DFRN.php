@@ -1342,7 +1342,7 @@ class DFRN
 	 */
 	private static function processMail(DOMXPath $xpath, DOMNode $mail, array $importer)
 	{
-		Logger::notice("Processing mails");
+		Logger::info("Processing mails");
 
 		$msg = [];
 		$msg['uid'] = $importer['importer_uid'];
@@ -1370,7 +1370,7 @@ class DFRN
 	 */
 	private static function processSuggestion(DOMXPath $xpath, DOMNode $suggestion, array $importer)
 	{
-		Logger::notice('Processing suggestions');
+		Logger::info('Processing suggestions');
 
 		$url = $xpath->evaluate('string(dfrn:url[1]/text())', $suggestion);
 		$cid = Contact::getIdForURL($url);
@@ -1446,7 +1446,7 @@ class DFRN
 	 */
 	private static function processRelocation(DOMXPath $xpath, DOMNode $relocation, array $importer): bool
 	{
-		Logger::notice("Processing relocations");
+		Logger::info("Processing relocations");
 
 		/// @TODO Rewrite this to one statement
 		$relocate = [];
@@ -1499,7 +1499,7 @@ class DFRN
 
 		Contact::updateAvatar($importer['id'], $relocate['avatar'], true);
 
-		Logger::notice('Contacts are updated.');
+		Logger::info('Contacts are updated.');
 
 		/// @TODO
 		/// merge with current record, current contents have priority
@@ -1594,22 +1594,22 @@ class DFRN
 			// Big question: Do we need these functions? They were part of the "consume_feed" function.
 			// This function once was responsible for DFRN and OStatus.
 			if ($activity->match($item['verb'], Activity::FOLLOW)) {
-				Logger::notice("New follower");
+				Logger::info("New follower");
 				Contact::addRelationship($importer, $contact, $item);
 				return false;
 			}
 			if ($activity->match($item['verb'], Activity::UNFOLLOW)) {
-				Logger::notice("Lost follower");
+				Logger::info("Lost follower");
 				Contact::removeFollower($contact);
 				return false;
 			}
 			if ($activity->match($item['verb'], Activity::REQ_FRIEND)) {
-				Logger::notice("New friend request");
+				Logger::info("New friend request");
 				Contact::addRelationship($importer, $contact, $item, true);
 				return false;
 			}
 			if ($activity->match($item['verb'], Activity::UNFRIEND)) {
-				Logger::notice("Lost sharer");
+				Logger::info("Lost sharer");
 				Contact::removeSharer($contact);
 				return false;
 			}
@@ -1759,7 +1759,7 @@ class DFRN
 	 */
 	private static function processEntry(array $header, DOMXPath $xpath, DOMNode $entry, array $importer, string $xml, int $protocol)
 	{
-		Logger::notice("Processing entries");
+		Logger::info("Processing entries");
 
 		$item = $header;
 
@@ -2107,7 +2107,7 @@ class DFRN
 	 */
 	private static function processDeletion(DOMXPath $xpath, DOMNode $deletion, array $importer)
 	{
-		Logger::notice("Processing deletions");
+		Logger::info("Processing deletions");
 		$uri = null;
 
 		foreach ($deletion->attributes as $attributes) {
@@ -2287,7 +2287,7 @@ class DFRN
 				self::processDeletion($xpath, $deletion, $importer);
 			}
 			if (count($deletions) > 0) {
-				Logger::notice(count($deletions) . ' deletions had been processed');
+				Logger::info(count($deletions) . ' deletions had been processed');
 				return 200;
 			}
 		}
