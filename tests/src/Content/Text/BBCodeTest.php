@@ -317,6 +317,14 @@ Karl Marx - Die ursprüngliche Akkumulation
 				'expected' => '&amp;`&`',
 				'text' => '&[code]&[/code]',
 			],
+			'bug-12701-quotes' => [
+				'expected' => '[![abc"fgh](https://domain.tld/photo/86912721086415cdc8e0a03226831581-1.png)](https://domain.tld/photos/user/image/86912721086415cdc8e0a03226831581)',
+				'text' => '[url=https://domain.tld/photos/user/image/86912721086415cdc8e0a03226831581][img=https://domain.tld/photo/86912721086415cdc8e0a03226831581-1.png]abc"fgh[/img][/url]'
+			],
+			'bug-12701-no-quotes' => [
+				'expected' => '[![abcfgh](https://domain.tld/photo/86912721086415cdc8e0a03226831581-1.png "abcfgh")](https://domain.tld/photos/user/image/86912721086415cdc8e0a03226831581)',
+				'text' => '[url=https://domain.tld/photos/user/image/86912721086415cdc8e0a03226831581][img=https://domain.tld/photo/86912721086415cdc8e0a03226831581-1.png]abcfgh[/img][/url]'
+			],
 		];
 	}
 
@@ -331,7 +339,7 @@ Karl Marx - Die ursprüngliche Akkumulation
 	 *
 	 * @throws InternalServerErrorException
 	 */
-	public function testToMarkdown(string $expected, string $text, $for_diaspora = false)
+	public function testToMarkdown(string $expected, string $text, $for_diaspora = true)
 	{
 		$actual = BBCode::toMarkdown($text, $for_diaspora);
 
