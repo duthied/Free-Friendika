@@ -192,7 +192,7 @@
 		// Create colorpickers
 		$("#frio_nav_bg, #frio_nav_icon_color, #frio_background_color, #frio_link_color, #frio_login_bg_color").colorpicker({format: 'hex', align: 'left'});
 
-		// show image options when user user starts to type the address of the image
+		// show image options when user starts to type the address of the image
 		$("#id_frio_background_image").keyup(function(){
 			var elText = $(this).val();
 			if(elText.length !== 0) {
