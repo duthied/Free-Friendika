@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * Name: frio
- * Description: Responsive theme based on a modern HTML/CSS/Javascript framework.
+ * Description: Responsive theme based on a modern HTML/CSS/JavaScript framework.
  * Version: V.1.0
  * Author: Rabuzarus <https://friendica.kommune4.de/profile/rabuzarus>
  * Maintainer: Hypolite Petovan <https://friendica.mrpetovan.com/profile/hypolite>

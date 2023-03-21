@@ -291,7 +291,7 @@ class Page implements ArrayAccess
 	 * Initializes Page->page['footer'].
 	 *
 	 * Includes:
-	 * - Javascript homebase
+	 * - JavaScript homebase
 	 * - Mobile toggle link
 	 * - Registered footer scripts (through App->registerFooterScript())
 	 * - footer.tpl template

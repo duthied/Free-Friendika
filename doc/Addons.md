@@ -124,7 +124,7 @@ function <addon>_footer()
 ### JavaScript hooks
 
 The main Friendica script provides hooks via events dispatched on the `document` property.
-In your Javascript file included as described above, add your event listener like this:
+In your JavaScript file included as described above, add your event listener like this:
 
 ```js
 document.addEventListener(name, callback);
@@ -133,7 +133,7 @@ document.addEventListener(name, callback);
 - *name* is the name of the hook and corresponds to a known Friendica JavaScript hook.
 - *callback* is a JavaScript anonymous function to execute.
 
-More info about Javascript event listeners: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+More info about JavaScript event listeners: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
 
 #### Current JavaScript hooks
 
@@ -425,7 +425,7 @@ Called after HTML content functions have completed.
 
 ### footer
 Called after HTML content functions have completed.
-Deferred Javascript files should be registered using this hook.
+Deferred JavaScript files should be registered using this hook.
 `$b` is (string) HTML of footer div/element.
 
 ### avatar_lookup

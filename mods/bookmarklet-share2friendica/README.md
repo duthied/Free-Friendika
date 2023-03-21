@@ -1,6 +1,6 @@
 # Bookmarklet-share2friendica
 
-Javascript bookmarklet to share websites with your friendica account
+JavaScript bookmarklet to share websites with your friendica account
 
 ## Getting Started
 

@@ -38,7 +38,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Asynchronous attachment upload module
  *
- * Only used as the target action of the AjaxUpload Javascript library
+ * Only used as the target action of the AjaxUpload JavaScript library
  */
 class Upload extends \Friendica\BaseModule
 {

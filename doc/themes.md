@@ -50,7 +50,7 @@ if you want to override any template within your theme create your version of th
 
 any template that exists there will be used instead of the default one.
 
-### Javascript
+### JavaScript
 
 The same rule applies to the JavaScript files found in
 
