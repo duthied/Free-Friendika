@@ -45,14 +45,18 @@ class FriendicaExtension extends BaseDataTransferObject
 	/** @var string|null (Datetime) */
 	protected $received_at;
 
-	/** @var FriendicaDeliveryData */
+	/** @var FriendicaDeliveryData|null */
 	protected $delivery_data;
 	/** @var int */
 	protected $dislikes_count;
+	/**
+	 * @var FriendicaVisibility|null
+	 */
+	protected $visibility;
 
 
 	/**
-	 * Creates a status count object
+	 * Creates a FriendicaExtension object
 	 *
 	 * @param string $title
 	 * @param string|null $changed_at
@@ -60,7 +64,8 @@ class FriendicaExtension extends BaseDataTransferObject
 	 * @param string|null $edited_at
 	 * @param string|null $received_at
 	 * @param int $dislikes_count
-	 * @param FriendicaDeliveryData $delivery_data
+	 * @param FriendicaDeliveryData|null $delivery_data
+	 * @param FriendicaVisibility|null $visibility
 	 */
 	public function __construct(
 		string $title,
@@ -68,7 +73,8 @@ class FriendicaExtension extends BaseDataTransferObject
 		?string $commented_at,
 		?string $received_at,
 		int $dislikes_count,
-		FriendicaDeliveryData $delivery_data
+		?FriendicaDeliveryData $delivery_data,
+		?FriendicaVisibility $visibility
 	) {
 		$this->title          = $title;
 		$this->changed_at     = $changed_at ? DateTimeFormat::utc($changed_at, DateTimeFormat::JSON) : null;
@@ -76,6 +82,7 @@ class FriendicaExtension extends BaseDataTransferObject
 		$this->received_at    = $received_at ? DateTimeFormat::utc($received_at, DateTimeFormat::JSON) : null;
 		$this->delivery_data  = $delivery_data;
 		$this->dislikes_count = $dislikes_count;
+		$this->visibility     = $visibility;
 	}
 
 	/**
