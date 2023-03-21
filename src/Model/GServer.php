@@ -1585,17 +1585,16 @@ class GServer
 	 */
 	private static function getNomadVersion(string $url): string
 	{
-		$version = '';
 		$curlResult = DI::httpClient()->get($url . '/api/z/1.0/version', HttpClientAccept::JSON);
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
-			return $version;
+			return '';
 		}
 
 		$data = json_decode($curlResult->getBody(), true);
 		if (empty($data)) {
-			return $version;
+			return '';
 		}
-		return $data ?? $version;
+		return $data ?? '';
 	}
 
 	/**
