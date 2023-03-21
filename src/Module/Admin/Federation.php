@@ -111,7 +111,7 @@ class Federation extends BaseAdmin
 
 				if (in_array($gserver['platform'], ['Red Matrix', 'redmatrix', 'red'])) {
 					$version['version'] = 'Red ' . $version['version'];
-				} elseif (in_array($gserver['platform'], ['osada', 'mistpark', 'roadhouse', 'zap', 'macgirvin', 'mkultra'])) {
+				} elseif (in_array($gserver['platform'], ['osada', 'mistpark', 'roadhouse', 'streams', 'zap'])) {
 					$version['version'] = $gserver['platform'] . ' ' . $version['version'];
 				} elseif (in_array($gserver['platform'], ['activityrelay', 'pub-relay', 'selective-relay', 'aoderelay'])) {
 					$version['version'] = $gserver['platform'] . '-' . $version['version'];
@@ -127,7 +127,7 @@ class Federation extends BaseAdmin
 				$platform = 'friendica';
 			} elseif (in_array($platform, ['red matrix', 'redmatrix', 'red'])) {
 				$platform = 'hubzilla';
-			} elseif (in_array($platform, ['nomad', 'osada', 'mistpark', 'roadhouse', 'zap', 'macgirvin', 'mkultra'])) {
+			} elseif (in_array($platform, ['osada', 'mistpark', 'roadhouse', 'streams', 'zap'])) {
 				$platform = 'nomad';
 			} elseif(stristr($platform, 'pleroma')) {
 				$platform = 'pleroma';

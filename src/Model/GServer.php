@@ -755,6 +755,10 @@ class GServer
 			return false;
 		}
 
+		if (empty($serverdata['version']) && in_array($serverdata['platform'], ['osada']) && in_array($serverdata['detection-method'], [self::DETECT_CONTACTS, self::DETECT_BODY])) {
+			$serverdata['version'] = self::getNomadVersion($url);
+		}
+
 		// Detect the directory type
 		$serverdata['directory-type'] = self::DT_NONE;
 
@@ -1499,14 +1503,15 @@ class GServer
 			$serverdata['network'] = Protocol::ACTIVITYPUB;
 			$serverdata['site_name'] = JsonLD::fetchElement($actor, 'as:name', '@value');
 			$serverdata['info'] = JsonLD::fetchElement($actor, 'as:summary', '@value');
-			if (!empty($actor['as:generator'])) {
+			if (self::isNomad($actor)) {
+				$serverdata['platform'] = self::getNomadName($actor['@id']);
+				$serverdata['version'] = self::getNomadVersion($actor['@id']);
+				$serverdata['detection-method'] = self::DETECT_SYSTEM_ACTOR;
+			} elseif (!empty($actor['as:generator'])) {
 				$generator = explode(' ', JsonLD::fetchElement($actor['as:generator'], 'as:name', '@value'));
 				$serverdata['platform'] = strtolower(array_shift($generator));
+				$serverdata['version'] = self::getNomadVersion($actor['@id']);
 				$serverdata['detection-method'] = self::DETECT_SYSTEM_ACTOR;
-				if (self::isNomad($actor)) {
-					$serverdata['version']  = $serverdata['platform'];
-					$serverdata['platform'] = 'nomad';
-				}
 			} else {
 				$serverdata['detection-method'] = self::DETECT_AP_ACTOR;
 			}
@@ -1548,6 +1553,49 @@ class GServer
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Fetch the name of Nomad implementation
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	private static function getNomadName(string $url): string
+	{
+		$name = 'nomad';
+		$curlResult = DI::httpClient()->get($url . '/manifest', 'application/manifest+json');
+		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+			return $name;
+		}
+
+		$data = json_decode($curlResult->getBody(), true);
+		if (empty($data)) {
+			return $name;
+		}
+
+		return $data['name'] ?? $name;
+	}
+
+	/**
+	 * Fetch the version of the Nomad installation
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	private static function getNomadVersion(string $url): string
+	{
+		$version = '';
+		$curlResult = DI::httpClient()->get($url . '/api/z/1.0/version', HttpClientAccept::JSON);
+		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+			return $version;
+		}
+
+		$data = json_decode($curlResult->getBody(), true);
+		if (empty($data)) {
+			return $version;
+		}
+		return $data ?? $version;
 	}
 
 	/**
