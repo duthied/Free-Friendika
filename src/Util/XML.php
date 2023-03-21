@@ -397,7 +397,7 @@ class XML
 						}
 						$repeated_tag_index[$tag . '_' . $level]++;
 					} else { // If it is not an array...
-						$current[$tag] = [$current[$tag], $result]; //...Make it an array using using the existing value and the new value
+						$current[$tag] = [$current[$tag], $result]; //...Make it an array using the existing value and the new value
 						$repeated_tag_index[$tag . '_' . $level] = 1;
 						if ($priority == 'tag' and $get_attributes) {
 							if (isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
