@@ -340,7 +340,7 @@ function toggleJotNav(elm) {
 	$("#jot-modal .modal-header .nav-tabs .jot-nav-lnk").attr("aria-selected", "false");
 	elm.setAttribute("aria-selected", "true");
 
-	// For some some tab panels we need to execute other js functions.
+	// For some tab panels we need to execute other js functions.
 	if (tabpanel === "jot-preview-content") {
 		preview_post();
 		// Make Share button visivle in preview
