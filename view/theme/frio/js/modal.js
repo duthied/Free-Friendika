@@ -38,7 +38,7 @@ $(document).ready(function () {
 		// We need to make sure we only put a Colorbox on links to Friendica images.
 		// We'll try to do this by looking for links of the form
 		// .../photo/ab803d8eg08daf85023adfec08 (with nothing more following), in hopes
-		// that that will be unique enough.
+		// that will be unique enough.
 		if (imgHref.match(/\/photo\/[a-fA-F0-9]+(-[0-9]\.[\w]+?)?$/)) {
 			// Add a unique class to all the images of a certain post, to allow scrolling through
 			var cBoxClass = $(this).closest(".wall-item-body").attr("id") + "-lightbox";
@@ -293,7 +293,7 @@ function editpost(url) {
 
 			// To make dropzone fileupload work on editing a comment, we need to
 			// attach a new dropzone to modal
-			dzFactory.setupDropzone('#jot-text-wrap', 'profile-jot-text'); 
+			dzFactory.setupDropzone('#jot-text-wrap', 'profile-jot-text');
 
 			modal.show();
 			$("#jot-popup").show();
