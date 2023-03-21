@@ -145,7 +145,7 @@ echo $myBlue->getCssGradient(10, TRUE);
 
 ```
 
-## Github Contributors
+## GitHub Contributors
 - mexitek
 - danielpataki
 - alexmglover
