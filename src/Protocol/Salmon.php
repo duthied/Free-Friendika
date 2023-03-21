@@ -85,7 +85,7 @@ class Salmon
 		Logger::notice('Key located', ['ret' => $ret]);
 
 		if (count($ret) == 1) {
-			/* We only found one one key so we don't care if the hash matches.
+			/* We only found one key so we don't care if the hash matches.
 			 * If it's the wrong key we'll find out soon enough because
 			 * message verification will fail. This also covers some older
 			 * software which don't supply a keyhash. As long as they only
