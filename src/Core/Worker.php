@@ -1422,7 +1422,7 @@ class Worker
 	 */
 	public static function isInMaintenanceWindow(bool $check_last_execution = false): bool
 	{
-		// Calculate the seconds of the start end end of the maintenance window
+		// Calculate the seconds of the start and end of the maintenance window
 		$start = strtotime(DI::config()->get('system', 'maintenance_start')) % 86400;
 		$end = strtotime(DI::config()->get('system', 'maintenance_end')) % 86400;
 
