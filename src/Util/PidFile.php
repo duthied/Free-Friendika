@@ -31,7 +31,7 @@ class PidFile
 	 *
 	 * @param string $file Filename of pid file
 	 *
-	 * @return boolean|string PID or "false" if not existent
+	 * @return boolean|string PID or "false" if nonexistent
 	 */
 	private static function pidFromFile(string $file)
 	{

@@ -2280,7 +2280,7 @@ class Probe
 				]
 			];
 		} catch (Exception $e) {
-			// Default values for non existing targets
+			// Default values for nonexistent targets
 			$data = [
 				'name' => $url, 'nick' => $url, 'url' => $url, 'network' => Protocol::PHANTOM,
 				'photo' => DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO
