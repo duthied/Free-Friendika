@@ -72,6 +72,7 @@ class Site extends BaseAdmin
 		$jpegimagequality = (!empty($_POST['jpegimagequality']) ? intval(trim($_POST['jpegimagequality']))           : 100);
 
 		$register_policy        = (!empty($_POST['register_policy'])         ? intval(trim($_POST['register_policy']))             : 0);
+		$max_registered_users   = (!empty($_POST['max_registered_users'])     ? intval(trim($_POST['max_registered_users']))         : 0);
 		$daily_registrations    = (!empty($_POST['max_daily_registrations']) ? intval(trim($_POST['max_daily_registrations']))     : 0);
 		$abandon_days           = (!empty($_POST['abandon_days'])            ? intval(trim($_POST['abandon_days']))                : 0);
 
@@ -210,7 +211,11 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'jpeg_quality'           , $jpegimagequality);
 
 		$transactionConfig->set('config', 'register_policy'        , $register_policy);
+		$transactionConfig->set('config', 'max_registered_users'   , $max_registered_users);
 		$transactionConfig->set('system', 'max_daily_registrations', $daily_registrations);
+
+		User::setRegisterMethodByUserCount();
+
 		$transactionConfig->set('system', 'account_abandon_days'   , $abandon_days);
 		$transactionConfig->set('config', 'register_text'          , $register_text);
 		$transactionConfig->set('system', 'allowed_sites'          , $allowed_sites);
@@ -431,6 +436,7 @@ class Site extends BaseAdmin
 			'$jpegimagequality' => ['jpegimagequality', DI::l10n()->t('JPEG image quality'), DI::config()->get('system', 'jpeg_quality'), DI::l10n()->t('Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.')],
 
 			'$register_policy'        => ['register_policy', DI::l10n()->t('Register policy'), DI::config()->get('config', 'register_policy'), '', $register_choices],
+			'$max_registered_users'   => ['max_registered_users', DI::l10n()->t('Maximum Users'), DI::config()->get('config', 'max_registered_users'), DI::l10n()->t('If defined, the register policy is automatically closed when the given number of users is reached and reopens the registry when the number drops below the limit. It only works when the policy is set to open or close, but not when the policy is set to approval.')],
 			'$daily_registrations'    => ['max_daily_registrations', DI::l10n()->t('Maximum Daily Registrations'), DI::config()->get('system', 'max_daily_registrations'), DI::l10n()->t('If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.')],
 			'$register_text'          => ['register_text', DI::l10n()->t('Register text'), DI::config()->get('config', 'register_text'), DI::l10n()->t('Will be displayed prominently on the registration page. You can use BBCode here.')],
 			'$forbidden_nicknames'    => ['forbidden_nicknames', DI::l10n()->t('Forbidden Nicknames'), DI::config()->get('system', 'forbidden_nicknames'), DI::l10n()->t('Comma separated list of nicknames that are forbidden from registration. Preset is a list of role names according RFC 2142.')],

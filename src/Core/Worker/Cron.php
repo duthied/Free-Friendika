@@ -28,8 +28,8 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Post;
+use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Protocol\Delivery;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
@@ -65,6 +65,9 @@ class Cron
 
 		// Directly deliver or requeue posts to other systems
 		self::deliverPosts();
+
+		// Automatically open/close the registration based on the user count
+		User::setRegisterMethodByUserCount();
 	}
 
 	/**
