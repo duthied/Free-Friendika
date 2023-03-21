@@ -532,7 +532,7 @@ class Strings
 	}
 
 	/**
-	 * This function converts a PHP's shorhand notation string for file sizes in to an integer number of total bytes.
+	 * This function converts a PHP's shorhand notation string for file sizes into an integer number of total bytes.
 	 * For example: The string for shorthand notation of '2M' (which is 2,097,152 Bytes) is converted to 2097152
 	 * @see https://www.php.net/manual/en/faq.using.php#faq.using.shorthandbytes
 	 * @param string $shorthand
