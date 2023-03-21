@@ -361,7 +361,7 @@ function toggleJotNav(elm) {
 // it redirects you to your own server. In such cases we can't
 // load it into a modal.
 function openWallMessage(url) {
-	// Split the the url in its parts.
+	// Split the url in its parts.
 	var parts = parseUrl(url);
 
 	// If the host isn't the same we can't load it in a modal.

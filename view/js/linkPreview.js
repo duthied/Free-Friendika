@@ -368,7 +368,7 @@
 
 			// More than just one image.
 			if (images.length > 1) {
-				// Enable the the button to change the preview pictures.
+				// Enable the button to change the preview pictures.
 				$('#previewChangeImg_' + id).show();
 
 				if (firstPosted === false) {

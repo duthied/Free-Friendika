@@ -248,7 +248,7 @@ class Receiver
 	 * Fetches the object type for a given object id
 	 *
 	 * @param array   $activity
-	 * @param string  $object_id Object ID of the the provided object
+	 * @param string  $object_id Object ID of the provided object
 	 * @param integer $uid       User ID
 	 *
 	 * @return string with object type or NULL
@@ -1372,7 +1372,7 @@ class Receiver
 	/**
 	 * Fetches the object data from external ressources if needed
 	 *
-	 * @param string  $object_id    Object ID of the the provided object
+	 * @param string  $object_id    Object ID of the provided object
 	 * @param array   $object       The provided object array
 	 * @param boolean $trust_source Do we trust the provided object?
 	 * @param integer $uid          User ID for the signature that we use to fetch data

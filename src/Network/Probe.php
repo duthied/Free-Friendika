@@ -1623,7 +1623,7 @@ class Probe
 		if (!empty($feed_data['header']['author-about'])) {
 			$data['about'] = $feed_data['header']['author-about'];
 		}
-		// OStatus has serious issues when the the url doesn't fit (ssl vs. non ssl)
+		// OStatus has serious issues when the url doesn't fit (ssl vs. non ssl)
 		// So we take the value that we just fetched, although the other one worked as well
 		if (!empty($feed_data['header']['author-link'])) {
 			$data['url'] = $feed_data['header']['author-link'];

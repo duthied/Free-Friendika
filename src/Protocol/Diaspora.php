@@ -2770,7 +2770,7 @@ class Diaspora
 		}
 
 		// Normally we should have a filled "addr" field - but in the past this wasn't the case
-		// So - just in case - we build the the address here.
+		// So - just in case - we build the address here.
 		if ($contact['nickname'] != '') {
 			$nick = $contact['nickname'];
 		} else {

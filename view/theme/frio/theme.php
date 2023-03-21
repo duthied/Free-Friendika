@@ -153,7 +153,7 @@ function frio_contact_photo_menu(&$args)
 		$pmlink = '';
 	}
 
-	// Set the the indicator for opening the status, profile and photo pages
+	// Set the indicator for opening the status, profile and photo pages
 	// in a new tab to false if the contact a dfrn (friendica) contact
 	// We do this because we can go back on foreign friendica pages throuhg
 	// friendicas "magic-link" which indicates a friendica user on foreign

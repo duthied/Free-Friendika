@@ -140,7 +140,7 @@ function openHovercard(targetElement, contactUrl, timeNow) {
 				.popover({
 					html: true,
 					placement: function () {
-						// Calculate the placement of the the hovercard (if top or bottom)
+						// Calculate the placement of the hovercard (if top or bottom)
 						// The placement depence on the distance between window top and the element
 						// which triggers the hover-card
 						let get_position = $(targetElement).offset().top - $(window).scrollTop();

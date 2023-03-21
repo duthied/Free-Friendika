@@ -79,7 +79,7 @@ function update_1298()
 					$a = new \stdClass();
 					$a->strings = [];
 
-					// First we get the the localizations
+					// First we get the localizations
 					if (file_exists('view/lang/$lang/strings.php')) {
 						include 'view/lang/$lang/strings.php';
 					}
