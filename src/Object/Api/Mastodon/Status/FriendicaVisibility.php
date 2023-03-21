@@ -32,16 +32,16 @@ use Friendica\BaseDataTransferObject;
  */
 class FriendicaVisibility extends BaseDataTransferObject
 {
-	/** @var string|null */
+	/** @var array */
 	protected $allow_cid;
-	/** @var string|null */
+	/** @var array */
 	protected $deny_cid;
-	/** @var string|null */
+	/** @var array */
 	protected $allow_gid;
-	/** @var string|null */
+	/** @var array */
 	protected $deny_gid;
 
-	public function __construct(?string $allow_cid, ?string $deny_cid, ?string $allow_gid, ?string $deny_gid)
+	public function __construct(array $allow_cid, array $deny_cid, array $allow_gid, array $deny_gid)
 	{
 		$this->allow_cid = $allow_cid;
 		$this->deny_cid  = $deny_cid;

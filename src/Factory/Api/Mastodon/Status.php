@@ -28,6 +28,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag as TagModel;
@@ -291,8 +292,9 @@ class Status extends BaseFactory
 			$in_reply = [];
 		}
 
+		$aclFormatter = DI::aclFormatter();
 		$delivery_data   = $uid != $item['uid'] ? null : new FriendicaDeliveryData($item['delivery_queue_count'], $item['delivery_queue_done'], $item['delivery_queue_failed']);
-		$visibility_data = $uid != $item['uid'] ? null : new FriendicaVisibility($item['allow_cid'], $item['deny_cid'], $item['allow_gid'], $item['deny_gid']);
+		$visibility_data = $uid != $item['uid'] ? null : new FriendicaVisibility($aclFormatter->expand($item['allow_cid']), $aclFormatter->expand($item['deny_cid']), $aclFormatter->expand($item['allow_gid']), $aclFormatter->expand($item['deny_gid']));
 		$friendica       = new FriendicaExtension($item['title'], $item['changed'], $item['commented'], $item['received'], $counts->dislikes, $delivery_data, $visibility_data);
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica, $quote, $poll);
