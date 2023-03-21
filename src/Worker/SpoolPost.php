@@ -38,7 +38,7 @@ class SpoolPost {
 
 					// It is not named like a spool file, so we don't care.
 					if (substr($file, 0, 5) != "item-") {
-						Logger::info('Spool file does does not start with "item-"', ['file' => $file]);
+						Logger::info('Spool file does not start with "item-"', ['file' => $file]);
 						continue;
 					}
 
