@@ -2615,7 +2615,7 @@ class Item
 	 *            Activity verb. One of
 	 *            like, unlike, dislike, undislike, attendyes, unattendyes,
 	 *            attendno, unattendno, attendmaybe, unattendmaybe,
-	 *            announce, unannouce
+	 *            announce, unannounce
 	 * @param int    $uid
 	 * @param string $allow_cid
 	 * @param string $allow_gid
