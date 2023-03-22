@@ -627,7 +627,7 @@ class HTTPSignature
 		}
 
 		if (empty($algorithm)) {
-			Logger::info('No alagorithm');
+			Logger::info('No algorithm');
 			return false;
 		}
 
