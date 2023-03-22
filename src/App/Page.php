@@ -503,7 +503,7 @@ class Page implements ArrayAccess
 
 			$content = mb_convert_encoding($this->page["content"], 'HTML-ENTITIES', "UTF-8");
 
-			/// @TODO one day, kill those error-surpressing @ stuff, or PHP should ban it
+			/// @TODO one day, kill those error-suppressing @ stuff, or PHP should ban it
 			@$doc->loadHTML($content);
 
 			$xpath = new DOMXPath($doc);

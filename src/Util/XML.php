@@ -441,7 +441,7 @@ class XML
 	 * Parse XML string
 	 *
 	 * @param string  $s XML string to parse into object
-	 * @param boolean $suppress_log Whether to supressing logging
+	 * @param boolean $suppress_log Whether to suppressing logging
 	 * @return SimpleXMLElement|bool SimpleXMLElement or false on failure
 	 */
 	public static function parseString(string $s, bool $suppress_log = false)
