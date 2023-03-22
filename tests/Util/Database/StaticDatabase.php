@@ -183,7 +183,7 @@ class StaticDatabase extends Database
 			self::$staticConnection->setAttribute(PDO::ATTR_AUTOCOMMIT,0);
 		} catch (PDOException $e) {
 			/*
-			 * @TODO Try to find a way to log this exception as it contains valueable information
+			 * @TODO Try to find a way to log this exception as it contains valuable information
 			 * @nupplaphil@github.com comment:
 			 *
 			 * There is no easy possibility to add a logger here, that's why
