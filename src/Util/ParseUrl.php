@@ -91,7 +91,7 @@ class ParseUrl
 	}
 
 	/**
-	 * Search for chached embeddable data of an url otherwise fetch it
+	 * Search for cached embeddable data of an url otherwise fetch it
 	 *
 	 * @param string $url         The url of the page which should be scraped
 	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
