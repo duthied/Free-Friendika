@@ -36,12 +36,12 @@ $(document).ready(function () {
 		return false;
 	});
 
-	// add the class "selected" to group widges li if li > a does have the class group-selected
+	// add the class "selected" to group widgets li if li > a does have the class group-selected
 	if ($("#sidebar-group-ul li a").hasClass("group-selected")) {
 		$("#sidebar-group-ul li a.group-selected").parent("li").addClass("selected");
 	}
 
-	// add the class "selected" to forums widges li if li > a does have the class forum-selected
+	// add the class "selected" to forums widgets li if li > a does have the class forum-selected
 	if ($("#forumlist-sidebar-ul li a").hasClass("forum-selected")) {
 		$("#forumlist-sidebar-ul li a.forum-selected").parent("li").addClass("selected");
 	}
