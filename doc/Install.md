@@ -231,7 +231,7 @@ Copy `.htaccess-dist` to `.htaccess` (be careful under Windows) to have working 
 
 Example:
 
-    cp .htacces-dist .htaccess
+    cp .htaccess-dist .htaccess
 
 *Note*: Do **not** rename the `.htaccess-dist` file as it is tracked by GIT and renaming will cause a dirty working directory.
 
