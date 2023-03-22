@@ -1713,7 +1713,7 @@ class DFRN
 	 * Checks if an incoming message is wanted
 	 *
 	 * @param array $item
-	 * @param array $imporer
+	 * @param array $importer
 	 * @return boolean Is the message wanted?
 	 */
 	private static function isSolicitedMessage(array $item, array $importer): bool
