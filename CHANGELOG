@@ -1539,7 +1539,7 @@ Version 3.6 (2018-03-23)
     all bridges don't relay postings anymore that are posted to a public forum [annando]
     DAV addon marked unsupported [tobiasd]
     communityhome addon marked unsupported [MrPetovan]
-    yourls addon makrked unsupported [MrPetovan]
+    yourls addon marked unsupported [MrPetovan]
     Current Weather: fixing a problem with the weathermap link [zeroadam]
     NSFW added config examples, reworked the description, now ignores the CW from Mastodon [andyhee, annando, rebeka-catalina]
     Twitter support 280 chars limit [annando]
