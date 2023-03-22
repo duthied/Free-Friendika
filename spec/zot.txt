@@ -289,7 +289,7 @@ systems MAY reject foreign messages.
 *******************************
 
 This section of the document is considered separate from the delivery 
-specification precding it and represents a different protocol, which is
+specification preceding it and represents a different protocol, which is
 currently incomplete. This will be split off into another document in the
 future, but is presented here as a synergistic component of the Zot network
 model. 
