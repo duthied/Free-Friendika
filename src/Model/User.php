@@ -1232,7 +1232,7 @@ class User
 
 				$resource_id = Photo::newResource();
 
-				// Not using Photo::PROFILE_PHOTOS here, so that it is discovered as translateble string
+				// Not using Photo::PROFILE_PHOTOS here, so that it is discovered as translatable string
 				$profile_album = DI::l10n()->t('Profile Photos');
 
 				$r = Photo::store($image, $uid, 0, $resource_id, $filename, $profile_album, 4);
