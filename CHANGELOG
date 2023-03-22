@@ -1796,7 +1796,7 @@ Version 3.5 (2016-09-13)
     Improvements on the themes (quattro, vier, frost) [rabuzarus, fabrixxm, stieben, annando, Quix0r, tobiasd]
     Improvements to the ACL dialog [fabrixxm, rabuzarus]
     Improvements to the database structure and optimization of queries [annando]
-    Improvements to the UI (contacts, hotkeys, remember me, ARIA, code hightlighting) [rabuzarus, annando, tobiasd]
+    Improvements to the UI (contacts, hotkeys, remember me, ARIA, code highlighting) [rabuzarus, annando, tobiasd]
     Improvements to the background process (poller, worker) [annando]
     Improvements to the admin panel [tobiasd, annando, fabrixxm]
     Improvements to the performance [annando]
