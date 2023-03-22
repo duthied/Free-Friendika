@@ -74,11 +74,11 @@ class Receiver
 	const TARGET_ANSWER = 6;
 	const TARGET_GLOBAL = 7;
 
-	const COMPLETION_NONE    = 0;
-	const COMPLETION_ANNOUCE = 1;
-	const COMPLETION_RELAY   = 2;
-	const COMPLETION_MANUAL  = 3;
-	const COMPLETION_AUTO    = 4;
+	const COMPLETION_NONE     = 0;
+	const COMPLETION_ANNOUNCE = 1;
+	const COMPLETION_RELAY    = 2;
+	const COMPLETION_MANUAL   = 3;
+	const COMPLETION_AUTO     = 4;
 
 	/**
 	 * Checks incoming message from the inbox
@@ -643,7 +643,7 @@ class Receiver
 			}
 		}
 
-		$decouple = DI::config()->get('system', 'decoupled_receiver') && !in_array($completion, [self::COMPLETION_MANUAL, self::COMPLETION_ANNOUCE]);
+		$decouple = DI::config()->get('system', 'decoupled_receiver') && !in_array($completion, [self::COMPLETION_MANUAL, self::COMPLETION_ANNOUNCE]);
 
 		if ($decouple && ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted'))) {
 			$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push, $trust_source);
@@ -731,7 +731,7 @@ class Receiver
 			case 'as:Announce':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					if (!Item::searchByLink($object_data['object_id'], $uid)) {
-						if (ActivityPub\Processor::fetchMissingActivity($object_data['object_id'], [], $object_data['actor'], self::COMPLETION_ANNOUCE, $uid)) {
+						if (ActivityPub\Processor::fetchMissingActivity($object_data['object_id'], [], $object_data['actor'], self::COMPLETION_ANNOUNCE, $uid)) {
 							Logger::debug('Created announced id', ['uid' => $uid, 'id' => $object_data['object_id']]);
 							Queue::remove($object_data);
 						} else {
