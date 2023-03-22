@@ -1,5 +1,5 @@
 
-{{* template incomming contact request and suggested contacts *}}
+{{* template incoming contact request and suggested contacts *}}
 
 <div class="intro-wrapper media" id="intro-{{$intro_id}}">
 
