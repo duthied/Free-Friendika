@@ -532,7 +532,7 @@ class App
 	/**
 	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
 	 *
-	 * @return string Current theme's stylsheet path
+	 * @return string Current theme's stylesheet path
 	 * @throws Exception
 	 */
 	public function getCurrentThemeStylesheetPath(): string
