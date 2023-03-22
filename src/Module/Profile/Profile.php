@@ -254,7 +254,7 @@ class Profile extends BaseProfile
 			);
 		}
 
-		//show subcribed forum if it is enabled in the usersettings
+		//show subscribed forum if it is enabled in the usersettings
 		if (Feature::isEnabled($profile['uid'], 'forumlist_profile')) {
 			$custom_fields += self::buildField(
 				'forumlist',

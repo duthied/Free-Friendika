@@ -102,7 +102,7 @@ class ForumManager
 	/**
 	 * Forumlist widget
 	 *
-	 * Sidebar widget to show subcribed friendica forums. If activated
+	 * Sidebar widget to show subscribed friendica forums. If activated
 	 * in the settings, it appears at the notwork page sidebar
 	 *
 	 * @param string $baseurl Base module path
