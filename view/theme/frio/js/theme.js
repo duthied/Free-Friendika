@@ -51,7 +51,7 @@ $(document).ready(function () {
 		$("#tabmenu ul li a.active").parent("li").addClass("active");
 	}
 
-	// give select fields an boostrap classes
+	// give select fields Bootstrap classes
 	// @todo: this needs to be changed in friendica core
 	$(".field.select, .field.custom").addClass("form-group");
 	$(".field.select > select, .field.custom > select").addClass("form-control");
@@ -121,7 +121,7 @@ $(document).ready(function () {
 		}
 	});
 
-	// initialize the bootstrap tooltips
+	// initialize the Bootstrap tooltips
 	$body.tooltip({
 		selector: '[data-toggle="tooltip"]',
 		container: "body",
