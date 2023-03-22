@@ -32,7 +32,7 @@ class PushSubscriptionTest extends ApiTest
 	 */
 	public function testApiAccountVerifyCredentials(): void
 	{
-		$this->markTestIncomplete('Needs mocking of whole applictaions/Apps first');
+		$this->markTestIncomplete('Needs mocking of whole applications/Apps first');
 
 		// $this->useHttpMethod(Router::POST);
 		//
