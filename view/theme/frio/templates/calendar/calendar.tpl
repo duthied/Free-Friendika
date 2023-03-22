@@ -11,10 +11,10 @@
 	</div>
 	{{/if}}
 
-	{{* We create our own fullcallendar header (with title & calendar view *}}
+	{{* We create our own fullcalendar header (with title & calendar view *}}
 	<div id="fc-header" class="clear">
 		<div id="fc-header-right" class="pull-right">
-			{{* The dropdown to change the callendar view *}}
+			{{* The dropdown to change the calendar view *}}
 			<ul class="nav nav-pills">
 				<li class="dropdown pull-right">
 					<button class="btn btn-link dropdown-toggle" type="button" id="event-calendar-views" data-toggle="dropdown" aria-expanded="false">
