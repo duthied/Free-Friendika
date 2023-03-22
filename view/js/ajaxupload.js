@@ -157,7 +157,7 @@
     /**
      * Function places an absolutely positioned
      * element on top of the specified element
-     * copying position and dimentions.
+     * copying position and dimensions.
      * @param {Element} from
      * @param {Element} to
      */    
@@ -239,7 +239,7 @@
      * Easy styling and uploading
      * @constructor
      * @param button An element you want convert to 
-     * upload button. Tested dimentions up to 500x500px
+     * upload button. Tested dimensions up to 500x500px
      * @param {Object} options See defaults below.
      */
     window.AjaxUpload = function(button, options){
