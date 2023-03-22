@@ -2756,7 +2756,7 @@ class Diaspora
 	 * ************************************************************************************** */
 
 	/**
-	 * returnes the handle of a contact
+	 * returns the handle of a contact
 	 *
 	 * @param array $contact contact array
 	 *
