@@ -74,7 +74,7 @@ Create an email contact with for example Alice on Gmail, enter her email in foll
 In order to avoid abuse or spam, you must have an email from Alice with the correct email address in your email inbox.
 
 Subscribing to mailing lists is done in the same way, but without the use of the "mailto:" prefix.
-To subscribe to a mailing list, enter the email in following example format "mailling-list@list-server.net".
+To subscribe to a mailing list, enter the email in following example format "mailing-list@list-server.net".
 
 ### Syndication feeds
 You can "follow" almost anybody or any website that produces a syndication feed (RSS/Atom,etc.).
