@@ -190,7 +190,7 @@ function loadModalTitle() {
 	// Get the text of the first element with "heading" class.
 	title = $("#modal-body .heading").first().html();
 
-	// for event modals we need some speacial handling
+	// for event modals we need some special handling
 	if ($("#modal-body .event-wrapper .event-summary").length) {
 		title = '<i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;';
 		var eventsum = $("#modal-body .event-wrapper .event-summary").html();
