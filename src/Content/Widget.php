@@ -59,7 +59,7 @@ class Widget
 	/**
 	 * Return Find People widget
 	 *
-	 * @return string HTML code respresenting "People Widget"
+	 * @return string HTML code representing "People Widget"
 	 */
 	public static function findPeople(): string
 	{
