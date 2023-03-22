@@ -385,7 +385,7 @@ class OEmbed
 	}
 
 	/**
-	 * Returns a formmated HTML code from given URL and sets optional title
+	 * Returns a formatted HTML code from given URL and sets optional title
 	 *
 	 * @param string $url URL to fetch
 	 * @param string $title Optional title (default: what comes from OEmbed object)
