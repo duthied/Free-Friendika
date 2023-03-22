@@ -1477,7 +1477,7 @@ Version 3.6 (2018-03-23)
     Enhancements to the probing of pump.io profiles [annando]
     Enhancements to the handling of BBCode tags [MrPetovan]
     Enhancements to the OEmbed handling [MrPetovan]
-    Fixed a bug that triggered the display of activities on the cummunity page [annando]
+    Fixed a bug that triggered the display of activities on the community page [annando]
     Fixed a bug with personal notes [annando]
     Fixed a display issue of long postings when using the showmore option [annando]
     Fixed a bug that caused Twidere to crash on reload [annando]
