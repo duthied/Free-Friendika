@@ -202,7 +202,7 @@
 			}
 		});
 
-		// show the image options is there is allready an image
+		// show the image options is there is already an image
 		if($("#id_frio_background_image").val().length != 0) {
 				$("#frio_bg_image_options").show();
 		}

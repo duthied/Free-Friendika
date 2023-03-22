@@ -686,7 +686,7 @@ class ParseUrl
 	{
 		$urlarr = parse_url($url);
 
-		// If the url does allready have an scheme
+		// If the url does already have an scheme
 		// we can stop the process here
 		if (isset($urlarr['scheme'])) {
 			return $url;

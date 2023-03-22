@@ -124,7 +124,7 @@
           itemTitle = self.options.itemTitle(item),
           itemThumb = self.options.itemThumb(item);
 
-      // Ignore items allready added
+      // Ignore items already added
       var existing = $.grep(self.itemsArray, function(item) { return self.options.itemValue(item) === itemValue; } )[0];
       if (existing && !self.options.allowDuplicates) {
         // Invoke onTagExists

@@ -273,7 +273,7 @@
 		 * @returns {void}
 		 */
 		var processAttachmentTpl = function(data) {
-			// Load and add the template if it isn't allready loaded.
+			// Load and add the template if it isn't already loaded.
 			if ($('#preview_' + id).length === 0) {
 				var tpl = previewTpl.format(
 					'type-' + data.type,
