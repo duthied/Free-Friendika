@@ -813,7 +813,7 @@
 	function returnWord(text, caretPos) {
 		var index = text.indexOf(caretPos);
 		var preText = text.substring(0, caretPos);
-		// If the last charachter is a space or enter remove it
+		// If the last character is a space or enter remove it
 		// We need this in friendica for the url  preview.
 		var lastChar = preText.slice(-1)
 		if ( lastChar === " "
