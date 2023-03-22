@@ -83,7 +83,7 @@ class NewDM extends BaseApi
 
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 
-		$id = Mail::send($cdata['user'], $request['text'], $sub, $replyto);
+		$id = Mail::send($uid, $cdata['user'], $request['text'], $sub, $replyto);
 
 		if ($id > -1) {
 			$ret = $this->directMessage->createFromMailId($id, $uid, $this->getRequestValue($request, 'getText', ''));
