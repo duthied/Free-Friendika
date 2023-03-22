@@ -75,7 +75,7 @@
     };
 
     
-    // Needs more testing, will be rewriten for next version        
+    // Needs more testing, will be rewritten for next version        
     // getOffset function copied from jQuery lib (http://jquery.com/)
     if (document.documentElement.getBoundingClientRect){
         // Get Offset using getBoundingClientRect
