@@ -1071,7 +1071,7 @@ Version 2019.03 (2019-03-22)
     Fixed an issue with sending out notification mails to the admin [nupplaphil]
     Fixed an the issue, that the API was ignoring the globalsilence setting  [nupplaphil]
     Fixed issues with the autolinker of URLs in postings [MrPetovan]
-    Fixed an issue resulting in multible emails after successful updates of the database [nupplaphil]
+    Fixed an issue resulting in multiple emails after successful updates of the database [nupplaphil]
     Fixed a timeout issue during detection process of the remote profile [annando]
     Fixed an issue with postings from blocked servers [annando, MrPetovan]
     Fixed an issue with the paging of stored folders [MrPetovan]
