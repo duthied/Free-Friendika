@@ -478,7 +478,7 @@ function showHide(theID) {
 // Show & hide event map in the network stream by button click.
 function showHideEventMap(elm) {
 	// Get the id of the map element - it should be provided through
-	// the atribute "data-map-id".
+	// the attribute "data-map-id".
 	var mapID = elm.getAttribute("data-map-id");
 
 	// Get translation labels.

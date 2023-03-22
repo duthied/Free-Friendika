@@ -130,7 +130,7 @@ function openHovercard(targetElement, contactUrl, timeNow) {
 	let title = targetElement.attr("title");
 	targetElement.attr({ "data-orig-title": title, title: "" });
 
-	// get an additional data atribute if the card is active
+	// get an additional data attribute if the card is active
 	targetElement.attr("data-hover-card-active", timeNow);
 	// get the whole html content of the hover card and
 	// push it to the bootstrap popover
