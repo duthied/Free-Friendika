@@ -55,7 +55,7 @@ You can also use your Identity Address or other people's Identity Addresses to b
 Currently, Friendica supports connections with people on diaspora*, Red, Hubzilla, GNU Social, StatusNet, Mastodon, Pleroma, socialhome, and ganggo platforms.
 
 If you know (for instance) "alice" on gnusocial.net (a GNU Social site) you could put alice@gnusocial.net into your Contact page and become friends across networks.
-Likwise you can put in the URL to Alice's gnusocial.net page, if you wish.
+Likewise you can put in the URL to Alice's gnusocial.net page, if you wish.
 Note: Some versions of GNU Social software may require the full URL to your profile and may not work with the identity address.
 
 People on these networks can also initiate contact with you, if they know your contact details.
