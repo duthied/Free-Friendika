@@ -590,7 +590,7 @@ class Worker
 		/* With these values we can analyze how effective the worker is.
 		 * The database and rest time should be low since this is the unproductive time.
 		 * The execution time is the productive time.
-		 * By changing parameters like the maximum number of workers we can check the effectivness.
+		 * By changing parameters like the maximum number of workers we can check the effectiveness.
 		*/
 		$dbtotal = round(self::$db_duration, 2);
 		$dbread  = round(self::$db_duration - (self::$db_duration_count + self::$db_duration_write + self::$db_duration_stat), 2);
