@@ -740,7 +740,7 @@ function scrollToItem(elementId) {
 		)
 		.promise()
 		.done(function () {
-			// Highlight post/commenent with ID  (GUID)
+			// Highlight post/comment with ID  (GUID)
 			$el.animate(colWhite, 1000).animate(colShiny).animate({ backgroundColor: "transparent" }, 600);
 		});
 }
