@@ -26,9 +26,9 @@ use Friendica\Util\ACLFormatter;
 use PHPUnit\Framework\TestCase;
 
 /**
- * ACLFormater utility testing class
+ * ACLFormatter utility testing class
  */
-class ACLFormaterTest extends TestCase
+class ACLFormatterTest extends TestCase
 {
 	public function assertAcl($text, array $assert = [])
 	{
