@@ -51,12 +51,12 @@ class Relationships extends BaseApi
 			$request['id'] = [$request['id']];
 		}
 
-		$relationsships = [];
+		$relationships = [];
 
 		foreach ($request['id'] as $id) {
-			$relationsships[] = DI::mstdnRelationship()->createFromContactId($id, $uid);
+			$relationships[] = DI::mstdnRelationship()->createFromContactId($id, $uid);
 		}
 
-		System::jsonExit($relationsships);
+		System::jsonExit($relationships);
 	}
 }
