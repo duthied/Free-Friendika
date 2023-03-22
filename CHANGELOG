@@ -1349,7 +1349,7 @@ Version 2018.05 (2018-06-01)
     Enhancements to the relay system [annando]
     Enhancements to the handling of URL that contain unicode characters [annando]
     Enhancements to the Vagrant VM configuration [fabrixxm, tobiasd]
-    Enhancementa to the Babel module [MrPetovan]
+    Enhancements to the Babel module [MrPetovan]
     Enhancements to the display of the [code] elements [MrPetovan]
     Enhancements to the federation (OStatus, diaspora) [annando]
     Enhancements to the PHP7.2 compatibility [Alkarex, MrPetovan, Quix0r]
@@ -1923,7 +1923,7 @@ Version 3.4.2 (2015-09-29)
 	Updates to the documentation (tobiasd, silke, annando)
 	Updates to the translations (tobiasd & translation teams)
 	Updates to themes frost-mobile, vier, duepuntozero, quattro (annando, tobiasd)
-	Enancements of the communications via OStatus and Diaspora protocols (annando)
+	Enhancements of the communications via OStatus and Diaspora protocols (annando)
 	Option to automatically follow OStatus contacts was moved from addon to the core (annando)
 	Add tool to import OStatus contacts from an old account (annando)
 	SALMON slaps with OStatus were reworked (annando)
