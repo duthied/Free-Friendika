@@ -851,7 +851,7 @@ class User
 	 * Checks if a nickname is in the list of the forbidden nicknames
 	 *
 	 * Check if a nickname is forbidden from registration on the node by the
-	 * admin. Forbidden nicknames (e.g. role namess) can be configured in the
+	 * admin. Forbidden nicknames (e.g. role names) can be configured in the
 	 * admin panel.
 	 *
 	 * @param string $nickname The nickname that should be checked
