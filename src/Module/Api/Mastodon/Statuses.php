@@ -181,7 +181,7 @@ class Statuses extends BaseApi
 			'sensitive'      => false, // Mark status and attached media as sensitive?
 			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
 			'visibility'     => '',    // Visibility of the posted status. One of: "public", "unlisted", "private" or "direct".
-			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this paramter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
+			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this parameter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
 			'language'       => '',    // ISO 639 language code for this status.
 			'friendica'      => [],	   // Friendica extensions to the standard Mastodon API spec
 		], $request);
