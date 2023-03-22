@@ -82,7 +82,7 @@ function frio_install()
  *  This function does replace the links to photos
  *  of other friendica users. Original the photos are
  *  linked to the photo page. Now they will linked directly
- *  to the photo file. This function is nessesary to use colorbox
+ *  to the photo file. This function is necessary to use colorbox
  *  in the network stream
  *
  * @param array $body_info The item and its html output
