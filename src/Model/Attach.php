@@ -192,7 +192,7 @@ class Attach
 	 * @param string  $allow_cid Permissions, allowed contacts. optional, default = ''
 	 * @param string  $allow_gid Permissions, allowed groups. optional, default = ''
 	 * @param string  $deny_cid  Permissions, denied contacts.optional, default = ''
-	 * @param string  $deny_gid  Permissions, denied greoup.optional, default = ''
+	 * @param string  $deny_gid  Permissions, denied group.optional, default = ''
 	 *
 	 * @return boolean|integer Row id on success, False on errors
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

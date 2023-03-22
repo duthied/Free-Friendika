@@ -416,7 +416,7 @@ class Photo
 	 * @param string  $allow_cid Permissions, allowed contacts. optional, default = ""
 	 * @param string  $allow_gid Permissions, allowed groups. optional, default = ""
 	 * @param string  $deny_cid  Permissions, denied contacts.optional, default = ""
-	 * @param string  $deny_gid  Permissions, denied greoup.optional, default = ""
+	 * @param string  $deny_gid  Permissions, denied group.optional, default = ""
 	 * @param string  $desc      Photo caption. optional, default = ""
 	 *
 	 * @return boolean True on success
