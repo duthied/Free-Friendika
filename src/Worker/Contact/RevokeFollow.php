@@ -30,7 +30,7 @@ use Friendica\Network\HTTPException;
 class RevokeFollow
 {
 	/**
-	 * Issue asynchronous follow revokation message to remote servers.
+	 * Issue asynchronous follow revocation message to remote servers.
 	 * The local relationship has already been updated, so we can't use the user-specific contact
 	 *
 	 * @param int $cid Target public contact id
