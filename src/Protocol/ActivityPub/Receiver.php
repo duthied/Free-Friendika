@@ -1067,7 +1067,7 @@ class Receiver
 	{
 		$reply = $receivers = $profile = [];
 
-		// When it is an answer, we inherite the receivers from the parent
+		// When it is an answer, we inherit the receivers from the parent
 		$replyto = JsonLD::fetchElement($activity, 'as:inReplyTo', '@id');
 		if (!empty($replyto)) {
 			$reply = [$replyto];
