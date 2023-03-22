@@ -2175,7 +2175,7 @@ Version 3.2
 	small fixed
 		edit profile photo link
 		better caching of pictures
-		threadening for outgoing emails
+		threading for outgoing emails
 		mail import
 		oembed thumbnails
 		SN subscriptions & more SN like behaviour if snautofollow addon is used
