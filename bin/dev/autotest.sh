@@ -65,7 +65,7 @@ else
   exit 3
 fi
 
-echo "Installing depdendencies"
+echo "Installing dependencies"
 ${PHP} "$COMPOSER" install
 
 PHPUNIT="${BASEDIR}/vendor/bin/phpunit"
