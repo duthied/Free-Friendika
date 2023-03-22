@@ -391,7 +391,7 @@ class App
 	}
 
 	/**
-	 * Returns the current theme name. May be overriden by the mobile theme name.
+	 * Returns the current theme name. May be overridden by the mobile theme name.
 	 *
 	 * @return string Current theme name or empty string in installation phase
 	 * @throws Exception
