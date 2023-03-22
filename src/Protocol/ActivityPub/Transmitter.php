@@ -444,7 +444,7 @@ class Transmitter
 	}
 
 	/**
-	 * Get a minimal actror array for the C2S API
+	 * Get a minimal actor array for the C2S API
 	 *
 	 * @param integer $cid
 	 * @return array
