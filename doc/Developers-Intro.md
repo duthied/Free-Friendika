@@ -109,7 +109,7 @@ Here's the command to automatically fix the files you created/modified:
 
 	$> phpcbf --standard=ruleset.xml <file or directory>
 
-If the command-line tools `diff` and `patch` are unavailabe for you, `phpcbf` can use slightly slower PHP equivalents by using the `--no-patch` argument.
+If the command-line tools `diff` and `patch` are unavailable for you, `phpcbf` can use slightly slower PHP equivalents by using the `--no-patch` argument.
 
 ### Code documentation
 
