@@ -233,7 +233,7 @@ class Item
 				Post\Media::insertFromAttachment($item['uri-id'], $fields['attach']);
 			}
 
-			// We only need to notfiy others when it is an original entry from us.
+			// We only need to notify others when it is an original entry from us.
 			// Only call the notifier when the item had been edited and records had been changed.
 			if ($item['origin'] && !empty($fields['edited']) && ($previous['edited'] != $fields['edited'])) {
 				$notify_items[] = $item['id'];
