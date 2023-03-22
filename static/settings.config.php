@@ -48,7 +48,7 @@ return [
 	],
 	'system' => [
 		// account_abandon_days (Integer)
-		// Will not waste system resources polling external sites for abandonded accounts.
+		// Will not waste system resources polling external sites for abandoned accounts.
 		// Enter 0 for no time limit.
 		'account_abandon_days' => 0,
 
