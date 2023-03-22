@@ -107,7 +107,7 @@ class Attach
 	}
 
 	/**
-	 * Retrive a single record given the ID
+	 * Retrieve a single record given the ID
 	 *
 	 * @param int $id Row id of the record
 	 *
@@ -122,7 +122,7 @@ class Attach
 	}
 
 	/**
-	 * Retrive a single record given the ID
+	 * Retrieve a single record given the ID
 	 *
 	 * @param int $id Row id of the record
 	 *
