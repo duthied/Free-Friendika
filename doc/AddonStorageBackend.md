@@ -320,7 +320,7 @@ The file is `addon/samplestorage/samplestorage.php`
 <?php
 /**
  * Name: Sample Storage Addon
- * Description: A sample addon which implements an unusefull storage backend
+ * Description: A sample addon which implements an unuseful storage backend
  * Version: 1.0.0
  * Author: Alice <https://alice.social/~alice>
  */
