@@ -885,7 +885,7 @@ class Worker
 	/**
 	 * Returns waiting jobs for the current process id
 	 *
-	 * @return array|bool waiting workerqueue jobs or FALSE on failture
+	 * @return array|bool waiting workerqueue jobs or FALSE on failure
 	 * @throws \Exception
 	 */
 	private static function getWaitingJobForPID()

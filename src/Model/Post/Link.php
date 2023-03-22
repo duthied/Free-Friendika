@@ -58,7 +58,7 @@ class Link
 	 * @param int $uriId
 	 * @param string $url
 	 * @param string $size
-	 * @return string Found link URL + id on success, $url on failture
+	 * @return string Found link URL + id on success, $url on failure
 	 */
 	public static function getByLink(int $uriId, string $url, string $size = ''): string
 	{
