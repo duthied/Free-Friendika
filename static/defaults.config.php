@@ -291,7 +291,7 @@ return [
 		'emoji_activities' => false,
 
 		// expire-notify-priority (integer)
-		// Priority for the expirary notification
+		// Priority for the expiry notification
 		'expire-notify-priority' => Friendica\Core\Worker::PRIORITY_LOW,
 
 		// fetch_by_worker (Boolean)
