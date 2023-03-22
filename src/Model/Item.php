@@ -933,7 +933,7 @@ class Item
 		$item['inform']        = trim($item['inform'] ?? '');
 		$item['file']          = trim($item['file'] ?? '');
 
-		// Communities aren't working with the Diaspora protoccol
+		// Communities aren't working with the Diaspora protocol
 		if (($uid != 0) && ($item['network'] == Protocol::DIASPORA)) {
 			$user = User::getById($uid, ['account-type']);
 		 	if ($user['account-type'] == Contact::TYPE_COMMUNITY) {
