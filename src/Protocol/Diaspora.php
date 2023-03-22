@@ -2068,7 +2068,7 @@ class Diaspora
 	}
 
 	/**
-	 * Processes poll participations - unssupported
+	 * Processes poll participations - unsupported
 	 *
 	 * @param array  $importer Array of the importer user
 	 * @param object $data     The message object
