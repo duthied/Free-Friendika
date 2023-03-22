@@ -2183,7 +2183,7 @@ wall-item-comment-wrapper.well hr {
 nav .acpopup {
 	margin-left: -23px;
 }
-/** @todo: we schould consider the possebility to overwrite bootstrap dropdowns
+/** @todo: we schould consider the possibility to overwrite bootstrap dropdowns
  at the beginning of this file to get rid of the !important */
 .textcomplete-item > a {
 	color: $font_color_darker !important;
