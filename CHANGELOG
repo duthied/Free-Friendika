@@ -1913,7 +1913,7 @@ Version 3.4.3 (2015-12-22)
 	Fix install routine css when mod_rewrite doesn't works (issue #2071) (fabrixxm)
 	Fix code to be compliant with minimum required PHP version (issue #2066) (fabrixxm, rabuzarus)
 	Fix feedback after succesfull registration (issue #2060) (annando)
-	Fix mention completition popup with TinyMCE (issue #1920) (fabrixxm)
+	Fix mention completion popup with TinyMCE (issue #1920) (fabrixxm)
 	Fix photo cache and proxy when installed in subfolder (ddorian1)
 	Fix bbcode conversion of the about text for the profile (issue #1607) (annando)
 
@@ -1981,7 +1981,7 @@ Version 3.4.1 (2015-07-06)
 		use correct contact when automatically add @-replies
 		add attachment links as enclosures
 		send salmon notifications to every mentioned person
-		better thread completition
+		better thread completion
 		support for bookmarks
 		support for events and questions
 		link to items using GUID
