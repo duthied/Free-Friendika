@@ -32,7 +32,7 @@ use Friendica\Util\Mimetype;
 use Friendica\Security\Security;
 
 /**
- * Class to handle attach dabatase table
+ * Class to handle attach database table
  */
 class Attach
 {

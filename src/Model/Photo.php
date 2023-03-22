@@ -41,7 +41,7 @@ use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 /**
- * Class to handle photo dabatase table
+ * Class to handle photo database table
  */
 class Photo
 {
