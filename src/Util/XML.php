@@ -259,7 +259,7 @@ class XML
 	 * @param integer $get_attributes   1 or 0. If this is 1 the function will get the attributes as well as the tag values -
 	 *                                  this results in a different array structure in the return value.
 	 * @param string  $priority         Can be 'tag' or 'attribute'. This will change the way the resulting
-	 *                                  array sturcture. For 'tag', the tags are given more importance.
+	 *                                  array structure. For 'tag', the tags are given more importance.
 	 *
 	 * @return array The parsed XML in an array form. Use print_r() to see the resulting array structure.
 	 * @throws \Exception
