@@ -4,7 +4,7 @@ If you're not already logged in, do so in the frame below.
 Once you've logged in (or if you are already logged in), you'll now be looking at your profile page.
 
 This is a bit like a Facebook wall.
-It's where all your status messgages are kept, and where your friends come to post on your wall.
+It's where all your status messages are kept, and where your friends come to post on your wall.
 
 To write your status, simply click on the Pencil & Paper icon in the top right (in the Frio theme), or click in the box that says "share" (other themes).
 When you do this, the posting dialog box will appear or the share box will expand.
