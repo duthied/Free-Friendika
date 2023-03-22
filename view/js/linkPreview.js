@@ -125,7 +125,7 @@
 				isExtern = true;
 			}
 
-			// Don't procces the textarea input if we have already
+			// Don't process the textarea input if we have already
 			// an attachment preview.
 			if (!isExtern && isActive) {
 				return;
@@ -233,7 +233,7 @@
 		};
 
 		/**
-		 * Proccess all attachment data and show up a html
+		 * Process all attachment data and show up a html
 		 * attachment preview.
 		 * 
 		 * @param {obj} data Attachment data.
