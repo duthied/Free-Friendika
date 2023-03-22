@@ -140,18 +140,18 @@ abstract class StorageTest
 
 There are two intended types of exceptions for storages
 
-### `ReferenceStorageExecption`
+### `ReferenceStorageException`
 
 This storage exception should be used in case the caller tries to use an invalid references.
 This could happen in case the caller tries to delete or update an unknown reference.
 The implementation of the storage backend must not ignore invalid references.
 
-Avoid throwing the common `StorageExecption` instead of the `ReferenceStorageException` at this particular situation!
+Avoid throwing the common `StorageException` instead of the `ReferenceStorageException` at this particular situation!
 
 ### `StorageException`
 
 This is the common exception in case unexpected errors happen using the storage backend.
-If there's a predecessor to this exception (e.g. you caught an exception and are throwing this execption), you should add the predecessor for transparency reasons.
+If there's a predecessor to this exception (e.g. you caught an exception and are throwing this exception), you should add the predecessor for transparency reasons.
 
 Example:
 
