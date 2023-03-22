@@ -2195,7 +2195,7 @@ Version 3.2
 	improving the install.php script
 	addons now can be members only
 	item object now contains the "edited" information left for the theme designers to show this info in a pretty way
-	improvments to the user-import from exported account files
+	improvements to the user-import from exported account files
 	It's now possible to authenticate an ejabberd server against friendica.
 	bugtracker moved to github
 	improvements to MySQL queries
