@@ -190,7 +190,7 @@ class OAuthRequest
 	 *
 	 * The base string defined as the method, the url
 	 * and the parameters (normalized), each urlencoded
-	 * and the concated with &.
+	 * and concatenated with &.
 	 */
 	public function get_signature_base_string()
 	{
