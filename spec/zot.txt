@@ -45,7 +45,7 @@ is a superset of salmon).
 zot:key
 *******
 
-A suitable randomly generated encyption key of length 32 octets for encrypting 
+A suitable randomly generated encryption key of length 32 octets for encrypting 
 the salmon packet. This is then encrypted with the sender's private key and 
 base64url encoded.
 
@@ -59,7 +59,7 @@ key and base64url encoded.
 zot:env_key
 ***********
 
-A suitable randomly generated encyption key of length 32 octets for encrypting 
+A suitable randomly generated encryption key of length 32 octets for encrypting 
 the envelope. This is then encrypted with the recipient's public key and 
 base64url encoded. For bulk deliveries, it is encrypted with the site bulk 
 delivery public key.
