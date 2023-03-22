@@ -351,7 +351,7 @@ function toggleJotNav(elm) {
 		});
 	}
 
-	// If element is a mobile dropdown nav menu we need to change the botton text.
+	// If element is a mobile dropdown nav menu we need to change the button text.
 	if (cls) {
 		toggleDropdownText(elm);
 	}
