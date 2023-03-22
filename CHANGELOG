@@ -1323,7 +1323,7 @@ Version 2018.09 (2018-09-23)
     added addons:
       mastodoncustomemojis [MrPetovan]
     deprecated addons:
-      notimeline, retriver, remote_permissions, widgets
+      notimeline, retriever, remote_permissions, widgets
 
   Directory:
     Enhancements of the health summary [andyhee]
@@ -1825,7 +1825,7 @@ Version 3.5 (2016-09-13)
     GNU Social Connector [annando]
     LDAP [Olivier Mehani]
     smileybutton [rabuzarus]
-    retriver [mexon]
+    retriever [mexon]
     mailstream [mexon]
     forumdirectory [tobiasd]
     NEW notifyall (port from Hubzilla) [rabuzarus, tobiasd]
