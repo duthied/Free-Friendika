@@ -176,7 +176,7 @@ class Relay
 		if (in_array($gserver['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
 			$system = APContact::getByURL($gserver['url'] . '/friendica');
 			if (!empty($system['sharedinbox'])) {
-				Logger::info('Sucessfully probed for relay contact', ['server' => $gserver['url']]);
+				Logger::info('Successfully probed for relay contact', ['server' => $gserver['url']]);
 				$id = Contact::updateFromProbeByURL($system['url']);
 				Logger::info('Updated relay contact', ['server' => $gserver['url'], 'id' => $id]);
 				return;
