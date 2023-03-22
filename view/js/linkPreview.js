@@ -805,7 +805,7 @@
 	/**
 	* Get in a textarea the previous word before the cursor.
 	* 
-	* @param {object} text Textarea elemet.
+	* @param {object} text Textarea element.
 	* @param {integer} caretPos Cursor position.
 	* 
 	* @returns {string} Previous word.
@@ -855,7 +855,7 @@
 	/**
 	 * Get the cursor posiotion in an text element.
 	 * 
-	 * @param {object} ctrl Textarea elemet.
+	 * @param {object} ctrl Textarea element.
 	 * @returns {integer} Position of the cursor.
 	 */
 	function getCaretPosition(ctrl) {
