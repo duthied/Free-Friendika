@@ -305,7 +305,7 @@ Returns [Private Messages](help/API-Entities#Private+message) matching the provi
 #### Parameters
 
 * `searchstring`: string for which the API call should search as '%searchstring%' in field 'body' of all messages of the authenticated user (caption ignored)
-* `getText` (optional): `plain`|`html` If ommited, the title is prepended to the plaintext body in the `text` attribute of the private message objects.
+* `getText` (optional): `plain`|`html` If omitted, the title is prepended to the plaintext body in the `text` attribute of the private message objects.
 * `getUserObjects` (optional): `true`|`false` If `false`, the `sender` and `recipient` attributes of the private message object are absent.
 
 #### Return values
