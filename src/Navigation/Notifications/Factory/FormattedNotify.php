@@ -363,7 +363,7 @@ class FormattedNotify extends BaseFactory
 	{
 		$item['seen'] = !($item['unseen'] > 0);
 
-		// For feed items we use the user's contact, since the avatar is mostly self choosen.
+		// For feed items we use the user's contact, since the avatar is mostly self chosen.
 		if (!empty($item['network']) && $item['network'] == Protocol::FEED) {
 			$item['author-avatar'] = $item['contact-avatar'];
 		}
