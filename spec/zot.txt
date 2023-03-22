@@ -353,7 +353,7 @@ Salmon Magic Envelope
 Atom Activity Stream Draft
 	http://activitystrea.ms/specs/atom/1.0/
 
-Activty Stream Base Schema
+Activity Stream Base Schema
 	http://activitystrea.ms/head/activity-schema.html
 
 WebFinger Protocol

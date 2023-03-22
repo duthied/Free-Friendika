@@ -684,7 +684,7 @@ class User
 
 		if ($user['last-activity'] != $current_day) {
 			User::update(['last-activity' => $current_day], $uid);
-			// Set the last actitivy for all identities of the user
+			// Set the last activity for all identities of the user
 			DBA::update('user', ['last-activity' => $current_day], ['parent-uid' => $uid, 'account_removed' => false]);
 		}
 	}
