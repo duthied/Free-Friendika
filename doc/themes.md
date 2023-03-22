@@ -12,7 +12,7 @@ So, how to work on the UI of friendica.
 You can either directly edit an existing theme.
 But you might loose your changes when the theme is updated by the friendica team.
 
-If you are almost happy with an existing theme, the easiest way to cover your needs is to create a new theme, inheritating most of the properties of the parent theme and change just minor stuff.
+If you are almost happy with an existing theme, the easiest way to cover your needs is to create a new theme, inheriting most of the properties of the parent theme and change just minor stuff.
 The below for a more detailed description of theme heritage.
 
 Some themes also allow users to select *variants* of the theme.
