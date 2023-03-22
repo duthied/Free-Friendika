@@ -1792,7 +1792,7 @@ class User
 	 *
 	 * @param int    $start Start count (Default is 0)
 	 * @param int    $count Count of the items per page (Default is @see Pager::ITEMS_PER_PAGE)
-	 * @param string $type  The type of users, which should get (all, bocked, removed)
+	 * @param string $type  The type of users, which should get (all, blocked, removed)
 	 * @param string $order Order of the user list (Default is 'contact.name')
 	 * @param bool   $descending Order direction (Default is ascending)
 	 * @return array|bool The list of the users
