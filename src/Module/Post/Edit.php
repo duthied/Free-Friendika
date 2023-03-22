@@ -83,7 +83,7 @@ class Edit extends BaseModule
 		}
 
 		$fields = [
-			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'gravity',
 			'body', 'title', 'uri-id', 'wall', 'post-type', 'guid'
 		];
 
