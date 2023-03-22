@@ -338,7 +338,7 @@ class Item
 						} else {
 							$post_type = $this->l10n->t('status');
 						}
-						// Let's break everthing ... ;-)
+						// Let's break everything ... ;-)
 						break;
 				}
 				$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
