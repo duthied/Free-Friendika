@@ -264,7 +264,7 @@ Example:
 
 ## Currently unimplemented endpoints
 
-These emdpoints are planned to be implemented somewhere in the future.
+These endpoints are planned to be implemented somewhere in the future.
 
 - [`POST /api/v1/accounts/:id/remove_from_followers`](https://github.com/mastodon/mastodon/pull/16864)
 - [`GET /api/v1/accounts/familiar_followers`](https://github.com/mastodon/mastodon/pull/17700)
