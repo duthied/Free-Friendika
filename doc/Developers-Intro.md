@@ -92,7 +92,7 @@ For documentation we use the standard of *one sentence per line* for the `md` fi
 
 #### Check with [PHP Code Sniffer](https://github.com/squizlabs/PHP_CodeSniffer)
 
-This tool checks your files against a variety of coding standards, including PSR-2, and ouputs a report of all the standard violations.
+This tool checks your files against a variety of coding standards, including PSR-2, and outputs a report of all the standard violations.
 You can simply install it through PEAR: `pear install PHP_CodeSniffer`
 Once it is installed and available in your PATH, here's the command to run before committing your work:
 
