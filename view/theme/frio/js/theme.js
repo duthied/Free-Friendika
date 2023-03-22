@@ -61,7 +61,7 @@ $(document).ready(function () {
 
 	// add mask css url to the logo-img container
 	//
-	// This is for firefox - we use a mask which looks like the friendica logo to apply user collers
+	// This is for firefox - we use a mask which looks like the friendica logo to apply user colors
 	// to the friendica logo (the mask is in nav.tpl at the bottom). To make it work we need to apply the
 	// correct url. The only way which comes to my mind was to do this with js
 	// So we apply the correct url (with the link to the id of the mask) after the page is loaded.
