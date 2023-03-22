@@ -978,7 +978,7 @@ Version 2019.06 (2019-06-23)
     Fixed an issue with the File to Folder feature [MrPetovan]
     Fixed an issue with the legacy storage engine [fabrixxm]
     Fixed an issue with the theme and addon path items [MrPetovan]
-    Fixed an issue occuring when the BasePath was not set [tobiasd]
+    Fixed an issue occurring when the BasePath was not set [tobiasd]
     Fixed an issue with additionally opened Sessions [MrPetovan]
     Fixed an issue with legacy loglevel mapping [nupplaphil]
     Fixed contact suggestions [annando]
