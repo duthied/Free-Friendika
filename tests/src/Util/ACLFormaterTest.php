@@ -38,10 +38,10 @@ class ACLFormatterTest extends TestCase
 
 		self::assertEquals($assert, $acl);
 
-		self::assertMergable($acl);
+		self::assertMergeable($acl);
 	}
 
-	public function assertMergable(array $aclOne, array $aclTwo = [])
+	public function assertMergeable(array $aclOne, array $aclTwo = [])
 	{
 		self::assertTrue(is_array($aclOne));
 		self::assertTrue(is_array($aclTwo));
