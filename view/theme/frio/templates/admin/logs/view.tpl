@@ -67,7 +67,7 @@
 					<td class="
 						{{if $row->level == "CRITICAL"}}bg-danger
 						{{elseif $row->level == "ERROR"}}bg-danger
-						{{elseif $row->level == "WARNING"}}bg-warinig
+						{{elseif $row->level == "WARNING"}}bg-warning
 						{{elseif $row->level == "NOTICE"}}bg-info
 						{{elseif $row->level == "DEBUG"}}text-muted
 						{{/if}}

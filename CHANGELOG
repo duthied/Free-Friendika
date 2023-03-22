@@ -2079,7 +2079,7 @@ Version 3.3.3 (2015-02-24)
 
 Version 3.3.2 (2014-12-26)
 
-	Set default value for all not-null fields (fixes SQL warinigs) (annando)
+	Set default value for all not-null fields (fixes SQL warnings) (annando)
 	Fix item filters in network page (issue #1222) (fabrixxm)
 	Remove reference to an ex Friendica hub from documentation (beardyunixer, tobiasd)
 	API throttling (annando)
