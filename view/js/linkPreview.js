@@ -242,7 +242,7 @@
 		var insertAttachment = function(data) {
 			// If we have already a preview, leaver here.
 			// Note: if we finish the Preview of other media content type,
-			// we can move this condition to the beggining of crawlText();
+			// we can move this condition to the beginning of crawlText();
 			if (isActive) {
 				$('#profile-rotator').hide();
 				return;
