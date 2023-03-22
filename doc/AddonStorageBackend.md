@@ -100,7 +100,7 @@ See doxygen documentation of `IWritableStorage` interface for details about each
 
 ## Register a storage backend class
 
-Each backend must be registered in the system when the plugin is installed, to be aviable.
+Each backend must be registered in the system when the plugin is installed, to be available.
 
 `DI::facStorage()->register(string $class)` is used to register the backend class.
 
