@@ -322,7 +322,7 @@ class Email
 		}
 
 		if ($out_str && $charset) {
-			// define start delimimter, end delimiter and spacer
+			// define start delimiter, end delimiter and spacer
 			$end = "?=";
 			$start = "=?" . $charset . "?B?";
 			$spacer = $end . "\r\n " . $start;
