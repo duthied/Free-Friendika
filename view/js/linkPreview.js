@@ -853,7 +853,7 @@
 	}
 
 	/**
-	 * Get the cursor posiotion in an text element.
+	 * Get the cursor position in an text element.
 	 * 
 	 * @param {object} ctrl Textarea element.
 	 * @returns {integer} Position of the cursor.
