@@ -33,7 +33,7 @@ In most cases, you can found these in
     /view/theme/**your-theme-name**/style.css
 
 sometimes, there is also a file called style.php in the theme directory.
-This is only needed if the theme allowes the user to change certain things of the theme dynamically.
+This is only needed if the theme allows the user to change certain things of the theme dynamically.
 Say the font size or set a background image.
 
 ### Templates
