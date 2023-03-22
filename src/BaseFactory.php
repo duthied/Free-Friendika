@@ -24,7 +24,7 @@ namespace Friendica;
 use Psr\Log\LoggerInterface;
 
 /**
- * Factories act as an intermediary to avoid direct Entitiy instanciation.
+ * Factories act as an intermediary to avoid direct Entity instanciation.
  *
  * @see BaseModel
  * @see BaseCollection
