@@ -6,7 +6,7 @@
 	<form action="delegation" method="post">
 
 	{{foreach $identities as $identity}}
-		<div class="itentity-match-wrapper {{if $identity.selected}}selected-identity{{/if}}" id="identity-match-{{$identity.uid}}">
+		<div class="identity-match-wrapper {{if $identity.selected}}selected-identity{{/if}}" id="identity-match-{{$identity.uid}}">
 			<div class="identity-match-photo" id="identity-match-photo-{{$identity.uid}}">
 				<button type="submit" name="identity" value="{{$identity.uid}}" title="{{$identity.username}}">
 					<img src="{{$identity.thumb}}" alt="{{$identity.username}}" />
