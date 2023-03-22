@@ -66,7 +66,7 @@ class StaticDatabase extends Database
 	}
 
 	/**
-	 * Override the transaction since there are now hierachical transactions possible
+	 * Override the transaction since there are now hierarchical transactions possible
 	 *
 	 * @return bool
 	 */
