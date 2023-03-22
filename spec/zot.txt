@@ -127,7 +127,7 @@ MUST be present.
 Z-To: zot:bob@example.com, zot:alice@example.com, mailto:dave@example.com 
 Z-Bcc: zot:https://example.com/profile/richard
 
-are valid entries. Adresses are comma separated and individual entries MUST NOT
+are valid entries. Addresses are comma separated and individual entries MUST NOT
 contain commas. There MAY be any number of ASCII space characters between
 entries for legibility. Header lines are terminated with a linefeed character
 (ASCII 0x0A). 

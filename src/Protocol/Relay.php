@@ -302,7 +302,7 @@ class Relay
 			DBA::close($tagserver);
 		}
 
-		// All adresses with the given id
+		// All addresses with the given id
 		if (!empty($tagserverlist)) {
 			$servers = DBA::select('gserver', ['id', 'url', 'network'], ['relay-subscribe' => true, 'relay-scope' => 'tags', 'id' => $tagserverlist]);
 			while ($server = DBA::fetch($servers)) {

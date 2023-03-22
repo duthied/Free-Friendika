@@ -37,7 +37,7 @@ Form Templates
 To guarantee a consistent look and feel for input forms, i.e. in the settings sections, there are templates for the basic form fields.
 They are initialized with an array of data, depending on the tyle of the field.
 
-All of these take an array holding the values, e.g. for a one line text input field, which is required and should be used to type email addesses use something along the lines of:
+All of these take an array holding the values, e.g. for a one line text input field, which is required and should be used to type email addresses use something along the lines of:
 
 		'$adminmail' => array('adminmail', DI::l10n()->t('Site administrator email address'), $adminmail, DI::l10n()->t('Your account email address must match this in order to use the web admin panel.'), 'required', '', 'email'),
 
