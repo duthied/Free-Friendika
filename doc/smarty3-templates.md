@@ -88,7 +88,7 @@ Field parameter:
 2. Current value of the variable,
 3. Help text for the input box,
 4. Should be set to the translation of "Required" to mark this field as required,
-5. if set to "autofocus" modern browser will put the cursur into this box once the page is loaded,
+5. if set to "autofocus" modern browser will put the cursor into this box once the page is loaded,
 6. if set, it will be used for the input type, default is `text` (possible types: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#%3Cinput%3E_types).
 
 ### field_intcheckbox.tpl
