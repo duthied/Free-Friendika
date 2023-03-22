@@ -2255,7 +2255,7 @@ class Diaspora
 		} elseif (!$following && $sharing) {
 			Logger::info("Author " . $author . " wants to share with us.");
 		} elseif ($following && $sharing) {
-			Logger::info("Author " . $author . " wants to have a bidirectional conection.");
+			Logger::info("Author " . $author . " wants to have a bidirectional connection.");
 		} elseif ($following && !$sharing) {
 			Logger::info("Author " . $author . " wants to listen to us.");
 		}
