@@ -160,7 +160,7 @@
 									aria-controls="nav-user-menu">
 									<div aria-hidden="true" class="user-title pull-left hidden-xs hidden-sm hidden-md">
 										<strong>{{$userinfo.name}}</strong><br>
-										{{if $nav.remote}}<span class="trunctate">{{$nav.remote}}</span>{{/if}}
+										{{if $nav.remote}}<span class="truncate">{{$nav.remote}}</span>{{/if}}
 									</div>
 
 									<img id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}">
