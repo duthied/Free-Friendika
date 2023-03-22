@@ -1585,7 +1585,7 @@ class DFRN
 		Logger::info('Process verb ' . $item['verb'] . ' and object-type ' . $item['object-type'] . ' for entrytype ' . $entrytype);
 
 		if (($entrytype == self::TOP_LEVEL) && !empty($importer['id'])) {
-			// The filling of the the "contact" variable is done for legcy reasons
+			// The filling of the the "contact" variable is done for legacy reasons
 			// The functions below are partly used by ostatus.php as well - where we have this variable
 			$contact = Contact::selectFirst([], ['id' => $importer['id']]);
 
