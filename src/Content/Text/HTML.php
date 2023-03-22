@@ -283,7 +283,7 @@ class HTML
 
 			self::tagToBBCode($doc, 'ul', [], "[ul]", "\n[/ul]");
 			self::tagToBBCode($doc, 'ol', [], "[ol]", "\n[/ol]");
-			self::tagToBBCode($doc, 'li', [], "\n[*]", "");
+			self::tagToBBCode($doc, 'li', [], "\n[li]", "[/li]");
 
 			self::tagToBBCode($doc, 'hr', [], "[hr]", "");
 

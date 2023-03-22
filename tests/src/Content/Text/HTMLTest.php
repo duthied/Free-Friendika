@@ -91,18 +91,18 @@ its surprisingly good",
 			'bug-12842-ul-new-lines' => [
 				'expectedBBCode' => 'This is:
 [ul]
-[*]some
-[*]amazing
-[*]list
+[li]some[/li]
+[li]amazing[/li]
+[li]list[/li]
 [/ul]',
 				'html'=> '<p>This is:</p><ul><li>some</li><li>amazing</li><li>list</li></ul>',
 			],
 			'bug-12842-ol-new-lines' => [
 				'expectedBBCode' => 'This is:
 [ol]
-[*]some
-[*]amazing
-[*]list
+[li]some[/li]
+[li]amazing[/li]
+[li]list[/li]
 [/ol]',
 				'html'=> '<p>This is:</p><ol><li>some</li><li>amazing</li><li>list</li></ol>',
 			],
