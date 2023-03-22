@@ -129,7 +129,7 @@ HELP;
 		if (!$parameters) {
 			$this->errored++;
 			if ($this->getOption('v')) {
-				$this->out('Unabled to parse parameter JSON of the row with id ' . $workerqueueItem['id']);
+				$this->out('Unable to parse parameter JSON of the row with id ' . $workerqueueItem['id']);
 				$this->out('JSON: ' . var_export($workerqueueItem['parameter'], true));
 			}
 		}
@@ -155,7 +155,7 @@ HELP;
 		} else {
 			$this->errored++;
 			if ($this->getOption('v')) {
-				$this->out('Unabled to update the row with id ' . $workerqueueItem['id']);
+				$this->out('Unable to update the row with id ' . $workerqueueItem['id']);
 				$this->out('Fields: ' . var_export($fields, true));
 			}
 		}
