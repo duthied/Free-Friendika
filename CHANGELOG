@@ -2125,7 +2125,7 @@ Version 3.3 (2014-10-06)
 
 	Interaction
 	ignoring of threads
-	for selected contects one can now get notifications when they post something, useful e.g. for forums
+	for selected contacts one can now get notifications when they post something, useful e.g. for forums
 	After a new friendica contact is added, the user is directed to the contact page of the new contact. (Instead of the remote profile)
 	many improvement on all connectors, new app.net connector
 	the algorithm for shortening postings when posting to limited platforms was improved
