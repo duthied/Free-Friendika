@@ -13,7 +13,7 @@ If 2FA is already enabled and you want to add another device, you must re-config
 ### 1. Download an authenticator app
 
 Any authenticator app should work with Friendica.
-Notheless, we recommend:
+Nonetheless, we recommend:
 
  - For iOS, [Matt Rubin's MIT-licensed Authenticator app](https://mattrubin.me/authenticator).
  - For Android, [andOTP](https://github.com/andOTP/andOTP).
