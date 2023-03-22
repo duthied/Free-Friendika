@@ -3169,7 +3169,7 @@ ul.notif-network-list li.unseen {
 
 /* Search Page */
 
-/* This is a little bit hacky. Since the search page is used for diferent
+/* This is a little bit hacky. Since the search page is used for different
 content types we can't apply the generic-page-wrapper class.
 So we apply the css of the generic-page-wrapper class to the ul element with some
 little modifications to emulate a standard page template */
