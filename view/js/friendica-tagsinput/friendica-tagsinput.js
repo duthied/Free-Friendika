@@ -96,7 +96,7 @@
       if (typeof item === "object" && !self.objectItems)
         throw("Can't add objects when itemValue option is not set");
 
-      // Ignore strings only containg whitespace
+      // Ignore strings only containing whitespace
       if (item.toString().match(/^\s*$/))
         return;
 
