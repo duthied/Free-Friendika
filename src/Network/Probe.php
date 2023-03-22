@@ -769,7 +769,7 @@ class Probe
 		if (empty($result['network']) && empty($ap_profile['network']) || ($network == Protocol::FEED)) {
 			$result = self::feed($uri);
 		} else {
-			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
+			// We overwrite the detected nick with our try if the previous routines hadn't detected it.
 			// Additionally, it is overwritten when the nickname doesn't make sense (contains spaces).
 			if ((empty($result['nick']) || (strstr($result['nick'], ' '))) && ($nick != '')) {
 				$result['nick'] = $nick;
