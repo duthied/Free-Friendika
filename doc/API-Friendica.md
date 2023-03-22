@@ -646,7 +646,7 @@ On error:
 
 * 403 FORBIDDEN: if not authenticated
 * 400 BADREQUEST: "no albumname specified", "album not available"
-* 500 INTERNALSERVERERROR: "problem with deleting item occured", "unknown error - deleting from database failed"
+* 500 INTERNALSERVERERROR: "problem with deleting item occurred", "unknown error - deleting from database failed"
 
 ### POST api/friendica/photoalbum/update
 

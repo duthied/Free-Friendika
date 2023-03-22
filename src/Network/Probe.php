@@ -63,7 +63,7 @@ class Probe
 	private static $baseurl;
 
 	/**
-	 * @var boolean Whether a timeout has occured
+	 * @var boolean Whether a timeout has occurred
 	 */
 	private static $isTimeout;
 
