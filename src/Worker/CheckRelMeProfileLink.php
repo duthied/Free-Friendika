@@ -48,7 +48,7 @@ use GuzzleHttp\Psr7\Uri;
  */
 class CheckRelMeProfileLink
 {
-	/* Cheks the homepage of a profile for a rel-me link back to the user profile
+	/* Checks the homepage of a profile for a rel-me link back to the user profile
 	 *
 	 * @param $uid (int) the UID of the user
 	 */
