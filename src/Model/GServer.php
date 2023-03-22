@@ -92,7 +92,7 @@ class GServer
 	const DETECT_NODEINFO_210 = 103;
 
 	/**
-	 * Check for the existance of a server and adds it in the background if not existant
+	 * Check for the existence of a server and adds it in the background if not existant
 	 *
 	 * @param string $url
 	 * @param boolean $only_nodeinfo

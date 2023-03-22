@@ -362,7 +362,7 @@ class Worker
 			return false;
 		}
 
-		// Check for existance and validity of the include file
+		// Check for existence and validity of the include file
 		$include = $argv[0];
 
 		if (method_exists(sprintf('Friendica\Worker\%s', $include), 'execute')) {

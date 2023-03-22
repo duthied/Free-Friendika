@@ -2204,7 +2204,7 @@ class Diaspora
 		$author = WebFingerUri::fromString($author_handle);
 
 		// the current protocol version doesn't know these fields
-		// That means that we will assume their existance
+		// That means that we will assume their existence
 		if (isset($data->following)) {
 			$following = (XML::unescape($data->following) == 'true');
 		} else {
