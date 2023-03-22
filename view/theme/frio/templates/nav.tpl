@@ -475,7 +475,7 @@
 	</div>
 </div>
 
-{{* The second navbar which contains nav points of the actual page - (nav points are actual handled by this theme throug js *}}
+{{* The second navbar which contains nav points of the actual page - (nav points are actual handled by this theme through js *}}
 <div id="topbar-second" class="topbar">
 	<div class="container">
 		<div class="col-lg-3 col-md-3 hidden-sm hidden-xs" id="nav-short-info"></div>
