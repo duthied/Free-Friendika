@@ -674,15 +674,15 @@ msgid ""
 msgstr ""
 
 #: src/App/Page.php:256
-msgid "Like not successfull"
+msgid "Like not successful"
 msgstr ""
 
 #: src/App/Page.php:257
-msgid "Dislike not successfull"
+msgid "Dislike not successful"
 msgstr ""
 
 #: src/App/Page.php:258
-msgid "Sharing not successfull"
+msgid "Sharing not successful"
 msgstr ""
 
 #: src/App/Page.php:259
