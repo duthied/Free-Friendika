@@ -958,7 +958,7 @@ Version 2019.09 (2019-09-29)
 
 Version 2019.06 (2019-06-23)
   Friendica Core:
-    Update to the tranlation (CS, DE, EN-GB, EN-US, ET, FR, IT, PL, PT-BR, SV) [translation teams]
+    Update to the translation (CS, DE, EN-GB, EN-US, ET, FR, IT, PL, PT-BR, SV) [translation teams]
     Update to the documentation [nupplaphil, realkinetix, MrPetovan]
     Update to the themes (frio, vier) [BinkaDroid, MrPetovan, tobiasd]
     Enhancements to the API [annando, MrPetovan]
@@ -1004,7 +1004,7 @@ Version 2019.06 (2019-06-23)
     Remove support for defunct F-Droid Friendica app [MrPetovan]
 
   Friendica Addons:
-    Update to the tranlation (ET, SV, ZH_CN) [translation teams]
+    Update to the translation (ET, SV, ZH_CN) [translation teams]
     botdetection:
       Added a new addon for preventing access by bots [nupplaphil, annando]
     buffer:
