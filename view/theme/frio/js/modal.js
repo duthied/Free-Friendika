@@ -230,7 +230,7 @@ function addToModal(url, id) {
 			loadModalTitle();
 
 			// We need to initialize autosize again for new
-			// modal conent.
+			// modal content.
 			autosize($(".modal .text-autosize"));
 		}
 	});

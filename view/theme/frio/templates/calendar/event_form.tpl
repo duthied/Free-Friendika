@@ -34,7 +34,7 @@
 		<input type="hidden" name="uri" value="{{$uri}}" />
 		<input type="hidden" name="preview" id="event-edit-preview" value="0" />
 
-		{{* The tab conten with the necessary basic settings *}}
+		{{* The tab content with the necessary basic settings *}}
 		<div id="event-edit-wrapper">
 
 			{{* The event title *}}
