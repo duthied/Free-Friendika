@@ -40,7 +40,7 @@
     
     /**
      * Attaches resize event to a window, limiting
-     * number of event fired. Fires only when encounteres
+     * number of event fired. Fires only when encounters
      * delay of 100 after series of events.
      * 
      * Some browsers fire event multiple times when resizing
