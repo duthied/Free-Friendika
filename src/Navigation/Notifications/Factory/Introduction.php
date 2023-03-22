@@ -100,11 +100,11 @@ class Introduction extends BaseFactory
 		try {
 			$stmtNotifications = $this->dba->p(
 				"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
-				`sugggest-contact`.`name` AS `fname`, `sugggest-contact`.`url` AS `furl`, `sugggest-contact`.`addr` AS `faddr`,
-				`sugggest-contact`.`photo` AS `fphoto`, `sugggest-contact`.`request` AS `frequest`
+				`suggest-contact`.`name` AS `fname`, `suggest-contact`.`url` AS `furl`, `suggest-contact`.`addr` AS `faddr`,
+				`suggest-contact`.`photo` AS `fphoto`, `suggest-contact`.`request` AS `frequest`
 			FROM `intro`
 				LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id`
-				LEFT JOIN `contact` AS `sugggest-contact` ON `intro`.`suggest-cid` = `sugggest-contact`.`id`
+				LEFT JOIN `contact` AS `suggest-contact` ON `intro`.`suggest-cid` = `suggest-contact`.`id`
 			WHERE `intro`.`uid` = ? $sql_extra
 			LIMIT ?, ?",
 				$this->session->getLocalUserId(),
