@@ -70,7 +70,7 @@ Field parameter:
 
 ### field_custom.tpl
 
-A customizeable template to include a custom element in the form with the usual surroundings,
+A customizable template to include a custom element in the form with the usual surroundings,
 Field parameter:
 
 0. Name of the field,
