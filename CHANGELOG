@@ -714,7 +714,7 @@ Version 2020.07 (2020-07-12)
     blockbot:
       The list of accepted user agents was enhanced [annando]
     Diaspora*:
-      Enhanced conntector settings [MrPetovan]
+      Enhanced connector settings [MrPetovan]
     PHP Mailer SMTP:
       Updated phpmailer version [dependabot]
     showmore_dyn:
