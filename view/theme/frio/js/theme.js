@@ -698,7 +698,7 @@ function parseUrl(str, component) {
 	return uri;
 }
 
-// trim function to replace whithespace after the string
+// trim function to replace whitespace after the string
 String.prototype.rtrim = function () {
 	var trimmed = this.replace(/\s+$/g, "");
 	return trimmed;
