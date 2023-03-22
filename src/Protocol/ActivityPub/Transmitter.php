@@ -1830,7 +1830,7 @@ class Transmitter
 		$item['body'] = $announce['comment'] . "\n" . $announce['object']['plink'];
 		$activity['object'] = self::createNote($item, $api_mode);
 
-		/// @todo Finally descide how to implement this in AP. This is a possible way:
+		/// @todo Finally decide how to implement this in AP. This is a possible way:
 		$activity['object']['attachment'][] = self::createNote($announce['object']);
 
 		$activity['object']['source']['content'] = $orig_body;
