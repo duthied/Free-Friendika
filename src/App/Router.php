@@ -412,7 +412,7 @@ class Router
 		}
 
 		if (!$this->lock->acquire('getCachedDispatchData', 0)) {
-			// Immediately return uncached data when we can't aquire a lock
+			// Immediately return uncached data when we can't acquire a lock
 			return $this->getDispatchData();
 		}
 
