@@ -353,7 +353,7 @@ Often this will need to be resolved with your hosting provider or (if self-hoste
 First check your file permissions.
 Your website and all contents must generally be world-readable.
 
-Ensure that mod-rewite is installed and working, and that your `.htaccess` file
+Ensure that mod-rewrite is installed and working, and that your `.htaccess` file
 is being used. To verify the latter, create a file `test.out` containing the
 word "test" in the top directory of Friendica, make it world readable and point
 your web browser to
