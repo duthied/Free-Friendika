@@ -101,7 +101,7 @@ class Photo
 	 * Get photos for user id
 	 *
 	 * @param integer $uid        User id
-	 * @param string  $resourceid Rescource ID of the photo
+	 * @param string  $resourceid Resource ID of the photo
 	 * @param array   $conditions Array of fields for conditions
 	 * @param array   $params     Array of several parameters
 	 *
@@ -122,7 +122,7 @@ class Photo
 	 * Get a photo for user id
 	 *
 	 * @param integer $uid        User id
-	 * @param string  $resourceid Rescource ID of the photo
+	 * @param string  $resourceid Resource ID of the photo
 	 * @param integer $scale      Scale of the photo. Defaults to 0
 	 * @param array   $conditions Array of fields for conditions
 	 * @param array   $params     Array of several parameters
@@ -148,7 +148,7 @@ class Photo
 	 * on success, "no sign" image info, if user has no permission,
 	 * false if photo does not exists
 	 *
-	 * @param string  $resourceid  Rescource ID of the photo
+	 * @param string  $resourceid  Resource ID of the photo
 	 * @param integer $scale       Scale of the photo. Defaults to 0
 	 * @param integer $visitor_uid UID of the visitor
 	 *
