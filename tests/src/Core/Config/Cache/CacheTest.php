@@ -588,7 +588,7 @@ class CacheTest extends MockedTest
 		$cache->load($data, Cache::SOURCE_FILE);
 
 		$cache2 = new Cache();
-		$cache2->set('system', 'test', 'overrride');
+		$cache2->set('system', 'test', 'override');
 		$cache2->delete('system', 'test');
 
 		self::assertEquals('it', $cache->get('system', 'test'));
