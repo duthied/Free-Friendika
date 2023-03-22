@@ -231,7 +231,7 @@ aside.show {
 #cboxLoadedContent > div,
 #acl-wrapper {
   display: -ms-Flexbox !important;
-  -ms-box-orient: vertival;
+  -ms-box-orient: vertical;
 
   display: -webkit-flex !important;
   display: -moz-flex !important;
