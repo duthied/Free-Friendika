@@ -1897,7 +1897,7 @@ Version 3.4.3 (2015-12-22)
 	OStatus delivery code is moved in new function (annando)
 	Doxygen config file and initial documetation of code (rabuzarus)
 	Full rewrite of util/php2po.php (fabrixxm)
-  Bugfixs:
+  Bugfixes:
 	Remote self works again (annando)
 	Fix feeds mistakenly recognized as OStatus (issue #1914) (annando)
 	Report invalid feeds to user (issue #1913) (annando)
