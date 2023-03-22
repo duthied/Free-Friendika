@@ -500,7 +500,7 @@
 		};
 
 		/**
-		 * Convert attachmant bbcode into an array.
+		 * Convert attachment bbcode into an array.
 		 * 
 		 * @param {string} content Text content with the attachment bbcode.
 		 * @returns {object || null}
