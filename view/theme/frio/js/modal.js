@@ -269,7 +269,7 @@ function editpost(url) {
 
 	// For editpost we load the modal html of "jot-sections" of the edit page. So we would have two jot forms in
 	// the page html. To avoid js conflicts we store the original jot in the variable jotcache.
-	// After closing the modal original jot should be restored at its orginal position in the html structure.
+	// After closing the modal original jot should be restored at its original position in the html structure.
 	jotcache = $("#jot-content > #jot-sections");
 
 	// Remove the original Jot as long as the edit Jot is open.
