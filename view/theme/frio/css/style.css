@@ -3666,7 +3666,7 @@ section .profile-match-wrapper {
 	background: transparent;
 	cursor: pointer;
 }
-.fc .fc-listMonth-view .seperator {
+.fc .fc-listMonth-view .separator {
 	margin-left: 30px;
 	width: 60px;
 }

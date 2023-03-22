@@ -300,7 +300,7 @@ function formatListViewEvent(event) {
 	// The basic template for list view
 	var template =
 		'<td class="fc-list-item-title fc-widget-content">\
-				<hr class="seperator"></hr>\
+				<hr class="separator"></hr>\
 				<div class="event-card">\
 					<div class="popover-content hovercard-content">{0}</div>\
 				</div>\
