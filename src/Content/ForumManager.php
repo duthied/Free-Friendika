@@ -38,7 +38,7 @@ class ForumManager
 	 *
 	 * @param int     $uid         of the profile owner
 	 * @param boolean $lastitem    Sort by lastitem
-	 * @param boolean $showhidden  Show frorums which are not hidden
+	 * @param boolean $showhidden  Show forums which are not hidden
 	 * @param boolean $showprivate Show private groups
 	 *
 	 * @return array
