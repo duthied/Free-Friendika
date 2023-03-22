@@ -720,7 +720,7 @@ Version 2020.07 (2020-07-12)
     showmore_dyn:
       New addon to collapse long post depending on their actual height [wiwie]
     twitter:
-      Enhaceed the handling of mobile twitter URLs [annando]
+      Enhanced the handling of mobile twitter URLs [annando]
       Enhanced the handling of quoted tweets [MrPetovan]
       added HTML error code handling [MrPetovan]
     various:
