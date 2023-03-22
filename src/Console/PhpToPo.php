@@ -231,7 +231,7 @@ HELP;
 	}
 
 	/**
-	 * Get a string and retun a message.po ready text
+	 * Get a string and return a message.po ready text
 	 * - replace " with \"
 	 * - replace tab char with \t
 	 * - manage multiline strings
