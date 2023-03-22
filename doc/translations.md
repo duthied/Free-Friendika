@@ -7,7 +7,7 @@ Friendica translations
 
 The Friendica translation process is based on `gettext` PO files.
 
-Basic worflow:
+Basic workflow:
 1. `xgettext` is used to collect translation strings across the project in the authoritative PO file located in `view/lang/C/messages.po`.
 2. This file makes translations strings available at [the Transifex Friendica page](https://www.transifex.com/Friendica/friendica/dashboard/).
 3. The translation itself is done at Transifex by volunteers.
