@@ -42,7 +42,7 @@ $(document).ready(function () {
 
 	// hover cards should be removed very easily, e.g. when any of these events happens
 	$body.on("mouseleave touchstart scroll mousedown submit keydown", function (e) {
-		// remove hover card only for desktiop user, since on mobile we open the hovercards
+		// remove hover card only for desktop user, since on mobile we open the hovercards
 		// by click event insteadof hover
 		removeAllHovercards(e, new Date().getTime());
 	});
