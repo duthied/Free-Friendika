@@ -157,7 +157,7 @@ class ExAuth
 						$this->isUser($aCommand);
 						break;
 					case 'auth':
-						// Check if the givven password is correct
+						// Check if the given password is correct
 						$this->auth($aCommand);
 						break;
 					case 'setpass':
