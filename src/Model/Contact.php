@@ -1733,7 +1733,7 @@ class Contact
 	 *
 	 * @param array  $contact   contact array
 	 * @param string $size      Size of the avatar picture
-	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
+	 * @param bool   $no_update Don't perform an update if no cached avatar was found
 	 * @return string photo path
 	 */
 	private static function getAvatarPath(array $contact, string $size, bool $no_update = false): string
@@ -1767,7 +1767,7 @@ class Contact
 	 * Return the photo path for a given contact array
 	 *
 	 * @param array  $contact   Contact array
-	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
+	 * @param bool   $no_update Don't perform an update if no cached avatar was found
 	 * @return string photo path
 	 */
 	public static function getPhoto(array $contact, bool $no_update = false): string
@@ -1779,7 +1779,7 @@ class Contact
 	 * Return the photo path (thumb size) for a given contact array
 	 *
 	 * @param array  $contact   Contact array
-	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
+	 * @param bool   $no_update Don't perform an update if no cached avatar was found
 	 * @return string photo path
 	 */
 	public static function getThumb(array $contact, bool $no_update = false): string
@@ -1791,7 +1791,7 @@ class Contact
 	 * Return the photo path (micro size) for a given contact array
 	 *
 	 * @param array  $contact   Contact array
-	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
+	 * @param bool   $no_update Don't perform an update if no cached avatar was found
 	 * @return string photo path
 	 */
 	public static function getMicro(array $contact, bool $no_update = false): string
@@ -1803,7 +1803,7 @@ class Contact
 	 * Check the given contact array for avatar cache fields
 	 *
 	 * @param array $contact
-	 * @param bool  $no_update Don't perfom an update if no cached avatar was found
+	 * @param bool  $no_update Don't perform an update if no cached avatar was found
 	 * @return array contact array with avatar cache fields
 	 */
 	private static function checkAvatarCacheByArray(array $contact, bool $no_update = false): array
