@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`verified` boolean NOT NULL DEFAULT '0' COMMENT 'user is verified through email',
 	`blocked` boolean NOT NULL DEFAULT '0' COMMENT '1 for user is blocked',
 	`blockwall` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to post to the profile page of the user',
-	`hidewall` boolean NOT NULL DEFAULT '0' COMMENT 'Hide profile details from unkown viewers',
+	`hidewall` boolean NOT NULL DEFAULT '0' COMMENT 'Hide profile details from unknown viewers',
 	`blocktags` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to tag the post of this user',
 	`unkmail` boolean NOT NULL DEFAULT '0' COMMENT 'Permit unknown people to send private mails to this user',
 	`cntunkmail` int unsigned NOT NULL DEFAULT 10 COMMENT '',
