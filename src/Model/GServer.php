@@ -557,7 +557,7 @@ class GServer
 			return false;
 		}
 
-		// If the URL missmatches, then we mark the old entry as failure
+		// If the URL mismatches, then we mark the old entry as failure
 		if (!Strings::compareLink($url, $original_url)) {
 			self::setFailureByUrl($original_url);
 			if (!self::getID($url, true) && !Network::isUrlBlocked($url)) {
