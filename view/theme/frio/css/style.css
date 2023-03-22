@@ -1133,7 +1133,7 @@ aside > #datebrowse-sidebar .posted-date-selector-months > ul > li:hover {
 	-ms-transition: all 0.2s ease-in-out;
 	transition: all 0.2s ease-in-out;
 }
-#forumlist-sidbar-ul li:hover a > .forumlist-img {
+#forumlist-sidebar-ul li:hover a > .forumlist-img {
 	-webkit-filter: unset;
 	filter: unset;
 	opacity: unset;

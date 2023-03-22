@@ -42,8 +42,8 @@ $(document).ready(function () {
 	}
 
 	// add the class "selected" to forums widges li if li > a does have the class forum-selected
-	if ($("#forumlist-sidbar-ul li a").hasClass("forum-selected")) {
-		$("#forumlist-sidbar-ul li a.forum-selected").parent("li").addClass("selected");
+	if ($("#forumlist-sidebar-ul li a").hasClass("forum-selected")) {
+		$("#forumlist-sidebar-ul li a.forum-selected").parent("li").addClass("selected");
 	}
 
 	// add the class "active" to tabmenuli if li > a does have the class active
