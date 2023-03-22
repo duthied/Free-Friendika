@@ -590,7 +590,7 @@ class Installer
 	 * TLS Check
 	 *
 	 * Tries to determine whether the connection to the server is secured
-	 * by TLS or not. If not the user will be warned that it is higly
+	 * by TLS or not. If not the user will be warned that it is highly
 	 * encouraged to use TLS.
 	 *
 	 * @return bool (true) as TLS is not mandatory
