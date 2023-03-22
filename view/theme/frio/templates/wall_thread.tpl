@@ -4,7 +4,7 @@ It would be better if it would be done in friendica core but since core lacks th
 it is done in the theme
 
 In short: the piece of code counts the total number of children of the toplevelpost
-- this are usaly all posts with thread_level = 2 - and stores it in variable $top_children_total.
+- this are usually all posts with thread_level = 2 - and stores it in variable $top_children_total.
 The first time a children which hits thread_level = 2 and $top_child = 1 opens the div.
 
 Everytime when a children with top_level = 2 comes up $top_child_nr rises with 1.
