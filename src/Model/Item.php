@@ -1499,7 +1499,7 @@ class Item
 
 		$users = [];
 
-		/// @todo add a field "pcid" in the contact table that referrs to the public contact id.
+		/// @todo add a field "pcid" in the contact table that refers to the public contact id.
 		$owner = DBA::selectFirst('contact', ['url', 'nurl', 'alias'], ['id' => $parent['owner-id']]);
 		if (!DBA::isResult($owner)) {
 			return;
