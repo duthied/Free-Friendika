@@ -239,7 +239,7 @@ class Contact
 	 * @param array         $condition  condition array with the key values
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate, false = don't update identical fields)
 	 *
-	 * @return boolean was the update successfull?
+	 * @return boolean was the update successful?
 	 * @throws \Exception
 	 * @todo Let's get rid of boolean type of $old_fields
 	 */
@@ -1686,7 +1686,7 @@ class Contact
 	 * Unblocks a contact
 	 *
 	 * @param int $cid Contact id to unblock
-	 * @return bool Whether it was successfull
+	 * @return bool Whether it was successful
 	 */
 	public static function unblock(int $cid): bool
 	{

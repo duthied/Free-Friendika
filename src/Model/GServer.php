@@ -327,7 +327,7 @@ class GServer
 			return DateTimeFormat::utc('now +1 month');
 		}
 
-		// The system hadn't been successul contacted for more than a month, so try again in three months
+		// The system hadn't been successful contacted for more than a month, so try again in three months
 		return DateTimeFormat::utc('now +3 month');
 	}
 

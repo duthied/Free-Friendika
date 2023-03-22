@@ -1377,7 +1377,7 @@ class User
 	 * permanently against re-registration, as the person was not yet
 	 * allowed to have friends on this system
 	 *
-	 * @return bool True, if the deny was successfull
+	 * @return bool True, if the deny was successful
 	 * @throws Exception
 	 */
 	public static function deny(string $hash): bool
