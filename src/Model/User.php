@@ -529,7 +529,7 @@ class User
 			// Addons can create users, and since this 'catch' branch should only
 			// execute if getAuthenticationInfo can't find an existing user, that's
 			// exactly what will happen here. Creating a numeric username would create
-			// abiguity with user IDs, possibly opening up an attack vector.
+			// ambiguity with user IDs, possibly opening up an attack vector.
 			// So let's be very careful about that.
 			if (empty($username) || is_numeric($username)) {
 				throw $e;
