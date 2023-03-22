@@ -679,7 +679,7 @@
 				$('#previewImage_' + id).html(appendImage);
 				$('#attachmentImageSrc_' + id).val(bin2hex(image));
 
-				// We need to add the image widht and height when it is 
+				// We need to add the image width and height when it is 
 				// loaded.
 				$('<img/>' ,{
 					load : function(){
