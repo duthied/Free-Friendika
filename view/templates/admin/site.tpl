@@ -32,6 +32,7 @@
 		<h2>{{$registration}}</h2>
 		{{include file="field_textarea.tpl" field=$register_text}}
 		{{include file="field_select.tpl" field=$register_policy}}
+		{{include file="field_input.tpl" field=$max_registered_users}}
 		{{include file="field_input.tpl" field=$daily_registrations}}
 		{{include file="field_checkbox.tpl" field=$enable_multi_reg}}
 		{{include file="field_checkbox.tpl" field=$enable_openid}}

@@ -35,6 +35,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Module\Register;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Security\TwoFactor\Model\AppSpecificPassword;
 use Friendica\Network\HTTPException;
@@ -1266,6 +1267,8 @@ class User
 
 		Hook::callAll('register_account', $uid);
 
+		self::setRegisterMethodByUserCount();
+
 		$return['user'] = $user;
 		return $return;
 	}
@@ -1610,6 +1613,7 @@ class User
 		// Remove the user relevant data
 		Worker::add(Worker::PRIORITY_NEGLIGIBLE, 'RemoveUser', $uid);
 
+		self::setRegisterMethodByUserCount();
 		return true;
 	}
 
@@ -1876,5 +1880,30 @@ class User
 
 			return true;
 		});
+	}
+
+	public static function setRegisterMethodByUserCount()
+	{
+		$max_registered_users = DI::config()->get('config', 'max_registered_users');
+		if ($max_registered_users <= 0) {
+			return;
+		}
+
+		$register_policy = DI::config()->get('config', 'register_policy');
+		if (!in_array($register_policy, [Register::OPEN, Register::CLOSED])) {
+			Logger::debug('Unsupported register policy.', ['policy' => $register_policy]);
+			return;
+		}
+
+		$users = DBA::count('user', ['blocked' => false, 'account_removed' => false, 'account_expired' => false]);
+		if (($users >= $max_registered_users) && ($register_policy == Register::OPEN)) {
+			DI::config()->set('config', 'register_policy', Register::CLOSED);
+			Logger::notice('Max users reached, registration is closed.', ['users' => $users, 'max' => $max_registered_users]);
+		} elseif (($users < $max_registered_users) && ($register_policy == Register::CLOSED)) {
+			DI::config()->set('config', 'register_policy', Register::OPEN);
+			Logger::notice('Below maximum users, registration is opened.', ['users' => $users, 'max' => $max_registered_users]);
+		} else {
+			Logger::debug('Unchanged register policy', ['policy' => $register_policy, 'users' => $users, 'max' => $max_registered_users]);
+		}
 	}
 }
