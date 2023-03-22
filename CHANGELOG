@@ -1042,7 +1042,7 @@ Version 2019.03 (2019-03-22)
     Update to the themes (duepuntozero, frio, smoothy, quattro, vier) [lxiter, MrPetovan, nupplaphil, rabuzarus,  tobiasd]
     Enhancements to the API [jasonscheng]
     Enhancements to the Vagrant development VM [JeroenED]
-    Enhancements to the storage of gender, sexual preferences and maritial status [JeroenED]
+    Enhancements to the storage of gender, sexual preferences and marital status [JeroenED]
     Enhancements to the wording of notifications [MrPetovan]
     Enhancements to the display of contacts in the profile [MrPetovan]
     Enhancements to the handling of local links [lxiter]
