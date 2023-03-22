@@ -136,8 +136,8 @@ This specification provides the following protocol address prefixes
 for use in Z-To: or Z-Bcc: elements:
 
 zot: - normal zot delivery using webfinger or LRDD resolvable address
-dfrn: - legacy DFRN mode delivery using webfinger or LRDD resovable address
-ostatus: - normal OStatus delivery using webfinger or LRDD resovable address
+dfrn: - legacy DFRN mode delivery using webfinger or LRDD resolvable address
+ostatus: - normal OStatus delivery using webfinger or LRDD resolvable address
 diaspora: - Diaspora network delivery using webfinger address
 facebook: - Facebook profile page URL
 twitter: - Twitter personal page URL without AJAX '#!' fragment
