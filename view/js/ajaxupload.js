@@ -211,7 +211,7 @@
     /**
      * Get file extension lowercase
      * @param {String} file name
-     * @return file extenstion
+     * @return file extension
      */    
     function getExt(file){
         return (-1 !== file.indexOf('.')) ? file.replace(/.*[.]/, '') : '';

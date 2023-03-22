@@ -1103,7 +1103,7 @@ Version 2019.03 (2019-03-22)
     forumdirectory:
       Fixed a theming issue with frio [rabuzarus]
     js_upload:
-      Fixed a missing extionsion index [nupplaphil]
+      Fixed a missing extension index [nupplaphil]
     mailstream:
       Fixed a curl issue [MrPetovan]
     piwik:
