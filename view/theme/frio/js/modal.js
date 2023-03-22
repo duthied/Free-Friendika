@@ -23,7 +23,7 @@ $(document).ready(function () {
 		$("#jot-content").append(jotcache);
 		// Clear the jotcache.
 		jotcache = "";
-		// Destroy the attachment linkPreviw for Jot.
+		// Destroy the attachment linkPreview for Jot.
 		if (typeof linkPreview === "object") {
 			linkPreview.destroy();
 		}
