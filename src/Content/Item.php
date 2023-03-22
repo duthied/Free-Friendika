@@ -685,11 +685,11 @@ class Item
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
 		if (!empty($shared)) {
-			if (!empty($shared['guid']) && ($encaspulated_share = $this->createSharedPostByGuid($shared['guid'], true))) {
+			if (!empty($shared['guid']) && ($encapsulated_share = $this->createSharedPostByGuid($shared['guid'], true))) {
 				if (!empty(BBCode::fetchShareAttributes($item['body']))) {
-					$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
+					$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encapsulated_share, $item['body']);
 				} else {
-					$item['body'] .= $encaspulated_share;
+					$item['body'] .= $encapsulated_share;
 				}
 			}
 			$item['body'] = HTML::toBBCode(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::ACTIVITYPUB));
