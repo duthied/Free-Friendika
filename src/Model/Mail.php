@@ -117,7 +117,7 @@ class Mail
 	/**
 	 * Send private message
 	 *
-	 * @param integer $sender_uid the user id of the sender, default 0
+	 * @param integer $sender_uid the user id of the sender
 	 * @param integer $recipient recipient id, default 0
 	 * @param string  $body      message body, default empty
 	 * @param string  $subject   message subject, default empty
@@ -125,7 +125,7 @@ class Mail
 	 * @return int
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function send(int $sender_uid = 0, int $recipient = 0, string $body = '', string $subject = '', string $replyto = ''): int
+	public static function send(int $sender_uid, int $recipient = 0, string $body = '', string $subject = '', string $replyto = ''): int
 	{
 		$a = DI::app();
 
