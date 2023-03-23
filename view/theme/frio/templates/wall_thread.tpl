@@ -316,7 +316,7 @@ as the value of $top_child_total (this is done at the end of this file)
 					{{/if}}
 				{{/if}}
 				{{if $item.vote.announce}}
-				<button type="button" class="btn-link button-announces{{if $item.responses.announce.self}} active" aria-pressed="true{{/if}}" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" onclick="doActivityItemAction({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}});" ><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.announce.1}}</button>
+				<button type="button" class="btn-link button-announces{{if $item.responses.announce.self or $item.reshared }} active" aria-pressed="true{{/if}}" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" onclick="doActivityItemAction({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}});" ><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.announce.1}}</button>
 				<span role="presentation" class="separator"></span>
 				{{/if}}
 				{{if $item.vote.share}}
