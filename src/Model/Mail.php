@@ -117,6 +117,7 @@ class Mail
 	/**
 	 * Send private message
 	 *
+	 * @param integer $sender_uid the user id of the sender
 	 * @param integer $recipient recipient id, default 0
 	 * @param string  $body      message body, default empty
 	 * @param string  $subject   message subject, default empty
@@ -124,7 +125,7 @@ class Mail
 	 * @return int
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function send(int $recipient = 0, string $body = '', string $subject = '', string $replyto = ''): int
+	public static function send(int $sender_uid, int $recipient = 0, string $body = '', string $subject = '', string $replyto = ''): int
 	{
 		$a = DI::app();
 
@@ -136,12 +137,12 @@ class Mail
 			$subject = DI::l10n()->t('[no subject]');
 		}
 
-		$me = DBA::selectFirst('contact', [], ['uid' => DI::userSession()->getLocalUserId(), 'self' => true]);
+		$me = DBA::selectFirst('contact', [], ['uid' => $sender_uid, 'self' => true]);
 		if (!DBA::isResult($me)) {
 			return -2;
 		}
 
-		$contacts = ACL::getValidMessageRecipientsForUser(DI::userSession()->getLocalUserId());
+		$contacts = ACL::getValidMessageRecipientsForUser($sender_uid);
 
 		$contactIndex = array_search($recipient, array_column($contacts, 'id'));
 		if ($contactIndex === false) {
@@ -150,7 +151,7 @@ class Mail
 
 		$contact = $contacts[$contactIndex];
 
-		Photo::setPermissionFromBody($body, DI::userSession()->getLocalUserId(), $me['id'],  '<' . $contact['id'] . '>', '', '', '');
+		Photo::setPermissionFromBody($body, $sender_uid, $me['id'], '<' . $contact['id'] . '>', '', '', '');
 
 		$guid = System::createUUID();
 		$uri = Item::newURI($guid);
@@ -163,7 +164,7 @@ class Mail
 		if (strlen($replyto)) {
 			$reply = true;
 			$condition = ["`uid` = ? AND (`uri` = ? OR `parent-uri` = ?)",
-				DI::userSession()->getLocalUserId(), $replyto, $replyto];
+				$sender_uid, $replyto, $replyto];
 			$mail = DBA::selectFirst('mail', ['convid'], $condition);
 			if (DBA::isResult($mail)) {
 				$convid = $mail['convid'];
@@ -176,7 +177,7 @@ class Mail
 			$conv_guid = System::createUUID();
 			$convuri = $contact['addr'] . ':' . $conv_guid;
 
-			$fields = ['uid' => DI::userSession()->getLocalUserId(), 'guid' => $conv_guid, 'creator' => $me['addr'],
+			$fields = ['uid' => $sender_uid, 'guid' => $conv_guid, 'creator' => $me['addr'],
 				'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(),
 				'subject' => $subject, 'recips' => $contact['addr'] . ';' . $me['addr']];
 			if (DBA::insert('conv', $fields)) {
@@ -195,7 +196,7 @@ class Mail
 
 		$post_id = self::insert(
 			[
-				'uid' => DI::userSession()->getLocalUserId(),
+				'uid' => $sender_uid,
 				'guid' => $guid,
 				'convid' => $convid,
 				'from-name' => $me['name'],
@@ -210,7 +211,8 @@ class Mail
 				'uri' => $uri,
 				'parent-uri' => $replyto,
 				'created' => DateTimeFormat::utcNow()
-			], false
+			],
+			false
 		);
 
 		/**
@@ -231,7 +233,7 @@ class Mail
 				foreach ($images as $image) {
 					$image_rid = Photo::ridFromURI($image);
 					if (!empty($image_rid)) {
-						Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => DI::userSession()->getLocalUserId()]);
+						Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => $sender_uid]);
 					}
 				}
 			}
@@ -311,7 +313,8 @@ class Mail
 				'parent-uri' => $me['url'],
 				'created' => DateTimeFormat::utcNow(),
 				'unknown' => 1
-			], false
+			],
+			false
 		);
 
 		return 0;
