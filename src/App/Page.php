@@ -256,6 +256,7 @@ class Page implements ArrayAccess
 			'$likeError'       => $l10n->t('Like not successfull'),
 			'$dislikeError'    => $l10n->t('Dislike not successfull'),
 			'$announceError'   => $l10n->t('Sharing not successfull'),
+			'$attendError'     => $l10n->t('Attendation not successfull'),
 			'$srvError'        => $l10n->t('Backend error'),
 			'$netError'        => $l10n->t('Network error'),
 			// Dropzone

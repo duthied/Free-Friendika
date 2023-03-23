@@ -775,6 +775,15 @@ function doActivityItemAction(ident, verb, un) {
 			break;
 		case 'announce':
 			thumbsClass = 'fa-retweet';
+			break;
+		case 'attendyes':
+			thumbsClass = 'fa-check';
+			break;
+		case 'attendno':
+			thumbsClass = 'fa-times';
+			break;
+		case 'attendmaybe':
+			thumbsClass = 'fa-question';
 	}
 	if (verb.indexOf('announce') === 0 ) {
 		// Share-Button(s)
@@ -802,6 +811,12 @@ function doActivityItemAction(ident, verb, un) {
 	.success(function(data){
 		$('img[id^=waitfor-' + verb + '-' + ident.toString() + ']').remove();
 		if (data.status == 'ok') {
+			if (verb.indexOf('attend') === 0) {
+				$('button[id^=attend][id$=' + ident.toString() + ']').removeClass('active')
+				$('button#attendyes-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendyes" )');
+				$('button#attendno-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendno" )');
+				$('button#attendmaybe-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendmaybe" )');
+			}
 			if (data.verb == 'un' + verb) {
 				// like/dislike buttons
 				$('button[id^=' + verb + '-' + ident.toString() + ']' )
@@ -810,7 +825,7 @@ function doActivityItemAction(ident, verb, un) {
 				// link in share-menu
 				$('a[id^=' + verb + '-' + ident.toString() + ']' )
 					.removeClass('active')
-					.attr('href', 'javascript:doActivityItemAction(' + ident +', "' + verb + '",false )');
+					.attr('href', 'javascript:doActivityItemAction(' + ident +', "' + verb + '")');
 				$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child' ).addClass('fa-retweet').removeClass('fa-ban');
 			} else {
 				// like/dislike buttons
@@ -823,7 +838,7 @@ function doActivityItemAction(ident, verb, un) {
 					.attr('href', 'javascript:doActivityItemAction(' + ident + ', "' + verb + '", true )');
 				$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child' ).removeClass('fa-retweet').addClass('fa-ban');
 			}
-			$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass).show();
+			$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
 			if (verb.indexOf('announce') === 0 ) {
 				// ShareMenuButton
 				$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').addClass('fa-share');
