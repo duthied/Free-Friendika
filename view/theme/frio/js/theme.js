@@ -821,7 +821,7 @@ function doActivityItemAction(ident, verb, un) {
 				// like/dislike buttons
 				$('button[id^=' + verb + '-' + ident.toString() + ']' )
 					.removeClass('active')
-					.attr('onclick', 'doActivityItemAction(' + ident +', "' + verb + '",false )');
+					.attr('onclick', 'doActivityItemAction(' + ident +', "' + verb + '")');
 				// link in share-menu
 				$('a[id^=' + verb + '-' + ident.toString() + ']' )
 					.removeClass('active')
