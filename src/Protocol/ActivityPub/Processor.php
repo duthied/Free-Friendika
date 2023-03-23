@@ -863,11 +863,6 @@ class Processor
 					Logger::warning('Unknown parent item.', ['uri' => $parent_uri]);
 					return false;
 				}
-				if (!empty($activity['type']) && in_array($activity['type'], Receiver::CONTENT_TYPES) && ($item['private'] == Item::PRIVATE) && ($parent['private'] != Item::PRIVATE)) {
-					Logger::warning('Item is private but the parent is not. Dropping.', ['item-uri' => $item['uri'], 'thr-parent' => $item['thr-parent']]);
-					return false;
-				}
-
 				$content = self::removeImplicitMentionsFromBody($content, $parent);
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary'] ?? '');

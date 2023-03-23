@@ -985,6 +985,8 @@ class Conversation
 		$condition = DBA::mergeConditions($condition,
 			["`uid` IN (0, ?) AND (NOT `vid` IN (?, ?, ?) OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW), Verb::getID(Activity::VIEW), Verb::getID(Activity::READ)]);
 
+		$condition = DBA::mergeConditions($condition, ["(`uid` != ? OR `private` != ?)", 0, ItemModel::PRIVATE]);
+
 		$condition = DBA::mergeConditions($condition,
 			["`visible` AND NOT `deleted` AND NOT `author-blocked` AND NOT `owner-blocked`
 			AND ((NOT `contact-pending` AND (`contact-rel` IN (?, ?))) OR `self` OR `contact-uid` = ?)",

@@ -717,7 +717,12 @@ class Transmitter
 		}
 
 		if (!empty($item['parent'])) {
-			$parents = Post::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']], ['order' => ['id']]);
+			if ($item['private'] == Item::PRIVATE) {
+				$condition = ['parent' => $item['parent'], 'uri-id' => $item['thr-parent-id']];
+			} else {
+				$condition = ['parent' => $item['parent']];
+			}
+			$parents = Post::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], $condition, ['order' => ['id']]);
 			while ($parent = Post::fetch($parents)) {
 				if ($parent['gravity'] == Item::GRAVITY_PARENT) {
 					$profile = APContact::getByURL($parent['owner-link'], false);
