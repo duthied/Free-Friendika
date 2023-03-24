@@ -548,7 +548,7 @@ class Item
 				$item['allow_cid'] = '';
 				$item['allow_gid'] = '';
 			}
-		} elseif ($setPermissions && ($item['gravity'] == ItemModel::GRAVITY_PARENT)) {
+		} elseif ($setPermissions) {
 			if (empty($receivers)) {
 				// For security reasons direct posts without any receiver will be posts to yourself
 				$self = Contact::selectFirst(['id'], ['uid' => $item['uid'], 'self' => true]);

@@ -892,6 +892,8 @@ class Item
 			$item['post-type'] = empty($item['title']) ? self::PT_NOTE : self::PT_ARTICLE;
 		}
 
+		$defined_permissions = isset($item['allow_cid']) && isset($item['allow_gid']) && isset($item['deny_cid']) && isset($item['deny_gid']) && isset($item['private']);
+
 		$item['wall']          = intval($item['wall'] ?? 0);
 		$item['extid']         = trim($item['extid'] ?? '');
 		$item['author-name']   = trim($item['author-name'] ?? '');
@@ -993,7 +995,7 @@ class Item
 			$item['wall']          = $toplevel_parent['wall'];
 
 			// Reshares have to keep their permissions to allow forums to work
-			if (!$item['origin'] || ($item['verb'] != Activity::ANNOUNCE)) {
+			if (!$defined_permissions && (!$item['origin'] || ($item['verb'] != Activity::ANNOUNCE))) {
 				$item['allow_cid']     = $toplevel_parent['allow_cid'];
 				$item['allow_gid']     = $toplevel_parent['allow_gid'];
 				$item['deny_cid']      = $toplevel_parent['deny_cid'];
@@ -1016,7 +1018,7 @@ class Item
 			 * This differs from the above settings as it subtly allows comments from
 			 * email correspondents to be private even if the overall thread is not.
 			 */
-			if ($toplevel_parent['private']) {
+			if (!$defined_permissions && $toplevel_parent['private']) {
 				$item['private'] = $toplevel_parent['private'];
 			}
 
@@ -1063,7 +1065,7 @@ class Item
 		}
 
 		// ACL settings
-		if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
+		if (!$defined_permissions && !empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
 			$item['private'] = self::PRIVATE;
 		}
 
