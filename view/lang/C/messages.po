@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-21 21:43+0000\n"
+"POT-Creation-Date: 2023-03-24 08:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,7 +44,7 @@ msgstr ""
 msgid "Item not found."
 msgstr ""
 
-#: mod/item.php:435 mod/message.php:68 mod/message.php:113 mod/notes.php:45
+#: mod/item.php:435 mod/message.php:68 mod/message.php:114 mod/notes.php:45
 #: mod/photos.php:152 mod/photos.php:669 src/Model/Event.php:522
 #: src/Module/Attach.php:55 src/Module/BaseApi.php:99
 #: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:52
@@ -219,86 +219,86 @@ msgstr ""
 msgid "Your password has been changed at %s"
 msgstr ""
 
-#: mod/message.php:46 mod/message.php:128 src/Content/Nav.php:319
+#: mod/message.php:46 mod/message.php:129 src/Content/Nav.php:319
 msgid "New Message"
 msgstr ""
 
-#: mod/message.php:82 src/Module/Profile/UnkMail.php:100
+#: mod/message.php:83 src/Module/Profile/UnkMail.php:100
 msgid "No recipient selected."
 msgstr ""
 
-#: mod/message.php:87
+#: mod/message.php:88
 msgid "Unable to locate contact information."
 msgstr ""
 
-#: mod/message.php:91 src/Module/Profile/UnkMail.php:106
+#: mod/message.php:92 src/Module/Profile/UnkMail.php:106
 msgid "Message could not be sent."
 msgstr ""
 
-#: mod/message.php:95 src/Module/Profile/UnkMail.php:109
+#: mod/message.php:96 src/Module/Profile/UnkMail.php:109
 msgid "Message collection failure."
 msgstr ""
 
-#: mod/message.php:122 src/Module/Notifications/Introductions.php:135
+#: mod/message.php:123 src/Module/Notifications/Introductions.php:135
 #: src/Module/Notifications/Introductions.php:170
 #: src/Module/Notifications/Notification.php:85
 msgid "Discard"
 msgstr ""
 
-#: mod/message.php:135 src/Content/Nav.php:316 view/theme/frio/theme.php:241
+#: mod/message.php:136 src/Content/Nav.php:316 view/theme/frio/theme.php:241
 msgid "Messages"
 msgstr ""
 
-#: mod/message.php:148
+#: mod/message.php:149
 msgid "Conversation not found."
 msgstr ""
 
-#: mod/message.php:153
+#: mod/message.php:154
 msgid "Message was not deleted."
 msgstr ""
 
-#: mod/message.php:168
+#: mod/message.php:169
 msgid "Conversation was not removed."
 msgstr ""
 
-#: mod/message.php:181 mod/message.php:286 src/Module/Profile/UnkMail.php:145
+#: mod/message.php:182 mod/message.php:287 src/Module/Profile/UnkMail.php:145
 msgid "Please enter a link URL:"
 msgstr ""
 
-#: mod/message.php:190 src/Module/Profile/UnkMail.php:151
+#: mod/message.php:191 src/Module/Profile/UnkMail.php:151
 msgid "Send Private Message"
 msgstr ""
 
-#: mod/message.php:191 mod/message.php:346
+#: mod/message.php:192 mod/message.php:347
 msgid "To:"
 msgstr ""
 
-#: mod/message.php:192 mod/message.php:347
+#: mod/message.php:193 mod/message.php:348
 msgid "Subject:"
 msgstr ""
 
-#: mod/message.php:196 mod/message.php:350 src/Module/Invite.php:171
+#: mod/message.php:197 mod/message.php:351 src/Module/Invite.php:171
 msgid "Your message:"
 msgstr ""
 
-#: mod/message.php:199 mod/message.php:354 src/Content/Conversation.php:352
+#: mod/message.php:200 mod/message.php:355 src/Content/Conversation.php:352
 #: src/Module/Post/Edit.php:131
 msgid "Upload photo"
 msgstr ""
 
-#: mod/message.php:200 mod/message.php:355 src/Module/Post/Edit.php:135
+#: mod/message.php:201 mod/message.php:356 src/Module/Post/Edit.php:135
 #: src/Module/Profile/UnkMail.php:153
 msgid "Insert web link"
 msgstr ""
 
-#: mod/message.php:201 mod/message.php:357 mod/photos.php:1291
+#: mod/message.php:202 mod/message.php:358 mod/photos.php:1291
 #: src/Content/Conversation.php:381 src/Content/Conversation.php:725
 #: src/Module/Item/Compose.php:204 src/Module/Post/Edit.php:145
 #: src/Module/Profile/UnkMail.php:154 src/Object/Post.php:545
 msgid "Please wait"
 msgstr ""
 
-#: mod/message.php:202 mod/message.php:356 mod/photos.php:702
+#: mod/message.php:203 mod/message.php:357 mod/photos.php:702
 #: mod/photos.php:819 mod/photos.php:1097 mod/photos.php:1138
 #: mod/photos.php:1194 mod/photos.php:1268
 #: src/Module/Calendar/Event/Form.php:250 src/Module/Contact/Advanced.php:132
@@ -317,52 +317,52 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: mod/message.php:223
+#: mod/message.php:224
 msgid "No messages."
 msgstr ""
 
-#: mod/message.php:279
+#: mod/message.php:280
 msgid "Message not available."
 msgstr ""
 
-#: mod/message.php:323
+#: mod/message.php:324
 msgid "Delete message"
 msgstr ""
 
-#: mod/message.php:325 mod/message.php:456
+#: mod/message.php:326 mod/message.php:457
 msgid "D, d M Y - g:i A"
 msgstr ""
 
-#: mod/message.php:340 mod/message.php:453
+#: mod/message.php:341 mod/message.php:454
 msgid "Delete conversation"
 msgstr ""
 
-#: mod/message.php:342
+#: mod/message.php:343
 msgid ""
 "No secure communications available. You <strong>may</strong> be able to "
 "respond from the sender's profile page."
 msgstr ""
 
-#: mod/message.php:345
+#: mod/message.php:346
 msgid "Send Reply"
 msgstr ""
 
-#: mod/message.php:427
+#: mod/message.php:428
 #, php-format
 msgid "Unknown sender - %s"
 msgstr ""
 
-#: mod/message.php:429
+#: mod/message.php:430
 #, php-format
 msgid "You and %s"
 msgstr ""
 
-#: mod/message.php:431
+#: mod/message.php:432
 #, php-format
 msgid "%s and You"
 msgstr ""
 
-#: mod/message.php:459
+#: mod/message.php:460
 #, php-format
 msgid "%d message"
 msgid_plural "%d messages"
@@ -686,14 +686,18 @@ msgid "Sharing not successfull"
 msgstr ""
 
 #: src/App/Page.php:259
-msgid "Backend error"
+msgid "Attendance unsuccessful"
 msgstr ""
 
 #: src/App/Page.php:260
+msgid "Backend error"
+msgstr ""
+
+#: src/App/Page.php:261
 msgid "Network error"
 msgstr ""
 
-#: src/App/Page.php:328
+#: src/App/Page.php:329
 msgid "toggle mobile"
 msgstr ""
 
@@ -721,8 +725,8 @@ msgid "All contacts"
 msgstr ""
 
 #: src/BaseModule.php:432 src/Content/Widget.php:235 src/Core/ACL.php:194
-#: src/Module/Contact.php:407 src/Module/PermissionTooltip.php:122
-#: src/Module/PermissionTooltip.php:144
+#: src/Module/Contact.php:407 src/Module/PermissionTooltip.php:127
+#: src/Module/PermissionTooltip.php:149
 msgid "Followers"
 msgstr ""
 
@@ -1524,20 +1528,20 @@ msgid ""
 "Contact birthday events are private to you."
 msgstr ""
 
-#: src/Content/ForumManager.php:157 src/Content/Nav.php:276
+#: src/Content/ForumManager.php:151 src/Content/Nav.php:276
 #: src/Content/Text/HTML.php:878 src/Content/Widget.php:524
 msgid "Forums"
 msgstr ""
 
-#: src/Content/ForumManager.php:159
+#: src/Content/ForumManager.php:153
 msgid "External link to forum"
 msgstr ""
 
-#: src/Content/ForumManager.php:162 src/Content/Widget.php:503
+#: src/Content/ForumManager.php:156 src/Content/Widget.php:503
 msgid "show less"
 msgstr ""
 
-#: src/Content/ForumManager.php:163 src/Content/Widget.php:405
+#: src/Content/ForumManager.php:157 src/Content/Widget.php:405
 #: src/Content/Widget.php:504
 msgid "show more"
 msgstr ""
@@ -2208,8 +2212,8 @@ msgstr ""
 msgid "Yourself"
 msgstr ""
 
-#: src/Core/ACL.php:201 src/Module/PermissionTooltip.php:128
-#: src/Module/PermissionTooltip.php:150
+#: src/Core/ACL.php:201 src/Module/PermissionTooltip.php:133
+#: src/Module/PermissionTooltip.php:155
 msgid "Mutuals"
 msgstr ""
 
@@ -2217,8 +2221,8 @@ msgstr ""
 msgid "Post to Email"
 msgstr ""
 
-#: src/Core/ACL.php:320 src/Module/PermissionTooltip.php:85
-#: src/Module/PermissionTooltip.php:197
+#: src/Core/ACL.php:320 src/Module/PermissionTooltip.php:90
+#: src/Module/PermissionTooltip.php:201
 msgid "Public"
 msgstr ""
 
@@ -2228,7 +2232,7 @@ msgid ""
 "community pages and by anyone with its link."
 msgstr ""
 
-#: src/Core/ACL.php:322 src/Module/PermissionTooltip.php:93
+#: src/Core/ACL.php:322 src/Module/PermissionTooltip.php:98
 msgid "Limited/Private"
 msgstr ""
 
@@ -3204,7 +3208,7 @@ msgstr ""
 msgid "View on separate page"
 msgstr ""
 
-#: src/Model/Mail.php:136 src/Model/Mail.php:264
+#: src/Model/Mail.php:137 src/Model/Mail.php:266
 msgid "[no subject]"
 msgstr ""
 
@@ -8138,48 +8142,48 @@ msgstr ""
 msgid "Wrong type \"%s\", expected one of: %s"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:66
+#: src/Module/PermissionTooltip.php:79
 msgid "Model not found"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:89
+#: src/Module/PermissionTooltip.php:94
 msgid "Unlisted"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:107
+#: src/Module/PermissionTooltip.php:112
 msgid "Remote privacy information not available."
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:116
+#: src/Module/PermissionTooltip.php:121
 msgid "Visible to:"
-msgstr ""
-
-#: src/Module/PermissionTooltip.php:200
-#, php-format
-msgid "Collection (%s)"
 msgstr ""
 
 #: src/Module/PermissionTooltip.php:204
 #, php-format
-msgid "Followers (%s)"
+msgid "Collection (%s)"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:223
+#: src/Module/PermissionTooltip.php:208
 #, php-format
-msgid "%d more"
+msgid "Followers (%s)"
 msgstr ""
 
 #: src/Module/PermissionTooltip.php:227
 #, php-format
+msgid "%d more"
+msgstr ""
+
+#: src/Module/PermissionTooltip.php:231
+#, php-format
 msgid "<b>To:</b> %s<br>"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:230
+#: src/Module/PermissionTooltip.php:234
 #, php-format
 msgid "<b>CC:</b> %s<br>"
 msgstr ""
 
-#: src/Module/PermissionTooltip.php:233
+#: src/Module/PermissionTooltip.php:237
 #, php-format
 msgid "<b>BCC:</b> %s<br>"
 msgstr ""

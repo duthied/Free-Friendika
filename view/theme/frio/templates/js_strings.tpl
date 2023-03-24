@@ -14,6 +14,9 @@ They are loaded into the html <head> so that js functions can use them *}}
                'like'          : "{{$likeError}}",
                'dislike'       : "{{$dislikeError}}",
                'announce'      : "{{$announceError}}",
+               'attendyes'     : "{{$attendError}}",
+               'attendno'      : "{{$attendError}}",
+               'attendmaybe'   : "{{$attendError}}",
         };
         var aErrType = {
                'srvErr'        : "{{$srvError}}",
