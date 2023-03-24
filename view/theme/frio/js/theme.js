@@ -813,9 +813,9 @@ function doActivityItemAction(ident, verb, un) {
 		if (data.status == 'ok') {
 			if (verb.indexOf('attend') === 0) {
 				$('button[id^=attend][id$=' + ident.toString() + ']').removeClass('active')
-				$('button#attendyes-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendyes" )');
-				$('button#attendno-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendno" )');
-				$('button#attendmaybe-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendmaybe" )');
+				$('button#attendyes-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendyes")');
+				$('button#attendno-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendno")');
+				$('button#attendmaybe-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendmaybe")');
 			}
 			if (data.verb == 'un' + verb) {
 				// like/dislike buttons
