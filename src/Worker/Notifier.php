@@ -170,13 +170,15 @@ class Notifier
 		// Deliver directly to a forum, don't PuSH
 		$direct_forum_delivery = false;
 
+		$only_ap_delivery = false;
+
 		$followup = false;
 		$recipients_followup = [];
 
 		if (!empty($target_item) && !empty($items)) {
 			$parent = $items[0];
 
-			$fields = ['network', 'author-id', 'author-link', 'author-network', 'owner-id'];
+			$fields = ['network', 'private', 'author-id', 'author-link', 'author-network', 'owner-id'];
 			$condition = ['uri' => $target_item['thr-parent'], 'uid' => $target_item['uid']];
 			$thr_parent = Post::selectFirst($fields, $condition);
 			if (empty($thr_parent)) {
@@ -189,6 +191,11 @@ class Notifier
 				$apdelivery = self::activityPubDelivery($cmd, $target_item, $parent, $thr_parent, $a->getQueueValue('priority'), $a->getQueueValue('created'), $owner);
 				$ap_contacts = $apdelivery['contacts'];
 				$delivery_queue_count += $apdelivery['count'];
+				if (($thr_parent['network'] == Protocol::ACTIVITYPUB) && ($thr_parent['private'] == Item::PRIVATE)) {
+					$only_ap_delivery   = true;
+					$public_message     = false;
+					$diaspora_delivery  = false;
+				}
 			}
 
 			// Only deliver threaded replies (comment to a comment) to Diaspora
@@ -421,7 +428,9 @@ class Notifier
 		}
 
 		if (empty($delivery_contacts_stmt)) {
-			if ($followup) {
+			if ($only_ap_delivery) {
+				$recipients = $ap_contacts;
+			} elseif ($followup) {
 				$recipients = $recipients_followup;
 			}
 			$condition = ['id' => $recipients, 'self' => false, 'uid' => [0, $uid],

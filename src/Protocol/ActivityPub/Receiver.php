@@ -1085,14 +1085,6 @@ class Receiver
 			$reply[] = $object_id;
 		}
 
-		if (!empty($reply)) {
-			$parents = Post::select(['uid'], DBA::mergeConditions(['uri' => $reply], ["`uid` != ?", 0]));
-			while ($parent = Post::fetch($parents)) {
-				$receivers[$parent['uid']] = ['uid' => $parent['uid'], 'type' => self::TARGET_ANSWER];
-			}
-			DBA::close($parents);
-		}
-
 		if (!empty($actor)) {
 			$profile   = APContact::getByURL($actor);
 			$followers = $profile['followers'] ?? '';
@@ -1176,6 +1168,14 @@ class Receiver
 					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $type];
 				}
 			}
+		}
+
+		if (!empty($reply) && (!empty($receivers[0]) || !empty($receivers[-1]))) {
+			$parents = Post::select(['uid'], DBA::mergeConditions(['uri' => $reply], ["`uid` != ?", 0]));
+			while ($parent = Post::fetch($parents)) {
+				$receivers[$parent['uid']] = ['uid' => $parent['uid'], 'type' => self::TARGET_ANSWER];
+			}
+			DBA::close($parents);
 		}
 
 		self::switchContacts($receivers, $actor);
