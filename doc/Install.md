@@ -51,10 +51,13 @@ For alternative server configurations (such as Nginx server and MariaDB database
 ### Alternative Installation Methods
 
 This guide will walk you through the manual installation process of Friendica.
-If this is nothing for you, you might be interested in
+If this is nothing for you, you might be interested in the following:
 
-* the [Friendica Docker image](https://github.com/friendica/docker) or
-* how to [install Friendica with YunoHost](https://github.com/YunoHost-Apps/friendica_ynh).
+* the [Friendica Docker image](https://github.com/friendica/docker)
+* how to [install Friendica with YunoHost](https://github.com/YunoHost-Apps/friendica_ynh)
+* [Tutorial: Creating a Friendica Server with Ubuntu 22.04](https://nequalsonelifestyle.com/2022/07/30/creating-friendica-server-ubuntu/)
+  * [Setting Up Friendica Daemon as a Systemd Service Tutorial](https://nequalsonelifestyle.com/2022/08/04/setting-up-friendica-daemon-systemd-service/)
+* [Setting up Friendica on Unraid](https://www.jenovarain.com/2023/03/setting-up-friendica-on-unraid/) (NAS)
 
 ### Get Friendica
 
