@@ -266,15 +266,14 @@ class Statuses extends BaseApi
 		}
 
 		if ($request['in_reply_to_id']) {
-			$parent = Post::selectFirst(['uri', 'private'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
+			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
+			if (empty($parent)) {
+				throw new HTTPException\NotFoundException('Item with URI ID ' . $request['in_reply_to_id'] . ' not found for user ' . $uid . '.');
+			}
 
 			$item['thr-parent']  = $parent['uri'];
 			$item['gravity']     = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
-
-			if (in_array($parent['private'], [Item::UNLISTED, Item::PUBLIC]) && ($item['private'] == Item::PRIVATE)) {
-				throw new HTTPException\NotImplementedException('Private replies for public posts are not implemented.');
-			}
 		} else {
 			self::checkThrottleLimit();
 
