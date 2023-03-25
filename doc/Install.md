@@ -466,9 +466,11 @@ After that, restart mysql and try again.
 
 ### Your worker never or rarely runs
 
-Friendica is coded to always play nice. It checks whether the host machine is idle enough and if it _seems_ to be overloaded, it intermittently refuses to process the worker queue.
+Friendica is coded to always play nice.
+It checks whether the host machine is idle enough and if it _seems_ to be overloaded, it intermittently refuses to process the worker queue.
 
-Such checks originate from the days of single-user single-core machines and involves thresholds that you should adjust based on the number of exclusive CPU cores you have. See this issue for more information:
+Such checks originate from the days of single-user single-core machines and involves thresholds that you should adjust based on the number of exclusive CPU cores you have.
+See this issue for more information:
 
 * https://github.com/friendica/friendica/issues/10131
 
@@ -485,28 +487,40 @@ You tried to upload an image up to 100kB and it failed.
 
 You may not have the ownership or file mode set correctly if you are using the file system storage backend.
 
-Change the backend to database. If this solves it, that is what needs to be fixed.
+Change the backend to database.
+If this solves it, that is what needs to be fixed.
+
+Verify in your PHP ini:
+
+* `file_uploads`: should be `1`
+* `upload_tmp_dir`: should be writable (falls back to system default temp) and not blocked by `open_basedir`
 
 ### Error uploading large files
 
 You may find `413 Request Entity Too Large` or `500 Internal Error` in the network inspector of the browser if the file is too large, for example if it is a video.
 
-First try to upload a very small file, up to 100kB. If that succeeds, you will need to increase limits at multiple places, including on any web proxy that you are using.
+First try to upload a very small file, up to 100kB.
+If that succeeds, you will need to increase limits at multiple places, including on any web proxy that you are using.
+Which one applies to you depends on your installation.
 
 In your PHP ini:
 
 * `upload_max_filesize`: defaults to 2MB
 * `post_max_size`: defaults to 8MB, must be greater than `upload_max_filesize`
 * `memory_limit`: defaults to 128MB, must be greater than `post_max_size`
+* `max_input_time`: time limit of an upload, defaults to -1, meaning it uses `max_execution_time` instead
+* `max_execution_time`: defaults to 30 seconds, should be enough if you also set `max_input_time`
 
 You should verify whether you changed them in the _right file_ by checking the web interface at the end of the overview on the `Admin` panel.
 
-For Apache2:
+In your Apache2 config:
 
 * `LimitRequestBody`: defaults to unlimited
+* `FcgidMaxRequestLen`: defaults to 128kB
 * `SSLRenegBufferSize`: defaults to 128kB, only if your site uses TLS and perhaps only when using `SSLVerifyClient` or `SSLVerifyDepth`
+* Remove `LoadModule reqtimeout_module modules / mod_reqtimeout.so` or adjust `RequestReadTimeout`: defaults to 20 seconds and >= 500 byte/second
 
-For nginx:
+In your nginx config:
 
 * `client_max_body_size`: defaults to 1MB
 
@@ -514,7 +528,10 @@ If you are using the database backend for storage, increase this in your SQL con
 
 * `max_allowed_packet`: defaults to 32MB
 
-If you use the ModSecurity WAF:
+In your ModSecurity WAF config:
 
 * `SecRequestBodyLimit`: defaults to 12MB
 * `SecRequestBodyNoFilesLimit`: defaults to 128kB, should not apply to Friendica
+
+In the end, you will need to restart all services that you have changed configuration for.
+If you don't know which ones these are, just reboot.
