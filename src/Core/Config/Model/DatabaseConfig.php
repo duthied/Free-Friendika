@@ -81,6 +81,12 @@ class DatabaseConfig implements IManageConfigValues
 	}
 
 	/** {@inheritDoc} */
+	public function isSetDisabled(string $cat, string $key): bool
+	{
+		return $this->cache->getSource($cat, $key) >= Cache::SOURCE_ENV;
+	}
+
+	/** {@inheritDoc} */
 	public function set(string $cat, string $key, $value): bool
 	{
 		// In case someone or something already serialized a config entry, unserialize it first

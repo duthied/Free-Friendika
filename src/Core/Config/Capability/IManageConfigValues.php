@@ -59,6 +59,16 @@ interface IManageConfigValues
 	public function get(string $cat, string $key = null, $default_value = null);
 
 	/**
+	 * Returns true, if the current config cannot be changed
+	 *
+	 * @param string $cat The category of the configuration value
+	 * @param string $key The configuration key to query
+	 *
+	 * @return bool true, if set is disabled
+	 */
+	public function isSetDisabled(string $cat, string $key): bool;
+
+	/**
 	 * Sets a configuration value for system config
 	 *
 	 * Stores a config value ($value) in the category ($cat) under the key ($key)

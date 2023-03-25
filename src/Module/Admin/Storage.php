@@ -76,7 +76,7 @@ class Storage extends BaseAdmin
 			}
 		}
 
-		if (!empty($_POST['submit_save_set'])) {
+		if (!empty($_POST['submit_save_set']) && !DI::config()->isSetDisabled('storage', 'name') ) {
 			try {
 				$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
 
@@ -129,6 +129,7 @@ class Storage extends BaseAdmin
 				'prefix' => $storage_form_prefix,
 				'form'   => $storage_form,
 				'active' => $current_storage_backend instanceof ICanWriteToStorage && $name === $current_storage_backend::getName(),
+				'set_disabled' => DI::config()->isSetDisabled('storage', 'name'),
 			];
 		}
 

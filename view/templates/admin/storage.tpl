@@ -19,12 +19,14 @@
 
 		{{if $storage.form}}
 		<input type="submit" name="submit_save" value="{{$save}}"/>
-		{{if $storage.active}}
+        {{if ! $storage.set_disabled}}
+				{{if $storage.active}}
 		<input type="submit" name="submit_save_set" value="{{$save_reload}}"/>
-		{{else}}
+				{{else}}
 		<input type="submit" name="submit_save_set" value="{{$save_use}}"/>
+				{{/if}}
 		{{/if}}
-		{{else}}
+		{{elseif ! $storage.set_disabled}}
 		<br /><input type="submit" name="submit_save_set" {{if $storage.active}}disabled="disabled"{{/if}} value="{{$use}}"/>
 		{{/if}}
 	</form>

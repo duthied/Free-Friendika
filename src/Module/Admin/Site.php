@@ -165,7 +165,9 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'poco_discovery'        , $poco_discovery);
 		$transactionConfig->set('system', 'poco_local_search'     , $poco_local_search);
 		$transactionConfig->set('system', 'nodeinfo'              , $nodeinfo);
-		$transactionConfig->set('config', 'sitename'              , $sitename);
+		if (!DI::config()->isSetDisabled('config', 'sitename')) {
+			$transactionConfig->set('config', 'sitename'          , $sitename);
+		}
 		$transactionConfig->set('config', 'sender_email'          , $sender_email);
 		$transactionConfig->set('system', 'suppress_tags'         , $suppress_tags);
 		$transactionConfig->set('system', 'shortcut_icon'         , $shortcut_icon);
@@ -188,7 +190,9 @@ class Site extends BaseAdmin
 		} else {
 			$transactionConfig->set('config', 'info', $additional_info);
 		}
-		$transactionConfig->set('system', 'language', $language);
+		if (!DI::config()->isSetDisabled('system', 'language')) {
+			$transactionConfig->set('system', 'language', $language);
+		}
 		$transactionConfig->set('system', 'theme', $theme);
 		Theme::install($theme);
 
@@ -413,7 +417,7 @@ class Site extends BaseAdmin
 			'$relocate_cmd'      => DI::l10n()->t('(Friendica directory)# bin/console relocate https://newdomain.com'),
 
 			// name, label, value, help string, extra data...
-			'$sitename'         => ['sitename', DI::l10n()->t('Site name'), DI::config()->get('config', 'sitename'), ''],
+			'$sitename'         => ['sitename', DI::l10n()->t('Site name'), DI::config()->get('config', 'sitename'), '', '', DI::config()->isSetDisabled('config', 'sitename') ? 'disabled' : ''],
 			'$sender_email'     => ['sender_email', DI::l10n()->t('Sender Email'), DI::config()->get('config', 'sender_email'), DI::l10n()->t('The email address your server shall use to send notification emails from.'), '', '', 'email'],
 			'$system_actor_name' => ['system_actor_name', DI::l10n()->t('Name of the system actor'), User::getActorName(), DI::l10n()->t("Name of the internal system account that is used to perform ActivityPub requests. This must be an unused username. If set, this can't be changed again.")],
 			'$banner'           => ['banner', DI::l10n()->t('Banner/Logo'), $banner, ''],
@@ -421,7 +425,7 @@ class Site extends BaseAdmin
 			'$shortcut_icon'    => ['shortcut_icon', DI::l10n()->t('Shortcut icon'), DI::config()->get('system', 'shortcut_icon'), DI::l10n()->t('Link to an icon that will be used for browsers.')],
 			'$touch_icon'       => ['touch_icon', DI::l10n()->t('Touch icon'), DI::config()->get('system', 'touch_icon'), DI::l10n()->t('Link to an icon that will be used for tablets and mobiles.')],
 			'$additional_info'  => ['additional_info', DI::l10n()->t('Additional Info'), $additional_info, DI::l10n()->t('For public servers: you can add additional information here that will be listed at %s/servers.', Search::getGlobalDirectory())],
-			'$language'         => ['language', DI::l10n()->t('System language'), DI::config()->get('system', 'language'), '', $lang_choices],
+			'$language'         => ['language', DI::l10n()->t('System language'), DI::config()->get('system', 'language'), '', $lang_choices, DI::config()->isSetDisabled('system', 'language') ? 'disabled' : ''],
 			'$theme'            => ['theme', DI::l10n()->t('System theme'), DI::config()->get('system', 'theme'), DI::l10n()->t('Default system theme - may be over-ridden by user profiles - <a href="%s" id="cnftheme">Change default theme settings</a>', DI::baseUrl() . '/admin/themes'), $theme_choices],
 			'$theme_mobile'     => ['theme_mobile', DI::l10n()->t('Mobile system theme'), DI::config()->get('system', 'mobile-theme', '---'), DI::l10n()->t('Theme for mobile devices'), $theme_choices_mobile],
 			'$force_ssl'        => ['force_ssl', DI::l10n()->t('Force SSL'), DI::config()->get('system', 'force_ssl'), DI::l10n()->t('Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.')],
