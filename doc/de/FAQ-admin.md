@@ -27,7 +27,7 @@ Der Quellcode von Friendica Red ist [hier](https://github.com/friendica/red) zu 
 
 Addons findest Du auf [dieser Seite](https://github.com/friendica/friendica-addons).
 
-Wenn Du neue Themen suchst, findest Du sie auf [Friendica-Themes.com](http://friendica-themes.com/).
+Wenn Du neue Themen suchst, findest Du sie auf [github.com/bkil/friendica-themes](https://github.com/bkil/friendica-themes).
 
 <a name="adminaccount1"></a>
 ### Ich habe meine E-Mail Adresse geändern und jetzt ist das Admin Panel verschwunden?
