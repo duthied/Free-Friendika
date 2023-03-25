@@ -535,3 +535,21 @@ In your ModSecurity WAF config:
 
 In the end, you will need to restart all services that you have changed configuration for.
 If you don't know which ones these are, just reboot.
+
+### Diaspora support is not activated
+
+You get this error when you try to add a Diaspora contact.
+
+You can enable it from the web interface in `Admin -> Site -> Policies -> Enable diaspora* support`.
+You may also set it manually in the config file or in the database within the `diaspora_enabled` key of the `system` category.
+
+### Upgrade failed due to DB migration timeout
+
+Altering of a table may fail if it contains a large number of rows.
+First verify the existing timeout (50s by default):
+
+`show global variables like "innodb_lock_wait_timeout";`
+
+Then increase it:
+
+`set global innodb_lock_wait_timeout=600;`
