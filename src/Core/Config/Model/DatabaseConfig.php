@@ -83,7 +83,7 @@ class DatabaseConfig implements IManageConfigValues
 	/** {@inheritDoc} */
 	public function isSetDisabled(string $cat, string $key): bool
 	{
-		return $this->cache->getSource($cat, $key) >= 0;
+		return $this->cache->getSource($cat, $key) >= Cache::SOURCE_ENV;
 	}
 
 	/** {@inheritDoc} */

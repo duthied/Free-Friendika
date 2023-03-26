@@ -566,4 +566,74 @@ class ConfigTest extends DatabaseTest
 		$config->set('test', 'it', $value);
 		self:self::assertEquals($assertion, $config->get('test', 'it'));
 	}
+
+	public function dataEnv(): array
+	{
+		$data = [
+			'config' => [
+				'admin_email' => 'value1',
+				'timezone' => 'value2',
+				'language' => 'value3',
+				'sitename' => 'value',
+			],
+			'system' => [
+				'url' => 'value1a',
+				'debugging' => true,
+				'logfile' => 'value4',
+				'loglevel' => 'notice',
+				'proflier' => true,
+			],
+			'proxy'  => [
+				'trusted_proxies' => 'value5',
+			],
+		];
+
+		return [
+			'empty' => [
+				'data'   => $data,
+				'server' => [],
+				'assertDisabled' => [],
+			],
+			'mixed' => [
+				'data'   => $data,
+				'server' => [
+					'FRIENDICA_ADMIN_MAIL' => 'test@friendica.local',
+					'FRIENDICA_DEBUGGING' => true,
+				],
+				'assertDisabled' => [
+					'config' => [
+						'admin_email' => true,
+					],
+					'system' => [
+						'debugging' => true,
+					],
+				],
+			],
+		];
+	}
+
+	/**
+	 * Tests if environment variables leads to a disabled set
+	 *
+	 * @dataProvider dataEnv
+	 */
+	public function testIsSetDisabled(array $data, array $server, array $assertDisabled)
+	{
+		$this->setConfigFile('static' . DIRECTORY_SEPARATOR . 'env.config.php', true);
+		$this->loadDirectFixture($this->configToDbArray($data), $this->getDbInstance());
+
+		$configFileManager = new ConfigFileManager($this->root->url(), $this->root->url() . '/config/', $this->root->url() . '/static/', $server);
+		$configFileManager->setupCache($this->configCache);
+		$config = new DatabaseConfig($this->getDbInstance(), $this->configCache);
+
+		foreach ($data as $category => $keyvalues) {
+			foreach ($keyvalues as $key => $value) {
+				if (!empty($assertDisabled[$category][$key])) {
+					static::assertTrue($config->isSetDisabled($category, $key), sprintf("%s.%s is not true", $category, $key));
+				} else {
+					static::assertFalse($config->isSetDisabled($category, $key), sprintf("%s.%s is not false", $category, $key));
+				}
+			}
+		}
+	}
 }
