@@ -50,13 +50,14 @@ class FriendicaExtension extends BaseDataTransferObject
 
 	/** @var int */
 	protected $dislikes_count;
+
+	/** @var bool */
+	protected $disliked = false;
+
 	/**
 	 * @var FriendicaVisibility|null
 	 */
 	protected $visibility;
-
-	/** @var bool */
-	protected $disliked = false;
 
 	/**
 	 * Creates a FriendicaExtension object
