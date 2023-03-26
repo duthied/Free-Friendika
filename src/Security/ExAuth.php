@@ -303,7 +303,7 @@ class ExAuth
 
 		// If the hostnames doesn't match or there is some failure, we try to check remotely
 		if ($Error && !$this->checkCredentials($aCommand[2], $aCommand[1], $aCommand[3], true)) {
-			$this->writeLog(LOG_WARNING, 'authentification failed for user ' . $sUser . '@' . $aCommand[2]);
+			$this->writeLog(LOG_WARNING, 'authentication failed for user ' . $sUser . '@' . $aCommand[2]);
 			fwrite(STDOUT, pack('nn', 2, 0));
 		} else {
 			$this->writeLog(LOG_NOTICE, 'authenticated user ' . $sUser . '@' . $aCommand[2]);

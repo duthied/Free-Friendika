@@ -31,7 +31,7 @@ use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Util\DateTimeFormat;
 
 /**
- * Authentification via the basic auth method
+ * Authentication via the basic auth method
  */
 class BasicAuth
 {

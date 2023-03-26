@@ -1378,7 +1378,7 @@ Version 2018.05 (2018-06-01)
     Fixed a bug that made edited mentions and hashtags plaintext [annando]
     Fixed a bug that caused the /display page to receive constandly new updates [annando]
     Fixed wrong version of a dependency preventing the usage of PHP 5.6 [MrPetovan]
-    Fixed a bug in OpenID authentification [Quix0r]
+    Fixed a bug in OpenID authentication [Quix0r]
     Fixed a bug in the item deletion [annando]
     Fixed a bug that prevented public comments from being distributed [annando]
     Fixed a bug that caused empty profile pictures for public contacts [annando]

@@ -1181,7 +1181,7 @@ class Receiver
 		self::switchContacts($receivers, $actor);
 
 		// "birdsitelive" is a service that mirrors tweets into the fediverse
-		// These posts can be fetched without authentification, but are not marked as public
+		// These posts can be fetched without authentication, but are not marked as public
 		// We treat them as unlisted posts to be able to handle them.
 		if (empty($receivers) && $fetch_unlisted && Contact::isPlatform($actor, 'birdsitelive')) {
 			$receivers[0]  = ['uid' => 0, 'type' => self::TARGET_GLOBAL];
