@@ -13,7 +13,7 @@ Fields
 | guid          | A unique identifier for this private message                   | varbinary(255)     | NO   |     |                     |                |
 | from-name     | name of the sender                                             | varchar(255)       | NO   |     |                     |                |
 | from-photo    | contact photo link of the sender                               | varbinary(383)     | NO   |     |                     |                |
-| from-url      | profile linke of the sender                                    | varbinary(383)     | NO   |     |                     |                |
+| from-url      | profile link of the sender                                     | varbinary(383)     | NO   |     |                     |                |
 | contact-id    | contact.id                                                     | varbinary(255)     | YES  |     | NULL                |                |
 | author-id     | Link to the contact table with uid=0 of the author of the mail | int unsigned       | YES  |     | NULL                |                |
 | convid        | conv.id                                                        | int unsigned       | YES  |     | NULL                |                |

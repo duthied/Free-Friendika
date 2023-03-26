@@ -926,7 +926,7 @@ return [
 			"guid" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this private message"],
 			"from-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "name of the sender"],
 			"from-photo" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => "contact photo link of the sender"],
-			"from-url" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => "profile linke of the sender"],
+			"from-url" => ["type" => "varbinary(383)", "not null" => "1", "default" => "", "comment" => "profile link of the sender"],
 			"contact-id" => ["type" => "varbinary(255)", "relation" => ["contact" => "id"], "comment" => "contact.id"],
 			"author-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the author of the mail"],
 			"convid" => ["type" => "int unsigned", "relation" => ["conv" => "id"], "comment" => "conv.id"],

@@ -880,7 +880,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	`guid` varbinary(255) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this private message',
 	`from-name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name of the sender',
 	`from-photo` varbinary(383) NOT NULL DEFAULT '' COMMENT 'contact photo link of the sender',
-	`from-url` varbinary(383) NOT NULL DEFAULT '' COMMENT 'profile linke of the sender',
+	`from-url` varbinary(383) NOT NULL DEFAULT '' COMMENT 'profile link of the sender',
 	`contact-id` varbinary(255) COMMENT 'contact.id',
 	`author-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the author of the mail',
 	`convid` int unsigned COMMENT 'conv.id',
