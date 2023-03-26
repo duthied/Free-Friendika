@@ -1,7 +1,7 @@
 
 <div class="mail-conv-outside-wrapper">
 	<div class="mail-conv-sender">
-		<a href="{{$mail.from_url}}" title="{{$mail.from_addr}}" class="mail-conv-sender-url"><img class="mframe mail-conv-sender-photo{{$mail.sparkle}}" src="{{$mail.from_photo}}" heigth="80" width="80" alt="{{$mail.from_name}}" /></a>
+		<a href="{{$mail.from_url}}" title="{{$mail.from_addr}}" class="mail-conv-sender-url"><img class="mframe mail-conv-sender-photo{{$mail.sparkle}}" src="{{$mail.from_photo}}" height="80" width="80" alt="{{$mail.from_name}}" /></a>
 	</div>
 	<div class="mail-conv-detail">
 		<div class="mail-conv-sender-name">{{$mail.from_name}}</div>

@@ -114,11 +114,11 @@ class StatusTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_get_entitities() function.
+	 * Test the api_get_entities() function.
 	 *
 	 * @return void
 	 */
-	public function testApiGetEntititiesWithIncludeEntities()
+	public function testApiGetEntitiesWithIncludeEntities()
 	{
 		$status = $this->statusFactory
 			->createFromItemId(13, ApiTest::SELF_USER['id'], true)

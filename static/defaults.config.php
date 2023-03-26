@@ -106,7 +106,7 @@ return [
 		'always_show_preview' => false,
 
 		// ap_always_bcc (Boolean)
-		// Adresses non-mentioned ActivityPub receivers by BCC instead of CC. Increases privacy, decreases performance.
+		// Addresses non-mentioned ActivityPub receivers by BCC instead of CC. Increases privacy, decreases performance.
 		'ap_always_bcc' => false,
 
 		// archival_days (Integer)
@@ -291,7 +291,7 @@ return [
 		'emoji_activities' => false,
 
 		// expire-notify-priority (integer)
-		// Priority for the expirary notification
+		// Priority for the expiry notification
 		'expire-notify-priority' => Friendica\Core\Worker::PRIORITY_LOW,
 
 		// fetch_by_worker (Boolean)

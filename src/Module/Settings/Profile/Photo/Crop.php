@@ -181,7 +181,7 @@ class Crop extends BaseSettings
 			$havescale = $havescale || $photo['scale'] == 5;
 		}
 
-		// set an already uloaded photo as profile photo
+		// set an already uploaded photo as profile photo
 		// if photo is in 'Profile Photos', change it in db
 		if ($photos[0]['photo-type'] == Photo::USER_AVATAR && $havescale) {
 			Photo::update(['profile' => false], ['uid' => DI::userSession()->getLocalUserId()]);

@@ -16,7 +16,7 @@ function showHideForumlist() {
 <div id="forumlist-sidebar" class="widget">
 	<h3 id="forumlist">{{$title}}</h3>
 
-	<ul id="forumlist-sidbar-ul" role="menu">
+	<ul id="forumlist-sidebar-ul" role="menu">
 		{{foreach $forums as $forum}}
 		{{if $forum.id <= $visible_forums}}
 		<li class="forum-widget-entry forum-{{$forum.cid}} tool {{if $forum.selected}}selected{{/if}}" id="forum-widget-entry-{{$forum.id}}" role="menuitem">

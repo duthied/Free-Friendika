@@ -1133,7 +1133,7 @@ aside > #datebrowse-sidebar .posted-date-selector-months > ul > li:hover {
 	-ms-transition: all 0.2s ease-in-out;
 	transition: all 0.2s ease-in-out;
 }
-#forumlist-sidbar-ul li:hover a > .forumlist-img {
+#forumlist-sidebar-ul li:hover a > .forumlist-img {
 	-webkit-filter: unset;
 	filter: unset;
 	opacity: unset;
@@ -1225,7 +1225,7 @@ aside .vcard .icon {
 }
 aside .vcard #subscribe-feed-link-button,
 aside .vcard #dfrn-request-link-button,
-aside .vcard #wallmessage-link-botton {
+aside .vcard #wallmessage-link-button {
 	width: 50%;
 	margin: 0 0 0 -5px;
 	float: left;
@@ -1790,9 +1790,6 @@ blockquote.shared_content {
 	font-weight: 500;
 	color: $font_color_darker;
 }
-.media .media-body .addional-info a {
-	display: block;
-}
 .media .contact-info-comment {
 	display: table-cell;
 }
@@ -2183,7 +2180,7 @@ wall-item-comment-wrapper.well hr {
 nav .acpopup {
 	margin-left: -23px;
 }
-/** @todo: we schould consider the possebility to overwrite bootstrap dropdowns
+/** @todo: we schould consider the possibility to overwrite bootstrap dropdowns
  at the beginning of this file to get rid of the !important */
 .textcomplete-item > a {
 	color: $font_color_darker !important;
@@ -2226,7 +2223,7 @@ img.acpopup-img {
 
 /* Menubar Tabs */
 section > .tabbar-wrapper {
-	/* The tabbar shouldn't' be visibile inside
+	/* The tabbar shouldn't' be visible inside
 the section element. Only after we have
 moved it to the nav through js */
 	display: none !important;
@@ -2317,7 +2314,7 @@ ul.dropdown-menu li:hover {
 	margin-top: 3px;
 }
 
-/* Notificaiotn badges */
+/* Notification badges */
 #mail-update-li.show {
 	display: inline-block !important;
 }
@@ -3169,7 +3166,7 @@ ul.notif-network-list li.unseen {
 
 /* Search Page */
 
-/* This is a little bit hacky. Since the search page is used for diferent
+/* This is a little bit hacky. Since the search page is used for different
 content types we can't apply the generic-page-wrapper class.
 So we apply the css of the generic-page-wrapper class to the ul element with some
 little modifications to emulate a standard page template */
@@ -3666,7 +3663,7 @@ section .profile-match-wrapper {
 	background: transparent;
 	cursor: pointer;
 }
-.fc .fc-listMonth-view .seperator {
+.fc .fc-listMonth-view .separator {
 	margin-left: 30px;
 	width: 60px;
 }

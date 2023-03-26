@@ -391,7 +391,7 @@ class Federation extends BaseAdmin
 		//
 		// clean up version numbers
 		//
-		// some platforms do not provide version information, add a unkown there
+		// some platforms do not provide version information, add a unknown there
 		// to the version string for the displayed list.
 		foreach ($versionCounts as $key => $value) {
 			if ($versionCounts[$key]['version'] == '') {

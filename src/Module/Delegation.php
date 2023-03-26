@@ -120,7 +120,7 @@ class Delegation extends BaseModule
 
 		$identities = User::identities(DI::userSession()->getSubManagedUserId() ?: DI::userSession()->getLocalUserId());
 
-		//getting additinal information for each identity
+		//getting additional information for each identity
 		foreach ($identities as $key => $identity) {
 			$identities[$key]['thumb'] = User::getAvatarUrl($identity, Proxy::SIZE_THUMB);
 

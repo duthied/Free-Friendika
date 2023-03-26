@@ -244,7 +244,7 @@ a {
 
 a:active { outline: none; }
 
-/* (en) maximum constrast for tab focus - change with great care */
+/* (en) maximum contrast for tab focus - change with great care */
 /* (en) Maximaler Kontrast für Tab Focus - Ändern Sie diese Regel mit Bedacht */
 a:hover,
 a:focus {

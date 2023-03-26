@@ -60,7 +60,7 @@ class Group
 	/**
 	 * Checks whether given group id is found in database
 	 *
-	 * @param int $group_id Groupd it
+	 * @param int $group_id Group id
 	 * @param int $uid Optional user id
 	 * @return bool
 	 * @throws \Exception

@@ -55,7 +55,7 @@ class Status extends BaseFactory
 	/** @var Card */
 	private $mstdnCardFactory;
 	/** @var Attachment */
-	private $mstdnAttachementFactory;
+	private $mstdnAttachmentFactory;
 	/** @var Error */
 	private $mstdnErrorFactory;
 	/** @var Poll */
@@ -70,21 +70,21 @@ class Status extends BaseFactory
 		Mention $mstdnMentionFactory,
 		Tag $mstdnTagFactory,
 		Card $mstdnCardFactory,
-		Attachment $mstdnAttachementFactory,
+		Attachment $mstdnAttachmentFactory,
 		Error $mstdnErrorFactory,
 		Poll $mstdnPollFactory,
 		ContentItem $contentItem
 	) {
 		parent::__construct($logger);
-		$this->dba                     = $dba;
-		$this->mstdnAccountFactory     = $mstdnAccountFactory;
-		$this->mstdnMentionFactory     = $mstdnMentionFactory;
-		$this->mstdnTagFactory         = $mstdnTagFactory;
-		$this->mstdnCardFactory        = $mstdnCardFactory;
-		$this->mstdnAttachementFactory = $mstdnAttachementFactory;
-		$this->mstdnErrorFactory       = $mstdnErrorFactory;
-		$this->mstdnPollFactory        = $mstdnPollFactory;
-		$this->contentItem             = $contentItem;
+		$this->dba                    = $dba;
+		$this->mstdnAccountFactory    = $mstdnAccountFactory;
+		$this->mstdnMentionFactory    = $mstdnMentionFactory;
+		$this->mstdnTagFactory        = $mstdnTagFactory;
+		$this->mstdnCardFactory       = $mstdnCardFactory;
+		$this->mstdnAttachmentFactory = $mstdnAttachmentFactory;
+		$this->mstdnErrorFactory      = $mstdnErrorFactory;
+		$this->mstdnPollFactory       = $mstdnPollFactory;
+		$this->contentItem            = $contentItem;
 	}
 
 	/**
@@ -214,7 +214,7 @@ class Status extends BaseFactory
 		$tags        = $this->mstdnTagFactory->createFromUriId($uriId);
 		if ($item['has-media']) {
 			$card        = $this->mstdnCardFactory->createFromUriId($uriId);
-			$attachments = $this->mstdnAttachementFactory->createFromUriId($uriId);
+			$attachments = $this->mstdnAttachmentFactory->createFromUriId($uriId);
 		} else {
 			$card        = new \Friendica\Object\Api\Mastodon\Card([]);
 			$attachments = [];
@@ -258,7 +258,7 @@ class Status extends BaseFactory
 					}
 				}
 
-				foreach ($this->mstdnAttachementFactory->createFromUriId($shared_uri_id) as $attachment) {
+				foreach ($this->mstdnAttachmentFactory->createFromUriId($shared_uri_id) as $attachment) {
 					if (!in_array($attachment, $attachments)) {
 						$attachments[] = $attachment;
 					}

@@ -208,7 +208,7 @@ class Delivery
 	}
 
 	/**
-	 * mark or unmark the given receivers for archival upon succoess
+	 * mark or unmark the given receivers for archival upon success
 	 *
 	 * @param array $receivers
 	 * @param boolean $success

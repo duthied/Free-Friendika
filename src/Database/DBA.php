@@ -205,7 +205,7 @@ class DBA
 	 * Please use DBA::delete, DBA::insert, DBA::update, ... instead
 	 *
 	 * @param string $sql SQL statement
-	 * @return boolean Was the query successfull? False is returned only if an error occurred
+	 * @return boolean Was the query successful? False is returned only if an error occurred
 	 * @throws \Exception
 	 */
 	public static function e(string $sql): bool
@@ -420,7 +420,7 @@ class DBA
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate, false = don't update identical fields)
 	 * @param array         $params     Parameters: "ignore" If set to "true" then the update is done with the ignore parameter
 	 *
-	 * @return boolean was the update successfull?
+	 * @return boolean was the update successful?
 	 * @throws \Exception
 	 */
 	public static function update(string $table, array $fields, array $condition, $old_fields = [], array $params = []): bool

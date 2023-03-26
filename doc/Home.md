@@ -42,7 +42,7 @@ Friendica Documentation and Resources
 
 * [Get started](help/Developers-Intro)
 * Set up development environment
-	* [Help on Github](help/Github)
+	* [Help on GitHub](help/GitHub)
 	* [Help on Vagrant](help/Vagrant)
 	* [Bugs and Issues](help/Bugs-and-Issues)
 * Code structure

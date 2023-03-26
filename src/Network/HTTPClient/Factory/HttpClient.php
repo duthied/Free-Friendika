@@ -60,7 +60,7 @@ class HttpClient extends BaseFactory
 	/**
 	 * Creates a IHTTPClient for communications with HTTP endpoints
 	 *
-	 * @param HandlerStack|null $handlerStack (optional) A handler replacement (just usefull at test environments)
+	 * @param HandlerStack|null $handlerStack (optional) A handler replacement (just useful at test environments)
 	 *
 	 * @return ICanSendHttpRequests
 	 */

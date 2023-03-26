@@ -206,7 +206,7 @@ class Logger
 	 * An alternative logger for development.
 	 *
 	 * Works largely as log() but allows developers
-	 * to isolate particular elements they are targetting
+	 * to isolate particular elements they are targeting
 	 * personally without background noise
 	 *
 	 * @param string $message Message to log

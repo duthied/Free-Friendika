@@ -170,7 +170,7 @@
 				}
 			});
 
-			// Fade the the the container from the items we want to delete
+			// Fade the container from the items we want to delete
 			for(var key in  ItemsToDelete) {
 				$(ItemsToDelete[key]).fadeTo('fast', 0.33);
 			};

@@ -30,7 +30,7 @@ class Arrays
 	 * Private constructor
 	 */
 	private function __construct() {
-		// Utitlities don't have instances
+		// Utilities don't have instances
 	}
 
 	/**

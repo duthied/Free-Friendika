@@ -41,7 +41,7 @@ use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 /**
- * Class to handle photo dabatase table
+ * Class to handle photo database table
  */
 class Photo
 {
@@ -101,7 +101,7 @@ class Photo
 	 * Get photos for user id
 	 *
 	 * @param integer $uid        User id
-	 * @param string  $resourceid Rescource ID of the photo
+	 * @param string  $resourceid Resource ID of the photo
 	 * @param array   $conditions Array of fields for conditions
 	 * @param array   $params     Array of several parameters
 	 *
@@ -122,7 +122,7 @@ class Photo
 	 * Get a photo for user id
 	 *
 	 * @param integer $uid        User id
-	 * @param string  $resourceid Rescource ID of the photo
+	 * @param string  $resourceid Resource ID of the photo
 	 * @param integer $scale      Scale of the photo. Defaults to 0
 	 * @param array   $conditions Array of fields for conditions
 	 * @param array   $params     Array of several parameters
@@ -148,7 +148,7 @@ class Photo
 	 * on success, "no sign" image info, if user has no permission,
 	 * false if photo does not exists
 	 *
-	 * @param string  $resourceid  Rescource ID of the photo
+	 * @param string  $resourceid  Resource ID of the photo
 	 * @param integer $scale       Scale of the photo. Defaults to 0
 	 * @param integer $visitor_uid UID of the visitor
 	 *
@@ -416,7 +416,7 @@ class Photo
 	 * @param string  $allow_cid Permissions, allowed contacts. optional, default = ""
 	 * @param string  $allow_gid Permissions, allowed groups. optional, default = ""
 	 * @param string  $deny_cid  Permissions, denied contacts.optional, default = ""
-	 * @param string  $deny_gid  Permissions, denied greoup.optional, default = ""
+	 * @param string  $deny_gid  Permissions, denied group.optional, default = ""
 	 * @param string  $desc      Photo caption. optional, default = ""
 	 *
 	 * @return boolean True on success
@@ -536,7 +536,7 @@ class Photo
 	 * @param Image $image      Image to update. Optional, default null.
 	 * @param array $old_fields Array with the old field values that are about to be replaced (true = update on duplicate)
 	 *
-	 * @return boolean  Was the update successfull?
+	 * @return boolean  Was the update successful?
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @see   \Friendica\Database\DBA::update

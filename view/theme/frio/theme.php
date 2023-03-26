@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * Name: frio
- * Description: Responsive theme based on a modern HTML/CSS/Javascript framework.
+ * Description: Responsive theme based on a modern HTML/CSS/JavaScript framework.
  * Version: V.1.0
  * Author: Rabuzarus <https://friendica.kommune4.de/profile/rabuzarus>
  * Maintainer: Hypolite Petovan <https://friendica.mrpetovan.com/profile/hypolite>
@@ -82,7 +82,7 @@ function frio_install()
  *  This function does replace the links to photos
  *  of other friendica users. Original the photos are
  *  linked to the photo page. Now they will linked directly
- *  to the photo file. This function is nessesary to use colorbox
+ *  to the photo file. This function is necessary to use colorbox
  *  in the network stream
  *
  * @param array $body_info The item and its html output
@@ -153,10 +153,10 @@ function frio_contact_photo_menu(&$args)
 		$pmlink = '';
 	}
 
-	// Set the the indicator for opening the status, profile and photo pages
+	// Set the indicator for opening the status, profile and photo pages
 	// in a new tab to false if the contact a dfrn (friendica) contact
-	// We do this because we can go back on foreign friendica pages throuhg
-	// friendicas "magic-link" which indicates a friendica user on froreign
+	// We do this because we can go back on foreign friendica pages through
+	// friendicas "magic-link" which indicates a friendica user on foreign
 	// friendica servers as remote user or visitor
 	//
 	// The value for opening in a new tab is e.g. when

@@ -48,7 +48,7 @@ return [
 	],
 	'system' => [
 		// account_abandon_days (Integer)
-		// Will not waste system resources polling external sites for abandonded accounts.
+		// Will not waste system resources polling external sites for abandoned accounts.
 		// Enter 0 for no time limit.
 		'account_abandon_days' => 0,
 
@@ -123,7 +123,7 @@ return [
 		'jpeg_quality' => 100,
 
 		// language (String)
-		// System default languague, inluding admin-created user default language.
+		// System default language, including admin-created user default language.
 		// Two-letters ISO 639-1 code.
 		'language' => 'en',
 

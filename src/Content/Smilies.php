@@ -133,7 +133,7 @@ class Smilies
 		'<img class="smiley" src="' . $baseUrl . '/images/smiley-cry.gif" alt=":\'(" title=":\'("/>',
 		'<img class="smiley" src="' . $baseUrl . '/images/smiley-foot-in-mouth.gif" alt=":-!" title=":-!" />',
 		'<img class="smiley" src="' . $baseUrl . '/images/smiley-undecided.gif" alt=":-/" title=":-/" />',
-		'<img class="smiley" src="' . $baseUrl . '/images/smiley-embarassed.gif" alt=":-[" title=":-[" />',
+		'<img class="smiley" src="' . $baseUrl . '/images/smiley-embarrassed.gif" alt=":-[" title=":-[" />',
 		'<img class="smiley" src="' . $baseUrl . '/images/smiley-cool.gif" alt="8-)" title="8-)" />',
 		'<img class="smiley" src="' . $baseUrl . '/images/beer_mug.gif" alt=":beer" title=":beer" />',
 		'<img class="smiley" src="' . $baseUrl . '/images/beer_mug.gif" alt=":homebrew" title=":homebrew" />',

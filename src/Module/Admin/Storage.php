@@ -110,7 +110,7 @@ class Storage extends BaseAdmin
 				foreach ($storageConfig->getOptions() as $option => $info) {
 
 					$type = $info[0];
-					// Backward compatibilty with yesno field description
+					// Backward compatibility with yesno field description
 					if ($type == 'yesno') {
 						$type = 'checkbox';
 						// Remove translated labels Yes No from field info

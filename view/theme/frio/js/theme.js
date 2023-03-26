@@ -36,14 +36,14 @@ $(document).ready(function () {
 		return false;
 	});
 
-	// add the class "selected" to group widges li if li > a does have the class group-selected
+	// add the class "selected" to group widgets li if li > a does have the class group-selected
 	if ($("#sidebar-group-ul li a").hasClass("group-selected")) {
 		$("#sidebar-group-ul li a.group-selected").parent("li").addClass("selected");
 	}
 
-	// add the class "selected" to forums widges li if li > a does have the class forum-selected
-	if ($("#forumlist-sidbar-ul li a").hasClass("forum-selected")) {
-		$("#forumlist-sidbar-ul li a.forum-selected").parent("li").addClass("selected");
+	// add the class "selected" to forums widgets li if li > a does have the class forum-selected
+	if ($("#forumlist-sidebar-ul li a").hasClass("forum-selected")) {
+		$("#forumlist-sidebar-ul li a.forum-selected").parent("li").addClass("selected");
 	}
 
 	// add the class "active" to tabmenuli if li > a does have the class active
@@ -51,7 +51,7 @@ $(document).ready(function () {
 		$("#tabmenu ul li a.active").parent("li").addClass("active");
 	}
 
-	// give select fields an boostrap classes
+	// give select fields Bootstrap classes
 	// @todo: this needs to be changed in friendica core
 	$(".field.select, .field.custom").addClass("form-group");
 	$(".field.select > select, .field.custom > select").addClass("form-control");
@@ -61,8 +61,8 @@ $(document).ready(function () {
 
 	// add mask css url to the logo-img container
 	//
-	// This is for firefox - we use a mask which looks like the friendica logo to apply user collers
-	// to the friendica logo (the mask is in nav.tpl at the botom). To make it work we need to apply the
+	// This is for firefox - we use a mask which looks like the friendica logo to apply user colors
+	// to the friendica logo (the mask is in nav.tpl at the bottom). To make it work we need to apply the
 	// correct url. The only way which comes to my mind was to do this with js
 	// So we apply the correct url (with the link to the id of the mask) after the page is loaded.
 	if ($("#logo-img").length) {
@@ -121,7 +121,7 @@ $(document).ready(function () {
 		}
 	});
 
-	// initialize the bootstrap tooltips
+	// initialize the Bootstrap tooltips
 	$body.tooltip({
 		selector: '[data-toggle="tooltip"]',
 		container: "body",
@@ -279,7 +279,7 @@ $(document).ready(function () {
 	// Set the padding for input elements with inline buttons
 	//
 	// In Frio we use some input elements where the submit button is visually
-	// inside the the input field (through css). We need to set a padding-right
+	// inside the input field (through css). We need to set a padding-right
 	// to the input element where the padding value would be at least the width
 	// of the button. Otherwise long user input would be invisible because it is
 	// behind the button.
@@ -478,7 +478,7 @@ function showHide(theID) {
 // Show & hide event map in the network stream by button click.
 function showHideEventMap(elm) {
 	// Get the id of the map element - it should be provided through
-	// the atribute "data-map-id".
+	// the attribute "data-map-id".
 	var mapID = elm.getAttribute("data-map-id");
 
 	// Get translation labels.
@@ -698,7 +698,7 @@ function parseUrl(str, component) {
 	return uri;
 }
 
-// trim function to replace whithespace after the string
+// trim function to replace whitespace after the string
 String.prototype.rtrim = function () {
 	var trimmed = this.replace(/\s+$/g, "");
 	return trimmed;
@@ -740,7 +740,7 @@ function scrollToItem(elementId) {
 		)
 		.promise()
 		.done(function () {
-			// Highlight post/commenent with ID  (GUID)
+			// Highlight post/comment with ID  (GUID)
 			$el.animate(colWhite, 1000).animate(colShiny).animate({ backgroundColor: "transparent" }, 600);
 		});
 }

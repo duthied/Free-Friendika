@@ -42,7 +42,7 @@ $(window).load(function () {
 	var pheight = $("#photo-photo img").height();
 	var pwidth = $("#photo-photo img").width();
 
-	// Append the diminsons of the picture to the css of the photo-photo div
+	// Append the dimensions of the picture to the css of the photo-photo div
 	// we do this to make it possible to have overlay navigation buttons for the photo
 	$("#photo-photo").css({
 		width: pwidth,

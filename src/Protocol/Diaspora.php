@@ -2068,7 +2068,7 @@ class Diaspora
 	}
 
 	/**
-	 * Processes poll participations - unssupported
+	 * Processes poll participations - unsupported
 	 *
 	 * @param array  $importer Array of the importer user
 	 * @param object $data     The message object
@@ -2204,7 +2204,7 @@ class Diaspora
 		$author = WebFingerUri::fromString($author_handle);
 
 		// the current protocol version doesn't know these fields
-		// That means that we will assume their existance
+		// That means that we will assume their existence
 		if (isset($data->following)) {
 			$following = (XML::unescape($data->following) == 'true');
 		} else {
@@ -2255,7 +2255,7 @@ class Diaspora
 		} elseif (!$following && $sharing) {
 			Logger::info("Author " . $author . " wants to share with us.");
 		} elseif ($following && $sharing) {
-			Logger::info("Author " . $author . " wants to have a bidirectional conection.");
+			Logger::info("Author " . $author . " wants to have a bidirectional connection.");
 		} elseif ($following && !$sharing) {
 			Logger::info("Author " . $author . " wants to listen to us.");
 		}
@@ -2756,7 +2756,7 @@ class Diaspora
 	 * ************************************************************************************** */
 
 	/**
-	 * returnes the handle of a contact
+	 * returns the handle of a contact
 	 *
 	 * @param array $contact contact array
 	 *
@@ -2770,7 +2770,7 @@ class Diaspora
 		}
 
 		// Normally we should have a filled "addr" field - but in the past this wasn't the case
-		// So - just in case - we build the the address here.
+		// So - just in case - we build the address here.
 		if ($contact['nickname'] != '') {
 			$nick = $contact['nickname'];
 		} else {

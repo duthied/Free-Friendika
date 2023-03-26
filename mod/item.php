@@ -19,7 +19,7 @@
  *
  * This is the POST destination for most all locally posted
  * text stuff. This function handles status, wall-to-wall status,
- * local comments, and remote coments that are posted on this site
+ * local comments, and remote comments that are posted on this site
  * (as opposed to being delivered in a feed).
  * Also processed here are posts and comments coming through the
  * statusnet/twitter API.

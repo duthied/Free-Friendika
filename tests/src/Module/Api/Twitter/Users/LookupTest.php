@@ -49,12 +49,12 @@ class LookupTest extends ApiTest
 	 */
 	public function testApiUsersLookupWithUserId()
 	{
-		$respone = (new Lookup(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+		$response = (new Lookup(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock, [
 				'user_id' => static::OTHER_USER['id']
 			]);
 
-		$json = $this->toJson($respone);
+		$json = $this->toJson($response);
 
 		self::assertOtherUser($json[0]);
 	}

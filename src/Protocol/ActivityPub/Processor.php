@@ -946,7 +946,7 @@ class Processor
 			return true;
 		}
 
-		if (in_array($activity['completion-mode'] ?? Receiver::COMPLETION_NONE, [Receiver::COMPLETION_MANUAL, Receiver::COMPLETION_ANNOUCE])) {
+		if (in_array($activity['completion-mode'] ?? Receiver::COMPLETION_NONE, [Receiver::COMPLETION_MANUAL, Receiver::COMPLETION_ANNOUNCE])) {
 			// Manual completions and completions caused by reshares are allowed without any further checks.
 			Logger::debug('Message is in completion mode - accepted', ['mode' => $activity['completion-mode'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
 			return true;

@@ -61,7 +61,7 @@ class PageNotFound extends BaseModule
 		 * Otherwise we are going to emit a 404 not found.
 		 */
 		$queryString = $this->server['QUERY_STRING'];
-		// Stupid browser tried to pre-fetch our Javascript img template. Don't log the event or return anything - just quietly exit.
+		// Stupid browser tried to pre-fetch our JavaScript img template. Don't log the event or return anything - just quietly exit.
 		if (!empty($queryString) && preg_match('/{[0-9]}/', $queryString) !== 0) {
 			System::exit();
 		}

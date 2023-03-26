@@ -114,7 +114,7 @@
 				</div>
 			</div>
 
-			{{* The miscellanous other settings *}}
+			{{* The miscellaneous other settings *}}
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="miscellaneous">
 					<h2>
@@ -141,7 +141,7 @@
 				</div>
 			</div>
 
-			{{* The miscellanous other settings *}}
+			{{* The miscellaneous other settings *}}
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="custom-fields">
 					<h2>

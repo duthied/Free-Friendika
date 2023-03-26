@@ -63,7 +63,7 @@ class StringsTest extends TestCase
 	/**
 	 * try to fail it with invalid input
 	 *
-	 * @todo What's corect behaviour here? An exception?
+	 * @todo What's correct behaviour here? An exception?
 	 */
 	public function testRandomNameNegativeLength()
 	{

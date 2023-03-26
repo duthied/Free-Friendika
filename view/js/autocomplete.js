@@ -13,7 +13,7 @@
 
 function contact_search(term, callback, backend_url, type, mode) {
 
-	// Check if there is a conversation id to include the unkonwn contacts of the conversation
+	// Check if there is a conversation id to include the unknown contacts of the conversation
 	var conv_id = document.activeElement.id.match(/\d+$/);
 
 	// Check if there is a cached result that contains the same information we would get with a full server-side search

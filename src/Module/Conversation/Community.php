@@ -302,7 +302,7 @@ class Community extends BaseModule
 	}
 
 	/**
-	 * Database query for the comunity page
+	 * Database query for the community page
 	 *
 	 * @param $min_id
 	 * @param $max_id

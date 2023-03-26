@@ -58,9 +58,9 @@
 	{{if $groupeditor}}
 	{{* The buttons to switch between the different view modes *}}
 	<div id="group-list-view-switcher" class="btn-group btn-group-sm pull-right">
-		<botton type="button" id="group-list-big" class="active group-list-switcher btn btn-default">
+		<button type="button" id="group-list-big" class="active group-list-switcher btn btn-default">
 			<i class="fa fa-align-justify" aria-hidden="true"></i>
-		</botton>
+		</button>
 		<button type="button" id="group-list-small" class="btn btn-default group-list-switcher">
 			<i class="fa fa-th-large" aria-hidden="true"></i>
 		</button>

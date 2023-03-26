@@ -38,7 +38,7 @@ class ForumManager
 	 *
 	 * @param int     $uid         of the profile owner
 	 * @param boolean $lastitem    Sort by lastitem
-	 * @param boolean $showhidden  Show frorums which are not hidden
+	 * @param boolean $showhidden  Show forums which are not hidden
 	 * @param boolean $showprivate Show private groups
 	 *
 	 * @return array
@@ -102,7 +102,7 @@ class ForumManager
 	/**
 	 * Forumlist widget
 	 *
-	 * Sidebar widget to show subcribed friendica forums. If activated
+	 * Sidebar widget to show subscribed friendica forums. If activated
 	 * in the settings, it appears at the notwork page sidebar
 	 *
 	 * @param string $baseurl Base module path

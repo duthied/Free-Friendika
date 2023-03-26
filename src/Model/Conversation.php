@@ -49,7 +49,7 @@ class Conversation
 	 */
 	const UNKNOWN = 0;
 	/**
-	 * The message had been pushed to this sytem
+	 * The message had been pushed to this system
 	 */
 	const PUSH    = 1;
 	/**

@@ -58,7 +58,7 @@
 
 	</div>
 
-	{{* This part contains the conent loader icon which is visible when new conent is loaded *}}
+	{{* This part contains the content loader icon which is visible when new content is loaded *}}
 	<div class="profile-rotator-wrapper" aria-hidden="true" style="display: none;">
 		<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>
 	</div>

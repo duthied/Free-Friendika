@@ -74,11 +74,11 @@ class Receiver
 	const TARGET_ANSWER = 6;
 	const TARGET_GLOBAL = 7;
 
-	const COMPLETION_NONE    = 0;
-	const COMPLETION_ANNOUCE = 1;
-	const COMPLETION_RELAY   = 2;
-	const COMPLETION_MANUAL  = 3;
-	const COMPLETION_AUTO    = 4;
+	const COMPLETION_NONE     = 0;
+	const COMPLETION_ANNOUNCE = 1;
+	const COMPLETION_RELAY    = 2;
+	const COMPLETION_MANUAL   = 3;
+	const COMPLETION_AUTO     = 4;
 
 	/**
 	 * Checks incoming message from the inbox
@@ -248,7 +248,7 @@ class Receiver
 	 * Fetches the object type for a given object id
 	 *
 	 * @param array   $activity
-	 * @param string  $object_id Object ID of the the provided object
+	 * @param string  $object_id Object ID of the provided object
 	 * @param integer $uid       User ID
 	 *
 	 * @return string with object type or NULL
@@ -643,7 +643,7 @@ class Receiver
 			}
 		}
 
-		$decouple = DI::config()->get('system', 'decoupled_receiver') && !in_array($completion, [self::COMPLETION_MANUAL, self::COMPLETION_ANNOUCE]);
+		$decouple = DI::config()->get('system', 'decoupled_receiver') && !in_array($completion, [self::COMPLETION_MANUAL, self::COMPLETION_ANNOUNCE]);
 
 		if ($decouple && ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted'))) {
 			$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push, $trust_source);
@@ -731,7 +731,7 @@ class Receiver
 			case 'as:Announce':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					if (!Item::searchByLink($object_data['object_id'], $uid)) {
-						if (ActivityPub\Processor::fetchMissingActivity($object_data['object_id'], [], $object_data['actor'], self::COMPLETION_ANNOUCE, $uid)) {
+						if (ActivityPub\Processor::fetchMissingActivity($object_data['object_id'], [], $object_data['actor'], self::COMPLETION_ANNOUNCE, $uid)) {
 							Logger::debug('Created announced id', ['uid' => $uid, 'id' => $object_data['object_id']]);
 							Queue::remove($object_data);
 						} else {
@@ -1067,7 +1067,7 @@ class Receiver
 	{
 		$reply = $receivers = $profile = [];
 
-		// When it is an answer, we inherite the receivers from the parent
+		// When it is an answer, we inherit the receivers from the parent
 		$replyto = JsonLD::fetchElement($activity, 'as:inReplyTo', '@id');
 		if (!empty($replyto)) {
 			$reply = [$replyto];
@@ -1372,7 +1372,7 @@ class Receiver
 	/**
 	 * Fetches the object data from external ressources if needed
 	 *
-	 * @param string  $object_id    Object ID of the the provided object
+	 * @param string  $object_id    Object ID of the provided object
 	 * @param array   $object       The provided object array
 	 * @param boolean $trust_source Do we trust the provided object?
 	 * @param integer $uid          User ID for the signature that we use to fetch data

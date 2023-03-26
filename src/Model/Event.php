@@ -656,7 +656,7 @@ class Event
 		}
 
 		// Show edit and drop actions only if the user is the owner of the event and the event
-		// is a real event (no bithdays).
+		// is a real event (no birthdays).
 		$edit = null;
 		$copy = null;
 		$drop = null;

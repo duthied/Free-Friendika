@@ -9,7 +9,7 @@ Depending on the theme you are using, there might be an additional link from the
 
 ## Event Overview
 
-The overview page shows the calendar of the current month, plus a few days days at the beginning and the end.
+The overview page shows the calendar of the current month, plus a few days at the beginning and the end.
 Listed are all events for this month, created by you, or shared with you by your contacts,
 This includes birthday reminders for contacts who share their birthday with you.
 

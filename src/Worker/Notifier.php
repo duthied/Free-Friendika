@@ -890,7 +890,7 @@ class Notifier
 			Worker::coolDown();
 		}
 
-		// We deliver posts to relay servers slightly delayed to priorize the direct delivery
+		// We deliver posts to relay servers slightly delayed to prioritize the direct delivery
 		foreach ($relay_inboxes as $inbox) {
 			Logger::info('Delivery to relay servers via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 

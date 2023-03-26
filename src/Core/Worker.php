@@ -362,7 +362,7 @@ class Worker
 			return false;
 		}
 
-		// Check for existance and validity of the include file
+		// Check for existence and validity of the include file
 		$include = $argv[0];
 
 		if (method_exists(sprintf('Friendica\Worker\%s', $include), 'execute')) {
@@ -590,7 +590,7 @@ class Worker
 		/* With these values we can analyze how effective the worker is.
 		 * The database and rest time should be low since this is the unproductive time.
 		 * The execution time is the productive time.
-		 * By changing parameters like the maximum number of workers we can check the effectivness.
+		 * By changing parameters like the maximum number of workers we can check the effectiveness.
 		*/
 		$dbtotal = round(self::$db_duration, 2);
 		$dbread  = round(self::$db_duration - (self::$db_duration_count + self::$db_duration_write + self::$db_duration_stat), 2);
@@ -885,7 +885,7 @@ class Worker
 	/**
 	 * Returns waiting jobs for the current process id
 	 *
-	 * @return array|bool waiting workerqueue jobs or FALSE on failture
+	 * @return array|bool waiting workerqueue jobs or FALSE on failure
 	 * @throws \Exception
 	 */
 	private static function getWaitingJobForPID()
@@ -1422,7 +1422,7 @@ class Worker
 	 */
 	public static function isInMaintenanceWindow(bool $check_last_execution = false): bool
 	{
-		// Calculate the seconds of the start end end of the maintenance window
+		// Calculate the seconds of the start and end of the maintenance window
 		$start = strtotime(DI::config()->get('system', 'maintenance_start')) % 86400;
 		$end = strtotime(DI::config()->get('system', 'maintenance_end')) % 86400;
 

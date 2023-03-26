@@ -106,7 +106,7 @@ class Index extends BaseSearch
 			$search = '#' . trim(rawurldecode($_GET['tag']));
 		}
 
-		// contruct a wrapper for the search header
+		// construct a wrapper for the search header
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('content_wrapper.tpl'), [
 			'name' => 'search-header',
 			'$title' => DI::l10n()->t('Search'),

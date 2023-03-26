@@ -20,7 +20,7 @@ Composer requires PHP CLI and the following examples assume it's available syste
 
 #### From Archive
 
-If you just unpacked a Friendica release archive, you don't have to use Commposer at all, all the required libraries are already bundled in the archive.
+If you just unpacked a Friendica release archive, you don't have to use Composer at all, all the required libraries are already bundled in the archive.
 
 #### Installing with Git
 

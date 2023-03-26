@@ -67,7 +67,7 @@ class Nodeinfo
 		DI::keyValue()->set('nodeinfo_local_posts', $posts);
 		DI::keyValue()->set('nodeinfo_local_comments', $comments);
 
-		$logger->info('User actitivy', ['posts' => $posts, 'comments' => $comments]);
+		$logger->info('User activity', ['posts' => $posts, 'comments' => $comments]);
 	}
 
 	/**

@@ -252,7 +252,7 @@ class Queue
 	{
 		$entries = DBA::select('inbox-entry', ['id', 'type', 'object-type', 'object-id', 'in-reply-to-id'], ["`trust` AND `wid` IS NULL"], ['order' => ['id' => true]]);
 		while ($entry = DBA::fetch($entries)) {
-			// Don't process entries of items that are answer to non existing posts
+			// Don't process entries of items that are answer to nonexistent posts
 			if (!empty($entry['in-reply-to-id']) && !Post::exists(['uri' => $entry['in-reply-to-id']])) {
 				continue;
 			}

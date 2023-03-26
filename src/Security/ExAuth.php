@@ -153,11 +153,11 @@ class ExAuth
 			if (is_array($aCommand)) {
 				switch ($aCommand[0]) {
 					case 'isuser':
-						// Check the existance of a given username
+						// Check the existence of a given username
 						$this->isUser($aCommand);
 						break;
 					case 'auth':
-						// Check if the givven password is correct
+						// Check if the given password is correct
 						$this->auth($aCommand);
 						break;
 					case 'setpass':
@@ -225,7 +225,7 @@ class ExAuth
 	}
 
 	/**
-	 * Check remote user existance via HTTP(S)
+	 * Check remote user existence via HTTP(S)
 	 *
 	 * @param string  $host The hostname
 	 * @param string  $user Username
@@ -306,7 +306,7 @@ class ExAuth
 			$this->writeLog(LOG_WARNING, 'authentification failed for user ' . $sUser . '@' . $aCommand[2]);
 			fwrite(STDOUT, pack('nn', 2, 0));
 		} else {
-			$this->writeLog(LOG_NOTICE, 'authentificated user ' . $sUser . '@' . $aCommand[2]);
+			$this->writeLog(LOG_NOTICE, 'authenticated user ' . $sUser . '@' . $aCommand[2]);
 			fwrite(STDOUT, pack('nn', 2, 1));
 		}
 	}

@@ -31,7 +31,7 @@ The mysql database is called "friendica", the mysql user and password both are "
 Your local working directory is set up as a shared directory with the VM (/vagrant).
 7. Check the changes in your browser in the VM.
 Find the Friendica log file `/vagrant/logfile.out` on the VM or in the `logfile.out` in you local Friendica directory.
-8. Commit and push your changes directly back to Github.
+8. Commit and push your changes directly back to GitHub.
 
 If you want to stop vagrant after finishing your work, run the following command
 
