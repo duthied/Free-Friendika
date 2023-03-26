@@ -40,6 +40,7 @@ use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Network\Probe;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Uri;
 use Psr\Log\LoggerInterface;
 
 class Follow extends BaseModule
@@ -223,17 +224,26 @@ class Follow extends BaseModule
 
 	protected function followRemoteItem(string $url)
 	{
-		$itemId = Item::fetchByLink($url, $this->session->getLocalUserId());
-		if (!$itemId) {
-			// If the user-specific search failed, we search and probe a public post
-			$itemId = Item::fetchByLink($url);
-		}
-
-		if (!empty($itemId)) {
-			$item = Post::selectFirst(['guid'], ['id' => $itemId]);
-			if (!empty($item['guid'])) {
-				$this->baseUrl->redirect('display/' . $item['guid']);
+		try {
+			$uri = new Uri($url);
+			if (!$uri->getScheme()) {
+				return;
 			}
+
+			$itemId = Item::fetchByLink($url, $this->session->getLocalUserId());
+			if (!$itemId) {
+				// If the user-specific search failed, we search and probe a public post
+				$itemId = Item::fetchByLink($url);
+			}
+
+			if (!empty($itemId)) {
+				$item = Post::selectFirst(['guid'], ['id' => $itemId]);
+				if (!empty($item['guid'])) {
+					$this->baseUrl->redirect('display/' . $item['guid']);
+				}
+			}
+		} catch (\InvalidArgumentException $e) {
+			return;
 		}
 	}
 }
