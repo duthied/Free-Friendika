@@ -22,6 +22,7 @@
 namespace Friendica\Factory\Api\Mastodon;
 
 use Exception;
+use Friendica\Network\HTTPException;
 use Friendica\Object\Api\Mastodon\Relationship as RelationshipEntity;
 use Friendica\BaseFactory;
 use Friendica\Model\Contact;
@@ -41,9 +42,15 @@ class Relationship extends BaseFactory
 		$pcid  = !empty($cdata['public']) ? $cdata['public'] : $contactId;
 		$cid   = !empty($cdata['user']) ? $cdata['user'] : $contactId;
 
+		$contact = Contact::getById($cid);
+		if (!$contact) {
+			$this->logger->warning('Target contact not found', ['contactId' => $contactId, 'uid' => $uid, 'pcid' => $pcid, 'cid' => $cid]);
+			throw new HTTPException\NotFoundException('Contact not found.');
+		}
+
 		return new RelationshipEntity(
 			$pcid,
-			Contact::getById($cid),
+			$contact,
 			Contact\User::isBlocked($cid, $uid),
 			Contact\User::isIgnored($cid, $uid)
 		);
