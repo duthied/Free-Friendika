@@ -536,7 +536,7 @@ class XML
 	 *
 	 * @param string $str
 	 * @return string Escaped text.
-	 * @todo Move this generic method to Util\Strings and also rewrite all other findingd
+	 * @todo Move this generic method to Util\Strings and also rewrite all other occurrences
 	 */
 	public static function escape(string $str): string
 	{
@@ -548,7 +548,7 @@ class XML
 	 *
 	 * @param string $s xml escaped text
 	 * @return string unescaped text
-	 * @todo Move this generic method to Util\Strings and also rewrite all other findingd
+	 * @todo Move this generic method to Util\Strings and also rewrite all other occurrences
 	 */
 	public static function unescape(string $s): string
 	{
