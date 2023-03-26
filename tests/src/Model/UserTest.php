@@ -133,7 +133,7 @@ class UserTest extends MockedTest
 		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
 		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->parent])->once();
 
-		// Select the childs (user & manage)
+		// Select the children (user & manage)
 		$this->dbMock->shouldReceive('select')->with('user',
 			['uid', 'username', 'nickname'],
 			[
