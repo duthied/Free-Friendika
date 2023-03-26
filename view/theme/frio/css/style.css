@@ -1790,9 +1790,6 @@ blockquote.shared_content {
 	font-weight: 500;
 	color: $font_color_darker;
 }
-.media .media-body .additional-info a {
-	display: block;
-}
 .media .contact-info-comment {
 	display: table-cell;
 }
