@@ -1370,7 +1370,7 @@ class Receiver
 	}
 
 	/**
-	 * Fetches the object data from external ressources if needed
+	 * Fetches the object data from external resources if needed
 	 *
 	 * @param string  $object_id    Object ID of the provided object
 	 * @param array   $object       The provided object array

@@ -881,14 +881,14 @@ class Photo
 			 * Then set the permissions to public.
 			 */
 
-			self::setPermissionForRessource($image_rid, $uid, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+			self::setPermissionForResource($image_rid, $uid, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		}
 
 		return true;
 	}
 
 	/**
-	 * Add permissions to photo ressource
+	 * Add permissions to photo resource
 	 * @todo mix with previous photo permissions
 	 *
 	 * @param string $image_rid
@@ -899,7 +899,7 @@ class Photo
 	 * @param string $str_group_deny
 	 * @return void
 	 */
-	public static function setPermissionForRessource(string $image_rid, int $uid, string $str_contact_allow, string $str_group_allow, string $str_contact_deny, string $str_group_deny)
+	public static function setPermissionForResource(string $image_rid, int $uid, string $str_contact_allow, string $str_group_allow, string $str_contact_deny, string $str_group_deny)
 	{
 		$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 		'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny,
