@@ -44,7 +44,7 @@ class Cron
 		if ($last) {
 			$next = $last + ($poll_interval * 60);
 			if ($next > time()) {
-				Logger::notice('cron intervall not reached');
+				Logger::notice('cron interval not reached');
 				return;
 			}
 		}
