@@ -135,7 +135,7 @@ Alias of [`api/conversation/show`](#GET+api%2Fconversation%2Fshow).
 
 ### GET api/statusnet/config
 
-Returns the public Friendica node configuration. 
+Returns the public Friendica node configuration.
 
 ### GET api/gnusocial/config
 
@@ -604,7 +604,7 @@ Sets item table entries for this photo to deleted = 1.
 
 On success:
 
-* JSON return 
+* JSON return
 
 ```json
 {
@@ -633,7 +633,7 @@ Deletes all images with the specified album name, is not reversible -> ensure th
 
 On success:
 
-* JSON return 
+* JSON return
 
 ```json
 {
@@ -682,7 +682,7 @@ Get a list of photo albums for the user
 
 #### Parameters
 
-None 
+None
 #### Return values
 
 On success a list of photo album objects:
@@ -839,7 +839,8 @@ A Mastodon [Status Entity](https://docs.joinmastodon.org/entities/Status/)
   "poll": null,
   "friendica": {
     "title": "",
-    "dislikes_count": 1
+    "dislikes_count": 1,
+    "disliked": true
   }
 }
 ```
@@ -886,7 +887,7 @@ Removes the dislike mark (if it exists) on this status for this user
 A Mastodon [Status Entity](https://docs.joinmastodon.org/entities/Status/)
 
 #### Example:
-`https://<server_name>/api/friendica/statuses/341/dislike`
+`https://<server_name>/api/friendica/statuses/341/undislike`
 
 ```json
 {
@@ -913,7 +914,8 @@ A Mastodon [Status Entity](https://docs.joinmastodon.org/entities/Status/)
   "poll": null,
   "friendica": {
     "title": "",
-    "dislikes_count": 0
+    "dislikes_count": 0,
+    "disliked": false
   }
 }
 ```

@@ -175,7 +175,15 @@ class Status extends BaseFactory
 			'origin'        => true,
 			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::LIKE),
-			'deleted'     => false
+			'deleted'       => false
+		]);
+		$origin_dislike = ($count_dislike == 0) ? false : Post::exists([
+			'thr-parent-id' => $uriId,
+			'uid'           => $uid,
+			'origin'        => true,
+			'gravity'       => Item::GRAVITY_ACTIVITY,
+			'vid'           => Verb::getID(Activity::DISLIKE),
+			'deleted'       => false
 		]);
 		$origin_announce = ($count_announce == 0) ? false : Post::exists([
 			'thr-parent-id' => $uriId,
@@ -295,7 +303,7 @@ class Status extends BaseFactory
 		$aclFormatter = DI::aclFormatter();
 		$delivery_data   = $uid != $item['uid'] ? null : new FriendicaDeliveryData($item['delivery_queue_count'], $item['delivery_queue_done'], $item['delivery_queue_failed']);
 		$visibility_data = $uid != $item['uid'] ? null : new FriendicaVisibility($aclFormatter->expand($item['allow_cid']), $aclFormatter->expand($item['deny_cid']), $aclFormatter->expand($item['allow_gid']), $aclFormatter->expand($item['deny_gid']));
-		$friendica       = new FriendicaExtension($item['title'], $item['changed'], $item['commented'], $item['received'], $counts->dislikes, $delivery_data, $visibility_data);
+		$friendica       = new FriendicaExtension($item['title'], $item['changed'], $item['commented'], $item['received'], $counts->dislikes, $origin_dislike, $delivery_data, $visibility_data);
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica, $quote, $poll);
 	}
@@ -361,7 +369,7 @@ class Status extends BaseFactory
 		$attachments = [];
 		$in_reply    = [];
 		$reshare     = [];
-		$friendica   = new FriendicaExtension('', null, null, null, 0, null, null);
+		$friendica   = new FriendicaExtension('', null, null, null, 0, false, null, null);
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica);
 	}
