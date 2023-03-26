@@ -816,14 +816,14 @@ class User
 	 * Empties the password reset token field just in case.
 	 *
 	 * @param int    $uid
-	 * @param string $pasword_hashed
+	 * @param string $password_hashed
 	 * @return bool
 	 * @throws Exception
 	 */
-	private static function updatePasswordHashed(int $uid, string $pasword_hashed): bool
+	private static function updatePasswordHashed(int $uid, string $password_hashed): bool
 	{
 		$fields = [
-			'password' => $pasword_hashed,
+			'password' => $password_hashed,
 			'pwdreset' => null,
 			'pwdreset_time' => null,
 			'legacy_password' => false
