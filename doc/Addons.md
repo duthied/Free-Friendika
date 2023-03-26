@@ -44,7 +44,7 @@ Uninstalling an addon automatically unregisters any hook it registered, but if y
 
 The install and uninstall functions will be called (i.e. re-installed) if the addon changes after installation.
 Therefore your uninstall should not destroy data and install should consider that data may already exist.
-Future extensions may provide for "setup" amd "remove".
+Future extensions may provide for "setup" and "remove".
 
 ## PHP addon hooks
 
