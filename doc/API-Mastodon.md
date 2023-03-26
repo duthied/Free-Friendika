@@ -68,7 +68,7 @@ Extensions to the [Mastodon Status Entities](https://docs.joinmastodon.org/entit
     * `delivery_queue_done`: Total number of remote servers that have successfully been federated to so far.
     * `delivery_queue_failed`: Total number of remote servers that have we failed to federate to so far.
   * `dislikes_count`: The number of dislikes that a status has accumulated according to the server.
-  * `disliked`: Whethere the user disliked the status.
+  * `disliked`: Whether the API user disliked the status.
 
 Example:
 ```json

@@ -175,15 +175,15 @@ class Status extends BaseFactory
 			'origin'        => true,
 			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::LIKE),
-			'deleted'     => false
+			'deleted'       => false
 		]);
-		$origin_dislike = ($count_like == 0) ? false : Post::exists([
+		$origin_dislike = ($count_dislike == 0) ? false : Post::exists([
 			'thr-parent-id' => $uriId,
 			'uid'           => $uid,
 			'origin'        => true,
 			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::DISLIKE),
-			'deleted'     => false
+			'deleted'       => false
 		]);
 		$origin_announce = ($count_announce == 0) ? false : Post::exists([
 			'thr-parent-id' => $uriId,
