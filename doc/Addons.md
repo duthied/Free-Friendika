@@ -402,7 +402,7 @@ Called prior to output of personal XRD file.
 
 ### home_content
 Called prior to output home page content, shown to unlogged users.
-`$b` is the HTML sring of section region.
+`$b` is the HTML string of section region.
 
 ### contact_edit
 Called when editing contact details on an individual from the Contacts page.
