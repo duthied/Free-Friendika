@@ -5,6 +5,9 @@
 
 	<div class="well well-lg">
         	{{$label_current}}: <b>{{$storagebackend}}</b>
+			{{if $storagebackend_ro_txt}}
+			<p><p><i>{{$storagebackend_ro_txt nofilter}}</i>
+			{{/if}}
 	</div>
 
 		<h2>{{$label_config}}</h2>

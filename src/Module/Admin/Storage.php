@@ -146,6 +146,7 @@ class Storage extends BaseAdmin
 			'$save_reload'           => DI::l10n()->t('Save & Reload'),
 			'$noconfig'              => DI::l10n()->t('This backend doesn\'t have custom settings'),
 			'$form_security_token'   => self::getFormSecurityToken("admin_storage"),
+			'$storagebackend_ro_txt' => DI::config()->isSetDisabled('storage', 'name') ? DI::l10n()->t("Changing the current backend is prohibited because it is set by an environment variable") : '',
 			'$storagebackend'        => $current_storage_backend instanceof ICanWriteToStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
 			'$availablestorageforms' => $available_storage_forms,
 		]);

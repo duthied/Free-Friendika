@@ -88,9 +88,9 @@ class Settings extends BaseAdmin
 			'$clear' => DI::l10n()->t('Clear'),
 			'$logname' => DI::config()->get('system', 'logfile'),
 			// see /help/smarty3-templates#1_1 on any Friendica node
-			'$debugging' => ['debugging', DI::l10n()->t("Enable Debugging"), DI::config()->get('system', 'debugging'), "", DI::config()->isSetDisabled('system', 'debugging') ? 'disabled' : ''],
-			'$logfile' => ['logfile', DI::l10n()->t("Log file"), DI::config()->get('system', 'logfile'), DI::l10n()->t("Must be writable by web server. Relative to your Friendica top-level directory."), "", DI::config()->isSetDisabled('system', 'logfile') ? 'disabled' : ''],
-			'$loglevel' => ['loglevel', DI::l10n()->t("Log level"), DI::config()->get('system', 'loglevel'), "", $log_choices, DI::config()->isSetDisabled('system', 'loglevel') ? 'disabled' : ''],
+			'$debugging' => ['debugging', DI::l10n()->t("Enable Debugging"), DI::config()->get('system', 'debugging'), DI::config()->isSetDisabled('system', 'debugging') ? DI::l10n()->t("<strong>Readonly</strong> because set by an environment variable") : '', DI::config()->isSetDisabled('system', 'debugging') ? 'disabled' : ''],
+			'$logfile' => ['logfile', DI::l10n()->t("Log file"), DI::config()->get('system', 'logfile'), DI::l10n()->t("Must be writable by web server. Relative to your Friendica top-level directory.") . (DI::config()->isSetDisabled('system', 'logfile') ? '<br>' . DI::l10n()->t("<strong>Readonly</strong> because set by an environment variable") : ''), "", DI::config()->isSetDisabled('system', 'logfile') ? 'disabled' : ''],
+			'$loglevel' => ['loglevel', DI::l10n()->t("Log level"), DI::config()->get('system', 'loglevel'), DI::config()->isSetDisabled('system', 'loglevel') ? DI::l10n()->t("<strong>Readonly</strong> because set by an environment variable") : '', $log_choices, DI::config()->isSetDisabled('system', 'loglevel') ? 'disabled' : ''],
 			'$form_security_token' => self::getFormSecurityToken("admin_logs"),
 			'$phpheader' => DI::l10n()->t("PHP logging"),
 			'$phphint' => DI::l10n()->t("To temporarily enable logging of PHP errors and warnings you can prepend the following to the index.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."),

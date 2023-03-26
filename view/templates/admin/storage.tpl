@@ -2,6 +2,7 @@
 	<h1>{{$title}} - {{$page}}</h1>
 
 		<h2>{{$label_current}}: <b>{{$storagebackend}}</b></h2>
+		{{$storagebackend_ro_txt nofilter}}
 
 		<h2>{{$label_config}}</h2>
 
