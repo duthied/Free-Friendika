@@ -28,7 +28,7 @@
 		// account-type
 		showPageFlags(accountType);
 
-		// Save the ID of the active page-flage
+		// Save the ID of the active page-flags
 		var activeFlag = $('[id^=id_page-flags_]:checked');
 
 		$("[id^=id_account-type_]").change(function(){
