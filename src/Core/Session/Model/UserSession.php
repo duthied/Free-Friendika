@@ -140,9 +140,9 @@ class UserSession implements IHandleUserSessions
 	}
 
 	/** {@inheritDoc} */
-	public function setVisitorsContacts()
+	public function setVisitorsContacts(string $my_url)
 	{
-		$this->session->set('remote', Contact::getVisitorByUrl($this->session->get('my_url')));
+		$this->session->set('remote', Contact::getVisitorByUrl($my_url));
 	}
 
 	/** {@inheritDoc} */

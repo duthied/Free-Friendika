@@ -323,19 +323,21 @@ class Authentication
 	 */
 	public function setForUser(App $a, array $user_record, bool $login_initial = false, bool $interactive = false, bool $login_refresh = false)
 	{
+		$my_url = $this->baseUrl . '/profile/' . $user_record['nickname'];
+
 		$this->session->setMultiple([
 			'uid'           => $user_record['uid'],
 			'theme'         => $user_record['theme'],
 			'mobile-theme'  => $this->pConfig->get($user_record['uid'], 'system', 'mobile_theme'),
 			'authenticated' => 1,
 			'page_flags'    => $user_record['page-flags'],
-			'my_url'        => $this->baseUrl . '/profile/' . $user_record['nickname'],
+			'my_url'        => $my_url,
 			'my_address'    => $user_record['nickname'] . '@' . substr($this->baseUrl, strpos($this->baseUrl, '://') + 3),
 			'addr'          => $this->remoteAddress,
 			'nickname'      => $user_record['nickname'],
 		]);
 
-		$this->session->setVisitorsContacts();
+		$this->session->setVisitorsContacts($my_url);
 
 		$member_since = strtotime($user_record['register_date']);
 		$this->session->set('new_member', time() < ($member_since + (60 * 60 * 24 * 14)));
