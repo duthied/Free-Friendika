@@ -25,7 +25,7 @@ use Friendica\Util\ReversedFileReader;
 use Friendica\Object\Log\ParsedLogLine;
 
 /**
- * An iterator which returns `\Friendica\Objec\Log\ParsedLogLine` instances
+ * An iterator which returns `\Friendica\Object\Log\ParsedLogLine` instances
  *
  * Uses `\Friendica\Util\ReversedFileReader` to fetch log lines
  * from newest to oldest.
