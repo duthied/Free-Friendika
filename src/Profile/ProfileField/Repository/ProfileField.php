@@ -192,7 +192,7 @@ class ProfileField extends BaseRepository
 	}
 
 	/**
-	 * Delets a whole collection of ProfileFields
+	 * Deletes a whole collection of ProfileFields
 	 *
 	 * @param Collection\ProfileFields $profileFields
 	 *
