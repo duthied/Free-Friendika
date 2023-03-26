@@ -629,9 +629,9 @@ class ConfigTest extends DatabaseTest
 		foreach ($data as $category => $keyvalues) {
 			foreach ($keyvalues as $key => $value) {
 				if (!empty($assertDisabled[$category][$key])) {
-					static::assertTrue($config->isSetDisabled($category, $key), sprintf("%s.%s is not true", $category, $key));
+					static::assertTrue($config->isWritable($category, $key), sprintf('%s.%s is not true', $category, $key));
 				} else {
-					static::assertFalse($config->isSetDisabled($category, $key), sprintf("%s.%s is not false", $category, $key));
+					static::assertFalse($config->isWritable($category, $key), sprintf('%s.%s is not false', $category, $key));
 				}
 			}
 		}

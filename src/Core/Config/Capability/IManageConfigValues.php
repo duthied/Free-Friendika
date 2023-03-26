@@ -66,7 +66,7 @@ interface IManageConfigValues
 	 *
 	 * @return bool true, if set is disabled
 	 */
-	public function isSetDisabled(string $cat, string $key): bool;
+	public function isWritable(string $cat, string $key): bool;
 
 	/**
 	 * Sets a configuration value for system config

@@ -69,9 +69,9 @@ class ReadOnlyFileConfig implements IManageConfigValues
 	}
 
 	/** {@inheritDoc} */
-	public function isSetDisabled(string $cat, string $key): bool
+	public function isWritable(string $cat, string $key): bool
 	{
-		return $this->configCache->getSource($cat, $key) >= Cache::SOURCE_ENV;
+		return $this->configCache->getSource($cat, $key) < Cache::SOURCE_ENV;
 	}
 
 	/** {@inheritDoc} */

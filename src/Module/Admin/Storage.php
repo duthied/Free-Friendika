@@ -76,7 +76,7 @@ class Storage extends BaseAdmin
 			}
 		}
 
-		if (!empty($_POST['submit_save_set']) && !DI::config()->isSetDisabled('storage', 'name') ) {
+		if (!empty($_POST['submit_save_set']) && DI::config()->isWritable('storage', 'name') ) {
 			try {
 				$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
 
@@ -129,7 +129,7 @@ class Storage extends BaseAdmin
 				'prefix' => $storage_form_prefix,
 				'form'   => $storage_form,
 				'active' => $current_storage_backend instanceof ICanWriteToStorage && $name === $current_storage_backend::getName(),
-				'set_disabled' => DI::config()->isSetDisabled('storage', 'name'),
+				'is_writable' => DI::config()->isWritable('storage', 'name'),
 			];
 		}
 
@@ -146,7 +146,7 @@ class Storage extends BaseAdmin
 			'$save_reload'           => DI::l10n()->t('Save & Reload'),
 			'$noconfig'              => DI::l10n()->t('This backend doesn\'t have custom settings'),
 			'$form_security_token'   => self::getFormSecurityToken("admin_storage"),
-			'$storagebackend_ro_txt' => DI::config()->isSetDisabled('storage', 'name') ? DI::l10n()->t("Changing the current backend is prohibited because it is set by an environment variable") : '',
+			'$storagebackend_ro_txt' => !DI::config()->isWritable('storage', 'name') ? DI::l10n()->t('Changing the current backend is prohibited because it is set by an environment variable') : '',
 			'$storagebackend'        => $current_storage_backend instanceof ICanWriteToStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
 			'$availablestorageforms' => $available_storage_forms,
 		]);
