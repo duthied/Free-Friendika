@@ -1485,7 +1485,7 @@ Version 3.6 (2018-03-23)
     Fixed a bug in URL completion for feed fragments [annando]
     Fixed a bug in the notification system about new registrations [annando]
     Fixed the display of dislikes [annando]
-    Fixed the display of orphans childs in threads [MrPetovan]
+    Fixed the display of orphan children in threads [MrPetovan]
     Fixed some SQL problems [annando]
     Fixed the CLI config script [tobiasd]
     Fixed the forum selection on the network display [annando]
