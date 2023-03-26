@@ -270,7 +270,7 @@ HELP;
 	}
 
 	/**
-	 * Allows or denys a user based on it's nickname
+	 * Allows or denies a user based on it's nickname
 	 *
 	 * @param bool $allow True, if the pending user is allowed, false if denies
 	 *
