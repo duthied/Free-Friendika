@@ -163,7 +163,7 @@ Add or remove an activity from an item.
 * `attendmaybe`
 
 To remove an activity, prepend the verb with "un", eg. "unlike" or "undislike"
-Attend verbs disable eachother: that means that if "attendyes" was added to an item, adding "attendno" remove previous "attendyes".
+Attend verbs disable each other: that means that if "attendyes" was added to an item, adding "attendno" remove previous "attendyes".
 Attend verbs should be used only with event-related items (there is no check at the moment).
 
 #### Parameters
