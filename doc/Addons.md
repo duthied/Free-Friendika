@@ -264,7 +264,7 @@ $data = [
 ##### With multiple submit buttons
 ```php
 $data = [
-	'addon'  => 'catavar',
+	'addon'  => 'catavatar',
 	'title'  => DI::l10n()->t('Cat Avatar Settings'),
 	'html'   => $html,
 	'submit' => [
