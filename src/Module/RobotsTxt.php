@@ -31,7 +31,7 @@ class RobotsTxt extends BaseModule
 {
 	protected function rawContent(array $request = [])
 	{
-		$allDisalloweds = [
+		$allDisallowed = [
 			'/settings/',
 			'/admin/',
 			'/message/',
@@ -42,7 +42,7 @@ class RobotsTxt extends BaseModule
 
 		header('Content-Type: text/plain');
 		echo 'User-agent: *' . PHP_EOL;
-		foreach ($allDisalloweds as $disallowed) {
+		foreach ($allDisallowed as $disallowed) {
 			echo 'Disallow: ' . $disallowed . PHP_EOL;
 		}
 		System::exit();
