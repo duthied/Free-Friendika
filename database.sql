@@ -608,7 +608,7 @@ CREATE TABLE IF NOT EXISTS `diaspora-contact` (
 	`gsid` int unsigned COMMENT 'Global Server ID',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`interacting_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts this contact interactes with',
+	`interacting_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts this contact interacts with',
 	`interacted_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts that interacted with this contact',
 	`post_count` int unsigned DEFAULT 0 COMMENT 'Number of posts and comments',
 	 PRIMARY KEY(`uri-id`),

@@ -662,7 +662,7 @@ return [
 			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"interacting_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts this contact interactes with"],
+			"interacting_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts this contact interacts with"],
 			"interacted_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of contacts that interacted with this contact"],
 			"post_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of posts and comments"],
 		],
