@@ -85,7 +85,7 @@ class Owa extends BaseModule
 
 								$result = '';
 
-								// Encrypt the token with the public contacts publik key.
+								// Encrypt the token with the public contacts public key.
 								// Only the specific public contact will be able to encrypt it.
 								// At a later time, we will compare weather the token we're getting
 								// is really the same token we have stored in the database.
