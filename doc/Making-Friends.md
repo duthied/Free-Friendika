@@ -50,8 +50,8 @@ This will take you through a similar process.
 
 Connect to users of alternate networks
 ---
-### Across the Federation and Fedivese
-You can also use your Identity Address or other people's Identity Addresses to become friends across the so-called Federation/Fedivese of open source social media.
+### Across the Federation and Fediverse
+You can also use your Identity Address or other people's Identity Addresses to become friends across the so-called Federation/Fediverse of open source social media.
 Currently, Friendica supports connections with people on diaspora*, Red, Hubzilla, GNU Social, StatusNet, Mastodon, Pleroma, socialhome, and ganggo platforms.
 
 If you know (for instance) "alice" on gnusocial.net (a GNU Social site) you could put alice@gnusocial.net into your Contact page and become friends across networks.
