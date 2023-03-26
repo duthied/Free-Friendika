@@ -27,7 +27,7 @@
 {{/foreach}}
 </table>
 
-{{if $phpath}}
+{{if $phppath}}
 	<input type="hidden" name="config-php_path" value="{{$php_path}}">
 {{/if}}
 
