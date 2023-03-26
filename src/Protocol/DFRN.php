@@ -608,7 +608,7 @@ class DFRN
 
 			/// @Todo
 			/// - Check real image type and image size
-			/// - Check which of these boths elements we should use
+			/// - Check which of these elements we should use
 			$attributes = [
 				'rel' => 'photo',
 				'type' => 'image/jpeg',
