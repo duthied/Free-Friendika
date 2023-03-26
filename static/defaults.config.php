@@ -520,7 +520,7 @@ return [
 		'profiler' => false,
 
 		// pushpoll_frequency (Integer)
-		// Frequency of contact poll for subhub contact using the DFRM or OStatus network.
+		// Frequency of contact poll for subhub contact using the DFRN or OStatus network.
 		// Available values:
 		// - 5 = every month
 		// - 4 = every week
