@@ -120,7 +120,7 @@ class Network extends BaseModule
 			$content = '';
 
 			if (self::$forumContactId) {
-				// If self::$forumContactId belongs to a community forum or a privat goup,.add a mention to the status editor
+				// If self::$forumContactId belongs to a community forum or a privat group, add a mention to the status editor
 				$condition = ["`id` = ? AND `contact-type` = ?", self::$forumContactId, Contact::TYPE_COMMUNITY];
 				$contact = DBA::selectFirst('contact', ['addr'], $condition);
 				if (!empty($contact['addr'])) {
