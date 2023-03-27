@@ -675,7 +675,7 @@ class GServer
 			}
 
 			// All following checks are done for systems that always have got a "host-meta" endpoint.
-			// With this check we don't have to waste time and ressources for dead systems.
+			// With this check we don't have to waste time and resources for dead systems.
 			// Also this hopefully prevents us from receiving abuse messages.
 			if (($serverdata['network'] == Protocol::PHANTOM) || in_array($serverdata['detection-method'], self::DETECT_UNSPECIFIC)) {
 				$validHostMeta = self::validHostMeta($url);

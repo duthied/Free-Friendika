@@ -158,7 +158,7 @@ class ReversedFileReader implements \Iterator
 	}
 
 	/**
-	 * Checks if current iterator value is valid, that is, we readed all lines in files
+	 * Checks if current iterator value is valid, that is, we read all lines in files
 	 *
 	 * @see Iterator::valid()
 	 * @return bool

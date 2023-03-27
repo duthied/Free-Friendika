@@ -58,7 +58,7 @@ class OpenWebAuthToken
 	 * @param int    $uid  The user ID.
 	 * @param string $token
 	 *
-	 * @return string|boolean The meta enry or false if not found.
+	 * @return string|boolean The meta entry or false if not found.
 	 * @throws \Exception
 	 */
 	public static function getMeta(string $type, int $uid, string $token)

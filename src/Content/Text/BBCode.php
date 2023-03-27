@@ -548,7 +548,7 @@ class BBCode
 
 	/*
 	 * The previously spacefied [noparse][ i ]italic[ /i ][/noparse],
-	 * now turns back and the [noparse] tags are trimed
+	 * now turns back and the [noparse] tags are trimmed
 	 * returning [i]italic[/i]
 	 *
 	 * @param array $match

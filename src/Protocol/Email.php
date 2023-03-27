@@ -51,12 +51,12 @@ class Email
 
 		$errors = imap_errors();
 		if (!empty($errors)) {
-			Logger::notice('IMAP Errors occured', ['errors' => $errors]);
+			Logger::notice('IMAP Errors occurred', ['errors' => $errors]);
 		}
 
 		$alerts = imap_alerts();
 		if (!empty($alerts)) {
-			Logger::notice('IMAP Alerts occured: ', ['alerts' => $alerts]);
+			Logger::notice('IMAP Alerts occurred: ', ['alerts' => $alerts]);
 		}
 
 		return $mbox;

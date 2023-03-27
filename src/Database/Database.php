@@ -102,7 +102,7 @@ class Database
 	 *
 	 * @return void
 	 *
-	 * @todo Make this method obsolet - use a clean pattern instead ...
+	 * @todo Make this method obsolete - use a clean pattern instead ...
 	 */
 	public function setDependency(IManageConfigValues $config, Profiler $profiler, LoggerInterface $logger)
 	{

@@ -36,7 +36,7 @@ class Logger
 	 */
 	const TYPE_LOGGER = LoggerInterface::class;
 	/**
-	 * @var WorkerLogger A specific worker logger type, which can be anabled
+	 * @var WorkerLogger A specific worker logger type, which can be enabled
 	 */
 	const TYPE_WORKER = WorkerLogger::class;
 	/**

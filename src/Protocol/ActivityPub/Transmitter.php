@@ -1838,7 +1838,7 @@ class Transmitter
 	}
 
 	/**
-	 * Return announce related data if the item is an annunce
+	 * Return announce related data if the item is an announce
 	 *
 	 * @param array $item
 	 * @return array Announcement array

@@ -171,7 +171,7 @@ class Redir extends \Friendica\BaseModule
 
 			// On a local instance we have to check if the local user has already authenticated
 			// with the local contact. Otherwise, the local user would ask the local contact
-			// for authentification everytime he/she is visiting a profile page of the local
+			// for authentication everytime he/she is visiting a profile page of the local
 			// contact.
 			if (($host == $remotehost) && ($this->session->getRemoteContactID($this->session->get('visitor_visiting')) == $this->session->get('visitor_id'))) {
 				// Remote user is already authenticated.

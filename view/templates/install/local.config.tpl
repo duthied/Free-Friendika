@@ -21,7 +21,7 @@ return [
 	// ****************************************************************
 
 	'config' => [
-		'php_path' => '{{$phpath|escape:'quotes' nofilter}}',
+		'php_path' => '{{$phppath|escape:'quotes' nofilter}}',
 		'admin_email' => '{{$adminmail|escape:'quotes' nofilter}}',
 		'sitename' => 'Friendica Social Network',
 		'register_policy' => \Friendica\Module\Register::OPEN,

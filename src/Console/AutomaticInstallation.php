@@ -95,7 +95,7 @@ Examples
 	bin/console autoinstall --savedb
 		Installs Friendica with environment variables and saves them to the 'config/local.config.php' file
 
-	bin/console autoinstall -H localhost -p 3365 -u user -P passwort1234 -d friendica -U https://friendica.fqdn
+	bin/console autoinstall -H localhost -p 3365 -u user -P password1234 -d friendica -U https://friendica.fqdn
 		Installs Friendica with a local mysql database with credentials
 HELP;
 	}

@@ -26,7 +26,7 @@ use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 
 /**
- * Update contact suggestions for all aktive users
+ * Update contact suggestions for all active users
  */
 class UpdateAllSuggestions
 {

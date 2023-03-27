@@ -28,7 +28,7 @@ use Friendica\Model\Search;
 use Friendica\Protocol\Relay;
 
 /**
- * Node subscription preferences for social realy systems
+ * Node subscription preferences for social relay systems
  * @see https://git.feneas.org/jaywink/social-relay/blob/master/docs/relays.md
  */
 class XSocialRelay extends BaseModule

@@ -85,7 +85,7 @@ trait VFSTrait
 	}
 
 	/**
-	 * Delets a config file from the Virtual File System
+	 * Deletes a config file from the Virtual File System
 	 *
 	 * @param string $filename The filename of the config file
 	 * @param bool   $static   True, if the folder `static` instead of `config` should be used

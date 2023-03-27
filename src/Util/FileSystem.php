@@ -73,7 +73,7 @@ class FileSystem
 	 *
 	 * @param string $url The file/url
 	 *
-	 * @return resource the open stream rssource
+	 * @return resource the open stream resource
 	 *
 	 * @throws \UnexpectedValueException
 	 */

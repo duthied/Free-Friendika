@@ -31,7 +31,7 @@
 			</div>\
 			<div id="previewImages_' + id + '" class="previewImages">\
 				<div id="previewImgBtn_' + id + '" class="previewImgBtn">\
-					<button type="button" id="previewChangeImg_' + id + '" class="buttonChangeDeactive previewActionBtn" style="display: none">\
+					<button type="button" id="previewChangeImg_' + id + '" class="buttonChangeDeactivate previewActionBtn" style="display: none">\
 						<i class="fa fa-exchange" aria-hidden="true"></i>\
 					</button>\
 				</div>\
