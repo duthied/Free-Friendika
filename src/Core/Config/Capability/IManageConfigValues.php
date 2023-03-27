@@ -59,12 +59,12 @@ interface IManageConfigValues
 	public function get(string $cat, string $key = null, $default_value = null);
 
 	/**
-	 * Returns true, if the current config cannot be changed
+	 * Returns true, if the current config can be changed
 	 *
 	 * @param string $cat The category of the configuration value
 	 * @param string $key The configuration key to query
 	 *
-	 * @return bool true, if set is disabled
+	 * @return bool true, if writing is possible
 	 */
 	public function isWritable(string $cat, string $key): bool;
 

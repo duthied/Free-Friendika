@@ -613,11 +613,11 @@ class ConfigTest extends DatabaseTest
 	}
 
 	/**
-	 * Tests if environment variables leads to a disabled set
+	 * Tests if environment variables can change the permission to write a config key
 	 *
 	 * @dataProvider dataEnv
 	 */
-	public function testIsSetDisabled(array $data, array $server, array $assertDisabled)
+	public function testIsWritable(array $data, array $server, array $assertDisabled)
 	{
 		$this->setConfigFile('static' . DIRECTORY_SEPARATOR . 'env.config.php', true);
 		$this->loadDirectFixture($this->configToDbArray($data), $this->getDbInstance());
@@ -628,7 +628,7 @@ class ConfigTest extends DatabaseTest
 
 		foreach ($data as $category => $keyvalues) {
 			foreach ($keyvalues as $key => $value) {
-				if (!empty($assertDisabled[$category][$key])) {
+				if (empty($assertDisabled[$category][$key])) {
 					static::assertTrue($config->isWritable($category, $key), sprintf('%s.%s is not true', $category, $key));
 				} else {
 					static::assertFalse($config->isWritable($category, $key), sprintf('%s.%s is not false', $category, $key));
