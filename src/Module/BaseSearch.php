@@ -97,6 +97,8 @@ class BaseSearch extends BaseModule
 		} elseif (Search::getGlobalDirectory() && empty($results)) {
 			$results = Search::getContactsFromGlobalDirectory($search, $type, $pager->getPage());
 			$pager->setItemsPerPage($results->getItemsPage());
+		} else {
+			$results = new ResultList();
 		}
 
 		return self::printResult($results, $pager, $header);
@@ -120,11 +122,17 @@ class BaseSearch extends BaseModule
 			return '';
 		}
 
+		$filtered = 0;
+
 		$entries = [];
 		foreach ($results->getResults() as $result) {
-
 			// in case the result is a contact result, add a contact-specific entry
 			if ($result instanceof ContactResult) {
+				if (Network::isUriBlocked($result->getUrl())) {
+					$filtered++;
+					continue;
+				}
+
 				$contact = Model\Contact::getByURLForUser($result->getUrl(), DI::userSession()->getLocalUserId());
 				if (!empty($contact)) {
 					$entries[] = Contact::getContactTemplateVars($contact);
@@ -134,7 +142,11 @@ class BaseSearch extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('contact/list.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'title'     => $header,
+			'$title'    => $header,
+			'$filtered' => $filtered ? DI::l10n()->tt(
+				'%d result was filtered out because your node blocks the domain it is registered on. You can review the list of domains your node is currently blocking in the <a href="/friendica">About page</a>.',
+				'%d results were filtered out because your node blocks the domain they are registered on. You can review the list of domains your node is currently blocking in the <a href="/friendica">About page</a>.',
+				$filtered) : '',
 			'$contacts' => $entries,
 			'$paginate' => $pager->renderFull($results->getTotal()),
 		]);
