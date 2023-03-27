@@ -11,7 +11,7 @@ The iconset started from the new default user avatar (letter "p") Andi made for 
 License
 -------
 
-The iconset is published unter the [CC-BY-SA 4.0][cc] license.
+The iconset is published under the [CC-BY-SA 4.0][cc] license.
 
 Preview
 -------

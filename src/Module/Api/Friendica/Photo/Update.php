@@ -70,7 +70,7 @@ class Update extends BaseApi
 			throw new HTTPException\BadRequestException('no albumname specified');
 		}
 
-		// check if photo is existing in databasei
+		// check if photo is existing in database
 		if (!Photo::exists(['resource-id' => $photo_id, 'uid' => $uid, 'album' => $album])) {
 			throw new HTTPException\BadRequestException('photo not available');
 		}

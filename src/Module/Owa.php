@@ -80,12 +80,12 @@ class Owa extends BaseModule
 								$ret['success'] = true;
 								$token = Strings::getRandomHex(32);
 
-								// Store the generated token in the databe.
+								// Store the generated token in the database.
 								OpenWebAuthToken::create('owt', 0, $token, $contact['addr']);
 
 								$result = '';
 
-								// Encrypt the token with the public contacts publik key.
+								// Encrypt the token with the public contacts public key.
 								// Only the specific public contact will be able to encrypt it.
 								// At a later time, we will compare weather the token we're getting
 								// is really the same token we have stored in the database.

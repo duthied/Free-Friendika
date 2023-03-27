@@ -349,7 +349,7 @@ class Network
 						$pair = $param . '=' . str_replace(' ', '+', $value);
 						$url = str_replace($pair, '', $url);
 
-						// Third try: Maybey the url isn't encoded at all
+						// Third try: Maybe the url isn't encoded at all
 						$pair = $param . '=' . $value;
 						$url = str_replace($pair, '', $url);
 

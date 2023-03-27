@@ -26,9 +26,9 @@ use Friendica\Util\ACLFormatter;
 use PHPUnit\Framework\TestCase;
 
 /**
- * ACLFormater utility testing class
+ * ACLFormatter utility testing class
  */
-class ACLFormaterTest extends TestCase
+class ACLFormatterTest extends TestCase
 {
 	public function assertAcl($text, array $assert = [])
 	{
@@ -38,10 +38,10 @@ class ACLFormaterTest extends TestCase
 
 		self::assertEquals($assert, $acl);
 
-		self::assertMergable($acl);
+		self::assertMergeable($acl);
 	}
 
-	public function assertMergable(array $aclOne, array $aclTwo = [])
+	public function assertMergeable(array $aclOne, array $aclTwo = [])
 	{
 		self::assertTrue(is_array($aclOne));
 		self::assertTrue(is_array($aclTwo));

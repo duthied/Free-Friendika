@@ -44,7 +44,7 @@ Uninstalling an addon automatically unregisters any hook it registered, but if y
 
 The install and uninstall functions will be called (i.e. re-installed) if the addon changes after installation.
 Therefore your uninstall should not destroy data and install should consider that data may already exist.
-Future extensions may provide for "setup" amd "remove".
+Future extensions may provide for "setup" and "remove".
 
 ## PHP addon hooks
 
@@ -124,7 +124,7 @@ function <addon>_footer()
 ### JavaScript hooks
 
 The main Friendica script provides hooks via events dispatched on the `document` property.
-In your Javascript file included as described above, add your event listener like this:
+In your JavaScript file included as described above, add your event listener like this:
 
 ```js
 document.addEventListener(name, callback);
@@ -133,7 +133,7 @@ document.addEventListener(name, callback);
 - *name* is the name of the hook and corresponds to a known Friendica JavaScript hook.
 - *callback* is a JavaScript anonymous function to execute.
 
-More info about Javascript event listeners: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+More info about JavaScript event listeners: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
 
 #### Current JavaScript hooks
 
@@ -264,7 +264,7 @@ $data = [
 ##### With multiple submit buttons
 ```php
 $data = [
-	'addon'  => 'catavar',
+	'addon'  => 'catavatar',
 	'title'  => DI::l10n()->t('Cat Avatar Settings'),
 	'html'   => $html,
 	'submit' => [
@@ -402,7 +402,7 @@ Called prior to output of personal XRD file.
 
 ### home_content
 Called prior to output home page content, shown to unlogged users.
-`$b` is the HTML sring of section region.
+`$b` is the HTML string of section region.
 
 ### contact_edit
 Called when editing contact details on an individual from the Contacts page.
@@ -425,7 +425,7 @@ Called after HTML content functions have completed.
 
 ### footer
 Called after HTML content functions have completed.
-Deferred Javascript files should be registered using this hook.
+Deferred JavaScript files should be registered using this hook.
 `$b` is (string) HTML of footer div/element.
 
 ### avatar_lookup

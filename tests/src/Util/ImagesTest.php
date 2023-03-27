@@ -88,7 +88,7 @@ class ImagesTest extends MockedTest
 	 *
 	 * @dataProvider dataImages
 	 */
-	public function testGetInfoFromRemotURL(string $url, array $headers, string $data, array $assertion)
+	public function testGetInfoFromRemoteURL(string $url, array $headers, string $data, array $assertion)
 	{
 		$this->httpRequestHandler->setHandler(new MockHandler([
 			new Response(200, $headers, $data),

@@ -101,7 +101,7 @@ class Receive extends BaseModule
 		}
 
 		if ($importer['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-			// Communities aren't working with the Diaspora protoccol
+			// Communities aren't working with the Diaspora protocol
 			// We throw an "accepted" here, so that the sender doesn't repeat the delivery
 			throw new HTTPException\AcceptedException();
 		}

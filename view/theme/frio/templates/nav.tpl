@@ -5,13 +5,13 @@
 
 		<div id="site-location">{{$sitelocation}}</div>
 		<div id="banner" class="hidden-sm hidden-xs">
-			{{* show on remote/visitor connections an other logo which symbols that fact*}}
+			{{* show on remote/visitor connections another logo which symbols that fact*}}
 			{{if $nav.remote}}
 				<a href="{{$baseurl}}">
 					<div id="remote-logo-img" aria-label="{{$home}}"></div>
 				</a>
 			{{else}}
-				{{* #logo-img is the the placeholder to insert a mask (friendica logo) into this div
+				{{* #logo-img is the placeholder to insert a mask (friendica logo) into this div
 				For Firefox we have to call the paths of the mask (look at the bottom of this file).
 				Because for FF we need relative paths we apply them with js after the page is loaded (look at theme.js *}}
 				<a href="{{$baseurl}}">
@@ -160,7 +160,7 @@
 									aria-controls="nav-user-menu">
 									<div aria-hidden="true" class="user-title pull-left hidden-xs hidden-sm hidden-md">
 										<strong>{{$userinfo.name}}</strong><br>
-										{{if $nav.remote}}<span class="trunctate">{{$nav.remote}}</span>{{/if}}
+										{{if $nav.remote}}<span class="truncate">{{$nav.remote}}</span>{{/if}}
 									</div>
 
 									<img id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}">
@@ -475,7 +475,7 @@
 	</div>
 </div>
 
-{{* The second navbar which contains nav points of the actual page - (nav points are actual handled by this theme throug js *}}
+{{* The second navbar which contains nav points of the actual page - (nav points are actual handled by this theme through js *}}
 <div id="topbar-second" class="topbar">
 	<div class="container">
 		<div class="col-lg-3 col-md-3 hidden-sm hidden-xs" id="nav-short-info"></div>

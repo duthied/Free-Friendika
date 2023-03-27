@@ -321,7 +321,7 @@ class System
 	}
 
 	/**
-	 * This function adds the content and a content-teype HTTP header to the output.
+	 * This function adds the content and a content-type HTTP header to the output.
 	 * After finishing the process is getting killed.
 	 *
 	 * @param string $content

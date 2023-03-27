@@ -46,7 +46,7 @@ function show_syntax() {
   echo -e "\t\"testfile\" is the name of a test file, for example lib/template.php" >&2
   echo -e "\nDatabase environment variables:\n" >&2
   echo -e "\t\"MYSQL_HOST\" Mysql Hostname (Default: localhost)" >&2
-  echo -e "\t\"MYSQL_USDRNAME\" Mysql Username (Default: friendica)" >&2
+  echo -e "\t\"MYSQL_USERNAME\" Mysql Username (Default: friendica)" >&2
   echo -e "\t\"MYSQL_DATABASE\" Mysql Database (Default: test)" >&2
   echo -e "\nOther environment variables:\n" >&2
   echo -e "\t\"TEST_SELECTION\" test a specific group of tests, can be one of: $TESTS" >&2
@@ -65,7 +65,7 @@ else
   exit 3
 fi
 
-echo "Installing depdendencies"
+echo "Installing dependencies"
 ${PHP} "$COMPOSER" install
 
 PHPUNIT="${BASEDIR}/vendor/bin/phpunit"

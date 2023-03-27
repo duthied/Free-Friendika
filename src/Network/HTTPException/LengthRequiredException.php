@@ -23,7 +23,7 @@ namespace Friendica\Network\HTTPException;
 
 use Friendica\Network\HTTPException;
 
-class LenghtRequiredException extends HTTPException
+class LengthRequiredException extends HTTPException
 {
 	protected $code        = 411;
 	protected $httpdesc    = 'Length Required';

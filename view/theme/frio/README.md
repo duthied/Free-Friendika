@@ -6,7 +6,7 @@ I concentrated on 3 topics:
 
 1. A Modern, mobile friendly UI with bootstrap and awesome font
 2. Try to get a new UX for friendica (e.g. use modals where it seems to be useful)
-3. Give the user a powerfull (but easy) possebillities for custimation to personalize the theme and give it a own note.
+3. Give the user a powerfull (but easy) possibilities for customization to personalize the theme and give it a own note.
 
 **Installation Requirements:**
 * modern Browser with JS enabled (Chrome/Chromium is recommended)

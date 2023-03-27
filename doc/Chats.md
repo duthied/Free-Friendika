@@ -39,7 +39,7 @@ You can use several servers to create an account:
 
 ### 1. Basics
 
-At first you have to get the current version. You can either pull it from [Github](https://github.com) like so:
+At first you have to get the current version. You can either pull it from [GitHub](https://github.com) like so:
 
     $> cd /var/www/virtual/YOURSPACE/html/addon; git pull
 

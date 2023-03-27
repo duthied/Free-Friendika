@@ -75,9 +75,9 @@ class Proxy
 	 * This function only performs the URL replacement on http URL and if the
 	 * provided URL isn't local
 	 *
-	 * @param string $url       The URL to proxyfy
+	 * @param string $url       The URL to proxify
 	 * @param string $size      One of the Proxy::SIZE_* constants
-	 * @return string The proxyfied URL or relative path
+	 * @return string The proxified URL or relative path
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function proxifyUrl(string $url, string $size = ''): string

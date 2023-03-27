@@ -233,7 +233,7 @@ class Item
 				Post\Media::insertFromAttachment($item['uri-id'], $fields['attach']);
 			}
 
-			// We only need to notfiy others when it is an original entry from us.
+			// We only need to notify others when it is an original entry from us.
 			// Only call the notifier when the item had been edited and records had been changed.
 			if ($item['origin'] && !empty($fields['edited']) && ($previous['edited'] != $fields['edited'])) {
 				$notify_items[] = $item['id'];
@@ -875,7 +875,7 @@ class Item
 		/*
 		 * Do we already have this item?
 		 * We have to check several networks since Friendica posts could be repeated
-		 * via OStatus (maybe Diasporsa as well)
+		 * via OStatus (maybe Diaspora as well)
 		 */
 		$duplicate = self::getDuplicateID($item);
 		if ($duplicate) {
@@ -891,6 +891,8 @@ class Item
 		if (!isset($item['post-type'])) {
 			$item['post-type'] = empty($item['title']) ? self::PT_NOTE : self::PT_ARTICLE;
 		}
+
+		$defined_permissions = isset($item['allow_cid']) && isset($item['allow_gid']) && isset($item['deny_cid']) && isset($item['deny_gid']) && isset($item['private']);
 
 		$item['wall']          = intval($item['wall'] ?? 0);
 		$item['extid']         = trim($item['extid'] ?? '');
@@ -931,7 +933,7 @@ class Item
 		$item['inform']        = trim($item['inform'] ?? '');
 		$item['file']          = trim($item['file'] ?? '');
 
-		// Communities aren't working with the Diaspora protoccol
+		// Communities aren't working with the Diaspora protocol
 		if (($uid != 0) && ($item['network'] == Protocol::DIASPORA)) {
 			$user = User::getById($uid, ['account-type']);
 		 	if ($user['account-type'] == Contact::TYPE_COMMUNITY) {
@@ -993,7 +995,7 @@ class Item
 			$item['wall']          = $toplevel_parent['wall'];
 
 			// Reshares have to keep their permissions to allow forums to work
-			if (!$item['origin'] || ($item['verb'] != Activity::ANNOUNCE)) {
+			if (!$defined_permissions && (!$item['origin'] || ($item['verb'] != Activity::ANNOUNCE))) {
 				$item['allow_cid']     = $toplevel_parent['allow_cid'];
 				$item['allow_gid']     = $toplevel_parent['allow_gid'];
 				$item['deny_cid']      = $toplevel_parent['deny_cid'];
@@ -1016,7 +1018,7 @@ class Item
 			 * This differs from the above settings as it subtly allows comments from
 			 * email correspondents to be private even if the overall thread is not.
 			 */
-			if ($toplevel_parent['private']) {
+			if (!$defined_permissions && $toplevel_parent['private']) {
 				$item['private'] = $toplevel_parent['private'];
 			}
 
@@ -1063,7 +1065,7 @@ class Item
 		}
 
 		// ACL settings
-		if (!empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
+		if (!$defined_permissions && !empty($item['allow_cid'] . $item['allow_gid'] . $item['deny_cid'] . $item['deny_gid'])) {
 			$item['private'] = self::PRIVATE;
 		}
 
@@ -1497,7 +1499,7 @@ class Item
 
 		$users = [];
 
-		/// @todo add a field "pcid" in the contact table that referrs to the public contact id.
+		/// @todo add a field "pcid" in the contact table that refers to the public contact id.
 		$owner = DBA::selectFirst('contact', ['url', 'nurl', 'alias'], ['id' => $parent['owner-id']]);
 		if (!DBA::isResult($owner)) {
 			return;
@@ -2499,12 +2501,12 @@ class Item
 	 */
 	public static function enumeratePermissions(array $obj, bool $check_dead = false): array
 	{
-		$aclFormater = DI::aclFormatter();
+		$aclFormatter = DI::aclFormatter();
 
-		$allow_people = $aclFormater->expand($obj['allow_cid']);
-		$allow_groups = Group::expand($obj['uid'], $aclFormater->expand($obj['allow_gid']), $check_dead);
-		$deny_people  = $aclFormater->expand($obj['deny_cid']);
-		$deny_groups  = Group::expand($obj['uid'], $aclFormater->expand($obj['deny_gid']), $check_dead);
+		$allow_people = $aclFormatter->expand($obj['allow_cid']);
+		$allow_groups = Group::expand($obj['uid'], $aclFormatter->expand($obj['allow_gid']), $check_dead);
+		$deny_people  = $aclFormatter->expand($obj['deny_cid']);
+		$deny_groups  = Group::expand($obj['uid'], $aclFormatter->expand($obj['deny_gid']), $check_dead);
 		$recipients   = array_unique(array_merge($allow_people, $allow_groups));
 		$deny         = array_unique(array_merge($deny_people, $deny_groups));
 		$recipients   = array_diff($recipients, $deny);
@@ -2613,7 +2615,7 @@ class Item
 	 *            Activity verb. One of
 	 *            like, unlike, dislike, undislike, attendyes, unattendyes,
 	 *            attendno, unattendno, attendmaybe, unattendmaybe,
-	 *            announce, unannouce
+	 *            announce, unannounce
 	 * @param int    $uid
 	 * @param string $allow_cid
 	 * @param string $allow_gid

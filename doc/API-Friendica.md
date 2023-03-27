@@ -135,7 +135,7 @@ Alias of [`api/conversation/show`](#GET+api%2Fconversation%2Fshow).
 
 ### GET api/statusnet/config
 
-Returns the public Friendica node configuration. 
+Returns the public Friendica node configuration.
 
 ### GET api/gnusocial/config
 
@@ -163,7 +163,7 @@ Add or remove an activity from an item.
 * `attendmaybe`
 
 To remove an activity, prepend the verb with "un", eg. "unlike" or "undislike"
-Attend verbs disable eachother: that means that if "attendyes" was added to an item, adding "attendno" remove previous "attendyes".
+Attend verbs disable each other: that means that if "attendyes" was added to an item, adding "attendno" remove previous "attendyes".
 Attend verbs should be used only with event-related items (there is no check at the moment).
 
 #### Parameters
@@ -305,7 +305,7 @@ Returns [Private Messages](help/API-Entities#Private+message) matching the provi
 #### Parameters
 
 * `searchstring`: string for which the API call should search as '%searchstring%' in field 'body' of all messages of the authenticated user (caption ignored)
-* `getText` (optional): `plain`|`html` If ommited, the title is prepended to the plaintext body in the `text` attribute of the private message objects.
+* `getText` (optional): `plain`|`html` If omitted, the title is prepended to the plaintext body in the `text` attribute of the private message objects.
 * `getUserObjects` (optional): `true`|`false` If `false`, the `sender` and `recipient` attributes of the private message object are absent.
 
 #### Return values
@@ -604,7 +604,7 @@ Sets item table entries for this photo to deleted = 1.
 
 On success:
 
-* JSON return 
+* JSON return
 
 ```json
 {
@@ -633,7 +633,7 @@ Deletes all images with the specified album name, is not reversible -> ensure th
 
 On success:
 
-* JSON return 
+* JSON return
 
 ```json
 {
@@ -646,7 +646,7 @@ On error:
 
 * 403 FORBIDDEN: if not authenticated
 * 400 BADREQUEST: "no albumname specified", "album not available"
-* 500 INTERNALSERVERERROR: "problem with deleting item occured", "unknown error - deleting from database failed"
+* 500 INTERNALSERVERERROR: "problem with deleting item occurred", "unknown error - deleting from database failed"
 
 ### POST api/friendica/photoalbum/update
 
@@ -682,7 +682,7 @@ Get a list of photo albums for the user
 
 #### Parameters
 
-None 
+None
 #### Return values
 
 On success a list of photo album objects:
@@ -839,7 +839,8 @@ A Mastodon [Status Entity](https://docs.joinmastodon.org/entities/Status/)
   "poll": null,
   "friendica": {
     "title": "",
-    "dislikes_count": 1
+    "dislikes_count": 1,
+    "disliked": true
   }
 }
 ```
@@ -886,7 +887,7 @@ Removes the dislike mark (if it exists) on this status for this user
 A Mastodon [Status Entity](https://docs.joinmastodon.org/entities/Status/)
 
 #### Example:
-`https://<server_name>/api/friendica/statuses/341/dislike`
+`https://<server_name>/api/friendica/statuses/341/undislike`
 
 ```json
 {
@@ -913,7 +914,8 @@ A Mastodon [Status Entity](https://docs.joinmastodon.org/entities/Status/)
   "poll": null,
   "friendica": {
     "title": "",
-    "dislikes_count": 0
+    "dislikes_count": 0,
+    "disliked": false
   }
 }
 ```

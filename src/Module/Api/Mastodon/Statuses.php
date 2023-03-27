@@ -181,7 +181,7 @@ class Statuses extends BaseApi
 			'sensitive'      => false, // Mark status and attached media as sensitive?
 			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
 			'visibility'     => '',    // Visibility of the posted status. One of: "public", "unlisted", "private" or "direct".
-			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this paramter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
+			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this parameter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
 			'language'       => '',    // ISO 639 language code for this status.
 			'friendica'      => [],	   // Friendica extensions to the standard Mastodon API spec
 		], $request);
@@ -266,15 +266,14 @@ class Statuses extends BaseApi
 		}
 
 		if ($request['in_reply_to_id']) {
-			$parent = Post::selectFirst(['uri', 'private'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
+			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
+			if (empty($parent)) {
+				throw new HTTPException\NotFoundException('Item with URI ID ' . $request['in_reply_to_id'] . ' not found for user ' . $uid . '.');
+			}
 
 			$item['thr-parent']  = $parent['uri'];
 			$item['gravity']     = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
-
-			if (in_array($parent['private'], [Item::UNLISTED, Item::PUBLIC]) && ($item['private'] == Item::PRIVATE)) {
-				throw new HTTPException\NotImplementedException('Private replies for public posts are not implemented.');
-			}
 		} else {
 			self::checkThrottleLimit();
 
@@ -392,9 +391,8 @@ class Statuses extends BaseApi
 				continue;
 			}
 
-			Photo::setPermissionForRessource($media[0]['resource-id'], $item['uid'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
+			Photo::setPermissionForResource($media[0]['resource-id'], $item['uid'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
 
-			$ressources[] = $media[0]['resource-id'];
 			$phototypes = Images::supportedTypes();
 			$ext = $phototypes[$media[0]['type']];
 

@@ -91,7 +91,7 @@ class ParseUrl
 	}
 
 	/**
-	 * Search for chached embeddable data of an url otherwise fetch it
+	 * Search for cached embeddable data of an url otherwise fetch it
 	 *
 	 * @param string $url         The url of the page which should be scraped
 	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
@@ -686,7 +686,7 @@ class ParseUrl
 	{
 		$urlarr = parse_url($url);
 
-		// If the url does allready have an scheme
+		// If the url does already have an scheme
 		// we can stop the process here
 		if (isset($urlarr['scheme'])) {
 			return $url;

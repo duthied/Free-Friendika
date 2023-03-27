@@ -81,7 +81,7 @@ input[type="range"] {
 
 .form-control[disabled],
 .form-control[readonly],
-.ieldset[disabled] .form-control {
+.fieldset[disabled] .form-control {
 	background-color: $background_color;
 	color: $font_color_darker;
 }

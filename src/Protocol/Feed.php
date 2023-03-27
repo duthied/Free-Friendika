@@ -945,7 +945,7 @@ class Feed
 
 		$previous_created = $last_update;
 
-		// Don't cache when the last item was posted less then 15 minutes ago (Cache duration)
+		// Don't cache when the last item was posted less than 15 minutes ago (Cache duration)
 		if ((time() - strtotime($owner['last-item'])) < 15 * 60) {
 			$result = DI::cache()->get($cachekey);
 			if (!$nocache && !is_null($result)) {

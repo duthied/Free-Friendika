@@ -92,7 +92,7 @@
 					<h4 class="media-heading"><a href="{{if !empty($contact.photo_menu.edit)}}{{$contact.photo_menu.edit.1}}{{else}}{{$contact.url}}{{/if}}">{{$contact.name}}</a>
 					{{if $contact.account_type}} <small class="contact-entry-details" id="contact-entry-accounttype-{{$contact.id}}">({{$contact.account_type}})</small>{{/if}}
 					{{if $contact.account_type == 'Forum'}}<i class="fa fa-comments-o" aria-hidden="true"></i>{{/if}}
-					{{* @todo this needs some changing in core because $contact.account_type contains a translated string which may notbe the same in every language *}}
+					{{* @todo this needs some changing in core because $contact.account_type contains a translated string which may not be the same in every language *}}
 					</h4>
 				</div>
 				{{if $contact.alt_text}}<div class="contact-entry-details contact-entry-rel" id="contact-entry-rel-{{$contact.id}}">{{$contact.alt_text}}</div>{{/if}}

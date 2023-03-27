@@ -548,7 +548,7 @@ class BBCode
 
 	/*
 	 * The previously spacefied [noparse][ i ]italic[ /i ][/noparse],
-	 * now turns back and the [noparse] tags are trimed
+	 * now turns back and the [noparse] tags are trimmed
 	 * returning [i]italic[/i]
 	 *
 	 * @param array $match
@@ -1373,7 +1373,7 @@ class BBCode
 					});
 				}
 
-				// leave open the posibility of [map=something]
+				// leave open the possibility of [map=something]
 				// this is replaced in Item::prepareBody() which has knowledge of the item location
 				if (strpos($text, '[/map]') !== false) {
 					$text = preg_replace_callback(

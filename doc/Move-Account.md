@@ -19,7 +19,7 @@ Friendica contacts
 ---
 Friendica will recreate your account on the new server, with your contacts and groups.
 A message is sent to Friendica contacts, to inform them about your move:
-If your contacts are runnning on an updated server, your details on their side will be automatically updated.
+If your contacts are running on an updated server, your details on their side will be automatically updated.
 
 GNU Social contacts
 ---

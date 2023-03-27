@@ -385,7 +385,7 @@ class OEmbed
 	}
 
 	/**
-	 * Returns a formmated HTML code from given URL and sets optional title
+	 * Returns a formatted HTML code from given URL and sets optional title
 	 *
 	 * @param string $url URL to fetch
 	 * @param string $title Optional title (default: what comes from OEmbed object)
@@ -447,7 +447,7 @@ class OEmbed
 	 * Generates an XPath query to select elements whose provided attribute contains
 	 * the provided value in a space-separated list.
 	 *
-	 * @param string $attr Name of the attribute to seach
+	 * @param string $attr Name of the attribute to search
 	 * @param string $value Value to search in a space-separated list
 	 * @return string
 	 */

@@ -600,7 +600,7 @@ class Image
 			do {
 				$this->image->cropImage($w, $h, $x, $y);
 				/*
-				 * We need to remove the canva,
+				 * We need to remove the canvas,
 				 * or the image is not resized to the crop:
 				 * http://php.net/manual/en/imagick.cropimage.php#97232
 				 */

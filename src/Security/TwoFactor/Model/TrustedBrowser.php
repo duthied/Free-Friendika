@@ -46,7 +46,7 @@ class TrustedBrowser extends BaseEntity
 	protected $last_used;
 
 	/**
-	 * Please do not use this constructor directly, instead use one of the method of the TrustedBroser factory.
+	 * Please do not use this constructor directly, instead use one of the method of the TrustedBrowser factory.
 	 *
 	 * @see \Friendica\Security\TwoFactor\Factory\TrustedBrowser
 	 *

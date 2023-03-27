@@ -216,7 +216,7 @@ class CurlResult implements ICanHandleHttpResponses
 				$parts = [];
 			}
 
-			/// @todo Checking the corresponding RFC which parts of a redirect can be ommitted.
+			/// @todo Checking the corresponding RFC which parts of a redirect can be omitted.
 			$components = ['scheme', 'host', 'path', 'query', 'fragment'];
 			foreach ($components as $component) {
 				if (empty($redirect_parts[$component]) && !empty($parts[$component])) {

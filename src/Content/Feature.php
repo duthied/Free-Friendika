@@ -79,7 +79,7 @@ class Feature
 	 * Get a list of all available features
 	 *
 	 * The array includes the setting group, the setting name,
-	 * explainations for the setting and if it's enabled or disabled
+	 * explanations for the setting and if it's enabled or disabled
 	 * by default
 	 *
 	 * @param bool $filtered True removes any locked features

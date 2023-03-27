@@ -12,7 +12,7 @@ So, how to work on the UI of friendica.
 You can either directly edit an existing theme.
 But you might loose your changes when the theme is updated by the friendica team.
 
-If you are almost happy with an existing theme, the easiest way to cover your needs is to create a new theme, inheritating most of the properties of the parent theme and change just minor stuff.
+If you are almost happy with an existing theme, the easiest way to cover your needs is to create a new theme, inheriting most of the properties of the parent theme and change just minor stuff.
 The below for a more detailed description of theme heritage.
 
 Some themes also allow users to select *variants* of the theme.
@@ -33,7 +33,7 @@ In most cases, you can found these in
     /view/theme/**your-theme-name**/style.css
 
 sometimes, there is also a file called style.php in the theme directory.
-This is only needed if the theme allowes the user to change certain things of the theme dynamically.
+This is only needed if the theme allows the user to change certain things of the theme dynamically.
 Say the font size or set a background image.
 
 ### Templates
@@ -50,7 +50,7 @@ if you want to override any template within your theme create your version of th
 
 any template that exists there will be used instead of the default one.
 
-### Javascript
+### JavaScript
 
 The same rule applies to the JavaScript files found in
 

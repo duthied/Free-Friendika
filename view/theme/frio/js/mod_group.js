@@ -31,7 +31,7 @@ function groupChangeMember(gid, cid, sec_token) {
 		// Insert the new group member list
 		$("#group-update-wrapper").html(data);
 
-		// Apply the actual gropu list view mode to the new
+		// Apply the actual group list view mode to the new
 		// group list html
 		var activeMode = $(".group-list-switcher.active");
 		switchGroupViewMode(activeMode[0]);

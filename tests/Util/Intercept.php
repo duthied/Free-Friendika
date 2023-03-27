@@ -24,7 +24,7 @@ namespace Friendica\Test\Util;
 use php_user_filter;
 
 /**
- * Output Interceptor for STDOUT to prevent outputing to the console
+ * Output Interceptor for STDOUT to prevent outputting to the console
  * Instead the $cache variable will get filled with the output
  *
  * @package Friendica\Test\Util

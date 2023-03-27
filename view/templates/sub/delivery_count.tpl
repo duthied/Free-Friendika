@@ -1,6 +1,6 @@
 {{*
 	Please don't use this template as is, this is a placeholder that needs to be
-	overriden with specific icons to avoid taking too much visual space
+	overridden with specific icons to avoid taking too much visual space
 *}}
 {{if $delivery.queue_count >= -1 && $delivery.queue_count !== '' && $delivery.queue_count !== null}}
 <span class="delivery">

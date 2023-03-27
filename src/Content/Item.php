@@ -338,7 +338,7 @@ class Item
 						} else {
 							$post_type = $this->l10n->t('status');
 						}
-						// Let's break everthing ... ;-)
+						// Let's break everything ... ;-)
 						break;
 				}
 				$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
@@ -548,7 +548,7 @@ class Item
 				$item['allow_cid'] = '';
 				$item['allow_gid'] = '';
 			}
-		} elseif ($setPermissions && ($item['gravity'] == ItemModel::GRAVITY_PARENT)) {
+		} elseif ($setPermissions) {
 			if (empty($receivers)) {
 				// For security reasons direct posts without any receiver will be posts to yourself
 				$self = Contact::selectFirst(['id'], ['uid' => $item['uid'], 'self' => true]);
@@ -685,11 +685,11 @@ class Item
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
 		if (!empty($shared)) {
-			if (!empty($shared['guid']) && ($encaspulated_share = $this->createSharedPostByGuid($shared['guid'], true))) {
+			if (!empty($shared['guid']) && ($encapsulated_share = $this->createSharedPostByGuid($shared['guid'], true))) {
 				if (!empty(BBCode::fetchShareAttributes($item['body']))) {
-					$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encaspulated_share, $item['body']);
+					$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encapsulated_share, $item['body']);
 				} else {
-					$item['body'] .= $encaspulated_share;
+					$item['body'] .= $encapsulated_share;
 				}
 			}
 			$item['body'] = HTML::toBBCode(BBCode::convertForUriId($item['uri-id'], $item['body'], BBCode::ACTIVITYPUB));

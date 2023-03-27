@@ -63,7 +63,7 @@ class Probe
 	private static $baseurl;
 
 	/**
-	 * @var boolean Whether a timeout has occured
+	 * @var boolean Whether a timeout has occurred
 	 */
 	private static $isTimeout;
 
@@ -769,7 +769,7 @@ class Probe
 		if (empty($result['network']) && empty($ap_profile['network']) || ($network == Protocol::FEED)) {
 			$result = self::feed($uri);
 		} else {
-			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
+			// We overwrite the detected nick with our try if the previous routines hadn't detected it.
 			// Additionally, it is overwritten when the nickname doesn't make sense (contains spaces).
 			if ((empty($result['nick']) || (strstr($result['nick'], ' '))) && ($nick != '')) {
 				$result['nick'] = $nick;
@@ -1623,7 +1623,7 @@ class Probe
 		if (!empty($feed_data['header']['author-about'])) {
 			$data['about'] = $feed_data['header']['author-about'];
 		}
-		// OStatus has serious issues when the the url doesn't fit (ssl vs. non ssl)
+		// OStatus has serious issues when the url doesn't fit (ssl vs. non ssl)
 		// So we take the value that we just fetched, although the other one worked as well
 		if (!empty($feed_data['header']['author-link'])) {
 			$data['url'] = $feed_data['header']['author-link'];
@@ -2280,7 +2280,7 @@ class Probe
 				]
 			];
 		} catch (Exception $e) {
-			// Default values for non existing targets
+			// Default values for nonexistent targets
 			$data = [
 				'name' => $url, 'nick' => $url, 'url' => $url, 'network' => Protocol::PHANTOM,
 				'photo' => DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO

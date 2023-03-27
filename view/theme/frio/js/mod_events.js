@@ -266,9 +266,9 @@ function eventHoverHtmlContent(event) {
 	// Get only template data if there exists location data
 	if (event.location) {
 		var eventLocationText = htmlToText(event.location);
-		// Get the the html template for formatting the location
+		// Get the html template for formatting the location
 		var eventLocationTemplate = eventHoverLocationTemplate();
-		// Format the event location data according to the the event location
+		// Format the event location data according to the event location
 		// template
 		eventLocation = eventLocationTemplate.format(eventLocationText);
 	}
@@ -295,12 +295,12 @@ function eventHoverHtmlContent(event) {
 	return formatted;
 }
 
-// transform the the list view event element into formatted html
+// transform the list view event element into formatted html
 function formatListViewEvent(event) {
 	// The basic template for list view
 	var template =
 		'<td class="fc-list-item-title fc-widget-content">\
-				<hr class="seperator"></hr>\
+				<hr class="separator"></hr>\
 				<div class="event-card">\
 					<div class="popover-content hovercard-content">{0}</div>\
 				</div>\

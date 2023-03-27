@@ -35,7 +35,7 @@ use Friendica\Util\Strings;
  * Best would be for storage folder to be outside webserver folder, we are using a
  * folder relative to code tree root as default to ease things for users in shared hostings.
  * Each new resource gets a value as reference and is saved in a
- * folder tree stucture created from that value.
+ * folder tree structure created from that value.
  */
 class Filesystem implements ICanWriteToStorage
 {

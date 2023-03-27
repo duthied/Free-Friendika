@@ -79,7 +79,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 			throw new HttpException\NotFoundException(DI::l10n()->t('Model not found'));
 		}
 
-		// Kept for backwards compatiblity
+		// Kept for backwards compatibility
 		Hook::callAll('lockview_content', $model);
 
 		if ($type == 'item') {

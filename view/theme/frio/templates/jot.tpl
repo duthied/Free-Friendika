@@ -162,8 +162,8 @@
 
 {{* The jot modal - We use a own modal for the jot and not the standard modal
 from the page template. This is because the special structure of the jot
-(e.g.jot navigation tabs in the modal titel area).
-Then in the frio theme the jot will loaded regulary and is hidden by default.)
+(e.g.jot navigation tabs in the modal title area).
+Then in the frio theme the jot will loaded regularly and is hidden by default.)
 The js function jotShow() loads the jot into the modal. With this structure we
 can load different content into the jot modal (e.g. the item edit jot)
 *}}

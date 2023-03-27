@@ -39,7 +39,7 @@ Extensions to the [Mastodon Instance::V2 Entities](https://docs.joinmastodon.org
     * `codename`: The Friendica version code name
     * `db_version`: The database schema version number
 
-Example: 
+Example:
 ```json
 {
   "domain": "friendicadevtest1.myportal.social",
@@ -68,6 +68,7 @@ Extensions to the [Mastodon Status Entities](https://docs.joinmastodon.org/entit
     * `delivery_queue_done`: Total number of remote servers that have successfully been federated to so far.
     * `delivery_queue_failed`: Total number of remote servers that have we failed to federate to so far.
   * `dislikes_count`: The number of dislikes that a status has accumulated according to the server.
+  * `disliked`: Whether the API user disliked the status.
 
 Example:
 ```json
@@ -117,7 +118,7 @@ Example:
     "title": "",
     "delivery_data": {
       "delivery_queue_count": 10,
-      "delivery_queue_done": 3, 
+      "delivery_queue_done": 3,
       "delivery_queue_failed": 0
     },
     "dislikes_count": 0
@@ -213,7 +214,7 @@ Example:
     - Additionally to the static values `public`, `unlisted` and `private`, the `visibility` parameter can contain a numeric value with a group id.
     - Additional field `quote_id` for the post that is being quote reshared
     - Additional fields `friendica` for Friendica specific parameters:
-       - `title`: Explicitly sets the title for a post status, ignored if used on a comment status. For post statuses the legacy behavior is to use any "spoiler text" as the title if it is provided. If both the title and spoiler text are provided for a post status then they will each be used for their respective roles. If no title is provided then the legacy behavior will persist. If you want to create a post with no title but spoiler text then explicitly set the title but set it to an empty string `""`. 
+       - `title`: Explicitly sets the title for a post status, ignored if used on a comment status. For post statuses the legacy behavior is to use any "spoiler text" as the title if it is provided. If both the title and spoiler text are provided for a post status then they will each be used for their respective roles. If no title is provided then the legacy behavior will persist. If you want to create a post with no title but spoiler text then explicitly set the title but set it to an empty string `""`.
 - [`GET /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/#get)
 - [`DELETE /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/#delete)
 - [`GET /api/v1/statuses/:id/context`](https://docs.joinmastodon.org/methods/statuses/#context)
@@ -264,7 +265,7 @@ Example:
 
 ## Currently unimplemented endpoints
 
-These emdpoints are planned to be implemented somewhere in the future.
+These endpoints are planned to be implemented somewhere in the future.
 
 - [`POST /api/v1/accounts/:id/remove_from_followers`](https://github.com/mastodon/mastodon/pull/16864)
 - [`GET /api/v1/accounts/familiar_followers`](https://github.com/mastodon/mastodon/pull/17700)

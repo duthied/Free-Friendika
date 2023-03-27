@@ -1,12 +1,12 @@
 # Bookmarklet-share2friendica
 
-Javascript bookmarklet to share websites with your friendica account
+JavaScript bookmarklet to share websites with your friendica account
 
 ## Getting Started
 
 ### Installing
 
-Open the file bookmarklet-share2friendica.js and change 'YourFriendicaDoomain.tld" with your friendica domain
+Open the file bookmarklet-share2friendica.js and change 'YourFriendicaDomain.tld" with your friendica domain
 
 If you friendica is at https://myfriend.myfami.ly/ , the original ...
 ```javascript
@@ -20,7 +20,7 @@ javascript:(function(){f='https://myfriend.myfami.ly/bookmarklet/?url='+encodeUR
 
 *Please copy the whole script, not only the part mentioned here!*
 
-Then create a new bookmark, give it a name like "share2Friendica" and paste the script in the address field. Save it. Now you can click on that bookmarklet every time you want to share a website, you are currently reading. A new small window will open where title is prefilled and the website you want to share is put as attachement in the body of the new post.
+Then create a new bookmark, give it a name like "share2Friendica" and paste the script in the address field. Save it. Now you can click on that bookmarklet every time you want to share a website, you are currently reading. A new small window will open where title is prefilled and the website you want to share is put as attachment in the body of the new post.
 
 ## Additional notes if it doesn't work
 

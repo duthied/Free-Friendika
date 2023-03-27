@@ -421,7 +421,7 @@ pre code {
 .tool a {
 	/* color: #000; */
 }
-.tool a:hover, .widget a:hover, #nets-sidear a:hover, #forum-widget-collapse:hover, .admin.link a:hover, aside h4 a:hover, right_aside h4 a:hover {
+.tool a:hover, .widget a:hover, #nets-sidebar a:hover, #forum-widget-collapse:hover, .admin.link a:hover, aside h4 a:hover, right_aside h4 a:hover {
 	/* text-decoration: underline; */
 	text-decoration: none;
 	color: black;

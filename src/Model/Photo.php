@@ -41,7 +41,7 @@ use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 /**
- * Class to handle photo dabatase table
+ * Class to handle photo database table
  */
 class Photo
 {
@@ -101,7 +101,7 @@ class Photo
 	 * Get photos for user id
 	 *
 	 * @param integer $uid        User id
-	 * @param string  $resourceid Rescource ID of the photo
+	 * @param string  $resourceid Resource ID of the photo
 	 * @param array   $conditions Array of fields for conditions
 	 * @param array   $params     Array of several parameters
 	 *
@@ -122,7 +122,7 @@ class Photo
 	 * Get a photo for user id
 	 *
 	 * @param integer $uid        User id
-	 * @param string  $resourceid Rescource ID of the photo
+	 * @param string  $resourceid Resource ID of the photo
 	 * @param integer $scale      Scale of the photo. Defaults to 0
 	 * @param array   $conditions Array of fields for conditions
 	 * @param array   $params     Array of several parameters
@@ -148,7 +148,7 @@ class Photo
 	 * on success, "no sign" image info, if user has no permission,
 	 * false if photo does not exists
 	 *
-	 * @param string  $resourceid  Rescource ID of the photo
+	 * @param string  $resourceid  Resource ID of the photo
 	 * @param integer $scale       Scale of the photo. Defaults to 0
 	 * @param integer $visitor_uid UID of the visitor
 	 *
@@ -416,7 +416,7 @@ class Photo
 	 * @param string  $allow_cid Permissions, allowed contacts. optional, default = ""
 	 * @param string  $allow_gid Permissions, allowed groups. optional, default = ""
 	 * @param string  $deny_cid  Permissions, denied contacts.optional, default = ""
-	 * @param string  $deny_gid  Permissions, denied greoup.optional, default = ""
+	 * @param string  $deny_gid  Permissions, denied group.optional, default = ""
 	 * @param string  $desc      Photo caption. optional, default = ""
 	 *
 	 * @return boolean True on success
@@ -536,7 +536,7 @@ class Photo
 	 * @param Image $image      Image to update. Optional, default null.
 	 * @param array $old_fields Array with the old field values that are about to be replaced (true = update on duplicate)
 	 *
-	 * @return boolean  Was the update successfull?
+	 * @return boolean  Was the update successful?
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @see   \Friendica\Database\DBA::update
@@ -881,14 +881,14 @@ class Photo
 			 * Then set the permissions to public.
 			 */
 
-			self::setPermissionForRessource($image_rid, $uid, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+			self::setPermissionForResource($image_rid, $uid, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		}
 
 		return true;
 	}
 
 	/**
-	 * Add permissions to photo ressource
+	 * Add permissions to photo resource
 	 * @todo mix with previous photo permissions
 	 *
 	 * @param string $image_rid
@@ -899,7 +899,7 @@ class Photo
 	 * @param string $str_group_deny
 	 * @return void
 	 */
-	public static function setPermissionForRessource(string $image_rid, int $uid, string $str_contact_allow, string $str_group_allow, string $str_contact_deny, string $str_group_deny)
+	public static function setPermissionForResource(string $image_rid, int $uid, string $str_contact_allow, string $str_group_allow, string $str_contact_deny, string $str_group_deny)
 	{
 		$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 		'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny,

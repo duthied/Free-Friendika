@@ -4,11 +4,11 @@
 </div>
 {{/if}}
 
-{{if $comunity_profiles_title}}
+{{if $community_profiles_title}}
 <div id="right_profiles" class="widget">
-<h3>{{$comunity_profiles_title}}</h3>
+<h3>{{$community_profiles_title}}</h3>
 <div id='lastusers-wrapper' class='items-wrapper'>
-{{foreach $comunity_profiles_items as $i}}
+{{foreach $community_profiles_items as $i}}
 	{{$i nofilter}}
 {{/foreach}}
 </div>

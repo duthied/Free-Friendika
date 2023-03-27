@@ -98,17 +98,17 @@ class Installer
 	 * Checks the current installation environment. There are optional and mandatory checks.
 	 *
 	 * @param string $baseurl The baseurl of Friendica
-	 * @param string $phpath  Optional path to the PHP binary
+	 * @param string $phppath Optional path to the PHP binary
 	 *
 	 * @return bool if the check succeed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function checkEnvironment($baseurl, $phpath = null)
+	public function checkEnvironment($baseurl, $phppath = null)
 	{
 		$returnVal = true;
 
-		if (isset($phpath)) {
-			if (!$this->checkPHP($phpath)) {
+		if (isset($phppath)) {
+			if (!$this->checkPHP($phppath)) {
 				$returnVal = false;
 			}
 		}
@@ -165,7 +165,7 @@ class Installer
 			'$dbpass'     => $configCache->get('database', 'password'),
 			'$dbdata'     => $configCache->get('database', 'database'),
 
-			'$phpath'     => $configCache->get('config', 'php_path'),
+			'$phppath'    => $configCache->get('config', 'php_path'),
 			'$adminmail'  => $configCache->get('config', 'admin_email'),
 
 			'$system_url' => $configCache->get('system', 'url'),
@@ -590,8 +590,8 @@ class Installer
 	 * TLS Check
 	 *
 	 * Tries to determine whether the connection to the server is secured
-	 * by TLS or not. If not the user will be warned that it is higly
-	 * encuraged to use TLS.
+	 * by TLS or not. If not the user will be warned that it is highly
+	 * encouraged to use TLS.
 	 *
 	 * @return bool (true) as TLS is not mandatory
 	 */

@@ -92,7 +92,7 @@ For documentation we use the standard of *one sentence per line* for the `md` fi
 
 #### Check with [PHP Code Sniffer](https://github.com/squizlabs/PHP_CodeSniffer)
 
-This tool checks your files against a variety of coding standards, including PSR-2, and ouputs a report of all the standard violations.
+This tool checks your files against a variety of coding standards, including PSR-2, and outputs a report of all the standard violations.
 You can simply install it through PEAR: `pear install PHP_CodeSniffer`
 Once it is installed and available in your PATH, here's the command to run before committing your work:
 
@@ -109,7 +109,7 @@ Here's the command to automatically fix the files you created/modified:
 
 	$> phpcbf --standard=ruleset.xml <file or directory>
 
-If the command-line tools `diff` and `patch` are unavailabe for you, `phpcbf` can use slightly slower PHP equivalents by using the `--no-patch` argument.
+If the command-line tools `diff` and `patch` are unavailable for you, `phpcbf` can use slightly slower PHP equivalents by using the `--no-patch` argument.
 
 ### Code documentation
 

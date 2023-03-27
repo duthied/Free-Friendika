@@ -13,7 +13,7 @@ If 2FA is already enabled and you want to add another device, you must re-config
 ### 1. Download an authenticator app
 
 Any authenticator app should work with Friendica.
-Notheless, we recommend:
+Nonetheless, we recommend:
 
  - For iOS, [Matt Rubin's MIT-licensed Authenticator app](https://mattrubin.me/authenticator).
  - For Android, [andOTP](https://github.com/andOTP/andOTP).
@@ -68,7 +68,7 @@ Instead, if you enabled two-factor authentication, you have to generate app-spec
 
 You can generate as many app-specific passwords as you want, they will be shown once to you just after you generated it.
 Just copy and paste it in your third-party app in the Friendica account password input field at this point.
-We recommend generating a single app-specific password for each separate third-party app you are using, using a meaningul description of the target app (like "Frienqa on my Fairphone 2").
+We recommend generating a single app-specific password for each separate third-party app you are using, using a meaningful description of the target app (like "Frienqa on my Fairphone 2").
 
 You can also revoke any and all app-specific password you generated this way.
 This may log you out of the third-party application(s) you used the revoked app-specific password to log in with.

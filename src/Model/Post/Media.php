@@ -455,7 +455,7 @@ class Media
 	}
 
 	/**
-	 * Tests for path patterns that are usef for picture links in Friendica
+	 * Tests for path patterns that are used for picture links in Friendica
 	 *
 	 * @param string $page    Link to the image page
 	 * @param string $preview Preview picture
@@ -467,7 +467,7 @@ class Media
 	}
 
 	/**
-	 * Tests for path patterns that are usef for picture links in Friendica
+	 * Tests for path patterns that are used for picture links in Friendica
 	 *
 	 * @param string $page    Link to the image page
 	 * @param string $preview Preview picture

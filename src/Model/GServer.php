@@ -92,7 +92,7 @@ class GServer
 	const DETECT_NODEINFO_210 = 103;
 
 	/**
-	 * Check for the existance of a server and adds it in the background if not existant
+	 * Check for the existence of a server and adds it in the background if not existant
 	 *
 	 * @param string $url
 	 * @param boolean $only_nodeinfo
@@ -327,7 +327,7 @@ class GServer
 			return DateTimeFormat::utc('now +1 month');
 		}
 
-		// The system hadn't been successul contacted for more than a month, so try again in three months
+		// The system hadn't been successful contacted for more than a month, so try again in three months
 		return DateTimeFormat::utc('now +3 month');
 	}
 
@@ -557,7 +557,7 @@ class GServer
 			return false;
 		}
 
-		// If the URL missmatches, then we mark the old entry as failure
+		// If the URL mismatches, then we mark the old entry as failure
 		if (!Strings::compareLink($url, $original_url)) {
 			self::setFailureByUrl($original_url);
 			if (!self::getID($url, true) && !Network::isUrlBlocked($url)) {
@@ -675,7 +675,7 @@ class GServer
 			}
 
 			// All following checks are done for systems that always have got a "host-meta" endpoint.
-			// With this check we don't have to waste time and ressources for dead systems.
+			// With this check we don't have to waste time and resources for dead systems.
 			// Also this hopefully prevents us from receiving abuse messages.
 			if (($serverdata['network'] == Protocol::PHANTOM) || in_array($serverdata['detection-method'], self::DETECT_UNSPECIFIC)) {
 				$validHostMeta = self::validHostMeta($url);
@@ -2437,7 +2437,7 @@ class GServer
 			}
 		}
 
-		// Disvover Mastodon servers
+		// Discover Mastodon servers
 		$accesstoken = DI::config()->get('system', 'instances_social_key');
 
 		if (!empty($accesstoken)) {

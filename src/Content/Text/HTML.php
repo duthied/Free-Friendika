@@ -842,7 +842,7 @@ class HTML
 	 *
 	 * @param string $s     Search query.
 	 * @param string $id    HTML id
-	 * @param bool   $aside Display the search widgit aside.
+	 * @param bool   $aside Display the search widget aside.
 	 *
 	 * @return string Formatted HTML.
 	 * @throws \Exception

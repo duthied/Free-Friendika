@@ -37,7 +37,7 @@ Form Templates
 To guarantee a consistent look and feel for input forms, i.e. in the settings sections, there are templates for the basic form fields.
 They are initialized with an array of data, depending on the tyle of the field.
 
-All of these take an array holding the values, e.g. for a one line text input field, which is required and should be used to type email addesses use something along the lines of:
+All of these take an array holding the values, e.g. for a one line text input field, which is required and should be used to type email addresses use something along the lines of:
 
 		'$adminmail' => array('adminmail', DI::l10n()->t('Site administrator email address'), $adminmail, DI::l10n()->t('Your account email address must match this in order to use the web admin panel.'), 'required', '', 'email'),
 
@@ -70,7 +70,7 @@ Field parameter:
 
 ### field_custom.tpl
 
-A customizeable template to include a custom element in the form with the usual surroundings,
+A customizable template to include a custom element in the form with the usual surroundings,
 Field parameter:
 
 0. Name of the field,
@@ -88,7 +88,7 @@ Field parameter:
 2. Current value of the variable,
 3. Help text for the input box,
 4. Should be set to the translation of "Required" to mark this field as required,
-5. if set to "autofocus" modern browser will put the cursur into this box once the page is loaded,
+5. if set to "autofocus" modern browser will put the cursor into this box once the page is loaded,
 6. if set, it will be used for the input type, default is `text` (possible types: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#%3Cinput%3E_types).
 
 ### field_intcheckbox.tpl

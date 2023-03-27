@@ -334,7 +334,7 @@ class L10n
 					// for some languages there is only a single array item
 					$s = $t[0];
 				}
-				// if $t is empty, skip it, because empty strings array are indended
+				// if $t is empty, skip it, because empty strings array are intended
 				// to make string file smaller when there's no translation
 			} else {
 				$s = $t;

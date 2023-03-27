@@ -346,7 +346,7 @@ class ConfigTest extends DatabaseTest
 		// without refresh
 		self::assertNull($this->testedConfig->get('test', 'it'));
 
-		/// beware that the cache returns '!<unset>!' and not null for a non existing value
+		/// beware that the cache returns '!<unset>!' and not null for a nonexistent value
 		self::assertNull($this->testedConfig->getCache()->get('test', 'it'));
 
 		// with default value

@@ -47,7 +47,7 @@ class ACL
 	/**
 	 * Returns a select input tag for private message recipient
 	 *
-	 * @param int  $selected Existing recipien contact ID
+	 * @param int  $selected Existing recipient contact ID
 	 * @return string
 	 * @throws \Exception
 	 */

@@ -158,7 +158,7 @@ abstract class BaseNotifications extends BaseModule
 	/**
 	 * List of pages for the Notifications TabBar
 	 *
-	 * @return array with with notifications TabBar data
+	 * @return array with notifications TabBar data
 	 * @throws Exception
 	 */
 	private function getTabs()

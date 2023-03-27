@@ -391,7 +391,7 @@ class App
 	}
 
 	/**
-	 * Returns the current theme name. May be overriden by the mobile theme name.
+	 * Returns the current theme name. May be overridden by the mobile theme name.
 	 *
 	 * @return string Current theme name or empty string in installation phase
 	 * @throws Exception
@@ -532,7 +532,7 @@ class App
 	/**
 	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
 	 *
-	 * @return string Current theme's stylsheet path
+	 * @return string Current theme's stylesheet path
 	 * @throws Exception
 	 */
 	public function getCurrentThemeStylesheetPath(): string

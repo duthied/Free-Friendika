@@ -49,7 +49,7 @@
 				{{/if}}
 			</div>
 			{{if $wallmessage_link}}
-				<div id="wallmessage-link-botton">
+				<div id="wallmessage-link-button">
 					<button type="button" id="wallmessage-link" class="btn btn-labeled btn-primary" onclick="openWallMessage('{{$wallmessage_link}}')">
 						<span class=""><i class="fa fa-envelope"></i></span>
 						<span class="">{{$wallmessage}}</span>

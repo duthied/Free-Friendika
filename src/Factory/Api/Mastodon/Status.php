@@ -55,7 +55,7 @@ class Status extends BaseFactory
 	/** @var Card */
 	private $mstdnCardFactory;
 	/** @var Attachment */
-	private $mstdnAttachementFactory;
+	private $mstdnAttachmentFactory;
 	/** @var Error */
 	private $mstdnErrorFactory;
 	/** @var Poll */
@@ -70,21 +70,21 @@ class Status extends BaseFactory
 		Mention $mstdnMentionFactory,
 		Tag $mstdnTagFactory,
 		Card $mstdnCardFactory,
-		Attachment $mstdnAttachementFactory,
+		Attachment $mstdnAttachmentFactory,
 		Error $mstdnErrorFactory,
 		Poll $mstdnPollFactory,
 		ContentItem $contentItem
 	) {
 		parent::__construct($logger);
-		$this->dba                     = $dba;
-		$this->mstdnAccountFactory     = $mstdnAccountFactory;
-		$this->mstdnMentionFactory     = $mstdnMentionFactory;
-		$this->mstdnTagFactory         = $mstdnTagFactory;
-		$this->mstdnCardFactory        = $mstdnCardFactory;
-		$this->mstdnAttachementFactory = $mstdnAttachementFactory;
-		$this->mstdnErrorFactory       = $mstdnErrorFactory;
-		$this->mstdnPollFactory        = $mstdnPollFactory;
-		$this->contentItem             = $contentItem;
+		$this->dba                    = $dba;
+		$this->mstdnAccountFactory    = $mstdnAccountFactory;
+		$this->mstdnMentionFactory    = $mstdnMentionFactory;
+		$this->mstdnTagFactory        = $mstdnTagFactory;
+		$this->mstdnCardFactory       = $mstdnCardFactory;
+		$this->mstdnAttachmentFactory = $mstdnAttachmentFactory;
+		$this->mstdnErrorFactory      = $mstdnErrorFactory;
+		$this->mstdnPollFactory       = $mstdnPollFactory;
+		$this->contentItem            = $contentItem;
 	}
 
 	/**
@@ -175,7 +175,15 @@ class Status extends BaseFactory
 			'origin'        => true,
 			'gravity'       => Item::GRAVITY_ACTIVITY,
 			'vid'           => Verb::getID(Activity::LIKE),
-			'deleted'     => false
+			'deleted'       => false
+		]);
+		$origin_dislike = ($count_dislike == 0) ? false : Post::exists([
+			'thr-parent-id' => $uriId,
+			'uid'           => $uid,
+			'origin'        => true,
+			'gravity'       => Item::GRAVITY_ACTIVITY,
+			'vid'           => Verb::getID(Activity::DISLIKE),
+			'deleted'       => false
 		]);
 		$origin_announce = ($count_announce == 0) ? false : Post::exists([
 			'thr-parent-id' => $uriId,
@@ -206,7 +214,7 @@ class Status extends BaseFactory
 		$tags        = $this->mstdnTagFactory->createFromUriId($uriId);
 		if ($item['has-media']) {
 			$card        = $this->mstdnCardFactory->createFromUriId($uriId);
-			$attachments = $this->mstdnAttachementFactory->createFromUriId($uriId);
+			$attachments = $this->mstdnAttachmentFactory->createFromUriId($uriId);
 		} else {
 			$card        = new \Friendica\Object\Api\Mastodon\Card([]);
 			$attachments = [];
@@ -250,7 +258,7 @@ class Status extends BaseFactory
 					}
 				}
 
-				foreach ($this->mstdnAttachementFactory->createFromUriId($shared_uri_id) as $attachment) {
+				foreach ($this->mstdnAttachmentFactory->createFromUriId($shared_uri_id) as $attachment) {
 					if (!in_array($attachment, $attachments)) {
 						$attachments[] = $attachment;
 					}
@@ -295,7 +303,7 @@ class Status extends BaseFactory
 		$aclFormatter = DI::aclFormatter();
 		$delivery_data   = $uid != $item['uid'] ? null : new FriendicaDeliveryData($item['delivery_queue_count'], $item['delivery_queue_done'], $item['delivery_queue_failed']);
 		$visibility_data = $uid != $item['uid'] ? null : new FriendicaVisibility($aclFormatter->expand($item['allow_cid']), $aclFormatter->expand($item['deny_cid']), $aclFormatter->expand($item['allow_gid']), $aclFormatter->expand($item['deny_gid']));
-		$friendica       = new FriendicaExtension($item['title'], $item['changed'], $item['commented'], $item['received'], $counts->dislikes, $delivery_data, $visibility_data);
+		$friendica       = new FriendicaExtension($item['title'], $item['changed'], $item['commented'], $item['received'], $counts->dislikes, $origin_dislike, $delivery_data, $visibility_data);
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica, $quote, $poll);
 	}
@@ -361,7 +369,7 @@ class Status extends BaseFactory
 		$attachments = [];
 		$in_reply    = [];
 		$reshare     = [];
-		$friendica   = new FriendicaExtension('', null, null, null, 0, null, null);
+		$friendica   = new FriendicaExtension('', null, null, null, 0, false, null, null);
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica);
 	}

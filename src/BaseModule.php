@@ -90,9 +90,9 @@ abstract class BaseModule implements ICanHandleRequests
 	 *
 	 * @see L10n::tt()
 	 */
-	protected function tt(string $singular, string $plurarl, int $count): string
+	protected function tt(string $singular, string $plural, int $count): string
 	{
-		return $this->l10n->tt($singular, $plurarl, $count);
+		return $this->l10n->tt($singular, $plural, $count);
 	}
 
 	/**

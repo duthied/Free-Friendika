@@ -180,7 +180,7 @@ class Plaintext
 				$msg = trim($post['description']);
 			}
 
-			// If the link is already contained in the post, then it neeedn't to be added again
+			// If the link is already contained in the post, then it needn't to be added again
 			// But: if the link is beyond the limit, then it has to be added.
 			if (($link != '') && strstr($msg, $link)) {
 				$pos = strpos($msg, $link);

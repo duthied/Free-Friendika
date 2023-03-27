@@ -608,7 +608,7 @@ class DFRN
 
 			/// @Todo
 			/// - Check real image type and image size
-			/// - Check which of these boths elements we should use
+			/// - Check which of these elements we should use
 			$attributes = [
 				'rel' => 'photo',
 				'type' => 'image/jpeg',
@@ -878,7 +878,7 @@ class DFRN
 
 		XML::addElement($doc, $entry, 'dfrn:diaspora_guid', $item['guid']);
 
-		// The signed text contains the content in Markdown, the sender handle and the signatur for the content
+		// The signed text contains the content in Markdown, the sender handle and the signature for the content
 		// It is needed for relayed comments to Diaspora.
 		if ($item['signed_text']) {
 			$sign = base64_encode(json_encode(['signed_text' => $item['signed_text'],'signature' => '','signer' => '']));
@@ -1585,7 +1585,7 @@ class DFRN
 		Logger::info('Process verb ' . $item['verb'] . ' and object-type ' . $item['object-type'] . ' for entrytype ' . $entrytype);
 
 		if (($entrytype == self::TOP_LEVEL) && !empty($importer['id'])) {
-			// The filling of the the "contact" variable is done for legcy reasons
+			// The filling of the "contact" variable is done for legacy reasons
 			// The functions below are partly used by ostatus.php as well - where we have this variable
 			$contact = Contact::selectFirst([], ['id' => $importer['id']]);
 
@@ -1713,7 +1713,7 @@ class DFRN
 	 * Checks if an incoming message is wanted
 	 *
 	 * @param array $item
-	 * @param array $imporer
+	 * @param array $importer
 	 * @return boolean Is the message wanted?
 	 */
 	private static function isSolicitedMessage(array $item, array $importer): bool

@@ -42,7 +42,7 @@ $(document).ready(function () {
 
 	// hover cards should be removed very easily, e.g. when any of these events happens
 	$body.on("mouseleave touchstart scroll mousedown submit keydown", function (e) {
-		// remove hover card only for desktiop user, since on mobile we open the hovercards
+		// remove hover card only for desktop user, since on mobile we open the hovercards
 		// by click event insteadof hover
 		removeAllHovercards(e, new Date().getTime());
 	});
@@ -130,7 +130,7 @@ function openHovercard(targetElement, contactUrl, timeNow) {
 	let title = targetElement.attr("title");
 	targetElement.attr({ "data-orig-title": title, title: "" });
 
-	// get an additional data atribute if the card is active
+	// get an additional data attribute if the card is active
 	targetElement.attr("data-hover-card-active", timeNow);
 	// get the whole html content of the hover card and
 	// push it to the bootstrap popover
@@ -140,7 +140,7 @@ function openHovercard(targetElement, contactUrl, timeNow) {
 				.popover({
 					html: true,
 					placement: function () {
-						// Calculate the placement of the the hovercard (if top or bottom)
+						// Calculate the placement of the hovercard (if top or bottom)
 						// The placement depence on the distance between window top and the element
 						// which triggers the hover-card
 						let get_position = $(targetElement).offset().top - $(window).scrollTop();

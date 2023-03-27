@@ -259,7 +259,7 @@ class XML
 	 * @param integer $get_attributes   1 or 0. If this is 1 the function will get the attributes as well as the tag values -
 	 *                                  this results in a different array structure in the return value.
 	 * @param string  $priority         Can be 'tag' or 'attribute'. This will change the way the resulting
-	 *                                  array sturcture. For 'tag', the tags are given more importance.
+	 *                                  array structure. For 'tag', the tags are given more importance.
 	 *
 	 * @return array The parsed XML in an array form. Use print_r() to see the resulting array structure.
 	 * @throws \Exception
@@ -397,7 +397,7 @@ class XML
 						}
 						$repeated_tag_index[$tag . '_' . $level]++;
 					} else { // If it is not an array...
-						$current[$tag] = [$current[$tag], $result]; //...Make it an array using using the existing value and the new value
+						$current[$tag] = [$current[$tag], $result]; //...Make it an array using the existing value and the new value
 						$repeated_tag_index[$tag . '_' . $level] = 1;
 						if ($priority == 'tag' and $get_attributes) {
 							if (isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
@@ -441,7 +441,7 @@ class XML
 	 * Parse XML string
 	 *
 	 * @param string  $s XML string to parse into object
-	 * @param boolean $suppress_log Whether to supressing logging
+	 * @param boolean $suppress_log Whether to suppressing logging
 	 * @return SimpleXMLElement|bool SimpleXMLElement or false on failure
 	 */
 	public static function parseString(string $s, bool $suppress_log = false)
@@ -536,7 +536,7 @@ class XML
 	 *
 	 * @param string $str
 	 * @return string Escaped text.
-	 * @todo Move this generic method to Util\Strings and also rewrite all other findingd
+	 * @todo Move this generic method to Util\Strings and also rewrite all other occurrences
 	 */
 	public static function escape(string $str): string
 	{
@@ -548,7 +548,7 @@ class XML
 	 *
 	 * @param string $s xml escaped text
 	 * @return string unescaped text
-	 * @todo Move this generic method to Util\Strings and also rewrite all other findingd
+	 * @todo Move this generic method to Util\Strings and also rewrite all other occurrences
 	 */
 	public static function unescape(string $s): string
 	{

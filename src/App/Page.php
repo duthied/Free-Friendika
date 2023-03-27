@@ -253,9 +253,9 @@ class Page implements ArrayAccess
 			'$touch_icon'      => $touch_icon,
 			'$block_public'    => intval($config->get('system', 'block_public')),
 			'$stylesheets'     => $this->stylesheets,
-			'$likeError'       => $l10n->t('Like not successfull'),
-			'$dislikeError'    => $l10n->t('Dislike not successfull'),
-			'$announceError'   => $l10n->t('Sharing not successfull'),
+			'$likeError'       => $l10n->t('Like not successful'),
+			'$dislikeError'    => $l10n->t('Dislike not successful'),
+			'$announceError'   => $l10n->t('Sharing not successful'),
 			'$attendError'     => $l10n->t('Attendance unsuccessful'),
 			'$srvError'        => $l10n->t('Backend error'),
 			'$netError'        => $l10n->t('Network error'),
@@ -291,7 +291,7 @@ class Page implements ArrayAccess
 	 * Initializes Page->page['footer'].
 	 *
 	 * Includes:
-	 * - Javascript homebase
+	 * - JavaScript homebase
 	 * - Mobile toggle link
 	 * - Registered footer scripts (through App->registerFooterScript())
 	 * - footer.tpl template
@@ -503,7 +503,7 @@ class Page implements ArrayAccess
 
 			$content = mb_convert_encoding($this->page["content"], 'HTML-ENTITIES', "UTF-8");
 
-			/// @TODO one day, kill those error-surpressing @ stuff, or PHP should ban it
+			/// @TODO one day, kill those error-suppressing @ stuff, or PHP should ban it
 			@$doc->loadHTML($content);
 
 			$xpath = new DOMXPath($doc);

@@ -15,8 +15,8 @@ Instantiate an object of the color class with a hex color string `$foo = new Col
 - <strong>darken( [$amount] )</strong> : Allows you to obtain a darker shade of your color. Optionally you can decide to darken using a desired percentage.
 - <strong>lighten( [$amount] )</strong> : Allows you to obtain a lighter shade of your color. Optionally you can decide to lighten using a desired percentage.
 - <strong>mix($hex, [$amount] )</strong> : Allows you to mix another color to your color. Optionally you can decide to set the percent of second color or original color amount is ranged -100..0.100.
-- <strong>isLight( [$hex] )</strong> : Determins whether your color (or the provide param) is considered a "light" color. Returns `TRUE` if color is light.
-- <strong>isDark( [$hex] )</strong> : Determins whether your color (or the provide param) is considered a "dark" color. Returns `TRUE` if color is dark.
+- <strong>isLight( [$hex] )</strong> : Determines whether your color (or the provide param) is considered a "light" color. Returns `TRUE` if color is light.
+- <strong>isDark( [$hex] )</strong> : Determines whether your color (or the provide param) is considered a "dark" color. Returns `TRUE` if color is dark.
 - <strong>makeGradient( [$amount] )</strong> : Returns an array with 2 indices `light` and `dark`, the initial color will either be selected for `light` or `dark` depending on its brightness, then the other color will be generated.  The optional param allows for a static lighten or darkened amount.
 - <strong>complementary()</strong> : Returns the color "opposite" or complementary to your color.
 - <strong>getHex()</strong> : Returns the original hex color.
@@ -145,7 +145,7 @@ echo $myBlue->getCssGradient(10, TRUE);
 
 ```
 
-## Github Contributors
+## GitHub Contributors
 - mexitek
 - danielpataki
 - alexmglover

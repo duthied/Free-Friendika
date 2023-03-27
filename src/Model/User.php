@@ -529,7 +529,7 @@ class User
 			// Addons can create users, and since this 'catch' branch should only
 			// execute if getAuthenticationInfo can't find an existing user, that's
 			// exactly what will happen here. Creating a numeric username would create
-			// abiguity with user IDs, possibly opening up an attack vector.
+			// ambiguity with user IDs, possibly opening up an attack vector.
 			// So let's be very careful about that.
 			if (empty($username) || is_numeric($username)) {
 				throw $e;
@@ -684,7 +684,7 @@ class User
 
 		if ($user['last-activity'] != $current_day) {
 			User::update(['last-activity' => $current_day], $uid);
-			// Set the last actitivy for all identities of the user
+			// Set the last activity for all identities of the user
 			DBA::update('user', ['last-activity' => $current_day], ['parent-uid' => $uid, 'account_removed' => false]);
 		}
 	}
@@ -816,14 +816,14 @@ class User
 	 * Empties the password reset token field just in case.
 	 *
 	 * @param int    $uid
-	 * @param string $pasword_hashed
+	 * @param string $password_hashed
 	 * @return bool
 	 * @throws Exception
 	 */
-	private static function updatePasswordHashed(int $uid, string $pasword_hashed): bool
+	private static function updatePasswordHashed(int $uid, string $password_hashed): bool
 	{
 		$fields = [
-			'password' => $pasword_hashed,
+			'password' => $password_hashed,
 			'pwdreset' => null,
 			'pwdreset_time' => null,
 			'legacy_password' => false
@@ -851,7 +851,7 @@ class User
 	 * Checks if a nickname is in the list of the forbidden nicknames
 	 *
 	 * Check if a nickname is forbidden from registration on the node by the
-	 * admin. Forbidden nicknames (e.g. role namess) can be configured in the
+	 * admin. Forbidden nicknames (e.g. role names) can be configured in the
 	 * admin panel.
 	 *
 	 * @param string $nickname The nickname that should be checked
@@ -1232,7 +1232,7 @@ class User
 
 				$resource_id = Photo::newResource();
 
-				// Not using Photo::PROFILE_PHOTOS here, so that it is discovered as translateble string
+				// Not using Photo::PROFILE_PHOTOS here, so that it is discovered as translatable string
 				$profile_album = DI::l10n()->t('Profile Photos');
 
 				$r = Photo::store($image, $uid, 0, $resource_id, $filename, $profile_album, 4);
@@ -1377,7 +1377,7 @@ class User
 	 * permanently against re-registration, as the person was not yet
 	 * allowed to have friends on this system
 	 *
-	 * @return bool True, if the deny was successfull
+	 * @return bool True, if the deny was successful
 	 * @throws Exception
 	 */
 	public static function deny(string $hash): bool
@@ -1792,7 +1792,7 @@ class User
 	 *
 	 * @param int    $start Start count (Default is 0)
 	 * @param int    $count Count of the items per page (Default is @see Pager::ITEMS_PER_PAGE)
-	 * @param string $type  The type of users, which should get (all, bocked, removed)
+	 * @param string $type  The type of users, which should get (all, blocked, removed)
 	 * @param string $order Order of the user list (Default is 'contact.name')
 	 * @param bool   $descending Order direction (Default is ascending)
 	 * @return array|bool The list of the users

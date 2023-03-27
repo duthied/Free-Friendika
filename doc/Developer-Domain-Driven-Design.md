@@ -47,7 +47,7 @@ function doSomething(\Friendica\Contact\Introductions\Collection\Introductions $
 }
 
 /** @var $intros \Friendica\Contact\Introductions\Collection\Introductions */
-$intros = \Friendica\DI::intro()->selecForUser(Session::getLocalUser());
+$intros = \Friendica\DI::intro()->selectForUser(Session::getLocalUser());
 
 doSomething($intros);
 ```

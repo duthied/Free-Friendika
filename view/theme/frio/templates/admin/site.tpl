@@ -177,7 +177,7 @@
 			 *    Corporate
 			 */ -->
 			<div class="panel">
-				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-$dvanced">
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-advanced">
 					<h2>
 						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-advanced-collapse" aria-expanded="false" aria-controls="admin-settings-advanced-collapse">
 							{{$advanced}}

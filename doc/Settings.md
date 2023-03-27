@@ -104,12 +104,12 @@ Default is false.
 #### File storage backend
 
 Set the backend used by Friendica to store uploaded file data.
-Two storage backends are avaiable with Friendica:
+Two storage backends are available with Friendica:
 
 - **Database** : Data is stored in a dedicated table in database (`storage`)
 - **Filesystem** : Data is stored as file on the filesystem.
 
-More storage backends can be avaiable from third-party addons.
+More storage backends can be available from third-party addons.
 If you use those, please refer to the documentation of those addons for further information.
 
 Default value is 'Database (legacy)': it's the legacy way used to store data directly in database.

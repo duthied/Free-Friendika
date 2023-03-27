@@ -19,7 +19,7 @@
  *
  * The site template for pure content (e.g. (modals)
  *
- * This themplate is used e.g for bs modals. So outputs
+ * This template is used e.g for bs modals. So outputs
  * only the pure content
  */
 
