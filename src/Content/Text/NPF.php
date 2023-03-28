@@ -23,7 +23,6 @@ namespace Friendica\Content\Text;
 
 use DOMDocument;
 use DOMElement;
-use DOMNode;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 
@@ -51,7 +50,14 @@ class NPF
 
 		$node = $doc->getElementsByTagName('body')->item(0);
 		foreach ($node->childNodes as $child) {
-			$npf = self::routeElements($child, $uri_id, $npf);
+			if ($child->nodeName == '#text') {
+				$npf[] = [
+					'type' => 'text',
+					'text' => $child->textContent,
+				];
+			} else {
+				$npf = self::routeElements($child, $uri_id, $npf);
+			}
 		}
 
 		return self::addLinkBlock($uri_id, $npf);
@@ -98,9 +104,9 @@ class NPF
 		return trim($body);
 	}
 
-	static private function routeElements(DOMElement|DOMNode $child, int $uri_id, array $npf): array
+	static private function routeElements(DOMElement $child, int $uri_id, array $npf): array
 	{
-		switch ($child->tagName ?? '') {
+		switch ($child->nodeName) {
 			case 'blockquote':
 				$npf = self::addTextBlock($child, $uri_id, $npf, 'indented');
 				break;
@@ -151,6 +157,7 @@ class NPF
 				break;
 
 			case 'table':
+				// Unsupported
 				// $child->ownerDocument->saveHTML($child)
 				break;
 
@@ -165,7 +172,7 @@ class NPF
 		return $npf;
 	}
 
-	static private function addImageBlock(DOMElement|DOMNode $child, int $uri_id, array $npf): array
+	static private function addImageBlock(DOMElement $child, int $uri_id, array $npf): array
 	{
 		$attributes = [];
 		foreach ($child->attributes as $key => $attribute) {
@@ -221,7 +228,7 @@ class NPF
 		return $npf;
 	}
 
-	static private function addMediaBlock(DOMElement|DOMNode $child, int $uri_id, array $npf): array
+	static private function addMediaBlock(DOMElement $child, int $uri_id, array $npf): array
 	{
 		$attributes = [];
 		foreach ($child->attributes as $key => $attribute) {
@@ -297,34 +304,37 @@ class NPF
 		return $entry;
 	}
 
-	static private function fetchText(DOMElement|DOMNode $child, array $text = ['text' => '', 'formatting' => []]): array
+	static private function getTypeForNodeName(string $nodename): string
+	{
+		switch ($nodename) {
+			case 'b':
+			case 'strong':
+				return 'bold';
+
+			case 'i':
+			case 'em':
+				return 'italic';
+
+			case 's':
+				return 'strikethrough';
+		}
+		return '';
+	}
+
+	static private function fetchText(DOMElement $child, array $text = ['text' => '', 'formatting' => []]): array
 	{
 		foreach ($child->childNodes as $node) {
 			$start = strlen($text['text']);
 
-			switch ($node->nodeName) {
-				case 'b':
-				case 'strong':
-					$type = 'bold';
-					break;
+			$type = self::getTypeForNodeName($node->nodeName);
 
-				case 'i':
-				case 'em':
-					$type = 'italic';
-					break;
-	
-				case 's':
-					$type = 'strikethrough';
-					break;
-														
-				default:
-					$type = '';
-					break;
-			}
 			if ($node->nodeName == 'br') {
 				$text['text'] .= "\n";
-			} else {
+			} elseif (($type != '') || in_array($node->nodeName, ['#text', 'code', 'a', 'p', 'span', 'u', 'img', 'summary', 'ul', 'blockquote', 'h3', 'ol'])) {
 				$text['text'] .= $node->textContent;
+			} else {
+				echo $child->ownerDocument->saveHTML($child) . "\n";
+				die($node->nodeName . "\n");
 			}
 			if (!empty($type)) {
 				$text['formatting'][] = ['start' => $start, 'end' => strlen($text['text']), 'type' => $type];
@@ -333,9 +343,9 @@ class NPF
 		return $text;
 	}
 
-	static private function addTextBlock(DOMElement|DOMNode $child, int $uri_id, array $npf, string $subtype = ''): array
+	static private function addTextBlock(DOMElement $child, int $uri_id, array $npf, string $subtype = ''): array
 	{
-		if (empty($subtype) && (($child->childElementCount) ?? 0 == 1) && ($child->textContent == $child->firstChild->textContent)) {
+		if (empty($subtype) && ($child->textContent == $child->firstChild->textContent) && ($child->firstChild->nodeName != '#text')) {
 			return self::routeElements($child->firstChild, $uri_id, $npf);
 		}
 
@@ -351,31 +361,9 @@ class NPF
 		$element['formatting'] = $text['formatting'];
 
 		if (empty($subtype)) {
-			switch ($child->tagName ?? '') {
-				case 'b':
-				case 'strong':
-					$element['formatting'][] = ['start' => 0, 'end' => strlen($element['text']), 'type' => 'bold'];
-					break;
-
-				case 'i':
-				case 'em':
-					$element['formatting'][] = ['start' => 0, 'end' => strlen($element['text']), 'type' => 'italic'];
-					break;
-
-				case 's':
-					$element['formatting'][] = ['start' => 0, 'end' => strlen($element['text']), 'type' => 'strikethrough'];
-					break;
-
-				case 'span':
-				case 'p':
-				case 'div':
-				case 'details';
-				case '':
-					break;
-				default:
-					print_r($element);
-					die($child->tagName . "\n");
-					break;
+			$type = self::getTypeForNodeName($child->nodeName);
+			if (!empty($type)) {
+				$element['formatting'][] = ['start' => 0, 'end' => strlen($element['text']), 'type' => $type];
 			}
 		}
 
@@ -388,7 +376,7 @@ class NPF
 		return $npf;
 	}
 
-	static private function addListBlock(DOMElement|DOMNode $child, int $uri_id, array $npf, bool $ordered, int $level): array
+	static private function addListBlock(DOMElement $child, int $uri_id, array $npf, bool $ordered, int $level): array
 	{
 		foreach ($child->childNodes as $node) {
 			switch ($node->nodeName) {
