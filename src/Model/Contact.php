@@ -3529,7 +3529,14 @@ class Contact
 			$networks[] = Protocol::OSTATUS;
 		}
 
-		$condition = ['network' => $networks, 'failed' => false, 'deleted' => false, 'uid' => $uid];
+		$condition = [
+			'network'        => $networks,
+			'server-failed'  => false,
+			'server-blocked' => false,
+			'failed'         => false,
+			'deleted'        => false,
+			'uid'            => $uid
+		];
 
 		if ($uid == 0) {
 			$condition['blocked'] = false;
@@ -3556,7 +3563,7 @@ class Contact
 			["(NOT `unsearchable` OR `nurl` IN (SELECT `nurl` FROM `owner-view` WHERE `publish` OR `net-publish`))
 			AND (`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?)", $search, $search, $search]);
 
-		return self::selectToArray([], $condition, $params);
+		return DBA::selectToArray('account-user-view', [], $condition, $params);
 	}
 
 	/**
