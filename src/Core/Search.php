@@ -79,7 +79,7 @@ class Search
 				$user_data['url'] ?? '',
 				$user_data['photo'] ?? '',
 				$user_data['network'] ?? '',
-				$contactDetails['id'] ?? 0,
+				$contactDetails['cid'] ?? 0,
 				$user_data['id'] ?? 0,
 				$user_data['tags'] ?? ''
 			);
@@ -146,7 +146,7 @@ class Search
 				$profile['photo'] ?? '',
 				Protocol::DFRN,
 				$contactDetails['cid'] ?? 0,
-				0,
+				$contactDetails['zid'] ?? 0,
 				$profile['tags'] ?? ''
 			);
 
@@ -179,12 +179,12 @@ class Search
 			$result = new ContactResult(
 				$contact['name'],
 				$contact['addr'],
-				$contact['addr'],
+				$contact['addr'] ?: $contact['url'],
 				$contact['url'],
 				$contact['photo'],
 				$contact['network'],
-				$contact['cid'] ?? 0,
-				$contact['zid'] ?? 0,
+				0,
+				$contact['pid'],
 				$contact['keywords']
 			);
 
