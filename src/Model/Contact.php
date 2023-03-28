@@ -3535,6 +3535,7 @@ class Contact
 			'server-blocked' => false,
 			'failed'         => false,
 			'deleted'        => false,
+			'unsearchable'   => false,
 			'uid'            => $uid
 		];
 
@@ -3560,8 +3561,7 @@ class Contact
 		}
 
 		$condition = DBA::mergeConditions($condition,
-			["(NOT `unsearchable` OR `nurl` IN (SELECT `nurl` FROM `owner-view` WHERE `publish` OR `net-publish`))
-			AND (`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?)", $search, $search, $search]);
+			["(`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?)", $search, $search, $search]);
 
 		return DBA::selectToArray('account-user-view', [], $condition, $params);
 	}
