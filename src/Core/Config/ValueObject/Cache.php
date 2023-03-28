@@ -31,6 +31,15 @@ use ParagonIE\HiddenString\HiddenString;
  */
 class Cache
 {
+	/** @var int[] A list of valid config source  */
+	const VALID_SOURCES = [
+		self::SOURCE_STATIC,
+		self::SOURCE_FILE,
+		self::SOURCE_DATA,
+		self::SOURCE_ENV,
+		self::SOURCE_FIX,
+	];
+
 	/** @var int Indicates that the cache entry is a default value - Lowest Priority */
 	const SOURCE_STATIC = 0;
 	/** @var int Indicates that the cache entry is set by file - Low Priority */

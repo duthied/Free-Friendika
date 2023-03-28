@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-24 08:56+0100\n"
+"POT-Creation-Date: 2023-03-28 17:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1546,7 +1546,7 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:326 src/Model/Item.php:2904
+#: src/Content/Item.php:326 src/Model/Item.php:2906
 msgid "event"
 msgstr ""
 
@@ -1554,7 +1554,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:335 src/Model/Item.php:2906
+#: src/Content/Item.php:335 src/Model/Item.php:2908
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -1960,8 +1960,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:955 src/Model/Item.php:3585
-#: src/Model/Item.php:3591 src/Model/Item.php:3592
+#: src/Content/Text/BBCode.php:955 src/Model/Item.php:3587
+#: src/Model/Item.php:3593 src/Model/Item.php:3594
 msgid "Link to source"
 msgstr ""
 
@@ -3130,81 +3130,81 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:2005
+#: src/Model/Item.php:2007
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2908
+#: src/Model/Item.php:2910
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2910
+#: src/Model/Item.php:2912
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2913 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:2915 src/Module/Post/Tag/Add.php:123
 msgid "post"
-msgstr ""
-
-#: src/Model/Item.php:3071
-#, php-format
-msgid "%s is blocked"
 msgstr ""
 
 #: src/Model/Item.php:3073
 #, php-format
-msgid "%s is ignored"
+msgid "%s is blocked"
 msgstr ""
 
 #: src/Model/Item.php:3075
 #, php-format
+msgid "%s is ignored"
+msgstr ""
+
+#: src/Model/Item.php:3077
+#, php-format
 msgid "Content from %s is collapsed"
 msgstr ""
 
-#: src/Model/Item.php:3079
+#: src/Model/Item.php:3081
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3497
+#: src/Model/Item.php:3499
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3528
+#: src/Model/Item.php:3530
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3530
+#: src/Model/Item.php:3532
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3535
+#: src/Model/Item.php:3537
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3537
+#: src/Model/Item.php:3539
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3539
+#: src/Model/Item.php:3541
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3573 src/Model/Item.php:3574
+#: src/Model/Item.php:3575 src/Model/Item.php:3576
 msgid "View on separate page"
 msgstr ""
 
@@ -3644,9 +3644,9 @@ msgid "Enable"
 msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:111 src/Module/Admin/Addons/Index.php:67
-#: src/Module/Admin/Federation.php:209 src/Module/Admin/Logs/Settings.php:79
+#: src/Module/Admin/Federation.php:209 src/Module/Admin/Logs/Settings.php:85
 #: src/Module/Admin/Logs/View.php:83 src/Module/Admin/Queue.php:72
-#: src/Module/Admin/Site.php:394 src/Module/Admin/Storage.php:138
+#: src/Module/Admin/Site.php:398 src/Module/Admin/Storage.php:138
 #: src/Module/Admin/Summary.php:220 src/Module/Admin/Themes/Details.php:90
 #: src/Module/Admin/Themes/Index.php:111 src/Module/Admin/Tos.php:77
 #: src/Module/Moderation/Users/Create.php:61
@@ -3684,7 +3684,7 @@ msgid "Addon %s failed to install."
 msgstr ""
 
 #: src/Module/Admin/Addons/Index.php:69 src/Module/Admin/Features.php:86
-#: src/Module/Admin/Logs/Settings.php:81 src/Module/Admin/Site.php:397
+#: src/Module/Admin/Logs/Settings.php:87 src/Module/Admin/Site.php:401
 #: src/Module/Admin/Themes/Index.php:113 src/Module/Admin/Tos.php:86
 #: src/Module/Settings/Account.php:560 src/Module/Settings/Addons.php:78
 #: src/Module/Settings/Connectors.php:160
@@ -3860,46 +3860,52 @@ msgstr[1] ""
 msgid "The logfile '%s' is not writable. No logging possible"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:71
+#: src/Module/Admin/Logs/Settings.php:77
 msgid "PHP log currently enabled."
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:73
+#: src/Module/Admin/Logs/Settings.php:79
 msgid "PHP log currently disabled."
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:80 src/Module/BaseAdmin.php:102
+#: src/Module/Admin/Logs/Settings.php:86 src/Module/BaseAdmin.php:102
 #: src/Module/BaseAdmin.php:103
 msgid "Logs"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:82
+#: src/Module/Admin/Logs/Settings.php:88
 msgid "Clear"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:85
+#: src/Module/Admin/Logs/Settings.php:91
 msgid "Enable Debugging"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:86
+#: src/Module/Admin/Logs/Settings.php:91 src/Module/Admin/Logs/Settings.php:92
+#: src/Module/Admin/Logs/Settings.php:93 src/Module/Admin/Site.php:420
+#: src/Module/Admin/Site.php:428
+msgid "<strong>Read-only</strong> because it is set by an environment variable"
+msgstr ""
+
+#: src/Module/Admin/Logs/Settings.php:92
 msgid "Log file"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:86
+#: src/Module/Admin/Logs/Settings.php:92
 msgid ""
 "Must be writable by web server. Relative to your Friendica top-level "
 "directory."
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:87
+#: src/Module/Admin/Logs/Settings.php:93
 msgid "Log level"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:89
+#: src/Module/Admin/Logs/Settings.php:95
 msgid "PHP logging"
 msgstr ""
 
-#: src/Module/Admin/Logs/Settings.php:90
+#: src/Module/Admin/Logs/Settings.php:96
 msgid ""
 "To temporarily enable logging of PHP errors and warnings you can prepend the "
 "following to the index.php file of your installation. The filename set in "
@@ -4036,269 +4042,269 @@ msgstr ""
 msgid "Priority"
 msgstr ""
 
-#: src/Module/Admin/Site.php:208
+#: src/Module/Admin/Site.php:212
 #, php-format
 msgid "%s is no valid input for maximum image size"
 msgstr ""
 
-#: src/Module/Admin/Site.php:309 src/Module/Settings/Display.php:169
+#: src/Module/Admin/Site.php:313 src/Module/Settings/Display.php:169
 msgid "No special theme for mobile devices"
 msgstr ""
 
-#: src/Module/Admin/Site.php:326 src/Module/Settings/Display.php:179
+#: src/Module/Admin/Site.php:330 src/Module/Settings/Display.php:179
 #, php-format
 msgid "%s - (Experimental)"
 msgstr ""
 
-#: src/Module/Admin/Site.php:338
+#: src/Module/Admin/Site.php:342
 msgid "No community page"
 msgstr ""
 
-#: src/Module/Admin/Site.php:339
+#: src/Module/Admin/Site.php:343
 msgid "No community page for visitors"
 msgstr ""
 
-#: src/Module/Admin/Site.php:340
+#: src/Module/Admin/Site.php:344
 msgid "Public postings from users of this site"
 msgstr ""
 
-#: src/Module/Admin/Site.php:341
+#: src/Module/Admin/Site.php:345
 msgid "Public postings from the federated network"
 msgstr ""
 
-#: src/Module/Admin/Site.php:342
+#: src/Module/Admin/Site.php:346
 msgid "Public postings from local users and the federated network"
 msgstr ""
 
-#: src/Module/Admin/Site.php:348
+#: src/Module/Admin/Site.php:352
 msgid "Multi user instance"
 msgstr ""
 
-#: src/Module/Admin/Site.php:371
+#: src/Module/Admin/Site.php:375
 msgid "Closed"
 msgstr ""
 
-#: src/Module/Admin/Site.php:372
+#: src/Module/Admin/Site.php:376
 msgid "Requires approval"
 msgstr ""
 
-#: src/Module/Admin/Site.php:373
+#: src/Module/Admin/Site.php:377
 msgid "Open"
 msgstr ""
 
-#: src/Module/Admin/Site.php:377
+#: src/Module/Admin/Site.php:381
 msgid "Don't check"
 msgstr ""
 
-#: src/Module/Admin/Site.php:378
+#: src/Module/Admin/Site.php:382
 msgid "check the stable version"
 msgstr ""
 
-#: src/Module/Admin/Site.php:379
+#: src/Module/Admin/Site.php:383
 msgid "check the development version"
 msgstr ""
 
-#: src/Module/Admin/Site.php:383
+#: src/Module/Admin/Site.php:387
 msgid "none"
 msgstr ""
 
-#: src/Module/Admin/Site.php:384
+#: src/Module/Admin/Site.php:388
 msgid "Local contacts"
 msgstr ""
 
-#: src/Module/Admin/Site.php:385
+#: src/Module/Admin/Site.php:389
 msgid "Interactors"
 msgstr ""
 
-#: src/Module/Admin/Site.php:395 src/Module/BaseAdmin.php:90
+#: src/Module/Admin/Site.php:399 src/Module/BaseAdmin.php:90
 msgid "Site"
 msgstr ""
 
-#: src/Module/Admin/Site.php:396
+#: src/Module/Admin/Site.php:400
 msgid "General Information"
 msgstr ""
 
-#: src/Module/Admin/Site.php:398
+#: src/Module/Admin/Site.php:402
 msgid "Republish users to directory"
 msgstr ""
 
-#: src/Module/Admin/Site.php:399 src/Module/Register.php:152
+#: src/Module/Admin/Site.php:403 src/Module/Register.php:152
 msgid "Registration"
 msgstr ""
 
-#: src/Module/Admin/Site.php:400
+#: src/Module/Admin/Site.php:404
 msgid "File upload"
 msgstr ""
 
-#: src/Module/Admin/Site.php:401
+#: src/Module/Admin/Site.php:405
 msgid "Policies"
 msgstr ""
 
-#: src/Module/Admin/Site.php:402 src/Module/Calendar/Event/Form.php:252
+#: src/Module/Admin/Site.php:406 src/Module/Calendar/Event/Form.php:252
 #: src/Module/Contact.php:516 src/Module/Profile/Profile.php:276
 msgid "Advanced"
 msgstr ""
 
-#: src/Module/Admin/Site.php:403
+#: src/Module/Admin/Site.php:407
 msgid "Auto Discovered Contact Directory"
 msgstr ""
 
-#: src/Module/Admin/Site.php:404
+#: src/Module/Admin/Site.php:408
 msgid "Performance"
 msgstr ""
 
-#: src/Module/Admin/Site.php:405
+#: src/Module/Admin/Site.php:409
 msgid "Worker"
 msgstr ""
 
-#: src/Module/Admin/Site.php:406
+#: src/Module/Admin/Site.php:410
 msgid "Message Relay"
 msgstr ""
 
-#: src/Module/Admin/Site.php:407
+#: src/Module/Admin/Site.php:411
 msgid ""
 "Use the command \"console relay\" in the command line to add or remove "
 "relays."
 msgstr ""
 
-#: src/Module/Admin/Site.php:408
+#: src/Module/Admin/Site.php:412
 msgid "The system is not subscribed to any relays at the moment."
 msgstr ""
 
-#: src/Module/Admin/Site.php:409
+#: src/Module/Admin/Site.php:413
 msgid "The system is currently subscribed to the following relays:"
 msgstr ""
 
-#: src/Module/Admin/Site.php:411
+#: src/Module/Admin/Site.php:415
 msgid "Relocate Node"
 msgstr ""
 
-#: src/Module/Admin/Site.php:412
+#: src/Module/Admin/Site.php:416
 msgid ""
 "Relocating your node enables you to change the DNS domain of this node and "
 "keep all the existing users and posts. This process takes a while and can "
 "only be started from the relocate console command like this:"
 msgstr ""
 
-#: src/Module/Admin/Site.php:413
+#: src/Module/Admin/Site.php:417
 msgid "(Friendica directory)# bin/console relocate https://newdomain.com"
 msgstr ""
 
-#: src/Module/Admin/Site.php:416
+#: src/Module/Admin/Site.php:420
 msgid "Site name"
 msgstr ""
 
-#: src/Module/Admin/Site.php:417
+#: src/Module/Admin/Site.php:421
 msgid "Sender Email"
 msgstr ""
 
-#: src/Module/Admin/Site.php:417
+#: src/Module/Admin/Site.php:421
 msgid ""
 "The email address your server shall use to send notification emails from."
 msgstr ""
 
-#: src/Module/Admin/Site.php:418
+#: src/Module/Admin/Site.php:422
 msgid "Name of the system actor"
 msgstr ""
 
-#: src/Module/Admin/Site.php:418
+#: src/Module/Admin/Site.php:422
 msgid ""
 "Name of the internal system account that is used to perform ActivityPub "
 "requests. This must be an unused username. If set, this can't be changed "
 "again."
 msgstr ""
 
-#: src/Module/Admin/Site.php:419
+#: src/Module/Admin/Site.php:423
 msgid "Banner/Logo"
 msgstr ""
 
-#: src/Module/Admin/Site.php:420
+#: src/Module/Admin/Site.php:424
 msgid "Email Banner/Logo"
 msgstr ""
 
-#: src/Module/Admin/Site.php:421
+#: src/Module/Admin/Site.php:425
 msgid "Shortcut icon"
 msgstr ""
 
-#: src/Module/Admin/Site.php:421
+#: src/Module/Admin/Site.php:425
 msgid "Link to an icon that will be used for browsers."
 msgstr ""
 
-#: src/Module/Admin/Site.php:422
+#: src/Module/Admin/Site.php:426
 msgid "Touch icon"
 msgstr ""
 
-#: src/Module/Admin/Site.php:422
+#: src/Module/Admin/Site.php:426
 msgid "Link to an icon that will be used for tablets and mobiles."
 msgstr ""
 
-#: src/Module/Admin/Site.php:423
+#: src/Module/Admin/Site.php:427
 msgid "Additional Info"
 msgstr ""
 
-#: src/Module/Admin/Site.php:423
+#: src/Module/Admin/Site.php:427
 #, php-format
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at %s/servers."
 msgstr ""
 
-#: src/Module/Admin/Site.php:424
+#: src/Module/Admin/Site.php:428
 msgid "System language"
 msgstr ""
 
-#: src/Module/Admin/Site.php:425
+#: src/Module/Admin/Site.php:429
 msgid "System theme"
 msgstr ""
 
-#: src/Module/Admin/Site.php:425
+#: src/Module/Admin/Site.php:429
 #, php-format
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a href=\"%s\" "
 "id=\"cnftheme\">Change default theme settings</a>"
 msgstr ""
 
-#: src/Module/Admin/Site.php:426
+#: src/Module/Admin/Site.php:430
 msgid "Mobile system theme"
 msgstr ""
 
-#: src/Module/Admin/Site.php:426
+#: src/Module/Admin/Site.php:430
 msgid "Theme for mobile devices"
 msgstr ""
 
-#: src/Module/Admin/Site.php:427
+#: src/Module/Admin/Site.php:431
 msgid "Force SSL"
 msgstr ""
 
-#: src/Module/Admin/Site.php:427
+#: src/Module/Admin/Site.php:431
 msgid ""
 "Force all Non-SSL requests to SSL - Attention: on some systems it could lead "
 "to endless loops."
 msgstr ""
 
-#: src/Module/Admin/Site.php:428
+#: src/Module/Admin/Site.php:432
 msgid "Show help entry from navigation menu"
 msgstr ""
 
-#: src/Module/Admin/Site.php:428
+#: src/Module/Admin/Site.php:432
 msgid ""
 "Displays the menu entry for the Help pages from the navigation menu. It is "
 "always accessible by calling /help directly."
 msgstr ""
 
-#: src/Module/Admin/Site.php:429
+#: src/Module/Admin/Site.php:433
 msgid "Single user instance"
 msgstr ""
 
-#: src/Module/Admin/Site.php:429
+#: src/Module/Admin/Site.php:433
 msgid "Make this instance multi-user or single-user for the named user"
 msgstr ""
 
-#: src/Module/Admin/Site.php:431
+#: src/Module/Admin/Site.php:435
 msgid "Maximum image size"
 msgstr ""
 
-#: src/Module/Admin/Site.php:431
+#: src/Module/Admin/Site.php:435
 #, php-format
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
@@ -4310,35 +4316,35 @@ msgid ""
 "to %s (%s byte)"
 msgstr ""
 
-#: src/Module/Admin/Site.php:435
+#: src/Module/Admin/Site.php:439
 msgid "Maximum image length"
 msgstr ""
 
-#: src/Module/Admin/Site.php:435
+#: src/Module/Admin/Site.php:439
 msgid ""
 "Maximum length in pixels of the longest side of uploaded images. Default is "
 "-1, which means no limits."
 msgstr ""
 
-#: src/Module/Admin/Site.php:436
+#: src/Module/Admin/Site.php:440
 msgid "JPEG image quality"
 msgstr ""
 
-#: src/Module/Admin/Site.php:436
+#: src/Module/Admin/Site.php:440
 msgid ""
 "Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
 "100, which is full quality."
 msgstr ""
 
-#: src/Module/Admin/Site.php:438
+#: src/Module/Admin/Site.php:442
 msgid "Register policy"
 msgstr ""
 
-#: src/Module/Admin/Site.php:439
+#: src/Module/Admin/Site.php:443
 msgid "Maximum Users"
 msgstr ""
 
-#: src/Module/Admin/Site.php:439
+#: src/Module/Admin/Site.php:443
 msgid ""
 "If defined, the register policy is automatically closed when the given "
 "number of users is reached and reopens the registry when the number drops "
@@ -4346,168 +4352,168 @@ msgid ""
 "not when the policy is set to approval."
 msgstr ""
 
-#: src/Module/Admin/Site.php:440
+#: src/Module/Admin/Site.php:444
 msgid "Maximum Daily Registrations"
 msgstr ""
 
-#: src/Module/Admin/Site.php:440
+#: src/Module/Admin/Site.php:444
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user "
 "registrations to accept per day.  If register is set to closed, this setting "
 "has no effect."
 msgstr ""
 
-#: src/Module/Admin/Site.php:441
+#: src/Module/Admin/Site.php:445
 msgid "Register text"
 msgstr ""
 
-#: src/Module/Admin/Site.php:441
+#: src/Module/Admin/Site.php:445
 msgid ""
 "Will be displayed prominently on the registration page. You can use BBCode "
 "here."
 msgstr ""
 
-#: src/Module/Admin/Site.php:442
+#: src/Module/Admin/Site.php:446
 msgid "Forbidden Nicknames"
 msgstr ""
 
-#: src/Module/Admin/Site.php:442
+#: src/Module/Admin/Site.php:446
 msgid ""
 "Comma separated list of nicknames that are forbidden from registration. "
 "Preset is a list of role names according RFC 2142."
 msgstr ""
 
-#: src/Module/Admin/Site.php:443
+#: src/Module/Admin/Site.php:447
 msgid "Accounts abandoned after x days"
 msgstr ""
 
-#: src/Module/Admin/Site.php:443
+#: src/Module/Admin/Site.php:447
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
 msgstr ""
 
-#: src/Module/Admin/Site.php:444
+#: src/Module/Admin/Site.php:448
 msgid "Allowed friend domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:444
+#: src/Module/Admin/Site.php:448
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:445
+#: src/Module/Admin/Site.php:449
 msgid "Allowed email domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:445
+#: src/Module/Admin/Site.php:449
 msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:446
+#: src/Module/Admin/Site.php:450
 msgid "No OEmbed rich content"
 msgstr ""
 
-#: src/Module/Admin/Site.php:446
+#: src/Module/Admin/Site.php:450
 msgid ""
 "Don't show the rich content (e.g. embedded PDF), except from the domains "
 "listed below."
 msgstr ""
 
-#: src/Module/Admin/Site.php:447
+#: src/Module/Admin/Site.php:451
 msgid "Trusted third-party domains"
 msgstr ""
 
-#: src/Module/Admin/Site.php:447
+#: src/Module/Admin/Site.php:451
 msgid ""
 "Comma separated list of domains from which content is allowed to be embedded "
 "in posts like with OEmbed. All sub-domains of the listed domains are allowed "
 "as well."
 msgstr ""
 
-#: src/Module/Admin/Site.php:448
+#: src/Module/Admin/Site.php:452
 msgid "Block public"
 msgstr ""
 
-#: src/Module/Admin/Site.php:448
+#: src/Module/Admin/Site.php:452
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
 msgstr ""
 
-#: src/Module/Admin/Site.php:449
+#: src/Module/Admin/Site.php:453
 msgid "Force publish"
 msgstr ""
 
-#: src/Module/Admin/Site.php:449
+#: src/Module/Admin/Site.php:453
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
 msgstr ""
 
-#: src/Module/Admin/Site.php:449
+#: src/Module/Admin/Site.php:453
 msgid "Enabling this may violate privacy laws like the GDPR"
 msgstr ""
 
-#: src/Module/Admin/Site.php:450
+#: src/Module/Admin/Site.php:454
 msgid "Global directory URL"
 msgstr ""
 
-#: src/Module/Admin/Site.php:450
+#: src/Module/Admin/Site.php:454
 msgid ""
 "URL to the global directory. If this is not set, the global directory is "
 "completely unavailable to the application."
 msgstr ""
 
-#: src/Module/Admin/Site.php:451
+#: src/Module/Admin/Site.php:455
 msgid "Private posts by default for new users"
 msgstr ""
 
-#: src/Module/Admin/Site.php:451
+#: src/Module/Admin/Site.php:455
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
 msgstr ""
 
-#: src/Module/Admin/Site.php:452
+#: src/Module/Admin/Site.php:456
 msgid "Don't include post content in email notifications"
 msgstr ""
 
-#: src/Module/Admin/Site.php:452
+#: src/Module/Admin/Site.php:456
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
 msgstr ""
 
-#: src/Module/Admin/Site.php:453
+#: src/Module/Admin/Site.php:457
 msgid "Disallow public access to addons listed in the apps menu."
 msgstr ""
 
-#: src/Module/Admin/Site.php:453
+#: src/Module/Admin/Site.php:457
 msgid ""
 "Checking this box will restrict addons listed in the apps menu to members "
 "only."
 msgstr ""
 
-#: src/Module/Admin/Site.php:454
+#: src/Module/Admin/Site.php:458
 msgid "Don't embed private images in posts"
 msgstr ""
 
-#: src/Module/Admin/Site.php:454
+#: src/Module/Admin/Site.php:458
 msgid ""
 "Don't replace locally-hosted private photos in posts with an embedded copy "
 "of the image. This means that contacts who receive posts containing private "
 "photos will have to authenticate and load each image, which may take a while."
 msgstr ""
 
-#: src/Module/Admin/Site.php:455
+#: src/Module/Admin/Site.php:459
 msgid "Explicit Content"
 msgstr ""
 
-#: src/Module/Admin/Site.php:455
+#: src/Module/Admin/Site.php:459
 msgid ""
 "Set this to announce that your node is used mostly for explicit content that "
 "might not be suited for minors. This information will be published in the "
@@ -4516,267 +4522,267 @@ msgid ""
 "will be shown at the user registration page."
 msgstr ""
 
-#: src/Module/Admin/Site.php:456
+#: src/Module/Admin/Site.php:460
 msgid "Proxify external content"
 msgstr ""
 
-#: src/Module/Admin/Site.php:456
+#: src/Module/Admin/Site.php:460
 msgid ""
 "Route external content via the proxy functionality. This is used for example "
 "for some OEmbed accesses and in some other rare cases."
 msgstr ""
 
-#: src/Module/Admin/Site.php:457
+#: src/Module/Admin/Site.php:461
 msgid "Cache contact avatars"
 msgstr ""
 
-#: src/Module/Admin/Site.php:457
+#: src/Module/Admin/Site.php:461
 msgid ""
 "Locally store the avatar pictures of the contacts. This uses a lot of "
 "storage space but it increases the performance."
 msgstr ""
 
-#: src/Module/Admin/Site.php:458
+#: src/Module/Admin/Site.php:462
 msgid "Allow Users to set remote_self"
 msgstr ""
 
-#: src/Module/Admin/Site.php:458
+#: src/Module/Admin/Site.php:462
 msgid ""
 "With checking this, every user is allowed to mark every contact as a "
 "remote_self in the repair contact dialog. Setting this flag on a contact "
 "causes mirroring every posting of that contact in the users stream."
 msgstr ""
 
-#: src/Module/Admin/Site.php:459
+#: src/Module/Admin/Site.php:463
 msgid "Enable multiple registrations"
 msgstr ""
 
-#: src/Module/Admin/Site.php:459
+#: src/Module/Admin/Site.php:463
 msgid "Enable users to register additional accounts for use as pages."
 msgstr ""
 
-#: src/Module/Admin/Site.php:460
+#: src/Module/Admin/Site.php:464
 msgid "Enable OpenID"
 msgstr ""
 
-#: src/Module/Admin/Site.php:460
+#: src/Module/Admin/Site.php:464
 msgid "Enable OpenID support for registration and logins."
 msgstr ""
 
-#: src/Module/Admin/Site.php:461
+#: src/Module/Admin/Site.php:465
 msgid "Enable Fullname check"
 msgstr ""
 
-#: src/Module/Admin/Site.php:461
+#: src/Module/Admin/Site.php:465
 msgid ""
 "Enable check to only allow users to register with a space between the first "
 "name and the last name in their full name."
 msgstr ""
 
-#: src/Module/Admin/Site.php:462
+#: src/Module/Admin/Site.php:466
 msgid "Email administrators on new registration"
 msgstr ""
 
-#: src/Module/Admin/Site.php:462
+#: src/Module/Admin/Site.php:466
 msgid ""
 "If enabled and the system is set to an open registration, an email for each "
 "new registration is sent to the administrators."
 msgstr ""
 
-#: src/Module/Admin/Site.php:463
+#: src/Module/Admin/Site.php:467
 msgid "Community pages for visitors"
 msgstr ""
 
-#: src/Module/Admin/Site.php:463
+#: src/Module/Admin/Site.php:467
 msgid ""
 "Which community pages should be available for visitors. Local users always "
 "see both pages."
 msgstr ""
 
-#: src/Module/Admin/Site.php:464
+#: src/Module/Admin/Site.php:468
 msgid "Posts per user on community page"
 msgstr ""
 
-#: src/Module/Admin/Site.php:464
+#: src/Module/Admin/Site.php:468
 msgid ""
 "The maximum number of posts per user on the community page. (Not valid for "
 "\"Global Community\")"
 msgstr ""
 
-#: src/Module/Admin/Site.php:466
+#: src/Module/Admin/Site.php:470
 msgid "Enable Mail support"
 msgstr ""
 
-#: src/Module/Admin/Site.php:466
+#: src/Module/Admin/Site.php:470
 msgid ""
 "Enable built-in mail support to poll IMAP folders and to reply via mail."
 msgstr ""
 
-#: src/Module/Admin/Site.php:467
+#: src/Module/Admin/Site.php:471
 msgid ""
 "Mail support can't be enabled because the PHP IMAP module is not installed."
 msgstr ""
 
-#: src/Module/Admin/Site.php:468
+#: src/Module/Admin/Site.php:472
 msgid "Enable OStatus support"
 msgstr ""
 
-#: src/Module/Admin/Site.php:468
+#: src/Module/Admin/Site.php:472
 msgid ""
 "Enable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All "
 "communications in OStatus are public."
 msgstr ""
 
-#: src/Module/Admin/Site.php:470
+#: src/Module/Admin/Site.php:474
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub "
 "directory."
 msgstr ""
 
-#: src/Module/Admin/Site.php:471
+#: src/Module/Admin/Site.php:475
 msgid "Enable Diaspora support"
 msgstr ""
 
-#: src/Module/Admin/Site.php:471
+#: src/Module/Admin/Site.php:475
 msgid ""
 "Enable built-in Diaspora network compatibility for communicating with "
 "diaspora servers."
 msgstr ""
 
-#: src/Module/Admin/Site.php:472
+#: src/Module/Admin/Site.php:476
 msgid "Verify SSL"
 msgstr ""
 
-#: src/Module/Admin/Site.php:472
+#: src/Module/Admin/Site.php:476
 msgid ""
 "If you wish, you can turn on strict certificate checking. This will mean you "
 "cannot connect (at all) to self-signed SSL sites."
 msgstr ""
 
-#: src/Module/Admin/Site.php:473
+#: src/Module/Admin/Site.php:477
 msgid "Proxy user"
 msgstr ""
 
-#: src/Module/Admin/Site.php:473
+#: src/Module/Admin/Site.php:477
 msgid "User name for the proxy server."
 msgstr ""
 
-#: src/Module/Admin/Site.php:474
+#: src/Module/Admin/Site.php:478
 msgid "Proxy URL"
 msgstr ""
 
-#: src/Module/Admin/Site.php:474
+#: src/Module/Admin/Site.php:478
 msgid ""
 "If you want to use a proxy server that Friendica should use to connect to "
 "the network, put the URL of the proxy here."
 msgstr ""
 
-#: src/Module/Admin/Site.php:475
+#: src/Module/Admin/Site.php:479
 msgid "Network timeout"
 msgstr ""
 
-#: src/Module/Admin/Site.php:475
+#: src/Module/Admin/Site.php:479
 msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
 msgstr ""
 
-#: src/Module/Admin/Site.php:476
+#: src/Module/Admin/Site.php:480
 msgid "Maximum Load Average"
 msgstr ""
 
-#: src/Module/Admin/Site.php:476
+#: src/Module/Admin/Site.php:480
 #, php-format
 msgid ""
 "Maximum system load before delivery and poll processes are deferred - "
 "default %d."
 msgstr ""
 
-#: src/Module/Admin/Site.php:477
+#: src/Module/Admin/Site.php:481
 msgid "Minimal Memory"
 msgstr ""
 
-#: src/Module/Admin/Site.php:477
+#: src/Module/Admin/Site.php:481
 msgid ""
 "Minimal free memory in MB for the worker. Needs access to /proc/meminfo - "
 "default 0 (deactivated)."
 msgstr ""
 
-#: src/Module/Admin/Site.php:478
+#: src/Module/Admin/Site.php:482
 msgid "Periodically optimize tables"
 msgstr ""
 
-#: src/Module/Admin/Site.php:478
+#: src/Module/Admin/Site.php:482
 msgid "Periodically optimize tables like the cache and the workerqueue"
 msgstr ""
 
-#: src/Module/Admin/Site.php:480
+#: src/Module/Admin/Site.php:484
 msgid "Discover followers/followings from contacts"
 msgstr ""
 
-#: src/Module/Admin/Site.php:480
+#: src/Module/Admin/Site.php:484
 msgid ""
 "If enabled, contacts are checked for their followers and following contacts."
 msgstr ""
 
-#: src/Module/Admin/Site.php:481
+#: src/Module/Admin/Site.php:485
 msgid "None - deactivated"
 msgstr ""
 
-#: src/Module/Admin/Site.php:482
+#: src/Module/Admin/Site.php:486
 msgid ""
 "Local contacts - contacts of our local contacts are discovered for their "
 "followers/followings."
 msgstr ""
 
-#: src/Module/Admin/Site.php:483
+#: src/Module/Admin/Site.php:487
 msgid ""
 "Interactors - contacts of our local contacts and contacts who interacted on "
 "locally visible postings are discovered for their followers/followings."
 msgstr ""
 
-#: src/Module/Admin/Site.php:485
+#: src/Module/Admin/Site.php:489
 msgid "Synchronize the contacts with the directory server"
 msgstr ""
 
-#: src/Module/Admin/Site.php:485
+#: src/Module/Admin/Site.php:489
 msgid ""
 "if enabled, the system will check periodically for new contacts on the "
 "defined directory server."
 msgstr ""
 
-#: src/Module/Admin/Site.php:487
+#: src/Module/Admin/Site.php:491
 msgid "Days between requery"
 msgstr ""
 
-#: src/Module/Admin/Site.php:487
+#: src/Module/Admin/Site.php:491
 msgid "Number of days after which a server is requeried for his contacts."
 msgstr ""
 
-#: src/Module/Admin/Site.php:488
+#: src/Module/Admin/Site.php:492
 msgid "Discover contacts from other servers"
 msgstr ""
 
-#: src/Module/Admin/Site.php:488
+#: src/Module/Admin/Site.php:492
 msgid ""
 "Periodically query other servers for contacts. The system queries Friendica, "
 "Mastodon and Hubzilla servers."
 msgstr ""
 
-#: src/Module/Admin/Site.php:489
+#: src/Module/Admin/Site.php:493
 msgid "Search the local directory"
 msgstr ""
 
-#: src/Module/Admin/Site.php:489
+#: src/Module/Admin/Site.php:493
 msgid ""
 "Search the local directory instead of the global directory. When searching "
 "locally, every search will be executed on the global directory in the "
 "background. This improves the search results when the search is repeated."
 msgstr ""
 
-#: src/Module/Admin/Site.php:491
+#: src/Module/Admin/Site.php:495
 msgid "Publish server information"
 msgstr ""
 
-#: src/Module/Admin/Site.php:491
+#: src/Module/Admin/Site.php:495
 msgid ""
 "If enabled, general server and usage data will be published. The data "
 "contains the name and version of the server, number of users with public "
@@ -4784,50 +4790,50 @@ msgid ""
 "href=\"http://the-federation.info/\">the-federation.info</a> for details."
 msgstr ""
 
-#: src/Module/Admin/Site.php:493
+#: src/Module/Admin/Site.php:497
 msgid "Check upstream version"
 msgstr ""
 
-#: src/Module/Admin/Site.php:493
+#: src/Module/Admin/Site.php:497
 msgid ""
 "Enables checking for new Friendica versions at github. If there is a new "
 "version, you will be informed in the admin panel overview."
 msgstr ""
 
-#: src/Module/Admin/Site.php:494
+#: src/Module/Admin/Site.php:498
 msgid "Suppress Tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:494
+#: src/Module/Admin/Site.php:498
 msgid "Suppress showing a list of hashtags at the end of the posting."
 msgstr ""
 
-#: src/Module/Admin/Site.php:495
+#: src/Module/Admin/Site.php:499
 msgid "Clean database"
 msgstr ""
 
-#: src/Module/Admin/Site.php:495
+#: src/Module/Admin/Site.php:499
 msgid ""
 "Remove old remote items, orphaned database records and old content from some "
 "other helper tables."
 msgstr ""
 
-#: src/Module/Admin/Site.php:496
+#: src/Module/Admin/Site.php:500
 msgid "Lifespan of remote items"
 msgstr ""
 
-#: src/Module/Admin/Site.php:496
+#: src/Module/Admin/Site.php:500
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "remote items will be deleted. Own items, and marked or filed items are "
 "always kept. 0 disables this behaviour."
 msgstr ""
 
-#: src/Module/Admin/Site.php:497
+#: src/Module/Admin/Site.php:501
 msgid "Lifespan of unclaimed items"
 msgstr ""
 
-#: src/Module/Admin/Site.php:497
+#: src/Module/Admin/Site.php:501
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "unclaimed remote items (mostly content from the relay) will be deleted. "
@@ -4835,144 +4841,144 @@ msgid ""
 "items if set to 0."
 msgstr ""
 
-#: src/Module/Admin/Site.php:498
+#: src/Module/Admin/Site.php:502
 msgid "Lifespan of raw conversation data"
 msgstr ""
 
-#: src/Module/Admin/Site.php:498
+#: src/Module/Admin/Site.php:502
 msgid ""
 "The conversation data is used for ActivityPub and OStatus, as well as for "
 "debug purposes. It should be safe to remove it after 14 days, default is 90 "
 "days."
 msgstr ""
 
-#: src/Module/Admin/Site.php:499
+#: src/Module/Admin/Site.php:503
 msgid "Maximum numbers of comments per post"
 msgstr ""
 
-#: src/Module/Admin/Site.php:499
+#: src/Module/Admin/Site.php:503
 msgid "How much comments should be shown for each post? Default value is 100."
 msgstr ""
 
-#: src/Module/Admin/Site.php:500
+#: src/Module/Admin/Site.php:504
 msgid "Maximum numbers of comments per post on the display page"
 msgstr ""
 
-#: src/Module/Admin/Site.php:500
+#: src/Module/Admin/Site.php:504
 msgid ""
 "How many comments should be shown on the single view for each post? Default "
 "value is 1000."
 msgstr ""
 
-#: src/Module/Admin/Site.php:501
+#: src/Module/Admin/Site.php:505
 msgid "Temp path"
 msgstr ""
 
-#: src/Module/Admin/Site.php:501
+#: src/Module/Admin/Site.php:505
 msgid ""
 "If you have a restricted system where the webserver can't access the system "
 "temp path, enter another path here."
 msgstr ""
 
-#: src/Module/Admin/Site.php:502
+#: src/Module/Admin/Site.php:506
 msgid "Only search in tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:502
+#: src/Module/Admin/Site.php:506
 msgid "On large systems the text search can slow down the system extremely."
 msgstr ""
 
-#: src/Module/Admin/Site.php:503
+#: src/Module/Admin/Site.php:507
 msgid "Generate counts per contact group when calculating network count"
 msgstr ""
 
-#: src/Module/Admin/Site.php:503
+#: src/Module/Admin/Site.php:507
 msgid ""
 "On systems with users that heavily use contact groups the query can be very "
 "expensive."
 msgstr ""
 
-#: src/Module/Admin/Site.php:505
+#: src/Module/Admin/Site.php:509
 msgid "Maximum number of parallel workers"
 msgstr ""
 
-#: src/Module/Admin/Site.php:505
+#: src/Module/Admin/Site.php:509
 #, php-format
 msgid ""
 "On shared hosters set this to %d. On larger systems, values of %d are great. "
 "Default value is %d."
 msgstr ""
 
-#: src/Module/Admin/Site.php:506
+#: src/Module/Admin/Site.php:510
 msgid "Enable fastlane"
 msgstr ""
 
-#: src/Module/Admin/Site.php:506
+#: src/Module/Admin/Site.php:510
 msgid ""
 "When enabed, the fastlane mechanism starts an additional worker if processes "
 "with higher priority are blocked by processes of lower priority."
 msgstr ""
 
-#: src/Module/Admin/Site.php:508
+#: src/Module/Admin/Site.php:512
 msgid "Direct relay transfer"
 msgstr ""
 
-#: src/Module/Admin/Site.php:508
+#: src/Module/Admin/Site.php:512
 msgid ""
 "Enables the direct transfer to other servers without using the relay servers"
 msgstr ""
 
-#: src/Module/Admin/Site.php:509
+#: src/Module/Admin/Site.php:513
 msgid "Relay scope"
 msgstr ""
 
-#: src/Module/Admin/Site.php:509
+#: src/Module/Admin/Site.php:513
 msgid ""
 "Can be \"all\" or \"tags\". \"all\" means that every public post should be "
 "received. \"tags\" means that only posts with selected tags should be "
 "received."
 msgstr ""
 
-#: src/Module/Admin/Site.php:509 src/Module/Contact/Profile.php:286
+#: src/Module/Admin/Site.php:513 src/Module/Contact/Profile.php:286
 #: src/Module/Settings/TwoFactor/Index.php:125
 msgid "Disabled"
 msgstr ""
 
-#: src/Module/Admin/Site.php:509
+#: src/Module/Admin/Site.php:513
 msgid "all"
 msgstr ""
 
-#: src/Module/Admin/Site.php:509
+#: src/Module/Admin/Site.php:513
 msgid "tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:510
+#: src/Module/Admin/Site.php:514
 msgid "Server tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:510
+#: src/Module/Admin/Site.php:514
 msgid "Comma separated list of tags for the \"tags\" subscription."
 msgstr ""
 
-#: src/Module/Admin/Site.php:511
+#: src/Module/Admin/Site.php:515
 msgid "Deny Server tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:511
+#: src/Module/Admin/Site.php:515
 msgid "Comma separated list of tags that are rejected."
 msgstr ""
 
-#: src/Module/Admin/Site.php:512
+#: src/Module/Admin/Site.php:516
 msgid "Allow user tags"
 msgstr ""
 
-#: src/Module/Admin/Site.php:512
+#: src/Module/Admin/Site.php:516
 msgid ""
 "If enabled, the tags from the saved searches will used for the \"tags\" "
 "subscription in addition to the \"relay_server_tags\"."
 msgstr ""
 
-#: src/Module/Admin/Site.php:515
+#: src/Module/Admin/Site.php:519
 msgid "Start Relocation"
 msgstr ""
 
@@ -5019,6 +5025,12 @@ msgid "This backend doesn't have custom settings"
 msgstr ""
 
 #: src/Module/Admin/Storage.php:148
+msgid ""
+"Changing the current backend is prohibited because it is set by an "
+"environment variable"
+msgstr ""
+
+#: src/Module/Admin/Storage.php:150
 msgid "Database (legacy)"
 msgstr ""
 
