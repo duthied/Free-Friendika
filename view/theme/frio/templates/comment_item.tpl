@@ -38,7 +38,7 @@
 				</button>
 			</span>
 			</p>
-			<div id="dropzone-{{$id}}" class="dropzone" style="overflow:auto">
+			<div id="dropzone-{{$id}}" class="dropzone">
 				<p>
 					<textarea id="comment-edit-text-{{$id}}" class="dropzone comment-edit-text-empty form-control text-autosize" name="body" placeholder="{{$comment}}" rows="3" data-default="{{$default}}" dir="auto">{{$default}}</textarea>
 				</p>

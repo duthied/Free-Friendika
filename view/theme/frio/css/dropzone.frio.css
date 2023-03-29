@@ -201,6 +201,7 @@
 }
 .dropzone, .dropzone * {
 	box-sizing: border-box;
+	overflow: auto;
 }
 
 .dropzone:not(textarea) {
