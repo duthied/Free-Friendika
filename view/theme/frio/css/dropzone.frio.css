@@ -212,6 +212,7 @@
 	cursor: pointer;
 	border-radius: 4px;
 	background-color: $background_color;
+	margin-bottom: 10px;
 }
 .dropzone.dz-clickable * {
 	cursor: default;
