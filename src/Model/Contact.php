@@ -3504,16 +3504,17 @@ class Contact
 	/**
 	 * Search contact table by nick or name
 	 *
-	 * @param string $search Name or nick
-	 * @param string $mode   Search mode (e.g. "community")
-	 * @param int    $uid    User ID
-	 * @param int    $limit  Maximum amount of returned values
-	 * @param int    $offset Limit offset
+	 * @param string $search       Name or nick
+	 * @param string $mode         Search mode (e.g. "community")
+	 * @param bool   $show_blocked Show users from blocked servers. Default is false
+	 * @param int    $uid          User ID
+	 * @param int    $limit        Maximum amount of returned values
+	 * @param int    $offset       Limit offset
 	 *
 	 * @return array with search results
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function searchByName(string $search, string $mode = '', int $uid = 0, int $limit = 0, int $offset = 0): array
+	public static function searchByName(string $search, string $mode = '', bool $show_blocked = false, int $uid = 0, int $limit = 0, int $offset = 0): array
 	{
 		if (empty($search)) {
 			return [];
@@ -3532,12 +3533,15 @@ class Contact
 		$condition = [
 			'network'        => $networks,
 			'server-failed'  => false,
-			'server-blocked' => false,
 			'failed'         => false,
 			'deleted'        => false,
 			'unsearchable'   => false,
 			'uid'            => $uid
 		];
+
+		if (!$show_blocked) {
+			$condition['server-blocked'] = true;
+		}
 
 		if ($uid == 0) {
 			$condition['blocked'] = false;

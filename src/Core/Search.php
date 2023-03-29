@@ -171,7 +171,7 @@ class Search
 	{
 		Logger::info('Searching', ['search' => $search, 'type' => $type, 'start' => $start, 'itempage' => $itemPage]);
 
-		$contacts = Contact::searchByName($search, $type == self::TYPE_FORUM ? 'community' : '');
+		$contacts = Contact::searchByName($search, $type == self::TYPE_FORUM ? 'community' : '', true);
 
 		$resultList = new ResultList($start, $itemPage, count($contacts));
 
@@ -226,7 +226,7 @@ class Search
 
 		// check if searching in the local global contact table is enabled
 		if (DI::config()->get('system', 'poco_local_search')) {
-			$return = Contact::searchByName($search, $mode);
+			$return = Contact::searchByName($search, $mode, true);
 		} else {
 			$p = $page > 1 ? 'p=' . $page : '';
 			$curlResult = DI::httpClient()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), HttpClientAccept::JSON);
