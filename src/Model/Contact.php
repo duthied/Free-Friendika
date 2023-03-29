@@ -3504,16 +3504,17 @@ class Contact
 	/**
 	 * Search contact table by nick or name
 	 *
-	 * @param string $search Name or nick
-	 * @param string $mode   Search mode (e.g. "community")
-	 * @param int    $uid    User ID
-	 * @param int    $limit  Maximum amount of returned values
-	 * @param int    $offset Limit offset
+	 * @param string $search       Name or nick
+	 * @param string $mode         Search mode (e.g. "community")
+	 * @param bool   $show_blocked Show users from blocked servers. Default is false
+	 * @param int    $uid          User ID
+	 * @param int    $limit        Maximum amount of returned values
+	 * @param int    $offset       Limit offset
 	 *
 	 * @return array with search results
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function searchByName(string $search, string $mode = '', int $uid = 0, int $limit = 0, int $offset = 0): array
+	public static function searchByName(string $search, string $mode = '', bool $show_blocked = false, int $uid = 0, int $limit = 0, int $offset = 0): array
 	{
 		if (empty($search)) {
 			return [];
@@ -3529,7 +3530,18 @@ class Contact
 			$networks[] = Protocol::OSTATUS;
 		}
 
-		$condition = ['network' => $networks, 'failed' => false, 'deleted' => false, 'uid' => $uid];
+		$condition = [
+			'network'        => $networks,
+			'server-failed'  => false,
+			'failed'         => false,
+			'deleted'        => false,
+			'unsearchable'   => false,
+			'uid'            => $uid
+		];
+
+		if (!$show_blocked) {
+			$condition['server-blocked'] = true;
+		}
 
 		if ($uid == 0) {
 			$condition['blocked'] = false;
@@ -3553,10 +3565,9 @@ class Contact
 		}
 
 		$condition = DBA::mergeConditions($condition,
-			["(NOT `unsearchable` OR `nurl` IN (SELECT `nurl` FROM `owner-view` WHERE `publish` OR `net-publish`))
-			AND (`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?)", $search, $search, $search]);
+			["(`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?)", $search, $search, $search]);
 
-		return self::selectToArray([], $condition, $params);
+		return DBA::selectToArray('account-user-view', [], $condition, $params);
 	}
 
 	/**

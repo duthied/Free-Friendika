@@ -60,7 +60,7 @@ class Search extends BaseApi
 		}
 
 		if (empty($accounts)) {
-			$contacts = Contact::searchByName($request['q'], '', $request['following'] ? $uid : 0, $request['limit'], $request['offset']);
+			$contacts = Contact::searchByName($request['q'], '', false, $request['following'] ? $uid : 0, $request['limit'], $request['offset']);
 			foreach ($contacts as $contact) {
 				$accounts[] = DI::mstdnAccount()->createFromContactId($contact['id'], $uid);
 			}

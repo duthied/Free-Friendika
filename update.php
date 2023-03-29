@@ -1315,3 +1315,14 @@ function update_1516()
 
 	return Update::SUCCESS;
 }
+
+function update_1518()
+{
+	$users = DBA::select('user', ['uid']);
+	while ($user = DBA::fetch($users)) {
+		Contact::updateSelfFromUserID($user['uid']);
+	}
+	DBA::close($users);
+
+	return Update::SUCCESS;
+}
