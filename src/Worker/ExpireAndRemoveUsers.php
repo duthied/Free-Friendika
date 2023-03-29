@@ -21,6 +21,7 @@
 
 namespace Friendica\Worker;
 
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Photo;
@@ -55,29 +56,68 @@ class ExpireAndRemoveUsers
 		// delete user records for recently removed accounts
 		$users = DBA::select('user', ['uid'], ["`account_removed` AND `account_expires_on` < ? AND `uid` != ?", DateTimeFormat::utcNow(), 0]);
 		while ($user = DBA::fetch($users)) {
+			Logger::info('Removing user - start', ['uid' => $user['uid']]);
 			// We have to delete photo entries by hand because otherwise the photo data won't be deleted
-			Photo::delete(['uid' => $user['uid']]);
+			$result = Photo::delete(['uid' => $user['uid']]);
+			if ($result) {
+				Logger::debug('Deleted user photos', ['result' => $result, 'rows' => DBA::affectedRows()]);
+			} else {
+				Logger::warning('Error deleting user photos', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+			}
 
 			// Delete the contacts of this user
 			$self = DBA::selectFirst('contact', ['nurl'], ['self' => true, 'uid' => $user['uid']]);
 			if (DBA::isResult($self)) {
-				DBA::delete('contact', ['nurl' => $self['nurl'], 'self' => false]);
+				$result = DBA::delete('contact', ['nurl' => $self['nurl'], 'self' => false]);
+				if ($result) {
+					Logger::debug('Deleted the user contact for other users', ['result' => $result, 'rows' => DBA::affectedRows()]);
+				} else {
+					Logger::warning('Error deleting the user contact for other users', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+				}
 			}
 
 			// Delete all contacts of this user
-			DBA::delete('contact', ['uid' => $user['uid']]);
+			$result = DBA::delete('contact', ['uid' => $user['uid']]);
+			if ($result) {
+				Logger::debug('Deleted user contacts', ['result' => $result, 'rows' => DBA::affectedRows()]);
+			} else {
+				Logger::warning('Error deleting user contacts', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+			}
 
 			// These tables contain the permissionset which will also be deleted when a user is deleted.
 			// It seems that sometimes the system wants to delete the records in the wrong order.
 			// So when the permissionset is deleted and these tables are still filled then an error is thrown.
 			// So we now delete them before all other user related entries are deleted.
 			if (DBStructure::existsTable('item')) {
-				DBA::delete('item', ['uid' => $user['uid']]);
+				$result = DBA::delete('item', ['uid' => $user['uid']]);
+				if ($result) {
+					Logger::debug('Deleted user items', ['result' => $result, 'rows' => DBA::affectedRows()]);
+				} else {
+					Logger::warning('Error deleting user items', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+				}
 			}
-			DBA::delete('post-user', ['uid' => $user['uid']]);
-			DBA::delete('profile_field', ['uid' => $user['uid']]);
+			$result = DBA::delete('post-user', ['uid' => $user['uid']]);
+			if ($result) {
+				Logger::debug('Deleted post-user entries', ['result' => $result, 'rows' => DBA::affectedRows()]);
+			} else {
+				Logger::warning('Error deleting post-user entries', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+			}
 
-			DBA::delete('user', ['uid' => $user['uid']]);
+			$result = DBA::delete('profile_field', ['uid' => $user['uid']]);
+			if ($result) {
+				Logger::debug('Deleted profile_field entries', ['result' => $result, 'rows' => DBA::affectedRows()]);
+			} else {
+				Logger::warning('Error deleting profile_field entries', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+			}
+
+			$result = DBA::delete('user', ['uid' => $user['uid']]);
+			if ($result) {
+				Logger::debug('Deleted user record', ['result' => $result, 'rows' => DBA::affectedRows()]);
+			} else {
+				Logger::warning('Error deleting user record', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+			}
+
+			Logger::info('Removing user - done', ['uid' => $user['uid']]);
 		}
 		DBA::close($users);
 	}
