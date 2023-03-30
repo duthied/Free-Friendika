@@ -76,8 +76,8 @@ DI::config()->reload();
 if (empty(DI::config()->get('system', 'pidfile'))) {
 	die(<<<TXT
 Please set system.pidfile in config/local.config.php. For example:
-    
-    'system' => [ 
+
+    'system' => [
         'pidfile' => '/path/to/daemon.pid',
     ],
 TXT
@@ -247,5 +247,6 @@ while (true) {
 }
 
 function shutdown() {
+	posix_kill(posix_getpid(), SIGTERM);
 	posix_kill(posix_getpid(), SIGHUP);
 }
