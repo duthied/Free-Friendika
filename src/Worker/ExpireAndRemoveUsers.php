@@ -24,6 +24,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
@@ -56,7 +57,9 @@ class ExpireAndRemoveUsers
 		// delete user records for recently removed accounts
 		$users = DBA::select('user', ['uid'], ["`account_removed` AND `account_expires_on` < ? AND `uid` != ?", DateTimeFormat::utcNow(), 0]);
 		while ($user = DBA::fetch($users)) {
-			Logger::info('Removing user - start', ['uid' => $user['uid']]);
+			$pcid = Contact::getPublicIdByUserId($user['uid']);
+
+			Logger::info('Removing user - start', ['uid' => $user['uid'], 'pcid' => $pcid]);
 			// We have to delete photo entries by hand because otherwise the photo data won't be deleted
 			$result = Photo::delete(['uid' => $user['uid']]);
 			if ($result) {
@@ -65,10 +68,37 @@ class ExpireAndRemoveUsers
 				Logger::warning('Error deleting user photos', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
 			}
 
+			if (!empty($pcid)) {
+				$result = DBA::delete('post-tag', ['cid' => $pcid]);
+				if ($result) {
+					Logger::debug('Deleted post-tag entries', ['result' => $result, 'rows' => DBA::affectedRows()]);
+				} else {
+					Logger::warning('Error deleting post-tag entries', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+				}
+
+				$tables = ['post', 'post-user', 'post-thread', 'post-thread-user'];
+
+				if (DBStructure::existsTable('item')) {
+					$tables[] = 'item';
+				}
+
+				// Delete all entries with the public contact in post related tables
+				foreach ($tables as $table) {
+					foreach (['owner-id', 'author-id', 'causer-id'] as $field) {
+						$result = DBA::delete($table, [$field => $pcid]);
+						if ($result) {
+							Logger::debug('Deleted entries', ['table' => $table, 'field' => $field, 'result' => $result, 'rows' => DBA::affectedRows()]);
+						} else {
+							Logger::warning('Error deleting entries', ['table' => $table, 'field' => $field, 'errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+						}
+					}
+				}
+			}
+
 			// Delete the contacts of this user
 			$self = DBA::selectFirst('contact', ['nurl'], ['self' => true, 'uid' => $user['uid']]);
 			if (DBA::isResult($self)) {
-				$result = DBA::delete('contact', ['nurl' => $self['nurl'], 'self' => false]);
+				$result = DBA::delete('contact', ["`nurl` = ? AND NOT `self` AND `uid` != ?", $self['nurl'], 0]);
 				if ($result) {
 					Logger::debug('Deleted the user contact for other users', ['result' => $result, 'rows' => DBA::affectedRows()]);
 				} else {
