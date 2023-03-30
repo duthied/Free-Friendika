@@ -68,27 +68,29 @@ class ExpireAndRemoveUsers
 				Logger::warning('Error deleting user photos', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
 			}
 
-			$result = DBA::delete('post-tag', ['cid' => $pcid]);
-			if ($result) {
-				Logger::debug('Deleted post-tag entries', ['result' => $result, 'rows' => DBA::affectedRows()]);
-			} else {
-				Logger::warning('Error deleting post-tag entries', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
-			}
+			if (!empty($pcid)) {
+				$result = DBA::delete('post-tag', ['cid' => $pcid]);
+				if ($result) {
+					Logger::debug('Deleted post-tag entries', ['result' => $result, 'rows' => DBA::affectedRows()]);
+				} else {
+					Logger::warning('Error deleting post-tag entries', ['errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+				}
 
-			$tables = ['post', 'post-user', 'post-thread', 'post-thread-user'];
+				$tables = ['post', 'post-user', 'post-thread', 'post-thread-user'];
 
-			if (DBStructure::existsTable('item')) {
-				$tables[] = 'item';
-			}
+				if (DBStructure::existsTable('item')) {
+					$tables[] = 'item';
+				}
 
-			// Delete all entries with the public contact in post related tables
-			foreach ($tables as $table) {
-				foreach (['owner-id', 'author-id', 'causer-id'] as $field) {
-					$result = DBA::delete($table, [$field => $pcid]);
-					if ($result) {
-						Logger::debug('Deleted entries', ['table' => $table, 'field' => $field, 'result' => $result, 'rows' => DBA::affectedRows()]);
-					} else {
-						Logger::warning('Error deleting entries', ['table' => $table, 'field' => $field, 'errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+				// Delete all entries with the public contact in post related tables
+				foreach ($tables as $table) {
+					foreach (['owner-id', 'author-id', 'causer-id'] as $field) {
+						$result = DBA::delete($table, [$field => $pcid]);
+						if ($result) {
+							Logger::debug('Deleted entries', ['table' => $table, 'field' => $field, 'result' => $result, 'rows' => DBA::affectedRows()]);
+						} else {
+							Logger::warning('Error deleting entries', ['table' => $table, 'field' => $field, 'errno' => DBA::errorNo(), 'errmsg' => DBA::errorMessage()]);
+						}
 					}
 				}
 			}
