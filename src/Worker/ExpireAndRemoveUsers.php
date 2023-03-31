@@ -98,7 +98,7 @@ class ExpireAndRemoveUsers
 			// Delete the contacts of this user
 			$self = DBA::selectFirst('contact', ['nurl'], ['self' => true, 'uid' => $user['uid']]);
 			if (DBA::isResult($self)) {
-				$result = DBA::delete('contact', ["`nurl` = ? AND NOT `self` AND `uid` != ?", $self['nurl'], 0]);
+				$result = DBA::delete('contact', ['nurl' => $self['nurl'], 'self' => false]);
 				if ($result) {
 					Logger::debug('Deleted the user contact for other users', ['result' => $result, 'rows' => DBA::affectedRows()]);
 				} else {
