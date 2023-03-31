@@ -264,7 +264,7 @@ class ClientToServer
 		$item['contact-id'] = $owner['id'];
 		$item['author-id']  = $item['owner-id']  = Contact::getPublicIdByUserId($uid);
 		$item['title']      = $object_data['name'];
-		$item['body']       = Markdown::toBBCode($object_data['content']);
+		$item['body']       = Markdown::toBBCode($object_data['content'] ?? '');
 		$item['app']        = $application['name'] ?? 'API';
 
 		if (!empty($object_data['target'][Receiver::TARGET_GLOBAL])) {
@@ -353,6 +353,10 @@ class ClientToServer
 		]);
 
 		$apcontact = APContact::getByURL($owner['url']);
+
+		if (empty($apcontact)) {
+			throw new \Friendica\Network\HTTPException\NotFoundException();
+		}
 
 		return self::getCollection($condition, DI::baseUrl() . '/outbox/' . $owner['nickname'], $page, $max_id, $uid, $apcontact['statuses_count']);
 	}
