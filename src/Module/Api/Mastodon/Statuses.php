@@ -71,7 +71,7 @@ class Statuses extends BaseApi
 			'origin'     => true,
 		];
 
-		$post = Post::selectFirst(['uri-id', 'id', 'gravity', 'uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'network'], $condition);
+		$post = Post::selectFirst(['uri-id', 'id', 'gravity', 'verb', 'uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'network'], $condition);
 		if (empty($post['id'])) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $this->parameters['id'] . ' not found for user ' . $uid . '.');
 		}
@@ -87,6 +87,8 @@ class Statuses extends BaseApi
 		$item['uid']        = $post['uid'];
 		$item['body']       = $body;
 		$item['network']    = $post['network'];
+		$item['gravity']    = $post['gravity'];
+		$item['verb']       = $post['verb'];
 		$item['app']        = $this->getApp();
 
 		if (!empty($request['language'])) {
@@ -108,7 +110,7 @@ class Statuses extends BaseApi
 			}
 		}
 
-		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
+		$item = DI::contentItem()->expandTags($item);
 
 		/*
 		The provided ids in the request value consists of these two sources:
