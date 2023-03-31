@@ -65,7 +65,7 @@ trait VFSTrait
 	 * @param string $sourceFilePath The filename of the config file
 	 * @param bool   $static         True, if the folder `static` instead of `config` should be used
 	 */
-	protected function setConfigFile(string $sourceFilePath, bool $static = false, string $targetFileName = null)
+	public function setConfigFile(string $sourceFilePath, bool $static = false, string $targetFileName = null)
 	{
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .

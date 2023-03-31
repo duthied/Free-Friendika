@@ -69,6 +69,12 @@ class ReadOnlyFileConfig implements IManageConfigValues
 	}
 
 	/** {@inheritDoc} */
+	public function isWritable(string $cat, string $key): bool
+	{
+		return $this->configCache->getSource($cat, $key) < Cache::SOURCE_ENV;
+	}
+
+	/** {@inheritDoc} */
 	public function set(string $cat, string $key, $value): bool
 	{
 		throw new ConfigPersistenceException('set not allowed.');

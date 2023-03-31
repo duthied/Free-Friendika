@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.03-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1517
+-- DB_UPDATE_VERSION 1518
 -- ------------------------------------------
 
 
@@ -2849,7 +2849,9 @@ CREATE VIEW `account-view` AS SELECT
 	`apcontact`.`statuses_count` AS `ap-statuses_count`,
 	`gserver`.`site_name` AS `site_name`,
 	`gserver`.`platform` AS `platform`,
-	`gserver`.`version` AS `version`
+	`gserver`.`version` AS `version`,
+	`gserver`.`blocked` AS `server-blocked`,
+	`gserver`.`failed` AS `server-failed`
 	FROM `contact`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `contact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `contact`.`uri-id`
@@ -2953,7 +2955,9 @@ CREATE VIEW `account-user-view` AS SELECT
 	`apcontact`.`statuses_count` AS `ap-statuses_count`,
 	`gserver`.`site_name` AS `site_name`,
 	`gserver`.`platform` AS `platform`,
-	`gserver`.`version` AS `version`
+	`gserver`.`version` AS `version`,
+	`gserver`.`blocked` AS `server-blocked`,
+	`gserver`.`failed` AS `server-failed`
 	FROM `contact` AS `ucontact`
 			INNER JOIN `contact` ON `contact`.`uri-id` = `ucontact`.`uri-id` AND `contact`.`uid` = 0
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `ucontact`.`uri-id`

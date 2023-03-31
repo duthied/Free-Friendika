@@ -109,6 +109,8 @@ interface IHandleUserSessions extends IHandleSessions
 
 	/**
 	 * Set the session variable that contains the contact IDs for the visitor's contact URL
+	 *
+	 * @param string $my_url
 	 */
-	public function setVisitorsContacts();
+	public function setVisitorsContacts(string $my_url);
 }

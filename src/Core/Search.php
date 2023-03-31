@@ -79,7 +79,7 @@ class Search
 				$user_data['url'] ?? '',
 				$user_data['photo'] ?? '',
 				$user_data['network'] ?? '',
-				$contactDetails['id'] ?? 0,
+				$contactDetails['cid'] ?? 0,
 				$user_data['id'] ?? 0,
 				$user_data['tags'] ?? ''
 			);
@@ -146,7 +146,7 @@ class Search
 				$profile['photo'] ?? '',
 				Protocol::DFRN,
 				$contactDetails['cid'] ?? 0,
-				0,
+				$contactDetails['zid'] ?? 0,
 				$profile['tags'] ?? ''
 			);
 
@@ -171,7 +171,7 @@ class Search
 	{
 		Logger::info('Searching', ['search' => $search, 'type' => $type, 'start' => $start, 'itempage' => $itemPage]);
 
-		$contacts = Contact::searchByName($search, $type == self::TYPE_FORUM ? 'community' : '');
+		$contacts = Contact::searchByName($search, $type == self::TYPE_FORUM ? 'community' : '', true);
 
 		$resultList = new ResultList($start, $itemPage, count($contacts));
 
@@ -179,12 +179,12 @@ class Search
 			$result = new ContactResult(
 				$contact['name'],
 				$contact['addr'],
-				$contact['addr'],
+				$contact['addr'] ?: $contact['url'],
 				$contact['url'],
 				$contact['photo'],
 				$contact['network'],
-				$contact['cid'] ?? 0,
-				$contact['zid'] ?? 0,
+				0,
+				$contact['pid'],
 				$contact['keywords']
 			);
 
@@ -226,7 +226,7 @@ class Search
 
 		// check if searching in the local global contact table is enabled
 		if (DI::config()->get('system', 'poco_local_search')) {
-			$return = Contact::searchByName($search, $mode);
+			$return = Contact::searchByName($search, $mode, true);
 		} else {
 			$p = $page > 1 ? 'p=' . $page : '';
 			$curlResult = DI::httpClient()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), HttpClientAccept::JSON);

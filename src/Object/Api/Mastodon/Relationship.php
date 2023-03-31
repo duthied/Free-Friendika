@@ -77,7 +77,7 @@ class Relationship extends BaseDataTransferObject
 	 * @param bool  $blocked "true" if user is blocked
 	 * @param bool  $muted "true" if user is muted
 	 */
-	public function __construct(int $contactId, array $contactRecord = [], bool $blocked = false, bool $muted = false)
+	public function __construct(int $contactId, array $contactRecord, bool $blocked = false, bool $muted = false)
 	{
 		$this->id                   = (string)$contactId;
 		$this->following            = false;
