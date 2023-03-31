@@ -795,14 +795,16 @@ class Profile
 		$visitor = Contact::getById($cid);
 
 		// Authenticate the visitor.
-		$_SESSION['authenticated'] = 1;
-		$_SESSION['visitor_id'] = $visitor['id'];
-		$_SESSION['visitor_handle'] = $visitor['addr'];
-		$_SESSION['visitor_home'] = $visitor['url'];
-		$_SESSION['my_url'] = $visitor['url'];
-		$_SESSION['remote_comment'] = $visitor['subscribe'];
+		DI::userSession()->setMultiple([
+			'authenticated'  => 1,
+			'visitor_id'     => $visitor['id'],
+			'visitor_handle' => $visitor['addr'],
+			'visitor_home'   => $visitor['url'],
+			'my_url'         => $visitor['url'],
+			'remote_comment' => $visitor['subscribe'],
+		]);
 
-		DI::userSession()->setVisitorsContacts();
+		DI::userSession()->setVisitorsContacts($visitor['url']);
 
 		$a->setContactId($visitor['id']);
 
