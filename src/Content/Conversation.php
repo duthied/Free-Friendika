@@ -41,6 +41,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\Post as PostObject;
 use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
@@ -193,15 +194,24 @@ class Conversation
 		}
 	}
 
-	private function getLikers(array $likers): string
+	/**
+	 * Returns the liker phrase based on a list of likers
+	 *
+	 * @param string $verb   the activity verb
+	 * @param array  $likers a list of likers
+	 *
+	 * @return string the liker phrase
+	 *
+	 * @throws InternalServerErrorException in case either the verb is invalid or the list of likers is empty
+	 */
+	private function getLikerPhrase(string $verb, array $likers): string
 	{
-		if (empty($likers)) {
-			return $this->l10n->t('Nobody');
-		}
-
 		$total = count($likers);
-		if ($total === 1) {
-			return $likers[0];
+
+		if ($total === 0) {
+			throw new InternalServerErrorException(sprintf('There has to be at least one Liker for verb "%s"', $verb));
+		} else if ($total === 1) {
+			$likerString = $likers[0];
 		} else {
 			if ($total < $this->config->get('system', 'max_likers')) {
 				$likerString = implode(', ', array_slice($likers, 0, -1));
@@ -210,8 +220,23 @@ class Conversation
 				$likerString = implode(', ', array_slice($likers, 0, $this->config->get('system', 'max_likers') - 1));
 				$likerString .= ' ' . $this->l10n->t('and %d other people', $total - $this->config->get('system', 'max_likers'));
 			}
+		}
 
-			return $likerString;
+		switch ($verb) {
+			case 'like':
+				return $this->l10n->tt('%2$s likes this.', '%2$s like this.', $total, $likerString);
+			case 'dislike':
+				return $this->l10n->tt('%2$s doesn\'t like this.', '%2$s don\'t like this.', $total, $likerString);
+			case 'attendyes':
+				return $this->l10n->tt('%2$s attends.', '%2$s attend.', $total, $likerString);
+			case 'attendno':
+				return $this->l10n->tt('%2$s doesn\'t attend.', '%2$s don\'t attend.', $total, $likerString);
+			case 'attendmaybe':
+				return $this->l10n->tt('%2$s attends maybe.', '%2$s attend maybe.', $total, $likerString);
+			case 'announce':
+				return $this->l10n->tt('%2$s reshared this.', '%2$s reshared this.', $total, $likerString);
+			default:
+				throw new InternalServerErrorException(sprintf('Unknown verb "%s"', $verb));
 		}
 	}
 
@@ -228,31 +253,9 @@ class Conversation
 	{
 		$this->profiler->startRecording('rendering');
 		$expanded = '';
-		$phrase   = '';
 
-		$likers = $this->getLikers($links);
+		$phrase = $this->getLikerPhrase($verb, $links);
 		$total  = count($links);
-
-		switch ($verb) {
-			case 'like':
-				$phrase = $this->l10n->tt('%2$s likes this.', '%2$s like this.', $total, $likers);
-				break;
-			case 'dislike':
-				$phrase = $this->l10n->tt('%2$s doesn\'t like this.', '%2$s don\'t like this.', $total, $likers);
-				break;
-			case 'attendyes':
-				$phrase = $this->l10n->tt('%2$s attends.', '%2$s attend.', $total, $likers);
-				break;
-			case 'attendno':
-				$phrase = $this->l10n->tt('%2$s doesn\'t attend.', '%2$s don\'t attend.', $total, $likers);
-				break;
-			case 'attendmaybe':
-				$phrase = $this->l10n->tt('%2$s attends maybe.', '%2$s attend maybe.', $total, $likers);
-				break;
-			case 'announce':
-				$phrase = $this->l10n->tt('%2$s reshared this.', '%2$s reshared this.', $total, $likers);
-				break;
-		}
 
 		if ($total > 1) {
 			$spanatts  = "class=\"btn btn-link fakelink\" onclick=\"openClose('{$verb}list-$id');\"";
