@@ -71,20 +71,26 @@ pipeline:
         else
           phpunit --configuration tests/phpunit.xml;
         fi
-
   codecov:
-    image: plugins/codecov
+    image: friendicaci/codecov
     when:
       matrix:
         PHP_MAJOR_VERSION: 7.4
         PHP_VERSION: 7.4.33
       repo:
         - friendica/friendica
-    settings:
-      token:
-        from_secret: codecov-token
-      files:
-        - clover.xml
+    commands:
+      - curl https://keybase.io/codecovsecurity/pgp_keys.asc | gpg --no-default-keyring --keyring trustedkeys.gpg --import
+      - curl -Os https://uploader.codecov.io/latest/alpine/codecov
+      - curl -Os https://uploader.codecov.io/latest/alpine/codecov.SHA256SUM
+      - curl -Os https://uploader.codecov.io/latest/alpine/codecov.SHA256SUM.sig
+      - gpgv codecov.SHA256SUM.sig codecov.SHA256SUM
+      - shasum -a 256 -c codecov.SHA256SUM
+      - chmod +x codecov
+      - ./codecov -B ${CI_COMMIT_BRANCH} -C ${CI_COMMIT_SHA} -P ${CI_COMMIT_PULL_REQUEST} -b ${CI_PIPELINE_NUMBER} -Z -f 'clover.xml'
+    secrets:
+      - source: codecov-token
+        target: codecov_token
 
 services:
   mariadb:
