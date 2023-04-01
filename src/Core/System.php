@@ -526,7 +526,7 @@ class System
 	 *
 	 * @return boolean the directory is usable
 	 */
-	private static function isDirectoryUsable($directory): bool
+	private static function isDirectoryUsable(string $directory): bool
 	{
 		if (empty($directory)) {
 			Logger::warning('Directory is empty. This shouldn\'t happen.');
