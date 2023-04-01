@@ -112,7 +112,7 @@ class Process extends BaseRepository
 		try {
 			$processes = $this->db->select(static::$table_name, ['pid'], ['hostname' => $this->currentHost]);
 			while ($process = $this->db->fetch($processes)) {
-				if (!posix_kill($process['pid'], 0)) {
+				if (!\posix_kill($process['pid'], 0)) {
 					$this->db->delete(static::$table_name, ['pid' => $process['pid']]);
 				}
 			}
