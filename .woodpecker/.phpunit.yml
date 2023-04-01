@@ -80,14 +80,7 @@ pipeline:
       repo:
         - friendica/friendica
     commands:
-      - curl https://keybase.io/codecovsecurity/pgp_keys.asc | gpg --no-default-keyring --keyring trustedkeys.gpg --import
-      - curl -Os https://uploader.codecov.io/latest/alpine/codecov
-      - curl -Os https://uploader.codecov.io/latest/alpine/codecov.SHA256SUM
-      - curl -Os https://uploader.codecov.io/latest/alpine/codecov.SHA256SUM.sig
-      - gpgv codecov.SHA256SUM.sig codecov.SHA256SUM
-      - shasum -a 256 -c codecov.SHA256SUM
-      - chmod +x codecov
-      - ./codecov -B ${CI_COMMIT_BRANCH} -C ${CI_COMMIT_SHA} -P ${CI_COMMIT_PULL_REQUEST} -b ${CI_PIPELINE_NUMBER} -Z -f 'clover.xml'
+      - codecov -B ${CI_COMMIT_BRANCH} -C ${CI_COMMIT_SHA} -P ${CI_COMMIT_PULL_REQUEST} -b ${CI_PIPELINE_NUMBER} -Z -f 'clover.xml'
     secrets:
       - source: codecov-token
         target: codecov_token
