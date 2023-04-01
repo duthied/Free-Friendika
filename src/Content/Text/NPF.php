@@ -34,8 +34,6 @@ class NPF
 {
 	static public function fromBBCode(string $bbcode, int $uri_id): array
 	{
-		$npf = [];
-
 		$bbcode = self::prepareBody($bbcode);
 
 		$html = BBCode::convert($bbcode, false, BBCode::CONNECTORS);
@@ -44,14 +42,21 @@ class NPF
 		}
 
 		$doc = new DOMDocument();
+		$doc->formatOutput = true;
 		if (!@$doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'))) {
 			return [];
 		}
 
 		$element = $doc->getElementsByTagName('body')->item(0);
-		$npf = self::routeChildren($element, $uri_id, 0, $npf);
+		echo $element->ownerDocument->saveHTML($element) . "\n";
 
-		return self::addLinkBlock($uri_id, 0, $npf);
+		$npf        = [];
+		$text       = '';
+		$formatting = [];
+
+		self::routeChildren($element, $uri_id, true, [], $npf, $text, $formatting);
+
+		return self::addLinkBlockForUriId($uri_id, 0, $npf);
 	}
 
 	static private function prepareBody(string $body): string
@@ -95,181 +100,276 @@ class NPF
 		return trim($body);
 	}
 
-	static private function routeChildren(DOMElement $element, int $uri_id, int $level, array $npf): array
+	static private function routeChildren(DOMElement $element, int $uri_id, bool $parse_structure, array $callstack, array &$npf, string &$text, array &$formatting)
 	{
-		$text       = '';
-		$formatting = [];
+		if ($parse_structure && $text) {
+			self::addBlock($text, $formatting, $npf, $callstack);
+		}
+
+		$callstack[] = $element->nodeName;
+		$level = self::getLevelByCallstack($callstack);
 
 		foreach ($element->childNodes as $child) {
 			switch ($child->nodeName) {
-				case 'blockquote':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addQuoteBlock($child, $uri_id, $level, $npf);
+				case 'b':
+				case 'strong':
+					self::addFormatting($child, $uri_id, 'bold', $callstack, $npf, $text, $formatting);
 					break;
 	
-				case 'h1':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addTextBlock($child, $uri_id, $level, $npf, 'heading1');
+				case 'i':
+				case 'em':
+					self::addFormatting($child, $uri_id, 'italic', $callstack, $npf, $text, $formatting);
 					break;
 	
-				case 'h2':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addTextBlock($child, $uri_id, $level, $npf, 'heading1');
+				case 's':
+					self::addFormatting($child, $uri_id, 'strikethrough', $callstack, $npf, $text, $formatting);
 					break;
-	
-				case 'h3':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addTextBlock($child, $uri_id, $level, $npf, 'heading1');
+
+				case 'u':
+				case 'span':
+					self::addFormatting($child, $uri_id, '', $callstack, $npf, $text, $formatting);
 					break;
-	
-				case 'h4':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addTextBlock($child, $uri_id, $level, $npf, 'heading2');
-					break;
-	
-				case 'h5':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addTextBlock($child, $uri_id, $level, $npf, 'heading2');
-					break;
-	
-				case 'h6':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addTextBlock($child, $uri_id, $level, $npf, 'heading2');
-					break;
-	
-				case 'ul':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addListBlock($child, $uri_id, $level, $npf, false, 0);
-					break;
-	
-				case 'ol':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addListBlock($child, $uri_id, $level, $npf, true, 0);
-					break;
-	
+
 				case 'hr':
 				case 'br':
-					$text .= "\n";
+					if (!empty($text)) {
+						$text .= "\n";
+					}
 					break;
-	
-				case 'pre':
-				case 'code':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addTextBlock($child, $uri_id, $level, $npf, 'indented');
+		
+				case '#text':
+					$text .= $child->textContent;
 					break;
-	
-				case 'a':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addMediaBlock($child, $uri_id, $level, $npf);
-					break;
-	
+
 				case 'table':
-					// Unsupported
-					// $child->ownerDocument->saveHTML($child)
+				case 'summary':
+					// Ignore tables and spoilers
 					break;
-	
+
+				case 'a':
+					if ($text) {
+						self::addInlineLink($child, $uri_id, $callstack, $npf, $text, $formatting);
+					} else {
+						$npf = self::addLinkBlock($child, $uri_id, $level, $npf);
+					}
+					break;
+
 				case 'img':
-					$npf = self::addText($text, $formatting, $npf);
 					$npf = self::addImageBlock($child, $uri_id, $level, $npf);
 					break;
 
-				case 'p':
+				case 'ol':
 				case 'div':
-					$npf = self::addText($text, $formatting, $npf);
-					$npf = self::addTextBlock($child, $uri_id, $level, $npf);
+				case 'h1':
+				case 'h2':
+				case 'h3':
+				case 'h4':
+				case 'h5':
+				case 'h6':
+				case 'blockquote':
+				case 'p':
+				case 'pre':
+				case 'code':
+				case 'ul':
+				case 'li':
+				case 'details':
+					self::routeChildren($child, $uri_id, true, $callstack, $npf, $text, $formatting);
 					break;
 
 				default:
-					$text .= $child->textContent;
+					print_r($npf);
+					print_r($callstack);
+					die($child . "\n");
+			}
+		}
+
+		if ($parse_structure && $text) {
+			self::addBlock($text, $formatting, $npf, $callstack);
+		}
+	}
+
+	static private function getLevelByCallstack($callstack): int
+	{
+		$level = 0;
+		foreach ($callstack as $entry) {
+			if (in_array($entry, ['ol', 'ul', 'blockquote'])) {
+				++$level;
+			}
+		}
+		return max(0, $level - 1);
+	}
+
+	static private function getSubTypeByCallstack($callstack): string
+	{
+		$subtype = '';
+		foreach ($callstack as $entry) {
+			switch ($entry) {
+				case 'ol':
+					$subtype = 'ordered-list-item';
+					break;
+
+				case 'ul':
+					$subtype = 'unordered-list-item';
+					break;
+
+				case 'h1':
+					$subtype = 'heading1';
+					break;
+	
+				case 'h2':
+					$subtype = 'heading1';
+					break;
+	
+				case 'h3':
+					$subtype = 'heading1';
+					break;
+	
+				case 'h4':
+					$subtype = 'heading2';
+					break;
+	
+				case 'h5':
+					$subtype = 'heading2';
+					break;
+	
+				case 'h6':
+					$subtype = 'heading2';
+					break;
+	
+				case 'blockquote':
+				case 'pre':
+				case 'code':
+					$subtype = 'indented';
 					break;
 			}
 		}
-		return $npf;
+		return $subtype;
 	}
 
-	static private function addText(string $text, array $formatting, array $npf): array
+	static private function addFormatting(DOMElement $element, int $uri_id, string $type, array $callstack, array &$npf, string &$text, array &$formatting)
 	{
-		if (empty($text)) {
-			return $npf;
+		$start = mb_strlen($text);
+		self::routeChildren($element, $uri_id, false, $callstack, $npf, $text, $formatting);
+
+		if (!empty($type)) {
+			$formatting[] = [
+				'start' => $start,
+				'end'   => mb_strlen($text),
+				'type'  => $type
+			];
 		}
+	}
+
+	static private function addInlineLink(DOMElement $element, int $uri_id, array $callstack, array &$npf, string &$text, array &$formatting)
+	{
+		$start = mb_strlen($text);
+		self::routeChildren($element, $uri_id, false, $callstack, $npf, $text, $formatting);
+
+		$attributes = [];
+		foreach ($element->attributes as $key => $attribute) {
+			$attributes[$key] = trim($attribute->value);
+		}
+		if (!empty($attributes['href'])) {
+			$formatting[] = [
+				'start' => $start,
+				'end'   => mb_strlen($text),
+				'type'  => 'link',
+				'url'   => $attributes['href']
+			];
+		}
+	}
+
+	static private function addBlock(string &$text, array &$formatting, array &$npf, array $callstack)
+	{
 		$block = [
-			'type' => 'text',
-			'text' => $text,
+			'callstack' => $callstack,
+			'type'      => 'text',
+			'text'      => $text,
 		];
 
 		if (!empty($formatting)) {
 			$block['formatting'] = $formatting;
 		}
 
-		$npf[] = $block;
+		$level = self::getLevelByCallstack($callstack);
+		if ($level > 0) {
+			$block['indent_level'] = $level;
+		}
 
-		return $npf;
+		$subtype = self::getSubTypeByCallstack($callstack);
+		if ($subtype) {
+			$block['subtype'] = $subtype;
+		}
+
+		$npf[] = $block;
+		$text = '';
+		$formatting = [];
 	}
 
-	static private function routeElement(DOMElement $element, int $uri_id, int $level, array $npf): array
+	static private function addPoster(array $media, array $block): array
 	{
-		switch ($element->nodeName) {
-			case 'blockquote':
-				$npf = self::addQuoteBlock($element, $uri_id, $level, $npf);
-				break;
+		$poster = [];
+		if (!empty($media['preview'])) {
+			$poster['url'] = $media['preview'];
+		}
+		if (!empty($media['preview-width'])) {
+			$poster['width'] = $media['preview-width'];
+		}
+		if (!empty($media['preview-height'])) {
+			$poster['height'] = $media['preview-height'];
+		}
+		if (!empty($poster)) {
+			$block['poster'] = $poster;
+		}
+		return $block;
+	}
 
-			case 'h1':
-				$npf = self::addTextBlock($element, $uri_id, $level, $npf, 'heading1');
-				break;
+	static private function addLinkBlockForUriId(int $uri_id, int $level, array $npf): array
+	{
+		foreach (Post\Media::getByURIId($uri_id, [Post\Media::HTML]) as $link) {
+			$host = parse_url($link['url'], PHP_URL_HOST);
+			if (in_array($host, ['www.youtube.com', 'youtu.be'])) {
+				$block = [
+					'type'     => 'video',
+					'provider' => 'youtube',
+					'url'      => $link['url'],
+				];
+			} elseif (in_array($host, ['vimeo.com'])) {
+				$block = [
+					'type'     => 'video',
+					'provider' => 'vimeo',
+					'url'      => $link['url'],
+				];
+			} elseif (in_array($host, ['open.spotify.com'])) {
+				$block = [
+					'type'     => 'audio',
+					'provider' => 'spotify',
+					'url'      => $link['url'],
+				];
+			} else {
+				$block = [
+					'type' => 'link',
+					'url'  => $link['url'],
+				];
+				if (!empty($link['name'])) {
+					$block['title'] = $link['name'];
+				}
+				if (!empty($link['description'])) {
+					$block['description'] = $link['description'];
+				}
+				if (!empty($link['author-name'])) {
+					$block['author'] = $link['author-name'];
+				}
+				if (!empty($link['publisher-name'])) {
+					$block['site_name'] = $link['publisher-name'];
+				}
+			}
 
-			case 'h2':
-				$npf = self::addTextBlock($element, $uri_id, $level, $npf, 'heading1');
-				break;
+			if ($level > 0) {
+				$block['indent_level'] = $level;
+			}
 
-			case 'h3':
-				$npf = self::addTextBlock($element, $uri_id, $level, $npf, 'heading1');
-				break;
-
-			case 'h4':
-				$npf = self::addTextBlock($element, $uri_id, $level, $npf, 'heading2');
-				break;
-
-			case 'h5':
-				$npf = self::addTextBlock($element, $uri_id, $level, $npf, 'heading2');
-				break;
-
-			case 'h6':
-				$npf = self::addTextBlock($element, $uri_id, $level, $npf, 'heading2');
-				break;
-
-			case 'ul':
-				$npf = self::addListBlock($element, $uri_id, $level, $npf, false, 0);
-				break;
-
-			case 'ol':
-				$npf = self::addListBlock($element, $uri_id, $level, $npf, true, 0);
-				break;
-
-			case 'hr':
-			case 'br':
-				break;
-
-			case 'pre':
-			case 'code':
-				$npf = self::addTextBlock($element, $uri_id, $level, $npf, 'indented');
-				break;
-
-			case 'a':
-				$npf = self::addMediaBlock($element, $uri_id, $level, $npf);
-				break;
-
-			case 'table':
-				// Unsupported
-				// $element->ownerDocument->saveHTML($element)
-				break;
-
-			case 'img':
-				$npf = self::addImageBlock($element, $uri_id, $level, $npf);
-				break;
-
-			default:
-				$npf = self::addTextBlock($element, $uri_id, $level, $npf);
-				break;
+			$npf[] = self::addPoster($link, $block);
 		}
 		return $npf;
 	}
@@ -278,7 +378,7 @@ class NPF
 	{
 		$attributes = [];
 		foreach ($element->attributes as $key => $attribute) {
-			$attributes[$key] = $attribute->value;
+			$attributes[$key] = trim($attribute->value);
 		}
 		if (empty($attributes['src'])) {
 			return $npf;
@@ -293,7 +393,7 @@ class NPF
 			$block['alt_text'] = $attributes['alt'];
 		}
 
-		if (!empty($attributes['title']) && ($attributes['alt'] ?? '' != $attributes['title'])) {
+		if (!empty($attributes['title']) && (($attributes['alt'] ?? '') != $attributes['title'])) {
 			$block['caption'] = $attributes['title'];
 		}
 
@@ -334,11 +434,11 @@ class NPF
 		return $npf;
 	}
 
-	static private function addMediaBlock(DOMElement $element, int $uri_id, int $level, array $npf): array
+	static private function addLinkBlock(DOMElement $element, int $uri_id, int $level, array $npf): array
 	{
 		$attributes = [];
 		foreach ($element->attributes as $key => $attribute) {
-			$attributes[$key] = $attribute->value;
+			$attributes[$key] = trim($attribute->value);
 		}
 		if (empty($attributes['href'])) {
 			return $npf;
@@ -396,194 +496,6 @@ class NPF
 
 		$npf[] = $block;
 
-		return $npf;
-	}
-
-	static private function addPoster(array $media, array $block): array
-	{
-		$poster = [];
-		if (!empty($media['preview'])) {
-			$poster['url'] = $media['preview'];
-		}
-		if (!empty($media['preview-width'])) {
-			$poster['width'] = $media['preview-width'];
-		}
-		if (!empty($media['preview-height'])) {
-			$poster['height'] = $media['preview-height'];
-		}
-		if (!empty($poster)) {
-			$block['poster'] = $poster;
-		}
-		return $block;
-	}
-
-	static private function getTypeForNodeName(string $nodename): string
-	{
-		switch ($nodename) {
-			case 'b':
-			case 'strong':
-				return 'bold';
-
-			case 'i':
-			case 'em':
-				return 'italic';
-
-			case 's':
-				return 'strikethrough';
-		}
-		return '';
-	}
-
-	static private function fetchText(DOMElement $element, array $text = ['text' => '', 'formatting' => []]): array
-	{
-		foreach ($element->childNodes as $child) {
-			$start = strlen($text['text']);
-
-			$type = self::getTypeForNodeName($child->nodeName);
-
-			if ($child->nodeName == 'br') {
-				$text['text'] .= "\n";
-			} elseif (($type != '') || in_array($child->nodeName, ['#text', 'code', 'a', 'p', 'span', 'u', 'img', 'summary', 'ul', 'blockquote', 'h3', 'ol'])) {
-				$text['text'] .= $child->textContent;
-			} else {
-				echo $element->ownerDocument->saveHTML($element) . "\n";
-				die($child->nodeName . "\n");
-			}
-			if (!empty($type)) {
-				$text['formatting'][] = ['start' => $start, 'end' => strlen($text['text']), 'type' => $type];
-			}
-		}
-		return $text;
-	}
-
-	static private function addQuoteBlock(DOMElement $element, int $uri_id, int $level, array $npf): array
-	{
-		$block = ['type' => 'text', 'subtype' => 'indented'];
-
-		if ($level > 0) {
-			$block['indent_level'] = $level;
-		}
-
-		$npf[] = $block;
-
-		$npf = self::routeChildren($element, $uri_id, 0, $npf);
-
-		return $npf;
-	}
-
-	static private function addTextBlock(DOMElement $element, int $uri_id, int $level, array $npf, string $subtype = ''): array
-	{
-		if (empty($subtype) && ($element->textContent == $element->firstChild->textContent) && ($element->firstChild->nodeName != '#text')) {
-			return self::routeElement($element->firstChild, $uri_id, $level, $npf);
-		}
-
-		$block = ['type' => 'text'];
-
-		if (!empty($subtype)) {
-			$block['subtype'] = $subtype;
-		}
-
-		$text = self::fetchText($element);
-
-		$block['text']       = $text['text'];
-		$block['formatting'] = $text['formatting'];
-
-		if (empty($subtype)) {
-			$type = self::getTypeForNodeName($element->nodeName);
-			if (!empty($type)) {
-				$block['formatting'][] = ['start' => 0, 'end' => strlen($block['text']), 'type' => $type];
-			}
-		}
-
-		if (empty($block['formatting'])) {
-			unset($block['formatting']);
-		}
-
-		if ($level > 0) {
-			$block['indent_level'] = $level;
-		}
-
-		$npf[] = $block;
-
-		return $npf;
-	}
-
-	static private function addListBlock(DOMElement $element, int $uri_id, int $level, array $npf, bool $ordered): array
-	{
-		foreach ($element->childNodes as $child) {
-			switch ($child->nodeName) {
-				case 'ul':
-					$npf = self::addListBlock($child, $uri_id, $level++, $npf, false);
-				case 'ol':
-					$npf = self::addListBlock($child, $uri_id, $level++, $npf, true);
-				case 'li':
-					$text = self::fetchText($child);
-
-					$block = [
-						'type'    => 'text',
-						'subtype' => $ordered ? 'ordered-list-item' : 'unordered-list-item',
-						'text'    => $text['text']
-					];
-					if ($level > 0) {
-						$block['indent_level'] = $level;
-					}
-					if (!empty($text['formatting'])) {
-						$block['formatting'] = $text['formatting'];
-					}
-					$npf[] = $block;
-			}
-		}
-
-		return $npf;
-	}
-
-	static private function addLinkBlock(int $uri_id, int $level, array $npf): array
-	{
-		foreach (Post\Media::getByURIId($uri_id, [Post\Media::HTML]) as $link) {
-			$host = parse_url($link['url'], PHP_URL_HOST);
-			if (in_array($host, ['www.youtube.com', 'youtu.be'])) {
-				$block = [
-					'type'     => 'video',
-					'provider' => 'youtube',
-					'url'      => $link['url'],
-				];
-			} elseif (in_array($host, ['vimeo.com'])) {
-				$block = [
-					'type'     => 'video',
-					'provider' => 'vimeo',
-					'url'      => $link['url'],
-				];
-			} elseif (in_array($host, ['open.spotify.com'])) {
-				$block = [
-					'type'     => 'audio',
-					'provider' => 'spotify',
-					'url'      => $link['url'],
-				];
-			} else {
-				$block = [
-					'type' => 'link',
-					'url'  => $link['url'],
-				];
-				if (!empty($link['name'])) {
-					$block['title'] = $link['name'];
-				}
-				if (!empty($link['description'])) {
-					$block['description'] = $link['description'];
-				}
-				if (!empty($link['author-name'])) {
-					$block['author'] = $link['author-name'];
-				}
-				if (!empty($link['publisher-name'])) {
-					$block['site_name'] = $link['publisher-name'];
-				}
-			}
-
-			if ($level > 0) {
-				$block['indent_level'] = $level;
-			}
-
-			$npf[] = self::addPoster($link, $block);
-		}
 		return $npf;
 	}
 }
