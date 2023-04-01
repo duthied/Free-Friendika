@@ -193,6 +193,28 @@ class Conversation
 		}
 	}
 
+	private function getLikers(array $likers): string
+	{
+		if (empty($likers)) {
+			return $this->l10n->t('Nobody');
+		}
+
+		$total = count($likers);
+		if ($total === 1) {
+			return $likers[0];
+		} else {
+			if ($total < $this->config->get('system', 'max_likers')) {
+				$likerString = implode(', ', array_slice($likers, 0, -1));
+				$likerString .= ' ' . $this->l10n->t('and') . ' ' . $likers[count($likers) - 1];
+			} else {
+				$likerString = implode(', ', array_slice($likers, 0, $this->config->get('system', 'max_likers') - 1));
+				$likerString .= ' ' . $this->l10n->t('and %d other people', $total - $this->config->get('system', 'max_likers'));
+			}
+
+			return $likerString;
+		}
+	}
+
 	/**
 	 * Format the activity text for an item/photo/video
 	 *
@@ -205,87 +227,70 @@ class Conversation
 	public function formatActivity(array $links, string $verb, int $id): string
 	{
 		$this->profiler->startRecording('rendering');
-		$o        = '';
 		$expanded = '';
 		$phrase   = '';
 
-		$total = count($links);
-		if ($total == 1) {
-			$likers = $links[0];
+		$likers = $this->getLikers($links);
+		$total  = count($links);
 
-			// Phrase if there is only one liker. In other cases it will be uses for the expanded
-			// list which show all likers
+		switch ($verb) {
+			case 'like':
+				$phrase = $this->l10n->tt('%2$s likes this.', '%2$s like this.', $total, $likers);
+				break;
+			case 'dislike':
+				$phrase = $this->l10n->tt('%2$s doesn\'t like this.', '%2$s don\'t like this.', $total, $likers);
+				break;
+			case 'attendyes':
+				$phrase = $this->l10n->tt('%2$s attends.', '%2$s attend.', $total, $likers);
+				break;
+			case 'attendno':
+				$phrase = $this->l10n->tt('%2$s doesn\'t attend.', '%2$s don\'t attend.', $total, $likers);
+				break;
+			case 'attendmaybe':
+				$phrase = $this->l10n->tt('%2$s attends maybe.', '%2$s attend maybe.', $total, $likers);
+				break;
+			case 'announce':
+				$phrase = $this->l10n->tt('%2$s reshared this.', '%2$s reshared this.', $total, $likers);
+				break;
+		}
+
+		if ($total > 1) {
+			$spanatts  = "class=\"btn btn-link fakelink\" onclick=\"openClose('{$verb}list-$id');\"";
+			$explikers = $phrase;
+
 			switch ($verb) {
 				case 'like':
-					$phrase = $this->l10n->t('%s likes this.', $likers);
+					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> like this', $spanatts, $total);
 					break;
 				case 'dislike':
-					$phrase = $this->l10n->t('%s doesn\'t like this.', $likers);
+					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> don\'t like this', $spanatts, $total);
 					break;
 				case 'attendyes':
-					$phrase = $this->l10n->t('%s attends.', $likers);
+					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> attend', $spanatts, $total);
 					break;
 				case 'attendno':
-					$phrase = $this->l10n->t('%s doesn\'t attend.', $likers);
+					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> don\'t attend', $spanatts, $total);
 					break;
 				case 'attendmaybe':
-					$phrase = $this->l10n->t('%s attends maybe.', $likers);
+					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> attend maybe', $spanatts, $total);
 					break;
 				case 'announce':
-					$phrase = $this->l10n->t('%s reshared this.', $likers);
-					break;
-			}
-		} elseif ($total > 1) {
-			if ($total < $this->config->get('system', 'max_likers')) {
-				$likers = implode(', ', array_slice($links, 0, -1));
-				$likers .= ' ' . $this->l10n->t('and') . ' ' . $links[count($links) - 1];
-			} else {
-				$likers = implode(', ', array_slice($links, 0, $this->config->get('system', 'max_likers') - 1));
-				$likers .= ' ' . $this->l10n->t('and %d other people', $total - $this->config->get('system', 'max_likers'));
-			}
-
-			$spanatts = "class=\"btn btn-link fakelink\" onclick=\"openClose('{$verb}list-$id');\"";
-
-			$explikers = '';
-			switch ($verb) {
-				case 'like':
-					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> like this', $spanatts, $total);
-					$explikers = $this->l10n->t('%s like this.', $likers);
-					break;
-				case 'dislike':
-					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> don\'t like this', $spanatts, $total);
-					$explikers = $this->l10n->t('%s don\'t like this.', $likers);
-					break;
-				case 'attendyes':
-					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> attend', $spanatts, $total);
-					$explikers = $this->l10n->t('%s attend.', $likers);
-					break;
-				case 'attendno':
-					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> don\'t attend', $spanatts, $total);
-					$explikers = $this->l10n->t('%s don\'t attend.', $likers);
-					break;
-				case 'attendmaybe':
-					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> attend maybe', $spanatts, $total);
-					$explikers = $this->l10n->t('%s attend maybe.', $likers);
-					break;
-				case 'announce':
-					$phrase    = $this->l10n->t('<button type="button" %1$s>%2$d people</button> reshared this', $spanatts, $total);
-					$explikers = $this->l10n->t('%s reshared this.', $likers);
+					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> reshared this', $spanatts, $total);
 					break;
 			}
 
 			$expanded .= "\t" . '<p class="wall-item-' . $verb . '-expanded" id="' . $verb . 'list-' . $id . '" style="display: none;" >' . $explikers . '</p>';
 		}
 
-		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
+		$output = Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
 			'$phrase' => $phrase,
 			'$type'   => $verb,
 			'$id'     => $id
 		]);
-		$o .= $expanded;
+		$output .= $expanded;
 
 		$this->profiler->stopRecording();
-		return $o;
+		return $output;
 	}
 
 	public function statusEditor(array $x = [], int $notes_cid = 0, bool $popup = false): string
