@@ -32,6 +32,8 @@ use Friendica\Model\Post;
  */
 class NPF
 {
+	static $heading_subtype = [];
+
 	static public function fromBBCode(string $bbcode, int $uri_id): array
 	{
 		$bbcode = self::prepareBody($bbcode);
@@ -47,16 +49,28 @@ class NPF
 			return [];
 		}
 
+		self::setHeadingSubStyles($doc);
+
 		$element = $doc->getElementsByTagName('body')->item(0);
-		echo $element->ownerDocument->saveHTML($element) . "\n";
+//		echo $element->ownerDocument->saveHTML($element) . "\n";
 
-		$npf        = [];
-		$text       = '';
-		$formatting = [];
-
-		self::routeChildren($element, $uri_id, true, [], $npf, $text, $formatting);
+		list($npf, $text, $formatting) = self::routeChildren($element, $uri_id, true, []);
 
 		return self::addLinkBlockForUriId($uri_id, 0, $npf);
+	}
+
+	static function setHeadingSubStyles($doc)
+	{
+		self::$heading_subtype = [];
+		foreach (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as $element) {
+			if ($doc->getElementsByTagName($element)->count() > 0) {
+				if (empty(self::$heading_subtype)) {
+					self::$heading_subtype[$element] = 'heading1';
+				} else {
+					self::$heading_subtype[$element] = 'heading2';
+				}
+			}
+		}
 	}
 
 	static private function prepareBody(string $body): string
@@ -100,10 +114,10 @@ class NPF
 		return trim($body);
 	}
 
-	static private function routeChildren(DOMElement $element, int $uri_id, bool $parse_structure, array $callstack, array &$npf, string &$text, array &$formatting)
+	static private function routeChildren(DOMElement $element, int $uri_id, bool $parse_structure, array $callstack, array $npf = [], string $text = '', array $formatting = []): array
 	{
 		if ($parse_structure && $text) {
-			self::addBlock($text, $formatting, $npf, $callstack);
+			list($npf, $text, $formatting) = self::addBlock($text, $formatting, $npf, $callstack);
 		}
 
 		$callstack[] = $element->nodeName;
@@ -113,21 +127,21 @@ class NPF
 			switch ($child->nodeName) {
 				case 'b':
 				case 'strong':
-					self::addFormatting($child, $uri_id, 'bold', $callstack, $npf, $text, $formatting);
+					list($npf, $text, $formatting) = self::addFormatting($child, $uri_id, 'bold', $callstack, $npf, $text, $formatting);
 					break;
 	
 				case 'i':
 				case 'em':
-					self::addFormatting($child, $uri_id, 'italic', $callstack, $npf, $text, $formatting);
+					list($npf, $text, $formatting) = self::addFormatting($child, $uri_id, 'italic', $callstack, $npf, $text, $formatting);
 					break;
 	
 				case 's':
-					self::addFormatting($child, $uri_id, 'strikethrough', $callstack, $npf, $text, $formatting);
+					list($npf, $text, $formatting) = self::addFormatting($child, $uri_id, 'strikethrough', $callstack, $npf, $text, $formatting);
 					break;
 
 				case 'u':
 				case 'span':
-					self::addFormatting($child, $uri_id, '', $callstack, $npf, $text, $formatting);
+					list($npf, $text, $formatting) = self::addFormatting($child, $uri_id, '', $callstack, $npf, $text, $formatting);
 					break;
 
 				case 'hr':
@@ -148,7 +162,7 @@ class NPF
 
 				case 'a':
 					if ($text) {
-						self::addInlineLink($child, $uri_id, $callstack, $npf, $text, $formatting);
+						list($npf, $text, $formatting) = self::addInlineLink($child, $uri_id, $callstack, $npf, $text, $formatting);
 					} else {
 						$npf = self::addLinkBlock($child, $uri_id, $level, $npf);
 					}
@@ -173,7 +187,7 @@ class NPF
 				case 'ul':
 				case 'li':
 				case 'details':
-					self::routeChildren($child, $uri_id, true, $callstack, $npf, $text, $formatting);
+					list($npf, $text, $formatting) = self::routeChildren($child, $uri_id, true, $callstack, $npf, $text, $formatting);
 					break;
 
 				default:
@@ -184,8 +198,9 @@ class NPF
 		}
 
 		if ($parse_structure && $text) {
-			self::addBlock($text, $formatting, $npf, $callstack);
+			list($npf, $text, $formatting) = self::addBlock($text, $formatting, $npf, $callstack);
 		}
+		return [$npf, $text, $formatting];
 	}
 
 	static private function getLevelByCallstack($callstack): int
@@ -199,7 +214,7 @@ class NPF
 		return max(0, $level - 1);
 	}
 
-	static private function getSubTypeByCallstack($callstack): string
+	static private function getSubTypeByCallstack($callstack, string $text): string
 	{
 		$subtype = '';
 		foreach ($callstack as $entry) {
@@ -213,43 +228,49 @@ class NPF
 					break;
 
 				case 'h1':
-					$subtype = 'heading1';
+					$subtype = self::$heading_subtype[$entry];
 					break;
 	
 				case 'h2':
-					$subtype = 'heading1';
+					$subtype = self::$heading_subtype[$entry];
 					break;
 	
 				case 'h3':
-					$subtype = 'heading1';
+					$subtype = self::$heading_subtype[$entry];
 					break;
 	
 				case 'h4':
-					$subtype = 'heading2';
+					$subtype = self::$heading_subtype[$entry];
 					break;
 	
 				case 'h5':
-					$subtype = 'heading2';
+					$subtype = self::$heading_subtype[$entry];
 					break;
 	
 				case 'h6':
-					$subtype = 'heading2';
+					$subtype = self::$heading_subtype[$entry];
 					break;
 	
-				case 'blockquote':
+				case 'blockquote':					
+					$subtype = strlen($text) < 100 ? 'quote' : 'indented';
+					break;
+
 				case 'pre':
-				case 'code':
 					$subtype = 'indented';
+					break;
+
+				case 'code':
+					$subtype = 'chat';
 					break;
 			}
 		}
 		return $subtype;
 	}
 
-	static private function addFormatting(DOMElement $element, int $uri_id, string $type, array $callstack, array &$npf, string &$text, array &$formatting)
+	static private function addFormatting(DOMElement $element, int $uri_id, string $type, array $callstack, array $npf, string $text, array $formatting): array
 	{
 		$start = mb_strlen($text);
-		self::routeChildren($element, $uri_id, false, $callstack, $npf, $text, $formatting);
+		list($npf, $text, $formatting) = self::routeChildren($element, $uri_id, false, $callstack, $npf, $text, $formatting);
 
 		if (!empty($type)) {
 			$formatting[] = [
@@ -258,12 +279,13 @@ class NPF
 				'type'  => $type
 			];
 		}
+		return [$npf, $text, $formatting];
 	}
 
-	static private function addInlineLink(DOMElement $element, int $uri_id, array $callstack, array &$npf, string &$text, array &$formatting)
+	static private function addInlineLink(DOMElement $element, int $uri_id, array $callstack, array $npf, string $text, array $formatting): array
 	{
 		$start = mb_strlen($text);
-		self::routeChildren($element, $uri_id, false, $callstack, $npf, $text, $formatting);
+		list($npf, $text, $formatting) = self::routeChildren($element, $uri_id, false, $callstack, $npf, $text, $formatting);
 
 		$attributes = [];
 		foreach ($element->attributes as $key => $attribute) {
@@ -277,13 +299,14 @@ class NPF
 				'url'   => $attributes['href']
 			];
 		}
+		return [$npf, $text, $formatting];
 	}
 
-	static private function addBlock(string &$text, array &$formatting, array &$npf, array $callstack)
+	static private function addBlock(string $text, array $formatting, array $npf, array $callstack): array
 	{
 		$block = [
-			'callstack' => $callstack,
 			'type'      => 'text',
+			'subtype'   => '',
 			'text'      => $text,
 		];
 
@@ -296,14 +319,17 @@ class NPF
 			$block['indent_level'] = $level;
 		}
 
-		$subtype = self::getSubTypeByCallstack($callstack);
+		$subtype = self::getSubTypeByCallstack($callstack, $text);
 		if ($subtype) {
 			$block['subtype'] = $subtype;
+		} else {
+			unset($block['subtype']);
 		}
 
 		$npf[] = $block;
 		$text = '';
 		$formatting = [];
+		return [$npf, $text, $formatting];
 	}
 
 	static private function addPoster(array $media, array $block): array
