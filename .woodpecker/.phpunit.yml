@@ -80,7 +80,7 @@ pipeline:
       repo:
         - friendica/friendica
     commands:
-      - codecov -B ${CI_COMMIT_BRANCH} -C ${CI_COMMIT_SHA} -P ${CI_COMMIT_PULL_REQUEST} -b ${CI_PIPELINE_NUMBER} -Z -f 'clover.xml'
+      - codecov -R '.' -Z -f 'clover.xml'
     secrets:
       - source: codecov-token
         target: codecov_token
