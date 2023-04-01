@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9e005c79c8556215c30a66c470659eb",
+    "content-hash": "456d14e3ad9be265c5c9e6172a0d18d8",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -6474,6 +6474,7 @@
         "ext-libxml": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
+        "ext-posix": "*",
         "ext-simplexml": "*",
         "ext-xml": "*"
     },
