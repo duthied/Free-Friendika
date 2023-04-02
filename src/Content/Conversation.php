@@ -263,22 +263,22 @@ class Conversation
 
 			switch ($verb) {
 				case 'like':
-					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> like this', $spanatts, $total);
+					$phrase = $this->l10n->tt('<button type="button" %2$s>%1$d person</button> likes this', '<button type="button" %2$s>%1$d people</button> like this', $total, $spanatts);
 					break;
 				case 'dislike':
-					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> don\'t like this', $spanatts, $total);
+					$phrase = $this->l10n->tt('<button type="button" %2$s>%1$d person</button> doesn\'t like this', '<button type="button" %2$s>%1$d peiple</button> don\'t like this', $total, $spanatts);
 					break;
 				case 'attendyes':
-					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> attend', $spanatts, $total);
+					$phrase = $this->l10n->tt('<button type="button" %2$s>%1$d person</button> attends', '<button type="button" %2$s>%1$d people</button> attend', $total, $spanatts);
 					break;
 				case 'attendno':
-					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> don\'t attend', $spanatts, $total);
+					$phrase = $this->l10n->tt('<button type="button" %2$s>%1$d person</button> doesn\'t attend','<button type="button" %2$s>%1$d people</button> don\'t attend', $total, $spanatts);
 					break;
 				case 'attendmaybe':
-					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> attend maybe', $spanatts, $total);
+					$phrase = $this->l10n->tt('<button type="button" %2$s>%1$d person</button> attends maybe', '<button type="button" %2$s>%1$d people</button> attend maybe', $total, $spanatts);
 					break;
 				case 'announce':
-					$phrase = $this->l10n->t('<button type="button" %1$s>%2$d people</button> reshared this', $spanatts, $total);
+					$phrase = $this->l10n->tt('<button type="button" %2$s>%1$d person</button> reshared this', '<button type="button" %2$s>%1$d people</button> reshared this', $total, $spanatts);
 					break;
 			}
 
