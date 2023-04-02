@@ -172,28 +172,9 @@ class NPF
 					$npf = self::addImageBlock($child, $uri_id, $level, $npf);
 					break;
 
-				case 'ol':
-				case 'div':
-				case 'h1':
-				case 'h2':
-				case 'h3':
-				case 'h4':
-				case 'h5':
-				case 'h6':
-				case 'blockquote':
-				case 'p':
-				case 'pre':
-				case 'code':
-				case 'ul':
-				case 'li':
-				case 'details':
+					default:
 					list($npf, $text, $formatting) = self::routeChildren($child, $uri_id, true, $callstack, $npf, $text, $formatting);
 					break;
-
-				default:
-					print_r($npf);
-					print_r($callstack);
-					die($child . "\n");
 			}
 		}
 
@@ -310,9 +291,10 @@ class NPF
 			'text'      => $text,
 		];
 
-		if (!empty($formatting)) {
-			$block['formatting'] = $formatting;
-		}
+		// Deactivated since Tumblr has got issues with it
+		//if (!empty($formatting)) {
+		//	$block['formatting'] = $formatting;
+		//}
 
 		$level = self::getLevelByCallstack($callstack);
 		if ($level > 0) {
@@ -345,7 +327,7 @@ class NPF
 			$poster['height'] = $media['preview-height'];
 		}
 		if (!empty($poster)) {
-			$block['poster'] = $poster;
+			$block['poster'] = [$poster];
 		}
 		return $block;
 	}
