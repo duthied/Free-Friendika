@@ -52,7 +52,6 @@ class NPF
 		self::setHeadingSubStyles($doc);
 
 		$element = $doc->getElementsByTagName('body')->item(0);
-//		echo $element->ownerDocument->saveHTML($element) . "\n";
 
 		list($npf, $text, $formatting) = self::routeChildren($element, $uri_id, true, []);
 
@@ -186,6 +185,9 @@ class NPF
 
 	static private function getLevelByCallstack($callstack): int
 	{
+		// Deactivated, since Tumblr seems to have issues with the indent level
+		return 0;
+
 		$level = 0;
 		foreach ($callstack as $entry) {
 			if (in_array($entry, ['ol', 'ul', 'blockquote'])) {
@@ -489,12 +491,13 @@ class NPF
 			$block = [
 				'type' => 'text',
 				'text' => $element->textContent,
-				'formatting' => [
-					'start' => 0,
-					'end'   => strlen($element->textContent),
-					'type'  => 'link',
-					'url'   => $attributes['href']
-				]
+				// Deactivated, since Tumblr has got issues with the formatting
+				//'formatting' => [
+				//	'start' => 0,
+				//	'end'   => strlen($element->textContent),
+				//	'type'  => 'link',
+				//	'url'   => $attributes['href']
+				//]
 			];
 		}
 
