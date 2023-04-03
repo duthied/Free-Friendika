@@ -39,6 +39,7 @@ use Friendica\Object\Api\Mastodon\Status\FriendicaExtension;
 use Friendica\Object\Api\Mastodon\Status\FriendicaVisibility;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\ACLFormatter;
 use ImagickException;
 use Psr\Log\LoggerInterface;
 
@@ -62,6 +63,8 @@ class Status extends BaseFactory
 	private $mstdnPollFactory;
 	/** @var ContentItem */
 	private $contentItem;
+	/** @var ACLFormatter */
+	private $aclFormatter;
 
 	public function __construct(
 		LoggerInterface $logger,
@@ -73,7 +76,8 @@ class Status extends BaseFactory
 		Attachment $mstdnAttachmentFactory,
 		Error $mstdnErrorFactory,
 		Poll $mstdnPollFactory,
-		ContentItem $contentItem
+		ContentItem $contentItem,
+		ACLFormatter $aclFormatter
 	) {
 		parent::__construct($logger);
 		$this->dba                    = $dba;
@@ -85,6 +89,7 @@ class Status extends BaseFactory
 		$this->mstdnErrorFactory      = $mstdnErrorFactory;
 		$this->mstdnPollFactory       = $mstdnPollFactory;
 		$this->contentItem            = $contentItem;
+		$this->aclFormatter           = $aclFormatter;
 	}
 
 	/**
@@ -169,7 +174,7 @@ class Status extends BaseFactory
 			$count_dislike
 		);
 
-		$origin_like = ($count_like == 0) ? false : Post::exists([
+		$origin_like = $count_like > 0 && Post::exists([
 			'thr-parent-id' => $uriId,
 			'uid'           => $uid,
 			'origin'        => true,
@@ -177,7 +182,7 @@ class Status extends BaseFactory
 			'vid'           => Verb::getID(Activity::LIKE),
 			'deleted'       => false
 		]);
-		$origin_dislike = ($count_dislike == 0) ? false : Post::exists([
+		$origin_dislike = $count_dislike > 0 && Post::exists([
 			'thr-parent-id' => $uriId,
 			'uid'           => $uid,
 			'origin'        => true,
@@ -185,7 +190,7 @@ class Status extends BaseFactory
 			'vid'           => Verb::getID(Activity::DISLIKE),
 			'deleted'       => false
 		]);
-		$origin_announce = ($count_announce == 0) ? false : Post::exists([
+		$origin_announce = $count_announce > 0 && (Post::exists([
 			'thr-parent-id' => $uriId,
 			'uid'           => $uid,
 			'origin'        => true,
@@ -194,16 +199,16 @@ class Status extends BaseFactory
 			'deleted'       => false
 		]) || Post::exists([
 			'quote-uri-id' => $uriId,
-			'uid'           => $uid,
-			'origin'        => true,
-			'body'          => '',
-			'deleted'       => false
-		]);
+			'uid'          => $uid,
+			'origin'       => true,
+			'body'         => '',
+			'deleted'      => false
+		]));
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(
 			$origin_like,
 			$origin_announce,
 			Post\ThreadUser::getIgnored($uriId, $uid),
-			(bool)($item['starred'] && ($item['gravity'] == Item::GRAVITY_PARENT)),
+			$item['starred'] && $item['gravity'] == Item::GRAVITY_PARENT,
 			$item['featured']
 		);
 
@@ -300,9 +305,8 @@ class Status extends BaseFactory
 			$in_reply = [];
 		}
 
-		$aclFormatter = DI::aclFormatter();
 		$delivery_data   = $uid != $item['uid'] ? null : new FriendicaDeliveryData($item['delivery_queue_count'], $item['delivery_queue_done'], $item['delivery_queue_failed']);
-		$visibility_data = $uid != $item['uid'] ? null : new FriendicaVisibility($aclFormatter->expand($item['allow_cid']), $aclFormatter->expand($item['deny_cid']), $aclFormatter->expand($item['allow_gid']), $aclFormatter->expand($item['deny_gid']));
+		$visibility_data = $uid != $item['uid'] ? null : new FriendicaVisibility($this->aclFormatter->expand($item['allow_cid']), $this->aclFormatter->expand($item['deny_cid']), $this->aclFormatter->expand($item['allow_gid']), $this->aclFormatter->expand($item['deny_gid']));
 		$friendica       = new FriendicaExtension($item['title'], $item['changed'], $item['commented'], $item['received'], $counts->dislikes, $origin_dislike, $delivery_data, $visibility_data);
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica, $quote, $poll);

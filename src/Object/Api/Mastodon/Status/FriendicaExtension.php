@@ -62,15 +62,15 @@ class FriendicaExtension extends BaseDataTransferObject
 	/**
 	 * Creates a FriendicaExtension object
 	 *
-	 * @param string $title
-	 * @param string|null $changed_at
-	 * @param string|null $commented_at
-	 * @param string|null $edited_at
-	 * @param string|null $received_at
-	 * @param int $dislikes_count
-	 * @param bool $disliked
-	 * @param FriendicaDeliveryData|null $delivery_data
-	 * @param FriendicaVisibility|null $visibility
+	 * @param string                 $title
+	 * @param ?string                $changed_at
+	 * @param ?string                $commented_at
+	 * @param ?string                $received_at
+	 * @param int                    $dislikes_count
+	 * @param bool                   $disliked
+	 * @param ?FriendicaDeliveryData $delivery_data
+	 * @param ?FriendicaVisibility   $visibility
+	 * @throws \Exception
 	 */
 	public function __construct(
 		string $title,
