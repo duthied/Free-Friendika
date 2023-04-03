@@ -31,6 +31,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Delivery;
@@ -1394,10 +1395,16 @@ class Item
 	 *
 	 * @param integer $uri_id
 	 * @return void
+	 * @throws InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function updateDisplayCache(int $uri_id)
 	{
 		$item = Post::selectFirst(self::DISPLAY_FIELDLIST, ['uri-id' => $uri_id]);
+		if (!$item) {
+			return;
+		}
+
 		self::prepareBody($item, false, false, true);
 	}
 
