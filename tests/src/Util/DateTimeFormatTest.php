@@ -134,7 +134,11 @@ class DateTimeFormatTest extends MockedTest
 			'Double HTML encode' => [
 				'expectedDate' => '2015-05-22T08:48:00+12:00',
 				'dateString' => '2015-05-22T08:48:00&amp;#43;12:00'
-			]
+			],
+			'2023-04-02\T17:22:42+05:30' => [
+				'expectedDate' => '2023-04-02T17:22:42+05:30',
+				'dateString' => '2023-04-02\T17:22:42+05:30'
+			],
 		];
 	}
 
