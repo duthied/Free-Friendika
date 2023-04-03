@@ -31,6 +31,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Delivery;
@@ -1394,10 +1395,16 @@ class Item
 	 *
 	 * @param integer $uri_id
 	 * @return void
+	 * @throws InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function updateDisplayCache(int $uri_id)
 	{
 		$item = Post::selectFirst(self::DISPLAY_FIELDLIST, ['uri-id' => $uri_id]);
+		if (!$item) {
+			return;
+		}
+
 		self::prepareBody($item, false, false, true);
 	}
 
@@ -3042,7 +3049,11 @@ class Item
 		}
 
 		if (!empty($quote_uri_id)) {
-			$item['body'] .= "\n" . DI::contentItem()->createSharedBlockByArray($shared_item);
+			if (isset($shared_item['plink'])) {
+				$item['body'] .= "\n" . DI::contentItem()->createSharedBlockByArray($shared_item);
+			} else {
+				DI::logger()->warning('Missing plink in shared item', ['item' => $item, 'shared' => $shared, 'quote_uri_id' => $quote_uri_id, 'shared_item' => $shared_item]);
+			}
 		}
 
 		if (!empty($shared_item['uri-id'])) {
