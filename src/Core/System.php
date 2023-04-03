@@ -523,19 +523,18 @@ class System
 	 * Checks if a given directory is usable for the system
 	 *
 	 * @param      $directory
-	 * @param bool $check_writable
 	 *
 	 * @return boolean the directory is usable
 	 */
-	private static function isDirectoryUsable($directory, $check_writable = true)
+	private static function isDirectoryUsable(string $directory): bool
 	{
-		if ($directory == '') {
+		if (empty($directory)) {
 			Logger::warning('Directory is empty. This shouldn\'t happen.');
 			return false;
 		}
 
 		if (!file_exists($directory)) {
-			Logger::warning('Path does not exist', ['directory' => $directory, 'user' => static::getUser()]);
+			Logger::info('Path does not exist', ['directory' => $directory, 'user' => static::getUser()]);
 			return false;
 		}
 
@@ -549,7 +548,7 @@ class System
 			return false;
 		}
 
-		if ($check_writable && !is_writable($directory)) {
+		if (!is_writable($directory)) {
 			Logger::warning('Path is not writable', ['directory' => $directory, 'user' => static::getUser()]);
 			return false;
 		}
@@ -601,7 +600,7 @@ class System
 			$new_temppath = $temppath . "/" . DI::baseUrl()->getHost();
 			if (!is_dir($new_temppath)) {
 				/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
-				mkdir($new_temppath);
+				@mkdir($new_temppath);
 			}
 
 			if (self::isDirectoryUsable($new_temppath)) {
