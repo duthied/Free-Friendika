@@ -35,6 +35,7 @@
 		"friendica/json-ld": "^1.0",
 		"geekwright/po": "^2.0",
 		"guzzlehttp/guzzle": "^6.5",
+        "guzzlehttp/oauth-subscriber": "^0.6",
 		"kornrunner/blurhash": "^1.2",
 		"league/html-to-markdown": "^4.8",
 		"level-2/dice": "^4",

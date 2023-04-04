@@ -185,9 +185,6 @@ class NPF
 
 	static private function getLevelByCallstack($callstack): int
 	{
-		// Deactivated, since Tumblr seems to have issues with the indent level
-		return 0;
-
 		$level = 0;
 		foreach ($callstack as $entry) {
 			if (in_array($entry, ['ol', 'ul', 'blockquote'])) {
@@ -235,7 +232,7 @@ class NPF
 					break;
 	
 				case 'blockquote':					
-					$subtype = strlen($text) < 100 ? 'quote' : 'indented';
+					$subtype = mb_strlen($text) < 100 ? 'quote' : 'indented';
 					break;
 
 				case 'pre':
@@ -293,10 +290,9 @@ class NPF
 			'text'      => $text,
 		];
 
-		// Deactivated since Tumblr has got issues with it
-		//if (!empty($formatting)) {
-		//	$block['formatting'] = $formatting;
-		//}
+		if (!empty($formatting)) {
+			$block['formatting'] = $formatting;
+		}
 
 		$level = self::getLevelByCallstack($callstack);
 		if ($level > 0) {
@@ -491,13 +487,14 @@ class NPF
 			$block = [
 				'type' => 'text',
 				'text' => $element->textContent,
-				// Deactivated, since Tumblr has got issues with the formatting
-				//'formatting' => [
-				//	'start' => 0,
-				//	'end'   => strlen($element->textContent),
-				//	'type'  => 'link',
-				//	'url'   => $attributes['href']
-				//]
+				'formatting' => [
+					[
+						'start' => 0,
+						'end'   => mb_strlen($element->textContent),
+						'type'  => 'link',
+						'url'   => $attributes['href']
+					]
+				]
 			];
 		}
 
