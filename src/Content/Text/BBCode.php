@@ -57,6 +57,7 @@ class BBCode
 	const DIASPORA     = 3;
 	const CONNECTORS   = 4;
 	const TWITTER_API  = 5;
+	const NPF          = 6;
 	const OSTATUS      = 7;
 	const TWITTER      = 8;
 	const BACKLINK     = 8;
@@ -1355,7 +1356,9 @@ class BBCode
 
 				/// @todo Have a closer look at the different html modes
 				// Handle attached links or videos
-				if (in_array($simple_html, [self::MASTODON_API, self::TWITTER_API, self::ACTIVITYPUB])) {
+				if ($simple_html == self::NPF) {
+					$text = self::removeAttachment($text);
+				} elseif (in_array($simple_html, [self::MASTODON_API, self::TWITTER_API, self::ACTIVITYPUB])) {
 					$text = self::replaceAttachment($text);
 				} elseif (!in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::CONNECTORS])) {
 					$text = self::replaceAttachment($text, true);
@@ -1605,7 +1608,18 @@ class BBCode
 				// Simplify "video" element
 				$text = preg_replace('(\[video[^\]]*?\ssrc\s?=\s?([^\s\]]+)[^\]]*?\].*?\[/video\])ism', '[video]$1[/video]', $text);
 
-				if ($try_oembed) {
+				if ($simple_html == self::NPF) {
+					$text = preg_replace(
+						"/\[video\](.*?)\[\/video\]/ism",
+						'</p><video src="$1" controls width="100%" height="auto">$1</video><p>',
+						$text
+					);
+					$text = preg_replace(
+						"/\[audio\](.*?)\[\/audio\]/ism",
+						'</p><audio src="$1" controls>$1">$1</audio><p>',
+						$text
+					);
+				} elseif ($try_oembed) {
 					// html5 video and audio
 					$text = preg_replace(
 						"/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4).*?)\[\/video\]/ism",

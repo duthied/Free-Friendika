@@ -34,11 +34,18 @@ class NPF
 {
 	static $heading_subtype = [];
 
+	/**
+	 * Convert BBCode into NPF (Tumblr Neue Post Format)
+	 *
+	 * @param string $bbcode
+	 * @param integer $uri_id
+	 * @return array NPF
+	 */
 	static public function fromBBCode(string $bbcode, int $uri_id): array
 	{
 		$bbcode = self::prepareBody($bbcode);
 
-		$html = BBCode::convert($bbcode, false, BBCode::CONNECTORS);
+		$html = BBCode::convert($bbcode, false, BBCode::NPF);
 		if (empty($html)) {
 			return [];
 		}
@@ -58,7 +65,13 @@ class NPF
 		return self::addLinkBlockForUriId($uri_id, 0, $npf);
 	}
 
-	static function setHeadingSubStyles($doc)
+	/**
+	 * Fetch the heading types
+	 *
+	 * @param DOMDocument $doc
+	 * @return void
+	 */
+	static function setHeadingSubStyles(DOMDocument $doc)
 	{
 		self::$heading_subtype = [];
 		foreach (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as $element) {
@@ -72,47 +85,61 @@ class NPF
 		}
 	}
 
-	static private function prepareBody(string $body): string
+	/**
+	 * Prepare the BBCode for the NPF conversion
+	 *
+	 * @param string $bbcode
+	 * @return string
+	 */
+	static private function prepareBody(string $bbcode): string
 	{
-		$shared = BBCode::fetchShareAttributes($body);
+		$shared = BBCode::fetchShareAttributes($bbcode);
 		if (!empty($shared)) {
-			$body = $shared['shared'];
+			$bbcode = $shared['shared'];
 		}
 
-		$body = BBCode::removeAttachment($body);
+		$bbcode = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $bbcode);
 
-		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
-
-		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $bbcode, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (preg_match('#/photo/.*-[01]\.#ism', $picture[2]) && (preg_match('#/photo/.*-0\.#ism', $picture[1]) || preg_match('#/photos/.*/image/#ism', $picture[1]))) {
-					$body = str_replace($picture[0], "\n\n[img=" . str_replace('-1.', '-0.', $picture[2]) . "]" . $picture[3] . "[/img]\n\n", $body);
+					$bbcode = str_replace($picture[0], "\n\n[img=" . str_replace('-1.', '-0.', $picture[2]) . "]" . $picture[3] . "[/img]\n\n", $bbcode);
 				}
 			}
 		}
 
-		$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", "\n\n[img=$1]$2[/img]\n\n", $body);
+		$bbcode = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", "\n\n[img=$1]$2[/img]\n\n", $bbcode);
 
-		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
+		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $bbcode, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (preg_match('#/photo/.*-[01]\.#ism', $picture[2]) && (preg_match('#/photo/.*-0\.#ism', $picture[1]) || preg_match('#/photos/.*/image/#ism', $picture[1]))) {
-					$body = str_replace($picture[0], "\n\n[img]" . str_replace('-1.', '-0.', $picture[2]) . "[/img]\n\n", $body);
+					$bbcode = str_replace($picture[0], "\n\n[img]" . str_replace('-1.', '-0.', $picture[2]) . "[/img]\n\n", $bbcode);
 				}
 			}
 		}
 
-		$body = preg_replace("/\[img\](.*?)\[\/img\]/ism", "\n\n[img]$1[/img]\n\n", $body);
-		$body = preg_replace("/\[audio\](.*?)\[\/audio\]/ism", "\n\n[audio]$1[/audio]\n\n", $body);
-		$body = preg_replace("/\[video\](.*?)\[\/video\]/ism", "\n\n[video]$1[/video]\n\n", $body);
+		$bbcode = preg_replace("/\[img\](.*?)\[\/img\]/ism", "\n\n[img]$1[/img]\n\n", $bbcode);
 
 		do {
-			$oldbody = $body;
-			$body = str_replace(["\n\n\n"], ["\n\n"], $body);
-		} while ($oldbody != $body);
+			$oldbbcode = $bbcode;
+			$bbcode = str_replace(["\n\n\n"], ["\n\n"], $bbcode);
+		} while ($oldbbcode != $bbcode);
 
-		return trim($body);
+		return trim($bbcode);
 	}
 
+	/**
+	 * Walk recursively through the HTML
+	 *
+	 * @param DOMElement $element
+	 * @param integer $uri_id
+	 * @param boolean $parse_structure
+	 * @param array $callstack
+	 * @param array $npf
+	 * @param string $text
+	 * @param array $formatting
+	 * @return array
+	 */
 	static private function routeChildren(DOMElement $element, int $uri_id, bool $parse_structure, array $callstack, array $npf = [], string $text = '', array $formatting = []): array
 	{
 		if ($parse_structure && $text) {
@@ -160,18 +187,19 @@ class NPF
 					break;
 
 				case 'a':
-					if ($text) {
-						list($npf, $text, $formatting) = self::addInlineLink($child, $uri_id, $callstack, $npf, $text, $formatting);
-					} else {
-						$npf = self::addLinkBlock($child, $uri_id, $level, $npf);
-					}
+					list($npf, $text, $formatting) = self::addInlineLink($child, $uri_id, $callstack, $npf, $text, $formatting);
 					break;
 
 				case 'img':
 					$npf = self::addImageBlock($child, $uri_id, $level, $npf);
 					break;
 
-					default:
+				case 'audio':
+				case 'video':
+					$npf = self::addMediaBlock($child, $uri_id, $level, $npf);
+					break;
+	
+				default:
 					list($npf, $text, $formatting) = self::routeChildren($child, $uri_id, true, $callstack, $npf, $text, $formatting);
 					break;
 			}
@@ -183,7 +211,13 @@ class NPF
 		return [$npf, $text, $formatting];
 	}
 
-	static private function getLevelByCallstack($callstack): int
+	/**
+	 * Return the correct indent level
+	 *
+	 * @param array $callstack
+	 * @return integer
+	 */
+	static private function getLevelByCallstack(array $callstack): int
 	{
 		$level = 0;
 		foreach ($callstack as $entry) {
@@ -194,7 +228,14 @@ class NPF
 		return max(0, $level - 1);
 	}
 
-	static private function getSubTypeByCallstack($callstack, string $text): string
+	/**
+	 * Detect the subtype via the HTML element callstack
+	 *
+	 * @param array $callstack
+	 * @param string $text
+	 * @return string
+	 */
+	static private function getSubTypeByCallstack(array $callstack, string $text): string
 	{
 		$subtype = '';
 		foreach ($callstack as $entry) {
@@ -247,6 +288,18 @@ class NPF
 		return $subtype;
 	}
 
+	/**
+	 * Add formatting for a text block
+	 *
+	 * @param DOMElement $element
+	 * @param integer $uri_id
+	 * @param string $type
+	 * @param array $callstack
+	 * @param array $npf
+	 * @param string $text
+	 * @param array $formatting
+	 * @return array
+	 */
 	static private function addFormatting(DOMElement $element, int $uri_id, string $type, array $callstack, array $npf, string $text, array $formatting): array
 	{
 		$start = mb_strlen($text);
@@ -262,6 +315,17 @@ class NPF
 		return [$npf, $text, $formatting];
 	}
 
+	/**
+	 * Add an inline link for a text block
+	 *
+	 * @param DOMElement $element
+	 * @param integer $uri_id
+	 * @param array $callstack
+	 * @param array $npf
+	 * @param string $text
+	 * @param array $formatting
+	 * @return array
+	 */
 	static private function addInlineLink(DOMElement $element, int $uri_id, array $callstack, array $npf, string $text, array $formatting): array
 	{
 		$start = mb_strlen($text);
@@ -282,6 +346,15 @@ class NPF
 		return [$npf, $text, $formatting];
 	}
 
+	/**
+	 * Add a text block
+	 *
+	 * @param string $text
+	 * @param array $formatting
+	 * @param array $npf
+	 * @param array $callstack
+	 * @return array
+	 */
 	static private function addBlock(string $text, array $formatting, array $npf, array $callstack): array
 	{
 		$block = [
@@ -312,6 +385,13 @@ class NPF
 		return [$npf, $text, $formatting];
 	}
 
+	/**
+	 * Add a block for a preview picture
+	 *
+	 * @param array $media
+	 * @param array $block
+	 * @return array
+	 */
 	static private function addPoster(array $media, array $block): array
 	{
 		$poster = [];
@@ -330,6 +410,14 @@ class NPF
 		return $block;
 	}
 
+	/**
+	 * Add a link block from the HTML attachment of a given post uri-id
+	 *
+	 * @param integer $uri_id
+	 * @param integer $level
+	 * @param array $npf
+	 * @return array
+	 */
 	static private function addLinkBlockForUriId(int $uri_id, int $level, array $npf): array
 	{
 		foreach (Post\Media::getByURIId($uri_id, [Post\Media::HTML]) as $link) {
@@ -380,6 +468,15 @@ class NPF
 		return $npf;
 	}
 
+	/**
+	 * Add an image block
+	 *
+	 * @param DOMElement $element
+	 * @param integer $uri_id
+	 * @param integer $level
+	 * @param array $npf
+	 * @return array
+	 */
 	static private function addImageBlock(DOMElement $element, int $uri_id, int $level, array $npf): array
 	{
 		$attributes = [];
@@ -440,17 +537,26 @@ class NPF
 		return $npf;
 	}
 
-	static private function addLinkBlock(DOMElement $element, int $uri_id, int $level, array $npf): array
+	/**
+	 * Add an audio or video block
+	 *
+	 * @param DOMElement $element
+	 * @param integer $uri_id
+	 * @param integer $level
+	 * @param array $npf
+	 * @return array
+	 */
+	static private function addMediaBlock(DOMElement $element, int $uri_id, int $level, array $npf): array
 	{
 		$attributes = [];
 		foreach ($element->attributes as $key => $attribute) {
 			$attributes[$key] = trim($attribute->value);
 		}
-		if (empty($attributes['href'])) {
+		if (empty($attributes['src'])) {
 			return $npf;
 		}
 
-		$media = Post\Media::getByURL($uri_id, $attributes['href'], [Post\Media::AUDIO, Post\Media::VIDEO]);
+		$media = Post\Media::getByURL($uri_id, $attributes['src'], [Post\Media::AUDIO, Post\Media::VIDEO]);
 		if (!empty($media)) {
 			switch ($media['type']) {
 				case Post\Media::AUDIO:
@@ -492,7 +598,7 @@ class NPF
 						'start' => 0,
 						'end'   => mb_strlen($element->textContent),
 						'type'  => 'link',
-						'url'   => $attributes['href']
+						'url'   => $attributes['src']
 					]
 				]
 			];
