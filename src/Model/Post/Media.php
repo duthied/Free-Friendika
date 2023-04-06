@@ -757,6 +757,17 @@ class Media
 		return DBA::selectToArray('post-media', [], $condition, ['order' => ['id']]);
 	}
 
+	public static function getByURL(int $uri_id, string $url, array $types = [])
+	{
+		$condition = ["`uri-id` = ? AND `url` = ? AND `type` != ?", $uri_id, $url, self::UNKNOWN];
+
+		if (!empty($types)) {
+			$condition = DBA::mergeConditions($condition, ['type' => $types]);
+		}
+
+		return DBA::selectFirst('post-media', [], $condition);
+	}
+
 	/**
 	 * Retrieves the media attachment with the provided media id.
 	 *
