@@ -32,7 +32,7 @@ use Friendica\Model\Post;
  */
 class NPF
 {
-	static $heading_subtype = [];
+	private static $heading_subtype = [];
 
 	/**
 	 * Convert BBCode into NPF (Tumblr Neue Post Format)
@@ -41,7 +41,7 @@ class NPF
 	 * @param integer $uri_id
 	 * @return array NPF
 	 */
-	static public function fromBBCode(string $bbcode, int $uri_id): array
+	public static function fromBBCode(string $bbcode, int $uri_id): array
 	{
 		$bbcode = self::prepareBody($bbcode);
 
@@ -51,6 +51,7 @@ class NPF
 		}
 
 		$doc = new DOMDocument();
+
 		$doc->formatOutput = true;
 		if (!@$doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'))) {
 			return [];
@@ -71,7 +72,7 @@ class NPF
 	 * @param DOMDocument $doc
 	 * @return void
 	 */
-	static function setHeadingSubStyles(DOMDocument $doc)
+	private static function setHeadingSubStyles(DOMDocument $doc)
 	{
 		self::$heading_subtype = [];
 		foreach (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as $element) {
@@ -91,7 +92,7 @@ class NPF
 	 * @param string $bbcode
 	 * @return string
 	 */
-	static private function prepareBody(string $bbcode): string
+	private static function prepareBody(string $bbcode): string
 	{
 		$shared = BBCode::fetchShareAttributes($bbcode);
 		if (!empty($shared)) {
@@ -122,7 +123,7 @@ class NPF
 
 		do {
 			$oldbbcode = $bbcode;
-			$bbcode = str_replace(["\n\n\n"], ["\n\n"], $bbcode);
+			$bbcode    = str_replace(["\n\n\n"], ["\n\n"], $bbcode);
 		} while ($oldbbcode != $bbcode);
 
 		return trim($bbcode);
@@ -140,14 +141,14 @@ class NPF
 	 * @param array $formatting
 	 * @return array
 	 */
-	static private function routeChildren(DOMElement $element, int $uri_id, bool $parse_structure, array $callstack, array $npf = [], string $text = '', array $formatting = []): array
+	private static function routeChildren(DOMElement $element, int $uri_id, bool $parse_structure, array $callstack, array $npf = [], string $text = '', array $formatting = []): array
 	{
 		if ($parse_structure && $text) {
 			list($npf, $text, $formatting) = self::addBlock($text, $formatting, $npf, $callstack);
 		}
 
 		$callstack[] = $element->nodeName;
-		$level = self::getLevelByCallstack($callstack);
+		$level       = self::getLevelByCallstack($callstack);
 
 		foreach ($element->childNodes as $child) {
 			switch ($child->nodeName) {
@@ -155,12 +156,12 @@ class NPF
 				case 'strong':
 					list($npf, $text, $formatting) = self::addFormatting($child, $uri_id, 'bold', $callstack, $npf, $text, $formatting);
 					break;
-	
+
 				case 'i':
 				case 'em':
 					list($npf, $text, $formatting) = self::addFormatting($child, $uri_id, 'italic', $callstack, $npf, $text, $formatting);
 					break;
-	
+
 				case 's':
 					list($npf, $text, $formatting) = self::addFormatting($child, $uri_id, 'strikethrough', $callstack, $npf, $text, $formatting);
 					break;
@@ -176,7 +177,7 @@ class NPF
 						$text .= "\n";
 					}
 					break;
-		
+
 				case '#text':
 					$text .= $child->textContent;
 					break;
@@ -198,7 +199,7 @@ class NPF
 				case 'video':
 					$npf = self::addMediaBlock($child, $uri_id, $level, $npf);
 					break;
-	
+
 				default:
 					list($npf, $text, $formatting) = self::routeChildren($child, $uri_id, true, $callstack, $npf, $text, $formatting);
 					break;
@@ -217,7 +218,7 @@ class NPF
 	 * @param array $callstack
 	 * @return integer
 	 */
-	static private function getLevelByCallstack(array $callstack): int
+	private static function getLevelByCallstack(array $callstack): int
 	{
 		$level = 0;
 		foreach ($callstack as $entry) {
@@ -235,7 +236,7 @@ class NPF
 	 * @param string $text
 	 * @return string
 	 */
-	static private function getSubTypeByCallstack(array $callstack, string $text): string
+	private static function getSubTypeByCallstack(array $callstack, string $text): string
 	{
 		$subtype = '';
 		foreach ($callstack as $entry) {
@@ -251,28 +252,28 @@ class NPF
 				case 'h1':
 					$subtype = self::$heading_subtype[$entry];
 					break;
-	
+
 				case 'h2':
 					$subtype = self::$heading_subtype[$entry];
 					break;
-	
+
 				case 'h3':
 					$subtype = self::$heading_subtype[$entry];
 					break;
-	
+
 				case 'h4':
 					$subtype = self::$heading_subtype[$entry];
 					break;
-	
+
 				case 'h5':
 					$subtype = self::$heading_subtype[$entry];
 					break;
-	
+
 				case 'h6':
 					$subtype = self::$heading_subtype[$entry];
 					break;
-	
-				case 'blockquote':					
+
+				case 'blockquote':
 					$subtype = mb_strlen($text) < 100 ? 'quote' : 'indented';
 					break;
 
@@ -300,9 +301,10 @@ class NPF
 	 * @param array $formatting
 	 * @return array
 	 */
-	static private function addFormatting(DOMElement $element, int $uri_id, string $type, array $callstack, array $npf, string $text, array $formatting): array
+	private static function addFormatting(DOMElement $element, int $uri_id, string $type, array $callstack, array $npf, string $text, array $formatting): array
 	{
 		$start = mb_strlen($text);
+
 		list($npf, $text, $formatting) = self::routeChildren($element, $uri_id, false, $callstack, $npf, $text, $formatting);
 
 		if (!empty($type)) {
@@ -326,9 +328,10 @@ class NPF
 	 * @param array $formatting
 	 * @return array
 	 */
-	static private function addInlineLink(DOMElement $element, int $uri_id, array $callstack, array $npf, string $text, array $formatting): array
+	private static function addInlineLink(DOMElement $element, int $uri_id, array $callstack, array $npf, string $text, array $formatting): array
 	{
 		$start = mb_strlen($text);
+
 		list($npf, $text, $formatting) = self::routeChildren($element, $uri_id, false, $callstack, $npf, $text, $formatting);
 
 		$attributes = [];
@@ -355,12 +358,12 @@ class NPF
 	 * @param array $callstack
 	 * @return array
 	 */
-	static private function addBlock(string $text, array $formatting, array $npf, array $callstack): array
+	private static function addBlock(string $text, array $formatting, array $npf, array $callstack): array
 	{
 		$block = [
-			'type'      => 'text',
-			'subtype'   => '',
-			'text'      => $text,
+			'type'     => 'text',
+			'subtype'  => '',
+			'text'     => $text,
 		];
 
 		if (!empty($formatting)) {
@@ -380,9 +383,7 @@ class NPF
 		}
 
 		$npf[] = $block;
-		$text = '';
-		$formatting = [];
-		return [$npf, $text, $formatting];
+		return [$npf, '', []];
 	}
 
 	/**
@@ -392,7 +393,7 @@ class NPF
 	 * @param array $block
 	 * @return array
 	 */
-	static private function addPoster(array $media, array $block): array
+	private static function addPoster(array $media, array $block): array
 	{
 		$poster = [];
 		if (!empty($media['preview'])) {
@@ -418,7 +419,7 @@ class NPF
 	 * @param array $npf
 	 * @return array
 	 */
-	static private function addLinkBlockForUriId(int $uri_id, int $level, array $npf): array
+	private static function addLinkBlockForUriId(int $uri_id, int $level, array $npf): array
 	{
 		foreach (Post\Media::getByURIId($uri_id, [Post\Media::HTML]) as $link) {
 			$host = parse_url($link['url'], PHP_URL_HOST);
@@ -477,7 +478,7 @@ class NPF
 	 * @param array $npf
 	 * @return array
 	 */
-	static private function addImageBlock(DOMElement $element, int $uri_id, int $level, array $npf): array
+	private static function addImageBlock(DOMElement $element, int $uri_id, int $level, array $npf): array
 	{
 		$attributes = [];
 		foreach ($element->attributes as $key => $attribute) {
@@ -546,7 +547,7 @@ class NPF
 	 * @param array $npf
 	 * @return array
 	 */
-	static private function addMediaBlock(DOMElement $element, int $uri_id, int $level, array $npf): array
+	private static function addMediaBlock(DOMElement $element, int $uri_id, int $level, array $npf): array
 	{
 		$attributes = [];
 		foreach ($element->attributes as $key => $attribute) {
@@ -561,7 +562,7 @@ class NPF
 			switch ($media['type']) {
 				case Post\Media::AUDIO:
 					$block = [
-						'type' => 'audio',
+						'type'  => 'audio',
 						'media' => [
 							'type' => $media['mimetype'],
 							'url'  => $media['url'],
@@ -579,7 +580,7 @@ class NPF
 
 				case Post\Media::VIDEO:
 					$block = [
-						'type' => 'video',
+						'type'  => 'video',
 						'media' => [
 							'type' => $media['mimetype'],
 							'url'  => $media['url'],
@@ -591,8 +592,8 @@ class NPF
 			}
 		} else {
 			$block = [
-				'type' => 'text',
-				'text' => $element->textContent,
+				'type'       => 'text',
+				'text'       => $element->textContent,
 				'formatting' => [
 					[
 						'start' => 0,
