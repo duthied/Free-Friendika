@@ -361,9 +361,9 @@ class NPF
 	private static function addBlock(string $text, array $formatting, array $npf, array $callstack): array
 	{
 		$block = [
-			'type'     => 'text',
-			'subtype'  => '',
-			'text'     => $text,
+			'type'    => 'text',
+			'subtype' => '',
+			'text'    => $text,
 		];
 
 		if (!empty($formatting)) {
