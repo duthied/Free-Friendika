@@ -630,7 +630,7 @@ class Receiver
 			$object_data['object_activity']	= $activity;
 		}
 
-		if (($type == 'as:Create') && $trust_source) {
+		if (($type == 'as:Create') && $trust_source && !in_array($completion, [self::COMPLETION_MANUAL, self::COMPLETION_ANNOUNCE])) {
 			if (self::hasArrived($object_data['object_id'])) {
 				Logger::info('The activity already arrived.', ['id' => $object_data['object_id']]);
 				return true;
@@ -641,6 +641,8 @@ class Receiver
 				Logger::info('The activity is already added.', ['id' => $object_data['object_id']]);
 				return true;
 			}
+		} elseif (($type == 'as:Create') && $trust_source && !self::hasArrived($object_data['object_id'])) {
+			self::addArrivedId($object_data['object_id']);
 		}
 
 		$decouple = DI::config()->get('system', 'decoupled_receiver') && !in_array($completion, [self::COMPLETION_MANUAL, self::COMPLETION_ANNOUNCE]);
