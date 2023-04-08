@@ -840,6 +840,9 @@ class Processor
 			if ($id) {
 				$shared_item = Post::selectFirst(['uri-id'], ['id' => $id]);
 				$item['quote-uri-id'] = $shared_item['uri-id'];
+			} elseif ($uri_id = ItemURI::getIdByURI($activity['quote-url'], false)) {
+				Logger::info('Quote was not fetched but the uri-id existed', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'quote' => $activity['quote-url'], 'uri-id' => $uri_id]);
+				$item['quote-uri-id'] = $uri_id;
 			} else {
 				Logger::info('Quote was not fetched', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'quote' => $activity['quote-url']]);
 			}
