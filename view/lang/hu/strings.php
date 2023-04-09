@@ -6,12 +6,12 @@ function string_plural_select_hu($n){
 	return intval($n != 1);
 }}
 $a->strings['Unable to locate original post.'] = 'Nem lehet megtalálni az eredeti bejegyzést.';
-$a->strings['Permission denied.'] = 'Hozzáférés megtagadva.';
-$a->strings['Empty post discarded.'] = 'Az üres bejegyzés elvetve.';
 $a->strings['Post updated.'] = 'Bejegyzés frissítve.';
 $a->strings['Item wasn\'t stored.'] = 'Az elem nem lett eltárolva.';
 $a->strings['Item couldn\'t be fetched.'] = 'Az elemet nem sikerült lekérni.';
+$a->strings['Empty post discarded.'] = 'Az üres bejegyzés elvetve.';
 $a->strings['Item not found.'] = 'Az elem nem található.';
+$a->strings['Permission denied.'] = 'Hozzáférés megtagadva.';
 $a->strings['No valid account found.'] = 'Nem található érvényes fiók.';
 $a->strings['Password reset request issued. Check your email.'] = 'A jelszó-visszaállítási kérés el lett küldve. Nézze meg a leveleit.';
 $a->strings['
@@ -290,17 +290,11 @@ $a->strings['%s attends maybe.'] = '%s talán részt vesz.';
 $a->strings['%s reshared this.'] = '%s újra megosztotta ezt.';
 $a->strings['and'] = 'és';
 $a->strings['and %d other people'] = 'és %d más személy';
-$a->strings['<span  %1$s>%2$d people</span> like this'] = '<span  %1$s>%2$d személy</span> kedveli ezt';
 $a->strings['%s like this.'] = '%s kedveli ezt.';
-$a->strings['<span  %1$s>%2$d people</span> don\'t like this'] = '<span  %1$s>%2$d személy</span> nem kedveli ezt';
 $a->strings['%s don\'t like this.'] = '%s nem kedveli ezt.';
-$a->strings['<span  %1$s>%2$d people</span> attend'] = '<span  %1$s>%2$d személy</span> részt vesz';
 $a->strings['%s attend.'] = '%s részt vesz.';
-$a->strings['<span  %1$s>%2$d people</span> don\'t attend'] = '<span  %1$s>%2$d személy</span> nem vesz részt';
 $a->strings['%s don\'t attend.'] = '%s nem vesz részt.';
-$a->strings['<span  %1$s>%2$d people</span> attend maybe'] = '<span  %1$s>%2$d személy</span> talán részt vesz';
 $a->strings['%s attend maybe.'] = '%s talán részt vesz.';
-$a->strings['<span  %1$s>%2$d people</span> reshared this'] = '<span %1$s>%2$d személy</span> újra megosztotta ezt';
 $a->strings['Visible to <strong>everybody</strong>'] = 'Látható <strong>mindenkinek</strong>';
 $a->strings['Please enter a image/video/audio/webpage URL:'] = 'Írjon be egy kép, videó, hang vagy weboldal URL-t:';
 $a->strings['Tag term:'] = 'Címkézési kifejezés:';
@@ -411,8 +405,6 @@ $a->strings['Logout'] = 'Kijelentkezés';
 $a->strings['End this session'] = 'Munkamenet befejezése';
 $a->strings['Login'] = 'Bejelentkezés';
 $a->strings['Sign in'] = 'Bejelentkezés';
-$a->strings['Status'] = 'Állapot';
-$a->strings['Your posts and conversations'] = 'Az Ön bejegyzései és beszélgetései';
 $a->strings['Profile'] = 'Profil';
 $a->strings['Your profile page'] = 'Az Ön profiloldala';
 $a->strings['Photos'] = 'Fényképek';
@@ -446,6 +438,7 @@ $a->strings['Terms of Service'] = 'Használati feltételek';
 $a->strings['Terms of Service of this Friendica instance'] = 'Ezen Friendica példány használati feltételei';
 $a->strings['Network'] = 'Hálózat';
 $a->strings['Conversations from your friends'] = 'Ismerősökkel való beszélgetések';
+$a->strings['Your posts and conversations'] = 'Az Ön bejegyzései és beszélgetései';
 $a->strings['Introductions'] = 'Bemutatkozások';
 $a->strings['Friend Requests'] = 'Ismerőskérések';
 $a->strings['Notifications'] = 'Értesítések';
@@ -548,6 +541,7 @@ $a->strings['Public'] = 'Nyilvános';
 $a->strings['This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'] = 'Ez a tartalom meg fog jelenni az összes követőjének, és látható lesz a közösségi oldalakon, valamint bárki számára a hivatkozásával.';
 $a->strings['Limited/Private'] = 'Korlátozott vagy személyes';
 $a->strings['This content will be shown only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.'] = 'Ez a tartalom csak az első mezőben lévő embereknek fog megjelenni, kivéve a második mezőben említett embereknek. Nem jelenik meg sehol sem nyilvánosan.';
+$a->strings['Start typing the name of a contact or a group to show a filtered list. You can also mention the special groups "Followers" and "Mutuals".'] = 'Kezdje el gépelni egy partner vagy csoport nevét egy szűrt lista megjelenítéséhez. Megemlítheti a „Követők” és a „Kölcsönösen ismerősök” különleges csoportokat is.';
 $a->strings['Show to:'] = 'Megjelenítés nekik:';
 $a->strings['Except to:'] = 'Kivéve nekik:';
 $a->strings['CC: email addresses'] = 'Másolat: e-mail-címek';
@@ -823,7 +817,6 @@ $a->strings['Password can\'t be empty'] = 'A jelszó nem lehet üres';
 $a->strings['Empty passwords are not allowed.'] = 'Az üres jelszavak nem megengedettek.';
 $a->strings['The new password has been exposed in a public data dump, please choose another.'] = 'Az új jelszót közzétették egy nyilvános adattárban. Válasszon egy másikat.';
 $a->strings['The password length is limited to 72 characters.'] = 'A jelszó hossza 72 karakterre van korlátozva.';
-$a->strings['The password can\'t contain accentuated letters, white spaces or colons (:)'] = 'A jelszó nem tartalmazhat ékezetes betűket, üres karaktereket vagy kettőspontot (:)';
 $a->strings['Passwords do not match. Password unchanged.'] = 'A jelszavak nem egyeznek. A jelszó változatlan maradt.';
 $a->strings['An invitation is required.'] = 'Egy meghívás szükséges.';
 $a->strings['Invitation could not be verified.'] = 'A meghívást nem sikerült ellenőrizni.';
@@ -1116,9 +1109,6 @@ $a->strings['Multi user instance'] = 'Többfelhasználós példány';
 $a->strings['Closed'] = 'Lezárva';
 $a->strings['Requires approval'] = 'Jóváhagyást igényel';
 $a->strings['Open'] = 'Nyitott';
-$a->strings['No SSL policy, links will track page SSL state'] = 'Nincs SSL irányelv, a hivatkozások követik az oldal SSL állapotát';
-$a->strings['Force all links to use SSL'] = 'Az összes hivatkozás kényszerítése SSL használatára';
-$a->strings['Self-signed certificate, use SSL for local links only (discouraged)'] = 'Önaláírt tanúsítvány, SSL használata csak helyi hivatkozásoknál (nem ajánlott)';
 $a->strings['Don\'t check'] = 'Ne ellenőrizze';
 $a->strings['check the stable version'] = 'a stabil verzió ellenőrzése';
 $a->strings['check the development version'] = 'a fejlesztői verzió ellenőrzése';
@@ -1160,8 +1150,6 @@ $a->strings['System theme'] = 'Rendszer témája';
 $a->strings['Default system theme - may be over-ridden by user profiles - <a href="%s" id="cnftheme">Change default theme settings</a>'] = 'Alapértelmezett rendszertéma – a felhasználói profilok felülbírálhatják – <a href="%s" id="cnftheme">alapértelmezett témabeállítások megváltoztatása</a>.';
 $a->strings['Mobile system theme'] = 'Mobilrendszer témája';
 $a->strings['Theme for mobile devices'] = 'Téma a mobil eszközökhöz.';
-$a->strings['SSL link policy'] = 'SSL-hivatkozás irányelve';
-$a->strings['Determines whether generated links should be forced to use SSL'] = 'Meghatározza, hogy az előállított hivatkozásokat kényszeríteni kell-e SSL használatára.';
 $a->strings['Force SSL'] = 'SSL kényszerítése';
 $a->strings['Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.'] = 'Az összes nem SSL kérés SSL-re kényszerítése – Figyelem: néhány rendszeren végtelen hurkokat eredményezhet.';
 $a->strings['Show help entry from navigation menu'] = 'Súgó bejegyzés megjelenítése a navigációs menüből';
@@ -1169,6 +1157,11 @@ $a->strings['Displays the menu entry for the Help pages from the navigation menu
 $a->strings['Single user instance'] = 'Egyfelhasználós példány';
 $a->strings['Make this instance multi-user or single-user for the named user'] = 'Többfelhasználóssá vagy a megnevezett felhasználó számára egyfelhasználóssá teszi ezt a rendszert.';
 $a->strings['Maximum image size'] = 'Legnagyobb képméret';
+$a->strings['Maximum size in bytes of uploaded images. Default is 0, which means no limits. You can put k, m, or g behind the desired value for KiB, MiB, GiB, respectively.
+													The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit.
+													Currently <code>upload_max_filesize</code> is set to %s (%s byte)'] = 'A feltöltött képek legnagyobb mérete bájtban. Alapértelmezetten 0, ami azt jelenti, hogy nincs korlátozás. A kívánt érték mögé k, m vagy g értékeket is írhat a KiB, MiB, GiB értékhez, ebben a sorrendben.
+													A <code>PHP.ini</code> fájlban lévő <code>upload_max_filesize</code> értékét be kell állítani legalább a kívánt korlátra.
+													Jelenleg az <code>upload_max_filesize</code> %s (%s bájt) értékre van állítva.';
 $a->strings['Maximum image length'] = 'Legnagyobb képhossz';
 $a->strings['Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.'] = 'A feltöltött képek leghosszabb oldalának legnagyobb hossza képpontban. Alapértelmezetten -1, ami azt jelenti, hogy nincs korlát.';
 $a->strings['JPEG image quality'] = 'JPEG-képek minősége';
@@ -1354,8 +1347,6 @@ $a->strings['The Terms of Service'] = 'A használati feltételek';
 $a->strings['Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.'] = 'Itt adja meg a csomópontja használati feltételeit. Használhat BBCode formázást is. A szakaszok címeinek [h2] vagy az alattiaknak kell lenniük.';
 $a->strings['The rules'] = 'A szabályok';
 $a->strings['Enter your system rules here. Each line represents one rule.'] = 'Itt adja meg a rendszer szabályait. Minden sor egy szabályt jelent.';
-$a->strings['API endpoint %s %s is not implemented'] = 'A(z) %s %s API-végpont nincs megvalósítva';
-$a->strings['The API endpoint is currently not implemented but might be in the future.'] = 'Az API-végpont jelenleg nincs megvalósítva, de ez változhat a jövőben.';
 $a->strings['Missing parameters'] = 'Hiányzó paraméterek';
 $a->strings['Only starting posts can be bookmarked'] = 'Csak a kezdeti bejegyzéseket lehet könyvjelzőzni';
 $a->strings['Only starting posts can be muted'] = 'Csak a kezdeti bejegyzéseket lehet némítani';
@@ -1405,7 +1396,6 @@ $a->strings['Server Blocklist'] = 'Kiszolgáló-tiltólista';
 $a->strings['Delete Item'] = 'Elem törlése';
 $a->strings['Item Source'] = 'Elem forrása';
 $a->strings['Profile Details'] = 'Profil részletei';
-$a->strings['Status Messages and Posts'] = 'Állapotüzenetek és bejegyzések';
 $a->strings['Only You Can See This'] = 'Csak Ön láthatja ezt';
 $a->strings['Scheduled Posts'] = 'Ütemezett bejegyzések';
 $a->strings['Posts that are scheduled for publishing'] = 'Bejegyzések, amelyek közzétételre vannak üzemezve';
@@ -1561,10 +1551,10 @@ $a->strings['View conversations'] = 'Beszélgetések megtekintése';
 $a->strings['Last update:'] = 'Utolsó frissítés:';
 $a->strings['Update public posts'] = 'Nyilvános bejegyzések frissítése';
 $a->strings['Update now'] = 'Frissítés most';
+$a->strings['Awaiting connection acknowledge'] = 'Várakozás a kapcsolat nyugtázására';
 $a->strings['Currently blocked'] = 'Jelenleg tiltva';
 $a->strings['Currently ignored'] = 'Jelenleg mellőzve';
 $a->strings['Currently archived'] = 'Jelenleg archiválva';
-$a->strings['Awaiting connection acknowledge'] = 'Várakozás a kapcsolat nyugtázására';
 $a->strings['Hide this contact from others'] = 'A partner elrejtése mások elől';
 $a->strings['Replies/likes to your public posts <strong>may</strong> still be visible'] = 'A nyilvános bejegyzéseire adott válaszok vagy kedvelések továbbra is láthatóak <strong>lehetnek</strong>.';
 $a->strings['Notification for new posts'] = 'Értesítés új bejegyzéseknél';
@@ -1572,6 +1562,7 @@ $a->strings['Send a notification of every new post of this contact'] = 'Értesí
 $a->strings['Keyword Deny List'] = 'Kulcsszavas tiltólista';
 $a->strings['Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected'] = 'Kulcsszavak vesszővel elválasztott listája, amelyeket nem szabad kettős keresztes címkékké átalakítani, ha az „Információk és kulcsszavak lekérése” ki van jelölve.';
 $a->strings['Actions'] = 'Műveletek';
+$a->strings['Status'] = 'Állapot';
 $a->strings['Mirror postings from this contact'] = 'Beküldés tükrözése ettől a partnertől';
 $a->strings['Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'] = 'A partner megjelölése távoli önmagaként. Ezt azt fogja okozni, hogy a Friendica újraküldi az ettől a partnertől származó új bejegyzéseket.';
 $a->strings['Refetch contact data'] = 'Partneradatok ismételt lekérése';
@@ -1743,12 +1734,8 @@ $a->strings['OK'] = 'Rendben';
 $a->strings['Next'] = 'Következő';
 $a->strings['Check again'] = 'Ellenőrzés újra';
 $a->strings['Base settings'] = 'Alapvető beállítások';
-$a->strings['Host name'] = 'Gépnév';
-$a->strings['Overwrite this field in case the determinated hostname isn\'t right, otherweise leave it as is.'] = 'Írja felül ezt a mezőt abban az esetben, ha a felismert gépnév nem helyes, egyébként hagyja úgy, ahogy van.';
 $a->strings['Base path to installation'] = 'Alap útvonal a telepítéshez';
 $a->strings['If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.'] = 'Ha a rendszer nem tudja felismerni a helyes útvonalat a telepítéshez, akkor itt adja meg a helyes útvonalat. Ezt a beállítást csak akkor kell megadni, ha korlátozott rendszert és a webgyökérre mutató szimbolikus hivatkozásokat használ.';
-$a->strings['Sub path of the URL'] = 'Az URL alútvonala';
-$a->strings['Overwrite this field in case the sub path determination isn\'t right, otherwise leave it as is. Leaving this field blank means the installation is at the base URL without sub path.'] = 'Írja felül ezt a mezőt abban az esetben, ha az alútvonal felismerése nem helyes, egyébként hagyja úgy, ahogy van. A mező üresen hagyása azt jelenti, hogy a telepítés az alap útvonalon van alútvonal nélkül.';
 $a->strings['Database connection'] = 'Adatbázis-kapcsolat';
 $a->strings['In order to install Friendica we need to know how to connect to your database.'] = 'A Friendica telepítése érdekében tudnunk kell, hogy hogyan kell kapcsolódni az adatbázisához.';
 $a->strings['Please contact your hosting provider or site administrator if you have questions about these settings.'] = 'Vegye fel a kapcsolatot a tárhelyszolgáltatóval vagy az oldal adminisztrátorával, ha kérdései vannak ezekkel a beállításokkal kapcsolatban.';
@@ -1801,21 +1788,6 @@ $a->strings['Location services are unavailable on your device'] = 'A helymeghat�
 $a->strings['Location services are disabled. Please check the website\'s permissions on your device'] = 'A helymeghatározó szolgáltatások le vannak tiltva. Ellenőrizze a weboldal jogosultságait az Ön eszközén';
 $a->strings['You can make this page always open when you use the New Post button in the <a href="/settings/display">Theme Customization settings</a>.'] = 'Mindig megnyitottá teheti ezt az oldalt, ha a <a href="/settings/display">téma személyre szabási beállításaiban</a> lévő új bejegyzés gombot használja.';
 $a->strings['The requested item doesn\'t exist or has been deleted.'] = 'A kért elem nem létezik vagy törölték.';
-$a->strings['Unfortunately, the requested conversation isn\'t available to you.</p>
-<p>Possible reasons include:</p>
-<ul>
-	<li>The top-level post isn\'t visible.</li>
-	<li>The top-level post was deleted.</li>
-	<li>The node has blocked the top-level author or the author of the shared post.</li>
-	<li>You have ignored or blocked the top-level author or the author of the shared post.</li>
-</ul><p>'] = 'Sajnos a kért beszélgetés nem érhető el Önnek.</p>
-<p>A lehetséges okok a következők:</p>
-<ul>
-	<li>A legfelső szintű bejegyzés nem látható.</li>
-	<li>A legfelső szintű bejegyzést törölték.</li>
-	<li>A csomópont letiltotta a legfelső szintű szerzőt vagy a megosztott bejegyzés szerzőjét.</li>
-	<li>Ön mellőzte vagy letiltotta a legfelső szintű szerzőt vagy a megosztott bejegyzés szerzőjét.</li>
-</ul><p>';
 $a->strings['The feed for this item is unavailable.'] = 'Ennek az elemnek a hírforrása nem érhető el.';
 $a->strings['Unable to follow this item.'] = 'Nem lehet követni ezt az elemet.';
 $a->strings['System down for maintenance'] = 'A rendszer le van kapcsolva a karbantartáshoz';
@@ -2087,6 +2059,9 @@ $a->strings['Remove Item Tag'] = 'Elem címkéjének eltávolítása';
 $a->strings['Select a tag to remove: '] = 'Eltávolítandó címke kiválasztása: ';
 $a->strings['Remove'] = 'Eltávolítás';
 $a->strings['No contacts.'] = 'Nincsenek partnerek.';
+$a->strings['%s\'s timeline'] = '%s idővonala';
+$a->strings['%s\'s posts'] = '%s bejegyzései';
+$a->strings['%s\'s comments'] = '%s hozzászólásai';
 $a->strings['Image upload didn\'t complete, please try again'] = 'A kép feltöltése nem fejeződött be, próbálja újra';
 $a->strings['Image file is missing'] = 'A képfájl hiányzik';
 $a->strings['Server can\'t accept new file upload at this time, please contact your administrator'] = 'A kiszolgáló jelenleg nem tud új fájlfeltöltést fogadni, vegye fel a kapcsolatot a rendszergazdával';
@@ -2108,9 +2083,6 @@ $a->strings['Description:'] = 'Leírás:';
 $a->strings['Forums:'] = 'Fórumok:';
 $a->strings['View profile as:'] = 'Profil megtekintése másként:';
 $a->strings['View as'] = 'Megtekintés másként';
-$a->strings['%s\'s timeline'] = '%s idővonala';
-$a->strings['%s\'s posts'] = '%s bejegyzései';
-$a->strings['%s\'s comments'] = '%s hozzászólásai';
 $a->strings['Profile unavailable.'] = 'A profil nem érhető el.';
 $a->strings['Invalid locator'] = 'Érvénytelen kereső';
 $a->strings['The provided profile link doesn\'t seem to be valid'] = 'A megadott profilhivatkozás nem tűnik érvényesnek';
@@ -2197,7 +2169,6 @@ $a->strings['Since version 2022.09, we\'ve realized that any password longer tha
 $a->strings['Update Password'] = 'Jelszó frissítése';
 $a->strings['Current Password:'] = 'Jelenlegi jelszó:';
 $a->strings['Your current password to confirm the changes'] = 'A jelenlegi jelszava a változtatások megerősítéséhez';
-$a->strings['Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'] = 'Az engedélyezett karakterek az a-z, A-Z, 0-9 tartományokban lévők és a különleges karakterek, kivéve az üres karaktereket, ékezetes betűket és a kettőspontot (:).';
 $a->strings['Password length is limited to 72 characters.'] = 'A jelszó hossza 72 karakterre van korlátozva.';
 $a->strings['Remaining recovery codes: %d'] = 'Hátralévő visszaszerzési kódok: %d';
 $a->strings['Invalid code, please retry.'] = 'Érvénytelen kód, próbálja újra.';
@@ -2401,8 +2372,6 @@ $a->strings['Maximum of 100 items'] = 'Legfeljebb 100 elem';
 $a->strings['Number of items to display per page when viewed from mobile device:'] = 'Oldalanként megjelenítendő elemek száma, ha mobil eszközről nézik:';
 $a->strings['Update browser every xx seconds'] = 'Böngésző frissítése N másodpercenként';
 $a->strings['Minimum of 10 seconds. Enter -1 to disable it.'] = 'Legalább 10 másodperc. A -1 beírása letiltja.';
-$a->strings['Automatic updates only at the top of the post stream pages'] = 'Automatikus frissítések csak a bejegyzésfolyam oldalainak tetejénél';
-$a->strings['Auto update may add new posts at the top of the post stream pages, which can affect the scroll position and perturb normal reading if it happens anywhere else the top of the page.'] = 'Az automatikus frissítés új bejegyzéseket adhat a bejegyzésfolyam oldalainak tetejéhez, amely hatással lehet a görgetési pozícióra és megzavarhatja a normál olvasást, ha az oldal tetejének bármely részén történik.';
 $a->strings['Display emoticons'] = 'Hangulatjelek megjelenítése';
 $a->strings['When enabled, emoticons are replaced with matching symbols.'] = 'Ha engedélyezve van, akkor a hangulatjelek ki lesznek cserélve a megfelelő szimbólumokkal.';
 $a->strings['Infinite scroll'] = 'Végtelen görgetés';
@@ -2416,7 +2385,9 @@ $a->strings['Display the first resharer as icon and text on a reshared item.'] =
 $a->strings['Stay local'] = 'Maradjon helyi';
 $a->strings['Don\'t go to a remote system when following a contact link.'] = 'Ne menjen távoli rendszerre, ha egy partnerhivatkozást követ.';
 $a->strings['Link preview mode'] = 'Hivatkozás-előnézeti mód';
+$a->strings['Appearance of the link preview that is added to each post with a link.'] = 'A hivatkozás előnézetének megjelenése, amely minden egyes hivatkozással rendelkező bejegyzéshez hozzá van adva.';
 $a->strings['Beginning of week:'] = 'A hét kezdete:';
+$a->strings['Default calendar view:'] = 'Alapértelmezett naptárnézet:';
 $a->strings['Additional Features'] = 'További funkciók';
 $a->strings['Connected Apps'] = 'Kapcsolt alkalmazások';
 $a->strings['Remove authorization'] = 'Felhatalmazás eltávolítása';
@@ -2780,6 +2751,7 @@ $a->strings['%d comment'] = [
 ];
 $a->strings['Show more'] = 'Több megjelenítése';
 $a->strings['Show fewer'] = 'Kevesebb megjelenítése';
+$a->strings['(no subject)'] = '(nincs tárgy)';
 $a->strings['%s is now following %s.'] = '%s mostantól követi %s partnert.';
 $a->strings['following'] = 'követés';
 $a->strings['%s stopped following %s.'] = '%s leállította %s követését.';
@@ -2810,7 +2782,6 @@ $a->strings['second'] = 'másodperc';
 $a->strings['seconds'] = 'másodperc';
 $a->strings['in %1$d %2$s'] = '%1$d %2$s múlva';
 $a->strings['%1$d %2$s ago'] = '%1$d %2$s óta';
-$a->strings['(no subject)'] = '(nincs tárgy)';
 $a->strings['Notification from Friendica'] = 'Értesítés a Friendicától';
 $a->strings['Empty Post'] = 'Üres bejegyzés';
 $a->strings['default'] = 'alapértelmezett';
