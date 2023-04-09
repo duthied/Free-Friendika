@@ -6,12 +6,12 @@ function string_plural_select_ru($n){
 	if ($n%10==1 && $n%100!=11) { return 0; } else if ($n%10>=2 && $n%10<=4 && ($n%100<12 || $n%100>14)) { return 1; } else if ($n%10==0 || ($n%10>=5 && $n%10<=9) || ($n%100>=11 && $n%100<=14)) { return 2; } else  { return 3; }
 }}
 $a->strings['Unable to locate original post.'] = 'Не удалось найти оригинальную запись.';
-$a->strings['Permission denied.'] = 'Нет разрешения.';
-$a->strings['Empty post discarded.'] = 'Пустое сообщение отбрасывается.';
 $a->strings['Post updated.'] = 'Запись обновлена.';
 $a->strings['Item wasn\'t stored.'] = 'Запись не была сохранена.';
 $a->strings['Item couldn\'t be fetched.'] = 'Не удалось получить запись.';
+$a->strings['Empty post discarded.'] = 'Пустое сообщение отбрасывается.';
 $a->strings['Item not found.'] = 'Пункт не найден.';
+$a->strings['Permission denied.'] = 'Нет разрешения.';
 $a->strings['No valid account found.'] = 'Не найдено действительного аккаунта.';
 $a->strings['Password reset request issued. Check your email.'] = 'Запрос на сброс пароля принят. Проверьте вашу электронную почту.';
 $a->strings['
@@ -199,6 +199,7 @@ $a->strings['No system theme config value set.'] = 'Настройки сист�
 $a->strings['Apologies but the website is unavailable at the moment.'] = 'Приносим извинения, но этот сервис сейчас недоступен.';
 $a->strings['Delete this item?'] = 'Удалить этот элемент?';
 $a->strings['Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'] = 'Заблокировать этого автора? Они не смогут подписаться на вас или видеть ваши записи, вы не будете видеть их записи и получать от них уведомления.';
+$a->strings['Ignore this author? You won\'t be able to see their posts and their notifications.'] = 'Игнорировать этого автора? Вы не увидите их записи и уведомления.';
 $a->strings['toggle mobile'] = 'мобильная версия';
 $a->strings['Method not allowed for this module. Allowed method(s): %s'] = 'Метод не разрешён для этого модуля. Разрешенный метод(ы): %s';
 $a->strings['Page not found.'] = 'Страница не найдена.';
@@ -276,17 +277,17 @@ $a->strings['%s attends maybe.'] = '%s может быть посетит.';
 $a->strings['%s reshared this.'] = '%s поделился этим.';
 $a->strings['and'] = 'и';
 $a->strings['and %d other people'] = 'и еще %d человек';
-$a->strings['<span  %1$s>%2$d people</span> like this'] = '<span %1$s>%2$d людям</span> нравится это';
+$a->strings['<button type="button" %1$s>%2$d people</button> like this'] = '<button type="button" %1$s>%2$d людям</button> нравится это';
 $a->strings['%s like this.'] = '%s нравится это.';
-$a->strings['<span  %1$s>%2$d people</span> don\'t like this'] = '<span %1$s>%2$d людям</span> не нравится это';
+$a->strings['<button type="button" %1$s>%2$d people</button> don\'t like this'] = '<button type="button" %1$s>%2$d людям</button> не нравится это';
 $a->strings['%s don\'t like this.'] = '%s не нравится это';
-$a->strings['<span  %1$s>%2$d people</span> attend'] = '<span  %1$s>%2$d человека</span> посетят';
+$a->strings['<button type="button" %1$s>%2$d people</button> attend'] = '<button type="button" %1$s>%2$d людей</button> посетят';
 $a->strings['%s attend.'] = '%s посетит.';
-$a->strings['<span  %1$s>%2$d people</span> don\'t attend'] = '<span  %1$s>%2$d человек</span> не посетит';
+$a->strings['<button type="button" %1$s>%2$d people</button> don\'t attend'] = '<button type="button" %1$s>%2$d людей</button> не посетят';
 $a->strings['%s don\'t attend.'] = '%s не посетит';
-$a->strings['<span  %1$s>%2$d people</span> attend maybe'] = '<span  %1$s>%2$d человек</span> может быть посетят';
+$a->strings['<button type="button" %1$s>%2$d people</button> attend maybe'] = '<button type="button" %1$s>%2$d людей</button> может быть посетят';
 $a->strings['%s attend maybe.'] = '%s может быть посетит.';
-$a->strings['<span  %1$s>%2$d people</span> reshared this'] = '<span  %1$s>%2$d людей</span> поделились этим';
+$a->strings['<button type="button" %1$s>%2$d people</button> reshared this'] = '<button type="button" %1$s>%2$d людей</button> поделились этим';
 $a->strings['Visible to <strong>everybody</strong>'] = 'Видимое <strong>всем</strong>';
 $a->strings['Please enter a image/video/audio/webpage URL:'] = 'Пожалуйста, введите адрес картинки/видео/аудио/странички:';
 $a->strings['Tag term:'] = 'Тег:';
@@ -317,7 +318,7 @@ $a->strings['Categories (comma-separated list)'] = 'Категории (спис
 $a->strings['Scheduled at'] = 'Запланировано на';
 $a->strings['Permission settings'] = 'Настройки разрешений';
 $a->strings['Public post'] = 'Публичная запись';
-$a->strings['Message'] = 'Сообщение';
+$a->strings['Message'] = 'Личное';
 $a->strings['Browser'] = 'Браузер';
 $a->strings['Open Compose page'] = 'Развернуть редактор';
 $a->strings['Pinned item'] = 'Закреплённая запись';
@@ -387,6 +388,7 @@ $a->strings['View Contact'] = 'Просмотреть контакт';
 $a->strings['Send PM'] = 'Отправить ЛС';
 $a->strings['Block'] = 'Заблокировать';
 $a->strings['Ignore'] = 'Игнорировать';
+$a->strings['Collapse'] = 'Сворачивать';
 $a->strings['Languages'] = 'Языки';
 $a->strings['Connect/Follow'] = 'Подключиться/Подписаться';
 $a->strings['Nothing new here'] = 'Ничего нового здесь';
@@ -397,8 +399,8 @@ $a->strings['Logout'] = 'Выход';
 $a->strings['End this session'] = 'Завершить эту сессию';
 $a->strings['Login'] = 'Вход';
 $a->strings['Sign in'] = 'Вход';
-$a->strings['Status'] = 'Записи';
-$a->strings['Your posts and conversations'] = 'Ваши записи и диалоги';
+$a->strings['Conversations'] = 'Записи';
+$a->strings['Conversations you started'] = 'Ваши записи';
 $a->strings['Profile'] = 'Информация';
 $a->strings['Your profile page'] = 'Информация о вас';
 $a->strings['Photos'] = 'Фото';
@@ -432,6 +434,7 @@ $a->strings['Terms of Service'] = 'Условия оказания услуг';
 $a->strings['Terms of Service of this Friendica instance'] = 'Условия оказания услуг для этого узла Friendica';
 $a->strings['Network'] = 'Новости';
 $a->strings['Conversations from your friends'] = 'Сообщения ваших друзей';
+$a->strings['Your posts and conversations'] = 'Ваши записи и диалоги';
 $a->strings['Introductions'] = 'Запросы';
 $a->strings['Friend Requests'] = 'Запросы на добавление в список друзей';
 $a->strings['Notifications'] = 'Уведомления';
@@ -534,7 +537,7 @@ $a->strings['XMPP:'] = 'XMPP:';
 $a->strings['Matrix:'] = 'Matrix:';
 $a->strings['Location:'] = 'Откуда:';
 $a->strings['Network:'] = 'Сеть:';
-$a->strings['Unfollow'] = 'Отписаться';
+$a->strings['Unfollow'] = 'Отписка';
 $a->strings['Yourself'] = 'Вы';
 $a->strings['Mutuals'] = 'Взаимные';
 $a->strings['Post to Email'] = 'Отправить на Email';
@@ -542,6 +545,7 @@ $a->strings['Public'] = 'Публично';
 $a->strings['This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'] = 'Это будет показано всем вашим подписчикам и так же будет доступно в общей ленте и по прямой ссылке.';
 $a->strings['Limited/Private'] = 'Ограниченный доступ';
 $a->strings['This content will be shown only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.'] = 'Это будет доступно только получателям, перечисленным в первом поле, за исключением тех, кто добавлен во второе поле. Нигде в открытом доступе это не появится.';
+$a->strings['Start typing the name of a contact or a group to show a filtered list. You can also mention the special groups "Followers" and "Mutuals".'] = 'Начните набирать имя контакта или группы для появления списка. Вы так же можете выбрать специальные группы "Подписаны на вас" и "Взаимные".';
 $a->strings['Show to:'] = 'Доступно:';
 $a->strings['Except to:'] = 'За исключением:';
 $a->strings['CC: email addresses'] = 'Копии на email адреса';
@@ -654,6 +658,8 @@ $a->strings['Friendica can\'t display this page at the moment, please contact th
 $a->strings['Storage base path'] = 'Корневой каталог хранилища';
 $a->strings['Folder where uploaded files are saved. For maximum security, This should be a path outside web server folder tree'] = 'Каталог, куда сохраняются загруженные файлы. Для максимальной безопасности этот каталог должен быть размещён вне каталогов веб-сервера.';
 $a->strings['Enter a valid existing folder'] = 'Введите путь к существующему каталогу';
+$a->strings['Updates from version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.'] = 'Обновления для версии %s не поддерживаются. Пожалуйста, обновитесь хотя бы до версии 2021.01 и дождитесь выполнения postupdate до версии 1383.';
+$a->strings['Updates from postupdate version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.'] = 'Обновления для postupdate версии %s не поддерживаются. Пожалуйста, обновитесь хотя бы до версии 2021.01 и дождитесь выполнения postupdate до версии 1383.';
 $a->strings['%s: executing pre update %d'] = '%s: выполняется предварительное обновление %d';
 $a->strings['%s: executing post update %d'] = '%s: выполняется завершение обновления %d';
 $a->strings['Update %s failed. See error logs.'] = 'Обновление %s не удалось. Смотрите журнал ошибок.';
@@ -671,6 +677,7 @@ $a->strings['
 				The friendica database was successfully updated from %s to %s.'] = '
 				База данных Friendica была успешно обновлена с версии %s на %s.';
 $a->strings['The database version had been set to %s.'] = 'Версия базы данных была установлена на %s.';
+$a->strings['The post update is at version %d, it has to be at %d to safely drop the tables.'] = 'Версия postupdate сейчас %d, она должна достигнуть %d для безопасного удаления таблиц.';
 $a->strings['No unused tables found.'] = 'Неиспользуемые таблицы не найдены.';
 $a->strings['These tables are not used for friendica and will be deleted when you execute "dbstructure drop -e":'] = 'Эти таблицы не используются Friendica и будут удалены, когда вы выполните команду "dbstructure drop -e":';
 $a->strings['There are no tables on MyISAM or InnoDB with the Antelope file format.'] = 'В MyISAM или InnoDB нет таблиц в формате Antelope.';
@@ -697,6 +704,7 @@ $a->strings['Disallowed profile URL.'] = 'Запрещенный URL профи�
 $a->strings['Blocked domain'] = 'Заблокированный домен';
 $a->strings['Connect URL missing.'] = 'Connect-URL отсутствует.';
 $a->strings['The contact could not be added. Please check the relevant network credentials in your Settings -> Social Networks page.'] = 'Контакт не может быть добавлен. Пожалуйста проверьте учётные данные на странице Настройки -> Социальные сети.';
+$a->strings['Expected network %s does not match actual network %s'] = 'Ожидаемая сеть %s не соответствует обнаруженной сети %s';
 $a->strings['The profile address specified does not provide adequate information.'] = 'Указанный адрес профиля не дает адекватной информации.';
 $a->strings['No compatible communication protocols or feeds were discovered.'] = 'Обнаружены несовместимые протоколы связи или каналы.';
 $a->strings['An author or name was not found.'] = 'Автор или имя не найдены.';
@@ -742,6 +750,7 @@ $a->strings['Detected languages in this post:\n%s'] = 'Обнаруженные 
 $a->strings['activity'] = 'активность';
 $a->strings['comment'] = 'комментарий';
 $a->strings['post'] = 'пост';
+$a->strings['Content from %s is collapsed'] = 'Запись от %s скрыта';
 $a->strings['Content warning: %s'] = 'Предупреждение о контенте: %s';
 $a->strings['bytes'] = 'байт';
 $a->strings['%2$s (%3$d%%, %1$d vote)'] = [
@@ -814,7 +823,6 @@ $a->strings['Password can\'t be empty'] = 'Пароль не может быть
 $a->strings['Empty passwords are not allowed.'] = 'Пароль не должен быть пустым.';
 $a->strings['The new password has been exposed in a public data dump, please choose another.'] = 'Новый пароль содержится в опубликованных списках украденных паролей, пожалуйста, используйте другой.';
 $a->strings['The password length is limited to 72 characters.'] = 'Длина пароля ограничена 72 символами.';
-$a->strings['The password can\'t contain accentuated letters, white spaces or colons (:)'] = 'Пароль не может содержать символы с акцентами, пробелы или двоеточия (:)';
 $a->strings['Passwords do not match. Password unchanged.'] = 'Пароли не совпадают. Пароль не изменен.';
 $a->strings['An invitation is required.'] = 'Требуется приглашение.';
 $a->strings['Invitation could not be verified.'] = 'Приглашение не может быть проверено.';
@@ -913,11 +921,47 @@ $a->strings['Lock feature %s'] = 'Заблокировать %s';
 $a->strings['Manage Additional Features'] = 'Управление дополнительными возможностями';
 $a->strings['Other'] = 'Другой';
 $a->strings['unknown'] = 'неизвестно';
+$a->strings['%2$s total system'] = [
+	0 => '%2$s система всего',
+	1 => '%2$s системы всего',
+	2 => '%2$s систем всего',
+	3 => '%2$s систем всего',
+];
+$a->strings['%2$s active user last month'] = [
+	0 => '%2$s активный пользователь за месяц',
+	1 => '%2$s активных пользователя за месяц',
+	2 => '%2$s активных пользователей за месяц',
+	3 => '%2$s активных пользователей за месяц',
+];
+$a->strings['%2$s active user last six months'] = [
+	0 => '%2$s активный пользователь за полгода',
+	1 => '%2$s активных пользователя за полгода',
+	2 => '%2$s активных пользователей за полгода',
+	3 => '%2$s активных пользователей за полгода',
+];
+$a->strings['%2$s registered user'] = [
+	0 => '%2$s зарегистрированный пользователь',
+	1 => '%2$s зарегистрированных пользователя',
+	2 => '%2$s зарегистрированных пользователей',
+	3 => '%2$s зарегистрированных пользователей',
+];
 $a->strings['%2$s locally created post or comment'] = [
 	0 => '%2$s местная запись или комментарий',
 	1 => '%2$s местных записей и комментариев',
 	2 => '%2$s местных записей и комментариев',
 	3 => '%2$s местных записей и комментариев',
+];
+$a->strings['%2$s post per user'] = [
+	0 => '%2$s запись на пользователя',
+	1 => '%2$s записи на пользователя',
+	2 => '%2$s записей на пользователя',
+	3 => '%2$s записей на пользователя',
+];
+$a->strings['%2$s user per system'] = [
+	0 => '%2$s пользователь на систему',
+	1 => '%2$s пользователя на систему',
+	2 => '%2$s пользователей на систему',
+	3 => '%2$s пользователей на систему',
 ];
 $a->strings['This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.'] = 'На этой странице вы можете увидеть немного статистики из известной вашему узлу федеративной сети. Эти данные неполные и только отражают ту часть сети, с которой ваш узел взаимодействовал.';
 $a->strings['Federation Statistics'] = 'Статистика федерации';
@@ -938,17 +982,36 @@ $a->strings['Must be writable by web server. Relative to your Friendica top-leve
 $a->strings['Log level'] = 'Уровень лога';
 $a->strings['PHP logging'] = 'PHP логирование';
 $a->strings['To temporarily enable logging of PHP errors and warnings you can prepend the following to the index.php file of your installation. The filename set in the \'error_log\' line is relative to the friendica top-level directory and must be writeable by the web server. The option \'1\' for \'log_errors\' and \'display_errors\' is to enable these options, set to \'0\' to disable them.'] = 'Чтобы временно включить журналирование ошибок и предупреждений PHP, вы можете добавить следующее в файл index.php вашей установки. Имя файла, установленное в \'error_log\', задаётся относительно каталога установки Френдики и у веб-сервера должно быть разрешение на запись в этот файл. Настройка 1\' для \'log_errors\' и \'display_errors\' включает журналирование и отображение ошибок,  \'0\' отключает.';
-$a->strings['View Logs'] = 'Просмотр логов';
+$a->strings['Error trying to open <strong>%1$s</strong> log file.<br/>Check to see if file %1$s exist and is readable.'] = 'Ошибка при открытии файла журнала <strong>%1$s</strong>.<br/>Проверьте, что файл %1$s существует и может быть прочитан веб-сервером.';
+$a->strings['Couldn\'t open <strong>%1$s</strong> log file.<br/>Check to see if file %1$s is readable.'] = 'Не получилось открыть файл журнала <strong>%1$s</strong>. Проверьте, что файл %1$s может быть прочитан веб-сервером.';
+$a->strings['View Logs'] = 'Просмотр журналов';
+$a->strings['Search in logs'] = 'Поиск в журналах событий';
 $a->strings['Show all'] = 'Показать все';
+$a->strings['Date'] = 'Дата';
+$a->strings['Level'] = 'Уровень';
+$a->strings['Context'] = 'Контекст';
+$a->strings['ALL'] = 'ВСЕ';
+$a->strings['View details'] = 'Посмотреть детали';
+$a->strings['Click to view details'] = 'Нажмите для просмотра подробностей';
 $a->strings['Event details'] = 'Сведения о мероприятии';
+$a->strings['Data'] = 'Данные';
+$a->strings['Source'] = 'Источник';
+$a->strings['File'] = 'Файл';
+$a->strings['Line'] = 'Строка';
+$a->strings['Function'] = 'Функция';
+$a->strings['UID'] = 'UID';
+$a->strings['Process ID'] = 'ID процесса';
+$a->strings['Close'] = 'Закрыть';
 $a->strings['Inspect Deferred Worker Queue'] = 'Посмотреть очередь отложенных заданий';
 $a->strings['This page lists the deferred worker jobs. This are jobs that couldn\'t be executed at the first time.'] = 'На этой странице отображаюттся отложенные задания планировщика. Эти задания по какой-то причине не были выполнены с первого раза.';
 $a->strings['Inspect Worker Queue'] = 'Посмотреть очередь заданий';
 $a->strings['This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.'] = 'На этой странице отображаются задания планировщика, которые в настоящий момент стоят в очереди на выполнение. Эти задания запускаются посредством планировщика cron, который вы настроили при установке.';
 $a->strings['ID'] = 'ID';
+$a->strings['Command'] = 'Команда';
 $a->strings['Job Parameters'] = 'Параметры задания';
 $a->strings['Created'] = 'Создано';
 $a->strings['Priority'] = 'Приоритет';
+$a->strings['%s is no valid input for maximum image size'] = '%s недопустимое значение для максимального размера изображений';
 $a->strings['No special theme for mobile devices'] = 'Нет специальной темы для мобильных устройств';
 $a->strings['%s - (Experimental)'] = '%s - (экспериментально)';
 $a->strings['No community page'] = 'Нет общей ленты записей';
@@ -960,9 +1023,6 @@ $a->strings['Multi user instance'] = 'Многопользовательский
 $a->strings['Closed'] = 'Закрыто';
 $a->strings['Requires approval'] = 'Требуется подтверждение';
 $a->strings['Open'] = 'Открыто';
-$a->strings['No SSL policy, links will track page SSL state'] = 'Нет режима SSL, состояние SSL не будет отслеживаться';
-$a->strings['Force all links to use SSL'] = 'Заставить все ссылки использовать SSL';
-$a->strings['Self-signed certificate, use SSL for local links only (discouraged)'] = 'Само-подписанный сертификат, использовать SSL только локально (не рекомендуется)';
 $a->strings['Don\'t check'] = 'Не проверять';
 $a->strings['check the stable version'] = 'проверить стабильную версию';
 $a->strings['check the development version'] = 'проверить development-версию';
@@ -1003,8 +1063,6 @@ $a->strings['System theme'] = 'Системная тема';
 $a->strings['Default system theme - may be over-ridden by user profiles - <a href="%s" id="cnftheme">Change default theme settings</a>'] = 'Тема по-умолчанию - пользователи могут менять её в настройках своего профиля - <a href="%s" id="cnftheme">Изменить тему по-умолчанию</a>';
 $a->strings['Mobile system theme'] = 'Мобильная тема системы';
 $a->strings['Theme for mobile devices'] = 'Тема для мобильных устройств';
-$a->strings['SSL link policy'] = 'Политика SSL';
-$a->strings['Determines whether generated links should be forced to use SSL'] = 'Ссылки должны быть вынуждены использовать SSL';
 $a->strings['Force SSL'] = 'SSL принудительно';
 $a->strings['Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.'] = 'Форсировать не-SSL запросы как SSL. Внимание: на некоторых системах это может привести к бесконечным циклам.';
 $a->strings['Show help entry from navigation menu'] = 'Показать пункт "помощь" в меню навигации';
@@ -1062,6 +1120,8 @@ $a->strings['Enable OpenID'] = 'Включить OpenID';
 $a->strings['Enable OpenID support for registration and logins.'] = 'Включить поддержку OpenID для регистрации и входа.';
 $a->strings['Enable Fullname check'] = 'Включить проверку полноты имени';
 $a->strings['Enable check to only allow users to register with a space between the first name and the last name in their full name.'] = 'Проверять при регистрации, чтобы пользователь имел пробел в указанном имени между именем и фамилией.';
+$a->strings['Email administrators on new registration'] = 'Уведомлять администраторов о новых регистрациях';
+$a->strings['If enabled and the system is set to an open registration, an email for each new registration is sent to the administrators.'] = 'Если включено и регистрации открыты, то о каждой новой регистрации будет сообщаться администраторам по электронной почте.';
 $a->strings['Community pages for visitors'] = 'Публичная лента для посетителей';
 $a->strings['Which community pages should be available for visitors. Local users always see both pages.'] = 'Какие публичные ленты будут доступны для гостей. Местные пользователи всегда видят обе ленты.';
 $a->strings['Posts per user on community page'] = 'Число записей на пользователя в публичной ленте';
@@ -1126,6 +1186,7 @@ $a->strings['On large systems the text search can slow down the system extremely
 $a->strings['Generate counts per contact group when calculating network count'] = 'Показывать счётчики записей по группам при обновлении страницы сети';
 $a->strings['On systems with users that heavily use contact groups the query can be very expensive.'] = 'Для систем, где активно используются группы контактов, это может быть затратно по ресурсам.';
 $a->strings['Maximum number of parallel workers'] = 'Максимальное число параллельно работающих worker\'ов';
+$a->strings['On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.'] = 'На shared-хостингах установите это в %d. На больших системах можно установить %d или больше. Значение по-умолчанию %d.';
 $a->strings['Enable fastlane'] = 'Включить fastlane';
 $a->strings['When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.'] = 'Если включено, механизм fastlane будет запускать дополнительного обработчика, если процессы с высоким приоритетом задерживаются из-за процессов с более низким приоритетом.';
 $a->strings['Direct relay transfer'] = 'Прямая ретрансляция';
@@ -1150,12 +1211,15 @@ $a->strings['Storage Configuration'] = 'Конфигурация хранили�
 $a->strings['Storage'] = 'Хранилище';
 $a->strings['Save & Use storage backend'] = 'Сохранить и использовать этот бэкенд';
 $a->strings['Use storage backend'] = 'Использовать этот бэкенд';
+$a->strings['Save & Reload'] = 'Сохранить и применить';
+$a->strings['This backend doesn\'t have custom settings'] = 'Этот бэкенд не имеет дополнительных настроек.';
 $a->strings['Database (legacy)'] = 'База данных (устаревшее)';
 $a->strings['Your table_definition_cache is too low (%d). This can lead to the database error "Prepared statement needs to be re-prepared". Please set it at least to %d. See <a href="%s">here</a> for more information.<br />'] = 'Ваше значение table_definition_cache слишком маленькое (%d). Это может вызвать ошибку базы данных "Prepared statement needs to be re-prepared". Пожалуйста, установите его хотя бы в %d. Смотрите <a href="%s">здесь</a> для дополнительной информации.<br />';
 $a->strings['There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s'] = 'Новая версия Friendica доступна для загрузки. Ваша текущая версия %1$s, последняя версия %2$s';
 $a->strings['The database update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear.'] = 'Обновление базы данных завершилось неудачно. Пожалуйста, запустите "php bin/console.php dbstructure update" в командной строке и посмотрите какие ошибки там могут появиться.';
 $a->strings['The worker was never executed. Please check your database structure!'] = 'Фоновые задания ни разу не выполнялись. Пожалуйста, проверьте структуру базы данных!';
 $a->strings['The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings.'] = 'Последний раз фоновое задание выполнялось  %s UTC. Это более одного часа назад. Пожалуйста, проверьте настройки crontab.';
+$a->strings['<a href="%s">%s</a> is not reachable on your system. This is a severe configuration issue that prevents server to server communication. See <a href="%s">the installation page</a> for help.'] = '<a href="%s">%s</a> не доступен на вашей системе. Это серьёзная проблема, которая мешает межсерверной коммуникации. Посмотрите <a href="%s">страницу установки</a> для помощи.';
 $a->strings['Message queues'] = 'Очереди сообщений';
 $a->strings['Server Settings'] = 'Настройки сервера';
 $a->strings['Version'] = 'Версия';
@@ -1178,11 +1242,14 @@ $a->strings['Show some informations regarding the needed information to operate 
 $a->strings['Privacy Statement Preview'] = 'Предпросмотр Положения о конфиденциальности';
 $a->strings['The Terms of Service'] = 'Условия оказания услуг';
 $a->strings['Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.'] = 'Введите здесь текст Условий оказания услуг для вашего узла. Можно использовать BBCode. Заголовки отдельных секций должны использовать [h2] и ниже.';
-$a->strings['The API endpoint is currently not implemented but might be in the future.'] = 'Этот вызов API сейчас не поддерживается, но, возможно, когда-нибудь будет.';
+$a->strings['The rules'] = 'Правила сервера';
+$a->strings['Enter your system rules here. Each line represents one rule.'] = 'Введите здесь правила поведения на сервере. Каждая линия - отдельное правило.';
 $a->strings['Only starting posts can be bookmarked'] = 'Только заглавные записи могут быть добавлены в закладки';
 $a->strings['Only starting posts can be muted'] = 'Только заглавные записи можно заглушить';
+$a->strings['Posts from %s can\'t be shared'] = 'Записями от %s нельзя поделиться';
 $a->strings['Only starting posts can be unbookmarked'] = 'Только заглавные записи можно удалить из закладок';
 $a->strings['Only starting posts can be unmuted'] = 'Только с заглавных записей можно снять заглушение';
+$a->strings['Posts from %s can\'t be unshared'] = 'Нельзя отменить продвижение для записей от %s ';
 $a->strings['Contact not found'] = 'Контакт не найден';
 $a->strings['No installed applications.'] = 'Нет установленных приложений.';
 $a->strings['Applications'] = 'Приложения';
@@ -1199,6 +1266,7 @@ $a->strings['Inspect Deferred Workers'] = 'Посмотреть отложенн
 $a->strings['Inspect worker Queue'] = 'Посмотреть очередь заданий';
 $a->strings['Diagnostics'] = 'Диагностика';
 $a->strings['User registrations waiting for confirmation'] = 'Регистрации пользователей, ожидающие подтверждения';
+$a->strings['Too Many Requests'] = 'Слишком много запросов';
 $a->strings['Daily posting limit of %d post reached. The post was rejected.'] = [
 	0 => 'Дневной лимит в %d запись достигнут. Запись отклонена.',
 	1 => 'Дневной лимит в %d записи достигнут. Запись отклонена.',
@@ -1211,13 +1279,19 @@ $a->strings['Weekly posting limit of %d post reached. The post was rejected.'] =
 	2 => 'Недельный лимит в %d записей достигнут. Запись была отклонена.',
 	3 => 'Недельный лимит в %d записей достигнут. Запись была отклонена.',
 ];
+$a->strings['Monthly posting limit of %d post reached. The post was rejected.'] = [
+	0 => 'Месячный лимит в%d запись достигнут. Запись была отклонена.',
+	1 => 'Месячный лимит в %d записей достигнут. Запись была отклонена.',
+	2 => 'Месячный лимит в%d записей достигнут. Запись была отклонена.',
+	3 => 'Месячный лимит в  %d записей достигнут. Запись была отклонена.',
+];
 $a->strings['Users'] = 'Пользователи';
 $a->strings['Tools'] = 'Инструменты';
 $a->strings['Contact Blocklist'] = 'Чёрный список контактов';
 $a->strings['Server Blocklist'] = 'Чёрный список серверов';
 $a->strings['Delete Item'] = 'Удалить запись';
 $a->strings['Profile Details'] = 'Информация о вас';
-$a->strings['Status Messages and Posts'] = 'Записи и статусы';
+$a->strings['Conversations started'] = 'Записи этого автора';
 $a->strings['Only You Can See This'] = 'Только вы можете это видеть';
 $a->strings['Scheduled Posts'] = 'Запланированные записи';
 $a->strings['Posts that are scheduled for publishing'] = 'Записи, публикация которых запланирована';
@@ -1264,6 +1338,8 @@ $a->strings['Blocked'] = 'Заблокированы';
 $a->strings['Only show blocked contacts'] = 'Показать только блокированные контакты';
 $a->strings['Ignored'] = 'Игнорируются';
 $a->strings['Only show ignored contacts'] = 'Показать только игнорируемые контакты';
+$a->strings['Collapsed'] = 'Свёрнуто';
+$a->strings['Only show collapsed contacts'] = 'Показать только сворачиваемые контакты';
 $a->strings['Archived'] = 'Архивированные';
 $a->strings['Only show archived contacts'] = 'Показывать только архивные контакты';
 $a->strings['Hidden'] = 'Скрытые';
@@ -1274,9 +1350,12 @@ $a->strings['Results for: %s'] = 'Результаты для: %s';
 $a->strings['Update'] = 'Обновление';
 $a->strings['Unblock'] = 'Разблокировать';
 $a->strings['Unignore'] = 'Не игнорировать';
+$a->strings['Uncollapse'] = 'Не сворачивать';
 $a->strings['Batch Actions'] = 'Пакетные действия';
 $a->strings['Conversations started by this contact'] = 'Диалоги этого контакта';
 $a->strings['Posts and Comments'] = 'Записи и комментарии';
+$a->strings['Individual Posts and Replies'] = 'Отдельные записи и ответы';
+$a->strings['Posts containing media objects'] = 'Записи с медиа';
 $a->strings['View all known contacts'] = 'Показать все известные контакты';
 $a->strings['Advanced Contact Settings'] = 'Дополнительные Настройки Контакта';
 $a->strings['Mutual Friendship'] = 'Взаимная дружба';
@@ -1340,6 +1419,7 @@ $a->strings['Profile URL'] = 'URL профиля';
 $a->strings['Tags:'] = 'Ключевые слова: ';
 $a->strings['%s knows you'] = '%s знают Вас';
 $a->strings['Add a personal note:'] = 'Добавить личную заметку:';
+$a->strings['Posts and Replies'] = 'Записи и ответы';
 $a->strings['The contact could not be added.'] = 'Не удалось добавить этот контакт.';
 $a->strings['Invalid request.'] = 'Неверный запрос.';
 $a->strings['No keywords to match. Please add keywords to your profile.'] = 'Нет совпадающих ключевых слов. Пожалуйста, добавьте ключевые слова в ваш профиль.';
@@ -1349,6 +1429,8 @@ $a->strings['Contact has been unblocked'] = 'Контакт разблокиро
 $a->strings['Contact has been blocked'] = 'Контакт заблокирован';
 $a->strings['Contact has been unignored'] = 'У контакта отменено игнорирование';
 $a->strings['Contact has been ignored'] = 'Контакт проигнорирован';
+$a->strings['Contact has been uncollapsed'] = 'Записи контакта не сворачиваются';
+$a->strings['Contact has been collapsed'] = 'Записи контакта сворачиваются';
 $a->strings['You are mutual friends with %s'] = 'У Вас взаимная дружба с %s';
 $a->strings['You are sharing with %s'] = 'Вы делитесь с %s';
 $a->strings['%s is sharing with you'] = '%s делится с Вами';
@@ -1366,6 +1448,7 @@ $a->strings['Fetch keywords'] = 'Получить ключевые слова';
 $a->strings['Fetch information and keywords'] = 'Получить информацию и ключевые слова';
 $a->strings['No mirroring'] = 'Не зеркалировать';
 $a->strings['Mirror as my own posting'] = 'Зеркалировать как мои сообщения';
+$a->strings['Native reshare'] = 'Обычный репост';
 $a->strings['Contact Information / Notes'] = 'Информация о контакте / Заметки';
 $a->strings['Contact Settings'] = 'Настройки контакта';
 $a->strings['Contact'] = 'Контакт';
@@ -1377,10 +1460,11 @@ $a->strings['View conversations'] = 'Просмотр бесед';
 $a->strings['Last update:'] = 'Последнее обновление: ';
 $a->strings['Update public posts'] = 'Обновить публичные сообщения';
 $a->strings['Update now'] = 'Обновить сейчас';
+$a->strings['Awaiting connection acknowledge'] = 'Ожидаем подтверждения соединения';
 $a->strings['Currently blocked'] = 'В настоящее время заблокирован';
 $a->strings['Currently ignored'] = 'В настоящее время игнорируется';
+$a->strings['Currently collapsed'] = 'В настоящее время сворачивается';
 $a->strings['Currently archived'] = 'В данный момент архивирован';
-$a->strings['Awaiting connection acknowledge'] = 'Ожидаем подтверждения соединения';
 $a->strings['Hide this contact from others'] = 'Скрыть этот контакт от других';
 $a->strings['Replies/likes to your public posts <strong>may</strong> still be visible'] = 'Ответы/лайки ваших публичных сообщений <strong>будут</strong> видимы.';
 $a->strings['Notification for new posts'] = 'Уведомление о новых записях';
@@ -1388,15 +1472,19 @@ $a->strings['Send a notification of every new post of this contact'] = 'Отпр
 $a->strings['Keyword Deny List'] = 'Запретный список слов';
 $a->strings['Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected'] = 'Список слов через запятую, которые не должны конвертироваться в хэштеги, когда включено "Получать информацию и хэштеги"';
 $a->strings['Actions'] = 'Действия';
+$a->strings['Status'] = 'Записи';
 $a->strings['Mirror postings from this contact'] = 'Зекралировать сообщения от этого контакта';
 $a->strings['Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'] = 'Пометить этот контакт как remote_self, что заставит Friendica отправлять сообщения от этого контакта.';
 $a->strings['Refetch contact data'] = 'Обновить данные контакта';
 $a->strings['Toggle Blocked status'] = 'Изменить статус блокированности (заблокировать/разблокировать)';
 $a->strings['Toggle Ignored status'] = 'Изменить статус игнорирования';
+$a->strings['Toggle Collapsed status'] = 'Изменить статус сворачивания';
 $a->strings['Revoke Follow'] = 'Отозвать подписку';
 $a->strings['Revoke the follow from this contact'] = 'Отменить подписку этого контакта на вас';
 $a->strings['Bad Request.'] = 'Ошибочный запрос.';
+$a->strings['Unknown contact.'] = 'Неизвестный контакт.';
 $a->strings['Contact is deleted.'] = 'Контакт удалён.';
+$a->strings['Contact is being deleted.'] = 'Контакт удаляется.';
 $a->strings['Follow was successfully revoked.'] = 'Подписка была успешно отозвана.';
 $a->strings['Do you really want to revoke this contact\'s follow? This cannot be undone and they will have to manually follow you back again.'] = 'Вы действительно хотите отозвать подписку этого контакта на вас? Это нельзя будет отменить позже, им потребуется снова подписаться на вас.';
 $a->strings['Yes'] = 'Да';
@@ -1411,7 +1499,11 @@ $a->strings['Local Community'] = 'Местное сообщество';
 $a->strings['Posts from local users on this server'] = 'Записи пользователей с этого сервера';
 $a->strings['Global Community'] = 'Глобальное сообщество';
 $a->strings['Posts from users of the whole federated network'] = 'Записи пользователей со всей федеративной сети';
+$a->strings['Own Contacts'] = 'Свои контакты';
+$a->strings['Include'] = 'Включить';
+$a->strings['Hide'] = 'Скрыть';
 $a->strings['No results.'] = 'Нет результатов.';
+$a->strings['Community option not available.'] = 'Сообщество недоступно.';
 $a->strings['Not available.'] = 'Недоступно.';
 $a->strings['No such group'] = 'Нет такой группы';
 $a->strings['Group: %s'] = 'Группа: %s';
@@ -1502,12 +1594,8 @@ $a->strings['OK'] = 'ОК';
 $a->strings['Next'] = 'Далее';
 $a->strings['Check again'] = 'Проверить еще раз';
 $a->strings['Base settings'] = 'Основные настройки';
-$a->strings['Host name'] = 'Имя хоста';
-$a->strings['Overwrite this field in case the determinated hostname isn\'t right, otherweise leave it as is.'] = 'Впишите здесь имя сервера, если оно определилось неправильно, иначе оставьте его как есть.';
 $a->strings['Base path to installation'] = 'Путь для установки';
 $a->strings['If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.'] = 'Если система не смогла определить правильный путь к вашей установке, введите правильный путь здесь. Эта настройка должна использоваться только, если вы используете систему с ограниченным доступом с символьными ссылками в ваш веб-каталог.';
-$a->strings['Sub path of the URL'] = 'Дополнительная часть URL';
-$a->strings['Overwrite this field in case the sub path determination isn\'t right, otherwise leave it as is. Leaving this field blank means the installation is at the base URL without sub path.'] = 'Впишите здесь правильный каталог URL, если он определён неверно, иначе оставьте его как есть. Пустое поле означает, что Friendica установлена по основному URL без подкаталогов.';
 $a->strings['Database connection'] = 'Подключение к базе данных';
 $a->strings['In order to install Friendica we need to know how to connect to your database.'] = 'Для того, чтобы установить Friendica, мы должны знать, как подключиться к базе данных.';
 $a->strings['Please contact your hosting provider or site administrator if you have questions about these settings.'] = 'Пожалуйста, свяжитесь с вашим хостинг-провайдером или администратором сайта, если у вас есть вопросы об этих параметрах.';
@@ -1562,21 +1650,6 @@ $a->strings['Location services are unavailable on your device'] = 'Геолок�
 $a->strings['Location services are disabled. Please check the website\'s permissions on your device'] = 'Геолокация отключена. Пожалуйста, проверьте разрешения этого сайта на вашем устройстве';
 $a->strings['You can make this page always open when you use the New Post button in the <a href="/settings/display">Theme Customization settings</a>.'] = 'Вы можете включить открытие этой страницы по кнопке создания новой записи в <a href="/settings/display">настройках отображения темы</a>.';
 $a->strings['The requested item doesn\'t exist or has been deleted.'] = 'Запрошенная запись не существует или была удалена.';
-$a->strings['Unfortunately, the requested conversation isn\'t available to you.</p>
-<p>Possible reasons include:</p>
-<ul>
-	<li>The top-level post isn\'t visible.</li>
-	<li>The top-level post was deleted.</li>
-	<li>The node has blocked the top-level author or the author of the shared post.</li>
-	<li>You have ignored or blocked the top-level author or the author of the shared post.</li>
-</ul><p>'] = 'К сожалению, запрошенная запись вам недоступна.</p>
-<p>Возможные причины:</p>
-<ul>
-	<li>Запись выше уровнем закрыта.</li>
-	<li>Запись выше уровнем удалена.</li>
-	<li>Автор вышестоящей записи или автор изначальной записи были заблокированы на сервере.</li>
-	<li>Вы заблокировали или игнорировали автора вышестоящей записи.</li>
-</ul><p>';
 $a->strings['The feed for this item is unavailable.'] = 'Лента недоступна для этого объекта.';
 $a->strings['Unable to follow this item.'] = 'Не получается подписаться на эту запись.';
 $a->strings['System down for maintenance'] = 'Система закрыта на техническое обслуживание';
@@ -1722,7 +1795,15 @@ $a->strings['On this page you can delete an item from your node. If the item is 
 $a->strings['You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'] = 'Вам нужно знать GUID записи. Вы можете узнать его, посмотрев на ссылку записи. Последняя часть ссылки - GUID. Например, для  http://example.com/display/123456 - GUID будет 123456.';
 $a->strings['GUID'] = 'GUID';
 $a->strings['The GUID of the item you want to delete.'] = 'GUID записи, которую вы хотите удалить.';
+$a->strings['Item Id'] = 'Id записи';
+$a->strings['Item URI'] = 'URI записи';
+$a->strings['Terms'] = 'Ключевые слова';
+$a->strings['Tag'] = 'Тэг';
 $a->strings['Type'] = 'Тип';
+$a->strings['Term'] = 'Ключевое слово';
+$a->strings['URL'] = 'URL';
+$a->strings['Mention'] = 'Отметка';
+$a->strings['Implicit Mention'] = 'Неявная отметка';
 $a->strings['Item not found'] = 'Элемент не найден';
 $a->strings['No source recorded'] = 'Источник не сохранён';
 $a->strings['Item Guid'] = 'GUID записи';
@@ -1752,6 +1833,7 @@ $a->strings['User "%s" blocked'] = 'Пользователь "%s" заблоки
 $a->strings['Register date'] = 'Дата регистрации';
 $a->strings['Last login'] = 'Последний вход';
 $a->strings['Last public item'] = 'Последняя публичная запись';
+$a->strings['Active Accounts'] = 'Активные учётные записи';
 $a->strings['User blocked'] = 'Пользователь заблокирован';
 $a->strings['Site admin'] = 'Админ сайта';
 $a->strings['Account expired'] = 'Аккаунт просрочен';
@@ -1813,11 +1895,17 @@ $a->strings['System Notifications'] = 'Уведомления системы';
 $a->strings['Personal Notifications'] = 'Личные уведомления';
 $a->strings['Home Notifications'] = 'Уведомления';
 $a->strings['Show unread'] = 'Показать непрочитанные';
-$a->strings['{0} requested registration'] = '{0} требуемая регистрация';
+$a->strings['{0} requested registration'] = '{0} запрос на регистрацию';
+$a->strings['{0} and %d others requested registration'] = '{0} и %d других запросов на регистрацию';
 $a->strings['Authorize application connection'] = 'Разрешить связь с приложением';
 $a->strings['Do you want to authorize this application to access your posts and contacts, and/or create new posts for you?'] = 'Вы действительно хотите разрешить этому приложению доступ к своим записям и контактам, а также создавать новые записи от вашего имени?';
+$a->strings['Unsupported or missing response type'] = 'Неподдерживаемый или отсутствующий тип отклика';
+$a->strings['Incomplete request data'] = 'Неполные данные запроса';
+$a->strings['Please copy the following authentication code into your application and close this window: %s'] = 'Пожалуйста, скопируйте следующий код аутентификации в ваше приложение и закройте это окно: %s';
 $a->strings['Resubscribing to OStatus contacts'] = 'Переподписаться на OStatus-контакты.';
 $a->strings['Keep this window open until done.'] = 'Держать окно открытым до завершения.';
+$a->strings['✔ Done'] = '✔ Готово';
+$a->strings['No OStatus contacts to resubscribe to.'] = 'Нет контактов OStatus для переподписки.';
 $a->strings['Subscribing to contacts'] = 'Подписка на контакты';
 $a->strings['No contact provided.'] = 'Не указан контакт.';
 $a->strings['Couldn\'t fetch information for contact.'] = 'Невозможно получить информацию о контакте.';
@@ -1833,9 +1921,12 @@ $a->strings['Model not found'] = 'Модель не найдена';
 $a->strings['Unlisted'] = 'Непублично';
 $a->strings['Remote privacy information not available.'] = 'Личная информация удаленно недоступна.';
 $a->strings['Visible to:'] = 'Кто может видеть:';
+$a->strings['Collection (%s)'] = 'Коллекция (%s)';
 $a->strings['Followers (%s)'] = 'Подписчики (%s)';
+$a->strings['%d more'] = '%d ещё';
 $a->strings['The Photo is not available.'] = 'Фото недоступно.';
 $a->strings['The Photo with id %s is not available.'] = 'Фотография с id %s недоступна.';
+$a->strings['Invalid external resource with url %s.'] = 'Проблема с внешним ресурсом по адресу %s.';
 $a->strings['Invalid photo with id %s.'] = 'Неправильное фото с id %s.';
 $a->strings['Post not found.'] = 'Запись не найдена';
 $a->strings['Edit post'] = 'Редактировать запись';
@@ -1848,6 +1939,9 @@ $a->strings['Remove Item Tag'] = 'Удалить ключевое слово';
 $a->strings['Select a tag to remove: '] = 'Выберите ключевое слово для удаления: ';
 $a->strings['Remove'] = 'Удалить';
 $a->strings['No contacts.'] = 'Нет контактов.';
+$a->strings['%s\'s timeline'] = 'Лента %s';
+$a->strings['%s\'s posts'] = 'Записи %s';
+$a->strings['%s\'s comments'] = 'Комментарии %s';
 $a->strings['Image upload didn\'t complete, please try again'] = 'Не получилось загрузить изображение, попробуйте снова';
 $a->strings['Image file is missing'] = 'Файл изображения не найден';
 $a->strings['Server can\'t accept new file upload at this time, please contact your administrator'] = 'Сервер не принимает новые файлы для загрузки в настоящий момент, пожалуйста, свяжитесь с администратором';
@@ -1871,14 +1965,12 @@ $a->strings['Description:'] = 'Описание:';
 $a->strings['Forums:'] = 'Форумы:';
 $a->strings['View profile as:'] = 'Посмотреть профиль как:';
 $a->strings['View as'] = 'Посмотреть как';
-$a->strings['%s\'s timeline'] = 'Лента %s';
-$a->strings['%s\'s posts'] = 'Записи %s';
-$a->strings['%s\'s comments'] = 'Комментарии %s';
 $a->strings['Profile unavailable.'] = 'Профиль недоступен.';
 $a->strings['Invalid locator'] = 'Недопустимый локатор';
 $a->strings['The provided profile link doesn\'t seem to be valid'] = 'Указанная ссылка на профиль не выглядит правильной';
 $a->strings['Remote subscription can\'t be done for your network. Please subscribe directly on your system.'] = 'Удаленная подписка не может быть выполнена на вашей сети. Пожалуйста, подпишитесь на вашей системе.';
 $a->strings['Friend/Connection Request'] = 'Запрос в друзья / на подключение';
+$a->strings['Enter your Webfinger address (user@domain.tld) or profile URL here. If this isn\'t supported by your system, you have to subscribe to <strong>%s</strong> or <strong>%s</strong> directly on your system.'] = 'Введите здесь ваш Webfinger-адрес (user@domain.tld) или ссылку на профиль. Если это не поддерживается вашей системой, вам нужно подписаться на <strong>%s</strong> или <strong>%s</strong> непосредственно на вашей системе.';
 $a->strings['If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica node and join us today</a>.'] = 'Если вы ещё не член свободной социальной сети, <a href="%s">пройдите по этой ссылке, чтобы найти публичный узел Friendica и присоединитесь к нам сегодня</a>.';
 $a->strings['Your Webfinger address or profile URL:'] = 'Ваш адрес Webfinger или ссылка на профиль:';
 $a->strings['Restricted profile'] = 'Закрытый профиль';
@@ -1896,6 +1988,7 @@ $a->strings['Subject'] = 'Тема';
 $a->strings['Your message'] = 'Ваше сообщение';
 $a->strings['Only parent users can create additional accounts.'] = 'Только основные пользователи могут создавать дополнительные учётные записи.';
 $a->strings['This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'] = 'Этот сайт превысил допустимое количество ежедневных регистраций. Пожалуйста, повторите попытку завтра.';
+$a->strings['You may (optionally) fill in this form via OpenID by supplying your OpenID and clicking "Register".'] = 'Вы можете (по желанию), заполнить эту форму с помощью OpenID, предоставив ваш OpenID и нажав кнопку "Регистрация".';
 $a->strings['If you are not familiar with OpenID, please leave that field blank and fill in the rest of the items.'] = 'Если вы не знакомы с OpenID, пожалуйста, оставьте это поле пустым и заполните остальные элементы.';
 $a->strings['Your OpenID (optional): '] = 'Ваш OpenID (необязательно):';
 $a->strings['Include your profile in member directory?'] = 'Включить ваш профиль в каталог участников?';
@@ -1909,6 +2002,7 @@ $a->strings['Please repeat your e-mail address:'] = 'Пожалуйста, вв�
 $a->strings['New Password:'] = 'Новый пароль:';
 $a->strings['Leave empty for an auto generated password.'] = 'Оставьте пустым для автоматической генерации пароля.';
 $a->strings['Confirm:'] = 'Подтвердите:';
+$a->strings['Choose a profile nickname. This must begin with a text character. Your profile address on this site will then be "<strong>nickname@%s</strong>".'] = 'Выберите псевдоним. Он должен начинаться с буквы. Адрес вашего профиля на этом сайте будет "<strong>псевдоним@%s</strong>".';
 $a->strings['Choose a nickname: '] = 'Выберите псевдоним: ';
 $a->strings['Import'] = 'Импорт';
 $a->strings['Import your profile to this friendica instance'] = 'Импорт своего профиля в этот экземпляр friendica';
@@ -1925,6 +2019,7 @@ $a->strings['Failed to send email message. Here your accout details:<br> login: 
 $a->strings['Registration successful.'] = 'Регистрация успешна.';
 $a->strings['Your registration can not be processed.'] = 'Ваша регистрация не может быть обработана.';
 $a->strings['You have to leave a request note for the admin.'] = 'Вам нужно написать обращение к администратору.';
+$a->strings['An internal error occured.'] = 'Возникла внутренняя ошибка.';
 $a->strings['Your registration is pending approval by the site owner.'] = 'Ваша регистрация в ожидании одобрения владельцем сайта.';
 $a->strings['You must be logged in to use this module.'] = 'Вам нужно войти, чтобы использовать этот модуль.';
 $a->strings['Only logged in users are permitted to perform a search.'] = 'Только зарегистрированные пользователи могут использовать поиск.';
@@ -1945,11 +2040,18 @@ $a->strings['terms of service'] = 'правила';
 $a->strings['Website Privacy Policy'] = 'Политика конфиденциальности сервера';
 $a->strings['privacy policy'] = 'политика конфиденциальности';
 $a->strings['Logged out.'] = 'Выход из системы.';
+$a->strings['OpenID protocol error. No ID returned'] = 'Ошибка протокола OpenID. Не возвращён ID.';
+$a->strings['Account not found. Please login to your existing account to add the OpenID to it.'] = 'Учётная запись не найдена. Пожалуйста, зайдите в вашу существующую запись, чтобы добавить OpenID к ней.';
+$a->strings['Account not found. Please register a new account or login to your existing account to add the OpenID to it.'] = 'Учётная запись не найдена. Пожалуйста, зарегистрируйте новую учётную запись или зайдите в существующую, чтобы добавить к ней OpenID.';
 $a->strings['Passwords do not match.'] = 'Пароли не совпадают';
+$a->strings['Password does not need changing.'] = 'Смена пароля не требуется.';
 $a->strings['Password unchanged.'] = 'Пароль не поменялся';
+$a->strings['Password Too Long'] = 'Пароль слишком длинный';
+$a->strings['Since version 2022.09, we\'ve realized that any password longer than 72 characters is truncated during hashing. To prevent any confusion about this behavior, please update your password to be fewer or equal to 72 characters.'] = 'С версии 2022.09 мы поняли, что пароли длиннее 72 символов обрезаются при хешировании. Чтобы избежать связанных с этим неожиданностей, пожалуйста, смените ваш пароль, чтобы его длина не превышала 72 символа.';
+$a->strings['Update Password'] = 'Изменить пароль';
 $a->strings['Current Password:'] = 'Текущий пароль:';
 $a->strings['Your current password to confirm the changes'] = 'Ваш текущий пароль, для подтверждения изменений';
-$a->strings['Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).'] = 'Разрешенные символы: a-z, A-Z, 0-9 специальные символы за исключением пробелов, букв с акцентами и двоеточия (:).';
+$a->strings['Password length is limited to 72 characters.'] = 'Длина пароля ограничена 72-мя символами.';
 $a->strings['Remaining recovery codes: %d'] = 'Осталось кодов для восстановления: %d';
 $a->strings['Invalid code, please retry.'] = 'Неправильный код, попробуйте ещё.';
 $a->strings['Two-factor recovery'] = 'Двухфакторное восстановление доступа';
@@ -1957,7 +2059,18 @@ $a->strings['<p>You can enter one of your one-time recovery codes in case you lo
 $a->strings['Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>'] = 'Нет телефона? <a href="%s">Введите код восстановления</a>';
 $a->strings['Please enter a recovery code'] = 'Пожалуйста, введите код восстановления';
 $a->strings['Submit recovery code and complete login'] = 'Отправить код восстановления и завершить вход';
+$a->strings['Sign out of this browser?'] = 'Выйти из этого браузера?';
+$a->strings['<p>If you trust this browser, you will not be asked for verification code the next time you sign in.</p>'] = '<p>Если вы доверяете этому браузеру, то при следующем входе код двухфакторной аутентификации запрошен не будет.</p>';
+$a->strings['Sign out'] = 'Выйти';
+$a->strings['Trust and sign out'] = 'Доверять и выйти';
+$a->strings['Couldn\'t save browser to Cookie.'] = 'Не удалось сохранить браузер в Cookie';
+$a->strings['Trust this browser?'] = 'Доверять этому браузеру?';
+$a->strings['<p>If you choose to trust this browser, you will not be asked for a verification code the next time you sign in.</p>'] = '<p>Если вы решите доверять этому браузеру, то при следующем входе код двухфакторной аутентификации запрошен не будет.</p>';
+$a->strings['Not now'] = 'Не сейчас';
+$a->strings['Don\'t trust'] = 'Не доверять';
+$a->strings['Trust'] = 'Доверять';
 $a->strings['<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'] = '<p>Откройте приложение для двухфакторной аутентификации на вашем устройстве, чтобы получить код аутентификации и подтвердить вашу личность.</p>';
+$a->strings['If you do not have access to your authentication code you can use a <a href="%s">two-factor recovery code</a>.'] = 'Если у вас нет доступа к кодам аутентификации, вы можете использовать <a href="%s">код восстановления</a>.';
 $a->strings['Please enter a code from your authentication app'] = 'Пожалуйста, введите код из вашего приложения для аутентификации';
 $a->strings['Verify code and complete login'] = 'Введите код для завершения входа';
 $a->strings['Please use a shorter name.'] = 'Пожалуйста, выберите имя короче.';
@@ -2040,7 +2153,7 @@ $a->strings['Your introductions are confirmed'] = 'Ваши запросы по�
 $a->strings['Someone writes on your profile wall'] = 'Кто-то пишет на стене вашего профиля';
 $a->strings['Someone writes a followup comment'] = 'Кто-то пишет последующий комментарий';
 $a->strings['You receive a private message'] = 'Вы получаете личное сообщение';
-$a->strings['You receive a friend suggestion'] = 'Вы полулили предложение о добавлении в друзья';
+$a->strings['You receive a friend suggestion'] = 'Вы получили предложение о добавлении в друзья';
 $a->strings['You are tagged in a post'] = 'Вы отмечены в записи';
 $a->strings['Create a desktop notification when:'] = 'Показывать уведомление при:';
 $a->strings['Someone tagged you'] = 'Вас отметили';
@@ -2088,6 +2201,8 @@ $a->strings['Enable simple text shortening'] = 'Включить простое 
 $a->strings['Normally the system shortens posts at the next line feed. If this option is enabled then the system will shorten the text at the maximum character limit.'] = 'Обычно система обрезает записи на следующей строке. Если эта настройка включена, система будет сокращать записи по достижении лимита символов.';
 $a->strings['Attach the link title'] = 'Присоединять заголовок ссылок';
 $a->strings['When activated, the title of the attached link will be added as a title on posts to Diaspora. This is mostly helpful with "remote-self" contacts that share feed content.'] = 'Если включено. заголовок добавленной ссылки будет добавлен к записи в Диаспоре как заголовок. Это в основном нужно для контактов "мой двойник", которые публикуют содержимое ленты.';
+$a->strings['API: Use spoiler field as title'] = 'API: Использовать спойлер как заголовок';
+$a->strings['When activated, the "spoiler_text" field in the API will be used for the title on standalone posts. When deactivated it will be used for spoiler text. For comments it will always be used for spoiler text.'] = 'Если включено, поле "spoiler_text" в API будет использоваться как заголовок для отдельных записей. Если отключено, то оно будет использоваться как спойлер. Для комментариев оно всегда используется как спойлер.';
 $a->strings['Your legacy ActivityPub/GNU Social account'] = 'Ваша старая учётная запись ActivityPub/GNU Social';
 $a->strings['If you enter your old account name from an ActivityPub based system or your GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.'] = 'Если вы введете тут вашу старую учетную запись от платформы совместимой с ActivityPub или GNU Social/Statusnet (в виде пользователь@домен), ваши контакты оттуда будут автоматически добавлены. Поле будет очищено когда все контакты будут добавлены.';
 $a->strings['Repair OStatus subscriptions'] = 'Починить подписки OStatus';
@@ -2122,6 +2237,7 @@ $a->strings['Potential Delegates'] = 'Возможные доверенные л
 $a->strings['Add'] = 'Добавить';
 $a->strings['No entries.'] = 'Нет записей.';
 $a->strings['The theme you chose isn\'t available.'] = 'Выбранная вами тема недоступна.';
+$a->strings['%s - (Unsupported)'] = '%s - (Не поддерживается)';
 $a->strings['No preview'] = 'Нет предпросмотра';
 $a->strings['No image'] = 'Без изображения';
 $a->strings['Small Image'] = 'Маленькое изображение';
@@ -2138,8 +2254,6 @@ $a->strings['Maximum of 100 items'] = 'Максимум 100 элементов';
 $a->strings['Number of items to display per page when viewed from mobile device:'] = 'Количество элементов на странице, когда просмотр осуществляется с мобильных устройств:';
 $a->strings['Update browser every xx seconds'] = 'Обновление браузера каждые хх секунд';
 $a->strings['Minimum of 10 seconds. Enter -1 to disable it.'] = 'Минимум 10 секунд. Введите -1 для отключения.';
-$a->strings['Automatic updates only at the top of the post stream pages'] = 'Автоматически обновлять только при нахождении вверху страницы ленты';
-$a->strings['Auto update may add new posts at the top of the post stream pages, which can affect the scroll position and perturb normal reading if it happens anywhere else the top of the page.'] = 'Автообновление может загружать новые записи в начало ленты, что может изменить положение прокрутки и помешать чтению, если вы находитесь не в начале страницы.';
 $a->strings['Display emoticons'] = 'Показывать смайлики';
 $a->strings['When enabled, emoticons are replaced with matching symbols.'] = 'Когда включено, соответствующие символы отображаются как смайлики.';
 $a->strings['Infinite scroll'] = 'Бесконечная прокрутка';
@@ -2153,7 +2267,9 @@ $a->strings['Display the first resharer as icon and text on a reshared item.'] =
 $a->strings['Stay local'] = 'Оставаться локально';
 $a->strings['Don\'t go to a remote system when following a contact link.'] = 'Не переходить на другие серверы по ссылкам профилей.';
 $a->strings['Link preview mode'] = 'Предпросмотр ссылок';
+$a->strings['Appearance of the link preview that is added to each post with a link.'] = 'Внешний вид предпросмотра ссылок,  который появляется в записях со ссылками.';
 $a->strings['Beginning of week:'] = 'Начало недели:';
+$a->strings['Default calendar view:'] = 'Вид календаря по-умолчанию:';
 $a->strings['Additional Features'] = 'Дополнительные возможности';
 $a->strings['Connected Apps'] = 'Подключенные приложения';
 $a->strings['Remove authorization'] = 'Удалить авторизацию';
@@ -2223,21 +2339,93 @@ $a->strings['Remove My Account'] = 'Удалить мой аккаунт';
 $a->strings['This will completely remove your account. Once this has been done it is not recoverable.'] = 'Это позволит полностью удалить ваш аккаунт. Как только это будет сделано, аккаунт восстановлению не подлежит.';
 $a->strings['Please enter your password for verification:'] = 'Пожалуйста, введите свой пароль для проверки:';
 $a->strings['Please enter your password to access this page.'] = 'Пожалуйста, введите ваш пароль для доступа к этой странице.';
+$a->strings['App-specific password generation failed: The description is empty.'] = 'Создание пароля приложения не удалось: не указано описание';
+$a->strings['App-specific password generation failed: This description already exists.'] = 'Создание пароля приложения не удалось: такое описание уже есть.';
+$a->strings['New app-specific password generated.'] = 'Новый пароль приложения сгенерирован';
+$a->strings['App-specific passwords successfully revoked.'] = 'Пароли для приложений успешно отозваны';
+$a->strings['App-specific password successfully revoked.'] = 'Пароль для приложения успешно отозван';
+$a->strings['Two-factor app-specific passwords'] = 'Пароли для приложений';
+$a->strings['<p>App-specific passwords are randomly generated passwords used instead your regular password to authenticate your account on third-party applications that don\'t support two-factor authentication.</p>'] = '<p>Пароли для приложений это случайно сгенерированные пароли, используемые вместо основного пароля для приложений, которые не поддерживают двухфакторную аутентификацию.</p>';
+$a->strings['Make sure to copy your new app-specific password now. You won’t be able to see it again!'] = 'Убедитесь, что вы скопировали этот новый пароль сейчас. Вы больше его не увидите!';
+$a->strings['Description'] = 'Описание';
+$a->strings['Last Used'] = 'Последнее использование';
+$a->strings['Revoke'] = 'Отозвать';
 $a->strings['Revoke All'] = 'Отозвать все';
+$a->strings['When you generate a new app-specific password, you must use it right away, it will be shown to you once after you generate it.'] = 'Когда вы создадите новый пароль приложения, вам нужно использовать его сразу же. Он будет показан один раз после его создания.';
+$a->strings['Generate new app-specific password'] = 'Создать новый пароль приложения';
+$a->strings['Friendiqa on my Fairphone 2...'] = 'Friendiqa на моём Fairphone 2...';
+$a->strings['Generate'] = 'Сгенерировать';
+$a->strings['Two-factor authentication successfully disabled.'] = 'Двухфакторная аутентификация успешно выключена.';
+$a->strings['<p>Use an application on a mobile device to get two-factor authentication codes when prompted on login.</p>'] = '<p>Используйте приложение на мобильном устройстве для получения кодов второго фактора при входе.</p>';
+$a->strings['Authenticator app'] = 'Приложение аутентификации';
+$a->strings['Configured'] = 'Настроено';
 $a->strings['Not Configured'] = 'Не настроено';
+$a->strings['<p>You haven\'t finished configuring your authenticator app.</p>'] = '<p>Вы не закончили настройку приложения для аутентификации.</p>';
+$a->strings['<p>Your authenticator app is correctly configured.</p>'] = '<p>Ваше приложение для аутентификации настроено.</p>';
+$a->strings['Recovery codes'] = 'Коды восстановления';
+$a->strings['Remaining valid codes'] = 'Оставшиеся коды восстановления';
+$a->strings['<p>These one-use codes can replace an authenticator app code in case you have lost access to it.</p>'] = '<p>Эти одноразовые коды могут заменить приложение для аутентификации, если вы его потеряете.</p>';
+$a->strings['App-specific passwords'] = 'Пароли для приложений';
+$a->strings['Generated app-specific passwords'] = 'Пароли для приложений';
+$a->strings['<p>These randomly generated passwords allow you to authenticate on apps not supporting two-factor authentication.</p>'] = '<p>Эти случайно сгенерированные пароли могут быть использованы в приложениях, не поддерживающих двухфакторную аутентификацию.</p>';
 $a->strings['Current password:'] = 'Текущий пароль:';
+$a->strings['You need to provide your current password to change two-factor authentication settings.'] = 'Вам нужно ввести ваш текущий пароль для изменения настроек аутентификации.';
 $a->strings['Enable two-factor authentication'] = 'Включить двухфакторную аутентификацию';
+$a->strings['Disable two-factor authentication'] = 'Отключить двухфакторную аутентификацию';
 $a->strings['Show recovery codes'] = 'Показать коды восстановления';
 $a->strings['Manage app-specific passwords'] = 'Управление паролями приложений';
+$a->strings['Manage trusted browsers'] = 'Управление доверенными браузерами';
 $a->strings['Finish app configuration'] = 'Закончить настройку приложения';
 $a->strings['New recovery codes successfully generated.'] = 'Новые коды восстановления успешно сгенерированы.';
 $a->strings['Two-factor recovery codes'] = 'Коды восстановления для ДФА';
+$a->strings['<p>Recovery codes can be used to access your account in the event you lose access to your device and cannot receive two-factor authentication codes.</p><p><strong>Put these in a safe spot!</strong> If you lose your device and don’t have the recovery codes you will lose access to your account.</p>'] = '<p>Коды восстановления могут быть использованы для входа в случае, если вы потеряли доступ к приложению и не можете получить коды второго фактора.</p><p><strong>Храните их в безопасном месте!</strong> Если вы потеряете устройство с приложением и эти коды, то вы потеряете доступ к вашей учётной записи.</p>';
+$a->strings['When you generate new recovery codes, you must copy the new codes. Your old codes won’t work anymore.'] = 'Когда вы создаёте новые коды восстановления, вам нужно их сохранить. Ранее созданные коды больше не будут работать.';
 $a->strings['Generate new recovery codes'] = 'Сгенерировать новые коды восстановления.';
+$a->strings['Next: Verification'] = 'Далее: Проверка';
+$a->strings['Trusted browsers successfully removed.'] = 'Доверенные браузеры успешно удалены.';
+$a->strings['Trusted browser successfully removed.'] = 'Доверенный браузер успешно удалён.';
+$a->strings['Two-factor Trusted Browsers'] = 'Доверенные браузеры';
+$a->strings['Trusted browsers are individual browsers you chose to skip two-factor authentication to access Friendica. Please use this feature sparingly, as it can negate the benefit of two-factor authentication.'] = 'Доверенные браузеры это браузеры, где вы можете пропускать использование двухфакторной аутентификации. Используйте эту возможность с осторожностью, так как это может лишить преимуществ двухфакторной аутентификации.';
+$a->strings['Device'] = 'Устройство';
+$a->strings['OS'] = 'ОС';
+$a->strings['Trusted'] = 'Доверие';
 $a->strings['Created At'] = 'Создано';
 $a->strings['Last Use'] = 'Последнее использование';
 $a->strings['Remove All'] = 'Удалить все';
 $a->strings['Two-factor authentication successfully activated.'] = 'Двухфакторная аутентификация успешно включена.';
+$a->strings['<p>Or you can submit the authentication settings manually:</p>
+<dl>
+	<dt>Issuer</dt>
+	<dd>%s</dd>
+	<dt>Account Name</dt>
+	<dd>%s</dd>
+	<dt>Secret Key</dt>
+	<dd>%s</dd>
+	<dt>Type</dt>
+	<dd>Time-based</dd>
+	<dt>Number of digits</dt>
+	<dd>6</dd>
+	<dt>Hashing algorithm</dt>
+	<dd>SHA-1</dd>
+</dl>'] = '<p>Или вы можете ввести настройки аутентификации вручную:</p>
+<dl>
+	<dt>Issuer</dt>
+	<dd>%s</dd>
+	<dt>Account Name</dt>
+	<dd>%s</dd>
+	<dt>Secret Key</dt>
+	<dd>%s</dd>
+	<dt>Type</dt>
+	<dd>Time-based</dd>
+	<dt>Number of digits</dt>
+	<dd>6</dd>
+	<dt>Hashing algorithm</dt>
+	<dd>SHA-1</dd>
+</dl>';
 $a->strings['Two-factor code verification'] = 'Проверка кода второго фактора';
+$a->strings['<p>Please scan this QR Code with your authenticator app and submit the provided code.</p>'] = '<p>Пожалуйста, отсканируйте этот QR-код вашим приложением для аутентификации и введите полученный код.</p>';
+$a->strings['<p>Or you can open the following URL in your mobile device:</p><p><a href="%s">%s</a></p>'] = '<p>Или вы можете открыть следующую ссылку на вашем мобильном устройстве:</p><p><a href="%s">%s</a></p>';
+$a->strings['Verify code and enable two-factor authentication'] = 'Проверить код и включить двухфакторную аутентификацию';
 $a->strings['Export account'] = 'Экспорт аккаунта';
 $a->strings['Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.'] = 'Экспорт ваших регистрационных данные и контактов. Используйте, чтобы создать резервную копию вашего аккаунта и/или переместить его на другой сервер.';
 $a->strings['Export all'] = 'Экспорт всего';
@@ -2246,6 +2434,7 @@ $a->strings['Export Contacts to CSV'] = 'Экспорт контактов в CS
 $a->strings['Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.'] = 'Выгрузить список пользователей, на которых вы подписаны, в CSV-файл. Совместимо с Mastodon и др.';
 $a->strings['Privacy Statement'] = 'Положение о конфиденциальности';
 $a->strings['Rules'] = 'Правила';
+$a->strings['Parameter uri_id is missing.'] = 'Параметр uri_id отсутствует.';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'Импорт пользователей на закрытых серверах может быть произведён только администратором.';
 $a->strings['Move account'] = 'Удалить аккаунт';
 $a->strings['You can import an account from another Friendica server.'] = 'Вы можете импортировать учетную запись с другого сервера Friendica.';
@@ -2379,8 +2568,14 @@ Login Name:	%s (%s)'] = 'Полное имя:	%s
 Расположение:	%s
 Имя для входа:	%s (%s)';
 $a->strings['Please visit %s to approve or reject the request.'] = 'Пожалуйста, посетите %s чтобы подтвердить или отвергнуть запрос.';
+$a->strings['new registration'] = 'новая регистрация';
+$a->strings['You\'ve received a new registration from \'%1$s\' at %2$s'] = 'У вас новая регистрация от \'%1$s\' на %2$s';
+$a->strings['You\'ve received a [url=%1$s]new registration[/url] from %2$s.'] = 'У вас [url=%1$s]новая регистрация[/url] от %2$s.';
+$a->strings['Please visit %s to have a look at the new registration.'] = 'Пожалуйста, посетите %s для просмотра новой регистрации.';
 $a->strings['%s %s tagged you'] = '%s %s отметил(и) Вас';
-$a->strings['%s %s shared a new post'] = '%s %s поделился(-ась) новым сообщением';
+$a->strings['%s %s shared a new post'] = '%s %s поделился(-ась) новой записью';
+$a->strings['%1$s %2$s liked your post #%3$d'] = '%1$s %2$s нравится ваша запись #%3$d';
+$a->strings['%1$s %2$s liked your comment on #%3$d'] = '%1$s %2$s нравится ваш комментарий в #%3$d';
 $a->strings['This message was sent to you by %s, a member of the Friendica social network.'] = 'Это сообщение было отправлено вам %s, участником социальной сети Friendica.';
 $a->strings['You may visit them online at %s'] = 'Вы можете посетить их в онлайне на %s';
 $a->strings['Please contact the sender by replying to this post if you do not wish to receive these messages.'] = 'Пожалуйста, свяжитесь с отправителем, ответив на это сообщение, если вы не хотите получать эти сообщения.';
@@ -2394,6 +2589,7 @@ $a->strings['Edit'] = 'Редактировать';
 $a->strings['Delete globally'] = 'Удалить везде';
 $a->strings['Remove locally'] = 'Убрать для себя';
 $a->strings['Block %s'] = 'Заблокировать %s';
+$a->strings['Ignore %s'] = 'Игнорировать %s';
 $a->strings['Save to folder'] = 'Сохранить в папку';
 $a->strings['I will attend'] = 'Я буду';
 $a->strings['I will not attend'] = 'Меня не будет';
@@ -2439,10 +2635,12 @@ $a->strings['%d comment'] = [
 ];
 $a->strings['Show more'] = 'Показать больше';
 $a->strings['Show fewer'] = 'Показать меньше';
+$a->strings['(no subject)'] = '(нет темы)';
 $a->strings['%s is now following %s.'] = '%s теперь подписан на %s.';
 $a->strings['following'] = 'следует';
 $a->strings['%s stopped following %s.'] = '%s отписался от %s.';
 $a->strings['stopped following'] = 'отписка от';
+$a->strings['The folder %s must be writable by webserver.'] = 'Каталог %s должен быть доступен для записи веб-сервером.';
 $a->strings['Login failed.'] = 'Войти не удалось.';
 $a->strings['Login failed. Please check your credentials.'] = 'Ошибка входа. Пожалуйста, проверьте данные для входа.';
 $a->strings['Welcome %s'] = 'Добро пожаловать, %s';
@@ -2468,7 +2666,6 @@ $a->strings['second'] = 'секунда';
 $a->strings['seconds'] = 'сек.';
 $a->strings['in %1$d %2$s'] = 'через %1$d %2$s';
 $a->strings['%1$d %2$s ago'] = '%1$d %2$s назад';
-$a->strings['(no subject)'] = '(нет темы)';
 $a->strings['Notification from Friendica'] = 'Уведомление от Friendica';
 $a->strings['Empty Post'] = 'Пустая запись';
 $a->strings['default'] = 'По умолчанию';
