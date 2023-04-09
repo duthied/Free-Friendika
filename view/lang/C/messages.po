@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-02 09:34+0000\n"
+"POT-Creation-Date: 2023-04-09 08:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -657,47 +657,93 @@ msgstr ""
 msgid "Apologies but the website is unavailable at the moment."
 msgstr ""
 
-#: src/App/Page.php:248
+#: src/App/Page.php:247
 msgid "Delete this item?"
 msgstr ""
 
-#: src/App/Page.php:249
+#: src/App/Page.php:248
 msgid ""
 "Block this author? They won't be able to follow you nor see your public "
 "posts, and you won't be able to see their posts and their notifications."
 msgstr ""
 
-#: src/App/Page.php:250
+#: src/App/Page.php:249
 msgid ""
 "Ignore this author? You won't be able to see their posts and their "
 "notifications."
 msgstr ""
 
-#: src/App/Page.php:256
+#: src/App/Page.php:251
 msgid "Like not successful"
 msgstr ""
 
-#: src/App/Page.php:257
+#: src/App/Page.php:252
 msgid "Dislike not successful"
 msgstr ""
 
-#: src/App/Page.php:258
+#: src/App/Page.php:253
 msgid "Sharing not successful"
 msgstr ""
 
-#: src/App/Page.php:259
+#: src/App/Page.php:254
 msgid "Attendance unsuccessful"
 msgstr ""
 
-#: src/App/Page.php:260
+#: src/App/Page.php:255
 msgid "Backend error"
 msgstr ""
 
-#: src/App/Page.php:261
+#: src/App/Page.php:256
 msgid "Network error"
 msgstr ""
 
-#: src/App/Page.php:329
+#: src/App/Page.php:259
+msgid "Drop files here to upload"
+msgstr ""
+
+#: src/App/Page.php:260
+msgid "Your browser does not support drag and drop file uploads."
+msgstr ""
+
+#: src/App/Page.php:261
+msgid ""
+"Please use the fallback form below to upload your files like in the olden "
+"days."
+msgstr ""
+
+#: src/App/Page.php:262
+msgid "File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB."
+msgstr ""
+
+#: src/App/Page.php:263
+msgid "You can't upload files of this type."
+msgstr ""
+
+#: src/App/Page.php:264
+msgid "Server responded with {{statusCode}} code."
+msgstr ""
+
+#: src/App/Page.php:265
+msgid "Cancel upload"
+msgstr ""
+
+#: src/App/Page.php:266
+msgid "Upload canceled."
+msgstr ""
+
+#: src/App/Page.php:267
+msgid "Are you sure you want to cancel this upload?"
+msgstr ""
+
+#: src/App/Page.php:268
+msgid "Remove file"
+msgstr ""
+
+#: src/App/Page.php:269
+msgid "You can't upload any more files."
+msgstr ""
+
+#: src/App/Page.php:347
 msgid "toggle mobile"
 msgstr ""
 
@@ -1550,7 +1596,7 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:326 src/Model/Item.php:2906
+#: src/Content/Item.php:326 src/Model/Item.php:2913
 msgid "event"
 msgstr ""
 
@@ -1558,7 +1604,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:335 src/Model/Item.php:2908
+#: src/Content/Item.php:335 src/Model/Item.php:2915
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -1953,39 +1999,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:712 src/Content/Text/BBCode.php:1596
-#: src/Content/Text/BBCode.php:1597
+#: src/Content/Text/BBCode.php:713 src/Content/Text/BBCode.php:1599
+#: src/Content/Text/BBCode.php:1600
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:930
+#: src/Content/Text/BBCode.php:931
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:955 src/Model/Item.php:3587
-#: src/Model/Item.php:3593 src/Model/Item.php:3594
+#: src/Content/Text/BBCode.php:956 src/Model/Item.php:3598
+#: src/Model/Item.php:3604 src/Model/Item.php:3605
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1503 src/Content/Text/HTML.php:902
+#: src/Content/Text/BBCode.php:1506 src/Content/Text/HTML.php:902
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1536
+#: src/Content/Text/BBCode.php:1539
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1601 src/Content/Text/BBCode.php:1602
+#: src/Content/Text/BBCode.php:1604 src/Content/Text/BBCode.php:1605
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1867
+#: src/Content/Text/BBCode.php:1881
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1886
+#: src/Content/Text/BBCode.php:1900
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -3134,81 +3180,81 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:2007
+#: src/Model/Item.php:2014
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2910
+#: src/Model/Item.php:2917
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2912
+#: src/Model/Item.php:2919
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2915 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:2922 src/Module/Post/Tag/Add.php:123
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:3073
+#: src/Model/Item.php:3084
 #, php-format
 msgid "%s is blocked"
 msgstr ""
 
-#: src/Model/Item.php:3075
+#: src/Model/Item.php:3086
 #, php-format
 msgid "%s is ignored"
 msgstr ""
 
-#: src/Model/Item.php:3077
+#: src/Model/Item.php:3088
 #, php-format
 msgid "Content from %s is collapsed"
 msgstr ""
 
-#: src/Model/Item.php:3081
+#: src/Model/Item.php:3092
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3499
+#: src/Model/Item.php:3510
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3530
+#: src/Model/Item.php:3541
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3532
+#: src/Model/Item.php:3543
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3537
+#: src/Model/Item.php:3548
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3539
+#: src/Model/Item.php:3550
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3541
+#: src/Model/Item.php:3552
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3575 src/Model/Item.php:3576
+#: src/Model/Item.php:3586 src/Model/Item.php:3587
 msgid "View on separate page"
 msgstr ""
 
