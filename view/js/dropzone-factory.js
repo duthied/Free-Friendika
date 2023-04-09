@@ -1,4 +1,5 @@
-var DzFactory = function () {
+Dropzone.autoDiscover = false;
+var DzFactory = function (max_imagesize) {
 	this.createDropzone = function(dropSelector, textareaElementId) {
 		return new Dropzone(dropSelector, {
 			paramName: 'userfile', // The name that will be used to transfer the file
@@ -6,6 +7,17 @@ var DzFactory = function () {
 			url: '/media/photo/upload?album=',
 			acceptedFiles: 'image/*',
 			clickable: true,
+			dictDefaultMessage: dzStrings.dictDefaultMessage,
+			dictFallbackMessage: dzStrings.dictFallbackMessage,
+			dictFallbackText: dzStrings.dictFallbackText,
+			dictFileTooBig: dzStrings.dictFileTooBig,
+			dictInvalidFileType: dzStrings.dictInvalidFileType,
+			dictResponseError: dzStrings.dictResponseError,
+			dictCancelUpload: dzStrings.dictCancelUpload,
+			dictUploadCanceled: dzStrings.dictUploadCanceled,
+			dictCancelUploadConfirmation: dzStrings.dictCancelUploadConfirmation,
+			dictRemoveFile: dzStrings.dictRemoveFile,
+			dictMaxFilesExceeded: dzStrings.dictMaxFilesExceeded,
 			accept: function(file, done) {
 				done();
 			},
@@ -54,9 +66,10 @@ var DzFactory = function () {
 	};
 
 	this.setupDropzone = function(dropSelector, textareaElementId) {
+		const self = this;
 		var dropzone = this.createDropzone(dropSelector, textareaElementId);
 		$(dropSelector).on('paste', function(event) {
-			dzFactory.copyPaste(event, dropzone);
+			self.copyPaste(event, dropzone);
 		})
 	};
 }

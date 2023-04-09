@@ -44,7 +44,12 @@
 <script type="text/javascript" src="view/asset/imagesloaded/imagesloaded.pkgd.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/asset/base64/base64.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/asset/dompurify/dist/purify.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript">
+	const updateInterval = {{$update_interval}};
+	const localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
+</script>
 <script type="text/javascript" src="view/js/main.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+
 <script>
 
 	// Lifted from https://css-tricks.com/snippets/jquery/move-cursor-to-end-of-textarea-or-input/
