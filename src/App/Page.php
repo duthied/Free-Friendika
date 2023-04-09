@@ -243,22 +243,40 @@ class Page implements ArrayAccess
 		 * being first
 		 */
 		$this->page['htmlhead'] = Renderer::replaceMacros($tpl, [
+			'$l10n' => [
+				'delitem'      => $l10n->t('Delete this item?'),
+				'blockAuthor'  => $l10n->t('Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'),
+				'ignoreAuthor' => $l10n->t('Ignore this author? You won\'t be able to see their posts and their notifications.'),
+
+				'likeError'     => $l10n->t('Like not successful'),
+				'dislikeError'  => $l10n->t('Dislike not successful'),
+				'announceError' => $l10n->t('Sharing not successful'),
+				'attendError'   => $l10n->t('Attendance unsuccessful'),
+				'srvError'      => $l10n->t('Backend error'),
+				'netError'      => $l10n->t('Network error'),
+
+				// Dropzone
+				'dictDefaultMessage'           => $l10n->t('Drop files here to upload'),
+				'dictFallbackMessage'          => $l10n->t("Your browser does not support drag and drop file uploads."),
+				'dictFallbackText'             => $l10n->t('Please use the fallback form below to upload your files like in the olden days.'),
+				'dictFileTooBig'               => $l10n->t('File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.'),
+				'dictInvalidFileType'          => $l10n->t("You can't upload files of this type."),
+				'dictResponseError'            => $l10n->t('Server responded with {{statusCode}} code.'),
+				'dictCancelUpload'             => $l10n->t('Cancel upload'),
+				'dictUploadCanceled'           => $l10n->t('Upload canceled.'),
+				'dictCancelUploadConfirmation' => $l10n->t('Are you sure you want to cancel this upload?'),
+				'dictRemoveFile'               => $l10n->t('Remove file'),
+				'dictMaxFilesExceeded'         => $l10n->t("You can't upload any more files."),
+			],
+
 			'$local_user'      => $localUID,
 			'$generator'       => 'Friendica' . ' ' . App::VERSION,
-			'$delitem'         => $l10n->t('Delete this item?'),
-			'$blockAuthor'     => $l10n->t('Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'),
-			'$ignoreAuthor'    => $l10n->t('Ignore this author? You won\'t be able to see their posts and their notifications.'),
 			'$update_interval' => $interval,
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,
 			'$block_public'    => intval($config->get('system', 'block_public')),
 			'$stylesheets'     => $this->stylesheets,
-			'$likeError'       => $l10n->t('Like not successful'),
-			'$dislikeError'    => $l10n->t('Dislike not successful'),
-			'$announceError'   => $l10n->t('Sharing not successful'),
-			'$attendError'     => $l10n->t('Attendance unsuccessful'),
-			'$srvError'        => $l10n->t('Backend error'),
-			'$netError'        => $l10n->t('Network error'),
+
 			// Dropzone
 			'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand($config->get('system', 'maximagesize')) / 1000000, 1),
 
