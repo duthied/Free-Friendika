@@ -42,6 +42,8 @@ Version 2023.04 (unreleased)
     mailstream
       Various modernization [mexon]
       Include post media [mexon]
+    securemail
+      Updated the phpseclib dependency [MrPetovan]
     twitter
       Improve remote-self handling [annando]
     impressum
