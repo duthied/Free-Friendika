@@ -4049,7 +4049,7 @@ class Diaspora
 			return false;
 		}
 
-		if (!self::parentSupportDiaspora($item['thr-parent-id'])) {
+		if (!self::parentSupportDiaspora($item['thr-parent-id'], $uid)) {
 			Logger::info('One of the parents does not support Diaspora. A signature will not be created.', ['uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 			return false;
 		}
@@ -4068,13 +4068,14 @@ class Diaspora
 	 * Check if the parent and their parents support Diaspora
 	 *
 	 * @param integer $parent_id
+	 * @param integer $uid
 	 * @return boolean
 	 * @throws InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function parentSupportDiaspora(int $parent_id): bool
+	private static function parentSupportDiaspora(int $parent_id, int $uid): bool
 	{
-		$parent_post = Post::selectFirstPost(['gravity', 'signed_text', 'author-link', 'thr-parent-id'], ['uri-id' => $parent_id]);
+		$parent_post = Post::selectFirst(['gravity', 'signed_text', 'author-link', 'thr-parent-id', 'protocol'], ['uri-id' => $parent_id, 'uid' => [0, $uid]]);
 		if (empty($parent_post['thr-parent-id'])) {
 			Logger::warning('Parent post does not exist.', ['parent-id' => $parent_id]);
 			return false;
@@ -4085,13 +4086,13 @@ class Diaspora
 			return false;
 		}
 
-		if (($parent_post['gravity'] == Item::GRAVITY_COMMENT) && empty($parent_post['signed_text'])) {
+		if (($parent_post['protocol'] != Conversation::PARCEL_DIASPORA) && ($parent_post['gravity'] == Item::GRAVITY_COMMENT) && empty($parent_post['signed_text'])) {
 			Logger::info('Parent comment has got no Diaspora signature.', ['parent-id' => $parent_id]);
 			return false;
 		}
 
 		if ($parent_post['gravity'] == Item::GRAVITY_COMMENT) {
-			return self::parentSupportDiaspora($parent_post['thr-parent-id']);
+			return self::parentSupportDiaspora($parent_post['thr-parent-id'], $uid);
 		}
 
 		return true;
