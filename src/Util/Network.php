@@ -79,11 +79,19 @@ class Network
 
 		if (in_array(parse_url($url, PHP_URL_SCHEME), ['https', 'http'])) {
 			$options = [HttpClientOptions::VERIFY => true, HttpClientOptions::TIMEOUT => $xrd_timeout];
-			$curlResult = DI::httpClient()->head($url, $options);
+			try {
+				$curlResult = DI::httpClient()->head($url, $options);
+			} catch (\Exception $e) {
+				return false;
+			}
 
 			// Workaround for systems that can't handle a HEAD request. Don't retry on timeouts.
 			if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() >= 400) && !in_array($curlResult->getReturnCode(), [408, 504])) {
-				$curlResult = DI::httpClient()->get($url, HttpClientAccept::DEFAULT, $options);
+				try {
+					$curlResult = DI::httpClient()->get($url, HttpClientAccept::DEFAULT, $options);
+				} catch (\Exception $e) {
+					return false;
+				}
 			}
 
 			if (!$curlResult->isSuccess()) {

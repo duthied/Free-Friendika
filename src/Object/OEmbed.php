@@ -34,6 +34,7 @@ class OEmbed
 
 	public $type             = '';
 	public $title            = '';
+	public $description      = '';
 	public $author_name      = '';
 	public $author_url       = '';
 	public $provider_name    = '';
