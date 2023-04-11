@@ -70,7 +70,12 @@ class ParseUrl
 			$options = [];
 		}
 
-		$curlResult = DI::httpClient()->head($url, array_merge([HttpClientOptions::ACCEPT_CONTENT => $accept], $options));
+		try {
+			$curlResult = DI::httpClient()->head($url, array_merge([HttpClientOptions::ACCEPT_CONTENT => $accept], $options));
+		} catch (\Exception $e) {
+			DI::logger()->debug('Got exception', ['url' => $url, 'message' => $e->getMessage()]);
+			return [];
+		}
 
 		// Workaround for systems that can't handle a HEAD request. Don't retry on timeouts.
 		if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() >= 400) && !in_array($curlResult->getReturnCode(), [408, 504])) {
