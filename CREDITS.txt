@@ -7,6 +7,7 @@ Adam Clark
 Adam Jurkiewicz
 Adam Magness
 Aditoo
+Aditoo17
 AgnesElisa
 Albert
 Aleksandr "M.O.Z.G" Dikov
@@ -74,8 +75,11 @@ CrystalStiletto
 Cyboulette
 Cyryl Sochacki
 czarnystokrotek
+daingewuvzeevisiddfddd
+Damian Wajer
 Damien Goutte-Gattat
 Daniel Dupriest
+Daniel Siepmann
 Daria Początek
 David
 David Martín Miranda
@@ -101,6 +105,7 @@ erik
 Erkan Yilmaz
 Eugene Veresk
 Extarys
+F1per 3y
 Fabian Dost
 Fabio Comuni
 Farida Khalaf
@@ -126,6 +131,7 @@ GunChleoc
 guzzisti
 Haakon Meland Eriksen
 Hank Grabowski
+Hannes Heute
 Hans Meine
 Hauke
 Hauke Altmann
@@ -138,7 +144,7 @@ Ilmari
 ImgBotApp
 irhen
 Jakob
-Jakobus Schürz (admin)
+Jakob Schürz
 Jens Tautenhahn
 jensp
 Jeroen De Meerleer
@@ -153,6 +159,7 @@ John Mortensen
 Jonatan Nyberg
 Jonny Tischbein
 Josef Moravek
+Josh Soref
 juanman
 julia.domagalska
 Julio Cova
@@ -185,6 +192,7 @@ Marcin Klessa
 Marcin Mikołajczak
 Marcus Müller
 Marek Bachmann
+MarekBenjamin
 Marie Olive
 Mariusz Pisz
 marmor
@@ -209,6 +217,7 @@ mytbk
 nathilia-peirce
 Nicola Spanti
 Nicolas Derive
+nnsrymni
 nobody
 nupplaPhil
 Olaf Conradi
@@ -227,6 +236,7 @@ Pavel Morozov
 PerigGouanvic
 peter
 Peter Liebetrau
+Petr Kučera
 peturisfeld
 Phigger Phigger
 Philipp
@@ -244,7 +254,7 @@ Rafael Kalachev
 Rain Hawk
 Rainulf Pineda
 Ralf Thees
-Ralph
+ralph van der honing
 Ratten
 rcmaniac
 RealKinetix
@@ -257,6 +267,7 @@ Rik 4
 RJ Madsen
 Roger Meyer
 Roland Häder
+Ruud Schilders
 rwa
 Ryan Voots
 S.Krumbholz
@@ -338,6 +349,7 @@ Wil Tur
 Wouter Broers
 Xiaofei Xu
 XMPPはいいぞ
+xundeenergie
 Yasen Pramatarov
 Yasmine A
 ylms
