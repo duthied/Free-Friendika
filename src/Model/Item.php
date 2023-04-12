@@ -244,7 +244,15 @@ class Item
 		DBA::close($items);
 
 		foreach ($notify_items as $notify_item) {
-			$post = Post::selectFirst(['uri-id', 'uid'], ['id' => $notify_item]);
+			$post = Post::selectFirst([], ['id' => $notify_item]);
+
+			if ($post['gravity'] != self::GRAVITY_PARENT) {
+				$signed = Diaspora::createCommentSignature($post);
+				if (!empty($signed)) {
+					DBA::replace('diaspora-interaction', ['uri-id' => $post['uri-id'], 'interaction' => json_encode($signed)]);
+				}
+			}
+
 			Worker::add(Worker::PRIORITY_HIGH, 'Notifier', Delivery::POST, (int)$post['uri-id'], (int)$post['uid']);
 		}
 
