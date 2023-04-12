@@ -136,7 +136,7 @@ class Attachment extends BaseFactory
 		$url = $this->baseUrl . '/photo/' . $photo['resource-id'] . '-0.' . $ext;
 
 		$preview = Photo::selectFirst(['scale'], ["`resource-id` = ? AND `uid` = ? AND `scale` > ?", $photo['resource-id'], $photo['uid'], 0], ['order' => ['scale']]);
-		if (empty($scale)) {
+		if (!empty($preview)) {
 			$preview_url = $this->baseUrl . '/photo/' . $photo['resource-id'] . '-' . $preview['scale'] . '.' . $ext;
 		} else {
 			$preview_url = '';
