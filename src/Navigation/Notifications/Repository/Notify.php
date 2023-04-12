@@ -785,7 +785,7 @@ class Notify extends BaseRepository
 			$params['type'] = Model\Notification\Type::COMMENT;
 			$subject        = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $item['parent'], $contact['name']);
 
-			if ($params['verb'] = Activity::LIKE) {
+			if ($params['verb'] == Activity::LIKE) {
 				switch ($Notification->type) {
 					case Model\Post\UserNotification::TYPE_DIRECT_COMMENT:
 						$subject = $l10n->t('%1$s %2$s liked your post #%3$d', $subjectPrefix, $contact['name'], $item['parent']);
