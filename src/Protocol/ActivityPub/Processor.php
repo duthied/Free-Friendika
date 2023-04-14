@@ -1026,6 +1026,9 @@ class Processor
 				case Receiver::TARGET_BCC:
 					$item['post-reason'] = Item::PR_BCC;
 					break;
+				case Receiver::TARGET_AUDIENCE:
+					$item['post-reason'] = Item::PR_AUDIENCE;
+					break;
 				case Receiver::TARGET_FOLLOWER:
 					$item['post-reason'] = Item::PR_FOLLOWER;
 					break;
@@ -1071,7 +1074,7 @@ class Processor
 				continue;
 			}
 
-			if (($receiver != 0) && ($item['gravity'] == Item::GRAVITY_PARENT) && !in_array($item['post-reason'], [Item::PR_FOLLOWER, Item::PR_TAG, item::PR_TO, Item::PR_CC])) {
+			if (($receiver != 0) && ($item['gravity'] == Item::GRAVITY_PARENT) && !in_array($item['post-reason'], [Item::PR_FOLLOWER, Item::PR_TAG, item::PR_TO, Item::PR_CC, Item::PR_AUDIENCE])) {
 				if (!($item['isForum'] ?? false)) {
 					if ($item['post-reason'] == Item::PR_BCC) {
 						Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id'], 'url' => $item['uri']]);
@@ -1274,7 +1277,7 @@ class Processor
 
 	public static function storeReceivers(int $uriid, array $receivers)
 	{
-		foreach (['as:to' => Tag::TO, 'as:cc' => Tag::CC, 'as:bto' => Tag::BTO, 'as:bcc' => Tag::BCC] as $element => $type) {
+		foreach (['as:to' => Tag::TO, 'as:cc' => Tag::CC, 'as:bto' => Tag::BTO, 'as:bcc' => Tag::BCC, 'as:audience' => Tag::AUDIENCE, 'as:attributedTo' => Tag::ATTRIBUTED] as $element => $type) {
 			if (!empty($receivers[$element])) {
 				foreach ($receivers[$element] as $receiver) {
 					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {

@@ -190,7 +190,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 		}
 
 		$receivers = [];
-		foreach (Tag::getByURIId($uriId, [Tag::TO, Tag::CC, Tag::BCC]) as $receiver) {
+		foreach (Tag::getByURIId($uriId, [Tag::TO, Tag::CC, Tag::BCC, Tag::AUDIENCE, Tag::ATTRIBUTED]) as $receiver) {
 			// We only display BCC when it contains the current user
 			if (($receiver['type'] == Tag::BCC) && ($receiver['url'] != $own_url)) {
 				continue;
@@ -236,7 +236,13 @@ class PermissionTooltip extends \Friendica\BaseModule
 				case Tag::BCC:
 					$output .= DI::l10n()->t('<b>BCC:</b> %s<br>', implode(', ', $receiver));
 					break;
-			}
+				case Tag::AUDIENCE:
+					$output .= DI::l10n()->t('<b>Audience:</b> %s<br>', implode(', ', $receiver));
+					break;
+				case Tag::ATTRIBUTED:
+					$output .= DI::l10n()->t('<b>Attributed To:</b> %s<br>', implode(', ', $receiver));
+					break;
+				}
 		}
 
 		return $output;

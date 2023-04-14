@@ -73,6 +73,7 @@ class Receiver
 	const TARGET_FOLLOWER = 5;
 	const TARGET_ANSWER = 6;
 	const TARGET_GLOBAL = 7;
+	const TARGET_AUDIENCE = 8;
 
 	const COMPLETION_NONE     = 0;
 	const COMPLETION_ANNOUNCE = 1;
@@ -487,7 +488,7 @@ class Receiver
 			$object_data['object_type'] = $object_type;
 		}
 
-		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc', 'as:audience', 'as:attributedTo'] as $element) {
 			if ((empty($object_data['receiver_urls'][$element]) || in_array($element, ['as:bto', 'as:bcc'])) && !empty($urls[$element])) {
 				$object_data['receiver_urls'][$element] = array_unique(array_merge($object_data['receiver_urls'][$element] ?? [], $urls[$element]));
 			}
@@ -1032,7 +1033,7 @@ class Receiver
 	{
 		$urls = [];
 
-		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc', 'as:audience', 'as:attributedTo'] as $element) {
 			$receiver_list = JsonLD::fetchElementArray($activity, $element, '@id');
 			if (empty($receiver_list)) {
 				continue;
@@ -1104,7 +1105,7 @@ class Receiver
 		// We have to prevent false follower assumptions upon thread completions
 		$follower_target = empty($activity['thread-completion']) ? self::TARGET_FOLLOWER : self::TARGET_UNKNOWN;
 
-		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc','as:audience'] as $element) {
 			$receiver_list = JsonLD::fetchElementArray($activity, $element, '@id');
 			if (empty($receiver_list)) {
 				continue;
@@ -1165,7 +1166,10 @@ class Receiver
 						case 'as:bcc':
 							$type = self::TARGET_BCC;
 							break;
-					}
+						case 'as:audience':
+							$type = self::TARGET_AUDIENCE;
+							break;
+						}
 
 					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $type];
 				}

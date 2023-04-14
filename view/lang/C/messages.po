@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-09 08:27-0400\n"
+"POT-Creation-Date: 2023-04-14 17:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1388,81 +1388,82 @@ msgstr ""
 
 #: src/Content/Conversation.php:865 src/Content/Conversation.php:868
 #: src/Content/Conversation.php:871 src/Content/Conversation.php:874
+#: src/Content/Conversation.php:877
 #, php-format
 msgid "You had been addressed (%s)."
 msgstr ""
 
-#: src/Content/Conversation.php:877
+#: src/Content/Conversation.php:880
 #, php-format
 msgid "You are following %s."
 msgstr ""
 
-#: src/Content/Conversation.php:880
+#: src/Content/Conversation.php:883
 msgid "You subscribed to one or more tags in this post."
 msgstr ""
 
-#: src/Content/Conversation.php:893
+#: src/Content/Conversation.php:896
 #, php-format
 msgid "%s reshared this."
 msgstr ""
 
-#: src/Content/Conversation.php:895
+#: src/Content/Conversation.php:898
 msgid "Reshared"
-msgstr ""
-
-#: src/Content/Conversation.php:895
-#, php-format
-msgid "Reshared by %s <%s>"
 msgstr ""
 
 #: src/Content/Conversation.php:898
 #, php-format
-msgid "%s is participating in this thread."
+msgid "Reshared by %s <%s>"
 msgstr ""
 
 #: src/Content/Conversation.php:901
-msgid "Stored for general reasons"
+#, php-format
+msgid "%s is participating in this thread."
 msgstr ""
 
 #: src/Content/Conversation.php:904
+msgid "Stored for general reasons"
+msgstr ""
+
+#: src/Content/Conversation.php:907
 msgid "Global post"
 msgstr ""
 
-#: src/Content/Conversation.php:907
+#: src/Content/Conversation.php:910
 msgid "Sent via an relay server"
 msgstr ""
 
-#: src/Content/Conversation.php:907
+#: src/Content/Conversation.php:910
 #, php-format
 msgid "Sent via the relay server %s <%s>"
 msgstr ""
 
-#: src/Content/Conversation.php:910
+#: src/Content/Conversation.php:913
 msgid "Fetched"
 msgstr ""
 
-#: src/Content/Conversation.php:910
+#: src/Content/Conversation.php:913
 #, php-format
 msgid "Fetched because of %s <%s>"
 msgstr ""
 
-#: src/Content/Conversation.php:913
+#: src/Content/Conversation.php:916
 msgid "Stored because of a child post to complete this thread."
 msgstr ""
 
-#: src/Content/Conversation.php:916
+#: src/Content/Conversation.php:919
 msgid "Local delivery"
 msgstr ""
 
-#: src/Content/Conversation.php:919
+#: src/Content/Conversation.php:922
 msgid "Stored because of your activity (like, comment, star, ...)"
 msgstr ""
 
-#: src/Content/Conversation.php:922
+#: src/Content/Conversation.php:925
 msgid "Distributed"
 msgstr ""
 
-#: src/Content/Conversation.php:925
+#: src/Content/Conversation.php:928
 msgid "Pushed to us"
 msgstr ""
 
@@ -1596,7 +1597,7 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:326 src/Model/Item.php:2913
+#: src/Content/Item.php:326 src/Model/Item.php:2922
 msgid "event"
 msgstr ""
 
@@ -1604,7 +1605,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:335 src/Model/Item.php:2915
+#: src/Content/Item.php:335 src/Model/Item.php:2924
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -2010,8 +2011,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:956 src/Model/Item.php:3598
-#: src/Model/Item.php:3604 src/Model/Item.php:3605
+#: src/Content/Text/BBCode.php:956 src/Model/Item.php:3607
+#: src/Model/Item.php:3613 src/Model/Item.php:3614
 msgid "Link to source"
 msgstr ""
 
@@ -3180,81 +3181,81 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:2014
+#: src/Model/Item.php:2023
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2917
+#: src/Model/Item.php:2926
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2919
+#: src/Model/Item.php:2928
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2922 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:2931 src/Module/Post/Tag/Add.php:123
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:3084
+#: src/Model/Item.php:3093
 #, php-format
 msgid "%s is blocked"
 msgstr ""
 
-#: src/Model/Item.php:3086
+#: src/Model/Item.php:3095
 #, php-format
 msgid "%s is ignored"
 msgstr ""
 
-#: src/Model/Item.php:3088
+#: src/Model/Item.php:3097
 #, php-format
 msgid "Content from %s is collapsed"
 msgstr ""
 
-#: src/Model/Item.php:3092
+#: src/Model/Item.php:3101
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3510
+#: src/Model/Item.php:3519
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3541
+#: src/Model/Item.php:3550
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3543
+#: src/Model/Item.php:3552
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3548
+#: src/Model/Item.php:3557
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3550
+#: src/Model/Item.php:3559
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3552
+#: src/Model/Item.php:3561
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3586 src/Model/Item.php:3587
+#: src/Model/Item.php:3595 src/Model/Item.php:3596
 msgid "View on separate page"
 msgstr ""
 
@@ -8248,6 +8249,16 @@ msgstr ""
 #: src/Module/PermissionTooltip.php:237
 #, php-format
 msgid "<b>BCC:</b> %s<br>"
+msgstr ""
+
+#: src/Module/PermissionTooltip.php:240
+#, php-format
+msgid "<b>Audience:</b> %s<br>"
+msgstr ""
+
+#: src/Module/PermissionTooltip.php:243
+#, php-format
+msgid "<b>Attributed To:</b> %s<br>"
 msgstr ""
 
 #: src/Module/Photo.php:129
