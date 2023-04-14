@@ -242,7 +242,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 				case Tag::ATTRIBUTED:
 					$output .= DI::l10n()->t('<b>Attributed To:</b> %s<br>', implode(', ', $receiver));
 					break;
-				}
+			}
 		}
 
 		return $output;

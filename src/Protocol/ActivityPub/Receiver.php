@@ -1169,7 +1169,7 @@ class Receiver
 						case 'as:audience':
 							$type = self::TARGET_AUDIENCE;
 							break;
-						}
+					}
 
 					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $type];
 				}

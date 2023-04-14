@@ -225,7 +225,7 @@ class ClientToServer
 				case 'as:audience':
 					$type = Receiver::TARGET_AUDIENCE;
 					break;
-				}
+			}
 			$receiver_list = JsonLD::fetchElementArray($object, $element, '@id');
 			if (empty($receiver_list)) {
 				continue;
