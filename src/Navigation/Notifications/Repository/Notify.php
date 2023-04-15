@@ -264,7 +264,7 @@ class Notify extends BaseRepository
 			}
 		}
 
-		$siteurl = $this->baseUrl;
+		$siteurl = (string)$this->baseUrl;
 		$sitename = $this->config->get('config', 'sitename');
 
 		// with $params['show_in_notification_page'] == false, the notification isn't inserted into
@@ -807,7 +807,7 @@ class Notify extends BaseRepository
 		$epreamble = $msg['rich'];
 
 		$sitename = $this->config->get('config', 'sitename');
-		$siteurl  = $this->baseUrl;
+		$siteurl  = (string)$this->baseUrl;
 
 		$sitelink  = $l10n->t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);

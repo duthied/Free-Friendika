@@ -232,7 +232,7 @@ class Import extends \Friendica\BaseModule
 		}
 
 		$oldBaseUrl = $account['baseurl'];
-		$newBaseUrl = $this->baseUrl;
+		$newBaseUrl = (string)$this->baseUrl;
 
 		$oldAddr = str_replace('http://', '@', Strings::normaliseLink($oldBaseUrl));
 		$newAddr = str_replace('http://', '@', Strings::normaliseLink($newBaseUrl));
