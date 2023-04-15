@@ -343,7 +343,7 @@ class Install extends BaseModule
 	 */
 	private function whatNext(): string
 	{
-		$baseurl = $this->baseUrl;
+		$baseurl = (string)$this->baseUrl;
 		return
 			$this->t('<h1>What next</h1>')
 			. "<p>" . $this->t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
