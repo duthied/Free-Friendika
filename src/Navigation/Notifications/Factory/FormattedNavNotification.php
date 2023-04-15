@@ -128,7 +128,7 @@ class FormattedNavNotification extends BaseFactory
 		}
 
 		if (!isset(self::$contacts[$notification->actorId])) {
-			self::$contacts[$notification->actorId] = Contact::getById($notification->actorId, ['name', 'url']);
+			self::$contacts[$notification->actorId] = Contact::getById($notification->actorId, ['name', 'url', 'pending']);
 		}
 
 		return $this->createFromParams(
