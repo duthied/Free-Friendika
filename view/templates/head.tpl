@@ -85,9 +85,6 @@
         });
     };
 
-    var updateInterval = {{$update_interval}};
-	var localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
-
 	function confirmDelete() { return confirm("{{$delitem}}"); }
 	function commentExpand(id) {
 		$("#comment-edit-text-" + id).putCursorAtEnd();
