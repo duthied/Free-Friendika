@@ -635,7 +635,7 @@ class Media
 			foreach ($matches[1] as $url) {
 				Logger::info('Got page url (link without description)', ['uri-id' => $uriid, 'url' => $url]);
 				$result = self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url], false, $network);
-				if ($result && ($network == Protocol::DFRN)) {
+				if ($result && !in_array($network, [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA])) {
 					self::revertHTMLType($uriid, $url, $fullbody);
 					Logger::debug('Revert HTML type', ['uri-id' => $uriid, 'url' => $url]);
 				} elseif ($result) {
@@ -651,7 +651,7 @@ class Media
 			foreach ($matches[1] as $url) {
 				Logger::info('Got page url (link with description)', ['uri-id' => $uriid, 'url' => $url]);
 				$result = self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url], false, $network);
-				if ($result && ($network == Protocol::DFRN)) {
+				if ($result && !in_array($network, [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA])) {
 					self::revertHTMLType($uriid, $url, $fullbody);
 					Logger::debug('Revert HTML type', ['uri-id' => $uriid, 'url' => $url]);
 				} elseif ($result) {
