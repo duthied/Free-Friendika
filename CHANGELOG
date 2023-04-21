@@ -1,7 +1,7 @@
 Version 2023.04 (unreleased)
   Friendica Core
     Updates to the translations AR, BG, CA, CS, DA, DE, EO, ES, ET, FR, GD, HU, IS, IT, JA, NL, PL, RU, SV
-    Updates to the themes (frio) [damianwajer, haheute, xundeenergie]
+    Updates to the themes (frio, vier) [damianwajer, haheute, MrPetovan, xundeenergie]
     Updates to the documentation [haheute, HankG, MarekBenjamin, MrPetovan]
     General code cleanup [annando, MarekBenjamin, MrPetovan, nupplaphil]
     Fixed display of blocked contacts [annando]
@@ -64,7 +64,8 @@ Version 2023.04 (unreleased)
     12607, 12608, 12616, 12617, 12620, 12624, 12625, 12629, 12654, 12658,
     12661, 12665, 12672, 12677, 12682, 12705, 12713, 12721, 12753, 12764,
     12779, 12792, 12793, 12803, 12809, 12828, 12835, 12842, 12846, 12847,
-    12858, 12859, 12871, 12888, 12924, 12944, 12970
+    12858, 12859, 12871, 12888, 12924, 12944, 12970, 12974, 12983, 12993,
+    12995, 13002, 19996
 
 Version 2023.01 (2023-01-15)
   Friendica Core
