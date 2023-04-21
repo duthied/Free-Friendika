@@ -1289,7 +1289,7 @@ msgstr "Публичная запись"
 #: src/Model/Profile.php:469 src/Module/Admin/Logs/View.php:93
 #: src/Module/Post/Edit.php:177
 msgid "Message"
-msgstr "Личное"
+msgstr "Запись"
 
 #: src/Content/Conversation.php:407 src/Module/Post/Edit.php:178
 #: src/Module/Settings/TwoFactor/Trusted.php:140
@@ -1990,7 +1990,7 @@ msgstr "Конец"
 #: src/Content/Text/HTML.php:884 src/Content/Widget/VCard.php:109
 #: src/Model/Profile.php:463 src/Module/Contact/Profile.php:438
 msgid "Follow"
-msgstr "Подписаться"
+msgstr "Подписка"
 
 #: src/Content/Widget.php:51
 msgid "Add New Contact"
@@ -3152,12 +3152,12 @@ msgstr "пост"
 #: src/Model/Item.php:3059
 #, php-format
 msgid "%s is blocked"
-msgstr ""
+msgstr "%s заблокирован"
 
 #: src/Model/Item.php:3061
 #, php-format
 msgid "%s is ignored"
-msgstr ""
+msgstr "%s игнорируется"
 
 #: src/Model/Item.php:3063
 #, php-format
@@ -3403,7 +3403,7 @@ msgstr "Длина пароля ограничена 72 символами."
 
 #: src/Model/User.php:807
 msgid "The password can't contain white spaces nor accentuated letters"
-msgstr ""
+msgstr "Пароль не может содержать пробелов и букв с акцентами."
 
 #: src/Model/User.php:1002
 msgid "Passwords do not match. Password unchanged."
@@ -8808,7 +8808,7 @@ msgstr "Ваш текущий пароль, для подтверждения и
 msgid ""
 "Allowed characters are a-z, A-Z, 0-9 and special characters except white "
 "spaces and accentuated letters."
-msgstr ""
+msgstr "Допустимые символы a-z, A-Z, 0-9 и специальные символы за исключением пробелов и букв с акцентами."
 
 #: src/Module/Security/PasswordTooLong.php:101
 #: src/Module/Settings/Account.php:553
@@ -9420,13 +9420,13 @@ msgstr "Diaspora (Socialhome, Hubzilla)"
 #: src/Module/Settings/Connectors.php:168
 #, php-format
 msgid "Built-in support for %s connectivity is enabled"
-msgstr ""
+msgstr "Встроенная поддержка для %s включена"
 
 #: src/Module/Settings/Connectors.php:165
 #: src/Module/Settings/Connectors.php:167
 #, php-format
 msgid "Built-in support for %s connectivity is disabled"
-msgstr ""
+msgstr "Встроенная поддержка для %s отключена"
 
 #: src/Module/Settings/Connectors.php:167
 #: src/Module/Settings/Connectors.php:168
@@ -10407,7 +10407,7 @@ msgstr "Выгрузить список пользователей, на кот�
 
 #: src/Module/Special/DisplayNotFound.php:37
 msgid "Not Found"
-msgstr ""
+msgstr "Не найдено"
 
 #: src/Module/Special/DisplayNotFound.php:38
 msgid ""
@@ -11399,42 +11399,42 @@ msgstr "Показать меньше"
 #: src/Object/Post.php:623
 #, php-format
 msgid "Reshared by: %s"
-msgstr ""
+msgstr "Репост от: %s"
 
 #: src/Object/Post.php:628
 #, php-format
 msgid "Viewed by: %s"
-msgstr ""
+msgstr "Просмотрено: %s"
 
 #: src/Object/Post.php:633
 #, php-format
 msgid "Liked by: %s"
-msgstr ""
+msgstr "Понравилось: %s"
 
 #: src/Object/Post.php:638
 #, php-format
 msgid "Disliked by: %s"
-msgstr ""
+msgstr "Не понравилось: %s"
 
 #: src/Object/Post.php:643
 #, php-format
 msgid "Attended by: %s"
-msgstr ""
+msgstr "Присутствуют: %s"
 
 #: src/Object/Post.php:648
 #, php-format
 msgid "Maybe attended by: %s"
-msgstr ""
+msgstr "Под вопросом: %s"
 
 #: src/Object/Post.php:653
 #, php-format
 msgid "Not attended by: %s"
-msgstr ""
+msgstr "Не присутствуют: %s"
 
 #: src/Object/Post.php:658
 #, php-format
 msgid "Reacted with %s by: %s"
-msgstr ""
+msgstr "Отреагировали как %s : %s"
 
 #: src/Protocol/Delivery.php:547
 msgid "(no subject)"
