@@ -14,4 +14,8 @@ at the suggest page and also at many other places *}}
 	<div id="view-contact-end"></div>
 
 	{{$paginate nofilter}}
+
+{{if $filtered}}
+	<p>{{$filtered nofilter}}</p>
+{{/if}}
 </div>

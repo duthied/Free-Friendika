@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.03-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-18 19:28+0000\n"
+"POT-Creation-Date: 2023-04-20 07:48-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5540,9 +5540,22 @@ msgstr ""
 msgid "Forum Search - %s"
 msgstr ""
 
-#: src/Module/BaseSearch.php:119 src/Module/Contact/MatchInterests.php:139
+#: src/Module/BaseSearch.php:121 src/Module/Contact/MatchInterests.php:139
 msgid "No matches"
 msgstr ""
+
+#: src/Module/BaseSearch.php:147
+#, php-format
+msgid ""
+"%d result was filtered out because your node blocks the domain it is "
+"registered on. You can review the list of domains your node is currently "
+"blocking in the <a href=\"/friendica\">About page</a>."
+msgid_plural ""
+"%d results were filtered out because your node blocks the domain they are "
+"registered on. You can review the list of domains your node is currently "
+"blocking in the <a href=\"/friendica\">About page</a>."
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Module/BaseSettings.php:80
 msgid "Account"
