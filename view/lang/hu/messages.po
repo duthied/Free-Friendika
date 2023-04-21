@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the Friendica package.
 # 
 # Translators:
-# Balázs Úr, 2020-2022
+# Balázs Úr, 2020-2023
 # Balázs Úr <ur.balazs@fsf.hu>, 2020
 # Kastal András <kastal@gmail.com>, 2018
 # Kastal András <kastal@gmail.com>, 2018
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-02-18 20:49+0000\n"
 "PO-Revision-Date: 2011-05-05 10:19+0000\n"
-"Last-Translator: Balázs Úr, 2020-2022\n"
+"Last-Translator: Balázs Úr, 2020-2023\n"
 "Language-Team: Hungarian (http://app.transifex.com/Friendica/friendica/language/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -673,7 +673,7 @@ msgstr "Tiltja ezt a szerzőt? Nem lesz képes követni Önt, és a nyilvános b
 msgid ""
 "Ignore this author? You won't be able to see their posts and their "
 "notifications."
-msgstr ""
+msgstr "Mellőzi ezt a szerzőt? Nem lesz képes megtekinteni az ő bejegyzéseit és értesítéseit."
 
 #: src/App/Page.php:320
 msgid "toggle mobile"
@@ -1087,7 +1087,7 @@ msgstr "és %d más személy"
 #: src/Content/Conversation.php:252
 #, php-format
 msgid "<button type=\"button\" %1$s>%2$d people</button> like this"
-msgstr ""
+msgstr "<button type=\"button\" %1$s>%2$d személy</button> kedveli ezt"
 
 #: src/Content/Conversation.php:253
 #, php-format
@@ -1097,7 +1097,7 @@ msgstr "%s kedveli ezt."
 #: src/Content/Conversation.php:256
 #, php-format
 msgid "<button type=\"button\" %1$s>%2$d people</button> don't like this"
-msgstr ""
+msgstr "<button type=\"button\" %1$s>%2$d személy</button> nem kedveli ezt"
 
 #: src/Content/Conversation.php:257
 #, php-format
@@ -1107,7 +1107,7 @@ msgstr "%s nem kedveli ezt."
 #: src/Content/Conversation.php:260
 #, php-format
 msgid "<button type=\"button\" %1$s>%2$d people</button> attend"
-msgstr ""
+msgstr "<button type=\"button\" %1$s>%2$d személy</button> részt vesz"
 
 #: src/Content/Conversation.php:261
 #, php-format
@@ -1117,7 +1117,7 @@ msgstr "%s részt vesz."
 #: src/Content/Conversation.php:264
 #, php-format
 msgid "<button type=\"button\" %1$s>%2$d people</button> don't attend"
-msgstr ""
+msgstr "<button type=\"button\" %1$s>%2$d személy</button> nem vesz részt"
 
 #: src/Content/Conversation.php:265
 #, php-format
@@ -1127,7 +1127,7 @@ msgstr "%s nem vesz részt."
 #: src/Content/Conversation.php:268
 #, php-format
 msgid "<button type=\"button\" %1$s>%2$d people</button> attend maybe"
-msgstr ""
+msgstr "<button type=\"button\" %1$s>%2$d személy</button> talán részt vesz"
 
 #: src/Content/Conversation.php:269
 #, php-format
@@ -1137,7 +1137,7 @@ msgstr "%s talán részt vesz."
 #: src/Content/Conversation.php:272
 #, php-format
 msgid "<button type=\"button\" %1$s>%2$d people</button> reshared this"
-msgstr ""
+msgstr "<button type=\"button\" %1$s>%2$d személy</button> újra megosztotta ezt"
 
 #: src/Content/Conversation.php:320
 msgid "Visible to <strong>everybody</strong>"
@@ -1596,7 +1596,7 @@ msgstr "Mellőzés"
 #: src/Content/Item.php:428 src/Module/Contact.php:442
 #: src/Module/Contact/Profile.php:494
 msgid "Collapse"
-msgstr ""
+msgstr "Összecsukás"
 
 #: src/Content/Item.php:432 src/Object/Post.php:460
 msgid "Languages"
@@ -1610,7 +1610,7 @@ msgstr "Kapcsolódás vagy követés"
 
 #: src/Content/Item.php:862
 msgid "Unable to fetch user."
-msgstr ""
+msgstr "Nem lehet lekérni a felhasználót."
 
 #: src/Content/Nav.php:120
 msgid "Nothing new here"
@@ -1648,11 +1648,11 @@ msgstr "Bejelentkezés"
 #: src/Content/Nav.php:229 src/Module/BaseProfile.php:57
 #: src/Module/Contact.php:484
 msgid "Conversations"
-msgstr ""
+msgstr "Beszélgetések"
 
 #: src/Content/Nav.php:229
 msgid "Conversations you started"
-msgstr ""
+msgstr "Ön által elkezdett beszélgetések"
 
 #: src/Content/Nav.php:230 src/Module/BaseProfile.php:49
 #: src/Module/BaseSettings.php:100 src/Module/Contact.php:476
@@ -2921,7 +2921,7 @@ msgstr "A partnert nem sikerült hozzáadni. Ellenőrizze a hozzá tartozó hál
 #: src/Model/Contact.php:2979
 #, php-format
 msgid "Expected network %s does not match actual network %s"
-msgstr ""
+msgstr "A várt %s hálózat nem egyezik a tényleges %s hálózattal"
 
 #: src/Model/Contact.php:2996
 msgid "The profile address specified does not provide adequate information."
@@ -3130,17 +3130,17 @@ msgstr "bejegyzés"
 #: src/Model/Item.php:3059
 #, php-format
 msgid "%s is blocked"
-msgstr ""
+msgstr "%s tiltva van"
 
 #: src/Model/Item.php:3061
 #, php-format
 msgid "%s is ignored"
-msgstr ""
+msgstr "%s mellőzve van"
 
 #: src/Model/Item.php:3063
 #, php-format
 msgid "Content from %s is collapsed"
-msgstr ""
+msgstr "A(z) %s helyről származó tartalom összecsukva"
 
 #: src/Model/Item.php:3067
 #, php-format
@@ -3373,7 +3373,7 @@ msgstr "A jelszó hossza 72 karakterre van korlátozva."
 
 #: src/Model/User.php:807
 msgid "The password can't contain white spaces nor accentuated letters"
-msgstr ""
+msgstr "A jelszó nem tartalmazhat üres karaktereket vagy ékezetes betűket"
 
 #: src/Model/User.php:1002
 msgid "Passwords do not match. Password unchanged."
@@ -5036,7 +5036,7 @@ msgid ""
 "The system.url entry is missing. This is a low level setting and can lead to"
 " unexpected behavior. Please add a valid entry as soon as possible in the "
 "config file or per console command!"
-msgstr ""
+msgstr "A system.url bejegyzés hiányzik. Ez egy alacsony szintű beállítás, és váratlan viselkedéshez vezethet. Adjon meg egy érvényes bejegyzést a lehető leghamarabb a beállítófájlban vagy konzolparancsonként!"
 
 #: src/Module/Admin/Summary.php:107
 msgid "The worker was never executed. Please check your database structure!"
@@ -5219,7 +5219,7 @@ msgstr "Itt adja meg a rendszer szabályait. Minden sor egy szabályt jelent."
 #: src/Module/Api/ApiResponse.php:279
 #, php-format
 msgid "API endpoint %s %s is not implemented but might be in the future."
-msgstr ""
+msgstr "A(z) %s %s API-végpont nincs megvalósítva, de a jövőben megvalósításra kerülhet."
 
 #: src/Module/Api/Mastodon/Apps.php:73
 msgid "Missing parameters"
@@ -5401,7 +5401,7 @@ msgstr "Profil részletei"
 
 #: src/Module/BaseProfile.php:60
 msgid "Conversations started"
-msgstr ""
+msgstr "Beszélgetések elkezdve"
 
 #: src/Module/BaseProfile.php:111
 msgid "Only You Can See This"
@@ -5626,11 +5626,11 @@ msgstr "Csak a mellőzött partnerek megjelenítése"
 
 #: src/Module/Contact.php:371 src/Module/Contact.php:419
 msgid "Collapsed"
-msgstr ""
+msgstr "Összecsukva"
 
 #: src/Module/Contact.php:374
 msgid "Only show collapsed contacts"
-msgstr ""
+msgstr "Csak az összecsukott partnerek megjelenítése"
 
 #: src/Module/Contact.php:379 src/Module/Contact.php:420
 msgid "Archived"
@@ -5678,7 +5678,7 @@ msgstr "Mellőzés feloldása"
 
 #: src/Module/Contact.php:442 src/Module/Contact/Profile.php:494
 msgid "Uncollapse"
-msgstr ""
+msgstr "Összecsukás megszüntetése"
 
 #: src/Module/Contact.php:444
 msgid "Batch Actions"
@@ -5694,7 +5694,7 @@ msgstr "Bejegyzések és hozzászólások"
 
 #: src/Module/Contact.php:495
 msgid "Individual Posts and Replies"
-msgstr ""
+msgstr "Egyéni bejegyzések és válaszok"
 
 #: src/Module/Contact.php:503
 msgid "Posts containing media objects"
@@ -5906,7 +5906,7 @@ msgstr "Személyes jegyzet hozzáadása:"
 
 #: src/Module/Contact/Follow.php:191 src/Module/Contact/Unfollow.php:138
 msgid "Posts and Replies"
-msgstr ""
+msgstr "Bejegyzések és válaszok"
 
 #: src/Module/Contact/Follow.php:220
 msgid "The contact could not be added."
@@ -5950,11 +5950,11 @@ msgstr "A partner figyelmen kívül lett hagyva"
 
 #: src/Module/Contact/Profile.php:210
 msgid "Contact has been uncollapsed"
-msgstr ""
+msgstr "A partner figyelmen összecsukása meg lett szüntetve"
 
 #: src/Module/Contact/Profile.php:214
 msgid "Contact has been collapsed"
-msgstr ""
+msgstr "A partner össze lett csukva"
 
 #: src/Module/Contact/Profile.php:243
 #, php-format
@@ -6095,7 +6095,7 @@ msgstr "Jelenleg mellőzve"
 
 #: src/Module/Contact/Profile.php:364
 msgid "Currently collapsed"
-msgstr ""
+msgstr "Jelenleg összecsukva"
 
 #: src/Module/Contact/Profile.php:365
 msgid "Currently archived"
@@ -6163,7 +6163,7 @@ msgstr "Mellőzött állapot átváltása"
 
 #: src/Module/Contact/Profile.php:496
 msgid "Toggle Collapsed status"
-msgstr ""
+msgstr "Összecsukott állapot átváltása"
 
 #: src/Module/Contact/Profile.php:503 src/Module/Contact/Revoke.php:106
 msgid "Revoke Follow"
@@ -6869,13 +6869,13 @@ msgstr "Ha a rendszer nem tudja felismerni a helyes útvonalat a telepítéshez,
 
 #: src/Module/Install.php:229
 msgid "The Friendica system URL"
-msgstr ""
+msgstr "A Friendica rendszer URL-je"
 
 #: src/Module/Install.php:231
 msgid ""
 "Overwrite this field in case the system URL determination isn't right, "
 "otherwise leave it as is."
-msgstr ""
+msgstr "Abban az esetben írja felül ezt a mezőt, ha a rendszer URL-meghatározása nem megfelelő, egyébként hagyja változatlanul."
 
 #: src/Module/Install.php:242
 msgid "Database connection"
@@ -8025,7 +8025,7 @@ msgstr "Másolja be a következő hitelesítési kódot az alkalmazásába, és 
 
 #: src/Module/OAuth/Token.php:82
 msgid "Invalid data or unknown client"
-msgstr ""
+msgstr "Érvénytelen adatok vagy ismeretlen ügyfél"
 
 #: src/Module/OAuth/Token.php:104
 msgid "Unsupported or missing grant type"
@@ -8710,7 +8710,7 @@ msgstr "A jelenlegi jelszava a változtatások megerősítéséhez"
 msgid ""
 "Allowed characters are a-z, A-Z, 0-9 and special characters except white "
 "spaces and accentuated letters."
-msgstr ""
+msgstr "Az engedélyezett karakterek az a-z, A-Z, 0-9 tartományokban lévők és a különleges karakterek, kivéve az üres karaktereket és az ékezetes betűket."
 
 #: src/Module/Security/PasswordTooLong.php:101
 #: src/Module/Settings/Account.php:553
@@ -9418,14 +9418,14 @@ msgstr "Ha be van kapcsolva, akkor a csatolt hivatkozás címe címként lesz ho
 
 #: src/Module/Settings/Connectors.php:223
 msgid "API: Use spoiler field as title"
-msgstr ""
+msgstr "API: a spoiler mező használata címként"
 
 #: src/Module/Settings/Connectors.php:223
 msgid ""
 "When activated, the \"spoiler_text\" field in the API will be used for the "
 "title on standalone posts. When deactivated it will be used for spoiler "
 "text. For comments it will always be used for spoiler text."
-msgstr ""
+msgstr "Ha aktiválva van, akkor az API-ban lévő „spoiler_text” mező lesz használva az önálló bejegyzések címeként. Ha ki van kapcsolva, akkor a spoiler szövegéhez lesz használva. A megjegyzéseknél mindig a spoiler szövegéhez lesz használva."
 
 #: src/Module/Settings/Connectors.php:224
 msgid "Your legacy ActivityPub/GNU Social account"
@@ -10309,7 +10309,7 @@ msgstr "A követett fiókok listájának exportálása CSV-fájlként. Kompatibi
 
 #: src/Module/Special/DisplayNotFound.php:37
 msgid "Not Found"
-msgstr ""
+msgstr "Nem található"
 
 #: src/Module/Special/DisplayNotFound.php:38
 msgid ""
@@ -10321,7 +10321,7 @@ msgid ""
 "\t<li>The node has blocked the top-level author or the author of the shared post.</li>\n"
 "\t<li>You have ignored or blocked the top-level author or the author of the shared post.</li>\n"
 "</ul>"
-msgstr ""
+msgstr "<p>Sajnos a kért beszélgetés nem érhető el Önnek.</p>\n<p>A lehetséges okok a következők:</p>\n<ul>\n\t<li>A legfelső szintű bejegyzés nem látható.</li>\n\t<li>A legfelső szintű bejegyzést törölték.</li>\n\t<li>A csomópont letiltotta a legfelső szintű szerzőt vagy a megosztott bejegyzés szerzőjét.</li>\n\t<li>Ön mellőzte vagy letiltotta a legfelső szintű szerzőt vagy a megosztott bejegyzés szerzőjét.</li>\n</ul>"
 
 #: src/Module/Special/HTTPException.php:78
 msgid "Stack trace:"
@@ -11057,12 +11057,12 @@ msgstr "%s %s megosztott egy új bejegyzést"
 #: src/Navigation/Notifications/Repository/Notify.php:791
 #, php-format
 msgid "%1$s %2$s liked your post #%3$d"
-msgstr ""
+msgstr "%1$s %2$s kedvelte az Ön #%3$d bejegyzését"
 
 #: src/Navigation/Notifications/Repository/Notify.php:794
 #, php-format
 msgid "%1$s %2$s liked your comment on #%3$d"
-msgstr ""
+msgstr "%1$s %2$s kedvelte az Ön hozzászólását ehhez: #%3$d"
 
 #: src/Object/EMail/ItemCCEMail.php:42
 #, php-format
@@ -11127,7 +11127,7 @@ msgstr "%s tiltása"
 #: src/Object/Post.php:269
 #, php-format
 msgid "Ignore %s"
-msgstr ""
+msgstr "%s mellőzése"
 
 #: src/Object/Post.php:274
 msgid "Save to folder"
@@ -11297,42 +11297,42 @@ msgstr "Kevesebb megjelenítése"
 #: src/Object/Post.php:623
 #, php-format
 msgid "Reshared by: %s"
-msgstr ""
+msgstr "Újra megosztotta: %s"
 
 #: src/Object/Post.php:628
 #, php-format
 msgid "Viewed by: %s"
-msgstr ""
+msgstr "Megtekintette: %s"
 
 #: src/Object/Post.php:633
 #, php-format
 msgid "Liked by: %s"
-msgstr ""
+msgstr "Kedvelte: %s"
 
 #: src/Object/Post.php:638
 #, php-format
 msgid "Disliked by: %s"
-msgstr ""
+msgstr "Nem kedvelte: %s"
 
 #: src/Object/Post.php:643
 #, php-format
 msgid "Attended by: %s"
-msgstr ""
+msgstr "Részt vett: %s"
 
 #: src/Object/Post.php:648
 #, php-format
 msgid "Maybe attended by: %s"
-msgstr ""
+msgstr "Talán részt vett: %s"
 
 #: src/Object/Post.php:653
 #, php-format
 msgid "Not attended by: %s"
-msgstr ""
+msgstr "Nem vett részt: %s"
 
 #: src/Object/Post.php:658
 #, php-format
 msgid "Reacted with %s by: %s"
-msgstr ""
+msgstr "Reagált ezzel: %s: %s"
 
 #: src/Protocol/Delivery.php:547
 msgid "(no subject)"
