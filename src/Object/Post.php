@@ -205,8 +205,9 @@ class Post
 		$lock      = ($item['private'] == Item::PRIVATE) ? $privacy : false;
 		$connector = !in_array($item['network'], Protocol::NATIVE_SUPPORT) ? DI::l10n()->t('Connector Message') : false;
 
-		$shareable = in_array($conv->getProfileOwner(), [0, DI::userSession()->getLocalUserId()]) && $item['private'] != Item::PRIVATE;
-		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER]);
+		$shareable    = in_array($conv->getProfileOwner(), [0, DI::userSession()->getLocalUserId()]) && $item['private'] != Item::PRIVATE;
+		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER, Protocol::TUMBLR]);
+		$commentable  = ($item['network'] != Protocol::TUMBLR);
 
 		// On Diaspora only toplevel posts can be reshared
 		if ($announceable && ($item['network'] == Protocol::DIASPORA) && ($item['gravity'] != Item::GRAVITY_PARENT)) {
@@ -392,7 +393,11 @@ class Post
 			}
 		}
 
-		$comment_html = $this->getCommentBox($indent);
+		if ($commentable) {
+			$comment_html = $this->getCommentBox($indent);
+		} else {
+			$comment_html = '';
+		}
 
 		if (strcmp(DateTimeFormat::utc($item['created']), DateTimeFormat::utc('now - 12 hours')) > 0) {
 			$shiny = 'shiny';
