@@ -66,8 +66,9 @@ class ACL
 
 		$tpl = Renderer::getMarkupTemplate('acl/message_recipient.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$contacts' => json_encode($contacts),
-			'$selected' => $selected,
+			'$contacts'      => $contacts,
+			'$contacts_json' => json_encode($contacts),
+			'$selected'      => $selected,
 		]);
 
 		Hook::callAll(DI::args()->getModuleName() . '_post_recipient', $o);
