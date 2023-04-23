@@ -5,7 +5,7 @@
 	<div id="profile-edit-links">
 		<ul class="nav nav-pills preferences">
 			<li class="dropdown pull-right">
-				<button type="button" class="btn btn-link btn-sm dropdown-toggle" id="profile-edit-links-dropdown" data-toggle="dropdown" aria-expanded="false">
+				<button type="button" class="btn btn-link dropdown-toggle" id="profile-edit-links-dropdown" data-toggle="dropdown" aria-expanded="false">
 					<i class="fa fa-angle-down" aria-hidden="true"></i>&nbsp;{{$profile_action}}
 				</button>
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="profile-edit-links-dropdown">
@@ -114,7 +114,7 @@
 				</div>
 			</div>
 
-			{{* The miscellanous other settings *}}
+			{{* The miscellaneous other settings *}}
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="miscellaneous">
 					<h2>
@@ -141,7 +141,7 @@
 				</div>
 			</div>
 
-			{{* The miscellanous other settings *}}
+			{{* The miscellaneous other settings *}}
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="custom-fields">
 					<h2>

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -31,6 +31,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -61,7 +62,7 @@ function photos_init(App $a)
 	Nav::setSelected('home');
 
 	if (DI::args()->getArgc() > 1) {
-		$owner = User::getOwnerDataByNick(DI::args()->getArgv()[1]);
+		$owner = Profile::load(DI::app(), DI::args()->getArgv()[1], false);
 		if (!isset($owner['account_removed']) || $owner['account_removed']) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
@@ -109,12 +110,6 @@ function photos_init(App $a)
 				'$can_post' => $can_post
 			]);
 		}
-
-		if (empty(DI::page()['aside'])) {
-			DI::page()['aside'] = '';
-		}
-
-		DI::page()['aside'] .= Widget\VCard::getHTML($owner);
 
 		if (!empty($photo_albums_widget)) {
 			DI::page()['aside'] .= $photo_albums_widget;
@@ -719,7 +714,7 @@ function photos_content(App $a)
 		// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
 		$maximagesize_bytes = (is_numeric($mis_bytes) && ($mis_bytes < $umf_bytes) ? $mis_bytes : $umf_bytes);
 
-		// @todo We may be want to use appropriate binary prefixed dynamicly
+		// @todo We may be want to use appropriate binary prefixed dynamically
 		$usage_message = DI::l10n()->t('The maximum accepted image size is %s', Strings::formatBytes($maximagesize_bytes));
 
 		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
@@ -923,7 +918,7 @@ function photos_content(App $a)
 
 			if ($order_field === 'created') {
 				$params = ['order' => [$order_field]];
-			} elseif (!empty($order_field)) {
+			} elseif (!empty($order_field) && DBStructure::existsColumn('photo', [$order_field])) {
 				$params = ['order' => [$order_field => true]];
 			} else {
 				$params = [];
@@ -936,10 +931,16 @@ function photos_content(App $a)
 				$nxt = null;
 				foreach ($prvnxt as $z => $entry) {
 					if ($entry['resource-id'] == $ph[0]['resource-id']) {
-						$prv = $z - 1;
-						$nxt = $z + 1;
+						$prv = $order_field === 'created' ? $z - 1 : $z + 1;
+						$nxt = $order_field === 'created' ? $z + 1 : $z - 1;
 						if ($prv < 0) {
 							$prv = count($prvnxt) - 1;
+						}
+						if ($nxt < 0) {
+							$nxt = count($prvnxt) - 1;
+						}
+						if ($prv >= count($prvnxt)) {
+							$prv = 0;
 						}
 						if ($nxt >= count($prvnxt)) {
 							$nxt = 0;
@@ -1138,7 +1139,7 @@ function photos_content(App $a)
 						'$preview' => DI::l10n()->t('Preview'),
 						'$loading' => DI::l10n()->t('Loading...'),
 						'$qcomment' => $qcomment,
-						'$rand_num' => Crypto::randomDigits(12)
+						'$rand_num' => Crypto::randomDigits(12),
 					]);
 				}
 			}
@@ -1193,7 +1194,7 @@ function photos_content(App $a)
 						'$submit' => DI::l10n()->t('Submit'),
 						'$preview' => DI::l10n()->t('Preview'),
 						'$qcomment' => $qcomment,
-						'$rand_num' => Crypto::randomDigits(12)
+						'$rand_num' => Crypto::randomDigits(12),
 					]);
 				}
 
@@ -1267,7 +1268,7 @@ function photos_content(App $a)
 							'$submit' => DI::l10n()->t('Submit'),
 							'$preview' => DI::l10n()->t('Preview'),
 							'$qcomment' => $qcomment,
-							'$rand_num' => Crypto::randomDigits(12)
+							'$rand_num' => Crypto::randomDigits(12),
 						]);
 					}
 				}

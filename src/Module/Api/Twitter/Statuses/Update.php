@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -153,11 +153,10 @@ class Update extends BaseApi
 					continue;
 				}
 
-				Photo::setPermissionForRessource($media[0]['resource-id'], $uid, $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
+				Photo::setPermissionForResource($media[0]['resource-id'], $uid, $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
 
-				$ressources[] = $media[0]['resource-id'];
-				$phototypes   = Images::supportedTypes();
-				$ext          = $phototypes[$media[0]['type']];
+				$phototypes = Images::supportedTypes();
+				$ext        = $phototypes[$media[0]['type']];
 
 				$attachment = [
 					'type'        => Post\Media::IMAGE,

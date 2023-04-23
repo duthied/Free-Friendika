@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -76,7 +76,7 @@ class Storage extends BaseAdmin
 			}
 		}
 
-		if (!empty($_POST['submit_save_set'])) {
+		if (!empty($_POST['submit_save_set']) && DI::config()->isWritable('storage', 'name') ) {
 			try {
 				$newstorage = DI::storageManager()->getWritableStorageByName($storagebackend);
 
@@ -110,7 +110,7 @@ class Storage extends BaseAdmin
 				foreach ($storageConfig->getOptions() as $option => $info) {
 
 					$type = $info[0];
-					// Backward compatibilty with yesno field description
+					// Backward compatibility with yesno field description
 					if ($type == 'yesno') {
 						$type = 'checkbox';
 						// Remove translated labels Yes No from field info
@@ -144,8 +144,9 @@ class Storage extends BaseAdmin
 			'$use'                   => DI::l10n()->t('Use storage backend'),
 			'$save_reload'           => DI::l10n()->t('Save & Reload'),
 			'$noconfig'              => DI::l10n()->t('This backend doesn\'t have custom settings'),
-			'$baseurl'               => DI::baseUrl()->get(true),
 			'$form_security_token'   => self::getFormSecurityToken("admin_storage"),
+			'$storagebackend_ro_txt' => !DI::config()->isWritable('storage', 'name') ? DI::l10n()->t('Changing the current backend is prohibited because it is set by an environment variable') : '',
+			'$is_writable'           => DI::config()->isWritable('storage', 'name'),
 			'$storagebackend'        => $current_storage_backend instanceof ICanWriteToStorage ? $current_storage_backend::getName() : DI::l10n()->t('Database (legacy)'),
 			'$availablestorageforms' => $available_storage_forms,
 		]);

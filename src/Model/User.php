@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -35,17 +35,18 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Module;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Security\TwoFactor\Model\AppSpecificPassword;
 use Friendica\Network\HTTPException;
 use Friendica\Object\Image;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
-use Friendica\Worker\Delivery;
 use ImagickException;
 use LightOpenID;
 
@@ -166,7 +167,7 @@ class User
 		$system['region'] = '';
 		$system['postal-code'] = '';
 		$system['country-name'] = '';
-		$system['homepage'] = DI::baseUrl()->get();
+		$system['homepage'] = DI::baseUrl();
 		$system['dob'] = '0000-00-00';
 
 		// Ensure that the user contains data
@@ -219,7 +220,7 @@ class User
 			'self'         => true,
 			'network'      => Protocol::ACTIVITYPUB,
 			'name'         => 'System Account',
-			'addr'         => $system_actor_name . '@' . DI::baseUrl()->getHostname(),
+			'addr'         => $system_actor_name . '@' . DI::baseUrl()->getHost(),
 			'nick'         => $system_actor_name,
 			'url'          => DI::baseUrl() . '/friendica',
 			'pubkey'       => $keys['pubkey'],
@@ -528,7 +529,7 @@ class User
 			// Addons can create users, and since this 'catch' branch should only
 			// execute if getAuthenticationInfo can't find an existing user, that's
 			// exactly what will happen here. Creating a numeric username would create
-			// abiguity with user IDs, possibly opening up an attack vector.
+			// ambiguity with user IDs, possibly opening up an attack vector.
 			// So let's be very careful about that.
 			if (empty($username) || is_numeric($username)) {
 				throw $e;
@@ -683,7 +684,7 @@ class User
 
 		if ($user['last-activity'] != $current_day) {
 			User::update(['last-activity' => $current_day], $uid);
-			// Set the last actitivy for all identities of the user
+			// Set the last activity for all identities of the user
 			DBA::update('user', ['last-activity' => $current_day], ['parent-uid' => $uid, 'account_removed' => false]);
 		}
 	}
@@ -757,7 +758,7 @@ class User
 	}
 
 	/**
-	 * Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).
+	 * Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces and accentuated letters.
 	 *
 	 * Password length is limited to 72 characters if the current default password hashing algorithm is Blowfish.
 	 * From the manual: "Using the PASSWORD_BCRYPT as the algorithm, will result in the password parameter being
@@ -770,13 +771,13 @@ class User
 	 */
 	public static function getPasswordRegExp(string $delimiter = null): string
 	{
-		$allowed_characters = '!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
+		$allowed_characters = ':!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
 
 		if ($delimiter) {
 			$allowed_characters = preg_quote($allowed_characters, $delimiter);
 		}
 
-		return '^[a-zA-Z0-9' . $allowed_characters . ']' . (PASSWORD_DEFAULT !== PASSWORD_BCRYPT ? '{1,72}' : '+') . '$';
+		return '^[a-zA-Z0-9' . $allowed_characters . ']' . (PASSWORD_DEFAULT === PASSWORD_BCRYPT ? '{1,72}' : '+') . '$';
 	}
 
 	/**
@@ -804,7 +805,7 @@ class User
 		}
 
 		if (!preg_match('/' . self::getPasswordRegExp('/') . '/', $password)) {
-			throw new Exception(DI::l10n()->t('The password can\'t contain accentuated letters, white spaces or colons (:)'));
+			throw new Exception(DI::l10n()->t("The password can't contain white spaces nor accentuated letters"));
 		}
 
 		return self::updatePasswordHashed($uid, self::hashPassword($password));
@@ -815,14 +816,14 @@ class User
 	 * Empties the password reset token field just in case.
 	 *
 	 * @param int    $uid
-	 * @param string $pasword_hashed
+	 * @param string $password_hashed
 	 * @return bool
 	 * @throws Exception
 	 */
-	private static function updatePasswordHashed(int $uid, string $pasword_hashed): bool
+	private static function updatePasswordHashed(int $uid, string $password_hashed): bool
 	{
 		$fields = [
-			'password' => $pasword_hashed,
+			'password' => $password_hashed,
 			'pwdreset' => null,
 			'pwdreset_time' => null,
 			'legacy_password' => false
@@ -831,10 +832,26 @@ class User
 	}
 
 	/**
+	 * Returns if the given uid is valid and in the admin list
+	 *
+	 * @param int $uid
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public static function isSiteAdmin(int $uid): bool
+	{
+		return DBA::exists('user', [
+			'uid'   => $uid,
+			'email' => self::getAdminEmailList()
+		]);
+	}
+
+	/**
 	 * Checks if a nickname is in the list of the forbidden nicknames
 	 *
 	 * Check if a nickname is forbidden from registration on the node by the
-	 * admin. Forbidden nicknames (e.g. role namess) can be configured in the
+	 * admin. Forbidden nicknames (e.g. role names) can be configured in the
 	 * admin panel.
 	 *
 	 * @param string $nickname The nickname that should be checked
@@ -1007,7 +1024,7 @@ class User
 				$_SESSION['register'] = 1;
 				$_SESSION['openid'] = $openid_url;
 
-				$openid = new LightOpenID(DI::baseUrl()->getHostname());
+				$openid = new LightOpenID(DI::baseUrl()->getHost());
 				$openid->identity = $openid_url;
 				$openid->returnUrl = DI::baseUrl() . '/openid';
 				$openid->required = ['namePerson/friendly', 'contact/email', 'namePerson'];
@@ -1215,7 +1232,7 @@ class User
 
 				$resource_id = Photo::newResource();
 
-				// Not using Photo::PROFILE_PHOTOS here, so that it is discovered as translateble string
+				// Not using Photo::PROFILE_PHOTOS here, so that it is discovered as translatable string
 				$profile_album = DI::l10n()->t('Profile Photos');
 
 				$r = Photo::store($image, $uid, 0, $resource_id, $filename, $profile_album, 4);
@@ -1249,6 +1266,8 @@ class User
 		}
 
 		Hook::callAll('register_account', $uid);
+
+		self::setRegisterMethodByUserCount();
 
 		$return['user'] = $user;
 		return $return;
@@ -1344,7 +1363,7 @@ class User
 			$l10n,
 			$user,
 			DI::config()->get('config', 'sitename'),
-			DI::baseUrl()->get(),
+			DI::baseUrl(),
 			($register['password'] ?? '') ?: 'Sent in a previous email'
 		);
 	}
@@ -1358,7 +1377,7 @@ class User
 	 * permanently against re-registration, as the person was not yet
 	 * allowed to have friends on this system
 	 *
-	 * @return bool True, if the deny was successfull
+	 * @return bool True, if the deny was successful
 	 * @throws Exception
 	 */
 	public static function deny(string $hash): bool
@@ -1441,7 +1460,7 @@ class User
 		Thank you and welcome to %4$s.'));
 
 		$preamble = sprintf($preamble, $user['username'], DI::config()->get('config', 'sitename'));
-		$body = sprintf($body, DI::baseUrl()->get(), $user['nickname'], $result['password'], DI::config()->get('config', 'sitename'));
+		$body = sprintf($body, DI::baseUrl(), $user['nickname'], $result['password'], DI::config()->get('config', 'sitename'));
 
 		$email = DI::emailer()
 			->newSystemMail()
@@ -1594,6 +1613,7 @@ class User
 		// Remove the user relevant data
 		Worker::add(Worker::PRIORITY_NEGLIGIBLE, 'RemoveUser', $uid);
 
+		self::setRegisterMethodByUserCount();
 		return true;
 	}
 
@@ -1772,7 +1792,7 @@ class User
 	 *
 	 * @param int    $start Start count (Default is 0)
 	 * @param int    $count Count of the items per page (Default is @see Pager::ITEMS_PER_PAGE)
-	 * @param string $type  The type of users, which should get (all, bocked, removed)
+	 * @param string $type  The type of users, which should get (all, blocked, removed)
 	 * @param string $order Order of the user list (Default is 'contact.name')
 	 * @param bool   $descending Order direction (Default is ascending)
 	 * @return array|bool The list of the users
@@ -1860,5 +1880,30 @@ class User
 
 			return true;
 		});
+	}
+
+	public static function setRegisterMethodByUserCount()
+	{
+		$max_registered_users = DI::config()->get('config', 'max_registered_users');
+		if ($max_registered_users <= 0) {
+			return;
+		}
+
+		$register_policy = DI::config()->get('config', 'register_policy');
+		if (!in_array($register_policy, [Module\Register::OPEN, Module\Register::CLOSED])) {
+			Logger::debug('Unsupported register policy.', ['policy' => $register_policy]);
+			return;
+		}
+
+		$users = DBA::count('user', ['blocked' => false, 'account_removed' => false, 'account_expired' => false]);
+		if (($users >= $max_registered_users) && ($register_policy == Module\Register::OPEN)) {
+			DI::config()->set('config', 'register_policy', Module\Register::CLOSED);
+			Logger::notice('Max users reached, registration is closed.', ['users' => $users, 'max' => $max_registered_users]);
+		} elseif (($users < $max_registered_users) && ($register_policy == Module\Register::CLOSED)) {
+			DI::config()->set('config', 'register_policy', Module\Register::OPEN);
+			Logger::notice('Below maximum users, registration is opened.', ['users' => $users, 'max' => $max_registered_users]);
+		} else {
+			Logger::debug('Unchanged register policy', ['policy' => $register_policy, 'users' => $users, 'max' => $max_registered_users]);
+		}
 	}
 }

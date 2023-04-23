@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -26,7 +26,7 @@ use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 
 /**
- * Update contact suggestions for all aktive users
+ * Update contact suggestions for all active users
  */
 class UpdateAllSuggestions
 {

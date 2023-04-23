@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -94,7 +94,7 @@ class BoundariesPager extends Pager
 	 * $params = ['order' => ['sort_field' => true], 'limit' => $itemsPerPage];
 	 * $items = DBA::toArray(DBA::select($table, $fields, $condition, $params));
 	 *
-	 * $pager = new BoundariesPager($a->query_string, $items[0]['sort_field'], $items[coutn($items) - 1]['sort_field'], $itemsPerPage);
+	 * $pager = new BoundariesPager($a->query_string, $items[0]['sort_field'], $items[count($items) - 1]['sort_field'], $itemsPerPage);
 	 *
 	 * $html = $pager->renderMinimal(count($items));
 	 *

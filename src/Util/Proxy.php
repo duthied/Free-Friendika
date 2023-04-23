@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -75,9 +75,9 @@ class Proxy
 	 * This function only performs the URL replacement on http URL and if the
 	 * provided URL isn't local
 	 *
-	 * @param string $url       The URL to proxyfy
+	 * @param string $url       The URL to proxify
 	 * @param string $size      One of the Proxy::SIZE_* constants
-	 * @return string The proxyfied URL or relative path
+	 * @return string The proxified URL or relative path
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function proxifyUrl(string $url, string $size = ''): string
@@ -141,7 +141,7 @@ class Proxy
 	{
 		$html = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/', DI::baseUrl() . '/', $html);
 
-		return preg_replace_callback('/(<img [^>]*src *= *["\'])([^"\']+)(["\'][^>]*>)/siU', 'self::replaceUrl', $html);
+		return preg_replace_callback('/(<img [^>]*src *= *["\'])([^"\']+)(["\'][^>]*>)/siU', [self::class, 'replaceUrl'], $html);
 	}
 
 	/**

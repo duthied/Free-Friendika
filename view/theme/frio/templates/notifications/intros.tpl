@@ -1,5 +1,5 @@
 
-{{* template incomming contact request and suggested contacts *}}
+{{* template incoming contact request and suggested contacts *}}
 
 <div class="intro-wrapper media" id="intro-{{$intro_id}}">
 
@@ -36,7 +36,7 @@
 			<div class="intro-note intro-note-{{$intro_id}}">{{$note}}</div>
 		</div>
 
-		{{* On mobile touch devices we use buttons for approve, ingnore && discard to have a better UX *}}
+		{{* On mobile touch devices we use buttons for approve, ignore && discard to have a better UX *}}
 		{{if $is_mobile}}
 		<form class="intro-form" action="notification/{{$intro_id}}" method="post">
 			<button class="btn btn-small btn-primary" type="button" onclick="addElmToModal('#intro-approve-wrapper-{{$intro_id}}');"><i class="fa fa-check" aria-hidden="true"></i> {{$approve}}</button>
@@ -59,8 +59,7 @@
 
 		{{* This sections contains special settings for contact approval. We hide it by default and load this section in
 		a bootstrap modal in the case of approval *}}
-		<div id="intro-approve-wrapper-{{$intro_id}}" style="display: none;">
-
+		<template id="intro-approve-wrapper-{{$intro_id}}" style="display: none;">
 			<h3 class="heading">{{$fullname}}{{if $addr}}&nbsp;({{$addr}}){{/if}}</h3>
 			<form class="intro-approve-form" {{if $request}}action="{{$request}}" method="get"{{else}}action="{{$action}}" method="post"{{/if}}>
 				{{if $type != "friend_suggestion"}}
@@ -83,7 +82,7 @@
 				</div>
 				<div class="clear"></div>
 			</form>
-		</div>
+		</template>
 	</div>
 </div>
 <div class="intro-end"></div>

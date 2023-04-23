@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -92,7 +92,7 @@ class Contacts extends Module\BaseProfile
 			'archive' => false,
 			'failed'  => false,
 			'self'    => false,
-			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED]
+			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]
 		];
 
 		switch ($type) {
@@ -121,10 +121,13 @@ class Contacts extends Module\BaseProfile
 					['uri-id' => $contact['uri-id'], 'uid' => [0, $this->userSession->getLocalUserId()]],
 					['order' => ['uid' => 'DESC']]
 				);
-				return Module\Contact::getContactTemplateVars($contact);
+				return $contact ? Module\Contact::getContactTemplateVars($contact) : null;
 			},
 			Model\Contact::selectToArray(['uri-id'], $condition, $params)
 		);
+
+		// Remove nonexistent contacts
+		$contacts = array_filter($contacts);
 
 		$desc = '';
 		switch ($type) {

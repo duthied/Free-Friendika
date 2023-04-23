@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -83,7 +83,7 @@ class NewDM extends BaseApi
 
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 
-		$id = Mail::send($cdata['user'], $request['text'], $sub, $replyto);
+		$id = Mail::send($uid, $cdata['user'], $request['text'], $sub, $replyto);
 
 		if ($id > -1) {
 			$ret = $this->directMessage->createFromMailId($id, $uid, $this->getRequestValue($request, 'getText', ''));

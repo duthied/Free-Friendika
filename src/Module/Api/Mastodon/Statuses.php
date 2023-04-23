@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -21,6 +21,8 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\Content\PageInfo;
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -32,10 +34,12 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 
 /**
@@ -50,9 +54,11 @@ class Statuses extends BaseApi
 
 		$request = $this->getRequest([
 			'status'         => '',    // Text content of the status. If media_ids is provided, this becomes optional. Attaching a poll is optional while status is provided.
+			'media_ids'      => [],    // Array of Attachment ids to be attached as media. If provided, status becomes optional, and poll cannot be used.
 			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
 			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
 			'language'       => '',    // ISO 639 language code for this status.
+			'friendica'      => [],
 		], $request);
 
 		$owner = User::getOwnerDataById($uid);
@@ -65,30 +71,102 @@ class Statuses extends BaseApi
 			'origin'     => true,
 		];
 
-		$post = Post::selectFirst(['uri-id', 'id'], $condition);
+		$post = Post::selectFirst(['uri-id', 'id', 'gravity', 'verb', 'uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'network'], $condition);
 		if (empty($post['id'])) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $this->parameters['id'] . ' not found for user ' . $uid . '.');
 		}
 
 		// The imput is defined as text. So we can use Markdown for some enhancements
-		$item = ['body' => Markdown::toBBCode($request['status']), 'app' => $this->getApp()];
+		$body = Markdown::toBBCode($request['status']);
+
+		if (DI::pConfig()->get($uid, 'system', 'api_auto_attach', false) && preg_match("/\[url=[^\[\]]*\](.*)\[\/url\]\z/ism", $body, $matches)) {
+			$body = preg_replace("/\[url=[^\[\]]*\].*\[\/url\]\z/ism", PageInfo::getFooterFromUrl($matches[1]), $body);
+		}
+
+		$item['title']      = '';
+		$item['uid']        = $post['uid'];
+		$item['body']       = $body;
+		$item['network']    = $post['network'];
+		$item['gravity']    = $post['gravity'];
+		$item['verb']       = $post['verb'];
+		$item['app']        = $this->getApp();
 
 		if (!empty($request['language'])) {
 			$item['language'] = json_encode([$request['language'] => 1]);
 		}
 
-		if (!empty($request['spoiler_text'])) {
-			if ($request['in_reply_to_id'] != $post['uri-id']) {
-				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
+		if ($post['gravity'] == Item::GRAVITY_PARENT) {
+			$item['title'] = $request['friendica']['title'] ?? '';
+		}
+
+		$spoiler_text = $request['spoiler_text'];
+
+		if (!empty($spoiler_text)) {
+			if (!isset($request['friendica']['title']) && $post['gravity'] == Item::GRAVITY_PARENT && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
+				$item['title'] = $spoiler_text;
 			} else {
-				$item['title'] = $request['spoiler_text'];
+				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $spoiler_text . "[/abstract]\n" . $item['body'];
+				$item['content-warning'] = BBCode::toPlaintext($spoiler_text);
 			}
 		}
 
+		$item = DI::contentItem()->expandTags($item);
+
+		/*
+		The provided ids in the request value consists of these two sources:
+		- The id in the "photo" table for newly uploaded media
+		- The id in the "post-media" table for already attached media
+
+		Because of this we have to add all media that isn't already attached.
+		Also we have to delete all media that isn't provided anymore.
+
+		There is a possible situation where the newly uploaded media
+		could have the same id as an existing, but deleted media.
+
+		We can't do anything about this, but the probability for this is extremely low.
+		*/
+		$media_ids      = [];
+		$existing_media = array_column(Post\Media::getByURIId($post['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE]), 'id');
+
+		foreach ($request['media_ids'] as $media) {
+			if (!in_array($media, $existing_media)) {
+				$media_ids[] = $media;
+			}
+		}
+
+		foreach ($existing_media as $media) {
+			if (!in_array($media, $request['media_ids'])) {
+				Post\Media::deleteById($media);
+			}
+		}
+
+		$item = $this->storeMediaIds($media_ids, array_merge($post, $item));
+
+		foreach ($item['attachments'] as $attachment) {
+			$attachment['uri-id'] = $post['uri-id'];
+			Post\Media::insert($attachment);
+		}
+		unset($item['attachments']);
+
+		if (!Item::isValid($item)) {
+			throw new \Exception('Missing parameters in definition');
+		}
+
+		// Link Preview Attachment Processing
+		Post\Media::deleteByURIId($post['uri-id'], [Post\Media::HTML]);
+
 		Item::update($item, ['id' => $post['id']]);
+
+		foreach (Tag::getByURIId($post['uri-id']) as $tagToRemove) {
+			Tag::remove($post['uri-id'], $tagToRemove['type'], $tagToRemove['name'], $tagToRemove['url']);
+		}
+		// Store tags from the body if this hadn't been handled previously in the protocol classes
+
+		Tag::storeFromBody($post['uri-id'], Item::setHashtags($item['body']));
+
 		Item::updateDisplayCache($post['uri-id']);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($post['uri-id'], $uid));
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($post['uri-id'], $uid, self::appSupportsQuotes()));
 	}
 
 	protected function post(array $request = [])
@@ -101,11 +179,13 @@ class Statuses extends BaseApi
 			'media_ids'      => [],    // Array of Attachment ids to be attached as media. If provided, status becomes optional, and poll cannot be used.
 			'poll'           => [],    // Poll data. If provided, media_ids cannot be used, and poll[expires_in] must be provided.
 			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
+			'quote_id'       => 0,     // ID of the message to quote
 			'sensitive'      => false, // Mark status and attached media as sensitive?
 			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
 			'visibility'     => '',    // Visibility of the posted status. One of: "public", "unlisted", "private" or "direct".
-			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this paramter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
+			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this parameter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
 			'language'       => '',    // ISO 639 language code for this status.
+			'friendica'      => [],	   // Friendica extensions to the standard Mastodon API spec
 		], $request);
 
 		$owner = User::getOwnerDataById($uid);
@@ -113,12 +193,17 @@ class Statuses extends BaseApi
 		// The imput is defined as text. So we can use Markdown for some enhancements
 		$body = Markdown::toBBCode($request['status']);
 
+		if (DI::pConfig()->get($uid, 'system', 'api_auto_attach', false) && preg_match("/\[url=[^\[\]]*\](.*)\[\/url\]\z/ism", $body, $matches)) {
+			$body = preg_replace("/\[url=[^\[\]]*\].*\[\/url\]\z/ism", PageInfo::getFooterFromUrl($matches[1]), $body);
+		}
+
 		$item               = [];
 		$item['network']    = Protocol::DFRN;
 		$item['uid']        = $uid;
 		$item['verb']       = Activity::POST;
 		$item['contact-id'] = $owner['id'];
 		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
+		$item['title']      = '';
 		$item['body']       = $body;
 		$item['app']        = $this->getApp();
 
@@ -152,6 +237,7 @@ class Statuses extends BaseApi
 				$item['private'] = Item::PRIVATE;
 				break;
 			case 'direct':
+				$item['private'] = Item::PRIVATE;
 				// The permissions are assigned in "expandTags"
 				break;
 			default:
@@ -183,62 +269,47 @@ class Statuses extends BaseApi
 
 		if ($request['in_reply_to_id']) {
 			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
+			if (empty($parent)) {
+				throw new HTTPException\NotFoundException('Item with URI ID ' . $request['in_reply_to_id'] . ' not found for user ' . $uid . '.');
+			}
 
 			$item['thr-parent']  = $parent['uri'];
 			$item['gravity']     = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
-			$item['body']        = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
 		} else {
 			self::checkThrottleLimit();
 
 			$item['gravity']     = Item::GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
-			$item['title']       = $request['spoiler_text'];
+		}
+
+		if ($request['quote_id']) {
+			if (!Post::exists(['uri-id' => $request['quote_id'], 'uid' => [0, $uid]])) {
+				throw new HTTPException\NotFoundException('Item with URI ID ' . $request['quote_id'] . ' not found for user ' . $uid . '.');
+			}
+			$item['quote-uri-id'] = $request['quote_id'];
+		}
+
+		$item['title'] = $request['friendica']['title'] ?? '';
+
+		if (!empty($request['spoiler_text'])) {
+			if (!isset($request['friendica']['title']) && !$request['in_reply_to_id'] && DI::pConfig()->get($uid, 'system', 'api_spoiler_title', true)) {
+				$item['title'] = $request['spoiler_text'];
+			} else {
+				$item['body'] = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $request['spoiler_text'] . "[/abstract]\n" . $item['body'];
+			}
 		}
 
 		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
 
 		if (!empty($request['media_ids'])) {
-			$item['object-type'] = Activity\ObjectType::IMAGE;
-			$item['post-type']   = Item::PT_IMAGE;
-			$item['attachments'] = [];
-
-			foreach ($request['media_ids'] as $id) {
-				$media = DBA::toArray(DBA::p("SELECT `resource-id`, `scale`, `type`, `desc`, `filename`, `datasize`, `width`, `height` FROM `photo`
-						WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = ?) AND `photo`.`uid` = ?
-						ORDER BY `photo`.`width` DESC LIMIT 2", $id, $uid));
-
-				if (empty($media)) {
-					continue;
-				}
-
-				Photo::setPermissionForRessource($media[0]['resource-id'], $uid, $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
-
-				$ressources[] = $media[0]['resource-id'];
-				$phototypes = Images::supportedTypes();
-				$ext = $phototypes[$media[0]['type']];
-
-				$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
-					'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
-					'size' => $media[0]['datasize'],
-					'name' => $media[0]['filename'] ?: $media[0]['resource-id'],
-					'description' => $media[0]['desc'] ?? '',
-					'width' => $media[0]['width'],
-					'height' => $media[0]['height']];
-
-				if (count($media) > 1) {
-					$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
-					$attachment['preview-width'] = $media[1]['width'];
-					$attachment['preview-height'] = $media[1]['height'];
-				}
-				$item['attachments'][] = $attachment;
-			}
+			$item = $this->storeMediaIds($request['media_ids'], $item);
 		}
 
 		if (!empty($request['scheduled_at'])) {
 			$item['guid'] = Item::guid($item, true);
 			$item['uri'] = Item::newURI($item['guid']);
-			$id = Post\Delayed::add($item['uri'], $item, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED, $request['scheduled_at']);
+			$id = Post\Delayed::add($item['uri'], $item, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED, DateTimeFormat::utc($request['scheduled_at']));
 			if (empty($id)) {
 				DI::mstdnError()->InternalError();
 			}
@@ -249,7 +320,7 @@ class Statuses extends BaseApi
 		if (!empty($id)) {
 			$item = Post::selectFirst(['uri-id'], ['id' => $id]);
 			if (!empty($item['uri-id'])) {
-				System::jsonExit(DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid));
+				System::jsonExit(DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, self::appSupportsQuotes()));
 			}
 		}
 
@@ -288,7 +359,7 @@ class Statuses extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid));
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes(), false));
 	}
 
 	private function getApp(): string
@@ -298,5 +369,50 @@ class Statuses extends BaseApi
 		} else {
 			return 'API';
 		}
+	}
+
+	/**
+	 * Store provided media ids in the item array and adjust permissions
+	 *
+	 * @param array $media_ids
+	 * @param array $item
+	 * @return array
+	 */
+	private function storeMediaIds(array $media_ids, array $item): array
+	{
+		$item['object-type'] = Activity\ObjectType::IMAGE;
+		$item['post-type']   = Item::PT_IMAGE;
+		$item['attachments'] = [];
+
+		foreach ($media_ids as $id) {
+			$media = DBA::toArray(DBA::p("SELECT `resource-id`, `scale`, `type`, `desc`, `filename`, `datasize`, `width`, `height` FROM `photo`
+					WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = ?) AND `photo`.`uid` = ?
+					ORDER BY `photo`.`width` DESC LIMIT 2", $id, $item['uid']));
+
+			if (empty($media)) {
+				continue;
+			}
+
+			Photo::setPermissionForResource($media[0]['resource-id'], $item['uid'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
+
+			$phototypes = Images::supportedTypes();
+			$ext = $phototypes[$media[0]['type']];
+
+			$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
+				'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
+				'size' => $media[0]['datasize'],
+				'name' => $media[0]['filename'] ?: $media[0]['resource-id'],
+				'description' => $media[0]['desc'] ?? '',
+				'width' => $media[0]['width'],
+				'height' => $media[0]['height']];
+
+			if (count($media) > 1) {
+				$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
+				$attachment['preview-width'] = $media[1]['width'];
+				$attachment['preview-height'] = $media[1]['height'];
+			}
+			$item['attachments'][] = $attachment;
+		}
+		return $item;
 	}
 }

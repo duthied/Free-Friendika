@@ -1,9 +1,9 @@
 [main]
-host = https://www.transifex.com
+host = https://api.transifex.com
 
-[friendica.messagespo]
+[o:Friendica:p:friendica:r:messagespo]
 file_filter = view/lang/<lang>/messages.po
 source_file = view/lang/C/messages.po
 source_lang = en
-type = PO
+type        = PO
 

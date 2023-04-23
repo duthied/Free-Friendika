@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -60,7 +60,7 @@ class Group
 	/**
 	 * Checks whether given group id is found in database
 	 *
-	 * @param int $group_id Groupd it
+	 * @param int $group_id Group id
 	 * @param int $uid Optional user id
 	 * @return bool
 	 * @throws \Exception

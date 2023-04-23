@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -270,7 +270,7 @@ HELP;
 	}
 
 	/**
-	 * Allows or denys a user based on it's nickname
+	 * Allows or denies a user based on it's nickname
 	 *
 	 * @param bool $allow True, if the pending user is allowed, false if denies
 	 *

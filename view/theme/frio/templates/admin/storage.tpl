@@ -5,6 +5,9 @@
 
 	<div class="well well-lg">
         	{{$label_current}}: <b>{{$storagebackend}}</b>
+			{{if $storagebackend_ro_txt}}
+			<br><i>{{$storagebackend_ro_txt nofilter}}</i>
+			{{/if}}
 	</div>
 
 		<h2>{{$label_config}}</h2>
@@ -33,12 +36,14 @@
 				<div class="panel-footer">
 					{{if $storage.form}}
 					<input type="submit" name="submit_save" class="btn btn-primary" value="{{$save}}"/>
-						{{if $storage.active}}
+	                    {{if $is_writable}}
+							{{if $storage.active}}
 					<input type="submit" name="submit_save_set" class="btn btn-primary" value="{{$save_reload}}"/>
-						{{else}}
+							{{else}}
 					<input type="submit" name="submit_save_set" class="btn btn-primary" value="{{$save_use}}"/>
+							{{/if}}
 						{{/if}}
-					{{else}}
+					{{elseif $is_writable}}
 					<input type="submit" name="submit_save_set" class="btn btn-primary" {{if $storage.active}}disabled="disabled"{{/if}} value="{{$use}}"/>
 					{{/if}}
 				</div>

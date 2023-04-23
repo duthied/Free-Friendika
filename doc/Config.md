@@ -250,7 +250,7 @@ key = value
 		<tr>
             <td><pre>
 [config]
-register_policty = REGISTER_CLOSED
+register_policy = REGISTER_CLOSED
 </pre></td>
         			<td><pre>
 'config' => [

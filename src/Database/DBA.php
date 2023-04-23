@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -205,7 +205,7 @@ class DBA
 	 * Please use DBA::delete, DBA::insert, DBA::update, ... instead
 	 *
 	 * @param string $sql SQL statement
-	 * @return boolean Was the query successfull? False is returned only if an error occurred
+	 * @return boolean Was the query successful? False is returned only if an error occurred
 	 * @throws \Exception
 	 */
 	public static function e(string $sql): bool
@@ -420,7 +420,7 @@ class DBA
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate, false = don't update identical fields)
 	 * @param array         $params     Parameters: "ignore" If set to "true" then the update is done with the ignore parameter
 	 *
-	 * @return boolean was the update successfull?
+	 * @return boolean was the update successful?
 	 * @throws \Exception
 	 */
 	public static function update(string $table, array $fields, array $condition, $old_fields = [], array $params = []): bool
@@ -517,7 +517,7 @@ class DBA
 	 * Build the table query substring from one or more tables, with or without a schema.
 	 *
 	 * Expected formats:
-	 * - table
+	 * - [table]
 	 * - [table1, table2, ...]
 	 * - [schema1 => table1, schema2 => table2, table3, ...]
 	 *
@@ -527,7 +527,7 @@ class DBA
 	public static function buildTableString(array $tables): string
 	{
 		// Quote each entry
-		return implode(',', array_map(['self', 'quoteIdentifier'], $tables));
+		return implode(',', array_map([self::class, 'quoteIdentifier'], $tables));
 	}
 
 	/**
@@ -568,7 +568,7 @@ class DBA
 	public static function buildCondition(array &$condition = []): string
 	{
 		$condition = self::collapseCondition($condition);
-		
+
 		$condition_string = '';
 		if (count($condition) > 0) {
 			$condition_string = " WHERE (" . array_shift($condition) . ")";
@@ -717,7 +717,7 @@ class DBA
 	{
 		$groupby_string = '';
 		if (!empty($params['group_by'])) {
-			$groupby_string = " GROUP BY " . implode(', ', array_map(['self', 'quoteIdentifier'], $params['group_by']));
+			$groupby_string = " GROUP BY " . implode(', ', array_map([self::class, 'quoteIdentifier'], $params['group_by']));
 		}
 
 		$order_string = '';

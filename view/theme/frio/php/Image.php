@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -31,7 +31,7 @@ class Image
 	 * Give all available options for the background image
 	 *
 	 * @param array $arr Array with the present user settings
-	 * @return array Array with the immage options
+	 * @return array Array with the image options
 	 */
 	public static function get_options(array $arr): array
 	{

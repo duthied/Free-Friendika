@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -68,7 +68,7 @@ class Share extends \Friendica\BaseModule
 		$shared = $this->contentItem->getSharedPost($item, ['uri']);
 		if ($shared && empty($shared['comment'])) {
 			$content = '[share]' . $shared['post']['uri'] . '[/share]';
-		} elseif ($item['network'] == Protocol::FEED) {
+		} elseif (!empty($item['plink']) && !in_array($item['network'], Protocol::FEDERATED)) {
 			$content = '[attachment]' . $item['plink'] . '[/attachment]';
 		} else {
 			$content = '[share]' . $item['uri'] . '[/share]';

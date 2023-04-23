@@ -100,7 +100,7 @@ See doxygen documentation of `IWritableStorage` interface for details about each
 
 ## Register a storage backend class
 
-Each backend must be registered in the system when the plugin is installed, to be aviable.
+Each backend must be registered in the system when the plugin is installed, to be available.
 
 `DI::facStorage()->register(string $class)` is used to register the backend class.
 
@@ -140,18 +140,18 @@ abstract class StorageTest
 
 There are two intended types of exceptions for storages
 
-### `ReferenceStorageExecption`
+### `ReferenceStorageException`
 
 This storage exception should be used in case the caller tries to use an invalid references.
 This could happen in case the caller tries to delete or update an unknown reference.
 The implementation of the storage backend must not ignore invalid references.
 
-Avoid throwing the common `StorageExecption` instead of the `ReferenceStorageException` at this particular situation!
+Avoid throwing the common `StorageException` instead of the `ReferenceStorageException` at this particular situation!
 
 ### `StorageException`
 
 This is the common exception in case unexpected errors happen using the storage backend.
-If there's a predecessor to this exception (e.g. you caught an exception and are throwing this execption), you should add the predecessor for transparency reasons.
+If there's a predecessor to this exception (e.g. you caught an exception and are throwing this exception), you should add the predecessor for transparency reasons.
 
 Example:
 
@@ -320,7 +320,7 @@ The file is `addon/samplestorage/samplestorage.php`
 <?php
 /**
  * Name: Sample Storage Addon
- * Description: A sample addon which implements an unusefull storage backend
+ * Description: A sample addon which implements a very limited storage backend
  * Version: 1.0.0
  * Author: Alice <https://alice.social/~alice>
  */

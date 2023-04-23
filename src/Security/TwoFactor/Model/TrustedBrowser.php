@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -46,7 +46,7 @@ class TrustedBrowser extends BaseEntity
 	protected $last_used;
 
 	/**
-	 * Please do not use this constructor directly, instead use one of the method of the TrustedBroser factory.
+	 * Please do not use this constructor directly, instead use one of the method of the TrustedBrowser factory.
 	 *
 	 * @see \Friendica\Security\TwoFactor\Factory\TrustedBrowser
 	 *

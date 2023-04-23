@@ -2,11 +2,34 @@
 {{* Strings which are needed for some js functions (e.g. translation or the interval for page update)
 They are loaded into the html <head> so that js functions can use them *}}
 <script type="text/javascript">
-	var updateInterval = {{$update_interval}};
-
-	var localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
-	var aStr = {
-		'delitem'     : "{{$delitem|escape:'javascript' nofilter}}",
-		'blockAuthor' : "{{$blockAuthor|escape:'javascript' nofilter}}",
+	const aStr = {
+		delitem      : "{{$l10n.delitem|escape:'javascript' nofilter}}",
+		blockAuthor  : "{{$l10n.blockAuthor|escape:'javascript' nofilter}}",
+		ignoreAuthor : "{{$l10n.ignoreAuthor|escape:'javascript' nofilter}}",
+	};
+	const aActErr = {
+		like       : "{{$l10n.likeError|escape:'javascript' nofilter}}",
+		dislike    : "{{$l10n.dislikeError|escape:'javascript' nofilter}}",
+		announce   : "{{$l10n.announceError|escape:'javascript' nofilter}}",
+		attendyes  : "{{$l10n.attendError|escape:'javascript' nofilter}}",
+		attendno   : "{{$l10n.attendError|escape:'javascript' nofilter}}",
+		attendmaybe: "{{$l10n.attendError|escape:'javascript' nofilter}}",
+	};
+	const aErrType = {
+		srvErr: "{{$l10n.srvError|escape:'javascript' nofilter}}",
+		netErr: "{{$l10n.netError|escape:'javascript' nofilter}}",
+	};
+	const dzStrings = {
+		dictDefaultMessage          : "{{$l10n.dictDefaultMessage|escape:'javascript' nofilter}}",
+		dictFallbackMessage         : "{{$l10n.dictFallbackMessage|escape:'javascript' nofilter}}",
+		dictFallbackText            : "{{$l10n.dictFallbackText|escape:'javascript' nofilter}}",
+		dictFileTooBig              : "{{$l10n.dictFileTooBig|escape:'javascript' nofilter}}",
+		dictInvalidFileType         : "{{$l10n.dictInvalidFileType|escape:'javascript' nofilter}}",
+		dictResponseError           : "{{$l10n.dictResponseError|escape:'javascript' nofilter}}",
+		dictCancelUpload            : "{{$l10n.dictCancelUpload|escape:'javascript' nofilter}}",
+		dictUploadCanceled          : "{{$l10n.dictUploadCanceled|escape:'javascript' nofilter}}",
+		dictCancelUploadConfirmation: "{{$l10n.dictCancelUploadConfirmation|escape:'javascript' nofilter}}",
+		dictRemoveFile              : "{{$l10n.dictRemoveFile|escape:'javascript' nofilter}}",
+		dictMaxFilesExceeded        : "{{$l10n.dictMaxFilesExceeded|escape:'javascript' nofilter}}",
 	};
 </script>

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -141,7 +141,7 @@ class PageInfo
 			$data['text'] = '';
 		}
 
-		// Only embedd a picture link when it seems to be a valid picture ("width" is set)
+		// Only embed a picture link when it seems to be a valid picture ("width" is set)
 		if (!empty($data['images']) && !empty($data['images'][0]['width'])) {
 			$preview = str_replace(['[', ']'], ['&#91;', '&#93;'], htmlentities($data['images'][0]['src'], ENT_QUOTES, 'UTF-8', false));
 			// if the preview picture is larger than 500 pixels then show it in a larger mode

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -24,7 +24,7 @@ namespace Friendica;
 use Psr\Log\LoggerInterface;
 
 /**
- * Factories act as an intermediary to avoid direct Entitiy instanciation.
+ * Factories act as an intermediary to avoid direct Entity instantiation.
  *
  * @see BaseModel
  * @see BaseCollection

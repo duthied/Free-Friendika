@@ -40,7 +40,7 @@
     
     /**
      * Attaches resize event to a window, limiting
-     * number of event fired. Fires only when encounteres
+     * number of event fired. Fires only when encounters
      * delay of 100 after series of events.
      * 
      * Some browsers fire event multiple times when resizing
@@ -75,7 +75,7 @@
     };
 
     
-    // Needs more testing, will be rewriten for next version        
+    // Needs more testing, will be rewritten for next version        
     // getOffset function copied from jQuery lib (http://jquery.com/)
     if (document.documentElement.getBoundingClientRect){
         // Get Offset using getBoundingClientRect
@@ -157,7 +157,7 @@
     /**
      * Function places an absolutely positioned
      * element on top of the specified element
-     * copying position and dimentions.
+     * copying position and dimensions.
      * @param {Element} from
      * @param {Element} to
      */    
@@ -211,7 +211,7 @@
     /**
      * Get file extension lowercase
      * @param {String} file name
-     * @return file extenstion
+     * @return file extension
      */    
     function getExt(file){
         return (-1 !== file.indexOf('.')) ? file.replace(/.*[.]/, '') : '';
@@ -239,7 +239,7 @@
      * Easy styling and uploading
      * @constructor
      * @param button An element you want convert to 
-     * upload button. Tested dimentions up to 500x500px
+     * upload button. Tested dimensions up to 500x500px
      * @param {Object} options See defaults below.
      */
     window.AjaxUpload = function(button, options){

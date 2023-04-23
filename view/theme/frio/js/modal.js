@@ -23,7 +23,7 @@ $(document).ready(function () {
 		$("#jot-content").append(jotcache);
 		// Clear the jotcache.
 		jotcache = "";
-		// Destroy the attachment linkPreviw for Jot.
+		// Destroy the attachment linkPreview for Jot.
 		if (typeof linkPreview === "object") {
 			linkPreview.destroy();
 		}
@@ -38,7 +38,7 @@ $(document).ready(function () {
 		// We need to make sure we only put a Colorbox on links to Friendica images.
 		// We'll try to do this by looking for links of the form
 		// .../photo/ab803d8eg08daf85023adfec08 (with nothing more following), in hopes
-		// that that will be unique enough.
+		// that will be unique enough.
 		if (imgHref.match(/\/photo\/[a-fA-F0-9]+(-[0-9]\.[\w]+?)?$/)) {
 			// Add a unique class to all the images of a certain post, to allow scrolling through
 			var cBoxClass = $(this).closest(".wall-item-body").attr("id") + "-lightbox";
@@ -190,7 +190,7 @@ function loadModalTitle() {
 	// Get the text of the first element with "heading" class.
 	title = $("#modal-body .heading").first().html();
 
-	// for event modals we need some speacial handling
+	// for event modals we need some special handling
 	if ($("#modal-body .event-wrapper .event-summary").length) {
 		title = '<i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;';
 		var eventsum = $("#modal-body .event-wrapper .event-summary").html();
@@ -230,7 +230,7 @@ function addToModal(url, id) {
 			loadModalTitle();
 
 			// We need to initialize autosize again for new
-			// modal conent.
+			// modal content.
 			autosize($(".modal .text-autosize"));
 		}
 	});
@@ -269,7 +269,7 @@ function editpost(url) {
 
 	// For editpost we load the modal html of "jot-sections" of the edit page. So we would have two jot forms in
 	// the page html. To avoid js conflicts we store the original jot in the variable jotcache.
-	// After closing the modal original jot should be restored at its orginal position in the html structure.
+	// After closing the modal original jot should be restored at its original position in the html structure.
 	jotcache = $("#jot-content > #jot-sections");
 
 	// Remove the original Jot as long as the edit Jot is open.
@@ -290,6 +290,10 @@ function editpost(url) {
 				$("#profile-jot-form #jot-title-wrap").hide();
 				$("#profile-jot-form #jot-category-wrap").hide();
 			}
+
+			// To make dropzone fileupload work on editing a comment, we need to
+			// attach a new dropzone to modal
+			dzFactory.setupDropzone('#jot-text-wrap', 'profile-jot-text');
 
 			modal.show();
 			$("#jot-popup").show();
@@ -336,10 +340,10 @@ function toggleJotNav(elm) {
 	$("#jot-modal .modal-header .nav-tabs .jot-nav-lnk").attr("aria-selected", "false");
 	elm.setAttribute("aria-selected", "true");
 
-	// For some some tab panels we need to execute other js functions.
+	// For some tab panels we need to execute other js functions.
 	if (tabpanel === "jot-preview-content") {
 		preview_post();
-		// Make Share button visivle in preview
+		// Make Share button visible in preview
 		$("#jot-preview-share").removeClass("minimize").attr("aria-hidden", "false");
 	} else if (tabpanel === "jot-fbrowser-wrapper") {
 		$(function () {
@@ -347,7 +351,7 @@ function toggleJotNav(elm) {
 		});
 	}
 
-	// If element is a mobile dropdown nav menu we need to change the botton text.
+	// If element is a mobile dropdown nav menu we need to change the button text.
 	if (cls) {
 		toggleDropdownText(elm);
 	}
@@ -357,7 +361,7 @@ function toggleJotNav(elm) {
 // it redirects you to your own server. In such cases we can't
 // load it into a modal.
 function openWallMessage(url) {
-	// Split the the url in its parts.
+	// Split the url in its parts.
 	var parts = parseUrl(url);
 
 	// If the host isn't the same we can't load it in a modal.

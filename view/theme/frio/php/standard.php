@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -126,7 +126,7 @@ $('nav').bind('nav-update', function(e,data)
 	<div class="modal-dialog modal-full-screen">
 		<div class="modal-content">
 			<div id="modal-header" class="modal-header">
-				<button id="modal-cloase" type="button" class="close" data-dismiss="modal">
+				<button id="modal-close" type="button" class="close" data-dismiss="modal">
 					&times;
 				</button>
 				<h4 id="modal-title" class="modal-title"></h4>

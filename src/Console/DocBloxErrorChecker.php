@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -30,7 +30,7 @@ use Friendica\App;
  *
  * Basically, docblox takes a list of files to build documentation from. This script assumes there is a file or set of files
  * breaking the build when it is included in that list. It tries to calculate the smallest list containing these files.
- * Unfortunatly, the original problem is NP-complete, so what the script does is a best guess only.
+ * Unfortunately, the original problem is NP-complete, so what the script does is a best guess only.
  *
  * So it starts with a list of all files in the project.
  * If that list can't be build, it cuts it in two parts and tries both parts independently. If only one of them breaks,

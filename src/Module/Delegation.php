@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -120,7 +120,7 @@ class Delegation extends BaseModule
 
 		$identities = User::identities(DI::userSession()->getSubManagedUserId() ?: DI::userSession()->getLocalUserId());
 
-		//getting additinal information for each identity
+		//getting additional information for each identity
 		foreach ($identities as $key => $identity) {
 			$identities[$key]['thumb'] = User::getAvatarUrl($identity, Proxy::SIZE_THUMB);
 

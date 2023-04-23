@@ -52,5 +52,5 @@ The same rules apply as with names that spaces within tags are represented by th
 It is therefore not possible to create a tag whose target contains an underscore.
 
 Topical tags are also not linked if they are purely numeric, e.g. #1.
-If you wish to use a numerica hashtag, please add some descriptive text such as #2012-elections.
+If you wish to use a numeric hashtag, please add some descriptive text such as #2012-elections.
 

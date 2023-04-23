@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -158,7 +158,7 @@ abstract class BaseNotifications extends BaseModule
 	/**
 	 * List of pages for the Notifications TabBar
 	 *
-	 * @return array with with notifications TabBar data
+	 * @return array with notifications TabBar data
 	 * @throws Exception
 	 */
 	private function getTabs()

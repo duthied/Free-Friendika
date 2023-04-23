@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -176,7 +176,7 @@ class Relay
 		if (in_array($gserver['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
 			$system = APContact::getByURL($gserver['url'] . '/friendica');
 			if (!empty($system['sharedinbox'])) {
-				Logger::info('Sucessfully probed for relay contact', ['server' => $gserver['url']]);
+				Logger::info('Successfully probed for relay contact', ['server' => $gserver['url']]);
 				$id = Contact::updateFromProbeByURL($system['url']);
 				Logger::info('Updated relay contact', ['server' => $gserver['url'], 'id' => $id]);
 				return;
@@ -302,7 +302,7 @@ class Relay
 			DBA::close($tagserver);
 		}
 
-		// All adresses with the given id
+		// All addresses with the given id
 		if (!empty($tagserverlist)) {
 			$servers = DBA::select('gserver', ['id', 'url', 'network'], ['relay-subscribe' => true, 'relay-scope' => 'tags', 'id' => $tagserverlist]);
 			while ($server = DBA::fetch($servers)) {
@@ -333,7 +333,7 @@ class Relay
 	 *
 	 * @param array $fields Field list
 	 * @return array List of relay servers
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static function getList(array $fields = []): array
 	{
@@ -382,6 +382,6 @@ class Relay
 		foreach (self::getList() as $server) {
 			$success = ActivityPub\Transmitter::sendRelayFollow($server['url']);
 			Logger::debug('Resubscribed', ['profile' => $server['url'], 'success' => $success]);
-		}	
+		}
 	}
 }

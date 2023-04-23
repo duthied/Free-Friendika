@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -63,7 +63,7 @@ class Receiver
 	const PUBLIC_COLLECTION = 'as:Public';
 	const ACCOUNT_TYPES = ['as:Person', 'as:Organization', 'as:Service', 'as:Group', 'as:Application'];
 	const CONTENT_TYPES = ['as:Note', 'as:Article', 'as:Video', 'as:Image', 'as:Event', 'as:Audio', 'as:Page', 'as:Question'];
-	const ACTIVITY_TYPES = ['as:Like', 'as:Dislike', 'as:Accept', 'as:Reject', 'as:TentativeAccept'];
+	const ACTIVITY_TYPES = ['as:Like', 'as:Dislike', 'as:Accept', 'as:Reject', 'as:TentativeAccept', 'as:View', 'as:Read', 'litepub:EmojiReact'];
 
 	const TARGET_UNKNOWN = 0;
 	const TARGET_TO = 1;
@@ -74,11 +74,11 @@ class Receiver
 	const TARGET_ANSWER = 6;
 	const TARGET_GLOBAL = 7;
 
-	const COMPLETION_NONE    = 0;
-	const COMPLETION_ANNOUCE = 1;
-	const COMPLETION_RELAY   = 2;
-	const COMPLETION_MANUAL  = 3;
-	const COMPLETION_AUTO    = 4;
+	const COMPLETION_NONE     = 0;
+	const COMPLETION_ANNOUNCE = 1;
+	const COMPLETION_RELAY    = 2;
+	const COMPLETION_MANUAL   = 3;
+	const COMPLETION_AUTO     = 4;
 
 	/**
 	 * Checks incoming message from the inbox
@@ -248,14 +248,14 @@ class Receiver
 	 * Fetches the object type for a given object id
 	 *
 	 * @param array   $activity
-	 * @param string  $object_id Object ID of the the provided object
+	 * @param string  $object_id Object ID of the provided object
 	 * @param integer $uid       User ID
 	 *
 	 * @return string with object type or NULL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchObjectType(array $activity, string $object_id, int $uid = 0)
+	public static function fetchObjectType(array $activity, string $object_id, int $uid = 0)
 	{
 		if (!empty($activity['as:object'])) {
 			$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
@@ -315,12 +315,15 @@ class Receiver
 			$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
 		}
 
+		$fetched = false;
+
 		if (!empty($id) && !$trust_source) {
 			$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
 
 			$fetched_activity = Processor::fetchCachedActivity($fetch_id, $fetch_uid);
 			if (!empty($fetched_activity)) {
-				$object = JsonLD::compact($fetched_activity);
+				$fetched = true;
+				$object  = JsonLD::compact($fetched_activity);
 
 				$fetched_id   = JsonLD::fetchElement($object, '@id');
 				$fetched_type = JsonLD::fetchElement($object, '@type');
@@ -351,7 +354,7 @@ class Receiver
 		$type = JsonLD::fetchElement($activity, '@type');
 
 		// Fetch all receivers from to, cc, bto and bcc
-		$receiverdata = self::getReceivers($activity, $actor);
+		$receiverdata = self::getReceivers($activity, $actor, [], false, $push || $fetched);
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];
@@ -406,23 +409,27 @@ class Receiver
 		}
 
 		// Any activities on account types must not be altered
-		if (in_array($object_type, self::ACCOUNT_TYPES)) {
+		if (in_array($type, ['as:Flag'])) {
+			$object_data = [];
+			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
+			$object_data['object_id'] = JsonLD::fetchElement($activity, 'as:object', '@id');
+			$object_data['object_ids'] = JsonLD::fetchElementArray($activity, 'as:object', '@id');
+			$object_data['content'] = JsonLD::fetchElement($activity, 'as:content', '@type');
+		} elseif (in_array($object_type, self::ACCOUNT_TYPES)) {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
 			$object_data['object_id'] = JsonLD::fetchElement($activity, 'as:object', '@id');
 			$object_data['object_actor'] = JsonLD::fetchElement($activity['as:object'], 'as:actor', '@id');
 			$object_data['object_object'] = JsonLD::fetchElement($activity['as:object'], 'as:object');
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
-			$object_data['push'] = $push;
 			if (!$trust_source && ($type == 'as:Delete')) {
 				$apcontact = APContact::getByURL($object_data['object_id'], true);
 				$trust_source = empty($apcontact) || ($apcontact['type'] == 'Tombstone') || $apcontact['suspended'];
 			}
-		} elseif (in_array($type, ['as:Create', 'as:Update', 'as:Announce', 'as:Invite']) || strpos($type, '#emojiReaction')) {
+		} elseif (in_array($type, ['as:Create', 'as:Update', 'as:Invite']) || strpos($type, '#emojiReaction')) {
 			// Fetch the content only on activities where this matters
 			// We can receive "#emojiReaction" when fetching content from Hubzilla systems
-			// Always fetch on "Announce"
-			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $fetch_uid);
+			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source, $fetch_uid);
 			if (empty($object_data)) {
 				Logger::info("Object data couldn't be processed");
 				return [];
@@ -430,19 +437,13 @@ class Receiver
 
 			$object_data['object_id'] = $object_id;
 
-			if ($type == 'as:Announce') {
-				$object_data['push'] = false;
-			} else {
-				$object_data['push'] = $push;
-			}
-
 			// Test if it is an answer to a mail
 			if (DBA::exists('mail', ['uri' => $object_data['reply-to-id']])) {
 				$object_data['directmessage'] = true;
 			} else {
 				$object_data['directmessage'] = JsonLD::fetchElement($activity, 'litepub:directMessage');
 			}
-		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow', 'litepub:EmojiReact', 'as:View'])) && in_array($object_type, self::CONTENT_TYPES)) {
+		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Announce', 'as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of each individual array element.
 			$object_data = self::processObject($activity);
@@ -450,15 +451,13 @@ class Receiver
 			$object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
 			$object_data['object_id'] = $object_id;
 			$object_data['object_type'] = ''; // Since we don't fetch the object, we don't know the type
-			$object_data['push'] = $push;
-		} elseif (in_array($type, ['as:Add', 'as:Remove'])) {
+		} elseif (in_array($type, ['as:Add', 'as:Remove', 'as:Move'])) {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
 			$object_data['target_id'] = JsonLD::fetchElement($activity, 'as:target', '@id');
 			$object_data['object_id'] = JsonLD::fetchElement($activity, 'as:object', '@id');
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
 			$object_data['object_content'] = JsonLD::fetchElement($activity['as:object'], 'as:content', '@type');
-			$object_data['push'] = $push;
 		} else {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
@@ -466,7 +465,6 @@ class Receiver
 			$object_data['object_actor'] = JsonLD::fetchElement($activity['as:object'], 'as:actor', '@id');
 			$object_data['object_object'] = JsonLD::fetchElement($activity['as:object'], 'as:object');
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
-			$object_data['push'] = $push;
 
 			// An Undo is done on the object of an object, so we need that type as well
 			if (($type == 'as:Undo') && !empty($object_data['object_object'])) {
@@ -480,6 +478,8 @@ class Receiver
 				}
 			}
 		}
+
+		$object_data['push'] = $push;
 
 		$object_data = self::addActivityFields($object_data, $activity);
 
@@ -559,7 +559,7 @@ class Receiver
 			return true;
 		}
 
-		if ($type == 'as:View') {
+		if (!DI::config()->get('system', 'process_view') && ($type == 'as:View')) {
 			Logger::info('View activities are ignored.', ['signer' => $signer, 'http_signer' => $http_signer]);
 			return true;
 		}
@@ -630,7 +630,7 @@ class Receiver
 			$object_data['object_activity']	= $activity;
 		}
 
-		if (($type == 'as:Create') && $trust_source) {
+		if (($type == 'as:Create') && $trust_source && !in_array($completion, [self::COMPLETION_MANUAL, self::COMPLETION_ANNOUNCE])) {
 			if (self::hasArrived($object_data['object_id'])) {
 				Logger::info('The activity already arrived.', ['id' => $object_data['object_id']]);
 				return true;
@@ -641,9 +641,13 @@ class Receiver
 				Logger::info('The activity is already added.', ['id' => $object_data['object_id']]);
 				return true;
 			}
+		} elseif (($type == 'as:Create') && $trust_source && !self::hasArrived($object_data['object_id'])) {
+			self::addArrivedId($object_data['object_id']);
 		}
 
-		if (DI::config()->get('system', 'decoupled_receiver') && ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted'))) {
+		$decouple = DI::config()->get('system', 'decoupled_receiver') && !in_array($completion, [self::COMPLETION_MANUAL, self::COMPLETION_ANNOUNCE]);
+
+		if ($decouple && ($trust_source || DI::config()->get('debug', 'ap_inbox_store_untrusted'))) {
 			$object_data = Queue::add($object_data, $type, $uid, $http_signer, $push, $trust_source);
 		}
 
@@ -652,7 +656,7 @@ class Receiver
 			return true;
 		}
 
-		if (!empty($object_data['entry-id']) && DI::config()->get('system', 'decoupled_receiver') && ($push || ($completion == self::COMPLETION_RELAY))) {
+		if (!empty($object_data['entry-id']) && $decouple && ($push || ($completion == self::COMPLETION_RELAY))) {
 			if (Queue::isProcessable($object_data['entry-id'])) {
 				// We delay by 5 seconds to allow to accumulate all receivers
 				$delayed = date(DateTimeFormat::MYSQL, time() + 5);
@@ -669,11 +673,7 @@ class Receiver
 			$object_data['recursion-depth'] = $activity['recursion-depth'];
 		}
 
-		if (in_array('as:Question', [$object_data['object_type'] ?? '', $object_data['object_object_type'] ?? ''])) {
-			self::storeUnhandledActivity(false, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
-		}
-
-		if (!self::routeActivities($object_data, $type, $push)) {
+		if (!self::routeActivities($object_data, $type, $push, true, $uid)) {
 			self::storeUnhandledActivity(true, $type, $object_data, $activity, $body, $uid, $trust_source, $push, $signer);
 			Queue::remove($object_data);
 		}
@@ -687,13 +687,12 @@ class Receiver
 	 * @param string $type
 	 * @param bool   $push
 	 * @param bool   $fetch_parents
+	 * @param int    $uid
 	 *
 	 * @return boolean Could the activity be routed?
 	 */
-	public static function routeActivities(array $object_data, string $type, bool $push, bool $fetch_parents = true): bool
+	public static function routeActivities(array $object_data, string $type, bool $push, bool $fetch_parents = true, int $uid = 0): bool
 	{
-		$activity = $object_data['object_activity']	?? [];
-
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
@@ -702,6 +701,8 @@ class Receiver
 				} elseif (in_array($object_data['object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
 					Queue::remove($object_data);
+				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
+					ActivityPub\Processor::updatePerson($object_data);
 				} else {
 					return false;
 				}
@@ -721,8 +722,8 @@ class Receiver
 					ActivityPub\Processor::addTag($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::addToFeaturedCollection($object_data);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -731,42 +732,24 @@ class Receiver
 
 			case 'as:Announce':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
-					$object_data['thread-completion'] = Contact::getIdForURL($actor);
-					$object_data['completion-mode']   = self::COMPLETION_ANNOUCE;
-
-					if (!Post::exists(['uri' => $object_data['id'], 'uid' => 0])) {
-						$item = ActivityPub\Processor::createItem($object_data, $fetch_parents);
-						if (empty($item)) {
-							Logger::debug('announced id was not created', ['id' => $object_data['id']]);
-							return false;
+					if (!Item::searchByLink($object_data['object_id'], $uid)) {
+						if (ActivityPub\Processor::fetchMissingActivity($object_data['object_id'], [], $object_data['actor'], self::COMPLETION_ANNOUNCE, $uid)) {
+							Logger::debug('Created announced id', ['uid' => $uid, 'id' => $object_data['object_id']]);
+							Queue::remove($object_data);
+						} else {
+							Logger::debug('Announced id was not created', ['uid' => $uid, 'id' => $object_data['object_id']]);
+							Queue::remove($object_data);
+							return true;
 						}
-
-						$item['post-reason'] = Item::PR_ANNOUNCEMENT;
-						ActivityPub\Processor::postItem($object_data, $item);
-						Logger::debug('Created announced id', ['id' => $object_data['id']]);
 					} else {
-						Logger::info('Announced id already exists', ['id' => $object_data['id']]);
+						Logger::info('Announced id already exists', ['uid' => $uid, 'id' => $object_data['object_id']]);
 						Queue::remove($object_data);
 					}
 
-					if (!empty($activity)) {
-						$announce_object_data = self::processObject($activity);
-						$announce_object_data['name'] = $type;
-						$announce_object_data['author'] = $actor;
-						$announce_object_data['object_id'] = $object_data['id'];
-						$announce_object_data['object_type'] = $object_data['object_type'];
-						$announce_object_data['push'] = $push;
-						Logger::debug('Create announce activity', ['id' => $announce_object_data['id'], 'object_data' => $announce_object_data]);
-
-						if (!empty($object_data['raw'])) {
-							$announce_object_data['raw'] = $object_data['raw'];
-						}
-						if (!empty($object_data['raw-object'])) {
-							$announce_object_data['raw-object'] = $object_data['raw-object'];
-						}
-						ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
-					}
+					ActivityPub\Processor::createActivity($object_data, Activity::ANNOUNCE);
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
+					Queue::remove($object_data);
 				} else {
 					return false;
 				}
@@ -775,8 +758,8 @@ class Receiver
 			case 'as:Like':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::LIKE);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -786,8 +769,8 @@ class Receiver
 			case 'as:Dislike':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::DISLIKE);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -828,6 +811,14 @@ class Receiver
 				}
 				break;
 
+			case 'as:Move':
+				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
+					ActivityPub\Processor::movePerson($object_data);
+				} else {
+					return false;
+				}
+				break;
+
 			case 'as:Block':
 				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::blockAccount($object_data);
@@ -836,11 +827,19 @@ class Receiver
 				}
 				break;
 
+			case 'as:Flag':
+				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
+					ActivityPub\Processor::ReportAccount($object_data);
+				} else {
+					return false;
+				}
+				break;
+
 			case 'as:Remove':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::removeFromFeaturedCollection($object_data);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -867,6 +866,9 @@ class Receiver
 					}
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::ATTEND);
+				} elseif (!empty($object_data['object_id']) && empty($object_data['object_actor']) && empty($object_data['object_type'])) {
+					// Follow acceptances from gup.pe only contain the object id
+					ActivityPub\Processor::acceptFollowUser($object_data);
 				} else {
 					return false;
 				}
@@ -906,6 +908,12 @@ class Receiver
 					in_array($object_data['object_object_type'], ['pt:CacheFile'])) {
 					// Unhandled Peertube activity
 					Queue::remove($object_data);
+				} elseif (in_array($object_data['object_type'], ['as:Delete'])) {
+					// We cannot undo deletions, so we just ignore this
+					Queue::remove($object_data);
+				} elseif (in_array($object_data['object_object_type'], ['as:Tombstone'])) {
+					// The object is a tombstone, we ignore any actions on it.
+					Queue::remove($object_data);
 				} else {
 					return false;
 				}
@@ -914,8 +922,18 @@ class Receiver
 			case 'as:View':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::VIEW);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. Most likely we don't have it here. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
+					Queue::remove($object_data);
+				} else {
+					return false;
+				}
+				break;
+			case 'as:Read':
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createActivity($object_data, Activity::READ);
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -925,8 +943,8 @@ class Receiver
 			case 'litepub:EmojiReact':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createActivity($object_data, Activity::EMOJIREACT);
-				} elseif ($object_data['object_type'] == '') {
-					// The object type couldn't be determined. We don't have it and we can't fetch it. We ignore this activity.
+				} elseif (in_array($object_data['object_type'], ['as:Tombstone', ''])) {
+					// We don't have the object here or it is deleted. We ignore this activity.
 					Queue::remove($object_data);
 				} else {
 					return false;
@@ -972,7 +990,7 @@ class Receiver
 
 		$tempfile = tempnam(System::getTempPath(), $file);
 		file_put_contents($tempfile, json_encode(['activity' => $activity, 'body' => $body, 'uid' => $uid, 'trust_source' => $trust_source, 'push' => $push, 'signer' => $signer, 'object_data' => $object_data], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-		Logger::notice('Unknown activity stored', ['type' => $type, 'object_type' => $object_data['object_type'], $object_data['object_object_type'] ?? '', 'file' => $tempfile]);
+		Logger::notice('Unknown activity stored', ['type' => $type, 'object_type' => $object_data['object_type'], 'object_object_type' => $object_data['object_object_type'] ?? '', 'file' => $tempfile]);
 	}
 
 	/**
@@ -988,7 +1006,7 @@ class Receiver
 		$uid = 0;
 		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id') ?? '';
 
-		$receivers = self::getReceivers($activity, $actor);
+		$receivers = self::getReceivers($activity, $actor, [], false, false);
 		foreach ($receivers as $receiver) {
 			if ($receiver['type'] == self::TARGET_GLOBAL) {
 				return 0;
@@ -1021,6 +1039,10 @@ class Receiver
 			}
 
 			foreach ($receiver_list as $receiver) {
+				if ($receiver == 'Public') {
+					Logger::warning('Not compacted public collection found', ['activity' => $activity, 'callstack' => System::callstack(20)]);
+					$receiver = ActivityPub::PUBLIC_COLLECTION;
+				}
 				if ($receiver == self::PUBLIC_COLLECTION) {
 					$receiver = ActivityPub::PUBLIC_COLLECTION;
 				}
@@ -1035,18 +1057,19 @@ class Receiver
 	 * Fetch the receiver list from an activity array
 	 *
 	 * @param array   $activity
-	 * @param string  $actor
-	 * @param array   $tags
-	 * @param boolean $fetch_unlisted
+	 * @param string $actor
+	 * @param array  $tags
+	 * @param bool   $fetch_unlisted
+	 * @param bool   $push
 	 *
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceivers(array $activity, string $actor, array $tags = [], bool $fetch_unlisted = false): array
+	private static function getReceivers(array $activity, string $actor, array $tags, bool $fetch_unlisted, bool $push): array
 	{
 		$reply = $receivers = $profile = [];
 
-		// When it is an answer, we inherite the receivers from the parent
+		// When it is an answer, we inherit the receivers from the parent
 		$replyto = JsonLD::fetchElement($activity, 'as:inReplyTo', '@id');
 		if (!empty($replyto)) {
 			$reply = [$replyto];
@@ -1064,18 +1087,13 @@ class Receiver
 			$reply[] = $object_id;
 		}
 
-		if (!empty($reply)) {
-			$parents = Post::select(['uid'], DBA::mergeConditions(['uri' => $reply], ["`uid` != ?", 0]));
-			while ($parent = Post::fetch($parents)) {
-				$receivers[$parent['uid']] = ['uid' => $parent['uid'], 'type' => self::TARGET_ANSWER];
-			}
-			DBA::close($parents);
-		}
-
 		if (!empty($actor)) {
 			$profile   = APContact::getByURL($actor);
 			$followers = $profile['followers'] ?? '';
 			$is_forum  = ($actor['type'] ?? '') == 'Group';
+			if ($push) {
+				Contact::updateByUrlIfNeeded($actor);
+			}
 			Logger::info('Got actor and followers', ['actor' => $actor, 'followers' => $followers]);
 		} else {
 			Logger::info('Empty actor', ['activity' => $activity]);
@@ -1154,10 +1172,18 @@ class Receiver
 			}
 		}
 
+		if (!empty($reply) && (!empty($receivers[0]) || !empty($receivers[-1]))) {
+			$parents = Post::select(['uid'], DBA::mergeConditions(['uri' => $reply], ["`uid` != ?", 0]));
+			while ($parent = Post::fetch($parents)) {
+				$receivers[$parent['uid']] = ['uid' => $parent['uid'], 'type' => self::TARGET_ANSWER];
+			}
+			DBA::close($parents);
+		}
+
 		self::switchContacts($receivers, $actor);
 
 		// "birdsitelive" is a service that mirrors tweets into the fediverse
-		// These posts can be fetched without authentification, but are not marked as public
+		// These posts can be fetched without authentication, but are not marked as public
 		// We treat them as unlisted posts to be able to handle them.
 		if (empty($receivers) && $fetch_unlisted && Contact::isPlatform($actor, 'birdsitelive')) {
 			$receivers[0]  = ['uid' => 0, 'type' => self::TARGET_GLOBAL];
@@ -1346,9 +1372,9 @@ class Receiver
 	}
 
 	/**
-	 * Fetches the object data from external ressources if needed
+	 * Fetches the object data from external resources if needed
 	 *
-	 * @param string  $object_id    Object ID of the the provided object
+	 * @param string  $object_id    Object ID of the provided object
 	 * @param array   $object       The provided object array
 	 * @param boolean $trust_source Do we trust the provided object?
 	 * @param integer $uid          User ID for the signature that we use to fetch data
@@ -1420,14 +1446,6 @@ class Receiver
 				$object_data['raw-object'] = json_encode($data);
 			}
 			return $object_data;
-		}
-
-		if ($type == 'as:Announce') {
-			$object_id = JsonLD::fetchElement($object, 'object', '@id');
-			if (empty($object_id) || !is_string($object_id)) {
-				return false;
-			}
-			return self::fetchObject($object_id, [], false, $uid);
 		}
 
 		Logger::info('Unhandled object type: ' . $type);
@@ -1620,7 +1638,7 @@ class Receiver
 						'type' => str_replace('as:', '', JsonLD::fetchElement($attachment, '@type')),
 						'mediaType' => JsonLD::fetchElement($attachment, 'as:mediaType', '@value'),
 						'name' => JsonLD::fetchElement($attachment, 'as:name', '@value'),
-						'url' => JsonLD::fetchElement($attachment, 'as:url', '@id'),
+						'url' => JsonLD::fetchElement($attachment, 'as:url', '@id') ?? JsonLD::fetchElement($attachment, 'as:href', '@id'),
 						'height' => JsonLD::fetchElement($attachment, 'as:height', '@value'),
 						'width' => JsonLD::fetchElement($attachment, 'as:width', '@value'),
 						'image' => JsonLD::fetchElement($attachment, 'as:image', '@id')
@@ -1837,6 +1855,35 @@ class Receiver
 			return false;
 		}
 
+		$object_data = self::getObjectDataFromActivity($object);
+
+		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true, false);
+		$receivers = $reception_types = [];
+		foreach ($receiverdata as $key => $data) {
+			$receivers[$key] = $data['uid'];
+			$reception_types[$data['uid']] = $data['type'] ?? 0;
+		}
+
+		$object_data['receiver_urls']  = self::getReceiverURL($object);
+		$object_data['receiver']       = $receivers;
+		$object_data['reception_type'] = $reception_types;
+
+		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
+		unset($object_data['receiver'][-1]);
+		unset($object_data['reception_type'][-1]);
+
+		return $object_data;
+	}
+
+	/**
+	 * Create an object data array from a given activity
+	 *
+	 * @param array $object
+	 *
+	 * @return array Object data
+	 */
+	public static function getObjectDataFromActivity(array $object): array
+	{
 		$object_data = [];
 		$object_data['object_type'] = JsonLD::fetchElement($object, '@type');
 		$object_data['id'] = JsonLD::fetchElement($object, '@id');
@@ -1847,7 +1894,7 @@ class Receiver
 			$object_data['reply-to-id'] = $object_data['id'];
 
 			// On activities the "reply to" is the id of the object it refers to
-			if (in_array($object_data['object_type'], self::ACTIVITY_TYPES)) {
+			if (in_array($object_data['object_type'], array_merge(self::ACTIVITY_TYPES, ['as:Announce']))) {
 				$object_id = JsonLD::fetchElement($object, 'as:object', '@id');
 				if (!empty($object_id)) {
 					$object_data['reply-to-id'] = $object_id;
@@ -1964,21 +2011,6 @@ class Receiver
 		if ($object_data['object_type'] == 'as:Question') {
 			$object_data['question'] = self::processQuestion($object);
 		}
-
-		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true);
-		$receivers = $reception_types = [];
-		foreach ($receiverdata as $key => $data) {
-			$receivers[$key] = $data['uid'];
-			$reception_types[$data['uid']] = $data['type'] ?? 0;
-		}
-
-		$object_data['receiver_urls']  = self::getReceiverURL($object);
-		$object_data['receiver']       = $receivers;
-		$object_data['reception_type'] = $reception_types;
-
-		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
-		unset($object_data['receiver'][-1]);
-		unset($object_data['reception_type'][-1]);
 
 		return $object_data;
 	}

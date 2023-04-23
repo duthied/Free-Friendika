@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -51,12 +51,12 @@ class Relationships extends BaseApi
 			$request['id'] = [$request['id']];
 		}
 
-		$relationsships = [];
+		$relationships = [];
 
 		foreach ($request['id'] as $id) {
-			$relationsships[] = DI::mstdnRelationship()->createFromContactId($id, $uid);
+			$relationships[] = DI::mstdnRelationship()->createFromContactId($id, $uid);
 		}
 
-		System::jsonExit($relationsships);
+		System::jsonExit($relationships);
 	}
 }

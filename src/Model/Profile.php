@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -334,7 +334,7 @@ class Profile
 		if (!$local_user_is_self) {
 			if (!$visitor_is_authenticated) {
 				// Remote follow is only available for local profiles
-				if (!empty($profile['nickname']) && strpos($profile_url, DI::baseUrl()->get()) === 0) {
+				if (!empty($profile['nickname']) && strpos($profile_url, (string)DI::baseUrl()) === 0) {
 					$follow_link = 'profile/' . $profile['nickname'] . '/remote_follow';
 				}
 			} else {
@@ -756,13 +756,13 @@ class Profile
 		$query = rtrim(str_replace($addr_request, '', DI::args()->getQueryString()), '?&');
 
 		// The other instance needs to know where to redirect.
-		$dest = urlencode(DI::baseUrl()->get() . '/' . $query);
+		$dest = urlencode(DI::baseUrl() . '/' . $query);
 
 		// We need to extract the basebath from the profile url
 		// to redirect the visitors '/magic' module.
 		$basepath = Contact::getBasepath($contact['url']);
 
-		if ($basepath != DI::baseUrl()->get() && !strstr($dest, '/magic')) {
+		if ($basepath != DI::baseUrl() && !strstr($dest, '/magic')) {
 			$magic_path = $basepath . '/magic' . '?owa=1&dest=' . $dest . '&' . $addr_request;
 
 			// We have to check if the remote server does understand /magic without invoking something
@@ -795,14 +795,16 @@ class Profile
 		$visitor = Contact::getById($cid);
 
 		// Authenticate the visitor.
-		$_SESSION['authenticated'] = 1;
-		$_SESSION['visitor_id'] = $visitor['id'];
-		$_SESSION['visitor_handle'] = $visitor['addr'];
-		$_SESSION['visitor_home'] = $visitor['url'];
-		$_SESSION['my_url'] = $visitor['url'];
-		$_SESSION['remote_comment'] = $visitor['subscribe'];
+		DI::userSession()->setMultiple([
+			'authenticated'  => 1,
+			'visitor_id'     => $visitor['id'],
+			'visitor_handle' => $visitor['addr'],
+			'visitor_home'   => $visitor['url'],
+			'my_url'         => $visitor['url'],
+			'remote_comment' => $visitor['subscribe'],
+		]);
 
-		DI::userSession()->setVisitorsContacts();
+		DI::userSession()->setVisitorsContacts($visitor['url']);
 
 		$a->setContactId($visitor['id']);
 
@@ -870,7 +872,7 @@ class Profile
 
 		$a->setContactId($arr['visitor']['id']);
 
-		DI::sysmsg()->addInfo(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
+		DI::sysmsg()->addInfo(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHost(), $visitor['name']));
 
 		Logger::info('OpenWebAuth: auth success from ' . $visitor['addr']);
 	}

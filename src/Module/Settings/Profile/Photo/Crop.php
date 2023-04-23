@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -181,7 +181,7 @@ class Crop extends BaseSettings
 			$havescale = $havescale || $photo['scale'] == 5;
 		}
 
-		// set an already uloaded photo as profile photo
+		// set an already uploaded photo as profile photo
 		// if photo is in 'Profile Photos', change it in db
 		if ($photos[0]['photo-type'] == Photo::USER_AVATAR && $havescale) {
 			Photo::update(['profile' => false], ['uid' => DI::userSession()->getLocalUserId()]);

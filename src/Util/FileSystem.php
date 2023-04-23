@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -73,7 +73,7 @@ class FileSystem
 	 *
 	 * @param string $url The file/url
 	 *
-	 * @return resource the open stream rssource
+	 * @return resource the open stream resource
 	 *
 	 * @throws \UnexpectedValueException
 	 */

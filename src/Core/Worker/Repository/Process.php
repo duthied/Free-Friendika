@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -112,7 +112,7 @@ class Process extends BaseRepository
 		try {
 			$processes = $this->db->select(static::$table_name, ['pid'], ['hostname' => $this->currentHost]);
 			while ($process = $this->db->fetch($processes)) {
-				if (!posix_kill($process['pid'], 0)) {
+				if (!\posix_kill($process['pid'], 0)) {
 					$this->db->delete(static::$table_name, ['pid' => $process['pid']]);
 				}
 			}

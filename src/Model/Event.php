@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -198,7 +198,7 @@ class Event
 
 	public static function sortByDate(array $event_list): array
 	{
-		usort($event_list, ['self', 'compareDatesCallback']);
+		usort($event_list, [self::class, 'compareDatesCallback']);
 		return $event_list;
 	}
 
@@ -656,7 +656,7 @@ class Event
 		}
 
 		// Show edit and drop actions only if the user is the owner of the event and the event
-		// is a real event (no bithdays).
+		// is a real event (no birthdays).
 		$edit = null;
 		$copy = null;
 		$drop = null;

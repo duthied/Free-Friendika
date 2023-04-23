@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -25,10 +25,9 @@ use Friendica\App;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\Database\Database;
+use Friendica\Core\System;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
-use Friendica\Module\BaseApi;
 use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
 use Friendica\Network\HTTPException\InternalServerErrorException;
@@ -41,13 +40,10 @@ use Psr\Log\LoggerInterface;
 /**
  * Asynchronous photo upload module
  *
- * Only used as the target action of the AjaxUpload Javascript library
+ * Only used as the target action of the AjaxUpload JavaScript library
  */
 class Upload extends \Friendica\BaseModule
 {
-	/** @var Database */
-	private $database;
-
 	/** @var IHandleUserSessions */
 	private $userSession;
 
@@ -60,14 +56,17 @@ class Upload extends \Friendica\BaseModule
 	/** @var bool */
 	private $isJson = false;
 
-	public function __construct(IManageConfigValues $config, SystemMessages $systemMessages, IHandleUserSessions $userSession, Database $database, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	/** @var App\Page */
+	private $page;
+
+	public function __construct(App\Page $page, IManageConfigValues $config, SystemMessages $systemMessages, IHandleUserSessions $userSession, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->database       = $database;
 		$this->userSession    = $userSession;
 		$this->systemMessages = $systemMessages;
 		$this->config         = $config;
+		$this->page           = $page;
 	}
 
 	protected function post(array $request = [])
@@ -80,12 +79,12 @@ class Upload extends \Friendica\BaseModule
 
 		if (!$owner) {
 			$this->logger->warning('Owner not found.', ['uid' => $this->userSession->getLocalUserId()]);
-			return $this->return(401, $this->t('Invalid request.'));
+			$this->return(401, $this->t('Invalid request.'));
 		}
 
 		if (empty($_FILES['userfile']) && empty($_FILES['media'])) {
 			$this->logger->warning('Empty "userfile" and "media" field');
-			return $this->return(401, $this->t('Invalid request.'));
+			$this->return(401, $this->t('Invalid request.'));
 		}
 
 		$src      = '';
@@ -134,7 +133,7 @@ class Upload extends \Friendica\BaseModule
 
 		if ($src == '') {
 			$this->logger->warning('File source (temporary file) cannot be determined', ['$_FILES' => $_FILES]);
-			return $this->return(401, $this->t('Invalid request.'), true);
+			$this->return(401, $this->t('Invalid request.'), true);
 		}
 
 		$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
@@ -152,7 +151,7 @@ class Upload extends \Friendica\BaseModule
 		if (!$image->isValid()) {
 			@unlink($src);
 			$this->logger->warning($this->t('Unable to process image.'), ['imagedata[]' => gettype($imagedata), 'filetype' => $filetype]);
-			return $this->return(401, $this->t('Unable to process image.'));
+			$this->return(401, $this->t('Unable to process image.'));
 		}
 
 		$image->orient($src);
@@ -185,7 +184,7 @@ class Upload extends \Friendica\BaseModule
 			if ($filesize > $maximagesize) {
 				@unlink($src);
 				$this->logger->notice('Image size is too big', ['size' => $filesize, 'max' => $maximagesize]);
-				return $this->return(401, $this->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
+				$this->return(401, $this->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
 			}
 		}
 
@@ -203,7 +202,7 @@ class Upload extends \Friendica\BaseModule
 		$result = Photo::store($image, $owner['uid'], 0, $resource_id, $filename, $album, 0, Photo::DEFAULT, $allow_cid);
 		if (!$result) {
 			$this->logger->warning('Photo::store() failed', ['result' => $result]);
-			return $this->return(401, $this->t('Image upload failed.'));
+			$this->return(401, $this->t('Image upload failed.'));
 		}
 
 		if ($width > 640 || $height > 640) {
@@ -223,7 +222,7 @@ class Upload extends \Friendica\BaseModule
 		}
 
 		$this->logger->info('upload done');
-		return $this->return(200, "\n\n" . '[url=' . $this->baseUrl . '/photos/' . $owner['nickname'] . '/image/' . $resource_id . '][img]' . $this->baseUrl . "/photo/$resource_id-$smallest." . $image->getExt() . "[/img][/url]\n\n");
+		$this->return(200, "\n\n" . '[url=' . $this->baseUrl . '/photos/' . $owner['nickname'] . '/image/' . $resource_id . '][img]' . $this->baseUrl . "/photo/$resource_id-$smallest." . $image->getExt() . "[/img][/url]\n\n");
 	}
 
 	/**
@@ -250,5 +249,8 @@ class Upload extends \Friendica\BaseModule
 
 			$this->response->addContent($message);
 		}
+
+		$this->page->exit($this->response->generate());
+		System::exit();
 	}
 }

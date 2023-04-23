@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -33,9 +33,9 @@ use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Module\Response;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\Delivery;
 use Friendica\Util\Profiler;
 use Friendica\Util\XML;
-use Friendica\Worker\Delivery;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -118,10 +118,10 @@ EOT;
 	</object>
 EOT;
 
-		$tagger_link  = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
-		$aauthor_link = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-		$post_link    = '[url=' . $item['plink'] . ']' . ($item['resource-id'] ? $this->t('photo') : $this->t('status')) . '[/url]';
-		$term_link    = '#[url=' . $tagid . ']' . $term . '[/url]';
+		$tagger_link = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
+		$author_link = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
+		$post_link   = '[url=' . $item['plink'] . ']' . ($item['resource-id'] ? $this->t('photo') : $this->t('post')) . '[/url]';
+		$term_link   = '#[url=' . $tagid . ']' . $term . '[/url]';
 
 		$post = [
 			'guid'          => System::createUUID(),
@@ -138,7 +138,7 @@ EOT;
 			'author-name'   => $contact['name'],
 			'author-link'   => $contact['url'],
 			'author-avatar' => $contact['thumb'],
-			'body'          => $this->t('%1$s tagged %2$s\'s %3$s with %4$s', $tagger_link, $aauthor_link, $post_link, $term_link),
+			'body'          => $this->t('%1$s tagged %2$s\'s %3$s with %4$s', $tagger_link, $author_link, $post_link, $term_link),
 			'verb'          => Activity::TAG,
 			'target-type'   => $targettype,
 			'target'        => $target,

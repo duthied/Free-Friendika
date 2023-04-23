@@ -192,19 +192,21 @@
 		// Create colorpickers
 		$("#frio_nav_bg, #frio_nav_icon_color, #frio_background_color, #frio_link_color, #frio_login_bg_color").colorpicker({format: 'hex', align: 'left'});
 
-		// show image options when user user starts to type the address of the image
-		$("#id_frio_background_image").keyup(function(){
-			var elText = $(this).val();
-			if(elText.length !== 0) {
-				$("#frio_bg_image_options").show();
-			} else {
-				$("#frio_bg_image_options").hide();
-			}
-		});
+		if ($("#id_frio_background_image").length) {
+			// show image options when user starts to type the address of the image
+			$("#id_frio_background_image").keyup(function () {
+				const elText = $(this).val();
+				if (elText.length !== 0) {
+					$("#frio_bg_image_options").show();
+				} else {
+					$("#frio_bg_image_options").hide();
+				}
+			});
 
-		// show the image options is there is allready an image
-		if($("#id_frio_background_image").val().length != 0) {
+			// show the image options if there is already an image
+			if ($("#id_frio_background_image").val().length != 0) {
 				$("#frio_bg_image_options").show();
+			}
 		}
 	});
 </script>

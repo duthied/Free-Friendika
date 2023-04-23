@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -412,7 +412,7 @@ class Router
 		}
 
 		if (!$this->lock->acquire('getCachedDispatchData', 0)) {
-			// Immediately return uncached data when we can't aquire a lock
+			// Immediately return uncached data when we can't acquire a lock
 			return $this->getDispatchData();
 		}
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -34,12 +34,10 @@ class BBCodeTest extends FixtureTest
 		DI::config()->set('system', 'remove_multiplicated_lines', false);
 		DI::config()->set('system', 'no_oembed', false);
 		DI::config()->set('system', 'allowed_link_protocols', []);
-		DI::config()->set('system', 'url', 'friendica.local');
+		DI::config()->set('system', 'url', 'https://friendica.local');
 		DI::config()->set('system', 'no_smilies', false);
 		DI::config()->set('system', 'big_emojis', false);
 		DI::config()->set('system', 'allowed_oembed', '');
-
-		DI::baseUrl()->save('friendica.local', DI::baseUrl()::SSL_POLICY_FULL, '');
 
 		$config = \HTMLPurifier_HTML5Config::createDefault();
 		$config->set('HTML.Doctype', 'HTML5');
@@ -160,21 +158,21 @@ class BBCodeTest extends FixtureTest
 	{
 		return [
 			'bug-7271-condensed-space' => [
-				'expectedHtml' => '<ul class="listdecimal" style="list-style-type:decimal;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ol><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ol>',
 				'text' => '[ol][*] http://example.com/[/ol]',
 			],
 			'bug-7271-condensed-nospace' => [
-				'expectedHtml' => '<ul class="listdecimal" style="list-style-type:decimal;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ol><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ol>',
 				'text' => '[ol][*]http://example.com/[/ol]',
 			],
 			'bug-7271-indented-space' => [
-				'expectedHtml' => '<ul class="listbullet" style="list-style-type:circle;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ul]
 [*] http://example.com/
 [/ul]',
 			],
 			'bug-7271-indented-nospace' => [
-				'expectedHtml' => '<ul class="listbullet" style="list-style-type:circle;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ul]
 [*]http://example.com/
 [/ul]',
@@ -259,7 +257,27 @@ Karl Marx - Die ursprüngliche Akkumulation
 			'task-10886-deprecate-class' => [
 				'expectedHTML' => '<span class="mastodon emoji"><img src="https://fedi.underscore.world/emoji/custom/custom/heart_nb.png" alt=":heart_nb:" title=":heart_nb:"></span>',
 				'text' => '[emoji=https://fedi.underscore.world/emoji/custom/custom/heart_nb.png]:heart_nb:[/emoji]',
-			]
+			],
+			'task-12900-multiple-paragraphs' => [
+				'expectedHTML' => '<h1>Header</h1><ul><li>One</li><li>Two</li></ul><p>This is a paragraph<br>with a line feed.</p><p>Second Chapter</p>',
+				'text' => "[h1]Header[/h1][ul][*]One[*]Two[/ul]\n\nThis is a paragraph\nwith a line feed.\n\nSecond Chapter",
+			],
+			'task-12900-header-with-paragraphs' => [
+				'expectedHTML' => '<h1>Header</h1><p>Some Chapter</p>',
+				'text' => '[h1]Header[/h1]Some Chapter',
+			],
+			'bug-12842-ul-newlines' => [
+				'expectedHTML' => '<p>This is:</p><ul><li>some</li><li>amazing</li><li>list</li></ul>',
+				'text' => "This is:\r\n[ul]\r\n[*]some\r\n[*]amazing\r\n[*]list\r\n[/ul]",
+			],
+			'bug-12842-ol-newlines' => [
+				'expectedHTML' => '<p>This is:</p><ol><li>some</li><li>amazing</li><li>list</li></ol>',
+				'text' => "This is:\r\n[ol]\r\n[*]some\r\n[*]amazing\r\n[*]list\r\n[/ol]",
+			],
+			'task-12917-tabs-between-linebreaks' => [
+				'expectedHTML' => '<p>Paragraph</p><p>New Paragraph</p>',
+				'text' => "Paragraph\n\t\nNew Paragraph",
+			],
 		];
 	}
 
@@ -276,8 +294,9 @@ Karl Marx - Die ursprüngliche Akkumulation
 	 *
 	 * @throws InternalServerErrorException
 	 */
-	public function testConvert(string $expectedHtml, string $text, $try_oembed = false, int $simpleHtml = 0, bool $forPlaintext = false)
+	public function testConvert(string $expectedHtml, string $text, bool $try_oembed = true, int $simpleHtml = BBCode::INTERNAL, bool $forPlaintext = false)
 	{
+		// This assumes system.remove_multiplicated_lines = false
 		$actual = BBCode::convert($text, $try_oembed, $simpleHtml, $forPlaintext);
 
 		self::assertEquals($expectedHtml, $actual);
@@ -298,6 +317,14 @@ Karl Marx - Die ursprüngliche Akkumulation
 				'expected' => '&amp;`&`',
 				'text' => '&[code]&[/code]',
 			],
+			'bug-12701-quotes' => [
+				'expected' => '[![abc"fgh](https://domain.tld/photo/86912721086415cdc8e0a03226831581-1.png)](https://domain.tld/photos/user/image/86912721086415cdc8e0a03226831581)',
+				'text' => '[url=https://domain.tld/photos/user/image/86912721086415cdc8e0a03226831581][img=https://domain.tld/photo/86912721086415cdc8e0a03226831581-1.png]abc"fgh[/img][/url]'
+			],
+			'bug-12701-no-quotes' => [
+				'expected' => '[![abcfgh](https://domain.tld/photo/86912721086415cdc8e0a03226831581-1.png "abcfgh")](https://domain.tld/photos/user/image/86912721086415cdc8e0a03226831581)',
+				'text' => '[url=https://domain.tld/photos/user/image/86912721086415cdc8e0a03226831581][img=https://domain.tld/photo/86912721086415cdc8e0a03226831581-1.png]abcfgh[/img][/url]'
+			],
 		];
 	}
 
@@ -312,7 +339,7 @@ Karl Marx - Die ursprüngliche Akkumulation
 	 *
 	 * @throws InternalServerErrorException
 	 */
-	public function testToMarkdown(string $expected, string $text, $for_diaspora = false)
+	public function testToMarkdown(string $expected, string $text, $for_diaspora = true)
 	{
 		$actual = BBCode::toMarkdown($text, $for_diaspora);
 

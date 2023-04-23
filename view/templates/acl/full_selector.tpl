@@ -126,19 +126,19 @@
 
 		// Custom visibility tags inputs
 		let acl_groups = new Bloodhound({
-			local: {{$acl_groups|@json_encode nofilter}},
+			local: {{$acl_groups nofilter}},
 			identify: function(obj) { return obj.type + '-' + obj.id.toString(); },
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace(['name']),
 			queryTokenizer: Bloodhound.tokenizers.whitespace,
 		});
 		let acl_contacts = new Bloodhound({
-			local: {{$acl_contacts|@json_encode nofilter}},
+			local: {{$acl_contacts nofilter}},
 			identify: function(obj) { return obj.type + '-' + obj.id.toString(); },
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace(['name', 'addr']),
 			queryTokenizer: Bloodhound.tokenizers.whitespace,
 		});
 		let acl = new Bloodhound({
-			local: {{$acl_list|@json_encode nofilter}},
+			local: {{$acl_list nofilter}},
 			identify: function(obj) { return obj.type + '-' + obj.id.toString(); },
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace(['name', 'addr']),
 			queryTokenizer: Bloodhound.tokenizers.whitespace,

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -59,7 +59,7 @@ class Widget
 	/**
 	 * Return Find People widget
 	 *
-	 * @return string HTML code respresenting "People Widget"
+	 * @return string HTML code representing "People Widget"
 	 */
 	public static function findPeople(): string
 	{
@@ -118,6 +118,10 @@ class Widget
 
 		if (!Addon::isEnabled("twitter")) {
 			$networks[] = Protocol::TWITTER;
+		}
+
+		if (!Addon::isEnabled("tumblr")) {
+			$networks[] = Protocol::TUMBLR;
 		}
 
 		if (DI::config()->get("system", "ostatus_disabled")) {

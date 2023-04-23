@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -24,7 +24,7 @@ namespace Friendica\Test\Util;
 use php_user_filter;
 
 /**
- * Output Interceptor for STDOUT to prevent outputing to the console
+ * Output Interceptor for STDOUT to prevent outputting to the console
  * Instead the $cache variable will get filled with the output
  *
  * @package Friendica\Test\Util

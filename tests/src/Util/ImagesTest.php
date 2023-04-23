@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -38,6 +38,13 @@ class ImagesTest extends MockedTest
 		parent::setUp();
 
 		$this->setupHttpMockHandler();
+	}
+
+	protected function tearDown(): void
+	{
+		$this->tearDownFixtures();
+
+		parent::tearDown();
 	}
 
 	public function dataImages()
@@ -81,7 +88,7 @@ class ImagesTest extends MockedTest
 	 *
 	 * @dataProvider dataImages
 	 */
-	public function testGetInfoFromRemotURL(string $url, array $headers, string $data, array $assertion)
+	public function testGetInfoFromRemoteURL(string $url, array $headers, string $data, array $assertion)
 	{
 		$this->httpRequestHandler->setHandler(new MockHandler([
 			new Response(200, $headers, $data),

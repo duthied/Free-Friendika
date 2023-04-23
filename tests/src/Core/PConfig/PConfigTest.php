@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -324,7 +324,7 @@ abstract class PConfigTest extends MockedTest
 		// without refresh
 		self::assertNull($this->testedConfig->get(0, 'test', 'it'));
 
-		/// beware that the cache returns '!<unset>!' and not null for a non existing value
+		/// beware that the cache returns '!<unset>!' and not null for a nonexistent value
 		self::assertNull($this->testedConfig->getCache()->get(0, 'test', 'it'));
 
 		// with default value

@@ -95,6 +95,6 @@ Nutze externe Dokumente, um eine detailiertere Erklärung für die Einrichtung e
 
 ### Database
 
-Es gibt Skripte wie [tuning-primer.sh](http://www.day32.com/MySQL/) und [mysqltuner.pl](http://mysqltuner.pl), die den Datenbankserver analysieren und Hinweise darauf geben, welche Werte verändert werden könnten.
+Es gibt Skripte wie [tuning-primer.sh](https://github.com/BMDan/tuning-primer.sh) und [mysqltuner.pl](https://github.com/major/MySQLTuner-perl/blob/master/mysqltuner.pl), die den Datenbankserver analysieren und Hinweise darauf geben, welche Werte verändert werden könnten.
 
 Aktivere hierfür die "Slow query" Log-Datei, um Performanceprobleme zu erkennen.

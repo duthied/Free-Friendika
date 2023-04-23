@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2022.12 (Giant Rhubarb)
--- DB_UPDATE_VERSION 1502
+-- Friendica 2023.03-rc (Giant Rhubarb)
+-- DB_UPDATE_VERSION 1518
 -- ------------------------------------------
 
 
@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`last_poco_query` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Last successful connection request',
 	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Last failed connection request',
+	`blocked` boolean COMMENT 'Server is blocked',
 	`failed` boolean COMMENT 'Connection failed',
 	`next_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Next connection request',
 	 PRIMARY KEY(`id`),
@@ -70,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`verified` boolean NOT NULL DEFAULT '0' COMMENT 'user is verified through email',
 	`blocked` boolean NOT NULL DEFAULT '0' COMMENT '1 for user is blocked',
 	`blockwall` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to post to the profile page of the user',
-	`hidewall` boolean NOT NULL DEFAULT '0' COMMENT 'Hide profile details from unkown viewers',
+	`hidewall` boolean NOT NULL DEFAULT '0' COMMENT 'Hide profile details from unknown viewers',
 	`blocktags` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to tag the post of this user',
 	`unkmail` boolean NOT NULL DEFAULT '0' COMMENT 'Permit unknown people to send private mails to this user',
 	`cntunkmail` int unsigned NOT NULL DEFAULT 10 COMMENT '',
@@ -340,22 +341,6 @@ CREATE TABLE IF NOT EXISTS `account-user` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Remote and local accounts';
 
 --
--- TABLE addon
---
-CREATE TABLE IF NOT EXISTS `addon` (
-	`id` int unsigned NOT NULL auto_increment COMMENT '',
-	`name` varchar(50) NOT NULL DEFAULT '' COMMENT 'addon base (file)name',
-	`version` varchar(50) NOT NULL DEFAULT '' COMMENT 'currently unused',
-	`installed` boolean NOT NULL DEFAULT '0' COMMENT 'currently always 1',
-	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'currently unused',
-	`timestamp` int unsigned NOT NULL DEFAULT 0 COMMENT 'file timestamp to check for reloads',
-	`plugin_admin` boolean NOT NULL DEFAULT '0' COMMENT '1 = has admin config, 0 = has no admin config',
-	 PRIMARY KEY(`id`),
-	 INDEX `installed_name` (`installed`,`name`),
-	 UNIQUE INDEX `name` (`name`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='registered addons';
-
---
 -- TABLE apcontact
 --
 CREATE TABLE IF NOT EXISTS `apcontact` (
@@ -499,8 +484,8 @@ CREATE TABLE IF NOT EXISTS `cache` (
 --
 CREATE TABLE IF NOT EXISTS `config` (
 	`id` int unsigned NOT NULL auto_increment COMMENT '',
-	`cat` varbinary(50) NOT NULL DEFAULT '' COMMENT '',
-	`k` varbinary(50) NOT NULL DEFAULT '' COMMENT '',
+	`cat` varbinary(50) NOT NULL DEFAULT '' COMMENT 'The category of the entry',
+	`k` varbinary(50) NOT NULL DEFAULT '' COMMENT 'The key of the entry',
 	`v` mediumtext COMMENT '',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `cat_k` (`cat`,`k`)
@@ -580,6 +565,27 @@ CREATE TABLE IF NOT EXISTS `delayed-post` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Posts that are about to be distributed at a later time';
 
 --
+-- TABLE delivery-queue
+--
+CREATE TABLE IF NOT EXISTS `delivery-queue` (
+	`gsid` int unsigned NOT NULL COMMENT 'Target server',
+	`uri-id` int unsigned NOT NULL COMMENT 'Delivered post',
+	`created` datetime COMMENT '',
+	`command` varbinary(32) COMMENT '',
+	`cid` int unsigned COMMENT 'Target contact',
+	`uid` mediumint unsigned COMMENT 'Delivering user',
+	`failed` tinyint DEFAULT 0 COMMENT 'Number of times the delivery has failed',
+	 PRIMARY KEY(`uri-id`,`gsid`),
+	 INDEX `gsid_created` (`gsid`,`created`),
+	 INDEX `uid` (`uid`),
+	 INDEX `cid` (`cid`),
+	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for posts for the batch processing';
+
+--
 -- TABLE diaspora-contact
 --
 CREATE TABLE IF NOT EXISTS `diaspora-contact` (
@@ -602,7 +608,7 @@ CREATE TABLE IF NOT EXISTS `diaspora-contact` (
 	`gsid` int unsigned COMMENT 'Global Server ID',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`interacting_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts this contact interactes with',
+	`interacting_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts this contact interacts with',
 	`interacted_count` int unsigned DEFAULT 0 COMMENT 'Number of contacts that interacted with this contact',
 	`post_count` int unsigned DEFAULT 0 COMMENT 'Number of posts and comments',
 	 PRIMARY KEY(`uri-id`),
@@ -803,6 +809,7 @@ CREATE TABLE IF NOT EXISTS `inbox-entry-receiver` (
 CREATE TABLE IF NOT EXISTS `inbox-status` (
 	`url` varbinary(383) NOT NULL COMMENT 'URL of the inbox',
 	`uri-id` int unsigned COMMENT 'Item-uri id of inbox url',
+	`gsid` int unsigned COMMENT 'ID of the related server',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date of this entry',
 	`success` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last successful delivery',
 	`failure` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last failed delivery',
@@ -811,7 +818,9 @@ CREATE TABLE IF NOT EXISTS `inbox-status` (
 	`shared` boolean NOT NULL DEFAULT '0' COMMENT 'Is it a shared inbox?',
 	 PRIMARY KEY(`url`),
 	 INDEX `uri-id` (`uri-id`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `gsid` (`gsid`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Status of ActivityPub inboxes';
 
 --
@@ -840,6 +849,16 @@ CREATE TABLE IF NOT EXISTS `intro` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
+-- TABLE key-value
+--
+CREATE TABLE IF NOT EXISTS `key-value` (
+	`k` varbinary(50) NOT NULL COMMENT '',
+	`v` mediumtext COMMENT '',
+	`updated_at` int unsigned NOT NULL COMMENT 'timestamp of the last update',
+	 PRIMARY KEY(`k`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='A key value storage';
+
+--
 -- TABLE locks
 --
 CREATE TABLE IF NOT EXISTS `locks` (
@@ -861,7 +880,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	`guid` varbinary(255) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this private message',
 	`from-name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name of the sender',
 	`from-photo` varbinary(383) NOT NULL DEFAULT '' COMMENT 'contact photo link of the sender',
-	`from-url` varbinary(383) NOT NULL DEFAULT '' COMMENT 'profile linke of the sender',
+	`from-url` varbinary(383) NOT NULL DEFAULT '' COMMENT 'profile link of the sender',
 	`contact-id` varbinary(255) COMMENT 'contact.id',
 	`author-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the author of the mail',
 	`convid` int unsigned COMMENT 'conv.id',
@@ -1439,7 +1458,7 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	`event-id` int unsigned COMMENT 'Used to link to the event.id',
 	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'post has not been seen',
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide the post from the user',
-	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`notification-type` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
 	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
 	`psid` int unsigned COMMENT 'ID of the permission set of this post',
@@ -1551,7 +1570,7 @@ CREATE TABLE IF NOT EXISTS `post-user-notification` (
 --
 CREATE TABLE IF NOT EXISTS `process` (
 	`pid` int unsigned NOT NULL COMMENT 'The ID of the process',
-	`hostname` varchar(32) NOT NULL COMMENT 'The name of the host the process is ran on',
+	`hostname` varchar(255) NOT NULL COMMENT 'The name of the host the process is ran on',
 	`command` varbinary(32) NOT NULL DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`pid`,`hostname`),
@@ -1674,15 +1693,20 @@ CREATE TABLE IF NOT EXISTS `register` (
 CREATE TABLE IF NOT EXISTS `report` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uid` mediumint unsigned COMMENT 'Reporting user',
+	`reporter-id` int unsigned COMMENT 'Reporting contact',
 	`cid` int unsigned NOT NULL COMMENT 'Reported contact',
 	`comment` text COMMENT 'Report',
+	`category` varchar(20) COMMENT 'Category of the report (spam, violation, other)',
+	`rules` text COMMENT 'Violated rules',
 	`forward` boolean COMMENT 'Forward the report to the remote server',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`status` tinyint unsigned COMMENT 'Status of the report',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `cid` (`cid`),
+	 INDEX `reporter-id` (`reporter-id`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`reporter-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
@@ -2825,7 +2849,9 @@ CREATE VIEW `account-view` AS SELECT
 	`apcontact`.`statuses_count` AS `ap-statuses_count`,
 	`gserver`.`site_name` AS `site_name`,
 	`gserver`.`platform` AS `platform`,
-	`gserver`.`version` AS `version`
+	`gserver`.`version` AS `version`,
+	`gserver`.`blocked` AS `server-blocked`,
+	`gserver`.`failed` AS `server-failed`
 	FROM `contact`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `contact`.`uri-id`
 			LEFT JOIN `apcontact` ON `apcontact`.`uri-id` = `contact`.`uri-id`
@@ -2929,7 +2955,9 @@ CREATE VIEW `account-user-view` AS SELECT
 	`apcontact`.`statuses_count` AS `ap-statuses_count`,
 	`gserver`.`site_name` AS `site_name`,
 	`gserver`.`platform` AS `platform`,
-	`gserver`.`version` AS `version`
+	`gserver`.`version` AS `version`,
+	`gserver`.`blocked` AS `server-blocked`,
+	`gserver`.`failed` AS `server-failed`
 	FROM `contact` AS `ucontact`
 			INNER JOIN `contact` ON `contact`.`uri-id` = `ucontact`.`uri-id` AND `contact`.`uid` = 0
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `ucontact`.`uri-id`

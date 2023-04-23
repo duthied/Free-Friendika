@@ -103,6 +103,10 @@
 	<script type="text/javascript" src="view/asset/base64/base64.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 	<script type="text/javascript" src="view/asset/dompurify/dist/purify.min.js?v={{$smarty.const.FRIENDICA_VERSION}}">
 	</script>
+	<script type="text/javascript">
+		const updateInterval = {{$update_interval}};
+		const localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
+	</script>
 	<script type="text/javascript" src="view/js/main.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 	<script type="text/javascript"
@@ -137,6 +141,9 @@
 		<script type="text/javascript" src="view/theme/frio/js/hovercard.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 	{{/if}}
 	<script type="text/javascript" src="view/theme/frio/js/textedit.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+	<script type="text/javascript" src="vendor/enyo/dropzone/dist/min/dropzone.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+	<script type="text/javascript" src="view/js/dropzone-factory.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+	<script type="text/javascript"> const dzFactory = new DzFactory({{$max_imagesize}});</script>
 
 	{{* Include the strings which are needed for some js functions (e.g. translation)
 They are loaded into the html <head> so that js functions can use them *}}

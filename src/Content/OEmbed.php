@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -316,7 +316,7 @@ class OEmbed
 		if ($stopoembed == true) {
 			return preg_replace("/\[embed\](.+?)\[\/embed\]/is", "<!-- oembed $1 --><i>" . DI::l10n()->t('Embedding disabled') . " : $1</i><!-- /oembed $1 -->", $text);
 		}
-		return preg_replace_callback("/\[embed\](.+?)\[\/embed\]/is", ['self', 'replaceCallback'], $text);
+		return preg_replace_callback("/\[embed\](.+?)\[\/embed\]/is", [self::class, 'replaceCallback'], $text);
 	}
 
 	/**
@@ -334,8 +334,8 @@ class OEmbed
 			$html_text = mb_convert_encoding($text, 'HTML-ENTITIES', mb_detect_encoding($text));
 
 			// If it doesn't parse at all, just return the text.
-			$dom = @DOMDocument::loadHTML($html_text);
-			if (!$dom) {
+			$dom = new DOMDocument();
+			if (!@$dom->loadHTML($html_text)) {
 				return $text;
 			}
 			$xpath = new DOMXPath($dom);
@@ -385,7 +385,7 @@ class OEmbed
 	}
 
 	/**
-	 * Returns a formmated HTML code from given URL and sets optional title
+	 * Returns a formatted HTML code from given URL and sets optional title
 	 *
 	 * @param string $url URL to fetch
 	 * @param string $title Optional title (default: what comes from OEmbed object)
@@ -447,7 +447,7 @@ class OEmbed
 	 * Generates an XPath query to select elements whose provided attribute contains
 	 * the provided value in a space-separated list.
 	 *
-	 * @param string $attr Name of the attribute to seach
+	 * @param string $attr Name of the attribute to search
 	 * @param string $value Value to search in a space-separated list
 	 * @return string
 	 */

@@ -31,7 +31,7 @@
 			</div>\
 			<div id="previewImages_' + id + '" class="previewImages">\
 				<div id="previewImgBtn_' + id + '" class="previewImgBtn">\
-					<button type="button" id="previewChangeImg_' + id + '" class="buttonChangeDeactive previewActionBtn" style="display: none">\
+					<button type="button" id="previewChangeImg_' + id + '" class="buttonChangeDeactivate previewActionBtn" style="display: none">\
 						<i class="fa fa-exchange" aria-hidden="true"></i>\
 					</button>\
 				</div>\
@@ -125,7 +125,7 @@
 				isExtern = true;
 			}
 
-			// Don't procces the textarea input if we have already
+			// Don't process the textarea input if we have already
 			// an attachment preview.
 			if (!isExtern && isActive) {
 				return;
@@ -233,7 +233,7 @@
 		};
 
 		/**
-		 * Proccess all attachment data and show up a html
+		 * Process all attachment data and show up a html
 		 * attachment preview.
 		 * 
 		 * @param {obj} data Attachment data.
@@ -242,7 +242,7 @@
 		var insertAttachment = function(data) {
 			// If we have already a preview, leaver here.
 			// Note: if we finish the Preview of other media content type,
-			// we can move this condition to the beggining of crawlText();
+			// we can move this condition to the beginning of crawlText();
 			if (isActive) {
 				$('#profile-rotator').hide();
 				return;
@@ -273,7 +273,7 @@
 		 * @returns {void}
 		 */
 		var processAttachmentTpl = function(data) {
-			// Load and add the template if it isn't allready loaded.
+			// Load and add the template if it isn't already loaded.
 			if ($('#preview_' + id).length === 0) {
 				var tpl = previewTpl.format(
 					'type-' + data.type,
@@ -368,7 +368,7 @@
 
 			// More than just one image.
 			if (images.length > 1) {
-				// Enable the the button to change the preview pictures.
+				// Enable the button to change the preview pictures.
 				$('#previewChangeImg_' + id).show();
 
 				if (firstPosted === false) {
@@ -500,7 +500,7 @@
 		};
 
 		/**
-		 * Convert attachmant bbcode into an array.
+		 * Convert attachment bbcode into an array.
 		 * 
 		 * @param {string} content Text content with the attachment bbcode.
 		 * @returns {object || null}
@@ -548,12 +548,12 @@
 
 			matches = attributes.match(/url='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				url = matches[1].toLowerCase();
+				url = matches[1];
 			}
 
 			matches = attributes.match(/url="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				url = matches[1].toLowerCase();
+				url = matches[1];
 			}
 
 			if(url !== '') {
@@ -564,12 +564,12 @@
 
 			matches = attributes.match(/title='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				title = matches[1].toLowerCase();
+				title = trim(matches[1]);
 			}
 
 			matches = attributes.match(/title="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				title = matches[1].toLowerCase();
+				title = trim(matches[1]);
 			}
 
 			if (title !== '') {
@@ -580,12 +580,12 @@
 
 			matches = attributes.match(/image='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				image = matches[1].toLowerCase();
+				image = trim(matches[1]);
 			}
 
 			matches = attributes.match(/image="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				image = matches[1].toLowerCase();
+				image = trim(matches[1]);
 			}
 
 			if (image !== '') {
@@ -596,12 +596,12 @@
 
 			matches = attributes.match(/preview='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				preview = matches[1].toLowerCase();
+				preview = trim(matches[1]);
 			}
 
 			matches = attributes.match(/preview="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
-				preview = matches[1].toLowerCase();
+				preview = trim(matches[1]);
 			}
 
 			if (preview !== '') {
@@ -679,7 +679,7 @@
 				$('#previewImage_' + id).html(appendImage);
 				$('#attachmentImageSrc_' + id).val(bin2hex(image));
 
-				// We need to add the image widht and height when it is 
+				// We need to add the image width and height when it is 
 				// loaded.
 				$('<img/>' ,{
 					load : function(){
@@ -805,7 +805,7 @@
 	/**
 	* Get in a textarea the previous word before the cursor.
 	* 
-	* @param {object} text Textarea elemet.
+	* @param {object} text Textarea element.
 	* @param {integer} caretPos Cursor position.
 	* 
 	* @returns {string} Previous word.
@@ -813,7 +813,7 @@
 	function returnWord(text, caretPos) {
 		var index = text.indexOf(caretPos);
 		var preText = text.substring(0, caretPos);
-		// If the last charachter is a space or enter remove it
+		// If the last character is a space or enter remove it
 		// We need this in friendica for the url  preview.
 		var lastChar = preText.slice(-1)
 		if ( lastChar === " "
@@ -853,9 +853,9 @@
 	}
 
 	/**
-	 * Get the cursor posiotion in an text element.
+	 * Get the cursor position in an text element.
 	 * 
-	 * @param {object} ctrl Textarea elemet.
+	 * @param {object} ctrl Textarea element.
 	 * @returns {integer} Position of the cursor.
 	 */
 	function getCaretPosition(ctrl) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -38,7 +38,7 @@ class SpoolPost {
 
 					// It is not named like a spool file, so we don't care.
 					if (substr($file, 0, 5) != "item-") {
-						Logger::info('Spool file does does not start with "item-"', ['file' => $file]);
+						Logger::info('Spool file does not start with "item-"', ['file' => $file]);
 						continue;
 					}
 

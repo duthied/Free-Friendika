@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -106,7 +106,7 @@ return [
 		'always_show_preview' => false,
 
 		// ap_always_bcc (Boolean)
-		// Adresses non-mentioned ActivityPub receivers by BCC instead of CC. Increases privacy, decreases performance.
+		// Addresses non-mentioned ActivityPub receivers by BCC instead of CC. Increases privacy, decreases performance.
 		'ap_always_bcc' => false,
 
 		// archival_days (Integer)
@@ -237,6 +237,10 @@ return [
 		// Periodically delete waiting database processes.
 		'delete_sleeping_processes' => false,
 
+		// delete-blocked-servers (Boolean)
+		// Delete blocked servers if there are no foreign key violations.
+		'delete-blocked-servers' => false,
+
 		// dice_profiler_threshold (Float)
 		// For profiling Dice class creation (0 = disabled, >0 = seconds threshold for profiling)
 		'dice_profiler_threshold' => 0.5,
@@ -282,8 +286,12 @@ return [
 		// restricts develop log writes to requests originating from this IP address.
 		'dlogip' => '',
 
+		// emoji_activities (Boolean)
+		// Display received activities (like, dislike, reshare) as emojis
+		'emoji_activities' => false,
+
 		// expire-notify-priority (integer)
-		// Priority for the expirary notification
+		// Priority for the expiry notification
 		'expire-notify-priority' => Friendica\Core\Worker::PRIORITY_LOW,
 
 		// fetch_by_worker (Boolean)
@@ -363,6 +371,11 @@ return [
 		// local_tags (Boolean)
 		// If activated, all hashtags will point to the local server.
 		'local_tags' => false,
+
+		// lock_driver (semaphore|database|memcache|memcached|redis|apcu)
+		// Whether to use semaphores, the database, Memcache, Memcached, Redis or APCu to handle locks.
+		// Default is auto detection which tries semaphores first, then falls back to the cache driver.
+		'lock_driver' => '',
 
 		// logger_config (String)
 		// Sets the logging adapter of Friendica globally (monolog, syslog, stream)
@@ -478,6 +491,10 @@ return [
 		// Don't show smilies.
 		'no_smilies' => false,
 
+		// optimize_all_tables (Boolean)
+		// Optimizes all tables instead of only tables like workerqueue or the cache
+		'optimize_all_tables' => false,
+
 		// paranoia (Boolean)
 		// Log out users if their IP address changed.
 		'paranoia' => false,
@@ -494,12 +511,16 @@ return [
 		// Sets the ImageMagick compression level for PNG images. Values range from 0 (uncompressed) to 9 (most compressed).
 		'png_quality' => 8,
 
+		// process_view (Boolean)
+		// Process the "View" activity that is used by Peertube. View activities are displayed, when "emoji_activities" are enabled.
+		'process_view' => false,
+
 		// profiler (Boolean)
 		// Enable internal timings to help optimize code. Needed for "rendertime" addon.
 		'profiler' => false,
 
 		// pushpoll_frequency (Integer)
-		// Frequency of contact poll for subhub contact using the DFRM or OStatus network.
+		// Frequency of contact poll for subhub contact using the DFRN or OStatus network.
 		// Available values:
 		// - 5 = every month
 		// - 4 = every week
@@ -710,6 +731,13 @@ return [
 		// lockpath (Path)
 		// Must be writable by the ejabberd process. if set then it will prevent the running of multiple processes.
 		'lockpath' => '',
+	],
+	'diaspora' => [
+		// native_photos (Boolean)
+		// If enabled, photos to Diaspora will be transmitted via the "photo" element instead of embedding them to the body.
+		// This is some visual improvement over the embedding but comes with the cost of losing accessibility.
+		// Is is disabled by default until Diaspora eventually will work on issue https://github.com/diaspora/diaspora/issues/8297
+		'native_photos' => false,
 	],
 	'debug' => [
 		// ap_inbox_log (Boolean)

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -236,7 +236,7 @@ class Queue
 		}
 		DBA::close($receivers);
 
-		if (!Receiver::routeActivities($activity, $type, $push, $fetch_parents)) {
+		if (!Receiver::routeActivities($activity, $type, $push, $fetch_parents, $activity['receiver'][0] ?? 0)) {
 			self::remove($activity);
 		}
 
@@ -252,7 +252,7 @@ class Queue
 	{
 		$entries = DBA::select('inbox-entry', ['id', 'type', 'object-type', 'object-id', 'in-reply-to-id'], ["`trust` AND `wid` IS NULL"], ['order' => ['id' => true]]);
 		while ($entry = DBA::fetch($entries)) {
-			// Don't process entries of items that are answer to non existing posts
+			// Don't process entries of items that are answer to nonexistent posts
 			if (!empty($entry['in-reply-to-id']) && !Post::exists(['uri' => $entry['in-reply-to-id']])) {
 				continue;
 			}

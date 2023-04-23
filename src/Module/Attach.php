@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -49,7 +49,7 @@ class Attach extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('Item was not found.'));
 		}
 
-		// Now we'll fetch the item, if we have enough permisson
+		// Now we'll fetch the item, if we have enough permission
 		$item = MAttach::getByIdWithPermission($item_id);
 		if ($item === false) {
 			throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));

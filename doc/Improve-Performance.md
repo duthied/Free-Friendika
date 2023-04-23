@@ -81,6 +81,6 @@ Please refer to external documentation for a more detailed explanation how to se
 
 ### Database
 
-There are scripts like [tuning-primer.sh](http://www.day32.com/MySQL/) and [mysqltuner.pl](http://mysqltuner.pl) that analyze your database server and give hints on values that could be changed.
+There are scripts like [tuning-primer.sh](https://github.com/BMDan/tuning-primer.sh) and [mysqltuner.pl](https://github.com/major/MySQLTuner-perl/blob/master/mysqltuner.pl) that analyze your database server and give hints on values that could be changed.
 
 Please enable the slow query log. This helps to find performance problems.

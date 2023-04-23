@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -58,7 +58,6 @@ function message_init(App $a)
 
 	$head_tpl = Renderer::getMarkupTemplate('message-head.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($head_tpl, [
-		'$baseurl' => DI::baseUrl()->get(true),
 		'$base'    => $base
 	]);
 }
@@ -70,12 +69,13 @@ function message_post(App $a)
 		return;
 	}
 
+	$sender_id = DI::userSession()->getLocalUserId();
 	$replyto   = !empty($_REQUEST['replyto'])   ? trim($_REQUEST['replyto'])                   : '';
 	$subject   = !empty($_REQUEST['subject'])   ? trim($_REQUEST['subject'])                   : '';
 	$body      = !empty($_REQUEST['body'])      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '';
 	$recipient = !empty($_REQUEST['recipient']) ? intval($_REQUEST['recipient'])               : 0;
 
-	$ret = Mail::send($recipient, $body, $subject, $replyto);
+	$ret = Mail::send($sender_id, $recipient, $body, $subject, $replyto);
 	$norecip = false;
 
 	switch ($ret) {
@@ -178,7 +178,6 @@ function message_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => DI::baseUrl()->get(true),
 			'$nickname' => $a->getLoggedInUserNickname(),
 			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
@@ -284,7 +283,6 @@ function message_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => DI::baseUrl()->get(true),
 			'$nickname' => $a->getLoggedInUserNickname(),
 			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
@@ -438,7 +436,7 @@ function render_messages(array $msg, string $t): string
 		$to_name_e = $rr['name'];
 
 		if (is_null($rr['url'])) {
-			// contact-id is pointing to a non existing contact
+			// contact-id is pointing to a nonexistent contact
 			continue;
 		}
 

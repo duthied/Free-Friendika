@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -51,12 +51,12 @@ class Email
 
 		$errors = imap_errors();
 		if (!empty($errors)) {
-			Logger::notice('IMAP Errors occured', ['errors' => $errors]);
+			Logger::notice('IMAP Errors occurred', ['errors' => $errors]);
 		}
 
 		$alerts = imap_alerts();
 		if (!empty($alerts)) {
-			Logger::notice('IMAP Alerts occured: ', ['alerts' => $alerts]);
+			Logger::notice('IMAP Alerts occurred: ', ['alerts' => $alerts]);
 		}
 
 		return $mbox;
@@ -322,7 +322,7 @@ class Email
 		}
 
 		if ($out_str && $charset) {
-			// define start delimimter, end delimiter and spacer
+			// define start delimiter, end delimiter and spacer
 			$end = "?=";
 			$start = "=?" . $charset . "?B?";
 			$spacer = $end . "\r\n " . $start;

@@ -45,7 +45,7 @@ is a superset of salmon).
 zot:key
 *******
 
-A suitable randomly generated encyption key of length 32 octets for encrypting 
+A suitable randomly generated encryption key of length 32 octets for encrypting 
 the salmon packet. This is then encrypted with the sender's private key and 
 base64url encoded.
 
@@ -59,7 +59,7 @@ key and base64url encoded.
 zot:env_key
 ***********
 
-A suitable randomly generated encyption key of length 32 octets for encrypting 
+A suitable randomly generated encryption key of length 32 octets for encrypting 
 the envelope. This is then encrypted with the recipient's public key and 
 base64url encoded. For bulk deliveries, it is encrypted with the site bulk 
 delivery public key.
@@ -127,7 +127,7 @@ MUST be present.
 Z-To: zot:bob@example.com, zot:alice@example.com, mailto:dave@example.com 
 Z-Bcc: zot:https://example.com/profile/richard
 
-are valid entries. Adresses are comma separated and individual entries MUST NOT
+are valid entries. Addresses are comma separated and individual entries MUST NOT
 contain commas. There MAY be any number of ASCII space characters between
 entries for legibility. Header lines are terminated with a linefeed character
 (ASCII 0x0A). 
@@ -136,8 +136,8 @@ This specification provides the following protocol address prefixes
 for use in Z-To: or Z-Bcc: elements:
 
 zot: - normal zot delivery using webfinger or LRDD resolvable address
-dfrn: - legacy DFRN mode delivery using webfinger or LRDD resovable address
-ostatus: - normal OStatus delivery using webfinger or LRDD resovable address
+dfrn: - legacy DFRN mode delivery using webfinger or LRDD resolvable address
+ostatus: - normal OStatus delivery using webfinger or LRDD resolvable address
 diaspora: - Diaspora network delivery using webfinger address
 facebook: - Facebook profile page URL
 twitter: - Twitter personal page URL without AJAX '#!' fragment
@@ -289,7 +289,7 @@ systems MAY reject foreign messages.
 *******************************
 
 This section of the document is considered separate from the delivery 
-specification precding it and represents a different protocol, which is
+specification preceding it and represents a different protocol, which is
 currently incomplete. This will be split off into another document in the
 future, but is presented here as a synergistic component of the Zot network
 model. 
@@ -353,7 +353,7 @@ Salmon Magic Envelope
 Atom Activity Stream Draft
 	http://activitystrea.ms/specs/atom/1.0/
 
-Activty Stream Base Schema
+Activity Stream Base Schema
 	http://activitystrea.ms/head/activity-schema.html
 
 WebFinger Protocol

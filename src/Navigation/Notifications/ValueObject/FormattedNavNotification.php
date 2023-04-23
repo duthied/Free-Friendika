@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -53,7 +53,7 @@ class FormattedNavNotification extends BaseEntity
 	 */
 	public function __construct(string $contact_name, string $contact_url, string $contact_photo, string $timestamp, string $plaintext, string $html, string $href, bool $seen)
 	{
-		// Properties differ from constructor because this structure is used in the "nav-update" Javascript event listener
+		// Properties differ from constructor because this structure is used in the "nav-update" JavaScript event listener
 		$this->contact = [
 			'name'  => $contact_name,
 			'url'   => $contact_url,

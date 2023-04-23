@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -64,7 +64,7 @@ class StatusTest extends FixtureTest
 			->toArray();
 
 		self::assertStringStartsWith('item_title', $status['text']);
-		self::assertStringStartsWith('<h4>item_title</h4><br>perspiciatis impedit voluptatem', $status['friendica_html']);
+		self::assertStringStartsWith('<h4>item_title</h4><p>perspiciatis impedit voluptatem', $status['friendica_html']);
 	}
 
 	/**
@@ -114,11 +114,11 @@ class StatusTest extends FixtureTest
 	}
 
 	/**
-	 * Test the api_get_entitities() function.
+	 * Test the api_get_entities() function.
 	 *
 	 * @return void
 	 */
-	public function testApiGetEntititiesWithIncludeEntities()
+	public function testApiGetEntitiesWithIncludeEntities()
 	{
 		$status = $this->statusFactory
 			->createFromItemId(13, ApiTest::SELF_USER['id'], true)

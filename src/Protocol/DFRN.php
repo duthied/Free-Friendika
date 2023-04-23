@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -301,15 +301,14 @@ class DFRN
 			DI::config()->set('system', 'site_pubkey', $res['pubkey']);
 		}
 
-		$profilephotos = Photo::selectToArray(['resource-id' , 'scale'], ['profile' => true, 'uid' => $uid], ['order' => ['scale']]);
+		$profilephotos = Photo::selectToArray(['resource-id', 'scale', 'type'], ['profile' => true, 'uid' => $uid], ['order' => ['scale']]);
 
 		$photos = [];
 		$ext = Images::supportedTypes();
 
 		foreach ($profilephotos as $p) {
-			$photos[$p['scale']] = DI::baseUrl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
+			$photos[$p['scale']] = DI::baseUrl() . '/photo/' . $p['resource-id'] . '-' . $p['scale'] . '.' . $ext[$p['type']];
 		}
-
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
@@ -609,7 +608,7 @@ class DFRN
 
 			/// @Todo
 			/// - Check real image type and image size
-			/// - Check which of these boths elements we should use
+			/// - Check which of these elements we should use
 			$attributes = [
 				'rel' => 'photo',
 				'type' => 'image/jpeg',
@@ -775,6 +774,7 @@ class DFRN
 		}
 
 		$body = Post\Media::addAttachmentsToBody($item['uri-id'], DI::contentItem()->addSharedPost($item));
+		$body = Post\Media::addHTMLAttachmentToBody($item['uri-id'], $body);
 
 		if ($item['private'] == Item::PRIVATE) {
 			$body = Item::fixPrivatePhotos($body, $owner['uid'], $item, $cid);
@@ -878,7 +878,7 @@ class DFRN
 
 		XML::addElement($doc, $entry, 'dfrn:diaspora_guid', $item['guid']);
 
-		// The signed text contains the content in Markdown, the sender handle and the signatur for the content
+		// The signed text contains the content in Markdown, the sender handle and the signature for the content
 		// It is needed for relayed comments to Diaspora.
 		if ($item['signed_text']) {
 			$sign = base64_encode(json_encode(['signed_text' => $item['signed_text'],'signature' => '','signer' => '']));
@@ -1015,6 +1015,10 @@ class DFRN
 		$xml = $postResult->getBody();
 
 		$curl_stat = $postResult->getReturnCode();
+		if (!empty($contact['gsid']) && ($postResult->isTimeout() || empty($curl_stat))) {
+			GServer::setFailureById($contact['gsid']);
+		}
+
 		if (empty($curl_stat) || empty($xml)) {
 			Logger::notice('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
 			return -9; // timed out
@@ -1034,6 +1038,10 @@ class DFRN
 
 		if (empty($res->status)) {
 			return -23;
+		}
+
+		if (!empty($contact['gsid'])) {
+			GServer::setReachableById($contact['gsid'], Protocol::DFRN);
 		}
 
 		if (!empty($res->message)) {
@@ -1066,8 +1074,8 @@ class DFRN
 
 		$fields = ['id', 'uid', 'url', 'network', 'avatar-date', 'avatar', 'name-date', 'uri-date', 'addr',
 			'name', 'nick', 'about', 'location', 'keywords', 'xmpp', 'bdyear', 'bd', 'hidden', 'contact-type'];
-		$condition = ["`uid` = ? AND `nurl` = ? AND `network` != ? AND NOT `pending` AND NOT `blocked`",
-			$importer["importer_uid"], Strings::normaliseLink($author["link"]), Protocol::STATUSNET];
+		$condition = ["`uid` = ? AND `nurl` = ? AND NOT `pending` AND NOT `blocked`",
+			$importer["importer_uid"], Strings::normaliseLink($author["link"])];
 
 		if ($importer['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
 			$condition = DBA::mergeConditions($condition, ['rel' => [Contact::SHARING, Contact::FRIEND]]);
@@ -1334,7 +1342,7 @@ class DFRN
 	 */
 	private static function processMail(DOMXPath $xpath, DOMNode $mail, array $importer)
 	{
-		Logger::notice("Processing mails");
+		Logger::info("Processing mails");
 
 		$msg = [];
 		$msg['uid'] = $importer['importer_uid'];
@@ -1362,7 +1370,7 @@ class DFRN
 	 */
 	private static function processSuggestion(DOMXPath $xpath, DOMNode $suggestion, array $importer)
 	{
-		Logger::notice('Processing suggestions');
+		Logger::info('Processing suggestions');
 
 		$url = $xpath->evaluate('string(dfrn:url[1]/text())', $suggestion);
 		$cid = Contact::getIdForURL($url);
@@ -1438,7 +1446,7 @@ class DFRN
 	 */
 	private static function processRelocation(DOMXPath $xpath, DOMNode $relocation, array $importer): bool
 	{
-		Logger::notice("Processing relocations");
+		Logger::info("Processing relocations");
 
 		/// @TODO Rewrite this to one statement
 		$relocate = [];
@@ -1491,7 +1499,7 @@ class DFRN
 
 		Contact::updateAvatar($importer['id'], $relocate['avatar'], true);
 
-		Logger::notice('Contacts are updated.');
+		Logger::info('Contacts are updated.');
 
 		/// @TODO
 		/// merge with current record, current contents have priority
@@ -1577,7 +1585,7 @@ class DFRN
 		Logger::info('Process verb ' . $item['verb'] . ' and object-type ' . $item['object-type'] . ' for entrytype ' . $entrytype);
 
 		if (($entrytype == self::TOP_LEVEL) && !empty($importer['id'])) {
-			// The filling of the the "contact" variable is done for legcy reasons
+			// The filling of the "contact" variable is done for legacy reasons
 			// The functions below are partly used by ostatus.php as well - where we have this variable
 			$contact = Contact::selectFirst([], ['id' => $importer['id']]);
 
@@ -1586,22 +1594,22 @@ class DFRN
 			// Big question: Do we need these functions? They were part of the "consume_feed" function.
 			// This function once was responsible for DFRN and OStatus.
 			if ($activity->match($item['verb'], Activity::FOLLOW)) {
-				Logger::notice("New follower");
+				Logger::info("New follower");
 				Contact::addRelationship($importer, $contact, $item);
 				return false;
 			}
 			if ($activity->match($item['verb'], Activity::UNFOLLOW)) {
-				Logger::notice("Lost follower");
+				Logger::info("Lost follower");
 				Contact::removeFollower($contact);
 				return false;
 			}
 			if ($activity->match($item['verb'], Activity::REQ_FRIEND)) {
-				Logger::notice("New friend request");
+				Logger::info("New friend request");
 				Contact::addRelationship($importer, $contact, $item, true);
 				return false;
 			}
 			if ($activity->match($item['verb'], Activity::UNFRIEND)) {
-				Logger::notice("Lost sharer");
+				Logger::info("Lost sharer");
 				Contact::removeSharer($contact);
 				return false;
 			}
@@ -1705,7 +1713,7 @@ class DFRN
 	 * Checks if an incoming message is wanted
 	 *
 	 * @param array $item
-	 * @param array $imporer
+	 * @param array $importer
 	 * @return boolean Is the message wanted?
 	 */
 	private static function isSolicitedMessage(array $item, array $importer): bool
@@ -1751,7 +1759,7 @@ class DFRN
 	 */
 	private static function processEntry(array $header, DOMXPath $xpath, DOMNode $entry, array $importer, string $xml, int $protocol)
 	{
-		Logger::notice("Processing entries");
+		Logger::info("Processing entries");
 
 		$item = $header;
 
@@ -2072,6 +2080,7 @@ class DFRN
 			// This is my contact on another system, but it's really me.
 			// Turn this into a wall post.
 			$notify = Item::isRemoteSelf($importer, $item);
+			$item['wall'] = (bool)$notify;
 
 			$posted_id = Item::insert($item, $notify);
 
@@ -2098,7 +2107,7 @@ class DFRN
 	 */
 	private static function processDeletion(DOMXPath $xpath, DOMNode $deletion, array $importer)
 	{
-		Logger::notice("Processing deletions");
+		Logger::info("Processing deletions");
 		$uri = null;
 
 		foreach ($deletion->attributes as $attributes) {
@@ -2278,7 +2287,7 @@ class DFRN
 				self::processDeletion($xpath, $deletion, $importer);
 			}
 			if (count($deletions) > 0) {
-				Logger::notice(count($deletions) . ' deletions had been processed');
+				Logger::info(count($deletions) . ' deletions had been processed');
 				return 200;
 			}
 		}

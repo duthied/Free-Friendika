@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -24,11 +24,13 @@ namespace Friendica\Worker\Contact;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
+use Friendica\Network\HTTPException;
 
 class RevokeFollow
 {
 	/**
-	 * Issue asynchronous follow revokation message to remote servers.
+	 * Issue asynchronous follow revocation message to remote servers.
 	 * The local relationship has already been updated, so we can't use the user-specific contact
 	 *
 	 * @param int $cid Target public contact id
@@ -43,8 +45,12 @@ class RevokeFollow
 			return;
 		}
 
-		$result = Protocol::revokeFollow($contact, $uid);
-		if ($result === false) {
+		$owner = User::getOwnerDataById($uid, false);
+		if (empty($owner)) {
+			return;
+		}
+
+		if (!Protocol::revokeFollow($contact, $owner)) {
 			Worker::defer();
 		}
 	}

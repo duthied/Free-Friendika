@@ -24,15 +24,19 @@
 		"ext-libxml": "*",
 		"ext-mbstring": "*",
 		"ext-openssl": "*",
+		"ext-posix": "*",
 		"ext-simplexml": "*",
 		"ext-xml": "*",
 		"asika/simple-console": "^1.0",
 		"bacon/bacon-qr-code": "^2.0.0",
 		"divineomega/password_exposed": "^2.8",
+		"enyo/dropzone": "^5.9",
 		"ezyang/htmlpurifier": "^4.7",
 		"friendica/json-ld": "^1.0",
 		"geekwright/po": "^2.0",
 		"guzzlehttp/guzzle": "^6.5",
+		"guzzlehttp/oauth-subscriber": "^0.6",
+		"kornrunner/blurhash": "^1.2",
 		"league/html-to-markdown": "^4.8",
 		"level-2/dice": "^4",
 		"lightopenid/lightopenid": "dev-master",
@@ -48,6 +52,7 @@
 		"phpseclib/phpseclib": "^3.0",
 		"pragmarx/google2fa": "^5.0",
 		"pragmarx/recovery": "^0.2",
+		"psr/clock": "^1.0",
 		"psr/container": "^1.0",
 		"psr/log": "^1.1",
 		"seld/cli-prompt": "^1.0",
@@ -70,9 +75,7 @@
 		"npm-asset/moment": "^2.24",
 		"npm-asset/perfect-scrollbar": "0.6.16",
 		"npm-asset/textcomplete": "^0.18.2",
-		"npm-asset/typeahead.js": "^0.11.1",
-		"kornrunner/blurhash": "^1.2",
-		"psr/clock": "^1.0"
+		"npm-asset/typeahead.js": "^0.11.1"
 	},
 	"repositories": [
 		{
@@ -132,7 +135,13 @@
 		"test": "phpunit",
 		"lint": "find . -name \\*.php -not -path './vendor/*' -not -path './view/asset/*' -print0 | xargs -0 -n1 php -l",
 		"cs:install": "@composer install --working-dir=bin/dev/php-cs-fixer",
-		"cs:check": ["@cs:install", "bin/dev/php-cs-fixer/vendor/bin/php-cs-fixer fix --dry-run --diff"],
-		"cs:fix": ["@cs:install", "bin/dev/php-cs-fixer/vendor/bin/php-cs-fixer fix"]
+		"cs:check": [
+			"@cs:install",
+			"bin/dev/php-cs-fixer/vendor/bin/php-cs-fixer fix --dry-run --diff"
+		],
+		"cs:fix": [
+			"@cs:install",
+			"bin/dev/php-cs-fixer/vendor/bin/php-cs-fixer fix"
+		]
 	}
 }

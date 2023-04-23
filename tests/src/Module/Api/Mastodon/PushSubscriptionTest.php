@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -32,7 +32,7 @@ class PushSubscriptionTest extends ApiTest
 	 */
 	public function testApiAccountVerifyCredentials(): void
 	{
-		$this->markTestIncomplete('Needs mocking of whole applictaions/Apps first');
+		$this->markTestIncomplete('Needs mocking of whole applications/Apps first');
 
 		// $this->useHttpMethod(Router::POST);
 		//

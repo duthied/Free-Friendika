@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -1009,6 +1009,8 @@
 			"site_name" => ["gserver", "site_name"],
 			"platform" => ["gserver", "platform"],
 			"version" => ["gserver", "version"],
+			"server-blocked" => ["gserver", "blocked"],
+			"server-failed" => ["gserver", "failed"],
 		],
 		"query" => "FROM `contact`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `contact`.`uri-id`
@@ -1111,6 +1113,8 @@
 			"site_name" => ["gserver", "site_name"],
 			"platform" => ["gserver", "platform"],
 			"version" => ["gserver", "version"],
+			"server-blocked" => ["gserver", "blocked"],
+			"server-failed" => ["gserver", "failed"],
 		],
 		"query" => "FROM `contact` AS `ucontact`
 			INNER JOIN `contact` ON `contact`.`uri-id` = `ucontact`.`uri-id` AND `contact`.`uid` = 0

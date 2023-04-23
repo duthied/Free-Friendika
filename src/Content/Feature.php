@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -79,7 +79,7 @@ class Feature
 	 * Get a list of all available features
 	 *
 	 * The array includes the setting group, the setting name,
-	 * explainations for the setting and if it's enabled or disabled
+	 * explanations for the setting and if it's enabled or disabled
 	 * by default
 	 *
 	 * @param bool $filtered True removes any locked features

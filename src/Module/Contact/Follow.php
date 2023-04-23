@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -40,6 +40,7 @@ use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Network\Probe;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Uri;
 use Psr\Log\LoggerInterface;
 
 class Follow extends BaseModule
@@ -105,11 +106,10 @@ class Follow extends BaseModule
 
 		// Don't try to add a pending contact
 		$userContact = Contact::selectFirst(['pending'], [
-			"`uid` = ? AND ((`rel` != ?) OR (`network` = ?)) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
+			"`uid` = ? AND ((`rel` != ?) OR (`network` = ?)) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 			$uid, Contact::FOLLOWER, Protocol::DFRN,
 			Strings::normaliseLink($url),
-			Strings::normaliseLink($url), $url,
-			Protocol::STATUSNET]);
+			Strings::normaliseLink($url), $url]);
 
 		if (!empty($userContact['pending'])) {
 			$this->sysMessages->addNotice($this->t('You already added this contact.'));
@@ -189,7 +189,7 @@ class Follow extends BaseModule
 			$this->page['aside'] = VCard::getHTML($contact);
 
 			$output .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'),
-				['$title' => $this->t('Status Messages and Posts')]
+				['$title' => $this->t('Posts and Replies')]
 			);
 
 			// Show last public posts
@@ -224,17 +224,26 @@ class Follow extends BaseModule
 
 	protected function followRemoteItem(string $url)
 	{
-		$itemId = Item::fetchByLink($url, $this->session->getLocalUserId());
-		if (!$itemId) {
-			// If the user-specific search failed, we search and probe a public post
-			$itemId = Item::fetchByLink($url);
-		}
-
-		if (!empty($itemId)) {
-			$item = Post::selectFirst(['guid'], ['id' => $itemId]);
-			if (!empty($item['guid'])) {
-				$this->baseUrl->redirect('display/' . $item['guid']);
+		try {
+			$uri = new Uri($url);
+			if (!$uri->getScheme()) {
+				return;
 			}
+
+			$itemId = Item::fetchByLink($url, $this->session->getLocalUserId());
+			if (!$itemId) {
+				// If the user-specific search failed, we search and probe a public post
+				$itemId = Item::fetchByLink($url);
+			}
+
+			if (!empty($itemId)) {
+				$item = Post::selectFirst(['guid'], ['id' => $itemId]);
+				if (!empty($item['guid'])) {
+					$this->baseUrl->redirect('display/' . $item['guid']);
+				}
+			}
+		} catch (\InvalidArgumentException $e) {
+			return;
 		}
 	}
 }

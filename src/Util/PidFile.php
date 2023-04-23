@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -31,7 +31,7 @@ class PidFile
 	 *
 	 * @param string $file Filename of pid file
 	 *
-	 * @return boolean|string PID or "false" if not existent
+	 * @return boolean|string PID or "false" if nonexistent
 	 */
 	private static function pidFromFile(string $file)
 	{

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -26,9 +26,9 @@ use Friendica\Util\ACLFormatter;
 use PHPUnit\Framework\TestCase;
 
 /**
- * ACLFormater utility testing class
+ * ACLFormatter utility testing class
  */
-class ACLFormaterTest extends TestCase
+class ACLFormatterTest extends TestCase
 {
 	public function assertAcl($text, array $assert = [])
 	{
@@ -38,10 +38,10 @@ class ACLFormaterTest extends TestCase
 
 		self::assertEquals($assert, $acl);
 
-		self::assertMergable($acl);
+		self::assertMergeable($acl);
 	}
 
-	public function assertMergable(array $aclOne, array $aclTwo = [])
+	public function assertMergeable(array $aclOne, array $aclTwo = [])
 	{
 		self::assertTrue(is_array($aclOne));
 		self::assertTrue(is_array($aclTwo));

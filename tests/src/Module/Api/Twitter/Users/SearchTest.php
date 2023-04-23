@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -37,12 +37,12 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiUsersSearch()
 	{
-		$respone = (new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run([
+		$response = (new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+			->run($this->httpExceptionMock, [
 				'q' => static::OTHER_USER['name']
 			]);
 
-		$json = $this->toJson($respone);
+		$json = $this->toJson($response);
 
 		self::assertOtherUser($json[0]);
 	}
@@ -54,13 +54,13 @@ class SearchTest extends ApiTest
 	 */
 	public function testApiUsersSearchWithXml()
 	{
-		$respone = (new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], [
+		$response = (new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], [
 			'extension' => ICanCreateResponses::TYPE_XML
-		]))->run([
+		]))->run($this->httpExceptionMock, [
 			'q' => static::OTHER_USER['name']
 		]);
 
-		self::assertXml((string)$respone->getBody(), 'users');
+		self::assertXml((string)$response->getBody(), 'users');
 	}
 
 	/**
@@ -73,6 +73,6 @@ class SearchTest extends ApiTest
 		$this->expectException(BadRequestException::class);
 
 		(new Search(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
-			->run();
+			->run($this->httpExceptionMock);
 	}
 }

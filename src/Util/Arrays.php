@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -30,7 +30,7 @@ class Arrays
 	 * Private constructor
 	 */
 	private function __construct() {
-		// Utitlities don't have instances
+		// Utilities don't have instances
 	}
 
 	/**

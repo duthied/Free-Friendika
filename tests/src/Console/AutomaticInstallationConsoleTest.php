@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -673,7 +673,7 @@ Examples
 	bin/console autoinstall --savedb
 		Installs Friendica with environment variables and saves them to the 'config/local.config.php' file
 
-	bin/console autoinstall -h localhost -p 3365 -U user -P passwort1234 -d friendica
+	bin/console autoinstall -h localhost -p 3365 -U user -P password1234 -d friendica
 		Installs Friendica with a local mysql database with credentials
 
 HELP;

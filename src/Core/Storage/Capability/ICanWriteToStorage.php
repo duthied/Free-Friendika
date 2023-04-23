@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -27,7 +27,7 @@ use Friendica\Core\Storage\Exception\StorageException;
 /**
  * Interface for writable storage backends
  *
- * Used for storages with CRUD functionality, mainly used for user data (e.g. photos, attachements).
+ * Used for storages with CRUD functionality, mainly used for user data (e.g. photos, attachments).
  * There's only one active writable storage possible. This type of storage is selectable by the current administrator.
  */
 interface ICanWriteToStorage extends ICanReadFromStorage

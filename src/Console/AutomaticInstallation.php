@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -95,7 +95,7 @@ Examples
 	bin/console autoinstall --savedb
 		Installs Friendica with environment variables and saves them to the 'config/local.config.php' file
 
-	bin/console autoinstall -H localhost -p 3365 -u user -P passwort1234 -d friendica -U https://friendica.fqdn
+	bin/console autoinstall -H localhost -p 3365 -u user -P password1234 -d friendica -U https://friendica.fqdn
 		Installs Friendica with a local mysql database with credentials
 HELP;
 	}
@@ -199,8 +199,7 @@ HELP;
 				$this->out('The Friendica URL has to be set during CLI installation.');
 				return 1;
 			} else {
-				$baseUrl = new BaseURL($this->config, []);
-				$baseUrl->saveByURL($url);
+				$configCache->set('system', 'url', $url);
 			}
 
 			$installer->createConfig($configCache);

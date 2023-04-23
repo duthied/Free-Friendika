@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -36,11 +36,12 @@ use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Security\Security;
+use Friendica\Util\Network;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 /**
- * Class to handle photo dabatase table
+ * Class to handle photo database table
  */
 class Photo
 {
@@ -100,7 +101,7 @@ class Photo
 	 * Get photos for user id
 	 *
 	 * @param integer $uid        User id
-	 * @param string  $resourceid Rescource ID of the photo
+	 * @param string  $resourceid Resource ID of the photo
 	 * @param array   $conditions Array of fields for conditions
 	 * @param array   $params     Array of several parameters
 	 *
@@ -121,7 +122,7 @@ class Photo
 	 * Get a photo for user id
 	 *
 	 * @param integer $uid        User id
-	 * @param string  $resourceid Rescource ID of the photo
+	 * @param string  $resourceid Resource ID of the photo
 	 * @param integer $scale      Scale of the photo. Defaults to 0
 	 * @param array   $conditions Array of fields for conditions
 	 * @param array   $params     Array of several parameters
@@ -147,13 +148,14 @@ class Photo
 	 * on success, "no sign" image info, if user has no permission,
 	 * false if photo does not exists
 	 *
-	 * @param string  $resourceid Rescource ID of the photo
-	 * @param integer $scale      Scale of the photo. Defaults to 0
+	 * @param string  $resourceid  Resource ID of the photo
+	 * @param integer $scale       Scale of the photo. Defaults to 0
+	 * @param integer $visitor_uid UID of the visitor
 	 *
 	 * @return boolean|array
 	 * @throws \Exception
 	 */
-	public static function getPhoto(string $resourceid, int $scale = 0)
+	public static function getPhoto(string $resourceid, int $scale = 0, int $visitor_uid = 0)
 	{
 		$r = self::selectFirst(['uid'], ['resource-id' => $resourceid]);
 		if (!DBA::isResult($r)) {
@@ -164,7 +166,11 @@ class Photo
 
 		$accessible = $uid ? (bool)DI::pConfig()->get($uid, 'system', 'accessible-photos', false) : false;
 
-		$sql_acl = Security::getPermissionsSQLByUserId($uid, $accessible);
+		if (!empty($visitor_uid) && ($uid == $visitor_uid)) {
+			$sql_acl = '';
+		} else {
+			$sql_acl = Security::getPermissionsSQLByUserId($uid, $accessible);
+		}
 
 		$conditions = ["`resource-id` = ? AND `scale` <= ? " . $sql_acl, $resourceid, $scale];
 		$params = ['order' => ['scale' => true]];
@@ -225,7 +231,7 @@ class Photo
 			DBA::p(
 				"SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
 					min(`scale`) AS `hiq`, max(`scale`) AS `loq`, ANY_VALUE(`desc`) AS `desc`, ANY_VALUE(`created`) AS `created`
-					FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sqlExtra 
+					FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sqlExtra
 					GROUP BY `resource-id` $sqlExtra2",
 				$values
 			));
@@ -410,7 +416,7 @@ class Photo
 	 * @param string  $allow_cid Permissions, allowed contacts. optional, default = ""
 	 * @param string  $allow_gid Permissions, allowed groups. optional, default = ""
 	 * @param string  $deny_cid  Permissions, denied contacts.optional, default = ""
-	 * @param string  $deny_gid  Permissions, denied greoup.optional, default = ""
+	 * @param string  $deny_gid  Permissions, denied group.optional, default = ""
 	 * @param string  $desc      Photo caption. optional, default = ""
 	 *
 	 * @return boolean True on success
@@ -530,7 +536,7 @@ class Photo
 	 * @param Image $image      Image to update. Optional, default null.
 	 * @param array $old_fields Array with the old field values that are about to be replaced (true = update on duplicate)
 	 *
-	 * @return boolean  Was the update successfull?
+	 * @return boolean  Was the update successful?
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @see   \Friendica\Database\DBA::update
@@ -581,6 +587,11 @@ class Photo
 		}
 
 		$photo_failure = false;
+
+		if (!Network::isValidHttpUrl($image_url)) {
+			Logger::warning('Invalid image url', ['image_url' => $image_url, 'uid' => $uid, 'cid' => $cid, 'callstack' => System::callstack(20)]);
+			return false;
+		}
 
 		$filename = basename($image_url);
 		if (!empty($image_url)) {
@@ -870,14 +881,14 @@ class Photo
 			 * Then set the permissions to public.
 			 */
 
-			self::setPermissionForRessource($image_rid, $uid, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+			self::setPermissionForResource($image_rid, $uid, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		}
 
 		return true;
 	}
 
 	/**
-	 * Add permissions to photo ressource
+	 * Add permissions to photo resource
 	 * @todo mix with previous photo permissions
 	 *
 	 * @param string $image_rid
@@ -888,7 +899,7 @@ class Photo
 	 * @param string $str_group_deny
 	 * @return void
 	 */
-	public static function setPermissionForRessource(string $image_rid, int $uid, string $str_contact_allow, string $str_group_allow, string $str_contact_deny, string $str_group_deny)
+	public static function setPermissionForResource(string $image_rid, int $uid, string $str_contact_allow, string $str_group_allow, string $str_contact_deny, string $str_group_deny)
 	{
 		$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 		'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny,
@@ -907,7 +918,7 @@ class Photo
 	 */
 	public static function getResourceData(string $name): array
 	{
-		$base = DI::baseUrl()->get();
+		$base = DI::baseUrl();
 
 		$guid = str_replace([Strings::normaliseLink($base), '/photo/'], '', Strings::normaliseLink($name));
 
@@ -971,7 +982,7 @@ class Photo
 	 */
 	public static function isLocalPage(string $name): bool
 	{
-		$base = DI::baseUrl()->get();
+		$base = DI::baseUrl();
 
 		$guid = str_replace(Strings::normaliseLink($base), '', Strings::normaliseLink($name));
 		$guid = preg_replace("=/photos/.*/image/(.*)=ism", '$1', $guid);

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -63,7 +63,7 @@ class StringsTest extends TestCase
 	/**
 	 * try to fail it with invalid input
 	 *
-	 * @todo What's corect behaviour here? An exception?
+	 * @todo What's correct behaviour here? An exception?
 	 */
 	public function testRandomNameNegativeLength()
 	{

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -77,7 +77,7 @@ class Relationship extends BaseDataTransferObject
 	 * @param bool  $blocked "true" if user is blocked
 	 * @param bool  $muted "true" if user is muted
 	 */
-	public function __construct(int $contactId, array $contactRecord = [], bool $blocked = false, bool $muted = false)
+	public function __construct(int $contactId, array $contactRecord, bool $blocked = false, bool $muted = false)
 	{
 		$this->id                   = (string)$contactId;
 		$this->following            = false;

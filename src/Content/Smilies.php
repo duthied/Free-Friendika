@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -133,7 +133,7 @@ class Smilies
 		'<img class="smiley" src="' . $baseUrl . '/images/smiley-cry.gif" alt=":\'(" title=":\'("/>',
 		'<img class="smiley" src="' . $baseUrl . '/images/smiley-foot-in-mouth.gif" alt=":-!" title=":-!" />',
 		'<img class="smiley" src="' . $baseUrl . '/images/smiley-undecided.gif" alt=":-/" title=":-/" />',
-		'<img class="smiley" src="' . $baseUrl . '/images/smiley-embarassed.gif" alt=":-[" title=":-[" />',
+		'<img class="smiley" src="' . $baseUrl . '/images/smiley-embarrassed.gif" alt=":-[" title=":-[" />',
 		'<img class="smiley" src="' . $baseUrl . '/images/smiley-cool.gif" alt="8-)" title="8-)" />',
 		'<img class="smiley" src="' . $baseUrl . '/images/beer_mug.gif" alt=":beer" title=":beer" />',
 		'<img class="smiley" src="' . $baseUrl . '/images/beer_mug.gif" alt=":homebrew" title=":homebrew" />',
@@ -218,8 +218,8 @@ class Smilies
 			return $text;
 		}
 
-		$text = preg_replace_callback('/<(pre)>(.*?)<\/pre>/ism', 'self::encode', $text);
-		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', 'self::encode', $text);
+		$text = preg_replace_callback('/<(pre)>(.*?)<\/pre>/ism', [self::class, 'encode'], $text);
+		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', [self::class, 'encode'], $text);
 
 		if ($no_images) {
 			$cleaned = ['texts' => [], 'icons' => []];
@@ -233,11 +233,11 @@ class Smilies
 			$smilies = $cleaned;
 		}
 
-		$text = preg_replace_callback('/&lt;(3+)/', 'self::heartReplaceCallback', $text);
+		$text = preg_replace_callback('/&lt;(3+)/', [self::class, 'heartReplaceCallback'], $text);
 		$text = self::strOrigReplace($smilies['texts'], $smilies['icons'], $text);
 
-		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', 'self::decode', $text);
-		$text = preg_replace_callback('/<(pre)>(.*?)<\/pre>/ism', 'self::decode', $text);
+		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', [self::class, 'decode'], $text);
+		$text = preg_replace_callback('/<(pre)>(.*?)<\/pre>/ism', [self::class, 'decode'], $text);
 
 		return $text;
 	}

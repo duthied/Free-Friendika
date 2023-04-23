@@ -7,7 +7,7 @@ Friendica translations
 
 The Friendica translation process is based on `gettext` PO files.
 
-Basic worflow:
+Basic workflow:
 1. `xgettext` is used to collect translation strings across the project in the authoritative PO file located in `view/lang/C/messages.po`.
 2. This file makes translations strings available at [the Transifex Friendica page](https://www.transifex.com/Friendica/friendica/dashboard/).
 3. The translation itself is done at Transifex by volunteers.
@@ -23,6 +23,16 @@ As a rule of thumb, we add support for a language in Friendica when at least 50%
 For addons, we add support for a language when if we already support the language in Friendica.
 
 ## Add new translation strings
+
+### Supported gettext version
+
+We currently support the gettext version 0.19.8.1 and actively check new translation strings with this version.
+
+If you don't use this version, it's possible that our checks fail (f.e. because of tiny differences at linebreaks).
+In case you do have a Docker environment, you can easily update the translations with the following command:
+```shell
+docker run --rm -v $PWD:/data -w /data friendicaci/transifex bin/run_xgettext.sh
+```
 
 ### Core
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -153,11 +153,11 @@ class ExAuth
 			if (is_array($aCommand)) {
 				switch ($aCommand[0]) {
 					case 'isuser':
-						// Check the existance of a given username
+						// Check the existence of a given username
 						$this->isUser($aCommand);
 						break;
 					case 'auth':
-						// Check if the givven password is correct
+						// Check if the given password is correct
 						$this->auth($aCommand);
 						break;
 					case 'setpass':
@@ -201,7 +201,7 @@ class ExAuth
 		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
-		if ($this->baseURL->getHostname() == $aCommand[2]) {
+		if ($this->baseURL->getHost() == $aCommand[2]) {
 			$this->writeLog(LOG_INFO, 'internal user check for ' . $sUser . '@' . $aCommand[2]);
 			$found = $this->dba->exists('user', ['nickname' => $sUser]);
 		} else {
@@ -225,7 +225,7 @@ class ExAuth
 	}
 
 	/**
-	 * Check remote user existance via HTTP(S)
+	 * Check remote user existence via HTTP(S)
 	 *
 	 * @param string  $host The hostname
 	 * @param string  $user Username
@@ -282,7 +282,7 @@ class ExAuth
 
 		$Error = false;
 		// Does the hostname match? So we try directly
-		if ($this->baseURL->getHostname() == $aCommand[2]) {
+		if ($this->baseURL->getHost() == $aCommand[2]) {
 			try {
 				$this->writeLog(LOG_INFO, 'internal auth for ' . $sUser . '@' . $aCommand[2]);
 				User::getIdFromPasswordAuthentication($sUser, $aCommand[3], true);
@@ -303,10 +303,10 @@ class ExAuth
 
 		// If the hostnames doesn't match or there is some failure, we try to check remotely
 		if ($Error && !$this->checkCredentials($aCommand[2], $aCommand[1], $aCommand[3], true)) {
-			$this->writeLog(LOG_WARNING, 'authentification failed for user ' . $sUser . '@' . $aCommand[2]);
+			$this->writeLog(LOG_WARNING, 'authentication failed for user ' . $sUser . '@' . $aCommand[2]);
 			fwrite(STDOUT, pack('nn', 2, 0));
 		} else {
-			$this->writeLog(LOG_NOTICE, 'authentificated user ' . $sUser . '@' . $aCommand[2]);
+			$this->writeLog(LOG_NOTICE, 'authenticated user ' . $sUser . '@' . $aCommand[2]);
 			fwrite(STDOUT, pack('nn', 2, 1));
 		}
 	}

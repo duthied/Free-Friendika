@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -52,7 +52,7 @@ class ExpirePosts
 			self::addMissingEntries();
 		}
 
-		// Set the expiry for origin posta
+		// Set the expiry for origin posts
 		Worker::add(Worker::PRIORITY_LOW, 'Expire');
 
 		// update nodeinfo data after everything is cleaned up

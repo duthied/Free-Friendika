@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -48,13 +48,9 @@ return [
 	],
 	'system' => [
 		// account_abandon_days (Integer)
-		// Will not waste system resources polling external sites for abandonded accounts.
+		// Will not waste system resources polling external sites for abandoned accounts.
 		// Enter 0 for no time limit.
 		'account_abandon_days' => 0,
-
-		// addon (Comma-separated list)
-		// Manual list of addons which are enabled on this system.
-		'addon' => '',
 
 		// add_missing_posts (boolean)
 		// Checks for missing entries in "post", "post-thread" or "post-thread-user" and creates them
@@ -127,7 +123,7 @@ return [
 		'jpeg_quality' => 100,
 
 		// language (String)
-		// System default languague, inluding admin-created user default language.
+		// System default language, including admin-created user default language.
 		// Two-letters ISO 639-1 code.
 		'language' => 'en',
 

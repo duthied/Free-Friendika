@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -178,7 +178,7 @@ class DbaDefinitionSqlWriter
 	 * Creates the SQL definition to modify a table field
 	 *
 	 * @param string $fieldName  The table field name
-	 * @param array  $parameters The paramters to modify
+	 * @param array  $parameters The parameters to modify
 	 *
 	 * @return string The SQL definition
 	 */
@@ -235,7 +235,7 @@ class DbaDefinitionSqlWriter
 	 * @param string $method     The method to create the index (default is ADD)
 	 *
 	 * @return string The SQL definition
-	 * @throws Exception in cases the paramter contains invalid content
+	 * @throws Exception in cases the parameter contains invalid content
 	 */
 	public static function createIndex(string $indexName, array $fieldNames, string $method = 'ADD'): string
 	{

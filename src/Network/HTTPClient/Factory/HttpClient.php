@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -60,7 +60,7 @@ class HttpClient extends BaseFactory
 	/**
 	 * Creates a IHTTPClient for communications with HTTP endpoints
 	 *
-	 * @param HandlerStack|null $handlerStack (optional) A handler replacement (just usefull at test environments)
+	 * @param HandlerStack|null $handlerStack (optional) A handler replacement (just useful at test environments)
 	 *
 	 * @return ICanSendHttpRequests
 	 */
@@ -83,14 +83,14 @@ class HttpClient extends BaseFactory
 			ResponseInterface $response,
 			UriInterface $uri
 		) use ($logger) {
-			$logger->notice('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri, 'method' => $request->getMethod()]);
+			$logger->info('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri, 'method' => $request->getMethod()]);
 		};
 
 		$userAgent = App::PLATFORM . " '" .
 					 App::CODENAME . "' " .
 					 App::VERSION . '-' .
 					 DB_UPDATE_VERSION . '; ' .
-					 $this->baseUrl->get();
+					 $this->baseUrl;
 
 		$guzzle = new GuzzleHttp\Client([
 			RequestOptions::ALLOW_REDIRECTS => [

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -43,12 +43,12 @@ class ParsedLogLineTest extends TestCase
 	public function testGenericLogLine()
 	{
 		self::do_log_line(
-			'2021-05-24T15:40:01Z worker [WARNING]: Spool file does does not start with "item-" {"file":".","worker_id":"560c8b6","worker_cmd":"SpoolPost"} - {"file":"SpoolPost.php","line":40,"function":"execute","uid":"fd8c37","process_id":20846}',
+			'2021-05-24T15:40:01Z worker [WARNING]: Spool file does not start with "item-" {"file":".","worker_id":"560c8b6","worker_cmd":"SpoolPost"} - {"file":"SpoolPost.php","line":40,"function":"execute","uid":"fd8c37","process_id":20846}',
 			[
 				'date'    => '2021-05-24T15:40:01Z',
 				'context' => 'worker',
 				'level'   => 'WARNING',
-				'message' => 'Spool file does does not start with "item-"',
+				'message' => 'Spool file does not start with "item-"',
 				'data'    => '{"file":".","worker_id":"560c8b6","worker_cmd":"SpoolPost"}',
 				'source'  => '{"file":"SpoolPost.php","line":40,"function":"execute","uid":"fd8c37","process_id":20846}',
 			]

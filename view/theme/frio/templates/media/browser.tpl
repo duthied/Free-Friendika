@@ -22,6 +22,10 @@
 			</div>
 		</ol>
 
+		<div class="upload">
+			<button id="upload-{{$type}}" type="button" class="btn btn-primary">{{$upload}}</button>
+		</div>
+
 		<div class="media">
 
 			{{* List of photo albums *}}
@@ -52,12 +56,9 @@
 			</div>
 		</div>
 
-		<div class="upload">
-			<button id="upload-{{$type}}" type="button" class="btn btn-primary">{{$upload}}</button>
-		</div>
 	</div>
 
-	{{* This part contains the conent loader icon which is visible when new conent is loaded *}}
+	{{* This part contains the content loader icon which is visible when new content is loaded *}}
 	<div class="profile-rotator-wrapper" aria-hidden="true" style="display: none;">
 		<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>
 	</div>

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -22,6 +22,7 @@
 namespace Friendica\Object\Search;
 
 use Friendica\Model\Search;
+use Psr\Http\Message\UriInterface;
 
 /**
  * A search result for contact searching
@@ -51,7 +52,7 @@ class ContactResult implements IResult
 	 */
 	private $item;
 	/**
-	 * @var string
+	 * @var UriInterface
 	 */
 	private $url;
 	/**
@@ -108,9 +109,9 @@ class ContactResult implements IResult
 	}
 
 	/**
-	 * @return string
+	 * @return UriInterface
 	 */
-	public function getUrl(): string
+	public function getUrl(): UriInterface
 	{
 		return $this->url;
 	}
@@ -143,14 +144,14 @@ class ContactResult implements IResult
 	 * @param string $name
 	 * @param string $addr
 	 * @param string $item
-	 * @param string $url
+	 * @param UriInterface $url
 	 * @param string $photo
 	 * @param string $network
 	 * @param int    $cid
 	 * @param int    $pCid
 	 * @param string $tags
 	 */
-	public function __construct($name, $addr, $item, $url, $photo, $network, $cid = 0, $pCid = 0, $tags = '')
+	public function __construct($name, $addr, $item, UriInterface $url, $photo, $network, $cid = 0, $pCid = 0, $tags = '')
 	{
 		$this->name    = $name;
 		$this->addr    = $addr;

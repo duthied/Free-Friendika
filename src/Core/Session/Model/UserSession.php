@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -24,6 +24,7 @@ namespace Friendica\Core\Session\Model;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
 
 /**
  * This class handles user sessions, which is directly extended from regular session
@@ -45,6 +46,16 @@ class UserSession implements IHandleUserSessions
 	{
 		if (!empty($this->session->get('authenticated')) && !empty($this->session->get('uid'))) {
 			return intval($this->session->get('uid'));
+		}
+
+		return false;
+	}
+
+	/** {@inheritDoc} */
+	public function getLocalUserNickname()
+	{
+		if ($this->isAuthenticated()) {
+			return $this->session->get('nickname');
 		}
 
 		return false;
@@ -123,9 +134,15 @@ class UserSession implements IHandleUserSessions
 	}
 
 	/** {@inheritDoc} */
-	public function setVisitorsContacts()
+	public function isSiteAdmin(): bool
 	{
-		$this->session->set('remote', Contact::getVisitorByUrl($this->session->get('my_url')));
+		return User::isSiteAdmin($this->getLocalUserId());
+	}
+
+	/** {@inheritDoc} */
+	public function setVisitorsContacts(string $my_url)
+	{
+		$this->session->set('remote', Contact::getVisitorByUrl($my_url));
 	}
 
 	/** {@inheritDoc} */

@@ -36,14 +36,14 @@ $(document).ready(function () {
 		return false;
 	});
 
-	// add the class "selected" to group widges li if li > a does have the class group-selected
+	// add the class "selected" to group widgets li if li > a does have the class group-selected
 	if ($("#sidebar-group-ul li a").hasClass("group-selected")) {
 		$("#sidebar-group-ul li a.group-selected").parent("li").addClass("selected");
 	}
 
-	// add the class "selected" to forums widges li if li > a does have the class forum-selected
-	if ($("#forumlist-sidbar-ul li a").hasClass("forum-selected")) {
-		$("#forumlist-sidbar-ul li a.forum-selected").parent("li").addClass("selected");
+	// add the class "selected" to forums widgets li if li > a does have the class forum-selected
+	if ($("#forumlist-sidebar-ul li a").hasClass("forum-selected")) {
+		$("#forumlist-sidebar-ul li a.forum-selected").parent("li").addClass("selected");
 	}
 
 	// add the class "active" to tabmenuli if li > a does have the class active
@@ -51,7 +51,7 @@ $(document).ready(function () {
 		$("#tabmenu ul li a.active").parent("li").addClass("active");
 	}
 
-	// give select fields an boostrap classes
+	// give select fields Bootstrap classes
 	// @todo: this needs to be changed in friendica core
 	$(".field.select, .field.custom").addClass("form-group");
 	$(".field.select > select, .field.custom > select").addClass("form-control");
@@ -61,8 +61,8 @@ $(document).ready(function () {
 
 	// add mask css url to the logo-img container
 	//
-	// This is for firefox - we use a mask which looks like the friendica logo to apply user collers
-	// to the friendica logo (the mask is in nav.tpl at the botom). To make it work we need to apply the
+	// This is for firefox - we use a mask which looks like the friendica logo to apply user colors
+	// to the friendica logo (the mask is in nav.tpl at the bottom). To make it work we need to apply the
 	// correct url. The only way which comes to my mind was to do this with js
 	// So we apply the correct url (with the link to the id of the mask) after the page is loaded.
 	if ($("#logo-img").length) {
@@ -121,7 +121,7 @@ $(document).ready(function () {
 		}
 	});
 
-	// initialize the bootstrap tooltips
+	// initialize the Bootstrap tooltips
 	$body.tooltip({
 		selector: '[data-toggle="tooltip"]',
 		container: "body",
@@ -279,7 +279,7 @@ $(document).ready(function () {
 	// Set the padding for input elements with inline buttons
 	//
 	// In Frio we use some input elements where the submit button is visually
-	// inside the the input field (through css). We need to set a padding-right
+	// inside the input field (through css). We need to set a padding-right
 	// to the input element where the padding value would be at least the width
 	// of the button. Otherwise long user input would be invisible because it is
 	// behind the button.
@@ -478,7 +478,7 @@ function showHide(theID) {
 // Show & hide event map in the network stream by button click.
 function showHideEventMap(elm) {
 	// Get the id of the map element - it should be provided through
-	// the atribute "data-map-id".
+	// the attribute "data-map-id".
 	var mapID = elm.getAttribute("data-map-id");
 
 	// Get translation labels.
@@ -698,7 +698,7 @@ function parseUrl(str, component) {
 	return uri;
 }
 
-// trim function to replace whithespace after the string
+// trim function to replace whitespace after the string
 String.prototype.rtrim = function () {
 	var trimmed = this.replace(/\s+$/g, "");
 	return trimmed;
@@ -740,7 +740,7 @@ function scrollToItem(elementId) {
 		)
 		.promise()
 		.done(function () {
-			// Highlight post/commenent with ID  (GUID)
+			// Highlight post/comment with ID  (GUID)
 			$el.animate(colWhite, 1000).animate(colShiny).animate({ backgroundColor: "transparent" }, 600);
 		});
 }
@@ -764,12 +764,110 @@ function htmlToText(htmlString) {
  * @param {boolean} un    Whether to perform an activity removal instead of creation
  */
 function doActivityItemAction(ident, verb, un) {
-	if (verb.indexOf("attend") === 0) {
-		$(".item-" + ident + " .button-event:not(#" + verb + "-" + ident + ")").removeClass("active");
+	_verb = un ? 'un' + verb : verb;
+	var thumbsClass = '';
+	switch (verb) {
+		case 'like':
+			thumbsClass = 'fa-thumbs-up';
+			break;
+		case 'dislike':
+			thumbsClass = 'fa-thumbs-down';
+			break;
+		case 'announce':
+			thumbsClass = 'fa-retweet';
+			break;
+		case 'attendyes':
+			thumbsClass = 'fa-check';
+			break;
+		case 'attendno':
+			thumbsClass = 'fa-times';
+			break;
+		case 'attendmaybe':
+			thumbsClass = 'fa-question';
 	}
-	$("#" + verb + "-" + ident).toggleClass("active");
-
-	doActivityItem(ident, verb, un);
+	if (verb.indexOf('announce') === 0 ) {
+		// Share-Button(s)
+		// remove share-symbol, to replace it by rotator
+		$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').removeClass('fa-share');
+		$('button[id^=announce-' + ident.toString() + '] i:first-child').removeClass('fa-retweet');
+		// avoid multiple rotators on like/share-button if klicked multiple times.
+		if ($('img[id^=waitfor-' + verb + '-' + ident.toString() + ']').length == 0) {
+			// append rotator to the shareMenu-button for small media
+			$('<img>')
+				.attr({id: 'waitfor-' + verb + '-' + ident.toString(), src: 'images/rotator.gif'})
+				.addClass('fa')
+				.appendTo($('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child' ));
+		}
+	}
+	$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').removeClass(thumbsClass);
+	// if verb is announce, then one rotator is added above to the shareMedia-dropdown button
+	if ($('button:not(button.dropdown-toggle) img#waitfor-' + verb + '-' + ident.toString()).length == 0) {
+		$('<img>')
+			.attr({id: 'waitfor-' + verb + '-' + ident.toString(), src: 'images/rotator.gif'})
+			.addClass('fa')
+			.appendTo($('button[id^=' + verb + '-' + ident.toString() + '] i:first-child'));
+	}
+	$.post('item/' + ident.toString() + '/activity/' + _verb)
+	.success(function(data){
+		$('img[id^=waitfor-' + verb + '-' + ident.toString() + ']').remove();
+		if (data.status == 'ok') {
+			if (verb.indexOf('attend') === 0) {
+				$('button[id^=attend][id$=' + ident.toString() + ']').removeClass('active')
+				$('button#attendyes-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendyes")');
+				$('button#attendno-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendno")');
+				$('button#attendmaybe-' + ident.toString()).attr('onclick', 'javascript:doActivityItemAction(' + ident +', "attendmaybe")');
+			}
+			if (data.verb == 'un' + verb) {
+				// like/dislike buttons
+				$('button[id^=' + verb + '-' + ident.toString() + ']' )
+					.removeClass('active')
+					.attr('onclick', 'doActivityItemAction(' + ident +', "' + verb + '")');
+				// link in share-menu
+				$('a[id^=' + verb + '-' + ident.toString() + ']' )
+					.removeClass('active')
+					.attr('href', 'javascript:doActivityItemAction(' + ident +', "' + verb + '")');
+				$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child' ).addClass('fa-retweet').removeClass('fa-ban');
+			} else {
+				// like/dislike buttons
+				$('button[id^=' + verb + '-' + ident.toString() + ']' )
+					.addClass('active')
+					.attr('onclick', 'doActivityItemAction(' + ident + ', "' + verb + '", true )');
+				// link in share-menu
+				$('a[id^=' + verb + '-' + ident.toString() + ']' )
+					.addClass('active')
+					.attr('href', 'javascript:doActivityItemAction(' + ident + ', "' + verb + '", true )');
+				$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child' ).removeClass('fa-retweet').addClass('fa-ban');
+			}
+			$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
+			if (verb.indexOf('announce') === 0 ) {
+				// ShareMenuButton
+				$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').addClass('fa-share');
+				if (data.verb == 'un' + verb) {
+					$('button[id^=shareMenuOptions-' + ident.toString() + ']').removeClass('active');
+				} else {
+					$('button[id^=shareMenuOptions-' + ident.toString() + ']').addClass('active');
+				}
+			}
+		} else {
+			/* server-response was not ok. Database-problems or some changes in
+			 * data?
+			 * reset all buttons
+			 */
+			$('img[id^=waitfor-' + verb + '-' + ident.toString() + ']').remove();
+			$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').addClass('fa-share');
+			$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
+			$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
+			$.jGrowl(aActErr[verb] + '<br>(' + aErrType['srvErr'] + ')', {sticky: false, theme: 'info', life: 5000});
+		}
+	})
+	.error(function(data){
+		// Server could not be reached successfully
+		$('img[id^=waitfor-' + verb + '-' + ident.toString() + ']').remove();
+		$('button[id^=shareMenuOptions-' + ident.toString() + '] i:first-child').addClass('fa-share');
+		$('button[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
+		$('a[id^=' + verb + '-' + ident.toString() + '] i:first-child').addClass(thumbsClass);
+		$.jGrowl(aActErr[verb] + '<br>(' + aErrType['netErr'] + ')', {sticky: false, theme: 'info', life: 5000});
+	});
 }
 
 // Decodes a hexadecimally encoded binary string

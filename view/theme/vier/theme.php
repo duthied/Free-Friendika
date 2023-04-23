@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -140,14 +140,14 @@ function vier_community_info()
 	$url = DI::baseUrl();
 	$aside['$url'] = $url;
 
-	// comunity_profiles
+	// community_profiles
 	if ($show_profiles) {
 		$contacts = Contact\Relation::getCachedSuggestions(DI::userSession()->getLocalUserId(), 0, 9);
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
 		if (DBA::isResult($contacts)) {
-			$aside['$comunity_profiles_title'] = DI::l10n()->t('Community Profiles');
-			$aside['$comunity_profiles_items'] = [];
+			$aside['$community_profiles_title'] = DI::l10n()->t('Community Profiles');
+			$aside['$community_profiles_items'] = [];
 
 			foreach ($contacts as $contact) {
 				$entry = Renderer::replaceMacros($tpl, [
@@ -156,7 +156,7 @@ function vier_community_info()
 					'$photo' => Contact::getMicro($contact),
 					'$alt_text' => $contact['name'],
 				]);
-				$aside['$comunity_profiles_items'][] = $entry;
+				$aside['$community_profiles_items'][] = $entry;
 			}
 		}
 	}

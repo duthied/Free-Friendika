@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -38,7 +38,7 @@ class ForumManager
 	 *
 	 * @param int     $uid         of the profile owner
 	 * @param boolean $lastitem    Sort by lastitem
-	 * @param boolean $showhidden  Show frorums which are not hidden
+	 * @param boolean $showhidden  Show forums which are not hidden
 	 * @param boolean $showprivate Show private groups
 	 *
 	 * @return array
@@ -60,10 +60,10 @@ class ForumManager
 		$condition = [
 			'contact-type' => Contact::TYPE_COMMUNITY,
 			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB],
-			'uid' => $uid, 
+			'uid' => $uid,
 			'blocked' => false,
 			'pending' => false,
-			'archive' => false, 
+			'archive' => false,
 		];
 
 		$condition = DBA::mergeConditions($condition, ["`platform` != ?", 'peertube']);
@@ -102,7 +102,7 @@ class ForumManager
 	/**
 	 * Forumlist widget
 	 *
-	 * Sidebar widget to show subcribed friendica forums. If activated
+	 * Sidebar widget to show subscribed friendica forums. If activated
 	 * in the settings, it appears at the notwork page sidebar
 	 *
 	 * @param string $baseurl Base module path

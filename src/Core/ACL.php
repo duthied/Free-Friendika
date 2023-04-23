@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -47,7 +47,7 @@ class ACL
 	/**
 	 * Returns a select input tag for private message recipient
 	 *
-	 * @param int  $selected Existing recipien contact ID
+	 * @param int  $selected Existing recipient contact ID
 	 * @return string
 	 * @throws \Exception
 	 */
@@ -66,7 +66,7 @@ class ACL
 
 		$tpl = Renderer::getMarkupTemplate('acl/message_recipient.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$contacts' => $contacts,
+			'$contacts' => json_encode($contacts),
 			'$selected' => $selected,
 		]);
 
@@ -327,9 +327,9 @@ class ACL
 			'$emtitle'        => DI::l10n()->t('Example: bob@example.com, mary@example.com'),
 			'$jotnets_summary' => DI::l10n()->t('Connectors'),
 			'$visibility'     => $visibility,
-			'$acl_contacts'   => $acl_contacts,
-			'$acl_groups'     => $acl_groups,
-			'$acl_list'       => $acl_list,
+			'$acl_contacts'   => json_encode($acl_contacts),
+			'$acl_groups'     => json_encode($acl_groups),
+			'$acl_list'       => json_encode($acl_list),
 			'$contact_allow'  => implode(',', $default_permissions['allow_cid']),
 			'$group_allow'    => implode(',', $default_permissions['allow_gid']),
 			'$contact_deny'   => implode(',', $default_permissions['deny_cid']),

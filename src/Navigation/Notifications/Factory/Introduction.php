@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -100,11 +100,11 @@ class Introduction extends BaseFactory
 		try {
 			$stmtNotifications = $this->dba->p(
 				"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
-				`sugggest-contact`.`name` AS `fname`, `sugggest-contact`.`url` AS `furl`, `sugggest-contact`.`addr` AS `faddr`,
-				`sugggest-contact`.`photo` AS `fphoto`, `sugggest-contact`.`request` AS `frequest`
+				`suggest-contact`.`name` AS `fname`, `suggest-contact`.`url` AS `furl`, `suggest-contact`.`addr` AS `faddr`,
+				`suggest-contact`.`photo` AS `fphoto`, `suggest-contact`.`request` AS `frequest`
 			FROM `intro`
 				LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id`
-				LEFT JOIN `contact` AS `sugggest-contact` ON `intro`.`suggest-cid` = `sugggest-contact`.`id`
+				LEFT JOIN `contact` AS `suggest-contact` ON `intro`.`suggest-cid` = `suggest-contact`.`id`
 			WHERE `intro`.`uid` = ? $sql_extra
 			LIMIT ?, ?",
 				$this->session->getLocalUserId(),
@@ -125,8 +125,8 @@ class Introduction extends BaseFactory
 						continue;
 					}
 					$return_addr = bin2hex($this->nick . '@' .
-					                       $this->baseUrl->getHostname() .
-					                       (($this->baseUrl->getUrlPath()) ? '/' . $this->baseUrl->getUrlPath() : ''));
+					                       $this->baseUrl->getHost() .
+										   (($this->baseUrl->getPath()) ? '/' . $this->baseUrl->getPath() : ''));
 
 					$formattedIntroductions[] = new ValueObject\Introduction([
 						'label'          => 'friend_suggestion',

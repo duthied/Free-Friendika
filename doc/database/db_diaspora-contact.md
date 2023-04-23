@@ -27,7 +27,7 @@ Fields
 | gsid              | Global Server ID                                             | int unsigned | YES  |     | NULL                |       |
 | created           |                                                              | datetime     | NO   |     | 0001-01-01 00:00:00 |       |
 | updated           |                                                              | datetime     | NO   |     | 0001-01-01 00:00:00 |       |
-| interacting_count | Number of contacts this contact interactes with              | int unsigned | YES  |     | 0                   |       |
+| interacting_count | Number of contacts this contact interacts with               | int unsigned | YES  |     | 0                   |       |
 | interacted_count  | Number of contacts that interacted with this contact         | int unsigned | YES  |     | 0                   |       |
 | post_count        | Number of posts and comments                                 | int unsigned | YES  |     | 0                   |       |
 

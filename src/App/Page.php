@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -27,18 +27,18 @@ use DOMXPath;
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
-use Friendica\Util\Strings;
 use Friendica\Util\Profiler;
+use Friendica\Util\Strings;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -243,15 +243,43 @@ class Page implements ArrayAccess
 		 * being first
 		 */
 		$this->page['htmlhead'] = Renderer::replaceMacros($tpl, [
+			'$l10n' => [
+				'delitem'      => $l10n->t('Delete this item?'),
+				'blockAuthor'  => $l10n->t('Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'),
+				'ignoreAuthor' => $l10n->t('Ignore this author? You won\'t be able to see their posts and their notifications.'),
+
+				'likeError'     => $l10n->t('Like not successful'),
+				'dislikeError'  => $l10n->t('Dislike not successful'),
+				'announceError' => $l10n->t('Sharing not successful'),
+				'attendError'   => $l10n->t('Attendance unsuccessful'),
+				'srvError'      => $l10n->t('Backend error'),
+				'netError'      => $l10n->t('Network error'),
+
+				// Dropzone
+				'dictDefaultMessage'           => $l10n->t('Drop files here to upload'),
+				'dictFallbackMessage'          => $l10n->t("Your browser does not support drag and drop file uploads."),
+				'dictFallbackText'             => $l10n->t('Please use the fallback form below to upload your files like in the olden days.'),
+				'dictFileTooBig'               => $l10n->t('File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.'),
+				'dictInvalidFileType'          => $l10n->t("You can't upload files of this type."),
+				'dictResponseError'            => $l10n->t('Server responded with {{statusCode}} code.'),
+				'dictCancelUpload'             => $l10n->t('Cancel upload'),
+				'dictUploadCanceled'           => $l10n->t('Upload canceled.'),
+				'dictCancelUploadConfirmation' => $l10n->t('Are you sure you want to cancel this upload?'),
+				'dictRemoveFile'               => $l10n->t('Remove file'),
+				'dictMaxFilesExceeded'         => $l10n->t("You can't upload any more files."),
+			],
+
 			'$local_user'      => $localUID,
 			'$generator'       => 'Friendica' . ' ' . App::VERSION,
-			'$delitem'         => $l10n->t('Delete this item?'),
-			'$blockAuthor'     => $l10n->t('Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'),
 			'$update_interval' => $interval,
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,
 			'$block_public'    => intval($config->get('system', 'block_public')),
 			'$stylesheets'     => $this->stylesheets,
+
+			// Dropzone
+			'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand($config->get('system', 'maximagesize')) / 1000000, 1),
+
 		]) . $this->page['htmlhead'];
 	}
 
@@ -281,7 +309,7 @@ class Page implements ArrayAccess
 	 * Initializes Page->page['footer'].
 	 *
 	 * Includes:
-	 * - Javascript homebase
+	 * - JavaScript homebase
 	 * - Mobile toggle link
 	 * - Registered footer scripts (through App->registerFooterScript())
 	 * - footer.tpl template
@@ -408,13 +436,16 @@ class Page implements ArrayAccess
 	 * @param Mode                        $mode     The current node mode
 	 * @param ResponseInterface           $response The Response of the module class, including type, content & headers
 	 * @param L10n                        $l10n     The l10n language class
+	 * @param Profiler                    $profiler
 	 * @param IManageConfigValues         $config   The Configuration of this node
 	 * @param IManagePersonalConfigValues $pconfig  The personal/user configuration
-	 * @param int                         $localUID The UID of the local user
-	 *
-	 * @throws HTTPException\InternalServerErrorException|HTTPException\ServiceUnavailableException
+	 * @param Nav                         $nav
+	 * @param int                         $localUID
+	 * @throws HTTPException\MethodNotAllowedException
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\ServiceUnavailableException
 	 */
-	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, ResponseInterface $response, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig, int $localUID)
+	public function run(App $app, BaseURL $baseURL, Arguments $args, Mode $mode, ResponseInterface $response, L10n $l10n, Profiler $profiler, IManageConfigValues $config, IManagePersonalConfigValues $pconfig, Nav $nav, int $localUID)
 	{
 		$moduleName = $args->getModuleName();
 
@@ -464,7 +495,7 @@ class Page implements ArrayAccess
 		// Add the navigation (menu) template
 		if ($moduleName != 'install' && $moduleName != 'maintenance') {
 			$this->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('nav_head.tpl'), []);
-			$this->page['nav']      = Nav::build($app);
+			$this->page['nav']      = $nav->getHtml();
 		}
 
 		foreach ($response->getHeaders() as $key => $header) {
@@ -490,7 +521,7 @@ class Page implements ArrayAccess
 
 			$content = mb_convert_encoding($this->page["content"], 'HTML-ENTITIES', "UTF-8");
 
-			/// @TODO one day, kill those error-surpressing @ stuff, or PHP should ban it
+			/// @TODO one day, kill those error-suppressing @ stuff, or PHP should ban it
 			@$doc->loadHTML($content);
 
 			$xpath = new DOMXPath($doc);
@@ -519,7 +550,7 @@ class Page implements ArrayAccess
 		header("X-Friendica-Version: " . App::VERSION);
 		header("Content-type: text/html; charset=utf-8");
 
-		if ($config->get('system', 'hsts') && ($baseURL->getSSLPolicy() == BaseURL::SSL_POLICY_FULL)) {
+		if ($config->get('system', 'hsts') && ($baseURL->getScheme() === 'https')) {
 			header("Strict-Transport-Security: max-age=31536000");
 		}
 

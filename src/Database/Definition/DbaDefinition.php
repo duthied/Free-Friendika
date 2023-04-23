@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -82,11 +82,15 @@ class DbaDefinition
 		// Assign all field that are present in the table
 		foreach ($fieldNames as $field) {
 			if (isset($data[$field])) {
-				// Limit the length of varchar, varbinary, char and binrary fields
+				// Limit the length of varchar, varbinary, char and binary fields
 				if (is_string($data[$field]) && preg_match("/char\((\d*)\)/", $definition[$table]['fields'][$field]['type'], $result)) {
 					$data[$field] = mb_substr($data[$field], 0, $result[1]);
 				} elseif (is_string($data[$field]) && preg_match("/binary\((\d*)\)/", $definition[$table]['fields'][$field]['type'], $result)) {
 					$data[$field] = substr($data[$field], 0, $result[1]);
+				} elseif (is_numeric($data[$field]) && $definition[$table]['fields'][$field]['type'] === 'int') {
+					$data[$field] = min(max((int)$data[$field], -2147483648), 2147483647);
+				} elseif (is_numeric($data[$field]) && $definition[$table]['fields'][$field]['type'] === 'int unsigned') {
+					$data[$field] = min(max((int)$data[$field], 0), 4294967295);
 				}
 				$fields[$field] = $data[$field];
 			}

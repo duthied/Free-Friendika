@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -101,7 +101,7 @@ class Receive extends BaseModule
 		}
 
 		if ($importer['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-			// Communities aren't working with the Diaspora protoccol
+			// Communities aren't working with the Diaspora protocol
 			// We throw an "accepted" here, so that the sender doesn't repeat the delivery
 			throw new HTTPException\AcceptedException();
 		}

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -42,9 +42,12 @@ class Federation extends BaseAdmin
 			'akkoma'       => ['name' => 'Akkoma', 'color' => '#9574cd'], // Color from the page
 			'birdsitelive' => ['name' => 'BirdsiteLIVE', 'color' => '#1b6ec2'], // Color from the page
 			'bookwyrm'     => ['name' => 'BookWyrm', 'color' => '#00d1b2'], // Color from the page
+			'calckey'      => ['name' => 'Calckey', 'color' => '#286983'], // Color from the page
 			'castopod'     => ['name' => 'Castopod', 'color' => '#00564a'], // Background color from the page
 			'diaspora'     => ['name' => 'Diaspora', 'color' => '#a1a1a1'], // logo is black and white, makes a gray
+			'foundkey'     => ['name' => 'Foundkey', 'color' => '#609926'], // Some random color from the repository
 			'funkwhale'    => ['name' => 'Funkwhale', 'color' => '#4082B4'], // From the homepage
+			'gancio'       => ['name' => 'Gancio', 'color' => '#7253ed'], // Fontcolor from the page
 			'gnusocial'    => ['name' => 'GNU Social/Statusnet', 'color' => '#a22430'], // dark red from the logo
 			'gotosocial'   => ['name' => 'GoToSocial', 'color' => '#df8958'], // Some color from their mascot
 			'hometown'     => ['name' => 'Hometown', 'color' => '#1f70c1'], // Color from the Patreon page
@@ -56,7 +59,7 @@ class Federation extends BaseAdmin
 			'misskey'      => ['name' => 'Misskey', 'color' => '#ccfefd'], // Font color of the homepage
 			'mobilizon'    => ['name' => 'Mobilizon', 'color' => '#ffd599'], // Background color of parts of the homepage
 			'nextcloud'    => ['name' => 'Nextcloud', 'color' => '#1cafff'], // Logo color
-			'mistpark'     => ['name' => 'Nomad projects (Mistpark, Osada, Roadhouse, Zap)', 'color' => '#348a4a'], // Green like the Mistpark green
+			'nomad'        => ['name' => 'Nomad projects (Mistpark, Osada, Roadhouse, Streams. Zap)', 'color' => '#348a4a'], // Green like the Mistpark green
 			'owncast'      => ['name' => 'Owncast', 'color' => '#007bff'], // Font color of the homepage
 			'peertube'     => ['name' => 'Peertube', 'color' => '#ffad5c'], // One of the logo colors
 			'pixelfed'     => ['name' => 'Pixelfed', 'color' => '#11da47'], // One of the logo colors
@@ -64,6 +67,8 @@ class Federation extends BaseAdmin
 			'plume'        => ['name' => 'Plume', 'color' => '#7765e3'], // From the homepage
 			'relay'        => ['name' => 'ActivityPub Relay', 'color' => '#888888'], // Grey like the second color of the ActivityPub logo
 			'socialhome'   => ['name' => 'SocialHome', 'color' => '#52056b'], // lilac from the Django Image used at the Socialhome homepage
+			'takahe'       => ['name' => 'Takahē', 'color' => '#26323c'], // Background color of the homepage
+			'wildebeest'   => ['name' => 'Wildebeest', 'color' => '#0055dc'], // Color of the mascot
 			'wordpress'    => ['name' => 'WordPress', 'color' => '#016087'], // Background color of the homepage
 			'write.as'     => ['name' => 'Write.as', 'color' => '#00ace3'], // Border color of the homepage
 			'writefreely'  => ['name' => 'WriteFreely', 'color' => '#292929'], // Font color of the homepage
@@ -106,7 +111,7 @@ class Federation extends BaseAdmin
 
 				if (in_array($gserver['platform'], ['Red Matrix', 'redmatrix', 'red'])) {
 					$version['version'] = 'Red ' . $version['version'];
-				} elseif (in_array($gserver['platform'], ['osada', 'mistpark', 'roadhouse', 'zap', 'macgirvin', 'mkultra'])) {
+				} elseif (in_array($gserver['platform'], ['osada', 'mistpark', 'roadhouse', 'streams', 'zap'])) {
 					$version['version'] = $gserver['platform'] . ' ' . $version['version'];
 				} elseif (in_array($gserver['platform'], ['activityrelay', 'pub-relay', 'selective-relay', 'aoderelay'])) {
 					$version['version'] = $gserver['platform'] . '-' . $version['version'];
@@ -122,12 +127,14 @@ class Federation extends BaseAdmin
 				$platform = 'friendica';
 			} elseif (in_array($platform, ['red matrix', 'redmatrix', 'red'])) {
 				$platform = 'hubzilla';
-			} elseif (in_array($platform, ['osada', 'mistpark', 'roadhouse', 'zap', 'macgirvin', 'mkultra'])) {
-				$platform = 'mistpark';
+			} elseif (in_array($platform, ['osada', 'mistpark', 'roadhouse', 'streams', 'zap'])) {
+				$platform = 'nomad';
 			} elseif(stristr($platform, 'pleroma')) {
 				$platform = 'pleroma';
 			} elseif(stristr($platform, 'statusnet')) {
 				$platform = 'gnusocial';
+			} elseif(stristr($platform, 'nextcloud')) {
+				$platform = 'nextcloud';
 			} elseif(stristr($platform, 'wordpress')) {
 				$platform = 'wordpress';
 			} elseif (in_array($platform, ['activityrelay', 'pub-relay', 'selective-relay', 'aoderelay'])) {
@@ -384,7 +391,7 @@ class Federation extends BaseAdmin
 		//
 		// clean up version numbers
 		//
-		// some platforms do not provide version information, add a unkown there
+		// some platforms do not provide version information, add a unknown there
 		// to the version string for the displayed list.
 		foreach ($versionCounts as $key => $value) {
 			if ($versionCounts[$key]['version'] == '') {

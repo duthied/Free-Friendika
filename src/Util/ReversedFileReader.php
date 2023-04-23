@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -158,7 +158,7 @@ class ReversedFileReader implements \Iterator
 	}
 
 	/**
-	 * Checks if current iterator value is valid, that is, we readed all lines in files
+	 * Checks if current iterator value is valid, that is, we read all lines in files
 	 *
 	 * @see Iterator::valid()
 	 * @return bool

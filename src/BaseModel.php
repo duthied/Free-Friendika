@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -94,7 +94,7 @@ abstract class BaseModel extends BaseDataTransferObject
 	}
 
 	/**
-	 * Magic isset method. Returns true if the field exists, either in the data prperty array or in any of the local properties.
+	 * Magic isset method. Returns true if the field exists, either in the data property array or in any of the local properties.
 	 * Used by array_column() on an array of objects.
 	 *
 	 * @param $name

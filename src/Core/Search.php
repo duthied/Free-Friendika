@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -29,6 +29,7 @@ use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Uri;
 
 /**
  * Specific class to perform searches for different systems. Currently:
@@ -76,10 +77,10 @@ class Search
 				$user_data['name'] ?? '',
 				$user_data['addr'] ?? '',
 				($contactDetails['addr'] ?? '') ?: ($user_data['url'] ?? ''),
-				$user_data['url'] ?? '',
+				new Uri($user_data['url'] ?? ''),
 				$user_data['photo'] ?? '',
 				$user_data['network'] ?? '',
-				$contactDetails['id'] ?? 0,
+				$contactDetails['cid'] ?? 0,
 				$user_data['id'] ?? 0,
 				$user_data['tags'] ?? ''
 			);
@@ -142,11 +143,11 @@ class Search
 				$profile['name'] ?? '',
 				$profile['addr'] ?? '',
 				($contactDetails['addr'] ?? '') ?: $profile_url,
-				$profile_url,
+				new Uri($profile_url),
 				$profile['photo'] ?? '',
 				Protocol::DFRN,
 				$contactDetails['cid'] ?? 0,
-				0,
+				$contactDetails['zid'] ?? 0,
 				$profile['tags'] ?? ''
 			);
 
@@ -171,7 +172,7 @@ class Search
 	{
 		Logger::info('Searching', ['search' => $search, 'type' => $type, 'start' => $start, 'itempage' => $itemPage]);
 
-		$contacts = Contact::searchByName($search, $type == self::TYPE_FORUM ? 'community' : '');
+		$contacts = Contact::searchByName($search, $type == self::TYPE_FORUM ? 'community' : '', true);
 
 		$resultList = new ResultList($start, $itemPage, count($contacts));
 
@@ -179,12 +180,12 @@ class Search
 			$result = new ContactResult(
 				$contact['name'],
 				$contact['addr'],
-				$contact['addr'],
-				$contact['url'],
+				$contact['addr'] ?: $contact['url'],
+				new Uri($contact['url']),
 				$contact['photo'],
 				$contact['network'],
-				$contact['cid'] ?? 0,
-				$contact['zid'] ?? 0,
+				0,
+				$contact['pid'],
 				$contact['keywords']
 			);
 
@@ -226,14 +227,31 @@ class Search
 
 		// check if searching in the local global contact table is enabled
 		if (DI::config()->get('system', 'poco_local_search')) {
-			$return = Contact::searchByName($search, $mode);
+			$return = Contact::searchByName($search, $mode, true);
 		} else {
 			$p = $page > 1 ? 'p=' . $page : '';
 			$curlResult = DI::httpClient()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), HttpClientAccept::JSON);
 			if ($curlResult->isSuccess()) {
 				$searchResult = json_decode($curlResult->getBody(), true);
 				if (!empty($searchResult['profiles'])) {
-					$return = $searchResult['profiles'];
+					// Converting Directory Search results into contact-looking records
+					$return = array_map(function ($result) {
+						static $contactType = [
+							'People'       => Contact::TYPE_PERSON,
+							'Forum'        => Contact::TYPE_COMMUNITY,
+							'Organization' => Contact::TYPE_ORGANISATION,
+							'News'         => Contact::TYPE_NEWS,
+						];
+
+						return [
+							'name'         => $result['name'],
+							'addr'         => $result['addr'],
+							'url'          => $result['profile_url'],
+							'network'      => Protocol::DFRN,
+							'micro'        => $result['photo'],
+							'contact-type' => $contactType[$result['account_type']],
+						];
+					}, $searchResult['profiles']);
 				}
 			}
 		}

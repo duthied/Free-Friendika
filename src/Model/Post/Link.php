@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -58,7 +58,7 @@ class Link
 	 * @param int $uriId
 	 * @param string $url
 	 * @param string $size
-	 * @return string Found link URL + id on success, $url on failture
+	 * @return string Found link URL + id on success, $url on failure
 	 */
 	public static function getByLink(int $uriId, string $url, string $size = ''): string
 	{
@@ -75,7 +75,7 @@ class Link
 		if (!empty($link['id'])) {
 			$id = $link['id'];
 			Logger::info('Found', ['id' => $id, 'uri-id' => $uriId, 'url' => $url]);
-		} else { 
+		} else {
 			$fields = self::fetchMimeType($url);
 			$fields['uri-id'] = $uriId;
 			$fields['url'] = $url;
@@ -125,8 +125,13 @@ class Link
 	{
 		$timeout = DI::config()->get('system', 'xrd_timeout');
 
-		$curlResult = HTTPSignature::fetchRaw($url, 0, [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => $accept]);
-		if (!$curlResult->isSuccess()) {
+		try {
+			$curlResult = HTTPSignature::fetchRaw($url, 0, [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::ACCEPT_CONTENT => $accept]);
+			if (empty($curlResult) || !$curlResult->isSuccess()) {
+				return [];
+			}
+		} catch (\Exception $exception) {
+			Logger::notice('Error fetching url', ['url' => $url, 'exception' => $exception]);
 			return [];
 		}
 		$fields = ['mimetype' => $curlResult->getHeader('Content-Type')[0]];

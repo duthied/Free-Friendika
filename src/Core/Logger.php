@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -36,7 +36,7 @@ class Logger
 	 */
 	const TYPE_LOGGER = LoggerInterface::class;
 	/**
-	 * @var WorkerLogger A specific worker logger type, which can be anabled
+	 * @var WorkerLogger A specific worker logger type, which can be enabled
 	 */
 	const TYPE_WORKER = WorkerLogger::class;
 	/**
@@ -206,7 +206,7 @@ class Logger
 	 * An alternative logger for development.
 	 *
 	 * Works largely as log() but allows developers
-	 * to isolate particular elements they are targetting
+	 * to isolate particular elements they are targeting
 	 * personally without background noise
 	 *
 	 * @param string $message Message to log

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2022, the Friendica project
+ * @copyright Copyright (C) 2010-2023, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -60,7 +60,7 @@ class Trust extends BaseModule
 	/** @var TwoFactor\Repository\TrustedBrowser  */
 	protected $trustedBrowserRepository;
 
-	public function __construct(App $app, Authentication $auth, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IHandleUserSessions $session, Cookie $cookie, TwoFactor\Factory\TrustedBrowser $trustedBrowserFactory, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepositoy, Response $response, array $server, array $parameters = [])
+	public function __construct(App $app, Authentication $auth, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IHandleUserSessions $session, Cookie $cookie, TwoFactor\Factory\TrustedBrowser $trustedBrowserFactory, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepository, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -69,7 +69,7 @@ class Trust extends BaseModule
 		$this->session                  = $session;
 		$this->cookie                   = $cookie;
 		$this->trustedBrowserFactory    = $trustedBrowserFactory;
-		$this->trustedBrowserRepository = $trustedBrowserRepositoy;
+		$this->trustedBrowserRepository = $trustedBrowserRepository;
 	}
 
 	protected function post(array $request = [])
