@@ -1,9 +1,82 @@
-Version 2023.03 (unreleased)
+Version 2023.04 (unreleased)
   Friendica Core
+    Updates to the translations AR, BG, CA, CS, DA, DE, EO, ES, ET, FR, GD, HU, IS, IT, JA, NL, PL, RU, SV
+    Updates to the themes (frio, vier) [damianwajer, haheute, MrPetovan, xundeenergie]
+    Updates to the documentation [haheute, HankG, MarekBenjamin, MrPetovan]
+    General code cleanup [annando, MarekBenjamin, MrPetovan, nupplaphil]
+    Fixed display of blocked contacts [annando]
+    Fixed usage of enviroment variables [nupplaphil]
+    Fixed paging on the Mastodon compatible API endpoints for timelines and statuses [HankG]
+    Fixed updating of attached links via the API [HankG]
+    Fixed federation issues with Diaspora*, gup.pe, Hubzilla and Peertube servers [annando]
+    Fixed a bug with PubSubHubBub subscription [annando]
+    Fixed a XSS vulneralibity in Justified-Gallery Javascript dependency (frio theme) [MrPetovan]
+    Improved the translateability of activities (singular/plural forms) [nupplphil]
+    Improved activity update handling [xundeenergie]
+    Improved BBCode + Markdown parsing [annando]
+    Improved known Fediverse statistics [annando]
+    Improved automatical table optimization [HankG]
+    Improved the performance of local JsonLD requests [MrPetovan]
+    Improved the performance of local requests [annando]
+    Improved the performance of the delivery of posings [annando]
+    Improved the performance of homepage rel-me checks [annando]
+    Improved supported characters for passwords [MrPetovan]
+    Improved the ARIA support [MrPetovan]
+    Improved PHP 8.2 compatibility [MrPetovan]
+    Added emoticon reaction handling [annando]
+    Added drag and drop image upload in frio themes [xundeenergie]
+    Added scope change for comments to the API [annando]
+    Added posting visibility to the API [HankG]
+    Added delivery information to the Mastodon compatible API [HankG]
+    Added notification summary option to the Mastodon compatible API [HankG]
+    Added option to display activities as emoticons [annando]
+    Added trending API updates [HankG]
+    Added blocked/ignored filters to the Mastodon compatible API [HankG]
+    Added ActivityPub C2S postings to the API [annando]
+    Added dislike information for postings to the Mastodon compatible API [HankG, mkljczk]
+    Added the possibility to deletion blocked servers [annando]
+    Removed the GNUsocial import [annando]
 
   Friendica Addons
+    Updates to the translations AR, CS, DE, ES, HU, IS, IT, NL, PL, RU, SV
+    mailstream
+      Various modernization [mexon]
+      Include post media [mexon]
+    securemail
+      Updated the phpseclib dependency [MrPetovan]
+    twitter
+      Improve remote-self handling [annando]
+    impressum
+      Avoide obfuscation on un-set email addresses [MrPestovan]
+    notifyall
+      Fixed a bug selecting the email addresses [nupplaphil]
+    tumblr
+      Fixed a bug addressing the tumblr blog via UUID [annando]
+      Added support for NPF [annando]
+      Improved the tumblr blog URI detection [annando]
+      Improved the handling of multible images [annando]
+    marked as UNSUPPORTED addons
+      blockem, tictactoe, twitter
 
   Closed Issues
+     7037, 10974, 11513, 11535, 11825, 11986, 12489, 12490, 12507, 12515,
+    12522, 12537, 12545, 12550, 12552, 12559, 12582, 12601, 12602, 12603,
+    12607, 12608, 12616, 12617, 12620, 12624, 12625, 12629, 12654, 12658,
+    12661, 12665, 12672, 12677, 12682, 12705, 12713, 12721, 12753, 12764,
+    12779, 12792, 12793, 12803, 12809, 12828, 12835, 12842, 12846, 12847,
+    12858, 12859, 12871, 12888, 12924, 12944, 12970, 12974, 12983, 12993,
+    12995, 13002, 19996
+
+Version 2023.01 (2023-01-15)
+  Friendica Core
+    Improved the global server updating if domains are blocked [MrPetovan]
+    Improved the forum distribution for comments [annando]
+    Improved the handling of forum mentions [annando]
+    Fixed the forum post distribution [annando]
+    Fixed a security bug in the 404 page [nupplaphil]
+
+  Closed Issues
+    12539, 12540, 12655, 12615, 12663
 
 Version 2022.12 (2022-12-20)
   Friendica Core
