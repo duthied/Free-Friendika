@@ -66,8 +66,9 @@ class ACL
 
 		$tpl = Renderer::getMarkupTemplate('acl/message_recipient.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$contacts' => $contacts,
-			'$selected' => $selected,
+			'$contacts'      => $contacts,
+			'$contacts_json' => json_encode($contacts),
+			'$selected'      => $selected,
 		]);
 
 		Hook::callAll(DI::args()->getModuleName() . '_post_recipient', $o);
@@ -327,9 +328,9 @@ class ACL
 			'$emtitle'        => DI::l10n()->t('Example: bob@example.com, mary@example.com'),
 			'$jotnets_summary' => DI::l10n()->t('Connectors'),
 			'$visibility'     => $visibility,
-			'$acl_contacts'   => $acl_contacts,
-			'$acl_groups'     => $acl_groups,
-			'$acl_list'       => $acl_list,
+			'$acl_contacts'   => json_encode($acl_contacts),
+			'$acl_groups'     => json_encode($acl_groups),
+			'$acl_list'       => json_encode($acl_list),
 			'$contact_allow'  => implode(',', $default_permissions['allow_cid']),
 			'$group_allow'    => implode(',', $default_permissions['allow_gid']),
 			'$contact_deny'   => implode(',', $default_permissions['deny_cid']),

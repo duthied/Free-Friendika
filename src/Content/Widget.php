@@ -120,6 +120,10 @@ class Widget
 			$networks[] = Protocol::TWITTER;
 		}
 
+		if (!Addon::isEnabled("tumblr")) {
+			$networks[] = Protocol::TUMBLR;
+		}
+
 		if (DI::config()->get("system", "ostatus_disabled")) {
 			$networks[] = Protocol::OSTATUS;
 		}

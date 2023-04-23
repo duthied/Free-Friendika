@@ -696,7 +696,7 @@ msgstr "Bloquer ce contact ? Iel ne pourra pas s'abonner à votre compte et vous
 msgid ""
 "Ignore this author? You won't be able to see their posts and their "
 "notifications."
-msgstr ""
+msgstr "Ignorer cet auteur ? Vous ne serez plus en mesure de voir ses publications et notifications."
 
 #: src/App/Page.php:320
 msgid "toggle mobile"
@@ -1619,7 +1619,7 @@ msgstr "Ignorer"
 #: src/Content/Item.php:428 src/Module/Contact.php:442
 #: src/Module/Contact/Profile.php:494
 msgid "Collapse"
-msgstr ""
+msgstr "Fusionner"
 
 #: src/Content/Item.php:432 src/Object/Post.php:460
 msgid "Languages"
@@ -1633,7 +1633,7 @@ msgstr "Se connecter/Suivre"
 
 #: src/Content/Item.php:862
 msgid "Unable to fetch user."
-msgstr ""
+msgstr "Impossible de récupérer l'utilisateur."
 
 #: src/Content/Nav.php:120
 msgid "Nothing new here"
@@ -1671,11 +1671,11 @@ msgstr "Se connecter"
 #: src/Content/Nav.php:229 src/Module/BaseProfile.php:57
 #: src/Module/Contact.php:484
 msgid "Conversations"
-msgstr ""
+msgstr "Discussions"
 
 #: src/Content/Nav.php:229
 msgid "Conversations you started"
-msgstr ""
+msgstr "Discussions que vous avez commencées"
 
 #: src/Content/Nav.php:230 src/Module/BaseProfile.php:49
 #: src/Module/BaseSettings.php:100 src/Module/Contact.php:476
@@ -3157,17 +3157,17 @@ msgstr "publication"
 #: src/Model/Item.php:3059
 #, php-format
 msgid "%s is blocked"
-msgstr ""
+msgstr "%s est bloqué(e)"
 
 #: src/Model/Item.php:3061
 #, php-format
 msgid "%s is ignored"
-msgstr ""
+msgstr "%s est ignoré(e)"
 
 #: src/Model/Item.php:3063
 #, php-format
 msgid "Content from %s is collapsed"
-msgstr ""
+msgstr "Le contenu de %s est fusionné"
 
 #: src/Model/Item.php:3067
 #, php-format
@@ -3404,7 +3404,7 @@ msgstr "La taille du mot de passe est limitée à 72 caractères."
 
 #: src/Model/User.php:807
 msgid "The password can't contain white spaces nor accentuated letters"
-msgstr ""
+msgstr "Le mot de passe ne peut pas contenir d'espaces ou de lettres accentuées"
 
 #: src/Model/User.php:1002
 msgid "Passwords do not match. Password unchanged."
@@ -5077,7 +5077,7 @@ msgid ""
 "The system.url entry is missing. This is a low level setting and can lead to"
 " unexpected behavior. Please add a valid entry as soon as possible in the "
 "config file or per console command!"
-msgstr ""
+msgstr "L'entrée system.url est manquante. Il s'agit d'un paramètre bas niveau qui peut conduire à un comportement non attendu. Merci d'ajouter une entrée valide dès que possible dans le fichier de configuration ou via la console de commandes !"
 
 #: src/Module/Admin/Summary.php:107
 msgid "The worker was never executed. Please check your database structure!"
@@ -5260,7 +5260,7 @@ msgstr "Saisissez les règles de votre système ici. Chaque ligne représente un
 #: src/Module/Api/ApiResponse.php:279
 #, php-format
 msgid "API endpoint %s %s is not implemented but might be in the future."
-msgstr ""
+msgstr "Le point de terminaison de l'API %s%s n'est pas implémenté mais pourrait l'être à l'avenir."
 
 #: src/Module/Api/Mastodon/Apps.php:73
 msgid "Missing parameters"
@@ -5445,7 +5445,7 @@ msgstr "Détails du profil"
 
 #: src/Module/BaseProfile.php:60
 msgid "Conversations started"
-msgstr ""
+msgstr "Discussions commencées"
 
 #: src/Module/BaseProfile.php:111
 msgid "Only You Can See This"
@@ -5671,11 +5671,11 @@ msgstr "Ne montrer que les contacts ignorés"
 
 #: src/Module/Contact.php:371 src/Module/Contact.php:419
 msgid "Collapsed"
-msgstr ""
+msgstr "Fusionnés"
 
 #: src/Module/Contact.php:374
 msgid "Only show collapsed contacts"
-msgstr ""
+msgstr "N'afficher que les contacts fusionnés"
 
 #: src/Module/Contact.php:379 src/Module/Contact.php:420
 msgid "Archived"
@@ -5723,7 +5723,7 @@ msgstr "Ne plus ignorer"
 
 #: src/Module/Contact.php:442 src/Module/Contact/Profile.php:494
 msgid "Uncollapse"
-msgstr ""
+msgstr "Dé-fusionner"
 
 #: src/Module/Contact.php:444
 msgid "Batch Actions"
@@ -5739,7 +5739,7 @@ msgstr "Publications et commentaires"
 
 #: src/Module/Contact.php:495
 msgid "Individual Posts and Replies"
-msgstr ""
+msgstr "Publications et réponses individuelles"
 
 #: src/Module/Contact.php:503
 msgid "Posts containing media objects"
@@ -5956,7 +5956,7 @@ msgstr "Ajouter une note personnelle :"
 
 #: src/Module/Contact/Follow.php:191 src/Module/Contact/Unfollow.php:138
 msgid "Posts and Replies"
-msgstr ""
+msgstr "Publications et réponses"
 
 #: src/Module/Contact/Follow.php:220
 msgid "The contact could not be added."
@@ -6000,11 +6000,11 @@ msgstr "Le contact a été ignoré"
 
 #: src/Module/Contact/Profile.php:210
 msgid "Contact has been uncollapsed"
-msgstr ""
+msgstr "Le contact a été dé-fusionné"
 
 #: src/Module/Contact/Profile.php:214
 msgid "Contact has been collapsed"
-msgstr ""
+msgstr "Le contact a été fusionné"
 
 #: src/Module/Contact/Profile.php:243
 #, php-format
@@ -6145,7 +6145,7 @@ msgstr "Actuellement ignoré"
 
 #: src/Module/Contact/Profile.php:364
 msgid "Currently collapsed"
-msgstr ""
+msgstr "Actuellement fusionné"
 
 #: src/Module/Contact/Profile.php:365
 msgid "Currently archived"
@@ -6213,7 +6213,7 @@ msgstr "(dés)activer l'état \"ignoré\""
 
 #: src/Module/Contact/Profile.php:496
 msgid "Toggle Collapsed status"
-msgstr ""
+msgstr "Commuter le statut fusionné"
 
 #: src/Module/Contact/Profile.php:503 src/Module/Contact/Revoke.php:106
 msgid "Revoke Follow"
@@ -6920,13 +6920,13 @@ msgstr "Si le système ne peut pas détecter le chemin de l'installation, entrez
 
 #: src/Module/Install.php:229
 msgid "The Friendica system URL"
-msgstr ""
+msgstr "L'URL du système Friendica"
 
 #: src/Module/Install.php:231
 msgid ""
 "Overwrite this field in case the system URL determination isn't right, "
 "otherwise leave it as is."
-msgstr ""
+msgstr "Modifiez ce champ au cas où l'URL du système n'est pas la bonne, sinon laissez le tel quel."
 
 #: src/Module/Install.php:242
 msgid "Database connection"
@@ -8089,7 +8089,7 @@ msgstr "Veuillez copier le code d'identification suivant dans votre application 
 
 #: src/Module/OAuth/Token.php:82
 msgid "Invalid data or unknown client"
-msgstr ""
+msgstr "Données invalides ou client inconnu"
 
 #: src/Module/OAuth/Token.php:104
 msgid "Unsupported or missing grant type"
@@ -8775,7 +8775,7 @@ msgstr "Votre mot de passe actuel pour confirmer les modifications"
 msgid ""
 "Allowed characters are a-z, A-Z, 0-9 and special characters except white "
 "spaces and accentuated letters."
-msgstr ""
+msgstr "Les caractères autorisés sont a-z, A-Z, 0-9 et les caractères spéciaux à l'exception des espaces et des lettres accentuées."
 
 #: src/Module/Security/PasswordTooLong.php:101
 #: src/Module/Settings/Account.php:553
@@ -9483,14 +9483,14 @@ msgstr "Si vos publications contiennent un lien, le titre de la page associée s
 
 #: src/Module/Settings/Connectors.php:223
 msgid "API: Use spoiler field as title"
-msgstr ""
+msgstr "API : Utiliser le champ spoiler (divulgachis) en tant que titre"
 
 #: src/Module/Settings/Connectors.php:223
 msgid ""
 "When activated, the \"spoiler_text\" field in the API will be used for the "
 "title on standalone posts. When deactivated it will be used for spoiler "
 "text. For comments it will always be used for spoiler text."
-msgstr ""
+msgstr "Quand activé, le champ \"spoiler_text\" dans l'API sera utilisé pour le titre des publications individuelles. Quand désactivé, il sera utilisé pour du texte spoiler (divulgachis). Pour les commentaires, il sera toujours utilisé pour du texte spoiler."
 
 #: src/Module/Settings/Connectors.php:224
 msgid "Your legacy ActivityPub/GNU Social account"
@@ -10374,7 +10374,7 @@ msgstr "Exporter vos abonnements au format CSV. Compatible avec Mastodon."
 
 #: src/Module/Special/DisplayNotFound.php:37
 msgid "Not Found"
-msgstr ""
+msgstr "Non trouvé"
 
 #: src/Module/Special/DisplayNotFound.php:38
 msgid ""
@@ -10386,7 +10386,7 @@ msgid ""
 "\t<li>The node has blocked the top-level author or the author of the shared post.</li>\n"
 "\t<li>You have ignored or blocked the top-level author or the author of the shared post.</li>\n"
 "</ul>"
-msgstr ""
+msgstr "<p>Malheureusement, la discussion demandée ne vous est pas accessible.</p>\n<p>Les raisons possibles sont :</p>\n<ul>\n\t<li>La publication parente n'est pas visible</li>\n\t<li>La publication parente a été supprimée</li>\n\t<li>Le noeud a bloqué l'auteur/autrice d'origine ou l'auteur/autrice de la publication partagée</li>\n\t<li>Vous avez ignoré ou bloqué l'auteur/autrice d'origine ou l'auteur/autrice de la publication partagée</li>\n</ul>"
 
 #: src/Module/Special/HTTPException.php:78
 msgid "Stack trace:"
@@ -11193,7 +11193,7 @@ msgstr "Bloquer %s"
 #: src/Object/Post.php:269
 #, php-format
 msgid "Ignore %s"
-msgstr ""
+msgstr "Ignorer %s"
 
 #: src/Object/Post.php:274
 msgid "Save to folder"
@@ -11364,42 +11364,42 @@ msgstr "Montrer moins"
 #: src/Object/Post.php:623
 #, php-format
 msgid "Reshared by: %s"
-msgstr ""
+msgstr "Repartagé par : %s"
 
 #: src/Object/Post.php:628
 #, php-format
 msgid "Viewed by: %s"
-msgstr ""
+msgstr "Vu par : %s"
 
 #: src/Object/Post.php:633
 #, php-format
 msgid "Liked by: %s"
-msgstr ""
+msgstr "Aimé par : %s"
 
 #: src/Object/Post.php:638
 #, php-format
 msgid "Disliked by: %s"
-msgstr ""
+msgstr "Pas aimé par : %s"
 
 #: src/Object/Post.php:643
 #, php-format
 msgid "Attended by: %s"
-msgstr ""
+msgstr "Y assisteront : %s"
 
 #: src/Object/Post.php:648
 #, php-format
 msgid "Maybe attended by: %s"
-msgstr ""
+msgstr "Y assisteront peut-être : %s"
 
 #: src/Object/Post.php:653
 #, php-format
 msgid "Not attended by: %s"
-msgstr ""
+msgstr "N'y assisteront pas : %s"
 
 #: src/Object/Post.php:658
 #, php-format
 msgid "Reacted with %s by: %s"
-msgstr ""
+msgstr "La réaction %s a été faite par : %s"
 
 #: src/Protocol/Delivery.php:547
 msgid "(no subject)"

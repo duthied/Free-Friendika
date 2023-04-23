@@ -105,7 +105,7 @@ class Xrd extends BaseModule
 
 	private function printSystemJSON(array $owner)
 	{
-		$baseURL = $this->baseUrl;
+		$baseURL = (string)$this->baseUrl;
 		$json = [
 			'subject' => 'acct:' . $owner['addr'],
 			'aliases' => [$owner['url']],
@@ -151,7 +151,7 @@ class Xrd extends BaseModule
 
 	private function printJSON(string $alias, array $owner, array $avatar)
 	{
-		$baseURL = $this->baseUrl;
+		$baseURL = (string)$this->baseUrl;
 
 		$json = [
 			'subject' => 'acct:' . $owner['addr'],
@@ -228,7 +228,7 @@ class Xrd extends BaseModule
 
 	private function printXML(string $alias, array $owner, array $avatar)
 	{
-		$baseURL = $this->baseUrl;
+		$baseURL = (string)$this->baseUrl;
 
 		$xmlString = XML::fromArray([
 			'XRD' => [

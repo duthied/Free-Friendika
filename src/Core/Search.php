@@ -29,6 +29,7 @@ use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Uri;
 
 /**
  * Specific class to perform searches for different systems. Currently:
@@ -76,7 +77,7 @@ class Search
 				$user_data['name'] ?? '',
 				$user_data['addr'] ?? '',
 				($contactDetails['addr'] ?? '') ?: ($user_data['url'] ?? ''),
-				$user_data['url'] ?? '',
+				new Uri($user_data['url'] ?? ''),
 				$user_data['photo'] ?? '',
 				$user_data['network'] ?? '',
 				$contactDetails['cid'] ?? 0,
@@ -142,7 +143,7 @@ class Search
 				$profile['name'] ?? '',
 				$profile['addr'] ?? '',
 				($contactDetails['addr'] ?? '') ?: $profile_url,
-				$profile_url,
+				new Uri($profile_url),
 				$profile['photo'] ?? '',
 				Protocol::DFRN,
 				$contactDetails['cid'] ?? 0,
@@ -180,7 +181,7 @@ class Search
 				$contact['name'],
 				$contact['addr'],
 				$contact['addr'] ?: $contact['url'],
-				$contact['url'],
+				new Uri($contact['url']),
 				$contact['photo'],
 				$contact['network'],
 				0,

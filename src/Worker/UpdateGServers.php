@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Uri;
 
 class UpdateGServers
 {

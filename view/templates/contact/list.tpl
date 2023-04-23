@@ -12,3 +12,7 @@
 <div id="view-contact-end"></div>
 
 {{$paginate nofilter}}
+
+{{if $filtered}}
+	<p>{{$filtered nofilter}}</p>
+{{/if}}

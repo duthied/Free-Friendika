@@ -94,7 +94,7 @@ HELP;
 
 		$this->out(sprintf('Relocation started from %s to %s. Could take a while to complete.', $this->baseUrl, $this->getArgument(0)));
 
-		$old_url = $this->baseUrl;
+		$old_url = (string)$this->baseUrl;
 
 		// Generate host names for relocation the addresses in the format user@address.tld
 		$new_host = str_replace('http://', '@', Strings::normaliseLink($new_url));

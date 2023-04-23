@@ -59,6 +59,11 @@ class UpdateGServer
 			return;
 		}
 
+		// Silently dropping the worker task if the server domain is blocked
+		if (Network::isUrlBlocked($filtered)) {
+			return;
+		}
+
 		if (($filtered != $server_url) && DBA::exists('gserver', ['nurl' => Strings::normaliseLink($server_url)])) {
 			GServer::setFailureByUrl($server_url);
 			return;

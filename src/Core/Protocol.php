@@ -56,6 +56,7 @@ class Protocol
 	const STATUSNET = 'stac';    // Statusnet connector
 	const TWITTER   = 'twit';    // Twitter
 	const DISCOURSE = 'dscs';    // Discourse
+	const TUMBLR    = 'tmbl';    // Tumblr
 
 	// Dead protocols
 	const APPNET    = 'apdn';    // app.net - Dead protocol

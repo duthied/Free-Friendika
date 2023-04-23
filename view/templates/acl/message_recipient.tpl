@@ -9,7 +9,7 @@
 		let $recipient_input = $('[name="recipient"]');
 
 		let acl = new Bloodhound({
-			local: {{$contacts|@json_encode nofilter}},
+			local: {{$contacts_json nofilter}},
 			identify: function(obj) { return obj.id.toString(); },
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace(['name', 'addr']),
 			queryTokenizer: Bloodhound.tokenizers.whitespace,
