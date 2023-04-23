@@ -54,10 +54,12 @@ class Tag
 	 */
 	const EXCLUSIVE_MENTION = 9;
 
-	const TO  = 10;
-	const CC  = 11;
-	const BTO = 12;
-	const BCC = 13;
+	const TO         = 10;
+	const CC         = 11;
+	const BTO        = 12;
+	const BCC        = 13;
+	const AUDIENCE   = 14;
+	const ATTRIBUTED = 15;
 
 	const ACCOUNT             = 1;
 	const GENERAL_COLLECTION  = 2;
@@ -103,7 +105,7 @@ class Tag
 		$cid = 0;
 		$tagid = 0;
 
-		if (in_array($type, [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION, self::TO, self::CC, self::BTO, self::BCC])) {
+		if (in_array($type, [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION, self::TO, self::CC, self::BTO, self::BCC, self::AUDIENCE, self::ATTRIBUTED])) {
 			if (empty($url)) {
 				// No mention without a contact url
 				return;
@@ -130,7 +132,7 @@ class Tag
 		}
 
 		if (empty($cid)) {
-			if (!in_array($type, [self::TO, self::CC, self::BTO, self::BCC])) {
+			if (!in_array($type, [self::TO, self::CC, self::BTO, self::BCC, self::AUDIENCE, self::ATTRIBUTED])) {
 				if (($type != self::HASHTAG) && !empty($url) && ($url != $name)) {
 					$url = strtolower($url);
 				} else {

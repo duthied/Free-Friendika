@@ -208,7 +208,7 @@ class ClientToServer
 
 		$targets = [];
 
-		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc', 'as:audience'] as $element) {
 			switch ($element) {
 				case 'as:to':
 					$type = Receiver::TARGET_TO;
@@ -221,6 +221,9 @@ class ClientToServer
 					break;
 				case 'as:bcc':
 					$type = Receiver::TARGET_BCC;
+					break;
+				case 'as:audience':
+					$type = Receiver::TARGET_AUDIENCE;
 					break;
 			}
 			$receiver_list = JsonLD::fetchElementArray($object, $element, '@id');
