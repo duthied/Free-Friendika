@@ -198,6 +198,23 @@ $a->strings['Apologies but the website is unavailable at the moment.'] = 'Entsch
 $a->strings['Delete this item?'] = 'Diesen Beitrag löschen?';
 $a->strings['Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'] = 'Soll dieser Autor geblockt werden? Sie werden nicht in der Lage sein, dir zu folgen oder deine öffentlichen Beiträge zu sehen. Außerdem wirst du nicht in der Lage sein ihre Beiträge und Benachrichtigungen zu lesen.';
 $a->strings['Ignore this author? You won\'t be able to see their posts and their notifications.'] = 'Diesen Autor ignorieren? Du wirst seine Beiträge und Benachrichtigungen nicht mehr sehen können.';
+$a->strings['Like not successful'] = 'Das "Mag ich" war nicht erfolgreich';
+$a->strings['Dislike not successful'] = 'Das "Mag ich nicht" war nicht erfolgreich';
+$a->strings['Sharing not successful'] = 'Das Teilen war nicht erfolgreich';
+$a->strings['Attendance unsuccessful'] = 'Die Teilnahme war nicht erfolgreich';
+$a->strings['Backend error'] = 'Fehler im Backend';
+$a->strings['Network error'] = 'Netzwerkfehler';
+$a->strings['Drop files here to upload'] = 'Ziehe Dateien hierher, um sie hochzuladen';
+$a->strings['Your browser does not support drag and drop file uploads.'] = 'Ihr Browser unterstützt das Hochladen von Dateien per Drag & Drop nicht.';
+$a->strings['Please use the fallback form below to upload your files like in the olden days.'] = 'Bitte verwenden Sie das untenstehende Formular, um Ihre Dateien wie früher hochzuladen.';
+$a->strings['File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.'] = 'Datei ist zu groß ({{filesize}}MiB). Maximale Dateigröße: {{maxFilesize}}MiB.';
+$a->strings['You can\'t upload files of this type.'] = 'Sie können keine Dateien dieses Typs hochladen.';
+$a->strings['Server responded with {{statusCode}} code.'] = 'Der Server antwortete mit Status-Code {{statusCode}} ';
+$a->strings['Cancel upload'] = 'Hochladen abbrechen';
+$a->strings['Upload canceled.'] = 'Hochladen abgebrochen';
+$a->strings['Are you sure you want to cancel this upload?'] = 'Sind Sie sicher, dass Sie diesen Upload abbrechen möchten?';
+$a->strings['Remove file'] = 'Datei entfernen';
+$a->strings['You can\'t upload any more files.'] = 'Sie können keine weiteren Dateien hochladen.';
 $a->strings['toggle mobile'] = 'mobile Ansicht umschalten';
 $a->strings['Method not allowed for this module. Allowed method(s): %s'] = 'Diese Methode ist in diesem Modul nicht erlaubt. Erlaubte Methoden sind: %s';
 $a->strings['Page not found.'] = 'Seite nicht gefunden.';
@@ -279,26 +296,58 @@ $a->strings['Diaspora Connector'] = 'Diaspora Connector';
 $a->strings['GNU Social Connector'] = 'GNU Social Connector';
 $a->strings['ActivityPub'] = 'ActivityPub';
 $a->strings['pnut'] = 'pnut';
+$a->strings['Tumblr'] = 'Tumblr';
 $a->strings['%s (via %s)'] = '%s (via %s)';
-$a->strings['%s likes this.'] = '%s mag das.';
-$a->strings['%s doesn\'t like this.'] = '%s mag das nicht.';
-$a->strings['%s attends.'] = '%s nimmt teil.';
-$a->strings['%s doesn\'t attend.'] = '%s nimmt nicht teil.';
-$a->strings['%s attends maybe.'] = '%s nimmt eventuell teil.';
-$a->strings['%s reshared this.'] = '%s hat dies geteilt';
 $a->strings['and'] = 'und';
 $a->strings['and %d other people'] = 'und %dandere';
-$a->strings['<button type="button" %1$s>%2$d people</button> like this'] = '<button type="button" %1$s>%2$d Menschen</button> mögen das';
-$a->strings['%s like this.'] = '%s mögen das.';
-$a->strings['<button type="button" %1$s>%2$d people</button> don\'t like this'] = '<button type="button" %1$s>%2$d Menschen</button> mögen das nicht';
-$a->strings['%s don\'t like this.'] = '%s mögen dies nicht.';
-$a->strings['<button type="button" %1$s>%2$d people</button> attend'] = '<button type="button" %1$s>%2$d Menschen</button> besuche';
-$a->strings['%s attend.'] = '%s nehmen teil.';
-$a->strings['<button type="button" %1$s>%2$d people</button> don\'t attend'] = '<button type="button" %1$s>%2$d people</button> besuche nicht';
-$a->strings['%s don\'t attend.'] = '%s nehmen nicht teil.';
-$a->strings['<button type="button" %1$s>%2$d people</button> attend maybe'] = '<button type="button" %1$s>%2$d people</button> besuche vielleicht';
-$a->strings['%s attend maybe.'] = '%s nimmt eventuell teil.';
-$a->strings['<button type="button" %1$s>%2$d people</button> reshared this'] = '<button type="button" %1$s>%2$d people</button> teile';
+$a->strings['%2$s likes this.'] = [
+	0 => '%2$s mag das.',
+	1 => '%2$s mögen das.',
+];
+$a->strings['%2$s doesn\'t like this.'] = [
+	0 => '%2$s mag das nicht.',
+	1 => '%2$s mögen das nicht.',
+];
+$a->strings['%2$s attends.'] = [
+	0 => '%2$s nimmt teil.',
+	1 => '%2$s nehmen teil.',
+];
+$a->strings['%2$s doesn\'t attend.'] = [
+	0 => '%2$s nimmt nicht teil.',
+	1 => '%2$s nehmen nicht teil.',
+];
+$a->strings['%2$s attends maybe.'] = [
+	0 => '%2$s nimmt eventuell teil.',
+	1 => '%2$s nehmen eventuell teil.',
+];
+$a->strings['%2$s reshared this.'] = [
+	0 => '%2$s hat dies geteilt.',
+	1 => '%2$s haben dies geteilt.',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> likes this'] = [
+	0 => '<button type="button" %2$s>%1$d Person</button> mag das',
+	1 => '<button type="button" %2$s>%1$d Menschen</button> mögen das',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> doesn\'t like this'] = [
+	0 => '<button type="button" %2$s>%1$d Person</button> mag das nicht',
+	1 => '<button type="button" %2$s>%1$d Menschen </button> mögen das nicht',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> attends'] = [
+	0 => '<button type="button" %2$s>%1$d Person</button> besucht',
+	1 => '<button type="button" %2$s>%1$d Menschen </button> besuchen',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> doesn\'t attend'] = [
+	0 => '<button type="button" %2$s>%1$d Person</button> besucht nicht',
+	1 => '<button type="button" %2$s>%1$d Menschen </button> besuchen nicht',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> attends maybe'] = [
+	0 => '<button type="button" %2$s>%1$d Person</button> besucht vielleicht',
+	1 => '<button type="button" %2$s>%1$d Menschen</button> besuchen vielleicht',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> reshared this'] = [
+	0 => '<button type="button" %2$s>%1$d Person </button> teilte dies erneut',
+	1 => '<button type="button" %2$s>%1$d Menschen </button> teilten dies erneut',
+];
 $a->strings['Visible to <strong>everybody</strong>'] = 'Für <strong>jedermann</strong> sichtbar';
 $a->strings['Please enter a image/video/audio/webpage URL:'] = 'Bitte gib eine Bild/Video/Audio/Webseiten-URL ein:';
 $a->strings['Tag term:'] = 'Tag:';
@@ -343,6 +392,7 @@ $a->strings['Delete Selected Items'] = 'Lösche die markierten Beiträge';
 $a->strings['You had been addressed (%s).'] = 'Du wurdest angeschrieben (%s).';
 $a->strings['You are following %s.'] = 'Du folgst %s.';
 $a->strings['You subscribed to one or more tags in this post.'] = 'Du folgst einem oder mehreren Hashtags dieses Beitrags.';
+$a->strings['%s reshared this.'] = '%s hat dies geteilt';
 $a->strings['Reshared'] = 'Geteilt';
 $a->strings['Reshared by %s <%s>'] = 'Geteilt von %s <%s>';
 $a->strings['%s is participating in this thread.'] = '%s ist an der Unterhaltung beteiligt.';
@@ -1054,6 +1104,7 @@ $a->strings['PHP log currently disabled.'] = 'PHP Protokollierung ist derzeit ni
 $a->strings['Logs'] = 'Protokolle';
 $a->strings['Clear'] = 'löschen';
 $a->strings['Enable Debugging'] = 'Protokoll führen';
+$a->strings['<strong>Read-only</strong> because it is set by an environment variable'] = '<strong>Schreibgeschützt</strong>, weil es durch eine Umgebungsvariable festgelegt ist';
 $a->strings['Log file'] = 'Protokolldatei';
 $a->strings['Must be writable by web server. Relative to your Friendica top-level directory.'] = 'Webserver muss Schreibrechte besitzen. Abhängig vom Friendica-Installationsverzeichnis.';
 $a->strings['Log level'] = 'Protokoll-Level';
@@ -1158,6 +1209,8 @@ $a->strings['Maximum length in pixels of the longest side of uploaded images. De
 $a->strings['JPEG image quality'] = 'Qualität des JPEG Bildes';
 $a->strings['Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.'] = 'Hochgeladene JPEG-Bilder werden mit dieser Qualität [0-100] gespeichert. Grundeinstellung ist 100, kein Qualitätsverlust.';
 $a->strings['Register policy'] = 'Registrierungsmethode';
+$a->strings['Maximum Users'] = 'Maximale Benutzeranzahl';
+$a->strings['If defined, the register policy is automatically closed when the given number of users is reached and reopens the registry when the number drops below the limit. It only works when the policy is set to open or close, but not when the policy is set to approval.'] = 'Falls definiert, wird die Registrierungsrichtlinie automatisch geschlossen, wenn die angegebene Anzahl von Benutzern erreicht ist, und die Registrierung wieder geöffnet, wenn die Anzahl unter den Grenzwert fällt. Dies funktioniert nur, wenn die Richtlinie auf "Öffnen" oder "Schließen" eingestellt ist, nicht aber, wenn die Richtlinie auf "Genehmigung" eingestellt ist.';
 $a->strings['Maximum Daily Registrations'] = 'Maximum täglicher Registrierungen';
 $a->strings['If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.'] = 'Wenn die Registrierung weiter oben erlaubt ist, regelt dies die maximale Anzahl von Neuanmeldungen pro Tag. Wenn die Registrierung geschlossen ist, hat diese Einstellung keinen Effekt.';
 $a->strings['Register text'] = 'Registrierungstext';
@@ -1296,6 +1349,7 @@ $a->strings['Save & Use storage backend'] = 'Speichern & Dieses Speicher-Backend
 $a->strings['Use storage backend'] = 'Dieses Speicher-Backend verwenden';
 $a->strings['Save & Reload'] = 'Speichern & Neu Laden';
 $a->strings['This backend doesn\'t have custom settings'] = 'Dieses Backend hat keine zusätzlichen Einstellungen';
+$a->strings['Changing the current backend is prohibited because it is set by an environment variable'] = 'Das Ändern des aktuellen Backends ist nicht möglich, da es durch eine Umgebungsvariable festgelegt ist';
 $a->strings['Database (legacy)'] = 'Datenbank (legacy)';
 $a->strings['Template engine (%s) error: %s'] = 'Template engine (%s) Fehler: %s';
 $a->strings['Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'] = 'Deine DB verwendet derzeit noch MyISAM Tabellen. Du solltest die Datenbank Engine auf InnoDB umstellen, da Friendica in Zukunft InnoDB-Features verwenden wird. Eine Anleitung zur Umstellung der Datenbank kannst du  <a href="%s">hier</a>  finden. Du kannst außerdem mit dem Befehl <tt>php bin/console.php dbstructure toinnodb</tt> auf der Kommandozeile die Umstellung automatisch vornehmen lassen.';
@@ -1397,6 +1451,10 @@ $a->strings['Tips for New Members'] = 'Tipps für neue Nutzer';
 $a->strings['People Search - %s'] = 'Personensuche - %s';
 $a->strings['Forum Search - %s'] = 'Forensuche - %s';
 $a->strings['No matches'] = 'Keine Übereinstimmungen';
+$a->strings['%d result was filtered out because your node blocks the domain it is registered on. You can review the list of domains your node is currently blocking in the <a href="/friendica">About page</a>.'] = [
+	0 => '%d Ergebnis wurde herausgefiltert, weil Ihr Knoten die Domäne blockiert, auf der das Ergebnis registriert ist. Sie können die Liste aller Domänen, die Ihr Knoten derzeit blockiert, auf der <a href="/friendica">Info-Seite</a> einsehen.',
+	1 => '%d Ergebnisse wurden herausgefiltert, weil Ihr Knoten die Domäne blockiert, auf der die Ergebnisse registriert sind. Sie können die Liste aller Domänen, die Ihr Knoten derzeit blockiert, auf der<a href="/friendica">Info-Seite</a> einsehen.',
+];
 $a->strings['Account'] = 'Nutzerkonto';
 $a->strings['Two-factor authentication'] = 'Zwei-Faktor Authentifizierung';
 $a->strings['Display'] = 'Anzeige';
@@ -2335,6 +2393,8 @@ $a->strings['Attach the link title'] = 'Link Titel hinzufügen';
 $a->strings['When activated, the title of the attached link will be added as a title on posts to Diaspora. This is mostly helpful with "remote-self" contacts that share feed content.'] = 'Ist dies aktiviert, wird der Titel von angehangenen Links bei Beiträgen nach Diaspora* angefügt. Dies ist vorallem bei Entfernten Konten nützlich die Beiträge von Feeds weiterleiten.';
 $a->strings['API: Use spoiler field as title'] = 'API: Verwende den Spoiler Text als Titel';
 $a->strings['When activated, the "spoiler_text" field in the API will be used for the title on standalone posts. When deactivated it will be used for spoiler text. For comments it will always be used for spoiler text.'] = 'Ist dies aktiviert, wird das "spoiler_text" der API als Titel von neuen Beiträgen verwendet. Ist es deaktiviert wird der Text als Spoiler-Text verwendet. Bei Kommentaren wird der Inhalt immer als Spoiler-Text verwendet.';
+$a->strings['API: Automatically links at the end of the post as attached posts'] = 'API: Automatische Links am Ende des Beitrags als angehängte Beiträge';
+$a->strings['When activated, added links at the end of the post react the same way as added links in the web interface.'] = 'Wenn dies aktiviert ist, reagieren hinzugefügte Links am Ende des Beitrags genauso wie hinzugefügte Links in der Weboberfläche.';
 $a->strings['Your legacy ActivityPub/GNU Social account'] = 'Dein alter ActivityPub/GNU Social-Account';
 $a->strings['If you enter your old account name from an ActivityPub based system or your GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.'] = 'Wenn du deinen alten ActivityPub oder GNU Social/Statusnet-Account-Namen hier angibst (Format name@domain.tld), werden deine Kontakte automatisch hinzugefügt. Dieses Feld wird geleert, wenn die Kontakte hinzugefügt wurden.';
 $a->strings['Repair OStatus subscriptions'] = 'OStatus-Abonnements reparieren';
