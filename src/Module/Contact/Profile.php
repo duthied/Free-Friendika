@@ -463,7 +463,7 @@ class Profile extends BaseModule
 			];
 		}
 
-		if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+		if (Protocol::supportsProbe($contact['network'])) {
 			$contact_actions['updateprofile'] = [
 				'label' => $this->t('Refetch contact data'),
 				'url'   => 'contact/' . $contact['id'] . '/updateprofile?t=' . $formSecurityToken,

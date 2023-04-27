@@ -638,6 +638,14 @@ Hook data:
 - **uid** (input): the user id to revoke the block for.
 - **result** (output): a boolean value indicating wether the operation was successful or not.
 
+### support_probe
+
+Called to assert whether a connector addon provides probing capabilities.
+
+Hook data:
+- **protocol** (input): shorthand for the protocol. List of values is available in `src/Core/Protocol.php`.
+- **result** (output): should be true if the connector provides follow capabilities, left alone otherwise.
+
 ### storage_instance
 
 Called when a custom storage is used (e.g. webdav_storage)
@@ -907,6 +915,7 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('revoke_follow', $hook_data);
     Hook::callAll('block', $hook_data);
     Hook::callAll('unblock', $hook_data);
+    Hook::callAll('support_probe', $hook_data);
 
 ### src/Core/Logger/Factory.php
 
