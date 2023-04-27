@@ -305,4 +305,26 @@ class Protocol
 
 		return $hook_data['result'];
 	}
+
+	/**
+	 * Returns whether the provided protocol supports probing for contacts
+	 *
+	 * @param $protocol
+	 * @return bool
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function supportsProbe($protocol): bool
+	{
+		if (in_array($protocol, self::NATIVE_SUPPORT)) {
+			return true;
+		}
+
+		$hook_data = [
+			'protocol' => $protocol,
+			'result' => null
+		];
+		Hook::callAll('support_probe', $hook_data);
+
+		return $hook_data['result'] === true;
+	}
 }

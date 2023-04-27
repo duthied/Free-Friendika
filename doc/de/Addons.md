@@ -397,6 +397,7 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('revoke_follow', $hook_data);
     Hook::callAll('block', $hook_data);
     Hook::callAll('unblock', $hook_data);
+    Hook::callAll('support_probe', $hook_data);
 
 ### src/Core/Logger/Factory.php
 
