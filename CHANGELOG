@@ -1,3 +1,22 @@
+Version 2023.04-1 (2023-04-27)
+  Friendica Core
+    Updates to the translations AR, CA, CS, DE, ES, FR, GD, HU, IT, JA, NL, PL, RU
+    Fixed a bug that broke the private messages web interface [MrPetovan]
+
+  Friendica Addons
+    tumblr
+      Added follow, unfollow, cross posting [annando]
+      Added the possibility to import the remote timeline [annando]
+      **Breaking** Switch to OAuth2 [annando]
+         Node admins have to change the redirect URL in the settings to the
+         OAuth2 specific one.            social.example.com/tumblr/redirect
+    mailstream
+      Various modernization [mexon]
+      Include post media [mexon]
+
+  Closed Issues
+    13026
+
 Version 2023.04 (2023-04-23)
   Friendica Core
     Updates to the translations AR, BG, CA, CS, DA, DE, EO, ES, ET, FR, GD, HU, IS, IT, JA, NL, PL, RU, SV
@@ -39,9 +58,6 @@ Version 2023.04 (2023-04-23)
 
   Friendica Addons
     Updates to the translations AR, CS, DE, ES, HU, IS, IT, NL, PL, RU, SV
-    mailstream
-      Various modernization [mexon]
-      Include post media [mexon]
     securemail
       Updated the phpseclib dependency [MrPetovan]
     twitter
