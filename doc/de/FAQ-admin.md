@@ -39,7 +39,11 @@ Bitte aktualisiere deine E-Mail Adresse in der <tt>config/local.config.php</tt> 
 
 Ja.
 Du kannst in der <tt>config/local.config.php</tt> Datei mehrere E-Mail Adressen auflisten.
-Die aufgelisteten Adressen werden mit Kommata von einander getrennt.
+Die aufgelisteten Adressen werden wie folgt durch Kommas voneinander getrennt:
+
+```php
+'admin_email' => 'mail1@example.com,mail2@example.com',
+```
 
 <a name="dbupdate">
 ### Die Datenbank Struktur schein nicht aktuell zu sein. Was kann ich tun?

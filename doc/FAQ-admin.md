@@ -36,7 +36,11 @@ Have a look into your <tt>config/local.config.php</tt> and fix your email addres
 Yes.
 You just have to list more then one email address in the
 <tt>config/local.config.php</tt> file.
-The listed emails need to be separated by a comma.
+The listed emails need to be separated by a comma like this:
+
+```php
+'admin_email' => 'mail1@example.com,mail2@example.com',
+```
 
 <a name="dbupdate">
 ### The Database structure seems not to be updated. What can I do?
