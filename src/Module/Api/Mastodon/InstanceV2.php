@@ -35,6 +35,7 @@ use Friendica\Module\Register;
 use Friendica\Object\Api\Mastodon\InstanceV2 as InstanceEntity;
 use Friendica\Util\Images;
 use Friendica\Util\Profiler;
+use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -112,7 +113,7 @@ class InstanceV2 extends BaseApi
 			$this->config->get('config', 'max_import_size')
 		));
 
-		$image_size_limit = $this->config->get('system', 'maximagesize');
+		$image_size_limit = Strings::getBytesFromShorthand($this->config->get('system', 'maximagesize'));
 
 		return new InstanceEntity\Configuration(
 			$statuses_config,
