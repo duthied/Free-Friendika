@@ -61,15 +61,15 @@ class Notify extends BaseEntity
 	protected $photo;
 	/** @var DateTime */
 	protected $date;
-	/** @var string */
+	/** @var string|null */
 	protected $msg;
 	/** @var int */
 	protected $uid;
 	/** @var UriInterface */
 	protected $link;
-	/** @var int */
+	/** @var int|null */
 	protected $itemId;
-	/** @var int */
+	/** @var int|null */
 	protected $parent;
 	/** @var bool */
 	protected $seen;
@@ -79,13 +79,13 @@ class Notify extends BaseEntity
 	protected $otype;
 	/** @var string */
 	protected $name_cache;
-	/** @var string */
+	/** @var string|null */
 	protected $msg_cache;
 	/** @var int|null */
 	protected $uriId;
 	/** @var int|null */
 	protected $parentUriId;
-	/** @var int */
+	/** @var int|null */
 	protected $id;
 
 	public function __construct(int $type, string $name, UriInterface $url, UriInterface $photo, DateTime $date, int $uid, UriInterface $link, bool $seen, string $verb, string $otype, string $name_cache, string $msg = null, string $msg_cache = null, int $itemId = null, int $uriId = null, int $parent = null, ?int $parentUriId = null, ?int $id = null)
