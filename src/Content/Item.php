@@ -96,32 +96,33 @@ class Item
 	}
 
 	/**
-	 * Return array with details for categories and folders for an item
+	 * Lists categories and folders for an item
 	 *
 	 * @param array $item
 	 * @param int   $uid
-	 * @return [array, array]
-	 *
+	 * @return array
 	 * [
-	 *      [ // categories array
-	 *          {
-	 *               'name': 'category name',
-	 *               'removeurl': 'url to remove this category',
-	 *               'first': 'is the first in this array? true/false',
-	 *               'last': 'is the last in this array? true/false',
-	 *           } ,
-	 *           ....
-	 *       ],
-	 *       [ //folders array
-	 *			{
-	 *               'name': 'folder name',
-	 *               'removeurl': 'url to remove this folder',
-	 *               'first': 'is the first in this array? true/false',
-	 *               'last': 'is the last in this array? true/false',
-	 *           } ,
-	 *           ....
-	 *       ]
-	 *  ]
+	 *     [ // categories array
+	 *         {
+	 *             'name': 'category name',
+	 *             'removeurl': 'url to remove this category',
+	 *             'first': 'is the first in this array? true/false',
+	 *             'last': 'is the last in this array? true/false',
+	 *         },
+	 *         ...
+	 *     ],
+	 *     [ //folders array
+	 *         {
+	 *             'name': 'folder name',
+	 *             'removeurl': 'url to remove this folder',
+	 *             'first': 'is the first in this array? true/false',
+	 *             'last': 'is the last in this array? true/false',
+	 *         } ,
+	 *         ...
+	 *     ]
+	 * ]
+	 *
+	 * @throws \Exception
 	 */
 	public function determineCategoriesTerms(array $item, int $uid = 0): array
 	{
@@ -135,9 +136,9 @@ class Item
 			return [$categories, $folders];
 		}
 
-		foreach (Post\Category::getArrayByURIId($item['uri-id'], $uid, Post\Category::CATEGORY) as $savedFolderName) {
+		foreach (Post\Category::getArrayByURIId($item['uri-id'], $uid) as $savedFolderName) {
 			if (!empty($item['author-link'])) {
-				$url = $item['author-link'] . "?category=" . rawurlencode($savedFolderName);
+				$url = $item['author-link'] . '/conversations?category=' . rawurlencode($savedFolderName);
 			} else {
 				$url = '#';
 			}
