@@ -2409,6 +2409,11 @@ class Contact
 		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($url)];
 
 		$condition['network'] = [Protocol::DFRN, Protocol::DIASPORA, Protocol::ACTIVITYPUB];
+
+		if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT) && Protocol::supportsProbe($contact['network'])) {
+			$condition['network'][] = $contact['network'];
+		}
+
 		self::update($fields, $condition);
 
 		// We mustn't set the update fields for OStatus contacts since they are updated in OnePoll
