@@ -557,15 +557,16 @@ class Transmitter
 	/**
 	 * Creates an array of permissions from an item thread
 	 *
-	 * @param array   $item      Item array
-	 * @param boolean $blindcopy addressing via "bcc" or "cc"?
-	 * @param integer $last_id   Last item id for adding receivers
+	 * @param array   $item             Item array
+	 * @param boolean $blindcopy        addressing via "bcc" or "cc"?
+	 * @param boolean $expand_followers Expand the list of followers
+	 * @param integer $last_id          Last item id for adding receivers
 	 *
 	 * @return array with permission data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function createPermissionBlockForItem(array $item, bool $blindcopy, int $last_id = 0): array
+	private static function createPermissionBlockForItem(array $item, bool $blindcopy, bool $expand_followers, int $last_id = 0): array
 	{
 		if ($last_id == 0) {
 			$last_id = $item['id'];
@@ -607,7 +608,7 @@ class Transmitter
 			$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
 		}
 
-		$data = ['to' => [], 'cc' => [], 'bcc' => []];
+		$data = ['to' => [], 'cc' => [], 'bcc' => [] , 'audience' => []];
 
 		if ($item['gravity'] == Item::GRAVITY_PARENT) {
 			$actor_profile = APContact::getByURL($item['owner-link']);
@@ -658,7 +659,8 @@ class Transmitter
 					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
 						$exclusive = true;
 						if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
-							$data['cc'][] = $profile['followers'];
+							$data['cc'][]       = $profile['followers'];
+							$data['audience'][] = $profile['url'];
 						}
 					} elseif (($term['type'] == Tag::MENTION) && ($profile['type'] == 'Group')) {
 						$mention = true;
@@ -666,8 +668,11 @@ class Transmitter
 					$data['to'][] = $profile['url'];
 				}
 			}
+			if (!$exclusive && ($item['private'] == Item::UNLISTED)) {
+				$data['to'][] = $actor_profile['followers'];
+			}
 		} else {
-			$receiver_list = Item::enumeratePermissions($item, true);
+			$receiver_list = Item::enumeratePermissions($item, true, $expand_followers);
 
 			foreach ($terms as $term) {
 				$cid = Contact::getIdForURL($term['url'], $item['uid']);
@@ -682,7 +687,8 @@ class Transmitter
 						if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
 							$exclusive = true;
 							if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
-								$data['cc'][] = $profile['followers'];
+								$data['cc'][]       = $profile['followers'];
+								$data['audience'][] = $profile['url'];
 							}
 						} elseif (($term['type'] == Tag::MENTION) && ($profile['type'] == 'Group')) {
 							$mention = true;
@@ -700,6 +706,11 @@ class Transmitter
 				$data['cc'][] = $follower;
 			} elseif (!$exclusive) {
 				foreach ($receiver_list as $receiver) {
+					if ($receiver == -1) {
+						$data['to'][] = $actor_profile['followers'];
+						continue;
+					}
+
 					$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol', 'gsid'], ['id' => $receiver, 'network' => Protocol::FEDERATED]);
 					if (!DBA::isResult($contact) || !self::isAPContact($contact, $networks)) {
 						continue;
@@ -766,9 +777,10 @@ class Transmitter
 			DBA::close($parents);
 		}
 
-		$data['to'] = array_unique($data['to']);
-		$data['cc'] = array_unique($data['cc']);
-		$data['bcc'] = array_unique($data['bcc']);
+		$data['to']       = array_unique($data['to']);
+		$data['cc']       = array_unique($data['cc']);
+		$data['bcc']      = array_unique($data['bcc']);
+		$data['audience'] = array_unique($data['audience']);
 
 		if (($key = array_search($item['author-link'], $data['to'])) !== false) {
 			unset($data['to'][$key]);
@@ -780,6 +792,10 @@ class Transmitter
 
 		if (($key = array_search($item['author-link'], $data['bcc'])) !== false) {
 			unset($data['bcc'][$key]);
+		}
+
+		if (($key = array_search($item['author-link'], $data['audience'])) !== false) {
+			unset($data['audience'][$key]);
 		}
 
 		foreach ($data['to'] as $to) {
@@ -799,6 +815,13 @@ class Transmitter
 		}
 
 		$receivers = ['to' => array_values($data['to']), 'cc' => array_values($data['cc']), 'bcc' => array_values($data['bcc'])];
+
+		if (!empty($data['audience'])) {
+			$receivers['audience'] = array_values($data['audience']);
+			if (count($receivers['audience']) == 1) {
+				$receivers['audience'] = $receivers['audience'][0];
+			}
+		}
 
 		if (!$blindcopy) {
 			unset($receivers['bcc']);
@@ -935,7 +958,7 @@ class Transmitter
 	 */
 	public static function fetchTargetInboxes(array $item, int $uid, bool $personal = false, int $last_id = 0): array
 	{
-		$permissions = self::createPermissionBlockForItem($item, true, $last_id);
+		$permissions = self::createPermissionBlockForItem($item, true, true, $last_id);
 		if (empty($permissions)) {
 			return [];
 		}
@@ -1067,7 +1090,7 @@ class Transmitter
 		$data['actor'] = $mail['author-link'];
 		$data['published'] = DateTimeFormat::utc($mail['created'] . '+00:00', DateTimeFormat::ATOM);
 		$data['instrument'] = self::getService();
-		$data = array_merge($data, self::createPermissionBlockForItem($mail, true));
+		$data = array_merge($data, self::createPermissionBlockForItem($mail, true, false));
 
 		if (empty($data['to']) && !empty($data['cc'])) {
 			$data['to'] = $data['cc'];
@@ -1292,7 +1315,7 @@ class Transmitter
 
 		$data['instrument'] = self::getService();
 
-		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
+		$data = array_merge($data, self::createPermissionBlockForItem($item, false, false));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = self::createNote($item, $api_mode);
@@ -1640,7 +1663,7 @@ class Transmitter
 			$data['name'] = BBCode::toPlaintext($item['title'], false);
 		}
 
-		$permission_block = self::createPermissionBlockForItem($item, false);
+		$permission_block = self::createPermissionBlockForItem($item, false, false);
 
 		$real_quote = false;
 

@@ -2510,17 +2510,22 @@ class Item
 	/**
 	 * Returns an array of contact-ids that are allowed to see this object
 	 *
-	 * @param array $obj        Item array with at least uid, allow_cid, allow_gid, deny_cid and deny_gid
-	 * @param bool  $check_dead Prunes unavailable contacts from the result
+	 * @param array $obj              Item array with at least uid, allow_cid, allow_gid, deny_cid and deny_gid
+	 * @param bool  $check_dead       Prunes unavailable contacts from the result
+	 * @param bool  $expand_followers Expand the list of followers
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function enumeratePermissions(array $obj, bool $check_dead = false): array
+	public static function enumeratePermissions(array $obj, bool $check_dead = false, bool $expand_followers = true): array
 	{
 		$aclFormatter = DI::aclFormatter();
 
+		if (!$expand_followers && (!empty($obj['deny_cid']) || !empty($obj['deny_gid']))) {
+			$expand_followers = true;
+		}
+
 		$allow_people = $aclFormatter->expand($obj['allow_cid']);
-		$allow_groups = Group::expand($obj['uid'], $aclFormatter->expand($obj['allow_gid']), $check_dead);
+		$allow_groups = Group::expand($obj['uid'], $aclFormatter->expand($obj['allow_gid']), $check_dead, $expand_followers);
 		$deny_people  = $aclFormatter->expand($obj['deny_cid']);
 		$deny_groups  = Group::expand($obj['uid'], $aclFormatter->expand($obj['deny_gid']), $check_dead);
 		$recipients   = array_unique(array_merge($allow_people, $allow_groups));

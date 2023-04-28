@@ -392,21 +392,23 @@ class Group
 	/**
 	 * Returns the combined list of contact ids from a group id list
 	 *
-	 * @param int     $uid User id
-	 * @param array   $group_ids Groups ids
-	 * @param boolean $check_dead Whether check "dead" records (?)
+	 * @param int     $uid              User id
+	 * @param array   $group_ids        Groups ids
+	 * @param boolean $check_dead       Whether check "dead" records (?)
+	 * @param boolean $expand_followers Expand the list of followers
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function expand(int $uid, array $group_ids, bool $check_dead = false): array
+	public static function expand(int $uid, array $group_ids, bool $check_dead = false, bool $expand_followers = true): array
 	{
 		if (!is_array($group_ids) || !count($group_ids)) {
 			return [];
 		}
 
-		$return = [];
-		$pubmail = false;
-		$networks = Protocol::SUPPORT_PRIVATE;
+		$return               = [];
+		$pubmail              = false;
+		$followers_collection = false;
+		$networks             = Protocol::SUPPORT_PRIVATE;
 
 		$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', $uid]);
 		if (DBA::isResult($mailacct)) {
@@ -419,20 +421,23 @@ class Group
 
 		$key = array_search(self::FOLLOWERS, $group_ids);
 		if ($key !== false) {
-			$followers = Contact::selectToArray(['id'], [
-				'uid' => $uid,
-				'rel' => [Contact::FOLLOWER, Contact::FRIEND],
-				'network' => $networks,
-				'contact-type' => [Contact::TYPE_UNKNOWN, Contact::TYPE_PERSON],
-				'archive' => false,
-				'pending' => false,
-				'blocked' => false,
-			]);
+			if ($expand_followers) {
+				$followers = Contact::selectToArray(['id'], [
+					'uid' => $uid,
+					'rel' => [Contact::FOLLOWER, Contact::FRIEND],
+					'network' => $networks,
+					'contact-type' => [Contact::TYPE_UNKNOWN, Contact::TYPE_PERSON],
+					'archive' => false,
+					'pending' => false,
+					'blocked' => false,
+				]);
 
-			foreach ($followers as $follower) {
-				$return[] = $follower['id'];
+				foreach ($followers as $follower) {
+					$return[] = $follower['id'];
+				}
+			} else {
+				$followers_collection = true;
 			}
-
 			unset($group_ids[$key]);
 		}
 
@@ -463,6 +468,10 @@ class Group
 
 		if ($check_dead) {
 			$return = Contact::pruneUnavailable($return);
+		}
+
+		if ($followers_collection) {
+			$return[] = -1;
 		}
 
 		return $return;
