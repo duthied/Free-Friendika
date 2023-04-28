@@ -222,7 +222,7 @@ class FormattedNotify extends BaseFactory
 					$this->baseUrl . '/notify/' . $Notify->id,
 					Contact::getAvatarUrlForUrl($Notify->url, $Notify->uid, Proxy::SIZE_MICRO),
 					$Notify->url,
-					strip_tags(BBCode::toPlaintext($Notify->msg)),
+					strip_tags(BBCode::toPlaintext($Notify->msg ?? '')),
 					DateTimeFormat::local($Notify->date->format(DateTimeFormat::MYSQL), 'r'),
 					Temporal::getRelativeDate($Notify->date->format(DateTimeFormat::MYSQL)),
 					$Notify->seen
