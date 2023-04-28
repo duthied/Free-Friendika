@@ -46,17 +46,6 @@ as the value of $top_child_total (this is done at the end of this file)
 {{/if}}
 {{/if}}
 
-{{* TODO => Unknown block *}}
-<div class="wall-item-decor" style="display:none;">
-	{{if $item.star}}
-	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>
-	{{/if}}
-	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock"></span>
-	{{elseif $item.connector}}<span class="fa fa-lock" title="{{$item.connector}}"></span>{{/if}}
-</div>
-{{* /TODO => Unknown block *}}
-
-
 {{* Use a different div container in dependence max thread-level = 7 *}}
 {{if $item.thread_level<7}}
 <div class="item-{{$item.id}} wall-item-container {{$item.indent}} {{$item.network}} thread_level_{{$item.thread_level}} {{if $item.thread_level==1}}panel-body h-entry{{else}}u-comment h-cite{{/if}}" id="item-{{$item.guid}}"><!-- wall-item-container -->
@@ -187,6 +176,13 @@ as the value of $top_child_total (this is done at the end of this file)
 			<div class="contact-info-xs hidden-lg hidden-md"><!-- <= For smartphone (responsive) -->
 				<h5 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span>{{$item.name}}</span></a>
+                {{if $item.connector}}
+					<small><i class="fa fa-plug" title="{{$item.connector}}" aria-hidden="true"></i></small>
+                {{else}}
+					<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.privacy}}" data-toggle="tooltip">
+						<small><i class="fa {{if $item.private == 1}}fa-lock{{elseif $item.private == 0}}fa-globe{{else}}fa-low-vision{{/if}}" aria-hidden="true"></i></small>
+					</span>
+                {{/if}}
 					<p class="text-muted">
 						<small>
 							<a href="{{$item.plink.orig}}">
