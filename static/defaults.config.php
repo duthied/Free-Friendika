@@ -132,6 +132,10 @@ return [
 		// The value has to start with the scheme and end with a "/"
 		'avatar_cache_url' => '',
 
+		// basicauth (Boolean)
+		// Controls if login via BasicAuth is possible (default is true)
+		'basicauth' => true,
+
 		// big_emojis (Boolean)
 		// Display "Emoji Only" posts in big.
 		'big_emojis' => false,
