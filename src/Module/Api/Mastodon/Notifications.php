@@ -28,7 +28,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Module\BaseApi;
-use Friendica\Navigation\Notifications\Entity;
 use Friendica\Object\Api\Mastodon\Notification;
 use Friendica\Protocol\Activity;
 
@@ -59,7 +58,7 @@ class Notifications extends BaseApi
 			'max_id'        => 0,     // Return results older than this ID
 			'since_id'      => 0,     // Return results newer than this ID
 			'min_id'        => 0,     // Return results immediately newer than this ID
-			'limit'         => 20,    // Maximum number of results to return (default 20)
+			'limit'         => 15,    // Maximum number of results to return. Defaults to 15 notifications. Max 30 notifications.
 			'exclude_types' => [],    // Array of types to exclude (follow, favourite, reblog, mention, poll, follow_request)
 			'account_id'    => 0,     // Return only notifications received from this account
 			'with_muted'    => false, // Pleroma extension: return activities by muted (not by blocked!) users.
@@ -142,7 +141,7 @@ class Notifications extends BaseApi
 				$params,
 				$request['min_id'] ?: $request['since_id'],
 				$request['max_id'],
-				$request['limit']
+				min($request['limit'], 30)
 			);
 
 			foreach ($Notifications as $Notification) {
