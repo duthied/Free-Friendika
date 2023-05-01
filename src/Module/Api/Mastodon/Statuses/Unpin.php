@@ -41,12 +41,12 @@ class Unpin extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectOriginalForUser($uid, ['id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		Post\Collection::remove($this->parameters['id'], Post\Collection::FEATURED, $uid);
+		Post\Collection::remove($item['id'], Post\Collection::FEATURED, $uid);
 
 		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
 	}

@@ -227,6 +227,46 @@ class Post
 	}
 
 	/**
+	 * Retrieve a single record from the post-user-view view and returns it in an associative array
+	 * When the requested record is a reshare activity, the system fetches the reshared original post.
+	 * Otherwise the function reacts similar to selectFirst
+	 *
+	 * @param array $fields
+	 * @param array $condition
+	 * @param array $params
+	 * @param bool  $user_mode true = post-user-view, false = post-view
+	 * @return bool|array
+	 * @throws \Exception
+	 * @see   DBA::select
+	 */
+	public static function selectOriginal(array $fields = [], array $condition = [], array $params = [])
+	{
+		$original_fields = $fields;
+		$remove = [];
+		if (!empty($fields)) {
+			foreach (['gravity', 'verb', 'thr-parent-id', 'uid'] as $field) {
+				if (!in_array($field, $fields)) {
+					$fields[] = $field;
+					$remove[] = $field;
+				}
+			}
+		}
+		$result = self::selectFirst($fields, $condition, $params);
+		if (empty($result)) {
+			return $result;
+		}
+
+		if (($result['gravity'] != Item::GRAVITY_ACTIVITY) || ($result['verb'] != Activity::ANNOUNCE)) {
+			foreach ($remove as $field) {
+				unset($result[$field]);
+			}
+			return $result;
+		}
+
+		return self::selectFirst($original_fields, ['uri-id' => $result['thr-parent-id'], 'uid' => [0, $result['uid']]], $params);
+	}
+
+	/**
 	 * Retrieve a single record from the post-view view and returns it in an associative array
 	 *
 	 * @param array $fields
@@ -503,6 +543,46 @@ class Post
 			DBA::close($result);
 			return $row;
 		}
+	}
+
+	/**
+	 * Retrieve a single record from the post-user-view view for a given user and returns it in an associative array
+	 * When the requested record is a reshare activity, the system fetches the reshared original post.
+	 * Otherwise the function reacts similar to selectFirstForUser
+	 *
+	 * @param integer $uid User ID
+	 * @param array   $selected
+	 * @param array   $condition
+	 * @param array   $params
+	 * @return bool|array
+	 * @throws \Exception
+	 * @see   DBA::select
+	 */
+	public static function selectOriginalForUser(int $uid, array $selected = [], array $condition = [], array $params = [])
+	{
+		$original_selected = $selected;
+		$remove = [];
+		if (!empty($selected)) {
+			foreach (['gravity', 'verb', 'thr-parent-id'] as $field) {
+				if (!in_array($field, $selected)) {
+					$selected[] = $field;
+					$remove[]   = $field;
+				}
+			}
+		}
+		$result = self::selectFirstForUser($uid, $selected, $condition, $params);
+		if (empty($result)) {
+			return $result;
+		}
+
+		if (($result['gravity'] != Item::GRAVITY_ACTIVITY) || ($result['verb'] != Activity::ANNOUNCE)) {
+			foreach ($remove as $field) {
+				unset($result[$field]);
+			}
+			return $result;
+		}
+
+		return self::selectFirstForUser($uid, $original_selected, ['uri-id' => $result['thr-parent-id'], 'uid' => [0, $uid]], $params);
 	}
 
 	/**

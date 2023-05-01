@@ -44,12 +44,11 @@ class RebloggedBy extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $this->parameters['id'];
-		if (!Post::exists(['uri-id' => $id, 'uid' => [0, $uid]])) {
+		if (!$post = Post::selectOriginal(['id'], ['uri-id' => $this->parameters['id'], 'uid' => [0, $uid]])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $id, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::ANNOUNCE]);
+		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $post['id'], 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::ANNOUNCE]);
 
 		$accounts = [];
 

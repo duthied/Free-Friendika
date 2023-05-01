@@ -268,7 +268,7 @@ class Statuses extends BaseApi
 		}
 
 		if ($request['in_reply_to_id']) {
-			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
+			$parent = Post::selectOriginal(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
 			if (empty($parent)) {
 				throw new HTTPException\NotFoundException('Item with URI ID ' . $request['in_reply_to_id'] . ' not found for user ' . $uid . '.');
 			}

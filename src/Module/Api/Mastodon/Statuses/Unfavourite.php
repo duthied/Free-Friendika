@@ -42,7 +42,7 @@ class Unfavourite extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectOriginalForUser($uid, ['id'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}

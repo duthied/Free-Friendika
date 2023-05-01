@@ -43,13 +43,11 @@ class Card extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $this->parameters['id'];
-
-		if (!Post::exists(['uri-id' => $id, 'uid' => [0, $uid]])) {
-			throw new HTTPException\NotFoundException('Item with URI ID ' . $id . ' not found' . ($uid ? ' for user ' . $uid : '.'));
+		if (!$post = Post::selectOriginal(['id'], ['uri-id' => $this->parameters['id'], 'uid' => [0, $uid]])) {
+			throw new HTTPException\NotFoundException('Item with URI ID ' . $this->parameters['id'] . ' not found' . ($uid ? ' for user ' . $uid : '.'));
 		}
 
-		$card = DI::mstdnCard()->createFromUriId($id);
+		$card = DI::mstdnCard()->createFromUriId($post['id']);
 
 		System::jsonExit($card->toArray());
 	}

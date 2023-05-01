@@ -44,7 +44,7 @@ class Unreblog extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id', 'network'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectOriginalForUser($uid, ['id', 'network'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}

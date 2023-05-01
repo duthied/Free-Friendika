@@ -42,7 +42,7 @@ class Mute extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectOriginalForUser($uid, ['id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -51,7 +51,7 @@ class Mute extends BaseApi
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be muted'));
 		}
 
-		Post\ThreadUser::setIgnored($this->parameters['id'], $uid, true);
+		Post\ThreadUser::setIgnored($item['id'], $uid, true);
 
 		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
 	}
