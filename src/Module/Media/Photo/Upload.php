@@ -222,7 +222,7 @@ class Upload extends \Friendica\BaseModule
 		}
 
 		$this->logger->info('upload done');
-		$this->return(200, "\n\n" . '[url=' . $this->baseUrl . '/photos/' . $owner['nickname'] . '/image/' . $resource_id . '][img]' . $this->baseUrl . "/photo/$resource_id-$smallest." . $image->getExt() . "[/img][/url]\n\n");
+		$this->return(200, "\n\n" . '[url=' . $this->baseUrl . '/photos/' . $owner['nickname'] . '/image/' . $resource_id . '][img=' . $this->baseUrl . "/photo/$resource_id-$smallest." . $image->getExt() . "][/img][/url]\n\n");
 	}
 
 	/**
