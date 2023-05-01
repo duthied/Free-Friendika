@@ -57,8 +57,9 @@ class Context extends BaseApi
 		$parents  = [];
 		$children = [];
 
-		$parent = Post::selectFirst(['parent-uri-id'], ['uri-id' => $id]);
+		$parent = Post::selectOriginal(['uri-id', 'parent-uri-id'], ['uri-id' => $id]);
 		if (DBA::isResult($parent)) {
+			$id = $parent['uri-id'];
 			$params    = ['order' => ['uri-id' => true]];
 			$condition = ['parent-uri-id' => $parent['parent-uri-id'], 'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]];
 

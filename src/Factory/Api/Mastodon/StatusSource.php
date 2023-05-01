@@ -38,7 +38,7 @@ class StatusSource extends BaseFactory
 	 */
 	public function createFromUriId(int $uriId, int $uid): \Friendica\Object\Api\Mastodon\StatusSource
 	{
-		$post = Post::selectFirst(['uri-id', 'raw-body', 'body', 'title'], ['uri-id' => $uriId, 'uid' => [0, $uid]]);
+		$post = Post::selectOriginal(['uri-id', 'raw-body', 'body', 'title'], ['uri-id' => $uriId, 'uid' => [0, $uid]]);
 
 		$spoiler_text = $post['title'] ?: BBCode::toPlaintext(BBCode::getAbstract($post['body'], Protocol::ACTIVITYPUB));
 		$body         = BBCode::toMarkdown(Post\Media::removeFromEndOfBody($post['body']));
