@@ -3044,7 +3044,12 @@ class Item
 		} elseif (empty($shared_item['uri-id']) && empty($item['quote-uri-id']) && ($item['network'] != Protocol::DIASPORA)) {
 			$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::ACTIVITY]);
 			if (!empty($media)) {
-				$shared_item = Post::selectFirst($fields, ['plink' => $media[0]['url'], 'uid' => [$item['uid'], 0]]);
+				$shared_item = Post::selectFirst($fields, ['uri-id' => $media[0]['media-uri-id'], 'uid' => [$item['uid'], 0]]);
+				if (empty($shared_item['uri-id'])) {
+					$shared_item = Post::selectFirst($fields, ['plink' => $media[0]['url'], 'uid' => [$item['uid'], 0]]);
+				} elseif (strtolower($shared['post']['uri']) != strtolower($media[0]['url'])) {
+					$shared_links[] = strtolower($media[0]['url']);
+				}
 
 				if (empty($shared_item['uri-id'])) {
 					$shared_item = Post::selectFirst($fields, ['uri' => $media[0]['url'], 'uid' => [$item['uid'], 0]]);

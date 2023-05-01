@@ -323,8 +323,13 @@ class Status extends BaseFactory
 	{
 		if (empty($item['quote-uri-id'])) {
 			$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::ACTIVITY]);
-			if (!empty($media) && $shared_item = Post::selectFirst(['uri-id'], ['plink' => $media[0]['url'], 'uid' => [$uid, 0]])) {
-				$quote_id = $shared_item['uri-id'];
+			if (!empty($media)) {
+				if (!empty($media['media-uri-id'])) {
+					$quote_id = $media['media-uri-id'];
+				} else {
+					$shared_item = Post::selectFirst(['uri-id'], ['plink' => $media[0]['url'], 'uid' => [$uid, 0]]);
+					$quote_id = $shared_item['uri-id'] ?? 0;
+				}
 			}
 		} else {
 			$quote_id = $item['quote-uri-id'];
