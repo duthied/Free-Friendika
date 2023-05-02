@@ -445,7 +445,9 @@ $(document).ready(function () {
 			});
 	});
 
-	if (!navigator.canShare || !navigator.canShare()) {
+	try {
+		navigator.canShare({ url: "#", });
+	} catch(err) {
 		$('.button-browser-share').hide();
 	}
 });
