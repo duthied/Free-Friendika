@@ -3047,7 +3047,7 @@ class Item
 				$shared_item = Post::selectFirst($fields, ['uri-id' => $media[0]['media-uri-id'], 'uid' => [$item['uid'], 0]]);
 				if (empty($shared_item['uri-id'])) {
 					$shared_item = Post::selectFirst($fields, ['plink' => $media[0]['url'], 'uid' => [$item['uid'], 0]]);
-				} elseif (strtolower($shared['post']['uri']) != strtolower($media[0]['url'])) {
+				} elseif (!in_array(strtolower($media[0]['url']), $shared_links)) {
 					$shared_links[] = strtolower($media[0]['url']);
 				}
 
