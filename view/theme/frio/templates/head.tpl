@@ -49,6 +49,8 @@
 	type="text/css" media="screen" />
 <link rel="stylesheet" href="view/theme/frio/font/open_sans/open-sans.css?v={{$smarty.const.FRIENDICA_VERSION}}"
 	type="text/css" media="screen" />
+<link rel="stylesheet" href="view/js/fancybox/jquery.fancybox.min.css?v={{$smarty.const.FRIENDICA_VERSION}}"
+	type="text/css" media="screen" />
 
 {{* own css files *}}
 <link rel="stylesheet" href="view/theme/frio/css/hovercard.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css"
@@ -144,6 +146,8 @@
 	<script type="text/javascript" src="vendor/enyo/dropzone/dist/min/dropzone.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 	<script type="text/javascript" src="view/js/dropzone-factory.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 	<script type="text/javascript"> const dzFactory = new DzFactory({{$max_imagesize}});</script>
+	<script type="text/javascript" src="view/js/fancybox/jquery.fancybox.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+	<script type="text/javascript" src="view/js/fancybox/fancybox.config.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 	{{* Include the strings which are needed for some js functions (e.g. translation)
 They are loaded into the html <head> so that js functions can use them *}}

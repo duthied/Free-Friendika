@@ -479,6 +479,33 @@ class Media
 	}
 
 	/**
+	 * Replace the image link in Friendica image posts with a link to the image
+	 *
+	 * @param string $body
+	 * @return string
+	 */
+	public static function replaceImage(string $body): string
+	{
+		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
+			foreach ($pictures as $picture) {
+				if (self::isLinkToImagePage($picture[1], $picture[2])) {
+					$body = str_replace($picture[0], '[url=' . str_replace('-1.', '-0.', $picture[2]) . '][img=' . $picture[2] . ']' . $picture[3] . '[/img][/url]', $body);
+				}
+			}
+		}
+
+		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
+			foreach ($pictures as $picture) {
+				if (self::isLinkToImagePage($picture[1], $picture[2])) {
+					$body = str_replace($picture[0], '[url=' . str_replace('-1.', '-0.', $picture[2]) . '][img]' . $picture[2] . '[/img][/url]', $body);
+				}
+			}
+		}
+
+		return $body;
+	}
+
+	/**
 	 * Add media links and remove them from the body
 	 *
 	 * @param integer $uriid
