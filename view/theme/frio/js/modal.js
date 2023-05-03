@@ -29,33 +29,6 @@ $(document).ready(function () {
 		}
 	});
 
-	// Add Colorbox for viewing Network page images.
-	//var cBoxClasses = new Array();
-	$("body").on("click", ".wall-item-body a img", function () {
-		var aElem = $(this).parent();
-		var imgHref = aElem.attr("href");
-
-		// We need to make sure we only put a Colorbox on links to Friendica images.
-		// We'll try to do this by looking for links of the form
-		// .../photo/ab803d8eg08daf85023adfec08 (with nothing more following), in hopes
-		// that will be unique enough.
-		if (imgHref.match(/\/photo\/[a-fA-F0-9]+(-[0-9]\.[\w]+?)?$/)) {
-			// Add a unique class to all the images of a certain post, to allow scrolling through
-			var cBoxClass = $(this).closest(".wall-item-body").attr("id") + "-lightbox";
-			$(this).addClass(cBoxClass);
-
-			//			if( $.inArray(cBoxClass, cBoxClasses) < 0 ) {
-			//				cBoxClasses.push(cBoxClass);
-			//			}
-
-			aElem.colorbox({
-				maxHeight: "90%",
-				photo: true, // Colorbox doesn't recognize a URL that don't end in .jpg, etc. as a photo.
-				rel: cBoxClass, //$(this).attr("class").match(/wall-item-body-[\d]+-lightbox/)[0].
-			});
-		}
-	});
-
 	// Navbar login.
 	$("body").on("click", "#nav-login", function (e) {
 		e.preventDefault();

@@ -227,8 +227,6 @@ aside.show {
 #profile-jot-acl-wrapper, #profile-jot-acl-wrapper * { box-sizing: border-box; }
 #acl-wrapper { width: 100%; float: none; }
 /* flexbox for ACL window */
-#cboxLoadedContent,
-#cboxLoadedContent > div,
 #acl-wrapper {
   display: -ms-Flexbox !important;
   -ms-box-orient: vertical;
