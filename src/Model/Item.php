@@ -3143,14 +3143,14 @@ class Item
 		}
 
 		if (!empty($shared_attachments)) {
-			$s = self::AddGallery($s, $shared_attachments, $item['uri-id']);
+			$s = self::addGallery($s, $shared_attachments, $item['uri-id']);
 			$s = self::addVisualAttachments($shared_attachments, $shared_item, $s, true);
 			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, $quote_shared_links);
 			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
 			$body = BBCode::removeSharedData($body);
 		}
 
-		$s = self::AddGallery($s, $attachments, $item['uri-id']);
+		$s = self::addGallery($s, $attachments, $item['uri-id']);
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
 		$s = self::addLinkAttachment($item['uri-id'], $attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
@@ -3208,7 +3208,7 @@ class Item
 	 * @param integer $uri_id
 	 * @return string
 	 */
-	private static function AddGallery(string $s, array $attachments, int $uri_id): string
+	private static function addGallery(string $s, array $attachments, int $uri_id): string
 	{
 		foreach ($attachments['visual'] as $attachment) {
 			if (empty($attachment['preview']) || ($attachment['type'] != Post\Media::IMAGE)) {
