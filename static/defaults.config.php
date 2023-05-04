@@ -341,6 +341,14 @@ return [
 		// Resolve IPV4 addresses only. Don't resolve to IPV6.
 		'ipv4_resolve' => false,
 
+		// ini_max_execution_time (False|Integer)
+		// Set the number of seconds a script is allowed to run. Default unlimited for Friendica, False means disabled
+		'ini_max_execution_time' => 0,
+
+		// ini_pcre_backtrack_limit (False|Integer)
+		// This has to be quite large to deal with embedded private photos. False means disabled
+		'ini_pcre_backtrack_limit' => 500000,
+
 		// invitation_only (Boolean)
 		// If set true registration is only possible after a current member of the node has sent an invitation.
 		'invitation_only' => false,

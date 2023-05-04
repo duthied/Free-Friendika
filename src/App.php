@@ -335,7 +335,14 @@ class App
 	 */
 	protected function load(DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition)
 	{
-		set_time_limit(0);
+		if ($this->config->get('system', 'ini_max_execution_time') !== false) {
+			set_time_limit((int)$this->config->get('system', 'ini_max_execution_time'));
+		}
+
+		// This has to be quite large to deal with embedded private photos
+		if ($this->config->get('system', 'ini_pcre_backtrack_limit') !== false) {
+			ini_set('pcre.backtrack_limit', (int)$this->config->get('system', 'ini_pcre_backtrack_limit'));
+		}
 
 		// Normally this constant is defined - but not if "pcntl" isn't installed
 		if (!defined('SIGTERM')) {
@@ -344,9 +351,6 @@ class App
 
 		// Ensure that all "strtotime" operations do run timezone independent
 		date_default_timezone_set('UTC');
-
-		// This has to be quite large to deal with embedded private photos
-		ini_set('pcre.backtrack_limit', 500000);
 
 		set_include_path(
 			get_include_path() . PATH_SEPARATOR
