@@ -1066,6 +1066,7 @@ class Post
 				'$editalic'    => DI::l10n()->t('Italic'),
 				'$eduline'     => DI::l10n()->t('Underline'),
 				'$edquote'     => DI::l10n()->t('Quote'),
+				'$edemojis'    => DI::l10n()->t('Add emojis'),
 				'$edcode'      => DI::l10n()->t('Code'),
 				'$edimg'       => DI::l10n()->t('Image'),
 				'$edurl'       => DI::l10n()->t('Link'),

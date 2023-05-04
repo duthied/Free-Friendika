@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <title>Document</title>
+</head>
+<body>
+    
+
+<div>
+    <textarea name="" class="two uk-textarea uk-margin"></textarea>
+</div>
+    <div class="uk-container uk-container-small uk-section">
+        <div>
+            <button class="second-btn uk-button uk-button-primary">Start picker</button>
+        </div>
+        
+    </div>
+    
+
+
+    <script src="vanillaEmojiPicker.js"></script>
+    <script>
+
+        new EmojiPicker({
+            trigger: [
+                {
+                    selector: '.second-btn',
+                    insertInto: '.two'
+                }
+            ],
+            closeButton: true,
+            //specialButtons: green
+        });
+
+    </script>
+</body>
+</html>

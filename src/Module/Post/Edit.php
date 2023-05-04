@@ -172,6 +172,7 @@ class Edit extends BaseModule
 			'$editalic' => $this->t('Italic'),
 			'$eduline'  => $this->t('Underline'),
 			'$edquote'  => $this->t('Quote'),
+			'$edemojis' => $this->t('Add emojis'),
 			'$edcode'   => $this->t('Code'),
 			'$edurl'    => $this->t('Link'),
 			'$edattach' => $this->t('Link or Media'),
