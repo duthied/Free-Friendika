@@ -339,7 +339,6 @@ class App
 			set_time_limit((int)$this->config->get('system', 'ini_max_execution_time'));
 		}
 
-		// This has to be quite large to deal with embedded private photos
 		if ($this->config->get('system', 'ini_pcre_backtrack_limit') !== false) {
 			ini_set('pcre.backtrack_limit', (int)$this->config->get('system', 'ini_pcre_backtrack_limit'));
 		}

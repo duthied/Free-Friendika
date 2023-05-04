@@ -342,11 +342,11 @@ return [
 		'ipv4_resolve' => false,
 
 		// ini_max_execution_time (False|Integer)
-		// Set the number of seconds a script is allowed to run. Default unlimited for Friendica, False means disabled
+		// Set the number of seconds a script is allowed to run. Default unlimited for Friendica, false to use the system value.
 		'ini_max_execution_time' => 0,
 
 		// ini_pcre_backtrack_limit (False|Integer)
-		// This has to be quite large to deal with embedded private photos. False means disabled
+		// This has to be quite large to deal with embedded private photos. False to use the system value.
 		'ini_pcre_backtrack_limit' => 500000,
 
 		// invitation_only (Boolean)
