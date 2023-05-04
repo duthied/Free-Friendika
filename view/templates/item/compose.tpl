@@ -44,6 +44,9 @@
 					<button type="button" class="btn btn-sm template-icon quote" aria-label="{{$l10n.edquote}}" title="{{$l10n.edquote}}" onclick="insertFormatting('quote',{{$id}});" tabindex="13">
 						<i class="fa fa-quote-left"></i>
 					</button>
+					<button id="button_emojipicker" type="button" class="btn btn-sm template-icon emojis" aria-label="{{$l10n.edemojis}}" title="{{$l10n.edemojis}}" tabindex="14">
+						<i class="fa fa-smile-o"></i>
+					</button>
 				</span>
 			</p>
 			<div id="dropzone-{{$id}}" class="dropzone" style="overflow:scroll">
@@ -97,4 +100,17 @@
 </div>
 <script>
 	dzFactory.setupDropzone('#dropzone-{{$id}}', 'comment-edit-text-{{$id}}'); 
+</script>
+<script>
+window.onload = function(){
+	new EmojiPicker({
+		trigger: [
+			{
+				selector: '.emojis',
+				insertInto: '.comment-edit-text'
+			}
+		],
+		closeButton: true,
+	});
+};
 </script>
