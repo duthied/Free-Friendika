@@ -3021,6 +3021,7 @@ class Item
 		if (!$is_preview) {
 			$item['body'] = preg_replace("#\s*\[attachment .*?].*?\[/attachment]\s*#ism", "\n", $item['body']);
 			$item['body'] = Post\Media::removeFromEndOfBody($item['body'] ?? '');
+			$item['body'] = Post\Media::replaceImage($item['body']);
 		}
 
 		$body = $item['body'];
@@ -3038,6 +3039,7 @@ class Item
 		if (!empty($shared['post'])) {
 			$shared_item  = $shared['post'];
 			$shared_item['body'] = Post\Media::removeFromEndOfBody($shared_item['body']);
+			$shared_item['body'] = Post\Media::replaceImage($shared_item['body']);
 			$quote_uri_id = $shared['post']['uri-id'];
 			$shared_links[] = strtolower($shared['post']['uri']);
 			$item['body'] = BBCode::removeSharedData($item['body']);
@@ -3141,12 +3143,14 @@ class Item
 		}
 
 		if (!empty($shared_attachments)) {
+			$s = self::addGallery($s, $shared_attachments, $item['uri-id']);
 			$s = self::addVisualAttachments($shared_attachments, $shared_item, $s, true);
 			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, $quote_shared_links);
 			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
 			$body = BBCode::removeSharedData($body);
 		}
 
+		$s = self::addGallery($s, $attachments, $item['uri-id']);
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
 		$s = self::addLinkAttachment($item['uri-id'], $attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
@@ -3196,6 +3200,24 @@ class Item
 		]);
 	}
 
+	/**
+	 * Modify links to pictures to links for the "Fancybox" gallery
+	 *
+	 * @param string $s
+	 * @param array $attachments
+	 * @param integer $uri_id
+	 * @return string
+	 */
+	private static function addGallery(string $s, array $attachments, int $uri_id): string
+	{
+		foreach ($attachments['visual'] as $attachment) {
+			if (empty($attachment['preview']) || ($attachment['type'] != Post\Media::IMAGE)) {
+				continue;
+			}
+			$s = str_replace('<a href="' . $attachment['url'] . '"', '<a data-fancybox="' . $uri_id . '" href="' . $attachment['url'] . '"', $s);
+		}
+		return $s;
+	}
 
 	/**
 	 * Check if the body contains a link
@@ -3259,12 +3281,18 @@ class Item
 
 		foreach ($attachments['visual'] as $attachment) {
 			if (!empty($attachment['preview'])) {
+				if (Network::isLocalLink($attachment['preview'])) {
+					continue;
+				}
 				$proxy   = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE);
 				$search  = ['[img=' . $attachment['preview'] . ']', ']' . $attachment['preview'] . '[/img]'];
 				$replace = ['[img=' . $proxy . ']', ']' . $proxy . '[/img]'];
 
 				$body = str_replace($search, $replace, $body);
 			} elseif ($attachment['filetype'] == 'image') {
+				if (Network::isLocalLink($attachment['url'])) {
+					continue;
+				}
 				$proxy   = Post\Media::getUrlForId($attachment['id']);
 				$search  = ['[img=' . $attachment['url'] . ']', ']' . $attachment['url'] . '[/img]'];
 				$replace = ['[img=' . $proxy . ']', ']' . $proxy . '[/img]'];
@@ -3344,7 +3372,7 @@ class Item
 				if (self::containsLink($item['body'], $src_url)) {
 					continue;
 				}
-				$images[] = ['src' => $src_url, 'preview' => $preview_url, 'attachment' => $attachment];
+				$images[] = ['src' => $src_url, 'preview' => $preview_url, 'attachment' => $attachment, 'uri_id' => $item['uri-id']];
 			}
 		}
 

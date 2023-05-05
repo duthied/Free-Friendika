@@ -51,7 +51,7 @@ body, section, blockquote, blockquote.shared_content, #profile-jot-form,
 }
 
 #profile-jot-acl-wrapper, #event-notice, #event-wrapper,
-#cboxLoadedContent, .contact-photo-menu, #contact-edit-status-wrapper {
+.contact-photo-menu, #contact-edit-status-wrapper {
 	background-color: #252C33 !important;
 }
 
