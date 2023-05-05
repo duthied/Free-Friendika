@@ -26,10 +26,10 @@ var DzFactory = function (max_imagesize) {
 					const targetTextarea = document.getElementById(textareaElementId);
 					if (targetTextarea.setRangeText) {
 						//if setRangeText function is supported by current browser
-						targetTextarea.setRangeText(' ' + $.trim(serverResponse) + ' ');
+						targetTextarea.setRangeText(' ' + serverResponse + ' ');
 					} else {
 						targetTextarea.focus();
-						document.execCommand('insertText', false /*no UI*/, '\n' + $.trim(serverResponse) + '\n');
+						document.execCommand('insertText', false /*no UI*/, '\n' + serverResponse + '\n');
 					}
 				});
 				this.on('complete', function(file) {
