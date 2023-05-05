@@ -69,10 +69,10 @@ class Magic extends BaseModule
 
 		$this->logger->debug('args', ['request' => $_REQUEST]);
 
-		$addr = $_REQUEST['addr'] ?? '';
-		$dest = $_REQUEST['dest'] ?? '';
-		$bdest = $_REQUEST['bdest'] ?? '';
-		$owa  = (!empty($_REQUEST['owa'])  ? intval($_REQUEST['owa'])  : 0);
+		$addr  = $request['addr'] ?? '';
+		$dest  = $request['dest'] ?? '';
+		$bdest = $request['bdest'] ?? '';
+		$owa   = intval($request['owa'] ?? 0);
 		$cid  = 0;
 
                 // bdest is preferred as it is hex-encoded and can survive url rewrite and argument parsing
