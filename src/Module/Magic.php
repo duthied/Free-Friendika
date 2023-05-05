@@ -71,41 +71,76 @@ class Magic extends BaseModule
 
 		$addr = $_REQUEST['addr'] ?? '';
 		$dest = $_REQUEST['dest'] ?? '';
+		$bdest = $_REQUEST['bdest'] ?? '';
 		$owa  = (!empty($_REQUEST['owa'])  ? intval($_REQUEST['owa'])  : 0);
 		$cid  = 0;
 
+                // bdest is preferred as it is hex-encoded and can survive url rewrite and argument parsing
+		if (!empty($bdest)) {
+			$dest = hex2bin($bdest);
+			$this->logger->info('bdest detected. ', ['dest' => $dest]);
+		}
 		if (!empty($addr)) {
 			$cid = Contact::getIdForURL($addr);
 		} elseif (!empty($dest)) {
 			$cid = Contact::getIdForURL($dest);
 		}
-
+		$this->logger->info('Contact ID: ', ['cid' => $cid]);
+		
+		$contact = false;
 		if (!$cid) {
 			$this->logger->info('No contact record found', $_REQUEST);
-			// @TODO Finding a more elegant possibility to redirect to either internal or external URL
-			$this->app->redirect($dest);
-		}
-		$contact = $this->dba->selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
 
-		// Redirect if the contact is already authenticated on this site.
-		if ($this->app->getContactId() && strpos($contact['nurl'], Strings::normaliseLink($this->baseUrl)) !== false) {
-			$this->logger->info('Contact is already authenticated');
-			System::externalRedirect($dest);
+			if (!$owa) {
+				// @TODO Finding a more elegant possibility to redirect to either internal or external URL
+				$this->app->redirect($dest);
+			}
+		} else {
+			$contact = $this->dba->selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
+
+			// Redirect if the contact is already authenticated on this site.
+			if ($this->app->getContactId() && strpos($contact['nurl'], Strings::normaliseLink($this->baseUrl)) !== false) {
+				$this->logger->info('Contact is already authenticated');
+				System::externalRedirect($dest);
+			}
+
+			$this->logger->info('Contact URL: ', ['url' => $contact['url']]);
 		}
 
 		// OpenWebAuth
 		if ($this->userSession->getLocalUserId() && $owa) {
+			$this->logger->info('Checking OWA now');
 			$user = User::getById($this->userSession->getLocalUserId());
 
-			// Extract the basepath
-			// NOTE: we need another solution because this does only work
-			// for friendica contacts :-/ . We should have the basepath
-			// of a contact also in the contact table.
-			$exp = explode('/profile/', $contact['url']);
-			$basepath = $exp[0];
+			$basepath = false;
+			if (!empty($contact)) {
+				$this->logger->info('Contact found - trying friendica style basepath extraction');
+				// Extract the basepath
+				// NOTE: we need another solution because this does only work
+				// for friendica contacts :-/ . We should have the basepath
+				// of a contact also in the contact table.
+				$contact_url = $contact['url'];
+				if (!(strpos($contact_url, '/profile/') === false)) {
+					$exp = explode('/profile/', $contact['url']);
+					$basepath = $exp[0];
+					$this->logger->info('Basepath: ', ['basepath' => $basepath]);
+				} else {
+					$this->logger->info('Not possible to extract basepath in friendica style');
+				}
+			}
+			if (!$basepath) {
+				// For the rest of the OpenWebAuth-enabled Fediverse
+				$parsed = parse_url($dest);
+				$this->logger->info('Parsed URL: ', ['parsed URL' => $parsed]);
+				if (!$parsed) {
+					System::externalRedirect($dest);
+				}
+				$basepath = $parsed['scheme'] . '://' . $parsed['host'] . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
+			}
 
+			$accept_headers = ['application/x-dfrn+json', 'application/x-zot+json'];
 			$header = [
-				'Accept'		  => ['application/x-dfrn+json', 'application/x-zot+json'],
+				'Accept'		  => $accept_headers, // ['application/x-dfrn+json', 'application/x-zot+json'],
 				'X-Open-Web-Auth' => [Strings::getRandomHex()],
 			];
 
@@ -116,11 +151,14 @@ class Magic extends BaseModule
 				'acct:' . $user['nickname'] . '@' . $this->baseUrl->getHost() . ($this->baseUrl->getPath() ? '/' . $this->baseUrl->getPath() : '')
 			);
 
+			$this->logger->info('Headers: ', ['headers' => $header]);
+
 			// Try to get an authentication token from the other instance.
-			$curlResult = $this->httpClient->get($basepath . '/owa', HttpClientAccept::DEFAULT, [HttpClientOptions::HEADERS => $header]);
+			$curlResult = $this->httpClient->get($basepath . '/owa', HttpClientAccept::DEFAULT, [HttpClientOptions::HEADERS => $header, HttpClientOptions::ACCEPT_CONTENT => $accept_headers]);
 
 			if ($curlResult->isSuccess()) {
 				$j = json_decode($curlResult->getBody(), true);
+				$this->logger->info('Curl result body: ', ['body' => $j]);
 
 				if ($j['success']) {
 					$token = '';
