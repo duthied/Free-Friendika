@@ -140,7 +140,7 @@ class Magic extends BaseModule
 
 			$accept_headers = ['application/x-dfrn+json', 'application/x-zot+json'];
 			$header = [
-				'Accept'		  => $accept_headers, // ['application/x-dfrn+json', 'application/x-zot+json'],
+				'Accept'         => $accept_headers,
 				'X-Open-Web-Auth' => [Strings::getRandomHex()],
 			];
 
