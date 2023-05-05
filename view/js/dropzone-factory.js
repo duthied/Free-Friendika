@@ -29,7 +29,7 @@ var DzFactory = function (max_imagesize) {
 						targetTextarea.setRangeText(' ' + serverResponse + ' ');
 					} else {
 						targetTextarea.focus();
-						document.execCommand('insertText', false /*no UI*/, '\n' + serverResponse + '\n');
+						document.execCommand('insertText', false /*no UI*/, serverResponse);
 					}
 				});
 				this.on('complete', function(file) {
