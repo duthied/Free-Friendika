@@ -41,6 +41,8 @@ class Conversation
 	const PARCEL_RDF                = 12;
 	const PARCEL_RSS                = 13;
 	const PARCEL_ATOM               = 14;
+	const PARCEL_ATOM03             = 15;
+	const PARCEL_OPML               = 16;
 	const PARCEL_TWITTER            = 67;
 	const PARCEL_UNKNOWN            = 255;
 
