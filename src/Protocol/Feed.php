@@ -92,7 +92,12 @@ class Feed
 		$doc = new DOMDocument();
 		@$doc->loadXML($xml);
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
+
+		if (strpos($xml, ActivityNamespace::ATOM03) && !strpos($xml, ActivityNamespace::ATOM1)) {
+			$xpath->registerNamespace('atom', ActivityNamespace::ATOM03);
+		} else {
+			$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
+		}
 		$xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
 		$xpath->registerNamespace('content', 'http://purl.org/rss/1.0/modules/content/');
 		$xpath->registerNamespace('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
