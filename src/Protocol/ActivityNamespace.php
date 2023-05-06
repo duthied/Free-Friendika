@@ -146,6 +146,12 @@ final class ActivityNamespace
 	const ATOM1           = 'http://www.w3.org/2005/Atom';
 
 	/**
+	 * This namespace is used for the (deprecated) Atom 0.3 specification
+	 * @var string
+	 */
+	const ATOM03           = 'http://purl.org/atom/ns#';
+	
+	/**
 	 * @var string
 	 */
 	const MASTODON        = 'http://mastodon.social/schema/1.0';
