@@ -2079,6 +2079,11 @@ profile-jot-form #jot-title, #profile-jot-form #jot-category {
 	margin-left: 15px;
 	cursor: pointer;
 }
+#profile-emojis-wrapper {
+	float: left;
+	margin-left: 15px;
+	cursor: pointer;
+}
 #jot-perms-icon {
 	float: right;
 	margin-left: 15px;
