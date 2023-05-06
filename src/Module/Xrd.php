@@ -65,13 +65,19 @@ class Xrd extends BaseModule
 
 		if (substr($uri, 0, 4) === 'http') {
 			$name = ltrim(basename($uri), '~');
+			$host = parse_url($uri, PHP_URL_HOST);
 		} else {
 			$local = str_replace('acct:', '', $uri);
 			if (substr($local, 0, 2) == '//') {
 				$local = substr($local, 2);
 			}
 
-			$name = substr($local, 0, strpos($local, '@'));
+			list($name, $host) = explode('@', $local);
+		}
+
+		if (!empty($host) && $host !== DI::baseUrl()->getHost()) {
+			DI::logger()->notice('Invalid host name for xrd query',['host' => $host, 'uri' => $uri]);
+			throw new NotFoundException('Invalid host name for xrd query: ' . $host);
 		}
 
 		if ($name == User::getActorName()) {
