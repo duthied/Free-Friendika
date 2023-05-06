@@ -101,16 +101,3 @@
 <script>
 	dzFactory.setupDropzone('#dropzone-{{$id}}', 'comment-edit-text-{{$id}}'); 
 </script>
-<script>
-window.onload = function(){
-	new EmojiPicker({
-		trigger: [
-			{
-				selector: '.emojis',
-				insertInto: '.comment-edit-text'
-			}
-		],
-		closeButton: true,
-	});
-};
-</script>

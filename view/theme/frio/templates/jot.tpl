@@ -183,16 +183,3 @@ can load different content into the jot modal (e.g. the item edit jot)
 <script>
 	dzFactory.setupDropzone('#jot-text-wrap', 'profile-jot-text'); 
 </script>
-<script>
-window.onload = function(){
-	new EmojiPicker({
-		trigger: [
-			{
-				selector: '.emojis',
-				insertInto: '.profile-jot-text'
-			}
-		],
-		closeButton: true,
-	});
-};
-</script>

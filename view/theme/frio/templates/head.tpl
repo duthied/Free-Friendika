@@ -151,7 +151,20 @@
 	<script type="text/javascript" src="view/js/fancybox/jquery.fancybox.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 	<script type="text/javascript" src="view/js/fancybox/fancybox.config.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 	<script type="text/javascript" src="view/js/vanillaEmojiPicker/vanillaEmojiPicker.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
-
+	<script>
+	window.onload = function(){
+		new EmojiPicker({
+			trigger: [
+				{
+					selector: '.emojis',
+					insertInto: ['#comment-edit-text-0', '.profile-jot-text-full', '.comment-edit-text-full']
+				}
+			],
+			closeButton: true
+		});
+	};
+	</script>
+	
 	{{* Include the strings which are needed for some js functions (e.g. translation)
 They are loaded into the html <head> so that js functions can use them *}}
 	{{include file="js_strings.tpl"}}
