@@ -52,7 +52,7 @@
 		<a id="profile-nolocation" class="icon noglobe" title="{{$noloc}}" onclick="jotClearLocation();return false;"></a>
 	</div>
 	<div id="profile-emojis-wrapper" style="display: {{$visitor}};">
-		<a id="profile-emojis" class="icon icon-smile emojis" title="{{$edemojis}}"></a>
+		<a id="profile-emojis" class="icon icon-smile emojis-post" title="{{$edemojis}}"></a>
 	</div>
 	<div id="post-length">
 		<span id="character-counter" class="grey"></span>

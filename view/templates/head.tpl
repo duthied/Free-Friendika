@@ -52,8 +52,12 @@ window.onload = function(){
 	new EmojiPicker({
 		trigger: [
 			{
+				selector: '.emojis-post',
+				insertInto: ['#comment-edit-text-0', '#profile-jot-text']
+			},
+			{
 				selector: '.emojis',
-				insertInto: ['#comment-edit-text-0', '#profile-jot-text', '.comment-edit-text-full']
+				insertInto: ['.comment-edit-text-full']
 			}
 		],
 		closeButton: true
