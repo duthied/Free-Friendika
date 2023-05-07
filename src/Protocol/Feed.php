@@ -103,7 +103,7 @@ class Feed
 		$xpath->registerNamespace('poco', ActivityNamespace::POCO);
 
 		$author = [];
-		$atomns = '';
+		$atomns = 'atom';
 		$entries = null;
 		$protocol = Conversation::PARCEL_UNKNOWN;
 
@@ -128,13 +128,12 @@ class Feed
 		// Is it Atom?
 		if ($xpath->query('/atom:feed')->length > 0) {
 			$protocol = Conversation::PARCEL_ATOM;
-			$atomns = 'atom';
 		} elseif ($xpath->query('/atom03:feed')->length > 0) {
 			$protocol = Conversation::PARCEL_ATOM03;
 			$atomns = 'atom03';
 		}
 
-		if (!empty($atomns)) {
+		if (in_array($protocol, [Conversation::PARCEL_ATOM, Conversation::PARCEL_ATOM03])) {
 			$alternate = XML::getFirstAttributes($xpath, $atomns . ":link[@rel='alternate']");
 			if (is_object($alternate)) {
 				foreach ($alternate as $attribute) {
@@ -336,7 +335,7 @@ class Feed
 						case 'text':
 							$body = $attribute->nodeValue;
 							break;
-	
+
 						case 'htmlUrl':
 							$plink = $attribute->nodeValue;
 							break;
@@ -344,7 +343,7 @@ class Feed
 						case 'xmlUrl':
 							$uri = $attribute->nodeValue;
 							break;
-	
+
 						case 'type':
 							$isrss = $attribute->nodeValue == 'rss';
 							break;
@@ -507,7 +506,7 @@ class Feed
 							$attachment['type'] = Post\Media::DOCUMENT;
 						}
 						$attachments[] = $attachment;
-					}				
+					}
 				}
 			}
 

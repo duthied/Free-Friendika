@@ -31,23 +31,25 @@ use Friendica\Util\Strings;
  */
 class Hashtag extends BaseModule
 {
-	protected function content(array $request = []): string
+	protected function rawContent(array $request = [])
 	{
 		$result = [];
 
-		$t = Strings::escapeHtml($_REQUEST['t']);
-		if (empty($t)) {
+		if (empty($request['t'])) {
 			System::jsonExit($result);
 		}
 
-		$taglist = DBA::select('tag', ['name'], ["`name` LIKE ?", $t . "%"], ['order' => ['name'], 'limit' => 100]);
+		$taglist = DBA::select(
+			'tag',
+			['name'],
+			["`name` LIKE ?", Strings::escapeHtml($request['t']) . "%"],
+			['order' => ['name'], 'limit' => 100]
+		);
 		while ($tag = DBA::fetch($taglist)) {
 			$result[] = ['text' => $tag['name']];
 		}
 		DBA::close($taglist);
 
 		System::jsonExit($result);
-
-		return '';
 	}
 }
