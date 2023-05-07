@@ -309,6 +309,7 @@ class Feed
 			$entry = $entries->item($i);
 
 			$item = array_merge($header, $author);
+			$body = '';
 
 			$alternate = XML::getFirstAttributes($xpath, $atomns . ":link[@rel='alternate']", $entry);
 			if (!is_object($alternate)) {
