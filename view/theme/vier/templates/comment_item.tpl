@@ -1,4 +1,3 @@
-
 		{{if $threaded}}
 		<div class="comment-wwedit-wrapper threaded" id="comment-edit-wrapper-{{$id}}" style="display: block;">
 		{{else}}
@@ -29,23 +28,22 @@
 				<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-{{$id}}" style="display: none;">
 
 				<div class="comment-edit-bb">
-	                                <a title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}"><i class="icon-picture"></i></a>
-	                                <a title="{{$edurl}}" data-role="insert-formatting" data-bbcode="url" data-id="{{$id}}"><i class="icon-link"></i></a>
-	                                <a title="{{$edvideo}}" data-role="insert-formatting" data-bbcode="video" data-id="{{$id}}"><i class="icon-film"></i></a>
+					<a title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}"><i class="icon-picture"></i></a>
+					<a title="{{$edurl}}" data-role="insert-formatting" data-bbcode="url" data-id="{{$id}}"><i class="icon-link"></i></a>
+					<a title="{{$edvideo}}" data-role="insert-formatting" data-bbcode="video" data-id="{{$id}}"><i class="icon-film"></i></a>
 
-	                                <a title="{{$eduline}}" data-role="insert-formatting" data-bbcode="u" data-id="{{$id}}"><i class="icon-underline"></i></a>
-	                                <a title="{{$editalic}}" data-role="insert-formatting" data-bbcode="i" data-id="{{$id}}"><i class="icon-italic"></i></a>
-	                                <a title="{{$edbold}}" data-role="insert-formatting" data-bbcode="b" data-id="{{$id}}"><i class="icon-bold"></i></a>
-	                                <a title="{{$edquote}}" data-role="insert-formatting" data-bbcode="quote" data-id="{{$id}}"><i class="icon-quote-left"></i></a>
-
-                                </div>
-					<input type="submit" onclick="post_comment({{$id}}); return false;" id="comment-edit-submit-{{$id}}" class="comment-edit-submit" name="submit" value="{{$submit}}" />
-					{{if $preview}}<input type="submit" onclick="preview_comment({{$id}}); return false;" id="comment-edit-preview-link-{{$id}}" class="comment-edit-submit" value="{{$preview}}" />{{/if}}
-					<!-- {{if $preview}}<span onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}" class="fakelink">{{$preview}}</span>{{/if}} -->
-					<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
+					<a title="{{$eduline}}" data-role="insert-formatting" data-bbcode="u" data-id="{{$id}}"><i class="icon-underline"></i></a>
+					<a title="{{$editalic}}" data-role="insert-formatting" data-bbcode="i" data-id="{{$id}}"><i class="icon-italic"></i></a>
+					<a title="{{$edbold}}" data-role="insert-formatting" data-bbcode="b" data-id="{{$id}}"><i class="icon-bold"></i></a>
+					<a title="{{$edquote}}" data-role="insert-formatting" data-bbcode="quote" data-id="{{$id}}"><i class="icon-quote-left"></i></a>
+					<a title="{{$edemojis}}" class="emojis"><i class="icon-smile"></i></a>
+				</div>
+				<input type="submit" onclick="post_comment({{$id}}); return false;" id="comment-edit-submit-{{$id}}" class="comment-edit-submit" name="submit" value="{{$submit}}" />
+				{{if $preview}}<input type="submit" onclick="preview_comment({{$id}}); return false;" id="comment-edit-preview-link-{{$id}}" class="comment-edit-submit" value="{{$preview}}" />{{/if}}
+				<!-- {{if $preview}}<span onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}" class="fakelink">{{$preview}}</span>{{/if}} -->
+				<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
 				</div>
 
 				<div class="comment-edit-end"></div>
 			</form>
-
 		</div>

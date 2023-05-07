@@ -1,4 +1,3 @@
-
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <base href="{{$baseurl}}/" />
 <meta name="generator" content="{{$generator}}" />
@@ -47,14 +46,30 @@
 <script type="text/javascript" src="view/asset/dompurify/dist/purify.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/js/fancybox/jquery.fancybox.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/js/fancybox/fancybox.config.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/js/vanillaEmojiPicker/vanillaEmojiPicker.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script>
+window.onload = function(){
+	new EmojiPicker({
+		trigger: [
+			{
+				selector: '.emojis-post',
+				insertInto: ['#comment-edit-text-0', '#profile-jot-text']
+			},
+			{
+				selector: '.emojis',
+				insertInto: ['.comment-edit-text-full']
+			}
+		],
+		closeButton: true
+	});
+};
+</script>
 <script type="text/javascript">
 	const updateInterval = {{$update_interval}};
 	const localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
 </script>
 <script type="text/javascript" src="view/js/main.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
-
 <script>
-
 	// Lifted from https://css-tricks.com/snippets/jquery/move-cursor-to-end-of-textarea-or-input/
     jQuery.fn.putCursorAtEnd = function() {
         return this.each(function() {
@@ -118,7 +133,6 @@
 		return false;
 	}
 
-
 	function commentInsert(obj,id) {
 		var tmpStr = $("#comment-edit-text-" + id).val();
 		if (tmpStr == "") {
@@ -141,8 +155,4 @@
 			$("#comment-edit-form-" + id).show();
 		}
 	}
-
-
 </script>
-
-

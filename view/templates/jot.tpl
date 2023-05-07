@@ -51,7 +51,9 @@
 	<div id="profile-nolocation-wrapper" style="display: none;">
 		<a id="profile-nolocation" class="icon noglobe" title="{{$noloc}}" onclick="jotClearLocation();return false;"></a>
 	</div>
-
+	<div id="profile-emojis-wrapper" style="display: {{$visitor}};">
+		<a id="profile-emojis" class="icon icon-smile emojis-post" title="{{$edemojis}}"></a>
+	</div>
 	<div id="post-length">
 		<span id="character-counter" class="grey"></span>
 	</div>
@@ -83,11 +85,8 @@
 			{{if $created_at}}{{$created_at nofilter}}{{/if}}
 		</div>
 	</div>
-
-
 </div>
-
 <div id="profile-jot-end"></div>
 </form>
 </div>
-		{{if $content}}<script>initEditor();</script>{{/if}}
+{{if $content}}<script>initEditor();</script>{{/if}}
