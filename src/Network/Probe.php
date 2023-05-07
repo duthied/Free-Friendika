@@ -952,9 +952,17 @@ class Probe
 	 */
 	public static function webfinger(string $url, string $type): array
 	{
-		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
+		try {
+			$curlResult = DI::httpClient()->get(
+				$url,
+				$type,
+				[HttpClientOptions::TIMEOUT => DI::config()->get('system', 'xrd_timeout', 20)]
+			);
+		} catch (\Throwable $e) {
+			Logger::notice($e->getMessage(), ['url' => $url, 'type' => $type, 'class' => get_class($e)]);
+			return [];
+		}
 
-		$curlResult = DI::httpClient()->get($url, $type, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 		if ($curlResult->isTimeout()) {
 			self::$isTimeout = true;
 			return [];
