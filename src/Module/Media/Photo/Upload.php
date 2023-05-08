@@ -207,13 +207,13 @@ class Upload extends \Friendica\BaseModule
 
 		if ($width > 640 || $height > 640) {
 			$image->scaleDown(640);
+		}
+
+		if ($width > 320 || $height > 320) {
 			$result = Photo::store($image, $owner['uid'], 0, $resource_id, $filename, $album, 1, Photo::DEFAULT, $allow_cid);
 			if ($result) {
 				$smallest = 1;
 			}
-		}
-
-		if ($width > 320 || $height > 320) {
 			$image->scaleDown(320);
 			$result = Photo::store($image, $owner['uid'], 0, $resource_id, $filename, $album, 2, Photo::DEFAULT, $allow_cid);
 			if ($result && ($smallest == 0)) {

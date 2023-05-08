@@ -246,14 +246,19 @@ class Photos extends \Friendica\Module\BaseProfile
 
 		if ($width > 640 || $height > 640) {
 			$image->scaleDown(640);
-			Photo::store($image, $this->owner['uid'], 0, $resource_id, $filename, $album, 1, Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-			$smallest = 1;
 		}
 
 		if ($width > 320 || $height > 320) {
+			$result = Photo::store($image, $this->owner['uid'], 0, $resource_id, $filename, $album, 1, Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+			if ($result) {
+				$smallest = 1;
+			}
+
 			$image->scaleDown(320);
-			Photo::store($image, $this->owner['uid'], 0, $resource_id, $filename, $album, 2, Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-			$smallest = 2;
+			$result = Photo::store($image, $this->owner['uid'], 0, $resource_id, $filename, $album, 2, Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+			if ($result && ($smallest == 0)) {
+				$smallest = 2;
+			}
 		}
 
 		$uri = Item::newURI();

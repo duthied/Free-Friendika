@@ -1195,21 +1195,21 @@ class Photo
 
 		$smallest = 0;
 
-		$r = self::store($image, $user['uid'], 0, $resource_id, $filename, $album, 0, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-		if (!$r) {
+		$result = self::store($image, $user['uid'], 0, $resource_id, $filename, $album, 0, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+		if (!$result) {
 			Logger::warning('Photo could not be stored', ['uid' => $user['uid'], 'resource_id' => $resource_id, 'filename' => $filename, 'album' => $album]);
 			return [];
 		}
 
 		if ($width > 640 || $height > 640) {
 			$image->scaleDown(640);
+		}
+
+		if ($width > 320 || $height > 320) {
 			$r = self::store($image, $user['uid'], 0, $resource_id, $filename, $album, 1, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if ($r) {
 				$smallest = 1;
 			}
-		}
-
-		if ($width > 320 || $height > 320) {
 			$image->scaleDown(320);
 			$r = self::store($image, $user['uid'], 0, $resource_id, $filename, $album, 2, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if ($r && ($smallest == 0)) {

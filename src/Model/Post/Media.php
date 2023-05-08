@@ -463,7 +463,7 @@ class Media
 	 */
 	private static function isLinkToPhoto(string $page, string $preview): bool
 	{
-		return preg_match('#/photo/.*-0\.#ism', $page) && preg_match('#/photo/.*-[01]\.#ism', $preview);
+		return preg_match('#/photo/.*-0\.#ism', $page) && preg_match('#/photo/.*-[012]\.#ism', $preview);
 	}
 
 	/**
@@ -475,7 +475,7 @@ class Media
 	 */
 	private static function isLinkToImagePage(string $page, string $preview): bool
 	{
-		return preg_match('#/photos/.*/image/#ism', $page) && preg_match('#/photo/.*-[01]\.#ism', $preview);
+		return preg_match('#/photos/.*/image/#ism', $page) && preg_match('#/photo/.*-[012]\.#ism', $preview);
 	}
 
 	/**
@@ -489,7 +489,7 @@ class Media
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (self::isLinkToImagePage($picture[1], $picture[2])) {
-					$body = str_replace($picture[0], '[url=' . str_replace('-1.', '-0.', $picture[2]) . '][img=' . $picture[2] . ']' . $picture[3] . '[/img][/url]', $body);
+					$body = str_replace($picture[0], '[url=' . str_replace(['-1.', '-2.'], '-0.', $picture[2]) . '][img=' . $picture[2] . ']' . $picture[3] . '[/img][/url]', $body);
 				}
 			}
 		}
@@ -497,7 +497,7 @@ class Media
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (self::isLinkToImagePage($picture[1], $picture[2])) {
-					$body = str_replace($picture[0], '[url=' . str_replace('-1.', '-0.', $picture[2]) . '][img]' . $picture[2] . '[/img][/url]', $body);
+					$body = str_replace($picture[0], '[url=' . str_replace(['-1.', '-2.'], '-0.', $picture[2]) . '][img]' . $picture[2] . '[/img][/url]', $body);
 				}
 			}
 		}
@@ -525,7 +525,7 @@ class Media
 			foreach ($pictures as $picture) {
 				if (self::isLinkToImagePage($picture[1], $picture[2])) {
 					$body = str_replace($picture[0], '', $body);
-					$image = str_replace('-1.', '-0.', $picture[2]);
+					$image = str_replace(['-1.', '-2.'], '-0.', $picture[2]);
 					$attachments[$image] = [
 						'uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
 						'preview' => $picture[2], 'description' => $picture[3]
@@ -557,7 +557,7 @@ class Media
 			foreach ($pictures as $picture) {
 				if (self::isLinkToImagePage($picture[1], $picture[2])) {
 					$body = str_replace($picture[0], '', $body);
-					$image = str_replace('-1.', '-0.', $picture[2]);
+					$image = str_replace(['-1.', '-2.'], '-0.', $picture[2]);
 					$attachments[$image] = [
 						'uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
 						'preview' => $picture[2], 'description' => null
