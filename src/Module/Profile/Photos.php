@@ -229,36 +229,13 @@ class Photos extends \Friendica\Module\BaseProfile
 			$image->scaleDown($max_length);
 		}
 
-		$width  = $image->getWidth();
-		$height = $image->getHeight();
-
-		$smallest = 0;
-
 		$resource_id = Photo::newResource();
 
-		$r = Photo::store($image, $this->owner['uid'], 0, $resource_id, $filename, $album, 0 , Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-
-		if (!$r) {
+		$smallest = Photo::storeWithPreview($image, $this->owner['uid'], $resource_id, $filename, $filesize, $album, '', $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+		if ($smallest < 0) {
 			$this->logger->warning('image store failed');
 			$this->systemMessages->addNotice($this->t('Image upload failed.'));
 			return;
-		}
-
-		if ($width > 640 || $height > 640) {
-			$image->scaleDown(640);
-		}
-
-		if ($width > 320 || $height > 320) {
-			$result = Photo::store($image, $this->owner['uid'], 0, $resource_id, $filename, $album, 1, Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-			if ($result) {
-				$smallest = 1;
-			}
-
-			$image->scaleDown(320);
-			$result = Photo::store($image, $this->owner['uid'], 0, $resource_id, $filename, $album, 2, Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-			if ($result && ($smallest == 0)) {
-				$smallest = 2;
-			}
 		}
 
 		$uri = Item::newURI();

@@ -164,33 +164,7 @@ class Upload extends \Friendica\BaseModule
 			$this->logger->info('File upload: Scaling picture to new size', ['max_length' => $max_length]);
 		}
 
-		$width  = $image->getWidth();
-		$height = $image->getHeight();
-
-		$maximagesize = Strings::getBytesFromShorthand($this->config->get('system', 'maximagesize'));
-
-		if ($maximagesize && $filesize > $maximagesize) {
-			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
-			foreach ([5120, 2560, 1280, 640] as $pixels) {
-				if ($filesize > $maximagesize && max($width, $height) > $pixels) {
-					$this->logger->info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
-					$image->scaleDown($pixels);
-					$filesize = strlen($image->asString());
-					$width    = $image->getWidth();
-					$height   = $image->getHeight();
-				}
-			}
-
-			if ($filesize > $maximagesize) {
-				@unlink($src);
-				$this->logger->notice('Image size is too big', ['size' => $filesize, 'max' => $maximagesize]);
-				$this->return(401, $this->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
-			}
-		}
-
 		$resource_id = Photo::newResource();
-
-		$smallest = 0;
 
 		// If we don't have an album name use the Wall Photos album
 		if (!strlen($album)) {
@@ -199,26 +173,10 @@ class Upload extends \Friendica\BaseModule
 
 		$allow_cid = '<' . $owner['id'] . '>';
 
-		$result = Photo::store($image, $owner['uid'], 0, $resource_id, $filename, $album, 0, Photo::DEFAULT, $allow_cid);
-		if (!$result) {
-			$this->logger->warning('Photo::store() failed', ['result' => $result]);
-			$this->return(401, $this->t('Image upload failed.'));
-		}
-
-		if ($width > 640 || $height > 640) {
-			$image->scaleDown(640);
-		}
-
-		if ($width > 320 || $height > 320) {
-			$result = Photo::store($image, $owner['uid'], 0, $resource_id, $filename, $album, 1, Photo::DEFAULT, $allow_cid);
-			if ($result) {
-				$smallest = 1;
-			}
-			$image->scaleDown(320);
-			$result = Photo::store($image, $owner['uid'], 0, $resource_id, $filename, $album, 2, Photo::DEFAULT, $allow_cid);
-			if ($result && ($smallest == 0)) {
-				$smallest = 2;
-			}
+		$smallest = Photo::storeWithPreview($image, $owner['uid'], $resource_id, $filename, $filesize, $album, '', $allow_cid, '', '', '');
+		if ($smallest < 0) {
+			$this->return(401, $this->t('Image could not be uploaded'));
+			@unlink($src);
 		}
 
 		$this->logger->info('upload done');
