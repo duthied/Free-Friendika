@@ -173,14 +173,14 @@ class Upload extends \Friendica\BaseModule
 
 		$allow_cid = '<' . $owner['id'] . '>';
 
-		$smallest = Photo::storeWithPreview($image, $owner['uid'], $resource_id, $filename, $filesize, $album, '', $allow_cid, '', '', '');
-		if ($smallest < 0) {
+		$preview = Photo::storeWithPreview($image, $owner['uid'], $resource_id, $filename, $filesize, $album, '', $allow_cid, '', '', '');
+		if ($preview < 0) {
 			$this->logger->warning('Photo::store() failed');
 			$this->return(401, $this->t('Image upload failed.'));
 		}
 
 		$this->logger->info('upload done');
-		$this->return(200, "\n\n" . '[url=' . $this->baseUrl . '/photos/' . $owner['nickname'] . '/image/' . $resource_id . '][img=' . $this->baseUrl . "/photo/$resource_id-$smallest." . $image->getExt() . "][/img][/url]\n\n");
+		$this->return(200, "\n\n" . '[url=' . $this->baseUrl . '/photos/' . $owner['nickname'] . '/image/' . $resource_id . '][img=' . $this->baseUrl . "/photo/$resource_id-$preview." . $image->getExt() . "][/img][/url]\n\n");
 	}
 
 	/**

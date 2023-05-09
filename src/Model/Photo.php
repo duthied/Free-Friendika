@@ -1192,8 +1192,8 @@ class Photo
 			$allow_gid = '';
 		}
 
-		$smallest = self::storeWithPreview($image, $user['uid'], $resource_id, $filename, $filesize, $album, $desc, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
-		if ($smallest < 0) {
+		$preview = self::storeWithPreview($image, $user['uid'], $resource_id, $filename, $filesize, $album, $desc, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
+		if ($preview < 0) {
 			Logger::warning('Photo could not be stored', ['uid' => $user['uid'], 'resource_id' => $resource_id, 'filename' => $filename, 'album' => $album]);
 			return [];
 		}
@@ -1215,7 +1215,7 @@ class Photo
 		$picture['type']        = $photo['type'];
 		$picture['albumpage']   = DI::baseUrl() . '/photos/' . $user['nickname'] . '/image/' . $resource_id;
 		$picture['picture']     = DI::baseUrl() . '/photo/' . $resource_id . '-0.' . $image->getExt();
-		$picture['preview']     = DI::baseUrl() . '/photo/' . $resource_id . '-' . $smallest . '.' . $image->getExt();
+		$picture['preview']     = DI::baseUrl() . '/photo/' . $resource_id . '-' . $preview . '.' . $image->getExt();
 
 		Logger::info('upload done', ['picture' => $picture]);
 		return $picture;
@@ -1236,7 +1236,7 @@ class Photo
 	 * @param string  $deny_cid    Permissions, denied contacts
 	 * @param string  $deny_gid    Permissions, denied group
 	 *
-	 * @return boolean True on success
+	 * @return integer preview photo size
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function storeWithPreview(Image $image, int $uid, string $resource_id, string $filename, int $filesize, string $album, string $description, string $allow_cid, string $allow_gid, string $deny_cid, string $deny_gid): int
@@ -1268,9 +1268,9 @@ class Photo
 			}
 		}
 
-		$width    = $image->getWidth();
-		$height   = $image->getHeight();
-		$smallest = 0;
+		$width   = $image->getWidth();
+		$height  = $image->getHeight();
+		$preview = 0;
 
 		$result = self::store($image, $uid, 0, $resource_id, $filename, $album, 0, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $description);
 		if (!$result) {
@@ -1285,15 +1285,15 @@ class Photo
 		if ($width > 320 || $height > 320) {
 			$result = self::store($image, $uid, 0, $resource_id, $filename, $album, 1, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $description);
 			if ($result) {
-				$smallest = 1;
+				$preview = 1;
 			}
 			$image->scaleDown(320);
 			$result = self::store($image, $uid, 0, $resource_id, $filename, $album, 2, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $description);
-			if ($result && ($smallest == 0)) {
-				$smallest = 2;
+			if ($result && ($preview == 0)) {
+				$preview = 2;
 			}
 		}
-		return $smallest;
+		return $preview;
 	}
 
 	/**
