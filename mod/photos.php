@@ -375,9 +375,7 @@ function photos_post(App $a)
 			$arr['visible']       = 0;
 			$arr['origin']        = 1;
 
-			$arr['body']          = '[url=' . DI::baseUrl() . '/photos/' . $user['nickname'] . '/image/' . $photo['resource-id'] . ']'
-						. '[img]' . DI::baseUrl() . '/photo/' . $photo['resource-id'] . '-' . $photo['scale'] . '.'. $ext . '[/img]'
-						. '[/url]';
+			$arr['body']          = Images::getImageUrl($photo['resource-id'], $user['nickname'], $photo['scale'], $ext, '');
 
 			$item_id = Item::insert($arr);
 		}

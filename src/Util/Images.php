@@ -316,4 +316,32 @@ class Images
 
 		return ['width' => $dest_width, 'height' => $dest_height];
 	}
+
+	/**
+	 * Get a link to a an image link with a preview
+	 *
+	 * @param string $resource_id
+	 * @param string $nickname
+	 * @param integer $preview
+	 * @param string $ext
+	 * @param string $description
+	 * @return string
+	 */
+	public static function getImageUrl(string $resource_id, string $nickname, int $preview, string $ext, string $description): string
+	{
+		return '[url=' . DI::baseUrl() . '/photos/' . $nickname . '/image/' . $resource_id . '][img=' . DI::baseUrl() . '/photo/' . $resource_id . '-' . $preview. '.' . $ext . ']' . $description . '[/img][/url]';
+	}
+
+	/**
+	 * Get a link to a picture with a preview
+	 *
+	 * @param string $photo
+	 * @param string $preview
+	 * @param string $description
+	 * @return string
+	 */
+	public static function getPictureUrl(string $photo, string $preview, string $description): string
+	{
+		return '[url=' . $photo . '][img=' . $preview . ']' . $description . '[/img][/url]';
+	}
 }
