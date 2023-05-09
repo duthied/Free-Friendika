@@ -1241,6 +1241,10 @@ class Photo
 	 */
 	public static function storeWithPreview(Image $image, int $uid, string $resource_id, string $filename, int $filesize, string $album, string $description, string $allow_cid, string $allow_gid, string $deny_cid, string $deny_gid): int
 	{
+		if ($filesize == 0) {
+			$filesize = strlen($image->asString());
+		}
+
 		$width  = $image->getWidth();
 		$height = $image->getHeight();
 
