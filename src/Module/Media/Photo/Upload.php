@@ -175,8 +175,8 @@ class Upload extends \Friendica\BaseModule
 
 		$smallest = Photo::storeWithPreview($image, $owner['uid'], $resource_id, $filename, $filesize, $album, '', $allow_cid, '', '', '');
 		if ($smallest < 0) {
-			$this->return(401, $this->t('Image could not be uploaded'));
-			@unlink($src);
+			$this->logger->warning('Photo::store() failed');
+			$this->return(401, $this->t('Image upload failed.'));
 		}
 
 		$this->logger->info('upload done');

@@ -1194,7 +1194,7 @@ class Photo
 
 		$smallest = self::storeWithPreview($image, $user['uid'], $resource_id, $filename, $filesize, $album, $desc, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
 		if ($smallest < 0) {
-			Logger::notice('Photo not stored', ['resource-id' => $resource_id]);
+			Logger::warning('Photo could not be stored', ['uid' => $user['uid'], 'resource_id' => $resource_id, 'filename' => $filename, 'album' => $album]);			Logger::notice('Photo not stored', ['resource-id' => $resource_id]);
 			return [];
 		}
 
