@@ -1148,7 +1148,7 @@ class Photo
 			return [];
 		}
 
-		return ['image' => $image, 'filename' => $filename];
+		return ['image' => $image, 'filename' => $filename, 'size' => $filesize];
 	}
 
 	/**
@@ -1182,8 +1182,7 @@ class Photo
 
 		$image    = $data['image'];
 		$filename = $data['filename'];
-		$width    = $image->getWidth();
-		$height   = $image->getHeight();
+		$filesize = $data['size'];
 
 		$resource_id = $resource_id ?: self::newResource();
 		$album       = $album ?: DI::l10n()->t('Wall Photos');
@@ -1193,28 +1192,10 @@ class Photo
 			$allow_gid = '';
 		}
 
-		$smallest = 0;
-
-		$r = self::store($image, $user['uid'], 0, $resource_id, $filename, $album, 0, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-		if (!$r) {
+		$preview = self::storeWithPreview($image, $user['uid'], $resource_id, $filename, $filesize, $album, $desc, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
+		if ($preview < 0) {
 			Logger::warning('Photo could not be stored', ['uid' => $user['uid'], 'resource_id' => $resource_id, 'filename' => $filename, 'album' => $album]);
 			return [];
-		}
-
-		if ($width > 640 || $height > 640) {
-			$image->scaleDown(640);
-			$r = self::store($image, $user['uid'], 0, $resource_id, $filename, $album, 1, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if ($r) {
-				$smallest = 1;
-			}
-		}
-
-		if ($width > 320 || $height > 320) {
-			$image->scaleDown(320);
-			$r = self::store($image, $user['uid'], 0, $resource_id, $filename, $album, 2, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if ($r && ($smallest == 0)) {
-				$smallest = 2;
-			}
 		}
 
 		$condition = ['resource-id' => $resource_id];
@@ -1234,10 +1215,85 @@ class Photo
 		$picture['type']        = $photo['type'];
 		$picture['albumpage']   = DI::baseUrl() . '/photos/' . $user['nickname'] . '/image/' . $resource_id;
 		$picture['picture']     = DI::baseUrl() . '/photo/' . $resource_id . '-0.' . $image->getExt();
-		$picture['preview']     = DI::baseUrl() . '/photo/' . $resource_id . '-' . $smallest . '.' . $image->getExt();
+		$picture['preview']     = DI::baseUrl() . '/photo/' . $resource_id . '-' . $preview . '.' . $image->getExt();
 
 		Logger::info('upload done', ['picture' => $picture]);
 		return $picture;
+	}
+
+	/**
+	 * store photo metadata in db and binary with preview photos in default backend
+	 *
+	 * @param Image   $image       Image object with data
+	 * @param integer $uid         User ID
+	 * @param string  $resource_id Resource ID
+	 * @param string  $filename    Filename
+	 * @param integer $filesize    Filesize
+	 * @param string  $album       Album name
+	 * @param string  $description Photo caption
+	 * @param string  $allow_cid   Permissions, allowed contacts
+	 * @param string  $allow_gid   Permissions, allowed groups
+	 * @param string  $deny_cid    Permissions, denied contacts
+	 * @param string  $deny_gid    Permissions, denied group
+	 *
+	 * @return integer preview photo size
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function storeWithPreview(Image $image, int $uid, string $resource_id, string $filename, int $filesize, string $album, string $description, string $allow_cid, string $allow_gid, string $deny_cid, string $deny_gid): int
+	{
+		if ($filesize == 0) {
+			$filesize = strlen($image->asString());
+		}
+
+		$width  = $image->getWidth();
+		$height = $image->getHeight();
+
+		$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+
+		if ($maximagesize && $filesize > $maximagesize) {
+			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
+			foreach ([5120, 2560, 1280, 640, 320] as $pixels) {
+				if ($filesize > $maximagesize && max($width, $height) > $pixels) {
+					DI::logger()->info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
+					$image->scaleDown($pixels);
+					$filesize = strlen($image->asString());
+					$width    = $image->getWidth();
+					$height   = $image->getHeight();
+				}
+			}
+
+			if ($filesize > $maximagesize) {
+				DI::logger()->notice('Image size is too big', ['size' => $filesize, 'max' => $maximagesize]);
+				return -1;
+			}
+		}
+
+		$width   = $image->getWidth();
+		$height  = $image->getHeight();
+		$preview = 0;
+
+		$result = self::store($image, $uid, 0, $resource_id, $filename, $album, 0, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $description);
+		if (!$result) {
+			Logger::warning('Photo could not be stored', ['uid' => $uid, 'resource_id' => $resource_id, 'filename' => $filename, 'album' => $album]);
+			return -1;
+		}
+
+		if ($width > 640 || $height > 640) {
+			$image->scaleDown(640);
+		}
+
+		if ($width > 320 || $height > 320) {
+			$result = self::store($image, $uid, 0, $resource_id, $filename, $album, 1, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $description);
+			if ($result) {
+				$preview = 1;
+			}
+			$image->scaleDown(320);
+			$result = self::store($image, $uid, 0, $resource_id, $filename, $album, 2, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $description);
+			if ($result && ($preview == 0)) {
+				$preview = 2;
+			}
+		}
+		return $preview;
 	}
 
 	/**

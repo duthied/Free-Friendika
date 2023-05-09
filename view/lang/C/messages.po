@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.06-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-04 10:54+0000\n"
+"POT-Creation-Date: 2023-05-09 06:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -293,7 +293,7 @@ msgstr ""
 
 #: mod/message.php:202 mod/message.php:358 mod/photos.php:1291
 #: src/Content/Conversation.php:390 src/Content/Conversation.php:734
-#: src/Module/Item/Compose.php:204 src/Module/Post/Edit.php:145
+#: src/Module/Item/Compose.php:205 src/Module/Post/Edit.php:145
 #: src/Module/Profile/UnkMail.php:154 src/Object/Post.php:550
 msgid "Please wait"
 msgstr ""
@@ -396,22 +396,22 @@ msgid "User not found."
 msgstr ""
 
 #: mod/photos.php:106 src/Module/BaseProfile.php:68
-#: src/Module/Profile/Photos.php:399
+#: src/Module/Profile/Photos.php:381
 msgid "Photo Albums"
 msgstr ""
 
-#: mod/photos.php:107 src/Module/Profile/Photos.php:400
-#: src/Module/Profile/Photos.php:420
+#: mod/photos.php:107 src/Module/Profile/Photos.php:382
+#: src/Module/Profile/Photos.php:402
 msgid "Recent Photos"
 msgstr ""
 
-#: mod/photos.php:109 mod/photos.php:867 src/Module/Profile/Photos.php:402
-#: src/Module/Profile/Photos.php:422
+#: mod/photos.php:109 mod/photos.php:867 src/Module/Profile/Photos.php:384
+#: src/Module/Profile/Photos.php:404
 msgid "Upload New Photos"
 msgstr ""
 
 #: mod/photos.php:121 src/Module/BaseSettings.php:74
-#: src/Module/Profile/Photos.php:383
+#: src/Module/Profile/Photos.php:365
 msgid "everybody"
 msgstr ""
 
@@ -445,7 +445,7 @@ msgid "%1$s was tagged in %2$s by %3$s"
 msgstr ""
 
 #: mod/photos.php:581 src/Module/Conversation/Community.php:188
-#: src/Module/Directory.php:48 src/Module/Profile/Photos.php:315
+#: src/Module/Directory.php:48 src/Module/Profile/Photos.php:297
 #: src/Module/Search/Index.php:65
 msgid "Public access denied."
 msgstr ""
@@ -514,7 +514,7 @@ msgstr ""
 msgid "Show Oldest First"
 msgstr ""
 
-#: mod/photos.php:852 src/Module/Profile/Photos.php:370
+#: mod/photos.php:852 src/Module/Profile/Photos.php:352
 msgid "View Photo"
 msgstr ""
 
@@ -607,7 +607,7 @@ msgstr ""
 
 #: mod/photos.php:1139 mod/photos.php:1195 mod/photos.php:1269
 #: src/Content/Conversation.php:405 src/Module/Calendar/Event/Form.php:248
-#: src/Module/Item/Compose.php:199 src/Module/Post/Edit.php:165
+#: src/Module/Item/Compose.php:200 src/Module/Post/Edit.php:165
 #: src/Object/Post.php:1075
 msgid "Preview"
 msgstr ""
@@ -649,11 +649,11 @@ msgstr ""
 msgid "Map"
 msgstr ""
 
-#: src/App.php:470
+#: src/App.php:473
 msgid "No system theme config value set."
 msgstr ""
 
-#: src/App.php:574
+#: src/App.php:577
 msgid "Apologies but the website is unavailable at the moment."
 msgstr ""
 
@@ -1212,7 +1212,7 @@ msgstr[1] ""
 msgid "Visible to <strong>everybody</strong>"
 msgstr ""
 
-#: src/Content/Conversation.php:329 src/Module/Item/Compose.php:198
+#: src/Content/Conversation.php:329 src/Module/Item/Compose.php:199
 #: src/Object/Post.php:1074
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr ""
@@ -1277,27 +1277,27 @@ msgstr ""
 msgid "Quote"
 msgstr ""
 
-#: src/Content/Conversation.php:368 src/Module/Post/Edit.php:175
-#: src/Object/Post.php:1069
+#: src/Content/Conversation.php:368 src/Module/Item/Compose.php:194
+#: src/Module/Post/Edit.php:175 src/Object/Post.php:1069
 msgid "Add emojis"
 msgstr ""
 
-#: src/Content/Conversation.php:369 src/Module/Item/Compose.php:194
+#: src/Content/Conversation.php:369 src/Module/Item/Compose.php:195
 #: src/Module/Post/Edit.php:176 src/Object/Post.php:1070
 msgid "Code"
 msgstr ""
 
-#: src/Content/Conversation.php:370 src/Module/Item/Compose.php:195
+#: src/Content/Conversation.php:370 src/Module/Item/Compose.php:196
 #: src/Object/Post.php:1071
 msgid "Image"
 msgstr ""
 
-#: src/Content/Conversation.php:371 src/Module/Item/Compose.php:196
+#: src/Content/Conversation.php:371 src/Module/Item/Compose.php:197
 #: src/Module/Post/Edit.php:177 src/Object/Post.php:1072
 msgid "Link"
 msgstr ""
 
-#: src/Content/Conversation.php:372 src/Module/Item/Compose.php:197
+#: src/Content/Conversation.php:372 src/Module/Item/Compose.php:198
 #: src/Module/Post/Edit.php:178 src/Object/Post.php:1073
 msgid "Link or Media"
 msgstr ""
@@ -1306,7 +1306,7 @@ msgstr ""
 msgid "Video"
 msgstr ""
 
-#: src/Content/Conversation.php:374 src/Module/Item/Compose.php:200
+#: src/Content/Conversation.php:374 src/Module/Item/Compose.php:201
 #: src/Module/Post/Edit.php:141
 msgid "Set your location"
 msgstr ""
@@ -1323,17 +1323,17 @@ msgstr ""
 msgid "clear location"
 msgstr ""
 
-#: src/Content/Conversation.php:379 src/Module/Item/Compose.php:205
+#: src/Content/Conversation.php:379 src/Module/Item/Compose.php:206
 #: src/Module/Post/Edit.php:157
 msgid "Set title"
 msgstr ""
 
-#: src/Content/Conversation.php:381 src/Module/Item/Compose.php:206
+#: src/Content/Conversation.php:381 src/Module/Item/Compose.php:207
 #: src/Module/Post/Edit.php:159
 msgid "Categories (comma-separated list)"
 msgstr ""
 
-#: src/Content/Conversation.php:386 src/Module/Item/Compose.php:222
+#: src/Content/Conversation.php:386 src/Module/Item/Compose.php:223
 msgid "Scheduled at"
 msgstr ""
 
@@ -3272,7 +3272,7 @@ msgstr ""
 msgid "[no subject]"
 msgstr ""
 
-#: src/Model/Photo.php:1189 src/Module/Media/Photo/Upload.php:197
+#: src/Model/Photo.php:1188 src/Module/Media/Photo/Upload.php:171
 msgid "Wall Photos"
 msgstr ""
 
@@ -7227,21 +7227,21 @@ msgstr ""
 msgid "Visibility"
 msgstr ""
 
-#: src/Module/Item/Compose.php:201
+#: src/Module/Item/Compose.php:202
 msgid "Clear the location"
 msgstr ""
 
-#: src/Module/Item/Compose.php:202
+#: src/Module/Item/Compose.php:203
 msgid "Location services are unavailable on your device"
 msgstr ""
 
-#: src/Module/Item/Compose.php:203
+#: src/Module/Item/Compose.php:204
 msgid ""
 "Location services are disabled. Please check the website's permissions on "
 "your device"
 msgstr ""
 
-#: src/Module/Item/Compose.php:209
+#: src/Module/Item/Compose.php:210
 msgid ""
 "You can make this page always open when you use the New Post button in the "
 "<a href=\"/settings/display\">Theme Customization settings</a>."
@@ -7312,14 +7312,7 @@ msgstr ""
 msgid "Unable to process image."
 msgstr ""
 
-#: src/Module/Media/Photo/Upload.php:187 src/Module/Profile/Photos.php:164
-#: src/Module/Profile/Photos.php:167 src/Module/Profile/Photos.php:194
-#: src/Module/Settings/Profile/Photo/Index.php:59
-#, php-format
-msgid "Image exceeds size limit of %s"
-msgstr ""
-
-#: src/Module/Media/Photo/Upload.php:205 src/Module/Profile/Photos.php:243
+#: src/Module/Media/Photo/Upload.php:179 src/Module/Profile/Photos.php:237
 #: src/Module/Settings/Profile/Photo/Index.php:95
 msgid "Image upload failed."
 msgstr ""
@@ -8349,22 +8342,29 @@ msgstr ""
 
 #: src/Module/Profile/Conversations.php:106
 #: src/Module/Profile/Conversations.php:109 src/Module/Profile/Profile.php:351
-#: src/Module/Profile/Profile.php:354 src/Protocol/Feed.php:1032
+#: src/Module/Profile/Profile.php:354 src/Protocol/Feed.php:1090
 #: src/Protocol/OStatus.php:1007
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
 #: src/Module/Profile/Conversations.php:107 src/Module/Profile/Profile.php:352
-#: src/Protocol/Feed.php:1036 src/Protocol/OStatus.php:1012
+#: src/Protocol/Feed.php:1094 src/Protocol/OStatus.php:1012
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
 #: src/Module/Profile/Conversations.php:108 src/Module/Profile/Profile.php:353
-#: src/Protocol/Feed.php:1039 src/Protocol/OStatus.php:1016
+#: src/Protocol/Feed.php:1097 src/Protocol/OStatus.php:1016
 #, php-format
 msgid "%s's comments"
+msgstr ""
+
+#: src/Module/Profile/Photos.php:164 src/Module/Profile/Photos.php:167
+#: src/Module/Profile/Photos.php:194
+#: src/Module/Settings/Profile/Photo/Index.php:59
+#, php-format
+msgid "Image exceeds size limit of %s"
 msgstr ""
 
 #: src/Module/Profile/Photos.php:170
@@ -8385,7 +8385,7 @@ msgstr ""
 msgid "Image file is empty."
 msgstr ""
 
-#: src/Module/Profile/Photos.php:376
+#: src/Module/Profile/Photos.php:358
 msgid "View Album"
 msgstr ""
 

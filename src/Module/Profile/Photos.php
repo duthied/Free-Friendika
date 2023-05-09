@@ -229,31 +229,13 @@ class Photos extends \Friendica\Module\BaseProfile
 			$image->scaleDown($max_length);
 		}
 
-		$width  = $image->getWidth();
-		$height = $image->getHeight();
-
-		$smallest = 0;
-
 		$resource_id = Photo::newResource();
 
-		$r = Photo::store($image, $this->owner['uid'], 0, $resource_id, $filename, $album, 0 , Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-
-		if (!$r) {
+		$preview = Photo::storeWithPreview($image, $this->owner['uid'], $resource_id, $filename, $filesize, $album, '', $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+		if ($preview < 0) {
 			$this->logger->warning('image store failed');
 			$this->systemMessages->addNotice($this->t('Image upload failed.'));
 			return;
-		}
-
-		if ($width > 640 || $height > 640) {
-			$image->scaleDown(640);
-			Photo::store($image, $this->owner['uid'], 0, $resource_id, $filename, $album, 1, Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-			$smallest = 1;
-		}
-
-		if ($width > 320 || $height > 320) {
-			$image->scaleDown(320);
-			Photo::store($image, $this->owner['uid'], 0, $resource_id, $filename, $album, 2, Photo::DEFAULT, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-			$smallest = 2;
 		}
 
 		$uri = Item::newURI();
@@ -292,7 +274,7 @@ class Photos extends \Friendica\Module\BaseProfile
 		$arr['origin']        = 1;
 
 		$arr['body']          = '[url=' . $this->baseUrl . '/photos/' . $this->owner['nickname'] . '/image/' . $resource_id . ']'
-			. '[img]' . $this->baseUrl . "/photo/{$resource_id}-{$smallest}.".$image->getExt() . '[/img]'
+			. '[img]' . $this->baseUrl . "/photo/{$resource_id}-{$preview}.".$image->getExt() . '[/img]'
 			. '[/url]';
 
 		$item_id = Item::insert($arr);
@@ -354,7 +336,7 @@ class Photos extends \Friendica\Module\BaseProfile
 			  $sql_extra
 			GROUP BY `resource-id`
 			ORDER BY `created` DESC
-		    LIMIT ? , ?",
+			LIMIT ? , ?",
 			$this->owner['uid'],
 			Photo::DEFAULT,
 			$pager->getStart(),
