@@ -336,7 +336,7 @@ class Photos extends \Friendica\Module\BaseProfile
 			  $sql_extra
 			GROUP BY `resource-id`
 			ORDER BY `created` DESC
-		    LIMIT ? , ?",
+			LIMIT ? , ?",
 			$this->owner['uid'],
 			Photo::DEFAULT,
 			$pager->getStart(),
