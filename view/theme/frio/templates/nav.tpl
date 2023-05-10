@@ -41,7 +41,7 @@
 					<button type="button" class="navbar-toggle collapsed pull-left visible-sm visible-xs"
 						data-toggle="offcanvas" data-target="aside" aria-haspopup="true">
 						<span class="sr-only">Toggle navigation</span>
-						<i class="fa fa-ellipsis-v fa-fw fa-lg" aria-hidden="true"></i>
+						<i class="fa fa-angle-double-right fa-fw fa-lg" aria-hidden="true"></i>
 					</button>
 
 					{{* Left section of the NavBar with navigation shortcuts/icons *}}
