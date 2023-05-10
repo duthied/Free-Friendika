@@ -318,30 +318,36 @@ class Images
 	}
 
 	/**
-	 * Get a link to a an image link with a preview
+	 * Get a BBCode tag for an local photo page URL with a preview thumbnail and an image description
 	 *
 	 * @param string $resource_id
-	 * @param string $nickname
-	 * @param integer $preview
-	 * @param string $ext
+	 * @param string $nickname The local user owner of the resource
+	 * @param int    $preview Preview image size identifier, either 0, 1 or 2 in decreasing order of size
+	 * @param string $ext Image file extension
 	 * @param string $description
 	 * @return string
 	 */
-	public static function getImageUrl(string $resource_id, string $nickname, int $preview, string $ext, string $description): string
+	public static function getBBCodeByResource(string $resource_id, string $nickname, int $preview, string $ext, string $description = ''): string
 	{
-		return '[url=' . DI::baseUrl() . '/photos/' . $nickname . '/image/' . $resource_id . '][img=' . DI::baseUrl() . '/photo/' . $resource_id . '-' . $preview. '.' . $ext . ']' . $description . '[/img][/url]';
+		return self::getBBCodeByUrl(
+			DI::baseUrl() . '/photos/' . $nickname . '/image/' . $resource_id,
+			DI::baseUrl() . '/photo/' . $resource_id . '-' . $preview. '.' . $ext,
+			$description
+		);
 	}
 
 	/**
-	 * Get a link to a picture with a preview
+	 * Get a BBCode tag for an image URL with a preview thumbnail and an image description
 	 *
-	 * @param string $photo
-	 * @param string $preview
+	 * @param string $photo Full image URL
+	 * @param string $preview Preview image URL
 	 * @param string $description
 	 * @return string
-	 */
-	public static function getPictureUrl(string $photo, string $preview, string $description): string
+	 */	public static function getBBCodeByUrl(string $photo, string $preview = null, string $description = ''): string
 	{
-		return '[url=' . $photo . '][img=' . $preview . ']' . $description . '[/img][/url]';
+		if (!empty($preview)) {
+			return '[url=' . $photo . '][img=' . $preview . ']' . $description . '[/img][/url]';
+		}
+		return '[img=' . $photo . ']' . $description . '[/img]';
 	}
 }

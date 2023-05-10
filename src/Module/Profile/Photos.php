@@ -273,7 +273,7 @@ class Photos extends \Friendica\Module\BaseProfile
 		$arr['visible']       = $visible;
 		$arr['origin']        = 1;
 
-		$arr['body']          = Images::getImageUrl($resource_id, $this->owner['nickname'], $preview, $image->getExt(), '');
+		$arr['body']          = Images::getBBCodeByResource($resource_id, $this->owner['nickname'], $preview, $image->getExt());
 
 		$item_id = Item::insert($arr);
 		// Update the photo albums cache

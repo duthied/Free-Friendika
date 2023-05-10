@@ -489,7 +489,7 @@ class Media
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (self::isLinkToImagePage($picture[1], $picture[2])) {
-					$body = str_replace($picture[0], Images::getPictureUrl(str_replace(['-1.', '-2.'], '-0.', $picture[2]), $picture[2], $picture[3]), $body);
+					$body = str_replace($picture[0], Images::getBBCodeByUrl(str_replace(['-1.', '-2.'], '-0.', $picture[2]), $picture[2], $picture[3]), $body);
 				}
 			}
 		}
@@ -497,7 +497,7 @@ class Media
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img\]([^\[]+?)\[/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				if (self::isLinkToImagePage($picture[1], $picture[2])) {
-					$body = str_replace($picture[0], Images::getPictureUrl(str_replace(['-1.', '-2.'], '-0.', $picture[2]), $picture[2], ''), $body);
+					$body = str_replace($picture[0], Images::getBBCodeByUrl(str_replace(['-1.', '-2.'], '-0.', $picture[2]), $picture[2]), $body);
 				}
 			}
 		}
@@ -1004,15 +1004,7 @@ class Media
 			}
 
 			if ($media['type'] == self::IMAGE) {
-				if (!empty($media['preview'])) {
-					$body .= "\n" . Images::getPictureUrl($media['url'], $media['preview'], $media['description']);
-				} else {
-					if (!empty($media['description'])) {
-						$body .= "\n[img=" . $media['url'] . ']' . $media['description'] . '[/img]';
-					} else {
-						$body .= "\n[img]" . $media['url'] . '[/img]';
-					}
-				}
+				$body .= "\n" . Images::getBBCodeByUrl($media['url'], $media['preview'], $media['description']);
 			} elseif ($media['type'] == self::AUDIO) {
 				$body .= "\n[audio]" . $media['url'] . "[/audio]\n";
 			} elseif ($media['type'] == self::VIDEO) {
