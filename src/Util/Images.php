@@ -344,7 +344,7 @@ class Images
 	 * @param string $description
 	 * @return string
 	 */
-	public static function getBBCodeByUrl(string $photo, string $preview = null, string $description = ''): string
+	public static function getBBCodeByUrl(string $photo, string $preview = null, string $description = null): string
 	{
 		if (!empty($preview)) {
 			return '[url=' . $photo . '][img=' . $preview . ']' . $description . '[/img][/url]';
