@@ -179,7 +179,7 @@ class Upload extends \Friendica\BaseModule
 		}
 
 		$this->logger->info('upload done');
-		$this->return(200, "\n\n" . Images::getBBCodeByResource($resource_id, $owner['nickname'], $preview, $image->getExt()) . "\n\n");
+		$this->return(200, "\n\n" . Images::getBBCodeByResource($resource_id, $owner['nickname'], $preview, $image->getExt(), '') . "\n\n");
 	}
 
 	/**
