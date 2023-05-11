@@ -54,11 +54,10 @@ function message_init(App $a)
 		'$tabs' => $tabs,
 		'$new'  => $new,
 	]);
-	$base = DI::baseUrl();
 
 	$head_tpl = Renderer::getMarkupTemplate('message-head.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($head_tpl, [
-		'$base'    => $base
+		'$base' => (string)DI::baseUrl()
 	]);
 }
 

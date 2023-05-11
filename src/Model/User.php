@@ -167,7 +167,7 @@ class User
 		$system['region'] = '';
 		$system['postal-code'] = '';
 		$system['country-name'] = '';
-		$system['homepage'] = DI::baseUrl();
+		$system['homepage'] = (string)DI::baseUrl();
 		$system['dob'] = '0000-00-00';
 
 		// Ensure that the user contains data

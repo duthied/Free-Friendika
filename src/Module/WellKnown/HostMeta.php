@@ -46,7 +46,7 @@ class HostMeta extends BaseModule
 			$config->set('system', 'site_pubkey', $res['pubkey']);
 		}
 
-		$domain = DI::baseUrl();
+		$domain = (string)DI::baseUrl();
 
 		XML::fromArray([
 			'XRD' => [
