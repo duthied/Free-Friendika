@@ -298,7 +298,7 @@ class Register extends BaseModule
 
 		$user = $result['user'];
 
-		$base_url = DI::baseUrl();
+		$base_url = (string)DI::baseUrl();
 
 		if ($netpublish && intval(DI::config()->get('config', 'register_policy')) !== self::APPROVE) {
 			$url = $base_url . '/profile/' . $user['nickname'];

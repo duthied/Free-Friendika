@@ -64,9 +64,9 @@ class HCard extends BaseModule
 			$page['htmlhead'] .= '<link rel="openid.delegate" href="' . $delegate . '" />' . "\r\n";
 		}
 
-		$baseUrl = DI::baseUrl();
+		$baseUrl = (string)DI::baseUrl();
 
-		$uri = urlencode('acct:' . $profile['nickname'] . '@' . $baseUrl->getHost() . ($baseUrl->getPath() ? '/' . $baseUrl->getPath() : ''));
+		$uri = urlencode('acct:' . $profile['nickname'] . '@' . DI::baseUrl()->getHost() . (DI::baseUrl()->getPath() ? '/' . DI::baseUrl()->getPath() : ''));
 
 		$page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($profile['net-publish'] ? 'true' : 'false') . '" />' . "\r\n";
 		$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl . '/dfrn_poll/' . $nickname . '" />' . "\r\n";

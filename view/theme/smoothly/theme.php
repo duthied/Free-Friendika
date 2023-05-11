@@ -45,7 +45,7 @@ function smoothly_init(App $a) {
 
 	$cssFile = null;
 	$ssl_state = false;
-	$baseurl = DI::baseUrl();
+	$baseurl = (string)DI::baseUrl();
 	DI::page()['htmlhead'] .= <<< EOT
 
 <script>
@@ -112,7 +112,7 @@ if (! function_exists('_js_in_foot')) {
 		/** @purpose insert stuff in bottom of page
 		*/
 		$ssl_state = false;
-		$baseurl = DI::baseUrl();
+		$baseurl = (string)DI::baseUrl();
 		$bottom['$baseurl'] = $baseurl;
 		$tpl = Renderer::getMarkupTemplate('bottom.tpl');
 

@@ -106,7 +106,7 @@ class Smilies
 
 		];
 
-		$baseUrl = DI::baseUrl();
+		$baseUrl = (string)DI::baseUrl();
 
 		$icons = [
 		'<img class="smiley" src="' . $baseUrl . '/images/smiley-heart.gif" alt="&lt;3" title="&lt;3" />',

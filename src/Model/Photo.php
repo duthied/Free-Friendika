@@ -918,9 +918,7 @@ class Photo
 	 */
 	public static function getResourceData(string $name): array
 	{
-		$base = DI::baseUrl();
-
-		$guid = str_replace([Strings::normaliseLink($base), '/photo/'], '', Strings::normaliseLink($name));
+		$guid = str_replace([Strings::normaliseLink((string)DI::baseUrl()), '/photo/'], '', Strings::normaliseLink($name));
 
 		if (parse_url($guid, PHP_URL_SCHEME)) {
 			return [];
@@ -982,9 +980,7 @@ class Photo
 	 */
 	public static function isLocalPage(string $name): bool
 	{
-		$base = DI::baseUrl();
-
-		$guid = str_replace(Strings::normaliseLink($base), '', Strings::normaliseLink($name));
+		$guid = str_replace(Strings::normaliseLink((string)DI::baseUrl()), '', Strings::normaliseLink($name));
 		$guid = preg_replace("=/photos/.*/image/(.*)=ism", '$1', $guid);
 		if (empty($guid)) {
 			return false;
