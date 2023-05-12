@@ -91,14 +91,16 @@ class BaseSearch extends BaseModule
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
-		if ($localSearch && empty($results)) {
-			$pager->setItemsPerPage(80);
-			$results = Search::getContactsFromLocalDirectory($search, $type, $pager->getStart(), $pager->getItemsPerPage());
-		} elseif (Search::getGlobalDirectory() && empty($results)) {
-			$results = Search::getContactsFromGlobalDirectory($search, $type, $pager->getPage());
-			$pager->setItemsPerPage($results->getItemsPage());
-		} else {
-			$results = new ResultList();
+		if (empty($results)) {
+			if ($localSearch) {
+				$pager->setItemsPerPage(80);
+				$results = Search::getContactsFromLocalDirectory($search, $type, $pager->getStart(), $pager->getItemsPerPage());
+			} elseif (Search::getGlobalDirectory()) {
+				$results = Search::getContactsFromGlobalDirectory($search, $type, $pager->getPage());
+				$pager->setItemsPerPage($results->getItemsPage());
+			} else {
+				$results = new ResultList();
+			}
 		}
 
 		return self::printResult($results, $pager, $header);
