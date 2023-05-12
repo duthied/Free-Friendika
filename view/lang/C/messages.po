@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.06-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-09 06:34+0000\n"
+"POT-Creation-Date: 2023-05-12 07:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,7 +44,7 @@ msgstr ""
 msgid "Item not found."
 msgstr ""
 
-#: mod/item.php:435 mod/message.php:68 mod/message.php:114 mod/notes.php:45
+#: mod/item.php:435 mod/message.php:67 mod/message.php:113 mod/notes.php:45
 #: mod/photos.php:152 mod/photos.php:669 src/Model/Event.php:522
 #: src/Module/Attach.php:55 src/Module/BaseApi.php:99
 #: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:52
@@ -219,86 +219,86 @@ msgstr ""
 msgid "Your password has been changed at %s"
 msgstr ""
 
-#: mod/message.php:46 mod/message.php:129 src/Content/Nav.php:319
+#: mod/message.php:46 mod/message.php:128 src/Content/Nav.php:319
 msgid "New Message"
 msgstr ""
 
-#: mod/message.php:83 src/Module/Profile/UnkMail.php:100
+#: mod/message.php:82 src/Module/Profile/UnkMail.php:100
 msgid "No recipient selected."
 msgstr ""
 
-#: mod/message.php:88
+#: mod/message.php:87
 msgid "Unable to locate contact information."
 msgstr ""
 
-#: mod/message.php:92 src/Module/Profile/UnkMail.php:106
+#: mod/message.php:91 src/Module/Profile/UnkMail.php:106
 msgid "Message could not be sent."
 msgstr ""
 
-#: mod/message.php:96 src/Module/Profile/UnkMail.php:109
+#: mod/message.php:95 src/Module/Profile/UnkMail.php:109
 msgid "Message collection failure."
 msgstr ""
 
-#: mod/message.php:123 src/Module/Notifications/Introductions.php:135
+#: mod/message.php:122 src/Module/Notifications/Introductions.php:135
 #: src/Module/Notifications/Introductions.php:170
 #: src/Module/Notifications/Notification.php:85
 msgid "Discard"
 msgstr ""
 
-#: mod/message.php:136 src/Content/Nav.php:316 view/theme/frio/theme.php:241
+#: mod/message.php:135 src/Content/Nav.php:316 view/theme/frio/theme.php:241
 msgid "Messages"
 msgstr ""
 
-#: mod/message.php:149
+#: mod/message.php:148
 msgid "Conversation not found."
 msgstr ""
 
-#: mod/message.php:154
+#: mod/message.php:153
 msgid "Message was not deleted."
 msgstr ""
 
-#: mod/message.php:169
+#: mod/message.php:168
 msgid "Conversation was not removed."
 msgstr ""
 
-#: mod/message.php:182 mod/message.php:287 src/Module/Profile/UnkMail.php:145
+#: mod/message.php:181 mod/message.php:286 src/Module/Profile/UnkMail.php:145
 msgid "Please enter a link URL:"
 msgstr ""
 
-#: mod/message.php:191 src/Module/Profile/UnkMail.php:151
+#: mod/message.php:190 src/Module/Profile/UnkMail.php:151
 msgid "Send Private Message"
 msgstr ""
 
-#: mod/message.php:192 mod/message.php:347
+#: mod/message.php:191 mod/message.php:346
 msgid "To:"
 msgstr ""
 
-#: mod/message.php:193 mod/message.php:348
+#: mod/message.php:192 mod/message.php:347
 msgid "Subject:"
 msgstr ""
 
-#: mod/message.php:197 mod/message.php:351 src/Module/Invite.php:171
+#: mod/message.php:196 mod/message.php:350 src/Module/Invite.php:171
 msgid "Your message:"
 msgstr ""
 
-#: mod/message.php:200 mod/message.php:355 src/Content/Conversation.php:360
+#: mod/message.php:199 mod/message.php:354 src/Content/Conversation.php:360
 #: src/Module/Post/Edit.php:131
 msgid "Upload photo"
 msgstr ""
 
-#: mod/message.php:201 mod/message.php:356 src/Module/Post/Edit.php:135
+#: mod/message.php:200 mod/message.php:355 src/Module/Post/Edit.php:135
 #: src/Module/Profile/UnkMail.php:153
 msgid "Insert web link"
 msgstr ""
 
-#: mod/message.php:202 mod/message.php:358 mod/photos.php:1291
+#: mod/message.php:201 mod/message.php:357 mod/photos.php:1291
 #: src/Content/Conversation.php:390 src/Content/Conversation.php:734
 #: src/Module/Item/Compose.php:205 src/Module/Post/Edit.php:145
 #: src/Module/Profile/UnkMail.php:154 src/Object/Post.php:550
 msgid "Please wait"
 msgstr ""
 
-#: mod/message.php:203 mod/message.php:357 mod/photos.php:702
+#: mod/message.php:202 mod/message.php:356 mod/photos.php:702
 #: mod/photos.php:819 mod/photos.php:1097 mod/photos.php:1138
 #: mod/photos.php:1194 mod/photos.php:1268
 #: src/Module/Calendar/Event/Form.php:250 src/Module/Contact/Advanced.php:132
@@ -317,52 +317,52 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: mod/message.php:224
+#: mod/message.php:223
 msgid "No messages."
 msgstr ""
 
-#: mod/message.php:280
+#: mod/message.php:279
 msgid "Message not available."
 msgstr ""
 
-#: mod/message.php:324
+#: mod/message.php:323
 msgid "Delete message"
 msgstr ""
 
-#: mod/message.php:326 mod/message.php:457
+#: mod/message.php:325 mod/message.php:456
 msgid "D, d M Y - g:i A"
 msgstr ""
 
-#: mod/message.php:341 mod/message.php:454
+#: mod/message.php:340 mod/message.php:453
 msgid "Delete conversation"
 msgstr ""
 
-#: mod/message.php:343
+#: mod/message.php:342
 msgid ""
 "No secure communications available. You <strong>may</strong> be able to "
 "respond from the sender's profile page."
 msgstr ""
 
-#: mod/message.php:346
+#: mod/message.php:345
 msgid "Send Reply"
 msgstr ""
 
-#: mod/message.php:428
+#: mod/message.php:427
 #, php-format
 msgid "Unknown sender - %s"
 msgstr ""
 
-#: mod/message.php:430
+#: mod/message.php:429
 #, php-format
 msgid "You and %s"
 msgstr ""
 
-#: mod/message.php:432
+#: mod/message.php:431
 #, php-format
 msgid "%s and You"
 msgstr ""
 
-#: mod/message.php:460
+#: mod/message.php:459
 #, php-format
 msgid "%d message"
 msgid_plural "%d messages"
@@ -1683,7 +1683,7 @@ msgstr ""
 
 #: src/Content/Item.php:439 src/Content/Widget.php:80
 #: src/Model/Contact.php:1199 src/Model/Contact.php:1210
-#: src/Module/Contact/Follow.php:167 view/theme/vier/theme.php:196
+#: src/Module/Contact/Follow.php:167 view/theme/vier/theme.php:195
 msgid "Connect/Follow"
 msgstr ""
 
@@ -1804,7 +1804,7 @@ msgstr ""
 #: src/Module/Settings/TwoFactor/AppSpecific.php:129
 #: src/Module/Settings/TwoFactor/Index.php:118
 #: src/Module/Settings/TwoFactor/Recovery.php:107
-#: src/Module/Settings/TwoFactor/Verify.php:146 view/theme/vier/theme.php:241
+#: src/Module/Settings/TwoFactor/Verify.php:146 view/theme/vier/theme.php:240
 msgid "Help"
 msgstr ""
 
@@ -2081,46 +2081,46 @@ msgid_plural "%d invitations available"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Content/Widget.php:78 view/theme/vier/theme.php:194
+#: src/Content/Widget.php:78 view/theme/vier/theme.php:193
 msgid "Find People"
 msgstr ""
 
-#: src/Content/Widget.php:79 view/theme/vier/theme.php:195
+#: src/Content/Widget.php:79 view/theme/vier/theme.php:194
 msgid "Enter name or interest"
 msgstr ""
 
-#: src/Content/Widget.php:81 view/theme/vier/theme.php:197
+#: src/Content/Widget.php:81 view/theme/vier/theme.php:196
 msgid "Examples: Robert Morgenstein, Fishing"
 msgstr ""
 
 #: src/Content/Widget.php:82 src/Module/Contact.php:432
-#: src/Module/Directory.php:96 view/theme/vier/theme.php:198
+#: src/Module/Directory.php:96 view/theme/vier/theme.php:197
 msgid "Find"
 msgstr ""
 
 #: src/Content/Widget.php:83 src/Module/Contact/Suggestions.php:73
-#: view/theme/vier/theme.php:199
+#: view/theme/vier/theme.php:198
 msgid "Friend Suggestions"
 msgstr ""
 
-#: src/Content/Widget.php:84 view/theme/vier/theme.php:200
+#: src/Content/Widget.php:84 view/theme/vier/theme.php:199
 msgid "Similar Interests"
 msgstr ""
 
-#: src/Content/Widget.php:85 view/theme/vier/theme.php:201
+#: src/Content/Widget.php:85 view/theme/vier/theme.php:200
 msgid "Random Profile"
 msgstr ""
 
-#: src/Content/Widget.php:86 view/theme/vier/theme.php:202
+#: src/Content/Widget.php:86 view/theme/vier/theme.php:201
 msgid "Invite Friends"
 msgstr ""
 
 #: src/Content/Widget.php:87 src/Module/Directory.php:88
-#: view/theme/vier/theme.php:203
+#: view/theme/vier/theme.php:202
 msgid "Global Directory"
 msgstr ""
 
-#: src/Content/Widget.php:89 view/theme/vier/theme.php:205
+#: src/Content/Widget.php:89 view/theme/vier/theme.php:204
 msgid "Local Directory"
 msgstr ""
 
@@ -3272,7 +3272,7 @@ msgstr ""
 msgid "[no subject]"
 msgstr ""
 
-#: src/Model/Photo.php:1188 src/Module/Media/Photo/Upload.php:171
+#: src/Model/Photo.php:1184 src/Module/Media/Photo/Upload.php:171
 msgid "Wall Photos"
 msgstr ""
 
@@ -5546,11 +5546,11 @@ msgstr ""
 msgid "Forum Search - %s"
 msgstr ""
 
-#: src/Module/BaseSearch.php:121 src/Module/Contact/MatchInterests.php:139
+#: src/Module/BaseSearch.php:123 src/Module/Contact/MatchInterests.php:139
 msgid "No matches"
 msgstr ""
 
-#: src/Module/BaseSearch.php:147
+#: src/Module/BaseSearch.php:149
 #, php-format
 msgid ""
 "%d result was filtered out because your node blocks the domain it is "
@@ -11876,7 +11876,7 @@ msgstr ""
 msgid "Community Pages"
 msgstr ""
 
-#: view/theme/vier/config.php:139 view/theme/vier/theme.php:149
+#: view/theme/vier/config.php:139 view/theme/vier/theme.php:148
 msgid "Community Profiles"
 msgstr ""
 
@@ -11884,7 +11884,7 @@ msgstr ""
 msgid "Help or @NewHere ?"
 msgstr ""
 
-#: view/theme/vier/config.php:141 view/theme/vier/theme.php:320
+#: view/theme/vier/config.php:141 view/theme/vier/theme.php:319
 msgid "Connect Services"
 msgstr ""
 
@@ -11892,10 +11892,10 @@ msgstr ""
 msgid "Find Friends"
 msgstr ""
 
-#: view/theme/vier/config.php:143 view/theme/vier/theme.php:176
+#: view/theme/vier/config.php:143 view/theme/vier/theme.php:175
 msgid "Last users"
 msgstr ""
 
-#: view/theme/vier/theme.php:235
+#: view/theme/vier/theme.php:234
 msgid "Quick Start"
 msgstr ""
