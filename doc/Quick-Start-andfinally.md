@@ -4,7 +4,6 @@ Here are some more things to help get you started:
 
 **Groups**
 
-
 - <a href="http://forum.friendi.ca/profile/helpers">Friendica Support</a> - problems?  This is the place to ask.
 
 **Documentation**

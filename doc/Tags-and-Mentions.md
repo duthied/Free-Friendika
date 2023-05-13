@@ -15,7 +15,7 @@ You can tag **persons who are in your social circle** by adding the "@"-sign in 
 
 * @mike - indicates a known contact in your social circle whose nickname is "mike"
 * @mike_macgirvin - indicates a known contact in your social circle whose  full name is "Mike Macgirvin". Note that spaces cannot be used inside tags.
-* @mike+151 - this form is used by the drop-down tag completion tool. It indicates the contact whose nickname is mike and whose contact identifier number is 151. The drop-down tool may be used to resolve people with duplicate nicknames. 
+* @mike+151 - this form is used by the drop-down tag completion tool. It indicates the contact whose nickname is mike and whose contact identifier number is 151. The drop-down tool may be used to resolve people with duplicate nicknames.
 
 You can tag a person on a different network or one that is **not in your social circle** by using the following notation:
 
@@ -37,9 +37,9 @@ If you want to post something exclusively to a forum (e.g. the support forum) pl
 So !helpers will be an exclusive posting to the support forum if you are connected with the forum.
 If you select a forum from the ACL a !-mention will be added automatically to your posting.
 
-If you sort your contacts into groups, you cannot @-mention these groups.
-But you can select the group in the access control when creating a new posting, to allow (or disallow) a certain group of people to see the posting.
-See [Groups and Privacy](help/Groups-and-Privacy) for more details about grouping your contacts.
+If you sort your contacts into circles, you cannot @-mention these circles.
+But you can select the circle in the access control when creating a new posting, to allow (or disallow) a certain circle of people to see the posting.
+See [Circles and Privacy](help/Circles-and-Privacy) for more details about grouping your contacts.
 
 **Topical Tags**
 
