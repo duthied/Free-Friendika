@@ -841,7 +841,7 @@ class DBA
 	 */
 	public static function deleteSleepingProcesses()
 	{
-		return DI::dba()->delete();
+		return DI::dba()->deleteSleepingProcesses();
 	}
 
 	/**
