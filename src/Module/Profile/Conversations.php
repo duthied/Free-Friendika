@@ -165,7 +165,7 @@ class Conversations extends BaseProfile
 			$o .= $this->conversation->statusEditor($x);
 		}
 
-		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
+		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched their circles
 		$condition = Item::getPermissionsConditionArrayByUserId($profile['uid']);
 
 		$last_updated_array = $this->session->get('last_updated', []);

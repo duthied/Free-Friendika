@@ -3097,7 +3097,7 @@ class Contact
 		$contact_id = $contact['id'];
 		$result['cid'] = $contact_id;
 
-		Group::addMember(User::getDefaultGroup($uid), $contact_id);
+		Circle::addMember(User::getDefaultCircle($uid), $contact_id);
 
 		// Update the avatar
 		self::updateAvatar($contact_id, $ret['photo']);
@@ -3238,7 +3238,7 @@ class Contact
 					DI::intro()->save($intro);
 				}
 
-				Group::addMember(User::getDefaultGroup($importer['uid']), $contact_record['id']);
+				Circle::addMember(User::getDefaultCircle($importer['uid']), $contact_record['id']);
 
 				if (($user['notify-flags'] & Notification\Type::INTRO) && $user['page-flags'] == User::PAGE_FLAGS_NORMAL) {
 					DI::notify()->createFromArray([

@@ -531,7 +531,7 @@ class HTML
 			$ignore = false;
 
 			// A list of some links that should be ignored
-			$list = ["/user/", "/tag/", "/group/", "/profile/", "/search?search=", "/search?tag=", "mailto:", "/u/", "/node/",
+			$list = ["/user/", "/tag/", "/group/", "/circle/", "/profile/", "/search?search=", "/search?tag=", "mailto:", "/u/", "/node/",
 				"//plus.google.com/", "//twitter.com/"];
 			foreach ($list as $listitem) {
 				if (strpos($treffer[1], $listitem) !== false) {

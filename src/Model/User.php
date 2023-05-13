@@ -483,23 +483,23 @@ class User
 	}
 
 	/**
-	 * Returns the default group for a given user and network
+	 * Returns the default circle for a given user and network
 	 *
 	 * @param int $uid User id
 	 *
-	 * @return int group id
+	 * @return int circle id
 	 * @throws Exception
 	 */
-	public static function getDefaultGroup(int $uid): int
+	public static function getDefaultCircle(int $uid): int
 	{
 		$user = DBA::selectFirst('user', ['def_gid'], ['uid' => $uid]);
 		if (DBA::isResult($user)) {
-			$default_group = $user["def_gid"];
+			$default_circle = $user['def_gid'];
 		} else {
-			$default_group = 0;
+			$default_circle = 0;
 		}
 
-		return $default_group;
+		return $default_circle;
 	}
 
 	/**
@@ -1188,13 +1188,13 @@ class User
 			throw new Exception(DI::l10n()->t('An error occurred creating your self contact. Please try again.'));
 		}
 
-		// Create a group with no members. This allows somebody to use it
-		// right away as a default group for new contacts.
-		$def_gid = Group::create($uid, DI::l10n()->t('Friends'));
+		// Create a circle with no members. This allows somebody to use it
+		// right away as a default circle for new contacts.
+		$def_gid = Circle::create($uid, DI::l10n()->t('Friends'));
 		if (!$def_gid) {
 			DBA::delete('user', ['uid' => $uid]);
 
-			throw new Exception(DI::l10n()->t('An error occurred creating your default contact group. Please try again.'));
+			throw new Exception(DI::l10n()->t('An error occurred creating your default contact circle. Please try again.'));
 		}
 
 		$fields = ['def_gid' => $def_gid];
