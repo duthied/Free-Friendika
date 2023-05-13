@@ -72,12 +72,16 @@ class DatabaseTest extends FixtureTest
 		self::assertEquals(2, $db->selectFirst('gserver', ['active-week-users'], ['nurl' => 'http://friendica.local'])['active-week-users']);
 		self::assertTrue($db->update('gserver', [
 			'site_name' => 'test', "`registered-users` = `registered-users` + 1",
-			'info'      => 'another test'], ['nurl' => 'http://friendica.local'
+			'info'      => 'another test'
+		], [
+			'nurl' => 'http://friendica.local'
 		]));
 		self::assertEquals(2, $db->selectFirst('gserver', ['registered-users'], ['nurl' => 'http://friendica.local'])['registered-users']);
 		self::assertTrue($db->update('gserver', [
 			'site_name' => 'test', "`registered-users` = `registered-users` - 1",
-			'info'      => 'another test'], ['nurl' => 'http://friendica.local'
+			'info'      => 'another test'
+		], [
+			'nurl' => 'http://friendica.local'
 		]));
 		self::assertEquals(1, $db->selectFirst('gserver', ['registered-users'], ['nurl' => 'http://friendica.local'])['registered-users']);
 	}
