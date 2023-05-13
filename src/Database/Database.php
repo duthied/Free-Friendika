@@ -1782,6 +1782,24 @@ class Database
 	}
 
 	/**
+	 * Kill sleeping database processes
+	 *
+	 * @return void
+	 */
+	public function deleteSleepingProcesses()
+	{
+		$processes = $this->p("SHOW FULL PROCESSLIST");
+		while ($process = $this->fetch($processes)) {
+			if (($process['Command'] != 'Sleep') || ($process['Time'] < 300) || ($process['db'] != $this->databaseName())) {
+				continue;
+			}
+
+			$this->e("KILL ?", $process['Id']);
+		}
+		$this->close($processes);
+	}
+
+	/**
 	 * Fetch a database variable
 	 *
 	 * @param string $name

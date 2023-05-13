@@ -151,8 +151,8 @@ class Cron
 			// We are acquiring the two locks from the worker to avoid locking problems
 			if (DI::lock()->acquire(Worker::LOCK_PROCESS, 10)) {
 				if (DI::lock()->acquire(Worker::LOCK_WORKER, 10)) {
-					DBA::e("OPTIMIZE TABLE `workerqueue`");
-					DBA::e("OPTIMIZE TABLE `process`");
+					DBA::optimizeTable('workerqueue');
+					DBA::optimizeTable('process');
 					DI::lock()->release(Worker::LOCK_WORKER);
 				}
 				DI::lock()->release(Worker::LOCK_PROCESS);

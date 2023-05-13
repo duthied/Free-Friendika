@@ -822,6 +822,29 @@ class DBA
 	}
 
 	/**
+	 * Optimizes tables
+	 *
+	 * @param string $table a given table
+	 *
+	 * @return bool True, if successfully optimized, otherwise false
+	 * @throws \Exception
+	 */
+	public static function optimizeTable(string $table): bool
+	{
+		return DI::dba()->optimizeTable($table);
+	}
+
+	/**
+	 * Kill sleeping database processes
+	 *
+	 * @return void
+	 */
+	public static function deleteSleepingProcesses()
+	{
+		return DI::dba()->delete();
+	}
+
+	/**
 	 * Fetch a database variable
 	 *
 	 * @param string $name

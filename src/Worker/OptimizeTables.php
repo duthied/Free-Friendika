@@ -40,36 +40,36 @@ class OptimizeTables
 
 		Logger::info('Optimize start');
 
-		DBA::e("OPTIMIZE TABLE `cache`");
-		DBA::e("OPTIMIZE TABLE `locks`");
-		DBA::e("OPTIMIZE TABLE `oembed`");
-		DBA::e("OPTIMIZE TABLE `parsed_url`");
-		DBA::e("OPTIMIZE TABLE `session`");
+		DBA::optimizeTable('cache');
+		DBA::optimizeTable('locks');
+		DBA::optimizeTable('oembed');
+		DBA::optimizeTable('parsed_url');
+		DBA::optimizeTable('session');
 
 		if (DI::config()->get('system', 'optimize_all_tables')) {
-			DBA::e("OPTIMIZE TABLE `apcontact`");
-			DBA::e("OPTIMIZE TABLE `contact`");
-			DBA::e("OPTIMIZE TABLE `contact-relation`");
-			DBA::e("OPTIMIZE TABLE `conversation`");
-			DBA::e("OPTIMIZE TABLE `diaspora-contact`");
-			DBA::e("OPTIMIZE TABLE `diaspora-interaction`");
-			DBA::e("OPTIMIZE TABLE `fcontact`");
-			DBA::e("OPTIMIZE TABLE `gserver`");
-			DBA::e("OPTIMIZE TABLE `gserver-tag`");
-			DBA::e("OPTIMIZE TABLE `inbox-status`");
-			DBA::e("OPTIMIZE TABLE `item-uri`");
-			DBA::e("OPTIMIZE TABLE `notification`");
-			DBA::e("OPTIMIZE TABLE `notify`");
-			DBA::e("OPTIMIZE TABLE `photo`");
-			DBA::e("OPTIMIZE TABLE `post`");
-			DBA::e("OPTIMIZE TABLE `post-content`");
-			DBA::e("OPTIMIZE TABLE `post-delivery-data`");
-			DBA::e("OPTIMIZE TABLE `post-link`");
-			DBA::e("OPTIMIZE TABLE `post-thread`");
-			DBA::e("OPTIMIZE TABLE `post-thread-user`");
-			DBA::e("OPTIMIZE TABLE `post-user`");
-			DBA::e("OPTIMIZE TABLE `storage`");
-			DBA::e("OPTIMIZE TABLE `tag`");
+			DBA::optimizeTable('apcontact');
+			DBA::optimizeTable('contact');
+			DBA::optimizeTable('contact-relation');
+			DBA::optimizeTable('conversation');
+			DBA::optimizeTable('diaspora-contact');
+			DBA::optimizeTable('diaspora-interaction');
+			DBA::optimizeTable('fcontact');
+			DBA::optimizeTable('gserver');
+			DBA::optimizeTable('gserver-tag');
+			DBA::optimizeTable('inbox-status');
+			DBA::optimizeTable('item-uri');
+			DBA::optimizeTable('notification');
+			DBA::optimizeTable('notify');
+			DBA::optimizeTable('photo');
+			DBA::optimizeTable('post');
+			DBA::optimizeTable('post-content');
+			DBA::optimizeTable('post-delivery-data');
+			DBA::optimizeTable('post-link');
+			DBA::optimizeTable('post-thread');
+			DBA::optimizeTable('post-thread-user');
+			DBA::optimizeTable('post-user');
+			DBA::optimizeTable('storage');
+			DBA::optimizeTable('tag');
 		}
 
 		Logger::info('Optimize end');

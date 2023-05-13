@@ -163,15 +163,6 @@ class Cron
 	{
 		Logger::info('Looking for sleeping processes');
 
-		$processes = DBA::p("SHOW FULL PROCESSLIST");
-		while ($process = DBA::fetch($processes)) {
-			if (($process['Command'] != 'Sleep') || ($process['Time'] < 300) || ($process['db'] != DBA::databaseName())) {
-				continue;
-			}
-
-			DBA::e("KILL ?", $process['Id']);
-			Logger::notice('Killed sleeping process', ['id' => $process['Id']]);
-		}
-		DBA::close($processes);
+		DBA::deleteSleepingProcesses();
 	}
 }
