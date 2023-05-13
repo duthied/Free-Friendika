@@ -836,12 +836,10 @@ class DBA
 
 	/**
 	 * Kill sleeping database processes
-	 *
-	 * @return void
 	 */
 	public static function deleteSleepingProcesses()
 	{
-		return DI::dba()->deleteSleepingProcesses();
+		DI::dba()->deleteSleepingProcesses();
 	}
 
 	/**
