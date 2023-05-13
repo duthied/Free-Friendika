@@ -58,6 +58,18 @@ class DBStructure
 	}
 
 	/**
+	 * Dops a specific table
+	 *
+	 * @param string $table the table name
+	 *
+	 * @return bool true if possible, otherwise false
+	 */
+	public static function dropTable(string $table): bool
+	{
+		return DBA::isResult(DBA::e('DROP TABLE ' . DBA::quoteIdentifier($table) . ';'));
+	}
+
+	/**
 	 * Drop unused tables
 	 *
 	 * @param boolean $execute
@@ -94,8 +106,7 @@ class DBStructure
 					$sql = 'DROP TABLE ' . DBA::quoteIdentifier($table) . ';';
 					echo $sql . "\n";
 
-					$result = DBA::e($sql);
-					if (!DBA::isResult($result)) {
+					if (!static::dropTable($table)) {
 						self::printUpdateError($sql);
 					}
 				} else {

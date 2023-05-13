@@ -197,7 +197,7 @@ class Cron
 		// Optimizing this table only last seconds
 		if (DI::config()->get('system', 'optimize_tables')) {
 			Logger::info('Optimize start');
-			DBA::e("OPTIMIZE TABLE `post-delivery`");
+			DBA::optimizeTable('post-delivery');
 			Logger::info('Optimize end');
 		}
 	}
