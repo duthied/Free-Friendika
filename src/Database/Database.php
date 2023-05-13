@@ -1759,6 +1759,19 @@ class Database
 	}
 
 	/**
+	 * Optimizes tables
+	 *
+	 * @param string $table a given table
+	 *
+	 * @return bool True, if successfully optimized, otherwise false
+	 * @throws \Exception
+	 */
+	public function optimizeTable(string $table): bool
+	{
+		return $this->e("OPTIMIZE TABLE " . DBA::buildTableString([$table])) !== false;
+	}
+
+	/**
 	 * Fetch a database variable
 	 *
 	 * @param string $name

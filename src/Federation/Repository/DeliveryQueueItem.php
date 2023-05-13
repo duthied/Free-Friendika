@@ -108,6 +108,6 @@ final class DeliveryQueueItem extends \Friendica\BaseRepository
 
 	public function optimizeStorage(): bool
 	{
-		return $this->db->e("OPTIMIZE TABLE " . DBA::buildTableString([self::$table_name]));
+		return $this->db->optimizeTable(self::$table_name);
 	}
 }
