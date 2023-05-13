@@ -88,7 +88,8 @@ final class DeliveryQueueItem extends \Friendica\BaseRepository
 
 	public function remove(Entity\DeliveryQueueItem $deliveryQueueItem): bool
 	{
-		return $this->db->delete(self::$table_name, ['uri-id' => $deliveryQueueItem->postUriId, 'gsid' => $deliveryQueueItem->targetServerId]);
+		return $this->db->delete(self::$table_name, ['uri-id' => $deliveryQueueItem->postUriId,
+													 'gsid'   => $deliveryQueueItem->targetServerId]);
 	}
 
 	public function removeFailedByServerId(int $gsid, int $failedThreshold): bool
@@ -98,12 +99,11 @@ final class DeliveryQueueItem extends \Friendica\BaseRepository
 
 	public function incrementFailed(Entity\DeliveryQueueItem $deliveryQueueItem): bool
 	{
-		return $this->db->e("
-			UPDATE " . DBA::buildTableString([self::$table_name]) . "
-			SET `failed` = `failed` + 1
-			WHERE `uri-id` = ? AND `gsid` = ?",
-			$deliveryQueueItem->postUriId, $deliveryQueueItem->targetServerId
-		);
+		return $this->db->update(self::$table_name, ["`failed` = `failed` + 1"],
+			["`uri-id` = ? AND `gsid` = ?",
+			 $deliveryQueueItem->postUriId,
+			 $deliveryQueueItem->targetServerId
+			]);
 	}
 
 	public function optimizeStorage(): bool

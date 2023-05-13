@@ -1357,6 +1357,15 @@ class Database
 		}
 
 		$fields = $this->castFields($table, $fields);
+		$direct_fields = [];
+
+		foreach ($fields as $key => $value) {
+			if (is_numeric($key)) {
+				$direct_fields[] = $value;
+				unset($fields[$key]);
+			}
+		}
+
 
 		$table_string = DBA::buildTableString([$table]);
 
@@ -1369,7 +1378,8 @@ class Database
 		}
 
 		$sql = "UPDATE " . $ignore . $table_string . " SET "
-			. implode(" = ?, ", array_map([DBA::class, 'quoteIdentifier'], array_keys($fields))) . " = ?"
+			. ((count($fields) > 0) ? implode(" = ?, ", array_map([DBA::class, 'quoteIdentifier'], array_keys($fields))) . " = ?" : "")
+			. ((count($direct_fields) > 0) ? ((count($fields) > 0) ? " , " : "") . implode(" , ", $direct_fields) : "")
 			. $condition_string;
 
 		// Combines the updated fields parameter values with the condition parameter values
