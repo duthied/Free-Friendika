@@ -85,4 +85,19 @@ class DatabaseTest extends FixtureTest
 		]));
 		self::assertEquals(1, $db->selectFirst('gserver', ['registered-users'], ['nurl' => 'http://friendica.local'])['registered-users']);
 	}
+
+	public function testUpdateWithArray()
+	{
+		$db = $this->getDbInstance();
+
+		self::assertTrue($db->update('gserver', ['active-week-users' => 0, 'registered-users' => 0], ['nurl' => 'http://friendica.local']));
+
+		$fields = ["`registered-users` = `registered-users` + 1"];
+		$fields[] = "`active-week-users` = `active-week-users` + 2";
+
+		self::assertTrue($db->update('gserver', $fields, ['nurl' => 'http://friendica.local']));
+
+		self::assertEquals(2, $db->selectFirst('gserver', ['active-week-users'], ['nurl' => 'http://friendica.local'])['active-week-users']);
+		self::assertEquals(1, $db->selectFirst('gserver', ['registered-users'], ['nurl' => 'http://friendica.local'])['registered-users']);
+	}
 }

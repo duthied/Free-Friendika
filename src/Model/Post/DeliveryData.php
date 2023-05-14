@@ -86,19 +86,19 @@ class DeliveryData
 
 		switch ($protocol) {
 			case self::ACTIVITYPUB:
-				$increments[] = ["`activitypub` = `activitypub` + 1"];
+				$increments[] = "`activitypub` = `activitypub` + 1";
 				break;
 			case self::DFRN:
-				$increments[] = ["`dfrn` = `dfrn` + 1"];
+				$increments[] = "`dfrn` = `dfrn` + 1";
 				break;
 			case self::LEGACY_DFRN:
-				$increments[] = ["`legacy_dfrn` = `legacy_dfrn` + 1"];
+				$increments[] = "`legacy_dfrn` = `legacy_dfrn` + 1";
 				break;
 			case self::DIASPORA:
-				$increments[] = ["`diaspora` = `diaspora` + 1"];
+				$increments[] = "`diaspora` = `diaspora` + 1";
 				break;
 			case self::OSTATUS:
-				$increments[] = ["`ostatus` = `ostatus` + 1"];
+				$increments[] = "`ostatus` = `ostatus` + 1";
 				break;
 		}
 
