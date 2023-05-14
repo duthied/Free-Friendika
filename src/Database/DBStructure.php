@@ -58,7 +58,7 @@ class DBStructure
 	}
 
 	/**
-	 * Dops a specific table
+	 * Drops a specific table
 	 *
 	 * @param string $table the table name
 	 *
