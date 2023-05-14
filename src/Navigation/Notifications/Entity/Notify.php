@@ -134,6 +134,6 @@ class Notify extends BaseEntity
 	 */
 	public static function formatMessage(string $name, string $message): string
 	{
-		return str_replace('{0}', '<span class="contactname">' . strip_tags(BBCode::convert($name)) . '</span>', $message);
+		return str_replace('{0}', '<span class="contactname">' . strip_tags(BBCode::convert($name)) . '</span>', htmlspecialchars($message));
 	}
 }
