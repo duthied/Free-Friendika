@@ -151,8 +151,8 @@ class Cron
 			// We are acquiring the two locks from the worker to avoid locking problems
 			if (DI::lock()->acquire(Worker::LOCK_PROCESS, 10)) {
 				if (DI::lock()->acquire(Worker::LOCK_WORKER, 10)) {
-					DBA::e("OPTIMIZE TABLE `workerqueue`");
-					DBA::e("OPTIMIZE TABLE `process`");
+					DBA::optimizeTable('workerqueue');
+					DBA::optimizeTable('process');
 					DI::lock()->release(Worker::LOCK_WORKER);
 				}
 				DI::lock()->release(Worker::LOCK_PROCESS);
@@ -197,7 +197,7 @@ class Cron
 		// Optimizing this table only last seconds
 		if (DI::config()->get('system', 'optimize_tables')) {
 			Logger::info('Optimize start');
-			DBA::e("OPTIMIZE TABLE `post-delivery`");
+			DBA::optimizeTable('post-delivery');
 			Logger::info('Optimize end');
 		}
 	}

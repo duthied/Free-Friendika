@@ -82,27 +82,27 @@ class DeliveryData
 	 */
 	public static function incrementQueueDone(int $uri_id, int $protocol = 0)
 	{
-		$sql = '';
+		$increments = ["`queue_done` = `queue_done` + 1"];
 
 		switch ($protocol) {
 			case self::ACTIVITYPUB:
-				$sql = ", `activitypub` = `activitypub` + 1";
+				$increments[] = ["`activitypub` = `activitypub` + 1"];
 				break;
 			case self::DFRN:
-				$sql = ", `dfrn` = `dfrn` + 1";
+				$increments[] = ["`dfrn` = `dfrn` + 1"];
 				break;
 			case self::LEGACY_DFRN:
-				$sql = ", `legacy_dfrn` = `legacy_dfrn` + 1";
+				$increments[] = ["`legacy_dfrn` = `legacy_dfrn` + 1"];
 				break;
 			case self::DIASPORA:
-				$sql = ", `diaspora` = `diaspora` + 1";
+				$increments[] = ["`diaspora` = `diaspora` + 1"];
 				break;
 			case self::OSTATUS:
-				$sql = ", `ostatus` = `ostatus` + 1";
+				$increments[] = ["`ostatus` = `ostatus` + 1"];
 				break;
 		}
 
-		return DBA::e('UPDATE `post-delivery-data` SET `queue_done` = `queue_done` + 1' . $sql . ' WHERE `uri-id` = ?', $uri_id);
+		return DBA::update('post-delivery-data', $increments, ['uri-id' => $uri_id]);
 	}
 
 	/**
@@ -116,7 +116,7 @@ class DeliveryData
 	 */
 	public static function incrementQueueFailed(int $uri_id)
 	{
-		return DBA::e('UPDATE `post-delivery-data` SET `queue_failed` = `queue_failed` + 1 WHERE `uri-id` = ?', $uri_id);
+		return DBA::update('post-delivery-data', ["`queue_failed` = `queue_failed` + 1"], ['uri-id' => $uri_id]);
 	}
 
 	/**
@@ -129,7 +129,7 @@ class DeliveryData
 	 */
 	public static function incrementQueueCount(int $uri_id, int $increment = 1)
 	{
-		return DBA::e('UPDATE `post-delivery-data` SET `queue_count` = `queue_count` + ? WHERE `uri-id` = ?', $increment, $uri_id);
+		return DBA::update('post-delivery-data', ["`queue_count` = `queue_count` + $increment"], ['uri-id' => $uri_id]);
 	}
 
 	/**

@@ -78,7 +78,7 @@ class Delivery
 	 */
 	public static function incrementFailed(int $uri_id, string $inbox)
 	{
-		return DBA::e('UPDATE `post-delivery` SET `failed` = `failed` + 1 WHERE `uri-id` = ? AND `inbox-id` = ?', $uri_id, ItemURI::getIdByURI($inbox));
+		return DBA::update('post-delivery', ["`failed` = `failed` + 1"], ['uri-id' => $uri_id, 'inbox-id' => ItemURI::getIdByURI($inbox)]);
 	}
 
 	public static function selectForInbox(string $inbox)
