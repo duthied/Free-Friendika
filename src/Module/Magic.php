@@ -21,6 +21,7 @@
 
 namespace Friendica\Module;
 
+use Exception;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
@@ -30,7 +31,6 @@ use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
-use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
@@ -65,120 +65,102 @@ class Magic extends BaseModule
 
 	protected function rawContent(array $request = [])
 	{
-		$this->logger->info('magic module: invoked');
+		if ($_SERVER['REQUEST_METHOD'] == 'HEAD') {
+			$this->logger->debug('Got a HEAD request');
+			System::exit();
+		}
 
-		$this->logger->debug('args', ['request' => $_REQUEST]);
+		$this->logger->debug('Invoked', ['request' => $request]);
 
 		$addr  = $request['addr'] ?? '';
 		$dest  = $request['dest'] ?? '';
 		$bdest = $request['bdest'] ?? '';
 		$owa   = intval($request['owa'] ?? 0);
-		$cid  = 0;
 
-                // bdest is preferred as it is hex-encoded and can survive url rewrite and argument parsing
+		// bdest is preferred as it is hex-encoded and can survive url rewrite and argument parsing
 		if (!empty($bdest)) {
 			$dest = hex2bin($bdest);
-			$this->logger->info('bdest detected. ', ['dest' => $dest]);
+			$this->logger->debug('bdest detected', ['dest' => $dest]);
 		}
-		if (!empty($addr)) {
-			$cid = Contact::getIdForURL($addr);
-		} elseif (!empty($dest)) {
-			$cid = Contact::getIdForURL($dest);
-		}
-		$this->logger->info('Contact ID: ', ['cid' => $cid]);
-		
-		$contact = false;
-		if (!$cid) {
-			$this->logger->info('No contact record found', $_REQUEST);
 
+		if (!empty($addr ?: $dest)) {
+			$contact = Contact::getByURL($addr ?: $dest);
+		}
+
+		if (empty($contact)) {
 			if (!$owa) {
-				// @TODO Finding a more elegant possibility to redirect to either internal or external URL
+				$this->logger->info('No contact record found, no oWA, redirecting to destination.', ['request' => $request, 'server' => $_SERVER, 'dest' => $dest]);
 				$this->app->redirect($dest);
 			}
 		} else {
-			$contact = $this->dba->selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
-
 			// Redirect if the contact is already authenticated on this site.
 			if ($this->app->getContactId() && strpos($contact['nurl'], Strings::normaliseLink($this->baseUrl)) !== false) {
-				$this->logger->info('Contact is already authenticated');
+				$this->logger->info('Contact is already authenticated, redirecting to destination.', ['dest' => $dest]);
 				System::externalRedirect($dest);
 			}
 
-			$this->logger->info('Contact URL: ', ['url' => $contact['url']]);
+			$this->logger->debug('Contact found', ['url' => $contact['url']]);
+		}
+
+		if (!$this->userSession->getLocalUserId() || !$owa) {
+			$this->logger->notice('Not logged in or not OWA, redirecting to destination.', ['uid' => $this->userSession->getLocalUserId(), 'owa' => $owa, 'dest' => $dest]);
+			$this->app->redirect($dest);
 		}
 
 		// OpenWebAuth
-		if ($this->userSession->getLocalUserId() && $owa) {
-			$this->logger->info('Checking OWA now');
-			$user = User::getById($this->userSession->getLocalUserId());
+		$owner = User::getOwnerDataById($this->userSession->getLocalUserId());
 
-			$basepath = false;
-			if (!empty($contact)) {
-				$this->logger->info('Contact found - trying friendica style basepath extraction');
-				// Extract the basepath
-				// NOTE: we need another solution because this does only work
-				// for friendica contacts :-/ . We should have the basepath
-				// of a contact also in the contact table.
-				$contact_url = $contact['url'];
-				if (!(strpos($contact_url, '/profile/') === false)) {
-					$exp = explode('/profile/', $contact['url']);
-					$basepath = $exp[0];
-					$this->logger->info('Basepath: ', ['basepath' => $basepath]);
-				} else {
-					$this->logger->info('Not possible to extract basepath in friendica style');
-				}
-			}
-			if (!$basepath) {
-				// For the rest of the OpenWebAuth-enabled Fediverse
-				$parsed = parse_url($dest);
-				$this->logger->info('Parsed URL: ', ['parsed URL' => $parsed]);
-				if (!$parsed) {
-					System::externalRedirect($dest);
-				}
-				$basepath = $parsed['scheme'] . '://' . $parsed['host'] . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
-			}
-
-			$accept_headers = ['application/x-dfrn+json', 'application/x-zot+json'];
-			$header = [
-				'Accept'         => $accept_headers,
-				'X-Open-Web-Auth' => [Strings::getRandomHex()],
-			];
-
-			// Create a header that is signed with the local users private key.
-			$header = HTTPSignature::createSig(
-				$header,
-				$user['prvkey'],
-				'acct:' . $user['nickname'] . '@' . $this->baseUrl->getHost() . ($this->baseUrl->getPath() ? '/' . $this->baseUrl->getPath() : '')
-			);
-
-			$this->logger->info('Headers: ', ['headers' => $header]);
-
-			// Try to get an authentication token from the other instance.
-			$curlResult = $this->httpClient->get($basepath . '/owa', HttpClientAccept::DEFAULT, [HttpClientOptions::HEADERS => $header, HttpClientOptions::ACCEPT_CONTENT => $accept_headers]);
-
-			if ($curlResult->isSuccess()) {
-				$j = json_decode($curlResult->getBody(), true);
-				$this->logger->info('Curl result body: ', ['body' => $j]);
-
-				if ($j['success']) {
-					$token = '';
-					if ($j['encrypted_token']) {
-						// The token is encrypted. If the local user is really the one the other instance
-						// thinks he/she is, the token can be decrypted with the local users public key.
-						openssl_private_decrypt(Strings::base64UrlDecode($j['encrypted_token']), $token, $user['prvkey']);
-					} else {
-						$token = $j['token'];
-					}
-					$args = (strpbrk($dest, '?&') ? '&' : '?') . 'owt=' . $token;
-
-					$this->logger->info('Redirecting', ['path' => $dest . $args]);
-					System::externalRedirect($dest . $args);
-				}
-			}
+		$gserver = $this->dba->selectFirst('gserver', ['url'], ['id' => $contact['gsid']]);
+		if (empty($gserver)) {
+			$this->logger->notice('Server not found, redirecting to destination.', ['gsid' => $contact['gsid'], 'dest' => $dest]);
 			System::externalRedirect($dest);
 		}
 
-		// @TODO Finding a more elegant possibility to redirect to either internal or external URL
-		$this->app->redirect($dest);
+		$basepath = $gserver['url'];
+
+		$header = [
+			'Accept'          => ['application/x-dfrn+json', 'application/x-zot+json'],
+			'X-Open-Web-Auth' => [Strings::getRandomHex()],
+		];
+
+		// Create a header that is signed with the local users private key.
+		$header = HTTPSignature::createSig(
+			$header,
+			$owner['prvkey'],
+			'acct:' . $owner['addr']
+		);
+
+		$this->logger->info('Fetch from remote system', ['basepath' => $basepath, 'headers' => $header]);
+
+		// Try to get an authentication token from the other instance.
+		try {
+			$curlResult = $this->httpClient->request('get', $basepath . '/owa', [HttpClientOptions::HEADERS => $header]);
+		} catch (Exception $exception) {
+			$this->logger->notice('URL is invalid, redirecting to destination.', ['url' => $basepath, 'error' => $exception, 'dest' => $dest]);
+			System::externalRedirect($dest);
+		}
+		if (!$curlResult->isSuccess()) {
+			$this->logger->notice('OWA request failed, redirecting to destination.', ['returncode' => $curlResult->getReturnCode(), 'dest' => $dest]);
+			System::externalRedirect($dest);
+		}
+
+		$j = json_decode($curlResult->getBody(), true);
+		if (empty($j) || !$j['success']) {
+			$this->logger->notice('Invalid JSON, redirecting to destination.', ['json' => $j, 'dest' => $dest]);
+			$this->app->redirect($dest);
+		}
+
+		if ($j['encrypted_token']) {
+			// The token is encrypted. If the local user is really the one the other instance
+			// thinks they is, the token can be decrypted with the local users public key.
+			$token = '';
+			openssl_private_decrypt(Strings::base64UrlDecode($j['encrypted_token']), $token, $owner['prvkey']);
+		} else {
+			$token = $j['token'];
+		}
+		$args = (strpbrk($dest, '?&') ? '&' : '?') . 'owt=' . $token;
+
+		$this->logger->debug('Redirecting', ['path' => $dest . $args]);
+		System::externalRedirect($dest . $args);
 	}
 }
