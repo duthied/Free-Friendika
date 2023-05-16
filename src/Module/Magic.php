@@ -83,7 +83,7 @@ class Magic extends BaseModule
 			$this->logger->debug('bdest detected', ['dest' => $dest]);
 		}
 
-		if (!empty($addr ?: $dest)) {
+		if ($addr ?: $dest) {
 			$contact = Contact::getByURL($addr ?: $dest);
 		}
 
