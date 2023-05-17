@@ -2711,9 +2711,13 @@ class Contact
 		} elseif ($has_local_data) {
 			$failed_next_update  = GServer::getNextUpdateDate(false, $created, $last_update, !in_array($contact['network'], Protocol::FEDERATED));
 			$success_next_update = GServer::getNextUpdateDate(true, $created, $last_update, !in_array($contact['network'], Protocol::FEDERATED));
-		} else {
+		} elseif (in_array($ret['network'], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::ZOT, Protocol::PHANTOM]))) {
 			$failed_next_update  = DateTimeFormat::utc('now +6 month');
 			$success_next_update = DateTimeFormat::utc('now +1 month');
+		} else {
+			// We don't check connector networks very often to not run into API rate limits
+			$failed_next_update  = DateTimeFormat::utc('now +12 month');
+			$success_next_update = DateTimeFormat::utc('now +12 month');
 		}
 
 		if (Strings::normaliseLink($contact['url']) != Strings::normaliseLink($ret['url'])) {
