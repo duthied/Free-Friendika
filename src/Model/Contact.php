@@ -361,7 +361,7 @@ class Contact
 		$background_update = DI::config()->get('system', 'update_active_contacts') ? $contact['local-data'] : true;
 
 		// Update the contact in the background if needed
-		if ($background_update && !self::isLocal($url) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+		if ($background_update && !self::isLocal($url) && Protocol::supportsProbe($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
 			try {
 				UpdateContact::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], $contact['id']);
 			} catch (\InvalidArgumentException $e) {
@@ -1279,7 +1279,7 @@ class Contact
 
 			$background_update = DI::config()->get('system', 'update_active_contacts') ? $contact['local-data'] : true;
 
-			if ($background_update && !self::isLocal($url) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+			if ($background_update && !self::isLocal($url) && Protocol::supportsProbe($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
 				try {
 					UpdateContact::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], $contact['id']);
 				} catch (\InvalidArgumentException $e) {
@@ -2704,7 +2704,7 @@ class Contact
 
 		$updated = DateTimeFormat::utcNow();
 
-		if (!Probe::isProbable($ret['network']) && !Probe::isProbable($contact['network'])) {
+		if (!Protocol::supportsProbe($ret['network']) && !Protocol::supportsProbe($contact['network'])) {
 			// Periodical checks are only done on federated contacts
 			$failed_next_update  = null;
 			$success_next_update = null;
@@ -3596,7 +3596,7 @@ class Contact
 			if (empty($contact['id']) && Network::isValidHttpUrl($url)) {
 				Worker::add(Worker::PRIORITY_LOW, 'AddContact', 0, $url);
 				++$added;
-			} elseif (!empty($contact['network']) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+			} elseif (!empty($contact['network']) && Protocol::supportsProbe($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
 				try {
 					UpdateContact::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], $contact['id']);
 					++$updated;
