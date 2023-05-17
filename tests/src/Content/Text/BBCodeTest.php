@@ -259,12 +259,12 @@ Karl Marx - Die ursprüngliche Akkumulation
 				'text' => '[emoji=https://fedi.underscore.world/emoji/custom/custom/heart_nb.png]:heart_nb:[/emoji]',
 			],
 			'task-12900-multiple-paragraphs' => [
-				'expectedHTML' => '<h1>Header</h1><ul><li>One</li><li>Two</li></ul><p>This is a paragraph<br>with a line feed.</p><p>Second Chapter</p>',
-				'text' => "[h1]Header[/h1][ul][*]One[*]Two[/ul]\n\nThis is a paragraph\nwith a line feed.\n\nSecond Chapter",
+				'expectedHTML' => '<h4>Header</h4><ul><li>One</li><li>Two</li></ul><p>This is a paragraph<br>with a line feed.</p><p>Second Chapter</p>',
+				'text' => "[h4]Header[/h4][ul][*]One[*]Two[/ul]\n\nThis is a paragraph\nwith a line feed.\n\nSecond Chapter",
 			],
 			'task-12900-header-with-paragraphs' => [
-				'expectedHTML' => '<h1>Header</h1><p>Some Chapter</p>',
-				'text' => '[h1]Header[/h1]Some Chapter',
+				'expectedHTML' => '<h4>Header</h4><p>Some Chapter</p>',
+				'text' => '[h4]Header[/h4]Some Chapter',
 			],
 			'bug-12842-ul-newlines' => [
 				'expectedHTML' => '<p>This is:</p><ul><li>some</li><li>amazing</li><li>list</li></ul>',

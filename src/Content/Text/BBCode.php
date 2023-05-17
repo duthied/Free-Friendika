@@ -1403,12 +1403,32 @@ class BBCode
 				}
 
 				// Check for headers
-				$text = preg_replace("(\[h1\](.*?)\[\/h1\])ism", '</p><h1>$1</h1><p>', $text);
-				$text = preg_replace("(\[h2\](.*?)\[\/h2\])ism", '</p><h2>$1</h2><p>', $text);
-				$text = preg_replace("(\[h3\](.*?)\[\/h3\])ism", '</p><h3>$1</h3><p>', $text);
-				$text = preg_replace("(\[h4\](.*?)\[\/h4\])ism", '</p><h4>$1</h4><p>', $text);
-				$text = preg_replace("(\[h5\](.*?)\[\/h5\])ism", '</p><h5>$1</h5><p>', $text);
-				$text = preg_replace("(\[h6\](.*?)\[\/h6\])ism", '</p><h6>$1</h6><p>', $text);
+
+				if ($simple_html == self::INTERNAL) {
+					//Ensure to always start with <h4> if possible
+					$heading_count = 0;
+					for ($level = 6; $level > 0; $level--) { 
+						if (preg_match("(\[h$level\].*?\[\/h$level\])ism", $text)) {
+							$heading_count++;
+						}
+					}
+					if ($heading_count > 0) {
+						$heading = min($heading_count + 3, 6);
+						for ($level = 6; $level > 0; $level--) { 
+							if (preg_match("(\[h$level\].*?\[\/h$level\])ism", $text)) {
+								$text = preg_replace("(\[h$level\](.*?)\[\/h$level\])ism", "</p><h$heading>$1</h$heading><p>", $text);
+								$heading--;
+							}
+						}
+					}
+				} else {
+					$text = preg_replace("(\[h1\](.*?)\[\/h1\])ism", '</p><h1>$1</h1><p>', $text);
+					$text = preg_replace("(\[h2\](.*?)\[\/h2\])ism", '</p><h2>$1</h2><p>', $text);
+					$text = preg_replace("(\[h3\](.*?)\[\/h3\])ism", '</p><h3>$1</h3><p>', $text);
+					$text = preg_replace("(\[h4\](.*?)\[\/h4\])ism", '</p><h4>$1</h4><p>', $text);
+					$text = preg_replace("(\[h5\](.*?)\[\/h5\])ism", '</p><h5>$1</h5><p>', $text);
+					$text = preg_replace("(\[h6\](.*?)\[\/h6\])ism", '</p><h6>$1</h6><p>', $text);
+				}
 
 				// Check for paragraph
 				$text = preg_replace("(\[p\](.*?)\[\/p\])ism", '<p>$1</p>', $text);
