@@ -38,22 +38,24 @@ class DatabaseException extends Exception
 	 *
 	 * @link https://php.net/manual/en/exception.construct.php
 	 *
-	 * @param string    $message  The Database error message.
-	 * @param int       $code     The Database error code.
-	 * @param string    $query    The Database error query.
-	 * @param Throwable $previous [optional] The previous throwable used for the exception chaining.
+	 * @param string         $message  The Database error message.
+	 * @param int            $code     The Database error code.
+	 * @param string         $query    The Database error query.
+	 * @param Throwable|null $previous [optional] The previous throwable used for the exception chaining.
 	 */
 	public function __construct(string $message, int $code, string $query, Throwable $previous = null)
 	{
-		parent::__construct($message, $code, $previous);
+		parent::__construct(sprintf('"%s" at "%s"', $message, $query) , $code, $previous);
 		$this->query = $query;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns the query, which caused the exception
+	 *
+	 * @return string
 	 */
-	public function __toString()
+	public function getQuery(): string
 	{
-		return sprintf('Database error %d "%s" at "%s"', $this->message, $this->code, $this->query);
+		return $this->query;
 	}
 }

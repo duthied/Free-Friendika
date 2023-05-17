@@ -2682,6 +2682,8 @@ class Contact
 			return true;
 		}
 
+                $has_local_data = self::hasLocalData($id, $contact);
+
 		$uid = $contact['uid'];
 		unset($contact['uid']);
 
@@ -2702,9 +2704,7 @@ class Contact
 
 		$updated = DateTimeFormat::utcNow();
 
-		$has_local_data = self::hasLocalData($id, $contact);
-
-		if (!Probe::isProbable($ret['network'])) {
+		if (!Probe::isProbable($ret['network']) && !Probe::isProbable($contact['network'])) {
 			// Periodical checks are only done on federated contacts
 			$failed_next_update  = null;
 			$success_next_update = null;
