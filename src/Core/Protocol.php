@@ -315,7 +315,12 @@ class Protocol
 	 */
 	public static function supportsProbe($protocol): bool
 	{
-		if (in_array($protocol, self::NATIVE_SUPPORT)) {
+		// "Mail" can only be probed for a specific user in a specific condition, so we are ignoring it here.
+		if ($protocol == self::MAIL) {
+			return false;
+		}
+
+		if (in_array($protocol, array_merge(self::NATIVE_SUPPORT, [self::ZOT, self::PHANTOM]))) {
 			return true;
 		}
 

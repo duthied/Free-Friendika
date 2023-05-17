@@ -40,7 +40,7 @@ class OpenSearch extends BaseModule
 	protected function rawContent(array $request = [])
 	{
 		$hostname = DI::baseUrl()->getHost();
-		$baseUrl  = DI::baseUrl();
+		$baseUrl  = (string)DI::baseUrl();
 
 		/** @var DOMDocument $xml */
 		XML::fromArray([

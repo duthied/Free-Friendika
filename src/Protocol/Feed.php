@@ -478,7 +478,7 @@ class Feed
 
 			$attachments = [];
 
-			$enclosures = $xpath->query("enclosure|' . $atomns . ':link[@rel='enclosure']", $entry);
+			$enclosures = $xpath->query("enclosure|$atomns:link[@rel='enclosure']", $entry);
 			if (!empty($enclosures)) {
 				foreach ($enclosures as $enclosure) {
 					$href = '';

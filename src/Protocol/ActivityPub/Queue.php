@@ -312,7 +312,7 @@ class Queue
 		// Optimizing this table only last seconds
 		if (DI::config()->get('system', 'optimize_tables')) {
 			Logger::info('Optimize start');
-			DBA::e("OPTIMIZE TABLE `inbox-entry`");
+			DBA::optimizeTable('inbox-entry');
 			Logger::info('Optimize end');
 		}
 	}

@@ -35,6 +35,15 @@ return [
 	'workerqueue',
 	'mail',
 	'post-delivery-data',
+	'gserver' => [
+		[
+			'url' => 'https://friendica.local',
+			'nurl' => 'http://friendica.local',
+			'register_policy' => 0,
+			'registered-users' => 0,
+			'network' => 'unkn',
+		],
+	],
 	// Base test config to avoid notice messages
 	'user' => [
 		[

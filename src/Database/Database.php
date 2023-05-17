@@ -1357,6 +1357,15 @@ class Database
 		}
 
 		$fields = $this->castFields($table, $fields);
+		$direct_fields = [];
+
+		foreach ($fields as $key => $value) {
+			if (is_numeric($key)) {
+				$direct_fields[] = $value;
+				unset($fields[$key]);
+			}
+		}
+
 
 		$table_string = DBA::buildTableString([$table]);
 
@@ -1369,7 +1378,8 @@ class Database
 		}
 
 		$sql = "UPDATE " . $ignore . $table_string . " SET "
-			. implode(" = ?, ", array_map([DBA::class, 'quoteIdentifier'], array_keys($fields))) . " = ?"
+			. ((count($fields) > 0) ? implode(" = ?, ", array_map([DBA::class, 'quoteIdentifier'], array_keys($fields))) . " = ?" : "")
+			. ((count($direct_fields) > 0) ? ((count($fields) > 0) ? " , " : "") . implode(" , ", $direct_fields) : "")
 			. $condition_string;
 
 		// Combines the updated fields parameter values with the condition parameter values
@@ -1756,6 +1766,37 @@ class Database
 			$statelist .= $state . ': ' . $usage;
 		}
 		return (['list' => $statelist, 'amount' => $processes]);
+	}
+
+	/**
+	 * Optimizes tables
+	 *
+	 * @param string $table a given table
+	 *
+	 * @return bool True, if successfully optimized, otherwise false
+	 * @throws \Exception
+	 */
+	public function optimizeTable(string $table): bool
+	{
+		return $this->e("OPTIMIZE TABLE " . DBA::buildTableString([$table])) !== false;
+	}
+
+	/**
+	 * Kill sleeping database processes
+	 *
+	 * @return void
+	 */
+	public function deleteSleepingProcesses()
+	{
+		$processes = $this->p("SHOW FULL PROCESSLIST");
+		while ($process = $this->fetch($processes)) {
+			if (($process['Command'] != 'Sleep') || ($process['Time'] < 300) || ($process['db'] != $this->databaseName())) {
+				continue;
+			}
+
+			$this->e("KILL ?", $process['Id']);
+		}
+		$this->close($processes);
 	}
 
 	/**

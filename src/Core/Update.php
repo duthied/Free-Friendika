@@ -129,20 +129,6 @@ class Update
 			DI::lock()->release('dbupdate', true);
 		}
 
-		if (!DBStructure::existsTable('config')) {
-			DBA::e(<<<EOF
-CREATE TABLE IF NOT EXISTS `config` (
-	`id` int unsigned NOT NULL auto_increment COMMENT '',
-	`cat` varbinary(50) NOT NULL DEFAULT '' COMMENT 'The category of the entry',
-	`k` varbinary(50) NOT NULL DEFAULT '' COMMENT 'The key of the entry',
-	`v` mediumtext COMMENT '',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `cat_k` (`cat`,`k`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='main configuration storage';
-EOF
-);
-		}
-
 		$build = DI::config()->get('system', 'build');
 
 		if (empty($build)) {

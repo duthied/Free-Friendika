@@ -361,7 +361,7 @@ class Contact
 		$background_update = DI::config()->get('system', 'update_active_contacts') ? $contact['local-data'] : true;
 
 		// Update the contact in the background if needed
-		if ($background_update && !self::isLocal($url) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+		if ($background_update && !self::isLocal($url) && Protocol::supportsProbe($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
 			try {
 				UpdateContact::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], $contact['id']);
 			} catch (\InvalidArgumentException $e) {
@@ -1279,7 +1279,7 @@ class Contact
 
 			$background_update = DI::config()->get('system', 'update_active_contacts') ? $contact['local-data'] : true;
 
-			if ($background_update && !self::isLocal($url) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+			if ($background_update && !self::isLocal($url) && Protocol::supportsProbe($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
 				try {
 					UpdateContact::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], $contact['id']);
 				} catch (\InvalidArgumentException $e) {
@@ -2682,6 +2682,8 @@ class Contact
 			return true;
 		}
 
+                $has_local_data = self::hasLocalData($id, $contact);
+
 		$uid = $contact['uid'];
 		unset($contact['uid']);
 
@@ -2702,18 +2704,20 @@ class Contact
 
 		$updated = DateTimeFormat::utcNow();
 
-		$has_local_data = self::hasLocalData($id, $contact);
-
-		if (!Probe::isProbable($ret['network'])) {
+		if (!Protocol::supportsProbe($ret['network']) && !Protocol::supportsProbe($contact['network'])) {
 			// Periodical checks are only done on federated contacts
 			$failed_next_update  = null;
 			$success_next_update = null;
 		} elseif ($has_local_data) {
 			$failed_next_update  = GServer::getNextUpdateDate(false, $created, $last_update, !in_array($contact['network'], Protocol::FEDERATED));
 			$success_next_update = GServer::getNextUpdateDate(true, $created, $last_update, !in_array($contact['network'], Protocol::FEDERATED));
-		} else {
+		} elseif (in_array($ret['network'], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::ZOT, Protocol::PHANTOM]))) {
 			$failed_next_update  = DateTimeFormat::utc('now +6 month');
 			$success_next_update = DateTimeFormat::utc('now +1 month');
+		} else {
+			// We don't check connector networks very often to not run into API rate limits
+			$failed_next_update  = DateTimeFormat::utc('now +12 month');
+			$success_next_update = DateTimeFormat::utc('now +12 month');
 		}
 
 		if (Strings::normaliseLink($contact['url']) != Strings::normaliseLink($ret['url'])) {
@@ -3596,7 +3600,7 @@ class Contact
 			if (empty($contact['id']) && Network::isValidHttpUrl($url)) {
 				Worker::add(Worker::PRIORITY_LOW, 'AddContact', 0, $url);
 				++$added;
-			} elseif (!empty($contact['network']) && Probe::isProbable($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
+			} elseif (!empty($contact['network']) && Protocol::supportsProbe($contact['network']) && ($contact['next-update'] < DateTimeFormat::utcNow())) {
 				try {
 					UpdateContact::add(['priority' => Worker::PRIORITY_LOW, 'dont_fork' => true], $contact['id']);
 					++$updated;
