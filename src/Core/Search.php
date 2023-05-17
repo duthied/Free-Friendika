@@ -131,8 +131,8 @@ class Search
 
 		$resultList = new ResultList(
 			($results['page']         ?? 0) ?: 1,
-			($results['itemsperpage'] ?? 0) ?: 30,
-			$results['count']        ?? 0
+			$results['count']        ?? 0,
+			($results['itemsperpage'] ?? 0) ?: 30
 		);
 
 		$profiles = $results['profiles'] ?? [];
