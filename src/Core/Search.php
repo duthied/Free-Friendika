@@ -55,19 +55,25 @@ class Search
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getContactsFromProbe(string $user): ?ResultList
+	public static function getContactsFromProbe(string $user, $only_forum = false): ResultList
 	{
+		$emptyResultList = new ResultList();
+
 		if (empty(parse_url($user, PHP_URL_SCHEME)) && !(filter_var($user, FILTER_VALIDATE_EMAIL) || Network::isEmailDomainValid($user))) {
-			return null;		
+			return $emptyResultList;
 		}
-	
+
 		$user_data = Contact::getByURL($user);
 		if (empty($user_data)) {
-			return null;
+			return $emptyResultList;
+		}
+
+		if ($only_forum && ($user_data['contact-type'] != Contact::TYPE_COMMUNITY)) {
+			return $emptyResultList;
 		}
 
 		if (!Protocol::supportsProbe($user_data['network'])) {
-			return null;
+			return $emptyResultList;
 		}
 
 		$contactDetails = Contact::getByURLForUser($user_data['url'], DI::userSession()->getLocalUserId());
@@ -125,8 +131,8 @@ class Search
 
 		$resultList = new ResultList(
 			($results['page']         ?? 0) ?: 1,
-			 $results['count']        ?? 0,
-			($results['itemsperpage'] ?? 0) ?: 30
+			($results['itemsperpage'] ?? 0) ?: 30,
+			$results['count']        ?? 0
 		);
 
 		$profiles = $results['profiles'] ?? [];
@@ -170,7 +176,7 @@ class Search
 
 		$contacts = Contact::searchByName($search, $type == self::TYPE_FORUM ? 'community' : '', true);
 
-		$resultList = new ResultList($start, $itemPage, count($contacts));
+		$resultList = new ResultList($start, count($contacts), $itemPage);
 
 		foreach ($contacts as $contact) {
 			$result = new ContactResult(

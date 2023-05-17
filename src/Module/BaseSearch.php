@@ -23,6 +23,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Content\Pager;
+use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\DI;
@@ -62,18 +63,13 @@ class BaseSearch extends BaseModule
 		}
 
 		$header = '';
+		$results = new ResultList();
 
 		if (strpos($search, '@') === 0) {
 			$search  = trim(substr($search, 1));
 			$type    = Search::TYPE_PEOPLE;
 			$header  = DI::l10n()->t('People Search - %s', $search);
-
-			if (strrpos($search, '@') > 0) {
-				$results = Search::getContactsFromProbe(Network::convertToIdn($search));
-			}
-		}
-
-		if (strpos($search, '!') === 0) {
+		} elseif (strpos($search, '!') === 0) {
 			$search = trim(substr($search, 1));
 			$type   = Search::TYPE_FORUM;
 			$header = DI::l10n()->t('Forum Search - %s', $search);
@@ -91,16 +87,18 @@ class BaseSearch extends BaseModule
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
-		if (empty($results)) {
-			if ($localSearch) {
-				$pager->setItemsPerPage(80);
-				$results = Search::getContactsFromLocalDirectory($search, $type, $pager->getStart(), $pager->getItemsPerPage());
-			} elseif (Search::getGlobalDirectory()) {
-				$results = Search::getContactsFromGlobalDirectory($search, $type, $pager->getPage());
-				$pager->setItemsPerPage($results->getItemsPage());
-			} else {
-				$results = new ResultList();
-			}
+		if (!$results->getTotal() && !$localSearch && Search::getGlobalDirectory()) {
+			$results = Search::getContactsFromGlobalDirectory($search, $type, $pager->getPage());
+			$pager->setItemsPerPage($results->getItemsPage());
+		}
+
+		if (!$results->getTotal()) {
+			$pager->setItemsPerPage(80);
+			$results = Search::getContactsFromLocalDirectory($search, $type, $pager->getStart(), $pager->getItemsPerPage());
+		}
+
+		if (!$results->getTotal()) {
+			$results = Search::getContactsFromProbe(Network::convertToIdn($search), $type == Search::TYPE_FORUM);
 		}
 
 		return self::printResult($results, $pager, $header);
