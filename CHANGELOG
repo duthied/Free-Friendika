@@ -1,9 +1,26 @@
 Version 2023.06 (unreleased)
   Friendica Core
+    Updates to the themes (frio, vier) [MrPetovan, xundeenergie]
+    Updates to the documentation [MrPetovan]
+    Improved the probing of remote accounts [Annando, ne20002]
+    Improved the OWA implementation [annando, abanink]
+    Improved the database handling [nupplaphil]
+    Improved the ATOM feed handling, added OPML [annando]
+    Improved the audience handling of forum posting [annando]
+    General code cleanup [annando, MrPetovan, nupplaphil, Raroun]
+    Fixed HTML escaping for notification messages [MrPetovan, nupplaphil]
+    Fixed the feed body import [annando]
+    Fixed meaning of the limit parameter in the Mastodon API [annando]
+    Added new hook for addons (support_probe) [annand0]
 
   Friendica Addons
+    emojipicker, fancybox
+      The functionality of this addon has been moved to the
+      core for the frio and vier themes. [annando]
 
   Closed Issues
+    12439, 12760, 12788, 12824, 12979, 13016, 13026, 13027, 13036, 13052,
+    13073
 
 Version 2023.04-1 (2023-04-27)
   Friendica Core
