@@ -327,7 +327,7 @@ class Images
 	 * @param string $description
 	 * @return string
 	 */
-	public static function getBBCodeByResource(string $resource_id, string $nickname, int $preview, string $ext, string $description = null): string
+	public static function getBBCodeByResource(string $resource_id, string $nickname, int $preview, string $ext, string $description = ''): string
 	{
 		return self::getBBCodeByUrl(
 			DI::baseUrl() . '/photos/' . $nickname . '/image/' . $resource_id,
@@ -344,20 +344,12 @@ class Images
 	 * @param string $description
 	 * @return string
 	 */
-	public static function getBBCodeByUrl(string $photo, string $preview = null, string $description = null): string
+	public static function getBBCodeByUrl(string $photo, string $preview = null, string $description = ''): string
 	{
 		if (!empty($preview)) {
-			if (!is_null($description)) {
-				return '[url=' . $photo . '][img=' . $preview . ']' . $description . '[/img][/url]';
-			} else {
-				return '[url=' . $photo . '][img]' . $preview . '[/img][/url]';
-			}
+			return '[url=' . $photo . '][img=' . $preview . ']' . $description . '[/img][/url]';
 		}
 
-		if (!is_null($description)) {
-			return '[img=' . $photo . ']' . $description . '[/img]';
-		} else {
-			return '[img]' . $photo . '[/img]';
-		}
+		return '[img=' . $photo . ']' . $description . '[/img]';
 	}
 }

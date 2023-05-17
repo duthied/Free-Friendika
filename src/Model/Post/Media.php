@@ -1004,7 +1004,7 @@ class Media
 			}
 
 			if ($media['type'] == self::IMAGE) {
-				$body .= "\n" . Images::getBBCodeByUrl($media['url'], $media['preview'], $media['description']);
+				$body .= "\n" . Images::getBBCodeByUrl($media['url'], $media['preview'], $media['description'] ?? '');
 			} elseif ($media['type'] == self::AUDIO) {
 				$body .= "\n[audio]" . $media['url'] . "[/audio]\n";
 			} elseif ($media['type'] == self::VIDEO) {
