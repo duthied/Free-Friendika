@@ -378,7 +378,11 @@ class Item
 			'url' => $item['author-link'],
 		];
 		$profile_link = Contact::magicLinkByContact($author, $item['author-link']);
-		$sparkle = (strpos($profile_link, 'contact/redir/') === 0);
+		if (strpos($profile_link, 'contact/redir/') === 0) {
+			$status_link  = $profile_link . '?' . http_build_query(['url' => $item['author-link'] . '/status']);
+			$photos_link  = $profile_link . '?' . http_build_query(['url' => $item['author-link'] . '/photos']);
+			$profile_link = $profile_link . '?' . http_build_query(['url' => $item['author-link'] . '/profile']);
+		}
 
 		$cid = 0;
 		$pcid = $item['author-id'];
@@ -390,12 +394,6 @@ class Item
 			$cid = $contact['id'];
 			$network = $contact['network'];
 			$rel = $contact['rel'];
-		}
-
-		if ($sparkle) {
-			$status_link = $profile_link . '/status';
-			$photos_link = $profile_link . '/photos';
-			$profile_link = $profile_link . '/profile';
 		}
 
 		if (!empty($pcid)) {
