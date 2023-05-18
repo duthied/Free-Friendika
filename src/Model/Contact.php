@@ -1152,22 +1152,17 @@ class Contact
 		$status_link = '';
 		$photos_link = '';
 
-		$sparkle = false;
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
-			$sparkle      = true;
 			$profile_link = 'contact/redir/' . $contact['id'];
+			$status_link  = $profile_link . '?' . http_build_query(['url' => $contact['url'] . '/status']);
+			$photos_link  = $profile_link . '?' . http_build_query(['url' => $contact['url'] . '/photos']);
+			$profile_link = $profile_link . '?' . http_build_query(['url' => $contact['url'] . '/profile']);
 		} else {
 			$profile_link = $contact['url'];
 		}
 
 		if ($profile_link === 'mailbox') {
 			$profile_link = '';
-		}
-
-		if ($sparkle) {
-			$status_link  = $profile_link . '/status';
-			$photos_link  = $profile_link . '/photos';
-			$profile_link = $profile_link . '/profile';
 		}
 
 		if (self::canReceivePrivateMessages($contact) && empty($contact['pending'])) {
@@ -3444,7 +3439,7 @@ class Contact
 	 */
 	public static function magicLinkByContact(array $contact, string $url = ''): string
 	{
-		$destination = $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
+		$destination = $url ?: $contact['url'];
 
 		if (!DI::userSession()->isAuthenticated()) {
 			return $destination;
