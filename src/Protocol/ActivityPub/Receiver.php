@@ -396,15 +396,22 @@ class Receiver
 
 		// Fetch the activity on Lemmy "Announce" messages (announces of activities)
 		if (($type == 'as:Announce') && in_array($object_type, array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
-			Logger::debug('Fetch announced activity', ['object' => $object_id]);
+			Logger::debug('Fetch announced activity', ['object' => $object_id, 'uid' => $fetch_uid]);
 			$data = Processor::fetchCachedActivity($object_id, $fetch_uid);
 			if (!empty($data)) {
 				$type = $object_type;
-				$activity = JsonLD::compact($data);
+				$announced_activity = JsonLD::compact($data);
 
 				// Some variables need to be refetched since the activity changed
-				$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
-				$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
+				$actor = JsonLD::fetchElement($announced_activity, 'as:actor', '@id');
+				$announced_id = JsonLD::fetchElement($announced_activity, 'as:object', '@id');
+				if (empty($announced_id)) {
+					Logger::warning('No object id in announced activity', ['id' => $object_id, 'activity' => $activity, 'announced' => $announced_activity]);
+					return [];
+				} else {
+					$activity  = $announced_activity;
+					$object_id = $announced_id;
+				}
 				$object_type = self::fetchObjectType($activity, $object_id, $fetch_uid);
 			}
 		}
