@@ -335,7 +335,7 @@ class Status extends BaseFactory
 			$quote_id = $item['quote-uri-id'];
 		}
 
-		if (!empty($quote_id)) {
+		if (!empty($quote_id) && ($quote_id != $item['uri-id'])) {
 			try {
 				$quote = $this->createFromUriId($quote_id, $uid, false, false, false)->toArray();
 			} catch (\Exception $exception) {
