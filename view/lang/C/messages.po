@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.06-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-12 07:57+0000\n"
+"POT-Creation-Date: 2023-05-19 17:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2009,8 +2009,8 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:713 src/Content/Text/BBCode.php:1599
-#: src/Content/Text/BBCode.php:1600
+#: src/Content/Text/BBCode.php:713 src/Content/Text/BBCode.php:1619
+#: src/Content/Text/BBCode.php:1620
 msgid "Image/photo"
 msgstr ""
 
@@ -2025,23 +2025,23 @@ msgstr ""
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1506 src/Content/Text/HTML.php:902
+#: src/Content/Text/BBCode.php:1526 src/Content/Text/HTML.php:902
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1539
+#: src/Content/Text/BBCode.php:1559
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1604 src/Content/Text/BBCode.php:1605
+#: src/Content/Text/BBCode.php:1624 src/Content/Text/BBCode.php:1625
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1869
+#: src/Content/Text/BBCode.php:1889
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1888
+#: src/Content/Text/BBCode.php:1908
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2845,22 +2845,22 @@ msgid ""
 "to version 2021.01 and wait until the postupdate finished version 1383."
 msgstr ""
 
-#: src/Core/Update.php:197
+#: src/Core/Update.php:183
 #, php-format
 msgid "%s: executing pre update %d"
 msgstr ""
 
-#: src/Core/Update.php:239
+#: src/Core/Update.php:225
 #, php-format
 msgid "%s: executing post update %d"
 msgstr ""
 
-#: src/Core/Update.php:313
+#: src/Core/Update.php:299
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr ""
 
-#: src/Core/Update.php:353
+#: src/Core/Update.php:339
 #, php-format
 msgid ""
 "\n"
@@ -2872,16 +2872,16 @@ msgid ""
 "might be invalid."
 msgstr ""
 
-#: src/Core/Update.php:359
+#: src/Core/Update.php:345
 #, php-format
 msgid "The error message is\\n[pre]%s[/pre]"
 msgstr ""
 
-#: src/Core/Update.php:363 src/Core/Update.php:391
+#: src/Core/Update.php:349 src/Core/Update.php:377
 msgid "[Friendica Notify] Database update"
 msgstr ""
 
-#: src/Core/Update.php:385
+#: src/Core/Update.php:371
 #, php-format
 msgid ""
 "\n"
@@ -2893,28 +2893,28 @@ msgstr ""
 msgid "The database version had been set to %s."
 msgstr ""
 
-#: src/Database/DBStructure.php:70
+#: src/Database/DBStructure.php:82
 #, php-format
 msgid ""
 "The post update is at version %d, it has to be at %d to safely drop the "
 "tables."
 msgstr ""
 
-#: src/Database/DBStructure.php:83
+#: src/Database/DBStructure.php:95
 msgid "No unused tables found."
 msgstr ""
 
-#: src/Database/DBStructure.php:88
+#: src/Database/DBStructure.php:100
 msgid ""
 "These tables are not used for friendica and will be deleted when you execute "
 "\"dbstructure drop -e\":"
 msgstr ""
 
-#: src/Database/DBStructure.php:126
+#: src/Database/DBStructure.php:137
 msgid "There are no tables on MyISAM or InnoDB with the Antelope file format."
 msgstr ""
 
-#: src/Database/DBStructure.php:150
+#: src/Database/DBStructure.php:161
 #, php-format
 msgid ""
 "\n"
@@ -2922,20 +2922,20 @@ msgid ""
 "%s\n"
 msgstr ""
 
-#: src/Database/DBStructure.php:153
+#: src/Database/DBStructure.php:164
 msgid "Errors encountered performing database changes: "
 msgstr ""
 
-#: src/Database/DBStructure.php:221
+#: src/Database/DBStructure.php:232
 msgid "Another database update is currently running."
 msgstr ""
 
-#: src/Database/DBStructure.php:225
+#: src/Database/DBStructure.php:236
 #, php-format
 msgid "%s: Database update"
 msgstr ""
 
-#: src/Database/DBStructure.php:482
+#: src/Database/DBStructure.php:493
 #, php-format
 msgid "%s: updating %s table."
 msgstr ""
@@ -2980,68 +2980,68 @@ msgstr ""
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2952
+#: src/Model/Contact.php:2956
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:2957 src/Module/Friendica.php:83
+#: src/Model/Contact.php:2961 src/Module/Friendica.php:83
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:2962
+#: src/Model/Contact.php:2966
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2971
+#: src/Model/Contact.php:2975
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2989
+#: src/Model/Contact.php:2993
 #, php-format
 msgid "Expected network %s does not match actual network %s"
 msgstr ""
 
-#: src/Model/Contact.php:3006
+#: src/Model/Contact.php:3010
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:3008
+#: src/Model/Contact.php:3012
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:3011
+#: src/Model/Contact.php:3015
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:3014
+#: src/Model/Contact.php:3018
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:3017
+#: src/Model/Contact.php:3021
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:3018
+#: src/Model/Contact.php:3022
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:3024
+#: src/Model/Contact.php:3028
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:3029
+#: src/Model/Contact.php:3033
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:3094
+#: src/Model/Contact.php:3098
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -5536,21 +5536,21 @@ msgstr ""
 msgid "Tips for New Members"
 msgstr ""
 
-#: src/Module/BaseSearch.php:69
+#: src/Module/BaseSearch.php:71
 #, php-format
 msgid "People Search - %s"
 msgstr ""
 
-#: src/Module/BaseSearch.php:79
+#: src/Module/BaseSearch.php:75
 #, php-format
 msgid "Forum Search - %s"
 msgstr ""
 
-#: src/Module/BaseSearch.php:123 src/Module/Contact/MatchInterests.php:139
+#: src/Module/BaseSearch.php:121 src/Module/Contact/MatchInterests.php:139
 msgid "No matches"
 msgstr ""
 
-#: src/Module/BaseSearch.php:149
+#: src/Module/BaseSearch.php:147
 #, php-format
 msgid ""
 "%d result was filtered out because your node blocks the domain it is "
@@ -8342,20 +8342,20 @@ msgstr ""
 
 #: src/Module/Profile/Conversations.php:106
 #: src/Module/Profile/Conversations.php:109 src/Module/Profile/Profile.php:351
-#: src/Module/Profile/Profile.php:354 src/Protocol/Feed.php:1090
+#: src/Module/Profile/Profile.php:354 src/Protocol/Feed.php:1092
 #: src/Protocol/OStatus.php:1007
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
 #: src/Module/Profile/Conversations.php:107 src/Module/Profile/Profile.php:352
-#: src/Protocol/Feed.php:1094 src/Protocol/OStatus.php:1012
+#: src/Protocol/Feed.php:1096 src/Protocol/OStatus.php:1012
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
 #: src/Module/Profile/Conversations.php:108 src/Module/Profile/Profile.php:353
-#: src/Protocol/Feed.php:1097 src/Protocol/OStatus.php:1016
+#: src/Protocol/Feed.php:1099 src/Protocol/OStatus.php:1016
 #, php-format
 msgid "%s's comments"
 msgstr ""
