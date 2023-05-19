@@ -64,7 +64,7 @@ class App
 {
 	const PLATFORM = 'Friendica';
 	const CODENAME = 'Giant Rhubarb';
-	const VERSION  = '2023.06-dev';
+	const VERSION  = '2023.05-rc';
 
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php

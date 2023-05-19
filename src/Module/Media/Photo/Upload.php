@@ -34,7 +34,6 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\Image;
 use Friendica\Util\Images;
 use Friendica\Util\Profiler;
-use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -180,7 +179,7 @@ class Upload extends \Friendica\BaseModule
 		}
 
 		$this->logger->info('upload done');
-		$this->return(200, "\n\n" . '[url=' . $this->baseUrl . '/photos/' . $owner['nickname'] . '/image/' . $resource_id . '][img=' . $this->baseUrl . "/photo/$resource_id-$preview." . $image->getExt() . "][/img][/url]\n\n");
+		$this->return(200, "\n\n" . Images::getBBCodeByResource($resource_id, $owner['nickname'], $preview, $image->getExt()) . "\n\n");
 	}
 
 	/**

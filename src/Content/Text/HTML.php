@@ -24,7 +24,6 @@ namespace Friendica\Content\Text;
 use DOMDocument;
 use DOMXPath;
 use Friendica\Protocol\HTTP\MediaType;
-use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
