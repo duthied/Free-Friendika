@@ -80,6 +80,8 @@ class Database
 	protected $dbaDefinition;
 	/** @var ViewDefinition */
 	protected $viewDefinition;
+	/** @var string|null */
+	private $currentTable;
 
 	public function __construct(IManageConfigValues $config, DbaDefinition $dbaDefinition, ViewDefinition $viewDefinition)
 	{
@@ -503,7 +505,7 @@ class Database
 	 */
 	public function p(string $sql)
 	{
-
+		$this->currentTable = null;
 		$this->profiler->startRecording('database');
 		$stamp1 = microtime(true);
 
@@ -973,8 +975,8 @@ class Database
 		switch ($this->driver) {
 			case self::PDO:
 				$columns = $stmt->fetch(PDO::FETCH_ASSOC);
-				if (!empty($stmt->table) && is_array($columns)) {
-					$columns = $this->castFields($stmt->table, $columns);
+				if (!empty($this->currentTable) && is_array($columns)) {
+					$columns = $this->castFields($this->currentTable, $columns);
 				}
 				break;
 			case self::MYSQLI:
@@ -1520,8 +1522,8 @@ class Database
 
 		$result = $this->p($sql, $condition);
 
-		if (($this->driver == self::PDO) && !empty($result) && is_string($table)) {
-			$result->table = $table;
+		if ($this->driver == self::PDO && !empty($result)) {
+			$this->currentTable = $table;
 		}
 
 		return $result;
