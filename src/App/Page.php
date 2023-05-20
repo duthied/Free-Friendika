@@ -244,9 +244,10 @@ class Page implements ArrayAccess
 		 */
 		$this->page['htmlhead'] = Renderer::replaceMacros($tpl, [
 			'$l10n' => [
-				'delitem'      => $l10n->t('Delete this item?'),
-				'blockAuthor'  => $l10n->t('Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'),
-				'ignoreAuthor' => $l10n->t('Ignore this author? You won\'t be able to see their posts and their notifications.'),
+				'delitem'        => $l10n->t('Delete this item?'),
+				'blockAuthor'    => $l10n->t('Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'),
+				'ignoreAuthor'   => $l10n->t('Ignore this author? You won\'t be able to see their posts and their notifications.'),
+				'collapseAuthor' => $l10n->t('Collapse this author\'s posts?'),
 
 				'likeError'     => $l10n->t('Like not successful'),
 				'dislikeError'  => $l10n->t('Dislike not successful'),
