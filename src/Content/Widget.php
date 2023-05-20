@@ -178,6 +178,10 @@ class Widget
 			$baseUrl = trim($baseUrl, '?') . '?';
 		}
 
+		array_walk($options, function (&$value) {
+			$value['ref'] = rawurlencode($value['ref']);
+		});
+
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/filter.tpl'), [
 			'$type'      => $type,
 			'$title'     => $title,
