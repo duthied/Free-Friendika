@@ -199,9 +199,10 @@
 		transform: scale(1);
 	}
 }
-.dropzone, .dropzone * {
+.dropzone, .dropzone .dz-default * {
 	box-sizing: border-box;
 	overflow: auto;
+	cursor: default;
 }
 
 .dropzone:not(textarea) {
@@ -214,9 +215,6 @@
 	border-radius: 4px;
 	background-color: $background_color;
 	margin-bottom: 10px;
-}
-.dropzone.dz-clickable * {
-	cursor: default;
 }
 .dropzone.dz-clickable .dz-message, .dropzone.dz-clickable .dz-message * {
 	cursor: pointer;
