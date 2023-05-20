@@ -87,7 +87,7 @@ class Search
 			$user_data['network'],
 			$contactDetails['cid'] ?? 0,
 			$user_data['id'],
-			$user_data['tags']
+			$user_data['keywords']
 		);
 
 		return new ResultList(1, 1, 1, [$result]);
