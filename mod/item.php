@@ -391,6 +391,22 @@ function item_content(App $a)
 				item_redirect_after_action($item, $args->get(3));
 			}
 			break;
+
+		case 'collapse':
+			$item = Post::selectFirstForUser(DI::userSession()->getLocalUserId(), ['guid', 'author-id', 'parent', 'gravity'], ['id' => $args->get(2)]);
+			if (empty($item['author-id'])) {
+				throw new HTTPException\NotFoundException('Item not found');
+			}
+
+			Contact\User::setCollapsed($item['author-id'], DI::userSession()->getLocalUserId(), true);
+
+			if (DI::mode()->isAjax()) {
+				// ajax return: [<item id>, 0 (no perm) | <owner id>]
+				System::jsonExit([intval($args->get(2)), DI::userSession()->getLocalUserId()]);
+			} else {
+				item_redirect_after_action($item, $args->get(3));
+			}
+			break;
 	}
 
 	return $o;

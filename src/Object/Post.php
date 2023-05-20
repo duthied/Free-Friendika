@@ -247,9 +247,10 @@ class Post
 		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
 		$delete = $origin ? DI::l10n()->t('Delete globally') : DI::l10n()->t('Remove locally');
 
-		$drop   = false;
-		$block  = false;
-		$ignore = false;
+		$drop     = false;
+		$block    = false;
+		$ignore   = false;
+		$collapse = false;
 		if (DI::userSession()->getLocalUserId()) {
 			$drop = [
 				'dropping' => $dropping,
@@ -269,6 +270,11 @@ class Post
 				'ignoring'  => true,
 				'ignore'    => DI::l10n()->t('Ignore %s', $item['author-name']),
 				'author_id' => $item['author-id'],
+			];
+			$collapse = [
+				'collapsing' => true,
+				'collapse'   => DI::l10n()->t('Collapse %s', $item['author-name']),
+				'author_id'  => $item['author-id'],
 			];
 		}
 
@@ -536,6 +542,7 @@ class Post
 			'drop'            => $drop,
 			'block'           => $block,
 			'ignore_author'   => $ignore,
+			'collapse'        => $collapse,
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],
