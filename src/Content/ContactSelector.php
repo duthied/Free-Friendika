@@ -141,6 +141,7 @@ class ContactSelector
 			Protocol::ACTIVITYPUB => DI::l10n()->t('ActivityPub'),
 			Protocol::PNUT      =>   DI::l10n()->t('pnut'),
 			Protocol::TUMBLR    =>   DI::l10n()->t('Tumblr'),
+			Protocol::BLUESKY   =>   DI::l10n()->t('Bluesky'),
 		];
 
 		Hook::callAll('network_to_name', $nets);
@@ -212,6 +213,7 @@ class ContactSelector
 			Protocol::ACTIVITYPUB => 'activitypub',
 			Protocol::PNUT      =>   'file-text-o', /// @todo
 			Protocol::TUMBLR    =>   'tumblr',
+			Protocol::BLUESKY   =>   'circle', /// @todo
 		];
 
 		$platform_icons = ['diaspora' => 'diaspora', 'friendica' => 'friendica', 'friendika' => 'friendica',

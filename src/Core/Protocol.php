@@ -57,6 +57,7 @@ class Protocol
 	const TWITTER   = 'twit';    // Twitter
 	const DISCOURSE = 'dscs';    // Discourse
 	const TUMBLR    = 'tmbl';    // Tumblr
+	const BLUESKY   = 'bsky';    // Bluesky
 
 	// Dead protocols
 	const APPNET    = 'apdn';    // app.net - Dead protocol
