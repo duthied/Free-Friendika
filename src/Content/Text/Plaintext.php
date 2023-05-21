@@ -26,7 +26,6 @@ use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Util\Network;
-use Friendica\Util\Strings;
 
 class Plaintext
 {

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.05-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-20 12:23+0000\n"
+"POT-Creation-Date: 2023-05-21 17:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -774,17 +774,17 @@ msgstr ""
 msgid "All contacts"
 msgstr ""
 
-#: src/BaseModule.php:432 src/Content/Widget.php:239 src/Core/ACL.php:195
+#: src/BaseModule.php:432 src/Content/Widget.php:243 src/Core/ACL.php:195
 #: src/Module/Contact.php:407 src/Module/PermissionTooltip.php:127
 #: src/Module/PermissionTooltip.php:149
 msgid "Followers"
 msgstr ""
 
-#: src/BaseModule.php:437 src/Content/Widget.php:240 src/Module/Contact.php:408
+#: src/BaseModule.php:437 src/Content/Widget.php:244 src/Module/Contact.php:408
 msgid "Following"
 msgstr ""
 
-#: src/BaseModule.php:442 src/Content/Widget.php:241 src/Module/Contact.php:409
+#: src/BaseModule.php:442 src/Content/Widget.php:245 src/Module/Contact.php:409
 msgid "Mutual friends"
 msgstr ""
 
@@ -1113,7 +1113,11 @@ msgstr ""
 msgid "Tumblr"
 msgstr ""
 
-#: src/Content/ContactSelector.php:179
+#: src/Content/ContactSelector.php:144
+msgid "Bluesky"
+msgstr ""
+
+#: src/Content/ContactSelector.php:180
 #, php-format
 msgid "%s (via %s)"
 msgstr ""
@@ -1593,7 +1597,7 @@ msgid ""
 msgstr ""
 
 #: src/Content/ForumManager.php:151 src/Content/Nav.php:276
-#: src/Content/Text/HTML.php:877 src/Content/Widget.php:528
+#: src/Content/Text/HTML.php:877 src/Content/Widget.php:532
 msgid "Forums"
 msgstr ""
 
@@ -1601,12 +1605,12 @@ msgstr ""
 msgid "External link to forum"
 msgstr ""
 
-#: src/Content/ForumManager.php:156 src/Content/Widget.php:507
+#: src/Content/ForumManager.php:156 src/Content/Widget.php:511
 msgid "show less"
 msgstr ""
 
-#: src/Content/ForumManager.php:157 src/Content/Widget.php:409
-#: src/Content/Widget.php:508
+#: src/Content/ForumManager.php:157 src/Content/Widget.php:413
+#: src/Content/Widget.php:512
 msgid "show more"
 msgstr ""
 
@@ -2128,72 +2132,72 @@ msgstr ""
 msgid "Local Directory"
 msgstr ""
 
-#: src/Content/Widget.php:215 src/Model/Group.php:596
+#: src/Content/Widget.php:219 src/Model/Group.php:596
 #: src/Module/Contact.php:394 src/Module/Welcome.php:76
 msgid "Groups"
 msgstr ""
 
-#: src/Content/Widget.php:217
+#: src/Content/Widget.php:221
 msgid "Everyone"
 msgstr ""
 
-#: src/Content/Widget.php:246
+#: src/Content/Widget.php:250
 msgid "Relationships"
 msgstr ""
 
-#: src/Content/Widget.php:248 src/Module/Contact.php:338
+#: src/Content/Widget.php:252 src/Module/Contact.php:338
 #: src/Module/Group.php:291
 msgid "All Contacts"
 msgstr ""
 
-#: src/Content/Widget.php:287
+#: src/Content/Widget.php:291
 msgid "Protocols"
 msgstr ""
 
-#: src/Content/Widget.php:289
+#: src/Content/Widget.php:293
 msgid "All Protocols"
 msgstr ""
 
-#: src/Content/Widget.php:317
+#: src/Content/Widget.php:321
 msgid "Saved Folders"
 msgstr ""
 
-#: src/Content/Widget.php:319 src/Content/Widget.php:350
+#: src/Content/Widget.php:323 src/Content/Widget.php:354
 msgid "Everything"
 msgstr ""
 
-#: src/Content/Widget.php:348
+#: src/Content/Widget.php:352
 msgid "Categories"
 msgstr ""
 
-#: src/Content/Widget.php:405
+#: src/Content/Widget.php:409
 #, php-format
 msgid "%d contact in common"
 msgid_plural "%d contacts in common"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Content/Widget.php:501
+#: src/Content/Widget.php:505
 msgid "Archives"
 msgstr ""
 
-#: src/Content/Widget.php:525
+#: src/Content/Widget.php:529
 msgid "Persons"
 msgstr ""
 
-#: src/Content/Widget.php:526
+#: src/Content/Widget.php:530
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:527 src/Model/Contact.php:1651
+#: src/Content/Widget.php:531 src/Model/Contact.php:1651
 msgid "News"
 msgstr ""
 
-#: src/Content/Widget.php:531 src/Module/Settings/Account.php:453
+#: src/Content/Widget.php:535 src/Module/Settings/Account.php:453
 msgid "Account Types"
 msgstr ""
 
-#: src/Content/Widget.php:532 src/Module/Moderation/BaseUsers.php:69
+#: src/Content/Widget.php:536 src/Module/Moderation/BaseUsers.php:69
 msgid "All"
 msgstr ""
 
