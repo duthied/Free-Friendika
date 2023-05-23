@@ -1,6 +1,6 @@
 Version 2023.05 (unreleased)
   Friendica Core
-	Updates to the translations HU, PL
+    Updates to the translations HU, PL
     Updates to the themes (frio, vier) [MrPetovan, xundeenergie]
     Updates to the documentation [MrPetovan]
     Improved the probing of remote accounts [Annando, ne20002]
@@ -12,7 +12,7 @@ Version 2023.05 (unreleased)
     Fixed HTML escaping for notification messages [MrPetovan, nupplaphil]
     Fixed the feed body import [annando]
     Fixed meaning of the limit parameter in the Mastodon API [annando]
-    Fixed a bug in the tag cloud [annando]
+    Fixed a bug in the tag cloud [MrPetovan]
     Fixed the magic links in photo menu [MrPetovan]
     Added new hook for addons (support_probe) [annando]
     Added support for special characters in category links [MrPetovan]
