@@ -1,9 +1,43 @@
-Version 2023.06 (unreleased)
+Version 2023.05 (unreleased)
   Friendica Core
+    Updates to the translations HU, PL
+    Updates to the themes (frio, vier) [MrPetovan, xundeenergie]
+    Updates to the documentation [MrPetovan]
+    Improved the probing of remote accounts [Annando, ne20002]
+    Improved the OWA implementation [annando, abanink]
+    Improved the database handling [nupplaphil]
+    Improved the ATOM feed handling, added OPML [annando]
+    Improved the audience handling of forum posting [annando]
+    General code cleanup [annando, MrPetovan, nupplaphil, Raroun]
+    Fixed HTML escaping for notification messages [MrPetovan, nupplaphil]
+    Fixed the feed body import [annando]
+    Fixed meaning of the limit parameter in the Mastodon API [annando]
+    Fixed a bug in the tag cloud [MrPetovan]
+    Fixed the magic links in photo menu [MrPetovan]
+    Added new hook for addons (support_probe) [annando]
+    Added support for special characters in category links [MrPetovan]
+    Added possibility to collapse postings [annando]
+    Added the emojipicker to the core [annando]
+    Added a fancybox to view images in network stream [annando]
 
   Friendica Addons
+    Updates to the translations DE, HU
+    bluesky
+      Added the bluesky connector [annando]
+    mailstream
+      General code cleanup [mexon]
+    tumblr
+      Added OAuth2 support [ænnando]
+      Added un/follow, un/block functionality [annando]
+      Added probe [annando]
+      Added the possibility for users to follow tags [annando]
+    emojipicker, fancybox
+      The functionality of this addon has been moved to the
+      core for the frio and vier themes. [annando]
 
   Closed Issues
+    12439, 12760, 12788, 12824, 12979, 13016, 13026, 13027, 13036,
+    13052, 13073, 13082, 13089, 13102, 13104, 13108
 
 Version 2023.04-1 (2023-04-27)
   Friendica Core
