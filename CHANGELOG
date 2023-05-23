@@ -17,6 +17,8 @@ Version 2023.05 (unreleased)
     Added new hook for addons (support_probe) [annando]
     Added support for special characters in category links [MrPetovan]
     Added possibility to collapse postings [annando]
+    Added the emojipicker to the core [annando]
+    Added a fancybox to view images in network stream [annando]
 
   Friendica Addons
     Updates to the translations HU
