@@ -201,6 +201,23 @@ $a->strings['Apologies but the website is unavailable at the moment.'] = 'Elnéz
 $a->strings['Delete this item?'] = 'Törli ezt az elemet?';
 $a->strings['Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'] = 'Tiltja ezt a szerzőt? Nem lesz képes követni Önt, és a nyilvános bejegyzéseit sem látja, valamint Ön sem lesz képes megtekinteni az ő bejegyzéseit és értesítéseit.';
 $a->strings['Ignore this author? You won\'t be able to see their posts and their notifications.'] = 'Mellőzi ezt a szerzőt? Nem lesz képes megtekinteni az ő bejegyzéseit és értesítéseit.';
+$a->strings['Like not successful'] = 'A kedvelés sikertelen';
+$a->strings['Dislike not successful'] = 'A nem kedvelés sikertelen';
+$a->strings['Sharing not successful'] = 'A megosztás sikertelen';
+$a->strings['Attendance unsuccessful'] = 'A részvétel sikertelen';
+$a->strings['Backend error'] = 'Háttérprogram hiba';
+$a->strings['Network error'] = 'Hálózati hiba';
+$a->strings['Drop files here to upload'] = 'Dobja ide a fájlokat a feltöltéséhez';
+$a->strings['Your browser does not support drag and drop file uploads.'] = 'A böngészője nem támogatja a fogd és vidd fájlfeltöltéseket.';
+$a->strings['Please use the fallback form below to upload your files like in the olden days.'] = 'Használja az alábbi tartalék űrlapot a fájlok feltöltéséhez, mint a régi időkben.';
+$a->strings['File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.'] = 'A fájl túl nagy ({{filesize}} MiB). A legnagyobb fájlméret: {{maxFilesize}} MiB.';
+$a->strings['You can\'t upload files of this type.'] = 'Nem tud ilyen típusú fájlokat feltölteni.';
+$a->strings['Server responded with {{statusCode}} code.'] = 'A kiszolgáló {{statusCode}} állapotkóddal válaszolt.';
+$a->strings['Cancel upload'] = 'Feltöltés megszakítása';
+$a->strings['Upload canceled.'] = 'A feltöltés megszakítva.';
+$a->strings['Are you sure you want to cancel this upload?'] = 'Biztosan meg szeretné szakítani ezt a feltöltést?';
+$a->strings['Remove file'] = 'Fájl eltávolítása';
+$a->strings['You can\'t upload any more files.'] = 'Nem tud több fájlt feltölteni.';
 $a->strings['toggle mobile'] = 'váltás mobilra';
 $a->strings['Method not allowed for this module. Allowed method(s): %s'] = 'A módszer nem engedélyezett ennél a modulnál. Az engedélyezett módszerek: %s';
 $a->strings['Page not found.'] = 'Az oldal nem található.';
@@ -282,9 +299,58 @@ $a->strings['Diaspora Connector'] = 'Diaspora összekötő';
 $a->strings['GNU Social Connector'] = 'GNU Social összekötő';
 $a->strings['ActivityPub'] = 'ActivityPub';
 $a->strings['pnut'] = 'pnut';
+$a->strings['Tumblr'] = 'Tumblr';
 $a->strings['%s (via %s)'] = '%s (ezen keresztül: %s)';
 $a->strings['and'] = 'és';
 $a->strings['and %d other people'] = 'és %d más személy';
+$a->strings['%2$s likes this.'] = [
+	0 => '%2$s kedveli ezt.',
+	1 => '%2$s kedveli ezt.',
+];
+$a->strings['%2$s doesn\'t like this.'] = [
+	0 => '%2$s nem kedveli ezt.',
+	1 => '%2$s nem kedveli ezt.',
+];
+$a->strings['%2$s attends.'] = [
+	0 => '%2$s részt vesz.',
+	1 => '%2$s részt vesz.',
+];
+$a->strings['%2$s doesn\'t attend.'] = [
+	0 => '%2$s nem vesz részt.',
+	1 => '%2$s nem vesz részt.',
+];
+$a->strings['%2$s attends maybe.'] = [
+	0 => '%2$s talán részt vesz.',
+	1 => '%2$s talán részt vesz.',
+];
+$a->strings['%2$s reshared this.'] = [
+	0 => '%2$s újra megosztotta ezt.',
+	1 => '%2$s újra megosztotta ezt.',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> likes this'] = [
+	0 => '<button type="button" %2$s>%1$d személy</button> kedveli ezt',
+	1 => '<button type="button" %2$s>%1$d személy</button> kedveli ezt',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> doesn\'t like this'] = [
+	0 => '<button type="button" %2$s>%1$d személy</button> nem kedveli ezt',
+	1 => '<button type="button" %2$s>%1$d személy</button> nem kedveli ezt',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> attends'] = [
+	0 => '<button type="button" %2$s>%1$d személy</button> részt vesz',
+	1 => '<button type="button" %2$s>%1$d személy</button> részt vesz',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> doesn\'t attend'] = [
+	0 => '<button type="button" %2$s>%1$d személy</button> nem vesz részt',
+	1 => '<button type="button" %2$s>%1$d személy</button> nem vesz részt',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> attends maybe'] = [
+	0 => '<button type="button" %2$s>%1$d személy</button> talán részt vesz',
+	1 => '<button type="button" %2$s>%1$d személy</button> talán részt vesz',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> reshared this'] = [
+	0 => '<button type="button" %2$s>%1$d személy</button> újra megosztotta ezt',
+	1 => '<button type="button" %2$s>%1$d személy</button> újra megosztotta ezt',
+];
 $a->strings['Visible to <strong>everybody</strong>'] = 'Látható <strong>mindenkinek</strong>';
 $a->strings['Please enter a image/video/audio/webpage URL:'] = 'Írjon be egy kép, videó, hang vagy weboldal URL-t:';
 $a->strings['Tag term:'] = 'Címkézési kifejezés:';
@@ -301,6 +367,7 @@ $a->strings['Bold'] = 'Félkövér';
 $a->strings['Italic'] = 'Dőlt';
 $a->strings['Underline'] = 'Aláhúzott';
 $a->strings['Quote'] = 'Idézet';
+$a->strings['Add emojis'] = 'Emodzsik hozzáadása';
 $a->strings['Code'] = 'Kód';
 $a->strings['Image'] = 'Kép';
 $a->strings['Link'] = 'Hivatkozás';
@@ -1063,6 +1130,7 @@ $a->strings['PHP log currently disabled.'] = 'A PHP-naplózás jelenleg le van t
 $a->strings['Logs'] = 'Naplók';
 $a->strings['Clear'] = 'Törlés';
 $a->strings['Enable Debugging'] = 'Hibakeresés engedélyezése';
+$a->strings['<strong>Read-only</strong> because it is set by an environment variable'] = '<strong>Csak olvasható</strong>, mert egy környezeti változó állítja be';
 $a->strings['Log file'] = 'Naplófájl';
 $a->strings['Must be writable by web server. Relative to your Friendica top-level directory.'] = 'Írhatónak kell lennie a webkiszolgáló által. Relatívan kell megadni a Friendica felső szintű könyvtárához képest.';
 $a->strings['Log level'] = 'Naplózási szint';
@@ -1167,6 +1235,8 @@ $a->strings['Maximum length in pixels of the longest side of uploaded images. De
 $a->strings['JPEG image quality'] = 'JPEG-képek minősége';
 $a->strings['Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.'] = 'A feltöltött JPEG-képek ezzel a minőségbeállítással lesznek elmentve [0-100]. Alapértelmezetten 100, ami teljes minőséget jelent.';
 $a->strings['Register policy'] = 'Regisztrációs irányelv';
+$a->strings['Maximum Users'] = 'Legtöbb felhasználó';
+$a->strings['If defined, the register policy is automatically closed when the given number of users is reached and reopens the registry when the number drops below the limit. It only works when the policy is set to open or close, but not when the policy is set to approval.'] = 'Ha meg van adva, akkor a regisztrációs házirend automatikusan lezárja a regisztrációt a megadott számú felhasználó elérésekor, és újra megnyitja a regisztrációt, ha a felhasználók száma a határérték alá csökken. Ez csak akkor működik, ha a házirend nyitottra vagy zártra van beállítva, de nem működik, ha a házirend jóváhagyásra van beállítva.';
 $a->strings['Maximum Daily Registrations'] = 'Legtöbb napi regisztráció';
 $a->strings['If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.'] = 'Ha a regisztrációk megengedettek fent, akkor ez állítja be a naponta elfogadandó új felhasználói regisztrációk legnagyobb számát. Ha a regisztráció lezártra van állítva, akkor ennek a beállításnak nincs hatása.';
 $a->strings['Register text'] = 'Regisztrációs szöveg';
@@ -1305,6 +1375,7 @@ $a->strings['Save & Use storage backend'] = 'Mentés és a tároló háttérprog
 $a->strings['Use storage backend'] = 'Tároló háttérprogram használata';
 $a->strings['Save & Reload'] = 'Mentés és újratöltés';
 $a->strings['This backend doesn\'t have custom settings'] = 'Ennek a háttérprogramnak nincsenek egyéni beállításai';
+$a->strings['Changing the current backend is prohibited because it is set by an environment variable'] = 'A jelenlegi háttérprogram megváltoztatása tiltva van, mivel azt egy környezeti változó állítja be';
 $a->strings['Database (legacy)'] = 'Adatbázis (örökölt)';
 $a->strings['Template engine (%s) error: %s'] = 'Sablonmotor (%s) hiba: %s';
 $a->strings['Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'] = 'Az adatbázisa még mindig MyISAM táblákkal fut. Meg kell változtatnia a motor típusát InnoDB-re. Mivel a Friendica a jövőben olyan funkciókat fog használni, amely csak InnoDB használatával érhető el, ezért meg kell változtatnia! <a href="%s">Nézze meg ezt az útmutatót</a>, amely hasznos lehet a táblamotorok átalakításához. Használhatja a Friendica telepítésének <tt>php bin/console.php dbstructure toinnodb</tt> parancsát is az automatikus átalakításhoz.<br />';
@@ -1406,6 +1477,10 @@ $a->strings['Tips for New Members'] = 'Tippek új tagoknak';
 $a->strings['People Search - %s'] = 'Emberek keresése – %s';
 $a->strings['Forum Search - %s'] = 'Fórum keresése – %s';
 $a->strings['No matches'] = 'Nincs találat';
+$a->strings['%d result was filtered out because your node blocks the domain it is registered on. You can review the list of domains your node is currently blocking in the <a href="/friendica">About page</a>.'] = [
+	0 => '%d találat ki lett szűrve, mert az Ön csomópontja tiltja azt a tartományt, amelyen az regisztrálva van. A <a href="/friendica">Névjegy oldalon</a> felülvizsgálhatja azon tartományok listáját, amelyet a csomópontja jelenleg letilt.',
+	1 => '%d találat ki lett szűrve, mert az Ön csomópontja tiltja azt a tartományt, amelyen azok regisztrálva vannak. A <a href="/friendica">Névjegy oldalon</a> felülvizsgálhatja azon tartományok listáját, amelyet a csomópontja jelenleg letilt.',
+];
 $a->strings['Account'] = 'Fiók';
 $a->strings['Two-factor authentication'] = 'Kétlépcsős hitelesítés';
 $a->strings['Display'] = 'Megjelenítés';
@@ -1815,7 +1890,6 @@ $a->strings['Or - did you try to upload an empty file?'] = 'Vagy – egy üres f
 $a->strings['File exceeds size limit of %s'] = 'A fájl meghaladja a beállított %s méretkorlátot';
 $a->strings['File upload failed.'] = 'A fájl feltöltése sikertelen.';
 $a->strings['Unable to process image.'] = 'Nem lehet feldolgozni a képet.';
-$a->strings['Image exceeds size limit of %s'] = 'A kép meghaladja a beállított %s méretkorlátot';
 $a->strings['Image upload failed.'] = 'A kép feltöltése sikertelen.';
 $a->strings['List of all users'] = 'Összes felhasználó listája';
 $a->strings['Active'] = 'Aktív';
@@ -2059,6 +2133,8 @@ $a->strings['%d more'] = '%d további';
 $a->strings['<b>To:</b> %s<br>'] = '<b>Címzett:</b> %s<br>';
 $a->strings['<b>CC:</b> %s<br>'] = '<b>Másolat:</b> %s<br>';
 $a->strings['<b>BCC:</b> %s<br>'] = '<b>Rejtett másolat:</b> %s<br>';
+$a->strings['<b>Audience:</b> %s<br>'] = '<b>Közönség:</b> %s<br>';
+$a->strings['<b>Attributed To:</b> %s<br>'] = '<b>Neki tulajdonítható:</b> %s<br>';
 $a->strings['The Photo is not available.'] = 'A fénykép nem érhető el.';
 $a->strings['The Photo with id %s is not available.'] = 'A(z) %s azonosítóval rendelkező fénykép nem érhető el.';
 $a->strings['Invalid external resource with url %s.'] = 'Érvénytelen külső erőforrás a(z) %s URL-lel.';
@@ -2077,6 +2153,7 @@ $a->strings['No contacts.'] = 'Nincsenek partnerek.';
 $a->strings['%s\'s timeline'] = '%s idővonala';
 $a->strings['%s\'s posts'] = '%s bejegyzései';
 $a->strings['%s\'s comments'] = '%s hozzászólásai';
+$a->strings['Image exceeds size limit of %s'] = 'A kép meghaladja a beállított %s méretkorlátot';
 $a->strings['Image upload didn\'t complete, please try again'] = 'A kép feltöltése nem fejeződött be, próbálja újra';
 $a->strings['Image file is missing'] = 'A képfájl hiányzik';
 $a->strings['Server can\'t accept new file upload at this time, please contact your administrator'] = 'A kiszolgáló jelenleg nem tud új fájlfeltöltést fogadni, vegye fel a kapcsolatot a rendszergazdával';
@@ -2339,6 +2416,8 @@ $a->strings['Attach the link title'] = 'A hivatkozás címének csatolása';
 $a->strings['When activated, the title of the attached link will be added as a title on posts to Diaspora. This is mostly helpful with "remote-self" contacts that share feed content.'] = 'Ha be van kapcsolva, akkor a csatolt hivatkozás címe címként lesz hozzáadva a Diaspora hálózatra küldött bejegyzéseknél. Ez többnyire az olyan „távoli önmaga” partnerekkel hasznos, amelyek megosztják a hírforrás tartalmát.';
 $a->strings['API: Use spoiler field as title'] = 'API: a spoiler mező használata címként';
 $a->strings['When activated, the "spoiler_text" field in the API will be used for the title on standalone posts. When deactivated it will be used for spoiler text. For comments it will always be used for spoiler text.'] = 'Ha aktiválva van, akkor az API-ban lévő „spoiler_text” mező lesz használva az önálló bejegyzések címeként. Ha ki van kapcsolva, akkor a spoiler szövegéhez lesz használva. A megjegyzéseknél mindig a spoiler szövegéhez lesz használva.';
+$a->strings['API: Automatically links at the end of the post as attached posts'] = 'API: automatikusan a bejegyzés végéhez kapcsolja csatolt bejegyzésként';
+$a->strings['When activated, added links at the end of the post react the same way as added links in the web interface.'] = 'Ha aktiválva van, akkor a bejegyzés végéhez hozzáadott hivatkozások ugyanúgy reagálnak, mint a webes felületen hozzáadott hivatkozások.';
 $a->strings['Your legacy ActivityPub/GNU Social account'] = 'Az örökölt ActivityPub/GNU Social fiókja';
 $a->strings['If you enter your old account name from an ActivityPub based system or your GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.'] = 'Ha megadja itt a régi, egy ActivityPub alapú rendszerből származó fiókja nevét, illetve a GNU Social vagy Statusnet fiókja nevét (felhasználó@tartomány.tld formátumban), akkor a partnerei automatikusan hozzá lesznek adva. A mező ki lesz ürítve, ha elkészült.';
 $a->strings['Repair OStatus subscriptions'] = 'OStatus feliratkozások javítása';
