@@ -21,9 +21,16 @@ Version 2023.05 (unreleased)
     Added a fancybox to view images in network stream [annando]
 
   Friendica Addons
-    Updates to the translations HU
+    Updates to the translations DE, HU
     bluesky
       Added the bluesky connector [annando]
+    mailstream
+      General code cleanup [mexon]
+    tumblr
+      Added OAuth2 support [ænnando]
+      Added un/follow, un/block functionality [annando]
+      Added probe [annando]
+      Added the possibility for users to follow tags [annando]
     emojipicker, fancybox
       The functionality of this addon has been moved to the
       core for the frio and vier themes. [annando]
