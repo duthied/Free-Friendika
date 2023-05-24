@@ -581,6 +581,7 @@ class App
 				// Force SSL redirection
 				if ($this->config->get('system', 'force_ssl') &&
 					(empty($server['HTTPS']) || $server['HTTPS'] === 'off') &&
+					(empty($server['HTTP_X_FORWARDED_PROTO']) || $server['HTTP_X_FORWARDED_PROTO'] === 'http') &&
 					!empty($server['REQUEST_METHOD']) &&
 					$server['REQUEST_METHOD'] === 'GET') {
 					System::externalRedirect($this->baseURL . '/' . $this->args->getQueryString());
