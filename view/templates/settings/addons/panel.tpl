@@ -8,7 +8,7 @@
 	{{$html nofilter}}
 {{if $submit}}
 	<div class="settings-submit-wrapper panel-footer">
-    {{if $submit|is_string}}
+    {{if $submit}}
 		<button type="submit" name="{{$addon}}-submit" class="btn btn-primary settings-submit" value="{{$submit}}">{{$submit}}</button>
     {{else}}
         {{$count = 1}}
