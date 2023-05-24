@@ -206,7 +206,7 @@ class Post
 		$connector = !in_array($item['network'], Protocol::NATIVE_SUPPORT) ? DI::l10n()->t('Connector Message') : false;
 
 		$shareable    = in_array($conv->getProfileOwner(), [0, DI::userSession()->getLocalUserId()]) && $item['private'] != Item::PRIVATE;
-		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER, Protocol::TUMBLR]);
+		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER, Protocol::TUMBLR, Protocol::BLUESKY]);
 		$commentable  = ($item['network'] != Protocol::TUMBLR);
 
 		// On Diaspora only toplevel posts can be reshared
