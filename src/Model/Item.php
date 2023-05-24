@@ -2050,7 +2050,11 @@ class Item
 		}
 
 		// Glue it together to be able to make a hash from it
-		$host_id = implode('/', $parsed);
+		if (!empty($parsed)) {
+			$host_id = implode('/', $parsed);
+		} else {
+			$host_id = $uri;
+		}
 
 		// Use a mixture of several hashes to provide some GUID like experience
 		return hash('crc32', $hostPart) . '-' . hash('joaat', $host_id) . '-' . hash('fnv164', $host_id);
