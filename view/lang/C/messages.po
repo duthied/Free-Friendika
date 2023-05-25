@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-26 07:34+0000\n"
+"POT-Creation-Date: 2023-05-27 17:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,14 +50,14 @@ msgstr ""
 #: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:52
 #: src/Module/Calendar/Event/API.php:88 src/Module/Calendar/Event/Form.php:84
 #: src/Module/Calendar/Export.php:82 src/Module/Calendar/Show.php:82
+#: src/Module/Circle.php:40 src/Module/Circle.php:83
 #: src/Module/Contact/Advanced.php:60 src/Module/Contact/Follow.php:87
 #: src/Module/Contact/Follow.php:160 src/Module/Contact/MatchInterests.php:86
 #: src/Module/Contact/Suggestions.php:54 src/Module/Contact/Unfollow.php:66
 #: src/Module/Contact/Unfollow.php:80 src/Module/Contact/Unfollow.php:112
 #: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
-#: src/Module/FriendSuggest.php:57 src/Module/Group.php:40
-#: src/Module/Group.php:83 src/Module/Invite.php:42 src/Module/Invite.php:131
-#: src/Module/Notifications/Notification.php:76
+#: src/Module/FriendSuggest.php:57 src/Module/Invite.php:42
+#: src/Module/Invite.php:131 src/Module/Notifications/Notification.php:76
 #: src/Module/Notifications/Notification.php:107
 #: src/Module/OStatus/Repair.php:60 src/Module/OStatus/Subscribe.php:66
 #: src/Module/Post/Edit.php:76 src/Module/Profile/Common.php:75
@@ -2017,39 +2017,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:713 src/Content/Text/BBCode.php:1619
-#: src/Content/Text/BBCode.php:1620
+#: src/Content/Text/BBCode.php:694 src/Content/Text/BBCode.php:1600
+#: src/Content/Text/BBCode.php:1601
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:931
+#: src/Content/Text/BBCode.php:912
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:956 src/Model/Item.php:3649
+#: src/Content/Text/BBCode.php:937 src/Model/Item.php:3649
 #: src/Model/Item.php:3655 src/Model/Item.php:3656
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1526 src/Content/Text/HTML.php:901
+#: src/Content/Text/BBCode.php:1507 src/Content/Text/HTML.php:901
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1559
+#: src/Content/Text/BBCode.php:1540
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1624 src/Content/Text/BBCode.php:1625
+#: src/Content/Text/BBCode.php:1605 src/Content/Text/BBCode.php:1606
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1889
+#: src/Content/Text/BBCode.php:1870
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1908
+#: src/Content/Text/BBCode.php:1889
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2132,9 +2132,9 @@ msgstr ""
 msgid "Local Directory"
 msgstr ""
 
-#: src/Content/Widget.php:219 src/Model/Group.php:596
+#: src/Content/Widget.php:219 src/Model/Circle.php:596
 #: src/Module/Contact.php:394 src/Module/Welcome.php:76
-msgid "Groups"
+msgid "Circles"
 msgstr ""
 
 #: src/Content/Widget.php:221
@@ -2145,8 +2145,8 @@ msgstr ""
 msgid "Relationships"
 msgstr ""
 
-#: src/Content/Widget.php:252 src/Module/Contact.php:338
-#: src/Module/Group.php:291
+#: src/Content/Widget.php:252 src/Module/Circle.php:293
+#: src/Module/Contact.php:338
 msgid "All Contacts"
 msgstr ""
 
@@ -2313,8 +2313,8 @@ msgstr ""
 
 #: src/Core/ACL.php:324
 msgid ""
-"Start typing the name of a contact or a group to show a filtered list. You "
-"can also mention the special groups \"Followers\" and \"Mutuals\"."
+"Start typing the name of a contact or a circle to show a filtered list. You "
+"can also mention the special circles \"Followers\" and \"Mutuals\"."
 msgstr ""
 
 #: src/Core/ACL.php:325
@@ -2974,6 +2974,50 @@ msgstr ""
 msgid "Legacy module file not found: %s"
 msgstr ""
 
+#: src/Model/Circle.php:105
+msgid ""
+"A deleted circle with this name was revived. Existing item permissions "
+"<strong>may</strong> apply to this circle and any future members. If this is "
+"not what you intended, please create another circle with a different name."
+msgstr ""
+
+#: src/Model/Circle.php:512
+msgid "Default privacy circle for new contacts"
+msgstr ""
+
+#: src/Model/Circle.php:544
+msgid "Everybody"
+msgstr ""
+
+#: src/Model/Circle.php:563
+msgid "edit"
+msgstr ""
+
+#: src/Model/Circle.php:595
+msgid "add"
+msgstr ""
+
+#: src/Model/Circle.php:600
+msgid "Edit circle"
+msgstr ""
+
+#: src/Model/Circle.php:601 src/Module/Circle.php:194
+msgid "Contacts not in any circle"
+msgstr ""
+
+#: src/Model/Circle.php:603
+msgid "Create a new circle"
+msgstr ""
+
+#: src/Model/Circle.php:604 src/Module/Circle.php:179 src/Module/Circle.php:202
+#: src/Module/Circle.php:277
+msgid "Circle Name: "
+msgstr ""
+
+#: src/Model/Circle.php:605
+msgid "Edit circles"
+msgstr ""
+
 #: src/Model/Contact.php:1212 src/Module/Moderation/Users/Pending.php:102
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
@@ -3152,50 +3196,6 @@ msgstr ""
 #: src/Model/Event.php:1054
 #, php-format
 msgid "Happy Birthday %s"
-msgstr ""
-
-#: src/Model/Group.php:105
-msgid ""
-"A deleted group with this name was revived. Existing item permissions "
-"<strong>may</strong> apply to this group and any future members. If this is "
-"not what you intended, please create another group with a different name."
-msgstr ""
-
-#: src/Model/Group.php:512
-msgid "Default privacy group for new contacts"
-msgstr ""
-
-#: src/Model/Group.php:544
-msgid "Everybody"
-msgstr ""
-
-#: src/Model/Group.php:563
-msgid "edit"
-msgstr ""
-
-#: src/Model/Group.php:595
-msgid "add"
-msgstr ""
-
-#: src/Model/Group.php:600
-msgid "Edit group"
-msgstr ""
-
-#: src/Model/Group.php:601 src/Module/Group.php:192
-msgid "Contacts not in any group"
-msgstr ""
-
-#: src/Model/Group.php:603
-msgid "Create a new group"
-msgstr ""
-
-#: src/Model/Group.php:604 src/Module/Group.php:177 src/Module/Group.php:200
-#: src/Module/Group.php:275
-msgid "Group Name: "
-msgstr ""
-
-#: src/Model/Group.php:605
-msgid "Edit groups"
 msgstr ""
 
 #: src/Model/Item.php:2023
@@ -3560,7 +3560,7 @@ msgstr ""
 
 #: src/Model/User.php:1197
 msgid ""
-"An error occurred creating your default contact group. Please try again."
+"An error occurred creating your default contact circle. Please try again."
 msgstr ""
 
 #: src/Model/User.php:1236
@@ -4543,7 +4543,7 @@ msgstr ""
 #: src/Module/Admin/Site.php:455
 msgid ""
 "Set default post permissions for all new members to the default privacy "
-"group rather than public."
+"circle rather than public."
 msgstr ""
 
 #: src/Module/Admin/Site.php:456
@@ -4957,12 +4957,12 @@ msgid "On large systems the text search can slow down the system extremely."
 msgstr ""
 
 #: src/Module/Admin/Site.php:507
-msgid "Generate counts per contact group when calculating network count"
+msgid "Generate counts per contact circle when calculating network count"
 msgstr ""
 
 #: src/Module/Admin/Site.php:507
 msgid ""
-"On systems with users that heavily use contact groups the query can be very "
+"On systems with users that heavily use contact circles the query can be very "
 "expensive."
 msgstr ""
 
@@ -5724,6 +5724,108 @@ msgstr ""
 msgid "list"
 msgstr ""
 
+#: src/Module/Circle.php:56
+msgid "Could not create circle."
+msgstr ""
+
+#: src/Module/Circle.php:67 src/Module/Circle.php:215 src/Module/Circle.php:239
+msgid "Circle not found."
+msgstr ""
+
+#: src/Module/Circle.php:73
+msgid "Circle name was not changed."
+msgstr ""
+
+#: src/Module/Circle.php:91
+msgid "Unknown circle."
+msgstr ""
+
+#: src/Module/Circle.php:97 src/Module/Circle.php:106
+#: src/Module/Contact/Advanced.php:70 src/Module/Contact/Advanced.php:109
+#: src/Module/Contact/Contacts.php:71 src/Module/Contact/Conversations.php:84
+#: src/Module/Contact/Conversations.php:89
+#: src/Module/Contact/Conversations.php:94 src/Module/Contact/Media.php:43
+#: src/Module/Contact/Posts.php:78 src/Module/Contact/Posts.php:83
+#: src/Module/Contact/Posts.php:88 src/Module/Contact/Profile.php:142
+#: src/Module/Contact/Profile.php:147 src/Module/Contact/Profile.php:152
+#: src/Module/Contact/Redir.php:94 src/Module/Contact/Redir.php:140
+#: src/Module/FriendSuggest.php:71 src/Module/FriendSuggest.php:109
+msgid "Contact not found."
+msgstr ""
+
+#: src/Module/Circle.php:101 src/Module/Contact/Contacts.php:66
+#: src/Module/Conversation/Network.php:189
+msgid "Invalid contact."
+msgstr ""
+
+#: src/Module/Circle.php:110 src/Module/Contact/Revoke.php:73
+msgid "Contact is deleted."
+msgstr ""
+
+#: src/Module/Circle.php:116
+msgid "Unable to add the contact to the circle."
+msgstr ""
+
+#: src/Module/Circle.php:119
+msgid "Contact successfully added to circle."
+msgstr ""
+
+#: src/Module/Circle.php:123
+msgid "Unable to remove the contact from the circle."
+msgstr ""
+
+#: src/Module/Circle.php:126
+msgid "Contact successfully removed from circle."
+msgstr ""
+
+#: src/Module/Circle.php:130
+msgid "Bad request."
+msgstr ""
+
+#: src/Module/Circle.php:171
+msgid "Save Circle"
+msgstr ""
+
+#: src/Module/Circle.php:172
+msgid "Filter"
+msgstr ""
+
+#: src/Module/Circle.php:178
+msgid "Create a circle of contacts/friends."
+msgstr ""
+
+#: src/Module/Circle.php:220
+msgid "Unable to remove circle."
+msgstr ""
+
+#: src/Module/Circle.php:271
+msgid "Delete Circle"
+msgstr ""
+
+#: src/Module/Circle.php:281
+msgid "Edit Circle Name"
+msgstr ""
+
+#: src/Module/Circle.php:291
+msgid "Members"
+msgstr ""
+
+#: src/Module/Circle.php:294
+msgid "Circle is empty"
+msgstr ""
+
+#: src/Module/Circle.php:307
+msgid "Remove contact from circle"
+msgstr ""
+
+#: src/Module/Circle.php:328
+msgid "Click on a contact to add or remove."
+msgstr ""
+
+#: src/Module/Circle.php:342
+msgid "Add contact to circle"
+msgstr ""
+
 #: src/Module/Contact.php:97
 #, php-format
 msgid "%d contact edited."
@@ -5787,7 +5889,7 @@ msgid "Only show hidden contacts"
 msgstr ""
 
 #: src/Module/Contact.php:397
-msgid "Organize your contact groups"
+msgid "Organize your contact circles"
 msgstr ""
 
 #: src/Module/Contact.php:430
@@ -5871,19 +5973,6 @@ msgstr ""
 msgid "Visit %s's profile [%s]"
 msgstr ""
 
-#: src/Module/Contact/Advanced.php:70 src/Module/Contact/Advanced.php:109
-#: src/Module/Contact/Contacts.php:71 src/Module/Contact/Conversations.php:84
-#: src/Module/Contact/Conversations.php:89
-#: src/Module/Contact/Conversations.php:94 src/Module/Contact/Media.php:43
-#: src/Module/Contact/Posts.php:78 src/Module/Contact/Posts.php:83
-#: src/Module/Contact/Posts.php:88 src/Module/Contact/Profile.php:142
-#: src/Module/Contact/Profile.php:147 src/Module/Contact/Profile.php:152
-#: src/Module/Contact/Redir.php:94 src/Module/Contact/Redir.php:140
-#: src/Module/FriendSuggest.php:71 src/Module/FriendSuggest.php:109
-#: src/Module/Group.php:97 src/Module/Group.php:106
-msgid "Contact not found."
-msgstr ""
-
 #: src/Module/Contact/Advanced.php:99
 msgid "Contact update failed."
 msgstr ""
@@ -5918,11 +6007,6 @@ msgstr ""
 
 #: src/Module/Contact/Advanced.php:138
 msgid "New photo from this URL"
-msgstr ""
-
-#: src/Module/Contact/Contacts.php:66 src/Module/Conversation/Network.php:189
-#: src/Module/Group.php:101
-msgid "Invalid contact."
 msgstr ""
 
 #: src/Module/Contact/Contacts.php:89
@@ -6319,10 +6403,6 @@ msgstr ""
 msgid "Unknown contact."
 msgstr ""
 
-#: src/Module/Contact/Revoke.php:73 src/Module/Group.php:110
-msgid "Contact is deleted."
-msgstr ""
-
 #: src/Module/Contact/Revoke.php:77
 msgid "Contact is being deleted."
 msgstr ""
@@ -6418,12 +6498,12 @@ msgid "Not available."
 msgstr ""
 
 #: src/Module/Conversation/Network.php:175
-msgid "No such group"
+msgid "No such circle"
 msgstr ""
 
 #: src/Module/Conversation/Network.php:179
 #, php-format
-msgid "Group: %s"
+msgid "Circle: %s"
 msgstr ""
 
 #: src/Module/Conversation/Network.php:257
@@ -6863,86 +6943,6 @@ msgstr ""
 #: src/Module/Friendica.php:107
 msgid ""
 "Suggestions, praise, etc. - please email \"info\" at \"friendi - dot - ca"
-msgstr ""
-
-#: src/Module/Group.php:56
-msgid "Could not create group."
-msgstr ""
-
-#: src/Module/Group.php:67 src/Module/Group.php:213 src/Module/Group.php:237
-msgid "Group not found."
-msgstr ""
-
-#: src/Module/Group.php:73
-msgid "Group name was not changed."
-msgstr ""
-
-#: src/Module/Group.php:91
-msgid "Unknown group."
-msgstr ""
-
-#: src/Module/Group.php:116
-msgid "Unable to add the contact to the group."
-msgstr ""
-
-#: src/Module/Group.php:119
-msgid "Contact successfully added to group."
-msgstr ""
-
-#: src/Module/Group.php:123
-msgid "Unable to remove the contact from the group."
-msgstr ""
-
-#: src/Module/Group.php:126
-msgid "Contact successfully removed from group."
-msgstr ""
-
-#: src/Module/Group.php:130
-msgid "Bad request."
-msgstr ""
-
-#: src/Module/Group.php:169
-msgid "Save Group"
-msgstr ""
-
-#: src/Module/Group.php:170
-msgid "Filter"
-msgstr ""
-
-#: src/Module/Group.php:176
-msgid "Create a group of contacts/friends."
-msgstr ""
-
-#: src/Module/Group.php:218
-msgid "Unable to remove group."
-msgstr ""
-
-#: src/Module/Group.php:269
-msgid "Delete Group"
-msgstr ""
-
-#: src/Module/Group.php:279
-msgid "Edit Group Name"
-msgstr ""
-
-#: src/Module/Group.php:289
-msgid "Members"
-msgstr ""
-
-#: src/Module/Group.php:292
-msgid "Group is empty"
-msgstr ""
-
-#: src/Module/Group.php:305
-msgid "Remove contact from group"
-msgstr ""
-
-#: src/Module/Group.php:326
-msgid "Click on a contact to add or remove."
-msgstr ""
-
-#: src/Module/Group.php:340
-msgid "Add contact to group"
 msgstr ""
 
 #: src/Module/HCard.php:45
@@ -8350,20 +8350,20 @@ msgstr ""
 
 #: src/Module/Profile/Conversations.php:106
 #: src/Module/Profile/Conversations.php:109 src/Module/Profile/Profile.php:351
-#: src/Module/Profile/Profile.php:354 src/Protocol/Feed.php:1092
+#: src/Module/Profile/Profile.php:354 src/Protocol/Feed.php:1090
 #: src/Protocol/OStatus.php:1007
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
 #: src/Module/Profile/Conversations.php:107 src/Module/Profile/Profile.php:352
-#: src/Protocol/Feed.php:1096 src/Protocol/OStatus.php:1012
+#: src/Protocol/Feed.php:1094 src/Protocol/OStatus.php:1012
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
 #: src/Module/Profile/Conversations.php:108 src/Module/Profile/Profile.php:353
-#: src/Protocol/Feed.php:1099 src/Protocol/OStatus.php:1016
+#: src/Protocol/Feed.php:1097 src/Protocol/OStatus.php:1016
 #, php-format
 msgid "%s's comments"
 msgstr ""
@@ -10029,7 +10029,7 @@ msgid ""
 "\t\t\t\t<p>Reorder by dragging the field title.</p>\n"
 "\t\t\t\t<p>Empty the label field to remove a custom field.</p>\n"
 "\t\t\t\t<p>Non-public fields can only be seen by the selected Friendica "
-"contacts or the Friendica contacts in the selected groups.</p>"
+"contacts or the Friendica contacts in the selected circles.</p>"
 msgstr ""
 
 #: src/Module/Settings/Profile/Photo/Crop.php:107
@@ -10580,22 +10580,22 @@ msgstr ""
 msgid "User '%s' already exists on this server!"
 msgstr ""
 
-#: src/Module/User/Import.php:263
+#: src/Module/User/Import.php:267
 msgid "User creation error"
 msgstr ""
 
-#: src/Module/User/Import.php:312
+#: src/Module/User/Import.php:316
 #, php-format
 msgid "%d contact not imported"
 msgid_plural "%d contacts not imported"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/User/Import.php:361
+#: src/Module/User/Import.php:365
 msgid "User profile creation error"
 msgstr ""
 
-#: src/Module/User/Import.php:412
+#: src/Module/User/Import.php:416
 msgid "Done. You can now login with your username and password"
 msgstr ""
 
@@ -10729,14 +10729,14 @@ msgid ""
 msgstr ""
 
 #: src/Module/Welcome.php:77
-msgid "Group Your Contacts"
+msgid "Add Your Contacts To Circle"
 msgstr ""
 
 #: src/Module/Welcome.php:78
 msgid ""
 "Once you have made some friends, organize them into private conversation "
-"groups from the sidebar of your Contacts page and then you can interact with "
-"each group privately on your Network page."
+"circles from the sidebar of your Contacts page and then you can interact "
+"with each circle privately on your Network page."
 msgstr ""
 
 #: src/Module/Welcome.php:80
