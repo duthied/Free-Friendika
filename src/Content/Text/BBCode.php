@@ -517,7 +517,7 @@ class BBCode
 	 * @param string $url URL that is about to be reformatted
 	 * @return string reformatted link
 	 */
-	private static function getStyledURL(string $url): string
+	public static function getStyledURL(string $url): string
 	{
 		$parts = parse_url($url);
 		$scheme = $parts['scheme'] . '://';
