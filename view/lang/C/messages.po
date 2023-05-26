@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 2023.05-rc\n"
+"Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-21 17:30+0000\n"
+"POT-Creation-Date: 2023-05-26 07:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1614,7 +1614,7 @@ msgstr ""
 msgid "show more"
 msgstr ""
 
-#: src/Content/Item.php:327 src/Model/Item.php:2927
+#: src/Content/Item.php:327 src/Model/Item.php:2931
 msgid "event"
 msgstr ""
 
@@ -1622,7 +1622,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:336 src/Model/Item.php:2929
+#: src/Content/Item.php:336 src/Model/Item.php:2933
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -2028,8 +2028,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:956 src/Model/Item.php:3645
-#: src/Model/Item.php:3651 src/Model/Item.php:3652
+#: src/Content/Text/BBCode.php:956 src/Model/Item.php:3649
+#: src/Model/Item.php:3655 src/Model/Item.php:3656
 msgid "Link to source"
 msgstr ""
 
@@ -3203,76 +3203,76 @@ msgstr ""
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2931
+#: src/Model/Item.php:2935
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2933
+#: src/Model/Item.php:2937
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:2936 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:2940 src/Module/Post/Tag/Add.php:123
 msgid "post"
-msgstr ""
-
-#: src/Model/Item.php:3105
-#, php-format
-msgid "%s is blocked"
-msgstr ""
-
-#: src/Model/Item.php:3107
-#, php-format
-msgid "%s is ignored"
 msgstr ""
 
 #: src/Model/Item.php:3109
 #, php-format
-msgid "Content from %s is collapsed"
+msgid "%s is blocked"
+msgstr ""
+
+#: src/Model/Item.php:3111
+#, php-format
+msgid "%s is ignored"
 msgstr ""
 
 #: src/Model/Item.php:3113
 #, php-format
+msgid "Content from %s is collapsed"
+msgstr ""
+
+#: src/Model/Item.php:3117
+#, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3557
+#: src/Model/Item.php:3561
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3588
+#: src/Model/Item.php:3592
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3590
+#: src/Model/Item.php:3594
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3595
+#: src/Model/Item.php:3599
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3597
+#: src/Model/Item.php:3601
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3599
+#: src/Model/Item.php:3603
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3633 src/Model/Item.php:3634
+#: src/Model/Item.php:3637 src/Model/Item.php:3638
 msgid "View on separate page"
 msgstr ""
 
