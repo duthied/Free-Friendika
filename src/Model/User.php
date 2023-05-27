@@ -675,6 +675,10 @@ class User
 	 */
 	public static function updateLastActivity(int $uid)
 	{
+		if (!$uid) {
+			return;
+		}
+
 		$user = User::getById($uid, ['last-activity']);
 		if (empty($user)) {
 			return;
@@ -1640,7 +1644,7 @@ class User
 	 */
 	public static function identities(int $uid): array
 	{
-		if (empty($uid)) {
+		if (!$uid) {
 			return [];
 		}
 
@@ -1651,7 +1655,7 @@ class User
 			return $identities;
 		}
 
-		if ($user['parent-uid'] == 0) {
+		if (!$user['parent-uid']) {
 			// First add our own entry
 			$identities = [[
 				'uid' => $user['uid'],
@@ -1712,7 +1716,7 @@ class User
 	 */
 	public static function hasIdentities(int $uid): bool
 	{
-		if (empty($uid)) {
+		if (!$uid) {
 			return false;
 		}
 
@@ -1721,7 +1725,7 @@ class User
 			return false;
 		}
 
-		if ($user['parent-uid'] != 0) {
+		if ($user['parent-uid']) {
 			return true;
 		}
 
@@ -1848,8 +1852,8 @@ class User
 	{
 		$condition = [
 			'email'           => self::getAdminEmailList(),
-			'parent-uid'      => 0,
-			'blocked'         => 0,
+			'parent-uid'      => null,
+			'blocked'         => false,
 			'verified'        => true,
 			'account_removed' => false,
 			'account_expired' => false,
