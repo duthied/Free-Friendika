@@ -14,7 +14,7 @@ Friendica - Dokumentation und Ressourcen
 * Du und andere Nutzer
 	* [Konnektoren (Connectors)](help/Connectors)
 	* [Freunde finden](help/Making-Friends)
-	* [Gruppen und Privatsphäre](help/Groups-and-Privacy)
+	* [Circles und Privatsphäre](help/Circles-and-Privacy)
 	* [Tags und Erwähnungen](help/Tags-and-Mentions)
 	* [Community-Foren](help/Forums)
 	* [Chats](help/Chats)

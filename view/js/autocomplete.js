@@ -24,7 +24,7 @@ function contact_search(term, callback, backend_url, type, mode) {
 	for(var t in contact_search.cache[bt]) {
 		if(lterm.indexOf(t) >= 0) { // A more broad search has been performed already, so use those results
 			// Filter old results locally
-			var matching = contact_search.cache[bt][t].filter(function (x) { return (x.name.toLowerCase().indexOf(lterm) >= 0 || (typeof x.nick !== 'undefined' && x.nick.toLowerCase().indexOf(lterm) >= 0)); }); // Need to check that nick exists because groups don't have one
+			var matching = contact_search.cache[bt][t].filter(function (x) { return (x.name.toLowerCase().indexOf(lterm) >= 0 || (typeof x.nick !== 'undefined' && x.nick.toLowerCase().indexOf(lterm) >= 0)); }); // Need to check that nick exists because circles don't have one
 			matching.unshift({forum:false, text: term, replace: term});
 			setTimeout(function() { callback(matching); } , 1); // Use "pseudo-thread" to avoid some problems
 			return;

@@ -6,10 +6,10 @@ $(document).ready(function(){
 		var mail = parseInt($(data).find('mail').text());
 
 		$(".tool .notify").removeClass("on");
-		$(data).find("group").each(function() {
+		$(data).find("circle").each(function() {
 			var gid = this.id;
 			var gcount = this.innerHTML;
-			$(".group-"+gid+" .notify").addClass("on").text(gcount);
+			$(".circle-"+gid+" .notify").addClass("on").text(gcount);
 		});
 
 		$(".forum-widget-entry .notify").removeClass("on");
@@ -81,14 +81,14 @@ $(document).ready(function() {
 
 	$('html').click(function() { $("#nav-notifications-menu" ).hide(); });
 
-	$('.group-edit-icon').hover(
+	$('.circle-edit-icon').hover(
 		function() {
 			$(this).addClass('icon'); $(this).removeClass('iconspacer');},
 		function() {
 			$(this).removeClass('icon'); $(this).addClass('iconspacer');}
 		);
 
-	$('.sidebar-group-element').hover(
+	$('.sidebar-circle-element').hover(
 		function() {
 			id = $(this).attr('id');
 			$('#edit-' + id).addClass('icon'); $('#edit-' + id).removeClass('iconspacer');},

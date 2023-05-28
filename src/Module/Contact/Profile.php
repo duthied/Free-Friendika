@@ -37,7 +37,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\Group;
+use Friendica\Model\Circle;
 use Friendica\Module;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
@@ -222,13 +222,13 @@ class Profile extends BaseModule
 		}
 
 		$vcard_widget  = Widget\VCard::getHTML($contact);
-		$groups_widget = '';
+		$circles_widget = '';
 
 		if (!in_array($localRelationship->rel, [Contact::NOTHING, Contact::SELF])) {
-			$groups_widget = Group::sidebarWidget('contact', 'group', 'full', 'everyone', $data['user']);
+			$circles_widget = Circle::sidebarWidget('contact', 'circle', 'full', 'everyone', $data['user']);
 		}
 
-		$this->page['aside'] .= $vcard_widget . $groups_widget;
+		$this->page['aside'] .= $vcard_widget . $circles_widget;
 
 		$o = '';
 		Nav::setSelected('contact');

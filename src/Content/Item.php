@@ -38,7 +38,7 @@ use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
-use Friendica\Model\Group;
+use Friendica\Model\Circle;
 use Friendica\Model\Item as ItemModel;
 use Friendica\Model\Photo;
 use Friendica\Model\Tag;
@@ -542,7 +542,7 @@ class Item
 
 			if ($private_forum) {
 				$item['allow_cid'] = '<' . $private_id . '>';
-				$item['allow_gid'] = '<' . Group::getIdForForum($forum_contact['id']) . '>';
+				$item['allow_gid'] = '<' . Circle::getIdForForum($forum_contact['id']) . '>';
 			} else {
 				$item['allow_cid'] = '';
 				$item['allow_gid'] = '';
@@ -863,9 +863,9 @@ class Item
 		}
 
 		$post['allow_cid'] = isset($request['contact_allow']) ? $this->aclFormatter->toString($request['contact_allow']) : $user['allow_cid'] ?? '';
-		$post['allow_gid'] = isset($request['group_allow'])   ? $this->aclFormatter->toString($request['group_allow'])   : $user['allow_gid'] ?? '';
+		$post['allow_gid'] = isset($request['circle_allow'])  ? $this->aclFormatter->toString($request['circle_allow'])  : $user['allow_gid'] ?? '';
 		$post['deny_cid']  = isset($request['contact_deny'])  ? $this->aclFormatter->toString($request['contact_deny'])  : $user['deny_cid']  ?? '';
-		$post['deny_gid']  = isset($request['group_deny'])    ? $this->aclFormatter->toString($request['group_deny'])    : $user['deny_gid']  ?? '';
+		$post['deny_gid']  = isset($request['circle_deny'])   ? $this->aclFormatter->toString($request['circle_deny'])   : $user['deny_gid']  ?? '';
 
 		$visibility = $request['visibility'] ?? '';
 		if ($visibility === 'public') {

@@ -36,7 +36,7 @@ use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\Group;
+use Friendica\Model\Circle;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
@@ -50,7 +50,7 @@ use Friendica\Util\DateTimeFormat;
 class Network extends BaseModule
 {
 	/** @var int */
-	private static $groupId;
+	private static $circleId;
 	/** @var int */
 	private static $forumContactId;
 	/** @var string */
@@ -89,7 +89,7 @@ class Network extends BaseModule
 		$module = 'network';
 
 		DI::page()['aside'] .= Widget::accountTypes($module, self::$accountTypeString);
-		DI::page()['aside'] .= Group::sidebarWidget($module, $module . '/group', 'standard', self::$groupId);
+		DI::page()['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', self::$circleId);
 		DI::page()['aside'] .= ForumManager::widget($module . '/forum', DI::userSession()->getLocalUserId(), self::$forumContactId);
 		DI::page()['aside'] .= Widget::postedByYear($module . '/archive', DI::userSession()->getLocalUserId(), false);
 		DI::page()['aside'] .= Widget::networks($module, !self::$forumContactId ? self::$network : '');
@@ -131,8 +131,8 @@ class Network extends BaseModule
 			$a = DI::app();
 
 			$default_permissions = [];
-			if (self::$groupId) {
-				$default_permissions['allow_gid'] = [self::$groupId];
+			if (self::$circleId) {
+				$default_permissions['allow_gid'] = [self::$circleId];
 			}
 
 			$allowedCids = [];
@@ -160,23 +160,23 @@ class Network extends BaseModule
 			}
 
 			$x = [
-				'lockstate' => self::$groupId || self::$forumContactId || self::$network || ACL::getLockstateForUserId($a->getLoggedInUserId()) ? 'lock' : 'unlock',
+				'lockstate' => self::$circleId || self::$forumContactId || self::$network || ACL::getLockstateForUserId($a->getLoggedInUserId()) ? 'lock' : 'unlock',
 				'acl' => ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId(), true, $default_permissions),
-				'bang' => ((self::$groupId || self::$forumContactId || self::$network) ? '!' : ''),
+				'bang' => ((self::$circleId || self::$forumContactId || self::$network) ? '!' : ''),
 				'content' => $content,
 			];
 
 			$o .= DI::conversation()->statusEditor($x);
 		}
 
-		if (self::$groupId) {
-			$group = DBA::selectFirst('group', ['name'], ['id' => self::$groupId, 'uid' => DI::userSession()->getLocalUserId()]);
-			if (!DBA::isResult($group)) {
-				DI::sysmsg()->addNotice(DI::l10n()->t('No such group'));
+		if (self::$circleId) {
+			$circle = DBA::selectFirst('group', ['name'], ['id' => self::$circleId, 'uid' => DI::userSession()->getLocalUserId()]);
+			if (!DBA::isResult($circle)) {
+				DI::sysmsg()->addNotice(DI::l10n()->t('No such circle'));
 			}
 
 			$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
-				'$title' => DI::l10n()->t('Group: %s', $group['name'])
+				'$title' => DI::l10n()->t('Circle: %s', $circle['name'])
 			]) . $o;
 		} elseif (self::$forumContactId) {
 			$contact = Contact::getById(self::$forumContactId);
@@ -305,7 +305,7 @@ class Network extends BaseModule
 
 	protected function parseRequest(array $get)
 	{
-		self::$groupId = $this->parameters['group_id'] ?? 0;
+		self::$circleId = $this->parameters['circle_id'] ?? 0;
 
 		self::$forumContactId = $this->parameters['contact_id'] ?? 0;
 
@@ -411,8 +411,8 @@ class Network extends BaseModule
 			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` >= ? ", DateTimeFormat::convert(self::$dateTo, 'UTC', DI::app()->getTimeZone())]);
 		}
 
-		if (self::$groupId) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", self::$groupId]);
+		if (self::$circleId) {
+			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", self::$circleId]);
 		} elseif (self::$forumContactId) {
 			$conditionStrings = DBA::mergeConditions($conditionStrings,
 				["((`contact-id` = ?) OR `uri-id` IN (SELECT `parent-uri-id` FROM `post-user-view` WHERE (`contact-id` = ? AND `gravity` = ? AND `vid` = ? AND `uid` = ?)))",
@@ -476,10 +476,10 @@ class Network extends BaseModule
 			$parents = [];
 		}
 
-		// We aren't going to try and figure out at the item, group, and page
+		// We aren't going to try and figure out at the item, circle, and page
 		// level which items you've seen and which you haven't. If you're looking
 		// at the top level network page just mark everything seen.
-		if (!self::$groupId && !self::$forumContactId && !self::$star && !self::$mention) {
+		if (!self::$circleId && !self::$forumContactId && !self::$star && !self::$mention) {
 			$condition = ['unseen' => true, 'uid' => DI::userSession()->getLocalUserId()];
 			self::setItemsSeenByCondition($condition);
 		} elseif (!empty($parents)) {

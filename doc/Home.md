@@ -14,7 +14,7 @@ Friendica Documentation and Resources
 * You and other users
 	* [Connectors](help/Connectors)
 	* [Making Friends](help/Making-Friends)
-	* [Groups and Privacy](help/Groups-and-Privacy)
+	* [Circles and Privacy](help/Circles-and-Privacy)
 	* [Tags and Mentions](help/Tags-and-Mentions)
 	* [Community Forums](help/Forums)
 	* [Chats](help/Chats)

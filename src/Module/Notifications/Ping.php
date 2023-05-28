@@ -35,7 +35,7 @@ use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\Model\Group;
+use Friendica\Model\Circle;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
@@ -108,7 +108,7 @@ class Ping extends BaseModule
 		$network_count   = 0;
 		$register_count  = 0;
 		$sysnotify_count = 0;
-		$groups_unseen   = [];
+		$circles_unseen   = [];
 		$forums_unseen   = [];
 
 		$event_count          = 0;
@@ -151,12 +151,12 @@ class Ping extends BaseModule
 				}
 			}
 
-			$compute_group_counts = $this->config->get('system','compute_group_counts');
-			if ($network_count && $compute_group_counts) {
-				// Find out how unseen network posts are spread across groups
-				foreach (Group::countUnseen() as $group_count) {
-					if ($group_count['count'] > 0) {
-						$groups_unseen[] = $group_count;
+			$compute_circle_counts = $this->config->get('system','compute_group_counts') ?? $this->config->get('system','compute_circle_counts');
+			if ($network_count && $compute_circle_counts) {
+				// Find out how unseen network posts are spread across circles
+				foreach (Circle::countUnseen() as $circle_count) {
+					if ($circle_count['count'] > 0) {
+						$circles_unseen[] = $circle_count;
 					}
 				}
 
@@ -289,7 +289,7 @@ class Ping extends BaseModule
 		$data['events-today']    = $today_event_count;
 		$data['birthdays']       = $birthday_count;
 		$data['birthdays-today'] = $today_birthday_count;
-		$data['groups']          = $groups_unseen;
+		$data['circles']         = $circles_unseen;
 		$data['forums']          = $forums_unseen;
 		$data['notification']    = ($notification_count < 50) ? $notification_count : '49+';
 

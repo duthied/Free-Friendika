@@ -1098,7 +1098,7 @@ class Receiver
 		if (!empty($actor)) {
 			$profile   = APContact::getByURL($actor);
 			$followers = $profile['followers'] ?? '';
-			$is_forum  = ($actor['type'] ?? '') == 'Group';
+			$is_forum  = ($profile['type'] ?? '') == 'Group';
 			if ($push) {
 				Contact::updateByUrlIfNeeded($actor);
 			}

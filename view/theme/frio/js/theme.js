@@ -36,9 +36,9 @@ $(document).ready(function () {
 		return false;
 	});
 
-	// add the class "selected" to group widgets li if li > a does have the class group-selected
-	if ($("#sidebar-group-ul li a").hasClass("group-selected")) {
-		$("#sidebar-group-ul li a.group-selected").parent("li").addClass("selected");
+	// add the class "selected" to circle widgets li if li > a does have the class circle-selected
+	if ($("#sidebar-circle-ul li a").hasClass("circle-selected")) {
+		$("#sidebar-circle-ul li a.circle-selected").parent("li").addClass("selected");
 	}
 
 	// add the class "selected" to forums widgets li if li > a does have the class forum-selected
