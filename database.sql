@@ -252,9 +252,9 @@ CREATE TABLE IF NOT EXISTS `permissionset` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id of this permission set',
 	`allow_cid` mediumtext COMMENT 'Access Control - list of allowed contact.id \'<19><78>\'',
-	`allow_gid` mediumtext COMMENT 'Access Control - list of allowed groups',
+	`allow_gid` mediumtext COMMENT 'Access Control - list of allowed circles',
 	`deny_cid` mediumtext COMMENT 'Access Control - list of denied contact.id',
-	`deny_gid` mediumtext COMMENT 'Access Control - list of denied groups',
+	`deny_gid` mediumtext COMMENT 'Access Control - list of denied circles',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_allow_cid_allow_gid_deny_cid_deny_gid` (`uid`,`allow_cid`(50),`allow_gid`(30),`deny_cid`(50),`deny_gid`(30)),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
@@ -457,9 +457,9 @@ CREATE TABLE IF NOT EXISTS `attach` (
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'creation time',
 	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'last edit time',
 	`allow_cid` mediumtext COMMENT 'Access Control - list of allowed contact.id \'<19><78>',
-	`allow_gid` mediumtext COMMENT 'Access Control - list of allowed groups',
+	`allow_gid` mediumtext COMMENT 'Access Control - list of allowed circles',
 	`deny_cid` mediumtext COMMENT 'Access Control - list of denied contact.id',
-	`deny_gid` mediumtext COMMENT 'Access Control - list of denied groups',
+	`deny_gid` mediumtext COMMENT 'Access Control - list of denied circles',
 	`backend-class` tinytext COMMENT 'Storage backend class',
 	`backend-ref` text COMMENT 'Storage backend data reference',
 	 PRIMARY KEY(`id`),
@@ -662,9 +662,9 @@ CREATE TABLE IF NOT EXISTS `event` (
 	`nofinish` boolean NOT NULL DEFAULT '0' COMMENT 'if event does have no end this is 1',
 	`ignore` boolean NOT NULL DEFAULT '0' COMMENT '0 or 1',
 	`allow_cid` mediumtext COMMENT 'Access Control - list of allowed contact.id \'<19><78>\'',
-	`allow_gid` mediumtext COMMENT 'Access Control - list of allowed groups',
+	`allow_gid` mediumtext COMMENT 'Access Control - list of allowed circles',
 	`deny_cid` mediumtext COMMENT 'Access Control - list of denied contact.id',
-	`deny_gid` mediumtext COMMENT 'Access Control - list of denied groups',
+	`deny_gid` mediumtext COMMENT 'Access Control - list of denied circles',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_start` (`uid`,`start`),
 	 INDEX `cid` (`cid`),
@@ -716,29 +716,29 @@ CREATE TABLE IF NOT EXISTS `group` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner User id',
 	`visible` boolean NOT NULL DEFAULT '0' COMMENT '1 indicates the member list is not private',
-	`deleted` boolean NOT NULL DEFAULT '0' COMMENT '1 indicates the group has been deleted',
+	`deleted` boolean NOT NULL DEFAULT '0' COMMENT '1 indicates the circle has been deleted',
 	`cid` int unsigned COMMENT 'Contact id of forum. When this field is filled then the members are synced automatically.',
-	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'human readable name of group',
+	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'human readable name of circle',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `cid` (`cid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy groups, group info';
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy circles, circle info';
 
 --
 -- TABLE group_member
 --
 CREATE TABLE IF NOT EXISTS `group_member` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`gid` int unsigned NOT NULL DEFAULT 0 COMMENT 'groups.id of the associated group',
-	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id of the member assigned to the associated group',
+	`gid` int unsigned NOT NULL DEFAULT 0 COMMENT 'group.id of the associated circle',
+	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id of the member assigned to the associated circle',
 	 PRIMARY KEY(`id`),
 	 INDEX `contactid` (`contact-id`),
 	 UNIQUE INDEX `gid_contactid` (`gid`,`contact-id`),
 	FOREIGN KEY (`gid`) REFERENCES `group` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy groups, member info';
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy circles, member info';
 
 --
 -- TABLE gserver-tag
@@ -1114,9 +1114,9 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	`scale` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`profile` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`allow_cid` mediumtext COMMENT 'Access Control - list of allowed contact.id \'<19><78>\'',
-	`allow_gid` mediumtext COMMENT 'Access Control - list of allowed groups',
+	`allow_gid` mediumtext COMMENT 'Access Control - list of allowed circles',
 	`deny_cid` mediumtext COMMENT 'Access Control - list of denied contact.id',
-	`deny_gid` mediumtext COMMENT 'Access Control - list of denied groups',
+	`deny_gid` mediumtext COMMENT 'Access Control - list of denied circles',
 	`accessible` boolean NOT NULL DEFAULT '0' COMMENT 'Make photo publicly accessible, ignoring permissions',
 	`backend-class` tinytext COMMENT 'Storage backend class',
 	`backend-ref` text COMMENT 'Storage backend data reference',

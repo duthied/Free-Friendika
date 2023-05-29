@@ -414,9 +414,9 @@ class Photo
 	 * @param integer $scale     Scale
 	 * @param integer $type      Photo type, optional, default: Photo::DEFAULT
 	 * @param string  $allow_cid Permissions, allowed contacts. optional, default = ""
-	 * @param string  $allow_gid Permissions, allowed groups. optional, default = ""
-	 * @param string  $deny_cid  Permissions, denied contacts.optional, default = ""
-	 * @param string  $deny_gid  Permissions, denied group.optional, default = ""
+	 * @param string  $allow_gid Permissions, allowed circles. optional, default = ""
+	 * @param string  $deny_cid  Permissions, denied contacts. optional, default = ""
+	 * @param string  $deny_gid  Permissions, denied circle. optional, default = ""
 	 * @param string  $desc      Photo caption. optional, default = ""
 	 *
 	 * @return boolean True on success
@@ -836,7 +836,7 @@ class Photo
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function setPermissionFromBody($body, $uid, $original_contact_id, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny)
+	public static function setPermissionFromBody($body, $uid, $original_contact_id, $str_contact_allow, $str_circle_allow, $str_contact_deny, $str_circle_deny)
 	{
 		// Simplify image codes
 		$img_body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
@@ -881,7 +881,7 @@ class Photo
 			 * Then set the permissions to public.
 			 */
 
-			self::setPermissionForResource($image_rid, $uid, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+			self::setPermissionForResource($image_rid, $uid, $str_contact_allow, $str_circle_allow, $str_contact_deny, $str_circle_deny);
 		}
 
 		return true;
@@ -894,15 +894,15 @@ class Photo
 	 * @param string $image_rid
 	 * @param integer $uid
 	 * @param string $str_contact_allow
-	 * @param string $str_group_allow
+	 * @param string $str_circle_allow
 	 * @param string $str_contact_deny
-	 * @param string $str_group_deny
+	 * @param string $str_circle_deny
 	 * @return void
 	 */
-	public static function setPermissionForResource(string $image_rid, int $uid, string $str_contact_allow, string $str_group_allow, string $str_contact_deny, string $str_group_deny)
+	public static function setPermissionForResource(string $image_rid, int $uid, string $str_contact_allow, string $str_circle_allow, string $str_contact_deny, string $str_circle_deny)
 	{
-		$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
-		'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny,
+		$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_circle_allow,
+		'deny_cid' => $str_contact_deny, 'deny_gid' => $str_circle_deny,
 		'accessible' => DI::pConfig()->get($uid, 'system', 'accessible-photos', false)];
 
 		$condition = ['resource-id' => $image_rid, 'uid' => $uid];
@@ -1228,9 +1228,9 @@ class Photo
 	 * @param string  $album       Album name
 	 * @param string  $description Photo caption
 	 * @param string  $allow_cid   Permissions, allowed contacts
-	 * @param string  $allow_gid   Permissions, allowed groups
+	 * @param string  $allow_gid   Permissions, allowed circles
 	 * @param string  $deny_cid    Permissions, denied contacts
-	 * @param string  $deny_gid    Permissions, denied group
+	 * @param string  $deny_gid    Permissions, denied circles
 	 *
 	 * @return integer preview photo size
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

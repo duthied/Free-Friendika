@@ -2254,7 +2254,7 @@ class Item
 
 		if ($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) {
 			$allow_cid = '';
-			$allow_gid = '<' . Group::FOLLOWERS . '>';
+			$allow_gid = '<' . Circle::FOLLOWERS . '>';
 			$deny_cid  = '';
 			$deny_gid  = '';
 			self::performActivity($item['id'], 'announce', $uid, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
@@ -2528,13 +2528,13 @@ class Item
 			$expand_followers = true;
 		}
 
-		$allow_people = $aclFormatter->expand($obj['allow_cid']);
-		$allow_groups = Group::expand($obj['uid'], $aclFormatter->expand($obj['allow_gid']), $check_dead, $expand_followers);
-		$deny_people  = $aclFormatter->expand($obj['deny_cid']);
-		$deny_groups  = Group::expand($obj['uid'], $aclFormatter->expand($obj['deny_gid']), $check_dead);
-		$recipients   = array_unique(array_merge($allow_people, $allow_groups));
-		$deny         = array_unique(array_merge($deny_people, $deny_groups));
-		$recipients   = array_diff($recipients, $deny);
+		$allow_people  = $aclFormatter->expand($obj['allow_cid']);
+		$allow_circles = Circle::expand($obj['uid'], $aclFormatter->expand($obj['allow_gid']), $check_dead, $expand_followers);
+		$deny_people   = $aclFormatter->expand($obj['deny_cid']);
+		$deny_circles  = Circle::expand($obj['uid'], $aclFormatter->expand($obj['deny_gid']), $check_dead);
+		$recipients    = array_unique(array_merge($allow_people, $allow_circles));
+		$deny          = array_unique(array_merge($deny_people, $deny_circles));
+		$recipients    = array_diff($recipients, $deny);
 		return $recipients;
 	}
 
@@ -2900,9 +2900,9 @@ class Item
 			/*
 			 * Authenticated visitor. Unless pre-verified,
 			 * check that the contact belongs to this $owner_id
-			 * and load the groups the visitor belongs to.
+			 * and load the circles the visitor belongs to.
 			 * If pre-verified, the caller is expected to have already
-			 * done this and passed the groups into this function.
+			 * done this and passed the circles into this function.
 			 */
 			$permissionSets = DI::permissionSet()->selectByContactId($remote_user, $owner_id);
 

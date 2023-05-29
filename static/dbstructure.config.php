@@ -311,9 +311,9 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner id of this permission set"],
 			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
+			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed circles"],
 			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied circles"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -513,9 +513,9 @@ return [
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation time"],
 			"edited" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "last edit time"],
 			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
+			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed circles"],
 			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied circles"],
 			"backend-class" => ["type" => "tinytext", "comment" => "Storage backend class"],
 			"backend-ref" => ["type" => "text", "comment" => "Storage backend data reference"],
 		],
@@ -715,9 +715,9 @@ return [
 			"nofinish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "if event does have no end this is 1"],
 			"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "0 or 1"],
 			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
+			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed circles"],
 			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied circles"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -760,14 +760,14 @@ return [
 		]
 	],
 	"group" => [
-		"comment" => "privacy groups, group info",
+		"comment" => "privacy circles, circle info",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates the member list is not private"],
-			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates the group has been deleted"],
+			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates the circle has been deleted"],
 			"cid" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Contact id of forum. When this field is filled then the members are synced automatically."],
-			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "human readable name of group"],
+			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "human readable name of circle"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -776,11 +776,11 @@ return [
 		]
 	],
 	"group_member" => [
-		"comment" => "privacy groups, member info",
+		"comment" => "privacy circles, member info",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["group" => "id"], "comment" => "groups.id of the associated group"],
-			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id of the member assigned to the associated group"],
+			"gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["group" => "id"], "comment" => "group.id of the associated circle"],
+			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id of the member assigned to the associated circle"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -1150,9 +1150,9 @@ return [
 			"scale" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"profile" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
+			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed circles"],
 			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied circles"],
 			"accessible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Make photo publicly accessible, ignoring permissions"],
 			"backend-class" => ["type" => "tinytext", "comment" => "Storage backend class"],
 			"backend-ref" => ["type" => "text", "comment" => "Storage backend data reference"],
