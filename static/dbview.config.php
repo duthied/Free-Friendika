@@ -214,7 +214,7 @@
 			"parent-author-network" => ["parent-post-author", "network"],
 		],
 		"query" => "FROM `post-user`
-			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
+			INNER JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
@@ -763,7 +763,7 @@
 			"contact-type" => ["ownercontact", "contact-type"],
 		],
 		"query" => "FROM `post-user`
-			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`			
+			INNER JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`			
 			INNER JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
