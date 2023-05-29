@@ -182,7 +182,7 @@ Sie werden stattdessen direkt in `config/local.config.php` gespeichert.
 Gehe im Anschluss in den Friendica-Hauptordner und führe den Kommandozeilen Befehl aus:
 
     bin/console autoinstall [--savedb]
-    
+
 #### B.3: Optionen
 
 Alle Optionen werden in `config/local.config.php` gespeichert und überschreiben etwaige, zugehörige Umgebungsvariablen.

@@ -3,21 +3,21 @@ Freunde finden
 
 * [Zur Startseite der Hilfe](help)
 
-Freundschaft kann in Friendica viele verschiedene Bedeutungen annehmen. 
-Aber lasst es uns einfach halten, du willst einfach mit jemandem befreundet sein. 
+Freundschaft kann in Friendica viele verschiedene Bedeutungen annehmen.
+Aber lasst es uns einfach halten, du willst einfach mit jemandem befreundet sein.
 Wie machst du das?
 
-Schau dir das Verzeichnis an. 
-Das Verzeichnis ist in zwei Teile aufgeteilt. 
-Wenn du auf den "Verzeichnis"-Button klickst, wirst du zunächst alle Mitglieder deines Servers sehen, die sich dazu entschlossen haben, angezeigt zu werden. 
-Außerdem siehst du dort einen Link zum globalen Verzeichnis. 
-Wenn du dich durch das globale Verzeichnis klickst, siehst du alle Nutzer weltweit auf allen Servern, die sich entschlossen haben, im Verzeichnis zu erscheinen. 
-Du wirst außerdem den Link "Show Community Groups" sehen, welcher dich zu Gruppen und Fan-Seiten führt. 
+Schau dir das Verzeichnis an.
+Das Verzeichnis ist in zwei Teile aufgeteilt.
+Wenn du auf den "Verzeichnis"-Button klickst, wirst du zunächst alle Mitglieder deines Servers sehen, die sich dazu entschlossen haben, angezeigt zu werden.
+Außerdem siehst du dort einen Link zum globalen Verzeichnis.
+Wenn du dich durch das globale Verzeichnis klickst, siehst du alle Nutzer weltweit auf allen Servern, die sich entschlossen haben, im Verzeichnis zu erscheinen.
+Du wirst außerdem den Link "Show Community Groups" sehen, welcher dich zu Gruppen und Fan-Seiten führt.
 Du verbindest dich mit Personen und Gruppen auf die gleiche Art, wobei Gruppen deine Anfrage automatisch annehmen, wohingegen ein Mensch dich erst manuell bestätigen muss.
 
 *Mit anderen Friendica-Nutzern verbinden*
 
-Bes‪uche ihr Profil.
+Besuche ihr Profil.
 Direkt unter dem Profilfoto ist das Wort "Verbinden" (bzw. "Connect" in einem englischsprachigem Profil).
 Klicke drauf und du gelangst zur "Verbinden"-Seite.
 Dort wirst du nach deiner Identitätsadresse gefragt.

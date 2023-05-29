@@ -108,7 +108,7 @@ Zwischen der URL und dem Parameter muss ein Fragezeichen als Trennzeichen verwen
 
 Ein Beispiel:
 
-     https://social.example.com/profile/example 
+     https://social.example.com/profile/example
 
 auf Deutsch:
 
