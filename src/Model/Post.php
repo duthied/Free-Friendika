@@ -263,7 +263,10 @@ class Post
 			return $result;
 		}
 
-		return self::selectFirst($original_fields, ['uri-id' => $result['thr-parent-id'], 'uid' => [0, $result['uid']]], $params);
+		$final_query_condition = ['uri-id' => $result['thr-parent-id']];
+		$final_query_condition = DBA::mergeConditions($final_query_condition, ['uid != 0']);
+		$final_params          = ['order' => ['id']];
+		return self::selectFirst($original_fields, $final_query_condition, $final_params);
 	}
 
 	/**
