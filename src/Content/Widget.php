@@ -243,6 +243,7 @@ class Widget
 			['ref' => 'followers', 'name' => DI::l10n()->t('Followers')],
 			['ref' => 'following', 'name' => DI::l10n()->t('Following')],
 			['ref' => 'mutuals', 'name' => DI::l10n()->t('Mutual friends')],
+			['ref' => 'nothing', 'name' => DI::l10n()->t('No relationship')],
 		];
 
 		return self::filter(
