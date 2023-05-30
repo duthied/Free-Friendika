@@ -830,7 +830,7 @@ class Photo
 	 * Changes photo permissions that had been embedded in a post
 	 *
 	 * @todo This function currently does have some flaws:
-	 * - Sharing a post with a forum will create a photo that only the forum can see.
+	 * - Sharing a post with a group will create a photo that only the group can see.
 	 * - Sharing a photo again that been shared non public before doesn't alter the permissions.
 	 *
 	 * @return string
@@ -877,7 +877,7 @@ class Photo
 			/**
 			 * @todo Existing permissions need to be mixed with the new ones.
 			 * Otherwise this creates problems with sharing the same picture multiple times
-			 * Also check if $str_contact_allow does contain a public forum.
+			 * Also check if $str_contact_allow does contain a public group.
 			 * Then set the permissions to public.
 			 */
 

@@ -615,9 +615,9 @@ class Circle
 	 * @param integer $id Contact ID
 	 * @return integer Circle ID
 	 */
-	public static function getIdForForum(int $id): int
+	public static function getIdForGroup(int $id): int
 	{
-		Logger::info('Get id for forum id', ['id' => $id]);
+		Logger::info('Get id for group id', ['id' => $id]);
 		$contact = Contact::getById($id, ['uid', 'name', 'contact-type', 'manually-approve']);
 		if (empty($contact) || ($contact['contact-type'] != Contact::TYPE_COMMUNITY) || !$contact['manually-approve']) {
 			return 0;
@@ -645,9 +645,9 @@ class Circle
 	 * @param integer $id Contact ID
 	 * @return void
 	 */
-	public static function updateMembersForForum(int $id)
+	public static function updateMembersForGroup(int $id)
 	{
-		Logger::info('Update forum members', ['id' => $id]);
+		Logger::info('Update group members', ['id' => $id]);
 
 		$contact = Contact::getById($id, ['uid', 'url']);
 		if (empty($contact)) {
@@ -659,7 +659,7 @@ class Circle
 			return;
 		}
 
-		$gid = self::getIdForForum($id);
+		$gid = self::getIdForGroup($id);
 		if (empty($gid)) {
 			return;
 		}
@@ -682,6 +682,6 @@ class Circle
 		}
 
 		DBA::delete('group_member', ['gid' => $gid, 'contact-id' => $current]);
-		Logger::info('Updated forum members', ['id' => $id, 'count' => DBA::count('group_member', ['gid' => $gid])]);
+		Logger::info('Updated group members', ['id' => $id, 'count' => DBA::count('group_member', ['gid' => $gid])]);
 	}
 }

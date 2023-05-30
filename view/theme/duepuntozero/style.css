@@ -386,7 +386,7 @@ div.wall-item-content-wrapper.shiny {
 	margin-bottom: 10px;
 }
 
-.widget .selected, .circle-selected, .forum-selected {
+.widget .selected, .circle-selected, .group-selected {
 	padding: 3px;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
@@ -1859,7 +1859,7 @@ a.mail-list-link {
 #sidebar-circle-list ul {
 	list-style-type: none;
 }
-.sidebar-circle-li .notify, .forum-widget-entry .notify {
+.sidebar-circle-li .notify, .group-widget-entry .notify {
 	display: none;
 	font-size: 9px;
 	border: 1px solid rgb(221, 221, 221);
@@ -1867,7 +1867,7 @@ a.mail-list-link {
 	float: right;
 	background-color: #BABDB6;
 }
-.sidebar-circle-li .notify.show, .forum-widget-entry .notify.show {
+.sidebar-circle-li .notify.show, .group-widget-entry .notify.show {
 	display: block;
 }
 
@@ -1881,7 +1881,7 @@ a.mail-list-link {
 	margin-top: 10px;
 }
 
-#forumlist-sidebar ul {
+#group-list-sidebar ul {
 	list-style: none;
 }
 

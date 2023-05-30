@@ -24,7 +24,7 @@ namespace Friendica\Module\Notifications;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Contact\Introduction\Repository\Introduction;
-use Friendica\Content\ForumManager;
+use Friendica\Content\GroupManager;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Config\Capability\IManageConfigValues;
@@ -109,14 +109,14 @@ class Ping extends BaseModule
 		$register_count  = 0;
 		$sysnotify_count = 0;
 		$circles_unseen   = [];
-		$forums_unseen   = [];
+		$groups_unseen   = [];
 
 		$event_count          = 0;
 		$today_event_count    = 0;
 		$birthday_count       = 0;
 		$today_birthday_count = 0;
 
-		// Suppress notification display for forum accounts
+		// Suppress notification display for group accounts
 		if ($this->session->getLocalUserId() && $this->session->get('page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {
 			if ($this->pconfig->get($this->session->getLocalUserId(), 'system', 'detailed_notif')) {
 				$notifications = $this->notificationRepo->selectDetailedForUser($this->session->getLocalUserId());
@@ -160,9 +160,9 @@ class Ping extends BaseModule
 					}
 				}
 
-				foreach (ForumManager::countUnseenItems() as $forum_count) {
-					if ($forum_count['count'] > 0) {
-						$forums_unseen[] = $forum_count;
+				foreach (GroupManager::countUnseenItems() as $group_count) {
+					if ($group_count['count'] > 0) {
+						$groups_unseen[] = $group_count;
 					}
 				}
 			}
@@ -290,7 +290,7 @@ class Ping extends BaseModule
 		$data['birthdays']       = $birthday_count;
 		$data['birthdays-today'] = $today_birthday_count;
 		$data['circles']         = $circles_unseen;
-		$data['forums']          = $forums_unseen;
+		$data['groups']          = $groups_unseen;
 		$data['notification']    = ($notification_count < 50) ? $notification_count : '49+';
 
 		$data['notifications'] = $navNotifications;

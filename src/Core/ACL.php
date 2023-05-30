@@ -167,12 +167,12 @@ class ACL
 
 		$acl_contacts[] = $acl_yourself;
 
-		$acl_forums = Contact::selectToArray($fields,
+		$acl_groups = Contact::selectToArray($fields,
 			['uid' => $user_id, 'self' => false, 'blocked' => false, 'archive' => false, 'deleted' => false,
 			'network' => Protocol::FEDERATED, 'pending' => false, 'contact-type' => Contact::TYPE_COMMUNITY], $params
 		);
 
-		$acl_contacts = array_merge($acl_forums, $acl_contacts);
+		$acl_contacts = array_merge($acl_groups, $acl_contacts);
 
 		array_walk($acl_contacts, function (&$value) {
 			$value['type'] = 'contact';

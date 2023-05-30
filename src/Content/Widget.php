@@ -530,7 +530,7 @@ class Widget
 			['ref' => 'person', 'name' => DI::l10n()->t('Persons')],
 			['ref' => 'organisation', 'name' => DI::l10n()->t('Organisations')],
 			['ref' => 'news', 'name' => DI::l10n()->t('News')],
-			['ref' => 'community', 'name' => DI::l10n()->t('Forums')],
+			['ref' => 'community', 'name' => DI::l10n()->t('Groups')],
 		];
 
 		return self::filter('accounttype', DI::l10n()->t('Account Types'), '',

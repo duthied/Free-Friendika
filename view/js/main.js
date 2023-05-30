@@ -296,11 +296,11 @@ $(function() {
 			$(".circle-"+gid+" .notify").addClass("show").text(gcount);
 		});
 
-		$(".forum-widget-entry .notify").removeClass("show");
-		$(data.forums).each(function(key, forum) {
-			var fid = forum.id;
-			var fcount = forum.count;
-			$(".forum-"+fid+" .notify").addClass("show").text(fcount);
+		$(".group-widget-entry .notify").removeClass("show");
+		$(data.groups).each(function(key, group) {
+			var fid = group.id;
+			var fcount = group.count;
+			$(".group-"+fid+" .notify").addClass("show").text(fcount);
 		});
 
 		if (data.notifications.length == 0) {

@@ -71,8 +71,8 @@ class BaseSearch extends BaseModule
 			$header  = DI::l10n()->t('People Search - %s', $search);
 		} elseif (strpos($search, '!') === 0) {
 			$search = trim(substr($search, 1));
-			$type   = Search::TYPE_FORUM;
-			$header = DI::l10n()->t('Forum Search - %s', $search);
+			$type   = Search::TYPE_GROUP;
+			$header = DI::l10n()->t('Group Search - %s', $search);
 		}
 
 		$search = Network::convertToIdn($search);
@@ -98,7 +98,7 @@ class BaseSearch extends BaseModule
 		}
 
 		if (!$results->getTotal()) {
-			$results = Search::getContactsFromProbe(Network::convertToIdn($search), $type == Search::TYPE_FORUM);
+			$results = Search::getContactsFromProbe(Network::convertToIdn($search), $type == Search::TYPE_GROUP);
 		}
 
 		return self::printResult($results, $pager, $header);

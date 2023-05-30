@@ -633,7 +633,7 @@ return [
 		'throttle_limit_month' => 0,
 
 		// transmit_pending_events (Boolean)
-		// Transmit pending events upon accepted contact request for forums
+		// Transmit pending events upon accepted contact request for groups
 		'transmit_pending_events' => false,
 
 		// update_active_contacts (Boolean)

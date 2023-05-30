@@ -167,8 +167,8 @@ class Notifier
 		// Do a PuSH
 		$push_notify = false;
 
-		// Deliver directly to a forum, don't PuSH
-		$direct_forum_delivery = false;
+		// Deliver directly to a group, don't PuSH
+		$direct_group_delivery = false;
 
 		$only_ap_delivery = false;
 
@@ -249,15 +249,15 @@ class Notifier
 				$relay_to_owner = false;
 			}
 
-			// Special treatment for forum posts
-			if (Item::isForumPost($target_item['uri-id'])) {
+			// Special treatment for group posts
+			if (Item::isGroupPost($target_item['uri-id'])) {
 				$relay_to_owner = true;
-				$direct_forum_delivery = true;
+				$direct_group_delivery = true;
 			}
 
-			// Avoid that comments in a forum thread are sent to OStatus
-			if (Item::isForumPost($parent['uri-id'])) {
-				$direct_forum_delivery = true;
+			// Avoid that comments in a group thread are sent to OStatus
+			if (Item::isGroupPost($parent['uri-id'])) {
+				$direct_group_delivery = true;
 			}
 
 			$exclusive_delivery = false;
@@ -303,7 +303,7 @@ class Notifier
 					}
 				}
 
-				if ($direct_forum_delivery) {
+				if ($direct_group_delivery) {
 					$push_notify = false;
 				}
 
@@ -793,11 +793,11 @@ class Notifier
 
 		$uid = $target_item['contact-uid'] ?: $target_item['uid'];
 
-		// Update the locally stored follower list when we deliver to a forum
+		// Update the locally stored follower list when we deliver to a group
 		foreach (Tag::getByURIId($target_item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $tag) {
 			$target_contact = Contact::getByURL(Strings::normaliseLink($tag['url']), null, [], $uid);
 			if ($target_contact && $target_contact['contact-type'] == Contact::TYPE_COMMUNITY && $target_contact['manually-approve']) {
-				Circle::updateMembersForForum($target_contact['id']);
+				Circle::updateMembersForGroup($target_contact['id']);
 			}
 		}
 

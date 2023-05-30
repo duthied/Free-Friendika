@@ -79,7 +79,7 @@ class Contact
 	 * TYPE_NEWS - the account is a news reflector
 	 *	Associated page type: PAGE_SOAPBOX
 	 *
-	 * TYPE_COMMUNITY - the account is community forum
+	 * TYPE_COMMUNITY - the account is community group
 	 *	Associated page types: PAGE_COMMUNITY, PAGE_PRVGROUP
 	 *
 	 * TYPE_RELAY - the account is a relay
@@ -1652,7 +1652,7 @@ class Contact
 				break;
 
 			case self::TYPE_COMMUNITY:
-				$account_type = DI::l10n()->t("Forum");
+				$account_type = DI::l10n()->t("Group");
 				break;
 
 			default:
@@ -3472,13 +3472,13 @@ class Contact
 	}
 
 	/**
-	 * Is the contact a forum?
+	 * Is the contact a group?
 	 *
 	 * @param integer $contactid ID of the contact
 	 *
-	 * @return boolean "true" if it is a forum
+	 * @return boolean "true" if it is a group
 	 */
-	public static function isForum(int $contactid): bool
+	public static function isGroup(int $contactid): bool
 	{
 		$fields = ['contact-type'];
 		$condition = ['id' => $contactid];
@@ -3487,7 +3487,7 @@ class Contact
 			return false;
 		}
 
-		// Is it a forum?
+		// Is it a group?
 		return ($contact['contact-type'] == self::TYPE_COMMUNITY);
 	}
 

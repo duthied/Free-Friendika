@@ -50,7 +50,7 @@ class Acl extends BaseModule
 	const TYPE_MENTION_CONTACT        = 'c';
 	const TYPE_MENTION_CIRCLE         = 'g';
 	const TYPE_MENTION_CONTACT_CIRCLE = '';
-	const TYPE_MENTION_FORUM          = 'f';
+	const TYPE_MENTION_GROUP          = 'f';
 	const TYPE_PRIVATE_MESSAGE        = 'm';
 	const TYPE_ANY_CONTACT            = 'a';
 
@@ -100,7 +100,7 @@ class Acl extends BaseModule
 				'nick'    => $contact['addr'] ?: $contact['url'],
 				'network' => $contact['network'],
 				'link'    => $contact['url'],
-				'forum'   => $contact['contact-type'] == Contact::TYPE_COMMUNITY,
+				'group'   => $contact['contact-type'] == Contact::TYPE_COMMUNITY,
 			];
 		}
 
@@ -161,7 +161,7 @@ class Acl extends BaseModule
 					]);
 				break;
 
-			case self::TYPE_MENTION_FORUM:
+			case self::TYPE_MENTION_GROUP:
 				$condition = DBA::mergeConditions($condition,
 					["NOT `self` AND NOT `blocked` AND `notify` != ? AND `contact-type` = ?", '', Contact::TYPE_COMMUNITY
 					]);
@@ -205,7 +205,7 @@ class Acl extends BaseModule
 					'id'    => intval($circle['id']),
 					'uids'  => array_map('intval', explode(',', $circle['uids'])),
 					'link'  => '',
-					'forum' => '0'
+					'group' => '0'
 				];
 			}
 			if ((count($resultCircles) > 0) && ($search == '')) {
@@ -218,7 +218,7 @@ class Acl extends BaseModule
 			$contacts = Contact::selectToArray([], $condition, ['order' => ['name']]);
 		}
 
-		$forums = [];
+		$groups = [];
 		foreach ($contacts as $contact) {
 			$entry = [
 				'type'    => self::TYPE_MENTION_CONTACT,
@@ -229,21 +229,21 @@ class Acl extends BaseModule
 				'link'    => $contact['url'],
 				'nick'    => htmlentities(($contact['attag'] ?? '') ?: $contact['nick']),
 				'addr'    => htmlentities(($contact['addr'] ?? '') ?: $contact['url']),
-				'forum'   => $contact['contact-type'] == Contact::TYPE_COMMUNITY,
+				'group'   => $contact['contact-type'] == Contact::TYPE_COMMUNITY,
 			];
-			if ($entry['forum']) {
-				$forums[] = $entry;
+			if ($entry['group']) {
+				$groups[] = $entry;
 			} else {
 				$resultContacts[] = $entry;
 			}
 		}
 
-		if ($forums) {
+		if ($groups) {
 			if ($search == '') {
-				$forums[] = ['separator' => true];
+				$groups[] = ['separator' => true];
 			}
 
-			$resultContacts = array_merge($forums, $resultContacts);
+			$resultContacts = array_merge($groups, $resultContacts);
 		}
 
 		$resultItems = array_merge($resultCircles, $resultContacts);
@@ -285,7 +285,7 @@ class Acl extends BaseModule
 						'link'    => $contact['url'],
 						'nick'    => htmlentities(($contact['nick'] ?? '') ?: $contact['addr']),
 						'addr'    => htmlentities(($contact['addr'] ?? '') ?: $contact['url']),
-						'forum'   => $contact['forum']
+						'group'   => $contact['forum']
 					];
 				}
 			}

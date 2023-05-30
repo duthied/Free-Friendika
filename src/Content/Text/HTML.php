@@ -861,7 +861,7 @@ class HTML
 			'$id'           => $id,
 			'$search_label' => DI::l10n()->t('Search'),
 			'$save_label'   => $save_label,
-			'$search_hint'  => DI::l10n()->t('@name, !forum, #tags, content'),
+			'$search_hint'  => DI::l10n()->t('@name, !group, #tags, content'),
 			'$mode'         => $mode,
 			'$return_url'   => urlencode(Search::getSearchPath($s)),
 		];
@@ -874,7 +874,7 @@ class HTML
 			];
 
 			if (DI::config()->get('system', 'poco_local_search')) {
-				$values['$searchoption']['forums'] = DI::l10n()->t('Forums');
+				$values['$searchoption']['groups'] = DI::l10n()->t('Groups');
 			}
 		}
 

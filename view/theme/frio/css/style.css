@@ -367,7 +367,7 @@ btn-eventnav:hover {
 aside .badge {
 	opacity: 0.7;
 }
-.forum-widget-entry .badge,
+.group-widget-entry .badge,
 .sidebar-circle-li .badge {
 	margin-top: 6px;
 }
@@ -1102,7 +1102,7 @@ aside .widget li a:hover {
 	color: $font_color_darker;
 }
 
-/* forumlist widget */
+/* group-list widget */
 aside > #datebrowse-sidebar li.posted-date-selector-months {
 	margin-bottom: 10px;
 	padding: 0;
@@ -1122,7 +1122,7 @@ aside > #datebrowse-sidebar .posted-date-selector-months > ul > li:hover {
 	padding-left: 27px;
 }
 
-.forumlist-img {
+.group-list-img {
 	-webkit-filter: grayscale(100%);
 	filter: grayscale(100%);
 	opacity: 0.5;
@@ -1133,7 +1133,7 @@ aside > #datebrowse-sidebar .posted-date-selector-months > ul > li:hover {
 	-ms-transition: all 0.2s ease-in-out;
 	transition: all 0.2s ease-in-out;
 }
-#forumlist-sidebar-ul li:hover a > .forumlist-img {
+#group-list-sidebar-ul li:hover a > .group-list-img {
 	-webkit-filter: unset;
 	filter: unset;
 	opacity: unset;
@@ -2192,7 +2192,7 @@ nav .acpopup {
 	border-left: 3px solid $link_color;
 	padding-left: 17px !important;
 }
-.textcomplete-item a .forum {
+.textcomplete-item a .group {
 	color: $link_color;
 }
 img.acpopup-img {
@@ -2494,7 +2494,7 @@ body.mod-login .navbar #nav-login {
 	margin-top: 20px;
 	margin-bottom: 20px;
 }
-.contact-block-div.forumlist-profile-advanced {
+.contact-block-div.group-list-profile-advanced {
 	float: left;
 }
 
