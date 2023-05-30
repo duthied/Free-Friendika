@@ -2962,7 +2962,7 @@ class Contact
 			return $result;
 		}
 
-		$arr = ['url' => $url, 'contact' => []];
+		$arr = ['url' => $url, 'uid' => $uid, 'contact' => []];
 
 		Hook::callAll('follow', $arr);
 
