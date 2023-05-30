@@ -304,6 +304,14 @@ class Contact extends BaseModule
 				$sql_extra .= " AND `rel` = ?";
 				$sql_values[] = Model\Contact::FRIEND;
 				break;
+			case 'nothing':
+				$sql_extra .= " AND `rel` = ?";
+				$sql_values[] = Model\Contact::NOTHING;
+				break;
+			default:
+				$sql_extra .= " AND `rel` != ?";
+				$sql_values[] = Model\Contact::NOTHING;
+				break;
 		}
 
 		if ($circle) {
@@ -407,6 +415,7 @@ class Contact extends BaseModule
 			case 'followers': $header = DI::l10n()->t('Followers'); break;
 			case 'following': $header = DI::l10n()->t('Following'); break;
 			case 'mutuals':   $header = DI::l10n()->t('Mutual friends'); break;
+			case 'nothing':   $header = DI::l10n()->t('No relationship'); break;
 			default:          $header = DI::l10n()->t('Contacts');
 		}
 
