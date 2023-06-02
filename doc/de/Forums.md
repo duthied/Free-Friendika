@@ -48,9 +48,9 @@ Delegierte haben allerdings keine Möglichkeit, grundlegende Account-Einstellung
 
 **Beiträge auf Community-Foren**
 
-Wenn Du Mitglied eines Community-Forums bist, kannst Du das Forum in einem Beitrag hinzufügen/erwähnen, wenn Du den @-Tag nutzt. 
+Wenn Du Mitglied eines Community-Forums bist, kannst Du das Forum in einem Beitrag hinzufügen/erwähnen, wenn Du die @-Erwähnung nutzt. 
 Zum Beispiel würde @Fahrrad Deinen Beitrag neben den sonst ausgewählten Nutzern an alle Nutzer schicken, die in der Gruppe "Fahrrad" sind. 
-Wenn Dein Beitrag privat ist, musst Du diese Gruppe explizit in den Zugriffsrechten des Beitrags auswählen **und** sie mit dem @-Tag erwähnen (was den Beitrag auf die Gruppenmitglieder erweitert).
+Wenn Dein Beitrag privat ist, musst Du diese Gruppe explizit in den Zugriffsrechten des Beitrags auswählen **und** sie mit der @-Erwähnung ansprechen (was den Beitrag auf die Gruppenmitglieder erweitert).
 
 Zusätzlich ist es möglich, Foren mit dem Ausrufezeichen zu adressieren.
 Im obigen Beispiel bedeutet dies, dass Du das Fahrrad-Forum per !Fahrrad erreichen würdest.
@@ -60,4 +60,4 @@ Dies bedeutet auch, dass es nicht sinnvoll ist, mehrere Foren per ! in einem Bei
 Du kannst außerdem via "Wall zu Wall" einen Beitrag auf der Community-Seite bzw. in dem Community-Forum erstellen.
 
 Kommentare, die Du an ein Community-Forum schickst, werden dem Originalbeitrag hinzugefügt. 
-Ein weiteres Forum mit dem @-Tag zu erwähnen, leitet den Beitrag nicht an dieses weiter, da die Verteilung der Kommentare komplett vom Originalbeitrag bestimmt wird.
+Ein weiteres Forum mit der @-Erwähnung anzusprechen, leitet den Beitrag nicht an dieses weiter, da die Verteilung der Kommentare komplett vom Originalbeitrag bestimmt wird.

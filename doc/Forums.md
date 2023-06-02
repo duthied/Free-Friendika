@@ -48,7 +48,7 @@ This creates a forum page where all members can freely interact.
 Posting to Community forums
 ---
 
-If you are a member of a community forum, you may post to the forum by including an @-tag in the post mentioning the forum.
+If you are a member of a community forum, you may post to the forum by including an @-mention in the post mentioning the forum.
 For example @bicycle would send my post to all members of the group "bicycle" in addition to the normal recipients.
 If you mention a forum (you are a member of) in a new posting, the posting will be distributed to all members of the forum, regardless of your privacy settings for the posting.
 Also, if the forum is a public forum, your posting will be public for the all internet users.
@@ -63,4 +63,4 @@ This also means that you shouldn't address multiple forums in a single post in t
 You may also post to a community forum by posting a "wall-to-wall" post using secure cross-site authentication.
 
 Comments which are relayed to community forums will be relayed back to the original post creator.
-Mentioning the forum with an @-tag in a comment does not relay the message, as distribution is controlled entirely by the original post creator. 
+Mentioning the forum with an @-mention in a comment does not relay the message, as distribution is controlled entirely by the original post creator. 
