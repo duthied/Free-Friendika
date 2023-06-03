@@ -188,7 +188,7 @@ class Conversations extends BaseProfile
 			$condition = DBA::mergeConditions($condition, ["`received` >= ?", DateTimeFormat::convert($datequery2, 'UTC', $this->app->getTimeZone())]);
 		}
 
-		// Does the profile page belong to a forum?
+		// Does the profile page belong to a group?
 		// If not then we can improve the performance with an additional condition
 		if ($profile['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
 			$condition = DBA::mergeConditions($condition, ['contact-id' => $profile['id']]);

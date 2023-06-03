@@ -452,7 +452,7 @@ class Account extends BaseSettings
 		$pagetype    = Renderer::replaceMacros($pageset_tpl, [
 			'$account_types'     => DI::l10n()->t("Account Types"),
 			'$user'              => DI::l10n()->t("Personal Page Subtypes"),
-			'$community'         => DI::l10n()->t("Community Forum Subtypes"),
+			'$community'         => DI::l10n()->t("Community Group Subtypes"),
 			'$account_type'      => $user['account-type'],
 			'$type_person'       => User::ACCOUNT_TYPE_PERSON,
 			'$type_organisation' => User::ACCOUNT_TYPE_ORGANISATION,
@@ -481,7 +481,7 @@ class Account extends BaseSettings
 			],
 			'$account_community' => [
 				'account-type',
-				DI::l10n()->t('Community Forum'),
+				DI::l10n()->t('Community Group'),
 				User::ACCOUNT_TYPE_COMMUNITY,
 				DI::l10n()->t('Account for community discussions.'),
 				$user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY
@@ -502,7 +502,7 @@ class Account extends BaseSettings
 			],
 			'$page_community' => [
 				'page-flags',
-				DI::l10n()->t('Public Forum'),
+				DI::l10n()->t('Public Group'),
 				User::PAGE_FLAGS_COMMUNITY,
 				DI::l10n()->t('Automatically approves all contact requests.'),
 				$user['page-flags'] == User::PAGE_FLAGS_COMMUNITY
@@ -516,7 +516,7 @@ class Account extends BaseSettings
 			],
 			'$page_prvgroup' => [
 				'page-flags',
-				DI::l10n()->t('Private Forum [Experimental]'),
+				DI::l10n()->t('Private Group [Experimental]'),
 				User::PAGE_FLAGS_PRVGROUP,
 				DI::l10n()->t('Requires manual approval of contact requests.'),
 				$user['page-flags'] == User::PAGE_FLAGS_PRVGROUP

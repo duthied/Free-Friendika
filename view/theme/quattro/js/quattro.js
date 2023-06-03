@@ -12,11 +12,11 @@ $(document).ready(function(){
 			$(".circle-"+gid+" .notify").addClass("on").text(gcount);
 		});
 
-		$(".forum-widget-entry .notify").removeClass("on");
-		$(data).find("forum").each(function() {
+		$(".group-widget-entry .notify").removeClass("on");
+		$(data).find("group").each(function() {
 			var fid = this.id;
 			var fcount = this.innerHTML;
-			$(".forum-"+fid+" .notify").addClass("on").text(fcount);
+			$(".group-"+fid+" .notify").addClass("on").text(fcount);
 		});
 
 		console.log(intro,mail);

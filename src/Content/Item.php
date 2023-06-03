@@ -484,16 +484,16 @@ class Item
 	{
 		// Look for any tags and linkify them
 		$item['inform'] = '';
-		$private_forum  = false;
+		$private_group  = false;
 		$private_id     = null;
-		$only_to_forum  = false;
-		$forum_contact  = [];
+		$only_to_group  = false;
+		$group_contact  = [];
 		$receivers      = [];
 
 		// Convert mentions in the body to a unified format
 		$item['body'] = BBCode::setMentions($item['body'], $item['uid'], $item['network']);
 
-		// Search for forum mentions
+		// Search for group mentions
 		foreach (Tag::getFromBody($item['body'], Tag::TAG_CHARACTER[Tag::MENTION] . Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]) as $tag) {
 			$contact = Contact::getByURLForUser($tag[2], $item['uid']);
 			if (empty($contact)) {
@@ -512,37 +512,37 @@ class Item
 			}
 
 			if (!empty($contact['prv']) || ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
-				$private_forum = $contact['prv'];
-				$only_to_forum = ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
+				$private_group = $contact['prv'];
+				$only_to_group = ($tag[1] == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
 				$private_id = $contact['id'];
-				$forum_contact = $contact;
-				Logger::info('Private forum or exclusive mention', ['url' => $tag[2], 'mention' => $tag[1]]);
+				$group_contact = $contact;
+				Logger::info('Private group or exclusive mention', ['url' => $tag[2], 'mention' => $tag[1]]);
 			} elseif ($item['allow_cid'] == '<' . $contact['id'] . '>') {
-				$private_forum = false;
-				$only_to_forum = true;
+				$private_group = false;
+				$only_to_group = true;
 				$private_id = $contact['id'];
-				$forum_contact = $contact;
-				Logger::info('Public forum', ['url' => $tag[2], 'mention' => $tag[1]]);
+				$group_contact = $contact;
+				Logger::info('Public group', ['url' => $tag[2], 'mention' => $tag[1]]);
 			} else {
-				Logger::info('Post with forum mention will not be converted to a forum post', ['url' => $tag[2], 'mention' => $tag[1]]);
+				Logger::info('Post with group mention will not be converted to a group post', ['url' => $tag[2], 'mention' => $tag[1]]);
 			}
 		}
 		Logger::info('Got inform', ['inform' => $item['inform']]);
 
-		if (($item['gravity'] == ItemModel::GRAVITY_PARENT) && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
-			// we tagged a forum in a top level post. Now we change the post
-			$item['private'] = $private_forum ? ItemModel::PRIVATE : ItemModel::UNLISTED;
+		if (($item['gravity'] == ItemModel::GRAVITY_PARENT) && !empty($group_contact) && ($private_group || $only_to_group)) {
+			// we tagged a group in a top level post. Now we change the post
+			$item['private'] = $private_group ? ItemModel::PRIVATE : ItemModel::UNLISTED;
 
-			if ($only_to_forum) {
+			if ($only_to_group) {
 				$item['postopts'] = '';
 			}
 
 			$item['deny_cid'] = '';
 			$item['deny_gid'] = '';
 
-			if ($private_forum) {
+			if ($private_group) {
 				$item['allow_cid'] = '<' . $private_id . '>';
-				$item['allow_gid'] = '<' . Circle::getIdForForum($forum_contact['id']) . '>';
+				$item['allow_gid'] = '<' . Circle::getIdForGroup($group_contact['id']) . '>';
 			} else {
 				$item['allow_cid'] = '';
 				$item['allow_gid'] = '';
@@ -1011,7 +1011,7 @@ class Item
 		$post['body'] = $this->bbCodeVideo->transform($post['body']);
 		$post = $this->setObjectType($post);
 
-		// Personal notes must never be altered to a forum post.
+		// Personal notes must never be altered to a group post.
 		if ($post['post-type'] != ItemModel::PT_PERSONAL_NOTE) {
 			// Look for any tags and linkify them
 			$post = $this->expandTags($post);

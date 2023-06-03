@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-30 08:56+0000\n"
+"POT-Creation-Date: 2023-06-01 19:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1513,12 +1513,12 @@ msgid "Post Composition Features"
 msgstr ""
 
 #: src/Content/Feature.php:105
-msgid "Auto-mention Forums"
+msgid "Auto-mention Groups"
 msgstr ""
 
 #: src/Content/Feature.php:105
 msgid ""
-"Add/remove mention when a forum page is selected/deselected in ACL window."
+"Add/remove mention when a group page is selected/deselected in ACL window."
 msgstr ""
 
 #: src/Content/Feature.php:106
@@ -1559,11 +1559,11 @@ msgid "Advanced Profile Settings"
 msgstr ""
 
 #: src/Content/Feature.php:119
-msgid "List Forums"
+msgid "List Groups"
 msgstr ""
 
 #: src/Content/Feature.php:119
-msgid "Show visitors public community forums at the Advanced Profile Page"
+msgid "Show visitors public groups at the Advanced Profile Page"
 msgstr ""
 
 #: src/Content/Feature.php:120
@@ -1596,20 +1596,20 @@ msgid ""
 "Contact birthday events are private to you."
 msgstr ""
 
-#: src/Content/ForumManager.php:151 src/Content/Nav.php:276
+#: src/Content/GroupManager.php:151 src/Content/Nav.php:276
 #: src/Content/Text/HTML.php:877 src/Content/Widget.php:533
-msgid "Forums"
+msgid "Groups"
 msgstr ""
 
-#: src/Content/ForumManager.php:153
-msgid "External link to forum"
+#: src/Content/GroupManager.php:153
+msgid "External link to group"
 msgstr ""
 
-#: src/Content/ForumManager.php:156 src/Content/Widget.php:512
+#: src/Content/GroupManager.php:156 src/Content/Widget.php:512
 msgid "show less"
 msgstr ""
 
-#: src/Content/ForumManager.php:157 src/Content/Widget.php:414
+#: src/Content/GroupManager.php:157 src/Content/Widget.php:414
 #: src/Content/Widget.php:513
 msgid "show more"
 msgstr ""
@@ -1712,7 +1712,7 @@ msgid "Clear notifications"
 msgstr ""
 
 #: src/Content/Nav.php:126 src/Content/Text/HTML.php:864
-msgid "@name, !forum, #tags, content"
+msgid "@name, !group, #tags, content"
 msgstr ""
 
 #: src/Content/Nav.php:220 src/Module/Security/Login.php:157
@@ -3033,7 +3033,7 @@ msgid "Organisation"
 msgstr ""
 
 #: src/Model/Contact.php:1655
-msgid "Forum"
+msgid "Group"
 msgstr ""
 
 #: src/Model/Contact.php:2951
@@ -5555,7 +5555,7 @@ msgstr ""
 
 #: src/Module/BaseSearch.php:75
 #, php-format
-msgid "Forum Search - %s"
+msgid "Group Search - %s"
 msgstr ""
 
 #: src/Module/BaseSearch.php:121 src/Module/Contact/MatchInterests.php:139
@@ -7366,7 +7366,7 @@ msgid "Soapbox Page"
 msgstr ""
 
 #: src/Module/Moderation/BaseUsers.php:121 src/Module/Settings/Account.php:505
-msgid "Public Forum"
+msgid "Public Group"
 msgstr ""
 
 #: src/Module/Moderation/BaseUsers.php:122 src/Module/Settings/Account.php:512
@@ -7374,7 +7374,7 @@ msgid "Automatic Friend Page"
 msgstr ""
 
 #: src/Module/Moderation/BaseUsers.php:123
-msgid "Private Forum"
+msgid "Private Group"
 msgstr ""
 
 #: src/Module/Moderation/BaseUsers.php:126 src/Module/Settings/Account.php:463
@@ -7390,7 +7390,7 @@ msgid "News Page"
 msgstr ""
 
 #: src/Module/Moderation/BaseUsers.php:129 src/Module/Settings/Account.php:484
-msgid "Community Forum"
+msgid "Community Group"
 msgstr ""
 
 #: src/Module/Moderation/BaseUsers.php:130
@@ -7812,7 +7812,7 @@ msgid "Automatic Follower Account"
 msgstr ""
 
 #: src/Module/Moderation/Summary.php:55
-msgid "Public Forum Account"
+msgid "Public Group Account"
 msgstr ""
 
 #: src/Module/Moderation/Summary.php:56
@@ -7824,7 +7824,7 @@ msgid "Blog Account"
 msgstr ""
 
 #: src/Module/Moderation/Summary.php:58
-msgid "Private Forum Account"
+msgid "Private Group Account"
 msgstr ""
 
 #: src/Module/Moderation/Summary.php:78
@@ -8450,7 +8450,7 @@ msgid "Description:"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:261
-msgid "Forums:"
+msgid "Groups:"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:273
@@ -9017,7 +9017,7 @@ msgid "Personal Page Subtypes"
 msgstr ""
 
 #: src/Module/Settings/Account.php:455
-msgid "Community Forum Subtypes"
+msgid "Community Group Subtypes"
 msgstr ""
 
 #: src/Module/Settings/Account.php:465
@@ -9063,7 +9063,7 @@ msgid ""
 msgstr ""
 
 #: src/Module/Settings/Account.php:519
-msgid "Private Forum [Experimental]"
+msgid "Private Group [Experimental]"
 msgstr ""
 
 #: src/Module/Settings/Account.php:521
@@ -11874,7 +11874,7 @@ msgid "Textareas font size"
 msgstr ""
 
 #: view/theme/vier/config.php:91
-msgid "Comma separated list of helper forums"
+msgid "Comma separated list of helper groups"
 msgstr ""
 
 #: view/theme/vier/config.php:131

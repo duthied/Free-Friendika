@@ -20,15 +20,15 @@ You'll also see a link to a **Global Directory**.
 There are several global directories across the globe that regularly exchange information with each other.
 The specific global directory that you see usually depends on where your server is located.
 If you click through to the global directory, you will be presented with a list of everybody who choses to be listed across all instances of Friendica.
-You will also see a "Show Community Forums" link, which will direct you to Circles, Forums and Fanpages.
-You connect to people, groups and forums in the same way, except groups and forums will automatically accept your introduction request, whereas a human will approve you manually.
+You will also see a "Show Community Groups" link, which will direct you to Groups.
+You connect to people and groups the same way, public groups will automatically accept your introduction, whereas private groups and some individual users will need to manually approve it.
 
 Connect to other Friendica users
 ---
 
 Visit their profile.
 Just beneath their profile picture will be the word 'Connect' (we're assuming this is an English language profile).
-Click that 'Connect' button and it will take you to a 'Connect' form.
+Click that 'Connect' button, and it will take you to a 'Connect' form.
 
 The form is going to ask you for your Identity Address.
 This is necessary so that this person's website can find yours.
@@ -41,7 +41,7 @@ It's easy for people to remember.
 
 You *could* also put in the URL of your "home" page, such as "http://demo.friendica.com/profile/bob" instead of the email-style address.
 
-When you've submitted the connection page, it will take you back to your own site where you must then login (if necessary) and verify the connection request on *your* site.
+When you've submitted the connection page, it will take you back to your own site where you must then log in (if necessary) and verify the connection request on *your* site.
 Once you've done this, the two websites can communicate with each other to complete the process (after your new friend has approved the request).
 
 If you already know somebody's Identity Address, you can enter it in the "connect" box on your "Contacts" page.
@@ -55,14 +55,14 @@ You can also use your Identity Address or other people's Identity Addresses to b
 Currently, Friendica supports connections with people on diaspora*, Red, Hubzilla, GNU Social, StatusNet, Mastodon, Pleroma, socialhome, and ganggo platforms.
 
 If you know (for instance) "alice" on gnusocial.net (a GNU Social site) you could put alice@gnusocial.net into your Contact page and become friends across networks.
-Likewise you can put in the URL to Alice's gnusocial.net page, if you wish.
+Likewise, you can put in the URL to Alice's gnusocial.net page, if you wish.
 Note: Some versions of GNU Social software may require the full URL to your profile and may not work with the identity address.
 
 People on these networks can also initiate contact with you, if they know your contact details.
 
 ### Other social media
 If you server provides this functionality, you can also connect with people one
-Twitter or important feeds from Tumblr, Wordpress, and many more.
+Twitter or important feeds from Tumblr, WordPress, and many more.
 
 To connect, enter their contact details in the "connect" box on your "Contacts" page.
 

@@ -42,7 +42,7 @@ class Search
 	const DEFAULT_DIRECTORY = 'https://dir.friendica.social';
 
 	const TYPE_PEOPLE = 0;
-	const TYPE_FORUM  = 1;
+	const TYPE_GROUP  = 1;
 	const TYPE_ALL    = 2;
 
 	/**
@@ -55,7 +55,7 @@ class Search
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getContactsFromProbe(string $user, $only_forum = false): ResultList
+	public static function getContactsFromProbe(string $user, $only_group = false): ResultList
 	{
 		$emptyResultList = new ResultList();
 
@@ -68,7 +68,7 @@ class Search
 			return $emptyResultList;
 		}
 
-		if ($only_forum && ($user_data['contact-type'] != Contact::TYPE_COMMUNITY)) {
+		if ($only_group && ($user_data['contact-type'] != Contact::TYPE_COMMUNITY)) {
 			return $emptyResultList;
 		}
 
@@ -112,8 +112,8 @@ class Search
 		$searchUrl = $server . '/search';
 
 		switch ($type) {
-			case self::TYPE_FORUM:
-				$searchUrl .= '/forum';
+			case self::TYPE_GROUP:
+				$searchUrl .= '/group';
 				break;
 			case self::TYPE_PEOPLE:
 				$searchUrl .= '/people';
@@ -174,7 +174,7 @@ class Search
 	{
 		Logger::info('Searching', ['search' => $search, 'type' => $type, 'start' => $start, 'itempage' => $itemPage]);
 
-		$contacts = Contact::searchByName($search, $type == self::TYPE_FORUM ? 'community' : '', true);
+		$contacts = Contact::searchByName($search, $type == self::TYPE_GROUP ? 'community' : '', true);
 
 		$resultList = new ResultList($start, count($contacts), $itemPage);
 
@@ -240,7 +240,9 @@ class Search
 					$return = array_map(function ($result) {
 						static $contactType = [
 							'People'       => Contact::TYPE_PERSON,
+							// Kept for backward compatibility
 							'Forum'        => Contact::TYPE_COMMUNITY,
+							'Group'        => Contact::TYPE_COMMUNITY,
 							'Organization' => Contact::TYPE_ORGANISATION,
 							'News'         => Contact::TYPE_NEWS,
 						];

@@ -250,7 +250,7 @@ return [
 			"confirm" => ["type" => "varbinary(383)", "comment" => ""],
 			"poco" => ["type" => "varbinary(383)", "comment" => ""],
 			"writable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"forum" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a forum. Deprecated, use 'contact-type' = 'community' and 'manually-approve' = false instead"],
+			"forum" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a group. Deprecated, use 'contact-type' = 'community' and 'manually-approve' = false instead"],
 			"prv" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a private group. Deprecated, use 'contact-type' = 'community' and 'manually-approve' = true instead"],
 			"bdyear" => ["type" => "varchar(4)", "not null" => "1", "default" => "", "comment" => ""],
 			// Deprecated fields that aren't in use anymore
@@ -767,7 +767,7 @@ return [
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates the member list is not private"],
 			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates the circle has been deleted"],
-			"cid" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Contact id of forum. When this field is filled then the members are synced automatically."],
+			"cid" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Contact id of group. When this field is filled then the members are synced automatically."],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "human readable name of circle"],
 		],
 		"indexes" => [

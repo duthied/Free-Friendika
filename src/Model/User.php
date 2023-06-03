@@ -88,7 +88,7 @@ class User
 	 * ACCOUNT_TYPE_NEWS - the account is a news reflector
 	 *	Associated page type: PAGE_FLAGS_SOAPBOX
 	 *
-	 * ACCOUNT_TYPE_COMMUNITY - the account is community forum
+	 * ACCOUNT_TYPE_COMMUNITY - the account is community group
 	 *	Associated page types: PAGE_COMMUNITY, PAGE_FLAGS_PRVGROUP
 	 *
 	 * ACCOUNT_TYPE_RELAY - the account is a relay
