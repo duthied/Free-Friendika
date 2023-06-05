@@ -151,7 +151,7 @@ class GroupManager
 					'$title'	=> DI::l10n()->t('Groups'),
 					'$groups'	=> $entries,
 					'$link_desc'	=> DI::l10n()->t('External link to group'),
-					'$New_group_page' => 'register/',
+					'$new_group_page' => 'register/',
 					'$total'	=> $total,
 					'$visible_groups' => $visibleGroups,
 					'$showless'	=> DI::l10n()->t('show less'),
