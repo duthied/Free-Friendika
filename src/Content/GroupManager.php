@@ -151,10 +151,12 @@ class GroupManager
 					'$title'	=> DI::l10n()->t('Groups'),
 					'$groups'	=> $entries,
 					'$link_desc'	=> DI::l10n()->t('External link to group'),
+					'$new_group_page' => 'register/',
 					'$total'	=> $total,
 					'$visible_groups' => $visibleGroups,
 					'$showless'	=> DI::l10n()->t('show less'),
-					'$showmore'	=> DI::l10n()->t('show more')]
+					'$showmore'	=> DI::l10n()->t('show more'),
+					'$create_new_group' => DI::l10n()->t('Create new group')]
 			);
 		}
 

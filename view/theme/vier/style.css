@@ -435,7 +435,7 @@ pre code {
 	opacity: 1;
 }
 
-.sidebar-circle-li:hover, #sidebar-new-circle:hover, #sidebar-edit-circles:hover,#group-widget-collapse:hover,
+.sidebar-circle-li:hover, #sidebar-new-circle:hover, #sidebar-edit-circles:hover, #sidebar-new-group:hover, #group-widget-collapse:hover,
 #sidebar-uncircled:hover, .side-link:hover, .nets-ul li:hover, #group-list-sidebar li:hover, #group-list-sidebar-right li:hover,
 .nets-all:hover, .saved-search-li:hover, li.tool:hover, .admin.link:hover, aside h4 a:hover, right_aside h4 a:hover, #message-new:hover,
 #sidebar-photos-albums li:hover, .photos-upload-link:hover, .textcomplete-item.active {
@@ -456,7 +456,7 @@ pre code {
 	font-weight: bold;
 }
 
-#group-widget-showmore, #sidebar-new-circle, #sidebar-edit-circles, #group-widget-collapse, #group-list-rsidebar-right, #sidebar-uncircled,
+#group-widget-showmore, #sidebar-new-circle, #sidebar-edit-circles, #sidebar-new-group, #group-widget-collapse, #group-list-rsidebar-right, #sidebar-uncircled,
 .side-link, #peoplefind-desc, #connect-desc, .nets-all, .admin.link, #message-new {
 	padding-left: 10px;
 	padding-top: 3px;
@@ -490,7 +490,7 @@ pre code {
 	display: inline-block;
 }
 
-a.nets-link, .side-link a, #sidebar-new-circle a, #sidebar-edit-circles a, a.savedsearchterm,a.fileas-link, aside h4 a, right_aside h4 a {
+a.nets-link, .side-link a, #sidebar-new-circle a, #sidebar-edit-circles a, #sidebar-new-group a, a.savedsearchterm,a.fileas-link, aside h4 a, right_aside h4 a {
 	display: block;
 	color: #737373;
 }
