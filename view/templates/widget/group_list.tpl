@@ -20,7 +20,7 @@ function showHideGroupList() {
 	<span class="fakelink" onclick="openCloseWidget('group-list-sidebar', 'group-list-sidebar-inflated');">
 		<h3>{{$title}}</h3>
 	</span>
-	<a class="group-new-tool pull-right widget-action faded-icon" id="sidebar-new-group" href="{{$New_group_page}}" data-toggle="tooltip" title="{{$create_new_group}}">
+	<a class="group-new-tool pull-right widget-action faded-icon" id="sidebar-new-group" href="{{$new_group_page}}" data-toggle="tooltip" title="{{$create_new_group}}">
 			<i class="fa fa-plus" aria-hidden="true"></i>
 		</a>
 	</div>
