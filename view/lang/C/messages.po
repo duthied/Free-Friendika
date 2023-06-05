@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-01 19:00-0400\n"
+"POT-Creation-Date: 2023-06-05 08:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1605,13 +1605,17 @@ msgstr ""
 msgid "External link to group"
 msgstr ""
 
-#: src/Content/GroupManager.php:156 src/Content/Widget.php:512
+#: src/Content/GroupManager.php:157 src/Content/Widget.php:512
 msgid "show less"
 msgstr ""
 
-#: src/Content/GroupManager.php:157 src/Content/Widget.php:414
+#: src/Content/GroupManager.php:158 src/Content/Widget.php:414
 #: src/Content/Widget.php:513
 msgid "show more"
+msgstr ""
+
+#: src/Content/GroupManager.php:159
+msgid "Create new group"
 msgstr ""
 
 #: src/Content/Item.php:327 src/Model/Item.php:2931
@@ -2017,39 +2021,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:694 src/Content/Text/BBCode.php:1600
-#: src/Content/Text/BBCode.php:1601
+#: src/Content/Text/BBCode.php:695 src/Content/Text/BBCode.php:1601
+#: src/Content/Text/BBCode.php:1602
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:912
+#: src/Content/Text/BBCode.php:913
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:937 src/Model/Item.php:3649
+#: src/Content/Text/BBCode.php:938 src/Model/Item.php:3649
 #: src/Model/Item.php:3655 src/Model/Item.php:3656
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1507 src/Content/Text/HTML.php:901
+#: src/Content/Text/BBCode.php:1508 src/Content/Text/HTML.php:901
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1540
+#: src/Content/Text/BBCode.php:1541
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1605 src/Content/Text/BBCode.php:1606
+#: src/Content/Text/BBCode.php:1606 src/Content/Text/BBCode.php:1607
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1870
+#: src/Content/Text/BBCode.php:1871
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1889
+#: src/Content/Text/BBCode.php:1890
 msgid "Invalid link protocol"
 msgstr ""
 
