@@ -2044,7 +2044,7 @@ class Item
 		// Remove the scheme to make sure that "https" and "http" doesn't make a difference
 		unset($parsed['scheme']);
 
-		$hostPart = $host ?? $parsed['host'] ?? '';
+		$hostPart = $host ?: $parsed['host'] ?? '';
 		if (!$hostPart) {
 			Logger::warning('Empty host GUID part', ['uri' => $uri, 'host' => $host, 'parsed' => $parsed, 'callstack' => System::callstack(10)]);
 		}

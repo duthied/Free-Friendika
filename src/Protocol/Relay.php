@@ -135,22 +135,8 @@ class Relay
 			}
 		}
 
-		$languages = [];
-		foreach (Item::getLanguageArray($body, 10) as $language => $reliability) {
-			if ($reliability > 0) {
-				$languages[] = $language;
-			}
-		}
-
-		Logger::debug('Got languages', ['languages' => $languages, 'body' => $body, 'causer' => $causer]);
-
-		if (!empty($languages)) {
-			if (in_array($languages[0], $config->get('system', 'relay_deny_languages'))) {
-				Logger::info('Unwanted language found - rejected', ['language' => $languages[0], 'network' => $network, 'url' => $url, 'causer' => $causer]);
-				return false;
-			}
-		} elseif ($config->get('system', 'relay_deny_undetected_language')) {
-			Logger::info('Undetected language found - rejected', ['body' => $body, 'network' => $network, 'url' => $url, 'causer' => $causer]);
+		if (!self::isWantedLanguage($body)) {
+			Logger::info('Unwanted or Undetected language found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer]);
 			return false;
 		}
 
@@ -161,6 +147,36 @@ class Relay
 
 		Logger::info('No matching hashtags found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer]);
 		return false;
+	}
+
+	/**
+	 * Detect the language of a post and decide if the post should be accepted
+	 *
+	 * @param string $body
+	 * @return boolean
+	 */
+	public static function isWantedLanguage(string $body)
+	{
+		$languages = [];
+		foreach (Item::getLanguageArray($body, 10) as $language => $reliability) {
+			if ($reliability > 0) {
+				$languages[] = $language;
+			}
+		}
+
+		Logger::debug('Got languages', ['languages' => $languages, 'body' => $body]);
+
+		if (!empty($languages)) {
+			if (in_array($languages[0], DI::config()->get('system', 'relay_deny_languages'))) {
+				Logger::info('Unwanted language found', ['language' => $languages[0]]);
+				return false;
+			}
+		} elseif (DI::config()->get('system', 'relay_deny_undetected_language')) {
+			Logger::info('Undetected language found', ['body' => $body]);
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
