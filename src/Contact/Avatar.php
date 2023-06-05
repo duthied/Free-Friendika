@@ -92,7 +92,7 @@ class Avatar
 			return $fields;
 		}
 
-		$filename  = self::getFilename($contact['url']);
+		$filename  = self::getFilename($contact['url'], $avatar);
 		$timestamp = time();
 
 		$fields['blurhash'] = $image->getBlurHash();
@@ -120,7 +120,7 @@ class Avatar
 			return $fields;
 		}
 
-		$filename  = self::getFilename($contact['url']);
+		$filename  = self::getFilename($contact['url'], $contact['avatar']);
 		$timestamp = time();
 
 		$fields['photo'] = self::storeAvatarCache($image, $filename, Proxy::PIXEL_SMALL, $timestamp);
@@ -130,9 +130,9 @@ class Avatar
 		return $fields;
 	}
 
-	private static function getFilename(string $url): string
+	private static function getFilename(string $url, string $host): string
 	{
-		$guid = Item::guidFromUri($url);
+		$guid = Item::guidFromUri($url, $host);
 
 		return substr($guid, 0, 2) . '/' . substr($guid, 3, 2) . '/' . substr($guid, 5, 3) . '/' .
 			substr($guid, 9, 2) .'/' . substr($guid, 11, 2) . '/' . substr($guid, 13, 4). '/' . substr($guid, 18) . '-';
