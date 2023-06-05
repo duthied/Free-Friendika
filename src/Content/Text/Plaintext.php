@@ -137,6 +137,10 @@ class Plaintext
 				$abstract = BBCode::getAbstract($item['body'], Protocol::STATUSNET);
 				break;
 
+			case BBCode::BLUESKY:
+				$abstract = BBCode::getAbstract($item['body'], Protocol::BLUESKY);
+				break;
+	
 			default: // We don't know the exact target.
 				// We fetch an abstract since there is a posting limit.
 				if ($limit > 0) {

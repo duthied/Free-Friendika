@@ -62,6 +62,7 @@ class BBCode
 	const TWITTER      = 8;
 	const BACKLINK     = 8;
 	const ACTIVITYPUB  = 9;
+	const BLUESKY      = 10;
 
 	const TOP_ANCHOR = '<br class="top-anchor">';
 	const BOTTOM_ANCHOR = '<br class="button-anchor">';
@@ -1771,7 +1772,7 @@ class BBCode
 					$text
 				);
 
-				if (in_array($simple_html, [self::OSTATUS, self::TWITTER])) {
+				if (in_array($simple_html, [self::OSTATUS, self::TWITTER, self::BLUESKY])) {
 					$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", [self::class, 'expandLinksCallback'], $text);
 					//$text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $text);
 					$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]', $text);
