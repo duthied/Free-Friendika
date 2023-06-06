@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-05 08:44-0400\n"
+"POT-Creation-Date: 2023-06-05 22:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1597,7 +1597,7 @@ msgid ""
 msgstr ""
 
 #: src/Content/GroupManager.php:151 src/Content/Nav.php:276
-#: src/Content/Text/HTML.php:877 src/Content/Widget.php:533
+#: src/Content/Text/HTML.php:877 src/Content/Widget.php:540
 msgid "Groups"
 msgstr ""
 
@@ -1605,12 +1605,12 @@ msgstr ""
 msgid "External link to group"
 msgstr ""
 
-#: src/Content/GroupManager.php:157 src/Content/Widget.php:512
+#: src/Content/GroupManager.php:157 src/Content/Widget.php:516
 msgid "show less"
 msgstr ""
 
 #: src/Content/GroupManager.php:158 src/Content/Widget.php:414
-#: src/Content/Widget.php:513
+#: src/Content/Widget.php:517
 msgid "show more"
 msgstr ""
 
@@ -2185,27 +2185,31 @@ msgid_plural "%d contacts in common"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Content/Widget.php:506
+#: src/Content/Widget.php:510
 msgid "Archives"
 msgstr ""
 
-#: src/Content/Widget.php:530
+#: src/Content/Widget.php:518
+msgid "On this date"
+msgstr ""
+
+#: src/Content/Widget.php:537
 msgid "Persons"
 msgstr ""
 
-#: src/Content/Widget.php:531
+#: src/Content/Widget.php:538
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:532 src/Model/Contact.php:1651
+#: src/Content/Widget.php:539 src/Model/Contact.php:1651
 msgid "News"
 msgstr ""
 
-#: src/Content/Widget.php:536 src/Module/Settings/Account.php:453
+#: src/Content/Widget.php:543 src/Module/Settings/Account.php:453
 msgid "Account Types"
 msgstr ""
 
-#: src/Content/Widget.php:537 src/Module/Moderation/BaseUsers.php:69
+#: src/Content/Widget.php:544 src/Module/Moderation/BaseUsers.php:69
 msgid "All"
 msgstr ""
 

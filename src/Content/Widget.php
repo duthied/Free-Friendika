@@ -470,8 +470,11 @@ class Widget
 
 		if ($dthen) {
 			// Set the start and end date to the beginning of the month
+			$cutoffday = $dthen;
+			$thisday = substr($dnow, 4);
 			$dnow = substr($dnow, 0, 8) . '01';
 			$dthen = substr($dthen, 0, 8) . '01';
+			
 
 			/*
 			 * Starting with the current month, get the first and last days of every
@@ -491,6 +494,7 @@ class Widget
 
 				$ret[$dyear][] = [$str, $end_month, $start_month];
 				$dnow = DateTimeFormat::utc($dnow . ' -1 month', 'Y-m-d');
+				
 			}
 		}
 
@@ -510,7 +514,10 @@ class Widget
 			'$url' => $url,
 			'$dates' => $ret,
 			'$showless' => DI::l10n()->t('show less'),
-			'$showmore' => DI::l10n()->t('show more')
+			'$showmore' => DI::l10n()->t('show more'),
+			'$onthisdate' => DI::l10n()->t('On this date'),
+			'$thisday' => $thisday,
+			'$cutoffday' => $cutoffday
 		]);
 
 		return $o;
