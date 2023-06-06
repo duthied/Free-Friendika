@@ -570,7 +570,7 @@ class Strings
 	public static function getStyledURL(string $url): string
 	{
 		$parts = parse_url($url);
-		$scheme = $parts['scheme'] . '://';
+		$scheme = [$parts['scheme'] . '://www.', $parts['scheme'] . '://'];
 		$styled_url = str_replace($scheme, '', $url);
 
 		if (strlen($styled_url) > 30) {
