@@ -31,10 +31,16 @@ function showHideDates() {
 		</li>
 		<li id="posted-date-selector-{{$y}}" class="tool posted-date-selector-months" style="display: none;">
 			<ul class="datebrowse-ul">
+				{{if $y|cat:$thisday >= $cutoffday}}
+				<li class="tool">
+					<a class="datebrowse-link" href="{{$url}}/{{$y|cat:$thisday}}/{{$y|cat:$thisday}}">{{$onthisdate}}</a>
+				</li>
+				{{/if}}
 				{{foreach $arr as $d}}
 				<li class="tool">
 					<a class="datebrowse-link" href="{{$url}}/{{$d.1}}/{{$d.2}}">{{$d.0}}</a>
 				</li>
+				
 				{{/foreach}}
 			</ul>
 		</li>
