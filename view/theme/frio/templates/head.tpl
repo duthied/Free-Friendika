@@ -51,8 +51,6 @@
 	type="text/css" media="screen" />
 <link rel="stylesheet" href="view/js/fancybox/jquery.fancybox.min.css?v={{$smarty.const.FRIENDICA_VERSION}}"
 	type="text/css" media="screen" />
-<link rel="stylesheet" href="view/js/button/frio.css?v={{$smarty.const.FRIENDICA_VERSION}}"
-	type="text/css" media="screen" />
 
 {{* own css files *}}
 <link rel="stylesheet" href="view/theme/frio/css/hovercard.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css"
