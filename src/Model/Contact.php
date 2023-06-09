@@ -2560,7 +2560,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function updateFromProbe(int $id, string $network = '')
+	public static function updateFromProbe(int $id, string $network = ''): bool
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url'], ['id' => $id]);
 		if (!DBA::isResult($contact)) {

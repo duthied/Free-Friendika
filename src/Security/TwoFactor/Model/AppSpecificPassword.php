@@ -32,12 +32,12 @@ use PragmaRX\Random\Random;
  */
 class AppSpecificPassword
 {
-	public static function countForUser($uid)
+	public static function countForUser(int $uid)
 	{
 		return DBA::count('2fa_app_specific_password', ['uid' => $uid]);
 	}
 
-	public static function checkDuplicateForUser($uid, $description)
+	public static function checkDuplicateForUser(int $uid, string $description): bool
 	{
 		return DBA::exists('2fa_app_specific_password', ['uid' => $uid, 'description' => $description]);
 	}
@@ -50,7 +50,7 @@ class AppSpecificPassword
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function authenticateUser($uid, $plaintextPassword)
+	public static function authenticateUser(int $uid, string $plaintextPassword): bool
 	{
 		$appSpecificPasswords = self::getListForUser($uid);
 
@@ -79,7 +79,7 @@ class AppSpecificPassword
      * @return array
      * @throws \Exception
      */
-	public static function getListForUser($uid)
+	public static function getListForUser(int $uid): array
 	{
 		$appSpecificPasswordsStmt = DBA::select('2fa_app_specific_password', ['id', 'description', 'hashed_password', 'last_used'], ['uid' => $uid]);
 
@@ -102,7 +102,7 @@ class AppSpecificPassword
      * @return array The new app-specific password data structure with the plaintext password added
      * @throws \Exception
      */
-	public static function generateForUser(int $uid, $description)
+	public static function generateForUser(int $uid, string $description): array
 	{
 		$Random = (new Random())->size(40);
 
@@ -111,10 +111,10 @@ class AppSpecificPassword
 		$generated = DateTimeFormat::utcNow();
 
 		$fields = [
-			'uid' => $uid,
-			'description' => $description,
+			'uid'             => $uid,
+			'description'     => $description,
 			'hashed_password' => User::hashPassword($plaintextPassword),
-			'generated' => $generated,
+			'generated'       => $generated,
 		];
 
 		DBA::insert('2fa_app_specific_password', $fields);
@@ -125,7 +125,7 @@ class AppSpecificPassword
 		return $fields;
 	}
 
-	private static function update($appSpecificPasswordId, $fields)
+	private static function update(int $appSpecificPasswordId, array $fields)
 	{
 		return DBA::update('2fa_app_specific_password', $fields, ['id' => $appSpecificPasswordId]);
 	}

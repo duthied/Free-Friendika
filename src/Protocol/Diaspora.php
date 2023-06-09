@@ -267,7 +267,7 @@ class Diaspora
 				if ($no_exit) {
 					return false;
 				} else {
-					throw new \Friendica\Network\HTTPException\BadRequestException();
+					throw new HTTPException\BadRequestException();
 				}
 			}
 		} else {
@@ -281,7 +281,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				throw new \Friendica\Network\HTTPException\BadRequestException();
+				throw new HTTPException\BadRequestException();
 			}
 		}
 
@@ -307,7 +307,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				throw new \Friendica\Network\HTTPException\BadRequestException();
+				throw new HTTPException\BadRequestException();
 			}
 		}
 
@@ -322,7 +322,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				throw new \Friendica\Network\HTTPException\BadRequestException();
+				throw new HTTPException\BadRequestException();
 			}
 		}
 
@@ -332,7 +332,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				throw new \Friendica\Network\HTTPException\BadRequestException();
+				throw new HTTPException\BadRequestException();
 			}
 		}
 
@@ -424,7 +424,7 @@ class Diaspora
 
 		if (!$base) {
 			Logger::notice('unable to locate salmon data in xml');
-			throw new \Friendica\Network\HTTPException\BadRequestException();
+			throw new HTTPException\BadRequestException();
 		}
 
 
@@ -444,13 +444,10 @@ class Diaspora
 		$encoding = $base->encoding;
 		$alg = $base->alg;
 
-
 		$signed_data = $data . '.' . Strings::base64UrlEncode($type) . '.' . Strings::base64UrlEncode($encoding) . '.' . Strings::base64UrlEncode($alg);
-
 
 		// decode the data
 		$data = Strings::base64UrlDecode($data);
-
 
 		if ($public) {
 			$inner_decrypted = $data;
@@ -467,14 +464,14 @@ class Diaspora
 		$key = self::key($author);
 		if (!$key) {
 			Logger::notice('Could not retrieve author key.');
-			throw new \Friendica\Network\HTTPException\BadRequestException();
+			throw new HTTPException\BadRequestException();
 		}
 
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 
 		if (!$verify) {
 			Logger::notice('Message did not verify. Discarding.');
-			throw new \Friendica\Network\HTTPException\BadRequestException();
+			throw new HTTPException\BadRequestException();
 		}
 
 		Logger::info('Message verified.');
@@ -499,8 +496,7 @@ class Diaspora
 	 */
 	public static function dispatchPublic(array $msg, int $direction)
 	{
-		$enabled = intval(DI::config()->get('system', 'diaspora_enabled'));
-		if (!$enabled) {
+		if (!DI::config()->get('system', 'diaspora_enabled')) {
 			Logger::notice('Diaspora is disabled');
 			return false;
 		}
@@ -940,7 +936,7 @@ class Diaspora
 	{
 		$item = Post::selectFirst(['id'], ['uid' => $uid, 'guid' => $guid]);
 		if (DBA::isResult($item)) {
-			Logger::notice('Message ' . $guid . ' already exists for user ' . $uid);
+			Logger::notice('Message already exists.', ['uid' => $uid, 'guid' => $guid, 'id' => $item['id']]);
 			return $item['id'];
 		}
 
@@ -951,6 +947,7 @@ class Diaspora
 	 * Checks for links to posts in a message
 	 *
 	 * @param array $item The item array
+	 *
 	 * @return void
 	 */
 	private static function fetchGuid(array $item)
@@ -2569,19 +2566,21 @@ class Diaspora
 	 *
 	 * @param int $uriid
 	 * @param object $photo
+	 *
 	 * @return void
 	 */
 	private static function storePhotoAsMedia(int $uriid, $photo)
 	{
 		// @TODO Need to find object type, roland@f.haeder.net
 		Logger::debug('photo=' . get_class($photo));
-		$data = [];
-		$data['uri-id'] = $uriid;
-		$data['type'] = Post\Media::IMAGE;
-		$data['url'] = XML::unescape($photo->remote_photo_path) . XML::unescape($photo->remote_photo_name);
-		$data['height'] = (int)XML::unescape($photo->height ?? 0);
-		$data['width'] = (int)XML::unescape($photo->width ?? 0);
-		$data['description'] = XML::unescape($photo->text ?? '');
+		$data = [
+			'uri-id'      => $uriid,
+			'type'        => Post\Media::IMAGE,
+			'url'         => XML::unescape($photo->remote_photo_path) . XML::unescape($photo->remote_photo_name),
+			'height'      => (int)XML::unescape($photo->height ?? 0),
+			'width'       => (int)XML::unescape($photo->width ?? 0),
+			'description' => XML::unescape($photo->text ?? ''),
+		];
 
 		Post\Media::insert($data);
 	}
@@ -2653,7 +2652,25 @@ class Diaspora
 
 		$raw_body = $body = Markdown::toBBCode($text);
 
-		$datarray = [];
+		$datarray = [
+			'guid'        => $guid,
+			'uri-id'      => ItemURI::insert(['uri' => $guid, 'guid' => $guid]),
+			'uid'         => $importer['uid'],
+			'contact-id'  => $contact['id'],
+			'network'     => Protocol::DIASPORA,
+			'author-link' => $contact['url'],
+			'author-id'   => Contact::getIdForURL($contact['url'], 0),
+			'verb'        => Activity::POST,
+			'gravity'     => Item::GRAVITY_PARENT,
+			'protocol'    => Conversation::PARCEL_DIASPORA,
+			'source'      => $xml,
+			'body'        => self::replacePeopleGuid($body, $contact['url']),
+			'raw-body'    => self::replacePeopleGuid($raw_body, $contact['url']),
+			'private'     => (($public == 'false') ? Item::PRIVATE : Item::PUBLIC),
+			// Default is note (aka. comment), later below is being checked the real type
+			'object-type' => Activity\ObjectType::NOTE,
+			'post-type'   => Item::PT_NOTE,
+		];
 
 		$datarray['guid'] = $guid;
 		$datarray['uri'] = $datarray['thr-parent'] = self::getUriFromGuid($guid, $author);
@@ -2668,11 +2685,7 @@ class Diaspora
 			$datarray['object-type'] = Activity\ObjectType::IMAGE;
 			$datarray['post-type'] = Item::PT_IMAGE;
 		} elseif ($data->poll) {
-			$datarray['object-type'] = Activity\ObjectType::NOTE;
 			$datarray['post-type'] = Item::PT_POLL;
-		} else {
-			$datarray['object-type'] = Activity\ObjectType::NOTE;
-			$datarray['post-type'] = Item::PT_NOTE;
 		}
 
 		/// @todo enable support for polls
@@ -2683,27 +2696,6 @@ class Diaspora
 		//}
 
 		/// @todo enable support for events
-
-		$datarray['uid'] = $importer['uid'];
-		$datarray['contact-id'] = $contact['id'];
-		$datarray['network'] = Protocol::DIASPORA;
-
-		$datarray['author-link'] = $contact['url'];
-		$datarray['author-id'] = Contact::getIdForURL($contact['url'], 0);
-
-		$datarray['owner-link'] = $datarray['author-link'];
-		$datarray['owner-id'] = $datarray['author-id'];
-
-		$datarray['verb'] = Activity::POST;
-		$datarray['gravity'] = Item::GRAVITY_PARENT;
-
-		$datarray['protocol'] = Conversation::PARCEL_DIASPORA;
-		$datarray['source'] = $xml;
-
-		$datarray = self::setDirection($datarray, $direction);
-
-		$datarray['body'] = self::replacePeopleGuid($body, $contact['url']);
-		$datarray['raw-body'] = self::replacePeopleGuid($raw_body, $contact['url']);
 
 		self::storeMentions($datarray['uri-id'], $text);
 		Tag::storeRawTagsFromBody($datarray['uri-id'], $datarray['body']);
@@ -2718,7 +2710,6 @@ class Diaspora
 		}
 
 		$datarray['plink'] = self::plink($author, $guid);
-		$datarray['private'] = (($public == 'false') ? Item::PRIVATE : Item::PUBLIC);
 		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = $created_at;
 
 		if (isset($address['address'])) {
@@ -2839,7 +2830,7 @@ class Diaspora
 	public static function buildMagicEnvelope(string $msg, array $user): string
 	{
 		$b64url_data = Strings::base64UrlEncode($msg);
-		$data = str_replace(["\n", "\r", " ", "\t"], ['', '', '', ''], $b64url_data);
+		$data = str_replace(["\n", "\r", ' ', "\t"], ['', '', '', ''], $b64url_data);
 
 		$key_id = Strings::base64UrlEncode(self::myHandle($user));
 		$type = 'application/xml';
@@ -2857,11 +2848,11 @@ class Diaspora
 
 		$xmldata = [
 			'me:env' => [
-				'me:data' => $data,
-				'@attributes' => ['type' => $type],
-				'me:encoding' => $encoding,
-				'me:alg' => $alg,
-				'me:sig' => $sig,
+				'me:data'      => $data,
+				'@attributes'  => ['type' => $type],
+				'me:encoding'  => $encoding,
+				'me:alg'       => $alg,
+				'me:sig'       => $sig,
 				'@attributes2' => ['key_id' => $key_id]
 			]
 		];

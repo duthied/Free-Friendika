@@ -143,6 +143,7 @@ class TrustedBrowser
 
 	/**
 	 * @param int $local_user
+	 *
 	 * @return bool
 	 */
 	public function removeAllForUser(int $local_user): bool
