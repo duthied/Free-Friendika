@@ -42,7 +42,6 @@ use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPException;
-use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Delivery;
 use Friendica\Util\Crypto;
@@ -268,7 +267,7 @@ class Diaspora
 				if ($no_exit) {
 					return false;
 				} else {
-					throw new BadRequestException();
+					throw new HTTPException\BadRequestException();
 				}
 			}
 		} else {
@@ -282,7 +281,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				throw new BadRequestException();
+				throw new HTTPException\BadRequestException();
 			}
 		}
 
@@ -308,7 +307,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				throw new BadRequestException();
+				throw new HTTPException\BadRequestException();
 			}
 		}
 
@@ -323,7 +322,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				throw new BadRequestException();
+				throw new HTTPException\BadRequestException();
 			}
 		}
 
@@ -333,7 +332,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				throw new BadRequestException();
+				throw new HTTPException\BadRequestException();
 			}
 		}
 
@@ -425,7 +424,7 @@ class Diaspora
 
 		if (!$base) {
 			Logger::notice('unable to locate salmon data in xml');
-			throw new BadRequestException();
+			throw new HTTPException\BadRequestException();
 		}
 
 
@@ -465,14 +464,14 @@ class Diaspora
 		$key = self::key($author);
 		if (!$key) {
 			Logger::notice('Could not retrieve author key.');
-			throw new BadRequestException();
+			throw new HTTPException\BadRequestException();
 		}
 
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 
 		if (!$verify) {
 			Logger::notice('Message did not verify. Discarding.');
-			throw new BadRequestException();
+			throw new HTTPException\BadRequestException();
 		}
 
 		Logger::info('Message verified.');
@@ -2686,7 +2685,6 @@ class Diaspora
 			$datarray['object-type'] = Activity\ObjectType::IMAGE;
 			$datarray['post-type'] = Item::PT_IMAGE;
 		} elseif ($data->poll) {
-			$datarray['object-type'] = Activity\ObjectType::NOTE;
 			$datarray['post-type'] = Item::PT_POLL;
 		}
 
