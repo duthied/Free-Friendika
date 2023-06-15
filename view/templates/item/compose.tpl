@@ -47,6 +47,9 @@
 					<button id="button_emojipicker" type="button" class="btn btn-sm template-icon emojis" aria-label="{{$l10n.edemojis}}" title="{{$l10n.edemojis}}" tabindex="14">
 						<i class="fa fa-smile-o"></i>
 					</button>
+					<button type="button" class="btn btn-sm template-icon bb-url" aria-label="{{$l10n.contentwarn}}" title="{{$l10n.contentwarn}}" onclick="insertFormatting('abstract',{{$id}});" tabindex="9">
+						<i class="fa fa-eye"></i>
+					</button>
 				</span>
 			</p>
 			<div id="dropzone-{{$id}}" class="dropzone" style="overflow:scroll">
