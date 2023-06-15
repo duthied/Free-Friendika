@@ -291,16 +291,17 @@ class Receiver
 	/**
 	 * Prepare the object array
 	 *
-	 * @param array   $activity     Array with activity data
-	 * @param integer $uid          User ID
-	 * @param boolean $push         Message had been pushed to our system
-	 * @param boolean $trust_source Do we trust the source?
+	 * @param array   $activity       Array with activity data
+	 * @param integer $uid            User ID
+	 * @param boolean $push           Message had been pushed to our system
+	 * @param boolean $trust_source   Do we trust the source?
+	 * @param string  $original_actor Actor of the original activity. Used for receiver detection. (Optional)
 	 *
 	 * @return array with object data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function prepareObjectData(array $activity, int $uid, bool $push, bool &$trust_source): array
+	public static function prepareObjectData(array $activity, int $uid, bool $push, bool &$trust_source, string $original_actor = ''): array
 	{
 		$id        = JsonLD::fetchElement($activity, '@id');
 		$type      = JsonLD::fetchElement($activity, '@type');
@@ -319,7 +320,7 @@ class Receiver
 		$fetched = false;
 
 		if (!empty($id) && !$trust_source) {
-			$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
+			$fetch_uid = $uid ?: self::getBestUserForActivity($activity, $original_actor);
 
 			$fetched_activity = Processor::fetchCachedActivity($fetch_id, $fetch_uid);
 			if (!empty($fetched_activity)) {
@@ -355,7 +356,7 @@ class Receiver
 		$type = JsonLD::fetchElement($activity, '@type');
 
 		// Fetch all receivers from to, cc, bto and bcc
-		$receiverdata = self::getReceivers($activity, $actor, [], false, $push || $fetched);
+		$receiverdata = self::getReceivers($activity, $original_actor ?: $actor, [], false, $push || $fetched);
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];
@@ -379,7 +380,7 @@ class Receiver
 
 		// We possibly need some user to fetch private content,
 		// so we fetch one out of the receivers if no uid is provided.
-		$fetch_uid = $uid ?: self::getBestUserForActivity($activity);
+		$fetch_uid = $uid ?: self::getBestUserForActivity($activity, $original_actor);
 
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
 		if (empty($object_id)) {
@@ -393,28 +394,6 @@ class Receiver
 		}
 
 		$object_type = self::fetchObjectType($activity, $object_id, $fetch_uid);
-
-		// Fetch the activity on Lemmy "Announce" messages (announces of activities)
-		if (($type == 'as:Announce') && in_array($object_type, array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
-			Logger::debug('Fetch announced activity', ['object' => $object_id, 'uid' => $fetch_uid]);
-			$data = Processor::fetchCachedActivity($object_id, $fetch_uid);
-			if (!empty($data)) {
-				$type = $object_type;
-				$announced_activity = JsonLD::compact($data);
-
-				// Some variables need to be refetched since the activity changed
-				$actor = JsonLD::fetchElement($announced_activity, 'as:actor', '@id');
-				$announced_id = JsonLD::fetchElement($announced_activity, 'as:object', '@id');
-				if (empty($announced_id)) {
-					Logger::warning('No object id in announced activity', ['id' => $object_id, 'activity' => $activity, 'announced' => $announced_activity]);
-					return [];
-				} else {
-					$activity  = $announced_activity;
-					$object_id = $announced_id;
-				}
-				$object_type = self::fetchObjectType($activity, $object_id, $fetch_uid);
-			}
-		}
 
 		// Any activities on account types must not be altered
 		if (in_array($type, ['as:Flag'])) {
@@ -454,7 +433,7 @@ class Receiver
 		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Announce', 'as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of each individual array element.
-			$object_data = self::processObject($activity);
+			$object_data = self::processObject($activity, $original_actor);
 			$object_data['name'] = $type;
 			$object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
 			$object_data['object_id'] = $object_id;
@@ -598,18 +577,32 @@ class Receiver
 			}
 		}
 
-		// $trust_source is called by reference and is set to true if the content was retrieved successfully
-		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source);
-		if (empty($object_data)) {
-			Logger::info('No object data found', ['activity' => $activity]);
-			return true;
+		// Lemmy announces activities.
+		// To simplify the further processing, we modify the received object.
+		// For announced "create" activities we remove the middle layer.
+		// For the rest (like, dislike, update, ...) we just process the activity directly.
+		$original_actor = '';
+		$object_type = JsonLD::fetchElement($activity['as:object'] ?? [], '@type');
+		if (($type == 'as:Announce') && !empty($object_type) && !in_array($object_type, self::CONTENT_TYPES) && self::isGroup($actor)) {
+			$object_object_type = JsonLD::fetchElement($activity['as:object']['as:object'] ?? [], '@type');
+			if (in_array($object_type, ['as:Create']) && in_array($object_object_type, self::CONTENT_TYPES)) {
+				Logger::debug('Replace "create" activity with inner object', ['type' => $object_type, 'object_type' => $object_object_type]);
+				$activity['as:object'] = $activity['as:object']['as:object'];
+			} elseif (in_array($object_type, array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
+				Logger::debug('Change announced activity to activity', ['type' => $object_type]);
+				$original_actor = $actor;
+				$type = $object_type;
+				$activity = $activity['as:object'];
+			} else {
+				Logger::info('Unhandled announced activity', ['type' => $object_type, 'object_type' => $object_object_type]);
+			}
 		}
 
-		// Lemmy is announcing activities.
-		// We are changing the announces into regular activities.
-		if (($type == 'as:Announce') && in_array($object_data['type'] ?? '', array_merge(self::ACTIVITY_TYPES, ['as:Delete', 'as:Undo', 'as:Update']))) {
-			Logger::debug('Change type of announce to activity', ['type' => $object_data['type']]);
-			$type = $object_data['type'];
+		// $trust_source is called by reference and is set to true if the content was retrieved successfully
+		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source, $original_actor);
+		if (empty($object_data)) {
+			Logger::info('No object data found', ['activity' => $activity, 'callstack' => System::callstack(20)]);
+			return true;
 		}
 
 		if (!empty($body) && empty($object_data['raw'])) {
@@ -686,6 +679,18 @@ class Receiver
 			Queue::remove($object_data);
 		}
 		return true;
+	}
+
+	/**
+	 * Checks if the provided actor is a group account
+	 *
+	 * @param string $actor
+	 * @return boolean
+	 */
+	private static function isGroup(string $actor): bool
+	{
+		$profile = APContact::getByURL($actor);
+		return ($profile['type'] ?? '') == 'Group';
 	}
 
 	/**
@@ -1009,10 +1014,10 @@ class Receiver
 	 *
 	 * @return int   user id
 	 */
-	public static function getBestUserForActivity(array $activity): int
+	public static function getBestUserForActivity(array $activity, string $actor = ''): int
 	{
 		$uid = 0;
-		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id') ?? '';
+		$actor = $actor ?: JsonLD::fetchElement($activity, 'as:actor', '@id') ?? '';
 
 		$receivers = self::getReceivers($activity, $actor, [], false, false);
 		foreach ($receivers as $receiver) {
@@ -1129,7 +1134,7 @@ class Receiver
 				}
 
 				// Fetch the receivers for the public and the followers collection
-				if ((($receiver == $followers) || (($receiver == self::PUBLIC_COLLECTION) && !$isGroup)) && !empty($actor)) {
+				if ((($receiver == $followers) || (($receiver == self::PUBLIC_COLLECTION) && !$isGroup) || ($isGroup && ($element == 'as:audience'))) && !empty($actor)) {
 					$receivers = self::getReceiverForActor($actor, $tags, $receivers, $follower_target, $profile);
 					continue;
 				}
@@ -1196,12 +1201,16 @@ class Receiver
 		// "birdsitelive" is a service that mirrors tweets into the fediverse
 		// These posts can be fetched without authentication, but are not marked as public
 		// We treat them as unlisted posts to be able to handle them.
+		// We always process deletion activities.
+		$activity_type = JsonLD::fetchElement($activity, '@type');
 		if (empty($receivers) && $fetch_unlisted && Contact::isPlatform($actor, 'birdsitelive')) {
 			$receivers[0]  = ['uid' => 0, 'type' => self::TARGET_GLOBAL];
 			$receivers[-1] = ['uid' => -1, 'type' => self::TARGET_GLOBAL];
 			Logger::notice('Post from "birdsitelive" is set to "unlisted"', ['id' => JsonLD::fetchElement($activity, '@id')]);
+		} elseif (empty($receivers) && in_array($activity_type, ['as:Delete', 'as:Undo'])) {
+			$receivers[0] = ['uid' => 0, 'type' => self::TARGET_GLOBAL];
 		} elseif (empty($receivers)) {
-			Logger::notice('Post has got no receivers', ['fetch_unlisted' => $fetch_unlisted, 'actor' => $actor, 'id' => JsonLD::fetchElement($activity, '@id'), 'type' => JsonLD::fetchElement($activity, '@type')]);
+			Logger::notice('Post has got no receivers', ['fetch_unlisted' => $fetch_unlisted, 'actor' => $actor, 'id' => JsonLD::fetchElement($activity, '@id'), 'type' => $activity_type, 'callstack' => System::callstack(20)]);
 		}
 
 		return $receivers;
@@ -1437,21 +1446,9 @@ class Receiver
 			return false;
 		}
 
-		// Lemmy is resharing "create" activities instead of content
-		// We fetch the content from the activity.
-		if (in_array($type, ['as:Create'])) {
-			$object = $object['as:object'];
-			$type = JsonLD::fetchElement($object, '@type');
-			if (empty($type)) {
-				Logger::info('Empty type');
-				return false;
-			}
-			$object_data = self::processObject($object);
-		}
-
 		// We currently don't handle 'pt:CacheFile', but with this step we avoid logging
 		if (in_array($type, self::CONTENT_TYPES) || ($type == 'pt:CacheFile')) {
-			$object_data = self::processObject($object);
+			$object_data = self::processObject($object, '');
 
 			if (!empty($data)) {
 				$object_data['raw-object'] = json_encode($data);
@@ -1855,12 +1852,13 @@ class Receiver
 	/**
 	 * Fetches data from the object part of an activity
 	 *
-	 * @param array $object
+	 * @param array  $object
+	 * @param string $actor
 	 *
 	 * @return array|bool Object data or FALSE if $object does not contain @id element
 	 * @throws \Exception
 	 */
-	private static function processObject(array $object)
+	private static function processObject(array $object, string $actor)
 	{
 		if (!JsonLD::fetchElement($object, '@id')) {
 			return false;
@@ -1868,7 +1866,7 @@ class Receiver
 
 		$object_data = self::getObjectDataFromActivity($object);
 
-		$receiverdata = self::getReceivers($object, $object_data['actor'] ?? '', $object_data['tags'], true, false);
+		$receiverdata = self::getReceivers($object, $actor ?: $object_data['actor'] ?? '', $object_data['tags'], true, false);
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];

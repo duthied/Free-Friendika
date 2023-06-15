@@ -119,6 +119,11 @@ class APContact
 			return [];
 		}
 
+		if (!Network::isValidHttpUrl($url) && !filter_var($url, FILTER_VALIDATE_EMAIL)) {
+			Logger::info('Invalid URL', ['url' => $url]);
+			return [];
+		}
+
 		$fetched_contact = [];
 
 		if (empty($update)) {

@@ -1533,6 +1533,7 @@ class Processor
 		$activity['id'] = $object['id'];
 		$activity['to'] = $object['to'] ?? [];
 		$activity['cc'] = $object['cc'] ?? [];
+		$activity['audience'] = $object['audience'] ?? [];
 		$activity['actor'] = $actor;
 		$activity['object'] = $object;
 		$activity['published'] = $published;

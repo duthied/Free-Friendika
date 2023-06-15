@@ -2210,8 +2210,6 @@ class Item
 	 */
 	private static function tagDeliver(int $uid, int $item_id): bool
 	{
-		$mention = false;
-
 		$owner = User::getOwnerDataById($uid);
 		if (!DBA::isResult($owner)) {
 			Logger::warning('User not found, quitting here.', ['uid' => $uid]);
@@ -3664,6 +3662,7 @@ class Item
 
 	/**
 	 * Does the given uri-id belongs to a post that is sent as starting post to a group?
+	 * This does not apply to posts that are sent only in parallel to a group.
 	 *
 	 * @param int $uri_id
 	 *
@@ -3671,7 +3670,13 @@ class Item
 	 */
 	public static function isGroupPost(int $uri_id): bool
 	{
-		foreach (Tag::getByURIId($uri_id, [Tag::EXCLUSIVE_MENTION]) as $tag) {
+		if (Post::exists(['private' => Item::PUBLIC, 'uri-id' => $uri_id])) {
+			return false;
+		}
+
+		foreach (Tag::getByURIId($uri_id, [Tag::EXCLUSIVE_MENTION, Tag::AUDIENCE]) as $tag) {
+			// @todo Possibly check for a public audience in the future, see https://socialhub.activitypub.rocks/t/fep-1b12-group-federation/2724
+			// and https://codeberg.org/fediverse/fep/src/branch/main/feps/fep-1b12.md
 			if (DBA::exists('contact', ['uid' => 0, 'nurl' => Strings::normaliseLink($tag['url']), 'contact-type' => Contact::TYPE_COMMUNITY])) {
 				return true;
 			}

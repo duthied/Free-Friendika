@@ -492,13 +492,12 @@ class Transmitter
 	 * Returns an array with permissions of the thread parent of the given item array
 	 *
 	 * @param array $item
-	 * @param bool  $is_group_thread
 	 *
 	 * @return array with permissions
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchPermissionBlockFromThreadParent(array $item, bool $is_group_thread): array
+	private static function fetchPermissionBlockFromThreadParent(array $item): array
 	{
 		if (empty($item['thr-parent-id'])) {
 			return [];
@@ -514,6 +513,7 @@ class Transmitter
 			'cc' => [],
 			'bto' => [],
 			'bcc' => [],
+			'audience' => [],
 		];
 
 		$parent_profile = APContact::getByURL($parent['author-link']);
@@ -525,12 +525,10 @@ class Transmitter
 			$exclude[] = $item['owner-link'];
 		}
 
-		$type = [Tag::TO => 'to', Tag::CC => 'cc', Tag::BTO => 'bto', Tag::BCC => 'bcc'];
-		foreach (Tag::getByURIId($item['thr-parent-id'], [Tag::TO, Tag::CC, Tag::BTO, Tag::BCC]) as $receiver) {
+		$type = [Tag::TO => 'to', Tag::CC => 'cc', Tag::BTO => 'bto', Tag::BCC => 'bcc', Tag::AUDIENCE => 'audience'];
+		foreach (Tag::getByURIId($item['thr-parent-id'], [Tag::TO, Tag::CC, Tag::BTO, Tag::BCC, Tag::AUDIENCE]) as $receiver) {
 			if (!empty($parent_profile['followers']) && $receiver['url'] == $parent_profile['followers'] && !empty($item_profile['followers'])) {
-				if (!$is_group_thread) {
-					$permissions[$type[$receiver['type']]][] = $item_profile['followers'];
-				}
+				$permissions[$type[$receiver['type']]][] = $item_profile['followers'];
 			} elseif (!in_array($receiver['url'], $exclude)) {
 				$permissions[$type[$receiver['type']]][] = $receiver['url'];
 			}
@@ -600,6 +598,42 @@ class Transmitter
 			$is_group_thread = false;
 		}
 
+		$exclusive = false;
+		$mention   = false;
+
+		$parent_tags = Tag::getByURIId($item['parent-uri-id'], [Tag::AUDIENCE, Tag::MENTION]);
+		if (!empty($parent_tags)) {
+			$is_group_thread = false;
+			foreach ($parent_tags as $tag) {
+				if ($tag['type'] != Tag::AUDIENCE) {
+					continue;
+				}
+				$profile = APContact::getByURL($tag['url'], false);
+				if (!empty($profile) && ($profile['type'] == 'Group')) {
+					$is_group_thread = true;
+				}
+			}
+			if ($is_group_thread) {
+				foreach ($parent_tags as $tag) {
+					if (($tag['type'] == Tag::MENTION) && ($tag['url'] == $profile['url'])) {
+						$mention = false;
+					}
+				}
+				$exclusive = !$mention;
+			}
+		} elseif ($is_group_thread) {
+			foreach (Tag::getByURIId($item['parent-uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $term) {
+				$profile = APContact::getByURL($term['url'], false);
+				if (!empty($profile) && ($profile['type'] == 'Group')) {
+					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
+						$exclusive = true;
+					} elseif ($term['type'] == Tag::MENTION) {
+						$mention = true;
+					}
+				}
+			}
+		}
+
 		if (self::isAnnounce($item) || self::isAPPost($last_id)) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
@@ -616,21 +650,6 @@ class Transmitter
 			$actor_profile = APContact::getByURL($item['author-link']);
 		}
 
-		$exclusive = false;
-		$mention   = false;
-
-		if ($is_group_thread) {
-			foreach (Tag::getByURIId($item['parent-uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $term) {
-				$profile = APContact::getByURL($term['url'], false);
-				if (!empty($profile) && ($profile['type'] == 'Group')) {
-					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
-						$exclusive = true;
-					} elseif ($term['type'] == Tag::MENTION) {
-						$mention = true;
-					}
-				}
-			}
-		}
 
 		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
@@ -644,7 +663,9 @@ class Transmitter
 				$data['cc'][] = $announce['actor']['url'];
 			}
 
-			$data = array_merge($data, self::fetchPermissionBlockFromThreadParent($item, $is_group_thread));
+			if (!$is_group_thread) {
+				$data = array_merge($data, self::fetchPermissionBlockFromThreadParent($item));
+			}
 
 			// Check if the item is completely public or unlisted
 			if ($item['private'] == Item::PUBLIC) {
@@ -727,7 +748,7 @@ class Transmitter
 			}
 		}
 
-		if (!empty($item['parent'])) {
+		if (!empty($item['parent']) && (!$is_group_thread || ($item['private'] == Item::PRIVATE))) {
 			if ($item['private'] == Item::PRIVATE) {
 				$condition = ['parent' => $item['parent'], 'uri-id' => $item['thr-parent-id']];
 			} else {
@@ -814,20 +835,13 @@ class Transmitter
 			}
 		}
 
-		$receivers = ['to' => array_values($data['to']), 'cc' => array_values($data['cc']), 'bcc' => array_values($data['bcc'])];
-
-		if (!empty($data['audience'])) {
-			$receivers['audience'] = array_values($data['audience']);
-			if (count($receivers['audience']) == 1) {
-				$receivers['audience'] = $receivers['audience'][0];
-			}
-		}
+		$receivers = ['to' => array_values($data['to']), 'cc' => array_values($data['cc']), 'bcc' => array_values($data['bcc']), 'audience' => array_values($data['audience'])];
 
 		if (!$blindcopy) {
 			unset($receivers['bcc']);
 		}
 
-		foreach (['to' => Tag::TO, 'cc' => Tag::CC, 'bcc' => Tag::BCC] as $element => $type) {
+		foreach (['to' => Tag::TO, 'cc' => Tag::CC, 'bcc' => Tag::BCC, 'audience' => Tag::AUDIENCE] as $element => $type) {
 			if (!empty($receivers[$element])) {
 				foreach ($receivers[$element] as $receiver) {
 					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
@@ -838,6 +852,12 @@ class Transmitter
 					Tag::store($item['uri-id'], $type, $name, $receiver);
 				}
 			}
+		}
+
+		if (!$blindcopy && count($receivers['audience']) == 1) {
+			$receivers['audience'] = $receivers['audience'][0];
+		} elseif (!$receivers['audience']) {
+			unset($receivers['audience']);
 		}
 
 		return $receivers;
@@ -976,7 +996,7 @@ class Transmitter
 
 		$profile_uid = User::getIdForURL($item_profile['url']);
 
-		foreach (['to', 'cc', 'bto', 'bcc'] as $element) {
+		foreach (['to', 'cc', 'bto', 'bcc', 'audience'] as $element) {
 			if (empty($permissions[$element])) {
 				continue;
 			}
@@ -1000,7 +1020,7 @@ class Transmitter
 						} else {
 							$target = $profile['sharedinbox'];
 						}
-						if (!self::archivedInbox($target)) {
+						if (!self::archivedInbox($target) && !in_array($contact['id'], $inboxes[$target] ?? [])) {
 							$inboxes[$target][] = $contact['id'] ?? 0;
 						}
 					}
@@ -1101,12 +1121,14 @@ class Transmitter
 
 		unset($data['cc']);
 		unset($data['bcc']);
+		unset($data['audience']);
 
 		$object['to'] = $data['to'];
 		$object['tag'] = [['type' => 'Mention', 'href' => $object['to'][0], 'name' => '']];
 
 		unset($object['cc']);
 		unset($object['bcc']);
+		unset($object['audience']);
 
 		$data['directMessage'] = true;
 

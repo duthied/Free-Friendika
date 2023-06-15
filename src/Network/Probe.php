@@ -341,7 +341,6 @@ class Probe
 	 * @param string  $uri     Address that should be probed
 	 * @param string  $network Test for this specific network
 	 * @param integer $uid     User ID for the probe (only used for mails)
-	 * @param boolean $cache   Use cached values?
 	 *
 	 * @return array uri data
 	 * @throws HTTPException\InternalServerErrorException
