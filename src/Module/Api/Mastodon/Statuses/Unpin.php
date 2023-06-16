@@ -48,6 +48,9 @@ class Unpin extends BaseApi
 
 		Post\Collection::remove($item['uri-id'], Post\Collection::FEATURED, $uid);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
+		// @TODO Remove once mstdnStatus()->createFromUriId is fixed
+		$isReblog = $item['uri-id'] != $this->parameters['id'];
+
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes(), $isReblog)->toArray());
 	}
 }

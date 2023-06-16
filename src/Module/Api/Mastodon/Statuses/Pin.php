@@ -48,6 +48,9 @@ class Pin extends BaseApi
 
 		Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, $item['author-id'], $uid);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
+		// @TODO Remove once mstdnStatus()->createFromUriId is fixed
+		$isReblog = $item['uri-id'] != $this->parameters['id'];
+
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes(),$isReblog)->toArray());
 	}
 }

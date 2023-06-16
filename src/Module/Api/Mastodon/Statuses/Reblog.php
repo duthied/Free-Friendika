@@ -45,7 +45,7 @@ class Reblog extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectOriginalForUser($uid, ['id', 'network'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectOriginalForUser($uid, ['id', 'uri-id', 'network'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -58,6 +58,9 @@ class Reblog extends BaseApi
 			Item::performActivity($item['id'], 'announce', $uid);
 		}
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
+		// @TODO Remove once mstdnStatus()->createFromUriId is fixed
+		$isReblog = $item['uri-id'] != $this->parameters['id'];
+
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes(), $isReblog)->toArray());
 	}
 }
