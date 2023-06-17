@@ -119,8 +119,8 @@ class Magic extends BaseModule
 		$basepath = $gserver['url'];
 
 		$header = [
-			'Accept'          => ['application/x-dfrn+json', 'application/x-zot+json'],
-			'X-Open-Web-Auth' => [Strings::getRandomHex()],
+			'Accept'          => 'application/x-dfrn+json, application/x-zot+json',
+			'X-Open-Web-Auth' => Strings::getRandomHex()
 		];
 
 		// Create a header that is signed with the local users private key.

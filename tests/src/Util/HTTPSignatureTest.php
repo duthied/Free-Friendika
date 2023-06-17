@@ -124,8 +124,8 @@ G1vVmRgkLDqhc4+r3wDz3qy6JpV7tg==
 -----END PRIVATE KEY-----',
 				'keyId'  => 'acct:admin@friendica.local',
 				'header' => [
-					'Accept'          => ['application/x-dfrn+json', 'application/x-zot+json'],
-					'X-Open-Web-Auth' => ['1dde649b855fd1aae542a91c4edd8c3a7a4c59d8eaf3136cdee05dfc16a30bac'],
+					'Accept'          => 'application/x-dfrn+json, application/x-zot+json',
+					'X-Open-Web-Auth' => '1dde649b855fd1aae542a91c4edd8c3a7a4c59d8eaf3136cdee05dfc16a30bac'
 				],
 				'signature' => 'Signature keyId="acct:admin@friendica.local",algorithm="rsa-sha512",headers="accept x-open-web-auth",signature="cb09/wdmRdFhrQUczL0lR6LTkVh8qb/vYh70DFCW40QrzvuUYHzJ+GqqJW6tcCb2rXP4t+aobWKfZ4wFMBtVbejAiCgF01pzEBJfDevdyu7khlfKo+Gtw1CGk4/0so1QmqASeHdlG3ID3GnmuovqZn2v5f5D+1UAJ6Pu6mtAXrGRntoEM/oqYBAsRrMtDSDAE4tnOSDu2YfVJJLfyUX1ZWjUK0ejZXZ0YTDJwU8PqRcRX17NhBaDq82dEHlfhD7I/aOclwVbfKIi5Ud619XCxPq0sAAYso17MhUm40oBCJVze2x4pswJhv9IFYohtR5G/fKkz2eosu3xeRflvGicS4JdclhTRgCGWDy10DV76FiXiS5N2clLXreHItWEXlZKZx6m9zAZoEX92VRnc4BY4jDsRR89Pl88hELaxiNipviyHS7XYZTRnkLM+nvtOcxkHSCbEs7oGw+AX+pLHoU5otNOqy+ZbXQ1cUvFOBYZmYdX3DiWaLfBKraakPkslJuU3yJu95X1qYmQTpOZDR4Ma/yf5fmWJh5D9ywnXxxd6RaupoO6HTtIl6gmsfcsyZNi5hRbbgPI3BiQwGYVGF6qzJpEOMzEyHyAuFeanhicc8b+P+DCwXni5sjM7ntKwShbCBP80KHSdoumORin3/PYgHCmHZVv71N0HNlPZnyVzZw="',
 			]
