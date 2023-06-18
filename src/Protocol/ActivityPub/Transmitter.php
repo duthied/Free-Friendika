@@ -497,7 +497,7 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchPermissionBlockFromThreadParent(array $item): array
+	private static function fetchPermissionBlockFromThreadParent(array $item, bool $is_group_thread): array
 	{
 		if (empty($item['thr-parent-id'])) {
 			return [];
@@ -528,7 +528,9 @@ class Transmitter
 		$type = [Tag::TO => 'to', Tag::CC => 'cc', Tag::BTO => 'bto', Tag::BCC => 'bcc', Tag::AUDIENCE => 'audience'];
 		foreach (Tag::getByURIId($item['thr-parent-id'], [Tag::TO, Tag::CC, Tag::BTO, Tag::BCC, Tag::AUDIENCE]) as $receiver) {
 			if (!empty($parent_profile['followers']) && $receiver['url'] == $parent_profile['followers'] && !empty($item_profile['followers'])) {
-				$permissions[$type[$receiver['type']]][] = $item_profile['followers'];
+				if (!$is_group_thread) {
+					$permissions[$type[$receiver['type']]][] = $item_profile['followers'];
+				}
 			} elseif (!in_array($receiver['url'], $exclude)) {
 				$permissions[$type[$receiver['type']]][] = $receiver['url'];
 			}
@@ -600,6 +602,7 @@ class Transmitter
 
 		$exclusive = false;
 		$mention   = false;
+		$audience  = [];
 
 		$parent_tags = Tag::getByURIId($item['parent-uri-id'], [Tag::AUDIENCE, Tag::MENTION]);
 		if (!empty($parent_tags)) {
@@ -610,13 +613,14 @@ class Transmitter
 				}
 				$profile = APContact::getByURL($tag['url'], false);
 				if (!empty($profile) && ($profile['type'] == 'Group')) {
+					$audience[] = $tag['url'];
 					$is_group_thread = true;
 				}
 			}
 			if ($is_group_thread) {
 				foreach ($parent_tags as $tag) {
-					if (($tag['type'] == Tag::MENTION) && ($tag['url'] == $profile['url'])) {
-						$mention = false;
+					if (($tag['type'] == Tag::MENTION) && in_array($tag['url'], $audience)) {
+						$mention = true;
 					}
 				}
 				$exclusive = !$mention;
@@ -626,7 +630,8 @@ class Transmitter
 				$profile = APContact::getByURL($term['url'], false);
 				if (!empty($profile) && ($profile['type'] == 'Group')) {
 					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
-						$exclusive = true;
+						$audience[] = $term['url'];
+						$exclusive  = true;
 					} elseif ($term['type'] == Tag::MENTION) {
 						$mention = true;
 					}
@@ -642,7 +647,7 @@ class Transmitter
 			$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
 		}
 
-		$data = ['to' => [], 'cc' => [], 'bcc' => [] , 'audience' => []];
+		$data = ['to' => [], 'cc' => [], 'bcc' => [] , 'audience' => $audience];
 
 		if ($item['gravity'] == Item::GRAVITY_PARENT) {
 			$actor_profile = APContact::getByURL($item['owner-link']);
@@ -650,8 +655,7 @@ class Transmitter
 			$actor_profile = APContact::getByURL($item['author-link']);
 		}
 
-
-		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
+		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION, Tag::AUDIENCE]);
 
 		if ($item['private'] != Item::PRIVATE) {
 			// Directly mention the original author upon a quoted reshare.
@@ -663,8 +667,8 @@ class Transmitter
 				$data['cc'][] = $announce['actor']['url'];
 			}
 
-			if (!$is_group_thread) {
-				$data = array_merge($data, self::fetchPermissionBlockFromThreadParent($item));
+			if (!$exclusive) {
+				$data = array_merge($data, self::fetchPermissionBlockFromThreadParent($item, $is_group_thread));
 			}
 
 			// Check if the item is completely public or unlisted
@@ -677,6 +681,9 @@ class Transmitter
 			foreach ($terms as $term) {
 				$profile = APContact::getByURL($term['url'], false);
 				if (!empty($profile)) {
+					if (($term['type'] == Tag::AUDIENCE) && ($profile['type'] == 'Group')) {
+						$data['audience'][] = $profile['url'];
+					}
 					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
 						$exclusive = true;
 						if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
@@ -705,6 +712,9 @@ class Transmitter
 
 					$profile = APContact::getByURL($term['url'], false);
 					if (!empty($profile)) {
+						if (($term['type'] == Tag::AUDIENCE) && ($profile['type'] == 'Group')) {
+							$data['audience'][] = $profile['url'];
+						}
 						if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
 							$exclusive = true;
 							if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
@@ -748,7 +758,7 @@ class Transmitter
 			}
 		}
 
-		if (!empty($item['parent']) && (!$is_group_thread || ($item['private'] == Item::PRIVATE))) {
+		if (!empty($item['parent']) && (!$exclusive || ($item['private'] == Item::PRIVATE))) {
 			if ($item['private'] == Item::PRIVATE) {
 				$condition = ['parent' => $item['parent'], 'uri-id' => $item['thr-parent-id']];
 			} else {
