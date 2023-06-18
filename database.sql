@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1520
+-- DB_UPDATE_VERSION 1521
 -- ------------------------------------------
 
 
@@ -1968,6 +1968,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`author`.`addr` AS `author-addr`,
 	IF (`contact`.`url` = `author`.`url` AND `contact`.`name` != '', `contact`.`name`, `author`.`name`) AS `author-name`,
 	`author`.`nick` AS `author-nick`,
+	`author`.`alias` AS `author-alias`,
 	IF (`contact`.`url` = `author`.`url` AND `contact`.`thumb` != '', `contact`.`thumb`, `author`.`thumb`) AS `author-avatar`,
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
@@ -1980,6 +1981,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`owner`.`addr` AS `owner-addr`,
 	IF (`contact`.`url` = `owner`.`url` AND `contact`.`name` != '', `contact`.`name`, `owner`.`name`) AS `owner-name`,
 	`owner`.`nick` AS `owner-nick`,
+	`owner`.`alias` AS `owner-alias`,
 	IF (`contact`.`url` = `owner`.`url` AND `contact`.`thumb` != '', `contact`.`thumb`, `owner`.`thumb`) AS `owner-avatar`,
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
@@ -2145,6 +2147,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`author`.`addr` AS `author-addr`,
 	IF (`contact`.`url` = `author`.`url` AND `contact`.`name` != '', `contact`.`name`, `author`.`name`) AS `author-name`,
 	`author`.`nick` AS `author-nick`,
+	`author`.`alias` AS `author-alias`,
 	IF (`contact`.`url` = `author`.`url` AND `contact`.`thumb` != '', `contact`.`thumb`, `author`.`thumb`) AS `author-avatar`,
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
@@ -2157,6 +2160,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`owner`.`addr` AS `owner-addr`,
 	IF (`contact`.`url` = `owner`.`url` AND `contact`.`name` != '', `contact`.`name`, `owner`.`name`) AS `owner-name`,
 	`owner`.`nick` AS `owner-nick`,
+	`owner`.`alias` AS `owner-alias`,
 	IF (`contact`.`url` = `owner`.`url` AND `contact`.`thumb` != '', `contact`.`thumb`, `owner`.`thumb`) AS `owner-avatar`,
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
@@ -2308,6 +2312,7 @@ CREATE VIEW `post-view` AS SELECT
 	`author`.`addr` AS `author-addr`,
 	`author`.`name` AS `author-name`,
 	`author`.`nick` AS `author-nick`,
+	`author`.`alias` AS `author-alias`,
 	`author`.`thumb` AS `author-avatar`,
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
@@ -2320,6 +2325,7 @@ CREATE VIEW `post-view` AS SELECT
 	`owner`.`addr` AS `owner-addr`,
 	`owner`.`name` AS `owner-name`,
 	`owner`.`nick` AS `owner-nick`,
+	`owner`.`alias` AS `owner-alias`,
 	`owner`.`thumb` AS `owner-avatar`,
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
@@ -2448,6 +2454,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`author`.`addr` AS `author-addr`,
 	`author`.`name` AS `author-name`,
 	`author`.`nick` AS `author-nick`,
+	`author`.`alias` AS `author-alias`,
 	`author`.`thumb` AS `author-avatar`,
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
@@ -2460,6 +2467,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`owner`.`addr` AS `owner-addr`,
 	`owner`.`name` AS `owner-name`,
 	`owner`.`nick` AS `owner-nick`,
+	`owner`.`alias` AS `owner-alias`,
 	`owner`.`thumb` AS `owner-avatar`,
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
