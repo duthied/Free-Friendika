@@ -437,6 +437,18 @@ class Processor
 			$item['isGroup'] = ($actor['type'] ?? 'Person') == 'Group';
 		}
 
+		if (!$item['isGroup'] && !empty($activity['receiver_urls']['as:audience'])) {
+			foreach ($activity['receiver_urls']['as:audience'] as $audience) {
+				$actor = APContact::getByURL($audience, false);
+				if (($actor['type'] ?? 'Person') == 'Group') {
+					Logger::debug('Set owner to audience', ['audience' => $audience, 'actor' => $activity['actor'], 'author' => $activity['author']]);
+					$item['isGroup']    = true;
+					$item['owner-link'] = $audience;
+					$item['owner-id']   = Contact::getIdForURL($audience);
+				}
+			}
+		}
+
 		$item['uri'] = $activity['id'];
 
 		if (empty($activity['published']) || empty($activity['updated'])) {
@@ -1060,9 +1072,9 @@ class Processor
 			}
 
 			if ($item['isGroup'] ?? false) {
-				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver);
+				$item['contact-id'] = Contact::getIdForURL($item['owner-link'], $receiver);
 			} else {
-				$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver);
+				$item['contact-id'] = Contact::getIdForURL($item['author-link'], $receiver);
 			}
 
 			if (($receiver != 0) && empty($item['contact-id'])) {
