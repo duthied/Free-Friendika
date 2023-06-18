@@ -553,7 +553,8 @@ class Event
 			WHERE `event`.`id` = ?
 			  AND `event`.`uid` = ?
 			  $sql_perms",
-			$event_id, $owner_uid
+			$event_id,
+			$owner_uid
 		));
 		if (empty($events)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Event not found.'));
@@ -616,7 +617,8 @@ class Event
 			  AND `start` <= ?
 			  $sql_perms",
 			$owner_uid,
-			$start, $start,
+			$start,
+			$start,
 			$finish
 		));
 
@@ -661,9 +663,9 @@ class Event
 		$copy = null;
 		$drop = null;
 		if (DI::userSession()->getLocalUserId() && DI::userSession()->getLocalUserId() == $event['uid'] && $event['type'] == 'event') {
-			$edit = !$event['cid'] ? ['calendar/event/edit/' . $event['id'], DI::l10n()->t('Edit event')     , '', ''] : null;
-			$copy = !$event['cid'] ? ['calendar/event/copy/' . $event['id'] , DI::l10n()->t('Duplicate event'), '', ''] : null;
-			$drop =                  ['calendar/api/delete/' . $event['id'] , DI::l10n()->t('Delete event')   , '', ''];
+			$edit = !$event['cid'] ? ['calendar/event/edit/' . $event['id'], DI::l10n()->t('Edit event'), '', ''] : null;
+			$copy = !$event['cid'] ? ['calendar/event/copy/' . $event['id'], DI::l10n()->t('Duplicate event'), '', ''] : null;
+			$drop =                  ['calendar/api/delete/' . $event['id'], DI::l10n()->t('Delete event'), '', ''];
 		}
 
 		$title = BBCode::convertForUriId($event['uri-id'], Strings::escapeHtml($event['summary']));
@@ -708,7 +710,7 @@ class Event
 		}
 
 		switch ($format) {
-			// Format the exported data as a CSV file.
+				// Format the exported data as a CSV file.
 			case "csv":
 				$o .= '"Subject", "Start Date", "Start Time", "Description", "End Date", "End Time", "Location"' . PHP_EOL;
 
@@ -728,7 +730,7 @@ class Event
 				}
 				break;
 
-			// Format the exported data as a ics file.
+				// Format the exported data as a ics file.
 			case "ical":
 				$o = 'BEGIN:VCALENDAR' . PHP_EOL
 					. 'VERSION:2.0' . PHP_EOL
@@ -929,8 +931,13 @@ class Event
 		$location = self::locationToArray($item['event-location']);
 
 		// Construct the profile link (magic-auth).
-		$author       = ['uid'     => 0, 'id' => $item['author-id'],
-		                 'network' => $item['author-network'], 'url' => $item['author-link']];
+		$author       = [
+			'uid'     => 0, 
+			'id'      => $item['author-id'],
+			'network' => $item['author-network'], 
+			'url'     => $item['author-link'],
+			'alias'   => $item['author-alias']
+		];
 		$profile_link = Contact::magicLinkByContact($author);
 
 		$tpl    = Renderer::getMarkupTemplate('event_stream_item.tpl');

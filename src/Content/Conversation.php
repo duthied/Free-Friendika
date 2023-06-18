@@ -154,7 +154,8 @@ class Conversation
 					'uid'     => 0,
 					'id'      => $activity['author-id'],
 					'network' => $activity['author-network'],
-					'url'     => $activity['author-link']
+					'url'     => $activity['author-link'],
+					'alias'   => $activity['author-alias'],
 				];
 				$url = Contact::magicLinkByContact($author);
 				if (strpos($url, 'contact/redir/') === 0) {
@@ -272,7 +273,7 @@ class Conversation
 					$phrase = $this->l10n->tt('<button type="button" %2$s>%1$d person</button> attends', '<button type="button" %2$s>%1$d people</button> attend', $total, $spanatts);
 					break;
 				case 'attendno':
-					$phrase = $this->l10n->tt('<button type="button" %2$s>%1$d person</button> doesn\'t attend','<button type="button" %2$s>%1$d people</button> don\'t attend', $total, $spanatts);
+					$phrase = $this->l10n->tt('<button type="button" %2$s>%1$d person</button> doesn\'t attend', '<button type="button" %2$s>%1$d people</button> don\'t attend', $total, $spanatts);
 					break;
 				case 'attendmaybe':
 					$phrase = $this->l10n->tt('<button type="button" %2$s>%1$d person</button> attends maybe', '<button type="button" %2$s>%1$d people</button> attend maybe', $total, $spanatts);
@@ -537,7 +538,7 @@ class Conversation
 			if (!$update) {
 				$live_update_div = '<div id="live-contact"></div>' . "\r\n"
 					. "<script> var profile_uid = -1; var netargs = '" . substr($this->args->getCommand(), 8)
-					."?f='; </script>\r\n";
+					. "?f='; </script>\r\n";
 			}
 		} elseif ($mode === self::MODE_SEARCH) {
 			$live_update_div = '<div id="live-search"></div>' . "\r\n";
@@ -625,7 +626,13 @@ class Conversation
 
 					$tags = Tag::populateFromItem($item);
 
-					$author       = ['uid' => 0, 'id' => $item['author-id'], 'network' => $item['author-network'], 'url' => $item['author-link']];
+					$author = [
+						'uid'     => 0,
+						'id'      => $item['author-id'],
+						'network' => $item['author-network'],
+						'url'     => $item['author-link'],
+						'alias'   => $item['author-alias'],
+					];
 					$profile_link = Contact::magicLinkByContact($author);
 
 					$sparkle = '';
@@ -856,7 +863,8 @@ class Conversation
 				$row['causer-avatar'] = $contact['thumb'];
 				$row['causer-name']   = $contact['name'];
 			} elseif (($row['gravity'] == ItemModel::GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
-				($row['author-id'] == $activity['causer-id'])) {
+				($row['author-id'] == $activity['causer-id'])
+			) {
 				return $row;
 			}
 		}
@@ -892,9 +900,15 @@ class Conversation
 				}
 
 				if (in_array($row['gravity'], [ItemModel::GRAVITY_PARENT, ItemModel::GRAVITY_COMMENT]) && !empty($row['causer-id'])) {
-					$causer = ['uid' => 0, 'id' => $row['causer-id'], 'network' => $row['causer-network'], 'url' => $row['causer-link']];
+					$causer = [
+						'uid'     => 0,
+						'id'      => $row['causer-id'],
+						'network' => $row['causer-network'],
+						'url'     => $row['causer-link'],
+						'alias'   => $row['causer-alias'],
+					];
 
-					$row['reshared'] = $this->l10n->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($row['causer-name']) . '</a>');
+					$row['reshared'] = $this->l10n->t('%s reshared this.', '<a href="' . htmlentities(Contact::magicLinkByContact($causer)) . '">' . htmlentities($row['causer-name']) . '</a>');
 				}
 				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? $this->l10n->t('Reshared') : $this->l10n->t('Reshared by %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
@@ -994,15 +1008,21 @@ class Conversation
 			$condition = DBA::mergeConditions($condition, ["(`gravity` != ? OR `origin`)", ItemModel::GRAVITY_ACTIVITY]);
 		}
 
-		$condition = DBA::mergeConditions($condition,
-			["`uid` IN (0, ?) AND (NOT `vid` IN (?, ?, ?) OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW), Verb::getID(Activity::VIEW), Verb::getID(Activity::READ)]);
+		$condition = DBA::mergeConditions(
+			$condition,
+			["`uid` IN (0, ?) AND (NOT `vid` IN (?, ?, ?) OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW), Verb::getID(Activity::VIEW), Verb::getID(Activity::READ)]
+		);
 
 		$condition = DBA::mergeConditions($condition, ["(`uid` != ? OR `private` != ?)", 0, ItemModel::PRIVATE]);
 
-		$condition = DBA::mergeConditions($condition,
-			["`visible` AND NOT `deleted` AND NOT `author-blocked` AND NOT `owner-blocked`
+		$condition = DBA::mergeConditions(
+			$condition,
+			[
+				"`visible` AND NOT `deleted` AND NOT `author-blocked` AND NOT `owner-blocked`
 			AND ((NOT `contact-pending` AND (`contact-rel` IN (?, ?))) OR `self` OR `contact-uid` = ?)",
-			Contact::SHARING, Contact::FRIEND, 0]);
+				Contact::SHARING, Contact::FRIEND, 0
+			]
+		);
 
 		$thread_parents = Post::select(['uri-id', 'causer-id'], $condition, ['order' => ['uri-id' => false, 'uid']]);
 
@@ -1109,8 +1129,10 @@ class Conversation
 			$items[$key]['user-collapsed-author'] = !$always_display && in_array($row['author-id'], $collapses);
 			$items[$key]['user-collapsed-owner']  = !$always_display && in_array($row['owner-id'], $collapses);
 
-			if (in_array($mode, [self::MODE_COMMUNITY, self::MODE_NETWORK]) &&
-				(in_array($row['author-id'], $blocks) || in_array($row['owner-id'], $blocks) || in_array($row['author-id'], $ignores) || in_array($row['owner-id'], $ignores))) {
+			if (
+				in_array($mode, [self::MODE_COMMUNITY, self::MODE_NETWORK]) &&
+				(in_array($row['author-id'], $blocks) || in_array($row['owner-id'], $blocks) || in_array($row['author-id'], $ignores) || in_array($row['owner-id'], $ignores))
+			) {
 				unset($items[$key]);
 			}
 		}
@@ -1145,7 +1167,7 @@ class Conversation
 		$condition = DBA::mergeConditions(['parent-uri-id' => $uriids, 'gravity' => ItemModel::GRAVITY_ACTIVITY, 'verb' => $verbs], ["NOT `deleted`"]);
 		$separator = chr(255) . chr(255) . chr(255);
 
-		$sql = "SELECT `thr-parent-id`, `body`, `verb`, COUNT(*) AS `total`, GROUP_CONCAT(REPLACE(`author-name`, '" . $separator . "', ' ') SEPARATOR '". $separator ."' LIMIT 50) AS `title` FROM `post-view` WHERE " . array_shift($condition) . " GROUP BY `thr-parent-id`, `verb`, `body`";
+		$sql = "SELECT `thr-parent-id`, `body`, `verb`, COUNT(*) AS `total`, GROUP_CONCAT(REPLACE(`author-name`, '" . $separator . "', ' ') SEPARATOR '" . $separator . "' LIMIT 50) AS `title` FROM `post-view` WHERE " . array_shift($condition) . " GROUP BY `thr-parent-id`, `verb`, `body`";
 
 		$emojis = [];
 
@@ -1286,7 +1308,7 @@ class Conversation
 					// Searches the post item in the children
 					$j = 0;
 					while ($child['children'][$j]['verb'] !== Activity::POST && $j < count($child['children'])) {
-						$j ++;
+						$j++;
 					}
 
 					$moved_item = $child['children'][$j];
@@ -1360,8 +1382,10 @@ class Conversation
 		* items and add them as children of their top-level post.
 		*/
 		foreach ($parents as $i => $parent) {
-			$parents[$i]['children'] = array_merge($this->getItemChildren($item_array, $parent, true),
-				$this->getItemChildren($item_array, $parent, false));
+			$parents[$i]['children'] = array_merge(
+				$this->getItemChildren($item_array, $parent, true),
+				$this->getItemChildren($item_array, $parent, false)
+			);
 		}
 
 		foreach ($parents as $i => $parent) {

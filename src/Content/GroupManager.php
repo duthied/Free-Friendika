@@ -78,7 +78,7 @@ class GroupManager
 
 		$groupList = [];
 
-		$fields = ['id', 'url', 'name', 'micro', 'thumb', 'avatar', 'network', 'uid'];
+		$fields = ['id', 'url', 'alias', 'name', 'micro', 'thumb', 'avatar', 'network', 'uid'];
 		$contacts = DBA::select('account-user-view', $fields, $condition, $params);
 		if (!$contacts) {
 			return $groupList;
@@ -87,6 +87,7 @@ class GroupManager
 		while ($contact = DBA::fetch($contacts)) {
 			$groupList[] = [
 				'url'	=> $contact['url'],
+				'alias'	=> $contact['alias'],
 				'name'	=> $contact['name'],
 				'id'	=> $contact['id'],
 				'micro' => $contact['micro'],

@@ -104,7 +104,7 @@ class ContactBlock
 			$contact_uriids = array_column($personal_contacts, 'uri-id');
 
 			if (!empty($contact_uriids)) {
-				$contacts_stmt = DBA::select('contact', ['id', 'uid', 'addr', 'url', 'name', 'thumb', 'avatar', 'network'], ['uri-id' => $contact_uriids, 'uid' => $contact_uid]);
+				$contacts_stmt = DBA::select('contact', ['id', 'uid', 'addr', 'url', 'alias', 'name', 'thumb', 'avatar', 'network'], ['uri-id' => $contact_uriids, 'uid' => $contact_uid]);
 
 				if (DBA::isResult($contacts_stmt)) {
 					$contacts_title = DI::l10n()->tt('%d Contact', '%d Contacts', $total);

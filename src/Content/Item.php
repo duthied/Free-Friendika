@@ -305,18 +305,20 @@ class Item
 				}
 
 				$author_arr = [
-					'uid' => 0,
-					'id' => $item['author-id'],
+					'uid'     => 0,
+					'id'      => $item['author-id'],
 					'network' => $item['author-network'],
-					'url' => $item['author-link'],
+					'url'     => $item['author-link'],
+					'alias'   => $item['author-lias'],
 				];
 				$author  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $item['author-name'] . '[/url]';
 
 				$author_arr = [
-					'uid' => 0,
-					'id' => $obj['author-id'],
+					'uid'     => 0,
+					'id'      => $obj['author-id'],
 					'network' => $obj['author-network'],
-					'url' => $obj['author-link'],
+					'url'     => $obj['author-link'],
+					'alias'   => $obj['author-alias'],
 				];
 				$objauthor  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $obj['author-name'] . '[/url]';
 
@@ -372,10 +374,11 @@ class Item
 		}
 
 		$author = [
-			'uid' => 0,
-			'id' => $item['author-id'],
+			'uid'     => 0,
+			'id'      => $item['author-id'],
 			'network' => $item['author-network'],
-			'url' => $item['author-link'],
+			'url'     => $item['author-link'],
+			'alias'   => $item['author-alias'],
 		];
 		$profile_link = Contact::magicLinkByContact($author, $item['author-link']);
 		if (strpos($profile_link, 'contact/redir/') === 0) {
