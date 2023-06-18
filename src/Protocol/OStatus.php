@@ -385,12 +385,14 @@ class OStatus
 			}
 		}
 
-		$header = [];
-		$header['uid'] = $importer['uid'];
-		$header['network'] = Protocol::OSTATUS;
-		$header['wall'] = 0;
-		$header['origin'] = 0;
-		$header['gravity'] = Item::GRAVITY_COMMENT;
+		// Initial header elements
+		$header = [
+			'uid'     => $importer['uid'],
+			'network' => Protocol::OSTATUS,
+			'wall'    => 0,
+			'origin'  => 0,
+			'gravity' => Item::GRAVITY_COMMENT,
+		];
 
 		if (!is_object($doc->firstChild) || empty($doc->firstChild->tagName)) {
 			return false;

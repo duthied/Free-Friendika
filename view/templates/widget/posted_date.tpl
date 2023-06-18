@@ -33,7 +33,7 @@ function showHideDates() {
 			<ul class="datebrowse-ul">
 				{{if $y|cat:$thisday >= $cutoffday}}
 				<li class="tool">
-					<a class="datebrowse-link" href="{{$url}}/{{$y|cat:$thisday}}/{{$y|cat:$thisday}}">{{$onthisdate}}</a>
+					<a class="datebrowse-link" href="{{$url}}/{{$y|cat:$nextday}}/{{$y|cat:$thisday}}">{{$onthisdate}}</a>
 				</li>
 				{{/if}}
 				{{foreach $arr as $d}}

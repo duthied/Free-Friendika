@@ -367,6 +367,7 @@ class Conversation
 			'$eduline'             => $this->l10n->t('Underline'),
 			'$edquote'             => $this->l10n->t('Quote'),
 			'$edemojis'            => $this->l10n->t('Add emojis'),
+			'$contentwarn'         => $this->l10n->t('Content Warning'),
 			'$edcode'              => $this->l10n->t('Code'),
 			'$edimg'               => $this->l10n->t('Image'),
 			'$edurl'               => $this->l10n->t('Link'),
