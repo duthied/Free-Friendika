@@ -432,9 +432,38 @@ class Processor
 
 			$item['owner-link'] = $item['author-link'];
 			$item['owner-id'] = $item['author-id'];
+		}
+
+		if (!$item['isGroup'] && !empty($activity['receiver_urls']['as:audience'])) {
+			foreach ($activity['receiver_urls']['as:audience'] as $audience) {
+				$actor = APContact::getByURL($audience, false);
+				if (($actor['type'] ?? 'Person') == 'Group') {
+					Logger::debug('Group post detected via audience.', ['audience' => $audience, 'actor' => $activity['actor'], 'author' => $activity['author']]);
+					$item['isGroup']    = true;
+					$item['group-link'] = $audience;
+				}
+			}
 		} else {
-			$actor = APContact::getByURL($item['owner-link'], false);
-			$item['isGroup'] = ($actor['type'] ?? 'Person') == 'Group';
+			$owner = APContact::getByURL($item['owner-link'], false);
+		}
+
+		if (!$item['isGroup'] && (($owner['type'] ?? 'Person') == 'Group')) {
+			Logger::debug('Group post detected via owner.', ['actor' => $activity['actor'], 'author' => $activity['author']]);
+			$item['isGroup']    = true;
+			$item['group-link'] = $item['owner-link'];
+		} elseif (!empty($item['causer-link'])) {
+			$causer = APContact::getByURL($item['causer-link'], false);
+		}
+
+		if (!$item['isGroup'] && (($causer['type'] ?? 'Person') == 'Group')) {
+			Logger::debug('Group post detected via causer.', ['actor' => $activity['actor'], 'author' => $activity['author'], 'causer' => $item['causer-link']]);
+			$item['isGroup'] = true;
+			$item['group-link'] = $item['causer-link'];
+		}
+
+		if (!empty($item['group-link']) && empty($item['causer-link'])) {
+			$item['causer-link'] = $item['group-link'];
+			$item['causer-id'] = Contact::getIdForURL($item['causer-link']);
 		}
 
 		$item['uri'] = $activity['id'];
@@ -1059,10 +1088,10 @@ class Processor
 				$item['causer-id'] = ($item['gravity'] == Item::GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
 			}
 
-			if ($item['isGroup'] ?? false) {
-				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver);
+			if ($item['isGroup']) {
+				$item['contact-id'] = Contact::getIdForURL($item['group-link'], $receiver);
 			} else {
-				$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver);
+				$item['contact-id'] = Contact::getIdForURL($item['author-link'], $receiver);
 			}
 
 			if (($receiver != 0) && empty($item['contact-id'])) {
@@ -1075,7 +1104,7 @@ class Processor
 			}
 
 			if (($receiver != 0) && ($item['gravity'] == Item::GRAVITY_PARENT) && !in_array($item['post-reason'], [Item::PR_FOLLOWER, Item::PR_TAG, item::PR_TO, Item::PR_CC, Item::PR_AUDIENCE])) {
-				if (!($item['isGroup'] ?? false)) {
+				if (!$item['isGroup']) {
 					if ($item['post-reason'] == Item::PR_BCC) {
 						Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id'], 'url' => $item['uri']]);
 						continue;
@@ -1096,7 +1125,7 @@ class Processor
 				}
 
 				if ((DI::pConfig()->get($receiver, 'system', 'accept_only_sharer') == Item::COMPLETION_NONE)
-					&& ((!$isGroup && !($item['isGroup'] ?? false) && ($activity['type'] != 'as:Announce'))
+					&& ((!$isGroup && !$item['isGroup'] && ($activity['type'] != 'as:Announce'))
 					|| !Contact::isSharingByURL($activity['actor'], $receiver))) {
 					Logger::info('Actor is a non sharer, is no group or it is no announce', ['uid' => $receiver, 'actor' => $activity['actor'], 'url' => $item['uri'], 'type' => $activity['type']]);
 					continue;
@@ -1533,6 +1562,7 @@ class Processor
 		$activity['id'] = $object['id'];
 		$activity['to'] = $object['to'] ?? [];
 		$activity['cc'] = $object['cc'] ?? [];
+		$activity['audience'] = $object['audience'] ?? [];
 		$activity['actor'] = $actor;
 		$activity['object'] = $object;
 		$activity['published'] = $published;

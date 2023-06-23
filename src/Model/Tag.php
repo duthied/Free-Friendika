@@ -487,7 +487,7 @@ class Tag
 	 *
 	 * @return boolean
 	 */
-	public static function isMentioned(int $uriId, string $url, array $type = [self::MENTION, self::EXCLUSIVE_MENTION]): bool
+	public static function isMentioned(int $uriId, string $url, array $type = [self::MENTION, self::EXCLUSIVE_MENTION, self::AUDIENCE]): bool
 	{
 		$tags = self::getByURIId($uriId, $type);
 		foreach ($tags as $tag) {

@@ -160,7 +160,7 @@ class Delivery
 						if (!empty($actor)) {
 							$drop = !ActivityPub\Transmitter::sendRelayFollow($actor);
 							Logger::notice('Resubscribed to relay', ['url' => $actor, 'success' => !$drop]);
-						} elseif ($cmd = ProtocolDelivery::DELETION) {
+						} elseif ($cmd == ProtocolDelivery::DELETION) {
 							// Remote systems not always accept our deletion requests, so we drop them if rejected.
 							// Situation is: In Friendica we allow the thread owner to delete foreign comments to their thread.
 							// Most AP systems don't allow this, so they will reject the deletion request.

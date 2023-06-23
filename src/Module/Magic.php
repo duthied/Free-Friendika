@@ -29,12 +29,14 @@ use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
+use Friendica\Model\GServer;
 use Friendica\Model\User;
 use Friendica\Network\HTTPClient\Capability\ICanSendHttpRequests;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Uri;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -83,6 +85,8 @@ class Magic extends BaseModule
 			$this->logger->debug('bdest detected', ['dest' => $dest]);
 		}
 
+		$target = $dest ?: $addr;
+
 		if ($addr ?: $dest) {
 			$contact = Contact::getByURL($addr ?: $dest);
 		}
@@ -110,13 +114,20 @@ class Magic extends BaseModule
 		// OpenWebAuth
 		$owner = User::getOwnerDataById($this->userSession->getLocalUserId());
 
-		$gserver = $this->dba->selectFirst('gserver', ['url'], ['id' => $contact['gsid']]);
-		if (empty($gserver)) {
-			$this->logger->notice('Server not found, redirecting to destination.', ['gsid' => $contact['gsid'], 'dest' => $dest]);
+		if (!empty($contact['gsid'])) {
+			$gserver = $this->dba->selectFirst('gserver', ['url'], ['id' => $contact['gsid']]);
+			if (empty($gserver)) {
+				$this->logger->notice('Server not found, redirecting to destination.', ['gsid' => $contact['gsid'], 'dest' => $dest]);
+				System::externalRedirect($dest);
+			}
+
+			$basepath = $gserver['url'];
+		} elseif (GServer::check($target)) {
+			$basepath = (string)GServer::cleanUri(new Uri($target));
+		} else {
+			$this->logger->notice('The target is not a server path, redirecting to destination.', ['target' => $target]);
 			System::externalRedirect($dest);
 		}
-
-		$basepath = $gserver['url'];
 
 		$header = [
 			'Accept'          => 'application/x-dfrn+json, application/x-zot+json',

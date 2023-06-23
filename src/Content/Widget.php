@@ -476,7 +476,6 @@ class Widget
 			$nextday = substr($nextday, 4);
 			$dnow = substr($dnow, 0, 8) . '01';
 			$dthen = substr($dthen, 0, 8) . '01';
-			
 
 			/*
 			 * Starting with the current month, get the first and last days of every
@@ -496,7 +495,6 @@ class Widget
 
 				$ret[$dyear][] = [$str, $end_month, $start_month];
 				$dnow = DateTimeFormat::utc($dnow . ' -1 month', 'Y-m-d');
-				
 			}
 		}
 
@@ -508,7 +506,7 @@ class Widget
 		$cutoff_year = intval(DateTimeFormat::localNow('Y')) - $visible_years;
 		$cutoff = array_key_exists($cutoff_year, $ret);
 
-		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/posted_date.tpl'),[
+		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/posted_date.tpl'), [
 			'$title' => DI::l10n()->t('Archives'),
 			'$size' => $visible_years,
 			'$cutoff_year' => $cutoff_year,
@@ -543,7 +541,14 @@ class Widget
 			['ref' => 'community', 'name' => DI::l10n()->t('Groups')],
 		];
 
-		return self::filter('accounttype', DI::l10n()->t('Account Types'), '',
-			DI::l10n()->t('All'), $base, $accounts, $accounttype);
+		return self::filter(
+			'accounttype',
+			DI::l10n()->t('Account Types'),
+			'',
+			DI::l10n()->t('All'),
+			$base,
+			$accounts,
+			$accounttype
+		);
 	}
 }

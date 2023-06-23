@@ -91,9 +91,13 @@ class Post
 		}
 
 		$this->writable = $this->getDataValue('writable') || $this->getDataValue('self');
-		$author = ['uid' => 0, 'id' => $this->getDataValue('author-id'),
+		$author = [
+			'uid'     => 0,
+			'id'      => $this->getDataValue('author-id'),
 			'network' => $this->getDataValue('author-network'),
-			'url' => $this->getDataValue('author-link')];
+			'url'     => $this->getDataValue('author-link'),
+			'alias'   => $this->getDataValue('author-alias')
+		];
 		$this->redirect_url = Contact::magicLinkByContact($author);
 		if (!$this->isToplevel()) {
 			$this->threaded = true;
@@ -286,8 +290,13 @@ class Post
 		}
 
 		if (DI::userSession()->isAuthenticated()) {
-			$author = ['uid' => 0, 'id' => $item['author-id'],
-				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$author = [
+				'uid'     => 0,
+				'id'      => $item['author-id'],
+				'network' => $item['author-network'],
+				'url'     => $item['author-link'],
+				'alias'   => $item['author-alias'],
+			];
 			$profile_link = Contact::magicLinkByContact($author);
 		} else {
 			$profile_link = $item['author-link'];
@@ -388,7 +397,7 @@ class Post
 		}
 
 		if ($conv->isWritable()) {
-			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29")      , DI::l10n()->t('Like')];
+			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29"), DI::l10n()->t('Like')];
 			$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t('Dislike')];
 			if ($shareable) {
 				$buttons['share'] = [DI::l10n()->t('Quote share this'), DI::l10n()->t('Quote Share')];
@@ -451,8 +460,10 @@ class Post
 
 		// Fetching of Diaspora posts doesn't always work. There are issues with reshares and possibly comments
 		if (!DI::userSession()->getLocalUserId() && ($item['network'] != Protocol::DIASPORA) && !empty(DI::session()->get('remote_comment'))) {
-			$remote_comment = [DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('Remote comment'),
-				str_replace('{uri}', urlencode($item['uri']), DI::session()->get('remote_comment'))];
+			$remote_comment = [
+				DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('Remote comment'),
+				str_replace('{uri}', urlencode($item['uri']), DI::session()->get('remote_comment'))
+			];
 
 			// Ensure to either display the remote comment or the local activities
 			$buttons = [];
@@ -670,7 +681,6 @@ class Post
 					$title = DI::l10n()->t('Reacted with %s by: %s', $element['emoji'], $actors);
 					$icon  = [];
 					break;
-				break;
 			}
 			$emojis[$index] = ['emoji' => $element['emoji'], 'total' => $element['total'], 'title' => $title, 'icon' => $icon];
 		}
@@ -719,8 +729,10 @@ class Post
 		if ($item->getDataValue('network') === Protocol::MAIL && DI::userSession()->getLocalUserId() != $item->getDataValue('uid')) {
 			Logger::warning('Post object does not belong to local user', ['post' => $item, 'local_user' => DI::userSession()->getLocalUserId()]);
 			return false;
-		} elseif (DI::activity()->match($item->getDataValue('verb'), Activity::LIKE) ||
-		          DI::activity()->match($item->getDataValue('verb'), Activity::DISLIKE)) {
+		} elseif (
+			DI::activity()->match($item->getDataValue('verb'), Activity::LIKE) ||
+			DI::activity()->match($item->getDataValue('verb'), Activity::DISLIKE)
+		) {
 			Logger::warning('Post objects is a like/dislike', ['post' => $item]);
 			return false;
 		}
@@ -1004,8 +1016,10 @@ class Post
 			}
 
 			$profile = Contact::getByURL($term['url'], false, ['addr', 'contact-type']);
-			if (!empty($profile['addr']) && (($profile['contact-type'] ?? Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&
-				($profile['addr'] != $owner['addr']) && !strstr($text, $profile['addr'])) {
+			if (
+				!empty($profile['addr']) && (($profile['contact-type'] ?? Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&
+				($profile['addr'] != $owner['addr']) && !strstr($text, $profile['addr'])
+			) {
 				$text .= '@' . $profile['addr'] . ' ';
 			}
 		}
@@ -1134,6 +1148,7 @@ class Post
 							'id'      => $this->getDataValue('owner-id'),
 							'network' => $this->getDataValue('owner-network'),
 							'url'     => $this->getDataValue('owner-link'),
+							'alias'   => $this->getDataValue('owner-alias'),
 						];
 						$this->owner_url = Contact::magicLinkByContact($owner);
 					}

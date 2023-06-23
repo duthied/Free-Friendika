@@ -117,7 +117,7 @@ function photos_init(App $a)
 
 		$tpl = Renderer::getMarkupTemplate("photos_head.tpl");
 
-		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl,[
+		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$ispublic' => DI::l10n()->t('everybody')
 		]);
 	}
@@ -214,13 +214,15 @@ function photos_post(App $a)
 
 			// get the list of photos we are about to delete
 			if ($visitor) {
-				$r = DBA::toArray(DBA::p("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `contact-id` = ? AND `uid` = ? AND `album` = ?",
+				$r = DBA::toArray(DBA::p(
+					"SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `contact-id` = ? AND `uid` = ? AND `album` = ?",
 					$visitor,
 					$page_owner_uid,
 					$album
 				));
 			} else {
-				$r = DBA::toArray(DBA::p("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `uid` = ? AND `album` = ?",
+				$r = DBA::toArray(DBA::p(
+					"SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `uid` = ? AND `album` = ?",
 					DI::userSession()->getLocalUserId(),
 					$album
 				));
@@ -258,7 +260,6 @@ function photos_post(App $a)
 			// same as above but remove single photo
 			if ($visitor) {
 				$condition = ['contact-id' => $visitor, 'uid' => $page_owner_uid, 'resource-id' => DI::args()->getArgv()[3]];
-
 			} else {
 				$condition = ['uid' => DI::userSession()->getLocalUserId(), 'resource-id' => DI::args()->getArgv()[3]];
 			}
@@ -405,7 +406,7 @@ function photos_post(App $a)
 					if (strpos($tag, '@') === 0) {
 						$profile = '';
 						$contact = null;
-						$name = substr($tag,1);
+						$name = substr($tag, 1);
 
 						if ((strpos($name, '@')) || (strpos($name, 'http://'))) {
 							$newname = $name;
@@ -441,13 +442,15 @@ function photos_post(App $a)
 							if ($tagcid) {
 								$contact = DBA::selectFirst('contact', [], ['id' => $tagcid, 'uid' => $page_owner_uid]);
 							} else {
-								$newname = str_replace('_',' ',$name);
+								$newname = str_replace('_', ' ', $name);
 
 								//select someone from this user's contacts by name
 								$contact = DBA::selectFirst('contact', [], ['name' => $newname, 'uid' => $page_owner_uid]);
 								if (!DBA::isResult($contact)) {
 									//select someone by attag or nick and the name passed in
-									$contact = DBA::selectFirst('contact', [],
+									$contact = DBA::selectFirst(
+										'contact',
+										[],
 										['(`attag` = ? OR `nick` = ?) AND `uid` = ?', $name, $name, $page_owner_uid],
 										['order' => ['attag' => true]]
 									);
@@ -689,11 +692,13 @@ function photos_content(App $a)
 
 		$uploader = '';
 
-		$ret = ['post_url' => 'profile/' . $user['nickname'] . '/photos',
-				'addon_text' => $uploader,
-				'default_upload' => true];
+		$ret = [
+			'post_url' => 'profile/' . $user['nickname'] . '/photos',
+			'addon_text' => $uploader,
+			'default_upload' => true
+		];
 
-		Hook::callAll('photo_upload_form',$ret);
+		Hook::callAll('photo_upload_form', $ret);
 
 		$default_upload_box = Renderer::replaceMacros(Renderer::getMarkupTemplate('photos_default_uploader_box.tpl'), []);
 		$default_upload_submit = Renderer::replaceMacros(Renderer::getMarkupTemplate('photos_default_uploader_submit.tpl'), [
@@ -705,7 +710,7 @@ function photos_content(App $a)
 		$umf_bytes = Strings::getBytesFromShorthand(ini_get('upload_max_filesize'));
 
 		// Per Friendica definition a value of '0' means unlimited:
-		If ($mis_bytes == 0) {
+		if ($mis_bytes == 0) {
 			$mis_bytes = INF;
 		}
 
@@ -719,7 +724,7 @@ function photos_content(App $a)
 
 		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId()));
 
-		$o .= Renderer::replaceMacros($tpl,[
+		$o .= Renderer::replaceMacros($tpl, [
 			'$pagename' => DI::l10n()->t('Upload Photos'),
 			'$sessid' => session_id(),
 			'$usage' => $usage_message,
@@ -747,7 +752,7 @@ function photos_content(App $a)
 	if ($datatype === 'album') {
 		// if $datum is not a valid hex, redirect to the default page
 		if (is_null($datum) || !Strings::isHex($datum)) {
-			DI::baseUrl()->redirect('photos/' . $user['nickname']. '/album');
+			DI::baseUrl()->redirect('photos/' . $user['nickname'] . '/album');
 		}
 		$album = hex2bin($datum);
 
@@ -756,7 +761,8 @@ function photos_content(App $a)
 		}
 
 		$total = 0;
-		$r = DBA::toArray(DBA::p("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND `album` = ?
+		$r = DBA::toArray(DBA::p(
+			"SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND `album` = ?
 			AND `scale` <= 4 $sql_extra GROUP BY `resource-id`",
 			$owner_uid,
 			$album
@@ -775,7 +781,8 @@ function photos_content(App $a)
 			$order = 'DESC';
 		}
 
-		$r = DBA::toArray(DBA::p("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
+		$r = DBA::toArray(DBA::p(
+			"SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
 			ANY_VALUE(`type`) AS `type`, max(`scale`) AS `scale`, ANY_VALUE(`desc`) as `desc`,
 			ANY_VALUE(`created`) as `created`
 			FROM `photo` WHERE `uid` = ? AND `album` = ?
@@ -809,7 +816,7 @@ function photos_content(App $a)
 
 				$album_e = $album;
 
-				$o .= Renderer::replaceMacros($edit_tpl,[
+				$o .= Renderer::replaceMacros($edit_tpl, [
 					'$nametext' => DI::l10n()->t('New album name: '),
 					'$nickname' => $user['nickname'],
 					'$album' => $album_e,
@@ -843,16 +850,16 @@ function photos_content(App $a)
 				$desc_e = $rr['desc'];
 
 				$photos[] = [
-					'id' => $rr['id'],
-					'twist' => ' ' . ($twist ? 'rotleft' : 'rotright') . rand(2,4),
-					'link' => 'photos/' . $user['nickname'] . '/image/' . $rr['resource-id']
+					'id'    => $rr['id'],
+					'twist' => ' ' . ($twist ? 'rotleft' : 'rotright') . rand(2, 4),
+					'link'  => 'photos/' . $user['nickname'] . '/image/' . $rr['resource-id']
 						. ($order_field === 'created' ? '?order=created' : ''),
 					'title' => DI::l10n()->t('View Photo'),
-					'src' => 'photo/' . $rr['resource-id'] . '-' . $rr['scale'] . '.' .$ext,
-					'alt' => $imgalt_e,
-					'desc'=> $desc_e,
-					'ext' => $ext,
-					'hash'=> $rr['resource-id'],
+					'src'   => 'photo/' . $rr['resource-id'] . '-' . $rr['scale'] . '.' . $ext,
+					'alt'   => $imgalt_e,
+					'desc'  => $desc_e,
+					'ext'   => $ext,
+					'hash'  => $rr['resource-id'],
 				];
 			}
 		}
@@ -870,7 +877,6 @@ function photos_content(App $a)
 		]);
 
 		return $o;
-
 	}
 
 	// Display one photo
@@ -955,7 +961,7 @@ function photos_content(App $a)
 				}
 
 				$tpl = Renderer::getMarkupTemplate('photo_edit_head.tpl');
-				DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl,[
+				DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 					'$prevlink' => $prevlink,
 					'$nextlink' => $nextlink
 				]);
@@ -967,7 +973,7 @@ function photos_content(App $a)
 				if ($nextlink) {
 					$nextlink = [$nextlink, '<div class="icon next"></div>'];
 				}
- 			}
+			}
 		}
 
 		if (count($ph) == 1) {
@@ -1007,12 +1013,12 @@ function photos_content(App $a)
 		}
 
 		$photo = [
-			'href' => 'photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.' . $phototypes[$hires['type']],
-			'title'=> DI::l10n()->t('View Full Size'),
-			'src'  => 'photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?_u=' . DateTimeFormat::utcNow('ymdhis'),
-			'height' => $hires['height'],
-			'width' => $hires['width'],
-			'album' => $hires['album'],
+			'href'     => 'photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.' . $phototypes[$hires['type']],
+			'title'    => DI::l10n()->t('View Full Size'),
+			'src'      => 'photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?_u=' . DateTimeFormat::utcNow('ymdhis'),
+			'height'   => $hires['height'],
+			'width'    => $hires['width'],
+			'album'    => $hires['album'],
 			'filename' => $hires['filename'],
 		];
 
@@ -1079,12 +1085,12 @@ function photos_content(App $a)
 
 			$edit = Renderer::replaceMacros($edit_tpl, [
 				'$id' => $ph[0]['id'],
-				'$album' => ['albname', DI::l10n()->t('New album name'), $album_e,''],
+				'$album' => ['albname', DI::l10n()->t('New album name'), $album_e, ''],
 				'$caption' => ['desc', DI::l10n()->t('Caption'), $caption_e, ''],
 				'$tags' => ['newtag', DI::l10n()->t('Add a Tag'), "", DI::l10n()->t('Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping')],
-				'$rotate_none' => ['rotate', DI::l10n()->t('Do not rotate'),0,'', true],
-				'$rotate_cw' => ['rotate', DI::l10n()->t("Rotate CW \x28right\x29"),1,''],
-				'$rotate_ccw' => ['rotate', DI::l10n()->t("Rotate CCW \x28left\x29"),2,''],
+				'$rotate_none' => ['rotate', DI::l10n()->t('Do not rotate'), 0, '', true],
+				'$rotate_cw' => ['rotate', DI::l10n()->t("Rotate CW \x28right\x29"), 1, ''],
+				'$rotate_ccw' => ['rotate', DI::l10n()->t("Rotate CCW \x28left\x29"), 2, ''],
 
 				'$nickname' => $user['nickname'],
 				'$resource_id' => $ph[0]['resource-id'],
@@ -1179,7 +1185,7 @@ function photos_content(App $a)
 						$qcomment = $words ? explode("\n", $words) : [];
 					}
 
-					$comments .= Renderer::replaceMacros($cmnt_tpl,[
+					$comments .= Renderer::replaceMacros($cmnt_tpl, [
 						'$return_path' => '',
 						'$jsreload' => $return_path,
 						'$id' => $link_item['id'],
@@ -1203,13 +1209,19 @@ function photos_content(App $a)
 					$activity = DI::activity();
 
 					if (($activity->match($item['verb'], Activity::LIKE) ||
-					     $activity->match($item['verb'], Activity::DISLIKE)) &&
-					    ($item['gravity'] != Item::GRAVITY_PARENT)) {
+							$activity->match($item['verb'], Activity::DISLIKE)) &&
+						($item['gravity'] != Item::GRAVITY_PARENT)
+					) {
 						continue;
 					}
 
-					$author = ['uid' => 0, 'id' => $item['author-id'],
-						'network' => $item['author-network'], 'url' => $item['author-link']];
+					$author = [
+						'uid'     => 0,
+						'id'      => $item['author-id'],
+						'network' => $item['author-network'],
+						'url'     => $item['author-link'],
+						'alias'   => $item['author-alias']
+					];
 					$profile_url = Contact::magicLinkByContact($author);
 					if (strpos($profile_url, 'contact/redir/') === 0) {
 						$sparkle = ' sparkle';
@@ -1228,7 +1240,7 @@ function photos_content(App $a)
 					$title_e = $item['title'];
 					$body_e = BBCode::convertForUriId($item['uri-id'], $item['body']);
 
-					$comments .= Renderer::replaceMacros($template,[
+					$comments .= Renderer::replaceMacros($template, [
 						'$id'          => $item['id'],
 						'$profile_url' => $profile_url,
 						'$name'        => $item['author-name'],

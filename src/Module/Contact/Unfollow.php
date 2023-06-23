@@ -93,7 +93,7 @@ class Unfollow extends \Friendica\BaseModule
 			Strings::normaliseLink($url), Strings::normaliseLink($url), $url,
 		];
 
-		$contact = $this->database->selectFirst('contact', ['url', 'id', 'uid', 'network', 'addr', 'name'], $condition);
+		$contact = $this->database->selectFirst('contact', ['url', 'alias', 'id', 'uid', 'network', 'addr', 'name'], $condition);
 		if (!$this->database->isResult($contact)) {
 			$this->systemMessages->addNotice($this->t("You aren't following this contact."));
 			$this->baseUrl->redirect($base_return_path);

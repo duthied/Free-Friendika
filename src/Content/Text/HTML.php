@@ -422,7 +422,8 @@ class HTML
 	{
 		$URLSearchString = "^\[\]";
 
-		$matches = ["/\[url\=([$URLSearchString]*)\].*?\[\/url\]/ism",
+		$matches = [
+			"/\[url\=([$URLSearchString]*)\].*?\[\/url\]/ism",
 			"/\[url\]([$URLSearchString]*)\[\/url\]/ism",
 			"/\[img\=[0-9]*x[0-9]*\](.*?)\[\/img\]/ism",
 			"/\[img\](.*?)\[\/img\]/ism",
@@ -531,8 +532,10 @@ class HTML
 			$ignore = false;
 
 			// A list of some links that should be ignored
-			$list = ["/user/", "/tag/", "/group/", "/circle/", "/profile/", "/search?search=", "/search?tag=", "mailto:", "/u/", "/node/",
-				"//plus.google.com/", "//twitter.com/"];
+			$list = [
+				"/user/", "/tag/", "/group/", "/circle/", "/profile/", "/search?search=", "/search?tag=", "mailto:", "/u/", "/node/",
+				"//plus.google.com/", "//twitter.com/"
+			];
 			foreach ($list as $listitem) {
 				if (strpos($treffer[1], $listitem) !== false) {
 					$ignore = true;
@@ -941,7 +944,8 @@ class HTML
 			$domain = '(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)*' . preg_quote(trim($domain, '/'), '%');
 		});
 
-		$config->set('URI.SafeIframeRegexp',
+		$config->set(
+			'URI.SafeIframeRegexp',
 			'%^https://(?:
 				' . implode('|', $allowedIframeDomains) . '
 			)
@@ -1050,7 +1054,8 @@ class HTML
 			if (isset($mediaType->parameters['charset'])) {
 				return strtolower($mediaType->parameters['charset']);
 			}
-		} catch(\InvalidArgumentException $e) {}
+		} catch (\InvalidArgumentException $e) {
+		}
 
 		return null;
 	}
