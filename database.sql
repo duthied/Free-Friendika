@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1521
+-- DB_UPDATE_VERSION 1522
 -- ------------------------------------------
 
 
@@ -1994,6 +1994,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`causer`.`addr` AS `causer-addr`,
 	`causer`.`name` AS `causer-name`,
 	`causer`.`nick` AS `causer-nick`,
+	`causer`.`alias` AS `causer-alias`,
 	`causer`.`thumb` AS `causer-avatar`,
 	`causer`.`network` AS `causer-network`,
 	`causer`.`blocked` AS `causer-blocked`,
@@ -2173,6 +2174,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`causer`.`addr` AS `causer-addr`,
 	`causer`.`name` AS `causer-name`,
 	`causer`.`nick` AS `causer-nick`,
+	`causer`.`alias` AS `causer-alias`,
 	`causer`.`thumb` AS `causer-avatar`,
 	`causer`.`network` AS `causer-network`,
 	`causer`.`blocked` AS `causer-blocked`,
@@ -2338,6 +2340,7 @@ CREATE VIEW `post-view` AS SELECT
 	`causer`.`addr` AS `causer-addr`,
 	`causer`.`name` AS `causer-name`,
 	`causer`.`nick` AS `causer-nick`,
+	`causer`.`alias` AS `causer-alias`,
 	`causer`.`thumb` AS `causer-avatar`,
 	`causer`.`network` AS `causer-network`,
 	`causer`.`blocked` AS `causer-blocked`,
@@ -2480,6 +2483,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`causer`.`addr` AS `causer-addr`,
 	`causer`.`name` AS `causer-name`,
 	`causer`.`nick` AS `causer-nick`,
+	`causer`.`alias` AS `causer-alias`,
 	`causer`.`thumb` AS `causer-avatar`,
 	`causer`.`network` AS `causer-network`,
 	`causer`.`blocked` AS `causer-blocked`,
