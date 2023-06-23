@@ -94,7 +94,7 @@ class Item
 		'wall', 'private', 'starred', 'origin', 'parent-origin', 'title', 'body', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 		'quote-uri', 'quote-uri-id', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'mention', 'global',
-		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network', 'author-updated', 'author-gsid', 'author-addr', 'author-uri-id',
+		'author-id', 'author-link', 'author-alias', 'author-name', 'author-avatar', 'author-network', 'author-updated', 'author-gsid', 'author-addr', 'author-uri-id',
 		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network', 'owner-contact-type', 'owner-updated',
 		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type', 'causer-network',
 		'contact-id', 'contact-uid', 'contact-link', 'contact-name', 'contact-avatar',
@@ -490,6 +490,23 @@ class Item
 			return $owner['id'];
 		}
 
+		$contact_id      = 0;
+		$user_contact_id = 0;
+		foreach (['group-link', 'causer-link', 'owner-link', 'author-link'] as $field) {
+			if (empty($item[$field])) {
+				continue;
+			}
+			if (!$user_contact_id && Contact::isSharingByURL($item[$field], $item['uid'], true)) {
+				$user_contact_id = Contact::getIdForURL($item[$field], $item['uid']);
+			} elseif (!$contact_id) {
+				$contact_id = Contact::getIdForURL($item[$field]);
+			}
+		}
+
+		if ($user_contact_id) {
+			return $user_contact_id;
+		}
+
 		if (!empty($item['causer-id']) && Contact::isSharing($item['causer-id'], $item['uid'], true)) {
 			$cdata = Contact::getPublicAndUserContactID($item['causer-id'], $item['uid']);
 			if (!empty($cdata['user'])) {
@@ -497,18 +514,8 @@ class Item
 			}
 		}
 
-		foreach (['owner-link', 'author-link', 'causer-link'] as $field) {
-			if (empty($item[$field])) {
-				continue;
-			}
-			if (Contact::isSharingByURL($item[$field], $item['uid'], true)) {
-				$contact_id = Contact::getIdForURL($item[$field], $item['uid']);
-			} else {
-				$contact_id = Contact::getIdForURL($item[$field]);
-			}
-			if (!empty($contact_id)) {
-				return $contact_id;
-			}
+		if ($contact_id) {
+			return $contact_id;
 		}
 
 		Logger::warning('contact-id could not be fetched, using self contact instead.', ['uid' => $item['uid'], 'item' => $item]);
@@ -3733,7 +3740,7 @@ class Item
 
 	/**
 	 * Does the given uri-id belongs to a post that is sent as starting post to a group?
-	 * This does not apply to posts that are sent only in parallel to a group.
+	 * This does apply to posts that are sent via ! and not in parallel to a group via @
 	 *
 	 * @param int $uri_id
 	 *

@@ -52,14 +52,14 @@ class VCard
 		}
 
 		if (!Network::isValidHttpUrl($contact['url']) && Network::isValidHttpUrl($contact['alias'])) {
-			$url = $contact['alias'];
+			$contact_url = $contact['alias'];
 		} else {
-			$url = $contact['url'];
+			$contact_url = $contact['url'];
 		}
 
 		if ($contact['network'] != '') {
-			$network_link   = Strings::formatNetworkName($contact['network'], $url);
-			$network_avatar = ContactSelector::networkToIcon($contact['network'], $url);
+			$network_link   = Strings::formatNetworkName($contact['network'], $contact_url);
+			$network_avatar = ContactSelector::networkToIcon($contact['network'], $contact_url);
 		} else {
 			$network_link   = '';
 			$network_avatar = '';
@@ -90,9 +90,9 @@ class VCard
 
 			if (empty($contact['self']) && Protocol::supportsFollow($contact['network'])) {
 				if (in_array($rel, [Contact::SHARING, Contact::FRIEND])) {
-					$unfollow_link = 'contact/unfollow?url=' . urlencode($url) . '&auto=1';
+					$unfollow_link = 'contact/unfollow?url=' . urlencode($contact_url) . '&auto=1';
 				} elseif (!$pending) {
-					$follow_link = 'contact/follow?url=' . urlencode($url) . '&auto=1';
+					$follow_link = 'contact/follow?url=' . urlencode($contact_url) . '&auto=1';
 				}
 			}
 
@@ -104,7 +104,7 @@ class VCard
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/vcard.tpl'), [
 			'$contact'          => $contact,
 			'$photo'            => $photo,
-			'$url'              => Contact::magicLinkByContact($contact, $url),
+			'$url'              => Contact::magicLinkByContact($contact, $contact_url),
 			'$about'            => BBCode::convertForUriId($contact['uri-id'] ?? 0, $contact['about'] ?? ''),
 			'$xmpp'             => DI::l10n()->t('XMPP:'),
 			'$matrix'           => DI::l10n()->t('Matrix:'),
