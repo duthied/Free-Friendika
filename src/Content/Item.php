@@ -309,7 +309,7 @@ class Item
 					'id'      => $item['author-id'],
 					'network' => $item['author-network'],
 					'url'     => $item['author-link'],
-					'alias'   => $item['author-lias'],
+					'alias'   => $item['author-alias'],
 				];
 				$author  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $item['author-name'] . '[/url]';
 
