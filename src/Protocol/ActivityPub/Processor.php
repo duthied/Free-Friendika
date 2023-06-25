@@ -421,7 +421,7 @@ class Processor
 			if ($activity['thread-completion'] != $item['owner-id']) {
 				$actor = Contact::getById($activity['thread-completion'], ['url']);
 				$item['causer-link'] = $actor['url'];
-				$item['causer-id'] = $activity['thread-completion'];
+				$item['causer-id']   = $activity['thread-completion'];
 				Logger::info('Use inherited actor as causer.', ['id' => $item['owner-id'], 'activity' => $activity['thread-completion'], 'owner' => $item['owner-link'], 'actor' => $actor['url']]);
 			} else {
 				// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
@@ -431,7 +431,7 @@ class Processor
 			}
 
 			$item['owner-link'] = $item['author-link'];
-			$item['owner-id'] = $item['author-id'];
+			$item['owner-id']   = $item['author-id'];
 		}
 
 		if (!$item['isGroup'] && !empty($activity['receiver_urls']['as:audience'])) {
@@ -440,7 +440,8 @@ class Processor
 				if (($actor['type'] ?? 'Person') == 'Group') {
 					Logger::debug('Group post detected via audience.', ['audience' => $audience, 'actor' => $activity['actor'], 'author' => $activity['author']]);
 					$item['isGroup']    = true;
-					$item['group-link'] = $audience;
+					$item['group-link'] = $item['owner-link'] = $audience;
+					$item['owner-id']   = Contact::getIdForURL($audience);
 				}
 			}
 		} else {
@@ -457,13 +458,13 @@ class Processor
 
 		if (!$item['isGroup'] && (($causer['type'] ?? 'Person') == 'Group')) {
 			Logger::debug('Group post detected via causer.', ['actor' => $activity['actor'], 'author' => $activity['author'], 'causer' => $item['causer-link']]);
-			$item['isGroup'] = true;
+			$item['isGroup']    = true;
 			$item['group-link'] = $item['causer-link'];
 		}
 
 		if (!empty($item['group-link']) && empty($item['causer-link'])) {
 			$item['causer-link'] = $item['group-link'];
-			$item['causer-id'] = Contact::getIdForURL($item['causer-link']);
+			$item['causer-id']   = Contact::getIdForURL($item['causer-link']);
 		}
 
 		$item['uri'] = $activity['id'];
