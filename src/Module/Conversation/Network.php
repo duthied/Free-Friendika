@@ -471,7 +471,7 @@ class Network extends BaseModule
 		}
 
 		if (DBA::isResult($items)) {
-			$parents = array_column($items, 'parent-uri-id');
+			$parents = array_column($items, 'uri-id');
 		} else {
 			$parents = [];
 		}
