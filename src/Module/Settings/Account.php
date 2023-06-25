@@ -173,6 +173,7 @@ class Account extends BaseSettings
 
 			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'unlisted', !empty($request['unlisted']));
 			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'accessible-photos', !empty($request['accessible-photos']));
+			DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'default-group-gid', intval($request['circle-selection-group'] ?? $def_gid));
 
 			$fields = [
 				'allow_cid'  => $str_contact_allow,
@@ -592,7 +593,8 @@ class Account extends BaseSettings
 			'$blocktags'          => ['blocktags', DI::l10n()->t('Allow friends to tag your posts?'), (intval($user['blocktags']) ? '0' : '1'), DI::l10n()->t('Your contacts can add additional tags to your posts.')],
 			'$unkmail'            => ['unkmail', DI::l10n()->t('Permit unknown people to send you private mail?'), $unkmail, DI::l10n()->t('Friendica network users may send you private messages even if they are not in your contact list.')],
 			'$cntunkmail'         => ['cntunkmail', DI::l10n()->t('Maximum private messages per day from unknown people:'), $cntunkmail, DI::l10n()->t("(to prevent spam abuse)")],
-			'$circle_select'      => Circle::getSelectorHTML(DI::userSession()->getLocalUserId(), $user['def_gid']),
+			'$circle_select'      => Circle::getSelectorHTML(DI::userSession()->getLocalUserId(), $user['def_gid'], 'circle-selection', DI::l10n()->t('Default privacy circle for new contacts')),
+			'$circle_select_group' => Circle::getSelectorHTML(DI::userSession()->getLocalUserId(), DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'default-group-gid', $user['def_gid']), 'circle-selection-group', DI::l10n()->t('Default privacy circle for new group contacts')),
 			'$permissions'        => DI::l10n()->t('Default Post Permissions'),
 			'$aclselect'          => ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId()),
 

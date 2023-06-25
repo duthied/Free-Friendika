@@ -177,7 +177,7 @@ class Circle
 	public static function countUnseen()
 	{
 		$stmt = DBA::p("SELECT `circle`.`id`, `circle`.`name`,
-				(SELECT COUNT(*) FROM `post-user`
+				(SELECT COUNT(*) FROM `post-user-view`
 					WHERE `uid` = ?
 					AND `unseen`
 					AND `contact-id` IN
@@ -481,12 +481,13 @@ class Circle
 	 * Returns a templated circle selection list
 	 *
 	 * @param int    $uid User id
-	 * @param int    $gid   An optional pre-selected circle
-	 * @param string $label An optional label of the list
+	 * @param int    $gid   A pre-selected circle
+	 * @param string $id    The id of the option group
+	 * @param string $label The label of the option group
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function getSelectorHTML(int $uid, int $gid = 0, string $label = ''): string
+	public static function getSelectorHTML(int $uid, int $gid, string $id, string $label): string
 	{
 		$display_circles = [
 			[
@@ -508,11 +509,8 @@ class Circle
 
 		Logger::info('Got circles', $display_circles);
 
-		if ($label == '') {
-			$label = DI::l10n()->t('Default privacy circle for new contacts');
-		}
-
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('circle_selection.tpl'), [
+			'$id' => $id,
 			'$label' => $label,
 			'$circles' => $display_circles
 		]);

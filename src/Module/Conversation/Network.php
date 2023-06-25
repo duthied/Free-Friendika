@@ -305,9 +305,9 @@ class Network extends BaseModule
 
 	protected function parseRequest(array $get)
 	{
-		self::$circleId = $this->parameters['circle_id'] ?? 0;
+		self::$circleId = (int)($this->parameters['circle_id'] ?? 0);
 
-		self::$groupContactId = $this->parameters['contact_id'] ?? 0;
+		self::$groupContactId = (int)($this->parameters['contact_id'] ?? 0);
 
 		self::$selectedTab = self::getTimelineOrderBySession(DI::userSession(), DI::pConfig());
 

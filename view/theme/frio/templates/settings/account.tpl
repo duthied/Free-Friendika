@@ -93,6 +93,8 @@
 
 						{{$circle_select nofilter}}
 
+						{{$circle_select_group nofilter}}
+
 						{{if not $is_community}}
 						<h3>{{$permissions}}</h3>
 

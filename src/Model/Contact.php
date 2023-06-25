@@ -3100,29 +3100,30 @@ class Contact
 			self::insert([
 				'uid'     => $uid,
 				'created' => DateTimeFormat::utcNow(),
-				'url'     => $ret['url'],
-				'nurl'    => Strings::normaliseLink($ret['url']),
-				'addr'    => $ret['addr'],
-				'alias'   => $ret['alias'],
-				'batch'   => $ret['batch'],
-				'notify'  => $ret['notify'],
-				'poll'    => $ret['poll'],
-				'poco'    => $ret['poco'],
-				'name'    => $ret['name'],
-				'nick'    => $ret['nick'],
-				'network' => $ret['network'],
-				'baseurl' => $ret['baseurl'],
-				'gsid'    => $ret['gsid'] ?? null,
-				'protocol' => $protocol,
-				'pubkey'  => $ret['pubkey'],
-				'rel'     => $new_relation,
-				'priority' => $ret['priority'],
-				'writable' => $writeable,
-				'hidden'  => $hidden,
-				'blocked' => 0,
-				'readonly' => 0,
-				'pending' => $pending,
-				'subhub'  => $subhub
+				'url'          => $ret['url'],
+				'nurl'         => Strings::normaliseLink($ret['url']),
+				'addr'         => $ret['addr'],
+				'alias'        => $ret['alias'],
+				'batch'        => $ret['batch'],
+				'notify'       => $ret['notify'],
+				'poll'         => $ret['poll'],
+				'poco'         => $ret['poco'],
+				'name'         => $ret['name'],
+				'nick'         => $ret['nick'],
+				'network'      => $ret['network'],
+				'baseurl'      => $ret['baseurl'],
+				'gsid'         => $ret['gsid'] ?? null,
+				'contact-type' => $ret['account-type'] ?? self::TYPE_PERSON,
+				'protocol'     => $protocol,
+				'pubkey'       => $ret['pubkey'],
+				'rel'          => $new_relation,
+				'priority'     => $ret['priority'],
+				'writable'     => $writeable,
+				'hidden'       => $hidden,
+				'blocked'      => 0,
+				'readonly'     => 0,
+				'pending'      => $pending,
+				'subhub'       => $subhub
 			]);
 		}
 
@@ -3135,7 +3136,11 @@ class Contact
 		$contact_id = $contact['id'];
 		$result['cid'] = $contact_id;
 
-		Circle::addMember(User::getDefaultCircle($uid), $contact_id);
+		if ($contact['contact-type'] == self::TYPE_COMMUNITY) {
+			Circle::addMember(User::getDefaultGroupCircle($uid), $contact_id);
+		} else {
+			Circle::addMember(User::getDefaultCircle($uid), $contact_id);
+		}
 
 		// Update the avatar
 		self::updateAvatar($contact_id, $ret['photo']);
@@ -3265,7 +3270,7 @@ class Contact
 
 			Post\UserNotification::insertNotification($pub_contact['id'], Activity::FOLLOW, $importer['uid']);
 
-			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo'], ['id' => $contact_id]);
+			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo', 'contact-type'], ['id' => $contact_id]);
 
 			/// @TODO Encapsulate this into a function/method
 			$fields = ['uid', 'username', 'email', 'page-flags', 'notify-flags', 'language'];
@@ -3281,7 +3286,11 @@ class Contact
 					DI::intro()->save($intro);
 				}
 
-				Circle::addMember(User::getDefaultCircle($importer['uid']), $contact_record['id']);
+				if ($contact_record['contact-type'] == self::TYPE_COMMUNITY) {
+					Circle::addMember(User::getDefaultGroupCircle($importer['uid']), $contact_record['id']);
+				} else {
+					Circle::addMember(User::getDefaultCircle($importer['uid']), $contact_record['id']);
+				}
 
 				if (($user['notify-flags'] & Notification\Type::INTRO) && $user['page-flags'] == User::PAGE_FLAGS_NORMAL) {
 					DI::notify()->createFromArray([
