@@ -162,6 +162,8 @@ class Display extends BaseModule
 
 		$output .= $this->getDisplayData($item);
 
+		header('Vary: Accept', false);
+
 		return $output;
 	}
 

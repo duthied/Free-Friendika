@@ -152,6 +152,7 @@ class Xrd extends BaseModule
 			]
 		];
 		header('Access-Control-Allow-Origin: *');
+		header('Vary: Accept', false);
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
@@ -229,6 +230,7 @@ class Xrd extends BaseModule
 		];
 
 		header('Access-Control-Allow-Origin: *');
+		header('Vary: Accept', false);
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
@@ -326,7 +328,7 @@ class Xrd extends BaseModule
 		]);
 
 		header('Access-Control-Allow-Origin: *');
-
+		header('Vary: Accept', false);
 		System::httpExit($xmlString, Response::TYPE_XML, 'application/xrd+xml');
 	}
 }

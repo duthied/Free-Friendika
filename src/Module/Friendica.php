@@ -90,6 +90,8 @@ class Friendica extends BaseModule
 			$blocked = null;
 		}
 
+		header('Vary: Accept', false);
+
 		$hooked = '';
 
 		Hook::callAll('about_hook', $hooked);
@@ -125,6 +127,7 @@ class Friendica extends BaseModule
 				$data = ActivityPub\Transmitter::getProfile(0);
 				header('Access-Control-Allow-Origin: *');
 				header('Cache-Control: max-age=23200, stale-while-revalidate=23200');
+				header('Vary: Accept', false);
 				System::jsonExit($data, 'application/activity+json');
 			} catch (HTTPException\NotFoundException $e) {
 				System::jsonError(404, ['error' => 'Record not found']);

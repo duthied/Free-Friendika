@@ -130,6 +130,8 @@ class Objects extends BaseModule
 		// Relaxed CORS header for public items
 		header('Access-Control-Allow-Origin: *');
 
+		header('Vary: Accept', false);
+
 		System::jsonExit($data, 'application/activity+json');
 	}
 }
