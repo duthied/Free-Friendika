@@ -80,6 +80,8 @@ class Xrd extends BaseModule
 			throw new NotFoundException('Invalid host name for xrd query: ' . $host);
 		}
 
+		header('Vary: Accept', false);
+
 		if ($name == User::getActorName()) {
 			$owner = User::getSystemAccount();
 			if (empty($owner)) {
@@ -326,7 +328,6 @@ class Xrd extends BaseModule
 		]);
 
 		header('Access-Control-Allow-Origin: *');
-
 		System::httpExit($xmlString, Response::TYPE_XML, 'application/xrd+xml');
 	}
 }

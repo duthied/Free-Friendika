@@ -115,6 +115,8 @@ class Friendica extends BaseModule
 
 	protected function rawContent(array $request = [])
 	{
+		header('Vary: Accept', false);
+
 		// @TODO: Replace with parameter from router
 		if (DI::args()->getArgc() <= 1 || (DI::args()->getArgv()[1] !== 'json')) {
 			if (!ActivityPub::isRequest()) {
