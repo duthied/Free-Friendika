@@ -46,6 +46,8 @@ class Objects extends BaseModule
 			throw new HTTPException\BadRequestException();
 		}
 
+		header('Vary: Accept', false);
+
 		if (!ActivityPub::isRequest()) {
 			DI::baseUrl()->redirect(str_replace('objects/', 'display/', DI::args()->getQueryString()));
 		}
@@ -129,8 +131,6 @@ class Objects extends BaseModule
 
 		// Relaxed CORS header for public items
 		header('Access-Control-Allow-Origin: *');
-
-		header('Vary: Accept', false);
 
 		System::jsonExit($data, 'application/activity+json');
 	}

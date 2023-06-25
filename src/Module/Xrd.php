@@ -80,6 +80,8 @@ class Xrd extends BaseModule
 			throw new NotFoundException('Invalid host name for xrd query: ' . $host);
 		}
 
+		header('Vary: Accept', false);
+
 		if ($name == User::getActorName()) {
 			$owner = User::getSystemAccount();
 			if (empty($owner)) {
@@ -152,7 +154,6 @@ class Xrd extends BaseModule
 			]
 		];
 		header('Access-Control-Allow-Origin: *');
-		header('Vary: Accept', false);
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
@@ -230,7 +231,6 @@ class Xrd extends BaseModule
 		];
 
 		header('Access-Control-Allow-Origin: *');
-		header('Vary: Accept', false);
 		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
@@ -328,7 +328,6 @@ class Xrd extends BaseModule
 		]);
 
 		header('Access-Control-Allow-Origin: *');
-		header('Vary: Accept', false);
 		System::httpExit($xmlString, Response::TYPE_XML, 'application/xrd+xml');
 	}
 }

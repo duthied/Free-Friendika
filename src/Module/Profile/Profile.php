@@ -80,6 +80,8 @@ class Profile extends BaseProfile
 
 	protected function rawContent(array $request = [])
 	{
+		header('Vary: Accept', false);
+
 		if (ActivityPub::isRequest()) {
 			$user = $this->database->selectFirst('user', ['uid'], ['nickname' => $this->parameters['nickname'] ?? '', 'account_removed' => false]);
 			if ($user) {
@@ -87,7 +89,6 @@ class Profile extends BaseProfile
 					$data = ActivityPub\Transmitter::getProfile($user['uid']);
 					header('Access-Control-Allow-Origin: *');
 					header('Cache-Control: max-age=23200, stale-while-revalidate=23200');
-					header('Vary: Accept', false);
 					System::jsonExit($data, 'application/activity+json');
 				} catch (HTTPException\NotFoundException $e) {
 					System::jsonError(404, ['error' => 'Record not found']);
@@ -104,8 +105,6 @@ class Profile extends BaseProfile
 				System::jsonError(404, []);
 			}
 		}
-
-		header('Vary: Accept', false);
 	}
 
 	protected function content(array $request = []): string
