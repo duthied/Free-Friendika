@@ -3098,8 +3098,8 @@ class Contact
 
 			// create contact record
 			self::insert([
-				'uid'     => $uid,
-				'created' => DateTimeFormat::utcNow(),
+				'uid'          => $uid,
+				'created'      => DateTimeFormat::utcNow(),
 				'url'          => $ret['url'],
 				'nurl'         => Strings::normaliseLink($ret['url']),
 				'addr'         => $ret['addr'],
