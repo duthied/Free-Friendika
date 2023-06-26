@@ -1227,7 +1227,7 @@ class User
 		DBA::update('user', $fields, ['uid' => $uid]);
 
 		$def_gid_groups = Circle::create($uid, DI::l10n()->t('Groups'));
-		if (!$def_gid_groups) {
+		if ($def_gid_groups) {
 			DI::pConfig()->set($uid, 'system', 'default-group-gid', $def_gid_groups);
 		}
 
