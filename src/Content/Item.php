@@ -537,6 +537,14 @@ class Item
 			$item['private'] = $private_group ? ItemModel::PRIVATE : ItemModel::UNLISTED;
 
 			if ($only_to_group) {
+				$cdata = Contact::getPublicAndUserContactID($group_contact['id'], $item['uid']);
+				if (!empty($cdata['user'])) {
+					$item['owner-id'] = $cdata['user'];
+					unset($item['owner-link']);
+					unset($item['owner-name']);
+					unset($item['owner-avatar']);
+				}
+	
 				$item['postopts'] = '';
 			}
 

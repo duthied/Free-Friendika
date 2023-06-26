@@ -483,7 +483,7 @@ class User
 	}
 
 	/**
-	 * Returns the default circle for a given user and network
+	 * Returns the default circle for a given user
 	 *
 	 * @param int $uid User id
 	 *
@@ -497,6 +497,24 @@ class User
 			$default_circle = $user['def_gid'];
 		} else {
 			$default_circle = 0;
+		}
+
+		return $default_circle;
+	}
+
+	/**
+	 * Returns the default circle for groups for a given user
+	 *
+	 * @param int $uid User id
+	 *
+	 * @return int circle id
+	 * @throws Exception
+	 */
+	public static function getDefaultGroupCircle(int $uid): int
+	{
+		$default_circle = DI::pConfig()->get($uid, 'system', 'default-group-gid');
+		if (empty($default_circle)) {
+			$default_circle = self::getDefaultCircle($uid);
 		}
 
 		return $default_circle;
@@ -1207,6 +1225,11 @@ class User
 		}
 
 		DBA::update('user', $fields, ['uid' => $uid]);
+
+		$def_gid_groups = Circle::create($uid, DI::l10n()->t('Groups'));
+		if ($def_gid_groups) {
+			DI::pConfig()->set($uid, 'system', 'default-group-gid', $def_gid_groups);
+		}
 
 		// if we have no OpenID photo try to look up an avatar
 		if (!strlen($photo)) {
