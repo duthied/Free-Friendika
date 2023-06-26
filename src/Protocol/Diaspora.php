@@ -2654,7 +2654,7 @@ class Diaspora
 
 		$datarray = [
 			'guid'        => $guid,
-			'uri-id'      => ItemURI::insert(['uri' => $guid, 'guid' => $guid]),
+			'plink'       => self::plink($author, $guid),
 			'uid'         => $importer['uid'],
 			'contact-id'  => $contact['id'],
 			'network'     => Protocol::DIASPORA,
@@ -2672,9 +2672,12 @@ class Diaspora
 			'post-type'   => Item::PT_NOTE,
 		];
 
-		$datarray['guid'] = $guid;
-		$datarray['uri'] = $datarray['thr-parent'] = self::getUriFromGuid($guid, $author);
-		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
+		$datarray['uri']        = $datarray['thr-parent'] = self::getUriFromGuid($guid, $author);
+		$datarray['uri-id']     = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
+		$datarray['owner-link'] = $datarray['author-link'];
+		$datarray['owner-id']   = $datarray['author-id'];
+
+		$datarray = self::setDirection($datarray, $direction);
 
 		// Attach embedded pictures to the body
 		if ($data->photo) {
@@ -2709,7 +2712,6 @@ class Diaspora
 			$datarray['app'] = $provider_display_name;
 		}
 
-		$datarray['plink'] = self::plink($author, $guid);
 		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = $created_at;
 
 		if (isset($address['address'])) {
