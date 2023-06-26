@@ -442,6 +442,7 @@ class Processor
 					$item['isGroup']    = true;
 					$item['group-link'] = $item['owner-link'] = $audience;
 					$item['owner-id']   = Contact::getIdForURL($audience);
+					break;
 				}
 			}
 		} else {
@@ -900,6 +901,19 @@ class Processor
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary'] ?? '');
 			$item['raw-body'] = $item['body'] = $content;
+		}
+
+		if (!empty($item['author-id']) && ($item['author-id'] == $item['owner-id'])) {
+			foreach (Tag::getFromBody($item['body'], Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]) as $tag) {
+				$actor = APContact::getByURL($tag[2], false);
+				if (($actor['type'] ?? 'Person') == 'Group') {
+					Logger::debug('Group post detected via exclusive mention.', ['mention' => $actor['url'], 'actor' => $activity['actor'], 'author' => $activity['author']]);
+					$item['isGroup']    = true;
+					$item['group-link'] = $item['owner-link'] = $actor['url'];
+					$item['owner-id']   = Contact::getIdForURL($actor['url']);
+					break;
+				}
+			}
 		}
 
 		self::storeFromBody($item);
