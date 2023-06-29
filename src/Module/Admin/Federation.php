@@ -53,6 +53,7 @@ class Federation extends BaseAdmin
 			'hometown'     => ['name' => 'Hometown', 'color' => '#1f70c1'], // Color from the Patreon page
 			'honk'         => ['name' => 'Honk', 'color' => '##0d0d0d'], // Background color from the page
 			'hubzilla'     => ['name' => 'Hubzilla/Red Matrix', 'color' => '#43488a'], // blue from the logo
+			'kbin'         => ['name' => 'kbin', 'color' => '#61366b'], // Color from their main instance
 			'lemmy'        => ['name' => 'Lemmy', 'color' => '#00c853'], // Green from the page
 			'mastodon'     => ['name' => 'Mastodon', 'color' => '#1a9df9'], // blue from the Mastodon logo
 			'microblog'    => ['name' => 'Microblog', 'color' => '#fdb52b'], // Color from the page
