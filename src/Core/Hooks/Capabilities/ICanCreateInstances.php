@@ -21,8 +21,6 @@
 
 namespace Friendica\Core\Hooks\Capabilities;
 
-use Friendica\Core\Hooks\Exceptions\HookInstanceException;
-
 /**
  * creates special instance and decorator treatments for given classes
  */

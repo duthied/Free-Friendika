@@ -37,7 +37,7 @@ class SyslogLogger extends AbstractLoggerTypeFactory
 	/**
 	 * Creates a new PSR-3 compliant syslog logger instance
 	 *
-	 * @param IManageConfigValues $config   The system configuration
+	 * @param IManageConfigValues $config The system configuration
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 *
@@ -45,7 +45,7 @@ class SyslogLogger extends AbstractLoggerTypeFactory
 	 */
 	public function create(IManageConfigValues $config): LoggerInterface
 	{
-		$logOpts     = $config->get('system', 'syslog_flags') ?? SyslogLoggerClass::DEFAULT_FLAGS;
+		$logOpts     = $config->get('system', 'syslog_flags')    ?? SyslogLoggerClass::DEFAULT_FLAGS;
 		$logFacility = $config->get('system', 'syslog_facility') ?? SyslogLoggerClass::DEFAULT_FACILITY;
 		$loglevel    = SyslogLogger::mapLegacyConfigDebugLevel($config->get('system', 'loglevel'));
 
