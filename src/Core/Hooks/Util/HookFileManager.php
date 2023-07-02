@@ -31,7 +31,7 @@ use Friendica\Core\Hooks\Exceptions\HookConfigException;
  */
 class HookFileManager
 {
-	const STATIC_DIR = 'static';
+	const STATIC_DIR  = 'static';
 	const CONFIG_NAME = 'hooks';
 
 	/** @var ICanLoadAddons */
