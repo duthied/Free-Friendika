@@ -19,17 +19,19 @@
  *
  */
 
-namespace Friendica\Core\Logger\Exception;
+use Friendica\Core\Hooks\Capabilities\HookType as H;
 
-use Throwable;
-
-/**
- * Exception in case an argument of a logger class isn't valid
- */
-class LoggerArgumentException extends \InvalidArgumentException
-{
-	public function __construct($message = "", Throwable $previous = null)
-	{
-		parent::__construct($message, 500, $previous);
-	}
-}
+return [
+	H::STRATEGY  => [
+		\Psr\Log\LoggerInterface::class => [
+			\Psr\Log\NullLogger::class                      => [''],
+			\Friendica\Core\Logger\Type\SyslogLogger::class => ['syslog'],
+			\Friendica\Core\Logger\Type\StreamLogger::class => ['stream'],
+		],
+	],
+	H::DECORATOR => [
+		\Psr\Log\LoggerInterface::class => [
+			\Friendica\Core\Logger\Type\ProfilerLogger::class,
+		],
+	],
+];

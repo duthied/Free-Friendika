@@ -24,7 +24,7 @@ namespace Friendica\Test\src\Core\Logger;
 use Friendica\Core\Logger\Exception\LoggerArgumentException;
 use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core\Logger\Exception\LogLevelException;
-use Friendica\Util\FileSystem;
+use Friendica\Core\Logger\Util\FileSystem;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Core\Logger\Type\StreamLogger;
 use org\bovigo\vfs\vfsStream;
@@ -41,7 +41,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	private $logfile;
 
 	/**
-	 * @var Filesystem
+	 * @var \Friendica\Core\Logger\Util\Filesystem
 	 */
 	private $fileSystem;
 

@@ -21,9 +21,7 @@
 
 namespace Friendica\Test\Util\Hooks\InstanceMocks;
 
-use Friendica\Core\Hooks\Capabilities\IAmAStrategy;
-
-class FakeInstance implements IAmADecoratedInterface, IAmAStrategy
+class FakeInstance
 {
 	protected $aText = null;
 	protected $cBool = null;

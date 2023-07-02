@@ -22,7 +22,7 @@
 namespace Friendica\Test\src\Core\Hooks\Model;
 
 use Dice\Dice;
-use Friendica\Core\Hooks\Model\InstanceManager;
+use Friendica\Core\Hooks\Model\DiceInstanceManager;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\Hooks\InstanceMocks\FakeInstance;
 use Friendica\Test\Util\Hooks\InstanceMocks\FakeInstanceDecorator;
@@ -32,12 +32,12 @@ class InstanceManagerTest extends MockedTest
 {
 	public function testEqualButNotSameInstance()
 	{
-		$instance = new InstanceManager(new Dice());
+		$instance = new DiceInstanceManager(new Dice());
 
 		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake', FakeInstance::class);
 
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake');
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake');
+		$getInstanceA = $instance->createWithName(IAmADecoratedInterface::class, 'fake');
+		$getInstanceB = $instance->createWithName(IAmADecoratedInterface::class, 'fake');
 
 		self::assertEquals($getInstanceA, $getInstanceB);
 		self::assertNotSame($getInstanceA, $getInstanceB);
@@ -81,7 +81,7 @@ class InstanceManagerTest extends MockedTest
 	 */
 	public function testInstanceWithConstructorAnonymArgs(string $aString = null, bool $cBool = null, string $bString = null)
 	{
-		$instance = new InstanceManager(new Dice());
+		$instance = new DiceInstanceManager(new Dice());
 
 		$args = [];
 
@@ -98,9 +98,9 @@ class InstanceManagerTest extends MockedTest
 		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake', FakeInstance::class, $args);
 
 		/** @var IAmADecoratedInterface $getInstanceA */
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake');
+		$getInstanceA = $instance->createWithName(IAmADecoratedInterface::class, 'fake');
 		/** @var IAmADecoratedInterface $getInstanceB */
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake');
+		$getInstanceB = $instance->createWithName(IAmADecoratedInterface::class, 'fake');
 
 		self::assertEquals($getInstanceA, $getInstanceB);
 		self::assertNotSame($getInstanceA, $getInstanceB);
@@ -117,7 +117,7 @@ class InstanceManagerTest extends MockedTest
 	 */
 	public function testInstanceConstructorAndGetInstanceWithNamedArgs(string $aString = null, bool $cBool = null, string $bString = null)
 	{
-		$instance = new InstanceManager(new Dice());
+		$instance = new DiceInstanceManager(new Dice());
 
 		$args = [];
 
@@ -131,9 +131,9 @@ class InstanceManagerTest extends MockedTest
 		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake', FakeInstance::class, $args);
 
 		/** @var IAmADecoratedInterface $getInstanceA */
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake', [$bString]);
+		$getInstanceA = $instance->createWithName(IAmADecoratedInterface::class, 'fake', [$bString]);
 		/** @var IAmADecoratedInterface $getInstanceB */
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake', [$bString]);
+		$getInstanceB = $instance->createWithName(IAmADecoratedInterface::class, 'fake', [$bString]);
 
 		self::assertEquals($getInstanceA, $getInstanceB);
 		self::assertNotSame($getInstanceA, $getInstanceB);
@@ -150,7 +150,7 @@ class InstanceManagerTest extends MockedTest
 	 */
 	public function testInstanceWithTwoStrategies(string $aString = null, bool $cBool = null, string $bString = null)
 	{
-		$instance = new InstanceManager(new Dice());
+		$instance = new DiceInstanceManager(new Dice());
 
 		$args = [];
 
@@ -165,9 +165,9 @@ class InstanceManagerTest extends MockedTest
 		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake23', FakeInstance::class, $args);
 
 		/** @var IAmADecoratedInterface $getInstanceA */
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake', [$bString]);
+		$getInstanceA = $instance->createWithName(IAmADecoratedInterface::class, 'fake', [$bString]);
 		/** @var IAmADecoratedInterface $getInstanceB */
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake23', [$bString]);
+		$getInstanceB = $instance->createWithName(IAmADecoratedInterface::class, 'fake23', [$bString]);
 
 		self::assertEquals($getInstanceA, $getInstanceB);
 		self::assertNotSame($getInstanceA, $getInstanceB);
@@ -184,7 +184,7 @@ class InstanceManagerTest extends MockedTest
 	 */
 	public function testDecorator(string $aString = null, bool $cBool = null, string $bString = null)
 	{
-		$instance = new InstanceManager(new Dice());
+		$instance = new DiceInstanceManager(new Dice());
 
 		$args = [];
 
@@ -202,9 +202,9 @@ class InstanceManagerTest extends MockedTest
 		$instance->registerDecorator(IAmADecoratedInterface::class, FakeInstanceDecorator::class, [$prefix]);
 
 		/** @var IAmADecoratedInterface $getInstanceA */
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake', [$bString]);
+		$getInstanceA = $instance->createWithName(IAmADecoratedInterface::class, 'fake', [$bString]);
 		/** @var IAmADecoratedInterface $getInstanceB */
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake23', [$bString]);
+		$getInstanceB = $instance->createWithName(IAmADecoratedInterface::class, 'fake23', [$bString]);
 
 		self::assertEquals(2, FakeInstanceDecorator::$countInstance);
 		self::assertEquals($getInstanceA, $getInstanceB);
@@ -222,7 +222,7 @@ class InstanceManagerTest extends MockedTest
 	 */
 	public function testTwoDecoratorWithPrefix(string $aString = null, bool $cBool = null, string $bString = null)
 	{
-		$instance = new InstanceManager(new Dice());
+		$instance = new DiceInstanceManager(new Dice());
 
 		$args = [];
 
@@ -241,9 +241,9 @@ class InstanceManagerTest extends MockedTest
 		$instance->registerDecorator(IAmADecoratedInterface::class, FakeInstanceDecorator::class);
 
 		/** @var IAmADecoratedInterface $getInstanceA */
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake', [$bString]);
+		$getInstanceA = $instance->createWithName(IAmADecoratedInterface::class, 'fake', [$bString]);
 		/** @var IAmADecoratedInterface $getInstanceB */
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake23', [$bString]);
+		$getInstanceB = $instance->createWithName(IAmADecoratedInterface::class, 'fake23', [$bString]);
 
 		self::assertEquals(4, FakeInstanceDecorator::$countInstance);
 		self::assertEquals($getInstanceA, $getInstanceB);

@@ -2,7 +2,7 @@
 /**
  * @copyright Copyright (C) 2010-2023, the Friendica project
  *
- * @license GNU AGPL version 3 or any later version
+ * @license   GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -19,11 +19,17 @@
  *
  */
 
-namespace Friendica\Core\Hooks\Capabilities;
+namespace Friendica\Core\Logger\Exception;
+
+use Throwable;
 
 /**
- * All classes, implementing this interface are valid Strategies for Hook calls
+ * Exception in case the used logging instance is unusable because of some circumstances
  */
-interface IAmAStrategy
+class LoggerUnusableException extends \RuntimeException
 {
+	public function __construct($message = "", Throwable $previous = null)
+	{
+		parent::__construct($message, 500, $previous);
+	}
 }

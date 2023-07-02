@@ -19,10 +19,10 @@
  *
  */
 
-namespace Friendica\Util;
+namespace Friendica\Core\Logger\Util;
 
 /**
- * Util class for filesystem manipulation
+ * Util class for filesystem manipulation for Logger classes
  */
 class FileSystem
 {
@@ -38,7 +38,7 @@ class FileSystem
 	 *
 	 * @return string The directory name (empty if no directory is found, like urls)
 	 */
-	public function createDir(string $file)
+	public function createDir(string $file): string
 	{
 		$dirname = null;
 		$pos = strpos($file, '://');

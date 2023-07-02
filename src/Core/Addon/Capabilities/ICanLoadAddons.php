@@ -19,17 +19,19 @@
  *
  */
 
-namespace Friendica\Core\Logger\Exception;
-
-use Throwable;
+namespace Friendica\Core\Addon\Capabilities;
 
 /**
- * Exception in case an argument of a logger class isn't valid
+ * Interface for loading Addons specific content
  */
-class LoggerArgumentException extends \InvalidArgumentException
+interface ICanLoadAddons
 {
-	public function __construct($message = "", Throwable $previous = null)
-	{
-		parent::__construct($message, 500, $previous);
-	}
+	/**
+	 * Returns a merged config array of all active addons for a given config-name
+	 *
+	 * @param string $configName The config-name (config-file at the static directory, like 'hooks' => '{addon}/static/hooks.config.php)
+	 *
+	 * @return array the merged array
+	 */
+	public function getActiveAddonConfig(string $configName): array;
 }

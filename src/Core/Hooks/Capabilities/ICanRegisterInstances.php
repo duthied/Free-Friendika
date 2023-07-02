@@ -21,61 +21,43 @@
 
 namespace Friendica\Core\Hooks\Capabilities;
 
-use Friendica\Core\Hooks\Exceptions\HookInstanceException;
 use Friendica\Core\Hooks\Exceptions\HookRegisterArgumentException;
 
 /**
- * Managing special instance and decorator treatments for classes
+ * Register strategies and decorator/treatment handling for given classes
  */
-interface ICanManageInstances
+interface ICanRegisterInstances
 {
 	/**
 	 * Register a class(strategy) for a given interface with a unique name.
 	 *
 	 * @see https://refactoring.guru/design-patterns/strategy
 	 *
-	 * @param string $interface  The interface, which the given class implements
-	 * @param string $name       An arbitrary identifier for the given class, which will be used for factories, dependency injections etc.
-	 * @param string $class      The fully-qualified given class name
-	 * @param ?array  $arguments Additional arguments, which can be passed to the constructor
+	 * @param string  $interface The interface, which the given class implements
+	 * @param string  $class     The fully-qualified given class name
+	 *                           A placeholder for dependencies is possible as well
+	 * @param ?string $name      An arbitrary identifier for the given class, which will be used for factories, dependency injections etc.
 	 *
 	 * @return $this This interface for chain-calls
 	 *
 	 * @throws HookRegisterArgumentException in case the given class for the interface isn't valid or already set
 	 */
-	public function registerStrategy(string $interface, string $name, string $class, array $arguments = null): self;
+	public function registerStrategy(string $interface, string $class, ?string $name = null): self;
 
 	/**
 	 * Register a new decorator for a given class or interface
-	 * @see https://refactoring.guru/design-patterns/decorator
+	 *
+	 * @see  https://refactoring.guru/design-patterns/decorator
 	 *
 	 * @note Decorator attach new behaviors to classes without changing them or without letting them know about it.
 	 *
 	 * @param string $class          The fully-qualified class or interface name, which gets decorated by a class
 	 * @param string $decoratorClass The fully-qualified name of the class which mimics the given class or interface and adds new functionality
-	 * @param array  $arguments      Additional arguments, which can be passed to the constructor of "decoratorClass"
+	 *                               A placeholder for dependencies is possible as well
 	 *
 	 * @return $this This interface for chain-calls
 	 *
 	 * @throws HookRegisterArgumentException in case the given class for the class or interface isn't valid
 	 */
-	public function registerDecorator(string $class, string $decoratorClass, array $arguments = []): self;
-
-	/**
-	 * Returns a new instance of a given class for the corresponding name
-	 *
-	 * The instance will be build based on the registered strategy and the (unique) name
-	 *
-	 * In case, there are registered decorators for this class as well, all decorators of the list will be wrapped
-	 * around the instance before returning it
-	 *
-	 * @param string $class     The fully-qualified name of the given class or interface which will get returned
-	 * @param string $name      An arbitrary identifier to find a concrete instance strategy.
-	 * @param array  $arguments Additional arguments, which can be passed to the constructor of "$class" at runtime
-	 *
-	 * @return object The concrete instance of the type "$class"
-	 *
-	 * @throws HookInstanceException In case the class cannot get created
-	 */
-	public function getInstance(string $class, string $name, array $arguments = []): object;
+	public function registerDecorator(string $class, string $decoratorClass): self;
 }

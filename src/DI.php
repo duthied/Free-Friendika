@@ -22,10 +22,12 @@
 namespace Friendica;
 
 use Dice\Dice;
-use Friendica\Core\Session\Capability\IHandleSessions;
-use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\Navigation\SystemMessages;
-use Psr\Log\LoggerInterface;
+use \Friendica\Core\Logger\Capabilities\ICheckLoggerSettings;
+use \Friendica\Core\Logger\Util\LoggerSettingsCheck;
+use \Friendica\Core\Session\Capability\IHandleSessions;
+use \Friendica\Core\Session\Capability\IHandleUserSessions;
+use \Friendica\Navigation\SystemMessages;
+use \Psr\Log\LoggerInterface;
 
 /**
  * This class is capable of getting all dynamic created classes
@@ -293,6 +295,11 @@ abstract class DI
 			->addRule(LoggerInterface::class, self::$dice->getRule(LoggerInterface::class))
 			->addRule('$devLogger', self::$dice->getRule('$devLogger'));
 		static::init($flushDice);
+	}
+
+	public static function loggCheck(): ICheckLoggerSettings
+	{
+		return self::$dice->create(LoggerSettingsCheck::class);
 	}
 
 	/**
@@ -690,14 +697,6 @@ abstract class DI
 	public static function dtFormat()
 	{
 		return self::$dice->create(Util\DateTimeFormat::class);
-	}
-
-	/**
-	 * @return Util\FileSystem
-	 */
-	public static function fs()
-	{
-		return self::$dice->create(Util\FileSystem::class);
 	}
 
 	/**

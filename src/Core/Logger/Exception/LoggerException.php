@@ -2,7 +2,7 @@
 /**
  * @copyright Copyright (C) 2010-2023, the Friendica project
  *
- * @license GNU AGPL version 3 or any later version
+ * @license   GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -23,6 +23,9 @@ namespace Friendica\Core\Logger\Exception;
 
 use Throwable;
 
+/**
+ * A generic exception of the logging namespace
+ */
 class LoggerException extends \Exception
 {
 	public function __construct($message = "", Throwable $previous = null)

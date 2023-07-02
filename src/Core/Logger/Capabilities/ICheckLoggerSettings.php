@@ -19,17 +19,24 @@
  *
  */
 
-namespace Friendica\Core\Logger\Exception;
-
-use Throwable;
+namespace Friendica\Core\Logger\Capabilities;
 
 /**
- * Exception in case an argument of a logger class isn't valid
+ * Whenever a logging specific check is necessary, use this interface to encapsulate and centralize this logic
  */
-class LoggerArgumentException extends \InvalidArgumentException
+interface ICheckLoggerSettings
 {
-	public function __construct($message = "", Throwable $previous = null)
-	{
-		parent::__construct($message, 500, $previous);
-	}
+	/**
+	 * Checks if the logfile is set and usable
+	 *
+	 * @return string|null null in case everything is ok, otherwise returns the error
+	 */
+	public function checkLogfile(): ?string;
+
+	/**
+	 * Checks if the debugging logfile is usable in case it is set!
+	 *
+	 * @return string|null null in case everything is ok, otherwise returns the error
+	 */
+	public function checkDebugLogfile(): ?string;
 }

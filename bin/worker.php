@@ -29,6 +29,7 @@ if (php_sapi_name() !== 'cli') {
 use Dice\Dice;
 use Friendica\App;
 use Friendica\App\Mode;
+use Friendica\Core\Logger\Capabilities\LogChannel;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\DI;
@@ -54,7 +55,10 @@ if (!file_exists("index.php") && (sizeof($_SERVER["argv"]) != 0)) {
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
-$dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['worker']]);
+/** @var \Friendica\Core\Addon\Capabilities\ICanLoadAddons $addonLoader */
+$addonLoader = $dice->create(\Friendica\Core\Addon\Capabilities\ICanLoadAddons::class);
+$dice = $dice->addRules($addonLoader->getActiveAddonConfig('dependencies'));
+$dice = $dice->addRule(LoggerInterface::class,['constructParams' => [LogChannel::WORKER]]);
 
 DI::init($dice);
 \Friendica\Core\Logger\Handler\ErrorHandler::register($dice->create(\Psr\Log\LoggerInterface::class));

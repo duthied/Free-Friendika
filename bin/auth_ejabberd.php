@@ -58,6 +58,7 @@ if (php_sapi_name() !== 'cli') {
 
 use Dice\Dice;
 use Friendica\App\Mode;
+use Friendica\Core\Logger\Capabilities\LogChannel;
 use Friendica\Security\ExAuth;
 use Psr\Log\LoggerInterface;
 
@@ -78,7 +79,10 @@ chdir($directory);
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
-$dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['auth_ejabberd']]);
+/** @var \Friendica\Core\Addon\Capabilities\ICanLoadAddons $addonLoader */
+$addonLoader = $dice->create(\Friendica\Core\Addon\Capabilities\ICanLoadAddons::class);
+$dice = $dice->addRules($addonLoader->getActiveAddonConfig('dependencies'));
+$dice = $dice->addRule(LoggerInterface::class,['constructParams' => [LogChannel::AUTH_JABBERED]]);
 
 \Friendica\DI::init($dice);
 \Friendica\Core\Logger\Handler\ErrorHandler::register($dice->create(\Psr\Log\LoggerInterface::class));

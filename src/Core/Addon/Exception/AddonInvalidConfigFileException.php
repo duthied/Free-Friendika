@@ -19,13 +19,16 @@
  *
  */
 
-namespace Friendica\Core\Logger\Exception;
+namespace Friendica\Core\Addon\Exception;
 
 use Throwable;
 
-class LoggerInvalidException extends \RuntimeException
+/**
+ * Exception in case one or more config files of the addons are invalid
+ */
+class AddonInvalidConfigFileException extends \RuntimeException
 {
-	public function __construct($message = "", Throwable $previous = null)
+	public function __construct($message = "", $code = 0, Throwable $previous = null)
 	{
 		parent::__construct($message, 500, $previous);
 	}

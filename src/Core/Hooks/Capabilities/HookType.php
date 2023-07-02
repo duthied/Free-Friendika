@@ -2,7 +2,7 @@
 /**
  * @copyright Copyright (C) 2010-2023, the Friendica project
  *
- * @license   GNU AGPL version 3 or any later version
+ * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -19,17 +19,21 @@
  *
  */
 
-namespace Friendica\Core\Logger\Exception;
+namespace Friendica\Core\Hooks\Capabilities;
 
-use Throwable;
-
-/**
- * Exception in case an argument of a logger class isn't valid
- */
-class LoggerArgumentException extends \InvalidArgumentException
+interface HookType
 {
-	public function __construct($message = "", Throwable $previous = null)
-	{
-		parent::__construct($message, 500, $previous);
-	}
+	/**
+	 * Defines the key for the list of strategy-hooks.
+	 *
+	 * @see https://refactoring.guru/design-patterns/strategy
+	 */
+	const STRATEGY = 'strategy';
+	/**
+	 * Defines the key for the list of decorator-hooks.
+	 *
+	 * @see  https://refactoring.guru/design-patterns/decorator
+	 */
+	const DECORATOR = 'decorator';
+	const EVENT     = 'event';
 }
