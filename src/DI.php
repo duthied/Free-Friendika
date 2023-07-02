@@ -22,12 +22,12 @@
 namespace Friendica;
 
 use Dice\Dice;
-use \Friendica\Core\Logger\Capabilities\ICheckLoggerSettings;
-use \Friendica\Core\Logger\Util\LoggerSettingsCheck;
-use \Friendica\Core\Session\Capability\IHandleSessions;
-use \Friendica\Core\Session\Capability\IHandleUserSessions;
-use \Friendica\Navigation\SystemMessages;
-use \Psr\Log\LoggerInterface;
+use Friendica\Core\Logger\Capabilities\ICheckLoggerSettings;
+use Friendica\Core\Logger\Util\LoggerSettingsCheck;
+use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Navigation\SystemMessages;
+use Psr\Log\LoggerInterface;
 
 /**
  * This class is capable of getting all dynamic created classes
