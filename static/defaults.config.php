@@ -781,4 +781,9 @@ return [
 		// By default the template cache is stored in several subdirectories.
 		'use_sub_dirs' => true,
 	],
+	'api' => [
+		// mastodon_banner (String)
+		// Banner for Mastodon API
+		'mastodon_banner' => '/images/friendica-banner.jpg',
+	],
 ];
