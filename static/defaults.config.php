@@ -91,6 +91,10 @@ return [
 		// php_path (String)
 		// Location of PHP command line processor.
 		'php_path' => 'php',
+
+		// api_mastodon_banner (String)
+		// Banner for Mastodon API
+		'api_mastodon_banner' => '/images/friendica-banner.jpg',
 	],
 	'system' => [
 		// adjust_poll_frequency (Boolean)
