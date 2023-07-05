@@ -24,8 +24,8 @@ namespace Friendica\Object\Api\Twitter;
 use Friendica\BaseDataTransferObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Protocol;
 use Friendica\Model\Contact;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
 
@@ -82,6 +82,42 @@ class User extends BaseDataTransferObject
 	protected $withheld_in_countries;
 	/** @var string */
 	protected $withheld_scope;
+	/** @var string */
+	protected $profile_image_url;
+	/** @var bool */
+	protected $follow_request_sent;
+	/** @var string */
+	protected $profile_image_url_large;
+	/** @var string */
+	protected $profile_image_url_profile_size;
+	/** @var int */
+	protected $utc_offset;
+	/** @var string */
+	protected $time_zone;
+	/** @var bool */
+	protected $geo_enabled;
+	/** @var null */
+	protected $lang;
+	/** @var bool */
+	protected $contributors_enabled;
+	/** @var bool */
+	protected $is_translator;
+	/** @var bool */
+	protected $is_translation_enabled;
+	/** @var bool */
+	protected $following;
+	/** @var bool */
+	protected $statusnet_blocking;
+	/** @var bool */
+	protected $notifications;
+	/** @var int */
+	protected $uid;
+	/** @var int */
+	protected $pid;
+	/** @var int */
+	protected $cid;
+	/** @var mixed */
+	protected $statusnet_profile_url;
 
 	/**
 	 * Missing fields:
@@ -95,11 +131,12 @@ class User extends BaseDataTransferObject
 	 * @param array $publicContact         Full contact table record with uid = 0
 	 * @param array $apcontact             Optional full apcontact table record
 	 * @param array $userContact           Optional full contact table record with uid != 0
-	 * @param bool  $skip_status           Whether to remove the last status property, currently unused
+	 * @param null  $status
 	 * @param bool  $include_user_entities Whether to add the entities property
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws InternalServerErrorException
 	 */
-	public function __construct(array $publicContact, array $apcontact = [], array $userContact = [], $status = null, $include_user_entities = true)
+	public function __construct(array $publicContact, array $apcontact = [], array $userContact = [], $status = null, bool $include_user_entities = true)
 	{
 		$uid = $userContact['uid'] ?? 0;
 
