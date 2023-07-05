@@ -149,14 +149,14 @@ class Invite extends BaseModule
 			if ($config->get('config', 'register_policy') === Register::CLOSED) {
 				$linkTxt = DI::l10n()->t('Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks.', $dirLocation . '/servers');
 			} else {
-				$linkTxt = DI::l10n()->t('To accept this invitation, please visit and register at %s or any other public Friendica website.', DI::baseUrl())
+				$linkTxt = DI::l10n()->t('To accept this invitation, please visit and register at %s or any other public Friendica website.', DI::baseUrl() . '/register')
 					. "\r\n" . "\r\n" . DI::l10n()->t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks. See %s for a list of alternate Friendica sites you can join.', $dirLocation . '/servers');
 			}
 		} else { // there is no global directory URL defined
 			if ($config->get('config', 'register_policy') === Register::CLOSED) {
 				return DI::l10n()->t('Our apologies. This system is not currently configured to connect with other public sites or invite members.');
 			} else {
-				$linkTxt = DI::l10n()->t('To accept this invitation, please visit and register at %s.', DI::baseUrl()
+				$linkTxt = DI::l10n()->t('To accept this invitation, please visit and register at %s.', DI::baseUrl() . '/register' 
 					. "\r\n" . "\r\n" . DI::l10n()->t('Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks.'));
 			}
 		}
