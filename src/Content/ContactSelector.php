@@ -220,7 +220,7 @@ class ContactSelector
 			'GNU Social' => 'gnu-social', 'gnusocial' => 'gnu-social', 'hubzilla' => 'hubzilla',
 			'mastodon' => 'mastodon', 'peertube' => 'peertube', 'pixelfed' => 'pixelfed',
 			'pleroma' => 'pleroma', 'red' => 'hubzilla', 'redmatrix' => 'hubzilla',
-			'socialhome' => 'social-home', 'wordpress' => 'wordpress'];
+			'socialhome' => 'social-home', 'wordpress' => 'wordpress', 'lemmy' => 'users'];
 
 		$search  = array_keys($nets);
 		$replace = array_values($nets);

@@ -575,13 +575,16 @@ class Transmitter
 		$always_bcc = false;
 		$is_group   = false;
 		$follower   = '';
+		$exclusive  = false;
+		$mention    = false;
+		$audience   = [];
 
 		// Check if we should always deliver our stuff via BCC
 		if (!empty($item['uid'])) {
 			$owner = User::getOwnerDataById($item['uid']);
 			if (!empty($owner)) {
 				$always_bcc = $owner['hide-friends'];
-				$is_group   = ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) && $owner['manually-approve'];
+				$is_group   = ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY);
 
 				$profile  = APContact::getByURL($owner['url'], false);
 				$follower = $profile['followers'] ?? '';
@@ -600,43 +603,43 @@ class Transmitter
 			$is_group_thread = false;
 		}
 
-		$exclusive = false;
-		$mention   = false;
-		$audience  = [];
-
-		$parent_tags = Tag::getByURIId($item['parent-uri-id'], [Tag::AUDIENCE, Tag::MENTION]);
-		if (!empty($parent_tags)) {
-			$is_group_thread = false;
-			foreach ($parent_tags as $tag) {
-				if ($tag['type'] != Tag::AUDIENCE) {
-					continue;
-				}
-				$profile = APContact::getByURL($tag['url'], false);
-				if (!empty($profile) && ($profile['type'] == 'Group')) {
-					$audience[] = $tag['url'];
-					$is_group_thread = true;
-				}
-			}
-			if ($is_group_thread) {
+		if (!$is_group) {
+			$parent_tags = Tag::getByURIId($item['parent-uri-id'], [Tag::AUDIENCE, Tag::MENTION]);
+			if (!empty($parent_tags)) {
+				$is_group_thread = false;
 				foreach ($parent_tags as $tag) {
-					if (($tag['type'] == Tag::MENTION) && in_array($tag['url'], $audience)) {
-						$mention = true;
+					if ($tag['type'] != Tag::AUDIENCE) {
+						continue;
+					}
+					$profile = APContact::getByURL($tag['url'], false);
+					if (!empty($profile) && ($profile['type'] == 'Group')) {
+						$audience[] = $tag['url'];
+						$is_group_thread = true;
 					}
 				}
-				$exclusive = !$mention;
-			}
-		} elseif ($is_group_thread) {
-			foreach (Tag::getByURIId($item['parent-uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $term) {
-				$profile = APContact::getByURL($term['url'], false);
-				if (!empty($profile) && ($profile['type'] == 'Group')) {
-					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
-						$audience[] = $term['url'];
-						$exclusive  = true;
-					} elseif ($term['type'] == Tag::MENTION) {
-						$mention = true;
+				if ($is_group_thread) {
+					foreach ($parent_tags as $tag) {
+						if (($tag['type'] == Tag::MENTION) && in_array($tag['url'], $audience)) {
+							$mention = true;
+						}
+					}
+					$exclusive = !$mention;
+				}
+			} elseif ($is_group_thread) {
+				foreach (Tag::getByURIId($item['parent-uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]) as $term) {
+					$profile = APContact::getByURL($term['url'], false);
+					if (!empty($profile) && ($profile['type'] == 'Group')) {
+						if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
+							$audience[] = $term['url'];
+							$exclusive  = true;
+						} elseif ($term['type'] == Tag::MENTION) {
+							$mention = true;
+						}
 					}
 				}
 			}
+		} else {
+			$audience[] = $owner['url'];
 		}
 
 		if (self::isAnnounce($item) || self::isAPPost($last_id)) {
@@ -668,7 +671,7 @@ class Transmitter
 			}
 
 			if (!$exclusive) {
-				$data = array_merge($data, self::fetchPermissionBlockFromThreadParent($item, $is_group_thread));
+				$data = array_merge_recursive($data, self::fetchPermissionBlockFromThreadParent($item, $is_group_thread));
 			}
 
 			// Check if the item is completely public or unlisted
@@ -823,10 +826,6 @@ class Transmitter
 
 		if (($key = array_search($item['author-link'], $data['bcc'])) !== false) {
 			unset($data['bcc'][$key]);
-		}
-
-		if (($key = array_search($item['author-link'], $data['audience'])) !== false) {
-			unset($data['audience'][$key]);
 		}
 
 		foreach ($data['to'] as $to) {
@@ -1019,7 +1018,7 @@ class Transmitter
 				}
 
 				if ($item_profile && ($receiver == $item_profile['followers']) && ($uid == $profile_uid)) {
-					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal, self::isAPPost($last_id)));
+					$inboxes = array_merge_recursive($inboxes, self::fetchTargetInboxesforUser($uid, $personal, self::isAPPost($last_id)));
 				} else {
 					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
@@ -1205,14 +1204,16 @@ class Transmitter
 	/**
 	 * Creates the activity or fetches it from the cache
 	 *
-	 * @param integer $item_id Item id
-	 * @param boolean $force Force new cache entry
+	 * @param integer $item_id           Item id
+	 * @param boolean $force             Force new cache entry
+	 * @param boolean $object_mode       true = Create the object, false = create the activity with the object
+	 * @param boolean $announce_activity true = the announced object is the activity, false = we announce the object link
 	 * @return array|false activity or false on failure
 	 * @throws \Exception
 	 */
-	public static function createCachedActivityFromItem(int $item_id, bool $force = false, bool $object_mode = false)
+	public static function createCachedActivityFromItem(int $item_id, bool $force = false, bool $object_mode = false, $announce_activity = false)
 	{
-		$cachekey = 'APDelivery:createActivity:' . $item_id . ':' . (int)$object_mode;
+		$cachekey = 'APDelivery:createActivity:' . $item_id . ':' . (int)$object_mode . ':' . (int)$announce_activity;
 
 		if (!$force) {
 			$data = DI::cache()->get($cachekey);
@@ -1221,7 +1222,7 @@ class Transmitter
 			}
 		}
 
-		$data = self::createActivityFromItem($item_id, $object_mode);
+		$data = self::createActivityFromItem($item_id, $object_mode, false, $announce_activity);
 
 		DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
 		return $data;
@@ -1231,12 +1232,13 @@ class Transmitter
 	 * Creates an activity array for a given item id
 	 *
 	 * @param integer $item_id
-	 * @param boolean $object_mode Is the activity item is used inside another object?
-	 * @param boolean $api_mode    "true" if used for the API
+	 * @param boolean $object_mode       true = Create the object, false = create the activity with the object
+	 * @param boolean $api_mode          true = used for the API
+	 * @param boolean $announce_activity true = the announced object is the activity, false = we announce the object link
 	 * @return false|array
 	 * @throws \Exception
 	 */
-	public static function createActivityFromItem(int $item_id, bool $object_mode = false, $api_mode = false)
+	public static function createActivityFromItem(int $item_id, bool $object_mode = false, $api_mode = false, $announce_activity = false)
 	{
 		$condition = ['id' => $item_id];
 		if (!$api_mode) {
@@ -1247,7 +1249,7 @@ class Transmitter
 		if (!DBA::isResult($item)) {
 			return false;
 		}
-		return self::createActivityFromArray($item, $object_mode, $api_mode);
+		return self::createActivityFromArray($item, $object_mode, $api_mode, $announce_activity);
 	}
 
 	/**
@@ -1255,12 +1257,13 @@ class Transmitter
 	 *
 	 * @param integer $uri_id
 	 * @param integer $uid
-	 * @param boolean $object_mode Is the activity item is used inside another object?
-	 * @param boolean $api_mode    "true" if used for the API
+	 * @param boolean $object_mode       true = Create the object, false = create the activity with the object
+	 * @param boolean $api_mode          true = used for the API
+	 * @param boolean $announce_activity true = the announced object is the activity, false = we announce the object link
 	 * @return false|array
 	 * @throws \Exception
 	 */
-	public static function createActivityFromUriId(int $uri_id, int $uid, bool $object_mode = false, $api_mode = false)
+	public static function createActivityFromUriId(int $uri_id, int $uid, bool $object_mode = false, $api_mode = false, $announce_activity = false)
 	{
 		$condition = ['uri-id' => $uri_id, 'uid' => [0, $uid]];
 		if (!$api_mode) {
@@ -1272,19 +1275,20 @@ class Transmitter
 			return false;
 		}
 
-		return self::createActivityFromArray($item, $object_mode, $api_mode);
+		return self::createActivityFromArray($item, $object_mode, $api_mode, $announce_activity);
 	}
 
 	/**
 	 * Creates an activity array for a given item id
 	 *
 	 * @param integer $item_id
-	 * @param boolean $object_mode Is the activity item is used inside another object?
-	 * @param boolean $api_mode    "true" if used for the API
+	 * @param boolean $object_mode       true = Create the object, false = create the activity with the object
+	 * @param boolean $api_mode          true = used for the API
+	 * @param boolean $announce_activity true = the announced object is the activity, false = we announce the object link
 	 * @return false|array
 	 * @throws \Exception
 	 */
-	private static function createActivityFromArray(array $item, bool $object_mode = false, $api_mode = false)
+	private static function createActivityFromArray(array $item, bool $object_mode = false, $api_mode = false, $announce_activity = false)
 	{
 		if (!$api_mode && !$item['deleted'] && $item['network'] == Protocol::ACTIVITYPUB) {
 			$data = Post\Activity::getByURIId($item['uri-id']);
@@ -1354,7 +1358,13 @@ class Transmitter
 			$data = self::createAddTag($item, $data);
 		} elseif ($data['type'] == 'Announce') {
 			if ($item['verb'] == ACTIVITY::ANNOUNCE) {
-				$data['object'] = $item['thr-parent'];
+				if ($announce_activity) {
+					$anounced_item = Post::selectFirst(['uid'], ['uri-id' => $item['thr-parent-id'], 'origin' => true]);
+					$data['object'] = self::createActivityFromUriId($item['thr-parent-id'], $anounced_item['uid'] ?? 0);
+					unset($data['object']['@context']);
+				} else {
+					$data['object'] = $item['thr-parent'];
+				}
 			} else {
 				$data = self::createAnnounce($item, $data, $api_mode);
 			}
