@@ -28,6 +28,9 @@ use Friendica\Test\FixtureTest;
 
 class BBCodeTest extends FixtureTest
 {
+	/** @var \HTMLPurifier */
+	public $HTMLPurifier;
+
 	protected function setUp(): void
 	{
 		parent::setUp();

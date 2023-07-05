@@ -89,7 +89,7 @@ class ReversedFileReader implements \Iterator
 	 *
 	 * @return string|null Depending on data being buffered
 	 */
-	private function _readline()
+	private function _readline(): ?string
 	{
 		$buffer = & $this->buffer;
 		while (true) {
@@ -112,6 +112,7 @@ class ReversedFileReader implements \Iterator
 	 * @see Iterator::next()
 	 * @return void
 	 */
+	#[\ReturnTypeWillChange]
 	public function next()
 	{
 		++$this->key;
@@ -124,6 +125,7 @@ class ReversedFileReader implements \Iterator
 	 * @see Iterator::rewind()
 	 * @return void
 	 */
+	#[\ReturnTypeWillChange]
 	public function rewind()
 	{
 		if ($this->filesize > 0) {

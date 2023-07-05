@@ -29,6 +29,7 @@ class Notifications extends BaseCollection
 	/**
 	 * @return Notification
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return parent::current();

@@ -30,6 +30,15 @@ class DatabaseTest extends FixtureTest
 {
 	use CreateDatabaseTrait;
 
+	/**
+	 * @var Cache
+	 */
+	protected $configCache;
+	/**
+	 * @var ConfigFileManager
+	 */
+	protected $configFileManager;
+
 	protected function setUp(): void
 	{
 		$this->setUpVfsDir();

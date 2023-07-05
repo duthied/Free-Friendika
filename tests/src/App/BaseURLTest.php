@@ -178,7 +178,7 @@ class BaseURLTest extends MockedTest
 	public function testRedirectException()
 	{
 		self::expectException(InternalServerErrorException::class);
-		self::expectErrorMessage('https://friendica.other is not a relative path, please use System::externalRedirect');
+		self::expectExceptionMessage('https://friendica.other is not a relative path, please use System::externalRedirect');
 
 		$config = new ReadOnlyFileConfig(new Cache([
 			'system' => [

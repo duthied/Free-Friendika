@@ -35,7 +35,7 @@ final class ACLFormatter
 	 *
 	 * @return array The array based on the IDs (empty in case there is no list)
 	 */
-	public function expand(string $acl_string = null)
+	public function expand(string $acl_string = null): array
 	{
 		// In case there is no ID list, return empty array (=> no ACL set)
 		if (empty($acl_string)) {
@@ -55,7 +55,7 @@ final class ACLFormatter
 	 * @param string|null $acl_string
 	 * @return string
 	 */
-	public function sanitize(string $acl_string = null)
+	public function sanitize(string $acl_string = null): string
 	{
 		if (empty($acl_string)) {
 			return '';
@@ -107,10 +107,13 @@ final class ACLFormatter
 	 *
 	 * @return string
 	 */
-	function toString($permissions) {
+	function toString($permissions): string
+	{
 		$return = '';
 		if (is_array($permissions)) {
 			$item = $permissions;
+		} elseif (empty($permissions)) {
+			return '';
 		} else {
 			$item = explode(',', $permissions);
 		}
