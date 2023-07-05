@@ -118,7 +118,7 @@ class XML
 						$namespace = null;
 					}
 
-					$element->addAttribute($attr_key, $attr_value, $namespace);
+					$element->addAttribute($attr_key, $attr_value ?? '', $namespace);
 				}
 
 				continue;
