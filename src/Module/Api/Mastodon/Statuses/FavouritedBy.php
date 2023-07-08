@@ -44,11 +44,11 @@ class FavouritedBy extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		if (!$post = Post::selectOriginal(['id'], ['uri-id' => $this->parameters['id'], 'uid' => [0, $uid]])) {
+		if (!$post = Post::selectOriginal(['uri-id'], ['uri-id' => $this->parameters['id'], 'uid' => [0, $uid]])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $post['id'], 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::LIKE, 'deleted' => false]);
+		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $post['uri-id'], 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::LIKE, 'deleted' => false]);
 
 		$accounts = [];
 

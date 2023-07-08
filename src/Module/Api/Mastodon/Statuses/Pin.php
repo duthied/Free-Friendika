@@ -41,12 +41,12 @@ class Pin extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectOriginalForUser($uid, ['id', 'gravity', 'author-id'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
+		$item = Post::selectOriginalForUser($uid, ['uri-id', 'gravity', 'author-id'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		Post\Collection::add($item['id'], Post\Collection::FEATURED, $item['author-id'], $uid);
+		Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, $item['author-id'], $uid);
 
 		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
 	}
