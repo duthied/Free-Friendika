@@ -24,26 +24,40 @@ namespace Friendica\Module;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
+use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\PostUpdate;
-use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Prints information about the current node
- * Either in human readable form or in JSON
+ * Either in human-readable form or in JSON
  */
 class Friendica extends BaseModule
 {
+	/** @var IManageConfigValues */
+	private $config;
+	/** @var IManageKeyValuePairs */
+	private $keyValue;
+
+	public function __construct(IManageKeyValuePairs $keyValue, IManageConfigValues $config, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->config = $config;
+		$this->keyValue = $keyValue;
+	}
+
 	protected function content(array $request = []): string
 	{
-		$config = DI::config();
-		$keyValue = DI::keyValue();
-
 		$visibleAddonList = Addon::getVisibleList();
 		if (!empty($visibleAddonList)) {
 
@@ -61,29 +75,29 @@ class Friendica extends BaseModule
 				}
 			}
 			$addon = [
-				'title' => DI::l10n()->t('Installed addons/apps:'),
+				'title' => $this->t('Installed addons/apps:'),
 				'list'  => $sortedAddonList,
 			];
 		} else {
 			$addon = [
-				'title' => DI::l10n()->t('No installed addons/apps'),
+				'title' => $this->t('No installed addons/apps'),
 			];
 		}
 
-		$tos = ($config->get('system', 'tosdisplay')) ?
-			DI::l10n()->t('Read about the <a href="%1$s/tos">Terms of Service</a> of this node.', DI::baseUrl()) :
+		$tos = ($this->config->get('system', 'tosdisplay')) ?
+			$this->t('Read about the <a href="%1$s/tos">Terms of Service</a> of this node.', $this->baseUrl) :
 			'';
 
-		$blockList = $config->get('system', 'blocklist');
+		$blockList = $this->config->get('system', 'blocklist') ?? [];
 
 		if (!empty($blockList)) {
 			$blocked = [
-				'title'    => DI::l10n()->t('On this server the following remote servers are blocked.'),
+				'title'    => $this->t('On this server the following remote servers are blocked.'),
 				'header'   => [
-					DI::l10n()->t('Blocked domain'),
-					DI::l10n()->t('Reason for the block'),
+					$this->t('Blocked domain'),
+					$this->t('Reason for the block'),
 				],
-				'download' => DI::l10n()->t('Download this list in CSV format'),
+				'download' => $this->t('Download this list in CSV format'),
 				'list'     => $blockList,
 			];
 		} else {
@@ -97,14 +111,14 @@ class Friendica extends BaseModule
 		$tpl = Renderer::getMarkupTemplate('friendica.tpl');
 
 		return Renderer::replaceMacros($tpl, [
-			'about'     => DI::l10n()->t('This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.',
+			'about'     => $this->t('This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.',
 				'<strong>' . App::VERSION . '</strong>',
-				DI::baseUrl(),
-				'<strong>' . $config->get('system', 'build') . '/' . DB_UPDATE_VERSION . '</strong>',
-				'<strong>' . $keyValue->get('post_update_version') . '/' . PostUpdate::VERSION . '</strong>'),
-			'friendica' => DI::l10n()->t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'),
-			'bugs'      => DI::l10n()->t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">' . DI::l10n()->t('the bugtracker at github') . '</a>',
-			'info'      => DI::l10n()->t('Suggestions, praise, etc. - please email "info" at "friendi - dot - ca'),
+				$this->baseUrl,
+				'<strong>' . $this->config->get('system', 'build') . '/' . DB_UPDATE_VERSION . '</strong>',
+				'<strong>' . $this->keyValue->get('post_update_version') . '/' . PostUpdate::VERSION . '</strong>'),
+			'friendica' => $this->t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'),
+			'bugs'      => $this->t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">' . $this->t('the bugtracker at github') . '</a>',
+			'info'      => $this->t('Suggestions, praise, etc. - please email "info" at "friendi - dot - ca'),
 
 			'visible_addons' => $addon,
 			'tos'            => $tos,
@@ -115,8 +129,7 @@ class Friendica extends BaseModule
 
 	protected function rawContent(array $request = [])
 	{
-		// @TODO: Replace with parameter from router
-		if (DI::args()->getArgc() <= 1 || (DI::args()->getArgv()[1] !== 'json')) {
+		if (empty($this->parameters['format']) || $this->parameters['format'] !== 'json') {
 			if (!ActivityPub::isRequest()) {
 				return;
 			}
@@ -131,16 +144,14 @@ class Friendica extends BaseModule
 			}
 		}
 
-		$config = DI::config();
-
 		$register_policies = [
 			Register::CLOSED  => 'REGISTER_CLOSED',
 			Register::APPROVE => 'REGISTER_APPROVE',
 			Register::OPEN    => 'REGISTER_OPEN'
 		];
 
-		$register_policy_int = intval($config->get('config', 'register_policy'));
-		if ($register_policy_int !== Register::CLOSED && $config->get('config', 'invitation_only')) {
+		$register_policy_int = intval($this->config->get('config', 'register_policy'));
+		if ($register_policy_int !== Register::CLOSED && $this->config->get('config', 'invitation_only')) {
 			$register_policy = 'REGISTER_INVITATION';
 		} else {
 			$register_policy = $register_policies[$register_policy_int];
@@ -151,15 +162,15 @@ class Friendica extends BaseModule
 		if (!empty($administrator)) {
 			$admin = [
 				'name'    => $administrator['username'],
-				'profile' => DI::baseUrl() . '/profile/' . $administrator['nickname'],
+				'profile' => $this->baseUrl . '/profile/' . $administrator['nickname'],
 			];
 		}
 
 		$visible_addons = Addon::getVisibleList();
 
-		$config->reload();
+		$this->config->reload();
 		$locked_features = [];
-		$featureLocks = $config->get('config', 'feature_lock');
+		$featureLocks = $this->config->get('config', 'feature_lock');
 		if (isset($featureLocks)) {
 			foreach ($featureLocks as $feature => $lock) {
 				if ($feature === 'config_loaded') {
@@ -172,17 +183,17 @@ class Friendica extends BaseModule
 
 		$data = [
 			'version'          => App::VERSION,
-			'url'              => (string)DI::baseUrl(),
+			'url'              => (string)$this->baseUrl,
 			'addons'           => $visible_addons,
 			'locked_features'  => $locked_features,
-			'explicit_content' => intval($config->get('system', 'explicit_content', 0)),
-			'language'         => $config->get('system', 'language'),
+			'explicit_content' => intval($this->config->get('system', 'explicit_content', 0)),
+			'language'         => $this->config->get('system', 'language'),
 			'register_policy'  => $register_policy,
 			'admin'            => $admin,
-			'site_name'        => $config->get('config', 'sitename'),
+			'site_name'        => $this->config->get('config', 'sitename'),
 			'platform'         => strtolower(App::PLATFORM),
-			'info'             => $config->get('config', 'info'),
-			'no_scrape_url'    => DI::baseUrl() . '/noscrape',
+			'info'             => $this->config->get('config', 'info'),
+			'no_scrape_url'    => $this->baseUrl . '/noscrape',
 		];
 
 		System::jsonExit($data);
