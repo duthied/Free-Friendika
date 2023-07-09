@@ -49,7 +49,7 @@ All of your posts are restricted to that circle by default.
 Note that this behaviour can be overridden by your site admin, in which case your posts will be "public" (i.e., visible to the entire Internet) by default.
 
 If you want your posts to be "public" by default, you can change your default post permissions on your Settings page.
-You also have the option to change which circles you post to by default or which circles your new contacts get placed into by default.
+You also have the option to change which circles you post to by default or which circle your new contacts get placed into by default.
 
 **Privacy Concerns To Be Aware Of**
 
@@ -71,8 +71,6 @@ In most cases, it will be completely wiped from the Internet - in under a minute
 Again, this applies to Friendica networks.
 Once a message spreads to other networks, it may not be removed quickly, and in some cases, it may not be removed at all.
 
-In case you still need to figure this out, we are encouraging you to encourage your friends to use Friendica - because all these privacy features work much better within a privacy-aware network.
-Many other social networks Friendica can connect to have no privacy controls.
 
 
 Profiles, Photos, and Privacy
