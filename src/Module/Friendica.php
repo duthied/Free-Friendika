@@ -29,6 +29,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\PostUpdate;
 use Friendica\Model\User;
@@ -47,13 +48,16 @@ class Friendica extends BaseModule
 	private $config;
 	/** @var IManageKeyValuePairs */
 	private $keyValue;
+	/** @var IHandleUserSessions */
+	private $session;
 
-	public function __construct(IManageKeyValuePairs $keyValue, IManageConfigValues $config, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(IHandleUserSessions $session, IManageKeyValuePairs $keyValue, IManageConfigValues $config, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->config = $config;
 		$this->keyValue = $keyValue;
+		$this->session = $session;
 	}
 
 	protected function content(array $request = []): string
@@ -90,7 +94,8 @@ class Friendica extends BaseModule
 
 		$blockList = $this->config->get('system', 'blocklist') ?? [];
 
-		if (!empty($blockList)) {
+		$register_policy_int = $this->config->get('config', 'register_policy');
+		if (!empty($blockList) && ($register_policy_int !== Register::CLOSED || $this->session->isAuthenticated())) {
 			$blocked = [
 				'title'    => $this->t('On this server the following remote servers are blocked.'),
 				'header'   => [
@@ -150,7 +155,7 @@ class Friendica extends BaseModule
 			Register::OPEN    => 'REGISTER_OPEN'
 		];
 
-		$register_policy_int = intval($this->config->get('config', 'register_policy'));
+		$register_policy_int = $this->config->get('config', 'register_policy');
 		if ($register_policy_int !== Register::CLOSED && $this->config->get('config', 'invitation_only')) {
 			$register_policy = 'REGISTER_INVITATION';
 		} else {
