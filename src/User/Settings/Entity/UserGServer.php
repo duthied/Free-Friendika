@@ -47,4 +47,46 @@ class UserGServer extends \Friendica\BaseEntity
 		$this->ignored = $ignored;
 		$this->gserver = $gserver;
 	}
+
+	/**
+	 * Toggle the ignored property.
+	 *
+	 * Chainable.
+	 *
+	 * @return $this
+	 */
+	public function toggleIgnored(): UserGServer
+	{
+		$this->ignored = !$this->ignored;
+
+		return $this;
+	}
+
+	/**
+	 * Set the ignored property.
+	 *
+	 * Chainable.
+	 *
+	 * @return $this
+	 */
+	public function ignore(): UserGServer
+	{
+		$this->ignored = true;
+
+		return $this;
+	}
+
+	/**
+	 * Unset the ignored property.
+	 *
+	 * Chainable.
+	 *
+	 * @return $this
+	 */
+	public function unignore(): UserGServer
+	{
+		$this->ignored = false;
+
+		return $this;
+	}
 }

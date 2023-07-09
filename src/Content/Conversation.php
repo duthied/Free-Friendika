@@ -1462,6 +1462,7 @@ class Conversation
 				'received'             => $item['received'],
 				'created_date'         => $item['created'],
 				'uriid'                => $item['uri-id'],
+				'author_gsid'          => $item['author-gsid'],
 				'network'              => $item['network'],
 				'network_name'         => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network'], $item['author-gsid']),
 				'network_icon'         => ContactSelector::networkToIcon($item['network'], $item['author-link'], $item['author-gsid']),

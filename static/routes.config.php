@@ -639,6 +639,9 @@ return [
 	],
 
 	'/settings' => [
+		'/server' => [
+			'/{gsid:\d+}/{action}' => [Module\Settings\Server\Action::class, [        R::POST]],
+		],
 		'[/]'         => [Module\Settings\Account::class,               [R::GET, R::POST]],
 		'/account' => [
 			'[/]'     => [Module\Settings\Account::class,               [R::GET, R::POST]],
