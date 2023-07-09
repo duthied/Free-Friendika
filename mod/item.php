@@ -104,7 +104,7 @@ function item_edit(int $uid, array $request, bool $preview, string $return_path)
 	}
 
 	$post['edit'] = $post;
-	$post['file'] = Post\Category::getTextByURIId($post['uri-id'], $post['uid']);	
+	$post['file'] = Post\Category::getTextByURIId($post['uri-id'], $post['uid']);
 
 	Post\Media::deleteByURIId($post['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE, Post\Media::HTML]);
 	$post = item_process($post, $request, $preview, $return_path);
@@ -274,7 +274,7 @@ function item_process(array $post, array $request, bool $preview, string $return
 		$post['body']           = BBCode::removeSharedData(Item::setHashtags($post['body']));
 		$post['writable']       = true;
 
-		$o = DI::conversation()->create([$post], Conversation::MODE_SEARCH, false, true);
+		$o = DI::conversation()->render([$post], Conversation::MODE_SEARCH, false, true);
 
 		System::jsonExit(['preview' => $o]);
 	}

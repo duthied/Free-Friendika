@@ -116,7 +116,7 @@ class Profile extends BaseModule
 			}
 		}
 
-		$o .= DI::conversation()->create($items, Conversation::MODE_PROFILE, $a->getProfileOwner(), false, 'received', $a->getProfileOwner());
+		$o .= DI::conversation()->render($items, Conversation::MODE_PROFILE, $a->getProfileOwner(), false, 'received', $a->getProfileOwner());
 
 		System::htmlUpdateExit($o);
 	}

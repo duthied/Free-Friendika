@@ -190,13 +190,13 @@ class Thread
 	 * We should find a way to avoid using those arguments (at least most of them)
 	 *
 	 * @param array $conv_responses data
-	 * @param string $formSecurityToken A security Token to avoid CSF attacks
+	 * @param string $formSecurityToken A 'contact_action' form security token
 	 *
 	 * @return mixed The data requested on success
 	 *               false on failure
 	 * @throws \Exception
 	 */
-	public function getTemplateData($conv_responses, string $formSecurityToken)
+	public function getTemplateData(array $conv_responses, string $formSecurityToken)
 	{
 		$result = [];
 
