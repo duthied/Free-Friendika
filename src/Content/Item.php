@@ -678,7 +678,7 @@ class Item
 		if ($item['network'] == Protocol::FEED) {
 			return PageInfo::getFooterFromUrl($item['plink']);
 		} elseif (!in_array($item['network'] ?? '', Protocol::FEDERATED) && !$for_display) {
-			$item['guid']  = '';
+			$item['guid'] = '';
 			$item['uri']  = '';
 		}
 
