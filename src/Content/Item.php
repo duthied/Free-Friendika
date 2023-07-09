@@ -677,7 +677,6 @@ class Item
 		if ($item['network'] == Protocol::FEED) {
 			return PageInfo::getFooterFromUrl($item['plink']);
 		} elseif (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
-			$item['guid'] = '';
 			$item['uri']  = '';
 		}
 
@@ -695,7 +694,7 @@ class Item
 
 		// If it is a reshared post then reformat it to avoid display problems with two share elements
 		if (!empty($shared)) {
-			if (!empty($shared['guid']) && ($encapsulated_share = $this->createSharedPostByGuid($shared['guid'], true))) {
+			if (($item['network'] != Protocol::BLUESKY) && !empty($shared['guid']) && ($encapsulated_share = $this->createSharedPostByGuid($shared['guid'], true))) {
 				if (!empty(BBCode::fetchShareAttributes($item['body']))) {
 					$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $encapsulated_share, $item['body']);
 				} else {

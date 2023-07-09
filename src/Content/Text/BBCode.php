@@ -64,7 +64,8 @@ class BBCode
 	const ACTIVITYPUB  = 9;
 	const BLUESKY      = 10;
 
-	const TOP_ANCHOR = '<br class="top-anchor">';
+	const SHARED_ANCHOR = '<hr class="shared-anchor">';
+	const TOP_ANCHOR    = '<br class="top-anchor">';
 	const BOTTOM_ANCHOR = '<br class="button-anchor">';
 
 	const PREVIEW_NONE     = 0;
@@ -930,7 +931,7 @@ class BBCode
 				$network = $contact['network'] ?? Protocol::PHANTOM;
 
 				$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
-				$text .= Renderer::replaceMacros($tpl, [
+				$text .= BBCode::SHARED_ANCHOR . Renderer::replaceMacros($tpl, [
 					'$profile'      => $attributes['profile'],
 					'$avatar'       => $attributes['avatar'],
 					'$author'       => $attributes['author'],
