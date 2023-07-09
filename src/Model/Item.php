@@ -3138,7 +3138,7 @@ class Item
 
 		if (!empty($quote_uri_id)) {
 			if (isset($shared_item['plink'])) {
-				$item['body'] .= "\n" . DI::contentItem()->createSharedBlockByArray($shared_item);
+				$item['body'] .= "\n" . DI::contentItem()->createSharedBlockByArray($shared_item, false, true);
 			} else {
 				DI::logger()->warning('Missing plink in shared item', ['item' => $item, 'shared' => $shared, 'quote_uri_id' => $quote_uri_id, 'shared_item' => $shared_item]);
 			}
@@ -3217,6 +3217,12 @@ class Item
 			$body = BBCode::removeSharedData($body);
 		}
 
+		$pos = strpos($s, BBCode::SHARED_ANCHOR);
+		if ($pos) {
+			$shared_html = substr($s, $pos + strlen(BBCode::SHARED_ANCHOR));
+			$s = substr($s, 0, $pos);
+		}
+	
 		$s = self::addGallery($s, $attachments, $item['uri-id']);
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
 		$s = self::addLinkAttachment($item['uri-id'], $attachments, $body, $s, false, $shared_links);
@@ -3235,6 +3241,10 @@ class Item
 		if (!empty($a->getThemeInfoValue('item_image_size'))) {
 			$ps = $a->getThemeInfoValue('item_image_size');
 			$s = preg_replace('|(<img[^>]+src="[^"]+/photo/[0-9a-f]+)-[0-9]|', "$1-" . $ps, $s);
+		}
+
+		if (!empty($shared_html)) {
+			$s .= $shared_html;
 		}
 
 		$s = HTML::applyContentFilter($s, $filter_reasons);
