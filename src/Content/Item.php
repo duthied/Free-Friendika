@@ -670,7 +670,7 @@ class Item
 	 *
 	 * @param array $item
 	 * @param bool $add_media   true = Media is added to the body
-	 * @param bool $for_display true = The share block is used for display puposes, false = used for connectors, transport to other systems, ...
+	 * @param bool $for_display true = The share block is used for display purposes, false = used for connectors, transport to other systems, ...
 	 * @return string
 	 */
 	public function createSharedBlockByArray(array $item, bool $add_media = false, bool $for_display = false): string
