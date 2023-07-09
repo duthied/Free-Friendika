@@ -3138,7 +3138,7 @@ class Item
 
 		if (!empty($quote_uri_id)) {
 			if (isset($shared_item['plink'])) {
-				$item['body'] .= "\n" . DI::contentItem()->createSharedBlockByArray($shared_item);
+				$item['body'] .= "\n" . DI::contentItem()->createSharedBlockByArray($shared_item, false, true);
 			} else {
 				DI::logger()->warning('Missing plink in shared item', ['item' => $item, 'shared' => $shared, 'quote_uri_id' => $quote_uri_id, 'shared_item' => $shared_item]);
 			}

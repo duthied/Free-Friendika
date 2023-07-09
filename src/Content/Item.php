@@ -669,14 +669,16 @@ class Item
 	 * Add a share block for the given item array
 	 *
 	 * @param array $item
-	 * @param bool $add_media
+	 * @param bool $add_media   true = Media is added to the body
+	 * @param bool $for_display true = The share block is used for display puposes, false = used for connectors, transport to other systems, ...
 	 * @return string
 	 */
-	public function createSharedBlockByArray(array $item, bool $add_media = false): string
+	public function createSharedBlockByArray(array $item, bool $add_media = false, bool $for_display = false): string
 	{
 		if ($item['network'] == Protocol::FEED) {
 			return PageInfo::getFooterFromUrl($item['plink']);
-		} elseif (!in_array($item['network'] ?? '', Protocol::FEDERATED)) {
+		} elseif (!in_array($item['network'] ?? '', Protocol::FEDERATED) && !$for_display) {
+			$item['guid']  = '';
 			$item['uri']  = '';
 		}
 
