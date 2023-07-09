@@ -46,8 +46,6 @@ class Objects extends BaseModule
 			throw new HTTPException\BadRequestException();
 		}
 
-		header('Vary: Accept', false);
-
 		if (!ActivityPub::isRequest()) {
 			DI::baseUrl()->redirect(str_replace('objects/', 'display/', DI::args()->getQueryString()));
 		}

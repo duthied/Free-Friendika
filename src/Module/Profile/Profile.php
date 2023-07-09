@@ -80,8 +80,6 @@ class Profile extends BaseProfile
 
 	protected function rawContent(array $request = [])
 	{
-		header('Vary: Accept', false);
-
 		if (ActivityPub::isRequest()) {
 			$user = $this->database->selectFirst('user', ['uid'], ['nickname' => $this->parameters['nickname'] ?? '', 'account_removed' => false]);
 			if ($user) {
