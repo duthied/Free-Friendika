@@ -449,7 +449,7 @@ return [
 	'/follow_confirm'       => [Module\FollowConfirm::class,         [R::GET, R::POST]],
 	'/followers/{nickname}' => [Module\ActivityPub\Followers::class, [R::GET]],
 	'/following/{nickname}' => [Module\ActivityPub\Following::class, [R::GET]],
-	'/friendica[/json]'     => [Module\Friendica::class,             [R::GET]],
+	'/friendica[/{format:json}]' => [Module\Friendica::class,        [R::GET]],
 	'/friendica/inbox'      => [Module\ActivityPub\Inbox::class,     [R::GET, R::POST]],
 
 	'/fsuggest/{contact:\d+}' => [Module\FriendSuggest::class,  [R::GET, R::POST]],

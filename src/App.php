@@ -695,6 +695,9 @@ class App
 				$module = $router->getModule();
 			}
 
+			// Display can change depending on the requested language, so it shouldn't be cached whole
+			header('Vary: Accept-Language', false);
+
 			// Processes data from GET requests
 			$httpinput = $httpInput->process();
 			$input     = array_merge($httpinput['variables'], $httpinput['files'], $request ?? $_REQUEST);

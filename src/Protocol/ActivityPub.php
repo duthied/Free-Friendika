@@ -87,6 +87,8 @@ class ActivityPub
 	 */
 	public static function isRequest(): bool
 	{
+		header('Vary: Accept', false);
+
 		$isrequest = stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/activity+json') ||
 			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') ||
 			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/ld+json');

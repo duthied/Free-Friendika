@@ -88,8 +88,6 @@ class Display extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		header('Vary: Accept', false);
-
 		if (ActivityPub::isRequest()) {
 			$this->baseUrl->redirect(str_replace('display/', 'objects/', $this->args->getQueryString()));
 		}

@@ -274,8 +274,14 @@
 											</a>
 										</li>
 									{{/if}}
+									<li role="presentation" class="divider"></li>
+									<li role="presentation">
+										<a role="menuitem" id="nav-about-link" class="nav-link {{$nav.about.2}}"
+											href="{{$nav.about.0}}" title="{{$nav.about.3}}">
+											<i class="fa fa-info" aria-hidden="true"></i> {{$nav.about.1}}
+										</a>
+									</li>
 									{{if $nav.tos}}
-										<li role="presentation" class="divider"></li>
 										<li role="presentation">
 											<a role="menuitem" id="nav-tos-link" class="nav-link {{$nav.tos.2}}"
 												href="{{$nav.tos.0}}" title="{{$nav.tos.3}}"><i class="fa fa-file-text"
@@ -401,6 +407,14 @@
 									</a>
 								</li>
 							{{/if}}
+							<li role="presentation" class="divider"></li>
+							<li role="presentation" class="list-group-item">
+								<a role="menuitem" class="nav-link {{$nav.about.2}}"
+								   href="{{$nav.about.0}}" title="{{$nav.about.3}}">
+									<i class="fa fa-info" aria-hidden="true"></i> {{$nav.about.1}}
+								</a>
+							</li>
+							<li role="presentation" class="divider"></li>
 							{{if $nav.logout}}
 								<li role="presentation" class="list-group-item">
 									<a role="menuitem"
