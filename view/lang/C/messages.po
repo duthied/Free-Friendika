@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-25 20:31+0000\n"
+"POT-Creation-Date: 2023-07-09 17:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -292,7 +292,7 @@ msgid "Insert web link"
 msgstr ""
 
 #: mod/message.php:201 mod/message.php:357 mod/photos.php:1301
-#: src/Content/Conversation.php:392 src/Content/Conversation.php:742
+#: src/Content/Conversation.php:392 src/Content/Conversation.php:1506
 #: src/Module/Item/Compose.php:206 src/Module/Post/Edit.php:145
 #: src/Module/Profile/UnkMail.php:154 src/Object/Post.php:568
 msgid "Please wait"
@@ -310,7 +310,7 @@ msgstr ""
 #: src/Module/Install.php:234 src/Module/Install.php:274
 #: src/Module/Install.php:309 src/Module/Invite.php:178
 #: src/Module/Item/Compose.php:189 src/Module/Moderation/Item/Source.php:79
-#: src/Module/Profile/Profile.php:274 src/Module/Profile/UnkMail.php:155
+#: src/Module/Profile/Profile.php:276 src/Module/Profile/UnkMail.php:155
 #: src/Module/Settings/Profile/Index.php:230 src/Object/Post.php:1084
 #: view/theme/duepuntozero/config.php:85 view/theme/frio/config.php:171
 #: view/theme/quattro/config.php:87 view/theme/vier/config.php:135
@@ -617,11 +617,12 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: mod/photos.php:1236 src/Content/Conversation.php:658 src/Object/Post.php:262
+#: mod/photos.php:1236 src/Content/Conversation.php:1422
+#: src/Object/Post.php:262
 msgid "Select"
 msgstr ""
 
-#: mod/photos.php:1237 src/Content/Conversation.php:659
+#: mod/photos.php:1237 src/Content/Conversation.php:1423
 #: src/Module/Moderation/Users/Active.php:136
 #: src/Module/Moderation/Users/Blocked.php:136
 #: src/Module/Moderation/Users/Index.php:151
@@ -1373,120 +1374,120 @@ msgstr ""
 msgid "Open Compose page"
 msgstr ""
 
-#: src/Content/Conversation.php:686 src/Object/Post.php:248
+#: src/Content/Conversation.php:569
+msgid "remove"
+msgstr ""
+
+#: src/Content/Conversation.php:573
+msgid "Delete Selected Items"
+msgstr ""
+
+#: src/Content/Conversation.php:724 src/Content/Conversation.php:727
+#: src/Content/Conversation.php:730 src/Content/Conversation.php:733
+#: src/Content/Conversation.php:736
+#, php-format
+msgid "You had been addressed (%s)."
+msgstr ""
+
+#: src/Content/Conversation.php:739
+#, php-format
+msgid "You are following %s."
+msgstr ""
+
+#: src/Content/Conversation.php:742
+msgid "You subscribed to one or more tags in this post."
+msgstr ""
+
+#: src/Content/Conversation.php:761
+#, php-format
+msgid "%s reshared this."
+msgstr ""
+
+#: src/Content/Conversation.php:763
+msgid "Reshared"
+msgstr ""
+
+#: src/Content/Conversation.php:763
+#, php-format
+msgid "Reshared by %s <%s>"
+msgstr ""
+
+#: src/Content/Conversation.php:766
+#, php-format
+msgid "%s is participating in this thread."
+msgstr ""
+
+#: src/Content/Conversation.php:769
+msgid "Stored for general reasons"
+msgstr ""
+
+#: src/Content/Conversation.php:772
+msgid "Global post"
+msgstr ""
+
+#: src/Content/Conversation.php:775
+msgid "Sent via an relay server"
+msgstr ""
+
+#: src/Content/Conversation.php:775
+#, php-format
+msgid "Sent via the relay server %s <%s>"
+msgstr ""
+
+#: src/Content/Conversation.php:778
+msgid "Fetched"
+msgstr ""
+
+#: src/Content/Conversation.php:778
+#, php-format
+msgid "Fetched because of %s <%s>"
+msgstr ""
+
+#: src/Content/Conversation.php:781
+msgid "Stored because of a child post to complete this thread."
+msgstr ""
+
+#: src/Content/Conversation.php:784
+msgid "Local delivery"
+msgstr ""
+
+#: src/Content/Conversation.php:787
+msgid "Stored because of your activity (like, comment, star, ...)"
+msgstr ""
+
+#: src/Content/Conversation.php:790
+msgid "Distributed"
+msgstr ""
+
+#: src/Content/Conversation.php:793
+msgid "Pushed to us"
+msgstr ""
+
+#: src/Content/Conversation.php:1450 src/Object/Post.php:248
 msgid "Pinned item"
 msgstr ""
 
-#: src/Content/Conversation.php:702 src/Object/Post.php:513
+#: src/Content/Conversation.php:1466 src/Object/Post.php:513
 #: src/Object/Post.php:514
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr ""
 
-#: src/Content/Conversation.php:715 src/Object/Post.php:501
+#: src/Content/Conversation.php:1479 src/Object/Post.php:501
 msgid "Categories:"
 msgstr ""
 
-#: src/Content/Conversation.php:716 src/Object/Post.php:502
+#: src/Content/Conversation.php:1480 src/Object/Post.php:502
 msgid "Filed under:"
 msgstr ""
 
-#: src/Content/Conversation.php:724 src/Object/Post.php:527
+#: src/Content/Conversation.php:1488 src/Object/Post.php:527
 #, php-format
 msgid "%s from %s"
 msgstr ""
 
-#: src/Content/Conversation.php:740
+#: src/Content/Conversation.php:1504
 msgid "View in context"
-msgstr ""
-
-#: src/Content/Conversation.php:805
-msgid "remove"
-msgstr ""
-
-#: src/Content/Conversation.php:809
-msgid "Delete Selected Items"
-msgstr ""
-
-#: src/Content/Conversation.php:875 src/Content/Conversation.php:878
-#: src/Content/Conversation.php:881 src/Content/Conversation.php:884
-#: src/Content/Conversation.php:887
-#, php-format
-msgid "You had been addressed (%s)."
-msgstr ""
-
-#: src/Content/Conversation.php:890
-#, php-format
-msgid "You are following %s."
-msgstr ""
-
-#: src/Content/Conversation.php:893
-msgid "You subscribed to one or more tags in this post."
-msgstr ""
-
-#: src/Content/Conversation.php:912
-#, php-format
-msgid "%s reshared this."
-msgstr ""
-
-#: src/Content/Conversation.php:914
-msgid "Reshared"
-msgstr ""
-
-#: src/Content/Conversation.php:914
-#, php-format
-msgid "Reshared by %s <%s>"
-msgstr ""
-
-#: src/Content/Conversation.php:917
-#, php-format
-msgid "%s is participating in this thread."
-msgstr ""
-
-#: src/Content/Conversation.php:920
-msgid "Stored for general reasons"
-msgstr ""
-
-#: src/Content/Conversation.php:923
-msgid "Global post"
-msgstr ""
-
-#: src/Content/Conversation.php:926
-msgid "Sent via an relay server"
-msgstr ""
-
-#: src/Content/Conversation.php:926
-#, php-format
-msgid "Sent via the relay server %s <%s>"
-msgstr ""
-
-#: src/Content/Conversation.php:929
-msgid "Fetched"
-msgstr ""
-
-#: src/Content/Conversation.php:929
-#, php-format
-msgid "Fetched because of %s <%s>"
-msgstr ""
-
-#: src/Content/Conversation.php:932
-msgid "Stored because of a child post to complete this thread."
-msgstr ""
-
-#: src/Content/Conversation.php:935
-msgid "Local delivery"
-msgstr ""
-
-#: src/Content/Conversation.php:938
-msgid "Stored because of your activity (like, comment, star, ...)"
-msgstr ""
-
-#: src/Content/Conversation.php:941
-msgid "Distributed"
-msgstr ""
-
-#: src/Content/Conversation.php:944
-msgid "Pushed to us"
 msgstr ""
 
 #: src/Content/Feature.php:96
@@ -1705,7 +1706,7 @@ msgstr ""
 msgid "Connect/Follow"
 msgstr ""
 
-#: src/Content/Item.php:865
+#: src/Content/Item.php:874
 msgid "Unable to fetch user."
 msgstr ""
 
@@ -1753,7 +1754,7 @@ msgstr ""
 
 #: src/Content/Nav.php:228 src/Module/BaseProfile.php:49
 #: src/Module/BaseSettings.php:100 src/Module/Contact.php:504
-#: src/Module/Contact/Profile.php:392 src/Module/Profile/Profile.php:268
+#: src/Module/Contact/Profile.php:392 src/Module/Profile/Profile.php:270
 #: src/Module/Welcome.php:57 view/theme/frio/theme.php:230
 msgid "Profile"
 msgstr ""
@@ -2027,39 +2028,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:695 src/Content/Text/BBCode.php:1601
-#: src/Content/Text/BBCode.php:1602
+#: src/Content/Text/BBCode.php:696 src/Content/Text/BBCode.php:1602
+#: src/Content/Text/BBCode.php:1603
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:913
+#: src/Content/Text/BBCode.php:914
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:938 src/Model/Item.php:3725
-#: src/Model/Item.php:3731 src/Model/Item.php:3732
+#: src/Content/Text/BBCode.php:939 src/Model/Item.php:3735
+#: src/Model/Item.php:3741 src/Model/Item.php:3742
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1508 src/Content/Text/HTML.php:904
+#: src/Content/Text/BBCode.php:1509 src/Content/Text/HTML.php:904
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1541
+#: src/Content/Text/BBCode.php:1542
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1606 src/Content/Text/BBCode.php:1607
+#: src/Content/Text/BBCode.php:1607 src/Content/Text/BBCode.php:1608
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1871
+#: src/Content/Text/BBCode.php:1872
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1890
+#: src/Content/Text/BBCode.php:1891
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2266,12 +2267,12 @@ msgid "More Trending Tags"
 msgstr ""
 
 #: src/Content/Widget/VCard.php:109 src/Model/Profile.php:378
-#: src/Module/Contact/Profile.php:381 src/Module/Profile/Profile.php:199
+#: src/Module/Contact/Profile.php:381 src/Module/Profile/Profile.php:201
 msgid "XMPP:"
 msgstr ""
 
 #: src/Content/Widget/VCard.php:110 src/Model/Profile.php:379
-#: src/Module/Contact/Profile.php:383 src/Module/Profile/Profile.php:203
+#: src/Module/Contact/Profile.php:383 src/Module/Profile/Profile.php:205
 msgid "Matrix:"
 msgstr ""
 
@@ -2279,7 +2280,7 @@ msgstr ""
 #: src/Model/Event.php:109 src/Model/Event.php:473 src/Model/Event.php:965
 #: src/Model/Profile.php:373 src/Module/Contact/Profile.php:379
 #: src/Module/Directory.php:147 src/Module/Notifications/Introductions.php:187
-#: src/Module/Profile/Profile.php:221
+#: src/Module/Profile/Profile.php:223
 msgid "Location:"
 msgstr ""
 
@@ -2294,7 +2295,7 @@ msgstr ""
 msgid "Unfollow"
 msgstr ""
 
-#: src/Core/ACL.php:166 src/Module/Profile/Profile.php:269
+#: src/Core/ACL.php:166 src/Module/Profile/Profile.php:271
 msgid "Yourself"
 msgstr ""
 
@@ -3249,44 +3250,44 @@ msgstr ""
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3632
+#: src/Model/Item.php:3642
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3663
+#: src/Model/Item.php:3673
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3665
+#: src/Model/Item.php:3675
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3670
+#: src/Model/Item.php:3680
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3672
+#: src/Model/Item.php:3682
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3674
+#: src/Model/Item.php:3684
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3708 src/Model/Item.php:3709
+#: src/Model/Item.php:3718 src/Model/Item.php:3719
 msgid "View on separate page"
 msgstr ""
 
@@ -3298,8 +3299,8 @@ msgstr ""
 msgid "Wall Photos"
 msgstr ""
 
-#: src/Model/Profile.php:361 src/Module/Profile/Profile.php:283
-#: src/Module/Profile/Profile.php:285
+#: src/Model/Profile.php:361 src/Module/Profile/Profile.php:285
+#: src/Module/Profile/Profile.php:287
 msgid "Edit profile"
 msgstr ""
 
@@ -3308,7 +3309,7 @@ msgid "Change profile photo"
 msgstr ""
 
 #: src/Model/Profile.php:376 src/Module/Directory.php:152
-#: src/Module/Profile/Profile.php:209
+#: src/Module/Profile/Profile.php:211
 msgid "Homepage:"
 msgstr ""
 
@@ -3726,7 +3727,7 @@ msgid "Enable"
 msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:111 src/Module/Admin/Addons/Index.php:67
-#: src/Module/Admin/Federation.php:209 src/Module/Admin/Logs/Settings.php:85
+#: src/Module/Admin/Federation.php:210 src/Module/Admin/Logs/Settings.php:85
 #: src/Module/Admin/Logs/View.php:83 src/Module/Admin/Queue.php:72
 #: src/Module/Admin/Site.php:398 src/Module/Admin/Storage.php:138
 #: src/Module/Admin/Summary.php:220 src/Module/Admin/Themes/Details.php:90
@@ -3856,75 +3857,75 @@ msgstr ""
 msgid "Manage Additional Features"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:75
+#: src/Module/Admin/Federation.php:76
 msgid "Other"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:149 src/Module/Admin/Federation.php:398
+#: src/Module/Admin/Federation.php:150 src/Module/Admin/Federation.php:399
 msgid "unknown"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:182
+#: src/Module/Admin/Federation.php:183
 #, php-format
 msgid "%2$s total system"
 msgid_plural "%2$s total systems"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:183
+#: src/Module/Admin/Federation.php:184
 #, php-format
 msgid "%2$s active user last month"
 msgid_plural "%2$s active users last month"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:184
+#: src/Module/Admin/Federation.php:185
 #, php-format
 msgid "%2$s active user last six months"
 msgid_plural "%2$s active users last six months"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:185
+#: src/Module/Admin/Federation.php:186
 #, php-format
 msgid "%2$s registered user"
 msgid_plural "%2$s registered users"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:186
+#: src/Module/Admin/Federation.php:187
 #, php-format
 msgid "%2$s locally created post or comment"
 msgid_plural "%2$s locally created posts and comments"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:189
+#: src/Module/Admin/Federation.php:190
 #, php-format
 msgid "%2$s post per user"
 msgid_plural "%2$s posts per user"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:194
+#: src/Module/Admin/Federation.php:195
 #, php-format
 msgid "%2$s user per system"
 msgid_plural "%2$s users per system"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:204
+#: src/Module/Admin/Federation.php:205
 msgid ""
 "This page offers you some numbers to the known part of the federated social "
 "network your Friendica node is part of. These numbers are not complete but "
 "only reflect the part of the network your node is aware of."
 msgstr ""
 
-#: src/Module/Admin/Federation.php:210 src/Module/BaseAdmin.php:87
+#: src/Module/Admin/Federation.php:211 src/Module/BaseAdmin.php:87
 msgid "Federation Statistics"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:214
+#: src/Module/Admin/Federation.php:215
 #, php-format
 msgid ""
 "Currently this node is aware of %2$s node (%3$s active users last month, "
@@ -4223,7 +4224,7 @@ msgid "Policies"
 msgstr ""
 
 #: src/Module/Admin/Site.php:406 src/Module/Calendar/Event/Form.php:252
-#: src/Module/Contact.php:547 src/Module/Profile/Profile.php:276
+#: src/Module/Contact.php:547 src/Module/Profile/Profile.php:278
 msgid "Advanced"
 msgstr ""
 
@@ -5706,7 +5707,7 @@ msgstr ""
 msgid "Share this event"
 msgstr ""
 
-#: src/Module/Calendar/Event/Form.php:251 src/Module/Profile/Profile.php:275
+#: src/Module/Calendar/Event/Form.php:251 src/Module/Profile/Profile.php:277
 msgid "Basic"
 msgstr ""
 
@@ -6081,7 +6082,7 @@ msgstr[1] ""
 #: src/Module/Contact/Follow.php:70 src/Module/Contact/Redir.php:62
 #: src/Module/Contact/Redir.php:222 src/Module/Conversation/Community.php:194
 #: src/Module/Debug/ItemBody.php:38 src/Module/Diaspora/Receive.php:57
-#: src/Module/Item/Display.php:96 src/Module/Item/Feed.php:59
+#: src/Module/Item/Display.php:98 src/Module/Item/Feed.php:59
 #: src/Module/Item/Follow.php:41 src/Module/Item/Ignore.php:41
 #: src/Module/Item/Pin.php:41 src/Module/Item/Pin.php:56
 #: src/Module/Item/Star.php:42 src/Module/Update/Display.php:37
@@ -6127,7 +6128,7 @@ msgstr ""
 
 #: src/Module/Contact/Follow.php:171 src/Module/Contact/Profile.php:387
 #: src/Module/Notifications/Introductions.php:191
-#: src/Module/Profile/Profile.php:234
+#: src/Module/Profile/Profile.php:236
 msgid "Tags:"
 msgstr ""
 
@@ -7269,7 +7270,7 @@ msgid ""
 "<a href=\"/settings/display\">Theme Customization settings</a>."
 msgstr ""
 
-#: src/Module/Item/Display.php:136 src/Module/Update/Display.php:55
+#: src/Module/Item/Display.php:138 src/Module/Update/Display.php:55
 msgid "The requested item doesn't exist or has been deleted."
 msgstr ""
 
@@ -8363,20 +8364,20 @@ msgid "No contacts."
 msgstr ""
 
 #: src/Module/Profile/Conversations.php:106
-#: src/Module/Profile/Conversations.php:109 src/Module/Profile/Profile.php:351
-#: src/Module/Profile/Profile.php:354 src/Protocol/Feed.php:1090
+#: src/Module/Profile/Conversations.php:109 src/Module/Profile/Profile.php:353
+#: src/Module/Profile/Profile.php:356 src/Protocol/Feed.php:1090
 #: src/Protocol/OStatus.php:1009
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
-#: src/Module/Profile/Conversations.php:107 src/Module/Profile/Profile.php:352
+#: src/Module/Profile/Conversations.php:107 src/Module/Profile/Profile.php:354
 #: src/Protocol/Feed.php:1094 src/Protocol/OStatus.php:1014
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
-#: src/Module/Profile/Conversations.php:108 src/Module/Profile/Profile.php:353
+#: src/Module/Profile/Conversations.php:108 src/Module/Profile/Profile.php:355
 #: src/Protocol/Feed.php:1097 src/Protocol/OStatus.php:1018
 #, php-format
 msgid "%s's comments"
@@ -8411,43 +8412,43 @@ msgstr ""
 msgid "View Album"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:112 src/Module/Profile/Restricted.php:50
+#: src/Module/Profile/Profile.php:114 src/Module/Profile/Restricted.php:50
 msgid "Profile not found."
 msgstr ""
 
-#: src/Module/Profile/Profile.php:158
+#: src/Module/Profile/Profile.php:160
 #, php-format
 msgid ""
 "You're currently viewing your profile as <b>%s</b> <a href=\"%s\" class="
 "\"btn btn-sm pull-right\">Cancel</a>"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:167 src/Module/Settings/Account.php:576
+#: src/Module/Profile/Profile.php:169 src/Module/Settings/Account.php:576
 msgid "Full Name:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:172
+#: src/Module/Profile/Profile.php:174
 msgid "Member since:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:178
+#: src/Module/Profile/Profile.php:180
 msgid "j F, Y"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:179
+#: src/Module/Profile/Profile.php:181
 msgid "j F"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:187 src/Util/Temporal.php:168
+#: src/Module/Profile/Profile.php:189 src/Util/Temporal.php:168
 msgid "Birthday:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:190 src/Module/Settings/Profile/Index.php:253
+#: src/Module/Profile/Profile.php:192 src/Module/Settings/Profile/Index.php:253
 #: src/Util/Temporal.php:170
 msgid "Age: "
 msgstr ""
 
-#: src/Module/Profile/Profile.php:190 src/Module/Settings/Profile/Index.php:253
+#: src/Module/Profile/Profile.php:192 src/Module/Settings/Profile/Index.php:253
 #: src/Util/Temporal.php:170
 #, php-format
 msgid "%d year old"
@@ -8455,19 +8456,19 @@ msgid_plural "%d years old"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Profile/Profile.php:195 src/Module/Settings/Profile/Index.php:246
+#: src/Module/Profile/Profile.php:197 src/Module/Settings/Profile/Index.php:246
 msgid "Description:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:261
+#: src/Module/Profile/Profile.php:263
 msgid "Groups:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:273
+#: src/Module/Profile/Profile.php:275
 msgid "View profile as:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:290
+#: src/Module/Profile/Profile.php:292
 msgid "View as"
 msgstr ""
 
