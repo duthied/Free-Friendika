@@ -86,6 +86,7 @@ Database Tables
 | [tag](help/database/db_tag) | tags and mentions |
 | [user](help/database/db_user) | The local users |
 | [user-contact](help/database/db_user-contact) | User specific public contact data |
+| [user-gserver](help/database/db_user-gserver) | User settings about remote servers |
 | [userd](help/database/db_userd) | Deleted usernames |
 | [verb](help/database/db_verb) | Activity Verbs |
 | [worker-ipc](help/database/db_worker-ipc) | Inter process communication between the frontend and the worker |
