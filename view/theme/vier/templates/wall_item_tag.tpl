@@ -3,12 +3,12 @@
 {{else}}
 {{if $item.comment_firstcollapsed}}
 	<div class="hide-comments-outer">
-		<span id="hide-comments-total-{{$item.id}}" 
+		<span id="hide-comments-total-{{$item.id}}"
 			class="hide-comments-total">{{$item.num_comments}}</span>
-			<span id="hide-comments-{{$item.id}}" 
-				class="hide-comments fakelink" 
+			<span id="hide-comments-{{$item.id}}"
+				class="hide-comments fakelink"
 				onclick="showHideComments({{$item.id}});">{{$item.hide_text}}</span>
-			{{if $item.thread_level==3}} - 
+			{{if $item.thread_level==3}} -
 			<span id="hide-thread-{{$item}}-id"
 				class="fakelink"
 				onclick="showThread({{$item.id}});">expand</span> /
@@ -32,7 +32,7 @@
 				<ul role="menu" aria-haspopup="true" class="contact-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
 				{{$item.item_photo_menu_html nofilter}}
 				</ul>
-				
+
 			</div>
 			<div class="wall-item-location">{{$item.location_html nofilter}}</div>
 		</div>
@@ -44,7 +44,7 @@
 					<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" class="item-select" value="{{$item.id}}" />
 				{{/if}}
 				{{if $item.drop && $item.drop.dropping}}
-					<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="icon delete s16" title="{{$item.drop.delete}}">{{$item.drop.delete}}</a>
+					<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="icon delete s16" title="{{$item.drop.label}}">{{$item.drop.label}}</a>
 				{{/if}}
 			</div>
 	</div>

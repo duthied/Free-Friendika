@@ -248,9 +248,6 @@ class Post
 			$pinned = DI::l10n()->t('Pinned item');
 		}
 
-		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
-		$delete = $origin ? DI::l10n()->t('Delete globally') : DI::l10n()->t('Remove locally');
-
 		$drop     = false;
 		$block    = false;
 		$ignore   = false;
@@ -261,24 +258,24 @@ class Post
 				'dropping' => $dropping,
 				'pagedrop' => $item['pagedrop'],
 				'select' => DI::l10n()->t('Select'),
-				'delete' => $delete,
+				'label' => $origin ? DI::l10n()->t('Delete globally') : DI::l10n()->t('Remove locally'),
 			];
 		}
 
 		if (!$item['self'] && DI::userSession()->getLocalUserId()) {
 			$block = [
 				'blocking'  => true,
-				'block'     => DI::l10n()->t('Block %s', $item['author-name']),
+				'label'     => DI::l10n()->t('Block %s', $item['author-name']),
 				'author_id' => $item['author-id'],
 			];
 			$ignore = [
 				'ignoring'  => true,
-				'ignore'    => DI::l10n()->t('Ignore %s', $item['author-name']),
+				'label'     => DI::l10n()->t('Ignore %s', $item['author-name']),
 				'author_id' => $item['author-id'],
 			];
 			$collapse = [
 				'collapsing' => true,
-				'collapse'   => DI::l10n()->t('Collapse %s', $item['author-name']),
+				'label'      => DI::l10n()->t('Collapse %s', $item['author-name']),
 				'author_id'  => $item['author-id'],
 			];
 			$report = [

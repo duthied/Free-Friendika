@@ -245,7 +245,7 @@
 
 						{{if $item.drop && $item.drop.dropping}}
 							<li role="menuitem">
-								<a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.drop.delete}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.delete}}</a>
+								<a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.drop.label}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.label}}</a>
 							</li>
 							{{/if}}
 						</ul>

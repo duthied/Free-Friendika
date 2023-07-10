@@ -75,7 +75,7 @@
 					<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" class="item-select" value="{{$item.id}}" />
 				{{/if}}
 				{{if $item.drop && $item.drop.dropping}}
-					<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="icon delete s16" title="{{$item.drop.delete}}">{{$item.drop.delete}}</a>
+					<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="icon delete s16" title="{{$item.drop.label}}">{{$item.drop.label}}</a>
 				{{/if}}
 				{{if $item.edpost}}
 					<a class="icon edit s16" href="{{$item.edpost.0}}" title="{{$item.edpost.1}}"></a>

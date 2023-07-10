@@ -390,23 +390,24 @@ as the value of $top_child_total (this is done at the end of this file)
 
                                         {{if $item.drop && $item.drop.dropping}}
                                         <li role="menuitem">
-                                                <a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.drop.delete}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.delete}}</a>
+                                                <a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.drop.label}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.label}}</a>
                                         </li>
                                         {{/if}}
 
                                         {{if $item.block}}
                                         <li role="menuitem">
-                                                <a class="btn-link navicon block" href="javascript:blockAuthor('item/block/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.block.block}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.block.block}}</a>
+                                                <a class="btn-link navicon block" href="javascript:blockAuthor('item/block/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.block.label}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.block.label}}</a>
                                         </li>
                                         {{/if}}
                                         {{if $item.ignore_author}}
                                         <li role="menuitem">
-                                                <a class="btn-link navicon ignore" href="javascript:ignoreAuthor('item/ignore/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.ignore_author.ignore}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.ignore_author.ignore}}</a>
+                                                <a class="btn-link navicon ignore" href="javascript:ignoreAuthor('item/ignore/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.ignore_author.label}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.ignore_author.label}}</a>
                                         </li>
                                         {{/if}}
                                         {{if $item.collapse}}
                                         <li role="menuitem">
-                                                <a class="btn-link navicon collapse" href="javascript:collapseAuthor('item/collapse/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.collapse.collapse}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.collapse.collapse}}</a>
+                                                <a class="btn-link navicon collapse" href="javascript:collapseAuthor('item/collapse/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.collapse.label}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.collapse.label}}</a>
+                                        </li>
                                         </li>
                                         {{/if}}
                                         {{if $item.report}}
@@ -564,7 +565,7 @@ as the value of $top_child_total (this is done at the end of this file)
 
 							{{if $item.drop && $item.drop.dropping}}
 								<li role="menuitem">
-								<a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.drop.delete}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.delete}}</a>
+								<a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.drop.label}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.label}}</a>
 							</li>
 							{{/if}}
 						</ul>
