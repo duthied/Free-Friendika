@@ -39,6 +39,7 @@ use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
+use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -499,20 +500,6 @@ class Page implements ArrayAccess
 			$this->page['nav']      = $nav->getHtml();
 		}
 
-		foreach ($response->getHeaders() as $key => $header) {
-			if (is_array($header)) {
-				$header_str = implode(',', $header);
-			} else {
-				$header_str = $header;
-			}
-
-			if (empty($key)) {
-				header($header_str);
-			} else {
-				header("$key: $header_str");
-			}
-		}
-
 		// Build the page - now that we have all the components
 		if (isset($_GET["mode"]) && (($_GET["mode"] == "raw") || ($_GET["mode"] == "minimal"))) {
 			$doc = new DOMDocument();
@@ -583,6 +570,10 @@ class Page implements ArrayAccess
 		// Used as is in view/php/default.php
 		$lang = $l10n->getCurrentLang();
 
+		ob_start();
 		require_once $template;
+		$body = ob_get_clean();
+
+		return $response->withBody(Utils::streamFor($body));
 	}
 }

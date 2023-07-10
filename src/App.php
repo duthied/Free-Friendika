@@ -706,11 +706,13 @@ class App
 			$timestamp = microtime(true);
 			$response = $module->run($httpException, $input);
 			$this->profiler->set(microtime(true) - $timestamp, 'content');
+
+			// Wrapping HTML responses in the theme template
 			if ($response->getHeaderLine(ICanCreateResponses::X_HEADER) === ICanCreateResponses::TYPE_HTML) {
-				$page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig, $nav, $this->session->getLocalUserId());
-			} else {
-				$page->exit($response);
+				$response = $page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig, $nav, $this->session->getLocalUserId());
 			}
+
+			$page->exit($response);
 		} catch (HTTPException $e) {
 			$httpException->rawContent($e);
 		}

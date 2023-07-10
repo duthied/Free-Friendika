@@ -251,6 +251,7 @@ abstract class BaseModule implements ICanHandleRequests
 				throw $e;
 			}
 
+			$this->response->setStatus($e->getCode(), $e->getMessage());
 			$this->response->addContent($httpException->content($e));
 		} finally {
 			$this->profiler->set(microtime(true) - $timestamp, 'content');
