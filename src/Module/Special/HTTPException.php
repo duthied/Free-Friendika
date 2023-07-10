@@ -126,8 +126,6 @@ class HTTPException
 	 */
 	public function content(\Friendica\Network\HTTPException $e): string
 	{
-		header($this->server['SERVER_PROTOCOL'] ?? 'HTTP/1.0' . ' ' . $e->getCode() . ' ' . $e->getDescription());
-
 		if ($e->getCode() >= 400) {
 			$this->logger->debug('Exit with error',
 				[
