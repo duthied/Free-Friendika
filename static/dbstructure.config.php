@@ -1710,6 +1710,7 @@ return [
 			"cid" => ["cid"],
 			"reporter-id" => ["reporter-id"],
 			"gsid" => ["gsid"],
+			"last-editor-uid" => ["last-editor-uid"],
 			"assigned-uid" => ["assigned-uid"],
 			"status-resolution" => ["status", "resolution"],
 			"created" => ["created"],
