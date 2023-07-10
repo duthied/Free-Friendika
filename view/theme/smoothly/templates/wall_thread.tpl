@@ -136,7 +136,7 @@
 
 			<div class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-{{$item.id}}">
 				{{if $item.drop && $item.drop.dropping}}
-				<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="icon drophide" title="{{$item.drop.delete}}" onmouseover="imgbright(this);" onmouseout="imgdull(this);"></a>
+				<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="icon drophide" title="{{$item.drop.label}}" onmouseover="imgbright(this);" onmouseout="imgdull(this);"></a>
 				{{/if}}
 			</div>
 
