@@ -1691,22 +1691,33 @@ return [
 			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Reporting user"],
 			"reporter-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Reporting contact"],
 			"cid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["contact" => "id"], "comment" => "Reported contact"],
+			"gsid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["gserver" => "id"], "comment" => "Reported contact server"],
 			"comment" => ["type" => "text", "comment" => "Report"],
-			"category" => ["type" => "varchar(20)", "comment" => "Category of the report (spam, violation, other)"],
-			"rules" => ["type" => "text", "comment" => "Violated rules"],
+			"category-id" => ["type" => "int unsigned", "not null" => 1, "default" => \Friendica\Moderation\Entity\Report::CATEGORY_OTHER, "comment" => "Report category, one of Entity\Report::CATEGORY_*"],
 			"forward" => ["type" => "boolean", "comment" => "Forward the report to the remote server"],
-			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"status" => ["type" => "tinyint unsigned", "comment" => "Status of the report"],
+			"public-remarks" => ["type" => "text", "comment" => "Remarks shared with the reporter"],
+			"private-remarks" => ["type" => "text", "comment" => "Remarks shared with the moderation team"],
+			"last-editor-uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Last editor user"],
+			"assigned-uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Assigned moderator user"],
+			"status" => ["type" => "tinyint unsigned", "not null" => "1", "comment" => "Status of the report, one of Entity\Report::STATUS_*"],
+			"resolution" => ["type" => "tinyint unsigned", "comment" => "Resolution of the report, one of Entity\Report::RESOLUTION_*"],
+			"created" => ["type" => "datetime(6)", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"edited" => ["type" => "datetime(6)", "comment" => "Last time the report has been edited"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid" => ["uid"],
 			"cid" => ["cid"],
 			"reporter-id" => ["reporter-id"],
+			"gsid" => ["gsid"],
+			"assigned-uid" => ["assigned-uid"],
+			"status-resolution" => ["status", "resolution"],
+			"created" => ["created"],
+			"edited" => ["edited"],
 		]
 	],
 	"report-post" => [
-		"comment" => "",
+		"comment" => "Individual posts attached to a moderation report",
 		"fields" => [
 			"rid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["report" => "id"], "comment" => "Report id"],
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Uri-id of the reported post"],
@@ -1715,6 +1726,17 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["rid", "uri-id"],
 			"uri-id" => ["uri-id"],
+		]
+	],
+	"report-rule" => [
+		"comment" => "Terms of service rule lines relevant to a moderation report",
+		"fields" => [
+			"rid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["report" => "id"], "comment" => "Report id"],
+			"line-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "comment" => "Terms of service rule line number, may become invalid after a TOS change."],
+			"text" => ["type" => "text", "not null" => "1", "comment" => "Terms of service rule text recorded at the time of the report"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["rid", "line-id"],
 		]
 	],
 	"search" => [

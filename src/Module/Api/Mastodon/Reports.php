@@ -62,21 +62,23 @@ class Reports extends BaseApi
 			'forward'    => false,   // If the account is remote, should the report be forwarded to the remote admin?
 		], $request);
 
-		$contact = Contact::getById($request['account_id'], ['id']);
+		$contact = Contact::getById($request['account_id'], ['id', 'gsid']);
 		if (empty($contact)) {
 			throw new HTTPException\NotFoundException('Account ' . $request['account_id'] . ' not found');
 		}
 
-		$violation = '';
-		$rules     = System::getRules(true);
-
-		foreach ($request['rule_ids'] as $key) {
-			if (!empty($rules[$key])) {
-				$violation .= $rules[$key] . "\n";
-			}
-		}
-
-		$report = $this->reportFactory->createFromReportsRequest(Contact::getPublicIdByUserId(self::getCurrentUserID()), $request['account_id'], $request['comment'], $request['category'], trim($violation), $request['forward'], $request['status_ids'], self::getCurrentUserID());
+		$report = $this->reportFactory->createFromReportsRequest(
+			System::getRules(),
+			Contact::getPublicIdByUserId(self::getCurrentUserID()),
+			$contact['id'],
+			$contact['gsid'],
+			$request['comment'],
+			$request['category'],
+			$request['forward'],
+			$request['status_ids'],
+			$request['rule_ids'],
+			self::getCurrentUserID()
+		);
 
 		$this->reportRepo->save($report);
 

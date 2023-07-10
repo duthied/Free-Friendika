@@ -1,7 +1,7 @@
 Table report-post
 ===========
 
-
+Individual posts attached to a moderation report
 
 Fields
 ------

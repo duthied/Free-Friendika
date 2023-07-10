@@ -1695,19 +1695,33 @@ CREATE TABLE IF NOT EXISTS `report` (
 	`uid` mediumint unsigned COMMENT 'Reporting user',
 	`reporter-id` int unsigned COMMENT 'Reporting contact',
 	`cid` int unsigned NOT NULL COMMENT 'Reported contact',
+	`gsid` int unsigned NOT NULL COMMENT 'Reported contact server',
 	`comment` text COMMENT 'Report',
-	`category` varchar(20) COMMENT 'Category of the report (spam, violation, other)',
-	`rules` text COMMENT 'Violated rules',
+	`category-id` int unsigned NOT NULL DEFAULT 1 COMMENT 'Report category, one of Entity\Report::CATEGORY_*',
 	`forward` boolean COMMENT 'Forward the report to the remote server',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`status` tinyint unsigned COMMENT 'Status of the report',
+	`public-remarks` text COMMENT 'Remarks shared with the reporter',
+	`private-remarks` text COMMENT 'Remarks shared with the moderation team',
+	`last-editor-uid` mediumint unsigned COMMENT 'Last editor user',
+	`assigned-uid` mediumint unsigned COMMENT 'Assigned moderator user',
+	`status` tinyint unsigned NOT NULL COMMENT 'Status of the report, one of Entity\Report::STATUS_*',
+	`resolution` tinyint unsigned COMMENT 'Resolution of the report, one of Entity\Report::RESOLUTION_*',
+	`created` datetime(6) NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`edited` datetime(6) COMMENT 'Last time the report has been edited',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `cid` (`cid`),
 	 INDEX `reporter-id` (`reporter-id`),
+	 INDEX `gsid` (`gsid`),
+	 INDEX `assigned-uid` (`assigned-uid`),
+	 INDEX `status-resolution` (`status`,`resolution`),
+	 INDEX `created` (`created`),
+	 INDEX `edited` (`edited`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`reporter-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`last-editor-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`assigned-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
@@ -1721,7 +1735,18 @@ CREATE TABLE IF NOT EXISTS `report-post` (
 	 INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`rid`) REFERENCES `report` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Individual posts attached to a moderation report';
+
+--
+-- TABLE report-rule
+--
+CREATE TABLE IF NOT EXISTS `report-rule` (
+	`rid` int unsigned NOT NULL COMMENT 'Report id',
+	`line-id` int unsigned NOT NULL COMMENT 'Terms of service rule line number, may become invalid after a TOS change.',
+	`text` text NOT NULL COMMENT 'Terms of service rule text recorded at the time of the report',
+	 PRIMARY KEY(`rid`,`line-id`),
+	FOREIGN KEY (`rid`) REFERENCES `report` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Terms of service rule lines relevant to a moderation report';
 
 --
 -- TABLE search
