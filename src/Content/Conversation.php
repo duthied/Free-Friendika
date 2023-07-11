@@ -589,6 +589,10 @@ class Conversation
 	 */
 	public function getThreadList(array $items, string $mode, bool $preview, bool $pagedrop, string $formSecurityToken): array
 	{
+		if (!$items) {
+			return [];
+		}
+
 		if (in_array($mode, [self::MODE_FILED, self::MODE_SEARCH, self::MODE_CONTACT_POSTS])) {
 			$threads = $this->getContextLessThreadList($items, $mode, $preview, $pagedrop, $formSecurityToken);
 		} else {
