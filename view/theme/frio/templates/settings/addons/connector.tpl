@@ -11,7 +11,7 @@
 		</div>
 		<div class="panel-footer">
 {{if $submit}}
-    {{if $submit}}
+    {{if $submit|is_string}}
 			<button type="submit" name="{{$connector}}-submit" class="btn btn-primary settings-submit" value="{{$submit}}">{{$submit}}</button>
     {{else}}
         {{$count = 1}}
