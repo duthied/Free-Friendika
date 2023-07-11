@@ -1691,7 +1691,7 @@ return [
 			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Reporting user"],
 			"reporter-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Reporting contact"],
 			"cid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["contact" => "id"], "comment" => "Reported contact"],
-			"gsid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["gserver" => "id"], "comment" => "Reported contact server"],
+			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id"], "comment" => "Reported contact server"],
 			"comment" => ["type" => "text", "comment" => "Report"],
 			"category-id" => ["type" => "int unsigned", "not null" => 1, "default" => \Friendica\Moderation\Entity\Report::CATEGORY_OTHER, "comment" => "Report category, one of Entity\Report::CATEGORY_*"],
 			"forward" => ["type" => "boolean", "comment" => "Forward the report to the remote server"],

@@ -12,7 +12,7 @@ Fields
 | uid             | Reporting user                                               | mediumint unsigned | YES  |     | NULL                |                |
 | reporter-id     | Reporting contact                                            | int unsigned       | YES  |     | NULL                |                |
 | cid             | Reported contact                                             | int unsigned       | NO   |     | NULL                |                |
-| gsid            | Reported contact server                                      | int unsigned       | NO   |     | NULL                |                |
+| gsid            | Reported contact server                                      | int unsigned       | YES  |     | NULL                |                |
 | comment         | Report                                                       | text               | YES  |     | NULL                |                |
 | category-id     | Report category, one of Entity\Report::CATEGORY_*            | int unsigned       | NO   |     | 1                   |                |
 | forward         | Forward the report to the remote server                      | boolean            | YES  |     | NULL                |                |
