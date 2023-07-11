@@ -1695,7 +1695,7 @@ CREATE TABLE IF NOT EXISTS `report` (
 	`uid` mediumint unsigned COMMENT 'Reporting user',
 	`reporter-id` int unsigned COMMENT 'Reporting contact',
 	`cid` int unsigned NOT NULL COMMENT 'Reported contact',
-	`gsid` int unsigned NOT NULL COMMENT 'Reported contact server',
+	`gsid` int unsigned COMMENT 'Reported contact server',
 	`comment` text COMMENT 'Report',
 	`category-id` int unsigned NOT NULL DEFAULT 1 COMMENT 'Report category, one of Entity\Report::CATEGORY_*',
 	`forward` boolean COMMENT 'Forward the report to the remote server',
