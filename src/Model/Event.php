@@ -928,7 +928,7 @@ class Event
 		}
 
 		// Format the event location.
-		$location = self::locationToArray($item['event-location']);
+		$location = self::locationToArray($item['event-location'], $item['uri-id']);
 
 		// Construct the profile link (magic-auth).
 		$author       = [
@@ -978,7 +978,8 @@ class Event
 	 * Note: The string must only contain location data. A string with no bbcode will be
 	 * handled as location name.
 	 *
-	 * @param string $s The string with the bbcode formatted location data.
+	 * @param string $s      The string with the bbcode formatted location data.
+	 * @param int    $uri_id The uri-id of the related post
 	 *
 	 * @return array The array with the location data.
 	 *  'name' => The name of the location,<br>
@@ -986,7 +987,7 @@ class Event
 	 * 'coordinates' => Latitude and longitude (e.g. '48.864716,2.349014').<br>
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function locationToArray(string $s = ''): array
+	private static function locationToArray(string $s, int $uri_id): array
 	{
 		if ($s == '') {
 			return [];
@@ -1012,7 +1013,7 @@ class Event
 			}
 		}
 
-		$location['name'] = BBCode::convert($location['name']);
+		$location['name'] = BBCode::convertForUriId($uri_id, $location['name']);
 
 		// Construct the map HTML.
 		if (isset($location['address'])) {

@@ -58,7 +58,7 @@ class Babel extends BaseModule
 						'content' => visible_whitespace($plain)
 					];
 
-					$html = Text\BBCode::convert($bbcode);
+					$html = Text\BBCode::convertForUriId(0, $bbcode);
 					$results[] = [
 						'title'   => DI::l10n()->t('BBCode::convert (raw HTML)'),
 						'content' => visible_whitespace($html)
@@ -125,7 +125,7 @@ class Babel extends BaseModule
 						'title'   => DI::l10n()->t('PageInfo::appendToBody'),
 						'content' => visible_whitespace($body2)
 					];
-					$html3 = Text\BBCode::convert($body2);
+					$html3 = Text\BBCode::convertForUriId(0, $body2);
 					$results[] = [
 						'title'   => DI::l10n()->t('PageInfo::appendToBody => BBCode::convert (raw HTML)'),
 						'content' => visible_whitespace($html3)
@@ -203,7 +203,7 @@ class Babel extends BaseModule
 						'content' => visible_whitespace($bbcode)
 					];
 
-					$html2 = Text\BBCode::convert($bbcode);
+					$html2 = Text\BBCode::convertForUriId(0, $bbcode);
 					$results[] = [
 						'title'   => DI::l10n()->t('HTML::toBBCode => BBCode::convert'),
 						'content' => $html2

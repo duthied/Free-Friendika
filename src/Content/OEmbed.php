@@ -312,8 +312,7 @@ class OEmbed
 	 */
 	public static function BBCode2HTML(string $text): string
 	{
-		$stopoembed = DI::config()->get('system', 'no_oembed');
-		if ($stopoembed == true) {
+		if (DI::config()->get('system', 'no_oembed')) {
 			return preg_replace("/\[embed\](.+?)\[\/embed\]/is", "<!-- oembed $1 --><i>" . DI::l10n()->t('Embedding disabled') . " : $1</i><!-- /oembed $1 -->", $text);
 		}
 		return preg_replace_callback("/\[embed\](.+?)\[\/embed\]/is", [self::class, 'replaceCallback'], $text);

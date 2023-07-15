@@ -118,7 +118,7 @@ class Notify extends BaseEntity
 	public function updateMsgFromPreamble($epreamble)
 	{
 		$this->msg       = Renderer::replaceMacros($epreamble, ['$itemlink' => $this->link->__toString()]);
-		$this->msg_cache = self::formatMessage($this->name_cache, strip_tags(BBCode::convert($this->msg)));
+		$this->msg_cache = self::formatMessage($this->name_cache, strip_tags(BBCode::convertForUriId(0, $this->msg, BBCode::EXTERNAL)));
 	}
 
 	/**
@@ -134,6 +134,6 @@ class Notify extends BaseEntity
 	 */
 	public static function formatMessage(string $name, string $message): string
 	{
-		return str_replace('{0}', '<span class="contactname">' . strip_tags(BBCode::convert($name)) . '</span>', htmlspecialchars($message));
+		return str_replace('{0}', '<span class="contactname">' . strip_tags(BBCode::convertForUriId(0, $name, BBCode::EXTERNAL)) . '</span>', htmlspecialchars($message));
 	}
 }

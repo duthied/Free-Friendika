@@ -34,6 +34,7 @@ use Friendica\Security\PermissionSet\Entity\PermissionSet;
  *
  * @property-read int|null  $id
  * @property-read int       $uid
+ * @property-read int       $uriId
  * @property-read int       $order
  * @property-read string    $label
  * @property-read string    $value
@@ -50,6 +51,8 @@ class ProfileField extends BaseEntity
 	/** @var int */
 	protected $uid;
 	/** @var int */
+	protected $uriId;
+	/** @var int */
 	protected $order;
 	/** @var string */
 	protected $label;
@@ -60,7 +63,7 @@ class ProfileField extends BaseEntity
 	/** @var \DateTime */
 	protected $edited;
 
-	public function __construct(int $uid, int $order, string $label, string $value, \DateTime $created, \DateTime $edited, PermissionSet $permissionSet, int $id = null)
+	public function __construct(int $uid, int $order, string $label, string $value, \DateTime $created, \DateTime $edited, PermissionSet $permissionSet, int $id = null, int $uriId = null)
 	{
 		$this->permissionSet = $permissionSet;
 		$this->uid           = $uid;
@@ -70,6 +73,7 @@ class ProfileField extends BaseEntity
 		$this->created       = $created;
 		$this->edited        = $edited;
 		$this->id            = $id;
+		$this->uriId         = $uriId;
 	}
 
 	/**

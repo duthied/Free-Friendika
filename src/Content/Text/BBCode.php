@@ -142,7 +142,7 @@ class BBCode
 						break;
 
 					case 'title':
-						$value = self::convert(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), false, true);
+						$value = self::convertForUriId(0, html_entity_decode($value, ENT_QUOTES, 'UTF-8'), BBCode::EXTERNAL);
 						$value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
 						$value = str_replace(['[', ']'], ['&#91;', '&#93;'], $value);
 						$data['title'] = $value;
@@ -236,7 +236,7 @@ class BBCode
 		// Remove attachment
 		$text = self::replaceAttachment($text);
 
-		$naked_text = HTML::toPlaintext(self::convert($text, false, 0, true), 0, !$keep_urls);
+		$naked_text = HTML::toPlaintext(self::convert($text, false, BBCode::EXTERNAL, true), 0, !$keep_urls);
 
 		DI::profiler()->stopRecording();
 		return $naked_text;
@@ -2065,7 +2065,7 @@ class BBCode
 
 		// Convert it to HTML - don't try oembed
 		if ($for_diaspora) {
-			$text = self::convert($text, false, self::DIASPORA);
+			$text = self::convertForUriId(0, $text, self::DIASPORA);
 
 			// Add all tags that maybe were removed
 			if (preg_match_all("/#\[url\=([$url_search_string]*)\](.*?)\[\/url\]/ism", $original_text, $tags)) {
@@ -2079,7 +2079,7 @@ class BBCode
 				$text = $text . ' ' . $tagline;
 			}
 		} else {
-			$text = self::convert($text, false, self::CONNECTORS);
+			$text = self::convertForUriId(0, $text, self::CONNECTORS);
 		}
 
 		// If a link is followed by a quote then there should be a newline before it

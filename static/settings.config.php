@@ -164,6 +164,10 @@ return [
 		// Allow pseudonyms (true) or enforce a space between first name and last name in Full name, as an anti spam measure (false).
 		'no_regfullname' => true,
 
+		// no_oembed_rich_content (Boolean)
+		// If enabled, allow OEmbed for all URLs. Disabled by default.
+		'no_oembed_rich_content' => true,
+
 		// optimize_tables (Boolean)
 		// Periodically (once an hour) run an "optimize table" command for cache tables
 		'optimize_tables' => false,
