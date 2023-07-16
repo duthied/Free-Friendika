@@ -38,6 +38,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
+use Psr\Log\LoggerInterface;
 
 // Get options
 $shortopts = 'f';
