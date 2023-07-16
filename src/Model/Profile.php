@@ -640,13 +640,13 @@ class Profile
 					$istoday = true;
 				}
 
-				$title = strip_tags(html_entity_decode(BBCode::convertForUriId($rr['uri-id'], $rr['summary']), ENT_QUOTES, 'UTF-8'));
+				$title = BBCode::toPlaintext($rr['summary'], false, true);
 
 				if (strlen($title) > 35) {
 					$title = substr($title, 0, 32) . '... ';
 				}
 
-				$description = substr(strip_tags(BBCode::convertForUriId($rr['uri-id'], $rr['desc'])), 0, 32) . '... ';
+				$description = BBCode::toPlaintext($rr['desc'], false, true) . '... ';
 				if (!$description) {
 					$description = DI::l10n()->t('[No description]');
 				}
