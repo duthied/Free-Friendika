@@ -35,7 +35,7 @@ use Friendica\Core\Hooks\Util\HookFileManager;
  */
 class DiceInstanceManager implements ICanCreateInstances, ICanRegisterInstances
 {
-	protected $instance  = [];
+	protected $instance = [];
 
 	/** @var Dice */
 	protected $dice;

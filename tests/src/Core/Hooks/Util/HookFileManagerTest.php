@@ -62,7 +62,7 @@ return [
 	],
 ];
 EOF,
-				'addonsArray' => [],
+				'addonsArray'      => [],
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
 				],
@@ -85,7 +85,7 @@ return [
 	],
 ];
 EOF,
-				'addonsArray' => [],
+				'addonsArray'      => [],
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
 				],
