@@ -1381,8 +1381,6 @@ class Conversation
 				continue;
 			}
 
-			$threadsid++;
-
 			// prevent private email from leaking.
 			if ($item['network'] === Protocol::MAIL && $this->session->getLocalUserId() != $item['uid']) {
 				continue;
