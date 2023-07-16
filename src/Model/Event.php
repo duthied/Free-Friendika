@@ -978,7 +978,7 @@ class Event
 	 * Note: The string must only contain location data. A string with no bbcode will be
 	 * handled as location name.
 	 *
-	 * @param string $s      The string with the bbcode formatted location data.
+	 * @param string $s The string with the bbcode formatted location data.
 	 *
 	 * @return array The array with the location data.
 	 *  'name' => The name of the location,<br>
@@ -986,7 +986,7 @@ class Event
 	 * 'coordinates' => Latitude and longitude (e.g. '48.864716,2.349014').<br>
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function locationToArray(string $s): array
+	private static function locationToArray(string $s = ''): array
 	{
 		if ($s == '') {
 			return [];
