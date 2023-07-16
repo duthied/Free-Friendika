@@ -104,13 +104,13 @@ class HookFileManager
 		$configFile = $this->basePath . '/' . static::STATIC_DIR . '/' . static::CONFIG_NAME . '.config.php';
 
 		if (!file_exists($configFile)) {
-			throw new HookConfigException(sprintf('config file %s does not exit.', $configFile));
+			throw new HookConfigException(sprintf('config file %s does not exist.', $configFile));
 		}
 
 		$config = include $configFile;
 
 		if (!is_array($config)) {
-			throw new HookConfigException('Error loading config file ' . $configFile);
+			throw new HookConfigException(sprintf('Error loading config file %s.', $configFile));
 		}
 
 		$this->hookConfig = array_merge_recursive($config, $this->addonLoader->getActiveAddonConfig(static::CONFIG_NAME));
