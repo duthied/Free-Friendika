@@ -72,7 +72,7 @@ EOF;
 	public function dataHooks(): array
 	{
 		return [
-			'normal'                  => [
+			'normal' => [
 				'structure' => $this->structure,
 				'enabled'   => $this->addons,
 				'files'     => [
@@ -86,7 +86,7 @@ EOF;
 					],
 				],
 			],
-			'double'                  => [
+			'double' => [
 				'structure' => $this->structure,
 				'enabled'   => $this->addons,
 				'files'     => [
@@ -101,7 +101,7 @@ EOF;
 					],
 				],
 			],
-			'wrongName'               => [
+			'wrongName' => [
 				'structure' => $this->structure,
 				'enabled'   => $this->addons,
 				'files'     => [

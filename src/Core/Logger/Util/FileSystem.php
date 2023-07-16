@@ -21,6 +21,8 @@
 
 namespace Friendica\Core\Logger\Util;
 
+use Friendica\Core\Logger\Exception\LoggerUnusableException;
+
 /**
  * Util class for filesystem manipulation for Logger classes
  */
@@ -37,6 +39,8 @@ class FileSystem
 	 * @param string $file The file
 	 *
 	 * @return string The directory name (empty if no directory is found, like urls)
+	 *
+	 * @throws LoggerUnusableException
 	 */
 	public function createDir(string $file): string
 	{
@@ -57,7 +61,7 @@ class FileSystem
 			restore_error_handler();
 
 			if (!$status && !is_dir($dirname)) {
-				throw new \UnexpectedValueException(sprintf('Directory "%s" cannot get created: ' . $this->errorMessage, $dirname));
+				throw new LoggerUnusableException(sprintf('Directory "%s" cannot get created: ' . $this->errorMessage, $dirname));
 			}
 
 			return $dirname;
@@ -75,7 +79,7 @@ class FileSystem
 	 *
 	 * @return resource the open stream resource
 	 *
-	 * @throws \UnexpectedValueException
+	 * @throws LoggerUnusableException
 	 */
 	public function createStream(string $url)
 	{
@@ -89,7 +93,7 @@ class FileSystem
 		restore_error_handler();
 
 		if (!is_resource($stream)) {
-			throw new \UnexpectedValueException(sprintf('The stream or file "%s" could not be opened: ' . $this->errorMessage, $url));
+			throw new LoggerUnusableException(sprintf('The stream or file "%s" could not be opened: ' . $this->errorMessage, $url));
 		}
 
 		return $stream;

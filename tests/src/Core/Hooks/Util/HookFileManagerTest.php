@@ -55,19 +55,11 @@ return [
 			\Psr\Log\NullLogger::class => [''],
 		],
 	],
-	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::DECORATOR => [
-		\Psr\Log\LoggerInterface::class => [
-			\Psr\Log\NullLogger::class,
-		],
-	],
 ];
 EOF,
 				'addonsArray'      => [],
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
-				],
-				'assertDecorators' => [
-					[LoggerInterface::class, NullLogger::class],
 				],
 			],
 			'normalWithString' => [
@@ -80,17 +72,11 @@ return [
 			\Psr\Log\NullLogger::class => '',
 		],
 	],
-	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::DECORATOR => [
-		\Psr\Log\LoggerInterface::class => \Psr\Log\NullLogger::class,
-	],
 ];
 EOF,
 				'addonsArray'      => [],
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
-				],
-				'assertDecorators' => [
-					[LoggerInterface::class, NullLogger::class],
 				],
 			],
 			'withAddons' => [
@@ -116,7 +102,6 @@ EOF,
 					[LoggerInterface::class, NullLogger::class, ''],
 					[LoggerInterface::class, NullLogger::class, 'null'],
 				],
-				'assertDecorators' => [],
 			],
 			'withAddonsWithString' => [
 				'content' => <<<EOF
@@ -141,7 +126,6 @@ EOF,
 					[LoggerInterface::class, NullLogger::class, ''],
 					[LoggerInterface::class, NullLogger::class, 'null'],
 				],
-				'assertDecorators' => [],
 			],
 			// This should work because unique name convention is part of the instance manager logic, not of the file-infrastructure layer
 			'withAddonsDoubleNamed' => [
@@ -167,7 +151,6 @@ EOF,
 					[LoggerInterface::class, NullLogger::class, ''],
 					[LoggerInterface::class, NullLogger::class, ''],
 				],
-				'assertDecorators' => [],
 			],
 			'withWrongContentButAddons' => [
 				'content' => <<<EOF
@@ -191,7 +174,6 @@ EOF,
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
 				],
-				'assertDecorators' => [],
 			],
 		];
 	}
@@ -199,7 +181,7 @@ EOF,
 	/**
 	 * @dataProvider dataHooks
 	 */
-	public function testSetupHooks(string $content, array $addonsArray, array $assertStrategies, array $assertDecorators)
+	public function testSetupHooks(string $content, array $addonsArray, array $assertStrategies)
 	{
 		vfsStream::newFile('static/hooks.config.php')
 			->withContent($content)
@@ -213,10 +195,6 @@ EOF,
 		$instanceManager = \Mockery::mock(ICanRegisterInstances::class);
 		foreach ($assertStrategies as $assertStrategy) {
 			$instanceManager->shouldReceive('registerStrategy')->withArgs($assertStrategy)->once();
-		}
-
-		foreach ($assertDecorators as $assertDecorator) {
-			$instanceManager->shouldReceive('registerDecorator')->withArgs($assertDecorator)->once();
 		}
 
 		$hookFileManager->setupHooks($instanceManager);

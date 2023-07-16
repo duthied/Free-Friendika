@@ -25,10 +25,10 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Logger\Capabilities\LogChannel;
 use Friendica\Core\Logger\Exception\LoggerArgumentException;
 use Friendica\Core\Logger\Exception\LoggerException;
+use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Core\Logger\Type\StreamLogger as StreamLoggerClass;
 use Friendica\Core\Logger\Util\FileSystem;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 
 /**
@@ -55,7 +55,7 @@ class StreamLogger extends AbstractLoggerTypeFactory
 		$fileSystem = new FileSystem();
 
 		$logfile = $logfile ?? $config->get('system', 'logfile');
-		if ((@file_exists($logfile) && !@is_writable($logfile)) && !@is_writable(basename($logfile))) {
+		if (!@file_exists($logfile) || !@is_writable($logfile)) {
 			throw new LoggerArgumentException(sprintf('%s is not a valid logfile', $logfile));
 		}
 
@@ -64,7 +64,7 @@ class StreamLogger extends AbstractLoggerTypeFactory
 		if (array_key_exists($loglevel, StreamLoggerClass::levelToInt)) {
 			$loglevel = StreamLoggerClass::levelToInt[$loglevel];
 		} else {
-			$loglevel = StreamLoggerClass::levelToInt[LogLevel::NOTICE];
+			throw new LogLevelException(sprintf('The level "%s" is not valid.', $loglevel));
 		}
 
 		$stream = $fileSystem->createStream($logfile);
