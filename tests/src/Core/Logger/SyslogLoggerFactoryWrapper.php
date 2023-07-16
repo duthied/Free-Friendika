@@ -19,30 +19,17 @@
  *
  */
 
-namespace Friendica\Core\Logger\Factory;
+namespace Friendica\Test\src\Core\Logger;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core\Logger\Exception\LogLevelException;
+use Friendica\Core\Logger\Factory\SyslogLogger;
 use Friendica\Core\Logger\Type\SyslogLogger as SyslogLoggerClass;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
-/**
- * The logger factory for the SyslogLogger instance
- *
- * @see SyslogLoggerClass
- */
-class SyslogLogger extends AbstractLoggerTypeFactory
+class SyslogLoggerFactoryWrapper extends SyslogLogger
 {
-	/**
-	 * Creates a new PSR-3 compliant syslog logger instance
-	 *
-	 * @param IManageConfigValues $config The system configuration
-	 *
-	 * @return LoggerInterface The PSR-3 compliant logger instance
-	 *
-	 * @throws LoggerException in case the logger cannot get created
-	 */
 	public function create(IManageConfigValues $config): LoggerInterface
 	{
 		$logOpts     = $config->get('system', 'syslog_flags')    ?? SyslogLoggerClass::DEFAULT_FLAGS;
@@ -55,6 +42,6 @@ class SyslogLogger extends AbstractLoggerTypeFactory
 			throw new LogLevelException(sprintf('The level "%s" is not valid.', $loglevel));
 		}
 
-		return new SyslogLoggerClass($this->channel, $this->introspection, $loglevel, $logOpts, $logFacility);
+		return new SyslogLoggerWrapper($this->channel, $this->introspection, $loglevel, $logOpts, $logFacility);
 	}
 }

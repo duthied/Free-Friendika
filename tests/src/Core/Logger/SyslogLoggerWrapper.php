@@ -21,10 +21,8 @@
 
 namespace Friendica\Test\src\Core\Logger;
 
-use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
 use Friendica\Core\Logger\Type\SyslogLogger;
-use Friendica\Core\Logger\Util\Introspection;
-use Psr\Log\LogLevel;
 
 /**
  * Wraps the SyslogLogger for replacing the syslog call with a string field.
@@ -33,9 +31,9 @@ class SyslogLoggerWrapper extends SyslogLogger
 {
 	private $content;
 
-	public function __construct($channel, IManageConfigValues $config, Introspection $introspection, $level = LogLevel::NOTICE)
+	public function __construct(string $channel, IHaveCallIntrospections $introspection, string $logLevel, string $logOptions, string $logFacility)
 	{
-		parent::__construct($channel, $config, $introspection, $level);
+		parent::__construct($channel, $introspection, $logLevel, $logOptions, $logFacility);
 
 		$this->content = '';
 	}
