@@ -1012,7 +1012,7 @@ class Event
 			}
 		}
 
-		$location['name'] = BBCode::toPlaintext($location['name'], false, true);
+		$location['name'] = BBCode::toPlaintext($location['name'], false);
 
 		// Construct the map HTML.
 		if (isset($location['address'])) {

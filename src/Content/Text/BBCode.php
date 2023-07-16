@@ -226,7 +226,7 @@ class BBCode
 	 * @param bool $keep_urls Whether to keep URLs in the resulting plaintext
 	 * @return string
 	 */
-	public static function toPlaintext(string $text, bool $keep_urls = true, bool $strip_tags = false): string
+	public static function toPlaintext(string $text, bool $keep_urls = true): string
 	{
 		DI::profiler()->startRecording('rendering');
 		// Remove pictures in advance to avoid unneeded proxy calls
@@ -238,9 +238,6 @@ class BBCode
 
 		$naked_text = HTML::toPlaintext(self::convert($text, false, BBCode::EXTERNAL, true), 0, !$keep_urls);
 
-		if ($strip_tags) {
-			$naked_text = strip_tags($naked_text);
-		}
 		DI::profiler()->stopRecording();
 		return $naked_text;
 	}

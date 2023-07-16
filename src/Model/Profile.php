@@ -640,13 +640,13 @@ class Profile
 					$istoday = true;
 				}
 
-				$title = BBCode::toPlaintext($rr['summary'], false, true);
+				$title = BBCode::toPlaintext($rr['summary'], false);
 
 				if (strlen($title) > 35) {
 					$title = substr($title, 0, 32) . '... ';
 				}
 
-				$description = BBCode::toPlaintext($rr['desc'], false, true) . '... ';
+				$description = BBCode::toPlaintext($rr['desc'], false) . '... ';
 				if (!$description) {
 					$description = DI::l10n()->t('[No description]');
 				}

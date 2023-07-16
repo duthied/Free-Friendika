@@ -118,7 +118,7 @@ class Notify extends BaseEntity
 	public function updateMsgFromPreamble($epreamble)
 	{
 		$this->msg       = Renderer::replaceMacros($epreamble, ['$itemlink' => $this->link->__toString()]);
-		$this->msg_cache = self::formatMessage($this->name_cache, BBCode::toPlaintext($this->msg, false, true));
+		$this->msg_cache = self::formatMessage($this->name_cache, BBCode::toPlaintext($this->msg, false));
 	}
 
 	/**
@@ -134,6 +134,6 @@ class Notify extends BaseEntity
 	 */
 	public static function formatMessage(string $name, string $message): string
 	{
-		return str_replace('{0}', '<span class="contactname">' . BBCode::toPlaintext($name, false, true) . '</span>', htmlspecialchars($message));
+		return str_replace('{0}', '<span class="contactname">' . BBCode::toPlaintext($name, false) . '</span>', htmlspecialchars($message));
 	}
 }
