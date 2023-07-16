@@ -26,7 +26,6 @@ use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Core\Logger\Factory\SyslogLogger;
 use Friendica\Core\Logger\Type\SyslogLogger as SyslogLoggerClass;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
 
 class SyslogLoggerFactoryWrapper extends SyslogLogger
 {
