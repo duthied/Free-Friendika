@@ -198,12 +198,6 @@ return [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],
-	\Friendica\Core\Logger\Type\ProfilerLogger::class                  => [
-		'instanceOf' => \Friendica\Core\Logger\Factory\ProfilerLogger::class,
-		'call'       => [
-			['create', [], Dice::CHAIN_CALL],
-		],
-	],
 	\Friendica\Core\Logger\Capabilities\IHaveCallIntrospections::class => [
 		'instanceOf'      => \Friendica\Core\Logger\Util\Introspection::class,
 		'constructParams' => [
