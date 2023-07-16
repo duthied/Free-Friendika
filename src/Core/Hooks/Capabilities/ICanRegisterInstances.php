@@ -24,7 +24,7 @@ namespace Friendica\Core\Hooks\Capabilities;
 use Friendica\Core\Hooks\Exceptions\HookRegisterArgumentException;
 
 /**
- * Register strategies and decorator/treatment handling for given classes
+ * Register strategies for given classes
  */
 interface ICanRegisterInstances
 {
@@ -43,21 +43,4 @@ interface ICanRegisterInstances
 	 * @throws HookRegisterArgumentException in case the given class for the interface isn't valid or already set
 	 */
 	public function registerStrategy(string $interface, string $class, ?string $name = null): self;
-
-	/**
-	 * Register a new decorator for a given class or interface
-	 *
-	 * @see  https://refactoring.guru/design-patterns/decorator
-	 *
-	 * @note Decorator attach new behaviors to classes without changing them or without letting them know about it.
-	 *
-	 * @param string $class          The fully-qualified class or interface name, which gets decorated by a class
-	 * @param string $decoratorClass The fully-qualified name of the class which mimics the given class or interface and adds new functionality
-	 *                               A placeholder for dependencies is possible as well
-	 *
-	 * @return $this This interface for chain-calls
-	 *
-	 * @throws HookRegisterArgumentException in case the given class for the class or interface isn't valid
-	 */
-	public function registerDecorator(string $class, string $decoratorClass): self;
 }

@@ -25,14 +25,14 @@ class FakeInstanceDecorator implements IAmADecoratedInterface
 {
 	public static $countInstance = 0;
 
+	const PREFIX = 'prefix1';
+
 	/** @var IAmADecoratedInterface */
 	protected $orig;
-	protected $prefix = '';
 
-	public function __construct(IAmADecoratedInterface $orig, string $prefix = '')
+	public function __construct(IAmADecoratedInterface $orig)
 	{
 		$this->orig   = $orig;
-		$this->prefix = $prefix;
 
 		self::$countInstance++;
 	}
@@ -44,16 +44,16 @@ class FakeInstanceDecorator implements IAmADecoratedInterface
 
 	public function getAText(): ?string
 	{
-		return $this->prefix . $this->orig->getAText();
+		return static::PREFIX . $this->orig->getAText();
 	}
 
 	public function getBText(): ?string
 	{
-		return $this->prefix . $this->orig->getBText();
+		return static::PREFIX . $this->orig->getBText();
 	}
 
 	public function getCBool(): ?bool
 	{
-		return $this->prefix . $this->orig->getCBool();
+		return static::PREFIX . $this->orig->getCBool();
 	}
 }

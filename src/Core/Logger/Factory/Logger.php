@@ -24,6 +24,8 @@ namespace Friendica\Core\Logger\Factory;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
 use Friendica\Core\Logger\Capabilities\LogChannel;
+use Friendica\Core\Logger\Type\ProfilerLogger as ProfilerLoggerClass;
+use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
@@ -41,7 +43,7 @@ class Logger
 		$this->channel = $channel;
 	}
 
-	public function create(ICanCreateInstances $createInstances, IManageConfigValues $config): LoggerInterface
+	public function create(ICanCreateInstances $createInstances, IManageConfigValues $config, Profiler $profiler): LoggerInterface
 	{
 		if (empty($config->get('system', 'debugging') ?? false)) {
 			return new NullLogger();
@@ -50,7 +52,13 @@ class Logger
 		$name = $config->get('system', 'logger_config') ?? '';
 
 		try {
-			return $createInstances->createWithName(LoggerInterface::class, $name, [$this->channel]);
+			/** @var LoggerInterface $logger */
+			$logger = $createInstances->create(LoggerInterface::class, $name, [$this->channel]);
+			if ($config->get('system', 'profiling') ?? false) {
+				return new ProfilerLoggerClass($logger, $profiler);
+			} else {
+				return $logger;
+			}
 		} catch (Throwable $e) {
 			// No logger ...
 			return new NullLogger();

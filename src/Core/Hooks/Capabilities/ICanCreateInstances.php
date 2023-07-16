@@ -22,7 +22,7 @@
 namespace Friendica\Core\Hooks\Capabilities;
 
 /**
- * creates special instance and decorator treatments for given classes
+ * creates special instances for given classes
  */
 interface ICanCreateInstances
 {
@@ -31,27 +31,11 @@ interface ICanCreateInstances
 	 *
 	 * The instance will be build based on the registered strategy and the (unique) name
 	 *
-	 * In case, there are registered decorators for this class as well, all decorators of the list will be wrapped
-	 * around the instance before returning it
-	 *
 	 * @param string $class     The fully-qualified name of the given class or interface which will get returned
 	 * @param string $name      An arbitrary identifier to find a concrete instance strategy.
 	 * @param array  $arguments Additional arguments, which can be passed to the constructor of "$class" at runtime
 	 *
 	 * @return object The concrete instance of the type "$class"
 	 */
-	public function createWithName(string $class, string $name, array $arguments = []): object;
-
-	/**
-	 * Returns a new instance of a given class
-	 *
-	 * In case, there are registered decorators for this class as well, all decorators of the list will be wrapped
-	 * around the instance before returning it
-	 *
-	 * @param string $class     The fully-qualified name of the given class or interface which will get returned
-	 * @param array  $arguments Additional arguments, which can be passed to the constructor of "$class" at runtime
-	 *
-	 * @return object The concrete instance of the type "$class"
-	 */
-	public function create(string $class, array $arguments = []): object;
+	public function create(string $class, string $name, array $arguments = []): object;
 }

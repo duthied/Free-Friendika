@@ -36,7 +36,6 @@ use Friendica\Core\Hooks\Util\HookFileManager;
 class DiceInstanceManager implements ICanCreateInstances, ICanRegisterInstances
 {
 	protected $instance  = [];
-	protected $decorator = [];
 
 	/** @var Dice */
 	protected $dice;
@@ -60,52 +59,12 @@ class DiceInstanceManager implements ICanCreateInstances, ICanRegisterInstances
 	}
 
 	/** {@inheritDoc} */
-	public function registerDecorator(string $class, string $decoratorClass): ICanRegisterInstances
-	{
-		$this->decorator[$class][] = $decoratorClass;
-
-		return $this;
-	}
-
-	/** {@inheritDoc} */
-	public function create(string $class, array $arguments = []): object
-	{
-		$instanceClassName = $class;
-		$instanceRule      = $this->dice->getRule($instanceClassName) ?? [];
-
-		$instanceRule = array_replace_recursive($instanceRule, [
-			'constructParams' => $arguments,
-		]);
-
-		$this->dice = $this->dice->addRule($instanceClassName, $instanceRule);
-
-		foreach ($this->decorator[$class] ?? [] as $decorator) {
-			$dependencyRule = $this->dice->getRule($decorator);
-			for ($i = 0; $i < count($dependencyRule['call'] ?? []); $i++) {
-				$dependencyRule['call'][$i][1] = [[Dice::INSTANCE => $instanceClassName]];
-			}
-			$dependencyRule['constructParams'] = $arguments;
-			$dependencyRule['substitutions']   = [
-				$class => $instanceClassName,
-			];
-
-			$this->dice = $this->dice->addRule($decorator, $dependencyRule);
-
-			$instanceClassName = $decorator;
-		}
-
-		return $this->dice->create($instanceClassName);
-	}
-
-	/** {@inheritDoc} */
-	public function createWithName(string $class, string $name, array $arguments = []): object
+	public function create(string $class, string $name, array $arguments = []): object
 	{
 		if (empty($this->instance[$class][$name])) {
 			throw new HookInstanceException(sprintf('The class with the name %s isn\'t registered for the class or interface %s', $name, $class));
 		}
 
-		$instanceClassName = $this->instance[$class][$name];
-
-		return $this->create($instanceClassName, $arguments);
+		return $this->dice->create($this->instance[$class][$name], $arguments);
 	}
 }

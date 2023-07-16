@@ -22,7 +22,7 @@
 namespace Friendica\Core\Hooks\Util;
 
 use Friendica\Core\Addon\Capabilities\ICanLoadAddons;
-use Friendica\Core\Hooks\Capabilities\HookType;
+use Friendica\Core\Hooks\Capabilities\BehavioralHookType;
 use Friendica\Core\Hooks\Capabilities\ICanRegisterInstances;
 use Friendica\Core\Hooks\Exceptions\HookConfigException;
 
@@ -63,7 +63,7 @@ class HookFileManager
 
 		foreach ($this->hookConfig as $hookType => $classList) {
 			switch ($hookType) {
-				case HookType::STRATEGY:
+				case BehavioralHookType::STRATEGY:
 					foreach ($classList as $interface => $strategy) {
 						foreach ($strategy as $dependencyName => $names) {
 							if (is_array($names)) {
@@ -73,17 +73,6 @@ class HookFileManager
 							} else {
 								$instanceRegister->registerStrategy($interface, $dependencyName, $names);
 							}
-						}
-					}
-					break;
-				case HookType::DECORATOR:
-					foreach ($classList as $interface => $decorators) {
-						if (is_array($decorators)) {
-							foreach ($decorators as $decorator) {
-								$instanceRegister->registerDecorator($interface, $decorator);
-							}
-						} else {
-							$instanceRegister->registerDecorator($interface, $decorators);
 						}
 					}
 					break;

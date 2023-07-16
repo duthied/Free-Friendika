@@ -31,12 +31,12 @@ class HookFileManagerTest extends MockedTest
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\HookType::STRATEGY => [
+	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => [''],
 		],
 	],
-	\Friendica\Core\Hooks\Capabilities\HookType::DECORATOR => [
+	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::DECORATOR => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class,
 		],
@@ -56,12 +56,12 @@ EOF,
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\HookType::STRATEGY => [
+	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => '',
 		],
 	],
-	\Friendica\Core\Hooks\Capabilities\HookType::DECORATOR => [
+	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::DECORATOR => [
 		\Psr\Log\LoggerInterface::class => \Psr\Log\NullLogger::class,
 	],
 ];
@@ -79,7 +79,7 @@ EOF,
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\HookType::STRATEGY => [
+	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => [''],
 		],
@@ -87,7 +87,7 @@ return [
 ];
 EOF,
 				'addonsArray' => [
-					\Friendica\Core\Hooks\Capabilities\HookType::STRATEGY => [
+					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 						\Psr\Log\LoggerInterface::class => [
 							\Psr\Log\NullLogger::class => ['null'],
 						],
@@ -104,7 +104,7 @@ EOF,
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\HookType::STRATEGY => [
+	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => [''],
 		],
@@ -112,7 +112,7 @@ return [
 ];
 EOF,
 				'addonsArray' => [
-					\Friendica\Core\Hooks\Capabilities\HookType::STRATEGY => [
+					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 						\Psr\Log\LoggerInterface::class => [
 							\Psr\Log\NullLogger::class => 'null',
 						],
@@ -130,7 +130,7 @@ EOF,
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\HookType::STRATEGY => [
+	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => [''],
 		],
@@ -138,7 +138,7 @@ return [
 ];
 EOF,
 				'addonsArray' => [
-					\Friendica\Core\Hooks\Capabilities\HookType::STRATEGY => [
+					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 						\Psr\Log\LoggerInterface::class => [
 							\Psr\Log\NullLogger::class => [''],
 						],
@@ -163,7 +163,7 @@ return [
 ];
 EOF,
 				'addonsArray' => [
-					\Friendica\Core\Hooks\Capabilities\HookType::STRATEGY => [
+					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 						\Psr\Log\LoggerInterface::class => [
 							\Psr\Log\NullLogger::class => [''],
 						],

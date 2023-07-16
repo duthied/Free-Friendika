@@ -21,7 +21,11 @@
 
 namespace Friendica\Core\Hooks\Capabilities;
 
-interface HookType
+/**
+ * An enum of hook types, based on behavioral design patterns
+ * @see https://refactoring.guru/design-patterns/behavioral-patterns
+ */
+interface BehavioralHookType
 {
 	/**
 	 * Defines the key for the list of strategy-hooks.
@@ -29,11 +33,5 @@ interface HookType
 	 * @see https://refactoring.guru/design-patterns/strategy
 	 */
 	const STRATEGY = 'strategy';
-	/**
-	 * Defines the key for the list of decorator-hooks.
-	 *
-	 * @see  https://refactoring.guru/design-patterns/decorator
-	 */
-	const DECORATOR = 'decorator';
-	const EVENT     = 'event';
+	const EVENT    = 'event';
 }

@@ -19,7 +19,7 @@
  *
  */
 
-use Friendica\Core\Hooks\Capabilities\HookType as H;
+use Friendica\Core\Hooks\Capabilities\BehavioralHookType as H;
 use Friendica\Core\Logger\Type;
 use Psr\Log;
 
@@ -29,11 +29,6 @@ return [
 			Log\NullLogger::class    => [''],
 			Type\SyslogLogger::class => ['syslog'],
 			Type\StreamLogger::class => ['stream'],
-		],
-	],
-	H::DECORATOR => [
-		Log\LoggerInterface::class => [
-			Type\ProfilerLogger::class,
 		],
 	],
 ];
