@@ -152,6 +152,13 @@ class BaseSettings extends BaseModule
 		];
 
 		$tabs[] = [
+			'label'     => $this->t('Remote servers'),
+			'url'       => 'settings/server',
+			'selected'  => static::class == Settings\Server\Index::class ? 'active' : '',
+			'accesskey' => 's',
+		];
+
+		$tabs[] = [
 			'label'     => $this->t('Export personal data'),
 			'url'       => 'settings/userexport',
 			'selected'  => static::class == Settings\UserExport::class ? 'active' : '',
