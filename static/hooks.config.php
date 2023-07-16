@@ -20,18 +20,20 @@
  */
 
 use Friendica\Core\Hooks\Capabilities\HookType as H;
+use Friendica\Core\Logger\Type;
+use Psr\Log;
 
 return [
 	H::STRATEGY  => [
-		\Psr\Log\LoggerInterface::class => [
-			\Psr\Log\NullLogger::class                      => [''],
-			\Friendica\Core\Logger\Type\SyslogLogger::class => ['syslog'],
-			\Friendica\Core\Logger\Type\StreamLogger::class => ['stream'],
+		Log\LoggerInterface::class => [
+			Log\NullLogger::class    => [''],
+			Type\SyslogLogger::class => ['syslog'],
+			Type\StreamLogger::class => ['stream'],
 		],
 	],
 	H::DECORATOR => [
-		\Psr\Log\LoggerInterface::class => [
-			\Friendica\Core\Logger\Type\ProfilerLogger::class,
+		Log\LoggerInterface::class => [
+			Type\ProfilerLogger::class,
 		],
 	],
 ];
