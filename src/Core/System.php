@@ -671,9 +671,7 @@ class System
 
 		if (DI::config()->get('system', 'tosdisplay')) {
 			$rulelist = DI::config()->get('system', 'tosrules') ?: DI::config()->get('system', 'tostext');
-			$html = BBCode::convertForUriId(User::getSystemUriId(), $rulelist, BBCode::EXTERNAL);
-
-			$msg = HTML::toPlaintext($html, 0, true);
+			$msg = BBCode::toPlaintext($rulelist, false);
 			foreach (explode("\n", trim($msg)) as $line) {
 				$line = trim($line);
 				if ($line) {
