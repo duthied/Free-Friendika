@@ -58,7 +58,7 @@ $dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config
 /** @var \Friendica\Core\Addon\Capabilities\ICanLoadAddons $addonLoader */
 $addonLoader = $dice->create(\Friendica\Core\Addon\Capabilities\ICanLoadAddons::class);
 $dice = $dice->addRules($addonLoader->getActiveAddonConfig('dependencies'));
-$dice = $dice->addRule(LoggerInterface::class,['constructParams' => [LogChannel::WORKER]]);
+$dice = $dice->addRule(LoggerInterface::class, ['constructParams' => [LogChannel::WORKER]]);
 
 DI::init($dice);
 \Friendica\Core\Logger\Handler\ErrorHandler::register($dice->create(\Psr\Log\LoggerInterface::class));

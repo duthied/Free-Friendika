@@ -28,7 +28,7 @@ use Throwable;
  */
 class AddonInvalidConfigFileException extends \RuntimeException
 {
-	public function __construct($message = "", $code = 0, Throwable $previous = null)
+	public function __construct($message = '', $code = 0, Throwable $previous = null)
 	{
 		parent::__construct($message, 500, $previous);
 	}

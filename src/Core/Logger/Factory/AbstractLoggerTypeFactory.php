@@ -69,7 +69,7 @@ abstract class AbstractLoggerTypeFactory
 				return LogLevel::INFO;
 			// legacy DATA
 			case "4":
-				// legacy ALL
+			// legacy ALL
 			case "5":
 				return LogLevel::DEBUG;
 			// default if nothing set
