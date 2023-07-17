@@ -26,6 +26,7 @@ use Friendica\Profile\ProfileField\Exception\UnexpectedPermissionSetException;
 use Friendica\Security\PermissionSet\Factory\PermissionSet as PermissionSetFactory;
 use Friendica\Profile\ProfileField\Entity;
 use Friendica\Capabilities\ICanCreateFromTableRow;
+use Friendica\Model\User;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
 use Psr\Log\LoggerInterface;
 
@@ -54,6 +55,8 @@ class ProfileField extends BaseFactory implements ICanCreateFromTableRow
 			throw new UnexpectedPermissionSetException('Either set the PermissionSet fields (join) or the PermissionSet itself');
 		}
 
+		$owner = User::getOwnerDataById($row['uid']);
+
 		return new Entity\ProfileField(
 			$row['uid'],
 			$row['order'],
@@ -69,7 +72,8 @@ class ProfileField extends BaseFactory implements ICanCreateFromTableRow
 				$row['deny_gid'],
 				$row['psid']
 			),
-			$row['id'] ?? null
+			$row['id'] ?? null,
+			$owner['uri-id'] ?? null
 		);
 	}
 

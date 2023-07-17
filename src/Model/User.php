@@ -133,6 +133,17 @@ class User
 	}
 
 	/**
+	 * Get the Uri-Id of the system account
+	 *
+	 * @return integer
+	 */
+	public static function getSystemUriId(): int
+	{
+		$system = self::getSystemAccount();
+		return $system['uri-id'] ?? 0;
+	}
+
+	/**
 	 * Fetch the system account
 	 *
 	 * @return array system account

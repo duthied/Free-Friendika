@@ -98,7 +98,7 @@ class Notification extends BaseDataTransferObject
 		$this->date_rel   = Temporal::getRelativeDate($this->date);
 
 		try {
-			$this->msg_html  = BBCode::convert($this->msg, false);
+			$this->msg_html  = BBCode::convertForUriId($Notify->uriId, $this->msg, BBCode::EXTERNAL);
 		} catch (\Exception $e) {
 			$this->msg_html  = '';
 		}

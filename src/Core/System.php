@@ -25,6 +25,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException\FoundException;
 use Friendica\Network\HTTPException\MovedPermanentlyException;
@@ -226,9 +227,10 @@ class System
 	 * @param integer $depth  How many calls to include in the stacks after filtering
 	 * @param int     $offset How many calls to shave off the top of the stack, for example if
 	 *                        this is called from a centralized method that isn't relevant to the callstack
+	 * @param bool    $full   If enabled, the callstack is not compacted
 	 * @return string
 	 */
-	public static function callstack(int $depth = 4, int $offset = 0): string
+	public static function callstack(int $depth = 4, int $offset = 0, bool $full = false): string
 	{
 		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
@@ -243,7 +245,7 @@ class System
 
 		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {
-				if (in_array($previous['function'], ['insert', 'fetch', 'toArray', 'exists', 'count', 'selectFirst', 'selectToArray',
+				if (!$full && in_array($previous['function'], ['insert', 'fetch', 'toArray', 'exists', 'count', 'selectFirst', 'selectToArray',
 					'select', 'update', 'delete', 'selectFirstForUser', 'selectForUser'])
 					&& (substr($previous['class'], 0, 15) === 'Friendica\Model')) {
 					continue;
@@ -251,7 +253,7 @@ class System
 
 				// Don't show multiple calls from the Database classes to show the essential parts of the callstack
 				$func['database'] = in_array($func['class'], ['Friendica\Database\DBA', 'Friendica\Database\Database']);
-				if (!$previous['database'] || !$func['database']) {
+				if ($full || !$previous['database'] || !$func['database']) {
 					$classparts = explode("\\", $func['class']);
 					$callstack[] = array_pop($classparts).'::'.$func['function'] . (isset($func['line']) ? ' (' . $func['line'] . ')' : '');
 					$previous = $func;
@@ -669,9 +671,7 @@ class System
 
 		if (DI::config()->get('system', 'tosdisplay')) {
 			$rulelist = DI::config()->get('system', 'tosrules') ?: DI::config()->get('system', 'tostext');
-			$html = BBCode::convert($rulelist, false, BBCode::EXTERNAL);
-
-			$msg = HTML::toPlaintext($html, 0, true);
+			$msg = BBCode::toPlaintext($rulelist, false);
 			foreach (explode("\n", trim($msg)) as $line) {
 				$line = trim($line);
 				if ($line) {

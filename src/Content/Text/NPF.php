@@ -45,7 +45,7 @@ class NPF
 	{
 		$bbcode = self::prepareBody($bbcode);
 
-		$html = BBCode::convert($bbcode, false, BBCode::NPF);
+		$html = BBCode::convertForUriId($uri_id, $bbcode, BBCode::NPF);
 		if (empty($html)) {
 			return [];
 		}

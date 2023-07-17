@@ -68,7 +68,7 @@ class Notify extends BaseFactory implements ICanCreateFromTableRow
 			false,
 			$params['verb'] ?? '',
 			$params['otype'] ?? '',
-			substr(strip_tags(BBCode::convertForUriId($uri_id, $params['source_name'])), 0, 255),
+			substr(BBCode::toPlaintext($params['source_name'], false), 0, 255),
 			null,
 			null,
 			$item_id,

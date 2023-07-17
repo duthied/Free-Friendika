@@ -337,7 +337,7 @@ class Create extends BaseModule
 			'$contact'  => $contact,
 			'$category' => $category,
 			'$rules'    => $rules ?? [],
-			'$comment'  => BBCode::convert($this->session->get('report_comment') ?? '', false, ),
+			'$comment'  => BBCode::convertForUriId($contact['uri-id'] ?? 0, $this->session->get('report_comment') ?? '', BBCode::EXTERNAL),
 			'$posts'    => count($request['uri-ids'] ?? []),
 		]);
 	}
