@@ -786,4 +786,9 @@ return [
 		// Banner for Mastodon API
 		'mastodon_banner' => '/images/friendica-banner.jpg',
 	],
+	'blocklist' => [
+		// published (Boolean)
+		// Wether the blocklist is published under /about (or any later API)
+		'published' => true,
+	],
 ];
