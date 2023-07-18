@@ -133,7 +133,9 @@ class Display extends BaseModule
 		}
 
 		if (empty($item)) {
-			throw new HTTPException\NotFoundException($this->t('The requested item doesn\'t exist or has been deleted.'));
+			$this->page['aside'] = '';
+			$displayNotFound = new DisplayNotFound($this->l10n, $this->baseUrl, $this->args, $this->logger, $this->profiler, $this->response, $this->server, $this->parameters);
+			return $displayNotFound->content();
 		}
 
 		if ($item['gravity'] != Item::GRAVITY_PARENT) {
