@@ -150,7 +150,7 @@ class Register extends BaseModule
 			'$invite_label' => DI::l10n()->t('Your invitation code: '),
 			'$invite_id'    => $invite_id,
 			'$regtitle'     => DI::l10n()->t('Registration'),
-			'$registertext' => BBCode::convert(DI::config()->get('config', 'register_text', '')),
+			'$registertext' => BBCode::convertForUriId(User::getSystemUriId(), DI::config()->get('config', 'register_text', '')),
 			'$fillwith'     => $fillwith,
 			'$fillext'      => $fillext,
 			'$oidlabel'     => $oidlabel,

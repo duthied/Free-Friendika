@@ -179,7 +179,7 @@ class NotifyMailBuilder extends MailBuilder
 	 */
 	protected function getHtmlMessage()
 	{
-		$htmlVersion = BBCode::convert($this->body);
+		$htmlVersion = BBCode::convertForUriId(0, $this->body, BBCode::EXTERNAL);
 
 		// load the template for private message notifications
 		$tpl = Renderer::getMarkupTemplate('email/notify/html.tpl');

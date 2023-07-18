@@ -147,7 +147,7 @@ class Introductions extends BaseNotifications
 						$knowyou = '';
 					}
 
-					$convertedName = BBCode::convert($Introduction->getName());
+					$convertedName = BBCode::toPlaintext($Introduction->getName(), false);
 
 					$helptext  = $this->t('Shall your connection be bidirectional or not?');
 					$helptext2 = $this->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $convertedName, $convertedName);
