@@ -43,7 +43,7 @@ public class ConcreteClassB implements ExampleInterface
 	}
 }
 
-/** @var \Friendica\Core\Hooks\Capabilities\ICanRegisterInstances $instanceRegister */
+/** @var \Friendica\Core\Hooks\Capabilities\ICanRegisterStrategies $instanceRegister */
 $instanceRegister->registerStrategy(ExampleInterface::class, ConcreteClassA::class, 'A');
 $instanceRegister->registerStrategy(ExampleInterface::class, ConcreteClassB::class, 'B');
 

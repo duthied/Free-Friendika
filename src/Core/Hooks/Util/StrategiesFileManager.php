@@ -22,22 +22,21 @@
 namespace Friendica\Core\Hooks\Util;
 
 use Friendica\Core\Addon\Capabilities\ICanLoadAddons;
-use Friendica\Core\Hooks\Capabilities\BehavioralHookType;
-use Friendica\Core\Hooks\Capabilities\ICanRegisterInstances;
+use Friendica\Core\Hooks\Capabilities\ICanRegisterStrategies;
 use Friendica\Core\Hooks\Exceptions\HookConfigException;
 
 /**
- * Manage all hooks.config.php files
+ * Manage all strategies.config.php files
  */
-class HookFileManager
+class StrategiesFileManager
 {
 	const STATIC_DIR  = 'static';
-	const CONFIG_NAME = 'hooks';
+	const CONFIG_NAME = 'strategies';
 
 	/** @var ICanLoadAddons */
 	protected $addonLoader;
 	/** @var array */
-	protected $hookConfig = [];
+	protected $config = [];
 	/** @var string */
 	protected $basePath;
 
@@ -50,32 +49,21 @@ class HookFileManager
 	/**
 	 * Loads all kinds of hooks and registers the corresponding instances
 	 *
-	 * @param ICanRegisterInstances $instanceRegister The instance register
+	 * @param ICanRegisterStrategies $instanceRegister The instance register
 	 *
 	 * @return void
 	 */
-	public function setupHooks(ICanRegisterInstances $instanceRegister)
+	public function setupStrategies(ICanRegisterStrategies $instanceRegister)
 	{
-		// In case it wasn't used before, reload the whole hook config
-		if (empty($this->hookConfig)) {
-			$this->reloadHookConfig();
-		}
-
-		foreach ($this->hookConfig as $hookType => $classList) {
-			switch ($hookType) {
-				case BehavioralHookType::STRATEGY:
-					foreach ($classList as $interface => $strategy) {
-						foreach ($strategy as $dependencyName => $names) {
-							if (is_array($names)) {
-								foreach ($names as $name) {
-									$instanceRegister->registerStrategy($interface, $dependencyName, $name);
-								}
-							} else {
-								$instanceRegister->registerStrategy($interface, $dependencyName, $names);
-							}
-						}
+		foreach ($this->config as $interface => $strategy) {
+			foreach ($strategy as $dependencyName => $names) {
+				if (is_array($names)) {
+					foreach ($names as $name) {
+						$instanceRegister->registerStrategy($interface, $dependencyName, $name);
 					}
-					break;
+				} else {
+					$instanceRegister->registerStrategy($interface, $dependencyName, $names);
+				}
 			}
 		}
 	}
@@ -87,7 +75,7 @@ class HookFileManager
 	 *
 	 * @return void
 	 */
-	protected function reloadHookConfig()
+	public function loadConfig()
 	{
 		// load core hook config
 		$configFile = $this->basePath . '/' . static::STATIC_DIR . '/' . static::CONFIG_NAME . '.config.php';
@@ -102,6 +90,6 @@ class HookFileManager
 			throw new HookConfigException(sprintf('Error loading config file %s.', $configFile));
 		}
 
-		$this->hookConfig = array_merge_recursive($config, $this->addonLoader->getActiveAddonConfig(static::CONFIG_NAME));
+		$this->config = array_merge_recursive($config, $this->addonLoader->getActiveAddonConfig(static::CONFIG_NAME));
 	}
 }

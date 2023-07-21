@@ -32,10 +32,10 @@ interface ICanCreateInstances
 	 * The instance will be build based on the registered strategy and the (unique) name
 	 *
 	 * @param string $class     The fully-qualified name of the given class or interface which will get returned
-	 * @param string $name      An arbitrary identifier to find a concrete instance strategy.
+	 * @param string $strategy  An arbitrary identifier to find a concrete instance strategy.
 	 * @param array  $arguments Additional arguments, which can be passed to the constructor of "$class" at runtime
 	 *
 	 * @return object The concrete instance of the type "$class"
 	 */
-	public function create(string $class, string $name, array $arguments = []): object;
+	public function create(string $class, string $strategy, array $arguments = []): object;
 }

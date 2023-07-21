@@ -126,10 +126,10 @@ class Summary extends BaseAdmin
 		}
 
 		// Check logfile permission
-		if (($return = DI::loggCheck()->checkLogfile()) !== null) {
+		if (($return = DI::logCheck()->checkLogfile()) !== null) {
 			$warningtext[] = $return;
 		}
-		if (($return = DI::loggCheck()->checkDebugLogfile()) !== null) {
+		if (($return = DI::logCheck()->checkDebugLogfile()) !== null) {
 			$warningtext[] = $return;
 		}
 

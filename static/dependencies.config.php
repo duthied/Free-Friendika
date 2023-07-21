@@ -38,7 +38,7 @@ use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
-use Friendica\Core\Hooks\Capabilities\ICanRegisterInstances;
+use Friendica\Core\Hooks\Capabilities\ICanRegisterStrategies;
 use Friendica\Core\Hooks\Model\DiceInstanceManager;
 use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
@@ -91,12 +91,15 @@ return [
 			[Dice::INSTANCE => Dice::SELF],
 		]
 	],
-	\Friendica\Core\Hooks\Util\HookFileManager::class => [
+	\Friendica\Core\Hooks\Util\StrategiesFileManager::class => [
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],
 		],
+		'call' => [
+			['loadConfig'],
+		],
 	],
-	ICanRegisterInstances::class => [
+	ICanRegisterStrategies::class => [
 		'instanceOf' => DiceInstanceManager::class,
 		'constructParams' => [
 			[Dice::INSTANCE => Dice::SELF],

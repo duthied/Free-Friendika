@@ -297,7 +297,7 @@ abstract class DI
 		static::init($flushDice);
 	}
 
-	public static function loggCheck(): ICheckLoggerSettings
+	public static function logCheck(): ICheckLoggerSettings
 	{
 		return self::$dice->create(LoggerSettingsCheck::class);
 	}

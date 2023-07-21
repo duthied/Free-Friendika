@@ -22,16 +22,16 @@
 namespace Friendica\Test\src\Core\Hooks\Util;
 
 use Friendica\Core\Addon\Capabilities\ICanLoadAddons;
-use Friendica\Core\Hooks\Capabilities\ICanRegisterInstances;
+use Friendica\Core\Hooks\Capabilities\ICanRegisterStrategies;
 use Friendica\Core\Hooks\Exceptions\HookConfigException;
-use Friendica\Core\Hooks\Util\HookFileManager;
+use Friendica\Core\Hooks\Util\StrategiesFileManager;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
 use org\bovigo\vfs\vfsStream;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-class HookFileManagerTest extends MockedTest
+class StrategiesFileManagerTest extends MockedTest
 {
 	use VFSTrait;
 
@@ -50,11 +50,9 @@ class HookFileManagerTest extends MockedTest
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => [''],
 		],
-	],
 ];
 EOF,
 				'addonsArray'      => [],
@@ -67,11 +65,9 @@ EOF,
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => '',
 		],
-	],
 ];
 EOF,
 				'addonsArray'      => [],
@@ -84,19 +80,15 @@ EOF,
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => [''],
 		],
-	],
 ];
 EOF,
 				'addonsArray' => [
-					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 						\Psr\Log\LoggerInterface::class => [
 							\Psr\Log\NullLogger::class => ['null'],
 						],
-					],
 				],
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
@@ -108,19 +100,15 @@ EOF,
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => [''],
 		],
-	],
 ];
 EOF,
 				'addonsArray' => [
-					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 						\Psr\Log\LoggerInterface::class => [
 							\Psr\Log\NullLogger::class => 'null',
 						],
-					],
 				],
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
@@ -133,45 +121,18 @@ EOF,
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => [''],
 		],
-	],
 ];
 EOF,
 				'addonsArray' => [
-					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
 						\Psr\Log\LoggerInterface::class => [
 							\Psr\Log\NullLogger::class => [''],
 						],
-					],
 				],
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
-					[LoggerInterface::class, NullLogger::class, ''],
-				],
-			],
-			'withWrongContentButAddons' => [
-				'content' => <<<EOF
-<?php
-
-return [
-	'REALLY_WRONG' => [
-		\Psr\Log\LoggerInterface::class => [
-			\Psr\Log\NullLogger::class => [''],
-		],
-	],
-];
-EOF,
-				'addonsArray' => [
-					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
-						\Psr\Log\LoggerInterface::class => [
-							\Psr\Log\NullLogger::class => [''],
-						],
-					],
-				],
-				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
 				],
 			],
@@ -183,58 +144,59 @@ EOF,
 	 */
 	public function testSetupHooks(string $content, array $addonsArray, array $assertStrategies)
 	{
-		vfsStream::newFile('static/hooks.config.php')
+		vfsStream::newFile(StrategiesFileManager::STATIC_DIR . '/' . StrategiesFileManager::CONFIG_NAME . '.config.php')
 			->withContent($content)
 			->at($this->root);
 
 		$addonLoader = \Mockery::mock(ICanLoadAddons::class);
 		$addonLoader->shouldReceive('getActiveAddonConfig')->andReturn($addonsArray)->once();
 
-		$hookFileManager = new HookFileManager($this->root->url(), $addonLoader);
+		$hookFileManager = new StrategiesFileManager($this->root->url(), $addonLoader);
 
-		$instanceManager = \Mockery::mock(ICanRegisterInstances::class);
+		$instanceManager = \Mockery::mock(ICanRegisterStrategies::class);
 		foreach ($assertStrategies as $assertStrategy) {
 			$instanceManager->shouldReceive('registerStrategy')->withArgs($assertStrategy)->once();
 		}
 
-		$hookFileManager->setupHooks($instanceManager);
+		$hookFileManager->loadConfig();
+		$hookFileManager->setupStrategies($instanceManager);
 
 		self::expectNotToPerformAssertions();
 	}
 
 	/**
-	 * Test the exception in case the hooks.config.php file is missing
+	 * Test the exception in case the strategies.config.php file is missing
 	 */
-	public function testMissingHooksFile()
+	public function testMissingStrategiesFile()
 	{
 		$addonLoader     = \Mockery::mock(ICanLoadAddons::class);
-		$instanceManager = \Mockery::mock(ICanRegisterInstances::class);
-		$hookFileManager = new HookFileManager($this->root->url(), $addonLoader);
+		$instanceManager = \Mockery::mock(ICanRegisterStrategies::class);
+		$hookFileManager = new StrategiesFileManager($this->root->url(), $addonLoader);
 
 		self::expectException(HookConfigException::class);
 		self::expectExceptionMessage(sprintf('config file %s does not exist.',
-				$this->root->url() . '/' . HookFileManager::STATIC_DIR . '/' . HookFileManager::CONFIG_NAME . '.config.php'));
+				$this->root->url() . '/' . StrategiesFileManager::STATIC_DIR . '/' . StrategiesFileManager::CONFIG_NAME . '.config.php'));
 
-		$hookFileManager->setupHooks($instanceManager);
+		$hookFileManager->loadConfig();
 	}
 
 	/**
-	 * Test the exception in case the hooks.config.php file is wrong
+	 * Test the exception in case the strategies.config.php file is wrong
 	 */
-	public function testWrongHooksFile()
+	public function testWrongStrategiesFile()
 	{
 		$addonLoader     = \Mockery::mock(ICanLoadAddons::class);
-		$instanceManager = \Mockery::mock(ICanRegisterInstances::class);
-		$hookFileManager = new HookFileManager($this->root->url(), $addonLoader);
+		$instanceManager = \Mockery::mock(ICanRegisterStrategies::class);
+		$hookFileManager = new StrategiesFileManager($this->root->url(), $addonLoader);
 
-		vfsStream::newFile('static/hooks.config.php')
+		vfsStream::newFile(StrategiesFileManager::STATIC_DIR . '/' . StrategiesFileManager::CONFIG_NAME . '.config.php')
 				 ->withContent("<php return 'WRONG_CONTENT';")
 				 ->at($this->root);
 
 		self::expectException(HookConfigException::class);
 		self::expectExceptionMessage(sprintf('Error loading config file %s.',
-			$this->root->url() . '/' . HookFileManager::STATIC_DIR . '/' . HookFileManager::CONFIG_NAME . '.config.php'));
+			$this->root->url() . '/' . StrategiesFileManager::STATIC_DIR . '/' . StrategiesFileManager::CONFIG_NAME . '.config.php'));
 
-		$hookFileManager->setupHooks($instanceManager);
+		$hookFileManager->loadConfig();
 	}
 }

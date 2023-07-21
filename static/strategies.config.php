@@ -24,11 +24,9 @@ use Friendica\Core\Logger\Type;
 use Psr\Log;
 
 return [
-	H::STRATEGY  => [
-		Log\LoggerInterface::class => [
-			Log\NullLogger::class    => [''],
-			Type\SyslogLogger::class => ['syslog'],
-			Type\StreamLogger::class => ['stream'],
-		],
+	Log\LoggerInterface::class => [
+		Log\NullLogger::class    => [''],
+		Type\SyslogLogger::class => ['syslog'],
+		Type\StreamLogger::class => ['stream'],
 	],
 ];

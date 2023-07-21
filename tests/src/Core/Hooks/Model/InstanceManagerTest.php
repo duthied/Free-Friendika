@@ -25,7 +25,7 @@ use Dice\Dice;
 use Friendica\Core\Hooks\Exceptions\HookInstanceException;
 use Friendica\Core\Hooks\Exceptions\HookRegisterArgumentException;
 use Friendica\Core\Hooks\Model\DiceInstanceManager;
-use Friendica\Core\Hooks\Util\HookFileManager;
+use Friendica\Core\Hooks\Util\StrategiesFileManager;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\Hooks\InstanceMocks\FakeInstance;
 use Friendica\Test\Util\Hooks\InstanceMocks\FakeInstanceDecorator;
@@ -34,15 +34,15 @@ use Mockery\MockInterface;
 
 class InstanceManagerTest extends MockedTest
 {
-	/** @var HookFileManager|MockInterface */
+	/** @var StrategiesFileManager|MockInterface */
 	protected $hookFileManager;
 
 	protected function setUp(): void
 	{
 		parent::setUp();
 
-		$this->hookFileManager = \Mockery::mock(HookFileManager::class);
-		$this->hookFileManager->shouldReceive('setupHooks')->withAnyArgs();
+		$this->hookFileManager = \Mockery::mock(StrategiesFileManager::class);
+		$this->hookFileManager->shouldReceive('setupStrategies')->withAnyArgs();
 	}
 
 	protected function tearDown(): void

@@ -43,7 +43,7 @@ class Logger
 		$this->channel = $channel;
 	}
 
-	public function create(ICanCreateInstances $createInstances, IManageConfigValues $config, Profiler $profiler): LoggerInterface
+	public function create(ICanCreateInstances $instanceCreator, IManageConfigValues $config, Profiler $profiler): LoggerInterface
 	{
 		if (empty($config->get('system', 'debugging') ?? false)) {
 			return new NullLogger();
@@ -53,7 +53,7 @@ class Logger
 
 		try {
 			/** @var LoggerInterface $logger */
-			$logger = $createInstances->create(LoggerInterface::class, $name, [$this->channel]);
+			$logger = $instanceCreator->create(LoggerInterface::class, $name, [$this->channel]);
 			if ($config->get('system', 'profiling') ?? false) {
 				return new ProfilerLoggerClass($logger, $profiler);
 			} else {

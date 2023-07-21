@@ -26,7 +26,7 @@ use Friendica\Core\Hooks\Exceptions\HookRegisterArgumentException;
 /**
  * Register strategies for given classes
  */
-interface ICanRegisterInstances
+interface ICanRegisterStrategies
 {
 	/**
 	 * Register a class(strategy) for a given interface with a unique name.
@@ -36,7 +36,7 @@ interface ICanRegisterInstances
 	 * @param string  $interface The interface, which the given class implements
 	 * @param string  $class     The fully-qualified given class name
 	 *                           A placeholder for dependencies is possible as well
-	 * @param ?string $name      An arbitrary identifier for the given class, which will be used for factories, dependency injections etc.
+	 * @param ?string $name      An arbitrary identifier for the given strategy, which will be used for factories, dependency injections etc.
 	 *
 	 * @return $this This interface for chain-calls
 	 *
