@@ -23,10 +23,13 @@ namespace Friendica\Protocol;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Model\APContact;
+use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
+use Friendica\Util\Network;
 
 /**
  * ActivityPub Protocol class
@@ -276,5 +279,45 @@ class ActivityPub
 	public static function isSupportedByContactUrl(string $url, $update = null): bool
 	{
 		return !empty(APContact::getByURL($url, $update));
+	}
+
+	public static function isAcceptedRequester(int $uid = 0): bool
+	{
+		$called_by = System::callstack(1);
+
+		$signer = HTTPSignature::getSigner('', $_SERVER);
+		if (!$signer) {
+			Logger::debug('No signer', ['uid' => $uid, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'called_by' => $called_by]);
+			return false;
+		}
+
+		$apcontact = APContact::getByURL($signer);
+		if (empty($apcontact)) {
+			Logger::debug('APContact not found', ['uid' => $uid, 'handle' => $signer, 'called_by' => $called_by]);
+			return false;
+		}
+
+		if (empty($apcontact['gsid'] || empty($apcontact['baseurl']))) {
+			Logger::debug('No server found', ['uid' => $uid, 'signer' => $signer, 'called_by' => $called_by]);
+			return false;
+		}
+
+		// Check added as a precaution. It should not occur.
+		if (Network::isUrlBlocked($apcontact['baseurl'])) {
+			Logger::info('Requesting domain is blocked', ['uid' => $uid, 'id' => $apcontact['gsid'], 'url' => $apcontact['baseurl'], 'signer' => $signer, 'called_by' => $called_by]);
+			return false;
+		}
+
+		$contact = Contact::getByURL($signer, false, ['id', 'baseurl', 'gsid']);
+		if (!empty($contact) && Contact\User::isBlocked($contact['id'], $uid)) {
+			Logger::info('Requesting contact is blocked', ['uid' => $uid, 'id' => $contact['id'], 'signer' => $signer, 'baseurl' => $contact['baseurl'], 'called_by' => $called_by]);
+			return false;
+		}
+
+		// @todo Look for user blocked domains
+
+		Logger::debug('Server is an accepted requester', ['uid' => $uid, 'id' => $contact['gsid'], 'url' => $contact['baseurl'], 'signer' => $signer, 'called_by' => $called_by]);
+
+		return true;
 	}
 }
