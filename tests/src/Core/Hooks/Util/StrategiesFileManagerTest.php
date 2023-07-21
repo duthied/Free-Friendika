@@ -86,9 +86,9 @@ return [
 ];
 EOF,
 				'addonsArray' => [
-						\Psr\Log\LoggerInterface::class => [
-							\Psr\Log\NullLogger::class => ['null'],
-						],
+					\Psr\Log\LoggerInterface::class => [
+						\Psr\Log\NullLogger::class => ['null'],
+					],
 				],
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
@@ -106,9 +106,9 @@ return [
 ];
 EOF,
 				'addonsArray' => [
-						\Psr\Log\LoggerInterface::class => [
-							\Psr\Log\NullLogger::class => 'null',
-						],
+					\Psr\Log\LoggerInterface::class => [
+						\Psr\Log\NullLogger::class => 'null',
+					],
 				],
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
@@ -127,9 +127,9 @@ return [
 ];
 EOF,
 				'addonsArray' => [
-						\Psr\Log\LoggerInterface::class => [
-							\Psr\Log\NullLogger::class => [''],
-						],
+					\Psr\Log\LoggerInterface::class => [
+						\Psr\Log\NullLogger::class => [''],
+					],
 				],
 				'assertStrategies' => [
 					[LoggerInterface::class, NullLogger::class, ''],
