@@ -178,6 +178,20 @@ return [
 			$_SERVER,
 		],
 	],
+	'$hostname'                    => [
+		'instanceOf' => App\BaseURL::class,
+		'constructParams' => [
+			$_SERVER,
+		],
+		'call' => [
+			['getHost', [], Dice::CHAIN_CALL],
+		],
+	],
+	Cache\Type\AbstractCache::class => [
+		'constructParams' => [
+			[Dice::INSTANCE => '$hostname'],
+		],
+	],
 	App\Page::class => [
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],

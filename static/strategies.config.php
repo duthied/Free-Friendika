@@ -19,7 +19,7 @@
  *
  */
 
-use Friendica\Core\Hooks\Capabilities\BehavioralHookType as H;
+use Friendica\Core\Cache;
 use Friendica\Core\Logger\Type;
 use Psr\Log;
 
@@ -29,4 +29,11 @@ return [
 		Type\SyslogLogger::class => ['syslog'],
 		Type\StreamLogger::class => ['stream'],
 	],
+	Cache\Capability\ICanCache::class => [
+		Cache\Type\APCuCache::class      => ['apcu'],
+		Cache\Type\DatabaseCache::class  => ['database', ''],
+		Cache\Type\MemcacheCache::class  => ['memcache'],
+		Cache\Type\MemcachedCache::class => ['memcached'],
+		Cache\Type\RedisCache::class     => ['redis'],
+	]
 ];
