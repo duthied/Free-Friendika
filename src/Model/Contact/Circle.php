@@ -21,6 +21,7 @@
 
 namespace Friendica\Model\Contact;
 
+use Friendica\Content\Widget;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -42,6 +43,9 @@ class Circle
 		$return = [];
 
 		if (intval($gid)) {
+			$networks = Widget::unavailableNetworks();
+			$sql_values = array_merge([$gid, DI::userSession()->getLocalUserId()], $networks);
+
 			$stmt = DBA::p('SELECT `circle_member`.`contact-id`, `contact`.*
 				FROM `contact`
 				INNER JOIN `group_member` AS `circle_member`
@@ -52,9 +56,9 @@ class Circle
 				AND NOT `contact`.`deleted`
 				AND NOT `contact`.`blocked`
 				AND NOT `contact`.`pending`
+				AND NOT `contact`.`network` IN (' . substr(str_repeat('?, ', count($networks)), 0, -2) . ')
 				ORDER BY `contact`.`name` ASC',
-				$gid,
-				DI::userSession()->getLocalUserId()
+				$sql_values
 			);
 
 			if (DBA::isResult($stmt)) {
@@ -77,9 +81,14 @@ class Circle
 	 */
 	public static function listUncircled(int $uid)
 	{
-		return Contact::selectToArray([], ["`uid` = ? AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `failed`
+		$networks = Widget::unavailableNetworks();
+		$query = "`uid` = ? AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `failed`
+			AND NOT `network` IN (" . substr(str_repeat('?, ', count($networks)), 0, -2) . ")
 			AND `id` NOT IN (SELECT DISTINCT(`contact-id`) FROM `group_member` AS `circle_member` INNER JOIN `group` AS `circle` ON `circle`.`id` = `circle_member`.`gid`
-			   	WHERE `circle`.`uid` = ? AND `contact-id` = `contact`.`id`)", $uid, $uid]);
+			WHERE `circle`.`uid` = ? AND `contact-id` = `contact`.`id`)";
+		$condition = array_merge([$query], [$uid], $networks, [$uid]);
+
+		return Contact::selectToArray([], $condition);
 	}
 
 	/**

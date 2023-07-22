@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -145,8 +146,6 @@ class Circle extends BaseModule
 		if (!DI::userSession()->getLocalUserId()) {
 			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
-
-		$a = DI::app();
 
 		DI::page()['aside'] = Model\Circle::sidebarWidget('contact', 'circle', 'extended', ((DI::args()->getArgc() > 1) ? DI::args()->getArgv()[1] : 'everyone'));
 
@@ -319,11 +318,13 @@ class Circle extends BaseModule
 		if ($nocircle) {
 			$contacts = Model\Contact\Circle::listUncircled(DI::userSession()->getLocalUserId());
 		} else {
-			$contacts_stmt = DBA::select('contact', [],
-				['rel' => [Model\Contact::FOLLOWER, Model\Contact::FRIEND, Model\Contact::SHARING],
-				'uid' => DI::userSession()->getLocalUserId(), 'pending' => false, 'blocked' => false, 'failed' => false, 'self' => false],
-				['order' => ['name']]
-			);
+			$networks = Widget::unavailableNetworks();
+			$query = "`uid` = ? AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `failed`
+				AND `rel` IN (?, ?, ?)
+				AND NOT `network` IN (" . substr(str_repeat('?, ', count($networks)), 0, -2) . ")";
+			$condition = array_merge([$query], [DI::userSession()->getLocalUserId(), Model\Contact::FOLLOWER, Model\Contact::FRIEND, Model\Contact::SHARING], $networks);
+
+			$contacts_stmt = DBA::select('contact', [], $condition, ['order' => ['name']]);
 			$contacts = DBA::toArray($contacts_stmt);
 			$context['$desc'] = DI::l10n()->t('Click on a contact to add or remove.');
 		}

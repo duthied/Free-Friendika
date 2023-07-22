@@ -22,6 +22,7 @@
 namespace Friendica\Model;
 
 use Friendica\BaseModule;
+use Friendica\Content\Widget;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -565,7 +566,12 @@ class Circle
 			}
 
 			if ($each == 'circle') {
-				$count = DBA::count('group_member', ['gid' => $circle['id']]);
+				$networks = Widget::unavailableNetworks();
+				$sql_values = array_merge([$circle['id']], $networks);
+				$condition = ["`circle-id` = ? AND NOT `contact-network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")"];
+				$condition = array_merge($condition, $sql_values);
+
+				$count = DBA::count('circle-member-view', $condition);
 				$circle_name = sprintf('%s (%d)', $circle['name'], $count);
 			} else {
 				$circle_name = $circle['name'];
