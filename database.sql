@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1522
+-- DB_UPDATE_VERSION 1523
 -- ------------------------------------------
 
 
@@ -1899,6 +1899,37 @@ CREATE VIEW `application-view` AS SELECT
 	`application-token`.`push` AS `push`
 	FROM `application-token`
 			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`;
+
+--
+-- VIEW circle-member-view
+--
+DROP VIEW IF EXISTS `circle-member-view`;
+CREATE VIEW `circle-member-view` AS SELECT 
+	`group_member`.`id` AS `id`,
+	`group`.`uid` AS `uid`,
+	`group_member`.`contact-id` AS `contact-id`,
+	`contact`.`uri-id` AS `contact-uri-id`,
+	`contact`.`url` AS `contact-link`,
+	`contact`.`addr` AS `contact-addr`,
+	`contact`.`name` AS `contact-name`,
+	`contact`.`nick` AS `contact-nick`,
+	`contact`.`thumb` AS `contact-avatar`,
+	`contact`.`network` AS `contact-network`,
+	`contact`.`blocked` AS `contact-blocked`,
+	`contact`.`hidden` AS `contact-hidden`,
+	`contact`.`readonly` AS `contact-readonly`,
+	`contact`.`archive` AS `contact-archive`,
+	`contact`.`pending` AS `contact-pending`,
+	`contact`.`self` AS `contact-self`,
+	`contact`.`rel` AS `contact-rel`,
+	`contact`.`contact-type` AS `contact-contact-type`,
+	`group_member`.`gid` AS `circle-id`,
+	`group`.`visible` AS `circle-visible`,
+	`group`.`deleted` AS `circle-deleted`,
+	`group`.`name` AS `circle-name`
+	FROM `group_member`
+			INNER JOIN `contact` ON `group_member`.`contact-id` = `contact`.`id`
+			INNER JOIN `group` ON `group_member`.`gid` = `group`.`id`;
 
 --
 -- VIEW post-user-view
