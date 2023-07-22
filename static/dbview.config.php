@@ -58,6 +58,35 @@
 		"query" => "FROM `application-token`
 			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`"
 	],
+	"circle-member-view" => [
+		"fields" => [
+			"id" => ["group_member", "id"],
+			"uid" => ["group", "uid"],
+			"contact-id" => ["group_member", "contact-id"],
+			"contact-uri-id" => ["contact", "uri-id"],
+			"contact-link" => ["contact", "url"],
+			"contact-addr" => ["contact", "addr"],
+			"contact-name" => ["contact", "name"],
+			"contact-nick" => ["contact", "nick"],
+			"contact-avatar" => ["contact", "thumb"],
+			"contact-network" => ["contact", "network"],
+			"contact-blocked" => ["contact", "blocked"],
+			"contact-hidden" => ["contact", "hidden"],
+			"contact-readonly" => ["contact", "readonly"],
+			"contact-archive" => ["contact", "archive"],
+			"contact-pending" => ["contact", "pending"],
+			"contact-self" => ["contact", "self"],
+			"contact-rel" => ["contact", "rel"],
+			"contact-contact-type" => ["contact", "contact-type"],
+			"circle-id" => ["group_member", "gid"],
+			"circle-visible" => ["group", "visible"],
+			"circle-deleted" => ["group", "deleted"],
+			"circle-name" => ["group", "name"],
+		],
+		"query" => "FROM `group_member`
+			INNER JOIN `contact` ON `group_member`.`contact-id` = `contact`.`id`
+			INNER JOIN `group` ON `group_member`.`gid` = `group`.`id`"
+	],
 	"post-user-view" => [
 		"fields" => [
 			"id" => ["post-user", "id"],
