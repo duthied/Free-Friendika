@@ -337,13 +337,13 @@ class Transmitter
 	/**
 	 * Return the ActivityPub profile of the given user
 	 *
-	 * @param int  $uid     User ID
-	 * @param bool $limited If limited, only the basic information is returned
+	 * @param int  $uid  User ID
+	 * @param bool $full If not full, only the basic information is returned
 	 * @return array with profile data
 	 * @throws HTTPException\NotFoundException
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getProfile(int $uid, bool $limited = false): array
+	public static function getProfile(int $uid, bool $full = true): array
 	{
 		$owner = User::getOwnerDataById($uid);
 		if (!isset($owner['id'])) {
@@ -373,16 +373,16 @@ class Transmitter
 		$data['preferredUsername'] = $owner['nick'];
 		$data['name'] = $owner['name'];
 
-		if (!$limited && !empty($owner['country-name'] . $owner['region'] . $owner['locality'])) {
+		if (!$full && !empty($owner['country-name'] . $owner['region'] . $owner['locality'])) {
 			$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $owner['country-name'],
 				'vcard:region' => $owner['region'], 'vcard:locality' => $owner['locality']];
 		}
 
-		if (!$limited && !empty($owner['about'])) {
+		if ($full && !empty($owner['about'])) {
 			$data['summary'] = BBCode::convertForUriId($owner['uri-id'] ?? 0, $owner['about'], BBCode::EXTERNAL);
 		}
 
-		if (!$limited && (!empty($owner['xmpp']) || !empty($owner['matrix']))) {
+		if ($full && (!empty($owner['xmpp']) || !empty($owner['matrix']))) {
 			$data['vcard:hasInstantMessage'] = [];
 
 			if (!empty($owner['xmpp'])) {
@@ -400,7 +400,7 @@ class Transmitter
 			'owner' => $owner['url'],
 			'publicKeyPem' => $owner['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => DI::baseUrl() . '/inbox'];
-		if (!$limited && $uid != 0) {
+		if ($full && $uid != 0) {
 			$data['icon'] = ['type' => 'Image', 'url' => User::getAvatarUrl($owner)];
 
 			$resourceid = Photo::ridFromURI($owner['photo']);

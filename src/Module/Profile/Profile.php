@@ -84,7 +84,7 @@ class Profile extends BaseProfile
 			$user = $this->database->selectFirst('user', ['uid'], ['nickname' => $this->parameters['nickname'] ?? '', 'account_removed' => false]);
 			if ($user) {
 				try {
-					$data = ActivityPub\Transmitter::getProfile($user['uid'], !ActivityPub::isAcceptedRequester($user['uid']));
+					$data = ActivityPub\Transmitter::getProfile($user['uid'], ActivityPub::isAcceptedRequester($user['uid']));
 					header('Access-Control-Allow-Origin: *');
 					header('Cache-Control: max-age=23200, stale-while-revalidate=23200');
 					System::jsonExit($data, 'application/activity+json');
