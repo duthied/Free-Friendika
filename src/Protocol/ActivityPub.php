@@ -316,7 +316,7 @@ class ActivityPub
 
 		// @todo Look for user blocked domains
 
-		Logger::debug('Server is an accepted requester', ['uid' => $uid, 'id' => $contact['gsid'], 'url' => $contact['baseurl'], 'signer' => $signer, 'called_by' => $called_by]);
+		Logger::debug('Server is an accepted requester', ['uid' => $uid, 'id' => $apcontact['gsid'], 'url' => $apcontact['baseurl'], 'signer' => $signer, 'called_by' => $called_by]);
 
 		return true;
 	}
