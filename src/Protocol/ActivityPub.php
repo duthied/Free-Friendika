@@ -23,7 +23,9 @@ namespace Friendica\Protocol;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Model\APContact;
+use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
@@ -59,26 +61,29 @@ use Friendica\Util\JsonLD;
 class ActivityPub
 {
 	const PUBLIC_COLLECTION = 'https://www.w3.org/ns/activitystreams#Public';
-	const CONTEXT = ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-		['vcard' => 'http://www.w3.org/2006/vcard/ns#',
-		'dfrn' => 'http://purl.org/macgirvin/dfrn/1.0/',
-		'diaspora' => 'https://diasporafoundation.org/ns/',
-		'litepub' => 'http://litepub.social/ns#',
-		'toot' => 'http://joinmastodon.org/ns#',
-		'featured' => [
-			"@id" => "toot:featured",
-			"@type" => "@id",
-		],
-		'schema' => 'http://schema.org#',
-		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
-		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
-		'quoteUrl' => 'as:quoteUrl',
-		'conversation' => 'ostatus:conversation',
-		'directMessage' => 'litepub:directMessage',
-		'discoverable' => 'toot:discoverable',
-		'PropertyValue' => 'schema:PropertyValue',
-		'value' => 'schema:value',
-	]];
+	const CONTEXT = [
+		'https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
+		[
+			'vcard' => 'http://www.w3.org/2006/vcard/ns#',
+			'dfrn' => 'http://purl.org/macgirvin/dfrn/1.0/',
+			'diaspora' => 'https://diasporafoundation.org/ns/',
+			'litepub' => 'http://litepub.social/ns#',
+			'toot' => 'http://joinmastodon.org/ns#',
+			'featured' => [
+				"@id" => "toot:featured",
+				"@type" => "@id",
+			],
+			'schema' => 'http://schema.org#',
+			'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
+			'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
+			'quoteUrl' => 'as:quoteUrl',
+			'conversation' => 'ostatus:conversation',
+			'directMessage' => 'litepub:directMessage',
+			'discoverable' => 'toot:discoverable',
+			'PropertyValue' => 'schema:PropertyValue',
+			'value' => 'schema:value',
+		]
+	];
 	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application', 'Tombstone'];
 	/**
 	 * Checks if the web request is done for the AP protocol
@@ -117,7 +122,7 @@ class ActivityPub
 	{
 		$accounttype = -1;
 
-		switch($apcontact['type']) {
+		switch ($apcontact['type']) {
 			case 'Person':
 				$accounttype = User::ACCOUNT_TYPE_PERSON;
 				break;
@@ -276,5 +281,39 @@ class ActivityPub
 	public static function isSupportedByContactUrl(string $url, $update = null): bool
 	{
 		return !empty(APContact::getByURL($url, $update));
+	}
+
+	public static function isAcceptedRequester(int $uid = 0): bool
+	{
+		$called_by = System::callstack(1);
+
+		$signer = HTTPSignature::getSigner('', $_SERVER);
+		if (!$signer) {
+			Logger::debug('No signer or invalid signature', ['uid' => $uid, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'called_by' => $called_by]);
+			return false;
+		}
+
+		$apcontact = APContact::getByURL($signer);
+		if (empty($apcontact)) {
+			Logger::info('APContact not found', ['uid' => $uid, 'handle' => $signer, 'called_by' => $called_by]);
+			return false;
+		}
+
+		if (empty($apcontact['gsid'] || empty($apcontact['baseurl']))) {
+			Logger::debug('No server found', ['uid' => $uid, 'signer' => $signer, 'called_by' => $called_by]);
+			return false;
+		}
+
+		$contact = Contact::getByURL($signer, false, ['id', 'baseurl', 'gsid']);
+		if (!empty($contact) && Contact\User::isBlocked($contact['id'], $uid)) {
+			Logger::info('Requesting contact is blocked', ['uid' => $uid, 'id' => $contact['id'], 'signer' => $signer, 'baseurl' => $contact['baseurl'], 'called_by' => $called_by]);
+			return false;
+		}
+
+		// @todo Look for user blocked domains
+
+		Logger::debug('Server is an accepted requester', ['uid' => $uid, 'id' => $apcontact['gsid'], 'url' => $apcontact['baseurl'], 'signer' => $signer, 'called_by' => $called_by]);
+
+		return true;
 	}
 }
