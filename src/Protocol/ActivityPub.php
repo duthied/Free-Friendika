@@ -29,7 +29,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
-use Friendica\Util\Network;
 
 /**
  * ActivityPub Protocol class
@@ -287,24 +286,18 @@ class ActivityPub
 
 		$signer = HTTPSignature::getSigner('', $_SERVER);
 		if (!$signer) {
-			Logger::debug('No signer', ['uid' => $uid, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'called_by' => $called_by]);
+			Logger::debug('No signer or invalid signature', ['uid' => $uid, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'called_by' => $called_by]);
 			return false;
 		}
 
 		$apcontact = APContact::getByURL($signer);
 		if (empty($apcontact)) {
-			Logger::debug('APContact not found', ['uid' => $uid, 'handle' => $signer, 'called_by' => $called_by]);
+			Logger::info('APContact not found', ['uid' => $uid, 'handle' => $signer, 'called_by' => $called_by]);
 			return false;
 		}
 
 		if (empty($apcontact['gsid'] || empty($apcontact['baseurl']))) {
 			Logger::debug('No server found', ['uid' => $uid, 'signer' => $signer, 'called_by' => $called_by]);
-			return false;
-		}
-
-		// Check added as a precaution. It should not occur.
-		if (Network::isUrlBlocked($apcontact['baseurl'])) {
-			Logger::info('Requesting domain is blocked', ['uid' => $uid, 'id' => $apcontact['gsid'], 'url' => $apcontact['baseurl'], 'signer' => $signer, 'called_by' => $called_by]);
 			return false;
 		}
 
