@@ -91,7 +91,7 @@ class Authorize extends BaseApi
 		}
 
 		if ($application['redirect_uri'] != 'urn:ietf:wg:oauth:2.0:oob') {
-			DI::app()->redirect($application['redirect_uri'] . (strpos($application['redirect_uri'], '?') ? '&' : '?') . http_build_query(['code' => $token['code'], 'state' => $request['state']]));
+			DI::app()->redirect($request['redirect_uri'] . (strpos($request['redirect_uri'], '?') ? '&' : '?') . http_build_query(['code' => $token['code'], 'state' => $request['state']]));
 		}
 
 		self::$oauth_code = $token['code'];

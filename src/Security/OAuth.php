@@ -29,6 +29,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Util\DateTimeFormat;
+use GuzzleHttp\Psr7\Uri;
 
 /**
  * OAuth Server
@@ -128,8 +129,11 @@ class OAuth
 		if (!empty($client_secret)) {
 			$condition['client_secret'] = $client_secret;
 		}
+
 		if (!empty($redirect_uri)) {
-			$condition['redirect_uri'] = $redirect_uri;
+			$uri = new Uri($redirect_uri);
+			$redirect_uri = $uri->getScheme() . '://' . $uri->getHost() . $uri->getPath();
+			$condition = DBA::mergeConditions($condition, ["`redirect_uri` LIKE ?", '%' . $redirect_uri . '%']);
 		}
 
 		$application = DBA::selectFirst('application', [], $condition);
@@ -137,6 +141,12 @@ class OAuth
 			Logger::warning('Application not found', $condition);
 			return [];
 		}
+
+		// The redirect_uri could contain several URI that are separated by spaces.
+		if (($application['redirect_uri'] != $redirect_uri) && !in_array($redirect_uri, explode(' ', $application['redirect_uri']))) {
+			return [];
+		}
+		
 		return $application;
 	}
 
