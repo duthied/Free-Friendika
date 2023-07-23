@@ -146,7 +146,7 @@ class OAuth
 		if (($application['redirect_uri'] != $redirect_uri) && !in_array($redirect_uri, explode(' ', $application['redirect_uri']))) {
 			return [];
 		}
-		
+
 		return $application;
 	}
 
@@ -197,7 +197,8 @@ class OAuth
 			'write'          => (stripos($scope, BaseApi::SCOPE_WRITE) !== false),
 			'follow'         => (stripos($scope, BaseApi::SCOPE_FOLLOW) !== false),
 			'push'           => (stripos($scope, BaseApi::SCOPE_PUSH) !== false),
-			'created_at'     => DateTimeFormat::utcNow()];
+			'created_at'     => DateTimeFormat::utcNow()
+		];
 
 		foreach ([BaseApi::SCOPE_READ, BaseApi::SCOPE_WRITE, BaseApi::SCOPE_WRITE, BaseApi::SCOPE_PUSH] as $scope) {
 			if ($fields[$scope] && !$application[$scope]) {
