@@ -36,7 +36,7 @@ abstract class AbstractLock implements ICanLock
 	/**
 	 * Check if we've locally acquired a lock
 	 *
-	 * @param string key The Name of the lock
+	 * @param string $key The Name of the lock
 	 *
 	 * @return bool      Returns true if the lock is set
 	 */

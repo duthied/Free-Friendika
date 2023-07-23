@@ -291,7 +291,10 @@ return [
 		],
 	],
 	\Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs::class => [
-		'instanceOf' => \Friendica\Core\KeyValueStorage\Type\DBKeyValueStorage::class,
+		'instanceOf' => \Friendica\Core\KeyValueStorage\Factory\KeyValueStorage::class,
+		'call' => [
+			['create', [], Dice::CHAIN_CALL],
+		],
 	],
 	Network\HTTPClient\Capability\ICanSendHttpRequests::class => [
 		'instanceOf' => Network\HTTPClient\Factory\HttpClient::class,

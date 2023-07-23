@@ -19,25 +19,16 @@
  *
  */
 
-use Friendica\Core\Cache;
-use Friendica\Core\Logger\Type;
-use Friendica\Core\KeyValueStorage;
-use Psr\Log;
+namespace Friendica\Core\KeyValueStorage\Factory;
 
-return [
-	Log\LoggerInterface::class => [
-		Log\NullLogger::class    => [''],
-		Type\SyslogLogger::class => ['syslog'],
-		Type\StreamLogger::class => ['stream'],
-	],
-	Cache\Capability\ICanCache::class => [
-		Cache\Type\APCuCache::class      => ['apcu'],
-		Cache\Type\DatabaseCache::class  => ['database', ''],
-		Cache\Type\MemcacheCache::class  => ['memcache'],
-		Cache\Type\MemcachedCache::class => ['memcached'],
-		Cache\Type\RedisCache::class     => ['redis'],
-	],
-	KeyValueStorage\Capabilities\IManageKeyValuePairs::class => [
-		KeyValueStorage\Type\DBKeyValueStorage::class => ['database', ''],
-	],
-];
+use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
+use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
+
+class KeyValueStorage
+{
+	public function create(ICanCreateInstances $instanceCreator): IManageKeyValuePairs
+	{
+		/** @var IManageKeyValuePairs */
+		return $instanceCreator->create(IManageKeyValuePairs::class, '');
+	}
+}
