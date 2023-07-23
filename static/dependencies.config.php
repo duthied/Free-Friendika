@@ -37,8 +37,9 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\Hooks\Capabilities\ICanManageInstances;
-use Friendica\Core\Hooks\Model\InstanceManager;
+use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
+use Friendica\Core\Hooks\Capabilities\ICanRegisterStrategies;
+use Friendica\Core\Hooks\Model\DiceInstanceManager;
 use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock;
@@ -62,6 +63,13 @@ return [
 		// one instance for the whole execution
 		'shared' => true,
 	],
+	\Friendica\Core\Addon\Capabilities\ICanLoadAddons::class => [
+		'instanceOf' => \Friendica\Core\Addon\Model\AddonLoader::class,
+		'constructParams' => [
+			[Dice::INSTANCE => '$basepath'],
+			[Dice::INSTANCE => Dice::SELF],
+		],
+	],
 	'$basepath'                     => [
 		'instanceOf'      => Util\BasePath::class,
 		'call'            => [
@@ -78,8 +86,27 @@ return [
 			$_SERVER
 		]
 	],
-	ICanManageInstances::class => [
-		'instanceOf' => InstanceManager::class,
+	DiceInstanceManager::class   => [
+		'constructParams' => [
+			[Dice::INSTANCE => Dice::SELF],
+		]
+	],
+	\Friendica\Core\Hooks\Util\StrategiesFileManager::class => [
+		'constructParams' => [
+			[Dice::INSTANCE => '$basepath'],
+		],
+		'call' => [
+			['loadConfig'],
+		],
+	],
+	ICanRegisterStrategies::class => [
+		'instanceOf' => DiceInstanceManager::class,
+		'constructParams' => [
+			[Dice::INSTANCE => Dice::SELF],
+		],
+	],
+	ICanCreateInstances::class   => [
+		'instanceOf' => DiceInstanceManager::class,
 		'constructParams' => [
 			[Dice::INSTANCE => Dice::SELF],
 		],
@@ -156,40 +183,34 @@ return [
 			[Dice::INSTANCE => '$basepath'],
 		],
 	],
-	/**
-	 * Create a Logger, which implements the LoggerInterface
-	 *
-	 * Same as:
-	 *   $loggerFactory = new Factory\LoggerFactory();
-	 *   $logger = $loggerFactory->create($channel, $configuration, $profiler);
-	 *
-	 * Attention1: We can use DICE for detecting dependencies inside "chained" calls too
-	 * Attention2: The variable "$channel" is passed inside the creation of the dependencies per:
-	 *    $app = $dice->create(App::class, [], ['$channel' => 'index']);
-	 *    and is automatically passed as an argument with the same name
-	 */
-	LoggerInterface::class          => [
+	\Psr\Log\LoggerInterface::class                                    => [
 		'instanceOf' => \Friendica\Core\Logger\Factory\Logger::class,
-		'constructParams' => [
-			'index',
-		],
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],
-	'$devLogger'                    => [
-		'instanceOf' => \Friendica\Core\Logger\Factory\Logger::class,
-		'constructParams' => [
-			'dev',
-		],
+	\Friendica\Core\Logger\Type\SyslogLogger::class                    => [
+		'instanceOf' => \Friendica\Core\Logger\Factory\SyslogLogger::class,
 		'call'       => [
-			['createDev', [], Dice::CHAIN_CALL],
-		]
+			['create', [], Dice::CHAIN_CALL],
+		],
+	],
+	\Friendica\Core\Logger\Type\StreamLogger::class                    => [
+		'instanceOf' => \Friendica\Core\Logger\Factory\StreamLogger::class,
+		'call'       => [
+			['create', [], Dice::CHAIN_CALL],
+		],
 	],
 	\Friendica\Core\Logger\Capabilities\IHaveCallIntrospections::class => [
-		'instanceOf' => \Friendica\Core\Logger\Util\Introspection::class,
+		'instanceOf'      => \Friendica\Core\Logger\Util\Introspection::class,
 		'constructParams' => [
-			\Friendica\Core\Logger\Util\Introspection::IGNORE_CLASS_LIST,
+			\Friendica\Core\Logger\Capabilities\IHaveCallIntrospections::IGNORE_CLASS_LIST,
+		],
+	],
+	'$devLogger'                                                       => [
+		'instanceOf' => \Friendica\Core\Logger\Factory\StreamLogger::class,
+		'call'       => [
+			['createDev', [], Dice::CHAIN_CALL],
 		],
 	],
 	Cache\Capability\ICanCache::class => [

@@ -23,9 +23,12 @@ namespace Friendica\Core\Logger\Exception;
 
 use Throwable;
 
+/**
+ * A generic exception of the logging namespace
+ */
 class LoggerException extends \Exception
 {
-	public function __construct($message = "", Throwable $previous = null)
+	public function __construct($message = '', Throwable $previous = null)
 	{
 		parent::__construct($message, 500, $previous);
 	}

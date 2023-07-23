@@ -19,41 +19,17 @@
  *
  */
 
-namespace Friendica\Test\Util\Hooks\InstanceMocks;
+namespace Friendica\Core\Addon\Exception;
 
-class FakeInstanceDecorator implements IAmADecoratedInterface
+use Throwable;
+
+/**
+ * Exception in case one or more config files of the addons are invalid
+ */
+class AddonInvalidConfigFileException extends \RuntimeException
 {
-	public static $countInstance = 0;
-
-	const PREFIX = 'prefix1';
-
-	/** @var IAmADecoratedInterface */
-	protected $orig;
-
-	public function __construct(IAmADecoratedInterface $orig)
+	public function __construct($message = '', $code = 0, Throwable $previous = null)
 	{
-		$this->orig   = $orig;
-
-		self::$countInstance++;
-	}
-
-	public function createSomething(string $aText, bool $cBool, string $bText): string
-	{
-		return $this->orig->createSomething($aText, $cBool, $bText);
-	}
-
-	public function getAText(): ?string
-	{
-		return static::PREFIX . $this->orig->getAText();
-	}
-
-	public function getBText(): ?string
-	{
-		return static::PREFIX . $this->orig->getBText();
-	}
-
-	public function getCBool(): ?bool
-	{
-		return static::PREFIX . $this->orig->getCBool();
+		parent::__construct($message, 500, $previous);
 	}
 }

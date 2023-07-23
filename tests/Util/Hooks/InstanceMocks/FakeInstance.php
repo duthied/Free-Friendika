@@ -21,9 +21,7 @@
 
 namespace Friendica\Test\Util\Hooks\InstanceMocks;
 
-use Friendica\Core\Hooks\Capabilities\IAmAStrategy;
-
-class FakeInstance implements IAmADecoratedInterface, IAmAStrategy
+class FakeInstance implements IAmADecoratedInterface
 {
 	protected $aText = null;
 	protected $cBool = null;
@@ -41,6 +39,8 @@ class FakeInstance implements IAmADecoratedInterface, IAmAStrategy
 		$this->aText = $aText;
 		$this->cBool = $cBool;
 		$this->bText = $bText;
+
+		return '';
 	}
 
 	public function getAText(): ?string

@@ -19,41 +19,23 @@
  *
  */
 
-namespace Friendica\Test\Util\Hooks\InstanceMocks;
+namespace Friendica\Core\Hooks\Capabilities;
 
-class FakeInstanceDecorator implements IAmADecoratedInterface
+/**
+ * creates special instances for given classes
+ */
+interface ICanCreateInstances
 {
-	public static $countInstance = 0;
-
-	const PREFIX = 'prefix1';
-
-	/** @var IAmADecoratedInterface */
-	protected $orig;
-
-	public function __construct(IAmADecoratedInterface $orig)
-	{
-		$this->orig   = $orig;
-
-		self::$countInstance++;
-	}
-
-	public function createSomething(string $aText, bool $cBool, string $bText): string
-	{
-		return $this->orig->createSomething($aText, $cBool, $bText);
-	}
-
-	public function getAText(): ?string
-	{
-		return static::PREFIX . $this->orig->getAText();
-	}
-
-	public function getBText(): ?string
-	{
-		return static::PREFIX . $this->orig->getBText();
-	}
-
-	public function getCBool(): ?bool
-	{
-		return static::PREFIX . $this->orig->getCBool();
-	}
+	/**
+	 * Returns a new instance of a given class for the corresponding name
+	 *
+	 * The instance will be build based on the registered strategy and the (unique) name
+	 *
+	 * @param string $class     The fully-qualified name of the given class or interface which will get returned
+	 * @param string $strategy  An arbitrary identifier to find a concrete instance strategy.
+	 * @param array  $arguments Additional arguments, which can be passed to the constructor of "$class" at runtime
+	 *
+	 * @return object The concrete instance of the type "$class"
+	 */
+	public function create(string $class, string $strategy, array $arguments = []): object;
 }

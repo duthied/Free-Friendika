@@ -22,25 +22,27 @@
 namespace Friendica\Test\src\Core\Hooks\Model;
 
 use Dice\Dice;
-use Friendica\Core\Hooks\Model\InstanceManager;
+use Friendica\Core\Hooks\Exceptions\HookInstanceException;
+use Friendica\Core\Hooks\Exceptions\HookRegisterArgumentException;
+use Friendica\Core\Hooks\Model\DiceInstanceManager;
+use Friendica\Core\Hooks\Util\StrategiesFileManager;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\Hooks\InstanceMocks\FakeInstance;
 use Friendica\Test\Util\Hooks\InstanceMocks\FakeInstanceDecorator;
 use Friendica\Test\Util\Hooks\InstanceMocks\IAmADecoratedInterface;
+use Mockery\MockInterface;
 
 class InstanceManagerTest extends MockedTest
 {
-	public function testEqualButNotSameInstance()
+	/** @var StrategiesFileManager|MockInterface */
+	protected $hookFileManager;
+
+	protected function setUp(): void
 	{
-		$instance = new InstanceManager(new Dice());
+		parent::setUp();
 
-		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake', FakeInstance::class);
-
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake');
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake');
-
-		self::assertEquals($getInstanceA, $getInstanceB);
-		self::assertNotSame($getInstanceA, $getInstanceB);
+		$this->hookFileManager = \Mockery::mock(StrategiesFileManager::class);
+		$this->hookFileManager->shouldReceive('setupStrategies')->withAnyArgs();
 	}
 
 	protected function tearDown(): void
@@ -48,6 +50,19 @@ class InstanceManagerTest extends MockedTest
 		FakeInstanceDecorator::$countInstance = 0;
 
 		parent::tearDown();
+	}
+
+	public function testEqualButNotSameInstance()
+	{
+		$instance = new DiceInstanceManager(new Dice(), $this->hookFileManager);
+
+		$instance->registerStrategy(IAmADecoratedInterface::class, FakeInstance::class, 'fake');
+
+		$getInstanceA = $instance->create(IAmADecoratedInterface::class, 'fake');
+		$getInstanceB = $instance->create(IAmADecoratedInterface::class, 'fake');
+
+		self::assertEquals($getInstanceA, $getInstanceB);
+		self::assertNotSame($getInstanceA, $getInstanceB);
 	}
 
 	public function dataTests(): array
@@ -79,9 +94,9 @@ class InstanceManagerTest extends MockedTest
 	/**
 	 * @dataProvider dataTests
 	 */
-	public function testInstanceWithConstructorAnonymArgs(string $aString = null, bool $cBool = null, string $bString = null)
+	public function testInstanceWithArgs(string $aString = null, bool $cBool = null, string $bString = null)
 	{
-		$instance = new InstanceManager(new Dice());
+		$instance = new DiceInstanceManager(new Dice(), $this->hookFileManager);
 
 		$args = [];
 
@@ -95,45 +110,12 @@ class InstanceManagerTest extends MockedTest
 			$args[] = $cBool;
 		}
 
-		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake', FakeInstance::class, $args);
+		$instance->registerStrategy(IAmADecoratedInterface::class, FakeInstance::class, 'fake');
 
 		/** @var IAmADecoratedInterface $getInstanceA */
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake');
+		$getInstanceA = $instance->create(IAmADecoratedInterface::class, 'fake', $args);
 		/** @var IAmADecoratedInterface $getInstanceB */
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake');
-
-		self::assertEquals($getInstanceA, $getInstanceB);
-		self::assertNotSame($getInstanceA, $getInstanceB);
-		self::assertEquals($aString, $getInstanceA->getAText());
-		self::assertEquals($aString, $getInstanceB->getAText());
-		self::assertEquals($bString, $getInstanceA->getBText());
-		self::assertEquals($bString, $getInstanceB->getBText());
-		self::assertEquals($cBool, $getInstanceA->getCBool());
-		self::assertEquals($cBool, $getInstanceB->getCBool());
-	}
-
-	/**
-	 * @dataProvider dataTests
-	 */
-	public function testInstanceConstructorAndGetInstanceWithNamedArgs(string $aString = null, bool $cBool = null, string $bString = null)
-	{
-		$instance = new InstanceManager(new Dice());
-
-		$args = [];
-
-		if (isset($aString)) {
-			$args[] = $aString;
-		}
-		if (isset($cBool)) {
-			$args[] = $cBool;
-		}
-
-		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake', FakeInstance::class, $args);
-
-		/** @var IAmADecoratedInterface $getInstanceA */
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake', [$bString]);
-		/** @var IAmADecoratedInterface $getInstanceB */
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake', [$bString]);
+		$getInstanceB = $instance->create(IAmADecoratedInterface::class, 'fake', $args);
 
 		self::assertEquals($getInstanceA, $getInstanceB);
 		self::assertNotSame($getInstanceA, $getInstanceB);
@@ -150,24 +132,27 @@ class InstanceManagerTest extends MockedTest
 	 */
 	public function testInstanceWithTwoStrategies(string $aString = null, bool $cBool = null, string $bString = null)
 	{
-		$instance = new InstanceManager(new Dice());
+		$instance = new DiceInstanceManager(new Dice(), $this->hookFileManager);
 
 		$args = [];
 
 		if (isset($aString)) {
 			$args[] = $aString;
 		}
+		if (isset($bString)) {
+			$args[] = $bString;
+		}
 		if (isset($cBool)) {
 			$args[] = $cBool;
 		}
 
-		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake', FakeInstance::class, $args);
-		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake23', FakeInstance::class, $args);
+		$instance->registerStrategy(IAmADecoratedInterface::class, FakeInstance::class, 'fake');
+		$instance->registerStrategy(IAmADecoratedInterface::class, FakeInstance::class, 'fake23');
 
 		/** @var IAmADecoratedInterface $getInstanceA */
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake', [$bString]);
+		$getInstanceA = $instance->create(IAmADecoratedInterface::class, 'fake', $args);
 		/** @var IAmADecoratedInterface $getInstanceB */
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake23', [$bString]);
+		$getInstanceB = $instance->create(IAmADecoratedInterface::class, 'fake23', $args);
 
 		self::assertEquals($getInstanceA, $getInstanceB);
 		self::assertNotSame($getInstanceA, $getInstanceB);
@@ -180,79 +165,74 @@ class InstanceManagerTest extends MockedTest
 	}
 
 	/**
-	 * @dataProvider dataTests
+	 * Test the exception in case the interface was already registered
 	 */
-	public function testDecorator(string $aString = null, bool $cBool = null, string $bString = null)
+	public function testDoubleRegister()
 	{
-		$instance = new InstanceManager(new Dice());
+		self::expectException(HookRegisterArgumentException::class);
+		self::expectExceptionMessage(sprintf('A class with the name %s is already set for the interface %s', 'fake', IAmADecoratedInterface::class));
 
-		$args = [];
-
-		if (isset($aString)) {
-			$args[] = $aString;
-		}
-		if (isset($cBool)) {
-			$args[] = $cBool;
-		}
-
-		$prefix = 'prefix1';
-
-		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake', FakeInstance::class, $args);
-		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake23', FakeInstance::class, $args);
-		$instance->registerDecorator(IAmADecoratedInterface::class, FakeInstanceDecorator::class, [$prefix]);
-
-		/** @var IAmADecoratedInterface $getInstanceA */
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake', [$bString]);
-		/** @var IAmADecoratedInterface $getInstanceB */
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake23', [$bString]);
-
-		self::assertEquals(2, FakeInstanceDecorator::$countInstance);
-		self::assertEquals($getInstanceA, $getInstanceB);
-		self::assertNotSame($getInstanceA, $getInstanceB);
-		self::assertEquals($prefix . $aString, $getInstanceA->getAText());
-		self::assertEquals($prefix . $aString, $getInstanceB->getAText());
-		self::assertEquals($prefix . $bString, $getInstanceA->getBText());
-		self::assertEquals($prefix . $bString, $getInstanceB->getBText());
-		self::assertEquals($prefix . $cBool, $getInstanceA->getCBool());
-		self::assertEquals($prefix . $cBool, $getInstanceB->getCBool());
+		$instance = new DiceInstanceManager(new Dice(), $this->hookFileManager);
+		$instance->registerStrategy(IAmADecoratedInterface::class, FakeInstance::class, 'fake');
+		$instance->registerStrategy(IAmADecoratedInterface::class, FakeInstance::class, 'fake');
 	}
 
 	/**
+	 * Test the exception in case the name of the instance isn't registered
+	 */
+	public function testWrongInstanceName()
+	{
+		self::expectException(HookInstanceException::class	);
+		self::expectExceptionMessage(sprintf('The class with the name %s isn\'t registered for the class or interface %s', 'fake', IAmADecoratedInterface::class));
+
+		$instance = new DiceInstanceManager(new Dice(), $this->hookFileManager);
+		$instance->create(IAmADecoratedInterface::class, 'fake');
+	}
+
+	/**
+	 * Test in case there are already some rules
+	 *
 	 * @dataProvider dataTests
 	 */
-	public function testTwoDecoratorWithPrefix(string $aString = null, bool $cBool = null, string $bString = null)
+	public function testWithGivenRules(string $aString = null, bool $cBool = null, string $bString = null)
 	{
-		$instance = new InstanceManager(new Dice());
-
 		$args = [];
 
 		if (isset($aString)) {
 			$args[] = $aString;
 		}
+		if (isset($bString)) {
+			$args[] = $bString;
+		}
+
+		$dice = (new Dice())->addRules([
+			FakeInstance::class => [
+				'constructParams' => $args,
+			],
+		]);
+
+		$args = [];
+
 		if (isset($cBool)) {
 			$args[] = $cBool;
 		}
 
-		$prefix = 'prefix1';
+		$instance = new DiceInstanceManager($dice, $this->hookFileManager);
 
-		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake', FakeInstance::class, $args);
-		$instance->registerStrategy(IAmADecoratedInterface::class, 'fake23', FakeInstance::class, $args);
-		$instance->registerDecorator(IAmADecoratedInterface::class, FakeInstanceDecorator::class, [$prefix]);
-		$instance->registerDecorator(IAmADecoratedInterface::class, FakeInstanceDecorator::class);
+		$instance->registerStrategy(IAmADecoratedInterface::class, FakeInstance::class, 'fake');
 
 		/** @var IAmADecoratedInterface $getInstanceA */
-		$getInstanceA = $instance->getInstance(IAmADecoratedInterface::class, 'fake', [$bString]);
+		$getInstanceA = $instance->create(IAmADecoratedInterface::class, 'fake', $args);
 		/** @var IAmADecoratedInterface $getInstanceB */
-		$getInstanceB = $instance->getInstance(IAmADecoratedInterface::class, 'fake23', [$bString]);
+		$getInstanceB = $instance->create(IAmADecoratedInterface::class, 'fake', $args);
 
-		self::assertEquals(4, FakeInstanceDecorator::$countInstance);
 		self::assertEquals($getInstanceA, $getInstanceB);
 		self::assertNotSame($getInstanceA, $getInstanceB);
-		self::assertEquals($prefix . $aString, $getInstanceA->getAText());
-		self::assertEquals($prefix . $aString, $getInstanceB->getAText());
-		self::assertEquals($prefix . $bString, $getInstanceA->getBText());
-		self::assertEquals($prefix . $bString, $getInstanceB->getBText());
-		self::assertEquals($prefix . $cBool, $getInstanceA->getCBool());
-		self::assertEquals($prefix . $cBool, $getInstanceB->getCBool());
+		self::assertEquals($aString, $getInstanceA->getAText());
+		self::assertEquals($aString, $getInstanceB->getAText());
+		self::assertEquals($bString, $getInstanceA->getBText());
+		self::assertEquals($bString, $getInstanceB->getBText());
+		self::assertEquals($cBool, $getInstanceA->getCBool());
+		self::assertEquals($cBool, $getInstanceB->getCBool());
 	}
 }

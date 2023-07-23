@@ -79,7 +79,7 @@ class Summary extends BaseAdmin
 		// Check if github.com/friendica/stable/VERSION is higher then
 		// the local version of Friendica. Check is opt-in, source may be stable or develop branch
 		if (DI::config()->get('system', 'check_new_version_url', 'none') != 'none') {
-			$gitversion = DI::keyValue()->get('git_friendica_version') ?? ''; 
+			$gitversion = DI::keyValue()->get('git_friendica_version') ?? '';
 
 			if (version_compare(App::VERSION, $gitversion) < 0) {
 				$warningtext[] = DI::l10n()->t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s', App::VERSION, $gitversion);
@@ -126,35 +126,11 @@ class Summary extends BaseAdmin
 		}
 
 		// Check logfile permission
-		if (DI::config()->get('system', 'debugging')) {
-			$file = DI::config()->get('system', 'logfile');
-
-			$fileSystem = DI::fs();
-
-			try {
-				$stream = $fileSystem->createStream($file);
-
-				if (!isset($stream)) {
-					throw new ServiceUnavailableException('Stream is null.');
-				}
-
-			} catch (\Throwable $exception) {
-				$warningtext[] = DI::l10n()->t('The logfile \'%s\' is not usable. No logging possible (error: \'%s\')', $file, $exception->getMessage());
-			}
-
-			$file = DI::config()->get('system', 'dlogfile');
-
-			try {
-				if (!empty($file)) {
-					$stream = $fileSystem->createStream($file);
-
-					if (!isset($stream)) {
-						throw new ServiceUnavailableException('Stream is null.');
-					}
-				}
-			} catch (\Throwable $exception) {
-				$warningtext[] = DI::l10n()->t('The debug logfile \'%s\' is not usable. No logging possible (error: \'%s\')', $file, $exception->getMessage());
-			}
+		if (($return = DI::logCheck()->checkLogfile()) !== null) {
+			$warningtext[] = $return;
+		}
+		if (($return = DI::logCheck()->checkDebugLogfile()) !== null) {
+			$warningtext[] = $return;
 		}
 
 		// check legacy basepath settings

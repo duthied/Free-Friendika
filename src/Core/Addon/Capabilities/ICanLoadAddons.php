@@ -19,41 +19,19 @@
  *
  */
 
-namespace Friendica\Test\Util\Hooks\InstanceMocks;
+namespace Friendica\Core\Addon\Capabilities;
 
-class FakeInstanceDecorator implements IAmADecoratedInterface
+/**
+ * Interface for loading Addons specific content
+ */
+interface ICanLoadAddons
 {
-	public static $countInstance = 0;
-
-	const PREFIX = 'prefix1';
-
-	/** @var IAmADecoratedInterface */
-	protected $orig;
-
-	public function __construct(IAmADecoratedInterface $orig)
-	{
-		$this->orig   = $orig;
-
-		self::$countInstance++;
-	}
-
-	public function createSomething(string $aText, bool $cBool, string $bText): string
-	{
-		return $this->orig->createSomething($aText, $cBool, $bText);
-	}
-
-	public function getAText(): ?string
-	{
-		return static::PREFIX . $this->orig->getAText();
-	}
-
-	public function getBText(): ?string
-	{
-		return static::PREFIX . $this->orig->getBText();
-	}
-
-	public function getCBool(): ?bool
-	{
-		return static::PREFIX . $this->orig->getCBool();
-	}
+	/**
+	 * Returns a merged config array of all active addons for a given config-name
+	 *
+	 * @param string $configName The config-name (config-file at the static directory, like 'hooks' => '{addon}/static/hooks.config.php)
+	 *
+	 * @return array the merged array
+	 */
+	public function getActiveAddonConfig(string $configName): array;
 }

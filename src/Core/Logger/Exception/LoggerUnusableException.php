@@ -23,9 +23,12 @@ namespace Friendica\Core\Logger\Exception;
 
 use Throwable;
 
-class LoggerInvalidException extends \RuntimeException
+/**
+ * Exception in case the used logging instance is unusable because of some circumstances
+ */
+class LoggerUnusableException extends \RuntimeException
 {
-	public function __construct($message = "", Throwable $previous = null)
+	public function __construct($message = '', Throwable $previous = null)
 	{
 		parent::__construct($message, 500, $previous);
 	}
