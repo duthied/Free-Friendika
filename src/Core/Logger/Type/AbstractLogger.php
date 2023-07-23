@@ -21,7 +21,7 @@
 
 namespace Friendica\Core\Logger\Type;
 
-use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
+use Friendica\Core\Logger\Capability\IHaveCallIntrospections;
 use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;

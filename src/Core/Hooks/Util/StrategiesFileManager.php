@@ -21,8 +21,8 @@
 
 namespace Friendica\Core\Hooks\Util;
 
-use Friendica\Core\Addon\Capabilities\ICanLoadAddons;
-use Friendica\Core\Hooks\Capabilities\ICanRegisterStrategies;
+use Friendica\Core\Addon\Capability\ICanLoadAddons;
+use Friendica\Core\Hooks\Capability\ICanRegisterStrategies;
 use Friendica\Core\Hooks\Exceptions\HookConfigException;
 
 /**

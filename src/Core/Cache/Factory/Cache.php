@@ -27,7 +27,7 @@ use Friendica\Core\Cache\Exception\CachePersistenceException;
 use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
 use Friendica\Core\Cache\Type;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
+use Friendica\Core\Hooks\Capability\ICanCreateInstances;
 use Friendica\Util\Profiler;
 
 /**

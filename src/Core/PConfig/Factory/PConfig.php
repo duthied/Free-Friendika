@@ -22,7 +22,7 @@
 namespace Friendica\Core\PConfig\Factory;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
+use Friendica\Core\Hooks\Capability\ICanCreateInstances;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 
 class PConfig

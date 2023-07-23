@@ -21,7 +21,7 @@
 
 namespace Friendica\Core\KeyValueStorage\Type;
 
-use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
+use Friendica\Core\KeyValueStorage\Capability\IManageKeyValuePairs;
 
 /**
  * An abstract helper class for Key-Value storage classes

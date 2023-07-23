@@ -19,19 +19,23 @@
  *
  */
 
-namespace Friendica\Core\Hooks\Capabilities;
+namespace Friendica\Core\Hooks\Capability;
 
 /**
- * An enum of hook types, based on behavioral design patterns
- * @see https://refactoring.guru/design-patterns/behavioral-patterns
+ * creates special instances for given classes
  */
-interface BehavioralHookType
+interface ICanCreateInstances
 {
 	/**
-	 * Defines the key for the list of strategy-hooks.
+	 * Returns a new instance of a given class for the corresponding name
 	 *
-	 * @see https://refactoring.guru/design-patterns/strategy
+	 * The instance will be build based on the registered strategy and the (unique) name
+	 *
+	 * @param string $class     The fully-qualified name of the given class or interface which will get returned
+	 * @param string $strategy  An arbitrary identifier to find a concrete instance strategy.
+	 * @param array  $arguments Additional arguments, which can be passed to the constructor of "$class" at runtime
+	 *
+	 * @return object The concrete instance of the type "$class"
 	 */
-	const STRATEGY = 'strategy';
-	const EVENT    = 'event';
+	public function create(string $class, string $strategy, array $arguments = []): object;
 }

@@ -22,7 +22,7 @@
 namespace Friendica;
 
 use Dice\Dice;
-use Friendica\Core\Logger\Capabilities\ICheckLoggerSettings;
+use Friendica\Core\Logger\Capability\ICheckLoggerSettings;
 use Friendica\Core\Logger\Util\LoggerSettingsCheck;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
@@ -210,9 +210,9 @@ abstract class DI
 		return self::$dice->create(Core\Config\Util\ConfigFileManager::class);
 	}
 
-	public static function keyValue(): Core\KeyValueStorage\Capabilities\IManageKeyValuePairs
+	public static function keyValue(): Core\KeyValueStorage\Capability\IManageKeyValuePairs
 	{
-		return self::$dice->create(Core\KeyValueStorage\Capabilities\IManageKeyValuePairs::class);
+		return self::$dice->create(Core\KeyValueStorage\Capability\IManageKeyValuePairs::class);
 	}
 
 	/**

@@ -38,11 +38,11 @@ return [
 		Cache\Type\MemcachedCache::class => ['memcached'],
 		Cache\Type\RedisCache::class     => ['redis'],
 	],
-	KeyValueStorage\Capabilities\IManageKeyValuePairs::class => [
+	KeyValueStorage\Capability\IManageKeyValuePairs::class => [
 		KeyValueStorage\Type\DBKeyValueStorage::class => ['database', ''],
 	],
 	PConfig\Capability\IManagePersonalConfigValues::class => [
-		PConfig\Type\JitPConfig::class => ['jit'],
+		PConfig\Type\JitPConfig::class     => ['jit'],
 		PConfig\Type\PreloadPConfig::class => ['preload', ''],
 	],
 ];

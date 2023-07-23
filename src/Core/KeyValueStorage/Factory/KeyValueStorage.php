@@ -21,8 +21,8 @@
 
 namespace Friendica\Core\KeyValueStorage\Factory;
 
-use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
-use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
+use Friendica\Core\Hooks\Capability\ICanCreateInstances;
+use Friendica\Core\KeyValueStorage\Capability\IManageKeyValuePairs;
 
 class KeyValueStorage
 {

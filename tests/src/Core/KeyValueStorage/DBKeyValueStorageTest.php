@@ -21,7 +21,7 @@
 
 namespace Friendica\Test\src\Core\KeyValueStorage;
 
-use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
+use Friendica\Core\KeyValueStorage\Capability\IManageKeyValuePairs;
 use Friendica\Core\KeyValueStorage\Type\DBKeyValueStorage;
 use Friendica\Database\Database;
 use Friendica\Test\Util\CreateDatabaseTrait;

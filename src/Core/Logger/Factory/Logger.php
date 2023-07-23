@@ -22,8 +22,8 @@
 namespace Friendica\Core\Logger\Factory;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
-use Friendica\Core\Logger\Capabilities\LogChannel;
+use Friendica\Core\Hooks\Capability\ICanCreateInstances;
+use Friendica\Core\Logger\Capability\LogChannel;
 use Friendica\Core\Logger\Type\ProfilerLogger as ProfilerLoggerClass;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;

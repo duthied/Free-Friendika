@@ -22,7 +22,7 @@
 namespace Friendica\Core\Logger\Factory;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\Logger\Capabilities\LogChannel;
+use Friendica\Core\Logger\Capability\LogChannel;
 use Friendica\Core\Logger\Exception\LoggerArgumentException;
 use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core\Logger\Exception\LogLevelException;

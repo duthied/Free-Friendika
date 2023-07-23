@@ -22,7 +22,7 @@
 namespace Friendica\Console;
 
 use Friendica\App;
-use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
+use Friendica\Core\KeyValueStorage\Capability\IManageKeyValuePairs;
 use Friendica\Core\L10n;
 use Friendica\Core\Update;
 

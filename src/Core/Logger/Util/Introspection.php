@@ -22,7 +22,7 @@
 namespace Friendica\Core\Logger\Util;
 
 use Friendica\App\Request;
-use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
+use Friendica\Core\Logger\Capability\IHaveCallIntrospections;
 
 /**
  * Get Introspection information about the current call

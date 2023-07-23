@@ -19,24 +19,25 @@
  *
  */
 
-namespace Friendica\Core\Logger\Capabilities;
+namespace Friendica\Core\Logger\Capability;
 
 /**
- * Whenever a logging specific check is necessary, use this interface to encapsulate and centralize this logic
+ * An enum class for the Log channels
  */
-interface ICheckLoggerSettings
+interface LogChannel
 {
-	/**
-	 * Checks if the logfile is set and usable
-	 *
-	 * @return string|null null in case everything is ok, otherwise returns the error
-	 */
-	public function checkLogfile(): ?string;
-
-	/**
-	 * Checks if the debugging logfile is usable in case it is set!
-	 *
-	 * @return string|null null in case everything is ok, otherwise returns the error
-	 */
-	public function checkDebugLogfile(): ?string;
+	/** @var string channel for the auth_ejabbered script */
+	public const AUTH_JABBERED = 'auth_ejabberd';
+	/** @var string Default channel in case it isn't set explicit */
+	public const DEFAULT = self::APP;
+	/** @var string channel for console execution */
+	public const CONSOLE = 'console';
+	/** @var string channel for developer focused logging */
+	public const DEV = 'dev';
+	/** @var string channel for daemon executions */
+	public const DAEMON = 'daemon';
+	/** @var string channel for worker execution */
+	public const WORKER = 'worker';
+	/** @var string channel for frontend app executions */
+	public const APP = 'app';
 }

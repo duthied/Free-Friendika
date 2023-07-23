@@ -37,8 +37,8 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
-use Friendica\Core\Hooks\Capabilities\ICanRegisterStrategies;
+use Friendica\Core\Hooks\Capability\ICanCreateInstances;
+use Friendica\Core\Hooks\Capability\ICanRegisterStrategies;
 use Friendica\Core\Hooks\Model\DiceInstanceManager;
 use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
@@ -63,7 +63,7 @@ return [
 		// one instance for the whole execution
 		'shared' => true,
 	],
-	\Friendica\Core\Addon\Capabilities\ICanLoadAddons::class => [
+	\Friendica\Core\Addon\Capability\ICanLoadAddons::class => [
 		'instanceOf' => \Friendica\Core\Addon\Model\AddonLoader::class,
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],
@@ -215,10 +215,10 @@ return [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],
-	\Friendica\Core\Logger\Capabilities\IHaveCallIntrospections::class => [
+	\Friendica\Core\Logger\Capability\IHaveCallIntrospections::class => [
 		'instanceOf'      => \Friendica\Core\Logger\Util\Introspection::class,
 		'constructParams' => [
-			\Friendica\Core\Logger\Capabilities\IHaveCallIntrospections::IGNORE_CLASS_LIST,
+			\Friendica\Core\Logger\Capability\IHaveCallIntrospections::IGNORE_CLASS_LIST,
 		],
 	],
 	'$devLogger'                                                       => [
@@ -290,7 +290,7 @@ return [
 			['getBackend', [], Dice::CHAIN_CALL],
 		],
 	],
-	\Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs::class => [
+	\Friendica\Core\KeyValueStorage\Capability\IManageKeyValuePairs::class => [
 		'instanceOf' => \Friendica\Core\KeyValueStorage\Factory\KeyValueStorage::class,
 		'call' => [
 			['create', [], Dice::CHAIN_CALL],

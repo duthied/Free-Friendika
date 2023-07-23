@@ -26,7 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
-use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
+use Friendica\Core\KeyValueStorage\Capability\IManageKeyValuePairs;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;

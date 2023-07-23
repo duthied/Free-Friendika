@@ -23,7 +23,7 @@ namespace Friendica\Core\Logger\Util;
 
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
-use Friendica\Core\Logger\Capabilities\ICheckLoggerSettings;
+use Friendica\Core\Logger\Capability\ICheckLoggerSettings;
 use Friendica\Core\Logger\Exception\LoggerUnusableException;
 
 /** {@inheritDoc} */

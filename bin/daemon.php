@@ -60,10 +60,10 @@ if (!file_exists('index.php') && (sizeof($_SERVER['argv']) != 0)) {
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
-/** @var \Friendica\Core\Addon\Capabilities\ICanLoadAddons $addonLoader */
-$addonLoader = $dice->create(\Friendica\Core\Addon\Capabilities\ICanLoadAddons::class);
+/** @var \Friendica\Core\Addon\Capability\ICanLoadAddons $addonLoader */
+$addonLoader = $dice->create(\Friendica\Core\Addon\Capability\ICanLoadAddons::class);
 $dice = $dice->addRules($addonLoader->getActiveAddonConfig('dependencies'));
-$dice = $dice->addRule(LoggerInterface::class, ['constructParams' => [Logger\Capabilities\LogChannel::DAEMON]]);
+$dice = $dice->addRule(LoggerInterface::class, ['constructParams' => [Logger\Capability\LogChannel::DAEMON]]);
 
 DI::init($dice);
 \Friendica\Core\Logger\Handler\ErrorHandler::register($dice->create(\Psr\Log\LoggerInterface::class));

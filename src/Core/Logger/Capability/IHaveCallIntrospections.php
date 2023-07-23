@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Core\Logger\Capabilities;
+namespace Friendica\Core\Logger\Capability;
 
 interface IHaveCallIntrospections
 {
