@@ -61,26 +61,29 @@ use Friendica\Util\JsonLD;
 class ActivityPub
 {
 	const PUBLIC_COLLECTION = 'https://www.w3.org/ns/activitystreams#Public';
-	const CONTEXT = ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-		['vcard' => 'http://www.w3.org/2006/vcard/ns#',
-		'dfrn' => 'http://purl.org/macgirvin/dfrn/1.0/',
-		'diaspora' => 'https://diasporafoundation.org/ns/',
-		'litepub' => 'http://litepub.social/ns#',
-		'toot' => 'http://joinmastodon.org/ns#',
-		'featured' => [
-			"@id" => "toot:featured",
-			"@type" => "@id",
-		],
-		'schema' => 'http://schema.org#',
-		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
-		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
-		'quoteUrl' => 'as:quoteUrl',
-		'conversation' => 'ostatus:conversation',
-		'directMessage' => 'litepub:directMessage',
-		'discoverable' => 'toot:discoverable',
-		'PropertyValue' => 'schema:PropertyValue',
-		'value' => 'schema:value',
-	]];
+	const CONTEXT = [
+		'https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
+		[
+			'vcard' => 'http://www.w3.org/2006/vcard/ns#',
+			'dfrn' => 'http://purl.org/macgirvin/dfrn/1.0/',
+			'diaspora' => 'https://diasporafoundation.org/ns/',
+			'litepub' => 'http://litepub.social/ns#',
+			'toot' => 'http://joinmastodon.org/ns#',
+			'featured' => [
+				"@id" => "toot:featured",
+				"@type" => "@id",
+			],
+			'schema' => 'http://schema.org#',
+			'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
+			'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
+			'quoteUrl' => 'as:quoteUrl',
+			'conversation' => 'ostatus:conversation',
+			'directMessage' => 'litepub:directMessage',
+			'discoverable' => 'toot:discoverable',
+			'PropertyValue' => 'schema:PropertyValue',
+			'value' => 'schema:value',
+		]
+	];
 	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application', 'Tombstone'];
 	/**
 	 * Checks if the web request is done for the AP protocol
@@ -119,7 +122,7 @@ class ActivityPub
 	{
 		$accounttype = -1;
 
-		switch($apcontact['type']) {
+		switch ($apcontact['type']) {
 			case 'Person':
 				$accounttype = User::ACCOUNT_TYPE_PERSON;
 				break;
