@@ -22,6 +22,7 @@
 use Friendica\Core\Cache;
 use Friendica\Core\Logger\Type;
 use Friendica\Core\KeyValueStorage;
+use Friendica\Core\PConfig;
 use Psr\Log;
 
 return [
@@ -39,5 +40,9 @@ return [
 	],
 	KeyValueStorage\Capabilities\IManageKeyValuePairs::class => [
 		KeyValueStorage\Type\DBKeyValueStorage::class => ['database', ''],
+	],
+	PConfig\Capability\IManagePersonalConfigValues::class => [
+		PConfig\Type\JitPConfig::class => ['jit'],
+		PConfig\Type\PreloadPConfig::class => ['preload', ''],
 	],
 ];
