@@ -19,41 +19,19 @@
  *
  */
 
-namespace Friendica\Test\Util\Hooks\InstanceMocks;
+namespace Friendica\Core\Hooks\Capabilities;
 
-class FakeInstanceDecorator implements IAmADecoratedInterface
+/**
+ * An enum of hook types, based on behavioral design patterns
+ * @see https://refactoring.guru/design-patterns/behavioral-patterns
+ */
+interface BehavioralHookType
 {
-	public static $countInstance = 0;
-
-	const PREFIX = 'prefix1';
-
-	/** @var IAmADecoratedInterface */
-	protected $orig;
-
-	public function __construct(IAmADecoratedInterface $orig)
-	{
-		$this->orig   = $orig;
-
-		self::$countInstance++;
-	}
-
-	public function createSomething(string $aText, bool $cBool, string $bText): string
-	{
-		return $this->orig->createSomething($aText, $cBool, $bText);
-	}
-
-	public function getAText(): ?string
-	{
-		return static::PREFIX . $this->orig->getAText();
-	}
-
-	public function getBText(): ?string
-	{
-		return static::PREFIX . $this->orig->getBText();
-	}
-
-	public function getCBool(): ?bool
-	{
-		return static::PREFIX . $this->orig->getCBool();
-	}
+	/**
+	 * Defines the key for the list of strategy-hooks.
+	 *
+	 * @see https://refactoring.guru/design-patterns/strategy
+	 */
+	const STRATEGY = 'strategy';
+	const EVENT    = 'event';
 }

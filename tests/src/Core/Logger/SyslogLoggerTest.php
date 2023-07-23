@@ -21,8 +21,6 @@
 
 namespace Friendica\Test\src\Core\Logger;
 
-use Friendica\Core\Logger\Exception\LoggerArgumentException;
-use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Core\Logger\Type\SyslogLogger;
 use Psr\Log\LogLevel;
@@ -58,7 +56,10 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	 */
 	protected function getInstance($level = LogLevel::DEBUG)
 	{
-		$this->logger = new SyslogLoggerWrapper('test', $this->config, $this->introspection, $level);
+		$this->config->shouldReceive('get')->with('system', 'loglevel')->andReturn($level);
+
+		$loggerFactory = new SyslogLoggerFactoryWrapper($this->introspection, 'test');
+		$this->logger = $loggerFactory->create($this->config);
 
 		return $this->logger;
 	}
@@ -71,8 +72,8 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	{
 		$this->expectException(LogLevelException::class);
 		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
-		
-		$logger = new SyslogLoggerWrapper('test', $this->config, $this->introspection, 'NOPE');
+
+		$logger = $this->getInstance('NOPE');
 	}
 
 	/**
@@ -83,7 +84,7 @@ class SyslogLoggerTest extends AbstractLoggerTest
 		$this->expectException(LogLevelException::class);
 		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 
-		$logger = new SyslogLoggerWrapper('test', $this->config, $this->introspection);
+		$logger = $this->getInstance();
 
 		$logger->log('NOPE', 'a test');
 	}
@@ -94,7 +95,7 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	 */
 	public function testClose()
 	{
-		$logger = new SyslogLoggerWrapper('test', $this->config, $this->introspection);
+		$logger = $this->getInstance();
 		$logger->emergency('test');
 		$logger->close();
 		// Reopened itself

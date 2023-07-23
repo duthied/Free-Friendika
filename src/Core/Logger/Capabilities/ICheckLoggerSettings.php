@@ -19,41 +19,24 @@
  *
  */
 
-namespace Friendica\Test\Util\Hooks\InstanceMocks;
+namespace Friendica\Core\Logger\Capabilities;
 
-class FakeInstanceDecorator implements IAmADecoratedInterface
+/**
+ * Whenever a logging specific check is necessary, use this interface to encapsulate and centralize this logic
+ */
+interface ICheckLoggerSettings
 {
-	public static $countInstance = 0;
+	/**
+	 * Checks if the logfile is set and usable
+	 *
+	 * @return string|null null in case everything is ok, otherwise returns the error
+	 */
+	public function checkLogfile(): ?string;
 
-	const PREFIX = 'prefix1';
-
-	/** @var IAmADecoratedInterface */
-	protected $orig;
-
-	public function __construct(IAmADecoratedInterface $orig)
-	{
-		$this->orig   = $orig;
-
-		self::$countInstance++;
-	}
-
-	public function createSomething(string $aText, bool $cBool, string $bText): string
-	{
-		return $this->orig->createSomething($aText, $cBool, $bText);
-	}
-
-	public function getAText(): ?string
-	{
-		return static::PREFIX . $this->orig->getAText();
-	}
-
-	public function getBText(): ?string
-	{
-		return static::PREFIX . $this->orig->getBText();
-	}
-
-	public function getCBool(): ?bool
-	{
-		return static::PREFIX . $this->orig->getCBool();
-	}
+	/**
+	 * Checks if the debugging logfile is usable in case it is set!
+	 *
+	 * @return string|null null in case everything is ok, otherwise returns the error
+	 */
+	public function checkDebugLogfile(): ?string;
 }

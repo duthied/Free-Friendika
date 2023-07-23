@@ -19,41 +19,14 @@
  *
  */
 
-namespace Friendica\Test\Util\Hooks\InstanceMocks;
+use Friendica\Core\Hooks\Capabilities\BehavioralHookType as H;
+use Friendica\Core\Logger\Type;
+use Psr\Log;
 
-class FakeInstanceDecorator implements IAmADecoratedInterface
-{
-	public static $countInstance = 0;
-
-	const PREFIX = 'prefix1';
-
-	/** @var IAmADecoratedInterface */
-	protected $orig;
-
-	public function __construct(IAmADecoratedInterface $orig)
-	{
-		$this->orig   = $orig;
-
-		self::$countInstance++;
-	}
-
-	public function createSomething(string $aText, bool $cBool, string $bText): string
-	{
-		return $this->orig->createSomething($aText, $cBool, $bText);
-	}
-
-	public function getAText(): ?string
-	{
-		return static::PREFIX . $this->orig->getAText();
-	}
-
-	public function getBText(): ?string
-	{
-		return static::PREFIX . $this->orig->getBText();
-	}
-
-	public function getCBool(): ?bool
-	{
-		return static::PREFIX . $this->orig->getCBool();
-	}
-}
+return [
+	Log\LoggerInterface::class => [
+		Log\NullLogger::class    => [''],
+		Type\SyslogLogger::class => ['syslog'],
+		Type\StreamLogger::class => ['stream'],
+	],
+];

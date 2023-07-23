@@ -145,7 +145,7 @@ class DependencyCheckTest extends FixtureTest
 		$config->set('system', 'dlogfile', $this->root->url() . '/friendica.log');
 
 		/** @var LoggerInterface $logger */
-		$logger = $this->dice->create('$devLogger', [['$channel' => 'dev']]);
+		$logger = $this->dice->create('$devLogger', ['dev']);
 
 		self::assertInstanceOf(LoggerInterface::class, $logger);
 	}
