@@ -30,6 +30,7 @@ use Friendica\Module\BaseApi;
 use Friendica\Module\Special\HTTPException;
 use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
+use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -89,8 +90,11 @@ class Token extends BaseApi
 			$me = null;
 		} elseif ($request['grant_type'] == 'authorization_code') {
 			// For security reasons only allow freshly created tokens
-			$condition = ["`redirect_uri` = ? AND `id` = ? AND `code` = ? AND `created_at` > ?",
-				$request['redirect_uri'], $application['id'], $request['code'], DateTimeFormat::utc('now - 5 minutes')];
+			$uri = new Uri($request['redirect_uri']);
+			$condition = [
+				"`redirect_uri` LIKE ? AND `id` = ? AND `code` = ? AND `created_at` > ?",
+				'%' . $uri->getScheme() . '://' . $uri->getHost() . $uri->getPath() . '%', $application['id'], $request['code'], DateTimeFormat::utc('now - 5 minutes')
+			];
 
 			$token = DBA::selectFirst('application-view', ['access_token', 'created_at', 'uid'], $condition);
 			if (!DBA::isResult($token)) {
