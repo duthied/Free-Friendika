@@ -34,12 +34,14 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Circle;
+use Friendica\Model\Contact;
 use Friendica\Module;
 use Friendica\Module\Response;
+use Friendica\Navigation\SystemMessages;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -50,31 +52,34 @@ use Psr\Log\LoggerInterface;
  */
 class Profile extends BaseModule
 {
-	/**
-	 * @var Repository\LocalRelationship
-	 */
+	/** @var LocalRelationship\Repository\LocalRelationship */
 	private $localRelationship;
-	/**
-	 * @var App\Page
-	 */
+	/** @var App\Page */
 	private $page;
-	/**
-	 * @var IManageConfigValues
-	 */
+	/** @var IManageConfigValues */
 	private $config;
+	/** @var IHandleUserSessions */
+	private $session;
+	/** @var SystemMessages */
+	private $systemMessages;
+	/** @var Database */
+	private $db;
 
-	public function __construct(L10n $l10n, Repository\LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Page $page, IManageConfigValues $config, array $server, array $parameters = [])
+	public function __construct(Database $db, SystemMessages $systemMessages, IHandleUserSessions $session, L10n $l10n, Repository\LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Page $page, IManageConfigValues $config, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->localRelationship = $localRelationship;
 		$this->page              = $page;
 		$this->config            = $config;
+		$this->session           = $session;
+		$this->systemMessages    = $systemMessages;
+		$this->db                = $db;
 	}
 
 	protected function post(array $request = [])
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return;
 		}
 
@@ -82,8 +87,8 @@ class Profile extends BaseModule
 
 		// Backward compatibility: The update still needs a user-specific contact ID
 		// Change to user-contact table check by version 2022.03
-		$cdata = Contact::getPublicAndUserContactID($contact_id, DI::userSession()->getLocalUserId());
-		if (empty($cdata['user']) || !DBA::exists('contact', ['id' => $cdata['user'], 'deleted' => false])) {
+		$cdata = Contact::getPublicAndUserContactID($contact_id, $this->session->getLocalUserId());
+		if (empty($cdata['user']) || !$this->db->exists('contact', ['id' => $cdata['user'], 'deleted' => false])) {
 			return;
 		}
 
@@ -124,35 +129,35 @@ class Profile extends BaseModule
 			$fields['info'] = $_POST['info'];
 		}
 
-		if (!Contact::update($fields, ['id' => $cdata['user'], 'uid' => DI::userSession()->getLocalUserId()])) {
-			DI::sysmsg()->addNotice($this->t('Failed to update contact record.'));
+		if (!Contact::update($fields, ['id' => $cdata['user'], 'uid' => $this->session->getLocalUserId()])) {
+			$this->systemMessages->addNotice($this->t('Failed to update contact record.'));
 		}
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return Module\Security\Login::form($_SERVER['REQUEST_URI']);
 		}
 
 		// Backward compatibility: Ensure to use the public contact when the user contact is provided
 		// Remove by version 2022.03
-		$data = Contact::getPublicAndUserContactID(intval($this->parameters['id']), DI::userSession()->getLocalUserId());
+		$data = Contact::getPublicAndUserContactID(intval($this->parameters['id']), $this->session->getLocalUserId());
 		if (empty($data)) {
 			throw new HTTPException\NotFoundException($this->t('Contact not found.'));
 		}
 
 		$contact = Contact::getById($data['public']);
-		if (!DBA::isResult($contact)) {
+		if (!$this->db->isResult($contact)) {
 			throw new HTTPException\NotFoundException($this->t('Contact not found.'));
 		}
 
 		// Don't display contacts that are about to be deleted
-		if (DBA::isResult($contact) && (!empty($contact['deleted']) || !empty($contact['network']) && $contact['network'] == Protocol::PHANTOM)) {
+		if ($this->db->isResult($contact) && (!empty($contact['deleted']) || !empty($contact['network']) && $contact['network'] == Protocol::PHANTOM)) {
 			throw new HTTPException\NotFoundException($this->t('Contact not found.'));
 		}
 
-		$localRelationship = $this->localRelationship->getForUserContact(DI::userSession()->getLocalUserId(), $contact['id']);
+		$localRelationship = $this->localRelationship->getForUserContact($this->session->getLocalUserId(), $contact['id']);
 
 		if ($localRelationship->rel === Contact::SELF) {
 			$this->baseUrl->redirect('profile/' . $contact['nick'] . '/profile');
@@ -167,55 +172,55 @@ class Profile extends BaseModule
 			}
 
 			if ($cmd === 'updateprofile') {
-				self::updateContactFromProbe($contact['id']);
+				$this->updateContactFromProbe($contact['id']);
 			}
 
 			if ($cmd === 'block') {
 				if ($localRelationship->blocked) {
 					// @TODO Backward compatibility, replace with $localRelationship->unblock()
-					Contact\User::setBlocked($contact['id'], DI::userSession()->getLocalUserId(), false);
+					Contact\User::setBlocked($contact['id'], $this->session->getLocalUserId(), false);
 
 					$message = $this->t('Contact has been unblocked');
 				} else {
 					// @TODO Backward compatibility, replace with $localRelationship->block()
-					Contact\User::setBlocked($contact['id'], DI::userSession()->getLocalUserId(), true);
+					Contact\User::setBlocked($contact['id'], $this->session->getLocalUserId(), true);
 					$message = $this->t('Contact has been blocked');
 				}
 
 				// @TODO: add $this->localRelationship->save($localRelationship);
-				DI::sysmsg()->addInfo($message);
+				$this->systemMessages->addInfo($message);
 			}
 
 			if ($cmd === 'ignore') {
 				if ($localRelationship->ignored) {
 					// @TODO Backward compatibility, replace with $localRelationship->unblock()
-					Contact\User::setIgnored($contact['id'], DI::userSession()->getLocalUserId(), false);
+					Contact\User::setIgnored($contact['id'], $this->session->getLocalUserId(), false);
 
 					$message = $this->t('Contact has been unignored');
 				} else {
 					// @TODO Backward compatibility, replace with $localRelationship->block()
-					Contact\User::setIgnored($contact['id'], DI::userSession()->getLocalUserId(), true);
+					Contact\User::setIgnored($contact['id'], $this->session->getLocalUserId(), true);
 					$message = $this->t('Contact has been ignored');
 				}
 
 				// @TODO: add $this->localRelationship->save($localRelationship);
-				DI::sysmsg()->addInfo($message);
+				$this->systemMessages->addInfo($message);
 			}
 
 			if ($cmd === 'collapse') {
 				if ($localRelationship->collapsed) {
 					// @TODO Backward compatibility, replace with $localRelationship->unblock()
-					Contact\User::setCollapsed($contact['id'], DI::userSession()->getLocalUserId(), false);
+					Contact\User::setCollapsed($contact['id'], $this->session->getLocalUserId(), false);
 
 					$message = $this->t('Contact has been uncollapsed');
 				} else {
 					// @TODO Backward compatibility, replace with $localRelationship->block()
-					Contact\User::setCollapsed($contact['id'], DI::userSession()->getLocalUserId(), true);
+					Contact\User::setCollapsed($contact['id'], $this->session->getLocalUserId(), true);
 					$message = $this->t('Contact has been collapsed');
 				}
 
 				// @TODO: add $this->localRelationship->save($localRelationship);
-				DI::sysmsg()->addInfo($message);
+				$this->systemMessages->addInfo($message);
 			}
 
 			$this->baseUrl->redirect('contact/' . $contact['id']);
@@ -518,10 +523,9 @@ class Profile extends BaseModule
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function updateContactFromProbe(int $contact_id)
+	private function updateContactFromProbe(int $contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => [0, DI::userSession()->getLocalUserId()], 'deleted' => false]);
-		if (!DBA::isResult($contact)) {
+		if (!$this->db->exists('contact', ['id' => $contact_id, 'uid' => [0, $this->session->getLocalUserId()], 'deleted' => false])) {
 			return;
 		}
 
