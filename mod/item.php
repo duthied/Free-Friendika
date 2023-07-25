@@ -340,7 +340,7 @@ function item_content(App $a)
 
 	$args = DI::args();
 
-	if (!$args->has(3)) {
+	if (!$args->has(2)) {
 		throw new HTTPException\BadRequestException();
 	}
 
