@@ -55,6 +55,12 @@ class JsonLD
 			case 'https://funkwhale.audio/ns':
 				$url = DI::basePath() . '/static/funkwhale.audio.jsonld';
 				break;
+			case 'http://schema.org':
+				$url = DI::basePath() . '/static/schema.jsonld';
+				break;
+			case 'http://joinmastodon.org/ns':
+				$url = DI::basePath() . '/static/joinmastodon.jsonld';
+				break;
 			default:
 				switch (parse_url($url, PHP_URL_PATH)) {
 					case '/schemas/litepub-0.1.jsonld';
@@ -176,12 +182,6 @@ class JsonLD
 			// See issue https://github.com/nextcloud/social/issues/330
 			if (!in_array('https://w3id.org/security/v1', $json['@context'])) {
 				$json['@context'][] = 'https://w3id.org/security/v1';
-			}
-
-			// Issue 12419: Workaround for GoToSocial
-			$pos = array_search('http://joinmastodon.org/ns', $json['@context']);
-			if (is_int($pos)) {
-				$json['@context'][$pos] = ['toot' => 'http://joinmastodon.org/ns#'];
 			}
 		}
 

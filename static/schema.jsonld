@@ -1,0 +1,7 @@
+{
+    "@context": {
+        "schema": "http://schema.org#",
+        "value": "schema:value",
+        "PropertyValue": "schema:PropertyValue"
+    }
+}
