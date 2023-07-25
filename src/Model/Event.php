@@ -344,7 +344,6 @@ class Event
 		$event['id'] = $event_id;
 
 		$item['uid']           = $event['uid'];
-		$item['contact-id']    = $event['cid'];
 		$item['uri']           = $event['uri'];
 		$item['uri-id']        = ItemURI::getIdByURI($event['uri']);
 		$item['guid']          = $event['guid'];
@@ -367,7 +366,6 @@ class Event
 		$item['visible']       = 1;
 		$item['verb']          = Activity::POST;
 		$item['object-type']   = Activity\ObjectType::EVENT;
-		$item['post-type']     = Item::PT_EVENT;
 		$item['origin']        = $event['cid'] === 0 ? 1 : 0;
 		$item['body']          = self::getBBCode($event);
 		$item['event-id']      = $event['id'];
@@ -547,8 +545,8 @@ class Event
 		// Query for the event by event id
 		$events = DBA::toArray(DBA::p(
 			"SELECT `event`.*, `post-user`.`id` AS `itemid` FROM `event`
-			LEFT JOIN `post-user` 
-				ON `post-user`.`event-id` = `event`.`id` 
+			LEFT JOIN `post-user`
+				ON `post-user`.`event-id` = `event`.`id`
 				AND `post-user`.`uid` = `event`.`uid`
 			WHERE `event`.`id` = ?
 			  AND `event`.`uid` = ?
@@ -932,9 +930,9 @@ class Event
 
 		// Construct the profile link (magic-auth).
 		$author       = [
-			'uid'     => 0, 
+			'uid'     => 0,
 			'id'      => $item['author-id'],
-			'network' => $item['author-network'], 
+			'network' => $item['author-network'],
 			'url'     => $item['author-link'],
 			'alias'   => $item['author-alias']
 		];
