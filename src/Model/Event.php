@@ -362,7 +362,7 @@ class Event
 		$item['allow_gid']     = $event['allow_gid'];
 		$item['deny_cid']      = $event['deny_cid'];
 		$item['deny_gid']      = $event['deny_gid'];
-		$item['private']       = intval($event['private'] ?? 0);
+		$item['private']       = $event['allow_cid'] && $event['allow_gid'] && $event['deny_cid'] && $event['deny_gid'] ? 0 : 1;
 		$item['visible']       = 1;
 		$item['verb']          = Activity::POST;
 		$item['object-type']   = Activity\ObjectType::EVENT;
