@@ -50,6 +50,7 @@ use Friendica\Protocol\Activity;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
+use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Profiler;
 use Friendica\Util\Proxy;
@@ -367,7 +368,7 @@ class Item
 	{
 		$this->profiler->startRecording('rendering');
 		$sub_link = $contact_url = $pm_url = $status_link = '';
-		$photos_link = $posts_link = $block_link = $ignore_link = '';
+		$photos_link = $posts_link = $block_link = $ignore_link = $collapse_link = $ignoreserver_link = '';
 
 		if ($this->userSession->getLocalUserId() && $this->userSession->getLocalUserId() == $item['uid'] && $item['gravity'] == ItemModel::GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
 			$sub_link = 'javascript:doFollowThread(' . $item['id'] . '); return false;';
@@ -407,6 +408,10 @@ class Item
 			$collapse_link = $item['self'] ? '' : $contact_url . '/collapse?t=' . $formSecurityToken;
 		}
 
+		if (!empty($item['author-gsid'])) {
+			$ignoreserver_link = Network::isLocalLink($contact_url) ? '' : 'settings/server/' . $item['author-gsid'] . '/ignore';
+		}
+
 		if ($cid && !$item['self']) {
 			$contact_url = 'contact/' . $cid;
 			$posts_link  = $contact_url . '/posts';
@@ -427,7 +432,8 @@ class Item
 				$this->l10n->t('Send PM') => $pm_url,
 				$this->l10n->t('Block') => $block_link,
 				$this->l10n->t('Ignore') => $ignore_link,
-				$this->l10n->t('Collapse') => $collapse_link
+				$this->l10n->t('Collapse') => $collapse_link,
+				$this->l10n->t("Ignore %s's server", $item['author-name']) => $ignoreserver_link,
 			];
 
 			if (!empty($item['language'])) {

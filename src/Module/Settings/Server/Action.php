@@ -23,8 +23,10 @@ namespace Friendica\Module\Settings\Server;
 
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
+use Friendica\Federation\Repository\GServer;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\User\Settings\Repository\UserGServer;
@@ -37,17 +39,60 @@ class Action extends \Friendica\BaseModule
 	private $session;
 	/** @var UserGServer */
 	private $repository;
+	/** @var GServer */
+	private $gserverRepo;
 
-	public function __construct(UserGServer $repository, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(GServer $gserverRepo, UserGServer $repository, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->session    = $session;
-		$this->repository = $repository;
+		$this->session     = $session;
+		$this->repository  = $repository;
+		$this->gserverRepo = $gserverRepo;
+	}
+
+	public function content(array $request = []): string
+	{
+		$GServer = $this->gserverRepo->selectOneById($this->parameters['gsid']);
+
+		switch ($this->parameters['action']) {
+			case 'ignore':
+				$action = $this->t('Do you want to ignore this server?');
+				$desc   = $this->t("You won't see any content from this server including reshares in your Network page, the community pages and individual conversations.");
+				break;
+			case 'unignore':
+				$action = $this->t('Do you want to unignore this server?');
+				$desc   = '';
+				break;
+			default:
+				throw new BadRequestException('Unknown user server action ' . $this->parameters['action']);
+		}
+
+		$tpl = Renderer::getMarkupTemplate('settings/server/action.tpl');
+		return Renderer::replaceMacros($tpl, [
+			'$l10n' => [
+				'title'    => $this->t('Remote server settings'),
+				'action'   => $action,
+				'siteName' => $this->t('Server Name'),
+				'siteUrl'  => $this->t('Server URL'),
+				'desc'     => $desc,
+				'submit'   => $this->t('Submit'),
+			],
+
+			'$action' => $this->args->getQueryString(),
+
+			'$GServer' => $GServer,
+
+			'$form_security_token' => self::getFormSecurityToken('settings-server'),
+		]);
 	}
 
 	public function post(array $request = [])
 	{
+		if (!empty($request['redirect_url'])) {
+			self::checkFormSecurityTokenRedirectOnError($this->args->getQueryString(), 'settings-server');
+		}
+
 		$userGServer = $this->repository->getOneByUserAndServer($this->session->getLocalUserId(), $this->parameters['gsid']);
 
 		switch ($this->parameters['action']) {
@@ -62,6 +107,10 @@ class Action extends \Friendica\BaseModule
 		}
 
 		$this->repository->save($userGServer);
+
+		if (!empty($request['redirect_url'])) {
+			$this->baseUrl->redirect($request['redirect_url']);
+		}
 
 		System::exit();
 	}

@@ -13,8 +13,14 @@
 		<table class="table table-striped table-condensed table-bordered">
 			<tr>
 				<th>{{$l10n.siteName}}</th>
-				<th><span title="{{$l10n.ignored_title}}">{{$l10n.ignored}} <i class="fa fa-question-circle"></i></span></th>
-				<th><span title="{{$l10n.delete_title}}"><i class="fa fa-trash"  aria-hidden="true" title="{{$l10n.delete}}"></i> <span class="sr-only">{{$l10n.delete}}</span> <i class="fa fa-question-circle"></i></span></th>
+				<th><span title="{{$l10n.ignored_title}}">{{$l10n.ignored}} <i class="fa fa-question-circle icon-question-sign"></i></span></th>
+				<th>
+					<span title="{{$l10n.delete_title}}">
+						<i class="fa fa-trash icon-trash" aria-hidden="true" title="{{$l10n.delete}}"></i>
+						<span class="sr-only">{{$l10n.delete}}</span>
+						<i class="fa fa-question-circle icon-question-sign"></i>
+					</span>
+				</th>
 			</tr>
 
 {{foreach $servers as $index => $server}}

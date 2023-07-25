@@ -57,7 +57,7 @@
 		{{if $c[0]['total'] > 0}}
 		<tr>
 			<th>{{$c[0]['platform']}}</th>
-			<th><strong>{{$c[0]['total']}}</strong></td>
+			<th><strong>{{$c[0]['total']}}</strong></th>
 			<td>{{$c[0]['network']}}</td>
 		</tr>
 		<tr>
