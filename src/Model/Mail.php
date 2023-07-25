@@ -233,7 +233,7 @@ class Mail
 				foreach ($images as $image) {
 					$image_rid = Photo::ridFromURI($image);
 					if (!empty($image_rid)) {
-						Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => $sender_uid]);
+						Photo::update(['allow_cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => $sender_uid]);
 					}
 				}
 			}
