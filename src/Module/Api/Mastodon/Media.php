@@ -38,13 +38,20 @@ class Media extends BaseApi
 		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
+		$request = $this->getRequest([
+			'file'        => [], // The file to be attached, using multipart form data.
+			'thumbnail'   => [], // The custom thumbnail of the media to be attached, using multipart form data.
+			'description' => '', // A plain-text description of the media, for accessibility purposes.
+			'focus'       => '', // Two floating points (x,y), comma-delimited ranging from -1.0 to 1.0
+		], $request);
+
 		Logger::info('Photo post', ['request' => $request, 'files' => $_FILES]);
 
 		if (empty($_FILES['file'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$media = Photo::upload($uid, $_FILES['file']);
+		$media = Photo::upload($uid, $_FILES['file'], '', null, null, '', '', $request['description']);
 		if (empty($media)) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
