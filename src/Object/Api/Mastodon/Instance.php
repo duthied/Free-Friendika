@@ -89,7 +89,7 @@ class Instance extends BaseDataTransferObject
 		$this->short_description = $this->description = $config->get('config', 'info');
 		$this->email             = implode(',', User::getAdminEmailList());
 		$this->version           = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
-		$this->urls              = null; // Not supported
+		$this->urls              = ['streaming_api' => '']; // Not supported
 		$this->stats             = new Stats($config, $database);
 		$this->thumbnail         = $baseUrl . $config->get('api', 'mastodon_banner');
 		$this->languages         = [$config->get('system', 'language')];
