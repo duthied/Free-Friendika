@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1523
+-- DB_UPDATE_VERSION 1524
 -- ------------------------------------------
 
 
@@ -1834,7 +1834,7 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	`rel` tinyint unsigned COMMENT 'The kind of the relation between the user and the contact',
 	`info` mediumtext COMMENT '',
 	`notify_new_posts` boolean COMMENT '',
-	`remote_self` boolean COMMENT '',
+	`remote_self` tinyint unsigned COMMENT '0 => No mirroring, 1-2 => Mirror as own post, 3 => Mirror as reshare',
 	`fetch_further_information` tinyint unsigned COMMENT '0 => None, 1 => Fetch information, 3 => Fetch keywords, 2 => Fetch both',
 	`ffi_keyword_denylist` text COMMENT '',
 	`subhub` boolean COMMENT '',

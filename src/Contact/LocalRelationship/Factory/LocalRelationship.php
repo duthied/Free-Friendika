@@ -45,7 +45,7 @@ class LocalRelationship extends BaseFactory implements ICanCreateFromTableRow
 			$row['rel'] ?? Contact::NOTHING,
 			$row['info'] ?? '',
 			$row['notify_new_posts'] ?? false,
-			$row['remote_self'] ?? false,
+			$row['remote_self'] ?? Entity\LocalRelationship::MIRROR_DEACTIVATED,
 			$row['fetch_further_information'] ?? Entity\LocalRelationship::FFI_NONE,
 			$row['ffi_keyword_denylist'] ?? '',
 			$row['subhub'] ?? false,

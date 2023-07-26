@@ -394,7 +394,7 @@ class Profile extends BaseModule
 			'$remote_self'               => [
 				'remote_self',
 				$this->t('Mirror postings from this contact'),
-				$localRelationship->isRemoteSelf,
+				$localRelationship->remoteSelf,
 				$this->t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
 				$remote_self_options
 			],
