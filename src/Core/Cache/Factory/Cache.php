@@ -42,7 +42,7 @@ class Cache
 	/**
 	 * @var string The default cache if nothing set
 	 */
-	const DEFAULT_TYPE = Enum\Type::DATABASE;
+	const DEFAULT_TYPE = Type\DatabaseCache::NAME;
 	/** @var ICanCreateInstances */
 	protected $instanceCreator;
 	/** @var IManageConfigValues */

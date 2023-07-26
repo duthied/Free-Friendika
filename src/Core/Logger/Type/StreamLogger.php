@@ -32,6 +32,8 @@ use Psr\Log\LogLevel;
  */
 class StreamLogger extends AbstractLogger
 {
+	const NAME = 'stream';
+
 	/**
 	 * The minimum loglevel at which this logger will be triggered
 	 * @var string

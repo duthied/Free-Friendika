@@ -30,6 +30,11 @@ use Friendica\Core\Hooks\Exceptions\HookConfigException;
  */
 class StrategiesFileManager
 {
+	/**
+	 * The default hook-file-key of strategies
+	 * -> it's an empty string to cover empty/missing config values
+	 */
+	const STRATEGY_DEFAULT_KEY = '';
 	const STATIC_DIR  = 'static';
 	const CONFIG_NAME = 'strategies';
 

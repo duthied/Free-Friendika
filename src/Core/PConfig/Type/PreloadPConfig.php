@@ -32,6 +32,8 @@ use Friendica\Core\PConfig\ValueObject;
  */
 class PreloadPConfig extends AbstractPConfigValues
 {
+	const NAME = 'preload';
+
 	/** @var array */
 	private $config_loaded;
 

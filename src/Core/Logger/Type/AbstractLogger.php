@@ -38,6 +38,8 @@ use Psr\Log\LogLevel;
  */
 abstract class AbstractLogger implements LoggerInterface
 {
+	const NAME = '';
+
 	/**
 	 * The output channel of this logger
 	 * @var string

@@ -32,6 +32,8 @@ use Psr\Log\LogLevel;
  */
 class SyslogLogger extends AbstractLogger
 {
+	const NAME = 'syslog';
+
 	const IDENT = 'Friendica';
 
 	/** @var int The default syslog flags */

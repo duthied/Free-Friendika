@@ -33,7 +33,7 @@ use Memcache;
  */
 class MemcacheCache extends AbstractCache implements ICanCacheInMemory
 {
-	const NAME = 'memcached';
+	const NAME = 'memcache';
 
 	use CompareSetTrait;
 	use CompareDeleteTrait;
