@@ -69,7 +69,7 @@ class Cache
 	 */
 	public function createDistributed(string $type = null): ICanCache
 	{
-		if ($type === Type\APCuCache::$NAME) {
+		if ($type === Type\APCuCache::NAME) {
 			throw new InvalidCacheDriverException('apcu doesn\'t support distributed caching.');
 		}
 

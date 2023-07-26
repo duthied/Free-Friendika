@@ -33,7 +33,7 @@ use Memcache;
  */
 class MemcacheCache extends AbstractCache implements ICanCacheInMemory
 {
-	static $NAME = 'memcached';
+	const NAME = 'memcached';
 
 	use CompareSetTrait;
 	use CompareDeleteTrait;

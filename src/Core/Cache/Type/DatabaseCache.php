@@ -32,7 +32,7 @@ use Friendica\Util\DateTimeFormat;
  */
 class DatabaseCache extends AbstractCache implements ICanCache
 {
-	public static $NAME = 'database';
+	const NAME = 'database';
 
 	/**
 	 * @var Database

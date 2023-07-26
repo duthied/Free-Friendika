@@ -29,7 +29,7 @@ use Friendica\Core\Cache\Enum;
  */
 class ArrayCache extends AbstractCache implements ICanCacheInMemory
 {
-	public static $NAME = 'array';
+	const NAME = 'array';
 
 	use CompareDeleteTrait;
 

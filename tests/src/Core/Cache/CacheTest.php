@@ -250,8 +250,8 @@ abstract class CacheTest extends MockedTest
 
 	public function testGetName()
 	{
-		if (property_exists($this->instance, '$NAME')) {
-			self::assertEquals($this->instance::$NAME, $this->instance->getName());
+		if (defined(get_class($this->instance) . '::NAME')) {
+			self::assertEquals($this->instance::NAME, $this->instance->getName());
 		} else {
 			self::expectNotToPerformAssertions();
 		}

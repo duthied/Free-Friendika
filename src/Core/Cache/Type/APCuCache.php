@@ -30,7 +30,7 @@ use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
  */
 class APCuCache extends AbstractCache implements ICanCacheInMemory
 {
-	public static $NAME = 'apcu';
+	const NAME = 'apcu';
 
 	use CompareSetTrait;
 	use CompareDeleteTrait;

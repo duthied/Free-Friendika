@@ -33,7 +33,7 @@ use Redis;
  */
 class RedisCache extends AbstractCache implements ICanCacheInMemory
 {
-	public static $NAME = 'redis';
+	const NAME = 'redis';
 
 	/**
 	 * @var Redis

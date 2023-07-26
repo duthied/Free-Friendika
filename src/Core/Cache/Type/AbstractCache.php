@@ -28,7 +28,7 @@ use Friendica\Core\Cache\Capability\ICanCache;
  */
 abstract class AbstractCache implements ICanCache
 {
-	public static $NAME = '';
+	const NAME = '';
 
 	/**
 	 * @var string The hostname
@@ -111,6 +111,6 @@ abstract class AbstractCache implements ICanCache
 	/** {@inheritDoc} */
 	public function getName(): string
 	{
-		return static::$NAME;
+		return static::NAME;
 	}
 }

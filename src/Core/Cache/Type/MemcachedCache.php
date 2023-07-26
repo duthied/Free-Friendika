@@ -34,7 +34,7 @@ use Psr\Log\LoggerInterface;
  */
 class MemcachedCache extends AbstractCache implements ICanCacheInMemory
 {
-	static $NAME = 'memcached';
+	const NAME = 'memcached';
 
 	use CompareSetTrait;
 	use CompareDeleteTrait;
