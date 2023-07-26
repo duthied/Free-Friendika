@@ -278,7 +278,7 @@
 									<li role="presentation">
 										<a role="menuitem" id="nav-about-link" class="nav-link {{$nav.about.2}}"
 											href="{{$nav.about.0}}" title="{{$nav.about.3}}">
-											<i class="fa fa-info" aria-hidden="true"></i> {{$nav.about.1}}
+											<i class="fa fa-info fa-fw" aria-hidden="true"></i> {{$nav.about.1}}
 										</a>
 									</li>
 									{{if $nav.tos}}
