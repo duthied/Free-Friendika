@@ -283,10 +283,10 @@ class Profile extends BaseModule
 				$localRelationship->fetchFurtherInformation,
 				$this->t('Fetch information like preview pictures, title and teaser from the feed item. You can activate this if the feed doesn\'t contain much text. Keywords are taken from the meta header in the feed item and are posted as hash tags.'),
 				[
-					'0' => $this->t('Disabled'),
-					'1' => $this->t('Fetch information'),
-					'3' => $this->t('Fetch keywords'),
-					'2' => $this->t('Fetch information and keywords')
+					Entity\LocalRelationship::FFI_NONE        => $this->t('Disabled'),
+					Entity\LocalRelationship::FFI_INFORMATION => $this->t('Fetch information'),
+					Entity\LocalRelationship::FFI_KEYWORD     => $this->t('Fetch keywords'),
+					Entity\LocalRelationship::FFI_BOTH        => $this->t('Fetch information and keywords')
 				]
 			];
 		}

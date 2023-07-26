@@ -1827,7 +1827,7 @@ return [
 			"info" => ["type" => "mediumtext", "comment" => ""],
 			"notify_new_posts" => ["type" => "boolean", "comment" => ""],
 			"remote_self" => ["type" => "boolean", "comment" => ""],
-			"fetch_further_information" => ["type" => "tinyint unsigned", "comment" => ""],
+			"fetch_further_information" => ["type" => "tinyint unsigned", "comment" => "0 => None, 1 => Fetch information, 3 => Fetch keywords, 2 => Fetch both"],
 			"ffi_keyword_denylist" => ["type" => "text", "comment" => ""],
 			"subhub" => ["type" => "boolean", "comment" => ""],
 			"hub-verify" => ["type" => "varbinary(383)", "comment" => ""],

@@ -1835,7 +1835,7 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	`info` mediumtext COMMENT '',
 	`notify_new_posts` boolean COMMENT '',
 	`remote_self` boolean COMMENT '',
-	`fetch_further_information` tinyint unsigned COMMENT '',
+	`fetch_further_information` tinyint unsigned COMMENT '0 => None, 1 => Fetch information, 3 => Fetch keywords, 2 => Fetch both',
 	`ffi_keyword_denylist` text COMMENT '',
 	`subhub` boolean COMMENT '',
 	`hub-verify` varbinary(383) COMMENT '',

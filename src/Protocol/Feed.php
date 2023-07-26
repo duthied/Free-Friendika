@@ -25,6 +25,7 @@ use DOMDocument;
 use DOMElement;
 use DOMXPath;
 use Friendica\App;
+use Friendica\Contact\LocalRelationship\Entity\LocalRelationship;
 use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
@@ -566,8 +567,10 @@ class Feed
 				continue;
 			}
 
+			$fetch_further_information = $contact['fetch_further_information'] ?? LocalRelationship::FFI_NONE;
+
 			$preview = '';
-			if (!empty($contact['fetch_further_information']) && ($contact['fetch_further_information'] < 3)) {
+			if (in_array($fetch_further_information, [LocalRelationship::FFI_INFORMATION, LocalRelationship::FFI_BOTH])) {
 				// Handle enclosures and treat them as preview picture
 				foreach ($attachments as $attachment) {
 					if ($attachment['mimetype'] == 'image/jpeg') {
@@ -611,7 +614,12 @@ class Feed
 					}
 				}
 
-				$data = PageInfo::queryUrl($item['plink'], false, $preview, ($contact['fetch_further_information'] == 2), $contact['ffi_keyword_denylist'] ?? '');
+				$data = PageInfo::queryUrl(
+					$item['plink'],
+					false,
+					$fetch_further_information == LocalRelationship::FFI_BOTH,
+					$contact['ffi_keyword_denylist'] ?? ''
+				);
 
 				if (!empty($data)) {
 					// Take the data that was provided by the feed if the query is empty
@@ -630,7 +638,7 @@ class Feed
 					// We always strip the title since it will be added in the page information
 					$item['title'] = '';
 					$item['body'] = $item['body'] . "\n" . PageInfo::getFooterFromData($data, false);
-					$taglist = $contact['fetch_further_information'] == 2 ? PageInfo::getTagsFromUrl($item['plink'], $preview, $contact['ffi_keyword_denylist'] ?? '') : [];
+					$taglist = $fetch_further_information == LocalRelationship::FFI_BOTH ? PageInfo::getTagsFromUrl($item['plink'], $preview, $contact['ffi_keyword_denylist'] ?? '') : [];
 					$item['object-type'] = Activity\ObjectType::BOOKMARK;
 					$attachments = [];
 
@@ -662,7 +670,7 @@ class Feed
 					$item['body'] = '[abstract]' . HTML::toBBCode($summary, $basepath) . "[/abstract]\n" . $item['body'];
 				}
 
-				if (!empty($contact['fetch_further_information']) && ($contact['fetch_further_information'] == 3)) {
+				if ($fetch_further_information == LocalRelationship::FFI_KEYWORD) {
 					if (empty($taglist)) {
 						$taglist = PageInfo::getTagsFromUrl($item['plink'], $preview, $contact['ffi_keyword_denylist'] ?? '');
 					}
