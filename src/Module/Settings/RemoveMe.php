@@ -23,11 +23,9 @@ namespace Friendica\Module\Settings;
 
 use Friendica\App;
 use Friendica\Content\Widget;
-use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Model\User\Cookie;
@@ -41,10 +39,6 @@ use Psr\Log\LoggerInterface;
 
 class RemoveMe extends BaseSettings
 {
-	/** @var IManageConfigValues */
-	private $config;
-	/** @var Database */
-	private $database;
 	/** @var Emailer */
 	private $emailer;
 	/** @var SystemMessages */
@@ -52,12 +46,10 @@ class RemoveMe extends BaseSettings
 	/** @var Cookie */
 	private $cookie;
 
-	public function __construct(Cookie $cookie, SystemMessages $systemMessages, Emailer $emailer, Database $database, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(Cookie $cookie, SystemMessages $systemMessages, Emailer $emailer, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->config         = $config;
-		$this->database       = $database;
 		$this->emailer        = $emailer;
 		$this->systemMessages = $systemMessages;
 		$this->cookie         = $cookie;
@@ -80,6 +72,9 @@ class RemoveMe extends BaseSettings
 
 		try {
 			$userId = User::getIdFromPasswordAuthentication($this->session->getLocalUserId(), trim($request[$hash]));
+			if ($userId != $this->session->getLocalUserId()) {
+				throw new \RuntimeException($this->t("There was a validation error, please make sure you're logged in with the account you want to remove and try again.") . ' ' . $this->t('If this error persists, please contact your administrator.'));
+			}
 		} catch (\Throwable $e) {
 			$this->systemMessages->addNotice($e->getMessage());
 			return;
@@ -101,13 +96,19 @@ class RemoveMe extends BaseSettings
 			$this->emailer->send($email);
 		}
 
-		User::remove($userId);
+		try {
+			User::remove($userId);
 
-		$this->session->clear();
-		$this->cookie->clear();
+			$this->session->clear();
+			$this->cookie->clear();
 
-		$this->systemMessages->addInfo($this->t('Your user account has been successfully removed. Bye bye!'));
-		$this->baseUrl->redirect();
+			$this->systemMessages->addInfo($this->t('Your account has been successfully removed. Bye bye!'));
+			$this->baseUrl->redirect();
+		} catch (\RuntimeException $e) {
+			$this->systemMessages->addNotice($e->getMessage());
+		} finally {
+			return;
+		}
 	}
 
 	protected function content(array $request = []): string
