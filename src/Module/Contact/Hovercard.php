@@ -23,17 +23,15 @@ namespace Friendica\Module\Contact;
 
 use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\Content\Widget;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
-use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Profiler;
-use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -88,35 +86,6 @@ class Hovercard extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		// Get the photo_menu - the menu if possible contact actions
-		if ($this->userSession->isAuthenticated()) {
-			$actions = Contact::photoMenu($contact, $this->userSession->getLocalUserId());
-		} else {
-			$actions = [];
-		}
-
-		// Move the contact data to the profile array so we can deliver it to
-		$tpl = Renderer::getMarkupTemplate('hovercard.tpl');
-		$o   = Renderer::replaceMacros($tpl, [
-			'$profile' => [
-				'name'         => $contact['name'],
-				'nick'         => $contact['nick'],
-				'addr'         => $contact['addr'] ?: $contact['url'],
-				'thumb'        => Contact::getThumb($contact),
-				'url'          => Contact::magicLinkByContact($contact),
-				'nurl'         => $contact['nurl'],
-				'location'     => $contact['location'],
-				'about'        => $contact['about'],
-				'network_link' => Strings::formatNetworkName($contact['network'], $contact['url']),
-				'tags'         => $contact['keywords'],
-				'bd'           => $contact['bd'] <= DBA::NULL_DATE ? '' : $contact['bd'],
-				'account_type' => Contact::getAccountType($contact['contact-type']),
-				'contact_type' => $contact['contact-type'],
-				'actions'      => $actions,
-				'self'         => $contact['self'],
-			],
-		]);
-
-		$this->httpExit($o);
+		$this->httpExit(Widget\Hovercard::getHTML($contact, $this->userSession->getLocalUserId()));
 	}
 }

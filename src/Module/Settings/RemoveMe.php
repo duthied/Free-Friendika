@@ -22,6 +22,7 @@
 namespace Friendica\Module\Settings;
 
 use Friendica\App;
+use Friendica\Content\Widget;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
@@ -128,6 +129,9 @@ class RemoveMe extends BaseSettings
 				'title' => DI::l10n()->t('Remove My Account'),
 				'desc'  => DI::l10n()->t('This will completely remove your account. Once this has been done it is not recoverable.'),
 			],
+
+			'$hovercard' => Widget\Hovercard::getHTML(User::getOwnerDataById($this->session->getLocalUserId())),
+
 			'$password' => [$hash, $this->t('Please enter your password for verification:'), null, null, true],
 		]);
 	}
