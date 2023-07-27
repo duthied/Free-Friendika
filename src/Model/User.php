@@ -37,11 +37,10 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
-use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Security\TwoFactor\Model\AppSpecificPassword;
 use Friendica\Network\HTTPException;
 use Friendica\Object\Image;
 use Friendica\Protocol\Delivery;
+use Friendica\Security\TwoFactor\Model\AppSpecificPassword;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
@@ -1638,16 +1637,24 @@ class User
 	 * @param int $uid user to remove
 	 * @return bool
 	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException
 	 */
 	public static function remove(int $uid): bool
 	{
 		if (empty($uid)) {
-			return false;
+			throw new \InvalidArgumentException('uid needs to be greater than 0');
 		}
 
 		Logger::notice('Removing user', ['user' => $uid]);
 
-		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
+		$user = self::getById($uid);
+		if (!$user) {
+			throw new HTTPException\NotFoundException('User not found with uid: ' . $uid);
+		}
+
+		if (DBA::exists('user', ['parent-uid' => $uid])) {
+			throw new \RuntimeException(DI::l10n()->t("User with delegates can't be removed, please remove delegate users first"));
+		}
 
 		Hook::callAll('remove_user', $user);
 
