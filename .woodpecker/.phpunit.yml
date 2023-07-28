@@ -20,7 +20,7 @@ steps:
     image: php:${PHP_MAJOR_VERSION}
     group: lint
     commands:
-      - ./bin/composer.phar run lint
+      - find . -name \*.php -not -path './vendor/*' -not -path './view/asset/*' -print0 | xargs -0 -n1 php -l
   restore_cache:
     image: meltwater/drone-cache:dev
     settings:
