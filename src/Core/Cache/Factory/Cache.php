@@ -21,7 +21,6 @@
 
 namespace Friendica\Core\Cache\Factory;
 
-use Friendica\Core\Cache\Enum;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Exception\CachePersistenceException;
 use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
@@ -58,22 +57,16 @@ class Cache
 	}
 
 	/**
-	 * This method creates a CacheDriver for distributed caching with the given cache driver name
-	 *
-	 * @param string|null $type The cache type to create (default is per config)
+	 * This method creates a CacheDriver for distributed caching
 	 *
 	 * @return ICanCache  The instance of the CacheDriver
 	 *
 	 * @throws InvalidCacheDriverException In case the underlying cache driver isn't valid or not configured properly
 	 * @throws CachePersistenceException In case the underlying cache has errors during persistence
 	 */
-	public function createDistributed(string $type = null): ICanCache
+	public function createDistributed(): ICanCache
 	{
-		if ($type === Type\APCuCache::NAME) {
-			throw new InvalidCacheDriverException('apcu doesn\'t support distributed caching.');
-		}
-
-		return $this->create($type ?? $this->config->get('system', 'distributed_cache_driver', self::DEFAULT_TYPE));
+		return $this->create($this->config->get('system', 'distributed_cache_driver', self::DEFAULT_TYPE));
 	}
 
 	/**
