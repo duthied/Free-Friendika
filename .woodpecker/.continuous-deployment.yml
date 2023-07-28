@@ -11,7 +11,7 @@ labels:
 
 skip_clone: true
 
-pipeline:
+steps:
   clone:
     image: alpine/git
     commands:

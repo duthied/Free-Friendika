@@ -6,7 +6,7 @@ matrix:
 branches:
   exclude: [ stable ]
 
-pipeline:
+steps:
   db_version_match:
     image: friendicaci/transifex
     commands:

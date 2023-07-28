@@ -15,7 +15,7 @@ matrix:
 labels:
   location: opensocial
 
-pipeline:
+steps:
   php-lint:
     image: php:${PHP_MAJOR_VERSION}
     group: lint
