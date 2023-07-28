@@ -544,7 +544,7 @@ class Item
 					unset($item['owner-name']);
 					unset($item['owner-avatar']);
 				}
-	
+
 				$item['postopts'] = '';
 			}
 

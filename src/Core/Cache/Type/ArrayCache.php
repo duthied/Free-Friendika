@@ -29,6 +29,8 @@ use Friendica\Core\Cache\Enum;
  */
 class ArrayCache extends AbstractCache implements ICanCacheInMemory
 {
+	const NAME = 'array';
+
 	use CompareDeleteTrait;
 
 	/** @var array Array with the cached data */
@@ -107,13 +109,5 @@ class ArrayCache extends AbstractCache implements ICanCacheInMemory
 		} else {
 			return false;
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getName(): string
-	{
-		return Enum\Type::ARRAY;
 	}
 }

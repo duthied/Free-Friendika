@@ -23,7 +23,6 @@ namespace Friendica\Core\Cache\Type;
 
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Cache\Capability\ICanCacheInMemory;
-use Friendica\Core\Cache\Enum\Type;
 use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
 
 /**
@@ -31,12 +30,12 @@ use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
  */
 class APCuCache extends AbstractCache implements ICanCacheInMemory
 {
+	const NAME = 'apcu';
+
 	use CompareSetTrait;
 	use CompareDeleteTrait;
 
 	/**
-	 * @param string $hostname
-	 *
 	 * @throws InvalidCacheDriverException
 	 */
 	public function __construct(string $hostname)
@@ -172,13 +171,5 @@ class APCuCache extends AbstractCache implements ICanCacheInMemory
 		}
 
 		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getName(): string
-	{
-		return Type::APCU;
 	}
 }

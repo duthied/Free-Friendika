@@ -19,19 +19,24 @@
  *
  */
 
-namespace Friendica\Core\Addon\Capabilities;
+namespace Friendica\Core\Logger\Capability;
 
 /**
- * Interface for loading Addons specific content
+ * Whenever a logging specific check is necessary, use this interface to encapsulate and centralize this logic
  */
-interface ICanLoadAddons
+interface ICheckLoggerSettings
 {
 	/**
-	 * Returns a merged config array of all active addons for a given config-name
+	 * Checks if the logfile is set and usable
 	 *
-	 * @param string $configName The config-name (config-file at the static directory, like 'hooks' => '{addon}/static/hooks.config.php)
-	 *
-	 * @return array the merged array
+	 * @return string|null null in case everything is ok, otherwise returns the error
 	 */
-	public function getActiveAddonConfig(string $configName): array;
+	public function checkLogfile(): ?string;
+
+	/**
+	 * Checks if the debugging logfile is usable in case it is set!
+	 *
+	 * @return string|null null in case everything is ok, otherwise returns the error
+	 */
+	public function checkDebugLogfile(): ?string;
 }

@@ -19,33 +19,19 @@
  *
  */
 
-namespace Friendica\Core\Logger\Capabilities;
+namespace Friendica\Core\Hooks\Capability;
 
-interface IHaveCallIntrospections
+/**
+ * An enum of hook types, based on behavioral design patterns
+ * @see https://refactoring.guru/design-patterns/behavioral-patterns
+ */
+interface BehavioralHookType
 {
 	/**
-	 * A list of classes, which shouldn't get logged
+	 * Defines the key for the list of strategy-hooks.
 	 *
-	 * @var string[]
+	 * @see https://refactoring.guru/design-patterns/strategy
 	 */
-	public const IGNORE_CLASS_LIST = [
-		\Friendica\Core\Logger::class,
-		\Friendica\Core\Logger\Factory\Logger::class,
-		'Friendica\\Core\\Logger\\Type',
-		\Friendica\Util\Profiler::class,
-	];
-
-	/**
-	 * Adds new classes to get skipped
-	 *
-	 * @param array $classNames
-	 */
-	public function addClasses(array $classNames): void;
-
-	/**
-	 * Returns the introspection record of the current call
-	 *
-	 * @return array
-	 */
-	public function getRecord(): array;
+	const STRATEGY = 'strategy';
+	const EVENT    = 'event';
 }

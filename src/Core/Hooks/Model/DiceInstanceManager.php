@@ -22,8 +22,8 @@
 namespace Friendica\Core\Hooks\Model;
 
 use Dice\Dice;
-use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
-use Friendica\Core\Hooks\Capabilities\ICanRegisterStrategies;
+use Friendica\Core\Hooks\Capability\ICanCreateInstances;
+use Friendica\Core\Hooks\Capability\ICanRegisterStrategies;
 use Friendica\Core\Hooks\Exceptions\HookInstanceException;
 use Friendica\Core\Hooks\Exceptions\HookRegisterArgumentException;
 use Friendica\Core\Hooks\Util\StrategiesFileManager;

@@ -21,7 +21,7 @@
 
 namespace Friendica\Core\Logger\Factory;
 
-use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
+use Friendica\Core\Logger\Capability\IHaveCallIntrospections;
 use Psr\Log\LogLevel;
 
 /**

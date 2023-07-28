@@ -21,7 +21,7 @@
 
 namespace Friendica\Core\Logger\Type;
 
-use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
+use Friendica\Core\Logger\Capability\IHaveCallIntrospections;
 use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core\Logger\Exception\LogLevelException;
 use Friendica\Util\DateTimeFormat;
@@ -32,6 +32,8 @@ use Psr\Log\LogLevel;
  */
 class StreamLogger extends AbstractLogger
 {
+	const NAME = 'stream';
+
 	/**
 	 * The minimum loglevel at which this logger will be triggered
 	 * @var string

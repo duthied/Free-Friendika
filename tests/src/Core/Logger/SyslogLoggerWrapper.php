@@ -21,7 +21,7 @@
 
 namespace Friendica\Test\src\Core\Logger;
 
-use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
+use Friendica\Core\Logger\Capability\IHaveCallIntrospections;
 use Friendica\Core\Logger\Type\SyslogLogger;
 
 /**

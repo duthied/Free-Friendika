@@ -21,10 +21,8 @@
 
 namespace Friendica\Core\Cache\Type;
 
-use Exception;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Cache\Capability\ICanCacheInMemory;
-use Friendica\Core\Cache\Enum\Type;
 use Friendica\Core\Cache\Exception\CachePersistenceException;
 use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
 use Friendica\Core\Config\Capability\IManageConfigValues;
@@ -35,6 +33,8 @@ use Redis;
  */
 class RedisCache extends AbstractCache implements ICanCacheInMemory
 {
+	const NAME = 'redis';
+
 	/**
 	 * @var Redis
 	 */
@@ -59,18 +59,23 @@ class RedisCache extends AbstractCache implements ICanCacheInMemory
 		$redis_pw   = $config->get('system', 'redis_password');
 		$redis_db   = $config->get('system', 'redis_db', 0);
 
-		if (!empty($redis_port) && !@$this->redis->connect($redis_host, $redis_port)) {
-			throw new CachePersistenceException('Expected Redis server at ' . $redis_host . ':' . $redis_port . ' isn\'t available');
-		} elseif (!@$this->redis->connect($redis_host)) {
-			throw new CachePersistenceException('Expected Redis server at ' . $redis_host . ' isn\'t available');
-		}
+		try {
 
-		if (!empty($redis_pw) && !$this->redis->auth($redis_pw)) {
-			throw new CachePersistenceException('Cannot authenticate redis server at ' . $redis_host . ':' . $redis_port);
-		}
+			if (!empty($redis_port) && !@$this->redis->connect($redis_host, $redis_port)) {
+				throw new CachePersistenceException('Expected Redis server at ' . $redis_host . ':' . $redis_port . ' isn\'t available');
+			} else if (!@$this->redis->connect($redis_host)) {
+				throw new CachePersistenceException('Expected Redis server at ' . $redis_host . ' isn\'t available');
+			}
 
-		if ($redis_db !== 0 && !$this->redis->select($redis_db)) {
-			throw new CachePersistenceException('Cannot switch to redis db ' . $redis_db . ' at ' . $redis_host . ':' . $redis_port);
+			if (!empty($redis_pw) && !$this->redis->auth($redis_pw)) {
+				throw new CachePersistenceException('Cannot authenticate redis server at ' . $redis_host . ':' . $redis_port);
+			}
+
+			if ($redis_db !== 0 && !$this->redis->select($redis_db)) {
+				throw new CachePersistenceException('Cannot switch to redis db ' . $redis_db . ' at ' . $redis_host . ':' . $redis_port);
+			}
+		} catch (\RedisException $exception) {
+			throw new CachePersistenceException('Redis connection fails unexpectedly', $exception);
 		}
 	}
 
@@ -210,13 +215,5 @@ class RedisCache extends AbstractCache implements ICanCacheInMemory
 		}
 		$this->redis->unwatch();
 		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getName(): string
-	{
-		return Type::REDIS;
 	}
 }

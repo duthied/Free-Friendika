@@ -1,4 +1,4 @@
-pipeline:
+steps:
   check:
     image: friendicaci/php-cs
     commands:

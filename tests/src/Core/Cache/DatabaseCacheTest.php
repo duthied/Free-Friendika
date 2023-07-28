@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
+use Friendica\App\BaseURL;
 use Friendica\Core\Cache;
 use Friendica\Test\DatabaseTestTrait;
 use Friendica\Test\Util\CreateDatabaseTrait;

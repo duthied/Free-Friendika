@@ -21,7 +21,7 @@
 
 namespace Friendica\Core\Lock\Enum;
 
-use Friendica\Core\Cache\Enum\Type as CacheType;
+use Friendica\Core\Cache\Type\DatabaseCache;
 
 /**
  * Enumeration for lock types
@@ -30,6 +30,6 @@ use Friendica\Core\Cache\Enum\Type as CacheType;
  */
 abstract class Type
 {
-	const DATABASE  = CacheType::DATABASE;
+	const DATABASE  = DatabaseCache::NAME;
 	const SEMAPHORE = 'semaphore';
 }

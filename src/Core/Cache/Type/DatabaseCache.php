@@ -32,6 +32,8 @@ use Friendica\Util\DateTimeFormat;
  */
 class DatabaseCache extends AbstractCache implements ICanCache
 {
+	const NAME = 'database';
+
 	/**
 	 * @var Database
 	 */
@@ -153,13 +155,5 @@ class DatabaseCache extends AbstractCache implements ICanCache
 		} catch (\Exception $exception) {
 			throw new CachePersistenceException('Cannot clear cache', $exception);
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getName(): string
-	{
-		return Enum\Type::DATABASE;
 	}
 }

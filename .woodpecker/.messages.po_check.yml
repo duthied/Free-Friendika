@@ -1,4 +1,4 @@
-pipeline:
+steps:
   build_xgettext:
     image: friendicaci/transifex
     commands:

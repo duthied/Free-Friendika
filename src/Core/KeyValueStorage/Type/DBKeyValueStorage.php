@@ -30,6 +30,7 @@ use Friendica\Database\Database;
  */
 class DBKeyValueStorage extends AbstractKeyValueStorage
 {
+	const NAME = 'database';
 	const DB_KEY_VALUE_TABLE = 'key-value';
 
 	/** @var Database */
