@@ -6,6 +6,10 @@ matrix:
 branches:
   exclude: [ stable ]
 
+# This forces CI executions at the "opensocial" labeled location (because of much more power...)
+labels:
+  location: opensocial
+
 steps:
   db_version_match:
     image: friendicaci/transifex
