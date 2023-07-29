@@ -235,4 +235,23 @@ class InstanceManagerTest extends MockedTest
 		self::assertEquals($cBool, $getInstanceA->getCBool());
 		self::assertEquals($cBool, $getInstanceB->getCBool());
 	}
+
+	/**
+	 * @see https://github.com/friendica/friendica/issues/13318
+	 */
+	public function testCaseInsensitiveNames()
+	{
+		$instance = new DiceInstanceManager(new Dice(), $this->hookFileManager);
+
+		$instance->registerStrategy(IAmADecoratedInterface::class, FakeInstance::class, 'fake');
+
+		// CamelCase
+		self::assertInstanceOf(FakeInstance::class, $instance->create(IAmADecoratedInterface::class, 'Fake'));
+		// UPPER CASE
+		self::assertInstanceOf(FakeInstance::class, $instance->create(IAmADecoratedInterface::class, 'FAKE'));
+		// lower case
+		self::assertInstanceOf(FakeInstance::class, $instance->create(IAmADecoratedInterface::class, 'fake'));
+		// UnKnOwN
+		self::assertInstanceOf(FakeInstance::class, $instance->create(IAmADecoratedInterface::class, 'fAkE'));
+	}
 }
