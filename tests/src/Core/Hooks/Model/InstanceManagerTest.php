@@ -254,4 +254,5 @@ class InstanceManagerTest extends MockedTest
 		// UnKnOwN
 		self::assertInstanceOf(FakeInstance::class, $instance->create(IAmADecoratedInterface::class, 'fAkE'));
 	}
+
 }
