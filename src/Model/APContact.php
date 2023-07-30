@@ -584,6 +584,14 @@ class APContact
 	 */
 	public static function isRelay(array $apcontact): bool
 	{
+		if (in_array($apcontact['type'], ['Person', 'Organization'])) {
+			return false;
+		}
+
+		if (($apcontact['type'] == 'Service') && empty($apcontact['outbox']) && empty($apcontact['sharedinbox']) && empty($apcontact['following']) && empty($apcontact['followers']) && empty($apcontact['statuses_count'])) {
+			return true;
+		}
+
 		if (empty($apcontact['nick']) || $apcontact['nick'] != 'relay') {
 			return false;
 		}
