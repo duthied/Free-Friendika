@@ -354,7 +354,7 @@ class Relay
 	public static function getList(array $fields = []): array
 	{
 		return DBA::selectToArray('apcontact', $fields,
-			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)", 'Application', 0, Contact::FRIEND]);
+			["`type` IN (?, ?) AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)", 'Application', 'Service', 0, Contact::FRIEND]);
 	}
 
 	/**
