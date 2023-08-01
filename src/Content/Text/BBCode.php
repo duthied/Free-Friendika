@@ -1159,6 +1159,40 @@ class BBCode
 	}
 
 	/**
+	 * Normalize links to Youtube and Vimeo to a unified format.
+	 *
+	 * @param string $text
+	 * @return string
+	 */
+	private static function normalizeVideoLinks(string $text): string
+	{
+		$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
+		$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/embed\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
+		$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/shorts\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
+		$text = preg_replace("/\[youtube\]https?:\/\/youtu.be\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
+
+		$text = preg_replace("/\[vimeo\]https?:\/\/player.vimeo.com\/video\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $text);
+		$text = preg_replace("/\[vimeo\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $text);
+
+		return $text;
+	}
+
+	/**
+	 * Expand Youtube and Vimeo links to 
+	 *
+	 * @param string $text
+	 * @return string
+	 */
+	public static function expandVideoLinks(string $text): string
+	{
+		$text = self::normalizeVideoLinks($text);
+		$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '[url=https://www.youtube.com/watch?v=$1]https://www.youtube.com/watch?v=$1[/url]', $text);
+		$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '[url=https://vimeo.com/$1]https://vimeo.com/$1[/url]', $text);
+
+		return $text;
+	}
+
+	/**
 	 * Converts a BBCode message for a given URI-ID to a HTML message
 	 *
 	 * BBcode 2 HTML was written by WAY2WEB.net
@@ -1655,12 +1689,9 @@ class BBCode
 				// Backward compatibility, [iframe] support has been removed in version 2020.12
 				$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1">$1</a>', $text);
 
-				// Youtube extensions
-				$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
-				$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/embed\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
-				$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/shorts\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
-				$text = preg_replace("/\[youtube\]https?:\/\/youtu.be\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
+				$text = self::normalizeVideoLinks($text);
 
+				// Youtube extensions
 				if ($try_oembed) {
 					$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="' . $a->getThemeInfoValue('videowidth') . '" height="' . $a->getThemeInfoValue('videoheight') . '" src="https://www.youtube.com/embed/$1" frameborder="0" ></iframe>', $text);
 				} else {
@@ -1671,9 +1702,7 @@ class BBCode
 					);
 				}
 
-				$text = preg_replace("/\[vimeo\]https?:\/\/player.vimeo.com\/video\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $text);
-				$text = preg_replace("/\[vimeo\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $text);
-
+				// Vimeo extensions
 				if ($try_oembed) {
 					$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->getThemeInfoValue('videowidth') . '" height="' . $a->getThemeInfoValue('videoheight') . '" src="https://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $text);
 				} else {
