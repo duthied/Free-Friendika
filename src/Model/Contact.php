@@ -799,7 +799,7 @@ class Contact
 			return false;
 		}
 
-		$fields = ['uid', 'nickname', 'page-flags', 'account-type', 'prvkey', 'pubkey'];
+		$fields = ['uid', 'username', 'nickname', 'page-flags', 'account-type', 'prvkey', 'pubkey'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $uid, 'account_expired' => false]);
 		if (!DBA::isResult($user)) {
 			return false;
@@ -818,7 +818,7 @@ class Contact
 		$url = DI::baseUrl() . '/profile/' . $user['nickname'];
 
 		$fields = [
-			'name'         => $profile['name'],
+			'name'         => $user['username'],
 			'nick'         => $user['nickname'],
 			'avatar-date'  => $self['avatar-date'],
 			'location'     => Profile::formatLocation($profile),
@@ -840,7 +840,6 @@ class Contact
 			'poll'         => DI::baseUrl() . '/dfrn_poll/' . $user['nickname'],
 			'confirm'      => DI::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
 		];
-
 
 		$avatar = Photo::selectFirst(['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
 		if (DBA::isResult($avatar)) {

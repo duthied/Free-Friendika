@@ -52,6 +52,7 @@ use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
+use Friendica\Util\Strings;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Log\LoggerInterface;
 
@@ -296,8 +297,8 @@ class Ping extends BaseModule
 		$data['notifications'] = $navNotifications;
 
 		$data['sysmsgs'] = [
-			'notice' => $this->systemMessages->flushNotices(),
-			'info'   => $this->systemMessages->flushInfos(),
+			'notice' => array_map([Strings::class, 'escapeHtml'], $this->systemMessages->flushNotices()),
+			'info'   => array_map([Strings::class, 'escapeHtml'], $this->systemMessages->flushInfos()),
 		];
 
 		if (isset($_GET['callback'])) {
