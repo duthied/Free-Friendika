@@ -1,4 +1,8 @@
 <div id="item-{{$item.guid}}" class="item-{{$item.id}}">
+	<span class="commented" style="display: none;">{{$item.commented}}</span>
+	<span class="received" style="display: none;">{{$item.received}}</span>
+	<span class="created" style="display: none;">{{$item.created_date}}</span>
+	<span class="uriid" style="display: none;">{{$item.uriid}}</span>
 	<div class="wall-item-container panel-body{{$item.indent}} {{$item.shiny}} {{$item.previewing}}">
 		<div class="media">
 			{{* Put additional actions in a top-right dropdown menu *}}
