@@ -1658,7 +1658,7 @@ class Processor
 		$tags = Receiver::processTags(JsonLD::fetchElementArray($activity['as:object'], 'as:tag') ?? []);
 		if (!empty($tags)) {
 			foreach ($tags as $tag) {
-				if ($tag['type'] != 'Hashtag') {
+				if (($tag['type'] != 'Hashtag') && !strpos($tag['type'], ':Hashtag')) {
 					continue;
 				}
 				$messageTags[] = ltrim(mb_strtolower($tag['name']), '#');
