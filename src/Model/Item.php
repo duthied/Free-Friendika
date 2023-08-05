@@ -21,6 +21,7 @@
 
 namespace Friendica\Model;
 
+use Friendica\Contact\LocalRelationship\Entity\LocalRelationship;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -2333,16 +2334,15 @@ class Item
 			return;
 		}
 
-		$cdata = Contact::getPublicAndUserContactID($item['author-id'], $item['uid']);
-		if (empty($cdata['user']) || ($cdata['user'] != $item['contact-id'])) {
-			return;
-		}
-
-		if (!DBA::exists('contact', ['id' => $cdata['user'], 'remote_self' => Contact::MIRROR_NATIVE_RESHARE])) {
+		if (!DBA::exists('contact', ['id' => $cdata['user'], 'remote_self' => LocalRelationship::MIRROR_NATIVE_RESHARE])) {
 			return;
 		}
 
 		if (!in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+			return;
+		}
+
+		if (User::getById($item['uid'], ['blocked'])['blocked'] ?? false) {
 			return;
 		}
 
@@ -2353,7 +2353,7 @@ class Item
 
 	public static function isRemoteSelf(array $contact, array &$datarray): bool
 	{
-		if ($contact['remote_self'] != Contact::MIRROR_OWN_POST) {
+		if ($contact['remote_self'] != LocalRelationship::MIRROR_OWN_POST) {
 			return false;
 		}
 
@@ -2377,6 +2377,11 @@ class Item
 
 		if (($contact['network'] != Protocol::FEED) && ($datarray['private'] == self::PRIVATE)) {
 			Logger::info('Not public');
+			return false;
+		}
+
+		if (User::getById($contact['uid'], ['blocked'])['blocked'] ?? false) {
+			Logger::info('User is blocked', ['contact' => $contact]);
 			return false;
 		}
 
@@ -3222,7 +3227,7 @@ class Item
 			$shared_html = substr($s, $pos + strlen(BBCode::SHARED_ANCHOR));
 			$s = substr($s, 0, $pos);
 		}
-	
+
 		$s = self::addGallery($s, $attachments, $item['uri-id']);
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
 		$s = self::addLinkAttachment($item['uri-id'], $attachments, $body, $s, false, $shared_links);
@@ -3628,9 +3633,9 @@ class Item
 			}
 
 			$author = [
-				'uid'     => 0, 
+				'uid'     => 0,
 				'id'      => $item['author-id'],
-				'network' => $item['author-network'], 
+				'network' => $item['author-network'],
 				'url'     => $item['author-link'],
 				'alias'   => $item['author-alias']
 			];
@@ -3721,9 +3726,9 @@ class Item
 
 			if (!empty($plink) && ($item['private'] == self::PRIVATE)) {
 				$author = [
-					'uid'     => 0, 
+					'uid'     => 0,
 					'id'      => $item['author-id'],
-					'network' => $item['author-network'], 
+					'network' => $item['author-network'],
 					'url'     => $item['author-link'],
 					'alias'   => $item['author-alias'],
 				];

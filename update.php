@@ -1333,3 +1333,19 @@ function update_1520(): int
 
 	return Update::SUCCESS;
 }
+
+/**
+ * user-contact.remote_self was wrongly declared as boolean, possibly truncating integer values from contact.remote_self
+ *
+ * @return int
+ * @throws Exception
+ */
+function update_1524(): int
+{
+	$contacts = DBA::select('contact', ['uid', 'uri-id', 'remote_self'], ["`uid` != ?", 0]);
+	while ($contact = DBA::fetch($contacts)) {
+		Contact\User::insertForContactArray($contact);
+	}
+
+	return Update::SUCCESS;
+}
