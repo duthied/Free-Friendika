@@ -109,8 +109,9 @@ class Nodeinfo
 			'outbound' => [],
 		];
 
-		if (Addon::isEnabled('blogger')) {
-			$services['outbound'][] = 'blogger';
+		if (Addon::isEnabled('bluesky')) {
+			$services['inbound'][] = 'bluesky';
+			$services['outbound'][] = 'bluesky';
 		}
 		if (Addon::isEnabled('dwpost')) {
 			$services['outbound'][] = 'dreamwidth';
@@ -125,17 +126,8 @@ class Nodeinfo
 		if (Addon::isEnabled('libertree')) {
 			$services['outbound'][] = 'libertree';
 		}
-		if (Addon::isEnabled('buffer')) {
-			$services['outbound'][] = 'linkedin';
-		}
 		if (Addon::isEnabled('ljpost')) {
 			$services['outbound'][] = 'livejournal';
-		}
-		if (Addon::isEnabled('buffer')) {
-			$services['outbound'][] = 'pinterest';
-		}
-		if (Addon::isEnabled('posterous')) {
-			$services['outbound'][] = 'posterous';
 		}
 		if (Addon::isEnabled('pumpio')) {
 			$services['inbound'][] = 'pumpio';
@@ -147,7 +139,7 @@ class Nodeinfo
 		if (Addon::isEnabled('tumblr')) {
 			$services['outbound'][] = 'tumblr';
 		}
-		if (Addon::isEnabled('twitter') || Addon::isEnabled('buffer')) {
+		if (Addon::isEnabled('twitter')) {
 			$services['outbound'][] = 'twitter';
 		}
 		if (Addon::isEnabled('wppost')) {

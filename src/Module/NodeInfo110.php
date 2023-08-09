@@ -88,10 +88,6 @@ class NodeInfo110 extends BaseModule
 
 		$nodeinfo['metadata']['services'] = $nodeinfo['services'];
 
-		if (Addon::isEnabled('twitter')) {
-			$nodeinfo['metadata']['services']['inbound'][] = 'twitter';
-		}
-
 		$nodeinfo['metadata']['explicitContent'] = $this->config->get('system', 'explicit_content', false) == true;
 
 		$this->response->setType(ICanCreateResponses::TYPE_JSON);
