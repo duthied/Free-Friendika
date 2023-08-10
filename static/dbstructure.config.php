@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1524);
+	define('DB_UPDATE_VERSION', 1525);
 }
 
 return [
@@ -1583,7 +1583,7 @@ return [
 			"profile-name" => ["type" => "varchar(255)", "comment" => "Deprecated"],
 			"is-default" => ["type" => "boolean", "comment" => "Deprecated"],
 			"hide-friends" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Hide friend list from viewers of this profile"],
-			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Unused in favor of user.username"],
 			"pdesc" => ["type" => "varchar(255)", "comment" => "Deprecated"],
 			"dob" => ["type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00", "comment" => "Day of birth"],
 			"address" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1524
+-- DB_UPDATE_VERSION 1525
 -- ------------------------------------------
 
 
@@ -1586,7 +1586,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`profile-name` varchar(255) COMMENT 'Deprecated',
 	`is-default` boolean COMMENT 'Deprecated',
 	`hide-friends` boolean NOT NULL DEFAULT '0' COMMENT 'Hide friend list from viewers of this profile',
-	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Unused in favor of user.username',
 	`pdesc` varchar(255) COMMENT 'Deprecated',
 	`dob` varchar(32) NOT NULL DEFAULT '0000-00-00' COMMENT 'Day of birth',
 	`address` varchar(255) NOT NULL DEFAULT '' COMMENT '',
