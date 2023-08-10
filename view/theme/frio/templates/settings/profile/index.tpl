@@ -60,7 +60,7 @@
 				{{* for the $detailed_profile we use bootstraps collapsable panel-groups to have expandable groups *}}
 				<div id="personal-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="personal">
 					<div class="panel-body">
-						{{include file="field_input.tpl" field=$name}}
+						{{include file="field_input.tpl" field=$username}}
 
 						{{include file="field_textarea.tpl" field=$about}}
 

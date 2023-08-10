@@ -48,7 +48,7 @@
 			<h2><a class="section-caption js-section-toggler" href="javascript:;">{{$l10n.personal_section}} &raquo;</a></h2>
 			<div class="js-section toggle-section-content hidden">
 
-                {{include file="field_input.tpl" field=$name}}
+                {{include file="field_input.tpl" field=$username}}
 
                 {{include file="field_textarea.tpl" field=$about}}
 

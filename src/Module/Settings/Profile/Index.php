@@ -111,8 +111,8 @@ class Index extends BaseSettings
 			}
 		}
 
-		$name = trim($request['name'] ?? '');
-		if (!$name) {
+		$username = trim($request['username'] ?? '');
+		if (!$username) {
 			$this->systemMessages->addNotice($this->t('Display Name is required.'));
 			return;
 		}
@@ -141,9 +141,10 @@ class Index extends BaseSettings
 
 		$this->profileFieldRepo->saveCollectionForUser($this->session->getLocalUserId(), $profileFieldsNew);
 
+		User::update(['username' => $username], $this->session->getLocalUserId());
+
 		$result = Profile::update(
 			[
-				'name'         => $name,
 				'about'        => $about,
 				'dob'          => $dob,
 				'address'      => $address,
@@ -279,7 +280,7 @@ class Index extends BaseSettings
 			'$profpiclink' => '/profile/' . $owner['nickname'] . '/photos',
 
 			'$nickname'      => $owner['nickname'],
-			'$name'          => ['name', $this->t('Display name:'), $owner['name']],
+			'$username'      => ['username', $this->t('Display name:'), $owner['name']],
 			'$about'         => ['about', $this->t('Description:'), $owner['about']],
 			'$dob'           => Temporal::getDateofBirthField($owner['dob'], $owner['timezone']),
 			'$address'       => ['address', $this->t('Street Address:'), $owner['address']],

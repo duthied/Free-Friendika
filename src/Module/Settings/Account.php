@@ -573,7 +573,7 @@ class Account extends BaseSettings
 			'$delete_openid' => ['delete_openid', DI::l10n()->t('Delete OpenID URL'), false, ''],
 
 			'$h_basic'          => DI::l10n()->t('Basic Settings'),
-			'$username'         => ['username', DI::l10n()->t('Full Name:'), $username, '', false, 'autocomplete="off"'],
+			'$username'         => ['username', DI::l10n()->t('Display name:'), $username, '', false, 'autocomplete="off"'],
 			'$email'            => ['email', DI::l10n()->t('Email Address:'), $email, '', '', 'autocomplete="off"', 'email'],
 			'$timezone'         => ['timezone_select', DI::l10n()->t('Your Timezone:'), Temporal::getTimezoneSelect($timezone), ''],
 			'$language'         => ['language', DI::l10n()->t('Your Language:'), $language, DI::l10n()->t('Set the language we use to show you friendica interface and to send you emails'), $lang_choices],
