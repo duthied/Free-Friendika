@@ -990,6 +990,35 @@ class Photo
 	}
 
 	/**
+	 * Resize to a given maximum file size
+	 *
+	 * @param Image $image
+	 * @param integer $maximagesize
+	 * @return Image
+	 */
+	public static function resizeToFileSize(Image $image, int $maximagesize): Image
+	{
+		$filesize = strlen($image->asString());
+		$width    = $image->getWidth();
+		$height   = $image->getHeight();
+	
+		if ($maximagesize && ($filesize > $maximagesize)) {
+			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
+			foreach ([5120, 2560, 1280, 640, 320] as $pixels) {
+				if (($filesize > $maximagesize) && (max($width, $height) > $pixels)) {
+					Logger::info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
+					$image->scaleDown($pixels);
+					$filesize = strlen($image->asString());
+					$width = $image->getWidth();
+					$height = $image->getHeight();
+				}
+			}
+		}
+	
+		return $image;	
+	}
+
+	/**
 	 * Tries to resize image to wanted maximum size
 	 *
 	 * @param Image $image Image instance
@@ -1002,31 +1031,8 @@ class Photo
 			$image->scaleDown($max_length);
 			Logger::info('File upload: Scaling picture to new size', ['max-length' => $max_length]);
 		}
-
-		$filesize = strlen($image->asString());
-		$width    = $image->getWidth();
-		$height   = $image->getHeight();
-
-		$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
-
-		if ($maximagesize && ($filesize > $maximagesize)) {
-			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
-			foreach ([5120, 2560, 1280, 640] as $pixels) {
-				if (($filesize > $maximagesize) && (max($width, $height) > $pixels)) {
-					Logger::info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
-					$image->scaleDown($pixels);
-					$filesize = strlen($image->asString());
-					$width = $image->getWidth();
-					$height = $image->getHeight();
-				}
-			}
-			if ($filesize > $maximagesize) {
-				Logger::notice('Image size is too big', ['size' => $filesize, 'max' => $maximagesize]);
-				return null;
-			}
-		}
-
-		return $image;
+		
+		return self::resizeToFileSize($image, Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')));
 	}
 
 	/**
@@ -1237,32 +1243,7 @@ class Photo
 	 */
 	public static function storeWithPreview(Image $image, int $uid, string $resource_id, string $filename, int $filesize, string $album, string $description, string $allow_cid, string $allow_gid, string $deny_cid, string $deny_gid): int
 	{
-		if ($filesize == 0) {
-			$filesize = strlen($image->asString());
-		}
-
-		$width  = $image->getWidth();
-		$height = $image->getHeight();
-
-		$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
-
-		if ($maximagesize && $filesize > $maximagesize) {
-			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
-			foreach ([5120, 2560, 1280, 640, 320] as $pixels) {
-				if ($filesize > $maximagesize && max($width, $height) > $pixels) {
-					DI::logger()->info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
-					$image->scaleDown($pixels);
-					$filesize = strlen($image->asString());
-					$width    = $image->getWidth();
-					$height   = $image->getHeight();
-				}
-			}
-
-			if ($filesize > $maximagesize) {
-				DI::logger()->notice('Image size is too big', ['size' => $filesize, 'max' => $maximagesize]);
-				return -1;
-			}
-		}
+		$image = self::resizeToFileSize($image, Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')));
 
 		$width   = $image->getWidth();
 		$height  = $image->getHeight();
