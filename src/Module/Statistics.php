@@ -59,7 +59,7 @@ class Statistics extends BaseModule
 		/// @todo mark the "service" addons and load them dynamically here
 		$services = [
 			'appnet'      => Addon::isEnabled('appnet'),
-			'buffer'      => Addon::isEnabled('buffer'),
+			'bluesky'     => Addon::isEnabled('bluesky'),
 			'dreamwidth'  => Addon::isEnabled('dreamwidth'),
 			'gnusocial'   => Addon::isEnabled('gnusocial'),
 			'libertree'   => Addon::isEnabled('libertree'),

@@ -266,6 +266,7 @@ function item_process(array $post, array $request, bool $preview, string $return
 		$post['uri-id']         = -1;
 		$post['author-network'] = Protocol::DFRN;
 		$post['author-updated'] = '';
+		$post['author-alias']   = '';
 		$post['author-gsid']    = 0;
 		$post['author-uri-id']  = ItemURI::getIdByURI($post['author-link']);
 		$post['owner-updated']  = '';
