@@ -45,6 +45,11 @@ class RobotsTxt extends BaseModule
 		foreach ($allDisallowed as $disallowed) {
 			echo 'Disallow: ' . $disallowed . PHP_EOL;
 		}
+
+		echo PHP_EOL;
+		echo 'User-agent: ChatGPT-User' . PHP_EOL;
+		echo 'Disallow: /' . PHP_EOL;
+
 		System::exit();
 	}
 }
