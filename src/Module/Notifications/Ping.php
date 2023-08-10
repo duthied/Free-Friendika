@@ -175,7 +175,7 @@ class Ping extends BaseModule
 			$myurl      = $this->session->getMyUrl();
 			$mail_count = $this->database->count('mail', ["`uid` = ? AND NOT `seen` AND `from-url` != ?", $this->session->getLocalUserId(), $myurl]);
 
-			if (intval($this->config->get('config', 'register_policy')) === Register::APPROVE && $this->app->isSiteAdmin()) {
+			if (intval($this->config->get('config', 'register_policy')) === Register::APPROVE && $this->session->isSiteAdmin()) {
 				$registrations = \Friendica\Model\Register::getPending();
 				$register_count = count($registrations);
 			}

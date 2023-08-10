@@ -881,6 +881,20 @@ class User
 	}
 
 	/**
+	 * Returns if the given uid is valid and a moderator
+	 *
+	 * @param int $uid
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public static function isModerator(int $uid): bool
+	{
+		// @todo Replace with a moderator check in the future
+		return self::isSiteAdmin($uid);
+	}
+
+	/**
 	 * Checks if a nickname is in the list of the forbidden nicknames
 	 *
 	 * Check if a nickname is forbidden from registration on the node by the
