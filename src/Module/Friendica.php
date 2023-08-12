@@ -94,8 +94,7 @@ class Friendica extends BaseModule
 
 		$blockList = $this->config->get('system', 'blocklist') ?? [];
 
-		$register_policy_int = $this->config->get('config', 'register_policy');
-		if (!empty($blockList) && ($register_policy_int !== Register::CLOSED || $this->session->isAuthenticated())) {
+		if (!empty($blockList) && ($this->config->get('blocklist', 'public') || $this->session->isAuthenticated())) {
 			$blocked = [
 				'title'    => $this->t('On this server the following remote servers are blocked.'),
 				'header'   => [
