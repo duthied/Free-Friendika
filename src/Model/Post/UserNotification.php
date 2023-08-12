@@ -133,14 +133,14 @@ class UserNotification
 	public static function setNotification(int $uri_id, int $uid)
 	{
 		$fields = ['id', 'uri-id', 'parent-uri-id', 'uid', 'body', 'parent', 'gravity', 'vid', 'gravity',
-			'contact-id', 'author-id', 'owner-id', 'causer-id',
+			'contact-id', 'author-id', 'author-gsid', 'owner-id', 'owner-gsid', 'causer-id', 'causer-gsid',
 			'private', 'thr-parent', 'thr-parent-id', 'parent-uri-id', 'parent-uri', 'verb'];
 		$item   = Post::selectFirst($fields, ['uri-id' => $uri_id, 'uid' => $uid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
 		}
 
-		$parent = Post::selectFirstPost(['author-id', 'owner-id', 'causer-id'], ['uri-id' => $item['parent-uri-id']]);
+		$parent = Post::selectFirstPost(['author-id', 'author-gsid', 'owner-id', 'owner-gsid', 'causer-id', 'causer-gsid',], ['uri-id' => $item['parent-uri-id']]);
 		if (!DBA::isResult($parent)) {
 			return;
 		}
@@ -191,6 +191,13 @@ class UserNotification
 			}
 			if (Contact\User::isBlocked($author_id, $uid) || Contact\User::isIgnored($author_id, $uid) || Contact\User::isCollapsed($author_id, $uid)) {
 				Logger::debug('Author is blocked/ignored/collapsed by user', ['uid' => $uid, 'author' => $author_id, 'uri-id' => $item['uri-id']]);
+				return;
+			}
+		}
+
+		foreach (array_unique([$parent['author-gsid'], $parent['owner-gsid'], $parent['causer-gsid'], $item['author-gsid'], $item['owner-gsid'], $item['causer-gsid']]) as $gsid) {
+			if ($gsid && DI::userGServer()->isIgnoredByUser($uid, $gsid)) {
+				Logger::debug('Server is ignored by user', ['uid' => $uid, 'gsid' => $gsid, 'uri-id' => $item['uri-id']]);
 				return;
 			}
 		}

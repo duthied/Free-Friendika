@@ -672,6 +672,15 @@ abstract class DI
 	}
 
 	//
+	// "User" namespace instances
+	//
+
+	public static function userGServer(): User\Settings\Repository\UserGServer
+	{
+		return self::$dice->create(User\Settings\Repository\UserGServer::class);
+	}
+
+	//
 	// "Util" namespace instances
 	//
 

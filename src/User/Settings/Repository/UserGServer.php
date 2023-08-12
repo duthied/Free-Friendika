@@ -102,6 +102,11 @@ class UserGServer extends \Friendica\BaseRepository
 		return $this->count(['uid' => $uid]);
 	}
 
+	public function isIgnoredByUser(int $uid, int $gsid): bool
+	{
+		return $this->exists(['uid' => $uid, 'gsid' => $gsid, 'ignored' => 1]);
+	}
+
 	/**
 	 * @param Entity\UserGServer $userGServer
 	 * @return bool
@@ -132,15 +137,20 @@ class UserGServer extends \Friendica\BaseRepository
 	 * @return Collection\UserGServers
 	 * @throws Exception
 	 */
-	protected function _select(array $condition, array $params = []): BaseCollection
+	protected function _select(array $condition, array $params = [], bool $hydrate = true): BaseCollection
 	{
 		$rows = $this->db->selectToArray(static::$table_name, [], $condition, $params);
 
 		$Entities = new Collection\UserGServers();
 		foreach ($rows as $fields) {
-			$Entities[] = $this->factory->createFromTableRow($fields, $this->gserverRepository->selectOneById($fields['gsid']));
+			$Entities[] = $this->factory->createFromTableRow($fields, $hydrate ? $this->gserverRepository->selectOneById($fields['gsid']) : null);
 		}
 
 		return $Entities;
+	}
+
+	public function listIgnoredByUser(int $uid): Collection\UserGServers
+	{
+		return $this->_select(['uid' => $uid, 'ignored' => 1], [], false);
 	}
 }

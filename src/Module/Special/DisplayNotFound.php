@@ -36,6 +36,7 @@ class DisplayNotFound extends \Friendica\BaseModule
 			$this->t('The top-level post was deleted.'),
 			$this->t('This node has blocked the top-level author or the author of the shared post.'),
 			$this->t('You have ignored or blocked the top-level author or the author of the shared post.'),
+			$this->t("You have ignored the top-level author's server or the shared post author's server."),
 		];
 
 		$tpl = Renderer::getMarkupTemplate('special/displaynotfound.tpl');

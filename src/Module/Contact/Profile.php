@@ -23,8 +23,7 @@ namespace Friendica\Module\Contact;
 
 use Friendica\App;
 use Friendica\BaseModule;
-use Friendica\Contact\LocalRelationship\Entity;
-use Friendica\Contact\LocalRelationship\Repository;
+use Friendica\Contact\LocalRelationship;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\BBCode;
@@ -43,6 +42,7 @@ use Friendica\Module;
 use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
 use Friendica\Network\HTTPException;
+use Friendica\User\Settings;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -64,8 +64,10 @@ class Profile extends BaseModule
 	private $systemMessages;
 	/** @var Database */
 	private $db;
+	/** @var Settings\Repository\UserGServer */
+	private $userGServer;
 
-	public function __construct(Database $db, SystemMessages $systemMessages, IHandleUserSessions $session, L10n $l10n, Repository\LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Page $page, IManageConfigValues $config, array $server, array $parameters = [])
+	public function __construct(Settings\Repository\UserGServer $userGServer, Database $db, SystemMessages $systemMessages, IHandleUserSessions $session, L10n $l10n, LocalRelationship\Repository\LocalRelationship $localRelationship, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, App\Page $page, IManageConfigValues $config, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -75,6 +77,7 @@ class Profile extends BaseModule
 		$this->session           = $session;
 		$this->systemMessages    = $systemMessages;
 		$this->db                = $db;
+		$this->userGServer       = $userGServer;
 	}
 
 	protected function post(array $request = [])
@@ -264,6 +267,11 @@ class Profile extends BaseModule
 
 		$insecure = $this->t('Private communications are not available for this contact.');
 
+		$serverIgnored =
+			$this->userGServer->isIgnoredByUser($this->session->getLocalUserId(), $contact['gsid']) ?
+				$this->t('This contact is on a server you ignored.')
+				: '';
+
 		$last_update = (($contact['last-update'] <= DBA::NULL_DATETIME) ? $this->t('Never') : DateTimeFormat::local($contact['last-update'], 'D, j M Y, g:i A'));
 
 		if ($contact['last-update'] > DBA::NULL_DATETIME) {
@@ -368,6 +376,8 @@ class Profile extends BaseModule
 			'$collapsed'                 => $localRelationship->collapsed ? $this->t('Currently collapsed') : '',
 			'$archived'                  => ($contact['archive'] ? $this->t('Currently archived') : ''),
 			'$insecure'                  => (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA]) ? '' : $insecure),
+			'$serverIgnored'             => $serverIgnored,
+			'$manageServers'             => $this->t('Manage remote servers'),
 			'$cinfo'                     => ['info', '', $localRelationship->info, ''],
 			'$hidden'                    => ['hidden', $this->t('Hide this contact from others'), $localRelationship->hidden, $this->t('Replies/likes to your public posts <strong>may</strong> still be visible')],
 			'$notify_new_posts'          => ['notify_new_posts', $this->t('Notification for new posts'), ($localRelationship->notifyNewPosts), $this->t('Send a notification of every new post of this contact')],
@@ -418,11 +428,11 @@ class Profile extends BaseModule
 	 * This includes actions like e.g. 'block', 'hide', 'delete' and others
 	 *
 	 * @param array                    $contact           Public contact row
-	 * @param Entity\LocalRelationship $localRelationship
+	 * @param LocalRelationship\Entity\LocalRelationship $localRelationship
 	 * @return array with contact related actions
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function getContactActions(array $contact, Entity\LocalRelationship $localRelationship): array
+	private function getContactActions(array $contact, LocalRelationship\Entity\LocalRelationship $localRelationship): array
 	{
 		$poll_enabled    = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
 		$contact_actions = [];
