@@ -137,12 +137,12 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 						';
 				} else {
 					echo '
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="content" style="margin-top:50px;">';
+					<section class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="content" style="margin-top:50px;">';
 						if (!empty($page['content'])) {
 							echo $page['content'];
 						}
 						echo '
-					</div>
+					</section>
 					';
 				}
 ?>
