@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Core\KeyValueStorage\Capabilities;
+namespace Friendica\Core\KeyValueStorage\Capability;
 
 use Friendica\Core\KeyValueStorage\Exceptions\KeyValueStoragePersistenceException;
 

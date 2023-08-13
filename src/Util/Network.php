@@ -640,10 +640,11 @@ class Network
 	 * @param string $url
 	 *
 	 * @return bool
+	 * @deprecated since 2023.09, please use BaseUrl->isLocalUrl or BaseUrl->isLocalUri instead.
 	 */
 	public static function isLocalLink(string $url): bool
 	{
-		return (strpos(Strings::normaliseLink($url), Strings::normaliseLink(DI::baseUrl())) !== false);
+		return DI::baseUrl()->isLocalUrl($url);
 	}
 
 	/**

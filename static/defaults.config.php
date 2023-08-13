@@ -543,11 +543,11 @@ return [
 		'pushpoll_frequency' => 3,
 
 		// redis_host (String)
-		// Host name of the redis daemon.
+		// Host name or the path to the Unix domain socket of the Redis daemon.
 		'redis_host' => '127.0.0.1',
 
-		// redis_port (String)
-		// Port number of the redis daemon.
+		// redis_port (Integer)
+		// Port number of the Redis daemon, should be -1 for unix domain socket
 		'redis_port' => 6379,
 
 		// redis_db (Integer)
@@ -785,5 +785,10 @@ return [
 		// mastodon_banner (String)
 		// Banner for Mastodon API
 		'mastodon_banner' => '/images/friendica-banner.jpg',
+	],
+	'blocklist' => [
+		// public (Boolean)
+		// Wether the blocklist is publicly listed under /about (or in any later API)
+		'public' => true,
 	],
 ];

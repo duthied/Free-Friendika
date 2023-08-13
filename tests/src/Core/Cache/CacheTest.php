@@ -23,6 +23,7 @@ namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Capability\ICanCacheInMemory;
+use Friendica\Core\Cache\Type\AbstractCache;
 use Friendica\Test\MockedTest;
 use Friendica\Util\PidFile;
 
@@ -245,5 +246,14 @@ abstract class CacheTest extends MockedTest
 	{
 		self::assertTrue($this->instance->set('key space', 'value'));
 		self::assertEquals('value', $this->instance->get('key space'));
+	}
+
+	public function testGetName()
+	{
+		if (defined(get_class($this->instance) . '::NAME')) {
+			self::assertEquals($this->instance::NAME, $this->instance->getName());
+		} else {
+			self::expectNotToPerformAssertions();
+		}
 	}
 }

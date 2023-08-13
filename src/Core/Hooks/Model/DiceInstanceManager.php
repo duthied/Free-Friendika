@@ -22,8 +22,8 @@
 namespace Friendica\Core\Hooks\Model;
 
 use Dice\Dice;
-use Friendica\Core\Hooks\Capabilities\ICanCreateInstances;
-use Friendica\Core\Hooks\Capabilities\ICanRegisterStrategies;
+use Friendica\Core\Hooks\Capability\ICanCreateInstances;
+use Friendica\Core\Hooks\Capability\ICanRegisterStrategies;
 use Friendica\Core\Hooks\Exceptions\HookInstanceException;
 use Friendica\Core\Hooks\Exceptions\HookRegisterArgumentException;
 use Friendica\Core\Hooks\Util\StrategiesFileManager;
@@ -49,11 +49,11 @@ class DiceInstanceManager implements ICanCreateInstances, ICanRegisterStrategies
 	/** {@inheritDoc} */
 	public function registerStrategy(string $interface, string $class, ?string $name = null): ICanRegisterStrategies
 	{
-		if (!empty($this->instance[$interface][$name])) {
+		if (!empty($this->instance[$interface][strtolower($name)])) {
 			throw new HookRegisterArgumentException(sprintf('A class with the name %s is already set for the interface %s', $name, $interface));
 		}
 
-		$this->instance[$interface][$name] = $class;
+		$this->instance[$interface][strtolower($name)] = $class;
 
 		return $this;
 	}
@@ -61,10 +61,10 @@ class DiceInstanceManager implements ICanCreateInstances, ICanRegisterStrategies
 	/** {@inheritDoc} */
 	public function create(string $class, string $strategy, array $arguments = []): object
 	{
-		if (empty($this->instance[$class][$strategy])) {
+		if (empty($this->instance[$class][strtolower($strategy)])) {
 			throw new HookInstanceException(sprintf('The class with the name %s isn\'t registered for the class or interface %s', $strategy, $class));
 		}
 
-		return $this->dice->create($this->instance[$class][$strategy], $arguments);
+		return $this->dice->create($this->instance[$class][strtolower($strategy)], $arguments);
 	}
 }

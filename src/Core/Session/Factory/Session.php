@@ -22,8 +22,8 @@
 namespace Friendica\Core\Session\Factory;
 
 use Friendica\App;
-use Friendica\Core\Cache\Enum;
 use Friendica\Core\Cache\Factory\Cache;
+use Friendica\Core\Cache\Type\DatabaseCache;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Session\Capability\IHandleSessions;
 use Friendica\Core\Session\Type;
@@ -74,7 +74,7 @@ class Session
 						$cache = $cacheFactory->createDistributed();
 
 						// In case we're using the db as cache driver, use the native db session, not the cache
-						if ($config->get('system', 'cache_driver') === Enum\Type::DATABASE) {
+						if ($config->get('system', 'cache_driver') === DatabaseCache::NAME) {
 							$handler = new Handler\Database($dba, $logger, $server);
 						} else {
 							$handler = new Handler\Cache($cache, $logger);

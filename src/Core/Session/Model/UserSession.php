@@ -140,6 +140,12 @@ class UserSession implements IHandleUserSessions
 	}
 
 	/** {@inheritDoc} */
+	public function isModerator(): bool
+	{
+		return User::isModerator($this->getLocalUserId());
+	}
+
+	/** {@inheritDoc} */
 	public function setVisitorsContacts(string $my_url)
 	{
 		$this->session->set('remote', Contact::getVisitorByUrl($my_url));

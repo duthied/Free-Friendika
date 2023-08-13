@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Core\Hooks\Capabilities;
+namespace Friendica\Core\Hooks\Capability;
 
 /**
  * creates special instances for given classes

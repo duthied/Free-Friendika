@@ -23,6 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\Contact\Avatar;
 use Friendica\Contact\Introduction\Exception\IntroductionNotFoundException;
+use Friendica\Contact\LocalRelationship\Entity\LocalRelationship;
 use Friendica\Content\Conversation as ConversationContent;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
@@ -111,10 +112,14 @@ class Contact
 	 * @}
 	 */
 
-	const MIRROR_DEACTIVATED = 0;
-	const MIRROR_FORWARDED = 1; // Deprecated, now does the same like MIRROR_OWN_POST
-	const MIRROR_OWN_POST = 2;
-	const MIRROR_NATIVE_RESHARE = 3;
+	/** @deprecated Use Entity\LocalRelationship::MIRROR_DEACTIVATED instead */
+	const MIRROR_DEACTIVATED = LocalRelationship::MIRROR_DEACTIVATED;
+	/** @deprecated Now does the same as MIRROR_OWN_POST */
+	const MIRROR_FORWARDED = 1;
+	/** @deprecated Use Entity\LocalRelationship::MIRROR_OWN_POST instead */
+	const MIRROR_OWN_POST = LocalRelationship::MIRROR_OWN_POST;
+	/** @deprecated Use Entity\LocalRelationship::MIRROR_NATIVE_RESHARE instead */
+	const MIRROR_NATIVE_RESHARE = LocalRelationship::MIRROR_NATIVE_RESHARE;
 
 	/**
 	 * @param array $fields    Array of selected fields, empty for all
@@ -799,7 +804,7 @@ class Contact
 			return false;
 		}
 
-		$fields = ['uid', 'nickname', 'page-flags', 'account-type', 'prvkey', 'pubkey'];
+		$fields = ['uid', 'username', 'nickname', 'page-flags', 'account-type', 'prvkey', 'pubkey'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $uid, 'account_expired' => false]);
 		if (!DBA::isResult($user)) {
 			return false;
@@ -818,7 +823,7 @@ class Contact
 		$url = DI::baseUrl() . '/profile/' . $user['nickname'];
 
 		$fields = [
-			'name'         => $profile['name'],
+			'name'         => $user['username'],
 			'nick'         => $user['nickname'],
 			'avatar-date'  => $self['avatar-date'],
 			'location'     => Profile::formatLocation($profile),
@@ -840,7 +845,6 @@ class Contact
 			'poll'         => DI::baseUrl() . '/dfrn_poll/' . $user['nickname'],
 			'confirm'      => DI::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
 		];
-
 
 		$avatar = Photo::selectFirst(['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
 		if (DBA::isResult($avatar)) {

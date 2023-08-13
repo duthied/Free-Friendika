@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1523);
+	define('DB_UPDATE_VERSION', 1524);
 }
 
 return [
@@ -1826,8 +1826,8 @@ return [
 			"rel" => ["type" => "tinyint unsigned", "comment" => "The kind of the relation between the user and the contact"],
 			"info" => ["type" => "mediumtext", "comment" => ""],
 			"notify_new_posts" => ["type" => "boolean", "comment" => ""],
-			"remote_self" => ["type" => "boolean", "comment" => ""],
-			"fetch_further_information" => ["type" => "tinyint unsigned", "comment" => ""],
+			"remote_self" => ["type" => "tinyint unsigned", "comment" => "0 => No mirroring, 1-2 => Mirror as own post, 3 => Mirror as reshare"],
+			"fetch_further_information" => ["type" => "tinyint unsigned", "comment" => "0 => None, 1 => Fetch information, 3 => Fetch keywords, 2 => Fetch both"],
 			"ffi_keyword_denylist" => ["type" => "text", "comment" => ""],
 			"subhub" => ["type" => "boolean", "comment" => ""],
 			"hub-verify" => ["type" => "varbinary(383)", "comment" => ""],

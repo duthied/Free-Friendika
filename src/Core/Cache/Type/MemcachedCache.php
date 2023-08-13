@@ -23,7 +23,6 @@ namespace Friendica\Core\Cache\Type;
 
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Cache\Capability\ICanCacheInMemory;
-use Friendica\Core\Cache\Enum\Type;
 use Friendica\Core\Cache\Exception\CachePersistenceException;
 use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
 use Friendica\Core\Config\Capability\IManageConfigValues;
@@ -35,6 +34,8 @@ use Psr\Log\LoggerInterface;
  */
 class MemcachedCache extends AbstractCache implements ICanCacheInMemory
 {
+	const NAME = 'memcached';
+
 	use CompareSetTrait;
 	use CompareDeleteTrait;
 	use MemcacheCommandTrait;
@@ -184,13 +185,5 @@ class MemcachedCache extends AbstractCache implements ICanCacheInMemory
 	{
 		$cacheKey = $this->getCacheKey($key);
 		return $this->memcached->add($cacheKey, $value, $ttl);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getName(): string
-	{
-		return Type::MEMCACHED;
 	}
 }

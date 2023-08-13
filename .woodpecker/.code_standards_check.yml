@@ -1,4 +1,4 @@
-pipeline:
+steps:
   restore_cache:
     image: meltwater/drone-cache:dev
     settings:

@@ -52,6 +52,7 @@ use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
+use Friendica\Util\Strings;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Log\LoggerInterface;
 
@@ -174,7 +175,7 @@ class Ping extends BaseModule
 			$myurl      = $this->session->getMyUrl();
 			$mail_count = $this->database->count('mail', ["`uid` = ? AND NOT `seen` AND `from-url` != ?", $this->session->getLocalUserId(), $myurl]);
 
-			if (intval($this->config->get('config', 'register_policy')) === Register::APPROVE && $this->app->isSiteAdmin()) {
+			if (intval($this->config->get('config', 'register_policy')) === Register::APPROVE && $this->session->isSiteAdmin()) {
 				$registrations = \Friendica\Model\Register::getPending();
 				$register_count = count($registrations);
 			}
@@ -296,8 +297,8 @@ class Ping extends BaseModule
 		$data['notifications'] = $navNotifications;
 
 		$data['sysmsgs'] = [
-			'notice' => $this->systemMessages->flushNotices(),
-			'info'   => $this->systemMessages->flushInfos(),
+			'notice' => array_map([Strings::class, 'escapeHtml'], $this->systemMessages->flushNotices()),
+			'info'   => array_map([Strings::class, 'escapeHtml'], $this->systemMessages->flushInfos()),
 		];
 
 		if (isset($_GET['callback'])) {

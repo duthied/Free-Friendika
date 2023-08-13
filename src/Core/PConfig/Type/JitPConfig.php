@@ -33,6 +33,8 @@ use Friendica\Core\PConfig\ValueObject;
  */
 class JitPConfig extends AbstractPConfigValues
 {
+	const NAME = 'jit';
+
 	/**
 	 * @var array Array of already loaded db values (even if there was no value)
 	 */

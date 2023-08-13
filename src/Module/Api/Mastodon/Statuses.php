@@ -76,16 +76,9 @@ class Statuses extends BaseApi
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $this->parameters['id'] . ' not found for user ' . $uid . '.');
 		}
 
-		// The imput is defined as text. So we can use Markdown for some enhancements
-		$body = Markdown::toBBCode($request['status']);
-
-		if (DI::pConfig()->get($uid, 'system', 'api_auto_attach', false) && preg_match("/\[url=[^\[\]]*\](.*)\[\/url\]\z/ism", $body, $matches)) {
-			$body = preg_replace("/\[url=[^\[\]]*\].*\[\/url\]\z/ism", PageInfo::getFooterFromUrl($matches[1]), $body);
-		}
-
 		$item['title']      = '';
 		$item['uid']        = $post['uid'];
-		$item['body']       = $body;
+		$item['body']       = $this->formatStatus($request['status'], $uid);
 		$item['network']    = $post['network'];
 		$item['gravity']    = $post['gravity'];
 		$item['verb']       = $post['verb'];
@@ -190,13 +183,6 @@ class Statuses extends BaseApi
 
 		$owner = User::getOwnerDataById($uid);
 
-		// The imput is defined as text. So we can use Markdown for some enhancements
-		$body = Markdown::toBBCode($request['status']);
-
-		if (DI::pConfig()->get($uid, 'system', 'api_auto_attach', false) && preg_match("/\[url=[^\[\]]*\](.*)\[\/url\]\z/ism", $body, $matches)) {
-			$body = preg_replace("/\[url=[^\[\]]*\].*\[\/url\]\z/ism", PageInfo::getFooterFromUrl($matches[1]), $body);
-		}
-
 		$item               = [];
 		$item['network']    = Protocol::DFRN;
 		$item['uid']        = $uid;
@@ -204,7 +190,7 @@ class Statuses extends BaseApi
 		$item['contact-id'] = $owner['id'];
 		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
 		$item['title']      = '';
-		$item['body']       = $body;
+		$item['body']       = $this->formatStatus($request['status'], $uid);
 		$item['app']        = $this->getApp();
 
 		switch ($request['visibility']) {
@@ -414,5 +400,29 @@ class Statuses extends BaseApi
 			$item['attachments'][] = $attachment;
 		}
 		return $item;
+	}
+
+	/**
+	 * Format the status via Markdown and a link description if enabled for this user
+	 *
+	 * @param string $status
+	 * @param integer $uid
+	 * @return string
+	 */
+	private function formatStatus(string $status, int $uid): string
+	{
+		// The input is defined as text. So we can use Markdown for some enhancements
+		$status = Markdown::toBBCode($status);
+
+		if (!DI::pConfig()->get($uid, 'system', 'api_auto_attach', false)) {
+			return $status;
+		}
+
+		$status = BBCode::expandVideoLinks($status);
+		if (preg_match("/\[url=[^\[\]]*\](.*)\[\/url\]\z/ism", $status, $matches)) {
+			$status = preg_replace("/\[url=[^\[\]]*\].*\[\/url\]\z/ism", PageInfo::getFooterFromUrl($matches[1]), $status);
+		}
+		
+		return $status;
 	}
 }

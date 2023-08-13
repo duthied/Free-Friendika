@@ -21,8 +21,8 @@
 
 namespace Friendica\Core\Hooks\Util;
 
-use Friendica\Core\Addon\Capabilities\ICanLoadAddons;
-use Friendica\Core\Hooks\Capabilities\ICanRegisterStrategies;
+use Friendica\Core\Addon\Capability\ICanLoadAddons;
+use Friendica\Core\Hooks\Capability\ICanRegisterStrategies;
 use Friendica\Core\Hooks\Exceptions\HookConfigException;
 
 /**
@@ -30,6 +30,11 @@ use Friendica\Core\Hooks\Exceptions\HookConfigException;
  */
 class StrategiesFileManager
 {
+	/**
+	 * The default hook-file-key of strategies
+	 * -> it's an empty string to cover empty/missing config values
+	 */
+	const STRATEGY_DEFAULT_KEY = '';
 	const STATIC_DIR  = 'static';
 	const CONFIG_NAME = 'strategies';
 

@@ -25,7 +25,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\KeyValueStorage\Capabilities\IManageKeyValuePairs;
+use Friendica\Core\KeyValueStorage\Capability\IManageKeyValuePairs;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Network\HTTPException\NotFoundException;
@@ -38,7 +38,7 @@ class Statistics extends BaseModule
 	protected $config;
 	/** @var IManageKeyValuePairs */
 	protected $keyValue;
-	
+
 	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, IManageConfigValues $config, IManageKeyValuePairs $keyValue, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
@@ -59,7 +59,7 @@ class Statistics extends BaseModule
 		/// @todo mark the "service" addons and load them dynamically here
 		$services = [
 			'appnet'      => Addon::isEnabled('appnet'),
-			'buffer'      => Addon::isEnabled('buffer'),
+			'bluesky'     => Addon::isEnabled('bluesky'),
 			'dreamwidth'  => Addon::isEnabled('dreamwidth'),
 			'gnusocial'   => Addon::isEnabled('gnusocial'),
 			'libertree'   => Addon::isEnabled('libertree'),

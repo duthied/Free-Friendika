@@ -9,11 +9,11 @@ labels:
 
 skip_clone: true
 
-pipeline:
+steps:
   clone:
     image: alpine/git
     commands:
-      - git clone $CI_REPO_LINK .
+      - git clone $CI_REPO_CLONE_URL .
       - git checkout $CI_COMMIT_BRANCH
       - git fetch origin $CI_COMMIT_REF
       - git merge $CI_COMMIT_SHA

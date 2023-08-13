@@ -23,8 +23,8 @@ namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\Model\APContact;
-use Friendica\Model\Contact;
 use Friendica\Protocol\ActivityPub\Transmitter;
+use Friendica\Protocol\Relay as ProtocolRelay;
 
 /**
  * tool to control the list of ActivityPub relay servers from the CLI
@@ -90,13 +90,9 @@ HELP;
 		}
 
 		if ((count($this->args) == 1) && ($this->getArgument(0) == 'list')) {
-			$contacts = $this->dba->select('apcontact', ['url'],
-			["`type` IN (?, ?) AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)",
-				'Application', 'Service', 0, Contact::FRIEND]);
-			while ($contact = $this->dba->fetch($contacts)) {
+			foreach (ProtocolRelay::getList(['url']) as $contact) {
 				$this->out($contact['url']);
 			}
-			$this->dba->close($contacts);
 		} elseif (count($this->args) == 0) {
 			throw new CommandArgsException('too few arguments');
 		} elseif (count($this->args) == 1) {

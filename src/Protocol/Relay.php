@@ -136,16 +136,16 @@ class Relay
 		}
 
 		if (!self::isWantedLanguage($body)) {
-			Logger::info('Unwanted or Undetected language found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer]);
+			Logger::info('Unwanted or Undetected language found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer, 'tags' => $tags]);
 			return false;
 		}
 
 		if ($scope == self::SCOPE_ALL) {
-			Logger::info('Server accept all posts - accepted', ['network' => $network, 'url' => $url, 'causer' => $causer]);
+			Logger::info('Server accept all posts - accepted', ['network' => $network, 'url' => $url, 'causer' => $causer, 'tags' => $tags]);
 			return true;
 		}
 
-		Logger::info('No matching hashtags found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer]);
+		Logger::info('No matching hashtags found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer, 'tags' => $tags]);
 		return false;
 	}
 
@@ -354,7 +354,7 @@ class Relay
 	public static function getList(array $fields = []): array
 	{
 		return DBA::selectToArray('apcontact', $fields,
-			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)", 'Application', 0, Contact::FRIEND]);
+			["`type` IN (?, ?) AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)", 'Application', 'Service', 0, Contact::FRIEND]);
 	}
 
 	/**

@@ -34,6 +34,8 @@ use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
  */
 abstract class AbstractPConfigValues implements IManagePersonalConfigValues
 {
+	const NAME = '';
+
 	/**
 	 * @var Cache
 	 */

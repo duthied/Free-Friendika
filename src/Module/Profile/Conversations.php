@@ -103,10 +103,10 @@ class Conversations extends BaseProfile
 			$this->page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 		}
 
-		$this->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $this->baseUrl . '/dfrn_poll/' . $this->parameters['nickname'] . '" title="DFRN: ' . $this->t('%s\'s timeline', $profile['name']) . '"/>' . "\n";
-		$this->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $this->baseUrl . '/feed/' . $this->parameters['nickname'] . '/" title="' . $this->t('%s\'s posts', $profile['name']) . '"/>' . "\n";
-		$this->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $this->baseUrl . '/feed/' . $this->parameters['nickname'] . '/comments" title="' . $this->t('%s\'s comments', $profile['name']) . '"/>' . "\n";
-		$this->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $this->baseUrl . '/feed/' . $this->parameters['nickname'] . '/activity" title="' . $this->t('%s\'s timeline', $profile['name']) . '"/>' . "\n";
+		$this->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $this->baseUrl . '/dfrn_poll/' . $this->parameters['nickname'] . '" title="DFRN: ' . $this->t('%s\'s timeline', Strings::escapeHtml($profile['name'])) . '"/>' . "\n";
+		$this->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $this->baseUrl . '/feed/' . $this->parameters['nickname'] . '/" title="' . $this->t('%s\'s posts', Strings::escapeHtml($profile['name'])) . '"/>' . "\n";
+		$this->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $this->baseUrl . '/feed/' . $this->parameters['nickname'] . '/comments" title="' . $this->t('%s\'s comments', Strings::escapeHtml($profile['name'])) . '"/>' . "\n";
+		$this->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $this->baseUrl . '/feed/' . $this->parameters['nickname'] . '/activity" title="' . $this->t('%s\'s timeline', Strings::escapeHtml($profile['name'])) . '"/>' . "\n";
 
 		$category = $datequery = $datequery2 = '';
 

@@ -23,10 +23,10 @@ namespace Friendica\Core\Lock\Factory;
 
 use Friendica\Core\Cache\Factory\Cache;
 use Friendica\Core\Cache\Capability\ICanCacheInMemory;
-use Friendica\Core\Cache\Enum;
+use Friendica\Core\Cache\Type as CacheType;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Lock\Capability\ICanLock;
-use Friendica\Core\Lock\Type;
+use Friendica\Core\Lock\Type as LockType;
 use Friendica\Database\Database;
 use Psr\Log\LoggerInterface;
 
@@ -78,20 +78,20 @@ class Lock
 
 		try {
 			switch ($lock_type) {
-				case Enum\Type::MEMCACHE:
-				case Enum\Type::MEMCACHED:
-				case Enum\Type::REDIS:
-				case Enum\Type::APCU:
+				case CacheType\MemcacheCache::NAME:
+				case CacheType\MemcachedCache::NAME:
+				case CacheType\RedisCache::NAME:
+				case CacheType\APCuCache::NAME:
 					$cache = $this->cacheFactory->createLocal($lock_type);
 					if ($cache instanceof ICanCacheInMemory) {
-						return new Type\CacheLock($cache);
+						return new LockType\CacheLock($cache);
 					} else {
 						throw new \Exception(sprintf('Incompatible cache driver \'%s\' for lock used', $lock_type));
 					}
 				case 'database':
-					return new Type\DatabaseLock($this->dba);
+					return new LockType\DatabaseLock($this->dba);
 				case 'semaphore':
-					return new Type\SemaphoreLock();
+					return new LockType\SemaphoreLock();
 				default:
 					return self::useAutoDriver();
 			}
@@ -116,7 +116,7 @@ class Lock
 		// 1. Try to use Semaphores for - local - locking
 		if (function_exists('sem_get')) {
 			try {
-				return new Type\SemaphoreLock();
+				return new LockType\SemaphoreLock();
 			} catch (\Exception $exception) {
 				$this->logger->warning('Using Semaphore driver for locking failed.', ['exception' => $exception]);
 			}
@@ -124,11 +124,11 @@ class Lock
 
 		// 2. Try to use Cache Locking (don't use the DB-Cache Locking because it works different!)
 		$cache_type = $this->config->get('system', 'cache_driver', 'database');
-		if ($cache_type != Enum\Type::DATABASE) {
+		if ($cache_type != CacheType\DatabaseCache::NAME) {
 			try {
 				$cache = $this->cacheFactory->createLocal($cache_type);
 				if ($cache instanceof ICanCacheInMemory) {
-					return new Type\CacheLock($cache);
+					return new LockType\CacheLock($cache);
 				}
 			} catch (\Exception $exception) {
 				$this->logger->warning('Using Cache driver for locking failed.', ['exception' => $exception]);
@@ -136,6 +136,6 @@ class Lock
 		}
 
 		// 3. Use Database Locking as a Fallback
-		return new Type\DatabaseLock($this->dba);
+		return new LockType\DatabaseLock($this->dba);
 	}
 }

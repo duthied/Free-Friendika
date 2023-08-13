@@ -21,7 +21,7 @@
 
 namespace Friendica\Core\Addon\Model;
 
-use Friendica\Core\Addon\Capabilities\ICanLoadAddons;
+use Friendica\Core\Addon\Capability\ICanLoadAddons;
 use Friendica\Core\Addon\Exception\AddonInvalidConfigFileException;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Util\Strings;

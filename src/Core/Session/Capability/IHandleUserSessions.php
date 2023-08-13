@@ -94,6 +94,13 @@ interface IHandleUserSessions extends IHandleSessions
 	public function isSiteAdmin(): bool;
 
 	/**
+	 * Check if current user is a moderator.
+	 *
+	 * @return bool true if user is a moderator
+	 */
+	public function isModerator(): bool;
+
+	/**
 	 * Returns User ID of the managed user in case it's a different identity
 	 *
 	 * @return int|bool uid of the manager or false

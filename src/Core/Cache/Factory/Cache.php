@@ -21,16 +21,13 @@
 
 namespace Friendica\Core\Cache\Factory;
 
-use Friendica\App\BaseURL;
-use Friendica\Core\Cache\Enum;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Exception\CachePersistenceException;
 use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
 use Friendica\Core\Cache\Type;
 use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Database\Database;
+use Friendica\Core\Hooks\Capability\ICanCreateInstances;
 use Friendica\Util\Profiler;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class CacheFactory
@@ -44,59 +41,32 @@ class Cache
 	/**
 	 * @var string The default cache if nothing set
 	 */
-	const DEFAULT_TYPE = Enum\Type::DATABASE;
+	const DEFAULT_TYPE = Type\DatabaseCache::NAME;
+	/** @var ICanCreateInstances */
+	protected $instanceCreator;
+	/** @var IManageConfigValues */
+	protected $config;
+	/** @var Profiler */
+	protected $profiler;
 
-	/**
-	 * @var IManageConfigValues The IConfiguration to read parameters out of the config
-	 */
-	private $config;
-
-	/**
-	 * @var Database The database connection in case that the cache is used the dba connection
-	 */
-	private $dba;
-
-	/**
-	 * @var string The hostname, used as Prefix for Caching
-	 */
-	private $hostname;
-
-	/**
-	 * @var Profiler The optional profiler if the cached should be profiled
-	 */
-	private $profiler;
-
-	/**
-	 * @var LoggerInterface The Friendica Logger
-	 */
-	private $logger;
-
-	public function __construct(BaseURL $baseURL, IManageConfigValues $config, Database $dba, Profiler $profiler, LoggerInterface $logger)
+	public function __construct(ICanCreateInstances $instanceCreator, IManageConfigValues $config, Profiler $profiler)
 	{
-		$this->hostname = $baseURL->getHost();
-		$this->config   = $config;
-		$this->dba      = $dba;
-		$this->profiler = $profiler;
-		$this->logger   = $logger;
+		$this->config          = $config;
+		$this->instanceCreator = $instanceCreator;
+		$this->profiler        = $profiler;
 	}
 
 	/**
-	 * This method creates a CacheDriver for distributed caching with the given cache driver name
-	 *
-	 * @param string|null $type The cache type to create (default is per config)
+	 * This method creates a CacheDriver for distributed caching
 	 *
 	 * @return ICanCache  The instance of the CacheDriver
 	 *
 	 * @throws InvalidCacheDriverException In case the underlying cache driver isn't valid or not configured properly
 	 * @throws CachePersistenceException In case the underlying cache has errors during persistence
 	 */
-	public function createDistributed(string $type = null): ICanCache
+	public function createDistributed(): ICanCache
 	{
-		if ($type === Enum\Type::APCU) {
-			throw new InvalidCacheDriverException('apcu doesn\'t support distributed caching.');
-		}
-
-		return $this->create($type ?? $this->config->get('system', 'distributed_cache_driver', self::DEFAULT_TYPE));
+		return $this->create($this->config->get('system', 'distributed_cache_driver', self::DEFAULT_TYPE));
 	}
 
 	/**
@@ -117,31 +87,17 @@ class Cache
 	/**
 	 * Creates a new Cache instance
 	 *
-	 * @param string $type The type of cache
+	 * @param string $strategy The strategy, which cache instance should be used
 	 *
 	 * @return ICanCache
 	 *
 	 * @throws InvalidCacheDriverException In case the underlying cache driver isn't valid or not configured properly
 	 * @throws CachePersistenceException In case the underlying cache has errors during persistence
 	 */
-	protected function create(string $type): ICanCache
+	protected function create(string $strategy): ICanCache
 	{
-		switch ($type) {
-			case Enum\Type::MEMCACHE:
-				$cache = new Type\MemcacheCache($this->hostname, $this->config);
-				break;
-			case Enum\Type::MEMCACHED:
-				$cache = new Type\MemcachedCache($this->hostname, $this->config, $this->logger);
-				break;
-			case Enum\Type::REDIS:
-				$cache = new Type\RedisCache($this->hostname, $this->config);
-				break;
-			case Enum\Type::APCU:
-				$cache = new Type\APCuCache($this->hostname);
-				break;
-			default:
-				$cache = new Type\DatabaseCache($this->hostname, $this->dba);
-		}
+		/** @var ICanCache $cache */
+		$cache = $this->instanceCreator->create(ICanCache::class, $strategy);
 
 		$profiling = $this->config->get('system', 'profiling', false);
 

@@ -19,19 +19,17 @@
  *
  */
 
-namespace Friendica\Core\Hooks\Capabilities;
+namespace Friendica\Core\KeyValueStorage\Factory;
 
-/**
- * An enum of hook types, based on behavioral design patterns
- * @see https://refactoring.guru/design-patterns/behavioral-patterns
- */
-interface BehavioralHookType
+use Friendica\Core\Hooks\Capability\ICanCreateInstances;
+use Friendica\Core\Hooks\Util\StrategiesFileManager;
+use Friendica\Core\KeyValueStorage\Capability\IManageKeyValuePairs;
+
+class KeyValueStorage
 {
-	/**
-	 * Defines the key for the list of strategy-hooks.
-	 *
-	 * @see https://refactoring.guru/design-patterns/strategy
-	 */
-	const STRATEGY = 'strategy';
-	const EVENT    = 'event';
+	public function create(ICanCreateInstances $instanceCreator): IManageKeyValuePairs
+	{
+		/** @var IManageKeyValuePairs */
+		return $instanceCreator->create(IManageKeyValuePairs::class, StrategiesFileManager::STRATEGY_DEFAULT_KEY);
+	}
 }

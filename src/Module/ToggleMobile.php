@@ -21,32 +21,43 @@
 
 namespace Friendica\Module;
 
+use Friendica\App;
 use Friendica\BaseModule;
-use Friendica\DI;
+use Friendica\Core\L10n;
+use Friendica\Core\Session\Capability\IHandleSessions;
+use Friendica\Core\System;
+use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Util;
+use GuzzleHttp\Psr7\Uri;
+use Psr\Log\LoggerInterface;
 
 /**
  * Toggles the mobile view (on/off)
  */
 class ToggleMobile extends BaseModule
 {
-	protected function content(array $request = []): string
+	/** @var IHandleSessions */
+	private $session;
+
+	public function __construct(IHandleSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Util\Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
-		$a = DI::app();
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		if (isset($_GET['off'])) {
-			$_SESSION['show-mobile'] = false;
-		} else {
-			$_SESSION['show-mobile'] = true;
+		$this->session = $session;
+	}
+
+	protected function rawContent(array $request = [])
+	{
+		$address = $request['address'] ?? '' ?: $this->baseUrl;
+
+		$uri = new Uri($address);
+
+		if (!$this->baseUrl->isLocalUri($uri)) {
+			throw new BadRequestException();
 		}
 
-		if (isset($_GET['address'])) {
-			$address = $_GET['address'];
-		} else {
-			$address = '';
-		}
+		$this->session->set('show-mobile', !isset($request['off']));
 
-		$a->redirect($address);
-
-		return '';
+		System::externalRedirect((string)$uri);
 	}
 }

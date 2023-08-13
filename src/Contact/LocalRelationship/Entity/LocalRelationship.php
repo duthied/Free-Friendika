@@ -36,7 +36,7 @@ use Friendica\Model\Contact;
  * @property-read int    $rel
  * @property-read string $info
  * @property-read bool   $notifyNewPosts
- * @property-read bool   $isRemoteSelf
+ * @property-read int    $remoteSelf
  * @property-read int    $fetchFurtherInformation
  * @property-read string $ffiKeywordDenylist
  * @property-read bool   $subhub
@@ -47,6 +47,16 @@ use Friendica\Model\Contact;
  */
 class LocalRelationship extends \Friendica\BaseEntity
 {
+	// Fetch Further Information options, not a binary flag
+	const FFI_NONE        = 0;
+	const FFI_INFORMATION = 1;
+	const FFI_KEYWORD     = 3;
+	const FFI_BOTH        = 2;
+
+	const MIRROR_DEACTIVATED    = 0;
+	const MIRROR_OWN_POST       = 2;
+	const MIRROR_NATIVE_RESHARE = 3;
+
 	/** @var int */
 	protected $userId;
 	/** @var int */
@@ -67,9 +77,9 @@ class LocalRelationship extends \Friendica\BaseEntity
 	protected $info;
 	/** @var bool */
 	protected $notifyNewPosts;
-	/** @var bool */
-	protected $isRemoteSelf;
-	/** @var int */
+	/** @var int One of MIRROR_* */
+	protected $remoteSelf;
+	/** @var int One of FFI_* */
 	protected $fetchFurtherInformation;
 	/** @var string */
 	protected $ffiKeywordDenylist;
@@ -84,7 +94,7 @@ class LocalRelationship extends \Friendica\BaseEntity
 	/** @var int */
 	protected $priority;
 
-	public function __construct(int $userId, int $contactId, bool $blocked = false, bool $ignored = false, bool $collapsed = false, bool $hidden = false, bool $pending = false, int $rel = Contact::NOTHING, string $info = '', bool $notifyNewPosts = false, bool $isRemoteSelf = false, int $fetchFurtherInformation = 0, string $ffiKeywordDenylist = '', bool $subhub = false, string $hubVerify = '', string $protocol = Protocol::PHANTOM, ?int $rating = null, ?int $priority = null)
+	public function __construct(int $userId, int $contactId, bool $blocked = false, bool $ignored = false, bool $collapsed = false, bool $hidden = false, bool $pending = false, int $rel = Contact::NOTHING, string $info = '', bool $notifyNewPosts = false, int $remoteSelf = self::MIRROR_DEACTIVATED, int $fetchFurtherInformation = self::FFI_NONE, string $ffiKeywordDenylist = '', bool $subhub = false, string $hubVerify = '', string $protocol = Protocol::PHANTOM, ?int $rating = null, ?int $priority = null)
 	{
 		$this->userId                  = $userId;
 		$this->contactId               = $contactId;
@@ -96,7 +106,7 @@ class LocalRelationship extends \Friendica\BaseEntity
 		$this->rel                     = $rel;
 		$this->info                    = $info;
 		$this->notifyNewPosts          = $notifyNewPosts;
-		$this->isRemoteSelf            = $isRemoteSelf;
+		$this->remoteSelf              = $remoteSelf;
 		$this->fetchFurtherInformation = $fetchFurtherInformation;
 		$this->ffiKeywordDenylist      = $ffiKeywordDenylist;
 		$this->subhub                  = $subhub;

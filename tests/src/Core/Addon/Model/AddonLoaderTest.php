@@ -54,7 +54,7 @@ class AddonLoaderTest extends MockedTest
 <?php
 
 return [
-	\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
+	\Friendica\Core\Hooks\Capability\BehavioralHookType::STRATEGY => [
 		\Psr\Log\LoggerInterface::class => [
 			\Psr\Log\NullLogger::class => [''],
 		],
@@ -79,7 +79,7 @@ EOF;
 					'addon/testaddon1/static/hooks.config.php' => $this->content,
 				],
 				'assertion' => [
-					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
+					\Friendica\Core\Hooks\Capability\BehavioralHookType::STRATEGY => [
 						\Psr\Log\LoggerInterface::class => [
 							\Psr\Log\NullLogger::class => [''],
 						],
@@ -94,7 +94,7 @@ EOF;
 					'addon/testaddon2/static/hooks.config.php' => $this->content,
 				],
 				'assertion' => [
-					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
+					\Friendica\Core\Hooks\Capability\BehavioralHookType::STRATEGY => [
 						\Psr\Log\LoggerInterface::class => [
 							\Psr\Log\NullLogger::class => ['', ''],
 						],
@@ -118,7 +118,7 @@ EOF;
 					'addon/testaddon2/static/hooks.config.php' => $this->content,
 				],
 				'assertion' => [
-					\Friendica\Core\Hooks\Capabilities\BehavioralHookType::STRATEGY => [
+					\Friendica\Core\Hooks\Capability\BehavioralHookType::STRATEGY => [
 						\Psr\Log\LoggerInterface::class => [
 							\Psr\Log\NullLogger::class => [''],
 						],

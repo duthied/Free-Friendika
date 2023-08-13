@@ -21,7 +21,7 @@
 
 namespace Friendica\Core\Logger\Type;
 
-use Friendica\Core\Logger\Capabilities\IHaveCallIntrospections;
+use Friendica\Core\Logger\Capability\IHaveCallIntrospections;
 use Friendica\Core\Logger\Exception\LoggerException;
 use Friendica\Core\Logger\Exception\LogLevelException;
 use Psr\Log\LogLevel;
@@ -32,6 +32,8 @@ use Psr\Log\LogLevel;
  */
 class SyslogLogger extends AbstractLogger
 {
+	const NAME = 'syslog';
+
 	const IDENT = 'Friendica';
 
 	/** @var int The default syslog flags */

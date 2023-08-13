@@ -19,17 +19,33 @@
  *
  */
 
-namespace Friendica\Core\Cache\Enum;
+namespace Friendica\Core\Logger\Capability;
 
-/**
- * Enumeration for cache types
- */
-abstract class Type
+interface IHaveCallIntrospections
 {
-	const APCU      = 'apcu';
-	const REDIS     = 'redis';
-	const ARRAY     = 'array';
-	const MEMCACHE  = 'memcache';
-	const DATABASE  = 'database';
-	const MEMCACHED = 'memcached';
+	/**
+	 * A list of classes, which shouldn't get logged
+	 *
+	 * @var string[]
+	 */
+	public const IGNORE_CLASS_LIST = [
+		\Friendica\Core\Logger::class,
+		\Friendica\Core\Logger\Factory\Logger::class,
+		'Friendica\\Core\\Logger\\Type',
+		\Friendica\Util\Profiler::class,
+	];
+
+	/**
+	 * Adds new classes to get skipped
+	 *
+	 * @param array $classNames
+	 */
+	public function addClasses(array $classNames): void;
+
+	/**
+	 * Returns the introspection record of the current call
+	 *
+	 * @return array
+	 */
+	public function getRecord(): array;
 }

@@ -100,7 +100,7 @@ class LocalRelationship extends \Friendica\BaseRepository
 			'rel'                       => $localRelationship->rel,
 			'info'                      => $localRelationship->info,
 			'notify_new_posts'          => $localRelationship->notifyNewPosts,
-			'remote_self'               => $localRelationship->isRemoteSelf,
+			'remote_self'               => $localRelationship->remoteSelf,
 			'fetch_further_information' => $localRelationship->fetchFurtherInformation,
 			'ffi_keyword_denylist'      => $localRelationship->ffiKeywordDenylist,
 			'subhub'                    => $localRelationship->subhub,
