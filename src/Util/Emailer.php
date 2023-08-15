@@ -126,7 +126,7 @@ class Emailer
 	 * @return bool
 	 * @throws InternalServerErrorException
 	 */
-	public function send(IEmail $email)
+	public function send(IEmail $email): bool
 	{
 		Hook::callAll('emailer_send_prepare', $email);
 
@@ -151,7 +151,7 @@ class Emailer
 		}
 
 		$fromName       = Email::encodeHeader(html_entity_decode($email->getFromName(), ENT_QUOTES, 'UTF-8'), 'UTF-8');
-		$fromAddress      = $email->getFromAddress();
+		$fromAddress    = $email->getFromAddress();
 		$replyTo        = $email->getReplyTo();
 		$messageSubject = Email::encodeHeader(html_entity_decode($email->getSubject(), ENT_QUOTES, 'UTF-8'), 'UTF-8');
 
@@ -161,12 +161,17 @@ class Emailer
 		                . rand(100000000, 999999999) . '=:'
 		                . rand(10000, 99999);
 
+		$messageHeader = $email->getAdditionalMailHeaderString();
+		if ($countMessageId === 0) {
+			$messageHeader .= 'Message-ID: <Friendica-Util-Emailer-' . Strings::getRandomHex() . '@' . $this->baseUrl->getHost() . '>' . "\r\n";
+		}
+
 		// generate a multipart/alternative message header
-		$messageHeader = $email->getAdditionalMailHeaderString() .
-		                 "From: $fromName <{$fromAddress}>\r\n" .
-		                 "Reply-To: $fromName <{$replyTo}>\r\n" .
-		                 "MIME-Version: 1.0\r\n" .
-		                 "Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
+		$messageHeader .=
+			"From: $fromName <{$fromAddress}>\r\n" .
+			"Reply-To: $fromName <{$replyTo}>\r\n" .
+			"MIME-Version: 1.0\r\n" .
+			"Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
 
 		// assemble the final multipart message body with the text and html types included
 		$textBody             = chunk_split(base64_encode($email->getMessage(true)));
