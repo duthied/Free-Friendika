@@ -1366,6 +1366,17 @@ class Worker
 	}
 
 	/**
+	 * Get the number of retrials for the current worker task
+	 *
+	 * @return integer
+	 */
+	public static function getRetrial(): int
+	{
+		$queue = DI::app()->getQueue();
+		return $queue['retrial'] ?? 0;
+	}
+
+	/**
 	 * Defers the current worker entry
 	 *
 	 * @return boolean had the entry been deferred?
