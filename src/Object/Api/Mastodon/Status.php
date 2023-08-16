@@ -109,6 +109,7 @@ class Status extends BaseDataTransferObject
 	 */
 	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $in_reply, array $reblog, FriendicaExtension $friendica, array $quote = null, array $poll = null)
 	{
+		$reblogged          = !empty($reblog);
 		$this->id           = (string)$item['uri-id'];
 		$this->created_at   = DateTimeFormat::utc($item['created'], DateTimeFormat::JSON);
 		$this->edited_at    = DateTimeFormat::utc($item['edited'], DateTimeFormat::JSON);
@@ -135,26 +136,26 @@ class Status extends BaseDataTransferObject
 
 		$this->uri = $item['uri'];
 		$this->url = $item['plink'] ?? null;
-		$this->replies_count = $counts->replies;
-		$this->reblogs_count = $counts->reblogs;
-		$this->favourites_count = $counts->favourites;
+		$this->replies_count = $reblogged ? 0 : $counts->replies;
+		$this->reblogs_count = $reblogged ? 0 : $counts->reblogs;
+		$this->favourites_count = $reblogged ? 0 : $counts->favourites;
 		$this->favourited = $userAttributes->favourited;
 		$this->reblogged = $userAttributes->reblogged;
 		$this->muted = $userAttributes->muted;
 		$this->bookmarked = $userAttributes->bookmarked;
 		$this->pinned = $userAttributes->pinned;
-		$this->content = BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($item['raw-body'] ?? $item['body']), BBCode::MASTODON_API);
+		$this->content = $reblogged ? '' : BBCode::convertForUriId($item['uri-id'], BBCode::setMentionsToNicknames($item['raw-body'] ?? $item['body']), BBCode::MASTODON_API);
 		$this->reblog = $reblog;
 		$this->quote = $quote;
 		$this->application = $application->toArray();
 		$this->account = $account->toArray();
-		$this->media_attachments = $attachments;
-		$this->mentions = $mentions;
-		$this->tags = $tags;
-		$this->emojis = [];
-		$this->card = $card->toArray() ?: null;
-		$this->poll = $poll;
-		$this->friendica = $friendica;
+		$this->media_attachments = $reblogged ? [] : $attachments;
+		$this->mentions = $reblogged ? [] : $mentions;
+		$this->tags = $reblogged ? [] : $tags;
+		$this->emojis = $reblogged ? [] : [];
+		$this->card = $reblogged ? null : ($card->toArray() ?: null);
+		$this->poll = $reblogged ? null : $poll;
+		$this->friendica = $reblogged ? null : $friendica;
 	}
 
 	/**
