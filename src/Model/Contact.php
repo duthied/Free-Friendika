@@ -22,6 +22,7 @@
 namespace Friendica\Model;
 
 use Friendica\Contact\Avatar;
+use Friendica\Contact\Header;
 use Friendica\Contact\Introduction\Exception\IntroductionNotFoundException;
 use Friendica\Contact\LocalRelationship\Entity\LocalRelationship;
 use Friendica\Content\Conversation as ConversationContent;
@@ -1899,7 +1900,7 @@ class Contact
 		switch ($platform) {
 			case 'friendica':
 			case 'friendika':
-				$header = DI::baseUrl() . '/images/friendica-banner.jpg';
+				$header = DI::baseUrl() . (new Header(DI::config()))->getMastodonBannerPath();
 				break;
 			case 'diaspora':
 				/**
