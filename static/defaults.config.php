@@ -783,7 +783,12 @@ return [
 	],
 	'api' => [
 		// mastodon_banner (String)
-		// Banner for Mastodon API
+		// Default banner image for Mastodon API, must be a relative path from the base Friendica folder
+		//
+		// Default picture credits:
+		// Author: Lostinlight <https://mastodon.xyz/@lightone>
+		// License: CC0 https://creativecommons.org/share-your-work/public-domain/cc0/
+		// Link to original work: https://gitlab.com/lostinlight/per_aspera_ad_astra/-/blob/master/friendica-404/friendica-promo-bubbles.jpg
 		'mastodon_banner' => '/images/friendica-banner.jpg',
 	],
 	'blocklist' => [

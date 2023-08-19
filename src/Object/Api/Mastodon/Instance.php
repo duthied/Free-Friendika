@@ -24,6 +24,7 @@ namespace Friendica\Object\Api\Mastodon;
 use Friendica\App;
 use Friendica\App\BaseURL;
 use Friendica\BaseDataTransferObject;
+use Friendica\Contact\Header;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\Database;
 use Friendica\DI;
@@ -91,7 +92,7 @@ class Instance extends BaseDataTransferObject
 		$this->version           = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
 		$this->urls              = ['streaming_api' => '']; // Not supported
 		$this->stats             = new Stats($config, $database);
-		$this->thumbnail         = $baseUrl . $config->get('api', 'mastodon_banner');
+		$this->thumbnail         = $baseUrl . (new Header($config))->getMastodonBannerPath();
 		$this->languages         = [$config->get('system', 'language')];
 		$this->max_toot_chars    = (int)$config->get('config', 'api_import_size', $config->get('config', 'max_import_size'));
 		$this->registrations     = ($register_policy != Register::CLOSED);
