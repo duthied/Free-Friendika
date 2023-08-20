@@ -49,6 +49,9 @@ class JsonLD
 			case 'https://w3id.org/identity/v1':
 				$url = DI::basePath() . '/static/identity-v1.jsonld';
 				break;
+			case 'https://w3id.org/security/data-integrity/v1':
+				$url = DI::basePath() . '/static/security-data-integrity-v1.jsonld';
+				break;
 			case 'https://www.w3.org/ns/activitystreams':
 				$url = DI::basePath() . '/static/activitystreams.jsonld';
 				break;
