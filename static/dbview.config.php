@@ -197,6 +197,7 @@
 			"owner-blocked" => ["owner", "blocked"],
 			"owner-hidden" => ["owner", "hidden"],
 			"owner-updated" => ["owner", "updated"],
+			"owner-gsid" => ["owner", "gsid"],
 			"owner-contact-type" => ["owner", "contact-type"],
 			"causer-id" => ["post-user", "causer-id"],
 			"causer-uri-id" => ["causer", "uri-id"],
@@ -209,6 +210,7 @@
 			"causer-network" => ["causer", "network"],
 			"causer-blocked" => ["causer", "blocked"],
 			"causer-hidden" => ["causer", "hidden"],
+			"causer-gsid" => ["causer", "gsid"],
 			"causer-contact-type" => ["causer", "contact-type"],
 			"postopts" => ["post-delivery-data", "postopts"],
 			"inform" => ["post-delivery-data", "inform"],
@@ -340,6 +342,7 @@
 			"contact-pending" => ["contact", "pending"],
 			"contact-rel" => ["contact", "rel"],
 			"contact-uid" => ["contact", "uid"],
+			"contact-gsid" => ["contact", "gsid"],
 			"contact-contact-type" => ["contact", "contact-type"],
 			"writable" => "IF (`post-user`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`)",
 			"self" => ["contact", "self"],
@@ -375,6 +378,7 @@
 			"owner-blocked" => ["owner", "blocked"],
 			"owner-hidden" => ["owner", "hidden"],
 			"owner-updated" => ["owner", "updated"],
+			"owner-gsid" => ["owner", "gsid"],
 			"owner-contact-type" => ["owner", "contact-type"],
 			"causer-id" => ["post-thread-user", "causer-id"],
 			"causer-uri-id" => ["causer", "uri-id"],
@@ -387,6 +391,7 @@
 			"causer-network" => ["causer", "network"],
 			"causer-blocked" => ["causer", "blocked"],
 			"causer-hidden" => ["causer", "hidden"],
+			"causer-gsid" => ["causer", "gsid"],
 			"causer-contact-type" => ["causer", "contact-type"],
 			"postopts" => ["post-delivery-data", "postopts"],
 			"inform" => ["post-delivery-data", "inform"],
@@ -540,6 +545,7 @@
 			"owner-hidden" => ["owner", "hidden"],
 			"owner-updated" => ["owner", "updated"],
 			"owner-contact-type" => ["owner", "contact-type"],
+			"owner-gsid" => ["owner", "gsid"],
 			"causer-id" => ["post", "causer-id"],
 			"causer-uri-id" => ["causer", "uri-id"],
 			"causer-link" => ["causer", "url"],
@@ -552,6 +558,7 @@
 			"causer-blocked" => ["causer", "blocked"],
 			"causer-hidden" => ["causer", "hidden"],
 			"causer-contact-type" => ["causer", "contact-type"],
+			"causer-gsid" => ["causer", "gsid"],
 			"question-id" => ["post-question", "id"],
 			"question-multiple" => ["post-question", "multiple"],
 			"question-voters" => ["post-question", "voters"],
@@ -680,6 +687,7 @@
 			"owner-blocked" => ["owner", "blocked"],
 			"owner-hidden" => ["owner", "hidden"],
 			"owner-updated" => ["owner", "updated"],
+			"owner-gsid" => ["owner", "gsid"],
 			"owner-contact-type" => ["owner", "contact-type"],
 			"causer-id" => ["post-thread", "causer-id"],
 			"causer-uri-id" => ["causer", "uri-id"],
@@ -692,6 +700,7 @@
 			"causer-network" => ["causer", "network"],
 			"causer-blocked" => ["causer", "blocked"],
 			"causer-hidden" => ["causer", "hidden"],
+			"causer-gsid" => ["causer", "gsid"],
 			"causer-contact-type" => ["causer", "contact-type"],
 			"question-id" => ["post-question", "id"],
 			"question-multiple" => ["post-question", "multiple"],
@@ -804,7 +813,7 @@
 			"contact-type" => ["ownercontact", "contact-type"],
 		],
 		"query" => "FROM `post-user`
-			INNER JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`			
+			INNER JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
 			STRAIGHT_JOIN `contact` AS `authorcontact` ON `authorcontact`.`id` = `post-thread-user`.`author-id`
 			STRAIGHT_JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
@@ -843,7 +852,8 @@
 			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
 			AND NOT `authorcontact`.`blocked` AND NOT `ownercontact`.`blocked`
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
-			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`)"
+			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`)
+			AND NOT EXISTS(SELECT `gsid` FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`)"
 	],
 	"owner-view" => [
 		"fields" => [

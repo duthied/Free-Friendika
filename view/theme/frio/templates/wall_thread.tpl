@@ -401,13 +401,17 @@ as the value of $top_child_total (this is done at the end of this file)
                                         {{/if}}
                                         {{if $item.ignore_author}}
                                         <li role="menuitem">
-                                                <a class="btn-link navicon ignore" href="javascript:ignoreAuthor('item/ignore/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.ignore_author.label}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.ignore_author.label}}</a>
+                                                <a class="btn-link navicon ignore" href="javascript:ignoreAuthor('item/ignore/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.ignore_author.label}}"><i class="fa fa-eye-slash" aria-hidden="true"></i> {{$item.ignore_author.label}}</a>
                                         </li>
                                         {{/if}}
                                         {{if $item.collapse}}
                                         <li role="menuitem">
-                                                <a class="btn-link navicon collapse" href="javascript:collapseAuthor('item/collapse/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.collapse.label}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.collapse.label}}</a>
+                                                <a class="btn-link navicon collapse" href="javascript:collapseAuthor('item/collapse/{{$item.id}}', 'item-{{$item.guid}}');" title="{{$item.collapse.label}}"><i class="fa fa-minus-square" aria-hidden="true"></i> {{$item.collapse.label}}</a>
                                         </li>
+                                        {{/if}}
+	                                    {{if $item.ignore_server}}
+                                        <li role="menuitem">
+                                                <a class="btn-link navicon ignoreServer" href="javascript:ignoreServer('settings/server/{{$item.author_gsid}}/ignore', 'item-{{$item.guid}}');" title="{{$item.ignore_server.label}}"><i class="fa fa-eye-slash" aria-hidden="true"></i> {{$item.ignore_server.label}}</a>
                                         </li>
                                         {{/if}}
                                         {{if $item.report}}

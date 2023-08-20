@@ -61,6 +61,7 @@
 						{{if $ignored}}<li><div id="ignore-message">{{$ignored}}</div></li>{{/if}}
 						{{if $collapsed}}<li><div id="collapse-message">{{$collapsed}}</div></li>{{/if}}
 						{{if $archived}}<li><div id="archive-message">{{$archived}}</div></li>{{/if}}
+						{{if $serverIgnored}}<li><div id="serverIgnored-message">{{$serverIgnored}} <a href="settings/server">{{$manageServers}}</a></div></li>{{/if}}
 					</ul>
 				</div> {{* End of contact-edit-status-wrapper *}}
 
