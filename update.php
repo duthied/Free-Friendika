@@ -1356,7 +1356,8 @@ function update_1525(): int
 	if (!DBA::e('UPDATE `user` u
     JOIN `profile` p
     ON p.`uid` = u.`uid`
-    SET u.`username` = p.`name`')) {
+    SET u.`username` = p.`name`
+    WHERE p.`name` != ""')) {
 		return Update::FAILED;
 	}
 
