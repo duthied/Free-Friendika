@@ -46,11 +46,14 @@ class JsonLD
 			case 'https://w3id.org/security/v1':
 				$url = DI::basePath() . '/static/security-v1.jsonld';
 				break;
-			case 'https://w3id.org/identity/v1':
-				$url = DI::basePath() . '/static/identity-v1.jsonld';
-				break;
 			case 'https://w3id.org/security/data-integrity/v1':
 				$url = DI::basePath() . '/static/security-data-integrity-v1.jsonld';
+				break;
+			case 'https://w3id.org/security/multikey/v1':
+				$url = DI::basePath() . '/static/security-multikey-v1.jsonld';
+				break;
+			case 'https://w3id.org/identity/v1':
+				$url = DI::basePath() . '/static/identity-v1.jsonld';
 				break;
 			case 'https://www.w3.org/ns/activitystreams':
 				$url = DI::basePath() . '/static/activitystreams.jsonld';
@@ -98,7 +101,7 @@ class JsonLD
 
 		$result = DI::cache()->get('documentLoader:' . $url);
 		if (!is_null($result)) {
-			return $result;
+			//return $result;
 		}
 
 		$data = jsonld_default_document_loader($url);
