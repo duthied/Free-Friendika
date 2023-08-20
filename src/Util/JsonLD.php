@@ -101,7 +101,7 @@ class JsonLD
 
 		$result = DI::cache()->get('documentLoader:' . $url);
 		if (!is_null($result)) {
-			//return $result;
+			return $result;
 		}
 
 		$data = jsonld_default_document_loader($url);
