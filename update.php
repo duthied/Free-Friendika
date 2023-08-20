@@ -1349,3 +1349,30 @@ function update_1524(): int
 
 	return Update::SUCCESS;
 }
+
+function update_1525(): int
+{
+	// Use expected value for user.username
+	if (!DBA::e('UPDATE `user` u
+    JOIN `profile` p
+    ON p.`uid` = u.`uid`
+    SET u.`username` = p.`name`')) {
+		return Update::FAILED;
+	}
+
+	// Blank out deprecated field profile.name to avoid future confusion
+	if (!DBA::e('UPDATE `profile` p
+    SET p.`name` = ""')) {
+		return Update::FAILED;
+	}
+
+	// Update users' self-contact name if needed
+	if (!DBA::e('UPDATE `contact` c
+    JOIN `user` u
+    ON u.`uid` = c.`uid` AND c.`self` = 1
+    SET c.`name` = u.`username`')) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}

@@ -1,18 +1,18 @@
 <div class="generic-page-wrapper">
-	<h1>{{$banner}}</h1>
+	<h2>{{$l10n.banner}}</h2>
 
 	{{* The actions dropdown which can performed to the current profile *}}
 	<div id="profile-edit-links">
 		<ul class="nav nav-pills preferences">
 			<li class="dropdown pull-right">
 				<button type="button" class="btn btn-link dropdown-toggle" id="profile-edit-links-dropdown" data-toggle="dropdown" aria-expanded="false">
-					<i class="fa fa-angle-down" aria-hidden="true"></i>&nbsp;{{$profile_action}}
+					<i class="fa fa-angle-down" aria-hidden="true"></i>&nbsp;{{$l10n.profile_action}}
 				</button>
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="profile-edit-links-dropdown">
-					<li role="presentation"><a role="menuitem" href="{{$profpiclink}}" id="profile-photo_upload-link" title="{{$profpic}}"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{$profpic}}</a></li>
-					<li role="presentation"><button role="menuitem" type="button" class="btn-link" id="profile-photo_upload-link-new" title="{{$lbl_profile_photo}}" onclick="openClose('profile-photo-upload-section');"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{$lbl_profile_photo}}</button></li>
+					<li role="presentation"><a role="menuitem" href="{{$profpiclink}}" id="profile-photo_upload-link"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{$l10n.profpic}}</a></li>
+					<li role="presentation"><button role="menuitem" type="button" class="btn-link" id="profile-photo_upload-link-new" onclick="openClose('profile-photo-upload-section');"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{$l10n.profile_photo}}</button></li>
 					<li role="presentation" class="divider"></li>
-					<li role="presentation"><a role="menuitem" href="profile/{{$nickname}}/profile" id="profile-edit-view-link" title="{{$viewprof}}">{{$viewprof}}</a></li>
+					<li role="presentation"><a role="menuitem" href="profile/{{$nickname}}/profile" id="profile-edit-view-link">{{$l10n.viewprof}}</a></li>
 				</ul>
 			</li>
 		</ul>
@@ -26,12 +26,12 @@
 		<div id="profile-photo-upload-section" class="panel">
 			<a id="profile-photo-upload-close" class="close pull-right" onclick="openClose('profile-photo-upload-section');"><i class="fa fa-times" aria-hidden="true"></i></a>
 			<div id="profile-photo-upload-wrapper">
-				<label id="profile-photo-upload-label" for="profile-photo-upload">{{$lbl_profile_photo}}:</label>
+				<label id="profile-photo-upload-label" for="profile-photo-upload">{{$l10n.profile_photo}}:</label>
 				<input name="userfile" type="file" id="profile-photo-upload" size="48" />
 			</div>
 
 			<div class="profile-edit-submit-wrapper pull-right">
-				<button type="submit" name="submit" class="profile-edit-submit-button btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+				<button type="submit" name="submit" class="profile-edit-submit-button btn btn-primary">{{$l10n.submit}}</button>
 			</div>
 			<div class="clear"></div>
 		</div>
@@ -53,14 +53,14 @@
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="personal">
 					<h2>
 						<button class="btn-link accordion-toggle" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#personal-collapse" aria-expanded="true" aria-controls="personal-collapse">
-							{{$lbl_personal_section}}
+							{{$l10n.personal_section}}
 						</button>
 					</h2>
 				</div>
 				{{* for the $detailed_profile we use bootstraps collapsable panel-groups to have expandable groups *}}
 				<div id="personal-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="personal">
 					<div class="panel-body">
-						{{include file="field_input.tpl" field=$name}}
+						{{include file="field_input.tpl" field=$username}}
 
 						{{include file="field_textarea.tpl" field=$about}}
 
@@ -69,7 +69,7 @@
 						{{$hide_friends nofilter}}
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="submit" class="btn btn-primary">{{$l10n.submit}}</button>
 					</div>
 				</div>
 			</div>
@@ -79,7 +79,7 @@
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="location">
 					<h2>
 						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#location-collapse" aria-expanded="false" aria-controls="location-collapse">
-							{{$lbl_location_section}}
+							{{$l10n.location_section}}
 						</button>
 					</h2>
 				</div>
@@ -109,7 +109,7 @@
 						</div>
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="submit" class="btn btn-primary">{{$l10n.submit}}</button>
 					</div>
 				</div>
 			</div>
@@ -119,7 +119,7 @@
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="miscellaneous">
 					<h2>
 						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#miscellaneous-collapse" aria-expanded="false" aria-controls="miscellaneous-collapse">
-							{{$lbl_miscellaneous_section}}
+							{{$l10n.miscellaneous_section}}
 						</button>
 					</h2>
 				</div>
@@ -136,7 +136,7 @@
 						{{include file="field_input.tpl" field=$prv_keywords}}
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="submit" class="btn btn-primary">{{$l10n.submit}}</button>
 					</div>
 				</div>
 			</div>
@@ -146,7 +146,7 @@
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="custom-fields">
 					<h2>
 						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#custom-fields-collapse" aria-expanded="false" aria-controls="custom-fields-collapse">
-							{{$lbl_custom_fields_section}}
+							{{$l10n.custom_fields_section}}
 						</button>
 					</h2>
 				</div>
@@ -160,7 +160,7 @@
 						</div>
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="submit" class="btn btn-primary">{{$l10n.submit}}</button>
 					</div>
 				</div>
 			</div>
