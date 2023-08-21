@@ -31,17 +31,15 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
-use Friendica\Model\Photo;
 use Friendica\Model\Post as PostModel;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
-use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
+use GuzzleHttp\Psr7\Uri;
 use InvalidArgumentException;
 
 /**
@@ -284,7 +282,8 @@ class Post
 				'label' => DI::l10n()->t('Report post'),
 				'href'  => 'moderation/report/create?' . http_build_query(['cid' => $item['author-id'], 'uri-ids' => [$item['uri-id']]]),
 			];
-			if (!Network::isLocalLink($item['plink'])) {
+			$authorBaseUri = new Uri($item['author-baseurl'] ?? '');
+			if ($authorBaseUri->getHost() && !DI::baseUrl()->isLocalUrl($authorBaseUri)) {
 				$ignoreServer = [
 					'label' => DI::l10n()->t("Ignore %s's server", $item['author-name']),
 				];
