@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1527);
+	define('DB_UPDATE_VERSION', 1528);
 }
 
 return [
@@ -168,6 +168,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uid", "gsid"],
+			"gsid" => ["gsid"]
 		],
 	],
 	"item-uri" => [

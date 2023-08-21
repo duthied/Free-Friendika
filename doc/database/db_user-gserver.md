@@ -18,6 +18,7 @@ Indexes
 | Name    | Fields    |
 | ------- | --------- |
 | PRIMARY | uid, gsid |
+| gsid    | gsid      |
 
 Foreign Keys
 ------------
