@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1527
+-- DB_UPDATE_VERSION 1528
 -- ------------------------------------------
 
 
@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS `user-gserver` (
 	`gsid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Gserver id',
 	`ignored` boolean NOT NULL DEFAULT '0' COMMENT 'server accounts are ignored for the user',
 	 PRIMARY KEY(`uid`,`gsid`),
+	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User settings about remote servers';
