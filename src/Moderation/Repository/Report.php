@@ -48,7 +48,7 @@ final class Report extends \Friendica\BaseRepository
 
 		$this->factory     = $factory;
 		$this->postFactory = $postFactory;
-		$this->ruleFactory = $postFactory;
+		$this->ruleFactory = $ruleFactory;
 	}
 
 	public function selectOneById(int $lastInsertId): \Friendica\Moderation\Entity\Report
