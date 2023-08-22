@@ -267,7 +267,13 @@ class Profile extends BaseModule
 
 		$insecure = $this->t('Private communications are not available for this contact.');
 
+		// @TODO: Figure out why gsid can be empty
+		if (empty($contact['gsid'])) {
+			$this->logger->notice('Empty gsid for contact', ['contact' => $contact]);
+		}
+
 		$serverIgnored =
+			$contact['gsid'] &&
 			$this->userGServer->isIgnoredByUser($this->session->getLocalUserId(), $contact['gsid']) ?
 				$this->t('This contact is on a server you ignored.')
 				: '';
