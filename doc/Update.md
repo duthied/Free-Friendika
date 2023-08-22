@@ -10,8 +10,10 @@ If you installed Friendica in the ``path/to/friendica`` folder:
 1. Unpack the new Friendica archive in ``path/to/friendica_new``.
 2. Copy  the following items from ``path/to/friendica`` to ``path/to/friendica_new``:
    * ``config/local.config.php``
-   * ``proxy/``   
-The following items only need to be copied if they are located inside your friendica path:
+   * ``proxy/``
+   * ``.htaccess`` if using Apache web server
+
+    The following items only need to be copied if they are located inside your friendica path:
    * your storage folder as set in **Admin -> Site -> File Upload -> Storage base path** 
    * your item cache as set in **Admin -> Site -> Performance -> Path to item cache**
    * your temp folder as set in **Admin -> Site -> Advanced -> Temp path**
