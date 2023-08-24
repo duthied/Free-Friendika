@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1528);
+	define('DB_UPDATE_VERSION', 1529);
 }
 
 return [
@@ -230,8 +230,8 @@ return [
 			"archive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"unsearchable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact prefers to not be searchable"],
 			"sensitive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact posts sensitive content"],
-			"baseurl" => ["type" => "varbinary(383)", "default" => "", "comment" => "baseurl of the contact"],
-			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID"],
+			"baseurl" => ["type" => "varbinary(383)", "default" => "", "comment" => "baseurl of the contact from the gserver record, can be missing"],
+			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID, can be missing"],
 			"bd" => ["type" => "date", "not null" => "1", "default" => DBA::NULL_DATE, "comment" => ""],
 			// User depending fields
 			"reason" => ["type" => "text", "comment" => ""],
