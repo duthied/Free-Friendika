@@ -285,7 +285,7 @@ class Post
 			$authorBaseUri = new Uri($item['author-baseurl'] ?? '');
 			if ($authorBaseUri->getHost() && !DI::baseUrl()->isLocalUrl($authorBaseUri)) {
 				$ignoreServer = [
-					'label' => DI::l10n()->t("Ignore %s's server", $item['author-name']),
+					'label' => DI::l10n()->t("Ignore %s server", $authorBaseUri->getHost()),
 				];
 			}
 		}

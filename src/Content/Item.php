@@ -435,7 +435,7 @@ class Item
 				$this->l10n->t('Block') => $block_link,
 				$this->l10n->t('Ignore') => $ignore_link,
 				$this->l10n->t('Collapse') => $collapse_link,
-				$this->l10n->t("Ignore %s's server", $item['author-name']) => $ignoreserver_link,
+				$this->l10n->t("Ignore %s server", $authorBaseUri->getHost()) => $ignoreserver_link,
 			];
 
 			if (!empty($item['language'])) {
