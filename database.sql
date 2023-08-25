@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1528
+-- DB_UPDATE_VERSION 1529
 -- ------------------------------------------
 
 
@@ -173,8 +173,8 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`archive` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`unsearchable` boolean NOT NULL DEFAULT '0' COMMENT 'Contact prefers to not be searchable',
 	`sensitive` boolean NOT NULL DEFAULT '0' COMMENT 'Contact posts sensitive content',
-	`baseurl` varbinary(383) DEFAULT '' COMMENT 'baseurl of the contact',
-	`gsid` int unsigned COMMENT 'Global Server ID',
+	`baseurl` varbinary(383) DEFAULT '' COMMENT 'baseurl of the contact from the gserver record, can be missing',
+	`gsid` int unsigned COMMENT 'Global Server ID, can be missing',
 	`bd` date NOT NULL DEFAULT '0001-01-01' COMMENT '',
 	`reason` text COMMENT '',
 	`self` boolean NOT NULL DEFAULT '0' COMMENT '1 if the contact is the user him/her self',
@@ -2045,6 +2045,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`author`.`hidden` AS `author-hidden`,
 	`author`.`updated` AS `author-updated`,
 	`author`.`gsid` AS `author-gsid`,
+	`author`.`baseurl` AS `author-baseurl`,
 	`post-user`.`owner-id` AS `owner-id`,
 	`owner`.`uri-id` AS `owner-uri-id`,
 	`owner`.`url` AS `owner-link`,

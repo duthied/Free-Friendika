@@ -185,6 +185,7 @@
 			"author-hidden" => ["author", "hidden"],
 			"author-updated" => ["author", "updated"],
 			"author-gsid" => ["author", "gsid"],
+			"author-baseurl" => ["author", "baseurl"],
 			"owner-id" => ["post-user", "owner-id"],
 			"owner-uri-id" => ["owner", "uri-id"],
 			"owner-link" => ["owner", "url"],

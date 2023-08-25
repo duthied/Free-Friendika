@@ -51,8 +51,8 @@ Fields
 | archive                   |                                                                                                                | boolean            | NO   |     | 0                   |                |
 | unsearchable              | Contact prefers to not be searchable                                                                           | boolean            | NO   |     | 0                   |                |
 | sensitive                 | Contact posts sensitive content                                                                                | boolean            | NO   |     | 0                   |                |
-| baseurl                   | baseurl of the contact                                                                                         | varbinary(383)     | YES  |     |                     |                |
-| gsid                      | Global Server ID                                                                                               | int unsigned       | YES  |     | NULL                |                |
+| baseurl                   | baseurl of the contact from the gserver record, can be missing                                                 | varbinary(383)     | YES  |     |                     |                |
+| gsid                      | Global Server ID, can be missing                                                                               | int unsigned       | YES  |     | NULL                |                |
 | bd                        |                                                                                                                | date               | NO   |     | 0001-01-01          |                |
 | reason                    |                                                                                                                | text               | YES  |     | NULL                |                |
 | self                      | 1 if the contact is the user him/her self                                                                      | boolean            | NO   |     | 0                   |                |

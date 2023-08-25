@@ -34,15 +34,16 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Attach;
+use Friendica\Model\Circle;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
-use Friendica\Model\Circle;
 use Friendica\Model\Item as ItemModel;
 use Friendica\Model\Photo;
-use Friendica\Model\Tag;
 use Friendica\Model\Post;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
@@ -50,11 +51,11 @@ use Friendica\Protocol\Activity;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
-use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Profiler;
 use Friendica\Util\Proxy;
 use Friendica\Util\XML;
+use GuzzleHttp\Psr7\Uri;
 
 /**
  * A content helper class for displaying items
@@ -408,8 +409,9 @@ class Item
 			$collapse_link = $item['self'] ? '' : $contact_url . '/collapse?t=' . $formSecurityToken;
 		}
 
-		if (!empty($item['author-gsid'])) {
-			$ignoreserver_link = Network::isLocalLink($contact_url) ? '' : 'settings/server/' . $item['author-gsid'] . '/ignore';
+		$authorBaseUri = new Uri($item['author-baseurl'] ?? '');
+		if (!empty($item['author-gsid']) && $authorBaseUri->getHost() && !DI::baseUrl()->isLocalUrl($authorBaseUri)) {
+			$ignoreserver_link = 'settings/server/' . $item['author-gsid'] . '/ignore';
 		}
 
 		if ($cid && !$item['self']) {
