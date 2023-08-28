@@ -285,4 +285,17 @@ class Smilies
 
 		return str_replace($matches[0], $t, $matches[0]);
 	}
+
+	/**
+	 * Checks if the body only contains 4 byte unicode characters.
+	 *
+	 * @param string $body
+	 * @return boolean
+	 */
+	public static function isEmojiPost(string $body): bool
+	{
+		$conv = html_entity_decode(str_replace([' ', "\n", "\r"], '', $body));
+		// Emojis are always 4 byte Unicode characters
+		return (!empty($conv) && (strlen($conv) / mb_strlen($conv) == 4));
+	}
 }

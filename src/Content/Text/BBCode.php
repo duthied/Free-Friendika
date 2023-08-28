@@ -1735,12 +1735,8 @@ class BBCode
 					$text = preg_replace("/\[event\-id\](.*?)\[\/event\-id\]/ism", '', $text);
 				}
 
-				if (!$for_plaintext && DI::config()->get('system', 'big_emojis') && ($simple_html != self::DIASPORA)) {
-					$conv = html_entity_decode(str_replace([' ', "\n", "\r"], '', $text));
-					// Emojis are always 4 byte Unicode characters
-					if (!empty($conv) && (strlen($conv) / mb_strlen($conv) == 4)) {
-						$text = '<span style="font-size: xx-large; line-height: normal;">' . $text . '</span>';
-					}
+				if (!$for_plaintext && DI::config()->get('system', 'big_emojis') && ($simple_html != self::DIASPORA) && Smilies::isEmojiPost($text)) {
+					$text = '<span style="font-size: xx-large; line-height: normal;">' . $text . '</span>';
 				}
 
 				// Handle mentions and hashtag links
