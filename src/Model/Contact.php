@@ -222,6 +222,11 @@ class Contact
 
 		Contact\User::insertForContactArray($contact);
 
+		if ((empty($contact['baseurl']) || empty($contact['gsid'])) && Probe::isProbable($contact['network'])) {
+			Logger::debug('Update missing baseurl', ['id' => $contact['id'], 'url' => $contact['url'], 'callstack' => System::callstack(4, 0, true)]);
+			UpdateContact::add(['priority' => Worker::PRIORITY_MEDIUM, 'dont_fork' => true], $contact['id']);
+		}
+
 		return $contact['id'];
 	}
 
@@ -1372,6 +1377,7 @@ class Contact
 			$fields = [
 				'uid'       => $uid,
 				'url'       => $data['url'],
+				'baseurl'   => $data['baseurl'] ?? '',
 				'nurl'      => Strings::normaliseLink($data['url']),
 				'network'   => $data['network'],
 				'created'   => DateTimeFormat::utcNow(),
@@ -3181,7 +3187,7 @@ class Contact
 			return false;
 		}
 
-		$fields = ['id', 'url', 'name', 'nick', 'avatar', 'photo', 'network', 'blocked'];
+		$fields = ['id', 'url', 'name', 'nick', 'avatar', 'photo', 'network', 'blocked', 'baseurl'];
 		$pub_contact = DBA::selectFirst('contact', $fields, ['id' => $datarray['author-id']]);
 		if (!DBA::isResult($pub_contact)) {
 			// Should never happen
@@ -3252,6 +3258,7 @@ class Contact
 				'created'  => DateTimeFormat::utcNow(),
 				'url'      => $url,
 				'nurl'     => Strings::normaliseLink($url),
+				'baseurl'  => $pub_contact['baseurl'] ?? '',
 				'name'     => $name,
 				'nick'     => $nick,
 				'network'  => $network,

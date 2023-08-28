@@ -25,7 +25,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Util\Network;
 
 class UpdateContact
 {
