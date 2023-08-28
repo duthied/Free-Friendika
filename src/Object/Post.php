@@ -31,16 +31,15 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
-use Friendica\Model\Photo;
 use Friendica\Model\Post as PostModel;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
+use GuzzleHttp\Psr7\Uri;
 use InvalidArgumentException;
 
 /**
@@ -248,11 +247,12 @@ class Post
 			$pinned = DI::l10n()->t('Pinned item');
 		}
 
-		$drop     = false;
-		$block    = false;
-		$ignore   = false;
-		$collapse = false;
-		$report   = false;
+		$drop         = false;
+		$block        = false;
+		$ignore       = false;
+		$collapse     = false;
+		$report       = false;
+		$ignoreServer = false;
 		if (DI::userSession()->getLocalUserId()) {
 			$drop = [
 				'dropping' => $dropping,
@@ -282,6 +282,12 @@ class Post
 				'label' => DI::l10n()->t('Report post'),
 				'href'  => 'moderation/report/create?' . http_build_query(['cid' => $item['author-id'], 'uri-ids' => [$item['uri-id']]]),
 			];
+			$authorBaseUri = new Uri($item['author-baseurl'] ?? '');
+			if ($authorBaseUri->getHost() && !DI::baseUrl()->isLocalUrl($authorBaseUri)) {
+				$ignoreServer = [
+					'label' => DI::l10n()->t("Ignore %s server", $authorBaseUri->getHost()),
+				];
+			}
 		}
 
 		$filer = DI::userSession()->getLocalUserId() ? DI::l10n()->t('Save to folder') : false;
@@ -557,6 +563,7 @@ class Post
 			'ignore_author'   => $ignore,
 			'collapse'        => $collapse,
 			'report'          => $report,
+			'ignore_server'     => $ignoreServer,
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],
@@ -571,6 +578,7 @@ class Post
 			'wait'            => DI::l10n()->t('Please wait'),
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
+			'author_gsid'     => $item['author-gsid'],
 			'network'         => $item['network'],
 			'network_name'    => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network'], $item['author-gsid']),
 			'network_icon'    => ContactSelector::networkToIcon($item['network'], $item['author-link'], $item['author-gsid']),

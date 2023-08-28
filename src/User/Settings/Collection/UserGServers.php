@@ -19,43 +19,12 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\User\Settings\Collection;
 
-use Friendica\BaseModule;
-use Friendica\Core\System;
-
-/**
- * Return the default robots.txt
- */
-class RobotsTxt extends BaseModule
+class UserGServers extends \Friendica\BaseCollection
 {
-	protected function rawContent(array $request = [])
+	public function current(): \Friendica\User\Settings\Entity\UserGServer
 	{
-		$allDisallowed = [
-			'/settings/',
-			'/admin/',
-			'/message/',
-			'/search',
-			'/help',
-			'/proxy',
-			'/photo',
-			'/avatar',
-		];
-
-		header('Content-Type: text/plain');
-		echo 'User-agent: *' . PHP_EOL;
-		foreach ($allDisallowed as $disallowed) {
-			echo 'Disallow: ' . $disallowed . PHP_EOL;
-		}
-
-		echo PHP_EOL;
-		echo 'User-agent: ChatGPT-User' . PHP_EOL;
-		echo 'Disallow: /' . PHP_EOL;
-
-		echo PHP_EOL;
-		echo 'User-agent: GPTBot' . PHP_EOL;
-		echo 'Disallow: /' . PHP_EOL;
-
-		System::exit();
+		return parent::current();
 	}
 }

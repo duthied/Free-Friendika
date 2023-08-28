@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1524);
+	define('DB_UPDATE_VERSION', 1529);
 }
 
 return [
@@ -159,6 +159,18 @@ return [
 			"email" => ["email(64)"],
 		]
 	],
+	"user-gserver" => [
+		"comment" => "User settings about remote servers",
+		"fields" => [
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
+			"gsid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["gserver" => "id"], "comment" => "Gserver id"],
+			"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "server accounts are ignored for the user"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uid", "gsid"],
+			"gsid" => ["gsid"]
+		],
+	],
 	"item-uri" => [
 		"comment" => "URI and GUID for items",
 		"fields" => [
@@ -218,8 +230,8 @@ return [
 			"archive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"unsearchable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact prefers to not be searchable"],
 			"sensitive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact posts sensitive content"],
-			"baseurl" => ["type" => "varbinary(383)", "default" => "", "comment" => "baseurl of the contact"],
-			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID"],
+			"baseurl" => ["type" => "varbinary(383)", "default" => "", "comment" => "baseurl of the contact from the gserver record, can be missing"],
+			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID, can be missing"],
 			"bd" => ["type" => "date", "not null" => "1", "default" => DBA::NULL_DATE, "comment" => ""],
 			// User depending fields
 			"reason" => ["type" => "text", "comment" => ""],
@@ -1583,7 +1595,7 @@ return [
 			"profile-name" => ["type" => "varchar(255)", "comment" => "Deprecated"],
 			"is-default" => ["type" => "boolean", "comment" => "Deprecated"],
 			"hide-friends" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Hide friend list from viewers of this profile"],
-			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Unused in favor of user.username"],
 			"pdesc" => ["type" => "varchar(255)", "comment" => "Deprecated"],
 			"dob" => ["type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00", "comment" => "Day of birth"],
 			"address" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],

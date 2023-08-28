@@ -19,43 +19,29 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\Federation\Repository;
 
-use Friendica\BaseModule;
-use Friendica\Core\System;
+use Friendica\Database\Database;
+use Friendica\Federation\Factory;
+use Friendica\Federation\Entity;
+use Psr\Log\LoggerInterface;
 
-/**
- * Return the default robots.txt
- */
-class RobotsTxt extends BaseModule
+class GServer extends \Friendica\BaseRepository
 {
-	protected function rawContent(array $request = [])
+	protected static $table_name = 'gserver';
+
+	public function __construct(Database $database, LoggerInterface $logger, Factory\GServer $factory)
 	{
-		$allDisallowed = [
-			'/settings/',
-			'/admin/',
-			'/message/',
-			'/search',
-			'/help',
-			'/proxy',
-			'/photo',
-			'/avatar',
-		];
+		parent::__construct($database, $logger, $factory);
+	}
 
-		header('Content-Type: text/plain');
-		echo 'User-agent: *' . PHP_EOL;
-		foreach ($allDisallowed as $disallowed) {
-			echo 'Disallow: ' . $disallowed . PHP_EOL;
-		}
-
-		echo PHP_EOL;
-		echo 'User-agent: ChatGPT-User' . PHP_EOL;
-		echo 'Disallow: /' . PHP_EOL;
-
-		echo PHP_EOL;
-		echo 'User-agent: GPTBot' . PHP_EOL;
-		echo 'Disallow: /' . PHP_EOL;
-
-		System::exit();
+	/**
+	 * @param int $gsid
+	 * @return Entity\GServer
+	 * @throws \Friendica\Network\HTTPException\NotFoundException
+	 */
+	public function selectOneById(int $gsid): Entity\GServer
+	{
+		return $this->_selectOne(['id' => $gsid]);
 	}
 }

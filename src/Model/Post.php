@@ -453,12 +453,10 @@ class Post
 			AND (NOT `causer-blocked` OR `causer-id` = ? OR `causer-id` IS NULL) AND NOT `contact-blocked`
 			AND ((NOT `contact-readonly` AND NOT `contact-pending` AND (`contact-rel` IN (?, ?)))
 				OR `self` OR `contact-uid` = ?)
-			AND NOT `" . $view . "`.`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `uid` = ? AND `hidden`)
-			AND NOT `author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `blocked` AND `cid` = `author-id`)
-			AND NOT `owner-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `blocked` AND `cid` = `owner-id`)
-			AND NOT `author-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `ignored` AND `cid` = `author-id`)
-			AND NOT `owner-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `ignored` AND `cid` = `owner-id`)",
-				0, Contact::SHARING, Contact::FRIEND, 0, $uid, $uid, $uid, $uid, $uid]);
+			AND NOT EXISTS(SELECT `uri-id` FROM `post-user`    WHERE `uid` = ? AND `uri-id` = " . DBA::quoteIdentifier($view) . ".`uri-id` AND `hidden`)
+			AND NOT EXISTS(SELECT `cid`    FROM `user-contact` WHERE `uid` = ? AND `cid` IN (`author-id`, `owner-id`) AND (`blocked` OR `ignored`))
+			AND NOT EXISTS(SELECT `gsid`   FROM `user-gserver` WHERE `uid` = ? AND `gsid` IN (`author-gsid`, `owner-gsid`, `causer-gsid`) AND `ignored`)",
+				0, Contact::SHARING, Contact::FRIEND, 0, $uid, $uid, $uid]);
 
 		$select_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], $selected));
 

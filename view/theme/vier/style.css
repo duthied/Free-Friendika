@@ -3281,3 +3281,7 @@ fbrowser.photo .photo-album-image-wrapper { margin-left: 10px; }
 #colorbox img {
 	max-width: 100%;
 }
+
+#settings-server td + td {
+	text-align: center;
+}

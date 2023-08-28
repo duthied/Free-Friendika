@@ -211,7 +211,7 @@ class PermissionSet extends BaseRepository
 	}
 
 	/**
-	 * Selects or creates a PermissionSet based on it's fields
+	 * Selects or creates a PermissionSet based on its fields
 	 *
 	 * @param Entity\PermissionSet $permissionSet
 	 *

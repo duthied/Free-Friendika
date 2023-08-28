@@ -46,6 +46,8 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\Post as PostObject;
 use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
+use Friendica\User\Settings\Entity\UserGServer;
+use Friendica\User\Settings\Repository;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -91,22 +93,25 @@ class Conversation
 	private $mode;
 	/** @var IHandleUserSessions */
 	private $session;
+	/** @var Repository\UserGServer */
+	private $userGServer;
 
-	public function __construct(LoggerInterface $logger, Profiler $profiler, Activity $activity, L10n $l10n, Item $item, Arguments $args, BaseURL $baseURL, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, App\Mode $mode, App $app, IHandleUserSessions $session)
+	public function __construct(Repository\UserGServer $userGServer, LoggerInterface $logger, Profiler $profiler, Activity $activity, L10n $l10n, Item $item, Arguments $args, BaseURL $baseURL, IManageConfigValues $config, IManagePersonalConfigValues $pConfig, App\Page $page, App\Mode $mode, App $app, IHandleUserSessions $session)
 	{
-		$this->activity = $activity;
-		$this->item     = $item;
-		$this->config   = $config;
-		$this->mode     = $mode;
-		$this->baseURL  = $baseURL;
-		$this->profiler = $profiler;
-		$this->logger   = $logger;
-		$this->l10n     = $l10n;
-		$this->args     = $args;
-		$this->pConfig  = $pConfig;
-		$this->page     = $page;
-		$this->app      = $app;
-		$this->session  = $session;
+		$this->activity    = $activity;
+		$this->item        = $item;
+		$this->config      = $config;
+		$this->mode        = $mode;
+		$this->baseURL     = $baseURL;
+		$this->profiler    = $profiler;
+		$this->logger      = $logger;
+		$this->l10n        = $l10n;
+		$this->args        = $args;
+		$this->pConfig     = $pConfig;
+		$this->page        = $page;
+		$this->app         = $app;
+		$this->session     = $session;
+		$this->userGServer = $userGServer;
 	}
 
 	/**
@@ -460,8 +465,14 @@ class Conversation
 
 		$live_update_div = '';
 
+		$userGservers = $this->userGServer->listIgnoredByUser($this->session->getLocalUserId());
+
+		$ignoredGsids = array_map(function (UserGServer $userGServer) {
+			return $userGServer->gsid;
+		}, $userGservers->getArrayCopy());
+
 		if ($mode === self::MODE_NETWORK) {
-			$items = $this->addChildren($items, false, $order, $uid, $mode);
+			$items = $this->addChildren($items, false, $order, $uid, $mode, $ignoredGsids);
 			if (!$update) {
 				/*
 				* The special div is needed for liveUpdate to kick in for this page.
@@ -487,7 +498,7 @@ class Conversation
 					. "'; </script>\r\n";
 			}
 		} elseif ($mode === self::MODE_PROFILE) {
-			$items = $this->addChildren($items, false, $order, $uid, $mode);
+			$items = $this->addChildren($items, false, $order, $uid, $mode, $ignoredGsids);
 
 			if (!$update) {
 				$tab = !empty($_GET['tab']) ? trim($_GET['tab']) : 'posts';
@@ -512,7 +523,7 @@ class Conversation
 					. "; var netargs = '?f='; </script>\r\n";
 			}
 		} elseif ($mode === self::MODE_DISPLAY) {
-			$items = $this->addChildren($items, false, $order, $uid, $mode);
+			$items = $this->addChildren($items, false, $order, $uid, $mode, $ignoredGsids);
 
 			if (!$update) {
 				$live_update_div = '<div id="live-display"></div>' . "\r\n"
@@ -520,7 +531,7 @@ class Conversation
 					. "</script>";
 			}
 		} elseif ($mode === self::MODE_COMMUNITY) {
-			$items = $this->addChildren($items, true, $order, $uid, $mode);
+			$items = $this->addChildren($items, true, $order, $uid, $mode, $ignoredGsids);
 
 			if (!$update) {
 				$live_update_div = '<div id="live-community"></div>' . "\r\n"
@@ -531,7 +542,7 @@ class Conversation
 					. "'; </script>\r\n";
 			}
 		} elseif ($mode === self::MODE_CONTACTS) {
-			$items = $this->addChildren($items, false, $order, $uid, $mode);
+			$items = $this->addChildren($items, false, $order, $uid, $mode, $ignoredGsids);
 
 			if (!$update) {
 				$live_update_div = '<div id="live-contact"></div>' . "\r\n"
@@ -818,13 +829,14 @@ class Conversation
 	 *
 	 * @param array  $parents       Parent items
 	 * @param bool   $block_authors
-	 * @param bool   $order
+	 * @param string $order         Either "received" or "commented"
 	 * @param int    $uid
-	 * @param string $mode
+	 * @param string $mode          One of self::MODE_*
+	 * @param array  $ignoredGsids  List of ids of servers ignored by the user
 	 * @return array items with parents and comments
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 */
-	private function addChildren(array $parents, bool $block_authors, string $order, int $uid, string $mode): array
+	private function addChildren(array $parents, bool $block_authors, string $order, int $uid, string $mode, array $ignoredGsids = []): array
 	{
 		$this->profiler->startRecording('rendering');
 		if (count($parents) > 1) {
@@ -903,6 +915,13 @@ class Conversation
 
 		while ($row = Post::fetch($thread_items)) {
 			if (!empty($items[$row['uri-id']]) && ($row['uid'] == 0)) {
+				continue;
+			}
+
+			if (in_array($row['author-gsid'], $ignoredGsids)
+				|| in_array($row['owner-gsid'], $ignoredGsids)
+				|| in_array($row['causer-gsid'], $ignoredGsids)
+			) {
 				continue;
 			}
 
@@ -1468,6 +1487,7 @@ class Conversation
 				'received'             => $item['received'],
 				'created_date'         => $item['created'],
 				'uriid'                => $item['uri-id'],
+				'author_gsid'          => $item['author-gsid'],
 				'network'              => $item['network'],
 				'network_name'         => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network'], $item['author-gsid']),
 				'network_icon'         => ContactSelector::networkToIcon($item['network'], $item['author-link'], $item['author-gsid']),

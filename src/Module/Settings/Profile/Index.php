@@ -21,43 +21,75 @@
 
 namespace Friendica\Module\Settings\Profile;
 
+use Friendica\App;
 use Friendica\Core\ACL;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
-use Friendica\Profile\ProfileField\Collection\ProfileFields;
-use Friendica\Profile\ProfileField\Entity\ProfileField;
+use Friendica\Module\Response;
+use Friendica\Navigation\SystemMessages;
+use Friendica\Profile\ProfileField;
 use Friendica\Model\User;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
+use Friendica\Security\PermissionSet;
+use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Profiler;
 use Friendica\Util\Temporal;
 use Friendica\Core\Worker;
+use Psr\Log\LoggerInterface;
 
 class Index extends BaseSettings
 {
+	/** @var ProfileField\Repository\ProfileField */
+	private $profileFieldRepo;
+	/** @var ProfileField\Factory\ProfileField */
+	private $profileFieldFactory;
+	/** @var SystemMessages */
+	private $systemMessages;
+	/** @var PermissionSet\Repository\PermissionSet */
+	private $permissionSetRepo;
+	/** @var PermissionSet\Factory\PermissionSet */
+	private $permissionSetFactory;
+	/** @var ACLFormatter */
+	private $aclFormatter;
+
+	public function __construct(ACLFormatter $aclFormatter, PermissionSet\Factory\PermissionSet $permissionSetFactory, PermissionSet\Repository\PermissionSet $permissionSetRepo, SystemMessages $systemMessages, ProfileField\Factory\ProfileField $profileFieldFactory, ProfileField\Repository\ProfileField $profileFieldRepo, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->profileFieldRepo     = $profileFieldRepo;
+		$this->profileFieldFactory  = $profileFieldFactory;
+		$this->systemMessages       = $systemMessages;
+		$this->permissionSetRepo    = $permissionSetRepo;
+		$this->permissionSetFactory = $permissionSetFactory;
+		$this->aclFormatter         = $aclFormatter;
+	}
+
 	protected function post(array $request = [])
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return;
 		}
 
-		$profile = Profile::getByUID(DI::userSession()->getLocalUserId());
-		if (!DBA::isResult($profile)) {
+		$profile = Profile::getByUID($this->session->getLocalUserId());
+		if (!$profile) {
 			return;
 		}
 
 		self::checkFormSecurityTokenRedirectOnError('/settings/profile', 'settings_profile');
 
-		Hook::callAll('profile_post', $_POST);
+		Hook::callAll('profile_post', $request);
 
-		$dob = trim($_POST['dob'] ?? '');
+		$dob = trim($request['dob'] ?? '');
 
 		if ($dob && !in_array($dob, ['0000-00-00', DBA::NULL_DATE])) {
 			$y = substr($dob, 0, 4);
@@ -79,39 +111,40 @@ class Index extends BaseSettings
 			}
 		}
 
-		$name = trim($_POST['name'] ?? '');
-		if (!strlen($name)) {
-			DI::sysmsg()->addNotice(DI::l10n()->t('Profile Name is required.'));
+		$username = trim($request['username'] ?? '');
+		if (!$username) {
+			$this->systemMessages->addNotice($this->t('Display Name is required.'));
 			return;
 		}
 
-		$about = trim($_POST['about']);
-		$address = trim($_POST['address']);
-		$locality = trim($_POST['locality']);
-		$region = trim($_POST['region']);
-		$postal_code = trim($_POST['postal_code']);
-		$country_name = trim($_POST['country_name']);
-		$pub_keywords = self::cleanKeywords(trim($_POST['pub_keywords']));
-		$prv_keywords = self::cleanKeywords(trim($_POST['prv_keywords']));
-		$xmpp = trim($_POST['xmpp']);
-		$matrix = trim($_POST['matrix']);
-		$homepage = trim($_POST['homepage']);
+		$about        = trim($request['about']);
+		$address      = trim($request['address']);
+		$locality     = trim($request['locality']);
+		$region       = trim($request['region']);
+		$postal_code  = trim($request['postal_code']);
+		$country_name = trim($request['country_name']);
+		$pub_keywords = self::cleanKeywords(trim($request['pub_keywords']));
+		$prv_keywords = self::cleanKeywords(trim($request['prv_keywords']));
+		$xmpp         = trim($request['xmpp']);
+		$matrix       = trim($request['matrix']);
+		$homepage     = trim($request['homepage']);
 		if ((strpos($homepage, 'http') !== 0) && (strlen($homepage))) {
 			// neither http nor https in URL, add them
 			$homepage = 'http://' . $homepage;
 		}
 
-		$profileFieldsNew = self::getProfileFieldsFromInput(
-			DI::userSession()->getLocalUserId(),
-			$_REQUEST['profile_field'],
-			$_REQUEST['profile_field_order']
+		$profileFieldsNew = $this->getProfileFieldsFromInput(
+			$this->session->getLocalUserId(),
+			$request['profile_field'],
+			$request['profile_field_order']
 		);
 
-		DI::profileField()->saveCollectionForUser(DI::userSession()->getLocalUserId(), $profileFieldsNew);
+		$this->profileFieldRepo->saveCollectionForUser($this->session->getLocalUserId(), $profileFieldsNew);
+
+		User::update(['username' => $username], $this->session->getLocalUserId());
 
 		$result = Profile::update(
 			[
-				'name'         => $name,
 				'about'        => $about,
 				'dob'          => $dob,
 				'address'      => $address,
@@ -125,23 +158,23 @@ class Index extends BaseSettings
 				'pub_keywords' => $pub_keywords,
 				'prv_keywords' => $prv_keywords,
 			],
-			DI::userSession()->getLocalUserId()
+			$this->session->getLocalUserId()
 		);
 
-		Worker::add(Worker::PRIORITY_MEDIUM, 'CheckRelMeProfileLink', DI::userSession()->getLocalUserId());
+		Worker::add(Worker::PRIORITY_MEDIUM, 'CheckRelMeProfileLink', $this->session->getLocalUserId());
 
 		if (!$result) {
-			DI::sysmsg()->addNotice(DI::l10n()->t('Profile couldn\'t be updated.'));
+			$this->systemMessages->addNotice($this->t("Profile couldn't be updated."));
 			return;
 		}
 
-		DI::baseUrl()->redirect('settings/profile');
+		$this->baseUrl->redirect('settings/profile');
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (!DI::userSession()->getLocalUserId()) {
-			DI::sysmsg()->addNotice(DI::l10n()->t('You must be logged in to use this module'));
+		if (!$this->session->getLocalUserId()) {
+			$this->systemMessages->addNotice($this->t('You must be logged in to use this module'));
 			return Login::form();
 		}
 
@@ -149,147 +182,145 @@ class Index extends BaseSettings
 
 		$o = '';
 
-		$profile = User::getOwnerDataById(DI::userSession()->getLocalUserId());
-		if (!DBA::isResult($profile)) {
+		$owner = User::getOwnerDataById($this->session->getLocalUserId());
+		if (!$owner) {
 			throw new HTTPException\NotFoundException();
 		}
 
-		$a = DI::app();
-
-		DI::page()->registerFooterScript('view/asset/es-jquery-sortable/source/js/jquery-sortable-min.js');
-		DI::page()->registerFooterScript(Theme::getPathForFile('js/module/settings/profile/index.js'));
+		$this->page->registerFooterScript('view/asset/es-jquery-sortable/source/js/jquery-sortable-min.js');
+		$this->page->registerFooterScript(Theme::getPathForFile('js/module/settings/profile/index.js'));
 
 		$custom_fields = [];
 
-		$profileFields = DI::profileField()->selectByUserId(DI::userSession()->getLocalUserId());
+		$profileFields = $this->profileFieldRepo->selectByUserId($this->session->getLocalUserId());
 		foreach ($profileFields as $profileField) {
-			/** @var ProfileField $profileField */
 			$defaultPermissions = $profileField->permissionSet->withAllowedContacts(
 				Contact::pruneUnavailable($profileField->permissionSet->allow_cid)
 			);
 
 			$custom_fields[] = [
-				'id' => $profileField->id,
+				'id'     => $profileField->id,
 				'legend' => $profileField->label,
 				'fields' => [
-					'label' => ['profile_field[' . $profileField->id . '][label]', DI::l10n()->t('Label:'), $profileField->label],
-					'value' => ['profile_field[' . $profileField->id . '][value]', DI::l10n()->t('Value:'), $profileField->value],
-					'acl' => ACL::getFullSelectorHTML(
-						DI::page(),
-						$a->getLoggedInUserId(),
+					'label' => ['profile_field[' . $profileField->id . '][label]', $this->t('Label:'), $profileField->label],
+					'value' => ['profile_field[' . $profileField->id . '][value]', $this->t('Value:'), $profileField->value],
+					'acl'   => ACL::getFullSelectorHTML(
+						$this->page,
+						$this->session->getLocalUserId(),
 						false,
 						$defaultPermissions->toArray(),
 						['network' => Protocol::DFRN],
 						'profile_field[' . $profileField->id . ']'
 					),
 				],
-				'permissions' => DI::l10n()->t('Field Permissions'),
-				'permdesc' => DI::l10n()->t("(click to open/close)"),
+
+				'permissions' => $this->t('Field Permissions'),
+				'permdesc'    => $this->t("(click to open/close)"),
 			];
-		};
+		}
 
 		$custom_fields[] = [
-			'id' => 'new',
-			'legend' => DI::l10n()->t('Add a new profile field'),
+			'id'     => 'new',
+			'legend' => $this->t('Add a new profile field'),
 			'fields' => [
-				'label' => ['profile_field[new][label]', DI::l10n()->t('Label:')],
-				'value' => ['profile_field[new][value]', DI::l10n()->t('Value:')],
-				'acl' => ACL::getFullSelectorHTML(
-					DI::page(),
-					$a->getLoggedInUserId(),
+				'label' => ['profile_field[new][label]', $this->t('Label:')],
+				'value' => ['profile_field[new][value]', $this->t('Value:')],
+				'acl'   => ACL::getFullSelectorHTML(
+					$this->page,
+					$this->session->getLocalUserId(),
 					false,
 					['allow_cid' => []],
 					['network' => Protocol::DFRN],
 					'profile_field[new]'
 				),
 			],
-			'permissions' => DI::l10n()->t('Field Permissions'),
-			'permdesc' => DI::l10n()->t("(click to open/close)"),
+
+			'permissions' => $this->t('Field Permissions'),
+			'permdesc'    => $this->t("(click to open/close)"),
 		];
 
-		DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/profile/index_head.tpl'), [
-		]);
+		$this->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/profile/index_head.tpl'));
 
-		$personal_account = ($profile['account-type'] != User::ACCOUNT_TYPE_COMMUNITY);
+		$personal_account = ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY);
 
-		if ($profile['homepage_verified']) {
-			$homepage_help_text = DI::l10n()->t('The homepage is verified. A rel="me" link back to your Friendica profile page was found on the homepage.');
+		if ($owner['homepage_verified']) {
+			$homepage_help_text = $this->t('The homepage is verified. A rel="me" link back to your Friendica profile page was found on the homepage.');
 		} else {
-			$homepage_help_text = DI::l10n()->t('To verify your homepage, add a rel="me" link to it, pointing to your profile URL (%s).', $profile['url']);
+			$homepage_help_text = $this->t('To verify your homepage, add a rel="me" link to it, pointing to your profile URL (%s).', $owner['url']);
 		}
 
 		$tpl = Renderer::getMarkupTemplate('settings/profile/index.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
-			'$personal_account' => $personal_account,
-
-			'$form_security_token' => self::getFormSecurityToken('settings_profile'),
-			'$form_security_token_photo' => self::getFormSecurityToken('settings_profile_photo'),
-
-			'$profile_action' => DI::l10n()->t('Profile Actions'),
-			'$banner' => DI::l10n()->t('Edit Profile Details'),
-			'$submit' => DI::l10n()->t('Submit'),
-			'$profpic' => DI::l10n()->t('Change Profile Photo'),
-			'$profpiclink' => '/profile/' . $profile['nickname'] . '/photos',
-			'$viewprof' => DI::l10n()->t('View Profile'),
-
-			'$lbl_personal_section' => DI::l10n()->t('Personal'),
-			'$lbl_picture_section' => DI::l10n()->t('Profile picture'),
-			'$lbl_location_section' => DI::l10n()->t('Location'),
-			'$lbl_miscellaneous_section' => DI::l10n()->t('Miscellaneous'),
-			'$lbl_custom_fields_section' => DI::l10n()->t('Custom Profile Fields'),
-
-			'$lbl_profile_photo' => DI::l10n()->t('Upload Profile Photo'),
-
-			'$baseurl' => DI::baseUrl(),
-			'$nickname' => $profile['nickname'],
-			'$name' => ['name', DI::l10n()->t('Display name:'), $profile['name']],
-			'$about' => ['about', DI::l10n()->t('Description:'), $profile['about']],
-			'$dob' => Temporal::getDateofBirthField($profile['dob'], $profile['timezone']),
-			'$address' => ['address', DI::l10n()->t('Street Address:'), $profile['address']],
-			'$locality' => ['locality', DI::l10n()->t('Locality/City:'), $profile['locality']],
-			'$region' => ['region', DI::l10n()->t('Region/State:'), $profile['region']],
-			'$postal_code' => ['postal_code', DI::l10n()->t('Postal/Zip Code:'), $profile['postal-code']],
-			'$country_name' => ['country_name', DI::l10n()->t('Country:'), $profile['country-name']],
-			'$age' => ((intval($profile['dob'])) ? '(' . DI::l10n()->t('Age: ') . DI::l10n()->tt('%d year old', '%d years old', Temporal::getAgeByTimezone($profile['dob'], $profile['timezone'])) . ')' : ''),
-			'$xmpp' => ['xmpp', DI::l10n()->t('XMPP (Jabber) address:'), $profile['xmpp'], DI::l10n()->t('The XMPP address will be published so that people can follow you there.')],
-			'$matrix' => ['matrix', DI::l10n()->t('Matrix (Element) address:'), $profile['matrix'], DI::l10n()->t('The Matrix address will be published so that people can follow you there.')],
-			'$homepage' => ['homepage', DI::l10n()->t('Homepage URL:'), $profile['homepage'], $homepage_help_text],
-			'$pub_keywords' => ['pub_keywords', DI::l10n()->t('Public Keywords:'), $profile['pub_keywords'], DI::l10n()->t('(Used for suggesting potential friends, can be seen by others)')],
-			'$prv_keywords' => ['prv_keywords', DI::l10n()->t('Private Keywords:'), $profile['prv_keywords'], DI::l10n()->t('(Used for searching profiles, never shown to others)')],
-			'$custom_fields_description' => DI::l10n()->t("<p>Custom fields appear on <a href=\"%s\">your profile page</a>.</p>
+			'$l10n' => [
+				'profile_action'            => $this->t('Profile Actions'),
+				'banner'                    => $this->t('Edit Profile Details'),
+				'submit'                    => $this->t('Submit'),
+				'profpic'                   => $this->t('Change Profile Photo'),
+				'viewprof'                  => $this->t('View Profile'),
+				'personal_section'          => $this->t('Personal'),
+				'picture_section'           => $this->t('Profile picture'),
+				'location_section'          => $this->t('Location'),
+				'miscellaneous_section'     => $this->t('Miscellaneous'),
+				'custom_fields_section'     => $this->t('Custom Profile Fields'),
+				'profile_photo'             => $this->t('Upload Profile Photo'),
+				'custom_fields_description' => $this->t('<p>Custom fields appear on <a href="%s">your profile page</a>.</p>
 				<p>You can use BBCodes in the field values.</p>
 				<p>Reorder by dragging the field title.</p>
 				<p>Empty the label field to remove a custom field.</p>
-				<p>Non-public fields can only be seen by the selected Friendica contacts or the Friendica contacts in the selected circles.</p>",
-				'profile/' . $profile['nickname'] . '/profile'
-			),
+				<p>Non-public fields can only be seen by the selected Friendica contacts or the Friendica contacts in the selected circles.</p>',
+					'profile/' . $owner['nickname'] . '/profile'
+				),
+			],
+
+			'$personal_account' => $personal_account,
+
+			'$form_security_token'       => self::getFormSecurityToken('settings_profile'),
+			'$form_security_token_photo' => self::getFormSecurityToken('settings_profile_photo'),
+
+			'$profpiclink' => '/profile/' . $owner['nickname'] . '/photos',
+
+			'$nickname'      => $owner['nickname'],
+			'$username'      => ['username', $this->t('Display name:'), $owner['name']],
+			'$about'         => ['about', $this->t('Description:'), $owner['about']],
+			'$dob'           => Temporal::getDateofBirthField($owner['dob'], $owner['timezone']),
+			'$address'       => ['address', $this->t('Street Address:'), $owner['address']],
+			'$locality'      => ['locality', $this->t('Locality/City:'), $owner['locality']],
+			'$region'        => ['region', $this->t('Region/State:'), $owner['region']],
+			'$postal_code'   => ['postal_code', $this->t('Postal/Zip Code:'), $owner['postal-code']],
+			'$country_name'  => ['country_name', $this->t('Country:'), $owner['country-name']],
+			'$age'           => ((intval($owner['dob'])) ? '(' . $this->t('Age: ') . $this->tt('%d year old', '%d years old', Temporal::getAgeByTimezone($owner['dob'], $owner['timezone'])) . ')' : ''),
+			'$xmpp'          => ['xmpp', $this->t('XMPP (Jabber) address:'), $owner['xmpp'], $this->t('The XMPP address will be published so that people can follow you there.')],
+			'$matrix'        => ['matrix', $this->t('Matrix (Element) address:'), $owner['matrix'], $this->t('The Matrix address will be published so that people can follow you there.')],
+			'$homepage'      => ['homepage', $this->t('Homepage URL:'), $owner['homepage'], $homepage_help_text],
+			'$pub_keywords'  => ['pub_keywords', $this->t('Public Keywords:'), $owner['pub_keywords'], $this->t('(Used for suggesting potential friends, can be seen by others)')],
+			'$prv_keywords'  => ['prv_keywords', $this->t('Private Keywords:'), $owner['prv_keywords'], $this->t('(Used for searching profiles, never shown to others)')],
 			'$custom_fields' => $custom_fields,
 		]);
 
-		$arr = ['profile' => $profile, 'entry' => $o];
+		$arr = ['profile' => $owner, 'entry' => $o];
 		Hook::callAll('profile_edit', $arr);
 
 		return $o;
 	}
 
-	private static function getProfileFieldsFromInput(int $uid, array $profileFieldInputs, array $profileFieldOrder): ProfileFields
+	private function getProfileFieldsFromInput(int $uid, array $profileFieldInputs, array $profileFieldOrder): ProfileField\Collection\ProfileFields
 	{
-		$profileFields = new ProfileFields();
+		$profileFields = new ProfileField\Collection\ProfileFields();
 
 		// Returns an associative array of id => order values
 		$profileFieldOrder = array_flip($profileFieldOrder);
 
 		// Creation of the new field
 		if (!empty($profileFieldInputs['new']['label'])) {
-			$permissionSet = DI::permissionSet()->selectOrCreate(DI::permissionSetFactory()->createFromString(
+			$permissionSet = $this->permissionSetRepo->selectOrCreate($this->permissionSetFactory->createFromString(
 				$uid,
-				DI::aclFormatter()->toString($profileFieldInputs['new']['contact_allow'] ?? ''),
-				DI::aclFormatter()->toString($profileFieldInputs['new']['circle_allow'] ?? ''),
-				DI::aclFormatter()->toString($profileFieldInputs['new']['contact_deny'] ?? ''),
-				DI::aclFormatter()->toString($profileFieldInputs['new']['circle_deny'] ?? '')
+				$this->aclFormatter->toString($profileFieldInputs['new']['contact_allow'] ?? ''),
+				$this->aclFormatter->toString($profileFieldInputs['new']['circle_allow'] ?? ''),
+				$this->aclFormatter->toString($profileFieldInputs['new']['contact_deny'] ?? ''),
+				$this->aclFormatter->toString($profileFieldInputs['new']['circle_deny'] ?? '')
 			));
 
-			$profileFields->append(DI::profileFieldFactory()->createFromValues(
+			$profileFields->append($this->profileFieldFactory->createFromValues(
 				$uid,
 				$profileFieldOrder['new'],
 				$profileFieldInputs['new']['label'],
@@ -302,15 +333,15 @@ class Index extends BaseSettings
 		unset($profileFieldOrder['new']);
 
 		foreach ($profileFieldInputs as $id => $profileFieldInput) {
-			$permissionSet = DI::permissionSet()->selectOrCreate(DI::permissionSetFactory()->createFromString(
+			$permissionSet = $this->permissionSetRepo->selectOrCreate($this->permissionSetFactory->createFromString(
 				$uid,
-				DI::aclFormatter()->toString($profileFieldInput['contact_allow'] ?? ''),
-				DI::aclFormatter()->toString($profileFieldInput['circle_allow'] ?? ''),
-				DI::aclFormatter()->toString($profileFieldInput['contact_deny'] ?? ''),
-				DI::aclFormatter()->toString($profileFieldInput['circle_deny'] ?? '')
+				$this->aclFormatter->toString($profileFieldInput['contact_allow'] ?? ''),
+				$this->aclFormatter->toString($profileFieldInput['circle_allow'] ?? ''),
+				$this->aclFormatter->toString($profileFieldInput['contact_deny'] ?? ''),
+				$this->aclFormatter->toString($profileFieldInput['circle_deny'] ?? '')
 			));
 
-			$profileFields->append(DI::profileFieldFactory()->createFromValues(
+			$profileFields->append($this->profileFieldFactory->createFromValues(
 				$uid,
 				$profileFieldOrder[$id],
 				$profileFieldInput['label'],
@@ -322,22 +353,20 @@ class Index extends BaseSettings
 		return $profileFields;
 	}
 
-	private static function cleanKeywords($keywords)
+	private static function cleanKeywords($keywords): string
 	{
 		$keywords = str_replace(',', ' ', $keywords);
 		$keywords = explode(' ', $keywords);
 
 		$cleaned = [];
 		foreach ($keywords as $keyword) {
-			$keyword = trim(strtolower($keyword));
+			$keyword = trim($keyword);
 			$keyword = trim($keyword, '#');
 			if ($keyword != '') {
 				$cleaned[] = $keyword;
 			}
 		}
 
-		$keywords = implode(', ', $cleaned);
-
-		return $keywords;
+		return implode(', ', $cleaned);
 	}
 }

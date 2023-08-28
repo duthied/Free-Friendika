@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1524
+-- DB_UPDATE_VERSION 1529
 -- ------------------------------------------
 
 
@@ -102,6 +102,19 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
 
 --
+-- TABLE user-gserver
+--
+CREATE TABLE IF NOT EXISTS `user-gserver` (
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner User id',
+	`gsid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Gserver id',
+	`ignored` boolean NOT NULL DEFAULT '0' COMMENT 'server accounts are ignored for the user',
+	 PRIMARY KEY(`uid`,`gsid`),
+	 INDEX `gsid` (`gsid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User settings about remote servers';
+
+--
 -- TABLE item-uri
 --
 CREATE TABLE IF NOT EXISTS `item-uri` (
@@ -160,8 +173,8 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`archive` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`unsearchable` boolean NOT NULL DEFAULT '0' COMMENT 'Contact prefers to not be searchable',
 	`sensitive` boolean NOT NULL DEFAULT '0' COMMENT 'Contact posts sensitive content',
-	`baseurl` varbinary(383) DEFAULT '' COMMENT 'baseurl of the contact',
-	`gsid` int unsigned COMMENT 'Global Server ID',
+	`baseurl` varbinary(383) DEFAULT '' COMMENT 'baseurl of the contact from the gserver record, can be missing',
+	`gsid` int unsigned COMMENT 'Global Server ID, can be missing',
 	`bd` date NOT NULL DEFAULT '0001-01-01' COMMENT '',
 	`reason` text COMMENT '',
 	`self` boolean NOT NULL DEFAULT '0' COMMENT '1 if the contact is the user him/her self',
@@ -1586,7 +1599,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`profile-name` varchar(255) COMMENT 'Deprecated',
 	`is-default` boolean COMMENT 'Deprecated',
 	`hide-friends` boolean NOT NULL DEFAULT '0' COMMENT 'Hide friend list from viewers of this profile',
-	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Unused in favor of user.username',
 	`pdesc` varchar(255) COMMENT 'Deprecated',
 	`dob` varchar(32) NOT NULL DEFAULT '0000-00-00' COMMENT 'Day of birth',
 	`address` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -2032,6 +2045,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`author`.`hidden` AS `author-hidden`,
 	`author`.`updated` AS `author-updated`,
 	`author`.`gsid` AS `author-gsid`,
+	`author`.`baseurl` AS `author-baseurl`,
 	`post-user`.`owner-id` AS `owner-id`,
 	`owner`.`uri-id` AS `owner-uri-id`,
 	`owner`.`url` AS `owner-link`,
@@ -2044,6 +2058,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
 	`owner`.`updated` AS `owner-updated`,
+	`owner`.`gsid` AS `owner-gsid`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-user`.`causer-id` AS `causer-id`,
 	`causer`.`uri-id` AS `causer-uri-id`,
@@ -2056,6 +2071,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`causer`.`network` AS `causer-network`,
 	`causer`.`blocked` AS `causer-blocked`,
 	`causer`.`hidden` AS `causer-hidden`,
+	`causer`.`gsid` AS `causer-gsid`,
 	`causer`.`contact-type` AS `causer-contact-type`,
 	`post-delivery-data`.`postopts` AS `postopts`,
 	`post-delivery-data`.`inform` AS `inform`,
@@ -2189,6 +2205,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`contact`.`pending` AS `contact-pending`,
 	`contact`.`rel` AS `contact-rel`,
 	`contact`.`uid` AS `contact-uid`,
+	`contact`.`gsid` AS `contact-gsid`,
 	`contact`.`contact-type` AS `contact-contact-type`,
 	IF (`post-user`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`) AS `writable`,
 	`contact`.`self` AS `self`,
@@ -2224,6 +2241,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
 	`owner`.`updated` AS `owner-updated`,
+	`owner`.`gsid` AS `owner-gsid`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-thread-user`.`causer-id` AS `causer-id`,
 	`causer`.`uri-id` AS `causer-uri-id`,
@@ -2236,6 +2254,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`causer`.`network` AS `causer-network`,
 	`causer`.`blocked` AS `causer-blocked`,
 	`causer`.`hidden` AS `causer-hidden`,
+	`causer`.`gsid` AS `causer-gsid`,
 	`causer`.`contact-type` AS `causer-contact-type`,
 	`post-delivery-data`.`postopts` AS `postopts`,
 	`post-delivery-data`.`inform` AS `inform`,
@@ -2391,6 +2410,7 @@ CREATE VIEW `post-view` AS SELECT
 	`owner`.`hidden` AS `owner-hidden`,
 	`owner`.`updated` AS `owner-updated`,
 	`owner`.`contact-type` AS `owner-contact-type`,
+	`owner`.`gsid` AS `owner-gsid`,
 	`post`.`causer-id` AS `causer-id`,
 	`causer`.`uri-id` AS `causer-uri-id`,
 	`causer`.`url` AS `causer-link`,
@@ -2403,6 +2423,7 @@ CREATE VIEW `post-view` AS SELECT
 	`causer`.`blocked` AS `causer-blocked`,
 	`causer`.`hidden` AS `causer-hidden`,
 	`causer`.`contact-type` AS `causer-contact-type`,
+	`causer`.`gsid` AS `causer-gsid`,
 	`post-question`.`id` AS `question-id`,
 	`post-question`.`multiple` AS `question-multiple`,
 	`post-question`.`voters` AS `question-voters`,
@@ -2533,6 +2554,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
 	`owner`.`updated` AS `owner-updated`,
+	`owner`.`gsid` AS `owner-gsid`,
 	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-thread`.`causer-id` AS `causer-id`,
 	`causer`.`uri-id` AS `causer-uri-id`,
@@ -2545,6 +2567,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`causer`.`network` AS `causer-network`,
 	`causer`.`blocked` AS `causer-blocked`,
 	`causer`.`hidden` AS `causer-hidden`,
+	`causer`.`gsid` AS `causer-gsid`,
 	`causer`.`contact-type` AS `causer-contact-type`,
 	`post-question`.`id` AS `question-id`,
 	`post-question`.`multiple` AS `question-multiple`,
@@ -2666,7 +2689,7 @@ CREATE VIEW `network-item-view` AS SELECT
 	`post-user`.`contact-id` AS `contact-id`,
 	`ownercontact`.`contact-type` AS `contact-type`
 	FROM `post-user`
-			INNER JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`			
+			INNER JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
 			STRAIGHT_JOIN `contact` AS `authorcontact` ON `authorcontact`.`id` = `post-thread-user`.`author-id`
 			STRAIGHT_JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
@@ -2707,7 +2730,8 @@ CREATE VIEW `network-thread-view` AS SELECT
 			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
 			AND NOT `authorcontact`.`blocked` AND NOT `ownercontact`.`blocked`
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
-			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
+			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`)
+			AND NOT EXISTS(SELECT `gsid` FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`);
 
 --
 -- VIEW owner-view
