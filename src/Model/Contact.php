@@ -793,10 +793,10 @@ class Contact
 	/**
 	 * Updates the self-contact for the provided user id
 	 *
-	 * @param int   $uid
-	 * @param bool  $update_avatar Force the avatar update
+	 * @param int  $uid
+	 * @param bool $update_avatar Force the avatar update
 	 * @return bool "true" if updated
-	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public static function updateSelfFromUserID(int $uid, bool $update_avatar = false): bool
 	{

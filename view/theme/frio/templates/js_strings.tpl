@@ -3,10 +3,12 @@
 They are loaded into the html <head> so that js functions can use them *}}
 <script type="text/javascript">
 	const aStr = {
-		delitem        : "{{$l10n.delitem|escape:'javascript' nofilter}}",
-		blockAuthor    : "{{$l10n.blockAuthor|escape:'javascript' nofilter}}",
-		ignoreAuthor   : "{{$l10n.ignoreAuthor|escape:'javascript' nofilter}}",
-		collapseAuthor : "{{$l10n.collapseAuthor|escape:'javascript' nofilter}}",
+		delitem          : "{{$l10n.delitem|escape:'javascript' nofilter}}",
+		blockAuthor      : "{{$l10n.blockAuthor|escape:'javascript' nofilter}}",
+		ignoreAuthor     : "{{$l10n.ignoreAuthor|escape:'javascript' nofilter}}",
+		collapseAuthor   : "{{$l10n.collapseAuthor|escape:'javascript' nofilter}}",
+		ignoreServer     : "{{$l10n.ignoreServer|escape:'javascript' nofilter}}",
+		ignoreServerDesc : "{{$l10n.ignoreServerDesc|escape:'javascript' nofilter}}",
 	};
 	const aActErr = {
 		like       : "{{$l10n.likeError|escape:'javascript' nofilter}}",

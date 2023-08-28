@@ -37,6 +37,7 @@ use Friendica\DI;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Security\PermissionSet\Entity\PermissionSet;
@@ -93,10 +94,11 @@ class Profile
 	/**
 	 * Update a profile entry and distribute the changes if needed
 	 *
-	 * @param array $fields Profile fields to update
-	 * @param integer $uid User id
+	 * @param array   $fields Profile fields to update
+	 * @param integer $uid    User id
 	 *
 	 * @return boolean Whether update was successful
+	 * @throws \Exception
 	 */
 	public static function update(array $fields, int $uid): bool
 	{
@@ -114,10 +116,6 @@ class Profile
 		$owner = User::getOwnerDataById($uid);
 		if (empty($owner)) {
 			return false;
-		}
-
-		if ($old_owner['name'] != $owner['name']) {
-			User::update(['username' => $owner['name']], $uid);
 		}
 
 		$profile_fields = ['postal-code', 'dob', 'prv_keywords', 'homepage'];

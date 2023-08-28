@@ -37,6 +37,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Security\TwoFactor\Model\AppSpecificPassword;
 use Friendica\Network\HTTPException;
 use Friendica\Object\Image;
@@ -1328,33 +1329,18 @@ class User
 	/**
 	 * Update a user entry and distribute the changes if needed
 	 *
-	 * @param array $fields
+	 * @param array   $fields
 	 * @param integer $uid
 	 * @return boolean
+	 * @throws Exception
 	 */
 	public static function update(array $fields, int $uid): bool
 	{
-		$old_owner = self::getOwnerDataById($uid);
-		if (empty($old_owner)) {
-			return false;
-		}
-
 		if (!DBA::update('user', $fields, ['uid' => $uid])) {
 			return false;
 		}
 
-		$update = Contact::updateSelfFromUserID($uid);
-
-		$owner = self::getOwnerDataById($uid);
-		if (empty($owner)) {
-			return false;
-		}
-
-		if ($old_owner['name'] != $owner['name']) {
-			Profile::update(['name' => $owner['name']], $uid);
-		}
-
-		if ($update) {
+		if (Contact::updateSelfFromUserID($uid)) {
 			Profile::publishUpdate($uid);
 		}
 

@@ -828,12 +828,13 @@ class Tag
 	public static function getUIDListByURIId(int $uriId): array
 	{
 		$uids = [];
-		$tags = self::getByURIId($uriId, [self::HASHTAG]);
 
-		foreach ($tags as $tag) {
-			$uids = array_merge($uids, self::getUIDListByTag(self::TAG_CHARACTER[self::HASHTAG] . $tag['name']));
+		foreach (self::getByURIId($uriId, [self::HASHTAG]) as $tag) {
+			foreach (self::getUIDListByTag(self::TAG_CHARACTER[self::HASHTAG] . $tag['name']) as $uid) {
+				$uids[$uid][] = $tag['name'];
+			} 
 		}
 
-		return array_unique($uids);
+		return $uids;
 	}
 }

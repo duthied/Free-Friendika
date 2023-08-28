@@ -13,7 +13,7 @@ Fields
 | profile-name      | Deprecated                                                     | varchar(255)       | YES  |     | NULL       |                |
 | is-default        | Deprecated                                                     | boolean            | YES  |     | NULL       |                |
 | hide-friends      | Hide friend list from viewers of this profile                  | boolean            | NO   |     | 0          |                |
-| name              |                                                                | varchar(255)       | NO   |     |            |                |
+| name              | Unused in favor of user.username                               | varchar(255)       | NO   |     |            |                |
 | pdesc             | Deprecated                                                     | varchar(255)       | YES  |     | NULL       |                |
 | dob               | Day of birth                                                   | varchar(32)        | NO   |     | 0000-00-00 |                |
 | address           |                                                                | varchar(255)       | NO   |     |            |                |

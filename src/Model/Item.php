@@ -32,6 +32,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Post\Category;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -95,9 +96,9 @@ class Item
 		'wall', 'private', 'starred', 'origin', 'parent-origin', 'title', 'body', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 		'quote-uri', 'quote-uri-id', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'mention', 'global',
-		'author-id', 'author-link', 'author-alias', 'author-name', 'author-avatar', 'author-network', 'author-updated', 'author-gsid', 'author-addr', 'author-uri-id',
-		'owner-id', 'owner-link', 'owner-alias', 'owner-name', 'owner-avatar', 'owner-network', 'owner-contact-type', 'owner-updated',
-		'causer-id', 'causer-link', 'causer-alias', 'causer-name', 'causer-avatar', 'causer-contact-type', 'causer-network',
+		'author-id', 'author-link', 'author-alias', 'author-name', 'author-avatar', 'author-network', 'author-updated', 'author-gsid', 'author-baseurl', 'author-addr', 'author-uri-id',
+		'owner-id', 'owner-link', 'owner-alias', 'owner-name', 'owner-avatar', 'owner-network', 'owner-contact-type', 'owner-updated', 'owner-gsid',
+		'causer-id', 'causer-link', 'causer-alias', 'causer-name', 'causer-avatar', 'causer-contact-type', 'causer-network', 'causer-gsid',
 		'contact-id', 'contact-uid', 'contact-link', 'contact-name', 'contact-avatar',
 		'writable', 'self', 'cid', 'alias',
 		'event-created', 'event-edited', 'event-start', 'event-finish',
@@ -1509,10 +1510,13 @@ class Item
 			return;
 		}
 
-		$uids = Tag::getUIDListByURIId($item['uri-id']);
-		foreach ($uids as $uid) {
+		foreach (Tag::getUIDListByURIId($item['uri-id']) as $uid => $tags) {
 			$stored = self::storeForUserByUriId($item['uri-id'], $uid, ['post-reason' => self::PR_TAG]);
 			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
+			foreach ($tags as $tag) {
+				$stored = Category::storeFileByURIId($item['uri-id'], $uid, Category::SUBCRIPTION, $tag);
+				Logger::debug('Stored tag subscription for user', ['uri-id' => $item['uri-id'], 'uid' => $uid, $tag, 'stored' => $stored]);
+			}
 		}
 	}
 
