@@ -33,9 +33,10 @@ use Friendica\Model\Tag;
  */
 class Category
 {
-    const UNKNOWN           = 0;
-    const CATEGORY          = 3;
-    const FILE              = 5;
+	const UNKNOWN           = 0;
+	const CATEGORY          = 3;
+	const FILE              = 5;
+	const SUBCRIPTION       = 10;
 
 	/**
 	 * Delete all categories and files from a given uri-id and user
@@ -80,7 +81,7 @@ class Category
 	{
 		$file_text = '';
 
-		$tags = DBA::selectToArray('category-view', ['type', 'name'], ['uri-id' => $uri_id, 'uid' => $uid]);
+		$tags = DBA::selectToArray('category-view', ['type', 'name'], ['uri-id' => $uri_id, 'uid' => $uid, 'type' => [Category::FILE, Category::CATEGORY]]);
 		foreach ($tags as $tag) {
 			if ($tag['type'] == self::CATEGORY) {
 				$file_text .= '<' . $tag['name'] . '>';
@@ -177,12 +178,7 @@ class Category
 					continue;
 				}
 
-				DBA::replace('post-category', [
-					'uri-id' => $uri_id,
-					'uid' => $uid,
-					'type' => self::FILE,
-					'tid' => $tagid
-				]);
+				self::storeByURIId($uri_id, $uid, self::FILE, $tagid);
 			}
 		}
 
@@ -193,13 +189,18 @@ class Category
 		}
 	}
 
-	public static function storeFileByURIId(int $uri_id, int $uid, int $type, string $file)
+	public static function storeFileByURIId(int $uri_id, int $uid, int $type, string $file, string $url = ''): bool
 	{
-		$tagid = Tag::getID($file);
+		$tagid = Tag::getID($file, $url);
 		if (empty($tagid)) {
 			return false;
 		}
 
+		return self::storeByURIId($uri_id, $uid, $type, $tagid);
+	}
+
+	private static function storeByURIId(int $uri_id, int $uid, int $type, int $tagid): bool
+	{
 		return DBA::replace('post-category', [
 			'uri-id' => $uri_id,
 			'uid' => $uid,

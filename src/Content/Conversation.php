@@ -38,6 +38,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item as ItemModel;
 use Friendica\Model\Post;
+use Friendica\Model\Post\Category;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
@@ -754,7 +755,12 @@ class Conversation
 				$row['direction'] = ['direction' => 6, 'title' => $this->l10n->t('You are following %s.', $row['causer-name'] ?: $row['author-name'])];
 				break;
 			case ItemModel::PR_TAG:
-				$row['direction'] = ['direction' => 4, 'title' => $this->l10n->t('You subscribed to one or more tags in this post.')];
+				$tags = Category::getArrayByURIId($row['uri-id'], $row['uid'], Category::SUBCRIPTION);
+				if (!empty($tags)) {
+					$row['direction'] = ['direction' => 4, 'title' => $this->l10n->t('You subscribed to %s.', implode(', ', $tags))];
+				} else {
+					$row['direction'] = ['direction' => 4, 'title' => $this->l10n->t('You subscribed to one or more tags in this post.')];
+				}
 				break;
 			case ItemModel::PR_ANNOUNCEMENT:
 				if (!empty($row['causer-id']) && $this->pConfig->get($this->session->getLocalUserId(), 'system', 'display_resharer')) {
