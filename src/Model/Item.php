@@ -32,6 +32,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Post\Category;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -1509,10 +1510,13 @@ class Item
 			return;
 		}
 
-		$uids = Tag::getUIDListByURIId($item['uri-id']);
-		foreach ($uids as $uid) {
+		foreach (Tag::getUIDListByURIId($item['uri-id']) as $uid => $tags) {
 			$stored = self::storeForUserByUriId($item['uri-id'], $uid, ['post-reason' => self::PR_TAG]);
 			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
+			foreach ($tags as $tag) {
+				$stored = Category::storeFileByURIId($item['uri-id'], $uid, Category::SUBCRIPTION, $tag);
+				Logger::debug('Stored tag subscription for user', ['uri-id' => $item['uri-id'], 'uid' => $uid, $tag, 'stored' => $stored]);
+			}
 		}
 	}
 
