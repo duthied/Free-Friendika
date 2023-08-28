@@ -33,9 +33,9 @@ use Friendica\Model\Tag;
  */
 class Category
 {
-    const UNKNOWN           = 0;
-    const CATEGORY          = 3;
-    const FILE              = 5;
+	const UNKNOWN           = 0;
+	const CATEGORY          = 3;
+	const FILE              = 5;
 	const SUBCRIPTION       = 10;
 
 	/**
