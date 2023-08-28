@@ -294,7 +294,7 @@ class Smilies
 	 */
 	public static function isEmojiPost(string $body): bool
 	{
-		$conv = html_entity_decode(str_replace([' ', "\n", "\r"], '', $body));
+		$conv = html_entity_decode(preg_replace('#\s#', '', $body));
 		// Emojis are always 4 byte Unicode characters
 		return (!empty($conv) && (strlen($conv) / mb_strlen($conv) == 4));
 	}
