@@ -72,4 +72,75 @@ class SmiliesTest extends FixtureTest
 		$output = Smilies::replaceFromArray($text, $smilies);
 		self::assertEquals($expected, $output);
 	}
+
+	public function dataIsEmojiPost(): array
+	{
+		return [
+			'emoji' => [
+				'expected' => true,
+				'body' => '👀',
+			],
+			'emojis' => [
+				'expected' => true,
+				'body' => '👀🤷',
+			],
+			'emoji+whitespace' => [
+				'expected' => true,
+				'body' => ' 👀 ',
+			],
+			'empty' => [
+				'expected' => false,
+				'body' => '',
+			],
+			'whitespace' => [
+				'expected' => false,
+				'body' => '
+				',
+			],
+			'emoji+ASCII' => [
+				'expected' => false,
+				'body' => '🤷a',
+			],
+			'HTML entity whitespace' => [
+				'expected' => false,
+				'body' => '&nbsp;',
+			],
+			'HTML entity else' => [
+				'expected' => false,
+				'body' => '&deg;',
+			],
+			'emojis+HTML whitespace' => [
+				'expected' => true,
+				'body' => '👀&nbsp;🤷',
+			],
+			'emojis+HTML else' => [
+				'expected' => false,
+				'body' => '👀&lt;🤷',
+			],
+			'zwj' => [
+				'expected' => true,
+				'body' => '👨‍👨‍👧‍',
+			],
+			'zwj+whitespace' => [
+				'expected' => true,
+				'body' => ' 👨‍👨‍👧‍ ',
+			],
+			'zwj+HTML whitespace' => [
+				'expected' => true,
+				'body' => '&nbsp;👨‍👨‍👧‍&nbsp;',
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataIsEmojiPost
+	 *
+	 * @param bool   $expected
+	 * @param string $body
+	 * @return void
+	 */
+	public function testIsEmojiPost(bool $expected, string $body)
+	{
+		$this->assertEquals($expected, Smilies::isEmojiPost($body));
+	}
 }

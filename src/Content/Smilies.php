@@ -289,11 +289,12 @@ class Smilies
 	/**
 	 * Checks if the body only contains 4 byte unicode characters.
 	 *
-	 * @param string $body
+	 * @param string $body Possibly-HTML post body
 	 * @return boolean
 	 */
 	public static function isEmojiPost(string $body): bool
 	{
+		// Strips all whitespace
 		$conv = preg_replace('#\s#u', '', html_entity_decode($body));
 		// Emojis are always 4 byte Unicode characters
 		return (!empty($conv) && (strlen($conv) / mb_strlen($conv) == 4));
