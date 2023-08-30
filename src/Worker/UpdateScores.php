@@ -21,21 +21,26 @@
 
 namespace Friendica\Worker;
 
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Util\DateTimeFormat;
+use Friendica\Model\Contact\Relation;
 
 /**
- * Update contact suggestions for all active users
+ * Update the interaction scores 
  */
-class UpdateAllSuggestions
+class UpdateScores
 {
-	public static function execute()
+	public static function execute($param = '', $hook_function = '')
 	{
-		$users = DBA::select('user', ['uid'], ["`last-activity` > ? AND `uid` > ?", DateTimeFormat::utc('now - 3 days', 'Y-m-d'), 0]);
+		Logger::notice('Start score update');
+
+		$users = DBA::select('user', ['uid'], ["NOT `account_expired` AND NOT `account_removed` AND `uid` > ?", 0]);
 		while ($user = DBA::fetch($users)) {
-			Contact\Relation::updateCachedSuggestions($user['uid']);
+			Relation::calculateInteractionScore($user['uid']);
 		}
 		DBA::close($users);
+
+		Logger::notice('Score update done');
+		return;
 	}
 }

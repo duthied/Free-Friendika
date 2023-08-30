@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1529
+-- DB_UPDATE_VERSION 1530
 -- ------------------------------------------
 
 
@@ -513,6 +513,10 @@ CREATE TABLE IF NOT EXISTS `contact-relation` (
 	`last-interaction` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last interaction',
 	`follow-updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last update of the contact relationship',
 	`follows` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`score` smallint unsigned COMMENT 'score for interactions of cid on relation-cid',
+	`relation-score` smallint unsigned COMMENT 'score for interactions of relation-cid on cid',
+	`thread-score` smallint unsigned COMMENT 'score for interactions of cid on threads of relation-cid',
+	`relation-thread-score` smallint unsigned COMMENT 'score for interactions of relation-cid on threads of cid',
 	 PRIMARY KEY(`cid`,`relation-cid`),
 	 INDEX `relation-cid` (`relation-cid`),
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,

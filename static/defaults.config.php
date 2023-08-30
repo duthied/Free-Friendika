@@ -349,6 +349,10 @@ return [
 		// This has to be quite large to deal with embedded private photos. False to use the system value.
 		'ini_pcre_backtrack_limit' => 500000,
 
+		// interaction_score_days (Integer)
+		// Number of days that are used to calculate the interaction score.
+		'interaction_score_days' => 30,
+
 		// invitation_only (Boolean)
 		// If set true registration is only possible after a current member of the node has sent an invitation.
 		'invitation_only' => false,
