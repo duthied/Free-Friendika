@@ -104,6 +104,9 @@ class Cron
 			// Clear cache entries
 			Worker::add(Worker::PRIORITY_LOW, 'ClearCache');
 
+			// Update interaction scores
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateScores');
+
 			DI::keyValue()->set('last_cron_hourly', time());
 		}
 
