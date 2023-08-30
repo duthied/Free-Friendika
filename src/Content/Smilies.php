@@ -296,7 +296,7 @@ class Smilies
 	{
 		// Strips all whitespace
 		$conv = preg_replace('#\s#u', '', html_entity_decode($body));
-		// Emojis are always 4 byte Unicode characters
+		// @FIXME Emojis are almost always 4 byte Unicode characters, except when they include the zero-width joiner character, encoded on 3 bytes
 		return (!empty($conv) && (strlen($conv) / mb_strlen($conv) == 4));
 	}
 }
