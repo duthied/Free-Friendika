@@ -349,10 +349,6 @@ return [
 		// This has to be quite large to deal with embedded private photos. False to use the system value.
 		'ini_pcre_backtrack_limit' => 500000,
 
-		// interaction_score_days (Integer)
-		// Number of days that are used to calculate the interaction score.
-		'interaction_score_days' => 30,
-
 		// invitation_only (Boolean)
 		// If set true registration is only possible after a current member of the node has sent an invitation.
 		'invitation_only' => false,
@@ -799,5 +795,18 @@ return [
 		// public (Boolean)
 		// Wether the blocklist is publicly listed under /about (or in any later API)
 		'public' => true,
+	],
+	'channel' => [
+		// interaction_score_days (Integer)
+		// Number of days that are used to calculate the interaction score.
+		'interaction_score_days' => 30,
+
+		// engagement_hours (Integer)
+		// Number of hours posts are held in the engagement table
+		'engagement_hours' => 24,
+
+		// hot_posts_item_limit (Integer)
+		// Number of items that are displayed on the "what's hot" channel
+		'hot_posts_item_limit' => 100,
 	],
 ];
