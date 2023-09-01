@@ -70,7 +70,7 @@ class Engagement
 			return;
 		}
 
-		if ($parent['created'] < DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' 24 hour')) {
+		if ($parent['created'] < DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')) {
 			Logger::debug('Post is too old', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'created' => $parent['created']]);
 			return;
 		}
@@ -93,7 +93,7 @@ class Engagement
 
 	public static function expire()
 	{
-		DBA::delete('post-engagement', ["`created` < ?", DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' 24 hour')]);
+		DBA::delete('post-engagement', ["`created` < ?", DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')]);
 		Logger::notice('Cleared expired engagements', ['rows' => DBA::affectedRows()]);
 	}
 }
