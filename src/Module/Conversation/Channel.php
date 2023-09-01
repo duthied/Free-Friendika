@@ -237,9 +237,8 @@ class Channel extends BaseModule
 	 */
 	protected static function getItems()
 	{
-		$post = DBA::selectToArray('post-engagement', ['comments'], [], ['order' => ['comments' => true], 'limit' => [100, 1]]);
-
 		if (self::$content == self::WHATSHOT) {
+			$post     = DBA::selectToArray('post-engagement', ['comments'], [], ['order' => ['comments' => true], 'limit' => [DI::config()->get('channel', 'hot_posts_item_limit'), 1]]);
 			$comments = $post[0]['comments'] ?? 0;
 			if (!is_null(self::$accountType)) {
 				$condition = ["`comments` >= ? AND `contact-type` = ?", $comments, self::$accountType];

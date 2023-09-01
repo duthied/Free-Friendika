@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
@@ -69,7 +70,7 @@ class Engagement
 			return;
 		}
 
-		if ($parent['created'] < DateTimeFormat::utc('now - 1 day')) {
+		if ($parent['created'] < DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' 24 hour')) {
 			Logger::debug('Post is too old', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'created' => $parent['created']]);
 			return;
 		}
@@ -92,7 +93,7 @@ class Engagement
 
 	public static function expire()
 	{
-		DBA::delete('post-engagement', ["`created` < ?", DateTimeFormat::utc('now - 1 day')]);
+		DBA::delete('post-engagement', ["`created` < ?", DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' 24 hour')]);
 		Logger::notice('Cleared expired engagements', ['rows' => DBA::affectedRows()]);
 	}
 }
