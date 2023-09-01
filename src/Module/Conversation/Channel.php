@@ -30,7 +30,6 @@ use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
 use Friendica\Content\Widget\TrendingTags;
-use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -68,7 +67,7 @@ class Channel extends BaseModule
 		$t = Renderer::getMarkupTemplate("community.tpl");
 		$o = Renderer::replaceMacros($t, [
 			'$content' => '',
-			'$header' => '',
+			'$header'  => '',
 		]);
 
 		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
@@ -80,29 +79,29 @@ class Channel extends BaseModule
 			$tabs = [];
 
 			$tabs[] = [
-				'label' => DI::l10n()->t('Whats Hot'),
-				'url' => 'channel/' . self::WHATSHOT,
-				'sel' => self::$content == self::WHATSHOT ? 'active' : '',
-				'title' => DI::l10n()->t('Posts with a lot of interactions'),
-				'id' => 'channel-whatshot-tab',
+				'label'     => DI::l10n()->t('Whats Hot'),
+				'url'       => 'channel/' . self::WHATSHOT,
+				'sel'       => self::$content == self::WHATSHOT ? 'active' : '',
+				'title'     => DI::l10n()->t('Posts with a lot of interactions'),
+				'id'        => 'channel-whatshot-tab',
 				'accesskey' => 'h'
 			];
 
 			$tabs[] = [
-				'label' => DI::l10n()->t('For you'),
-				'url' => 'channel/' . self::FORYOU,
-				'sel' => self::$content == self::FORYOU ? 'active' : '',
-				'title' => DI::l10n()->t('Posts from contacts you interact with and who interact with you'),
-				'id' => 'channel-foryou-tab',
+				'label'     => DI::l10n()->t('For you'),
+				'url'       => 'channel/' . self::FORYOU,
+				'sel'       => self::$content == self::FORYOU ? 'active' : '',
+				'title'     => DI::l10n()->t('Posts from contacts you interact with and who interact with you'),
+				'id'        => 'channel-foryou-tab',
 				'accesskey' => 'y'
 			];
 
 			$tabs[] = [
-				'label' => DI::l10n()->t('Followers'),
-				'url' => 'channel/' . self::FOLLOWERS,
-				'sel' => self::$content == self::FOLLOWERS ? 'active' : '',
-				'title' => DI::l10n()->t('Posts from your followers that you don\'t follow'),
-				'id' => 'channel-followers-tab',
+				'label'     => DI::l10n()->t('Followers'),
+				'url'       => 'channel/' . self::FOLLOWERS,
+				'sel'       => self::$content == self::FOLLOWERS ? 'active' : '',
+				'title'     => DI::l10n()->t('Posts from your followers that you don\'t follow'),
+				'id'        => 'channel-followers-tab',
 				'accesskey' => 'f'
 			];
 
@@ -130,7 +129,7 @@ class Channel extends BaseModule
 					$query_parameters['max_id'] = $_GET['last_created'];
 				}
 
-				$path_all = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
+				$path_all       = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
 				$path_no_sharer = $path . '?' . http_build_query(array_merge($query_parameters, ['no_sharer' => true]));
 				DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_sharer.tpl'), [
 					'$title'           => DI::l10n()->t('Own Contacts'),
@@ -186,7 +185,7 @@ class Channel extends BaseModule
 	protected function parseRequest()
 	{
 		self::$accountTypeString = $_GET['accounttype'] ?? $this->parameters['accounttype'] ?? '';
-		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
+		self::$accountType       = User::getAccountTypeByString(self::$accountTypeString);
 
 		self::$content = $this->parameters['content'] ?? '';
 		if (!self::$content) {
@@ -214,15 +213,14 @@ class Channel extends BaseModule
 		}
 
 		if (!empty($_GET['item'])) {
-			$item = Post::selectFirst(['parent-uri-id'], ['id' => $_GET['item']]);
+			$item          = Post::selectFirst(['parent-uri-id'], ['id' => $_GET['item']]);
 			self::$item_id = $item['parent-uri-id'] ?? 0;
 		} else {
 			self::$item_id = 0;
 		}
 
-		Logger::debug('Blubb', ['get' => $_GET]);
-		self::$min_id = $_GET['min_id'] ?? null;
-		self::$max_id = $_GET['max_id'] ?? null;
+		self::$min_id = $_GET['min_id']       ?? null;
+		self::$max_id = $_GET['max_id']       ?? null;
 		self::$max_id = $_GET['last_created'] ?? self::$max_id;
 	}
 
