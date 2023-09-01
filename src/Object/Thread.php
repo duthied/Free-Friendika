@@ -21,6 +21,7 @@
 
 namespace Friendica\Object;
 
+use Friendica\Content\Conversation;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\DI;
@@ -73,24 +74,28 @@ class Thread
 		$a = DI::app();
 
 		switch ($mode) {
-			case 'network':
-			case 'notes':
+			case Conversation::MODE_NETWORK:
+			case Conversation::MODE_NOTES:
 				$this->profile_owner = DI::userSession()->getLocalUserId();
 				$this->writable = true;
 				break;
-			case 'profile':
+			case Conversation::MODE_PROFILE:
 				$this->profile_owner = $a->getProfileOwner();
 				$this->writable = Security::canWriteToUserWall($this->profile_owner) || $writable;
 				break;
-			case 'display':
+			case Conversation::MODE_DISPLAY:
 				$this->profile_owner = $a->getProfileOwner();
 				$this->writable = Security::canWriteToUserWall($this->profile_owner) || $writable;
 				break;
-			case 'community':
+			case Conversation::MODE_CHANNEL:
 				$this->profile_owner = 0;
 				$this->writable = $writable;
 				break;
-			case 'contacts':
+			case Conversation::MODE_COMMUNITY:
+				$this->profile_owner = 0;
+				$this->writable = $writable;
+				break;
+			case Conversation::MODE_CONTACTS:
 				$this->profile_owner = 0;
 				$this->writable = $writable;
 				break;

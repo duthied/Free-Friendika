@@ -42,6 +42,7 @@ class Nav
 	private static $selected = [
 		'global'    => null,
 		'community' => null,
+		'channel'   => null,
 		'network'   => null,
 		'home'      => null,
 		'profiles'  => null,
@@ -199,6 +200,7 @@ class Nav
 			'moderation'    => null,
 			'apps'          => null,
 			'community'     => null,
+			'channel'       => null,
 			'home'          => null,
 			'calendar'      => null,
 			'login'         => null,
@@ -286,6 +288,8 @@ class Nav
 			!($this->config->get('system', 'community_page_style') == Community::DISABLED)) {
 			$nav['community'] = ['community', $this->l10n->t('Community'), '', $this->l10n->t('Conversations on this and other servers')];
 		}
+
+		$nav['channel'] = ['channel', $this->l10n->t('Channel'), '', $this->l10n->t('Current posts, filtered by several rules')];
 
 		if ($this->session->getLocalUserId()) {
 			$nav['calendar'] = ['calendar', $this->l10n->t('Calendar'), '', $this->l10n->t('Calendar')];

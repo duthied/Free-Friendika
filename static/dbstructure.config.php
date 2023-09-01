@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1530);
+	define('DB_UPDATE_VERSION', 1531);
 }
 
 return [
@@ -162,8 +162,8 @@ return [
 	"user-gserver" => [
 		"comment" => "User settings about remote servers",
 		"fields" => [
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
-			"gsid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["gserver" => "id"], "comment" => "Gserver id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "primary" => "1", "comment" => "Owner User id"],
+			"gsid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["gserver" => "id"], "primary" => "1", "comment" => "Gserver id"],
 			"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "server accounts are ignored for the user"],
 		],
 		"indexes" => [
@@ -1321,6 +1321,22 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id"],
+		]
+	],
+	"post-engagement" => [
+		"comment" => "Engagement data per post",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the author of this item"],
+			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Person, organisation, news, community, relay"],
+			"created" => ["type" => "datetime", "comment" => ""],
+			"comments" => ["type" => "mediumint unsigned", "comment" => "Number of comments"],
+			"activities" => ["type" => "mediumint unsigned", "comment" => "Number of activities (like, dislike, ...)"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
+			"author-id" => ["author-id"],
+			"created" => ["created"],
 		]
 	],
 	"post-history" => [

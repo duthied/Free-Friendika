@@ -17,34 +17,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
+ * See update_profile.php for documentation
  */
 
-namespace Friendica\Worker;
+namespace Friendica\Module\Update;
 
-use Friendica\Core\Logger;
-use Friendica\Database\DBA;
-use Friendica\Model\Contact\Relation;
-use Friendica\Model\Post;
+use Friendica\Content\Conversation;
+use Friendica\Core\System;
+use Friendica\DI;
+use Friendica\Module\Conversation\Channel as ChannelModule;
 
 /**
- * Update the interaction scores 
+ * Asynchronous update module for the Channel page
+ *
+ * @package Friendica\Module\Update
  */
-class UpdateScores
+class Channel extends ChannelModule
 {
-	public static function execute($param = '', $hook_function = '')
+	protected function rawContent(array $request = [])
 	{
-		Logger::notice('Start score update');
+		$this->parseRequest();
 
-		$users = DBA::select('user', ['uid'], ["NOT `account_expired` AND NOT `account_removed` AND `uid` > ?", 0]);
-		while ($user = DBA::fetch($users)) {
-			Relation::calculateInteractionScore($user['uid']);
+		$o = '';
+		if (!empty($request['force'])) {
+			$o = DI::conversation()->render(self::getItems(), Conversation::MODE_CHANNEL, true, false, 'created', DI::userSession()->getLocalUserId());
 		}
-		DBA::close($users);
 
-		Logger::notice('Score update done');
-
-		Post\Engagement::expire();
-
-		return;
+		System::htmlUpdateExit($o);
 	}
 }

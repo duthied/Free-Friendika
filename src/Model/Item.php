@@ -1405,6 +1405,8 @@ class Item
 			self::updateDisplayCache($posted_item['uri-id']);
 		}
 
+		Post\Engagement::storeFromItem($posted_item);
+
 		return $post_user_id;
 	}
 

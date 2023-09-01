@@ -63,6 +63,14 @@
 							</li>
 						{{/if}}
 
+						{{if $nav.channel}}
+							<li class="nav-segment">
+								<a accesskey="l" class="nav-menu {{$sel.channel}}" href="{{$nav.channel.0}}"
+									data-toggle="tooltip" aria-label="{{$nav.channel.3}}" title="{{$nav.channel.3}}"><i
+										class="fa fa-lg fa-th-list fa-fw" aria-hidden="true"></i></a>
+							</li>
+						{{/if}}
+
 						{{if $nav.community}}
 							<li class="nav-segment">
 								<a accesskey="c" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}"

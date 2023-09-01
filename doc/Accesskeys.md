@@ -16,6 +16,7 @@ General
 -------
 * p - Profile
 * n - Network
+* l - Channel
 * c - Community
 * s - Search
 * a - Admin
@@ -27,6 +28,12 @@ General
 --------
 * l - Local community
 * g - Global community
+
+../channel
+--------
+* h - what's hot
+* y - for you
+* f - followers
 
 ../profile
 --------
