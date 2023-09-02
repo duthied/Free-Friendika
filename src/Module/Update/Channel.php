@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * See update_profile.php for documentation
  */
 
 namespace Friendica\Module\Update;
@@ -36,11 +35,11 @@ class Channel extends ChannelModule
 {
 	protected function rawContent(array $request = [])
 	{
-		$this->parseRequest();
+		$this->parseRequest($request);
 
 		$o = '';
 		if (!empty($request['force'])) {
-			$o = DI::conversation()->render(self::getItems(), Conversation::MODE_CHANNEL, true, false, 'created', DI::userSession()->getLocalUserId());
+			$o = DI::conversation()->render(self::getItems($request), Conversation::MODE_CHANNEL, true, false, 'created', DI::userSession()->getLocalUserId());
 		}
 
 		System::htmlUpdateExit($o);
