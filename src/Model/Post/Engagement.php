@@ -26,7 +26,6 @@ use Friendica\Core\Protocol;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
@@ -37,6 +36,12 @@ use Friendica\Util\DateTimeFormat;
 
 class Engagement
 {
+	/**
+	 * Store engagement data from an item array
+	 *
+	 * @param array $item
+	 * @return void
+	 */
 	public static function storeFromItem(array $item)
 	{
 		if (!in_array($item['network'], Protocol::FEDERATED)) {
@@ -90,6 +95,11 @@ class Engagement
 		Logger::debug('Engagement stored', ['fields' => $engagement, 'ret' => $ret]);
 	}
 
+	/**
+	 * Expire old engagement data
+	 *
+	 * @return void
+	 */
 	public static function expire()
 	{
 		DBA::delete('post-engagement', ["`created` < ?", DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')]);
