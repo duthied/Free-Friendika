@@ -26,6 +26,7 @@ use Friendica\Core\Protocol;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
@@ -46,11 +47,6 @@ class Engagement
 	{
 		if (!in_array($item['network'], Protocol::FEDERATED)) {
 			Logger::debug('No federated network', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'network' => $item['network']]);
-			return;
-		}
-
-		if ($item['gravity'] == Item::GRAVITY_PARENT) {
-			Logger::debug('Parent posts are not stored', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id']]);
 			return;
 		}
 
@@ -75,10 +71,23 @@ class Engagement
 			return;
 		}
 
+		$store = ($item['gravity'] != Item::GRAVITY_PARENT);
+
+		if (!$store) {
+			$store = Contact::hasFollowers($parent['owner-id']);
+		}
+
+		$mediatype = self::getMediaType($item['parent-uri-id']);
+
+		if (!$store) {
+			$mediatype = !empty($mediatype);
+		}
+
 		$engagement = [
 			'uri-id'       => $item['parent-uri-id'],
 			'owner-id'     => $parent['owner-id'],
 			'contact-type' => $parent['contact-contact-type'],
+			'media-type'   => $mediatype,
 			'created'      => $parent['created'],
 			'comments'     => DBA::count('post', ['parent-uri-id' => $item['parent-uri-id'], 'gravity' => Item::GRAVITY_COMMENT]),
 			'activities'   => DBA::count('post', [
@@ -87,12 +96,28 @@ class Engagement
 				Verb::getID(Activity::FOLLOW), Verb::getID(Activity::VIEW), Verb::getID(Activity::READ)
 			])
 		];
-		if (($engagement['comments'] == 0) && ($engagement['activities'] == 0)) {
-			Logger::debug('No comments nor activities. Engagement not stored', ['fields' => $engagement]);
+		if (!$store && ($engagement['comments'] == 0) && ($engagement['activities'] == 0)) {
+			Logger::debug('No media, follower, comments or activities. Engagement not stored', ['fields' => $engagement]);
 			return;
 		}
 		$ret = DBA::insert('post-engagement', $engagement, Database::INSERT_UPDATE);
 		Logger::debug('Engagement stored', ['fields' => $engagement, 'ret' => $ret]);
+	}
+
+	private static function getMediaType(int $uri_id) : int
+	{
+		$media = Post\Media::getByURIId($uri_id);
+		$type = 0;
+		foreach ($media as $entry) {
+			if ($entry['type'] == Post\Media::IMAGE) {
+				$type = $type | 1;
+			} elseif ($entry['type'] == Post\Media::VIDEO) {
+				$type = $type | 2;
+			} elseif ($entry['type'] == Post\Media::AUDIO) {
+				$type = $type | 4;
+			}
+		}
+		return $type;
 	}
 
 	/**

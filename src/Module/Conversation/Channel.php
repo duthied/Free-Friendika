@@ -45,6 +45,9 @@ class Channel extends BaseModule
 	const WHATSHOT  = 'whatshot';
 	const FORYOU    = 'foryou';
 	const FOLLOWERS = 'followers';
+	const IMAGE     = 'image';
+	const VIDEO     = 'video';
+	const AUDIO     = 'audio';
 	/**
 	 * @}
 	 */
@@ -106,6 +109,33 @@ class Channel extends BaseModule
 				'accesskey' => 'h'
 			];
 
+			$tabs[] = [
+				'label'     => DI::l10n()->t('Images'),
+				'url'       => 'channel/' . self::IMAGE,
+				'sel'       => self::$content == self::IMAGE ? 'active' : '',
+				'title'     => DI::l10n()->t('Posts with images'),
+				'id'        => 'channel-image-tab',
+				'accesskey' => 'i'
+			];
+
+			$tabs[] = [
+				'label'     => DI::l10n()->t('Videos'),
+				'url'       => 'channel/' . self::VIDEO,
+				'sel'       => self::$content == self::VIDEO ? 'active' : '',
+				'title'     => DI::l10n()->t('Posts with videos'),
+				'id'        => 'channel-video-tab',
+				'accesskey' => 'v'
+			];
+
+			$tabs[] = [
+				'label'     => DI::l10n()->t('Audio'),
+				'url'       => 'channel/' . self::AUDIO,
+				'sel'       => self::$content == self::AUDIO ? 'active' : '',
+				'title'     => DI::l10n()->t('Posts with audio'),
+				'id'        => 'channel-audio-tab',
+				'accesskey' => 'a'
+			];
+
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 			$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
 
@@ -113,7 +143,7 @@ class Channel extends BaseModule
 
 			DI::page()['aside'] .= Widget::accountTypes('channel/' . self::$content, self::$accountTypeString);
 
-			if ((self::$content != self::FOLLOWERS) && DI::config()->get('system', 'community_no_sharer')) {
+			if (!in_array(self::$content, [self::FOLLOWERS, self::FORYOU]) && DI::config()->get('system', 'community_no_sharer')) {
 				$path = self::$content;
 				if (!empty($this->parameters['accounttype'])) {
 					$path .= '/' . $this->parameters['accounttype'];
@@ -193,7 +223,7 @@ class Channel extends BaseModule
 			self::$content = self::FORYOU;
 		}
 
-		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS])) {
+		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS, self::IMAGE, self::VIDEO, self::AUDIO])) {
 			throw new HTTPException\BadRequestException(DI::l10n()->t('Channel not available.'));
 		}
 
@@ -252,6 +282,12 @@ class Channel extends BaseModule
 				DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
 		} elseif (self::$content == self::FOLLOWERS) {
 			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", DI::userSession()->getLocalUserId(), Contact::FOLLOWER];
+		} elseif (self::$content == self::IMAGE) {
+			$condition = ["`media-type` & ?", 1];
+		} elseif (self::$content == self::VIDEO) {
+			$condition = ["`media-type` & ?", 2];
+		} elseif (self::$content == self::AUDIO) {
+			$condition = ["`media-type` & ?", 4];
 		}
 
 		if ((self::$content != self::WHATSHOT) && !is_null(self::$accountType)) {
@@ -309,7 +345,7 @@ class Channel extends BaseModule
 		}
 
 		$limit    = DBA::count('post-engagement', ["`contact-type` != ? AND `comments` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
-		$post     = DBA::selectToArray('post-engagement', ['comments'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY, 0], ['order' => ['comments' => true], 'limit' => [$limit, 1]]);
+		$post     = DBA::selectToArray('post-engagement', ['comments'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['comments' => true], 'limit' => [$limit, 1]]);
 		$comments = $post[0]['comments'] ?? 0;
 		if (empty($comments)) {
 			return 0;
@@ -328,7 +364,7 @@ class Channel extends BaseModule
 		}
 
 		$limit      = DBA::count('post-engagement', ["`contact-type` != ? AND `activities` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
-		$post       = DBA::selectToArray('post-engagement', ['activities'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY, 0], ['order' => ['activities' => true], 'limit' => [$limit, 1]]);
+		$post       = DBA::selectToArray('post-engagement', ['activities'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['activities' => true], 'limit' => [$limit, 1]]);
 		$activities = $post[0]['activities'] ?? 0;
 		if (empty($activities)) {
 			return 0;

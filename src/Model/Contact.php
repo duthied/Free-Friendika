@@ -534,6 +534,17 @@ class Contact
 	}
 
 	/**
+	 * Checks if the provided public contact id has got followers on this system
+	 *
+	 * @param integer $cid
+	 * @return boolean
+	 */
+	public static function hasFollowers(int $cid): bool
+	{
+		return DBA::exists('account-user-view', ["`pid` = ? AND `uid` != ? AND `rel` IN (?, ?)", $cid, 0, self::SHARING, self::FRIEND]);
+	}
+
+	/**
 	 * Get the basepath for a given contact link
 	 *
 	 * @param string $url The contact link

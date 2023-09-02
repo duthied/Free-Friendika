@@ -1329,6 +1329,7 @@ return [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item owner"],
 			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Person, organisation, news, community, relay"],
+			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
 			"created" => ["type" => "datetime", "comment" => ""],
 			"comments" => ["type" => "mediumint unsigned", "comment" => "Number of comments"],
 			"activities" => ["type" => "mediumint unsigned", "comment" => "Number of activities (like, dislike, ...)"],
