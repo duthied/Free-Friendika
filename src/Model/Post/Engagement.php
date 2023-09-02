@@ -87,6 +87,10 @@ class Engagement
 				Verb::getID(Activity::FOLLOW), Verb::getID(Activity::VIEW), Verb::getID(Activity::READ)
 			])
 		];
+		if (($engagement['comments'] == 0) && ($engagement['activities'] == 0)) {
+			Logger::debug('No comments nor activities. Engagement not stored', ['fields' => $engagement]);
+			return;
+		}
 		$ret = DBA::insert('post-engagement', $engagement, Database::INSERT_UPDATE);
 		Logger::debug('Engagement stored', ['fields' => $engagement, 'ret' => $ret]);
 	}

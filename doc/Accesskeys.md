@@ -31,9 +31,9 @@ General
 
 ../channel
 --------
-* h - what's hot
 * y - for you
 * f - followers
+* h - what's hot
 
 ../profile
 --------

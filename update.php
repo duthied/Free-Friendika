@@ -62,6 +62,7 @@ use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Delivery;
 use Friendica\Security\PermissionSet\Repository\PermissionSet;
+use Friendica\Util\DateTimeFormat;
 
 // Post-update script of PR 5751
 function update_1298()
@@ -1374,6 +1375,18 @@ function update_1525(): int
     SET c.`name` = u.`username`')) {
 		return Update::FAILED;
 	}
+
+	return Update::SUCCESS;
+}
+
+function update_1531()
+{
+	$threads = Post::selectThread(Item::DELIVER_FIELDLIST, ["`uid` = ? AND `created` > ?", 0, DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')]);
+	while ($post = Post::fetch($threads)) {
+		$post['gravity'] = Item::GRAVITY_COMMENT;
+		Post\Engagement::storeFromItem($post);
+	}
+	DBA::close($threads);
 
 	return Update::SUCCESS;
 }

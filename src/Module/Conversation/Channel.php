@@ -79,15 +79,6 @@ class Channel extends BaseModule
 			$tabs = [];
 
 			$tabs[] = [
-				'label'     => DI::l10n()->t('Whats Hot'),
-				'url'       => 'channel/' . self::WHATSHOT,
-				'sel'       => self::$content == self::WHATSHOT ? 'active' : '',
-				'title'     => DI::l10n()->t('Posts with a lot of interactions'),
-				'id'        => 'channel-whatshot-tab',
-				'accesskey' => 'h'
-			];
-
-			$tabs[] = [
 				'label'     => DI::l10n()->t('For you'),
 				'url'       => 'channel/' . self::FORYOU,
 				'sel'       => self::$content == self::FORYOU ? 'active' : '',
@@ -103,6 +94,15 @@ class Channel extends BaseModule
 				'title'     => DI::l10n()->t('Posts from your followers that you don\'t follow'),
 				'id'        => 'channel-followers-tab',
 				'accesskey' => 'f'
+			];
+			
+			$tabs[] = [
+				'label'     => DI::l10n()->t('Whats Hot'),
+				'url'       => 'channel/' . self::WHATSHOT,
+				'sel'       => self::$content == self::WHATSHOT ? 'active' : '',
+				'title'     => DI::l10n()->t('Posts with a lot of interactions'),
+				'id'        => 'channel-whatshot-tab',
+				'accesskey' => 'h'
 			];
 
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
@@ -189,7 +189,7 @@ class Channel extends BaseModule
 
 		self::$content = $this->parameters['content'] ?? '';
 		if (!self::$content) {
-			self::$content = self::WHATSHOT;
+			self::$content = self::FORYOU;
 		}
 
 		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS])) {
