@@ -54,20 +54,21 @@
 										class="nav-network-badge badge nav-notification"></span></a>
 							</li>
 						{{/if}}
+
+						{{if $nav.channel}}
+							<li class="nav-segment">
+								<a accesskey="l" class="nav-menu {{$sel.channel}}" href="{{$nav.channel.0}}"
+									data-toggle="tooltip" aria-label="{{$nav.channel.3}}" title="{{$nav.channel.3}}"><i
+										class="fa fa-lg fa-newspaper-o fa-fw" aria-hidden="true"></i></a>
+							</li>
+						{{/if}}
+
 						{{if $nav.home}}
 							<li class="nav-segment">
 								<a accesskey="p" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip"
 									aria-label="{{$nav.home.3}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home fa-fw"
 										aria-hidden="true"></i><span id="home-update"
 										class="nav-home-badge badge nav-notification"></span></a>
-							</li>
-						{{/if}}
-
-						{{if $nav.channel}}
-							<li class="nav-segment">
-								<a accesskey="l" class="nav-menu {{$sel.channel}}" href="{{$nav.channel.0}}"
-									data-toggle="tooltip" aria-label="{{$nav.channel.3}}" title="{{$nav.channel.3}}"><i
-										class="fa fa-lg fa-th-list fa-fw" aria-hidden="true"></i></a>
 							</li>
 						{{/if}}
 

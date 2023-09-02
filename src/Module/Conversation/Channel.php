@@ -16,8 +16,6 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- * See update_profile.php for documentation
  */
 
 namespace Friendica\Module\Conversation;
@@ -31,6 +29,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
 use Friendica\Content\Widget\TrendingTags;
 use Friendica\Core\Cache\Enum\Duration;
+use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -48,9 +47,6 @@ class Channel extends BaseModule
 	const IMAGE     = 'image';
 	const VIDEO     = 'video';
 	const AUDIO     = 'audio';
-	/**
-	 * @}
-	 */
 
 	protected static $content;
 	protected static $accountTypeString;
@@ -66,7 +62,7 @@ class Channel extends BaseModule
 			return Login::form();
 		}
 
-		$this->parseRequest();
+		$this->parseRequest($request);
 
 		$t = Renderer::getMarkupTemplate("community.tpl");
 		$o = Renderer::replaceMacros($t, [
@@ -79,7 +75,7 @@ class Channel extends BaseModule
 			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		}
 
-		if (empty($_GET['mode']) || ($_GET['mode'] != 'raw')) {
+		if (empty($request['mode']) || ($request['mode'] != 'raw')) {
 			$tabs = [];
 
 			$tabs[] = [
@@ -150,14 +146,14 @@ class Channel extends BaseModule
 				}
 				$query_parameters = [];
 
-				if (!empty($_GET['min_id'])) {
-					$query_parameters['min_id'] = $_GET['min_id'];
+				if (!empty($request['min_id'])) {
+					$query_parameters['min_id'] = $request['min_id'];
 				}
-				if (!empty($_GET['max_id'])) {
-					$query_parameters['max_id'] = $_GET['max_id'];
+				if (!empty($request['max_id'])) {
+					$query_parameters['max_id'] = $request['max_id'];
 				}
-				if (!empty($_GET['last_created'])) {
-					$query_parameters['max_id'] = $_GET['last_created'];
+				if (!empty($request['last_created'])) {
+					$query_parameters['max_id'] = $request['last_created'];
 				}
 
 				$path_all       = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
@@ -166,7 +162,7 @@ class Channel extends BaseModule
 					'$title'           => DI::l10n()->t('Own Contacts'),
 					'$path_all'        => $path_all,
 					'$path_no_sharer'  => $path_no_sharer,
-					'$no_sharer'       => !empty($_REQUEST['no_sharer']),
+					'$no_sharer'       => !empty($request['no_sharer']),
 					'$all'             => DI::l10n()->t('Include'),
 					'$no_sharer_label' => DI::l10n()->t('Hide'),
 					'$base'            => 'channel',
@@ -181,7 +177,7 @@ class Channel extends BaseModule
 			$o .= DI::conversation()->statusEditor([], 0, true);
 		}
 
-		$items = self::getItems();
+		$items = self::getItems($request);
 
 		if (!DBA::isResult($items)) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('No results.'));
@@ -213,9 +209,9 @@ class Channel extends BaseModule
 	 * @throws HTTPException\BadRequestException
 	 * @throws HTTPException\ForbiddenException
 	 */
-	protected function parseRequest()
+	protected function parseRequest(array $request)
 	{
-		self::$accountTypeString = $_GET['accounttype'] ?? $this->parameters['accounttype'] ?? '';
+		self::$accountTypeString = $request['accounttype'] ?? $this->parameters['accounttype'] ?? '';
 		self::$accountType       = User::getAccountTypeByString(self::$accountTypeString);
 
 		self::$content = $this->parameters['content'] ?? '';
@@ -243,16 +239,17 @@ class Channel extends BaseModule
 			);
 		}
 
-		if (!empty($_GET['item'])) {
-			$item          = Post::selectFirst(['parent-uri-id'], ['id' => $_GET['item']]);
+		if (!empty($request['item'])) {
+			$item          = Post::selectFirst(['parent-uri-id'], ['id' => $request['item']]);
 			self::$item_id = $item['parent-uri-id'] ?? 0;
 		} else {
 			self::$item_id = 0;
 		}
 
-		self::$min_id = $_GET['min_id']       ?? null;
-		self::$max_id = $_GET['max_id']       ?? null;
-		self::$max_id = $_GET['last_created'] ?? self::$max_id;
+		Logger::debug('Blubb', ['get' => $request]);
+		self::$min_id = $request['min_id']       ?? null;
+		self::$max_id = $request['max_id']       ?? null;
+		self::$max_id = $request['last_created'] ?? self::$max_id;
 	}
 
 	/**
@@ -264,7 +261,7 @@ class Channel extends BaseModule
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected static function getItems()
+	protected static function getItems(array $request)
 	{
 		if (self::$content == self::WHATSHOT) {
 			if (!is_null(self::$accountType)) {
@@ -304,7 +301,7 @@ class Channel extends BaseModule
 			$condition[0] .= " AND `uri-id` = ?";
 			$condition[] = self::$item_id;
 		} else {
-			if (!empty($_REQUEST['no_sharer'])) {
+			if (!empty($request['no_sharer'])) {
 				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-engagement`.`uri-id`)";
 				$condition[] = DI::userSession()->getLocalUserId();
 			}
