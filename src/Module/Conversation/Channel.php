@@ -290,6 +290,9 @@ class Channel extends BaseModule
 			$condition = ["`media-type` & ?", 4];
 		}
 
+		$condition[0] .= " AND NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))";
+		$condition[] = DI::userSession()->getLocalUserId();
+
 		if ((self::$content != self::WHATSHOT) && !is_null(self::$accountType)) {
 			$condition[0] .= " AND `contact-type` = ?";
 			$condition[] = self::$accountType;
