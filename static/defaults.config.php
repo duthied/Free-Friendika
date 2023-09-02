@@ -804,9 +804,5 @@ return [
 		// engagement_hours (Integer)
 		// Number of hours posts are held in the engagement table
 		'engagement_hours' => 24,
-
-		// hot_posts_item_limit (Integer)
-		// Number of items that are displayed on the "what's hot" channel
-		'hot_posts_item_limit' => 100,
 	],
 ];

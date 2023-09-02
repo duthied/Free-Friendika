@@ -238,17 +238,17 @@ class Channel extends BaseModule
 	{
 		if (self::$content == self::WHATSHOT) {
 			if (!is_null(self::$accountType)) {
-				$condition = ["`comments` >= ? AND `contact-type` = ?", self::getMedianComments(4), self::$accountType];
+				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ?", self::getMedianComments(4), self::getMedianActivities(4), self::$accountType];
 			} else {
-				$condition = ["`comments` >= ? AND `contact-type` != ?", self::getMedianComments(4), Contact::TYPE_COMMUNITY];
+				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ?", self::getMedianComments(4), self::getMedianActivities(4), Contact::TYPE_COMMUNITY];
 			}
 		} elseif (self::$content == self::FORYOU) {
 			$cid = Contact::getPublicIdByUserId(DI::userSession()->getLocalUserId());
 
 			$condition = ["(`author-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ?) OR
-				(`comments` >= ? AND `author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))) OR
+				((`comments` >= ?  OR `activities` >= ?) AND `author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))) OR
 				( `author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?) AND `notify_new_posts`)))",
-				$cid, self::getMedianThreadScore($cid, 4), self::getMedianComments(3), DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING,
+				$cid, self::getMedianThreadScore($cid, 4), self::getMedianComments(4), self::getMedianActivities(4), DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING,
 				DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
 		} elseif (self::$content == self::FOLLOWERS) {
 			$condition = ["`author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", DI::userSession()->getLocalUserId(), Contact::FOLLOWER];
@@ -302,7 +302,7 @@ class Channel extends BaseModule
 
 	private static function getMedianComments(int $divider): int
 	{
-		$cache_key = 'Channel:getHotPostsItemLimit:' . $divider;
+		$cache_key = 'Channel:getMedianComments:' . $divider;
 		$comments  = DI::cache()->get($cache_key);
 		if (!empty($comments)) {
 			return $comments;
@@ -317,6 +317,25 @@ class Channel extends BaseModule
 
 		DI::cache()->set($cache_key, $comments, Duration::HOUR);
 		return $comments;
+	}
+
+	private static function getMedianActivities(int $divider): int
+	{
+		$cache_key  = 'Channel:getMedianActivities:' . $divider;
+		$activities = DI::cache()->get($cache_key);
+		if (!empty($activities)) {
+			return $activities;
+		}
+
+		$limit      = DBA::count('post-engagement', ["`contact-type` != ? AND `activities` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
+		$post       = DBA::selectToArray('post-engagement', ['activities'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY, 0], ['order' => ['activities' => true], 'limit' => [$limit, 1]]);
+		$activities = $post[0]['activities'] ?? 0;
+		if (empty($activities)) {
+			return 0;
+		}
+
+		DI::cache()->set($cache_key, $activities, Duration::HOUR);
+		return $activities;
 	}
 
 	private static function getMedianThreadScore(int $cid, int $divider): int
