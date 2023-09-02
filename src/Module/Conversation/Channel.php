@@ -38,13 +38,13 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Core\Session\Model\UserSession;
+use Friendica\Database\Database;
 use Friendica\Module\Response;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -82,11 +82,15 @@ class Channel extends BaseModule
 	private $mode;
 	/** @var IManagePersonalConfigValues */
 	private $pConfig;
+	/** @var Database */
+	private $database;
 
-	public function __construct(IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+
+	public function __construct(Database $database, IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
+		$this->database     = $database;
 		$this->pConfig      = $pConfig;
 		$this->mode         = $mode;
 		$this->conversation = $conversation;
@@ -219,7 +223,7 @@ class Channel extends BaseModule
 
 		$items = $this->getItems($request, $this->session, $this->cache);
 
-		if (!DBA::isResult($items)) {
+		if (!$this->database->isResult($items)) {
 			$this->systemMessages->addNotice($this->l10n->t('No results.'));
 			return $o;
 		}
@@ -361,7 +365,7 @@ class Channel extends BaseModule
 			}
 		}
 
-		$items = DBA::selectToArray('post-engagement', ['uri-id', 'created'], $condition, $params);
+		$items = $this->database->selectToArray('post-engagement', ['uri-id', 'created'], $condition, $params);
 
 		if (empty($items)) {
 			return [];
@@ -383,8 +387,8 @@ class Channel extends BaseModule
 			return $comments;
 		}
 
-		$limit    = DBA::count('post-engagement', ["`contact-type` != ? AND `comments` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
-		$post     = DBA::selectToArray('post-engagement', ['comments'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['comments' => true], 'limit' => [$limit, 1]]);
+		$limit    = $this->database->count('post-engagement', ["`contact-type` != ? AND `comments` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
+		$post     = $this->database->selectToArray('post-engagement', ['comments'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['comments' => true], 'limit' => [$limit, 1]]);
 		$comments = $post[0]['comments'] ?? 0;
 		if (empty($comments)) {
 			return 0;
@@ -402,8 +406,8 @@ class Channel extends BaseModule
 			return $activities;
 		}
 
-		$limit      = DBA::count('post-engagement', ["`contact-type` != ? AND `activities` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
-		$post       = DBA::selectToArray('post-engagement', ['activities'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['activities' => true], 'limit' => [$limit, 1]]);
+		$limit      = $this->database->count('post-engagement', ["`contact-type` != ? AND `activities` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
+		$post       = $this->database->selectToArray('post-engagement', ['activities'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['activities' => true], 'limit' => [$limit, 1]]);
 		$activities = $post[0]['activities'] ?? 0;
 		if (empty($activities)) {
 			return 0;
@@ -421,8 +425,8 @@ class Channel extends BaseModule
 			return $score;
 		}
 
-		$limit    = DBA::count('contact-relation', ["`cid` = ? AND `thread-score` > ?", $cid, 0]) / $divider;
-		$relation = DBA::selectToArray('contact-relation', ['thread-score'], ['cid' => $cid], ['order' => ['thread-score' => true], 'limit' => [$limit, 1]]);
+		$limit    = $this->database->count('contact-relation', ["`cid` = ? AND `thread-score` > ?", $cid, 0]) / $divider;
+		$relation = $this->database->selectToArray('contact-relation', ['thread-score'], ['cid' => $cid], ['order' => ['thread-score' => true], 'limit' => [$limit, 1]]);
 		$score    = $relation[0]['thread-score'] ?? 0;
 		if (empty($score)) {
 			return 0;
