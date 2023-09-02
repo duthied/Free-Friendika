@@ -30,6 +30,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
 use Friendica\Content\Widget\TrendingTags;
+use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -236,32 +237,28 @@ class Channel extends BaseModule
 	protected static function getItems()
 	{
 		if (self::$content == self::WHATSHOT) {
-			$post     = DBA::selectToArray('post-engagement', ['comments'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['comments' => true], 'limit' => [DI::config()->get('channel', 'hot_posts_item_limit'), 1]]);
-			$comments = $post[0]['comments'] ?? 0;
 			if (!is_null(self::$accountType)) {
-				$condition = ["`comments` >= ? AND `contact-type` = ?", $comments, self::$accountType];
+				$condition = ["`comments` >= ? AND `contact-type` = ?", self::getMedianComments(4), self::$accountType];
 			} else {
-				$condition = ["`comments` >= ? AND `contact-type` != ?", $comments, Contact::TYPE_COMMUNITY];
+				$condition = ["`comments` >= ? AND `contact-type` != ?", self::getMedianComments(4), Contact::TYPE_COMMUNITY];
 			}
 		} elseif (self::$content == self::FORYOU) {
 			$cid = Contact::getPublicIdByUserId(DI::userSession()->getLocalUserId());
-			if (!is_null(self::$accountType)) {
-				$condition = ["`author-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ? AND `relation-thread-score` > ?) AND `contact-type` = ?", $cid, 0, 0, self::$accountType];
-			} else {
-				$condition = ["`author-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ? AND `relation-thread-score` > ?)", $cid, 0, 0];
-			}
+
+			$condition = ["(`author-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ?) OR (`comments` >= ? AND `author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))))",
+				$cid, self::getMedianThreadScore($cid, 4), self::getMedianComments(3), DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
 		} elseif (self::$content == self::FOLLOWERS) {
-			if (!is_null(self::$accountType)) {
-				$condition = ["`author-id` IN (SELECT `pid` FROM `account-user-view` WHERE uid` = ? AND `rel` = ?) AND `contact-type` = ?", DI::userSession()->getLocalUserId(), Contact::FOLLOWER, self::$accountType];
-			} else {
-				$condition = ["`author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", DI::userSession()->getLocalUserId(), Contact::FOLLOWER];
-			}
+			$condition = ["`author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", DI::userSession()->getLocalUserId(), Contact::FOLLOWER];
+		}
+
+		if ((self::$content != self::WHATSHOT) && !is_null(self::$accountType)) {
+			$condition[0] .= " AND `contact-type` = ?";
+			$condition[] = self::$accountType;
 		}
 
 		$params = ['order' => ['created' => true], 'limit' => self::$itemsPerPage];
 
 		if (!empty(self::$item_id)) {
-			// @todo
 			$condition[0] .= " AND `uri-id` = ?";
 			$condition[] = self::$item_id;
 		} else {
@@ -298,5 +295,43 @@ class Channel extends BaseModule
 		}
 
 		return $items;
+	}
+
+	private static function getMedianComments(int $divider): int
+	{
+		$cache_key = 'Channel:getHotPostsItemLimit:' . $divider;
+		$comments  = DI::cache()->get($cache_key);
+		if (!empty($comments)) {
+			return $comments;
+		}
+
+		$limit    = DBA::count('post-engagement', ["`contact-type` != ? AND `comments` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
+		$post     = DBA::selectToArray('post-engagement', ['comments'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY, 0], ['order' => ['comments' => true], 'limit' => [$limit, 1]]);
+		$comments = $post[0]['comments'] ?? 0;
+		if (empty($comments)) {
+			return 0;
+		}
+
+		DI::cache()->set($cache_key, $comments, Duration::HOUR);
+		return $comments;
+	}
+
+	private static function getMedianThreadScore(int $cid, int $divider): int
+	{
+		$cache_key = 'Channel:getThreadScore:' . $cid . ':' . $divider;
+		$score     = DI::cache()->get($cache_key);
+		if (!empty($score)) {
+			return $score;
+		}
+
+		$limit    = DBA::count('contact-relation', ["`cid` = ? AND `thread-score` > ?", $cid, 0]) / $divider;
+		$relation = DBA::selectToArray('contact-relation', ['thread-score'], ['cid' => $cid], ['order' => ['thread-score' => true], 'limit' => [$limit, 1]]);
+		$score    = $relation[0]['thread-score'] ?? 0;
+		if (empty($score)) {
+			return 0;
+		}
+
+		DI::cache()->set($cache_key, $score, Duration::HOUR);
+		return $score;
 	}
 }
