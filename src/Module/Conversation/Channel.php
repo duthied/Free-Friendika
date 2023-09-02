@@ -245,8 +245,11 @@ class Channel extends BaseModule
 		} elseif (self::$content == self::FORYOU) {
 			$cid = Contact::getPublicIdByUserId(DI::userSession()->getLocalUserId());
 
-			$condition = ["(`author-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ?) OR (`comments` >= ? AND `author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))))",
-				$cid, self::getMedianThreadScore($cid, 4), self::getMedianComments(3), DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
+			$condition = ["(`author-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ?) OR
+				(`comments` >= ? AND `author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))) OR
+				( `author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?) AND `notify_new_posts`)))",
+				$cid, self::getMedianThreadScore($cid, 4), self::getMedianComments(3), DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING,
+				DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
 		} elseif (self::$content == self::FOLLOWERS) {
 			$condition = ["`author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", DI::userSession()->getLocalUserId(), Contact::FOLLOWER];
 		}
