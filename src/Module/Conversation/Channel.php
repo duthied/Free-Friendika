@@ -95,7 +95,7 @@ class Channel extends BaseModule
 				'id'        => 'channel-followers-tab',
 				'accesskey' => 'f'
 			];
-			
+
 			$tabs[] = [
 				'label'     => DI::l10n()->t('Whats Hot'),
 				'url'       => 'channel/' . self::WHATSHOT,
