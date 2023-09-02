@@ -1327,7 +1327,7 @@ return [
 		"comment" => "Engagement data per post",
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the author of this item"],
+			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item owner"],
 			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Person, organisation, news, community, relay"],
 			"created" => ["type" => "datetime", "comment" => ""],
 			"comments" => ["type" => "mediumint unsigned", "comment" => "Number of comments"],
@@ -1335,7 +1335,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id"],
-			"author-id" => ["author-id"],
+			"owner-id" => ["owner-id"],
 			"created" => ["created"],
 		]
 	],

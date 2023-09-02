@@ -1305,16 +1305,16 @@ CREATE TABLE IF NOT EXISTS `post-delivery-data` (
 --
 CREATE TABLE IF NOT EXISTS `post-engagement` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
+	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
 	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Person, organisation, news, community, relay',
 	`created` datetime COMMENT '',
 	`comments` mediumint unsigned COMMENT 'Number of comments',
 	`activities` mediumint unsigned COMMENT 'Number of activities (like, dislike, ...)',
 	 PRIMARY KEY(`uri-id`),
-	 INDEX `author-id` (`author-id`),
+	 INDEX `owner-id` (`owner-id`),
 	 INDEX `created` (`created`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Engagement data per post';
 
 --

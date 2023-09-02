@@ -245,13 +245,13 @@ class Channel extends BaseModule
 		} elseif (self::$content == self::FORYOU) {
 			$cid = Contact::getPublicIdByUserId(DI::userSession()->getLocalUserId());
 
-			$condition = ["(`author-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ?) OR
-				((`comments` >= ?  OR `activities` >= ?) AND `author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))) OR
-				( `author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?) AND `notify_new_posts`)))",
+			$condition = ["(`owner-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ?) OR
+				((`comments` >= ? OR `activities` >= ?) AND `owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))) OR
+				( `owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?) AND `notify_new_posts`)))",
 				$cid, self::getMedianThreadScore($cid, 4), self::getMedianComments(4), self::getMedianActivities(4), DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING,
 				DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
 		} elseif (self::$content == self::FOLLOWERS) {
-			$condition = ["`author-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", DI::userSession()->getLocalUserId(), Contact::FOLLOWER];
+			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", DI::userSession()->getLocalUserId(), Contact::FOLLOWER];
 		}
 
 		if ((self::$content != self::WHATSHOT) && !is_null(self::$accountType)) {
