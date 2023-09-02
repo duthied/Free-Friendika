@@ -88,9 +88,6 @@ class Thread
 				$this->writable = Security::canWriteToUserWall($this->profile_owner) || $writable;
 				break;
 			case Conversation::MODE_CHANNEL:
-				$this->profile_owner = 0;
-				$this->writable = $writable;
-				break;
 			case Conversation::MODE_COMMUNITY:
 				$this->profile_owner = 0;
 				$this->writable = $writable;

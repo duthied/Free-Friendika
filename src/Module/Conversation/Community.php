@@ -246,8 +246,7 @@ class Community extends BaseModule
 		}
 
 		self::$min_id = $_GET['min_id'] ?? null;
-		self::$max_id = $_GET['max_id'] ?? null;
-		self::$max_id = $_GET['last_commented'] ?? self::$max_id;
+		self::$max_id = $_GET['last_commented'] ?? $_GET['max_id'] ?? null;
 	}
 
 	/**
