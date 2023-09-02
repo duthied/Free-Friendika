@@ -21,6 +21,8 @@
 
 namespace Friendica\Module\Conversation;
 
+use Friendica\App;
+use Friendica\App\Mode;
 use Friendica\BaseModule;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
@@ -29,16 +31,23 @@ use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
 use Friendica\Content\Widget\TrendingTags;
+use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Enum\Duration;
-use Friendica\Core\Logger;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\L10n;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
+use Friendica\Core\Session\Model\UserSession;
+use Friendica\Module\Response;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class Channel extends BaseModule
 {
@@ -57,9 +66,39 @@ class Channel extends BaseModule
 	protected static $max_id;
 	protected static $item_id;
 
+	/** @var UserSession */
+	private $session;
+	/** @var ICanCache */
+	private $cache;
+	/** @var IManageConfigValues The config */
+	private $config;
+	/** @var SystemMessages */
+	private $systemMessages;
+	/** @var App\Page */
+	private $page;
+	/** @var Conversation */
+	private $conversation;
+	/** @var App\Mode $mode */
+	private $mode;
+	/** @var IManagePersonalConfigValues */
+	private $pConfig;
+
+	public function __construct(IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->pConfig      = $pConfig;
+		$this->mode         = $mode;
+		$this->conversation = $conversation;
+		$this->page         = $page;
+		$this->config       = $config;
+		$this->cache        = $cache;
+		$this->session      = $session;
+	}
+
 	protected function content(array $request = []): string
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return Login::form();
 		}
 
@@ -71,64 +110,64 @@ class Channel extends BaseModule
 			'$header'  => '',
 		]);
 
-		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
+		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
-			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
+			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => $this->args->getQueryString()]);
 		}
 
 		if (empty($request['mode']) || ($request['mode'] != 'raw')) {
 			$tabs = [];
 
 			$tabs[] = [
-				'label'     => DI::l10n()->t('For you'),
+				'label'     => $this->l10n->t('For you'),
 				'url'       => 'channel/' . self::FORYOU,
 				'sel'       => self::$content == self::FORYOU ? 'active' : '',
-				'title'     => DI::l10n()->t('Posts from contacts you interact with and who interact with you'),
+				'title'     => $this->l10n->t('Posts from contacts you interact with and who interact with you'),
 				'id'        => 'channel-foryou-tab',
 				'accesskey' => 'y'
 			];
 
 			$tabs[] = [
-				'label'     => DI::l10n()->t('Followers'),
+				'label'     => $this->l10n->t('Followers'),
 				'url'       => 'channel/' . self::FOLLOWERS,
 				'sel'       => self::$content == self::FOLLOWERS ? 'active' : '',
-				'title'     => DI::l10n()->t('Posts from your followers that you don\'t follow'),
+				'title'     => $this->l10n->t('Posts from your followers that you don\'t follow'),
 				'id'        => 'channel-followers-tab',
 				'accesskey' => 'f'
 			];
 
 			$tabs[] = [
-				'label'     => DI::l10n()->t('Whats Hot'),
+				'label'     => $this->l10n->t('Whats Hot'),
 				'url'       => 'channel/' . self::WHATSHOT,
 				'sel'       => self::$content == self::WHATSHOT ? 'active' : '',
-				'title'     => DI::l10n()->t('Posts with a lot of interactions'),
+				'title'     => $this->l10n->t('Posts with a lot of interactions'),
 				'id'        => 'channel-whatshot-tab',
 				'accesskey' => 'h'
 			];
 
 			$tabs[] = [
-				'label'     => DI::l10n()->t('Images'),
+				'label'     => $this->l10n->t('Images'),
 				'url'       => 'channel/' . self::IMAGE,
 				'sel'       => self::$content == self::IMAGE ? 'active' : '',
-				'title'     => DI::l10n()->t('Posts with images'),
+				'title'     => $this->l10n->t('Posts with images'),
 				'id'        => 'channel-image-tab',
 				'accesskey' => 'i'
 			];
 
 			$tabs[] = [
-				'label'     => DI::l10n()->t('Videos'),
+				'label'     => $this->l10n->t('Videos'),
 				'url'       => 'channel/' . self::VIDEO,
 				'sel'       => self::$content == self::VIDEO ? 'active' : '',
-				'title'     => DI::l10n()->t('Posts with videos'),
+				'title'     => $this->l10n->t('Posts with videos'),
 				'id'        => 'channel-video-tab',
 				'accesskey' => 'v'
 			];
 
 			$tabs[] = [
-				'label'     => DI::l10n()->t('Audio'),
+				'label'     => $this->l10n->t('Audio'),
 				'url'       => 'channel/' . self::AUDIO,
 				'sel'       => self::$content == self::AUDIO ? 'active' : '',
-				'title'     => DI::l10n()->t('Posts with audio'),
+				'title'     => $this->l10n->t('Posts with audio'),
 				'id'        => 'channel-audio-tab',
 				'accesskey' => 'a'
 			];
@@ -138,9 +177,9 @@ class Channel extends BaseModule
 
 			Nav::setSelected('channel');
 
-			DI::page()['aside'] .= Widget::accountTypes('channel/' . self::$content, self::$accountTypeString);
+			$this->page['aside'] .= Widget::accountTypes('channel/' . self::$content, self::$accountTypeString);
 
-			if (!in_array(self::$content, [self::FOLLOWERS, self::FORYOU]) && DI::config()->get('system', 'community_no_sharer')) {
+			if (!in_array(self::$content, [self::FOLLOWERS, self::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
 				$path = self::$content;
 				if (!empty($this->parameters['accounttype'])) {
 					$path .= '/' . $this->parameters['accounttype'];
@@ -159,43 +198,43 @@ class Channel extends BaseModule
 
 				$path_all       = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
 				$path_no_sharer = $path . '?' . http_build_query(array_merge($query_parameters, ['no_sharer' => true]));
-				DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_sharer.tpl'), [
-					'$title'           => DI::l10n()->t('Own Contacts'),
+				$this->page['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_sharer.tpl'), [
+					'$title'           => $this->l10n->t('Own Contacts'),
 					'$path_all'        => $path_all,
 					'$path_no_sharer'  => $path_no_sharer,
 					'$no_sharer'       => !empty($request['no_sharer']),
-					'$all'             => DI::l10n()->t('Include'),
-					'$no_sharer_label' => DI::l10n()->t('Hide'),
+					'$all'             => $this->l10n->t('Include'),
+					'$no_sharer_label' => $this->l10n->t('Hide'),
 					'$base'            => 'channel',
 				]);
 			}
 
-			if (Feature::isEnabled(DI::userSession()->getLocalUserId(), 'trending_tags')) {
-				DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
+			if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
+				$this->page['aside'] .= TrendingTags::getHTML(self::$content);
 			}
 
 			// We need the editor here to be able to reshare an item.
-			$o .= DI::conversation()->statusEditor([], 0, true);
+			$o .= $this->conversation->statusEditor([], 0, true);
 		}
 
-		$items = self::getItems($request);
+		$items = $this->getItems($request, $this->session, $this->cache);
 
 		if (!DBA::isResult($items)) {
-			DI::sysmsg()->addNotice(DI::l10n()->t('No results.'));
+			$this->systemMessages->addNotice($this->l10n->t('No results.'));
 			return $o;
 		}
 
-		$o .= DI::conversation()->render($items, Conversation::MODE_CHANNEL, false, false, 'created', DI::userSession()->getLocalUserId());
+		$o .= $this->conversation->render($items, Conversation::MODE_CHANNEL, false, false, 'created', $this->session->getLocalUserId());
 
 		$pager = new BoundariesPager(
-			DI::l10n(),
-			DI::args()->getQueryString(),
+			$this->l10n,
+			$this->args->getQueryString(),
 			$items[0]['created'],
 			$items[count($items) - 1]['created'],
 			self::$itemsPerPage
 		);
 
-		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
+		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
 		} else {
 			$o .= $pager->renderMinimal(count($items));
@@ -221,22 +260,22 @@ class Channel extends BaseModule
 		}
 
 		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS, self::IMAGE, self::VIDEO, self::AUDIO])) {
-			throw new HTTPException\BadRequestException(DI::l10n()->t('Channel not available.'));
+			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 
-		if (DI::mode()->isMobile()) {
-			self::$itemsPerPage = DI::pConfig()->get(
-				DI::userSession()->getLocalUserId(),
+		if ($this->mode->isMobile()) {
+			self::$itemsPerPage = $this->pConfig->get(
+				$this->session->getLocalUserId(),
 				'system',
 				'itemspage_mobile_network',
-				DI::config()->get('system', 'itemspage_network_mobile')
+				$this->config->get('system', 'itemspage_network_mobile')
 			);
 		} else {
-			self::$itemsPerPage = DI::pConfig()->get(
-				DI::userSession()->getLocalUserId(),
+			self::$itemsPerPage = $this->pConfig->get(
+				$this->session->getLocalUserId(),
 				'system',
 				'itemspage_network',
-				DI::config()->get('system', 'itemspage_network')
+				$this->config->get('system', 'itemspage_network')
 			);
 		}
 
@@ -261,24 +300,24 @@ class Channel extends BaseModule
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected static function getItems(array $request)
+	protected function getItems(array $request, UserSession $session, ICanCache $cache)
 	{
 		if (self::$content == self::WHATSHOT) {
 			if (!is_null(self::$accountType)) {
-				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ?", self::getMedianComments(4), self::getMedianActivities(4), self::$accountType];
+				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ?", $this->getMedianComments(4), $this->getMedianActivities(4), self::$accountType];
 			} else {
-				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ?", self::getMedianComments(4), self::getMedianActivities(4), Contact::TYPE_COMMUNITY];
+				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ?", $this->getMedianComments(4), $this->getMedianActivities(4), Contact::TYPE_COMMUNITY];
 			}
 		} elseif (self::$content == self::FORYOU) {
-			$cid = Contact::getPublicIdByUserId(DI::userSession()->getLocalUserId());
+			$cid = Contact::getPublicIdByUserId($session->getLocalUserId());
 
 			$condition = ["(`owner-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ?) OR
 				((`comments` >= ? OR `activities` >= ?) AND `owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))) OR
 				( `owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?) AND `notify_new_posts`)))",
-				$cid, self::getMedianThreadScore($cid, 4), self::getMedianComments(4), self::getMedianActivities(4), DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING,
-				DI::userSession()->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
+				$cid, $this->getMedianThreadScore($cid, 4), $this->getMedianComments(4), $this->getMedianActivities(4), $session->getLocalUserId(), Contact::FRIEND, Contact::SHARING,
+				$session->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
 		} elseif (self::$content == self::FOLLOWERS) {
-			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", DI::userSession()->getLocalUserId(), Contact::FOLLOWER];
+			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $session->getLocalUserId(), Contact::FOLLOWER];
 		} elseif (self::$content == self::IMAGE) {
 			$condition = ["`media-type` & ?", 1];
 		} elseif (self::$content == self::VIDEO) {
@@ -288,7 +327,7 @@ class Channel extends BaseModule
 		}
 
 		$condition[0] .= " AND NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))";
-		$condition[] = DI::userSession()->getLocalUserId();
+		$condition[] = $session->getLocalUserId();
 
 		if ((self::$content != self::WHATSHOT) && !is_null(self::$accountType)) {
 			$condition[0] .= " AND `contact-type` = ?";
@@ -303,7 +342,7 @@ class Channel extends BaseModule
 		} else {
 			if (!empty($request['no_sharer'])) {
 				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-engagement`.`uri-id`)";
-				$condition[] = DI::userSession()->getLocalUserId();
+				$condition[] = $session->getLocalUserId();
 			}
 
 			if (isset(self::$max_id)) {
@@ -336,10 +375,10 @@ class Channel extends BaseModule
 		return $items;
 	}
 
-	private static function getMedianComments(int $divider): int
+	private function getMedianComments(int $divider): int
 	{
 		$cache_key = 'Channel:getMedianComments:' . $divider;
-		$comments  = DI::cache()->get($cache_key);
+		$comments  = $this->cache->get($cache_key);
 		if (!empty($comments)) {
 			return $comments;
 		}
@@ -351,14 +390,14 @@ class Channel extends BaseModule
 			return 0;
 		}
 
-		DI::cache()->set($cache_key, $comments, Duration::HOUR);
+		$this->cache->set($cache_key, $comments, Duration::HOUR);
 		return $comments;
 	}
 
-	private static function getMedianActivities(int $divider): int
+	private function getMedianActivities(int $divider): int
 	{
 		$cache_key  = 'Channel:getMedianActivities:' . $divider;
-		$activities = DI::cache()->get($cache_key);
+		$activities = $this->cache->get($cache_key);
 		if (!empty($activities)) {
 			return $activities;
 		}
@@ -370,14 +409,14 @@ class Channel extends BaseModule
 			return 0;
 		}
 
-		DI::cache()->set($cache_key, $activities, Duration::HOUR);
+		$this->cache->set($cache_key, $activities, Duration::HOUR);
 		return $activities;
 	}
 
-	private static function getMedianThreadScore(int $cid, int $divider): int
+	private function getMedianThreadScore(int $cid, int $divider): int
 	{
 		$cache_key = 'Channel:getThreadScore:' . $cid . ':' . $divider;
-		$score     = DI::cache()->get($cache_key);
+		$score     = $this->cache->get($cache_key);
 		if (!empty($score)) {
 			return $score;
 		}
@@ -389,7 +428,7 @@ class Channel extends BaseModule
 			return 0;
 		}
 
-		DI::cache()->set($cache_key, $score, Duration::HOUR);
+		$this->cache->set($cache_key, $score, Duration::HOUR);
 		return $score;
 	}
 }
