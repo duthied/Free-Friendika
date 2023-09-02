@@ -104,10 +104,10 @@ class Engagement
 		Logger::debug('Engagement stored', ['fields' => $engagement, 'ret' => $ret]);
 	}
 
-	private static function getMediaType(int $uri_id) : int
+	private static function getMediaType(int $uri_id): int
 	{
 		$media = Post\Media::getByURIId($uri_id);
-		$type = 0;
+		$type  = 0;
 		foreach ($media as $entry) {
 			if ($entry['type'] == Post\Media::IMAGE) {
 				$type = $type | 1;
