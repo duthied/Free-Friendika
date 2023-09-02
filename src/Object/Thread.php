@@ -80,18 +80,12 @@ class Thread
 				$this->writable = true;
 				break;
 			case Conversation::MODE_PROFILE:
-				$this->profile_owner = $a->getProfileOwner();
-				$this->writable = Security::canWriteToUserWall($this->profile_owner) || $writable;
-				break;
 			case Conversation::MODE_DISPLAY:
 				$this->profile_owner = $a->getProfileOwner();
 				$this->writable = Security::canWriteToUserWall($this->profile_owner) || $writable;
 				break;
 			case Conversation::MODE_CHANNEL:
 			case Conversation::MODE_COMMUNITY:
-				$this->profile_owner = 0;
-				$this->writable = $writable;
-				break;
 			case Conversation::MODE_CONTACTS:
 				$this->profile_owner = 0;
 				$this->writable = $writable;
