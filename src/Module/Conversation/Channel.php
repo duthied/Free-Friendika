@@ -236,12 +236,12 @@ class Channel extends BaseModule
 	protected static function getItems()
 	{
 		if (self::$content == self::WHATSHOT) {
-			$post     = DBA::selectToArray('post-engagement', ['comments'], [], ['order' => ['comments' => true], 'limit' => [DI::config()->get('channel', 'hot_posts_item_limit'), 1]]);
+			$post     = DBA::selectToArray('post-engagement', ['comments'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['comments' => true], 'limit' => [DI::config()->get('channel', 'hot_posts_item_limit'), 1]]);
 			$comments = $post[0]['comments'] ?? 0;
 			if (!is_null(self::$accountType)) {
 				$condition = ["`comments` >= ? AND `contact-type` = ?", $comments, self::$accountType];
 			} else {
-				$condition = ["`comments` >= ?", $comments];
+				$condition = ["`comments` >= ? AND `contact-type` != ?", $comments, Contact::TYPE_COMMUNITY];
 			}
 		} elseif (self::$content == self::FORYOU) {
 			$cid = Contact::getPublicIdByUserId(DI::userSession()->getLocalUserId());

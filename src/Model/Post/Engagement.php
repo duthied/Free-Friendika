@@ -65,11 +65,6 @@ class Engagement
 			return;
 		}
 
-		if ($parent['contact-contact-type'] == Contact::TYPE_COMMUNITY) {
-			Logger::debug('Group posts are not stored', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'author-id' => $parent['author-id']]);
-			return;
-		}
-
 		if ($parent['created'] < DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')) {
 			Logger::debug('Post is too old', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'created' => $parent['created']]);
 			return;
