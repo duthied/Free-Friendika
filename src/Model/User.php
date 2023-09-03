@@ -183,7 +183,7 @@ class User
 		$system['dob'] = '0000-00-00';
 
 		// Ensure that the user contains data
-		$user = DBA::selectFirst('user', ['prvkey', 'guid'], ['uid' => 0]);
+		$user = DBA::selectFirst('user', ['prvkey', 'guid', 'language'], ['uid' => 0]);
 		if (empty($user['prvkey']) || empty($user['guid'])) {
 			$fields = [
 				'username' => $system['name'],
@@ -203,7 +203,8 @@ class User
 
 			$system['guid'] = $fields['guid'];
 		} else {
-			$system['guid'] = $user['guid'];
+			$system['guid']     = $user['guid'];
+			$system['language'] = $user['language'];
 		}
 
 		return $system;
@@ -530,6 +531,28 @@ class User
 		}
 
 		return $default_circle;
+	}
+
+/**
+ * Fetch the language code from the given user. If the code is invalid, return the system language
+ *
+ * @param integer $uid   User-Id
+ * @param boolean $short If true, return the short form g.g. "en", otherwise the long form e.g. "en_UK"
+ * @return string
+ */
+	public static function getLanguageCode(int $uid, bool $short): string
+	{
+		$owner = self::getOwnerDataById($uid);
+		$languages = DI::l10n()->getAvailableLanguages();
+		if (in_array($owner['language'], array_keys($languages))) {
+			$language = $owner['language'];
+		} else {
+			$language = DI::config()->get('system', 'language');
+		}
+		if ($short) {
+			return substr($language, 0, 2);
+		}
+		return $language;
 	}
 
 	/**

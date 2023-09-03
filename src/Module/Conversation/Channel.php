@@ -180,27 +180,25 @@ class Channel extends BaseModule
 				'accesskey' => 'd'
 			];
 
-			$owner     = User::getOwnerDataById($this->session->getLocalUserId());
+			$language  = User::getLanguageCode($this->session->getLocalUserId(), false);
 			$languages = $this->l10n->getAvailableLanguages();
-			if (!empty($owner['language']) && !empty($languages[$owner['language']])) {
-				$tabs[] = [
-					'label'     => $languages[$owner['language']],
-					'url'       => 'channel/' . self::LANGUAGE,
-					'sel'       => self::$content == self::LANGUAGE ? 'active' : '',
-					'title'     => $this->l10n->t('Posts in %s', $languages[$owner['language']]),
-					'id'        => 'channel-language-tab',
-					'accesskey' => 'g'
-				];
+			$tabs[] = [
+				'label'     => $languages[$language],
+				'url'       => 'channel/' . self::LANGUAGE,
+				'sel'       => self::$content == self::LANGUAGE ? 'active' : '',
+				'title'     => $this->l10n->t('Posts in %s', $languages[$language]),
+				'id'        => 'channel-language-tab',
+				'accesskey' => 'g'
+			];
 
-				$tabs[] = [
-					'label'     => $this->l10n->t('Whats Hot %s', $languages[$owner['language']]),
-					'url'       => 'channel/' . self::HOTLANG,
-					'sel'       => self::$content == self::HOTLANG ? 'active' : '',
-					'title'     => $this->l10n->t('Posts in %s with a lot of interactions', $languages[$owner['language']]),
-					'id'        => 'channel-hotlang-tab',
-					'accesskey' => 'o'
-				];
-			}
+			$tabs[] = [
+				'label'     => $this->l10n->t('Whats Hot %s', $languages[$language]),
+				'url'       => 'channel/' . self::HOTLANG,
+				'sel'       => self::$content == self::HOTLANG ? 'active' : '',
+				'title'     => $this->l10n->t('Posts in %s with a lot of interactions', $languages[$language]),
+				'id'        => 'channel-hotlang-tab',
+				'accesskey' => 'o'
+			];
 
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 			$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
@@ -354,14 +352,14 @@ class Channel extends BaseModule
 		} elseif (self::$content == self::AUDIO) {
 			$condition = ["`media-type` & ?", 4];
 		} elseif (self::$content == self::LANGUAGE) {
-			$owner     = User::getOwnerDataById($this->session->getLocalUserId());
-			$condition = ["JSON_EXTRACT(`language`, ?) > ?", '$.' . $owner['language'], $this->config->get('channel', 'language_threshold')];
+			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", User::getLanguageCode($this->session->getLocalUserId(), true)];
 		} elseif (self::$content == self::HOTLANG) {
-			$owner = User::getOwnerDataById($this->session->getLocalUserId());
 			if (!is_null(self::$accountType)) {
-				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ? AND JSON_EXTRACT(`language`, ?) > ?", $this->getMedianComments(4), $this->getMedianActivities(4), self::$accountType, '$.' . $owner['language'], $this->config->get('channel', 'language_threshold')];
+				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ? AND JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?",
+					$this->getMedianComments(4), $this->getMedianActivities(4), self::$accountType, User::getLanguageCode($this->session->getLocalUserId(), true)];
 			} else {
-				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ? AND JSON_EXTRACT(`language`, ?) > ?", $this->getMedianComments(4), $this->getMedianActivities(4), Contact::TYPE_COMMUNITY, '$.' . $owner['language'], $this->config->get('channel', 'language_threshold')];
+				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ? AND JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?",
+					$this->getMedianComments(4), $this->getMedianActivities(4), Contact::TYPE_COMMUNITY, User::getLanguageCode($this->session->getLocalUserId(), true)];
 			}
 		}
 

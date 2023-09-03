@@ -804,9 +804,5 @@ return [
 		// interaction_score_days (Integer)
 		// Number of days that are used to calculate the interaction score.
 		'interaction_score_days' => 30,
-
-		// language_threshold (Float)
-		// Treshold for the language detection.
-		'language_threshold' => 0.6,
 	],
 ];
