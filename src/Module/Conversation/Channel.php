@@ -402,7 +402,7 @@ class Channel extends BaseModule
 	private function addLanguageCondition(array $condition): array
 	{
 		$conditions = [];
-		$languages = $this->pConfig->get($this->session->getLocalUserId(), 'channel', 'languages', [User::getLanguageCode($this->session->getLocalUserId(), false)]);
+		$languages  = $this->pConfig->get($this->session->getLocalUserId(), 'channel', 'languages', [User::getLanguageCode($this->session->getLocalUserId(), false)]);
 		foreach ($languages as $language) {
 			$conditions[] = "JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?";
 			$condition[]  = substr($language, 0, 2);
