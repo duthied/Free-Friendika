@@ -34,6 +34,9 @@ General
 * y - for you
 * f - followers
 * h - what's hot
+* i - Images
+* v - Videos
+* d - Audio
 
 ../profile
 --------

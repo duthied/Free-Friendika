@@ -173,7 +173,7 @@ class Channel extends BaseModule
 				'sel'       => self::$content == self::AUDIO ? 'active' : '',
 				'title'     => $this->l10n->t('Posts with audio'),
 				'id'        => 'channel-audio-tab',
-				'accesskey' => 'a'
+				'accesskey' => 'd'
 			];
 
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
