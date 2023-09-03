@@ -144,8 +144,8 @@ class Channel extends BaseModule
 				'accesskey' => 'h'
 			];
 
-			$language  = User::getLanguageCode($this->session->getLocalUserId(), false);
-			$languages = $this->l10n->getAvailableLanguages();
+			$language  = User::getLanguageCode($this->session->getLocalUserId());
+			$languages = $this->l10n->getAvailableLanguages(true);
 
 			$tabs[] = [
 				'label'     => $languages[$language],
@@ -344,7 +344,7 @@ class Channel extends BaseModule
 		} elseif (self::$content == self::AUDIO) {
 			$condition = ["`media-type` & ?", 4];
 		} elseif (self::$content == self::LANGUAGE) {
-			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", User::getLanguageCode($this->session->getLocalUserId(), true)];
+			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", $this->l10n->convertCodeForLanguageDetection(User::getLanguageCode($this->session->getLocalUserId()))];
 		}
 
 		if (self::$content != self::LANGUAGE) {
@@ -404,10 +404,11 @@ class Channel extends BaseModule
 	private function addLanguageCondition(array $condition): array
 	{
 		$conditions = [];
-		$languages  = $this->pConfig->get($this->session->getLocalUserId(), 'channel', 'languages', [User::getLanguageCode($this->session->getLocalUserId(), false)]);
+		$languages  = $this->pConfig->get($this->session->getLocalUserId(), 'channel', 'languages', [User::getLanguageCode($this->session->getLocalUserId())]);
+		$languages  = $this->l10n->convertForLanguageDetection($languages);
 		foreach ($languages as $language) {
 			$conditions[] = "JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?";
-			$condition[]  = substr($language, 0, 2);
+			$condition[]  = $language;
 		}
 		if (!empty($conditions)) {
 			$condition[0] .= " AND (`language` IS NULL OR " . implode(' OR ', $conditions) . ")";

@@ -397,8 +397,8 @@ class L10n
 				// See https://github.com/friendica/friendica/issues/10511
 				// Persian is manually added to language detection until a persian translation is provided for the interface, at
 				// which point it will be automatically available through `getAvailableLanguages()` and this should be removed.
-				// Additionally Portuguese, Ukrainian and Welsh are added to that list.
-				$langs = array_merge(['cy' => 'Cymraeg', 'uk' => 'Українська', 'pt-PT' => 'Português', 'fa' => 'فارسی'], $langs);
+				// Additionally Portuguese, Ukrainian, traditional Chinese and Welsh are added to that list.
+				$langs = array_merge(['cy' => 'Cymraeg', 'uk' => 'Українська', 'pt-PT' => 'Português', 'zh-hant' => '繁體', 'fa' => 'فارسی'], $langs);
 				ksort($langs);
 			}
 		}
@@ -407,7 +407,7 @@ class L10n
 
 	/**
 	 * The language detection routine uses some slightly different language codes.
-	 * This function changes the language language codes accordingly.
+	 * This function changes the language array accordingly.
 	 *
 	 * @param array $languages
 	 * @return array
@@ -423,12 +423,39 @@ class L10n
 		$languages['pt-BR'] = $languages['pt-br'];
 		unset($languages['pt-br']);
 		$languages['zh-Hans'] = $languages['zh-cn'];
-		$languages['zh-Hant'] = $languages['zh-cn'];
 		unset($languages['zh-cn']);
 
 		ksort($languages);
 
 		return $languages;
+	}
+
+	/**
+	 * The language detection routine uses some slightly different language codes.
+	 * This function changes the language codes accordingly.
+	 *
+	 * @param string $language
+	 * @return string
+	 */
+	public function convertCodeForLanguageDetection(string $language): string
+	{
+		switch ($language) {
+			case 'da-dk':
+				return 'da';
+			case 'en-us':
+			case 'en-gb':
+				return 'en';
+			case 'fi-fi':
+				return 'fi';
+			case 'nb-no':
+				return 'nb';
+			case 'pt-br':
+				return 'pt-BR';
+			case 'zh-cn':
+				return 'zh-Hans';
+			default:
+				return $language;
+		}
 	}
 
 	/**

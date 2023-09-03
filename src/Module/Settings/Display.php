@@ -218,7 +218,7 @@ class Display extends BaseSettings
 			BBCode::PREVIEW_LARGE    => $this->t('Large Image'),
 		];
 
-		$channel_languages = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid, false)]);
+		$channel_languages = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]);
 		$languages         = $this->l10n->getAvailableLanguages(true);
 
 		$first_day_of_week = $this->pConfig->get($uid, 'calendar', 'first_day_of_week', 0);
