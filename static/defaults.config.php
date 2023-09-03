@@ -797,12 +797,16 @@ return [
 		'public' => true,
 	],
 	'channel' => [
+		// engagement_hours (Integer)
+		// Number of hours posts are held in the engagement table
+		'engagement_hours' => 24,
+
 		// interaction_score_days (Integer)
 		// Number of days that are used to calculate the interaction score.
 		'interaction_score_days' => 30,
 
-		// engagement_hours (Integer)
-		// Number of hours posts are held in the engagement table
-		'engagement_hours' => 24,
+		// language_threshold (Float)
+		// Treshold for the language detection.
+		'language_threshold' => 0.6,
 	],
 ];

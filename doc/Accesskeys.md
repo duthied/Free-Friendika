@@ -37,6 +37,8 @@ General
 * i - Images
 * v - Videos
 * d - Audio
+* g - Posts in your language
+* o - Hot posts in your language
 
 ../profile
 --------

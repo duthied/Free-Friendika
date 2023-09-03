@@ -46,6 +46,7 @@ use Friendica\Network\HTTPException;
 use Friendica\Core\Session\Model\UserSession;
 use Friendica\Database\Database;
 use Friendica\Module\Response;
+use Friendica\Navigation\SystemMessages;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -57,6 +58,8 @@ class Channel extends BaseModule
 	const IMAGE     = 'image';
 	const VIDEO     = 'video';
 	const AUDIO     = 'audio';
+	const LANGUAGE  = 'language';
+	const HOTLANG   = 'hotlang';
 
 	protected static $content;
 	protected static $accountTypeString;
@@ -86,18 +89,19 @@ class Channel extends BaseModule
 	protected $database;
 
 
-	public function __construct(Database $database, IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(SystemMessages $systemMessages, Database $database, IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->database     = $database;
-		$this->pConfig      = $pConfig;
-		$this->mode         = $mode;
-		$this->conversation = $conversation;
-		$this->page         = $page;
-		$this->config       = $config;
-		$this->cache        = $cache;
-		$this->session      = $session;
+		$this->systemMessages = $systemMessages;
+		$this->database       = $database;
+		$this->pConfig        = $pConfig;
+		$this->mode           = $mode;
+		$this->conversation   = $conversation;
+		$this->page           = $page;
+		$this->config         = $config;
+		$this->cache          = $cache;
+		$this->session        = $session;
 	}
 
 	protected function content(array $request = []): string
@@ -175,6 +179,28 @@ class Channel extends BaseModule
 				'id'        => 'channel-audio-tab',
 				'accesskey' => 'd'
 			];
+
+			$owner     = User::getOwnerDataById($this->session->getLocalUserId());
+			$languages = $this->l10n->getAvailableLanguages();
+			if (!empty($owner['language']) && !empty($languages[$owner['language']])) {
+				$tabs[] = [
+					'label'     => $languages[$owner['language']],
+					'url'       => 'channel/' . self::LANGUAGE,
+					'sel'       => self::$content == self::LANGUAGE ? 'active' : '',
+					'title'     => $this->l10n->t('Posts in %s', $languages[$owner['language']]),
+					'id'        => 'channel-language-tab',
+					'accesskey' => 'g'
+				];
+
+				$tabs[] = [
+					'label'     => $this->l10n->t('Whats Hot %s', $languages[$owner['language']]),
+					'url'       => 'channel/' . self::HOTLANG,
+					'sel'       => self::$content == self::HOTLANG ? 'active' : '',
+					'title'     => $this->l10n->t('Posts in %s with a lot of interactions', $languages[$owner['language']]),
+					'id'        => 'channel-hotlang-tab',
+					'accesskey' => 'o'
+				];
+			}
 
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 			$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
@@ -263,7 +289,7 @@ class Channel extends BaseModule
 			self::$content = self::FORYOU;
 		}
 
-		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS, self::IMAGE, self::VIDEO, self::AUDIO])) {
+		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS, self::IMAGE, self::VIDEO, self::AUDIO, self::LANGUAGE, self::HOTLANG])) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 
@@ -327,6 +353,16 @@ class Channel extends BaseModule
 			$condition = ["`media-type` & ?", 2];
 		} elseif (self::$content == self::AUDIO) {
 			$condition = ["`media-type` & ?", 4];
+		} elseif (self::$content == self::LANGUAGE) {
+			$owner     = User::getOwnerDataById($this->session->getLocalUserId());
+			$condition = ["JSON_EXTRACT(`language`, ?) > ?", '$.' . $owner['language'], $this->config->get('channel', 'language_threshold')];
+		} elseif (self::$content == self::HOTLANG) {
+			$owner = User::getOwnerDataById($this->session->getLocalUserId());
+			if (!is_null(self::$accountType)) {
+				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ? AND JSON_EXTRACT(`language`, ?) > ?", $this->getMedianComments(4), $this->getMedianActivities(4), self::$accountType, '$.' . $owner['language'], $this->config->get('channel', 'language_threshold')];
+			} else {
+				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ? AND JSON_EXTRACT(`language`, ?) > ?", $this->getMedianComments(4), $this->getMedianActivities(4), Contact::TYPE_COMMUNITY, '$.' . $owner['language'], $this->config->get('channel', 'language_threshold')];
+			}
 		}
 
 		$condition[0] .= " AND NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))";
