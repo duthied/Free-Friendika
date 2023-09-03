@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-03 12:48+0000\n"
+"POT-Creation-Date: 2023-09-03 14:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -793,7 +793,7 @@ msgid "All contacts"
 msgstr ""
 
 #: src/BaseModule.php:433 src/Content/Widget.php:239 src/Core/ACL.php:195
-#: src/Module/Contact.php:415 src/Module/Conversation/Channel.php:139
+#: src/Module/Contact.php:415 src/Module/Conversation/Channel.php:160
 #: src/Module/PermissionTooltip.php:127 src/Module/PermissionTooltip.php:149
 msgid "Followers"
 msgstr ""
@@ -6534,45 +6534,45 @@ msgstr ""
 msgid "Posts from contacts you interact with and who interact with you"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:142
-msgid "Posts from your followers that you don't follow"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:148
+#: src/Module/Conversation/Channel.php:139
 msgid "What's Hot"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:151
+#: src/Module/Conversation/Channel.php:142
 msgid "Posts with a lot of interactions"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:157
-msgid "Images"
+#: src/Module/Conversation/Channel.php:154
+#, php-format
+msgid "Posts in %s"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:160
-msgid "Posts with images"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:166
-msgid "Videos"
+#: src/Module/Conversation/Channel.php:163
+msgid "Posts from your followers that you don't follow"
 msgstr ""
 
 #: src/Module/Conversation/Channel.php:169
-msgid "Posts with videos"
+msgid "Images"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:175
-msgid "Audio"
+#: src/Module/Conversation/Channel.php:172
+msgid "Posts with images"
 msgstr ""
 
 #: src/Module/Conversation/Channel.php:178
+msgid "Audio"
+msgstr ""
+
+#: src/Module/Conversation/Channel.php:181
 msgid "Posts with audio"
 msgstr ""
 
+#: src/Module/Conversation/Channel.php:187
+msgid "Videos"
+msgstr ""
+
 #: src/Module/Conversation/Channel.php:190
-#, php-format
-msgid "Posts in %s"
+msgid "Posts with videos"
 msgstr ""
 
 #: src/Module/Conversation/Channel.php:222
