@@ -506,7 +506,7 @@ function NavUpdate() {
 				$('nav').trigger('nav-update', data.result);
 
 				// start live update
-				['network', 'profile', 'community', 'notes', 'display', 'contact'].forEach(function (src) {
+				['network', 'profile', 'channel', 'community', 'notes', 'display', 'contact'].forEach(function (src) {
 					if ($('#live-' + src).length) {
 						liveUpdate(src);
 					}

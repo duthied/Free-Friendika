@@ -32,6 +32,9 @@
 	<a accesskey="p" id="nav-home-link" class="nav-commlink {{$nav.home.2}} {{$sel.home}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}">{{$nav.home.1}}</a>
 	<span id="home-update" class="nav-ajax-left"></span>
 	{{/if}}
+	{{if $nav.channel}}
+	<a accesskey="l" id="nav-channel-link" class="nav-commlink {{$nav.channel.2}} {{$sel.channel}}" href="{{$nav.channel.0}}" title="{{$nav.channel.3}}">{{$nav.channel.1}}</a>
+	{{/if}}
 	{{if $nav.community}}
 	<a accesskey="c" id="nav-community-link" class="nav-commlink {{$nav.community.2}} {{$sel.community}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}">{{$nav.community.1}}</a>
 	{{/if}}

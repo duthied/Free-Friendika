@@ -36,6 +36,12 @@
 				<a class="{{$nav.events.2}} mobile-view" href="{{$nav.events.0}}" title="{{$nav.events.3}}"><i class="icon s22 icon-calendar"></i></a>
 			</li>
 		{{/if}}
+		{{if $nav.channel}}
+			<li role="menuitem" id="nav-channel-link" class="nav-menu {{$sel.channel}}">
+				<a accesskey="l" class="{{$nav.channel.2}} desktop-view" href="{{$nav.channel.0}}" title="{{$nav.channel.3}}">{{$nav.channel.1}}</a>
+				<a class="{{$nav.channel.2}} mobile-view" href="{{$nav.channel.0}}" title="{{$nav.channel.3}}"><i class="icon s22 icon-bullseye"></i></a>
+			</li>
+		{{/if}}
 		{{if $nav.community}}
 			<li role="menuitem" id="nav-community-link" class="nav-menu {{$sel.community}}">
 				<a accesskey="c" class="{{$nav.community.2}} desktop-view" href="{{$nav.community.0}}" title="{{$nav.community.3}}">{{$nav.community.1}}</a>

@@ -781,7 +781,7 @@ class Relation
 	 */
 	public static function calculateInteractionScore(int $uid)
 	{
-		$days = DI::config()->get('system', 'interaction_score_days');
+		$days = DI::config()->get('channel', 'interaction_score_days');
 		$contact_id = Contact::getPublicIdByUserId($uid);
 
 		Logger::debug('Calculation - start', ['uid' => $uid, 'cid' => $contact_id, 'days' => $days]);

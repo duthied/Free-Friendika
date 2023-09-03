@@ -21,6 +21,9 @@
 	{{include file="field_checkbox.tpl" field=$stay_local}}
 	{{include file="field_select.tpl" field=$preview_mode}}
 
+	<h2>{{$channel_title}}</h2>
+	{{include file="field_select.tpl" field=$channel_languages}}
+
 	<h2>{{$calendar_title}}</h2>
 	{{include file="field_select.tpl" field=$first_day_of_week}}
 	{{include file="field_select.tpl" field=$calendar_default_view}}

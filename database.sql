@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1530
+-- DB_UPDATE_VERSION 1531
 -- ------------------------------------------
 
 
@@ -1299,6 +1299,25 @@ CREATE TABLE IF NOT EXISTS `post-delivery-data` (
 	 PRIMARY KEY(`uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
+
+--
+-- TABLE post-engagement
+--
+CREATE TABLE IF NOT EXISTS `post-engagement` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
+	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Person, organisation, news, community, relay',
+	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
+	`language` varbinary(128) COMMENT 'Language information about this post',
+	`created` datetime COMMENT '',
+	`comments` mediumint unsigned COMMENT 'Number of comments',
+	`activities` mediumint unsigned COMMENT 'Number of activities (like, dislike, ...)',
+	 PRIMARY KEY(`uri-id`),
+	 INDEX `owner-id` (`owner-id`),
+	 INDEX `created` (`created`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Engagement data per post';
 
 --
 -- TABLE post-history

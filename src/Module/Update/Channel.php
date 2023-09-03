@@ -19,32 +19,28 @@
  *
  */
 
-namespace Friendica\Worker;
+namespace Friendica\Module\Update;
 
-use Friendica\Core\Logger;
-use Friendica\Database\DBA;
-use Friendica\Model\Contact\Relation;
-use Friendica\Model\Post;
+use Friendica\Content\Conversation;
+use Friendica\Core\System;
+use Friendica\Module\Conversation\Channel as ChannelModule;
 
 /**
- * Update the interaction scores 
+ * Asynchronous update module for the Channel page
+ *
+ * @package Friendica\Module\Update
  */
-class UpdateScores
+class Channel extends ChannelModule
 {
-	public static function execute($param = '', $hook_function = '')
+	protected function rawContent(array $request = [])
 	{
-		Logger::notice('Start score update');
+		$this->parseRequest($request);
 
-		$users = DBA::select('user', ['uid'], ["NOT `account_expired` AND NOT `account_removed` AND `uid` > ?", 0]);
-		while ($user = DBA::fetch($users)) {
-			Relation::calculateInteractionScore($user['uid']);
+		$o = '';
+		if (!empty($request['force'])) {
+			$o = $this->conversation->render($this->getItems($request), Conversation::MODE_CHANNEL, true, false, 'created', $this->session->getLocalUserId());
 		}
-		DBA::close($users);
 
-		Logger::notice('Score update done');
-
-		Post\Engagement::expire();
-
-		return;
+		System::htmlUpdateExit($o);
 	}
 }

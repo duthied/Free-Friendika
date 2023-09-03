@@ -8,8 +8,8 @@ Fields
 
 | Field   | Description                              | Type               | Null | Key | Default | Extra |
 | ------- | ---------------------------------------- | ------------------ | ---- | --- | ------- | ----- |
-| uid     | Owner User id                            | mediumint unsigned | NO   |     | 0       |       |
-| gsid    | Gserver id                               | int unsigned       | NO   |     | 0       |       |
+| uid     | Owner User id                            | mediumint unsigned | NO   | PRI | 0       |       |
+| gsid    | Gserver id                               | int unsigned       | NO   | PRI | 0       |       |
 | ignored | server accounts are ignored for the user | boolean            | NO   |     | 0       |       |
 
 Indexes

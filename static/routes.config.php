@@ -391,6 +391,7 @@ return [
 		'/event/{mode:edit|copy}/{id:\d+}'              => [Module\Calendar\Event\Form::class, [R::GET         ]],
 	],
 
+	'/channel[/{content}]'   => [Module\Conversation\Channel::class,   [R::GET]],
 	'/community[/{content}]' => [Module\Conversation\Community::class, [R::GET]],
 
 	'/compose[/{type}]'    => [Module\Item\Compose::class, [R::GET, R::POST]],
@@ -686,6 +687,7 @@ return [
 	'/toggle_mobile'                 => [Module\ToggleMobile::class,          [R::GET]],
 	'/tos'                           => [Module\Tos::class,                   [R::GET]],
 
+	'/update_channel[/{content}]'    => [Module\Update\Channel::class,        [R::GET]],
 	'/update_community[/{content}]'  => [Module\Update\Community::class,      [R::GET]],
 
 	'/update_display'                => [Module\Update\Display::class, [R::GET]],
