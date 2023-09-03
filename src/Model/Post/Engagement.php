@@ -60,7 +60,7 @@ class Engagement
 			return;
 		}
 
-		$parent = Post::selectFirst(['created', 'owner-id', 'uid', 'private', 'contact-contact-type'], ['uri-id' => $item['parent-uri-id']]);
+		$parent = Post::selectFirst(['created', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language'], ['uri-id' => $item['parent-uri-id']]);
 		if ($parent['private'] != Item::PUBLIC) {
 			Logger::debug('Non public posts are not stored', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $parent['uid'], 'private' => $parent['private']]);
 			return;
@@ -88,6 +88,7 @@ class Engagement
 			'owner-id'     => $parent['owner-id'],
 			'contact-type' => $parent['contact-contact-type'],
 			'media-type'   => $mediatype,
+			'language'     => $parent['language'],
 			'created'      => $parent['created'],
 			'comments'     => DBA::count('post', ['parent-uri-id' => $item['parent-uri-id'], 'gravity' => Item::GRAVITY_COMMENT]),
 			'activities'   => DBA::count('post', [
