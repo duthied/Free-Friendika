@@ -136,48 +136,12 @@ class Channel extends BaseModule
 			];
 
 			$tabs[] = [
-				'label'     => $this->l10n->t('Followers'),
-				'url'       => 'channel/' . self::FOLLOWERS,
-				'sel'       => self::$content == self::FOLLOWERS ? 'active' : '',
-				'title'     => $this->l10n->t('Posts from your followers that you don\'t follow'),
-				'id'        => 'channel-followers-tab',
-				'accesskey' => 'f'
-			];
-
-			$tabs[] = [
 				'label'     => $this->l10n->t('What\'s Hot'),
 				'url'       => 'channel/' . self::WHATSHOT,
 				'sel'       => self::$content == self::WHATSHOT ? 'active' : '',
 				'title'     => $this->l10n->t('Posts with a lot of interactions'),
 				'id'        => 'channel-whatshot-tab',
 				'accesskey' => 'h'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Images'),
-				'url'       => 'channel/' . self::IMAGE,
-				'sel'       => self::$content == self::IMAGE ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with images'),
-				'id'        => 'channel-image-tab',
-				'accesskey' => 'i'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Videos'),
-				'url'       => 'channel/' . self::VIDEO,
-				'sel'       => self::$content == self::VIDEO ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with videos'),
-				'id'        => 'channel-video-tab',
-				'accesskey' => 'v'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Audio'),
-				'url'       => 'channel/' . self::AUDIO,
-				'sel'       => self::$content == self::AUDIO ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with audio'),
-				'id'        => 'channel-audio-tab',
-				'accesskey' => 'd'
 			];
 
 			$language  = User::getLanguageCode($this->session->getLocalUserId(), false);
@@ -190,6 +154,42 @@ class Channel extends BaseModule
 				'title'     => $this->l10n->t('Posts in %s', $languages[$language]),
 				'id'        => 'channel-language-tab',
 				'accesskey' => 'g'
+			];
+
+			$tabs[] = [
+				'label'     => $this->l10n->t('Followers'),
+				'url'       => 'channel/' . self::FOLLOWERS,
+				'sel'       => self::$content == self::FOLLOWERS ? 'active' : '',
+				'title'     => $this->l10n->t('Posts from your followers that you don\'t follow'),
+				'id'        => 'channel-followers-tab',
+				'accesskey' => 'f'
+			];
+
+			$tabs[] = [
+				'label'     => $this->l10n->t('Images'),
+				'url'       => 'channel/' . self::IMAGE,
+				'sel'       => self::$content == self::IMAGE ? 'active' : '',
+				'title'     => $this->l10n->t('Posts with images'),
+				'id'        => 'channel-image-tab',
+				'accesskey' => 'i'
+			];
+
+			$tabs[] = [
+				'label'     => $this->l10n->t('Audio'),
+				'url'       => 'channel/' . self::AUDIO,
+				'sel'       => self::$content == self::AUDIO ? 'active' : '',
+				'title'     => $this->l10n->t('Posts with audio'),
+				'id'        => 'channel-audio-tab',
+				'accesskey' => 'd'
+			];
+
+			$tabs[] = [
+				'label'     => $this->l10n->t('Videos'),
+				'url'       => 'channel/' . self::VIDEO,
+				'sel'       => self::$content == self::VIDEO ? 'active' : '',
+				'title'     => $this->l10n->t('Posts with videos'),
+				'id'        => 'channel-video-tab',
+				'accesskey' => 'v'
 			];
 
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
@@ -327,8 +327,6 @@ class Channel extends BaseModule
 			} else {
 				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ?", $this->getMedianComments(4), $this->getMedianActivities(4), Contact::TYPE_COMMUNITY];
 			}
-
-			$condition = $this->addLanguageCondition($condition);
 		} elseif (self::$content == self::FORYOU) {
 			$cid = Contact::getPublicIdByUserId($this->session->getLocalUserId());
 
@@ -347,6 +345,10 @@ class Channel extends BaseModule
 			$condition = ["`media-type` & ?", 4];
 		} elseif (self::$content == self::LANGUAGE) {
 			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", User::getLanguageCode($this->session->getLocalUserId(), true)];
+		}
+
+		if (self::$content != self::LANGUAGE) {
+			$condition = $this->addLanguageCondition($condition);
 		}
 
 		$condition[0] .= " AND NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))";
