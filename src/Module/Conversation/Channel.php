@@ -67,23 +67,23 @@ class Channel extends BaseModule
 	protected static $item_id;
 
 	/** @var UserSession */
-	private $session;
+	protected $session;
 	/** @var ICanCache */
-	private $cache;
+	protected $cache;
 	/** @var IManageConfigValues The config */
-	private $config;
+	protected $config;
 	/** @var SystemMessages */
-	private $systemMessages;
+	protected $systemMessages;
 	/** @var App\Page */
-	private $page;
+	protected $page;
 	/** @var Conversation */
-	private $conversation;
+	protected $conversation;
 	/** @var App\Mode $mode */
-	private $mode;
+	protected $mode;
 	/** @var IManagePersonalConfigValues */
-	private $pConfig;
+	protected $pConfig;
 	/** @var Database */
-	private $database;
+	protected $database;
 
 
 	public function __construct(Database $database, IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
@@ -221,7 +221,7 @@ class Channel extends BaseModule
 			$o .= $this->conversation->statusEditor([], 0, true);
 		}
 
-		$items = $this->getItems($request, $this->session, $this->cache);
+		$items = $this->getItems($request);
 
 		if (!$this->database->isResult($items)) {
 			$this->systemMessages->addNotice($this->l10n->t('No results.'));
@@ -304,7 +304,7 @@ class Channel extends BaseModule
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected function getItems(array $request, UserSession $session, ICanCache $cache)
+	protected function getItems(array $request)
 	{
 		if (self::$content == self::WHATSHOT) {
 			if (!is_null(self::$accountType)) {
@@ -313,15 +313,15 @@ class Channel extends BaseModule
 				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ?", $this->getMedianComments(4), $this->getMedianActivities(4), Contact::TYPE_COMMUNITY];
 			}
 		} elseif (self::$content == self::FORYOU) {
-			$cid = Contact::getPublicIdByUserId($session->getLocalUserId());
+			$cid = Contact::getPublicIdByUserId($this->session->getLocalUserId());
 
 			$condition = ["(`owner-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ?) OR
 				((`comments` >= ? OR `activities` >= ?) AND `owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))) OR
 				( `owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?) AND `notify_new_posts`)))",
-				$cid, $this->getMedianThreadScore($cid, 4), $this->getMedianComments(4), $this->getMedianActivities(4), $session->getLocalUserId(), Contact::FRIEND, Contact::SHARING,
-				$session->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
+				$cid, $this->getMedianThreadScore($cid, 4), $this->getMedianComments(4), $this->getMedianActivities(4), $this->session->getLocalUserId(), Contact::FRIEND, Contact::SHARING,
+				$this->session->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
 		} elseif (self::$content == self::FOLLOWERS) {
-			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $session->getLocalUserId(), Contact::FOLLOWER];
+			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $this->session->getLocalUserId(), Contact::FOLLOWER];
 		} elseif (self::$content == self::IMAGE) {
 			$condition = ["`media-type` & ?", 1];
 		} elseif (self::$content == self::VIDEO) {
@@ -331,7 +331,7 @@ class Channel extends BaseModule
 		}
 
 		$condition[0] .= " AND NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))";
-		$condition[] = $session->getLocalUserId();
+		$condition[] = $this->session->getLocalUserId();
 
 		if ((self::$content != self::WHATSHOT) && !is_null(self::$accountType)) {
 			$condition[0] .= " AND `contact-type` = ?";
@@ -346,7 +346,7 @@ class Channel extends BaseModule
 		} else {
 			if (!empty($request['no_sharer'])) {
 				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-engagement`.`uri-id`)";
-				$condition[] = $session->getLocalUserId();
+				$condition[] = $this->session->getLocalUserId();
 			}
 
 			if (isset(self::$max_id)) {

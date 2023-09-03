@@ -23,7 +23,6 @@ namespace Friendica\Module\Update;
 
 use Friendica\Content\Conversation;
 use Friendica\Core\System;
-use Friendica\DI;
 use Friendica\Module\Conversation\Channel as ChannelModule;
 
 /**
@@ -39,7 +38,7 @@ class Channel extends ChannelModule
 
 		$o = '';
 		if (!empty($request['force'])) {
-			$o = DI::conversation()->render(self::getItems($request), Conversation::MODE_CHANNEL, true, false, 'created', DI::userSession()->getLocalUserId());
+			$o = $this->conversation->render($this->getItems($request), Conversation::MODE_CHANNEL, true, false, 'created', $this->session->getLocalUserId());
 		}
 
 		System::htmlUpdateExit($o);
