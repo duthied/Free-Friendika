@@ -291,8 +291,7 @@ class Channel extends BaseModule
 		}
 
 		self::$min_id = $request['min_id']       ?? null;
-		self::$max_id = $request['max_id']       ?? null;
-		self::$max_id = $request['last_created'] ?? self::$max_id;
+		self::$max_id = $request['last_created'] ?? $request['max_id'] ?? null;
 	}
 
 	/**
