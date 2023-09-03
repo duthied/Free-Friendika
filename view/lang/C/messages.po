@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-02 15:51+0000\n"
+"POT-Creation-Date: 2023-09-03 08:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -793,7 +793,7 @@ msgid "All contacts"
 msgstr ""
 
 #: src/BaseModule.php:433 src/Content/Widget.php:239 src/Core/ACL.php:195
-#: src/Module/Contact.php:415 src/Module/Conversation/Channel.php:95
+#: src/Module/Contact.php:415 src/Module/Conversation/Channel.php:139
 #: src/Module/PermissionTooltip.php:127 src/Module/PermissionTooltip.php:149
 msgid "Followers"
 msgstr ""
@@ -956,7 +956,7 @@ msgstr ""
 msgid "Enter user nickname: "
 msgstr ""
 
-#: src/Console/User.php:182 src/Model/User.php:693
+#: src/Console/User.php:182 src/Model/User.php:716
 #: src/Module/Api/Twitter/ContactEndpoint.php:74
 #: src/Module/Moderation/Users/Active.php:71
 #: src/Module/Moderation/Users/Blocked.php:71
@@ -1626,7 +1626,7 @@ msgstr ""
 
 #: src/Content/GroupManager.php:152 src/Content/Nav.php:278
 #: src/Content/Text/HTML.php:880 src/Content/Widget.php:537
-#: src/Model/User.php:1255
+#: src/Model/User.php:1278
 msgid "Groups"
 msgstr ""
 
@@ -1669,31 +1669,31 @@ msgstr ""
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:429 src/Model/Contact.php:1221
+#: src/Content/Item.php:429 src/Model/Contact.php:1227
 msgid "View Status"
 msgstr ""
 
-#: src/Content/Item.php:430 src/Content/Item.php:451 src/Model/Contact.php:1170
-#: src/Model/Contact.php:1213 src/Model/Contact.php:1222
+#: src/Content/Item.php:430 src/Content/Item.php:451 src/Model/Contact.php:1176
+#: src/Model/Contact.php:1219 src/Model/Contact.php:1228
 #: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:259
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:431 src/Model/Contact.php:1223
+#: src/Content/Item.php:431 src/Model/Contact.php:1229
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:432 src/Model/Contact.php:1214
-#: src/Model/Contact.php:1224
+#: src/Content/Item.php:432 src/Model/Contact.php:1220
+#: src/Model/Contact.php:1230
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:433 src/Model/Contact.php:1215
-#: src/Model/Contact.php:1225
+#: src/Content/Item.php:433 src/Model/Contact.php:1221
+#: src/Model/Contact.php:1231
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:434 src/Model/Contact.php:1226
+#: src/Content/Item.php:434 src/Model/Contact.php:1232
 msgid "Send PM"
 msgstr ""
 
@@ -1728,7 +1728,7 @@ msgid "Languages"
 msgstr ""
 
 #: src/Content/Item.php:448 src/Content/Widget.php:80
-#: src/Model/Contact.php:1216 src/Model/Contact.php:1227
+#: src/Model/Contact.php:1222 src/Model/Contact.php:1233
 #: src/Module/Contact/Follow.php:167 view/theme/vier/theme.php:195
 msgid "Connect/Follow"
 msgstr ""
@@ -2243,7 +2243,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:536 src/Model/Contact.php:1692
+#: src/Content/Widget.php:536 src/Model/Contact.php:1698
 msgid "News"
 msgstr ""
 
@@ -2324,8 +2324,8 @@ msgstr ""
 msgid "Network:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:118 src/Model/Contact.php:1217
-#: src/Model/Contact.php:1228 src/Model/Profile.php:463
+#: src/Content/Widget/VCard.php:118 src/Model/Contact.php:1223
+#: src/Model/Contact.php:1234 src/Model/Profile.php:463
 #: src/Module/Contact/Profile.php:450
 msgid "Unfollow"
 msgstr ""
@@ -3078,82 +3078,82 @@ msgstr ""
 msgid "Edit circles"
 msgstr ""
 
-#: src/Model/Contact.php:1234 src/Module/Moderation/Users/Pending.php:102
+#: src/Model/Contact.php:1240 src/Module/Moderation/Users/Pending.php:102
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1688
+#: src/Model/Contact.php:1694
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1696
+#: src/Model/Contact.php:1702
 msgid "Group"
 msgstr ""
 
-#: src/Model/Contact.php:2999
+#: src/Model/Contact.php:3005
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:3004 src/Module/Friendica.php:101
+#: src/Model/Contact.php:3010 src/Module/Friendica.php:101
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:3009
+#: src/Model/Contact.php:3015
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:3018
+#: src/Model/Contact.php:3024
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:3036
+#: src/Model/Contact.php:3042
 #, php-format
 msgid "Expected network %s does not match actual network %s"
 msgstr ""
 
-#: src/Model/Contact.php:3053
+#: src/Model/Contact.php:3059
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:3055
+#: src/Model/Contact.php:3061
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:3058
+#: src/Model/Contact.php:3064
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:3061
+#: src/Model/Contact.php:3067
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:3064
+#: src/Model/Contact.php:3070
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:3065
+#: src/Model/Contact.php:3071
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:3071
+#: src/Model/Contact.php:3077
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:3076
+#: src/Model/Contact.php:3082
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:3142
+#: src/Model/Contact.php:3148
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -3490,145 +3490,145 @@ msgstr ""
 msgid "Contact information and Social Networks"
 msgstr ""
 
-#: src/Model/User.php:226 src/Model/User.php:1168
+#: src/Model/User.php:227 src/Model/User.php:1191
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr ""
 
-#: src/Model/User.php:602 src/Model/User.php:635
+#: src/Model/User.php:625 src/Model/User.php:658
 msgid "Login failed"
 msgstr ""
 
-#: src/Model/User.php:667
+#: src/Model/User.php:690
 msgid "Not enough information to authenticate"
 msgstr ""
 
-#: src/Model/User.php:788
+#: src/Model/User.php:811
 msgid "Password can't be empty"
 msgstr ""
 
-#: src/Model/User.php:830
+#: src/Model/User.php:853
 msgid "Empty passwords are not allowed."
 msgstr ""
 
-#: src/Model/User.php:834
+#: src/Model/User.php:857
 msgid ""
 "The new password has been exposed in a public data dump, please choose "
 "another."
 msgstr ""
 
-#: src/Model/User.php:838
+#: src/Model/User.php:861
 msgid "The password length is limited to 72 characters."
 msgstr ""
 
-#: src/Model/User.php:842
+#: src/Model/User.php:865
 msgid "The password can't contain white spaces nor accentuated letters"
 msgstr ""
 
-#: src/Model/User.php:1051
+#: src/Model/User.php:1074
 msgid "Passwords do not match. Password unchanged."
 msgstr ""
 
-#: src/Model/User.php:1058
+#: src/Model/User.php:1081
 msgid "An invitation is required."
 msgstr ""
 
-#: src/Model/User.php:1062
+#: src/Model/User.php:1085
 msgid "Invitation could not be verified."
 msgstr ""
 
-#: src/Model/User.php:1070
+#: src/Model/User.php:1093
 msgid "Invalid OpenID url"
 msgstr ""
 
-#: src/Model/User.php:1083 src/Security/Authentication.php:241
+#: src/Model/User.php:1106 src/Security/Authentication.php:241
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr ""
 
-#: src/Model/User.php:1083 src/Security/Authentication.php:241
+#: src/Model/User.php:1106 src/Security/Authentication.php:241
 msgid "The error message was:"
 msgstr ""
 
-#: src/Model/User.php:1089
+#: src/Model/User.php:1112
 msgid "Please enter the required information."
 msgstr ""
 
-#: src/Model/User.php:1103
+#: src/Model/User.php:1126
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr ""
 
-#: src/Model/User.php:1110
+#: src/Model/User.php:1133
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1114
+#: src/Model/User.php:1137
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1122
+#: src/Model/User.php:1145
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr ""
 
-#: src/Model/User.php:1127
+#: src/Model/User.php:1150
 msgid "Your email domain is not among those allowed on this site."
 msgstr ""
 
-#: src/Model/User.php:1131
+#: src/Model/User.php:1154
 msgid "Not a valid email address."
 msgstr ""
 
-#: src/Model/User.php:1134
+#: src/Model/User.php:1157
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr ""
 
-#: src/Model/User.php:1138 src/Model/User.php:1144
+#: src/Model/User.php:1161 src/Model/User.php:1167
 msgid "Cannot use that email."
 msgstr ""
 
-#: src/Model/User.php:1150
+#: src/Model/User.php:1173
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr ""
 
-#: src/Model/User.php:1158 src/Model/User.php:1215
+#: src/Model/User.php:1181 src/Model/User.php:1238
 msgid "Nickname is already registered. Please choose another."
 msgstr ""
 
-#: src/Model/User.php:1202 src/Model/User.php:1206
+#: src/Model/User.php:1225 src/Model/User.php:1229
 msgid "An error occurred during registration. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1229
+#: src/Model/User.php:1252
 msgid "An error occurred creating your default profile. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1236
+#: src/Model/User.php:1259
 msgid "An error occurred creating your self contact. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1241
+#: src/Model/User.php:1264
 msgid "Friends"
 msgstr ""
 
-#: src/Model/User.php:1245
+#: src/Model/User.php:1268
 msgid ""
 "An error occurred creating your default contact circle. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1289
+#: src/Model/User.php:1312
 msgid "Profile Photos"
 msgstr ""
 
-#: src/Model/User.php:1469
+#: src/Model/User.php:1492
 #, php-format
 msgid ""
 "\n"
@@ -3636,7 +3636,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1472
+#: src/Model/User.php:1495
 #, php-format
 msgid ""
 "\n"
@@ -3674,12 +3674,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1505 src/Model/User.php:1612
+#: src/Model/User.php:1528 src/Model/User.php:1635
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: src/Model/User.php:1525
+#: src/Model/User.php:1548
 #, php-format
 msgid ""
 "\n"
@@ -3695,12 +3695,12 @@ msgid ""
 "\t\t"
 msgstr ""
 
-#: src/Model/User.php:1544
+#: src/Model/User.php:1567
 #, php-format
 msgid "Registration at %s"
 msgstr ""
 
-#: src/Model/User.php:1568
+#: src/Model/User.php:1591
 #, php-format
 msgid ""
 "\n"
@@ -3709,7 +3709,7 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: src/Model/User.php:1576
+#: src/Model/User.php:1599
 #, php-format
 msgid ""
 "\n"
@@ -6526,72 +6526,87 @@ msgstr ""
 msgid "Unable to unfollow this contact, please contact your administrator"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:86
+#: src/Module/Conversation/Channel.php:130
 msgid "For you"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:89
+#: src/Module/Conversation/Channel.php:133
 msgid "Posts from contacts you interact with and who interact with you"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:98
+#: src/Module/Conversation/Channel.php:142
 msgid "Posts from your followers that you don't follow"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:104
-msgid "Whats Hot"
+#: src/Module/Conversation/Channel.php:148
+msgid "What's Hot"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:107
+#: src/Module/Conversation/Channel.php:151
 msgid "Posts with a lot of interactions"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:113
+#: src/Module/Conversation/Channel.php:157
 msgid "Images"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:116
+#: src/Module/Conversation/Channel.php:160
 msgid "Posts with images"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:122
+#: src/Module/Conversation/Channel.php:166
 msgid "Videos"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:125
+#: src/Module/Conversation/Channel.php:169
 msgid "Posts with videos"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:131
+#: src/Module/Conversation/Channel.php:175
 msgid "Audio"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:134
+#: src/Module/Conversation/Channel.php:178
 msgid "Posts with audio"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:166
+#: src/Module/Conversation/Channel.php:189
+#, php-format
+msgid "Posts in %s"
+msgstr ""
+
+#: src/Module/Conversation/Channel.php:195
+#, php-format
+msgid "What`s Hot (%s)"
+msgstr ""
+
+#: src/Module/Conversation/Channel.php:198
+#, php-format
+msgid "Posts in %s with a lot of interactions"
+msgstr ""
+
+#: src/Module/Conversation/Channel.php:230
 #: src/Module/Conversation/Community.php:134
 msgid "Own Contacts"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:170
+#: src/Module/Conversation/Channel.php:234
 #: src/Module/Conversation/Community.php:138
 msgid "Include"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:171
+#: src/Module/Conversation/Channel.php:235
 #: src/Module/Conversation/Community.php:139
 msgid "Hide"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:187
+#: src/Module/Conversation/Channel.php:251
 #: src/Module/Conversation/Community.php:157 src/Module/Search/Index.php:152
 #: src/Module/Search/Index.php:194
 msgid "No results."
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:227
+#: src/Module/Conversation/Channel.php:291
 msgid "Channel not available."
 msgstr ""
 

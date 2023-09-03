@@ -145,7 +145,7 @@ class Channel extends BaseModule
 			];
 
 			$tabs[] = [
-				'label'     => $this->l10n->t('Whats Hot'),
+				'label'     => $this->l10n->t('What\'s Hot'),
 				'url'       => 'channel/' . self::WHATSHOT,
 				'sel'       => self::$content == self::WHATSHOT ? 'active' : '',
 				'title'     => $this->l10n->t('Posts with a lot of interactions'),
@@ -192,7 +192,7 @@ class Channel extends BaseModule
 			];
 
 			$tabs[] = [
-				'label'     => $this->l10n->t('Whats Hot %s', $languages[$language]),
+				'label'     => $this->l10n->t('What`s Hot (%s)', $languages[$language]),
 				'url'       => 'channel/' . self::HOTLANG,
 				'sel'       => self::$content == self::HOTLANG ? 'active' : '',
 				'title'     => $this->l10n->t('Posts in %s with a lot of interactions', $languages[$language]),
