@@ -75,6 +75,24 @@
 			</div>
 
 			<div class="panel">
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="channel-settings-title">
+					<h2>
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#channel-settings-content" aria-expanded="false" aria-controls="channel-settings-content">
+							{{$channel_title}}
+						</button>
+					</h2>
+				</div>
+				<div id="channel-settings-content" class="panel-collapse collapse{{if !$theme && !$mobile_theme && !$theme_config}} in{{/if}}" role="tabpanel" aria-labelledby="channel-settings">
+					<div class="panel-body">
+						{{include file="field_select.tpl" field=$channel_languages}}
+					</div>
+					<div class="panel-footer">
+						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="calendar-settings-title">
 					<h2>
 						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#calendar-settings-content" aria-expanded="false" aria-controls="calendar-settings-content">

@@ -289,7 +289,7 @@ class Nav
 			$nav['community'] = ['community', $this->l10n->t('Community'), '', $this->l10n->t('Conversations on this and other servers')];
 		}
 
-		$nav['channel'] = ['channel', $this->l10n->t('Channel'), '', $this->l10n->t('Current posts, filtered by several rules')];
+		$nav['channel'] = ['channel', $this->l10n->t('Channels'), '', $this->l10n->t('Current posts, filtered by several rules')];
 
 		if ($this->session->getLocalUserId()) {
 			$nav['calendar'] = ['calendar', $this->l10n->t('Calendar'), '', $this->l10n->t('Calendar')];

@@ -45,6 +45,7 @@ use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Core\Session\Model\UserSession;
 use Friendica\Database\Database;
+use Friendica\Model\Item;
 use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
 use Friendica\Util\Profiler;
@@ -59,7 +60,6 @@ class Channel extends BaseModule
 	const VIDEO     = 'video';
 	const AUDIO     = 'audio';
 	const LANGUAGE  = 'language';
-	const HOTLANG   = 'hotlang';
 
 	protected static $content;
 	protected static $accountTypeString;
@@ -182,6 +182,7 @@ class Channel extends BaseModule
 
 			$language  = User::getLanguageCode($this->session->getLocalUserId(), false);
 			$languages = $this->l10n->getAvailableLanguages();
+
 			$tabs[] = [
 				'label'     => $languages[$language],
 				'url'       => 'channel/' . self::LANGUAGE,
@@ -189,15 +190,6 @@ class Channel extends BaseModule
 				'title'     => $this->l10n->t('Posts in %s', $languages[$language]),
 				'id'        => 'channel-language-tab',
 				'accesskey' => 'g'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('What`s Hot (%s)', $languages[$language]),
-				'url'       => 'channel/' . self::HOTLANG,
-				'sel'       => self::$content == self::HOTLANG ? 'active' : '',
-				'title'     => $this->l10n->t('Posts in %s with a lot of interactions', $languages[$language]),
-				'id'        => 'channel-hotlang-tab',
-				'accesskey' => 'o'
 			];
 
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
@@ -287,7 +279,7 @@ class Channel extends BaseModule
 			self::$content = self::FORYOU;
 		}
 
-		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS, self::IMAGE, self::VIDEO, self::AUDIO, self::LANGUAGE, self::HOTLANG])) {
+		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS, self::IMAGE, self::VIDEO, self::AUDIO, self::LANGUAGE])) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 
@@ -335,6 +327,8 @@ class Channel extends BaseModule
 			} else {
 				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ?", $this->getMedianComments(4), $this->getMedianActivities(4), Contact::TYPE_COMMUNITY];
 			}
+
+			$condition = $this->addLanguageCondition($condition);
 		} elseif (self::$content == self::FORYOU) {
 			$cid = Contact::getPublicIdByUserId($this->session->getLocalUserId());
 
@@ -353,14 +347,6 @@ class Channel extends BaseModule
 			$condition = ["`media-type` & ?", 4];
 		} elseif (self::$content == self::LANGUAGE) {
 			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", User::getLanguageCode($this->session->getLocalUserId(), true)];
-		} elseif (self::$content == self::HOTLANG) {
-			if (!is_null(self::$accountType)) {
-				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ? AND JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?",
-					$this->getMedianComments(4), $this->getMedianActivities(4), self::$accountType, User::getLanguageCode($this->session->getLocalUserId(), true)];
-			} else {
-				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ? AND JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?",
-					$this->getMedianComments(4), $this->getMedianActivities(4), Contact::TYPE_COMMUNITY, User::getLanguageCode($this->session->getLocalUserId(), true)];
-			}
 		}
 
 		$condition[0] .= " AND NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))";
@@ -399,7 +385,6 @@ class Channel extends BaseModule
 		}
 
 		$items = $this->database->selectToArray('post-engagement', ['uri-id', 'created'], $condition, $params);
-
 		if (empty($items)) {
 			return [];
 		}
@@ -409,7 +394,23 @@ class Channel extends BaseModule
 			$items = array_reverse($items);
 		}
 
+		Item::update(['unseen' => false], ['unseen' => true, 'uid' => $this->session->getLocalUserId(), 'uri-id' => array_column($items, 'uri-id')]);
+
 		return $items;
+	}
+
+	private function addLanguageCondition(array $condition): array
+	{
+		$conditions = [];
+		$languages = $this->pConfig->get($this->session->getLocalUserId(), 'channel', 'languages', [User::getLanguageCode($this->session->getLocalUserId(), false)]);
+		foreach ($languages as $language) {
+			$conditions[] = "JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?";
+			$condition[]  = substr($language, 0, 2);
+		}
+		if (!empty($conditions)) {
+			$condition[0] .= " AND (`language` IS NULL OR " . implode(' OR ', $conditions) . ")";
+		}
+		return $condition;
 	}
 
 	private function getMedianComments(int $divider): int
