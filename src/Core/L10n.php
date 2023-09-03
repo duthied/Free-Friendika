@@ -414,16 +414,15 @@ class L10n
 	 */
 	public function convertForLanguageDetection(array $languages): array
 	{
-		$languages['fi'] = $languages['fi-fi'];
-		unset($languages['fi-fi']);
-		$languages['da'] = $languages['da-dk'];
-		unset($languages['da-dk']);
-		$languages['nb'] = $languages['nb-no'];
-		unset($languages['nb-no']);
-		$languages['pt-BR'] = $languages['pt-br'];
-		unset($languages['pt-br']);
-		$languages['zh-Hans'] = $languages['zh-cn'];
-		unset($languages['zh-cn']);
+		foreach ($languages as $key => $language) {
+			$newkey = $this->convertCodeForLanguageDetection($key);
+			if ($newkey != $key) {
+				if (!isset($languages[$newkey])) {
+					$languages[$newkey] = $language;
+				}
+				unset($languages[$key]);
+			}
+		}
 
 		ksort($languages);
 
