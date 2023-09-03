@@ -2015,11 +2015,8 @@ class Item
 
 		$naked_body = self::getDominantLanguage($naked_body);
 
-		$availableLanguages = DI::l10n()->getAvailableLanguages();
-		// See https://github.com/friendica/friendica/issues/10511
-		// Persian is manually added to language detection until a persian translation is provided for the interface, at
-		// which point it will be automatically available through `getAvailableLanguages()` and this should be removed.
-		$availableLanguages['fa'] = 'fa';
+		$availableLanguages = DI::l10n()->getAvailableLanguages(true);
+		$availableLanguages = DI::l10n()->convertForLanguageDetection($availableLanguages);
 
 		$ld = new Language(array_keys($availableLanguages));
 		return $ld->detect($naked_body)->limit(0, $count)->close() ?: [];

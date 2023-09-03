@@ -378,7 +378,7 @@ class L10n
 	 *
 	 * @return array
 	 */
-	public static function getAvailableLanguages(): array
+	public function getAvailableLanguages(bool $additional = false): array
 	{
 		$langs              = [];
 		$strings_file_paths = glob('view/lang/*/strings.php');
@@ -392,8 +392,43 @@ class L10n
 				$path_array            = explode('/', $strings_file_path);
 				$langs[$path_array[2]] = self::LANG_NAMES[$path_array[2]] ?? $path_array[2];
 			}
+
+			if ($additional) {
+				// See https://github.com/friendica/friendica/issues/10511
+				// Persian is manually added to language detection until a persian translation is provided for the interface, at
+				// which point it will be automatically available through `getAvailableLanguages()` and this should be removed.
+				// Additionally Portuguese, Ukrainian and Welsh are added to that list.
+				$langs = array_merge(['cy' => 'Cymraeg', 'uk' => 'Українська', 'pt-PT' => 'Português', 'fa' => 'فارسی'], $langs);
+				ksort($langs);
+			}
 		}
 		return $langs;
+	}
+
+	/**
+	 * The language detection routine uses some slightly different language codes.
+	 * This function changes the language language codes accordingly.
+	 *
+	 * @param array $languages
+	 * @return array
+	 */
+	public function convertForLanguageDetection(array $languages): array
+	{
+		$languages['fi'] = $languages['fi-fi'];
+		unset($languages['fi-fi']);
+		$languages['da'] = $languages['da-dk'];
+		unset($languages['da-dk']);
+		$languages['nb'] = $languages['nb-no'];
+		unset($languages['nb-no']);
+		$languages['pt-BR'] = $languages['pt-br'];
+		unset($languages['pt-br']);
+		$languages['zh-Hans'] = $languages['zh-cn'];
+		$languages['zh-Hant'] = $languages['zh-cn'];
+		unset($languages['zh-cn']);
+
+		ksort($languages);
+
+		return $languages;
 	}
 
 	/**

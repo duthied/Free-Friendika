@@ -219,7 +219,7 @@ class Display extends BaseSettings
 		];
 
 		$channel_languages = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid, false)]);
-		$languages         = $this->l10n->getAvailableLanguages();
+		$languages         = $this->l10n->getAvailableLanguages(true);
 
 		$first_day_of_week = $this->pConfig->get($uid, 'calendar', 'first_day_of_week', 0);
 		$weekdays          = [
