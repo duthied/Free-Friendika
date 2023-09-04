@@ -45,6 +45,7 @@ use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Core\Session\Model\UserSession;
 use Friendica\Database\Database;
+use Friendica\Model\Channel as ChannelModel;
 use Friendica\Model\Item;
 use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
@@ -87,12 +88,15 @@ class Channel extends BaseModule
 	protected $pConfig;
 	/** @var Database */
 	protected $database;
+	/** @var ChannelModel */
+	protected $channel;
 
 
-	public function __construct(SystemMessages $systemMessages, Database $database, IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(ChannelModel $channel, SystemMessages $systemMessages, Database $database, IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
+		$this->channel        = $channel;
 		$this->systemMessages = $systemMessages;
 		$this->database       = $database;
 		$this->pConfig        = $pConfig;
@@ -126,71 +130,16 @@ class Channel extends BaseModule
 		if (empty($request['mode']) || ($request['mode'] != 'raw')) {
 			$tabs = [];
 
-			$tabs[] = [
-				'label'     => $this->l10n->t('For you'),
-				'url'       => 'channel/' . self::FORYOU,
-				'sel'       => self::$content == self::FORYOU ? 'active' : '',
-				'title'     => $this->l10n->t('Posts from contacts you interact with and who interact with you'),
-				'id'        => 'channel-foryou-tab',
-				'accesskey' => 'y'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('What\'s Hot'),
-				'url'       => 'channel/' . self::WHATSHOT,
-				'sel'       => self::$content == self::WHATSHOT ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with a lot of interactions'),
-				'id'        => 'channel-whatshot-tab',
-				'accesskey' => 'h'
-			];
-
-			$language  = User::getLanguageCode($this->session->getLocalUserId());
-			$languages = $this->l10n->getAvailableLanguages(true);
-
-			$tabs[] = [
-				'label'     => $languages[$language],
-				'url'       => 'channel/' . self::LANGUAGE,
-				'sel'       => self::$content == self::LANGUAGE ? 'active' : '',
-				'title'     => $this->l10n->t('Posts in %s', $languages[$language]),
-				'id'        => 'channel-language-tab',
-				'accesskey' => 'g'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Followers'),
-				'url'       => 'channel/' . self::FOLLOWERS,
-				'sel'       => self::$content == self::FOLLOWERS ? 'active' : '',
-				'title'     => $this->l10n->t('Posts from your followers that you don\'t follow'),
-				'id'        => 'channel-followers-tab',
-				'accesskey' => 'f'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Images'),
-				'url'       => 'channel/' . self::IMAGE,
-				'sel'       => self::$content == self::IMAGE ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with images'),
-				'id'        => 'channel-image-tab',
-				'accesskey' => 'i'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Audio'),
-				'url'       => 'channel/' . self::AUDIO,
-				'sel'       => self::$content == self::AUDIO ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with audio'),
-				'id'        => 'channel-audio-tab',
-				'accesskey' => 'd'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Videos'),
-				'url'       => 'channel/' . self::VIDEO,
-				'sel'       => self::$content == self::VIDEO ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with videos'),
-				'id'        => 'channel-video-tab',
-				'accesskey' => 'v'
-			];
+			foreach ($this->channel->getForUser($this->session->getLocalUserId()) as $tab) {
+				$tabs[] = [
+					'label'     => $tab->label,
+					'url'       => 'channel/' . $tab->code,
+					'sel'       => self::$content == $tab->code ? 'active' : '',
+					'title'     => $tab->description,
+					'id'        => 'channel-' . $tab->code . '-tab',
+					'accesskey' => $tab->accessKey,
+				];
+			}
 
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 			$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
@@ -431,7 +380,8 @@ class Channel extends BaseModule
 			return 0;
 		}
 
-		$this->cache->set($cache_key, $comments, Duration::HOUR);
+		$this->cache->set($cache_key, $comments, Duration::HALF_HOUR);
+		$this->logger->debug('Calculated median comments', ['divider' => $divider, 'median' => $comments]);
 		return $comments;
 	}
 
@@ -450,7 +400,8 @@ class Channel extends BaseModule
 			return 0;
 		}
 
-		$this->cache->set($cache_key, $activities, Duration::HOUR);
+		$this->cache->set($cache_key, $activities, Duration::HALF_HOUR);
+		$this->logger->debug('Calculated median activities', ['divider' => $divider, 'median' => $activities]);
 		return $activities;
 	}
 
@@ -469,7 +420,8 @@ class Channel extends BaseModule
 			return 0;
 		}
 
-		$this->cache->set($cache_key, $score, Duration::HOUR);
+		$this->cache->set($cache_key, $score, Duration::HALF_HOUR);
+		$this->logger->debug('Calculated median score', ['cid' => $cid, 'divider' => $divider, 'median' => $score]);
 		return $score;
 	}
 }
