@@ -398,7 +398,14 @@ class L10n
 				// Persian is manually added to language detection until a persian translation is provided for the interface, at
 				// which point it will be automatically available through `getAvailableLanguages()` and this should be removed.
 				// Additionally Portuguese, Ukrainian, traditional Chinese and Welsh are added to that list.
-				$langs = array_merge(['cy' => 'Cymraeg', 'uk' => 'Українська', 'pt-PT' => 'Português', 'zh-hant' => '繁體', 'fa' => 'فارسی'], $langs);
+				$additional_langs = [
+					'cy'      => 'Cymraeg',
+					'uk'      => 'Українська',
+					'pt-PT'   => 'Português',
+					'zh-hant' => '繁體',
+					'fa'      => 'فارسی'
+				];
+				$langs = array_merge($additional_langs, $langs);
 				ksort($langs);
 			}
 		}
