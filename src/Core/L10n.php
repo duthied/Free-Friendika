@@ -378,7 +378,7 @@ class L10n
 	 *
 	 * @return array
 	 */
-	public static function getAvailableLanguages(): array
+	public function getAvailableLanguages(bool $additional = false): array
 	{
 		$langs              = [];
 		$strings_file_paths = glob('view/lang/*/strings.php');
@@ -392,8 +392,76 @@ class L10n
 				$path_array            = explode('/', $strings_file_path);
 				$langs[$path_array[2]] = self::LANG_NAMES[$path_array[2]] ?? $path_array[2];
 			}
+
+			if ($additional) {
+				// See https://github.com/friendica/friendica/issues/10511
+				// Persian is manually added to language detection until a persian translation is provided for the interface, at
+				// which point it will be automatically available through `getAvailableLanguages()` and this should be removed.
+				// Additionally Portuguese, Ukrainian, traditional Chinese and Welsh are added to that list.
+				$additional_langs = [
+					'cy'      => 'Cymraeg',
+					'uk'      => 'Українська',
+					'pt-PT'   => 'Português',
+					'zh-hant' => '繁體',
+					'fa'      => 'فارسی'
+				];
+				$langs = array_merge($additional_langs, $langs);
+				ksort($langs);
+			}
 		}
 		return $langs;
+	}
+
+	/**
+	 * The language detection routine uses some slightly different language codes.
+	 * This function changes the language array accordingly.
+	 *
+	 * @param array $languages
+	 * @return array
+	 */
+	public function convertForLanguageDetection(array $languages): array
+	{
+		foreach ($languages as $key => $language) {
+			$newkey = $this->convertCodeForLanguageDetection($key);
+			if ($newkey != $key) {
+				if (!isset($languages[$newkey])) {
+					$languages[$newkey] = $language;
+				}
+				unset($languages[$key]);
+			}
+		}
+
+		ksort($languages);
+
+		return $languages;
+	}
+
+	/**
+	 * The language detection routine uses some slightly different language codes.
+	 * This function changes the language codes accordingly.
+	 *
+	 * @param string $language
+	 * @return string
+	 */
+	public function convertCodeForLanguageDetection(string $language): string
+	{
+		switch ($language) {
+			case 'da-dk':
+				return 'da';
+			case 'en-us':
+			case 'en-gb':
+				return 'en';
+			case 'fi-fi':
+				return 'fi';
+			case 'nb-no':
+				return 'nb';
+			case 'pt-br':
+				return 'pt-BR';
+			case 'zh-cn':
+				return 'zh-Hans';
+			default:
+				return $language;
+		}
 	}
 
 	/**

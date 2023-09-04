@@ -536,21 +536,17 @@ class User
 /**
  * Fetch the language code from the given user. If the code is invalid, return the system language
  *
- * @param integer $uid   User-Id
- * @param boolean $short If true, return the short form g.g. "en", otherwise the long form e.g. "en-gb"
+ * @param integer $uid User-Id
  * @return string
  */
-	public static function getLanguageCode(int $uid, bool $short): string
+	public static function getLanguageCode(int $uid): string
 	{
 		$owner = self::getOwnerDataById($uid);
-		$languages = DI::l10n()->getAvailableLanguages();
+		$languages = DI::l10n()->getAvailableLanguages(true);
 		if (in_array($owner['language'], array_keys($languages))) {
 			$language = $owner['language'];
 		} else {
 			$language = DI::config()->get('system', 'language');
-		}
-		if ($short) {
-			return substr($language, 0, 2);
 		}
 		return $language;
 	}
