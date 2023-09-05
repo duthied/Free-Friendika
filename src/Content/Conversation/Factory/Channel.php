@@ -19,7 +19,7 @@
  *
  */
 
- namespace Friendica\Model;
+ namespace Friendica\Content\Conversation\Factory;
 
 use Friendica\Model\User;
 use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;

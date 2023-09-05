@@ -27,6 +27,7 @@ use Friendica\BaseModule;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
 use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
+use Friendica\Content\Conversation\Factory\Channel as ChannelFactory;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
@@ -46,7 +47,6 @@ use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Core\Session\Model\UserSession;
 use Friendica\Database\Database;
-use Friendica\Model\Channel as ChannelModel;
 use Friendica\Model\Item;
 use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
@@ -81,11 +81,11 @@ class Channel extends BaseModule
 	protected $pConfig;
 	/** @var Database */
 	protected $database;
-	/** @var ChannelModel */
+	/** @var ChannelFactory */
 	protected $channel;
 
 
-	public function __construct(ChannelModel $channel, SystemMessages $systemMessages, Database $database, IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(ChannelFactory $channel, SystemMessages $systemMessages, Database $database, IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
