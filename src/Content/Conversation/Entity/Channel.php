@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Content\Entity\Conversation;
+namespace Friendica\Content\Conversation\Entity;
 
 /**
  * @property-read string $code        Channel code
@@ -29,6 +29,14 @@ namespace Friendica\Content\Entity\Conversation;
  */
 final class Channel extends \Friendica\BaseEntity
 {
+	const WHATSHOT  = 'whatshot';
+	const FORYOU    = 'foryou';
+	const FOLLOWERS = 'followers';
+	const IMAGE     = 'image';
+	const VIDEO     = 'video';
+	const AUDIO     = 'audio';
+	const LANGUAGE  = 'language';
+
 	/** @var string */
 	protected $code;
 	/** @var string */

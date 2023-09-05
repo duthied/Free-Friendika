@@ -26,6 +26,7 @@ use Friendica\App\Mode;
 use Friendica\BaseModule;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
+use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
@@ -140,7 +141,7 @@ class Channel extends BaseModule
 
 			$this->page['aside'] .= Widget::accountTypes('channel/' . self::$content, self::$accountTypeString);
 
-			if (!in_array(self::$content, [ChannelModel::FOLLOWERS, ChannelModel::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
+			if (!in_array(self::$content, [ChannelEntity::FOLLOWERS, ChannelEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
 				$path = self::$content;
 				if (!empty($this->parameters['accounttype'])) {
 					$path .= '/' . $this->parameters['accounttype'];
@@ -217,10 +218,10 @@ class Channel extends BaseModule
 
 		self::$content = $this->parameters['content'] ?? '';
 		if (!self::$content) {
-			self::$content = ChannelModel::FORYOU;
+			self::$content = ChannelEntity::FORYOU;
 		}
 
-		if (!in_array(self::$content, [ChannelModel::WHATSHOT, ChannelModel::FORYOU, ChannelModel::FOLLOWERS, ChannelModel::IMAGE, ChannelModel::VIDEO, ChannelModel::AUDIO, ChannelModel::LANGUAGE])) {
+		if (!in_array(self::$content, [ChannelEntity::WHATSHOT, ChannelEntity::FORYOU, ChannelEntity::FOLLOWERS, ChannelEntity::IMAGE, ChannelEntity::VIDEO, ChannelEntity::AUDIO, ChannelEntity::LANGUAGE])) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 
@@ -262,13 +263,13 @@ class Channel extends BaseModule
 	 */
 	protected function getItems(array $request)
 	{
-		if (self::$content == ChannelModel::WHATSHOT) {
+		if (self::$content == ChannelEntity::WHATSHOT) {
 			if (!is_null(self::$accountType)) {
 				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ?", $this->getMedianComments(4), $this->getMedianActivities(4), self::$accountType];
 			} else {
 				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ?", $this->getMedianComments(4), $this->getMedianActivities(4), Contact::TYPE_COMMUNITY];
 			}
-		} elseif (self::$content == ChannelModel::FORYOU) {
+		} elseif (self::$content == ChannelEntity::FORYOU) {
 			$cid = Contact::getPublicIdByUserId($this->session->getLocalUserId());
 
 			$condition = ["(`owner-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ?) OR
@@ -276,26 +277,26 @@ class Channel extends BaseModule
 				( `owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?) AND `notify_new_posts`)))",
 				$cid, $this->getMedianThreadScore($cid, 4), $this->getMedianComments(4), $this->getMedianActivities(4), $this->session->getLocalUserId(), Contact::FRIEND, Contact::SHARING,
 				$this->session->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
-		} elseif (self::$content == ChannelModel::FOLLOWERS) {
+		} elseif (self::$content == ChannelEntity::FOLLOWERS) {
 			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $this->session->getLocalUserId(), Contact::FOLLOWER];
-		} elseif (self::$content == ChannelModel::IMAGE) {
+		} elseif (self::$content == ChannelEntity::IMAGE) {
 			$condition = ["`media-type` & ?", 1];
-		} elseif (self::$content == ChannelModel::VIDEO) {
+		} elseif (self::$content == ChannelEntity::VIDEO) {
 			$condition = ["`media-type` & ?", 2];
-		} elseif (self::$content == ChannelModel::AUDIO) {
+		} elseif (self::$content == ChannelEntity::AUDIO) {
 			$condition = ["`media-type` & ?", 4];
-		} elseif (self::$content == ChannelModel::LANGUAGE) {
+		} elseif (self::$content == ChannelEntity::LANGUAGE) {
 			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", $this->l10n->convertCodeForLanguageDetection(User::getLanguageCode($this->session->getLocalUserId()))];
 		}
 
-		if (self::$content != ChannelModel::LANGUAGE) {
+		if (self::$content != ChannelEntity::LANGUAGE) {
 			$condition = $this->addLanguageCondition($condition);
 		}
 
 		$condition[0] .= " AND NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))";
 		$condition[] = $this->session->getLocalUserId();
 
-		if ((self::$content != ChannelModel::WHATSHOT) && !is_null(self::$accountType)) {
+		if ((self::$content != ChannelEntity::WHATSHOT) && !is_null(self::$accountType)) {
 			$condition[0] .= " AND `contact-type` = ?";
 			$condition[] = self::$accountType;
 		}

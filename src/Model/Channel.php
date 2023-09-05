@@ -22,21 +22,13 @@
  namespace Friendica\Model;
 
 use Friendica\Model\User;
-use Friendica\Content\Entity\Conversation\Channel as ChannelEntity;
+use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
 use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Psr\Log\LoggerInterface;
 
 final class Channel extends \Friendica\BaseModel
 {
-	const WHATSHOT  = 'whatshot';
-	const FORYOU    = 'foryou';
-	const FOLLOWERS = 'followers';
-	const IMAGE     = 'image';
-	const VIDEO     = 'video';
-	const AUDIO     = 'audio';
-	const LANGUAGE  = 'language';
-
 	/** @var L10n */
 	protected $l10n;
 
@@ -59,13 +51,13 @@ final class Channel extends \Friendica\BaseModel
 		$languages = $this->l10n->getAvailableLanguages(true);
 
 		$tabs = [
-			new ChannelEntity(self::FORYOU, $this->l10n->t('For you'), $this->l10n->t('Posts from contacts you interact with and who interact with you'), 'y'),
-			new ChannelEntity(self::WHATSHOT, $this->l10n->t('What\'s Hot'), $this->l10n->t('Posts with a lot of interactions'), 'h'),
-			new ChannelEntity(self::LANGUAGE, $languages[$language], $this->l10n->t('Posts in %s', $languages[$language]), 'g'),
-			new ChannelEntity(self::FOLLOWERS, $this->l10n->t('Followers'), $this->l10n->t('Posts from your followers that you don\'t follow'), 'f'),
-			new ChannelEntity(self::IMAGE, $this->l10n->t('Images'), $this->l10n->t('Posts with images'), 'i'),
-			new ChannelEntity(self::AUDIO, $this->l10n->t('Audio'), $this->l10n->t('Posts with audio'), 'd'),
-			new ChannelEntity(self::VIDEO, $this->l10n->t('Videos'), $this->l10n->t('Posts with videos'), 'v'),
+			new ChannelEntity(ChannelEntity::FORYOU, $this->l10n->t('For you'), $this->l10n->t('Posts from contacts you interact with and who interact with you'), 'y'),
+			new ChannelEntity(ChannelEntity::WHATSHOT, $this->l10n->t('What\'s Hot'), $this->l10n->t('Posts with a lot of interactions'), 'h'),
+			new ChannelEntity(ChannelEntity::LANGUAGE, $languages[$language], $this->l10n->t('Posts in %s', $languages[$language]), 'g'),
+			new ChannelEntity(ChannelEntity::FOLLOWERS, $this->l10n->t('Followers'), $this->l10n->t('Posts from your followers that you don\'t follow'), 'f'),
+			new ChannelEntity(ChannelEntity::IMAGE, $this->l10n->t('Images'), $this->l10n->t('Posts with images'), 'i'),
+			new ChannelEntity(ChannelEntity::AUDIO, $this->l10n->t('Audio'), $this->l10n->t('Posts with audio'), 'd'),
+			new ChannelEntity(ChannelEntity::VIDEO, $this->l10n->t('Videos'), $this->l10n->t('Posts with videos'), 'v'),
 		];
 		return $tabs;
 	}
