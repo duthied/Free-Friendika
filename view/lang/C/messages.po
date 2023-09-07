@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-07 12:24+0000\n"
+"POT-Creation-Date: 2023-09-07 17:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -792,8 +792,8 @@ msgstr ""
 msgid "All contacts"
 msgstr ""
 
-#: src/BaseModule.php:433 src/Content/Widget.php:239 src/Core/ACL.php:195
-#: src/Module/Contact.php:415 src/Module/Conversation/Channel.php:162
+#: src/BaseModule.php:433 src/Content/Conversation/Factory/Channel.php:56
+#: src/Content/Widget.php:239 src/Core/ACL.php:195 src/Module/Contact.php:415
 #: src/Module/PermissionTooltip.php:127 src/Module/PermissionTooltip.php:149
 msgid "Followers"
 msgstr ""
@@ -1510,6 +1510,63 @@ msgstr ""
 
 #: src/Content/Conversation.php:1544
 msgid "View in context"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:53
+msgid "For you"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:53
+msgid "Posts from contacts you interact with and who interact with you"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:54
+msgid "What's Hot"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:54
+msgid "Posts with a lot of interactions"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:55
+#, php-format
+msgid "Posts in %s"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:56
+msgid "Posts from your followers that you don't follow"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:57
+msgid "Sharers of sharers"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:57
+msgid "Posts from accounts that are followed by accounts that you follow"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:58
+msgid "Images"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:58
+msgid "Posts with images"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:59
+msgid "Audio"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:59
+msgid "Posts with audio"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:60
+msgid "Videos"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:60
+msgid "Posts with videos"
 msgstr ""
 
 #: src/Content/Feature.php:96
@@ -6526,85 +6583,28 @@ msgstr ""
 msgid "Unable to unfollow this contact, please contact your administrator"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:132
-msgid "For you"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:135
-msgid "Posts from contacts you interact with and who interact with you"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:141
-msgid "What's Hot"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:144
-msgid "Posts with a lot of interactions"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:156
-#, php-format
-msgid "Posts in %s"
-msgstr ""
-
 #: src/Module/Conversation/Channel.php:165
-msgid "Posts from your followers that you don't follow"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:171
-msgid "Sharers of sharers"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:174
-msgid "Posts from accounts that are followed by accounts that you follow"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:181
-msgid "Images"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:184
-msgid "Posts with images"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:190
-msgid "Audio"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:193
-msgid "Posts with audio"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:199
-msgid "Videos"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:202
-msgid "Posts with videos"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:234
 #: src/Module/Conversation/Community.php:134
 msgid "Own Contacts"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:238
+#: src/Module/Conversation/Channel.php:169
 #: src/Module/Conversation/Community.php:138
 msgid "Include"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:239
+#: src/Module/Conversation/Channel.php:170
 #: src/Module/Conversation/Community.php:139
 msgid "Hide"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:255
+#: src/Module/Conversation/Channel.php:186
 #: src/Module/Conversation/Community.php:157 src/Module/Search/Index.php:152
 #: src/Module/Search/Index.php:194
 msgid "No results."
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:295
+#: src/Module/Conversation/Channel.php:226
 msgid "Channel not available."
 msgstr ""
 
