@@ -510,9 +510,9 @@ CREATE TABLE IF NOT EXISTS `config` (
 CREATE TABLE IF NOT EXISTS `contact-relation` (
 	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact the related contact had interacted with',
 	`relation-cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'related contact who had interacted with the contact',
-	`last-interaction` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last interaction',
+	`last-interaction` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last interaction by relation-cid on cid',
 	`follow-updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last update of the contact relationship',
-	`follows` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`follows` boolean NOT NULL DEFAULT '0' COMMENT 'if true, relation-cid follows cid',
 	`score` smallint unsigned COMMENT 'score for interactions of cid on relation-cid',
 	`relation-score` smallint unsigned COMMENT 'score for interactions of relation-cid on cid',
 	`thread-score` smallint unsigned COMMENT 'score for interactions of cid on threads of relation-cid',

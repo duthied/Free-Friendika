@@ -393,7 +393,8 @@ return [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the account url"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User ID"],
 			"level" => ["type" => "smallint unsigned", "comment" => "level of closeness"],
-			"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "If set, this account will not be suggested again"],		],
+			"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "If set, this account will not be suggested again"],
+		],
 		"indexes" => [
 			"PRIMARY" => ["uid", "uri-id"],
 			"uri-id_uid" => ["uri-id", "uid"],
@@ -568,9 +569,9 @@ return [
 		"fields" => [
 			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "primary" => "1", "comment" => "contact the related contact had interacted with"],
 			"relation-cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "primary" => "1", "comment" => "related contact who had interacted with the contact"],
-			"last-interaction" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last interaction"],
+			"last-interaction" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last interaction by relation-cid on cid"],
 			"follow-updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last update of the contact relationship"],
-			"follows" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"follows" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "if true, relation-cid follows cid"],
 			"score" => ["type" => "smallint unsigned", "comment" => "score for interactions of cid on relation-cid"],
 			"relation-score" => ["type" => "smallint unsigned", "comment" => "score for interactions of relation-cid on cid"],
 			"thread-score" => ["type" => "smallint unsigned", "comment" => "score for interactions of cid on threads of relation-cid"],
@@ -749,7 +750,8 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"url" => ["type" => "varbinary(383)", "comment" => "url that awaiting to be fetched"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation date of the fetch request"],
-			"wid" => ["type" => "int unsigned", "foreign" => ["workerqueue" => "id"], "comment" => "Workerqueue id"],		],
+			"wid" => ["type" => "int unsigned", "foreign" => ["workerqueue" => "id"], "comment" => "Workerqueue id"],
+		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"url" => ["UNIQUE", "url"],
@@ -808,8 +810,7 @@ return [
 	"gserver-tag" => [
 		"comment" => "Tags that the server has subscribed",
 		"fields" => [
-			"gserver-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["gserver" => "id"], "primary" => "1",
-				"comment" => "The id of the gserver"],
+			"gserver-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["gserver" => "id"], "primary" => "1", "comment" => "The id of the gserver"],
 			"tag" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "primary" => "1", "comment" => "Tag that the server has subscribed"],
 		],
 		"indexes" => [
@@ -848,7 +849,8 @@ return [
 			"signer" => ["type" => "varchar(255)", "comment" => ""],
 			"push" => ["type" => "boolean", "comment" => "Is the entry pushed or have pulled it?"],
 			"trust" => ["type" => "boolean", "comment" => "Do we trust this entry?"],
-			"wid" => ["type" => "int unsigned", "foreign" => ["workerqueue" => "id"], "comment" => "Workerqueue id"],		],
+			"wid" => ["type" => "int unsigned", "foreign" => ["workerqueue" => "id"], "comment" => "Workerqueue id"],
+		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"activity-id" => ["UNIQUE", "activity-id"],
@@ -1073,8 +1075,7 @@ return [
 			"master-parent-item" => ["type" => "int unsigned", "comment" => "Deprecated"],
 			"master-parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related post"],
 			"parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"receiver-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"],
-				"comment" => "User id"],
+			"receiver-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
