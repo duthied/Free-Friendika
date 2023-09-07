@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-03 14:48+0000\n"
+"POT-Creation-Date: 2023-09-07 12:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -793,7 +793,7 @@ msgid "All contacts"
 msgstr ""
 
 #: src/BaseModule.php:433 src/Content/Widget.php:239 src/Core/ACL.php:195
-#: src/Module/Contact.php:415 src/Module/Conversation/Channel.php:160
+#: src/Module/Contact.php:415 src/Module/Conversation/Channel.php:162
 #: src/Module/PermissionTooltip.php:127 src/Module/PermissionTooltip.php:149
 msgid "Followers"
 msgstr ""
@@ -956,7 +956,7 @@ msgstr ""
 msgid "Enter user nickname: "
 msgstr ""
 
-#: src/Console/User.php:182 src/Model/User.php:716
+#: src/Console/User.php:182 src/Model/User.php:712
 #: src/Module/Api/Twitter/ContactEndpoint.php:74
 #: src/Module/Moderation/Users/Active.php:71
 #: src/Module/Moderation/Users/Blocked.php:71
@@ -1626,7 +1626,7 @@ msgstr ""
 
 #: src/Content/GroupManager.php:152 src/Content/Nav.php:278
 #: src/Content/Text/HTML.php:880 src/Content/Widget.php:537
-#: src/Model/User.php:1278
+#: src/Model/User.php:1274
 msgid "Groups"
 msgstr ""
 
@@ -1647,7 +1647,7 @@ msgstr ""
 msgid "Create new group"
 msgstr ""
 
-#: src/Content/Item.php:331 src/Model/Item.php:3004
+#: src/Content/Item.php:331 src/Model/Item.php:3001
 msgid "event"
 msgstr ""
 
@@ -1655,7 +1655,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:340 src/Model/Item.php:3006
+#: src/Content/Item.php:340 src/Model/Item.php:3003
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -2074,8 +2074,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:939 src/Model/Item.php:3746
-#: src/Model/Item.php:3752 src/Model/Item.php:3753
+#: src/Content/Text/BBCode.php:939 src/Model/Item.php:3743
+#: src/Model/Item.php:3749 src/Model/Item.php:3750
 msgid "Link to source"
 msgstr ""
 
@@ -2709,158 +2709,158 @@ msgstr ""
 msgid "Could not connect to database."
 msgstr ""
 
-#: src/Core/L10n.php:408 src/Model/Event.php:430
+#: src/Core/L10n.php:476 src/Model/Event.php:430
 #: src/Module/Settings/Display.php:227
 msgid "Monday"
 msgstr ""
 
-#: src/Core/L10n.php:408 src/Model/Event.php:431
+#: src/Core/L10n.php:476 src/Model/Event.php:431
 #: src/Module/Settings/Display.php:228
 msgid "Tuesday"
 msgstr ""
 
-#: src/Core/L10n.php:408 src/Model/Event.php:432
+#: src/Core/L10n.php:476 src/Model/Event.php:432
 #: src/Module/Settings/Display.php:229
 msgid "Wednesday"
 msgstr ""
 
-#: src/Core/L10n.php:408 src/Model/Event.php:433
+#: src/Core/L10n.php:476 src/Model/Event.php:433
 #: src/Module/Settings/Display.php:230
 msgid "Thursday"
 msgstr ""
 
-#: src/Core/L10n.php:408 src/Model/Event.php:434
+#: src/Core/L10n.php:476 src/Model/Event.php:434
 #: src/Module/Settings/Display.php:231
 msgid "Friday"
 msgstr ""
 
-#: src/Core/L10n.php:408 src/Model/Event.php:435
+#: src/Core/L10n.php:476 src/Model/Event.php:435
 #: src/Module/Settings/Display.php:232
 msgid "Saturday"
 msgstr ""
 
-#: src/Core/L10n.php:408 src/Model/Event.php:429
+#: src/Core/L10n.php:476 src/Model/Event.php:429
 #: src/Module/Settings/Display.php:226
 msgid "Sunday"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:450
+#: src/Core/L10n.php:480 src/Model/Event.php:450
 msgid "January"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:451
+#: src/Core/L10n.php:480 src/Model/Event.php:451
 msgid "February"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:452
+#: src/Core/L10n.php:480 src/Model/Event.php:452
 msgid "March"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:453
+#: src/Core/L10n.php:480 src/Model/Event.php:453
 msgid "April"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Core/L10n.php:431 src/Model/Event.php:441
+#: src/Core/L10n.php:480 src/Core/L10n.php:499 src/Model/Event.php:441
 msgid "May"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:454
+#: src/Core/L10n.php:480 src/Model/Event.php:454
 msgid "June"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:455
+#: src/Core/L10n.php:480 src/Model/Event.php:455
 msgid "July"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:456
+#: src/Core/L10n.php:480 src/Model/Event.php:456
 msgid "August"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:457
+#: src/Core/L10n.php:480 src/Model/Event.php:457
 msgid "September"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:458
+#: src/Core/L10n.php:480 src/Model/Event.php:458
 msgid "October"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:459
+#: src/Core/L10n.php:480 src/Model/Event.php:459
 msgid "November"
 msgstr ""
 
-#: src/Core/L10n.php:412 src/Model/Event.php:460
+#: src/Core/L10n.php:480 src/Model/Event.php:460
 msgid "December"
 msgstr ""
 
-#: src/Core/L10n.php:427 src/Model/Event.php:422
+#: src/Core/L10n.php:495 src/Model/Event.php:422
 msgid "Mon"
 msgstr ""
 
-#: src/Core/L10n.php:427 src/Model/Event.php:423
+#: src/Core/L10n.php:495 src/Model/Event.php:423
 msgid "Tue"
 msgstr ""
 
-#: src/Core/L10n.php:427 src/Model/Event.php:424
+#: src/Core/L10n.php:495 src/Model/Event.php:424
 msgid "Wed"
 msgstr ""
 
-#: src/Core/L10n.php:427 src/Model/Event.php:425
+#: src/Core/L10n.php:495 src/Model/Event.php:425
 msgid "Thu"
 msgstr ""
 
-#: src/Core/L10n.php:427 src/Model/Event.php:426
+#: src/Core/L10n.php:495 src/Model/Event.php:426
 msgid "Fri"
 msgstr ""
 
-#: src/Core/L10n.php:427 src/Model/Event.php:427
+#: src/Core/L10n.php:495 src/Model/Event.php:427
 msgid "Sat"
 msgstr ""
 
-#: src/Core/L10n.php:427 src/Model/Event.php:421
+#: src/Core/L10n.php:495 src/Model/Event.php:421
 msgid "Sun"
 msgstr ""
 
-#: src/Core/L10n.php:431 src/Model/Event.php:437
+#: src/Core/L10n.php:499 src/Model/Event.php:437
 msgid "Jan"
 msgstr ""
 
-#: src/Core/L10n.php:431 src/Model/Event.php:438
+#: src/Core/L10n.php:499 src/Model/Event.php:438
 msgid "Feb"
 msgstr ""
 
-#: src/Core/L10n.php:431 src/Model/Event.php:439
+#: src/Core/L10n.php:499 src/Model/Event.php:439
 msgid "Mar"
 msgstr ""
 
-#: src/Core/L10n.php:431 src/Model/Event.php:440
+#: src/Core/L10n.php:499 src/Model/Event.php:440
 msgid "Apr"
 msgstr ""
 
-#: src/Core/L10n.php:431 src/Model/Event.php:442
+#: src/Core/L10n.php:499 src/Model/Event.php:442
 msgid "Jun"
 msgstr ""
 
-#: src/Core/L10n.php:431 src/Model/Event.php:443
+#: src/Core/L10n.php:499 src/Model/Event.php:443
 msgid "Jul"
 msgstr ""
 
-#: src/Core/L10n.php:431 src/Model/Event.php:444
+#: src/Core/L10n.php:499 src/Model/Event.php:444
 msgid "Aug"
 msgstr ""
 
-#: src/Core/L10n.php:431
+#: src/Core/L10n.php:499
 msgid "Sep"
 msgstr ""
 
-#: src/Core/L10n.php:431 src/Model/Event.php:446
+#: src/Core/L10n.php:499 src/Model/Event.php:446
 msgid "Oct"
 msgstr ""
 
-#: src/Core/L10n.php:431 src/Model/Event.php:447
+#: src/Core/L10n.php:499 src/Model/Event.php:447
 msgid "Nov"
 msgstr ""
 
-#: src/Core/L10n.php:431 src/Model/Event.php:448
+#: src/Core/L10n.php:499 src/Model/Event.php:448
 msgid "Dec"
 msgstr ""
 
@@ -3258,81 +3258,81 @@ msgstr ""
 msgid "Happy Birthday %s"
 msgstr ""
 
-#: src/Model/Item.php:2063
+#: src/Model/Item.php:2060
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:3008
+#: src/Model/Item.php:3005
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:3010
+#: src/Model/Item.php:3007
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:3013 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:3010 src/Module/Post/Tag/Add.php:123
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:3183
+#: src/Model/Item.php:3180
 #, php-format
 msgid "%s is blocked"
 msgstr ""
 
-#: src/Model/Item.php:3185
+#: src/Model/Item.php:3182
 #, php-format
 msgid "%s is ignored"
 msgstr ""
 
-#: src/Model/Item.php:3187
+#: src/Model/Item.php:3184
 #, php-format
 msgid "Content from %s is collapsed"
 msgstr ""
 
-#: src/Model/Item.php:3191
+#: src/Model/Item.php:3188
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3653
+#: src/Model/Item.php:3650
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3684
+#: src/Model/Item.php:3681
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3686
+#: src/Model/Item.php:3683
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3691
+#: src/Model/Item.php:3688
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3693
+#: src/Model/Item.php:3690
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3695
+#: src/Model/Item.php:3692
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3729 src/Model/Item.php:3730
+#: src/Model/Item.php:3726 src/Model/Item.php:3727
 msgid "View on separate page"
 msgstr ""
 
@@ -3490,145 +3490,145 @@ msgstr ""
 msgid "Contact information and Social Networks"
 msgstr ""
 
-#: src/Model/User.php:227 src/Model/User.php:1191
+#: src/Model/User.php:227 src/Model/User.php:1187
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr ""
 
-#: src/Model/User.php:625 src/Model/User.php:658
+#: src/Model/User.php:621 src/Model/User.php:654
 msgid "Login failed"
 msgstr ""
 
-#: src/Model/User.php:690
+#: src/Model/User.php:686
 msgid "Not enough information to authenticate"
 msgstr ""
 
-#: src/Model/User.php:811
+#: src/Model/User.php:807
 msgid "Password can't be empty"
 msgstr ""
 
-#: src/Model/User.php:853
+#: src/Model/User.php:849
 msgid "Empty passwords are not allowed."
 msgstr ""
 
-#: src/Model/User.php:857
+#: src/Model/User.php:853
 msgid ""
 "The new password has been exposed in a public data dump, please choose "
 "another."
 msgstr ""
 
-#: src/Model/User.php:861
+#: src/Model/User.php:857
 msgid "The password length is limited to 72 characters."
 msgstr ""
 
-#: src/Model/User.php:865
+#: src/Model/User.php:861
 msgid "The password can't contain white spaces nor accentuated letters"
 msgstr ""
 
-#: src/Model/User.php:1074
+#: src/Model/User.php:1070
 msgid "Passwords do not match. Password unchanged."
 msgstr ""
 
-#: src/Model/User.php:1081
+#: src/Model/User.php:1077
 msgid "An invitation is required."
 msgstr ""
 
-#: src/Model/User.php:1085
+#: src/Model/User.php:1081
 msgid "Invitation could not be verified."
 msgstr ""
 
-#: src/Model/User.php:1093
+#: src/Model/User.php:1089
 msgid "Invalid OpenID url"
 msgstr ""
 
-#: src/Model/User.php:1106 src/Security/Authentication.php:241
+#: src/Model/User.php:1102 src/Security/Authentication.php:241
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr ""
 
-#: src/Model/User.php:1106 src/Security/Authentication.php:241
+#: src/Model/User.php:1102 src/Security/Authentication.php:241
 msgid "The error message was:"
 msgstr ""
 
-#: src/Model/User.php:1112
+#: src/Model/User.php:1108
 msgid "Please enter the required information."
 msgstr ""
 
-#: src/Model/User.php:1126
+#: src/Model/User.php:1122
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr ""
 
-#: src/Model/User.php:1133
+#: src/Model/User.php:1129
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1137
+#: src/Model/User.php:1133
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1145
+#: src/Model/User.php:1141
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr ""
 
-#: src/Model/User.php:1150
+#: src/Model/User.php:1146
 msgid "Your email domain is not among those allowed on this site."
 msgstr ""
 
-#: src/Model/User.php:1154
+#: src/Model/User.php:1150
 msgid "Not a valid email address."
 msgstr ""
 
-#: src/Model/User.php:1157
+#: src/Model/User.php:1153
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr ""
 
-#: src/Model/User.php:1161 src/Model/User.php:1167
+#: src/Model/User.php:1157 src/Model/User.php:1163
 msgid "Cannot use that email."
 msgstr ""
 
-#: src/Model/User.php:1173
+#: src/Model/User.php:1169
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr ""
 
-#: src/Model/User.php:1181 src/Model/User.php:1238
+#: src/Model/User.php:1177 src/Model/User.php:1234
 msgid "Nickname is already registered. Please choose another."
 msgstr ""
 
-#: src/Model/User.php:1225 src/Model/User.php:1229
+#: src/Model/User.php:1221 src/Model/User.php:1225
 msgid "An error occurred during registration. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1252
+#: src/Model/User.php:1248
 msgid "An error occurred creating your default profile. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1259
+#: src/Model/User.php:1255
 msgid "An error occurred creating your self contact. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1264
+#: src/Model/User.php:1260
 msgid "Friends"
 msgstr ""
 
-#: src/Model/User.php:1268
+#: src/Model/User.php:1264
 msgid ""
 "An error occurred creating your default contact circle. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1312
+#: src/Model/User.php:1308
 msgid "Profile Photos"
 msgstr ""
 
-#: src/Model/User.php:1492
+#: src/Model/User.php:1488
 #, php-format
 msgid ""
 "\n"
@@ -3636,7 +3636,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1495
+#: src/Model/User.php:1491
 #, php-format
 msgid ""
 "\n"
@@ -3674,12 +3674,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1528 src/Model/User.php:1635
+#: src/Model/User.php:1524 src/Model/User.php:1631
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: src/Model/User.php:1548
+#: src/Model/User.php:1544
 #, php-format
 msgid ""
 "\n"
@@ -3695,12 +3695,12 @@ msgid ""
 "\t\t"
 msgstr ""
 
-#: src/Model/User.php:1567
+#: src/Model/User.php:1563
 #, php-format
 msgid "Registration at %s"
 msgstr ""
 
-#: src/Model/User.php:1591
+#: src/Model/User.php:1587
 #, php-format
 msgid ""
 "\n"
@@ -3709,7 +3709,7 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: src/Model/User.php:1599
+#: src/Model/User.php:1595
 #, php-format
 msgid ""
 "\n"
@@ -6526,77 +6526,85 @@ msgstr ""
 msgid "Unable to unfollow this contact, please contact your administrator"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:130
+#: src/Module/Conversation/Channel.php:132
 msgid "For you"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:133
+#: src/Module/Conversation/Channel.php:135
 msgid "Posts from contacts you interact with and who interact with you"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:139
+#: src/Module/Conversation/Channel.php:141
 msgid "What's Hot"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:142
+#: src/Module/Conversation/Channel.php:144
 msgid "Posts with a lot of interactions"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:154
+#: src/Module/Conversation/Channel.php:156
 #, php-format
 msgid "Posts in %s"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:163
+#: src/Module/Conversation/Channel.php:165
 msgid "Posts from your followers that you don't follow"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:169
-msgid "Images"
+#: src/Module/Conversation/Channel.php:171
+msgid "Sharers of sharers"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:172
-msgid "Posts with images"
-msgstr ""
-
-#: src/Module/Conversation/Channel.php:178
-msgid "Audio"
+#: src/Module/Conversation/Channel.php:174
+msgid "Posts from accounts that are followed by accounts that you follow"
 msgstr ""
 
 #: src/Module/Conversation/Channel.php:181
-msgid "Posts with audio"
+msgid "Images"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:187
-msgid "Videos"
+#: src/Module/Conversation/Channel.php:184
+msgid "Posts with images"
 msgstr ""
 
 #: src/Module/Conversation/Channel.php:190
+msgid "Audio"
+msgstr ""
+
+#: src/Module/Conversation/Channel.php:193
+msgid "Posts with audio"
+msgstr ""
+
+#: src/Module/Conversation/Channel.php:199
+msgid "Videos"
+msgstr ""
+
+#: src/Module/Conversation/Channel.php:202
 msgid "Posts with videos"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:222
+#: src/Module/Conversation/Channel.php:234
 #: src/Module/Conversation/Community.php:134
 msgid "Own Contacts"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:226
+#: src/Module/Conversation/Channel.php:238
 #: src/Module/Conversation/Community.php:138
 msgid "Include"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:227
+#: src/Module/Conversation/Channel.php:239
 #: src/Module/Conversation/Community.php:139
 msgid "Hide"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:243
+#: src/Module/Conversation/Channel.php:255
 #: src/Module/Conversation/Community.php:157 src/Module/Search/Index.php:152
 #: src/Module/Search/Index.php:194
 msgid "No results."
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:283
+#: src/Module/Conversation/Channel.php:295
 msgid "Channel not available."
 msgstr ""
 

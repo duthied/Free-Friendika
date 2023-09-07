@@ -144,6 +144,13 @@ class Cron
 			}
 			DBA::close($users);
 
+			// Update contact relations for our users
+			$users = DBA::select('user', ['uid'], ["NOT `account_expired` AND NOT `account_removed` AND `uid` > ?", 0]);
+			while ($user = DBA::fetch($users)) {
+				Worker::add(Worker::PRIORITY_LOW, 'ContactDiscoveryForUser', $user['uid']);
+			}
+			DBA::close($users);
+
 			// Resubscribe to relay servers
 			Relay::reSubscribe();
 

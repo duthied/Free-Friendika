@@ -48,6 +48,7 @@ use Friendica\Database\Database;
 use Friendica\Model\Item;
 use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -56,6 +57,7 @@ class Channel extends BaseModule
 	const WHATSHOT  = 'whatshot';
 	const FORYOU    = 'foryou';
 	const FOLLOWERS = 'followers';
+	const SHARERSOFSHARERS = 'sharersofsharers';
 	const IMAGE     = 'image';
 	const VIDEO     = 'video';
 	const AUDIO     = 'audio';
@@ -162,6 +164,15 @@ class Channel extends BaseModule
 				'sel'       => self::$content == self::FOLLOWERS ? 'active' : '',
 				'title'     => $this->l10n->t('Posts from your followers that you don\'t follow'),
 				'id'        => 'channel-followers-tab',
+				'accesskey' => 'f'
+			];
+
+			$tabs[] = [
+				'label'     => $this->l10n->t('Sharers of sharers'),
+				'url'       => 'channel/' . self::SHARERSOFSHARERS,
+				'sel'       => self::$content == self::SHARERSOFSHARERS ? 'active' : '',
+				'title'     => $this->l10n->t('Posts from accounts that are followed by accounts that you follow'),
+				'id'        => 'channel-' . self::SHARERSOFSHARERS . '-tab',
 				'accesskey' => 'f'
 			];
 
@@ -279,7 +290,7 @@ class Channel extends BaseModule
 			self::$content = self::FORYOU;
 		}
 
-		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS, self::IMAGE, self::VIDEO, self::AUDIO, self::LANGUAGE])) {
+		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS, self::SHARERSOFSHARERS, self::IMAGE, self::VIDEO, self::AUDIO, self::LANGUAGE])) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 
@@ -330,13 +341,24 @@ class Channel extends BaseModule
 		} elseif (self::$content == self::FORYOU) {
 			$cid = Contact::getPublicIdByUserId($this->session->getLocalUserId());
 
-			$condition = ["(`owner-id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `thread-score` > ?) OR
-				((`comments` >= ? OR `activities` >= ?) AND `owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))) OR
-				( `owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?) AND `notify_new_posts`)))",
-				$cid, $this->getMedianThreadScore($cid, 4), $this->getMedianComments(4), $this->getMedianActivities(4), $this->session->getLocalUserId(), Contact::FRIEND, Contact::SHARING,
-				$this->session->getLocalUserId(), Contact::FRIEND, Contact::SHARING];
+			$condition = [
+				"(`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `relation-thread-score` > ?) OR
+				((`comments` >= ? OR `activities` >= ?) AND `owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ?)) OR
+				(`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?) AND `notify_new_posts`)))",
+				$cid, $this->getMedianRelationThreadScore($cid, 4), $this->getMedianComments(4), $this->getMedianActivities(4), $cid,
+				$this->session->getLocalUserId(), Contact::FRIEND, Contact::SHARING
+			];
 		} elseif (self::$content == self::FOLLOWERS) {
 			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $this->session->getLocalUserId(), Contact::FOLLOWER];
+		} elseif (self::$content == self::SHARERSOFSHARERS) {
+			$cid = Contact::getPublicIdByUserId($this->session->getLocalUserId());
+
+			$condition = [
+				"`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `last-interaction` > ?
+				AND `relation-cid` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ? AND `relation-thread-score` >= ?)
+				AND NOT `cid` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ?))",
+				DateTimeFormat::utc('now - 90 day'), $cid, $this->getMedianRelationThreadScore($cid, 4), $cid
+			];
 		} elseif (self::$content == self::IMAGE) {
 			$condition = ["`media-type` & ?", 1];
 		} elseif (self::$content == self::VIDEO) {
@@ -454,7 +476,7 @@ class Channel extends BaseModule
 		return $activities;
 	}
 
-	private function getMedianThreadScore(int $cid, int $divider): int
+	private function getMedianRelationThreadScore(int $cid, int $divider): int
 	{
 		$cache_key = 'Channel:getThreadScore:' . $cid . ':' . $divider;
 		$score     = $this->cache->get($cache_key);
@@ -462,9 +484,9 @@ class Channel extends BaseModule
 			return $score;
 		}
 
-		$limit    = $this->database->count('contact-relation', ["`cid` = ? AND `thread-score` > ?", $cid, 0]) / $divider;
-		$relation = $this->database->selectToArray('contact-relation', ['thread-score'], ['cid' => $cid], ['order' => ['thread-score' => true], 'limit' => [$limit, 1]]);
-		$score    = $relation[0]['thread-score'] ?? 0;
+		$limit    = $this->database->count('contact-relation', ["`relation-cid` = ? AND `relation-thread-score` > ?", $cid, 0]) / $divider;
+		$relation = $this->database->selectToArray('contact-relation', ['relation-thread-score'], ['relation-cid' => $cid], ['order' => ['relation-thread-score' => true], 'limit' => [$limit, 1]]);
+		$score    = $relation[0]['relation-thread-score'] ?? 0;
 		if (empty($score)) {
 			return 0;
 		}
