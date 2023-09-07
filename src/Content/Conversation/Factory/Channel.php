@@ -19,26 +19,25 @@
  *
  */
 
- namespace Friendica\Content\Conversation\Factory;
+namespace Friendica\Content\Conversation\Factory;
 
 use Friendica\Model\User;
 use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
 use Friendica\Core\L10n;
-use Friendica\Database\Database;
 use Psr\Log\LoggerInterface;
 
-final class Channel extends \Friendica\BaseModel
+final class Channel extends \Friendica\BaseFactory
 {
 	/** @var L10n */
 	protected $l10n;
 
-	public function __construct(L10n $l10n, Database $database, LoggerInterface $logger, array $data = [])
+	public function __construct(L10n $l10n, LoggerInterface $logger)
 	{
-		parent::__construct($database, $logger, $data);
+		parent::__construct($logger);
 
 		$this->l10n = $l10n;
 	}
-	
+
 	/**
 	 * List of available channels
 	 *
