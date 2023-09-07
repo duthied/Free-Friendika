@@ -29,13 +29,14 @@ namespace Friendica\Content\Conversation\Entity;
  */
 final class Channel extends \Friendica\BaseEntity
 {
-	const WHATSHOT  = 'whatshot';
-	const FORYOU    = 'foryou';
-	const FOLLOWERS = 'followers';
-	const IMAGE     = 'image';
-	const VIDEO     = 'video';
-	const AUDIO     = 'audio';
-	const LANGUAGE  = 'language';
+	const WHATSHOT         = 'whatshot';
+	const FORYOU           = 'foryou';
+	const FOLLOWERS        = 'followers';
+	const SHARERSOFSHARERS = 'sharersofsharers';
+	const IMAGE            = 'image';
+	const VIDEO            = 'video';
+	const AUDIO            = 'audio';
+	const LANGUAGE         = 'language';
 
 	/** @var string */
 	protected $code;
