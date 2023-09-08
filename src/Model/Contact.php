@@ -750,7 +750,7 @@ class Contact
 		$user = DBA::selectFirst(
 			'user',
 			['uid', 'username', 'nickname', 'pubkey', 'prvkey'],
-			['uid' => $uid, 'account_expired' => false]
+			['uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]
 		);
 		if (!DBA::isResult($user)) {
 			return false;
@@ -822,7 +822,7 @@ class Contact
 		}
 
 		$fields = ['uid', 'username', 'nickname', 'page-flags', 'account-type', 'prvkey', 'pubkey'];
-		$user = DBA::selectFirst('user', $fields, ['uid' => $uid, 'account_expired' => false]);
+		$user = DBA::selectFirst('user', $fields, ['uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
 		if (!DBA::isResult($user)) {
 			return false;
 		}

@@ -31,7 +31,7 @@ class UpdatePhotoAlbums
 {
 	public static function execute()
 	{
-		$users = DBA::select('user', ['uid'], ['account_expired' => false, 'account_removed' => false]);
+		$users = DBA::select('user', ['uid'], ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
 		while ($user = DBA::fetch($users)) {
 			Photo::clearAlbumCache($user['uid']);
 		}

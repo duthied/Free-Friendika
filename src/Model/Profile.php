@@ -940,7 +940,7 @@ class Profile
 		if (!empty($search)) {
 			$publish = (DI::config()->get('system', 'publish_all') ? '' : "AND `publish` ");
 			$searchTerm = '%' . $search . '%';
-			$condition = ["NOT `blocked` AND NOT `account_removed`
+			$condition = ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`
 				$publish
 				AND ((`name` LIKE ?) OR
 				(`nickname` LIKE ?) OR
@@ -953,7 +953,7 @@ class Profile
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm,
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm];
 		} else {
-			$condition = ['blocked' => false, 'account_removed' => false];
+			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
 			if (!DI::config()->get('system', 'publish_all')) {
 				$condition['publish'] = true;
 			}
