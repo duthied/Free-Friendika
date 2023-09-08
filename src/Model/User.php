@@ -280,7 +280,7 @@ class User
 		// List of possible actor names
 		$possible_accounts = ['friendica', 'actor', 'system', 'internal'];
 		foreach ($possible_accounts as $name) {
-			if (!DBA::exists('user', ['nickname' => $name]) && DBA::exists('userd', ['username' => $name])) {
+			if (!DBA::exists('user', ['nickname' => $name]) && !DBA::exists('userd', ['username' => $name])) {
 				DI::config()->set('system', 'actor_name', $name);
 				return $name;
 			}
