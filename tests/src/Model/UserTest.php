@@ -83,7 +83,7 @@ class UserTest extends MockedTest
 	public function testIdentitiesEmpty()
 	{
 		$this->dbMock->shouldReceive('selectFirst')->with('user',
-			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->parent['uid']], [])->andReturn($this->parent)->once();
+			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->parent['uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false], [])->andReturn($this->parent)->once();
 		$this->dbMock->shouldReceive('isResult')->with($this->parent)->andReturn(false)->once();
 
 		$record = User::identities($this->parent['uid']);
@@ -98,7 +98,7 @@ class UserTest extends MockedTest
 
 		// Select the user itself (=parent)
 		$this->dbMock->shouldReceive('selectFirst')->with('user',
-			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->parent['uid']], [])->andReturn($parentSelect)->once();
+			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->parent['uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false], [])->andReturn($parentSelect)->once();
 		$this->dbMock->shouldReceive('isResult')->with($parentSelect)->andReturn(true)->once();
 
 		// Select one child
@@ -132,7 +132,7 @@ class UserTest extends MockedTest
 
 		// Select the user itself (=child)
 		$this->dbMock->shouldReceive('selectFirst')->with('user',
-			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->child['uid']], [])->andReturn($childSelect)->once();
+			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->child['uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false], [])->andReturn($childSelect)->once();
 		$this->dbMock->shouldReceive('isResult')->with($childSelect)->andReturn(true)->once();
 
 		// Select the parent
