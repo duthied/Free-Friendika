@@ -280,8 +280,7 @@ class User
 		// List of possible actor names
 		$possible_accounts = ['friendica', 'actor', 'system', 'internal'];
 		foreach ($possible_accounts as $name) {
-			if (!DBA::exists('user', ['nickname' => $name, 'account_removed' => false, 'account_expired' => false]) &&
-				!DBA::exists('userd', ['username' => $name])) {
+			if (!DBA::exists('user', ['nickname' => $name]) && DBA::exists('userd', ['username' => $name])) {
 				DI::config()->set('system', 'actor_name', $name);
 				return $name;
 			}
@@ -326,7 +325,7 @@ class User
 	public static function getByGuid(string $guid, array $fields = [], bool $active = true)
 	{
 		if ($active) {
-			$cond = ['guid' => $guid, 'account_expired' => false, 'account_removed' => false];
+			$cond = ['guid' => $guid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
 		} else {
 			$cond = ['guid' => $guid];
 		}
@@ -702,7 +701,7 @@ class User
 				$fields = ['uid', 'nickname', 'password', 'legacy_password'];
 				$condition = [
 					"(`email` = ? OR `username` = ? OR `nickname` = ?)
-					AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified`",
+					AND `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`",
 					$user_info, $user_info, $user_info
 				];
 				$user = DBA::selectFirst('user', $fields, $condition);
@@ -738,7 +737,7 @@ class User
 		if ($user['last-activity'] != $current_day) {
 			User::update(['last-activity' => $current_day], $uid);
 			// Set the last activity for all identities of the user
-			DBA::update('user', ['last-activity' => $current_day], ['parent-uid' => $uid, 'account_removed' => false]);
+			DBA::update('user', ['last-activity' => $current_day], ['parent-uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
 		}
 	}
 
@@ -1703,7 +1702,7 @@ class User
 
 		$identities = [];
 
-		$user = DBA::selectFirst('user', ['uid', 'nickname', 'username', 'parent-uid'], ['uid' => $uid]);
+		$user = DBA::selectFirst('user', ['uid', 'nickname', 'username', 'parent-uid'], ['uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
 		if (!DBA::isResult($user)) {
 			return $identities;
 		}
@@ -1720,7 +1719,7 @@ class User
 			$r = DBA::select(
 				'user',
 				['uid', 'username', 'nickname'],
-				['parent-uid' => $user['uid'], 'account_removed' => false]
+				['parent-uid' => $user['uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]
 			);
 			if (DBA::isResult($r)) {
 				$identities = array_merge($identities, DBA::toArray($r));
@@ -1730,7 +1729,7 @@ class User
 			$r = DBA::select(
 				'user',
 				['uid', 'username', 'nickname'],
-				['uid' => $user['parent-uid'], 'account_removed' => false]
+				['uid' => $user['parent-uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]
 			);
 			if (DBA::isResult($r)) {
 				$identities = DBA::toArray($r);
@@ -1740,7 +1739,7 @@ class User
 			$r = DBA::select(
 				'user',
 				['uid', 'username', 'nickname'],
-				['parent-uid' => $user['parent-uid'], 'account_removed' => false]
+				['parent-uid' => $user['parent-uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]
 			);
 			if (DBA::isResult($r)) {
 				$identities = array_merge($identities, DBA::toArray($r));
@@ -1751,7 +1750,7 @@ class User
 			"SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
 			FROM `manage`
 			INNER JOIN `user` ON `manage`.`mid` = `user`.`uid`
-			WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = ?",
+			WHERE NOT `user`.`account_removed` AND `manage`.`uid` = ?",
 			$user['uid']
 		);
 		if (DBA::isResult($r)) {
@@ -1773,7 +1772,7 @@ class User
 			return false;
 		}
 
-		$user = DBA::selectFirst('user', ['parent-uid'], ['uid' => $uid, 'account_removed' => false]);
+		$user = DBA::selectFirst('user', ['parent-uid'], ['uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
 		if (!DBA::isResult($user)) {
 			return false;
 		}
@@ -1782,7 +1781,7 @@ class User
 			return true;
 		}
 
-		if (DBA::exists('user', ['parent-uid' => $uid, 'account_removed' => false])) {
+		if (DBA::exists('user', ['parent-uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false])) {
 			return true;
 		}
 

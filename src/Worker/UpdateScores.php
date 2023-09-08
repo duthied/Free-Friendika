@@ -35,7 +35,7 @@ class UpdateScores
 	{
 		Logger::notice('Start score update');
 
-		$users = DBA::select('user', ['uid'], ["NOT `account_expired` AND NOT `account_removed` AND `uid` > ?", 0]);
+		$users = DBA::select('user', ['uid'], ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `uid` > ?", 0]);
 		while ($user = DBA::fetch($users)) {
 			Relation::calculateInteractionScore($user['uid']);
 		}

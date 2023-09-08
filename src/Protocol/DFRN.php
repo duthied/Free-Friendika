@@ -88,7 +88,7 @@ class DFRN
 		$contact['senderName'] = $contact['name'];
 
 		if ($uid != 0) {
-			$condition = ['uid' => $uid, 'account_expired' => false, 'account_removed' => false];
+			$condition = ['uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
 			$user = DBA::selectFirst('user', [], $condition);
 			if (!DBA::isResult($user)) {
 				return [];

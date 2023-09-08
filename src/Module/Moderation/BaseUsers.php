@@ -59,7 +59,7 @@ abstract class BaseUsers extends BaseModeration
 	protected function getTabsHTML(string $selectedTab): string
 	{
 		$all     = $this->database->count('user', ["`uid` != ?", 0]);
-		$active  = $this->database->count('user', ["NOT `blocked` AND `verified` AND NOT `account_removed` AND `uid` != ?", 0]);
+		$active  = $this->database->count('user', ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `uid` != ?", 0]);
 		$pending = Register::getPendingCount();
 		$blocked = $this->database->count('user', ['blocked' => true, 'verified' => true, 'account_removed' => false]);
 		$deleted = $this->database->count('user', ['account_removed' => true]);
