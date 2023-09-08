@@ -254,10 +254,7 @@ class Channel extends BaseModule
 	}
 
 	/**
-	 * Computes the displayed items.
-	 *
-	 * Community pages have a restriction on how many successive posts by the same author can show on any given page,
-	 * so we may have to retrieve more content beyond the first query
+	 * Database query for the channel page
 	 *
 	 * @return array
 	 * @throws \Exception
