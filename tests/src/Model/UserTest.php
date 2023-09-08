@@ -50,21 +50,33 @@ class UserTest extends MockedTest
 		DI::init($diceMock, true);
 
 		$this->parent = [
-			'uid'      => 1,
-			'username' => 'maxmuster',
-			'nickname' => 'Max Muster'
+			'uid'             => 1,
+			'username'        => 'maxmuster',
+			'nickname'        => 'Max Muster',
+			'verified'        => true,
+			'blocked'         => false,
+			'account_removed' => false,
+			'account_expired' => false,
 		];
 
 		$this->child = [
-			'uid'      => 2,
-			'username' => 'johndoe',
-			'nickname' => 'John Doe'
+			'uid'             => 2,
+			'username'        => 'johndoe',
+			'nickname'        => 'John Doe',
+			'verified'        => true,
+			'blocked'         => false,
+			'account_removed' => false,
+			'account_expired' => false,
 		];
 
 		$this->manage = [
-			'uid'      => 3,
-			'username' => 'janesmith',
-			'nickname' => 'Jane Smith'
+			'uid'             => 3,
+			'username'        => 'janesmith',
+			'nickname'        => 'Jane Smith',
+			'verified'        => true,
+			'blocked'         => false,
+			'account_removed' => false,
+			'account_expired' => false,
 		];
 	}
 
