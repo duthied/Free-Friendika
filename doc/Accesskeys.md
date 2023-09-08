@@ -33,6 +33,7 @@ General
 --------
 * y - for you
 * f - followers
+* r - sharers of sharers
 * h - what's hot
 * i - Images
 * v - Videos

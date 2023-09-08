@@ -26,6 +26,8 @@ use Friendica\App\Mode;
 use Friendica\BaseModule;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
+use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
+use Friendica\Content\Conversation\Factory\Channel as ChannelFactory;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
@@ -54,15 +56,6 @@ use Psr\Log\LoggerInterface;
 
 class Channel extends BaseModule
 {
-	const WHATSHOT  = 'whatshot';
-	const FORYOU    = 'foryou';
-	const FOLLOWERS = 'followers';
-	const SHARERSOFSHARERS = 'sharersofsharers';
-	const IMAGE     = 'image';
-	const VIDEO     = 'video';
-	const AUDIO     = 'audio';
-	const LANGUAGE  = 'language';
-
 	protected static $content;
 	protected static $accountTypeString;
 	protected static $accountType;
@@ -89,12 +82,15 @@ class Channel extends BaseModule
 	protected $pConfig;
 	/** @var Database */
 	protected $database;
+	/** @var ChannelFactory */
+	protected $channel;
 
 
-	public function __construct(SystemMessages $systemMessages, Database $database, IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(ChannelFactory $channel, SystemMessages $systemMessages, Database $database, IManagePersonalConfigValues $pConfig, Mode $mode, Conversation $conversation, App\Page $page, IManageConfigValues $config, ICanCache $cache, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
+		$this->channel        = $channel;
 		$this->systemMessages = $systemMessages;
 		$this->database       = $database;
 		$this->pConfig        = $pConfig;
@@ -128,80 +124,16 @@ class Channel extends BaseModule
 		if (empty($request['mode']) || ($request['mode'] != 'raw')) {
 			$tabs = [];
 
-			$tabs[] = [
-				'label'     => $this->l10n->t('For you'),
-				'url'       => 'channel/' . self::FORYOU,
-				'sel'       => self::$content == self::FORYOU ? 'active' : '',
-				'title'     => $this->l10n->t('Posts from contacts you interact with and who interact with you'),
-				'id'        => 'channel-foryou-tab',
-				'accesskey' => 'y'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('What\'s Hot'),
-				'url'       => 'channel/' . self::WHATSHOT,
-				'sel'       => self::$content == self::WHATSHOT ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with a lot of interactions'),
-				'id'        => 'channel-whatshot-tab',
-				'accesskey' => 'h'
-			];
-
-			$language  = User::getLanguageCode($this->session->getLocalUserId());
-			$languages = $this->l10n->getAvailableLanguages(true);
-
-			$tabs[] = [
-				'label'     => $languages[$language],
-				'url'       => 'channel/' . self::LANGUAGE,
-				'sel'       => self::$content == self::LANGUAGE ? 'active' : '',
-				'title'     => $this->l10n->t('Posts in %s', $languages[$language]),
-				'id'        => 'channel-language-tab',
-				'accesskey' => 'g'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Followers'),
-				'url'       => 'channel/' . self::FOLLOWERS,
-				'sel'       => self::$content == self::FOLLOWERS ? 'active' : '',
-				'title'     => $this->l10n->t('Posts from your followers that you don\'t follow'),
-				'id'        => 'channel-followers-tab',
-				'accesskey' => 'f'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Sharers of sharers'),
-				'url'       => 'channel/' . self::SHARERSOFSHARERS,
-				'sel'       => self::$content == self::SHARERSOFSHARERS ? 'active' : '',
-				'title'     => $this->l10n->t('Posts from accounts that are followed by accounts that you follow'),
-				'id'        => 'channel-' . self::SHARERSOFSHARERS . '-tab',
-				'accesskey' => 'f'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Images'),
-				'url'       => 'channel/' . self::IMAGE,
-				'sel'       => self::$content == self::IMAGE ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with images'),
-				'id'        => 'channel-image-tab',
-				'accesskey' => 'i'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Audio'),
-				'url'       => 'channel/' . self::AUDIO,
-				'sel'       => self::$content == self::AUDIO ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with audio'),
-				'id'        => 'channel-audio-tab',
-				'accesskey' => 'd'
-			];
-
-			$tabs[] = [
-				'label'     => $this->l10n->t('Videos'),
-				'url'       => 'channel/' . self::VIDEO,
-				'sel'       => self::$content == self::VIDEO ? 'active' : '',
-				'title'     => $this->l10n->t('Posts with videos'),
-				'id'        => 'channel-video-tab',
-				'accesskey' => 'v'
-			];
+			foreach ($this->channel->getForUser($this->session->getLocalUserId()) as $tab) {
+				$tabs[] = [
+					'label'     => $tab->label,
+					'url'       => 'channel/' . $tab->code,
+					'sel'       => self::$content == $tab->code ? 'active' : '',
+					'title'     => $tab->description,
+					'id'        => 'channel-' . $tab->code . '-tab',
+					'accesskey' => $tab->accessKey,
+				];
+			}
 
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 			$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
@@ -210,7 +142,7 @@ class Channel extends BaseModule
 
 			$this->page['aside'] .= Widget::accountTypes('channel/' . self::$content, self::$accountTypeString);
 
-			if (!in_array(self::$content, [self::FOLLOWERS, self::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
+			if (!in_array(self::$content, [ChannelEntity::FOLLOWERS, ChannelEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
 				$path = self::$content;
 				if (!empty($this->parameters['accounttype'])) {
 					$path .= '/' . $this->parameters['accounttype'];
@@ -287,10 +219,10 @@ class Channel extends BaseModule
 
 		self::$content = $this->parameters['content'] ?? '';
 		if (!self::$content) {
-			self::$content = self::FORYOU;
+			self::$content = ChannelEntity::FORYOU;
 		}
 
-		if (!in_array(self::$content, [self::WHATSHOT, self::FORYOU, self::FOLLOWERS, self::SHARERSOFSHARERS, self::IMAGE, self::VIDEO, self::AUDIO, self::LANGUAGE])) {
+		if (!in_array(self::$content, [ChannelEntity::WHATSHOT, ChannelEntity::FORYOU, ChannelEntity::FOLLOWERS, ChannelEntity::SHARERSOFSHARERS, ChannelEntity::IMAGE, ChannelEntity::VIDEO, ChannelEntity::AUDIO, ChannelEntity::LANGUAGE])) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 
@@ -322,25 +254,21 @@ class Channel extends BaseModule
 	}
 
 	/**
-	 * Computes the displayed items.
-	 *
-	 * Community pages have a restriction on how many successive posts by the same author can show on any given page,
-	 * so we may have to retrieve more content beyond the first query
+	 * Database query for the channel page
 	 *
 	 * @return array
 	 * @throws \Exception
 	 */
 	protected function getItems(array $request)
 	{
-		if (self::$content == self::WHATSHOT) {
+		if (self::$content == ChannelEntity::WHATSHOT) {
 			if (!is_null(self::$accountType)) {
 				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ?", $this->getMedianComments(4), $this->getMedianActivities(4), self::$accountType];
 			} else {
 				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ?", $this->getMedianComments(4), $this->getMedianActivities(4), Contact::TYPE_COMMUNITY];
 			}
-		} elseif (self::$content == self::FORYOU) {
+		} elseif (self::$content == ChannelEntity::FORYOU) {
 			$cid = Contact::getPublicIdByUserId($this->session->getLocalUserId());
-
 			$condition = [
 				"(`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `relation-thread-score` > ?) OR
 				((`comments` >= ? OR `activities` >= ?) AND `owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ?)) OR
@@ -348,35 +276,36 @@ class Channel extends BaseModule
 				$cid, $this->getMedianRelationThreadScore($cid, 4), $this->getMedianComments(4), $this->getMedianActivities(4), $cid,
 				$this->session->getLocalUserId(), Contact::FRIEND, Contact::SHARING
 			];
-		} elseif (self::$content == self::FOLLOWERS) {
+		} elseif (self::$content == ChannelEntity::FOLLOWERS) {
 			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $this->session->getLocalUserId(), Contact::FOLLOWER];
-		} elseif (self::$content == self::SHARERSOFSHARERS) {
+		} elseif (self::$content == ChannelEntity::SHARERSOFSHARERS) {
 			$cid = Contact::getPublicIdByUserId($this->session->getLocalUserId());
 
+			// @todo Suggest posts from contacts that are followed most by our followers
 			$condition = [
 				"`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `last-interaction` > ?
 				AND `relation-cid` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ? AND `relation-thread-score` >= ?)
 				AND NOT `cid` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ?))",
-				DateTimeFormat::utc('now - 90 day'), $cid, $this->getMedianRelationThreadScore($cid, 4), $cid
+				DateTimeFormat::utc('now - ' . $this->config->get('channel', 'sharer_interaction_days') .' day'), $cid, $this->getMedianRelationThreadScore($cid, 4), $cid
 			];
-		} elseif (self::$content == self::IMAGE) {
+		} elseif (self::$content == ChannelEntity::IMAGE) {
 			$condition = ["`media-type` & ?", 1];
-		} elseif (self::$content == self::VIDEO) {
+		} elseif (self::$content == ChannelEntity::VIDEO) {
 			$condition = ["`media-type` & ?", 2];
-		} elseif (self::$content == self::AUDIO) {
+		} elseif (self::$content == ChannelEntity::AUDIO) {
 			$condition = ["`media-type` & ?", 4];
-		} elseif (self::$content == self::LANGUAGE) {
+		} elseif (self::$content == ChannelEntity::LANGUAGE) {
 			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", $this->l10n->convertCodeForLanguageDetection(User::getLanguageCode($this->session->getLocalUserId()))];
 		}
 
-		if (self::$content != self::LANGUAGE) {
+		if (self::$content != ChannelEntity::LANGUAGE) {
 			$condition = $this->addLanguageCondition($condition);
 		}
 
 		$condition[0] .= " AND NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))";
 		$condition[] = $this->session->getLocalUserId();
 
-		if ((self::$content != self::WHATSHOT) && !is_null(self::$accountType)) {
+		if ((self::$content != ChannelEntity::WHATSHOT) && !is_null(self::$accountType)) {
 			$condition[0] .= " AND `contact-type` = ?";
 			$condition[] = self::$accountType;
 		}
@@ -440,39 +369,49 @@ class Channel extends BaseModule
 
 	private function getMedianComments(int $divider): int
 	{
-		$cache_key = 'Channel:getMedianComments:' . $divider;
+		$languages = $this->pConfig->get($this->session->getLocalUserId(), 'channel', 'languages', [User::getLanguageCode($this->session->getLocalUserId())]);
+		$cache_key = 'Channel:getMedianComments:' . $divider . ':' . implode(':', $languages);
 		$comments  = $this->cache->get($cache_key);
 		if (!empty($comments)) {
 			return $comments;
 		}
 
-		$limit    = $this->database->count('post-engagement', ["`contact-type` != ? AND `comments` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
-		$post     = $this->database->selectToArray('post-engagement', ['comments'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['comments' => true], 'limit' => [$limit, 1]]);
+		$condition = ["`contact-type` != ? AND `comments` > ?", Contact::TYPE_COMMUNITY, 0];
+		$condition = $this->addLanguageCondition($condition);
+
+		$limit    = $this->database->count('post-engagement', $condition) / $divider;
+		$post     = $this->database->selectToArray('post-engagement', ['comments'], $condition, ['order' => ['comments' => true], 'limit' => [$limit, 1]]);
 		$comments = $post[0]['comments'] ?? 0;
 		if (empty($comments)) {
 			return 0;
 		}
 
-		$this->cache->set($cache_key, $comments, Duration::HOUR);
+		$this->cache->set($cache_key, $comments, Duration::HALF_HOUR);
+		$this->logger->debug('Calculated median comments', ['divider' => $divider, 'languages' => $languages, 'median' => $comments]);
 		return $comments;
 	}
 
 	private function getMedianActivities(int $divider): int
 	{
-		$cache_key  = 'Channel:getMedianActivities:' . $divider;
+		$languages  = $this->pConfig->get($this->session->getLocalUserId(), 'channel', 'languages', [User::getLanguageCode($this->session->getLocalUserId())]);
+		$cache_key  = 'Channel:getMedianActivities:' . $divider . ':' . implode(':', $languages);
 		$activities = $this->cache->get($cache_key);
 		if (!empty($activities)) {
 			return $activities;
 		}
 
-		$limit      = $this->database->count('post-engagement', ["`contact-type` != ? AND `activities` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
-		$post       = $this->database->selectToArray('post-engagement', ['activities'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['activities' => true], 'limit' => [$limit, 1]]);
+		$condition = ["`contact-type` != ? AND `activities` > ?", Contact::TYPE_COMMUNITY, 0];
+		$condition = $this->addLanguageCondition($condition);
+
+		$limit      = $this->database->count('post-engagement', $condition) / $divider;
+		$post       = $this->database->selectToArray('post-engagement', ['activities'], $condition, ['order' => ['activities' => true], 'limit' => [$limit, 1]]);
 		$activities = $post[0]['activities'] ?? 0;
 		if (empty($activities)) {
 			return 0;
 		}
 
-		$this->cache->set($cache_key, $activities, Duration::HOUR);
+		$this->cache->set($cache_key, $activities, Duration::HALF_HOUR);
+		$this->logger->debug('Calculated median activities', ['divider' => $divider, 'languages' => $languages, 'median' => $activities]);
 		return $activities;
 	}
 
@@ -484,14 +423,17 @@ class Channel extends BaseModule
 			return $score;
 		}
 
-		$limit    = $this->database->count('contact-relation', ["`relation-cid` = ? AND `relation-thread-score` > ?", $cid, 0]) / $divider;
-		$relation = $this->database->selectToArray('contact-relation', ['relation-thread-score'], ['relation-cid' => $cid], ['order' => ['relation-thread-score' => true], 'limit' => [$limit, 1]]);
+		$condition = ["`relation-cid` = ? AND `relation-thread-score` > ?", $cid, 0];
+
+		$limit    = $this->database->count('contact-relation', $condition) / $divider;
+		$relation = $this->database->selectToArray('contact-relation', ['relation-thread-score'], $condition, ['order' => ['relation-thread-score' => true], 'limit' => [$limit, 1]]);
 		$score    = $relation[0]['relation-thread-score'] ?? 0;
 		if (empty($score)) {
 			return 0;
 		}
 
-		$this->cache->set($cache_key, $score, Duration::HOUR);
+		$this->cache->set($cache_key, $score, Duration::HALF_HOUR);
+		$this->logger->debug('Calculated median score', ['cid' => $cid, 'divider' => $divider, 'median' => $score]);
 		return $score;
 	}
 }

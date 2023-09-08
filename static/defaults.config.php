@@ -804,5 +804,9 @@ return [
 		// interaction_score_days (Integer)
 		// Number of days that are used to calculate the interaction score.
 		'interaction_score_days' => 30,
+
+		// sharer_interaction_days (Integer)
+		// Number of days of the last interaction that are used to define which sharers are used for the "sharers of sharers" channel.
+		'sharer_interaction_days' => 90,
 	],
 ];
