@@ -21,6 +21,7 @@
 
 namespace Friendica\Content\Conversation\Factory;
 
+use Friendica\Content\Conversation\Collection\Channels;
 use Friendica\Model\User;
 use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
 use Friendica\Core\L10n;
@@ -44,7 +45,7 @@ final class Channel extends \Friendica\BaseFactory
 	 * @param integer $uid
 	 * @return array
 	 */
-	public function getForUser(int $uid): array
+	public function getForUser(int $uid): Channels
 	{
 		$language  = User::getLanguageCode($uid);
 		$languages = $this->l10n->getAvailableLanguages(true);
@@ -59,6 +60,6 @@ final class Channel extends \Friendica\BaseFactory
 			new ChannelEntity(ChannelEntity::AUDIO, $this->l10n->t('Audio'), $this->l10n->t('Posts with audio'), 'd'),
 			new ChannelEntity(ChannelEntity::VIDEO, $this->l10n->t('Videos'), $this->l10n->t('Posts with videos'), 'v'),
 		];
-		return $tabs;
+		return new Channels($tabs);
 	}
 }

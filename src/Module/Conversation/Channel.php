@@ -284,11 +284,12 @@ class Channel extends BaseModule
 		} elseif (self::$content == ChannelEntity::SHARERSOFSHARERS) {
 			$cid = Contact::getPublicIdByUserId($this->session->getLocalUserId());
 
+			// @todo Suggest posts from contacts that are followed most by our followers
 			$condition = [
 				"`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `last-interaction` > ?
 				AND `relation-cid` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ? AND `relation-thread-score` >= ?)
 				AND NOT `cid` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ?))",
-				DateTimeFormat::utc('now - 90 day'), $cid, $this->getMedianRelationThreadScore($cid, 4), $cid
+				DateTimeFormat::utc('now - ' . $this->config->get('channel', 'sharer_interaction_days') .' day'), $cid, $this->getMedianRelationThreadScore($cid, 4), $cid
 			];
 		} elseif (self::$content == ChannelEntity::IMAGE) {
 			$condition = ["`media-type` & ?", 1];
@@ -371,41 +372,49 @@ class Channel extends BaseModule
 
 	private function getMedianComments(int $divider): int
 	{
-		$cache_key = 'Channel:getMedianComments:' . $divider;
+		$languages = $this->pConfig->get($this->session->getLocalUserId(), 'channel', 'languages', [User::getLanguageCode($this->session->getLocalUserId())]);
+		$cache_key = 'Channel:getMedianComments:' . $divider . ':' . implode(':', $languages);
 		$comments  = $this->cache->get($cache_key);
 		if (!empty($comments)) {
 			return $comments;
 		}
 
-		$limit    = $this->database->count('post-engagement', ["`contact-type` != ? AND `comments` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
-		$post     = $this->database->selectToArray('post-engagement', ['comments'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['comments' => true], 'limit' => [$limit, 1]]);
+		$condition = ["`contact-type` != ? AND `comments` > ?", Contact::TYPE_COMMUNITY, 0];
+		$condition = $this->addLanguageCondition($condition);
+
+		$limit    = $this->database->count('post-engagement', $condition) / $divider;
+		$post     = $this->database->selectToArray('post-engagement', ['comments'], $condition, ['order' => ['comments' => true], 'limit' => [$limit, 1]]);
 		$comments = $post[0]['comments'] ?? 0;
 		if (empty($comments)) {
 			return 0;
 		}
 
 		$this->cache->set($cache_key, $comments, Duration::HALF_HOUR);
-		$this->logger->debug('Calculated median comments', ['divider' => $divider, 'median' => $comments]);
+		$this->logger->debug('Calculated median comments', ['divider' => $divider, 'languages' => $languages, 'median' => $comments]);
 		return $comments;
 	}
 
 	private function getMedianActivities(int $divider): int
 	{
-		$cache_key  = 'Channel:getMedianActivities:' . $divider;
+		$languages  = $this->pConfig->get($this->session->getLocalUserId(), 'channel', 'languages', [User::getLanguageCode($this->session->getLocalUserId())]);
+		$cache_key  = 'Channel:getMedianActivities:' . $divider . ':' . implode(':', $languages);
 		$activities = $this->cache->get($cache_key);
 		if (!empty($activities)) {
 			return $activities;
 		}
 
-		$limit      = $this->database->count('post-engagement', ["`contact-type` != ? AND `activities` > ?", Contact::TYPE_COMMUNITY, 0]) / $divider;
-		$post       = $this->database->selectToArray('post-engagement', ['activities'], ["`contact-type` != ?", Contact::TYPE_COMMUNITY], ['order' => ['activities' => true], 'limit' => [$limit, 1]]);
+		$condition = ["`contact-type` != ? AND `activities` > ?", Contact::TYPE_COMMUNITY, 0];
+		$condition = $this->addLanguageCondition($condition);
+
+		$limit      = $this->database->count('post-engagement', $condition) / $divider;
+		$post       = $this->database->selectToArray('post-engagement', ['activities'], $condition, ['order' => ['activities' => true], 'limit' => [$limit, 1]]);
 		$activities = $post[0]['activities'] ?? 0;
 		if (empty($activities)) {
 			return 0;
 		}
 
 		$this->cache->set($cache_key, $activities, Duration::HALF_HOUR);
-		$this->logger->debug('Calculated median activities', ['divider' => $divider, 'median' => $activities]);
+		$this->logger->debug('Calculated median activities', ['divider' => $divider, 'languages' => $languages, 'median' => $activities]);
 		return $activities;
 	}
 
@@ -417,8 +426,10 @@ class Channel extends BaseModule
 			return $score;
 		}
 
-		$limit    = $this->database->count('contact-relation', ["`relation-cid` = ? AND `relation-thread-score` > ?", $cid, 0]) / $divider;
-		$relation = $this->database->selectToArray('contact-relation', ['relation-thread-score'], ['relation-cid' => $cid], ['order' => ['relation-thread-score' => true], 'limit' => [$limit, 1]]);
+		$condition = ["`relation-cid` = ? AND `relation-thread-score` > ?", $cid, 0];
+
+		$limit    = $this->database->count('contact-relation', $condition) / $divider;
+		$relation = $this->database->selectToArray('contact-relation', ['relation-thread-score'], $condition, ['order' => ['relation-thread-score' => true], 'limit' => [$limit, 1]]);
 		$score    = $relation[0]['relation-thread-score'] ?? 0;
 		if (empty($score)) {
 			return 0;
