@@ -125,7 +125,7 @@ class UserTest extends MockedTest
 			$this->parent,
 			$this->child,
 			$this->manage
-		], $record);
+		], $record, 'testIdentitiesAsParent: ' . print_r($record, true));
 	}
 
 	public function testIdentitiesAsChild()
