@@ -77,6 +77,7 @@ final class Timeline extends \Friendica\BaseFactory
 	public function getCommunities(bool $authenticated): Timelines
 	{
 		$page_style = $this->config->get('system', 'community_page_style');
+
 		$tabs = [];
 
 		if (($authenticated || in_array($page_style, [Community::LOCAL_AND_GLOBAL, Community::LOCAL])) && empty($this->config->get('system', 'singleuser'))) {

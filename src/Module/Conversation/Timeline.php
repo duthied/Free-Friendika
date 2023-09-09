@@ -137,7 +137,7 @@ class Timeline extends BaseModule
 			$query_parameters['max_id'] = self::$max_id;
 		}
 
-		$path_all = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
+		$path_all       = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
 		$path_no_sharer = $path . '?' . http_build_query(array_merge($query_parameters, ['no_sharer' => true]));
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_sharer.tpl'), [
 			'$title'           => $this->l10n->t('Own Contacts'),
@@ -185,6 +185,7 @@ class Timeline extends BaseModule
 			}
 		} elseif (self::$selectedTab == TimelineEntity::FORYOU) {
 			$cid = Contact::getPublicIdByUserId($uid);
+
 			$condition = [
 				"(`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `relation-thread-score` > ?) OR
 				((`comments` >= ? OR `activities` >= ?) AND `owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ?)) OR
@@ -368,9 +369,9 @@ class Timeline extends BaseModule
 
 		$maxpostperauthor = (int) $this->config->get('system', 'max_author_posts_community_page');
 		if ($maxpostperauthor != 0 && self::$selectedTab == 'local') {
-			$count = 1;
+			$count          = 1;
 			$previousauthor = '';
-			$numposts = 0;
+			$numposts       = 0;
 			$selected_items = [];
 
 			while (count($selected_items) < self::$itemsPerPage && ++$count < 50 && count($items) > 0) {
