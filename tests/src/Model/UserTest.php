@@ -59,20 +59,12 @@ class UserTest extends MockedTest
 			'uid'             => 2,
 			'username'        => 'johndoe',
 			'nickname'        => 'John Doe',
-			'verified'        => true,
-			'blocked'         => false,
-			'account_removed' => false,
-			'account_expired' => false,
 		];
 
 		$this->manage = [
 			'uid'             => 3,
 			'username'        => 'janesmith',
 			'nickname'        => 'Jane Smith',
-			'verified'        => true,
-			'blocked'         => false,
-			'account_removed' => false,
-			'account_expired' => false,
 		];
 	}
 
