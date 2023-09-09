@@ -547,4 +547,35 @@ class Widget
 			$accounttype
 		);
 	}
+
+	/**
+	 * Get a list of all channels
+	 *
+	 * @param string $base
+	 * @param string $channelname
+	 * @param integer $uid
+	 * @return string
+	 */
+	public static function channels(string $base, string $channelname, int $uid): string
+	{
+		$channels = [];
+
+		foreach (DI::TimelineFactory()->getChannelsForUser($uid) as $channel) {
+			$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+		}
+
+		foreach (DI::TimelineFactory()->getCommunities(true) as $community) {
+			$channels[] = ['ref' => $community->code, 'name' => $community->label];
+		}
+
+		return self::filter(
+			'channel',
+			DI::l10n()->t('Channels'),
+			'',
+			'',
+			$base,
+			$channels,
+			$channelname
+		);
+	}
 }

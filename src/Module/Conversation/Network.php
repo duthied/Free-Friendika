@@ -117,6 +117,7 @@ class Network extends Timeline
 
 		$module = 'network';
 
+		$this->page['aside'] .= Widget::channels($module, $this->selectedTab, $this->session->getLocalUserId());
 		$this->page['aside'] .= Widget::accountTypes($module, $this->accountTypeString);
 
 		$arr = ['query' => $this->args->getQueryString()];
