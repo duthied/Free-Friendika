@@ -53,10 +53,6 @@ class UserTest extends MockedTest
 			'uid'             => 1,
 			'username'        => 'maxmuster',
 			'nickname'        => 'Max Muster',
-			'verified'        => true,
-			'blocked'         => false,
-			'account_removed' => false,
-			'account_expired' => false,
 		];
 
 		$this->child = [
