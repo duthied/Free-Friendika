@@ -38,7 +38,13 @@ class Channel extends ChannelModule
 
 		$o = '';
 		if (!empty($request['force'])) {
-			$o = $this->conversation->render($this->getItems($request), Conversation::MODE_CHANNEL, true, false, 'created', $this->session->getLocalUserId());
+			if ($this->timeline->isChannel(self::$selectedTab)) {
+				$items = $this->getChannelItems();
+			} else {
+				$items = $this->getCommunityItems();
+			}
+
+			$o = $this->conversation->render($items, Conversation::MODE_CHANNEL, true, false, 'created', $this->session->getLocalUserId());
 		}
 
 		System::htmlUpdateExit($o);

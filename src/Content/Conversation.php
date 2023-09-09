@@ -495,7 +495,8 @@ class Conversation
 					. (!empty($_GET['cmin'])      ? '&cmin='      . rawurlencode($_GET['cmin'])      : '')
 					. (!empty($_GET['cmax'])      ? '&cmax='      . rawurlencode($_GET['cmax'])      : '')
 					. (!empty($_GET['file'])      ? '&file='      . rawurlencode($_GET['file'])      : '')
-
+					. (!empty($_GET['no_sharer']) ? '&no_sharer=' . rawurlencode($_GET['no_sharer']) : '')
+					. (!empty($_GET['accounttype']) ? '&accounttype=' . rawurlencode($_GET['accounttype']) : '')
 					. "'; </script>\r\n";
 			}
 		} elseif ($mode === self::MODE_PROFILE) {
@@ -930,7 +931,8 @@ class Conversation
 				continue;
 			}
 
-			if (in_array($row['author-gsid'], $ignoredGsids)
+			if (
+				in_array($row['author-gsid'], $ignoredGsids)
 				|| in_array($row['owner-gsid'], $ignoredGsids)
 				|| in_array($row['causer-gsid'], $ignoredGsids)
 			) {

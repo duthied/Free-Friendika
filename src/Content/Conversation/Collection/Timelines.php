@@ -23,6 +23,6 @@ namespace Friendica\Content\Conversation\Collection;
 
 use Friendica\BaseCollection;
 
-class Channels extends BaseCollection
+class Timelines extends BaseCollection
 {
 }

@@ -52,7 +52,7 @@ class Nav
 		'directory' => null,
 		'settings'  => null,
 		'contacts'  => null,
-		'delegation'=> null,
+		'delegation' => null,
 		'calendar'  => null,
 		'register'  => null
 	];
@@ -284,14 +284,14 @@ class Nav
 			$gdirpath = Profile::zrl($this->config->get('system', 'directory'), true);
 		}
 
-		if (($this->session->getLocalUserId() || $this->config->get('system', 'community_page_style') != Community::DISABLED_VISITOR) &&
-			!($this->config->get('system', 'community_page_style') == Community::DISABLED)) {
+		if ((!$this->session->isAuthenticated() && $this->config->get('system', 'community_page_style') != Community::DISABLED_VISITOR) &&
+			!($this->config->get('system', 'community_page_style') == Community::DISABLED)
+		) {
 			$nav['community'] = ['community', $this->l10n->t('Community'), '', $this->l10n->t('Conversations on this and other servers')];
 		}
 
-		$nav['channel'] = ['channel', $this->l10n->t('Channels'), '', $this->l10n->t('Current posts, filtered by several rules')];
-
 		if ($this->session->getLocalUserId()) {
+			$nav['channel'] = ['channel', $this->l10n->t('Channels'), '', $this->l10n->t('Current posts, filtered by several rules')];
 			$nav['calendar'] = ['calendar', $this->l10n->t('Calendar'), '', $this->l10n->t('Calendar')];
 		}
 

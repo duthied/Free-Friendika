@@ -21,52 +21,53 @@
 
 namespace Friendica\Module\Conversation;
 
-use Friendica\BaseModule;
+use Friendica\App;
+use Friendica\App\Mode;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
+use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
+use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
+use Friendica\Content\Feature;
 use Friendica\Content\GroupManager;
 use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Content\Text\HTML;
+use Friendica\Content\Widget\TrendingTags;
 use Friendica\Core\ACL;
+use Friendica\Core\Cache\Capability\ICanCache;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\DBA;
+use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Circle;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
-use Friendica\Model\User;
 use Friendica\Model\Verb;
 use Friendica\Module\Contact as ModuleContact;
+use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
-use Friendica\Protocol\Activity;
+use Friendica\Network\HTTPException;
+use Friendica\Navigation\SystemMessages;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Profiler;
+use Friendica\Protocol\Activity;
+use Psr\Log\LoggerInterface;
 
-class Network extends BaseModule
+class Network extends Timeline
 {
 	/** @var int */
 	private static $circleId;
 	/** @var int */
 	private static $groupContactId;
 	/** @var string */
-	private static $selectedTab;
-	/** @var mixed */
-	private static $min_id;
-	/** @var mixed */
-	private static $max_id;
-	/** @var string */
-	private static $accountTypeString;
-	/** @var int */
-	private static $accountType;
-	/** @var string */
 	private static $network;
-	/** @var int */
-	private static $itemsPerPage;
 	/** @var string */
 	private static $dateFrom;
 	/** @var string */
@@ -78,44 +79,94 @@ class Network extends BaseModule
 	/** @var string */
 	protected static $order;
 
+	/** @var ICanCache */
+	protected $cache;
+	/** @var IManageConfigValues The config */
+	protected $config;
+	/** @var SystemMessages */
+	protected $systemMessages;
+	/** @var App\Page */
+	protected $page;
+	/** @var Conversation */
+	protected $conversation;
+	/** @var IManagePersonalConfigValues */
+	protected $pConfig;
+	/** @var Database */
+	protected $database;
+	/** @var TimelineFactory */
+	protected $timeline;
+
+	public function __construct(TimelineFactory $timeline, SystemMessages $systemMessages, Mode $mode, Conversation $conversation, App\Page $page, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->timeline       = $timeline;
+		$this->systemMessages = $systemMessages;
+		$this->conversation   = $conversation;
+		$this->page           = $page;
+	}
+
 	protected function content(array $request = []): string
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return Login::form();
 		}
 
-		$this->parseRequest($_GET);
+		$this->parseRequest($request);
 
 		$module = 'network';
 
-		DI::page()['aside'] .= Widget::accountTypes($module, self::$accountTypeString);
-		DI::page()['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', self::$circleId);
-		DI::page()['aside'] .= GroupManager::widget($module . '/group', DI::userSession()->getLocalUserId(), self::$groupContactId);
-		DI::page()['aside'] .= Widget::postedByYear($module . '/archive', DI::userSession()->getLocalUserId(), false);
-		DI::page()['aside'] .= Widget::networks($module, !self::$groupContactId ? self::$network : '');
-		DI::page()['aside'] .= Widget\SavedSearches::getHTML(DI::args()->getQueryString());
-		DI::page()['aside'] .= Widget::fileAs('filed', '');
+		$this->page['aside'] .= Widget::accountTypes($module, self::$accountTypeString);
 
-		$arr = ['query' => DI::args()->getQueryString()];
+		$arr = ['query' => $this->args->getQueryString()];
 		Hook::callAll('network_content_init', $arr);
 
 		$o = '';
 
-		// Fetch a page full of parent items for this page
-		$params = ['limit' => self::$itemsPerPage];
-		$table = 'network-thread-view';
+		if ($this->timeline->isChannel(self::$selectedTab)) {
+			if (!in_array(self::$selectedTab, [TimelineEntity::FOLLOWERS, TimelineEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
+				$this->page['aside'] .= $this->getNoSharerWidget($module);
+			}
 
-		$items = self::getItems($table, $params);
+			if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
+				$this->page['aside'] .= TrendingTags::getHTML(self::$selectedTab);
+			}
 
-		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
-			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
-			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
+			$items = $this->getChannelItems();
+		} elseif ($this->timeline->isCommunity(self::$selectedTab)) {
+			if ($this->session->getLocalUserId() && $this->config->get('system', 'community_no_sharer')) {
+				$this->page['aside'] .= $this->getNoSharerWidget($module);
+			}
+
+			if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
+				$this->page['aside'] .= TrendingTags::getHTML(self::$selectedTab);
+			}
+
+			$items = $this->getCommunityItems();
+		} else {
+			$this->page['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', self::$circleId);
+			$this->page['aside'] .= GroupManager::widget($module . '/group', $this->session->getLocalUserId(), self::$groupContactId);
+			$this->page['aside'] .= Widget::postedByYear($module . '/archive', $this->session->getLocalUserId(), false);
+			$this->page['aside'] .= Widget::networks($module, !self::$groupContactId ? self::$network : '');
+			$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
+			$this->page['aside'] .= Widget::fileAs('filed', '');
+
+			// Fetch a page full of parent items for this page
+			$params = ['limit' => self::$itemsPerPage];
+			$table = 'network-thread-view';
+
+			$items = $this->getItems($table, $params);
 		}
 
-		if (!(isset($_GET['mode']) AND ($_GET['mode'] == 'raw'))) {
-			$o .= self::getTabsHTML(self::$selectedTab);
+		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
+			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
+			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => $this->args->getQueryString()]);
+		}
 
-			Nav::setSelected(DI::args()->get(0));
+		if (!(isset($_GET['mode']) and ($_GET['mode'] == 'raw'))) {
+			$o .= $this->getTabsHTML();
+
+			Nav::setSelected($this->args->get(0));
 
 			$content = '';
 
@@ -128,8 +179,6 @@ class Network extends BaseModule
 				}
 			}
 
-			$a = DI::app();
-
 			$default_permissions = [];
 			if (self::$circleId) {
 				$default_permissions['allow_gid'] = [self::$circleId];
@@ -140,7 +189,7 @@ class Network extends BaseModule
 				$allowedCids[] = (int) self::$groupContactId;
 			} elseif (self::$network) {
 				$condition = [
-					'uid'     => DI::userSession()->getLocalUserId(),
+					'uid'     => $this->session->getLocalUserId(),
 					'network' => self::$network,
 					'self'    => false,
 					'blocked' => false,
@@ -160,35 +209,35 @@ class Network extends BaseModule
 			}
 
 			$x = [
-				'lockstate' => self::$circleId || self::$groupContactId || self::$network || ACL::getLockstateForUserId($a->getLoggedInUserId()) ? 'lock' : 'unlock',
-				'acl' => ACL::getFullSelectorHTML(DI::page(), $a->getLoggedInUserId(), true, $default_permissions),
+				'lockstate' => self::$circleId || self::$groupContactId || self::$network || ACL::getLockstateForUserId($this->session->getLocalUserId()) ? 'lock' : 'unlock',
+				'acl' => ACL::getFullSelectorHTML($this->page, $this->session->getLocalUserId(), true, $default_permissions),
 				'bang' => ((self::$circleId || self::$groupContactId || self::$network) ? '!' : ''),
 				'content' => $content,
 			];
 
-			$o .= DI::conversation()->statusEditor($x);
+			$o .= $this->conversation->statusEditor($x);
 		}
 
 		if (self::$circleId) {
-			$circle = DBA::selectFirst('group', ['name'], ['id' => self::$circleId, 'uid' => DI::userSession()->getLocalUserId()]);
+			$circle = DBA::selectFirst('group', ['name'], ['id' => self::$circleId, 'uid' => $this->session->getLocalUserId()]);
 			if (!DBA::isResult($circle)) {
-				DI::sysmsg()->addNotice(DI::l10n()->t('No such circle'));
+				$this->systemMessages->addNotice($this->l10n->t('No such circle'));
 			}
 
 			$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
-				'$title' => DI::l10n()->t('Circle: %s', $circle['name'])
+				'$title' => $this->l10n->t('Circle: %s', $circle['name'])
 			]) . $o;
 		} elseif (self::$groupContactId) {
 			$contact = Contact::getById(self::$groupContactId);
 			if (DBA::isResult($contact)) {
 				$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('contact/list.tpl'), [
 					'contacts' => [ModuleContact::getContactTemplateVars($contact)],
-					'id' => DI::args()->get(0),
+					'id' => $this->args->get(0),
 				]) . $o;
 			} else {
-				DI::sysmsg()->addNotice(DI::l10n()->t('Invalid contact.'));
+				$this->systemMessages->addNotice($this->l10n->t('Invalid contact.'));
 			}
-		} elseif (!DI::config()->get('theme', 'hide_eventlist')) {
+		} elseif (!$this->config->get('theme', 'hide_eventlist')) {
 			$o .= Profile::getBirthdays();
 			$o .= Profile::getEventsReminderHTML();
 		}
@@ -201,14 +250,14 @@ class Network extends BaseModule
 			$ordering = '`commented`';
 		}
 
-		$o .= DI::conversation()->render($items, Conversation::MODE_NETWORK, false, false, $ordering, DI::userSession()->getLocalUserId());
+		$o .= $this->conversation->render($items, Conversation::MODE_NETWORK, false, false, $ordering, $this->session->getLocalUserId());
 
-		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
+		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
 		} else {
 			$pager = new BoundariesPager(
-				DI::l10n(),
-				DI::args()->getQueryString(),
+				$this->l10n,
+				$this->args->getQueryString(),
 				$items[0][self::$order] ?? null,
 				$items[count($items) - 1][self::$order] ?? null,
 				self::$itemsPerPage
@@ -243,57 +292,13 @@ class Network extends BaseModule
 	/**
 	 * Get the network tabs menu
 	 *
-	 * @param string $selectedTab
 	 * @return string Html of the network tabs
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function getTabsHTML(string $selectedTab)
+	private function getTabsHTML()
 	{
-		$cmd = DI::args()->getCommand();
-
-		// tabs
-		$tabs = [
-			[
-				'label'	=> DI::l10n()->t('Latest Activity'),
-				'url'	=> $cmd . '?' . http_build_query(['order' => 'commented']),
-				'sel'	=> !$selectedTab || $selectedTab == 'commented' ? 'active' : '',
-				'title'	=> DI::l10n()->t('Sort by latest activity'),
-				'id'	=> 'activity-order-tab',
-				'accesskey' => 'e',
-			],
-			[
-				'label'	=> DI::l10n()->t('Latest Posts'),
-				'url'	=> $cmd . '?' . http_build_query(['order' => 'received']),
-				'sel'	=> $selectedTab == 'received' ? 'active' : '',
-				'title'	=> DI::l10n()->t('Sort by post received date'),
-				'id'	=> 'post-order-tab',
-				'accesskey' => 't',
-			],
-			[
-				'label'	=> DI::l10n()->t('Latest Creation'),
-				'url'	=> $cmd . '?' . http_build_query(['order' => 'created']),
-				'sel'	=> $selectedTab == 'created' ? 'active' : '',
-				'title'	=> DI::l10n()->t('Sort by post creation date'),
-				'id'	=> 'creation-order-tab',
-				'accesskey' => 'q',
-			],
-			[
-				'label'	=> DI::l10n()->t('Personal'),
-				'url'	=> $cmd . '?' . http_build_query(['mention' => true]),
-				'sel'	=> $selectedTab == 'mention' ? 'active' : '',
-				'title'	=> DI::l10n()->t('Posts that mention or involve you'),
-				'id'	=> 'personal-tab',
-				'accesskey' => 'r',
-			],
-			[
-				'label'	=> DI::l10n()->t('Starred'),
-				'url'	=> $cmd . '?' . http_build_query(['star' => true]),
-				'sel'	=> $selectedTab == 'star' ? 'active' : '',
-				'title'	=> DI::l10n()->t('Favourite Posts'),
-				'id'	=> 'starred-posts-tab',
-				'accesskey' => 'm',
-			],
-		];
+		// @todo user confgurable selection of tabs
+		$tabs = $this->getTabArray($this->timeline->getNetworkFeeds($this->args->getCommand()), 'network');
 
 		$arr = ['tabs' => $tabs];
 		Hook::callAll('network_tabs', $arr);
@@ -303,36 +308,43 @@ class Network extends BaseModule
 		return Renderer::replaceMacros($tpl, ['$tabs' => $arr['tabs']]);
 	}
 
-	protected function parseRequest(array $get)
+	protected function parseRequest(array $request)
 	{
+		parent::parseRequest($request);
+
 		self::$circleId = (int)($this->parameters['circle_id'] ?? 0);
 
 		self::$groupContactId = (int)($this->parameters['contact_id'] ?? 0);
 
-		self::$selectedTab = self::getTimelineOrderBySession(DI::userSession(), DI::pConfig());
+		if (!self::$selectedTab) {
+			self::$selectedTab = self::getTimelineOrderBySession(DI::userSession(), $this->pConfig);
+		} elseif (!$this->timeline->isChannel(self::$selectedTab) && !$this->timeline->isCommunity(self::$selectedTab)) {
+			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
+		}
 
-		if (!empty($get['star'])) {
-			self::$selectedTab = 'star';
+
+		if (!empty($request['star'])) {
+			self::$selectedTab = TimelineEntity::STAR;
 			self::$star = true;
 		} else {
-			self::$star = self::$selectedTab == 'star';
+			self::$star = self::$selectedTab == TimelineEntity::STAR;
 		}
 
-		if (!empty($get['mention'])) {
-			self::$selectedTab = 'mention';
+		if (!empty($request['mention'])) {
+			self::$selectedTab = TimelineEntity::MENTION;
 			self::$mention = true;
 		} else {
-			self::$mention = self::$selectedTab == 'mention';
+			self::$mention = self::$selectedTab == TimelineEntity::MENTION;
 		}
 
-		if (!empty($get['order'])) {
-			self::$selectedTab = $get['order'];
-			self::$order = $get['order'];
+		if (!empty($request['order'])) {
+			self::$selectedTab = $request['order'];
+			self::$order = $request['order'];
 			self::$star = false;
 			self::$mention = false;
-		} elseif (in_array(self::$selectedTab, ['received', 'star'])) {
+		} elseif (in_array(self::$selectedTab, [TimelineEntity::RECEIVED, TimelineEntity::STAR])) {
 			self::$order = 'received';
-		} elseif (self::$selectedTab == 'created') {
+		} elseif ((self::$selectedTab == TimelineEntity::CREATED) || $this->timeline->isChannel(self::$selectedTab)) {
 			self::$order = 'created';
 		} else {
 			self::$order = 'commented';
@@ -341,53 +353,39 @@ class Network extends BaseModule
 		self::$selectedTab = self::$selectedTab ?? self::$order;
 
 		// Prohibit combined usage of "star" and "mention"
-		if (self::$selectedTab == 'star') {
+		if (self::$selectedTab == TimelineEntity::STAR) {
 			self::$mention = false;
-		} elseif (self::$selectedTab == 'mention') {
+		} elseif (self::$selectedTab == TimelineEntity::MENTION) {
 			self::$star = false;
 		}
 
-		DI::session()->set('network-tab', self::$selectedTab);
-		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'network.view', 'selected_tab', self::$selectedTab);
+		$this->session->set('network-tab', self::$selectedTab);
+		$this->pConfig->set($this->session->getLocalUserId(), 'network.view', 'selected_tab', self::$selectedTab);
 
-		self::$accountTypeString = $get['accounttype'] ?? $this->parameters['accounttype'] ?? '';
-		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
-
-		self::$network = $get['nets'] ?? '';
+		self::$network = $request['nets'] ?? '';
 
 		self::$dateFrom = $this->parameters['from'] ?? '';
 		self::$dateTo = $this->parameters['to'] ?? '';
 
-		if (DI::mode()->isMobile()) {
-			self::$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_mobile_network',
-				DI::config()->get('system', 'itemspage_network_mobile'));
-		} else {
-			self::$itemsPerPage = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'itemspage_network',
-				DI::config()->get('system', 'itemspage_network'));
-		}
-
-		self::$min_id = $get['min_id'] ?? null;
-		self::$max_id = $get['max_id'] ?? null;
-
 		switch (self::$order) {
 			case 'received':
-				self::$max_id = $get['last_received'] ?? self::$max_id;
+				self::$max_id = $request['last_received'] ?? self::$max_id;
 				break;
 			case 'created':
-				self::$max_id = $get['last_created'] ?? self::$max_id;
+				self::$max_id = $request['last_created'] ?? self::$max_id;
 				break;
 			case 'uriid':
-				self::$max_id = $get['last_uriid'] ?? self::$max_id;
+				self::$max_id = $request['last_uriid'] ?? self::$max_id;
 				break;
 			default:
 				self::$order = 'commented';
-				self::$max_id = $get['last_commented'] ?? self::$max_id;
+				self::$max_id = $request['last_commented'] ?? self::$max_id;
 		}
 	}
 
-	protected static function getItems(string $table, array $params, array $conditionFields = [])
+	protected function getItems(string $table, array $params, array $conditionFields = [])
 	{
-		$conditionFields['uid'] = DI::userSession()->getLocalUserId();
+		$conditionFields['uid'] = $this->session->getLocalUserId();
 		$conditionStrings = [];
 
 		if (!is_null(self::$accountType)) {
@@ -416,7 +414,7 @@ class Network extends BaseModule
 		} elseif (self::$groupContactId) {
 			$conditionStrings = DBA::mergeConditions($conditionStrings,
 				["((`contact-id` = ?) OR `uri-id` IN (SELECT `parent-uri-id` FROM `post-user-view` WHERE (`contact-id` = ? AND `gravity` = ? AND `vid` = ? AND `uid` = ?)))",
-				self::$groupContactId, self::$groupContactId, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), DI::userSession()->getLocalUserId()]);
+				self::$groupContactId, self::$groupContactId, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), $this->session->getLocalUserId()]);
 		}
 
 		// Currently only the order modes "received" and "commented" are in use
@@ -480,10 +478,10 @@ class Network extends BaseModule
 		// level which items you've seen and which you haven't. If you're looking
 		// at the top level network page just mark everything seen.
 		if (!self::$circleId && !self::$groupContactId && !self::$star && !self::$mention) {
-			$condition = ['unseen' => true, 'uid' => DI::userSession()->getLocalUserId()];
+			$condition = ['unseen' => true, 'uid' => $this->session->getLocalUserId()];
 			self::setItemsSeenByCondition($condition);
 		} elseif (!empty($parents)) {
-			$condition = ['unseen' => true, 'uid' => DI::userSession()->getLocalUserId(), 'parent-uri-id' => $parents];
+			$condition = ['unseen' => true, 'uid' => $this->session->getLocalUserId(), 'parent-uri-id' => $parents];
 			self::setItemsSeenByCondition($condition);
 		}
 

@@ -23,7 +23,6 @@ namespace Friendica\Module\Update;
 
 use Friendica\Content\Conversation;
 use Friendica\Core\System;
-use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\Conversation\Network as NetworkModule;
@@ -69,7 +68,7 @@ class Network extends NetworkModule
 		$params = ['limit' => 100];
 		$table = 'network-item-view';
 
-		$items = self::getItems($table, $params, $conditionFields);
+		$items = $this->getItems($table, $params, $conditionFields);
 
 		if (self::$order === 'received') {
 			$ordering = '`received`';
@@ -79,7 +78,7 @@ class Network extends NetworkModule
 			$ordering = '`commented`';
 		}
 
-		$o = DI::conversation()->render($items, Conversation::MODE_NETWORK, $profile_uid, false, $ordering, DI::userSession()->getLocalUserId());
+		$o = $this->conversation->render($items, Conversation::MODE_NETWORK, $profile_uid, false, $ordering, $this->session->getLocalUserId());
 
 		System::htmlUpdateExit($o);
 	}
