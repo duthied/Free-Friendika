@@ -61,21 +61,21 @@ use Psr\Log\LoggerInterface;
 class Network extends Timeline
 {
 	/** @var int */
-	private static $circleId;
+	protected $circleId;
 	/** @var int */
-	private static $groupContactId;
+	protected $groupContactId;
 	/** @var string */
-	private static $network;
+	protected $network;
 	/** @var string */
-	private static $dateFrom;
+	protected $dateFrom;
 	/** @var string */
-	private static $dateTo;
+	protected $dateTo;
 	/** @var int */
-	private static $star;
+	protected $star;
 	/** @var int */
-	private static $mention;
+	protected $mention;
 	/** @var string */
-	protected static $order;
+	protected $order;
 
 	/** @var App */
 	protected $app;
@@ -145,10 +145,10 @@ class Network extends Timeline
 
 			$items = $this->getCommunityItems();
 		} else {
-			$this->page['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', self::$circleId);
-			$this->page['aside'] .= GroupManager::widget($module . '/group', $this->session->getLocalUserId(), self::$groupContactId);
+			$this->page['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', $this->circleId);
+			$this->page['aside'] .= GroupManager::widget($module . '/group', $this->session->getLocalUserId(), $this->groupContactId);
 			$this->page['aside'] .= Widget::postedByYear($module . '/archive', $this->session->getLocalUserId(), false);
-			$this->page['aside'] .= Widget::networks($module, !self::$groupContactId ? self::$network : '');
+			$this->page['aside'] .= Widget::networks($module, !$this->groupContactId ? $this->network : '');
 			$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
 			$this->page['aside'] .= Widget::fileAs('filed', '');
 
@@ -167,9 +167,9 @@ class Network extends Timeline
 
 			$content = '';
 
-			if (self::$groupContactId) {
-				// If self::$groupContactId belongs to a community group or a private group, add a mention to the status editor
-				$condition = ["`id` = ? AND `contact-type` = ?", self::$groupContactId, Contact::TYPE_COMMUNITY];
+			if ($this->groupContactId) {
+				// If $this->groupContactId belongs to a community group or a private group, add a mention to the status editor
+				$condition = ["`id` = ? AND `contact-type` = ?", $this->groupContactId, Contact::TYPE_COMMUNITY];
 				$contact = DBA::selectFirst('contact', ['addr'], $condition);
 				if (!empty($contact['addr'])) {
 					$content = '!' . $contact['addr'];
@@ -177,17 +177,17 @@ class Network extends Timeline
 			}
 
 			$default_permissions = [];
-			if (self::$circleId) {
-				$default_permissions['allow_gid'] = [self::$circleId];
+			if ($this->circleId) {
+				$default_permissions['allow_gid'] = [$this->circleId];
 			}
 
 			$allowedCids = [];
-			if (self::$groupContactId) {
-				$allowedCids[] = (int) self::$groupContactId;
-			} elseif (self::$network) {
+			if ($this->groupContactId) {
+				$allowedCids[] = (int) $this->groupContactId;
+			} elseif ($this->network) {
 				$condition = [
 					'uid'     => $this->session->getLocalUserId(),
-					'network' => self::$network,
+					'network' => $this->network,
 					'self'    => false,
 					'blocked' => false,
 					'pending' => false,
@@ -206,17 +206,17 @@ class Network extends Timeline
 			}
 
 			$x = [
-				'lockstate' => self::$circleId || self::$groupContactId || self::$network || ACL::getLockstateForUserId($this->session->getLocalUserId()) ? 'lock' : 'unlock',
+				'lockstate' => $this->circleId || $this->groupContactId || $this->network || ACL::getLockstateForUserId($this->session->getLocalUserId()) ? 'lock' : 'unlock',
 				'acl' => ACL::getFullSelectorHTML($this->page, $this->session->getLocalUserId(), true, $default_permissions),
-				'bang' => ((self::$circleId || self::$groupContactId || self::$network) ? '!' : ''),
+				'bang' => (($this->circleId || $this->groupContactId || $this->network) ? '!' : ''),
 				'content' => $content,
 			];
 
 			$o .= $this->conversation->statusEditor($x);
 		}
 
-		if (self::$circleId) {
-			$circle = DBA::selectFirst('group', ['name'], ['id' => self::$circleId, 'uid' => $this->session->getLocalUserId()]);
+		if ($this->circleId) {
+			$circle = DBA::selectFirst('group', ['name'], ['id' => $this->circleId, 'uid' => $this->session->getLocalUserId()]);
 			if (!DBA::isResult($circle)) {
 				$this->systemMessages->addNotice($this->l10n->t('No such circle'));
 			}
@@ -224,8 +224,8 @@ class Network extends Timeline
 			$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
 				'$title' => $this->l10n->t('Circle: %s', $circle['name'])
 			]) . $o;
-		} elseif (self::$groupContactId) {
-			$contact = Contact::getById(self::$groupContactId);
+		} elseif ($this->groupContactId) {
+			$contact = Contact::getById($this->groupContactId);
 			if (DBA::isResult($contact)) {
 				$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('contact/list.tpl'), [
 					'contacts' => [ModuleContact::getContactTemplateVars($contact)],
@@ -247,8 +247,8 @@ class Network extends Timeline
 			$pager = new BoundariesPager(
 				$this->l10n,
 				$this->args->getQueryString(),
-				$items[0][self::$order] ?? null,
-				$items[count($items) - 1][self::$order] ?? null,
+				$items[0][$this->order] ?? null,
+				$items[count($items) - 1][$this->order] ?? null,
 				$this->itemsPerPage
 			);
 
@@ -260,9 +260,9 @@ class Network extends Timeline
 
 	protected function getOrder(): string
 	{
-		if (self::$order === 'received') {
+		if ($this->order === 'received') {
 			return '`received`';
-		} elseif (self::$order === 'created') {
+		} elseif ($this->order === 'created') {
 			return '`created`';
 		} else {
 			return '`commented`';
@@ -292,9 +292,9 @@ class Network extends Timeline
 	{
 		parent::parseRequest($request);
 
-		self::$circleId = (int)($this->parameters['circle_id'] ?? 0);
+		$this->circleId = (int)($this->parameters['circle_id'] ?? 0);
 
-		self::$groupContactId = (int)($this->parameters['contact_id'] ?? 0);
+		$this->groupContactId = (int)($this->parameters['contact_id'] ?? 0);
 
 		if (!$this->selectedTab) {
 			$this->selectedTab = self::getTimelineOrderBySession($this->session, $this->pConfig);
@@ -305,49 +305,49 @@ class Network extends Timeline
 
 		if (!empty($request['star'])) {
 			$this->selectedTab = TimelineEntity::STAR;
-			self::$star = true;
+			$this->star = true;
 		} else {
-			self::$star = $this->selectedTab == TimelineEntity::STAR;
+			$this->star = $this->selectedTab == TimelineEntity::STAR;
 		}
 
 		if (!empty($request['mention'])) {
 			$this->selectedTab = TimelineEntity::MENTION;
-			self::$mention = true;
+			$this->mention = true;
 		} else {
-			self::$mention = $this->selectedTab == TimelineEntity::MENTION;
+			$this->mention = $this->selectedTab == TimelineEntity::MENTION;
 		}
 
 		if (!empty($request['order'])) {
 			$this->selectedTab = $request['order'];
-			self::$order = $request['order'];
-			self::$star = false;
-			self::$mention = false;
+			$this->order = $request['order'];
+			$this->star = false;
+			$this->mention = false;
 		} elseif (in_array($this->selectedTab, [TimelineEntity::RECEIVED, TimelineEntity::STAR])) {
-			self::$order = 'received';
+			$this->order = 'received';
 		} elseif (($this->selectedTab == TimelineEntity::CREATED) || $this->timeline->isChannel($this->selectedTab)) {
-			self::$order = 'created';
+			$this->order = 'created';
 		} else {
-			self::$order = 'commented';
+			$this->order = 'commented';
 		}
 
-		$this->selectedTab = $this->selectedTab ?? self::$order;
+		$this->selectedTab = $this->selectedTab ?? $this->order;
 
 		// Prohibit combined usage of "star" and "mention"
 		if ($this->selectedTab == TimelineEntity::STAR) {
-			self::$mention = false;
+			$this->mention = false;
 		} elseif ($this->selectedTab == TimelineEntity::MENTION) {
-			self::$star = false;
+			$this->star = false;
 		}
 
 		$this->session->set('network-tab', $this->selectedTab);
 		$this->pConfig->set($this->session->getLocalUserId(), 'network.view', 'selected_tab', $this->selectedTab);
 
-		self::$network = $request['nets'] ?? '';
+		$this->network = $request['nets'] ?? '';
 
-		self::$dateFrom = $this->parameters['from'] ?? '';
-		self::$dateTo = $this->parameters['to'] ?? '';
+		$this->dateFrom = $this->parameters['from'] ?? '';
+		$this->dateTo = $this->parameters['to'] ?? '';
 
-		switch (self::$order) {
+		switch ($this->order) {
 			case 'received':
 				$this->maxId = $request['last_received'] ?? $this->maxId;
 				break;
@@ -358,7 +358,7 @@ class Network extends Timeline
 				$this->maxId = $request['last_uriid'] ?? $this->maxId;
 				break;
 			default:
-				self::$order = 'commented';
+				$this->order = 'commented';
 				$this->maxId = $request['last_commented'] ?? $this->maxId;
 		}
 	}
@@ -372,29 +372,29 @@ class Network extends Timeline
 			$conditionFields['contact-type'] = $this->accountType;
 		}
 
-		if (self::$star) {
+		if ($this->star) {
 			$conditionFields['starred'] = true;
 		}
-		if (self::$mention) {
+		if ($this->mention) {
 			$conditionFields['mention'] = true;
 		}
-		if (self::$network) {
-			$conditionFields['network'] = self::$network;
+		if ($this->network) {
+			$conditionFields['network'] = $this->network;
 		}
 
-		if (self::$dateFrom) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` <= ? ", DateTimeFormat::convert(self::$dateFrom, 'UTC', $this->app->getTimeZone())]);
+		if ($this->dateFrom) {
+			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` <= ? ", DateTimeFormat::convert($this->dateFrom, 'UTC', $this->app->getTimeZone())]);
 		}
-		if (self::$dateTo) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` >= ? ", DateTimeFormat::convert(self::$dateTo, 'UTC', $this->app->getTimeZone())]);
+		if ($this->dateTo) {
+			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` >= ? ", DateTimeFormat::convert($this->dateTo, 'UTC', $this->app->getTimeZone())]);
 		}
 
-		if (self::$circleId) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", self::$circleId]);
-		} elseif (self::$groupContactId) {
+		if ($this->circleId) {
+			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", $this->circleId]);
+		} elseif ($this->groupContactId) {
 			$conditionStrings = DBA::mergeConditions($conditionStrings,
 				["((`contact-id` = ?) OR `uri-id` IN (SELECT `parent-uri-id` FROM `post-user-view` WHERE (`contact-id` = ? AND `gravity` = ? AND `vid` = ? AND `uid` = ?)))",
-				self::$groupContactId, self::$groupContactId, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), $this->session->getLocalUserId()]);
+				$this->groupContactId, $this->groupContactId, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), $this->session->getLocalUserId()]);
 		}
 
 		// Currently only the order modes "received" and "commented" are in use
@@ -402,7 +402,7 @@ class Network extends Timeline
 			$conditionStrings = DBA::mergeConditions($conditionStrings, ['uri-id' => $this->itemUriId]);
 		} else {
 			if (isset($this->maxId)) {
-				switch (self::$order) {
+				switch ($this->order) {
 					case 'received':
 						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` < ?", $this->maxId]);
 						break;
@@ -419,7 +419,7 @@ class Network extends Timeline
 			}
 
 			if (isset($this->minId)) {
-				switch (self::$order) {
+				switch ($this->order) {
 					case 'received':
 						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` > ?", $this->minId]);
 						break;
@@ -442,9 +442,9 @@ class Network extends Timeline
 			// min_id quirk: querying in reverse order with min_id gets the most recent rows, regardless of how close
 			// they are to min_id. We change the query ordering to get the expected data, and we need to reverse the
 			// order of the results.
-			$params['order'] = [self::$order => false];
+			$params['order'] = [$this->order => false];
 		} else {
-			$params['order'] = [self::$order => true];
+			$params['order'] = [$this->order => true];
 		}
 
 		$items = DBA::selectToArray('network-thread-view', [], DBA::mergeConditions($conditionFields, $conditionStrings), $params);
@@ -463,7 +463,7 @@ class Network extends Timeline
 		// We aren't going to try and figure out at the item, circle, and page
 		// level which items you've seen and which you haven't. If you're looking
 		// at the top level network page just mark everything seen.
-		if (!self::$circleId && !self::$groupContactId && !self::$star && !self::$mention) {
+		if (!$this->circleId && !$this->groupContactId && !$this->star && !$this->mention) {
 			$condition = ['unseen' => true, 'uid' => $this->session->getLocalUserId()];
 			$this->setItemsSeenByCondition($condition);
 		} elseif (!empty($parents)) {
