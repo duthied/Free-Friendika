@@ -95,21 +95,21 @@ class Channel extends Timeline
 
 			Nav::setSelected('channel');
 
-			$this->page['aside'] .= Widget::accountTypes('channel/' . self::$selectedTab, self::$accountTypeString);
+			$this->page['aside'] .= Widget::accountTypes('channel/' . $this->selectedTab, $this->accountTypeString);
 
-			if (!in_array(self::$selectedTab, [TimelineEntity::FOLLOWERS, TimelineEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
+			if (!in_array($this->selectedTab, [TimelineEntity::FOLLOWERS, TimelineEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
 				$this->page['aside'] .= $this->getNoSharerWidget('channel');
 			}
 
 			if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
-				$this->page['aside'] .= TrendingTags::getHTML(self::$selectedTab);
+				$this->page['aside'] .= TrendingTags::getHTML($this->selectedTab);
 			}
 
 			// We need the editor here to be able to reshare an item.
 			$o .= $this->conversation->statusEditor([], 0, true);
 		}
 
-		if ($this->timeline->isChannel(self::$selectedTab)) {
+		if ($this->timeline->isChannel($this->selectedTab)) {
 			$items = $this->getChannelItems();
 			$order = 'created';
 		} else {
@@ -129,7 +129,7 @@ class Channel extends Timeline
 			$this->args->getQueryString(),
 			$items[0][$order],
 			$items[count($items) - 1][$order],
-			self::$itemsPerPage
+			$this->itemsPerPage
 		);
 
 		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'infinite_scroll')) {
@@ -151,14 +151,14 @@ class Channel extends Timeline
 	{
 		parent::parseRequest($request);
 
-		if (!self::$selectedTab) {
-			self::$selectedTab = TimelineEntity::FORYOU;
+		if (!$this->selectedTab) {
+			$this->selectedTab = TimelineEntity::FORYOU;
 		}
 
-		if (!$this->timeline->isChannel(self::$selectedTab) && !$this->timeline->isCommunity(self::$selectedTab)) {
+		if (!$this->timeline->isChannel($this->selectedTab) && !$this->timeline->isCommunity($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 
-		self::$max_id = $request['last_created'] ?? self::$max_id;
+		$this->max_id = $request['last_created'] ?? $this->max_id;
 	}
 }

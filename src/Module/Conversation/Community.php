@@ -58,7 +58,7 @@ class Community extends Timeline
 	const GLOBAL           = 1;
 	const LOCAL_AND_GLOBAL = 2;
 
-	protected static $page_style;
+	protected $pageStyle;
 
 	/** @var TimelineFactory */
 	protected $timeline;
@@ -87,7 +87,7 @@ class Community extends Timeline
 		$o = Renderer::replaceMacros($t, [
 			'$content' => '',
 			'$header' => '',
-			'$show_global_community_hint' => (self::$selectedTab == TimelineEntity::GLOBAL) && $this->config->get('system', 'show_global_community_hint'),
+			'$show_global_community_hint' => ($this->selectedTab == TimelineEntity::GLOBAL) && $this->config->get('system', 'show_global_community_hint'),
 			'$global_community_hint' => $this->l10n->t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
 		]);
 
@@ -103,14 +103,14 @@ class Community extends Timeline
 
 			Nav::setSelected('community');
 
-			$this->page['aside'] .= Widget::accountTypes('community/' . self::$selectedTab, self::$accountTypeString);
+			$this->page['aside'] .= Widget::accountTypes('community/' . $this->selectedTab, $this->accountTypeString);
 
 			if ($this->session->getLocalUserId() && $this->config->get('system', 'community_no_sharer')) {
 				$this->page['aside'] .= $this->getNoSharerWidget('community');
 			}
 
 			if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
-				$this->page['aside'] .= TrendingTags::getHTML(self::$selectedTab);
+				$this->page['aside'] .= TrendingTags::getHTML($this->selectedTab);
 			}
 
 			// We need the editor here to be able to reshare an item.
@@ -133,7 +133,7 @@ class Community extends Timeline
 			$this->args->getQueryString(),
 			$items[0]['commented'],
 			$items[count($items) - 1]['commented'],
-			self::$itemsPerPage
+			$this->itemsPerPage
 		);
 
 		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'infinite_scroll')) {
@@ -159,36 +159,36 @@ class Community extends Timeline
 			throw new HTTPException\ForbiddenException($this->l10n->t('Public access denied.'));
 		}
 
-		self::$page_style = $this->config->get('system', 'community_page_style');
+		$this->pageStyle = $this->config->get('system', 'community_page_style');
 
-		if (self::$page_style == self::DISABLED) {
+		if ($this->pageStyle == self::DISABLED) {
 			throw new HTTPException\ForbiddenException($this->l10n->t('Access denied.'));
 		}
 
-		if (!self::$selectedTab) {
+		if (!$this->selectedTab) {
 			if (!empty($this->config->get('system', 'singleuser'))) {
 				// On single user systems only the global page does make sense
-				self::$selectedTab = TimelineEntity::GLOBAL;
+				$this->selectedTab = TimelineEntity::GLOBAL;
 			} else {
 				// When only the global community is allowed, we use this as default
-				self::$selectedTab = self::$page_style == self::GLOBAL ? TimelineEntity::GLOBAL : TimelineEntity::LOCAL;
+				$this->selectedTab = $this->pageStyle == self::GLOBAL ? TimelineEntity::GLOBAL : TimelineEntity::LOCAL;
 			}
 		}
 
-		if (!$this->timeline->isCommunity(self::$selectedTab)) {
+		if (!$this->timeline->isCommunity($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Community option not available.'));
 		}
 
 		// Check if we are allowed to display the content to visitors
 		if (!$this->session->isAuthenticated()) {
-			$available = self::$page_style == self::LOCAL_AND_GLOBAL;
+			$available = $this->pageStyle == self::LOCAL_AND_GLOBAL;
 
 			if (!$available) {
-				$available = (self::$page_style == self::LOCAL) && (self::$selectedTab == TimelineEntity::LOCAL);
+				$available = ($this->pageStyle == self::LOCAL) && ($this->selectedTab == TimelineEntity::LOCAL);
 			}
 
 			if (!$available) {
-				$available = (self::$page_style == self::GLOBAL) && (self::$selectedTab == TimelineEntity::GLOBAL);
+				$available = ($this->pageStyle == self::GLOBAL) && ($this->selectedTab == TimelineEntity::GLOBAL);
 			}
 
 			if (!$available) {
@@ -196,6 +196,6 @@ class Community extends Timeline
 			}
 		}
 
-		self::$max_id = $request['last_commented'] ?? self::$max_id;
+		$this->max_id = $request['last_commented'] ?? $this->max_id;
 	}
 }

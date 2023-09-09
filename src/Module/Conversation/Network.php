@@ -116,30 +116,30 @@ class Network extends Timeline
 
 		$module = 'network';
 
-		$this->page['aside'] .= Widget::accountTypes($module, self::$accountTypeString);
+		$this->page['aside'] .= Widget::accountTypes($module, $this->accountTypeString);
 
 		$arr = ['query' => $this->args->getQueryString()];
 		Hook::callAll('network_content_init', $arr);
 
 		$o = '';
 
-		if ($this->timeline->isChannel(self::$selectedTab)) {
-			if (!in_array(self::$selectedTab, [TimelineEntity::FOLLOWERS, TimelineEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
+		if ($this->timeline->isChannel($this->selectedTab)) {
+			if (!in_array($this->selectedTab, [TimelineEntity::FOLLOWERS, TimelineEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
 				$this->page['aside'] .= $this->getNoSharerWidget($module);
 			}
 
 			if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
-				$this->page['aside'] .= TrendingTags::getHTML(self::$selectedTab);
+				$this->page['aside'] .= TrendingTags::getHTML($this->selectedTab);
 			}
 
 			$items = $this->getChannelItems();
-		} elseif ($this->timeline->isCommunity(self::$selectedTab)) {
+		} elseif ($this->timeline->isCommunity($this->selectedTab)) {
 			if ($this->session->getLocalUserId() && $this->config->get('system', 'community_no_sharer')) {
 				$this->page['aside'] .= $this->getNoSharerWidget($module);
 			}
 
 			if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
-				$this->page['aside'] .= TrendingTags::getHTML(self::$selectedTab);
+				$this->page['aside'] .= TrendingTags::getHTML($this->selectedTab);
 			}
 
 			$items = $this->getCommunityItems();
@@ -152,7 +152,7 @@ class Network extends Timeline
 			$this->page['aside'] .= Widget::fileAs('filed', '');
 
 			// Fetch a page full of parent items for this page
-			$params = ['limit' => self::$itemsPerPage];
+			$params = ['limit' => $this->itemsPerPage];
 			$table = 'network-thread-view';
 
 			$items = $this->getItems($table, $params);
@@ -260,7 +260,7 @@ class Network extends Timeline
 				$this->args->getQueryString(),
 				$items[0][self::$order] ?? null,
 				$items[count($items) - 1][self::$order] ?? null,
-				self::$itemsPerPage
+				$this->itemsPerPage
 			);
 
 			$o .= $pager->renderMinimal(count($items));
@@ -316,51 +316,51 @@ class Network extends Timeline
 
 		self::$groupContactId = (int)($this->parameters['contact_id'] ?? 0);
 
-		if (!self::$selectedTab) {
-			self::$selectedTab = self::getTimelineOrderBySession(DI::userSession(), $this->pConfig);
-		} elseif (!$this->timeline->isChannel(self::$selectedTab) && !$this->timeline->isCommunity(self::$selectedTab)) {
+		if (!$this->selectedTab) {
+			$this->selectedTab = self::getTimelineOrderBySession(DI::userSession(), $this->pConfig);
+		} elseif (!$this->timeline->isChannel($this->selectedTab) && !$this->timeline->isCommunity($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
 		}
 
 
 		if (!empty($request['star'])) {
-			self::$selectedTab = TimelineEntity::STAR;
+			$this->selectedTab = TimelineEntity::STAR;
 			self::$star = true;
 		} else {
-			self::$star = self::$selectedTab == TimelineEntity::STAR;
+			self::$star = $this->selectedTab == TimelineEntity::STAR;
 		}
 
 		if (!empty($request['mention'])) {
-			self::$selectedTab = TimelineEntity::MENTION;
+			$this->selectedTab = TimelineEntity::MENTION;
 			self::$mention = true;
 		} else {
-			self::$mention = self::$selectedTab == TimelineEntity::MENTION;
+			self::$mention = $this->selectedTab == TimelineEntity::MENTION;
 		}
 
 		if (!empty($request['order'])) {
-			self::$selectedTab = $request['order'];
+			$this->selectedTab = $request['order'];
 			self::$order = $request['order'];
 			self::$star = false;
 			self::$mention = false;
-		} elseif (in_array(self::$selectedTab, [TimelineEntity::RECEIVED, TimelineEntity::STAR])) {
+		} elseif (in_array($this->selectedTab, [TimelineEntity::RECEIVED, TimelineEntity::STAR])) {
 			self::$order = 'received';
-		} elseif ((self::$selectedTab == TimelineEntity::CREATED) || $this->timeline->isChannel(self::$selectedTab)) {
+		} elseif (($this->selectedTab == TimelineEntity::CREATED) || $this->timeline->isChannel($this->selectedTab)) {
 			self::$order = 'created';
 		} else {
 			self::$order = 'commented';
 		}
 
-		self::$selectedTab = self::$selectedTab ?? self::$order;
+		$this->selectedTab = $this->selectedTab ?? self::$order;
 
 		// Prohibit combined usage of "star" and "mention"
-		if (self::$selectedTab == TimelineEntity::STAR) {
+		if ($this->selectedTab == TimelineEntity::STAR) {
 			self::$mention = false;
-		} elseif (self::$selectedTab == TimelineEntity::MENTION) {
+		} elseif ($this->selectedTab == TimelineEntity::MENTION) {
 			self::$star = false;
 		}
 
-		$this->session->set('network-tab', self::$selectedTab);
-		$this->pConfig->set($this->session->getLocalUserId(), 'network.view', 'selected_tab', self::$selectedTab);
+		$this->session->set('network-tab', $this->selectedTab);
+		$this->pConfig->set($this->session->getLocalUserId(), 'network.view', 'selected_tab', $this->selectedTab);
 
 		self::$network = $request['nets'] ?? '';
 
@@ -369,17 +369,17 @@ class Network extends Timeline
 
 		switch (self::$order) {
 			case 'received':
-				self::$max_id = $request['last_received'] ?? self::$max_id;
+				$this->max_id = $request['last_received'] ?? $this->max_id;
 				break;
 			case 'created':
-				self::$max_id = $request['last_created'] ?? self::$max_id;
+				$this->max_id = $request['last_created'] ?? $this->max_id;
 				break;
 			case 'uriid':
-				self::$max_id = $request['last_uriid'] ?? self::$max_id;
+				$this->max_id = $request['last_uriid'] ?? $this->max_id;
 				break;
 			default:
 				self::$order = 'commented';
-				self::$max_id = $request['last_commented'] ?? self::$max_id;
+				$this->max_id = $request['last_commented'] ?? $this->max_id;
 		}
 	}
 
@@ -388,8 +388,8 @@ class Network extends Timeline
 		$conditionFields['uid'] = $this->session->getLocalUserId();
 		$conditionStrings = [];
 
-		if (!is_null(self::$accountType)) {
-			$conditionFields['contact-type'] = self::$accountType;
+		if (!is_null($this->accountType)) {
+			$conditionFields['contact-type'] = $this->accountType;
 		}
 
 		if (self::$star) {
@@ -418,45 +418,45 @@ class Network extends Timeline
 		}
 
 		// Currently only the order modes "received" and "commented" are in use
-		if (!empty(self::$item_uri_id)) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings, ['uri-id' => self::$item_uri_id]);
+		if (!empty($this->itemUriId)) {
+			$conditionStrings = DBA::mergeConditions($conditionStrings, ['uri-id' => $this->itemUriId]);
 		} else {
-			if (isset(self::$max_id)) {
+			if (isset($this->max_id)) {
 				switch (self::$order) {
 					case 'received':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` < ?", self::$max_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` < ?", $this->max_id]);
 						break;
 					case 'commented':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` < ?", self::$max_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` < ?", $this->max_id]);
 						break;
 					case 'created':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` < ?", self::$max_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` < ?", $this->max_id]);
 						break;
 					case 'uriid':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` < ?", self::$max_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` < ?", $this->max_id]);
 						break;
 				}
 			}
 
-			if (isset(self::$min_id)) {
+			if (isset($this->min_id)) {
 				switch (self::$order) {
 					case 'received':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` > ?", self::$min_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` > ?", $this->min_id]);
 						break;
 					case 'commented':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` > ?", self::$min_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` > ?", $this->min_id]);
 						break;
 					case 'created':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` > ?", self::$min_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` > ?", $this->min_id]);
 						break;
 					case 'uriid':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` > ?", self::$min_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` > ?", $this->min_id]);
 						break;
 				}
 			}
 		}
 
-		if (isset(self::$min_id) && !isset(self::$max_id)) {
+		if (isset($this->min_id) && !isset($this->max_id)) {
 			// min_id quirk: querying in reverse order with min_id gets the most recent rows, regardless of how close
 			// they are to min_id. We change the query ordering to get the expected data, and we need to reverse the
 			// order of the results.
@@ -468,7 +468,7 @@ class Network extends Timeline
 		$items = DBA::selectToArray($table, [], DBA::mergeConditions($conditionFields, $conditionStrings), $params);
 
 		// min_id quirk, continued
-		if (isset(self::$min_id) && !isset(self::$max_id)) {
+		if (isset($this->min_id) && !isset($this->max_id)) {
 			$items = array_reverse($items);
 		}
 

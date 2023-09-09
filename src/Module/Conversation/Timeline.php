@@ -47,23 +47,21 @@ use Psr\Log\LoggerInterface;
 class Timeline extends BaseModule
 {
 	/** @var string */
-	protected static $selectedTab;
+	protected $selectedTab;
 	/** @var mixed */
-	protected static $min_id;
+	protected $min_id;
 	/** @var mixed */
-	protected static $max_id;
+	protected $max_id;
 	/** @var string */
-	protected static $accountTypeString;
+	protected $accountTypeString;
 	/** @var int */
-	protected static $accountType;
+	protected $accountType;
 	/** @var int */
-	protected static $item_id;
+	protected $itemUriId;
 	/** @var int */
-	protected static $item_uri_id;
-	/** @var int */
-	protected static $itemsPerPage;
+	protected $itemsPerPage;
 	/** @var bool */
-	protected static $no_sharer;
+	protected $noSharer;
 
 	/** @var App\Mode $mode */
 	protected $mode;
@@ -99,20 +97,20 @@ class Timeline extends BaseModule
 	protected function parseRequest(array $request)
 	{
 		$this->logger->debug('Got request', $request);
-		self::$selectedTab = $this->parameters['content'] ?? '';
+		$this->selectedTab = $this->parameters['content'] ?? '';
 
-		self::$accountTypeString = $request['accounttype'] ?? $this->parameters['accounttype'] ?? '';
-		self::$accountType       = User::getAccountTypeByString(self::$accountTypeString);
+		$this->accountTypeString = $request['accounttype'] ?? $this->parameters['accounttype'] ?? '';
+		$this->accountType       = User::getAccountTypeByString($this->accountTypeString);
 
 		if ($this->mode->isMobile()) {
-			self::$itemsPerPage = $this->pConfig->get(
+			$this->itemsPerPage = $this->pConfig->get(
 				$this->session->getLocalUserId(),
 				'system',
 				'itemspage_mobile_network',
 				$this->config->get('system', 'itemspage_network_mobile')
 			);
 		} else {
-			self::$itemsPerPage = $this->pConfig->get(
+			$this->itemsPerPage = $this->pConfig->get(
 				$this->session->getLocalUserId(),
 				'system',
 				'itemspage_network',
@@ -122,32 +120,30 @@ class Timeline extends BaseModule
 
 		if (!empty($request['item'])) {
 			$item = Post::selectFirst(['parent', 'parent-uri-id'], ['id' => $request['item']]);
-			self::$item_id     = $item['parent'] ?? 0;
-			self::$item_uri_id = $item['parent-uri-id'] ?? 0;
+			$this->itemUriId = $item['parent-uri-id'] ?? 0;
 		} else {
-			self::$item_id     = 0;
-			self::$item_uri_id = 0;
+			$this->itemUriId = 0;
 		}
 
-		self::$min_id = $request['min_id'] ?? null;
-		self::$max_id = $request['max_id'] ?? null;
+		$this->min_id = $request['min_id'] ?? null;
+		$this->max_id = $request['max_id'] ?? null;
 
-		self::$no_sharer = !empty($request['no_sharer']);
+		$this->noSharer = !empty($request['no_sharer']);
 	}
 
 	protected function getNoSharerWidget(string $base): string
 	{
-		$path = self::$selectedTab;
-		if (!empty(self::$accountTypeString)) {
-			$path .= '/' . self::$accountTypeString;
+		$path = $this->selectedTab;
+		if (!empty($this->accountTypeString)) {
+			$path .= '/' . $this->accountTypeString;
 		}
 		$query_parameters = [];
 
-		if (!empty(self::$min_id)) {
-			$query_parameters['min_id'] = self::$min_id;
+		if (!empty($this->min_id)) {
+			$query_parameters['min_id'] = $this->min_id;
 		}
-		if (!empty(self::$max_id)) {
-			$query_parameters['max_id'] = self::$max_id;
+		if (!empty($this->max_id)) {
+			$query_parameters['max_id'] = $this->max_id;
 		}
 
 		$path_all       = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
@@ -156,7 +152,7 @@ class Timeline extends BaseModule
 			'$title'           => $this->l10n->t('Own Contacts'),
 			'$path_all'        => $path_all,
 			'$path_no_sharer'  => $path_no_sharer,
-			'$no_sharer'       => self::$no_sharer,
+			'$no_sharer'       => $this->noSharer,
 			'$all'             => $this->l10n->t('Include'),
 			'$no_sharer_label' => $this->l10n->t('Hide'),
 			'$base'            => $base,
@@ -171,7 +167,7 @@ class Timeline extends BaseModule
 			$tabs[] = [
 				'label'     => $tab->label,
 				'url'       => $tab->path ?? $prefix . '/' . $tab->code,
-				'sel'       => self::$selectedTab == $tab->code ? 'active' : '',
+				'sel'       => $this->selectedTab == $tab->code ? 'active' : '',
 				'title'     => $tab->description,
 				'id'        => $prefix . '-' . $tab->code . '-tab',
 				'accesskey' => $tab->accessKey,
@@ -190,13 +186,13 @@ class Timeline extends BaseModule
 	{
 		$uid = $this->session->getLocalUserId();
 
-		if (self::$selectedTab == TimelineEntity::WHATSHOT) {
-			if (!is_null(self::$accountType)) {
-				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), self::$accountType];
+		if ($this->selectedTab == TimelineEntity::WHATSHOT) {
+			if (!is_null($this->accountType)) {
+				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $this->accountType];
 			} else {
 				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), Contact::TYPE_COMMUNITY];
 			}
-		} elseif (self::$selectedTab == TimelineEntity::FORYOU) {
+		} elseif ($this->selectedTab == TimelineEntity::FORYOU) {
 			$cid = Contact::getPublicIdByUserId($uid);
 
 			$condition = [
@@ -206,9 +202,9 @@ class Timeline extends BaseModule
 				$cid, $this->getMedianRelationThreadScore($cid, 4), $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $cid,
 				$uid, Contact::FRIEND, Contact::SHARING
 			];
-		} elseif (self::$selectedTab == TimelineEntity::FOLLOWERS) {
+		} elseif ($this->selectedTab == TimelineEntity::FOLLOWERS) {
 			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $uid, Contact::FOLLOWER];
-		} elseif (self::$selectedTab == TimelineEntity::SHARERSOFSHARERS) {
+		} elseif ($this->selectedTab == TimelineEntity::SHARERSOFSHARERS) {
 			$cid = Contact::getPublicIdByUserId($uid);
 
 			// @todo Suggest posts from contacts that are followed most by our followers
@@ -218,44 +214,44 @@ class Timeline extends BaseModule
 				AND NOT `cid` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ?))",
 				DateTimeFormat::utc('now - ' . $this->config->get('channel', 'sharer_interaction_days') . ' day'), $cid, $this->getMedianRelationThreadScore($cid, 4), $cid
 			];
-		} elseif (self::$selectedTab == TimelineEntity::IMAGE) {
+		} elseif ($this->selectedTab == TimelineEntity::IMAGE) {
 			$condition = ["`media-type` & ?", 1];
-		} elseif (self::$selectedTab == TimelineEntity::VIDEO) {
+		} elseif ($this->selectedTab == TimelineEntity::VIDEO) {
 			$condition = ["`media-type` & ?", 2];
-		} elseif (self::$selectedTab == TimelineEntity::AUDIO) {
+		} elseif ($this->selectedTab == TimelineEntity::AUDIO) {
 			$condition = ["`media-type` & ?", 4];
-		} elseif (self::$selectedTab == TimelineEntity::LANGUAGE) {
+		} elseif ($this->selectedTab == TimelineEntity::LANGUAGE) {
 			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", $this->l10n->convertCodeForLanguageDetection(User::getLanguageCode($uid))];
 		}
 
-		if (self::$selectedTab != TimelineEntity::LANGUAGE) {
+		if ($this->selectedTab != TimelineEntity::LANGUAGE) {
 			$condition = $this->addLanguageCondition($uid, $condition);
 		}
 
 		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))", $uid]);
 
-		if ((self::$selectedTab != TimelineEntity::WHATSHOT) && !is_null(self::$accountType)) {
-			$condition = DBA::mergeConditions($condition, ['contact-type' => self::$accountType]);
+		if (($this->selectedTab != TimelineEntity::WHATSHOT) && !is_null($this->accountType)) {
+			$condition = DBA::mergeConditions($condition, ['contact-type' => $this->accountType]);
 		}
 
-		$params = ['order' => ['created' => true], 'limit' => self::$itemsPerPage];
+		$params = ['order' => ['created' => true], 'limit' => $this->itemsPerPage];
 
-		if (!empty(self::$item_uri_id)) {
-			$condition = DBA::mergeConditions($condition, ['uri-id' => self::$item_uri_id]);
+		if (!empty($this->itemUriId)) {
+			$condition = DBA::mergeConditions($condition, ['uri-id' => $this->itemUriId]);
 		} else {
-			if (self::$no_sharer) {
+			if ($this->noSharer) {
 				$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-engagement`.`uri-id`)", $this->session->getLocalUserId()]);
 			}
 
-			if (isset(self::$max_id)) {
-				$condition = DBA::mergeConditions($condition, ["`created` < ?", self::$max_id]);
+			if (isset($this->max_id)) {
+				$condition = DBA::mergeConditions($condition, ["`created` < ?", $this->max_id]);
 			}
 
-			if (isset(self::$min_id)) {
-				$condition = DBA::mergeConditions($condition, ["`created` > ?", self::$min_id]);
+			if (isset($this->min_id)) {
+				$condition = DBA::mergeConditions($condition, ["`created` > ?", $this->min_id]);
 
 				// Previous page case: we want the items closest to min_id but for that we need to reverse the query order
-				if (!isset(self::$max_id)) {
+				if (!isset($this->max_id)) {
 					$params['order']['created'] = false;
 				}
 			}
@@ -267,7 +263,7 @@ class Timeline extends BaseModule
 		}
 
 		// Previous page case: once we get the relevant items closest to min_id, we need to restore the expected display order
-		if (empty(self::$item_uri_id) && isset(self::$min_id) && !isset(self::$max_id)) {
+		if (empty($this->itemUriId) && isset($this->min_id) && !isset($this->max_id)) {
 			$items = array_reverse($items);
 		}
 
@@ -375,13 +371,13 @@ class Timeline extends BaseModule
 		$items = $this->selectItems();
 
 		$maxpostperauthor = (int) $this->config->get('system', 'max_author_posts_community_page');
-		if ($maxpostperauthor != 0 && self::$selectedTab == 'local') {
+		if ($maxpostperauthor != 0 && $this->selectedTab == 'local') {
 			$count          = 1;
 			$previousauthor = '';
 			$numposts       = 0;
 			$selected_items = [];
 
-			while (count($selected_items) < self::$itemsPerPage && ++$count < 50 && count($items) > 0) {
+			while (count($selected_items) < $this->itemsPerPage && ++$count < 50 && count($items) > 0) {
 				foreach ($items as $item) {
 					if ($previousauthor == $item["author-link"]) {
 						++$numposts;
@@ -390,18 +386,18 @@ class Timeline extends BaseModule
 					}
 					$previousauthor = $item["author-link"];
 
-					if (($numposts < $maxpostperauthor) && (count($selected_items) < self::$itemsPerPage)) {
+					if (($numposts < $maxpostperauthor) && (count($selected_items) < $this->itemsPerPage)) {
 						$selected_items[] = $item;
 					}
 				}
 
 				// If we're looking at a "previous page", the lookup continues forward in time because the list is
 				// sorted in chronologically decreasing order
-				if (isset(self::$min_id)) {
-					self::$min_id = $items[0]['commented'];
+				if (isset($this->min_id)) {
+					$this->min_id = $items[0]['commented'];
 				} else {
 					// In any other case, the lookup continues backwards in time
-					self::$max_id = $items[count($items) - 1]['commented'];
+					$this->max_id = $items[count($items) - 1]['commented'];
 				}
 
 				$items = $this->selectItems();
@@ -422,15 +418,15 @@ class Timeline extends BaseModule
 	 */
 	private function selectItems()
 	{
-		if (self::$selectedTab == 'local') {
-			if (!is_null(self::$accountType)) {
-				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner-contact-type` = ?", Item::PUBLIC, self::$accountType];
+		if ($this->selectedTab == 'local') {
+			if (!is_null($this->accountType)) {
+				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner-contact-type` = ?", Item::PUBLIC, $this->accountType];
 			} else {
 				$condition = ["`wall` AND `origin` AND `private` = ?", Item::PUBLIC];
 			}
-		} elseif (self::$selectedTab == 'global') {
-			if (!is_null(self::$accountType)) {
-				$condition = ["`uid` = ? AND `private` = ? AND `owner-contact-type` = ?", 0, Item::PUBLIC, self::$accountType];
+		} elseif ($this->selectedTab == 'global') {
+			if (!is_null($this->accountType)) {
+				$condition = ["`uid` = ? AND `private` = ? AND `owner-contact-type` = ?", 0, Item::PUBLIC, $this->accountType];
 			} else {
 				$condition = ["`uid` = ? AND `private` = ?", 0, Item::PUBLIC];
 			}
@@ -438,24 +434,24 @@ class Timeline extends BaseModule
 			return [];
 		}
 
-		$params = ['order' => ['commented' => true], 'limit' => self::$itemsPerPage];
+		$params = ['order' => ['commented' => true], 'limit' => $this->itemsPerPage];
 
-		if (!empty(self::$item_uri_id)) {
-			$condition = DBA::mergeConditions($condition, ['uri-id' => self::$item_uri_id]);
+		if (!empty($this->itemUriId)) {
+			$condition = DBA::mergeConditions($condition, ['uri-id' => $this->itemUriId]);
 		} else {
-			if ($this->session->getLocalUserId() && self::$no_sharer) {
+			if ($this->session->getLocalUserId() && $this->noSharer) {
 				$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-thread-user-view`.`uri-id`)", $this->session->getLocalUserId()]);
 			}
 
-			if (isset(self::$max_id)) {
-				$condition = DBA::mergeConditions($condition, ["`commented` < ?", self::$max_id]);
+			if (isset($this->max_id)) {
+				$condition = DBA::mergeConditions($condition, ["`commented` < ?", $this->max_id]);
 			}
 
-			if (isset(self::$min_id)) {
-				$condition = DBA::mergeConditions($condition, ["`commented` > ?", self::$min_id]);
+			if (isset($this->min_id)) {
+				$condition = DBA::mergeConditions($condition, ["`commented` > ?", $this->min_id]);
 
 				// Previous page case: we want the items closest to min_id but for that we need to reverse the query order
-				if (!isset(self::$max_id)) {
+				if (!isset($this->max_id)) {
 					$params['order']['commented'] = false;
 				}
 			}
@@ -469,7 +465,7 @@ class Timeline extends BaseModule
 		}
 
 		// Previous page case: once we get the relevant items closest to min_id, we need to restore the expected display order
-		if (empty(self::$item_uri_id) && isset(self::$min_id) && !isset(self::$max_id)) {
+		if (empty($this->itemUriId) && isset($this->min_id) && !isset($this->max_id)) {
 			$items = array_reverse($items);
 		}
 
