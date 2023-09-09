@@ -75,6 +75,24 @@
 			</div>
 
 			<div class="panel">
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="timeline-settings-title">
+					<h2>
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#timeline-settings-content" aria-expanded="false" aria-controls="timeline-settings-content">
+							{{$timeline_title}}
+						</button>
+					</h2>
+				</div>
+				<div id="timeline-settings-content" class="panel-collapse collapse{{if !$theme && !$mobile_theme && !$theme_config}} in{{/if}}" role="tabpanel" aria-labelledby="timeline-settings">
+					<div class="panel-body">
+						{{include file="field_select.tpl" field=$network_timelines}}
+					</div>
+					<div class="panel-footer">
+						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+					</div>
+				</div>
+			</div>
+		
+			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="channel-settings-title">
 					<h2>
 						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#channel-settings-content" aria-expanded="false" aria-controls="channel-settings-content">

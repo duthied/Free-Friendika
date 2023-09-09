@@ -21,6 +21,9 @@
 	{{include file="field_checkbox.tpl" field=$stay_local}}
 	{{include file="field_select.tpl" field=$preview_mode}}
 
+	<h2>{{$timeline_title}}</h2>
+	{{include file="field_select.tpl" field=$network_timelines}}
+
 	<h2>{{$channel_title}}</h2>
 	{{include file="field_select.tpl" field=$channel_languages}}
 

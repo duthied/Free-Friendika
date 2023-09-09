@@ -280,12 +280,30 @@ class Network extends Timeline
 		// @todo user confgurable selection of tabs
 		$tabs = $this->getTabArray($this->timeline->getNetworkFeeds($this->args->getCommand()), 'network');
 
+		$network_timelines = $this->pConfig->get($this->session->getLocalUserId(), 'system', 'network_timelines', []);
+		if (!empty($network_timelines)) {
+			$tabs = array_merge($tabs, $this->getTabArray($this->timeline->getChannelsForUser($this->session->getLocalUserId()), 'network', 'channel'));
+			$tabs = array_merge($tabs, $this->getTabArray($this->timeline->getCommunities(true), 'network', 'channel'));
+		}
+
 		$arr = ['tabs' => $tabs];
 		Hook::callAll('network_tabs', $arr);
 
+		if (!empty($network_timelines)) {
+			$tabs = [];
+			
+			foreach (array_keys($arr['tabs']) as $tab) {
+				if (in_array($tab, $network_timelines)) {
+					$tabs[] = $arr['tabs'][$tab];
+				}
+			}
+		} else {
+			$tabs = $arr['tabs'];
+		}
+
 		$tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 
-		return Renderer::replaceMacros($tpl, ['$tabs' => $arr['tabs']]);
+		return Renderer::replaceMacros($tpl, ['$tabs' => $tabs]);
 	}
 
 	protected function parseRequest(array $request)
@@ -301,7 +319,6 @@ class Network extends Timeline
 		} elseif (!$this->timeline->isChannel($this->selectedTab) && !$this->timeline->isCommunity($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
 		}
-
 
 		if (!empty($request['star'])) {
 			$this->selectedTab = TimelineEntity::STAR;

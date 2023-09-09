@@ -97,7 +97,7 @@ class Timeline extends BaseModule
 	protected function parseRequest(array $request)
 	{
 		$this->logger->debug('Got request', $request);
-		$this->selectedTab = $this->parameters['content'] ?? '';
+		$this->selectedTab = $this->parameters['content'] ?? $request['channel'] ?? '';
 
 		$this->accountTypeString = $request['accounttype'] ?? $this->parameters['accounttype'] ?? '';
 		$this->accountType       = User::getAccountTypeByString($this->accountTypeString);
@@ -159,14 +159,19 @@ class Timeline extends BaseModule
 		]);
 	}
 
-	protected function getTabArray(Timelines $timelines, string $prefix): array
+	protected function getTabArray(Timelines $timelines, string $prefix, string $parameter = ''): array
 	{
 		$tabs = [];
 
 		foreach ($timelines as $tab) {
-			$tabs[] = [
+			if (is_null($tab->path) && !empty($parameter)) {
+				$path = $prefix . '?' . http_build_query([$parameter => $tab->code]);
+			} else {
+				$path = $tab->path ?? $prefix . '/' . $tab->code;
+			}
+			$tabs[$tab->code] = [
 				'label'     => $tab->label,
-				'url'       => $tab->path ?? $prefix . '/' . $tab->code,
+				'url'       => $path,
 				'sel'       => $this->selectedTab == $tab->code ? 'active' : '',
 				'title'     => $tab->description,
 				'id'        => $prefix . '-' . $tab->code . '-tab',

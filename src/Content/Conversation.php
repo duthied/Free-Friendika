@@ -495,6 +495,7 @@ class Conversation
 					. (!empty($_GET['cmin'])      ? '&cmin='      . rawurlencode($_GET['cmin'])      : '')
 					. (!empty($_GET['cmax'])      ? '&cmax='      . rawurlencode($_GET['cmax'])      : '')
 					. (!empty($_GET['file'])      ? '&file='      . rawurlencode($_GET['file'])      : '')
+					. (!empty($_GET['channel'])   ? '&channel='   . rawurlencode($_GET['channel'])   : '')
 					. (!empty($_GET['no_sharer']) ? '&no_sharer=' . rawurlencode($_GET['no_sharer']) : '')
 					. (!empty($_GET['accounttype']) ? '&accounttype=' . rawurlencode($_GET['accounttype']) : '')
 					. "'; </script>\r\n";

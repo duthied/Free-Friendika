@@ -43,7 +43,15 @@ class Network extends NetworkModule
 			System::htmlUpdateExit($o);
 		}
 
-		$o = $this->conversation->render($this->getItems(), Conversation::MODE_NETWORK, $profile_uid, false, $this->getOrder(), $this->session->getLocalUserId());
+		if ($this->timeline->isChannel($this->selectedTab)) {
+			$items = $this->getChannelItems();
+		} elseif ($this->timeline->isCommunity($this->selectedTab)) {
+			$items = $this->getCommunityItems();
+		} else {
+			$items = $this->getItems();
+		}
+
+		$o = $this->conversation->render($items, Conversation::MODE_NETWORK, $profile_uid, false, $this->getOrder(), $this->session->getLocalUserId());
 
 		System::htmlUpdateExit($o);
 	}
