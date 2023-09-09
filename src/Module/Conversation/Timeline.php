@@ -49,9 +49,9 @@ class Timeline extends BaseModule
 	/** @var string */
 	protected $selectedTab;
 	/** @var mixed */
-	protected $min_id;
+	protected $minId;
 	/** @var mixed */
-	protected $max_id;
+	protected $maxId;
 	/** @var string */
 	protected $accountTypeString;
 	/** @var int */
@@ -119,14 +119,14 @@ class Timeline extends BaseModule
 		}
 
 		if (!empty($request['item'])) {
-			$item = Post::selectFirst(['parent', 'parent-uri-id'], ['id' => $request['item']]);
+			$item            = Post::selectFirst(['parent', 'parent-uri-id'], ['id' => $request['item']]);
 			$this->itemUriId = $item['parent-uri-id'] ?? 0;
 		} else {
 			$this->itemUriId = 0;
 		}
 
-		$this->min_id = $request['min_id'] ?? null;
-		$this->max_id = $request['max_id'] ?? null;
+		$this->minId = $request['min_id'] ?? null;
+		$this->maxId = $request['max_id'] ?? null;
 
 		$this->noSharer = !empty($request['no_sharer']);
 	}
@@ -139,11 +139,11 @@ class Timeline extends BaseModule
 		}
 		$query_parameters = [];
 
-		if (!empty($this->min_id)) {
-			$query_parameters['min_id'] = $this->min_id;
+		if (!empty($this->minId)) {
+			$query_parameters['min_id'] = $this->minId;
 		}
-		if (!empty($this->max_id)) {
-			$query_parameters['max_id'] = $this->max_id;
+		if (!empty($this->maxId)) {
+			$query_parameters['max_id'] = $this->maxId;
 		}
 
 		$path_all       = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
@@ -243,15 +243,15 @@ class Timeline extends BaseModule
 				$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-engagement`.`uri-id`)", $this->session->getLocalUserId()]);
 			}
 
-			if (isset($this->max_id)) {
-				$condition = DBA::mergeConditions($condition, ["`created` < ?", $this->max_id]);
+			if (isset($this->maxId)) {
+				$condition = DBA::mergeConditions($condition, ["`created` < ?", $this->maxId]);
 			}
 
-			if (isset($this->min_id)) {
-				$condition = DBA::mergeConditions($condition, ["`created` > ?", $this->min_id]);
+			if (isset($this->minId)) {
+				$condition = DBA::mergeConditions($condition, ["`created` > ?", $this->minId]);
 
 				// Previous page case: we want the items closest to min_id but for that we need to reverse the query order
-				if (!isset($this->max_id)) {
+				if (!isset($this->maxId)) {
 					$params['order']['created'] = false;
 				}
 			}
@@ -263,7 +263,7 @@ class Timeline extends BaseModule
 		}
 
 		// Previous page case: once we get the relevant items closest to min_id, we need to restore the expected display order
-		if (empty($this->itemUriId) && isset($this->min_id) && !isset($this->max_id)) {
+		if (empty($this->itemUriId) && isset($this->minId) && !isset($this->maxId)) {
 			$items = array_reverse($items);
 		}
 
@@ -393,11 +393,11 @@ class Timeline extends BaseModule
 
 				// If we're looking at a "previous page", the lookup continues forward in time because the list is
 				// sorted in chronologically decreasing order
-				if (isset($this->min_id)) {
-					$this->min_id = $items[0]['commented'];
+				if (isset($this->minId)) {
+					$this->minId = $items[0]['commented'];
 				} else {
 					// In any other case, the lookup continues backwards in time
-					$this->max_id = $items[count($items) - 1]['commented'];
+					$this->maxId = $items[count($items) - 1]['commented'];
 				}
 
 				$items = $this->selectItems();
@@ -443,15 +443,15 @@ class Timeline extends BaseModule
 				$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-thread-user-view`.`uri-id`)", $this->session->getLocalUserId()]);
 			}
 
-			if (isset($this->max_id)) {
-				$condition = DBA::mergeConditions($condition, ["`commented` < ?", $this->max_id]);
+			if (isset($this->maxId)) {
+				$condition = DBA::mergeConditions($condition, ["`commented` < ?", $this->maxId]);
 			}
 
-			if (isset($this->min_id)) {
-				$condition = DBA::mergeConditions($condition, ["`commented` > ?", $this->min_id]);
+			if (isset($this->minId)) {
+				$condition = DBA::mergeConditions($condition, ["`commented` > ?", $this->minId]);
 
 				// Previous page case: we want the items closest to min_id but for that we need to reverse the query order
-				if (!isset($this->max_id)) {
+				if (!isset($this->maxId)) {
 					$params['order']['commented'] = false;
 				}
 			}
@@ -465,7 +465,7 @@ class Timeline extends BaseModule
 		}
 
 		// Previous page case: once we get the relevant items closest to min_id, we need to restore the expected display order
-		if (empty($this->itemUriId) && isset($this->min_id) && !isset($this->max_id)) {
+		if (empty($this->itemUriId) && isset($this->minId) && !isset($this->maxId)) {
 			$items = array_reverse($items);
 		}
 

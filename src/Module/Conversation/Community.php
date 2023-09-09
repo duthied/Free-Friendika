@@ -196,6 +196,6 @@ class Community extends Timeline
 			}
 		}
 
-		$this->max_id = $request['last_commented'] ?? $this->max_id;
+		$this->maxId = $request['last_commented'] ?? $this->maxId;
 	}
 }

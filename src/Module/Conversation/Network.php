@@ -369,17 +369,17 @@ class Network extends Timeline
 
 		switch (self::$order) {
 			case 'received':
-				$this->max_id = $request['last_received'] ?? $this->max_id;
+				$this->maxId = $request['last_received'] ?? $this->maxId;
 				break;
 			case 'created':
-				$this->max_id = $request['last_created'] ?? $this->max_id;
+				$this->maxId = $request['last_created'] ?? $this->maxId;
 				break;
 			case 'uriid':
-				$this->max_id = $request['last_uriid'] ?? $this->max_id;
+				$this->maxId = $request['last_uriid'] ?? $this->maxId;
 				break;
 			default:
 				self::$order = 'commented';
-				$this->max_id = $request['last_commented'] ?? $this->max_id;
+				$this->maxId = $request['last_commented'] ?? $this->maxId;
 		}
 	}
 
@@ -421,42 +421,42 @@ class Network extends Timeline
 		if (!empty($this->itemUriId)) {
 			$conditionStrings = DBA::mergeConditions($conditionStrings, ['uri-id' => $this->itemUriId]);
 		} else {
-			if (isset($this->max_id)) {
+			if (isset($this->maxId)) {
 				switch (self::$order) {
 					case 'received':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` < ?", $this->max_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` < ?", $this->maxId]);
 						break;
 					case 'commented':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` < ?", $this->max_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` < ?", $this->maxId]);
 						break;
 					case 'created':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` < ?", $this->max_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` < ?", $this->maxId]);
 						break;
 					case 'uriid':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` < ?", $this->max_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` < ?", $this->maxId]);
 						break;
 				}
 			}
 
-			if (isset($this->min_id)) {
+			if (isset($this->minId)) {
 				switch (self::$order) {
 					case 'received':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` > ?", $this->min_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` > ?", $this->minId]);
 						break;
 					case 'commented':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` > ?", $this->min_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` > ?", $this->minId]);
 						break;
 					case 'created':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` > ?", $this->min_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` > ?", $this->minId]);
 						break;
 					case 'uriid':
-						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` > ?", $this->min_id]);
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` > ?", $this->minId]);
 						break;
 				}
 			}
 		}
 
-		if (isset($this->min_id) && !isset($this->max_id)) {
+		if (isset($this->minId) && !isset($this->maxId)) {
 			// min_id quirk: querying in reverse order with min_id gets the most recent rows, regardless of how close
 			// they are to min_id. We change the query ordering to get the expected data, and we need to reverse the
 			// order of the results.
@@ -468,7 +468,7 @@ class Network extends Timeline
 		$items = DBA::selectToArray($table, [], DBA::mergeConditions($conditionFields, $conditionStrings), $params);
 
 		// min_id quirk, continued
-		if (isset($this->min_id) && !isset($this->max_id)) {
+		if (isset($this->minId) && !isset($this->maxId)) {
 			$items = array_reverse($items);
 		}
 

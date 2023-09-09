@@ -159,6 +159,6 @@ class Channel extends Timeline
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 
-		$this->max_id = $request['last_created'] ?? $this->max_id;
+		$this->maxId = $request['last_created'] ?? $this->maxId;
 	}
 }
