@@ -65,8 +65,8 @@ class Network extends NetworkModule
 			$conditionFields['unseen'] = true;
 		}
 
-		$params = ['limit' => 100];
-		$table = 'network-item-view';
+		$params = ['limit' => self::$itemsPerPage];
+		$table = 'network-thread-view';
 
 		$items = $this->getItems($table, $params, $conditionFields);
 

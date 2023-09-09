@@ -39,7 +39,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Database\Database;
 use Friendica\Module\Response;
@@ -195,13 +194,6 @@ class Community extends Timeline
 			if (!$available) {
 				throw new HTTPException\ForbiddenException($this->l10n->t('Not available.'));
 			}
-		}
-
-		if (!empty($request['item'])) {
-			$item = Post::selectFirst(['parent'], ['id' => $request['item']]);
-			self::$item_id = $item['parent'] ?? 0;
-		} else {
-			self::$item_id = 0;
 		}
 
 		self::$max_id = $request['last_commented'] ?? self::$max_id;

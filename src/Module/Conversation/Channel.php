@@ -38,7 +38,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\Model\Post;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Database\Database;
@@ -158,13 +157,6 @@ class Channel extends Timeline
 
 		if (!$this->timeline->isChannel(self::$selectedTab) && !$this->timeline->isCommunity(self::$selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
-		}
-
-		if (!empty($request['item'])) {
-			$item          = Post::selectFirst(['parent-uri-id'], ['id' => $request['item']]);
-			self::$item_id = $item['parent-uri-id'] ?? 0;
-		} else {
-			self::$item_id = 0;
 		}
 
 		self::$max_id = $request['last_created'] ?? self::$max_id;

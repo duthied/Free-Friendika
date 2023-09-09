@@ -36,6 +36,7 @@ use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Database\Database;
+use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\Response;
@@ -57,6 +58,8 @@ class Timeline extends BaseModule
 	protected static $accountType;
 	/** @var int */
 	protected static $item_id;
+	/** @var int */
+	protected static $item_uri_id;
 	/** @var int */
 	protected static $itemsPerPage;
 	/** @var bool */
@@ -95,6 +98,7 @@ class Timeline extends BaseModule
 	 */
 	protected function parseRequest(array $request)
 	{
+		$this->logger->debug('Got request', $request);
 		self::$selectedTab = $this->parameters['content'] ?? '';
 
 		self::$accountTypeString = $request['accounttype'] ?? $this->parameters['accounttype'] ?? '';
@@ -114,6 +118,15 @@ class Timeline extends BaseModule
 				'itemspage_network',
 				$this->config->get('system', 'itemspage_network')
 			);
+		}
+
+		if (!empty($request['item'])) {
+			$item = Post::selectFirst(['parent', 'parent-uri-id'], ['id' => $request['item']]);
+			self::$item_id     = $item['parent'] ?? 0;
+			self::$item_uri_id = $item['parent-uri-id'] ?? 0;
+		} else {
+			self::$item_id     = 0;
+			self::$item_uri_id = 0;
 		}
 
 		self::$min_id = $request['min_id'] ?? null;
@@ -219,33 +232,27 @@ class Timeline extends BaseModule
 			$condition = $this->addLanguageCondition($uid, $condition);
 		}
 
-		$condition[0] .= " AND NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))";
-		$condition[] = $uid;
+		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))", $uid]);
 
 		if ((self::$selectedTab != TimelineEntity::WHATSHOT) && !is_null(self::$accountType)) {
-			$condition[0] .= " AND `contact-type` = ?";
-			$condition[] = self::$accountType;
+			$condition = DBA::mergeConditions($condition, ['contact-type' => self::$accountType]);
 		}
 
 		$params = ['order' => ['created' => true], 'limit' => self::$itemsPerPage];
 
-		if (!empty(self::$item_id)) {
-			$condition[0] .= " AND `uri-id` = ?";
-			$condition[] = self::$item_id;
+		if (!empty(self::$item_uri_id)) {
+			$condition = DBA::mergeConditions($condition, ['uri-id' => self::$item_uri_id]);
 		} else {
 			if (self::$no_sharer) {
-				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-engagement`.`uri-id`)";
-				$condition[] = $uid;
+				$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-engagement`.`uri-id`)", $this->session->getLocalUserId()]);
 			}
 
 			if (isset(self::$max_id)) {
-				$condition[0] .= " AND `created` < ?";
-				$condition[] = self::$max_id;
+				$condition = DBA::mergeConditions($condition, ["`created` < ?", self::$max_id]);
 			}
 
 			if (isset(self::$min_id)) {
-				$condition[0] .= " AND `created` > ?";
-				$condition[] = self::$min_id;
+				$condition = DBA::mergeConditions($condition, ["`created` > ?", self::$min_id]);
 
 				// Previous page case: we want the items closest to min_id but for that we need to reverse the query order
 				if (!isset(self::$max_id)) {
@@ -260,7 +267,7 @@ class Timeline extends BaseModule
 		}
 
 		// Previous page case: once we get the relevant items closest to min_id, we need to restore the expected display order
-		if (empty(self::$item_id) && isset(self::$min_id) && !isset(self::$max_id)) {
+		if (empty(self::$item_uri_id) && isset(self::$min_id) && !isset(self::$max_id)) {
 			$items = array_reverse($items);
 		}
 
@@ -433,23 +440,19 @@ class Timeline extends BaseModule
 
 		$params = ['order' => ['commented' => true], 'limit' => self::$itemsPerPage];
 
-		if (!empty(self::$item_id)) {
-			$condition[0] .= " AND `id` = ?";
-			$condition[] = self::$item_id;
+		if (!empty(self::$item_uri_id)) {
+			$condition = DBA::mergeConditions($condition, ['uri-id' => self::$item_uri_id]);
 		} else {
 			if ($this->session->getLocalUserId() && self::$no_sharer) {
-				$condition[0] .= " AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-thread-user-view`.`uri-id`)";
-				$condition[] = $this->session->getLocalUserId();
+				$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-thread-user-view`.`uri-id`)", $this->session->getLocalUserId()]);
 			}
 
 			if (isset(self::$max_id)) {
-				$condition[0] .= " AND `commented` < ?";
-				$condition[] = self::$max_id;
+				$condition = DBA::mergeConditions($condition, ["`commented` < ?", self::$max_id]);
 			}
 
 			if (isset(self::$min_id)) {
-				$condition[0] .= " AND `commented` > ?";
-				$condition[] = self::$min_id;
+				$condition = DBA::mergeConditions($condition, ["`commented` > ?", self::$min_id]);
 
 				// Previous page case: we want the items closest to min_id but for that we need to reverse the query order
 				if (!isset(self::$max_id)) {
@@ -466,7 +469,7 @@ class Timeline extends BaseModule
 		}
 
 		// Previous page case: once we get the relevant items closest to min_id, we need to restore the expected display order
-		if (empty(self::$item_id) && isset(self::$min_id) && !isset(self::$max_id)) {
+		if (empty(self::$item_uri_id) && isset(self::$min_id) && !isset(self::$max_id)) {
 			$items = array_reverse($items);
 		}
 

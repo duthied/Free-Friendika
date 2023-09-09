@@ -418,37 +418,41 @@ class Network extends Timeline
 		}
 
 		// Currently only the order modes "received" and "commented" are in use
-		if (isset(self::$max_id)) {
-			switch (self::$order) {
-				case 'received':
-					$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` < ?", self::$max_id]);
-					break;
-				case 'commented':
-					$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` < ?", self::$max_id]);
-					break;
-				case 'created':
-					$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` < ?", self::$max_id]);
-					break;
-				case 'uriid':
-					$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` < ?", self::$max_id]);
-					break;
+		if (!empty(self::$item_uri_id)) {
+			$conditionStrings = DBA::mergeConditions($conditionStrings, ['uri-id' => self::$item_uri_id]);
+		} else {
+			if (isset(self::$max_id)) {
+				switch (self::$order) {
+					case 'received':
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` < ?", self::$max_id]);
+						break;
+					case 'commented':
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` < ?", self::$max_id]);
+						break;
+					case 'created':
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` < ?", self::$max_id]);
+						break;
+					case 'uriid':
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` < ?", self::$max_id]);
+						break;
+				}
 			}
-		}
 
-		if (isset(self::$min_id)) {
-			switch (self::$order) {
-				case 'received':
-					$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` > ?", self::$min_id]);
-					break;
-				case 'commented':
-					$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` > ?", self::$min_id]);
-					break;
-				case 'created':
-					$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` > ?", self::$min_id]);
-					break;
-				case 'uriid':
-					$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` > ?", self::$min_id]);
-					break;
+			if (isset(self::$min_id)) {
+				switch (self::$order) {
+					case 'received':
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` > ?", self::$min_id]);
+						break;
+					case 'commented':
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` > ?", self::$min_id]);
+						break;
+					case 'created':
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` > ?", self::$min_id]);
+						break;
+					case 'uriid':
+						$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` > ?", self::$min_id]);
+						break;
+				}
 			}
 		}
 
