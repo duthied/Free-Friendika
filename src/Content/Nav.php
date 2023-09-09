@@ -40,21 +40,21 @@ use Friendica\Network\HTTPException;
 class Nav
 {
 	private static $selected = [
-		'global'    => null,
-		'community' => null,
-		'channel'   => null,
-		'network'   => null,
-		'home'      => null,
-		'profiles'  => null,
+		'global'        => null,
+		'community'     => null,
+		'channel'       => null,
+		'network'       => null,
+		'home'          => null,
+		'profiles'      => null,
 		'introductions' => null,
 		'notifications' => null,
-		'messages'  => null,
-		'directory' => null,
-		'settings'  => null,
-		'contacts'  => null,
-		'delegation'=> null,
-		'calendar'  => null,
-		'register'  => null
+		'messages'      => null,
+		'directory'     => null,
+		'settings'      => null,
+		'contacts'      => null,
+		'delegation'    => null,
+		'calendar'      => null,
+		'register'      => null
 	];
 
 	/**
@@ -288,8 +288,6 @@ class Nav
 			!($this->config->get('system', 'community_page_style') == Community::DISABLED)) {
 			$nav['community'] = ['community', $this->l10n->t('Community'), '', $this->l10n->t('Conversations on this and other servers')];
 		}
-
-		$nav['channel'] = ['channel', $this->l10n->t('Channels'), '', $this->l10n->t('Current posts, filtered by several rules')];
 
 		if ($this->session->getLocalUserId()) {
 			$nav['calendar'] = ['calendar', $this->l10n->t('Calendar'), '', $this->l10n->t('Calendar')];

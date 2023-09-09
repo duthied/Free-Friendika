@@ -53,30 +53,18 @@ class UserTest extends MockedTest
 			'uid'             => 1,
 			'username'        => 'maxmuster',
 			'nickname'        => 'Max Muster',
-			'verified'        => true,
-			'blocked'         => false,
-			'account_removed' => false,
-			'account_expired' => false,
 		];
 
 		$this->child = [
 			'uid'             => 2,
 			'username'        => 'johndoe',
 			'nickname'        => 'John Doe',
-			'verified'        => true,
-			'blocked'         => false,
-			'account_removed' => false,
-			'account_expired' => false,
 		];
 
 		$this->manage = [
 			'uid'             => 3,
 			'username'        => 'janesmith',
 			'nickname'        => 'Jane Smith',
-			'verified'        => true,
-			'blocked'         => false,
-			'account_removed' => false,
-			'account_expired' => false,
 		];
 	}
 
@@ -106,7 +94,10 @@ class UserTest extends MockedTest
 			['uid', 'username', 'nickname'],
 			[
 				'parent-uid'      => $this->parent['uid'],
-				'account_removed' => false
+				'verified'        => true,
+				'blocked'         => false,
+				'account_removed' => false,
+				'account_expired' => false
 			], [])->andReturn('objectReturn')->once();
 		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
 		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->child])->once();
@@ -122,7 +113,7 @@ class UserTest extends MockedTest
 			$this->parent,
 			$this->child,
 			$this->manage
-		], $record);
+		], $record, 'testIdentitiesAsParent: ' . print_r($record, true));
 	}
 
 	public function testIdentitiesAsChild()
@@ -139,8 +130,11 @@ class UserTest extends MockedTest
 		$this->dbMock->shouldReceive('select')->with('user',
 			['uid', 'username', 'nickname'],
 			[
-				'uid'      => $this->parent['uid'],
-				'account_removed' => false
+				'uid'             => $this->parent['uid'],
+				'verified'        => true,
+				'blocked'         => false,
+				'account_removed' => false,
+				'account_expired' => false
 			], [])->andReturn('objectReturn')->once();
 		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
 		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->parent])->once();
@@ -150,7 +144,10 @@ class UserTest extends MockedTest
 			['uid', 'username', 'nickname'],
 			[
 				'parent-uid'      => $this->parent['uid'],
-				'account_removed' => false
+				'verified'        => true,
+				'blocked'         => false,
+				'account_removed' => false,
+				'account_expired' => false
 			], [])->andReturn('objectReturn')->once();
 		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
 		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->child, $this->manage])->once();

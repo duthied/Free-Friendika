@@ -23,6 +23,7 @@ namespace Friendica\Module\Settings;
 
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -51,8 +52,10 @@ class Display extends BaseSettings
 	private $app;
 	/** @var SystemMessages */
 	private $systemMessages;
+	/** @var TimelineFactory */
+	protected $timeline;
 
-	public function __construct(SystemMessages $systemMessages, App $app, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(TimelineFactory $timeline, SystemMessages $systemMessages, App $app, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -60,6 +63,7 @@ class Display extends BaseSettings
 		$this->pConfig        = $pConfig;
 		$this->app            = $app;
 		$this->systemMessages = $systemMessages;
+		$this->timeline       = $timeline;
 	}
 
 	protected function post(array $request = [])
@@ -76,6 +80,7 @@ class Display extends BaseSettings
 		$theme                  = !empty($request['theme'])                  ? trim($request['theme'])                    : $user['theme'];
 		$mobile_theme           = !empty($request['mobile_theme'])           ? trim($request['mobile_theme'])             : '';
 		$enable_smile           = !empty($request['enable_smile'])           ? intval($request['enable_smile'])           : 0;
+		$network_timelines      = !empty($request['network_timelines'])      ? $request['network_timelines']              : [];
 		$channel_languages      = !empty($request['channel_languages'])      ? $request['channel_languages']              : [];
 		$first_day_of_week      = !empty($request['first_day_of_week'])      ? intval($request['first_day_of_week'])      : 0;
 		$calendar_default_view  = !empty($request['calendar_default_view'])  ? trim($request['calendar_default_view'])    : 'month';
@@ -121,6 +126,7 @@ class Display extends BaseSettings
 		$this->pConfig->set($uid, 'system', 'stay_local'              , $stay_local);
 		$this->pConfig->set($uid, 'system', 'preview_mode'            , $preview_mode);
 
+		$this->pConfig->set($uid, 'system', 'network_timelines'       , $network_timelines);
 		$this->pConfig->set($uid, 'channel', 'languages'              , $channel_languages);
 
 		$this->pConfig->set($uid, 'calendar', 'first_day_of_week'     , $first_day_of_week);
@@ -218,8 +224,10 @@ class Display extends BaseSettings
 			BBCode::PREVIEW_LARGE    => $this->t('Large Image'),
 		];
 
+		$network_timelines = $this->pConfig->get($uid, 'system', 'network_timelines', array_keys($this->getAvailableTimelines($uid, true)));
 		$channel_languages = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]);
 		$languages         = $this->l10n->getAvailableLanguages(true);
+		$timelines         = $this->getAvailableTimelines($uid);
 
 		$first_day_of_week = $this->pConfig->get($uid, 'calendar', 'first_day_of_week', 0);
 		$weekdays          = [
@@ -254,6 +262,7 @@ class Display extends BaseSettings
 			'$d_ctset'        => $this->t('Custom Theme Settings'),
 			'$d_cset'         => $this->t('Content Settings'),
 			'$stitle'         => $this->t('Theme settings'),
+			'$timeline_title' => $this->t('Timelines'),
 			'$channel_title'  => $this->t('Channels'),
 			'$calendar_title' => $this->t('Calendar'),
 
@@ -275,10 +284,34 @@ class Display extends BaseSettings
 			'$stay_local'               => ['stay_local'              , $this->t('Stay local'), $stay_local, $this->t("Don't go to a remote system when following a contact link.")],
 			'$preview_mode'             => ['preview_mode'            , $this->t('Link preview mode'), $preview_mode, $this->t('Appearance of the link preview that is added to each post with a link.'), $preview_modes, false],
 
+			'$network_timelines' => ['network_timelines[]', $this->t('Timelines for the network page:'), $network_timelines, $this->t('Select all the timelines that you want to see on your network page.'), $timelines, 'multiple'],
 			'$channel_languages' => ['channel_languages[]', $this->t('Channel languages:'), $channel_languages, $this->t('Select all languages that you want to see in your channels.'), $languages, 'multiple'],
 
 			'$first_day_of_week'     => ['first_day_of_week'    , $this->t('Beginning of week:')    , $first_day_of_week    , '', $weekdays     , false],
 			'$calendar_default_view' => ['calendar_default_view', $this->t('Default calendar view:'), $calendar_default_view, '', $calendarViews, false],
 		]);
+	}
+
+	private function getAvailableTimelines(int $uid, bool $only_network = false): array
+	{
+		$timelines = [];
+
+		foreach ($this->timeline->getNetworkFeeds('') as $channel) {
+			$timelines[$channel->code] = $this->t('%s: %s', $channel->label, $channel->description);
+		}
+
+		if ($only_network) {
+			return $timelines;
+		}
+
+		foreach ($this->timeline->getChannelsForUser($uid) as $channel) {
+			$timelines[$channel->code] = $this->t('%s: %s', $channel->label, $channel->description);
+		}
+
+		foreach ($this->timeline->getCommunities(true) as $community) {
+			$timelines[$community->code] = $this->t('%s: %s', $community->label, $community->description);
+		}
+
+		return $timelines;
 	}
 }

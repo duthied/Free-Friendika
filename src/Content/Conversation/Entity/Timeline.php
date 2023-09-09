@@ -26,8 +26,9 @@ namespace Friendica\Content\Conversation\Entity;
  * @property-read string $label       Channel label
  * @property-read string $description Channel description
  * @property-read string $accessKey   Access key
+ * @property-read string $path        Path
  */
-final class Channel extends \Friendica\BaseEntity
+final class Timeline extends \Friendica\BaseEntity
 {
 	const WHATSHOT         = 'whatshot';
 	const FORYOU           = 'foryou';
@@ -37,6 +38,13 @@ final class Channel extends \Friendica\BaseEntity
 	const VIDEO            = 'video';
 	const AUDIO            = 'audio';
 	const LANGUAGE         = 'language';
+	const LOCAL            = 'local';
+	const GLOBAL           = 'global';
+	const STAR             = 'star';
+	const MENTION          = 'mention';
+	const RECEIVED         = 'received';
+	const COMMENTED        = 'commented';
+	const CREATED          = 'created';
 
 	/** @var string */
 	protected $code;
@@ -46,12 +54,15 @@ final class Channel extends \Friendica\BaseEntity
 	protected $description;
 	/** @var string */
 	protected $accessKey;
+	/** @var string */
+	protected $path;
 
-	public function __construct(string $code, string $label, string $description, string $accessKey)
+	public function __construct(string $code, string $label, string $description, string $accessKey, string $path = null)
 	{
 		$this->code        = $code;
 		$this->label       = $label;
 		$this->description = $description;
 		$this->accessKey   = $accessKey;
+		$this->path        = $path;
 	}
 }

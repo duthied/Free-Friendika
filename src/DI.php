@@ -548,6 +548,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Content\Conversation\Factory\Timeline
+	 */
+	public static function TimelineFactory()
+	{
+		return self::$dice->create(Content\Conversation\Factory\Timeline::class);
+	}
+
+	/**
 	 * @return Contact\Introduction\Repository\Introduction
 	 */
 	public static function intro()
