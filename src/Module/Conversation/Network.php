@@ -170,7 +170,7 @@ class Network extends Timeline
 			if ($this->groupContactId) {
 				// If $this->groupContactId belongs to a community group or a private group, add a mention to the status editor
 				$condition = ["`id` = ? AND `contact-type` = ?", $this->groupContactId, Contact::TYPE_COMMUNITY];
-				$contact = DBA::selectFirst('contact', ['addr'], $condition);
+				$contact = $this->database->selectFirst('contact', ['addr'], $condition);
 				if (!empty($contact['addr'])) {
 					$content = '!' . $contact['addr'];
 				}
@@ -194,11 +194,11 @@ class Network extends Timeline
 					'archive' => false,
 					'rel'     => [Contact::SHARING, Contact::FRIEND],
 				];
-				$contactStmt = DBA::select('contact', ['id'], $condition);
-				while ($contact = DBA::fetch($contactStmt)) {
+				$contactStmt = $this->database->select('contact', ['id'], $condition);
+				while ($contact = $this->database->fetch($contactStmt)) {
 					$allowedCids[] = (int) $contact['id'];
 				}
-				DBA::close($contactStmt);
+				$this->database->close($contactStmt);
 			}
 
 			if (count($allowedCids)) {
@@ -216,8 +216,8 @@ class Network extends Timeline
 		}
 
 		if ($this->circleId) {
-			$circle = DBA::selectFirst('group', ['name'], ['id' => $this->circleId, 'uid' => $this->session->getLocalUserId()]);
-			if (!DBA::isResult($circle)) {
+			$circle = $this->database->selectFirst('group', ['name'], ['id' => $this->circleId, 'uid' => $this->session->getLocalUserId()]);
+			if (!$this->database->isResult($circle)) {
 				$this->systemMessages->addNotice($this->l10n->t('No such circle'));
 			}
 
@@ -226,7 +226,7 @@ class Network extends Timeline
 			]) . $o;
 		} elseif ($this->groupContactId) {
 			$contact = Contact::getById($this->groupContactId);
-			if (DBA::isResult($contact)) {
+			if ($this->database->isResult($contact)) {
 				$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('contact/list.tpl'), [
 					'contacts' => [ModuleContact::getContactTemplateVars($contact)],
 					'id' => $this->args->get(0),
@@ -447,14 +447,14 @@ class Network extends Timeline
 			$params['order'] = [$this->order => true];
 		}
 
-		$items = DBA::selectToArray('network-thread-view', [], DBA::mergeConditions($conditionFields, $conditionStrings), $params);
+		$items = $this->database->selectToArray('network-thread-view', [], DBA::mergeConditions($conditionFields, $conditionStrings), $params);
 
 		// min_id quirk, continued
 		if (isset($this->minId) && !isset($this->maxId)) {
 			$items = array_reverse($items);
 		}
 
-		if (DBA::isResult($items)) {
+		if ($this->database->isResult($items)) {
 			$parents = array_column($items, 'uri-id');
 		} else {
 			$parents = [];
