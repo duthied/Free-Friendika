@@ -65,7 +65,7 @@ class Timeline extends BaseModule
 
 	/** @var App\Mode $mode */
 	protected $mode;
-	/** @var UserSession */
+	/** @var IHandleUserSessions */
 	protected $session;
 	/** @var Database */
 	protected $database;
@@ -267,7 +267,8 @@ class Timeline extends BaseModule
 			$items = array_reverse($items);
 		}
 
-		Item::update(['unseen' => false], ['unseen' => true, 'uid' => $uid, 'uri-id' => array_column($items, 'uri-id')]);
+		$condition = ['unseen' => true, 'uid' => $uid, 'parent-uri-id' => array_column($items, 'uri-id')];
+		$this->setItemsSeenByCondition($condition);
 
 		return $items;
 	}
@@ -406,6 +407,9 @@ class Timeline extends BaseModule
 			$selected_items = $items;
 		}
 
+		$condition = ['unseen' => true, 'uid' => $this->session->getLocalUserId(), 'parent-uri-id' => array_column($selected_items, 'uri-id')];
+		$this->setItemsSeenByCondition($condition);
+
 		return $selected_items;
 	}
 
@@ -470,5 +474,25 @@ class Timeline extends BaseModule
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Sets items as seen
+	 *
+	 * @param array $condition The array with the SQL condition
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	protected function setItemsSeenByCondition(array $condition)
+	{
+		if (empty($condition)) {
+			return;
+		}
+
+		$unseen = Post::exists($condition);
+
+		if ($unseen) {
+			/// @todo handle huge "unseen" updates in the background to avoid timeout errors
+			Item::update(['unseen' => false], $condition);
+		}
 	}
 }

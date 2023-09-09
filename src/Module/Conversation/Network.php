@@ -43,11 +43,9 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\DBA;
 use Friendica\Database\Database;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Circle;
 use Friendica\Model\Item;
-use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\Verb;
 use Friendica\Module\Contact as ModuleContact;
@@ -79,6 +77,8 @@ class Network extends Timeline
 	/** @var string */
 	protected static $order;
 
+	/** @var App */
+	protected $app;
 	/** @var ICanCache */
 	protected $cache;
 	/** @var IManageConfigValues The config */
@@ -96,10 +96,11 @@ class Network extends Timeline
 	/** @var TimelineFactory */
 	protected $timeline;
 
-	public function __construct(TimelineFactory $timeline, SystemMessages $systemMessages, Mode $mode, Conversation $conversation, App\Page $page, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(App $app, TimelineFactory $timeline, SystemMessages $systemMessages, Mode $mode, Conversation $conversation, App\Page $page, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
+		$this->app            = $app;
 		$this->timeline       = $timeline;
 		$this->systemMessages = $systemMessages;
 		$this->conversation   = $conversation;
@@ -269,26 +270,6 @@ class Network extends Timeline
 	}
 
 	/**
-	 * Sets items as seen
-	 *
-	 * @param array $condition The array with the SQL condition
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	private static function setItemsSeenByCondition(array $condition)
-	{
-		if (empty($condition)) {
-			return;
-		}
-
-		$unseen = Post::exists($condition);
-
-		if ($unseen) {
-			/// @todo handle huge "unseen" updates in the background to avoid timeout errors
-			Item::update(['unseen' => false], $condition);
-		}
-	}
-
-	/**
 	 * Get the network tabs menu
 	 *
 	 * @return string Html of the network tabs
@@ -316,7 +297,7 @@ class Network extends Timeline
 		self::$groupContactId = (int)($this->parameters['contact_id'] ?? 0);
 
 		if (!$this->selectedTab) {
-			$this->selectedTab = self::getTimelineOrderBySession(DI::userSession(), $this->pConfig);
+			$this->selectedTab = self::getTimelineOrderBySession($this->session, $this->pConfig);
 		} elseif (!$this->timeline->isChannel($this->selectedTab) && !$this->timeline->isCommunity($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
 		}
@@ -402,10 +383,10 @@ class Network extends Timeline
 		}
 
 		if (self::$dateFrom) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` <= ? ", DateTimeFormat::convert(self::$dateFrom, 'UTC', DI::app()->getTimeZone())]);
+			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` <= ? ", DateTimeFormat::convert(self::$dateFrom, 'UTC', $this->app->getTimeZone())]);
 		}
 		if (self::$dateTo) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` >= ? ", DateTimeFormat::convert(self::$dateTo, 'UTC', DI::app()->getTimeZone())]);
+			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` >= ? ", DateTimeFormat::convert(self::$dateTo, 'UTC', $this->app->getTimeZone())]);
 		}
 
 		if (self::$circleId) {
@@ -484,10 +465,10 @@ class Network extends Timeline
 		// at the top level network page just mark everything seen.
 		if (!self::$circleId && !self::$groupContactId && !self::$star && !self::$mention) {
 			$condition = ['unseen' => true, 'uid' => $this->session->getLocalUserId()];
-			self::setItemsSeenByCondition($condition);
+			$this->setItemsSeenByCondition($condition);
 		} elseif (!empty($parents)) {
 			$condition = ['unseen' => true, 'uid' => $this->session->getLocalUserId(), 'parent-uri-id' => $parents];
-			self::setItemsSeenByCondition($condition);
+			$this->setItemsSeenByCondition($condition);
 		}
 
 		return $items;
