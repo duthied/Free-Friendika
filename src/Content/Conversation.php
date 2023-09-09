@@ -537,7 +537,7 @@ class Conversation
 
 			if (!$update) {
 				$live_update_div = '<div id="live-channel"></div>' . "\r\n"
-					. "<script> var profile_uid = -1; var netargs = '" . substr($this->args->getCommand(), 10)
+					. "<script> var profile_uid = -1; var netargs = '" . substr($this->args->getCommand(), 8)
 					. '?f='
 					. (!empty($_GET['no_sharer']) ? '&no_sharer=' . rawurlencode($_GET['no_sharer']) : '')
 					. (!empty($_GET['accounttype']) ? '&accounttype=' . rawurlencode($_GET['accounttype']) : '')
