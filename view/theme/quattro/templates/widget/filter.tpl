@@ -5,7 +5,7 @@
 {{/if}}
 	
 	<ul class="{{$type}}-ul">
-		{{if !$all_label}}
+		{{if $all_label}}
 		<li class="tool {{if !$selected}}selected{{/if}}"><a href="{{$base}}" class="{{$type}}-link {{$type}}-all">{{$all_label}}</a>
 		{{/if}}
 {{foreach $options as $option}}

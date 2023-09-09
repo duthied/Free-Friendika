@@ -7,7 +7,7 @@
 	</span>
 	<div id="{{$type}}-desc">{{$desc nofilter}}</div>
 	<ul role="menu" class="{{$type}}-ul">
-		{{if !$all_label}}
+		{{if $all_label}}
 		<li role="menuitem" {{if !is_null($selected) && !$selected}}class="selected"{{/if}}><a href="{{$base}}" class="{{$type}}-link{{if !$selected}} {{$type}}-selected{{/if}} {{$type}}-all">{{$all_label}}</a></li>
 		{{/if}}
 		{{foreach $options as $option}}
