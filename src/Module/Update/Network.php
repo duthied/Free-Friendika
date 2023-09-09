@@ -43,17 +43,7 @@ class Network extends NetworkModule
 			System::htmlUpdateExit($o);
 		}
 
-		$items = $this->getItems();
-
-		if (self::$order === 'received') {
-			$ordering = '`received`';
-		} elseif (self::$order === 'created') {
-			$ordering = '`created`';
-		} else {
-			$ordering = '`commented`';
-		}
-
-		$o = $this->conversation->render($items, Conversation::MODE_NETWORK, $profile_uid, false, $ordering, $this->session->getLocalUserId());
+		$o = $this->conversation->render($this->getItems(), Conversation::MODE_NETWORK, $profile_uid, false, $this->getOrder(), $this->session->getLocalUserId());
 
 		System::htmlUpdateExit($o);
 	}

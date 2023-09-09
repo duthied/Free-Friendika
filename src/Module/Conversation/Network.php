@@ -238,15 +238,7 @@ class Network extends Timeline
 			$o .= Profile::getEventsReminderHTML();
 		}
 
-		if (self::$order === 'received') {
-			$ordering = '`received`';
-		} elseif (self::$order === 'created') {
-			$ordering = '`created`';
-		} else {
-			$ordering = '`commented`';
-		}
-
-		$o .= $this->conversation->render($items, Conversation::MODE_NETWORK, false, false, $ordering, $this->session->getLocalUserId());
+		$o .= $this->conversation->render($items, Conversation::MODE_NETWORK, false, false, $this->getOrder(), $this->session->getLocalUserId());
 
 		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
@@ -263,6 +255,17 @@ class Network extends Timeline
 		}
 
 		return $o;
+	}
+
+	protected function getOrder(): string
+	{
+		if (self::$order === 'received') {
+			return '`received`';
+		} elseif (self::$order === 'created') {
+			return '`created`';
+		} else {
+			return '`commented`';
+		}
 	}
 
 	/**
