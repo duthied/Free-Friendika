@@ -151,11 +151,7 @@ class Network extends Timeline
 			$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
 			$this->page['aside'] .= Widget::fileAs('filed', '');
 
-			// Fetch a page full of parent items for this page
-			$params = ['limit' => $this->itemsPerPage];
-			$table = 'network-thread-view';
-
-			$items = $this->getItems($table, $params);
+			$items = $this->getItems();
 		}
 
 		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
@@ -383,9 +379,9 @@ class Network extends Timeline
 		}
 	}
 
-	protected function getItems(string $table, array $params, array $conditionFields = [])
+	protected function getItems()
 	{
-		$conditionFields['uid'] = $this->session->getLocalUserId();
+		$conditionFields  = ['uid' => $this->session->getLocalUserId()];
 		$conditionStrings = [];
 
 		if (!is_null($this->accountType)) {
@@ -456,6 +452,8 @@ class Network extends Timeline
 			}
 		}
 
+		$params = ['limit' => $this->itemsPerPage];
+
 		if (isset($this->minId) && !isset($this->maxId)) {
 			// min_id quirk: querying in reverse order with min_id gets the most recent rows, regardless of how close
 			// they are to min_id. We change the query ordering to get the expected data, and we need to reverse the
@@ -465,7 +463,7 @@ class Network extends Timeline
 			$params['order'] = [self::$order => true];
 		}
 
-		$items = DBA::selectToArray($table, [], DBA::mergeConditions($conditionFields, $conditionStrings), $params);
+		$items = DBA::selectToArray('network-thread-view', [], DBA::mergeConditions($conditionFields, $conditionStrings), $params);
 
 		// min_id quirk, continued
 		if (isset($this->minId) && !isset($this->maxId)) {

@@ -23,8 +23,6 @@ namespace Friendica\Module\Update;
 
 use Friendica\Content\Conversation;
 use Friendica\Core\System;
-use Friendica\Model\Item;
-use Friendica\Model\Post;
 use Friendica\Module\Conversation\Network as NetworkModule;
 
 class Network extends NetworkModule
@@ -45,30 +43,7 @@ class Network extends NetworkModule
 			System::htmlUpdateExit($o);
 		}
 
-		if (!empty($request['item'])) {
-			$item = Post::selectFirst(['parent'], ['id' => $request['item']]);
-			$parent = $item['parent'] ?? 0;
-		} else {
-			$parent = 0;
-		}
-
-		$conditionFields = [];
-		if (!empty($parent)) {
-			// Load only a single thread
-			$conditionFields['parent'] = $parent;
-		} elseif (self::$order === 'received') {
-			// Only load new toplevel posts
-			$conditionFields['unseen'] = true;
-			$conditionFields['gravity'] = Item::GRAVITY_PARENT;
-		} else {
-			// Load all unseen items
-			$conditionFields['unseen'] = true;
-		}
-
-		$params = ['limit' => $this->itemsPerPage];
-		$table = 'network-thread-view';
-
-		$items = $this->getItems($table, $params, $conditionFields);
+		$items = $this->getItems();
 
 		if (self::$order === 'received') {
 			$ordering = '`received`';
