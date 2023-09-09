@@ -106,7 +106,10 @@ class UserTest extends MockedTest
 			['uid', 'username', 'nickname'],
 			[
 				'parent-uid'      => $this->parent['uid'],
-				'account_removed' => false
+				'verified'        => true,
+				'blocked'         => false,
+				'account_removed' => false,
+				'account_expired' => false
 			], [])->andReturn('objectReturn')->once();
 		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
 		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->child])->once();
@@ -139,8 +142,11 @@ class UserTest extends MockedTest
 		$this->dbMock->shouldReceive('select')->with('user',
 			['uid', 'username', 'nickname'],
 			[
-				'uid'      => $this->parent['uid'],
-				'account_removed' => false
+				'uid'             => $this->parent['uid'],
+				'verified'        => true,
+				'blocked'         => false,
+				'account_removed' => false,
+				'account_expired' => false
 			], [])->andReturn('objectReturn')->once();
 		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
 		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->parent])->once();
@@ -150,7 +156,10 @@ class UserTest extends MockedTest
 			['uid', 'username', 'nickname'],
 			[
 				'parent-uid'      => $this->parent['uid'],
-				'account_removed' => false
+				'verified'        => true,
+				'blocked'         => false,
+				'account_removed' => false,
+				'account_expired' => false
 			], [])->andReturn('objectReturn')->once();
 		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
 		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->child, $this->manage])->once();
