@@ -72,7 +72,7 @@ class Reports extends BaseModeration
 		$condition = ["SELECT `post-view`.`created`, `post-view`.`guid`, `post-view`.`plink`, `post-view`.`title`, `post-view`.`body`, `report-post`.`rid`
 			FROM `report-post` INNER JOIN `post-view` ON `report-post`.`uri-id` = `post-view`.`uri-id`"];
 		$condition = DBA::mergeConditions($condition, ['rid' => array_keys($reports)]);
-		$posts = $this->database->p(array_shift($condition), $condition);
+		$posts     = $this->database->p(array_shift($condition), $condition);
 		while ($post = $this->database->fetch($posts)) {
 			if (in_array($post['rid'], array_keys($reports))) {
 				$post['created'] = DateTimeFormat::local($post['created'], DateTimeFormat::MYSQL);
@@ -91,8 +91,8 @@ class Reports extends BaseModeration
 			'$description' => $this->t('This page display reports created by our or remote users.'),
 			'$no_data'     => $this->t('No report exists at this node.'),
 
-			'$h_reports'   => $this->t('Reports'),
-			'$th_reports'  => [$this->t('Created'), $this->t('Photo'), $this->t('Name'), $this->t('Comment'), $this->t('Category')],
+			'$h_reports'  => $this->t('Reports'),
+			'$th_reports' => [$this->t('Created'), $this->t('Photo'), $this->t('Name'), $this->t('Comment'), $this->t('Category')],
 
 			// values //
 			'$baseurl' => $this->baseUrl,
