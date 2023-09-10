@@ -24,14 +24,11 @@ namespace Friendica\Module\Moderation;
 use Friendica\App;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\Plaintext;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Model\Post;
 use Friendica\Module\BaseModeration;
 use Friendica\Module\Response;
 use Friendica\Navigation\SystemMessages;
@@ -65,8 +62,9 @@ class Reports extends BaseModeration
 
 		$reports = [];
 		while ($report = $this->database->fetch($query)) {
-			$report['posts'] = [];
+			$report['posts']   = [];
 			$report['created'] = DateTimeFormat::local($report['created'], DateTimeFormat::MYSQL);
+
 			$reports[$report['id']] = $report;
 		}
 		$this->database->close($query);
@@ -78,7 +76,8 @@ class Reports extends BaseModeration
 		while ($post = $this->database->fetch($posts)) {
 			if (in_array($post['rid'], array_keys($reports))) {
 				$post['created'] = DateTimeFormat::local($post['created'], DateTimeFormat::MYSQL);
-				$post['body'] = BBCode::toPlaintext($post['body']);
+				$post['body']    = BBCode::toPlaintext($post['body']);
+
 				$reports[$post['rid']]['posts'][] = $post;
 			}
 		}
@@ -100,9 +99,9 @@ class Reports extends BaseModeration
 
 			'$reports'       => $reports,
 			'$total_reports' => $this->tt('%s total report', '%s total reports', $total),
-			'$paginate'       => $pager->renderFull($total),
+			'$paginate'      => $pager->renderFull($total),
 
-			'$contacturl'           => ['contact_url', $this->t('Profile URL'), '', $this->t('URL of the reported contact.')],
+			'$contacturl' => ['contact_url', $this->t('Profile URL'), '', $this->t('URL of the reported contact.')],
 		]);
 	}
 }
