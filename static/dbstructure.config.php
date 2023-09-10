@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1531);
+	define('DB_UPDATE_VERSION', 1532);
 }
 
 return [
@@ -1328,7 +1328,7 @@ return [
 		"comment" => "Engagement data per post",
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item owner"],
+			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "Item owner"],
 			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Person, organisation, news, community, relay"],
 			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
 			"language" => ["type" => "varbinary(128)", "comment" => "Language information about this post"],
@@ -1736,7 +1736,7 @@ return [
 			"assigned-uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Assigned moderator user"],
 			"status" => ["type" => "tinyint unsigned", "not null" => "1", "comment" => "Status of the report, one of Entity\Report::STATUS_*"],
 			"resolution" => ["type" => "tinyint unsigned", "comment" => "Resolution of the report, one of Entity\Report::RESOLUTION_*"],
-			"created" => ["type" => "datetime(6)", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"created" => ["type" => "datetime(6)", "not null" => "1", "default" => DBA::NULL_DATETIME6, "comment" => ""],
 			"edited" => ["type" => "datetime(6)", "comment" => "Last time the report has been edited"],
 		],
 		"indexes" => [

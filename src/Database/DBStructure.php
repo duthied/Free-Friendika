@@ -284,7 +284,7 @@ class DBStructure
 					echo $sql;
 				}
 				if ($action) {
-					$r = DBA::e($sql);
+					$r = DBA::e(str_replace('\\', '\\\\', $sql));
 					if (!DBA::isResult($r)) {
 						$errors .= self::printUpdateError($name);
 					}
@@ -493,7 +493,7 @@ class DBStructure
 						DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
 					}
 
-					$r = DBA::e($sql3);
+					$r = DBA::e(str_replace('\\', '\\\\', $sql3));
 					if (!DBA::isResult($r)) {
 						$errors .= self::printUpdateError($sql3);
 					}
