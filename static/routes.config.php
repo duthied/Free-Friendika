@@ -510,6 +510,7 @@ return [
 		'/item/source[/{guid}]' => [Module\Moderation\Item\Source::class, [R::GET, R::POST]],
 
 		'/report/create' => [Module\Moderation\Report\Create::class, [R::GET, R::POST]],
+		'/reports'       => [Module\Moderation\Reports::class, [R::GET, R::POST]],
 
 		'/users[/{action}/{uid}]'         => [Module\Moderation\Users\Index::class,   [R::GET, R::POST]],
 		'/users/active[/{action}/{uid}]'  => [Module\Moderation\Users\Active::class,  [R::GET, R::POST]],
