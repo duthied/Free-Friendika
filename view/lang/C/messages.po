@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-09 20:42+0000\n"
+"POT-Creation-Date: 2023-09-10 07:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -606,7 +606,8 @@ msgid "This is you"
 msgstr ""
 
 #: mod/photos.php:1141 mod/photos.php:1197 mod/photos.php:1277
-#: src/Object/Post.php:572 src/Object/Post.php:1094
+#: src/Module/Moderation/Reports.php:96 src/Object/Post.php:572
+#: src/Object/Post.php:1094
 msgid "Comment"
 msgstr ""
 
@@ -2119,13 +2120,13 @@ msgstr ""
 msgid "Site setup and configuration"
 msgstr ""
 
-#: src/Content/Nav.php:335 src/Module/BaseModeration.php:127
+#: src/Content/Nav.php:335 src/Module/BaseModeration.php:128
 #: src/Module/Moderation/Blocklist/Contact.php:110
 #: src/Module/Moderation/Blocklist/Server/Add.php:121
 #: src/Module/Moderation/Blocklist/Server/Import.php:118
 #: src/Module/Moderation/Blocklist/Server/Index.php:95
 #: src/Module/Moderation/Item/Delete.php:61
-#: src/Module/Moderation/Summary.php:76
+#: src/Module/Moderation/Reports.php:90 src/Module/Moderation/Summary.php:76
 #: src/Module/Moderation/Users/Active.php:133
 #: src/Module/Moderation/Users/Blocked.php:133
 #: src/Module/Moderation/Users/Deleted.php:80
@@ -4275,7 +4276,8 @@ msgstr ""
 msgid "Job Parameters"
 msgstr ""
 
-#: src/Module/Admin/Queue.php:78 src/Module/Settings/OAuth.php:74
+#: src/Module/Admin/Queue.php:78 src/Module/Moderation/Reports.php:96
+#: src/Module/Settings/OAuth.php:74
 msgid "Created"
 msgstr ""
 
@@ -5575,7 +5577,7 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:89 src/Module/BaseModeration.php:111
+#: src/Module/BaseAdmin.php:89 src/Module/BaseModeration.php:112
 msgid "Configuration"
 msgstr ""
 
@@ -5599,7 +5601,7 @@ msgstr ""
 msgid "Inspect worker Queue"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:106 src/Module/BaseModeration.php:119
+#: src/Module/BaseAdmin.php:106 src/Module/BaseModeration.php:120
 msgid "Diagnostics"
 msgstr ""
 
@@ -5627,7 +5629,7 @@ msgstr ""
 msgid "Addon Features"
 msgstr ""
 
-#: src/Module/BaseAdmin.php:121 src/Module/BaseModeration.php:128
+#: src/Module/BaseAdmin.php:121 src/Module/BaseModeration.php:129
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
@@ -5668,28 +5670,32 @@ msgid ""
 "the main account."
 msgstr ""
 
-#: src/Module/BaseModeration.php:112 src/Module/Moderation/Users/Index.php:148
+#: src/Module/BaseModeration.php:110 src/Module/Moderation/Reports.php:95
+msgid "Reports"
+msgstr ""
+
+#: src/Module/BaseModeration.php:113 src/Module/Moderation/Users/Index.php:148
 #: src/Module/Moderation/Users/Index.php:158
 msgid "Users"
 msgstr ""
 
-#: src/Module/BaseModeration.php:114
+#: src/Module/BaseModeration.php:115
 msgid "Tools"
 msgstr ""
 
-#: src/Module/BaseModeration.php:115
+#: src/Module/BaseModeration.php:116
 msgid "Contact Blocklist"
 msgstr ""
 
-#: src/Module/BaseModeration.php:116
+#: src/Module/BaseModeration.php:117
 msgid "Server Blocklist"
 msgstr ""
 
-#: src/Module/BaseModeration.php:117 src/Module/Moderation/Item/Delete.php:62
+#: src/Module/BaseModeration.php:118 src/Module/Moderation/Item/Delete.php:62
 msgid "Delete Item"
 msgstr ""
 
-#: src/Module/BaseModeration.php:120 src/Module/Moderation/Item/Source.php:76
+#: src/Module/BaseModeration.php:121 src/Module/Moderation/Item/Source.php:76
 msgid "Item Source"
 msgstr ""
 
@@ -6160,6 +6166,7 @@ msgstr ""
 
 #: src/Module/Contact/Advanced.php:134
 #: src/Module/Moderation/Blocklist/Contact.php:122
+#: src/Module/Moderation/Reports.php:96
 #: src/Module/Moderation/Users/Active.php:126
 #: src/Module/Moderation/Users/Blocked.php:126
 #: src/Module/Moderation/Users/Create.php:70
@@ -6283,6 +6290,7 @@ msgstr ""
 #: src/Module/Contact/Follow.php:170 src/Module/Contact/Profile.php:396
 #: src/Module/Contact/Unfollow.php:129
 #: src/Module/Moderation/Blocklist/Contact.php:133
+#: src/Module/Moderation/Reports.php:105
 #: src/Module/Notifications/Introductions.php:129
 #: src/Module/Notifications/Introductions.php:198
 msgid "Profile URL"
@@ -7577,6 +7585,7 @@ msgid "Block New Remote Contact"
 msgstr ""
 
 #: src/Module/Moderation/Blocklist/Contact.php:122
+#: src/Module/Moderation/Reports.php:96
 msgid "Photo"
 msgstr ""
 
@@ -8136,6 +8145,33 @@ msgstr ""
 
 #: src/Module/Moderation/Report/Create.php:334
 msgid "3. Pick posts"
+msgstr ""
+
+#: src/Module/Moderation/Reports.php:91
+msgid "List of reports"
+msgstr ""
+
+#: src/Module/Moderation/Reports.php:92
+msgid "This page display reports created by our or remote users."
+msgstr ""
+
+#: src/Module/Moderation/Reports.php:93
+msgid "No report exists at this node."
+msgstr ""
+
+#: src/Module/Moderation/Reports.php:96
+msgid "Category"
+msgstr ""
+
+#: src/Module/Moderation/Reports.php:102
+#, php-format
+msgid "%s total report"
+msgid_plural "%s total reports"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Moderation/Reports.php:105
+msgid "URL of the reported contact."
 msgstr ""
 
 #: src/Module/Moderation/Summary.php:53

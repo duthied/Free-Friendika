@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1531
+-- DB_UPDATE_VERSION 1532
 -- ------------------------------------------
 
 
@@ -1316,7 +1316,7 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	 INDEX `owner-id` (`owner-id`),
 	 INDEX `created` (`created`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Engagement data per post';
 
 --
@@ -1741,7 +1741,7 @@ CREATE TABLE IF NOT EXISTS `report` (
 	`assigned-uid` mediumint unsigned COMMENT 'Assigned moderator user',
 	`status` tinyint unsigned NOT NULL COMMENT 'Status of the report, one of Entity\Report::STATUS_*',
 	`resolution` tinyint unsigned COMMENT 'Resolution of the report, one of Entity\Report::RESOLUTION_*',
-	`created` datetime(6) NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`created` datetime(6) NOT NULL DEFAULT '0001-01-01 00:00:00.000000' COMMENT '',
 	`edited` datetime(6) COMMENT 'Last time the report has been edited',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
