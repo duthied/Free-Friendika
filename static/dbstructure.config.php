@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1532);
+	define('DB_UPDATE_VERSION', 1533);
 }
 
 return [
@@ -1857,6 +1857,7 @@ return [
 			"collapsed" => ["type" => "boolean", "comment" => "Posts from this contact are collapsed"],
 			"hidden" => ["type" => "boolean", "comment" => "This contact is hidden from the others"],
 			"is-blocked" => ["type" => "boolean", "comment" => "User is blocked by this contact"],
+			"channel-visibility" => ["type" => "tinyint unsigned", "comment" => "Controls the visibility in channels"],
 			"pending" => ["type" => "boolean", "comment" => ""],
 			"rel" => ["type" => "tinyint unsigned", "comment" => "The kind of the relation between the user and the contact"],
 			"info" => ["type" => "mediumtext", "comment" => ""],

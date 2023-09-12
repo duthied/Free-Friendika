@@ -91,6 +91,11 @@
 				</div>
 				<div id="contact-info-end"></div>
 			{{/if}}
+			{{if $channel_settings_label}}
+				<h4>{{$channel_settings_label}}</h4>
+				{{include file="field_select.tpl" field=$channel_visibility}}
+			{{/if}}
+
 			</div>
 			<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit}}" />
 		{{/if}}

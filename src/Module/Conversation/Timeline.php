@@ -189,13 +189,63 @@ class Timeline extends BaseModule
 	 */
 	protected function getChannelItems()
 	{
+		$items = $this->getRawChannelItems();
+
+		$contacts = $this->database->selectToArray('user-contact', ['cid'], ['channel-visibility' => Contact\User::VISIBILITY_REDUCED, 'cid' => array_column($items, 'owner-id')]);
+		$reduced  = array_column($contacts, 'cid');
+
+		$maxpostperauthor = $this->config->get('channel', 'max_posts_per_author');
+
+		if ($maxpostperauthor != 0) {
+			$count          = 1;
+			$numposts       = [];
+			$selected_items = [];
+
+			while (count($selected_items) < $this->itemsPerPage && ++$count < 50 && count($items) > 0) {
+				foreach ($items as $item) {
+					if (!in_array($item['owner-id'], $reduced) || (($numposts[$item['owner-id']]++ < $maxpostperauthor)) && (count($selected_items) < $this->itemsPerPage)) {
+						$selected_items[] = $item;
+					}
+				}
+
+				// If we're looking at a "previous page", the lookup continues forward in time because the list is
+				// sorted in chronologically decreasing order
+				if (isset($this->minId)) {
+					$this->minId = $items[0]['created'];
+				} else {
+					// In any other case, the lookup continues backwards in time
+					$this->maxId = $items[count($items) - 1]['created'];
+				}
+
+				if (count($selected_items) < $this->itemsPerPage) {
+					$items = $this->getRawChannelItems();
+				}
+			}
+		} else {
+			$selected_items = $items;
+		}
+
+		$condition = ['unseen' => true, 'uid' => $this->session->getLocalUserId(), 'parent-uri-id' => array_column($selected_items, 'uri-id')];
+		$this->setItemsSeenByCondition($condition);
+
+		return $selected_items;
+	}
+
+	/**
+	 * Database query for the channel page
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	private function getRawChannelItems()
+	{
 		$uid = $this->session->getLocalUserId();
 
 		if ($this->selectedTab == TimelineEntity::WHATSHOT) {
 			if (!is_null($this->accountType)) {
-				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` = ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $this->accountType];
+				$condition = ["(`comments` > ? OR `activities` > ?) AND `contact-type` = ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $this->accountType];
 			} else {
-				$condition = ["(`comments` >= ? OR `activities` >= ?) AND `contact-type` != ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), Contact::TYPE_COMMUNITY];
+				$condition = ["(`comments` > ? OR `activities` > ?) AND `contact-type` != ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), Contact::TYPE_COMMUNITY];
 			}
 		} elseif ($this->selectedTab == TimelineEntity::FORYOU) {
 			$cid = Contact::getPublicIdByUserId($uid);
@@ -203,9 +253,9 @@ class Timeline extends BaseModule
 			$condition = [
 				"(`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `relation-thread-score` > ?) OR
 				((`comments` >= ? OR `activities` >= ?) AND `owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ?)) OR
-				(`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?) AND `notify_new_posts`)))",
+				(`owner-id` IN (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND (`notify_new_posts` OR `channel-visibility` = ?))))",
 				$cid, $this->getMedianRelationThreadScore($cid, 4), $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $cid,
-				$uid, Contact::FRIEND, Contact::SHARING
+				$uid, Contact\User::VISIBILITY_ALWAYS
 			];
 		} elseif ($this->selectedTab == TimelineEntity::FOLLOWERS) {
 			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $uid, Contact::FOLLOWER];
@@ -233,7 +283,7 @@ class Timeline extends BaseModule
 			$condition = $this->addLanguageCondition($uid, $condition);
 		}
 
-		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed`))", $uid]);
+		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed` OR `is-blocked` OR `channel-visibility` = ?))", $uid, Contact\User::VISIBILITY_NEVER]);
 
 		if (($this->selectedTab != TimelineEntity::WHATSHOT) && !is_null($this->accountType)) {
 			$condition = DBA::mergeConditions($condition, ['contact-type' => $this->accountType]);
@@ -262,7 +312,7 @@ class Timeline extends BaseModule
 			}
 		}
 
-		$items = $this->database->selectToArray('post-engagement', ['uri-id', 'created'], $condition, $params);
+		$items = $this->database->selectToArray('post-engagement', ['uri-id', 'created', 'owner-id'], $condition, $params);
 		if (empty($items)) {
 			return [];
 		}

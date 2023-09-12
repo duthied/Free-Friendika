@@ -132,6 +132,10 @@ class Profile extends BaseModule
 			$fields['info'] = $_POST['info'];
 		}
 
+		if (isset($_POST['channel_visibility'])) {
+			Contact\User::setChannelVisibility($cdata['user'], $this->session->getLocalUserId(), $_POST['channel_visibility']);
+		}
+
 		if (!Contact::update($fields, ['id' => $cdata['user'], 'uid' => $this->session->getLocalUserId()])) {
 			$this->systemMessages->addNotice($this->t('Failed to update contact record.'));
 		}
@@ -336,6 +340,21 @@ class Profile extends BaseModule
 			];
 		}
 
+		if (in_array($contact['network'], Protocol::FEDERATED)) {
+			$channel_settings_label = $this->t('Channel Settings');
+			$channel_visibility     = Contact\User::getChannelVisibility($contact['id'], $this->session->getLocalUserId());
+			$channel_visibilities   = [
+				Contact\User::VISIBILITY_DEFAULT => $this->t('Default visibility'),
+				Contact\User::VISIBILITY_ALWAYS  => $this->t('Display all posts of this contact'),
+				Contact\User::VISIBILITY_REDUCED => $this->t('Display only few posts'),
+				Contact\User::VISIBILITY_NEVER   => $this->t('Never display posts from this contact'),
+			];
+		} else {
+			$channel_settings_label = null;
+			$channel_visibility     = null;
+			$channel_visibilities   = null;
+		}
+
 		$poll_interval = null;
 		if ((($contact['network'] == Protocol::FEED) && !$this->config->get('system', 'adjust_poll_frequency')) || ($contact['network'] == Protocol::MAIL)) {
 			$poll_interval = ContactSelector::pollInterval($localRelationship->priority, !$poll_enabled);
@@ -418,6 +437,14 @@ class Profile extends BaseModule
 				$localRelationship->remoteSelf,
 				$this->t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
 				$remote_self_options
+			],
+			'$channel_settings_label' => $channel_settings_label,
+			'$channel_visibility'     => [
+				'channel_visibility',
+				$this->t('Visibility of this contact in appropriate channels'),
+				$channel_visibility,
+				$this->t('Depending on the type of the channel not all posts from contacts are displayed by default. They for example need to have a certain amount of comments to be displayed. On the other hand there can be contacts who flood the channel, so you might want to see only some of their posts. Or you don\'t want to see their content at all, but you don\'t want to block or hide the contact completely.'),
+				$channel_visibilities
 			],
 		]);
 

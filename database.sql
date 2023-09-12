@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1532
+-- DB_UPDATE_VERSION 1533
 -- ------------------------------------------
 
 
@@ -1866,6 +1866,7 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	`collapsed` boolean COMMENT 'Posts from this contact are collapsed',
 	`hidden` boolean COMMENT 'This contact is hidden from the others',
 	`is-blocked` boolean COMMENT 'User is blocked by this contact',
+	`channel-visibility` tinyint unsigned COMMENT 'Controls the visibility in channels',
 	`pending` boolean COMMENT '',
 	`rel` tinyint unsigned COMMENT 'The kind of the relation between the user and the contact',
 	`info` mediumtext COMMENT '',
