@@ -203,6 +203,7 @@ class Timeline extends BaseModule
 
 			while (count($selected_items) < $this->itemsPerPage && ++$count < 50 && count($items) > 0) {
 				foreach ($items as $item) {
+					$numposts[$item['owner-id']] = ($numposts[$item['owner-id']] ?? 0);
 					if (!in_array($item['owner-id'], $reduced) || (($numposts[$item['owner-id']]++ < $maxpostperauthor)) && (count($selected_items) < $this->itemsPerPage)) {
 						$selected_items[] = $item;
 					}
