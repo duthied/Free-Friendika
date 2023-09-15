@@ -451,7 +451,7 @@ class Profile extends BaseModule
 			'$visibility_default'     => ['channel_visibility', $this->t('Default frequency'), Contact\User::VISIBILITY_DEFAULT, $this->t('Posts by this contact are displayed in the "for you" channel if you interact often with this contact or if a post reached some level of interaction.'), $channel_visibility == Contact\User::VISIBILITY_DEFAULT],
 			'$visibility_always'      => ['channel_visibility', $this->t('Display all posts of this contact'), Contact\User::VISIBILITY_ALWAYS, $this->t('If you follow this contact, all their posts will appear on the "for you" channel'), $channel_visibility == Contact\User::VISIBILITY_ALWAYS],
 			'$visibility_reduced'     => ['channel_visibility', $this->t('Display only few posts'), Contact\User::VISIBILITY_REDUCED, $this->t('When a contact creates a lot of posts in a short period, this setting reduces the number of displayed posts in every channel.'), $channel_visibility == Contact\User::VISIBILITY_REDUCED],
-			'$visibility_never'       => ['channel_visibility', $this->t('Never display posts from this contact'), Contact\User::VISIBILITY_NEVER, $this->t('Posts from this contact will never be displayed in any channel'), $channel_visibility == Contact\User::VISIBILITY_NEVER],
+			'$visibility_never'       => ['channel_visibility', $this->t('Never display posts'), Contact\User::VISIBILITY_NEVER, $this->t('Posts from this contact will never be displayed in any channel'), $channel_visibility == Contact\User::VISIBILITY_NEVER],
 	]);
 
 		$arr = ['contact' => $contact, 'output' => $o];
