@@ -343,16 +343,9 @@ class Profile extends BaseModule
 		if (in_array($contact['network'], Protocol::FEDERATED)) {
 			$channel_settings_label = $this->t('Channel Settings');
 			$channel_visibility     = Contact\User::getChannelVisibility($contact['id'], $this->session->getLocalUserId());
-			$channel_visibilities   = [
-				Contact\User::VISIBILITY_DEFAULT => $this->t('Default visibility'),
-				Contact\User::VISIBILITY_ALWAYS  => $this->t('Display all posts of this contact'),
-				Contact\User::VISIBILITY_REDUCED => $this->t('Display only few posts'),
-				Contact\User::VISIBILITY_NEVER   => $this->t('Never display posts from this contact'),
-			];
 		} else {
 			$channel_settings_label = null;
 			$channel_visibility     = null;
-			$channel_visibilities   = null;
 		}
 
 		$poll_interval = null;
@@ -439,13 +432,6 @@ class Profile extends BaseModule
 				$remote_self_options
 			],
 			'$channel_settings_label' => $channel_settings_label,
-			'$channel_visibility'     => [
-				'channel_visibility',
-				$this->t('Visibility of this contact in appropriate channels'),
-				$channel_visibility,
-				$this->t('Depending on the type of the channel not all posts from contacts are displayed by default. They for example need to have a certain amount of comments to be displayed. On the other hand there can be contacts who flood the channel, so you might want to see only some of their posts. Or you don\'t want to see their content at all, but you don\'t want to block or hide the contact completely.'),
-				$channel_visibilities
-			],
 			'$visibility_label'       => $this->t('Frequency of this contact in relevant channels'),
 			'$visibility_description' => $this->t("Depending on the type of the channel not all posts from this contact are displayed. By default, posts need to have a minimum amount of interactions (comments, likes) to show in your channels. On the other hand there can be contacts who flood the channel, so you might want to see only some of their posts. Or you don't want to see their content at all, but you don't want to block or hide the contact completely."),
 			'$visibility_default'     => ['channel_visibility', $this->t('Default frequency'), Contact\User::VISIBILITY_DEFAULT, $this->t('Posts by this contact are displayed in the "for you" channel if you interact often with this contact or if a post reached some level of interaction.'), $channel_visibility == Contact\User::VISIBILITY_DEFAULT],
