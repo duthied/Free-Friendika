@@ -446,7 +446,13 @@ class Profile extends BaseModule
 				$this->t('Depending on the type of the channel not all posts from contacts are displayed by default. They for example need to have a certain amount of comments to be displayed. On the other hand there can be contacts who flood the channel, so you might want to see only some of their posts. Or you don\'t want to see their content at all, but you don\'t want to block or hide the contact completely.'),
 				$channel_visibilities
 			],
-		]);
+			'$visibility_label'       => $this->t('Visibility of this contact in appropriate channels'),
+			'$visibility_description' => $this->t('Depending on the type of the channel not all posts from contacts are displayed by default. They for example need to have a certain amount of comments to be displayed. On the other hand there can be contacts who flood the channel, so you might want to see only some of their posts. Or you don\'t want to see their content at all, but you don\'t want to block or hide the contact completely.'),
+			'$visibility_default'     => ['channel_visibility', $this->t('Default visibility'), Contact\User::VISIBILITY_DEFAULT, $this->t('When activated, posts by this contact are displayed in the "for you" channel, if either you interact often with this contact or if a post reached some level of interaction.'), $channel_visibility == Contact\User::VISIBILITY_DEFAULT],
+			'$visibility_always'      => ['channel_visibility', $this->t('Display all posts of this contact'), Contact\User::VISIBILITY_ALWAYS, $this->t('If you follow this contact, then every post of this contact will appear on the "for you" channel'), $channel_visibility == Contact\User::VISIBILITY_ALWAYS],
+			'$visibility_reduced'     => ['channel_visibility', $this->t('Display only few posts'), Contact\User::VISIBILITY_REDUCED, $this->t('When a contact creates a lot of posts in a short period, this setting reduces the number of displayed posts in every channel.'), $channel_visibility == Contact\User::VISIBILITY_REDUCED],
+			'$visibility_never'       => ['channel_visibility', $this->t('Never display posts from this contact'), Contact\User::VISIBILITY_NEVER, $this->t('Posts from this contact will never be displayed in any channel'), $channel_visibility == Contact\User::VISIBILITY_NEVER],
+	]);
 
 		$arr = ['contact' => $contact, 'output' => $o];
 

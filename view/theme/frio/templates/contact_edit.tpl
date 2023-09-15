@@ -201,8 +201,13 @@
 							<div id="contact-edit-channel-collapse" class="panel-body panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-channel">
 								<div class="section-content-tools-wrapper">
 	
-									{{include file="field_select.tpl" field=$channel_visibility}}
-	
+									<label>{{$visibility_label}}</label>
+									{{include file="field_radio.tpl" field=$visibility_default}}
+									{{include file="field_radio.tpl" field=$visibility_always}}
+									{{include file="field_radio.tpl" field=$visibility_reduced}}
+									{{include file="field_radio.tpl" field=$visibility_never}}
+									<p>{{$visibility_description}}</p>
+
 									<div class="pull-right settings-submit-wrapper">
 										<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 									</div>
