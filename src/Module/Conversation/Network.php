@@ -292,7 +292,7 @@ class Network extends Timeline
 
 		if (!empty($network_timelines)) {
 			$tabs = [];
-			
+
 			foreach (array_keys($arr['tabs']) as $tab) {
 				if (in_array($tab, $network_timelines)) {
 					$tabs[] = $arr['tabs'][$tab];
@@ -340,12 +340,18 @@ class Network extends Timeline
 			$this->order = $request['order'];
 			$this->star = false;
 			$this->mention = false;
-		} elseif (in_array($this->selectedTab, [TimelineEntity::RECEIVED, TimelineEntity::STAR])) {
+		} elseif (in_array($this->selectedTab, [TimelineEntity::RECEIVED, TimelineEntity::STAR]) || $this->timeline->isCommunity($this->selectedTab)) {
 			$this->order = 'received';
 		} elseif (($this->selectedTab == TimelineEntity::CREATED) || $this->timeline->isChannel($this->selectedTab)) {
 			$this->order = 'created';
 		} else {
 			$this->order = 'commented';
+		}
+
+		// Upon force (updates in the background) and order by last comment we order by receive date,
+		// since otherwise the feed will optically jump, when some already visible thread has been updated.
+		if ($this->force && ($this->selectedTab == TimelineEntity::COMMENTED)) {
+			$this->order = 'received';
 		}
 
 		$this->selectedTab = $this->selectedTab ?? $this->order;
@@ -368,16 +374,20 @@ class Network extends Timeline
 		switch ($this->order) {
 			case 'received':
 				$this->maxId = $request['last_received'] ?? $this->maxId;
+				$this->minId = $request['first_received'] ?? $this->minId;
 				break;
 			case 'created':
 				$this->maxId = $request['last_created'] ?? $this->maxId;
+				$this->minId = $request['first_created'] ?? $this->minId;
 				break;
 			case 'uriid':
 				$this->maxId = $request['last_uriid'] ?? $this->maxId;
+				$this->minId = $request['first_uriid'] ?? $this->minId;
 				break;
 			default:
 				$this->order = 'commented';
 				$this->maxId = $request['last_commented'] ?? $this->maxId;
+				$this->minId = $request['first_commented'] ?? $this->minId;
 		}
 	}
 

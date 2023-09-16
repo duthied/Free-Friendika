@@ -608,6 +608,26 @@ function liveUpdate(src) {
 		update_url += '&max_id=' + getUrlParameter('max_id');
 	}
 
+	match = $("span.received").first();
+	if (match.length > 0) {
+		update_url += '&first_received=' + match[0].innerHTML;
+	}
+
+	match = $("span.created").first();
+	if (match.length > 0) {
+		update_url += '&first_created=' + match[0].innerHTML;
+	}
+
+	match = $("span.commented").first();
+	if (match.length > 0) {
+		update_url += '&first_commented=' + match[0].innerHTML;
+	}
+
+	match = $("span.uriid").first();
+	if (match.length > 0) {
+		update_url += '&first_uriid=' + match[0].innerHTML;
+	}
+
 	$.get(update_url, function(data) {
 		in_progress = false;
 		update_item = 0;
