@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-16 04:18+0000\n"
+"POT-Creation-Date: 2023-09-16 04:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6599,9 +6599,7 @@ msgid "Display all posts of this contact"
 msgstr ""
 
 #: src/Module/Contact/Profile.php:438
-msgid ""
-"If you follow this contact, all their posts will appear on the \"for you\" "
-"channel"
+msgid "All posts from this contact will appear on the \"for you\" channel"
 msgstr ""
 
 #: src/Module/Contact/Profile.php:439
