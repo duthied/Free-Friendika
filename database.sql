@@ -1573,8 +1573,6 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	 INDEX `post-user-id` (`post-user-id`),
 	 INDEX `commented` (`commented`),
 	 INDEX `received` (`received`),
-	 INDEX `wall` (`wall`),
-	 INDEX `origin` (`origin`),
 	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
 	 INDEX `uid_commented` (`uid`,`commented`),
