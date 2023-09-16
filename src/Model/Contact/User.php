@@ -37,10 +37,10 @@ use PDOException;
  */
 class User
 {
-	const VISIBILITY_DEFAULT = 0;
-	const VISIBILITY_NEVER   = 1;
-	const VISIBILITY_ALWAYS  = 2;
-	const VISIBILITY_REDUCED = 3;
+	const FREQUENCY_DEFAULT = 0;
+	const FREQUENCY_NEVER   = 1;
+	const FREQUENCY_ALWAYS  = 2;
+	const FREQUENCY_REDUCED = 3;
 	/**
 	 * Insert a user-contact for a given contact array
 	 *
@@ -327,14 +327,14 @@ class User
 	 * @return void
 	 * @throws \Exception
 	 */
-	public static function setChannelVisibility(int $cid, int $uid, int $visibility)
+	public static function setChannelFrequency(int $cid, int $uid, int $visibility)
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
 			return;
 		}
 
-		DBA::update('user-contact', ['channel-visibility' => $visibility], ['cid' => $cdata['public'], 'uid' => $uid], true);
+		DBA::update('user-contact', ['channel-frequency' => $visibility], ['cid' => $cdata['public'], 'uid' => $uid], true);
 	}
 
 	/**
@@ -346,19 +346,19 @@ class User
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getChannelVisibility(int $cid, int $uid): int
+	public static function getChannelFrequency(int $cid, int $uid): int
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
 			return false;
 		}
 
-		$visibility = self::VISIBILITY_DEFAULT;
+		$visibility = self::FREQUENCY_DEFAULT;
 
 		if (!empty($cdata['public'])) {
-			$public_contact = DBA::selectFirst('user-contact', ['channel-visibility'], ['cid' => $cdata['public'], 'uid' => $uid]);
+			$public_contact = DBA::selectFirst('user-contact', ['channel-frequency'], ['cid' => $cdata['public'], 'uid' => $uid]);
 			if (DBA::isResult($public_contact)) {
-				$visibility = $public_contact['channel-visibility'] ?? self::VISIBILITY_DEFAULT;
+				$visibility = $public_contact['channel-frequency'] ?? self::FREQUENCY_DEFAULT;
 			}
 		}
 

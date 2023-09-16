@@ -93,12 +93,12 @@
 			{{/if}}
 			{{if $channel_settings_label}}
 				<h4>{{$channel_settings_label}}</h4>
-				<label>{{$visibility_label}}</label>
-				{{include file="field_radio.tpl" field=$visibility_default}}
-				{{include file="field_radio.tpl" field=$visibility_always}}
-				{{include file="field_radio.tpl" field=$visibility_reduced}}
-				{{include file="field_radio.tpl" field=$visibility_never}}
-				<p>{{$visibility_description}}</p>
+				<label>{{$frequency_label}}</label>
+				{{include file="field_radio.tpl" field=$frequency_default}}
+				{{include file="field_radio.tpl" field=$frequency_always}}
+				{{include file="field_radio.tpl" field=$frequency_reduced}}
+				{{include file="field_radio.tpl" field=$frequency_never}}
+				<p>{{$frequency_description}}</p>
 			{{/if}}
 
 			</div>

@@ -132,8 +132,8 @@ class Profile extends BaseModule
 			$fields['info'] = $_POST['info'];
 		}
 
-		if (isset($_POST['channel_visibility'])) {
-			Contact\User::setChannelVisibility($cdata['user'], $this->session->getLocalUserId(), $_POST['channel_visibility']);
+		if (isset($_POST['channel_frequency'])) {
+			Contact\User::setChannelFrequency($cdata['user'], $this->session->getLocalUserId(), $_POST['channel_frequency']);
 		}
 
 		if (!Contact::update($fields, ['id' => $cdata['user'], 'uid' => $this->session->getLocalUserId()])) {
@@ -342,10 +342,10 @@ class Profile extends BaseModule
 
 		if (in_array($contact['network'], Protocol::FEDERATED)) {
 			$channel_settings_label = $this->t('Channel Settings');
-			$channel_visibility     = Contact\User::getChannelVisibility($contact['id'], $this->session->getLocalUserId());
+			$channel_frequency     = Contact\User::getChannelFrequency($contact['id'], $this->session->getLocalUserId());
 		} else {
 			$channel_settings_label = null;
-			$channel_visibility     = null;
+			$channel_frequency     = null;
 		}
 
 		$poll_interval = null;
@@ -432,12 +432,12 @@ class Profile extends BaseModule
 				$remote_self_options
 			],
 			'$channel_settings_label' => $channel_settings_label,
-			'$visibility_label'       => $this->t('Frequency of this contact in relevant channels'),
-			'$visibility_description' => $this->t("Depending on the type of the channel not all posts from this contact are displayed. By default, posts need to have a minimum amount of interactions (comments, likes) to show in your channels. On the other hand there can be contacts who flood the channel, so you might want to see only some of their posts. Or you don't want to see their content at all, but you don't want to block or hide the contact completely."),
-			'$visibility_default'     => ['channel_visibility', $this->t('Default frequency'), Contact\User::VISIBILITY_DEFAULT, $this->t('Posts by this contact are displayed in the "for you" channel if you interact often with this contact or if a post reached some level of interaction.'), $channel_visibility == Contact\User::VISIBILITY_DEFAULT],
-			'$visibility_always'      => ['channel_visibility', $this->t('Display all posts of this contact'), Contact\User::VISIBILITY_ALWAYS, $this->t('If you follow this contact, all their posts will appear on the "for you" channel'), $channel_visibility == Contact\User::VISIBILITY_ALWAYS],
-			'$visibility_reduced'     => ['channel_visibility', $this->t('Display only few posts'), Contact\User::VISIBILITY_REDUCED, $this->t('When a contact creates a lot of posts in a short period, this setting reduces the number of displayed posts in every channel.'), $channel_visibility == Contact\User::VISIBILITY_REDUCED],
-			'$visibility_never'       => ['channel_visibility', $this->t('Never display posts'), Contact\User::VISIBILITY_NEVER, $this->t('Posts from this contact will never be displayed in any channel'), $channel_visibility == Contact\User::VISIBILITY_NEVER],
+			'$frequency_label'        => $this->t('Frequency of this contact in relevant channels'),
+			'$frequency_description'  => $this->t("Depending on the type of the channel not all posts from this contact are displayed. By default, posts need to have a minimum amount of interactions (comments, likes) to show in your channels. On the other hand there can be contacts who flood the channel, so you might want to see only some of their posts. Or you don't want to see their content at all, but you don't want to block or hide the contact completely."),
+			'$frequency_default'      => ['channel_frequency', $this->t('Default frequency'), Contact\User::FREQUENCY_DEFAULT, $this->t('Posts by this contact are displayed in the "for you" channel if you interact often with this contact or if a post reached some level of interaction.'), $channel_frequency == Contact\User::FREQUENCY_DEFAULT],
+			'$frequency_always'       => ['channel_frequency', $this->t('Display all posts of this contact'), Contact\User::FREQUENCY_ALWAYS, $this->t('If you follow this contact, all their posts will appear on the "for you" channel'), $channel_frequency == Contact\User::FREQUENCY_ALWAYS],
+			'$frequency_reduced'      => ['channel_frequency', $this->t('Display only few posts'), Contact\User::FREQUENCY_REDUCED, $this->t('When a contact creates a lot of posts in a short period, this setting reduces the number of displayed posts in every channel.'), $channel_frequency == Contact\User::FREQUENCY_REDUCED],
+			'$frequency_never'        => ['channel_frequency', $this->t('Never display posts'), Contact\User::FREQUENCY_NEVER, $this->t('Posts from this contact will never be displayed in any channel'), $channel_frequency == Contact\User::FREQUENCY_NEVER],
 	]);
 
 		$arr = ['contact' => $contact, 'output' => $o];

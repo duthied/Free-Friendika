@@ -160,5 +160,6 @@ class Channel extends Timeline
 		}
 
 		$this->maxId = $request['last_created'] ?? $this->maxId;
+		$this->minId = $request['first_created'] ?? $this->minId;
 	}
 }
