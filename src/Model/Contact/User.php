@@ -319,30 +319,30 @@ class User
 	}
 
 	/**
-	 * Set the channel visibility for contact id and user id
+	 * Set the channel post frequency for contact id and user id
 	 *
-	 * @param int $cid        Either public contact id or user's contact id
-	 * @param int $uid        User ID
-	 * @param int $visibility Set type of visibility
+	 * @param int $cid       Either public contact id or user's contact id
+	 * @param int $uid       User ID
+	 * @param int $frequency Type of post frequency in channels
 	 * @return void
 	 * @throws \Exception
 	 */
-	public static function setChannelFrequency(int $cid, int $uid, int $visibility)
+	public static function setChannelFrequency(int $cid, int $uid, int $frequency)
 	{
 		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
 		if (empty($cdata)) {
 			return;
 		}
 
-		DBA::update('user-contact', ['channel-frequency' => $visibility], ['cid' => $cdata['public'], 'uid' => $uid], true);
+		DBA::update('user-contact', ['channel-frequency' => $frequency], ['cid' => $cdata['public'], 'uid' => $uid], true);
 	}
 
 	/**
-	 * Returns the channel visibility state for contact id and user id
+	 * Returns the channel frequency state for contact id and user id
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
-	 * @return int the type of visibility in channels
+	 * @return int Type of post frequency in channels
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -353,16 +353,16 @@ class User
 			return false;
 		}
 
-		$visibility = self::FREQUENCY_DEFAULT;
+		$frequency = self::FREQUENCY_DEFAULT;
 
 		if (!empty($cdata['public'])) {
 			$public_contact = DBA::selectFirst('user-contact', ['channel-frequency'], ['cid' => $cdata['public'], 'uid' => $uid]);
 			if (DBA::isResult($public_contact)) {
-				$visibility = $public_contact['channel-frequency'] ?? self::FREQUENCY_DEFAULT;
+				$frequency = $public_contact['channel-frequency'] ?? self::FREQUENCY_DEFAULT;
 			}
 		}
 
-		return $visibility;
+		return $frequency;
 	}
 
 	/**
