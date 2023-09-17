@@ -348,7 +348,7 @@ class Network extends Timeline
 			$this->order = 'commented';
 		}
 
-		// Upon updates in the background and order by last comment we order by receive date,
+		// Upon updates in the background and order by last comment we order by received date,
 		// since otherwise the feed will optically jump, when some already visible thread has been updated.
 		if ($this->update && ($this->selectedTab == TimelineEntity::COMMENTED)) {
 			$this->order = 'received';
