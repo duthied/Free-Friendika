@@ -37,7 +37,7 @@ class Network extends NetworkModule
 
 		$o = '';
 
-		if (!$this->force) {
+		if (!$this->update && !$this->force) {
 			System::htmlUpdateExit($o);
 		}
 

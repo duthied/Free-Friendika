@@ -39,7 +39,7 @@ class Community extends CommunityModule
 		$this->parseRequest($request);
 
 		$o = '';
-		if ($this->force) {
+		if ($this->update || $this->force) {
 			$o = DI::conversation()->render($this->getCommunityItems(), Conversation::MODE_COMMUNITY, true, false, 'commented', DI::userSession()->getLocalUserId());
 		}
 

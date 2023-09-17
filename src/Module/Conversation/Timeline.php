@@ -64,6 +64,8 @@ class Timeline extends BaseModule
 	protected $noSharer;
 	/** @var bool */
 	protected $force;
+	/** @var bool */
+	protected $update;
 
 	/** @var App\Mode $mode */
 	protected $mode;
@@ -131,7 +133,8 @@ class Timeline extends BaseModule
 		$this->maxId = $request['max_id'] ?? null;
 
 		$this->noSharer = !empty($request['no_sharer']);
-		$this->force    = !empty($request['force']);
+		$this->force    = !empty($request['force']) && !empty($request['item']);
+		$this->update   = !empty($request['force']) && !empty($request['first_received']) && !empty($request['first_created']) && !empty($request['first_uriid']) && !empty($request['first_commented']);
 	}
 
 	protected function getNoSharerWidget(string $base): string

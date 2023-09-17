@@ -37,7 +37,7 @@ class Channel extends ChannelModule
 		$this->parseRequest($request);
 
 		$o = '';
-		if ($this->force) {
+		if ($this->update || $this->force) {
 			if ($this->timeline->isChannel($this->selectedTab)) {
 				$items = $this->getChannelItems();
 			} else {
