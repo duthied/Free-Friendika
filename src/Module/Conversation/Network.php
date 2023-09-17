@@ -317,6 +317,10 @@ class Network extends Timeline
 			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
 		}
 
+		if (($this->network || $this->circleId || $this->groupContactId) && ($this->timeline->isChannel($this->selectedTab) || $this->timeline->isCommunity($this->selectedTab))) {
+			$this->selectedTab = TimelineEntity::RECEIVED;
+		}
+
 		if (!empty($request['star'])) {
 			$this->selectedTab = TimelineEntity::STAR;
 			$this->star = true;
