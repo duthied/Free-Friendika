@@ -35,11 +35,9 @@ class Network extends NetworkModule
 
 		$this->parseRequest($request);
 
-		$profile_uid = intval($request['p']);
-
 		$o = '';
 
-		if (empty($request['force'])) {
+		if (!$this->force) {
 			System::htmlUpdateExit($o);
 		}
 
@@ -51,7 +49,7 @@ class Network extends NetworkModule
 			$items = $this->getItems();
 		}
 
-		$o = $this->conversation->render($items, Conversation::MODE_NETWORK, $profile_uid, false, $this->getOrder(), $this->session->getLocalUserId());
+		$o = $this->conversation->render($items, Conversation::MODE_NETWORK, true, false, $this->getOrder(), $this->session->getLocalUserId());
 
 		System::htmlUpdateExit($o);
 	}
