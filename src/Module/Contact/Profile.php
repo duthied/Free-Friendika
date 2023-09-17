@@ -340,13 +340,8 @@ class Profile extends BaseModule
 			];
 		}
 
-		if (in_array($contact['network'], Protocol::FEDERATED)) {
-			$channel_settings_label = $this->t('Channel Settings');
-			$channel_frequency     = Contact\User::getChannelFrequency($contact['id'], $this->session->getLocalUserId());
-		} else {
-			$channel_settings_label = null;
-			$channel_frequency     = null;
-		}
+		$channel_settings_label = $this->t('Channel Settings');
+		$channel_frequency     = Contact\User::getChannelFrequency($contact['id'], $this->session->getLocalUserId());
 
 		$poll_interval = null;
 		if ((($contact['network'] == Protocol::FEED) && !$this->config->get('system', 'adjust_poll_frequency')) || ($contact['network'] == Protocol::MAIL)) {

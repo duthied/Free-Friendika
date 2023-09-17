@@ -306,6 +306,8 @@ class Timeline extends BaseModule
 			$condition = $this->addLanguageCondition($uid, $condition);
 		}
 
+		$condition = DBA::mergeConditions($condition, ["(NOT `restricted` OR EXISTS(SELECT `id` FROM `post-user` WHERE `uid` = ? AND `uri-id` = `post-engagement`.`uri-id`))", $uid]);
+
 		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed` OR `is-blocked` OR `channel-frequency` = ?))", $uid, Contact\User::FREQUENCY_NEVER]);
 
 		if (($this->selectedTab != TimelineEntity::WHATSHOT) && !is_null($this->accountType)) {
@@ -381,7 +383,7 @@ class Timeline extends BaseModule
 			return $comments;
 		}
 
-		$condition = ["`contact-type` != ? AND `comments` > ?", Contact::TYPE_COMMUNITY, 0];
+		$condition = ["`contact-type` != ? AND `comments` > ? AND NOT `restricted`", Contact::TYPE_COMMUNITY, 0];
 		$condition = $this->addLanguageCondition($uid, $condition);
 
 		$limit    = $this->database->count('post-engagement', $condition) / $divider;
@@ -405,7 +407,7 @@ class Timeline extends BaseModule
 			return $activities;
 		}
 
-		$condition = ["`contact-type` != ? AND `activities` > ?", Contact::TYPE_COMMUNITY, 0];
+		$condition = ["`contact-type` != ? AND `activities` > ? AND NOT `restricted`", Contact::TYPE_COMMUNITY, 0];
 		$condition = $this->addLanguageCondition($uid, $condition);
 
 		$limit      = $this->database->count('post-engagement', $condition) / $divider;

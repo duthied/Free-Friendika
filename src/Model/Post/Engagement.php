@@ -29,8 +29,10 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Model\Tag;
 use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 
 // Channel
@@ -45,26 +47,12 @@ class Engagement
 	 */
 	public static function storeFromItem(array $item)
 	{
-		if (!in_array($item['network'], Protocol::FEDERATED)) {
-			Logger::debug('No federated network', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'network' => $item['network']]);
-			return;
-		}
-
-		if (($item['uid'] != 0) && ($item['gravity'] == Item::GRAVITY_COMMENT)) {
-			Logger::debug('Non public comments are not stored', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
-			return;
-		}
-
 		if (in_array($item['verb'], [Activity::FOLLOW, Activity::VIEW, Activity::READ])) {
 			Logger::debug('Technical activities are not stored', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'verb' => $item['verb']]);
 			return;
 		}
 
 		$parent = Post::selectFirst(['created', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language'], ['uri-id' => $item['parent-uri-id']]);
-		if ($parent['private'] != Item::PUBLIC) {
-			Logger::debug('Non public posts are not stored', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $parent['uid'], 'private' => $parent['private']]);
-			return;
-		}
 
 		if ($parent['created'] < DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')) {
 			Logger::debug('Post is too old', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'created' => $parent['created']]);
@@ -75,6 +63,15 @@ class Engagement
 
 		if (!$store) {
 			$store = Contact::hasFollowers($parent['owner-id']);
+		}
+
+		if (!$store) {
+			$tagList = Relay::getSubscribedTags();
+			foreach (array_column(Tag::getByURIId($item['parent-uri-id'], [Tag::HASHTAG]), 'name') as $tag) {
+				if (in_array($tag, $tagList)) {
+					$store = true;
+				}
+			}
 		}
 
 		$mediatype = self::getMediaType($item['parent-uri-id']);
@@ -90,6 +87,7 @@ class Engagement
 			'media-type'   => $mediatype,
 			'language'     => $parent['language'],
 			'created'      => $parent['created'],
+			'restricted'   => !in_array($item['network'], Protocol::FEDERATED) || ($parent['private'] != Item::PUBLIC),
 			'comments'     => DBA::count('post', ['parent-uri-id' => $item['parent-uri-id'], 'gravity' => Item::GRAVITY_COMMENT]),
 			'activities'   => DBA::count('post', [
 				"`parent-uri-id` = ? AND `gravity` = ? AND NOT `vid` IN (?, ?, ?)",
@@ -98,7 +96,7 @@ class Engagement
 			])
 		];
 		if (!$store && ($engagement['comments'] == 0) && ($engagement['activities'] == 0)) {
-			Logger::debug('No media, follower, comments or activities. Engagement not stored', ['fields' => $engagement]);
+			Logger::debug('No media, follower, subscribed tags, comments or activities. Engagement not stored', ['fields' => $engagement]);
 			return;
 		}
 		$ret = DBA::insert('post-engagement', $engagement, Database::INSERT_UPDATE);
