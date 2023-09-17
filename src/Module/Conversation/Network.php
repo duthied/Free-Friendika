@@ -130,30 +130,26 @@ class Network extends Timeline
 				$this->page['aside'] .= $this->getNoSharerWidget($module);
 			}
 
-			if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
-				$this->page['aside'] .= TrendingTags::getHTML($this->selectedTab);
-			}
-
 			$items = $this->getChannelItems();
 		} elseif ($this->timeline->isCommunity($this->selectedTab)) {
 			if ($this->session->getLocalUserId() && $this->config->get('system', 'community_no_sharer')) {
 				$this->page['aside'] .= $this->getNoSharerWidget($module);
 			}
 
-			if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
-				$this->page['aside'] .= TrendingTags::getHTML($this->selectedTab);
-			}
-
 			$items = $this->getCommunityItems();
 		} else {
-			$this->page['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', $this->circleId);
-			$this->page['aside'] .= GroupManager::widget($module . '/group', $this->session->getLocalUserId(), $this->groupContactId);
-			$this->page['aside'] .= Widget::postedByYear($module . '/archive', $this->session->getLocalUserId(), false);
-			$this->page['aside'] .= Widget::networks($module, !$this->groupContactId ? $this->network : '');
-			$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
-			$this->page['aside'] .= Widget::fileAs('filed', '');
-
 			$items = $this->getItems();
+		}
+
+		$this->page['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', $this->circleId);
+		$this->page['aside'] .= GroupManager::widget($module . '/group', $this->session->getLocalUserId(), $this->groupContactId);
+		$this->page['aside'] .= Widget::postedByYear($module . '/archive', $this->session->getLocalUserId(), false);
+		$this->page['aside'] .= Widget::networks($module, !$this->groupContactId ? $this->network : '');
+		$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
+		$this->page['aside'] .= Widget::fileAs('filed', '');
+
+		if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
+			$this->page['aside'] .= TrendingTags::getHTML($this->selectedTab);
 		}
 
 		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
