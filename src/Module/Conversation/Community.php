@@ -126,13 +126,13 @@ class Community extends Timeline
 			return $o;
 		}
 
-		$o .= $this->conversation->render($items, Conversation::MODE_COMMUNITY, false, false, 'commented', $this->session->getLocalUserId());
+		$o .= $this->conversation->render($items, Conversation::MODE_COMMUNITY, false, false, 'received', $this->session->getLocalUserId());
 
 		$pager = new BoundariesPager(
 			$this->l10n,
 			$this->args->getQueryString(),
-			$items[0]['commented'],
-			$items[count($items) - 1]['commented'],
+			$items[0]['received'],
+			$items[count($items) - 1]['received'],
 			$this->itemsPerPage
 		);
 
@@ -196,6 +196,7 @@ class Community extends Timeline
 			}
 		}
 
-		$this->maxId = $request['last_commented'] ?? $this->maxId;
+		$this->maxId = $request['last_received'] ?? $this->maxId;
+		$this->minId = $request['first_received'] ?? $this->minId;
 	}
 }

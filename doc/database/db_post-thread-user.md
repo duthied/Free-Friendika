@@ -49,6 +49,7 @@ Indexes
 | psid              | psid                |
 | post-user-id      | post-user-id        |
 | commented         | commented           |
+| received          | received            |
 | uid_received      | uid, received       |
 | uid_wall_received | uid, wall, received |
 | uid_commented     | uid, commented      |

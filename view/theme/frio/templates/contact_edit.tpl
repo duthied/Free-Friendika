@@ -189,6 +189,33 @@
 						</div>
 					</div>
 					{{/if}}
+					{{if $channel_settings_label}}
+						<div class="panel">
+							<div class="section-subtitle-wrapper panel-heading" role="tab" id="contact-edit-channel">
+								<h4>
+									<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-channel-collapse" aria-expanded="false" aria-controls="contact-edit-channel-collapse">
+										{{$channel_settings_label}}
+									</button>
+								</h4>
+							</div>
+							<div id="contact-edit-channel-collapse" class="panel-body panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-channel">
+								<div class="section-content-tools-wrapper">
+	
+									<label>{{$frequency_label}}</label>
+									{{include file="field_radio.tpl" field=$frequency_default}}
+									{{include file="field_radio.tpl" field=$frequency_always}}
+									{{include file="field_radio.tpl" field=$frequency_reduced}}
+									{{include file="field_radio.tpl" field=$frequency_never}}
+									<p>{{$frequency_description}}</p>
+
+									<div class="pull-right settings-submit-wrapper">
+										<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+									</div>
+									<div class="clear"></div>
+								</div>
+							</div>
+						</div>
+					{{/if}}
 				</div>
 
 			</form>{{* End of the form *}}

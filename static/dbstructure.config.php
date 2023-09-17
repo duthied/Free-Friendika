@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1532);
+	define('DB_UPDATE_VERSION', 1533);
 }
 
 return [
@@ -1578,6 +1578,7 @@ return [
 			"psid" => ["psid"],
 			"post-user-id" => ["post-user-id"],
 			"commented" => ["commented"],
+			"received" => ["received"],
 			"uid_received" => ["uid", "received"],
 			"uid_wall_received" => ["uid", "wall", "received"],
 			"uid_commented" => ["uid", "commented"],
@@ -1728,14 +1729,14 @@ return [
 			"cid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["contact" => "id"], "comment" => "Reported contact"],
 			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id"], "comment" => "Reported contact server"],
 			"comment" => ["type" => "text", "comment" => "Report"],
-			"category-id" => ["type" => "int unsigned", "not null" => 1, "default" => \Friendica\Moderation\Entity\Report::CATEGORY_OTHER, "comment" => "Report category, one of Entity\Report::CATEGORY_*"],
+			"category-id" => ["type" => "int unsigned", "not null" => 1, "default" => \Friendica\Moderation\Entity\Report::CATEGORY_OTHER, "comment" => "Report category, one of Entity Report::CATEGORY_*"],
 			"forward" => ["type" => "boolean", "comment" => "Forward the report to the remote server"],
 			"public-remarks" => ["type" => "text", "comment" => "Remarks shared with the reporter"],
 			"private-remarks" => ["type" => "text", "comment" => "Remarks shared with the moderation team"],
 			"last-editor-uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Last editor user"],
 			"assigned-uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Assigned moderator user"],
-			"status" => ["type" => "tinyint unsigned", "not null" => "1", "comment" => "Status of the report, one of Entity\Report::STATUS_*"],
-			"resolution" => ["type" => "tinyint unsigned", "comment" => "Resolution of the report, one of Entity\Report::RESOLUTION_*"],
+			"status" => ["type" => "tinyint unsigned", "not null" => "1", "comment" => "Status of the report, one of Entity Report::STATUS_*"],
+			"resolution" => ["type" => "tinyint unsigned", "comment" => "Resolution of the report, one of Entity Report::RESOLUTION_*"],
 			"created" => ["type" => "datetime(6)", "not null" => "1", "default" => DBA::NULL_DATETIME6, "comment" => ""],
 			"edited" => ["type" => "datetime(6)", "comment" => "Last time the report has been edited"],
 		],
@@ -1857,6 +1858,7 @@ return [
 			"collapsed" => ["type" => "boolean", "comment" => "Posts from this contact are collapsed"],
 			"hidden" => ["type" => "boolean", "comment" => "This contact is hidden from the others"],
 			"is-blocked" => ["type" => "boolean", "comment" => "User is blocked by this contact"],
+			"channel-frequency" => ["type" => "tinyint unsigned", "comment" => "Controls the frequency of the appearance of this contact in channels"],
 			"pending" => ["type" => "boolean", "comment" => ""],
 			"rel" => ["type" => "tinyint unsigned", "comment" => "The kind of the relation between the user and the contact"],
 			"info" => ["type" => "mediumtext", "comment" => ""],

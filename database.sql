@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1532
+-- DB_UPDATE_VERSION 1533
 -- ------------------------------------------
 
 
@@ -1572,6 +1572,7 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	 INDEX `psid` (`psid`),
 	 INDEX `post-user-id` (`post-user-id`),
 	 INDEX `commented` (`commented`),
+	 INDEX `received` (`received`),
 	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
 	 INDEX `uid_commented` (`uid`,`commented`),
@@ -1733,14 +1734,14 @@ CREATE TABLE IF NOT EXISTS `report` (
 	`cid` int unsigned NOT NULL COMMENT 'Reported contact',
 	`gsid` int unsigned COMMENT 'Reported contact server',
 	`comment` text COMMENT 'Report',
-	`category-id` int unsigned NOT NULL DEFAULT 1 COMMENT 'Report category, one of Entity\Report::CATEGORY_*',
+	`category-id` int unsigned NOT NULL DEFAULT 1 COMMENT 'Report category, one of Entity Report::CATEGORY_*',
 	`forward` boolean COMMENT 'Forward the report to the remote server',
 	`public-remarks` text COMMENT 'Remarks shared with the reporter',
 	`private-remarks` text COMMENT 'Remarks shared with the moderation team',
 	`last-editor-uid` mediumint unsigned COMMENT 'Last editor user',
 	`assigned-uid` mediumint unsigned COMMENT 'Assigned moderator user',
-	`status` tinyint unsigned NOT NULL COMMENT 'Status of the report, one of Entity\Report::STATUS_*',
-	`resolution` tinyint unsigned COMMENT 'Resolution of the report, one of Entity\Report::RESOLUTION_*',
+	`status` tinyint unsigned NOT NULL COMMENT 'Status of the report, one of Entity Report::STATUS_*',
+	`resolution` tinyint unsigned COMMENT 'Resolution of the report, one of Entity Report::RESOLUTION_*',
 	`created` datetime(6) NOT NULL DEFAULT '0001-01-01 00:00:00.000000' COMMENT '',
 	`edited` datetime(6) COMMENT 'Last time the report has been edited',
 	 PRIMARY KEY(`id`),
@@ -1866,6 +1867,7 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	`collapsed` boolean COMMENT 'Posts from this contact are collapsed',
 	`hidden` boolean COMMENT 'This contact is hidden from the others',
 	`is-blocked` boolean COMMENT 'User is blocked by this contact',
+	`channel-frequency` tinyint unsigned COMMENT 'Controls the frequency of the appearance of this contact in channels',
 	`pending` boolean COMMENT '',
 	`rel` tinyint unsigned COMMENT 'The kind of the relation between the user and the contact',
 	`info` mediumtext COMMENT '',
