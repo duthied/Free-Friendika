@@ -70,6 +70,7 @@ class Engagement
 			foreach (array_column(Tag::getByURIId($item['parent-uri-id'], [Tag::HASHTAG]), 'name') as $tag) {
 				if (in_array($tag, $tagList)) {
 					$store = true;
+					break;
 				}
 			}
 		}
