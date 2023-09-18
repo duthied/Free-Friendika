@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1533);
+	define('DB_UPDATE_VERSION', 1534);
 }
 
 return [
@@ -1333,6 +1333,7 @@ return [
 			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
 			"language" => ["type" => "varbinary(128)", "comment" => "Language information about this post"],
 			"created" => ["type" => "datetime", "comment" => ""],
+			"restricted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "If true, this post is either unlisted or not from a federated network"],
 			"comments" => ["type" => "mediumint unsigned", "comment" => "Number of comments"],
 			"activities" => ["type" => "mediumint unsigned", "comment" => "Number of activities (like, dislike, ...)"],
 		],

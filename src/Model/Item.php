@@ -1250,7 +1250,7 @@ class Item
 			}
 		}
 
-		Post::insert($item['uri-id'], $item);
+		$inserted = Post::insert($item['uri-id'], $item);
 
 		if ($item['gravity'] == self::GRAVITY_PARENT) {
 			Post\Thread::insert($item['uri-id'], $item);
@@ -1405,7 +1405,9 @@ class Item
 			self::updateDisplayCache($posted_item['uri-id']);
 		}
 
-		Post\Engagement::storeFromItem($posted_item);
+		if ($inserted) {
+			Post\Engagement::storeFromItem($posted_item);
+		}
 
 		return $post_user_id;
 	}

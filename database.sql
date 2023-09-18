@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1533
+-- DB_UPDATE_VERSION 1534
 -- ------------------------------------------
 
 
@@ -1310,6 +1310,7 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
 	`language` varbinary(128) COMMENT 'Language information about this post',
 	`created` datetime COMMENT '',
+	`restricted` boolean NOT NULL DEFAULT '0' COMMENT 'If true, this post is either unlisted or not from a federated network',
 	`comments` mediumint unsigned COMMENT 'Number of comments',
 	`activities` mediumint unsigned COMMENT 'Number of activities (like, dislike, ...)',
 	 PRIMARY KEY(`uri-id`),

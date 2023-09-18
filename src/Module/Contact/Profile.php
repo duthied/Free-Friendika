@@ -340,13 +340,7 @@ class Profile extends BaseModule
 			];
 		}
 
-		if (in_array($contact['network'], Protocol::FEDERATED)) {
-			$channel_settings_label = $this->t('Channel Settings');
-			$channel_frequency     = Contact\User::getChannelFrequency($contact['id'], $this->session->getLocalUserId());
-		} else {
-			$channel_settings_label = null;
-			$channel_frequency     = null;
-		}
+		$channel_frequency     = Contact\User::getChannelFrequency($contact['id'], $this->session->getLocalUserId());
 
 		$poll_interval = null;
 		if ((($contact['network'] == Protocol::FEED) && !$this->config->get('system', 'adjust_poll_frequency')) || ($contact['network'] == Protocol::MAIL)) {
@@ -431,7 +425,7 @@ class Profile extends BaseModule
 				$this->t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
 				$remote_self_options
 			],
-			'$channel_settings_label' => $channel_settings_label,
+			'$channel_settings_label' => $this->t('Channel Settings'),
 			'$frequency_label'        => $this->t('Frequency of this contact in relevant channels'),
 			'$frequency_description'  => $this->t("Depending on the type of the channel not all posts from this contact are displayed. By default, posts need to have a minimum amount of interactions (comments, likes) to show in your channels. On the other hand there can be contacts who flood the channel, so you might want to see only some of their posts. Or you don't want to see their content at all, but you don't want to block or hide the contact completely."),
 			'$frequency_default'      => ['channel_frequency', $this->t('Default frequency'), Contact\User::FREQUENCY_DEFAULT, $this->t('Posts by this contact are displayed in the "for you" channel if you interact often with this contact or if a post reached some level of interaction.'), $channel_frequency == Contact\User::FREQUENCY_DEFAULT],

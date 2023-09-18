@@ -86,23 +86,13 @@ class Relay
 
 		$body = ActivityPub\Processor::normalizeMentionLinks($body);
 
-		$systemTags = [];
-		$userTags = [];
 		$denyTags = [];
 
 		if ($scope == self::SCOPE_TAGS) {
-			$server_tags = $config->get('system', 'relay_server_tags');
-			$tagitems = explode(',', mb_strtolower($server_tags));
-			foreach ($tagitems as $tag) {
-				$systemTags[] = trim($tag, '# ');
-			}
-
-			if ($config->get('system', 'relay_user_tags')) {
-				$userTags = Search::getUserTags();
-			}
+			$tagList = self::getSubscribedTags();
+		} else {
+			$tagList  = [];
 		}
-
-		$tagList = array_unique(array_merge($systemTags, $userTags));
 
 		$deny_tags = $config->get('system', 'relay_deny_tags');
 		$tagitems = explode(',', mb_strtolower($deny_tags));
@@ -147,6 +137,29 @@ class Relay
 
 		Logger::info('No matching hashtags found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer, 'tags' => $tags]);
 		return false;
+	}
+
+	/**
+	 * Get a list of subscribed tags by both the users and the tags that are defined by the admin
+	 *
+	 * @return array
+	 */
+	public static function getSubscribedTags(): array
+	{
+		$systemTags  = [];
+		$server_tags = DI::config()->get('system', 'relay_server_tags');
+
+		foreach (explode(',', mb_strtolower($server_tags)) as $tag) {
+			$systemTags[] = trim($tag, '# ');
+		}
+
+		if (DI::config()->get('system', 'relay_user_tags')) {
+			$userTags = Search::getUserTags();
+		} else {
+			$userTags = [];
+		}
+
+		return array_unique(array_merge($systemTags, $userTags));
 	}
 
 	/**
