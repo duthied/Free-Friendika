@@ -313,7 +313,7 @@ class Network extends Timeline
 
 		if (!$this->selectedTab) {
 			$this->selectedTab = self::getTimelineOrderBySession($this->session, $this->pConfig);
-		} elseif (!$this->timeline->isChannel($this->selectedTab, $this->session->getLocalUserId()) && !$this->timeline->isCommunity($this->selectedTab)) {
+		} elseif (!$this->timeline->isNetwork($this->selectedTab) && !$this->timeline->isChannel($this->selectedTab, $this->session->getLocalUserId()) && !$this->timeline->isCommunity($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
 		}
 

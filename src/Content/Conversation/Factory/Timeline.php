@@ -134,6 +134,11 @@ final class Timeline extends \Friendica\BaseFactory implements ICanCreateFromTab
 		return new Timelines($tabs);
 	}
 
+	public function isNetwork(string $selectedTab): bool
+	{
+		return in_array($selectedTab, [TimelineEntity::COMMENTED, TimelineEntity::RECEIVED, TimelineEntity::CREATED, TimelineEntity::MENTION, TimelineEntity::STAR]);
+	}
+
 	public function isCommunity(string $selectedTab): bool
 	{
 		return in_array($selectedTab, [TimelineEntity::LOCAL, TimelineEntity::GLOBAL]);

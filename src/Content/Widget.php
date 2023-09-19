@@ -560,6 +560,10 @@ class Widget
 	{
 		$channels = [];
 
+		foreach (DI::TimelineFactory()->getNetworkFeeds('') as $channel) {
+			$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+		}
+
 		foreach (DI::TimelineFactory()->getChannelsForUser($uid) as $channel) {
 			$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
 		}
