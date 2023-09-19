@@ -289,9 +289,9 @@ class Network extends Timeline
 		if (!empty($network_timelines)) {
 			$tabs = [];
 
-			foreach (array_column($arr['tabs'], 'code') as $tab) {
-				if (in_array($tab, $network_timelines)) {
-					$tabs[] = $arr['tabs'][$tab];
+			foreach ($arr['tabs'] as $tab) {
+				if (in_array($tab['code'], $network_timelines)) {
+					$tabs[] = $tab;
 				}
 			}
 		} else {
