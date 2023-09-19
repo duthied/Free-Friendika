@@ -22,7 +22,7 @@
 namespace Friendica\Content\Conversation\Repository;
 
 use Friendica\BaseCollection;
-use Friendica\Content\Conversation\Entity\Timeline as EntityTimeline;
+use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
 use Friendica\Content\Conversation\Factory\Timeline;
 use Friendica\Database\Database;
 use Psr\Log\LoggerInterface;
@@ -41,10 +41,10 @@ class Channel extends \Friendica\BaseRepository
 	 *
 	 * @param int $id
 	 * @param int $uid
-	 * @return EntityTimeline
+	 * @return TimelineEntity
 	 * @throws \Friendica\Network\HTTPException\NotFoundException
 	 */
-	public function selectById(int $id, int $uid): EntityTimeline
+	public function selectById(int $id, int $uid): TimelineEntity
 	{
 		return $this->_selectOne(['id' => $id, 'uid' => $uid]);
 	}
@@ -72,7 +72,7 @@ class Channel extends \Friendica\BaseRepository
 		return $this->_select(['uid' => $uid]);
 	}
 
-	public function save(EntityTimeline $Channel): EntityTimeline
+	public function save(TimelineEntity $Channel): TimelineEntity
 	{
 		$fields = [
 			'label'            => $Channel->label,
