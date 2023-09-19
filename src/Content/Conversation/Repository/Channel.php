@@ -38,7 +38,7 @@ class Channel extends \Friendica\BaseRepository
 
 	/**
 	 * Fetch a single user channel
-	 * 
+	 *
 	 * @param int $id
 	 * @param int $uid
 	 * @return EntityTimeline
