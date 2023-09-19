@@ -27,6 +27,7 @@ use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
 use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
+use Friendica\Content\Conversation\Repository\Channel as RepositoryChannel;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
@@ -57,9 +58,9 @@ class Channel extends Timeline
 	/** @var SystemMessages */
 	protected $systemMessages;
 
-	public function __construct(TimelineFactory $timeline, Conversation $conversation, App\Page $page, SystemMessages $systemMessages, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(RepositoryChannel $channel, TimelineFactory $timeline, Conversation $conversation, App\Page $page, SystemMessages $systemMessages, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
-		parent::__construct($mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($channel, $mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->timeline       = $timeline;
 		$this->conversation   = $conversation;
@@ -109,7 +110,7 @@ class Channel extends Timeline
 			$o .= $this->conversation->statusEditor([], 0, true);
 		}
 
-		if ($this->timeline->isChannel($this->selectedTab)) {
+		if ($this->timeline->isChannel($this->selectedTab, $this->session->getLocalUserId())) {
 			$items = $this->getChannelItems();
 			$order = 'created';
 		} else {
@@ -155,7 +156,7 @@ class Channel extends Timeline
 			$this->selectedTab = TimelineEntity::FORYOU;
 		}
 
-		if (!$this->timeline->isChannel($this->selectedTab) && !$this->timeline->isCommunity($this->selectedTab)) {
+		if (!$this->timeline->isChannel($this->selectedTab, $this->session->getLocalUserId()) && !$this->timeline->isCommunity($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 

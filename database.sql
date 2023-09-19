@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1534
+-- DB_UPDATE_VERSION 1535
 -- ------------------------------------------
 
 
@@ -491,6 +491,24 @@ CREATE TABLE IF NOT EXISTS `cache` (
 	 PRIMARY KEY(`k`),
 	 INDEX `k_expires` (`k`,`expires`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Stores temporary data';
+
+--
+-- TABLE channel
+--
+CREATE TABLE IF NOT EXISTS `channel` (
+	`id` int unsigned NOT NULL auto_increment COMMENT '',
+	`uid` mediumint unsigned NOT NULL COMMENT 'User id',
+	`label` varchar(64) NOT NULL COMMENT 'Channel label',
+	`description` varchar(64) COMMENT 'Channel description',
+	`access-key` varchar(1) COMMENT 'Access key',
+	`include-tags` varchar(255) COMMENT 'Comma separated list of tags that will be included in the channel',
+	`exclude-tags` varchar(255) COMMENT 'Comma separated list of tags that aren\'t allowed in the channel',
+	`full-text-search` varchar(255) COMMENT 'Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode',
+	`media-type` smallint unsigned COMMENT 'Filtered media types',
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User defined Channels';
 
 --
 -- TABLE config

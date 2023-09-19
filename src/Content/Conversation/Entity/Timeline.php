@@ -22,11 +22,15 @@
 namespace Friendica\Content\Conversation\Entity;
 
 /**
- * @property-read string $code        Channel code
- * @property-read string $label       Channel label
- * @property-read string $description Channel description
- * @property-read string $accessKey   Access key
- * @property-read string $path        Path
+ * @property-read string $code           Channel code
+ * @property-read string $label          Channel label
+ * @property-read string $description    Channel description
+ * @property-read string $accessKey      Access key
+ * @property-read string $path           Path
+ * @property-read int    $uid            User of the channel
+ * @property-read string $includeTags    The tags to include in the channel
+ * @property-read string $excludeTags    The tags to exclude in the channel
+ * @property-read string $fullTextSearch full text search pattern
  */
 final class Timeline extends \Friendica\BaseEntity
 {
@@ -56,13 +60,28 @@ final class Timeline extends \Friendica\BaseEntity
 	protected $accessKey;
 	/** @var string */
 	protected $path;
+	/** @var int */
+	protected $uid;
+	/** @var string */
+	protected $includeTags;
+	/** @var string */
+	protected $excludeTags;
+	/** @var string */
+	protected $fullTextSearch;
+	/** @var int */
+	protected $mediaType;
 
-	public function __construct(string $code, string $label, string $description, string $accessKey, string $path = null)
+	public function __construct(string $code = null, string $label = null, string $description = null, string $accessKey = null, string $path = null, int $uid = null, string $includeTags = null, string $excludeTags = null, string $fullTextSearch = null, int $mediaType = null)
 	{
-		$this->code        = $code;
-		$this->label       = $label;
-		$this->description = $description;
-		$this->accessKey   = $accessKey;
-		$this->path        = $path;
+		$this->code           = $code;
+		$this->label          = $label;
+		$this->description    = $description;
+		$this->accessKey      = $accessKey;
+		$this->path           = $path;
+		$this->uid            = $uid;
+		$this->includeTags    = $includeTags;
+		$this->excludeTags    = $excludeTags;
+		$this->fullTextSearch = $fullTextSearch;
+		$this->mediaType      = $mediaType;
 	}
 }

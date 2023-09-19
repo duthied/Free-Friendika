@@ -27,6 +27,7 @@ use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
 use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
+use Friendica\Content\Conversation\Repository\Channel;
 use Friendica\Content\Feature;
 use Friendica\Content\GroupManager;
 use Friendica\Content\Nav;
@@ -96,9 +97,9 @@ class Network extends Timeline
 	/** @var TimelineFactory */
 	protected $timeline;
 
-	public function __construct(App $app, TimelineFactory $timeline, SystemMessages $systemMessages, Mode $mode, Conversation $conversation, App\Page $page, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(Channel $channel, App $app, TimelineFactory $timeline, SystemMessages $systemMessages, Mode $mode, Conversation $conversation, App\Page $page, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
-		parent::__construct($mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($channel, $mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->app            = $app;
 		$this->timeline       = $timeline;
@@ -125,7 +126,7 @@ class Network extends Timeline
 
 		$o = '';
 
-		if ($this->timeline->isChannel($this->selectedTab)) {
+		if ($this->timeline->isChannel($this->selectedTab, $this->session->getLocalUserId())) {
 			if (!in_array($this->selectedTab, [TimelineEntity::FOLLOWERS, TimelineEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
 				$this->page['aside'] .= $this->getNoSharerWidget($module);
 			}
@@ -274,7 +275,6 @@ class Network extends Timeline
 	 */
 	private function getTabsHTML()
 	{
-		// @todo user confgurable selection of tabs
 		$tabs = $this->getTabArray($this->timeline->getNetworkFeeds($this->args->getCommand()), 'network');
 
 		$network_timelines = $this->pConfig->get($this->session->getLocalUserId(), 'system', 'network_timelines', []);
@@ -289,7 +289,7 @@ class Network extends Timeline
 		if (!empty($network_timelines)) {
 			$tabs = [];
 
-			foreach (array_keys($arr['tabs']) as $tab) {
+			foreach (array_column($arr['tabs'], 'code') as $tab) {
 				if (in_array($tab, $network_timelines)) {
 					$tabs[] = $arr['tabs'][$tab];
 				}
@@ -313,11 +313,11 @@ class Network extends Timeline
 
 		if (!$this->selectedTab) {
 			$this->selectedTab = self::getTimelineOrderBySession($this->session, $this->pConfig);
-		} elseif (!$this->timeline->isChannel($this->selectedTab) && !$this->timeline->isCommunity($this->selectedTab)) {
+		} elseif (!$this->timeline->isChannel($this->selectedTab, $this->session->getLocalUserId()) && !$this->timeline->isCommunity($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
 		}
 
-		if (($this->network || $this->circleId || $this->groupContactId) && ($this->timeline->isChannel($this->selectedTab) || $this->timeline->isCommunity($this->selectedTab))) {
+		if (($this->network || $this->circleId || $this->groupContactId) && ($this->timeline->isChannel($this->selectedTab, $this->session->getLocalUserId()) || $this->timeline->isCommunity($this->selectedTab))) {
 			$this->selectedTab = TimelineEntity::RECEIVED;
 		}
 
@@ -342,7 +342,7 @@ class Network extends Timeline
 			$this->mention = false;
 		} elseif (in_array($this->selectedTab, [TimelineEntity::RECEIVED, TimelineEntity::STAR]) || $this->timeline->isCommunity($this->selectedTab)) {
 			$this->order = 'received';
-		} elseif (($this->selectedTab == TimelineEntity::CREATED) || $this->timeline->isChannel($this->selectedTab)) {
+		} elseif (($this->selectedTab == TimelineEntity::CREATED) || $this->timeline->isChannel($this->selectedTab, $this->session->getLocalUserId())) {
 			$this->order = 'created';
 		} else {
 			$this->order = 'commented';

@@ -21,27 +21,48 @@
 
 namespace Friendica\Content\Conversation\Factory;
 
+use Friendica\Capabilities\ICanCreateFromTableRow;
 use Friendica\Content\Conversation\Collection\Timelines;
 use Friendica\Model\User;
 use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
+use Friendica\Content\Conversation\Repository\Channel;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Module\Conversation\Community;
 use Psr\Log\LoggerInterface;
 
-final class Timeline extends \Friendica\BaseFactory
+final class Timeline extends \Friendica\BaseFactory implements ICanCreateFromTableRow
 {
 	/** @var L10n */
 	protected $l10n;
 	/** @var IManageConfigValues The config */
 	protected $config;
+	/** @var Channel */
+	protected $channel;
 
-	public function __construct(L10n $l10n, LoggerInterface $logger, IManageConfigValues $config)
+	public function __construct(Channel $channel, L10n $l10n, LoggerInterface $logger, IManageConfigValues $config)
 	{
 		parent::__construct($logger);
 
-		$this->l10n   = $l10n;
-		$this->config = $config;
+		$this->channel = $channel;
+		$this->l10n    = $l10n;
+		$this->config  = $config;
+	}
+
+	public function createFromTableRow(array $row): TimelineEntity
+	{
+		return new TimelineEntity(
+			$row['id'] ?? null,
+			$row['label'],
+			$row['description'] ?? null,
+			$row['access-key'] ?? null,
+			null,
+			$row['uid'],
+			$row['include-tags'] ?? null,
+			$row['exclude-tags'] ?? null,
+			$row['full-text-search'] ?? null,
+			$row['media-type'] ?? null,
+		);
 	}
 
 	/**
@@ -65,6 +86,11 @@ final class Timeline extends \Friendica\BaseFactory
 			new TimelineEntity(TimelineEntity::AUDIO, $this->l10n->t('Audio'), $this->l10n->t('Posts with audio'), 'd'),
 			new TimelineEntity(TimelineEntity::VIDEO, $this->l10n->t('Videos'), $this->l10n->t('Posts with videos'), 'v'),
 		];
+
+		foreach ($this->channel->selectByUid($uid) as $channel) {
+			$tabs[] = $channel;
+		}
+
 		return new Timelines($tabs);
 	}
 
@@ -113,8 +139,11 @@ final class Timeline extends \Friendica\BaseFactory
 		return in_array($selectedTab, [TimelineEntity::LOCAL, TimelineEntity::GLOBAL]);
 	}
 
-	public function isChannel(string $selectedTab): bool
+	public function isChannel(string $selectedTab, int $uid): bool
 	{
+		if (is_numeric($selectedTab) && $uid && $this->channel->existsById($selectedTab, $uid)) {
+			return true;
+		}
 		return in_array($selectedTab, [TimelineEntity::WHATSHOT, TimelineEntity::FORYOU, TimelineEntity::FOLLOWERS, TimelineEntity::SHARERSOFSHARERS, TimelineEntity::IMAGE, TimelineEntity::VIDEO, TimelineEntity::AUDIO, TimelineEntity::LANGUAGE]);
 	}
 }

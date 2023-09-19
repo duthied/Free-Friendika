@@ -556,6 +556,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Content\Conversation\Repository\Channel
+	 */
+	public static function ChannelRepository()
+	{
+		return self::$dice->create(Content\Conversation\Repository\Channel::class);
+	}
+
+	/**
 	 * @return Contact\Introduction\Repository\Introduction
 	 */
 	public static function intro()

@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1534);
+	define('DB_UPDATE_VERSION', 1535);
 }
 
 return [
@@ -549,6 +549,24 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["k"],
 			"k_expires" => ["k", "expires"],
+		]
+	],
+	"channel" => [
+		"comment" => "User defined Channels",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
+			"label" => ["type" => "varchar(64)", "not null" => "1", "comment" => "Channel label"],
+			"description" => ["type" => "varchar(64)", "comment" => "Channel description"],
+			"access-key" => ["type" => "varchar(1)", "comment" => "Access key"],
+			"include-tags" => ["type" => "varchar(255)", "comment" => "Comma separated list of tags that will be included in the channel"],
+			"exclude-tags" => ["type" => "varchar(255)", "comment" => "Comma separated list of tags that aren't allowed in the channel"],
+			"full-text-search" => ["type" => "varchar(255)", "comment" => "Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode"],
+			"media-type" => ["type" => "smallint unsigned", "comment" => "Filtered media types"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uid" => ["uid"],
 		]
 	],
 	"config" => [

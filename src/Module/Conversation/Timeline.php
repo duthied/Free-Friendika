@@ -26,6 +26,7 @@ use Friendica\App\Mode;
 use Friendica\BaseModule;
 use Friendica\Content\Conversation\Collection\Timelines;
 use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
+use Friendica\Content\Conversation\Repository\Channel;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Config\Capability\IManageConfigValues;
@@ -79,11 +80,14 @@ class Timeline extends BaseModule
 	protected $config;
 	/** @var ICanCache */
 	protected $cache;
+	/** @var Channel */
+	protected $channel;
 
-	public function __construct(Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(Channel $channel, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
+		$this->channel  = $channel;
 		$this->mode     = $mode;
 		$this->session  = $session;
 		$this->database = $database;
@@ -176,6 +180,7 @@ class Timeline extends BaseModule
 				$path = $tab->path ?? $prefix . '/' . $tab->code;
 			}
 			$tabs[$tab->code] = [
+				'code'      => $tab->code,
 				'label'     => $tab->label,
 				'url'       => $path,
 				'sel'       => $this->selectedTab == $tab->code ? 'active' : '',
@@ -300,6 +305,8 @@ class Timeline extends BaseModule
 			$condition = ["`media-type` & ?", 4];
 		} elseif ($this->selectedTab == TimelineEntity::LANGUAGE) {
 			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", $this->l10n->convertCodeForLanguageDetection(User::getLanguageCode($uid))];
+		} elseif (is_numeric($this->selectedTab)) {
+			$condition = $this->getUserChannelConditions($this->selectedTab, $this->session->getLocalUserId());
 		}
 
 		if ($this->selectedTab != TimelineEntity::LANGUAGE) {
@@ -357,6 +364,39 @@ class Timeline extends BaseModule
 		$this->setItemsSeenByCondition($condition);
 
 		return $items;
+	}
+
+	private function getUserChannelConditions(int $id, int $uid): array
+	{
+		$channel = $this->channel->selectById($id, $uid);
+		if (empty($channel)) {
+			return [];
+		}
+
+		$condition = [];
+
+		if (!empty($channel->fullTextSearch)) {
+			$first     = $this->database->selectFirst('post-engagement', ['uri-id']);
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-content` WHERE `uri-id` >= ? AND MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))", $first['uri-id'], $channel->fullTextSearch]);
+		}
+
+		if (!empty($channel->includeTags)) {
+			$search       = explode(',', mb_strtolower($channel->includeTags));
+			$placeholders = substr(str_repeat("?, ", count($search)), 0, -2);
+			$condition    = DBA::mergeConditions($condition, array_merge(["`uri-id` IN (SELECT `uri-id` FROM `post-tag` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` WHERE `post-tag`.`type` = 1 AND `name` IN (" . $placeholders . "))"], $search));
+		}
+
+		if (!empty($channel->excludeTags)) {
+			$search       = explode(',', mb_strtolower($channel->excludeTags));
+			$placeholders = substr(str_repeat("?, ", count($search)), 0, -2);
+			$condition    = DBA::mergeConditions($condition, array_merge(["NOT `uri-id` IN (SELECT `uri-id` FROM `post-tag` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` WHERE `post-tag`.`type` = 1 AND `name` IN (" . $placeholders . "))"], $search));
+		}
+
+		if (!empty($channel->mediaType)) {
+			$condition = DBA::mergeConditions($condition, ["`media-type` & ?", $channel->mediaType]);
+		}
+
+		return $condition;
 	}
 
 	private function addLanguageCondition(int $uid, array $condition): array
