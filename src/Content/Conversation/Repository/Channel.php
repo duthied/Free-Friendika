@@ -62,6 +62,18 @@ class Channel extends \Friendica\BaseRepository
 	}
 
 	/**
+	 * Delete the given channel
+	 *
+	 * @param integer $id
+	 * @param integer $uid
+	 * @return boolean
+	 */
+	public function deleteById(int $id, int $uid): bool
+	{
+		return $this->db->delete('channel', ['id' => $id, 'uid' => $uid]);
+	}
+
+	/**
 	 * Fetch all user channels
 	 *
 	 * @param integer $uid
