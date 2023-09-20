@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-18 05:30+0000\n"
+"POT-Creation-Date: 2023-09-20 21:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -68,6 +68,7 @@ msgstr ""
 #: src/Module/Register.php:90 src/Module/Register.php:206
 #: src/Module/Register.php:245 src/Module/Search/Directory.php:37
 #: src/Module/Settings/Account.php:50 src/Module/Settings/Account.php:408
+#: src/Module/Settings/Channels.php:55 src/Module/Settings/Channels.php:111
 #: src/Module/Settings/Delegation.php:41 src/Module/Settings/Delegation.php:71
 #: src/Module/Settings/Display.php:73 src/Module/Settings/Display.php:160
 #: src/Module/Settings/Profile/Photo/Crop.php:165
@@ -384,7 +385,7 @@ msgstr ""
 
 #: mod/notes.php:57 src/Content/Text/HTML.php:859
 #: src/Module/Admin/Storage.php:142 src/Module/Filer/SaveTag.php:74
-#: src/Module/Post/Edit.php:129
+#: src/Module/Post/Edit.php:129 src/Module/Settings/Channels.php:144
 msgid "Save"
 msgstr ""
 
@@ -449,7 +450,7 @@ msgstr ""
 msgid "%1$s was tagged in %2$s by %3$s"
 msgstr ""
 
-#: mod/photos.php:582 src/Module/Conversation/Community.php:159
+#: mod/photos.php:582 src/Module/Conversation/Community.php:160
 #: src/Module/Directory.php:48 src/Module/Profile/Photos.php:295
 #: src/Module/Search/Index.php:65
 msgid "Public access denied."
@@ -793,7 +794,7 @@ msgstr ""
 msgid "All contacts"
 msgstr ""
 
-#: src/BaseModule.php:433 src/Content/Conversation/Factory/Timeline.php:62
+#: src/BaseModule.php:433 src/Content/Conversation/Factory/Timeline.php:83
 #: src/Content/Widget.php:239 src/Core/ACL.php:195 src/Module/Contact.php:415
 #: src/Module/PermissionTooltip.php:127 src/Module/PermissionTooltip.php:149
 msgid "Followers"
@@ -1513,117 +1514,120 @@ msgstr ""
 msgid "View in context"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:59
+#: src/Content/Conversation/Factory/Timeline.php:80
 msgid "For you"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:59
+#: src/Content/Conversation/Factory/Timeline.php:80
 msgid "Posts from contacts you interact with and who interact with you"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:60
+#: src/Content/Conversation/Factory/Timeline.php:81
 msgid "What's Hot"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:60
+#: src/Content/Conversation/Factory/Timeline.php:81
 msgid "Posts with a lot of interactions"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:61
+#: src/Content/Conversation/Factory/Timeline.php:82
 #, php-format
 msgid "Posts in %s"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:62
+#: src/Content/Conversation/Factory/Timeline.php:83
 msgid "Posts from your followers that you don't follow"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:63
+#: src/Content/Conversation/Factory/Timeline.php:84
 msgid "Sharers of sharers"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:63
+#: src/Content/Conversation/Factory/Timeline.php:84
 msgid "Posts from accounts that are followed by accounts that you follow"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:64
+#: src/Content/Conversation/Factory/Timeline.php:85
+#: src/Module/Settings/Channels.php:122 src/Module/Settings/Channels.php:136
 msgid "Images"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:64
+#: src/Content/Conversation/Factory/Timeline.php:85
 msgid "Posts with images"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:65
+#: src/Content/Conversation/Factory/Timeline.php:86
+#: src/Module/Settings/Channels.php:124 src/Module/Settings/Channels.php:138
 msgid "Audio"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:65
+#: src/Content/Conversation/Factory/Timeline.php:86
 msgid "Posts with audio"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:66
+#: src/Content/Conversation/Factory/Timeline.php:87
+#: src/Module/Settings/Channels.php:123 src/Module/Settings/Channels.php:137
 msgid "Videos"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:66
+#: src/Content/Conversation/Factory/Timeline.php:87
 msgid "Posts with videos"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:85
+#: src/Content/Conversation/Factory/Timeline.php:110
 msgid "Local Community"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:85
+#: src/Content/Conversation/Factory/Timeline.php:110
 msgid "Posts from local users on this server"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:89
+#: src/Content/Conversation/Factory/Timeline.php:114
 msgid "Global Community"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:89
+#: src/Content/Conversation/Factory/Timeline.php:114
 msgid "Posts from users of the whole federated network"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:103
+#: src/Content/Conversation/Factory/Timeline.php:128
 msgid "Latest Activity"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:103
+#: src/Content/Conversation/Factory/Timeline.php:128
 msgid "Sort by latest activity"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:104
+#: src/Content/Conversation/Factory/Timeline.php:129
 msgid "Latest Posts"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:104
+#: src/Content/Conversation/Factory/Timeline.php:129
 msgid "Sort by post received date"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:105
+#: src/Content/Conversation/Factory/Timeline.php:130
 msgid "Latest Creation"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:105
+#: src/Content/Conversation/Factory/Timeline.php:130
 msgid "Sort by post creation date"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:106
+#: src/Content/Conversation/Factory/Timeline.php:131
 #: src/Module/Settings/Profile/Index.php:260
 msgid "Personal"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:106
+#: src/Content/Conversation/Factory/Timeline.php:131
 msgid "Posts that mention or involve you"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:107 src/Object/Post.php:380
+#: src/Content/Conversation/Factory/Timeline.php:132 src/Object/Post.php:380
 msgid "Starred"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Timeline.php:107
+#: src/Content/Conversation/Factory/Timeline.php:132
 msgid "Favourite Posts"
 msgstr ""
 
@@ -2362,7 +2366,8 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: src/Content/Widget.php:573 src/Module/Settings/Display.php:266
+#: src/Content/Widget.php:577 src/Module/Settings/Channels.php:140
+#: src/Module/Settings/Display.php:266
 msgid "Channels"
 msgstr ""
 
@@ -5842,6 +5847,7 @@ msgstr ""
 #: src/Module/Moderation/Blocklist/Server/Index.php:116
 #: src/Module/Moderation/Item/Delete.php:67 src/Module/Register.php:148
 #: src/Module/Security/TwoFactor/Verify.php:101
+#: src/Module/Settings/Channels.php:117 src/Module/Settings/Channels.php:131
 #: src/Module/Settings/TwoFactor/Index.php:140
 #: src/Module/Settings/TwoFactor/Verify.php:155
 msgid "Required"
@@ -5937,7 +5943,7 @@ msgid "Contact not found."
 msgstr ""
 
 #: src/Module/Circle.php:102 src/Module/Contact/Contacts.php:66
-#: src/Module/Conversation/Network.php:232
+#: src/Module/Conversation/Network.php:233
 msgid "Invalid contact."
 msgstr ""
 
@@ -6249,7 +6255,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Module/Contact/Follow.php:70 src/Module/Contact/Redir.php:62
-#: src/Module/Contact/Redir.php:222 src/Module/Conversation/Community.php:165
+#: src/Module/Contact/Redir.php:222 src/Module/Conversation/Community.php:166
 #: src/Module/Debug/ItemBody.php:38 src/Module/Diaspora/Receive.php:57
 #: src/Module/Item/Display.php:96 src/Module/Item/Feed.php:59
 #: src/Module/Item/Follow.php:41 src/Module/Item/Ignore.php:41
@@ -6699,35 +6705,35 @@ msgstr ""
 msgid "Unable to unfollow this contact, please contact your administrator"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:121
-#: src/Module/Conversation/Community.php:125 src/Module/Search/Index.php:152
+#: src/Module/Conversation/Channel.php:122
+#: src/Module/Conversation/Community.php:126 src/Module/Search/Index.php:152
 #: src/Module/Search/Index.php:194
 msgid "No results."
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:159
+#: src/Module/Conversation/Channel.php:160
 msgid "Channel not available."
 msgstr ""
 
-#: src/Module/Conversation/Community.php:91
+#: src/Module/Conversation/Community.php:92
 msgid ""
 "This community stream shows all public posts received by this node. They may "
 "not reflect the opinions of this node’s users."
 msgstr ""
 
-#: src/Module/Conversation/Community.php:179
+#: src/Module/Conversation/Community.php:180
 msgid "Community option not available."
 msgstr ""
 
-#: src/Module/Conversation/Community.php:195
+#: src/Module/Conversation/Community.php:196
 msgid "Not available."
 msgstr ""
 
-#: src/Module/Conversation/Network.php:218
+#: src/Module/Conversation/Network.php:219
 msgid "No such circle"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:222
+#: src/Module/Conversation/Network.php:223
 #, php-format
 msgid "Circle: %s"
 msgstr ""
@@ -6736,15 +6742,15 @@ msgstr ""
 msgid "Network feed not available."
 msgstr ""
 
-#: src/Module/Conversation/Timeline.php:158
+#: src/Module/Conversation/Timeline.php:162
 msgid "Own Contacts"
 msgstr ""
 
-#: src/Module/Conversation/Timeline.php:162
+#: src/Module/Conversation/Timeline.php:166
 msgid "Include"
 msgstr ""
 
-#: src/Module/Conversation/Timeline.php:163
+#: src/Module/Conversation/Timeline.php:167
 msgid "Hide"
 msgstr ""
 
@@ -7113,6 +7119,7 @@ msgstr ""
 #: src/Module/Friendica.php:102
 #: src/Module/Moderation/Blocklist/Server/Index.php:87
 #: src/Module/Moderation/Blocklist/Server/Index.php:111
+#: src/Module/Settings/Channels.php:147
 msgid "Reason for the block"
 msgstr ""
 
@@ -7860,6 +7867,7 @@ msgstr ""
 
 #: src/Module/Moderation/Blocklist/Server/Index.php:86
 #: src/Module/Moderation/Blocklist/Server/Index.php:110
+#: src/Module/Settings/Channels.php:146
 msgid "Blocked server domain pattern"
 msgstr ""
 
@@ -9901,6 +9909,97 @@ msgstr ""
 msgid "No Addon settings configured"
 msgstr ""
 
+#: src/Module/Settings/Channels.php:117 src/Module/Settings/Channels.php:131
+msgid "Label"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:118 src/Module/Settings/Channels.php:132
+#: src/Module/Settings/TwoFactor/AppSpecific.php:134
+msgid "Description"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:119 src/Module/Settings/Channels.php:133
+msgid "Access Key"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:120 src/Module/Settings/Channels.php:134
+msgid "Include Tags"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:121 src/Module/Settings/Channels.php:135
+msgid "Exclude Tags"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:125
+msgid "Delete channel"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:125
+msgid "Check to delete this entry from the channel list"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:131
+msgid "Short name for the channel. It is displayed on the channels widget."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:132
+msgid "This should describe the content of the channel in a few word."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:133
+msgid ""
+"When you want to access this channel via an access key, you can define it "
+"here. Pay attentioon to not use an already used one."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:134
+msgid ""
+"Comma separated list of tags. A post will be used when it contains any of "
+"the listed tags."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:135
+msgid ""
+"Comma separated list of tags. If a post contain any of these tags, then it "
+"will not be part of nthis channel."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:136
+msgid "Check to display images in the channel."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:137
+msgid "Check to display videos in the channel."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:138
+msgid "Check to display audio in the channel."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:141
+msgid "This page can be used to define your own channels."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:142
+msgid "Add new entry to the channel list"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:143 src/Module/Settings/Delegation.php:181
+msgid "Add"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:145
+msgid "Current Entries in the channel list"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:148
+msgid "Delete entry from the channel list"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:149
+msgid "Delete entry from the channel list?"
+msgstr ""
+
 #: src/Module/Settings/Connectors.php:120
 msgid "Failed to connect with email account using the settings provided."
 msgstr ""
@@ -10164,10 +10263,6 @@ msgstr ""
 
 #: src/Module/Settings/Delegation.php:178
 msgid "Potential Delegates"
-msgstr ""
-
-#: src/Module/Settings/Delegation.php:181
-msgid "Add"
 msgstr ""
 
 #: src/Module/Settings/Delegation.php:182
@@ -10686,10 +10781,6 @@ msgstr ""
 msgid ""
 "Make sure to copy your new app-specific password now. You won’t be able to "
 "see it again!"
-msgstr ""
-
-#: src/Module/Settings/TwoFactor/AppSpecific.php:134
-msgid "Description"
 msgstr ""
 
 #: src/Module/Settings/TwoFactor/AppSpecific.php:135

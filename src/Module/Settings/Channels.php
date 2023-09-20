@@ -136,7 +136,7 @@ class Channels extends BaseSettings
 			'image'        => ['new_image', $this->t("Images"), false, $this->t("Check to display images in the channel.")],
 			'video'        => ["new_video", $this->t("Videos"), false, $this->t("Check to display videos in the channel.")],
 			'audio'        => ["new_audio", $this->t("Audio"), false, $this->t("Check to display audio in the channel.")],
-			'$l10n' => [
+			'$l10n'        => [
 				'title'          => $this->t('Channels'),
 				'intro'          => $this->t('This page can be used to define your own channels.'),
 				'addtitle'       => $this->t('Add new entry to the channel list'),
@@ -158,6 +158,7 @@ class Channels extends BaseSettings
 	private function cleanTags(string $tag_list): string
 	{
 		$tags = [];
+
 		$tagitems = explode(',', mb_strtolower($tag_list));
 		foreach ($tagitems as $tag) {
 			$tag = trim($tag, '# ');
