@@ -80,7 +80,8 @@ class Display extends BaseSettings
 		$theme                  = !empty($request['theme'])                  ? trim($request['theme'])                    : $user['theme'];
 		$mobile_theme           = !empty($request['mobile_theme'])           ? trim($request['mobile_theme'])             : '';
 		$enable_smile           = !empty($request['enable_smile'])           ? intval($request['enable_smile'])           : 0;
-		$network_timelines      = !empty($request['network_timelines'])      ? $request['network_timelines']              : [];
+		$enable                 = !empty($request['enable'])                 ? $request['enable']                         : [];
+		$bookmark               = !empty($request['bookmark'])               ? $request['bookmark']                       : [];
 		$channel_languages      = !empty($request['channel_languages'])      ? $request['channel_languages']              : [];
 		$first_day_of_week      = !empty($request['first_day_of_week'])      ? intval($request['first_day_of_week'])      : 0;
 		$calendar_default_view  = !empty($request['calendar_default_view'])  ? trim($request['calendar_default_view'])    : 'month';
@@ -95,6 +96,20 @@ class Display extends BaseSettings
 			$browser_update = $browser_update * 1000;
 			if ($browser_update < 10000) {
 				$browser_update = 10000;
+			}
+		}
+
+		$enabled_timelines = [];
+		foreach ($enable as $code => $enabled) {
+			if ($enabled) {
+				$enabled_timelines[] = $code;
+			}
+		}
+
+		$network_timelines = [];
+		foreach ($bookmark as $code => $bookmarked) {
+			if ($bookmarked) {
+				$network_timelines[] = $code;
 			}
 		}
 
@@ -127,6 +142,7 @@ class Display extends BaseSettings
 		$this->pConfig->set($uid, 'system', 'preview_mode'            , $preview_mode);
 
 		$this->pConfig->set($uid, 'system', 'network_timelines'       , $network_timelines);
+		$this->pConfig->set($uid, 'system', 'enabled_timelines'       , $enabled_timelines);
 		$this->pConfig->set($uid, 'channel', 'languages'              , $channel_languages);
 
 		$this->pConfig->set($uid, 'calendar', 'first_day_of_week'     , $first_day_of_week);
@@ -224,10 +240,21 @@ class Display extends BaseSettings
 			BBCode::PREVIEW_LARGE    => $this->t('Large Image'),
 		];
 
-		$network_timelines = $this->pConfig->get($uid, 'system', 'network_timelines', array_keys($this->getAvailableTimelines($uid, true)));
+		$bookmarked_timelines = $this->pConfig->get($uid, 'system', 'network_timelines', array_keys($this->getAvailableTimelines($uid, true)));
+		$enabled_timelines    = $this->pConfig->get($uid, 'system', 'enabled_timelines', array_keys($this->getAvailableTimelines($uid, false)));
+
 		$channel_languages = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]);
 		$languages         = $this->l10n->getAvailableLanguages(true);
-		$timelines         = $this->getAvailableTimelines($uid);
+
+		$timelines = [];
+		foreach ($this->getAvailableTimelines($uid) as $code => $timeline) {
+			$timelines[] = [
+				'label'        => $timeline['label'],
+				'description'  => $timeline['description'],
+				'enable'       => ["enable[$code]", '', in_array($code, $enabled_timelines)],
+				'bookmark'     => ["bookmark[$code]", '', in_array($code, $bookmarked_timelines)],
+			];
+		}
 
 		$first_day_of_week = $this->pConfig->get($uid, 'calendar', 'first_day_of_week', 0);
 		$weekdays          = [
@@ -284,7 +311,13 @@ class Display extends BaseSettings
 			'$stay_local'               => ['stay_local'              , $this->t('Stay local'), $stay_local, $this->t("Don't go to a remote system when following a contact link.")],
 			'$preview_mode'             => ['preview_mode'            , $this->t('Link preview mode'), $preview_mode, $this->t('Appearance of the link preview that is added to each post with a link.'), $preview_modes, false],
 
-			'$network_timelines' => ['network_timelines[]', $this->t('Timelines for the network page:'), $network_timelines, $this->t('Select all the timelines that you want to see on your network page.'), $timelines, 'multiple'],
+			'$timeline_label'       => $this->t('Label'),
+			'$timeline_descriptiom' => $this->t('Description'),
+			'$timeline_enable'      => $this->t('Enable'),
+			'$timeline_bookmark'    => $this->t('Bookmark'),
+			'$timelines'            => $timelines,
+			'$timeline_explanation' => $this->t('Enable timelines that you want to see in the channels widget. Bookmark timelines that you want to see in the top menu.'),
+
 			'$channel_languages' => ['channel_languages[]', $this->t('Channel languages:'), $channel_languages, $this->t('Select all languages that you want to see in your channels.'), $languages, 'multiple'],
 
 			'$first_day_of_week'     => ['first_day_of_week'    , $this->t('Beginning of week:')    , $first_day_of_week    , '', $weekdays     , false],
@@ -297,7 +330,7 @@ class Display extends BaseSettings
 		$timelines = [];
 
 		foreach ($this->timeline->getNetworkFeeds('') as $channel) {
-			$timelines[$channel->code] = $this->t('%s: %s', $channel->label, $channel->description);
+			$timelines[$channel->code] = ['label' => $channel->label, 'description' => $channel->description];
 		}
 
 		if ($only_network) {
@@ -305,11 +338,11 @@ class Display extends BaseSettings
 		}
 
 		foreach ($this->timeline->getChannelsForUser($uid) as $channel) {
-			$timelines[$channel->code] = $this->t('%s: %s', $channel->label, $channel->description);
+			$timelines[$channel->code] = ['label' => $channel->label, 'description' => $channel->description];
 		}
 
 		foreach ($this->timeline->getCommunities(true) as $community) {
-			$timelines[$community->code] = $this->t('%s: %s', $community->label, $community->description);
+			$timelines[$community->code] = ['label' => $community->label, 'description' => $community->description];
 		}
 
 		return $timelines;

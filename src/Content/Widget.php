@@ -560,16 +560,24 @@ class Widget
 	{
 		$channels = [];
 
+		$enabled = DI::pConfig()->get($uid, 'system', 'enabled_timelines', []);
+
 		foreach (DI::TimelineFactory()->getNetworkFeeds('') as $channel) {
-			$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+			if (empty($enabled) || in_array($channel->code, $enabled)) {
+				$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+			}
 		}
 
 		foreach (DI::TimelineFactory()->getChannelsForUser($uid) as $channel) {
-			$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+			if (empty($enabled) || in_array($channel->code, $enabled)) {
+				$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+			}
 		}
 
 		foreach (DI::TimelineFactory()->getCommunities(true) as $community) {
-			$channels[] = ['ref' => $community->code, 'name' => $community->label];
+			if (empty($enabled) || in_array($community->code, $enabled)) {
+				$channels[] = ['ref' => $community->code, 'name' => $community->label];
+			}
 		}
 
 		return self::filter(

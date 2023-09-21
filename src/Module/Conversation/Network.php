@@ -118,25 +118,14 @@ class Network extends Timeline
 
 		$module = 'network';
 
-		$this->page['aside'] .= Widget::channels($module, $this->selectedTab, $this->session->getLocalUserId());
-		$this->page['aside'] .= Widget::accountTypes($module, $this->accountTypeString);
-
 		$arr = ['query' => $this->args->getQueryString()];
 		Hook::callAll('network_content_init', $arr);
 
 		$o = '';
 
 		if ($this->timeline->isChannel($this->selectedTab, $this->session->getLocalUserId())) {
-			if (!in_array($this->selectedTab, [TimelineEntity::FOLLOWERS, TimelineEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
-				$this->page['aside'] .= $this->getNoSharerWidget($module);
-			}
-
 			$items = $this->getChannelItems();
 		} elseif ($this->timeline->isCommunity($this->selectedTab)) {
-			if ($this->session->getLocalUserId() && $this->config->get('system', 'community_no_sharer')) {
-				$this->page['aside'] .= $this->getNoSharerWidget($module);
-			}
-
 			$items = $this->getCommunityItems();
 		} else {
 			$items = $this->getItems();
@@ -146,6 +135,8 @@ class Network extends Timeline
 		$this->page['aside'] .= GroupManager::widget($module . '/group', $this->session->getLocalUserId(), $this->groupContactId);
 		$this->page['aside'] .= Widget::postedByYear($module . '/archive', $this->session->getLocalUserId(), false);
 		$this->page['aside'] .= Widget::networks($module, !$this->groupContactId ? $this->network : '');
+		$this->page['aside'] .= Widget::accountTypes($module, $this->accountTypeString);
+		$this->page['aside'] .= Widget::channels($module, $this->selectedTab, $this->session->getLocalUserId());
 		$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
 		$this->page['aside'] .= Widget::fileAs('filed', '');
 
