@@ -476,4 +476,23 @@ abstract class BaseModule implements ICanHandleRequests
 
 		System::exit();
 	}
+
+	/**
+	 * Send HTTP status header and exit.
+	 *
+	 * @param integer $httpCode HTTP status result value
+	 * @param string  $message  Error message. Optional.
+	 * @param mixed  $content   Response body. Optional.
+	 * @throws \Exception
+	 */
+	public function httpError(int $httpCode, string $message = '', $content = '')
+	{
+		if ($httpCode >= 400) {
+			$this->logger->debug('Exit with error', ['code' => $httpCode, 'message' => $message, 'callstack' => System::callstack(20), 'method' => $this->args->getMethod(), 'agent' => $this->server['HTTP_USER_AGENT'] ?? '']);
+		}
+
+		$this->response->setStatus($httpCode, $message);
+
+		$this->httpExit($content);
+	}
 }

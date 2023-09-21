@@ -341,6 +341,7 @@ class System
 	 * @param string  $message Error message. Optional.
 	 * @param string  $content Response body. Optional.
 	 * @throws \Exception
+	 * @deprecated since 2023.09 Use BaseModule->httpError instead
 	 */
 	public static function httpError($httpCode, $message = '', $content = '')
 	{
@@ -348,10 +349,8 @@ class System
 			Logger::debug('Exit with error', ['code' => $httpCode, 'message' => $message, 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
 		DI::apiResponse()->setStatus($httpCode, $message);
-		DI::apiResponse()->addContent($content);
-		self::echoResponse(DI::apiResponse()->generate());
 
-		self::exit();
+		self::httpExit($content);
 	}
 
 	/**
