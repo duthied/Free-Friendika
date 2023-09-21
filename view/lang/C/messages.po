@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-20 21:42+0000\n"
+"POT-Creation-Date: 2023-09-21 06:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2103,7 +2103,7 @@ msgid "Manage other pages"
 msgstr ""
 
 #: src/Content/Nav.php:327 src/Module/Admin/Addons/Details.php:114
-#: src/Module/Admin/Themes/Details.php:93 src/Module/BaseSettings.php:175
+#: src/Module/Admin/Themes/Details.php:93 src/Module/BaseSettings.php:182
 #: src/Module/Welcome.php:52 view/theme/frio/theme.php:242
 msgid "Settings"
 msgstr ""
@@ -2366,8 +2366,8 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: src/Content/Widget.php:577 src/Module/Settings/Channels.php:140
-#: src/Module/Settings/Display.php:266
+#: src/Content/Widget.php:577 src/Module/BaseSettings.php:125
+#: src/Module/Settings/Channels.php:140 src/Module/Settings/Display.php:266
 msgid "Channels"
 msgstr ""
 
@@ -3900,7 +3900,7 @@ msgid "Administration"
 msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:112 src/Module/Admin/Addons/Index.php:68
-#: src/Module/BaseAdmin.php:92 src/Module/BaseSettings.php:132
+#: src/Module/BaseAdmin.php:92 src/Module/BaseSettings.php:139
 msgid "Addons"
 msgstr ""
 
@@ -5768,27 +5768,27 @@ msgstr ""
 msgid "Display"
 msgstr ""
 
-#: src/Module/BaseSettings.php:125 src/Module/Settings/Connectors.php:204
+#: src/Module/BaseSettings.php:132 src/Module/Settings/Connectors.php:204
 msgid "Social Networks"
 msgstr ""
 
-#: src/Module/BaseSettings.php:139 src/Module/Settings/Delegation.php:172
+#: src/Module/BaseSettings.php:146 src/Module/Settings/Delegation.php:172
 msgid "Manage Accounts"
 msgstr ""
 
-#: src/Module/BaseSettings.php:146
+#: src/Module/BaseSettings.php:153
 msgid "Connected apps"
 msgstr ""
 
-#: src/Module/BaseSettings.php:153
+#: src/Module/BaseSettings.php:160
 msgid "Remote servers"
 msgstr ""
 
-#: src/Module/BaseSettings.php:160 src/Module/Settings/UserExport.php:98
+#: src/Module/BaseSettings.php:167 src/Module/Settings/UserExport.php:98
 msgid "Export personal data"
 msgstr ""
 
-#: src/Module/BaseSettings.php:167
+#: src/Module/BaseSettings.php:174
 msgid "Remove account"
 msgstr ""
 
