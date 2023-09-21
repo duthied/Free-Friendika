@@ -510,4 +510,23 @@ abstract class BaseModule implements ICanHandleRequests
 	{
 		$this->httpExit(json_encode($content, $options), ICanCreateResponses::TYPE_JSON, $content_type);
 	}
+
+	/**
+	 * Display a non-200 HTTP code response using JSON to encode the content and exit
+	 *
+	 * @param int    $httpCode
+	 * @param mixed  $content
+	 * @param string $content_type
+	 * @return void
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public function jsonError(int $httpCode, $content, string $content_type = 'application/json')
+	{
+		if ($httpCode >= 400) {
+			$this->logger->debug('Exit with error', ['code' => $httpCode, 'content_type' => $content_type, 'callstack' => System::callstack(20), 'method' => $this->args->getMethod(), 'agent' => $this->server['HTTP_USER_AGENT'] ?? '']);
+		}
+
+		$this->response->setStatus($httpCode);
+		$this->jsonExit($content, $content_type);
+	}
 }

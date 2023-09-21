@@ -373,6 +373,9 @@ class System
 		self::exit();
 	}
 
+	/**
+	 * @deprecated since 2023.09 Use BaseModule->jsonError instead
+	 */
 	public static function jsonError($httpCode, $content, $content_type = 'application/json')
 	{
 		if ($httpCode >= 400) {

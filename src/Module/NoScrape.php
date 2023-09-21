@@ -45,13 +45,13 @@ class NoScrape extends BaseModule
 			// view infos about a known profile (needs a login)
 			$which = $a->getLoggedInUserNickname();
 		} else {
-			System::jsonError(403, 'Authentication required');
+			$this->jsonError(403, 'Authentication required');
 		}
 
 		$owner = User::getOwnerDataByNick($which);
 
 		if (empty($owner['uid'])) {
-			System::jsonError(404, 'Profile not found');
+			$this->jsonError(404, 'Profile not found');
 		}
 
 		$json_info = [
