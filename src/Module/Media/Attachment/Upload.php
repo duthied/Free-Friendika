@@ -150,7 +150,7 @@ class Upload extends \Friendica\BaseModule
 			$this->response->addContent($message);
 		}
 
-		$this->page->exit($this->response->generate());
+		System::echoResponse($this->response->generate());
 		System::exit();
 	}
 }

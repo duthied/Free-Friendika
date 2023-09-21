@@ -32,6 +32,7 @@ use Friendica\Network\HTTPException\MovedPermanentlyException;
 use Friendica\Network\HTTPException\TemporaryRedirectException;
 use Friendica\Util\BasePath;
 use Friendica\Util\XML;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -275,6 +276,36 @@ class System
 	}
 
 	/**
+	 * Display current response, including setting all headers
+	 *
+	 * @param ResponseInterface $response
+	 */
+	public static function echoResponse(ResponseInterface $response)
+	{
+		header(sprintf("HTTP/%s %s %s",
+				$response->getProtocolVersion(),
+				$response->getStatusCode(),
+				$response->getReasonPhrase())
+		);
+
+		foreach ($response->getHeaders() as $key => $header) {
+			if (is_array($header)) {
+				$header_str = implode(',', $header);
+			} else {
+				$header_str = $header;
+			}
+
+			if (is_int($key)) {
+				header($header_str);
+			} else {
+				header("$key: $header_str");
+			}
+		}
+
+		echo $response->getBody();
+	}
+
+	/**
 	 * Generic XML return
 	 * Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable
 	 * of $st and an optional text <message> of $message and terminates the current process.
@@ -297,7 +328,7 @@ class System
 
 		DI::apiResponse()->setType(Response::TYPE_XML);
 		DI::apiResponse()->addContent(XML::fromArray(['result' => $result]));
-		DI::page()->exit(DI::apiResponse()->generate());
+		self::echoResponse(DI::apiResponse()->generate());
 
 		self::exit();
 	}
@@ -317,7 +348,7 @@ class System
 		}
 		DI::apiResponse()->setStatus($httpCode, $message);
 		DI::apiResponse()->addContent($content);
-		DI::page()->exit(DI::apiResponse()->generate());
+		self::echoResponse(DI::apiResponse()->generate());
 
 		self::exit();
 	}
@@ -334,7 +365,7 @@ class System
 	public static function httpExit(string $content, string $type = Response::TYPE_HTML, ?string $content_type = null) {
 		DI::apiResponse()->setType($type, $content_type);
 		DI::apiResponse()->addContent($content);
-		DI::page()->exit(DI::apiResponse()->generate());
+		self::echoResponse(DI::apiResponse()->generate());
 
 		self::exit();
 	}
@@ -363,7 +394,7 @@ class System
 	public static function jsonExit($content, $content_type = 'application/json', int $options = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) {
 		DI::apiResponse()->setType(Response::TYPE_JSON, $content_type);
 		DI::apiResponse()->addContent(json_encode($content, $options));
-		DI::page()->exit(DI::apiResponse()->generate());
+		self::echoResponse(DI::apiResponse()->generate());
 
 		self::exit();
 	}
