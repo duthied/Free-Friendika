@@ -28,6 +28,7 @@ use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException\FoundException;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\MovedPermanentlyException;
 use Friendica\Network\HTTPException\TemporaryRedirectException;
 use Friendica\Util\BasePath;
@@ -357,12 +358,15 @@ class System
 	 * This function adds the content and a content-type HTTP header to the output.
 	 * After finishing the process is getting killed.
 	 *
-	 * @param string $content
-	 * @param string $type
+	 * @param string      $content
+	 * @param string      $type
 	 * @param string|null $content_type
 	 * @return void
+	 * @throws InternalServerErrorException
+	 * @deprecated since 2023.09 Use BaseModule->httpExit() instead
 	 */
-	public static function httpExit(string $content, string $type = Response::TYPE_HTML, ?string $content_type = null) {
+	public static function httpExit(string $content, string $type = Response::TYPE_HTML, ?string $content_type = null)
+	{
 		DI::apiResponse()->setType($type, $content_type);
 		DI::apiResponse()->addContent($content);
 		self::echoResponse(DI::apiResponse()->generate());

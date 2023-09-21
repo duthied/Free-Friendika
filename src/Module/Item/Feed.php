@@ -86,6 +86,6 @@ class Feed extends BaseModule
 			throw new HTTPException\InternalServerErrorException($this->t('The feed for this item is unavailable.', ['uri-id' => $uriId]));
 		}
 
-		System::httpExit($xml, Response::TYPE_ATOM);
+		$this->httpExit($xml, Response::TYPE_ATOM);
 	}
 }

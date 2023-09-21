@@ -74,6 +74,6 @@ class Share extends \Friendica\BaseModule
 			$content = '[share]' . $item['uri'] . '[/share]';
 		}
 
-		System::httpExit($content);
+		$this->httpExit($content);
 	}
 }

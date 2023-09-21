@@ -102,7 +102,7 @@ class ParseUrl extends BaseModule
 			if ($format == 'json') {
 				System::jsonExit($arr['text']);
 			} else {
-				System::httpExit($arr['text']);
+				$this->httpExit($arr['text']);
 			}
 		}
 
@@ -135,7 +135,7 @@ class ParseUrl extends BaseModule
 
 			System::jsonExit($ret);
 		} else {
-			System::httpExit(BBCode::embedURL($url, empty($_GET['noAttachment']), $title, $description, $_GET['tags'] ?? ''));
+			$this->httpExit(BBCode::embedURL($url, empty($_GET['noAttachment']), $title, $description, $_GET['tags'] ?? ''));
 		}
 	}
 }

@@ -89,7 +89,7 @@ class Response implements ICanCreateResponses
 	/**
 	 * {@inheritDoc}
 	 */
-	public function setType(string $type, ?string $content_type = null): void
+	public function setType(string $type = Response::TYPE_HTML, ?string $content_type = null): void
 	{
 		if (!in_array($type, static::ALLOWED_TYPES)) {
 			throw new InternalServerErrorException('wrong type');

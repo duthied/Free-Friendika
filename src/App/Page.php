@@ -496,7 +496,9 @@ class Page implements ArrayAccess
 			}
 
 			if ($_GET["mode"] == "raw") {
-				System::httpExit(substr($target->saveHTML(), 6, -8), Response::TYPE_HTML);
+				$response->withBody(Utils::streamFor($target->saveHTML()));
+				System::echoResponse($response);
+				System::exit();
 			}
 		}
 

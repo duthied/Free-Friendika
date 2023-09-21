@@ -115,6 +115,6 @@ class Hovercard extends BaseModule
 			],
 		]);
 
-		System::httpExit($o);
+		$this->httpExit($o);
 	}
 }

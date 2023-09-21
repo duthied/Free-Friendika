@@ -70,7 +70,7 @@ interface ICanCreateResponses
 	 *
 	 * @throws InternalServerErrorException
 	 */
-	public function setType(string $type, ?string $content_type = null): void;
+	public function setType(string $type = ICanCreateResponses::TYPE_HTML, ?string $content_type = null): void;
 
 	/**
 	 * Sets the status and the reason for the response

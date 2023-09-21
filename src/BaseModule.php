@@ -27,6 +27,7 @@ use Friendica\Capabilities\ICanCreateResponses;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Model\User;
 use Friendica\Module\Response;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
@@ -106,8 +107,7 @@ abstract class BaseModule implements ICanHandleRequests
 	 */
 	protected function rawContent(array $request = [])
 	{
-		// echo '';
-		// exit;
+		// $this->httpExit(...);
 	}
 
 	/**
@@ -234,7 +234,8 @@ abstract class BaseModule implements ICanHandleRequests
 
 		$timestamp = microtime(true);
 		// "rawContent" is especially meant for technical endpoints.
-		// This endpoint doesn't need any theme initialization or other comparable stuff.
+		// This endpoint doesn't need any theme initialization or
+		// templating and is expected to exit on its own if it is set.
 		$this->rawContent($request);
 
 		try {
@@ -455,5 +456,24 @@ abstract class BaseModule implements ICanHandleRequests
 		}
 
 		return $tabs;
+	}
+
+	/**
+	 * This function adds the content and a content-type HTTP header to the output.
+	 * After finishing the process is getting killed.
+	 *
+	 * @param string      $content
+	 * @param string      $type
+	 * @param string|null $content_type
+	 * @return void
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public function httpExit(string $content, string $type = Response::TYPE_HTML, ?string $content_type = null)
+	{
+		$this->response->setType($type, $content_type);
+		$this->response->addContent($content);
+		System::echoResponse($this->response->generate());
+
+		System::exit();
 	}
 }

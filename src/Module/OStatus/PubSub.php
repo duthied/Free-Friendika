@@ -155,6 +155,6 @@ class PubSub extends \Friendica\BaseModule
 			$this->logger->notice('Success for contact.', ['mode' => $hub_mode, 'contact' => $contact_id]);
 		}
 
-		System::httpExit($hub_challenge);
+		$this->httpExit($hub_challenge);
 	}
 }
