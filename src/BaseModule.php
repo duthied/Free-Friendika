@@ -33,6 +33,7 @@ use Friendica\Module\Response;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Profiler;
+use Friendica\Util\XML;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 

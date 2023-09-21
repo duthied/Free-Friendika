@@ -311,27 +311,24 @@ class System
 	 * Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable
 	 * of $st and an optional text <message> of $message and terminates the current process.
 	 *
-	 * @param        $st
+	 * @param mixed  $status
 	 * @param string $message
 	 * @throws \Exception
+	 * @deprecated since 2023.09 Use BaseModule->httpExit() instead
 	 */
-	public static function xmlExit($st, $message = '')
+	public static function xmlExit($status, string $message = '')
 	{
-		$result = ['status' => $st];
+		$result = ['status' => $status];
 
 		if ($message != '') {
 			$result['message'] = $message;
 		}
 
-		if ($st) {
-			Logger::notice('xml_status returning non_zero: ' . $st . " message=" . $message);
+		if ($status) {
+			Logger::notice('xml_status returning non_zero: ' . $status . " message=" . $message);
 		}
 
-		DI::apiResponse()->setType(Response::TYPE_XML);
-		DI::apiResponse()->addContent(XML::fromArray(['result' => $result]));
-		self::echoResponse(DI::apiResponse()->generate());
-
-		self::exit();
+		self::httpExit(XML::fromArray(['result' => $result]), Response::TYPE_XML);
 	}
 
 	/**
