@@ -82,6 +82,6 @@ class Reports extends BaseApi
 
 		$this->reportRepo->save($report);
 
-		System::jsonExit([]);
+		$this->jsonExit([]);
 	}
 }

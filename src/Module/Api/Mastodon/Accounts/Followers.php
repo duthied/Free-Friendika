@@ -115,6 +115,6 @@ class Followers extends BaseApi
 		}
 
 		self::setLinkHeader();
-		System::jsonExit($accounts);
+		$this->jsonExit($accounts);
 	}
 }

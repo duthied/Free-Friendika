@@ -82,6 +82,6 @@ class Ignore extends BaseModule
 			'state'   => $ignored,
 		];
 
-		System::jsonExit($return);
+		$this->jsonExit($return);
 	}
 }

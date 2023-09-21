@@ -89,6 +89,6 @@ class Activity extends BaseModule
 			'state' => 1,
 		];
 
-		System::jsonExit($return);
+		$this->jsonExit($return);
 	}
 }

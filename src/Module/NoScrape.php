@@ -71,7 +71,7 @@ class NoScrape extends BaseModule
 
 		if (!$owner['net-publish']) {
 			$json_info['hide'] = true;
-			System::jsonExit($json_info);
+			$this->jsonExit($json_info);
 		}
 
 		$keywords = $owner['pub_keywords'] ?? '';
@@ -107,6 +107,6 @@ class NoScrape extends BaseModule
 			}
 		}
 
-		System::jsonExit($json_info);
+		$this->jsonExit($json_info);
 	}
 }

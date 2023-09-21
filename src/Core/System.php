@@ -392,14 +392,12 @@ class System
 	 * @param mixed   $content      The input content
 	 * @param string  $content_type Type of the input (Default: 'application/json')
 	 * @param integer $options      JSON options
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
+	 * @deprecated since 2023.09 Use BaseModule->jsonExit instead
 	 */
-	public static function jsonExit($content, $content_type = 'application/json', int $options = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) {
-		DI::apiResponse()->setType(Response::TYPE_JSON, $content_type);
-		DI::apiResponse()->addContent(json_encode($content, $options));
-		self::echoResponse(DI::apiResponse()->generate());
-
-		self::exit();
+	public static function jsonExit($content, string $content_type = 'application/json', int $options = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+	{
+		self::httpExit(json_encode($content, $options), Response::TYPE_JSON, $content_type);
 	}
 
 	/**

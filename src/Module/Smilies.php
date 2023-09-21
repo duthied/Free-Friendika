@@ -41,7 +41,7 @@ class Smilies extends BaseModule
 			for ($i = 0; $i < count($smilies['texts']); $i++) {
 				$results[] = ['text' => $smilies['texts'][$i], 'icon' => $smilies['icons'][$i]];
 			}
-			System::jsonExit($results);
+			$this->jsonExit($results);
 		}
 	}
 

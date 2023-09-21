@@ -83,6 +83,6 @@ class Ids extends ContactEndpoint
 
 		self::setLinkHeader();
 
-		System::jsonExit($return);
+		$this->jsonExit($return);
 	}
 }

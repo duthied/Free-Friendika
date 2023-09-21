@@ -57,6 +57,6 @@ class Relationships extends BaseApi
 			$relationships[] = DI::mstdnRelationship()->createFromContactId($id, $uid);
 		}
 
-		System::jsonExit($relationships);
+		$this->jsonExit($relationships);
 	}
 }

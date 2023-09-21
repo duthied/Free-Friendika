@@ -49,6 +49,6 @@ class Unfollow extends BaseApi
 
 		Contact::unfollow($contact);
 
-		System::jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
+		$this->jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
 	}
 }

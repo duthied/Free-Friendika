@@ -122,6 +122,6 @@ class Statuses extends BaseApi
 		}
 
 		self::setLinkHeader($request['friendica_order'] != TimelineOrderByTypes::ID);
-		System::jsonExit($statuses);
+		$this->jsonExit($statuses);
 	}
 }

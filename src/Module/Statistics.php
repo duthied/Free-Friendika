@@ -83,6 +83,6 @@ class Statistics extends BaseModule
 		], $services);
 
 		$this->logger->debug("statistics.", ['statistics' => $statistics]);
-		System::jsonExit($statistics);
+		$this->jsonExit($statistics);
 	}
 }

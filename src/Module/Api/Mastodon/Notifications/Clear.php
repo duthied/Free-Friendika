@@ -37,6 +37,6 @@ class Clear extends BaseApi
 
 		DI::notification()->setAllDismissedForUser($uid);
 
-		System::jsonExit([]);
+		$this->jsonExit([]);
 	}
 }

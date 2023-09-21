@@ -77,6 +77,6 @@ class Blocks extends BaseApi
 		}
 
 		self::setLinkHeader();
-		System::jsonExit($accounts);
+		$this->jsonExit($accounts);
 	}
 }

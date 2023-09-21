@@ -495,4 +495,19 @@ abstract class BaseModule implements ICanHandleRequests
 
 		$this->httpExit($content);
 	}
+
+	/**
+	 * Display the response using JSON to encode the content
+	 *
+	 * @param mixed  $content
+	 * @param string $content_type
+	 * @param int    $options A combination of json_encode() binary flags
+	 * @return void
+	 * @throws HTTPException\InternalServerErrorException
+	 * @see json_encode()
+	 */
+	public function jsonExit($content, string $content_type = 'application/json', int $options = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+	{
+		$this->httpExit(json_encode($content, $options), ICanCreateResponses::TYPE_JSON, $content_type);
+	}
 }

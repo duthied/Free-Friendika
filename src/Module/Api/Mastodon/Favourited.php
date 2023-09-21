@@ -90,6 +90,6 @@ class Favourited extends BaseApi
 		}
 
 		self::setLinkHeader();
-		System::jsonExit($statuses);
+		$this->jsonExit($statuses);
 	}
 }

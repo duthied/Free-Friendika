@@ -100,7 +100,7 @@ class ParseUrl extends BaseModule
 
 		if ($arr['text']) {
 			if ($format == 'json') {
-				System::jsonExit($arr['text']);
+				$this->jsonExit($arr['text']);
 			} else {
 				$this->httpExit($arr['text']);
 			}
@@ -133,7 +133,7 @@ class ParseUrl extends BaseModule
 				$ret['success'] = true;
 			}
 
-			System::jsonExit($ret);
+			$this->jsonExit($ret);
 		} else {
 			$this->httpExit(BBCode::embedURL($url, empty($_GET['noAttachment']), $title, $description, $_GET['tags'] ?? ''));
 		}
