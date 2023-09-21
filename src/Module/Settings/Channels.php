@@ -69,7 +69,7 @@ class Channels extends BaseSettings
 				'uid'              => $uid,
 				'include-tags'     => $this->cleanTags($request['new_include_tags']),
 				'exclude-tags'     => $this->cleanTags($request['new_exclude_tags']),
-				'full-text-search' => null, // Currently not supported for performance reasons
+				'full-text-search' => $this->cleanTags($request['new_text_search']),
 				'media-type'       => ($request['new_image'] ? 1 : 0) | ($request['new_video'] ? 2 : 0) | ($request['new_audio'] ? 4 : 0),
 			]);
 			$saved = $this->channel->save($channel);
@@ -92,7 +92,7 @@ class Channels extends BaseSettings
 				'uid'              => $uid,
 				'include-tags'     => $this->cleanTags($request['include_tags'][$id]),
 				'exclude-tags'     => $this->cleanTags($request['exclude_tags'][$id]),
-				'full-text-search' => null, // Currently not supported for performance reasons
+				'full-text-search' => $this->cleanTags($request['text_search'][$id]),
 				'media-type'       => ($request['image'][$id] ? 1 : 0) | ($request['video'][$id] ? 2 : 0) | ($request['audio'][$id] ? 4 : 0),
 			]);
 			$saved = $this->channel->save($channel);
@@ -119,6 +119,7 @@ class Channels extends BaseSettings
 				'access_key'   => ["access_key[$channel->code]", $this->t("Access Key"), $channel->accessKey],
 				'include_tags' => ["include_tags[$channel->code]", $this->t("Include Tags"), $channel->includeTags],
 				'exclude_tags' => ["exclude_tags[$channel->code]", $this->t("Exclude Tags"), $channel->excludeTags],
+				'text_search'  => ["text_search[$channel->code]", $this->t("Full Text Search"), $channel->fullTextSearch],
 				'image'        => ["image[$channel->code]", $this->t("Images"), $channel->mediaType & 1],
 				'video'        => ["video[$channel->code]", $this->t("Videos"), $channel->mediaType & 2],
 				'audio'        => ["audio[$channel->code]", $this->t("Audio"), $channel->mediaType & 4],
@@ -133,6 +134,7 @@ class Channels extends BaseSettings
 			'access_key'   => ["new_access_key", $this->t("Access Key"), '', $this->t('When you want to access this channel via an access key, you can define it here. Pay attentioon to not use an already used one.')],
 			'include_tags' => ["new_include_tags", $this->t("Include Tags"), '', $this->t('Comma separated list of tags. A post will be used when it contains any of the listed tags.')],
 			'exclude_tags' => ["new_exclude_tags", $this->t("Exclude Tags"), '', $this->t('Comma separated list of tags. If a post contain any of these tags, then it will not be part of nthis channel.')],
+			'text_search'  => ["new_text_search", $this->t("Full Text Search"), '', $this->t('Search terms for the body.')],
 			'image'        => ['new_image', $this->t("Images"), false, $this->t("Check to display images in the channel.")],
 			'video'        => ["new_video", $this->t("Videos"), false, $this->t("Check to display videos in the channel.")],
 			'audio'        => ["new_audio", $this->t("Audio"), false, $this->t("Check to display audio in the channel.")],

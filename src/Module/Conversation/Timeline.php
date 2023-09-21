@@ -376,8 +376,7 @@ class Timeline extends BaseModule
 		$condition = [];
 
 		if (!empty($channel->fullTextSearch)) {
-			$first     = $this->database->selectFirst('post-engagement', ['uri-id']);
-			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-content` WHERE `uri-id` >= ? AND MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))", $first['uri-id'], $channel->fullTextSearch]);
+			$condition = DBA::mergeConditions($condition, ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", $channel->fullTextSearch]);
 		}
 
 		if (!empty($channel->includeTags)) {

@@ -230,6 +230,7 @@ class BBCode
 	{
 		DI::profiler()->startRecording('rendering');
 		// Remove pictures in advance to avoid unneeded proxy calls
+		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", ' ', $text);
 		$text = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $2 ', $text);
 		$text = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $text);
 

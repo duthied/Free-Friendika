@@ -1327,6 +1327,7 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Person, organisation, news, community, relay',
 	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
 	`language` varbinary(128) COMMENT 'Language information about this post',
+	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
 	`created` datetime COMMENT '',
 	`restricted` boolean NOT NULL DEFAULT '0' COMMENT 'If true, this post is either unlisted or not from a federated network',
 	`comments` mediumint unsigned COMMENT 'Number of comments',
@@ -1334,6 +1335,7 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	 PRIMARY KEY(`uri-id`),
 	 INDEX `owner-id` (`owner-id`),
 	 INDEX `created` (`created`),
+	 FULLTEXT INDEX `searchtext` (`searchtext`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Engagement data per post';

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-21 06:47+0000\n"
+"POT-Creation-Date: 2023-09-21 23:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,7 +70,7 @@ msgstr ""
 #: src/Module/Settings/Account.php:50 src/Module/Settings/Account.php:408
 #: src/Module/Settings/Channels.php:55 src/Module/Settings/Channels.php:111
 #: src/Module/Settings/Delegation.php:41 src/Module/Settings/Delegation.php:71
-#: src/Module/Settings/Display.php:73 src/Module/Settings/Display.php:160
+#: src/Module/Settings/Display.php:73 src/Module/Settings/Display.php:176
 #: src/Module/Settings/Profile/Photo/Crop.php:165
 #: src/Module/Settings/Profile/Photo/Index.php:111
 #: src/Module/Settings/RemoveMe.php:117 src/Module/Settings/UserExport.php:80
@@ -385,7 +385,7 @@ msgstr ""
 
 #: mod/notes.php:57 src/Content/Text/HTML.php:859
 #: src/Module/Admin/Storage.php:142 src/Module/Filer/SaveTag.php:74
-#: src/Module/Post/Edit.php:129 src/Module/Settings/Channels.php:144
+#: src/Module/Post/Edit.php:129 src/Module/Settings/Channels.php:146
 msgid "Save"
 msgstr ""
 
@@ -1548,7 +1548,7 @@ msgid "Posts from accounts that are followed by accounts that you follow"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Timeline.php:85
-#: src/Module/Settings/Channels.php:122 src/Module/Settings/Channels.php:136
+#: src/Module/Settings/Channels.php:123 src/Module/Settings/Channels.php:138
 msgid "Images"
 msgstr ""
 
@@ -1557,7 +1557,7 @@ msgid "Posts with images"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Timeline.php:86
-#: src/Module/Settings/Channels.php:124 src/Module/Settings/Channels.php:138
+#: src/Module/Settings/Channels.php:125 src/Module/Settings/Channels.php:140
 msgid "Audio"
 msgstr ""
 
@@ -1566,7 +1566,7 @@ msgid "Posts with audio"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Timeline.php:87
-#: src/Module/Settings/Channels.php:123 src/Module/Settings/Channels.php:137
+#: src/Module/Settings/Channels.php:124 src/Module/Settings/Channels.php:139
 msgid "Videos"
 msgstr ""
 
@@ -1931,7 +1931,7 @@ msgstr ""
 #: src/Content/Nav.php:233 src/Content/Nav.php:293
 #: src/Module/BaseProfile.php:85 src/Module/BaseProfile.php:88
 #: src/Module/BaseProfile.php:96 src/Module/BaseProfile.php:99
-#: src/Module/Settings/Display.php:267 view/theme/frio/theme.php:236
+#: src/Module/Settings/Display.php:294 view/theme/frio/theme.php:236
 #: view/theme/frio/theme.php:240
 msgid "Calendar"
 msgstr ""
@@ -2174,39 +2174,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:696 src/Content/Text/BBCode.php:1636
-#: src/Content/Text/BBCode.php:1637
+#: src/Content/Text/BBCode.php:697 src/Content/Text/BBCode.php:1637
+#: src/Content/Text/BBCode.php:1638
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:914
+#: src/Content/Text/BBCode.php:915
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:939 src/Model/Item.php:3745
+#: src/Content/Text/BBCode.php:940 src/Model/Item.php:3745
 #: src/Model/Item.php:3751 src/Model/Item.php:3752
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1543 src/Content/Text/HTML.php:904
+#: src/Content/Text/BBCode.php:1544 src/Content/Text/HTML.php:904
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1576
+#: src/Content/Text/BBCode.php:1577
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1641 src/Content/Text/BBCode.php:1642
+#: src/Content/Text/BBCode.php:1642 src/Content/Text/BBCode.php:1643
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1901
+#: src/Content/Text/BBCode.php:1902
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1920
+#: src/Content/Text/BBCode.php:1921
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2366,8 +2366,8 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: src/Content/Widget.php:577 src/Module/BaseSettings.php:125
-#: src/Module/Settings/Channels.php:140 src/Module/Settings/Display.php:266
+#: src/Content/Widget.php:585 src/Module/BaseSettings.php:125
+#: src/Module/Settings/Channels.php:142 src/Module/Settings/Display.php:293
 msgid "Channels"
 msgstr ""
 
@@ -2826,37 +2826,37 @@ msgid "Could not connect to database."
 msgstr ""
 
 #: src/Core/L10n.php:476 src/Model/Event.php:430
-#: src/Module/Settings/Display.php:235
+#: src/Module/Settings/Display.php:262
 msgid "Monday"
 msgstr ""
 
 #: src/Core/L10n.php:476 src/Model/Event.php:431
-#: src/Module/Settings/Display.php:236
+#: src/Module/Settings/Display.php:263
 msgid "Tuesday"
 msgstr ""
 
 #: src/Core/L10n.php:476 src/Model/Event.php:432
-#: src/Module/Settings/Display.php:237
+#: src/Module/Settings/Display.php:264
 msgid "Wednesday"
 msgstr ""
 
 #: src/Core/L10n.php:476 src/Model/Event.php:433
-#: src/Module/Settings/Display.php:238
+#: src/Module/Settings/Display.php:265
 msgid "Thursday"
 msgstr ""
 
 #: src/Core/L10n.php:476 src/Model/Event.php:434
-#: src/Module/Settings/Display.php:239
+#: src/Module/Settings/Display.php:266
 msgid "Friday"
 msgstr ""
 
 #: src/Core/L10n.php:476 src/Model/Event.php:435
-#: src/Module/Settings/Display.php:240
+#: src/Module/Settings/Display.php:267
 msgid "Saturday"
 msgstr ""
 
 #: src/Core/L10n.php:476 src/Model/Event.php:429
-#: src/Module/Settings/Display.php:234
+#: src/Module/Settings/Display.php:261
 msgid "Sunday"
 msgstr ""
 
@@ -3301,17 +3301,17 @@ msgid "today"
 msgstr ""
 
 #: src/Model/Event.php:463 src/Module/Calendar/Show.php:129
-#: src/Module/Settings/Display.php:245 src/Util/Temporal.php:353
+#: src/Module/Settings/Display.php:272 src/Util/Temporal.php:353
 msgid "month"
 msgstr ""
 
 #: src/Model/Event.php:464 src/Module/Calendar/Show.php:130
-#: src/Module/Settings/Display.php:246 src/Util/Temporal.php:354
+#: src/Module/Settings/Display.php:273 src/Util/Temporal.php:354
 msgid "week"
 msgstr ""
 
 #: src/Model/Event.php:465 src/Module/Calendar/Show.php:131
-#: src/Module/Settings/Display.php:247 src/Util/Temporal.php:355
+#: src/Module/Settings/Display.php:274 src/Util/Temporal.php:355
 msgid "day"
 msgstr ""
 
@@ -3884,7 +3884,7 @@ msgid "Disable"
 msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:91
-#: src/Module/Admin/Themes/Details.php:49
+#: src/Module/Admin/Themes/Details.php:49 src/Module/Settings/Display.php:316
 msgid "Enable"
 msgstr ""
 
@@ -3934,7 +3934,7 @@ msgstr ""
 #: src/Module/Settings/Account.php:561 src/Module/Settings/Addons.php:78
 #: src/Module/Settings/Connectors.php:160
 #: src/Module/Settings/Connectors.php:246
-#: src/Module/Settings/Delegation.php:171 src/Module/Settings/Display.php:260
+#: src/Module/Settings/Delegation.php:171 src/Module/Settings/Display.php:287
 #: src/Module/Settings/Features.php:76
 msgid "Save Settings"
 msgstr ""
@@ -4295,11 +4295,11 @@ msgstr ""
 msgid "%s is no valid input for maximum image size"
 msgstr ""
 
-#: src/Module/Admin/Site.php:313 src/Module/Settings/Display.php:178
+#: src/Module/Admin/Site.php:313 src/Module/Settings/Display.php:194
 msgid "No special theme for mobile devices"
 msgstr ""
 
-#: src/Module/Admin/Site.php:330 src/Module/Settings/Display.php:188
+#: src/Module/Admin/Site.php:330 src/Module/Settings/Display.php:204
 #, php-format
 msgid "%s - (Experimental)"
 msgstr ""
@@ -5847,7 +5847,7 @@ msgstr ""
 #: src/Module/Moderation/Blocklist/Server/Index.php:116
 #: src/Module/Moderation/Item/Delete.php:67 src/Module/Register.php:148
 #: src/Module/Security/TwoFactor/Verify.php:101
-#: src/Module/Settings/Channels.php:117 src/Module/Settings/Channels.php:131
+#: src/Module/Settings/Channels.php:117 src/Module/Settings/Channels.php:132
 #: src/Module/Settings/TwoFactor/Index.php:140
 #: src/Module/Settings/TwoFactor/Verify.php:155
 msgid "Required"
@@ -5909,7 +5909,7 @@ msgstr ""
 msgid "Create New Event"
 msgstr ""
 
-#: src/Module/Calendar/Show.php:132 src/Module/Settings/Display.php:248
+#: src/Module/Calendar/Show.php:132 src/Module/Settings/Display.php:275
 msgid "list"
 msgstr ""
 
@@ -5943,7 +5943,7 @@ msgid "Contact not found."
 msgstr ""
 
 #: src/Module/Circle.php:102 src/Module/Contact/Contacts.php:66
-#: src/Module/Conversation/Network.php:233
+#: src/Module/Conversation/Network.php:224
 msgid "Invalid contact."
 msgstr ""
 
@@ -6729,16 +6729,16 @@ msgstr ""
 msgid "Not available."
 msgstr ""
 
-#: src/Module/Conversation/Network.php:219
+#: src/Module/Conversation/Network.php:210
 msgid "No such circle"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:223
+#: src/Module/Conversation/Network.php:214
 #, php-format
 msgid "Circle: %s"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:317
+#: src/Module/Conversation/Network.php:308
 msgid "Network feed not available."
 msgstr ""
 
@@ -7119,7 +7119,7 @@ msgstr ""
 #: src/Module/Friendica.php:102
 #: src/Module/Moderation/Blocklist/Server/Index.php:87
 #: src/Module/Moderation/Blocklist/Server/Index.php:111
-#: src/Module/Settings/Channels.php:147
+#: src/Module/Settings/Channels.php:149
 msgid "Reason for the block"
 msgstr ""
 
@@ -7867,7 +7867,7 @@ msgstr ""
 
 #: src/Module/Moderation/Blocklist/Server/Index.php:86
 #: src/Module/Moderation/Blocklist/Server/Index.php:110
-#: src/Module/Settings/Channels.php:146
+#: src/Module/Settings/Channels.php:148
 msgid "Blocked server domain pattern"
 msgstr ""
 
@@ -9909,94 +9909,104 @@ msgstr ""
 msgid "No Addon settings configured"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:117 src/Module/Settings/Channels.php:131
+#: src/Module/Settings/Channels.php:117 src/Module/Settings/Channels.php:132
+#: src/Module/Settings/Display.php:314
 msgid "Label"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:118 src/Module/Settings/Channels.php:132
+#: src/Module/Settings/Channels.php:118 src/Module/Settings/Channels.php:133
+#: src/Module/Settings/Display.php:315
 #: src/Module/Settings/TwoFactor/AppSpecific.php:134
 msgid "Description"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:119 src/Module/Settings/Channels.php:133
+#: src/Module/Settings/Channels.php:119 src/Module/Settings/Channels.php:134
 msgid "Access Key"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:120 src/Module/Settings/Channels.php:134
+#: src/Module/Settings/Channels.php:120 src/Module/Settings/Channels.php:135
 msgid "Include Tags"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:121 src/Module/Settings/Channels.php:135
+#: src/Module/Settings/Channels.php:121 src/Module/Settings/Channels.php:136
 msgid "Exclude Tags"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:125
+#: src/Module/Settings/Channels.php:122 src/Module/Settings/Channels.php:137
+msgid "Full Text Search"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:126
 msgid "Delete channel"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:125
+#: src/Module/Settings/Channels.php:126
 msgid "Check to delete this entry from the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:131
+#: src/Module/Settings/Channels.php:132
 msgid "Short name for the channel. It is displayed on the channels widget."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:132
+#: src/Module/Settings/Channels.php:133
 msgid "This should describe the content of the channel in a few word."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:133
+#: src/Module/Settings/Channels.php:134
 msgid ""
 "When you want to access this channel via an access key, you can define it "
 "here. Pay attentioon to not use an already used one."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:134
+#: src/Module/Settings/Channels.php:135
 msgid ""
 "Comma separated list of tags. A post will be used when it contains any of "
 "the listed tags."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:135
+#: src/Module/Settings/Channels.php:136
 msgid ""
 "Comma separated list of tags. If a post contain any of these tags, then it "
 "will not be part of nthis channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:136
-msgid "Check to display images in the channel."
-msgstr ""
-
 #: src/Module/Settings/Channels.php:137
-msgid "Check to display videos in the channel."
+msgid "Search terms for the body."
 msgstr ""
 
 #: src/Module/Settings/Channels.php:138
+msgid "Check to display images in the channel."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:139
+msgid "Check to display videos in the channel."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:140
 msgid "Check to display audio in the channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:141
+#: src/Module/Settings/Channels.php:143
 msgid "This page can be used to define your own channels."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:142
+#: src/Module/Settings/Channels.php:144
 msgid "Add new entry to the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:143 src/Module/Settings/Delegation.php:181
+#: src/Module/Settings/Channels.php:145 src/Module/Settings/Delegation.php:181
 msgid "Add"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:145
+#: src/Module/Settings/Channels.php:147
 msgid "Current Entries in the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:148
+#: src/Module/Settings/Channels.php:150
 msgid "Delete entry from the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:149
+#: src/Module/Settings/Channels.php:151
 msgid "Delete entry from the channel list?"
 msgstr ""
 
@@ -10269,169 +10279,165 @@ msgstr ""
 msgid "No entries."
 msgstr ""
 
-#: src/Module/Settings/Display.php:146
+#: src/Module/Settings/Display.php:162
 msgid "The theme you chose isn't available."
 msgstr ""
 
-#: src/Module/Settings/Display.php:186
+#: src/Module/Settings/Display.php:202
 #, php-format
 msgid "%s - (Unsupported)"
 msgstr ""
 
-#: src/Module/Settings/Display.php:221
+#: src/Module/Settings/Display.php:237
 msgid "No preview"
 msgstr ""
 
-#: src/Module/Settings/Display.php:222
+#: src/Module/Settings/Display.php:238
 msgid "No image"
 msgstr ""
 
-#: src/Module/Settings/Display.php:223
+#: src/Module/Settings/Display.php:239
 msgid "Small Image"
 msgstr ""
 
-#: src/Module/Settings/Display.php:224
+#: src/Module/Settings/Display.php:240
 msgid "Large Image"
 msgstr ""
 
-#: src/Module/Settings/Display.php:259
+#: src/Module/Settings/Display.php:286
 msgid "Display Settings"
 msgstr ""
 
-#: src/Module/Settings/Display.php:261
+#: src/Module/Settings/Display.php:288
 msgid "General Theme Settings"
 msgstr ""
 
-#: src/Module/Settings/Display.php:262
+#: src/Module/Settings/Display.php:289
 msgid "Custom Theme Settings"
 msgstr ""
 
-#: src/Module/Settings/Display.php:263
+#: src/Module/Settings/Display.php:290
 msgid "Content Settings"
 msgstr ""
 
-#: src/Module/Settings/Display.php:264 view/theme/duepuntozero/config.php:86
+#: src/Module/Settings/Display.php:291 view/theme/duepuntozero/config.php:86
 #: view/theme/frio/config.php:172 view/theme/quattro/config.php:88
 #: view/theme/vier/config.php:136
 msgid "Theme settings"
 msgstr ""
 
-#: src/Module/Settings/Display.php:265
+#: src/Module/Settings/Display.php:292
 msgid "Timelines"
 msgstr ""
 
-#: src/Module/Settings/Display.php:272
+#: src/Module/Settings/Display.php:299
 msgid "Display Theme:"
 msgstr ""
 
-#: src/Module/Settings/Display.php:273
+#: src/Module/Settings/Display.php:300
 msgid "Mobile Theme:"
 msgstr ""
 
-#: src/Module/Settings/Display.php:276
+#: src/Module/Settings/Display.php:303
 msgid "Number of items to display per page:"
 msgstr ""
 
-#: src/Module/Settings/Display.php:276 src/Module/Settings/Display.php:277
+#: src/Module/Settings/Display.php:303 src/Module/Settings/Display.php:304
 msgid "Maximum of 100 items"
 msgstr ""
 
-#: src/Module/Settings/Display.php:277
+#: src/Module/Settings/Display.php:304
 msgid "Number of items to display per page when viewed from mobile device:"
 msgstr ""
 
-#: src/Module/Settings/Display.php:278
+#: src/Module/Settings/Display.php:305
 msgid "Update browser every xx seconds"
 msgstr ""
 
-#: src/Module/Settings/Display.php:278
+#: src/Module/Settings/Display.php:305
 msgid "Minimum of 10 seconds. Enter -1 to disable it."
 msgstr ""
 
-#: src/Module/Settings/Display.php:279
+#: src/Module/Settings/Display.php:306
 msgid "Display emoticons"
 msgstr ""
 
-#: src/Module/Settings/Display.php:279
+#: src/Module/Settings/Display.php:306
 msgid "When enabled, emoticons are replaced with matching symbols."
 msgstr ""
 
-#: src/Module/Settings/Display.php:280
+#: src/Module/Settings/Display.php:307
 msgid "Infinite scroll"
 msgstr ""
 
-#: src/Module/Settings/Display.php:280
+#: src/Module/Settings/Display.php:307
 msgid "Automatic fetch new items when reaching the page end."
 msgstr ""
 
-#: src/Module/Settings/Display.php:281
+#: src/Module/Settings/Display.php:308
 msgid "Enable Smart Threading"
 msgstr ""
 
-#: src/Module/Settings/Display.php:281
+#: src/Module/Settings/Display.php:308
 msgid "Enable the automatic suppression of extraneous thread indentation."
 msgstr ""
 
-#: src/Module/Settings/Display.php:282
+#: src/Module/Settings/Display.php:309
 msgid "Display the Dislike feature"
 msgstr ""
 
-#: src/Module/Settings/Display.php:282
+#: src/Module/Settings/Display.php:309
 msgid "Display the Dislike button and dislike reactions on posts and comments."
 msgstr ""
 
-#: src/Module/Settings/Display.php:283
+#: src/Module/Settings/Display.php:310
 msgid "Display the resharer"
 msgstr ""
 
-#: src/Module/Settings/Display.php:283
+#: src/Module/Settings/Display.php:310
 msgid "Display the first resharer as icon and text on a reshared item."
 msgstr ""
 
-#: src/Module/Settings/Display.php:284
+#: src/Module/Settings/Display.php:311
 msgid "Stay local"
 msgstr ""
 
-#: src/Module/Settings/Display.php:284
+#: src/Module/Settings/Display.php:311
 msgid "Don't go to a remote system when following a contact link."
 msgstr ""
 
-#: src/Module/Settings/Display.php:285
+#: src/Module/Settings/Display.php:312
 msgid "Link preview mode"
 msgstr ""
 
-#: src/Module/Settings/Display.php:285
+#: src/Module/Settings/Display.php:312
 msgid "Appearance of the link preview that is added to each post with a link."
 msgstr ""
 
-#: src/Module/Settings/Display.php:287
-msgid "Timelines for the network page:"
+#: src/Module/Settings/Display.php:317
+msgid "Bookmark"
 msgstr ""
 
-#: src/Module/Settings/Display.php:287
-msgid "Select all the timelines that you want to see on your network page."
+#: src/Module/Settings/Display.php:319
+msgid ""
+"Enable timelines that you want to see in the channels widget. Bookmark "
+"timelines that you want to see in the top menu."
 msgstr ""
 
-#: src/Module/Settings/Display.php:288
+#: src/Module/Settings/Display.php:321
 msgid "Channel languages:"
 msgstr ""
 
-#: src/Module/Settings/Display.php:288
+#: src/Module/Settings/Display.php:321
 msgid "Select all languages that you want to see in your channels."
 msgstr ""
 
-#: src/Module/Settings/Display.php:290
+#: src/Module/Settings/Display.php:323
 msgid "Beginning of week:"
 msgstr ""
 
-#: src/Module/Settings/Display.php:291
+#: src/Module/Settings/Display.php:324
 msgid "Default calendar view:"
-msgstr ""
-
-#: src/Module/Settings/Display.php:300 src/Module/Settings/Display.php:308
-#: src/Module/Settings/Display.php:312
-#, php-format
-msgid "%s: %s"
 msgstr ""
 
 #: src/Module/Settings/Features.php:74

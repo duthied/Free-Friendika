@@ -9,6 +9,7 @@
 	{{include file="field_input.tpl" field=$access_key}}
 	{{include file="field_input.tpl" field=$include_tags}}
 	{{include file="field_input.tpl" field=$exclude_tags}}
+	{{include file="field_input.tpl" field=$text_search}}
 	{{include file="field_checkbox.tpl" field=$image}}
 	{{include file="field_checkbox.tpl" field=$video}}
 	{{include file="field_checkbox.tpl" field=$audio}}
@@ -27,6 +28,7 @@
 			{{include file="field_input.tpl" field=$e.access_key}}
 			{{include file="field_input.tpl" field=$e.include_tags}}
 			{{include file="field_input.tpl" field=$e.exclude_tags}}
+			{{include file="field_input.tpl" field=$e.text_search}}
 			{{include file="field_checkbox.tpl" field=$e.image}}
 			{{include file="field_checkbox.tpl" field=$e.video}}
 			{{include file="field_checkbox.tpl" field=$e.audio}}

@@ -21,6 +21,7 @@
 
 namespace Friendica\Model\Post;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\Database;
@@ -52,7 +53,7 @@ class Engagement
 			return;
 		}
 
-		$parent = Post::selectFirst(['created', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language'], ['uri-id' => $item['parent-uri-id']]);
+		$parent = Post::selectFirst(['uri-id', 'created', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language', 'title', 'content-warning', 'body'], ['uri-id' => $item['parent-uri-id']]);
 
 		if ($parent['created'] < DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')) {
 			Logger::debug('Post is too old', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'created' => $parent['created']]);
@@ -87,6 +88,7 @@ class Engagement
 			'contact-type' => $parent['contact-contact-type'],
 			'media-type'   => $mediatype,
 			'language'     => $parent['language'],
+			'searchtext'   => self::getSearchText($parent),
 			'created'      => $parent['created'],
 			'restricted'   => !in_array($item['network'], Protocol::FEDERATED) || ($parent['private'] != Item::PUBLIC),
 			'comments'     => DBA::count('post', ['parent-uri-id' => $item['parent-uri-id'], 'gravity' => Item::GRAVITY_COMMENT]),
@@ -102,6 +104,20 @@ class Engagement
 		}
 		$ret = DBA::insert('post-engagement', $engagement, Database::INSERT_UPDATE);
 		Logger::debug('Engagement stored', ['fields' => $engagement, 'ret' => $ret]);
+	}
+
+	private static function getSearchText(array $item): string
+	{
+		$body = $item['title'] . "\n" . $item['content-warning'] . "\n" . $item['body'] . "\n";
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $body);
+		$text = BBCode::toPlaintext($body, false);
+
+		do {
+			$oldtext = $text;
+			$text = str_replace(['  ', "\n", "\r"], ' ', $text);
+		} while ($oldtext != $text);
+
+		return $text;
 	}
 
 	private static function getMediaType(int $uri_id): int

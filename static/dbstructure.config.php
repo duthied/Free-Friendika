@@ -1350,6 +1350,7 @@ return [
 			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Person, organisation, news, community, relay"],
 			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
 			"language" => ["type" => "varbinary(128)", "comment" => "Language information about this post"],
+			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
 			"created" => ["type" => "datetime", "comment" => ""],
 			"restricted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "If true, this post is either unlisted or not from a federated network"],
 			"comments" => ["type" => "mediumint unsigned", "comment" => "Number of comments"],
@@ -1359,6 +1360,7 @@ return [
 			"PRIMARY" => ["uri-id"],
 			"owner-id" => ["owner-id"],
 			"created" => ["created"],
+			"searchtext" => ["FULLTEXT", "searchtext"],
 		]
 	],
 	"post-history" => [
