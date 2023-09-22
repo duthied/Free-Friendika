@@ -157,6 +157,8 @@ class Engagement
 
 		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
 
+		$body = preg_replace("~\[url\=.*\]https?:.*\[\/url\]~", '', $body);
+
 		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $body);
 		$text = BBCode::toPlaintext($body, false);
 
