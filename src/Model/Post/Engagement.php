@@ -53,7 +53,9 @@ class Engagement
 			return;
 		}
 
-		$parent = Post::selectFirst(['uri-id', 'created', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language', 'title', 'content-warning', 'body'], ['uri-id' => $item['parent-uri-id']]);
+		$parent = Post::selectFirst(['uri-id', 'created', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language',
+			'title', 'content-warning', 'body', 'author-name', 'author-nick', 'author-addr', 'owner-name', 'owner-nick', 'owner-addr'],
+			['uri-id' => $item['parent-uri-id']]);
 
 		if ($parent['created'] < DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')) {
 			Logger::debug('Post is too old', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'created' => $parent['created']]);
@@ -108,7 +110,10 @@ class Engagement
 
 	private static function getSearchText(array $item): string
 	{
-		$body = $item['title'] . "\n" . $item['content-warning'] . "\n" . $item['body'] . "\n";
+		$body = $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'] . ' ' .
+			$item['author-name'] . ' ' . $item['author-nick'] . ' ' . $item['author-addr'] . ' ' . 
+			$item['owner-name'] . ' ' . $item['owner-nick'] . ' ' . $item['owner-addr']; 
+
 		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $body);
 		$text = BBCode::toPlaintext($body, false);
 
