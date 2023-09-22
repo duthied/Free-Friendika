@@ -45,7 +45,7 @@ Die aufgelisteten Adressen werden wie folgt durch Kommas voneinander getrennt:
 'admin_email' => 'mail1@example.com,mail2@example.com',
 ```
 
-<a name="dbupdate">
+<a name="dbupdate"></a>
 ### Die Datenbank Struktur schein nicht aktuell zu sein. Was kann ich tun?
 
 Rufe bitte im Admin Panel den Punkt [DB Updates](/admin/dbsync/) auf und folge dem Link *Datenbank Struktur überprüfen*.
