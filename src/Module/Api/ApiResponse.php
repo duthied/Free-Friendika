@@ -210,7 +210,7 @@ class ApiResponse extends Response
 
 		$this->setHeader(($this->server['SERVER_PROTOCOL'] ?? 'HTTP/1.1') . ' ' . $code . ' ' . $description);
 
-		$this->exit('status', ['status' => $error], $format);
+		$this->addFormattedContent('status', ['status' => $error], $format);
 	}
 
 	/**
@@ -224,7 +224,7 @@ class ApiResponse extends Response
 	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function exit(string $root_element, array $data, string $format = null, int $cid = 0)
+	public function addFormattedContent(string $root_element, array $data, string $format = null, int $cid = 0)
 	{
 		$format = $format ?? 'json';
 
@@ -259,16 +259,16 @@ class ApiResponse extends Response
 	}
 
 	/**
-	 * Wrapper around exit() for JSON only responses
+	 * Wrapper around addFormattedContent() for JSON only responses
 	 *
 	 * @param array $data
 	 *
 	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function exitWithJson(array $data)
+	public function addJsonContent(array $data)
 	{
-		$this->exit('content', ['content' => $data], static::TYPE_JSON);
+		$this->addFormattedContent('content', ['content' => $data], static::TYPE_JSON);
 	}
 
 	/**

@@ -62,7 +62,7 @@ class Delete extends BaseApi
 			Item::deleteForUser($condition, $uid);
 			Photo::clearAlbumCache($uid);
 			$result = ['result' => 'deleted', 'message' => 'photo with id `' . $request['photo_id'] . '` has been deleted from server.'];
-			$this->response->exit('photo_delete', ['$result' => $result], $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('photo_delete', ['$result' => $result], $this->parameters['extension'] ?? null);
 		} else {
 			throw new InternalServerErrorException("unknown error on deleting photo from database table");
 		}

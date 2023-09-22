@@ -285,7 +285,7 @@ class ApiResponseTest extends MockedTest
 		$twitterUser = \Mockery::mock(User::class);
 
 		$response = new ApiResponse($l10n, $args, new NullLogger(), $baseUrl, $twitterUser);
-		$response->exitWithJson(['some_data']);
+		$response->addJsonContent(['some_data']);
 
 		self::assertEquals('["some_data"]', $response->getContent());
 	}
@@ -302,7 +302,7 @@ class ApiResponseTest extends MockedTest
 		$twitterUser = \Mockery::mock(User::class);
 
 		$response = new ApiResponse($l10n, $args, new NullLogger(), $baseUrl, $twitterUser, [], 'JsonPCallback');
-		$response->exitWithJson(['some_data']);
+		$response->addJsonContent(['some_data']);
 
 		self::assertEquals('JsonPCallback(["some_data"])', $response->getContent());
 	}

@@ -56,6 +56,6 @@ class Notification extends BaseApi
 			$result = false;
 		}
 
-		$this->response->exit('notes', ['note' => $result], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('notes', ['note' => $result], $this->parameters['extension'] ?? null);
 	}
 }

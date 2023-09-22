@@ -77,7 +77,7 @@ class Destroy extends BaseApi
 		$list = $this->friendicaCircle->createFromId($gid);
 
 		if (Circle::remove($gid)) {
-			$this->response->exit('statuses', ['lists' => ['lists' => $list]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+			$this->response->addFormattedContent('statuses', ['lists' => ['lists' => $list]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 		}
 	}
 }

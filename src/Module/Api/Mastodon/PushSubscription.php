@@ -81,7 +81,7 @@ class PushSubscription extends BaseApi
 		$this->logger->info('Subscription stored', ['ret' => $ret, 'subscription' => $subscription]);
 
 		$subscriptionObj = $this->subscriptionFac->createForApplicationIdAndUserId($application['id'], $uid);
-		$this->response->exitWithJson($subscriptionObj->toArray());
+		$this->response->addJsonContent($subscriptionObj->toArray());
 	}
 
 	public function put(array $request = []): void
@@ -120,7 +120,7 @@ class PushSubscription extends BaseApi
 		]);
 
 		$subscriptionObj = $this->subscriptionFac->createForApplicationIdAndUserId($application['id'], $uid);
-		$this->response->exitWithJson($subscriptionObj->toArray());
+		$this->response->addJsonContent($subscriptionObj->toArray());
 	}
 
 	protected function delete(array $request = []): void
@@ -137,7 +137,7 @@ class PushSubscription extends BaseApi
 			'uid'            => $uid,
 		]);
 
-		$this->response->exitWithJson([]);
+		$this->response->addJsonContent([]);
 	}
 
 	protected function rawContent(array $request = []): void
@@ -154,6 +154,6 @@ class PushSubscription extends BaseApi
 		$this->logger->info('Fetch subscription', ['application-id' => $application['id'], 'uid' => $uid]);
 
 		$subscriptionObj = $this->subscriptionFac->createForApplicationIdAndUserId($application['id'], $uid);
-		$this->response->exitWithJson($subscriptionObj->toArray());
+		$this->response->addJsonContent($subscriptionObj->toArray());
 	}
 }

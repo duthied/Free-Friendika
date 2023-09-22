@@ -47,6 +47,6 @@ class Index extends BaseApi
 			];
 		}
 
-		$this->response->exit('albums', ['albums' => $items], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('albums', ['albums' => $items], $this->parameters['extension'] ?? null);
 	}
 }

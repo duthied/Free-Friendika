@@ -67,6 +67,6 @@ class UpdateProfileImage extends BaseApi
 		// "uid" is only needed for some internal stuff, so remove it from here
 		unset($user_info['uid']);
 
-		$this->response->exit('user', ['user' => $user_info], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('user', ['user' => $user_info], $this->parameters['extension'] ?? null);
 	}
 }

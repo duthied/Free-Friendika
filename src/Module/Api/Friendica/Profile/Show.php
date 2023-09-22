@@ -62,7 +62,7 @@ class Show extends BaseApi
 			'profiles' => $profiles
 		];
 
-		$this->response->exit('friendica_profiles', ['$result' => $result], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('friendica_profiles', ['$result' => $result], $this->parameters['extension'] ?? null);
 	}
 
 	/**

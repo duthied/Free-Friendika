@@ -184,7 +184,7 @@ class Update extends BaseApi
 			if (!empty($item['uri-id'])) {
 				// output the post that we just posted.
 				$status_info = DI::twitterStatus()->createFromUriId($item['uri-id'], $uid, $request['include_entities'])->toArray();
-				DI::apiResponse()->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+				DI::apiResponse()->addFormattedContent('status', ['status' => $status_info], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 				return;
 			}
 		}
