@@ -53,8 +53,8 @@ class Engagement
 			return;
 		}
 
-		$parent = Post::selectFirst(['uri-id', 'created', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language',
-			'title', 'content-warning', 'body', 'author-name', 'author-nick', 'author-addr', 'owner-name', 'owner-nick', 'owner-addr'],
+		$parent = Post::selectFirst(['uri-id', 'created', 'author-id', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language', 'network',
+			'title', 'content-warning', 'body', 'author-contact-type', 'author-nick', 'author-addr', 'owner-contact-type', 'owner-nick', 'owner-addr'],
 			['uri-id' => $item['parent-uri-id']]);
 
 		if ($parent['created'] < DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')) {
@@ -110,9 +110,52 @@ class Engagement
 
 	private static function getSearchText(array $item): string
 	{
-		$body = $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'] . ' ' .
-			$item['author-name'] . ' ' . $item['author-nick'] . ' ' . $item['author-addr'] . ' ' . 
-			$item['owner-name'] . ' ' . $item['owner-nick'] . ' ' . $item['owner-addr']; 
+		$body = '[nosmile]network:' . $item['network'];
+
+		switch ($item['private']) {
+			case Item::PUBLIC:
+				$body .= ' visibility:public';
+				break;
+			case Item::UNLISTED:
+				$body .= ' visibility:unlisted';
+				break;
+			case Item::PRIVATE:
+				$body .= ' visibility:private';
+				break;
+		}
+
+		if ($item['author-contact-type'] == Contact::TYPE_COMMUNITY) {
+			$body .= ' group:' . $item['author-nick'] . ' group:' . $item['author-addr'];
+		} elseif (in_array($item['author-contact-type'], [Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION])) {
+			$body .= ' from:' . $item['author-nick'] . ' from:' . $item['author-addr'];
+		}
+
+		if ($item['author-id'] !=  $item['owner-id']) {
+			if ($item['owner-contact-type'] == Contact::TYPE_COMMUNITY) {
+				$body .= ' group:' . $item['owner-nick'] . ' group:' . $item['owner-addr'];
+			} elseif (in_array($item['owner-contact-type'], [Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION])) {
+				$body .= ' from:' . $item['owner-nick'] . ' from:' . $item['owner-addr'];
+			}
+		}
+
+		foreach (Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION, Tag::AUDIENCE]) as $tag) {
+			$contact = Contact::getByURL($tag['name'], false, ['nick', 'addr', 'contact-type']);
+			if (empty($contact)) {
+				continue;
+			}
+
+			if (($contact['contact-type'] == Contact::TYPE_COMMUNITY) && !strpos($body, 'group:' . $contact['addr'])) {
+				$body .= ' group:' . $contact['nick'] . ' group:' . $contact['addr'];
+			} elseif (in_array($contact['contact-type'], [Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION])) {
+				$body .= ' to:' . $contact['nick'] . ' to:' . $contact['addr'];
+			}
+		}
+
+		foreach (Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]) as $tag) {
+			$body .= ' tag:' . $tag['name'];
+		}
+
+		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
 
 		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $body);
 		$text = BBCode::toPlaintext($body, false);

@@ -134,7 +134,7 @@ class Channels extends BaseSettings
 			'access_key'   => ["new_access_key", $this->t("Access Key"), '', $this->t('When you want to access this channel via an access key, you can define it here. Pay attentioon to not use an already used one.')],
 			'include_tags' => ["new_include_tags", $this->t("Include Tags"), '', $this->t('Comma separated list of tags. A post will be used when it contains any of the listed tags.')],
 			'exclude_tags' => ["new_exclude_tags", $this->t("Exclude Tags"), '', $this->t('Comma separated list of tags. If a post contain any of these tags, then it will not be part of nthis channel.')],
-			'text_search'  => ["new_text_search", $this->t("Full Text Search"), '', $this->t('Search terms for the body.')],
+			'text_search'  => ["new_text_search", $this->t("Full Text Search"), '', $this->t('Search terms for the body.')], // @todo Add dcumentation for the keywords
 			'image'        => ['new_image', $this->t("Images"), false, $this->t("Check to display images in the channel.")],
 			'video'        => ["new_video", $this->t("Videos"), false, $this->t("Check to display videos in the channel.")],
 			'audio'        => ["new_audio", $this->t("Audio"), false, $this->t("Check to display audio in the channel.")],
