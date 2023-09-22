@@ -159,7 +159,7 @@ class Engagement
 
 		$body = preg_replace("~\[url\=.*\]https?:.*\[\/url\]~", '', $body);
 
-		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $body);
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $body, [Post\Media::IMAGE]);
 		$text = BBCode::toPlaintext($body, false);
 
 		do {
