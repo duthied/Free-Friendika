@@ -45,7 +45,7 @@ Die aufgelisteten Adressen werden wie folgt durch Kommas voneinander getrennt:
 'admin_email' => 'mail1@example.com,mail2@example.com',
 ```
 
-<a name="dbupdate">
+<a name="dbupdate"></a>
 ### Die Datenbank Struktur schein nicht aktuell zu sein. Was kann ich tun?
 
 Rufe bitte im Admin Panel den Punkt [DB Updates](/admin/dbsync/) auf und folge dem Link *Datenbank Struktur überprüfen*.
@@ -56,4 +56,4 @@ Starte dazu bitte vom Grundverzeichnis deiner Friendica Instanz folgendes Komman
 
     bin/console dbstructure update
 
-sollten bei der Ausführung Fehler auftreten, kontaktiere bitte die [Support Gruppe](https://forum.friendi.ca/profile/helpers).
+sollten bei der Ausführung Fehler auftreten, kontaktiere bitte die [Friendia Support](https://forum.friendi.ca/profile/helpers)  Gruppe oder die [Friendica Admins](https://forum.friendi.ca/profile/admins) Gruppe.
