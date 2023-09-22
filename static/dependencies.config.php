@@ -330,4 +330,10 @@ return [
 			$_SERVER
 		],
 	],
+	\Friendica\Module\Api\ApiResponse::class => [
+		'constructParams' => [
+			$_SERVER,
+			$_GET['callback'] ?? '',
+		],
+	],
 ];
