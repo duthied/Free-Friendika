@@ -697,6 +697,7 @@ audio {
  */
 .imagegrid-row figure {
 	position: relative;
+	background: center / auto rgba(0, 0, 0, 0.05) url(/images/icons/image.png) no-repeat;
 }
 .imagegrid-row figure img{
 	position: absolute;
