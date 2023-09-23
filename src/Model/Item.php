@@ -1078,7 +1078,10 @@ class Item
 		}
 
 		if ($item['origin']) {
-			if (Photo::setPermissionFromBody($item['body'], $item['uid'], $item['contact-id'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid'])) {
+			if (
+				Photo::setPermissionFromBody($item['body'], $item['uid'], $item['contact-id'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid'])
+				&& ($item['object-type'] != Activity\ObjectType::EVENT)
+			) {
 				$item['object-type'] = Activity\ObjectType::IMAGE;
 			}
 
