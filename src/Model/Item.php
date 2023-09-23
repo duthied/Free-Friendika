@@ -3268,25 +3268,64 @@ class Item
 	}
 
 	/**
+	 * Creates a horizontally masoned gallery with a fixed maximum number of pictures per row.
+	 *
+	 * For each row, we calculate how much of the total width each picture will take depending on their aspect ratio
+	 * and how much relative height it needs to accomodate all pictures next to each other with their height normalized.
+	 *
 	 * @param array $images
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
 	 */
 	private static function makeImageGrid(array $images): string
 	{
-		// Image for first column (fc) and second column (sc)
-		$images_fc = [];
-		$images_sc = [];
+		static $column_size = 2;
 
-		for ($i = 0; $i < count($images); $i++) {
-			($i % 2 == 0) ? ($images_fc[] = $images[$i]) : ($images_sc[] = $images[$i]);
-		}
+		$rows = array_map(
+			function (array $row_images) {
+				if ($singleImageInRow = count($row_images) == 1) {
+					$row_images[] = $row_images[0];
+				}
+
+				$widths = [];
+				$heights = [];
+				foreach ($row_images as $image) {
+					$widths[] = $image['attachment']['width'];
+					$heights[] = $image['attachment']['height'];
+				}
+
+				$maxHeight = max($heights);
+
+				// Corrected height preserving aspect ratio when all images on a row are
+				$correctedWidths = [];
+				foreach ($widths as $i => $width) {
+					$correctedWidths[] = $width * $maxHeight / $heights[$i];
+				}
+
+				$totalWidth = array_sum($correctedWidths);
+
+				foreach ($row_images as $i => $image) {
+					$row_images[$i]['gridWidth'] = $correctedWidths[$i];
+					$row_images[$i]['gridHeight'] = $maxHeight;
+					$row_images[$i]['heightRatio'] = 100 * $maxHeight / $correctedWidths[$i];
+					// Ratio of the width of the image relative to the total width of the images on the row
+					$row_images[$i]['widthRatio'] = 100 * $correctedWidths[$i] / $totalWidth;
+					// This magic value will stay constant for each image of any given row and
+					// is ultimately used to determine the height of the row container
+					$row_images[$i]['commonHeightRatio'] = 100 * $correctedWidths[$i] / $totalWidth / ($widths[$i] / $heights[$i]);
+				}
+
+				if ($singleImageInRow) {
+					unset($row_images[1]);
+				}
+
+				return $row_images;
+			},
+			array_chunk($images, $column_size)
+		);
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
-			'columns' => [
-				'fc' => $images_fc,
-				'sc' => $images_sc,
-			],
+			'rows' => $rows,
 		]);
 	}
 
@@ -3464,6 +3503,7 @@ class Item
 				if (self::containsLink($item['body'], $src_url)) {
 					continue;
 				}
+
 				$images[] = ['src' => $src_url, 'preview' => $preview_url, 'attachment' => $attachment, 'uri_id' => $item['uri-id']];
 			}
 		}
