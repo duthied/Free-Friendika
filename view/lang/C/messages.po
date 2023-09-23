@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-21 23:26+0000\n"
+"POT-Creation-Date: 2023-09-23 14:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -9955,7 +9955,7 @@ msgstr ""
 #: src/Module/Settings/Channels.php:134
 msgid ""
 "When you want to access this channel via an access key, you can define it "
-"here. Pay attentioon to not use an already used one."
+"here. Pay attention to not use an already used one."
 msgstr ""
 
 #: src/Module/Settings/Channels.php:135
@@ -9971,7 +9971,11 @@ msgid ""
 msgstr ""
 
 #: src/Module/Settings/Channels.php:137
-msgid "Search terms for the body."
+#, php-format
+msgid ""
+"Search terms for the body, supports the \"boolean mode\" operators from "
+"MariaDB. See the help for a complete list of operators and additional "
+"keywords: %s"
 msgstr ""
 
 #: src/Module/Settings/Channels.php:138
