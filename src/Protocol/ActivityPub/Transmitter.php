@@ -1752,7 +1752,7 @@ class Transmitter
 
 			$body = BBCode::setMentionsToNicknames($body);
 
-			if (!empty($item['quote-uri-id'])) {
+			if (!empty($item['quote-uri-id']) && ($item['quote-uri-id'] != $item['uri-id'])) {
 				if (Post::exists(['uri-id' => $item['quote-uri-id'], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN]])) {
 					$real_quote = true;
 					$data['quoteUrl'] = $item['quote-uri'];
@@ -1772,7 +1772,7 @@ class Transmitter
 		if (!empty($language)) {
 			$richbody = BBCode::setMentionsToNicknames($item['body'] ?? '');
 			$richbody = Post\Media::removeFromEndOfBody($richbody);
-			if (!empty($item['quote-uri-id'])) {
+			if (!empty($item['quote-uri-id']) && ($item['quote-uri-id'] != $item['uri-id'])) {
 				if ($real_quote) {
 					$richbody = DI::contentItem()->addShareLink($richbody, $item['quote-uri-id']);
 				} else {
@@ -1784,7 +1784,7 @@ class Transmitter
 			$data['contentMap'][$language] = BBCode::convertForUriId($item['uri-id'], $richbody, BBCode::EXTERNAL);
 		}
 
-		if (!empty($item['quote-uri-id'])) {
+		if (!empty($item['quote-uri-id']) && ($item['quote-uri-id'] != $item['uri-id'])) {
 			$source = DI::contentItem()->addSharedPost($item, $item['body']);
 		} else {
 			$source = $item['body'];

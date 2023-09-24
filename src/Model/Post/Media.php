@@ -265,6 +265,11 @@ class Media
 			return $media;
 		}
 
+		if ($item['uri-id'] == $media['uri-id']) {
+			Logger::info('Media-Uri-Id is identical to Uri-Id', ['uri-id' => $media['uri-id']]);
+			return $media;
+		}
+
 		if (
 			!empty($item['plink']) && Strings::compareLink($item['plink'], $media['url']) &&
 			parse_url($item['plink'], PHP_URL_HOST) != parse_url($item['uri'], PHP_URL_HOST)
