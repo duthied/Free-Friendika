@@ -7,6 +7,7 @@
 	{{include file="field_input.tpl" field=$label}}
 	{{include file="field_input.tpl" field=$description}}
 	{{include file="field_input.tpl" field=$access_key}}
+	{{include file="field_select.tpl" field=$circle}}
 	{{include file="field_input.tpl" field=$include_tags}}
 	{{include file="field_input.tpl" field=$exclude_tags}}
 	{{include file="field_input.tpl" field=$text_search}}
@@ -26,6 +27,7 @@
 			{{include file="field_input.tpl" field=$e.label}}
 			{{include file="field_input.tpl" field=$e.description}}
 			{{include file="field_input.tpl" field=$e.access_key}}
+			{{include file="field_select.tpl" field=$e.circle}}
 			{{include file="field_input.tpl" field=$e.include_tags}}
 			{{include file="field_input.tpl" field=$e.exclude_tags}}
 			{{include file="field_input.tpl" field=$e.text_search}}

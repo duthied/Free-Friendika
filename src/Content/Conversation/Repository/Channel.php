@@ -91,6 +91,7 @@ class Channel extends \Friendica\BaseRepository
 			'description'      => $Channel->description,
 			'access-key'       => $Channel->accessKey,
 			'uid'              => $Channel->uid,
+			'circle'           => $Channel->circle,
 			'include-tags'     => $Channel->includeTags,
 			'exclude-tags'     => $Channel->excludeTags,
 			'full-text-search' => $Channel->fullTextSearch,

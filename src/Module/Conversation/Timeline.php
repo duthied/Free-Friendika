@@ -375,6 +375,16 @@ class Timeline extends BaseModule
 
 		$condition = [];
 
+		if (!empty($channel->circle)) {
+			if ($channel->circle == -1) {
+				$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))", $uid, Contact::SHARING, Contact::FRIEND];
+			} elseif ($channel->circle == -2) {
+				$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $uid, Contact::FOLLOWER];
+			} elseif ($channel->circle > 0) {
+				$condition = DBA::mergeConditions($condition, ["`owner-id` IN (SELECT `pid` FROM `group_member` INNER JOIN `account-user-view` ON `group_member`.`contact-id` = `account-user-view`.`id` WHERE `gid` = ? AND `account-user-view`.`uid` = ?)", $channel->circle, $uid]);
+			}
+		}
+
 		if (!empty($channel->fullTextSearch)) {
 			$search = $channel->fullTextSearch;
 			foreach (['from', 'to', 'group', 'tag', 'network', 'visibility'] as $keyword) {
@@ -399,7 +409,8 @@ class Timeline extends BaseModule
 			$condition = DBA::mergeConditions($condition, ["`media-type` & ?", $channel->mediaType]);
 		}
 
-		return $condition;
+		// For "addLanguageCondition" to work, the condition must not be empty
+		return $condition ?: ["true"];
 	}
 
 	private function addLanguageCondition(int $uid, array $condition): array

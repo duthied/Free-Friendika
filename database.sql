@@ -500,6 +500,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
 	`uid` mediumint unsigned NOT NULL COMMENT 'User id',
 	`label` varchar(64) NOT NULL COMMENT 'Channel label',
 	`description` varchar(64) COMMENT 'Channel description',
+	`circle` int COMMENT 'Circle or channel that this channel is based on',
 	`access-key` varchar(1) COMMENT 'Access key',
 	`include-tags` varchar(255) COMMENT 'Comma separated list of tags that will be included in the channel',
 	`exclude-tags` varchar(255) COMMENT 'Comma separated list of tags that aren\'t allowed in the channel',

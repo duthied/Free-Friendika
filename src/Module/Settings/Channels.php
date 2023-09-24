@@ -27,6 +27,7 @@ use Friendica\Content\Conversation\Repository\Channel;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Model\Circle;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
@@ -67,6 +68,7 @@ class Channels extends BaseSettings
 				'description'      => $request['new_description'],
 				'access-key'       => substr(mb_strtolower($request['new_access_key']), 0, 1),
 				'uid'              => $uid,
+				'circle'           => (int)$request['new_circle'],
 				'include-tags'     => $this->cleanTags($request['new_include_tags']),
 				'exclude-tags'     => $this->cleanTags($request['new_exclude_tags']),
 				'full-text-search' => $this->cleanTags($request['new_text_search']),
@@ -90,6 +92,7 @@ class Channels extends BaseSettings
 				'description'      => $request['description'][$id],
 				'access-key'       => substr(mb_strtolower($request['access_key'][$id]), 0, 1),
 				'uid'              => $uid,
+				'circle'           => (int)$request['circle'][$id],
 				'include-tags'     => $this->cleanTags($request['include_tags'][$id]),
 				'exclude-tags'     => $this->cleanTags($request['exclude_tags'][$id]),
 				'full-text-search' => $this->cleanTags($request['text_search'][$id]),
@@ -111,12 +114,23 @@ class Channels extends BaseSettings
 			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
 		}
 
+		$circles = [
+			0  => $this->l10n->t('Global Community'),
+			-1 => $this->l10n->t('Following'),
+			-2 => $this->l10n->t('Followers'),
+		];
+
+		foreach (Circle::getByUID($uid) as $circle) {
+			$circles[$circle['id']] = $circle['name'];
+		}
+
 		$blocklistform = [];
 		foreach ($this->channel->selectByUid($uid) as $channel) {
 			$blocklistform[] = [
 				'label'        => ["label[$channel->code]", $this->t('Label'), $channel->label, '', $this->t('Required')],
 				'description'  => ["description[$channel->code]", $this->t("Description"), $channel->description],
 				'access_key'   => ["access_key[$channel->code]", $this->t("Access Key"), $channel->accessKey],
+				'circle'       => ["circle[$channel->code]", $this->t('Circle/Channel'), $channel->circle, '', $circles],
 				'include_tags' => ["include_tags[$channel->code]", $this->t("Include Tags"), $channel->includeTags],
 				'exclude_tags' => ["exclude_tags[$channel->code]", $this->t("Exclude Tags"), $channel->excludeTags],
 				'text_search'  => ["text_search[$channel->code]", $this->t("Full Text Search"), $channel->fullTextSearch],
@@ -132,6 +146,7 @@ class Channels extends BaseSettings
 			'label'        => ["new_label", $this->t('Label'), '', $this->t('Short name for the channel. It is displayed on the channels widget.'), $this->t('Required')],
 			'description'  => ["new_description", $this->t("Description"), '', $this->t('This should describe the content of the channel in a few word.')],
 			'access_key'   => ["new_access_key", $this->t("Access Key"), '', $this->t('When you want to access this channel via an access key, you can define it here. Pay attention to not use an already used one.')],
+			'circle'       => ['new_circle', $this->t('Circle/Channel'), 0, $this->t('Select a circle or channel, that your channel should be based on.'), $circles],
 			'include_tags' => ["new_include_tags", $this->t("Include Tags"), '', $this->t('Comma separated list of tags. A post will be used when it contains any of the listed tags.')],
 			'exclude_tags' => ["new_exclude_tags", $this->t("Exclude Tags"), '', $this->t('Comma separated list of tags. If a post contain any of these tags, then it will not be part of nthis channel.')],
 			'text_search'  => ["new_text_search", $this->t("Full Text Search"), '', $this->t('Search terms for the body, supports the "boolean mode" operators from MariaDB. See the help for a complete list of operators and additional keywords: %s', '<a href="help/Channels">help/Channels</a>')],

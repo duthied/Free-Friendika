@@ -12,6 +12,7 @@ Fields
 | uid              | User id                                                                                           | mediumint unsigned | NO   |     | NULL    |                |
 | label            | Channel label                                                                                     | varchar(64)        | NO   |     | NULL    |                |
 | description      | Channel description                                                                               | varchar(64)        | YES  |     | NULL    |                |
+| circle           | Circle or channel that this channel is based on                                                   | int                | YES  |     | NULL    |                |
 | access-key       | Access key                                                                                        | varchar(1)         | YES  |     | NULL    |                |
 | include-tags     | Comma separated list of tags that will be included in the channel                                 | varchar(255)       | YES  |     | NULL    |                |
 | exclude-tags     | Comma separated list of tags that aren't allowed in the channel                                   | varchar(255)       | YES  |     | NULL    |                |

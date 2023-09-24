@@ -62,6 +62,7 @@ final class Timeline extends \Friendica\BaseFactory implements ICanCreateFromTab
 			$row['exclude-tags'] ?? null,
 			$row['full-text-search'] ?? null,
 			$row['media-type'] ?? null,
+			$row['circle'] ?? null,
 		);
 	}
 

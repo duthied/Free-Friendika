@@ -558,6 +558,7 @@ return [
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"label" => ["type" => "varchar(64)", "not null" => "1", "comment" => "Channel label"],
 			"description" => ["type" => "varchar(64)", "comment" => "Channel description"],
+			"circle" => ["type" => "int", "comment" => "Circle or channel that this channel is based on"],
 			"access-key" => ["type" => "varchar(1)", "comment" => "Access key"],
 			"include-tags" => ["type" => "varchar(255)", "comment" => "Comma separated list of tags that will be included in the channel"],
 			"exclude-tags" => ["type" => "varchar(255)", "comment" => "Comma separated list of tags that aren't allowed in the channel"],
