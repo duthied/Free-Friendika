@@ -698,6 +698,7 @@ audio {
 figure.img-allocated-height {
 	position: relative;
 	background: center / auto rgba(0, 0, 0, 0.05) url(/images/icons/image.png) no-repeat;
+	margin: 0;
 }
 figure.img-allocated-height img{
 	position: absolute;
