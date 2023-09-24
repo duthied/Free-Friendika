@@ -3325,7 +3325,8 @@ class Item
 		);
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
-			'rows' => $rows,
+			'$rows' => $rows,
+			'$column_size' => $column_size,
 		]);
 	}
 
@@ -3512,8 +3513,15 @@ class Item
 		if (count($images) > 1) {
 			$media = self::makeImageGrid($images);
 		} elseif (count($images) == 1) {
+			if (!empty($images[0]['attachment']['preview-height'])) {
+				$allocated_height = (100 * $images[0]['attachment']['preview-height'] / $images[0]['attachment']['preview-width']) . '%';
+			} else {
+				$allocated_height = (100 * $images[0]['attachment']['height'] / $images[0]['attachment']['width']) . '%';
+			}
+
 			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
 				'$image' => $images[0],
+				'$allocated_height' => $allocated_height,
 			]);
 		}
 

@@ -695,16 +695,17 @@ audio {
  * Please note: The space is effectively allocated using padding-bottom using the image ratio as a value.
  * In the image grid, this ratio isn't known in advance so no value is set in the stylesheet.
  */
-.imagegrid-row figure {
+figure.img-allocated-height {
 	position: relative;
 	background: center / auto rgba(0, 0, 0, 0.05) url(/images/icons/image.png) no-repeat;
 }
-.imagegrid-row figure img{
+figure.img-allocated-height img{
 	position: absolute;
 	top: 0;
 	right: 0;
 	bottom: 0;
 	left: 0;
+	width: 100%;
 }
 /**
  * Image grid settings END

@@ -355,6 +355,6 @@ textarea#profile-jot-text:focus + #preview_profile-jot-text, textarea.comment-ed
 	border-color: $link_color;
 }
 
-.imagegrid-row figure {
+figure.img-allocated-height {
 	background-color: rgba(255, 255, 255, 0.05);
 }
