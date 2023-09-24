@@ -638,7 +638,7 @@ class Item
 			$body = $item['body'];
 		}
 
-		if (empty($item['quote-uri-id'])) {
+		if (empty($item['quote-uri-id']) || ($item['quote-uri-id'] == $item['uri-id'])) {
 			return $body;
 		}
 
@@ -729,7 +729,7 @@ class Item
 	 */
 	public function getSharedPost(array $item, array $fields = []): array
 	{
-		if (!empty($item['quote-uri-id'])) {
+		if (!empty($item['quote-uri-id']) && ($item['quote-uri-id'] != $item['uri-id'])) {
 			$shared = Post::selectFirst($fields, ['uri-id' => $item['quote-uri-id'], 'uid' => [0, $item['uid'] ?? 0]]);
 			if (is_array($shared)) {
 				return [
@@ -770,7 +770,7 @@ class Item
 			return $attributes;
 		}
 
-		if (!empty($item['quote-uri-id'])) {
+		if (!empty($item['quote-uri-id']) && ($item['quote-uri-id'] != $item['uri-id'])) {
 			$shared = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'uri', 'body'], ['uri-id' => $item['quote-uri-id']]);
 			if (!empty($shared)) {
 				return [
