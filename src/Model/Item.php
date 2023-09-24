@@ -3356,6 +3356,7 @@ class Item
 						'attachment' => $attachment,
 					],
 					'$allocated_height' => Media::getAllocatedHeightByMedia($attachment),
+					'$allocated_max_width' => ($attachment['preview-width'] ?? $attachment['width']) . 'px',
 				]);
 			}, $s);
 		}
@@ -3472,8 +3473,10 @@ class Item
 
 			if ($attachment['filetype'] == 'image') {
 				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
+				$attachment['preview-width'] = ($attachment['width'] > $attachment['height']) ? Proxy::PIXEL_MEDIUM : Proxy::PIXEL_LARGE;
 			} elseif (!empty($attachment['preview'])) {
 				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE);
+				$attachment['preview-width'] = Proxy::PIXEL_LARGE;
 			} else {
 				$preview_url = '';
 			}
@@ -3529,6 +3532,7 @@ class Item
 			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
 				'$image' => $images[0],
 				'$allocated_height' => Media::getAllocatedHeightByMedia($images[0]['attachment']),
+				'$allocated_max_width' => ($images[0]['attachment']['preview-width'] ?? $images[0]['attachment']['width']) . 'px',
 			]);
 		}
 

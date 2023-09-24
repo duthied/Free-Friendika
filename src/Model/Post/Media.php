@@ -1173,12 +1173,6 @@ class Media
 	 */
 	public static function getAllocatedHeightByMedia(array $media): string
 	{
-		if (!empty($media['preview-height'])) {
-			$allocated_height = (100 * $media['preview-height'] / $media['preview-width']) . '%';
-		} else {
-			$allocated_height = (100 * $media['height'] / $media['width']) . '%';
-		}
-
-		return $allocated_height;
+		return (100 * $media['height'] / $media['width']) . '%';
 	}
 }
