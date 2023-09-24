@@ -33,7 +33,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post\Category;
-use Friendica\Model\Post\Media;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -3274,65 +3273,25 @@ class Item
 	}
 
 	/**
-	 * Creates a horizontally masoned gallery with a fixed maximum number of pictures per row.
-	 *
-	 * For each row, we calculate how much of the total width each picture will take depending on their aspect ratio
-	 * and how much relative height it needs to accomodate all pictures next to each other with their height normalized.
-	 *
 	 * @param array $images
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
 	 */
 	private static function makeImageGrid(array $images): string
 	{
-		static $column_size = 2;
+		// Image for first column (fc) and second column (sc)
+		$images_fc = [];
+		$images_sc = [];
 
-		$rows = array_map(
-			function (array $row_images) {
-				if ($singleImageInRow = count($row_images) == 1) {
-					$row_images[] = $row_images[0];
-				}
-
-				$widths = [];
-				$heights = [];
-				foreach ($row_images as $image) {
-					$widths[] = $image['attachment']['width'];
-					$heights[] = $image['attachment']['height'];
-				}
-
-				$maxHeight = max($heights);
-
-				// Corrected height preserving aspect ratio when all images on a row are
-				$correctedWidths = [];
-				foreach ($widths as $i => $width) {
-					$correctedWidths[] = $width * $maxHeight / $heights[$i];
-				}
-
-				$totalWidth = array_sum($correctedWidths);
-
-				foreach ($row_images as $i => $image) {
-					$row_images[$i]['gridWidth'] = $correctedWidths[$i];
-					$row_images[$i]['gridHeight'] = $maxHeight;
-					$row_images[$i]['heightRatio'] = 100 * $maxHeight / $correctedWidths[$i];
-					// Ratio of the width of the image relative to the total width of the images on the row
-					$row_images[$i]['widthRatio'] = 100 * $correctedWidths[$i] / $totalWidth;
-					// This magic value will stay constant for each image of any given row and
-					// is ultimately used to determine the height of the row container
-					$row_images[$i]['commonHeightRatio'] = 100 * $correctedWidths[$i] / $totalWidth / ($widths[$i] / $heights[$i]);
-				}
-
-				if ($singleImageInRow) {
-					unset($row_images[1]);
-				}
-
-				return $row_images;
-			},
-			array_chunk($images, $column_size)
-		);
+		for ($i = 0; $i < count($images); $i++) {
+			($i % 2 == 0) ? ($images_fc[] = $images[$i]) : ($images_sc[] = $images[$i]);
+		}
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
-			'$rows' => $rows,
-			'$column_size' => $column_size,
+			'columns' => [
+				'fc' => $images_fc,
+				'sc' => $images_sc,
+			],
 		]);
 	}
 
@@ -3350,20 +3309,7 @@ class Item
 			if (empty($attachment['preview']) || ($attachment['type'] != Post\Media::IMAGE)) {
 				continue;
 			}
-
-			$pattern = '#<a href="' . preg_quote($attachment['url']) . '">(.*?)"></a>#';
-
-			$s = preg_replace_callback($pattern, function () use ($attachment, $uri_id) {
-				return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
-					'$image' => [
-						'src' => $attachment['url'],
-						'uri_id' => $uri_id,
-						'attachment' => $attachment,
-					],
-					'$allocated_height' => Media::getAllocatedHeightByMedia($attachment),
-					'$allocated_max_width' => ($attachment['preview-width'] ?? $attachment['width']) . 'px',
-				]);
-			}, $s);
+			$s = str_replace('<a href="' . $attachment['url'] . '"', '<a data-fancybox="' . $uri_id . '" href="' . $attachment['url'] . '"', $s);
 		}
 		return $s;
 	}
@@ -3478,10 +3424,8 @@ class Item
 
 			if ($attachment['filetype'] == 'image') {
 				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
-				$attachment['preview-width'] = ($attachment['width'] > $attachment['height']) ? Proxy::PIXEL_MEDIUM : Proxy::PIXEL_LARGE;
 			} elseif (!empty($attachment['preview'])) {
 				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE);
-				$attachment['preview-width'] = Proxy::PIXEL_LARGE;
 			} else {
 				$preview_url = '';
 			}
@@ -3525,7 +3469,6 @@ class Item
 				if (self::containsLink($item['body'], $src_url)) {
 					continue;
 				}
-
 				$images[] = ['src' => $src_url, 'preview' => $preview_url, 'attachment' => $attachment, 'uri_id' => $item['uri-id']];
 			}
 		}
@@ -3536,8 +3479,6 @@ class Item
 		} elseif (count($images) == 1) {
 			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
 				'$image' => $images[0],
-				'$allocated_height' => Media::getAllocatedHeightByMedia($images[0]['attachment']),
-				'$allocated_max_width' => ($images[0]['attachment']['preview-width'] ?? $images[0]['attachment']['width']) . 'px',
 			]);
 		}
 
