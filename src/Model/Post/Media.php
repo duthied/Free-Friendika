@@ -1164,4 +1164,21 @@ class Media
 		}
 		return $url . $id;
 	}
+
+	/**
+	 * Computes the allocated height value used in the content/image.tpl template based on a post-media record
+	 *
+	 * @param array $media A post-media record array
+	 * @return string
+	 */
+	public static function getAllocatedHeightByMedia(array $media): string
+	{
+		if (!empty($media['preview-height'])) {
+			$allocated_height = (100 * $media['preview-height'] / $media['preview-width']) . '%';
+		} else {
+			$allocated_height = (100 * $media['height'] / $media['width']) . '%';
+		}
+
+		return $allocated_height;
+	}
 }

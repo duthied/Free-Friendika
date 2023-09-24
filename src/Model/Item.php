@@ -33,6 +33,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post\Category;
+use Friendica\Model\Post\Media;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -3344,7 +3345,19 @@ class Item
 			if (empty($attachment['preview']) || ($attachment['type'] != Post\Media::IMAGE)) {
 				continue;
 			}
-			$s = str_replace('<a href="' . $attachment['url'] . '"', '<a data-fancybox="' . $uri_id . '" href="' . $attachment['url'] . '"', $s);
+
+			$pattern = '#<a href="' . preg_quote($attachment['url']) . '">(.*?)"></a>#';
+
+			$s = preg_replace_callback($pattern, function () use ($attachment, $uri_id) {
+				return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
+					'$image' => [
+						'src' => $attachment['url'],
+						'uri_id' => $uri_id,
+						'attachment' => $attachment,
+					],
+					'$allocated_height' => Media::getAllocatedHeightByMedia($attachment),
+				]);
+			}, $s);
 		}
 		return $s;
 	}
@@ -3513,15 +3526,9 @@ class Item
 		if (count($images) > 1) {
 			$media = self::makeImageGrid($images);
 		} elseif (count($images) == 1) {
-			if (!empty($images[0]['attachment']['preview-height'])) {
-				$allocated_height = (100 * $images[0]['attachment']['preview-height'] / $images[0]['attachment']['preview-width']) . '%';
-			} else {
-				$allocated_height = (100 * $images[0]['attachment']['height'] / $images[0]['attachment']['width']) . '%';
-			}
-
 			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
 				'$image' => $images[0],
-				'$allocated_height' => $allocated_height,
+				'$allocated_height' => Media::getAllocatedHeightByMedia($images[0]['attachment']),
 			]);
 		}
 
