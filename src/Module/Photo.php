@@ -77,7 +77,7 @@ class Photo extends BaseApi
 			throw new NotModifiedException();
 		}
 
-		Profile::addVisitorCookieForHTTPSigner($this->server);
+		Profile::addVisitorCookieForHTTPSigner();
 
 		$customsize = 0;
 		$square_resize = true;

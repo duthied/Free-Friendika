@@ -685,28 +685,22 @@ audio {
 .imagegrid-row {
 	display: -ms-flexbox; /* IE10 */
 	display: flex;
-	/* Both the following values should be the same to ensure consistent margins between images in the grid */
+	margin-top: 1em;
 	column-gap: 5px;
-	margin-top: 5px;
 }
 
-/* This helps allocating space for image before they loaded, preventing content shifting once they are
- * Inspired by https://www.smashingmagazine.com/2016/08/ways-to-reduce-content-shifting-on-page-load/
- * Please note: The space is effectively allocated using padding-bottom using the image ratio as a value.
- * In the image grid, this ratio isn't known in advance so no value is set in the stylesheet.
- */
-figure.img-allocated-height {
-	position: relative;
-	background: center / auto rgba(0, 0, 0, 0.05) url(/images/icons/image.png) no-repeat;
-	margin: 0;
+.imagegrid-column {
+	-ms-flex: 50%; /* IE10 */
+	flex: 50%;
+	display: -ms-flexbox; /* IE10 */
+	display: flex;
+	flex-direction: column;
+	row-gap: 5px;
 }
-figure.img-allocated-height img{
-	position: absolute;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	width: 100%;
+
+.imagegrid-column img {
+	-ms-flex: 50%; /* IE10 */
+	flex: 50%;
 }
 /**
  * Image grid settings END
