@@ -602,7 +602,7 @@ class UserNotification
 	 */
 	private static function checkQuoted(array $item, array $contacts): bool
 	{
-		if (empty($item['quote-uri-id'])) {
+		if (empty($item['quote-uri-id']) || ($item['quote-uri-id'] == $item['uri-id'])) {
 			return false;
 		}
 		$condition = ['uri-id' => $item['quote-uri-id'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => [item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]];

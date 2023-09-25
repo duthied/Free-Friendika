@@ -324,7 +324,7 @@ class Plaintext
 		$post['text'] = Post\Media::removeFromBody($post['text']);
 
 		$images = Post\Media::getByURIId($item['uri-id'], [Post\Media::IMAGE]);
-		if (!empty($item['quote-uri-id'])) {
+		if (!empty($item['quote-uri-id']) && ($item['quote-uri-id'] != $item['uri-id'])) {
 			$images = array_merge($images, Post\Media::getByURIId($item['quote-uri-id'], [Post\Media::IMAGE]));
 		}
 		foreach ($images as $image) {
@@ -355,7 +355,7 @@ class Plaintext
 
 		// Look for audio or video links
 		$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO]);
-		if (!empty($item['quote-uri-id'])) {
+		if (!empty($item['quote-uri-id']) && ($item['quote-uri-id'] != $item['uri-id'])) {
 			$media = array_merge($media, Post\Media::getByURIId($item['quote-uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO]));
 		}
 

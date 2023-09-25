@@ -42,7 +42,7 @@ The listed emails need to be separated by a comma like this:
 'admin_email' => 'mail1@example.com,mail2@example.com',
 ```
 
-<a name="dbupdate">
+<a name="dbupdate"></a>
 ### The Database structure seems not to be updated. What can I do?
 
 Please have a look at the Admin panel under [DB updates](/admin/dbsync/) and follow the link to *check database structure*.
@@ -52,4 +52,4 @@ You can manually execute the structure update from the CLI in the base directory
 
     bin/console dbstructure update
 
-if there occur any errors, please contact the [support group](https://forum.friendi.ca/profile/helpers).
+if there occur any errors, please contact the [Friendica Support group](https://forum.friendi.ca/profile/helpers) or discuss in the [Friendica Admins group](https://forum.friendi.ca/profile/admins).

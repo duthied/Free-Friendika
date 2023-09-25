@@ -1078,7 +1078,10 @@ class Item
 		}
 
 		if ($item['origin']) {
-			if (Photo::setPermissionFromBody($item['body'], $item['uid'], $item['contact-id'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid'])) {
+			if (
+				Photo::setPermissionFromBody($item['body'], $item['uid'], $item['contact-id'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid'])
+				&& ($item['object-type'] != Activity\ObjectType::EVENT)
+			) {
 				$item['object-type'] = Activity\ObjectType::IMAGE;
 			}
 
@@ -1179,6 +1182,11 @@ class Item
 				Logger::notice('Quote-uri-id detected in post', ['id' => $quote_id, 'guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'callstack' => System::callstack(20)]);
 				$item['quote-uri-id'] = $quote_id;
 			}
+		}
+
+		if (!empty($item['quote-uri-id']) && ($item['quote-uri-id'] == $item['uri-id'])) {
+			Logger::info('Quote-Uri-Id is identical to Uri-Id', ['uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+			unset($item['quote-uri-id']);
 		}
 
 		if (!empty($item['quote-uri-id'])) {
@@ -3122,7 +3130,7 @@ class Item
 			$item['body'] = BBCode::removeSharedData($item['body']);
 		} elseif (empty($shared_item['uri-id']) && empty($item['quote-uri-id']) && ($item['network'] != Protocol::DIASPORA)) {
 			$media = Post\Media::getByURIId($item['uri-id'], [Post\Media::ACTIVITY]);
-			if (!empty($media)) {
+			if (!empty($media) && ($media[0]['media-uri-id'] != $item['uri-id'])) {
 				$shared_item = Post::selectFirst($fields, ['uri-id' => $media[0]['media-uri-id'], 'uid' => [$item['uid'], 0]]);
 				if (empty($shared_item['uri-id'])) {
 					$shared_item = Post::selectFirst($fields, ['plink' => $media[0]['url'], 'uid' => [$item['uid'], 0]]);
