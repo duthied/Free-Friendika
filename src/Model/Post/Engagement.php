@@ -35,6 +35,7 @@ use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 // Channel
 
@@ -161,6 +162,7 @@ class Engagement
 
 		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $body, [Post\Media::IMAGE]);
 		$text = BBCode::toPlaintext($body, false);
+		$text = preg_replace(Strings::autoLinkRegEx(), '', $text);
 
 		do {
 			$oldtext = $text;
