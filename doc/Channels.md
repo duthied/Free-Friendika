@@ -5,18 +5,33 @@ Channels
 
 Channels are a way to discover new content or to display content that you might have missed otherwise.
 There are several predefined channels, additionally you can create your own channels, based on some rules.
+Channels only display posts from the last 24 hours (this value can be changed by the admin).
 
 In the display settings in the section "Timelines" you can define which channels and other timelines you want to see in the "Channels" widget on the network page and which channels should appear in the menu bar at the top of the page.
+
+Also in the display settings in the section "Channels" you can define all the languages that you want to see in your channels. Here you can select more than one language.
+
+On the contact page you can define the channel frequency for every contact. The options are:
+
+* Default frequency: Posts by this contact are displayed in the "for you" channel if you interact often with this contact or if a post reached some level of interaction.
+* Display all posts of this contact: All posts from this contact will appear on the "for you" channel.
+* Display only few posts: When a contact creates a lot of posts in a short period, this setting reduces the number of displayed posts in every channel.
+* Never display posts: Posts from this contact will never be displayed in any channel.
 
 Predefined Channels
 ---
 
-* Whats hot: Posts from the last 24 hours with the most interactions.
-* For you: Posts from the last 24 hours from contact you interact on a lot, or you follow (and the post has some comments) or posts from people you want to be notified when they post.
-* Followers: Posts from the last 24 hours created by contacts that follow you, but you don't follow them.
-* Images: Posts from the last 24 hours with pictures.
-* Videos: Posts from the last 24 hours with videos
-* Audio: Posts from the last 24 hours with audio
+* For you: Posts from contacts you interact with and who interact with you. In detail, it consists of:
+    * Posts from people you interact with on a more than average level.
+    * Posts from the accounts that you follow with a more than average number of interactions-
+    * Posts from accounts where you activated "notify on new posts" or where you have set the channel frequency accordingly.
+* What's Hot: Posts with a more than average number of interactions.
+* Language: Posts in your language.
+* Followers: Posts from your followers that you don't follow.
+* Sharers of sharers: Posts from accounts that are followed by accounts that you follow.
+* Images: Posts with images.
+* Audio: Posts with audio.
+* Videos: Posts with videos.
 
 User defined Channels
 ---
@@ -28,6 +43,7 @@ Each channel is defined by these values:
 * Label: This value is mandatory and is used for the menu label.
 * Description: A short description of the content. This can help to keep the overview, when you have got a lot of channels.
 * Access Key: When you want to access this channel via an access key, you can define it here. Pay attention to not use an already used one.
+* Circle: This defines the data source for this channel. By default it is set to the public timeline. There are some predefined values, like the accounts that you follow or the accounts that follow you. Also all of your circles can be selected. 
 * Include Tags: Comma separated list of tags. A post will be used when it contains any of the listed tags.
 * Exclude Tags: Comma separated list of tags. If a post contain any of these tags, then it will not be part of nthis channel.
 * Full Text Search: This can be used to include or exclude content, based on the content and some additional keywords. It uses the "boolean mode" operators from MariaDB: https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode
