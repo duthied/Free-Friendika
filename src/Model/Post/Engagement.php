@@ -58,7 +58,7 @@ class Engagement
 			'title', 'content-warning', 'body', 'author-contact-type', 'author-nick', 'author-addr', 'owner-contact-type', 'owner-nick', 'owner-addr'],
 			['uri-id' => $item['parent-uri-id']]);
 
-		if ($parent['created'] < DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')) {
+		if ($parent['created'] < self::getCreationDateLimit(false)) {
 			Logger::debug('Post is too old', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'created' => $parent['created']]);
 			return;
 		}
@@ -195,7 +195,27 @@ class Engagement
 	 */
 	public static function expire()
 	{
-		DBA::delete('post-engagement', ["`created` < ?", DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour')]);
-		Logger::notice('Cleared expired engagements', ['rows' => DBA::affectedRows()]);
+		$limit = self::getCreationDateLimit(true);
+		if (empty($limit)) {
+			Logger::notice('Expiration limit not reached');
+			return;
+		}
+		DBA::delete('post-engagement', ["`created` < ?", $limit]);
+		Logger::notice('Cleared expired engagements', ['limit' => $limit, 'rows' => DBA::affectedRows()]);
+	}
+
+	private static function getCreationDateLimit(bool $forDeletion): string
+	{
+		$posts = DI::config()->get('channel', 'engagement_post_limit');
+		if (!empty($posts)) {
+			$limit = DBA::selectToArray('post-engagement', ['created'], [], ['limit' => [$posts, 1], 'order' => ['created' => true]]);
+			if (!empty($limit)) {
+				return $limit[0]['created'];
+			} elseif ($forDeletion) {
+				return '';
+			}
+		}
+
+		return DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour');
 	}
 }
