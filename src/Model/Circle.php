@@ -478,22 +478,6 @@ class Circle
 		return $return;
 	}
 
-	public static function getByUID(int $uid): array
-	{
-		$circles = [];
-	
-		$stmt = DBA::select('group', [], ['deleted' => false, 'uid' => $uid, 'cid' => null], ['order' => ['id']]);
-		while ($circle = DBA::fetch($stmt)) {
-			$circles[] = [
-				'id'   => $circle['id'],
-				'name' => $circle['name'],
-			];
-		}
-		DBA::close($stmt);
-
-		return $circles;
-	}
-
 	/**
 	 * Returns a templated circle selection list
 	 *

@@ -39,8 +39,8 @@ class Channel extends \Friendica\BaseRepository
 	/**
 	 * Fetch a single user channel
 	 *
-	 * @param int $id
-	 * @param int $uid
+	 * @param int $id  The id of the user defined channel
+	 * @param int $uid The user that this channel belongs to. (Not part of the primary key)
 	 * @return TimelineEntity
 	 * @throws \Friendica\Network\HTTPException\NotFoundException
 	 */

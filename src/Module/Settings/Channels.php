@@ -120,7 +120,7 @@ class Channels extends BaseSettings
 			-2 => $this->l10n->t('Followers'),
 		];
 
-		foreach (Circle::getByUID($uid) as $circle) {
+		foreach (Circle::getByUserId($uid) as $circle) {
 			$circles[$circle['id']] = $circle['name'];
 		}
 
