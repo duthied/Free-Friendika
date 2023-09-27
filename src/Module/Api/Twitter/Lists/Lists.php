@@ -38,6 +38,6 @@ class Lists extends BaseApi
 
 		// This is a dummy endpoint
 		$ret = [];
-		$this->response->exit('statuses', ["lists_list" => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->addFormattedContent('statuses', ["lists_list" => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

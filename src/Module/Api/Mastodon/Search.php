@@ -91,7 +91,7 @@ class Search extends BaseApi
 			$result['hashtags'] = self::searchHashtags($request['q'], $request['exclude_unreviewed'], $limit, $request['offset'], $this->parameters['version']);
 		}
 
-		System::jsonExit($result);
+		$this->jsonExit($result);
 	}
 
 	/**

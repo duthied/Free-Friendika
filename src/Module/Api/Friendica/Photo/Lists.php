@@ -77,6 +77,6 @@ class Lists extends BaseApi
 			}
 		}
 
-		$this->response->exit('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->addFormattedContent('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

@@ -66,7 +66,7 @@ class Inbox extends BaseApi
 			$inbox = ActivityPub\ClientToServer::getPublicInbox($uid, $page, $request['max_id'] ?? null);
 		}
 
-		System::jsonExit($inbox, 'application/activity+json');
+		$this->jsonExit($inbox, 'application/activity+json');
 	}
 
 	protected function post(array $request = [])

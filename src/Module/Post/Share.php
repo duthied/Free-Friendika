@@ -57,12 +57,12 @@ class Share extends \Friendica\BaseModule
 	{
 		$post_id = $this->parameters['post_id'];
 		if (!$post_id || !$this->session->getLocalUserId()) {
-			System::httpError(403);
+			$this->httpError(403);
 		}
 
 		$item = Post::selectFirst(['private', 'body', 'uri', 'plink', 'network'], ['id' => $post_id]);
 		if (!$item || $item['private'] == Item::PRIVATE) {
-			System::httpError(404);
+			$this->httpError(404);
 		}
 
 		$shared = $this->contentItem->getSharedPost($item, ['uri']);
@@ -74,6 +74,6 @@ class Share extends \Friendica\BaseModule
 			$content = '[share]' . $item['uri'] . '[/share]';
 		}
 
-		System::httpExit($content);
+		$this->httpExit($content);
 	}
 }

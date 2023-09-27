@@ -140,7 +140,7 @@ class Context extends BaseApi
 			$statuses['descendants'][] = DI::mstdnStatus()->createFromUriId($descendant, $uid, $display_quotes);
 		}
 
-		System::jsonExit($statuses);
+		$this->jsonExit($statuses);
 	}
 
 	private static function getParents(int $id, array $parents, array $list = [])

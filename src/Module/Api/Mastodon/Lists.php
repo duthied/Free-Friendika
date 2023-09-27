@@ -48,7 +48,7 @@ class Lists extends BaseApi
 			DI::mstdnError()->InternalError();
 		}
 
-		System::jsonExit([]);
+		$this->jsonExit([]);
 	}
 
 	protected function post(array $request = [])
@@ -71,7 +71,7 @@ class Lists extends BaseApi
 			DI::mstdnError()->InternalError();
 		}
 
-		System::jsonExit(DI::mstdnList()->createFromCircleId($id));
+		$this->jsonExit(DI::mstdnList()->createFromCircleId($id));
 	}
 
 	public function put(array $request = [])
@@ -111,6 +111,6 @@ class Lists extends BaseApi
 			$lists = DI::mstdnList()->createFromCircleId($id);
 		}
 
-		System::jsonExit($lists);
+		$this->jsonExit($lists);
 	}
 }

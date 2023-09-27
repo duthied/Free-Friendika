@@ -87,9 +87,9 @@ class Profile extends BaseProfile
 					$data = ActivityPub\Transmitter::getProfile($user['uid'], ActivityPub::isAcceptedRequester($user['uid']));
 					header('Access-Control-Allow-Origin: *');
 					header('Cache-Control: max-age=23200, stale-while-revalidate=23200');
-					System::jsonExit($data, 'application/activity+json');
+					$this->jsonExit($data, 'application/activity+json');
 				} catch (HTTPException\NotFoundException $e) {
-					System::jsonError(404, ['error' => 'Record not found']);
+					$this->jsonError(404, ['error' => 'Record not found']);
 				}
 			}
 
@@ -97,10 +97,10 @@ class Profile extends BaseProfile
 				// Known deleted user
 				$data = ActivityPub\Transmitter::getDeletedUser($this->parameters['nickname']);
 
-				System::jsonError(410, $data);
+				$this->jsonError(410, $data);
 			} else {
 				// Any other case (unknown, blocked, nverified, expired, no profile, no self contact)
-				System::jsonError(404, []);
+				$this->jsonError(404, []);
 			}
 		}
 	}

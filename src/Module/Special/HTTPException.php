@@ -21,12 +21,12 @@
 
 namespace Friendica\Module\Special;
 
-use Friendica\App\Arguments;
-use Friendica\App\Request;
+use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Model\UserSession;
 use Friendica\Core\System;
+use Friendica\Module\Response;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -40,7 +40,7 @@ class HTTPException
 	protected $l10n;
 	/** @var LoggerInterface */
 	protected $logger;
-	/** @var Arguments */
+	/** @var App\Arguments */
 	protected $args;
 	/** @var bool */
 	protected $isSiteAdmin;
@@ -49,7 +49,7 @@ class HTTPException
 	/** @var string */
 	protected $requestId;
 
-	public function __construct(L10n $l10n, LoggerInterface $logger, Arguments $args, UserSession $session, Request $request, array $server = [])
+	public function __construct(L10n $l10n, LoggerInterface $logger, App\Arguments $args, UserSession $session, App\Request $request, array $server = [])
 	{
 		$this->logger      = $logger;
 		$this->l10n        = $l10n;
@@ -113,7 +113,13 @@ class HTTPException
 			}
 		}
 
-		System::httpError($e->getCode(), $e->getDescription(), $content);
+		// We can't use a constructor parameter for this response object because we
+		// are in an Exception context where we don't want an existing Response.
+		$response = new Response();
+		$response->setStatus($e->getCode(), $e->getDescription());
+		$response->addContent($content);
+		System::echoResponse($response->generate());
+		System::exit();
 	}
 
 	/**

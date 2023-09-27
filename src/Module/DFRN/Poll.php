@@ -48,6 +48,6 @@ class Poll extends BaseModule
 		}
 
 		$last_update = $request['last_update'] ?? '';
-		System::httpExit(OStatus::feed($owner['nickname'], $last_update, 10) ?? '', Response::TYPE_ATOM);
+		$this->httpExit(OStatus::feed($owner['nickname'], $last_update, 10) ?? '', Response::TYPE_ATOM);
 	}
 }

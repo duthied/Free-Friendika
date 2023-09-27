@@ -31,6 +31,6 @@ class Version extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
-		$this->response->exit('version', ['version' => '0.9.7'], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('version', ['version' => '0.9.7'], $this->parameters['extension'] ?? null);
 	}
 }

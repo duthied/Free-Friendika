@@ -61,7 +61,7 @@ class Destroy extends BaseApi
 		// error if no id or parenturi specified (for clients posting parent-uri as well)
 		if ($verbose && $id == 0 && $parenturi == "") {
 			$answer = ['result' => 'error', 'message' => 'message id or parenturi not specified'];
-			$this->response->exit('direct_messages_delete', ['direct_messages_delete' => $answer], $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('direct_messages_delete', ['direct_messages_delete' => $answer], $this->parameters['extension'] ?? null);
 			return;
 		}
 
@@ -72,7 +72,7 @@ class Destroy extends BaseApi
 		if (!$this->dba->exists('mail', ["`uid` = ? AND `id` = ? " . $sql_extra, $uid, $id])) {
 			if ($verbose) {
 				$answer = ['result' => 'error', 'message' => 'message id not in database'];
-				$this->response->exit('direct_messages_delete', ['direct_messages_delete' => $answer], $this->parameters['extension'] ?? null);
+				$this->response->addFormattedContent('direct_messages_delete', ['direct_messages_delete' => $answer], $this->parameters['extension'] ?? null);
 				return;
 			}
 			throw new BadRequestException('message id not in database');
@@ -85,10 +85,10 @@ class Destroy extends BaseApi
 			if ($result) {
 				// return success
 				$answer = ['result' => 'ok', 'message' => 'message deleted'];
-				$this->response->exit('direct_messages_delete', ['direct_messages_delete' => $answer], $this->parameters['extension'] ?? null);
+				$this->response->addFormattedContent('direct_messages_delete', ['direct_messages_delete' => $answer], $this->parameters['extension'] ?? null);
 			} else {
 				$answer = ['result' => 'error', 'message' => 'unknown error'];
-				$this->response->exit('direct_messages_delete', ['direct_messages_delete' => $answer], $this->parameters['extension'] ?? null);
+				$this->response->addFormattedContent('direct_messages_delete', ['direct_messages_delete' => $answer], $this->parameters['extension'] ?? null);
 			}
 		}
 	}

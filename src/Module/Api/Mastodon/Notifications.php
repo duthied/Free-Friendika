@@ -48,7 +48,7 @@ class Notifications extends BaseApi
 			$id = $this->parameters['id'];
 			try {
 				$notification = DI::notification()->selectOneForUser($uid, ['id' => $id]);
-				System::jsonExit(DI::mstdnNotification()->createFromNotification($notification, self::appSupportsQuotes()));
+				$this->jsonExit(DI::mstdnNotification()->createFromNotification($notification, self::appSupportsQuotes()));
 			} catch (\Exception $e) {
 				DI::mstdnError()->RecordNotFound();
 			}
@@ -132,7 +132,7 @@ class Notifications extends BaseApi
 
 		if ($request['summary']) {
 			$count = DI::notification()->countForUser($uid, $condition);
-			System::jsonExit(['count' => $count]);
+			$this->jsonExit(['count' => $count]);
 		} else {
 			$mstdnNotifications = [];
 
@@ -154,7 +154,7 @@ class Notifications extends BaseApi
 			}
 
 			self::setLinkHeader();
-			System::jsonExit($mstdnNotifications);
+			$this->jsonExit($mstdnNotifications);
 		}
 	}
 }

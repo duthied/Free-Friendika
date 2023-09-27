@@ -57,6 +57,6 @@ class DislikedBy extends BaseApi
 			$accounts[] = DI::mstdnAccount()->createFromContactId($activity['author-id'], $uid);
 		}
 
-		System::jsonExit($accounts);
+		$this->jsonExit($accounts);
 	}
 }

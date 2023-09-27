@@ -49,6 +49,6 @@ class Undislike extends BaseApi
 
 		Item::performActivity($item['id'], 'undislike', $uid);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
+		$this->jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes())->toArray());
 	}
 }

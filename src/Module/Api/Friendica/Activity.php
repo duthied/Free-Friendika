@@ -60,7 +60,7 @@ class Activity extends BaseApi
 
 		if ($res) {
 			$status_info = DI::twitterStatus()->createFromUriId($request['id'], $uid)->toArray();
-			$this->response->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
 		} else {
 			$this->response->error(500, 'Error adding activity', '', $this->parameters['extension'] ?? null);
 		}

@@ -58,6 +58,6 @@ class Accounts extends BaseApi
 		}
 
 		$account = DI::mstdnAccount()->createFromContactId($id, $uid);
-		System::jsonExit($account);
+		$this->jsonExit($account);
 	}
 }

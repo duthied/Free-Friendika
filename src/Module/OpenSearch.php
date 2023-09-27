@@ -85,6 +85,6 @@ class OpenSearch extends BaseModule
 			'template' => "$baseUrl/opensearch",
 		]);
 
-		System::httpExit($xml->saveXML(), Response::TYPE_XML, 'application/opensearchdescription+xml');
+		$this->httpExit($xml->saveXML(), Response::TYPE_XML, 'application/opensearchdescription+xml');
 	}
 }

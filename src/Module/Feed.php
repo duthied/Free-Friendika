@@ -71,6 +71,6 @@ class Feed extends BaseModule
 
 		$feed = ProtocolFeed::atom($owner, $last_update, 10, $type);
 
-		System::httpExit($feed, Response::TYPE_ATOM);
+		$this->httpExit($feed, Response::TYPE_ATOM);
 	}
 }

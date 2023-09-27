@@ -91,6 +91,6 @@ class NewDM extends BaseApi
 			$ret = ['error' => $id];
 		}
 
-		$this->response->exit('direct-messages', ['direct_message' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->addFormattedContent('direct-messages', ['direct_message' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

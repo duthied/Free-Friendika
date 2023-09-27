@@ -128,7 +128,7 @@ class Update extends BaseApi
 			$photo       = Photo::upload($uid, $_FILES['media'], $album, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc, $photo_id);
 			if (!empty($photo)) {
 				$data = ['photo' => $this->friendicaPhoto->createFromId($photo['resource_id'], null, $uid, $type)];
-				$this->response->exit('photo_update', $data, $this->parameters['extension'] ?? null);
+				$this->response->addFormattedContent('photo_update', $data, $this->parameters['extension'] ?? null);
 				return;
 			}
 		}
@@ -137,12 +137,12 @@ class Update extends BaseApi
 		if ($result) {
 			Photo::clearAlbumCache($uid);
 			$answer = ['result' => 'updated', 'message' => 'Image id `' . $photo_id . '` has been updated.'];
-			$this->response->exit('photo_update', ['$result' => $answer], $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('photo_update', ['$result' => $answer], $this->parameters['extension'] ?? null);
 			return;
 		} else {
 			if ($nothingtodo) {
 				$answer = ['result' => 'cancelled', 'message' => 'Nothing to update for image id `' . $photo_id . '`.'];
-				$this->response->exit('photo_update', ['$result' => $answer], $this->parameters['extension'] ?? null);
+				$this->response->addFormattedContent('photo_update', ['$result' => $answer], $this->parameters['extension'] ?? null);
 				return;
 			}
 			throw new HTTPException\InternalServerErrorException('unknown error - update photo entry in database failed');

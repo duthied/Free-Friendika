@@ -85,10 +85,10 @@ class Show extends BaseApi
 
 		if ($conversation) {
 			$data = ['status' => $ret];
-			$this->response->exit('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+			$this->response->addFormattedContent('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 		} else {
 			$data = ['status' => $ret[0]];
-			$this->response->exit('status', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+			$this->response->addFormattedContent('status', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 		}
 	}
 }

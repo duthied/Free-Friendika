@@ -156,7 +156,7 @@ class Xrd extends BaseModule
 			]
 		];
 		header('Access-Control-Allow-Origin: *');
-		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
+		$this->jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
 	private function printJSON(string $alias, array $owner, array $avatar)
@@ -233,7 +233,7 @@ class Xrd extends BaseModule
 		];
 
 		header('Access-Control-Allow-Origin: *');
-		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
+		$this->jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
 	private function printXML(string $alias, array $owner, array $avatar)
@@ -330,6 +330,6 @@ class Xrd extends BaseModule
 		]);
 
 		header('Access-Control-Allow-Origin: *');
-		System::httpExit($xmlString, Response::TYPE_XML, 'application/xrd+xml');
+		$this->httpExit($xmlString, Response::TYPE_XML, 'application/xrd+xml');
 	}
 }

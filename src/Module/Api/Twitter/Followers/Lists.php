@@ -114,6 +114,6 @@ class Lists extends ContactEndpoint
 
 		$this->response->setHeader(self::getLinkHeader());
 
-		$this->response->exit('lists', ['lists' => $return]);
+		$this->response->addFormattedContent('lists', ['lists' => $return]);
 	}
 }

@@ -54,6 +54,6 @@ class Unfavourite extends BaseApi
 		// Issue tracking the behavior of createFromUriId: https://github.com/friendica/friendica/issues/13350
 		$isReblog = $item['uri-id'] != $this->parameters['id'];
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes(), $isReblog)->toArray());
+		$this->jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes(), $isReblog)->toArray());
 	}
 }

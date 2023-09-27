@@ -54,6 +54,6 @@ class Follow extends BaseApi
 
 		Contact::update(['notify_new_posts' => $request['notify']], ['id' => $result['cid']]);
 
-		System::jsonExit(DI::mstdnRelationship()->createFromContactId($result['cid'], $uid)->toArray());
+		$this->jsonExit(DI::mstdnRelationship()->createFromContactId($result['cid'], $uid)->toArray());
 	}
 }

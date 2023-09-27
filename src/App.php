@@ -716,7 +716,7 @@ class App
 			}
 
 			$this->logger->debug('Request processed sucessfully', ['response' => $response->getStatusCode(), 'address' => $_SERVER['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $_SERVER['HTTP_REFERER'] ?? '', 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
-			$page->exit($response);
+			System::echoResponse($response);
 		} catch (HTTPException $e) {
 			$this->logger->debug('Request processed with exception', ['response' => $e->getCode(), 'address' => $_SERVER['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $_SERVER['HTTP_REFERER'] ?? '', 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 			$httpException->rawContent($e);

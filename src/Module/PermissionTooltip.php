@@ -166,9 +166,9 @@ class PermissionTooltip extends \Friendica\BaseModule
 		}
 
 		if (!empty($l)) {
-			System::httpExit($o . implode(', ', $l));
+			$this->httpExit($o . implode(', ', $l));
 		} else {
-			System::httpExit($o . $receivers);;
+			$this->httpExit($o . $receivers);;
 		}
 	}
 

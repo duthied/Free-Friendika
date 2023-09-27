@@ -54,7 +54,7 @@ class RemoveTag extends BaseModule
 
 	protected function post(array $request = [])
 	{
-		System::httpError($this->removeTag($request));
+		$this->httpError($this->removeTag($request));
 	}
 
 	protected function content(array $request = []): string
