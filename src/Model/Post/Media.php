@@ -1012,25 +1012,9 @@ class Media
 	 */
 	public static function getPreviewUrlForId(int $id, string $size = ''): string
 	{
-		$url = DI::baseUrl() . '/photo/preview/';
-		switch ($size) {
-			case Proxy::SIZE_MICRO:
-				$url .= Proxy::PIXEL_MICRO . '/';
-				break;
-			case Proxy::SIZE_THUMB:
-				$url .= Proxy::PIXEL_THUMB . '/';
-				break;
-			case Proxy::SIZE_SMALL:
-				$url .= Proxy::PIXEL_SMALL . '/';
-				break;
-			case Proxy::SIZE_MEDIUM:
-				$url .= Proxy::PIXEL_MEDIUM . '/';
-				break;
-			case Proxy::SIZE_LARGE:
-				$url .= Proxy::PIXEL_LARGE . '/';
-				break;
-		}
-		return $url . $id;
+		return '/photo/preview/' .
+			(Proxy::getPixelsFromSize($size) ? Proxy::getPixelsFromSize($size) . '/' : '') .
+			$id;
 	}
 
 	/**
@@ -1042,24 +1026,8 @@ class Media
 	 */
 	public static function getUrlForId(int $id, string $size = ''): string
 	{
-		$url = DI::baseUrl() . '/photo/media/';
-		switch ($size) {
-			case Proxy::SIZE_MICRO:
-				$url .= Proxy::PIXEL_MICRO . '/';
-				break;
-			case Proxy::SIZE_THUMB:
-				$url .= Proxy::PIXEL_THUMB . '/';
-				break;
-			case Proxy::SIZE_SMALL:
-				$url .= Proxy::PIXEL_SMALL . '/';
-				break;
-			case Proxy::SIZE_MEDIUM:
-				$url .= Proxy::PIXEL_MEDIUM . '/';
-				break;
-			case Proxy::SIZE_LARGE:
-				$url .= Proxy::PIXEL_LARGE . '/';
-				break;
-		}
-		return $url . $id;
+		return '/photo/media/' .
+			(Proxy::getPixelsFromSize($size) ? Proxy::getPixelsFromSize($size) . '/' : '') .
+			$id;
 	}
 }

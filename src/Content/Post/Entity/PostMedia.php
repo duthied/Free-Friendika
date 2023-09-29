@@ -168,25 +168,9 @@ class PostMedia extends BaseEntity
 	 */
 	public function getPhotoPath(string $size = ''): string
 	{
-		$url = '/photo/media/';
-		switch ($size) {
-			case Proxy::SIZE_MICRO:
-				$url .= Proxy::PIXEL_MICRO . '/';
-				break;
-			case Proxy::SIZE_THUMB:
-				$url .= Proxy::PIXEL_THUMB . '/';
-				break;
-			case Proxy::SIZE_SMALL:
-				$url .= Proxy::PIXEL_SMALL . '/';
-				break;
-			case Proxy::SIZE_MEDIUM:
-				$url .= Proxy::PIXEL_MEDIUM . '/';
-				break;
-			case Proxy::SIZE_LARGE:
-				$url .= Proxy::PIXEL_LARGE . '/';
-				break;
-		}
-		return $url . $this->id;
+		return '/photo/media/' .
+			(Proxy::getPixelsFromSize($size) ? Proxy::getPixelsFromSize($size) . '/' : '') .
+			$this->id;
 	}
 
 	/**
@@ -197,24 +181,9 @@ class PostMedia extends BaseEntity
 	 */
 	public function getPreviewPath(string $size = ''): string
 	{
-		$url = '/photo/preview/';
-		switch ($size) {
-			case Proxy::SIZE_MICRO:
-				$url .= Proxy::PIXEL_MICRO . '/';
-				break;
-			case Proxy::SIZE_THUMB:
-				$url .= Proxy::PIXEL_THUMB . '/';
-				break;
-			case Proxy::SIZE_SMALL:
-				$url .= Proxy::PIXEL_SMALL . '/';
-				break;
-			case Proxy::SIZE_MEDIUM:
-				$url .= Proxy::PIXEL_MEDIUM . '/';
-				break;
-			case Proxy::SIZE_LARGE:
-				$url .= Proxy::PIXEL_LARGE . '/';
-				break;
-		}
-		return $url . $this->id;
+		return '/photo/preview/' .
+			(Proxy::getPixelsFromSize($size) ? Proxy::getPixelsFromSize($size) . '/' : '') .
+			$this->id;
+
 	}
 }
