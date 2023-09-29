@@ -130,6 +130,24 @@ class BaseCollection extends \ArrayIterator
 	}
 
 	/**
+	 * Split the collection in smaller collections no bigger than the provided length
+	 *
+	 * @param int $length
+	 * @return static[]
+	 */
+	public function chunk(int $length): array
+	{
+		if ($length < 1) {
+			throw new \RangeException('BaseCollection->chunk(): Size parameter expected to be greater than 0');
+		}
+
+		return array_map(function ($array) {
+			return new static($array);
+		}, array_chunk($this->getArrayCopy(), $length));
+	}
+
+
+	/**
 	 * @inheritDoc
 	 *
 	 * includes recursion for entity::toArray() function
