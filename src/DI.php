@@ -731,4 +731,9 @@ abstract class DI
 	{
 		return self::$dice->create(Util\Emailer::class);
 	}
+
+	public static function postMediaRepository(): Content\Post\Repository\PostMedia
+	{
+		return self::$dice->create(Content\Post\Repository\PostMedia::class);
+	}
 }
