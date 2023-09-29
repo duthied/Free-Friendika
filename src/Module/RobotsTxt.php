@@ -53,6 +53,10 @@ class RobotsTxt extends BaseModule
 		echo 'Disallow: /' . PHP_EOL;
 
 		echo PHP_EOL;
+		echo 'User-agent: Google-Extended' . PHP_EOL;
+		echo 'Disallow: /' . PHP_EOL;
+
+		echo PHP_EOL;
 		echo 'User-agent: GPTBot' . PHP_EOL;
 		echo 'Disallow: /' . PHP_EOL;
 
