@@ -241,16 +241,16 @@ class ActivityPub
 	/**
 	 * Fetch items from AP endpoints
 	 *
-	 * @param string $url        Address of the endpoint
-	 * @param integer $uid       Optional user id
-	 * @param integer $timestamp Internally used parameter to stop fetching after some time
+	 * @param string $url              Address of the endpoint
+	 * @param integer $uid             Optional user id
+	 * @param integer $start_timestamp Internally used parameter to stop fetching after some time
 	 * @return array Endpoint items
 	 */
-	public static function fetchItems(string $url, int $uid = 0, int $timestamp = 0): array
+	public static function fetchItems(string $url, int $uid = 0, int $start_timestamp = 0): array
 	{
-		$timestamp = $timestamp ?: time();
+		$start_timestamp = $start_timestamp ?: time();
 
-		if ((time() - $timestamp) > 60) {
+		if ((time() - $start_timestamp) > 60) {
 			Logger::info('Fetch time limit reached', ['url' => $url, 'uid' => $uid]);
 			return [];
 		}
@@ -265,13 +265,13 @@ class ActivityPub
 		} elseif (!empty($data['first']['orderedItems'])) {
 			$items = $data['first']['orderedItems'];
 		} elseif (!empty($data['first']) && is_string($data['first']) && ($data['first'] != $url)) {
-			return self::fetchItems($data['first'], $uid, $timestamp);
+			return self::fetchItems($data['first'], $uid, $start_timestamp);
 		} else {
 			return [];
 		}
 
 		if (!empty($data['next']) && is_string($data['next'])) {
-			$items = array_merge($items, self::fetchItems($data['next'], $uid, $timestamp));
+			$items = array_merge($items, self::fetchItems($data['next'], $uid, $start_timestamp));
 		}
 
 		return $items;
