@@ -117,7 +117,7 @@ as the value of $top_child_total (this is done at the end of this file)
 					<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
 				{{/if}}
 				{{if $item.plink}}	{{*link to the original source of the item *}}
-					<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.plink.title}}">
+					<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.plink.title}} target="_blank">
 						<i class="fa fa-external-link"></i>
 					</a>
 				{{/if}}
