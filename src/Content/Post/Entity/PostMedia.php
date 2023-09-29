@@ -23,6 +23,7 @@ namespace Friendica\Content\Post\Entity;
 
 use Friendica\BaseEntity;
 use Friendica\Network\Entity\MimeType;
+use Friendica\Util\Images;
 use Friendica\Util\Proxy;
 use Psr\Http\Message\UriInterface;
 
@@ -185,5 +186,81 @@ class PostMedia extends BaseEntity
 			(Proxy::getPixelsFromSize($size) ? Proxy::getPixelsFromSize($size) . '/' : '') .
 			$this->id;
 
+	}
+
+	/**
+	 * Return a new PostMedia entity with a different preview URI and an optional proxy size name.
+	 * The new entity preview's width and height are rescaled according to the provided size.
+	 *
+	 * @param \GuzzleHttp\Psr7\Uri $preview
+	 * @param string               $size
+	 * @return $this
+	 */
+	public function withPreview(\GuzzleHttp\Psr7\Uri $preview, string $size = ''): self
+	{
+		if ($this->width || $this->height) {
+			$newWidth  = $this->width;
+			$newHeight = $this->height;
+		} else {
+			$newWidth  = $this->previewWidth;
+			$newHeight = $this->previewHeight;
+		}
+
+		if ($newWidth && $newHeight && $size) {
+			$dimensionts = Images::getScalingDimensions($newWidth, $newHeight, Proxy::getPixelsFromSize($size));
+			$newWidth = $dimensionts['width'];
+			$newHeight = $dimensionts['height'];
+		}
+
+		return new static(
+			$this->uriId,
+			$this->url,
+			$this->type,
+			$this->mimetype,
+			$this->activityUriId,
+			$this->width,
+			$this->height,
+			$this->size,
+			$preview,
+			$newWidth,
+			$newHeight,
+			$this->description,
+			$this->name,
+			$this->authorUrl,
+			$this->authorName,
+			$this->authorImage,
+			$this->publisherUrl,
+			$this->publisherName,
+			$this->publisherImage,
+			$this->blurhash,
+			$this->id,
+		);
+	}
+
+	public function withUrl(\GuzzleHttp\Psr7\Uri $url): self
+	{
+		return new static(
+			$this->uriId,
+			$url,
+			$this->type,
+			$this->mimetype,
+			$this->activityUriId,
+			$this->width,
+			$this->height,
+			$this->size,
+			$this->preview,
+			$this->previewWidth,
+			$this->previewHeight,
+			$this->description,
+			$this->name,
+			$this->authorUrl,
+			$this->authorName,
+			$this->authorImage,
+			$this->publisherUrl,
+			$this->publisherName,
+			$this->publisherImage,
+			$this->blurhash,
+			$this->id,
+		);
 	}
 }

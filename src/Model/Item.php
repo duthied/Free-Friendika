@@ -3286,11 +3286,11 @@ class Item
 	}
 
 	/**
-	 * @param array $images
+	 * @param PostMedias $images
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
 	 */
-	private static function makeImageGrid(array $images): string
+	private static function makeImageGrid(PostMedias $images): string
 	{
 		// Image for first column (fc) and second column (sc)
 		$images_fc = [];
@@ -3431,7 +3431,7 @@ class Item
 		DI::profiler()->startRecording('rendering');
 		$leading  = '';
 		$trailing = '';
-		$images   = [];
+		$images   = new PostMedias();
 
 		// @todo In the future we should make a single for the template engine with all media in it. This allows more flexibilty.
 		foreach ($PostMedias as $PostMedia) {
@@ -3440,10 +3440,13 @@ class Item
 			}
 
 			if ($PostMedia->mimetype->type == 'image') {
-				$preview_url = DI::baseUrl() . $PostMedia->getPreviewPath($PostMedia->width > $PostMedia->height ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
+				$preview_size = $PostMedia->width > $PostMedia->height ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE;
+				$preview_url = DI::baseUrl() . $PostMedia->getPreviewPath($preview_size);
 			} elseif ($PostMedia->preview) {
-				$preview_url = DI::baseUrl() . $PostMedia->getPreviewPath(Proxy::SIZE_LARGE);
+				$preview_size = Proxy::SIZE_LARGE;
+				$preview_url = DI::baseUrl() . $PostMedia->getPreviewPath($preview_size);
 			} else {
+				$preview_size = 0;
 				$preview_url = '';
 			}
 
@@ -3487,11 +3490,7 @@ class Item
 					continue;
 				}
 
-				$images[] = [
-					'src'        => $src_url,
-					'preview'    => $preview_url,
-					'attachment' => $PostMedia,
-				];
+				$images[] = $PostMedia->withUrl(new Uri($src_url))->withPreview(new Uri($preview_url), $preview_size);
 			}
 		}
 
