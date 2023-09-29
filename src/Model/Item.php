@@ -22,6 +22,7 @@
 namespace Friendica\Model;
 
 use Friendica\Contact\LocalRelationship\Entity\LocalRelationship;
+use Friendica\Content\Image;
 use Friendica\Content\Post\Collection\PostMedias;
 use Friendica\Content\Post\Entity\PostMedia;
 use Friendica\Content\Text\BBCode;
@@ -3241,7 +3242,7 @@ class Item
 		}
 
 		if (!empty($sharedSplitAttachments)) {
-			$s = self::addGallery($s, $sharedSplitAttachments['visual'], $item['uri-id']);
+			$s = self::addGallery($s, $sharedSplitAttachments['visual']);
 			$s = self::addVisualAttachments($sharedSplitAttachments['visual'], $shared_item, $s, true);
 			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $sharedSplitAttachments, $body, $s, true, $quote_shared_links);
 			$s = self::addNonVisualAttachments($sharedSplitAttachments['additional'], $item, $s, true);
@@ -3254,7 +3255,7 @@ class Item
 			$s = substr($s, 0, $pos);
 		}
 
-		$s = self::addGallery($s, $itemSplitAttachments['visual'], $item['uri-id']);
+		$s = self::addGallery($s, $itemSplitAttachments['visual']);
 		$s = self::addVisualAttachments($itemSplitAttachments['visual'], $item, $s, false);
 		$s = self::addLinkAttachment($item['uri-id'], $itemSplitAttachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($itemSplitAttachments['additional'], $item, $s, false);
@@ -3286,44 +3287,31 @@ class Item
 	}
 
 	/**
-	 * @param PostMedias $images
-	 * @return string
-	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
-	 */
-	private static function makeImageGrid(PostMedias $images): string
-	{
-		// Image for first column (fc) and second column (sc)
-		$images_fc = [];
-		$images_sc = [];
-
-		for ($i = 0; $i < count($images); $i++) {
-			($i % 2 == 0) ? ($images_fc[] = $images[$i]) : ($images_sc[] = $images[$i]);
-		}
-
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
-			'columns' => [
-				'fc' => $images_fc,
-				'sc' => $images_sc,
-			],
-		]);
-	}
-
-	/**
 	 * Modify links to pictures to links for the "Fancybox" gallery
 	 *
 	 * @param string     $s
 	 * @param PostMedias $PostMedias
-	 * @param int        $uri_id
 	 * @return string
 	 */
-	private static function addGallery(string $s, PostMedias $PostMedias, int $uri_id): string
+	private static function addGallery(string $s, PostMedias $PostMedias): string
 	{
 		foreach ($PostMedias as $PostMedia) {
 			if (!$PostMedia->preview || ($PostMedia->type !== Post\Media::IMAGE)) {
 				continue;
 			}
 
-			$s = str_replace('<a href="' . $PostMedia->url . '"', '<a data-fancybox="' . $uri_id . '" href="' . $PostMedia->url . '"', $s);
+			if ($PostMedia->hasDimensions()) {
+				$pattern = '#<a href="' . preg_quote($PostMedia->url) . '">(.*?)"></a>#';
+
+				$s = preg_replace_callback($pattern, function () use ($PostMedia) {
+					return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image/single_with_height_allocation.tpl'), [
+						'$image' => $PostMedia,
+						'$allocated_height' => $PostMedia->getAllocatedHeight(),
+					]);
+				}, $s);
+			} else {
+				$s = str_replace('<a href="' . $PostMedia->url . '"', '<a data-fancybox="uri-id-' . $PostMedia->uriId . '" href="' . $PostMedia->url . '"', $s);
+			}
 		}
 
 		return $s;
@@ -3494,14 +3482,7 @@ class Item
 			}
 		}
 
-		$media = '';
-		if (count($images) > 1) {
-			$media = self::makeImageGrid($images);
-		} elseif (count($images) == 1) {
-			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
-				'$image' => $images[0],
-			]);
-		}
+		$media = Image::getBodyAttachHtml($images);
 
 		// On Diaspora posts the attached pictures are leading
 		if ($item['network'] == Protocol::DIASPORA) {

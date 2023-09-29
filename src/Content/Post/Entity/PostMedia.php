@@ -189,6 +189,30 @@ class PostMedia extends BaseEntity
 	}
 
 	/**
+	 * Computes the allocated height value used in the content/image/single_with_height_allocation.tpl template
+	 *
+	 * Either base or preview dimensions need to be set at runtime.
+	 *
+	 * @return string
+	 */
+	public function getAllocatedHeight(): string
+	{
+		if (!$this->hasDimensions()) {
+			throw new \RangeException('Either width and height or previewWidth and previewHeight must be defined to use this method.');
+		}
+
+		if ($this->width && $this->height) {
+			$width  = $this->width;
+			$height = $this->height;
+		} else {
+			$width  = $this->previewWidth;
+			$height = $this->previewHeight;
+		}
+
+		return (100 * $height / $width) . '%';
+	}
+
+	/**
 	 * Return a new PostMedia entity with a different preview URI and an optional proxy size name.
 	 * The new entity preview's width and height are rescaled according to the provided size.
 	 *
@@ -262,5 +286,15 @@ class PostMedia extends BaseEntity
 			$this->blurhash,
 			$this->id,
 		);
+	}
+
+	/**
+	 * Checks the media has at least one full set of dimensions, needed for the height allocation feature
+	 *
+	 * @return bool
+	 */
+	public function hasDimensions(): bool
+	{
+		return $this->width && $this->height || $this->previewWidth && $this->previewHeight;
 	}
 }
