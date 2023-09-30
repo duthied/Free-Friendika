@@ -224,7 +224,7 @@
 	}
 
 	function linkDropper(event) {
-		var linkFound = event.dataTransfer.types.contains("text/uri-list");
+		var linkFound = event.dataTransfer.types.includes("text/uri-list");
 		if(linkFound)
 			event.preventDefault();
 	}
