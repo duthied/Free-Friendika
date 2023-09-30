@@ -249,8 +249,8 @@ class Display extends BaseSettings
 		$timelines = [];
 		foreach ($this->getAvailableTimelines($uid) as $code => $timeline) {
 			$timelines[] = [
-				'label'        => $timeline['label'],
-				'description'  => $timeline['description'],
+				'label'        => $timeline->label,
+				'description'  => $timeline->description,
 				'enable'       => ["enable[$code]", '', in_array($code, $enabled_timelines)],
 				'bookmark'     => ["bookmark[$code]", '', in_array($code, $bookmarked_timelines)],
 			];
@@ -330,7 +330,7 @@ class Display extends BaseSettings
 		$timelines = [];
 
 		foreach ($this->timeline->getNetworkFeeds('') as $channel) {
-			$timelines[$channel->code] = ['label' => $channel->label, 'description' => $channel->description];
+			$timelines[$channel->code] = $channel;
 		}
 
 		if ($only_network) {
@@ -338,11 +338,11 @@ class Display extends BaseSettings
 		}
 
 		foreach ($this->timeline->getChannelsForUser($uid) as $channel) {
-			$timelines[$channel->code] = ['label' => $channel->label, 'description' => $channel->description];
+			$timelines[$channel->code] = $channel;
 		}
 
 		foreach ($this->timeline->getCommunities(true) as $community) {
-			$timelines[$community->code] = ['label' => $community->label, 'description' => $community->description];
+			$timelines[$community->code] = $community;
 		}
 
 		return $timelines;
