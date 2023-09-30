@@ -67,6 +67,6 @@ class ReallySimpleDiscovery extends BaseModule
 				],
 			],
 		]);
-		System::httpExit($content, Response::TYPE_XML);
+		$this->httpExit($content, Response::TYPE_XML);
 	}
 }

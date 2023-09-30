@@ -85,6 +85,6 @@ class Fetch extends BaseModule
 		$xml = Diaspora::buildPostXml($status["type"], $status["message"]);
 
 		// Send the envelope
-		System::httpExit(Diaspora::buildMagicEnvelope($xml, $user), Response::TYPE_XML, 'application/magic-envelope+xml');
+		$this->httpExit(Diaspora::buildMagicEnvelope($xml, $user), Response::TYPE_XML, 'application/magic-envelope+xml');
 	}
 }

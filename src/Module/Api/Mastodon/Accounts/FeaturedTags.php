@@ -36,6 +36,6 @@ class FeaturedTags extends BaseApi
 	{
 		self::checkAllowedScope(self::SCOPE_READ);
 
-		System::jsonExit([]);
+		$this->jsonExit([]);
 	}
 }

@@ -90,7 +90,7 @@ class Create extends BaseApi
 		if (!empty($photo)) {
 			Photo::clearAlbumCache($uid);
 			$data = ['photo' => $this->friendicaPhoto->createFromId($photo['resource_id'], null, $uid, $type)];
-			$this->response->exit('photo_create', $data, $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('photo_create', $data, $this->parameters['extension'] ?? null);
 		} else {
 			throw new HTTPException\InternalServerErrorException('unknown error - uploading photo failed, see Friendica log for more information');
 		}

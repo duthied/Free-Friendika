@@ -80,7 +80,7 @@ class Browser extends BaseModule
 		]);
 
 		if (empty($request['mode'])) {
-			System::httpExit($output);
+			$this->httpExit($output);
 		}
 
 		return $output;

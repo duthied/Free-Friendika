@@ -69,6 +69,6 @@ class Index extends BaseApi
 			];
 		}
 
-		$this->response->exit('events', ['events' => $items], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('events', ['events' => $items], $this->parameters['extension'] ?? null);
 	}
 }

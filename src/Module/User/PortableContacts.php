@@ -268,6 +268,6 @@ class PortableContacts extends BaseModule
 
 		$this->logger->info('End of poco');
 
-		System::jsonExit($return);
+		$this->jsonExit($return);
 	}
 }

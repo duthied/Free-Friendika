@@ -42,14 +42,14 @@ class Setseen extends BaseApi
 		// return error if id is zero
 		if (empty($request['id'])) {
 			$answer = ['result' => 'error', 'message' => 'message id not specified'];
-			$this->response->exit('direct_messages_setseen', ['$result' => $answer], $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('direct_messages_setseen', ['$result' => $answer], $this->parameters['extension'] ?? null);
 			return;
 		}
 
 		// error message if specified id is not in database
 		if (!DBA::exists('mail', ['id' => $request['id'], 'uid' => $uid])) {
 			$answer = ['result' => 'error', 'message' => 'message id not in database'];
-			$this->response->exit('direct_messages_setseen', ['$result' => $answer], $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('direct_messages_setseen', ['$result' => $answer], $this->parameters['extension'] ?? null);
 			return;
 		}
 
@@ -60,6 +60,6 @@ class Setseen extends BaseApi
 			$answer = ['result' => 'error', 'message' => 'unknown error'];
 		}
 
-		$this->response->exit('direct_messages_setseen', ['$result' => $answer], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('direct_messages_setseen', ['$result' => $answer], $this->parameters['extension'] ?? null);
 	}
 }

@@ -69,7 +69,7 @@ class Get extends \Friendica\BaseModule
 			$events = Event::getListByDate($owner['uid'], $request['start'] ?? '', $request['end'] ?? '');
 		}
 
-		System::jsonExit($events ? self::map($events) : []);
+		$this->jsonExit($events ? self::map($events) : []);
 	}
 
 	private static function map(array $events): array

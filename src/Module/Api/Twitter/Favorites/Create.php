@@ -52,6 +52,6 @@ class Create extends BaseApi
 
 		$status_info = DI::twitterStatus()->createFromUriId($id, $uid)->toArray();
 
-		$this->response->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('status', ['status' => $status_info], $this->parameters['extension'] ?? null);
 	}
 }

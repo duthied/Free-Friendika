@@ -159,7 +159,7 @@ class Statuses extends BaseApi
 
 		Item::updateDisplayCache($post['uri-id']);
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($post['uri-id'], $uid, self::appSupportsQuotes()));
+		$this->jsonExit(DI::mstdnStatus()->createFromUriId($post['uri-id'], $uid, self::appSupportsQuotes()));
 	}
 
 	protected function post(array $request = [])
@@ -263,7 +263,7 @@ class Statuses extends BaseApi
 			$item['gravity']     = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 		} else {
-			self::checkThrottleLimit();
+			$this->checkThrottleLimit();
 
 			$item['gravity']     = Item::GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
@@ -299,14 +299,14 @@ class Statuses extends BaseApi
 			if (empty($id)) {
 				DI::mstdnError()->InternalError();
 			}
-			System::jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId($id, $uid)->toArray());
+			$this->jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId($id, $uid)->toArray());
 		}
 
 		$id = Item::insert($item, true);
 		if (!empty($id)) {
 			$item = Post::selectFirst(['uri-id'], ['id' => $id]);
 			if (!empty($item['uri-id'])) {
-				System::jsonExit(DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, self::appSupportsQuotes()));
+				$this->jsonExit(DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid, self::appSupportsQuotes()));
 			}
 		}
 
@@ -331,7 +331,7 @@ class Statuses extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		System::jsonExit([]);
+		$this->jsonExit([]);
 	}
 
 	/**
@@ -345,7 +345,7 @@ class Statuses extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes(), false));
+		$this->jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes(), false));
 	}
 
 	private function getApp(): string
@@ -422,7 +422,7 @@ class Statuses extends BaseApi
 		if (preg_match("/\[url=[^\[\]]*\](.*)\[\/url\]\z/ism", $status, $matches)) {
 			$status = preg_replace("/\[url=[^\[\]]*\].*\[\/url\]\z/ism", PageInfo::getFooterFromUrl($matches[1]), $status);
 		}
-		
+
 		return $status;
 	}
 }

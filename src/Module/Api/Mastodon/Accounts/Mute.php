@@ -42,6 +42,6 @@ class Mute extends BaseApi
 
 		Contact\User::setIgnored($this->parameters['id'], $uid, true);
 
-		System::jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
+		$this->jsonExit(DI::mstdnRelationship()->createFromContactId($this->parameters['id'], $uid)->toArray());
 	}
 }

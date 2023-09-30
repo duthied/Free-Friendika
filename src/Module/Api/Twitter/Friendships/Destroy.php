@@ -87,6 +87,6 @@ class Destroy extends ContactEndpoint
 			throw new HTTPException\InternalServerErrorException('Unable to unfollow this contact, please contact your administrator');
 		}
 
-		$this->response->exit('friendships', ['user' => $user], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('friendships', ['user' => $user], $this->parameters['extension'] ?? null);
 	}
 }

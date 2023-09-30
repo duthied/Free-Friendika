@@ -434,7 +434,7 @@ class BaseApi extends BaseModule
 		}
 	}
 
-	public static function checkThrottleLimit()
+	public function checkThrottleLimit()
 	{
 		$uid = self::getCurrentUserID();
 
@@ -447,11 +447,11 @@ class BaseApi extends BaseModule
 			$posts_day = Post::countThread($condition);
 
 			if ($posts_day > $throttle_day) {
-				Logger::notice('Daily posting limit reached', ['uid' => $uid, 'posts' => $posts_day, 'limit' => $throttle_day]);
-				$error = DI::l10n()->t('Too Many Requests');
-				$error_description = DI::l10n()->tt("Daily posting limit of %d post reached. The post was rejected.", "Daily posting limit of %d posts reached. The post was rejected.", $throttle_day);
+				$this->logger->notice('Daily posting limit reached', ['uid' => $uid, 'posts' => $posts_day, 'limit' => $throttle_day]);
+				$error = $this->t('Too Many Requests');
+				$error_description = $this->tt("Daily posting limit of %d post reached. The post was rejected.", "Daily posting limit of %d posts reached. The post was rejected.", $throttle_day);
 				$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-				System::jsonError(429, $errorobj->toArray());
+				$this->jsonError(429, $errorobj->toArray());
 			}
 		}
 
@@ -464,10 +464,10 @@ class BaseApi extends BaseModule
 
 			if ($posts_week > $throttle_week) {
 				Logger::notice('Weekly posting limit reached', ['uid' => $uid, 'posts' => $posts_week, 'limit' => $throttle_week]);
-				$error = DI::l10n()->t('Too Many Requests');
-				$error_description = DI::l10n()->tt("Weekly posting limit of %d post reached. The post was rejected.", "Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week);
+				$error = $this->t('Too Many Requests');
+				$error_description = $this->tt("Weekly posting limit of %d post reached. The post was rejected.", "Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week);
 				$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-				System::jsonError(429, $errorobj->toArray());
+				$this->jsonError(429, $errorobj->toArray());
 			}
 		}
 
@@ -480,10 +480,10 @@ class BaseApi extends BaseModule
 
 			if ($posts_month > $throttle_month) {
 				Logger::notice('Monthly posting limit reached', ['uid' => $uid, 'posts' => $posts_month, 'limit' => $throttle_month]);
-				$error = DI::l10n()->t('Too Many Requests');
-				$error_description = DI::l10n()->tt('Monthly posting limit of %d post reached. The post was rejected.', 'Monthly posting limit of %d posts reached. The post was rejected.', $throttle_month);
+				$error = $this->t('Too Many Requests');
+				$error_description = $this->tt('Monthly posting limit of %d post reached. The post was rejected.', 'Monthly posting limit of %d posts reached. The post was rejected.', $throttle_month);
 				$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-				System::jsonError(429, $errorobj->toArray());
+				$this->jsonError(429, $errorobj->toArray());
 			}
 		}
 	}

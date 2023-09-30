@@ -78,7 +78,7 @@ class Update extends BaseApi
 		if (Circle::update($gid, $name)) {
 			$list = $this->friendicaCircle->createFromId($gid);
 
-			$this->response->exit('statuses', ['lists' => ['lists' => $list]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+			$this->response->addFormattedContent('statuses', ['lists' => ['lists' => $list]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 		}
 	}
 }

@@ -86,6 +86,6 @@ class Direct extends BaseApi
 		}
 
 		self::setLinkHeader();
-		System::jsonExit($statuses);
+		$this->jsonExit($statuses);
 	}
 }

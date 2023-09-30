@@ -80,7 +80,7 @@ class Acl extends BaseModule
 			$o = $this->regularContactSearch($request, $type);
 		}
 
-		System::jsonExit($o);
+		$this->jsonExit($o);
 	}
 
 	private function globalContactSearch(array $request): array

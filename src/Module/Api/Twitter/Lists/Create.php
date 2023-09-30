@@ -80,6 +80,6 @@ class Create extends BaseApi
 
 		$grp = $this->friendicaCircle->createFromId($gid);
 
-		$this->response->exit('statuses', ['lists' => ['lists' => $grp]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->addFormattedContent('statuses', ['lists' => ['lists' => $grp]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

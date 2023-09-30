@@ -58,7 +58,7 @@ class Media extends BaseApi
 
 		Logger::info('Uploaded photo', ['media' => $media]);
 
-		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($media['id']));
+		$this->jsonExit(DI::mstdnAttachment()->createFromPhoto($media['id']));
 	}
 
 	public function put(array $request = [])
@@ -87,12 +87,12 @@ class Media extends BaseApi
 				DI::mstdnError()->RecordNotFound();
 			}
 			Post\Media::updateById(['description' => $request['description']], $this->parameters['id']);
-			System::jsonExit(DI::mstdnAttachment()->createFromId($this->parameters['id']));
+			$this->jsonExit(DI::mstdnAttachment()->createFromId($this->parameters['id']));
 		}
 
 		Photo::update(['desc' => $request['description']], ['resource-id' => $photo['resource-id']]);
 
-		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($this->parameters['id']));
+		$this->jsonExit(DI::mstdnAttachment()->createFromPhoto($this->parameters['id']));
 	}
 
 	/**
@@ -112,6 +112,6 @@ class Media extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($id));
+		$this->jsonExit(DI::mstdnAttachment()->createFromPhoto($id));
 	}
 }

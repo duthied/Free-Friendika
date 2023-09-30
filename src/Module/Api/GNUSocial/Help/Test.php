@@ -37,6 +37,6 @@ class Test extends BaseApi
 			$ok = 'ok';
 		}
 
-		$this->response->exit('ok', ['ok' => $ok], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('ok', ['ok' => $ok], $this->parameters['extension'] ?? null);
 	}
 }

@@ -66,7 +66,7 @@ class Apps extends BaseApi
 
 			if (!empty($request['redirect_uris']) && is_array($request['redirect_uris'])) {
 				$request['redirect_uris'] = $request['redirect_uris'][0];
-			}	
+			}
 		}
 
 		if (empty($request['client_name']) || empty($request['redirect_uris'])) {
@@ -95,6 +95,6 @@ class Apps extends BaseApi
 			DI::mstdnError()->InternalError();
 		}
 
-		System::jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId())->toArray());
+		$this->jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId())->toArray());
 	}
 }

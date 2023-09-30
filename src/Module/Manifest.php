@@ -133,6 +133,6 @@ class Manifest extends BaseModule
 			$manifest['theme_color'] = $theme_color;
 		}
 
-		Core\System::jsonExit($manifest, 'application/manifest+json');
+		$this->jsonExit($manifest, 'application/manifest+json');
 	}
 }

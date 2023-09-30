@@ -45,13 +45,13 @@ class NoScrape extends BaseModule
 			// view infos about a known profile (needs a login)
 			$which = $a->getLoggedInUserNickname();
 		} else {
-			System::jsonError(403, 'Authentication required');
+			$this->jsonError(403, 'Authentication required');
 		}
 
 		$owner = User::getOwnerDataByNick($which);
 
 		if (empty($owner['uid'])) {
-			System::jsonError(404, 'Profile not found');
+			$this->jsonError(404, 'Profile not found');
 		}
 
 		$json_info = [
@@ -71,7 +71,7 @@ class NoScrape extends BaseModule
 
 		if (!$owner['net-publish']) {
 			$json_info['hide'] = true;
-			System::jsonExit($json_info);
+			$this->jsonExit($json_info);
 		}
 
 		$keywords = $owner['pub_keywords'] ?? '';
@@ -107,6 +107,6 @@ class NoScrape extends BaseModule
 			}
 		}
 
-		System::jsonExit($json_info);
+		$this->jsonExit($json_info);
 	}
 }

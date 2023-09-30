@@ -57,7 +57,7 @@ class Error extends BaseFactory
 		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
 		$this->logError(404, $error);
-		System::jsonError(404, $errorObj->toArray());
+		$this->jsonError(404, $errorObj->toArray());
 	}
 
 	public function UnprocessableEntity(string $error = '')
@@ -67,7 +67,7 @@ class Error extends BaseFactory
 		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
 		$this->logError(422, $error);
-		System::jsonError(422, $errorObj->toArray());
+		$this->jsonError(422, $errorObj->toArray());
 	}
 
 	public function Unauthorized(string $error = '', string $error_description = '')
@@ -76,7 +76,7 @@ class Error extends BaseFactory
 		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
 		$this->logError(401, $error);
-		System::jsonError(401, $errorObj->toArray());
+		$this->jsonError(401, $errorObj->toArray());
 	}
 
 	public function Forbidden(string $error = '')
@@ -86,7 +86,7 @@ class Error extends BaseFactory
 		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
 		$this->logError(403, $error);
-		System::jsonError(403, $errorObj->toArray());
+		$this->jsonError(403, $errorObj->toArray());
 	}
 
 	public function InternalError(string $error = '')
@@ -96,6 +96,6 @@ class Error extends BaseFactory
 		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
 		$this->logError(500, $error);
-		System::jsonError(500, $errorObj->toArray());
+		$this->jsonError(500, $errorObj->toArray());
 	}
 }

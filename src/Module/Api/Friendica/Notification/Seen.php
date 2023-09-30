@@ -70,13 +70,13 @@ class Seen extends BaseApi
 					// we found the item, return it to the user
 					$ret  = [DI::twitterStatus()->createFromUriId($item['uri-id'], $item['uid'], $include_entities)->toArray()];
 					$data = ['status' => $ret];
-					$this->response->exit('statuses', $data, $this->parameters['extension'] ?? null);
+					$this->response->addFormattedContent('statuses', $data, $this->parameters['extension'] ?? null);
 					return;
 				}
 				// the item can't be found, but we set the notification as seen, so we count this as a success
 			}
 
-			$this->response->exit('statuses', ['result' => 'success'], $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('statuses', ['result' => 'success'], $this->parameters['extension'] ?? null);
 		} catch (NotFoundException $e) {
 			throw new BadRequestException('Invalid argument', $e);
 		} catch (Exception $e) {

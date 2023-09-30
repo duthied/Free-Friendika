@@ -112,6 +112,6 @@ class Show extends ContactEndpoint
 			]
 		];
 
-		DI::apiResponse()->exit('relationship', ['relationship' => $relationship], $this->parameters['extension'] ?? null);
+		DI::apiResponse()->addFormattedContent('relationship', ['relationship' => $relationship], $this->parameters['extension'] ?? null);
 	}
 }

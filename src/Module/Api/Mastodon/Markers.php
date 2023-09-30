@@ -61,7 +61,7 @@ class Markers extends BaseApi
 
 		$fields = ['last_read_id' => $last_read_id, 'version' => $version, 'updated_at' => DateTimeFormat::utcNow()];
 		DBA::update('application-marker', $fields, $condition, true);
-		System::jsonExit($this->fetchTimelines($application['id'], $uid));
+		$this->jsonExit($this->fetchTimelines($application['id'], $uid));
 	}
 
 	/**
@@ -73,7 +73,7 @@ class Markers extends BaseApi
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
-		System::jsonExit($this->fetchTimelines($application['id'], $uid));
+		$this->jsonExit($this->fetchTimelines($application['id'], $uid));
 	}
 
 	private function fetchTimelines(int $application_id, int $uid)

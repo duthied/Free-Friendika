@@ -103,6 +103,6 @@ class Statuses extends BaseApi
 		}
 		$this->dba->close($statuses);
 
-		$this->response->exit('statuses', ['status' => $items], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->addFormattedContent('statuses', ['status' => $items], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

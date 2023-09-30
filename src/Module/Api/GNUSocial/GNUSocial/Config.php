@@ -61,6 +61,6 @@ class Config extends BaseApi
 			],
 		];
 
-		$this->response->exit('config', ['config' => $config], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('config', ['config' => $config], $this->parameters['extension'] ?? null);
 	}
 }

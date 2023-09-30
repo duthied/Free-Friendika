@@ -81,6 +81,6 @@ class Show extends BaseModule
 			'$event' => $tplEvent,
 		]);
 
-		System::httpExit($o);
+		$this->httpExit($o);
 	}
 }

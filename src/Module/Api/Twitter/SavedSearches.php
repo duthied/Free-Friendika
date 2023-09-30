@@ -44,6 +44,6 @@ class SavedSearches extends BaseApi
 
 		DBA::close($terms);
 
-		$this->response->exit('terms', ['terms' => $result], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('terms', ['terms' => $result], $this->parameters['extension'] ?? null);
 	}
 }

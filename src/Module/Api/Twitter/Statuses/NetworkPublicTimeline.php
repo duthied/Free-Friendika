@@ -63,6 +63,6 @@ class NetworkPublicTimeline extends BaseApi
 		}
 		DBA::close($statuses);
 
-		$this->response->exit('statuses', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->addFormattedContent('statuses', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

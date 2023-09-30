@@ -64,6 +64,6 @@ class Ownership extends BaseApi
 			$lists[] = $this->friendicaCircle->createFromId($circle['id']);
 		}
 
-		$this->response->exit('statuses', ['lists' => ['lists' => $lists]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->addFormattedContent('statuses', ['lists' => ['lists' => $lists]], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

@@ -402,36 +402,6 @@ class Page implements ArrayAccess
 	}
 
 	/**
-	 * Directly exit with the current response (include setting all headers)
-	 *
-	 * @param ResponseInterface $response
-	 */
-	public function exit(ResponseInterface $response)
-	{
-		header(sprintf("HTTP/%s %s %s",
-			$response->getProtocolVersion(),
-			$response->getStatusCode(),
-			$response->getReasonPhrase())
-		);
-
-		foreach ($response->getHeaders() as $key => $header) {
-			if (is_array($header)) {
-				$header_str = implode(',', $header);
-			} else {
-				$header_str = $header;
-			}
-
-			if (empty($key)) {
-				header($header_str);
-			} else {
-				header("$key: $header_str");
-			}
-		}
-
-		echo $response->getBody();
-	}
-
-	/**
 	 * Executes the creation of the current page and prints it to the screen
 	 *
 	 * @param App                         $app      The Friendica App
@@ -526,7 +496,9 @@ class Page implements ArrayAccess
 			}
 
 			if ($_GET["mode"] == "raw") {
-				System::httpExit(substr($target->saveHTML(), 6, -8), Response::TYPE_HTML);
+				$response->withBody(Utils::streamFor($target->saveHTML()));
+				System::echoResponse($response);
+				System::exit();
 			}
 		}
 

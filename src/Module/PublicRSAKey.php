@@ -45,7 +45,7 @@ class PublicRSAKey extends BaseModule
 			throw new BadRequestException();
 		}
 
-		System::httpExit(
+		$this->httpExit(
 			Salmon::salmonKey($user['spubkey']),
 			Response::TYPE_BLANK,
 			'application/magic-public-key'
