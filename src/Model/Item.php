@@ -2036,7 +2036,7 @@ class Item
 			'detected' => $languages,
 		];
 
-		Hook::callAll('get_language', $data);
+		Hook::callAll('detect_languages', $data);
 		$languages = $data['detected'];
 
 		return $languages;
