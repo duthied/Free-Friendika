@@ -1201,6 +1201,7 @@ class Contact
 		$mention_url = 'compose/0?body=@' . $contact['addr'];
 		$contact_url = 'contact/' . $contact['id'];
 		$posts_link = 'contact/' . $contact['id'] . '/conversations';
+		$group_link = 'network/group/' . $contact['id'];
 
 		$follow_link   = '';
 		$unfollow_link = '';
@@ -1235,7 +1236,7 @@ class Contact
 				'mention'  => [DI::l10n()->t('Mention'), DI::l10n()->t('Post to group'), $mention_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
-				'isgroup'  => [$contact['forum'], true],
+				'group'    => [DI::l10n()->t('View group'), $group_link, $contact['forum'], true],
 			];
 
 			if (!empty($contact['pending'])) {
