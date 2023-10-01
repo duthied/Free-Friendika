@@ -25,6 +25,7 @@
 					{{if $profile.addr && !$profile.actions.self}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.mention.2}}" aria-label="{{if $profile.actions.group.2==1}}{{$profile.actions.mention.1}}{{else}}{{$profile.actions.mention.0}}{{/if}}" title="{{$profile.actions.rel.0}}{{if $profile.actions.group.2==1}}{{$profile.actions.mention.1}}{{else}}{{$profile.actions.mention.0}}{{/if}}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>{{/if}}
 				</div>
 				<div class="hover-card-actions-connection">
+					{{if $profile.actions.group.2==1}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.group.1}}" aria-label="{{$profile.actions.group.0}}" title="{{$profile.actions.group.0}}"><i class="fa fa-group" aria-hidden="true"></i></a>{{/if}}
 					{{if $profile.actions.network}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.network.1}}" aria-label="{{$profile.actions.network.0}}" title="{{$profile.actions.network.0}}"><i class="fa fa-cloud" aria-hidden="true"></i></a>{{/if}}
 					{{if $profile.actions.edit}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.edit.1}}" aria-label="{{$profile.actions.edit.0}}" title="{{$profile.actions.edit.0}}"><i class="fa fa-user" aria-hidden="true"></i></a>{{/if}}
 					{{if $profile.actions.follow}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.follow.1}}" aria-label="{{$profile.actions.follow.0}}" title="{{$profile.actions.follow.0}}"><i class="fa fa-user-plus" aria-hidden="true"></i></a>{{/if}}

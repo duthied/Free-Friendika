@@ -1246,9 +1246,9 @@ class Contact
 				'network'  => [DI::l10n()->t('Network Posts'), $posts_link, false],
 				'edit'     => [DI::l10n()->t('View Contact'), $contact_url, false],
 				'pm'       => [DI::l10n()->t('Send PM'), $pm_url, false],
-				'mention'  => [DI::l10n()->t('Mention'), DI::l10n()->t('Post to group'), $mention_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
+				'mention'  => [DI::l10n()->t('Mention'), DI::l10n()->t('Post to group'), $mention_url, false],
 				'group'    => [DI::l10n()->t('View group'), $group_link, $contact['forum'], true],
 				'self'     => [$self],
 			];

@@ -2963,4 +2963,4 @@ $a->strings['Last users'] = 'Letzte Nutzer';
 $a->strings['Quick Start'] = 'Schnell-Start';
 $a->strings['Mention'] = 'Erwähne';
 $a->strings['Post to group'] = 'In Gruppe posten';
-
+$a->strings['View group'] = 'Zeige Gruppe';
