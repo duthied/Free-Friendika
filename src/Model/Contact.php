@@ -1177,6 +1177,7 @@ class Contact
 		}
 
 		$pm_url      = '';
+		$mention_url = '';
 		$status_link = '';
 		$photos_link = '';
 
@@ -1197,6 +1198,7 @@ class Contact
 			$pm_url = 'message/new/' . $contact['id'];
 		}
 
+		$mention_url = 'compose/0?body=@' . $contact['addr'];
 		$contact_url = 'contact/' . $contact['id'];
 		$posts_link = 'contact/' . $contact['id'] . '/conversations';
 
@@ -1230,8 +1232,10 @@ class Contact
 				'network'  => [DI::l10n()->t('Network Posts'), $posts_link, false],
 				'edit'     => [DI::l10n()->t('View Contact'), $contact_url, false],
 				'pm'       => [DI::l10n()->t('Send PM'), $pm_url, false],
+				'mention'  => [DI::l10n()->t('Mention'), DI::l10n()->t('Post to group'), $mention_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
+				'isgroup'  => [$contact['forum'], true],
 			];
 
 			if (!empty($contact['pending'])) {
