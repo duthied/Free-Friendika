@@ -1177,8 +1177,10 @@ class Contact
 		}
 
 		$pm_url      = '';
+		$mention_url = '';
 		$status_link = '';
 		$photos_link = '';
+		$self        = false;
 
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
 			$profile_link = 'contact/redir/' . $contact['id'];
@@ -1197,8 +1199,20 @@ class Contact
 			$pm_url = 'message/new/' . $contact['id'];
 		}
 
+		if (in_array($contact['rel'], [contact::SHARING])) {
+			$mention_url = 'compose/0?body=!' . $contact['addr'];
+		} else {
+			$mention_url = 'compose/0?body=@' . $contact['addr'];
+		}
+
+
+		if (in_array($contact['rel'], [contact::SHARING])) {
+			$self = true;
+		}
+
 		$contact_url = 'contact/' . $contact['id'];
 		$posts_link = 'contact/' . $contact['id'] . '/conversations';
+		$group_link = 'network/group/' . $contact['id'];
 
 		$follow_link   = '';
 		$unfollow_link = '';
@@ -1221,6 +1235,8 @@ class Contact
 				'edit'     => [DI::l10n()->t('View Contact'), $contact_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
+				'mention'  => [DI::l10n()->t('Mention'), DI::l10n()->t('Post to group'), $mention_url, false],
+				'group'    => [DI::l10n()->t('View group'), $group_link, $contact['forum'], true],
 			];
 		} else {
 			$menu = [
@@ -1230,8 +1246,11 @@ class Contact
 				'network'  => [DI::l10n()->t('Network Posts'), $posts_link, false],
 				'edit'     => [DI::l10n()->t('View Contact'), $contact_url, false],
 				'pm'       => [DI::l10n()->t('Send PM'), $pm_url, false],
+				'mention'  => [DI::l10n()->t('Mention'), DI::l10n()->t('Post to group'), $mention_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
+				'group'    => [DI::l10n()->t('View group'), $group_link, $contact['forum'], true],
+				'self'     => [$self],
 			];
 
 			if (!empty($contact['pending'])) {

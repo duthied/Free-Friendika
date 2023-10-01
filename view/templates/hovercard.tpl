@@ -22,6 +22,7 @@
 				{{* @todo we have two different photo menus one for contacts and one for items at the network stream. We currently use the contact photo menu, so the items options are missing We need to move them *}}
 				<div class="hover-card-actions-social">
 					{{if $profile.actions.pm}}<a class="btn btn-labeled btn-primary btn-sm add-to-modal" href="{{$profile.actions.pm.1}}" aria-label="{{$profile.actions.pm.0}}"><i class="fa fa-envelope" aria-hidden="true" title="{{$profile.actions.pm.0}}"></i><span class="sr-only">{{$profile.actions.pm.0}}</span></a>{{/if}}
+					{{if $profile.addr && !$profile.actions.self}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.mention.2}}" aria-label="{{if $profile.actions.group.2==1}}{{$profile.actions.mention.1}}{{else}}{{$profile.actions.mention.0}}{{/if}}" title="{{$profile.actions.rel.0}}{{if $profile.actions.group.2==1}}{{$profile.actions.mention.1}}{{else}}{{$profile.actions.mention.0}}{{/if}}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>{{/if}}
 				</div>
 				<div class="hover-card-actions-connection">
 					{{if $profile.actions.network}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.network.1}}" aria-label="{{$profile.actions.network.0}}" title="{{$profile.actions.network.0}}"><i class="fa fa-cloud" aria-hidden="true"></i></a>{{/if}}

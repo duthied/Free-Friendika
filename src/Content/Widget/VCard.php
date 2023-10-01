@@ -119,6 +119,8 @@ class VCard
 			'$unfollow_link'    => $unfollow_link,
 			'$wallmessage'      => DI::l10n()->t('Message'),
 			'$wallmessage_link' => $wallmessage_link,
+			'$mentioning'       => DI::l10n()->t('Mention'),
+			'$post2group'       => DI::l10n()->t('Post to group'),
 		]);
 	}
 }
