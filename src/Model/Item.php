@@ -2017,7 +2017,7 @@ class Item
 		$naked_body = BBCode::toPlaintext($naked_body);
 
 		// Remove possibly remaining links
-		$naked_body = preg_replace(Strings::autoLinkRegEx(), '', $naked_body);
+		$naked_body = trim(preg_replace(Strings::autoLinkRegEx(), '', $naked_body));
 
 		if (empty($naked_body)) {
 			return [];
@@ -2029,7 +2029,17 @@ class Item
 		$availableLanguages = DI::l10n()->convertForLanguageDetection($availableLanguages);
 
 		$ld = new Language(array_keys($availableLanguages));
-		return $ld->detect($naked_body)->limit(0, $count)->close() ?: [];
+		$languages = $ld->detect($naked_body)->limit(0, $count)->close() ?: [];
+
+		$data = [
+			'text'     => $naked_body,
+			'detected' => $languages,
+		];
+
+		Hook::callAll('detect_languages', $data);
+		$languages = $data['detected'];
+
+		return $languages;
 	}
 
 	/**

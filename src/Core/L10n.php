@@ -397,13 +397,31 @@ class L10n
 				// See https://github.com/friendica/friendica/issues/10511
 				// Persian is manually added to language detection until a persian translation is provided for the interface, at
 				// which point it will be automatically available through `getAvailableLanguages()` and this should be removed.
-				// Additionally Portuguese, Ukrainian, traditional Chinese and Welsh are added to that list.
+				// Additionally some more languages are added to that list that are used in the Fediverse.
 				$additional_langs = [
-					'cy'      => 'Cymraeg',
-					'uk'      => 'Українська',
-					'pt-PT'   => 'Português',
-					'zh-hant' => '繁體',
-					'fa'      => 'فارسی'
+					'af'         => 'Afrikaans',
+					'cy'         => 'Cymraeg',
+					'el-monoton' => 'Ελληνικά',
+					'eu'         => 'euskara',
+					'fa'         => 'فارسی',
+					'gl'         => 'Galego',
+					'hi'         => 'हिन्दी',
+					'hr'         => 'Hrvatski',
+					'id'         => 'bahasa Indonesia',
+					'ko'         => '한국인',
+					'lt'         => 'lietuvių',
+					'lv'         => 'latviešu',
+					'sk'         => 'slovenský',
+					'sl'         => 'Slovenščina',
+					'sw'         => 'Kiswahili',
+					'th'         => 'แบบไทย',
+					'tl'         => 'Wikang Tagalog',
+					'tr'         => 'Türkçe',
+					'pt-PT'      => 'Português',
+					'uk'         => 'Українська',
+					'uz'         => 'Ўзбек',
+					'vi'         => 'Tiếng Việt',
+					'zh-hant'    => '繁體',
 				];
 				$langs = array_merge($additional_langs, $langs);
 				ksort($langs);
