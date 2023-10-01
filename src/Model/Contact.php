@@ -1199,6 +1199,7 @@ class Contact
 
 		$contact_url = 'contact/' . $contact['id'];
 		$posts_link = 'contact/' . $contact['id'] . '/conversations';
+		$group_link = 'network/group/' . $contact['id'];
 
 		$follow_link   = '';
 		$unfollow_link = '';
@@ -1232,6 +1233,7 @@ class Contact
 				'pm'       => [DI::l10n()->t('Send PM'), $pm_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
+				'group'    => [DI::l10n()->t('View group'), $group_link, $contact['forum'], true],
 			];
 
 			if (!empty($contact['pending'])) {

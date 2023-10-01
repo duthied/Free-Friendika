@@ -56,19 +56,11 @@
 					</button>
 				</div>
 			{{/if}}
-                        {{if $contact.addr}}
-				<div id="mention-link-button">
-					<button type="button" id="mention-link" class="btn btn-labeled btn-primary{{if !$always_open_compose}} modal-open{{/if}}" onclick="openWallMessage('compose/0?body={{if $contact.forum==1}}!{{else}}@{{/if}}{{$contact.addr}}')">
-						<span class=""><i class="fa fa-pencil-square-o"></i></span>
-						<span class="">{{$mentioning}}</span>
-					</button>
-				</div>
-                        {{/if}}
                         {{if $contact.forum==1 || $contact.prv==1}}
-				<div id="mention-link-button">
-					<button type="button" id="mention-link" class="btn btn-labeled btn-primary{{if !$always_open_compose}} modal-open{{/if}}" onclick="window.location.href='{{$showforum_link}}'">
+				<div id="show-group-button">
+					<button type="button" id="show-group" class="btn btn-labeled btn-primary{{if !$always_open_compose}} modal-open{{/if}}" onclick="window.location.href='{{$showgroup_link}}'">
 						<span class=""><i class="fa fa-group"></i></span>
-						<span class="">{{$showforum}}</span>
+						<span class="">{{$showgroup}}</span>
 					</button>
 				</div>
                         {{/if}}

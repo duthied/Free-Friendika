@@ -68,7 +68,7 @@ class VCard
 		$follow_link      = '';
 		$unfollow_link    = '';
 		$wallmessage_link = '';
-		$showforum_link   = '';
+		$showgroup_link   = '';
 
 		$photo   = Contact::getPhoto($contact);
 
@@ -102,7 +102,7 @@ class VCard
 			}
 
 			if (in_array($rel, [Contact::SHARING])) {
-				$showforum_link = 'network/group/' . $id;
+				$showgroup_link = 'network/group/' . $id;
 			}
 		}
 
@@ -124,8 +124,8 @@ class VCard
 			'$unfollow_link'    => $unfollow_link,
 			'$wallmessage'      => DI::l10n()->t('Message'),
 			'$wallmessage_link' => $wallmessage_link,
-			'$showforum'        => DI::l10n()->t('Show Forum'),
-			'$showforum_link'   => $showforum_link,
+			'$showgroup'        => DI::l10n()->t('Show group'),
+			'$showgroup_link'   => $showgroup_link,
 			'$mentioning'       => DI::l10n()->t('Mention'),
 		]);
 	}
