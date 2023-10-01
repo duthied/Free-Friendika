@@ -1198,7 +1198,11 @@ class Contact
 			$pm_url = 'message/new/' . $contact['id'];
 		}
 
-		$mention_url = 'compose/0?body=@' . $contact['addr'];
+		if (in_array($contact['rel'], [contact::SHARING])) {
+			$mention_url = 'compose/0?body=!' . $contact['addr'];
+		} else {
+			$mention_url = 'compose/0?body=@' . $contact['addr'];
+		}
 		$contact_url = 'contact/' . $contact['id'];
 		$posts_link = 'contact/' . $contact['id'] . '/conversations';
 		$group_link = 'network/group/' . $contact['id'];

@@ -68,7 +68,6 @@ class VCard
 		$follow_link      = '';
 		$unfollow_link    = '';
 		$wallmessage_link = '';
-		$showforum_link   = '';
 
 		$photo   = Contact::getPhoto($contact);
 
@@ -120,8 +119,6 @@ class VCard
 			'$unfollow_link'    => $unfollow_link,
 			'$wallmessage'      => DI::l10n()->t('Message'),
 			'$wallmessage_link' => $wallmessage_link,
-			'$showforum'        => DI::l10n()->t('Show forum'),
-			'$showforum_link'   => $showforum_link,
 			'$mentioning'       => DI::l10n()->t('Mention'),
 			'$post2group'       => DI::l10n()->t('Post to group'),
 		]);
