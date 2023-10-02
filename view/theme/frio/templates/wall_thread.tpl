@@ -117,7 +117,7 @@ as the value of $top_child_total (this is done at the end of this file)
 					<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
 				{{/if}}
 				{{if $item.plink}}	{{*link to the original source of the item *}}
-					<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.plink.title}}">
+					<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.plink.title}}" target="_blank">
 						<i class="fa fa-external-link"></i>
 					</a>
 				{{/if}}
@@ -238,7 +238,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* item content *}}
 		<div class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
 			{{if $item.title}}
-			<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading" dir="auto"><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h4><br /></span>
+			<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading" dir="auto"><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name" target="_blank">{{$item.title}}</a></h4><br /></span>
 			{{/if}}
 
 			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}" id="wall-item-body-{{$item.id}}" dir="auto">{{$item.body_html nofilter}}</div>
