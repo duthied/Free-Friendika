@@ -1987,7 +1987,7 @@ class Item
 			return '';
 		}
 
-		$languages = self::getLanguageArray(trim($item['title'] . "\n" . $item['body']), 3);
+		$languages = self::getLanguageArray(trim($item['title'] . "\n" . $item['body']), 3, $item['uri-id'], $item['author-id']);
 		if (empty($languages)) {
 			return '';
 		}
@@ -2000,24 +2000,23 @@ class Item
 	 *
 	 * @param string  $body
 	 * @param integer $count
+	 * @param integer $uri_id
+	 * @param integer $author_id
 	 * @return array
 	 */
-	public static function getLanguageArray(string $body, int $count): array
+	public static function getLanguageArray(string $body, int $count, int $uri_id = 0, int $author_id = 0): array
 	{
-		// Convert attachments to links
-		$naked_body = BBCode::removeAttachment($body);
-		if (empty($naked_body)) {
-			return [];
+		$naked_body = BBCode::toSearchText($body, $uri_id);
+
+		if ((count(explode(' ', $naked_body)) < 10) && (mb_strlen($naked_body) < 30) && $author_id) {
+			$author = Contact::selectFirst(['about'], ['id' => $author_id]);
+			if (!empty($author['about'])) {
+				$about = BBCode::toSearchText($author['about'], 0);
+				$about = self::getDominantLanguage($about);
+				Logger::debug('About field added', ['author' => $author_id, 'body' => $naked_body, 'about' => $about]);
+				$naked_body .= ' ' . $about;
+			}
 		}
-
-		// Remove links and pictures
-		$naked_body = BBCode::removeLinks($naked_body);
-
-		// Convert the title and the body to plain text
-		$naked_body = BBCode::toPlaintext($naked_body);
-
-		// Remove possibly remaining links
-		$naked_body = trim(preg_replace(Strings::autoLinkRegEx(), '', $naked_body));
 
 		if (empty($naked_body)) {
 			return [];
@@ -2034,6 +2033,7 @@ class Item
 		$data = [
 			'text'     => $naked_body,
 			'detected' => $languages,
+			'uri-id'   => $uri_id,
 		];
 
 		Hook::callAll('detect_languages', $data);

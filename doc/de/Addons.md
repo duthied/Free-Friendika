@@ -109,6 +109,7 @@ Dieser Hook kann dafür verwendet werden, alternative Erkennungsfunktionen einzu
 `$data` ist ein Array:
         'text' => Der analysierte Text.
         'detected' => (Eingabe/Ausgabe) Das Array mit den erkannten Sprachen.
+        'uri-id' => Die Uri-Id des Beitrags
 
 **'addon_settings'** - wird aufgerufen, wenn die HTML-Ausgabe der Addon-Einstellungsseite generiert wird.
     $b ist die HTML-Ausgabe (String) der Addon-Einstellungsseite vor dem finalen "</form>"-Tag.

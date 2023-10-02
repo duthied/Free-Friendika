@@ -230,16 +230,71 @@ class BBCode
 	{
 		DI::profiler()->startRecording('rendering');
 		// Remove pictures in advance to avoid unneeded proxy calls
+		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", ' ', $text);
 		$text = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $2 ', $text);
 		$text = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $text);
 
 		// Remove attachment
 		$text = self::replaceAttachment($text);
 
-		$naked_text = HTML::toPlaintext(self::convert($text, false, BBCode::EXTERNAL, true), 0, !$keep_urls);
+		$naked_text = HTML::toPlaintext(self::convert($text, false, self::EXTERNAL, true), 0, !$keep_urls);
 
 		DI::profiler()->stopRecording();
 		return $naked_text;
+	}
+
+	/**
+	 * Converts text into a format that can be used for the channel search and the language detection.
+	 *
+	 * @param string $text
+	 * @param integer $uri_id
+	 * @return string
+	 */
+	public static function toSearchText(string $text, int $uri_id): string
+	{
+		// Removes attachments
+		$text = self::removeAttachment($text);
+
+		// Add images because of possible alt texts
+		if (!empty($uri_id)) {
+			$text = Post\Media::addAttachmentsToBody($uri_id, $text, [Post\Media::IMAGE]);
+		}
+
+		if (empty($text)) {
+			return '';
+		}
+
+		// Remove links without a link description
+		$text = preg_replace("~\[url\=.*\]https?:.*\[\/url\]~", ' ', $text);
+
+		// Remove pictures
+		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", ' ', $text);
+
+		// Replace picture with the alt description
+		$text = preg_replace("/\[img\=.*?\](.*?)\[\/img\]/ism", ' $1 ', $text);
+
+		// Remove the other pictures
+		$text = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $text);
+
+		// Removes mentions, remove links from hashtags
+		$text = preg_replace('/[@!]\[url\=.*?\].*?\[\/url\]/ism', ' ', $text);
+		$text = preg_replace('/[#]\[url\=.*?\](.*?)\[\/url\]/ism', ' #$1 ', $text);
+		$text = preg_replace('/[@!#]?\[url.*?\[\/url\]/ism', ' ', $text);
+		$text = preg_replace("/\[url=[^\[\]]*\](.*)\[\/url\]/Usi", ' $1 ', $text);
+
+		// Convert it to plain text
+		$text = self::toPlaintext($text, false);
+
+		// Remove possibly remaining links
+		$text = preg_replace(Strings::autoLinkRegEx(), '', $text);
+
+		// Remove all unneeded white space
+		do {
+			$oldtext = $text;
+			$text = str_replace(['  ', "\n", "\r", '"', '_'], ' ', $text);
+		} while ($oldtext != $text);
+
+		return trim($text);
 	}
 
 	private static function proxyUrl(string $image, int $simplehtml = self::INTERNAL, int $uriid = 0, string $size = ''): string
@@ -931,7 +986,7 @@ class BBCode
 				$network = $contact['network'] ?? Protocol::PHANTOM;
 
 				$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
-				$text .= BBCode::SHARED_ANCHOR . Renderer::replaceMacros($tpl, [
+				$text .= self::SHARED_ANCHOR . Renderer::replaceMacros($tpl, [
 					'$profile'      => $attributes['profile'],
 					'$avatar'       => $attributes['avatar'],
 					'$author'       => $attributes['author'],
@@ -1112,6 +1167,7 @@ class BBCode
 	public static function removeLinks(string $bbcode): string
 	{
 		DI::profiler()->startRecording('rendering');
+		$bbcode = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", ' ', $bbcode);
 		$bbcode = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $1 ', $bbcode);
 		$bbcode = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $bbcode);
 
@@ -1996,7 +2052,7 @@ class BBCode
 	{
 		DI::profiler()->startRecording('rendering');
 
-		$text = BBCode::performWithEscapedTags($text, ['code', 'noparse', 'nobb', 'pre'], function ($text) {
+		$text = self::performWithEscapedTags($text, ['code', 'noparse', 'nobb', 'pre'], function ($text) {
 			$text = preg_replace("/[\s|\n]*\[abstract\].*?\[\/abstract\][\s|\n]*/ism", ' ', $text);
 			$text = preg_replace("/[\s|\n]*\[abstract=.*?\].*?\[\/abstract][\s|\n]*/ism", ' ', $text);
 			return $text;
@@ -2018,7 +2074,7 @@ class BBCode
 		DI::profiler()->startRecording('rendering');
 		$addon = strtolower($addon);
 
-		$abstract = BBCode::performWithEscapedTags($text, ['code', 'noparse', 'nobb', 'pre'], function ($text) use ($addon) {
+		$abstract = self::performWithEscapedTags($text, ['code', 'noparse', 'nobb', 'pre'], function ($text) use ($addon) {
 			if ($addon && preg_match('#\[abstract=' . preg_quote($addon, '#') . '](.*?)\[/abstract]#ism', $text, $matches)) {
 				return $matches[1];
 			}
