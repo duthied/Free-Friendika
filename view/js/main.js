@@ -378,16 +378,10 @@ $(function() {
 
 	// Allow folks to stop the ajax page updates with the pause/break key
 	$(document).keydown(function(event) {
-		if (event.keyCode == '8') {
-			var target = event.target || event.srcElement;
-			if (!/input|textarea/i.test(target.nodeName)) {
-				return false;
-			}
-		}
-
-		if (event.keyCode == '19' || (event.ctrlKey && event.which == '32')) {
+		// Pause/Break or Ctrl + Space
+		if (event.which === 19 || (!event.shiftKey && !event.altKey && event.ctrlKey && event.which === 32)) {
 			event.preventDefault();
-			if (stopped == false) {
+			if (stopped === false) {
 				stopped = true;
 				if (event.ctrlKey) {
 					totStopped = true;
