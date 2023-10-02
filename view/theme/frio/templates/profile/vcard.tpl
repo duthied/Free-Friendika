@@ -74,7 +74,7 @@
 				<div id="mention-link-button">
 					<button type="button" id="mention-link" class="btn btn-labeled btn-primary" onclick="openWallMessage('compose/0?body={{if $profile.forum==1}}!{{else}}@{{/if}}{{$profile.addr}}')">
 					       <span class=""><i class="fa fa-pencil-square-o"></i></span>
-					       <span class="">{{$mentioning}}</span>
+					       <span class="">{{$mention}}</span>
 				</div>
 			{{/if}}
 		</div>

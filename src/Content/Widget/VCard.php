@@ -101,7 +101,7 @@ class VCard
 				$wallmessage_link = 'message/new/' . $id;
 			}
 
-			if (in_array($rel, [Contact::SHARING])) {
+			if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
 				$showgroup_link = 'network/group/' . $id;
 			}
 		}
@@ -124,8 +124,8 @@ class VCard
 			'$unfollow_link'    => $unfollow_link,
 			'$wallmessage'      => DI::l10n()->t('Message'),
 			'$wallmessage_link' => $wallmessage_link,
-			'$mentioning'       => DI::l10n()->t('Mention'),
-			'$post2group'       => DI::l10n()->t('Post to group'),
+			'$mention'          => DI::l10n()->t('Mention'),
+			'$posttogroup'      => DI::l10n()->t('Post to group'),
 			'$showgroup'        => DI::l10n()->t('View group'),
 			'$showgroup_link'   => $showgroup_link,
 		]);

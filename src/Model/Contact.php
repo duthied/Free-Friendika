@@ -1180,7 +1180,6 @@ class Contact
 		$mention_url = '';
 		$status_link = '';
 		$photos_link = '';
-		$self        = false;
 
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
 			$profile_link = 'contact/redir/' . $contact['id'];
@@ -1199,15 +1198,10 @@ class Contact
 			$pm_url = 'message/new/' . $contact['id'];
 		}
 
-		if (in_array($contact['rel'], [contact::SHARING])) {
+		if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
 			$mention_url = 'compose/0?body=!' . $contact['addr'];
 		} else {
 			$mention_url = 'compose/0?body=@' . $contact['addr'];
-		}
-
-
-		if (in_array($contact['rel'], [contact::SHARING])) {
-			$self = true;
 		}
 
 		$contact_url = 'contact/' . $contact['id'];
@@ -1228,6 +1222,8 @@ class Contact
 		 * Menu array:
 		 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
 		 */
+
+
 		if (empty($contact['uid'])) {
 			$menu = [
 				'profile'  => [DI::l10n()->t('View Profile'), $profile_link, true],
@@ -1250,7 +1246,7 @@ class Contact
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
 				'mention'  => [DI::l10n()->t('Mention'), DI::l10n()->t('Post to group'), $mention_url, false],
 				'group'    => [DI::l10n()->t('View group'), $group_link, $contact['forum'], true],
-				'self'     => [$self],
+				'self'     => [$contact['self'] ?? false, true],
 			];
 
 			if (!empty($contact['pending'])) {

@@ -60,7 +60,7 @@
 				<div id="mention-link-button">
 					<button type="button" id="mention-link" class="btn btn-labeled btn-primary{{if !$always_open_compose}} modal-open{{/if}}" onclick="openWallMessage('compose/0?body={{if $contact.forum==1}}!{{else}}@{{/if}}{{$contact.addr}}')">
 						<span class=""><i class="fa fa-pencil-square-o"></i></span>
-						<span class="">{{if $contact.forum==1}}{{$post2group}}{{else}}{{$mentioning}}{{/if}}</span>
+						<span class="">{{if $contact.forum==1}}{{$posttogroup}}{{else}}{{$mention}}{{/if}}</span>
 					</button>
 				</div>
                         {{/if}}
