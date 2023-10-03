@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-02 10:20+0200\n"
+"POT-Creation-Date: 2023-10-03 08:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1784,31 +1784,30 @@ msgstr ""
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:429 src/Model/Contact.php:1239
+#: src/Content/Item.php:429 src/Model/Contact.php:1246
 msgid "View Status"
 msgstr ""
 
 #: src/Content/Item.php:430 src/Content/Item.php:451 src/Model/Contact.php:1176
-#: src/Model/Contact.php:1229 src/Model/Contact.php:1240
+#: src/Model/Contact.php:1237 src/Model/Contact.php:1247
 #: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:259
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:431 src/Model/Contact.php:1241
+#: src/Content/Item.php:431 src/Model/Contact.php:1248
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:432 src/Model/Contact.php:1230
-#: src/Model/Contact.php:1242
+#: src/Content/Item.php:432 src/Model/Contact.php:1215
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:433 src/Model/Contact.php:1231
-#: src/Model/Contact.php:1243
+#: src/Content/Item.php:433 src/Model/Contact.php:1239
+#: src/Model/Contact.php:1250
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:434 src/Model/Contact.php:1244
+#: src/Content/Item.php:434 src/Model/Contact.php:1251
 msgid "Send PM"
 msgstr ""
 
@@ -1843,7 +1842,7 @@ msgid "Languages"
 msgstr ""
 
 #: src/Content/Item.php:448 src/Content/Widget.php:80
-#: src/Model/Contact.php:1232 src/Model/Contact.php:1245
+#: src/Model/Contact.php:1240 src/Model/Contact.php:1252
 #: src/Module/Contact/Follow.php:167 view/theme/vier/theme.php:195
 msgid "Connect/Follow"
 msgstr ""
@@ -2350,7 +2349,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:536 src/Model/Contact.php:1713
+#: src/Content/Widget.php:536 src/Model/Contact.php:1718
 msgid "News"
 msgstr ""
 
@@ -2435,24 +2434,22 @@ msgstr ""
 msgid "Network:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:123 src/Model/Contact.php:1233
-#: src/Model/Contact.php:1246 src/Model/Profile.php:463
+#: src/Content/Widget/VCard.php:123 src/Model/Contact.php:1241
+#: src/Model/Contact.php:1253 src/Model/Profile.php:463
 #: src/Module/Contact/Profile.php:463
 msgid "Unfollow"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:127 src/Model/Contact.php:1234
-#: src/Model/Contact.php:1247 src/Module/Moderation/Item/Source.php:85
+#: src/Content/Widget/VCard.php:127 src/Model/Contact.php:1205
+#: src/Module/Moderation/Item/Source.php:85
 msgid "Mention"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:128 src/Model/Contact.php:1234
-#: src/Model/Contact.php:1247
+#: src/Content/Widget/VCard.php:128 src/Model/Contact.php:1202
 msgid "Post to group"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:129 src/Model/Contact.php:1235
-#: src/Model/Contact.php:1248
+#: src/Content/Widget/VCard.php:129 src/Model/Contact.php:1212
 msgid "View group"
 msgstr ""
 
@@ -3204,82 +3201,82 @@ msgstr ""
 msgid "Edit circles"
 msgstr ""
 
-#: src/Model/Contact.php:1255 src/Module/Moderation/Users/Pending.php:102
+#: src/Model/Contact.php:1260 src/Module/Moderation/Users/Pending.php:102
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1709
+#: src/Model/Contact.php:1714
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1717
+#: src/Model/Contact.php:1722
 msgid "Group"
 msgstr ""
 
-#: src/Model/Contact.php:3020
+#: src/Model/Contact.php:3025
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:3025 src/Module/Friendica.php:101
+#: src/Model/Contact.php:3030 src/Module/Friendica.php:101
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:3030
+#: src/Model/Contact.php:3035
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:3039
+#: src/Model/Contact.php:3044
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:3057
+#: src/Model/Contact.php:3062
 #, php-format
 msgid "Expected network %s does not match actual network %s"
 msgstr ""
 
-#: src/Model/Contact.php:3074
+#: src/Model/Contact.php:3079
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:3076
+#: src/Model/Contact.php:3081
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:3079
+#: src/Model/Contact.php:3084
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:3082
+#: src/Model/Contact.php:3087
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:3085
+#: src/Model/Contact.php:3090
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:3086
+#: src/Model/Contact.php:3091
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:3092
+#: src/Model/Contact.php:3097
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:3097
+#: src/Model/Contact.php:3102
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:3163
+#: src/Model/Contact.php:3168
 msgid "Unable to retrieve contact information."
 msgstr ""
 
