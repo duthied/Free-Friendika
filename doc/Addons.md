@@ -226,7 +226,7 @@ Called after the language detection. This can be used for alternative language d
 `$data` is an array:
 
 - **text**: The text that is analyzed.
-- **detected**: (input/output) Array of language codes detected in the related text.
+- **detected**: (input/output) Array of language codes detected in the related text. The array key is the language code, the array value the probability.
 - **uri-id**: The Uri-Id of the item.
 
 ### addon_settings
