@@ -1177,6 +1177,7 @@ class Contact
 		}
 
 		$pm_url      = '';
+		$mention_url = '';
 		$status_link = '';
 		$photos_link = '';
 
@@ -1197,8 +1198,23 @@ class Contact
 			$pm_url = 'message/new/' . $contact['id'];
 		}
 
+		if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
+			$mention_label = DI::l10n()->t('Post to group');
+			$mention_url = 'compose/0?body=!' . $contact['addr'];
+		} else {
+			$mention_label = DI::l10n()->t('Mention');
+			$mention_url = 'compose/0?body=@' . $contact['addr'];
+		}
+
 		$contact_url = 'contact/' . $contact['id'];
-		$posts_link = 'contact/' . $contact['id'] . '/conversations';
+
+		if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
+			$network_label = DI::l10n()->t('View group');
+			$network_url = 'network/group/' . $contact['id'];
+		} else {
+			$network_label = DI::l10n()->t('Network Posts');
+			$network_url = 'contact/' . $contact['id'] . '/conversations';
+		}
 
 		$follow_link   = '';
 		$unfollow_link = '';
@@ -1214,24 +1230,28 @@ class Contact
 		 * Menu array:
 		 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
 		 */
+
+
 		if (empty($contact['uid'])) {
 			$menu = [
 				'profile'  => [DI::l10n()->t('View Profile'), $profile_link, true],
-				'network'  => [DI::l10n()->t('Network Posts'), $posts_link, false],
+				'network'  => [$network_label, $network_url, false],
 				'edit'     => [DI::l10n()->t('View Contact'), $contact_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
+				'mention'  => [$mention_label, $mention_url, false],
 			];
 		} else {
 			$menu = [
 				'status'   => [DI::l10n()->t('View Status'), $status_link, true],
 				'profile'  => [DI::l10n()->t('View Profile'), $profile_link, true],
 				'photos'   => [DI::l10n()->t('View Photos'), $photos_link, true],
-				'network'  => [DI::l10n()->t('Network Posts'), $posts_link, false],
+				'network'  => [$network_label, $network_url, false],
 				'edit'     => [DI::l10n()->t('View Contact'), $contact_url, false],
 				'pm'       => [DI::l10n()->t('Send PM'), $pm_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
+				'mention'  => [$mention_label, $mention_url, false],
 			];
 
 			if (!empty($contact['pending'])) {
