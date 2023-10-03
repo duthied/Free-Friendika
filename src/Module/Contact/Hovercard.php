@@ -112,6 +112,7 @@ class Hovercard extends BaseModule
 				'bd'           => $contact['bd'] <= DBA::NULL_DATE ? '' : $contact['bd'],
 				'account_type' => Contact::getAccountType($contact['contact-type']),
 				'actions'      => $actions,
+				'self'         => $contact['self'],
 			],
 		]);
 
