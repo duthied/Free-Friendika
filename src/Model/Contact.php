@@ -1239,7 +1239,9 @@ class Contact
 				'edit'     => [DI::l10n()->t('View Contact'), $contact_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
-				'mention'  => [$mention_label, $mention_url, false],
+				'mention'  => [DI::l10n()->t('Mention'), DI::l10n()->t('Post to group'), $mention_url, false],
+				'group'    => [DI::l10n()->t('View group'), $group_link, $contact['forum'], true],
+				'self'     => [$contact['self'] ?? false, true],
 			];
 		} else {
 			$menu = [
