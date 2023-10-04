@@ -157,7 +157,10 @@ class APContact
 
 		$apcontact = [];
 
-		$webfinger = empty(parse_url($url, PHP_URL_SCHEME));
+		// Mastodon profile short-form URL https://domain.tld/@user doesn't return AP data when queried
+		// with HTTPSignature::fetchRaw, but returns the correct data when provided to WebFinger
+		// @see https://github.com/friendica/friendica/issues/13359
+		$webfinger = empty(parse_url($url, PHP_URL_SCHEME)) || strpos($url, '@') !== false;
 		if ($webfinger) {
 			$apcontact = self::fetchWebfingerData($url);
 			if (empty($apcontact['url'])) {
@@ -197,7 +200,7 @@ class APContact
 				$curlResult = HTTPSignature::fetchRaw($url);
 				$failed = empty($curlResult) || empty($curlResult->getBody()) ||
 					(!$curlResult->isSuccess() && ($curlResult->getReturnCode() != 410));
-	
+
 				if (!$failed) {
 					$data = json_decode($curlResult->getBody(), true);
 					$failed = empty($data) || !is_array($data);
