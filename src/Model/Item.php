@@ -22,6 +22,9 @@
 namespace Friendica\Model;
 
 use Friendica\Contact\LocalRelationship\Entity\LocalRelationship;
+use Friendica\Content\Image;
+use Friendica\Content\Post\Collection\PostMedias;
+use Friendica\Content\Post\Entity\PostMedia;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -34,6 +37,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post\Category;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException\ServiceUnavailableException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Delivery;
@@ -3175,15 +3179,15 @@ class Item
 		if (!empty($shared_item['uri-id'])) {
 			$shared_uri_id = $shared_item['uri-id'];
 			$shared_links[] = strtolower($shared_item['plink']);
-			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, [], $shared_item['has-media']);
-			$shared_links = array_merge($shared_links, array_column($shared_attachments['visual'], 'url'));
-			$shared_links = array_merge($shared_links, array_column($shared_attachments['link'], 'url'));
-			$shared_links = array_merge($shared_links, array_column($shared_attachments['additional'], 'url'));
-			$item['body'] = self::replaceVisualAttachments($shared_attachments, $item['body']);
+			$sharedSplitAttachments = DI::postMediaRepository()->splitAttachments($shared_uri_id, [], $shared_item['has-media']);
+			$shared_links = array_merge($shared_links, $sharedSplitAttachments['visual']->column('url'));
+			$shared_links = array_merge($shared_links, $sharedSplitAttachments['link']->column('url'));
+			$shared_links = array_merge($shared_links, $sharedSplitAttachments['additional']->column('url'));
+			$item['body'] = self::replaceVisualAttachments($sharedSplitAttachments['visual'], $item['body']);
 		}
 
-		$attachments = Post\Media::splitAttachments($item['uri-id'], $shared_links, $item['has-media'] ?? false);
-		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
+		$itemSplitAttachments = DI::postMediaRepository()->splitAttachments($item['uri-id'], $shared_links, $item['has-media'] ?? false);
+		$item['body'] = self::replaceVisualAttachments($itemSplitAttachments['visual'], $item['body'] ?? '');
 
 		self::putInCache($item);
 		$item['body'] = $body;
@@ -3208,7 +3212,7 @@ class Item
 				$filter_reasons[] = DI::l10n()->t('Content warning: %s', $item['content-warning']);
 			}
 
-			$item['attachments'] = $attachments;
+			$item['attachments'] = $itemSplitAttachments;
 
 			$hook_data = [
 				'item' => $item,
@@ -3237,11 +3241,11 @@ class Item
 			return $s;
 		}
 
-		if (!empty($shared_attachments)) {
-			$s = self::addGallery($s, $shared_attachments, $item['uri-id']);
-			$s = self::addVisualAttachments($shared_attachments, $shared_item, $s, true);
-			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $shared_attachments, $body, $s, true, $quote_shared_links);
-			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
+		if (!empty($sharedSplitAttachments)) {
+			$s = self::addGallery($s, $sharedSplitAttachments['visual']);
+			$s = self::addVisualAttachments($sharedSplitAttachments['visual'], $shared_item, $s, true);
+			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $sharedSplitAttachments, $body, $s, true, $quote_shared_links);
+			$s = self::addNonVisualAttachments($sharedSplitAttachments['additional'], $item, $s, true);
 			$body = BBCode::removeSharedData($body);
 		}
 
@@ -3251,10 +3255,10 @@ class Item
 			$s = substr($s, 0, $pos);
 		}
 
-		$s = self::addGallery($s, $attachments, $item['uri-id']);
-		$s = self::addVisualAttachments($attachments, $item, $s, false);
-		$s = self::addLinkAttachment($item['uri-id'], $attachments, $body, $s, false, $shared_links);
-		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
+		$s = self::addGallery($s, $itemSplitAttachments['visual']);
+		$s = self::addVisualAttachments($itemSplitAttachments['visual'], $item, $s, false);
+		$s = self::addLinkAttachment($item['uri-id'], $itemSplitAttachments, $body, $s, false, $shared_links);
+		$s = self::addNonVisualAttachments($itemSplitAttachments['additional'], $item, $s, false);
 		$s = self::addQuestions($item, $s);
 
 		// Map.
@@ -3283,44 +3287,33 @@ class Item
 	}
 
 	/**
-	 * @param array $images
-	 * @return string
-	 * @throws \Friendica\Network\HTTPException\ServiceUnavailableException
-	 */
-	private static function makeImageGrid(array $images): string
-	{
-		// Image for first column (fc) and second column (sc)
-		$images_fc = [];
-		$images_sc = [];
-
-		for ($i = 0; $i < count($images); $i++) {
-			($i % 2 == 0) ? ($images_fc[] = $images[$i]) : ($images_sc[] = $images[$i]);
-		}
-
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image_grid.tpl'), [
-			'columns' => [
-				'fc' => $images_fc,
-				'sc' => $images_sc,
-			],
-		]);
-	}
-
-	/**
 	 * Modify links to pictures to links for the "Fancybox" gallery
 	 *
-	 * @param string $s
-	 * @param array $attachments
-	 * @param integer $uri_id
+	 * @param string     $s
+	 * @param PostMedias $PostMedias
 	 * @return string
 	 */
-	private static function addGallery(string $s, array $attachments, int $uri_id): string
+	private static function addGallery(string $s, PostMedias $PostMedias): string
 	{
-		foreach ($attachments['visual'] as $attachment) {
-			if (empty($attachment['preview']) || ($attachment['type'] != Post\Media::IMAGE)) {
+		foreach ($PostMedias as $PostMedia) {
+			if (!$PostMedia->preview || ($PostMedia->type !== Post\Media::IMAGE)) {
 				continue;
 			}
-			$s = str_replace('<a href="' . $attachment['url'] . '"', '<a data-fancybox="' . $uri_id . '" href="' . $attachment['url'] . '"', $s);
+
+			if ($PostMedia->hasDimensions()) {
+				$pattern = '#<a href="' . preg_quote($PostMedia->url) . '">(.*?)"></a>#';
+
+				$s = preg_replace_callback($pattern, function () use ($PostMedia) {
+					return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image/single_with_height_allocation.tpl'), [
+						'$image' => $PostMedia,
+						'$allocated_height' => $PostMedia->getAllocatedHeight(),
+					]);
+				}, $s);
+			} else {
+				$s = str_replace('<a href="' . $PostMedia->url . '"', '<a data-fancybox="uri-id-' . $PostMedia->uriId . '" href="' . $PostMedia->url . '"', $s);
+			}
 		}
+
 		return $s;
 	}
 
@@ -3378,30 +3371,30 @@ class Item
 	/**
 	 * Replace visual attachments in the body
 	 *
-	 * @param array $attachments
-	 * @param string $body
+	 * @param PostMedias $PostMedias
+	 * @param string     $body
 	 * @return string modified body
 	 */
-	private static function replaceVisualAttachments(array $attachments, string $body): string
+	private static function replaceVisualAttachments(PostMedias $PostMedias, string $body): string
 	{
 		DI::profiler()->startRecording('rendering');
 
-		foreach ($attachments['visual'] as $attachment) {
-			if (!empty($attachment['preview'])) {
-				if (Network::isLocalLink($attachment['preview'])) {
+		foreach ($PostMedias as $PostMedia) {
+			if ($PostMedia->preview) {
+				if (DI::baseUrl()->isLocalUri($PostMedia->preview)) {
 					continue;
 				}
-				$proxy   = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE);
-				$search  = ['[img=' . $attachment['preview'] . ']', ']' . $attachment['preview'] . '[/img]'];
+				$proxy   = DI::baseUrl() . $PostMedia->getPreviewPath(Proxy::SIZE_LARGE);
+				$search  = ['[img=' . $PostMedia->preview . ']', ']' . $PostMedia->preview . '[/img]'];
 				$replace = ['[img=' . $proxy . ']', ']' . $proxy . '[/img]'];
 
 				$body = str_replace($search, $replace, $body);
-			} elseif ($attachment['filetype'] == 'image') {
-				if (Network::isLocalLink($attachment['url'])) {
+			} elseif ($PostMedia->mimetype->type == 'image') {
+				if (DI::baseUrl()->isLocalUri($PostMedia->url)) {
 					continue;
 				}
-				$proxy   = Post\Media::getUrlForId($attachment['id']);
-				$search  = ['[img=' . $attachment['url'] . ']', ']' . $attachment['url'] . '[/img]'];
+				$proxy   = DI::baseUrl() . $PostMedia->getPreviewPath(Proxy::SIZE_LARGE);
+				$search  = ['[img=' . $PostMedia->url . ']', ']' . $PostMedia->url . '[/img]'];
 				$replace = ['[img=' . $proxy . ']', ']' . $proxy . '[/img]'];
 
 				$body = str_replace($search, $replace, $body);
@@ -3414,29 +3407,34 @@ class Item
 	/**
 	 * Add visual attachments to the content
 	 *
-	 * @param array $attachments
-	 * @param array $item
-	 * @param string $content
+	 * @param PostMedias $PostMedias
+	 * @param array      $item
+	 * @param string     $content
+	 * @param bool       $shared
 	 * @return string modified content
+	 * @throws ServiceUnavailableException
 	 */
-	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared): string
+	private static function addVisualAttachments(PostMedias $PostMedias, array $item, string $content, bool $shared): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$leading  = '';
 		$trailing = '';
-		$images   = [];
+		$images   = new PostMedias();
 
 		// @todo In the future we should make a single for the template engine with all media in it. This allows more flexibilty.
-		foreach ($attachments['visual'] as $attachment) {
-			if (self::containsLink($item['body'], $attachment['preview'] ?? $attachment['url'], $attachment['type'])) {
+		foreach ($PostMedias as $PostMedia) {
+			if (self::containsLink($item['body'], $PostMedia->preview ?? $PostMedia->url, $PostMedia->type)) {
 				continue;
 			}
 
-			if ($attachment['filetype'] == 'image') {
-				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
-			} elseif (!empty($attachment['preview'])) {
-				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE);
+			if ($PostMedia->mimetype->type == 'image') {
+				$preview_size = $PostMedia->width > $PostMedia->height ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE;
+				$preview_url = DI::baseUrl() . $PostMedia->getPreviewPath($preview_size);
+			} elseif ($PostMedia->preview) {
+				$preview_size = Proxy::SIZE_LARGE;
+				$preview_url = DI::baseUrl() . $PostMedia->getPreviewPath($preview_size);
 			} else {
+				$preview_size = 0;
 				$preview_url = '';
 			}
 
@@ -3444,15 +3442,15 @@ class Item
 				continue;
 			}
 
-			if (($attachment['filetype'] == 'video')) {
+			if ($PostMedia->mimetype->type == 'video') {
 				/// @todo Move the template to /content as well
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 					'$video' => [
-						'id'      => $attachment['id'],
-						'src'     => $attachment['url'],
-						'name'    => $attachment['name'] ?: $attachment['url'],
+						'id'      => $PostMedia->id,
+						'src'     => (string)$PostMedia->url,
+						'name'    => $PostMedia->name ?: $PostMedia->url,
 						'preview' => $preview_url,
-						'mime'    => $attachment['mimetype'],
+						'mime'    => (string)$PostMedia->mimetype,
 					],
 				]);
 				if (($item['post-type'] ?? null) == Item::PT_VIDEO) {
@@ -3460,13 +3458,13 @@ class Item
 				} else {
 					$trailing .= $media;
 				}
-			} elseif ($attachment['filetype'] == 'audio') {
+			} elseif ($PostMedia->mimetype->type == 'audio') {
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/audio.tpl'), [
 					'$audio' => [
-						'id'     => $attachment['id'],
-						'src'    => $attachment['url'],
-						'name'   => $attachment['name'] ?: $attachment['url'],
-						'mime'   => $attachment['mimetype'],
+						'id'     => $PostMedia->id,
+						'src'    => (string)$PostMedia->url,
+						'name'   => $PostMedia->name ?: $PostMedia->url,
+						'mime'   => (string)$PostMedia->mimetype,
 					],
 				]);
 				if (($item['post-type'] ?? null) == Item::PT_AUDIO) {
@@ -3474,23 +3472,17 @@ class Item
 				} else {
 					$trailing .= $media;
 				}
-			} elseif ($attachment['filetype'] == 'image') {
-				$src_url = Post\Media::getUrlForId($attachment['id']);
+			} elseif ($PostMedia->mimetype->type == 'image') {
+				$src_url = DI::baseUrl() . $PostMedia->getPhotoPath();
 				if (self::containsLink($item['body'], $src_url)) {
 					continue;
 				}
-				$images[] = ['src' => $src_url, 'preview' => $preview_url, 'attachment' => $attachment, 'uri_id' => $item['uri-id']];
+
+				$images[] = $PostMedia->withUrl(new Uri($src_url))->withPreview(new Uri($preview_url), $preview_size);
 			}
 		}
 
-		$media = '';
-		if (count($images) > 1) {
-			$media = self::makeImageGrid($images);
-		} elseif (count($images) == 1) {
-			$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
-				'$image' => $images[0],
-			]);
-		}
+		$media = Image::getBodyAttachHtml($images);
 
 		// On Diaspora posts the attached pictures are leading
 		if ($item['network'] == Protocol::DIASPORA) {
@@ -3519,59 +3511,62 @@ class Item
 	/**
 	 * Add link attachment to the content
 	 *
-	 * @param array  $attachments
-	 * @param string $body
-	 * @param string $content
-	 * @param bool   $shared
-	 * @param array  $ignore_links A list of URLs to ignore
+	 * @param int          $uriid
+	 * @param PostMedias[] $attachments
+	 * @param string       $body
+	 * @param string       $content
+	 * @param bool         $shared
+	 * @param array        $ignore_links A list of URLs to ignore
 	 * @return string modified content
+	 * @throws InternalServerErrorException
+	 * @throws ServiceUnavailableException
 	 */
 	private static function addLinkAttachment(int $uriid, array $attachments, string $body, string $content, bool $shared, array $ignore_links): string
 	{
 		DI::profiler()->startRecording('rendering');
 		// Don't show a preview when there is a visual attachment (audio or video)
-		$types = array_column($attachments['visual'], 'type');
-		$preview = !in_array(Post\Media::IMAGE, $types) && !in_array(Post\Media::VIDEO, $types);
+		$types = $attachments['visual']->column('type');
+		$preview = !in_array(PostMedia::TYPE_IMAGE, $types) && !in_array(PostMedia::TYPE_VIDEO, $types);
 
-		if (!empty($attachments['link'])) {
-			foreach ($attachments['link'] as $link) {
-				$found = false;
-				foreach ($ignore_links as $ignore_link) {
-					if (Strings::compareLink($link['url'], $ignore_link)) {
-						$found = true;
-					}
+		/** @var ?PostMedia $attachment */
+		$attachment = null;
+		foreach ($attachments['link'] as $PostMedia) {
+			$found = false;
+			foreach ($ignore_links as $ignore_link) {
+				if (Strings::compareLink($PostMedia->url, $ignore_link)) {
+					$found = true;
 				}
-				// @todo Judge between the links to use the one with most information
-				if (!$found && (empty($attachment) || !empty($link['author-name']) ||
-					(empty($attachment['name']) && !empty($link['name'])) ||
-					(empty($attachment['description']) && !empty($link['description'])) ||
-					(empty($attachment['preview']) && !empty($link['preview'])))) {
-					$attachment = $link;
-				}
+			}
+			// @todo Judge between the links to use the one with most information
+			if (!$found && (empty($attachment) || $PostMedia->authorName ||
+				(!$attachment->name && $PostMedia->name) ||
+				(!$attachment->description && $PostMedia->description) ||
+				(!$attachment->preview && $PostMedia->preview))) {
+				$attachment = $PostMedia;
 			}
 		}
 
 		if (!empty($attachment)) {
 			$data = [
 				'after' => '',
-				'author_name' => $attachment['author-name'] ?? '',
-				'author_url' =>  $attachment['author-url'] ?? '',
-				'description' => $attachment['description'] ?? '',
+				'author_name' => $attachment->authorName ?? '',
+				'author_url' => (string)($attachment->authorUrl ?? ''),
+				'description' => $attachment->description ?? '',
 				'image' => '',
 				'preview' => '',
-				'provider_name' => $attachment['publisher-name'] ?? '',
-				'provider_url' => $attachment['publisher-url'] ?? '',
+				'provider_name' => $attachment->publisherName ?? '',
+				'provider_url' => (string)($attachment->publisherUrl ?? ''),
 				'text' => '',
-				'title' => $attachment['name'] ?? '',
+				'title' => $attachment->name ?? '',
 				'type' => 'link',
-				'url' => $attachment['url']
+				'url' => (string)$attachment->url,
 			];
 
-			if ($preview && !empty($attachment['preview'])) {
-				if ($attachment['preview-width'] >= 500) {
-					$data['image'] = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_MEDIUM);
+			if ($preview && $attachment->preview) {
+				if ($attachment->previewWidth >= 500) {
+					$data['image'] = DI::baseUrl() . $attachment->getPreviewPath(Proxy::SIZE_MEDIUM);
 				} else {
-					$data['preview'] = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_MEDIUM);
+					$data['preview'] = DI::baseUrl() . $attachment->getPreviewPath(Proxy::SIZE_MEDIUM);
 				}
 			}
 
@@ -3639,19 +3634,21 @@ class Item
 	}
 
 	/**
-	 * Add non visual attachments to the content
+	 * Add non-visual attachments to the content
 	 *
-	 * @param array $attachments
-	 * @param array $item
-	 * @param string $content
+	 * @param PostMedias $PostMedias
+	 * @param array      $item
+	 * @param string     $content
 	 * @return string modified content
+	 * @throws InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	private static function addNonVisualAttachments(array $attachments, array $item, string $content): string
+	private static function addNonVisualAttachments(PostMedias $PostMedias, array $item, string $content): string
 	{
 		DI::profiler()->startRecording('rendering');
 		$trailing = '';
-		foreach ($attachments['additional'] as $attachment) {
-			if (strpos($item['body'], $attachment['url'])) {
+		foreach ($PostMedias as $PostMedia) {
+			if (strpos($item['body'], $PostMedia->url)) {
 				continue;
 			}
 
@@ -3662,16 +3659,16 @@ class Item
 				'url'     => $item['author-link'],
 				'alias'   => $item['author-alias']
 			];
-			$the_url = Contact::magicLinkByContact($author, $attachment['url']);
+			$the_url = Contact::magicLinkByContact($author, $PostMedia->url);
 
-			$title = Strings::escapeHtml(trim(($attachment['description'] ?? '') ?: $attachment['url']));
+			$title = Strings::escapeHtml(trim($PostMedia->description ?? '' ?: $PostMedia->url));
 
-			if (!empty($attachment['size'])) {
-				$title .= ' ' . $attachment['size'] . ' ' . DI::l10n()->t('bytes');
+			if ($PostMedia->size) {
+				$title .= ' ' . $PostMedia->size . ' ' . DI::l10n()->t('bytes');
 			}
 
 			/// @todo Use a template
-			$icon = '<div class="attachtype icon s22 type-' . $attachment['filetype'] . ' subtype-' . $attachment['subtype'] . '"></div>';
+			$icon = '<div class="attachtype icon s22 type-' . $PostMedia->mimetype->type . ' subtype-' . $PostMedia->mimetype->subtype . '"></div>';
 			$trailing .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" rel="noopener noreferrer" >' . $icon . '</a>';
 		}
 
