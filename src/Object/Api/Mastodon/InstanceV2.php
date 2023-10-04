@@ -81,6 +81,7 @@ class InstanceV2 extends BaseDataTransferObject
 		string              $domain,
 		string              $title,
 		string              $version,
+		string              $source_url,
 		string              $description,
 		Usage               $usage,
 		Thumbnail           $thumbnail,
@@ -94,7 +95,7 @@ class InstanceV2 extends BaseDataTransferObject
 		$this->domain        = $domain;
 		$this->title         = $title;
 		$this->version       = $version;
-		$this->source_url    = null; //not supported yet
+		$this->source_url    = $source_url;
 		$this->description   = $description;
 		$this->usage         = $usage;
 		$this->thumbnail     = $thumbnail;
