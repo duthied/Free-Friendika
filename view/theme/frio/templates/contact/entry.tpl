@@ -7,7 +7,7 @@
 
 				<div class="contact-photo-image-wrapper hidden-xs">
 					<a href="{{if !empty($contact.photo_menu.edit)}}{{$contact.photo_menu.edit.1}}{{else}}{{$contact.url}}{{/if}}">
-						<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+						<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" loading="lazy"/>
 					</a>
 				</div>
 
@@ -15,7 +15,7 @@
 				<button type="button" class="btn btn-default dropdown-toggle visible-xs" id="contact-photo-menu-button-{{$contact.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{{* use a smaller picture on very small displays (e.g. mobiles) *}}
 					<div class="contact-photo-image-wrapper visible-xs">
-						<img class="contact-photo-xs media-object" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+						<img class="contact-photo-xs media-object" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}"  loading="lazy"/>
 
 						{{* Overlay background on hover the avatar picture *}}
 						<div class="contact-photo-overlay">
