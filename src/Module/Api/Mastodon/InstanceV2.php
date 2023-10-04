@@ -85,6 +85,7 @@ class InstanceV2 extends BaseApi
 		$domain               = $this->baseUrl->getHost();
 		$title                = $this->config->get('config', 'sitename');
 		$version              = '2.8.0 (compatible; Friendica ' . App::VERSION . ')';
+		$source_url           = 'https://git.friendi.ca/friendica/friendica';
 		$description          = $this->config->get('config', 'info');
 		$usage                = $this->buildUsageInfo();
 		$thumbnail            = new InstanceEntity\Thumbnail($this->baseUrl . $this->contactHeader->getMastodonBannerPath());
@@ -98,6 +99,7 @@ class InstanceV2 extends BaseApi
 			$domain,
 			$title,
 			$version,
+			$source_url,
 			$description,
 			$usage,
 			$thumbnail,
