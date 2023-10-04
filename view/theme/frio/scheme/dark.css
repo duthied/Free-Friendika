@@ -354,3 +354,7 @@ input[type="text"].tt-input {
 textarea#profile-jot-text:focus + #preview_profile-jot-text, textarea.comment-edit-text:focus + .comment-edit-form .preview {
 	border-color: $link_color;
 }
+
+figure.img-allocated-height {
+	background-color: rgba(255, 255, 255, 0.05);
+}

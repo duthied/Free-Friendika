@@ -3776,10 +3776,6 @@ section .profile-match-wrapper {
 		margin-bottom: 5px;
 	}
 
-	.panel .panel-body {
-		padding: 10px;
-	}
-
 	.toplevel_item > .wall-item-container {
 		padding: 0;
 	}

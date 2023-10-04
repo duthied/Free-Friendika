@@ -68,6 +68,7 @@ class VCard
 		$follow_link      = '';
 		$unfollow_link    = '';
 		$wallmessage_link = '';
+		$showgroup_link   = '';
 
 		$photo   = Contact::getPhoto($contact);
 
@@ -99,6 +100,10 @@ class VCard
 			if (in_array($rel, [Contact::FOLLOWER, Contact::FRIEND]) && Contact::canReceivePrivateMessages($contact)) {
 				$wallmessage_link = 'message/new/' . $id;
 			}
+
+			if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
+				$showgroup_link = 'network/group/' . $id;
+			}
 		}
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/vcard.tpl'), [
@@ -119,6 +124,10 @@ class VCard
 			'$unfollow_link'    => $unfollow_link,
 			'$wallmessage'      => DI::l10n()->t('Message'),
 			'$wallmessage_link' => $wallmessage_link,
+			'$mention'          => DI::l10n()->t('Mention'),
+			'$posttogroup'      => DI::l10n()->t('Post to group'),
+			'$showgroup'        => DI::l10n()->t('View group'),
+			'$showgroup_link'   => $showgroup_link,
 		]);
 	}
 }

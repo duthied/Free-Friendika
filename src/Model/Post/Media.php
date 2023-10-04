@@ -875,113 +875,6 @@ class Media
 	}
 
 	/**
-	 * Split the attachment media in the three segments "visual", "link" and "additional"
-	 *
-	 * @param int    $uri_id URI id
-	 * @param array  $links list of links that shouldn't be added
-	 * @param bool   $has_media
-	 * @return array attachments
-	 */
-	public static function splitAttachments(int $uri_id, array $links = [], bool $has_media = true): array
-	{
-		$attachments = ['visual' => [], 'link' => [], 'additional' => []];
-
-		if (!$has_media) {
-			return $attachments;
-		}
-
-		$media = self::getByURIId($uri_id);
-		if (empty($media)) {
-			return $attachments;
-		}
-
-		$heights = [];
-		$selected = '';
-		$previews = [];
-
-		foreach ($media as $medium) {
-			foreach ($links as $link) {
-				if (Strings::compareLink($link, $medium['url'])) {
-					continue 2;
-				}
-			}
-
-			// Avoid adding separate media entries for previews
-			foreach ($previews as $preview) {
-				if (Strings::compareLink($preview, $medium['url'])) {
-					continue 2;
-				}
-			}
-
-			// Currently these two types are ignored here.
-			// Posts are added differently and contacts are not displayed as attachments.
-			if (in_array($medium['type'], [self::ACCOUNT, self::ACTIVITY])) {
-				continue;
-			}
-
-			if (!empty($medium['preview'])) {
-				$previews[] = $medium['preview'];
-			}
-
-			$type = explode('/', explode(';', $medium['mimetype'] ?? '')[0]);
-			if (count($type) < 2) {
-				Logger::info('Unknown MimeType', ['type' => $type, 'media' => $medium]);
-				$filetype = 'unkn';
-				$subtype = 'unkn';
-			} else {
-				$filetype = strtolower($type[0]);
-				$subtype = strtolower($type[1]);
-			}
-
-			$medium['filetype'] = $filetype;
-			$medium['subtype'] = $subtype;
-
-			if ($medium['type'] == self::HTML || (($filetype == 'text') && ($subtype == 'html'))) {
-				$attachments['link'][] = $medium;
-				continue;
-			}
-
-			if (
-				in_array($medium['type'], [self::AUDIO, self::IMAGE]) ||
-				in_array($filetype, ['audio', 'image'])
-			) {
-				$attachments['visual'][] = $medium;
-			} elseif (($medium['type'] == self::VIDEO) || ($filetype == 'video')) {
-				if (!empty($medium['height'])) {
-					// Peertube videos are delivered in many different resolutions. We pick a moderate one.
-					// Since only Peertube provides a "height" parameter, this wouldn't be executed
-					// when someone for example on Mastodon was sharing multiple videos in a single post.
-					$heights[$medium['height']] = $medium['url'];
-					$video[$medium['url']] = $medium;
-				} else {
-					$attachments['visual'][] = $medium;
-				}
-			} else {
-				$attachments['additional'][] = $medium;
-			}
-		}
-
-		if (!empty($heights)) {
-			ksort($heights);
-			foreach ($heights as $height => $url) {
-				if (empty($selected) || $height <= 480) {
-					$selected = $url;
-				}
-			}
-
-			if (!empty($selected)) {
-				$attachments['visual'][] = $video[$selected];
-				unset($video[$selected]);
-				foreach ($video as $element) {
-					$attachments['additional'][] = $element;
-				}
-			}
-		}
-
-		return $attachments;
-	}
-
-	/**
 	 * Add media attachments to the body
 	 *
 	 * @param int    $uriid
@@ -1119,25 +1012,9 @@ class Media
 	 */
 	public static function getPreviewUrlForId(int $id, string $size = ''): string
 	{
-		$url = DI::baseUrl() . '/photo/preview/';
-		switch ($size) {
-			case Proxy::SIZE_MICRO:
-				$url .= Proxy::PIXEL_MICRO . '/';
-				break;
-			case Proxy::SIZE_THUMB:
-				$url .= Proxy::PIXEL_THUMB . '/';
-				break;
-			case Proxy::SIZE_SMALL:
-				$url .= Proxy::PIXEL_SMALL . '/';
-				break;
-			case Proxy::SIZE_MEDIUM:
-				$url .= Proxy::PIXEL_MEDIUM . '/';
-				break;
-			case Proxy::SIZE_LARGE:
-				$url .= Proxy::PIXEL_LARGE . '/';
-				break;
-		}
-		return $url . $id;
+		return '/photo/preview/' .
+			(Proxy::getPixelsFromSize($size) ? Proxy::getPixelsFromSize($size) . '/' : '') .
+			$id;
 	}
 
 	/**
@@ -1149,24 +1026,8 @@ class Media
 	 */
 	public static function getUrlForId(int $id, string $size = ''): string
 	{
-		$url = DI::baseUrl() . '/photo/media/';
-		switch ($size) {
-			case Proxy::SIZE_MICRO:
-				$url .= Proxy::PIXEL_MICRO . '/';
-				break;
-			case Proxy::SIZE_THUMB:
-				$url .= Proxy::PIXEL_THUMB . '/';
-				break;
-			case Proxy::SIZE_SMALL:
-				$url .= Proxy::PIXEL_SMALL . '/';
-				break;
-			case Proxy::SIZE_MEDIUM:
-				$url .= Proxy::PIXEL_MEDIUM . '/';
-				break;
-			case Proxy::SIZE_LARGE:
-				$url .= Proxy::PIXEL_LARGE . '/';
-				break;
-		}
-		return $url . $id;
+		return '/photo/media/' .
+			(Proxy::getPixelsFromSize($size) ? Proxy::getPixelsFromSize($size) . '/' : '') .
+			$id;
 	}
 }

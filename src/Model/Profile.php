@@ -813,12 +813,14 @@ class Profile
 
 	/**
 	 * Set the visitor cookies (see remote_user()) for signed HTTP requests
-	 (
+	 *
+	 * @param array $server The content of the $_SERVER superglobal
 	 * @return array Visitor contact array
+	 * @throws InternalServerErrorException
 	 */
-	public static function addVisitorCookieForHTTPSigner(): array
+	public static function addVisitorCookieForHTTPSigner(array $server): array
 	{
-		$requester = HTTPSignature::getSigner('', $_SERVER);
+		$requester = HTTPSignature::getSigner('', $server);
 		if (empty($requester)) {
 			return [];
 		}
