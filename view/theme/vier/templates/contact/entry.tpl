@@ -6,7 +6,7 @@
 		onmouseout="t{{$contact.id}}=setTimeout('closeMenu(\'contact-photo-menu-button-{{$contact.id}}\'); closeMenu(\'contact-photo-menu-{{$contact.id}}\');',200)"> -->
 
 			<!-- <a href="{{$contact.url}}" title="{{$contact.img_hover}}" /></a> -->
-			<img src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+			<img src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" loading="lazy"/>
 
 			{{if $multiselect}}
 			<input type="checkbox" class="contact-select" name="contact_batch[]" value="{{$contact.id}}">
