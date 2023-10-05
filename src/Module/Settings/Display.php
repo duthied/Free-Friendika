@@ -330,7 +330,7 @@ class Display extends BaseSettings
 		$timelines = [];
 
 		foreach ($this->timeline->getNetworkFeeds('') as $channel) {
-			$timelines[$channel->code] = $channel;
+			$timelines[] = $channel;
 		}
 
 		if ($only_network) {
@@ -338,11 +338,11 @@ class Display extends BaseSettings
 		}
 
 		foreach ($this->timeline->getChannelsForUser($uid) as $channel) {
-			$timelines[$channel->code] = $channel;
+			$timelines[] = $channel;
 		}
 
 		foreach ($this->timeline->getCommunities(true) as $community) {
-			$timelines[$community->code] = $community;
+			$timelines[] = $community;
 		}
 
 		return new Timelines($timelines);
