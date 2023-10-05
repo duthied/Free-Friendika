@@ -26,11 +26,13 @@ use Friendica\App\Mode;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
 use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
+use Friendica\Content\Conversation\Factory\UserDefinedChannel as UserDefinedChannelFactory;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
 use Friendica\Content\Conversation\Repository\Channel as ChannelRepository;
 use Friendica\Content\Conversation\Factory\Channel as ChannelFactory;
 use Friendica\Content\Conversation\Factory\Community as CommunityFactory;
 use Friendica\Content\Conversation\Factory\Network as NetworkFactory;
+use Friendica\Content\Conversation\Factory\UserDefinedChannel;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
@@ -62,22 +64,25 @@ class Channel extends Timeline
 	protected $systemMessages;
 	/** @var ChannelFactory */
 	protected $channel;
+	/** @var UserDefinedChannelFactory */
+	protected $userDefinedChannel;
 	/** @var CommunityFactory */
 	protected $community;
 	/** @var NetworkFactory */
 	protected $networkFactory;
 
-	public function __construct(NetworkFactory $network, CommunityFactory $community, ChannelFactory $channelFactory, ChannelRepository $channel, TimelineFactory $timeline, Conversation $conversation, App\Page $page, SystemMessages $systemMessages, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(UserDefinedChannelFactory $userDefinedChannel, NetworkFactory $network, CommunityFactory $community, ChannelFactory $channelFactory, ChannelRepository $channel, TimelineFactory $timeline, Conversation $conversation, App\Page $page, SystemMessages $systemMessages, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($channel, $mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->timeline       = $timeline;
-		$this->conversation   = $conversation;
-		$this->page           = $page;
-		$this->systemMessages = $systemMessages;
-		//$this->channel        = $channelFactory;
-		$this->community      = $community;
-		$this->networkFactory = $network;
+		$this->timeline           = $timeline;
+		$this->conversation       = $conversation;
+		$this->page               = $page;
+		$this->systemMessages     = $systemMessages;
+		$this->channel            = $channelFactory;
+		$this->community          = $community;
+		$this->networkFactory     = $network;
+		$this->userDefinedChannel = $userDefinedChannel;
 	}
 
 	protected function content(array $request = []): string
@@ -100,7 +105,8 @@ class Channel extends Timeline
 		}
 
 		if (empty($request['mode']) || ($request['mode'] != 'raw')) {
-			$tabs = $this->getTabArray($this->channel->getForUser($this->session->getLocalUserId()), 'channel');
+			$tabs = $this->getTabArray($this->channel->getTimelines($this->session->getLocalUserId()), 'channel');
+			$tabs = array_merge($tabs, $this->getTabArray($this->userDefinedChannel->getForUser($this->session->getLocalUserId()), 'channel'));
 			$tabs = array_merge($tabs, $this->getTabArray($this->community->getTimelines(true), 'channel'));
 
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
@@ -122,7 +128,7 @@ class Channel extends Timeline
 			$o .= $this->conversation->statusEditor([], 0, true);
 		}
 
-		if ($this->channel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
+		if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
 			$items = $this->getChannelItems();
 			$order = 'created';
 		} else {
@@ -168,7 +174,7 @@ class Channel extends Timeline
 			$this->selectedTab = ChannelEntity::FORYOU;
 		}
 
-		if (!$this->channel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) && !$this->community->isTimeline($this->selectedTab)) {
+		if (!$this->channel->isTimeline($this->selectedTab) && !$this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) && !$this->community->isTimeline($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 

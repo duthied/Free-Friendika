@@ -28,6 +28,7 @@ use Friendica\Content\Conversation\Factory\Channel as ChannelFactory;
 use Friendica\Content\Conversation\Factory\Community as CommunityFactory;
 use Friendica\Content\Conversation\Factory\Network as NetworkFactory;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
+use Friendica\Content\Conversation\Factory\UserDefinedChannel as UserDefinedChannelFactory;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -58,6 +59,8 @@ class Display extends BaseSettings
 	private $systemMessages;
 	/** @var ChannelFactory */
 	protected $channel;
+	/** @var UserDefinedChannelFactory */
+	protected $userDefinedChannel;
 	/** @var CommunityFactory */
 	protected $community;
 	/** @var NetworkFactory */
@@ -65,18 +68,19 @@ class Display extends BaseSettings
 	/** @var TimelineFactory */
 	protected $timeline;
 
-	public function __construct(NetworkFactory $network, CommunityFactory $community, ChannelFactory $channel, TimelineFactory $timeline, SystemMessages $systemMessages, App $app, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(UserDefinedChannelFactory $userDefinedChannel, NetworkFactory $network, CommunityFactory $community, ChannelFactory $channel, TimelineFactory $timeline, SystemMessages $systemMessages, App $app, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->config         = $config;
-		$this->pConfig        = $pConfig;
-		$this->app            = $app;
-		$this->systemMessages = $systemMessages;
-		$this->timeline       = $timeline;
-		$this->channel        = $channel;
-		$this->community      = $community;
-		$this->network        = $network;
+		$this->config             = $config;
+		$this->pConfig            = $pConfig;
+		$this->app                = $app;
+		$this->systemMessages     = $systemMessages;
+		$this->timeline           = $timeline;
+		$this->channel            = $channel;
+		$this->community          = $community;
+		$this->network            = $network;
+		$this->userDefinedChannel = $userDefinedChannel;
 	}
 
 	protected function post(array $request = [])
@@ -349,7 +353,11 @@ class Display extends BaseSettings
 			return new Timelines($timelines);
 		}
 
-		foreach ($this->channel->getForUser($uid) as $channel) {
+		foreach ($this->channel->getTimelines($uid) as $channel) {
+			$timelines[] = $channel;
+		}
+
+		foreach ($this->userDefinedChannel->getForUser($uid) as $channel) {
 			$timelines[] = $channel;
 		}
 

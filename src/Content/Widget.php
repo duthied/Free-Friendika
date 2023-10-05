@@ -568,7 +568,13 @@ class Widget
 			}
 		}
 
-		foreach (DI::ChannelFactory()->getForUser($uid) as $channel) {
+		foreach (DI::ChannelFactory()->getTimelines($uid) as $channel) {
+			if (empty($enabled) || in_array($channel->code, $enabled)) {
+				$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+			}
+		}
+
+		foreach (DI::UserDefinedChannelFactory()->getForUser($uid) as $channel) {
 			if (empty($enabled) || in_array($channel->code, $enabled)) {
 				$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
 			}

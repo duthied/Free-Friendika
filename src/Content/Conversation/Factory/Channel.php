@@ -42,7 +42,7 @@ final class Channel extends Timeline
 	 * @param integer $uid
 	 * @return Timelines
 	 */
-	public function getForUser(int $uid): Timelines
+	public function getTimelines(int $uid): Timelines
 	{
 		$language  = User::getLanguageCode($uid);
 		$languages = $this->l10n->getAvailableLanguages(true);
@@ -58,18 +58,11 @@ final class Channel extends Timeline
 			new ChannelEntity(ChannelEntity::VIDEO, $this->l10n->t('Videos'), $this->l10n->t('Posts with videos'), 'v'),
 		];
 
-		foreach ($this->channel->selectByUid($uid) as $channel) {
-			$tabs[] = $channel;
-		}
-
 		return new Timelines($tabs);
 	}
 
-	public function isTimeline(string $selectedTab, int $uid): bool
+	public function isTimeline(string $selectedTab): bool
 	{
-		if (is_numeric($selectedTab) && $uid && $this->channel->existsById($selectedTab, $uid)) {
-			return true;
-		}
 		return in_array($selectedTab, [ChannelEntity::WHATSHOT, ChannelEntity::FORYOU, ChannelEntity::FOLLOWERS, ChannelEntity::SHARERSOFSHARERS, ChannelEntity::IMAGE, ChannelEntity::VIDEO, ChannelEntity::AUDIO, ChannelEntity::LANGUAGE]);
 	}
 }
