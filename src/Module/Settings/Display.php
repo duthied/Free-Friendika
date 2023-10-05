@@ -22,6 +22,7 @@
 namespace Friendica\Module\Settings;
 
 use Friendica\App;
+use Friendica\Content\Conversation\Collection\Timelines;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
 use Friendica\Core\Config\Capability\IManageConfigValues;
@@ -240,19 +241,18 @@ class Display extends BaseSettings
 			BBCode::PREVIEW_LARGE    => $this->t('Large Image'),
 		];
 
-		$bookmarked_timelines = $this->pConfig->get($uid, 'system', 'network_timelines', array_keys($this->getAvailableTimelines($uid, true)));
-		$enabled_timelines    = $this->pConfig->get($uid, 'system', 'enabled_timelines', array_keys($this->getAvailableTimelines($uid, false)));
-
+		$bookmarked_timelines = $this->pConfig->get($uid, 'system', 'network_timelines', $this->getAvailableTimelines($uid, true)->column('code'));
+		$enabled_timelines    = $this->pConfig->get($uid, 'system', 'enabled_timelines', $this->getAvailableTimelines($uid, false)->column('code'));
 		$channel_languages = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]);
 		$languages         = $this->l10n->getAvailableLanguages(true);
 
 		$timelines = [];
-		foreach ($this->getAvailableTimelines($uid) as $code => $timeline) {
+		foreach ($this->getAvailableTimelines($uid) as $timeline) {
 			$timelines[] = [
 				'label'        => $timeline->label,
 				'description'  => $timeline->description,
-				'enable'       => ["enable[$code]", '', in_array($code, $enabled_timelines)],
-				'bookmark'     => ["bookmark[$code]", '', in_array($code, $bookmarked_timelines)],
+				'enable'       => ["enable{$timeline->code}", '', in_array($timeline->code, $enabled_timelines)],
+				'bookmark'     => ["bookmark{$timeline->code}", '', in_array($timeline->code, $bookmarked_timelines)],
 			];
 		}
 
@@ -325,7 +325,7 @@ class Display extends BaseSettings
 		]);
 	}
 
-	private function getAvailableTimelines(int $uid, bool $only_network = false): array
+	private function getAvailableTimelines(int $uid, bool $only_network = false): Timelines
 	{
 		$timelines = [];
 
@@ -334,7 +334,7 @@ class Display extends BaseSettings
 		}
 
 		if ($only_network) {
-			return $timelines;
+			return new Timelines($timelines);
 		}
 
 		foreach ($this->timeline->getChannelsForUser($uid) as $channel) {
@@ -345,6 +345,6 @@ class Display extends BaseSettings
 			$timelines[$community->code] = $community;
 		}
 
-		return $timelines;
+		return new Timelines($timelines);
 	}
 }
