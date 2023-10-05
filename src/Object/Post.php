@@ -498,7 +498,7 @@ class Post
 
 		$tmp_item = [
 			'parentguid'      => $parent_guid,
-			'isanswerto'      => DI::l10n()->t('is answer to %s', $parent_username),
+			'isreplyto'      => DI::l10n()->t('is reply to %s', $parent_username),
 			'template'        => $this->getTemplate(),
 			'type'            => implode('', array_slice(explode('/', $item['verb']), -1)),
 			'comment_firstcollapsed' => false,
