@@ -152,10 +152,10 @@ class Ping extends BaseModule
 				}
 			}
 
-			$compute_circle_counts = $this->config->get('system','compute_group_counts') ?? $this->config->get('system','compute_circle_counts');
+			$compute_circle_counts = $this->config->get('system','compute_circle_counts');
 			if ($network_count && $compute_circle_counts) {
 				// Find out how unseen network posts are spread across circles
-				foreach (Circle::countUnseen() as $circle_count) {
+				foreach (Circle::countUnseen($this->session->getLocalUserId()) as $circle_count) {
 					if ($circle_count['count'] > 0) {
 						$circles_unseen[] = $circle_count;
 					}
