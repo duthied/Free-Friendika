@@ -59,9 +59,15 @@ as the value of $top_child_total (this is done at the end of this file)
 <span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
 	<div class="media {{$item.shiny}}">
-	{{if $item.reshared}}
-		<p class="wall-item-announce wall-item-responses" id="wall-item-announce-{{$item.id}}"><i class="fa fa-retweet" aria-hidden="true"></i> {{$item.reshared nofilter}}</p>
+	{{if !$item.parentguid==""}}
+		<a id="btn-{{$item.id}}" class="time" href="javascript:;" onclick="goToParentItem('{{$item.plink.orig}}', '{{$item.parentguid}}');">{{$item.isanswerto}}</a>
+		{{if $item.reshared}}<span class="hidden-xs">&#x2022;</span>{{/if}}
+		<br class="visible-xs">
 	{{/if}}
+	{{if $item.reshared}}
+		<span class="wall-item-announce wall-item-responses" id="wall-item-announce-{{$item.id}}"><i class="fa fa-retweet" aria-hidden="true"></i> {{$item.reshared nofilter}}</span>
+	{{/if}}
+		<p>
 		{{* The avatar picture and the photo-menu *}}
 		<div class="dropdown pull-left"><!-- Dropdown -->
 			{{if $item.thread_level==1}}
@@ -214,10 +220,6 @@ as the value of $top_child_total (this is done at the end of this file)
 					<span class="text-muted">
 				</h5>
 				<small>
-					{{if !$item.parentguid==""}}
-						<a id="btn-{{$item.id}}" class="time" href="javascript:;" onclick="goToParentItem('{{$item.plink.orig}}', '{{$item.parentguid}}');">{{$item.isanswerto}}</a>
-						&#x2022;
-					{{/if}}
 					<a href="{{$item.plink.orig}}">
 						<time class="time" title="{{$item.localtime}}" data-toggle="tooltip" datetime="{{$item.utc}}">{{$item.ago}}</time>
 					</a>
