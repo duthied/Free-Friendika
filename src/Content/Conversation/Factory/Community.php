@@ -22,39 +22,18 @@
 namespace Friendica\Content\Conversation\Factory;
 
 use Friendica\Content\Conversation\Collection\Timelines;
-use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
 use Friendica\Content\Conversation\Entity\Community as CommunityEntity;
-use Friendica\Content\Conversation\Entity\Network;
-use Friendica\Model\User;
-use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
 use Friendica\Content\Conversation\Repository\Channel;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Module\Conversation\Community as CommunityModule;
 use Psr\Log\LoggerInterface;
 
-class Community extends Timeline
+final class Community extends Timeline
 {
 	public function __construct(Channel $channel, L10n $l10n, LoggerInterface $logger, IManageConfigValues $config)
 	{
 		parent::__construct($channel, $l10n, $logger, $config);
-	}
-
-	public function createFromTableRow(array $row): TimelineEntity
-	{
-		return new TimelineEntity(
-			$row['id'] ?? null,
-			$row['label'],
-			$row['description'] ?? null,
-			$row['access-key'] ?? null,
-			null,
-			$row['uid'],
-			$row['include-tags'] ?? null,
-			$row['exclude-tags'] ?? null,
-			$row['full-text-search'] ?? null,
-			$row['media-type'] ?? null,
-			$row['circle'] ?? null,
-		);
 	}
 
 	/**

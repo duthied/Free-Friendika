@@ -35,23 +35,6 @@ final class Network extends Timeline
 		parent::__construct($channel, $l10n, $logger, $config);
 	}
 
-	public function createFromTableRow(array $row): NetworkEntity
-	{
-		return new NetworkEntity(
-			$row['id'] ?? null,
-			$row['label'],
-			$row['description'] ?? null,
-			$row['access-key'] ?? null,
-			null,
-			$row['uid'],
-			$row['include-tags'] ?? null,
-			$row['exclude-tags'] ?? null,
-			$row['full-text-search'] ?? null,
-			$row['media-type'] ?? null,
-			$row['circle'] ?? null,
-		);
-	}
-
 	/**
 	 * List of available network timelines
 	 *
