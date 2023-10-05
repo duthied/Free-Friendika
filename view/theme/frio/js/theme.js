@@ -184,6 +184,7 @@ $(document).ready(function () {
 		if (typeof searchValue !== "undefined") {
 			$("#nav-search-input-field").val(searchValue);
 		}
+
 	}
 
 	// move the "Save the search" button to the second navbar
@@ -940,5 +941,14 @@ function toggleDropdownText(elm) {
 // Check if element does have a specific class
 function hasClass(elem, cls) {
 	return (" " + elem.className + " ").indexOf(" " + cls + " ") > -1;
+}
+
+// Go to parent for "is answer to <user>" link in comments below username
+function goToParentItem(plink, pguid) {
+	history.pushState({},"",plink);
+	var loc = plink.split("/");
+	loc.pop();
+	loc.push(pguid);
+	location.href = loc.join("/");
 }
 // @license-end

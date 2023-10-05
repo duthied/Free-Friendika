@@ -214,6 +214,10 @@ as the value of $top_child_total (this is done at the end of this file)
 					<span class="text-muted">
 				</h5>
 				<small>
+					{{if !$item.parentguid==""}}
+						<a id="btn-{{$item.id}}" class="time" href="javascript:;" onclick="goToParentItem('{{$item.plink.orig}}', '{{$item.parentguid}}');">{{$item.isanswerto}}</a>
+						&#x2022;
+					{{/if}}
 					<a href="{{$item.plink.orig}}">
 						<time class="time" title="{{$item.localtime}}" data-toggle="tooltip" datetime="{{$item.utc}}">{{$item.ago}}</time>
 					</a>
