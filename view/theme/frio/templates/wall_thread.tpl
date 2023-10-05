@@ -59,7 +59,7 @@ as the value of $top_child_total (this is done at the end of this file)
 <span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
 	<div class="media {{$item.shiny}}">
-	{{if !$item.parentguid==""}}
+	{{if $item.parentguid}}
 		<a id="btn-{{$item.id}}" class="time" href="javascript:;" onclick="goToParentItem('{{$item.plink.orig}}', '{{$item.parentguid}}');">{{$item.isanswerto}}</a>
 		{{if $item.reshared}}<span class="hidden-xs">&#x2022;</span>{{/if}}
 		<br class="visible-xs">
