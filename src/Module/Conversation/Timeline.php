@@ -25,7 +25,7 @@ use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\BaseModule;
 use Friendica\Content\Conversation\Collection\Timelines;
-use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
+use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
 use Friendica\Content\Conversation\Repository\Channel;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Enum\Duration;
@@ -269,13 +269,13 @@ class Timeline extends BaseModule
 	{
 		$uid = $this->session->getLocalUserId();
 
-		if ($this->selectedTab == TimelineEntity::WHATSHOT) {
+		if ($this->selectedTab == ChannelEntity::WHATSHOT) {
 			if (!is_null($this->accountType)) {
 				$condition = ["(`comments` > ? OR `activities` > ?) AND `contact-type` = ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $this->accountType];
 			} else {
 				$condition = ["(`comments` > ? OR `activities` > ?) AND `contact-type` != ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), Contact::TYPE_COMMUNITY];
 			}
-		} elseif ($this->selectedTab == TimelineEntity::FORYOU) {
+		} elseif ($this->selectedTab == ChannelEntity::FORYOU) {
 			$cid = Contact::getPublicIdByUserId($uid);
 
 			$condition = [
@@ -285,9 +285,9 @@ class Timeline extends BaseModule
 				$cid, $this->getMedianRelationThreadScore($cid, 4), $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $cid,
 				$uid, Contact\User::FREQUENCY_ALWAYS
 			];
-		} elseif ($this->selectedTab == TimelineEntity::FOLLOWERS) {
+		} elseif ($this->selectedTab == ChannelEntity::FOLLOWERS) {
 			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $uid, Contact::FOLLOWER];
-		} elseif ($this->selectedTab == TimelineEntity::SHARERSOFSHARERS) {
+		} elseif ($this->selectedTab == ChannelEntity::SHARERSOFSHARERS) {
 			$cid = Contact::getPublicIdByUserId($uid);
 
 			// @todo Suggest posts from contacts that are followed most by our followers
@@ -297,19 +297,19 @@ class Timeline extends BaseModule
 				AND NOT `cid` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ?))",
 				DateTimeFormat::utc('now - ' . $this->config->get('channel', 'sharer_interaction_days') . ' day'), $cid, $this->getMedianRelationThreadScore($cid, 4), $cid
 			];
-		} elseif ($this->selectedTab == TimelineEntity::IMAGE) {
+		} elseif ($this->selectedTab == ChannelEntity::IMAGE) {
 			$condition = ["`media-type` & ?", 1];
-		} elseif ($this->selectedTab == TimelineEntity::VIDEO) {
+		} elseif ($this->selectedTab == ChannelEntity::VIDEO) {
 			$condition = ["`media-type` & ?", 2];
-		} elseif ($this->selectedTab == TimelineEntity::AUDIO) {
+		} elseif ($this->selectedTab == ChannelEntity::AUDIO) {
 			$condition = ["`media-type` & ?", 4];
-		} elseif ($this->selectedTab == TimelineEntity::LANGUAGE) {
+		} elseif ($this->selectedTab == ChannelEntity::LANGUAGE) {
 			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", $this->l10n->convertCodeForLanguageDetection(User::getLanguageCode($uid))];
 		} elseif (is_numeric($this->selectedTab)) {
 			$condition = $this->getUserChannelConditions($this->selectedTab, $this->session->getLocalUserId());
 		}
 
-		if ($this->selectedTab != TimelineEntity::LANGUAGE) {
+		if ($this->selectedTab != ChannelEntity::LANGUAGE) {
 			$condition = $this->addLanguageCondition($uid, $condition);
 		}
 
@@ -317,7 +317,7 @@ class Timeline extends BaseModule
 
 		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed` OR `is-blocked` OR `channel-frequency` = ?))", $uid, Contact\User::FREQUENCY_NEVER]);
 
-		if (($this->selectedTab != TimelineEntity::WHATSHOT) && !is_null($this->accountType)) {
+		if (($this->selectedTab != ChannelEntity::WHATSHOT) && !is_null($this->accountType)) {
 			$condition = DBA::mergeConditions($condition, ['contact-type' => $this->accountType]);
 		}
 

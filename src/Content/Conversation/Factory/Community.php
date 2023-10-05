@@ -21,29 +21,23 @@
 
 namespace Friendica\Content\Conversation\Factory;
 
-use Friendica\Capabilities\ICanCreateFromTableRow;
+use Friendica\Content\Conversation\Collection\Timelines;
+use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
+use Friendica\Content\Conversation\Entity\Community as CommunityEntity;
+use Friendica\Content\Conversation\Entity\Network;
+use Friendica\Model\User;
 use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
 use Friendica\Content\Conversation\Repository\Channel;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
+use Friendica\Module\Conversation\Community as CommunityModule;
 use Psr\Log\LoggerInterface;
 
-class Timeline extends \Friendica\BaseFactory implements ICanCreateFromTableRow
+class Community extends Timeline
 {
-	/** @var L10n */
-	protected $l10n;
-	/** @var IManageConfigValues The config */
-	protected $config;
-	/** @var Channel */
-	protected $channel;
-
 	public function __construct(Channel $channel, L10n $l10n, LoggerInterface $logger, IManageConfigValues $config)
 	{
-		parent::__construct($logger);
-
-		$this->channel = $channel;
-		$this->l10n    = $l10n;
-		$this->config  = $config;
+		parent::__construct($channel, $l10n, $logger, $config);
 	}
 
 	public function createFromTableRow(array $row): TimelineEntity
@@ -61,5 +55,32 @@ class Timeline extends \Friendica\BaseFactory implements ICanCreateFromTableRow
 			$row['media-type'] ?? null,
 			$row['circle'] ?? null,
 		);
+	}
+
+	/**
+	 * List of available communities
+	 *
+	 * @param boolean $authenticated
+	 * @return Timelines
+	 */
+	public function getTimelines(bool $authenticated): Timelines
+	{
+		$page_style = $this->config->get('system', 'community_page_style');
+
+		$tabs = [];
+
+		if (($authenticated || in_array($page_style, [CommunityModule::LOCAL_AND_GLOBAL, CommunityModule::LOCAL])) && empty($this->config->get('system', 'singleuser'))) {
+			$tabs[] = new CommunityEntity(CommunityEntity::LOCAL, $this->l10n->t('Local Community'), $this->l10n->t('Posts from local users on this server'), 'l');
+		}
+
+		if ($authenticated || in_array($page_style, [CommunityModule::LOCAL_AND_GLOBAL, CommunityModule::GLOBAL])) {
+			$tabs[] = new CommunityEntity(CommunityEntity::GLOBAL, $this->l10n->t('Global Community'), $this->l10n->t('Posts from users of the whole federated network'), 'g');
+		}
+		return new Timelines($tabs);
+	}
+
+	public function isTimeline(string $selectedTab): bool
+	{
+		return in_array($selectedTab, [CommunityEntity::LOCAL, CommunityEntity::GLOBAL]);
 	}
 }

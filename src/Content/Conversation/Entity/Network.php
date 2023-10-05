@@ -19,34 +19,18 @@
  *
  */
 
-namespace Friendica\Module\Update;
+namespace Friendica\Content\Conversation\Entity;
 
-use Friendica\Content\Conversation;
-use Friendica\Core\System;
-use Friendica\Module\Conversation\Channel as ChannelModule;
-
-/**
- * Asynchronous update module for the Channel page
- *
- * @package Friendica\Module\Update
- */
-class Channel extends ChannelModule
+final class Network extends Timeline
 {
-	protected function rawContent(array $request = [])
+	const STAR      = 'star';
+	const MENTION   = 'mention';
+	const RECEIVED  = 'received';
+	const COMMENTED = 'commented';
+	const CREATED   = 'created';
+
+	public function __construct(string $code = null, string $label = null, string $description = null, string $accessKey = null, string $path = null, int $uid = null, string $includeTags = null, string $excludeTags = null, string $fullTextSearch = null, int $mediaType = null, int $circle = null)
 	{
-		$this->parseRequest($request);
-
-		$o = '';
-		if ($this->update || $this->force) {
-			if ($this->channel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
-				$items = $this->getChannelItems();
-			} else {
-				$items = $this->getCommunityItems();
-			}
-
-			$o = $this->conversation->render($items, Conversation::MODE_CHANNEL, true, false, 'created', $this->session->getLocalUserId());
-		}
-
-		System::htmlUpdateExit($o);
+		parent::__construct($code, $label, $description, $accessKey, $path, $uid, $includeTags, $excludeTags, $fullTextSearch, $mediaType, $circle);
 	}
 }

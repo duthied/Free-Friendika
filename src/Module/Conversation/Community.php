@@ -26,8 +26,8 @@ use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
-use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
-use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
+use Friendica\Content\Conversation\Entity\Community as CommunityEntity;
+use Friendica\Content\Conversation\Factory\Community as CommunityFactory;
 use Friendica\Content\Conversation\Repository\Channel;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
@@ -61,8 +61,8 @@ class Community extends Timeline
 
 	protected $pageStyle;
 
-	/** @var TimelineFactory */
-	protected $timeline;
+	/** @var CommunityFactory */
+	protected $community;
 	/** @var Conversation */
 	protected $conversation;
 	/** @var App\Page */
@@ -70,11 +70,11 @@ class Community extends Timeline
 	/** @var SystemMessages */
 	protected $systemMessages;
 
-	public function __construct(Channel $channel, TimelineFactory $timeline, Conversation $conversation, App\Page $page, SystemMessages $systemMessages, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(Channel $channel, CommunityFactory $community, Conversation $conversation, App\Page $page, SystemMessages $systemMessages, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($channel, $mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->timeline       = $timeline;
+		$this->community      = $community;
 		$this->conversation   = $conversation;
 		$this->page           = $page;
 		$this->systemMessages = $systemMessages;
@@ -88,7 +88,7 @@ class Community extends Timeline
 		$o = Renderer::replaceMacros($t, [
 			'$content' => '',
 			'$header' => '',
-			'$show_global_community_hint' => ($this->selectedTab == TimelineEntity::GLOBAL) && $this->config->get('system', 'show_global_community_hint'),
+			'$show_global_community_hint' => ($this->selectedTab == CommunityEntity::GLOBAL) && $this->config->get('system', 'show_global_community_hint'),
 			'$global_community_hint' => $this->l10n->t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
 		]);
 
@@ -98,7 +98,7 @@ class Community extends Timeline
 		}
 
 		if (empty($request['mode']) || ($request['mode'] != 'raw')) {
-			$tabs    = $this->getTabArray($this->timeline->getCommunities($this->session->isAuthenticated()), 'community');
+			$tabs    = $this->getTabArray($this->community->getTimelines($this->session->isAuthenticated()), 'community');
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 			$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
 
@@ -169,14 +169,14 @@ class Community extends Timeline
 		if (!$this->selectedTab) {
 			if (!empty($this->config->get('system', 'singleuser'))) {
 				// On single user systems only the global page does make sense
-				$this->selectedTab = TimelineEntity::GLOBAL;
+				$this->selectedTab = CommunityEntity::GLOBAL;
 			} else {
 				// When only the global community is allowed, we use this as default
-				$this->selectedTab = $this->pageStyle == self::GLOBAL ? TimelineEntity::GLOBAL : TimelineEntity::LOCAL;
+				$this->selectedTab = $this->pageStyle == self::GLOBAL ? CommunityEntity::GLOBAL : CommunityEntity::LOCAL;
 			}
 		}
 
-		if (!$this->timeline->isCommunity($this->selectedTab)) {
+		if (!$this->community->isTimeline($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Community option not available.'));
 		}
 
@@ -185,11 +185,11 @@ class Community extends Timeline
 			$available = $this->pageStyle == self::LOCAL_AND_GLOBAL;
 
 			if (!$available) {
-				$available = ($this->pageStyle == self::LOCAL) && ($this->selectedTab == TimelineEntity::LOCAL);
+				$available = ($this->pageStyle == self::LOCAL) && ($this->selectedTab == CommunityEntity::LOCAL);
 			}
 
 			if (!$available) {
-				$available = ($this->pageStyle == self::GLOBAL) && ($this->selectedTab == TimelineEntity::GLOBAL);
+				$available = ($this->pageStyle == self::GLOBAL) && ($this->selectedTab == CommunityEntity::GLOBAL);
 			}
 
 			if (!$available) {

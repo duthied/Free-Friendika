@@ -31,25 +31,11 @@ namespace Friendica\Content\Conversation\Entity;
  * @property-read string $includeTags    The tags to include in the channel
  * @property-read string $excludeTags    The tags to exclude in the channel
  * @property-read string $fullTextSearch full text search pattern
+ * @property-read int    $mediaType      Media types that are included in the channel
+ * @property-read int    $circle         Circle or timeline this channel is based on
  */
-final class Timeline extends \Friendica\BaseEntity
+class Timeline extends \Friendica\BaseEntity
 {
-	const WHATSHOT         = 'whatshot';
-	const FORYOU           = 'foryou';
-	const FOLLOWERS        = 'followers';
-	const SHARERSOFSHARERS = 'sharersofsharers';
-	const IMAGE            = 'image';
-	const VIDEO            = 'video';
-	const AUDIO            = 'audio';
-	const LANGUAGE         = 'language';
-	const LOCAL            = 'local';
-	const GLOBAL           = 'global';
-	const STAR             = 'star';
-	const MENTION          = 'mention';
-	const RECEIVED         = 'received';
-	const COMMENTED        = 'commented';
-	const CREATED          = 'created';
-
 	/** @var string */
 	protected $code;
 	/** @var string */

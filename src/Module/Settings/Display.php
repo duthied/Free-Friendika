@@ -24,6 +24,9 @@ namespace Friendica\Module\Settings;
 use Friendica\App;
 use Friendica\Content\Conversation\Collection\Timelines;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Conversation\Factory\Channel as ChannelFactory;
+use Friendica\Content\Conversation\Factory\Community as CommunityFactory;
+use Friendica\Content\Conversation\Factory\Network as NetworkFactory;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
@@ -53,10 +56,16 @@ class Display extends BaseSettings
 	private $app;
 	/** @var SystemMessages */
 	private $systemMessages;
+	/** @var ChannelFactory */
+	protected $channel;
+	/** @var CommunityFactory */
+	protected $community;
+	/** @var NetworkFactory */
+	protected $network;
 	/** @var TimelineFactory */
 	protected $timeline;
 
-	public function __construct(TimelineFactory $timeline, SystemMessages $systemMessages, App $app, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(NetworkFactory $network, CommunityFactory $community, ChannelFactory $channel, TimelineFactory $timeline, SystemMessages $systemMessages, App $app, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -65,6 +74,9 @@ class Display extends BaseSettings
 		$this->app            = $app;
 		$this->systemMessages = $systemMessages;
 		$this->timeline       = $timeline;
+		$this->channel        = $channel;
+		$this->community      = $community;
+		$this->network        = $network;
 	}
 
 	protected function post(array $request = [])
@@ -329,7 +341,7 @@ class Display extends BaseSettings
 	{
 		$timelines = [];
 
-		foreach ($this->timeline->getNetworkFeeds('') as $channel) {
+		foreach ($this->network->getTimelines('') as $channel) {
 			$timelines[] = $channel;
 		}
 
@@ -337,11 +349,11 @@ class Display extends BaseSettings
 			return new Timelines($timelines);
 		}
 
-		foreach ($this->timeline->getChannelsForUser($uid) as $channel) {
+		foreach ($this->channel->getForUser($uid) as $channel) {
 			$timelines[] = $channel;
 		}
 
-		foreach ($this->timeline->getCommunities(true) as $community) {
+		foreach ($this->community->getTimelines(true) as $community) {
 			$timelines[] = $community;
 		}
 
