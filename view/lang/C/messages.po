@@ -11932,7 +11932,7 @@ msgstr ""
 
 #: src/Object/Post.php:501
 #, php-format
-msgid "is answer to %s"
+msgid "is reply to %s"
 msgstr ""
 
 #: src/Object/Post.php:525
