@@ -81,19 +81,19 @@ class Timeline extends BaseModule
 	/** @var ICanCache */
 	protected $cache;
 	/** @var Channel */
-	protected $channel;
+	protected $channelRepository;
 
 	public function __construct(Channel $channel, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->channel  = $channel;
-		$this->mode     = $mode;
-		$this->session  = $session;
-		$this->database = $database;
-		$this->pConfig  = $pConfig;
-		$this->config   = $config;
-		$this->cache    = $cache;
+		$this->channelRepository = $channel;
+		$this->mode              = $mode;
+		$this->session           = $session;
+		$this->database          = $database;
+		$this->pConfig           = $pConfig;
+		$this->config            = $config;
+		$this->cache             = $cache;
 	}
 
 	/**
@@ -368,7 +368,7 @@ class Timeline extends BaseModule
 
 	private function getUserChannelConditions(int $id, int $uid): array
 	{
-		$channel = $this->channel->selectById($id, $uid);
+		$channel = $this->channelRepository->selectById($id, $uid);
 		if (empty($channel)) {
 			return [];
 		}

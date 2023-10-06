@@ -35,15 +35,15 @@ class Timeline extends \Friendica\BaseFactory implements ICanCreateFromTableRow
 	/** @var IManageConfigValues The config */
 	protected $config;
 	/** @var Channel */
-	protected $channel;
+	protected $channelRepository;
 
 	public function __construct(Channel $channel, L10n $l10n, LoggerInterface $logger, IManageConfigValues $config)
 	{
 		parent::__construct($logger);
 
-		$this->channel = $channel;
-		$this->l10n    = $l10n;
-		$this->config  = $config;
+		$this->channelRepository = $channel;
+		$this->l10n              = $l10n;
+		$this->config            = $config;
 	}
 
 	public function createFromTableRow(array $row): TimelineEntity

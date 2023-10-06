@@ -42,7 +42,7 @@ final class UserDefinedChannel extends Timeline
 	 */
 	public function getForUser(int $uid): Timelines
 	{
-		foreach ($this->channel->selectByUid($uid) as $channel) {
+		foreach ($this->channelRepository->selectByUid($uid) as $channel) {
 			$tabs[] = $channel;
 		}
 
@@ -51,6 +51,6 @@ final class UserDefinedChannel extends Timeline
 
 	public function isTimeline(string $selectedTab, int $uid): bool
 	{
-		return is_numeric($selectedTab) && $uid && $this->channel->existsById($selectedTab, $uid);
+		return is_numeric($selectedTab) && $uid && $this->channelRepository->existsById($selectedTab, $uid);
 	}
 }

@@ -41,7 +41,7 @@ class Network extends NetworkModule
 			System::htmlUpdateExit($o);
 		}
 
-		if ($this->channelFactory->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
+		if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
 			$items = $this->getChannelItems();
 		} elseif ($this->community->isTimeline($this->selectedTab)) {
 			$items = $this->getCommunityItems();
