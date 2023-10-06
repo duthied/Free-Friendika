@@ -63,7 +63,7 @@ class Channel extends Timeline
 	/** @var SystemMessages */
 	protected $systemMessages;
 	/** @var ChannelFactory */
-	protected $channel;
+	protected $channelFactory;
 	/** @var UserDefinedChannelFactory */
 	protected $userDefinedChannel;
 	/** @var CommunityFactory */
@@ -79,7 +79,7 @@ class Channel extends Timeline
 		$this->conversation       = $conversation;
 		$this->page               = $page;
 		$this->systemMessages     = $systemMessages;
-		$this->channel            = $channelFactory;
+		$this->channelFactory     = $channelFactory;
 		$this->community          = $community;
 		$this->networkFactory     = $network;
 		$this->userDefinedChannel = $userDefinedChannel;
@@ -105,7 +105,7 @@ class Channel extends Timeline
 		}
 
 		if (empty($request['mode']) || ($request['mode'] != 'raw')) {
-			$tabs = $this->getTabArray($this->channel->getTimelines($this->session->getLocalUserId()), 'channel');
+			$tabs = $this->getTabArray($this->channelFactory->getTimelines($this->session->getLocalUserId()), 'channel');
 			$tabs = array_merge($tabs, $this->getTabArray($this->userDefinedChannel->getForUser($this->session->getLocalUserId()), 'channel'));
 			$tabs = array_merge($tabs, $this->getTabArray($this->community->getTimelines(true), 'channel'));
 
@@ -128,7 +128,7 @@ class Channel extends Timeline
 			$o .= $this->conversation->statusEditor([], 0, true);
 		}
 
-		if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
+		if ($this->channelFactory->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
 			$items = $this->getChannelItems();
 			$order = 'created';
 		} else {
@@ -174,7 +174,7 @@ class Channel extends Timeline
 			$this->selectedTab = ChannelEntity::FORYOU;
 		}
 
-		if (!$this->channel->isTimeline($this->selectedTab) && !$this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) && !$this->community->isTimeline($this->selectedTab)) {
+		if (!$this->channelFactory->isTimeline($this->selectedTab) && !$this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) && !$this->community->isTimeline($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Channel not available.'));
 		}
 

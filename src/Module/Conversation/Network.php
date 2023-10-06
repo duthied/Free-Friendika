@@ -101,7 +101,7 @@ class Network extends Timeline
 	/** @var TimelineFactory */
 	protected $timeline;
 	/** @var ChannelFactory */
-	protected $channel;
+	protected $channelFactory;
 	/** @var UserDefinedChannelFactory */
 	protected $userDefinedChannel;
 	/** @var CommunityFactory */
@@ -118,7 +118,7 @@ class Network extends Timeline
 		$this->systemMessages     = $systemMessages;
 		$this->conversation       = $conversation;
 		$this->page               = $page;
-		$this->channel            = $channelFactory;
+		$this->channelFactory     = $channelFactory;
 		$this->community          = $community;
 		$this->networkFactory     = $network;
 		$this->userDefinedChannel = $userDefinedChannel;
@@ -139,7 +139,7 @@ class Network extends Timeline
 
 		$o = '';
 
-		if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
+		if ($this->channelFactory->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
 			$items = $this->getChannelItems();
 		} elseif ($this->community->isTimeline($this->selectedTab)) {
 			$items = $this->getCommunityItems();
@@ -286,7 +286,7 @@ class Network extends Timeline
 
 		$network_timelines = $this->pConfig->get($this->session->getLocalUserId(), 'system', 'network_timelines', []);
 		if (!empty($network_timelines)) {
-			$tabs = array_merge($tabs, $this->getTabArray($this->channel->getTimelines($this->session->getLocalUserId()), 'network', 'channel'));
+			$tabs = array_merge($tabs, $this->getTabArray($this->channelFactory->getTimelines($this->session->getLocalUserId()), 'network', 'channel'));
 			$tabs = array_merge($tabs, $this->getTabArray($this->userDefinedChannel->getForUser($this->session->getLocalUserId()), 'network', 'channel'));
 			$tabs = array_merge($tabs, $this->getTabArray($this->community->getTimelines(true), 'network', 'channel'));
 		}
@@ -321,11 +321,11 @@ class Network extends Timeline
 
 		if (!$this->selectedTab) {
 			$this->selectedTab = self::getTimelineOrderBySession($this->session, $this->pConfig);
-		} elseif (!$this->networkFactory->isTimeline($this->selectedTab) && !$this->channel->isTimeline($this->selectedTab) && !$this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) && !$this->community->isTimeline($this->selectedTab)) {
+		} elseif (!$this->networkFactory->isTimeline($this->selectedTab) && !$this->channelFactory->isTimeline($this->selectedTab) && !$this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) && !$this->community->isTimeline($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
 		}
 
-		if (($this->network || $this->circleId || $this->groupContactId) && ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) || $this->community->isTimeline($this->selectedTab))) {
+		if (($this->network || $this->circleId || $this->groupContactId) && ($this->channelFactory->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) || $this->community->isTimeline($this->selectedTab))) {
 			$this->selectedTab = NetworkEntity::RECEIVED;
 		}
 
@@ -350,7 +350,7 @@ class Network extends Timeline
 			$this->mention = false;
 		} elseif (in_array($this->selectedTab, [NetworkEntity::RECEIVED, NetworkEntity::STAR]) || $this->community->isTimeline($this->selectedTab)) {
 			$this->order = 'received';
-		} elseif (($this->selectedTab == NetworkEntity::CREATED) || $this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
+		} elseif (($this->selectedTab == NetworkEntity::CREATED) || $this->channelFactory->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
 			$this->order = 'created';
 		} else {
 			$this->order = 'commented';

@@ -26,7 +26,6 @@ use Friendica\App\Mode;
 use Friendica\BaseModule;
 use Friendica\Content\Conversation\Collection\Timelines;
 use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
-use Friendica\Content\Conversation\Entity\UserDefinedChannel as UserDefinedChannelEntity;
 use Friendica\Content\Conversation\Repository\Channel;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Enum\Duration;
