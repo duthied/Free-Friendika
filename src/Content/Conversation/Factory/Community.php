@@ -23,19 +23,10 @@ namespace Friendica\Content\Conversation\Factory;
 
 use Friendica\Content\Conversation\Collection\Timelines;
 use Friendica\Content\Conversation\Entity\Community as CommunityEntity;
-use Friendica\Content\Conversation\Repository\Channel;
-use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\L10n;
 use Friendica\Module\Conversation\Community as CommunityModule;
-use Psr\Log\LoggerInterface;
 
 final class Community extends Timeline
 {
-	public function __construct(Channel $channel, L10n $l10n, LoggerInterface $logger, IManageConfigValues $config)
-	{
-		parent::__construct($channel, $l10n, $logger, $config);
-	}
-
 	/**
 	 * List of available communities
 	 *

@@ -28,9 +28,4 @@ final class Network extends Timeline
 	const RECEIVED  = 'received';
 	const COMMENTED = 'commented';
 	const CREATED   = 'created';
-
-	public function __construct(string $code = null, string $label = null, string $description = null, string $accessKey = null, string $path = null, int $uid = null, string $includeTags = null, string $excludeTags = null, string $fullTextSearch = null, int $mediaType = null, int $circle = null)
-	{
-		parent::__construct($code, $label, $description, $accessKey, $path, $uid, $includeTags, $excludeTags, $fullTextSearch, $mediaType, $circle);
-	}
 }

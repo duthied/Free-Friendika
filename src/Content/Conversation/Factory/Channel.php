@@ -24,18 +24,9 @@ namespace Friendica\Content\Conversation\Factory;
 use Friendica\Content\Conversation\Collection\Timelines;
 use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
 use Friendica\Model\User;
-use Friendica\Content\Conversation\Repository\Channel as ChannelRepository;
-use Friendica\Core\Config\Capability\IManageConfigValues;
-use Friendica\Core\L10n;
-use Psr\Log\LoggerInterface;
 
 final class Channel extends Timeline
 {
-	public function __construct(ChannelRepository $channel, L10n $l10n, LoggerInterface $logger, IManageConfigValues $config)
-	{
-		parent::__construct($channel, $l10n, $logger, $config);
-	}
-
 	/**
 	 * List of available channels
 	 *
