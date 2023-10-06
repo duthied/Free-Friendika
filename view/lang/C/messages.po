@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 2023.09-dev\n"
+"Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-03 08:59+0200\n"
+"POT-Creation-Date: 2023-10-05 20:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1767,7 +1767,7 @@ msgstr ""
 msgid "Create new group"
 msgstr ""
 
-#: src/Content/Item.php:331 src/Model/Item.php:3021
+#: src/Content/Item.php:331 src/Model/Item.php:3025
 msgid "event"
 msgstr ""
 
@@ -1775,7 +1775,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:340 src/Model/Item.php:3023
+#: src/Content/Item.php:340 src/Model/Item.php:3027
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -2185,8 +2185,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:939 src/Model/Item.php:3763
-#: src/Model/Item.php:3769 src/Model/Item.php:3770
+#: src/Content/Text/BBCode.php:994 src/Model/Item.php:3760
+#: src/Model/Item.php:3766 src/Model/Item.php:3767
 msgid "Link to source"
 msgstr ""
 
@@ -2719,8 +2719,8 @@ msgstr ""
 
 #: src/Core/Installer.php:511
 msgid ""
-"The web installer needs to be able to create a file called \"local.config."
-"php\" in the \"config\" folder of your web server and it is unable to do so."
+"The web installer needs to be able to create a file called \"local.config.php"
+"\" in the \"config\" folder of your web server and it is unable to do so."
 msgstr ""
 
 #: src/Core/Installer.php:512
@@ -2838,158 +2838,158 @@ msgstr ""
 msgid "Could not connect to database."
 msgstr ""
 
-#: src/Core/L10n.php:494 src/Model/Event.php:430
+#: src/Core/L10n.php:507 src/Model/Event.php:430
 #: src/Module/Settings/Display.php:235
 msgid "Monday"
 msgstr ""
 
-#: src/Core/L10n.php:494 src/Model/Event.php:431
+#: src/Core/L10n.php:507 src/Model/Event.php:431
 #: src/Module/Settings/Display.php:236
 msgid "Tuesday"
 msgstr ""
 
-#: src/Core/L10n.php:494 src/Model/Event.php:432
+#: src/Core/L10n.php:507 src/Model/Event.php:432
 #: src/Module/Settings/Display.php:237
 msgid "Wednesday"
 msgstr ""
 
-#: src/Core/L10n.php:494 src/Model/Event.php:433
+#: src/Core/L10n.php:507 src/Model/Event.php:433
 #: src/Module/Settings/Display.php:238
 msgid "Thursday"
 msgstr ""
 
-#: src/Core/L10n.php:494 src/Model/Event.php:434
+#: src/Core/L10n.php:507 src/Model/Event.php:434
 #: src/Module/Settings/Display.php:239
 msgid "Friday"
 msgstr ""
 
-#: src/Core/L10n.php:494 src/Model/Event.php:435
+#: src/Core/L10n.php:507 src/Model/Event.php:435
 #: src/Module/Settings/Display.php:240
 msgid "Saturday"
 msgstr ""
 
-#: src/Core/L10n.php:494 src/Model/Event.php:429
+#: src/Core/L10n.php:507 src/Model/Event.php:429
 #: src/Module/Settings/Display.php:234
 msgid "Sunday"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:450
+#: src/Core/L10n.php:511 src/Model/Event.php:450
 msgid "January"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:451
+#: src/Core/L10n.php:511 src/Model/Event.php:451
 msgid "February"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:452
+#: src/Core/L10n.php:511 src/Model/Event.php:452
 msgid "March"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:453
+#: src/Core/L10n.php:511 src/Model/Event.php:453
 msgid "April"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Core/L10n.php:517 src/Model/Event.php:441
+#: src/Core/L10n.php:511 src/Core/L10n.php:530 src/Model/Event.php:441
 msgid "May"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:454
+#: src/Core/L10n.php:511 src/Model/Event.php:454
 msgid "June"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:455
+#: src/Core/L10n.php:511 src/Model/Event.php:455
 msgid "July"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:456
+#: src/Core/L10n.php:511 src/Model/Event.php:456
 msgid "August"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:457
+#: src/Core/L10n.php:511 src/Model/Event.php:457
 msgid "September"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:458
+#: src/Core/L10n.php:511 src/Model/Event.php:458
 msgid "October"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:459
+#: src/Core/L10n.php:511 src/Model/Event.php:459
 msgid "November"
 msgstr ""
 
-#: src/Core/L10n.php:498 src/Model/Event.php:460
+#: src/Core/L10n.php:511 src/Model/Event.php:460
 msgid "December"
 msgstr ""
 
-#: src/Core/L10n.php:513 src/Model/Event.php:422
+#: src/Core/L10n.php:526 src/Model/Event.php:422
 msgid "Mon"
 msgstr ""
 
-#: src/Core/L10n.php:513 src/Model/Event.php:423
+#: src/Core/L10n.php:526 src/Model/Event.php:423
 msgid "Tue"
 msgstr ""
 
-#: src/Core/L10n.php:513 src/Model/Event.php:424
+#: src/Core/L10n.php:526 src/Model/Event.php:424
 msgid "Wed"
 msgstr ""
 
-#: src/Core/L10n.php:513 src/Model/Event.php:425
+#: src/Core/L10n.php:526 src/Model/Event.php:425
 msgid "Thu"
 msgstr ""
 
-#: src/Core/L10n.php:513 src/Model/Event.php:426
+#: src/Core/L10n.php:526 src/Model/Event.php:426
 msgid "Fri"
 msgstr ""
 
-#: src/Core/L10n.php:513 src/Model/Event.php:427
+#: src/Core/L10n.php:526 src/Model/Event.php:427
 msgid "Sat"
 msgstr ""
 
-#: src/Core/L10n.php:513 src/Model/Event.php:421
+#: src/Core/L10n.php:526 src/Model/Event.php:421
 msgid "Sun"
 msgstr ""
 
-#: src/Core/L10n.php:517 src/Model/Event.php:437
+#: src/Core/L10n.php:530 src/Model/Event.php:437
 msgid "Jan"
 msgstr ""
 
-#: src/Core/L10n.php:517 src/Model/Event.php:438
+#: src/Core/L10n.php:530 src/Model/Event.php:438
 msgid "Feb"
 msgstr ""
 
-#: src/Core/L10n.php:517 src/Model/Event.php:439
+#: src/Core/L10n.php:530 src/Model/Event.php:439
 msgid "Mar"
 msgstr ""
 
-#: src/Core/L10n.php:517 src/Model/Event.php:440
+#: src/Core/L10n.php:530 src/Model/Event.php:440
 msgid "Apr"
 msgstr ""
 
-#: src/Core/L10n.php:517 src/Model/Event.php:442
+#: src/Core/L10n.php:530 src/Model/Event.php:442
 msgid "Jun"
 msgstr ""
 
-#: src/Core/L10n.php:517 src/Model/Event.php:443
+#: src/Core/L10n.php:530 src/Model/Event.php:443
 msgid "Jul"
 msgstr ""
 
-#: src/Core/L10n.php:517 src/Model/Event.php:444
+#: src/Core/L10n.php:530 src/Model/Event.php:444
 msgid "Aug"
 msgstr ""
 
-#: src/Core/L10n.php:517
+#: src/Core/L10n.php:530
 msgid "Sep"
 msgstr ""
 
-#: src/Core/L10n.php:517 src/Model/Event.php:446
+#: src/Core/L10n.php:530 src/Model/Event.php:446
 msgid "Oct"
 msgstr ""
 
-#: src/Core/L10n.php:517 src/Model/Event.php:447
+#: src/Core/L10n.php:530 src/Model/Event.php:447
 msgid "Nov"
 msgstr ""
 
-#: src/Core/L10n.php:517 src/Model/Event.php:448
+#: src/Core/L10n.php:530 src/Model/Event.php:448
 msgid "Dec"
 msgstr ""
 
@@ -3387,81 +3387,81 @@ msgstr ""
 msgid "Happy Birthday %s"
 msgstr ""
 
-#: src/Model/Item.php:2080
+#: src/Model/Item.php:2084
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:3025
+#: src/Model/Item.php:3029
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:3027
+#: src/Model/Item.php:3031
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:3030 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:3034 src/Module/Post/Tag/Add.php:123
 msgid "post"
-msgstr ""
-
-#: src/Model/Item.php:3200
-#, php-format
-msgid "%s is blocked"
-msgstr ""
-
-#: src/Model/Item.php:3202
-#, php-format
-msgid "%s is ignored"
 msgstr ""
 
 #: src/Model/Item.php:3204
 #, php-format
-msgid "Content from %s is collapsed"
+msgid "%s is blocked"
+msgstr ""
+
+#: src/Model/Item.php:3206
+#, php-format
+msgid "%s is ignored"
 msgstr ""
 
 #: src/Model/Item.php:3208
 #, php-format
+msgid "Content from %s is collapsed"
+msgstr ""
+
+#: src/Model/Item.php:3212
+#, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3670
+#: src/Model/Item.php:3667
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3701
+#: src/Model/Item.php:3698
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3703
+#: src/Model/Item.php:3700
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3708
+#: src/Model/Item.php:3705
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3710
+#: src/Model/Item.php:3707
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3712
+#: src/Model/Item.php:3709
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3746 src/Model/Item.php:3747
+#: src/Model/Item.php:3743 src/Model/Item.php:3744
 msgid "View on separate page"
 msgstr ""
 
@@ -3532,90 +3532,90 @@ msgstr ""
 msgid "Upcoming events the next 7 days:"
 msgstr ""
 
-#: src/Model/Profile.php:873
+#: src/Model/Profile.php:875
 #, php-format
 msgid "OpenWebAuth: %1$s welcomes %2$s"
 msgstr ""
 
-#: src/Model/Profile.php:1013
+#: src/Model/Profile.php:1015
 msgid "Hometown:"
 msgstr ""
 
-#: src/Model/Profile.php:1014
+#: src/Model/Profile.php:1016
 msgid "Marital Status:"
 msgstr ""
 
-#: src/Model/Profile.php:1015
+#: src/Model/Profile.php:1017
 msgid "With:"
 msgstr ""
 
-#: src/Model/Profile.php:1016
+#: src/Model/Profile.php:1018
 msgid "Since:"
 msgstr ""
 
-#: src/Model/Profile.php:1017
+#: src/Model/Profile.php:1019
 msgid "Sexual Preference:"
 msgstr ""
 
-#: src/Model/Profile.php:1018
+#: src/Model/Profile.php:1020
 msgid "Political Views:"
 msgstr ""
 
-#: src/Model/Profile.php:1019
+#: src/Model/Profile.php:1021
 msgid "Religious Views:"
 msgstr ""
 
-#: src/Model/Profile.php:1020
+#: src/Model/Profile.php:1022
 msgid "Likes:"
 msgstr ""
 
-#: src/Model/Profile.php:1021
+#: src/Model/Profile.php:1023
 msgid "Dislikes:"
 msgstr ""
 
-#: src/Model/Profile.php:1022
+#: src/Model/Profile.php:1024
 msgid "Title/Description:"
 msgstr ""
 
-#: src/Model/Profile.php:1023 src/Module/Admin/Summary.php:197
+#: src/Model/Profile.php:1025 src/Module/Admin/Summary.php:197
 #: src/Module/Moderation/Report/Create.php:280
 #: src/Module/Moderation/Summary.php:77
 msgid "Summary"
 msgstr ""
 
-#: src/Model/Profile.php:1024
+#: src/Model/Profile.php:1026
 msgid "Musical interests"
 msgstr ""
 
-#: src/Model/Profile.php:1025
+#: src/Model/Profile.php:1027
 msgid "Books, literature"
 msgstr ""
 
-#: src/Model/Profile.php:1026
+#: src/Model/Profile.php:1028
 msgid "Television"
 msgstr ""
 
-#: src/Model/Profile.php:1027
+#: src/Model/Profile.php:1029
 msgid "Film/dance/culture/entertainment"
 msgstr ""
 
-#: src/Model/Profile.php:1028
+#: src/Model/Profile.php:1030
 msgid "Hobbies/Interests"
 msgstr ""
 
-#: src/Model/Profile.php:1029
+#: src/Model/Profile.php:1031
 msgid "Love/romance"
 msgstr ""
 
-#: src/Model/Profile.php:1030
+#: src/Model/Profile.php:1032
 msgid "Work/employment"
 msgstr ""
 
-#: src/Model/Profile.php:1031
+#: src/Model/Profile.php:1033
 msgid "School/education"
 msgstr ""
 
-#: src/Model/Profile.php:1032
+#: src/Model/Profile.php:1034
 msgid "Contact information and Social Networks"
 msgstr ""
 
@@ -5346,9 +5346,9 @@ msgstr ""
 
 #: src/Module/Admin/Summary.php:98
 msgid ""
-"The last update failed. Please run \"php bin/console.php dbstructure "
-"update\" from the command line and have a look at the errors that might "
-"appear. (Some of the errors are possibly inside the logfile.)"
+"The last update failed. Please run \"php bin/console.php dbstructure update"
+"\" from the command line and have a look at the errors that might appear. "
+"(Some of the errors are possibly inside the logfile.)"
 msgstr ""
 
 #: src/Module/Admin/Summary.php:102
@@ -5499,8 +5499,8 @@ msgstr ""
 #, php-format
 msgid ""
 "Show some informations regarding the needed information to operate the node "
-"according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener "
-"noreferrer\">EU-GDPR</a>."
+"according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer"
+"\">EU-GDPR</a>."
 msgstr ""
 
 #: src/Module/Admin/Tos.php:81
@@ -8851,8 +8851,8 @@ msgstr ""
 #: src/Module/Profile/Profile.php:158
 #, php-format
 msgid ""
-"You're currently viewing your profile as <b>%s</b> <a href=\"%s\" "
-"class=\"btn btn-sm pull-right\">Cancel</a>"
+"You're currently viewing your profile as <b>%s</b> <a href=\"%s\" class="
+"\"btn btn-sm pull-right\">Cancel</a>"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:167
@@ -9400,8 +9400,8 @@ msgstr ""
 #: src/Module/Security/TwoFactor/Verify.php:100
 #, php-format
 msgid ""
-"If you do not have access to your authentication code you can use a <a "
-"href=\"%s\">two-factor recovery code</a>."
+"If you do not have access to your authentication code you can use a <a href="
+"\"%s\">two-factor recovery code</a>."
 msgstr ""
 
 #: src/Module/Security/TwoFactor/Verify.php:101
@@ -11042,8 +11042,8 @@ msgstr ""
 #: src/Module/Settings/TwoFactor/Verify.php:149
 #, php-format
 msgid ""
-"<p>Or you can open the following URL in your mobile device:</p><p><a "
-"href=\"%s\">%s</a></p>"
+"<p>Or you can open the following URL in your mobile device:</p><p><a href="
+"\"%s\">%s</a></p>"
 msgstr ""
 
 #: src/Module/Settings/TwoFactor/Verify.php:156
@@ -11152,9 +11152,9 @@ msgstr ""
 msgid ""
 "At any point in time a logged in user can export their account data from the "
 "<a href=\"%1$s/settings/userexport\">account settings</a>. If the user wants "
-"to delete their account they can do so at <a href=\"%1$s/settings/"
-"removeme\">%1$s/settings/removeme</a>. The deletion of the account will be "
-"permanent. Deletion of the data will also be requested from the nodes of the "
+"to delete their account they can do so at <a href=\"%1$s/settings/removeme\">"
+"%1$s/settings/removeme</a>. The deletion of the account will be permanent. "
+"Deletion of the data will also be requested from the nodes of the "
 "communication partners."
 msgstr ""
 
