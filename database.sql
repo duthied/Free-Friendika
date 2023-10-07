@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1535
+-- DB_UPDATE_VERSION 1536
 -- ------------------------------------------
 
 
@@ -491,6 +491,25 @@ CREATE TABLE IF NOT EXISTS `cache` (
 	 PRIMARY KEY(`k`),
 	 INDEX `k_expires` (`k`,`expires`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Stores temporary data';
+
+--
+-- TABLE channel
+--
+CREATE TABLE IF NOT EXISTS `channel` (
+	`id` int unsigned NOT NULL auto_increment COMMENT '',
+	`uid` mediumint unsigned NOT NULL COMMENT 'User id',
+	`label` varchar(64) NOT NULL COMMENT 'Channel label',
+	`description` varchar(64) COMMENT 'Channel description',
+	`circle` int COMMENT 'Circle or channel that this channel is based on',
+	`access-key` varchar(1) COMMENT 'Access key',
+	`include-tags` varchar(255) COMMENT 'Comma separated list of tags that will be included in the channel',
+	`exclude-tags` varchar(255) COMMENT 'Comma separated list of tags that aren\'t allowed in the channel',
+	`full-text-search` varchar(255) COMMENT 'Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode',
+	`media-type` smallint unsigned COMMENT 'Filtered media types',
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User defined Channels';
 
 --
 -- TABLE config
@@ -1309,6 +1328,7 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Person, organisation, news, community, relay',
 	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
 	`language` varbinary(128) COMMENT 'Language information about this post',
+	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
 	`created` datetime COMMENT '',
 	`restricted` boolean NOT NULL DEFAULT '0' COMMENT 'If true, this post is either unlisted or not from a federated network',
 	`comments` mediumint unsigned COMMENT 'Number of comments',
@@ -1316,6 +1336,7 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	 PRIMARY KEY(`uri-id`),
 	 INDEX `owner-id` (`owner-id`),
 	 INDEX `created` (`created`),
+	 FULLTEXT INDEX `searchtext` (`searchtext`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Engagement data per post';
@@ -2070,6 +2091,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
 	`author`.`updated` AS `author-updated`,
+	`author`.`contact-type` AS `author-contact-type`,
 	`author`.`gsid` AS `author-gsid`,
 	`author`.`baseurl` AS `author-baseurl`,
 	`post-user`.`owner-id` AS `owner-id`,
@@ -2254,6 +2276,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
 	`author`.`updated` AS `author-updated`,
+	`author`.`contact-type` AS `author-contact-type`,
 	`author`.`gsid` AS `author-gsid`,
 	`post-thread-user`.`owner-id` AS `owner-id`,
 	`owner`.`uri-id` AS `owner-uri-id`,
@@ -2422,6 +2445,7 @@ CREATE VIEW `post-view` AS SELECT
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
 	`author`.`updated` AS `author-updated`,
+	`author`.`contact-type` AS `author-contact-type`,
 	`author`.`gsid` AS `author-gsid`,
 	`post`.`owner-id` AS `owner-id`,
 	`owner`.`uri-id` AS `owner-uri-id`,
@@ -2567,6 +2591,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
 	`author`.`updated` AS `author-updated`,
+	`author`.`contact-type` AS `author-contact-type`,
 	`author`.`gsid` AS `author-gsid`,
 	`post-thread`.`owner-id` AS `owner-id`,
 	`owner`.`uri-id` AS `owner-uri-id`,

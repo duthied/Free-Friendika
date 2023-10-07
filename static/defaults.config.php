@@ -798,8 +798,12 @@ return [
 	],
 	'channel' => [
 		// engagement_hours (Integer)
-		// Number of hours posts are held in the engagement table
+		// Maximum age of incoming posts for the engagement table, when the engagement post limit is 0 or hasn't been reached yet.
 		'engagement_hours' => 24,
+
+		// engagement_post_limit (Integer)
+		// NUmber of posts that are held in the engagement table
+		'engagement_post_limit' => 20000,
 
 		// interaction_score_days (Integer)
 		// Number of days that are used to calculate the interaction score.

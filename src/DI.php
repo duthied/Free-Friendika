@@ -556,6 +556,35 @@ abstract class DI
 	}
 
 	/**
+	 * @return Content\Conversation\Factory\Community
+	 */
+	public static function CommunityFactory()
+	{
+		return self::$dice->create(Content\Conversation\Factory\Community::class);
+	}
+
+	/**
+	 * @return Content\Conversation\Factory\Channel
+	 */
+	public static function ChannelFactory()
+	{
+		return self::$dice->create(Content\Conversation\Factory\Channel::class);
+	}
+
+	public static function userDefinedChannel(): Content\Conversation\Repository\UserDefinedChannel
+	{
+		return self::$dice->create(Content\Conversation\Repository\UserDefinedChannel::class);
+	}
+
+	/**
+	 * @return Content\Conversation\Factory\Network
+	 */
+	public static function NetworkFactory()
+	{
+		return self::$dice->create(Content\Conversation\Factory\Network::class);
+	}
+
+	/**
 	 * @return Contact\Introduction\Repository\Introduction
 	 */
 	public static function intro()

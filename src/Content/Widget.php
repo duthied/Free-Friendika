@@ -560,12 +560,30 @@ class Widget
 	{
 		$channels = [];
 
-		foreach (DI::TimelineFactory()->getChannelsForUser($uid) as $channel) {
-			$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+		$enabled = DI::pConfig()->get($uid, 'system', 'enabled_timelines', []);
+
+		foreach (DI::NetworkFactory()->getTimelines('') as $channel) {
+			if (empty($enabled) || in_array($channel->code, $enabled)) {
+				$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+			}
 		}
 
-		foreach (DI::TimelineFactory()->getCommunities(true) as $community) {
-			$channels[] = ['ref' => $community->code, 'name' => $community->label];
+		foreach (DI::ChannelFactory()->getTimelines($uid) as $channel) {
+			if (empty($enabled) || in_array($channel->code, $enabled)) {
+				$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+			}
+		}
+
+		foreach (DI::userDefinedChannel()->selectByUid($uid) as $channel) {
+			if (empty($enabled) || in_array($channel->code, $enabled)) {
+				$channels[] = ['ref' => $channel->code, 'name' => $channel->label];
+			}
+		}
+
+		foreach (DI::CommunityFactory()->getTimelines(true) as $community) {
+			if (empty($enabled) || in_array($community->code, $enabled)) {
+				$channels[] = ['ref' => $community->code, 'name' => $community->label];
+			}
 		}
 
 		return self::filter(

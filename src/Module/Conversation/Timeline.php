@@ -25,7 +25,8 @@ use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\BaseModule;
 use Friendica\Content\Conversation\Collection\Timelines;
-use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
+use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
+use Friendica\Content\Conversation\Repository\UserDefinedChannel;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Config\Capability\IManageConfigValues;
@@ -79,17 +80,20 @@ class Timeline extends BaseModule
 	protected $config;
 	/** @var ICanCache */
 	protected $cache;
+	/** @var UserDefinedChannel */
+	protected $channelRepository;
 
-	public function __construct(Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(UserDefinedChannel $channel, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->mode     = $mode;
-		$this->session  = $session;
-		$this->database = $database;
-		$this->pConfig  = $pConfig;
-		$this->config   = $config;
-		$this->cache    = $cache;
+		$this->channelRepository = $channel;
+		$this->mode              = $mode;
+		$this->session           = $session;
+		$this->database          = $database;
+		$this->pConfig           = $pConfig;
+		$this->config            = $config;
+		$this->cache             = $cache;
 	}
 
 	/**
@@ -176,6 +180,7 @@ class Timeline extends BaseModule
 				$path = $tab->path ?? $prefix . '/' . $tab->code;
 			}
 			$tabs[$tab->code] = [
+				'code'      => $tab->code,
 				'label'     => $tab->label,
 				'url'       => $path,
 				'sel'       => $this->selectedTab == $tab->code ? 'active' : '',
@@ -264,13 +269,13 @@ class Timeline extends BaseModule
 	{
 		$uid = $this->session->getLocalUserId();
 
-		if ($this->selectedTab == TimelineEntity::WHATSHOT) {
+		if ($this->selectedTab == ChannelEntity::WHATSHOT) {
 			if (!is_null($this->accountType)) {
 				$condition = ["(`comments` > ? OR `activities` > ?) AND `contact-type` = ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $this->accountType];
 			} else {
 				$condition = ["(`comments` > ? OR `activities` > ?) AND `contact-type` != ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), Contact::TYPE_COMMUNITY];
 			}
-		} elseif ($this->selectedTab == TimelineEntity::FORYOU) {
+		} elseif ($this->selectedTab == ChannelEntity::FORYOU) {
 			$cid = Contact::getPublicIdByUserId($uid);
 
 			$condition = [
@@ -280,9 +285,9 @@ class Timeline extends BaseModule
 				$cid, $this->getMedianRelationThreadScore($cid, 4), $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $cid,
 				$uid, Contact\User::FREQUENCY_ALWAYS
 			];
-		} elseif ($this->selectedTab == TimelineEntity::FOLLOWERS) {
+		} elseif ($this->selectedTab == ChannelEntity::FOLLOWERS) {
 			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $uid, Contact::FOLLOWER];
-		} elseif ($this->selectedTab == TimelineEntity::SHARERSOFSHARERS) {
+		} elseif ($this->selectedTab == ChannelEntity::SHARERSOFSHARERS) {
 			$cid = Contact::getPublicIdByUserId($uid);
 
 			// @todo Suggest posts from contacts that are followed most by our followers
@@ -292,17 +297,19 @@ class Timeline extends BaseModule
 				AND NOT `cid` IN (SELECT `cid` FROM `contact-relation` WHERE `follows` AND `relation-cid` = ?))",
 				DateTimeFormat::utc('now - ' . $this->config->get('channel', 'sharer_interaction_days') . ' day'), $cid, $this->getMedianRelationThreadScore($cid, 4), $cid
 			];
-		} elseif ($this->selectedTab == TimelineEntity::IMAGE) {
+		} elseif ($this->selectedTab == ChannelEntity::IMAGE) {
 			$condition = ["`media-type` & ?", 1];
-		} elseif ($this->selectedTab == TimelineEntity::VIDEO) {
+		} elseif ($this->selectedTab == ChannelEntity::VIDEO) {
 			$condition = ["`media-type` & ?", 2];
-		} elseif ($this->selectedTab == TimelineEntity::AUDIO) {
+		} elseif ($this->selectedTab == ChannelEntity::AUDIO) {
 			$condition = ["`media-type` & ?", 4];
-		} elseif ($this->selectedTab == TimelineEntity::LANGUAGE) {
+		} elseif ($this->selectedTab == ChannelEntity::LANGUAGE) {
 			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", $this->l10n->convertCodeForLanguageDetection(User::getLanguageCode($uid))];
+		} elseif (is_numeric($this->selectedTab)) {
+			$condition = $this->getUserChannelConditions($this->selectedTab, $this->session->getLocalUserId());
 		}
 
-		if ($this->selectedTab != TimelineEntity::LANGUAGE) {
+		if ($this->selectedTab != ChannelEntity::LANGUAGE) {
 			$condition = $this->addLanguageCondition($uid, $condition);
 		}
 
@@ -310,7 +317,7 @@ class Timeline extends BaseModule
 
 		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed` OR `is-blocked` OR `channel-frequency` = ?))", $uid, Contact\User::FREQUENCY_NEVER]);
 
-		if (($this->selectedTab != TimelineEntity::WHATSHOT) && !is_null($this->accountType)) {
+		if (($this->selectedTab != ChannelEntity::WHATSHOT) && !is_null($this->accountType)) {
 			$condition = DBA::mergeConditions($condition, ['contact-type' => $this->accountType]);
 		}
 
@@ -357,6 +364,53 @@ class Timeline extends BaseModule
 		$this->setItemsSeenByCondition($condition);
 
 		return $items;
+	}
+
+	private function getUserChannelConditions(int $id, int $uid): array
+	{
+		$channel = $this->channelRepository->selectById($id, $uid);
+		if (empty($channel)) {
+			return [];
+		}
+
+		$condition = [];
+
+		if (!empty($channel->circle)) {
+			if ($channel->circle == -1) {
+				$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))", $uid, Contact::SHARING, Contact::FRIEND];
+			} elseif ($channel->circle == -2) {
+				$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $uid, Contact::FOLLOWER];
+			} elseif ($channel->circle > 0) {
+				$condition = DBA::mergeConditions($condition, ["`owner-id` IN (SELECT `pid` FROM `group_member` INNER JOIN `account-user-view` ON `group_member`.`contact-id` = `account-user-view`.`id` WHERE `gid` = ? AND `account-user-view`.`uid` = ?)", $channel->circle, $uid]);
+			}
+		}
+
+		if (!empty($channel->fullTextSearch)) {
+			$search = $channel->fullTextSearch;
+			foreach (['from', 'to', 'group', 'tag', 'network', 'visibility'] as $keyword) {
+				$search = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $search);
+			}
+			$condition = DBA::mergeConditions($condition, ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", $search]);
+		}
+
+		if (!empty($channel->includeTags)) {
+			$search       = explode(',', mb_strtolower($channel->includeTags));
+			$placeholders = substr(str_repeat("?, ", count($search)), 0, -2);
+			$condition    = DBA::mergeConditions($condition, array_merge(["`uri-id` IN (SELECT `uri-id` FROM `post-tag` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` WHERE `post-tag`.`type` = 1 AND `name` IN (" . $placeholders . "))"], $search));
+		}
+
+		if (!empty($channel->excludeTags)) {
+			$search       = explode(',', mb_strtolower($channel->excludeTags));
+			$placeholders = substr(str_repeat("?, ", count($search)), 0, -2);
+			$condition    = DBA::mergeConditions($condition, array_merge(["NOT `uri-id` IN (SELECT `uri-id` FROM `post-tag` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` WHERE `post-tag`.`type` = 1 AND `name` IN (" . $placeholders . "))"], $search));
+		}
+
+		if (!empty($channel->mediaType)) {
+			$condition = DBA::mergeConditions($condition, ["`media-type` & ?", $channel->mediaType]);
+		}
+
+		// For "addLanguageCondition" to work, the condition must not be empty
+		return $condition ?: ["true"];
 	}
 
 	private function addLanguageCondition(int $uid, array $condition): array
