@@ -39,7 +39,7 @@ class Image
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image/single_with_height_allocation.tpl'), [
 					'$image' => $PostMediaImages[0],
 					'$allocated_height' => $PostMediaImages[0]->getAllocatedHeight(),
-					'$allocated_width' => ($PostMediaImages[0]->previewWidth ?? $PostMediaImages[0]->width) . 'px',
+					'$allocated_max_width' => ($PostMediaImages[0]->previewWidth ?? $PostMediaImages[0]->width) . 'px',
 				]);
 			}
 		} else {
