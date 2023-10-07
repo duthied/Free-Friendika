@@ -83,7 +83,7 @@ $(document).ready(function () {
 	// add mention-link button to the second navbar
 	let $mentionButton = $("#mention-link-button");
 	if ($mentionButton.length) {
-		$mentionButton.appendTo("#topbar-second > .container > #navbar-button").css("padding", "2");
+		$mentionButton.appendTo("#topbar-second > .container > #navbar-button").addClass("pull-right");
 		$("#mention-link").addClass("btn-sm ");
 		$("#mention-link > span i").addClass("fa-2x");
 		if ($mentionButton.hasClass("modal-open")) {
@@ -93,6 +93,7 @@ $(document).ready(function () {
 			});
 		}
 	}
+
 
 	// add Jot button to the second navbar
 	let $jotButton = $("#jotOpen");
