@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-06 10:01+0000\n"
+"POT-Creation-Date: 2023-10-07 02:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -794,7 +794,7 @@ msgstr ""
 msgid "All contacts"
 msgstr ""
 
-#: src/BaseModule.php:435 src/Content/Conversation/Factory/Channel.php:54
+#: src/BaseModule.php:435 src/Content/Conversation/Factory/Channel.php:45
 #: src/Content/Widget.php:239 src/Core/ACL.php:195 src/Module/Contact.php:415
 #: src/Module/PermissionTooltip.php:127 src/Module/PermissionTooltip.php:149
 #: src/Module/Settings/Channels.php:120
@@ -1516,121 +1516,121 @@ msgstr ""
 msgid "View in context"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:51
+#: src/Content/Conversation/Factory/Channel.php:42
 msgid "For you"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:51
+#: src/Content/Conversation/Factory/Channel.php:42
 msgid "Posts from contacts you interact with and who interact with you"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:52
+#: src/Content/Conversation/Factory/Channel.php:43
 msgid "What's Hot"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:52
+#: src/Content/Conversation/Factory/Channel.php:43
 msgid "Posts with a lot of interactions"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:53
+#: src/Content/Conversation/Factory/Channel.php:44
 #, php-format
 msgid "Posts in %s"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:54
+#: src/Content/Conversation/Factory/Channel.php:45
 msgid "Posts from your followers that you don't follow"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:55
+#: src/Content/Conversation/Factory/Channel.php:46
 msgid "Sharers of sharers"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:55
+#: src/Content/Conversation/Factory/Channel.php:46
 msgid "Posts from accounts that are followed by accounts that you follow"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:56
+#: src/Content/Conversation/Factory/Channel.php:47
 #: src/Module/Settings/Channels.php:137 src/Module/Settings/Channels.php:153
 msgid "Images"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:56
+#: src/Content/Conversation/Factory/Channel.php:47
 msgid "Posts with images"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:57
+#: src/Content/Conversation/Factory/Channel.php:48
 #: src/Module/Settings/Channels.php:139 src/Module/Settings/Channels.php:155
 msgid "Audio"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:57
+#: src/Content/Conversation/Factory/Channel.php:48
 msgid "Posts with audio"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:58
+#: src/Content/Conversation/Factory/Channel.php:49
 #: src/Module/Settings/Channels.php:138 src/Module/Settings/Channels.php:154
 msgid "Videos"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:58
+#: src/Content/Conversation/Factory/Channel.php:49
 msgid "Posts with videos"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Community.php:52
+#: src/Content/Conversation/Factory/Community.php:43
 msgid "Local Community"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Community.php:52
+#: src/Content/Conversation/Factory/Community.php:43
 msgid "Posts from local users on this server"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Community.php:56
+#: src/Content/Conversation/Factory/Community.php:47
 #: src/Module/Settings/Channels.php:118
 msgid "Global Community"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Community.php:56
+#: src/Content/Conversation/Factory/Community.php:47
 msgid "Posts from users of the whole federated network"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Network.php:47
+#: src/Content/Conversation/Factory/Network.php:38
 msgid "Latest Activity"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Network.php:47
+#: src/Content/Conversation/Factory/Network.php:38
 msgid "Sort by latest activity"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Network.php:48
+#: src/Content/Conversation/Factory/Network.php:39
 msgid "Latest Posts"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Network.php:48
+#: src/Content/Conversation/Factory/Network.php:39
 msgid "Sort by post received date"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Network.php:49
+#: src/Content/Conversation/Factory/Network.php:40
 msgid "Latest Creation"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Network.php:49
+#: src/Content/Conversation/Factory/Network.php:40
 msgid "Sort by post creation date"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Network.php:50
+#: src/Content/Conversation/Factory/Network.php:41
 #: src/Module/Settings/Profile/Index.php:260
 msgid "Personal"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Network.php:50
+#: src/Content/Conversation/Factory/Network.php:41
 msgid "Posts that mention or involve you"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Network.php:51 src/Object/Post.php:380
+#: src/Content/Conversation/Factory/Network.php:42 src/Object/Post.php:380
 msgid "Starred"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Network.php:51
+#: src/Content/Conversation/Factory/Network.php:42
 msgid "Favourite Posts"
 msgstr ""
 
@@ -2721,8 +2721,8 @@ msgstr ""
 
 #: src/Core/Installer.php:511
 msgid ""
-"The web installer needs to be able to create a file called \"local.config.php"
-"\" in the \"config\" folder of your web server and it is unable to do so."
+"The web installer needs to be able to create a file called \"local.config."
+"php\" in the \"config\" folder of your web server and it is unable to do so."
 msgstr ""
 
 #: src/Core/Installer.php:512
@@ -5348,9 +5348,9 @@ msgstr ""
 
 #: src/Module/Admin/Summary.php:98
 msgid ""
-"The last update failed. Please run \"php bin/console.php dbstructure update"
-"\" from the command line and have a look at the errors that might appear. "
-"(Some of the errors are possibly inside the logfile.)"
+"The last update failed. Please run \"php bin/console.php dbstructure "
+"update\" from the command line and have a look at the errors that might "
+"appear. (Some of the errors are possibly inside the logfile.)"
 msgstr ""
 
 #: src/Module/Admin/Summary.php:102
@@ -5501,8 +5501,8 @@ msgstr ""
 #, php-format
 msgid ""
 "Show some informations regarding the needed information to operate the node "
-"according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer"
-"\">EU-GDPR</a>."
+"according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener "
+"noreferrer\">EU-GDPR</a>."
 msgstr ""
 
 #: src/Module/Admin/Tos.php:81
@@ -6720,13 +6720,13 @@ msgstr ""
 msgid "Unable to unfollow this contact, please contact your administrator"
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:140
+#: src/Module/Conversation/Channel.php:139
 #: src/Module/Conversation/Community.php:126 src/Module/Search/Index.php:152
 #: src/Module/Search/Index.php:194
 msgid "No results."
 msgstr ""
 
-#: src/Module/Conversation/Channel.php:178
+#: src/Module/Conversation/Channel.php:177
 msgid "Channel not available."
 msgstr ""
 
@@ -8853,8 +8853,8 @@ msgstr ""
 #: src/Module/Profile/Profile.php:158
 #, php-format
 msgid ""
-"You're currently viewing your profile as <b>%s</b> <a href=\"%s\" class="
-"\"btn btn-sm pull-right\">Cancel</a>"
+"You're currently viewing your profile as <b>%s</b> <a href=\"%s\" "
+"class=\"btn btn-sm pull-right\">Cancel</a>"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:167
@@ -9402,8 +9402,8 @@ msgstr ""
 #: src/Module/Security/TwoFactor/Verify.php:100
 #, php-format
 msgid ""
-"If you do not have access to your authentication code you can use a <a href="
-"\"%s\">two-factor recovery code</a>."
+"If you do not have access to your authentication code you can use a <a "
+"href=\"%s\">two-factor recovery code</a>."
 msgstr ""
 
 #: src/Module/Security/TwoFactor/Verify.php:101
@@ -11044,8 +11044,8 @@ msgstr ""
 #: src/Module/Settings/TwoFactor/Verify.php:149
 #, php-format
 msgid ""
-"<p>Or you can open the following URL in your mobile device:</p><p><a href="
-"\"%s\">%s</a></p>"
+"<p>Or you can open the following URL in your mobile device:</p><p><a "
+"href=\"%s\">%s</a></p>"
 msgstr ""
 
 #: src/Module/Settings/TwoFactor/Verify.php:156
@@ -11154,9 +11154,9 @@ msgstr ""
 msgid ""
 "At any point in time a logged in user can export their account data from the "
 "<a href=\"%1$s/settings/userexport\">account settings</a>. If the user wants "
-"to delete their account they can do so at <a href=\"%1$s/settings/removeme\">"
-"%1$s/settings/removeme</a>. The deletion of the account will be permanent. "
-"Deletion of the data will also be requested from the nodes of the "
+"to delete their account they can do so at <a href=\"%1$s/settings/"
+"removeme\">%1$s/settings/removeme</a>. The deletion of the account will be "
+"permanent. Deletion of the data will also be requested from the nodes of the "
 "communication partners."
 msgstr ""
 
@@ -12044,7 +12044,7 @@ msgstr ""
 
 #: src/Object/Post.php:501
 #, php-format
-msgid "is reply to %s"
+msgid "in reply to %s"
 msgstr ""
 
 #: src/Object/Post.php:525
