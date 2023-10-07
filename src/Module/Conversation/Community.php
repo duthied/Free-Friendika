@@ -28,7 +28,7 @@ use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
 use Friendica\Content\Conversation\Entity\Community as CommunityEntity;
 use Friendica\Content\Conversation\Factory\Community as CommunityFactory;
-use Friendica\Content\Conversation\Repository\Channel;
+use Friendica\Content\Conversation\Repository\UserDefinedChannel;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
@@ -70,7 +70,7 @@ class Community extends Timeline
 	/** @var SystemMessages */
 	protected $systemMessages;
 
-	public function __construct(Channel $channel, CommunityFactory $community, Conversation $conversation, App\Page $page, SystemMessages $systemMessages, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(UserDefinedChannel $channel, CommunityFactory $community, Conversation $conversation, App\Page $page, SystemMessages $systemMessages, Mode $mode, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($channel, $mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 

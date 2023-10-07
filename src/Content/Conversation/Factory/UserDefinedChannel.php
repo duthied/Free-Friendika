@@ -21,28 +21,31 @@
 
 namespace Friendica\Content\Conversation\Factory;
 
+use Friendica\Capabilities\ICanCreateFromTableRow;
 use Friendica\Content\Conversation\Collection\Timelines;
+use Friendica\Content\Conversation\Entity;
 
-final class UserDefinedChannel extends Timeline
+final class UserDefinedChannel extends Timeline implements ICanCreateFromTableRow
 {
-	/**
-	 * List of available user defined channels
-	 *
-	 * @param integer $uid
-	 * @return Timelines
-	 */
-	public function getForUser(int $uid): Timelines
-	{
-		$tabs = [];
-		foreach ($this->channelRepository->selectByUid($uid) as $channel) {
-			$tabs[] = $channel;
-		}
-
-		return new Timelines($tabs);
-	}
-
 	public function isTimeline(string $selectedTab, int $uid): bool
 	{
 		return is_numeric($selectedTab) && $uid && $this->channelRepository->existsById($selectedTab, $uid);
+	}
+
+	public function createFromTableRow(array $row): Entity\UserDefinedChannel
+	{
+		return new Entity\UserDefinedChannel(
+			$row['id'] ?? null,
+			$row['label'],
+			$row['description'] ?? null,
+			$row['access-key'] ?? null,
+			null,
+			$row['uid'],
+			$row['include-tags'] ?? null,
+			$row['exclude-tags'] ?? null,
+			$row['full-text-search'] ?? null,
+			$row['media-type'] ?? null,
+			$row['circle'] ?? null,
+		);
 	}
 }
