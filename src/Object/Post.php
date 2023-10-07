@@ -164,7 +164,7 @@ class Post
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function getTemplateData(array $conv_responses, string $formSecurityToken, int $thread_level = 1)
+	public function getTemplateData(array $conv_responses, string $formSecurityToken, int $thread_level = 1, string $parent_guid = "", string $parent_username = "")
 	{
 		$item = $this->getData();
 		$edited = false;
@@ -497,6 +497,8 @@ class Post
 		}
 
 		$tmp_item = [
+			'parentguid'      => $parent_guid,
+			'isreplyto'       => DI::l10n()->t('is reply to %s', $parent_username),
 			'template'        => $this->getTemplate(),
 			'type'            => implode('', array_slice(explode('/', $item['verb']), -1)),
 			'comment_firstcollapsed' => false,
@@ -610,7 +612,7 @@ class Post
 		$nb_children = count($children);
 		if ($nb_children > 0) {
 			foreach ($children as $child) {
-				$result['children'][] = $child->getTemplateData($conv_responses, $formSecurityToken, $thread_level + 1);
+				$result['children'][] = $child->getTemplateData($conv_responses, $formSecurityToken, $thread_level + 1, $tmp_item['guid'], $tmp_item['name']);
 			}
 
 			// Collapse
