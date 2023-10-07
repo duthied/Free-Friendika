@@ -80,6 +80,21 @@ $(document).ready(function () {
 		target: ".flex-target",
 	});
 
+	// add mention-link button to the second navbar
+	let $mentionButton = $("#mention-link-button");
+	if ($mentionButton.length) {
+		$mentionButton.appendTo("#topbar-second > .container > #navbar-button").addClass("pull-right");
+		$("#mention-link").addClass("btn-sm ");
+		$("#mention-link > span i").addClass("fa-2x");
+		if ($mentionButton.hasClass("modal-open")) {
+			$mentionButton.on("click", function (e) {
+				e.preventDefault();
+				jotShow();
+			});
+		}
+	}
+
+
 	// add Jot button to the second navbar
 	let $jotButton = $("#jotOpen");
 	if ($jotButton.length) {
