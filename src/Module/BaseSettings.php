@@ -122,6 +122,13 @@ class BaseSettings extends BaseModule
 		];
 
 		$tabs[] = [
+			'label'     => $this->t('Channels'),
+			'url'       => 'settings/channels',
+			'selected'  => static::class == Settings\Channels::class ? 'active' : '',
+			'accesskey' => '',
+		];
+
+		$tabs[] = [
 			'label'     => $this->t('Social Networks'),
 			'url'       => 'settings/connectors',
 			'selected'  => static::class == Settings\Connectors::class ? 'active' : '',

@@ -17,6 +17,7 @@ Friendica Documentation and Resources
 	* [Circles and Privacy](help/Circles-and-Privacy)
 	* [Tags and Mentions](help/Tags-and-Mentions)
 	* [Community Groups](help/Groups)
+	* [Channels](help/Channels)
 	* [Chats](help/Chats)
 * Further information
 	* [Move your account](help/Move-Account)

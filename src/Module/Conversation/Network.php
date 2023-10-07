@@ -25,8 +25,13 @@ use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
-use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
+use Friendica\Content\Conversation\Entity\Network as NetworkEntity;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
+use Friendica\Content\Conversation\Repository\Channel;
+use Friendica\Content\Conversation\Factory\Channel as ChannelFactory;
+use Friendica\Content\Conversation\Factory\UserDefinedChannel as UserDefinedChannelFactory;
+use Friendica\Content\Conversation\Factory\Community as CommunityFactory;
+use Friendica\Content\Conversation\Factory\Network as NetworkFactory;
 use Friendica\Content\Feature;
 use Friendica\Content\GroupManager;
 use Friendica\Content\Nav;
@@ -95,16 +100,28 @@ class Network extends Timeline
 	protected $database;
 	/** @var TimelineFactory */
 	protected $timeline;
+	/** @var ChannelFactory */
+	protected $channel;
+	/** @var UserDefinedChannelFactory */
+	protected $userDefinedChannel;
+	/** @var CommunityFactory */
+	protected $community;
+	/** @var NetworkFactory */
+	protected $networkFactory;
 
-	public function __construct(App $app, TimelineFactory $timeline, SystemMessages $systemMessages, Mode $mode, Conversation $conversation, App\Page $page, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(UserDefinedChannelFactory $userDefinedChannel, NetworkFactory $network, CommunityFactory $community, ChannelFactory $channelFactory, Channel $channel, App $app, TimelineFactory $timeline, SystemMessages $systemMessages, Mode $mode, Conversation $conversation, App\Page $page, IHandleUserSessions $session, Database $database, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, ICanCache $cache, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
-		parent::__construct($mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($channel, $mode, $session, $database, $pConfig, $config, $cache, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->app            = $app;
-		$this->timeline       = $timeline;
-		$this->systemMessages = $systemMessages;
-		$this->conversation   = $conversation;
-		$this->page           = $page;
+		$this->app                = $app;
+		$this->timeline           = $timeline;
+		$this->systemMessages     = $systemMessages;
+		$this->conversation       = $conversation;
+		$this->page               = $page;
+		$this->channel            = $channelFactory;
+		$this->community          = $community;
+		$this->networkFactory     = $network;
+		$this->userDefinedChannel = $userDefinedChannel;
 	}
 
 	protected function content(array $request = []): string
@@ -117,25 +134,14 @@ class Network extends Timeline
 
 		$module = 'network';
 
-		$this->page['aside'] .= Widget::channels($module, $this->selectedTab, $this->session->getLocalUserId());
-		$this->page['aside'] .= Widget::accountTypes($module, $this->accountTypeString);
-
 		$arr = ['query' => $this->args->getQueryString()];
 		Hook::callAll('network_content_init', $arr);
 
 		$o = '';
 
-		if ($this->timeline->isChannel($this->selectedTab)) {
-			if (!in_array($this->selectedTab, [TimelineEntity::FOLLOWERS, TimelineEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
-				$this->page['aside'] .= $this->getNoSharerWidget($module);
-			}
-
+		if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
 			$items = $this->getChannelItems();
-		} elseif ($this->timeline->isCommunity($this->selectedTab)) {
-			if ($this->session->getLocalUserId() && $this->config->get('system', 'community_no_sharer')) {
-				$this->page['aside'] .= $this->getNoSharerWidget($module);
-			}
-
+		} elseif ($this->community->isTimeline($this->selectedTab)) {
 			$items = $this->getCommunityItems();
 		} else {
 			$items = $this->getItems();
@@ -145,6 +151,8 @@ class Network extends Timeline
 		$this->page['aside'] .= GroupManager::widget($module . '/group', $this->session->getLocalUserId(), $this->groupContactId);
 		$this->page['aside'] .= Widget::postedByYear($module . '/archive', $this->session->getLocalUserId(), false);
 		$this->page['aside'] .= Widget::networks($module, !$this->groupContactId ? $this->network : '');
+		$this->page['aside'] .= Widget::accountTypes($module, $this->accountTypeString);
+		$this->page['aside'] .= Widget::channels($module, $this->selectedTab, $this->session->getLocalUserId());
 		$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
 		$this->page['aside'] .= Widget::fileAs('filed', '');
 
@@ -274,13 +282,13 @@ class Network extends Timeline
 	 */
 	private function getTabsHTML()
 	{
-		// @todo user confgurable selection of tabs
-		$tabs = $this->getTabArray($this->timeline->getNetworkFeeds($this->args->getCommand()), 'network');
+		$tabs = $this->getTabArray($this->networkFactory->getTimelines($this->args->getCommand()), 'network');
 
 		$network_timelines = $this->pConfig->get($this->session->getLocalUserId(), 'system', 'network_timelines', []);
 		if (!empty($network_timelines)) {
-			$tabs = array_merge($tabs, $this->getTabArray($this->timeline->getChannelsForUser($this->session->getLocalUserId()), 'network', 'channel'));
-			$tabs = array_merge($tabs, $this->getTabArray($this->timeline->getCommunities(true), 'network', 'channel'));
+			$tabs = array_merge($tabs, $this->getTabArray($this->channel->getTimelines($this->session->getLocalUserId()), 'network', 'channel'));
+			$tabs = array_merge($tabs, $this->getTabArray($this->userDefinedChannel->getForUser($this->session->getLocalUserId()), 'network', 'channel'));
+			$tabs = array_merge($tabs, $this->getTabArray($this->community->getTimelines(true), 'network', 'channel'));
 		}
 
 		$arr = ['tabs' => $tabs];
@@ -289,9 +297,9 @@ class Network extends Timeline
 		if (!empty($network_timelines)) {
 			$tabs = [];
 
-			foreach (array_keys($arr['tabs']) as $tab) {
-				if (in_array($tab, $network_timelines)) {
-					$tabs[] = $arr['tabs'][$tab];
+			foreach ($arr['tabs'] as $tab) {
+				if (in_array($tab['code'], $network_timelines)) {
+					$tabs[] = $tab;
 				}
 			}
 		} else {
@@ -313,26 +321,26 @@ class Network extends Timeline
 
 		if (!$this->selectedTab) {
 			$this->selectedTab = self::getTimelineOrderBySession($this->session, $this->pConfig);
-		} elseif (!$this->timeline->isChannel($this->selectedTab) && !$this->timeline->isCommunity($this->selectedTab)) {
+		} elseif (!$this->networkFactory->isTimeline($this->selectedTab) && !$this->channel->isTimeline($this->selectedTab) && !$this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) && !$this->community->isTimeline($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
 		}
 
-		if (($this->network || $this->circleId || $this->groupContactId) && ($this->timeline->isChannel($this->selectedTab) || $this->timeline->isCommunity($this->selectedTab))) {
-			$this->selectedTab = TimelineEntity::RECEIVED;
+		if (($this->network || $this->circleId || $this->groupContactId) && ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) || $this->community->isTimeline($this->selectedTab))) {
+			$this->selectedTab = NetworkEntity::RECEIVED;
 		}
 
 		if (!empty($request['star'])) {
-			$this->selectedTab = TimelineEntity::STAR;
+			$this->selectedTab = NetworkEntity::STAR;
 			$this->star = true;
 		} else {
-			$this->star = $this->selectedTab == TimelineEntity::STAR;
+			$this->star = $this->selectedTab == NetworkEntity::STAR;
 		}
 
 		if (!empty($request['mention'])) {
-			$this->selectedTab = TimelineEntity::MENTION;
+			$this->selectedTab = NetworkEntity::MENTION;
 			$this->mention = true;
 		} else {
-			$this->mention = $this->selectedTab == TimelineEntity::MENTION;
+			$this->mention = $this->selectedTab == NetworkEntity::MENTION;
 		}
 
 		if (!empty($request['order'])) {
@@ -340,9 +348,9 @@ class Network extends Timeline
 			$this->order = $request['order'];
 			$this->star = false;
 			$this->mention = false;
-		} elseif (in_array($this->selectedTab, [TimelineEntity::RECEIVED, TimelineEntity::STAR]) || $this->timeline->isCommunity($this->selectedTab)) {
+		} elseif (in_array($this->selectedTab, [NetworkEntity::RECEIVED, NetworkEntity::STAR]) || $this->community->isTimeline($this->selectedTab)) {
 			$this->order = 'received';
-		} elseif (($this->selectedTab == TimelineEntity::CREATED) || $this->timeline->isChannel($this->selectedTab)) {
+		} elseif (($this->selectedTab == NetworkEntity::CREATED) || $this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
 			$this->order = 'created';
 		} else {
 			$this->order = 'commented';
@@ -352,16 +360,16 @@ class Network extends Timeline
 
 		// Upon updates in the background and order by last comment we order by received date,
 		// since otherwise the feed will optically jump, when some already visible thread has been updated.
-		if ($this->update && ($this->selectedTab == TimelineEntity::COMMENTED)) {
+		if ($this->update && ($this->selectedTab == NetworkEntity::COMMENTED)) {
 			$this->order = 'received';
 			$request['last_received']  = $request['last_commented'] ?? null;
 			$request['first_received'] = $request['first_commented'] ?? null;
 		}
 
 		// Prohibit combined usage of "star" and "mention"
-		if ($this->selectedTab == TimelineEntity::STAR) {
+		if ($this->selectedTab == NetworkEntity::STAR) {
 			$this->mention = false;
-		} elseif ($this->selectedTab == TimelineEntity::MENTION) {
+		} elseif ($this->selectedTab == NetworkEntity::MENTION) {
 			$this->star = false;
 		}
 
