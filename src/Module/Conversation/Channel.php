@@ -28,7 +28,7 @@ use Friendica\Content\Conversation;
 use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
 use Friendica\Content\Conversation\Factory\UserDefinedChannel as UserDefinedChannelFactory;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
-use Friendica\Content\Conversation\Repository\Channel as ChannelRepository;
+use Friendica\Content\Conversation\Repository\UserDefinedChannel as ChannelRepository;
 use Friendica\Content\Conversation\Factory\Channel as ChannelFactory;
 use Friendica\Content\Conversation\Factory\Community as CommunityFactory;
 use Friendica\Content\Conversation\Factory\Network as NetworkFactory;
@@ -105,7 +105,7 @@ class Channel extends Timeline
 
 		if (empty($request['mode']) || ($request['mode'] != 'raw')) {
 			$tabs = $this->getTabArray($this->channel->getTimelines($this->session->getLocalUserId()), 'channel');
-			$tabs = array_merge($tabs, $this->getTabArray($this->userDefinedChannel->getForUser($this->session->getLocalUserId()), 'channel'));
+			$tabs = array_merge($tabs, $this->getTabArray($this->channelRepository->selectByUid($this->session->getLocalUserId()), 'channel'));
 			$tabs = array_merge($tabs, $this->getTabArray($this->community->getTimelines(true), 'channel'));
 
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');

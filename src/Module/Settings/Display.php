@@ -28,7 +28,7 @@ use Friendica\Content\Conversation\Factory\Channel as ChannelFactory;
 use Friendica\Content\Conversation\Factory\Community as CommunityFactory;
 use Friendica\Content\Conversation\Factory\Network as NetworkFactory;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
-use Friendica\Content\Conversation\Factory\UserDefinedChannel as UserDefinedChannelFactory;
+use Friendica\Content\Conversation\Repository;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -59,7 +59,7 @@ class Display extends BaseSettings
 	private $systemMessages;
 	/** @var ChannelFactory */
 	protected $channel;
-	/** @var UserDefinedChannelFactory */
+	/** @var Repository\UserDefinedChannel */
 	protected $userDefinedChannel;
 	/** @var CommunityFactory */
 	protected $community;
@@ -68,7 +68,7 @@ class Display extends BaseSettings
 	/** @var TimelineFactory */
 	protected $timeline;
 
-	public function __construct(UserDefinedChannelFactory $userDefinedChannel, NetworkFactory $network, CommunityFactory $community, ChannelFactory $channel, TimelineFactory $timeline, SystemMessages $systemMessages, App $app, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(Repository\UserDefinedChannel $userDefinedChannel, NetworkFactory $network, CommunityFactory $community, ChannelFactory $channel, TimelineFactory $timeline, SystemMessages $systemMessages, App $app, IManagePersonalConfigValues $pConfig, IManageConfigValues $config, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -267,8 +267,8 @@ class Display extends BaseSettings
 			$timelines[] = [
 				'label'        => $timeline->label,
 				'description'  => $timeline->description,
-				'enable'       => ["enable{$timeline->code}", '', in_array($timeline->code, $enabled_timelines)],
-				'bookmark'     => ["bookmark{$timeline->code}", '', in_array($timeline->code, $bookmarked_timelines)],
+				'enable'       => ["enable[{$timeline->code}]", '', in_array($timeline->code, $enabled_timelines)],
+				'bookmark'     => ["bookmark[{$timeline->code}]", '', in_array($timeline->code, $bookmarked_timelines)],
 			];
 		}
 
@@ -357,7 +357,7 @@ class Display extends BaseSettings
 			$timelines[] = $channel;
 		}
 
-		foreach ($this->userDefinedChannel->getForUser($uid) as $channel) {
+		foreach ($this->userDefinedChannel->selectByUid($uid) as $channel) {
 			$timelines[] = $channel;
 		}
 

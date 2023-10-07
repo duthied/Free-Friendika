@@ -571,12 +571,9 @@ abstract class DI
 		return self::$dice->create(Content\Conversation\Factory\Channel::class);
 	}
 
-	/**
-	 * @return Content\Conversation\Factory\UserDefinedChannel
-	 */
-	public static function UserDefinedChannelFactory()
+	public static function userDefinedChannel(): Content\Conversation\Repository\UserDefinedChannel
 	{
-		return self::$dice->create(Content\Conversation\Factory\UserDefinedChannel::class);
+		return self::$dice->create(Content\Conversation\Repository\UserDefinedChannel::class);
 	}
 
 	/**

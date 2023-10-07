@@ -22,19 +22,37 @@
 namespace Friendica\Content\Conversation\Repository;
 
 use Friendica\BaseCollection;
-use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
-use Friendica\Content\Conversation\Entity\UserDefinedChannel;
-use Friendica\Content\Conversation\Factory\Timeline;
+use Friendica\Content\Conversation\Collection\UserDefinedChannels;
+use Friendica\Content\Conversation\Entity;
+use Friendica\Content\Conversation\Factory;
 use Friendica\Database\Database;
 use Psr\Log\LoggerInterface;
 
-class Channel extends \Friendica\BaseRepository
+class UserDefinedChannel extends \Friendica\BaseRepository
 {
 	protected static $table_name = 'channel';
 
-	public function __construct(Database $database, LoggerInterface $logger, Timeline $factory)
+	public function __construct(Database $database, LoggerInterface $logger, Factory\UserDefinedChannel $factory)
 	{
 		parent::__construct($database, $logger, $factory);
+	}
+
+	/**
+	 * @param array $condition
+	 * @param array $params
+	 * @return UserDefinedChannels
+	 * @throws \Exception
+	 */
+	protected function _select(array $condition, array $params = []): BaseCollection
+	{
+		$rows = $this->db->selectToArray(static::$table_name, [], $condition, $params);
+
+		$Entities = new UserDefinedChannels();
+		foreach ($rows as $fields) {
+			$Entities[] = $this->factory->createFromTableRow($fields);
+		}
+
+		return $Entities;
 	}
 
 	/**
@@ -42,10 +60,10 @@ class Channel extends \Friendica\BaseRepository
 	 *
 	 * @param int $id  The id of the user defined channel
 	 * @param int $uid The user that this channel belongs to. (Not part of the primary key)
-	 * @return TimelineEntity
+	 * @return Entity\UserDefinedChannel
 	 * @throws \Friendica\Network\HTTPException\NotFoundException
 	 */
-	public function selectById(int $id, int $uid): TimelineEntity
+	public function selectById(int $id, int $uid): Entity\UserDefinedChannel
 	{
 		return $this->_selectOne(['id' => $id, 'uid' => $uid]);
 	}
@@ -78,14 +96,15 @@ class Channel extends \Friendica\BaseRepository
 	 * Fetch all user channels
 	 *
 	 * @param integer $uid
-	 * @return BaseCollection
+	 * @return UserDefinedChannels
+	 * @throws \Exception
 	 */
-	public function selectByUid(int $uid): BaseCollection
+	public function selectByUid(int $uid): UserDefinedChannels
 	{
 		return $this->_select(['uid' => $uid]);
 	}
 
-	public function save(UserDefinedChannel $Channel): UserDefinedChannel
+	public function save(Entity\UserDefinedChannel $Channel): Entity\UserDefinedChannel
 	{
 		$fields = [
 			'label'            => $Channel->label,

@@ -22,8 +22,8 @@
 namespace Friendica\Module\Settings;
 
 use Friendica\App;
-use Friendica\Content\Conversation\Factory\Timeline;
-use Friendica\Content\Conversation\Repository\Channel;
+use Friendica\Content\Conversation\Factory;
+use Friendica\Content\Conversation\Repository\UserDefinedChannel;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
@@ -36,17 +36,17 @@ use Psr\Log\LoggerInterface;
 
 class Channels extends BaseSettings
 {
-	/** @var Channel */
+	/** @var UserDefinedChannel */
 	private $channel;
-	/** @var Timeline */
-	private $timeline;
+	/** @var Factory\UserDefinedChannel */
+	private $userDefinedChannel;
 
-	public function __construct(Timeline $timeline, Channel $channel, App\Page $page, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(Factory\UserDefinedChannel $userDefinedChannel, UserDefinedChannel $channel, App\Page $page, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->timeline = $timeline;
-		$this->channel  = $channel;
+		$this->userDefinedChannel = $userDefinedChannel;
+		$this->channel            = $channel;
 	}
 
 	protected function post(array $request = [])
@@ -63,7 +63,7 @@ class Channels extends BaseSettings
 		self::checkFormSecurityTokenRedirectOnError('/settings/channels', 'settings_channels');
 
 		if (!empty($request['add_channel'])) {
-			$channel = $this->timeline->createFromTableRow([
+			$channel = $this->userDefinedChannel->createFromTableRow([
 				'label'            => $request['new_label'],
 				'description'      => $request['new_description'],
 				'access-key'       => substr(mb_strtolower($request['new_access_key']), 0, 1),
@@ -86,7 +86,7 @@ class Channels extends BaseSettings
 				continue;
 			}
 
-			$channel = $this->timeline->createFromTableRow([
+			$channel = $this->userDefinedChannel->createFromTableRow([
 				'id'               => $id,
 				'label'            => $request['label'][$id],
 				'description'      => $request['description'][$id],
