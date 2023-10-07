@@ -105,10 +105,10 @@ class VCard
 				$mention_label   = DI::l10n()->t('Post to group');
 				$mention_url     = 'compose/0?body=!' . $contact['addr'];
 				$showgroup_label = DI::l10n()->t('View group');
-				$showgroup_url  = 'network/group/' . $id;
+				$showgroup_url   = 'network/group/' . $id;
 			} else {
-				$mention_label   = DI::l10n()->t('Mention');
-				$mention_url     = 'compose/0?body=@' . $contact['addr'];
+				$mention_label = DI::l10n()->t('Mention');
+				$mention_url   = 'compose/0?body=@' . $contact['addr'];
 			}
 
 		}

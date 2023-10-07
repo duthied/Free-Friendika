@@ -455,14 +455,14 @@ class Profile
 
 		if ($profile['account-type'] == Contact::TYPE_COMMUNITY) {
 			$mention_label = DI::l10n()->t('Post to group');
-			$mention_url = 'compose/0?body=!' . $profile['addr'];
+			$mention_url   = 'compose/0?body=!' . $profile['addr'];
 			$network_label = DI::l10n()->t('View group');
-			$network_url = 'network/group/' . $profile['id'];
+			$network_url   = 'network/group/' . $profile['id'];
 		} else {
 			$mention_label = DI::l10n()->t('Mention');
-			$mention_url = 'compose/0?body=@' . $profile['addr'];
+			$mention_url   = 'compose/0?body=@' . $profile['addr'];
 			$network_label = DI::l10n()->t('Network Posts');
-			$network_url = 'contact/' . $profile['id'] . '/conversations';
+			$network_url   = 'contact/' . $profile['id'] . '/conversations';
 		}
 
 		$tpl = Renderer::getMarkupTemplate('profile/vcard.tpl');
