@@ -60,9 +60,10 @@ as the value of $top_child_total (this is done at the end of this file)
 {{/if}}
 	<div class="media {{$item.shiny}}">
 	{{if $item.parentguid}}
-		<a id="btn-{{$item.id}}" class="time" href="javascript:;" onclick="scrollToItem('item-' + '{{$item.parentguid}}');">{{$item.isreplyto}}</a>
-		{{if $item.reshared}}<span class="hidden-xs">&#x2022;</span>{{/if}}
-		<br class="visible-xs">
+		<span class="visible-sm-inline visible-xs wall-item-responses">
+			<i class="fa fa-reply" aria-hidden="true"></i> <a id="btn-{{$item.id}}" class="" href="javascript:;" onclick="scrollToItem('item-' + '{{$item.parentguid}}');">{{$item.isreplyto}}</a>
+			{{if $item.reshared}}<i class="hidden-xs">&#x2022;</i>{{/if}}
+		</span>
 	{{/if}}
 	{{if $item.reshared}}
 		<span class="wall-item-announce wall-item-responses" id="wall-item-announce-{{$item.id}}"><i class="fa fa-retweet" aria-hidden="true"></i> {{$item.reshared nofilter}}</span>
@@ -220,6 +221,13 @@ as the value of $top_child_total (this is done at the end of this file)
 					<span class="text-muted">
 				</h5>
 				<small>
+					{{if $item.parentguid}}
+						<i class="hidden-xs hidden-sm">
+							<a id="btn-{{$item.id}}" class="time" href="javascript:;" onclick="scrollToItem('item-' + '{{$item.parentguid}}');"><i class="fa fa-reply" aria-hidden="true"></i> {{$item.isreplyto}}</a>
+							<span class="hidden-xs">&#x2022;</span>
+							<!--br class="visible-xs"-->
+						</i>
+					{{/if}}
 					<a href="{{$item.plink.orig}}">
 						<time class="time" title="{{$item.localtime}}" data-toggle="tooltip" datetime="{{$item.utc}}">{{$item.ago}}</time>
 					</a>
