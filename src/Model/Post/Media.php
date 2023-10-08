@@ -1012,7 +1012,7 @@ class Media
 	 */
 	public static function getPreviewUrlForId(int $id, string $size = ''): string
 	{
-		return '/photo/preview/' .
+		return DI::baseUrl() . '/photo/preview/' .
 			(Proxy::getPixelsFromSize($size) ? Proxy::getPixelsFromSize($size) . '/' : '') .
 			$id;
 	}
@@ -1026,7 +1026,7 @@ class Media
 	 */
 	public static function getUrlForId(int $id, string $size = ''): string
 	{
-		return '/photo/media/' .
+		return DI::baseUrl() . '/photo/media/' .
 			(Proxy::getPixelsFromSize($size) ? Proxy::getPixelsFromSize($size) . '/' : '') .
 			$id;
 	}
