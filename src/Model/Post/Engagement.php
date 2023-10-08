@@ -158,18 +158,7 @@ class Engagement
 
 		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
 
-		$body = preg_replace("~\[url\=.*\]https?:.*\[\/url\]~", '', $body);
-
-		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $body, [Post\Media::IMAGE]);
-		$text = BBCode::toPlaintext($body, false);
-		$text = preg_replace(Strings::autoLinkRegEx(), '', $text);
-
-		do {
-			$oldtext = $text;
-			$text = str_replace(['  ', "\n", "\r"], ' ', $text);
-		} while ($oldtext != $text);
-
-		return $text;
+		return BBCode::toSearchText($body, $item['uri-id']);
 	}
 
 	private static function getMediaType(int $uri_id): int

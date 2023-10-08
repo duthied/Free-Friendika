@@ -125,7 +125,7 @@ class Relay
 			}
 		}
 
-		if (!self::isWantedLanguage($body)) {
+		if (!self::isWantedLanguage($body, 0, $authorid)) {
 			Logger::info('Unwanted or Undetected language found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer, 'tags' => $tags]);
 			return false;
 		}
@@ -166,12 +166,14 @@ class Relay
 	 * Detect the language of a post and decide if the post should be accepted
 	 *
 	 * @param string $body
+	 * @param int    $uri_id
+	 * @param int    $author_id
 	 * @return boolean
 	 */
-	public static function isWantedLanguage(string $body)
+	public static function isWantedLanguage(string $body, int $uri_id = 0, int $author_id = 0)
 	{
 		$languages = [];
-		foreach (Item::getLanguageArray($body, 10) as $language => $reliability) {
+		foreach (Item::getLanguageArray($body, 10, $uri_id, $author_id) as $language => $reliability) {
 			if ($reliability > 0) {
 				$languages[] = $language;
 			}
