@@ -297,7 +297,7 @@ class Item
 
 			if ($this->activity->match($item['verb'], Activity::TAG)) {
 				$fields = [
-					'author-id', 'author-link', 'author-name', 'author-network',
+					'author-id', 'author-link', 'author-name', 'author-network', 'author-link', 'author-alias',
 					'verb', 'object-type', 'resource-id', 'body', 'plink'
 				];
 				$obj = Post::selectFirst($fields, ['uri' => $item['parent-uri']]);
