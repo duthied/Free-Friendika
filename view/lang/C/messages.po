@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-08 07:25+0000\n"
+"POT-Creation-Date: 2023-10-08 07:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1380,7 +1380,7 @@ msgstr ""
 msgid "Public post"
 msgstr ""
 
-#: src/Content/Conversation.php:424 src/Content/Widget/VCard.php:134
+#: src/Content/Conversation.php:424 src/Content/Widget/VCard.php:132
 #: src/Model/Profile.php:479 src/Module/Admin/Logs/View.php:92
 #: src/Module/Post/Edit.php:181
 msgid "Message"
@@ -2221,7 +2221,7 @@ msgstr ""
 msgid "The end"
 msgstr ""
 
-#: src/Content/Text/HTML.php:859 src/Content/Widget/VCard.php:130
+#: src/Content/Text/HTML.php:859 src/Content/Widget/VCard.php:128
 #: src/Model/Profile.php:473 src/Module/Contact/Profile.php:471
 msgid "Follow"
 msgstr ""
@@ -2435,17 +2435,17 @@ msgstr ""
 msgid "Mention"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:123 src/Model/Profile.php:376
+#: src/Content/Widget/VCard.php:121 src/Model/Profile.php:376
 #: src/Module/Contact/Profile.php:408 src/Module/Profile/Profile.php:199
 msgid "XMPP:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:124 src/Model/Profile.php:377
+#: src/Content/Widget/VCard.php:122 src/Model/Profile.php:377
 #: src/Module/Contact/Profile.php:410 src/Module/Profile/Profile.php:203
 msgid "Matrix:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:125 src/Model/Event.php:82
+#: src/Content/Widget/VCard.php:123 src/Model/Event.php:82
 #: src/Model/Event.php:109 src/Model/Event.php:471 src/Model/Event.php:963
 #: src/Model/Profile.php:371 src/Module/Contact/Profile.php:406
 #: src/Module/Directory.php:147 src/Module/Notifications/Introductions.php:187
@@ -2453,12 +2453,12 @@ msgstr ""
 msgid "Location:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:128 src/Model/Profile.php:486
+#: src/Content/Widget/VCard.php:126 src/Model/Profile.php:486
 #: src/Module/Notifications/Introductions.php:201
 msgid "Network:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:132 src/Model/Contact.php:1237
+#: src/Content/Widget/VCard.php:130 src/Model/Contact.php:1237
 #: src/Model/Contact.php:1249 src/Model/Profile.php:475
 #: src/Module/Contact/Profile.php:463
 msgid "Unfollow"
