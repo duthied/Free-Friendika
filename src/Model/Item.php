@@ -1212,8 +1212,6 @@ class Item
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
 
-		$item['language'] = self::getLanguage($item);
-
 		$notify_type = Delivery::POST;
 
 		// Filling item related side tables
@@ -1261,6 +1259,8 @@ class Item
 				$item['content-warning'] = BBCode::toPlaintext($content_warning);
 			}
 		}
+
+		$item['language'] = self::getLanguage($item);
 
 		$inserted = Post::insert($item['uri-id'], $item);
 
@@ -1991,7 +1991,7 @@ class Item
 			return '';
 		}
 
-		$languages = self::getLanguageArray(trim($item['title'] . "\n" . $item['body']), 3, $item['uri-id'], $item['author-id']);
+		$languages = self::getLanguageArray($item['title'] . ' ' . ($item['content-warning'] ?? '') . ' ' . $item['body'], 3, $item['uri-id'], $item['author-id']);
 		if (empty($languages)) {
 			return '';
 		}
