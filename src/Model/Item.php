@@ -3307,6 +3307,7 @@ class Item
 					return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image/single_with_height_allocation.tpl'), [
 						'$image' => $PostMedia,
 						'$allocated_height' => $PostMedia->getAllocatedHeight(),
+						'$allocated_max_width' => ($PostMedia->previewWidth ?? $PostMedia->width) . 'px',
 					]);
 				}, $s);
 			} else {
