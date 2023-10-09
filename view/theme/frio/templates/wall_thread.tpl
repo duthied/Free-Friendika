@@ -60,13 +60,13 @@ as the value of $top_child_total (this is done at the end of this file)
 {{/if}}
 	<div class="media {{$item.shiny}}">
 	{{if $item.parentguid}}
-		<span class="visible-sm-inline visible-xs wall-item-responses">
+		<span class="visible-sm-inline visible-xs wall-item-responses time">
 			<i class="fa fa-reply" aria-hidden="true"></i> <a id="btn-{{$item.id}}" class="" href="javascript:;" onclick="scrollToItem('item-' + '{{$item.parentguid}}');">{{$item.isreplyto}}</a>
 			{{if $item.reshared}}<i class="hidden-xs">&#x2022;</i>{{/if}}
 		</span>
 	{{/if}}
 	{{if $item.reshared}}
-		<span class="wall-item-announce wall-item-responses" id="wall-item-announce-{{$item.id}}"><i class="fa fa-retweet" aria-hidden="true"></i> {{$item.reshared nofilter}}</span>
+		<span class="wall-item-announce wall-item-responses time" id="wall-item-announce-{{$item.id}}"><i class="fa fa-retweet" aria-hidden="true"></i> {{$item.reshared nofilter}}</span>
 	{{/if}}
 		<p>
 		{{* The avatar picture and the photo-menu *}}
