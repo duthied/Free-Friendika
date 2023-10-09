@@ -68,6 +68,8 @@ class VCard
 		$follow_link      = '';
 		$unfollow_link    = '';
 		$wallmessage_link = '';
+		$mention_label    = '';
+		$mention_link     = '';
 		$showgroup_link   = '';
 
 		$photo   = Contact::getPhoto($contact);
@@ -102,15 +104,13 @@ class VCard
 			}
 
 			if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
-				$mention_label   = DI::l10n()->t('Post to group');
-				$mention_url     = 'compose/0?body=!' . $contact['addr'];
-				$showgroup_label = DI::l10n()->t('View group');
-				$showgroup_url   = 'network/group/' . $id;
+				$mention_label  = DI::l10n()->t('Post to group');
+				$mention_link   = 'compose/0?body=!' . $contact['addr'];
+				$showgroup_link = 'network/group/' . $id;
 			} else {
 				$mention_label = DI::l10n()->t('Mention');
-				$mention_url   = 'compose/0?body=@' . $contact['addr'];
+				$mention_link  = 'compose/0?body=@' . $contact['addr'];
 			}
-
 		}
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/vcard.tpl'), [
@@ -131,8 +131,10 @@ class VCard
 			'$unfollow_link'    => $unfollow_link,
 			'$wallmessage'      => DI::l10n()->t('Message'),
 			'$wallmessage_link' => $wallmessage_link,
-			'$mention'          => [$mention_label, $mention_url],
-			'$showgroup'        => [$showgroup_label, $showgroup_url]
+			'$mention'          => $mention_label,
+			'$mention_link'     => $mention_link,
+			'$showgroup'        => DI::l10n()->t('View group'),
+			'$showgroup_link'   => $showgroup_link,
 		]);
 	}
 }

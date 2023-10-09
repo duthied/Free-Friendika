@@ -56,22 +56,22 @@
 					</button>
 				</div>
 			{{/if}}
-                        {{if $contact.addr}}
+			{{if $mention_link}}
 				<div id="mention-link-button">
-					<button type="button" id="mention-link" class="btn btn-labeled btn-primary{{if !$always_open_compose}} modal-open{{/if}}" onclick="openWallMessage('{{$mention.1}}')" titel="{{$mention.0}}" aria-label="{{$mention.0}}">
+					<button type="button" id="mention-link" class="btn btn-labeled btn-primary{{if !$always_open_compose}} modal-open{{/if}}" onclick="openWallMessage('{{$mention_link}}')" title="{{$mention}}" aria-label="{{$mention}}">
 						<span class=""><i class="fa fa-pencil-square-o"></i></span>
-						<span class="">{{$mention.0}}</span>
+						<span class="">{{$mention}}</span>
 					</button>
 				</div>
-                        {{/if}}
-                        {{if $contact.forum==1 || $contact.prv==1}}
+			{{/if}}
+			{{if $showgroup_link}}
 				<div id="show-group-button">
-					<button type="button" id="show-group" class="btn btn-labeled btn-primary{{if !$always_open_compose}} modal-open{{/if}}" onclick="window.location.href='{{$showgroup.1}}'">
+					<button type="button" id="show-group" class="btn btn-labeled btn-primary{{if !$always_open_compose}} modal-open{{/if}}" onclick="window.location.href='{{$showgroup_link}}'" title="{{$showgroup}}" aria-label="{{$showgroup}}">
 						<span class=""><i class="fa fa-group"></i></span>
-						<span class="">{{$showgroup.0}}</span>
+						<span class="">{{$showgroup}}</span>
 					</button>
 				</div>
-                        {{/if}}
+			{{/if}}
 		</div>
 
 		<div class="clear"></div>
