@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-09 20:09+0200\n"
+"POT-Creation-Date: 2023-10-09 20:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2420,17 +2420,12 @@ msgstr[1] ""
 msgid "More Trending Tags"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:105 src/Model/Contact.php:1204
+#: src/Content/Widget/VCard.php:107 src/Model/Contact.php:1204
 #: src/Model/Profile.php:457
 msgid "Post to group"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:107 src/Model/Contact.php:1206
-#: src/Model/Profile.php:459
-msgid "View group"
-msgstr ""
-
-#: src/Content/Widget/VCard.php:110 src/Model/Contact.php:1209
+#: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1209
 #: src/Model/Profile.php:462 src/Module/Moderation/Item/Source.php:85
 msgid "Mention"
 msgstr ""
@@ -2462,6 +2457,11 @@ msgstr ""
 #: src/Model/Contact.php:1249 src/Model/Profile.php:475
 #: src/Module/Contact/Profile.php:463
 msgid "Unfollow"
+msgstr ""
+
+#: src/Content/Widget/VCard.php:136 src/Model/Contact.php:1206
+#: src/Model/Profile.php:459
+msgid "View group"
 msgstr ""
 
 #: src/Core/ACL.php:166 src/Module/Profile/Profile.php:269
