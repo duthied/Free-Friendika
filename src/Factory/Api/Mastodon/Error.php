@@ -64,13 +64,10 @@ class Error extends BaseFactory
 		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
-	public function Unauthorized(string $error = '', string $error_description = '')
+	public function Unauthorized(string $error = '', string $error_description = ''): \Friendica\Object\Api\Mastodon\Error
 	{
 		$error             = $error ?: $this->l10n->t('Unauthorized');
-		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-
-		$this->logError(401, $error);
-		$this->jsonError(401, $errorObj->toArray());
+		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
 	public function Forbidden(string $error = '')

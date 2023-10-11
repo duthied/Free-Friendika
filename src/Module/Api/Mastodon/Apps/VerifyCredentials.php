@@ -36,7 +36,7 @@ class VerifyCredentials extends BaseApi
 		$application = self::getCurrentApplication();
 
 		if (empty($application['id'])) {
-			DI::mstdnError()->Unauthorized();
+			$this->logErrorAndJsonExit(401, $this->errorFactory->Unauthorized());
 		}
 
 		$this->jsonExit(DI::mstdnApplication()->createFromApplicationId($application['id']));
