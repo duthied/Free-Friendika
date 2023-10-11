@@ -19,7 +19,7 @@
 	{{* The message input field which contains the message text *}}
 	<div id="prvmail-message-label" class="form-group">
 		<label for="comment-edit-text-input">{{$yourmessage}}</label>
-		<textarea rows="8" cols="72" class="prvmail-text form-control text-autosize" id="comment-edit-text-input" name="body" tabindex="12" dir="auto">{{$text}}</textarea>
+		<textarea rows="8" cols="72" class="prvmail-text form-control text-autosize" id="comment-edit-text-input" name="body" tabindex="12" dir="auto" onkeydown="sendOnCtrlEnter(event, 'prvmail-submit')">{{$text}}</textarea>
 	</div>
 
 	<ul id="prvmail-text-edit-bb" class="comment-edit-bb comment-icon-list nav nav-pills hidden-xs pull-left">
