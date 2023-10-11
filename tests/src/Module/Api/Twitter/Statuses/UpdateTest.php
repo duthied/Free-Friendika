@@ -54,7 +54,7 @@ class UpdateTest extends ApiTest
 			]
 		];
 
-		$response = (new Update(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+		$response = (new Update(DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock, [
 				'status'                => 'Status content #friendica',
 				'in_reply_to_status_id' => 0,
@@ -76,7 +76,7 @@ class UpdateTest extends ApiTest
 	 */
 	public function testApiStatusesUpdateWithHtml()
 	{
-		$response = (new Update(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+		$response = (new Update(DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock, [
 				'htmlstatus' => '<b>Status content</b>',
 			]);

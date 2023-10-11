@@ -32,7 +32,7 @@ class ConfigTest extends ApiTest
 	 */
 	public function testApiStatusnetConfig()
 	{
-		$response = (new Config(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+		$response = (new Config(DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock);
 		$json = $this->toJson($response);
 
