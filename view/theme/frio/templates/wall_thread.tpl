@@ -61,7 +61,7 @@ as the value of $top_child_total (this is done at the end of this file)
 	<div class="media {{$item.shiny}}">
 	{{if $item.parentguid}}
 		<span class="visible-sm-inline visible-xs wall-item-responses time">
-			<i class="fa fa-reply" aria-hidden="true"></i> <a id="btn-{{$item.id}}" class="" href="javascript:;" onclick="scrollToItem('item-' + '{{$item.parentguid}}');">{{$item.isreplyto}}</a>
+			<i class="fa fa-reply" aria-hidden="true"></i> <a id="btn-{{$item.id}}" class="" href="javascript:;" onclick="scrollToItem('item-' + '{{$item.parentguid}}');">{{$item.inreplyto}}</a>
 			{{if $item.reshared}}<i class="hidden-xs">&#x2022;</i>{{/if}}
 		</span>
 	{{else}}
@@ -230,7 +230,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				<small>
 					{{if $item.parentguid}}
 						<span class="hidden-xs hidden-sm">
-							<a id="btn-{{$item.id}}" class="time" href="javascript:;" onclick="scrollToItem('item-' + '{{$item.parentguid}}');"><i class="fa fa-reply" aria-hidden="true"></i> {{$item.isreplyto}}</a>
+							<a id="btn-{{$item.id}}" class="time" href="javascript:;" onclick="scrollToItem('item-' + '{{$item.parentguid}}');"><i class="fa fa-reply" aria-hidden="true"></i> {{$item.inreplyto}}</a>
 							<i class="hidden-xs">&#x2022;</i>
 						</span>
 					{{else}}
