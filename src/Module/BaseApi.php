@@ -27,7 +27,6 @@ use Friendica\App\Router;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -37,6 +36,7 @@ use Friendica\Model\User;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
+use Friendica\Object\Api\Mastodon\Error;
 use Friendica\Object\Api\Mastodon\Status;
 use Friendica\Object\Api\Mastodon\TimelineOrderByTypes;
 use Friendica\Security\BasicAuth;
@@ -71,11 +71,15 @@ class BaseApi extends BaseModule
 	/** @var ApiResponse */
 	protected $response;
 
-	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	/** @var \Friendica\Factory\Api\Mastodon\Error */
+	protected $errorFactory;
+
+	public function __construct(\Friendica\Factory\Api\Mastodon\Error $errorFactory, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->app = $app;
+		$this->app          = $app;
+		$this->errorFactory = $errorFactory;
 	}
 
 	/**
@@ -514,5 +518,17 @@ class BaseApi extends BaseModule
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param int   $errorno
+	 * @param Error $error
+	 * @return void
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	protected function logErrorAndJsonExit(int $errorno, Error $error)
+	{
+		$this->logger->info('API Error', ['no' => $errorno, 'error' => $error->toArray(), 'method' => $this->args->getMethod(), 'command' => $this->args->getQueryString(), 'user-agent' => $this->server['HTTP_USER_AGENT'] ?? '']);
+		$this->jsonError(403, $error->toArray());
 	}
 }

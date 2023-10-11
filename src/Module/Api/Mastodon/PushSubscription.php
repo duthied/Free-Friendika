@@ -39,15 +39,12 @@ class PushSubscription extends BaseApi
 {
 	/** @var SubscriptionFactory */
 	protected $subscriptionFac;
-	/** @var Error */
-	protected $errorFac;
 
-	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, SubscriptionFactory $subscriptionFac, Error $errorFac, array $server, array $parameters = [])
+	public function __construct(\Friendica\Factory\Api\Mastodon\Error $errorFactory, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, SubscriptionFactory $subscriptionFac, array $server, array $parameters = [])
 	{
-		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($errorFactory, $app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->subscriptionFac = $subscriptionFac;
-		$this->errorFac        = $errorFac;
 	}
 
 	protected function post(array $request = []): void
@@ -97,7 +94,7 @@ class PushSubscription extends BaseApi
 		$subscription = Subscription::select($application['id'], $uid, ['id']);
 		if (empty($subscription)) {
 			$this->logger->info('Subscription not found', ['application-id' => $application['id'], 'uid' => $uid]);
-			$this->errorFac->RecordNotFound();
+			$this->errorFactory->RecordNotFound();
 		}
 
 		$fields = [
@@ -148,7 +145,7 @@ class PushSubscription extends BaseApi
 
 		if (!Subscription::exists($application['id'], $uid)) {
 			$this->logger->info('Subscription not found', ['application-id' => $application['id'], 'uid' => $uid]);
-			$this->errorFac->RecordNotFound();
+			$this->errorFactory->RecordNotFound();
 		}
 
 		$this->logger->info('Fetch subscription', ['application-id' => $application['id'], 'uid' => $uid]);
