@@ -404,7 +404,7 @@ class Installer
 		}
 		$this->addCheck(DI::l10n()->t('PDO or MySQLi PHP module'), $status, true, $help);
 
-		// Acticate when IntlChar is installed in the check pipeline.
+		// Uncomment when IntlChar is installed in the check pipeline.
 		/*
 		$help   = '';
 		$status = true;
