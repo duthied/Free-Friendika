@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-08 07:41+0000\n"
+"POT-Creation-Date: 2023-10-11 19:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1769,7 +1769,7 @@ msgstr ""
 msgid "Create new group"
 msgstr ""
 
-#: src/Content/Item.php:331 src/Model/Item.php:3025
+#: src/Content/Item.php:331 src/Model/Item.php:3080
 msgid "event"
 msgstr ""
 
@@ -1777,7 +1777,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:340 src/Model/Item.php:3027
+#: src/Content/Item.php:340 src/Model/Item.php:3082
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -2188,8 +2188,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:994 src/Model/Item.php:3761
-#: src/Model/Item.php:3767 src/Model/Item.php:3768
+#: src/Content/Text/BBCode.php:994 src/Model/Item.php:3816
+#: src/Model/Item.php:3822 src/Model/Item.php:3823
 msgid "Link to source"
 msgstr ""
 
@@ -2420,17 +2420,12 @@ msgstr[1] ""
 msgid "More Trending Tags"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:105 src/Model/Contact.php:1204
+#: src/Content/Widget/VCard.php:107 src/Model/Contact.php:1204
 #: src/Model/Profile.php:457
 msgid "Post to group"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:107 src/Model/Contact.php:1206
-#: src/Model/Profile.php:459
-msgid "View group"
-msgstr ""
-
-#: src/Content/Widget/VCard.php:110 src/Model/Contact.php:1209
+#: src/Content/Widget/VCard.php:111 src/Model/Contact.php:1209
 #: src/Model/Profile.php:462 src/Module/Moderation/Item/Source.php:85
 msgid "Mention"
 msgstr ""
@@ -2462,6 +2457,11 @@ msgstr ""
 #: src/Model/Contact.php:1249 src/Model/Profile.php:475
 #: src/Module/Contact/Profile.php:463
 msgid "Unfollow"
+msgstr ""
+
+#: src/Content/Widget/VCard.php:136 src/Model/Contact.php:1206
+#: src/Model/Profile.php:459
+msgid "View group"
 msgstr ""
 
 #: src/Core/ACL.php:166 src/Module/Profile/Profile.php:269
@@ -2611,235 +2611,243 @@ msgstr ""
 msgid "Generate encryption keys"
 msgstr ""
 
-#: src/Core/Installer.php:389
+#: src/Core/Installer.php:388
 msgid ""
 "Error: Apache webserver mod-rewrite module is required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:394
+#: src/Core/Installer.php:392
 msgid "Apache mod_rewrite module"
 msgstr ""
 
-#: src/Core/Installer.php:400
+#: src/Core/Installer.php:398
 msgid "Error: PDO or MySQLi PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:405
+#: src/Core/Installer.php:402
 msgid "Error: The MySQL driver for PDO is not installed."
 msgstr ""
 
-#: src/Core/Installer.php:409
+#: src/Core/Installer.php:405
 msgid "PDO or MySQLi PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:417
+#: src/Core/Installer.php:411
+msgid "Error: The IntlChar module is not installed."
+msgstr ""
+
+#: src/Core/Installer.php:414
+msgid "IntlChar PHP module"
+msgstr ""
+
+#: src/Core/Installer.php:422
 msgid "Error, XML PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:421
+#: src/Core/Installer.php:426
 msgid "XML PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:424
+#: src/Core/Installer.php:429
 msgid "libCurl PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:425
+#: src/Core/Installer.php:430
 msgid "Error: libCURL PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:431
+#: src/Core/Installer.php:436
 msgid "GD graphics PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:432
+#: src/Core/Installer.php:437
 msgid ""
 "Error: GD graphics PHP module with JPEG support required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:438
+#: src/Core/Installer.php:443
 msgid "OpenSSL PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:439
+#: src/Core/Installer.php:444
 msgid "Error: openssl PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:445
+#: src/Core/Installer.php:450
 msgid "mb_string PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:446
+#: src/Core/Installer.php:451
 msgid "Error: mb_string PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:452
+#: src/Core/Installer.php:457
 msgid "iconv PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:453
+#: src/Core/Installer.php:458
 msgid "Error: iconv PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:459
+#: src/Core/Installer.php:464
 msgid "POSIX PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:460
+#: src/Core/Installer.php:465
 msgid "Error: POSIX PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:466
+#: src/Core/Installer.php:471
 msgid "Program execution functions"
 msgstr ""
 
-#: src/Core/Installer.php:467
+#: src/Core/Installer.php:472
 msgid ""
 "Error: Program execution functions (proc_open) required but not enabled."
 msgstr ""
 
-#: src/Core/Installer.php:473
+#: src/Core/Installer.php:478
 msgid "JSON PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:474
+#: src/Core/Installer.php:479
 msgid "Error: JSON PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:480
+#: src/Core/Installer.php:485
 msgid "File Information PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:481
+#: src/Core/Installer.php:486
 msgid "Error: File Information PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:487
+#: src/Core/Installer.php:492
 msgid "GNU Multiple Precision PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:488
+#: src/Core/Installer.php:493
 msgid "Error: GNU Multiple Precision PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:511
+#: src/Core/Installer.php:516
 msgid ""
 "The web installer needs to be able to create a file called \"local.config.php"
 "\" in the \"config\" folder of your web server and it is unable to do so."
 msgstr ""
 
-#: src/Core/Installer.php:512
+#: src/Core/Installer.php:517
 msgid ""
 "This is most often a permission setting, as the web server may not be able "
 "to write files in your folder - even if you can."
 msgstr ""
 
-#: src/Core/Installer.php:513
+#: src/Core/Installer.php:518
 msgid ""
 "At the end of this procedure, we will give you a text to save in a file "
 "named local.config.php in your Friendica \"config\" folder."
 msgstr ""
 
-#: src/Core/Installer.php:514
+#: src/Core/Installer.php:519
 msgid ""
 "You can alternatively skip this procedure and perform a manual installation. "
 "Please see the file \"doc/INSTALL.md\" for instructions."
 msgstr ""
 
-#: src/Core/Installer.php:517
+#: src/Core/Installer.php:522
 msgid "config/local.config.php is writable"
 msgstr ""
 
-#: src/Core/Installer.php:537
+#: src/Core/Installer.php:542
 msgid ""
 "Friendica uses the Smarty3 template engine to render its web views. Smarty3 "
 "compiles templates to PHP to speed up rendering."
 msgstr ""
 
-#: src/Core/Installer.php:538
+#: src/Core/Installer.php:543
 msgid ""
 "In order to store these compiled templates, the web server needs to have "
 "write access to the directory view/smarty3/ under the Friendica top level "
 "folder."
 msgstr ""
 
-#: src/Core/Installer.php:539
+#: src/Core/Installer.php:544
 msgid ""
 "Please ensure that the user that your web server runs as (e.g. www-data) has "
 "write access to this folder."
 msgstr ""
 
-#: src/Core/Installer.php:540
+#: src/Core/Installer.php:545
 msgid ""
 "Note: as a security measure, you should give the web server write access to "
 "view/smarty3/ only--not the template files (.tpl) that it contains."
 msgstr ""
 
-#: src/Core/Installer.php:543
+#: src/Core/Installer.php:548
 msgid "view/smarty3 is writable"
 msgstr ""
 
-#: src/Core/Installer.php:571
+#: src/Core/Installer.php:576
 msgid ""
 "Url rewrite in .htaccess seems not working. Make sure you copied .htaccess-"
 "dist to .htaccess."
 msgstr ""
 
-#: src/Core/Installer.php:572
+#: src/Core/Installer.php:577
 msgid ""
 "In some circumstances (like running inside containers), you can skip this "
 "error."
 msgstr ""
 
-#: src/Core/Installer.php:574
+#: src/Core/Installer.php:579
 msgid "Error message from Curl when fetching"
 msgstr ""
 
-#: src/Core/Installer.php:580
+#: src/Core/Installer.php:585
 msgid "Url rewrite is working"
 msgstr ""
 
-#: src/Core/Installer.php:609
+#: src/Core/Installer.php:614
 msgid ""
 "The detection of TLS to secure the communication between the browser and the "
 "new Friendica server failed."
 msgstr ""
 
-#: src/Core/Installer.php:610
+#: src/Core/Installer.php:615
 msgid ""
 "It is highly encouraged to use Friendica only over a secure connection as "
 "sensitive information like passwords will be transmitted."
 msgstr ""
 
-#: src/Core/Installer.php:611
+#: src/Core/Installer.php:616
 msgid "Please ensure that the connection to the server is secure."
 msgstr ""
 
-#: src/Core/Installer.php:612
+#: src/Core/Installer.php:617
 msgid "No TLS detected"
 msgstr ""
 
-#: src/Core/Installer.php:614
+#: src/Core/Installer.php:619
 msgid "TLS detected"
 msgstr ""
 
-#: src/Core/Installer.php:641
+#: src/Core/Installer.php:646
 msgid "ImageMagick PHP extension is not installed"
 msgstr ""
 
-#: src/Core/Installer.php:643
+#: src/Core/Installer.php:648
 msgid "ImageMagick PHP extension is installed"
 msgstr ""
 
-#: src/Core/Installer.php:645
+#: src/Core/Installer.php:650
 msgid "ImageMagick supports GIF"
 msgstr ""
 
-#: src/Core/Installer.php:667
+#: src/Core/Installer.php:672
 msgid "Database already in use."
 msgstr ""
 
-#: src/Core/Installer.php:672
+#: src/Core/Installer.php:677
 msgid "Could not connect to database."
 msgstr ""
 
@@ -3392,81 +3400,81 @@ msgstr ""
 msgid "Happy Birthday %s"
 msgstr ""
 
-#: src/Model/Item.php:2084
+#: src/Model/Item.php:2139
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:3029
+#: src/Model/Item.php:3084
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:3031
+#: src/Model/Item.php:3086
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:3034 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:3089 src/Module/Post/Tag/Add.php:123
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:3204
+#: src/Model/Item.php:3259
 #, php-format
 msgid "%s is blocked"
 msgstr ""
 
-#: src/Model/Item.php:3206
+#: src/Model/Item.php:3261
 #, php-format
 msgid "%s is ignored"
 msgstr ""
 
-#: src/Model/Item.php:3208
+#: src/Model/Item.php:3263
 #, php-format
 msgid "Content from %s is collapsed"
 msgstr ""
 
-#: src/Model/Item.php:3212
+#: src/Model/Item.php:3267
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3668
+#: src/Model/Item.php:3723
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3699
+#: src/Model/Item.php:3754
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3701
+#: src/Model/Item.php:3756
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3706
+#: src/Model/Item.php:3761
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3708
+#: src/Model/Item.php:3763
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3710
+#: src/Model/Item.php:3765
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3744 src/Model/Item.php:3745
+#: src/Model/Item.php:3799 src/Model/Item.php:3800
 msgid "View on separate page"
 msgstr ""
 
