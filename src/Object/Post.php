@@ -505,7 +505,7 @@ class Post
 			'parentguid'      => $parent_guid,
 			'isreplyto'       => DI::l10n()->t('is reply to %s', $parent_username),
 			'isunknown'       => $parent_unknown,
-			'isunknown_label' => DI::l10n()->t('parent is probably private or not federated'),
+			'isunknown_label' => DI::l10n()->t('Parent is probably private or not federated.'),
 			'template'        => $this->getTemplate(),
 			'type'            => implode('', array_slice(explode('/', $item['verb']), -1)),
 			'comment_firstcollapsed' => false,
