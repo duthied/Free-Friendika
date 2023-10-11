@@ -499,10 +499,13 @@ class Post
 
 		$parent_guid     = $thread_parent[$item['thr-parent-id']]['guid'] ?? '';
 		$parent_username = $thread_parent[$item['thr-parent-id']]['name'] ?? '';
+		$parent_unknown  = $parent_username ? '' : DI::l10n()->t('Unknown parent');
 
 		$tmp_item = [
 			'parentguid'      => $parent_guid,
-			'isreplyto'       => DI::l10n()->t('in reply to %s', $parent_username),
+			'inreplyto'       => DI::l10n()->t('in reply to %s', $parent_username),
+			'isunknown'       => $parent_unknown,
+			'isunknown_label' => DI::l10n()->t('Parent is probably private or not federated.'),
 			'template'        => $this->getTemplate(),
 			'type'            => implode('', array_slice(explode('/', $item['verb']), -1)),
 			'comment_firstcollapsed' => false,
