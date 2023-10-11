@@ -21,33 +21,20 @@
 
 namespace Friendica\Factory\Api\Mastodon;
 
-use Friendica\App\Arguments;
 use Friendica\BaseFactory;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
 use Psr\Log\LoggerInterface;
 
 /** @todo A Factory shouldn't return something to the frontpage, it's for creating content, not showing it */
 class Error extends BaseFactory
 {
-	/** @var Arguments */
-	private $args;
-	/** @var string[] The $_SERVER array */
-	private $server;
 	/** @var L10n */
 	private $l10n;
 
-	public function __construct(LoggerInterface $logger, Arguments $args, L10n $l10n, array $server)
+	public function __construct(LoggerInterface $logger, L10n $l10n)
 	{
 		parent::__construct($logger);
-		$this->args   = $args;
-		$this->server = $server;
 		$this->l10n   = $l10n;
-	}
-
-	private function logError(int $errorno, string $error)
-	{
-		$this->logger->info('API Error', ['no' => $errorno, 'error' => $error, 'method' => $this->args->getMethod(), 'command' => $this->args->getQueryString(), 'user-agent' => $this->server['HTTP_USER_AGENT'] ?? '']);
 	}
 
 	public function RecordNotFound(): \Friendica\Object\Api\Mastodon\Error

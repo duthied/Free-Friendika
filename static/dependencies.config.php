@@ -302,11 +302,6 @@ return [
 			['createClient', [], Dice::CHAIN_CALL],
 		],
 	],
-	Factory\Api\Mastodon\Error::class => [
-		'constructParams' => [
-			$_SERVER
-		],
-	],
 	ParsedLogIterator::class => [
 		'constructParams' => [
 			[Dice::INSTANCE => Util\ReversedFileReader::class],
