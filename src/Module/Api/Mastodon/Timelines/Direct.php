@@ -26,6 +26,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPException\NotFoundException;
 
 /**
  * @see https://docs.joinmastodon.org/methods/timelines/
@@ -76,9 +77,13 @@ class Direct extends BaseApi
 
 		$statuses = [];
 
-		while ($mail = DBA::fetch($mails)) {
-			self::setBoundaries($mail['uri-id']);
-			$statuses[] = DI::mstdnStatus()->createFromMailId($mail['id']);
+		try {
+			while ($mail = DBA::fetch($mails)) {
+				self::setBoundaries($mail['uri-id']);
+				$statuses[] = DI::mstdnStatus()->createFromMailId($mail['id']);
+			}
+		} catch (NotFoundException $e) {
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		if (!empty($request['min_id'])) {

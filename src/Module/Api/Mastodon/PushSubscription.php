@@ -94,7 +94,7 @@ class PushSubscription extends BaseApi
 		$subscription = Subscription::select($application['id'], $uid, ['id']);
 		if (empty($subscription)) {
 			$this->logger->info('Subscription not found', ['application-id' => $application['id'], 'uid' => $uid]);
-			$this->errorFactory->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$fields = [
@@ -145,7 +145,7 @@ class PushSubscription extends BaseApi
 
 		if (!Subscription::exists($application['id'], $uid)) {
 			$this->logger->info('Subscription not found', ['application-id' => $application['id'], 'uid' => $uid]);
-			$this->errorFactory->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$this->logger->info('Fetch subscription', ['application-id' => $application['id'], 'uid' => $uid]);

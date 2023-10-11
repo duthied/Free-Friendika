@@ -43,7 +43,7 @@ class Pin extends BaseApi
 
 		$item = Post::selectOriginalForUser($uid, ['uri-id', 'gravity', 'author-id'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		Post\Collection::add($item['uri-id'], Post\Collection::FEATURED, $item['author-id'], $uid);

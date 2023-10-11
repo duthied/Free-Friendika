@@ -116,7 +116,7 @@ class Context extends BaseApi
 				}
 				DBA::close($posts);
 			} else {
-				DI::mstdnError()->RecordNotFound();
+				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 			}
 		}
 

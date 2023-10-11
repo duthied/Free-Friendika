@@ -41,7 +41,7 @@ class Lists extends BaseApi
 		}
 
 		if (!Circle::exists($this->parameters['id'], $uid)) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		if (!Circle::remove($this->parameters['id'])) {
@@ -106,7 +106,7 @@ class Lists extends BaseApi
 			$id = $this->parameters['id'];
 
 			if (!Circle::exists($id, $uid)) {
-				DI::mstdnError()->RecordNotFound();
+				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 			}
 			$lists = DI::mstdnList()->createFromCircleId($id);
 		}

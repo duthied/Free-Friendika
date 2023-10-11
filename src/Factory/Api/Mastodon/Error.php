@@ -50,14 +50,11 @@ class Error extends BaseFactory
 		$this->logger->info('API Error', ['no' => $errorno, 'error' => $error, 'method' => $this->args->getMethod(), 'command' => $this->args->getQueryString(), 'user-agent' => $this->server['HTTP_USER_AGENT'] ?? '']);
 	}
 
-	public function RecordNotFound()
+	public function RecordNotFound(): \Friendica\Object\Api\Mastodon\Error
 	{
 		$error             = $this->l10n->t('Record not found');
 		$error_description = '';
-		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-
-		$this->logError(404, $error);
-		$this->jsonError(404, $errorObj->toArray());
+		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
 	public function UnprocessableEntity(string $error = '')

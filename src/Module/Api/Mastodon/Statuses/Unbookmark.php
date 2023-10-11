@@ -44,7 +44,7 @@ class Unbookmark extends BaseApi
 
 		$item = Post::selectOriginal(['uid', 'id', 'uri-id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
 		if (!DBA::isResult($item)) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		if ($item['gravity'] != Item::GRAVITY_PARENT) {
@@ -56,10 +56,10 @@ class Unbookmark extends BaseApi
 			if (!empty($stored)) {
 				$item = Post::selectFirst(['id', 'gravity'], ['id' => $stored]);
 				if (!DBA::isResult($item)) {
-					DI::mstdnError()->RecordNotFound();
+					$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 				}
 			} else {
-				DI::mstdnError()->RecordNotFound();
+				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 			}
 		}
 

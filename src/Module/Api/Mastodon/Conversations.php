@@ -25,6 +25,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Network\HTTPException\NotFoundException;
 
 /**
  * @see https://docs.joinmastodon.org/methods/timelines/conversations/
@@ -83,9 +84,13 @@ class Conversations extends BaseApi
 
 		$conversations = [];
 
-		while ($conv = DBA::fetch($convs)) {
-			self::setBoundaries($conv['id']);
-			$conversations[] = DI::mstdnConversation()->createFromConvId($conv['id']);
+		try {
+			while ($conv = DBA::fetch($convs)) {
+				self::setBoundaries($conv['id']);
+				$conversations[] = DI::mstdnConversation()->createFromConvId($conv['id']);
+			}
+		} catch (NotFoundException $e) {
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		DBA::close($convs);

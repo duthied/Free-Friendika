@@ -46,14 +46,14 @@ class Accounts extends BaseApi
 		if (!empty($this->parameters['id'])) {
 			$id = $this->parameters['id'];
 			if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
-				DI::mstdnError()->RecordNotFound();
+				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 			}
 		} else {
 			$contact = Contact::selectFirst(['id'], ['nick' => $this->parameters['name'], 'uid' => 0]);
 			if (!empty($contact['id'])) {
 				$id = $contact['id'];
 			} elseif (!($id = Contact::getIdForURL($this->parameters['name'], 0, false))) {
-				DI::mstdnError()->RecordNotFound();
+				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 			}
 		}
 

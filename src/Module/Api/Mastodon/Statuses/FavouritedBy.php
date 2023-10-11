@@ -45,7 +45,7 @@ class FavouritedBy extends BaseApi
 		}
 
 		if (!$post = Post::selectOriginal(['uri-id'], ['uri-id' => $this->parameters['id'], 'uid' => [0, $uid]])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $post['uri-id'], 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::LIKE, 'deleted' => false]);

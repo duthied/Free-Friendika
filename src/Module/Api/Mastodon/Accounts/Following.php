@@ -46,7 +46,7 @@ class Following extends BaseApi
 
 		$id = $this->parameters['id'];
 		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$request = $this->getRequest([

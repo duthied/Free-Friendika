@@ -50,7 +50,7 @@ class Notifications extends BaseApi
 				$notification = DI::notification()->selectOneForUser($uid, ['id' => $id]);
 				$this->jsonExit(DI::mstdnNotification()->createFromNotification($notification, self::appSupportsQuotes()));
 			} catch (\Exception $e) {
-				DI::mstdnError()->RecordNotFound();
+				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 			}
 		}
 

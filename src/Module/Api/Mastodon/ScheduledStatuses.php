@@ -51,7 +51,7 @@ class ScheduledStatuses extends BaseApi
 		}
 
 		if (!DBA::exists('delayed-post', ['id' => $this->parameters['id'], 'uid' => $uid])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		Post\Delayed::deleteById($this->parameters['id']);

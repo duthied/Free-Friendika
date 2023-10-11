@@ -47,7 +47,7 @@ class Reblog extends BaseApi
 
 		$item = Post::selectOriginalForUser($uid, ['id', 'uri-id', 'network'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		if ($item['network'] == Protocol::DIASPORA) {

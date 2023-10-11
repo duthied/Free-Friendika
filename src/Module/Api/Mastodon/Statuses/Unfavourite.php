@@ -44,7 +44,7 @@ class Unfavourite extends BaseApi
 
 		$item = Post::selectOriginalForUser($uid, ['id', 'uri-id'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		Item::performActivity($item['id'], 'unlike', $uid);

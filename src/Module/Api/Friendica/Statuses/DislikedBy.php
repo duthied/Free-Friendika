@@ -46,7 +46,7 @@ class DislikedBy extends BaseApi
 
 		$id = $this->parameters['id'];
 		if (!Post::exists(['uri-id' => $id, 'uid' => [0, $uid]])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $id, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::DISLIKE, 'deleted' => false]);

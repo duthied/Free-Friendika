@@ -44,7 +44,7 @@ class Mute extends BaseApi
 
 		$item = Post::selectOriginalForUser($uid, ['uri-id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		if ($item['gravity'] != Item::GRAVITY_PARENT) {

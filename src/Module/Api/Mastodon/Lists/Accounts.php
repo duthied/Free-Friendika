@@ -78,7 +78,7 @@ class Accounts extends BaseApi
 
 		$id = $this->parameters['id'];
 		if (!DBA::exists('group', ['id' => $id, 'uid' => $uid])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$request = $this->getRequest([

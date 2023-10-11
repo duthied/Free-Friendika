@@ -42,7 +42,7 @@ class Unfollow extends BaseApi
 
 		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
 		if (empty($cdata['user'])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$contact = Contact::getById($cdata['user']);
