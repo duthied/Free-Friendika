@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-11 14:20+0200\n"
+"POT-Creation-Date: 2023-10-11 17:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12051,11 +12051,11 @@ msgstr ""
 
 #: src/Object/Post.php:506
 #, php-format
-msgid "is reply to %s"
+msgid "in reply to %s"
 msgstr ""
 
 #: src/Object/Post.php:508
-msgid "parent is probably private or not federated"
+msgid "Parent is probably private or not federated."
 msgstr ""
 
 #: src/Object/Post.php:532
