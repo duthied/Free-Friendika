@@ -37,7 +37,7 @@ class Lists extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		if (!Circle::exists($this->parameters['id'], $uid)) {
@@ -61,7 +61,7 @@ class Lists extends BaseApi
 		], $request);
 
 		if (empty($request['title'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		Circle::create($uid, $request['title']);
@@ -82,7 +82,7 @@ class Lists extends BaseApi
 		], $request);
 
 		if (empty($request['title']) || empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		Circle::update($this->parameters['id'], $request['title']);

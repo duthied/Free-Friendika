@@ -39,7 +39,7 @@ class Mute extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$item = Post::selectOriginalForUser($uid, ['uri-id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
@@ -48,7 +48,7 @@ class Mute extends BaseApi
 		}
 
 		if ($item['gravity'] != Item::GRAVITY_PARENT) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be muted'));
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity($this->t('Only starting posts can be muted')));
 		}
 
 		Post\ThreadUser::setIgnored($item['uri-id'], $uid, true);

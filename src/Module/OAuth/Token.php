@@ -105,7 +105,7 @@ class Token extends BaseApi
 			$me = $owner['url'];
 		} else {
 			Logger::warning('Unsupported or missing grant type', ['request' => $_REQUEST]);
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Unsupported or missing grant type'));
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity($this->t('Unsupported or missing grant type')));
 		}
 
 		$object = new \Friendica\Object\Api\Mastodon\Token($token['access_token'], 'Bearer', $application['scopes'], $token['created_at'], $me);

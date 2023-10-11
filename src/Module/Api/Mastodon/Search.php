@@ -60,7 +60,7 @@ class Search extends BaseApi
 		], $request);
 
 		if (empty($request['q'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$limit = min($request['limit'], 40);

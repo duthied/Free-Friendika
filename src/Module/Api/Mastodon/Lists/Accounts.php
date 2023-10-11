@@ -43,7 +43,7 @@ class Accounts extends BaseApi
 		], $request);
 
 		if (empty($request['account_ids']) || empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		return Circle::removeMembers($this->parameters['id'], $request['account_ids']);
@@ -58,7 +58,7 @@ class Accounts extends BaseApi
 		], $request);
 
 		if (empty($request['account_ids']) || empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		Circle::addMembers($this->parameters['id'], $request['account_ids']);
@@ -73,7 +73,7 @@ class Accounts extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$id = $this->parameters['id'];

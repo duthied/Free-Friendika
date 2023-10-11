@@ -37,7 +37,7 @@ class Unfollow extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);

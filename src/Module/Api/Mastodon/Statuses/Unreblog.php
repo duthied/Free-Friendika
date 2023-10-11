@@ -41,7 +41,7 @@ class Unreblog extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$item = Post::selectOriginalForUser($uid, ['id', 'uri-id', 'network'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
@@ -59,7 +59,10 @@ class Unreblog extends BaseApi
 				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
 			}
 		} elseif (!in_array($item['network'], [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::TWITTER])) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t("Posts from %s can't be unshared", ContactSelector::networkToName($item['network'])));
+			$this->logErrorAndJsonExit(
+				422,
+				$this->errorFactory->UnprocessableEntity($this->t("Posts from %s can't be unshared", ContactSelector::networkToName($item['network'])))
+			);
 		} else {
 			Item::performActivity($item['id'], 'unannounce', $uid);
 		}

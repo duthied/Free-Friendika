@@ -70,7 +70,7 @@ class Apps extends BaseApi
 		}
 
 		if (empty($request['client_name']) || empty($request['redirect_uris'])) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Missing parameters'));
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity($this->t('Missing parameters')));
 		}
 
 		$client_id     = bin2hex(random_bytes(32));

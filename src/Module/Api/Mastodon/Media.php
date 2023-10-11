@@ -48,12 +48,12 @@ class Media extends BaseApi
 		Logger::info('Photo post', ['request' => $request, 'files' => $_FILES]);
 
 		if (empty($_FILES['file'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$media = Photo::upload($uid, $_FILES['file'], '', null, null, '', '', $request['description']);
 		if (empty($media)) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		Logger::info('Uploaded photo', ['media' => $media]);
@@ -74,7 +74,7 @@ class Media extends BaseApi
 		], $request);
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$photo = Photo::selectFirst(['resource-id'], ['id' => $this->parameters['id'], 'uid' => $uid]);
@@ -104,7 +104,7 @@ class Media extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$id = $this->parameters['id'];

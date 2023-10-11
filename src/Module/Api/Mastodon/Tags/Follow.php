@@ -37,7 +37,7 @@ class Follow extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['hashtag'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$fields = ['uid' => $uid, 'term' => '#' . ltrim($this->parameters['hashtag'], '#')];

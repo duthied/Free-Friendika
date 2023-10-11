@@ -42,7 +42,7 @@ class Reblog extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$item = Post::selectOriginalForUser($uid, ['id', 'uri-id', 'network'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
@@ -53,7 +53,10 @@ class Reblog extends BaseApi
 		if ($item['network'] == Protocol::DIASPORA) {
 			Diaspora::performReshare($this->parameters['id'], $uid);
 		} elseif (!in_array($item['network'], [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::TWITTER])) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t("Posts from %s can't be shared", ContactSelector::networkToName($item['network'])));
+			$this->logErrorAndJsonExit(
+				422,
+				$this->errorFactory->UnprocessableEntity($this->t("Posts from %s can't be shared", ContactSelector::networkToName($item['network'])))
+			);
 		} else {
 			Item::performActivity($item['id'], 'announce', $uid);
 		}

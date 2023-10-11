@@ -40,7 +40,7 @@ class Tags extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['hashtag'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$tag       = ltrim($this->parameters['hashtag'], '#');

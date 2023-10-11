@@ -40,7 +40,7 @@ class Accounts extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id']) && empty($this->parameters['name'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		if (!empty($this->parameters['id'])) {

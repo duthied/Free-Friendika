@@ -57,14 +57,11 @@ class Error extends BaseFactory
 		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
-	public function UnprocessableEntity(string $error = '')
+	public function UnprocessableEntity(string $error = ''): \Friendica\Object\Api\Mastodon\Error
 	{
 		$error             = $error ?: $this->l10n->t('Unprocessable Entity');
 		$error_description = '';
-		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-
-		$this->logError(422, $error);
-		$this->jsonError(422, $errorObj->toArray());
+		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
 	public function Unauthorized(string $error = '', string $error_description = '')

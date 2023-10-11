@@ -38,7 +38,7 @@ class Conversations extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (!empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		DBA::delete('conv', ['id' => $this->parameters['id'], 'uid' => $uid]);

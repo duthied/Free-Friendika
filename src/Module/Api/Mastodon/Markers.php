@@ -48,7 +48,7 @@ class Markers extends BaseApi
 		}
 
 		if (empty($timeline) || empty($last_read_id) || empty($application['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$condition = ['application-id' => $application['id'], 'uid' => $uid, 'timeline' => $timeline];

@@ -38,7 +38,7 @@ class Unpin extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$item = Post::selectOriginalForUser($uid, ['uri-id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);

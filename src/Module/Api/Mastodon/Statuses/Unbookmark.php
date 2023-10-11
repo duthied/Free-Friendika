@@ -39,7 +39,7 @@ class Unbookmark extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$item = Post::selectOriginal(['uid', 'id', 'uri-id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
@@ -48,7 +48,7 @@ class Unbookmark extends BaseApi
 		}
 
 		if ($item['gravity'] != Item::GRAVITY_PARENT) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be unbookmarked'));
+			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity($this->t('Only starting posts can be unbookmarked')));
 		}
 
 		if ($item['uid'] == 0) {
