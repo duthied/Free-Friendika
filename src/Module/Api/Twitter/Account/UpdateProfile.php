@@ -34,7 +34,7 @@ class UpdateProfile extends BaseApi
 {
 	protected function post(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+		$this->checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
 
 		$api_user = DI::twitterUser()->createFromUserId($uid, true)->toArray();

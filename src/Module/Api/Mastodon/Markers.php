@@ -34,7 +34,7 @@ class Markers extends BaseApi
 {
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
@@ -69,7 +69,7 @@ class Markers extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 

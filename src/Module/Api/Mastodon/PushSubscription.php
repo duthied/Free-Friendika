@@ -49,7 +49,7 @@ class PushSubscription extends BaseApi
 
 	protected function post(array $request = []): void
 	{
-		self::checkAllowedScope(self::SCOPE_PUSH);
+		$this->checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
@@ -83,7 +83,7 @@ class PushSubscription extends BaseApi
 
 	public function put(array $request = []): void
 	{
-		self::checkAllowedScope(self::SCOPE_PUSH);
+		$this->checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
@@ -122,7 +122,7 @@ class PushSubscription extends BaseApi
 
 	protected function delete(array $request = []): void
 	{
-		self::checkAllowedScope(self::SCOPE_PUSH);
+		$this->checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
@@ -139,7 +139,7 @@ class PushSubscription extends BaseApi
 
 	protected function rawContent(array $request = []): void
 	{
-		self::checkAllowedScope(self::SCOPE_PUSH);
+		$this->checkAllowedScope(self::SCOPE_PUSH);
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 

@@ -53,7 +53,7 @@ class Ownership extends BaseApi
 	}
 	protected function rawContent(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
+		$this->checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
 		$circles = $this->dba->select('group', [], ['deleted' => false, 'uid' => $uid, 'cid' => null]);

@@ -49,7 +49,7 @@ class Destroy extends BaseApi
 	}
 	protected function rawContent(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+		$this->checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
 
 		$id = $this->getRequestValue($request, 'id', 0);

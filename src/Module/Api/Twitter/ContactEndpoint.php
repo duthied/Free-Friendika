@@ -42,7 +42,7 @@ abstract class ContactEndpoint extends BaseApi
 	{
 		parent::__construct($errorFactory, $app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 	}
 
 	/**

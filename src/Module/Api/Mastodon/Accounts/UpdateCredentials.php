@@ -36,7 +36,7 @@ class UpdateCredentials extends BaseApi
 {
 	protected function patch(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$owner = User::getOwnerDataById($uid);

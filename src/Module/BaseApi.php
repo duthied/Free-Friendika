@@ -97,7 +97,7 @@ class BaseApi extends BaseModule
 				case Router::PATCH:
 				case Router::POST:
 				case Router::PUT:
-					self::checkAllowedScope(self::SCOPE_WRITE);
+					$this->checkAllowedScope(self::SCOPE_WRITE);
 
 					if (!self::getCurrentUserID()) {
 						throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
@@ -418,22 +418,22 @@ class BaseApi extends BaseModule
 	 *
 	 * @param string $scope the requested scope (read, write, follow, push)
 	 */
-	public static function checkAllowedScope(string $scope)
+	public function checkAllowedScope(string $scope)
 	{
 		$token = self::getCurrentApplication();
 
 		if (empty($token)) {
-			Logger::notice('Empty application token');
+			$this->logger->notice('Empty application token');
 			DI::mstdnError()->Forbidden();
 		}
 
 		if (!isset($token[$scope])) {
-			Logger::warning('The requested scope does not exist', ['scope' => $scope, 'application' => $token]);
+			$this->logger->warning('The requested scope does not exist', ['scope' => $scope, 'application' => $token]);
 			DI::mstdnError()->Forbidden();
 		}
 
 		if (empty($token[$scope])) {
-			Logger::warning('The requested scope is not allowed', ['scope' => $scope, 'application' => $token]);
+			$this->logger->warning('The requested scope is not allowed', ['scope' => $scope, 'application' => $token]);
 			DI::mstdnError()->Forbidden();
 		}
 	}

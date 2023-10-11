@@ -51,7 +51,7 @@ class Reports extends BaseApi
 
 	public function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 
 		$request = $this->getRequest([
 			'account_id' => '',      // ID of the account to report

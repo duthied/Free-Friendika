@@ -33,7 +33,7 @@ class Unfollow extends BaseApi
 {
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_FOLLOW);
+		$this->checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {

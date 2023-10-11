@@ -32,7 +32,7 @@ class VerifyCredentials extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$application = self::getCurrentApplication();
 
 		if (empty($application['id'])) {

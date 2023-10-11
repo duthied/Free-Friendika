@@ -36,7 +36,7 @@ class Accounts extends BaseApi
 {
 	protected function delete(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 
 		$request = $this->getRequest([
 			'account_ids' => [], // Array of account IDs to remove from the list
@@ -51,7 +51,7 @@ class Accounts extends BaseApi
 
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 
 		$request = $this->getRequest([
 			'account_ids' =>  [], // Array of account IDs to add to the list
@@ -69,7 +69,7 @@ class Accounts extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {

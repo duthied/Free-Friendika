@@ -35,7 +35,7 @@ class NetworkPublicTimeline extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
+		$this->checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
 		$count            = $this->getRequestValue($request, 'count', 20, 1, 100);

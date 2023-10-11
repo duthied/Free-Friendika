@@ -32,7 +32,7 @@ class SavedSearches extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$terms = DBA::select('search', ['id', 'term'], ['uid' => $uid]);

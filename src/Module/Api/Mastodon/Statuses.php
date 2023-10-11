@@ -49,7 +49,7 @@ class Statuses extends BaseApi
 {
 	public function put(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$request = $this->getRequest([
@@ -164,7 +164,7 @@ class Statuses extends BaseApi
 
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$request = $this->getRequest([
@@ -315,7 +315,7 @@ class Statuses extends BaseApi
 
 	protected function delete(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {

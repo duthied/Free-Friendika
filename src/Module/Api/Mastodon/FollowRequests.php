@@ -44,7 +44,7 @@ class FollowRequests extends BaseApi
 	 */
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_FOLLOW);
+		$this->checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
 		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
@@ -89,7 +89,7 @@ class FollowRequests extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$request = $this->getRequest([

@@ -35,7 +35,7 @@ class ScheduledStatuses extends BaseApi
 {
 	public function put(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$this->response->unsupported(Router::PUT, $request);
@@ -43,7 +43,7 @@ class ScheduledStatuses extends BaseApi
 
 	protected function delete(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
@@ -64,7 +64,7 @@ class ScheduledStatuses extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (isset($this->parameters['id'])) {

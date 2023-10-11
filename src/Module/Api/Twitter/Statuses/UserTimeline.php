@@ -38,7 +38,7 @@ class UserTimeline extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
+		$this->checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
 		Logger::info('api_statuses_user_timeline', ['api_user' => $uid, '_REQUEST' => $request]);

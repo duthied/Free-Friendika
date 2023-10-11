@@ -56,7 +56,7 @@ class NewDM extends BaseApi
 
 	protected function rawContent(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+		$this->checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
 
 		if (empty($request['text']) || empty($request['screen_name']) && empty($request['user_id'])) {
