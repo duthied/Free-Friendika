@@ -38,7 +38,7 @@ class Conversations extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (!empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		DBA::delete('conv', ['id' => $this->parameters['id'], 'uid' => $uid]);
@@ -90,7 +90,7 @@ class Conversations extends BaseApi
 				$conversations[] = DI::mstdnConversation()->createFromConvId($conv['id']);
 			}
 		} catch (NotFoundException $e) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		DBA::close($convs);

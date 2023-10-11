@@ -48,12 +48,12 @@ class Media extends BaseApi
 		Logger::info('Photo post', ['request' => $request, 'files' => $_FILES]);
 
 		if (empty($_FILES['file'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$media = Photo::upload($uid, $_FILES['file'], '', null, null, '', '', $request['description']);
 		if (empty($media)) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		Logger::info('Uploaded photo', ['media' => $media]);
@@ -74,17 +74,17 @@ class Media extends BaseApi
 		], $request);
 
 		if (empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$photo = Photo::selectFirst(['resource-id'], ['id' => $this->parameters['id'], 'uid' => $uid]);
 		if (empty($photo['resource-id'])) {
 			$media = Post\Media::getById($this->parameters['id']);
 			if (empty($media['uri-id'])) {
-				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+				$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 			}
 			if (!Post::exists(['uri-id' => $media['uri-id'], 'uid' => $uid, 'origin' => true])) {
-				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+				$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 			}
 			Post\Media::updateById(['description' => $request['description']], $this->parameters['id']);
 			$this->jsonExit(DI::mstdnAttachment()->createFromId($this->parameters['id']));
@@ -104,12 +104,12 @@ class Media extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$id = $this->parameters['id'];
 		if (!Photo::exists(['id' => $id, 'uid' => $uid])) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$this->jsonExit(DI::mstdnAttachment()->createFromPhoto($id));

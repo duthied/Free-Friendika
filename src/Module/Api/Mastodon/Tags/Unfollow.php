@@ -37,7 +37,7 @@ class Unfollow extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['hashtag'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$term = ['uid' => $uid, 'term' => '#' . ltrim($this->parameters['hashtag'], '#')];

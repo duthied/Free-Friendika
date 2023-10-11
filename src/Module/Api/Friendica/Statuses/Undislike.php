@@ -39,12 +39,12 @@ class Undislike extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]]);
 		if (!DBA::isResult($item)) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		Item::performActivity($item['id'], 'undislike', $uid);

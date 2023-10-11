@@ -41,12 +41,12 @@ class Lists extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$id = $this->parameters['id'];
 		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$lists = [];

@@ -47,11 +47,11 @@ class ScheduledStatuses extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		if (!DBA::exists('delayed-post', ['id' => $this->parameters['id'], 'uid' => $uid])) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		Post\Delayed::deleteById($this->parameters['id']);

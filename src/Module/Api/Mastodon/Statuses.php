@@ -297,7 +297,7 @@ class Statuses extends BaseApi
 			$item['uri'] = Item::newURI($item['guid']);
 			$id = Post\Delayed::add($item['uri'], $item, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED, DateTimeFormat::utc($request['scheduled_at']));
 			if (empty($id)) {
-				$this->logErrorAndJsonExit(500, $this->errorFactory->InternalError());
+				$this->logAndJsonError(500, $this->errorFactory->InternalError());
 			}
 			$this->jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId($id, $uid)->toArray());
 		}
@@ -310,7 +310,7 @@ class Statuses extends BaseApi
 			}
 		}
 
-		$this->logErrorAndJsonExit(500, $this->errorFactory->InternalError());
+		$this->logAndJsonError(500, $this->errorFactory->InternalError());
 	}
 
 	protected function delete(array $request = [])
@@ -319,16 +319,16 @@ class Statuses extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $this->parameters['id'], 'uid' => $uid]);
 		if (empty($item['id'])) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		if (!Item::markForDeletionById($item['id'])) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$this->jsonExit([]);
@@ -342,7 +342,7 @@ class Statuses extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$this->jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes(), false));

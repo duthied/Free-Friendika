@@ -51,7 +51,7 @@ class Revoke extends BaseApi
 		$token = DBA::selectFirst('application-view', ['id'], $condition);
 		if (empty($token['id'])) {
 			$this->logger->notice('Token not found', $condition);
-			$this->logErrorAndJsonExit(401, $this->errorFactory->Unauthorized());
+			$this->logAndJsonError(401, $this->errorFactory->Unauthorized());
 		}
 
 		DBA::delete('application-token', ['application-id' => $token['id']]);

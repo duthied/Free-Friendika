@@ -38,7 +38,7 @@ class Note extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$request = $this->getRequest([
@@ -47,7 +47,7 @@ class Note extends BaseApi
 
 		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
 		if (empty($cdata['user'])) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		Contact::update(['info' => $request['comment']], ['id' => $cdata['user']]);

@@ -75,12 +75,12 @@ class Token extends BaseApi
 
 		if (empty($request['client_id']) || empty($request['client_secret'])) {
 			$this->logger->warning('Incomplete request data', ['request' => $request]);
-			$this->logErrorAndJsonExit(401, $this->errorFactory->Unauthorized('invalid_client', $this->t('Incomplete request data')));;
+			$this->logAndJsonError(401, $this->errorFactory->Unauthorized('invalid_client', $this->t('Incomplete request data')));;
 		}
 
 		$application = OAuth::getApplication($request['client_id'], $request['client_secret'], $request['redirect_uri']);
 		if (empty($application)) {
-			$this->logErrorAndJsonExit(401, $this->errorFactory->Unauthorized('invalid_client', $this->t('Invalid data or unknown client')));
+			$this->logAndJsonError(401, $this->errorFactory->Unauthorized('invalid_client', $this->t('Invalid data or unknown client')));
 		}
 
 		if ($request['grant_type'] == 'client_credentials') {
@@ -99,13 +99,13 @@ class Token extends BaseApi
 			$token = DBA::selectFirst('application-view', ['access_token', 'created_at', 'uid'], $condition);
 			if (!DBA::isResult($token)) {
 				$this->logger->notice('Token not found or outdated', $condition);
-				$this->logErrorAndJsonExit(401, $this->errorFactory->Unauthorized());
+				$this->logAndJsonError(401, $this->errorFactory->Unauthorized());
 			}
 			$owner = User::getOwnerDataById($token['uid']);
 			$me = $owner['url'];
 		} else {
 			Logger::warning('Unsupported or missing grant type', ['request' => $_REQUEST]);
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity($this->t('Unsupported or missing grant type')));
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity($this->t('Unsupported or missing grant type')));
 		}
 
 		$object = new \Friendica\Object\Api\Mastodon\Token($token['access_token'], 'Bearer', $application['scopes'], $token['created_at'], $me);

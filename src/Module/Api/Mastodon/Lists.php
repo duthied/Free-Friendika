@@ -37,15 +37,15 @@ class Lists extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		if (!Circle::exists($this->parameters['id'], $uid)) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		if (!Circle::remove($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(500, $this->errorFactory->InternalError());
+			$this->logAndJsonError(500, $this->errorFactory->InternalError());
 		}
 
 		$this->jsonExit([]);
@@ -61,14 +61,14 @@ class Lists extends BaseApi
 		], $request);
 
 		if (empty($request['title'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		Circle::create($uid, $request['title']);
 
 		$id = Circle::getIdByName($uid, $request['title']);
 		if (!$id) {
-			$this->logErrorAndJsonExit(500, $this->errorFactory->InternalError());
+			$this->logAndJsonError(500, $this->errorFactory->InternalError());
 		}
 
 		$this->jsonExit(DI::mstdnList()->createFromCircleId($id));
@@ -82,7 +82,7 @@ class Lists extends BaseApi
 		], $request);
 
 		if (empty($request['title']) || empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		Circle::update($this->parameters['id'], $request['title']);
@@ -106,7 +106,7 @@ class Lists extends BaseApi
 			$id = $this->parameters['id'];
 
 			if (!Circle::exists($id, $uid)) {
-				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+				$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 			}
 			$lists = DI::mstdnList()->createFromCircleId($id);
 		}

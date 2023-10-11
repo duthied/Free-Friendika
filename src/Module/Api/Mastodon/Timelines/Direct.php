@@ -83,7 +83,7 @@ class Direct extends BaseApi
 				$statuses[] = DI::mstdnStatus()->createFromMailId($mail['id']);
 			}
 		} catch (NotFoundException $e) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		if (!empty($request['min_id'])) {

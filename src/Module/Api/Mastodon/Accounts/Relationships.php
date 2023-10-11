@@ -44,7 +44,7 @@ class Relationships extends BaseApi
 		], $request);
 
 		if (empty($request['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		if (!is_array($request['id'])) {

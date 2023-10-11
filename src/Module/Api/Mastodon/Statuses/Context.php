@@ -41,7 +41,7 @@ class Context extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$request = $this->getRequest([
@@ -116,7 +116,7 @@ class Context extends BaseApi
 				}
 				DBA::close($posts);
 			} else {
-				$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+				$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 			}
 		}
 

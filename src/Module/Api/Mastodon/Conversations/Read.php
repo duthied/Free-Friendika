@@ -38,7 +38,7 @@ class Read extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (!empty($this->parameters['id'])) {
-			$this->logErrorAndJsonExit(422, $this->errorFactory->UnprocessableEntity());
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		DBA::update('mail', ['seen' => true], ['convid' => $this->parameters['id'], 'uid' => $uid]);
@@ -46,7 +46,7 @@ class Read extends BaseApi
 		try {
 			$this->jsonExit(DI::mstdnConversation()->createFromConvId($this->parameters['id'])->toArray());
 		} catch (NotFoundException $e) {
-			$this->logErrorAndJsonExit(404, $this->errorFactory->RecordNotFound());
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 	}
 }
