@@ -956,4 +956,14 @@ function toggleDropdownText(elm) {
 function hasClass(elem, cls) {
 	return (" " + elem.className + " ").indexOf(" " + cls + " ") > -1;
 }
+
+// Send on <CTRL>+<Enter> or <META>+<Enter> on macos
+// e: event
+// submit: the id of the submitbutton
+function sendOnCtrlEnter(e, submit) {
+	if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
+		console.log("Ctrl + Enter");
+		$("#" + submit).trigger('click');
+	}
+}
 // @license-end
