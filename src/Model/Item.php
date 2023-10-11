@@ -2063,7 +2063,7 @@ class Item
 	 */
 	private static function splitByBlocks(string $body): array
 	{
-		if (class_exists('IntlChar')) {
+		if (!class_exists('IntlChar')) {
 			return [$body];
 		}
 
