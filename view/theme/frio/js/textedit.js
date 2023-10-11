@@ -106,11 +106,6 @@ function commentExpand(id) {
 	closeMenu("comment-fake-form-" + id);
 	openMenu("item-comments-" + id);
 	$("#comment-edit-text-" + id)
-		.keydown(function (e) {
-				if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
-					$("#comment-edit-submit-" + id).trigger('click');
-				}
-			})
 		.putCursorAtEnd()
 		.addClass("comment-edit-text-full")
 		.removeClass("comment-edit-text-empty");
