@@ -503,7 +503,7 @@ class Post
 
 		$tmp_item = [
 			'parentguid'      => $parent_guid,
-			'isreplyto'       => DI::l10n()->t('is reply to %s', $parent_username),
+			'inreplyto'       => DI::l10n()->t('in reply to %s', $parent_username),
 			'isunknown'       => $parent_unknown,
 			'isunknown_label' => DI::l10n()->t('Parent is probably private or not federated.'),
 			'template'        => $this->getTemplate(),
