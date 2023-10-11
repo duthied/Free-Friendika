@@ -384,12 +384,10 @@ class Installer
 
 		$help = '';
 		$status = true;
-		if (function_exists('apache_get_modules')) {
-			if (!in_array('mod_rewrite', apache_get_modules())) {
-				$help = DI::l10n()->t('Error: Apache webserver mod-rewrite module is required but not installed.');
-				$status = false;
-				$returnVal = false;
-			}
+		if (function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get_modules())) {
+			$help = DI::l10n()->t('Error: Apache webserver mod-rewrite module is required but not installed.');
+			$status = false;
+			$returnVal = false;
 		}
 		$this->addCheck(DI::l10n()->t('Apache mod_rewrite module'), $status, true, $help);
 
@@ -399,14 +397,21 @@ class Installer
 			$status = false;
 			$help = DI::l10n()->t('Error: PDO or MySQLi PHP module required but not installed.');
 			$returnVal = false;
-		} else {
-			if (!function_exists('mysqli_connect') && class_exists('pdo') && !in_array('mysql', \PDO::getAvailableDrivers())) {
-				$status = false;
-				$help = DI::l10n()->t('Error: The MySQL driver for PDO is not installed.');
-				$returnVal = false;
-			}
+		} elseif (!function_exists('mysqli_connect') && class_exists('pdo') && !in_array('mysql', \PDO::getAvailableDrivers())) {
+			$status = false;
+			$help = DI::l10n()->t('Error: The MySQL driver for PDO is not installed.');
+			$returnVal = false;
 		}
 		$this->addCheck(DI::l10n()->t('PDO or MySQLi PHP module'), $status, true, $help);
+
+		$help   = '';
+		$status = true;
+		if (!class_exists('IntlChar')) {
+			$status    = false;
+			$help      = DI::l10n()->t('Error: The IntlChar module is not installed.');
+			$returnVal = false;
+		}
+		$this->addCheck(DI::l10n()->t('IntlChar PHP module'), $status, true, $help);
 
 		// check for XML DOM Documents being able to be generated
 		$help = '';

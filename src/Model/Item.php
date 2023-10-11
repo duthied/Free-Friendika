@@ -49,7 +49,6 @@ use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 use GuzzleHttp\Psr7\Uri;
-use IntlChar;
 use LanguageDetection\Language;
 
 class Item
@@ -2064,6 +2063,10 @@ class Item
 	 */
 	private static function splitByBlocks(string $body): array
 	{
+		if (class_exists('IntlChar')) {
+			return [$body];
+		}
+
 		$blocks         = [];
 		$previous_block = 0;
 
@@ -2072,12 +2075,12 @@ class Item
 			$previous  = ($i > 0) ? mb_substr($body, $i - 1, 1) : '';
 			$next      = ($i < mb_strlen($body)) ? mb_substr($body, $i + 1, 1) : '';
 
-			if (!IntlChar::isalpha($character)) {
-				if (($previous != '') && (IntlChar::isalpha($previous))) {
+			if (!\IntlChar::isalpha($character)) {
+				if (($previous != '') && (\IntlChar::isalpha($previous))) {
 					$previous_block = self::getBlockCode($previous);
 				}
 
-				$block = (($next != '') && IntlChar::isalpha($next)) ? self::getBlockCode($next) : $previous_block;
+				$block = (($next != '') && \IntlChar::isalpha($next)) ? self::getBlockCode($next) : $previous_block;
 				$blocks[$block] = ($blocks[$block] ?? '') . $character;
 			} else {
 				$block = self::getBlockCode($character);
@@ -2103,7 +2106,7 @@ class Item
 	 */
 	private static function getBlockCode(string $character): int
 	{
-		if (!IntlChar::isalpha($character)) {
+		if (!\IntlChar::isalpha($character)) {
 			return 0;
 		}
 		return self::isLatin($character) ? 1 : 2;
@@ -2117,11 +2120,11 @@ class Item
 	 */
 	private static function isLatin(string $character): bool
 	{
-		return in_array(IntlChar::getBlockCode($character), [
-			IntlChar::BLOCK_CODE_BASIC_LATIN, IntlChar::BLOCK_CODE_LATIN_1_SUPPLEMENT,
-			IntlChar::BLOCK_CODE_LATIN_EXTENDED_A, IntlChar::BLOCK_CODE_LATIN_EXTENDED_B,
-			IntlChar::BLOCK_CODE_LATIN_EXTENDED_C, IntlChar::BLOCK_CODE_LATIN_EXTENDED_D,
-			IntlChar::BLOCK_CODE_LATIN_EXTENDED_E, IntlChar::BLOCK_CODE_LATIN_EXTENDED_ADDITIONAL
+		return in_array(\IntlChar::getBlockCode($character), [
+			\IntlChar::BLOCK_CODE_BASIC_LATIN, \IntlChar::BLOCK_CODE_LATIN_1_SUPPLEMENT,
+			\IntlChar::BLOCK_CODE_LATIN_EXTENDED_A, \IntlChar::BLOCK_CODE_LATIN_EXTENDED_B,
+			\IntlChar::BLOCK_CODE_LATIN_EXTENDED_C, \IntlChar::BLOCK_CODE_LATIN_EXTENDED_D,
+			\IntlChar::BLOCK_CODE_LATIN_EXTENDED_E, \IntlChar::BLOCK_CODE_LATIN_EXTENDED_ADDITIONAL
 		]);
 	}
 
