@@ -77,13 +77,10 @@ class Error extends BaseFactory
 		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
-	public function InternalError(string $error = '')
+	public function InternalError(string $error = ''): \Friendica\Object\Api\Mastodon\Error
 	{
 		$error             = $error ?: $this->l10n->t('Internal Server Error');
 		$error_description = '';
-		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-
-		$this->logError(500, $error);
-		$this->jsonError(500, $errorObj->toArray());
+		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 }

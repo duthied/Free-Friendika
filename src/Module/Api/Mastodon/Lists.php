@@ -45,7 +45,7 @@ class Lists extends BaseApi
 		}
 
 		if (!Circle::remove($this->parameters['id'])) {
-			DI::mstdnError()->InternalError();
+			$this->logErrorAndJsonExit(500, $this->errorFactory->InternalError());
 		}
 
 		$this->jsonExit([]);
@@ -68,7 +68,7 @@ class Lists extends BaseApi
 
 		$id = Circle::getIdByName($uid, $request['title']);
 		if (!$id) {
-			DI::mstdnError()->InternalError();
+			$this->logErrorAndJsonExit(500, $this->errorFactory->InternalError());
 		}
 
 		$this->jsonExit(DI::mstdnList()->createFromCircleId($id));

@@ -297,7 +297,7 @@ class Statuses extends BaseApi
 			$item['uri'] = Item::newURI($item['guid']);
 			$id = Post\Delayed::add($item['uri'], $item, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED, DateTimeFormat::utc($request['scheduled_at']));
 			if (empty($id)) {
-				DI::mstdnError()->InternalError();
+				$this->logErrorAndJsonExit(500, $this->errorFactory->InternalError());
 			}
 			$this->jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId($id, $uid)->toArray());
 		}
@@ -310,7 +310,7 @@ class Statuses extends BaseApi
 			}
 		}
 
-		DI::mstdnError()->InternalError();
+		$this->logErrorAndJsonExit(500, $this->errorFactory->InternalError());
 	}
 
 	protected function delete(array $request = [])

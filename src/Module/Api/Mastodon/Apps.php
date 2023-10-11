@@ -92,7 +92,7 @@ class Apps extends BaseApi
 		}
 
 		if (!DBA::insert('application', $fields)) {
-			DI::mstdnError()->InternalError();
+			$this->logErrorAndJsonExit(500, $this->errorFactory->InternalError());
 		}
 
 		$this->jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId())->toArray());
