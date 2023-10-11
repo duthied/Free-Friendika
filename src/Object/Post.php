@@ -499,7 +499,7 @@ class Post
 
 		$parent_guid     = $thread_parent[$item['thr-parent-id']]['guid'] ?? '';
 		$parent_username = $thread_parent[$item['thr-parent-id']]['name'] ?? '';
-		$parent_unknown  = $parent_username ? '' : DI::l10n()->t('parent unknown');
+		$parent_unknown  = $parent_username ? '' : DI::l10n()->t('Unknown parent');
 
 		$tmp_item = [
 			'parentguid'      => $parent_guid,
