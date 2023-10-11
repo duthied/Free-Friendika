@@ -70,14 +70,11 @@ class Error extends BaseFactory
 		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
-	public function Forbidden(string $error = '')
+	public function Forbidden(string $error = ''): \Friendica\Object\Api\Mastodon\Error
 	{
 		$error             = $error ?: $this->l10n->t('Token is not authorized with a valid user or is missing a required scope');
 		$error_description = '';
-		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-
-		$this->logError(403, $error);
-		$this->jsonError(403, $errorObj->toArray());
+		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
 	public function InternalError(string $error = '')

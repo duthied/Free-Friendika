@@ -424,17 +424,17 @@ class BaseApi extends BaseModule
 
 		if (empty($token)) {
 			$this->logger->notice('Empty application token');
-			DI::mstdnError()->Forbidden();
+			$this->logErrorAndJsonExit(403, $this->errorFactory->Forbidden());
 		}
 
 		if (!isset($token[$scope])) {
 			$this->logger->warning('The requested scope does not exist', ['scope' => $scope, 'application' => $token]);
-			DI::mstdnError()->Forbidden();
+			$this->logErrorAndJsonExit(403, $this->errorFactory->Forbidden());
 		}
 
 		if (empty($token[$scope])) {
 			$this->logger->warning('The requested scope is not allowed', ['scope' => $scope, 'application' => $token]);
-			DI::mstdnError()->Forbidden();
+			$this->logErrorAndJsonExit(403, $this->errorFactory->Forbidden());
 		}
 	}
 
