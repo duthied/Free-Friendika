@@ -110,6 +110,7 @@ Dieser Hook kann dafür verwendet werden, alternative Erkennungsfunktionen einzu
         'text' => Der analysierte Text.
         'detected' => (Eingabe/Ausgabe) Das Array mit den erkannten Sprachen. Der Sprachcode ist der Array-Schlüssel, der Array-Wert ist der dezimale Wert für die Wahrscheinlichkeit.
         'uri-id' => Die Uri-Id des Beitrags
+        'author-id' => Die Contact-id des Autors.
 
 **'addon_settings'** - wird aufgerufen, wenn die HTML-Ausgabe der Addon-Einstellungsseite generiert wird.
     $b ist die HTML-Ausgabe (String) der Addon-Einstellungsseite vor dem finalen "</form>"-Tag.

@@ -2010,67 +2010,122 @@ class Item
 	 */
 	public static function getLanguageArray(string $body, int $count, int $uri_id = 0, int $author_id = 0): array
 	{
-		$naked_body = BBCode::toSearchText($body, $uri_id);
+		$searchtext = BBCode::toSearchText($body, $uri_id);
 
-		if ((count(explode(' ', $naked_body)) < 10) && (mb_strlen($naked_body) < 30) && $author_id) {
+		if ((count(explode(' ', $searchtext)) < 10) && (mb_strlen($searchtext) < 30) && $author_id) {
 			$author = Contact::selectFirst(['about'], ['id' => $author_id]);
 			if (!empty($author['about'])) {
 				$about = BBCode::toSearchText($author['about'], 0);
-				$about = self::getDominantLanguage($about);
-				Logger::debug('About field added', ['author' => $author_id, 'body' => $naked_body, 'about' => $about]);
-				$naked_body .= ' ' . $about;
+				Logger::debug('About field added', ['author' => $author_id, 'body' => $searchtext, 'about' => $about]);
+				$searchtext .= ' ' . $about;
 			}
 		}
 
-		if (empty($naked_body)) {
+		if (empty($searchtext)) {
 			return [];
 		}
-
-		$naked_body = self::getDominantLanguage($naked_body);
 
 		$availableLanguages = DI::l10n()->getAvailableLanguages(true);
 		$availableLanguages = DI::l10n()->convertForLanguageDetection($availableLanguages);
 
 		$ld = new Language(array_keys($availableLanguages));
-		$languages = $ld->detect($naked_body)->limit(0, $count)->close() ?: [];
 
-		$data = [
-			'text'     => $naked_body,
-			'detected' => $languages,
-			'uri-id'   => $uri_id,
-		];
+		$result = [];
 
-		Hook::callAll('detect_languages', $data);
-		$languages = $data['detected'];
+		foreach (self::splitByBlocks($searchtext) as $block) {
+			$languages = $ld->detect($block)->limit(0, $count)->close() ?: [];
 
-		return $languages;
+			$data = [
+				'text'      => $block,
+				'detected'  => $languages,
+				'uri-id'    => $uri_id,
+				'author-id' => $author_id,
+			];
+			Hook::callAll('detect_languages', $data);
+
+			foreach ($data['detected'] as $language => $quality) {
+				$result[$language] = max($result[$language] ?? 0, $quality * (strlen($block) / strlen($searchtext)));
+			}
+		}
+
+		arsort($result);
+		$result = array_slice($result, 0, $count);
+
+		return $result;
 	}
 
 	/**
-	 * Check if latin or non latin are dominant in the body and only return the dominant one
+	 * Split a string into different unicode blocks
+	 * Currently the text is split into the latin and the non latin part.
 	 *
 	 * @param string $body
-	 * @return string
+	 * @return array
 	 */
-	private static function getDominantLanguage(string $body): string
+	private static function splitByBlocks(string $body): array
 	{
-		$latin = '';
-		$non_latin = '';
+		if (!class_exists('IntlChar')) {
+			return [$body];
+		}
+
+		$blocks         = [];
+		$previous_block = 0;
+
 		for ($i = 0; $i < mb_strlen($body); $i++) {
 			$character = mb_substr($body, $i, 1);
-			$ord = mb_ord($character);
+			$previous  = ($i > 0) ? mb_substr($body, $i - 1, 1) : '';
+			$next      = ($i < mb_strlen($body)) ? mb_substr($body, $i + 1, 1) : '';
 
-			// We add the most common characters to both strings.
-			if (($ord <= 64) || ($ord >= 91 && $ord <= 96) || ($ord >= 123 && $ord <= 191) || in_array($ord, [215, 247]) || ($ord >= 697 && $ord <= 735) || ($ord > 65535)) {
-				$latin .= $character;
-				$non_latin .= $character;
-			} elseif ($ord < 768) {
-				$latin .= $character;
+			if (!\IntlChar::isalpha($character)) {
+				if (($previous != '') && (\IntlChar::isalpha($previous))) {
+					$previous_block = self::getBlockCode($previous);
+				}
+
+				$block = (($next != '') && \IntlChar::isalpha($next)) ? self::getBlockCode($next) : $previous_block;
+				$blocks[$block] = ($blocks[$block] ?? '') . $character;
 			} else {
-				$non_latin .= $character;
+				$block = self::getBlockCode($character);
+				$blocks[$block] = ($blocks[$block] ?? '') . $character;
 			}
 		}
-		return (mb_strlen($latin) > mb_strlen($non_latin)) ? $latin : $non_latin;
+
+		foreach (array_keys($blocks) as $key) {
+			$blocks[$key] = trim($blocks[$key]);
+			if (empty($blocks[$key])) {
+				unset($blocks[$key]);
+			}
+		}
+
+		return array_values($blocks);
+	}
+
+	/**
+	 * returns the block code for the given character
+	 *
+	 * @param string $character
+	 * @return integer 0 = no alpha character (blank, signs, emojis, ...), 1 = latin character, 2 = character in every other language
+	 */
+	private static function getBlockCode(string $character): int
+	{
+		if (!\IntlChar::isalpha($character)) {
+			return 0;
+		}
+		return self::isLatin($character) ? 1 : 2;
+	}
+
+	/**
+	 * Checks if the given character is in one of the latin code blocks
+	 *
+	 * @param string $character
+	 * @return boolean
+	 */
+	private static function isLatin(string $character): bool
+	{
+		return in_array(\IntlChar::getBlockCode($character), [
+			\IntlChar::BLOCK_CODE_BASIC_LATIN, \IntlChar::BLOCK_CODE_LATIN_1_SUPPLEMENT,
+			\IntlChar::BLOCK_CODE_LATIN_EXTENDED_A, \IntlChar::BLOCK_CODE_LATIN_EXTENDED_B,
+			\IntlChar::BLOCK_CODE_LATIN_EXTENDED_C, \IntlChar::BLOCK_CODE_LATIN_EXTENDED_D,
+			\IntlChar::BLOCK_CODE_LATIN_EXTENDED_E, \IntlChar::BLOCK_CODE_LATIN_EXTENDED_ADDITIONAL
+		]);
 	}
 
 	public static function getLanguageMessage(array $item): string
@@ -2079,7 +2134,7 @@ class Item
 
 		$used_languages = '';
 		foreach (json_decode($item['language'], true) as $language => $reliability) {
-			$used_languages .= $iso639->languageByCode1($language) . ' (' . $language . "): " . number_format($reliability, 5) . '\n';
+			$used_languages .= $iso639->nativeByCode1(substr($language, 0, 2)) . ' (' . $iso639->languageByCode1(substr($language, 0, 2)) . ' - ' . $language . "): " . number_format($reliability, 5) . '\n';
 		}
 		$used_languages = DI::l10n()->t('Detected languages in this post:\n%s', $used_languages);
 		return $used_languages;
