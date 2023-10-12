@@ -2134,7 +2134,7 @@ class Item
 
 		$used_languages = '';
 		foreach (json_decode($item['language'], true) as $language => $reliability) {
-			$used_languages .= $iso639->languageByCode1($language) . ' (' . $language . "): " . number_format($reliability, 5) . '\n';
+			$used_languages .= $iso639->nativeByCode1(substr($language, 0, 2)) . ' (' . $iso639->languageByCode1(substr($language, 0, 2)) . ' - ' . $language . "): " . number_format($reliability, 5) . '\n';
 		}
 		$used_languages = DI::l10n()->t('Detected languages in this post:\n%s', $used_languages);
 		return $used_languages;
