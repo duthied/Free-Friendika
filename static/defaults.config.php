@@ -796,4 +796,25 @@ return [
 		// Wether the blocklist is publicly listed under /about (or in any later API)
 		'public' => true,
 	],
+	'channel' => [
+		// engagement_hours (Integer)
+		// Maximum age of incoming posts for the engagement table, when the engagement post limit is 0 or hasn't been reached yet.
+		'engagement_hours' => 24,
+
+		// engagement_post_limit (Integer)
+		// NUmber of posts that are held in the engagement table
+		'engagement_post_limit' => 20000,
+
+		// interaction_score_days (Integer)
+		// Number of days that are used to calculate the interaction score.
+		'interaction_score_days' => 30,
+
+		// max_posts_per_author (Integer)
+		// Maixmum number of posts per page by author
+		'max_posts_per_author' => 2,
+
+		// sharer_interaction_days (Integer)
+		// Number of days of the last interaction that are used to define which sharers are used for the "sharers of sharers" channel.
+		'sharer_interaction_days' => 90,
+	],
 ];

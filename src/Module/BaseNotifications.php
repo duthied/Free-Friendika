@@ -121,7 +121,7 @@ abstract class BaseNotifications extends BaseModule
 			'page'          => $pager->getPage(),
 		];
 
-		System::jsonExit($notifications);
+		$this->jsonExit($notifications);
 	}
 
 	/**

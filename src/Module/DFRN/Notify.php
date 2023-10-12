@@ -21,40 +21,22 @@
 
 namespace Friendica\Module\DFRN;
 
-use Friendica\App;
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
-use Friendica\Core\Logger;
-use Friendica\Core\System;
-use Friendica\Database\Database;
-use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\User;
-use Friendica\Module\OStatus\Salmon;
 use Friendica\Module\Response;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Network;
-use Friendica\Network\HTTPException;
-use Friendica\Util\Profiler;
-use Psr\Log\LoggerInterface;
+use Friendica\Util\XML;
 
 /**
  * DFRN Notify
  */
 class Notify extends BaseModule
 {
-	/** @var Database */
-	private $database;
-
-	public function __construct(Database $database, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
-	{
-		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
-
-		$this->database = $database;
-	}
-
 	protected function post(array $request = [])
 	{
 		$postdata = Network::postdata();
@@ -88,21 +70,21 @@ class Notify extends BaseModule
 		$contact_id = Contact::getIdForURL($msg['author']);
 		if (empty($contact_id)) {
 			$this->logger->notice('Contact not found', ['address' => $msg['author']]);
-			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
+			$this->xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
 		// Fetch the importer (Mixture of sender and receiver)
 		$importer = DFRN::getImporter($contact_id);
 		if (empty($importer)) {
 			$this->logger->notice('Importer contact not found', ['address' => $msg['author']]);
-			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
+			$this->xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
 		$this->logger->debug('Importing post with the public envelope.', ['transmitter' => $msg['author']]);
 
 		// Now we should be able to import it
 		$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::RELAY);
-		System::xmlExit($ret, 'Done');
+		$this->xmlExit($ret, 'Done');
 
 		return true;
 	}
@@ -111,32 +93,57 @@ class Notify extends BaseModule
 	{
 		$msg = Diaspora::decodeRaw($postdata, $user['prvkey'] ?? '');
 		if (!is_array($msg)) {
-			System::xmlExit(4, 'Unable to parse message');
+			$this->xmlExit(4, 'Unable to parse message');
 		}
 
 		// Fetch the contact
 		$contact = Contact::getByURLForUser($msg['author'], $user['uid'], null, ['id', 'blocked', 'pending']);
 		if (empty($contact['id'])) {
 			$this->logger->notice('Contact not found', ['address' => $msg['author']]);
-			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
+			$this->xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
 		if ($contact['pending'] || $contact['blocked']) {
 			$this->logger->notice('Contact is blocked or pending', ['address' => $msg['author'], 'contact' => $contact]);
-			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
+			$this->xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
 		// Fetch the importer (Mixture of sender and receiver)
 		$importer = DFRN::getImporter($contact['id'], $user['uid']);
 		if (empty($importer)) {
 			$this->logger->notice('Importer contact not found for user', ['uid' => $user['uid'], 'cid' => $contact['id'], 'address' => $msg['author']]);
-			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
+			$this->xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 
 		$this->logger->debug('Importing post with the private envelope.', ['transmitter' => $msg['author'], 'receiver' => $user['nickname']]);
 
 		// Now we should be able to import it
 		$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::PUSH);
-		System::xmlExit($ret, 'Done');
+		$this->xmlExit($ret, 'Done');
+	}
+
+
+	/**
+	 * Generic XML return
+	 * Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable
+	 * of $st and an optional text <message> of $message and terminates the current process.
+	 *
+	 * @param mixed $status
+	 * @param string $message
+	 * @throws \Exception
+	 */
+	private function xmlExit($status, string $message = '')
+	{
+		$result = ['status' => $status];
+
+		if ($message != '') {
+			$result['message'] = $message;
+		}
+
+		if ($status) {
+			$this->logger->notice('xml_status returning non_zero: ' . $status . " message=" . $message);
+		}
+
+		$this->httpExit(XML::fromArray(['result' => $result]), Response::TYPE_XML);
 	}
 }

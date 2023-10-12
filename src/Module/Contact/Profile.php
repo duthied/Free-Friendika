@@ -132,6 +132,10 @@ class Profile extends BaseModule
 			$fields['info'] = $_POST['info'];
 		}
 
+		if (isset($_POST['channel_frequency'])) {
+			Contact\User::setChannelFrequency($cdata['user'], $this->session->getLocalUserId(), $_POST['channel_frequency']);
+		}
+
 		if (!Contact::update($fields, ['id' => $cdata['user'], 'uid' => $this->session->getLocalUserId()])) {
 			$this->systemMessages->addNotice($this->t('Failed to update contact record.'));
 		}
@@ -302,10 +306,10 @@ class Profile extends BaseModule
 				$localRelationship->fetchFurtherInformation,
 				$this->t('Fetch information like preview pictures, title and teaser from the feed item. You can activate this if the feed doesn\'t contain much text. Keywords are taken from the meta header in the feed item and are posted as hash tags.'),
 				[
-					Entity\LocalRelationship::FFI_NONE        => $this->t('Disabled'),
-					Entity\LocalRelationship::FFI_INFORMATION => $this->t('Fetch information'),
-					Entity\LocalRelationship::FFI_KEYWORD     => $this->t('Fetch keywords'),
-					Entity\LocalRelationship::FFI_BOTH        => $this->t('Fetch information and keywords')
+					LocalRelationship\Entity\LocalRelationship::FFI_NONE        => $this->t('Disabled'),
+					LocalRelationship\Entity\LocalRelationship::FFI_INFORMATION => $this->t('Fetch information'),
+					LocalRelationship\Entity\LocalRelationship::FFI_KEYWORD     => $this->t('Fetch keywords'),
+					LocalRelationship\Entity\LocalRelationship::FFI_BOTH        => $this->t('Fetch information and keywords')
 				]
 			];
 		}
@@ -335,6 +339,8 @@ class Profile extends BaseModule
 				Contact::MIRROR_OWN_POST    => $this->t('Mirror as my own posting')
 			];
 		}
+
+		$channel_frequency     = Contact\User::getChannelFrequency($contact['id'], $this->session->getLocalUserId());
 
 		$poll_interval = null;
 		if ((($contact['network'] == Protocol::FEED) && !$this->config->get('system', 'adjust_poll_frequency')) || ($contact['network'] == Protocol::MAIL)) {
@@ -419,6 +425,13 @@ class Profile extends BaseModule
 				$this->t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
 				$remote_self_options
 			],
+			'$channel_settings_label' => $this->t('Channel Settings'),
+			'$frequency_label'        => $this->t('Frequency of this contact in relevant channels'),
+			'$frequency_description'  => $this->t("Depending on the type of the channel not all posts from this contact are displayed. By default, posts need to have a minimum amount of interactions (comments, likes) to show in your channels. On the other hand there can be contacts who flood the channel, so you might want to see only some of their posts. Or you don't want to see their content at all, but you don't want to block or hide the contact completely."),
+			'$frequency_default'      => ['channel_frequency', $this->t('Default frequency'), Contact\User::FREQUENCY_DEFAULT, $this->t('Posts by this contact are displayed in the "for you" channel if you interact often with this contact or if a post reached some level of interaction.'), $channel_frequency == Contact\User::FREQUENCY_DEFAULT],
+			'$frequency_always'       => ['channel_frequency', $this->t('Display all posts of this contact'), Contact\User::FREQUENCY_ALWAYS, $this->t('All posts from this contact will appear on the "for you" channel'), $channel_frequency == Contact\User::FREQUENCY_ALWAYS],
+			'$frequency_reduced'      => ['channel_frequency', $this->t('Display only few posts'), Contact\User::FREQUENCY_REDUCED, $this->t('When a contact creates a lot of posts in a short period, this setting reduces the number of displayed posts in every channel.'), $channel_frequency == Contact\User::FREQUENCY_REDUCED],
+			'$frequency_never'        => ['channel_frequency', $this->t('Never display posts'), Contact\User::FREQUENCY_NEVER, $this->t('Posts from this contact will never be displayed in any channel'), $channel_frequency == Contact\User::FREQUENCY_NEVER],
 		]);
 
 		$arr = ['contact' => $contact, 'output' => $o];

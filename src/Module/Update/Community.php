@@ -36,11 +36,11 @@ class Community extends CommunityModule
 {
 	protected function rawContent(array $request = [])
 	{
-		$this->parseRequest();
+		$this->parseRequest($request);
 
 		$o = '';
-		if (!empty($request['force'])) {
-			$o = DI::conversation()->render(self::getItems(), Conversation::MODE_COMMUNITY, true, false, 'commented', DI::userSession()->getLocalUserId());
+		if ($this->update || $this->force) {
+			$o = DI::conversation()->render($this->getCommunityItems(), Conversation::MODE_COMMUNITY, true, false, 'commented', DI::userSession()->getLocalUserId());
 		}
 
 		System::htmlUpdateExit($o);

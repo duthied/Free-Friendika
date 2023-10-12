@@ -121,7 +121,7 @@ class Update extends BaseApi
 			$item['gravity']     = Item::GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
 		} else {
-			self::checkThrottleLimit();
+			$this->checkThrottleLimit();
 
 			$item['gravity']     = Item::GRAVITY_PARENT;
 			$item['object-type'] = Activity\ObjectType::NOTE;
@@ -184,7 +184,7 @@ class Update extends BaseApi
 			if (!empty($item['uri-id'])) {
 				// output the post that we just posted.
 				$status_info = DI::twitterStatus()->createFromUriId($item['uri-id'], $uid, $request['include_entities'])->toArray();
-				DI::apiResponse()->exit('status', ['status' => $status_info], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+				DI::apiResponse()->addFormattedContent('status', ['status' => $status_info], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 				return;
 			}
 		}

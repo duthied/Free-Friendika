@@ -70,7 +70,7 @@ class Delete extends BaseApi
 		if ($ret) {
 			// return success
 			$success = ['success' => $ret, 'gid' => $request['gid'], 'name' => $request['name'], 'status' => 'deleted', 'wrong users' => []];
-			$this->response->exit('group_delete', ['$result' => $success], $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('group_delete', ['$result' => $success], $this->parameters['extension'] ?? null);
 		} else {
 			throw new BadRequestException('other API error');
 		}

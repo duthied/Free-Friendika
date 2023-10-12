@@ -21,6 +21,32 @@
 	{{include file="field_checkbox.tpl" field=$stay_local}}
 	{{include file="field_select.tpl" field=$preview_mode}}
 
+	<h2>{{$timeline_title}}</h2>
+	{{$timeline_explanation}}
+	<table class="table table-condensed table-striped table-bordered">
+	<thead>
+	<tr>
+		<th>{{$timeline_label}}</th>
+		<th>{{$timeline_descriptiom}}</th>
+		<th>{{$timeline_enable}}</th>
+		<th>{{$timeline_bookmark}}</th>
+	</tr>
+	</thead>
+	<tbody>
+	{{foreach $timelines as $t}}
+		<tr>
+			<td>{{$t.label}}</td>
+			<td>{{$t.description}}</td>
+			<td>{{include file="field_checkbox.tpl" field=$t.enable}}</td>
+			<td>{{include file="field_checkbox.tpl" field=$t.bookmark}}</td>
+		</tr>
+	{{/foreach}}
+	</tbody>
+	</table>
+
+	<h2>{{$channel_title}}</h2>
+	{{include file="field_select.tpl" field=$channel_languages}}
+
 	<h2>{{$calendar_title}}</h2>
 	{{include file="field_select.tpl" field=$first_day_of_week}}
 	{{include file="field_select.tpl" field=$calendar_default_view}}

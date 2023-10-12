@@ -42,6 +42,6 @@ class Polls extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		System::jsonExit(DI::mstdnPoll()->createFromId($this->parameters['id'], $uid));
+		$this->jsonExit(DI::mstdnPoll()->createFromId($this->parameters['id'], $uid));
 	}
 }

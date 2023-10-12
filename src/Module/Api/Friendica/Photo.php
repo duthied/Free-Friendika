@@ -60,6 +60,6 @@ class Photo extends BaseApi
 		// prepare json/xml output with data from database for the requested photo
 		$data = ['photo' => $this->friendicaPhoto->createFromId($photo_id, $scale, $uid, $type)];
 
-		$this->response->exit('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->addFormattedContent('statuses', $data, $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

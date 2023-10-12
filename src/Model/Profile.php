@@ -453,6 +453,18 @@ class Profile
 			Logger::warning('Missing hidewall key in profile array', ['profile' => $profile, 'callstack' => System::callstack(10)]);
 		}
 
+		if ($profile['account-type'] == Contact::TYPE_COMMUNITY) {
+			$mention_label = DI::l10n()->t('Post to group');
+			$mention_url   = 'compose/0?body=!' . $profile['addr'];
+			$network_label = DI::l10n()->t('View group');
+			$network_url   = 'network/group/' . $profile['id'];
+		} else {
+			$mention_label = DI::l10n()->t('Mention');
+			$mention_url   = 'compose/0?body=@' . $profile['addr'];
+			$network_label = DI::l10n()->t('Network Posts');
+			$network_url   = 'contact/' . $profile['id'] . '/conversations';
+		}
+
 		$tpl = Renderer::getMarkupTemplate('profile/vcard.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$profile' => $p,
@@ -476,6 +488,10 @@ class Profile
 			'$updated' => $updated,
 			'$diaspora' => $diaspora,
 			'$contact_block' => $contact_block,
+			'$mention_label' => $mention_label,
+			'$mention_url' => $mention_url,
+			'$network_label' => $network_label,
+			'$network_url' => $network_url,
 		]);
 
 		$arr = ['profile' => &$profile, 'entry' => &$o];
@@ -813,12 +829,14 @@ class Profile
 
 	/**
 	 * Set the visitor cookies (see remote_user()) for signed HTTP requests
-	 (
+	 *
+	 * @param array $server The content of the $_SERVER superglobal
 	 * @return array Visitor contact array
+	 * @throws InternalServerErrorException
 	 */
-	public static function addVisitorCookieForHTTPSigner(): array
+	public static function addVisitorCookieForHTTPSigner(array $server): array
 	{
-		$requester = HTTPSignature::getSigner('', $_SERVER);
+		$requester = HTTPSignature::getSigner('', $server);
 		if (empty($requester)) {
 			return [];
 		}
@@ -940,7 +958,7 @@ class Profile
 		if (!empty($search)) {
 			$publish = (DI::config()->get('system', 'publish_all') ? '' : "AND `publish` ");
 			$searchTerm = '%' . $search . '%';
-			$condition = ["NOT `blocked` AND NOT `account_removed`
+			$condition = ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`
 				$publish
 				AND ((`name` LIKE ?) OR
 				(`nickname` LIKE ?) OR
@@ -953,7 +971,7 @@ class Profile
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm,
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm];
 		} else {
-			$condition = ['blocked' => false, 'account_removed' => false];
+			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
 			if (!DI::config()->get('system', 'publish_all')) {
 				$condition['publish'] = true;
 			}

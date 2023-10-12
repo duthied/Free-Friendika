@@ -34,6 +34,6 @@ class Endorsements extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		System::jsonExit([]);
+		$this->jsonExit([]);
 	}
 }

@@ -706,6 +706,39 @@ audio {
  * Image grid settings END
  **/
 
+/* This helps allocating space for image before they are loaded, preventing content shifting once they are.
+ * Inspired by https://www.smashingmagazine.com/2016/08/ways-to-reduce-content-shifting-on-page-load/
+ * Please note: The space is effectively allocated using padding-bottom using the image ratio as a value.
+ * This ratio is never known in advance so no value is set in the stylesheet.
+ */
+figure.img-allocated-height {
+	position: relative;
+	background: center / auto rgba(0, 0, 0, 0.05) url(/images/icons/image.png) no-repeat;
+	margin: 0;
+}
+figure.img-allocated-height img{
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+}
+
+/**
+ * Horizontal masonry settings START
+ **/
+.masonry-row {
+	display: -ms-flexbox; /* IE10 */
+	display: flex;
+	/* Both the following values should be the same to ensure consistent margins between images in the grid */
+	column-gap: 5px;
+	margin-top: 5px;
+}
+/**
+ * Horizontal masonry settings AND
+ **/
+
 #contactblock .icon {
 	width: 48px;
 	height: 48px;

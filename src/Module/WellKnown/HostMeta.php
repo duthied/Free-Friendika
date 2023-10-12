@@ -90,6 +90,6 @@ class HostMeta extends BaseModule
 			],
 		], $xml, false, ['hm' => 'http://host-meta.net/xrd/1.0', 'mk' => 'http://salmon-protocol.org/ns/magic-key']);
 
-		System::httpExit($xml->saveXML(), Response::TYPE_XML, 'application/xrd+xml');
+		$this->httpExit($xml->saveXML(), Response::TYPE_XML, 'application/xrd+xml');
 	}
 }

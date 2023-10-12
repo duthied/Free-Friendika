@@ -42,6 +42,11 @@ class DBA
 	 */
 	const NULL_DATETIME = '0001-01-01 00:00:00';
 
+	/**
+	 * Lowest possible datetime(6) value
+	 */
+	const NULL_DATETIME6 = '0001-01-01 00:00:00.000000';
+
 	public static function connect(): bool
 	{
 		return DI::dba()->connect();

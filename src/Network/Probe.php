@@ -415,13 +415,18 @@ class Probe
 			}
 		}
 
-		if (!empty($data['baseurl']) && empty($data['gsid'])) {
-			$data['gsid'] = GServer::getID($data['baseurl']);
-		}
-
 		if (empty($data['network'])) {
 			$data['network'] = Protocol::PHANTOM;
 		}
+
+		$baseurl = parse_url($data['url'], PHP_URL_SCHEME) . '://' . parse_url($data['url'], PHP_URL_HOST);
+		if (empty($data['baseurl']) && ($data['network'] == Protocol::ACTIVITYPUB) && (rtrim($data['url'], '/') == $baseurl)) {
+			$data['baseurl'] = $baseurl;
+		}
+
+		if (!empty($data['baseurl']) && empty($data['gsid'])) {
+			$data['gsid'] = GServer::getID($data['baseurl']);
+		}	
 
 		// Ensure that local connections always are DFRN
 		if (($network == '') && ($data['network'] != Protocol::PHANTOM) && (self::ownHost($data['baseurl'] ?? '') || self::ownHost($data['url']))) {

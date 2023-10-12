@@ -53,7 +53,7 @@ class Outbox extends BaseApi
 
 		$outbox = ActivityPub\ClientToServer::getOutbox($owner, $uid, $page, $request['max_id'] ?? null, HTTPSignature::getSigner('', $_SERVER));
 
-		System::jsonExit($outbox, 'application/activity+json');
+		$this->jsonExit($outbox, 'application/activity+json');
 	}
 
 	protected function post(array $request = [])
@@ -79,6 +79,6 @@ class Outbox extends BaseApi
 			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
-		System::jsonExit(ActivityPub\ClientToServer::processActivity($activity, $uid, self::getCurrentApplication() ?? []));
+		$this->jsonExit(ActivityPub\ClientToServer::processActivity($activity, $uid, self::getCurrentApplication() ?? []));
 	}
 }

@@ -1652,7 +1652,19 @@ class Processor
 		$attributed_to = JsonLD::fetchElement($activity['as:object'], 'as:attributedTo', '@id');
 		$authorid = Contact::getIdForURL($attributed_to);
 
-		$body = HTML::toBBCode(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value') ?? '');
+		$content = JsonLD::fetchElement($activity['as:object'], 'as:name', '@value') ?? '';
+		$content .= ' ' . JsonLD::fetchElement($activity['as:object'], 'as:summary', '@value') ?? '';
+		$content .= ' ' . HTML::toBBCode(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value') ?? '');
+
+		$attachments = JsonLD::fetchElementArray($activity['as:object'], 'as:attachment') ?? [];
+		foreach ($attachments as $media) {
+			if (!empty($media['as:summary'])) {
+				$content .= ' ' . JsonLD::fetchElement($media, 'as:summary', '@value');
+			}
+			if (!empty($media['as:name'])) {
+				$content .= ' ' . JsonLD::fetchElement($media, 'as:name', '@value');
+			}
+		}
 
 		$messageTags = [];
 		$tags = Receiver::processTags(JsonLD::fetchElementArray($activity['as:object'], 'as:tag') ?? []);
@@ -1665,7 +1677,7 @@ class Processor
 			}
 		}
 
-		return Relay::isSolicitedPost($messageTags, $body, $authorid, $id, Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0);
+		return Relay::isSolicitedPost($messageTags, $content, $authorid, $id, Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0);
 	}
 
 	/**

@@ -42,6 +42,6 @@ class Read extends BaseApi
 
 		DBA::update('mail', ['seen' => true], ['convid' => $this->parameters['id'], 'uid' => $uid]);
 
-		System::jsonExit(DI::mstdnConversation()->createFromConvId($this->parameters['id'])->toArray());
+		$this->jsonExit(DI::mstdnConversation()->createFromConvId($this->parameters['id'])->toArray());
 	}
 }

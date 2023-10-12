@@ -183,7 +183,7 @@ class API extends BaseModule
 
 		if (strcmp($finish, $start) < 0 && !$noFinish) {
 			if ($isPreview) {
-				System::httpExit($this->t('Event can not end before it has started.'));
+				$this->httpExit($this->t('Event can not end before it has started.'));
 			} else {
 				$this->sysMessages->addNotice($this->t('Event can not end before it has started.'));
 				$this->baseUrl->redirect($redirectOnError);
@@ -192,7 +192,7 @@ class API extends BaseModule
 
 		if (empty($summary) || ($start === DBA::NULL_DATETIME)) {
 			if ($isPreview) {
-				System::httpExit($this->t('Event title and start time are required.'));
+				$this->httpExit($this->t('Event title and start time are required.'));
 			} else {
 				$this->sysMessages->addNotice($this->t('Event title and start time are required.'));
 				$this->baseUrl->redirect($redirectOnError);
@@ -251,7 +251,7 @@ class API extends BaseModule
 		];
 
 		if (intval($request['preview'])) {
-			System::httpExit(Event::getHTML($datarray));
+			$this->httpExit(Event::getHTML($datarray));
 		}
 
 		$eventId = Event::store($datarray);

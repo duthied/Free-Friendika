@@ -82,6 +82,6 @@ class Incoming extends ContactEndpoint
 
 		$this->response->setHeader(self::getLinkHeader());
 
-		$this->response->exit('incoming', ['incoming' => $return]);
+		$this->response->addFormattedContent('incoming', ['incoming' => $return]);
 	}
 }

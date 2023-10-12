@@ -82,6 +82,6 @@ class Create extends BaseApi
 
 		$result = ['success' => true, 'gid' => $gid, 'name' => $name, 'status' => $status, 'wrong users' => $errorusers];
 
-		$this->response->exit('group_create', ['$result' => $result], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('group_create', ['$result' => $result], $this->parameters['extension'] ?? null);
 	}
 }

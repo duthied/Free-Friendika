@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2023.09-dev (Giant Rhubarb)
--- DB_UPDATE_VERSION 1529
+-- Friendica 2023.09-rc (Giant Rhubarb)
+-- DB_UPDATE_VERSION 1536
 -- ------------------------------------------
 
 
@@ -493,6 +493,25 @@ CREATE TABLE IF NOT EXISTS `cache` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Stores temporary data';
 
 --
+-- TABLE channel
+--
+CREATE TABLE IF NOT EXISTS `channel` (
+	`id` int unsigned NOT NULL auto_increment COMMENT '',
+	`uid` mediumint unsigned NOT NULL COMMENT 'User id',
+	`label` varchar(64) NOT NULL COMMENT 'Channel label',
+	`description` varchar(64) COMMENT 'Channel description',
+	`circle` int COMMENT 'Circle or channel that this channel is based on',
+	`access-key` varchar(1) COMMENT 'Access key',
+	`include-tags` varchar(255) COMMENT 'Comma separated list of tags that will be included in the channel',
+	`exclude-tags` varchar(255) COMMENT 'Comma separated list of tags that aren\'t allowed in the channel',
+	`full-text-search` varchar(255) COMMENT 'Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode',
+	`media-type` smallint unsigned COMMENT 'Filtered media types',
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User defined Channels';
+
+--
 -- TABLE config
 --
 CREATE TABLE IF NOT EXISTS `config` (
@@ -510,9 +529,13 @@ CREATE TABLE IF NOT EXISTS `config` (
 CREATE TABLE IF NOT EXISTS `contact-relation` (
 	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact the related contact had interacted with',
 	`relation-cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'related contact who had interacted with the contact',
-	`last-interaction` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last interaction',
+	`last-interaction` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last interaction by relation-cid on cid',
 	`follow-updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last update of the contact relationship',
-	`follows` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`follows` boolean NOT NULL DEFAULT '0' COMMENT 'if true, relation-cid follows cid',
+	`score` smallint unsigned COMMENT 'score for interactions of cid on relation-cid',
+	`relation-score` smallint unsigned COMMENT 'score for interactions of relation-cid on cid',
+	`thread-score` smallint unsigned COMMENT 'score for interactions of cid on threads of relation-cid',
+	`relation-thread-score` smallint unsigned COMMENT 'score for interactions of relation-cid on threads of cid',
 	 PRIMARY KEY(`cid`,`relation-cid`),
 	 INDEX `relation-cid` (`relation-cid`),
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
@@ -1297,6 +1320,28 @@ CREATE TABLE IF NOT EXISTS `post-delivery-data` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
 
 --
+-- TABLE post-engagement
+--
+CREATE TABLE IF NOT EXISTS `post-engagement` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
+	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Person, organisation, news, community, relay',
+	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
+	`language` varbinary(128) COMMENT 'Language information about this post',
+	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
+	`created` datetime COMMENT '',
+	`restricted` boolean NOT NULL DEFAULT '0' COMMENT 'If true, this post is either unlisted or not from a federated network',
+	`comments` mediumint unsigned COMMENT 'Number of comments',
+	`activities` mediumint unsigned COMMENT 'Number of activities (like, dislike, ...)',
+	 PRIMARY KEY(`uri-id`),
+	 INDEX `owner-id` (`owner-id`),
+	 INDEX `created` (`created`),
+	 FULLTEXT INDEX `searchtext` (`searchtext`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Engagement data per post';
+
+--
 -- TABLE post-history
 --
 CREATE TABLE IF NOT EXISTS `post-history` (
@@ -1549,6 +1594,7 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	 INDEX `psid` (`psid`),
 	 INDEX `post-user-id` (`post-user-id`),
 	 INDEX `commented` (`commented`),
+	 INDEX `received` (`received`),
 	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
 	 INDEX `uid_commented` (`uid`,`commented`),
@@ -1710,15 +1756,15 @@ CREATE TABLE IF NOT EXISTS `report` (
 	`cid` int unsigned NOT NULL COMMENT 'Reported contact',
 	`gsid` int unsigned COMMENT 'Reported contact server',
 	`comment` text COMMENT 'Report',
-	`category-id` int unsigned NOT NULL DEFAULT 1 COMMENT 'Report category, one of Entity\Report::CATEGORY_*',
+	`category-id` int unsigned NOT NULL DEFAULT 1 COMMENT 'Report category, one of Entity Report::CATEGORY_*',
 	`forward` boolean COMMENT 'Forward the report to the remote server',
 	`public-remarks` text COMMENT 'Remarks shared with the reporter',
 	`private-remarks` text COMMENT 'Remarks shared with the moderation team',
 	`last-editor-uid` mediumint unsigned COMMENT 'Last editor user',
 	`assigned-uid` mediumint unsigned COMMENT 'Assigned moderator user',
-	`status` tinyint unsigned NOT NULL COMMENT 'Status of the report, one of Entity\Report::STATUS_*',
-	`resolution` tinyint unsigned COMMENT 'Resolution of the report, one of Entity\Report::RESOLUTION_*',
-	`created` datetime(6) NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`status` tinyint unsigned NOT NULL COMMENT 'Status of the report, one of Entity Report::STATUS_*',
+	`resolution` tinyint unsigned COMMENT 'Resolution of the report, one of Entity Report::RESOLUTION_*',
+	`created` datetime(6) NOT NULL DEFAULT '0001-01-01 00:00:00.000000' COMMENT '',
 	`edited` datetime(6) COMMENT 'Last time the report has been edited',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
@@ -1843,6 +1889,7 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	`collapsed` boolean COMMENT 'Posts from this contact are collapsed',
 	`hidden` boolean COMMENT 'This contact is hidden from the others',
 	`is-blocked` boolean COMMENT 'User is blocked by this contact',
+	`channel-frequency` tinyint unsigned COMMENT 'Controls the frequency of the appearance of this contact in channels',
 	`pending` boolean COMMENT '',
 	`rel` tinyint unsigned COMMENT 'The kind of the relation between the user and the contact',
 	`info` mediumtext COMMENT '',
@@ -2044,6 +2091,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
 	`author`.`updated` AS `author-updated`,
+	`author`.`contact-type` AS `author-contact-type`,
 	`author`.`gsid` AS `author-gsid`,
 	`author`.`baseurl` AS `author-baseurl`,
 	`post-user`.`owner-id` AS `owner-id`,
@@ -2228,6 +2276,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
 	`author`.`updated` AS `author-updated`,
+	`author`.`contact-type` AS `author-contact-type`,
 	`author`.`gsid` AS `author-gsid`,
 	`post-thread-user`.`owner-id` AS `owner-id`,
 	`owner`.`uri-id` AS `owner-uri-id`,
@@ -2396,6 +2445,7 @@ CREATE VIEW `post-view` AS SELECT
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
 	`author`.`updated` AS `author-updated`,
+	`author`.`contact-type` AS `author-contact-type`,
 	`author`.`gsid` AS `author-gsid`,
 	`post`.`owner-id` AS `owner-id`,
 	`owner`.`uri-id` AS `owner-uri-id`,
@@ -2541,6 +2591,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
 	`author`.`updated` AS `author-updated`,
+	`author`.`contact-type` AS `author-contact-type`,
 	`author`.`gsid` AS `author-gsid`,
 	`post-thread`.`owner-id` AS `owner-id`,
 	`owner`.`uri-id` AS `owner-uri-id`,

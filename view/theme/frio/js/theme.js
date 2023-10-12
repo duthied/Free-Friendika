@@ -80,6 +80,21 @@ $(document).ready(function () {
 		target: ".flex-target",
 	});
 
+	// add mention-link button to the second navbar
+	let $mentionButton = $("#mention-link-button");
+	if ($mentionButton.length) {
+		$mentionButton.appendTo("#topbar-second > .container > #navbar-button").addClass("pull-right");
+		$("#mention-link").addClass("btn-sm ");
+		$("#mention-link > span i").addClass("fa-2x");
+		if ($mentionButton.hasClass("modal-open")) {
+			$mentionButton.on("click", function (e) {
+				e.preventDefault();
+				jotShow();
+			});
+		}
+	}
+
+
 	// add Jot button to the second navbar
 	let $jotButton = $("#jotOpen");
 	if ($jotButton.length) {
@@ -940,5 +955,15 @@ function toggleDropdownText(elm) {
 // Check if element does have a specific class
 function hasClass(elem, cls) {
 	return (" " + elem.className + " ").indexOf(" " + cls + " ") > -1;
+}
+
+// Send on <CTRL>+<Enter> or <META>+<Enter> on macos
+// e: event
+// submit: the id of the submitbutton
+function sendOnCtrlEnter(e, submit) {
+	if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
+		console.log("Ctrl + Enter");
+		$("#" + submit).trigger('click');
+	}
 }
 // @license-end

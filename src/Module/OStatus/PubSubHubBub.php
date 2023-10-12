@@ -111,7 +111,7 @@ class PubSubHubBub extends \Friendica\BaseModule
 		}
 
 		// fetch user from database given the nickname
-		$condition = ['nickname' => $nickname, 'account_expired' => false, 'account_removed' => false];
+		$condition = ['nickname' => $nickname, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
 		$owner     = $this->database->selectFirst('user', ['uid', 'nickname'], $condition);
 		if (!$owner) {
 			$this->logger->notice('Local account not found', ['nickname' => $nickname, 'topic' => $hub_topic, 'callback' => $hub_callback]);

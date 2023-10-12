@@ -36,10 +36,10 @@ class Post
 	 *
 	 * @param integer $uri_id
 	 * @param array   $fields
-	 * @return int    ID of inserted post
+	 * @return bool   Success of the insert process
 	 * @throws \Exception
 	 */
-	public static function insert(int $uri_id, array $data = []): int
+	public static function insert(int $uri_id, array $data = []): bool
 	{
 		if (empty($uri_id)) {
 			throw new BadMethodCallException('Empty URI_id');
@@ -50,11 +50,7 @@ class Post
 		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
 
-		if (!DBA::insert('post', $fields, Database::INSERT_IGNORE)) {
-			return 0;
-		}
-
-		return DBA::lastInsertId();
+		return DBA::insert('post', $fields, Database::INSERT_IGNORE);
 	}
 
 	/**

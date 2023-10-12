@@ -54,6 +54,6 @@ class Suggestions extends BaseApi
 			];
 		}
 
-		System::jsonExit($accounts);
+		$this->jsonExit($accounts);
 	}
 }

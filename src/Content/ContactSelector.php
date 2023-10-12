@@ -221,6 +221,7 @@ class ContactSelector
 			'mastodon' => 'mastodon', 'peertube' => 'peertube', 'pixelfed' => 'pixelfed',
 			'pleroma' => 'pleroma', 'red' => 'hubzilla', 'redmatrix' => 'hubzilla',
 			'socialhome' => 'social-home', 'wordpress' => 'wordpress', 'lemmy' => 'users',
+			'plume' => 'plume', 'funkwhale' => 'funkwhale', 'nextcloud' => 'nextcloud', 'drupal' => 'drupal',
 			'firefish' => 'fire', 'calckey' => 'calculator', 'kbin' => 'check'];
 
 		$search  = array_keys($nets);

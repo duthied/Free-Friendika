@@ -23,9 +23,6 @@ namespace Friendica\Module\Update;
 
 use Friendica\Content\Conversation;
 use Friendica\Core\System;
-use Friendica\DI;
-use Friendica\Model\Item;
-use Friendica\Model\Post;
 use Friendica\Module\Conversation\Network as NetworkModule;
 
 class Network extends NetworkModule
@@ -38,48 +35,21 @@ class Network extends NetworkModule
 
 		$this->parseRequest($request);
 
-		$profile_uid = intval($request['p']);
-
 		$o = '';
 
-		if (empty($request['force'])) {
+		if (!$this->update && !$this->force) {
 			System::htmlUpdateExit($o);
 		}
 
-		if (!empty($request['item'])) {
-			$item = Post::selectFirst(['parent'], ['id' => $request['item']]);
-			$parent = $item['parent'] ?? 0;
+		if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
+			$items = $this->getChannelItems();
+		} elseif ($this->community->isTimeline($this->selectedTab)) {
+			$items = $this->getCommunityItems();
 		} else {
-			$parent = 0;
+			$items = $this->getItems();
 		}
 
-		$conditionFields = [];
-		if (!empty($parent)) {
-			// Load only a single thread
-			$conditionFields['parent'] = $parent;
-		} elseif (self::$order === 'received') {
-			// Only load new toplevel posts
-			$conditionFields['unseen'] = true;
-			$conditionFields['gravity'] = Item::GRAVITY_PARENT;
-		} else {
-			// Load all unseen items
-			$conditionFields['unseen'] = true;
-		}
-
-		$params = ['limit' => 100];
-		$table = 'network-item-view';
-
-		$items = self::getItems($table, $params, $conditionFields);
-
-		if (self::$order === 'received') {
-			$ordering = '`received`';
-		} elseif (self::$order === 'created') {
-			$ordering = '`created`';
-		} else {
-			$ordering = '`commented`';
-		}
-
-		$o = DI::conversation()->render($items, Conversation::MODE_NETWORK, $profile_uid, false, $ordering, DI::userSession()->getLocalUserId());
+		$o = $this->conversation->render($items, Conversation::MODE_NETWORK, true, false, $this->getOrder(), $this->session->getLocalUserId());
 
 		System::htmlUpdateExit($o);
 	}

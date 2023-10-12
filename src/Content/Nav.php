@@ -40,20 +40,21 @@ use Friendica\Network\HTTPException;
 class Nav
 {
 	private static $selected = [
-		'global'    => null,
-		'community' => null,
-		'network'   => null,
-		'home'      => null,
-		'profiles'  => null,
+		'global'        => null,
+		'community'     => null,
+		'channel'       => null,
+		'network'       => null,
+		'home'          => null,
+		'profiles'      => null,
 		'introductions' => null,
 		'notifications' => null,
-		'messages'  => null,
-		'directory' => null,
-		'settings'  => null,
-		'contacts'  => null,
-		'delegation'=> null,
-		'calendar'  => null,
-		'register'  => null
+		'messages'      => null,
+		'directory'     => null,
+		'settings'      => null,
+		'contacts'      => null,
+		'delegation'    => null,
+		'calendar'      => null,
+		'register'      => null
 	];
 
 	/**
@@ -199,6 +200,7 @@ class Nav
 			'moderation'    => null,
 			'apps'          => null,
 			'community'     => null,
+			'channel'       => null,
 			'home'          => null,
 			'calendar'      => null,
 			'login'         => null,

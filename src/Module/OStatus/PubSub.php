@@ -63,7 +63,7 @@ class PubSub extends \Friendica\BaseModule
 		$nickname   = $this->parameters['nickname'] ?? '';
 		$contact_id = $this->parameters['cid']      ?? 0;
 
-		$importer = $this->database->selectFirst('user', [], ['nickname' => $nickname, 'account_expired' => false, 'account_removed' => false]);
+		$importer = $this->database->selectFirst('user', [], ['nickname' => $nickname, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
 		if (!$importer) {
 			throw new HTTPException\OKException();
 		}
@@ -119,7 +119,7 @@ class PubSub extends \Friendica\BaseModule
 		$this->logger->notice('Subscription start.', ['from' => $this->request->getRemoteAddress(), 'mode' => $hub_mode, 'nickname' => $nickname]);
 		$this->logger->debug('Data: ', ['get' => $request]);
 
-		$owner = $this->database->selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_expired' => false, 'account_removed' => false]);
+		$owner = $this->database->selectFirst('user', ['uid'], ['nickname' => $nickname, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
 		if (!$owner) {
 			$this->logger->notice('Local account not found.', ['nickname' => $nickname]);
 			throw new HTTPException\NotFoundException();
@@ -155,6 +155,6 @@ class PubSub extends \Friendica\BaseModule
 			$this->logger->notice('Success for contact.', ['mode' => $hub_mode, 'contact' => $contact_id]);
 		}
 
-		System::httpExit($hub_challenge);
+		$this->httpExit($hub_challenge);
 	}
 }

@@ -3062,10 +3062,7 @@ class Diaspora
 		// If the item belongs to a user, we take this user id.
 		if ($item['uid'] == 0) {
 			// @todo Possibly use an administrator account?
-			$condition = [
-				'verified' => true, 'blocked' => false,
-				'account_removed' => false, 'account_expired' => false, 'account-type' => User::ACCOUNT_TYPE_PERSON
-			];
+			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false, 'account-type' => User::ACCOUNT_TYPE_PERSON];
 			$first_user = DBA::selectFirst('user', ['uid'], $condition, ['order' => ['uid']]);
 			$owner = User::getOwnerDataById($first_user['uid']);
 		} else {

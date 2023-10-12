@@ -169,16 +169,17 @@ class Circle
 	 *
 	 * Count unread items of each circle of the local user
 	 *
+	 * @param int $uid
 	 * @return array
 	 *    'id' => circle id
 	 *    'name' => circle name
 	 *    'count' => counted unseen circle items
 	 * @throws \Exception
 	 */
-	public static function countUnseen()
+	public static function countUnseen(int $uid)
 	{
 		$stmt = DBA::p("SELECT `circle`.`id`, `circle`.`name`,
-				(SELECT COUNT(*) FROM `post-user-view`
+				(SELECT COUNT(*) FROM `post-user`
 					WHERE `uid` = ?
 					AND `unseen`
 					AND `contact-id` IN
@@ -188,8 +189,8 @@ class Circle
 					) AS `count`
 				FROM `group` AS `circle`
 				WHERE `circle`.`uid` = ?;",
-			DI::userSession()->getLocalUserId(),
-			DI::userSession()->getLocalUserId()
+			$uid,
+			$uid
 		);
 
 		return DBA::toArray($stmt);

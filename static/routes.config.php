@@ -391,6 +391,7 @@ return [
 		'/event/{mode:edit|copy}/{id:\d+}'              => [Module\Calendar\Event\Form::class, [R::GET         ]],
 	],
 
+	'/channel[/{content}]'   => [Module\Conversation\Channel::class,   [R::GET]],
 	'/community[/{content}]' => [Module\Conversation\Community::class, [R::GET]],
 
 	'/compose[/{type}]'    => [Module\Item\Compose::class, [R::GET, R::POST]],
@@ -509,6 +510,7 @@ return [
 		'/item/source[/{guid}]' => [Module\Moderation\Item\Source::class, [R::GET, R::POST]],
 
 		'/report/create' => [Module\Moderation\Report\Create::class, [R::GET, R::POST]],
+		'/reports'       => [Module\Moderation\Reports::class, [R::GET, R::POST]],
 
 		'/users[/{action}/{uid}]'         => [Module\Moderation\Users\Index::class,   [R::GET, R::POST]],
 		'/users/active[/{action}/{uid}]'  => [Module\Moderation\Users\Active::class,  [R::GET, R::POST]],
@@ -649,6 +651,7 @@ return [
 			'/{open}' => [Module\Settings\Account::class,               [R::GET, R::POST]],
 		],
 		'/addons[/{addon}]'                => [Module\Settings\Addons::class,           [R::GET, R::POST]],
+		'/channels'                        => [Module\Settings\Channels::class,         [R::GET, R::POST]],
 		'/connectors[/{connector}]'        => [Module\Settings\Connectors::class,       [R::GET, R::POST]],
 		'/delegation[/{action}/{user_id}]' => [Module\Settings\Delegation::class,       [R::GET, R::POST]],
 		'/display'                         => [Module\Settings\Display::class,          [R::GET, R::POST]],
@@ -671,7 +674,7 @@ return [
 	],
 
 	'/network' => [
-		'[/]'                         => [Module\Conversation\Network::class, [R::GET]],
+		'[/{content}]'                => [Module\Conversation\Network::class, [R::GET]],
 		'/archive/{from:\d\d\d\d-\d\d-\d\d}[/{to:\d\d\d\d-\d\d-\d\d}]' => [Module\Conversation\Network::class, [R::GET]],
 		'/group/{contact_id:\d+}'     => [Module\Conversation\Network::class, [R::GET]],
 		'/circle/{circle_id:\d+}'     => [Module\Conversation\Network::class, [R::GET]],
@@ -686,6 +689,7 @@ return [
 	'/toggle_mobile'                 => [Module\ToggleMobile::class,          [R::GET]],
 	'/tos'                           => [Module\Tos::class,                   [R::GET]],
 
+	'/update_channel[/{content}]'    => [Module\Update\Channel::class,        [R::GET]],
 	'/update_community[/{content}]'  => [Module\Update\Community::class,      [R::GET]],
 
 	'/update_display'                => [Module\Update\Display::class, [R::GET]],

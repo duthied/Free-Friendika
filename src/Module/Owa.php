@@ -101,6 +101,6 @@ class Owa extends BaseModule
 				}
 			}
 		}
-		System::jsonExit($ret, 'application/x-zot+json');
+		$this->jsonExit($ret, 'application/x-zot+json');
 	}
 }

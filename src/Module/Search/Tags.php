@@ -59,7 +59,7 @@ class Tags extends BaseModule
 		$results = [];
 
 		if (empty($tags)) {
-			System::jsonExit([
+			$this->jsonExit([
 				'total'      => 0,
 				'items_page' => $perPage,
 				'page'       => $page,
@@ -74,7 +74,7 @@ class Tags extends BaseModule
 
 		$totalCount = $this->database->count('owner-view', $condition);
 		if ($totalCount === 0) {
-			System::jsonExit([
+			$this->jsonExit([
 				'total'      => 0,
 				'items_page' => $perPage,
 				'page'       => $page,
@@ -97,7 +97,7 @@ class Tags extends BaseModule
 
 		$this->database->close($searchStmt);
 
-		System::jsonExit([
+		$this->jsonExit([
 			'total'      => $totalCount,
 			'items_page' => $perPage,
 			'page'       => $page,

@@ -50,28 +50,28 @@ class UserTest extends MockedTest
 		DI::init($diceMock, true);
 
 		$this->parent = [
-			'uid'      => 1,
-			'username' => 'maxmuster',
-			'nickname' => 'Max Muster'
+			'uid'             => 1,
+			'username'        => 'maxmuster',
+			'nickname'        => 'Max Muster',
 		];
 
 		$this->child = [
-			'uid'      => 2,
-			'username' => 'johndoe',
-			'nickname' => 'John Doe'
+			'uid'             => 2,
+			'username'        => 'johndoe',
+			'nickname'        => 'John Doe',
 		];
 
 		$this->manage = [
-			'uid'      => 3,
-			'username' => 'janesmith',
-			'nickname' => 'Jane Smith'
+			'uid'             => 3,
+			'username'        => 'janesmith',
+			'nickname'        => 'Jane Smith',
 		];
 	}
 
 	public function testIdentitiesEmpty()
 	{
 		$this->dbMock->shouldReceive('selectFirst')->with('user',
-			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->parent['uid']], [])->andReturn($this->parent)->once();
+			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->parent['uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false], [])->andReturn($this->parent)->once();
 		$this->dbMock->shouldReceive('isResult')->with($this->parent)->andReturn(false)->once();
 
 		$record = User::identities($this->parent['uid']);
@@ -86,7 +86,7 @@ class UserTest extends MockedTest
 
 		// Select the user itself (=parent)
 		$this->dbMock->shouldReceive('selectFirst')->with('user',
-			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->parent['uid']], [])->andReturn($parentSelect)->once();
+			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->parent['uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false], [])->andReturn($parentSelect)->once();
 		$this->dbMock->shouldReceive('isResult')->with($parentSelect)->andReturn(true)->once();
 
 		// Select one child
@@ -94,7 +94,10 @@ class UserTest extends MockedTest
 			['uid', 'username', 'nickname'],
 			[
 				'parent-uid'      => $this->parent['uid'],
-				'account_removed' => false
+				'verified'        => true,
+				'blocked'         => false,
+				'account_removed' => false,
+				'account_expired' => false
 			], [])->andReturn('objectReturn')->once();
 		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
 		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->child])->once();
@@ -110,7 +113,7 @@ class UserTest extends MockedTest
 			$this->parent,
 			$this->child,
 			$this->manage
-		], $record);
+		], $record, 'testIdentitiesAsParent: ' . print_r($record, true));
 	}
 
 	public function testIdentitiesAsChild()
@@ -120,15 +123,18 @@ class UserTest extends MockedTest
 
 		// Select the user itself (=child)
 		$this->dbMock->shouldReceive('selectFirst')->with('user',
-			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->child['uid']], [])->andReturn($childSelect)->once();
+			['uid', 'nickname', 'username', 'parent-uid'],['uid' => $this->child['uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false], [])->andReturn($childSelect)->once();
 		$this->dbMock->shouldReceive('isResult')->with($childSelect)->andReturn(true)->once();
 
 		// Select the parent
 		$this->dbMock->shouldReceive('select')->with('user',
 			['uid', 'username', 'nickname'],
 			[
-				'uid'      => $this->parent['uid'],
-				'account_removed' => false
+				'uid'             => $this->parent['uid'],
+				'verified'        => true,
+				'blocked'         => false,
+				'account_removed' => false,
+				'account_expired' => false
 			], [])->andReturn('objectReturn')->once();
 		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
 		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->parent])->once();
@@ -138,7 +144,10 @@ class UserTest extends MockedTest
 			['uid', 'username', 'nickname'],
 			[
 				'parent-uid'      => $this->parent['uid'],
-				'account_removed' => false
+				'verified'        => true,
+				'blocked'         => false,
+				'account_removed' => false,
+				'account_expired' => false
 			], [])->andReturn('objectReturn')->once();
 		$this->dbMock->shouldReceive('isResult')->with('objectReturn')->andReturn(true)->once();
 		$this->dbMock->shouldReceive('toArray')->with('objectReturn', true, 0)->andReturn([$this->child, $this->manage])->once();

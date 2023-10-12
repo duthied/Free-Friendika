@@ -87,23 +87,13 @@ class Relay
 
 		$body = ActivityPub\Processor::normalizeMentionLinks($body);
 
-		$systemTags = [];
-		$userTags = [];
 		$denyTags = [];
 
 		if ($scope == self::SCOPE_TAGS) {
-			$server_tags = $config->get('system', 'relay_server_tags');
-			$tagitems = explode(',', mb_strtolower($server_tags));
-			foreach ($tagitems as $tag) {
-				$systemTags[] = trim($tag, '# ');
-			}
-
-			if ($config->get('system', 'relay_user_tags')) {
-				$userTags = Search::getUserTags();
-			}
+			$tagList = self::getSubscribedTags();
+		} else {
+			$tagList  = [];
 		}
-
-		$tagList = array_unique(array_merge($systemTags, $userTags));
 
 		$deny_tags = $config->get('system', 'relay_deny_tags');
 		$tagitems = explode(',', mb_strtolower($deny_tags));
@@ -136,7 +126,7 @@ class Relay
 			}
 		}
 
-		if (!self::isWantedLanguage($body)) {
+		if (!self::isWantedLanguage($body, 0, $authorid)) {
 			Logger::info('Unwanted or Undetected language found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer, 'tags' => $tags]);
 			return false;
 		}
@@ -151,12 +141,37 @@ class Relay
 	}
 
 	/**
+	 * Get a list of subscribed tags by both the users and the tags that are defined by the admin
+	 *
+	 * @return array
+	 */
+	public static function getSubscribedTags(): array
+	{
+		$systemTags  = [];
+		$server_tags = DI::config()->get('system', 'relay_server_tags');
+
+		foreach (explode(',', mb_strtolower($server_tags)) as $tag) {
+			$systemTags[] = trim($tag, '# ');
+		}
+
+		if (DI::config()->get('system', 'relay_user_tags')) {
+			$userTags = Search::getUserTags();
+		} else {
+			$userTags = [];
+		}
+
+		return array_unique(array_merge($systemTags, $userTags));
+	}
+
+	/**
 	 * Detect the language of a post and decide if the post should be accepted
 	 *
 	 * @param string $body
+	 * @param int    $uri_id
+	 * @param int    $author_id
 	 * @return boolean
 	 */
-	public static function isWantedLanguage(string $body)
+	public static function isWantedLanguage(string $body, int $uri_id = 0, int $author_id = 0)
 	{
 		if (empty($body) || Smilies::isEmojiPost($body)) {
 			Logger::debug('Empty body or only emojis', ['body' => $body]);
@@ -164,7 +179,7 @@ class Relay
 		}
 
 		$languages = [];
-		foreach (Item::getLanguageArray($body, 10) as $language => $reliability) {
+		foreach (Item::getLanguageArray($body, 10, $uri_id, $author_id) as $language => $reliability) {
 			if ($reliability > 0) {
 				$languages[] = $language;
 			}

@@ -156,15 +156,16 @@ class Post
 	/**
 	 * Get data in a form usable by a conversation template
 	 *
-	 * @param array   $conv_responses conversation responses
-	 * @param string $formSecurityToken A security Token to avoid CSF attacks
-	 * @param integer $thread_level   default = 1
+	 * @param array   $conv_responses    conversation responses
+	 * @param string  $formSecurityToken A security Token to avoid CSF attacks
+	 * @param integer $thread_level      default = 1
+	 * @param array   $thread_parent     Array of parent guid and parent author names
 	 *
 	 * @return mixed The data requested on success, false on failure
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function getTemplateData(array $conv_responses, string $formSecurityToken, int $thread_level = 1)
+	public function getTemplateData(array $conv_responses, string $formSecurityToken, int $thread_level = 1, array $thread_parent = [])
 	{
 		$item = $this->getData();
 		$edited = false;
@@ -496,7 +497,15 @@ class Post
 			$browsershare = null;
 		}
 
+		$parent_guid     = $thread_parent[$item['thr-parent-id']]['guid'] ?? '';
+		$parent_username = $thread_parent[$item['thr-parent-id']]['name'] ?? '';
+		$parent_unknown  = $parent_username ? '' : DI::l10n()->t('Unknown parent');
+
 		$tmp_item = [
+			'parentguid'      => $parent_guid,
+			'inreplyto'       => DI::l10n()->t('in reply to %s', $parent_username),
+			'isunknown'       => $parent_unknown,
+			'isunknown_label' => DI::l10n()->t('Parent is probably private or not federated.'),
 			'template'        => $this->getTemplate(),
 			'type'            => implode('', array_slice(explode('/', $item['verb']), -1)),
 			'comment_firstcollapsed' => false,
@@ -609,8 +618,10 @@ class Post
 		$children = $this->getChildren();
 		$nb_children = count($children);
 		if ($nb_children > 0) {
+			$thread_parent[$item['uri-id']] = ['guid' => $item['guid'], 'name' => $item['author-name']];
 			foreach ($children as $child) {
-				$result['children'][] = $child->getTemplateData($conv_responses, $formSecurityToken, $thread_level + 1);
+				$thread_parent[$child->getDataValue('uri-id')] = ['guid' => $child->getDataValue('guid'), 'name' => $child->getDataValue('author-name')];
+				$result['children'][] = $child->getTemplateData($conv_responses, $formSecurityToken, $thread_level + 1, $thread_parent);
 			}
 
 			// Collapse

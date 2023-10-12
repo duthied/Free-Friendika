@@ -51,6 +51,6 @@ class RateLimitStatus extends BaseApi
 			];
 		}
 
-		$this->response->exit('hash', ['hash' => $hash], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('hash', ['hash' => $hash], $this->parameters['extension'] ?? null);
 	}
 }

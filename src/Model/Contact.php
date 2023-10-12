@@ -222,6 +222,11 @@ class Contact
 
 		Contact\User::insertForContactArray($contact);
 
+		if ((empty($contact['baseurl']) || empty($contact['gsid'])) && Probe::isProbable($contact['network'])) {
+			Logger::debug('Update missing baseurl', ['id' => $contact['id'], 'url' => $contact['url'], 'callstack' => System::callstack(4, 0, true)]);
+			UpdateContact::add(['priority' => Worker::PRIORITY_MEDIUM, 'dont_fork' => true], $contact['id']);
+		}
+
 		return $contact['id'];
 	}
 
@@ -529,6 +534,17 @@ class Contact
 	}
 
 	/**
+	 * Checks if the provided public contact id has got followers on this system
+	 *
+	 * @param integer $cid
+	 * @return boolean
+	 */
+	public static function hasFollowers(int $cid): bool
+	{
+		return DBA::exists('account-user-view', ["`pid` = ? AND `uid` != ? AND `rel` IN (?, ?)", $cid, 0, self::SHARING, self::FRIEND]);
+	}
+
+	/**
 	 * Get the basepath for a given contact link
 	 *
 	 * @param string $url The contact link
@@ -734,7 +750,7 @@ class Contact
 		$user = DBA::selectFirst(
 			'user',
 			['uid', 'username', 'nickname', 'pubkey', 'prvkey'],
-			['uid' => $uid, 'account_expired' => false]
+			['uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]
 		);
 		if (!DBA::isResult($user)) {
 			return false;
@@ -806,7 +822,7 @@ class Contact
 		}
 
 		$fields = ['uid', 'username', 'nickname', 'page-flags', 'account-type', 'prvkey', 'pubkey'];
-		$user = DBA::selectFirst('user', $fields, ['uid' => $uid, 'account_expired' => false]);
+		$user = DBA::selectFirst('user', $fields, ['uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
 		if (!DBA::isResult($user)) {
 			return false;
 		}
@@ -1161,6 +1177,7 @@ class Contact
 		}
 
 		$pm_url      = '';
+		$mention_url = '';
 		$status_link = '';
 		$photos_link = '';
 
@@ -1182,7 +1199,18 @@ class Contact
 		}
 
 		$contact_url = 'contact/' . $contact['id'];
-		$posts_link = 'contact/' . $contact['id'] . '/conversations';
+
+		if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
+			$mention_label = DI::l10n()->t('Post to group');
+			$mention_url = 'compose/0?body=!' . $contact['addr'];
+			$network_label = DI::l10n()->t('View group');
+			$network_url = 'network/group/' . $contact['id'];
+		} else {
+			$mention_label = DI::l10n()->t('Mention');
+			$mention_url = 'compose/0?body=@' . $contact['addr'];
+			$network_label = DI::l10n()->t('Network Posts');
+			$network_url = 'contact/' . $contact['id'] . '/conversations';
+		}
 
 		$follow_link   = '';
 		$unfollow_link = '';
@@ -1198,24 +1226,28 @@ class Contact
 		 * Menu array:
 		 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
 		 */
+
+
 		if (empty($contact['uid'])) {
 			$menu = [
 				'profile'  => [DI::l10n()->t('View Profile'), $profile_link, true],
-				'network'  => [DI::l10n()->t('Network Posts'), $posts_link, false],
+				'network'  => [$network_label, $network_url, false],
 				'edit'     => [DI::l10n()->t('View Contact'), $contact_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
+				'mention'  => [$mention_label, $mention_url, false],
 			];
 		} else {
 			$menu = [
 				'status'   => [DI::l10n()->t('View Status'), $status_link, true],
 				'profile'  => [DI::l10n()->t('View Profile'), $profile_link, true],
 				'photos'   => [DI::l10n()->t('View Photos'), $photos_link, true],
-				'network'  => [DI::l10n()->t('Network Posts'), $posts_link, false],
+				'network'  => [$network_label, $network_url, false],
 				'edit'     => [DI::l10n()->t('View Contact'), $contact_url, false],
 				'pm'       => [DI::l10n()->t('Send PM'), $pm_url, false],
 				'follow'   => [DI::l10n()->t('Connect/Follow'), $follow_link, true],
 				'unfollow' => [DI::l10n()->t('Unfollow'), $unfollow_link, true],
+				'mention'  => [$mention_label, $mention_url, false],
 			];
 
 			if (!empty($contact['pending'])) {
@@ -1372,6 +1404,7 @@ class Contact
 			$fields = [
 				'uid'       => $uid,
 				'url'       => $data['url'],
+				'baseurl'   => $data['baseurl'] ?? '',
 				'nurl'      => Strings::normaliseLink($data['url']),
 				'network'   => $data['network'],
 				'created'   => DateTimeFormat::utcNow(),
@@ -3181,7 +3214,7 @@ class Contact
 			return false;
 		}
 
-		$fields = ['id', 'url', 'name', 'nick', 'avatar', 'photo', 'network', 'blocked'];
+		$fields = ['id', 'url', 'name', 'nick', 'avatar', 'photo', 'network', 'blocked', 'baseurl'];
 		$pub_contact = DBA::selectFirst('contact', $fields, ['id' => $datarray['author-id']]);
 		if (!DBA::isResult($pub_contact)) {
 			// Should never happen
@@ -3252,6 +3285,7 @@ class Contact
 				'created'  => DateTimeFormat::utcNow(),
 				'url'      => $url,
 				'nurl'     => Strings::normaliseLink($url),
+				'baseurl'  => $pub_contact['baseurl'] ?? '',
 				'name'     => $name,
 				'nick'     => $nick,
 				'network'  => $network,

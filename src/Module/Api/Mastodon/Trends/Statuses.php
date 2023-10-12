@@ -67,6 +67,6 @@ class Statuses extends BaseApi
 			self::setLinkHeaderByOffsetLimit($request['offset'], $request['limit']);
 		}
 
-		System::jsonExit($trending);
+		$this->jsonExit($trending);
 	}
 }

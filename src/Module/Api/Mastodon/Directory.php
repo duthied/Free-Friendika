@@ -68,6 +68,6 @@ class Directory extends BaseApi
 		}
 		DBA::close($contacts);
 
-		System::jsonExit($accounts);
+		$this->jsonExit($accounts);
 	}
 }

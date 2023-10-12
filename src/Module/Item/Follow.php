@@ -71,6 +71,6 @@ class Follow extends BaseModule
 			'state' => 1
 		];
 
-		System::jsonExit($return);
+		$this->jsonExit($return);
 	}
 }

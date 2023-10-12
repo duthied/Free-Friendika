@@ -110,6 +110,6 @@ class Create extends BaseApi
 
 		$result = ['success' => true, 'event_id' => $event_id, 'event' => $event];
 
-		$this->response->exit('event_create', ['$result' => $result], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('event_create', ['$result' => $result], $this->parameters['extension'] ?? null);
 	}
 }

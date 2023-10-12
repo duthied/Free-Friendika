@@ -213,6 +213,7 @@ details summary {
 	text-shadow: none;
 	border-radius: 3px;
 	margin-bottom: 0;
+	margin-top: 2px;
 	font-size: 14px;
 	font-weight: 600;
 	padding: 8px 16px;
@@ -1303,7 +1304,7 @@ aside #follow-sidebar .form-group-search .form-button-search {
 	padding: 2px 8px;
 }
 
-div#sidebar-circle-header h3, 
+div#sidebar-circle-header h3,
 div#sidebar-group-header h3 {
 	float: left;
 }
@@ -2214,9 +2215,11 @@ img.acpopup-img {
 	margin-left: 15px;
 }
 
-/* Birthday */
+/* Birthday and Event Reminders  */
 #birthday-notice,
-#birthday-wrapper {
+#birthday-wrapper,
+#event-notice,
+#event-wrapper {
 	margin-bottom: 5px;
 	padding: 10px;
 	border: none;
@@ -3069,7 +3072,7 @@ details.profile-jot-net[open] summary:before {
 	content: "\f0da"; /* Right Plain Pointer */
 }
 .widget > .fakelink > h3:before,
-#sidebar-circle-header > .fakelink > h3:before, 
+#sidebar-circle-header > .fakelink > h3:before,
 #sidebar-group-header > .fakelink > h3:before {
 	font-family: ForkAwesome;
 	content: "\f0d7"; /* Bottom Plain Pointer */
@@ -3772,10 +3775,6 @@ section .profile-match-wrapper {
 	.panel {
 		border-radius: 0;
 		margin-bottom: 5px;
-	}
-
-	.panel .panel-body {
-		padding: 10px;
 	}
 
 	.toplevel_item > .wall-item-container {

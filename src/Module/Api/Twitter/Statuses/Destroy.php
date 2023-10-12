@@ -59,6 +59,6 @@ class Destroy extends BaseApi
 
 		Item::deleteForUser(['id' => $post['id']], $uid);
 
-		$this->response->exit('status', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->addFormattedContent('status', ['status' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }

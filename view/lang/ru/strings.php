@@ -200,6 +200,26 @@ $a->strings['Apologies but the website is unavailable at the moment.'] = 'При
 $a->strings['Delete this item?'] = 'Удалить этот элемент?';
 $a->strings['Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'] = 'Заблокировать этого автора? Они не смогут подписаться на вас или видеть ваши записи, вы не будете видеть их записи и получать от них уведомления.';
 $a->strings['Ignore this author? You won\'t be able to see their posts and their notifications.'] = 'Игнорировать этого автора? Вы не увидите их записи и уведомления.';
+$a->strings['Collapse this author\'s posts?'] = 'Сворачивать записи этого автора?';
+$a->strings['Ignore this author\'s server?'] = 'Игнорировать сервер этого автора?';
+$a->strings['You won\'t see any content from this server including reshares in your Network page, the community pages and individual conversations.'] = 'Вы не будете видеть любые записи с этого сервера, включая репосты, в вашей ленте, в сообществах и в комментариях.';
+$a->strings['Like not successful'] = 'Ошибка отправки "мне нравится"';
+$a->strings['Dislike not successful'] = 'Ошибка оправки "мне не нравится"';
+$a->strings['Sharing not successful'] = 'Ошибка при попытке поделиться';
+$a->strings['Attendance unsuccessful'] = 'Ошибка обновления календаря';
+$a->strings['Backend error'] = 'Ошибка бэкенда';
+$a->strings['Network error'] = 'Ошибка сети';
+$a->strings['Drop files here to upload'] = 'Перетащите сюда файлы для загрузки';
+$a->strings['Your browser does not support drag and drop file uploads.'] = 'Ваш браузер не поддерживает перетаскивание файлов для загрузки';
+$a->strings['Please use the fallback form below to upload your files like in the olden days.'] = 'Пожалуйста, используйте форму ниже для загрузки файлов';
+$a->strings['File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.'] = 'Файл слишком большой ({{filesize}}MiB). Ограничение: {{maxFilesize}}MiB.';
+$a->strings['You can\'t upload files of this type.'] = 'Нельзя загрузить этот тип файла.';
+$a->strings['Server responded with {{statusCode}} code.'] = 'Сервер ответил с кодом {{statusCode}}.';
+$a->strings['Cancel upload'] = 'Отменить загрузку';
+$a->strings['Upload canceled.'] = 'Загрузка отменена';
+$a->strings['Are you sure you want to cancel this upload?'] = 'Вы уверены, что хотите отменить загрузку?';
+$a->strings['Remove file'] = 'Убрать файл';
+$a->strings['You can\'t upload any more files.'] = 'Вы не можете загрузить больше файлов.';
 $a->strings['toggle mobile'] = 'мобильная версия';
 $a->strings['Method not allowed for this module. Allowed method(s): %s'] = 'Метод не разрешён для этого модуля. Разрешенный метод(ы): %s';
 $a->strings['Page not found.'] = 'Страница не найдена.';
@@ -217,6 +237,9 @@ $a->strings['Could not find any unarchived contact entry for this URL (%s)'] = '
 $a->strings['The contact entries have been archived'] = 'Записи этого контакта были архивированы.';
 $a->strings['Could not find any contact entry for this URL (%s)'] = 'Не удалось найти контактных данных по этой ссылке (%s)';
 $a->strings['The contact has been blocked from the node'] = 'Контакт был заблокирован на узле.';
+$a->strings['%d %s, %d duplicates.'] = '%d %s, %d дубликаты.';
+$a->strings['uri-id is empty for contact %s.'] = 'uri-id пустой для контакта %s.';
+$a->strings['No valid first contact found for uri-id %d.'] = 'Не найден первый контакт для uri-id %d.';
 $a->strings['The avatar cache needs to be enabled to use this command.'] = 'Кэширование аватаров должно быть включено для использования этой команды.';
 $a->strings['no resource in photo %s'] = 'нет ресурса для фото %s';
 $a->strings['no photo with id %s'] = 'нет фото с id %s';
@@ -268,9 +291,83 @@ $a->strings['Diaspora Connector'] = 'Diaspora Connector';
 $a->strings['GNU Social Connector'] = 'GNU Social Connector';
 $a->strings['ActivityPub'] = 'ActivityPub';
 $a->strings['pnut'] = 'pnut';
+$a->strings['Tumblr'] = 'Tumblr';
+$a->strings['Bluesky'] = 'Bluesky';
 $a->strings['%s (via %s)'] = '%s (через %s)';
 $a->strings['and'] = 'и';
 $a->strings['and %d other people'] = 'и еще %d человек';
+$a->strings['%2$s likes this.'] = [
+	0 => '%2$s нравится это.',
+	1 => '%2$s нравится это.',
+	2 => '%2$s нравится это.',
+	3 => '%2$s нравится это.',
+];
+$a->strings['%2$s doesn\'t like this.'] = [
+	0 => '%2$s не нравится это.',
+	1 => '%2$s не нравится это.',
+	2 => '%2$s не нравится это.',
+	3 => '%2$s не нравится это.',
+];
+$a->strings['%2$s attends.'] = [
+	0 => '%2$s посетит.',
+	1 => '%2$s посетят.',
+	2 => '%2$s посетят.',
+	3 => '%2$s посетят.',
+];
+$a->strings['%2$s doesn\'t attend.'] = [
+	0 => '%2$s не посетит.',
+	1 => '%2$s не посетят.',
+	2 => '%2$s не посетят.',
+	3 => '%2$s не посетят.',
+];
+$a->strings['%2$s attends maybe.'] = [
+	0 => '%2$s может посетить.',
+	1 => '%2$s могут посетить.',
+	2 => '%2$s могут посетить.',
+	3 => '%2$s могут посетить.',
+];
+$a->strings['%2$s reshared this.'] = [
+	0 => '%2$s поделился этим.',
+	1 => '%2$s поделились этим.',
+	2 => '%2$s поделились этим.',
+	3 => '%2$s поделились этим.',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> likes this'] = [
+	0 => '<button type="button" %2$s>%1$d человеку</button> нравится это',
+	1 => '<button type="button" %2$s>%1$d людям</button> нравится это',
+	2 => '<button type="button" %2$s>%1$d людям</button> нравится это',
+	3 => '<button type="button" %2$s>%1$d людям</button> нравится это',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> doesn\'t like this'] = [
+	0 => '<button type="button" %2$s>%1$d человеку</button> не нравится это',
+	1 => '<button type="button" %2$s>%1$d людям</button> не нравится это',
+	2 => '<button type="button" %2$s>%1$d людям</button> не нравится это',
+	3 => '<button type="button" %2$s>%1$d людям</button> не нравится это',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> attends'] = [
+	0 => '<button type="button" %2$s>%1$d человек</button> посетит',
+	1 => '<button type="button" %2$s>%1$d людей</button> посетят',
+	2 => '<button type="button" %2$s>%1$d людей</button> посетят',
+	3 => '<button type="button" %2$s>%1$d людей</button> посетят',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> doesn\'t attend'] = [
+	0 => '<button type="button" %2$s>%1$d человек</button> не посетит',
+	1 => '<button type="button" %2$s>%1$d людей</button> не посетят',
+	2 => '<button type="button" %2$s>%1$d людей</button> не посетят',
+	3 => '<button type="button" %2$s>%1$d людей</button> не посетят',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> attends maybe'] = [
+	0 => '<button type="button" %2$s>%1$d человек</button> возможно посетит',
+	1 => '<button type="button" %2$s>%1$d людей</button> возможно посетят',
+	2 => '<button type="button" %2$s>%1$d людей</button> возможно посетят',
+	3 => '<button type="button" %2$s>%1$d людей</button> возможно посетят',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> reshared this'] = [
+	0 => '<button type="button" %2$s>%1$d человек</button> поделился этим',
+	1 => '<button type="button" %2$s>%1$d людей</button> поделились этим',
+	2 => '<button type="button" %2$s>%1$d людей</button> поделились этим',
+	3 => '<button type="button" %2$s>%1$d людей</button> поделились этим',
+];
 $a->strings['Visible to <strong>everybody</strong>'] = 'Видимое <strong>всем</strong>';
 $a->strings['Please enter a image/video/audio/webpage URL:'] = 'Пожалуйста, введите адрес картинки/видео/аудио/странички:';
 $a->strings['Tag term:'] = 'Тег:';
@@ -287,6 +384,8 @@ $a->strings['Bold'] = 'Жирный';
 $a->strings['Italic'] = 'Kурсивный';
 $a->strings['Underline'] = 'Подчеркнутый';
 $a->strings['Quote'] = 'Цитата';
+$a->strings['Add emojis'] = 'Добавить эмодзи';
+$a->strings['Content Warning'] = 'Предупреждение о контенте (CW)';
 $a->strings['Code'] = 'Код';
 $a->strings['Image'] = 'Изображение / Фото';
 $a->strings['Link'] = 'Ссылка';
@@ -301,19 +400,14 @@ $a->strings['Categories (comma-separated list)'] = 'Категории (спис
 $a->strings['Scheduled at'] = 'Запланировано на';
 $a->strings['Permission settings'] = 'Настройки разрешений';
 $a->strings['Public post'] = 'Публичная запись';
-$a->strings['Message'] = 'Запись';
+$a->strings['Message'] = 'Написать';
 $a->strings['Browser'] = 'Браузер';
 $a->strings['Open Compose page'] = 'Развернуть редактор';
-$a->strings['Pinned item'] = 'Закреплённая запись';
-$a->strings['View %s\'s profile @ %s'] = 'Просмотреть профиль %s [@ %s]';
-$a->strings['Categories:'] = 'Категории:';
-$a->strings['Filed under:'] = 'В рубрике:';
-$a->strings['%s from %s'] = '%s из %s';
-$a->strings['View in context'] = 'Смотреть в контексте';
 $a->strings['remove'] = 'удалить';
 $a->strings['Delete Selected Items'] = 'Удалить выбранные позиции';
 $a->strings['You had been addressed (%s).'] = 'К вам обратились (%s).';
 $a->strings['You are following %s.'] = 'Вы подписаны на %s.';
+$a->strings['You subscribed to %s.'] = 'Вы подписаны на %s.';
 $a->strings['You subscribed to one or more tags in this post.'] = 'Вы подписаны на один или несколько тегов в этой записи.';
 $a->strings['%s reshared this.'] = '%s поделился этим.';
 $a->strings['Reshared'] = 'Репост';
@@ -330,14 +424,48 @@ $a->strings['Local delivery'] = 'Местная доставка';
 $a->strings['Stored because of your activity (like, comment, star, ...)'] = 'Загружено из-за ваших действий (лайк, комментарий, ...)';
 $a->strings['Distributed'] = 'Распространено';
 $a->strings['Pushed to us'] = 'Прислано нам';
+$a->strings['Pinned item'] = 'Закреплённая запись';
+$a->strings['View %s\'s profile @ %s'] = 'Просмотреть профиль %s [@ %s]';
+$a->strings['Categories:'] = 'Категории:';
+$a->strings['Filed under:'] = 'В рубрике:';
+$a->strings['%s from %s'] = '%s из %s';
+$a->strings['View in context'] = 'Смотреть в контексте';
+$a->strings['For you'] = 'Для Вас';
+$a->strings['Posts from contacts you interact with and who interact with you'] = 'Записи от людей, с которыми вы часто общаетесь';
+$a->strings['What\'s Hot'] = 'Популярное';
+$a->strings['Posts with a lot of interactions'] = 'Записи с большой активностью';
+$a->strings['Posts in %s'] = 'Записи от %s';
+$a->strings['Posts from your followers that you don\'t follow'] = 'Записи от ваших подписчиков, на которых вы не подписаны';
+$a->strings['Sharers of sharers'] = 'Друзья друзей';
+$a->strings['Posts from accounts that are followed by accounts that you follow'] = 'Записи от людей, на которых подписаны ваши контакты';
+$a->strings['Images'] = 'Картинки';
+$a->strings['Posts with images'] = 'Записи с изображениями';
+$a->strings['Audio'] = 'Аудио';
+$a->strings['Posts with audio'] = 'Записи с аудио';
+$a->strings['Videos'] = 'Видео';
+$a->strings['Posts with videos'] = 'Записи с видео';
+$a->strings['Local Community'] = 'Местное сообщество';
+$a->strings['Posts from local users on this server'] = 'Записи пользователей с этого сервера';
+$a->strings['Global Community'] = 'Глобальное сообщество';
+$a->strings['Posts from users of the whole federated network'] = 'Записи пользователей со всей федеративной сети';
+$a->strings['Latest Activity'] = 'Вся активность';
+$a->strings['Sort by latest activity'] = 'Отсортировать по свежей активности';
+$a->strings['Latest Posts'] = 'Новые записи';
+$a->strings['Sort by post received date'] = 'Отсортировать по времени получения записей';
+$a->strings['Latest Creation'] = 'По времени';
+$a->strings['Sort by post creation date'] = 'Отсортировать по времени создания записей';
+$a->strings['Personal'] = 'Личные';
+$a->strings['Posts that mention or involve you'] = 'Записи, которые упоминают вас или в которых вы участвуете';
+$a->strings['Starred'] = 'Избранное';
+$a->strings['Favourite Posts'] = 'Избранные записи';
 $a->strings['General Features'] = 'Основные возможности';
 $a->strings['Photo Location'] = 'Место фотографирования';
 $a->strings['Photo metadata is normally stripped. This extracts the location (if present) prior to stripping metadata and links it to a map.'] = 'Метаданные фотографий обычно вырезаются. Эта настройка получает местоположение (если есть) до вырезки метаданных и связывает с координатами на карте.';
 $a->strings['Trending Tags'] = 'Популярные тэги';
 $a->strings['Show a community page widget with a list of the most popular tags in recent public posts.'] = 'Показать облако популярных тэгов на странице публичных записей сервера';
 $a->strings['Post Composition Features'] = 'Составление сообщений';
-$a->strings['Auto-mention Forums'] = 'Автоматически отмечать форумы';
-$a->strings['Add/remove mention when a forum page is selected/deselected in ACL window.'] = 'Добавлять/удалять упоминание, когда страница форума выбрана/убрана в списке получателей.';
+$a->strings['Auto-mention Groups'] = 'Автоматически отмечать группы';
+$a->strings['Add/remove mention when a group page is selected/deselected in ACL window.'] = 'Добавлять/удалять упоминание, когда страница группы выбрана/убрана в списке получателей.';
 $a->strings['Explicit Mentions'] = 'Явные отметки';
 $a->strings['Add explicit mentions to comment box for manual control over who gets mentioned in replies.'] = 'Вставлять отметки пользователей в поле комментариев, чтобы иметь ручной контроль над тем, кто будет упомянут в ответе.';
 $a->strings['Add an abstract from ActivityPub content warnings'] = 'Добавлять abstract для записей ActivityPub с content warning';
@@ -346,8 +474,8 @@ $a->strings['Post/Comment Tools'] = 'Инструменты записей/ко�
 $a->strings['Post Categories'] = 'Категории записей';
 $a->strings['Add categories to your posts'] = 'Добавить категории для ваших записей';
 $a->strings['Advanced Profile Settings'] = 'Расширенные настройки профиля';
-$a->strings['List Forums'] = 'Список форумов';
-$a->strings['Show visitors public community forums at the Advanced Profile Page'] = 'Показывать посетителям публичные форумы на расширенной странице профиля.';
+$a->strings['List Groups'] = 'Список групп';
+$a->strings['Show visitors public groups at the Advanced Profile Page'] = 'Показывать посетителям публичные группы на расширенной странице профиля.';
 $a->strings['Tag Cloud'] = 'Облако тэгов';
 $a->strings['Provide a personal tag cloud on your profile page'] = 'Показывать ваше личное облако тэгов в вашем профиле';
 $a->strings['Display Membership Date'] = 'Показывать дату регистрации';
@@ -355,10 +483,11 @@ $a->strings['Display membership date in profile'] = 'Дата вашей рег�
 $a->strings['Advanced Calendar Settings'] = 'Дополнительные настройки календаря';
 $a->strings['Allow anonymous access to your calendar'] = 'Разрешить анонимный доступ к вашему календарю';
 $a->strings['Allows anonymous visitors to consult your calendar and your public events. Contact birthday events are private to you.'] = 'Разрешает анонимным пользователям просматривать ваш календарь и публичные мероприятия. Дни рождения контактов видны только вам.';
-$a->strings['Forums'] = 'Форумы';
-$a->strings['External link to forum'] = 'Внешняя ссылка на форум';
+$a->strings['Groups'] = 'Группы';
+$a->strings['External link to group'] = 'Внешняя ссылка на группу';
 $a->strings['show less'] = 'показать меньше';
 $a->strings['show more'] = 'показать больше';
+$a->strings['Create new group'] = 'Создать новую группу';
 $a->strings['event'] = 'мероприятие';
 $a->strings['status'] = 'статус';
 $a->strings['photo'] = 'фото';
@@ -373,12 +502,14 @@ $a->strings['Send PM'] = 'Отправить ЛС';
 $a->strings['Block'] = 'Заблокировать';
 $a->strings['Ignore'] = 'Игнорировать';
 $a->strings['Collapse'] = 'Сворачивать';
+$a->strings['Ignore %s server'] = 'Игнорировать сервер %s ';
 $a->strings['Languages'] = 'Языки';
 $a->strings['Connect/Follow'] = 'Подключиться/Подписаться';
+$a->strings['Unable to fetch user.'] = 'Ошибка получения информации пользователя';
 $a->strings['Nothing new here'] = 'Ничего нового здесь';
 $a->strings['Go back'] = 'Назад';
 $a->strings['Clear notifications'] = 'Стереть уведомления';
-$a->strings['@name, !forum, #tags, content'] = '@имя, !форум, #тег, контент';
+$a->strings['@name, !group, #tags, content'] = '@имя, !группа, #тег, контент';
 $a->strings['Logout'] = 'Выход';
 $a->strings['End this session'] = 'Завершить эту сессию';
 $a->strings['Login'] = 'Вход';
@@ -476,8 +607,9 @@ $a->strings['Random Profile'] = 'Случайный профиль';
 $a->strings['Invite Friends'] = 'Пригласить друзей';
 $a->strings['Global Directory'] = 'Глобальный каталог';
 $a->strings['Local Directory'] = 'Локальный каталог';
-$a->strings['Groups'] = 'Группы';
+$a->strings['Circles'] = 'Круги';
 $a->strings['Everyone'] = 'Все';
+$a->strings['No relationship'] = 'Нет связи';
 $a->strings['Relationships'] = 'Отношения';
 $a->strings['All Contacts'] = 'Все контакты';
 $a->strings['Protocols'] = 'Протоколы';
@@ -492,11 +624,13 @@ $a->strings['%d contact in common'] = [
 	3 => '%d Контактов',
 ];
 $a->strings['Archives'] = 'Архивы';
+$a->strings['On this date'] = 'В этот день';
 $a->strings['Persons'] = 'Люди';
 $a->strings['Organisations'] = 'Организации';
 $a->strings['News'] = 'Новости';
 $a->strings['Account Types'] = 'Тип учетной записи';
 $a->strings['All'] = 'Все';
+$a->strings['Channels'] = 'Каналы';
 $a->strings['Export'] = 'Экспорт';
 $a->strings['Export calendar as ical'] = 'Экспортировать календарь в формат ical';
 $a->strings['Export calendar as csv'] = 'Экспортировать календарь в формат csv';
@@ -529,7 +663,7 @@ $a->strings['Public'] = 'Публично';
 $a->strings['This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'] = 'Это будет показано всем вашим подписчикам и так же будет доступно в общей ленте и по прямой ссылке.';
 $a->strings['Limited/Private'] = 'Ограниченный доступ';
 $a->strings['This content will be shown only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.'] = 'Это будет доступно только получателям, перечисленным в первом поле, за исключением тех, кто добавлен во второе поле. Нигде в открытом доступе это не появится.';
-$a->strings['Start typing the name of a contact or a group to show a filtered list. You can also mention the special groups "Followers" and "Mutuals".'] = 'Начните набирать имя контакта или группы для появления списка. Вы так же можете выбрать специальные группы "Подписаны на вас" и "Взаимные".';
+$a->strings['Start typing the name of a contact or a circle to show a filtered list. You can also mention the special circles "Followers" and "Mutuals".'] = 'Начните набирать имя контакта или круга для появления списка. Вы так же можете выбрать специальные круги "Подписаны на вас" и "Взаимные".';
 $a->strings['Show to:'] = 'Доступно:';
 $a->strings['Except to:'] = 'За исключением:';
 $a->strings['CC: email addresses'] = 'Копии на email адреса';
@@ -681,9 +815,18 @@ $a->strings['Unprocessable Entity'] = 'Необрабатываемая сущн
 $a->strings['Unauthorized'] = 'Нет авторизации';
 $a->strings['Internal Server Error'] = 'Внутренняя ошибка сервера';
 $a->strings['Legacy module file not found: %s'] = 'Legacy-модуль не найден: %s';
+$a->strings['A deleted circle with this name was revived. Existing item permissions <strong>may</strong> apply to this circle and any future members. If this is not what you intended, please create another circle with a different name.'] = 'Удалённый круг с таким названием был восстановлен. Существующие права доступа <strong>могут</strong> применяться к этому кругу и любым будущим участникам. Если это не то, что вы хотели, пожалуйста, создайте ещё ​​один круг с другим названием.';
+$a->strings['Everybody'] = 'Все';
+$a->strings['edit'] = 'редактировать';
+$a->strings['add'] = 'добавить';
+$a->strings['Edit circle'] = 'Редактировать круг';
+$a->strings['Contacts not in any circle'] = 'Контакты вне кругов';
+$a->strings['Create a new circle'] = 'Создать круг';
+$a->strings['Circle Name: '] = 'Название круга:';
+$a->strings['Edit circles'] = 'Редактировать круги';
 $a->strings['Approve'] = 'Одобрить';
 $a->strings['Organisation'] = 'Организация';
-$a->strings['Forum'] = 'Форум';
+$a->strings['Group'] = 'Группа';
 $a->strings['Disallowed profile URL.'] = 'Запрещенный URL профиля.';
 $a->strings['Blocked domain'] = 'Заблокированный домен';
 $a->strings['Connect URL missing.'] = 'Connect-URL отсутствует.';
@@ -720,16 +863,6 @@ $a->strings['Show map'] = 'Показать карту';
 $a->strings['Hide map'] = 'Скрыть карту';
 $a->strings['%s\'s birthday'] = 'день рождения %s';
 $a->strings['Happy Birthday %s'] = 'С днём рождения %s';
-$a->strings['A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.'] = 'Удаленная группа с таким названием была восстановлена. Существующие права доступа <strong>могут</strong> применяться к этой группе и любым будущим участникам. Если это не то, что вы хотели, пожалуйста, создайте еще ​​одну группу с другим названием.';
-$a->strings['Default privacy group for new contacts'] = 'Группа доступа по умолчанию для новых контактов';
-$a->strings['Everybody'] = 'Все';
-$a->strings['edit'] = 'редактировать';
-$a->strings['add'] = 'добавить';
-$a->strings['Edit group'] = 'Редактировать группу';
-$a->strings['Contacts not in any group'] = 'Контакты не состоят в группе';
-$a->strings['Create a new group'] = 'Создать новую группу';
-$a->strings['Group Name: '] = 'Название группы: ';
-$a->strings['Edit groups'] = 'Редактировать группы';
 $a->strings['Detected languages in this post:\n%s'] = 'Обнаруженные в этой записи языки:\n%s';
 $a->strings['activity'] = 'активность';
 $a->strings['comment'] = 'комментарий';
@@ -841,13 +974,66 @@ $a->strings['An error occurred during registration. Please try again.'] = 'Ош�
 $a->strings['An error occurred creating your default profile. Please try again.'] = 'Ошибка создания вашего профиля. Пожалуйста, попробуйте еще раз.';
 $a->strings['An error occurred creating your self contact. Please try again.'] = 'При создании вашего контакта возникла проблема. Пожалуйста, попробуйте ещё раз.';
 $a->strings['Friends'] = 'Друзья';
-$a->strings['An error occurred creating your default contact group. Please try again.'] = 'При создании группы контактов по-умолчанию возникла ошибка. Пожалуйста, попробуйте ещё раз.';
+$a->strings['An error occurred creating your default contact circle. Please try again.'] = 'При создании круга контактов по-умолчанию возникла ошибка. Пожалуйста, попробуйте ещё раз.';
 $a->strings['Profile Photos'] = 'Фотографии профиля';
 $a->strings['
 		Dear %1$s,
 			the administrator of %2$s has set up an account for you.'] = '
 		Уважаемый(ая) %1$s,
 			администратор  %2$s создал для вас учётную запись.';
+$a->strings['
+		The login details are as follows:
+
+		Site Location:	%1$s
+		Login Name:		%2$s
+		Password:		%3$s
+
+		You may change your password from your account "Settings" page after logging
+		in.
+
+		Please take a few moments to review the other account settings on that page.
+
+		You may also wish to add some basic information to your default profile
+		(on the "Profiles" page) so that other people can easily find you.
+
+		We recommend setting your full name, adding a profile photo,
+		adding some profile "keywords" (very useful in making new friends) - and
+		perhaps what country you live in; if you do not wish to be more specific
+		than that.
+
+		We fully respect your right to privacy, and none of these items are necessary.
+		If you are new and do not know anybody here, they may help
+		you to make some new and interesting friends.
+
+		If you ever want to delete your account, you can do so at %1$s/settings/removeme
+
+		Thank you and welcome to %4$s.'] = '
+		Ваши данные для входа:
+
+		Адрес:	%1$s
+		Имя для входа:		%2$s
+		Пароль:		%3$s
+
+		Вы можете сменить пароль после входа на странице настроек.
+		
+
+		Пожалуйста, ознакомьтесь с другими настройками на этой же странице.
+
+		Вы так же можете захотеть добавить некоторую информацию о вас
+		(на странице профиля), чтобы другие смогли легко найти вас.
+
+		Мы рекомендуем указать имя и поставить изображение профиля,
+		добавить несколько ключевых слов (очень полезны для поиска друзей),
+		вероятно, страну вашего проживания, если вы не хотите давать больше деталей.
+		
+
+		Мы полностью уважаем вашу приватность и ничто из перечисленного не является обязательным.
+		Если вы новичок и не знаете здесь никого, то эти рекомендации
+		могут помочь найти вам новых интересных друзей.
+
+		Если вы захотите удалить вашу учётную запись, то всегда сможете сделать это на %1$s/settings/removeme
+
+		Спасибо и добро пожаловать на %4$s.';
 $a->strings['Registration details for %s'] = 'Подробности регистрации для %s';
 $a->strings['
 			Dear %1$s,
@@ -876,6 +1062,59 @@ $a->strings['
 				Уважаемый(ая) %1$s,
 				Спасибо за регистрацию на %2$s. Ваша учётная запись создана.
 			';
+$a->strings['
+			The login details are as follows:
+
+			Site Location:	%3$s
+			Login Name:		%1$s
+			Password:		%5$s
+
+			You may change your password from your account "Settings" page after logging
+			in.
+
+			Please take a few moments to review the other account settings on that page.
+
+			You may also wish to add some basic information to your default profile
+			(on the "Profiles" page) so that other people can easily find you.
+
+			We recommend setting your full name, adding a profile photo,
+			adding some profile "keywords" (very useful in making new friends) - and
+			perhaps what country you live in; if you do not wish to be more specific
+			than that.
+
+			We fully respect your right to privacy, and none of these items are necessary.
+			If you are new and do not know anybody here, they may help
+			you to make some new and interesting friends.
+
+			If you ever want to delete your account, you can do so at %3$s/settings/removeme
+
+			Thank you and welcome to %2$s.'] = '
+			Ваши данные для входа:
+
+			Адрес:	%3$s
+			Имя для входа:		%1$s
+			Пароль:		%5$s
+
+			Вы можете сменить пароль после входа на странице настроек.
+			
+
+			Пожалуйста, ознакомьтесь с другими настройками на этой же странице.
+
+			Вы так же можете захотеть добавить некоторую информацию о вас
+			(на странице профиля), чтобы другие смогли легко найти вас.
+
+			Мы рекомендуем указать имя и поставить изображение профиля,
+			добавить несколько ключевых слов (очень полезны для поиска друзей),
+			вероятно, страну вашего проживания, если вы не хотите давать больше деталей.
+			
+
+			Мы полностью уважаем вашу приватность и ничто из перечисленного не является обязательным.
+			Если вы новичок и не знаете здесь никого, то эти рекомендации
+			могут помочь найти вам новых интересных друзей.
+
+			Если вы захотите удалить вашу учётную запись, то всегда сможете сделать это на  %3$s/settings/removeme
+
+			Спасибо и добро пожаловать на %2$s.';
 $a->strings['Addon not found.'] = 'Дополнение не найдено.';
 $a->strings['Addon %s disabled.'] = 'Дополнение %s отключено.';
 $a->strings['Addon %s enabled.'] = 'Дополнение %s включено.';
@@ -1062,6 +1301,8 @@ $a->strings['Maximum length in pixels of the longest side of uploaded images. De
 $a->strings['JPEG image quality'] = 'Качество JPEG изображения';
 $a->strings['Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.'] = 'Загруженные изображения JPEG будут сохранены в этом качестве [0-100]. По умолчанию 100, что означает полное качество.';
 $a->strings['Register policy'] = 'Политика регистрация';
+$a->strings['Maximum Users'] = 'Максимум пользователей';
+$a->strings['If defined, the register policy is automatically closed when the given number of users is reached and reopens the registry when the number drops below the limit. It only works when the policy is set to open or close, but not when the policy is set to approval.'] = 'Если включено, регистрация будет автоматически закрываться при достижении указанного числа пользователей и вновь открываться, если число пользователей снова снизится. Это работает только, если регистрация установлена как открытая или закрытая, но не когда включено её одобрение.';
 $a->strings['Maximum Daily Registrations'] = 'Максимальное число регистраций в день';
 $a->strings['If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.'] = 'Если регистрация разрешена, этот параметр устанавливает максимальное количество новых регистраций пользователей в день. Если регистрация закрыта, эта опция не имеет никакого эффекта.';
 $a->strings['Register text'] = 'Текст регистрации';
@@ -1086,7 +1327,7 @@ $a->strings['Enabling this may violate privacy laws like the GDPR'] = 'Вклю�
 $a->strings['Global directory URL'] = 'URL глобального каталога';
 $a->strings['URL to the global directory. If this is not set, the global directory is completely unavailable to the application.'] = 'Ссылка глобального каталога. Если не указано, то глобальный каталог будет полностью недоступен.';
 $a->strings['Private posts by default for new users'] = 'Частные сообщения по умолчанию для новых пользователей';
-$a->strings['Set default post permissions for all new members to the default privacy group rather than public.'] = 'Установить права на создание записей по умолчанию для всех участников в дефолтной приватной группе, а не для публичных участников.';
+$a->strings['Set default post permissions for all new members to the default privacy circle rather than public.'] = 'Установить права на создание записей по-умолчанию для всех участников в приватный круг, а не для публично.';
 $a->strings['Don\'t include post content in email notifications'] = 'Не включать текст сообщения в email-оповещение.';
 $a->strings['Don\'t include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.'] = 'Не включать содержание сообщения/комментария/личного сообщения  и т.д.. в уведомления электронной почты, отправленных с сайта, в качестве меры конфиденциальности.';
 $a->strings['Disallow public access to addons listed in the apps menu.'] = 'Запретить публичный доступ к аддонам, перечисленным в меню приложений.';
@@ -1170,8 +1411,8 @@ $a->strings['Temp path'] = 'Временная папка';
 $a->strings['If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.'] = 'Если на вашей системе веб-сервер не имеет доступа к системному пути tmp, введите здесь другой путь.';
 $a->strings['Only search in tags'] = 'Искать только в тегах';
 $a->strings['On large systems the text search can slow down the system extremely.'] = 'На больших системах текстовый поиск может сильно замедлить систему.';
-$a->strings['Generate counts per contact group when calculating network count'] = 'Показывать счётчики записей по группам при обновлении страницы сети';
-$a->strings['On systems with users that heavily use contact groups the query can be very expensive.'] = 'Для систем, где активно используются группы контактов, это может быть затратно по ресурсам.';
+$a->strings['Generate counts per contact circle when calculating network count'] = 'Показывать счётчики записей по кругам при обновлении страницы сети';
+$a->strings['On systems with users that heavily use contact circles the query can be very expensive.'] = 'Для систем, где активно используются круги контактов, это может быть затратно по ресурсам.';
 $a->strings['Maximum number of parallel workers'] = 'Максимальное число параллельно работающих worker\'ов';
 $a->strings['On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.'] = 'На shared-хостингах установите это в %d. На больших системах можно установить %d или больше. Значение по-умолчанию %d.';
 $a->strings['Enable fastlane'] = 'Включить fastlane';
@@ -1272,6 +1513,8 @@ $a->strings['Monthly posting limit of %d post reached. The post was rejected.'] 
 	2 => 'Месячный лимит в%d записей достигнут. Запись была отклонена.',
 	3 => 'Месячный лимит в  %d записей достигнут. Запись была отклонена.',
 ];
+$a->strings['You don\'t have access to moderation pages.'] = 'У вас нет доступа к страницам модераторов.';
+$a->strings['Reports'] = 'Обращения';
 $a->strings['Users'] = 'Пользователи';
 $a->strings['Tools'] = 'Инструменты';
 $a->strings['Contact Blocklist'] = 'Чёрный список контактов';
@@ -1284,7 +1527,7 @@ $a->strings['Scheduled Posts'] = 'Запланированные записи';
 $a->strings['Posts that are scheduled for publishing'] = 'Записи, публикация которых запланирована';
 $a->strings['Tips for New Members'] = 'Советы для новых участников';
 $a->strings['People Search - %s'] = 'Поиск по людям - %s';
-$a->strings['Forum Search - %s'] = 'Поиск по форумам - %s';
+$a->strings['Group Search - %s'] = 'Поиск по группам - %s';
 $a->strings['No matches'] = 'Нет соответствий';
 $a->strings['Account'] = 'Аккаунт';
 $a->strings['Two-factor authentication'] = 'Двухфакторная аутентификация';
@@ -1292,9 +1535,12 @@ $a->strings['Display'] = 'Внешний вид';
 $a->strings['Social Networks'] = 'Социальные сети';
 $a->strings['Manage Accounts'] = 'Управление учётными записями';
 $a->strings['Connected apps'] = 'Подключенные приложения';
+$a->strings['Remote servers'] = 'Другие серверы';
 $a->strings['Export personal data'] = 'Экспорт личных данных';
 $a->strings['Remove account'] = 'Удалить аккаунт';
 $a->strings['The post was created'] = 'Запись создана';
+$a->strings['Invalid Request'] = 'Неверный запрос';
+$a->strings['Event id is missing.'] = 'Отсутствует id события';
 $a->strings['Failed to remove event'] = 'Ошибка удаления события';
 $a->strings['Event can not end before it has started.'] = 'Эвент не может закончится до старта.';
 $a->strings['Event title and start time are required.'] = 'Название мероприятия и время начала обязательны для заполнения.';
@@ -1312,6 +1558,29 @@ $a->strings['Events'] = 'Мероприятия';
 $a->strings['View'] = 'Смотреть';
 $a->strings['Create New Event'] = 'Создать новое мероприятие';
 $a->strings['list'] = 'список';
+$a->strings['Could not create circle.'] = 'Не удалось создать круг.';
+$a->strings['Circle not found.'] = 'Круг не найден.';
+$a->strings['Circle name was not changed.'] = 'Название круга не изменено.';
+$a->strings['Unknown circle.'] = 'Неизвестный круг.';
+$a->strings['Contact not found.'] = 'Контакт не найден.';
+$a->strings['Invalid contact.'] = 'Недопустимый контакт.';
+$a->strings['Contact is deleted.'] = 'Контакт удалён.';
+$a->strings['Unable to add the contact to the circle.'] = 'Не удалось добавить контакт в круг.';
+$a->strings['Contact successfully added to circle.'] = 'Контакт успешно добавлен в круг.';
+$a->strings['Unable to remove the contact from the circle.'] = 'Не удалось удалить контакт из круга.';
+$a->strings['Contact successfully removed from circle.'] = 'Контакт успешно удалён из круга.';
+$a->strings['Bad request.'] = 'Ошибочный запрос.';
+$a->strings['Save Circle'] = 'Сохранить круг';
+$a->strings['Filter'] = 'Фильтр';
+$a->strings['Create a circle of contacts/friends.'] = 'Создать круг контактов/друзей.';
+$a->strings['Unable to remove circle.'] = 'Не удаётся удалить круг.';
+$a->strings['Delete Circle'] = 'Удалить круг';
+$a->strings['Edit Circle Name'] = 'Изменить имя круга';
+$a->strings['Members'] = 'Участники';
+$a->strings['Circle is empty'] = 'Круг пуст';
+$a->strings['Remove contact from circle'] = 'Удалить контакт из круга';
+$a->strings['Click on a contact to add or remove.'] = 'Нажмите на контакт, чтобы добавить или удалить.';
+$a->strings['Add contact to circle'] = 'Добавить контакт в круг';
 $a->strings['%d contact edited.'] = [
 	0 => '%d контакт изменен.',
 	1 => '%d контакта изменено.',
@@ -1331,7 +1600,7 @@ $a->strings['Archived'] = 'Архивированные';
 $a->strings['Only show archived contacts'] = 'Показывать только архивные контакты';
 $a->strings['Hidden'] = 'Скрытые';
 $a->strings['Only show hidden contacts'] = 'Показывать только скрытые контакты';
-$a->strings['Organize your contact groups'] = 'Настроить группы контактов';
+$a->strings['Organize your contact circles'] = 'Настроить круги контактов';
 $a->strings['Search your contacts'] = 'Поиск ваших контактов';
 $a->strings['Results for: %s'] = 'Результаты для: %s';
 $a->strings['Update'] = 'Обновление';
@@ -1351,7 +1620,6 @@ $a->strings['you are a fan of'] = 'Вы - поклонник';
 $a->strings['Pending outgoing contact request'] = 'Исходящий запрос на подписку';
 $a->strings['Pending incoming contact request'] = 'Входящий запрос на подписку';
 $a->strings['Visit %s\'s profile [%s]'] = 'Посетить профиль %s [%s]';
-$a->strings['Contact not found.'] = 'Контакт не найден.';
 $a->strings['Contact update failed.'] = 'Обновление контакта неудачное.';
 $a->strings['Return to contact editor'] = 'Возврат к редактору контакта';
 $a->strings['Name'] = 'Имя';
@@ -1359,7 +1627,6 @@ $a->strings['Account Nickname'] = 'Ник аккаунта';
 $a->strings['Account URL'] = 'URL аккаунта';
 $a->strings['Poll/Feed URL'] = 'URL опроса/ленты';
 $a->strings['New photo from this URL'] = 'Новое фото из этой URL';
-$a->strings['Invalid contact.'] = 'Недопустимый контакт.';
 $a->strings['No known contacts.'] = 'Нет известных контактов.';
 $a->strings['No common contacts.'] = 'Общих контактов нет.';
 $a->strings['Follower (%s)'] = [
@@ -1422,6 +1689,7 @@ $a->strings['You are mutual friends with %s'] = 'У Вас взаимная др
 $a->strings['You are sharing with %s'] = 'Вы делитесь с %s';
 $a->strings['%s is sharing with you'] = '%s делится с Вами';
 $a->strings['Private communications are not available for this contact.'] = 'Приватные коммуникации недоступны для этого контакта.';
+$a->strings['This contact is on a server you ignored.'] = 'Этот контакт на игнорируемом вами сервере.';
 $a->strings['Never'] = 'Никогда';
 $a->strings['(Update was not successful)'] = '(Обновление не удалось)';
 $a->strings['(Update was successful)'] = '(Обновление было успешно)';
@@ -1452,6 +1720,7 @@ $a->strings['Currently blocked'] = 'В настоящее время забло�
 $a->strings['Currently ignored'] = 'В настоящее время игнорируется';
 $a->strings['Currently collapsed'] = 'В настоящее время сворачивается';
 $a->strings['Currently archived'] = 'В данный момент архивирован';
+$a->strings['Manage remote servers'] = 'Управлять удалёнными серверами';
 $a->strings['Hide this contact from others'] = 'Скрыть этот контакт от других';
 $a->strings['Replies/likes to your public posts <strong>may</strong> still be visible'] = 'Ответы/лайки ваших публичных сообщений <strong>будут</strong> видимы.';
 $a->strings['Notification for new posts'] = 'Уведомление о новых записях';
@@ -1462,6 +1731,17 @@ $a->strings['Actions'] = 'Действия';
 $a->strings['Status'] = 'Записи';
 $a->strings['Mirror postings from this contact'] = 'Зекралировать сообщения от этого контакта';
 $a->strings['Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'] = 'Пометить этот контакт как remote_self, что заставит Friendica отправлять сообщения от этого контакта.';
+$a->strings['Channel Settings'] = 'Настройки каналов';
+$a->strings['Frequency of this contact in relevant channels'] = 'Частота появления этого контакта в каналах';
+$a->strings['Depending on the type of the channel not all posts from this contact are displayed. By default, posts need to have a minimum amount of interactions (comments, likes) to show in your channels. On the other hand there can be contacts who flood the channel, so you might want to see only some of their posts. Or you don\'t want to see their content at all, but you don\'t want to block or hide the contact completely.'] = 'В зависимости от типа канала, не все записи этого контакта могут отображаться в них. По-умолчанию записи должны получить некоторое число взаимодействий (комментарии, лайки), чтобы попасть в каналы. Так же некоторые контакты могут заполнять каналы слишком частыми записями или вы можете не хотеть видеть их в каналах вообще, но не готовы их игнорировать или блокировать полностью.';
+$a->strings['Default frequency'] = 'Обычная частота';
+$a->strings['Posts by this contact are displayed in the "for you" channel if you interact often with this contact or if a post reached some level of interaction.'] = 'Записи этого контакта будут показаны в канале "Для Вас", если вы часто взаимодействуете с ним, либо запись этого контакта получит какую-то активность.';
+$a->strings['Display all posts of this contact'] = 'Показывать все';
+$a->strings['All posts from this contact will appear on the "for you" channel'] = 'Все записи от этого контакта будут показаны в канале "Для Вас"';
+$a->strings['Display only few posts'] = 'Показывать немного';
+$a->strings['When a contact creates a lot of posts in a short period, this setting reduces the number of displayed posts in every channel.'] = 'Когда контакт создаёт много записей за короткий период, эта настройка сократит число отображаемых записей в каналах.';
+$a->strings['Never display posts'] = 'Не показывать';
+$a->strings['Posts from this contact will never be displayed in any channel'] = 'Записи этого контакта никогда не будут показаны в каналах';
 $a->strings['Refetch contact data'] = 'Обновить данные контакта';
 $a->strings['Toggle Blocked status'] = 'Изменить статус блокированности (заблокировать/разблокировать)';
 $a->strings['Toggle Ignored status'] = 'Изменить статус игнорирования';
@@ -1470,7 +1750,6 @@ $a->strings['Revoke Follow'] = 'Отозвать подписку';
 $a->strings['Revoke the follow from this contact'] = 'Отменить подписку этого контакта на вас';
 $a->strings['Bad Request.'] = 'Ошибочный запрос.';
 $a->strings['Unknown contact.'] = 'Неизвестный контакт.';
-$a->strings['Contact is deleted.'] = 'Контакт удалён.';
 $a->strings['Contact is being deleted.'] = 'Контакт удаляется.';
 $a->strings['Follow was successfully revoked.'] = 'Подписка была успешно отозвана.';
 $a->strings['Do you really want to revoke this contact\'s follow? This cannot be undone and they will have to manually follow you back again.'] = 'Вы действительно хотите отозвать подписку этого контакта на вас? Это нельзя будет отменить позже, им потребуется снова подписаться на вас.';
@@ -1481,29 +1760,17 @@ $a->strings['Unfollowing is currently not supported by your network.'] = 'Отп
 $a->strings['Disconnect/Unfollow'] = 'Отсоединиться/Отписаться';
 $a->strings['Contact was successfully unfollowed'] = 'Подписка успешно удалена';
 $a->strings['Unable to unfollow this contact, please contact your administrator'] = 'Не получается отписаться от этого контакта, пожалуйста, свяжитесь с вашим администратором';
+$a->strings['No results.'] = 'Нет результатов.';
+$a->strings['Channel not available.'] = 'Канал недоступен';
 $a->strings['This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.'] = 'Эта общая лента показывает все публичные записи, которые получил этот сервер. Они могут не отражать мнений пользователей этого сервера.';
-$a->strings['Local Community'] = 'Местное сообщество';
-$a->strings['Posts from local users on this server'] = 'Записи пользователей с этого сервера';
-$a->strings['Global Community'] = 'Глобальное сообщество';
-$a->strings['Posts from users of the whole federated network'] = 'Записи пользователей со всей федеративной сети';
+$a->strings['Community option not available.'] = 'Сообщество недоступно.';
+$a->strings['Not available.'] = 'Недоступно.';
+$a->strings['No such circle'] = 'Нет такого круга';
+$a->strings['Circle: %s'] = 'Круг: %s';
+$a->strings['Network feed not available.'] = 'Лента недоступна';
 $a->strings['Own Contacts'] = 'Свои контакты';
 $a->strings['Include'] = 'Включить';
 $a->strings['Hide'] = 'Скрыть';
-$a->strings['No results.'] = 'Нет результатов.';
-$a->strings['Community option not available.'] = 'Сообщество недоступно.';
-$a->strings['Not available.'] = 'Недоступно.';
-$a->strings['No such group'] = 'Нет такой группы';
-$a->strings['Group: %s'] = 'Группа: %s';
-$a->strings['Latest Activity'] = 'Вся активность';
-$a->strings['Sort by latest activity'] = 'Отсортировать по свежей активности';
-$a->strings['Latest Posts'] = 'Новые записи';
-$a->strings['Sort by post received date'] = 'Отсортировать по времени получения записей';
-$a->strings['Latest Creation'] = 'По времени';
-$a->strings['Sort by post creation date'] = 'Отсортировать по времени создания записей';
-$a->strings['Personal'] = 'Личные';
-$a->strings['Posts that mention or involve you'] = 'Записи, которые упоминают вас или в которых вы участвуете';
-$a->strings['Starred'] = 'Избранное';
-$a->strings['Favourite Posts'] = 'Избранные записи';
 $a->strings['Credits'] = 'Признательность';
 $a->strings['Friendica is a community project, that would not be possible without the help of many people. Here is a list of those who have contributed to the code or the translation of Friendica. Thank you all!'] = 'Friendica это проект сообщества, который был бы невозможен без помощи многих людей. Вот лист тех, кто писал код или помогал с переводом. Спасибо вам всем!';
 $a->strings['Error'] = [
@@ -1551,26 +1818,6 @@ $a->strings['Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn m
 $a->strings['Bug reports and issues: please visit'] = 'Отчет об ошибках и проблемах: пожалуйста, посетите';
 $a->strings['the bugtracker at github'] = 'багтрекер на github';
 $a->strings['Suggestions, praise, etc. - please email "info" at "friendi - dot - ca'] = 'Предложения, отзывы, похвала - пишите нам на info[собака]friendi[точка]ca';
-$a->strings['Could not create group.'] = 'Не удалось создать группу.';
-$a->strings['Group not found.'] = 'Группа не найдена.';
-$a->strings['Group name was not changed.'] = 'Название группы не изменено.';
-$a->strings['Unknown group.'] = 'Неизвестная группа.';
-$a->strings['Unable to add the contact to the group.'] = 'Не удалось добавить контакт в группу.';
-$a->strings['Contact successfully added to group.'] = 'Контакт успешно добавлен в группу.';
-$a->strings['Unable to remove the contact from the group.'] = 'Не удалось удалить контакт из группы.';
-$a->strings['Contact successfully removed from group.'] = 'Контакт успешно удалён из группы.';
-$a->strings['Bad request.'] = 'Ошибочный запрос.';
-$a->strings['Save Group'] = 'Сохранить группу';
-$a->strings['Filter'] = 'Фильтр';
-$a->strings['Create a group of contacts/friends.'] = 'Создать группу контактов / друзей.';
-$a->strings['Unable to remove group.'] = 'Не удается удалить группу.';
-$a->strings['Delete Group'] = 'Удалить группу';
-$a->strings['Edit Group Name'] = 'Изменить имя группы';
-$a->strings['Members'] = 'Участники';
-$a->strings['Group is empty'] = 'Группа пуста';
-$a->strings['Remove contact from group'] = 'Удалить контакт из группы';
-$a->strings['Click on a contact to add or remove.'] = 'Нажмите на контакт, чтобы добавить или удалить.';
-$a->strings['Add contact to group'] = 'Добавить контакт в группу';
 $a->strings['No profile'] = 'Нет профиля';
 $a->strings['Method Not Allowed.'] = 'Метод не разрешён';
 $a->strings['Help:'] = 'Помощь:';
@@ -1636,7 +1883,6 @@ $a->strings['Clear the location'] = 'Очистить локацию';
 $a->strings['Location services are unavailable on your device'] = 'Геолокация на вашем устройстве недоступна';
 $a->strings['Location services are disabled. Please check the website\'s permissions on your device'] = 'Геолокация отключена. Пожалуйста, проверьте разрешения этого сайта на вашем устройстве';
 $a->strings['You can make this page always open when you use the New Post button in the <a href="/settings/display">Theme Customization settings</a>.'] = 'Вы можете включить открытие этой страницы по кнопке создания новой записи в <a href="/settings/display">настройках отображения темы</a>.';
-$a->strings['The requested item doesn\'t exist or has been deleted.'] = 'Запрошенная запись не существует или была удалена.';
 $a->strings['The feed for this item is unavailable.'] = 'Лента недоступна для этого объекта.';
 $a->strings['Unable to follow this item.'] = 'Не получается подписаться на эту запись.';
 $a->strings['System down for maintenance'] = 'Система закрыта на техническое обслуживание';
@@ -1650,7 +1896,6 @@ $a->strings['Or - did you try to upload an empty file?'] = 'Или вы пыта
 $a->strings['File exceeds size limit of %s'] = 'Файл превышает лимит размера в %s';
 $a->strings['File upload failed.'] = 'Загрузка файла не удалась.';
 $a->strings['Unable to process image.'] = 'Невозможно обработать фото.';
-$a->strings['Image exceeds size limit of %s'] = 'Изображение превышает лимит размера в %s';
 $a->strings['Image upload failed.'] = 'Загрузка фото неудачная.';
 $a->strings['List of all users'] = 'Все пользователи';
 $a->strings['Active'] = 'Активные';
@@ -1661,13 +1906,13 @@ $a->strings['Deleted'] = 'Удалённые';
 $a->strings['List of pending user deletions'] = 'Список ожидающих удаления';
 $a->strings['Normal Account Page'] = 'Стандартная страница аккаунта';
 $a->strings['Soapbox Page'] = 'Публичная страница';
-$a->strings['Public Forum'] = 'Публичный форум';
+$a->strings['Public Group'] = 'Публичная группа';
 $a->strings['Automatic Friend Page'] = '"Автоматический друг" страница';
-$a->strings['Private Forum'] = 'Закрытый форум';
+$a->strings['Private Group'] = 'Закрытая группа';
 $a->strings['Personal Page'] = 'Личная страница';
 $a->strings['Organisation Page'] = 'Организационная страница';
 $a->strings['News Page'] = 'Новостная страница';
-$a->strings['Community Forum'] = 'Форум сообщества';
+$a->strings['Community Group'] = 'Группа сообщества';
 $a->strings['Relay'] = 'Ретранслятор';
 $a->strings['You can\'t block a local contact, please block the user instead'] = 'Нельзя заблокировать локальный контакт, пожалуйста заблокируйте самого пользователя.';
 $a->strings['%s contact unblocked'] = [
@@ -1794,12 +2039,64 @@ $a->strings['Implicit Mention'] = 'Неявная отметка';
 $a->strings['Item not found'] = 'Элемент не найден';
 $a->strings['No source recorded'] = 'Источник не сохранён';
 $a->strings['Item Guid'] = 'GUID записи';
+$a->strings['Contact not found or their server is already blocked on this node.'] = 'Контакт не найден или их сервер уже заблокирован на этом узле.';
+$a->strings['Please login to access this page.'] = 'Пожалуйста, войдите для доступа к этой странице.';
+$a->strings['Create Moderation Report'] = 'Создать обращение к модераторам';
+$a->strings['Pick Contact'] = 'Выбор контакта';
+$a->strings['Please enter below the contact address or profile URL you would like to create a moderation report about.'] = 'Пожалуйста, выберите адрес контакта или URL профиля, о котором вы хотите отправить обращение.';
+$a->strings['Contact address/URL'] = 'Адрес контакта/URL';
+$a->strings['Pick Category'] = 'Выбор категории';
+$a->strings['Please pick below the category of your report.'] = 'Пожалуйста, выберите категорию обращения.';
+$a->strings['Spam'] = 'Спам';
+$a->strings['This contact is publishing many repeated/overly long posts/replies or advertising their product/websites in otherwise irrelevant conversations.'] = 'Этот контакт публикует много повторяющихся/слишком длинных записей/комментариев, либо рекламирует свои товары/услуги там, где это неуместно.';
+$a->strings['Illegal Content'] = 'Противозаконный контент';
+$a->strings['This contact is publishing content that is considered illegal in this node\'s hosting juridiction.'] = 'Этот контакт публикует что-то, что запрещено законом в юрисдикции данного узла.';
+$a->strings['Community Safety'] = 'Общественный порядок';
+$a->strings['This contact aggravated you or other people, by being provocative or insensitive, intentionally or not. This includes disclosing people\'s private information (doxxing), posting threats or offensive pictures in posts or replies.'] = 'Этот контакт раздражает вас или других людей провокационным или невежливым поведением, намеренно или нет. Это включает распространение частной информации о других людях (doxxing), угрозы,   оскорбительные изображения в записях или комментариях.';
+$a->strings['Unwanted Content/Behavior'] = 'Нежелательные материалы/поведение';
+$a->strings['This contact has repeatedly published content irrelevant to the node\'s theme or is openly criticizing the node\'s administration/moderation without directly engaging with the relevant people for example or repeatedly nitpicking on a sensitive topic.'] = 'Этот контакт неоднократно публикует что-то, не относящееся к тематике узла, открыто критикует администраторов/модераторов без непосредственного обращения к ним, намеренно провоцирует раздор в чувствительных темах.';
+$a->strings['Rules Violation'] = 'Нарушение правил';
+$a->strings['This contact violated one or more rules of this node. You will be able to pick which one(s) in the next step.'] = 'Этот контакт нарушил одно или несколько правил этого узла. Вы сможете выбрать какие на следующем шаге.';
+$a->strings['Please elaborate below why you submitted this report. The more details you provide, the better your report can be handled.'] = 'Пожалуйста, расскажите о причинах вашего обращения. Чем больше деталей вы предоставите, тем лучше ваше обращение будет обработано.';
+$a->strings['Additional Information'] = 'Дополнительная информация';
+$a->strings['Please provide any additional information relevant to this particular report. You will be able to attach posts by this contact in the next step, but any context is welcome.'] = 'Пожалуйста, добавьте любую дополнительную информацию, относящуюся к ситуации. Вы сможете прикрепить записи на следующем шаге, но любые детали пригодятся.';
+$a->strings['Pick Rules'] = 'Выберите правила';
+$a->strings['Please pick below the node rules you believe this contact violated.'] = 'Пожалуйста, выберите правила, которые по вашему мнению были нарушены.';
+$a->strings['Pick Posts'] = 'Выберите записи';
+$a->strings['Please optionally pick posts to attach to your report.'] = 'Пожалуйста, выберите записи, которые вы хотите добавить к обращению.';
+$a->strings['Submit Report'] = 'Отправить обращение';
+$a->strings['Further Action'] = 'Дальнейшие действия';
+$a->strings['You can also perform one of the following action on the contact you reported:'] = 'Вы так же можете сделать следующее с этим контактом:';
+$a->strings['Nothing'] = 'Ничего';
+$a->strings['Collapse contact'] = 'Сворачивать контакт';
+$a->strings['Their posts and replies will keep appearing in your Network page but their content will be collapsed by default.'] = 'Их записи и комментарии будут появляться в вашей ленте, но они будут свёрнуты.';
+$a->strings['Their posts won\'t appear in your Network page anymore, but their replies can appear in forum threads. They still can follow you.'] = 'Их записи и комментарии не будут больше появляться в вашей ленте, но могут появляться в групповых ветках. Так же они могут подписаться на вас.';
+$a->strings['Block contact'] = 'Заблокировать контакт';
+$a->strings['Their posts won\'t appear in your Network page anymore, but their replies can appear in forum threads, with their content collapsed by default. They cannot follow you but still can have access to your public posts by other means.'] = 'Их записи не будут появляться в вашей ленте, но их ответы могут появляться в групповых ветках в свёрнутом виде. Они не смогут подписаться на вас, но могут увидеть ваши публичные записи другими способами.';
+$a->strings['Forward report'] = 'Переслать обращение';
+$a->strings['Would you ike to forward this report to the remote server?'] = 'Вы хотите переслать это обращение на удалённый сервер?';
+$a->strings['1. Pick a contact'] = '1. Выберите контакт';
+$a->strings['2. Pick a category'] = '2. Выберите категорию';
+$a->strings['2a. Pick rules'] = '2a. Выберите правила';
+$a->strings['2b. Add comment'] = '2b. Добавьте комментарий';
+$a->strings['3. Pick posts'] = '3. Выберите записи';
+$a->strings['List of reports'] = 'Список обращений';
+$a->strings['This page display reports created by our or remote users.'] = 'Эта страница показывает обращения, созданные нашими или удалёнными пользователями.';
+$a->strings['No report exists at this node.'] = 'Обращений на этом узле нет.';
+$a->strings['Category'] = 'Категория';
+$a->strings['%s total report'] = [
+	0 => '%s обращение',
+	1 => '%s обращения',
+	2 => '%s обращений',
+	3 => '%s обращений',
+];
+$a->strings['URL of the reported contact.'] = 'URL контакта в обращении.';
 $a->strings['Normal Account'] = 'Обычный аккаунт';
 $a->strings['Automatic Follower Account'] = '"Автоматический друг" Аккаунт';
-$a->strings['Public Forum Account'] = 'Публичный форум';
+$a->strings['Public Group Account'] = 'Публичная группа';
 $a->strings['Automatic Friend Account'] = '"Автоматический друг" Аккаунт';
 $a->strings['Blog Account'] = 'Аккаунт блога';
-$a->strings['Private Forum Account'] = 'Закрытый форум';
+$a->strings['Private Group Account'] = 'Закрытая группа';
 $a->strings['Registered users'] = 'Зарегистрированные пользователи';
 $a->strings['Pending registrations'] = 'Ожидающие регистрации';
 $a->strings['%s user blocked'] = [
@@ -1929,6 +2226,7 @@ $a->strings['No contacts.'] = 'Нет контактов.';
 $a->strings['%s\'s timeline'] = 'Лента %s';
 $a->strings['%s\'s posts'] = 'Записи %s';
 $a->strings['%s\'s comments'] = 'Комментарии %s';
+$a->strings['Image exceeds size limit of %s'] = 'Изображение превышает лимит размера в %s';
 $a->strings['Image upload didn\'t complete, please try again'] = 'Не получилось загрузить изображение, попробуйте снова';
 $a->strings['Image file is missing'] = 'Файл изображения не найден';
 $a->strings['Server can\'t accept new file upload at this time, please contact your administrator'] = 'Сервер не принимает новые файлы для загрузки в настоящий момент, пожалуйста, свяжитесь с администратором';
@@ -1949,7 +2247,7 @@ $a->strings['%d year old'] = [
 	3 => '%dлет',
 ];
 $a->strings['Description:'] = 'Описание:';
-$a->strings['Forums:'] = 'Форумы:';
+$a->strings['Groups:'] = 'Группы:';
 $a->strings['View profile as:'] = 'Посмотреть профиль как:';
 $a->strings['View as'] = 'Посмотреть как';
 $a->strings['Profile unavailable.'] = 'Профиль недоступен.';
@@ -2072,7 +2370,7 @@ $a->strings['Importing Contacts done'] = 'Импорт контактов зав
 $a->strings['Relocate message has been send to your contacts'] = 'Перемещённое сообщение было отправлено списку контактов';
 $a->strings['Unable to find your profile. Please contact your admin.'] = 'Не получается найти ваш профиль. Пожалуйста свяжитесь с администратором.';
 $a->strings['Personal Page Subtypes'] = 'Подтипы личной страницы';
-$a->strings['Community Forum Subtypes'] = 'Подтипы форума сообщества';
+$a->strings['Community Group Subtypes'] = 'Типы групп сообществ';
 $a->strings['Account for a personal profile.'] = 'Личная учётная запись';
 $a->strings['Account for an organisation that automatically approves contact requests as "Followers".'] = 'Учётная запись организации, которая автоматически одобряет новых подписчиков.';
 $a->strings['Account for a news reflector that automatically approves contact requests as "Followers".'] = 'Учётная запись новостной ленты, которая автоматически одобряет новых подписчиков.';
@@ -2081,7 +2379,7 @@ $a->strings['Account for a regular personal profile that requires manual approva
 $a->strings['Account for a public profile that automatically approves contact requests as "Followers".'] = 'Учётная запись для публичного профиля, которая автоматически одобряет новых подписчиков.';
 $a->strings['Automatically approves all contact requests.'] = 'Автоматически одобряет все запросы на подписку.';
 $a->strings['Account for a popular profile that automatically approves contact requests as "Friends".'] = 'Учётная запись для публичной личности, которая автоматически добавляет все новые контакты в друзья.';
-$a->strings['Private Forum [Experimental]'] = 'Личный форум [экспериментально]';
+$a->strings['Private Group [Experimental]'] = 'Частная группа [экспериментально]';
 $a->strings['Requires manual approval of contact requests.'] = 'Требует ручного одобрения запросов на подписку.';
 $a->strings['OpenID:'] = 'OpenID:';
 $a->strings['(Optional) Allow this OpenID to login to this account.'] = '(Необязательно) Разрешить этому OpenID входить в этот аккаунт';
@@ -2096,6 +2394,7 @@ $a->strings['Password:'] = 'Пароль:';
 $a->strings['Your current password to confirm the changes of the email address'] = 'Ваш текущий пароль для подтверждения смены адреса почты';
 $a->strings['Delete OpenID URL'] = 'Удалить ссылку OpenID';
 $a->strings['Basic Settings'] = 'Основные параметры';
+$a->strings['Display name:'] = 'Отображаемое имя:';
 $a->strings['Email Address:'] = 'Адрес электронной почты:';
 $a->strings['Your Timezone:'] = 'Ваш часовой пояс:';
 $a->strings['Your Language:'] = 'Ваш язык:';
@@ -2122,6 +2421,8 @@ $a->strings['Your contacts can add additional tags to your posts.'] = 'Ваши 
 $a->strings['Permit unknown people to send you private mail?'] = 'Разрешить незнакомым людям отправлять вам личные сообщения?';
 $a->strings['Friendica network users may send you private messages even if they are not in your contact list.'] = 'Пользователи Френдики могут отправлять вам личные сообщения даже если их нет в вашем списке контактов.';
 $a->strings['Maximum private messages per day from unknown people:'] = 'Максимальное количество личных сообщений от незнакомых людей в день:';
+$a->strings['Default privacy circle for new contacts'] = 'Круг по-умолчанию для новых контактов';
+$a->strings['Default privacy circle for new group contacts'] = 'Круг по-умолчанию для новых групп';
 $a->strings['Default Post Permissions'] = 'Разрешение на сообщения по умолчанию';
 $a->strings['Expiration settings'] = 'Очистка старых записей';
 $a->strings['Automatically expire posts after this many days:'] = 'Автоматическое истекание срока действия сообщения после стольких дней:';
@@ -2193,6 +2494,8 @@ $a->strings['Attach the link title'] = 'Присоединять заголов�
 $a->strings['When activated, the title of the attached link will be added as a title on posts to Diaspora. This is mostly helpful with "remote-self" contacts that share feed content.'] = 'Если включено. заголовок добавленной ссылки будет добавлен к записи в Диаспоре как заголовок. Это в основном нужно для контактов "мой двойник", которые публикуют содержимое ленты.';
 $a->strings['API: Use spoiler field as title'] = 'API: Использовать спойлер как заголовок';
 $a->strings['When activated, the "spoiler_text" field in the API will be used for the title on standalone posts. When deactivated it will be used for spoiler text. For comments it will always be used for spoiler text.'] = 'Если включено, поле "spoiler_text" в API будет использоваться как заголовок для отдельных записей. Если отключено, то оно будет использоваться как спойлер. Для комментариев оно всегда используется как спойлер.';
+$a->strings['API: Automatically links at the end of the post as attached posts'] = 'API: Автоматически загружать ссылки в конце записей';
+$a->strings['When activated, added links at the end of the post react the same way as added links in the web interface.'] = 'Если включено, ссылки в конце записей будут обрабатываться так же, как ссылки, добавленные через веб-интерфейс.';
 $a->strings['Your legacy ActivityPub/GNU Social account'] = 'Ваша старая учётная запись ActivityPub/GNU Social';
 $a->strings['If you enter your old account name from an ActivityPub based system or your GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.'] = 'Если вы введете тут вашу старую учетную запись от платформы совместимой с ActivityPub или GNU Social/Statusnet (в виде пользователь@домен), ваши контакты оттуда будут автоматически добавлены. Поле будет очищено когда все контакты будут добавлены.';
 $a->strings['Repair OStatus subscriptions'] = 'Починить подписки OStatus';
@@ -2237,6 +2540,7 @@ $a->strings['General Theme Settings'] = 'Общие настройки тем';
 $a->strings['Custom Theme Settings'] = 'Личные настройки тем';
 $a->strings['Content Settings'] = 'Настройки контента';
 $a->strings['Theme settings'] = 'Настройки темы';
+$a->strings['Timelines'] = 'Ленты';
 $a->strings['Display Theme:'] = 'Показать тему:';
 $a->strings['Mobile Theme:'] = 'Мобильная тема:';
 $a->strings['Number of items to display per page:'] = 'Количество элементов, отображаемых на одной странице:';
@@ -2258,12 +2562,16 @@ $a->strings['Stay local'] = 'Оставаться локально';
 $a->strings['Don\'t go to a remote system when following a contact link.'] = 'Не переходить на другие серверы по ссылкам профилей.';
 $a->strings['Link preview mode'] = 'Предпросмотр ссылок';
 $a->strings['Appearance of the link preview that is added to each post with a link.'] = 'Внешний вид предпросмотра ссылок,  который появляется в записях со ссылками.';
+$a->strings['Timelines for the network page:'] = 'Ленты для основной страницы:';
+$a->strings['Select all the timelines that you want to see on your network page.'] = 'Выберите все ленты, которые вы хотите видеть на вашей основной странице.';
+$a->strings['Channel languages:'] = 'Языки каналов:';
+$a->strings['Select all languages that you want to see in your channels.'] = 'Выберите все языки, которые вы хотите видеть в своих каналах.';
 $a->strings['Beginning of week:'] = 'Начало недели:';
 $a->strings['Default calendar view:'] = 'Вид календаря по-умолчанию:';
 $a->strings['Additional Features'] = 'Дополнительные возможности';
 $a->strings['Connected Apps'] = 'Подключенные приложения';
 $a->strings['Remove authorization'] = 'Удалить авторизацию';
-$a->strings['Profile Name is required.'] = 'Необходимо имя профиля.';
+$a->strings['Display Name is required.'] = 'Необходимо указать имя';
 $a->strings['Profile couldn\'t be updated.'] = 'Профиль не получилось обновить.';
 $a->strings['Label:'] = 'Поле:';
 $a->strings['Value:'] = 'Значение:';
@@ -2280,7 +2588,15 @@ $a->strings['Location'] = 'Местонахождение';
 $a->strings['Miscellaneous'] = 'Разное';
 $a->strings['Custom Profile Fields'] = 'Произвольные поля профиля';
 $a->strings['Upload Profile Photo'] = 'Загрузить фото профиля';
-$a->strings['Display name:'] = 'Отображаемое имя:';
+$a->strings['<p>Custom fields appear on <a href="%s">your profile page</a>.</p>
+				<p>You can use BBCodes in the field values.</p>
+				<p>Reorder by dragging the field title.</p>
+				<p>Empty the label field to remove a custom field.</p>
+				<p>Non-public fields can only be seen by the selected Friendica contacts or the Friendica contacts in the selected circles.</p>'] = '<p>Произвольные поля видны на <a href="%s">вашей странице профиля</a>.</p>
+				<p>Вы можете использовать BBCode в значениях полей.</p>
+				<p>Меняйте порядок перетаскиванием.</p>
+				<p>Сотрите название для удаления поля.</p>
+				<p>Закрытые поля будут видны только выбранным контактам из Friendica, либо контактам из выбранных кругов.</p>';
 $a->strings['Street Address:'] = 'Адрес:';
 $a->strings['Locality/City:'] = 'Город / Населенный пункт:';
 $a->strings['Region/State:'] = 'Район / Область:';
@@ -2295,15 +2611,6 @@ $a->strings['Public Keywords:'] = 'Общественные ключевые с�
 $a->strings['(Used for suggesting potential friends, can be seen by others)'] = '(Используется для предложения потенциальным друзьям, могут увидеть другие)';
 $a->strings['Private Keywords:'] = 'Личные ключевые слова:';
 $a->strings['(Used for searching profiles, never shown to others)'] = '(Используется для поиска профилей, никогда не показывается другим)';
-$a->strings['<p>Custom fields appear on <a href="%s">your profile page</a>.</p>
-				<p>You can use BBCodes in the field values.</p>
-				<p>Reorder by dragging the field title.</p>
-				<p>Empty the label field to remove a custom field.</p>
-				<p>Non-public fields can only be seen by the selected Friendica contacts or the Friendica contacts in the selected groups.</p>'] = '<p>Произвольные поля видны <a href="%s">на вашей странице профиля</a>.</p>
-				<p>В значениях полей можно использовать BBCode.</p>
-				<p>Меняйте порядок перетаскиванием.</p>
-				<p>Сотрите название для удаления поля.</p>
-				<p>Закрытые поля будут видны только выбранным контактам из Friendica, либо контактам из выбранных групп.</p>';
 $a->strings['Image size reduction [%s] failed.'] = 'Уменьшение размера изображения [%s] не удалось.';
 $a->strings['Shift-reload the page or clear browser cache if the new photo does not display immediately.'] = 'Перезагрузите страницу с зажатой клавишей "Shift" для того, чтобы увидеть свое новое фото немедленно.';
 $a->strings['Unable to process image'] = 'Не удается обработать изображение';
@@ -2328,6 +2635,14 @@ $a->strings['Your user account has been successfully removed. Bye bye!'] = 'Ва
 $a->strings['Remove My Account'] = 'Удалить мой аккаунт';
 $a->strings['This will completely remove your account. Once this has been done it is not recoverable.'] = 'Это позволит полностью удалить ваш аккаунт. Как только это будет сделано, аккаунт восстановлению не подлежит.';
 $a->strings['Please enter your password for verification:'] = 'Пожалуйста, введите свой пароль для проверки:';
+$a->strings['Do you want to ignore this server?'] = 'Вы хотите игнорировать этот сервер?';
+$a->strings['Do you want to unignore this server?'] = 'Вы хотите прекратить игнорировать этот сервер?';
+$a->strings['Remote server settings'] = 'Настройки сервера';
+$a->strings['Server URL'] = 'URL сервера';
+$a->strings['Settings saved'] = 'Настройки сохранены';
+$a->strings['Here you can find all the remote servers you have taken individual moderation actions against. For a list of servers your node has blocked, please check out the <a href="friendica">Information</a> page.'] = 'Здесь вы можете найти все серверы, к которым вы применяли действия модерации. Чтобы посмотреть список серверов, которые заблокировал ваш узел, пожалуйста, посмотрите страницу <a href="friendica">информации</a> об узле.';
+$a->strings['Delete all your settings for the remote server'] = 'Удалить ваши настройки для удалённого сервера';
+$a->strings['Save changes'] = 'Сохранить изменения';
 $a->strings['Please enter your password to access this page.'] = 'Пожалуйста, введите ваш пароль для доступа к этой странице.';
 $a->strings['App-specific password generation failed: The description is empty.'] = 'Создание пароля приложения не удалось: не указано описание';
 $a->strings['App-specific password generation failed: This description already exists.'] = 'Создание пароля приложения не удалось: такое описание уже есть.';
@@ -2422,10 +2737,21 @@ $a->strings['Export all'] = 'Экспорт всего';
 $a->strings['Export your account info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account (photos are not exported)'] = 'Выгрузить информацию о вашей учётной записи, контактах и всех ваших записях как файл JSON. Это может занять много времени и создать очень большой файл. Используйте это для создания резервной копии вашей учётной записи (изображения в неё не войдут).';
 $a->strings['Export Contacts to CSV'] = 'Экспорт контактов в CSV';
 $a->strings['Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.'] = 'Выгрузить список пользователей, на которых вы подписаны, в CSV-файл. Совместимо с Mastodon и др.';
-$a->strings['Not Found'] = 'Не найдено';
+$a->strings['The top-level post isn\'t visible.'] = 'Родительская запись скрыта.';
+$a->strings['The top-level post was deleted.'] = 'Родительская запись была удалена.';
+$a->strings['This node has blocked the top-level author or the author of the shared post.'] = 'Этот узел заблокировал автора основной записи или поделившегося ей.';
+$a->strings['You have ignored or blocked the top-level author or the author of the shared post.'] = 'Вы игнорируете или заблокировали автора основной записи или поделившегося ей.';
+$a->strings['You have ignored the top-level author\'s server or the shared post author\'s server.'] = 'Вы игорируете сервер автора основной записи или сервер поделившегося ей.';
+$a->strings['Conversation Not Found'] = 'Запись не найдена';
+$a->strings['Unfortunately, the requested conversation isn\'t available to you.'] = 'К сожалению, эта запись вам недоступна.';
+$a->strings['Possible reasons include:'] = 'Возможные причины этого:';
+$a->strings['At the time of registration, and for providing communications between the user account and their contacts, the user has to provide a display name (pen name), an username (nickname) and a working email address. The names will be accessible on the profile page of the account by any visitor of the page, even if other profile details are not displayed. The email address will only be used to send the user notifications about interactions, but wont be visibly displayed. The listing of an account in the node\'s user directory or the global user directory is optional and can be controlled in the user settings, it is not necessary for communication.'] = 'При регистрации и для организации взаимодействия между пользователем и другими контактами, пользователь должен указать отображаемое имя (псевдоним), имя учётной записи (ник) и действующий адрес электронной почты. Имена будут видны на странице профиля для любого посетителя, даже если другие данные будут скрыты. Адрес электронной почты будет использоваться только для отправки пользователю уведомлений о действиях, но не будет нигде отображаться. Добавление пользователя в каталог узла или глобальный каталог опционально и управляется настройками, оно не обязательно для общения в сети.';
+$a->strings['This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.'] = 'Эти данные необходимы для взаимодействия и передаются другим узлам партнёров по сети и сохраняются там. Пользователи могут добавить дополнительные личные данные, которые тоже могут передаваться на другие узлы.';
+$a->strings['At any point in time a logged in user can export their account data from the <a href="%1$s/settings/userexport">account settings</a>. If the user wants to delete their account they can do so at <a href="%1$s/settings/removeme">%1$s/settings/removeme</a>. The deletion of the account will be permanent. Deletion of the data will also be requested from the nodes of the communication partners.'] = 'В любой момент вошедший в систему пользователь может экспортировать свои данные через <a href="%1$s/settings/userexport">настройки</a>. Если пользователь хочет удалить свою учётную запись, они могут сделать это через <a href="%1$s/settings/removeme">%1$s/settings/removeme</a>. Удаление данных будет без возможности восстановления. Запрос на удаление данных будет так же передан на узлы партнёров по сети.';
 $a->strings['Privacy Statement'] = 'Положение о конфиденциальности';
 $a->strings['Rules'] = 'Правила';
 $a->strings['Parameter uri_id is missing.'] = 'Параметр uri_id отсутствует.';
+$a->strings['The requested item doesn\'t exist or has been deleted.'] = 'Запрошенная запись не существует или была удалена.';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'Импорт пользователей на закрытых серверах может быть произведён только администратором.';
 $a->strings['Move account'] = 'Удалить аккаунт';
 $a->strings['You can import an account from another Friendica server.'] = 'Вы можете импортировать учетную запись с другого сервера Friendica.';
@@ -2468,8 +2794,8 @@ $a->strings['Go to Your Site\'s Directory'] = 'Перейти в каталог 
 $a->strings['The Directory page lets you find other people in this network or other federated sites. Look for a <em>Connect</em> or <em>Follow</em> link on their profile page. Provide your own Identity Address if requested.'] = 'На странице каталога вы можете найти других людей в этой сети или на других похожих сайтах. Ищите ссылки <em>Подключить</em> или <em>Подписаться</em> на страницах их профилей. Укажите свой собственный адрес идентификации, если требуется.';
 $a->strings['Finding New People'] = 'Поиск людей';
 $a->strings['On the side panel of the Contacts page are several tools to find new friends. We can match people by interest, look up people by name or interest, and provide suggestions based on network relationships. On a brand new site, friend suggestions will usually begin to be populated within 24 hours.'] = 'На боковой панели страницы Контакты есть несколько инструментов, чтобы найти новых друзей. Мы можем  искать по соответствию интересам, посмотреть людей по имени или интересам, и внести предложения на основе сетевых отношений. На новом сайте, предложения дружбы, как правило, начинают заполняться в течение 24 часов.';
-$a->strings['Group Your Contacts'] = 'Группа "ваши контакты"';
-$a->strings['Once you have made some friends, organize them into private conversation groups from the sidebar of your Contacts page and then you can interact with each group privately on your Network page.'] = 'После того, как вы найдете несколько друзей, организуйте их в группы частных бесед в боковой панели на странице Контакты, а затем вы можете взаимодействовать с каждой группой приватно или на вашей странице Сеть.';
+$a->strings['Add Your Contacts To Circle'] = 'Добавьте ваши контакты в круги';
+$a->strings['Once you have made some friends, organize them into private conversation circles from the sidebar of your Contacts page and then you can interact with each circle privately on your Network page.'] = 'После того, как вы найдете несколько друзей, соберите их в круги частных бесед в боковой панели на странице Контакты, а затем вы можете взаимодействовать с каждой группой приватно в вашей ленте.';
 $a->strings['Why Aren\'t My Posts Public?'] = 'Почему мои записи не публичные?';
 $a->strings['Friendica respects your privacy. By default, your posts will only show up to people you\'ve added as friends. For more information, see the help section from the link above.'] = 'Friendica уважает вашу приватность. По умолчанию, ваши сообщения будут показываться только для людей, которых вы добавили в список друзей. Для получения дополнительной информации см. раздел справки по ссылке выше.';
 $a->strings['Getting Help'] = 'Получить помощь';
@@ -2581,6 +2907,8 @@ $a->strings['Delete globally'] = 'Удалить везде';
 $a->strings['Remove locally'] = 'Убрать для себя';
 $a->strings['Block %s'] = 'Заблокировать %s';
 $a->strings['Ignore %s'] = 'Игнорировать %s';
+$a->strings['Collapse %s'] = 'Сворачивать %s';
+$a->strings['Report post'] = 'Пожаловаться';
 $a->strings['Save to folder'] = 'Сохранить в папку';
 $a->strings['I will attend'] = 'Я буду';
 $a->strings['I will not attend'] = 'Меня не будет';
@@ -2722,7 +3050,7 @@ $a->strings['Center'] = 'Центр';
 $a->strings['Color scheme'] = 'Цветовая схема';
 $a->strings['Posts font size'] = 'Размер шрифта записей';
 $a->strings['Textareas font size'] = 'Размер шрифта текстовых полей';
-$a->strings['Comma separated list of helper forums'] = 'Разделенный запятыми список форумов помощи';
+$a->strings['Comma separated list of helper groups'] = 'Список групп поддержки через запятую';
 $a->strings['don\'t show'] = 'не показывать';
 $a->strings['show'] = 'показывать';
 $a->strings['Set style'] = 'Установить стиль';

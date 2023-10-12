@@ -64,7 +64,7 @@ class Search extends BaseApi
 		// error if no searchstring specified
 		if ($request['searchstring'] == '') {
 			$answer = ['result' => 'error', 'message' => 'searchstring not specified'];
-			$this->response->exit('direct_message_search', ['$result' => $answer], $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('direct_message_search', ['$result' => $answer], $this->parameters['extension'] ?? null);
 			return;
 		}
 
@@ -82,6 +82,6 @@ class Search extends BaseApi
 			$success = ['success' => true, 'search_results' => $ret];
 		}
 
-		$this->response->exit('direct_message_search', ['$result' => $success], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('direct_message_search', ['$result' => $success], $this->parameters['extension'] ?? null);
 	}
 }

@@ -221,6 +221,15 @@ Please note: body contents are bbcode - not HTML
 Called when receiving a post from another source. This may also be used to post local activity or system generated messages.
 `$b` is the item array of information to be stored in the database and the item body is bbcode.
 
+### detect_languages
+Called after the language detection. This can be used for alternative language detection methods.
+`$data` is an array:
+
+- **text**: The text that is analyzed.
+- **detected**: (input/output) Array of language codes detected in the related text. The array key is the language code, the array value the probability.
+- **uri-id**: The Uri-Id of the item.
+- **author-id**: The id of the author contact.
+
 ### addon_settings
 Called when generating the HTML for the addon settings page.
 `$data` is an array containing:
@@ -800,6 +809,7 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 
 ### src/Model/Item.php
 
+    Hook::callAll('detect_languages', $item);
     Hook::callAll('post_local', $item);
     Hook::callAll('post_remote', $item);
     Hook::callAll('post_local_end', $posted_item);

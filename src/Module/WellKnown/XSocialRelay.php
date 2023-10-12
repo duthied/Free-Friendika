@@ -77,6 +77,6 @@ class XSocialRelay extends BaseModule
 			$relay['protocols']['diaspora'] = ['receive' => DI::baseUrl() . '/receive/public'];
 		}
 
-		System::jsonExit($relay);
+		$this->jsonExit($relay);
 	}
 }

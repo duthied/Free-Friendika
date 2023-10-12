@@ -59,6 +59,6 @@ class Delete extends BaseApi
 		Event::delete($eventid);
 
 		$success = ['id' => $eventid, 'status' => 'deleted'];
-		$this->response->exit('event_delete', ['$result' => $success], $this->parameters['extension'] ?? null);
+		$this->response->addFormattedContent('event_delete', ['$result' => $success], $this->parameters['extension'] ?? null);
 	}
 }

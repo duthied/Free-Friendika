@@ -211,4 +211,21 @@ class Proxy
 		return $matches[1] . self::proxifyUrl(htmlspecialchars_decode($matches[2])) . $matches[3];
 	}
 
+	public static function getPixelsFromSize(string $size): int
+	{
+		switch ($size) {
+			case Proxy::SIZE_MICRO:
+				return Proxy::PIXEL_MICRO;
+			case Proxy::SIZE_THUMB:
+				return Proxy::PIXEL_THUMB;
+			case Proxy::SIZE_SMALL:
+				return Proxy::PIXEL_SMALL;
+			case Proxy::SIZE_MEDIUM:
+				return Proxy::PIXEL_MEDIUM;
+			case Proxy::SIZE_LARGE:
+				return Proxy::PIXEL_LARGE;
+			default:
+				return 0;
+		}
+	}
 }

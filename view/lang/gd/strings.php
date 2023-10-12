@@ -153,6 +153,7 @@ $a->strings['a photo'] = 'dealbh';
 $a->strings['%1$s was tagged in %2$s by %3$s'] = 'Chuir %3$s %1$s ’na thaga ri %2$s';
 $a->strings['Public access denied.'] = 'Chaidh an t-inntrigeadh poblach a dhiùltadh.';
 $a->strings['No photos selected'] = 'Cha deach dealbh a thaghadh';
+$a->strings['The maximum accepted image size is %s'] = 'Cha ghabh sinn ri dealbhan nas motha na %s';
 $a->strings['Upload Photos'] = 'Luchdaich suas dealbhan';
 $a->strings['New album name: '] = 'Ainm an albaim ùir: ';
 $a->strings['or select existing album:'] = 'no tagh albam a tha ann:';
@@ -200,6 +201,26 @@ $a->strings['No system theme config value set.'] = 'Cha deach luach a shuidheach
 $a->strings['Apologies but the website is unavailable at the moment.'] = 'Tha sinn duilich ach chan eil an làrach-lìn ri fhaighinn an-dràsta.';
 $a->strings['Delete this item?'] = 'A bheil thu airson an nì seo a sguabadh às?';
 $a->strings['Block this author? They won\'t be able to follow you nor see your public posts, and you won\'t be able to see their posts and their notifications.'] = 'A bheil thu airson an t-ùghdar seo a bhacadh? Chan urrainn dhaibh leantainn ort no na postaichean poblach agad fhaicinn tuilleadh agus chan fhaic thu fhèin na postaichean no na brathan uapa.';
+$a->strings['Ignore this author? You won\'t be able to see their posts and their notifications.'] = 'A bheil thu airson an t-ùghdar seo a leigeil seachad? Chan fhaic thu na postaichean no na brathan uapa.';
+$a->strings['Collapse this author\'s posts?'] = 'A bheil thu airson postaichean an ùghdair seo a cho-theannachadh?';
+$a->strings['Like not successful'] = 'Cha deach leinn a chur ris na h-annsachdan';
+$a->strings['Dislike not successful'] = 'Cha deach leinn a thoirt air falbh o na h-annsachdan';
+$a->strings['Sharing not successful'] = 'Cha deach leinn a cho-roinneadh';
+$a->strings['Attendance unsuccessful'] = 'Cha deach leis an làthaireachd';
+$a->strings['Backend error'] = 'Mearachd a’ backend';
+$a->strings['Network error'] = 'Mearachd lìonraidh';
+$a->strings['Drop files here to upload'] = 'Leig às faidhlichean an-seo gus an luchdadh suas';
+$a->strings['Your browser does not support drag and drop file uploads.'] = 'Cha chuir am brabhsair agad taic ri luchdadh suas fhaidhlichean le slaodadh is leigeil às.';
+$a->strings['Please use the fallback form below to upload your files like in the olden days.'] = 'Cleachd an t-seann-dòigh airson faidhlichean a luchdadh suas leis an fhoirm gu h-ìosal.';
+$a->strings['File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.'] = 'Tha am faidhle ro mhòr ({{filesize}}MiB). Meud as motha nam faidhlichean: {{maxFilesize}}MiB.';
+$a->strings['You can\'t upload files of this type.'] = 'Chan urrainn dhut faidhlichean dhen t-seòrsa seo a luchdadh suas.';
+$a->strings['Server responded with {{statusCode}} code.'] = 'Dh’fhreagair am frithealaiche le còd {{statusCode}}.';
+$a->strings['Cancel upload'] = 'Sguir dhen luchdadh suas';
+$a->strings['Upload canceled.'] = 'Chaidh sgur dhen luchdadh suas.';
+$a->strings['Are you sure you want to cancel this upload?'] = 'A bheil thu cinnteach gu bheil thu airson sgur dhen luchdadh suas seo?';
+$a->strings['Remove file'] = 'Thoir am faidhle air falbh';
+$a->strings['You can\'t upload any more files.'] = 'Chan urrainn dhut barrachd fhaidhlichean a luchdadh suas.';
+$a->strings['toggle mobile'] = 'toglaich mobile';
 $a->strings['Method not allowed for this module. Allowed method(s): %s'] = 'Chan eil am modh ceadaichte dhan mhòideal seo. Modh(an) ceadaichte: %s';
 $a->strings['Page not found.'] = 'Cha deach an duilleag a lorg.';
 $a->strings['You must be logged in to use addons. '] = 'Feumaidh tu clàradh a-steach mus urrainn dhut tuilleadain a chleachdadh. ';
@@ -216,7 +237,9 @@ $a->strings['Could not find any unarchived contact entry for this URL (%s)'] = '
 $a->strings['The contact entries have been archived'] = 'Chaidh an luchd-aithne a chur san tasg-lann';
 $a->strings['Could not find any contact entry for this URL (%s)'] = 'Cha do lorg sinn neach-aithne dhan URL seo (%s)';
 $a->strings['The contact has been blocked from the node'] = 'Chaidh an neach-aithne a bhacadh on nòd';
+$a->strings['%d %s, %d duplicates.'] = '%d %s, dùblachaidhean: %d.';
 $a->strings['uri-id is empty for contact %s.'] = 'Tha uri-id falamh dhan neach-aithne %s.';
+$a->strings['No valid first contact found for uri-id %d.'] = 'Cha deach ciad neach-aithne dligheach a lorg dha uri-id %d.';
 $a->strings['Wrong duplicate found for uri-id %d in %d (url: %s != %s).'] = 'Lorg sinn an dùblachadh ceàrr dha uri-id %d am broinn %d (url: %s != %s).';
 $a->strings['Wrong duplicate found for uri-id %d in %d (nurl: %s != %s).'] = 'Lorg sinn an dùblachadh ceàrr dha uri-id %d am broinn %d (nurl: %s != %s).';
 $a->strings['Deletion of id %d failed'] = 'Cha deach leinn id %d a sguabadh às';
@@ -277,9 +300,83 @@ $a->strings['Diaspora Connector'] = 'Ceangladair diaspora*';
 $a->strings['GNU Social Connector'] = 'Ceangladair GNU Social';
 $a->strings['ActivityPub'] = 'ActivityPub';
 $a->strings['pnut'] = 'pnut';
+$a->strings['Tumblr'] = 'Tumblr';
+$a->strings['Bluesky'] = 'Bluesky';
 $a->strings['%s (via %s)'] = '%s (slighe %s)';
 $a->strings['and'] = 'agus';
 $a->strings['and %d other people'] = 'agus %d eile';
+$a->strings['%2$s likes this.'] = [
+	0 => '’S toigh le %2$s seo.',
+	1 => '’S toigh le %2$s seo.',
+	2 => '’S toigh le %2$s seo.',
+	3 => '’S toigh le %2$s seo.',
+];
+$a->strings['%2$s doesn\'t like this.'] = [
+	0 => 'Cha toigh le %2$s seo.',
+	1 => 'Cha toigh le %2$s seo.',
+	2 => 'Cha toigh le %2$s seo.',
+	3 => 'Cha toigh le %2$s seo.',
+];
+$a->strings['%2$s attends.'] = [
+	0 => 'Bidh %2$s an làthair.',
+	1 => 'Bidh %2$s an làthair.',
+	2 => 'Bidh %2$s an làthair.',
+	3 => 'Bidh %2$s an làthair.',
+];
+$a->strings['%2$s doesn\'t attend.'] = [
+	0 => 'Cha bhi %2$s an làthair.',
+	1 => 'Cha bhi %2$s an làthair.',
+	2 => 'Cha bhi %2$s an làthair.',
+	3 => 'Cha bhi %2$s an làthair.',
+];
+$a->strings['%2$s attends maybe.'] = [
+	0 => '’S dòcha gum bi %2$s an làthair.',
+	1 => '’S dòcha gum bi %2$s an làthair.',
+	2 => '’S dòcha gum bi %2$s an làthair.',
+	3 => '’S dòcha gum bi %2$s an làthair.',
+];
+$a->strings['%2$s reshared this.'] = [
+	0 => 'Co-roinn %2$s seo.',
+	1 => 'Co-roinn %2$s seo.',
+	2 => 'Co-roinn %2$s seo.',
+	3 => 'Co-roinn %2$s seo.',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> likes this'] = [
+	0 => '’S toil le <button type="button" %2$s>%1$d</button> seo',
+	1 => '’S toigh le <button type="button" %2$s>%1$d</button> seo',
+	2 => '’S toigh le <button type="button" %2$s>%1$d</button> seo',
+	3 => '’S toigh le <button type="button" %2$s>%1$d</button> seo',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> doesn\'t like this'] = [
+	0 => 'Cha toigh le <button type="button" %2$s>%1$d</button> seo',
+	1 => 'Cha toigh le <button type="button" %2$s>%1$d</button> seo',
+	2 => 'Cha toigh le <button type="button" %2$s>%1$d</button> seo',
+	3 => 'Cha toigh le <button type="button" %2$s>%1$d</button> seo',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> attends'] = [
+	0 => 'Bidh <button type="button" %2$s>%1$d</button> an làthair',
+	1 => 'Bidh <button type="button" %2$s>%1$d</button> an làthair',
+	2 => 'Bidh <button type="button" %2$s>%1$d</button> an làthair',
+	3 => 'Bidh <button type="button" %2$s>%1$d</button> an làthair',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> doesn\'t attend'] = [
+	0 => 'Cha bhi <button type="button" %2$s>%1$d</button> an làthair.',
+	1 => 'Cha bhi <button type="button" %2$s>%1$d</button> an làthair',
+	2 => 'Cha bhi <button type="button" %2$s>%1$d</button> an làthair',
+	3 => 'Cha bhi <button type="button" %2$s>%1$d</button> an làthair',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> attends maybe'] = [
+	0 => '’S dòcha gum bi <button type="button" %2$s>%1$d</button> an làthair',
+	1 => '’S dòcha gum bi <button type="button" %2$s>%1$d</button> an làthair',
+	2 => '’S dòcha gum bi <button type="button" %2$s>%1$d</button> an làthair',
+	3 => '’S dòcha gum bi <button type="button" %2$s>%1$d</button> an làthair',
+];
+$a->strings['<button type="button" %2$s>%1$d person</button> reshared this'] = [
+	0 => 'Cho-roinn <button type="button" %2$s>%1$d</button> seo',
+	1 => 'Cho-roinn <button type="button" %2$s>%1$d</button> seo',
+	2 => 'Cho-roinn <button type="button" %2$s>%1$d</button> seo',
+	3 => 'Cho-roinn <button type="button" %2$s>%1$d</button> seo',
+];
 $a->strings['Visible to <strong>everybody</strong>'] = 'Chì <strong>a h-uile duine</strong> e';
 $a->strings['Please enter a image/video/audio/webpage URL:'] = 'Cuir a-steach URL deilbh/video/fuaime/làraich-lìn:';
 $a->strings['Tag term:'] = 'Teirm tagaidh:';
@@ -296,6 +393,8 @@ $a->strings['Bold'] = 'Trom';
 $a->strings['Italic'] = 'Eadailteach';
 $a->strings['Underline'] = 'Loidhne fodha';
 $a->strings['Quote'] = 'Iomradh';
+$a->strings['Add emojis'] = 'Cuir Emojis ris';
+$a->strings['Content Warning'] = 'Rabhadh susbainte';
 $a->strings['Code'] = 'Còd';
 $a->strings['Image'] = 'Dealbh';
 $a->strings['Link'] = 'Ceangal';
@@ -313,12 +412,6 @@ $a->strings['Public post'] = 'Post poblach';
 $a->strings['Message'] = 'Teachdaireachd';
 $a->strings['Browser'] = 'Brabhsair';
 $a->strings['Open Compose page'] = 'Fosgail duilleag an sgrìobhaidh';
-$a->strings['Pinned item'] = 'Nì prìnichte';
-$a->strings['View %s\'s profile @ %s'] = 'Seall a’ phròifil aig %s @ %s';
-$a->strings['Categories:'] = 'Roinnean-seòrsa:';
-$a->strings['Filed under:'] = 'Air a chlàradh fo:';
-$a->strings['%s from %s'] = '%s o %s';
-$a->strings['View in context'] = 'Seall le co-theacsa';
 $a->strings['remove'] = 'thoir air falbh';
 $a->strings['Delete Selected Items'] = 'Sguab às na nithean a thagh thu';
 $a->strings['You had been addressed (%s).'] = 'Chaidh d’ ainmeachadh (%s).';
@@ -339,14 +432,34 @@ $a->strings['Local delivery'] = 'Lìbhrigeadh ionadail';
 $a->strings['Stored because of your activity (like, comment, star, ...)'] = 'Chaidh a stòradh air sàilleibh do ghnìomhachd (’s toigh, beachd, rionnag, …)';
 $a->strings['Distributed'] = 'Sgaoilte';
 $a->strings['Pushed to us'] = 'Air a phutadh thugainne';
+$a->strings['Pinned item'] = 'Nì prìnichte';
+$a->strings['View %s\'s profile @ %s'] = 'Seall a’ phròifil aig %s @ %s';
+$a->strings['Categories:'] = 'Roinnean-seòrsa:';
+$a->strings['Filed under:'] = 'Air a chlàradh fo:';
+$a->strings['%s from %s'] = '%s o %s';
+$a->strings['View in context'] = 'Seall le co-theacsa';
+$a->strings['Local Community'] = 'Coimhearsnachd ionadail';
+$a->strings['Posts from local users on this server'] = 'Postaichean o luchd-cleachdaidh ionadail an fhrithealaiche seo';
+$a->strings['Global Community'] = 'Coimhearsnachd cho-naisgte';
+$a->strings['Posts from users of the whole federated network'] = 'Postaichean on luchd-cleachdaidh air an lìonra cho-naisgte gu lèir';
+$a->strings['Latest Activity'] = 'A’ ghnìomhachd as ùire';
+$a->strings['Sort by latest activity'] = 'Seòrsaich a-rèir na gnìomhachd as ùire';
+$a->strings['Latest Posts'] = 'Na postaichean as ùire';
+$a->strings['Sort by post received date'] = 'Seòrsaich a-rèir ceann-là faighinn nam post';
+$a->strings['Latest Creation'] = 'An cruthachadh as ùire';
+$a->strings['Sort by post creation date'] = 'Seòrsaich a-rèir ceann-là cruthachadh nam post';
+$a->strings['Personal'] = 'Pearsanta';
+$a->strings['Posts that mention or involve you'] = 'Postaichean le iomradh ort no sa bheil thu an sàs';
+$a->strings['Starred'] = 'Rionnag';
+$a->strings['Favourite Posts'] = 'Na postaichean as annsa';
 $a->strings['General Features'] = 'Gleusan coitcheann';
 $a->strings['Photo Location'] = 'Ionad an deilbh';
 $a->strings['Photo metadata is normally stripped. This extracts the location (if present) prior to stripping metadata and links it to a map.'] = 'Thèid meata-dàta nan dealbhan a rùsgadh air falbh. Togaidh seo an t-ionad (ma tha gin ann) mus dèid am meata-dàta a rùsgadh is thèid a cheangal ri mapa.';
 $a->strings['Trending Tags'] = 'Tagaichean a’ treandadh';
 $a->strings['Show a community page widget with a list of the most popular tags in recent public posts.'] = 'Seall widget duilleag coimhearsnachd le liosta nan tagaichean as fhèillmhoire sna postaichean poblach as ùire.';
 $a->strings['Post Composition Features'] = 'Gleusan sgrìobhadh puist';
-$a->strings['Auto-mention Forums'] = 'Thoir iomradh air fòram gu fèin-obrachail';
-$a->strings['Add/remove mention when a forum page is selected/deselected in ACL window.'] = 'Cuir ris/thoir air falbh an t-iomradh nuair a thèid duilleag fòraim a thaghadh no dì-thaghadh san uinneag ACL.';
+$a->strings['Auto-mention Groups'] = 'Thoir iomradh air bhuidhnean gu fèin-obrachail';
+$a->strings['Add/remove mention when a group page is selected/deselected in ACL window.'] = 'Cuir ris/thoir air falbh an t-iomradh nuair a thèid duilleag buidhinn a thaghadh no dì-thaghadh san uinneag ACL.';
 $a->strings['Explicit Mentions'] = 'Iomraidhean soilleir';
 $a->strings['Add explicit mentions to comment box for manual control over who gets mentioned in replies.'] = 'Cuir iomraidhean soilleir ri bogsa a’ bheachd airson smachd a làimh air cò air a thèid iomradh a dhèanamh ann am freagairtean.';
 $a->strings['Add an abstract from ActivityPub content warnings'] = 'Cuir geàrr-chunntas ris o rabhaidhean susbainte ActivityPub';
@@ -355,16 +468,20 @@ $a->strings['Post/Comment Tools'] = 'Innealan postaidh/beachdachaidh';
 $a->strings['Post Categories'] = 'Roinnean-seòrsa nam post';
 $a->strings['Add categories to your posts'] = 'Cuir roinnean-seòrsa ris na postaichean agad';
 $a->strings['Advanced Profile Settings'] = 'Roghainnean adhartach na pròifile';
-$a->strings['List Forums'] = 'Liosta nam fòraman';
-$a->strings['Show visitors public community forums at the Advanced Profile Page'] = 'Seall fòraman poblach na coimhearsnachd dhan fheadhainn a thadhlas air duilleag adhartach na pròifil';
+$a->strings['List Groups'] = 'Seall na buidhnean';
+$a->strings['Show visitors public groups at the Advanced Profile Page'] = 'Seall buidhnean poblach dhan fheadhainn a thadhlas air duilleag adhartach na pròifil';
 $a->strings['Tag Cloud'] = 'Neul nan tagaichean';
 $a->strings['Provide a personal tag cloud on your profile page'] = 'Solair neul thagaichean pearsanta air duilleag do phròifile';
 $a->strings['Display Membership Date'] = 'Seall ceann-là na ballrachd';
 $a->strings['Display membership date in profile'] = 'Seall ceann-là na ballrachd sa phròifil';
-$a->strings['Forums'] = 'Fòraman';
-$a->strings['External link to forum'] = 'Ceangal cèin dhan fhòram';
+$a->strings['Advanced Calendar Settings'] = 'Roghainnean adhartach a’ mhìosachain';
+$a->strings['Allow anonymous access to your calendar'] = 'Ceadaich inntrigeadh gun ainm dhan mhìosachan agad';
+$a->strings['Allows anonymous visitors to consult your calendar and your public events. Contact birthday events are private to you.'] = 'Leigidh seo le aoighean sùil a thoirt air a’ mhìosachan ’s air na tachartasan poblach agad. Bidh tachartasan cinn-là breith an luchd-aithne agad prìobhaideach dhut-sa.';
+$a->strings['Groups'] = 'Buidhnean';
+$a->strings['External link to group'] = 'Ceangal cèin dhan bhuidheann';
 $a->strings['show less'] = 'seall nas lugha dheth';
 $a->strings['show more'] = 'seall barrachd dheth';
+$a->strings['Create new group'] = 'Cruthaich buidheann ùr';
 $a->strings['event'] = 'tachartas';
 $a->strings['status'] = 'staid';
 $a->strings['photo'] = 'dealbh';
@@ -378,22 +495,28 @@ $a->strings['View Contact'] = 'Seall an neach-aithne';
 $a->strings['Send PM'] = 'Cuir TPh';
 $a->strings['Block'] = 'Bac';
 $a->strings['Ignore'] = 'Leig seachad';
+$a->strings['Collapse'] = 'Co-theannaich';
 $a->strings['Languages'] = 'Cànanan';
 $a->strings['Connect/Follow'] = 'Ceangail ris/Lean air';
+$a->strings['Unable to fetch user.'] = 'Chan urrainn dhuinn an cleachdaiche fhaighinn dhut.';
 $a->strings['Nothing new here'] = 'Chan eil dad ùr an-seo';
 $a->strings['Go back'] = 'Air ais';
 $a->strings['Clear notifications'] = 'Falamhaich na brathan';
-$a->strings['@name, !forum, #tags, content'] = '@ainm, !fòram, #tagaichean, susbaint';
+$a->strings['@name, !group, #tags, content'] = '@ainm, !buidheann, #tagaichean, susbaint';
 $a->strings['Logout'] = 'Clàraich a-mach';
 $a->strings['End this session'] = 'Cuir crìoch air an t-seisean seo';
 $a->strings['Login'] = 'Clàraich a-steach';
 $a->strings['Sign in'] = 'Clàraich a-steach';
+$a->strings['Conversations'] = 'Còmhraidhean';
+$a->strings['Conversations you started'] = 'Na còmhraidhean a thòisich thusa';
 $a->strings['Profile'] = 'Pròifil';
 $a->strings['Your profile page'] = 'Duilleag na pròifil agad';
 $a->strings['Photos'] = 'Dealbhan';
 $a->strings['Your photos'] = 'Na dealbhan agad';
 $a->strings['Media'] = 'Meadhanan';
 $a->strings['Your postings with media'] = 'Na postaichean agad sa bheil meadhanan';
+$a->strings['Calendar'] = 'Mìosachan';
+$a->strings['Your calendar'] = 'Am mìosachan agad';
 $a->strings['Personal notes'] = 'Nòtaichean pearsanta';
 $a->strings['Your personal notes'] = 'Na nòtaichean pearsanta agad';
 $a->strings['Home'] = 'Dachaigh';
@@ -420,6 +543,7 @@ $a->strings['Terms of Service of this Friendica instance'] = 'Teirmichean seirbh
 $a->strings['Network'] = 'Lìonra';
 $a->strings['Conversations from your friends'] = 'Còmhraidhean nan caraidean agad';
 $a->strings['Your posts and conversations'] = 'Na postaichean ’s còmhraidhean agad';
+$a->strings['Introductions'] = 'Cuir an aithne';
 $a->strings['Friend Requests'] = 'Iarrtasan càirdeis';
 $a->strings['Notifications'] = 'Brathan';
 $a->strings['See all notifications'] = 'Seall gach brath';
@@ -435,6 +559,8 @@ $a->strings['Account settings'] = 'Roghainnean a’ chunntais';
 $a->strings['Manage/edit friends and contacts'] = 'Stiùir/deasaich caraidean is luchd-aithne';
 $a->strings['Admin'] = 'Rianachd';
 $a->strings['Site setup and configuration'] = 'Suidheachadh ’s rèiteachadh na làraich';
+$a->strings['Moderation'] = 'Maorsainneachd';
+$a->strings['Content and user moderation'] = 'Susbaint is maorsainneachd chleachdaichean';
 $a->strings['Navigation'] = 'Seòladaireachd';
 $a->strings['Site map'] = 'Mapa na làraich';
 $a->strings['Embedding disabled'] = 'Tha an leabachadh à comas';
@@ -452,6 +578,7 @@ $a->strings['Encrypted content'] = 'Susbaint chrioptaichte';
 $a->strings['Invalid source protocol'] = 'Pròtacal tùis mì-dhligheach';
 $a->strings['Invalid link protocol'] = 'Pròtacal ceangail mì-dhligheach';
 $a->strings['Loading more entries...'] = 'A’ luchdadh barrachd nithean…';
+$a->strings['The end'] = 'A’ chrìoch';
 $a->strings['Follow'] = 'Lean air';
 $a->strings['Add New Contact'] = 'Cuir neach-aithne ùr ris';
 $a->strings['Enter address or web location'] = 'Cuir a-steach seòladh no ionad-lìn';
@@ -473,8 +600,9 @@ $a->strings['Random Profile'] = 'Pròifil air thuaiream';
 $a->strings['Invite Friends'] = 'Thoir cuireadh do charaidean';
 $a->strings['Global Directory'] = 'Eòlaire co-naisgte';
 $a->strings['Local Directory'] = 'Eòlaire ionadail';
-$a->strings['Groups'] = 'Buidhnean';
+$a->strings['Circles'] = 'Cearcallan';
 $a->strings['Everyone'] = 'A h-uile duine';
+$a->strings['No relationship'] = 'Gu dàimh';
 $a->strings['Relationships'] = 'Dàimhean';
 $a->strings['All Contacts'] = 'A h-uile neach-aithne';
 $a->strings['Protocols'] = 'Pròtacalan';
@@ -489,6 +617,7 @@ $a->strings['%d contact in common'] = [
 	3 => '%d luchd-aithne an cumantas',
 ];
 $a->strings['Archives'] = 'Tasg-lannan';
+$a->strings['On this date'] = 'Air an latha seo';
 $a->strings['Persons'] = 'Daoine';
 $a->strings['Organisations'] = 'Buidhnean';
 $a->strings['News'] = 'Naidheachdan';
@@ -526,6 +655,7 @@ $a->strings['Public'] = 'Poblach';
 $a->strings['This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'] = 'Thèid an t-susbaint seo a shealltainn dhan luchd-leantainn gu lèir agad agus chithear air duilleagan na coimhearsnachd i agus chì a h-uile duine aig a bheil an ceangal seo i.';
 $a->strings['Limited/Private'] = 'Cuingichte/Prìobhaideach';
 $a->strings['This content will be shown only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.'] = 'Thèid an t-susbaint seo a shealltainn dhan fheadhainn san dàrna bhogsa a-mhàin is chan fhaic an fheadhainn sa bhogsa eile. Cha nochd i gu poblach àite sam bith.';
+$a->strings['Start typing the name of a contact or a circle to show a filtered list. You can also mention the special circles "Followers" and "Mutuals".'] = 'Tòisich air ainm neach-aithne no cearcall a sgrìobhadh a shealltainn liosta chriathraichte. ’S urrainn dhut iomradh a thoirt air cearcallan sònraichte mar “Luchd-leantainn” no “Co-dhàimhean” cuideachd.';
 $a->strings['Show to:'] = 'Seall gu:';
 $a->strings['Except to:'] = 'Ach gu:';
 $a->strings['CC: email addresses'] = 'CC: seòlaidhean puist-d';
@@ -636,6 +766,8 @@ $a->strings['Sep'] = 'Sult';
 $a->strings['Oct'] = 'Dàmh';
 $a->strings['Nov'] = 'Samh';
 $a->strings['Dec'] = 'Dùbh';
+$a->strings['The logfile \'%s\' is not usable. No logging possible (error: \'%s\')'] = 'Cha ghabh faidhle “%s” an loga a chleachdadh. Cha ghabh logadh a dhèanamh (mearachd: “%s”)';
+$a->strings['The debug logfile \'%s\' is not usable. No logging possible (error: \'%s\')'] = 'Cha ghabh faidhle “%s” an loga dì-bhugachaidh a chleachdadh. Cha ghabh logadh a dhèanamh (mearachd: “%s”)';
 $a->strings['Friendica can\'t display this page at the moment, please contact the administrator.'] = 'Chan urrainn dha Friendica an duilleag seo a shealltainn an-dràsta, cuir fios gun rianaire.';
 $a->strings['template engine cannot be registered without a name.'] = 'cha ghabh einnsean theamplaidean a chlàradh gun ainm.';
 $a->strings['template engine is not registered!'] = 'cha deach an t-einnsean theamplaidean a chlàradh!';
@@ -658,6 +790,9 @@ $a->strings['
 				neach-leasachaidh Friendica mur urrainn dhut fhèin mo chuideachadh. Dh’fhaoidte nach eil an stòr-dàta agam dligheach.';
 $a->strings['The error message is\n[pre]%s[/pre]'] = 'Seo teachdaireachd na mearachd:\n[pre]%s[/pre]';
 $a->strings['[Friendica Notify] Database update'] = '[Brath Friendica] Ùrachadh an stòir-dhàta';
+$a->strings['
+				The friendica database was successfully updated from %s to %s.'] = '
+				Chaidh stòr-dàta Friendica ùrachadh o %s gu %s.';
 $a->strings['The database version had been set to %s.'] = 'Chaidh tionndadh an stòir-dhàta a shuidheachadh air %s.';
 $a->strings['The post update is at version %d, it has to be at %d to safely drop the tables.'] = 'Tha an t-iar-ùrachadh air tionndadh %d ach feumaidh e bhith air %d mus gabh na clàran a leigeil às gu sàbhailte.';
 $a->strings['No unused tables found.'] = 'Cha deach clàr gun cleachdadh a lorg.';
@@ -680,13 +815,23 @@ $a->strings['Unauthorized'] = 'Gun chead';
 $a->strings['Token is not authorized with a valid user or is missing a required scope'] = 'Cha deach an tòcan ùghdarrachadh le cleachdaiche dligheach no tha sgòp riatanach a dhìth';
 $a->strings['Internal Server Error'] = 'Mearachd frithealaiche inntearnail';
 $a->strings['Legacy module file not found: %s'] = 'Cha deach am faidhle mòideil dìleabach seo a lorg: %s';
+$a->strings['A deleted circle with this name was revived. Existing item permissions <strong>may</strong> apply to this circle and any future members. If this is not what you intended, please create another circle with a different name.'] = 'Chaidh cearcall a bh’ air a sguabadh às ath-bheòthachadh. <strong>Faodaidh</strong> ceadan a tha ann air nithean a bhith an sàs air a’ chearcall seo is air ball ri teachd sam bith. Mur e sin a bha fa-near dhut, cruthaich cearcall eile air a bheil ainm eile.';
+$a->strings['Everybody'] = 'A h-uile duine';
+$a->strings['edit'] = 'deasaich';
+$a->strings['add'] = 'cuir ris';
+$a->strings['Edit circle'] = 'Deasaich an cearcall';
+$a->strings['Contacts not in any circle'] = 'Luchd-aithne gun chearcall';
+$a->strings['Create a new circle'] = 'Cruthaich cearcall ùr';
+$a->strings['Circle Name: '] = 'Ainm a’ chearcaill: ';
+$a->strings['Edit circles'] = 'Deasaich na cearcallan';
 $a->strings['Approve'] = 'Aontaich ris';
 $a->strings['Organisation'] = 'Buidheann';
-$a->strings['Forum'] = 'Fòram';
+$a->strings['Group'] = 'Buidheann';
 $a->strings['Disallowed profile URL.'] = 'URL pròifile mì-dhligheach.';
 $a->strings['Blocked domain'] = 'Àrainn bhacte';
 $a->strings['Connect URL missing.'] = 'Tha URL a’ cheangail a dhìth.';
 $a->strings['The contact could not be added. Please check the relevant network credentials in your Settings -> Social Networks page.'] = 'Cha b’ urrainn dhuinn an neach-aithne a chur ris. Thoir sùil air teisteas an lìonraidh iomchaidh air duilleag nan “Roghainnean” > “Lìonraidhean sòisealta” agad.';
+$a->strings['Expected network %s does not match actual network %s'] = 'Chan eil an lìonra %s air a bheil dùil co-ionnann ris a lìonra %s a tha ann';
 $a->strings['The profile address specified does not provide adequate information.'] = 'Chan eil an seòladh pròifile a shònraich thu a’ solar am fiosrachadh iomchaidh.';
 $a->strings['No compatible communication protocols or feeds were discovered.'] = 'Cha do lorg sinn pròtacal conaltraidh no inbhir iomchaidh.';
 $a->strings['An author or name was not found.'] = 'Cha deach an t-ùghdar no ainm a lorg.';
@@ -707,6 +852,7 @@ $a->strings['week'] = 'seachdain';
 $a->strings['day'] = 'latha';
 $a->strings['No events to display'] = 'Chan eil tachartas ri shealltainn ann';
 $a->strings['Access to this profile has been restricted.'] = 'Chaidh an t-inntrigeadh dhan phròifil seo a chuingeachadh.';
+$a->strings['Event not found.'] = 'Cha deach an tachartas a lorg.';
 $a->strings['l, F j'] = 'l, j F';
 $a->strings['Edit event'] = 'Deasaich an tachartas';
 $a->strings['Duplicate event'] = 'Dùblaich an tachartas';
@@ -718,20 +864,13 @@ $a->strings['Show map'] = 'Seall am mapa';
 $a->strings['Hide map'] = 'Falaich am mapa';
 $a->strings['%s\'s birthday'] = 'Cò-là breith aig %s';
 $a->strings['Happy Birthday %s'] = 'Co-là breith sona dhut, %s';
-$a->strings['A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.'] = 'Chaidh buidheann a bh’ air a sguabadh às ath-bheòthachadh. <strong>Faodaidh</strong> ceadan a tha ann air nithean a bhith an sàs air a’ bhuidheann seo is air ball ri teachd sam bith. Mur e sin a bha fa-near dhut, cruthaich buidheann eile air a bheil ainm eile.';
-$a->strings['Default privacy group for new contacts'] = 'Am buidheann prìobhaideachd bunaiteach do luchd-aithne ùr';
-$a->strings['Everybody'] = 'A h-uile duine';
-$a->strings['edit'] = 'deasaich';
-$a->strings['add'] = 'cuir ris';
-$a->strings['Edit group'] = 'Deasaich am buidheann';
-$a->strings['Contacts not in any group'] = 'Luchd-aithne gun bhuidheann';
-$a->strings['Create a new group'] = 'Cruthaich buidheann ùr';
-$a->strings['Group Name: '] = 'Ainm a’ bhuidhinn: ';
-$a->strings['Edit groups'] = 'Deasaich buidhnean';
 $a->strings['Detected languages in this post:\n%s'] = 'Na cànanan dhan a mhothaich sinn sa phost seo:\n%s';
 $a->strings['activity'] = 'gnìomhachd';
 $a->strings['comment'] = 'beachd';
 $a->strings['post'] = 'post';
+$a->strings['%s is blocked'] = 'Tha %s ’ga bhacadh';
+$a->strings['%s is ignored'] = 'Tha %s ’ga leigeil seachad';
+$a->strings['Content from %s is collapsed'] = 'Tha susbaint o %s ’ga cho-theannachadh';
 $a->strings['Content warning: %s'] = 'Rabhadh susbainte: %s';
 $a->strings['bytes'] = 'baidht';
 $a->strings['%2$s (%3$d%%, %1$d vote)'] = [
@@ -767,6 +906,7 @@ $a->strings['Change profile photo'] = 'Atharraich dealbh na pròifil';
 $a->strings['Homepage:'] = 'Duilleag-dhachaigh:';
 $a->strings['About:'] = 'Mu dhèidhinn:';
 $a->strings['Atom feed'] = 'Inbhir Atom';
+$a->strings['This website has been verified to belong to the same person.'] = 'Chaidh dearbhadh gu bheil an làrach-lìn seo aig an aon neach.';
 $a->strings['F d'] = 'd F';
 $a->strings['[today]'] = '[an-diugh]';
 $a->strings['Birthday Reminders'] = 'Cuimhneachain co-là breith';
@@ -803,6 +943,7 @@ $a->strings['Password can\'t be empty'] = 'Chan fhaod am facal-faire a bhith bà
 $a->strings['Empty passwords are not allowed.'] = 'Chan eil faclan-faire bàna ceadaichte.';
 $a->strings['The new password has been exposed in a public data dump, please choose another.'] = 'Chaidh am facal-faire ùr fhoillseachadh ann an dumpadh dàta poblach, tagh fear eile.';
 $a->strings['The password length is limited to 72 characters.'] = 'Chan fhaod am facal-faire a bhith nas fhaide na 72 caractar.';
+$a->strings['The password can\'t contain white spaces nor accentuated letters'] = 'Chan fhaod àite bàn no litir le stràc a bhith am broinn an fhacail-fhaire';
 $a->strings['Passwords do not match. Password unchanged.'] = 'Chan eil an dà fhacal-faire co-ionnann. Cha deach am facal-faire atharrachadh.';
 $a->strings['An invitation is required.'] = 'Tha feum air cuireadh.';
 $a->strings['Invitation could not be verified.'] = 'Cha b’ urrainn dhuinn an cuireadh a dhearbhadh.';
@@ -834,13 +975,65 @@ $a->strings['An error occurred during registration. Please try again.'] = 'Thach
 $a->strings['An error occurred creating your default profile. Please try again.'] = 'Thachair mearachd le cruthachadh na pròifile bunaitiche agad. Feuch ris a-rithist.';
 $a->strings['An error occurred creating your self contact. Please try again.'] = 'Thachair mearachd le cruthachadh neach-aithne dhiot fhèin. Feuch ris a-rithist.';
 $a->strings['Friends'] = 'Caraidean';
-$a->strings['An error occurred creating your default contact group. Please try again.'] = 'Thachair mearachd le cruthachadh a’ bhuidhinn conaltraidh bhunaitich agad. Feuch ris a-rithist.';
+$a->strings['An error occurred creating your default contact circle. Please try again.'] = 'Thachair mearachd le cruthachadh a’ chearcaill luchd-aithne bhunaitich agad. Feuch ris a-rithist.';
 $a->strings['Profile Photos'] = 'Dealbhan na pròifil';
 $a->strings['
 		Dear %1$s,
 			the administrator of %2$s has set up an account for you.'] = '
 		%1$s, a charaid,
 			shuidhich rianaire %2$s cunntas dhut.';
+$a->strings['
+		The login details are as follows:
+
+		Site Location:	%1$s
+		Login Name:		%2$s
+		Password:		%3$s
+
+		You may change your password from your account "Settings" page after logging
+		in.
+
+		Please take a few moments to review the other account settings on that page.
+
+		You may also wish to add some basic information to your default profile
+		(on the "Profiles" page) so that other people can easily find you.
+
+		We recommend setting your full name, adding a profile photo,
+		adding some profile "keywords" (very useful in making new friends) - and
+		perhaps what country you live in; if you do not wish to be more specific
+		than that.
+
+		We fully respect your right to privacy, and none of these items are necessary.
+		If you are new and do not know anybody here, they may help
+		you to make some new and interesting friends.
+
+		If you ever want to delete your account, you can do so at %1$s/settings/removeme
+
+		Thank you and welcome to %4$s.'] = '
+		Seo am fiosrachadh clàraidh a-steach:
+
+		Seòladh na làraich:	%1$s
+		Ainm clàraidh a-steach:		%2$s
+		Facal-faire:		%3$s
+
+		’S urrainn dhut am facal-faire agad atharrachadh air duilleag “Roghainnean” a’ chunntais agad
+		às dèidh clàradh a-steach.
+
+		Fhad ’s a bhios tu ris, thoir sùil air roghainnean eile a’ chunntais air an duilleag sin.
+
+		Dh’fhaoidte gum bu mhiann leat fiosrachadh bunasach a chur ris a’ phròifil bhunaiteach agad
+		(air duilleag na “Pròifil”) ach am faigh daoine lorg ort gun duilgheadas.
+
+		Mholamaid gun suidhich thu d’ ainm slàn, gun cuir thu dealbh pròifil ris,
+		gun cuir thu “facal-luirg” no dhà ris a’ phròifil (glè fheumail airson caraidean ùra fhaighinn) – agus is dòcha
+		an dùthaich far a bheil thu mur eil thu airson a bhith nas mionaidiche na sin.
+
+		Tha suim againn dha do phrìobhaideachd is chan eil gin sam bith dhe na nithean sin riatanach idir.
+		Ma tha thu ùr an-seo is mur eil thu eòlach air duine sam bith, b’ urrainn dha na nithean seo
+		do chuideachadh ach am cuir thu an aithne air caraidean inntinneach ùra.
+
+		Ma tha thu airson an cunntas agad a sguabadh às uair sam bith, ’s urrainn dhut sin a dhèanamh air %1$s/settings/removeme
+
+		Mòran taing agus fàilte gu %4$s.';
 $a->strings['Registration details for %s'] = 'Am fiosrachadh clàraidh airson %s';
 $a->strings['
 			Dear %1$s,
@@ -869,6 +1062,58 @@ $a->strings['
 				%1$s, a charaid,
 				Mòran taing airson clàradh air %2$s. Chaidh an cunntas agad a chruthachadh.
 			';
+$a->strings['
+			The login details are as follows:
+
+			Site Location:	%3$s
+			Login Name:		%1$s
+			Password:		%5$s
+
+			You may change your password from your account "Settings" page after logging
+			in.
+
+			Please take a few moments to review the other account settings on that page.
+
+			You may also wish to add some basic information to your default profile
+			(on the "Profiles" page) so that other people can easily find you.
+
+			We recommend setting your full name, adding a profile photo,
+			adding some profile "keywords" (very useful in making new friends) - and
+			perhaps what country you live in; if you do not wish to be more specific
+			than that.
+
+			We fully respect your right to privacy, and none of these items are necessary.
+			If you are new and do not know anybody here, they may help
+			you to make some new and interesting friends.
+
+			If you ever want to delete your account, you can do so at %3$s/settings/removeme
+
+			Thank you and welcome to %2$s.'] = '
+			Seo am fiosrachadh clàraidh a-steach:
+
+			Seòladh na làraich:	%3$s
+			Ainm clàraidh a-steach:		%1$s
+			Facal-faire:		%5$s
+
+			’S urrainn dhut am facal-faire agad atharrachadh air duilleag “Roghainnean” a’ chunntais agad
+		\às dèidh clàradh a-steach.
+
+			Fhad ’s a bhios tu ris, thoir sùil air roghainnean eile a’ chunntais air an duilleag sin.
+
+			Dh’fhaoidte gum bu mhiann leat fiosrachadh bunasach a chur ris a’ phròifil bhunaiteach agad
+			(air duilleag na “Pròifil”) ach am faigh daoine lorg ort gun duilgheadas.
+
+			Mholamaid gun suidhich thu d’ ainm slàn, gun cuir thu dealbh pròifil ris,
+			gun cuir thu “facal-luirg” no dhà ris a’ phròifil (glè fheumail airson caraidean ùra fhaighinn) – agus is dòcha
+			an dùthaich far a bheil thu mur eil thu airson a bhith nas mionaidiche na sin.
+
+			Tha suim againn dha do phrìobhaideachd is chan eil gin sam bith dhe na nithean sin riatanach idir.
+			Ma tha thu ùr an-seo is mur eil thu eòlach air duine sam bith, b’ urrainn dha na nithean seo
+			do chuideachadh ach am cuir thu an aithne air caraidean inntinneach ùra.
+
+			Ma tha thu airson an cunntas agad a sguabadh às uair sam bith, ’s urrainn dhut sin a dhèanamh air %3$s/settings/removeme
+
+			Mòran taing agus fàilte gu %2$s.';
 $a->strings['Addon not found.'] = 'Cha deach an tuilleadan a lorg.';
 $a->strings['Addon %s disabled.'] = 'Tha an tuilleadan %s à comas.';
 $a->strings['Addon %s enabled.'] = 'Tha an tuilleadan %s an comas.';
@@ -883,7 +1128,7 @@ $a->strings['Addons reloaded'] = 'Chaidh na tuilleadain ath-luchdadh';
 $a->strings['Addon %s failed to install.'] = 'Dh’fhàillig le stàladh an tuilleadain %s.';
 $a->strings['Save Settings'] = 'Sàbhail na roghainnean';
 $a->strings['Reload active addons'] = 'Ath-luchdaich na tuilleadain ghnìomhach';
-$a->strings['There are currently no addons available on your node. You can find the official addon repository at %1$s and might find other interesting addons in the open addon registry at %2$s'] = 'Chan eil tuilleadan ri fhaighinn aig an nòd agad an-dràsta. Gheibh thu ionad-tasgaidh nan tuilleadan oifigeil air %1$s agus dh’fhaoidte gun lorg thu tuilleadain inntinneach eile air an ionad-tasgaidh fhosgailte air %2$s.';
+$a->strings['There are currently no addons available on your node. You can find the official addon repository at %1$s and might find other interesting addons in the open addon registry at %2$s'] = 'Chan eil tuilleadan ri fhaighinn aig an nòd agad an-dràsta. Gheibh thu ionad-tasgaidh nan tuilleadan oifigeil air %1$s agus dh’fhaoidte gun lorg thu tuilleadain inntinneach eile air an ionad-tasgaidh fhosgailte air %2$s';
 $a->strings['Update has been marked successful'] = 'Chaidh comharrachadh gun do soirbhich leis an ùrachadh';
 $a->strings['Database structure update %s was successfully applied.'] = 'Chaidh ùrachadh %s air structar an stòir-dhàta a chur an sàs.';
 $a->strings['Executing of database structure update %s failed with error: %s'] = 'Dh’fhàillig an t-ùrachadh %s air structar an stòir-dhàta leis a’ mhearachd seo: %s';
@@ -957,6 +1202,7 @@ $a->strings['PHP log currently disabled.'] = 'Tha logadh PHP à comas an-dràsta
 $a->strings['Logs'] = 'Logaichean';
 $a->strings['Clear'] = 'Falamhaich';
 $a->strings['Enable Debugging'] = 'Cuir dì-bhugachadh an comas';
+$a->strings['<strong>Read-only</strong> because it is set by an environment variable'] = '<strong>Cead-leughaidh a-mhàin</strong> on a chaidh a shuidheachadh le caochladair àrainne';
 $a->strings['Log file'] = 'Faidhle an loga';
 $a->strings['Must be writable by web server. Relative to your Friendica top-level directory.'] = 'Feumaidh cead sgrìobhaidh a bhith aig an fhrithealaiche-lìn. Dàimheach ri prìomh-pasgan Friendica.';
 $a->strings['Log level'] = 'Leibheil an loga';
@@ -991,9 +1237,11 @@ $a->strings['Command'] = 'Àithne';
 $a->strings['Job Parameters'] = 'Paramadairean na h-obrach';
 $a->strings['Created'] = 'Air a chruthachadh';
 $a->strings['Priority'] = 'Prìomhachas';
+$a->strings['%s is no valid input for maximum image size'] = 'Chan eil %s ’na ion-chur dligheach do mheud as motha nan dealbhan';
 $a->strings['No special theme for mobile devices'] = 'Chan eil ùrlar sònraichte do dh’uidheaman mobile ann';
 $a->strings['%s - (Experimental)'] = '%s – (deuchainneil)';
 $a->strings['No community page'] = 'Gun duilleag coimhearsnachd';
+$a->strings['No community page for visitors'] = 'Gun duilleag coimhearsnachd do dh’aoighean';
 $a->strings['Public postings from users of this site'] = 'Postaichean poblach nan cleachdaichean air an làrach seo';
 $a->strings['Public postings from the federated network'] = 'Postaichean poblach on lìonra cho-naisgte';
 $a->strings['Public postings from local users and the federated network'] = 'Postaichean poblach nan cleachdaichean ionadail ’s on lìonra cho-naisgte';
@@ -1049,11 +1297,18 @@ $a->strings['Displays the menu entry for the Help pages from the navigation menu
 $a->strings['Single user instance'] = 'Ionstans aon-chleachdaiche';
 $a->strings['Make this instance multi-user or single-user for the named user'] = 'Dèan ionstans ioma-chleachdaiche no aon-chleachdaiche dhan chleachdaiche ainmichte dhen ionstans seo';
 $a->strings['Maximum image size'] = 'Meud as motha nan dealbhan';
+$a->strings['Maximum size in bytes of uploaded images. Default is 0, which means no limits. You can put k, m, or g behind the desired value for KiB, MiB, GiB, respectively.
+													The value of <code>upload_max_filesize</code> in your <code>PHP.ini</code> needs be set to at least the desired limit.
+													Currently <code>upload_max_filesize</code> is set to %s (%s byte)'] = 'Am meud as motha ann am baidht do dhealbhan a thèid a luchdadh suas. Is 0 a’ bhun-roghainn, ’s e sin gun chrìoch. ’S urrainn dhut k, m no g a chur às dèidh an luacha a thogras tu airson KiB, MiB no GiB.
+													Feumaidh tu an luach air <code>upload_max_filesize</code> sa <code>PHP.ini</code> a shuidheachadh air a’ chrìoch a thogras tu air a char as lugha.
+													Chaidh <code>upload_max_filesize</code> a shuidheachadh air %s (%s baidht) aig an àm seo';
 $a->strings['Maximum image length'] = 'Faide as motha nan dealbhan';
 $a->strings['Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.'] = 'An fhaide as motha ann am piogsail aig an taobh as fhaide do dhealbhan a thèid a luchdadh suas. Is -1 a’ bhun-roghainn, ’s e sin gun chrìoch.';
 $a->strings['JPEG image quality'] = 'Càileachd deilbh JPEG';
 $a->strings['Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.'] = 'Thèid dealbhan a’ sàbhaladh leis a’ chàileachd JPEG seo às dèidh an luchdadh suas [0-100]. Is 100 a’ bhun-roghainn, ’s e sin a’ chàileachd shlàn.';
 $a->strings['Register policy'] = 'Poileasaidh clàraidh';
+$a->strings['Maximum Users'] = 'Àireamh as motha de chleachdaichean';
+$a->strings['If defined, the register policy is automatically closed when the given number of users is reached and reopens the registry when the number drops below the limit. It only works when the policy is set to open or close, but not when the policy is set to approval.'] = 'Ma bhios seo air a mhìneachadh, thèid poileasaidh nan clàraidhean a dhùnadh gu fèin-obrachail nuair a bhios an àireamh shònraichte de chleachdaichean air a ruigsinn agus fhosgladh a-rithist nuair a thèid an àireamh nas ìsle na a’ chrìoch. Chan obraich seo ach ma chaidh am poileasaidh a shuidheachadh air “Fosgailte” no “Dùinte” agus chan obraich e ma chaidh am poileasaidh a shuidheachadh air “Aontachadh”.';
 $a->strings['Maximum Daily Registrations'] = 'An àireamh as motha de chlàraidhean gach latha';
 $a->strings['If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.'] = 'Ma tha an clàradh ceadaichte gu h-àrd, suidhichidh seo an àireamh as motha de chlàraidhean chleachdaichean ùra gach latha. Ma tha an clàradh dùinte, cha doir an roghainn seo buaidh.';
 $a->strings['Register text'] = 'Teacsa a’ chlàraidh';
@@ -1078,7 +1333,7 @@ $a->strings['Enabling this may violate privacy laws like the GDPR'] = 'Ma chuire
 $a->strings['Global directory URL'] = 'URL an eòlaire cho-naisgte';
 $a->strings['URL to the global directory. If this is not set, the global directory is completely unavailable to the application.'] = 'URL dhan eòlaire cho-naisgte. Mura deach seo a shuidheachadh, cha bhi an t-eòlaire uile-choitcheann ri fhaighinn idir dhan aplacaid.';
 $a->strings['Private posts by default for new users'] = 'Postaichean prìobhaideach ’na bhun-roghainn do chleachdaichean ùra';
-$a->strings['Set default post permissions for all new members to the default privacy group rather than public.'] = 'Suidhichidh seo ceadan phostaichean nam ball ùra air a’ bhuidheann phrìobhaideach gu bunaiteach seach air a’ bhuidheann phoblach.';
+$a->strings['Set default post permissions for all new members to the default privacy circle rather than public.'] = 'Suidhichidh seo ceadan phostaichean nam ball ùra air a’ chearcall phrìobhaideach gu bunaiteach seach air a’ chearcall phoblach.';
 $a->strings['Don\'t include post content in email notifications'] = 'Na gabh a-staigh susbaint nam post ann am brathan puist-d';
 $a->strings['Don\'t include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.'] = 'Na gabh a-staigh susbaint puist/beachd/teachdaireachd prìobhaidich/msaa. sna brathan puist-d a thèid a chur on làrach seo, a chùm prìobhaideachd.';
 $a->strings['Disallow public access to addons listed in the apps menu.'] = 'Na ceadaich inntrigeadh poblach dha na tuilleadain a tha air an liosta ann an clàr-taice nan aplacaidean.';
@@ -1099,6 +1354,8 @@ $a->strings['Enable OpenID'] = 'Cuir OpenID an comas';
 $a->strings['Enable OpenID support for registration and logins.'] = 'Cuir an comas taic dha OpenID airson clàradh is clàradh a-steach.';
 $a->strings['Enable Fullname check'] = 'Cuir an comas dearbhadh ainm shlàin';
 $a->strings['Enable check to only allow users to register with a space between the first name and the last name in their full name.'] = 'Cuid an comas an dearbhadh nach leig le cleachdaichean clàradh ach le beàrn eadar ainm is sloinneadh an ainm shlàin.';
+$a->strings['Email administrators on new registration'] = 'Cuir puist-d dha na rianairean do chlàraidhean ùra';
+$a->strings['If enabled and the system is set to an open registration, an email for each new registration is sent to the administrators.'] = 'Nuair a bhios seo an comas agus an siostam air a shuidheachadh air clàraidhean fosgailte, thèid post-d a chur dha na rianairean do gach clàradh ùr.';
 $a->strings['Community pages for visitors'] = 'Duilleagan coimhearsnachd do dh’aoighean';
 $a->strings['Which community pages should be available for visitors. Local users always see both pages.'] = 'Dè na duilleagan coimhearsnachd a chì aoighean. Chì na cleachdaichean ionadail an dà dhuilleag an-còmhnaidh.';
 $a->strings['Posts per user on community page'] = 'Postaichean gach cleachdaiche air duilleag na coimhearsnachd';
@@ -1160,8 +1417,8 @@ $a->strings['Temp path'] = 'Slighe shealadach';
 $a->strings['If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.'] = 'Ma tha siostam cuingichte agad far nach urrainn dhan fhrithealaiche-lìn slighe temp an t-siostaim inntrigeadh, cuir a-steach slighe eile an-seo.';
 $a->strings['Only search in tags'] = 'Na lorg ach sna tagaichean';
 $a->strings['On large systems the text search can slow down the system extremely.'] = 'Air siostaman mòra, ’s urrainn dhan lorg teacsa maille mhòr a chur air an t-siostam.';
-$a->strings['Generate counts per contact group when calculating network count'] = 'Cruthaich cunntasan do bhuidhnean luchd-aithne nuair a thèid cunntas an lìonraidh àireamhachadh';
-$a->strings['On systems with users that heavily use contact groups the query can be very expensive.'] = 'Air siostaman far an bheil tòrr bhuidhnean luchd-aithne ’gan cleachdadh, faodaidh a’ cheist seo a bhith glè dhaor.';
+$a->strings['Generate counts per contact circle when calculating network count'] = 'Cruthaich cunntasan do chearcallan luchd-aithne nuair a thèid cunntas an lìonraidh àireamhachadh';
+$a->strings['On systems with users that heavily use contact circles the query can be very expensive.'] = 'Air siostaman far an bheil tòrr chearcallan luchd-aithne ’gan cleachdadh, faodaidh a’ cheist seo a bhith glè dhaor.';
 $a->strings['Maximum number of parallel workers'] = 'An àireamh as motha de dh’obraichean co-shìnte';
 $a->strings['On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.'] = 'Suidhich seo air %d air òstairean co-roinnte. Air siostaman nas motha, bidh luach %d math. Is %d a’ bhun-roghainn.';
 $a->strings['Enable fastlane'] = 'Cuir fastlane an comas';
@@ -1190,21 +1447,21 @@ $a->strings['Save & Use storage backend'] = 'Sàbhail ⁊ cleachd backend an st�
 $a->strings['Use storage backend'] = 'Cleachd backend an stòrais';
 $a->strings['Save & Reload'] = 'Sàbhail ⁊ ath-luchdaich';
 $a->strings['This backend doesn\'t have custom settings'] = 'Chan eil roghainnean gnàthaichte aig a’ backend seo';
+$a->strings['Changing the current backend is prohibited because it is set by an environment variable'] = 'Chan fhaod thu am backend làithreach atharrachadh on a chaidh a shuidheachadh le caochladair àrainne';
 $a->strings['Database (legacy)'] = 'Stòr-dàta (dìleabach)';
 $a->strings['Template engine (%s) error: %s'] = 'Mearachd einnsean teamplaide (%s): %s';
 $a->strings['Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'] = 'Tha an stòr-dàta agad a’ cleachdadh clàran MyISAM fhathast. Bu chòir dhut seòrsa an einnsein atharrachadh gu InnoDB. Air sgàth ’s gun cleachd Friendica gleusan InnoDB sònraichte san àm ri teachd, bu chòir dhut seo atharrachadh! Faic <a href="%s">an treòir</a> a tha cuideachail airson einnseanan nan clàran iompachadh. ’S urrainn dhut cuideachd an àithne <tt>php bin/console.php dbstructure toinnodb</tt> aig an stàladh agad dhe Friendica a chleachdadh airson iompachadh fèin-obrachail.<br />';
 $a->strings['Your DB still runs with InnoDB tables in the Antelope file format. You should change the file format to Barracuda. Friendica is using features that are not provided by the Antelope format. See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />'] = 'Tha an stòr-dàta agad a’ cleachdadh clàran InnoDB san fhòrmat faidhle Antelope fhathast. Bu chòir dhut fòrmat nam faidhlichean atharrachadh gu Barracuda. Tha Friendica a’ cleachdadh gleusan nach solair fòrmat Antelope. Faic <a href="%s">an treòir</a> a tha cuideachail airson einnseanan nan clàran iompachadh. ’S urrainn dhut cuideachd an àithne <tt>php bin/console.php dbstructure toinnodb</tt> aig an stàladh agad dhe Friendica a chleachdadh airson iompachadh fèin-obrachail.<br />';
 $a->strings['Your table_definition_cache is too low (%d). This can lead to the database error "Prepared statement needs to be re-prepared". Please set it at least to %d. See <a href="%s">here</a> for more information.<br />'] = 'Tha an table_definition_cache agad ro ìosal (%d). Dh’fhaoidte gun adhbharaich seo mearachd “Prepared statement needs to be re-prepared” an stòir-dhàta. Suidhich air %d e air a char as lugha. Seall <a href="%s">an-seo</a> airson barrachd fiosrachaidh.<br />';
-$a->strings['There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s'] = 'Tha tionndadh ùr dhe Friendica ri fhaighinn airson luchdadh a-nuas. ’S e %1$s a tha san tionndadh làithreach agad, ’S e %2$s a tha san tionndadh upstream.';
+$a->strings['There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s'] = 'Tha tionndadh ùr dhe Friendica ri fhaighinn airson luchdadh a-nuas. ’S e %1$s a tha san tionndadh làithreach agad, ’S e %2$s a tha san tionndadh upstream';
 $a->strings['The database update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear.'] = 'Dh’fhàillig le ùrachadh an stòir-dhàta. Ruith “php bin/console.php dbstructure update” on loidhne-àithne is thoir sùil air na mearachdan a nochdas ma dh’fhaoidte.';
 $a->strings['The last update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear. (Some of the errors are possibly inside the logfile.)'] = 'Dh’fhàillig leis an ùrachadh mu dheireadh. Ruith “php bin/console.php dbstructure update” on loidhne-àithne is thoir sùil air na mearachdan a nochdas ma dh’fhaoidte. (Faodaidh cuid dhe na mearachdan nochdadh ann am faidhle an loga.)';
+$a->strings['The system.url entry is missing. This is a low level setting and can lead to unexpected behavior. Please add a valid entry as soon as possible in the config file or per console command!'] = 'Tha innteart system.url a dhìth. Seo suidheachadh air ìre ìosal agus dh’fhaoidte gun adhbharaich seo giùlan air nach robh dùil. Cuir innteart dligheach ris cho luath ’s a ghabhas san fhaidhle config no air an loidhne-àithne!';
 $a->strings['The worker was never executed. Please check your database structure!'] = 'Cha deach an obair seo a dhèanamh a-riamh. Thoir sùil air structar an stòir-dhàta agad!';
 $a->strings['The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings.'] = 'Chaidh a obair a dhèanamh aig %s UTC an turas mu dheireadh. Tha seo nas fhaide air ais na uair. Thoir sùil air roghainnean a’ crontab agad.';
 $a->strings['Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.'] = 'Tha rèiteachadh Friendica ’ga stòradh ann an config/local.config.php a-nis, dèan lethbhreac dhe config/local-sample.config.php is gluais an rèiteachadh agad o <code>.htconfig.php</code>. Faic <a href="%s">duilleag taic an rèiteachaidh</a> airson cuideachadh leis a’ ghluasad.';
 $a->strings['Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>config/local.ini.php</code>. See <a href="%s">the Config help page</a> for help with the transition.'] = 'Tha rèiteachadh Friendica ’ga stòradh ann an config/local.config.php a-nis, dèan lethbhreac dhe config/local-sample.config.php is gluais an rèiteachadh agad o <code>config/local.ini.php</code>. Faic <a href="%s">duilleag taic an rèiteachaidh</a> airson cuideachadh leis a’ ghluasad.';
 $a->strings['<a href="%s">%s</a> is not reachable on your system. This is a severe configuration issue that prevents server to server communication. See <a href="%s">the installation page</a> for help.'] = 'Cha ghabh <a href="%s">%s</a> ruigsinn on t-siostam agad. Seo droch-dhuilgheadas leis an rèiteachadh nach leig leis an fhrithealaiche conaltradh le frithealaichean eile. Faic <a href="%s">duilleag an stàlaidh</a> airson cuideachadh.';
-$a->strings['The logfile \'%s\' is not usable. No logging possible (error: \'%s\')'] = 'Cha ghabh faidhle “%s” an loga a chleachdadh. Cha ghabh logadh a dhèanamh (mearachd: “%s”)';
-$a->strings['The debug logfile \'%s\' is not usable. No logging possible (error: \'%s\')'] = 'Cha ghabh faidhle “%s” an loga dì-bhugachaidh a chleachdadh. Cha ghabh logadh a dhèanamh (mearachd: “%s”)';
 $a->strings['Friendica\'s system.basepath was updated from \'%s\' to \'%s\'. Please remove the system.basepath from your db to avoid differences.'] = 'Chaidh an system.basepath aig Friendica ùrachadh o “%s” gu “%s”. Thoir air falbh system.basepath on stòr-dàta agad ach nach biodh diofar eatorra.';
 $a->strings['Friendica\'s current system.basepath \'%s\' is wrong and the config file \'%s\' isn\'t used.'] = 'Tha an system.basepath làithreach “%s” aig Friendica ceàrr is chan eil am faidhle rèiteachaidh “%s” ’ga chleachdadh.';
 $a->strings['Friendica\'s current system.basepath \'%s\' is not equal to the config file \'%s\'. Please fix your configuration.'] = 'Chan eil an system.basepath làithreach “%s” co-ionnan ris an fhaidhle rèiteachaidh “%s”. Càirich an rèiteachadh agad.';
@@ -1230,6 +1487,9 @@ $a->strings['Show some informations regarding the needed information to operate 
 $a->strings['Privacy Statement Preview'] = 'Ro-shealladh air an aithris prìobhaideachd';
 $a->strings['The Terms of Service'] = 'Teirmichean na seirbheise';
 $a->strings['Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.'] = 'Cuir a-steach teirmichean seirbheis an nòid agad an-seo. ’S urrainn dhut BBCode a chleachdadh. Bu chòir dha cheann-sgrìobhaidhean nan earrannan a bhith ’nan [h2] is nas ìsle.';
+$a->strings['The rules'] = 'Na riaghailtean';
+$a->strings['Enter your system rules here. Each line represents one rule.'] = 'Cuir a-steach riaghailtean an t-siostaim agad an-seo. Riochdaichidh gach loidhne riaghailt.';
+$a->strings['API endpoint %s %s is not implemented but might be in the future.'] = 'Cha deach puing-dheiridh %s %s an API prògramachadh ach ’s dòcha gun dèid san àm ri teachd.';
 $a->strings['Missing parameters'] = 'Paramadairean a dhìth';
 $a->strings['Only starting posts can be bookmarked'] = 'Cha ghabh ach postaichean-toisich a chur ris na comharran-lìn';
 $a->strings['Only starting posts can be muted'] = 'Cha ghabh ach postaichean-toisich a mhùchadh';
@@ -1253,6 +1513,8 @@ $a->strings['Inspect Deferred Workers'] = 'Sgrùd na h-obraichean dàilichte';
 $a->strings['Inspect worker Queue'] = 'Sgrùd ciutha nan obraichean';
 $a->strings['Diagnostics'] = 'Diagnosachd';
 $a->strings['PHP Info'] = 'Fiosrachadh PHP';
+$a->strings['probe address'] = 'sgrùd an seòladh';
+$a->strings['check webfinger'] = 'thoir sùil air webfinger';
 $a->strings['Babel'] = 'Babel';
 $a->strings['ActivityPub Conversion'] = 'Iompachadh ActivityPub';
 $a->strings['Addon Features'] = 'Gleusan tuilleadain';
@@ -1283,13 +1545,20 @@ $a->strings['Server Blocklist'] = 'Liosta-bhacaidh an fhrithealaiche';
 $a->strings['Delete Item'] = 'Sguab às an nì';
 $a->strings['Item Source'] = 'Tùs an nì';
 $a->strings['Profile Details'] = 'Fiosrachadh na pròifil';
+$a->strings['Conversations started'] = 'Còmhraidhean air an tòiseachadh';
 $a->strings['Only You Can See This'] = 'Chan fhaic ach thu fhèin seo';
 $a->strings['Scheduled Posts'] = 'Postaichean air an sgeideal';
 $a->strings['Posts that are scheduled for publishing'] = 'Postaichean a tha air an sgeideal airson foillseachadh';
 $a->strings['Tips for New Members'] = 'Gliocasan dha na buill ùra';
 $a->strings['People Search - %s'] = 'Lorg daoine – %s';
-$a->strings['Forum Search - %s'] = 'Lorg fòraim – %s';
+$a->strings['Group Search - %s'] = 'Lorg sna buidhnean – %s';
 $a->strings['No matches'] = 'Gun mhaids';
+$a->strings['%d result was filtered out because your node blocks the domain it is registered on. You can review the list of domains your node is currently blocking in the <a href="/friendica">About page</a>.'] = [
+	0 => 'Chaidh %d toradh a chriathradh air falbh on a tha an nòd agad a’ bacadh na h-àrainne air a bheil e clàraichte. Chì thu liosta nan àrainnean a tha ’gam bacadh leis an nòd agad air <a href="/friendica">an duilleag “Mu dheidhinn”</a>.',
+	1 => 'Chaidh %d thoradh a chriathradh air falbh on a tha an nòd agad a’ bacadh na h-àrainne air a bheil iad clàraichte. Chì thu liosta nan àrainnean a tha ’gam bacadh leis an nòd agad air <a href="/friendica">an duilleag “Mu dheidhinn”</a>.',
+	2 => 'Chaidh %d toraidhean a chriathradh air falbh on a tha an nòd agad a’ bacadh na h-àrainne air a bheil iad clàraichte. Chì thu liosta nan àrainnean a tha ’gam bacadh leis an nòd agad air <a href="/friendica">an duilleag “Mu dheidhinn”</a>.',
+	3 => 'Chaidh %d toradh a chriathradh air falbh on a tha an nòd agad a’ bacadh na h-àrainne air a bheil iad clàraichte. Chì thu liosta nan àrainnean a tha ’gam bacadh leis an nòd agad air <a href="/friendica">an duilleag “Mu dheidhinn”</a>.',
+];
 $a->strings['Account'] = 'Cunntas';
 $a->strings['Two-factor authentication'] = 'Dearbhadh dà-cheumnach';
 $a->strings['Display'] = 'Sealladh';
@@ -1300,6 +1569,8 @@ $a->strings['Export personal data'] = 'Às-phortaich an dàta pearsanta';
 $a->strings['Remove account'] = 'Thoir air falbh an cunntas';
 $a->strings['This page is missing a url parameter.'] = 'Tha paramadair URL a dhìth air an duilleag seo.';
 $a->strings['The post was created'] = 'Chaidh am post a chruthachadh';
+$a->strings['Invalid Request'] = 'Iarrtas mì-dhligheach';
+$a->strings['Event id is missing.'] = 'Tha ID an tachartais a dhìth.';
 $a->strings['Failed to remove event'] = 'Cha deach leinn an tachartas a thoirt air falbh';
 $a->strings['Event can not end before it has started.'] = 'Chan urrainn do thachartas crìochnachadh mus tòisich e.';
 $a->strings['Event title and start time are required.'] = 'Tha feum air tiotal is àm tòiseachaidh an tachartais.';
@@ -1308,6 +1579,9 @@ $a->strings['Event Starts:'] = 'Tòisichidh an tachartas:';
 $a->strings['Required'] = 'Riatanach';
 $a->strings['Finish date/time is not known or not relevant'] = 'Chan eil fhios dè an t-àm crìochnachaidh no chan eil e iomchaidh';
 $a->strings['Event Finishes:'] = 'Thig an tachartas gu crìoch:';
+$a->strings['Title (BBCode not allowed)'] = 'Tiotal (chan eil BBCode ceadaichte)';
+$a->strings['Description (BBCode allowed)'] = 'Tuairisgeul (tha BBCode ceadaichte)';
+$a->strings['Location (BBCode not allowed)'] = 'Ionad (chan eil BBCode ceadaichte)';
 $a->strings['Share this event'] = 'Co-roinn an tachartas seo';
 $a->strings['Basic'] = 'Bunasach';
 $a->strings['This calendar format is not supported'] = 'Chan eil taic ri fòrmat a’ mhìosachain seo';
@@ -1317,6 +1591,29 @@ $a->strings['Events'] = 'Tachartasan';
 $a->strings['View'] = 'Seall';
 $a->strings['Create New Event'] = 'Cruthaich tachartas ùr';
 $a->strings['list'] = 'liosta';
+$a->strings['Could not create circle.'] = 'Cha b’ urrainn dhuinn an cearcall a chruthachadh.';
+$a->strings['Circle not found.'] = 'Cha deach an cearcall a lorg.';
+$a->strings['Circle name was not changed.'] = 'Cha deach ainm a’ chearcaill atharrachadh.';
+$a->strings['Unknown circle.'] = 'Cearcall nach aithne dhuinn.';
+$a->strings['Contact not found.'] = 'Cha deach an neach-aithne a lorg.';
+$a->strings['Invalid contact.'] = 'Neach-aithne mì-dhligheach.';
+$a->strings['Contact is deleted.'] = 'Chaidh an neach-aithne a sguabadh às.';
+$a->strings['Unable to add the contact to the circle.'] = 'Cha deach leinn an neach-aithne a chur ris a’ chearcall.';
+$a->strings['Contact successfully added to circle.'] = 'Chaidh an neach-aithne a chur ris a’ chearcall.';
+$a->strings['Unable to remove the contact from the circle.'] = 'Cha deach leinn an neach-aithne a thoirt air falbh on chearcall.';
+$a->strings['Contact successfully removed from circle.'] = 'Chaidh an neach-aithne a thoirt air falbh on chearcall.';
+$a->strings['Bad request.'] = 'Droch-iarrtas.';
+$a->strings['Save Circle'] = 'Sàbhail an cearcall';
+$a->strings['Filter'] = 'Criathrag';
+$a->strings['Create a circle of contacts/friends.'] = 'Cruthaich cearcall luchd-aithne/charaidean.';
+$a->strings['Unable to remove circle.'] = 'Cha deach leinn an cearcall a thoirt air falbh.';
+$a->strings['Delete Circle'] = 'Sguab às an cearcall';
+$a->strings['Edit Circle Name'] = 'Deasaich ainm a’ chearcaill';
+$a->strings['Members'] = 'Buill';
+$a->strings['Circle is empty'] = 'Tha an cearcall falamh';
+$a->strings['Remove contact from circle'] = 'Thoir air falbh an neach-aithne on chearcall';
+$a->strings['Click on a contact to add or remove.'] = 'Briog air neach-aithne gus a chur ris no a thoirt air falbh.';
+$a->strings['Add contact to circle'] = 'Cuir an neach-aithne ris a’ chearcall';
 $a->strings['%d contact edited.'] = [
 	0 => 'Chaidh %d neach-aithne a dheasachadh.',
 	1 => 'Chaidh %d luchd-aithne a dheasachadh.',
@@ -1330,19 +1627,23 @@ $a->strings['Blocked'] = '’Ga bhacadh';
 $a->strings['Only show blocked contacts'] = 'Na seall ach an luchd-aithne bacte';
 $a->strings['Ignored'] = '’Ga leigeil seachad';
 $a->strings['Only show ignored contacts'] = 'Na seall ach an luchd-aithne ’gan leigeil seachad';
+$a->strings['Collapsed'] = '’Ga cho-theannachadh';
+$a->strings['Only show collapsed contacts'] = 'Na seall ach an luchd-aithne co-theannaichte';
 $a->strings['Archived'] = 'San tasg-lann';
 $a->strings['Only show archived contacts'] = 'Na seall ach an luchd-aithne san tasg-lann';
 $a->strings['Hidden'] = 'Falaichte';
 $a->strings['Only show hidden contacts'] = 'Na seall ach an luchd-aithne falaichte';
-$a->strings['Organize your contact groups'] = 'Cuir rian air buidhnean an luchd-aithne agad';
+$a->strings['Organize your contact circles'] = 'Cuir rian air cearcallan an luchd-aithne agad';
 $a->strings['Search your contacts'] = 'Lorg san luchd-aithne agad';
 $a->strings['Results for: %s'] = 'Toraidhean airson: %s';
 $a->strings['Update'] = 'Ùraich';
 $a->strings['Unblock'] = 'Dì-bhac';
 $a->strings['Unignore'] = 'Na leig seachad tuilleadh';
+$a->strings['Uncollapse'] = 'Na co-theannaich tuilleadh';
 $a->strings['Batch Actions'] = 'Gnìomhan ’nan grunnan';
 $a->strings['Conversations started by this contact'] = 'Na còmhraidhean a thòisich an neach-aithne seo';
 $a->strings['Posts and Comments'] = 'Postaichean ’s beachdan';
+$a->strings['Individual Posts and Replies'] = 'Postaichean ’s freagairtean fa leth';
 $a->strings['Posts containing media objects'] = 'Postaichean sa bheil nithean meadhain';
 $a->strings['View all known contacts'] = 'Seall a h-uile neach-aithne as aithne dhut';
 $a->strings['Advanced Contact Settings'] = 'Roghainnean adhartach an luchd-aithne';
@@ -1352,7 +1653,6 @@ $a->strings['you are a fan of'] = 'tha thu dealasach air';
 $a->strings['Pending outgoing contact request'] = 'Iarrtas neach-aithne a-mach gun dèiligeadh';
 $a->strings['Pending incoming contact request'] = 'Iarrtas neach-aithne a-steach ri dhèiligeadh';
 $a->strings['Visit %s\'s profile [%s]'] = 'Tadhail air a’ phròifil aig %s [%s]';
-$a->strings['Contact not found.'] = 'Cha deach an neach-aithne a lorg.';
 $a->strings['Contact update failed.'] = 'Dh’fhàillig ùrachadh an neach-aithne.';
 $a->strings['Return to contact editor'] = 'Air ais gu deasaiche an neach-aithne';
 $a->strings['Name'] = 'Ainm';
@@ -1360,7 +1660,6 @@ $a->strings['Account Nickname'] = 'Far-ainm a’ chunntais';
 $a->strings['Account URL'] = 'URL a’ chunntais';
 $a->strings['Poll/Feed URL'] = 'URL a’ chunntais-bheachd/an inbhir';
 $a->strings['New photo from this URL'] = 'Dealbh ùr on URL seo';
-$a->strings['Invalid contact.'] = 'Neach-aithne mì-dhligheach.';
 $a->strings['No known contacts.'] = 'Chan eil luchd-aithne ann.';
 $a->strings['No common contacts.'] = 'Chan eil neach-aithne an cumantas ann.';
 $a->strings['Follower (%s)'] = [
@@ -1407,6 +1706,7 @@ $a->strings['Profile URL'] = 'URL na pròifile';
 $a->strings['Tags:'] = 'Tagaichean:';
 $a->strings['%s knows you'] = 'Is aithne dha %s thu';
 $a->strings['Add a personal note:'] = 'Cuir nòta pearsanta ris:';
+$a->strings['Posts and Replies'] = 'Postaichean ’s freagairtean';
 $a->strings['The contact could not be added.'] = 'Cha b’ urrainn dhuinn an neach-aithne a chur ris.';
 $a->strings['Invalid request.'] = 'Iarrtas mì-dhligheach.';
 $a->strings['No keywords to match. Please add keywords to your profile.'] = 'Chan eil faclan-luirg rim maidseadh ann. Cuir faclan-luirg ris a’ phròifil agad.';
@@ -1416,6 +1716,8 @@ $a->strings['Contact has been unblocked'] = 'Chaidh an neach-aithne a dhì-bhaca
 $a->strings['Contact has been blocked'] = 'Chaidh an neach-aithne a bhacadh';
 $a->strings['Contact has been unignored'] = 'Chan eil an neach-aithne ’ga leigeil seachad tuilleadh';
 $a->strings['Contact has been ignored'] = 'Tha an neach-aithne ’ga leigeil seachad';
+$a->strings['Contact has been uncollapsed'] = 'Chan eil an neach-aithne ’ga cho-theannachadh tuilleadh';
+$a->strings['Contact has been collapsed'] = 'Tha an neach-aithne ’ga cho-theannachadh';
 $a->strings['You are mutual friends with %s'] = 'Tha co-dhàimh eadar thu fhèin is %s a-nis';
 $a->strings['You are sharing with %s'] = 'Tha thu a’ co-roinneadh le %s';
 $a->strings['%s is sharing with you'] = 'Tha %s a’ co-roinneadh leat';
@@ -1448,6 +1750,7 @@ $a->strings['Update now'] = 'Ùraich an-dràsta';
 $a->strings['Awaiting connection acknowledge'] = 'A’ feitheamh air aithneachadh a’ cheangail';
 $a->strings['Currently blocked'] = '’Ga bhacadh an-dràsta';
 $a->strings['Currently ignored'] = '’Ga leigeil seachad an-dràsta';
+$a->strings['Currently collapsed'] = '’Ga cho-theannachadh an-dràsta';
 $a->strings['Currently archived'] = 'San tasg-lann an-dràsta';
 $a->strings['Hide this contact from others'] = 'Falaich an neach-aithne seo o chàch';
 $a->strings['Replies/likes to your public posts <strong>may</strong> still be visible'] = '<strong>Dh’fhaoidte</strong> gum faicear freagairtean/gur toigh le daoine na postaichean poblach agad fhathast';
@@ -1459,13 +1762,14 @@ $a->strings['Actions'] = 'Gnìomhan';
 $a->strings['Status'] = 'Staid';
 $a->strings['Mirror postings from this contact'] = 'Sgàthanaich na postaichean on neach-aithne seo';
 $a->strings['Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'] = 'Cuir comharra remote_self ris an neach-aithne seo ach an ath-phostaich Friendica nithean ùra on neach-aithne seo.';
+$a->strings['Refetch contact data'] = 'Faigh dàta an neach-aithne a-rithist';
 $a->strings['Toggle Blocked status'] = 'Toglaich stad a’ bhacaidh';
 $a->strings['Toggle Ignored status'] = 'Toglaich staid na leigeil seachad';
+$a->strings['Toggle Collapsed status'] = 'Toglaich staid a’ cho-theannachaidh';
 $a->strings['Revoke Follow'] = 'Cùl-ghairm an leantainn';
 $a->strings['Revoke the follow from this contact'] = 'Thoir air an neach-aithne seo nach lean iad ort tuilleadh';
 $a->strings['Bad Request.'] = 'Droch-iarrtas.';
 $a->strings['Unknown contact.'] = 'Neach-aithne nach aithne dhuinn.';
-$a->strings['Contact is deleted.'] = 'Chaidh an neach-aithne a sguabadh às.';
 $a->strings['Contact is being deleted.'] = 'Tha an neach-aithne ’ga sguabadh às.';
 $a->strings['Follow was successfully revoked.'] = 'Chaidh an leantainn a chùl-ghairm.';
 $a->strings['Do you really want to revoke this contact\'s follow? This cannot be undone and they will have to manually follow you back again.'] = 'A bheil thu cinnteach nach eil thu ag iarraidh gun lean an neach-aithne seo ort tuilleadh? Cha ghabh seo a neo-dhèanamh is feumaidh iad leantainn ort a làimh às ùr.';
@@ -1476,29 +1780,15 @@ $a->strings['Unfollowing is currently not supported by your network.'] = 'Cha ch
 $a->strings['Disconnect/Unfollow'] = 'Dì-cheangail/Na lean tuilleadh';
 $a->strings['Contact was successfully unfollowed'] = 'Chan eil thu a’ leantainn air an neach-aithne tuilleadh';
 $a->strings['Unable to unfollow this contact, please contact your administrator'] = 'Cha deach leinn an neach-aithne a thoirt air falbh on fheadhainn air a leanas tu, cuir fios gun rianaire agad';
+$a->strings['No results.'] = 'Chan eil toradh ann.';
 $a->strings['This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.'] = 'Seallaidh sruthadh na coimhearsnachd gach post poblach a fhuair an nòd seo. Dh’fhaoidte nach eil iad a’ riochdachadh beachdan luchd-cleachdaidh an nòid seo.';
-$a->strings['Local Community'] = 'Coimhearsnachd ionadail';
-$a->strings['Posts from local users on this server'] = 'Postaichean o luchd-cleachdaidh ionadail an fhrithealaiche seo';
-$a->strings['Global Community'] = 'Coimhearsnachd cho-naisgte';
-$a->strings['Posts from users of the whole federated network'] = 'Postaichean on luchd-cleachdaidh air an lìonra cho-naisgte gu lèir';
+$a->strings['Community option not available.'] = 'Chan eil roghainn na coimhearsnachd ri fhaighinn.';
+$a->strings['Not available.'] = 'Chan eil seo ri fhaighinn.';
+$a->strings['No such circle'] = 'Chan eil an cearcall seo ann';
+$a->strings['Circle: %s'] = 'Cearcall: %s';
 $a->strings['Own Contacts'] = 'An luchd-aithne agadsa';
 $a->strings['Include'] = 'Gabh a-staigh';
 $a->strings['Hide'] = 'Falaich';
-$a->strings['No results.'] = 'Chan eil toradh ann.';
-$a->strings['Community option not available.'] = 'Chan eil roghainn na coimhearsnachd ri fhaighinn.';
-$a->strings['Not available.'] = 'Chan eil seo ri fhaighinn.';
-$a->strings['No such group'] = 'Chan eil am bhuidheann seo ann';
-$a->strings['Group: %s'] = 'Buidheann: %s';
-$a->strings['Latest Activity'] = 'A’ ghnìomhachd as ùire';
-$a->strings['Sort by latest activity'] = 'Seòrsaich a-rèir na gnìomhachd as ùire';
-$a->strings['Latest Posts'] = 'Na postaichean as ùire';
-$a->strings['Sort by post received date'] = 'Seòrsaich a-rèir ceann-là faighinn nam post';
-$a->strings['Latest Creation'] = 'An cruthachadh as ùire';
-$a->strings['Sort by post creation date'] = 'Seòrsaich a-rèir ceann-là cruthachadh nam post';
-$a->strings['Personal'] = 'Pearsanta';
-$a->strings['Posts that mention or involve you'] = 'Postaichean le iomradh ort no sa bheil thu an sàs';
-$a->strings['Starred'] = 'Rionnag';
-$a->strings['Favourite Posts'] = 'Na postaichean as annsa';
 $a->strings['Credits'] = 'Urram';
 $a->strings['Friendica is a community project, that would not be possible without the help of many people. Here is a list of those who have contributed to the code or the translation of Friendica. Thank you all!'] = '’S e pròiseact coimhearsnachd a th’ ann am Friendica is cha ghabhadh a thoirt gu buil às aonais taic o iomadh daoine. Seo liosta dhen fheadhainn a chuir ri chòd no ri eadar-theangachadh Friendica. Mòran taing dhuibh uile!';
 $a->strings['Formatted'] = 'Fòrmataichte';
@@ -1564,6 +1854,8 @@ $a->strings['UTC time: %s'] = 'Àm UTC: %s';
 $a->strings['Current timezone: %s'] = 'An roinn-tìde làithreach: %s';
 $a->strings['Converted localtime: %s'] = 'An t-àm ionadail iompaichte: %s';
 $a->strings['Please select your timezone:'] = 'Tagh an roinn-tìde agad:';
+$a->strings['Only logged in users are permitted to perform a probing.'] = 'Chan fhaod ach cleachdaichean air an clàradh a-steach sgrùdadh a dhèanamh.';
+$a->strings['Probe Diagnostic'] = 'Diagnosachd sgrùdaidh';
 $a->strings['Output'] = 'Às-chur';
 $a->strings['Lookup address'] = 'Rannsaich an seòladh';
 $a->strings['Webfinger Diagnostic'] = 'Diagnosachd Webfinger';
@@ -1571,8 +1863,68 @@ $a->strings['Lookup address:'] = 'Rannsaich an seòladh:';
 $a->strings['You are now logged in as %s'] = 'Tha thu air do chlàradh a-steach mar %s';
 $a->strings['Switch between your accounts'] = 'Geàrr leum eadar na cunntasan agad';
 $a->strings['Manage your accounts'] = 'Stiùirich na cunntasan agad';
+$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Geàrr leum eadar dearbh-aithnean no duilleagan coimhearsnachd/buidhinn a tha a’ co-roinneadh fiosrachadh a’ chunntais agad no a fhuair thu ceadan “stiùir” dhaibh';
+$a->strings['Select an identity to manage: '] = 'Tagh dearbh-aithne ri stiùireadh: ';
+$a->strings['No entries (some entries may be hidden).'] = 'Gun innteart (’s dòcha gu bheil cuid a dh’innteartan falaichte).';
+$a->strings['Find on this site'] = 'Lorg air an làrach seo';
+$a->strings['Results for:'] = 'Toraidhean airson:';
+$a->strings['Site Directory'] = 'Eòlaire na làraich';
+$a->strings['Item was not deleted'] = 'Cha deach an nì a sguabadh às';
+$a->strings['Item was not removed'] = 'Cha deach nì a thoirt air falbh';
+$a->strings['- select -'] = '– tagh –';
+$a->strings['Suggested contact not found.'] = 'Cha deach an neach-aithne molta a lorg.';
+$a->strings['Friend suggestion sent.'] = 'Chaidh moladh caraid a chur.';
+$a->strings['Suggest Friends'] = 'Mol caraidean';
+$a->strings['Suggest a friend for %s'] = 'Mol caraid dha %s';
+$a->strings['Installed addons/apps:'] = 'Aplacaidean/tuilleadain stàlaichte:';
+$a->strings['No installed addons/apps'] = 'Cha deach aplacaid/tuilleadan a stàladh';
+$a->strings['Read about the <a href="%1$s/tos">Terms of Service</a> of this node.'] = 'Leugh <a href="%1$s/tos">teirmichean seirbheise</a> an nòd seo.';
+$a->strings['On this server the following remote servers are blocked.'] = 'Seo a frithealaichean cèine a tha ’gam bacadh leis an fhrithealaiche seo.';
 $a->strings['Reason for the block'] = 'Adhbhar a’ bhacaidh';
+$a->strings['Download this list in CSV format'] = 'Luchdaich a-nuas an liosta seo san fhòrmat CSV';
+$a->strings['This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.'] = 'Seo Friendica tionndadh %s a tha a’ ruith air an ionad-lìn %s. Is %s tionndadh an stòir-dhàta agus %s tionndadh ùrachadh nam post.';
+$a->strings['Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'] = 'Tadhail air <a href="https://friendi.ca">Friendi.ca</a> airson barrachd fiosrachaidh mu phròiseact Friendica.';
+$a->strings['Bug reports and issues: please visit'] = 'Aithrisean air bugaichean is duilgheadasan: tadhail air';
+$a->strings['the bugtracker at github'] = 'tracaiche nam bugaichean air GitHub';
+$a->strings['Suggestions, praise, etc. - please email "info" at "friendi - dot - ca'] = 'Airson beachdan, molaidhean is mssa. – cuir post-d gu “info” aig “friendi – dot – ca';
+$a->strings['No profile'] = 'Chan eil pròifil ann';
+$a->strings['Method Not Allowed.'] = 'Chan eil am modh ceadaichte.';
+$a->strings['Help:'] = 'Cobhair:';
+$a->strings['Welcome to %s'] = 'Fàilte gu %s';
+$a->strings['Friendica Communications Server - Setup'] = 'Frithealaiche conaltradh Friendica – Suidheachadh';
+$a->strings['System check'] = 'Dearbhadh an t-siostaim';
+$a->strings['Requirement not satisfied'] = 'Tha riatanas nach deach a choileanadh';
+$a->strings['Optional requirement not satisfied'] = 'Tha riatanas roghainneil nach deach a choileanadh';
+$a->strings['OK'] = 'Ceart ma-thà';
 $a->strings['Next'] = 'Air adhart';
+$a->strings['Check again'] = 'Sgrùd a-rithist';
+$a->strings['Base settings'] = 'Roghainnean bunasach';
+$a->strings['Base path to installation'] = 'An t-slighe bhunasach dhan stàladh';
+$a->strings['If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.'] = 'Mur aithnich an siostam an t-slighe cheart dhan stàladh agad, cuir a-steach an t-slighe cheart an-seo. Cha bu chòir dhut seo a shuidheachadh ach ma tha thu a’ cleachdadh siostam cuingichte agus ceanglaichean samhlachail gun fheumh-lìn agad.';
+$a->strings['The Friendica system URL'] = 'URL siostam Friendica';
+$a->strings['Overwrite this field in case the system URL determination isn\'t right, otherwise leave it as is.'] = 'Tar-sgrìobh an raon seo mura deach URL an t-siostaim aithneachadh mar bu chòir. Ma chaidh, fàg e mar a tha e.';
+$a->strings['Database connection'] = 'Ceangal stòir-dhàta';
+$a->strings['In order to install Friendica we need to know how to connect to your database.'] = 'Airson Friendica a stàladh, feumaidh fios a bhith againn air mar a nì sinn ceangal dhan stòr-dàta agad.';
+$a->strings['Please contact your hosting provider or site administrator if you have questions about these settings.'] = 'Cuir fios gu solaraiche an òstaidh no rianaire na làraich agad ma tha ceist agad mu na roghainnean seo.';
+$a->strings['The database you specify below should already exist. If it does not, please create it before continuing.'] = 'Bu chòir dhan stòr-dàta a shònraicheas tu a bhith ann mu thràth. Mur eil, cruthaich e mus lean thu air adhart.';
+$a->strings['Database Server Name'] = 'Ainm frithealaiche an stòir-dhàta';
+$a->strings['Database Login Name'] = 'Ainm clàraidh a-steach an stòir-dhàta';
+$a->strings['Database Login Password'] = 'Facal-faire clàradh a-steach an stòir-dhàta';
+$a->strings['For security reasons the password must not be empty'] = 'Air adhbharan tèarainteachd, chan fhaod am facal-faire a bhith falamh';
+$a->strings['Database Name'] = 'Ainm an stòir-dhàta';
+$a->strings['Please select a default timezone for your website'] = 'Tagh roinn-tìde bhunaiteach dhan làrach-lìn agad';
+$a->strings['Site settings'] = 'Roghainnean na làraich';
+$a->strings['Site administrator email address'] = 'An seòladh puist-d aig rianaire na làraich';
+$a->strings['Your account email address must match this in order to use the web admin panel.'] = 'Feumaidh seòladh puist-d a’ chunntais agad a bhith co-ionnan ri seo ach an urrainn dhut panail-lìn na rianachd a chleachdadh.';
+$a->strings['System Language:'] = 'Cànan an t-siostaim:';
+$a->strings['Set the default language for your Friendica installation interface and to send emails.'] = 'Suidhich an cànan bunaiteach dhan eadar-aghaidh stàladh Friendica agad is do na puist-d a thèid a chur.';
+$a->strings['Your Friendica site database has been installed.'] = 'Chaidh stòr-dàta na làraich Friendica agad a stàladh.';
+$a->strings['Installation finished'] = 'Tha an stàladh deiseil';
+$a->strings['<h1>What next</h1>'] = '<h1>Dè a-nis?</h1>';
+$a->strings['IMPORTANT: You will need to [manually] setup a scheduled task for the worker.'] = 'CUDROMACH: Feumaidh gu saothair dhan obraiche a chur air an sgeideal [a làimh].';
+$a->strings['Go to your new Friendica node <a href="%s/register">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.'] = 'Tadhail air <a href="%s/register">duilleag a’ chlàraidh</a> aig an nòd Friendica ùr agad agus clàraich mar cleachdaiche ùr. Thoir an aire gun cleachd thu an aon seòladh puist-d ’s a chuir thu a-steach mar phost-d an rianaire. Bheir seo inntrigeadh do phanail na rianachd dhut.';
+$a->strings['Total invitation limit exceeded.'] = 'Chaidh thu thairis air crìoch nan cuiridhean iomlan.';
+$a->strings['%s : Not a valid email address.'] = '%s : Chan e seòladh puist-d dligheach a tha seo.';
 $a->strings['Please join us on Friendica'] = 'Thig cuide rinn air Friendica';
 $a->strings['Invitation limit exceeded. Please contact your site administrator.'] = 'Chaidh thu thairis air crìoch nan cuiridhean. Cuir fios gu rianaire na làraich agad.';
 $a->strings['%s : Message delivery failed.'] = '%s : Dh’fhàillig libhrigeadh na teachdaireachd.';
@@ -1583,16 +1935,33 @@ $a->strings['%d message sent.'] = [
 	3 => 'Chaidh %d teachdaireachd a chur.',
 ];
 $a->strings['You have no more invitations available'] = 'Chan eil barrachd cuiridhean ri fhaighinn dhut';
+$a->strings['Visit %s for a list of public sites that you can join. Friendica members on other sites can all connect with each other, as well as with members of many other social networks.'] = 'Tadhail air %s airson liosta de làraichean poblach far an urrainn dhut ballrachd fhaighinn. ’S urrainn dhan a h-uile ball Friendica air làraichean eile ceangal ri chèile agus ri buill iomadh lìonra sòisealta eile.';
+$a->strings['To accept this invitation, please visit and register at %s or any other public Friendica website.'] = 'Airson gabhail ris a’ chuireadh seo, tadhail air %s is clàraich air no air làrach-lìn Friendica poblach sam bith eile.';
+$a->strings['Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks. See %s for a list of alternate Friendica sites you can join.'] = 'Tha na làraichean Friendica uile co-naisgte ri chèile ach an cruthaich iad lìon sòisealta mòr aig a bheil prìobhaideachd phisichte ’s a tha fo smachd nam ball aige fhèin. ’S urrainn dhaibh ceangal a dhèanamh ri iomadh lìonra sòisealta tradaiseanta. Faic %s airson liosta de làraichean Friendica eile far an urrainn dhut ballrachd fhaighinn.';
+$a->strings['Our apologies. This system is not currently configured to connect with other public sites or invite members.'] = 'Tha sinn duilich. Cha deach an siostam rèiteachadh aig an àm seo airson ceangal ri làraichean poblach eile no cuiridhean ballrachd a chur.';
+$a->strings['Friendica sites all inter-connect to create a huge privacy-enhanced social web that is owned and controlled by its members. They can also connect with many traditional social networks.'] = 'Tha na làraichean Friendica uile co-naisgte ri chèile ach an cruthaich iad lìon sòisealta mòr aig a bheil prìobhaideachd phisichte ’s a tha fo smachd nam ball aige fhèin. ’S urrainn dhaibh ceangal a dhèanamh ri iomadh lìonra sòisealta tradaiseanta.';
+$a->strings['To accept this invitation, please visit and register at %s.'] = 'Airson gabhail ris a’ chuireadh seo, tadhail air %s is clàraich ann.';
+$a->strings['Send invitations'] = 'Cuir cuiridhean';
+$a->strings['Enter email addresses, one per line:'] = 'Cuir seòlaidhean puist-d a-steach, gach fear air loidhne fa leth:';
+$a->strings['You are cordially invited to join me and other close friends on Friendica - and help us to create a better social web.'] = 'Tha fàilte chridheil romhad airson tighinn cruinn còmhla rium-sa is dlùth-charaidean eile air Friendica – agus airson ar cuideachadh ach an cruthaich sinn lìon sòisealta nas fheàrr.';
+$a->strings['You will need to supply this invitation code: $invite_code'] = 'Bidh agad ris an còd cuiridh seo a sholar: $invite_code';
+$a->strings['Once you have registered, please connect with me via my profile page at:'] = 'Nuair a bhios tu air do chlàradh, dèan ceangal rium le duilleag na pròifil agam air:';
+$a->strings['For more information about the Friendica project and why we feel it is important, please visit http://friendi.ca'] = 'Airson barrachd fiosrachaidh mu phròiseact Friendica ’s carson a tha sinn dhen bheachd gu bheil e cudromach, tadhail air http://friendi.ca';
+$a->strings['Please enter a post body.'] = 'Cuir a-steach bodhaig puist.';
+$a->strings['This feature is only available with the frio theme.'] = 'Chan eil an gleus seo ri fhaighinn ach leis an ùrlar frio.';
 $a->strings['Compose new personal note'] = 'Sgrìobh nòta pearsanta ùr';
 $a->strings['Compose new post'] = 'Sgrìobh post ùr';
 $a->strings['Visibility'] = 'Faicsinneachd';
 $a->strings['Clear the location'] = 'Thoir an t-ionad air falbh';
 $a->strings['Location services are unavailable on your device'] = 'Chan eil seirbheisean ionaid ri fhaighinn air an uidheam agad';
 $a->strings['Location services are disabled. Please check the website\'s permissions on your device'] = 'Tha seirbheisean ionaid à comas. Thoir sùil air ceadan na làraich-lìn air an uidheam agad';
-$a->strings['The requested item doesn\'t exist or has been deleted.'] = 'Chan eil am an nì a dh’iarr thu ann no chaidh a sguabadh às.';
+$a->strings['You can make this page always open when you use the New Post button in the <a href="/settings/display">Theme Customization settings</a>.'] = '’S urrainn dhut suidheachadh gum fosgail an duilleag seo an-còmhnaidh nuair a chleachdas tu am putan “Post ùr” ann an <a href="/settings/display">Roghainnean gnàthaichte an ùrlair</a>.';
 $a->strings['The feed for this item is unavailable.'] = 'Chan eil inbhir ri fhaighinn dhan nì seo.';
 $a->strings['Unable to follow this item.'] = 'Cha ghabh leantainn air an nì seo.';
 $a->strings['System down for maintenance'] = 'Tha an siostam dheth a chùm obrach-glèidhidh';
+$a->strings['This Friendica node is currently in maintenance mode, either automatically because it is self-updating or manually by the node administrator. This condition should be temporary, please come back in a few minutes.'] = 'Chaidh an nòd Friendica seo a chur sa mhodh obrach-glèidhidh, gu fèin-obrachail on a tha e ’ga ùrachadh fhèin no a làimh le rianaire an nòid. Cha bu chòir dhan staid seo a bhith air ach rè seal, till an ceann corra mionaid.';
+$a->strings['A Decentralized Social Network'] = 'Lìonra sòisealta sgaoilte';
+$a->strings['You need to be logged in to access this page.'] = 'Feumaidh tu clàradh a-steach mus fhaigh thu cothrom air an duilleag seo.';
 $a->strings['Files'] = 'Faidhlichean';
 $a->strings['Upload'] = 'Luchdaich suas';
 $a->strings['Sorry, maybe your upload is bigger than the PHP configuration allows'] = 'Tha sinn duilich a dh’fhaoidte gu bheil an luchdadh suas agad nas motha na tha ceadaichte leis an rèiteachadh PHP';
@@ -1600,7 +1969,6 @@ $a->strings['Or - did you try to upload an empty file?'] = 'Air neo – an do dh
 $a->strings['File exceeds size limit of %s'] = 'Tha am faidhle nas motha na tha ceadaichte dhe %s';
 $a->strings['File upload failed.'] = 'Dh’fhàillig luchdadh suas an fhaidhle.';
 $a->strings['Unable to process image.'] = 'Cha b’ urrainn dhuinn an dealbh a phròiseasadh.';
-$a->strings['Image exceeds size limit of %s'] = 'Tha an dealbh nas motha na tha ceadaichte dhe %s';
 $a->strings['Image upload failed.'] = 'Dh’fhàillig le luchdadh suas an deilbh.';
 $a->strings['List of all users'] = 'Liosta nan cleachdaichean uile';
 $a->strings['Active'] = 'Gnìomhach';
@@ -1611,13 +1979,13 @@ $a->strings['Deleted'] = 'Air a sguabadh às';
 $a->strings['List of pending user deletions'] = 'Liosta nan cleachdaichean rin sguabadh às';
 $a->strings['Normal Account Page'] = 'Duilleag àbhaisteach a’ chunntais';
 $a->strings['Soapbox Page'] = 'Duilleag cùbaid deasbaid';
-$a->strings['Public Forum'] = 'Fòram poblach';
+$a->strings['Public Group'] = 'Buidheann poblach';
 $a->strings['Automatic Friend Page'] = 'Duilleag caraide fhèin-obrachail';
-$a->strings['Private Forum'] = 'Fòram prìobhaideach';
+$a->strings['Private Group'] = 'Buidheann prìobhaideach';
 $a->strings['Personal Page'] = 'Duilleag phearsanta';
 $a->strings['Organisation Page'] = 'Duilleag buidhinn';
 $a->strings['News Page'] = 'Duilleag naidheachdan';
-$a->strings['Community Forum'] = 'Fòram coimhearsnachd';
+$a->strings['Community Group'] = 'Buidheann coimhearsnachd';
 $a->strings['Relay'] = 'Ath-sheachadan';
 $a->strings['You can\'t block a local contact, please block the user instead'] = 'Chan urrainn dhut neach-aithne ionadail a bhacadh, bac an cleachdaiche ’na àite';
 $a->strings['%s contact unblocked'] = [
@@ -1742,13 +2110,56 @@ $a->strings['URL'] = 'URL';
 $a->strings['Mention'] = 'Iomradh';
 $a->strings['Implicit Mention'] = 'Iomradh fillte';
 $a->strings['Item not found'] = 'Cha deach an nì a lorg';
+$a->strings['No source recorded'] = 'Cha deach tùs a chlàradh';
+$a->strings['Please make sure the <code>debug.store_source</code> config key is set in <code>config/local.config.php</code> for future items to have sources.'] = 'Dèan cinnteach gun deach iuchair rèiteachaidh <code>debug.store_source</code> a shuidheachadh ann an <code>config/local.config.php</code> ach am bi tùsan aig na nithean ri teachd.';
 $a->strings['Item Guid'] = 'GUID an nì';
+$a->strings['Contact not found or their server is already blocked on this node.'] = 'Cha deach an neach-aithne a lorg no chaidh am frithealaiche aca a bhacadh air an nòd seo mu thràth.';
+$a->strings['Please login to access this page.'] = 'Clàraich a-steach airson an duilleag seo inntrigeadh.';
+$a->strings['Create Moderation Report'] = 'Cruthaich gearan maorsainneachd';
+$a->strings['Pick Contact'] = 'Tagh neach-aithne';
+$a->strings['Please enter below the contact address or profile URL you would like to create a moderation report about.'] = 'Cuir a-steach seòladh no URL pròifil neach-aithne gu h-ìosal airson gearan maorsainneachd a chruthachadh mu dhèidhinn.';
+$a->strings['Contact address/URL'] = 'Seòladh/URL an neach-aithne';
+$a->strings['Pick Category'] = 'Tagh roinn-seòrsa';
+$a->strings['Please pick below the category of your report.'] = 'Tagh roinn-seòrsa a’ ghearain agad.';
+$a->strings['Spam'] = 'Spama';
+$a->strings['This contact is publishing many repeated/overly long posts/replies or advertising their product/websites in otherwise irrelevant conversations.'] = 'Tha an neach-aithne seo a’ foillseachadh iomadh post/freagairt a tha ro fhada no ’gam foillseachadh a-rithist ’s a-rithist no tha e a’ dèanamh sanasachd air a’ bhathar/làrach-lìn aca nach eil buntainneachd dha na còmhraidhean.';
+$a->strings['Illegal Content'] = 'Susbaint mhì-laghail';
+$a->strings['This contact is publishing content that is considered illegal in this node\'s hosting juridiction.'] = 'Tha an neach-aithne seo a’ foillseachadh susbaint a thathar a’ meas gu bheil e mì-laghail san uachdranas far a bheil an nòd ’ga òstadh.';
+$a->strings['Community Safety'] = 'Sàbhailteachd na coimhearsnachd';
+$a->strings['This contact aggravated you or other people, by being provocative or insensitive, intentionally or not. This includes disclosing people\'s private information (doxxing), posting threats or offensive pictures in posts or replies.'] = 'Bhuair an neach-aithne seo thu no daoine eile on a tha e dìorrasach no neo-mhothachail ge b’ e a bheil e mar sin a dh’aona-ghnothaich no gun iarraidh. Gabhaidh seo a-staigh foillseachadh fiosrachadh prìobhaideach càich (doxxing), postadh bhagairtean no dealbhan frionasach ann am postaichean is freagairtean.';
+$a->strings['Unwanted Content/Behavior'] = 'Susbaint/Giùlan gun iarraidh';
+$a->strings['This contact has repeatedly published content irrelevant to the node\'s theme or is openly criticizing the node\'s administration/moderation without directly engaging with the relevant people for example or repeatedly nitpicking on a sensitive topic.'] = 'Dh’fhoillsich an neach-aithne seo iomadh susbaint nach eil buntainneach do chuspair an nòid no a tha a’ càineadh rianachd/maorsainneachd an nòid gu fosgailte gun a bhith a’ bruidhinn ris na daoine iomchaidh fhèin, mar eisimpleir, no a tha rag-fhoghlamach mu chuspair frionasach.';
+$a->strings['Rules Violation'] = 'Briseadh riaghailt';
+$a->strings['This contact violated one or more rules of this node. You will be able to pick which one(s) in the next step.'] = 'Bris an neach-aithne seo riaghailt no dhà dhen nòd seo. ’S urrainn dhut na riaghailtean a chaidh a bhriseadh a thaghadh san ath-cheum.';
+$a->strings['Please elaborate below why you submitted this report. The more details you provide, the better your report can be handled.'] = 'Innis dhuinn carson a chuir thu a-null an gearan seo. Mar as mionaidiche am fiosrachadh a bheir thu dhuinn ’s ann as fhasa a bhios e dhuinn dèiligeadh ris a’ ghearan agad.';
+$a->strings['Additional Information'] = 'Barrachd fiosrachaidh';
+$a->strings['Please provide any additional information relevant to this particular report. You will be able to attach posts by this contact in the next step, but any context is welcome.'] = 'Thoir barrachd fiosrachaidh dhuinn a tha buntainneach dhan ghearan shònraichte seo. ’S urrainn dhut postaichean leis an neach-aithne seo a cheangal ris san ath-cheum ach cuiridh sinn fàilte do cho-theacsa sam bith.';
+$a->strings['Pick Rules'] = 'Tagh riaghailtean';
+$a->strings['Please pick below the node rules you believe this contact violated.'] = 'Tagh riaghailtean an nòid gu h-ìosal a shaoileas tu gun deach am briseadh leis an neach-aithne seo.';
+$a->strings['Pick Posts'] = 'Tagh postaichean';
+$a->strings['Please optionally pick posts to attach to your report.'] = 'Ma thogras tu, tagh postaichean ri cheangal ris a’ ghearan agad.';
+$a->strings['Submit Report'] = 'Cuir an gearan a-null';
+$a->strings['Further Action'] = 'Gnìomhan eile';
+$a->strings['You can also perform one of the following action on the contact you reported:'] = '’S urrainn dhut fear de na gnìomhan seo a ghabhail cuideachd air an neach-aithne a rinn thu gearan air:';
+$a->strings['Nothing'] = 'Na dèan dad';
+$a->strings['Collapse contact'] = 'Co-theannaich an neach-aithne';
+$a->strings['Their posts and replies will keep appearing in your Network page but their content will be collapsed by default.'] = 'Nochdaidh na postaichean ’s freagairtean air duilleag an lìonraidh agad fhathast ach bidh an t-susbaint aca co-theannaichte a ghnàth.';
+$a->strings['Their posts won\'t appear in your Network page anymore, but their replies can appear in forum threads. They still can follow you.'] = 'Cha nochd na postaichean ’s freagairtean air duilleag an lìonraidh agad tuilleadh ach dh’fhaoidte gun nochd na freagairtean aca ann an snàithleanan fòraim. Faodaidh iad do leantainn fhathast.';
+$a->strings['Block contact'] = 'Bac an neach-aithne';
+$a->strings['Their posts won\'t appear in your Network page anymore, but their replies can appear in forum threads, with their content collapsed by default. They cannot follow you but still can have access to your public posts by other means.'] = 'Cha nochd na postaichean ’s freagairtean air duilleag an lìonraidh agad tuilleadh ach dh’fhaoidte gun nochd na freagairtean aca ann an snàithleanan fòraim leis an t-susbaint aca co-theannaichte a ghnàth. Chan fhaod iad do leantainn tuilleadh ach dh’fhaoidte gum faigh iad cothrom air na postaichean poblach agad fhathast air dòighean eile.';
+$a->strings['Forward report'] = 'Sìn air adhart an gearan';
+$a->strings['Would you ike to forward this report to the remote server?'] = 'A bheil thu airson an gearan seo a shìneadh air adhart dhan fhrithealaiche chèin?';
+$a->strings['1. Pick a contact'] = '1. Tagh neach-aithne';
+$a->strings['2. Pick a category'] = '2. Tagh roinn-seòrsa';
+$a->strings['2a. Pick rules'] = '2a. Tagh riaghailtean';
+$a->strings['2b. Add comment'] = '2b. Cuir beachd ris';
+$a->strings['3. Pick posts'] = '3. Tagh postaichean';
 $a->strings['Normal Account'] = 'Cunntas àbhaisteach';
 $a->strings['Automatic Follower Account'] = 'Cunntas leantainn fèin-obrachail';
-$a->strings['Public Forum Account'] = 'Cunntas fòraim phoblaich';
+$a->strings['Public Group Account'] = 'Cunntas buidhinn phoblaich';
 $a->strings['Automatic Friend Account'] = 'Cunntas caraide fèin-obrachail';
 $a->strings['Blog Account'] = 'Cunntas bloga';
-$a->strings['Private Forum Account'] = 'Cunntas fòraim phrìobhaidich';
+$a->strings['Private Group Account'] = 'Cunntas buidhinn phrìobhaidich';
 $a->strings['Registered users'] = 'Cleachdaichean clàraichte';
 $a->strings['Pending registrations'] = 'Clàraidhean rin dèiligeadh';
 $a->strings['%s user blocked'] = [
@@ -1812,8 +2223,38 @@ $a->strings['Request date'] = 'Cuin a chaidh iarraidh';
 $a->strings['No registrations.'] = 'Chan eil clàradh ann.';
 $a->strings['Note from the user'] = 'Nòta on chleachdaiche';
 $a->strings['Deny'] = 'Diùlt';
+$a->strings['Show Ignored Requests'] = 'Seall na h-iarrtasan a leig thu seachad';
+$a->strings['Hide Ignored Requests'] = 'Falaich na h-iarrtasan a leig thu seachad';
+$a->strings['Notification type:'] = 'Seòrsa a’ bhratha:';
+$a->strings['Suggested by:'] = '’Ga mholadh le:';
+$a->strings['Claims to be known to you: '] = 'A’ tagradh gur aithne dhut e: ';
+$a->strings['No'] = 'Chan eil';
+$a->strings['Shall your connection be bidirectional or not?'] = 'A bheil thu airson co-dhàimh a chruthachadh?';
+$a->strings['Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.'] = 'Ma ghabhas tu ri %s ’nad charaid, faodaidh %s fo-sgrìobhadh air na postaichean agad agus gheibh thu na naidheachdan uapa-san cuideachd.';
+$a->strings['Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.'] = 'Ma ghabhas tu ri %s mar fo-sgrìobhadh, faodaidh iad fo-sgrìobhadh air na postaichean agad ach chan fhaigh thu na naidheachdan uapa-san.';
+$a->strings['Friend'] = 'Caraid';
+$a->strings['Subscriber'] = 'Fo-sgrìobhadh';
+$a->strings['No introductions.'] = 'Chan eil cur an aithne ann.';
+$a->strings['No more %s notifications.'] = 'Chan eil brath %s ann tuilleadh.';
+$a->strings['You must be logged in to show this page.'] = 'Feumaidh tu clàradh a-steach mus urrainn dhut an duilleag seo a shealltainn.';
+$a->strings['Network Notifications'] = 'Brathan lìonraidh';
+$a->strings['System Notifications'] = 'Brathan an t-siostaim';
+$a->strings['Personal Notifications'] = 'Brathan pearsanta';
+$a->strings['Home Notifications'] = 'Brathan na dachaighe';
+$a->strings['Show unread'] = 'Seall an fheadhainn gun leughadh';
+$a->strings['{0} requested registration'] = 'Dh’iarr {0} clàradh';
+$a->strings['{0} and %d others requested registration'] = 'Dh’iarr {0} ’s %d eile clàradh';
+$a->strings['Authorize application connection'] = 'Ùghdarraich ceangal aplacaide';
+$a->strings['Do you want to authorize this application to access your posts and contacts, and/or create new posts for you?'] = 'A bheil thu airson cead a thoirt dhan aplacaid seo airson na postaichean ’s an luchd-aithne agad inntrigeadh agus/no postaichean ùra a chruthachadh às do leth?';
+$a->strings['Unsupported or missing response type'] = 'Seòrsa freagairte gun taic ris no a dhìth';
+$a->strings['Incomplete request data'] = 'Dàta iarrtais neo-choileanta';
+$a->strings['Please copy the following authentication code into your application and close this window: %s'] = 'Cuir lethbhreac dhen chòd dearbhaidh seo san aplacaid agad is dùin an uinneag seo: %s';
+$a->strings['Invalid data or unknown client'] = 'Dàta mì-dhligheach no cliant nach aithne dhuinn';
+$a->strings['Unsupported or missing grant type'] = 'Seòrsa ceadachaidh gun taic ris no a dhìth';
 $a->strings['Resubscribing to OStatus contacts'] = 'A’ fo-sgrìobhadh a-rithist air luchd-aithne OStatus';
 $a->strings['Keep this window open until done.'] = 'Cùm an uinneag seo fosgailte gus am bi e deiseil.';
+$a->strings['✔ Done'] = '✔ Deiseil';
+$a->strings['No OStatus contacts to resubscribe to.'] = 'Chan eil neach-aithne OStatus ann airson fo-sgrìobhadh air a-rithist.';
 $a->strings['Subscribing to contacts'] = 'Fo-sgrìobhadh air luchd-aithne';
 $a->strings['No contact provided.'] = 'Cha deach neach-aithne a thoirt seachad.';
 $a->strings['Couldn\'t fetch information for contact.'] = 'Cha d’ fhuair sinn grèim air an fhiosrachadh conaltraidh.';
@@ -1825,7 +2266,24 @@ $a->strings['Done'] = 'Deiseil';
 $a->strings['success'] = 'chaidh leis';
 $a->strings['failed'] = 'dh’fhàillig leis';
 $a->strings['ignored'] = 'chaidh a leigeil seachad';
+$a->strings['Wrong type "%s", expected one of: %s'] = 'Seòrsa “%s” ceàrr, an dùil air fear dhen fheadhainn seo: %s';
+$a->strings['Model not found'] = 'Cha deach am modail a lorg';
+$a->strings['Unlisted'] = 'Falaichte o liostaichean';
+$a->strings['Remote privacy information not available.'] = 'Chan eil fiosrachadh cèin na prìobhaideachd ri làimh.';
+$a->strings['Visible to:'] = 'Ri fhaicinn do:';
+$a->strings['Collection (%s)'] = 'Cruinneachadh (%s)';
 $a->strings['Followers (%s)'] = 'Luchd-leantainn (%s)';
+$a->strings['%d more'] = '%d eile';
+$a->strings['<b>To:</b> %s<br>'] = '<b>Gu:</b> %s<br>';
+$a->strings['<b>CC:</b> %s<br>'] = '<b>CC:</b> %s<br>';
+$a->strings['<b>BCC:</b> %s<br>'] = '<b>BCC:</b> %s<br>';
+$a->strings['<b>Audience:</b> %s<br>'] = '<b>Èisteachd:</b> %s<br>';
+$a->strings['<b>Attributed To:</b> %s<br>'] = '<b>Air a chur às leth:</b> %s<br>';
+$a->strings['The Photo is not available.'] = 'Chan eil an dealbh ri fhaighinn.';
+$a->strings['The Photo with id %s is not available.'] = 'Chan eil an dealbh air a bheil an id %s ri fhaighinn.';
+$a->strings['Invalid external resource with url %s.'] = 'Goireas mì-dhligheach air an taobh a-muigh leis an url %s.';
+$a->strings['Invalid photo with id %s.'] = 'Dealbh mì-dhligheach air a bheil an id %s.';
+$a->strings['Post not found.'] = 'Cha deach am post a lorg.';
 $a->strings['Edit post'] = 'Deasaich am post';
 $a->strings['web link'] = 'ceangal-lìn';
 $a->strings['Insert video link'] = 'Cuir a-steach ceangal video';
@@ -1835,24 +2293,54 @@ $a->strings['audio link'] = 'ceangal fuaime';
 $a->strings['Remove Item Tag'] = 'Thoir air falbh taga an nì';
 $a->strings['Select a tag to remove: '] = 'Tagh taga gus a thoirt air falbh: ';
 $a->strings['Remove'] = 'Thoir air falbh';
+$a->strings['No contacts.'] = 'Chan eil neach-aithne ann.';
+$a->strings['%s\'s timeline'] = 'An loidhne-ama aig %s';
+$a->strings['%s\'s posts'] = 'Na postaichean aig %s';
+$a->strings['%s\'s comments'] = 'Na beachdan aig %s';
+$a->strings['Image exceeds size limit of %s'] = 'Tha an dealbh nas motha na tha ceadaichte dhe %s';
 $a->strings['Image upload didn\'t complete, please try again'] = 'Cha deach luchdadh suas an deilbh a choileanadh, feuch ris a-rithist';
 $a->strings['Image file is missing'] = 'Tha faidhle an deilbh a dhìth';
 $a->strings['Server can\'t accept new file upload at this time, please contact your administrator'] = 'Cha ghabh am frithealaiche ri luchdadh suas deilbh ùir aig an àm seo, cuir fios gun rianaire agad';
 $a->strings['Image file is empty.'] = 'Tha faidhle an deilbh falamh.';
 $a->strings['View Album'] = 'Seall an t-albam';
+$a->strings['Profile not found.'] = 'Cha deach a’ phròifil a lorg.';
+$a->strings['You\'re currently viewing your profile as <b>%s</b> <a href="%s" class="btn btn-sm pull-right">Cancel</a>'] = 'Tha thu a’ sealltainn air a’ phròifil agad mar <b>%s</b> <a href="%s" class="btn btn-sm pull-right">Sguir dheth</a>';
+$a->strings['Full Name:'] = 'An t-ainm slàn:';
+$a->strings['Member since:'] = 'Ball o chionn:';
+$a->strings['j F, Y'] = 'j F Y';
+$a->strings['j F'] = 'j F';
+$a->strings['Birthday:'] = 'Co-là breith:';
+$a->strings['Age: '] = 'Aois: ';
+$a->strings['%d year old'] = [
+	0 => '%d bhliadhna a dh\'aois',
+	1 => '%d bhliadhna a dh’aois',
+	2 => '%d bliadhnaichean a dh’aois',
+	3 => '%d bliadhna a dh’aois',
+];
 $a->strings['Description:'] = 'Tuairisgeul:';
+$a->strings['Groups:'] = 'Buidhnean:';
+$a->strings['View profile as:'] = 'Seall a’ phròifil mar:';
+$a->strings['View as'] = 'Seall mar';
+$a->strings['Profile unavailable.'] = 'Chan eil a’ phròifil ri fhaighinn.';
+$a->strings['Invalid locator'] = 'Lorgaire mì-dhligheach';
+$a->strings['The provided profile link doesn\'t seem to be valid'] = 'Chan eil coltas dligheach air ceangal na pròifil a chaidh a sholar';
 $a->strings['Unable to check your home location.'] = 'Cha b’ urrainn dhuinn sùil a thoir air ionad do dhachaigh.';
 $a->strings['Number of daily wall messages for %s exceeded. Message failed.'] = 'Chaidh thu thairis air àireamh nan teachdaireachdan-balla làitheil dha %s. Dh’fhàillig leis an teachdaireachd.';
 $a->strings['If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.'] = 'Nam bu mhiann leat gum freagair %s, dearbh gun ceadaich roghainnean prìobhaideachd na làraich agad puist-d phrìobhaideach o sheòladairean nach aithne dhut.';
 $a->strings['This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'] = 'Chlàradh na tha ceadaichte de chunntasan ùra air an làrach seo an-diugh. Feuch ris a-rithist a-màireach.';
 $a->strings['Import'] = 'Ion-phortaich';
+$a->strings['Your registration is pending approval by the site owner.'] = 'Tha an clàradh agad a’ feitheamh air aontachadh o shealbhadair na làraich.';
 $a->strings['You must be logged in to use this module.'] = 'Feumaidh tu clàradh a-steach mus urrainn dhut am mòideal seo a chleachdadh.';
 $a->strings['Relocate message has been send to your contacts'] = 'Chaidh teachdaireachd mun imrich a chur dhan luchd-aithne agad';
+$a->strings['Account for a regular personal profile that requires manual approval of "Friends" and "Followers".'] = 'Cunntas do phròifil phearsanta àbhaisteach a dh’iarras aontachadh a làimh air “Caraidean” is “Luchd-leantainn”.';
+$a->strings['Requires manual approval of contact requests.'] = 'Feumaidh tu aontachadh ri iarrtasan luchd-aithne a làimh.';
 $a->strings['Your profile will also be published in the global friendica directories (e.g. <a href="%s">%s</a>).'] = 'Thèid a’ phròifil agad fhoillseachadh sna h-eòlairean cho-naisgte aig Friendica cuideachd (m.e. <a href="%s">%s</a>).';
 $a->strings['Allow your profile to be searchable globally?'] = 'An gabh a’ phròifil agad a lorg gu co-naisgte?';
 $a->strings['Your contacts may write posts on your profile wall. These posts will be distributed to your contacts'] = '’S urrainn dhan luchd-aithne agad postaichean a sgrìobhadh air balla do phròifile. Thèid na postaichean sin a sgaoileadh dhan luchd-aithne agad';
 $a->strings['Expire starred posts'] = 'Falbhaidh an ùine air postaichean le rionnag riutha';
 $a->strings['Starring posts keeps them from being expired. That behaviour is overwritten by this setting.'] = 'Nuair a bhios rionnag ri post, chan fhalbh an ùine orra. Sgrìobhaidh an roghainn seo thairis air a’ ghiùlan sin.';
+$a->strings['You receive an introduction'] = 'Fhuair thu cur an aithne';
+$a->strings['Your introductions are confirmed'] = 'Chaidh na cuir an aithne agad a dhearbhadh';
 $a->strings['Someone liked your content'] = '’S toigh le cuideigin an t-susbaint agad';
 $a->strings['Someone shared your content'] = 'Cho-roinn cuideigin an t-susbaint agad';
 $a->strings['Someone commented in a thread where you interacted'] = 'Chuir cuideigin beachd ri snàithlean san do rinn thu co-luadar';
@@ -1879,6 +2367,7 @@ $a->strings['Enable simple text shortening'] = 'Cuir an comas giorrachadh teacsa
 $a->strings['Normally the system shortens posts at the next line feed. If this option is enabled then the system will shorten the text at the maximum character limit.'] = 'Mar as àbhaist, giorraichidh an siostam na postaichean aig an ath earrann. Ma tha an roghainn seo an comas, giorraichidh an siostam an teacsa aig crìoch nan caractaran ceadaichte.';
 $a->strings['Attach the link title'] = 'Cuir tiotal a’ cheangail ris';
 $a->strings['When activated, the title of the attached link will be added as a title on posts to Diaspora. This is mostly helpful with "remote-self" contacts that share feed content.'] = 'Nuair a bhios seo an gnìomh, thèid tiotal a’ cheangail a chur ris mar tiotal air postaichean gu diaspora*. Tha seo as fheumaile dhan luchd-aithne “remote-self” a cho-roinneas susbaint inbhir.';
+$a->strings['When activated, added links at the end of the post react the same way as added links in the web interface.'] = 'Nuair a bhios seo an gnìomh, bidh an t-aon ghiùlan aig ceanglaichean a thèid a chur ri bonn puist ’s a tha aig ceanglaichean a thèid a chur ris san eadar-aghaidh-lìn.';
 $a->strings['Your legacy ActivityPub/GNU Social account'] = 'An cunntas ActivityPub/GNU Social dìleabach agad';
 $a->strings['If you enter your old account name from an ActivityPub based system or your GNU Social/Statusnet account name here (in the format user@domain.tld), your contacts will be added automatically. The field will be emptied when done.'] = 'Ma chuireas tu ainm seann-chunntais ris o shiostam stèidhichte air ActivityPub no ainm do chunntais GNU Social/Statusnet an-seo (san fhòrmat cleachdaiche@àrainn.tld), thèid an luchd-aithne agad a chur ris gu fèin-obrachail. Thèid an raon fhalamhachadh nuair a bhios sin deiseil.';
 $a->strings['Repair OStatus subscriptions'] = 'Càraich fo-sgrìobhaidhean OStatus';
@@ -1895,6 +2384,21 @@ $a->strings['Send public posts to all email contacts:'] = 'Cuir postaichean pobl
 $a->strings['Action after import:'] = 'Gnìomh às dèid an ion-phortaidh:';
 $a->strings['Move to folder'] = 'Gluais gu pasgan';
 $a->strings['Move to folder:'] = 'Gluais gu pasgan:';
+$a->strings['Delegation successfully granted.'] = 'Chaidh neach-ionaid a dhèanamh dheth.';
+$a->strings['Delegation successfully revoked.'] = 'Chaidh ceadan neach-ionaid a thoirt air falbh.';
+$a->strings['Delegated administrators can view but not change delegation permissions.'] = 'Chì rianairean a tha ’nan luchd-ionaid na ceadan ach chan urrainn dhaibh an atharrachadh.';
+$a->strings['Delegate user not found.'] = 'Cha deach cleachdaiche an neach-ionaid a lorg.';
+$a->strings['Register additional accounts that are automatically connected to your existing account so you can manage them from this account.'] = 'Clàraich cunntasan a bharrachd a thèid a cho-cheangal ris a’ chunntas làithreach agad ach an urrainn dhut an stiùireadh on chunntas seo.';
+$a->strings['Delegates'] = 'Luchd-ionaid';
+$a->strings['Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'] = '’S urrainn dhan luchd-ionaid nì sam bith mun chunntas/duilleag seo a stiùireadh ach roghainnean bunaiteach a’ chunntais. Na dèan neach-ionaid dhan chunntas phearsanta agad de dhuine sam bith anns nach eil làn-earbsa agad.';
+$a->strings['Existing Page Delegates'] = 'Luchd-ionaid làithreach na duilleige';
+$a->strings['Potential Delegates'] = 'Tagraichean luchd-ionaid';
+$a->strings['The theme you chose isn\'t available.'] = 'Chan eil an t-ùrlar a thagh thu ri fhaighinn.';
+$a->strings['General Theme Settings'] = 'Roghainnean coitcheann an ùrlair';
+$a->strings['Custom Theme Settings'] = 'Roghainnean gnàthaichte an ùrlair';
+$a->strings['Theme settings'] = 'Roghainnean an ùrlair';
+$a->strings['Display Theme:'] = 'Ùrlar taisbeanaidh:';
+$a->strings['Mobile Theme:'] = 'Ùrlar mobile:';
 $a->strings['Display the Dislike feature'] = 'Seall an gleus “Cha toigh leam seo”';
 $a->strings['Display the Dislike button and dislike reactions on posts and comments.'] = 'Seall am putan “Cha toigh leam seo” agus freagairtean “Cha toigh leam seo” air postaichean is beachdan.';
 $a->strings['Display the resharer'] = 'Seall cò rinn an co-roinneadh';
@@ -1909,7 +2413,10 @@ $a->strings['The user id is %d'] = '’S e %d ID a’ chleachdaiche';
 $a->strings['Remove My Account'] = 'Thoir air falbh an cunntas agam';
 $a->strings['This will completely remove your account. Once this has been done it is not recoverable.'] = 'Bheir seo air falbh an cunntas agad gu tur. Nuair a bhios sin air a thachairt, cha ghabh aiseag.';
 $a->strings['Please enter your password for verification:'] = 'Cuir a-steach am facal-faire agad airson a dhearbhadh:';
+$a->strings['Manage app-specific passwords'] = 'Stiùir na faclan-faire sònraichte do dh’aplacaidean';
+$a->strings['Manage trusted browsers'] = 'Stiùir brabhsairean earbsach';
 $a->strings['At the time of registration, and for providing communications between the user account and their contacts, the user has to provide a display name (pen name), an username (nickname) and a working email address. The names will be accessible on the profile page of the account by any visitor of the page, even if other profile details are not displayed. The email address will only be used to send the user notifications about interactions, but wont be visibly displayed. The listing of an account in the node\'s user directory or the global user directory is optional and can be controlled in the user settings, it is not necessary for communication.'] = 'Aig àm a’ chlàraidh agus a chùm conaltraidh eadar cunntas a’ chleachdaiche ’s an luchd-aithne aca, feumaidh an cleachdaiche ainm taisbeanaidh (ainm-pinn), ainm-cleachdaiche (far-ainm) agus seòladh puist-d a tha ag obair a thoirt seachad. Gabhaidh na h-ainmean inntrigeadh air duilleag pròifil a’ chunntais le duine sam bith a thadhlas air an duilleag, fiù mura dèid fiosrachadh eile na pròifil a shealltainn. Cha dèid an seòladh puist-d a chleachdadh ach airson brathan a chur dhan chleachdaiche mu co-luadar agus cha dèid a shealltainn gu poblach. Tha cur a’ chunntais ri liosta nan cleachdaichean ann an eòlaire an nòid no san eòlaire cho-naisgte roghainneil agus gabhaidh sin a shuidheachadh ann an roghainnean a’ chleachdaiche; chan eil e riatanach dhan chonaltradh.';
+$a->strings['The requested item doesn\'t exist or has been deleted.'] = 'Chan eil am an nì a dh’iarr thu ann no chaidh a sguabadh às.';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'Chan fhaod ach rianairean cleachdaichean ion-phortadh gu frithealaichean dùinte.';
 $a->strings['Move account'] = 'Imrich an cunntas';
 $a->strings['You can import an account from another Friendica server.'] = '’S urrainn dhut cunntas ion-phortadh o fhrithealaiche Friendica eile.';
@@ -1932,10 +2439,12 @@ $a->strings['Done. You can now login with your username and password'] = 'Deisei
 $a->strings['Getting Started'] = 'Toiseach tòiseachaidh';
 $a->strings['On your <em>Quick Start</em> page - find a brief introduction to your profile and network tabs, make some new connections, and find some groups to join.'] = 'Air an duilleag <em>grad-tòiseachaidh</em> agad – gheibh thu facal-toisich air tabaichean na pròifile ’s an lìonraidh agad, ’s urrainn dhut dàimhean ùra a stèidheachadh is gheibh thu lorg air buidhnean ùra airson ballrachd fhaighinn annta.';
 $a->strings['Enter your email access information on your Connector Settings page if you wish to import and interact with friends or mailing lists from your email INBOX'] = 'Cuir a-steach fiosrachadh inntrigidh dhan phost-d agad air duilleag roghainnean nan ceangladairean agad ma tha thu airson ion-phortadh is co-luadar le caraidean no liostaichean-phuist o BHOGSA a-STEACH a’ phuist-d agad';
-$a->strings['Once you have made some friends, organize them into private conversation groups from the sidebar of your Contacts page and then you can interact with each group privately on your Network page.'] = 'Nuair a bhios caraid no dhà agad, cuir rian orra ann am buidhnean conaltraidh prìobhaideach o bhàr-taobh duilleag an luchd-aithne agad agus ’s urrainn dhut co-luadar leis gach buidheann gu prìobhaideach air duilleag an lìonraidh agad an uairsin.';
 $a->strings['{0} has started following you'] = 'Tha {0} a’ leantainn ort a-nis';
 $a->strings['%s liked %s\'s post'] = 'Is toigh le %s am post aig %s';
 $a->strings['%s disliked %s\'s post'] = 'Cha toigh le %s am post aig %s';
+$a->strings['%s is attending %s\'s event'] = 'Bidh %s an làthair aig an tachartas aig %s';
+$a->strings['%s is not attending %s\'s event'] = 'Cha bhi %s an làthair aig an tachartas aig %s';
+$a->strings['%s may attending %s\'s event'] = '’S dòcha gum bi %s an làthair aig an tachartas aig %s';
 $a->strings['%1$s has started following you'] = 'Tha %1$s a’ leantainn ort a-nis';
 $a->strings['%1$s liked your comment on %2$s'] = '’S toigh le %1$s do bheachd air %2$s';
 $a->strings['%1$s liked your post %2$s'] = 'Is toigh le %1$s am post %2$s';
@@ -1947,6 +2456,9 @@ $a->strings['%1$s shared the post %2$s from %3$s'] = 'Cho-roinn %1$s am post %2$
 $a->strings['%1$s shared a post from %3$s'] = 'Cho-roinn %1$s post o %3$s';
 $a->strings['%1$s shared the post %2$s'] = 'Cho-roinn %1$s am post %2$s';
 $a->strings['%1$s shared a post'] = 'Cho-roinn %1$s post';
+$a->strings['%1$s wants to attend your event %2$s'] = 'Bu mhath le %1$s a bhith an làthair aig an tachartas %2$s agad';
+$a->strings['%1$s does not want to attend your event %2$s'] = 'Cha bu mhath le %1$s a bhith an làthair aig an tachartas %2$s agad';
+$a->strings['%1$s maybe wants to attend your event %2$s'] = '’S dòcha gum bu mhath le %1$s a bhith an làthair aig an tachartas %2$s agad';
 $a->strings['[Friendica:Notify]'] = '[Friendica:Brath]';
 $a->strings['%1$s sent you a new private message at %2$s.'] = 'Chuir %1$s teachdaireachd phrìobhaideach ùr thugad aig %2$s.';
 $a->strings['a private message'] = 'teachdaireachd phrìobhaideach';
@@ -1956,6 +2468,10 @@ $a->strings['%s commented on an item/conversation you have been following.'] = '
 $a->strings['Please visit %s to view and/or reply to the conversation.'] = 'Tadhail air %s a shealltainn agus/no a’ freagairt dhan chòmhradh.';
 $a->strings['%1$s posted to your profile wall at %2$s'] = 'Chuir %1$s post ri balla na pròifil agad aig %2$s';
 $a->strings['%1$s posted to [url=%2$s]your wall[/url]'] = 'Chuir %1$s post ris [url=%2$s]a’ bhalla agad[/url]';
+$a->strings['%s Introduction received'] = '%s Fhuair thu cur an aithne';
+$a->strings['You\'ve received an introduction from \'%1$s\' at %2$s'] = 'Fhuair thu cur an aithne o “%1$s” aig %2$s';
+$a->strings['You\'ve received [url=%1$s]an introduction[/url] from %2$s.'] = 'Fhuair thu [url=%1$s]cur an aithne[/url] o %2$s.';
+$a->strings['Please visit %s to approve or reject the introduction.'] = 'Tadhail air %s a ghabhail ris no a dhiùltadh a’ chuir an aithne.';
 $a->strings['\'%1$s\' has chosen to accept you a fan, which restricts some forms of communication - such as private messaging and some profile interactions. If this is a celebrity or community page, these settings were applied automatically.'] = 'Ghabh “%1$s” riut ’nad dhealasach is cuingichidh sin an conaltradh – can teachdaireachdan prìobhaideach is cuid dhen cho-luadar air a’ phròifil. Mas e duilleag cuideigin chliùitich no duilleag coimhearsnachd a th’ ann, chaidh na roghainnean seo a chur an sàs gu fèin-obrachail.';
 $a->strings['%s %s shared a new post'] = 'Cho-roinn %s%s post ùr';
 $a->strings['Private Message'] = 'Teachdaireachd phrìobhaideach';
@@ -1999,4 +2515,79 @@ $a->strings['Wall-to-Wall'] = 'Balla gu balla';
 $a->strings['via Wall-To-Wall:'] = 'slighe balla bu balla:';
 $a->strings['Reply to %s'] = 'Freagair gu %s';
 $a->strings['More'] = 'Barrachd';
+$a->strings['%d comment'] = [
+	0 => '%d bheachd',
+	1 => '%d bheachd',
+	2 => '%d beachdan',
+	3 => '%d beachd',
+];
+$a->strings['Show more'] = 'Seall barrachd dheth';
+$a->strings['Show fewer'] = 'Seall nas lugha dheth';
+$a->strings['Reshared by: %s'] = '’Ga cho-roinneadh le: %s ';
+$a->strings['Viewed by: %s'] = 'Air a choimhead air le: %s';
+$a->strings['Liked by: %s'] = '’S toil le %s seo';
+$a->strings['Disliked by: %s'] = 'Cha toil le %s seo';
+$a->strings['Attended by: %s'] = 'An làthair: %s';
+$a->strings['Maybe attended by: %s'] = 'An làthair ’s dòcha: %s';
+$a->strings['Not attended by: %s'] = 'Gun a bhith an làthair: %s';
+$a->strings['Reacted with %s by: %s'] = 'Chaidh freagairt le %s le: %s';
+$a->strings['(no subject)'] = '(gun chuspair)';
+$a->strings['%s is now following %s.'] = 'Tha %s a’ leantainn %s a-nis.';
+$a->strings['%s stopped following %s.'] = 'Chan eil %s a’ leantainn %s tuilleadh.';
+$a->strings['The folder %s must be writable by webserver.'] = 'Ceumaidh cead sgrìobhaidh dhan phasgan %s a bhith aig an fhrithealaiche-lìn.';
+$a->strings['Login failed.'] = 'Dh’fhàillig leis a’ chlàradh a-steach.';
+$a->strings['Login failed. Please check your credentials.'] = 'Dh’fhàillig leis a’ chlàradh a-steach. Thoir sùil air an teisteas agad.';
+$a->strings['Welcome %s'] = 'Fàilte ort, %s';
+$a->strings['Please upload a profile photo.'] = 'An luchdaich thu suas dealbh pròifile?';
+$a->strings['Friendica Notification'] = 'Brath Friendica';
+$a->strings['%1$s, %2$s Administrator'] = '%1$s, rianaire %2$s';
+$a->strings['%s Administrator'] = 'Rianaire %s';
+$a->strings['thanks'] = 'mòran taing';
+$a->strings['YYYY-MM-DD or MM-DD'] = 'YYYY-MM-DD no MM-DD';
+$a->strings['Time zone: <strong>%s</strong> <a href="%s">Change in Settings</a>'] = 'Roinn-tìde: <strong>%s</strong> <a href="%s">Atharraich i sna roghainnean</a>';
+$a->strings['never'] = 'chan ann idir';
+$a->strings['less than a second ago'] = 'nas lugha na diog air ais';
+$a->strings['year'] = 'bhliadhna';
+$a->strings['years'] = 'bliadhna(ichean)';
+$a->strings['months'] = 'mìos(an)';
+$a->strings['weeks'] = 'seachdain(ean)';
+$a->strings['days'] = 'là(ithean)';
+$a->strings['hour'] = 'uair a thìde';
+$a->strings['hours'] = 'uair(ean) a thìde';
+$a->strings['minute'] = 'mhionaid';
+$a->strings['minutes'] = 'mionaid(ean)';
+$a->strings['second'] = 'dhiog';
+$a->strings['seconds'] = 'diog(an)';
+$a->strings['in %1$d %2$s'] = 'an ceann %1$d %2$s';
+$a->strings['%1$d %2$s ago'] = '%1$d %2$s air ais';
+$a->strings['Notification from Friendica'] = 'Brath o Friendica';
+$a->strings['Empty Post'] = 'Post falamh';
+$a->strings['default'] = 'bunaiteach';
+$a->strings['Variations'] = 'Fiamhan';
+$a->strings['Light (Accented)'] = 'Soilleir (soilleirichte)';
+$a->strings['Dark (Accented)'] = 'Dorcha (soilleirichte)';
+$a->strings['Black (Accented)'] = 'Dubh (soilleirichte)';
+$a->strings['Note'] = 'An aire';
+$a->strings['Check image permissions if all users are allowed to see the image'] = 'Thoir sùil air ceadan an deilbh ma dh’fhaodas a h-uile cleachdaiche an dealbh fhaicinn';
+$a->strings['Custom'] = 'Gnàthaichte';
+$a->strings['Legacy'] = 'Dìleabach';
+$a->strings['Accented'] = 'Soilleirichte';
+$a->strings['Select color scheme'] = 'Tagh sgeama nan dathan';
+$a->strings['Select scheme accent'] = 'Tagh soilleireachadh an sgeama';
+$a->strings['Blue'] = 'Gorm';
+$a->strings['Red'] = 'Dearg';
+$a->strings['Purple'] = 'Purpaidh';
+$a->strings['Green'] = 'Uaine';
+$a->strings['Pink'] = 'Pinc';
+$a->strings['Copy or paste schemestring'] = 'Dèan lethbhreac no cuir ann sreang sgeama';
+$a->strings['You can copy this string to share your theme with others. Pasting here applies the schemestring'] = '’S urrainn dhut lethbhreac dhen t-sreang seo a dhèanamh airson an t-ùrlar agad a cho-roinneadh le càch. Nuair a chuireas tu rud ann an-seo, thèid sreang an sgeama a chur an sàs';
+$a->strings['Navigation bar background color'] = 'Dath cùlaibh bàr na seòladaireachd';
+$a->strings['Navigation bar icon color '] = 'Dath ìomhaigheagan bàr na seòladaireachd ';
+$a->strings['Link color'] = 'Dath nan ceanglaichean';
+$a->strings['Set the background color'] = 'Suidhich dath a’ chùlaibh';
+$a->strings['Content background opacity'] = 'Trìd-dhoilleireachd cùlaibh na susbainte';
+$a->strings['Set the background image'] = 'Suidhich dealbh a’ chùlaibh';
+$a->strings['Background image style'] = 'Stoidhle dealbh a’ chùlaibh';
+$a->strings['Always open Compose page'] = 'Fosgail duilleag an sgrìobhaidh an-còmhnaidh';
+$a->strings['Leave background image and color empty for theme defaults'] = 'Fàg dealbh ’s dath a’ chùlaibh bàn do bhun-roghainnean an ùrlair';
 $a->strings['Quick Start'] = 'Grad-tòiseachadh';

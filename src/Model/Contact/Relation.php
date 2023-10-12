@@ -31,6 +31,8 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Model\Verb;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -245,6 +247,10 @@ class Relation
 	public static function isDiscoverable(string $url, array $contact = []): bool
 	{
 		$contact_discovery = DI::config()->get('system', 'contact_discovery');
+
+		if (Contact::isLocal($url)) {
+			return true;
+		}
 
 		if ($contact_discovery == self::DISCOVERY_NONE) {
 			return false;
@@ -769,5 +775,80 @@ class Relation
 		return DI::dba()->selectToArray('contact', [], $condition,
 			['limit' => [$offset, $count], 	'order' => [$shuffle ? 'RAND()' : 'name']]
 		);
+	}
+
+	/**
+	 * Calculate the interaction scores for the given user
+	 *
+	 * @param integer $uid
+	 * @return void
+	 */
+	public static function calculateInteractionScore(int $uid)
+	{
+		$days = DI::config()->get('channel', 'interaction_score_days');
+		$contact_id = Contact::getPublicIdByUserId($uid);
+
+		Logger::debug('Calculation - start', ['uid' => $uid, 'cid' => $contact_id, 'days' => $days]);
+
+		$follow = Verb::getID(Activity::FOLLOW);
+		$view = Verb::getID(Activity::VIEW);
+		$read = Verb::getID(Activity::READ);
+
+		DBA::update('contact-relation', ['score' => 0, 'relation-score' => 0, 'thread-score' => 0, 'relation-thread-score' => 0], ['relation-cid' => $contact_id]);
+
+		$total = DBA::fetchFirst("SELECT count(*) AS `activity` FROM `post-user` INNER JOIN `post` ON `post`.`uri-id` = `post-user`.`thr-parent-id` WHERE `post-user`.`author-id` = ? AND `post-user`.`received` >= ? AND `post-user`.`uid` = ? AND `post`.`author-id` != ? AND NOT `post`.`vid` IN (?, ?, ?)",
+			$contact_id, DateTimeFormat::utc('now - ' . $days . ' day'), $uid, $contact_id, $follow, $view, $read);
+
+		Logger::debug('Calculate relation-score', ['uid' => $uid, 'total' => $total['activity']]);
+
+		$interactions = DBA::p("SELECT `post`.`author-id`, count(*) AS `activity`, EXISTS(SELECT `pid` FROM `account-user-view` WHERE `pid` = `post`.`author-id` AND `uid` = ? AND `rel` IN (?, ?)) AS `follows`
+			FROM `post-user` INNER JOIN `post` ON `post`.`uri-id` = `post-user`.`thr-parent-id` WHERE `post-user`.`author-id` = ? AND `post-user`.`received` >= ? AND `post-user`.`uid` = ? AND `post`.`author-id` != ? AND NOT `post`.`vid` IN (?, ?, ?) GROUP BY `post`.`author-id`",
+			$uid, Contact::SHARING, Contact::FRIEND, $contact_id, DateTimeFormat::utc('now - ' . $days . ' day'), $uid, $contact_id, $follow, $view, $read);
+		while ($interaction = DBA::fetch($interactions)) {
+			$score = min((int)(($interaction['activity'] / $total['activity']) * 65535), 65535);
+			DBA::update('contact-relation', ['relation-score' => $score, 'follows' => $interaction['follows']], ['relation-cid' => $contact_id, 'cid' => $interaction['author-id']]);
+		}
+		DBA::close($interactions);
+
+		$total = DBA::fetchFirst("SELECT count(*) AS `activity` FROM `post-user` INNER JOIN `post` ON `post`.`uri-id` = `post-user`.`parent-uri-id` WHERE `post-user`.`author-id` = ? AND `post-user`.`received` >= ? AND `post-user`.`uid` = ? AND `post`.`author-id` != ? AND NOT `post`.`vid` IN (?, ?, ?)",
+			$contact_id, DateTimeFormat::utc('now - ' . $days . ' day'), $uid, $contact_id, $follow, $view, $read);
+
+		Logger::debug('Calculate relation-thread-score', ['uid' => $uid, 'total' => $total['activity']]);
+
+		$interactions = DBA::p("SELECT `post`.`author-id`, count(*) AS `activity`, EXISTS(SELECT `pid` FROM `account-user-view` WHERE `pid` = `post`.`author-id` AND `uid` = ? AND `rel` IN (?, ?)) AS `follows`
+			FROM `post-user` INNER JOIN `post` ON `post`.`uri-id` = `post-user`.`parent-uri-id` WHERE `post-user`.`author-id` = ? AND `post-user`.`received` >= ? AND `post-user`.`uid` = ? AND `post`.`author-id` != ? AND NOT `post`.`vid` IN (?, ?, ?) GROUP BY `post`.`author-id`",
+			$uid, Contact::SHARING, Contact::FRIEND, $contact_id, DateTimeFormat::utc('now - ' . $days . ' day'), $uid, $contact_id, $follow, $view, $read);
+		while ($interaction = DBA::fetch($interactions)) {
+			$score = min((int)(($interaction['activity'] / $total['activity']) * 65535), 65535);
+			DBA::update('contact-relation', ['relation-thread-score' => $score, 'follows' => !empty($interaction['follows'])], ['relation-cid' => $contact_id, 'cid' => $interaction['author-id']]);
+		}
+		DBA::close($interactions);
+
+		$total = DBA::fetchFirst("SELECT count(*) AS `activity` FROM `post-user` INNER JOIN `post` ON `post-user`.`uri-id` = `post`.`thr-parent-id` WHERE `post-user`.`author-id` = ? AND `post-user`.`received` >= ? AND `post-user`.`uid` = ? AND `post`.`author-id` != ? AND NOT `post`.`vid` IN (?, ?, ?)",
+			$contact_id, DateTimeFormat::utc('now - ' . $days . ' day'), $uid, $contact_id, $follow, $view, $read);
+
+		Logger::debug('Calculate score', ['uid' => $uid, 'total' => $total['activity']]);
+
+		$interactions = DBA::p("SELECT `post`.`author-id`, count(*) AS `activity` FROM `post-user` INNER JOIN `post` ON `post-user`.`uri-id` = `post`.`thr-parent-id` WHERE `post-user`.`author-id` = ? AND `post-user`.`received` >= ? AND `post-user`.`uid` = ? AND `post`.`author-id` != ? AND NOT `post`.`vid` IN (?, ?, ?) GROUP BY `post`.`author-id`",
+			$contact_id, DateTimeFormat::utc('now - ' . $days . ' day'), $uid, $contact_id, $follow, $view, $read);
+		while ($interaction = DBA::fetch($interactions)) {
+			$score = min((int)(($interaction['activity'] / $total['activity']) * 65535), 65535);
+			DBA::update('contact-relation', ['score' => $score], ['relation-cid' => $contact_id, 'cid' => $interaction['author-id']]);
+		}
+		DBA::close($interactions);
+
+		$total = DBA::fetchFirst("SELECT count(*) AS `activity` FROM `post-user` INNER JOIN `post` ON `post-user`.`uri-id` = `post`.`parent-uri-id` WHERE `post-user`.`author-id` = ? AND `post-user`.`received` >= ? AND `post-user`.`uid` = ? AND `post`.`author-id` != ? AND NOT `post`.`vid` IN (?, ?, ?)",
+			$contact_id, DateTimeFormat::utc('now - ' . $days . ' day'), $uid, $contact_id, $follow, $view, $read);
+
+		Logger::debug('Calculate thread-score', ['uid' => $uid, 'total' => $total['activity']]);
+
+		$interactions = DBA::p("SELECT `post`.`author-id`, count(*) AS `activity` FROM `post-user` INNER JOIN `post` ON `post-user`.`uri-id` = `post`.`parent-uri-id` WHERE `post-user`.`author-id` = ? AND `post-user`.`received` >= ? AND `post-user`.`uid` = ? AND `post`.`author-id` != ? AND NOT `post`.`vid` IN (?, ?, ?) GROUP BY `post`.`author-id`",
+			$contact_id, DateTimeFormat::utc('now - ' . $days . ' day'), $uid, $contact_id, $follow, $view, $read);
+		while ($interaction = DBA::fetch($interactions)) {
+			$score = min((int)(($interaction['activity'] / $total['activity']) * 65535), 65535);
+			DBA::update('contact-relation', ['thread-score' => $score], ['relation-cid' => $contact_id, 'cid' => $interaction['author-id']]);
+		}
+		DBA::close($interactions);
+		Logger::debug('Calculation - end', ['uid' => $uid]);
 	}
 }

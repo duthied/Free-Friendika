@@ -104,6 +104,9 @@ class Cron
 			// Clear cache entries
 			Worker::add(Worker::PRIORITY_LOW, 'ClearCache');
 
+			// Update interaction scores
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateScores');
+
 			DI::keyValue()->set('last_cron_hourly', time());
 		}
 
@@ -138,6 +141,13 @@ class Cron
 			$users = DBA::select('owner-view', ['uid'], ["`homepage_verified` OR (`last-activity` > ? AND `homepage` != ?)", DateTimeFormat::utc('now - 7 days', 'Y-m-d'), '']);
 			while ($user = DBA::fetch($users)) {
 				Worker::add(Worker::PRIORITY_LOW, 'CheckRelMeProfileLink', $user['uid']);
+			}
+			DBA::close($users);
+
+			// Update contact relations for our users
+			$users = DBA::select('user', ['uid'], ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `uid` > ?", 0]);
+			while ($user = DBA::fetch($users)) {
+				Worker::add(Worker::PRIORITY_LOW, 'ContactDiscoveryForUser', $user['uid']);
 			}
 			DBA::close($users);
 

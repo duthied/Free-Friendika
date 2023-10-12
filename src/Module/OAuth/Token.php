@@ -110,6 +110,6 @@ class Token extends BaseApi
 
 		$object = new \Friendica\Object\Api\Mastodon\Token($token['access_token'], 'Bearer', $application['scopes'], $token['created_at'], $me);
 
-		System::jsonExit($object->toArray());
+		$this->jsonExit($object->toArray());
 	}
 }

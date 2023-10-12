@@ -125,7 +125,7 @@ class Active extends BaseUsers
 
 		$th_users = array_map(null, [$this->t('Name'), $this->t('Email'), $this->t('Register date'), $this->t('Last login'), $this->t('Last public item'), $this->t('Type')], $valid_orders);
 
-		$count = $this->database->count('user', ["NOT `blocked` AND `verified` AND NOT `account_removed` AND `uid` != ?", 0]);
+		$count = $this->database->count('user', ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `uid` != ?", 0]);
 
 		$t = Renderer::getMarkupTemplate('moderation/users/active.tpl');
 		return self::getTabsHTML('active') . Renderer::replaceMacros($t, [

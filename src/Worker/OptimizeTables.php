@@ -45,6 +45,7 @@ class OptimizeTables
 		DBA::optimizeTable('oembed');
 		DBA::optimizeTable('parsed_url');
 		DBA::optimizeTable('session');
+		DBA::optimizeTable('post-engagement');
 
 		if (DI::config()->get('system', 'optimize_all_tables')) {
 			DBA::optimizeTable('apcontact');

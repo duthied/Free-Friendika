@@ -107,6 +107,7 @@ abstract class BaseModeration extends BaseModule
 		$aside_sub = [
 			'information' => [$this->t('Information'), [
 				'overview' => ['moderation', $this->t('Overview'), 'overview'],
+				'reports'  => ['moderation/reports', $this->t('Reports'), 'overview'],
 			]],
 			'configuration' => [$this->t('Configuration'), [
 				'users' => ['moderation/users', $this->t('Users'), 'users'],

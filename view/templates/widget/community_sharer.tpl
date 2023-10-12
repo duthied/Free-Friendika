@@ -6,8 +6,8 @@
 		<h3>{{$title}}</h3>
 	</span>
 	<ul class="sidebar-community-no-sharer-ul">
-		<li role="menuitem" class="sidebar-community-no-sharer-li{{if !$no_sharer}} selected{{/if}}"><a href="community/{{$path_all}}">{{$all}}</a></li>
-		<li role="menuitem" class="sidebar-community-no-sharer-li{{if $no_sharer}} selected{{/if}}"><a href="community/{{$path_no_sharer}}">{{$no_sharer_label}}</a></li>
+		<li role="menuitem" class="sidebar-community-no-sharer-li{{if !$no_sharer}} selected{{/if}}"><a href="{{$base}}/{{$path_all}}">{{$all}}</a></li>
+		<li role="menuitem" class="sidebar-community-no-sharer-li{{if $no_sharer}} selected{{/if}}"><a href="{{$base}}/{{$path_no_sharer}}">{{$no_sharer_label}}</a></li>
 	</ul>
 </div>
 <script>

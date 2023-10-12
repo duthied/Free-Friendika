@@ -99,7 +99,7 @@ abstract class DirectMessagesEndpoint extends BaseApi
 		$mails = $this->dba->selectToArray('mail', ['id'], $condition, $params);
 		if ($verbose && !DBA::isResult($mails)) {
 			$answer = ['result' => 'error', 'message' => 'no mails available'];
-			$this->response->exit('direct-messages', ['direct_message' => $answer], $this->parameters['extension'] ?? null);
+			$this->response->addFormattedContent('direct-messages', ['direct_message' => $answer], $this->parameters['extension'] ?? null);
 			return;
 		}
 
@@ -116,6 +116,6 @@ abstract class DirectMessagesEndpoint extends BaseApi
 
 		self::setLinkHeader();
 
-		$this->response->exit('direct-messages', ['direct_message' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
+		$this->response->addFormattedContent('direct-messages', ['direct_message' => $ret], $this->parameters['extension'] ?? null, Contact::getPublicIdByUserId($uid));
 	}
 }
