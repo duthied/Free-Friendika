@@ -296,7 +296,22 @@ class Smilies
 	{
 		// Strips all whitespace
 		$conv = preg_replace('#\s#u', '', html_entity_decode($body));
-		// @FIXME Emojis are almost always 4 byte Unicode characters, except when they include the zero-width joiner character, encoded on 3 bytes
-		return (!empty($conv) && (strlen($conv) / mb_strlen($conv) == 4));
+		if (empty($conv)) {
+			return false;
+		}
+
+		if (!class_exists('IntlChar')) {
+			// Most Emojis are 4 byte Unicode characters, so this is a good workaround, when IntlChar does not exist on the system
+			return strlen($conv) / mb_strlen($conv) == 4;
+		}
+
+		for ($i = 0; $i < mb_strlen($conv); $i++) {
+			$character = mb_substr($conv, $i, 1);
+
+			if (\IntlChar::isalnum($character)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
