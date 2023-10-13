@@ -287,7 +287,7 @@ class Smilies
 	}
 
 	/**
-	 * Checks if the body only contains 4 byte unicode characters.
+	 * Checks if the body doesn't contain any alphanumeric characters
 	 *
 	 * @param string $body Possibly-HTML post body
 	 * @return boolean
@@ -308,7 +308,7 @@ class Smilies
 		for ($i = 0; $i < mb_strlen($conv); $i++) {
 			$character = mb_substr($conv, $i, 1);
 
-			if (\IntlChar::isalnum($character)) {
+			if (\IntlChar::isalnum($character) || \IntlChar::ispunct($character) || \IntlChar::isgraph($character) && (strlen($character) <= 2)) {
 				return false;
 			}
 		}
