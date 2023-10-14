@@ -21,6 +21,7 @@
 
 namespace Friendica\Protocol;
 
+use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -172,6 +173,11 @@ class Relay
 	 */
 	public static function isWantedLanguage(string $body, int $uri_id = 0, int $author_id = 0)
 	{
+		if (empty($body) || Smilies::isEmojiPost($body)) {
+			Logger::debug('Empty body or only emojis', ['body' => $body]);
+			return true;
+		}
+
 		$languages = [];
 		foreach (Item::getLanguageArray($body, 10, $uri_id, $author_id) as $language => $reliability) {
 			if ($reliability > 0) {

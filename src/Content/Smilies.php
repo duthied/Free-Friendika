@@ -285,4 +285,33 @@ class Smilies
 
 		return str_replace($matches[0], $t, $matches[0]);
 	}
+
+	/**
+	 * Checks if the body doesn't contain any alphanumeric characters
+	 *
+	 * @param string $body Possibly-HTML post body
+	 * @return boolean
+	 */
+	public static function isEmojiPost(string $body): bool
+	{
+		// Strips all whitespace
+		$conv = preg_replace('#\s#u', '', html_entity_decode($body));
+		if (empty($conv)) {
+			return false;
+		}
+
+		if (!class_exists('IntlChar')) {
+			// Most Emojis are 4 byte Unicode characters, so this is a good workaround, when IntlChar does not exist on the system
+			return strlen($conv) / mb_strlen($conv) == 4;
+		}
+
+		for ($i = 0; $i < mb_strlen($conv); $i++) {
+			$character = mb_substr($conv, $i, 1);
+
+			if (\IntlChar::isalnum($character) || \IntlChar::ispunct($character) || \IntlChar::isgraph($character) && (strlen($character) <= 2)) {
+				return false;
+			}
+		}
+		return true;
+	}
 }
