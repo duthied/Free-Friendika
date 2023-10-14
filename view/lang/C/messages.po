@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-11 20:35+0000\n"
+"POT-Creation-Date: 2023-10-14 18:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2205,11 +2205,11 @@ msgstr ""
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1957
+#: src/Content/Text/BBCode.php:1953
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1976
+#: src/Content/Text/BBCode.php:1972
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -5961,7 +5961,7 @@ msgid "Contact not found."
 msgstr ""
 
 #: src/Module/Circle.php:102 src/Module/Contact/Contacts.php:66
-#: src/Module/Conversation/Network.php:240
+#: src/Module/Conversation/Network.php:232
 msgid "Invalid contact."
 msgstr ""
 
@@ -6747,16 +6747,21 @@ msgstr ""
 msgid "Not available."
 msgstr ""
 
-#: src/Module/Conversation/Network.php:226
+#: src/Module/Conversation/Network.php:218
 msgid "No such circle"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:230
+#: src/Module/Conversation/Network.php:222
 #, php-format
 msgid "Circle: %s"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:325
+#: src/Module/Conversation/Network.php:250
+#, php-format
+msgid "Error %d (%s) while fetching the timeline."
+msgstr ""
+
+#: src/Module/Conversation/Network.php:329
 msgid "Network feed not available."
 msgstr ""
 

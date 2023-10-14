@@ -21,8 +21,6 @@
 
 namespace Friendica\Content\Conversation\Factory;
 
-use Friendica\Capabilities\ICanCreateFromTableRow;
-use Friendica\Content\Conversation\Entity\Timeline as TimelineEntity;
 use Friendica\Content\Conversation\Repository\UserDefinedChannel;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;

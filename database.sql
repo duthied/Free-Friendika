@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1536
+-- DB_UPDATE_VERSION 1537
 -- ------------------------------------------
 
 
@@ -502,9 +502,9 @@ CREATE TABLE IF NOT EXISTS `channel` (
 	`description` varchar(64) COMMENT 'Channel description',
 	`circle` int COMMENT 'Circle or channel that this channel is based on',
 	`access-key` varchar(1) COMMENT 'Access key',
-	`include-tags` varchar(255) COMMENT 'Comma separated list of tags that will be included in the channel',
-	`exclude-tags` varchar(255) COMMENT 'Comma separated list of tags that aren\'t allowed in the channel',
-	`full-text-search` varchar(255) COMMENT 'Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode',
+	`include-tags` varchar(1023) COMMENT 'Comma separated list of tags that will be included in the channel',
+	`exclude-tags` varchar(1023) COMMENT 'Comma separated list of tags that aren\'t allowed in the channel',
+	`full-text-search` varchar(1023) COMMENT 'Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode',
 	`media-type` smallint unsigned COMMENT 'Filtered media types',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),

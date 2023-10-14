@@ -139,14 +139,6 @@ class Network extends Timeline
 
 		$o = '';
 
-		if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
-			$items = $this->getChannelItems();
-		} elseif ($this->community->isTimeline($this->selectedTab)) {
-			$items = $this->getCommunityItems();
-		} else {
-			$items = $this->getItems();
-		}
-
 		$this->page['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', $this->circleId);
 		$this->page['aside'] .= GroupManager::widget($module . '/group', $this->session->getLocalUserId(), $this->groupContactId);
 		$this->page['aside'] .= Widget::postedByYear($module . '/archive', $this->session->getLocalUserId(), false);
@@ -244,7 +236,19 @@ class Network extends Timeline
 			$o .= Profile::getEventsReminderHTML();
 		}
 
-		$o .= $this->conversation->render($items, Conversation::MODE_NETWORK, false, false, $this->getOrder(), $this->session->getLocalUserId());
+		try {
+			if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
+				$items = $this->getChannelItems();
+			} elseif ($this->community->isTimeline($this->selectedTab)) {
+				$items = $this->getCommunityItems();
+			} else {
+				$items = $this->getItems();
+			}
+	
+			$o .= $this->conversation->render($items, Conversation::MODE_NETWORK, false, false, $this->getOrder(), $this->session->getLocalUserId());
+		} catch (\Exception $e) {
+			$o .= $this->l10n->t('Error %d (%s) while fetching the timeline.', $e->getCode(), $e->getMessage());
+		}
 
 		if ($this->pConfig->get($this->session->getLocalUserId(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
