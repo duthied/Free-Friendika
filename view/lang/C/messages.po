@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-11 20:35+0000\n"
+"POT-Creation-Date: 2023-10-14 14:18-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,7 +46,7 @@ msgstr ""
 
 #: mod/item.php:452 mod/message.php:67 mod/message.php:113 mod/notes.php:45
 #: mod/photos.php:152 mod/photos.php:670 src/Model/Event.php:520
-#: src/Module/Attach.php:55 src/Module/BaseApi.php:99
+#: src/Module/Attach.php:55 src/Module/BaseApi.php:103
 #: src/Module/BaseNotifications.php:98 src/Module/BaseSettings.php:50
 #: src/Module/Calendar/Event/API.php:88 src/Module/Calendar/Event/Form.php:84
 #: src/Module/Calendar/Export.php:82 src/Module/Calendar/Show.php:82
@@ -55,9 +55,9 @@ msgstr ""
 #: src/Module/Contact/Follow.php:160 src/Module/Contact/MatchInterests.php:86
 #: src/Module/Contact/Suggestions.php:54 src/Module/Contact/Unfollow.php:66
 #: src/Module/Contact/Unfollow.php:80 src/Module/Contact/Unfollow.php:112
-#: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:38
-#: src/Module/FriendSuggest.php:57 src/Module/Invite.php:42
-#: src/Module/Invite.php:131 src/Module/Notifications/Notification.php:76
+#: src/Module/FollowConfirm.php:38 src/Module/FriendSuggest.php:57
+#: src/Module/Invite.php:42 src/Module/Invite.php:131
+#: src/Module/Notifications/Notification.php:76
 #: src/Module/Notifications/Notification.php:107
 #: src/Module/OStatus/Repair.php:60 src/Module/OStatus/Subscribe.php:66
 #: src/Module/Post/Edit.php:76 src/Module/Profile/Common.php:75
@@ -69,16 +69,16 @@ msgstr ""
 #: src/Module/Register.php:245 src/Module/Search/Directory.php:37
 #: src/Module/Settings/Account.php:50 src/Module/Settings/Account.php:408
 #: src/Module/Settings/Channels.php:56 src/Module/Settings/Channels.php:114
-#: src/Module/Settings/Delegation.php:41 src/Module/Settings/Delegation.php:71
-#: src/Module/Settings/Display.php:90 src/Module/Settings/Display.php:193
+#: src/Module/Settings/Delegation.php:90 src/Module/Settings/Display.php:90
+#: src/Module/Settings/Display.php:193
 #: src/Module/Settings/Profile/Photo/Crop.php:165
 #: src/Module/Settings/Profile/Photo/Index.php:111
-#: src/Module/Settings/RemoveMe.php:117 src/Module/Settings/UserExport.php:80
+#: src/Module/Settings/RemoveMe.php:119 src/Module/Settings/UserExport.php:80
 #: src/Module/Settings/UserExport.php:114
 #: src/Module/Settings/UserExport.php:215
 #: src/Module/Settings/UserExport.php:235
-#: src/Module/Settings/UserExport.php:300 src/Module/User/Import.php:84
-#: src/Module/User/Import.php:91
+#: src/Module/Settings/UserExport.php:300 src/Module/User/Delegation.php:154
+#: src/Module/User/Import.php:84 src/Module/User/Import.php:91
 msgid "Permission denied."
 msgstr ""
 
@@ -307,19 +307,20 @@ msgstr ""
 #: src/Module/Debug/ActivityPubConversion.php:140
 #: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
 #: src/Module/Debug/Probe.php:54 src/Module/Debug/WebFinger.php:51
-#: src/Module/Delegation.php:147 src/Module/FriendSuggest.php:145
-#: src/Module/Install.php:234 src/Module/Install.php:274
-#: src/Module/Install.php:309 src/Module/Invite.php:178
-#: src/Module/Item/Compose.php:189 src/Module/Moderation/Item/Source.php:79
+#: src/Module/FriendSuggest.php:145 src/Module/Install.php:234
+#: src/Module/Install.php:274 src/Module/Install.php:309
+#: src/Module/Invite.php:178 src/Module/Item/Compose.php:189
+#: src/Module/Moderation/Item/Source.php:79
 #: src/Module/Moderation/Report/Create.php:168
 #: src/Module/Moderation/Report/Create.php:183
 #: src/Module/Moderation/Report/Create.php:211
 #: src/Module/Moderation/Report/Create.php:263
 #: src/Module/Profile/Profile.php:274 src/Module/Profile/UnkMail.php:155
 #: src/Module/Settings/Profile/Index.php:257
-#: src/Module/Settings/Server/Action.php:79 src/Object/Post.php:1106
-#: view/theme/duepuntozero/config.php:85 view/theme/frio/config.php:171
-#: view/theme/quattro/config.php:87 view/theme/vier/config.php:135
+#: src/Module/Settings/Server/Action.php:79 src/Module/User/Delegation.php:189
+#: src/Object/Post.php:1106 view/theme/duepuntozero/config.php:85
+#: view/theme/frio/config.php:171 view/theme/quattro/config.php:87
+#: view/theme/vier/config.php:135
 msgid "Submit"
 msgstr ""
 
@@ -960,7 +961,7 @@ msgstr ""
 msgid "Enter user nickname: "
 msgstr ""
 
-#: src/Console/User.php:182 src/Model/User.php:711
+#: src/Console/User.php:182 src/Model/User.php:710
 #: src/Module/Api/Twitter/ContactEndpoint.php:74
 #: src/Module/Moderation/Users/Active.php:71
 #: src/Module/Moderation/Users/Blocked.php:71
@@ -1748,7 +1749,7 @@ msgstr ""
 
 #: src/Content/GroupManager.php:152 src/Content/Nav.php:278
 #: src/Content/Text/HTML.php:880 src/Content/Widget.php:537
-#: src/Model/User.php:1273
+#: src/Model/User.php:1272
 msgid "Groups"
 msgstr ""
 
@@ -2205,11 +2206,11 @@ msgstr ""
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1957
+#: src/Content/Text/BBCode.php:1953
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1976
+#: src/Content/Text/BBCode.php:1972
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2724,8 +2725,8 @@ msgstr ""
 
 #: src/Core/Installer.php:519
 msgid ""
-"The web installer needs to be able to create a file called \"local.config.php"
-"\" in the \"config\" folder of your web server and it is unable to do so."
+"The web installer needs to be able to create a file called \"local.config."
+"php\" in the \"config\" folder of your web server and it is unable to do so."
 msgstr ""
 
 #: src/Core/Installer.php:520
@@ -3146,24 +3147,24 @@ msgstr ""
 msgid "%s: updating %s table."
 msgstr ""
 
-#: src/Factory/Api/Mastodon/Error.php:55
+#: src/Factory/Api/Mastodon/Error.php:42
 msgid "Record not found"
 msgstr ""
 
-#: src/Factory/Api/Mastodon/Error.php:65
+#: src/Factory/Api/Mastodon/Error.php:49
 msgid "Unprocessable Entity"
 msgstr ""
 
-#: src/Factory/Api/Mastodon/Error.php:75
+#: src/Factory/Api/Mastodon/Error.php:56
 msgid "Unauthorized"
 msgstr ""
 
-#: src/Factory/Api/Mastodon/Error.php:84
+#: src/Factory/Api/Mastodon/Error.php:62
 msgid ""
 "Token is not authorized with a valid user or is missing a required scope"
 msgstr ""
 
-#: src/Factory/Api/Mastodon/Error.php:94
+#: src/Factory/Api/Mastodon/Error.php:69
 msgid "Internal Server Error"
 msgstr ""
 
@@ -3624,145 +3625,145 @@ msgstr ""
 msgid "Contact information and Social Networks"
 msgstr ""
 
-#: src/Model/User.php:227 src/Model/User.php:1186
+#: src/Model/User.php:226 src/Model/User.php:1185
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr ""
 
-#: src/Model/User.php:620 src/Model/User.php:653
+#: src/Model/User.php:619 src/Model/User.php:652
 msgid "Login failed"
 msgstr ""
 
-#: src/Model/User.php:685
+#: src/Model/User.php:684
 msgid "Not enough information to authenticate"
 msgstr ""
 
-#: src/Model/User.php:806
+#: src/Model/User.php:805
 msgid "Password can't be empty"
 msgstr ""
 
-#: src/Model/User.php:848
+#: src/Model/User.php:847
 msgid "Empty passwords are not allowed."
 msgstr ""
 
-#: src/Model/User.php:852
+#: src/Model/User.php:851
 msgid ""
 "The new password has been exposed in a public data dump, please choose "
 "another."
 msgstr ""
 
-#: src/Model/User.php:856
+#: src/Model/User.php:855
 msgid "The password length is limited to 72 characters."
 msgstr ""
 
-#: src/Model/User.php:860
+#: src/Model/User.php:859
 msgid "The password can't contain white spaces nor accentuated letters"
 msgstr ""
 
-#: src/Model/User.php:1069
+#: src/Model/User.php:1068
 msgid "Passwords do not match. Password unchanged."
 msgstr ""
 
-#: src/Model/User.php:1076
+#: src/Model/User.php:1075
 msgid "An invitation is required."
 msgstr ""
 
-#: src/Model/User.php:1080
+#: src/Model/User.php:1079
 msgid "Invitation could not be verified."
 msgstr ""
 
-#: src/Model/User.php:1088
+#: src/Model/User.php:1087
 msgid "Invalid OpenID url"
 msgstr ""
 
-#: src/Model/User.php:1101 src/Security/Authentication.php:241
+#: src/Model/User.php:1100 src/Security/Authentication.php:241
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr ""
 
-#: src/Model/User.php:1101 src/Security/Authentication.php:241
+#: src/Model/User.php:1100 src/Security/Authentication.php:241
 msgid "The error message was:"
 msgstr ""
 
-#: src/Model/User.php:1107
+#: src/Model/User.php:1106
 msgid "Please enter the required information."
 msgstr ""
 
-#: src/Model/User.php:1121
+#: src/Model/User.php:1120
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr ""
 
-#: src/Model/User.php:1128
+#: src/Model/User.php:1127
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1132
+#: src/Model/User.php:1131
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1140
+#: src/Model/User.php:1139
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr ""
 
-#: src/Model/User.php:1145
+#: src/Model/User.php:1144
 msgid "Your email domain is not among those allowed on this site."
 msgstr ""
 
-#: src/Model/User.php:1149
+#: src/Model/User.php:1148
 msgid "Not a valid email address."
 msgstr ""
 
-#: src/Model/User.php:1152
+#: src/Model/User.php:1151
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr ""
 
-#: src/Model/User.php:1156 src/Model/User.php:1162
+#: src/Model/User.php:1155 src/Model/User.php:1161
 msgid "Cannot use that email."
 msgstr ""
 
-#: src/Model/User.php:1168
+#: src/Model/User.php:1167
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr ""
 
-#: src/Model/User.php:1176 src/Model/User.php:1233
+#: src/Model/User.php:1175 src/Model/User.php:1232
 msgid "Nickname is already registered. Please choose another."
 msgstr ""
 
-#: src/Model/User.php:1220 src/Model/User.php:1224
+#: src/Model/User.php:1219 src/Model/User.php:1223
 msgid "An error occurred during registration. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1247
+#: src/Model/User.php:1246
 msgid "An error occurred creating your default profile. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1254
+#: src/Model/User.php:1253
 msgid "An error occurred creating your self contact. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1259
+#: src/Model/User.php:1258
 msgid "Friends"
 msgstr ""
 
-#: src/Model/User.php:1263
+#: src/Model/User.php:1262
 msgid ""
 "An error occurred creating your default contact circle. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1307
+#: src/Model/User.php:1306
 msgid "Profile Photos"
 msgstr ""
 
-#: src/Model/User.php:1487
+#: src/Model/User.php:1486
 #, php-format
 msgid ""
 "\n"
@@ -3770,7 +3771,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1490
+#: src/Model/User.php:1489
 #, php-format
 msgid ""
 "\n"
@@ -3808,12 +3809,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1523 src/Model/User.php:1630
+#: src/Model/User.php:1522 src/Model/User.php:1629
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: src/Model/User.php:1543
+#: src/Model/User.php:1542
 #, php-format
 msgid ""
 "\n"
@@ -3829,12 +3830,12 @@ msgid ""
 "\t\t"
 msgstr ""
 
-#: src/Model/User.php:1562
+#: src/Model/User.php:1561
 #, php-format
 msgid "Registration at %s"
 msgstr ""
 
-#: src/Model/User.php:1586
+#: src/Model/User.php:1585
 #, php-format
 msgid ""
 "\n"
@@ -3843,7 +3844,7 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: src/Model/User.php:1594
+#: src/Model/User.php:1593
 #, php-format
 msgid ""
 "\n"
@@ -3880,6 +3881,11 @@ msgid ""
 "settings/removeme\n"
 "\n"
 "\t\t\tThank you and welcome to %2$s."
+msgstr ""
+
+#: src/Model/User.php:1656
+msgid ""
+"User with delegates can't be removed, please remove delegate users first"
 msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:65
@@ -3952,7 +3958,7 @@ msgstr ""
 #: src/Module/Settings/Account.php:561 src/Module/Settings/Addons.php:78
 #: src/Module/Settings/Connectors.php:160
 #: src/Module/Settings/Connectors.php:246
-#: src/Module/Settings/Delegation.php:171 src/Module/Settings/Display.php:303
+#: src/Module/Settings/Delegation.php:193 src/Module/Settings/Display.php:303
 #: src/Module/Settings/Features.php:76
 msgid "Save Settings"
 msgstr ""
@@ -5351,9 +5357,9 @@ msgstr ""
 
 #: src/Module/Admin/Summary.php:98
 msgid ""
-"The last update failed. Please run \"php bin/console.php dbstructure update"
-"\" from the command line and have a look at the errors that might appear. "
-"(Some of the errors are possibly inside the logfile.)"
+"The last update failed. Please run \"php bin/console.php dbstructure "
+"update\" from the command line and have a look at the errors that might "
+"appear. (Some of the errors are possibly inside the logfile.)"
 msgstr ""
 
 #: src/Module/Admin/Summary.php:102
@@ -5504,8 +5510,8 @@ msgstr ""
 #, php-format
 msgid ""
 "Show some informations regarding the needed information to operate the node "
-"according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer"
-"\">EU-GDPR</a>."
+"according e.g. to <a href=\"%s\" target=\"_blank\" rel=\"noopener "
+"noreferrer\">EU-GDPR</a>."
 msgstr ""
 
 #: src/Module/Admin/Tos.php:81
@@ -5547,7 +5553,7 @@ msgstr ""
 msgid "Only starting posts can be muted"
 msgstr ""
 
-#: src/Module/Api/Mastodon/Statuses/Reblog.php:56
+#: src/Module/Api/Mastodon/Statuses/Reblog.php:58
 #, php-format
 msgid "Posts from %s can't be shared"
 msgstr ""
@@ -5560,7 +5566,7 @@ msgstr ""
 msgid "Only starting posts can be unmuted"
 msgstr ""
 
-#: src/Module/Api/Mastodon/Statuses/Unreblog.php:62
+#: src/Module/Api/Mastodon/Statuses/Unreblog.php:64
 #, php-format
 msgid "Posts from %s can't be unshared"
 msgstr ""
@@ -5656,26 +5662,26 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: src/Module/BaseApi.php:451 src/Module/BaseApi.php:467
-#: src/Module/BaseApi.php:483
+#: src/Module/BaseApi.php:455 src/Module/BaseApi.php:471
+#: src/Module/BaseApi.php:487
 msgid "Too Many Requests"
 msgstr ""
 
-#: src/Module/BaseApi.php:452
+#: src/Module/BaseApi.php:456
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:468
+#: src/Module/BaseApi.php:472
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/BaseApi.php:484
+#: src/Module/BaseApi.php:488
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgid_plural ""
@@ -5790,7 +5796,7 @@ msgstr ""
 msgid "Social Networks"
 msgstr ""
 
-#: src/Module/BaseSettings.php:146 src/Module/Settings/Delegation.php:172
+#: src/Module/BaseSettings.php:146 src/Module/Settings/Delegation.php:194
 msgid "Manage Accounts"
 msgstr ""
 
@@ -7047,29 +7053,6 @@ msgstr ""
 
 #: src/Module/Debug/WebFinger.php:52
 msgid "Lookup address:"
-msgstr ""
-
-#: src/Module/Delegation.php:110
-#, php-format
-msgid "You are now logged in as %s"
-msgstr ""
-
-#: src/Module/Delegation.php:142
-msgid "Switch between your accounts"
-msgstr ""
-
-#: src/Module/Delegation.php:143
-msgid "Manage your accounts"
-msgstr ""
-
-#: src/Module/Delegation.php:144
-msgid ""
-"Toggle between different identities or community/group pages which share "
-"your account details or which you have been granted \"manage\" permissions"
-msgstr ""
-
-#: src/Module/Delegation.php:145
-msgid "Select an identity to manage: "
 msgstr ""
 
 #: src/Module/Directory.php:74
@@ -8791,7 +8774,7 @@ msgstr ""
 msgid "Select a tag to remove: "
 msgstr ""
 
-#: src/Module/Post/Tag/Remove.php:108 src/Module/Settings/Delegation.php:180
+#: src/Module/Post/Tag/Remove.php:108
 #: src/Module/Settings/TwoFactor/Trusted.php:144
 msgid "Remove"
 msgstr ""
@@ -8856,8 +8839,8 @@ msgstr ""
 #: src/Module/Profile/Profile.php:158
 #, php-format
 msgid ""
-"You're currently viewing your profile as <b>%s</b> <a href=\"%s\" class="
-"\"btn btn-sm pull-right\">Cancel</a>"
+"You're currently viewing your profile as <b>%s</b> <a href=\"%s\" "
+"class=\"btn btn-sm pull-right\">Cancel</a>"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:167
@@ -9105,11 +9088,11 @@ msgstr ""
 msgid "Note: This node explicitly contains adult content"
 msgstr ""
 
-#: src/Module/Register.php:183 src/Module/Settings/Delegation.php:156
+#: src/Module/Register.php:183 src/Module/Settings/Delegation.php:181
 msgid "Parent Password:"
 msgstr ""
 
-#: src/Module/Register.php:183 src/Module/Settings/Delegation.php:156
+#: src/Module/Register.php:183 src/Module/Settings/Delegation.php:181
 msgid ""
 "Please enter the password of the parent account to legitimize your request."
 msgstr ""
@@ -9405,8 +9388,8 @@ msgstr ""
 #: src/Module/Security/TwoFactor/Verify.php:100
 #, php-format
 msgid ""
-"If you do not have access to your authentication code you can use a <a href="
-"\"%s\">two-factor recovery code</a>."
+"If you do not have access to your authentication code you can use a <a "
+"href=\"%s\">two-factor recovery code</a>."
 msgstr ""
 
 #: src/Module/Security/TwoFactor/Verify.php:101
@@ -10020,7 +10003,7 @@ msgstr ""
 msgid "Add new entry to the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:160 src/Module/Settings/Delegation.php:181
+#: src/Module/Settings/Channels.php:160
 msgid "Add"
 msgstr ""
 
@@ -10232,76 +10215,76 @@ msgstr ""
 msgid "Move to folder:"
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:54
+#: src/Module/Settings/Delegation.php:73
 msgid "Delegation successfully granted."
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:56
+#: src/Module/Settings/Delegation.php:75
 msgid "Parent user not found, unavailable or password doesn't match."
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:60
+#: src/Module/Settings/Delegation.php:79
 msgid "Delegation successfully revoked."
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:82 src/Module/Settings/Delegation.php:104
+#: src/Module/Settings/Delegation.php:98 src/Module/Settings/Delegation.php:120
 msgid ""
 "Delegated administrators can view but not change delegation permissions."
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:96
+#: src/Module/Settings/Delegation.php:112
 msgid "Delegate user not found."
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:144
+#: src/Module/Settings/Delegation.php:169
 msgid "No parent user"
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:155
-#: src/Module/Settings/Delegation.php:166
+#: src/Module/Settings/Delegation.php:180
+#: src/Module/Settings/Delegation.php:191
 msgid "Parent User"
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:163
+#: src/Module/Settings/Delegation.php:188
 msgid "Additional Accounts"
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:164
+#: src/Module/Settings/Delegation.php:189
 msgid ""
 "Register additional accounts that are automatically connected to your "
 "existing account so you can manage them from this account."
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:165
+#: src/Module/Settings/Delegation.php:190
 msgid "Register an additional account"
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:169
+#: src/Module/Settings/Delegation.php:192
 msgid ""
 "Parent users have total control about this account, including the account "
 "settings. Please double check whom you give this access."
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:173
+#: src/Module/Settings/Delegation.php:195
 msgid "Delegates"
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:175
+#: src/Module/Settings/Delegation.php:196
 msgid ""
 "Delegates are able to manage all aspects of this account/page except for "
 "basic account settings. Please do not delegate your personal account to "
 "anybody that you do not trust completely."
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:176
+#: src/Module/Settings/Delegation.php:197
 msgid "Existing Page Delegates"
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:178
+#: src/Module/Settings/Delegation.php:198
 msgid "Potential Delegates"
 msgstr ""
 
-#: src/Module/Settings/Delegation.php:182
+#: src/Module/Settings/Delegation.php:199
 msgid "No entries."
 msgstr ""
 
@@ -10695,42 +10678,52 @@ msgstr ""
 msgid "select a photo from your photo albums"
 msgstr ""
 
-#: src/Module/Settings/RemoveMe.php:94
+#: src/Module/Settings/RemoveMe.php:76
+msgid ""
+"There was a validation error, please make sure you're logged in with the "
+"account you want to remove and try again."
+msgstr ""
+
+#: src/Module/Settings/RemoveMe.php:76
+msgid "If this error persists, please contact your administrator."
+msgstr ""
+
+#: src/Module/Settings/RemoveMe.php:90
 #: src/Navigation/Notifications/Repository/Notify.php:471
 #: src/Navigation/Notifications/Repository/Notify.php:492
 msgid "[Friendica System Notify]"
 msgstr ""
 
-#: src/Module/Settings/RemoveMe.php:94
+#: src/Module/Settings/RemoveMe.php:90
 msgid "User deleted their account"
 msgstr ""
 
-#: src/Module/Settings/RemoveMe.php:95
+#: src/Module/Settings/RemoveMe.php:91
 msgid ""
 "On your Friendica node an user deleted their account. Please ensure that "
 "their data is removed from the backups."
 msgstr ""
 
-#: src/Module/Settings/RemoveMe.php:96
+#: src/Module/Settings/RemoveMe.php:92
 #, php-format
 msgid "The user id is %d"
 msgstr ""
 
-#: src/Module/Settings/RemoveMe.php:108
-msgid "Your user account has been successfully removed. Bye bye!"
+#: src/Module/Settings/RemoveMe.php:105
+msgid "Your account has been successfully removed. Bye bye!"
 msgstr ""
 
-#: src/Module/Settings/RemoveMe.php:128
+#: src/Module/Settings/RemoveMe.php:130
 msgid "Remove My Account"
 msgstr ""
 
-#: src/Module/Settings/RemoveMe.php:129
+#: src/Module/Settings/RemoveMe.php:131
 msgid ""
 "This will completely remove your account. Once this has been done it is not "
 "recoverable."
 msgstr ""
 
-#: src/Module/Settings/RemoveMe.php:131
+#: src/Module/Settings/RemoveMe.php:136
 msgid "Please enter your password for verification:"
 msgstr ""
 
@@ -11047,8 +11040,8 @@ msgstr ""
 #: src/Module/Settings/TwoFactor/Verify.php:149
 #, php-format
 msgid ""
-"<p>Or you can open the following URL in your mobile device:</p><p><a href="
-"\"%s\">%s</a></p>"
+"<p>Or you can open the following URL in your mobile device:</p><p><a "
+"href=\"%s\">%s</a></p>"
 msgstr ""
 
 #: src/Module/Settings/TwoFactor/Verify.php:156
@@ -11157,9 +11150,9 @@ msgstr ""
 msgid ""
 "At any point in time a logged in user can export their account data from the "
 "<a href=\"%1$s/settings/userexport\">account settings</a>. If the user wants "
-"to delete their account they can do so at <a href=\"%1$s/settings/removeme\">"
-"%1$s/settings/removeme</a>. The deletion of the account will be permanent. "
-"Deletion of the data will also be requested from the nodes of the "
+"to delete their account they can do so at <a href=\"%1$s/settings/"
+"removeme\">%1$s/settings/removeme</a>. The deletion of the account will be "
+"permanent. Deletion of the data will also be requested from the nodes of the "
 "communication partners."
 msgstr ""
 
@@ -11177,6 +11170,29 @@ msgstr ""
 
 #: src/Module/Update/Display.php:55
 msgid "The requested item doesn't exist or has been deleted."
+msgstr ""
+
+#: src/Module/User/Delegation.php:146
+#, php-format
+msgid "You are now logged in as %s"
+msgstr ""
+
+#: src/Module/User/Delegation.php:185
+msgid "Switch between your accounts"
+msgstr ""
+
+#: src/Module/User/Delegation.php:186
+msgid "Manage your accounts"
+msgstr ""
+
+#: src/Module/User/Delegation.php:187
+msgid ""
+"Toggle between different identities or community/group pages which share "
+"your account details or which you have been granted \"manage\" permissions"
+msgstr ""
+
+#: src/Module/User/Delegation.php:188
+msgid "Select an identity to manage: "
 msgstr ""
 
 #: src/Module/User/Import.php:103

@@ -1,11 +1,12 @@
-<h1>{{$title}}</h1>
-<p id="identity-delegation-desc">{{$desc nofilter}}</p>
-<p id="identity-delegation-choose">{{$choose}}</p>
+<div id="delegation" class="generic-page-wrapper">
+	<h2>{{$l10n.title}}</h2>
+	<p id="identity-delegation-desc">{{$l10n.desc}}</p>
+	<p id="identity-delegation-choose">{{$l10n.choose}}</p>
 
-<div id="identity-selector-wrapper" role="menu">
-	<form action="delegation" method="post">
+	<div id="identity-selector-wrapper" role="menu">
+		<form action="delegation" method="post">
 
-	{{foreach $identities as $identity}}
+{{foreach $identities as $identity}}
 		<div class="identity-match-wrapper {{if $identity.selected}}selected-identity{{/if}}" id="identity-match-{{$identity.uid}}">
 			<div class="identity-match-photo" id="identity-match-photo-{{$identity.uid}}">
 				<button type="submit" name="identity" value="{{$identity.uid}}" title="{{$identity.username}}">
@@ -28,13 +29,14 @@
 			</div>
 			<div class="identity-match-end"></div>
 		</div>
-	{{/foreach}}
+{{/foreach}}
 
-	<div class="identity-match-break"></div>
+		<div class="identity-match-break"></div>
 
-	</form>
+		</form>
+	</div>
+
+	<p>
+		<a href="settings/delegation" class="btn btn-primary"><i class="fa fa-cog"></i> {{$l10n.settings_label}}</a>
+	</p>
 </div>
-
-<p>
-	<a href="settings/delegation" class="btn btn-primary"><i class="fa fa-cog"></i> {{$settings_label}}</a>
-</p>
