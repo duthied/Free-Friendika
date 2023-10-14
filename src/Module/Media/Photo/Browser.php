@@ -26,12 +26,12 @@ use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\Core\System;
 use Friendica\Model\Photo;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Util\Images;
 use Friendica\Util\Profiler;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
@@ -109,8 +109,8 @@ class Browser extends BaseModule
 			[
 				"`resource-id` = ? AND `height` <= ? AND `width` <= ?",
 				$record['resource-id'],
-				640,
-				640
+				Proxy::PIXEL_MEDIUM,
+				Proxy::PIXEL_MEDIUM
 			],
 			['order' => ['scale']]);
 		$scale = $photo['scale'] ?? $record['loq'];

@@ -30,6 +30,7 @@ use Friendica\Network\HTTPException;
 use Friendica\Object\Image;
 use Friendica\Util\Images;
 use Friendica\Util\Strings;
+use Friendica\Util\Proxy;
 
 class Index extends BaseSettings
 {
@@ -82,7 +83,7 @@ class Index extends BaseSettings
 		$height = $Image->getHeight();
 
 		if ($width < 175 || $height < 175) {
-			$Image->scaleUp(300);
+			$Image->scaleUp(Proxy::PIXEL_SMALL);
 			$width = $Image->getWidth();
 			$height = $Image->getHeight();
 		}
@@ -95,10 +96,10 @@ class Index extends BaseSettings
 			DI::sysmsg()->addNotice(DI::l10n()->t('Image upload failed.'));
 		}
 
-		if ($width > 640 || $height > 640) {
-			$Image->scaleDown(640);
+		if ($width > Proxy::PIXEL_MEDIUM || $height > Proxy::PIXEL_MEDIUM) {
+			$Image->scaleDown(Proxy::PIXEL_MEDIUM);
 			if (!Photo::store($Image, DI::userSession()->getLocalUserId(), 0, $resource_id, $filename, DI::l10n()->t(Photo::PROFILE_PHOTOS), 1, Photo::USER_AVATAR)) {
-				DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', '640'));
+				DI::sysmsg()->addNotice(DI::l10n()->t('Image size reduction [%s] failed.', Proxy::PIXEL_MEDIUM));
 			}
 		}
 

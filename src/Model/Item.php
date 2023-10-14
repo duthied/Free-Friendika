@@ -3483,11 +3483,8 @@ class Item
 				continue;
 			}
 
-			if ($PostMedia->mimetype->type == 'image') {
-				$preview_size = $PostMedia->width > $PostMedia->height ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE;
-				$preview_url = DI::baseUrl() . $PostMedia->getPreviewPath($preview_size);
-			} elseif ($PostMedia->preview) {
-				$preview_size = Proxy::SIZE_LARGE;
+			if ($PostMedia->mimetype->type == 'image' || $PostMedia->preview) {
+				$preview_size = Proxy::SIZE_MEDIUM;
 				$preview_url = DI::baseUrl() . $PostMedia->getPreviewPath($preview_size);
 			} else {
 				$preview_size = 0;
