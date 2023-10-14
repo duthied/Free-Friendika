@@ -346,6 +346,10 @@ class Timeline extends BaseModule
 
 		$items = [];
 		$result = $this->database->select('post-engagement', ['uri-id', 'created', 'owner-id', 'comments', 'activities'], $condition, $params);
+		if ($this->database->errorNo()) {
+			throw new \Exception($this->database->errorMessage(), $this->database->errorNo());
+		}
+
 		while ($item = $this->database->fetch($result)) {
 			$items[$item['uri-id']] = $item;
 		}

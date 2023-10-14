@@ -71,7 +71,7 @@ class Channels extends BaseSettings
 				'circle'           => (int)$request['new_circle'],
 				'include-tags'     => $this->cleanTags($request['new_include_tags']),
 				'exclude-tags'     => $this->cleanTags($request['new_exclude_tags']),
-				'full-text-search' => $this->cleanTags($request['new_text_search']),
+				'full-text-search' => $request['new_text_search'],
 				'media-type'       => ($request['new_image'] ? 1 : 0) | ($request['new_video'] ? 2 : 0) | ($request['new_audio'] ? 4 : 0),
 			]);
 			$saved = $this->channel->save($channel);
@@ -95,7 +95,7 @@ class Channels extends BaseSettings
 				'circle'           => (int)$request['circle'][$id],
 				'include-tags'     => $this->cleanTags($request['include_tags'][$id]),
 				'exclude-tags'     => $this->cleanTags($request['exclude_tags'][$id]),
-				'full-text-search' => $this->cleanTags($request['text_search'][$id]),
+				'full-text-search' => $request['text_search'][$id],
 				'media-type'       => ($request['image'][$id] ? 1 : 0) | ($request['video'][$id] ? 2 : 0) | ($request['audio'][$id] ? 4 : 0),
 			]);
 			$saved = $this->channel->save($channel);
@@ -131,8 +131,8 @@ class Channels extends BaseSettings
 				'description'  => ["description[$channel->code]", $this->t("Description"), $channel->description],
 				'access_key'   => ["access_key[$channel->code]", $this->t("Access Key"), $channel->accessKey],
 				'circle'       => ["circle[$channel->code]", $this->t('Circle/Channel'), $channel->circle, '', $circles],
-				'include_tags' => ["include_tags[$channel->code]", $this->t("Include Tags"), $channel->includeTags],
-				'exclude_tags' => ["exclude_tags[$channel->code]", $this->t("Exclude Tags"), $channel->excludeTags],
+				'include_tags' => ["include_tags[$channel->code]", $this->t("Include Tags"), str_replace(',', ', ', $channel->includeTags)],
+				'exclude_tags' => ["exclude_tags[$channel->code]", $this->t("Exclude Tags"), str_replace(',', ', ', $channel->excludeTags)],
 				'text_search'  => ["text_search[$channel->code]", $this->t("Full Text Search"), $channel->fullTextSearch],
 				'image'        => ["image[$channel->code]", $this->t("Images"), $channel->mediaType & 1],
 				'video'        => ["video[$channel->code]", $this->t("Videos"), $channel->mediaType & 2],
@@ -180,7 +180,7 @@ class Channels extends BaseSettings
 		foreach ($tagitems as $tag) {
 			$tag = trim($tag, '# ');
 			if (!empty($tag)) {
-				$tags[] = $tag;
+				$tags[] = preg_replace('#\s#u', '', $tag);
 			}
 		}
 		return implode(',', $tags);
