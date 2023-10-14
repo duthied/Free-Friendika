@@ -1001,7 +1001,7 @@ class Photo
 		$filesize = strlen($image->asString());
 		$width    = $image->getWidth();
 		$height   = $image->getHeight();
-	
+
 		if ($maximagesize && ($filesize > $maximagesize)) {
 			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
 			foreach ([5120, 2560, 1280, 640, 320] as $pixels) {
@@ -1014,8 +1014,8 @@ class Photo
 				}
 			}
 		}
-	
-		return $image;	
+
+		return $image;
 	}
 
 	/**
@@ -1031,7 +1031,7 @@ class Photo
 			$image->scaleDown($max_length);
 			Logger::info('File upload: Scaling picture to new size', ['max-length' => $max_length]);
 		}
-		
+
 		return self::resizeToFileSize($image, Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize')));
 	}
 
@@ -1255,16 +1255,16 @@ class Photo
 			return -1;
 		}
 
-		if ($width > 640 || $height > 640) {
-			$image->scaleDown(640);
+		if ($width > Proxy::PIXEL_MEDIUM || $height > Proxy::PIXEL_MEDIUM) {
+			$image->scaleDown(Proxy::PIXEL_MEDIUM);
 		}
 
-		if ($width > 320 || $height > 320) {
+		if ($width > Proxy::PIXEL_SMALL || $height > Proxy::PIXEL_SMALL) {
 			$result = self::store($image, $uid, 0, $resource_id, $filename, $album, 1, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $description);
 			if ($result) {
 				$preview = 1;
 			}
-			$image->scaleDown(320);
+			$image->scaleDown(Proxy::PIXEL_SMALL);
 			$result = self::store($image, $uid, 0, $resource_id, $filename, $album, 2, self::DEFAULT, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $description);
 			if ($result && ($preview == 0)) {
 				$preview = 2;

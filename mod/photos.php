@@ -312,16 +312,16 @@ function photos_post(App $a)
 
 					Photo::update(['height' => $height, 'width' => $width], ['resource-id' => $resource_id, 'uid' => $page_owner_uid, 'scale' => 0], $image);
 
-					if ($width > 640 || $height > 640) {
-						$image->scaleDown(640);
+					if ($width > \Friendica\Util\Proxy::PIXEL_MEDIUM || $height > \Friendica\Util\Proxy::PIXEL_MEDIUM) {
+						$image->scaleDown(\Friendica\Util\Proxy::PIXEL_MEDIUM);
 						$width  = $image->getWidth();
 						$height = $image->getHeight();
 
 						Photo::update(['height' => $height, 'width' => $width], ['resource-id' => $resource_id, 'uid' => $page_owner_uid, 'scale' => 1], $image);
 					}
 
-					if ($width > 320 || $height > 320) {
-						$image->scaleDown(320);
+					if ($width > \Friendica\Util\Proxy::PIXEL_SMALL || $height > \Friendica\Util\Proxy::PIXEL_SMALL) {
+						$image->scaleDown(\Friendica\Util\Proxy::PIXEL_SMALL);
 						$width  = $image->getWidth();
 						$height = $image->getHeight();
 
