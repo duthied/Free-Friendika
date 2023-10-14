@@ -35,7 +35,7 @@ class IncomingTest extends ApiTest
 	 */
 	public function testApiFriendshipsIncoming()
 	{
-		$response = (new Incoming(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+		$response = (new Incoming(DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock);
 
 		$json = $this->toJson($response);

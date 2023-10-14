@@ -36,14 +36,14 @@ class Accounts extends BaseApi
 {
 	protected function delete(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 
 		$request = $this->getRequest([
 			'account_ids' => [], // Array of account IDs to remove from the list
 		], $request);
 
 		if (empty($request['account_ids']) || empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		return Circle::removeMembers($this->parameters['id'], $request['account_ids']);
@@ -51,14 +51,14 @@ class Accounts extends BaseApi
 
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 
 		$request = $this->getRequest([
 			'account_ids' =>  [], // Array of account IDs to add to the list
 		], $request);
 
 		if (empty($request['account_ids']) || empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		Circle::addMembers($this->parameters['id'], $request['account_ids']);
@@ -69,16 +69,16 @@ class Accounts extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$id = $this->parameters['id'];
 		if (!DBA::exists('group', ['id' => $id, 'uid' => $uid])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$request = $this->getRequest([

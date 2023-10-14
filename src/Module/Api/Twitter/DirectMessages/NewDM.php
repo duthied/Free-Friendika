@@ -46,9 +46,9 @@ class NewDM extends BaseApi
 	/** @var DirectMessage */
 	private $directMessage;
 
-	public function __construct(DirectMessage $directMessage, Database $dba, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	public function __construct(DirectMessage $directMessage, Database $dba, \Friendica\Factory\Api\Mastodon\Error $errorFactory, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
 	{
-		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($errorFactory, $app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->dba           = $dba;
 		$this->directMessage = $directMessage;
@@ -56,7 +56,7 @@ class NewDM extends BaseApi
 
 	protected function rawContent(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+		$this->checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
 
 		if (empty($request['text']) || empty($request['screen_name']) && empty($request['user_id'])) {

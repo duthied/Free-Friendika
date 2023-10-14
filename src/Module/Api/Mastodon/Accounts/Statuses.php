@@ -47,12 +47,12 @@ class Statuses extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$id = $this->parameters['id'];
 		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$request = $this->getRequest([

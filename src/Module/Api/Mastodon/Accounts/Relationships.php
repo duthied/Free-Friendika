@@ -36,7 +36,7 @@ class Relationships extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$request = $this->getRequest([
@@ -44,7 +44,7 @@ class Relationships extends BaseApi
 		], $request);
 
 		if (empty($request['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		if (!is_array($request['id'])) {

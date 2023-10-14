@@ -30,7 +30,7 @@ class VersionTest extends ApiTest
 {
 	public function test()
 	{
-		$response = (new Version(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
+		$response = (new Version(DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
 			->run($this->httpExceptionMock);
 
 		self::assertEquals([

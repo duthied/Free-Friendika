@@ -45,7 +45,7 @@ class RetweetTest extends ApiTest
 	{
 		$this->expectException(BadRequestException::class);
 
-		(new Retweet(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+		(new Retweet(DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock);
 	}
 
@@ -71,7 +71,7 @@ class RetweetTest extends ApiTest
 	 */
 	public function testApiStatusesRepeatWithId()
 	{
-		$response = (new Retweet(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+		$response = (new Retweet(DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock, [
 				'id' => 1
 			]);
@@ -88,7 +88,7 @@ class RetweetTest extends ApiTest
 	 */
 	public function testApiStatusesRepeatWithSharedId()
 	{
-		$response = (new Retweet(DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+		$response = (new Retweet(DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock, [
 				'id' => 5
 			]);

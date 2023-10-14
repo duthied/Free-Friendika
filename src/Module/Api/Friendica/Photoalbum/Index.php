@@ -33,7 +33,7 @@ class Index extends BaseApi
 {
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$albums = Photo::getAlbums($uid);

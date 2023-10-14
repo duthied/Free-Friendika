@@ -35,20 +35,20 @@ class Unbookmark extends BaseApi
 {
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$item = Post::selectOriginal(['uid', 'id', 'uri-id', 'gravity'], ['uri-id' => $this->parameters['id'], 'uid' => [$uid, 0]], ['order' => ['uid' => true]]);
 		if (!DBA::isResult($item)) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		if ($item['gravity'] != Item::GRAVITY_PARENT) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be unbookmarked'));
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity($this->t('Only starting posts can be unbookmarked')));
 		}
 
 		if ($item['uid'] == 0) {
@@ -56,10 +56,10 @@ class Unbookmark extends BaseApi
 			if (!empty($stored)) {
 				$item = Post::selectFirst(['id', 'gravity'], ['id' => $stored]);
 				if (!DBA::isResult($item)) {
-					DI::mstdnError()->RecordNotFound();
+					$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 				}
 			} else {
-				DI::mstdnError()->RecordNotFound();
+				$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 			}
 		}
 

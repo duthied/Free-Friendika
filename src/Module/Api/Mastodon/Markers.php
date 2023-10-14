@@ -34,7 +34,7 @@ class Markers extends BaseApi
 {
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 
@@ -48,7 +48,7 @@ class Markers extends BaseApi
 		}
 
 		if (empty($timeline) || empty($last_read_id) || empty($application['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$condition = ['application-id' => $application['id'], 'uid' => $uid, 'timeline' => $timeline];
@@ -69,7 +69,7 @@ class Markers extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid         = self::getCurrentUserID();
 		$application = self::getCurrentApplication();
 

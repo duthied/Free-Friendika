@@ -27,7 +27,6 @@ use Friendica\App\Router;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -37,6 +36,7 @@ use Friendica\Model\User;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
+use Friendica\Object\Api\Mastodon\Error;
 use Friendica\Object\Api\Mastodon\Status;
 use Friendica\Object\Api\Mastodon\TimelineOrderByTypes;
 use Friendica\Security\BasicAuth;
@@ -71,11 +71,15 @@ class BaseApi extends BaseModule
 	/** @var ApiResponse */
 	protected $response;
 
-	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	/** @var \Friendica\Factory\Api\Mastodon\Error */
+	protected $errorFactory;
+
+	public function __construct(\Friendica\Factory\Api\Mastodon\Error $errorFactory, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
 	{
 		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->app = $app;
+		$this->app          = $app;
+		$this->errorFactory = $errorFactory;
 	}
 
 	/**
@@ -93,7 +97,7 @@ class BaseApi extends BaseModule
 				case Router::PATCH:
 				case Router::POST:
 				case Router::PUT:
-					self::checkAllowedScope(self::SCOPE_WRITE);
+					$this->checkAllowedScope(self::SCOPE_WRITE);
 
 					if (!self::getCurrentUserID()) {
 						throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
@@ -414,23 +418,23 @@ class BaseApi extends BaseModule
 	 *
 	 * @param string $scope the requested scope (read, write, follow, push)
 	 */
-	public static function checkAllowedScope(string $scope)
+	public function checkAllowedScope(string $scope)
 	{
 		$token = self::getCurrentApplication();
 
 		if (empty($token)) {
-			Logger::notice('Empty application token');
-			DI::mstdnError()->Forbidden();
+			$this->logger->notice('Empty application token');
+			$this->logAndJsonError(403, $this->errorFactory->Forbidden());
 		}
 
 		if (!isset($token[$scope])) {
-			Logger::warning('The requested scope does not exist', ['scope' => $scope, 'application' => $token]);
-			DI::mstdnError()->Forbidden();
+			$this->logger->warning('The requested scope does not exist', ['scope' => $scope, 'application' => $token]);
+			$this->logAndJsonError(403, $this->errorFactory->Forbidden());
 		}
 
 		if (empty($token[$scope])) {
-			Logger::warning('The requested scope is not allowed', ['scope' => $scope, 'application' => $token]);
-			DI::mstdnError()->Forbidden();
+			$this->logger->warning('The requested scope is not allowed', ['scope' => $scope, 'application' => $token]);
+			$this->logAndJsonError(403, $this->errorFactory->Forbidden());
 		}
 	}
 
@@ -514,5 +518,17 @@ class BaseApi extends BaseModule
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param int   $errorno
+	 * @param Error $error
+	 * @return void
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	protected function logAndJsonError(int $errorno, Error $error)
+	{
+		$this->logger->info('API Error', ['no' => $errorno, 'error' => $error->toArray(), 'method' => $this->args->getMethod(), 'command' => $this->args->getQueryString(), 'user-agent' => $this->server['HTTP_USER_AGENT'] ?? '']);
+		$this->jsonError(403, $error->toArray());
 	}
 }

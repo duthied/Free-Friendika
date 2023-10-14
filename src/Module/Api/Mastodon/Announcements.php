@@ -34,7 +34,7 @@ class Announcements extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 
 		// @todo Possibly use the message from the pageheader addon for this
 		$this->jsonExit([]);

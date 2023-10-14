@@ -70,7 +70,7 @@ class Apps extends BaseApi
 		}
 
 		if (empty($request['client_name']) || empty($request['redirect_uris'])) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Missing parameters'));
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity($this->t('Missing parameters')));
 		}
 
 		$client_id     = bin2hex(random_bytes(32));
@@ -92,7 +92,7 @@ class Apps extends BaseApi
 		}
 
 		if (!DBA::insert('application', $fields)) {
-			DI::mstdnError()->InternalError();
+			$this->logAndJsonError(500, $this->errorFactory->InternalError());
 		}
 
 		$this->jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId())->toArray());

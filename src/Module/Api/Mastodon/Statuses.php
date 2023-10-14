@@ -49,7 +49,7 @@ class Statuses extends BaseApi
 {
 	public function put(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$request = $this->getRequest([
@@ -164,7 +164,7 @@ class Statuses extends BaseApi
 
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$request = $this->getRequest([
@@ -297,7 +297,7 @@ class Statuses extends BaseApi
 			$item['uri'] = Item::newURI($item['guid']);
 			$id = Post\Delayed::add($item['uri'], $item, Worker::PRIORITY_HIGH, Post\Delayed::PREPARED, DateTimeFormat::utc($request['scheduled_at']));
 			if (empty($id)) {
-				DI::mstdnError()->InternalError();
+				$this->logAndJsonError(500, $this->errorFactory->InternalError());
 			}
 			$this->jsonExit(DI::mstdnScheduledStatus()->createFromDelayedPostId($id, $uid)->toArray());
 		}
@@ -310,25 +310,25 @@ class Statuses extends BaseApi
 			}
 		}
 
-		DI::mstdnError()->InternalError();
+		$this->logAndJsonError(500, $this->errorFactory->InternalError());
 	}
 
 	protected function delete(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $this->parameters['id'], 'uid' => $uid]);
 		if (empty($item['id'])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		if (!Item::markForDeletionById($item['id'])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$this->jsonExit([]);
@@ -342,7 +342,7 @@ class Statuses extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$this->jsonExit(DI::mstdnStatus()->createFromUriId($this->parameters['id'], $uid, self::appSupportsQuotes(), false));

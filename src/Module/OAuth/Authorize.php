@@ -51,17 +51,17 @@ class Authorize extends BaseApi
 
 		if ($request['response_type'] != 'code') {
 			Logger::warning('Unsupported or missing response type', ['request' => $_REQUEST]);
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Unsupported or missing response type'));
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity($this->t('Unsupported or missing response type')));
 		}
 
 		if (empty($request['client_id']) || empty($request['redirect_uri'])) {
 			Logger::warning('Incomplete request data', ['request' => $_REQUEST]);
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Incomplete request data'));
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity($this->t('Incomplete request data')));
 		}
 
 		$application = OAuth::getApplication($request['client_id'], $request['client_secret'], $request['redirect_uri']);
 		if (empty($application)) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		// @todo Compare the application scope and requested scope
@@ -87,7 +87,7 @@ class Authorize extends BaseApi
 
 		$token = OAuth::createTokenForUser($application, $uid, $request['scope']);
 		if (!$token) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		if ($application['redirect_uri'] != 'urn:ietf:wg:oauth:2.0:oob') {

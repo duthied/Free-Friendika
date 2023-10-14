@@ -41,7 +41,7 @@ class Notifications extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (!empty($this->parameters['id'])) {
@@ -50,7 +50,7 @@ class Notifications extends BaseApi
 				$notification = DI::notification()->selectOneForUser($uid, ['id' => $id]);
 				$this->jsonExit(DI::mstdnNotification()->createFromNotification($notification, self::appSupportsQuotes()));
 			} catch (\Exception $e) {
-				DI::mstdnError()->RecordNotFound();
+				$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 			}
 		}
 
