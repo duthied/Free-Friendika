@@ -656,6 +656,9 @@ $a->strings['Matrix:'] = 'Matrix:';
 $a->strings['Location:'] = 'Откуда:';
 $a->strings['Network:'] = 'Сеть:';
 $a->strings['Unfollow'] = 'Отписка';
+$a->strings['Mention'] = 'Отметка';
+$a->strings['Post to group'] = 'Запись для группы';
+$a->strings['View group'] = 'Просмотр группы';
 $a->strings['Yourself'] = 'Вы';
 $a->strings['Mutuals'] = 'Взаимные';
 $a->strings['Post to Email'] = 'Отправить на Email';
@@ -1514,12 +1517,14 @@ $a->strings['Monthly posting limit of %d post reached. The post was rejected.'] 
 	3 => 'Месячный лимит в  %d записей достигнут. Запись была отклонена.',
 ];
 $a->strings['You don\'t have access to moderation pages.'] = 'У вас нет доступа к страницам модераторов.';
+$a->strings['Submanaged account can\'t access the moderation pages. Please log back in as the main account.'] = 'Дополнительная учётная запись не имеет доступа к модераторским страницам. Пожалуйста, зайдите под основной.';
 $a->strings['Reports'] = 'Обращения';
 $a->strings['Users'] = 'Пользователи';
 $a->strings['Tools'] = 'Инструменты';
 $a->strings['Contact Blocklist'] = 'Чёрный список контактов';
 $a->strings['Server Blocklist'] = 'Чёрный список серверов';
 $a->strings['Delete Item'] = 'Удалить запись';
+$a->strings['Item Source'] = 'Исходник';
 $a->strings['Profile Details'] = 'Информация о вас';
 $a->strings['Conversations started'] = 'Записи этого автора';
 $a->strings['Only You Can See This'] = 'Только вы можете это видеть';
@@ -1529,6 +1534,12 @@ $a->strings['Tips for New Members'] = 'Советы для новых участ
 $a->strings['People Search - %s'] = 'Поиск по людям - %s';
 $a->strings['Group Search - %s'] = 'Поиск по группам - %s';
 $a->strings['No matches'] = 'Нет соответствий';
+$a->strings['%d result was filtered out because your node blocks the domain it is registered on. You can review the list of domains your node is currently blocking in the <a href="/friendica">About page</a>.'] = [
+	0 => '%d результато не был показан, так как ваш сервер блокирует домен источника. Вы можете посмотреть список заблокированных доменов на странице информации <a href="/friendica">Об узле</a>.',
+	1 => '%d результатов не были показаны, так как ваш сервер блокирует домен их источника. Вы можете посмотреть список заблокированных доменов на странице информации <a href="/friendica">Об узле</a>.',
+	2 => '%d результатов не были показаны, так как ваш сервер блокирует домен их источника. Вы можете посмотреть список заблокированных доменов на странице информации <a href="/friendica">Об узле</a>.',
+	3 => '%d результатов не были показаны, так как ваш сервер блокирует домен их источника. Вы можете посмотреть список заблокированных доменов на странице информации <a href="/friendica">Об узле</a>.',
+];
 $a->strings['Account'] = 'Аккаунт';
 $a->strings['Two-factor authentication'] = 'Двухфакторная аутентификация';
 $a->strings['Display'] = 'Внешний вид';
@@ -2034,7 +2045,6 @@ $a->strings['Tag'] = 'Тэг';
 $a->strings['Type'] = 'Тип';
 $a->strings['Term'] = 'Ключевое слово';
 $a->strings['URL'] = 'URL';
-$a->strings['Mention'] = 'Отметка';
 $a->strings['Implicit Mention'] = 'Неявная отметка';
 $a->strings['Item not found'] = 'Элемент не найден';
 $a->strings['No source recorded'] = 'Источник не сохранён';
@@ -2208,6 +2218,9 @@ $a->strings['Visible to:'] = 'Кто может видеть:';
 $a->strings['Collection (%s)'] = 'Коллекция (%s)';
 $a->strings['Followers (%s)'] = 'Подписчики (%s)';
 $a->strings['%d more'] = '%d ещё';
+$a->strings['<b>To:</b> %s<br>'] = '<b>Кому:</b> %s<br>';
+$a->strings['<b>Audience:</b> %s<br>'] = '<b>Аудитория:</b> %s<br>';
+$a->strings['<b>Attributed To:</b> %s<br>'] = '<b>Относится к:</b> %s<br>';
 $a->strings['The Photo is not available.'] = 'Фото недоступно.';
 $a->strings['The Photo with id %s is not available.'] = 'Фотография с id %s недоступна.';
 $a->strings['Invalid external resource with url %s.'] = 'Проблема с внешним ресурсом по адресу %s.';
