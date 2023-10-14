@@ -4,6 +4,8 @@
 	<div id="remove-account-wrapper">
 		<div id="remove-account-desc">{{$l10n.desc nofilter}}</div>
 
+		{{$hovercard nofilter}}
+
 		<form action="settings/removeme" autocomplete="off" method="post">
             {{include file="field_password.tpl" field=$password}}
 

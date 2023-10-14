@@ -41,11 +41,11 @@ class ListTimeline extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$request = $this->getRequest([

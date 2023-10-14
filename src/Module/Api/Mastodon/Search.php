@@ -43,7 +43,7 @@ class Search extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$request = $this->getRequest([
@@ -60,7 +60,7 @@ class Search extends BaseApi
 		], $request);
 
 		if (empty($request['q'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$limit = min($request['limit'], 40);

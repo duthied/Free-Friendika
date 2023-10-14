@@ -45,16 +45,16 @@ class Destroy extends ContactEndpoint
 	/** @var TwitterUser */
 	private $twitterUser;
 
-	public function __construct(App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, TwitterUser $twitterUser, array $server, array $parameters = [])
+	public function __construct(\Friendica\Factory\Api\Mastodon\Error $errorFactory, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, TwitterUser $twitterUser, array $server, array $parameters = [])
 	{
-		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($errorFactory, $app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->twitterUser = $twitterUser;
 	}
 
 	protected function post(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+		$this->checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
 
 		$owner = User::getOwnerDataById($uid);

@@ -54,6 +54,7 @@ class InstanceV2 extends BaseApi
 	private $contactHeader;
 
 	public function __construct(
+		\Friendica\Factory\Api\Mastodon\Error $errorFactory,
 		App $app,
 		L10n $l10n,
 		App\BaseURL $baseUrl,
@@ -66,7 +67,7 @@ class InstanceV2 extends BaseApi
 		array $server,
 		array $parameters = []
 	) {
-		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($errorFactory, $app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->database      = $database;
 		$this->config        = $config;

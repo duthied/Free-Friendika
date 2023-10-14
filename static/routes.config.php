@@ -423,8 +423,8 @@ return [
 	],
 
 	'/credits'                  => [Module\Credits::class,          [R::GET]],
-	'/delegation'               => [Module\Delegation::class,       [R::GET, R::POST]],
-	'/dfrn_notify[/{nickname}]' => [Module\DFRN\Notify::class,      [R::POST]],
+	'/delegation'               => [Module\User\Delegation::class,  [R::GET, R::POST]],
+	'/dfrn_notify[/{nickname}]' => [Module\DFRN\Notify::class,      [        R::POST]],
 	'/dfrn_poll/{nickname}'     => [Module\DFRN\Poll::class,        [R::GET]],
 	'/dirfind'                  => [Module\Search\Directory::class, [R::GET]],
 	'/directory'                => [Module\Directory::class,        [R::GET]],

@@ -34,11 +34,11 @@ class Block extends BaseApi
 {
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_FOLLOW);
+		$this->checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		Contact\User::setBlocked($this->parameters['id'], $uid, true);

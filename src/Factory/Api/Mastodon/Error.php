@@ -21,81 +21,53 @@
 
 namespace Friendica\Factory\Api\Mastodon;
 
-use Friendica\App\Arguments;
 use Friendica\BaseFactory;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
 use Psr\Log\LoggerInterface;
 
 /** @todo A Factory shouldn't return something to the frontpage, it's for creating content, not showing it */
 class Error extends BaseFactory
 {
-	/** @var Arguments */
-	private $args;
-	/** @var string[] The $_SERVER array */
-	private $server;
 	/** @var L10n */
 	private $l10n;
 
-	public function __construct(LoggerInterface $logger, Arguments $args, L10n $l10n, array $server)
+	public function __construct(LoggerInterface $logger, L10n $l10n)
 	{
 		parent::__construct($logger);
-		$this->args   = $args;
-		$this->server = $server;
 		$this->l10n   = $l10n;
 	}
 
-	private function logError(int $errorno, string $error)
-	{
-		$this->logger->info('API Error', ['no' => $errorno, 'error' => $error, 'method' => $this->args->getMethod(), 'command' => $this->args->getQueryString(), 'user-agent' => $this->server['HTTP_USER_AGENT'] ?? '']);
-	}
-
-	public function RecordNotFound()
+	public function RecordNotFound(): \Friendica\Object\Api\Mastodon\Error
 	{
 		$error             = $this->l10n->t('Record not found');
 		$error_description = '';
-		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-
-		$this->logError(404, $error);
-		$this->jsonError(404, $errorObj->toArray());
+		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
-	public function UnprocessableEntity(string $error = '')
+	public function UnprocessableEntity(string $error = ''): \Friendica\Object\Api\Mastodon\Error
 	{
 		$error             = $error ?: $this->l10n->t('Unprocessable Entity');
 		$error_description = '';
-		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-
-		$this->logError(422, $error);
-		$this->jsonError(422, $errorObj->toArray());
+		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
-	public function Unauthorized(string $error = '', string $error_description = '')
+	public function Unauthorized(string $error = '', string $error_description = ''): \Friendica\Object\Api\Mastodon\Error
 	{
 		$error             = $error ?: $this->l10n->t('Unauthorized');
-		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-
-		$this->logError(401, $error);
-		$this->jsonError(401, $errorObj->toArray());
+		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
-	public function Forbidden(string $error = '')
+	public function Forbidden(string $error = ''): \Friendica\Object\Api\Mastodon\Error
 	{
 		$error             = $error ?: $this->l10n->t('Token is not authorized with a valid user or is missing a required scope');
 		$error_description = '';
-		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-
-		$this->logError(403, $error);
-		$this->jsonError(403, $errorObj->toArray());
+		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 
-	public function InternalError(string $error = '')
+	public function InternalError(string $error = ''): \Friendica\Object\Api\Mastodon\Error
 	{
 		$error             = $error ?: $this->l10n->t('Internal Server Error');
 		$error_description = '';
-		$errorObj          = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-
-		$this->logError(500, $error);
-		$this->jsonError(500, $errorObj->toArray());
+		return new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 	}
 }

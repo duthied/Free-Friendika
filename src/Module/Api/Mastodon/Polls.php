@@ -39,7 +39,7 @@ class Polls extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$this->jsonExit(DI::mstdnPoll()->createFromId($this->parameters['id'], $uid));

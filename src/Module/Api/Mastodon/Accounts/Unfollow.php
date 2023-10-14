@@ -33,16 +33,16 @@ class Unfollow extends BaseApi
 {
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_FOLLOW);
+		$this->checkAllowedScope(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$cdata = Contact::getPublicAndUserContactID($this->parameters['id'], $uid);
 		if (empty($cdata['user'])) {
-			DI::mstdnError()->RecordNotFound();
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 		}
 
 		$contact = Contact::getById($cdata['user']);

@@ -39,7 +39,7 @@ class AllTest extends ApiTest
 
 		$directMessage = new DirectMessage(DI::logger(), DI::dba(), DI::twitterUser());
 
-		$response = (new All($directMessage, DI::dba(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
+		$response = (new All($directMessage, DI::dba(), DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'json']))
 			->run($this->httpExceptionMock);
 
 		$json = $this->toJson($response);

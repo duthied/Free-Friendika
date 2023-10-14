@@ -35,7 +35,7 @@ class Show extends ContactEndpoint
 {
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
 		$source_cid = BaseApi::getContactIDForSearchterm($this->getRequestValue($request, 'source_screen_name', ''), '', $this->getRequestValue($request, 'source_id', 0), $uid);

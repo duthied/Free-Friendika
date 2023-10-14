@@ -38,7 +38,7 @@ class StatusesTest extends ApiTest
 	{
 		$this->expectException(BadRequestException::class);
 
-		(new Statuses(DI::dba(), DI::twitterStatus(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+		(new Statuses(DI::dba(), DI::twitterStatus(), DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock);
 	}
 
@@ -47,7 +47,7 @@ class StatusesTest extends ApiTest
 	 */
 	public function testApiListsStatusesWithListId()
 	{
-		$response = (new Statuses(DI::dba(), DI::twitterStatus(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
+		$response = (new Statuses(DI::dba(), DI::twitterStatus(), DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), []))
 			->run($this->httpExceptionMock, [
 				'list_id' => 1,
 				'page'    => -1,
@@ -67,7 +67,7 @@ class StatusesTest extends ApiTest
 	 */
 	public function testApiListsStatusesWithListIdAndRss()
 	{
-		$response = (new Statuses(DI::dba(), DI::twitterStatus(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'rss']))
+		$response = (new Statuses(DI::dba(), DI::twitterStatus(), DI::mstdnError(), DI::app(), DI::l10n(), DI::baseUrl(), DI::args(), DI::logger(), DI::profiler(), DI::apiResponse(), [], ['extension' => 'rss']))
 			->run($this->httpExceptionMock, [
 				'list_id' => 1
 			]);

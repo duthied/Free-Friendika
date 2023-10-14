@@ -359,7 +359,7 @@ class Status extends BaseFactory
 	{
 		$item = ActivityPub\Transmitter::getItemArrayFromMail($id, true);
 		if (empty($item)) {
-			$this->mstdnErrorFactory->RecordNotFound();
+			throw new HTTPException\NotFoundException('Mail record not found with id: ' . $id);
 		}
 
 		$account = $this->mstdnAccountFactory->createFromContactId($item['author-id']);

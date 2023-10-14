@@ -36,7 +36,7 @@ class Create extends BaseApi
 {
 	protected function post(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+		$this->checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
 
 		$postdata = Network::postdata();

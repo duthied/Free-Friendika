@@ -44,16 +44,16 @@ class Ownership extends BaseApi
 	/** @var Database */
 	private $dba;
 
-	public function __construct(Database $dba, FriendicaCircle $friendicaCircle, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
+	public function __construct(Database $dba, FriendicaCircle $friendicaCircle, \Friendica\Factory\Api\Mastodon\Error $errorFactory, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, array $server, array $parameters = [])
 	{
-		parent::__construct($app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+		parent::__construct($errorFactory, $app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->dba             = $dba;
 		$this->friendicaCircle = $friendicaCircle;
 	}
 	protected function rawContent(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_READ);
+		$this->checkAllowedScope(BaseApi::SCOPE_READ);
 		$uid = BaseApi::getCurrentUserID();
 
 		$circles = $this->dba->select('group', [], ['deleted' => false, 'uid' => $uid, 'cid' => null]);

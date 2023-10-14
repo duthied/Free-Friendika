@@ -46,7 +46,7 @@ class Update extends BaseApi
 {
 	public function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$owner = User::getOwnerDataById($uid);

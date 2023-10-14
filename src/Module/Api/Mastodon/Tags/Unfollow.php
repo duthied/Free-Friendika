@@ -33,11 +33,11 @@ class Unfollow extends BaseApi
 {
 	protected function post(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_WRITE);
+		$this->checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		if (empty($this->parameters['hashtag'])) {
-			DI::mstdnError()->UnprocessableEntity();
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
 		}
 
 		$term = ['uid' => $uid, 'term' => '#' . ltrim($this->parameters['hashtag'], '#')];

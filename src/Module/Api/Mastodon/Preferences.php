@@ -36,7 +36,7 @@ class Preferences extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		self::checkAllowedScope(self::SCOPE_READ);
+		$this->checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$user = User::getById($uid, ['language', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);

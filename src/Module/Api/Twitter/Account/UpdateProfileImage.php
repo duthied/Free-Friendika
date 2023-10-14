@@ -35,7 +35,7 @@ class UpdateProfileImage extends BaseApi
 {
 	protected function post(array $request = [])
 	{
-		BaseApi::checkAllowedScope(BaseApi::SCOPE_WRITE);
+		$this->checkAllowedScope(BaseApi::SCOPE_WRITE);
 		$uid = BaseApi::getCurrentUserID();
 
 		// get mediadata from image or media (Twitter call api/account/update_profile_image provides image)
