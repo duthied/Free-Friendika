@@ -226,13 +226,14 @@ class System
 	/**
 	 * Returns a string with a callstack. Can be used for logging.
 	 *
-	 * @param integer $depth  How many calls to include in the stacks after filtering
-	 * @param int     $offset How many calls to shave off the top of the stack, for example if
-	 *                        this is called from a centralized method that isn't relevant to the callstack
-	 * @param bool    $full   If enabled, the callstack is not compacted
+	 * @param integer $depth   How many calls to include in the stacks after filtering
+	 * @param int     $offset  How many calls to shave off the top of the stack, for example if
+	 *                         this is called from a centralized method that isn't relevant to the callstack
+	 * @param bool    $full    If enabled, the callstack is not compacted
+	 * @param array   $exclude 
 	 * @return string
 	 */
-	public static function callstack(int $depth = 4, int $offset = 0, bool $full = false): string
+	public static function callstack(int $depth = 4, int $offset = 0, bool $full = false, array $exclude = []): string
 	{
 		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
@@ -247,6 +248,10 @@ class System
 
 		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {
+				if (in_array($func['class'], $exclude)) {
+					continue;
+				}
+
 				if (!$full && in_array($previous['function'], ['insert', 'fetch', 'toArray', 'exists', 'count', 'selectFirst', 'selectToArray',
 					'select', 'update', 'delete', 'selectFirstForUser', 'selectForUser'])
 					&& (substr($previous['class'], 0, 15) === 'Friendica\Model')) {
