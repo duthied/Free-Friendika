@@ -429,6 +429,10 @@ class Receiver
 				$object_data['directmessage'] = true;
 			} else {
 				$object_data['directmessage'] = JsonLD::fetchElement($activity, 'litepub:directMessage');
+
+				if (!empty(JsonLD::fetchElement($activity['as:object'], 'misskey:_misskey_talk'))) {
+					$object_data = self::setChatData($object_data, $receivers);
+				}
 			}
 		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Announce', 'as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
@@ -504,6 +508,26 @@ class Receiver
 
 		Logger::info('Processing', ['type' => $object_data['type'], 'object_type' => $object_data['object_type'], 'id' => $object_data['id'], 'actor' => $actor, 'platform' => $platform]);
 
+		return $object_data;
+	}
+
+	private static function setChatData(array $object_data, array $receivers): array
+	{
+		if (count($receivers) != 1) {
+			return $object_data;
+		}
+
+		$user = User::getById(array_key_first($receivers), ['language']);
+		$l10n = DI::l10n()->withLang($user['language']);
+		$object_data['name'] = $l10n->t('Chat');
+
+		$mail = DBA::selectFirst('mail', ['uri'], ['uid' => array_key_first($receivers), 'title' => $object_data['name']], ['order' => ['id' => true]]);
+		if (!empty($mail['uri'])) {
+			$object_data['reply-to-id'] = $mail['uri'];
+		}
+
+		$object_data['directmessage'] = true;
+		Logger::debug('Got Misskey Chat');
 		return $object_data;
 	}
 

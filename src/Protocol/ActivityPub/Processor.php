@@ -1114,8 +1114,7 @@ class Processor
 				$item['contact-id'] = Contact::getIdForURL($activity['author']);
 			}
 
-			if (!empty($activity['directmessage'])) {
-				self::postMail($activity, $item);
+			if (!empty($activity['directmessage']) && self::postMail($item)) {
 				continue;
 			}
 
@@ -1347,15 +1346,19 @@ class Processor
 	/**
 	 * Creates an mail post
 	 *
-	 * @param array $activity Activity data
-	 * @param array $item     item array
+	 * @param array $item item array
 	 * @return int|bool New mail table row id or false on error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function postMail(array $activity, array $item)
+	private static function postMail(array $item): bool
 	{
 		if (($item['gravity'] != Item::GRAVITY_PARENT) && !DBA::exists('mail', ['uri' => $item['thr-parent'], 'uid' => $item['uid']])) {
 			Logger::info('Parent not found, mail will be discarded.', ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
+			return false;
+		}
+
+		if (!Contact::isFollower($item['contact-id'], $item['uid']) && !Contact::isSharing($item['contact-id'], $item['uid'])) {
+			Logger::info('Contact is not a sharer or follower, mail will be discarded.', ['item' => $item]);
 			return false;
 		}
 
