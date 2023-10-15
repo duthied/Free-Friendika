@@ -66,20 +66,14 @@ function switchCircleViewMode(elm) {
  * @returns {undefined}
  */
 function filterList() {
-	// Declare variables
-	var input, filter, ul, li, a, i;
-	input = document.getElementById("contacts-search");
-	filter = input.value.toUpperCase();
-	li = document.querySelectorAll("#contact-circle-list>li");
+	const search = document.getElementById("contacts-search").value.toUpperCase();
+	const li     = document.querySelectorAll("#contact-circle-list>li");
 
-	// Loop through all list items, and hide those who don't match the search query
-	for (i = 0; i < li.length; i++) {
-		// Get the heading element
-		var mh = li[i].getElementsByClassName("media-heading")[0];
-		// The first child of the heading element should contain
-		// the text which we want to filter
-		a = mh.firstChild;
-		if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+	for (let i = 0; i < li.length; i++) {
+		let foundInDisplayName = li[i].getElementsByClassName("media-heading")[0].firstChild.textContent.toUpperCase().indexOf(search) > -1;
+		let foundInAddr        = li[i].getElementsByClassName("contact-entry-url")[0].textContent.toUpperCase().indexOf(search) > -1;
+
+		if (foundInDisplayName || foundInAddr) {
 			li[i].style.display = "";
 		} else {
 			li[i].style.display = "none";
