@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-14 19:09+0000\n"
+"POT-Creation-Date: 2023-10-15 08:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,7 +72,7 @@ msgstr ""
 #: src/Module/Settings/Delegation.php:90 src/Module/Settings/Display.php:90
 #: src/Module/Settings/Display.php:193
 #: src/Module/Settings/Profile/Photo/Crop.php:165
-#: src/Module/Settings/Profile/Photo/Index.php:111
+#: src/Module/Settings/Profile/Photo/Index.php:112
 #: src/Module/Settings/RemoveMe.php:119 src/Module/Settings/UserExport.php:80
 #: src/Module/Settings/UserExport.php:114
 #: src/Module/Settings/UserExport.php:215
@@ -2189,8 +2189,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:994 src/Model/Item.php:3816
-#: src/Model/Item.php:3822 src/Model/Item.php:3823
+#: src/Content/Text/BBCode.php:994 src/Model/Item.php:3813
+#: src/Model/Item.php:3819 src/Model/Item.php:3820
 msgid "Link to source"
 msgstr ""
 
@@ -3430,44 +3430,44 @@ msgstr ""
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3723
+#: src/Model/Item.php:3720
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3754
+#: src/Model/Item.php:3751
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3756
+#: src/Model/Item.php:3753
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3761
+#: src/Model/Item.php:3758
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3763
+#: src/Model/Item.php:3760
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3765
+#: src/Model/Item.php:3762
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3799 src/Model/Item.php:3800
+#: src/Model/Item.php:3796 src/Model/Item.php:3797
 msgid "View on separate page"
 msgstr ""
 
@@ -7503,7 +7503,7 @@ msgstr ""
 
 #: src/Module/Media/Attachment/Browser.php:79
 #: src/Module/Media/Photo/Browser.php:90
-#: src/Module/Settings/Profile/Photo/Index.php:128
+#: src/Module/Settings/Profile/Photo/Index.php:129
 msgid "Upload"
 msgstr ""
 
@@ -7526,12 +7526,12 @@ msgstr ""
 
 #: src/Module/Media/Photo/Upload.php:152 src/Module/Media/Photo/Upload.php:153
 #: src/Module/Profile/Photos.php:217
-#: src/Module/Settings/Profile/Photo/Index.php:68
+#: src/Module/Settings/Profile/Photo/Index.php:69
 msgid "Unable to process image."
 msgstr ""
 
 #: src/Module/Media/Photo/Upload.php:178 src/Module/Profile/Photos.php:237
-#: src/Module/Settings/Profile/Photo/Index.php:95
+#: src/Module/Settings/Profile/Photo/Index.php:96
 msgid "Image upload failed."
 msgstr ""
 
@@ -8810,7 +8810,7 @@ msgstr ""
 
 #: src/Module/Profile/Photos.php:164 src/Module/Profile/Photos.php:167
 #: src/Module/Profile/Photos.php:194
-#: src/Module/Settings/Profile/Photo/Index.php:59
+#: src/Module/Settings/Profile/Photo/Index.php:60
 #, php-format
 msgid "Image exceeds size limit of %s"
 msgstr ""
@@ -10615,7 +10615,7 @@ msgstr ""
 #: src/Module/Settings/Profile/Photo/Crop.php:107
 #: src/Module/Settings/Profile/Photo/Crop.php:125
 #: src/Module/Settings/Profile/Photo/Crop.php:143
-#: src/Module/Settings/Profile/Photo/Index.php:101
+#: src/Module/Settings/Profile/Photo/Index.php:102
 #, php-format
 msgid "Image size reduction [%s] failed."
 msgstr ""
@@ -10651,35 +10651,35 @@ msgstr ""
 msgid "Use Image As Is"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Index.php:45
+#: src/Module/Settings/Profile/Photo/Index.php:46
 msgid "Missing uploaded image."
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Index.php:124
+#: src/Module/Settings/Profile/Photo/Index.php:125
 msgid "Profile Picture Settings"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Index.php:125
+#: src/Module/Settings/Profile/Photo/Index.php:126
 msgid "Current Profile Picture"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Index.php:126
+#: src/Module/Settings/Profile/Photo/Index.php:127
 msgid "Upload Profile Picture"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Index.php:127
+#: src/Module/Settings/Profile/Photo/Index.php:128
 msgid "Upload Picture:"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Index.php:132
+#: src/Module/Settings/Profile/Photo/Index.php:133
 msgid "or"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Index.php:134
+#: src/Module/Settings/Profile/Photo/Index.php:135
 msgid "skip this step"
 msgstr ""
 
-#: src/Module/Settings/Profile/Photo/Index.php:136
+#: src/Module/Settings/Profile/Photo/Index.php:137
 msgid "select a photo from your photo albums"
 msgstr ""
 
@@ -12177,6 +12177,10 @@ msgstr ""
 #: src/Object/Post.php:703
 #, php-format
 msgid "Reacted with %s by: %s"
+msgstr ""
+
+#: src/Protocol/ActivityPub/Receiver.php:522
+msgid "Chat"
 msgstr ""
 
 #: src/Protocol/Delivery.php:547
