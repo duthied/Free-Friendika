@@ -82,11 +82,15 @@ class InstallerTest extends MockedTest
 
 	/**
 	 * Mocking the DI::l10n()->t() calls for the function checks
+	 *
+	 * @param bool $disableTimes if true, the L10, which are just created in case of an error, will be set to false (because the check will succeed)
 	 */
-	private function mockFunctionL10TCalls()
+	private function mockFunctionL10TCalls(bool $disableTimes = false)
 	{
 		$this->mockL10nT('Apache mod_rewrite module', 1);
 		$this->mockL10nT('PDO or MySQLi PHP module', 1);
+		$this->mockL10nT('IntlChar PHP module', 1);
+		$this->mockL10nT('Error: The IntlChar module is not installed.', $disableTimes ? 0 : 1);
 		$this->mockL10nT('libCurl PHP module', 1);
 		$this->mockL10nT('Error: libCURL PHP module required but not installed.', 1);
 		$this->mockL10nT('XML PHP module', 1);
@@ -181,10 +185,21 @@ class InstallerTest extends MockedTest
 	public function testCheckFunctions()
 	{
 		$this->mockFunctionL10TCalls();
+		$this->setClasses(['IntlChar' => false]);
+		$install = new Installer();
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(2,
+			'IntlChar PHP module',
+			'Error: The IntlChar module is not installed.',
+			false,
+			true,
+			$install->getChecks());
+
+		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['curl_init' => false, 'imagecreatefromjpeg' => true]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(3,
+		self::assertCheckExist(4,
 			'libCurl PHP module',
 			'Error: libCURL PHP module required but not installed.',
 			false,
@@ -195,7 +210,7 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['imagecreatefromjpeg' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(4,
+		self::assertCheckExist(5,
 			'GD graphics PHP module',
 			'Error: GD graphics PHP module with JPEG support required but not installed.',
 			false,
@@ -206,7 +221,7 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['openssl_public_encrypt' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(5,
+		self::assertCheckExist(6,
 			'OpenSSL PHP module',
 			'Error: openssl PHP module required but not installed.',
 			false,
@@ -217,7 +232,7 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['mb_strlen' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(6,
+		self::assertCheckExist(7,
 			'mb_string PHP module',
 			'Error: mb_string PHP module required but not installed.',
 			false,
@@ -228,7 +243,7 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['iconv_strlen' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(7,
+		self::assertCheckExist(8,
 			'iconv PHP module',
 			'Error: iconv PHP module required but not installed.',
 			false,
@@ -239,7 +254,7 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['posix_kill' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(8,
+		self::assertCheckExist(9,
 			'POSIX PHP module',
 			'Error: POSIX PHP module required but not installed.',
 			false,
@@ -250,7 +265,7 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['proc_open' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(9,
+		self::assertCheckExist(10,
 			'Program execution functions',
 			'Error: Program execution functions (proc_open) required but not enabled.',
 			false,
@@ -260,7 +275,7 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['json_encode' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(10,
+		self::assertCheckExist(11,
 			'JSON PHP module',
 			'Error: JSON PHP module required but not installed.',
 			false,
@@ -271,7 +286,7 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['finfo_open' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(11,
+		self::assertCheckExist(12,
 			'File Information PHP module',
 			'Error: File Information PHP module required but not installed.',
 			false,
@@ -282,14 +297,14 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['gmp_strval' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(12,
+		self::assertCheckExist(13,
 			'GNU Multiple Precision PHP module',
 			'Error: GNU Multiple Precision PHP module required but not installed.',
 		false,
 			true,
 			$install->getChecks());
 
-		$this->mockFunctionL10TCalls();
+		$this->mockFunctionL10TCalls(true);
 		$this->setFunctions([
 			'curl_init' => true,
 			'imagecreatefromjpeg' => true,
@@ -301,6 +316,7 @@ class InstallerTest extends MockedTest
 			'finfo_open' => true,
 			'gmp_strval' => true,
 		]);
+		$this->setClasses(['IntlChar' => true]);
 		$install = new Installer();
 		self::assertTrue($install->checkFunctions());
 	}

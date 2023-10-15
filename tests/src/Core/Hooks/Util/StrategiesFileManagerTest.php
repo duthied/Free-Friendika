@@ -190,7 +190,7 @@ EOF,
 		$hookFileManager = new StrategiesFileManager($this->root->url(), $addonLoader);
 
 		vfsStream::newFile(StrategiesFileManager::STATIC_DIR . '/' . StrategiesFileManager::CONFIG_NAME . '.config.php')
-				 ->withContent("<php return 'WRONG_CONTENT';")
+				 ->withContent("<?php return 'WRONG_CONTENT';")
 				 ->at($this->root);
 
 		self::expectException(HookConfigException::class);

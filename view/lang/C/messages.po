@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-15 08:16+0000\n"
+"POT-Creation-Date: 2023-10-15 13:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2633,214 +2633,222 @@ msgstr ""
 msgid "PDO or MySQLi PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:425
+#: src/Core/Installer.php:411
+msgid "Error: The IntlChar module is not installed."
+msgstr ""
+
+#: src/Core/Installer.php:414
+msgid "IntlChar PHP module"
+msgstr ""
+
+#: src/Core/Installer.php:422
 msgid "Error, XML PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:429
+#: src/Core/Installer.php:426
 msgid "XML PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:432
+#: src/Core/Installer.php:429
 msgid "libCurl PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:433
+#: src/Core/Installer.php:430
 msgid "Error: libCURL PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:439
+#: src/Core/Installer.php:436
 msgid "GD graphics PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:440
+#: src/Core/Installer.php:437
 msgid ""
 "Error: GD graphics PHP module with JPEG support required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:446
+#: src/Core/Installer.php:443
 msgid "OpenSSL PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:447
+#: src/Core/Installer.php:444
 msgid "Error: openssl PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:453
+#: src/Core/Installer.php:450
 msgid "mb_string PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:454
+#: src/Core/Installer.php:451
 msgid "Error: mb_string PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:460
+#: src/Core/Installer.php:457
 msgid "iconv PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:461
+#: src/Core/Installer.php:458
 msgid "Error: iconv PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:467
+#: src/Core/Installer.php:464
 msgid "POSIX PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:468
+#: src/Core/Installer.php:465
 msgid "Error: POSIX PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:474
+#: src/Core/Installer.php:471
 msgid "Program execution functions"
 msgstr ""
 
-#: src/Core/Installer.php:475
+#: src/Core/Installer.php:472
 msgid ""
 "Error: Program execution functions (proc_open) required but not enabled."
 msgstr ""
 
-#: src/Core/Installer.php:481
+#: src/Core/Installer.php:478
 msgid "JSON PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:482
+#: src/Core/Installer.php:479
 msgid "Error: JSON PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:488
+#: src/Core/Installer.php:485
 msgid "File Information PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:489
+#: src/Core/Installer.php:486
 msgid "Error: File Information PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:495
+#: src/Core/Installer.php:492
 msgid "GNU Multiple Precision PHP module"
 msgstr ""
 
-#: src/Core/Installer.php:496
+#: src/Core/Installer.php:493
 msgid "Error: GNU Multiple Precision PHP module required but not installed."
 msgstr ""
 
-#: src/Core/Installer.php:519
+#: src/Core/Installer.php:516
 msgid ""
 "The web installer needs to be able to create a file called \"local.config.php"
 "\" in the \"config\" folder of your web server and it is unable to do so."
 msgstr ""
 
-#: src/Core/Installer.php:520
+#: src/Core/Installer.php:517
 msgid ""
 "This is most often a permission setting, as the web server may not be able "
 "to write files in your folder - even if you can."
 msgstr ""
 
-#: src/Core/Installer.php:521
+#: src/Core/Installer.php:518
 msgid ""
 "At the end of this procedure, we will give you a text to save in a file "
 "named local.config.php in your Friendica \"config\" folder."
 msgstr ""
 
-#: src/Core/Installer.php:522
+#: src/Core/Installer.php:519
 msgid ""
 "You can alternatively skip this procedure and perform a manual installation. "
 "Please see the file \"doc/INSTALL.md\" for instructions."
 msgstr ""
 
-#: src/Core/Installer.php:525
+#: src/Core/Installer.php:522
 msgid "config/local.config.php is writable"
 msgstr ""
 
-#: src/Core/Installer.php:545
+#: src/Core/Installer.php:542
 msgid ""
 "Friendica uses the Smarty3 template engine to render its web views. Smarty3 "
 "compiles templates to PHP to speed up rendering."
 msgstr ""
 
-#: src/Core/Installer.php:546
+#: src/Core/Installer.php:543
 msgid ""
 "In order to store these compiled templates, the web server needs to have "
 "write access to the directory view/smarty3/ under the Friendica top level "
 "folder."
 msgstr ""
 
-#: src/Core/Installer.php:547
+#: src/Core/Installer.php:544
 msgid ""
 "Please ensure that the user that your web server runs as (e.g. www-data) has "
 "write access to this folder."
 msgstr ""
 
-#: src/Core/Installer.php:548
+#: src/Core/Installer.php:545
 msgid ""
 "Note: as a security measure, you should give the web server write access to "
 "view/smarty3/ only--not the template files (.tpl) that it contains."
 msgstr ""
 
-#: src/Core/Installer.php:551
+#: src/Core/Installer.php:548
 msgid "view/smarty3 is writable"
 msgstr ""
 
-#: src/Core/Installer.php:579
+#: src/Core/Installer.php:576
 msgid ""
 "Url rewrite in .htaccess seems not working. Make sure you copied .htaccess-"
 "dist to .htaccess."
 msgstr ""
 
-#: src/Core/Installer.php:580
+#: src/Core/Installer.php:577
 msgid ""
 "In some circumstances (like running inside containers), you can skip this "
 "error."
 msgstr ""
 
-#: src/Core/Installer.php:582
+#: src/Core/Installer.php:579
 msgid "Error message from Curl when fetching"
 msgstr ""
 
-#: src/Core/Installer.php:588
+#: src/Core/Installer.php:585
 msgid "Url rewrite is working"
 msgstr ""
 
-#: src/Core/Installer.php:617
+#: src/Core/Installer.php:614
 msgid ""
 "The detection of TLS to secure the communication between the browser and the "
 "new Friendica server failed."
 msgstr ""
 
-#: src/Core/Installer.php:618
+#: src/Core/Installer.php:615
 msgid ""
 "It is highly encouraged to use Friendica only over a secure connection as "
 "sensitive information like passwords will be transmitted."
 msgstr ""
 
-#: src/Core/Installer.php:619
+#: src/Core/Installer.php:616
 msgid "Please ensure that the connection to the server is secure."
 msgstr ""
 
-#: src/Core/Installer.php:620
+#: src/Core/Installer.php:617
 msgid "No TLS detected"
 msgstr ""
 
-#: src/Core/Installer.php:622
+#: src/Core/Installer.php:619
 msgid "TLS detected"
 msgstr ""
 
-#: src/Core/Installer.php:649
+#: src/Core/Installer.php:646
 msgid "ImageMagick PHP extension is not installed"
 msgstr ""
 
-#: src/Core/Installer.php:651
+#: src/Core/Installer.php:648
 msgid "ImageMagick PHP extension is installed"
 msgstr ""
 
-#: src/Core/Installer.php:653
+#: src/Core/Installer.php:650
 msgid "ImageMagick supports GIF"
 msgstr ""
 
-#: src/Core/Installer.php:675
+#: src/Core/Installer.php:672
 msgid "Database already in use."
 msgstr ""
 
-#: src/Core/Installer.php:680
+#: src/Core/Installer.php:677
 msgid "Could not connect to database."
 msgstr ""
 

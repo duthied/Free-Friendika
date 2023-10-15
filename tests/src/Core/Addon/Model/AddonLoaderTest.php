@@ -160,7 +160,7 @@ EOF;
 	public function testWrongContent()
 	{
 		$filename     = 'addon/testaddon1/static/hooks.config.php';
-		$wrongContent = "<php return 'wrong';";
+		$wrongContent = "<?php return 'wrong';";
 
 		vfsStream::create($this->structure)->at($this->root);
 
@@ -190,7 +190,7 @@ EOF;
 	public function testNoHooksConfig()
 	{
 		$filename     = 'addon/testaddon1/static/hooks.config.php';
-		$wrongContent = "<php return 'wrong';";
+		$wrongContent = "<?php return 'wrong';";
 
 		vfsStream::create($this->structure)->at($this->root);
 

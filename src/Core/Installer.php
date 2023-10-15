@@ -404,8 +404,6 @@ class Installer
 		}
 		$this->addCheck(DI::l10n()->t('PDO or MySQLi PHP module'), $status, true, $help);
 
-		// Uncomment when IntlChar is installed in the check pipeline.
-		/*
 		$help   = '';
 		$status = true;
 		if (!class_exists('IntlChar')) {
@@ -414,7 +412,6 @@ class Installer
 			$returnVal = false;
 		}
 		$this->addCheck(DI::l10n()->t('IntlChar PHP module'), $status, true, $help);
-		*/
 
 		// check for XML DOM Documents being able to be generated
 		$help = '';
