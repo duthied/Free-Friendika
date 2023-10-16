@@ -190,6 +190,11 @@ abstract class BaseModule implements ICanHandleRequests
 			$this->response->setHeader('*', 'Access-Control-Allow-Headers');
 			$this->response->setHeader(Router::GET, 'Access-Control-Allow-Methods');
 			$this->response->setHeader('false', 'Access-Control-Allow-Credentials');
+		} elseif (substr($this->args->getQueryString(), 0, 9) == 'nodeinfo/') {
+			$this->response->setHeader('*', 'Access-Control-Allow-Origin');
+			$this->response->setHeader('*', 'Access-Control-Allow-Headers');
+			$this->response->setHeader(Router::GET, 'Access-Control-Allow-Methods');
+			$this->response->setHeader('false', 'Access-Control-Allow-Credentials');
 		} elseif (substr($this->args->getQueryString(), 0, 8) == 'profile/') {
 			$this->response->setHeader('*', 'Access-Control-Allow-Origin');
 			$this->response->setHeader('*', 'Access-Control-Allow-Headers');
