@@ -962,7 +962,7 @@ class User
 	public static function getAvatarUrl(array $user, string $size = ''): string
 	{
 		if (empty($user['nickname'])) {
-			DI::logger()->warning('Missing user nickname key', ['trace' => System::callstack(20)]);
+			DI::logger()->warning('Missing user nickname key');
 		}
 
 		$url = DI::baseUrl() . '/photo/';
@@ -1004,7 +1004,7 @@ class User
 	public static function getBannerUrl(array $user): string
 	{
 		if (empty($user['nickname'])) {
-			DI::logger()->warning('Missing user nickname key', ['trace' => System::callstack(20)]);
+			DI::logger()->warning('Missing user nickname key');
 		}
 
 		$url = DI::baseUrl() . '/photo/banner/';

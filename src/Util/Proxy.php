@@ -116,7 +116,7 @@ class Proxy
 			$size = ':' . $size;
 		}
 
-		Logger::info('Created proxy link', ['url' => $url, 'callstack' => System::callstack(20)]);
+		Logger::info('Created proxy link', ['url' => $url]);
 
 		// Too long files aren't supported by Apache
 		if (strlen($proxypath) > 250) {

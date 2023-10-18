@@ -26,7 +26,6 @@ use DOMXPath;
 use Exception;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
@@ -126,7 +125,7 @@ class GServer
 
 		$gserver = DBA::selectFirst('gserver', ['id'], ['nurl' => Strings::normaliseLink($url)]);
 		if (DBA::isResult($gserver)) {
-			Logger::debug('Got ID for URL', ['id' => $gserver['id'], 'url' => $url, 'callstack' => System::callstack(20)]);
+			Logger::debug('Got ID for URL', ['id' => $gserver['id'], 'url' => $url]);
 
 			if (Network::isUrlBlocked($url)) {
 				self::setBlockedById($gserver['id']);
@@ -2515,7 +2514,7 @@ class GServer
 			}
 		}
 
-		Logger::info('Protocol for server', ['protocol' => $protocol, 'old' => $old, 'id' => $gsid, 'url' => $gserver['url'], 'callstack' => System::callstack(20)]);
+		Logger::info('Protocol for server', ['protocol' => $protocol, 'old' => $old, 'id' => $gsid, 'url' => $gserver['url']]);
 		self::update(['protocol' => $protocol], ['id' => $gsid]);
 	}
 

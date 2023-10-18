@@ -1081,7 +1081,7 @@ class Contact
 				return;
 			}
 		} elseif (!isset($contact['url'])) {
-			Logger::info('Empty contact', ['contact' => $contact, 'callstack' => System::callstack(20)]);
+			Logger::info('Empty contact', ['contact' => $contact]);
 		}
 
 		Logger::info('Contact is marked for archival', ['id' => $contact['id'], 'term-date' => $contact['term-date']]);
@@ -1366,7 +1366,7 @@ class Contact
 			}
 
 			if (DBA::isResult($personal_contact)) {
-				Logger::info('Take contact data from personal contact', ['url' => $url, 'update' => $update, 'contact' => $personal_contact, 'callstack' => System::callstack(20)]);
+				Logger::info('Take contact data from personal contact', ['url' => $url, 'update' => $update, 'contact' => $personal_contact]);
 				$data = $personal_contact;
 				$data['photo'] = $personal_contact['avatar'];
 				$data['account-type'] = $personal_contact['contact-type'];
@@ -1378,7 +1378,7 @@ class Contact
 		}
 
 		if (empty($data['network']) || ($data['network'] == Protocol::PHANTOM)) {
-			Logger::notice('No valid network found', ['url' => $url, 'uid' => $uid, 'default' => $default, 'update' => $update, 'callstack' => System::callstack(20)]);
+			Logger::notice('No valid network found', ['url' => $url, 'uid' => $uid, 'default' => $default, 'update' => $update]);
 			return 0;
 		}
 
@@ -2576,7 +2576,7 @@ class Contact
 			Worker::add(Worker::PRIORITY_HIGH, 'MergeContact', $first, $duplicate['id'], $uid);
 		}
 		DBA::close($duplicates);
-		Logger::info('Duplicates handled', ['uid' => $uid, 'nurl' => $nurl, 'callstack' => System::callstack(20)]);
+		Logger::info('Duplicates handled', ['uid' => $uid, 'nurl' => $nurl]);
 		return true;
 	}
 
@@ -2599,7 +2599,7 @@ class Contact
 
 		$stamp = (float)microtime(true);
 		self::updateFromProbe($id);
-		Logger::debug('Contact data is updated.', ['duration' => round((float)microtime(true) - $stamp, 3), 'id' => $id, 'url' => $contact['url'], 'callstack' => System::callstack(20)]);
+		Logger::debug('Contact data is updated.', ['duration' => round((float)microtime(true) - $stamp, 3), 'id' => $id, 'url' => $contact['url']]);
 		return true;
 	}
 
@@ -2839,7 +2839,7 @@ class Contact
 			}
 
 			$ret['last-item'] = Probe::getLastUpdate($ret);
-			Logger::info('Fetched last item', ['id' => $id, 'probed_url' => $ret['url'], 'last-item' => $ret['last-item'], 'callstack' => System::callstack(20)]);
+			Logger::info('Fetched last item', ['id' => $id, 'probed_url' => $ret['url'], 'last-item' => $ret['last-item']]);
 		}
 
 		$update = false;
@@ -3370,7 +3370,7 @@ class Contact
 		} elseif (!empty($contact['id'])) {
 			self::remove($contact['id']);
 		} else {
-			DI::logger()->info('Couldn\'t remove follower because of invalid contact array', ['contact' => $contact, 'callstack' => System::callstack()]);
+			DI::logger()->info('Couldn\'t remove follower because of invalid contact array', ['contact' => $contact]);
 			return;
 		}
 

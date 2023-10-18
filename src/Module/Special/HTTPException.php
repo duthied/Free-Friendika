@@ -138,7 +138,6 @@ class HTTPException
 					'code'        => $e->getCode(),
 					'description' => $e->getDescription(),
 					'query'       => $this->args->getQueryString(),
-					'callstack'   => System::callstack(20),
 					'method'      => $this->args->getMethod(),
 					'agent'       => $this->server['HTTP_USER_AGENT'] ?? ''
 				]);

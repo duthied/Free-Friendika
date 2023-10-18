@@ -27,7 +27,6 @@ use Exception;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -219,7 +218,7 @@ class Probe
 
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 
-		Logger::info('Probing', ['host' => $host, 'ssl_url' => $ssl_url, 'url' => $url, 'callstack' => System::callstack(20)]);
+		Logger::info('Probing', ['host' => $host, 'ssl_url' => $ssl_url, 'url' => $url]);
 		$xrd = null;
 
 		$curlResult = DI::httpClient()->get($ssl_url, HttpClientAccept::XRD_XML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);

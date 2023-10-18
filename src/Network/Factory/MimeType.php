@@ -22,7 +22,6 @@
 namespace Friendica\Network\Factory;
 
 use Friendica\BaseFactory;
-use Friendica\Core\System;
 use Friendica\Network\Entity;
 
 /**
@@ -43,7 +42,7 @@ class MimeType extends BaseFactory
 				$filetype = strtolower($types[0]);
 				$subtype = strtolower($types[1]);
 			} else {
-				$this->logger->notice('Unknown MimeType', ['type' => $contentType, 'callstack' => System::callstack(10)]);
+				$this->logger->notice('Unknown MimeType', ['type' => $contentType]);
 			}
 
 			$parameters = [];

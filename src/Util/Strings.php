@@ -23,7 +23,6 @@ namespace Friendica\Util;
 
 use Friendica\Content\ContactSelector;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use ParagonIE\ConstantTime\Base64;
 
 /**
@@ -511,7 +510,7 @@ class Strings
 		);
 
 		if (is_null($return)) {
-			Logger::notice('Received null value from preg_replace_callback', ['text' => $text, 'regex' => $regex, 'blocks' => $blocks, 'executionId' => $executionId, 'callstack' => System::callstack(10)]);
+			Logger::notice('Received null value from preg_replace_callback', ['text' => $text, 'regex' => $regex, 'blocks' => $blocks, 'executionId' => $executionId]);
 		}
 
 		$text = $callback($return ?? $text) ?? '';

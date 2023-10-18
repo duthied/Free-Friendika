@@ -25,7 +25,6 @@ use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -79,7 +78,7 @@ class Media
 		}
 
 		if (DBA::exists('post-media', ['uri-id' => $media['uri-id'], 'preview' => $media['url']])) {
-			Logger::info('Media already exists as preview', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'callstack' => System::callstack()]);
+			Logger::info('Media already exists as preview', ['uri-id' => $media['uri-id'], 'url' => $media['url']]);
 			return false;
 		}
 
@@ -87,12 +86,12 @@ class Media
 		// and embedded as picture then we only store the picture or replace the document
 		$found = DBA::selectFirst('post-media', ['type'], ['uri-id' => $media['uri-id'], 'url' => $media['url']]);
 		if (!$force && !empty($found) && (($found['type'] != self::DOCUMENT) || ($media['type'] == self::DOCUMENT))) {
-			Logger::info('Media already exists', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'callstack' => System::callstack()]);
+			Logger::info('Media already exists', ['uri-id' => $media['uri-id'], 'url' => $media['url']]);
 			return false;
 		}
 
 		if (!ItemURI::exists($media['uri-id'])) {
-			Logger::info('Media referenced URI ID not found', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'callstack' => System::callstack()]);
+			Logger::info('Media referenced URI ID not found', ['uri-id' => $media['uri-id'], 'url' => $media['url']]);
 			return false;
 		}
 
@@ -102,7 +101,7 @@ class Media
 		// We are storing as fast as possible to avoid duplicated network requests
 		// when fetching additional information for pictures and other content.
 		$result = DBA::insert('post-media', $media, Database::INSERT_UPDATE);
-		Logger::info('Stored media', ['result' => $result, 'media' => $media, 'callstack' => System::callstack()]);
+		Logger::info('Stored media', ['result' => $result, 'media' => $media]);
 		$stored = $media;
 
 		$media = self::fetchAdditionalData($media);

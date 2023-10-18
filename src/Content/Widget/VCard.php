@@ -26,7 +26,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
@@ -48,7 +47,7 @@ class VCard
 	public static function getHTML(array $contact): string
 	{
 		if (!isset($contact['network']) || !isset($contact['id'])) {
-			Logger::warning('Incomplete contact', ['contact' => $contact ?? [], 'callstack' => System::callstack(20)]);
+			Logger::warning('Incomplete contact', ['contact' => $contact ?? []]);
 		}
 
 		if (!Network::isValidHttpUrl($contact['url']) && Network::isValidHttpUrl($contact['alias'])) {

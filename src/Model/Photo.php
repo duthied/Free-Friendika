@@ -589,7 +589,7 @@ class Photo
 		$photo_failure = false;
 
 		if (!Network::isValidHttpUrl($image_url)) {
-			Logger::warning('Invalid image url', ['image_url' => $image_url, 'uid' => $uid, 'cid' => $cid, 'callstack' => System::callstack(20)]);
+			Logger::warning('Invalid image url', ['image_url' => $image_url, 'uid' => $uid, 'cid' => $cid]);
 			return false;
 		}
 

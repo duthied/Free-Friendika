@@ -228,7 +228,7 @@ class Profile
 
 		// System user, aborting
 		if ($profile['uid'] === 0) {
-			DI::logger()->warning('System user found in Profile::load', ['nickname' => $nickname, 'callstack' => System::callstack(20)]);
+			DI::logger()->warning('System user found in Profile::load', ['nickname' => $nickname]);
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
@@ -450,7 +450,7 @@ class Profile
 		$p['url'] = Contact::magicLinkById($cid, $profile['url']);
 
 		if (!isset($profile['hidewall'])) {
-			Logger::warning('Missing hidewall key in profile array', ['profile' => $profile, 'callstack' => System::callstack(10)]);
+			Logger::warning('Missing hidewall key in profile array', ['profile' => $profile]);
 		}
 
 		if ($profile['account-type'] == Contact::TYPE_COMMUNITY) {

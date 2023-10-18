@@ -625,7 +625,7 @@ class Receiver
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
 		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source, $original_actor);
 		if (empty($object_data)) {
-			Logger::info('No object data found', ['activity' => $activity, 'callstack' => System::callstack(20)]);
+			Logger::info('No object data found', ['activity' => $activity]);
 			return true;
 		}
 
@@ -1077,7 +1077,7 @@ class Receiver
 
 			foreach ($receiver_list as $receiver) {
 				if ($receiver == 'Public') {
-					Logger::warning('Not compacted public collection found', ['activity' => $activity, 'callstack' => System::callstack(20)]);
+					Logger::warning('Not compacted public collection found', ['activity' => $activity]);
 					$receiver = ActivityPub::PUBLIC_COLLECTION;
 				}
 				if ($receiver == self::PUBLIC_COLLECTION) {
@@ -1234,7 +1234,7 @@ class Receiver
 		} elseif (empty($receivers) && in_array($activity_type, ['as:Delete', 'as:Undo'])) {
 			$receivers[0] = ['uid' => 0, 'type' => self::TARGET_GLOBAL];
 		} elseif (empty($receivers)) {
-			Logger::notice('Post has got no receivers', ['fetch_unlisted' => $fetch_unlisted, 'actor' => $actor, 'id' => JsonLD::fetchElement($activity, '@id'), 'type' => $activity_type, 'callstack' => System::callstack(20)]);
+			Logger::notice('Post has got no receivers', ['fetch_unlisted' => $fetch_unlisted, 'actor' => $actor, 'id' => JsonLD::fetchElement($activity, '@id'), 'type' => $activity_type]);
 		}
 
 		return $receivers;

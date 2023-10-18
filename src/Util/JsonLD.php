@@ -208,7 +208,7 @@ class JsonLD
 			Logger::notice('compacting error', ['msg' => $e->getMessage(), 'previous' => $e->getPrevious(), 'line' => $e->getLine()]);
 			if ($logfailed && DI::config()->get('debug', 'ap_log_failure')) {
 				$tempfile = tempnam(System::getTempPath(), 'failed-jsonld');
-				file_put_contents($tempfile, json_encode(['json' => $orig_json, 'callstack' => System::callstack(20), 'msg' => $e->getMessage(), 'previous' => $e->getPrevious()], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+				file_put_contents($tempfile, json_encode(['json' => $orig_json, 'msg' => $e->getMessage(), 'previous' => $e->getPrevious()], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 				Logger::notice('Failed message stored', ['file' => $tempfile]);
 			}
 		}
