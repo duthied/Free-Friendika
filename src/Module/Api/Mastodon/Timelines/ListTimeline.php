@@ -61,15 +61,19 @@ class ListTimeline extends BaseApi
 			'friendica_order' => TimelineOrderByTypes::ID, // Sort order options (defaults to ID)
 		], $request);
 
-		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)",
-			$uid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, $this->parameters['id']];
+		$condition = [
+			"`uid` = ? AND `gravity` IN (?, ?) AND `contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)",
+			$uid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, $this->parameters['id']
+		];
 
 		$condition = $this->addPagingConditions($request, $condition);
 		$params = $this->buildOrderAndLimitParams($request);
 
 		if ($request['only_media']) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
-				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
+			$condition = DBA::mergeConditions($condition, [
+				"`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
+				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO
+			]);
 		}
 
 		if ($request['exclude_replies']) {
@@ -84,7 +88,7 @@ class ListTimeline extends BaseApi
 			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin` AND `post-user`.`uri-id` = `post-user-view`.`uri-id`)"]);
 		}
 
-		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);
+		$items = Post::selectTimelineForUser($uid, ['uri-id'], $condition, $params);
 
 		$display_quotes = self::appSupportsQuotes();
 

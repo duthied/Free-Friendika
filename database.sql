@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1537
+-- DB_UPDATE_VERSION 1538
 -- ------------------------------------------
 
 
@@ -1990,6 +1990,51 @@ CREATE VIEW `circle-member-view` AS SELECT
 	FROM `group_member`
 			INNER JOIN `contact` ON `group_member`.`contact-id` = `contact`.`id`
 			INNER JOIN `group` ON `group_member`.`gid` = `group`.`id`;
+
+--
+-- VIEW post-timeline-view
+--
+DROP VIEW IF EXISTS `post-timeline-view`;
+CREATE VIEW `post-timeline-view` AS SELECT 
+	`post-user`.`uid` AS `uid`,
+	`post-user`.`uri-id` AS `uri-id`,
+	`post-user`.`gravity` AS `gravity`,
+	`post-user`.`created` AS `created`,
+	`post-user`.`edited` AS `edited`,
+	`post-thread-user`.`commented` AS `commented`,
+	`post-user`.`received` AS `received`,
+	`post-thread-user`.`changed` AS `changed`,
+	`post-user`.`private` AS `private`,
+	`post-user`.`visible` AS `visible`,
+	`post-user`.`deleted` AS `deleted`,
+	`post-user`.`origin` AS `origin`,
+	`post-user`.`global` AS `global`,
+	`post-user`.`network` AS `network`,
+	`post-user`.`protocol` AS `protocol`,
+	`post-user`.`vid` AS `vid`,
+	`post-user`.`contact-id` AS `contact-id`,
+	`contact`.`blocked` AS `contact-blocked`,
+	`contact`.`readonly` AS `contact-readonly`,
+	`contact`.`pending` AS `contact-pending`,
+	`contact`.`rel` AS `contact-rel`,
+	`contact`.`uid` AS `contact-uid`,
+	`contact`.`self` AS `self`,
+	`post-user`.`author-id` AS `author-id`,
+	`author`.`blocked` AS `author-blocked`,
+	`author`.`hidden` AS `author-hidden`,
+	`author`.`gsid` AS `author-gsid`,
+	`post-user`.`owner-id` AS `owner-id`,
+	`owner`.`blocked` AS `owner-blocked`,
+	`owner`.`gsid` AS `owner-gsid`,
+	`post-user`.`causer-id` AS `causer-id`,
+	`causer`.`blocked` AS `causer-blocked`,
+	`causer`.`gsid` AS `causer-gsid`
+	FROM `post-user`
+			LEFT JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
+			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`;
 
 --
 -- VIEW post-user-view

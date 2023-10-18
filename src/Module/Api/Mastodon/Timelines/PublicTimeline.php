@@ -23,7 +23,6 @@ namespace Friendica\Module\Api\Mastodon\Timelines;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
@@ -57,30 +56,36 @@ class PublicTimeline extends BaseApi
 			'friendica_order' => TimelineOrderByTypes::ID, // Sort order options (defaults to ID)
 		], $request);
 
-		$condition = ['gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'private' => Item::PUBLIC,
-			'network' => Protocol::FEDERATED, 'author-blocked' => false, 'author-hidden' => false];
+		$condition = [
+			'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT], 'private' => Item::PUBLIC,
+			'network' => Protocol::FEDERATED, 'author-blocked' => false, 'author-hidden' => false
+		];
 
 		$condition = $this->addPagingConditions($request, $condition);
 		$params = $this->buildOrderAndLimitParams($request);
 
 		if ($request['local']) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
+			$condition = DBA::mergeConditions($condition, ['origin' => true]);
+		} else {
+			$condition = DBA::mergeConditions($condition, ['uid' => 0]);
 		}
 
 		if ($request['remote']) {
-			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin` AND `post-user`.`uri-id` = `post-view`.`uri-id`)"]);
+			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin` AND `post-user`.`uri-id` = `post-timeline-view`.`uri-id`)"]);
 		}
 
 		if ($request['only_media']) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
-				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
+			$condition = DBA::mergeConditions($condition, [
+				"`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
+				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO
+			]);
 		}
 
 		if ($request['exclude_replies']) {
 			$condition = DBA::mergeConditions($condition, ['gravity' => Item::GRAVITY_PARENT]);
 		}
 
-		$items = Post::selectPostsForUser($uid, ['uri-id'], $condition, $params);
+		$items = Post::selectTimelineForUser($uid, ['uri-id'], $condition, $params);
 
 		$display_quotes = self::appSupportsQuotes();
 

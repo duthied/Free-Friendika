@@ -498,6 +498,23 @@ class Post
 	}
 
 	/**
+	 * Select rows from the post-timeline-view view for a given user
+	 * This function is used for API calls.
+	 *
+	 * @param integer $uid       User ID
+	 * @param array   $selected  Array of selected fields, empty for all
+	 * @param array   $condition Array of fields for condition
+	 * @param array   $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
+	public static function selectTimelineForUser(int $uid, array $selected = [], array $condition = [], array $params = [])
+	{
+		return self::selectViewForUser('post-timeline-view', $uid, $selected, $condition, $params);
+	}
+
+	/**
 	 * Select rows from the post-thread-user-view view for a given user
 	 *
 	 * @param integer $uid       User ID
