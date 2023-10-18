@@ -524,7 +524,7 @@ class System
 	public static function externalRedirect($url, $code = 302)
 	{
 		if (empty(parse_url($url, PHP_URL_SCHEME))) {
-			Logger::warning('No fully qualified URL provided', ['url' => $url, 'callstack' => self::callstack(20)]);
+			Logger::warning('No fully qualified URL provided', ['url' => $url]);
 			DI::baseUrl()->redirect($url);
 		}
 
