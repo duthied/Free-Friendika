@@ -24,7 +24,6 @@ namespace Friendica\Model\Contact;
 use Exception;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -55,7 +54,7 @@ class User
 		}
 
 		if (empty($contact['uri-id']) && empty($contact['url'])) {
-			Logger::info('Missing contact details', ['contact' => $contact, 'callstack' => System::callstack(20)]);
+			Logger::info('Missing contact details', ['contact' => $contact]);
 			return false;
 		}
 

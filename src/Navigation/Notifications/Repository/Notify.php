@@ -226,7 +226,7 @@ class Notify extends BaseRepository
 
 		// Temporary logging for finding the origin
 		if (!isset($params['uid'])) {
-			$this->logger->notice('Missing parameters "uid".', ['params' => $params, 'callstack' => System::callstack()]);
+			$this->logger->notice('Missing parameters "uid".', ['params' => $params]);
 		}
 
 		// Ensure that the important fields are set at any time

@@ -330,7 +330,7 @@ class Item
 	 */
 	public static function markForDeletionById(int $item_id, int $priority = Worker::PRIORITY_HIGH): bool
 	{
-		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
+		Logger::info('Mark item for deletion by id', ['id' => $item_id]);
 		// locate item to be deleted
 		$fields = [
 			'id', 'uri', 'uri-id', 'uid', 'parent', 'parent-uri-id', 'origin',
@@ -795,7 +795,7 @@ class Item
 		}
 
 		if (!DBA::isResult($parent)) {
-			Logger::notice('item parent was not found - ignoring item', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid'], 'callstack' => System::callstack(20)]);
+			Logger::notice('item parent was not found - ignoring item', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
 			return [];
 		}
 
@@ -1183,7 +1183,7 @@ class Item
 			if (!empty($quote_id)) {
 				// This is one of these "should not happen" situations.
 				// The protocol implementations should already have done this job.
-				Logger::notice('Quote-uri-id detected in post', ['id' => $quote_id, 'guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'callstack' => System::callstack(20)]);
+				Logger::notice('Quote-uri-id detected in post', ['id' => $quote_id, 'guid' => $item['guid'], 'uri-id' => $item['uri-id']]);
 				$item['quote-uri-id'] = $quote_id;
 			}
 		}
@@ -2162,7 +2162,7 @@ class Item
 
 		$hostPart = $host ?: $parsed['host'] ?? '';
 		if (!$hostPart) {
-			Logger::warning('Empty host GUID part', ['uri' => $uri, 'host' => $host, 'parsed' => $parsed, 'callstack' => System::callstack(10)]);
+			Logger::warning('Empty host GUID part', ['uri' => $uri, 'host' => $host, 'parsed' => $parsed]);
 		}
 
 		// Glue it together to be able to make a hash from it

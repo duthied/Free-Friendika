@@ -112,7 +112,7 @@ class Tag
 			}
 
 			if ((substr($url, 0, 7) == 'https//') || (substr($url, 0, 6) == 'http//')) {
-				Logger::notice('Wrong scheme in url', ['url' => $url, 'callstack' => System::callstack(20)]);
+				Logger::notice('Wrong scheme in url', ['url' => $url]);
 			}
 
 			$cid = Contact::getIdForURL($url, 0, false);
@@ -159,7 +159,7 @@ class Tag
 
 		DBA::insert('post-tag', $fields, Database::INSERT_IGNORE);
 
-		Logger::debug('Stored tag/mention', ['uri-id' => $uriId, 'tag-id' => $tagid, 'contact-id' => $cid, 'name' => $name, 'type' => $type, 'callstack' => System::callstack(8)]);
+		Logger::debug('Stored tag/mention', ['uri-id' => $uriId, 'tag-id' => $tagid, 'contact-id' => $cid, 'name' => $name, 'type' => $type]);
 	}
 
 	/**
@@ -316,7 +316,7 @@ class Tag
 	 */
 	public static function storeFromArray(array $item, string $tags = null)
 	{
-		Logger::info('Check for tags', ['uri-id' => $item['uri-id'], 'hash' => $tags, 'callstack' => System::callstack()]);
+		Logger::info('Check for tags', ['uri-id' => $item['uri-id'], 'hash' => $tags]);
 
 		if (is_null($tags)) {
 			$tags = self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
@@ -347,7 +347,7 @@ class Tag
 	 */
 	public static function storeRawTagsFromBody(int $uriId, string $body)
 	{
-		Logger::info('Check for tags', ['uri-id' => $uriId, 'callstack' => System::callstack()]);
+		Logger::info('Check for tags', ['uri-id' => $uriId]);
 
 		$result = BBCode::getTags($body);
 		if (empty($result)) {
@@ -396,7 +396,7 @@ class Tag
 			return;
 		}
 
-		Logger::debug('Removing tag/mention', ['uri-id' => $uriId, 'tid' => $tag['tid'], 'name' => $name, 'url' => $url, 'callstack' => System::callstack(8)]);
+		Logger::debug('Removing tag/mention', ['uri-id' => $uriId, 'tid' => $tag['tid'], 'name' => $name, 'url' => $url]);
 		DBA::delete('post-tag', ['uri-id' => $uriId, 'type' => $type, 'tid' => $tag['tid'], 'cid' => $tag['cid']]);
 	}
 

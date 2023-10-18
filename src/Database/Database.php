@@ -528,7 +528,7 @@ class Database
 
 		if ((substr_count($sql, '?') != count($args)) && (count($args) > 0)) {
 			// Question: Should we continue or stop the query here?
-			$this->logger->warning('Query parameters mismatch.', ['query' => $sql, 'args' => $args, 'callstack' => System::callstack()]);
+			$this->logger->warning('Query parameters mismatch.', ['query' => $sql, 'args' => $args]);
 		}
 
 		$sql = DBA::cleanQuery($sql);
@@ -702,7 +702,6 @@ class Database
 			$this->logger->error('DB Error', [
 				'code'      => $errorno,
 				'error'     => $error,
-				'callstack' => System::callstack(8),
 				'params'    => $this->replaceParameters($sql, $args),
 			]);
 
@@ -810,7 +809,6 @@ class Database
 			$this->logger->error('DB Error', [
 				'code'      => $errorno,
 				'error'     => $error,
-				'callstack' => System::callstack(8),
 				'params'    => $this->replaceParameters($sql, $params),
 			]);
 
@@ -1292,7 +1290,7 @@ class Database
 		$condition_string = DBA::buildCondition($conditions);
 
 		$sql = "DELETE FROM " . $table_string . " " . $condition_string;
-		$this->logger->debug($this->replaceParameters($sql, $conditions), ['callstack' => System::callstack(6)]);
+		$this->logger->debug($this->replaceParameters($sql, $conditions));
 		return $this->e($sql, $conditions);
 	}
 

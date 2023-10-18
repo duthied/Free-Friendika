@@ -1276,7 +1276,7 @@ class Worker
 		$added = 0;
 
 		if (!is_int($priority) || !in_array($priority, self::PRIORITIES)) {
-			Logger::warning('Invalid priority', ['priority' => $priority, 'command' => $command, 'callstack' => System::callstack(20)]);
+			Logger::warning('Invalid priority', ['priority' => $priority, 'command' => $command]);
 			$priority = self::PRIORITY_MEDIUM;
 		}
 

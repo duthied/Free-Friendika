@@ -347,7 +347,7 @@ class Transmitter
 	{
 		$owner = User::getOwnerDataById($uid);
 		if (!isset($owner['id'])) {
-			DI::logger()->error('Unable to find owner data for uid', ['uid' => $uid, 'callstack' => System::callstack(20)]);
+			DI::logger()->error('Unable to find owner data for uid', ['uid' => $uid]);
 			throw new HTTPException\NotFoundException('User not found.');
 		}
 

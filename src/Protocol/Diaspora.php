@@ -796,7 +796,7 @@ class Diaspora
 	 */
 	private static function key(WebFingerUri $uri): string
 	{
-		Logger::info('Fetching diaspora key', ['handle' => $uri->getAddr(), 'callstack' => System::callstack(20)]);
+		Logger::info('Fetching diaspora key', ['handle' => $uri->getAddr()]);
 		try {
 			return DI::dsprContact()->getByAddr($uri)->pubKey;
 		} catch (HTTPException\NotFoundException | \InvalidArgumentException $e) {
@@ -3022,7 +3022,7 @@ class Diaspora
 			// The "addr" field should always be filled.
 			// If this isn't the case, it will raise a notice some lines later.
 			// And in the log we will see where it came from, and we can handle it there.
-			Logger::notice('Empty addr', ['contact' => $contact ?? [], 'callstack' => System::callstack(20)]);
+			Logger::notice('Empty addr', ['contact' => $contact ?? []]);
 		}
 
 		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $pubkey ?? '', $public_batch);

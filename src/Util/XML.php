@@ -26,7 +26,6 @@ use DOMElement;
 use DOMNode;
 use DOMXPath;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use SimpleXMLElement;
 
 /**
@@ -451,7 +450,7 @@ class XML
 		$x = @simplexml_load_string($s);
 		if (!$x) {
 			if (!$suppress_log) {
-				Logger::error('Error(s) while parsing XML string.', ['callstack' => System::callstack()]);
+				Logger::error('Error(s) while parsing XML string.');
 				foreach (libxml_get_errors() as $err) {
 					Logger::info('libxml error', ['code' => $err->code, 'position' => $err->line . ':' . $err->column, 'message' => $err->message]);
 				}

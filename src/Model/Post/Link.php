@@ -22,7 +22,6 @@
 namespace Friendica\Model\Post;
 
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -67,7 +66,7 @@ class Link
 		}
 
 		if (!in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https'])) {
-			Logger::info('Bad URL, quitting', ['uri-id' => $uriId, 'url' => $url, 'callstack' => System::callstack(20)]);
+			Logger::info('Bad URL, quitting', ['uri-id' => $uriId, 'url' => $url]);
 			return $url;
 		}
 

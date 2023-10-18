@@ -42,7 +42,6 @@ use Friendica\Model\Mail;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Model\Post;
-use Friendica\Moderation\Entity\Report;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Delivery;
@@ -472,7 +471,7 @@ class Processor
 		$item['uri'] = $activity['id'];
 
 		if (empty($activity['published']) || empty($activity['updated'])) {
-			DI::logger()->notice('published or updated keys are empty for activity', ['activity' => $activity, 'callstack' => System::callstack(10)]);
+			DI::logger()->notice('published or updated keys are empty for activity', ['activity' => $activity]);
 		}
 
 		$item['created'] = DateTimeFormat::utc($activity['published'] ?? 'now');

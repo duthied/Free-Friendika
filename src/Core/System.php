@@ -220,7 +220,7 @@ class System
 
 		proc_close($resource);
 
-		$this->logger->info('Executed "proc_open"', ['command' => $cmdline, 'callstack' => System::callstack(10)]);
+		$this->logger->info('Executed "proc_open"', ['command' => $cmdline]);
 	}
 
 	/**
@@ -348,7 +348,7 @@ class System
 	public static function httpError($httpCode, $message = '', $content = '')
 	{
 		if ($httpCode >= 400) {
-			Logger::debug('Exit with error', ['code' => $httpCode, 'message' => $message, 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+			Logger::debug('Exit with error', ['code' => $httpCode, 'message' => $message, 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
 		DI::apiResponse()->setStatus($httpCode, $message);
 
@@ -381,7 +381,7 @@ class System
 	public static function jsonError($httpCode, $content, $content_type = 'application/json')
 	{
 		if ($httpCode >= 400) {
-			Logger::debug('Exit with error', ['code' => $httpCode, 'content_type' => $content_type, 'callstack' => System::callstack(20), 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+			Logger::debug('Exit with error', ['code' => $httpCode, 'content_type' => $content_type, 'method' => DI::args()->getMethod(), 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		}
 		DI::apiResponse()->setStatus($httpCode);
 		self::jsonExit($content, $content_type);
