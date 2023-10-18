@@ -5,7 +5,7 @@ Welcome to the free social web. Friendica is a platform for decentralised social
 
 Being part of the Fediverse allows you to be free from data-harvesting corporations. Enjoy open social communication, independent of any specific provider.
 
-Friendica connects you to a federated communications network of thousands of servers. Through various protocols you can interact with anyone on [Friendica]( https://friendi.ca), [Mastodon](https://joinmastodon.org), [Lemmmy](https://join-lemmy.org/), [Diaspora](https://diasporafoundation.org), [Misskey](https://join.misskey.page), [Peertube](https://joinpeertube.org/), [Pixelfed](https://pixelfed.org/), [Pleroma](https://pleroma.social) and many more. Receiving content from Tumblr, Wordpress and RSS is also possible. Friendica allows to integrate web based content via add-ons such as ITTT, Buffer. You can customize and control how publicly or privatly you want to share your content.
+Friendica connects you to a federated communications network of thousands of servers called the Fediverse. Through various protocols you can interact with anyone on [Friendica]( https://friendi.ca), [Mastodon](https://joinmastodon.org), [Lemmy](https://join-lemmy.org/), [Diaspora](https://diasporafoundation.org), [Misskey](https://join.misskey.page), [Peertube](https://joinpeertube.org/), [Pixelfed](https://pixelfed.org/), [Pleroma](https://pleroma.social) and many more. Receiving content from Tumblr, Wordpress and RSS is also possible. Friendica allows to import and mirror your content via add-ons such as ITTT and Buffer. You can customize and control how publicly or privately you want to share your content.
 
 [Join Friendica]((https://dir.friendica.social/servers)) today or setup [your own Friendica instance](doc/Install.md).
 
