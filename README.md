@@ -9,31 +9,17 @@ Being part of the Fediverse allows you to be free from data-harvesting corporati
 
 [Join Friendica]((https://dir.friendica.social/servers)) today or setup [your own Friendica instance](doc/Install.md).
 
-### Screenshots
+### Friendica on desktop
 
-| ![Frio theme in mobile browser](images/screenshots/friendica-frio-mobile-profile-1.png?raw=true "Frio theme in mobile browser") ![Frio theme in mobile browser](images/screenshots/friendica-frio-mobile-profile-2.png?raw=true "Frio theme in mobile browser") |
-|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|                                                                                                    *Frio theme, mobile browser. Timeline and composer view.*                                                                                                    |
-|                                                                ![Frio theme in desktop browser](images/screenshots/friendica-frio-green-profile-1.png?raw=true "Frio theme in desktop browser")                                                                 |
-|                                                                                    *Frio theme, desktop browser. Timeline view, contact info popped up, control menu open.*                                                                                     |
-|                                                                ![Frio theme in desktop browser](images/screenshots/friendica-frio-green-profile-2.png?raw=true "Frio theme in desktop browser")                                                                 |
-|                                                                                           *Frio theme, desktop browser. Menu open for controlling individual posts.*                                                                                            |
-|                                                                 ![Frio theme in desktop browser](images/screenshots/friendica-frio-red-profile-3.png?raw=true "Frio theme in desktop browser")                                                                  |
-|                                                                                              *Frio theme, desktop browser. Profile view, notification menu open.*                                                                                               |
-|                                                                 ![Frio theme in desktop browser](images/screenshots/friendica-frio-red-profile-2.png?raw=true "Frio theme in desktop browser")                                                                  |
-|                                                                                                         *Number of new posts, in total and by circle.*                                                                                                          |
-|                                                                 ![Frio theme in desktop browser](images/screenshots/friendica-frio-red-profile-1.png?raw=true "Frio theme in desktop browser")                                                                  |
-|                                                                                                                 *Calendar with popup of event.*                                                                                                                 |
-|                                     ![Frio theme default colour in standard browser on tablet](images/screenshots/friendica-frio-default-profile-1.png?raw=true "Frio theme default colour in standard browser on tablet")                                      |
-|                                                                                         *Notifications menu and private messages counter, standard browser on tablet.*                                                                                          |
-|                                                                ![Frio theme in desktop browser](images/screenshots/friendica-frio-brown-profile-2.png?raw=true "Frio theme in desktop browser")                                                                 |
-|                                                                                                         *Number of visible contacts, standard browser.*                                                                                                         |
-|                                                                ![Frio theme in desktop browser](images/screenshots/friendica-frio-brown-profile-1.png?raw=true "Frio theme in desktop browser")                                                                 |
-|                                                                                                   *Network posts chronologically ordered, standard browser.*                                                                                                    |
-|                                                                    ![Vier theme in desktop browser](images/screenshots/friendica-vier-profile.png?raw=true "Vier theme in desktop browser")                                                                     |
-|                                                                                                      *Vier theme, desktop browser. Public timeline view.*                                                                                                       |
-|                                                                   ![Vier theme in desktop browser](images/screenshots/friendica-vier-community.png?raw=true "Vier theme in desktop browser")                                                                    |
-|                                                                                                    *Vier theme, desktop browser. Community post displayed.*                                                                                                     |
+![Frio theme in desktop browser](images/screenshots/friendica-2022-12-frio-desktop.png?raw=true "Frio theme in desktop browser")
+
+### Friendica on mobile
+
+![Frio theme in mobile browser](images/screenshots/friendica-2023-10-frio-mobile-timeline-dark-blue.png?raw=true "Frio theme in mobile browser") ![Frio theme in mobile browser](images/screenshots/friendica-2023-10-frio-mobile-options-light-blue.png?raw=true "Frio theme in mobile browser")
+
+### Alternative Theme "Vier"
+
+![Frio theme in desktop browser](images/screenshots/friendica-vier-community.png?raw=true "Vier theme in desktop browser")
 
 ## Endorsements
 
