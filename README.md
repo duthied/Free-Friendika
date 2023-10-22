@@ -11,7 +11,7 @@ Being part of the Fediverse allows you to be free from data-harvesting corporati
 
 ### Friendica on desktop
 
-![Frio theme in desktop browser](images/screenshots/friendica-2022-12-frio-desktop.png?raw=true "Frio theme in desktop browser")
+![Frio theme in desktop browser](images/screenshots/friendica-2023-10-frio-desktop.png?raw=true "Frio theme in desktop browser")
 
 ### Friendica on mobile
 
