@@ -19,7 +19,7 @@ Being part of the Fediverse allows you to be free from data-harvesting corporati
 
 ### Alternative Theme "Vier"
 
-![Frio theme in desktop browser](images/screenshots/friendica-vier-community.png?raw=true "Vier theme in desktop browser")
+![Vier theme in desktop browser](images/screenshots/friendica-vier-community.png?raw=true "Vier theme in desktop browser")
 
 ## Endorsements
 
