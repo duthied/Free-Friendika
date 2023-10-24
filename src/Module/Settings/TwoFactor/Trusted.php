@@ -26,9 +26,9 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\DI;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
+use Friendica\Navigation\SystemMessages;
 use Friendica\Security\TwoFactor;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -45,53 +45,56 @@ class Trusted extends BaseSettings
 	protected $pConfig;
 	/** @var TwoFactor\Repository\TrustedBrowser */
 	protected $trustedBrowserRepo;
+	/** @var SystemMessages */
+	protected $systemMessages;
 
-	public function __construct(IManagePersonalConfigValues $pConfig, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(SystemMessages $systemMessages, IManagePersonalConfigValues $pConfig, TwoFactor\Repository\TrustedBrowser $trustedBrowserRepo, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->pConfig            = $pConfig;
 		$this->trustedBrowserRepo = $trustedBrowserRepo;
+		$this->systemMessages     = $systemMessages;
 
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return;
 		}
 
-		$verified = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'verified');
+		$verified = $this->pConfig->get($this->session->getLocalUserId(), '2fa', 'verified');
 
 		if (!$verified) {
 			$this->baseUrl->redirect('settings/2fa');
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			DI::sysmsg()->addNotice($this->t('Please enter your password to access this page.'));
+			$this->systemMessages->addNotice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
 
 	protected function post(array $request = [])
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return;
 		}
 
-		if (!empty($_POST['action'])) {
+		if (!empty($request['action'])) {
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/trusted', 'settings_2fa_trusted');
 
-			switch ($_POST['action']) {
+			switch ($request['action']) {
 				case 'remove_all':
-					$this->trustedBrowserRepo->removeAllForUser(DI::userSession()->getLocalUserId());
-					DI::sysmsg()->addInfo($this->t('Trusted browsers successfully removed.'));
+					$this->trustedBrowserRepo->removeAllForUser($this->session->getLocalUserId());
+					$this->systemMessages->addInfo($this->t('Trusted browsers successfully removed.'));
 					$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					break;
 			}
 		}
 
-		if (!empty($_POST['remove_id'])) {
+		if (!empty($request['remove_id'])) {
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/trusted', 'settings_2fa_trusted');
 
-			if ($this->trustedBrowserRepo->removeForUser(DI::userSession()->getLocalUserId(), $_POST['remove_id'])) {
-				DI::sysmsg()->addInfo($this->t('Trusted browser successfully removed.'));
+			if ($this->trustedBrowserRepo->removeForUser($this->session->getLocalUserId(), $request['remove_id'])) {
+				$this->systemMessages->addInfo($this->t('Trusted browser successfully removed.'));
 			}
 
 			$this->baseUrl->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
@@ -103,7 +106,7 @@ class Trusted extends BaseSettings
 	{
 		parent::content();
 
-		$trustedBrowsers = $this->trustedBrowserRepo->selectAllByUid(DI::userSession()->getLocalUserId());
+		$trustedBrowsers = $this->trustedBrowserRepo->selectAllByUid($this->session->getLocalUserId());
 
 		$parser = Parser::create();
 

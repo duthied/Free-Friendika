@@ -30,10 +30,10 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\DI;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
+use Friendica\Navigation\SystemMessages;
 use Friendica\Util\Profiler;
 use PragmaRX\Google2FA\Google2FA;
 use Psr\Log\LoggerInterface;
@@ -47,67 +47,70 @@ class Verify extends BaseSettings
 {
 	/** @var IManagePersonalConfigValues */
 	protected $pConfig;
+	/** @var SystemMessages */
+	protected $systemMessages;
 
-	public function __construct(IManagePersonalConfigValues $pConfig, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(SystemMessages $systemMessages, IManagePersonalConfigValues $pConfig, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
-		$this->pConfig = $pConfig;
+		$this->pConfig        = $pConfig;
+		$this->systemMessages = $systemMessages;
 
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return;
 		}
 
-		$secret   = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'secret');
-		$verified = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'verified');
+		$secret   = $this->pConfig->get($this->session->getLocalUserId(), '2fa', 'secret');
+		$verified = $this->pConfig->get($this->session->getLocalUserId(), '2fa', 'verified');
 
 		if ($secret && $verified) {
 			$this->baseUrl->redirect('settings/2fa');
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			DI::sysmsg()->addNotice($this->t('Please enter your password to access this page.'));
+			$this->systemMessages->addNotice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
 
 	protected function post(array $request = [])
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return;
 		}
 
-		if (($_POST['action'] ?? '') == 'verify') {
+		if (($request['action'] ?? '') == 'verify') {
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/verify', 'settings_2fa_verify');
 
 			$google2fa = new Google2FA();
 
-			$valid = $google2fa->verifyKey($this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
+			$valid = $google2fa->verifyKey($this->pConfig->get($this->session->getLocalUserId(), '2fa', 'secret'), $request['verify_code'] ?? '');
 
 			if ($valid) {
-				$this->pConfig->set(DI::userSession()->getLocalUserId(), '2fa', 'verified', true);
-				DI::session()->set('2fa', true);
+				$this->pConfig->set($this->session->getLocalUserId(), '2fa', 'verified', true);
+				$this->session->set('2fa', true);
 
-				DI::sysmsg()->addInfo($this->t('Two-factor authentication successfully activated.'));
+				$this->systemMessages->addInfo($this->t('Two-factor authentication successfully activated.'));
 
 				$this->baseUrl->redirect('settings/2fa');
 			} else {
-				DI::sysmsg()->addNotice($this->t('Invalid code, please retry.'));
+				$this->systemMessages->addNotice($this->t('Invalid code, please retry.'));
 			}
 		}
 	}
 
 	protected function content(array $request = []): string
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return Login::form('settings/2fa/verify');
 		}
 
 		parent::content();
 
 		$company = 'Friendica';
-		$holder = DI::session()->get('my_address');
-		$secret = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'secret');
+		$holder = $this->session->get('my_address');
+		$secret = $this->pConfig->get($this->session->getLocalUserId(), '2fa', 'secret');
 
 		$otpauthUrl = (new Google2FA())->getQRCodeUrl($company, $holder, $secret);
 

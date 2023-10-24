@@ -26,11 +26,11 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\DI;
-use Friendica\Module\Response;
-use Friendica\Security\TwoFactor\Model\RecoveryCode;
 use Friendica\Module\BaseSettings;
+use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
+use Friendica\Navigation\SystemMessages;
+use Friendica\Security\TwoFactor\Model\RecoveryCode;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -43,32 +43,35 @@ class Recovery extends BaseSettings
 {
 	/** @var IManagePersonalConfigValues */
 	protected $pConfig;
+	/** @var SystemMessages */
+	protected $systemMessages;
 
-	public function __construct(IManagePersonalConfigValues $pConfig, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(SystemMessages $systemMessages, IManagePersonalConfigValues $pConfig, IHandleUserSessions $session, App\Page $page, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->pConfig = $pConfig;
+		$this->systemMessages = $systemMessages;
 
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return;
 		}
 
-		$secret = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'secret');
+		$secret = $this->pConfig->get($this->session->getLocalUserId(), '2fa', 'secret');
 
 		if (!$secret) {
 			$this->baseUrl->redirect('settings/2fa');
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			DI::sysmsg()->addNotice($this->t('Please enter your password to access this page.'));
+			$this->systemMessages->addNotice($this->t('Please enter your password to access this page.'));
 			$this->baseUrl->redirect('settings/2fa');
 		}
 	}
 
 	protected function post(array $request = [])
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return;
 		}
 
@@ -76,8 +79,8 @@ class Recovery extends BaseSettings
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/recovery', 'settings_2fa_recovery');
 
 			if ($_POST['action'] == 'regenerate') {
-				RecoveryCode::regenerateForUser(DI::userSession()->getLocalUserId());
-				DI::sysmsg()->addInfo($this->t('New recovery codes successfully generated.'));
+				RecoveryCode::regenerateForUser($this->session->getLocalUserId());
+				$this->systemMessages->addInfo($this->t('New recovery codes successfully generated.'));
 				$this->baseUrl->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 			}
 		}
@@ -85,19 +88,19 @@ class Recovery extends BaseSettings
 
 	protected function content(array $request = []): string
 	{
-		if (!DI::userSession()->getLocalUserId()) {
+		if (!$this->session->getLocalUserId()) {
 			return Login::form('settings/2fa/recovery');
 		}
 
 		parent::content();
 
-		if (!RecoveryCode::countValidForUser(DI::userSession()->getLocalUserId())) {
-			RecoveryCode::generateForUser(DI::userSession()->getLocalUserId());
+		if (!RecoveryCode::countValidForUser($this->session->getLocalUserId())) {
+			RecoveryCode::generateForUser($this->session->getLocalUserId());
 		}
 
-		$recoveryCodes = RecoveryCode::getListForUser(DI::userSession()->getLocalUserId());
+		$recoveryCodes = RecoveryCode::getListForUser($this->session->getLocalUserId());
 
-		$verified = $this->pConfig->get(DI::userSession()->getLocalUserId(), '2fa', 'verified');
+		$verified = $this->pConfig->get($this->session->getLocalUserId(), '2fa', 'verified');
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/recovery.tpl'), [
 			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_recovery'),
