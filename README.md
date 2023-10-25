@@ -7,7 +7,7 @@ Friendica connects you to a federated communications network of thousands of ser
 
 Being part of the Fediverse allows you to be free from data-harvesting corporations. Enjoy open social communication, independent of any specific provider.
 
-[Join Friendica]((https://dir.friendica.social/servers)) today or setup [your own Friendica instance](doc/Install.md).
+[Join Friendica](https://dir.friendica.social/servers) today or setup [your own Friendica instance](doc/Install.md).
 
 ### Friendica on desktop
 
