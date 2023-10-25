@@ -35,6 +35,7 @@ use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
@@ -253,7 +254,7 @@ class Media
 	 */
 	private static function addActivity(array $media): array
 	{
-		$id = Item::fetchByLink($media['url']);
+		$id = Item::fetchByLink($media['url'], 0, ActivityPub\Receiver::COMPLETION_ASYNC);
 		if (empty($id)) {
 			return $media;
 		}

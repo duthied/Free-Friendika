@@ -3905,11 +3905,12 @@ class Item
 	 * Fetches item for given URI or plink
 	 *
 	 * @param string $uri
-	 * @param integer $uid
+	 * @param int    $uid
+	 * @param int    $completion
 	 *
 	 * @return integer item id
 	 */
-	public static function fetchByLink(string $uri, int $uid = 0): int
+	public static function fetchByLink(string $uri, int $uid = 0, int $completion = ActivityPub\Receiver::COMPLETION_MANUAL): int
 	{
 		Logger::info('Trying to fetch link', ['uid' => $uid, 'uri' => $uri]);
 		$item_id = self::searchByLink($uri, $uid);
@@ -3930,7 +3931,7 @@ class Item
 			return is_numeric($hookData['item_id']) ? $hookData['item_id'] : 0;
 		}
 
-		$fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri, [], '', ActivityPub\Receiver::COMPLETION_MANUAL, $uid);
+		$fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri, [], '', $completion, $uid);
 
 		if ($fetched_uri) {
 			$item_id = self::searchByLink($fetched_uri, $uid);
@@ -3990,7 +3991,7 @@ class Item
 		}
 
 		$url = $shared['message_id'] ?: $shared['link'];
-		$id = self::fetchByLink($url);
+		$id = self::fetchByLink($url, 0, ActivityPub\Receiver::COMPLETION_ASYNC);
 		if (!$id) {
 			Logger::notice('Post could not be fetched.', ['url' => $url, 'uid' => $uid]);
 			return 0;

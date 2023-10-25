@@ -80,6 +80,7 @@ class Receiver
 	const COMPLETION_RELAY    = 2;
 	const COMPLETION_MANUAL   = 3;
 	const COMPLETION_AUTO     = 4;
+	const COMPLETION_ASYNC    = 5;
 
 	/**
 	 * Checks incoming message from the inbox
@@ -681,7 +682,7 @@ class Receiver
 			return true;
 		}
 
-		if (!empty($object_data['entry-id']) && $decouple && ($push || ($completion == self::COMPLETION_RELAY))) {
+		if (!empty($object_data['entry-id']) && $decouple && ($push || in_array($completion, [self::COMPLETION_RELAY, self::COMPLETION_ASYNC]))) {
 			if (Queue::isProcessable($object_data['entry-id'])) {
 				// We delay by 5 seconds to allow to accumulate all receivers
 				$delayed = date(DateTimeFormat::MYSQL, time() + 5);
