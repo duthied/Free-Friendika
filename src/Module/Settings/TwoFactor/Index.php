@@ -115,7 +115,8 @@ class Index extends BaseSettings
 					break;
 			}
 		} catch (FoundException $exception) {
-			// Nothing to do here
+			// Redirection, passing along
+			throw $exception;
 		} catch (\Exception $e) {
 			$this->systemMessages->addNotice($this->t($e->getMessage()));
 		}
