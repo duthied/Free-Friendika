@@ -635,7 +635,7 @@ class Item
 	public function addSharedPost(array $item, string $body = ''): string
 	{
 		if (empty($body)) {
-			$body = $item['body'];
+			$body = $item['body'] ?? '';
 		}
 
 		if (empty($item['quote-uri-id']) || ($item['quote-uri-id'] == $item['uri-id'])) {

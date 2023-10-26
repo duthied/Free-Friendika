@@ -22,6 +22,7 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Worker;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -251,12 +252,7 @@ class Queue
 	{
 		$entries = DBA::select('inbox-entry', ['id', 'type', 'object-type', 'object-id', 'in-reply-to-id'], ["`trust` AND `wid` IS NULL"], ['order' => ['id' => true]]);
 		while ($entry = DBA::fetch($entries)) {
-			// Don't process entries of items that are answer to nonexistent posts
-			if (!empty($entry['in-reply-to-id']) && !Post::exists(['uri' => $entry['in-reply-to-id']])) {
-				continue;
-			}
-			// We don't need to process entries that depend on already existing entries.
-			if (!empty($entry['in-reply-to-id']) && DBA::exists('inbox-entry', ["`id` != ? AND `object-id` = ?", $entry['id'], $entry['in-reply-to-id']])) {
+			if (!self::isProcessable($entry['id'])) {
 				continue;
 			}
 			Logger::debug('Process leftover entry', $entry);
@@ -285,9 +281,25 @@ class Queue
 			}
 		}
 
-		if (!empty($entry['object-id']) && !empty($entry['in-reply-to-id']) && ($entry['object-id'] != $entry['in-reply-to-id']) && DBA::exists('inbox-entry', ['object-id' => $entry['in-reply-to-id']])) {
-			// This entry belongs to some other entry that should be processed first
-			return false;
+		if (!empty($entry['object-id']) && !empty($entry['in-reply-to-id']) && ($entry['object-id'] != $entry['in-reply-to-id'])) {
+		 	if (DBA::exists('inbox-entry', ['object-id' => $entry['in-reply-to-id']])) {
+				// This entry belongs to some other entry that should be processed first
+				return false;
+			}
+			if (!Post::exists(['uri' => $entry['in-reply-to-id']])) {
+				// This entry belongs to some other entry that need to be fetched first
+				if (Fetch::hasWorker($entry['in-reply-to-id'])) {
+					Logger::debug('Fetching of the activity is already queued', ['id' => $entry['activity-id'], 'reply-to-id' => $entry['in-reply-to-id']]);
+					return false;
+				}
+				Fetch::add($entry['in-reply-to-id']);
+				$activity = json_decode($entry['activity'], true);
+				$activity['recursion-depth'] = 0;
+				$wid = Worker::add(Worker::PRIORITY_HIGH, 'FetchMissingActivity', $entry['in-reply-to-id'], $activity, '', Receiver::COMPLETION_ASYNC);
+				Fetch::setWorkerId($entry['in-reply-to-id'], $wid);
+				Logger::debug('Fetch missing activity', ['wid' => $wid, 'id' => $entry['activity-id'], 'reply-to-id' => $entry['in-reply-to-id']]);
+				return false;
+			}
 		}
 
 		return true;

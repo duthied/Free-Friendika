@@ -348,12 +348,8 @@ class Processor
 
 		if ($fetch_parents && empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Post::exists(['uri' => $activity['reply-to-id']])) {
 			$result = self::fetchParent($activity, !empty($conversation));
-			if (!empty($result)) {
-				if (($item['thr-parent'] != $result) && Post::exists(['uri' => $result])) {
-					$item['thr-parent'] = $result;
-				}
-			} elseif (empty($conversation)) {
-				return [];
+			if (!empty($result) && ($item['thr-parent'] != $result) && Post::exists(['uri' => $result])) {
+				$item['thr-parent'] = $result;
 			}
 		}
 
@@ -532,39 +528,35 @@ class Processor
 
 		self::addActivityId($activity['reply-to-id']);
 
-		if (!DI::config()->get('system', 'fetch_by_worker')) {
-			$in_background = false;
+		$completion = $activity['completion-mode'] ?? Receiver::COMPLETION_NONE;
+
+		if (DI::config()->get('system', 'decoupled_receiver') && ($completion != Receiver::COMPLETION_MANUAL)) {
+			$in_background = true;
 		}
 
 		$recursion_depth = $activity['recursion-depth'] ?? 0;
 
 		if (!$in_background && ($recursion_depth < DI::config()->get('system', 'max_recursion_depth'))) {
-			Logger::info('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
+			Logger::info('Parent not found. Try to refetch it.', ['completion' => $completion, 'recursion-depth' => $recursion_depth, 'parent' => $activity['reply-to-id']]);
 			$result = self::fetchMissingActivity($activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
 			if (empty($result) && self::isActivityGone($activity['reply-to-id'])) {
 				Logger::notice('The activity is gone, the queue entry will be deleted', ['parent' => $activity['reply-to-id']]);
 				if (!empty($activity['entry-id'])) {
 					Queue::deleteById($activity['entry-id']);
 				}
-				return '';
 			} elseif (!empty($result)) {
-				$exists = Post::exists(['uri' => [$result, $activity['reply-to-id']]]);
-				if ($exists) {
-					Logger::info('The activity has been fetched and created.', ['parent' => $result]);
-					return $result;
-				} elseif (DI::config()->get('system', 'fetch_by_worker') || DI::config()->get('system', 'decoupled_receiver')) {
-					Logger::info('The activity has been fetched and will hopefully be created later.', ['parent' => $result]);
+				$post = Post::selectFirstPost(['uri'], ['uri' => [$result, $activity['reply-to-id']]]);
+				if (!empty($post['uri'])) {
+					Logger::info('The activity has been fetched and created.', ['result' => $result, 'uri' => $post['uri']]);
+					return $post['uri'];
 				} else {
 					Logger::notice('The activity exists but has not been created, the queue entry will be deleted.', ['parent' => $result]);
 					if (!empty($activity['entry-id'])) {
 						Queue::deleteById($activity['entry-id']);
 					}
 				}
-				return '';
 			}
-			if (empty($result) && !DI::config()->get('system', 'fetch_by_worker')) {
-				return '';
-			}
+			return '';
 		} elseif (self::isActivityGone($activity['reply-to-id'])) {
 			Logger::notice('The activity is gone. We will not spawn a worker. The queue entry will be deleted', ['parent' => $activity['reply-to-id']]);
 			if ($in_background) {
@@ -586,7 +578,7 @@ class Processor
 			Logger::notice('Fetching is done by worker.', ['parent' => $activity['reply-to-id'], 'recursion-depth' => $recursion_depth]);
 			Fetch::add($activity['reply-to-id']);
 			$activity['recursion-depth'] = 0;
-			$wid = Worker::add(Worker::PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_AUTO);
+			$wid = Worker::add(Worker::PRIORITY_HIGH, 'FetchMissingActivity', $activity['reply-to-id'], $activity, '', Receiver::COMPLETION_ASYNC);
 			Fetch::setWorkerId($activity['reply-to-id'], $wid);
 		} else {
 			Logger::debug('Activity will already be fetched via a worker.', ['url' => $activity['reply-to-id']]);
@@ -745,7 +737,7 @@ class Processor
 		}
 
 		if (!empty($parent['uri-id'])) {
-			$parent;
+			return $parent;
 		}
 
 		return null;
@@ -760,6 +752,7 @@ class Processor
 	{
 		$post = self::getUriIdForFeaturedCollection($activity);
 		if (empty($post)) {
+			Queue::remove($activity);
 			return;
 		}
 
@@ -778,6 +771,7 @@ class Processor
 	{
 		$post = self::getUriIdForFeaturedCollection($activity);
 		if (empty($post)) {
+			Queue::remove($activity);
 			return;
 		}
 
@@ -867,7 +861,7 @@ class Processor
 		$content = self::addMentionLinks($content, $activity['tags']);
 
 		if (!empty($activity['quote-url'])) {
-			$id = Item::fetchByLink($activity['quote-url']);
+			$id = Item::fetchByLink($activity['quote-url'], 0, ActivityPub\Receiver::COMPLETION_ASYNC);
 			if ($id) {
 				$shared_item = Post::selectFirst(['uri-id'], ['id' => $id]);
 				$item['quote-uri-id'] = $shared_item['uri-id'];
@@ -1456,7 +1450,7 @@ class Processor
 			if (empty($post['id'])) {
 				continue;
 			}
-			$id = Item::fetchByLink($post['id']);
+			$id = Item::fetchByLink($post['id'], 0, ActivityPub\Receiver::COMPLETION_ASYNC);
 			if (!empty($id)) {
 				$item = Post::selectFirst(['uri-id', 'featured', 'author-id'], ['id' => $id]);
 				if (!empty($item['uri-id'])) {

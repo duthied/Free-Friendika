@@ -142,7 +142,7 @@ class ClientToServer
 	 */
 	private static function updateContent(int $uid, string $object_id, array $application, array $ldactivity): array
 	{
-		$id            = Item::fetchByLink($object_id, $uid);
+		$id            = Item::fetchByLink($object_id, $uid, ActivityPub\Receiver::COMPLETION_ASYNC);
 		$original_post = Post::selectFirst(['uri-id'], ['uid' => $uid, 'origin' => true, 'id' => $id]);
 		if (empty($original_post)) {
 			Logger::debug('Item not found or does not belong to the user', ['id' => $id, 'uid' => $uid, 'object_id' => $object_id, 'activity' => $ldactivity]);

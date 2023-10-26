@@ -567,6 +567,7 @@ class App
 	{
 		$requeststring = ($_SERVER['REQUEST_METHOD'] ?? '') . ' ' . ($_SERVER['REQUEST_URI'] ?? '') . ' ' . ($_SERVER['SERVER_PROTOCOL'] ?? '');
 		$this->logger->debug('Request received', ['address' => $_SERVER['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $_SERVER['HTTP_REFERER'] ?? '', 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+		$request_start = microtime(true);
 
 		$this->profiler->set($start_time, 'start');
 		$this->profiler->set(microtime(true), 'classinit');
@@ -715,10 +716,10 @@ class App
 				$response = $page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig, $nav, $this->session->getLocalUserId());
 			}
 
-			$this->logger->debug('Request processed sucessfully', ['response' => $response->getStatusCode(), 'address' => $_SERVER['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $_SERVER['HTTP_REFERER'] ?? '', 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+			$this->logger->debug('Request processed sucessfully', ['response' => $response->getStatusCode(), 'address' => $_SERVER['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $_SERVER['HTTP_REFERER'] ?? '', 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'duration' => number_format(microtime(true) - $request_start, 3)]);
 			System::echoResponse($response);
 		} catch (HTTPException $e) {
-			$this->logger->debug('Request processed with exception', ['response' => $e->getCode(), 'address' => $_SERVER['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $_SERVER['HTTP_REFERER'] ?? '', 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+			$this->logger->debug('Request processed with exception', ['response' => $e->getCode(), 'address' => $_SERVER['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $_SERVER['HTTP_REFERER'] ?? '', 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'duration' => number_format(microtime(true) - $request_start, 3)]);
 			$httpException->rawContent($e);
 		}
 		$page->logRuntime($this->config, 'runFrontend');

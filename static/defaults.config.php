@@ -298,10 +298,6 @@ return [
 		// Priority for the expiry notification
 		'expire-notify-priority' => Friendica\Core\Worker::PRIORITY_LOW,
 
-		// fetch_by_worker (Boolean)
-		// Fetch missing posts via a background process
-		'fetch_by_worker' => false,
-
 		// fetch_featured_posts (Boolean)
 		// Fetch featured posts from all contacts
 		'fetch_featured_posts' => false,
