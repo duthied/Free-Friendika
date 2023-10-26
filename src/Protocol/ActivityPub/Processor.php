@@ -737,7 +737,7 @@ class Processor
 		}
 
 		if (!empty($parent['uri-id'])) {
-			$parent;
+			return $parent;
 		}
 
 		return null;
@@ -770,6 +770,7 @@ class Processor
 	{
 		$post = self::getUriIdForFeaturedCollection($activity);
 		if (empty($post)) {
+			Queue::remove($activity);
 			return;
 		}
 
