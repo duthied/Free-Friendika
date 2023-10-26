@@ -752,6 +752,7 @@ class Processor
 	{
 		$post = self::getUriIdForFeaturedCollection($activity);
 		if (empty($post)) {
+			Queue::remove($activity);
 			return;
 		}
 
