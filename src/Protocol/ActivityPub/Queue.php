@@ -268,6 +268,10 @@ class Queue
 			return false;
 		}
 
+		if (($entry['type'] == 'as:Follow') && ($entry['object-type'] == 'as:Note')) {
+			return true;
+		}
+
 		if (!empty($entry['object-id']) && Post::exists(['uri' => $entry['object-id']])) {
 			// The object already exists, so processing can be done
 			return true;
