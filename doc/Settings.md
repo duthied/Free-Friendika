@@ -77,11 +77,11 @@ Additionally to the setting in the admin panel, you can decide if registrations 
 To enable invitation based registration, you have to set the `invitation_only` setting to `true` in the `system` section of the [config/local.config.php](/help/Config) file.
 If you want to use this method, the registration policy has to be set to either *open* or *requires approval*.
 
-#### Check Full Names
+#### Check Display Names
 
 You may find a lot of spammers trying to register on your site.
-During testing we discovered that since these registrations were automatic, the "Full Name" field was often set to just an account name with no space between first and last name.
-If you would like to support people with only one name as their full name, you may change this setting to true.
+During testing we discovered that since these registrations were automatic, the "Display Name" field was often set to just an account name with no space between first and last name.
+If you would like to support people with only one name as their display name, you can leave this setting set to false.
 Default is false.
 
 #### OpenID

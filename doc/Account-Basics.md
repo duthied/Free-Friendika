@@ -23,10 +23,10 @@ If you do not have an OpenID address or do not wish to use OpenID, leave this fi
 If you have an OpenID account elsewhere and wish to use it, enter the address into this field and click 'Register'.
 Friendica will attempt to extract as much information as possible from your OpenID provider and return to this page with those items already filled in.
 
-### Your Full Name
+### Your Display Name
 
-Please provide your full name **as you would like it to be displayed on this system**.
-Most people use their real name for this, but you're under no obligation to do so yourself.
+Please provide your display name **as you would like it to be displayed on this system**.
+Some people use their real name for this, but you're under no obligation to do so yourself.
 
 ### Email Address
 
