@@ -1131,7 +1131,7 @@ class User
 			throw new Exception(DI::l10n()->tt('Username should be at most %s character.', 'Username should be at most %s characters.', $username_max_length));
 		}
 
-		// So now we are just looking for a space in the full name.
+		// So now we are just looking for a space in the display name.
 		$loose_reg = DI::config()->get('system', 'no_regfullname');
 		if (!$loose_reg) {
 			$username = mb_convert_case($username, MB_CASE_TITLE, 'UTF-8');
@@ -1501,10 +1501,9 @@ class User
 		You may also wish to add some basic information to your default profile
 		(on the "Profiles" page) so that other people can easily find you.
 
-		We recommend setting your full name, adding a profile photo,
-		adding some profile "keywords" (very useful in making new friends) - and
-		perhaps what country you live in; if you do not wish to be more specific
-		than that.
+		We recommend adding a profile photo, adding some profile "keywords" 
+		(very useful in making new friends) - and perhaps what country you live in; 
+		if you do not wish to be more specific than that.
 
 		We fully respect your right to privacy, and none of these items are necessary.
 		If you are new and do not know anybody here, they may help
@@ -1605,10 +1604,9 @@ class User
 			You may also wish to add some basic information to your default profile
 			' . "\x28" . 'on the "Profiles" page' . "\x29" . ' so that other people can easily find you.
 
-			We recommend setting your full name, adding a profile photo,
-			adding some profile "keywords" ' . "\x28" . 'very useful in making new friends' . "\x29" . ' - and
-			perhaps what country you live in; if you do not wish to be more specific
-			than that.
+			We recommend adding a profile photo, adding some profile "keywords" ' . "\x28" . 'very useful
+			in making new friends' . "\x29" . ' - and perhaps what country you live in; if you do not wish
+			to be more specific than that.
 
 			We fully respect your right to privacy, and none of these items are necessary.
 			If you are new and do not know anybody here, they may help
