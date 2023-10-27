@@ -161,7 +161,7 @@ return [
 		'min_memory' => 0,
 
 		// no_regfullname (Boolean)
-		// Allow pseudonyms (true) or enforce a space between first name and last name in Full name, as an anti spam measure (false).
+		// Allow pseudonyms (true) or allow users to register which display name consists of at least two strings, as an anti spam measure (false).
 		'no_regfullname' => true,
 
 		// no_oembed_rich_content (Boolean)
