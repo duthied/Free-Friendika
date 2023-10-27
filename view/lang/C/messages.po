@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-27 11:39+0200\n"
+"POT-Creation-Date: 2023-10-27 11:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1960,7 +1960,8 @@ msgstr ""
 msgid "Home Page"
 msgstr ""
 
-#: src/Content/Nav.php:255 src/Module/Security/Login.php:124
+#: src/Content/Nav.php:255 src/Module/Register.php:168
+#: src/Module/Security/Login.php:124
 msgid "Register"
 msgstr ""
 
@@ -2039,7 +2040,8 @@ msgid "Information about this friendica instance"
 msgstr ""
 
 #: src/Content/Nav.php:301 src/Module/Admin/Tos.php:78
-#: src/Module/BaseAdmin.php:95 src/Module/Tos.php:101
+#: src/Module/BaseAdmin.php:95 src/Module/Register.php:176
+#: src/Module/Tos.php:101
 msgid "Terms of Service"
 msgstr ""
 
@@ -9045,6 +9047,66 @@ msgstr ""
 msgid "Your invitation code: "
 msgstr ""
 
+#: src/Module/Register.php:158
+msgid "Your Display Name (as you would like it to be displayed on this system"
+msgstr ""
+
+#: src/Module/Register.php:159
+msgid ""
+"Your Email Address: (Initial information will be send there, so this has to "
+"be an existing address.)"
+msgstr ""
+
+#: src/Module/Register.php:160
+msgid "Please repeat your e-mail address:"
+msgstr ""
+
+#: src/Module/Register.php:162 src/Module/Security/PasswordTooLong.php:100
+#: src/Module/Settings/Account.php:567
+msgid "New Password:"
+msgstr ""
+
+#: src/Module/Register.php:162
+msgid "Leave empty for an auto generated password."
+msgstr ""
+
+#: src/Module/Register.php:163 src/Module/Security/PasswordTooLong.php:101
+#: src/Module/Settings/Account.php:568
+msgid "Confirm:"
+msgstr ""
+
+#: src/Module/Register.php:164
+#, php-format
+msgid ""
+"Choose a profile nickname. This must begin with a text character. Your "
+"profile address on this site will then be \"<strong>nickname@%s</strong>\"."
+msgstr ""
+
+#: src/Module/Register.php:165
+msgid "Choose a nickname: "
+msgstr ""
+
+#: src/Module/Register.php:173 src/Module/User/Import.php:117
+msgid "Import"
+msgstr ""
+
+#: src/Module/Register.php:174
+msgid "Import your profile to this friendica instance"
+msgstr ""
+
+#: src/Module/Register.php:181
+msgid "Note: This node explicitly contains adult content"
+msgstr ""
+
+#: src/Module/Register.php:183 src/Module/Settings/Delegation.php:181
+msgid "Parent Password:"
+msgstr ""
+
+#: src/Module/Register.php:183 src/Module/Settings/Delegation.php:181
+msgid ""
+"Please enter the password of the parent account to legitimize your request."
+msgstr ""
+
 #: src/Module/Register.php:212
 msgid "Password doesn't match."
 msgstr ""
@@ -9096,12 +9158,6 @@ msgstr ""
 
 #: src/Module/Register.php:395
 msgid "Your registration is pending approval by the site owner."
-msgstr ""
-
-#: src/Module/Register.php:158
-msgid ""
-"Your Display Name (as you would like it to be displayed on this system),\n"
-"\t\t\t"
 msgstr ""
 
 #: src/Module/Search/Acl.php:73
@@ -9243,11 +9299,6 @@ msgid "Your current password to confirm the changes"
 msgstr ""
 
 #: src/Module/Security/PasswordTooLong.php:100
-#: src/Module/Settings/Account.php:567
-msgid "New Password:"
-msgstr ""
-
-#: src/Module/Security/PasswordTooLong.php:100
 #: src/Module/Settings/Account.php:553
 msgid ""
 "Allowed characters are a-z, A-Z, 0-9 and special characters except white "
@@ -9257,11 +9308,6 @@ msgstr ""
 #: src/Module/Security/PasswordTooLong.php:100
 #: src/Module/Settings/Account.php:554
 msgid "Password length is limited to 72 characters."
-msgstr ""
-
-#: src/Module/Security/PasswordTooLong.php:101
-#: src/Module/Settings/Account.php:568
-msgid "Confirm:"
 msgstr ""
 
 #: src/Module/Security/TwoFactor/Recovery.php:74
@@ -10207,15 +10253,6 @@ msgstr ""
 #: src/Module/Settings/Delegation.php:180
 #: src/Module/Settings/Delegation.php:191
 msgid "Parent User"
-msgstr ""
-
-#: src/Module/Settings/Delegation.php:181
-msgid "Parent Password:"
-msgstr ""
-
-#: src/Module/Settings/Delegation.php:181
-msgid ""
-"Please enter the password of the parent account to legitimize your request."
 msgstr ""
 
 #: src/Module/Settings/Delegation.php:188
@@ -11170,10 +11207,6 @@ msgstr ""
 
 #: src/Module/User/Import.php:103
 msgid "User imports on closed servers can only be done by an administrator."
-msgstr ""
-
-#: src/Module/User/Import.php:117
-msgid "Import"
 msgstr ""
 
 #: src/Module/User/Import.php:119
