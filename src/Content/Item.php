@@ -1074,8 +1074,18 @@ class Item
 
 	public function copyPermissions(int $fromUriId, int $toUriId)
 	{
+		$from        = Post::selectFirstPost(['author-id'], ['uri-id' => $fromUriId]);
+		$from_author = DBA::selectFirst('account-view', ['ap-followers'], ['id' => $from['author-id']]);
+		$to          = Post::selectFirstPost(['author-id'], ['uri-id' => $toUriId]);
+		$to_author   = DBA::selectFirst('account-view', ['ap-followers'], ['id' => $to['author-id']]);
+
 		$existing = array_column(Tag::getByURIId($toUriId, [Tag::TO, Tag::CC, Tag::BCC]), 'url');
+
 		foreach (Tag::getByURIId($fromUriId, [Tag::TO, Tag::CC, Tag::BCC]) as $receiver) {
+			if ($receiver['url'] == $from_author['ap-followers']) {
+				$receiver['url']  = $to_author['ap-followers'];
+				$receiver['name'] = trim(parse_url($receiver['url'], PHP_URL_PATH), '/');
+			}
 			if (in_array($receiver['url'], $existing)) {
 				continue;
 			}
