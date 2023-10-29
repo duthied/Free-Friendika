@@ -741,7 +741,7 @@ msgstr "Den Server dieses Autors ignorieren?"
 msgid ""
 "You won't see any content from this server including reshares in your "
 "Network page, the community pages and individual conversations."
-msgstr "Sie werden keine Inhalte von dieser Instanz sehen, auch nicht das erneute Teilen auf Ihrer Netzwerkseite, den Gemeinschaftsseiten und einzelnen Unterhaltungen."
+msgstr "Du wirst keine Inhalte von dieser Instanz sehen, auch nicht das erneute Teilen auf Ihrer Netzwerkseite, den Gemeinschaftsseiten und einzelnen Unterhaltungen."
 
 #: src/App/Page.php:255
 msgid "Like not successful"
@@ -773,13 +773,13 @@ msgstr "Ziehe Dateien hierher, um sie hochzuladen"
 
 #: src/App/Page.php:264
 msgid "Your browser does not support drag and drop file uploads."
-msgstr "Ihr Browser unterstützt das Hochladen von Dateien per Drag & Drop nicht."
+msgstr "Dein Browser unterstützt das Hochladen von Dateien per Drag & Drop nicht."
 
 #: src/App/Page.php:265
 msgid ""
 "Please use the fallback form below to upload your files like in the olden "
 "days."
-msgstr "Bitte verwenden Sie das untenstehende Formular, um Ihre Dateien wie früher hochzuladen."
+msgstr "Bitte verwende das unten stehende Formular, um Ihre Dateien wie früher hochzuladen."
 
 #: src/App/Page.php:266
 msgid "File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB."
@@ -787,7 +787,7 @@ msgstr "Datei ist zu groß ({{filesize}}MiB). Maximale Dateigröße: {{maxFilesi
 
 #: src/App/Page.php:267
 msgid "You can't upload files of this type."
-msgstr "Sie können keine Dateien dieses Typs hochladen."
+msgstr "Du kannst keine Dateien dieses Typs hochladen."
 
 #: src/App/Page.php:268
 msgid "Server responded with {{statusCode}} code."
@@ -803,7 +803,7 @@ msgstr "Hochladen abgebrochen"
 
 #: src/App/Page.php:271
 msgid "Are you sure you want to cancel this upload?"
-msgstr "Sind Sie sicher, dass Sie diesen Upload abbrechen möchten?"
+msgstr "Bist du sicher, dass du diesen Upload abbrechen möchten?"
 
 #: src/App/Page.php:272
 msgid "Remove file"
@@ -811,7 +811,7 @@ msgstr "Datei entfernen"
 
 #: src/App/Page.php:273
 msgid "You can't upload any more files."
-msgstr "Sie können keine weiteren Dateien hochladen."
+msgstr "Du kannst keine weiteren Dateien hochladen."
 
 #: src/App/Page.php:351
 msgid "toggle mobile"
@@ -1464,7 +1464,7 @@ msgstr "Du folgst %s."
 #: src/Content/Conversation.php:774
 #, php-format
 msgid "You subscribed to %s."
-msgstr "Sie haben %s abonniert."
+msgstr "Du hast %s abonniert."
 
 #: src/Content/Conversation.php:776
 msgid "You subscribed to one or more tags in this post."
@@ -1568,7 +1568,7 @@ msgstr "Für Dich"
 
 #: src/Content/Conversation/Factory/Channel.php:42
 msgid "Posts from contacts you interact with and who interact with you"
-msgstr "Beiträge von Kontakten, mit denen Sie interagieren und die mit Ihnen interagieren"
+msgstr "Beiträge von Kontakten, mit denen du interagierst und die mit dir interagieren"
 
 #: src/Content/Conversation/Factory/Channel.php:43
 msgid "What's Hot"
@@ -1585,7 +1585,7 @@ msgstr "Beiträge in %s"
 
 #: src/Content/Conversation/Factory/Channel.php:45
 msgid "Posts from your followers that you don't follow"
-msgstr "Beiträge von Ihren Followern, denen Sie nicht folgen"
+msgstr "Beiträge von deinen Followern, denen du nicht folgst"
 
 #: src/Content/Conversation/Factory/Channel.php:46
 msgid "Sharers of sharers"
@@ -1593,7 +1593,7 @@ msgstr "Geteilt von teilenden "
 
 #: src/Content/Conversation/Factory/Channel.php:46
 msgid "Posts from accounts that are followed by accounts that you follow"
-msgstr "Beiträge von Accounts, welche von von Accounts gefolgt werden, denen Sie folgen "
+msgstr "Beiträge von Accounts, welche von von Accounts gefolgt werden, denen du folgst "
 
 #: src/Content/Conversation/Factory/Channel.php:47
 #: src/Module/Settings/Channels.php:137 src/Module/Settings/Channels.php:153
@@ -2549,7 +2549,7 @@ msgstr "Dieser Inhalt wird außschließlich den Kontakten gezeigt, die du in der
 msgid ""
 "Start typing the name of a contact or a circle to show a filtered list. You "
 "can also mention the special circles \"Followers\" and \"Mutuals\"."
-msgstr "Geben Sie den Namen eines Kontakts oder eines Circles ein, um eine gefilterte Liste anzuzeigen. Sie können auch die speziellen Kreise \"folgende\" und \"beidseitige Freundschaft\" erwähnen."
+msgstr "Gebe den Namen eines Kontakts oder eines Circles ein, um eine gefilterte Liste anzuzeigen. Du kannst auch die speziellen Kreise \"Folgende\" und \"beidseitige Freundschaft\" erwähnen."
 
 #: src/Core/ACL.php:325
 msgid "Show to:"
@@ -3232,7 +3232,7 @@ msgid ""
 "A deleted circle with this name was revived. Existing item permissions "
 "<strong>may</strong> apply to this circle and any future members. If this is"
 " not what you intended, please create another circle with a different name."
-msgstr "Ein gelöschter Circle mit diesem Namen wurde wiederhergestellt. Bestehende Objektberechtigungen <strong>können</strong> für diesen Circle und alle zukünftigen Mitglieder gelten. Wenn dies nicht das ist, was Sie beabsichtigen, erstellen Sie bitte einen neuen Circle mit einem anderen Namen."
+msgstr "Ein gelöschter Circle mit diesem Namen wurde wiederhergestellt. Bestehende Objektberechtigungen <strong>können</strong> für diesen Circle und alle zukünftigen Mitglieder gelten. Wenn dies nicht das ist, was du beabsichtigst, erstelle bitte einen neuen Circle mit einem anderen Namen."
 
 #: src/Model/Circle.php:544
 msgid "Everybody"
@@ -3811,7 +3811,7 @@ msgstr "Kontakte"
 #: src/Model/User.php:1262
 msgid ""
 "An error occurred creating your default contact circle. Please try again."
-msgstr "Beim Erstellen Ihres Circles ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+msgstr "Beim Erstellen Ihres Circles ist ein Fehler aufgetreten. Bitte versuche es erneut."
 
 #: src/Model/User.php:1306
 msgid "Profile Photos"
@@ -3855,7 +3855,7 @@ msgid ""
 "\t\tIf you ever want to delete your account, you can do so at %1$s/settings/removeme\n"
 "\n"
 "\t\tThank you and welcome to %4$s."
-msgstr "\nNachfolgend die Anmeldedetails:\n\nAdresse der Seite: %1$s\nBenutzername: %2$s\nPasswort: %3$s\n\nDu kannst dein Passwort unter \"Einstellungen\" ändern, sobald du dich angemeldet hast.Bitte nimm dir ein paar Minuten, um die anderen Einstellungen auf dieser Seite zu kontrollieren.Eventuell magst du ja auch einige Informationen über dich in deinem Profil veröffentlichen, damit andere Leute dich einfacher finden können.Bearbeite hierfür einfach dein Standard-Profil (über die Profil-Seite).Wir empfehlen dir, deinen kompletten Namen anzugeben und ein zu dir passendes Profilbild zu wählen, damit dich alte Bekannte wiederfinden.Außerdem ist es nützlich, wenn du auf deinem Profil Schlüsselwörter angibst. Das erleichtert es, Leute zu finden, die deine Interessen teilen.Wir respektieren deine Privatsphäre - keine dieser Angaben ist nötig.Wenn du neu im Netzwerk bist und noch niemanden kennst, dann können sie allerdings dabei helfen, neue und interessante Kontakte zu knüpfen.\n\nDu kannst dein Nutzerkonto  jederzeit unter %1$s/settings/removeme wieder löschen.\n\nDanke und willkommen auf %4$s."
+msgstr "\nNachfolgend die Anmeldedetails:\n\nAdresse der Seite: %1$s\nBenutzername: %2$s\nPasswort: %3$s\n\nDu kannst dein Passwort unter \"Einstellungen\" ändern, sobald du dich angemeldet hast.Bitte nimm dir ein paar Minuten, um die anderen Einstellungen auf dieser Seite zu kontrollieren.Eventuell magst du ja auch einige Informationen über dich in deinem Profil veröffentlichen, damit andere Leute dich einfacher finden können.Bearbeite hierfür einfach dein Standard-Profil (über die Profil-Seite). Wir empfehlen dir, deinen kompletten Namen anzugeben und ein zu dir passendes Profilbild zu wählen, damit dich alte Bekannte wiederfinden.Außerdem ist es nützlich, wenn du auf deinem Profil Schlüsselwörter angibst. Das erleichtert es, Leute zu finden, die deine Interessen teilen. Wir respektieren deine Privatsphäre - keine dieser Angaben ist nötig.Wenn du neu im Netzwerk bist und noch niemanden kennst, dann können sie allerdings dabei helfen, neue und interessante Kontakte zu knüpfen.\n\nDu kannst dein Nutzerkonto  jederzeit unter %1$s/settings/removeme wieder löschen.\n\nDanke und willkommen auf %4$s."
 
 #: src/Model/User.php:1522 src/Model/User.php:1629
 #, php-format
@@ -3926,7 +3926,7 @@ msgstr "\nDie Anmelde-Details sind die folgenden:\n\tAdresse der Seite:\t%3$s\n\
 #: src/Model/User.php:1656
 msgid ""
 "User with delegates can't be removed, please remove delegate users first"
-msgstr "Benutzer mit Delegaten können nicht entfernt werden, bitte entfernen Sie zuerst die delegierten Benutzer"
+msgstr "Benutzer mit Delegaten können nicht entfernt werden, bitte entferne zuerst die delegierten Benutzer"
 
 #: src/Module/Admin/Addons/Details.php:65
 msgid "Addon not found."
@@ -5407,7 +5407,7 @@ msgid ""
 "The system.url entry is missing. This is a low level setting and can lead to"
 " unexpected behavior. Please add a valid entry as soon as possible in the "
 "config file or per console command!"
-msgstr "Der Eintrag system.url fehlt. Dies ist eine Einstellung auf niedriger Ebene und kann zu unerwartetem Verhalten führen. Bitte fügen Sie so bald wie möglich einen gültigen Eintrag in der Konfigurationsdatei oder per Konsolenbefehl hinzu!"
+msgstr "Der Eintrag system.url fehlt. Dies ist eine Einstellung auf niedriger Ebene und kann zu unerwartetem Verhalten führen. Bitt füge so bald wie möglich einen gültigen Eintrag in der Konfigurationsdatei oder per Konsolenbefehl hinzu!"
 
 #: src/Module/Admin/Summary.php:107
 msgid "The worker was never executed. Please check your database structure!"
@@ -5732,13 +5732,13 @@ msgstr[1] "Das monatliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wu
 
 #: src/Module/BaseModeration.php:86
 msgid "You don't have access to moderation pages."
-msgstr "Sie haben keinen Zugriff zu den Moderationsseiten."
+msgstr "Du hast keinen Zugriff zu den Moderationsseiten."
 
 #: src/Module/BaseModeration.php:90
 msgid ""
 "Submanaged account can't access the moderation pages. Please log back in as "
 "the main account."
-msgstr "Das unterverwaltete Konto kann nicht auf die Moderationsseiten zugreifen. Bitte melden Sie sich wieder mit dem Hauptkonto an."
+msgstr "Das verwaltete Konto kann nicht auf die Moderationsseiten zugreifen. Bitte melde dich wieder mit dem Hauptkonto an."
 
 #: src/Module/BaseModeration.php:110 src/Module/Moderation/Reports.php:94
 msgid "Reports"
@@ -5818,7 +5818,7 @@ msgid_plural ""
 "registered on. You can review the list of domains your node is currently "
 "blocking in the <a href=\"/friendica\">About page</a>."
 msgstr[0] "%d Ergebnis wurde herausgefiltert, weil Ihr Knoten die Domäne blockiert, auf der das Ergebnis registriert ist. Sie können die Liste aller Domänen, die Ihr Knoten derzeit blockiert, auf der <a href=\"/friendica\">Info-Seite</a> einsehen."
-msgstr[1] "%d Ergebnisse wurden herausgefiltert, weil Ihr Knoten die Domäne blockiert, auf der die Ergebnisse registriert sind. Sie können die Liste aller Domänen, die Ihr Knoten derzeit blockiert, auf der<a href=\"/friendica\">Info-Seite</a> einsehen."
+msgstr[1] "%d Ergebnisse wurden herausgefiltert, weil Ihr Knoten die Domäne blockiert, auf der die Ergebnisse registriert sind. Du kannst die Liste aller Domänen, die Ihr Knoten derzeit blockiert, auf der<a href=\"/friendica\">Info-Seite</a> einsehen."
 
 #: src/Module/BaseSettings.php:78
 msgid "Account"
@@ -6456,7 +6456,7 @@ msgstr "Private Kommunikation ist für diesen Kontakt nicht verfügbar."
 
 #: src/Module/Contact/Profile.php:282
 msgid "This contact is on a server you ignored."
-msgstr "Dieser Kontakt befindet sich auf einem Server, den Sie ignoriert haben."
+msgstr "Dieser Kontakt befindet sich auf einem Server, den du ignoriert hast."
 
 #: src/Module/Contact/Profile.php:285
 msgid "Never"
@@ -6653,7 +6653,7 @@ msgid ""
 "contacts who flood the channel, so you might want to see only some of their "
 "posts. Or you don't want to see their content at all, but you don't want to "
 "block or hide the contact completely."
-msgstr "Je nach Art des Kanals werden nicht alle Beiträge dieses Kontakts angezeigt. Standardmäßig müssen Beiträge eine Mindestanzahl an Interaktionen (Kommentare, Gefällt mir Angaben) aufweisen, um in Ihren Kanälen angezeigt zu werden. Andererseits kann es Kontakte geben, die den Kanal überfluten, so dass Sie vielleicht nur einige ihrer Beiträge sehen möchten. Oder Sie möchten deren Inhalte überhaupt nicht sehen, aber Sie möchten den Kontakt nicht komplett blockieren oder ausblenden."
+msgstr "Je nach Art des Kanals werden nicht alle Beiträge dieses Kontakts angezeigt. Standardmäßig müssen Beiträge eine Mindestanzahl an Interaktionen (Kommentare, Gefällt mir Angaben) aufweisen, um in Ihren Kanälen angezeigt zu werden. Andererseits kann es Kontakte geben, die den Kanal überfluten, so dass du vielleicht nur einige ihrer Beiträge sehen möchtest. Oder du willst deren Inhalte überhaupt nicht sehen, aber du willst den Kontakt nicht komplett blockieren oder ausblenden."
 
 #: src/Module/Contact/Profile.php:431
 msgid "Default frequency"
@@ -6664,7 +6664,7 @@ msgid ""
 "Posts by this contact are displayed in the \"for you\" channel if you "
 "interact often with this contact or if a post reached some level of "
 "interaction."
-msgstr "Beiträge dieses Kontakts werden im \"Für Dich\"-Kanal angezeigt, wenn Sie häufig mit diesem Kontakt interagieren oder wenn ein Beitrag ein gewisses Maß an Interaktion erreicht hat."
+msgstr "Beiträge dieses Kontakts werden im \"Für Dich\"-Kanal angezeigt, wenn du häufig mit diesem Kontakt interagieren oder wenn ein Beitrag ein gewisses Maß an Interaktion erreicht hat."
 
 #: src/Module/Contact/Profile.php:432
 msgid "Display all posts of this contact"
@@ -7269,7 +7269,7 @@ msgstr "Die Friendica System URL"
 msgid ""
 "Overwrite this field in case the system URL determination isn't right, "
 "otherwise leave it as is."
-msgstr "Überschreiben Sie dieses Feld, falls die System-URL-Erkennung nicht korrekt ist, ansonsten lassen Sie es unverändert."
+msgstr "Überschreibe dieses Feld, falls die System-URL-Erkennung nicht korrekt ist, ansonsten lasse es unverändert."
 
 #: src/Module/Install.php:242
 msgid "Database connection"
@@ -7422,7 +7422,7 @@ msgid ""
 "web that is owned and controlled by its members. They can also connect with "
 "many traditional social networks. See %s for a list of alternate Friendica "
 "sites you can join."
-msgstr "Friendica Server verbinden sich alle untereinander, um ein großes, datenschutzorientiertes Soziales Netzwerk zu bilden, das von seinen Mitgliedern betrieben und kontrolliert wird. Sie können sich auch mit vielen üblichen Sozialen Netzwerken verbinden. Besuche %s für eine Liste alternativer Friendica-Server, denen du beitreten kannst."
+msgstr "Friendica Server verbinden sich alle untereinander, um ein großes, datenschutzorientiertes Soziales Netzwerk zu bilden, das von seinen Mitgliedern betrieben und kontrolliert wird. Du kannst dich auch mit vielen üblichen Sozialen Netzwerken verbinden. Besuche %s für eine Liste alternativer Friendica-Server, denen du beitreten kannst."
 
 #: src/Module/Invite.php:157
 msgid ""
@@ -7435,7 +7435,7 @@ msgid ""
 "Friendica sites all inter-connect to create a huge privacy-enhanced social "
 "web that is owned and controlled by its members. They can also connect with "
 "many traditional social networks."
-msgstr "Friendica Server verbinden sich alle untereinander, um ein großes, datenschutzorientiertes Soziales Netzwerk zu bilden, das von seinen Mitgliedern betrieben und kontrolliert wird. Sie können sich auch mit vielen üblichen Sozialen Netzwerken verbinden."
+msgstr "Friendica Server verbinden sich alle untereinander, um ein großes, datenschutzorientiertes Soziales Netzwerk zu bilden, das von seinen Mitgliedern betrieben und kontrolliert wird. Du kannst dich auch mit vielen üblichen Sozialen Netzwerken verbinden."
 
 #: src/Module/Invite.php:159
 #, php-format
@@ -8056,7 +8056,7 @@ msgstr "Kontakt nicht gefunden oder seine Instanz ist bereits auf dieser Instanz
 
 #: src/Module/Moderation/Report/Create.php:136
 msgid "Please login to access this page."
-msgstr "Bitte melden Sie sich an, um auf diese Seite zuzugreifen."
+msgstr "Bitte melde dich an, um auf diese Seite zuzugreifen."
 
 #: src/Module/Moderation/Report/Create.php:165
 #: src/Module/Moderation/Report/Create.php:180
@@ -8074,7 +8074,7 @@ msgstr "Kontakt wählen"
 msgid ""
 "Please enter below the contact address or profile URL you would like to "
 "create a moderation report about."
-msgstr "Bitte geben Sie unten die Kontaktadresse oder Profil-URL ein, über die Sie einen Moderationsbericht erstellen möchten."
+msgstr "Bitte gib unten die Kontaktadresse oder Profil-URL ein, über die du einen Moderationsbericht erstellen möchten."
 
 #: src/Module/Moderation/Report/Create.php:171
 msgid "Contact address/URL"
@@ -8086,7 +8086,7 @@ msgstr "Kategorie auswählen"
 
 #: src/Module/Moderation/Report/Create.php:182
 msgid "Please pick below the category of your report."
-msgstr "Bitte wählen Sie unten die Kategorie für Ihren Bericht."
+msgstr "Bitte wähle unten die Kategorie für deinen Bericht."
 
 #: src/Module/Moderation/Report/Create.php:186
 #: src/Module/Moderation/Report/Create.php:311
@@ -8121,7 +8121,7 @@ msgid ""
 "insensitive, intentionally or not. This includes disclosing people's private"
 " information (doxxing), posting threats or offensive pictures in posts or "
 "replies."
-msgstr "Dieser Kontakt hat Sie oder andere Personen verärgert, indem er absichtlich oder unabsichtlich provokativ oder unsensibel war. Dazu gehören die Offenlegung privater Informationen (Doxxing), das Posten von Drohungen oder anstößigen Bildern in Beiträgen oder Antworten."
+msgstr "Dieser Kontakt hat dich oder andere Personen verärgert, indem er absichtlich oder unabsichtlich provokativ oder unsensibel war. Dazu gehören die Offenlegung privater Informationen (Doxxing), das Posten von Drohungen oder anstößigen Bildern in Beiträgen oder Antworten."
 
 #: src/Module/Moderation/Report/Create.php:189
 #: src/Module/Moderation/Report/Create.php:314
@@ -8145,13 +8145,13 @@ msgstr "Verstoß gegen die Regeln"
 msgid ""
 "This contact violated one or more rules of this node. You will be able to "
 "pick which one(s) in the next step."
-msgstr "Dieser Kontakt hat gegen eine oder mehrere Regeln dieser Instanz verstoßen. Sie können im nächsten Schritt auswählen, welche."
+msgstr "Dieser Kontakt hat gegen eine oder mehrere Regeln dieser Instanz verstoßen. Du kannst im nächsten Schritt auswählen, welche."
 
 #: src/Module/Moderation/Report/Create.php:191
 msgid ""
 "Please elaborate below why you submitted this report. The more details you "
 "provide, the better your report can be handled."
-msgstr "Bitte geben Sie im Folgenden an, warum Sie diese Meldung eingereicht haben. Je mehr Details Sie angeben, desto besser kann Ihre Meldung bearbeitet werden."
+msgstr "Bitte gib im Folgenden an, warum du diese Meldung eingereicht hast. Je mehr Details du angibst, desto besser kann Ihre Meldung bearbeitet werden."
 
 #: src/Module/Moderation/Report/Create.php:193
 msgid "Additional Information"
@@ -8162,7 +8162,7 @@ msgid ""
 "Please provide any additional information relevant to this particular "
 "report. You will be able to attach posts by this contact in the next step, "
 "but any context is welcome."
-msgstr "Bitte geben Sie alle zusätzlichen Informationen an, die für diesen Bericht relevant sind. Sie können im nächsten Schritt Beiträge dieser Kontaktperson anhängen, aber jeder Kontext ist willkommen."
+msgstr "Bitte gib alle zusätzlichen Informationen an, die für diesen Bericht relevant sind. Du kannst im nächsten Schritt Beiträge dieser Kontaktperson anhängen, aber jeder Kontext ist willkommen."
 
 #: src/Module/Moderation/Report/Create.php:209
 msgid "Pick Rules"
@@ -8170,7 +8170,7 @@ msgstr "Regeln auswählen"
 
 #: src/Module/Moderation/Report/Create.php:210
 msgid "Please pick below the node rules you believe this contact violated."
-msgstr "Bitte wählen Sie unten die Instanzregeln aus, gegen die dieser Kontakt Ihrer Meinung nach verstoßen hat."
+msgstr "Bitte wähle unten die Instanzregeln aus, gegen die dieser Kontakt deiner Meinung nach verstoßen hat."
 
 #: src/Module/Moderation/Report/Create.php:261
 msgid "Pick Posts"
@@ -8178,7 +8178,7 @@ msgstr "Beiträge auswählen"
 
 #: src/Module/Moderation/Report/Create.php:262
 msgid "Please optionally pick posts to attach to your report."
-msgstr "Bitte wählen Sie optional Beiträge aus, die Sie an Ihren Bericht anhängen möchten."
+msgstr "Bitte wähle optional Beiträge aus, die du an diesen Bericht anhängen möchtest."
 
 #: src/Module/Moderation/Report/Create.php:281
 msgid "Submit Report"
@@ -8192,7 +8192,7 @@ msgstr "Weiteres Vorgehen"
 msgid ""
 "You can also perform one of the following action on the contact you "
 "reported:"
-msgstr "Sie können auch eine der folgenden Aktionen für den gemeldeten Kontakt durchführen:"
+msgstr "Du kannst auch eine der folgenden Aktionen für den gemeldeten Kontakt durchführen:"
 
 #: src/Module/Moderation/Report/Create.php:291
 msgid "Nothing"
@@ -8212,7 +8212,7 @@ msgstr "Ihre Beiträge und Antworten werden weiterhin auf Ihrer Netzwerkseite an
 msgid ""
 "Their posts won't appear in your Network page anymore, but their replies can"
 " appear in forum threads. They still can follow you."
-msgstr "Ihre Beiträge werden nicht mehr auf Ihrer Netzwerkseite angezeigt, aber ihre Antworten können in Forenbeiträgen erscheinen. Sie können Ihnen immer noch folgen."
+msgstr "Ihre Beiträge werden nicht mehr auf deiner Netzwerkseite angezeigt, aber ihre Antworten können in Forenbeiträgen erscheinen. Sie können dir immer noch folgen."
 
 #: src/Module/Moderation/Report/Create.php:294
 msgid "Block contact"
@@ -8224,7 +8224,7 @@ msgid ""
 " appear in forum threads, with their content collapsed by default. They "
 "cannot follow you but still can have access to your public posts by other "
 "means."
-msgstr "Ihre Beiträge erscheinen nicht mehr auf Ihrer Netzwerkseite, aber ihre Antworten können in Forumsthemen erscheinen, wobei ihr Inhalt standardmäßig eingeklappt ist. Sie können Ihnen nicht folgen, haben aber auf anderem Wege weiterhin Zugang zu Ihren öffentlichen Beiträgen."
+msgstr "Ihre Beiträge erscheinen nicht mehr auf deiner Netzwerkseite, aber ihre Antworten können in Forumsthemen erscheinen, wobei ihr Inhalt standardmäßig eingeklappt ist. Sie können dir nicht folgen, haben aber auf anderem Wege weiterhin Zugang zu deinen öffentlichen Beiträgen."
 
 #: src/Module/Moderation/Report/Create.php:297
 msgid "Forward report"
@@ -8232,15 +8232,15 @@ msgstr "Bericht weiterleiten"
 
 #: src/Module/Moderation/Report/Create.php:297
 msgid "Would you ike to forward this report to the remote server?"
-msgstr "Möchten Sie diesen Bericht an den Remote-Server weiterleiten?"
+msgstr "Möchtest du diesen Bericht an den Entfernten-Server weiterleiten?"
 
 #: src/Module/Moderation/Report/Create.php:330
 msgid "1. Pick a contact"
-msgstr "1. Wählen Sie einen Kontakt"
+msgstr "1. Wähle einen Kontakt"
 
 #: src/Module/Moderation/Report/Create.php:331
 msgid "2. Pick a category"
-msgstr "2. Wählen Sie eine Kategorie"
+msgstr "2. Wähle eine Kategorie"
 
 #: src/Module/Moderation/Report/Create.php:332
 msgid "2a. Pick rules"
@@ -9320,7 +9320,7 @@ msgid ""
 "Since version 2022.09, we've realized that any password longer than 72 "
 "characters is truncated during hashing. To prevent any confusion about this "
 "behavior, please update your password to be fewer or equal to 72 characters."
-msgstr "Mit der Version 2022.09 haben wir festgestellt, dass jedes Passwort, das länger als 72 Zeichen ist, beim Hashing abgeschnitten wird. Um Verwirrung über dieses Verhalten zu vermeiden, aktualisieren Sie Ihr Passwort bitte so, dass es höchstens 72 Zeichen hat."
+msgstr "Mit der Version 2022.09 haben wir festgestellt, dass jedes Passwort, das länger als 72 Zeichen ist, beim Hashing abgeschnitten wird. Um Verwirrung über dieses Verhalten zu vermeiden, aktualisiere dein Passwort bitte so, dass es höchstens 72 Zeichen hat."
 
 #: src/Module/Security/PasswordTooLong.php:93
 msgid "Update Password"
@@ -10004,11 +10004,11 @@ msgstr "Dies sollte den Inhalt des Kanals in wenigen Worten beschreiben."
 msgid ""
 "When you want to access this channel via an access key, you can define it "
 "here. Pay attention to not use an already used one."
-msgstr "Wenn Sie auf diesen Kanal über einen Zugangsschlüssel zugreifen wollen, können Sie ihn hier festlegen. Achten Sie darauf, dass Sie nicht einen bereits verwendeten Schlüssel verwenden."
+msgstr "Wenn du auf diesen Kanal über einen Zugangsschlüssel zugreifen willst, kannst du ihn hier festlegen. Achte darauf, dass du nicht einen bereits verwendeten Schlüssel benutzt."
 
 #: src/Module/Settings/Channels.php:149
 msgid "Select a circle or channel, that your channel should be based on."
-msgstr "Wählen Sie einen Circle oder Kanal, auf dem Ihr Kanal basieren soll."
+msgstr "Wähle einen Circle oder Kanal, auf dem Ihr Kanal basieren soll."
 
 #: src/Module/Settings/Channels.php:150
 msgid ""
@@ -10028,23 +10028,23 @@ msgid ""
 "Search terms for the body, supports the \"boolean mode\" operators from "
 "MariaDB. See the help for a complete list of operators and additional "
 "keywords: %s"
-msgstr "Suchbegriffe für den Body, unterstützt die \"boolean mode\"-Operatoren von MariaDB. In der Hilfe finden Sie eine vollständige Liste der Operatoren und zusätzliche Schlüsselwörter: %s"
+msgstr "Suchbegriffe für den Body, unterstützt die \"boolean mode\"-Operatoren von MariaDB. In der Hilfe findest du eine vollständige Liste der Operatoren und zusätzliche Schlüsselwörter: %s"
 
 #: src/Module/Settings/Channels.php:153
 msgid "Check to display images in the channel."
-msgstr "Aktivieren Sie diese Option, um Bilder im Kanal anzuzeigen."
+msgstr "Aktiviere diese Option, um Bilder im Kanal anzuzeigen."
 
 #: src/Module/Settings/Channels.php:154
 msgid "Check to display videos in the channel."
-msgstr "Aktivieren Sie diese Option, um Videos im Kanal anzuzeigen."
+msgstr "Aktiviere diese Option, um Videos im Kanal anzuzeigen."
 
 #: src/Module/Settings/Channels.php:155
 msgid "Check to display audio in the channel."
-msgstr "Aktivieren Sie diese Option, um Audio im Kanal anzuzeigen."
+msgstr "Aktiviere diese Option, um Audio im Kanal anzuzeigen."
 
 #: src/Module/Settings/Channels.php:158
 msgid "This page can be used to define your own channels."
-msgstr "Auf dieser Seite können Sie Ihre eigenen Kanäle definieren."
+msgstr "Auf dieser Seite kannst du deine eigenen Kanäle definieren."
 
 #: src/Module/Settings/Channels.php:159
 msgid "Add new entry to the channel list"
@@ -10481,7 +10481,7 @@ msgstr "Lesezeichen"
 msgid ""
 "Enable timelines that you want to see in the channels widget. Bookmark "
 "timelines that you want to see in the top menu."
-msgstr "Aktivieren Sie dieTimelines, die Sie im Kanäle-Widget sehen möchten. Setzen Sie ein Lesezeichen für Timelines, die Sie im oberen Menü sehen möchten."
+msgstr "Aktiviere die Timelines, die Sie im Kanäle-Widget sehen möchten. Setze ein Lesezeichen für Timelines, die du im oberen Menü sehen willst."
 
 #: src/Module/Settings/Display.php:337
 msgid "Channel languages:"
@@ -10489,7 +10489,7 @@ msgstr "Channel Spachen:"
 
 #: src/Module/Settings/Display.php:337
 msgid "Select all languages that you want to see in your channels."
-msgstr "Wählen Sie alle Sprachen aus, die Sie in Ihren Kanälen sehen möchten."
+msgstr "Wähle alle Sprachen aus, die du in deinen Kanälen sehen willst."
 
 #: src/Module/Settings/Display.php:339
 msgid "Beginning of week:"
@@ -10732,11 +10732,11 @@ msgstr "wähle ein Foto aus deinen Fotoalben"
 msgid ""
 "There was a validation error, please make sure you're logged in with the "
 "account you want to remove and try again."
-msgstr "Es gab einen Überprüfungsfehler. Bitte vergewissern Sie sich, dass Sie mit dem Konto, das Sie entfernen möchten, angemeldet sind, und versuchen Sie es erneut."
+msgstr "Es gab einen Überprüfungsfehler. Bitte vergewisser dich, dass du mit dem Konto, das du entfernen möchtest angemeldet bist, und versuche es erneut."
 
 #: src/Module/Settings/RemoveMe.php:76
 msgid "If this error persists, please contact your administrator."
-msgstr "Wenn dieser Fehler weiterhin besteht, wenden Sie sich bitte an den Administrator Ihrer Instanz."
+msgstr "Wenn dieser Fehler weiterhin besteht, wende dich bitte an den Administrator deiner Instanz."
 
 #: src/Module/Settings/RemoveMe.php:90
 #: src/Navigation/Notifications/Repository/Notify.php:471
@@ -10779,11 +10779,11 @@ msgstr "Bitte gib dein Passwort zur Verifikation ein:"
 
 #: src/Module/Settings/Server/Action.php:60
 msgid "Do you want to ignore this server?"
-msgstr "Möchten Sie diese Instanz ignorieren?"
+msgstr "Möchtest du diese Instanz ignorieren?"
 
 #: src/Module/Settings/Server/Action.php:64
 msgid "Do you want to unignore this server?"
-msgstr "Möchten Sie diese Instanz nicht mehr ignorieren?"
+msgstr "Möchtest du diese Instanz nicht mehr ignorieren?"
 
 #: src/Module/Settings/Server/Action.php:74
 #: src/Module/Settings/Server/Index.php:104
@@ -10803,11 +10803,11 @@ msgid ""
 "Here you can find all the remote servers you have taken individual "
 "moderation actions against. For a list of servers your node has blocked, "
 "please check out the <a href=\"friendica\">Information</a> page."
-msgstr "Hier finden Sie alle Remote-Server, gegen die Sie individuelle Moderationsmaßnahmen ergriffen haben. Eine Liste der Server, die Ihre Instanz blockiert hat, finden Sie auf der <a href=\"friendica\">Informationseite</a> ."
+msgstr "Hier findest du alle Entfernten-Server, gegen die du individuelle Moderationsmaßnahmen ergriffen hast. Eine Liste der Server, die deine Instanz blockiert hat, findest du auf der <a href=\"friendica\">Informationseite</a> ."
 
 #: src/Module/Settings/Server/Index.php:110
 msgid "Delete all your settings for the remote server"
-msgstr "Löschen Sie alle Ihre Einstellungen für die Remote-Instanz"
+msgstr "Lösche alle deine Einstellungen für die Entfernte-Instanz"
 
 #: src/Module/Settings/Server/Index.php:111
 msgid "Save changes"
@@ -11147,13 +11147,13 @@ msgstr "Diese Instanz hat den Top-Level-Autor oder den Autor des freigegebenen B
 msgid ""
 "You have ignored or blocked the top-level author or the author of the shared"
 " post."
-msgstr "Sie haben den Autor der obersten Ebene oder den Autor des freigegebenen Beitrags ignoriert oder blockiert."
+msgstr "Du hast den Autor der obersten Ebene oder den Autor des freigegebenen Beitrags ignoriert oder blockiert."
 
 #: src/Module/Special/DisplayNotFound.php:39
 msgid ""
 "You have ignored the top-level author's server or the shared post author's "
 "server."
-msgstr "Sie haben die Instanz des übergeordneten Autors oder die Instanz des Autors des freigegebenen Beitrags ignoriert."
+msgstr "Du hast die Instanz des übergeordneten Autors oder die Instanz des Autors des freigegebenen Beitrags ignoriert."
 
 #: src/Module/Special/DisplayNotFound.php:45
 msgid "Conversation Not Found"
@@ -11161,7 +11161,7 @@ msgstr "Konversation nicht gefunden"
 
 #: src/Module/Special/DisplayNotFound.php:46
 msgid "Unfortunately, the requested conversation isn't available to you."
-msgstr "Leider ist die gewünschte Konversation für Sie nicht verfügbar."
+msgstr "Leider ist die gewünschte Konversation für dich nicht verfügbar."
 
 #: src/Module/Special/DisplayNotFound.php:47
 msgid "Possible reasons include:"
@@ -11451,7 +11451,7 @@ msgid ""
 "Once you have made some friends, organize them into private conversation "
 "circles from the sidebar of your Contacts page and then you can interact "
 "with each circle privately on your Network page."
-msgstr "Sobald Sie einige Freunde gefunden haben, können Sie diese in der Seitenleiste Ihrer Kontaktseite in private Circles einteilen und dann mit jedem Circle auf Ihrer Netzwerkseite privat interagieren."
+msgstr "Sobald du einige Freunde gefunden hast, kannst du diese in der Seitenleiste deiner Kontaktseite in private Circles einteilen und dann mit jedem Circle auf deiner Netzwerkseite privat interagieren."
 
 #: src/Module/Welcome.php:80
 msgid "Why Aren't My Posts Public?"
