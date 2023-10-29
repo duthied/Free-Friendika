@@ -30,6 +30,8 @@ use Friendica\Protocol\ActivityPub\Receiver;
 
 class FetchMissingActivity
 {
+	const WORKER_DEFER_LIMIT = 5;
+
 	/**
 	 * Fetch missing activities
 	 * @param string $url Contact URL
@@ -42,7 +44,7 @@ class FetchMissingActivity
 		$result = ActivityPub\Processor::fetchMissingActivity($url, $child, $relay_actor, $completion);
 		if ($result) {
 			Logger::info('Successfully fetched missing activity', ['url' => $url]);
-		} elseif (!Worker::defer()) {
+		} elseif (!Worker::defer(self::WORKER_DEFER_LIMIT)) {
 			Logger::info('Activity could not be fetched', ['url' => $url]);
 
 			// recursively delete all entries that belong to this worker task
