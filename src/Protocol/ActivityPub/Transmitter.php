@@ -560,14 +560,13 @@ class Transmitter
 	 *
 	 * @param array   $item             Item array
 	 * @param boolean $blindcopy        addressing via "bcc" or "cc"?
-	 * @param boolean $expand_followers Expand the list of followers
 	 * @param integer $last_id          Last item id for adding receivers
 	 *
 	 * @return array with permission data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function createPermissionBlockForItem(array $item, bool $blindcopy, bool $expand_followers, int $last_id = 0): array
+	private static function createPermissionBlockForItem(array $item, bool $blindcopy, int $last_id = 0): array
 	{
 		if ($last_id == 0) {
 			$last_id = $item['id'];
@@ -704,7 +703,7 @@ class Transmitter
 				$data['to'][] = $actor_profile['followers'];
 			}
 		} else {
-			$receiver_list = Item::enumeratePermissions($item, true, $expand_followers);
+			$receiver_list = Item::enumeratePermissions($item, true, false);
 
 			foreach ($terms as $term) {
 				$cid = Contact::getIdForURL($term['url'], $item['uid']);
@@ -851,6 +850,28 @@ class Transmitter
 			unset($receivers['bcc']);
 		}
 
+		if (!$blindcopy && count($receivers['audience']) == 1) {
+			$receivers['audience'] = $receivers['audience'][0];
+		} elseif (!$receivers['audience']) {
+			unset($receivers['audience']);
+		}
+
+		return $receivers;
+	}
+
+	/**
+	 * Store the receivers for the given item
+	 *
+	 * @param array $item
+	 * @return void
+	 */
+	public static function storeReceiversForItem(array $item)
+	{
+		$receivers = self::createPermissionBlockForItem($item, true);
+		if (empty($receivers)) {
+			return;
+		}
+
 		foreach (['to' => Tag::TO, 'cc' => Tag::CC, 'bcc' => Tag::BCC, 'audience' => Tag::AUDIENCE] as $element => $type) {
 			if (!empty($receivers[$element])) {
 				foreach ($receivers[$element] as $receiver) {
@@ -862,6 +883,44 @@ class Transmitter
 					Tag::store($item['uri-id'], $type, $name, $receiver);
 				}
 			}
+		}
+	}
+
+	/**
+	 * Get a list of receivers for the provided uri-id
+	 *
+	 * @param array $item
+	 * @param boolean $blindcopy
+	 * @return void
+	 */
+	public static function getReceiversForUriId(int $uri_id, bool $blindcopy)
+	{
+		$receivers = [
+			'to'       => [],
+			'cc'       => [],
+			'bcc'      => [],
+			'audience' => [],
+		];
+
+		foreach (Tag::getByURIId($uri_id, [Tag::TO, Tag::CC, Tag::BCC, Tag::AUDIENCE]) as $receiver) {
+			switch ($receiver['type']) {
+				case Tag::TO:
+					$receivers['to'][] = $receiver['url'];
+					break;
+				case Tag::CC:
+					$receivers['cc'][] = $receiver['url'];
+					break;
+				case Tag::BCC:
+					$receivers['bcc'][] = $receiver['url'];
+					break;
+				case Tag::AUDIENCE:
+					$receivers['audience'][] = $receiver['url'];
+					break;
+			}
+		}
+
+		if (!$blindcopy) {
+			unset($receivers['bcc']);
 		}
 
 		if (!$blindcopy && count($receivers['audience']) == 1) {
@@ -932,11 +991,13 @@ class Transmitter
 		}
 
 		$condition = [
-			'uid' => $uid,
-			'archive' => false,
-			'pending' => false,
-			'blocked' => false,
-			'network' => Protocol::FEDERATED,
+			'uid'          => $uid,
+			'self'         => false,
+			'archive'      => false,
+			'pending'      => false,
+			'blocked'      => false,
+			'network'      => Protocol::FEDERATED,
+			'contact-type' => [Contact::TYPE_UNKNOWN, Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION],
 		];
 
 		if (!empty($uid)) {
@@ -980,14 +1041,13 @@ class Transmitter
 	 * @param array   $item     Item array
 	 * @param integer $uid      User ID
 	 * @param boolean $personal fetch personal inboxes
-	 * @param integer $last_id  Last item id for adding receivers
 	 * @return array with inboxes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchTargetInboxes(array $item, int $uid, bool $personal = false, int $last_id = 0): array
+	public static function fetchTargetInboxes(array $item, int $uid, bool $personal = false): array
 	{
-		$permissions = self::createPermissionBlockForItem($item, true, true, $last_id);
+		$permissions = self::getReceiversForUriId($item['uri-id'], true);
 		if (empty($permissions)) {
 			return [];
 		}
@@ -1019,7 +1079,7 @@ class Transmitter
 				}
 
 				if ($item_profile && ($receiver == $item_profile['followers']) && ($uid == $profile_uid)) {
-					$inboxes = array_merge_recursive($inboxes, self::fetchTargetInboxesforUser($uid, $personal, self::isAPPost($last_id)));
+					$inboxes = array_merge_recursive($inboxes, self::fetchTargetInboxesforUser($uid, $personal, true));
 				} else {
 					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
@@ -1119,7 +1179,7 @@ class Transmitter
 		$data['actor'] = $mail['author-link'];
 		$data['published'] = DateTimeFormat::utc($mail['created'] . '+00:00', DateTimeFormat::ATOM);
 		$data['instrument'] = self::getService();
-		$data = array_merge($data, self::createPermissionBlockForItem($mail, true, false));
+		$data = array_merge($data, self::createPermissionBlockForItem($mail, true));
 
 		if (empty($data['to']) && !empty($data['cc'])) {
 			$data['to'] = $data['cc'];
@@ -1351,7 +1411,7 @@ class Transmitter
 
 		$data['instrument'] = self::getService();
 
-		$data = array_merge($data, self::createPermissionBlockForItem($item, false, false));
+		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = self::createNote($item, $api_mode);
@@ -1705,7 +1765,7 @@ class Transmitter
 			$data['name'] = BBCode::toPlaintext($item['title'], false);
 		}
 
-		$permission_block = self::createPermissionBlockForItem($item, false, false);
+		$permission_block = self::getReceiversForUriId($item['uri-id'], false);
 
 		$real_quote = false;
 

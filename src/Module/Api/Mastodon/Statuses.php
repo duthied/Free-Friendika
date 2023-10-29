@@ -25,7 +25,6 @@ use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -192,6 +191,7 @@ class Statuses extends BaseApi
 		$item['title']      = '';
 		$item['body']       = $this->formatStatus($request['status'], $uid);
 		$item['app']        = $this->getApp();
+		$item['visibility'] = $request['visibility'];
 
 		switch ($request['visibility']) {
 			case 'public':
@@ -209,6 +209,18 @@ class Statuses extends BaseApi
 				$item['private']   = Item::UNLISTED;
 				break;
 			case 'private':
+				if ($request['in_reply_to_id']) {
+					$parent_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['uri-id' => $request['in_reply_to_id'], 'uid' => $uid, 'private' => Item::PRIVATE]);
+					if (!empty($parent_item)) {
+						$item['allow_cid'] = $parent_item['allow_cid'];
+						$item['allow_gid'] = $parent_item['allow_gid'];
+						$item['deny_cid']  = $parent_item['deny_cid'];
+						$item['deny_gid']  = $parent_item['deny_gid'];
+						$item['private']   = $parent_item['private'];
+						break;
+					}
+				}
+			
 				if (!empty($owner['allow_cid'] . $owner['allow_gid'] . $owner['deny_cid'] . $owner['deny_gid'])) {
 					$item['allow_cid'] = $owner['allow_cid'];
 					$item['allow_gid'] = $owner['allow_gid'];
@@ -287,7 +299,7 @@ class Statuses extends BaseApi
 		}
 
 		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
-
+		
 		if (!empty($request['media_ids'])) {
 			$item = $this->storeMediaIds($request['media_ids'], $item);
 		}

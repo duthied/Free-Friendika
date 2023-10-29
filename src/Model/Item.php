@@ -880,6 +880,10 @@ class Item
 			if (is_int($notify) && in_array($notify, Worker::PRIORITIES)) {
 				$priority = $notify;
 			}
+
+			// Mastodon style API visibility
+			$copy_permissions = ($item['visibility'] ?? 'private') == 'private';
+			unset($item['visibility']);
 		} else {
 			$item['network'] = trim(($item['network'] ?? '') ?: Protocol::PHANTOM);
 		}
@@ -1359,6 +1363,9 @@ class Item
 
 		if ($notify) {
 			DI::contentItem()->postProcessPost($posted_item);
+			if ($copy_permissions && ($posted_item['thr-parent-id'] != $posted_item['uri-id']) && ($posted_item['private'] == self::PRIVATE)) {
+				DI::contentItem()->copyPermissions($posted_item['thr-parent-id'], $posted_item['uri-id']);
+			}
 		} else {
 			Hook::callAll('post_remote_end', $posted_item);
 		}

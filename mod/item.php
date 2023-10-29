@@ -221,6 +221,10 @@ function item_insert(int $uid, array $request, bool $preview, string $return_pat
 
 	DI::contentItem()->postProcessPost($post, $recipients);
 
+	if (($post['private'] == Item::PRIVATE) && ($post['thr-parent-id'] != $post['uri-id'])) {
+		DI::contentItem()->copyPermissions($post['thr-parent-id'], $post['uri-id']);
+	}
+
 	Logger::debug('post_complete');
 
 	item_post_return(DI::baseUrl(), $return_path);
