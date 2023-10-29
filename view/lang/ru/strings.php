@@ -3005,6 +3005,7 @@ $a->strings['Attended by: %s'] = 'Присутствуют: %s';
 $a->strings['Maybe attended by: %s'] = 'Под вопросом: %s';
 $a->strings['Not attended by: %s'] = 'Не присутствуют: %s';
 $a->strings['Reacted with %s by: %s'] = 'Отреагировали как %s : %s';
+$a->strings['Chat'] = 'Чат';
 $a->strings['(no subject)'] = '(нет темы)';
 $a->strings['%s is now following %s.'] = '%s теперь подписан на %s.';
 $a->strings['following'] = 'следует';

@@ -12315,7 +12315,7 @@ msgstr "Отреагировали как %s : %s"
 
 #: src/Protocol/ActivityPub/Receiver.php:522
 msgid "Chat"
-msgstr ""
+msgstr "Чат"
 
 #: src/Protocol/Delivery.php:547
 msgid "(no subject)"
