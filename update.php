@@ -1400,3 +1400,14 @@ function update_1535()
 	
 	return Update::SUCCESS;
 }
+
+function update_1539()
+{
+	$users = DBA::select('user', ['uid'], ['account-type' => User::ACCOUNT_TYPE_COMMUNITY]);
+	while ($user = DBA::fetch($users)) {
+		User::setCommunityUserSettings($user['uid']);
+	}
+	DBA::close($users);
+
+	return Update::SUCCESS;
+}
