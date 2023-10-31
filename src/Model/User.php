@@ -364,7 +364,7 @@ class User
 			'deny_cid'   => '',
 			'deny_gid'   => '',
 			'blockwall'  => true,
-			'hidewall'   => true,
+			'blocktags'  => true,
 		];
 
 		User::update($fields, $uid);
