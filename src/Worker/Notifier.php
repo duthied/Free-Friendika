@@ -102,7 +102,7 @@ class Notifier
 			$uid = $target_id;
 
 			$condition = ['uid' => $target_id, 'self' => false, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
-			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'addr', 'network', 'protocol', 'baseurl', 'gsid', 'batch'], $condition);
+			$delivery_contacts_stmt = DBA::select('contact', ['id', 'uri-id', 'url', 'addr', 'network', 'protocol', 'baseurl', 'gsid', 'batch'], $condition);
 		} else {
 			$post = Post::selectFirst(['id'], ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
 			if (!DBA::isResult($post)) {
@@ -191,7 +191,8 @@ class Notifier
 				$apdelivery = self::activityPubDelivery($cmd, $target_item, $parent, $thr_parent, $a->getQueueValue('priority'), $a->getQueueValue('created'), $owner);
 				$ap_contacts = $apdelivery['contacts'];
 				$delivery_queue_count += $apdelivery['count'];
-				if (($thr_parent['network'] == Protocol::ACTIVITYPUB) && ($thr_parent['private'] == Item::PRIVATE)) {
+				// Restrict distribution to AP, when there are no permissions.
+				if (($target_item['private'] == Item::PRIVATE) && empty($target_item['allow_cid']) && empty($target_item['allow_gid']) && empty($target_item['deny_cid']) && empty($target_item['deny_gid'])) {
 					$only_ap_delivery   = true;
 					$public_message     = false;
 					$diaspora_delivery  = false;
@@ -438,7 +439,7 @@ class Notifier
 			if (!empty($networks)) {
 				$condition['network'] = $networks;
 			}
-			$delivery_contacts_stmt = DBA::select('contact', ['id', 'addr', 'url', 'network', 'protocol', 'baseurl', 'gsid', 'batch'], $condition);
+			$delivery_contacts_stmt = DBA::select('contact', ['id', 'uri-id', 'addr', 'url', 'network', 'protocol', 'baseurl', 'gsid', 'batch'], $condition);
 		}
 
 		$conversants = [];
@@ -462,7 +463,7 @@ class Notifier
 			$condition = ['network' => Protocol::DFRN, 'uid' => $owner['uid'], 'blocked' => false,
 				'pending' => false, 'archive' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]];
 
-			$contacts = DBA::selectToArray('contact', ['id', 'url', 'addr', 'name', 'network', 'protocol', 'baseurl', 'gsid'], $condition);
+			$contacts = DBA::selectToArray('contact', ['id', 'uri-id', 'url', 'addr', 'name', 'network', 'protocol', 'baseurl', 'gsid'], $condition);
 
 			$conversants = array_merge($contacts, $participants);
 
@@ -590,6 +591,11 @@ class Notifier
 
 			if (!$reachable) {
 				Logger::info('Server is not reachable', ['id' => $post_uriid, 'uid' => $sender_uid, 'contact' => $contact]);
+				continue;
+			}
+
+			if (($contact['network'] == Protocol::ACTIVITYPUB) && !DI::dsprContact()->existsByUriId($contact['uri-id'])) {
+				Logger::info('The ActivityPub contact does not support Diaspora, so skip delivery via Diaspora', ['id' => $post_uriid, 'uid' => $sender_uid, 'url' => $contact['url']]);
 				continue;
 			}
 

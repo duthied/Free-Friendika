@@ -1042,10 +1042,12 @@ class Item
 
 			// Reshares have to keep their permissions to allow groups to work
 			if (!$defined_permissions && (!$item['origin'] || ($item['verb'] != Activity::ANNOUNCE))) {
-				$item['allow_cid']     = $toplevel_parent['allow_cid'];
-				$item['allow_gid']     = $toplevel_parent['allow_gid'];
-				$item['deny_cid']      = $toplevel_parent['deny_cid'];
-				$item['deny_gid']      = $toplevel_parent['deny_gid'];
+				// Don't store the permissions on pure AP posts
+				$store_permissions = ($item['network'] != Protocol::ACTIVITYPUB) || $item['origin'] || !empty($item['diaspora_signed_text']);
+				$item['allow_cid'] = $store_permissions ? $toplevel_parent['allow_cid'] : '';
+				$item['allow_gid'] = $store_permissions ? $toplevel_parent['allow_gid'] : '';
+				$item['deny_cid']  = $store_permissions ? $toplevel_parent['deny_cid'] : '';
+				$item['deny_gid']  = $store_permissions ? $toplevel_parent['deny_gid'] : '';
 			}
 
 			$parent_origin         = $toplevel_parent['origin'];
