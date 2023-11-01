@@ -28,6 +28,8 @@ use Friendica\Model\User;
 
 class Unfollow
 {
+	const WORKER_DEFER_LIMIT = 5;
+
 	/**
 	 * Issue asynchronous unfollow message to remote servers.
 	 * The local relationship has already been updated, so we can't use the user-specific contact.
@@ -51,7 +53,7 @@ class Unfollow
 
 		$result = Protocol::unfollow($contact, $owner);
 		if ($result === false) {
-			Worker::defer();
+			Worker::defer(self::WORKER_DEFER_LIMIT);
 		}
 	}
 }

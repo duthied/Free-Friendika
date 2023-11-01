@@ -199,6 +199,7 @@ class Account extends BaseSettings
 				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
+			User::setCommunityUserSettings(DI::userSession()->getLocalUserId());
 			DI::baseUrl()->redirect($redirectUrl);
 		}
 
@@ -321,37 +322,16 @@ class Account extends BaseSettings
 				$page_flags = User::PAGE_FLAGS_COMMUNITY;
 			}
 
-			$fields         = [];
-			$profile_fields = [];
-
-			if ($account_type == User::ACCOUNT_TYPE_COMMUNITY) {
-				DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'system', 'unlisted', true);
-
-				$fields = [
-					'allow_cid' => '',
-					'allow_gid' => $page_flags == User::PAGE_FLAGS_PRVGROUP ?
-							'<' . Circle::FOLLOWERS . '>'
-							: '',
-					'deny_cid'  => '',
-					'deny_gid'  => '',
-					'blockwall' => true,
-					'blocktags' => true,
-				];
-
-				$profile_fields = [
-					'hide-friends' => true,
-				];
-			}
-
-			$fields = array_merge($fields, [
+			$fields = [
 				'page-flags'   => $page_flags,
 				'account-type' => $account_type,
-			]);
+			];
 
-			if (!User::update($fields, DI::userSession()->getLocalUserId()) || !empty($profile_fields) && !Profile::update($profile_fields, DI::userSession()->getLocalUserId())) {
+			if (!User::update($fields, DI::userSession()->getLocalUserId())) {
 				DI::sysmsg()->addNotice(DI::l10n()->t('Settings were not updated.'));
 			}
 
+			User::setCommunityUserSettings(DI::userSession()->getLocalUserId());
 			DI::baseUrl()->redirect($redirectUrl);
 		}
 

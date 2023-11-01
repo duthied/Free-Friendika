@@ -113,12 +113,26 @@ class PermissionTooltip extends \Friendica\BaseModule
 			exit;
 		}
 
+		if (!empty($model['allow_cid']) || !empty($model['allow_gid']) || !empty($model['deny_cid']) || !empty($model['deny_gid'])) {
+			$receivers = $this->fetchReceiversFromACL($model);
+		}
+
+		$this->httpExit(DI::l10n()->t('Visible to:') . '<br />' . $receivers);
+	}
+
+	/**
+	 * Fetch a list of receivers based on the ACL data
+	 *
+	 * @param array $model
+	 * @return string
+	 */
+	private function fetchReceiversFromACL(array $model)
+	{
 		$allowed_users   = $model['allow_cid'];
 		$allowed_circles = $model['allow_gid'];
 		$deny_users      = $model['deny_cid'];
 		$deny_circles    = $model['deny_gid'];
 
-		$o = DI::l10n()->t('Visible to:') . '<br />';
 		$l = [];
 
 		if (count($allowed_circles)) {
@@ -165,11 +179,7 @@ class PermissionTooltip extends \Friendica\BaseModule
 			$l[] = '<strike>' . $contact['name'] . '</strike>';
 		}
 
-		if (!empty($l)) {
-			$this->httpExit($o . implode(', ', $l));
-		} else {
-			$this->httpExit($o . $receivers);;
-		}
+		return implode(', ', $l);
 	}
 
 	/**

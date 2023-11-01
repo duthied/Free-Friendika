@@ -428,7 +428,7 @@ class Circle
 					'uid' => $uid,
 					'rel' => [Contact::FOLLOWER, Contact::FRIEND],
 					'network' => $networks,
-					'contact-type' => [Contact::TYPE_UNKNOWN, Contact::TYPE_PERSON],
+					'contact-type' => [Contact::TYPE_UNKNOWN, Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION],
 					'archive' => false,
 					'pending' => false,
 					'blocked' => false,

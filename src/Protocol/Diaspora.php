@@ -1192,6 +1192,7 @@ class Diaspora
 	{
 		$fields = [
 			'id', 'parent', 'body', 'wall', 'uri', 'guid', 'private', 'origin',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-name', 'author-link', 'author-avatar', 'gravity',
 			'owner-name', 'owner-link', 'owner-avatar'
 		];
@@ -1567,6 +1568,12 @@ class Diaspora
 		$datarray['verb'] = Activity::POST;
 		$datarray['gravity'] = Item::GRAVITY_COMMENT;
 
+		$datarray['private']   = $toplevel_parent_item['private'];
+		$datarray['allow_cid'] = $toplevel_parent_item['allow_cid'];
+		$datarray['allow_gid'] = $toplevel_parent_item['allow_gid'];
+		$datarray['deny_cid']  = $toplevel_parent_item['deny_cid'];
+		$datarray['deny_gid']  = $toplevel_parent_item['deny_gid'];
+
 		$datarray['thr-parent'] = $thr_parent ?: $toplevel_parent_item['uri'];
 
 		$datarray['object-type'] = Activity\ObjectType::COMMENT;
@@ -1823,6 +1830,13 @@ class Diaspora
 
 		$datarray['verb'] = $verb;
 		$datarray['gravity'] = Item::GRAVITY_ACTIVITY;
+
+		$datarray['private']   = $toplevel_parent_item['private'];
+		$datarray['allow_cid'] = $toplevel_parent_item['allow_cid'];
+		$datarray['allow_gid'] = $toplevel_parent_item['allow_gid'];
+		$datarray['deny_cid']  = $toplevel_parent_item['deny_cid'];
+		$datarray['deny_gid']  = $toplevel_parent_item['deny_gid'];
+
 		$datarray['thr-parent'] = $toplevel_parent_item['uri'];
 
 		$datarray['object-type'] = Activity\ObjectType::NOTE;

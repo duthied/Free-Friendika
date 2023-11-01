@@ -48,6 +48,7 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
@@ -991,12 +992,14 @@ class Item
 			$post['deny_gid']  = $owner['deny_gid'];
 		}
 
-		if ($post['allow_gid'] || $post['allow_cid'] || $post['deny_gid'] || $post['deny_cid']) {
-			$post['private'] = ItemModel::PRIVATE;
-		} elseif ($this->pConfig->get($post['uid'], 'system', 'unlisted')) {
-			$post['private'] = ItemModel::UNLISTED;
-		} else {
-			$post['private'] = ItemModel::PUBLIC;
+		if (!isset($post['private'])) {
+			if ($post['allow_gid'] || $post['allow_cid'] || $post['deny_gid'] || $post['deny_cid']) {
+				$post['private'] = ItemModel::PRIVATE;
+			} elseif ($this->pConfig->get($post['uid'], 'system', 'unlisted')) {
+				$post['private'] = ItemModel::UNLISTED;
+			} else {
+				$post['private'] = ItemModel::PUBLIC;
+			}
 		}
 
 		if (empty($post['contact-id'])) {
@@ -1046,6 +1049,8 @@ class Item
 			Tag::createImplicitMentions($post['uri-id'], $post['thr-parent-id']);
 		}
 
+		ActivityPub\Transmitter::storeReceiversForItem($post);
+
 		Hook::callAll('post_local_end', $post);
 
 		$author = DBA::selectFirst('contact', ['thumb'], ['uid' => $post['uid'], 'self' => true]);
@@ -1064,6 +1069,27 @@ class Item
 				$address,
 				$author['thumb'] ?? ''
 			));
+		}
+	}
+
+	public function copyPermissions(int $fromUriId, int $toUriId)
+	{
+		$from        = Post::selectFirstPost(['author-id'], ['uri-id' => $fromUriId]);
+		$from_author = DBA::selectFirst('account-view', ['ap-followers'], ['id' => $from['author-id']]);
+		$to          = Post::selectFirstPost(['author-id'], ['uri-id' => $toUriId]);
+		$to_author   = DBA::selectFirst('account-view', ['ap-followers'], ['id' => $to['author-id']]);
+
+		$existing = array_column(Tag::getByURIId($toUriId, [Tag::TO, Tag::CC, Tag::BCC]), 'url');
+
+		foreach (Tag::getByURIId($fromUriId, [Tag::TO, Tag::CC, Tag::BCC]) as $receiver) {
+			if ($receiver['url'] == $from_author['ap-followers']) {
+				$receiver['url']  = $to_author['ap-followers'];
+				$receiver['name'] = trim(parse_url($receiver['url'], PHP_URL_PATH), '/');
+			}
+			if (in_array($receiver['url'], $existing)) {
+				continue;
+			}
+			Tag::store($toUriId, $receiver['type'], $receiver['name'], $receiver['url']);
 		}
 	}
 }

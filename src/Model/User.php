@@ -344,6 +344,35 @@ class User
 	}
 
 	/**
+	 * Set static settings for community user accounts
+	 *
+	 * @param integer $uid
+	 * @return void
+	 */
+	public static function setCommunityUserSettings(int $uid)
+	{
+		$user = self::getById($uid, ['account-type', 'page-flags']);
+		if ($user['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
+			return;
+		}
+
+		DI::pConfig()->set($uid, 'system', 'unlisted', true);
+
+		$fields = [
+			'allow_cid'  => '',
+			'allow_gid'  => $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP ? '<' . Circle::FOLLOWERS . '>' : '',
+			'deny_cid'   => '',
+			'deny_gid'   => '',
+			'blockwall'  => true,
+			'blocktags'  => true,
+		];
+
+		User::update($fields, $uid);
+
+		Profile::update(['hide-friends' => true], $uid);
+	}
+
+	/**
 	 * Returns the user id of a given profile URL
 	 *
 	 * @param string $url
