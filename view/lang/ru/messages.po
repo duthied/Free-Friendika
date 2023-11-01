@@ -8719,11 +8719,11 @@ msgstr "Пожалуйста, скопируйте следующий код а�
 
 #: src/Module/OAuth/Token.php:83
 msgid "Invalid data or unknown client"
-msgstr ""
+msgstr "Ошибочные данные или неизвестный клиент"
 
 #: src/Module/OAuth/Token.php:108
 msgid "Unsupported or missing grant type"
-msgstr ""
+msgstr "Неподдерживаемый или отсутствующий тип гранта."
 
 #: src/Module/OStatus/Repair.php:83
 msgid "Resubscribing to OStatus contacts"
@@ -8788,7 +8788,7 @@ msgstr "игнорирован"
 #: src/Module/PermissionTooltip.php:49
 #, php-format
 msgid "Wrong type \"%s\", expected one of: %s"
-msgstr ""
+msgstr "Ошибочный тип \"%s\", ожидался один из: %s"
 
 #: src/Module/PermissionTooltip.php:79
 msgid "Model not found"
@@ -8829,12 +8829,12 @@ msgstr "<b>Кому:</b> %s<br>"
 #: src/Module/PermissionTooltip.php:234
 #, php-format
 msgid "<b>CC:</b> %s<br>"
-msgstr ""
+msgstr "<b>CC:</b> %s<br>"
 
 #: src/Module/PermissionTooltip.php:237
 #, php-format
 msgid "<b>BCC:</b> %s<br>"
-msgstr ""
+msgstr "<b>BCC:</b> %s<br>"
 
 #: src/Module/PermissionTooltip.php:240
 #, php-format
