@@ -476,7 +476,7 @@ class Notify extends BaseRepository
 							'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 						);
 
-						$body = $l10n->t("Full Name:	%s\nSite Location:	%s\nLogin Name:	%s (%s)",
+						$body = $l10n->t("Display Name:	%s\nSite Location:	%s\nLogin Name:	%s (%s)",
 							$params['source_name'],
 							$siteurl, $params['source_mail'],
 							$params['source_nick']
@@ -497,7 +497,7 @@ class Notify extends BaseRepository
 							'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 						);
 
-						$body = $l10n->t("Full Name:	%s\nSite Location:	%s\nLogin Name:	%s (%s)",
+						$body = $l10n->t("Display Name:	%s\nSite Location:	%s\nLogin Name:	%s (%s)",
 							$params['source_name'],
 							$siteurl, $params['source_mail'],
 							$params['source_nick']
