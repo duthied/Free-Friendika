@@ -29,6 +29,8 @@ use Friendica\Network\HTTPException;
 
 class RevokeFollow
 {
+	const WORKER_DEFER_LIMIT = 5;
+
 	/**
 	 * Issue asynchronous follow revocation message to remote servers.
 	 * The local relationship has already been updated, so we can't use the user-specific contact
@@ -51,7 +53,7 @@ class RevokeFollow
 		}
 
 		if (!Protocol::revokeFollow($contact, $owner)) {
-			Worker::defer();
+			Worker::defer(self::WORKER_DEFER_LIMIT);
 		}
 	}
 }

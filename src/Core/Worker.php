@@ -1379,10 +1379,11 @@ class Worker
 	/**
 	 * Defers the current worker entry
 	 *
+	 * @param int $worker_defer_limit Maximum defer limit 
 	 * @return boolean had the entry been deferred?
 	 * @throws \Exception
 	 */
-	public static function defer(): bool
+	public static function defer(int $worker_defer_limit = 0): bool
 	{
 		$queue = DI::app()->getQueue();
 
@@ -1394,6 +1395,10 @@ class Worker
 		$priority = $queue['priority'];
 
 		$max_level = DI::config()->get('system', 'worker_defer_limit');
+
+		if ($worker_defer_limit) {
+			$max_level = min($worker_defer_limit, $max_level);
+		}
 
 		$new_retrial = self::getNextRetrial($queue, $max_level);
 
