@@ -161,7 +161,7 @@ return [
 		'min_memory' => 0,
 
 		// no_regfullname (Boolean)
-		// Allow pseudonyms (true) or allow users to register which display name consists of at least two strings, as an anti spam measure (false).
+		// Allow users to register with a display name comporting fewer than two parts separated by spaces.
 		'no_regfullname' => true,
 
 		// no_oembed_rich_content (Boolean)
