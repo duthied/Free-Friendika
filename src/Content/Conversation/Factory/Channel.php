@@ -35,13 +35,13 @@ final class Channel extends Timeline
 	 */
 	public function getTimelines(int $uid): Timelines
 	{
-		$language  = User::getLanguageCode($uid);
-		$languages = $this->l10n->getAvailableLanguages(true);
+		$iso639 = new \Matriphe\ISO639\ISO639;
+		$native = $iso639->nativeByCode1(User::getLanguageCode($uid));
 
 		$tabs = [
 			new ChannelEntity(ChannelEntity::FORYOU, $this->l10n->t('For you'), $this->l10n->t('Posts from contacts you interact with and who interact with you'), 'y'),
 			new ChannelEntity(ChannelEntity::WHATSHOT, $this->l10n->t('What\'s Hot'), $this->l10n->t('Posts with a lot of interactions'), 'h'),
-			new ChannelEntity(ChannelEntity::LANGUAGE, $languages[$language], $this->l10n->t('Posts in %s', $languages[$language]), 'g'),
+			new ChannelEntity(ChannelEntity::LANGUAGE, $native, $this->l10n->t('Posts in %s', $native), 'g'),
 			new ChannelEntity(ChannelEntity::FOLLOWERS, $this->l10n->t('Followers'), $this->l10n->t('Posts from your followers that you don\'t follow'), 'f'),
 			new ChannelEntity(ChannelEntity::SHARERSOFSHARERS, $this->l10n->t('Sharers of sharers'), $this->l10n->t('Posts from accounts that are followed by accounts that you follow'), 'r'),
 			new ChannelEntity(ChannelEntity::IMAGE, $this->l10n->t('Images'), $this->l10n->t('Posts with images'), 'i'),

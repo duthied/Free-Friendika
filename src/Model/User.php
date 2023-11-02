@@ -127,7 +127,6 @@ class User
 
 			case 'community':
 				return User::ACCOUNT_TYPE_COMMUNITY;
-
 		}
 		return null;
 	}
@@ -425,7 +424,7 @@ class User
 	 * @return array user
 	 * @throws Exception
 	 */
-	public static function getFirstAdmin(array $fields = []) : array
+	public static function getFirstAdmin(array $fields = []): array
 	{
 		if (!empty(DI::config()->get('config', 'admin_nickname'))) {
 			return self::getByNickname(DI::config()->get('config', 'admin_nickname'), $fields);
@@ -560,22 +559,20 @@ class User
 		return $default_circle;
 	}
 
-/**
- * Fetch the language code from the given user. If the code is invalid, return the system language
- *
- * @param integer $uid User-Id
- * @return string
- */
+	/**
+	 * Fetch the language code from the given user. If the code is invalid, return the system language
+	 *
+	 * @param integer $uid User-Id
+	 * @return string
+	 */
 	public static function getLanguageCode(int $uid): string
 	{
-		$owner = self::getOwnerDataById($uid);
-		$languages = DI::l10n()->getAvailableLanguages(true);
-		if (in_array($owner['language'], array_keys($languages))) {
-			$language = $owner['language'];
-		} else {
-			$language = DI::config()->get('system', 'language');
+		$owner    = self::getOwnerDataById($uid);
+		$language = DI::l10n()->toISO6391($owner['language']);
+		if (in_array($language, array_keys(DI::l10n()->getLanguageCodes()))) {
+			return $language;
 		}
-		return $language;
+		return DI::l10n()->toISO6391(DI::config()->get('system', 'language'));
 	}
 
 	/**
@@ -1480,7 +1477,7 @@ class User
 		Photo::delete(['uid' => $register['uid']]);
 
 		return DBA::delete('user', ['uid' => $register['uid']]) &&
-		       Register::deleteByHash($register['hash']);
+			Register::deleteByHash($register['hash']);
 	}
 
 	/**

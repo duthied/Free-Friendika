@@ -260,7 +260,7 @@ class Display extends BaseSettings
 		$bookmarked_timelines = $this->pConfig->get($uid, 'system', 'network_timelines', $this->getAvailableTimelines($uid, true)->column('code'));
 		$enabled_timelines    = $this->pConfig->get($uid, 'system', 'enabled_timelines', $this->getAvailableTimelines($uid, false)->column('code'));
 		$channel_languages = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]);
-		$languages         = $this->l10n->getAvailableLanguages(true);
+		$languages         = $this->l10n->getLanguageCodes(true);
 
 		$timelines = [];
 		foreach ($this->getAvailableTimelines($uid) as $timeline) {

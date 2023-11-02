@@ -35,9 +35,6 @@ use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Strings;
-
-// Channel
 
 class Engagement
 {
