@@ -143,20 +143,19 @@
 
 			<p class="wall-item-actions">
 				{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
-				<span class="wall-item-actions-left">
 					{{if $item.threaded}}{{/if}}
 
 					{{* Buttons for like and dislike *}}
 					{{if $item.vote}}
 						{{if $item.vote.like}}
-					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doActivityItemAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});">{{$item.vote.like.0}}</button>
+					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doActivityItemAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});"></button>
 						{{/if}}
 						{{if $item.vote.like AND $item.vote.dislike}}
 					<span role="presentation" class="separator">•</span>
 						{{/if}}
 
 						{{if $item.vote.dislike}}
-					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doActivityItemAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});">{{$item.vote.dislike.0}}</button>
+					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doActivityItemAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});"></button>
 						{{/if}}
 						{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment_html}}
 					<span role="presentation" class="separator">•</span>
@@ -165,7 +164,7 @@
 
 					{{* Button to open the comment text field *}}
 					{{if $item.comment_html}}
-						<button type="button" class="btn btn-default" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});">{{$item.switchcomment}}</button>
+						<button type="button" class="btn btn-default" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"></button>
 					{{/if}}
 
 					{{* Button for sharing the item *}}
@@ -174,7 +173,7 @@
 							{{if $item.vote.like OR $item.vote.dislike OR $item.comment_html}}
 					<span role="presentation" class="separator">•</span>
 							{{/if}}
-					<button type="button" class="btn btn-default" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.share.0}}</button>
+					<button type="button" class="btn btn-default" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet" aria-hidden="true"></i></button>
 						{{/if}}
 					{{/if}}
 
@@ -258,7 +257,6 @@
 				{{else}}
 					<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 				{{/if}}
-				</span>
 
 
 				<span class="wall-item-actions-right">
