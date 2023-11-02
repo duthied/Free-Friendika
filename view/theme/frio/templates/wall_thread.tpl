@@ -59,9 +59,23 @@ as the value of $top_child_total (this is done at the end of this file)
 <span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
 	<div class="media {{$item.shiny}}">
-	{{if $item.reshared}}
-		<p class="wall-item-announce wall-item-responses" id="wall-item-announce-{{$item.id}}"><i class="fa fa-retweet" aria-hidden="true"></i> {{$item.reshared nofilter}}</p>
+	{{if $item.parentguid}}
+		<span class="visible-sm-inline visible-xs wall-item-responses time">
+			<i class="fa fa-reply" aria-hidden="true"></i> <a id="btn-{{$item.id}}" class="" href="javascript:;" onclick="scrollToItem('item-' + '{{$item.parentguid}}');">{{$item.inreplyto}}</a>
+			{{if $item.reshared}}<i class="hidden-xs">&#x2022;</i>{{/if}}
+		</span>
+	{{else}}
+		{{if $item.thread_level!=1 && $item.isunknown}}
+		<span class="visible-sm-inline visible-xs wall-item-responses time">
+			<i title="{{$item.isunknown_label}}" aria-label="{{$item.isunknown_label}}">{{$item.isunknown}}</i>
+			{{if $item.reshared}}<i class="hidden-xs">&#x2022;</i>{{/if}}
+		</span>
+		{{/if}}
 	{{/if}}
+	{{if $item.reshared}}
+		<span class="wall-item-announce wall-item-responses time" id="wall-item-announce-{{$item.id}}"><i class="fa fa-retweet" aria-hidden="true"></i> {{$item.reshared nofilter}}</span>
+	{{/if}}
+		<p>
 		{{* The avatar picture and the photo-menu *}}
 		<div class="dropdown pull-left"><!-- Dropdown -->
 			{{if $item.thread_level==1}}
@@ -214,6 +228,19 @@ as the value of $top_child_total (this is done at the end of this file)
 					<span class="text-muted">
 				</h5>
 				<small>
+					{{if $item.parentguid}}
+						<span class="hidden-xs hidden-sm">
+							<a id="btn-{{$item.id}}" class="time" href="javascript:;" onclick="scrollToItem('item-' + '{{$item.parentguid}}');"><i class="fa fa-reply" aria-hidden="true"></i> {{$item.inreplyto}}</a>
+							<i class="hidden-xs">&#x2022;</i>
+						</span>
+					{{else}}
+						{{if $item.isunknown}}
+							<span class="hidden-xs hidden-sm time">
+								<i title="{{$item.isunknown_label}}" aria-label="{{$item.isunknown_label}}">{{$item.isunknown}}</i>
+								<i class="hidden-xs">&#x2022;</i>
+							</span>
+						{{/if}}
+					{{/if}}
 					<a href="{{$item.plink.orig}}">
 						<time class="time" title="{{$item.localtime}}" data-toggle="tooltip" datetime="{{$item.utc}}">{{$item.ago}}</time>
 					</a>
@@ -276,7 +303,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		<!-- <hr /> -->
 		<div class="wall-item-actions">
 			{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
-  
+
 			{{* Buttons for like and dislike *}}
 			{{if $item.vote}}
 				{{if $item.vote.like}}
@@ -288,6 +315,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{if $item.vote.dislike}}
 				<button type="button" class="btn-link button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doActivityItemAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});" ><i class="fa fa-thumbs-down" aria-hidden="true"></i></button>
 				{{/if}}
+
 				{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment_html}}
 				<span role="presentation" class="separator"></span>
 				{{/if}}
@@ -418,7 +446,7 @@ as the value of $top_child_total (this is done at the end of this file)
                                         </li>
                                         {{/if}}
                                     </ul>
-                            </span>
+                        </span>
 
 			<span class="wall-item-actions-right hidden-xs">
 				{{* Event attendance buttons *}}
