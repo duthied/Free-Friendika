@@ -351,7 +351,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{* Put additional actions in a dropdown menu *}}
 				<span role="presentation" class="separator"></span>
 				<span class="more-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}">
-                                    <button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i>&nbsp;{{$item.menu}}</button>
+                                    <button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></button>
                                     <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenuOptions-{{$item.id}}">
                                         {{if $item.edpost}} {{* edit the posting *}}
                                         <li role="menuitem">
