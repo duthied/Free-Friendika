@@ -447,8 +447,8 @@ as the value of $top_child_total (this is done at the end of this file)
                                                 <a class="btn-link navicon ignore" href="{{$item.report.href}}"><i class="fa fa-flag" aria-hidden="true"></i> {{$item.report.label}}</a>
                                         </li>
                                         {{/if}}
-                                    </ul>
-                        </div>
+                </span>                 </ul>
+			</div>
 			</div>
 			<span class="wall-item-actions-right hidden-xs">
 				{{* Event attendance buttons *}}
