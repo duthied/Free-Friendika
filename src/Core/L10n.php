@@ -427,7 +427,7 @@ class L10n
 	}
 
 	/**
-	 * Return a list of supported languages witzh their two byte language codes.
+	 * Return a list of supported languages with their two byte language codes.
 	 *
 	 * @param bool $international If set to true, additionally the international language name is returned as well.
 	 * @return array
