@@ -305,7 +305,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
 			{{* Buttons for like and dislike *}}
 			<div class="wall-item-actions-items btn-toolbar btn-group hidden-xs" role="group">
-			<div class="wall-item-actions-row">
+				<div class="wall-item-actions-row">
 
 			{{if $item.vote}}
 				{{if $item.vote.like}}
