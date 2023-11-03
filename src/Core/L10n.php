@@ -442,7 +442,7 @@ class L10n
 			$code     = $this->toISO6391($code);
 			$native   = $iso639->nativeByCode1($code);
 			$language = $iso639->languageByCode1($code);
-			if ($native != $iso639->languageByCode1($code) && $international) {
+			if ($native != $language && $international) {
 				$languages[$code] = $this->t('%s (%s)', $native, $language);
 			} else {
 				$languages[$code] = $native;
