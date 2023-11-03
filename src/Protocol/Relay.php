@@ -23,6 +23,7 @@ namespace Friendica\Protocol;
 
 use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -34,6 +35,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Search;
 use Friendica\Model\Tag;
+use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
@@ -185,13 +187,22 @@ class Relay
 			}
 		}
 
-		Logger::debug('Got languages', ['languages' => $languages, 'body' => $body]);
-
 		if (!empty($languages)) {
-			if (in_array($languages[0], DI::config()->get('system', 'relay_deny_languages'))) {
-				Logger::info('Unwanted language found', ['language' => $languages[0]]);
-				return false;
+			$cachekey = 'relay:isWantedLanguage';
+			$user_languages = DI::cache()->get($cachekey);
+			if (is_null($user_languages)) {
+				$user_languages = User::getLanguages();
+				DI::cache()->set($cachekey, $user_languages, Duration::HALF_HOUR);
 			}
+
+			foreach ($languages as $language) {
+				if (in_array($language, $user_languages)) {
+					Logger::debug('Wanted language found', ['language' => $language, 'languages' => $languages, 'userlang' => $user_languages, 'body' => $body]);
+					return true;
+				}
+			}
+			Logger::debug('No wanted language found', ['languages' => $languages, 'userlang' => $user_languages, 'body' => $body]);
+			return false;
 		} elseif (DI::config()->get('system', 'relay_deny_undetected_language')) {
 			Logger::info('Undetected language found', ['body' => $body]);
 			return false;

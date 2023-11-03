@@ -1001,7 +1001,7 @@ class Processor
 		}
 
 		$tags = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
-		if (Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0)) {
+		if (Relay::isSolicitedPost($tags, $item['title'] . ' ' . ($item['content-warning'] ?? '') . ' ' . $item['body'], $item['author-id'], $item['uri'], Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0)) {
 			Logger::debug('Post is accepted because of the relay settings', ['uri-id' => $item['uri-id'], 'guid' => $item['guid'], 'url' => $item['uri']]);
 			return true;
 		} else {
