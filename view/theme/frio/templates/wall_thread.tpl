@@ -303,8 +303,10 @@ as the value of $top_child_total (this is done at the end of this file)
 		<!-- <hr /> -->
 		<div class="wall-item-actions">
 			{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
-
 			{{* Buttons for like and dislike *}}
+			<div class="wall-item-actions-items btn-toolbar btn-group hidden-xs" role="group">
+				<div class="wall-item-actions-row">
+
 			{{if $item.vote}}
 				{{if $item.vote.like}}
 				<button type="button" class="btn-link button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doActivityItemAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});" ><i class="fa fa-thumbs-up" aria-hidden="true"></i></button>
@@ -349,7 +351,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{* Put additional actions in a dropdown menu *}}
 				<span role="presentation" class="separator"></span>
 				<span class="more-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}">
-                                    <button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i>&nbsp;{{$item.menu}}</button>
+					<button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></button>
                                     <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenuOptions-{{$item.id}}">
                                         {{if $item.edpost}} {{* edit the posting *}}
                                         <li role="menuitem">
@@ -446,8 +448,9 @@ as the value of $top_child_total (this is done at the end of this file)
                                         </li>
                                         {{/if}}
                                     </ul>
-                        </span>
-
+				</span>
+				</div>
+			</div>
 			<span class="wall-item-actions-right hidden-xs">
 				{{* Event attendance buttons *}}
 			{{if $item.isevent}}
@@ -457,7 +460,6 @@ as the value of $top_child_total (this is done at the end of this file)
 					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doActivityItemAction({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}});"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
 				</span>
 			{{/if}}
-
 				<span class="pull-right checkbox">
 			{{if $item.drop && $item.drop.pagedrop}}
 					<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" id="checkbox-{{$item.id}}" class="item-select" value="{{$item.id}}" />
