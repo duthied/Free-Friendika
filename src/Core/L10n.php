@@ -398,7 +398,7 @@ class L10n
 
 	/**
 	 * Get language codes that are detectable by our language detection routines.
-	 * Öanguages are excluded that aren't used often and that tend to false detections.
+	 * Languages are excluded that aren't used often and that tend to false detections.
 	 * The listed codes are a collection of both the official ISO 639-1 codes and
 	 * the codes that are used by our built-in language detection routine.
 	 * When the detection is done, the result only consists of the official ISO 639-1 codes.
