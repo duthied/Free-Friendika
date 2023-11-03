@@ -2034,15 +2034,12 @@ class Item
 			return [];
 		}
 
-		$availableLanguages = DI::l10n()->getAvailableLanguages(true);
-		$availableLanguages = DI::l10n()->convertForLanguageDetection($availableLanguages);
-
-		$ld = new Language(array_keys($availableLanguages));
+		$ld = new Language(DI::l10n()->getDetectableLanguages());
 
 		$result = [];
 
 		foreach (self::splitByBlocks($searchtext) as $block) {
-			$languages = $ld->detect($block)->limit(0, $count)->close() ?: [];
+			$languages = $ld->detect($block)->close() ?: [];
 
 			$data = [
 				'text'      => $block,
@@ -2057,10 +2054,32 @@ class Item
 			}
 		}
 
-		arsort($result);
-		$result = array_slice($result, 0, $count);
+		$result = self::compactLanguages($result);
 
-		return $result;
+		arsort($result);
+		return array_slice($result, 0, $count);
+	}
+
+	/**
+	 * Concert the language code in the detection result to ISO 639-1.
+	 * On duplicates the system uses the higher quality value.
+	 *
+	 * @param array $result
+	 * @return array
+	 */
+	private static function compactLanguages(array $result): array
+	{
+		$languages = [];
+		foreach ($result as $language => $quality) {
+			if ($quality == 0) {
+				continue;
+			}
+			$code = DI::l10n()->toISO6391($language);
+			if (empty($languages[$code]) || ($languages[$code] < $quality)) {
+				$languages[$code] = $quality;
+			}
+		}
+		return $languages;
 	}
 
 	/**
@@ -2143,7 +2162,15 @@ class Item
 
 		$used_languages = '';
 		foreach (json_decode($item['language'], true) as $language => $reliability) {
-			$used_languages .= $iso639->nativeByCode1(substr($language, 0, 2)) . ' (' . $iso639->languageByCode1(substr($language, 0, 2)) . ' - ' . $language . "): " . number_format($reliability, 5) . '\n';
+			$code = DI::l10n()->toISO6391($language);
+
+			$native   = $iso639->nativeByCode1($code);
+			$language = $iso639->languageByCode1($code);
+			if ($native != $language) {
+				$used_languages .= DI::l10n()->t('%s (%s - %s): %s', $native, $language, $code, number_format($reliability, 5)) . '\n';
+			} else {
+				$used_languages .= DI::l10n()->t('%s (%s): %s', $native, $code, number_format($reliability, 5)) . '\n';
+			}
 		}
 		$used_languages = DI::l10n()->t('Detected languages in this post:\n%s', $used_languages);
 		return $used_languages;

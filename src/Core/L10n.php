@@ -378,7 +378,7 @@ class L10n
 	 *
 	 * @return array
 	 */
-	public function getAvailableLanguages(bool $additional = false): array
+	public function getAvailableLanguages(): array
 	{
 		$langs              = [];
 		$strings_file_paths = glob('view/lang/*/strings.php');
@@ -392,107 +392,94 @@ class L10n
 				$path_array            = explode('/', $strings_file_path);
 				$langs[$path_array[2]] = self::LANG_NAMES[$path_array[2]] ?? $path_array[2];
 			}
-
-			if ($additional) {
-				// See https://github.com/friendica/friendica/issues/10511
-				// Persian is manually added to language detection until a persian translation is provided for the interface, at
-				// which point it will be automatically available through `getAvailableLanguages()` and this should be removed.
-				// Additionally some more languages are added to that list that are used in the Fediverse.
-				$additional_langs = [
-					'af'         => 'Afrikaans',
-					'az-Latn'    => 'azərbaycan dili',
-					'bs-Latn'    => 'bosanski jezik',
-					'be'         => 'беларуская мова',
-					'bn'         => 'বাংলা',
-					'cy'         => 'Cymraeg',
-					'el-monoton' => 'ελληνικά',
-					'eu'         => 'euskara, euskera',
-					'fa'         => 'فارسی',
-					'ga'         => 'Gaeilge',
-					'gl'         => 'galego',
-					'he'         => 'עברית',
-					'hi'         => 'हिन्दी, हिंदी',
-					'hr'         => 'hrvatski jezik',
-					'hy'         => 'Հայերեն',
-					'id'         => 'Bahasa Indonesia',
-					'jv'         => 'basa Jawa',
-					'ka'         => 'ქართული',
-					'ko'         => '한국어, 조선어',
-					'lt'         => 'lietuvių kalba',
-					'lv'         => 'latviešu valoda',
-					'ms-Latn'    => 'bahasa Melayu, بهاس ملايو‎',
-					'sr-Cyrl'    => 'српски језик',
-					'sk'         => 'slovenčina, slovenský jazyk',
-					'sl'         => 'slovenski jezik, slovenščina',
-					'sq'         => 'Shqip',
-					'sw'         => 'Kiswahili',
-					'ta'         => 'தமிழ்',
-					'th'         => 'ไทย',
-					'tl'         => 'Wikang Tagalog, ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔',
-					'tr'         => 'Türkçe',
-					'pt-PT'      => 'português',
-					'uk'         => 'українська мова',
-					'uz'         => 'Oʻzbek, Ўзбек, أۇزبېك‎',
-					'vi'         => 'Việt Nam',
-					'zh-hant'    => '繁體',
-				];
-				$langs = array_merge($additional_langs, $langs);
-				ksort($langs);
-			}
 		}
 		return $langs;
 	}
 
 	/**
-	 * The language detection routine uses some slightly different language codes.
-	 * This function changes the language array accordingly.
+	 * Get language codes that are detectable by our language detection routines.
+	 * Languages are excluded that aren't used often and that tend to false detections.
+	 * The listed codes are a collection of both the official ISO 639-1 codes and
+	 * the codes that are used by our built-in language detection routine.
+	 * When the detection is done, the result only consists of the official ISO 639-1 codes.
 	 *
-	 * @param array $languages
 	 * @return array
 	 */
-	public function convertForLanguageDetection(array $languages): array
+	public function getDetectableLanguages(): array
 	{
-		foreach ($languages as $key => $language) {
-			$newkey = $this->convertCodeForLanguageDetection($key);
-			if ($newkey != $key) {
-				if (!isset($languages[$newkey])) {
-					$languages[$newkey] = $language;
-				}
-				unset($languages[$key]);
-			}
+		$additional_langs = [
+			'af', 'az', 'az-Cyrl', 'az-Latn', 'be', 'bn', 'bs', 'bs-Cyrl', 'bs-Latn',
+			'cy', 'da', 'el', 'el-monoton', 'el-polyton', 'en', 'eu', 'fa', 'fi',
+			'ga', 'gl', 'gu', 'he', 'hi', 'hr', 'hy', 'id', 'in', 'iu', 'iw', 'jv', 'jw',
+			'ka', 'km', 'ko', 'lt', 'lv', 'mo', 'ms', 'ms-Arab', 'ms-Latn', 'nb', 'nn', 'no',
+			'pt', 'pt-PT', 'pt-BR', 'ro', 'sa', 'sk', 'sl', 'sq', 'sr', 'sr-Cyrl', 'sr-Latn', 'sw',
+			'ta', 'th', 'tl', 'tr', 'ug', 'uk', 'uz', 'vi', 'zh', 'zh-Hant', 'zh-Hans',
+		];
+
+		if (in_array('cld2', get_loaded_extensions())) {
+			$additional_langs = array_merge($additional_langs,
+				['dv', 'kn', 'lo', 'ml', 'or', 'pa', 'sd', 'si', 'te', 'yi']);
 		}
 
-		ksort($languages);
+		$langs = array_merge($additional_langs, array_keys($this->getAvailableLanguages()));
+		sort($langs);
+		return $langs;
+	}
+
+	/**
+	 * Return a list of supported languages with their two byte language codes.
+	 *
+	 * @param bool $international If set to true, additionally the international language name is returned as well.
+	 * @return array
+	 */
+	public function getLanguageCodes(bool $international = false): array
+	{
+		$iso639 = new \Matriphe\ISO639\ISO639;
+
+		$languages = [];
+
+		foreach ($this->getDetectableLanguages() as $code) {
+			$code     = $this->toISO6391($code);
+			$native   = $iso639->nativeByCode1($code);
+			$language = $iso639->languageByCode1($code);
+			if ($native != $language && $international) {
+				$languages[$code] = $this->t('%s (%s)', $native, $language);
+			} else {
+				$languages[$code] = $native;
+			}
+		}
 
 		return $languages;
 	}
 
 	/**
-	 * The language detection routine uses some slightly different language codes.
-	 * This function changes the language codes accordingly.
+	 * Convert the language code to ISO639-1
+	 * It also converts old codes to their new counterparts.
 	 *
-	 * @param string $language
+	 * @param string $code
 	 * @return string
 	 */
-	public function convertCodeForLanguageDetection(string $language): string
+	public function toISO6391(string $code): string
 	{
-		switch ($language) {
-			case 'da-dk':
-				return 'da';
-			case 'en-us':
-			case 'en-gb':
-				return 'en';
-			case 'fi-fi':
-				return 'fi';
-			case 'nb-no':
-				return 'nb';
-			case 'pt-br':
-				return 'pt-BR';
-			case 'zh-cn':
-				return 'zh-Hans';
-			default:
-				return $language;
+		if ((strlen($code) > 2) && (substr($code, 2, 1) == '-')) {
+			$code = substr($code, 0, 2);
 		}
+		if (in_array($code, ['nb', 'nn'])) {
+			$code = 'no';
+		}
+		if ($code == 'in') {
+			$code = 'id';
+		}
+		if ($code == 'iw') {
+			$code = 'he';
+		}
+		if ($code == 'jw') {
+			$code = 'jv';
+		}
+		if ($code == 'mo') {
+			$code = 'ro';
+		}
+		return $code;
 	}
 
 	/**

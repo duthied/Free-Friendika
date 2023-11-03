@@ -304,7 +304,7 @@ class Timeline extends BaseModule
 		} elseif ($this->selectedTab == ChannelEntity::AUDIO) {
 			$condition = ["`media-type` & ?", 4];
 		} elseif ($this->selectedTab == ChannelEntity::LANGUAGE) {
-			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", $this->l10n->convertCodeForLanguageDetection(User::getLanguageCode($uid))];
+			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", User::getLanguageCode($uid)];
 		} elseif (is_numeric($this->selectedTab)) {
 			$condition = $this->getUserChannelConditions($this->selectedTab, $this->session->getLocalUserId());
 		}
@@ -421,7 +421,6 @@ class Timeline extends BaseModule
 	{
 		$conditions = [];
 		$languages  = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]);
-		$languages  = $this->l10n->convertForLanguageDetection($languages);
 		foreach ($languages as $language) {
 			$conditions[] = "JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?";
 			$condition[]  = $language;
