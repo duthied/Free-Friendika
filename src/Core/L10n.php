@@ -409,16 +409,16 @@ class L10n
 	{
 		$additional_langs = [
 			'af', 'az', 'az-Cyrl', 'az-Latn', 'be', 'bn', 'bs', 'bs-Cyrl', 'bs-Latn',
-			'cy', 'da', 'el', 'el-monoton', 'el-polyton', 'en', 'eu',
-			'fa', 'fi', 'ga', 'gl', 'he', 'hi', 'hr', 'hy', 'id', 'in', 'iw', 'jv', 'jw',
-			'ka', 'ko', 'lt', 'lv', 'mo', 'ms', 'ms-Arab', 'ms-Latn', 'nb', 'nn', 'no',
+			'cy', 'da', 'el', 'el-monoton', 'el-polyton', 'en', 'eu', 'fa', 'fi',
+			'ga', 'gl', 'gu', 'he', 'hi', 'hr', 'hy', 'id', 'in', 'iu', 'iw', 'jv', 'jw',
+			'ka', 'km', 'ko', 'lt', 'lv', 'mo', 'ms', 'ms-Arab', 'ms-Latn', 'nb', 'nn', 'no',
 			'pt', 'pt-PT', 'pt-BR', 'ro', 'sa', 'sk', 'sl', 'sq', 'sr', 'sr-Cyrl', 'sr-Latn', 'sw',
 			'ta', 'th', 'tl', 'tr', 'ug', 'uk', 'uz', 'vi', 'zh', 'zh-Hant', 'zh-Hans',
 		];
 
 		if (in_array('cld2', get_loaded_extensions())) {
 			$additional_langs = array_merge($additional_langs,
-				['sd', 'si', 'yi', 'km', 'iu', 'lo', 'dv', 'gu', 'kn', 'te', 'ml', 'or', 'pa', 'iu']);
+				['dv', 'kn', 'lo', 'ml', 'or', 'pa', 'sd', 'si', 'te', 'yi']);
 		}
 
 		$langs = array_merge($additional_langs, array_keys($this->getAvailableLanguages()));
