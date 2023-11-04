@@ -558,10 +558,6 @@ return [
 		// Redistribute incoming activities via ActivityPub
 		'redistribute_activities' => true,
 
-		// relay_deny_languages (Array)
-		// Array of languages (two digit format) that are rejected.
-		'relay_deny_languages' => [],
-
 		// relay_deny_undetected_language (Boolean)
 		// Deny undetected languages
 		'relay_deny_undetected_language' => false,

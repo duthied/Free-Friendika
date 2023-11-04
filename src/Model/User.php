@@ -576,6 +576,46 @@ class User
 	}
 
 	/**
+	 * Get a list of all languages that are used by the users
+	 *
+	 * @return array
+	 */
+	public static function getLanguages(): array
+	{
+		$supported = array_keys(DI::l10n()->getLanguageCodes());
+		$languages = [];
+		$uids      = [];
+
+		$users = DBA::select('user', ['uid', 'language'], ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `uid` > ?", 0]);
+		while ($user = DBA::fetch($users)) {
+			$uids[] = $user['uid'];
+			$code = DI::l10n()->toISO6391($user['language']);
+			if (!in_array($code, $supported)) {
+				continue;
+			}
+			$languages[$code] = $code;
+		}
+		DBA::close($users);
+
+		$channels = DBA::select('pconfig', ['uid', 'v'], ["`cat` = ? AND `k` = ? AND `v` != ?", 'channel', 'languages', '']);
+		while ($channel = DBA::fetch($channels)) {
+			if (!in_array($channel['uid'], $uids)) {
+				continue;
+			}
+			$values = unserialize($channel['v']);
+			if (!empty($values) && is_array($values)) {
+				foreach ($values as $language) {
+					$language = DI::l10n()->toISO6391($language);
+					$languages[$language] = $language;
+				}
+			}
+		}
+		DBA::close($channels);
+
+		return array_keys($languages);
+	}
+
+	/**
 	 * Authenticate a user with a clear text password
 	 *
 	 * Returns the user id associated with a successful password authentication
