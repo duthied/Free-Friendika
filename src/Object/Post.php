@@ -594,6 +594,7 @@ class Post
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],
 			'emojis'          => $emojis,
+			'quoteshares'     => $this->getQuoteShares($item['quoteshares']),
 			'reactions'       => $reactions,
 			'responses'       => $responses,
 			'switchcomment'   => DI::l10n()->t('Comment'),
@@ -740,6 +741,21 @@ class Post
 		}
 
 		return $emojis;
+	}
+
+	/**
+	 * Fetch quote shares
+	 *
+	 * @param array $quoteshares
+	 * @return array
+	 */
+	private function getQuoteShares($quoteshares)
+	{
+		if (empty($quoteshares)) {
+			return [];
+		}
+
+		return ['total' => $quoteshares['total'], 'title' => DI::l10n()->t('Quoted shared by: %s', implode(', ', $quoteshares['title']))];
 	}
 
 	/**

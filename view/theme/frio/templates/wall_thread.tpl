@@ -348,8 +348,9 @@ as the value of $top_child_total (this is done at the end of this file)
 				</span>
 				{{/if}}
 				{{if $item.vote.share}}
-				<span>
+				<span class="wall-item-response">
 					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-share" aria-hidden="true"></i></button>
+					<span title="{{$item.quoteshares.title}}">{{$item.quoteshares.total}}</span>
 				</span>
 				{{/if}}
 			{{/if}}
