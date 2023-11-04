@@ -890,7 +890,8 @@ class Conversation
 		}
 
 		if ($this->config->get('system', 'emoji_activities')) {
-			$emojis = $this->getEmojis($uriids);
+			$emojis      = $this->getEmojis($uriids);
+			$quoteshares = $this->getQuoteShares($uriids);
 			$condition = DBA::mergeConditions($condition, ["(`gravity` != ? OR `origin`)", ItemModel::GRAVITY_ACTIVITY]);
 		}
 
@@ -1012,7 +1013,8 @@ class Conversation
 		}
 
 		foreach ($items as $key => $row) {
-			$items[$key]['emojis'] = $emojis[$key] ?? [];
+			$items[$key]['emojis']      = $emojis[$key] ?? [];
+			$items[$key]['quoteshares'] = $quoteshares[$key] ?? [];
 
 			$always_display = in_array($mode, [self::MODE_CONTACTS, self::MODE_CONTACT_POSTS]);
 
@@ -1056,19 +1058,24 @@ class Conversation
 		];
 
 		$index_list = array_values($activity_emoji);
-		$verbs      = array_merge(array_keys($activity_emoji), [Activity::EMOJIREACT]);
+		$verbs      = array_merge(array_keys($activity_emoji), [Activity::EMOJIREACT, Activity::POST]);
 
-		$condition = DBA::mergeConditions(['parent-uri-id' => $uriids, 'gravity' => ItemModel::GRAVITY_ACTIVITY, 'verb' => $verbs], ["NOT `deleted`"]);
+		$condition = DBA::mergeConditions(['parent-uri-id' => $uriids, 'gravity' => [ItemModel::GRAVITY_ACTIVITY, ItemModel::GRAVITY_COMMENT], 'verb' => $verbs], ["NOT `deleted`"]);
 		$separator = chr(255) . chr(255) . chr(255);
 
-		$sql = "SELECT `thr-parent-id`, `body`, `verb`, COUNT(*) AS `total`, GROUP_CONCAT(REPLACE(`author-name`, '" . $separator . "', ' ') SEPARATOR '" . $separator . "' LIMIT 50) AS `title` FROM `post-view` WHERE " . array_shift($condition) . " GROUP BY `thr-parent-id`, `verb`, `body`";
+		$sql = "SELECT `thr-parent-id`, `body`, `verb`, `gravity`, COUNT(*) AS `total`, GROUP_CONCAT(REPLACE(`author-name`, '" . $separator . "', ' ') SEPARATOR '" . $separator . "' LIMIT 50) AS `title` FROM `post-view` WHERE " . array_shift($condition) . " GROUP BY `thr-parent-id`, `verb`, `body`, `gravity`";
 
 		$emojis = [];
 
 		$rows = DBA::p($sql, $condition);
 		while ($row = DBA::fetch($rows)) {
-			$row['verb'] = $row['body'] ? Activity::EMOJIREACT : $row['verb'];
-			$emoji       = $row['body'] ?: $activity_emoji[$row['verb']];
+			if ($row['gravity'] == ItemModel::GRAVITY_ACTIVITY) {
+				$row['verb'] = $row['body'] ? Activity::EMOJIREACT : $row['verb'];
+				$emoji       = $row['body'] ?: $activity_emoji[$row['verb']];
+			} else {
+				$emoji = '';
+			}
+
 			if (!isset($index_list[$emoji])) {
 				$index_list[] = $emoji;
 			}
@@ -1082,6 +1089,31 @@ class Conversation
 		DBA::close($rows);
 
 		return $emojis;
+	}
+
+	/**
+	 * Fetch quote shares from the conversation
+	 *
+	 * @param array $uriids
+	 * @return array
+	 */
+	private function getQuoteShares(array $uriids): array
+	{
+		$condition = DBA::mergeConditions(['quote-uri-id' => $uriids], ["NOT `quote-uri-id` IS NULL"]);
+		$separator = chr(255) . chr(255) . chr(255);
+
+		$sql = "SELECT `quote-uri-id`, COUNT(*) AS `total`, GROUP_CONCAT(REPLACE(`name`, '" . $separator . "', ' ') SEPARATOR '" . $separator . "' LIMIT 50) AS `title` FROM `post-content` INNER JOIN `post` ON `post`.`uri-id` = `post-content`.`uri-id` INNER JOIN `contact` ON `post`.`author-id` = `contact`.`id` WHERE " . array_shift($condition) . " GROUP BY `quote-uri-id`";
+
+		$quotes = [];
+
+		$rows = DBA::p($sql, $condition);
+		while ($row = DBA::fetch($rows)) {
+			$quotes[$row['quote-uri-id']]['total'] = $row['total'];
+			$quotes[$row['quote-uri-id']]['title'] = array_unique(explode($separator, $row['title']));
+		}
+		DBA::close($rows);
+
+		return $quotes;
 	}
 
 	/**

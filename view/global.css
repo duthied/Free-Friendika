@@ -110,6 +110,12 @@ span.connector {
   margin: 0;
 }
 
+.wall-item-response {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .type-link blockquote, .type-video blockquote {
   margin-left: 0px;
   max-height: 160px;
