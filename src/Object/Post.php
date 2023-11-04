@@ -755,7 +755,7 @@ class Post
 			return [];
 		}
 
-		return ['total' => $quoteshares['total'], 'title' => DI::l10n()->t('Quoted shared by: %s', implode(', ', $quoteshares['title']))];
+		return ['total' => $quoteshares['total'], 'title' => DI::l10n()->t('Quote shared by: %s', implode(', ', $quoteshares['title']))];
 	}
 
 	/**
