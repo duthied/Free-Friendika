@@ -1985,6 +1985,8 @@ code > .hl-main {
 .wall-item-actions button {
 	color: $font_color_darker;
 	background-color: transparent;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 .wall-item-actions .active {
 	font-weight: bold;

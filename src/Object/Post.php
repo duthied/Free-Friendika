@@ -320,7 +320,7 @@ class Post
 		$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
-		$response_verbs = ['like', 'dislike', 'announce'];
+		$response_verbs = ['like', 'dislike', 'announce', 'comment'];
 
 		$isevent = false;
 		$attend = [];
@@ -335,13 +335,30 @@ class Post
 			}
 		}
 
+		$emojis = $this->getEmojis($item);
+
+		$verbs = [
+			'like'        => Activity::LIKE,
+			'dislike'     => Activity::DISLIKE,
+			'announce'    => Activity::ANNOUNCE,
+			'comment'     => Activity::POST,
+			'attendyes'   => Activity::ATTEND,
+			'attendno'    => Activity::ATTENDNO,
+			'attendmaybe' => Activity::ATTENDMAYBE,
+		];
+		$reactions = $emojis;
 		$responses = [];
 		foreach ($response_verbs as $value => $verb) {
 			$responses[$verb] = [
 				'self'   => $conv_responses[$verb][$item['uri-id']]['self'] ?? 0,
 				'output' => !empty($conv_responses[$verb][$item['uri-id']]) ? DI::conversation()->formatActivity($conv_responses[$verb][$item['uri-id']]['links'], $verb, $item['uri-id']) : '',
+				'total'  => $emojis[$verbs[$verb]]['total'] ?? '',
+				'title'  => $emojis[$verbs[$verb]]['title'] ?? '',
 			];
+			unset($reactions[$verbs[$verb]]);
 		}
+
+		unset($emojis[Activity::POST]);
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -576,7 +593,8 @@ class Post
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],
-			'emojis'          => $this->getEmojis($item),
+			'emojis'          => $emojis,
+			'reactions'       => $reactions,
 			'responses'       => $responses,
 			'switchcomment'   => DI::l10n()->t('Comment'),
 			'reply_label'     => DI::l10n()->t('Reply to %s', $profile_name),
@@ -667,46 +685,59 @@ class Post
 				case Activity::ANNOUNCE:
 					$title = DI::l10n()->t('Reshared by: %s', $actors);
 					$icon  = ['fa' => 'fa-retweet', 'icon' => 'icon-retweet'];
+					$verb  = Activity::ANNOUNCE;
 					break;
 
 				case Activity::VIEW:
 					$title = DI::l10n()->t('Viewed by: %s', $actors);
 					$icon  = ['fa' => 'fa-eye', 'icon' => 'icon-eye-open'];
+					$verb  = Activity::VIEW;
 					break;
 
 				case Activity::LIKE:
 					$title = DI::l10n()->t('Liked by: %s', $actors);
 					$icon  = ['fa' => 'fa-thumbs-up', 'icon' => 'icon-thumbs-up'];
+					$verb  = Activity::LIKE;
 					break;
 
 				case Activity::DISLIKE:
 					$title = DI::l10n()->t('Disliked by: %s', $actors);
 					$icon  = ['fa' => 'fa-thumbs-down', 'icon' => 'icon-thumbs-down'];
+					$verb  = Activity::DISLIKE;
 					break;
 
 				case Activity::ATTEND:
 					$title = DI::l10n()->t('Attended by: %s', $actors);
 					$icon  = ['fa' => 'fa-check', 'icon' => 'icon-ok'];
+					$verb  = Activity::ATTEND;
 					break;
 
 				case Activity::ATTENDMAYBE:
 					$title = DI::l10n()->t('Maybe attended by: %s', $actors);
 					$icon  = ['fa' => 'fa-question', 'icon' => 'icon-question'];
+					$verb  = Activity::ATTENDMAYBE;
 					break;
 
 				case Activity::ATTENDNO:
 					$title = DI::l10n()->t('Not attended by: %s', $actors);
 					$icon  = ['fa' => 'fa-times', 'icon' => 'icon-remove'];
+					$verb  = Activity::ATTENDNO;
 					break;
 
+				case Activity::POST:
+					$title = DI::l10n()->t('Commented by: %s', $actors);
+					$icon  = ['fa' => 'fa-commenting', 'icon' => 'icon-remove'];
+					$verb  = Activity::POST;
+					break;
+	
 				default:
 					$title = DI::l10n()->t('Reacted with %s by: %s', $element['emoji'], $actors);
 					$icon  = [];
+					$verb  = $element['emoji'];
 					break;
 			}
-			$emojis[$index] = ['emoji' => $element['emoji'], 'total' => $element['total'], 'title' => $title, 'icon' => $icon];
+			$emojis[$verb] = ['emoji' => $element['emoji'], 'total' => $element['total'], 'title' => $title, 'icon' => $icon];
 		}
-		ksort($emojis);
 
 		return $emojis;
 	}

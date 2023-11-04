@@ -1056,19 +1056,24 @@ class Conversation
 		];
 
 		$index_list = array_values($activity_emoji);
-		$verbs      = array_merge(array_keys($activity_emoji), [Activity::EMOJIREACT]);
+		$verbs      = array_merge(array_keys($activity_emoji), [Activity::EMOJIREACT, Activity::POST]);
 
-		$condition = DBA::mergeConditions(['parent-uri-id' => $uriids, 'gravity' => ItemModel::GRAVITY_ACTIVITY, 'verb' => $verbs], ["NOT `deleted`"]);
+		$condition = DBA::mergeConditions(['parent-uri-id' => $uriids, 'gravity' => [ItemModel::GRAVITY_ACTIVITY, ItemModel::GRAVITY_COMMENT], 'verb' => $verbs], ["NOT `deleted`"]);
 		$separator = chr(255) . chr(255) . chr(255);
 
-		$sql = "SELECT `thr-parent-id`, `body`, `verb`, COUNT(*) AS `total`, GROUP_CONCAT(REPLACE(`author-name`, '" . $separator . "', ' ') SEPARATOR '" . $separator . "' LIMIT 50) AS `title` FROM `post-view` WHERE " . array_shift($condition) . " GROUP BY `thr-parent-id`, `verb`, `body`";
+		$sql = "SELECT `thr-parent-id`, `body`, `verb`, `gravity`, COUNT(*) AS `total`, GROUP_CONCAT(REPLACE(`author-name`, '" . $separator . "', ' ') SEPARATOR '" . $separator . "' LIMIT 50) AS `title` FROM `post-view` WHERE " . array_shift($condition) . " GROUP BY `thr-parent-id`, `verb`, `body`, `gravity`";
 
 		$emojis = [];
 
 		$rows = DBA::p($sql, $condition);
 		while ($row = DBA::fetch($rows)) {
-			$row['verb'] = $row['body'] ? Activity::EMOJIREACT : $row['verb'];
-			$emoji       = $row['body'] ?: $activity_emoji[$row['verb']];
+			if ($row['gravity'] == ItemModel::GRAVITY_ACTIVITY) {
+				$row['verb'] = $row['body'] ? Activity::EMOJIREACT : $row['verb'];
+				$emoji       = $row['body'] ?: $activity_emoji[$row['verb']];
+			} else {
+				$emoji = '';
+			}
+
 			if (!isset($index_list[$emoji])) {
 				$index_list[] = $emoji;
 			}
