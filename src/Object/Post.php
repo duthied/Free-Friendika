@@ -589,7 +589,7 @@ class Post
 			'ignore_author'   => $ignore,
 			'collapse'        => $collapse,
 			'report'          => $report,
-			'ignore_server'     => $ignoreServer,
+			'ignore_server'   => $ignoreServer,
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],
@@ -681,63 +681,56 @@ class Post
 
 		$emojis = [];
 		foreach ($item['emojis'] as $index => $element) {
+			$key    = $element['verb'];
 			$actors = implode(', ', $element['title']);
 			switch ($element['verb']) {
 				case Activity::ANNOUNCE:
 					$title = DI::l10n()->t('Reshared by: %s', $actors);
 					$icon  = ['fa' => 'fa-retweet', 'icon' => 'icon-retweet'];
-					$verb  = Activity::ANNOUNCE;
 					break;
 
 				case Activity::VIEW:
 					$title = DI::l10n()->t('Viewed by: %s', $actors);
 					$icon  = ['fa' => 'fa-eye', 'icon' => 'icon-eye-open'];
-					$verb  = Activity::VIEW;
 					break;
 
 				case Activity::LIKE:
 					$title = DI::l10n()->t('Liked by: %s', $actors);
 					$icon  = ['fa' => 'fa-thumbs-up', 'icon' => 'icon-thumbs-up'];
-					$verb  = Activity::LIKE;
 					break;
 
 				case Activity::DISLIKE:
 					$title = DI::l10n()->t('Disliked by: %s', $actors);
 					$icon  = ['fa' => 'fa-thumbs-down', 'icon' => 'icon-thumbs-down'];
-					$verb  = Activity::DISLIKE;
 					break;
 
 				case Activity::ATTEND:
 					$title = DI::l10n()->t('Attended by: %s', $actors);
 					$icon  = ['fa' => 'fa-check', 'icon' => 'icon-ok'];
-					$verb  = Activity::ATTEND;
 					break;
 
 				case Activity::ATTENDMAYBE:
 					$title = DI::l10n()->t('Maybe attended by: %s', $actors);
 					$icon  = ['fa' => 'fa-question', 'icon' => 'icon-question'];
-					$verb  = Activity::ATTENDMAYBE;
 					break;
 
 				case Activity::ATTENDNO:
 					$title = DI::l10n()->t('Not attended by: %s', $actors);
 					$icon  = ['fa' => 'fa-times', 'icon' => 'icon-remove'];
-					$verb  = Activity::ATTENDNO;
 					break;
 
 				case Activity::POST:
 					$title = DI::l10n()->t('Commented by: %s', $actors);
-					$icon  = ['fa' => 'fa-commenting', 'icon' => 'icon-remove'];
-					$verb  = Activity::POST;
+					$icon  = ['fa' => 'fa-commenting', 'icon' => 'icon-commenting'];
 					break;
 	
 				default:
 					$title = DI::l10n()->t('Reacted with %s by: %s', $element['emoji'], $actors);
 					$icon  = [];
-					$verb  = $element['emoji'];
+					$key   = $element['emoji'];
 					break;
 			}
-			$emojis[$verb] = ['emoji' => $element['emoji'], 'total' => $element['total'], 'title' => $title, 'icon' => $icon];
+			$emojis[$key] = ['emoji' => $element['emoji'], 'total' => $element['total'], 'title' => $title, 'icon' => $icon];
 		}
 
 		return $emojis;
