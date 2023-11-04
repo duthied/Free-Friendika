@@ -581,11 +581,6 @@ as the value of $top_child_total (this is done at the end of this file)
                                         </li>
                                         {{/if}}
 
-                                        {{if $item.browsershare}}
-                                        <li role="menuitem" class="button-browser-share">
-                                                <a id="browser-share-{{$item.id}}" href="javascript:navigator.share({url: '{{$item.plink.orig}}'})" class="btn-link button-browser-share" title="{{$item.browsershare.1}}"><i class="fa fa-share-alt" aria-hidden="true"></i>&nbsp;{{$item.browsershare.0}}</a>
-                                        </li>
-                                        {{/if}}
 
                                         {{if ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread) && ($item.ignore || ($item.drop && $item.drop.dropping))}}
                                         <li role="separator" class="divider"></li>
