@@ -66,10 +66,10 @@
 			{{/if}}
 			{{if $showgroup_link}}
 				<div id="show-group-button">
-					<button type="button" id="show-group" class="btn btn-labeled btn-primary{{if !$always_open_compose}} modal-open{{/if}}" onclick="window.location.href='{{$showgroup_link}}'" title="{{$showgroup}}" aria-label="{{$showgroup}}">
+					<a type="button" id="show-group" class="btn btn-labeled btn-primary" href="{{$showgroup_link}}" title="{{$showgroup}}" aria-label="{{$showgroup}}">
 						<span class=""><i class="fa fa-group"></i></span>
 						<span class="">{{$showgroup}}</span>
-					</button>
+					</a>
 				</div>
 			{{/if}}
 		</div>
