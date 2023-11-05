@@ -562,8 +562,8 @@ return [
 		// Deny undetected languages
 		'relay_deny_undetected_language' => false,
 
-		// relay_language_quality (Integer)
-		// Minimum value for the language detection quality for relay posts. The value must be betweeen 0 and 1.
+		// relay_language_quality (Float)
+		// Minimum value for the language detection quality for relay posts. The value must be between 0 and 1.
 		'relay_language_quality' => 0,
 
 		// relay_languages (Integer)

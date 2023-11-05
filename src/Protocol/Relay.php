@@ -179,17 +179,17 @@ class Relay
 	 */
 	public static function isWantedLanguage(string $body, int $uri_id = 0, int $author_id = 0, array $languages = [])
 	{
-		if (empty($languages) && (empty($body) || Smilies::isEmojiPost($body))) {
-			Logger::debug('Empty body or only emojis', ['body' => $body]);
-			return true;
-		}
-
 		$detected = [];
 		$quality  = DI::config()->get('system', 'relay_language_quality');
 		foreach (Item::getLanguageArray($body, DI::config()->get('system', 'relay_languages'), $uri_id, $author_id) as $language => $reliability) {
 			if (($reliability >= $quality) && ($quality > 0)) {
 				$detected[] = $language;
 			}
+		}
+
+		if (empty($languages) && empty($detected) && (empty($body) || Smilies::isEmojiPost($body))) {
+			Logger::debug('Empty body or only emojis', ['body' => $body]);
+			return true;
 		}
 
 		if (!empty($languages) || !empty($detected)) {
