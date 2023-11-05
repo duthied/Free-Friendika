@@ -586,7 +586,14 @@ class User
 		$languages = [];
 		$uids      = [];
 
-		$users = DBA::select('user', ['uid', 'language'], ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `uid` > ?", 0]);
+		$condition = ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `uid` > ?", 0];
+
+		$abandon_days = intval(DI::config()->get('system', 'account_abandon_days'));
+		if (!empty($abandon_days)) {
+			$condition = DBA::mergeConditions($condition, ["`last-activity` > ?", DateTimeFormat::utc('now - ' . $abandon_days . ' days')]);
+		}
+
+		$users = DBA::select('user', ['uid', 'language'], $condition);
 		while ($user = DBA::fetch($users)) {
 			$uids[] = $user['uid'];
 			$code = DI::l10n()->toISO6391($user['language']);
