@@ -612,6 +612,7 @@ class User
 		}
 		DBA::close($channels);
 
+		ksort($languages);
 		return array_keys($languages);
 	}
 
