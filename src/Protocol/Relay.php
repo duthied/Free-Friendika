@@ -53,13 +53,16 @@ class Relay
 	/**
 	 * Check if a post is wanted
 	 *
-	 * @param array $tags
+	 * @param array  $tags
 	 * @param string $body
-	 * @param int $authorid
+	 * @param int    $authorid
 	 * @param string $url
+	 * @param string $network
+	 * @param int    $causerid
+	 * @param array  $languages
 	 * @return boolean "true" is the post is wanted by the system
 	 */
-	public static function isSolicitedPost(array $tags, string $body, int $authorid, string $url, string $network = '', int $causerid = 0): bool
+	public static function isSolicitedPost(array $tags, string $body, int $authorid, string $url, string $network = '', int $causerid = 0, array $languages = []): bool
 	{
 		$config = DI::config();
 
@@ -128,7 +131,7 @@ class Relay
 			}
 		}
 
-		if (!self::isWantedLanguage($body, 0, $authorid)) {
+		if (!self::isWantedLanguage($body, 0, $authorid, $languages)) {
 			Logger::info('Unwanted or Undetected language found - rejected', ['network' => $network, 'url' => $url, 'causer' => $causer, 'tags' => $tags]);
 			return false;
 		}
@@ -171,37 +174,45 @@ class Relay
 	 * @param string $body
 	 * @param int    $uri_id
 	 * @param int    $author_id
+	 * @param array  $languages
 	 * @return boolean
 	 */
-	public static function isWantedLanguage(string $body, int $uri_id = 0, int $author_id = 0)
+	public static function isWantedLanguage(string $body, int $uri_id = 0, int $author_id = 0, array $languages = [])
 	{
-		if (empty($body) || Smilies::isEmojiPost($body)) {
+		if (empty($languages) && (empty($body) || Smilies::isEmojiPost($body))) {
 			Logger::debug('Empty body or only emojis', ['body' => $body]);
 			return true;
 		}
 
-		$languages = [];
+		$detected = [];
+		$quality  = DI::config()->get('system', 'relay_language_quality');
 		foreach (Item::getLanguageArray($body, 10, $uri_id, $author_id) as $language => $reliability) {
-			if ($reliability > 0) {
-				$languages[] = $language;
+			if (($reliability >= $quality) && ($quality > 0)) {
+				$detected[] = $language;
 			}
 		}
 
-		if (!empty($languages)) {
+		if (!empty($languages) || !empty($detected)) {
 			$cachekey = 'relay:isWantedLanguage';
 			$user_languages = DI::cache()->get($cachekey);
 			if (is_null($user_languages)) {
 				$user_languages = User::getLanguages();
-				DI::cache()->set($cachekey, $user_languages, Duration::HALF_HOUR);
+				DI::cache()->set($cachekey, $user_languages);
 			}
 
-			foreach ($languages as $language) {
+			foreach ($detected as $language) {
 				if (in_array($language, $user_languages)) {
-					Logger::debug('Wanted language found', ['language' => $language, 'languages' => $languages, 'userlang' => $user_languages, 'body' => $body]);
+					Logger::debug('Wanted language found in detected languages', ['language' => $language, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
 					return true;
 				}
 			}
-			Logger::debug('No wanted language found', ['languages' => $languages, 'userlang' => $user_languages, 'body' => $body]);
+			foreach ($languages as $language) {
+				if (in_array($language, $user_languages)) {
+					Logger::debug('Wanted language found in defined languages', ['language' => $language, 'languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
+					return true;
+				}
+			}
+			Logger::debug('No wanted language found', ['languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
 			return false;
 		} elseif (DI::config()->get('system', 'relay_deny_undetected_language')) {
 			Logger::info('Undetected language found', ['body' => $body]);
