@@ -636,7 +636,7 @@ class Event
 	{
 		$fmt = DI::l10n()->t('l, F j');
 
-		$item = Post::selectFirst(['plink', 'author-name', 'author-network', 'author-id', 'author-avatar', 'author-link', 'private', 'uri-id'], ['id' => $event['itemid']]);
+		$item = Post::selectFirst(['plink', 'author-name', 'author-network', 'author-id', 'author-avatar', 'author-link', 'author-alias', 'private', 'uri-id'], ['id' => $event['itemid']]);
 		if (empty($item)) {
 			// Using default values when no item had been found
 			$item = ['plink' => '', 'author-name' => '', 'author-avatar' => '', 'author-link' => '', 'private' => Item::PUBLIC, 'uri-id' => ($event['uri-id'] ?? 0)];

@@ -320,7 +320,7 @@ class Post
 		$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
-		$response_verbs = ['like', 'dislike', 'announce'];
+		$response_verbs = ['like', 'dislike', 'announce', 'comment'];
 
 		$isevent = false;
 		$attend = [];
@@ -335,13 +335,30 @@ class Post
 			}
 		}
 
+		$emojis = $this->getEmojis($item);
+
+		$verbs = [
+			'like'        => Activity::LIKE,
+			'dislike'     => Activity::DISLIKE,
+			'announce'    => Activity::ANNOUNCE,
+			'comment'     => Activity::POST,
+			'attendyes'   => Activity::ATTEND,
+			'attendno'    => Activity::ATTENDNO,
+			'attendmaybe' => Activity::ATTENDMAYBE,
+		];
+		$reactions = $emojis;
 		$responses = [];
 		foreach ($response_verbs as $value => $verb) {
 			$responses[$verb] = [
 				'self'   => $conv_responses[$verb][$item['uri-id']]['self'] ?? 0,
 				'output' => !empty($conv_responses[$verb][$item['uri-id']]) ? DI::conversation()->formatActivity($conv_responses[$verb][$item['uri-id']]['links'], $verb, $item['uri-id']) : '',
+				'total'  => $emojis[$verbs[$verb]]['total'] ?? '',
+				'title'  => $emojis[$verbs[$verb]]['title'] ?? '',
 			];
+			unset($reactions[$verbs[$verb]]);
 		}
+
+		unset($emojis[Activity::POST]);
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -572,11 +589,13 @@ class Post
 			'ignore_author'   => $ignore,
 			'collapse'        => $collapse,
 			'report'          => $report,
-			'ignore_server'     => $ignoreServer,
+			'ignore_server'   => $ignoreServer,
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],
-			'emojis'          => $this->getEmojis($item),
+			'emojis'          => $emojis,
+			'quoteshares'     => $this->getQuoteShares($item['quoteshares']),
+			'reactions'       => $reactions,
 			'responses'       => $responses,
 			'switchcomment'   => DI::l10n()->t('Comment'),
 			'reply_label'     => DI::l10n()->t('Reply to %s', $profile_name),
@@ -662,6 +681,7 @@ class Post
 
 		$emojis = [];
 		foreach ($item['emojis'] as $index => $element) {
+			$key    = $element['verb'];
 			$actors = implode(', ', $element['title']);
 			switch ($element['verb']) {
 				case Activity::ANNOUNCE:
@@ -699,16 +719,36 @@ class Post
 					$icon  = ['fa' => 'fa-times', 'icon' => 'icon-remove'];
 					break;
 
+				case Activity::POST:
+					$title = DI::l10n()->t('Commented by: %s', $actors);
+					$icon  = ['fa' => 'fa-commenting', 'icon' => 'icon-commenting'];
+					break;
+	
 				default:
 					$title = DI::l10n()->t('Reacted with %s by: %s', $element['emoji'], $actors);
 					$icon  = [];
+					$key   = $element['emoji'];
 					break;
 			}
-			$emojis[$index] = ['emoji' => $element['emoji'], 'total' => $element['total'], 'title' => $title, 'icon' => $icon];
+			$emojis[$key] = ['emoji' => $element['emoji'], 'total' => $element['total'], 'title' => $title, 'icon' => $icon];
 		}
-		ksort($emojis);
 
 		return $emojis;
+	}
+
+	/**
+	 * Fetch quote shares
+	 *
+	 * @param array $quoteshares
+	 * @return array
+	 */
+	private function getQuoteShares($quoteshares)
+	{
+		if (empty($quoteshares)) {
+			return [];
+		}
+
+		return ['total' => $quoteshares['total'], 'title' => DI::l10n()->t('Quote shared by: %s', implode(', ', $quoteshares['title']))];
 	}
 
 	/**
