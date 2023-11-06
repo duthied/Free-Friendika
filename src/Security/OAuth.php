@@ -142,7 +142,6 @@ class OAuth
 		}
 
 		// The redirect_uri could contain several URI that are separated by spaces.
-		$exploded = explode(' ', $application['redirect_uri']);
 		if (($application['redirect_uri'] != $redirect_uri) && !in_array($redirect_uri, explode(' ', $application['redirect_uri']))) {
 			return [];
 		}
