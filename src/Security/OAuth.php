@@ -131,8 +131,7 @@ class OAuth
 		}
 
 		if (!empty($redirect_uri)) {
-			$uri = new Uri($redirect_uri);
-			$redirect_uri = $uri->getScheme() . '://' . $uri->getHost() . $uri->getPath();
+			$redirect_uri = strtok($redirect_uri, '?');
 			$condition = DBA::mergeConditions($condition, ["`redirect_uri` LIKE ?", '%' . $redirect_uri . '%']);
 		}
 
