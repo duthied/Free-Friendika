@@ -303,10 +303,39 @@ as the value of $top_child_total (this is done at the end of this file)
 		<!-- <hr /> -->
 		<div class="wall-item-actions">
 			{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
-			{{* Buttons for like and dislike *}}
 			<div class="wall-item-actions-items btn-toolbar btn-group hidden-xs" role="group">
 				<div class="wall-item-actions-row">
 
+			{{* Button to open the comment text field *}}
+			{{if $item.comment_html}}
+				<span class="wall-item-response">
+					<button type="button" class="btn-link button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i></button>
+					<span title="{{$item.responses.comment.title}}">{{$item.responses.comment.total}}</span>
+				</span>
+			{{/if}}
+			{{if $item.remote_comment}}
+				<span class="wall-item-response">
+					<a href="{{$item.remote_comment.2}}" class="btn-link button-comments" title="{{$item.remote_comment.0}}"><i class="fa fa-commenting" aria-hidden="true"></i></a>
+				</span>
+			{{/if}}
+
+			{{* Button for sharing the item *}}
+			{{if $item.vote}}
+				{{if $item.vote.announce}}
+				<span class="wall-item-response">
+					<button type="button" class="btn-link button-announces{{if $item.responses.announce.self}} active" aria-pressed="true{{/if}}" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" onclick="doActivityItemAction({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}});" ><i class="fa fa-retweet" aria-hidden="true"></i></button>
+					<span title="{{$item.responses.announce.title}}">{{$item.responses.announce.total}}</span>
+				</span>
+				{{/if}}
+				{{if $item.vote.share}}
+				<span class="wall-item-response">
+					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-share" aria-hidden="true"></i></button>
+					<span title="{{$item.quoteshares.title}}">{{$item.quoteshares.total}}</span>
+				</span>
+				{{/if}}
+			{{/if}}
+			
+			{{* Buttons for like and dislike *}}
 			{{if $item.vote}}
 				{{if $item.vote.like}}
 				<span class="wall-item-response">
@@ -327,33 +356,6 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{/foreach}}
 			{{/if}}
 
-			{{if $item.remote_comment}}
-				<a href="{{$item.remote_comment.2}}" class="btn-link button-comments" title="{{$item.remote_comment.0}}"><i class="fa fa-commenting" aria-hidden="true"></i></a>
-			{{/if}}
-
-			{{* Button to open the comment text field *}}
-			{{if $item.comment_html}}
-				<span class="wall-item-response">
-					<button type="button" class="btn-link button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i></button>
-					<span title="{{$item.responses.comment.title}}">{{$item.responses.comment.total}}</span>
-				</span>
-			{{/if}}
-
-			{{* Button for sharing the item *}}
-			{{if $item.vote}}
-				{{if $item.vote.announce}}
-				<span class="wall-item-response">
-					<button type="button" class="btn-link button-announces{{if $item.responses.announce.self}} active" aria-pressed="true{{/if}}" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" onclick="doActivityItemAction({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}});" ><i class="fa fa-retweet" aria-hidden="true"></i></button>
-					<span title="{{$item.responses.announce.title}}">{{$item.responses.announce.total}}</span>
-				</span>
-				{{/if}}
-				{{if $item.vote.share}}
-				<span class="wall-item-response">
-					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-share" aria-hidden="true"></i></button>
-					<span title="{{$item.quoteshares.title}}">{{$item.quoteshares.total}}</span>
-				</span>
-				{{/if}}
-			{{/if}}
 			{{* Event attendance buttons *}}
 			{{if $item.isevent}}
 				<span class="wall-item-response">
@@ -483,65 +485,63 @@ as the value of $top_child_total (this is done at the end of this file)
 
 			<div class="wall-item-actions-items btn-toolbar btn-group visible-xs" role="group">
 				<div class="wall-item-actions-row">
-					{{* Buttons for like and dislike *}}
-					{{if $item.vote}}
-						{{if $item.vote.like}}
-						<button type="button" class="btn button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doActivityItemAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});" ><i class="fa fa-thumbs-up" aria-hidden="true"></i>
-							<span title="{{$item.responses.like.title}}">{{$item.responses.like.total}}</span>
-						</button>
-						{{/if}}
-						{{if $item.vote.dislike}}
-						<button type="button" class="btn button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doActivityItemAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});" ><i class="fa fa-thumbs-down" aria-hidden="true"></i>
-							<span title="{{$item.responses.dislike.title}}">{{$item.responses.dislike.total}}</span>
-						</button>
-						{{/if}}
-					{{/if}}
+				{{* Button to open the comment text field *}}
+				{{if $item.comment_html}}
+					<button type="button" class="btn button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i>
+						<span title="{{$item.responses.comment.title}}">{{$item.responses.comment.total}}</span>
+					</button>
+				{{/if}}
 
-					{{* Button to open the comment text field *}}
-					{{if $item.comment_html}}
-						<button type="button" class="btn button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i>
-							<span title="{{$item.responses.comment.title}}">{{$item.responses.comment.total}}</span>
+				{{if $item.vote.announce OR $item.vote.share}}
+					<div class="share-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}" role="group">
+						<button type="button" class="btn dropdown-toggle{{if $item.responses.announce.self}} active{{/if}}" data-toggle="dropdown" id="shareMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}">
+							<i class="fa fa-share" aria-hidden="true"></i>
 						</button>
-					{{/if}}
+						<ul class="dropdown-menu dropdown-menu-left" role="menu" aria-labelledby="shareMenuOptions-{{$item.id}}">
+							{{if $item.vote.announce}} {{* edit the posting *}}
+							<li role="menuitem">
+								{{if $item.responses.announce.self}}
+								<a class="btn-link" id="announce-{{$item.id}}" href="javascript:doActivityItemAction({{$item.id}}, 'announce', true);" title="{{$item.vote.unannounce.0}}">
+									<i class="fa fa-ban" aria-hidden="true"></i> {{$item.vote.unannounce.1}}
+								</a>
+								{{else}}
+								<a class="btn-link" id="announce-{{$item.id}}" href="javascript:doActivityItemAction({{$item.id}}, 'announce');" title="{{$item.vote.announce.0}}">
+									<i class="fa fa-retweet" aria-hidden="true"></i> {{$item.vote.announce.1}}
+								</a>
+								{{/if}}
+							</li>
+							{{/if}}
+							{{if $item.vote.share}}
+							<li role="menuitem">
+								<a class="btn-link" id="share-{{$item.id}}" href="javascript:jotShare({{$item.id}});" title="{{$item.vote.share.0}}">
+									<i class="fa fa-share" aria-hidden="true"></i> {{$item.vote.share.1}}
+								</a>
+							</li>
+							{{/if}}
+							{{if $item.browsershare}}
+							<li role="menuitem">
+								<button type="button" class="btn-link button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})" title="{{$item.browsershare.1}}">
+									<i class="fa fa-share-alt" aria-hidden="true"></i> {{$item.browsershare.0}}
+								</button>
+							</li>
+							{{/if}}
+						</ul>
+					</div>
+				{{/if}}
 
-					{{if $item.vote.announce OR $item.vote.share}}
-						<div class="share-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}" role="group">
-							<button type="button" class="btn dropdown-toggle{{if $item.responses.announce.self}} active{{/if}}" data-toggle="dropdown" id="shareMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}">
-								<i class="fa fa-share" aria-hidden="true"></i>
-							</button>
-							<ul class="dropdown-menu dropdown-menu-left" role="menu" aria-labelledby="shareMenuOptions-{{$item.id}}">
-								{{if $item.vote.announce}} {{* edit the posting *}}
-								<li role="menuitem">
-									{{if $item.responses.announce.self}}
-									<a class="btn-link" id="announce-{{$item.id}}" href="javascript:doActivityItemAction({{$item.id}}, 'announce', true);" title="{{$item.vote.unannounce.0}}">
-										<i class="fa fa-ban" aria-hidden="true"></i> {{$item.vote.unannounce.1}}
-									</a>
-									{{else}}
-									<a class="btn-link" id="announce-{{$item.id}}" href="javascript:doActivityItemAction({{$item.id}}, 'announce');" title="{{$item.vote.announce.0}}">
-										<i class="fa fa-retweet" aria-hidden="true"></i> {{$item.vote.announce.1}}
-									</a>
-									{{/if}}
-								</li>
-								{{/if}}
-								{{if $item.vote.share}}
-								<li role="menuitem">
-									<a class="btn-link" id="share-{{$item.id}}" href="javascript:jotShare({{$item.id}});" title="{{$item.vote.share.0}}">
-										<i class="fa fa-share" aria-hidden="true"></i> {{$item.vote.share.1}}
-									</a>
-								</li>
-								{{/if}}
-								{{if $item.browsershare}}
-								<li role="menuitem">
-									<button type="button" class="btn-link button-browser-share" onclick="navigator.share({url: '{{$item.plink.orig}}'})" title="{{$item.browsershare.1}}">
-										<i class="fa fa-share-alt" aria-hidden="true"></i> {{$item.browsershare.0}}
-									</button>
-								</li>
-								{{/if}}
-							</ul>
-						</div>
+				{{* Buttons for like and dislike *}}
+				{{if $item.vote}}
+					{{if $item.vote.like}}
+					<button type="button" class="btn button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doActivityItemAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});" ><i class="fa fa-thumbs-up" aria-hidden="true"></i>
+						<span title="{{$item.responses.like.title}}">{{$item.responses.like.total}}</span>
+					</button>
 					{{/if}}
-
-					{{* Put additional actions in a dropdown menu *}}
+					{{if $item.vote.dislike}}
+					<button type="button" class="btn button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doActivityItemAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});" ><i class="fa fa-thumbs-down" aria-hidden="true"></i>
+						<span title="{{$item.responses.dislike.title}}">{{$item.responses.dislike.total}}</span>
+					</button>
+					{{/if}}
+				{{/if}}
 
 				{{* Event attendance buttons *}}
 				{{if $item.isevent}}
@@ -556,6 +556,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				</button>
 				{{/if}}
 
+				{{* Put additional actions in a dropdown menu *}}
 				{{if $item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || ($item.drop && $item.drop.dropping)}}
 					<div class="more-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}">
 						<button type="button" class="btn dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></button>
