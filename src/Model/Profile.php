@@ -307,7 +307,12 @@ class Profile
 
 		$profile_url = $profile['url'];
 
-		$cid = $profile['id'];
+		$contact = Contact::selectFirst(['id'], ['uri-id' => $profile['uri-id'], 'uid' => 0]);
+		if (!$contact) {
+			return $o;
+		}
+
+		$cid = $contact['id'];
 
 		$follow_link = null;
 		$unfollow_link = null;
@@ -457,12 +462,12 @@ class Profile
 			$mention_label = DI::l10n()->t('Post to group');
 			$mention_url   = 'compose/0?body=!' . $profile['addr'];
 			$network_label = DI::l10n()->t('View group');
-			$network_url   = 'network/group/' . $profile['id'];
+			$network_url   = 'network/group/' . $cid;
 		} else {
 			$mention_label = DI::l10n()->t('Mention');
 			$mention_url   = 'compose/0?body=@' . $profile['addr'];
 			$network_label = DI::l10n()->t('Network Posts');
-			$network_url   = 'contact/' . $profile['id'] . '/conversations';
+			$network_url   = 'contact/' . $cid . '/conversations';
 		}
 
 		$tpl = Renderer::getMarkupTemplate('profile/vcard.tpl');
