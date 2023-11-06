@@ -562,6 +562,14 @@ return [
 		// Deny undetected languages
 		'relay_deny_undetected_language' => false,
 
+		// relay_language_quality (Float)
+		// Minimum value for the language detection quality for relay posts. The value must be between 0 and 1.
+		'relay_language_quality' => 0,
+
+		// relay_languages (Integer)
+		// Number of languages that are used per post to check for acceptable posts.
+		'relay_languages' => 10,
+
 		// session_handler (database|cache|native)
 		// Whether to use Cache to store session data or to use PHP native session storage.
 		'session_handler' => 'database',

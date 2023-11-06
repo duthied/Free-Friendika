@@ -1673,7 +1673,39 @@ class Processor
 			}
 		}
 
-		return Relay::isSolicitedPost($messageTags, $content, $authorid, $id, Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0);
+		$languages = self::getPostLanguages($activity);
+
+		return Relay::isSolicitedPost($messageTags, $content, $authorid, $id, Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0, $languages);
+	}
+
+	/**
+	 * Fetch the post language from the content
+	 *
+	 * @param array $activity
+	 * @return array
+	 */
+	private static function getPostLanguages(array $activity): array
+	{
+		$content   = JsonLD::fetchElement($activity['as:object'], 'as:content') ?? '';
+		$languages = JsonLD::fetchElementArray($activity['as:object'], 'as:content', '@language') ?? [];
+		if (empty($languages)) {
+			return [];
+		}
+
+		$iso639 = new \Matriphe\ISO639\ISO639;
+
+		$result = [];
+		foreach ($languages as $language) {
+			if ($language == $content) {
+				continue;
+  			}
+			$language = DI::l10n()->toISO6391($language);
+			if (!in_array($language, array_column($iso639->allLanguages(), 0))) {
+				continue;
+			}
+			$result[] = $language;
+		}
+		return $result;
 	}
 
 	/**

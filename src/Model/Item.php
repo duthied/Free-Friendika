@@ -117,7 +117,7 @@ class Item
 	const DELIVER_FIELDLIST = [
 		'uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid',
 		'parent-guid', 'conversation', 'received', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
-		'private', 'title', 'body', 'raw-body', 'location', 'coord', 'app',
+		'private', 'title', 'body', 'raw-body', 'language', 'location', 'coord', 'app',
 		'inform', 'deleted', 'extid', 'post-type', 'post-reason', 'gravity',
 		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 		'author-id', 'author-addr', 'author-link', 'author-name', 'author-avatar', 'owner-id', 'owner-link', 'contact-uid',
@@ -1484,6 +1484,10 @@ class Item
 	 */
 	private static function setOwnerforResharedItem(array $item)
 	{
+		if ($item['uid'] == 0) {
+			return;
+		}
+
 		$parent = Post::selectFirst(
 			['id', 'causer-id', 'owner-id', 'author-id', 'author-link', 'origin', 'post-reason'],
 			['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid']]

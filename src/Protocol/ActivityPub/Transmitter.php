@@ -895,6 +895,19 @@ class Transmitter
 	 */
 	public static function getReceiversForUriId(int $uri_id, bool $blindcopy)
 	{
+		$tags = Tag::getByURIId($uri_id, [Tag::TO, Tag::CC, Tag::BCC, Tag::AUDIENCE]);
+		if (empty($tags)) {
+			Logger::debug('No receivers found', ['uri-id' => $uri_id]);
+			$post = Post::selectFirst([Item::DELIVER_FIELDLIST], ['uri-id' => $uri_id, 'origin' => true]);
+			if (!empty($post)) {
+				ActivityPub\Transmitter::storeReceiversForItem($post);
+				$tags = Tag::getByURIId($uri_id, [Tag::TO, Tag::CC, Tag::BCC, Tag::AUDIENCE]);
+				Logger::debug('Receivers are created', ['uri-id' => $uri_id, 'receivers' => count($tags)]);
+			} else {
+				Logger::debug('Origin item not found', ['uri-id' => $uri_id]);
+			}
+		}
+
 		$receivers = [
 			'to'       => [],
 			'cc'       => [],
@@ -902,7 +915,7 @@ class Transmitter
 			'audience' => [],
 		];
 
-		foreach (Tag::getByURIId($uri_id, [Tag::TO, Tag::CC, Tag::BCC, Tag::AUDIENCE]) as $receiver) {
+		foreach ($tags as $receiver) {
 			switch ($receiver['type']) {
 				case Tag::TO:
 					$receivers['to'][] = $receiver['url'];
@@ -1884,7 +1897,7 @@ class Transmitter
 		if (!empty($item['language'])) {
 			$languages = array_keys(json_decode($item['language'], true));
 			if (!empty($languages[0])) {
-				return $languages[0];
+				return DI::l10n()->toISO6391($languages[0]);
 			}
 		}
 
@@ -1892,12 +1905,12 @@ class Transmitter
 		if (!empty($item['uid'])) {
 			$user = DBA::selectFirst('user', ['language'], ['uid' => $item['uid']]);
 			if (!empty($user['language'])) {
-				return $user['language'];
+				return DI::l10n()->toISO6391($user['language']);
 			}
 		}
 
 		// And finally just use the system language
-		return DI::config()->get('system', 'language');
+		return DI::l10n()->toISO6391(DI::config()->get('system', 'language'));
 	}
 
 	/**
