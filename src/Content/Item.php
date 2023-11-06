@@ -1049,8 +1049,6 @@ class Item
 			Tag::createImplicitMentions($post['uri-id'], $post['thr-parent-id']);
 		}
 
-		ActivityPub\Transmitter::storeReceiversForItem($post);
-
 		Hook::callAll('post_local_end', $post);
 
 		$author = DBA::selectFirst('contact', ['thumb'], ['uid' => $post['uid'], 'self' => true]);
