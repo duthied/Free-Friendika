@@ -90,10 +90,10 @@ class Token extends BaseApi
 			$me = null;
 		} elseif ($request['grant_type'] == 'authorization_code') {
 			// For security reasons only allow freshly created tokens
-			$uri = new Uri($request['redirect_uri']);
+			$redirect_uri = strtok($request['redirect_uri'],'?');
 			$condition = [
 				"`redirect_uri` LIKE ? AND `id` = ? AND `code` = ? AND `created_at` > ?",
-				'%' . $uri->getScheme() . '://' . $uri->getHost() . $uri->getPath() . '%', $application['id'], $request['code'], DateTimeFormat::utc('now - 5 minutes')
+				$redirect_uri, $application['id'], $request['code'], DateTimeFormat::utc('now - 5 minutes')
 			];
 
 			$token = DBA::selectFirst('application-view', ['access_token', 'created_at', 'uid'], $condition);
