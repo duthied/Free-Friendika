@@ -307,49 +307,55 @@ as the value of $top_child_total (this is done at the end of this file)
 				<div class="wall-item-actions-row">
 
 			{{* Button to open the comment text field *}}
-			{{if $item.comment_html}}
 				<span class="wall-item-response">
+				{{if $item.comment_html}}
 					<button type="button" class="btn-link button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i></button>
 					<span title="{{$item.responses.comment.title}}">{{$item.responses.comment.total}}</span>
-				</span>
-			{{/if}}
-			{{if $item.remote_comment}}
-				<span class="wall-item-response">
+				{{elseif $item.remote_comment}}
 					<a href="{{$item.remote_comment.2}}" class="btn-link button-comments" title="{{$item.remote_comment.0}}"><i class="fa fa-commenting" aria-hidden="true"></i></a>
+				{{else}}
+					<button type="button" class="btn-link button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" disabled><i class="fa fa-commenting-o" aria-hidden="true"></i></button>
+				{{/if}}
 				</span>
-			{{/if}}
 
 			{{* Button for sharing the item *}}
 			{{if $item.vote}}
-				{{if $item.vote.announce}}
 				<span class="wall-item-response">
+				{{if $item.vote.announce}}
 					<button type="button" class="btn-link button-announces{{if $item.responses.announce.self}} active" aria-pressed="true{{/if}}" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" onclick="doActivityItemAction({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}});" ><i class="fa fa-retweet" aria-hidden="true"></i></button>
 					<span title="{{$item.responses.announce.title}}">{{$item.responses.announce.total}}</span>
-				</span>
+				{{else}}
+					<button type="button" class="btn-link button-announces" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" disabled><i class="fa fa-retweet" aria-hidden="true"></i></button>
 				{{/if}}
-				{{if $item.vote.share}}
+				</span>
 				<span class="wall-item-response">
+				{{if $item.vote.share}}
 					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-share" aria-hidden="true"></i></button>
 					<span title="{{$item.quoteshares.title}}">{{$item.quoteshares.total}}</span>
-				</span>
+				{{else}}
+					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" disabled><i class="fa fa-share" aria-hidden="true"></i></button>
 				{{/if}}
+				</span>
 			{{/if}}
 			
 			{{* Buttons for like and dislike *}}
 			{{if $item.vote}}
-				{{if $item.vote.like}}
 				<span class="wall-item-response">
+				{{if $item.vote.like}}
 					<button type="button" class="btn-link button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doActivityItemAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});" ><i class="fa fa-thumbs-up" aria-hidden="true"></i></button>
 					<span title="{{$item.responses.like.title}}">{{$item.responses.like.total}}</span>
-				</span>
+				{{else}}
+					<button type="button" class="btn-link button-likes" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" disabled><i class="fa fa-thumbs-o-up" aria-hidden="true"></i></button>
 				{{/if}}
-				{{if $item.vote.dislike}}
+				</span>
 				<span class="wall-item-response">
+				{{if $item.vote.dislike}}
 					<button type="button" class="btn-link button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doActivityItemAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});" ><i class="fa fa-thumbs-down" aria-hidden="true"></i></button>
 					<span title="{{$item.responses.dislike.title}}">{{$item.responses.dislike.total}}</span>
-				</span>
+				{{else}}
+					<button type="button" class="btn-link button-likes" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" disabled><i class="fa fa-thumbs-o-down" aria-hidden="true"></i></button>
 				{{/if}}
-				
+				</span>
 
 				{{foreach $item.reactions as $emoji}}
 				<span class="wall-item-emoji" title="{{$emoji.title}}">{{$emoji.emoji}} {{$emoji.total}}</span>
@@ -357,6 +363,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 
 			{{* Event attendance buttons *}}
+			<span class="vote-event">
 			{{if $item.isevent}}
 				<span class="wall-item-response">
 					<button type="button" class="btn-link button-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doActivityItemAction({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}});"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
@@ -370,8 +377,12 @@ as the value of $top_child_total (this is done at the end of this file)
 					<button type="button" class="btn-link button-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doActivityItemAction({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}});"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
 					<span title="{{$item.responses.attendmaybe.title}}">{{$item.responses.attendmaybe.total}}</span>
 				</span>
+			{{else}}
+				<span class="wall-item-response"></span>
+				<span class="wall-item-response"></span>
+				<span class="wall-item-response"></span>
 			{{/if}}
-	
+			</span>
 			</div>
 			</div>
 			<span class="wall-item-actions-right hidden-xs">
@@ -475,13 +486,15 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{/if}}
 			</ul>
 		</span>
+		{{if $item.drop.pagedrop}}
 		<span class="pull-right checkbox">
-			{{if $item.drop && $item.drop.pagedrop}}
-					<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" id="checkbox-{{$item.id}}" class="item-select" value="{{$item.id}}" />
-					<label for="checkbox-{{$item.id}}"></label>
+			{{if $item.drop}}
+				<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" id="checkbox-{{$item.id}}" class="item-select" value="{{$item.id}}" />
+				<label for="checkbox-{{$item.id}}"></label>
 			{{/if}}
-				</span>
-			</span>
+		</span>
+		{{/if}}
+		</span>
 
 			<div class="wall-item-actions-items btn-toolbar btn-group visible-xs" role="group">
 				<div class="wall-item-actions-row">
@@ -653,12 +666,14 @@ as the value of $top_child_total (this is done at the end of this file)
 						</ul>
 					</div>
 				{{/if}}
+				{{if $item.drop.pagedrop}}
 				<span class="pull-right checkbox">
-					{{if $item.drop && $item.drop.pagedrop}}
+					{{if $item.drop}}
 						<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" id="checkbox-{{$item.id}}" class="item-select" value="{{$item.id}}" />
 						<label for="checkbox-{{$item.id}}"></label>
 					{{/if}}
 				</span>
+				{{/if}}
 				</div>
 			</div>
 		</div><!--./wall-item-actions-->
@@ -666,7 +681,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		<div class="wall-item-links"></div>
 
 		{{* Display likes, dislike and attendance stats *}}
-		{{if !$item.emojis && $item.responses}}
+		{{if $item.legacy_activities}}
 			<div class="wall-item-responses">
 			{{foreach $item.responses as $verb=>$response}}
 				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output nofilter}}</div>

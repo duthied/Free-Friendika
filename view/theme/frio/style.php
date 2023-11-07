@@ -209,6 +209,7 @@ $options = [
 	'$login_bg_image'              => $login_bg_image,
 	'$login_bg_color'              => $login_bg_color,
 	'$font_color_darker'           => $font_color_darker ?? '#222',
+	'$font_color_lighter'          => $font_color_lighter ?? '#aaa',
 	'$font_color'                  => $font_color ?? '#444',
 ];
 

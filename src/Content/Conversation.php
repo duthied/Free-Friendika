@@ -889,9 +889,10 @@ class Conversation
 			$condition['author-hidden'] = false;
 		}
 
-		if ($this->config->get('system', 'emoji_activities')) {
-			$emojis      = $this->getEmojis($uriids);
-			$quoteshares = $this->getQuoteShares($uriids);
+		$emojis      = $this->getEmojis($uriids);
+		$quoteshares = $this->getQuoteShares($uriids);
+
+		if (!$this->config->get('system', 'legacy_activities')) {
 			$condition = DBA::mergeConditions($condition, ["(`gravity` != ? OR `origin`)", ItemModel::GRAVITY_ACTIVITY]);
 		}
 

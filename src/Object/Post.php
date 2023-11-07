@@ -597,6 +597,7 @@ class Post
 			'quoteshares'     => $this->getQuoteShares($item['quoteshares']),
 			'reactions'       => $reactions,
 			'responses'       => $responses,
+			'legacy_activities' => DI::config()->get('system', 'legacy_activities'),
 			'switchcomment'   => DI::l10n()->t('Comment'),
 			'reply_label'     => DI::l10n()->t('Reply to %s', $profile_name),
 			'comment_html'    => $comment_html,
