@@ -290,9 +290,9 @@ return [
 		// restricts develop log writes to requests originating from this IP address.
 		'dlogip' => '',
 
-		// emoji_activities (Boolean)
-		// Display received activities (like, dislike, reshare) as emojis
-		'emoji_activities' => false,
+		// legacy_activities (Boolean)
+		// Display received activities (like, dislike, reshare) as detailed list
+		'legacy_activities' => true,
 
 		// expire-notify-priority (integer)
 		// Priority for the expiry notification
@@ -520,7 +520,7 @@ return [
 		'png_quality' => 8,
 
 		// process_view (Boolean)
-		// Process the "View" activity that is used by Peertube. View activities are displayed, when "emoji_activities" are enabled.
+		// Process the "View" activity that is used by Peertube.
 		'process_view' => false,
 
 		// profiler (Boolean)

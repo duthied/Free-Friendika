@@ -1988,6 +1988,10 @@ code > .hl-main {
 	padding-left: 5px;
 	padding-right: 5px;
 }
+.wall-item-actions button:disabled,
+button[disabled] {
+  	color: $font_color_lighter;
+}
 .wall-item-actions .active {
 	font-weight: bold;
 	color: $link_color;
