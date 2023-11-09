@@ -328,7 +328,7 @@ class APContact
 			if (!empty($local_owner)) {
 				$following = ActivityPub\Transmitter::getContacts($local_owner, [Contact::SHARING, Contact::FRIEND], 'following');
 			} else {
-				$following = ActivityPub::fetchContent($apcontact['following']);
+				$following = HTTPSignature::fetch($apcontact['following']);
 			}
 			if (!empty($following['totalItems'])) {
 				// Mastodon seriously allows for this condition?
@@ -344,7 +344,7 @@ class APContact
 			if (!empty($local_owner)) {
 				$followers = ActivityPub\Transmitter::getContacts($local_owner, [Contact::FOLLOWER, Contact::FRIEND], 'followers');
 			} else {
-				$followers = ActivityPub::fetchContent($apcontact['followers']);
+				$followers = HTTPSignature::fetch($apcontact['followers']);
 			}
 			if (!empty($followers['totalItems'])) {
 				// Mastodon seriously allows for this condition?
@@ -360,7 +360,7 @@ class APContact
 			if (!empty($local_owner)) {
 				$statuses_count = self::getStatusesCount($local_owner);
 			} else {
-				$outbox = ActivityPub::fetchContent($apcontact['outbox']);
+				$outbox = HTTPSignature::fetch($apcontact['outbox']);
 				$statuses_count = $outbox['totalItems'] ?? 0;
 			}
 			if (!empty($statuses_count)) {
@@ -388,11 +388,11 @@ class APContact
 		if (strlen($apcontact['photo'] ?? '') > 255) {
 			$parts = parse_url($apcontact['photo']);
 			unset($parts['fragment']);
-			$apcontact['photo'] = (string)Uri::fromParts($parts);
+			$apcontact['photo'] = (string)Uri::fromParts((array)$parts);
 
 			if (strlen($apcontact['photo']) > 255) {
 				unset($parts['query']);
-				$apcontact['photo'] = (string)Uri::fromParts($parts);
+				$apcontact['photo'] = (string)Uri::fromParts((array)$parts);
 			}
 
 			if (strlen($apcontact['photo']) > 255) {
@@ -587,23 +587,20 @@ class APContact
 	 */
 	public static function isRelay(array $apcontact): bool
 	{
-		if (in_array($apcontact['type'], ['Person', 'Organization'])) {
+		if (!in_array($apcontact['type'] ?? '', ['Application', 'Group', 'Service'])) {
 			return false;
 		}
 
-		if (($apcontact['type'] == 'Service') && empty($apcontact['outbox']) && empty($apcontact['sharedinbox']) && empty($apcontact['following']) && empty($apcontact['followers']) && empty($apcontact['statuses_count'])) {
+		$path = parse_url($apcontact['url'], PHP_URL_PATH);
+		if (($apcontact['type'] == 'Group') && !empty($apcontact['followers']) && ($apcontact['nick'] == 'relay') && ($path == '/actor')) {
 			return true;
 		}
 
-		if (empty($apcontact['nick']) || $apcontact['nick'] != 'relay') {
-			return false;
-		}
-
-		if (!empty($apcontact['type']) && $apcontact['type'] == 'Application') {
+		if (in_array($apcontact['type'], ['Application', 'Service']) && empty($apcontact['following']) && empty($apcontact['followers'])) {
 			return true;
 		}
 
-		if (!empty($apcontact['type']) && in_array($apcontact['type'], ['Group', 'Service']) && is_null($apcontact['outbox'])) {
+		if (($apcontact['type'] == 'Application') && ($apcontact['nick'] == 'relay') && in_array($path, ['/actor', '/relay'])) {
 			return true;
 		}
 

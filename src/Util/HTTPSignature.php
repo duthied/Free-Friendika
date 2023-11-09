@@ -420,7 +420,7 @@ class HTTPSignature
 	 * @return array JSON array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetch(string $request, int $uid): array
+	public static function fetch(string $request, int $uid = 0): array
 	{
 		try {
 			$curlResult = self::fetchRaw($request, $uid);

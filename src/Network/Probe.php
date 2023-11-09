@@ -43,6 +43,7 @@ use Friendica\Protocol\Feed;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
@@ -1860,7 +1861,7 @@ class Probe
 		unset($baseParts['query']);
 		unset($baseParts['fragment']);
 
-		return Network::unparseURL($baseParts);
+		return Network::unparseURL((array)$baseParts);
 	}
 
 	/**
@@ -2132,7 +2133,7 @@ class Probe
 	 */
 	private static function updateFromOutbox(string $feed, array $data): string
 	{
-		$outbox = ActivityPub::fetchContent($feed);
+		$outbox = HTTPSignature::fetch($feed);
 		if (empty($outbox)) {
 			return '';
 		}

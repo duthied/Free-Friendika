@@ -596,16 +596,16 @@ class Processor
 	 */
 	public static function isActivityGone(string $url): bool
 	{
+		if (Network::isUrlBlocked($url)) {
+			return true;
+		}
+
 		try {
 			$curlResult = HTTPSignature::fetchRaw($url, 0);
 		} catch (\Exception $exception) {
 			Logger::notice('Error fetching url', ['url' => $url, 'exception' => $exception]);
 			return true;
-		}
-
-		if (Network::isUrlBlocked($url)) {
-			return true;
-		}
+		}	
 
 		// @todo To ensure that the remote system is working correctly, we can check if the "Content-Type" contains JSON
 		if (in_array($curlResult->getReturnCode(), [401, 404])) {
@@ -1493,7 +1493,7 @@ class Processor
 			return $object;
 		}
 
-		$object = ActivityPub::fetchContent($url, $uid);
+		$object = HTTPSignature::fetch($url, $uid);
 		if (empty($object)) {
 			Logger::notice('Activity was not fetchable, aborting.', ['url' => $url, 'uid' => $uid]);
 			// We perform negative caching.
@@ -1520,14 +1520,43 @@ class Processor
 	 * @param string     $relay_actor Relay actor
 	 * @param int        $completion  Completion mode, see Receiver::COMPLETION_*
 	 * @param int        $uid         User id that is used to fetch the activity
-	 * @return string fetched message URL
+	 * @return string fetched message URL. An empty string indicates a temporary error, null indicates a permament error,
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL, int $uid = 0): string
+	public static function fetchMissingActivity(string $url, array $child = [], string $relay_actor = '', int $completion = Receiver::COMPLETION_MANUAL, int $uid = 0): ?string
 	{
-		$object = self::fetchCachedActivity($url, $uid);
-		if (empty($object)) {
+		if (Network::isUrlBlocked($url)) {
+			return null;
+		}
+
+		try {
+			$curlResult = HTTPSignature::fetchRaw($url, $uid);
+		} catch (\Exception $exception) {
+			Logger::notice('Error fetching url', ['url' => $url, 'exception' => $exception]);
+			return '';
+		}
+
+		if (empty($curlResult)) {
+			return '';
+		}
+
+		$body = $curlResult->getBody();
+		if (!$curlResult->isSuccess() || empty($body)) {
+			if (in_array($curlResult->getReturnCode(), [403, 404, 406, 410])) {
+				return null;
+			}
+			return '';
+		}
+
+		$object = json_decode($body, true);
+		if (empty($object) || !is_array($object)) {
+			$element = explode(';', $curlResult->getContentType());
+			if (!in_array($element[0], ['application/activity+json', 'application/ld+json', 'application/json'])) {
+				Logger::debug('Unexpected content-type', ['url' => $url, 'content-type' => $curlResult->getContentType()]);
+				return null;
+			}
+			Logger::notice('Invalid JSON data', ['url' => $url, 'content-type' => $curlResult->getContentType(), 'body' => $body]);
 			return '';
 		}
 
@@ -1560,28 +1589,28 @@ class Processor
 			$actor = $object_actor;
 		}
 
-		if (!empty($object['published'])) {
-			$published = $object['published'];
-		} elseif (!empty($child['published'])) {
-			$published = $child['published'];
+		$ldobject = JsonLD::compact($object);
+
+		$type      = JsonLD::fetchElement($ldobject, '@type');
+		$object_id = JsonLD::fetchElement($ldobject, 'as:object', '@id');
+
+		if (!in_array($type, Receiver::CONTENT_TYPES) && !empty($object_id)) {
+			if (($type == 'as:Announce') && !empty($relay_actor) && ($completion = Receiver::COMPLETION_RELAY)) {
+				if (Item::searchByLink($object_id)) {
+					return $object_id;
+				}
+				Logger::debug('Fetch announced activity', ['type' => $type, 'id' => $object_id, 'actor' => $relay_actor, 'signer' => $signer]);
+
+				return self::fetchMissingActivity($object_id, $child, $relay_actor, $completion, $uid);
+			}
+			$activity   = $object;
+			$ldactivity = $ldobject;
 		} else {
-			$published = DateTimeFormat::utcNow();
+			$activity   = self::getActivityForObject($object, $actor);
+			$ldactivity = JsonLD::compact($activity);
+			$object_id  = $object['id'];
 		}
-
-		$activity = [];
-		$activity['@context'] = $object['@context'] ?? ActivityPub::CONTEXT;
-		unset($object['@context']);
-		$activity['id'] = $object['id'];
-		$activity['to'] = $object['to'] ?? [];
-		$activity['cc'] = $object['cc'] ?? [];
-		$activity['audience'] = $object['audience'] ?? [];
-		$activity['actor'] = $actor;
-		$activity['object'] = $object;
-		$activity['published'] = $published;
-		$activity['type'] = 'Create';
-
-		$ldactivity = JsonLD::compact($activity);
-
+	
 		$ldactivity['recursion-depth'] = !empty($child['recursion-depth']) ? $child['recursion-depth'] + 1 : 0;
 
 		if ($object_actor != $actor) {
@@ -1600,8 +1629,8 @@ class Processor
 
 		if ($completion == Receiver::COMPLETION_RELAY) {
 			$ldactivity['from-relay'] = $ldactivity['thread-completion'];
-			if (!self::acceptIncomingMessage($ldactivity, $object['id'])) {
-				return '';
+			if (in_array($type, Receiver::CONTENT_TYPES) && !self::acceptIncomingMessage($ldactivity, $object_id)) {
+				return null;
 			}
 		}
 
@@ -1622,6 +1651,31 @@ class Processor
 		}
 
 		return $activity['id'];
+	}
+
+	private static function getActivityForObject(array $object, string $actor): array
+	{
+		if (!empty($object['published'])) {
+			$published = $object['published'];
+		} elseif (!empty($child['published'])) {
+			$published = $child['published'];
+		} else {
+			$published = DateTimeFormat::utcNow();
+		}
+
+		$activity = [];
+		$activity['@context'] = $object['@context'] ?? ActivityPub::CONTEXT;
+		unset($object['@context']);
+		$activity['id'] = $object['id'];
+		$activity['to'] = $object['to'] ?? [];
+		$activity['cc'] = $object['cc'] ?? [];
+		$activity['audience'] = $object['audience'] ?? [];
+		$activity['actor'] = $actor;
+		$activity['object'] = $object;
+		$activity['published'] = $published;
+		$activity['type'] = 'Create';
+
+		return $activity;
 	}
 
 	/**
