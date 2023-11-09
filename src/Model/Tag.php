@@ -30,6 +30,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Strings;
 
 /**
@@ -195,7 +196,7 @@ class Tag
 				$target = self::ACCOUNT;
 				Logger::debug('URL is an account', ['url' => $url]);
 			} elseif ($fetch && ($target != self::GENERAL_COLLECTION)) {
-				$content = ActivityPub::fetchContent($url);
+				$content = HTTPSignature::fetch($url);
 				if (!empty($content['type']) && ($content['type'] == 'OrderedCollection')) {
 					$target = self::GENERAL_COLLECTION;
 					Logger::debug('URL is an ordered collection', ['url' => $url]);

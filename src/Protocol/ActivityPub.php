@@ -105,19 +105,6 @@ class ActivityPub
 		return $isrequest;
 	}
 
-	/**
-	 * Fetches ActivityPub content from the given url
-	 *
-	 * @param string  $url content url
-	 * @param integer $uid User ID for the signature
-	 * @return array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function fetchContent(string $url, int $uid = 0): array
-	{
-		return HTTPSignature::fetch($url, $uid);
-	}
-
 	private static function getAccountType(array $apcontact): int
 	{
 		$accounttype = -1;
@@ -216,7 +203,7 @@ class ActivityPub
 	 */
 	public static function fetchOutbox(string $url, int $uid)
 	{
-		$data = self::fetchContent($url, $uid);
+		$data = HTTPSignature::fetch($url, $uid);
 		if (empty($data)) {
 			return;
 		}
@@ -255,7 +242,7 @@ class ActivityPub
 			return [];
 		}
 
-		$data = self::fetchContent($url, $uid);
+		$data = HTTPSignature::fetch($url, $uid);
 		if (empty($data)) {
 			return [];
 		}

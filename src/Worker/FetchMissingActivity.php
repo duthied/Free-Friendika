@@ -44,8 +44,10 @@ class FetchMissingActivity
 		$result = ActivityPub\Processor::fetchMissingActivity($url, $child, $relay_actor, $completion);
 		if ($result) {
 			Logger::info('Successfully fetched missing activity', ['url' => $url]);
+		} elseif (is_null($result)) {
+			Logger::info('Permament error, activity could not be fetched', ['url' => $url]);
 		} elseif (!Worker::defer(self::WORKER_DEFER_LIMIT)) {
-			Logger::info('Activity could not be fetched', ['url' => $url]);
+			Logger::info('Defer limit reached, activity could not be fetched', ['url' => $url]);
 
 			// recursively delete all entries that belong to this worker task
 			$queue = DI::app()->getQueue();
