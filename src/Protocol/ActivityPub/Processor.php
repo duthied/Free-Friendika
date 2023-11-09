@@ -854,6 +854,8 @@ class Processor
 			$item['language'] = self::processLanguages($activity['languages']);
 		}
 
+		$item['transmitted-languages'] = $activity['transmitted-languages'];
+
 		if (!empty($activity['emojis'])) {
 			$content = self::replaceEmojis($item['uri-id'], $content, $activity['emojis']);
 		}
@@ -1727,7 +1729,7 @@ class Processor
 			}
 		}
 
-		$languages = self::getPostLanguages($activity);
+		$languages = self::getPostLanguages($activity['as:object'] ?? '');
 
 		return Relay::isSolicitedPost($messageTags, $content, $authorid, $id, Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0, $languages);
 	}
@@ -1738,10 +1740,10 @@ class Processor
 	 * @param array $activity
 	 * @return array
 	 */
-	private static function getPostLanguages(array $activity): array
+	public static function getPostLanguages(array $activity): array
 	{
-		$content   = JsonLD::fetchElement($activity['as:object'], 'as:content') ?? '';
-		$languages = JsonLD::fetchElementArray($activity['as:object'], 'as:content', '@language') ?? [];
+		$content   = JsonLD::fetchElement($activity, 'as:content') ?? '';
+		$languages = JsonLD::fetchElementArray($activity, 'as:content', '@language') ?? [];
 		if (empty($languages)) {
 			return [];
 		}

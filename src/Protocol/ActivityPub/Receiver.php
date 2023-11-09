@@ -2005,6 +2005,7 @@ class Receiver
 		$object_data['tags'] = self::processTags(JsonLD::fetchElementArray($object, 'as:tag') ?? []);
 		$object_data['emojis'] = self::processEmojis(JsonLD::fetchElementArray($object, 'as:tag', null, '@type', 'toot:Emoji') ?? []);
 		$object_data['languages'] = self::processLanguages(JsonLD::fetchElementArray($object, 'sc:inLanguage') ?? []);
+		$object_data['transmitted-languages'] = Processor::getPostLanguages($object);
 		$object_data['generator'] = JsonLD::fetchElement($object, 'as:generator', 'as:name', '@type', 'as:Application');
 		$object_data['generator'] = JsonLD::fetchElement($object_data, 'generator', '@value');
 		$object_data['alternate-url'] = JsonLD::fetchElement($object, 'as:url', '@id');
