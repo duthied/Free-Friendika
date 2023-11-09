@@ -458,7 +458,8 @@ class Post
 			$title = '';
 		}
 
-		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'hide_dislike')) {
+		$hide_dislike = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'hide_dislike');
+		if ($hide_dislike) {
 			$buttons['dislike'] = false;
 		}
 
@@ -593,6 +594,7 @@ class Post
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],
+			'hide_dislike'    => $hide_dislike,
 			'emojis'          => $emojis,
 			'quoteshares'     => $this->getQuoteShares($item['quoteshares']),
 			'reactions'       => $reactions,

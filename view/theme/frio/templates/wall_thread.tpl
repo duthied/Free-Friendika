@@ -352,13 +352,17 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{if $item.vote.dislike}}
 					<button type="button" class="btn-link button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doActivityItemAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});" ><i class="fa fa-thumbs-down" aria-hidden="true"></i></button>
 					<span title="{{$item.responses.dislike.title}}">{{$item.responses.dislike.total}}</span>
-				{{else}}
+				{{elseif !$item.hide_dislike}}
 					<button type="button" class="btn-link button-likes" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" disabled><i class="fa fa-thumbs-o-down" aria-hidden="true"></i></button>
 				{{/if}}
 				</span>
 
 				{{foreach $item.reactions as $emoji}}
-				<span class="wall-item-emoji" title="{{$emoji.title}}">{{$emoji.emoji}} {{$emoji.total}}</span>
+					{{if $emoji.icon.fa}}
+						<span class="wall-item-emoji" title="{{$emoji.title}}"><i class="fa {{$emoji.icon.fa}}" aria-hidden="true"></i> {{$emoji.total}}</span>
+					{{else}}
+						<span class="wall-item-emoji" title="{{$emoji.title}}">{{$emoji.emoji}} {{$emoji.total}}</span>
+					{{/if}}
 				{{/foreach}}
 			{{/if}}
 
@@ -495,7 +499,6 @@ as the value of $top_child_total (this is done at the end of this file)
 		</span>
 		{{/if}}
 		</span>
-
 			<div class="wall-item-actions-items btn-toolbar btn-group visible-xs" role="group">
 				<div class="wall-item-actions-row">
 				{{* Button to open the comment text field *}}
