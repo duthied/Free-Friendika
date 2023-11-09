@@ -33,5 +33,5 @@ switch ($scheme_accent) {
 $contentbg_transp = 4;
 $font_color = '#e4e4e4';
 $font_color_darker = '#dcdcdc';
-$font_color_lighter = '#ababab';
+$font_color_lighter = '#555555';
 $background_image = '';
