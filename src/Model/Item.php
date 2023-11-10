@@ -1996,19 +1996,31 @@ class Item
 	 * @return string detected language
 	 * @throws \Text_LanguageDetect_Exception
 	 */
-	private static function getLanguage(array $item): string
+	private static function getLanguage(array $item): ?string
 	{
 		if (!empty($item['language'])) {
 			return $item['language'];
 		}
 
-		if (!in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]) || empty($item['body'])) {
-			return '';
+		$transmitted = [];
+		foreach ($item['transmitted-languages'] ??  [] as $language) {
+			$transmitted[$language] = 0;
 		}
 
-		$languages = self::getLanguageArray($item['title'] . ' ' . ($item['content-warning'] ?? '') . ' ' . $item['body'], 3, $item['uri-id'], $item['author-id']);
+		$content = trim(($item['title'] ?? '') . ' ' . ($item['content-warning'] ?? '') . ' ' . ($item['body'] ?? ''));
+
+		if (!in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]) || empty($content)) {
+			return !empty($transmitted) ? json_encode($transmitted) : null;
+		}
+
+		$languages = self::getLanguageArray($content, 3, $item['uri-id'], $item['author-id']);
 		if (empty($languages)) {
-			return '';
+			return !empty($transmitted) ? json_encode($transmitted) : null;
+		}
+
+		if (!empty($transmitted)) {
+			$languages = array_merge($transmitted, $languages);
+			arsort($languages);
 		}
 
 		return json_encode($languages);
@@ -2209,7 +2221,7 @@ class Item
 
 		// Glue it together to be able to make a hash from it
 		if (!empty($parsed)) {
-			$host_id = implode('/', $parsed);
+			$host_id = implode('/', (array)$parsed);
 		} else {
 			$host_id = $uri;
 		}
@@ -3435,7 +3447,7 @@ class Item
 		unset($urlparts['fragment']);
 
 		try {
-			$url = (string)Uri::fromParts($urlparts);
+			$url = (string)Uri::fromParts((array)$urlparts);
 		} catch (\InvalidArgumentException $e) {
 			DI::logger()->notice('Invalid URL', ['$url' => $url, '$urlparts' => $urlparts]);
 			/* See https://github.com/friendica/friendica/issues/12113
