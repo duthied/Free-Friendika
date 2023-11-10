@@ -1996,7 +1996,7 @@ class Item
 	 * @return string detected language
 	 * @throws \Text_LanguageDetect_Exception
 	 */
-	private static function getLanguage(array $item): string
+	private static function getLanguage(array $item): ?string
 	{
 		if (!empty($item['language'])) {
 			return $item['language'];
@@ -2007,13 +2007,15 @@ class Item
 			$transmitted[$language] = 0;
 		}
 
-		if (!in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]) || empty($item['body'])) {
-			return empty($transmitted) ? '' : json_encode($transmitted);
+		$content = trim(($item['title'] ?? '') . ' ' . ($item['content-warning'] ?? '') . ' ' . ($item['body'] ?? ''));
+
+		if (!in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]) || empty($content)) {
+			return !empty($transmitted) ? json_encode($transmitted) : null;
 		}
 
-		$languages = self::getLanguageArray($item['title'] . ' ' . ($item['content-warning'] ?? '') . ' ' . $item['body'], 3, $item['uri-id'], $item['author-id']);
+		$languages = self::getLanguageArray($content, 3, $item['uri-id'], $item['author-id']);
 		if (empty($languages)) {
-			return empty($transmitted) ? '' : json_encode($transmitted);
+			return !empty($transmitted) ? json_encode($transmitted) : null;
 		}
 
 		if (!empty($transmitted)) {
