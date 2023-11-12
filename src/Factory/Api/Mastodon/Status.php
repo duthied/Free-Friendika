@@ -24,6 +24,7 @@ namespace Friendica\Factory\Api\Mastodon;
 use Friendica\BaseFactory;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Item as ContentItem;
+use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Database\Database;
@@ -57,6 +58,8 @@ class Status extends BaseFactory
 	private $mstdnCardFactory;
 	/** @var Attachment */
 	private $mstdnAttachmentFactory;
+	/** @var Emoji */
+	private $mstdnEmojiFactory;
 	/** @var Error */
 	private $mstdnErrorFactory;
 	/** @var Poll */
@@ -74,6 +77,7 @@ class Status extends BaseFactory
 		Tag $mstdnTagFactory,
 		Card $mstdnCardFactory,
 		Attachment $mstdnAttachmentFactory,
+		Emoji $mstdnEmojiFactory,
 		Error $mstdnErrorFactory,
 		Poll $mstdnPollFactory,
 		ContentItem $contentItem,
@@ -86,6 +90,7 @@ class Status extends BaseFactory
 		$this->mstdnTagFactory        = $mstdnTagFactory;
 		$this->mstdnCardFactory       = $mstdnCardFactory;
 		$this->mstdnAttachmentFactory = $mstdnAttachmentFactory;
+		$this->mstdnEmojiFactory      = $mstdnEmojiFactory;
 		$this->mstdnErrorFactory      = $mstdnErrorFactory;
 		$this->mstdnPollFactory       = $mstdnPollFactory;
 		$this->contentItem            = $contentItem;
@@ -283,6 +288,9 @@ class Status extends BaseFactory
 			}
 		}
 
+		$used_smilies = Smilies::extractUsedSmilies($item['body'] ?: $item['raw-body']);
+		$emojis = $this->mstdnEmojiFactory->createCollectionFromArray($used_smilies)->getArrayCopy(true);
+
 		if ($is_reshare) {
 			try {
 				$reshare = $this->createFromUriId($uriId, $uid, $display_quote, false, false)->toArray();
@@ -309,7 +317,7 @@ class Status extends BaseFactory
 		$visibility_data = $uid != $item['uid'] ? null : new FriendicaVisibility($this->aclFormatter->expand($item['allow_cid']), $this->aclFormatter->expand($item['deny_cid']), $this->aclFormatter->expand($item['allow_gid']), $this->aclFormatter->expand($item['deny_gid']));
 		$friendica       = new FriendicaExtension($item['title'] ?? '', $item['changed'], $item['commented'], $item['received'], $counts->dislikes, $origin_dislike, $delivery_data, $visibility_data);
 
-		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica, $quote, $poll);
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $in_reply, $reshare, $friendica, $quote, $poll, $emojis);
 	}
 
 	/**

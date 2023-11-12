@@ -32,19 +32,22 @@ class Emoji extends BaseFactory
 	}
 
 	/**
+	 * Creates an emoji collection from shortcode => image mappings.
+	 *
 	 * @param array $smilies
 	 *
 	 * @return Emojis
 	 */
-	public function createCollectionFromSmilies(array $smilies): Emojis
+	public function createCollectionFromArray(array $smilies): Emojis
 	{
 		$prototype = null;
 
 		$emojis = [];
 
-		foreach ($smilies['texts'] as $key => $shortcode) {
-			if (preg_match('/src="(.+?)"/', $smilies['icons'][$key], $matches)) {
+		foreach ($smilies as $shortcode => $icon) {
+			if (preg_match('/src="(.+?)"/', $icon, $matches)) {
 				$url = $matches[1];
+				$shortcode = trim($shortcode, ':');
 
 				if ($prototype === null) {
 					$prototype = $this->create($shortcode, $url);
@@ -52,9 +55,19 @@ class Emoji extends BaseFactory
 				} else {
 					$emojis[] = \Friendica\Object\Api\Mastodon\Emoji::createFromPrototype($prototype, $shortcode, $url);
 				}
-			};
+			}
 		}
 
 		return new Emojis($emojis);
+	}
+
+	/**
+	 * @param array $smilies
+	 *
+	 * @return Emojis
+	 */
+	public function createCollectionFromSmilies(array $smilies): Emojis
+	{
+		return self::createCollectionFromArray(array_combine($smilies['texts'], $smilies['icons']));
 	}
 }

@@ -23,6 +23,7 @@ namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\App;
 use Friendica\Content\Feature;
+use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
@@ -1507,6 +1508,26 @@ class Transmitter
 	}
 
 	/**
+	 * Appends emoji tags to a tag array according to the tags used.
+	 *
+	 * @param array $tags Tag array
+	 * @param string $text Text containing tags like :tag:
+	 */
+	private static function addEmojiTags(array &$tags, string $text)
+	{
+		foreach (Smilies::extractUsedSmilies($text, true) as $name => $url) {
+			$tags[] = [
+				'type' => 'Emoji',
+				'name' => $name,
+				'icon' => [
+					'type' => 'Image',
+					'url' => $url,
+				],
+			];
+		}
+	}
+
+	/**
 	 * Returns a tag array for a given item array
 	 *
 	 * @param array  $item      Item array
@@ -1537,6 +1558,8 @@ class Transmitter
 				$tags[] = ['type' => 'Mention', 'href' => $term['url'], 'name' => $mention];
 			}
 		}
+
+		self::addEmojiTags($tags, $item['body']);
 
 		$announce = self::getAnnounceArray($item);
 		// Mention the original author upon commented reshares

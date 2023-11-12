@@ -152,6 +152,34 @@ class Smilies
 		return $params;
 	}
 
+	/**
+	 * Finds all used smilies (like :heart: or :p) in the provided text.
+	 *
+	 * @param string $text that might contain smilie usages (denoted by a starting colon)
+	 * @param bool   $extract_url whether to further extract image urls
+	 * @return array with smilie codes (colon included) as the keys, the smilie images as values
+	 */
+	public static function extractUsedSmilies(string $text, bool $extract_url = false): array
+	{
+		$emojis = [];
+
+		$smilies = self::getList();
+		$icons = $smilies['icons'];
+		foreach ($smilies['texts'] as $i => $name) {
+			if (strstr($text, $name)) {
+				$image = $icons[$i];
+				if ($extract_url) {
+					if (preg_match('/src="(.+?)"/', $image, $match)) {
+						$image = $match[1];
+					} else {
+						continue;
+					}
+				}
+				$emojis[$name] = $image;
+			}
+		}
+		return $emojis;
+	}
 
 	/**
 	 * Copied from http://php.net/manual/en/function.str-replace.php#88569
