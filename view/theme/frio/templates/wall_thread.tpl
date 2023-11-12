@@ -125,15 +125,10 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{* contact info header*}}
 		<div class="contact-info">
 			<div class="preferences">
-				{{if $item.network_icon != ""}}
-					<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
+				{{if $item.network_icon != "" && $item.plink}}
+					<span class="wall-item-network"><a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" target="_blank"><i class="fa fa-{{$item.network_icon}} fakelink" title="{{$item.network_name}} - {{$item.plink.title}}" aria-hidden="true"></i></span>
 				{{else}}
 					<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
-				{{/if}}
-				{{if $item.plink}}	{{*link to the original source of the item *}}
-					<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.plink.title}}" target="_blank">
-						<i class="fa fa-external-link"></i>
-					</a>
 				{{/if}}
 			</div>
 		{{if $item.thread_level==1}}
@@ -147,13 +142,6 @@ as the value of $top_child_total (this is done at the end of this file)
 					<a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link userinfo hover-card">
 						<span class="wall-item-name {{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span>
 					</a>
-				{{/if}}
-				{{if $item.connector}}
-					<small><i class="fa fa-plug" title="{{$item.connector}}" aria-hidden="true"></i></small>
-				{{else}}
-					<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.privacy}}" data-toggle="tooltip">
-						&nbsp;<small><i class="fa {{if $item.private == 1}}fa-lock{{elseif $item.private == 0}}fa-globe{{else}}fa-low-vision{{/if}}" aria-hidden="true"></i></small>
-					</span>
 				{{/if}}
 				</h4>
 
@@ -173,7 +161,15 @@ as the value of $top_child_total (this is done at the end of this file)
 								&bull; <i class="fa fa-thumb-tack" aria-hidden="true" title="{{$item.pinned}}"></i>
 								<span class="sr-only">{{$item.pinned}}</span>
 							{{/if}}
-
+							{{if $item.connector}}
+								&bull;
+								<small><i class="fa fa-plug" title="{{$item.connector}}" aria-hidden="true"></i></small>
+							{{else}}
+								&bull;	
+								<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.privacy}}" data-toggle="tooltip">
+									<small><i class="fa {{if $item.private == 1}}fa-lock{{elseif $item.private == 0}}fa-globe{{else}}fa-low-vision{{/if}}" aria-hidden="true"></i></small>
+								</span>
+							{{/if}}
 						</small>
 					</div>
 
@@ -190,13 +186,6 @@ as the value of $top_child_total (this is done at the end of this file)
 			<div class="contact-info-xs hidden-lg hidden-md"><!-- <= For smartphone (responsive) -->
 				<h5 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span>{{$item.name}}</span></a>
-                {{if $item.connector}}
-					<small><i class="fa fa-plug" title="{{$item.connector}}" aria-hidden="true"></i></small>
-                {{else}}
-					<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.privacy}}" data-toggle="tooltip">
-						<small><i class="fa {{if $item.private == 1}}fa-lock{{elseif $item.private == 0}}fa-globe{{else}}fa-low-vision{{/if}}" aria-hidden="true"></i></small>
-					</span>
-                {{/if}}
 					<p class="text-muted">
 						<small>
 							<a href="{{$item.plink.orig}}">
@@ -209,6 +198,15 @@ as the value of $top_child_total (this is done at the end of this file)
 							{{if $item.direction}}
 								{{include file="sub/direction.tpl" direction=$item.direction}}
 							{{/if}}
+							{{if $item.connector}}
+								&bull;
+								<small><i class="fa fa-plug" title="{{$item.connector}}" aria-hidden="true"></i></small>
+							{{else}}
+								&bull;
+								<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.privacy}}" data-toggle="tooltip">
+								<i class="fa {{if $item.private == 1}}fa-lock{{elseif $item.private == 0}}fa-globe{{else}}fa-low-vision{{/if}}" aria-hidden="true"></i>
+								</span>
+							{{/if}}
 						</small>
 					</p>
 				</h5>
@@ -218,13 +216,6 @@ as the value of $top_child_total (this is done at the end of this file)
 			<div class="contact-info-comment">
 				<h5 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span class="fakelink">{{$item.name}}</span></a>
-					{{if $item.connector}}
-						<small><i class="fa fa-plug" title="{{$item.connector}}" aria-hidden="true"></i></small>
-					{{else}}
-						<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.privacy}}" data-toggle="tooltip">
-							&nbsp;<small><i class="fa {{if $item.private == 1}}fa-lock{{elseif $item.private == 0}}fa-globe{{else}}fa-low-vision{{/if}}" aria-hidden="true"></i></small>
-						</span>
-					{{/if}}
 					<span class="text-muted">
 				</h5>
 				<small>
@@ -250,6 +241,15 @@ as the value of $top_child_total (this is done at the end of this file)
 					{{/if}}
 					{{if $item.direction}}
 						{{include file="sub/direction.tpl" direction=$item.direction}}
+					{{/if}}
+					{{if $item.connector}}
+						&bull;
+						<small><i class="fa fa-plug" title="{{$item.connector}}" aria-hidden="true"></i></small>
+					{{else}}
+						<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.privacy}}" data-toggle="tooltip">
+							&bull;
+							<small><i class="fa {{if $item.private == 1}}fa-lock{{elseif $item.private == 0}}fa-globe{{else}}fa-low-vision{{/if}}" aria-hidden="true"></i></small>
+						</span>
 					{{/if}}
 				</small>
 			</span>
