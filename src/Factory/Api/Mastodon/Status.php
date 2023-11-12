@@ -288,8 +288,11 @@ class Status extends BaseFactory
 			}
 		}
 
-		$used_smilies = Smilies::extractUsedSmilies($item['body'] ?: $item['raw-body']);
-		$emojis = $this->mstdnEmojiFactory->createCollectionFromArray($used_smilies)->getArrayCopy(true);
+		$emojis = null;
+		if (DI::baseUrl()->isLocalUrl($item['uri'])) {
+			$used_smilies = Smilies::extractUsedSmilies($item['body'] ?: $item['raw-body']);
+			$emojis = $this->mstdnEmojiFactory->createCollectionFromArray($used_smilies)->getArrayCopy(true);
+		}
 
 		if ($is_reshare) {
 			try {
