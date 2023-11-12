@@ -1413,6 +1413,9 @@ section #jotOpen {
 		max-height: calc(100vh - 62px);
 	}
 }
+#jot-modal #jot-modal-body {
+	overflow: auto;
+}
 #jot-modal #jot-sections,
 #jot-modal #jot-modal-body,
 #jot-modal #profile-jot-form,
@@ -1423,7 +1426,6 @@ section #jotOpen {
 #jot-modal #item-Q0,
 #jot-modal #profile-jot-acl-wrapper,
 #jot-modal #acl-wrapper {
-	overflow: hidden;
 	display: flex;
 	flex: auto;
 	flex-direction: column;
