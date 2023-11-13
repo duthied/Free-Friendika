@@ -126,10 +126,10 @@ as the value of $top_child_total (this is done at the end of this file)
 		<div class="contact-info">
 			<div class="preferences">
 				{{if $item.network_icon != "" && $item.plink}}
-   					 <span class="wall-item-network"><a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" target="_blank"><i class="fa fa-{{$item.network_icon}} fakelink" title="{{$item.network_name}} - {{$item.plink.title}}" aria-hidden="true"></i></a></span>
-				{{else}}
-   					{{if $item.plink}}
-       						 <a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.network_name}} - {{$item.plink.title}}" target="_blank">{{$item.network_name}}</a>
+   					<span class="wall-item-network"><a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" target="_blank"><i class="fa fa-{{$item.network_icon}} fakelink" title="{{$item.network_name}} - {{$item.plink.title}}" aria-hidden="true"></i></a></span>
+				{{else}
+					{{if $item.plink}}
+       						<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.network_name}} - {{$item.plink.title}}" target="_blank">{{$item.network_name}}</a>
    					{{elseif $item.network_icon != ""}}
        						<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
     					{{else}}
