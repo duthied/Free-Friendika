@@ -125,17 +125,15 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* contact info header*}}
 		<div class="contact-info">
 			<div class="preferences">
-				{{if $item.network_icon != "" && $item.plink}}
+				{{if $item.network_icon && $item.plink}}
    					<span class="wall-item-network"><a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" target="_blank"><i class="fa fa-{{$item.network_icon}} fakelink" title="{{$item.network_name}} - {{$item.plink.title}}" aria-hidden="true"></i></a></span>
-				{{else}
-					{{if $item.plink}}
-       						<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.network_name}} - {{$item.plink.title}}" target="_blank">{{$item.network_name}}</a>
-   					{{elseif $item.network_icon != ""}}
-       						<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
-    					{{else}}
-        					<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
-    					{{/if}}
-				{{/if}}
+				{{elseif $item.plink}}
+       					<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.network_name}} - {{$item.plink.title}}" target="_blank">{{$item.network_name}}</a>
+   				{{elseif $item.network_icon}}
+       					<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
+    				{{else}}
+        				<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
+    				{{/if}}
 			</div>
 		{{if $item.thread_level==1}}
 			<div class="hidden-sm hidden-xs media-body"><!-- <= For computer -->
