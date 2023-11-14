@@ -292,6 +292,10 @@ class Status extends BaseFactory
 		if (DI::baseUrl()->isLocalUrl($item['uri'])) {
 			$used_smilies = Smilies::extractUsedSmilies($item['body'] ?: $item['raw-body']);
 			$emojis = $this->mstdnEmojiFactory->createCollectionFromArray($used_smilies)->getArrayCopy(true);
+		} else {
+			if (preg_match_all("(\[emoji=(.*?)](.*?)\[/emoji])ism", $item['body'] ?: $item['raw-body'], $matches)) {
+				$emojis = $this->mstdnEmojiFactory->createCollectionFromArray(array_combine($matches[2], $matches[1]), false)->getArrayCopy(true);
+			}
 		}
 
 		if ($is_reshare) {

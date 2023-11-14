@@ -34,19 +34,28 @@ class Emoji extends BaseFactory
 	/**
 	 * Creates an emoji collection from shortcode => image mappings.
 	 *
+	 * Only emojis with shortcodes of the form of ':shortcode:' are passed in the collection.
+	 *
 	 * @param array $smilies
+	 * @param bool  $extract_url
 	 *
 	 * @return Emojis
 	 */
-	public function createCollectionFromArray(array $smilies): Emojis
+	public function createCollectionFromArray(array $smilies, bool $extract_url = true): Emojis
 	{
 		$prototype = null;
 
 		$emojis = [];
 
-		foreach ($smilies as $shortcode => $icon) {
-			if (preg_match('/src="(.+?)"/', $icon, $matches)) {
-				$url = $matches[1];
+		foreach ($smilies as $shortcode => $url) {
+			if (substr($shortcode, 0, 1) == ':' && substr($shortcode, -1) == ':') {
+				if ($extract_url) {
+					if (preg_match('/src="(.+?)"/', $url, $matches)) {
+						$url = $matches[1];
+					} else {
+						continue;
+					}
+				}
 				$shortcode = trim($shortcode, ':');
 
 				if ($prototype === null) {

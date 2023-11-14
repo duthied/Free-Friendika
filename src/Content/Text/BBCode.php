@@ -1234,7 +1234,7 @@ class BBCode
 	}
 
 	/**
-	 * Expand Youtube and Vimeo links to 
+	 * Expand Youtube and Vimeo links to
 	 *
 	 * @param string $text
 	 * @return string
@@ -1387,7 +1387,7 @@ class BBCode
 					"\n[hr]", "[hr]\n", " [hr]", "[hr] ",
 					"\n[attachment ", " [attachment ", "\n[/attachment]", "[/attachment]\n", " [/attachment]", "[/attachment] ",
 					"[table]\n", "[table] ", " [table]", "\n[/table]", " [/table]", "[/table] ",
-					" \n", "\t\n", "[/li]\n", "\n[li]", "\n[*]", 
+					" \n", "\t\n", "[/li]\n", "\n[li]", "\n[*]",
 				];
 				$replace = [
 					"[th]", "[th]", "[th]", "[/th]", "[/th]", "[/th]",
@@ -1480,14 +1480,14 @@ class BBCode
 				if ($simple_html == self::INTERNAL) {
 					//Ensure to always start with <h4> if possible
 					$heading_count = 0;
-					for ($level = 6; $level > 0; $level--) { 
+					for ($level = 6; $level > 0; $level--) {
 						if (preg_match("(\[h$level\].*?\[\/h$level\])ism", $text)) {
 							$heading_count++;
 						}
 					}
 					if ($heading_count > 0) {
 						$heading = min($heading_count + 3, 6);
-						for ($level = 6; $level > 0; $level--) { 
+						for ($level = 6; $level > 0; $level--) {
 							if (preg_match("(\[h$level\].*?\[\/h$level\])ism", $text)) {
 								$text = preg_replace("(\[h$level\](.*?)\[\/h$level\])ism", "</p><h$heading>$1</h$heading><p>", $text);
 								$heading--;
@@ -1548,7 +1548,11 @@ class BBCode
 				$text = preg_replace("(\[style=(.*?)\](.*?)\[\/style\])ism", '<span style="$1">$2</span>', $text);
 
 				// Mastodon Emoji (internal tag, do not document for users)
-				$text = preg_replace("(\[emoji=(.*?)](.*?)\[/emoji])ism", '<span class="mastodon emoji"><img src="$1" alt="$2" title="$2"/></span>', $text);
+				if ($simple_html == self::MASTODON_API) {
+					$text = preg_replace("(\[emoji=(.*?)](.*?)\[/emoji])ism", '$2', $text);
+				} else {
+					$text = preg_replace("(\[emoji=(.*?)](.*?)\[/emoji])ism", '<span class="mastodon emoji"><img src="$1" alt="$2" title="$2"/></span>', $text);
+				}
 
 				// Check for CSS classes
 				// @deprecated since 2021.12, left for backward-compatibility reasons
