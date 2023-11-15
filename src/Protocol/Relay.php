@@ -193,12 +193,7 @@ class Relay
 		}
 
 		if (!empty($languages) || !empty($detected)) {
-			$cachekey = 'relay:isWantedLanguage';
-			$user_languages = DI::cache()->get($cachekey);
-			if (is_null($user_languages)) {
-				$user_languages = User::getLanguages();
-				DI::cache()->set($cachekey, $user_languages);
-			}
+			$user_languages = User::getLanguages();
 
 			foreach ($detected as $language) {
 				if (in_array($language, $user_languages)) {

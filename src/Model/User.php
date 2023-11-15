@@ -582,6 +582,12 @@ class User
 	 */
 	public static function getLanguages(): array
 	{
+		$cachekey  = 'user:getLanguages';
+		$languages = DI::cache()->get($cachekey);
+		if (!is_null($languages)) {
+			return $languages;
+		}
+
 		$supported = array_keys(DI::l10n()->getLanguageCodes());
 		$languages = [];
 		$uids      = [];
@@ -620,7 +626,10 @@ class User
 		DBA::close($channels);
 
 		ksort($languages);
-		return array_keys($languages);
+		$languages = array_keys($languages);
+		DI::cache()->set($cachekey, $languages);
+
+		return $languages;
 	}
 
 	/**

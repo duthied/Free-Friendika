@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1539
+-- DB_UPDATE_VERSION 1540
 -- ------------------------------------------
 
 
@@ -1866,6 +1866,16 @@ CREATE TABLE IF NOT EXISTS `subscription` (
 	FOREIGN KEY (`application-id`) REFERENCES `application` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Push Subscription for the API';
+
+--
+-- TABLE test-full-text-search
+--
+CREATE TABLE IF NOT EXISTS `test-full-text-search` (
+	`pid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Process id of the worker',
+	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
+	 PRIMARY KEY(`pid`),
+	 FULLTEXT INDEX `searchtext` (`searchtext`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Test for a full text search match in user defined channels before storing the message in the system';
 
 --
 -- TABLE userd

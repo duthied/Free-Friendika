@@ -42,6 +42,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Model\Post;
+use Friendica\Model\Post\Engagement;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Delivery;
@@ -751,7 +752,7 @@ class Processor
 	public static function addToFeaturedCollection(array $activity)
 	{
 		$post = self::getUriIdForFeaturedCollection($activity);
-		if (empty($post)) {
+		if (empty($post) || empty($post['author-id'])) {
 			Queue::remove($activity);
 			return;
 		}
@@ -1562,20 +1563,17 @@ class Processor
 			return '';
 		}
 
+		$ldobject = JsonLD::compact($object);
+
 		$signer = [];
 
-		if (!empty($object['attributedTo'])) {
-			$attributed_to = $object['attributedTo'];
-			if (is_array($attributed_to)) {
-				$compacted = JsonLD::compact($object);
-				$attributed_to = JsonLD::fetchElement($compacted, 'as:attributedTo', '@id');
-			}
+		$attributed_to = JsonLD::fetchElement($ldobject, 'as:attributedTo', '@id');
+		if (!empty($attributed_to)) {
 			$signer[] = $attributed_to;
 		}
 
-		if (!empty($object['actor'])) {
-			$object_actor = $object['actor'];
-		} elseif (!empty($attributed_to)) {
+		$object_actor = JsonLD::fetchElement($ldobject, 'as:actor', '@id');
+		if (!empty($attributed_to)) {
 			$object_actor = $attributed_to;
 		} else {
 			// Shouldn't happen
@@ -1591,8 +1589,6 @@ class Processor
 			$actor = $object_actor;
 		}
 
-		$ldobject = JsonLD::compact($object);
-
 		$type      = JsonLD::fetchElement($ldobject, '@type');
 		$object_id = JsonLD::fetchElement($ldobject, 'as:object', '@id');
 
@@ -1607,10 +1603,11 @@ class Processor
 			}
 			$activity   = $object;
 			$ldactivity = $ldobject;
-		} else {
+		} elseif (!empty($object['id'])) {
 			$activity   = self::getActivityForObject($object, $actor);
 			$ldactivity = JsonLD::compact($activity);
-			$object_id  = $object['id'];
+		} else {
+			return null;
 		}
 	
 		$ldactivity['recursion-depth'] = !empty($child['recursion-depth']) ? $child['recursion-depth'] + 1 : 0;
@@ -1631,7 +1628,7 @@ class Processor
 
 		if ($completion == Receiver::COMPLETION_RELAY) {
 			$ldactivity['from-relay'] = $ldactivity['thread-completion'];
-			if (in_array($type, Receiver::CONTENT_TYPES) && !self::acceptIncomingMessage($ldactivity, $object_id)) {
+			if (in_array($type, Receiver::CONTENT_TYPES) && !self::acceptIncomingMessage($ldactivity)) {
 				return null;
 			}
 		}
@@ -1684,15 +1681,17 @@ class Processor
 	 * Test if incoming relay messages should be accepted
 	 *
 	 * @param array $activity activity array
-	 * @param string $id      object ID
 	 * @return boolean true if message is accepted
 	 */
-	private static function acceptIncomingMessage(array $activity, string $id): bool
+	private static function acceptIncomingMessage(array $activity): bool
 	{
 		if (empty($activity['as:object'])) {
+			$id = JsonLD::fetchElement($activity, '@id');
 			Logger::info('No object field in activity - accepted', ['id' => $id]);
 			return true;
 		}
+
+		$id = JsonLD::fetchElement($activity, 'as:object', '@id');
 
 		$replyto = JsonLD::fetchElement($activity['as:object'], 'as:inReplyTo', '@id');
 		$uriid = ItemURI::getIdByURI($replyto ?? '');
@@ -1731,7 +1730,23 @@ class Processor
 
 		$languages = self::getPostLanguages($activity['as:object'] ?? '');
 
-		return Relay::isSolicitedPost($messageTags, $content, $authorid, $id, Protocol::ACTIVITYPUB, $activity['thread-completion'] ?? 0, $languages);
+		$wanted = Relay::isSolicitedPost($messageTags, $content, $authorid, $id, Protocol::ACTIVITYPUB, $activity['from-relay'], $languages);
+		if ($wanted) {
+			return true;
+		}
+
+		$receivers = [];
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc', 'as:audience'] as $element) {
+			$receiver_list = JsonLD::fetchElementArray($activity, $element, '@id');
+			if (empty($receiver_list)) {
+				continue;
+			}
+			$receivers = array_merge($receivers, $receiver_list);
+		}
+
+		$searchtext = Engagement::getSearchTextForActivity($content, $authorid, $messageTags, $receivers);
+		$language   = array_key_first(Item::getLanguageArray($content, 1, 0, $authorid));
+		return DI::userDefinedChannel()->match($searchtext, $language);
 	}
 
 	/**

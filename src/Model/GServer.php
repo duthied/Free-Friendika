@@ -240,7 +240,7 @@ class GServer
 		} elseif (!empty($contact['baseurl'])) {
 			$server = $contact['baseurl'];
 		} elseif ($contact['network'] == Protocol::DIASPORA) {
-			$parts = parse_url($contact['url']);
+			$parts = (array)parse_url($contact['url']);
 			unset($parts['path']);
 			$server = (string)Uri::fromParts($parts);
 		} else {
@@ -589,7 +589,7 @@ class GServer
 			if ((parse_url($url, PHP_URL_HOST) != parse_url($valid_url, PHP_URL_HOST)) && (parse_url($url, PHP_URL_PATH) != parse_url($valid_url, PHP_URL_PATH)) &&
 				(parse_url($url, PHP_URL_PATH) == '')) {
 				Logger::debug('Found redirect. Mark old entry as failure and redirect to the basepath.', ['old' => $url, 'new' => $valid_url]);
-				$parts = parse_url($valid_url);
+				$parts = (array)parse_url($valid_url);
 				unset($parts['path']);
 				$valid_url = (string)Uri::fromParts($parts);
 

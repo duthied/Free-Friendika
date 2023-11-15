@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1539);
+	define('DB_UPDATE_VERSION', 1540);
 }
 
 return [
@@ -1857,6 +1857,17 @@ return [
 			"application-id_uid" => ["UNIQUE", "application-id", "uid"],
 			"uid_application-id" => ["uid", "application-id"],
 		]
+	],
+	"test-full-text-search" => [
+		"comment" => "Test for a full text search match in user defined channels before storing the message in the system",
+		"fields" => [
+			"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
+			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["pid"],
+			"searchtext" => ["FULLTEXT", "searchtext"],
+		],
 	],
 	"userd" => [
 		"comment" => "Deleted usernames",

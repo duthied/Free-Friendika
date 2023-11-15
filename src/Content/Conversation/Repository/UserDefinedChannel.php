@@ -25,16 +25,23 @@ use Friendica\BaseCollection;
 use Friendica\Content\Conversation\Collection\UserDefinedChannels;
 use Friendica\Content\Conversation\Entity;
 use Friendica\Content\Conversation\Factory;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Database\Database;
+use Friendica\Model\User;
 use Psr\Log\LoggerInterface;
 
 class UserDefinedChannel extends \Friendica\BaseRepository
 {
 	protected static $table_name = 'channel';
 
-	public function __construct(Database $database, LoggerInterface $logger, Factory\UserDefinedChannel $factory)
+	/** @var IManagePersonalConfigValues */
+	private $pConfig;
+
+	public function __construct(Database $database, LoggerInterface $logger, Factory\UserDefinedChannel $factory, IManagePersonalConfigValues $pConfig)
 	{
 		parent::__construct($database, $logger, $factory);
+
+		$this->pConfig = $pConfig;
 	}
 
 	/**
@@ -89,7 +96,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 	 */
 	public function deleteById(int $id, int $uid): bool
 	{
-		return $this->db->delete('channel', ['id' => $id, 'uid' => $uid]);
+		return $this->db->delete(self::$table_name, ['id' => $id, 'uid' => $uid]);
 	}
 
 	/**
@@ -129,5 +136,42 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		}
 
 		return $Channel;
+	}
+
+	/**
+	 * Checks, if one of the user defined channels matches with the given search text
+	 * @todo To increase the performance, this functionality should be replaced with a single SQL call.
+	 *
+	 * @param string $searchtext
+	 * @param string $language
+	 * @return boolean
+	 */
+	public function match(string $searchtext, string $language): bool
+	{
+		if (!in_array($language, User::getLanguages())) {
+			$this->logger->debug('Unwanted language found. No matched channel found.', ['language' => $language, 'searchtext' => $searchtext]);
+			return false;
+		}
+
+		$store = false;
+		$this->db->insert('test-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
+		$channels = $this->db->select(self::$table_name, ['full-text-search', 'uid', 'label'], ["`full-text-search` != ?", '']);
+		while ($channel = $this->db->fetch($channels)) {
+			$channelsearchtext = $channel['full-text-search'];
+			foreach (['from', 'to', 'group', 'tag', 'network', 'platform', 'visibility'] as $keyword) {
+				$channelsearchtext = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $channelsearchtext);
+			}
+			if ($this->db->exists('test-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $channelsearchtext])) {
+				if (in_array($language, $this->pConfig->get($channel['uid'], 'channel', 'languages', [User::getLanguageCode($channel['uid'])]))) {
+					$store = true;
+					$this->logger->debug('Matching channel found.', ['uid' => $channel['uid'], 'label' => $channel['label'], 'language' => $language, 'channelsearchtext' => $channelsearchtext, 'searchtext' => $searchtext]);
+					break;
+				}
+			}
+		}
+		$this->db->close($channels);
+
+		$this->db->delete('test-full-text-search', ['pid' => getmypid()]);
+		return $store;
 	}
 }
