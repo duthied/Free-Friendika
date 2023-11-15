@@ -1858,10 +1858,10 @@ return [
 			"uid_application-id" => ["uid", "application-id"],
 		]
 	],
-	"test-full-text-search" => [
-		"comment" => "Test for a full text search match in user defined channels before storing the message in the system",
+	"check-full-text-search" => [
+		"comment" => "Check for a full text search match in user defined channels before storing the message in the system",
 		"fields" => [
-			"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
+			"pid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "comment" => "The ID of the process"],
 			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
 		],
 		"indexes" => [

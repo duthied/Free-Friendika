@@ -154,14 +154,14 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		}
 
 		$store = false;
-		$this->db->insert('test-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
+		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
 		$channels = $this->db->select(self::$table_name, ['full-text-search', 'uid', 'label'], ["`full-text-search` != ?", '']);
 		while ($channel = $this->db->fetch($channels)) {
 			$channelsearchtext = $channel['full-text-search'];
 			foreach (['from', 'to', 'group', 'tag', 'network', 'platform', 'visibility'] as $keyword) {
 				$channelsearchtext = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $channelsearchtext);
 			}
-			if ($this->db->exists('test-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $channelsearchtext])) {
+			if ($this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $channelsearchtext])) {
 				if (in_array($language, $this->pConfig->get($channel['uid'], 'channel', 'languages', [User::getLanguageCode($channel['uid'])]))) {
 					$store = true;
 					$this->logger->debug('Matching channel found.', ['uid' => $channel['uid'], 'label' => $channel['label'], 'language' => $language, 'channelsearchtext' => $channelsearchtext, 'searchtext' => $searchtext]);
@@ -171,7 +171,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		}
 		$this->db->close($channels);
 
-		$this->db->delete('test-full-text-search', ['pid' => getmypid()]);
+		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
 		return $store;
 	}
 }

@@ -1,7 +1,7 @@
-Table test-full-text-search
+Table check-full-text-search
 ===========
 
-Test for a full text search match in user defined channels before storing the message in the system
+Check for a full text search match in user defined channels before storing the message in the system
 
 Fields
 ------

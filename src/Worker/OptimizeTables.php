@@ -46,7 +46,7 @@ class OptimizeTables
 		DBA::optimizeTable('parsed_url');
 		DBA::optimizeTable('session');
 		DBA::optimizeTable('post-engagement');
-		DBA::optimizeTable('test-full-text-search');
+		DBA::optimizeTable('check-full-text-search');
 
 		if (DI::config()->get('system', 'optimize_all_tables')) {
 			DBA::optimizeTable('apcontact');

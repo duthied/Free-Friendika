@@ -1868,14 +1868,14 @@ CREATE TABLE IF NOT EXISTS `subscription` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Push Subscription for the API';
 
 --
--- TABLE test-full-text-search
+-- TABLE check-full-text-search
 --
-CREATE TABLE IF NOT EXISTS `test-full-text-search` (
-	`pid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Process id of the worker',
+CREATE TABLE IF NOT EXISTS `check-full-text-search` (
+	`pid` int unsigned NOT NULL COMMENT 'The ID of the process',
 	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
 	 PRIMARY KEY(`pid`),
 	 FULLTEXT INDEX `searchtext` (`searchtext`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Test for a full text search match in user defined channels before storing the message in the system';
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Check for a full text search match in user defined channels before storing the message in the system';
 
 --
 -- TABLE userd

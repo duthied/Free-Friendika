@@ -18,6 +18,7 @@ Database Tables
 | [attach](help/database/db_attach) | file attachments |
 | [cache](help/database/db_cache) | Stores temporary data |
 | [channel](help/database/db_channel) | User defined Channels |
+| [check-full-text-search](help/database/db_check-full-text-search) | Check for a full text search match in user defined channels before storing the message in the system |
 | [config](help/database/db_config) | main configuration storage |
 | [contact](help/database/db_contact) | contact table |
 | [contact-relation](help/database/db_contact-relation) | Contact relations |
@@ -86,7 +87,6 @@ Database Tables
 | [storage](help/database/db_storage) | Data stored by Database storage backend |
 | [subscription](help/database/db_subscription) | Push Subscription for the API |
 | [tag](help/database/db_tag) | tags and mentions |
-| [test-full-text-search](help/database/db_test-full-text-search) | Test for a full text search match in user defined channels before storing the message in the system |
 | [user](help/database/db_user) | The local users |
 | [user-contact](help/database/db_user-contact) | User specific public contact data |
 | [user-gserver](help/database/db_user-gserver) | User settings about remote servers |
