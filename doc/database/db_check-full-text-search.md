@@ -8,7 +8,7 @@ Fields
 
 | Field      | Description                              | Type         | Null | Key | Default | Extra |
 | ---------- | ---------------------------------------- | ------------ | ---- | --- | ------- | ----- |
-| pid        | Process id of the worker                 | int unsigned | NO   |     | 0       |       |
+| pid        | The ID of the process                    | int unsigned | NO   | PRI | NULL    |       |
 | searchtext | Simplified text for the full text search | mediumtext   | YES  |     | NULL    |       |
 
 Indexes
