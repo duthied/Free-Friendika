@@ -567,7 +567,7 @@ class Conversation
 			$live_update_div = '<div id="live-search"></div>' . "\r\n";
 		}
 
-		$page_dropping = $this->session->getLocalUserId() && $this->session->getLocalUserId() == $uid && $mode != self::MODE_SEARCH;
+		$page_dropping = $this->session->getLocalUserId() && $this->pConfig->get($this->session->getLocalUserId(), 'system', 'show_page_drop', true) && ($this->session->getLocalUserId() == $uid && $mode != self::MODE_SEARCH);
 
 		if (!$update) {
 			$_SESSION['return_path'] = $this->args->getQueryString();
