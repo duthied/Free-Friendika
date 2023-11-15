@@ -33,6 +33,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\ActivityPub\Receiver;
 use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 
@@ -52,7 +53,7 @@ class Engagement
 		}
 
 		$parent = Post::selectFirst(['uri-id', 'created', 'author-id', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language', 'network',
-			'title', 'content-warning', 'body', 'author-contact-type', 'author-nick', 'author-addr', 'owner-contact-type', 'owner-nick', 'owner-addr'],
+			'title', 'content-warning', 'body', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid', 'owner-contact-type', 'owner-nick', 'owner-addr'],
 			['uri-id' => $item['parent-uri-id']]);
 
 		if ($parent['created'] < self::getCreationDateLimit(false)) {
@@ -79,7 +80,14 @@ class Engagement
 		$mediatype = self::getMediaType($item['parent-uri-id']);
 
 		if (!$store) {
-			$mediatype = !empty($mediatype);
+			$store = !empty($mediatype);
+		}
+
+		$searchtext = self::getSearchTextForItem($parent);
+		if (!$store) {
+			$content  = trim(($parent['title'] ?? '') . ' ' . ($parent['content-warning'] ?? '') . ' ' . ($parent['body'] ?? ''));
+			$language = array_key_first(Item::getLanguageArray($content, 1, 0, $parent['author-id']));
+			$store    = DI::userDefinedChannel()->match($searchtext, $language);
 		}
 
 		$engagement = [
@@ -88,7 +96,7 @@ class Engagement
 			'contact-type' => $parent['contact-contact-type'],
 			'media-type'   => $mediatype,
 			'language'     => $parent['language'],
-			'searchtext'   => self::getSearchText($parent),
+			'searchtext'   => $searchtext,
 			'created'      => $parent['created'],
 			'restricted'   => !in_array($item['network'], Protocol::FEDERATED) || ($parent['private'] != Item::PUBLIC),
 			'comments'     => DBA::count('post', ['parent-uri-id' => $item['parent-uri-id'], 'gravity' => Item::GRAVITY_COMMENT]),
@@ -106,9 +114,55 @@ class Engagement
 		Logger::debug('Engagement stored', ['fields' => $engagement, 'ret' => $ret]);
 	}
 
-	private static function getSearchText(array $item): string
+	public static function getSearchTextForActivity(string $content, int $author_id, array $tags, array $receivers): string
+	{
+		$author = Contact::getById($author_id);
+
+		$item = [
+			'uri-id'              => 0,
+			'network'             => Protocol::ACTIVITYPUB,
+			'title'               => '',
+			'content-warning'     => '',
+			'body'                => $content,
+			'private'             => Item::PRIVATE,
+			'author-id'           => $author_id,
+			'author-contact-type' => $author['contact-type'],
+			'author-nick'         => $author['nick'],
+			'author-addr'         => $author['addr'],
+			'author-gsid'         => $author['gsid'],
+			'owner-id'            => $author_id,
+			'owner-contact-type'  => $author['contact-type'],
+			'owner-nick'          => $author['nick'],
+			'owner-addr'          => $author['addr'],
+		];
+
+		foreach ($receivers as $receiver) {
+			if ($receiver == Receiver::PUBLIC_COLLECTION) {
+				$item['private'] = Item::PUBLIC;
+			}
+		}
+
+		return self::getSearchText($item, $receivers, $tags);
+	}
+
+	private static function getSearchTextForItem(array $item): string
+	{
+		$receivers = array_column(Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION, Tag::AUDIENCE]), 'url');
+		$tags      = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
+		return self::getSearchText($item, $receivers, $tags);
+	}
+
+	private static function getSearchText(array $item, array $receivers, array $tags): string
 	{
 		$body = '[nosmile]network:' . $item['network'];
+
+		if (!empty($item['author-gsid'])) {
+			$gserver = DBA::selectFirst('gserver', ['platform'], ['id' => $item['author-gsid']]);
+			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
+			if (!empty($platform)) {
+				$body .= ' platform:' . $platform;
+			}
+		}
 
 		switch ($item['private']) {
 			case Item::PUBLIC:
@@ -136,8 +190,8 @@ class Engagement
 			}
 		}
 
-		foreach (Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION, Tag::AUDIENCE]) as $tag) {
-			$contact = Contact::getByURL($tag['name'], false, ['nick', 'addr', 'contact-type']);
+		foreach ($receivers as $receiver) {
+			$contact = Contact::getByURL($receiver, false, ['nick', 'addr', 'contact-type']);
 			if (empty($contact)) {
 				continue;
 			}
@@ -149,8 +203,8 @@ class Engagement
 			}
 		}
 
-		foreach (Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]) as $tag) {
-			$body .= ' tag:' . $tag['name'];
+		foreach ($tags as $tag) {
+			$body .= ' tag:' . $tag;
 		}
 
 		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];

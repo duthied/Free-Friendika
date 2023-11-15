@@ -18,6 +18,7 @@ Database Tables
 | [attach](help/database/db_attach) | file attachments |
 | [cache](help/database/db_cache) | Stores temporary data |
 | [channel](help/database/db_channel) | User defined Channels |
+| [check-full-text-search](help/database/db_check-full-text-search) | Check for a full text search match in user defined channels before storing the message in the system |
 | [config](help/database/db_config) | main configuration storage |
 | [contact](help/database/db_contact) | contact table |
 | [contact-relation](help/database/db_contact-relation) | Contact relations |

@@ -68,6 +68,7 @@ Additionally to the search for content, there are additional keywords that can b
     * network:dscs - Posts that are received by the Discourse connector.
     * network:tmbl - Posts that are received by the Tumblr connector.
     * network:bsky - Posts that are received by the Bluesky connector.
+* platform - Use this to include or exclude some platforms from your channel, e.g. "+platform:friendica".
 * visibility - You have the choice between different visibilities. You can only see unlisted or private posts that you have the access for.
     * visibility:public
     * visibility:unlisted
