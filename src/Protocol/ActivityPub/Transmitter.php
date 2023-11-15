@@ -899,7 +899,7 @@ class Transmitter
 		$tags = Tag::getByURIId($uri_id, [Tag::TO, Tag::CC, Tag::BCC, Tag::AUDIENCE]);
 		if (empty($tags)) {
 			Logger::debug('No receivers found', ['uri-id' => $uri_id]);
-			$post = Post::selectFirst([Item::DELIVER_FIELDLIST], ['uri-id' => $uri_id, 'origin' => true]);
+			$post = Post::selectFirst(Item::DELIVER_FIELDLIST, ['uri-id' => $uri_id, 'origin' => true]);
 			if (!empty($post)) {
 				ActivityPub\Transmitter::storeReceiversForItem($post);
 				$tags = Tag::getByURIId($uri_id, [Tag::TO, Tag::CC, Tag::BCC, Tag::AUDIENCE]);
@@ -1512,10 +1512,14 @@ class Transmitter
 	 *
 	 * @param array $tags Tag array
 	 * @param string $text Text containing tags like :tag:
+	 * @return string normalized text
 	 */
 	private static function addEmojiTags(array &$tags, string $text)
 	{
-		foreach (Smilies::extractUsedSmilies($text, true) as $name => $url) {
+		$emojis = Smilies::extractUsedSmilies($text);
+		$normalized = $emojis[''];
+		unset($emojis['']);
+		foreach ($emojis as $name => $url) {
 			$tags[] = [
 				'type' => 'Emoji',
 				'name' => $name,
@@ -1525,6 +1529,7 @@ class Transmitter
 				],
 			];
 		}
+		return $normalized;
 	}
 
 	/**
@@ -1558,8 +1563,6 @@ class Transmitter
 				$tags[] = ['type' => 'Mention', 'href' => $term['url'], 'name' => $mention];
 			}
 		}
-
-		self::addEmojiTags($tags, $item['body']);
 
 		$announce = self::getAnnounceArray($item);
 		// Mention the original author upon commented reshares
@@ -1808,10 +1811,11 @@ class Transmitter
 		$item = Post\Media::addHTMLAttachmentToItem($item);
 
 		$body = $item['body'];
-
+		$emojis = [];
 		if ($type == 'Note') {
 			$body = $item['raw-body'] ?? self::removePictures($body);
 		}
+		$body = self::addEmojiTags($emojis, $body);
 
 		/**
 		 * @todo Improve the automated summary
@@ -1893,7 +1897,7 @@ class Transmitter
 		}
 
 		$data['attachment'] = self::createAttachmentList($item);
-		$data['tag'] = self::createTagList($item, $data['quoteUrl'] ?? '');
+		$data['tag'] = array_merge(self::createTagList($item, $data['quoteUrl'] ?? ''), $emojis);
 
 		if (empty($data['location']) && (!empty($item['coord']) || !empty($item['location']))) {
 			$data['location'] = self::createLocation($item);

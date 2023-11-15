@@ -112,6 +112,11 @@ return [
 			'uri'  => 'http://localhost/profile/mutualcontact',
 			'guid' => '46',
 		],
+		[
+			'id'   => 100,
+			'uri'  => 'https://friendica.local/posts/100',
+			'guid' => '100',
+		],
 	],
 	'contact' => [
 		[
@@ -362,6 +367,12 @@ return [
 						'consequatur maxime aut illum soluta quaerat natus unde aspernatur ' .
 						'et sed beatae nihil ullam temporibus corporis ratione blanditiis',
 			'plink'  => 'http://localhost/display/6',
+		],
+		[
+			'uri-id' => 100,
+			'title'  => 'item_title',
+			'body'   => ':like ~friendica no [code]:dislike[/code] :-p :-[',
+			'plink'  => 'https://friendica.local/post/100',
 		],
 	],
 	'post' => [
@@ -726,6 +737,28 @@ return [
 		[
 			'id'            => 13,
 			'uri-id'        => 7,
+			'visible'       => 1,
+			'contact-id'    => 44,
+			'author-id'     => 44,
+			'owner-id'      => 42,
+			'causer-id'     => 44,
+			'uid'           => 0,
+			'vid'           => 8,
+			'unseen'        => 0,
+			'parent-uri-id' => 7,
+			'thr-parent-id' => 7,
+			'private'       => Item::PUBLIC,
+			'global'        => true,
+			'gravity'       => Item::GRAVITY_PARENT,
+			'network'       => Protocol::DFRN,
+			'origin'        => 0,
+			'deleted'       => 0,
+			'wall'          => 0,
+		],
+		// An emoji post
+		[
+			'id'            => 14,
+			'uri-id'        => 100,
 			'visible'       => 1,
 			'contact-id'    => 44,
 			'author-id'     => 44,

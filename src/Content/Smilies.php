@@ -21,6 +21,7 @@
 
 namespace Friendica\Content;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\DI;
 use Friendica\Util\Strings;
@@ -67,7 +68,7 @@ class Smilies
 	 */
 	public static function getList(): array
 	{
-		$texts =  [
+		$texts = [
 			'&lt;3',
 			'&lt;/3',
 			'&lt;\\3',
@@ -153,32 +154,127 @@ class Smilies
 	}
 
 	/**
-	 * Finds all used smilies (like :heart: or :p) in the provided text.
+	 * Normalizes smiley shortcodes into texts with no special symbols.
 	 *
-	 * @param string $text that might contain smilie usages (denoted by a starting colon)
-	 * @param bool   $extract_url whether to further extract image urls
-	 * @return array with smilie codes (colon included) as the keys, the smilie images as values
+	 * @return array
+	 *    'texts' => smilie shortcut
+	 *    'icons' => icon url or an empty string
+	 *    'norms' => normalized shortcut
 	 */
-	public static function extractUsedSmilies(string $text, bool $extract_url = false): array
+	public static function getNormalizedList(): array
+	{
+		$smilies = self::getList();
+		$norms = [];
+		$icons = $smilies['icons'];
+		foreach ($smilies['texts'] as $i => $shortcode) {
+			// Extract urls
+			$icon = $icons[$i];
+			if (preg_match('/src="(.+?)"/', $icon, $match)) {
+				$icon = $match[1];
+			} else {
+				$icon = '';
+			}
+			$icons[$i] = $icon;
+
+			// Normalize name
+			$norm = preg_replace('/[\s\-:#~]/', '', $shortcode);
+			if (ctype_alnum($norm)) {
+				$norms[] = $norm;
+			} elseif (preg_match('#/smiley-(\w+)\.gif#', $icon, $match)) {
+				$norms[] = $match[1];
+			} else {
+				$norms[] = 'smiley' . $i;
+			}
+		}
+		$smilies['norms'] = $norms;
+		return $smilies;
+	}
+
+	/**
+	 * Finds all used smilies (denoted by quoting colons like :heart:) in the provided text and normalizes their usages.
+	 *
+	 * @param string $text that might contain smiley usages
+	 * @return array with smilie codes (colon included) as the keys, their image urls as values;
+	 *               the normalized string is put under the '' (empty string) key
+	 */
+	public static function extractUsedSmilies(string $text): array
 	{
 		$emojis = [];
 
-		$smilies = self::getList();
-		$icons = $smilies['icons'];
-		foreach ($smilies['texts'] as $i => $name) {
-			if (strstr($text, $name)) {
-				$image = $icons[$i];
-				if ($extract_url) {
-					if (preg_match('/src="(.+?)"/', $image, $match)) {
-						$image = $match[1];
-					} else {
-						continue;
-					}
+		$emojis[''] = BBCode::performWithEscapedTags($text, ['code'], function ($text) use (&$emojis) {
+			return BBCode::performWithEscapedTags($text, ['noparse', 'nobb', 'pre'], function ($text) use (&$emojis) {
+				if (strpos($text, '[nosmile]') !== false || self::noSmilies()) {
+					return $text;
 				}
-				$emojis[$name] = $image;
-			}
-		}
+				$smilies = self::getNormalizedList();
+				$normalized = array_combine($smilies['texts'], $smilies['norms']);
+				return self::performForEachWordMatch(
+					array_combine($smilies['texts'], $smilies['icons']),
+					$text,
+					function (string $name, string $image) use($normalized, &$emojis) {
+						$name = $normalized[$name];
+						if (preg_match('/src="(.+?)"/', $image, $match)) {
+							$image = $match[1];
+							$emojis[$name] = $image;
+						}
+						return ':' . $name . ':';
+					},
+				);
+			});
+		});
+
 		return $emojis;
+	}
+
+	/**
+	 * Similar to strtr but matches only whole words and replaces texts with $callback.
+	 *
+	 * @param array $words
+	 * @param string $subject
+	 * @param callable $callback ($offset, $value)
+	 * @return string
+	 */
+	private static function performForEachWordMatch(array $words, string $subject, callable $callback): string
+	{
+		$offset = 0;
+		$result = '';
+		$processed = 0;
+		// Learned from PHP's strtr implementation
+		// Should probably improve performance once JIT-compiled
+		$length_bitset = 0;
+		$ord_bitset = 0;
+		foreach ($words as $word => $_) {
+			$length = strlen($word);
+			if ($length <= 31) {
+				$length_bitset |= 1 << $length;
+			}
+			$ord = ord($word);
+			$ord_bitset |= 1 << ($ord & 31);
+		}
+
+		while ($offset < strlen($subject) && preg_match('/\s+?(?=\S|$)/', $subject, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+			[$whitespaces, $next] = $matches[0];
+			$word = substr($subject, $offset, $next - $offset);
+
+			$shift = strlen($word);
+			$ord = ord($word);
+			if (($shift > 31 || ($length_bitset & (1 << $shift)))
+				&& ($ord_bitset & (1 << ($ord & 31)))
+				&& array_key_exists($word, $words)) {
+				$result .= substr($subject, $processed, $offset - $processed);
+				$result .= call_user_func($callback, $word, $words[$word]);
+				$processed = $offset + strlen($word);
+			}
+			$offset = $next + strlen($whitespaces);
+		}
+		$word = substr($subject, $offset);
+		if (array_key_exists($word, $words)) {
+			$result .= substr($subject, $processed, $offset - $processed);
+			$result .= call_user_func($callback, $word, $words[$word]);
+		} else {
+			$result .= substr($subject, $processed);
+		}
+		return $result;
 	}
 
 	/**
@@ -198,7 +294,13 @@ class Smilies
 	 */
 	private static function strOrigReplace(array $search, array $replace, string $subject): string
 	{
-		return strtr($subject, array_combine($search, $replace));
+		return self::performForEachWordMatch(
+			array_combine($search, $replace),
+			$subject,
+			function (string $_, string $value) {
+				return $value;
+			}
+		);
 	}
 
 	/**
@@ -227,6 +329,12 @@ class Smilies
 		return $s;
 	}
 
+	private static function noSmilies(): bool {
+		return (intval(DI::config()->get('system', 'no_smilies')) ||
+				(DI::userSession()->getLocalUserId() &&
+				 intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'no_smilies'))));
+	}
+
 	/**
 	 * Replaces emoji shortcodes in a string from a structured array of searches and replaces.
 	 *
@@ -240,9 +348,7 @@ class Smilies
 	 */
 	public static function replaceFromArray(string $text, array $smilies, bool $no_images = false): string
 	{
-		if (intval(DI::config()->get('system', 'no_smilies'))
-			|| (DI::userSession()->getLocalUserId() && intval(DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'no_smilies')))
-		) {
+		if (self::noSmilies()) {
 			return $text;
 		}
 
@@ -261,7 +367,7 @@ class Smilies
 			$smilies = $cleaned;
 		}
 
-		$text = preg_replace_callback('/&lt;(3+)/', [self::class, 'heartReplaceCallback'], $text);
+		$text = preg_replace_callback('/\B&lt;3+?\b/', [self::class, 'heartReplaceCallback'], $text);
 		$text = self::strOrigReplace($smilies['texts'], $smilies['icons'], $text);
 
 		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', [self::class, 'decode'], $text);
@@ -302,16 +408,7 @@ class Smilies
 	 */
 	private static function heartReplaceCallback(array $matches): string
 	{
-		if (strlen($matches[1]) == 1) {
-			return $matches[0];
-		}
-
-		$t = '';
-		for ($cnt = 0; $cnt < strlen($matches[1]); $cnt ++) {
-			$t .= '❤';
-		}
-
-		return str_replace($matches[0], $t, $matches[0]);
+		return str_repeat('❤', strlen($matches[0]) - 4);
 	}
 
 	/**

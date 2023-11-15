@@ -34,28 +34,18 @@ class Emoji extends BaseFactory
 	/**
 	 * Creates an emoji collection from shortcode => image mappings.
 	 *
-	 * Only emojis with shortcodes of the form of ':shortcode:' are passed in the collection.
-	 *
 	 * @param array $smilies
-	 * @param bool  $extract_url
 	 *
 	 * @return Emojis
 	 */
-	public function createCollectionFromArray(array $smilies, bool $extract_url = true): Emojis
+	public function createCollectionFromArray(array $smilies): Emojis
 	{
 		$prototype = null;
 
 		$emojis = [];
 
 		foreach ($smilies as $shortcode => $url) {
-			if (substr($shortcode, 0, 1) == ':' && substr($shortcode, -1) == ':') {
-				if ($extract_url) {
-					if (preg_match('/src="(.+?)"/', $url, $matches)) {
-						$url = $matches[1];
-					} else {
-						continue;
-					}
-				}
+			if ($shortcode !== '' && $url !== '') {
 				$shortcode = trim($shortcode, ':');
 
 				if ($prototype === null) {
@@ -71,12 +61,20 @@ class Emoji extends BaseFactory
 	}
 
 	/**
-	 * @param array $smilies
+	 * @param array $smilies as is returned by Smilies::getList()
 	 *
 	 * @return Emojis
 	 */
 	public function createCollectionFromSmilies(array $smilies): Emojis
 	{
-		return self::createCollectionFromArray(array_combine($smilies['texts'], $smilies['icons']));
+		$emojis = [];
+		$icons = $smilies['icons'];
+		foreach ($smilies['texts'] as $i => $name) {
+			$url = $icons[$i];
+			if (preg_match('/src="(.+?)"/', $url, $matches)) {
+				$emojis[$name] = $matches[1];
+			}
+		}
+		return self::createCollectionFromArray($emojis);
 	}
 }
