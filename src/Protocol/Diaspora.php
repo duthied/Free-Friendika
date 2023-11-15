@@ -3884,7 +3884,7 @@ class Diaspora
 	 */
 	private static function createProfileData(int $uid): array
 	{
-		$profile = DBA::selectFirst('owner-view', ['uid', 'addr', 'name', 'location', 'net-publish', 'dob', 'about', 'pub_keywords'], ['uid' => $uid]);
+		$profile = DBA::selectFirst('owner-view', ['uid', 'addr', 'name', 'location', 'net-publish', 'dob', 'about', 'pub_keywords', 'updated'], ['uid' => $uid]);
 
 		if (!DBA::isResult($profile)) {
 			return [];
@@ -3894,17 +3894,21 @@ class Diaspora
 
 		$data = [
 			'author'           => $profile['addr'],
+			'edited_at'        => DateTimeFormat::utc($profile['updated']),
+			'full_name'        => $profile['name'],
 			'first_name'       => $split_name['first'],
 			'last_name'        => $split_name['last'],
 			'image_url'        => DI::baseUrl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
 			'image_url_medium' => DI::baseUrl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
 			'image_url_small'  => DI::baseUrl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
-			'searchable'       => ($profile['net-publish'] ? 'true' : 'false'),
+			'bio'              => null,
 			'birthday'         => null,
-			'about'            => null,
+			'gender'           => null,
 			'location'         => null,
-			'tag_string'       => null,
+			'searchable'       => ($profile['net-publish'] ? 'true' : 'false'),
+			'public'           => 'false',
 			'nsfw'             => 'false',
+			'tag_string'       => null,
 		];
 
 		if ($data['searchable'] === 'true') {
@@ -3918,7 +3922,7 @@ class Diaspora
 				$data['birthday'] = DateTimeFormat::utc($year . '-' . $month . '-' . $day, 'Y-m-d');
 			}
 
-			$data['about'] = BBCode::toMarkdown($profile['about'] ?? '');
+			$data['bio'] = BBCode::toMarkdown($profile['about'] ?? '');
 
 			$data['location'] = $profile['location'];
 			$data['tag_string'] = '';
@@ -3977,8 +3981,10 @@ class Diaspora
 
 		// @todo Split this into single worker jobs
 		foreach ($recipients as $recipient) {
-			Logger::info('Send updated profile data for user ' . $uid . ' to contact ' . $recipient['id']);
-			self::buildAndTransmit($owner, $recipient, 'profile', $message);
+			if ((empty($recipient['gsid']) || GServer::isReachableById($recipient['gsid'])) && !Contact\User::isBlocked($recipient['id'], $uid)) {
+				Logger::info('Send updated profile data for user ' . $uid . ' to contact ' . $recipient['id']);
+				self::buildAndTransmit($owner, $recipient, 'profile', $message);
+			}
 		}
 	}
 
