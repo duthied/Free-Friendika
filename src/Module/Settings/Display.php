@@ -328,7 +328,7 @@ class Display extends BaseSettings
 			'$enable_dislike'           => ['enable_dislike'          , $this->t('Display the Dislike feature'), $enable_dislike, $this->t('Display the Dislike button and dislike reactions on posts and comments.')],
 			'$display_resharer'         => ['display_resharer'        , $this->t('Display the resharer'), $display_resharer, $this->t('Display the first resharer as icon and text on a reshared item.')],
 			'$stay_local'               => ['stay_local'              , $this->t('Stay local'), $stay_local, $this->t("Don't go to a remote system when following a contact link.")],
-			'$show_page_drop'           => ['show_page_drop'          , $this->t('Show the page drop checkbox'), $show_page_drop, $this->t("Display the checkbox for the page drop on the network page.")],
+			'$show_page_drop'           => ['show_page_drop'          , $this->t('Show the post deletion checkbox'), $show_page_drop, $this->t("Display the checkbox for the post deletion on the network page.")],
 			'$preview_mode'             => ['preview_mode'            , $this->t('Link preview mode'), $preview_mode, $this->t('Appearance of the link preview that is added to each post with a link.'), $preview_modes, false],
 
 			'$timeline_label'       => $this->t('Label'),
