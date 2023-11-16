@@ -94,21 +94,22 @@ class Display extends BaseSettings
 
 		$user = User::getById($uid);
 
-		$theme                  = !empty($request['theme'])                  ? trim($request['theme'])                    : $user['theme'];
-		$mobile_theme           = !empty($request['mobile_theme'])           ? trim($request['mobile_theme'])             : '';
-		$enable_smile           = !empty($request['enable_smile'])           ? intval($request['enable_smile'])           : 0;
-		$enable                 = !empty($request['enable'])                 ? $request['enable']                         : [];
-		$bookmark               = !empty($request['bookmark'])               ? $request['bookmark']                       : [];
-		$channel_languages      = !empty($request['channel_languages'])      ? $request['channel_languages']              : [];
-		$first_day_of_week      = !empty($request['first_day_of_week'])      ? intval($request['first_day_of_week'])      : 0;
-		$calendar_default_view  = !empty($request['calendar_default_view'])  ? trim($request['calendar_default_view'])    : 'month';
-		$infinite_scroll        = !empty($request['infinite_scroll'])        ? intval($request['infinite_scroll'])        : 0;
-		$enable_smart_threading = !empty($request['enable_smart_threading']) ? intval($request['enable_smart_threading']) : 0;
-		$enable_dislike         = !empty($request['enable_dislike'])         ? intval($request['enable_dislike'])         : 0;
-		$display_resharer       = !empty($request['display_resharer'])       ? intval($request['display_resharer'])       : 0;
-		$stay_local             = !empty($request['stay_local'])             ? intval($request['stay_local'])             : 0;
-		$preview_mode           = !empty($request['preview_mode'])           ? intval($request['preview_mode'])           : 0;
-		$browser_update         = !empty($request['browser_update'])         ? intval($request['browser_update'])         : 0;
+		$theme                  = trim($request['theme']);
+		$mobile_theme           = trim($request['mobile_theme']);
+		$enable_smile           = (bool)$request['enable_smile'];
+		$enable                 = (array)$request['enable'];
+		$bookmark               = (array)$request['bookmark'];
+		$channel_languages      = (array)$request['channel_languages'];
+		$first_day_of_week      = (bool)$request['first_day_of_week'];
+		$calendar_default_view  = trim($request['calendar_default_view']);
+		$infinite_scroll        = (bool)$request['infinite_scroll'];
+		$enable_smart_threading = (bool)$request['enable_smart_threading'];
+		$enable_dislike         = (bool)$request['enable_dislike'];
+		$display_resharer       = (bool)$request['display_resharer'];
+		$stay_local             = (bool)$request['stay_local'];
+		$show_page_drop         = (bool)$request['show_page_drop'];
+		$preview_mode           = (bool)$request['preview_mode'];
+		$browser_update         = (bool)$request['browser_update'];
 		if ($browser_update != -1) {
 			$browser_update = $browser_update * 1000;
 			if ($browser_update < 10000) {
@@ -156,6 +157,7 @@ class Display extends BaseSettings
 		$this->pConfig->set($uid, 'system', 'hide_dislike'            , !$enable_dislike);
 		$this->pConfig->set($uid, 'system', 'display_resharer'        , $display_resharer);
 		$this->pConfig->set($uid, 'system', 'stay_local'              , $stay_local);
+		$this->pConfig->set($uid, 'system', 'show_page_drop'          , $show_page_drop);
 		$this->pConfig->set($uid, 'system', 'preview_mode'            , $preview_mode);
 
 		$this->pConfig->set($uid, 'system', 'network_timelines'       , $network_timelines);
@@ -242,12 +244,13 @@ class Display extends BaseSettings
 			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
 		}
 
-		$enable_smile           = !$this->pConfig->get($uid, 'system', 'no_smilies', 0);
-		$infinite_scroll        =  $this->pConfig->get($uid, 'system', 'infinite_scroll', 0);
-		$enable_smart_threading = !$this->pConfig->get($uid, 'system', 'no_smart_threading', 0);
-		$enable_dislike         = !$this->pConfig->get($uid, 'system', 'hide_dislike', 0);
-		$display_resharer       =  $this->pConfig->get($uid, 'system', 'display_resharer', 0);
-		$stay_local             =  $this->pConfig->get($uid, 'system', 'stay_local', 0);
+		$enable_smile           = !$this->pConfig->get($uid, 'system', 'no_smilies', false);
+		$infinite_scroll        =  $this->pConfig->get($uid, 'system', 'infinite_scroll', false);
+		$enable_smart_threading = !$this->pConfig->get($uid, 'system', 'no_smart_threading', false);
+		$enable_dislike         = !$this->pConfig->get($uid, 'system', 'hide_dislike', false);
+		$display_resharer       =  $this->pConfig->get($uid, 'system', 'display_resharer', false);
+		$stay_local             =  $this->pConfig->get($uid, 'system', 'stay_local', false);
+		$show_page_drop         =  $this->pConfig->get($uid, 'system', 'show_page_drop', true);
 
 		$preview_mode  =  $this->pConfig->get($uid, 'system', 'preview_mode', BBCode::PREVIEW_LARGE);
 		$preview_modes = [
@@ -325,6 +328,7 @@ class Display extends BaseSettings
 			'$enable_dislike'           => ['enable_dislike'          , $this->t('Display the Dislike feature'), $enable_dislike, $this->t('Display the Dislike button and dislike reactions on posts and comments.')],
 			'$display_resharer'         => ['display_resharer'        , $this->t('Display the resharer'), $display_resharer, $this->t('Display the first resharer as icon and text on a reshared item.')],
 			'$stay_local'               => ['stay_local'              , $this->t('Stay local'), $stay_local, $this->t("Don't go to a remote system when following a contact link.")],
+			'$show_page_drop'           => ['show_page_drop'          , $this->t('Show the post deletion checkbox'), $show_page_drop, $this->t("Display the checkbox for the post deletion on the network page.")],
 			'$preview_mode'             => ['preview_mode'            , $this->t('Link preview mode'), $preview_mode, $this->t('Appearance of the link preview that is added to each post with a link.'), $preview_modes, false],
 
 			'$timeline_label'       => $this->t('Label'),
