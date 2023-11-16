@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-15 21:53+0000\n"
+"POT-Creation-Date: 2023-11-16 15:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10441,11 +10441,11 @@ msgid "Don't go to a remote system when following a contact link."
 msgstr ""
 
 #: src/Module/Settings/Display.php:331
-msgid "Show the page drop checkbox"
+msgid "Show the post deletion checkbox"
 msgstr ""
 
 #: src/Module/Settings/Display.php:331
-msgid "Display the checkbox for the page drop on the network page."
+msgid "Display the checkbox for the post deletion on the network page."
 msgstr ""
 
 #: src/Module/Settings/Display.php:332
