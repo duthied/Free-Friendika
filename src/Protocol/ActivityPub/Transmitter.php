@@ -1514,11 +1514,9 @@ class Transmitter
 	 * @param string $text Text containing tags like :tag:
 	 * @return string normalized text
 	 */
-	private static function addEmojiTags(array &$tags, string $text)
+	private static function addEmojiTags(array &$tags, string $text): string
 	{
-		$emojis = Smilies::extractUsedSmilies($text);
-		$normalized = $emojis[''];
-		unset($emojis['']);
+		$emojis = Smilies::extractUsedSmilies($text, $normalized);
 		foreach ($emojis as $name => $url) {
 			$tags[] = [
 				'type' => 'Emoji',

@@ -197,11 +197,11 @@ class Smilies
 	 * @return array with smilie codes (colon included) as the keys, their image urls as values;
 	 *               the normalized string is put under the '' (empty string) key
 	 */
-	public static function extractUsedSmilies(string $text): array
+	public static function extractUsedSmilies(string $text, string &$normalized = null): array
 	{
 		$emojis = [];
 
-		$emojis[''] = BBCode::performWithEscapedTags($text, ['code'], function ($text) use (&$emojis) {
+		$normalized = BBCode::performWithEscapedTags($text, ['code'], function ($text) use (&$emojis) {
 			return BBCode::performWithEscapedTags($text, ['noparse', 'nobb', 'pre'], function ($text) use (&$emojis) {
 				if (strpos($text, '[nosmile]') !== false || self::noSmilies()) {
 					return $text;
@@ -236,43 +236,69 @@ class Smilies
 	 */
 	private static function performForEachWordMatch(array $words, string $subject, callable $callback): string
 	{
-		$offset = 0;
+		$ord1_bitset = 0;
+		$ord2_bitset = 0;
+		$prefixes = [];
+		foreach ($words as $word => $_) {
+			if (strlen($word) < 2 || !ctype_graph($word)) {
+				continue;
+			}
+			$ord1 = ord($word);
+			$ord2 = ord($word[1]);
+			$ord1_bitset |= 1 << ($ord1 & 31);
+			$ord2_bitset |= 1 << ($ord2 & 31);
+			if (!array_key_exists($word[0], $prefixes)) {
+				$prefixes[$word[0]] = [];
+			}
+			$prefixes[$word[0]][] = $word;
+		}
+
 		$result = '';
 		$processed = 0;
-		// Learned from PHP's strtr implementation
-		// Should probably improve performance once JIT-compiled
-		$length_bitset = 0;
-		$ord_bitset = 0;
-		foreach ($words as $word => $_) {
-			$length = strlen($word);
-			if ($length <= 31) {
-				$length_bitset |= 1 << $length;
+		$s_start = 0; // Segment start
+		// No spaces are allowed in smilies, so they can serve as delimiters.
+		// Splitting by some delimiters may not necessary though?
+		while (true) {
+			if ($s_start >= strlen($subject)) {
+				$result .= substr($subject, $processed);
+				break;
 			}
-			$ord = ord($word);
-			$ord_bitset |= 1 << ($ord & 31);
-		}
-
-		while ($offset < strlen($subject) && preg_match('/\s+?(?=\S|$)/', $subject, $matches, PREG_OFFSET_CAPTURE, $offset)) {
-			[$whitespaces, $next] = $matches[0];
-			$word = substr($subject, $offset, $next - $offset);
-
-			$shift = strlen($word);
-			$ord = ord($word);
-			if (($shift > 31 || ($length_bitset & (1 << $shift)))
-				&& ($ord_bitset & (1 << ($ord & 31)))
-				&& array_key_exists($word, $words)) {
-				$result .= substr($subject, $processed, $offset - $processed);
-				$result .= call_user_func($callback, $word, $words[$word]);
-				$processed = $offset + strlen($word);
+			if (preg_match('/\s+?(?=\S|$)/', $subject, $match, PREG_OFFSET_CAPTURE, $s_start)) {
+				[$whitespaces, $s_end] = $match[0];
+			} else {
+				$s_end = strlen($subject);
+				$whitespaces = '';
 			}
-			$offset = $next + strlen($whitespaces);
-		}
-		$word = substr($subject, $offset);
-		if (array_key_exists($word, $words)) {
-			$result .= substr($subject, $processed, $offset - $processed);
-			$result .= call_user_func($callback, $word, $words[$word]);
-		} else {
-			$result .= substr($subject, $processed);
+			$s_length = $s_end - $s_start;
+			if ($s_length > 1) {
+				$segment = substr($subject, $s_start, $s_length);
+				// Find possible starting points for smilies.
+				// For built-in smilies, the two bitsets should make attempts quite efficient.
+				// However, presuming custom smilies follow the format of ":shortcode" or ":shortcode:",
+				// if the user adds more smilies (with addons), the second bitset may eventually become useless.
+				for ($i = 0; $i < $s_length - 1; $i++) {
+					$c = $segment[$i];
+					$d = $segment[$i + 1];
+					if (($ord1_bitset & (1 << (ord($c) & 31))) && ($ord2_bitset & (1 << (ord($d) & 31))) && array_key_exists($c, $prefixes)) {
+						foreach ($prefixes[$c] as $word) {
+							$wlength = strlen($word);
+							if ($wlength <= $s_length - $i && substr($segment, $i, $wlength) === $word) {
+								// Check for boundaries
+								if (($i === 0 || ctype_space($segment[$i - 1]) || ctype_punct($segment[$i - 1]))
+									&& ($i + $wlength >= $s_length || ctype_space($segment[$i + $wlength]) || ctype_punct($segment[$i + $wlength]))) {
+									$result .= substr($subject, $processed, $s_start - $processed + $i);
+									$result .= call_user_func($callback, $word, $words[$word]);
+									$i += $wlength;
+									$processed = $s_start + $i;
+									$i--;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+			$s_start = $s_end + strlen($whitespaces);
 		}
 		return $result;
 	}

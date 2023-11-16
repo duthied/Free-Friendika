@@ -147,7 +147,7 @@ class SmiliesTest extends FixtureTest
 
 	public function dataReplace(): array
 	{
-		return [
+		$data = [
 			'simple-1' => [
 				'expected' => 'alt=":-p"',
 				'body' => ':-p',
@@ -165,7 +165,7 @@ class SmiliesTest extends FixtureTest
 				'body' => '~friendicaca',
 			],
 			'symbol-boundary-1' => [
-				'expected' => '(:-p)',
+				'expected' => 'alt=":-p"',
 				'body' => '(:-p)',
 			],
 			'hearts-1' => [
@@ -185,6 +185,19 @@ class SmiliesTest extends FixtureTest
 				'body' => '(3&lt;33)',
 			],
 		];
+		foreach ([':-[', ':-D', 'o.O'] as $emoji) {
+			foreach (['A', '_', ':', '-'] as $prefix) {
+				foreach (['', ' ', 'A', ':', '-'] as $suffix) {
+					$no_smile = ($prefix !== '' && ctype_alnum($prefix)) || ($suffix !== '' && ctype_alnum($suffix));
+					$s = $prefix . $emoji . $suffix;
+					$data[] = [
+						'expected' => $no_smile ? $s : 'alt="' . $emoji . '"',
+						'body' => $s,
+					];
+				}
+			}
+		}
+		return $data;
 	}
 
 	/**
@@ -202,6 +215,11 @@ class SmiliesTest extends FixtureTest
 	public function dataExtractUsedSmilies(): array
 	{
 		return [
+			'symbols' => [
+				'expected' => ['p', 'heart', 'embarrassed', 'kiss'],
+				'body' => ':-p &lt;3 ":-[:-"',
+				'normalized' => ':p: :heart: ":embarrassed::kiss:',
+			],
 			'single-smiley' => [
 				'expected' => ['like'],
 				'body' => ':like',
@@ -239,11 +257,12 @@ class SmiliesTest extends FixtureTest
 	 */
 	public function testExtractUsedSmilies(array $expected, string $body, string $normalized)
 	{
-		$extracted = Smilies::extractUsedSmilies($body);
-		$this->assertEquals($normalized, $extracted['']);
-		foreach ($expected as $shortcode) {
-			$this->assertArrayHasKey($shortcode, $extracted);
+		$extracted = Smilies::extractUsedSmilies($body, $converted);
+		$expected = array_fill_keys($expected, true);
+		$this->assertEquals($normalized, $converted);
+		foreach (array_keys($extracted) as $shortcode) {
+			$this->assertArrayHasKey($shortcode, $expected);
 		}
-		$this->assertEquals(count($expected), count($extracted) - 1);
+		$this->assertEquals(count($expected), count($extracted));
 	}
 }

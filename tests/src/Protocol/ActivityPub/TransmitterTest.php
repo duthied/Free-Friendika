@@ -42,7 +42,7 @@ class TransmitterTest extends FixtureTest
 		$note = Transmitter::createNote($post);
 		$this->assertNotNull($note);
 
-		$this->assertEquals(':like: :friendica: no <code>:dislike</code> :p: :embarrassed:', $note['content']);
+		$this->assertEquals(':like: :friendica: no <code>:dislike</code> :p: :embarrassed: ❤', $note['content']);
 		$emojis = array_fill_keys(['like', 'friendica', 'p', 'embarrassed'], true);
 		$this->assertEquals(count($emojis), count($note['tag']));
 		foreach ($note['tag'] as $emoji) {

@@ -290,14 +290,12 @@ class Status extends BaseFactory
 
 		$emojis = null;
 		if (DI::baseUrl()->isLocalUrl($item['uri'])) {
-			$used_smilies = Smilies::extractUsedSmilies($item['raw-body'] ?: $item['body']);
-			// $used_smilies contains normalized texts
+			$used_smilies = Smilies::extractUsedSmilies($item['raw-body'] ?: $item['body'], $normalized);
 			if ($item['raw-body']) {
-				$item['raw-body'] = $used_smilies[''];
+				$item['raw-body'] = $normalized;
 			} elseif ($item['body']) {
-				$item['body'] = $used_smilies[''];
+				$item['body'] = $normalized;
 			}
-			unset($used_smilies['']);
 			$emojis = $this->mstdnEmojiFactory->createCollectionFromArray($used_smilies)->getArrayCopy(true);
 		} else {
 			if (preg_match_all("(\[emoji=(.*?)](.*?)\[/emoji])ism", $item['body'] ?: $item['raw-body'], $matches)) {

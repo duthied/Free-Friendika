@@ -50,7 +50,7 @@ class StatusTest extends FixtureTest
 		$post = Post::selectFirst([], ['id' => 14]);
 		$this->assertNotNull($post);
 		$result = $this->status->createFromUriId($post['uri-id'])->toArray();
-		$this->assertEquals(':like: :friendica: no <code>:dislike</code> :p: :embarrassed:', $result['content']);
+		$this->assertEquals(':like: :friendica: no <code>:dislike</code> :p: :embarrassed: ❤', $result['content']);
 		$emojis = array_fill_keys(['like', 'friendica', 'p', 'embarrassed'], true);
 		$this->assertEquals(count($emojis), count($result['emojis']));
 		foreach ($result['emojis'] as $emoji) {
