@@ -23,6 +23,7 @@ namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\App;
 use Friendica\Content\Feature;
+use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Logger;
@@ -898,7 +899,7 @@ class Transmitter
 		$tags = Tag::getByURIId($uri_id, [Tag::TO, Tag::CC, Tag::BCC, Tag::AUDIENCE]);
 		if (empty($tags)) {
 			Logger::debug('No receivers found', ['uri-id' => $uri_id]);
-			$post = Post::selectFirst([Item::DELIVER_FIELDLIST], ['uri-id' => $uri_id, 'origin' => true]);
+			$post = Post::selectFirst(Item::DELIVER_FIELDLIST, ['uri-id' => $uri_id, 'origin' => true]);
 			if (!empty($post)) {
 				ActivityPub\Transmitter::storeReceiversForItem($post);
 				$tags = Tag::getByURIId($uri_id, [Tag::TO, Tag::CC, Tag::BCC, Tag::AUDIENCE]);
@@ -1507,6 +1508,29 @@ class Transmitter
 	}
 
 	/**
+	 * Appends emoji tags to a tag array according to the tags used.
+	 *
+	 * @param array $tags Tag array
+	 * @param string $text Text containing tags like :tag:
+	 * @return string normalized text
+	 */
+	private static function addEmojiTags(array &$tags, string $text): string
+	{
+		$emojis = Smilies::extractUsedSmilies($text, $normalized);
+		foreach ($emojis as $name => $url) {
+			$tags[] = [
+				'type' => 'Emoji',
+				'name' => $name,
+				'icon' => [
+					'type' => 'Image',
+					'url' => $url,
+				],
+			];
+		}
+		return $normalized;
+	}
+
+	/**
 	 * Returns a tag array for a given item array
 	 *
 	 * @param array  $item      Item array
@@ -1785,10 +1809,11 @@ class Transmitter
 		$item = Post\Media::addHTMLAttachmentToItem($item);
 
 		$body = $item['body'];
-
+		$emojis = [];
 		if ($type == 'Note') {
 			$body = $item['raw-body'] ?? self::removePictures($body);
 		}
+		$body = self::addEmojiTags($emojis, $body);
 
 		/**
 		 * @todo Improve the automated summary
@@ -1870,7 +1895,7 @@ class Transmitter
 		}
 
 		$data['attachment'] = self::createAttachmentList($item);
-		$data['tag'] = self::createTagList($item, $data['quoteUrl'] ?? '');
+		$data['tag'] = array_merge(self::createTagList($item, $data['quoteUrl'] ?? ''), $emojis);
 
 		if (empty($data['location']) && (!empty($item['coord']) || !empty($item['location']))) {
 			$data['location'] = self::createLocation($item);

@@ -143,4 +143,126 @@ class SmiliesTest extends FixtureTest
 	{
 		$this->assertEquals($expected, Smilies::isEmojiPost($body));
 	}
+
+
+	public function dataReplace(): array
+	{
+		$data = [
+			'simple-1' => [
+				'expected' => 'alt=":-p"',
+				'body' => ':-p',
+			],
+			'simple-1' => [
+				'expected' => 'alt=":-p"',
+				'body' => ' :-p ',
+			],
+			'word-boundary-1' => [
+				'expected' => ':-pppp',
+				'body' => ':-pppp',
+			],
+			'word-boundary-2' => [
+				'expected' => '~friendicaca',
+				'body' => '~friendicaca',
+			],
+			'symbol-boundary-1' => [
+				'expected' => 'alt=":-p"',
+				'body' => '(:-p)',
+			],
+			'hearts-1' => [
+				'expected' => '❤ (❤) ❤',
+				'body' => '&lt;3 (&lt;3) &lt;3',
+			],
+			'hearts-8' => [
+				'expected' => '(❤❤❤❤❤❤❤❤)',
+				'body' => '(&lt;33333333)',
+			],
+			'no-hearts-1' => [
+				'expected' => '(&lt;30)',
+				'body' => '(&lt;30)',
+			],
+			'no-hearts-2' => [
+				'expected' => '(3&lt;33)',
+				'body' => '(3&lt;33)',
+			],
+		];
+		foreach ([':-[', ':-D', 'o.O'] as $emoji) {
+			foreach (['A', '_', ':', '-'] as $prefix) {
+				foreach (['', ' ', 'A', ':', '-'] as $suffix) {
+					$no_smile = ($prefix !== '' && ctype_alnum($prefix)) || ($suffix !== '' && ctype_alnum($suffix));
+					$s = $prefix . $emoji . $suffix;
+					$data[] = [
+						'expected' => $no_smile ? $s : 'alt="' . $emoji . '"',
+						'body' => $s,
+					];
+				}
+			}
+		}
+		return $data;
+	}
+
+	/**
+	 * @dataProvider dataReplace
+	 *
+	 * @param string $expected
+	 * @param string $body
+	 */
+	public function testReplace(string $expected, string $body)
+	{
+		$result = Smilies::replace($body);
+		$this->assertStringContainsString($expected, $result);
+	}
+
+	public function dataExtractUsedSmilies(): array
+	{
+		return [
+			'symbols' => [
+				'expected' => ['p', 'heart', 'embarrassed', 'kiss'],
+				'body' => ':-p &lt;3 ":-[:-"',
+				'normalized' => ':p: :heart: ":embarrassed::kiss:',
+			],
+			'single-smiley' => [
+				'expected' => ['like'],
+				'body' => ':like',
+				'normalized' => ':like:',
+			],
+			'multiple-smilies' => [
+				'expected' => ['like', 'dislike'],
+				'body' => ':like :dislike',
+				'normalized' => ':like: :dislike:',
+			],
+			'nosmile' => [
+				'expected' => [],
+				'body' => '[nosmile] :like :like',
+				'normalized' => '[nosmile] :like :like'
+			],
+			'in-code' => [
+				'expected' => [],
+				'body' => '[code]:like :like :like[/code]',
+				'normalized' => '[code]:like :like :like[/code]'
+			],
+			'~friendica' => [
+				'expected' => ['friendica'],
+				'body' => '~friendica',
+				'normalized' => ':friendica:'
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataExtractUsedSmilies
+	 *
+	 * @param array  $expected
+	 * @param string $body
+	 * @param stirng $normalized
+	 */
+	public function testExtractUsedSmilies(array $expected, string $body, string $normalized)
+	{
+		$extracted = Smilies::extractUsedSmilies($body, $converted);
+		$expected = array_fill_keys($expected, true);
+		$this->assertEquals($normalized, $converted);
+		foreach (array_keys($extracted) as $shortcode) {
+			$this->assertArrayHasKey($shortcode, $expected);
+		}
+		$this->assertEquals(count($expected), count($extracted));
+	}
 }

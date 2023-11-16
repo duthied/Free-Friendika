@@ -107,7 +107,7 @@ class Status extends BaseDataTransferObject
 	 * @param array   $item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $in_reply, array $reblog, FriendicaExtension $friendica, array $quote = null, array $poll = null)
+	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $in_reply, array $reblog, FriendicaExtension $friendica, array $quote = null, array $poll = null, array $emojis = null)
 	{
 		$reblogged          = !empty($reblog);
 		$this->id           = (string)$item['uri-id'];
@@ -152,7 +152,7 @@ class Status extends BaseDataTransferObject
 		$this->media_attachments = $reblogged ? [] : $attachments;
 		$this->mentions = $reblogged ? [] : $mentions;
 		$this->tags = $reblogged ? [] : $tags;
-		$this->emojis = $reblogged ? [] : [];
+		$this->emojis = $reblogged ? [] : ($emojis ?: []);
 		$this->card = $reblogged ? null : ($card->toArray() ?: null);
 		$this->poll = $reblogged ? null : $poll;
 		$this->friendica = $reblogged ? null : $friendica;
