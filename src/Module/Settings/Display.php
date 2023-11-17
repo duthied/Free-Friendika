@@ -108,7 +108,7 @@ class Display extends BaseSettings
 		$display_resharer       = (bool)$request['display_resharer'];
 		$stay_local             = (bool)$request['stay_local'];
 		$show_page_drop         = (bool)$request['show_page_drop'];
-		$preview_mode           = (bool)$request['preview_mode'];
+		$preview_mode           = (int)$request['preview_mode'];
 		$browser_update         = (bool)$request['browser_update'];
 		if ($browser_update != -1) {
 			$browser_update = $browser_update * 1000;
