@@ -95,7 +95,7 @@ class Display extends BaseSettings
 		$user = User::getById($uid);
 
 		$theme                  = trim($request['theme']);
-		$mobile_theme           = trim($request['mobile_theme']);
+		$mobile_theme           = trim($request['mobile_theme'] ?? '');
 		$enable_smile           = (bool)$request['enable_smile'];
 		$enable                 = (array)$request['enable'];
 		$bookmark               = (array)$request['bookmark'];

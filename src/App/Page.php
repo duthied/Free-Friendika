@@ -36,6 +36,7 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
@@ -282,7 +283,7 @@ class Page implements ArrayAccess
 			'$stylesheets'     => $this->stylesheets,
 
 			// Dropzone
-			'$max_imagesize' => round(\Friendica\Util\Strings::getBytesFromShorthand($config->get('system', 'maximagesize')) / 1000000, 1),
+			'$max_imagesize' => round(Images::getMaxUploadBytes() / 1000000, 0),
 
 		]) . $this->page['htmlhead'];
 	}
