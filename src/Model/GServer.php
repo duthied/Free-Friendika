@@ -81,7 +81,6 @@ class GServer
 	const DETECT_MASTODON_API = 16;
 	const DETECT_STATUS_PHP = 17; // Nextcloud
 	const DETECT_V1_CONFIG = 18;
-	const DETECT_PUMPIO = 19; // Deprecated
 	const DETECT_SYSTEM_ACTOR = 20; // Mistpark, Osada, Roadhouse, Zap
 
 	// Standardized endpoints
@@ -617,10 +616,14 @@ class GServer
 			return false;
 		}
 
-		$serverdata = self::parseNodeinfo210($curlResult);
-		if (empty($serverdata)) {
-			$curlResult = DI::httpClient()->get($url . '/.well-known/nodeinfo', HttpClientAccept::JSON);
-			$serverdata = self::fetchNodeinfo($url, $curlResult);
+		if (!empty($network) && !in_array($network, Protocol::NATIVE_SUPPORT)) {
+			$serverdata = ['detection-method' => self::DETECT_MANUAL, 'network' => $network, 'platform' => '', 'version' => '', 'site_name' => '', 'info' => ''];
+		} else {
+			$serverdata = self::parseNodeinfo210($curlResult);
+			if (empty($serverdata)) {
+				$curlResult = DI::httpClient()->get($url . '/.well-known/nodeinfo', HttpClientAccept::JSON);
+				$serverdata = self::fetchNodeinfo($url, $curlResult);
+			}
 		}
 
 		if ($only_nodeinfo && empty($serverdata)) {
