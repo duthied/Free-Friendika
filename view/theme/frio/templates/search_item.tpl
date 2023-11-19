@@ -30,15 +30,14 @@
 			<div class="contact-info hidden-sm hidden-xs media-body"><!-- Desktop -->
 				<div class="preferences">
 					{{if $item.network_icon && $item.plink}}
-   						<span class="wall-item-network"><a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" target="_blank"><i class="fa fa-{{$item.network_icon}} fakelink" title="{{$item.network_name}} - {{$item.plink.title}}" aria-hidden="true"></i></a></span>
+						<span class="wall-item-network"><a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" target="_blank"><i class="fa fa-{{$item.network_icon}} fakelink" title="{{$item.network_name}} - {{$item.plink.title}}" aria-hidden="true"></i></a></span>
 					{{elseif $item.plink}}
-       						<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.network_name}} - {{$item.plink.title}}" target="_blank">{{$item.network_name}}</a>
-   					{{elseif $item.network_icon}}
-       						<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
-    					{{else}}
-        					<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
-    					{{/if}}
-
+						<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.network_name}} - {{$item.plink.title}}" target="_blank">{{$item.network_name}}</a>
+					{{elseif $item.network_icon}}
+						<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
+					{{else}}
+						<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
+					{{/if}}
 				</div>
 				<h4 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card">
