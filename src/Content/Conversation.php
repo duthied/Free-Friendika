@@ -251,19 +251,21 @@ class Conversation
 	/**
 	 * Format the activity text for an item/photo/video
 	 *
-	 * @param array  $links = array of pre-linked names of actors
-	 * @param string $verb  = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
-	 * @param int    $id    = item id
+	 * @param array  $links    array of pre-linked names of actors
+	 * @param string $verb     one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
+	 * @param int    $id       item id
+	 * @param string $activity Activity URI
+	 * @param array  $emojis   Array with emoji reactions
 	 * @return string formatted text
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function formatActivity(array $links, string $verb, int $id): string
+	public function formatActivity(array $links, string $verb, int $id, string $activity, array $emojis): string
 	{
 		$this->profiler->startRecording('rendering');
 		$expanded = '';
 
 		$phrase = $this->getLikerPhrase($verb, $links);
-		$total  = count($links);
+		$total  = max(count($links), $emojis[$activity]['total'] ?? 0);
 
 		if ($total > 1) {
 			$spanatts  = "class=\"btn btn-link fakelink\" onclick=\"openClose('{$verb}list-$id');\"";

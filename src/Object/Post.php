@@ -351,7 +351,7 @@ class Post
 		foreach ($response_verbs as $value => $verb) {
 			$responses[$verb] = [
 				'self'   => $conv_responses[$verb][$item['uri-id']]['self'] ?? 0,
-				'output' => !empty($conv_responses[$verb][$item['uri-id']]) ? DI::conversation()->formatActivity($conv_responses[$verb][$item['uri-id']]['links'], $verb, $item['uri-id']) : '',
+				'output' => !empty($conv_responses[$verb][$item['uri-id']]) ? DI::conversation()->formatActivity($conv_responses[$verb][$item['uri-id']]['links'], $verb, $item['uri-id'], $verbs[$verb], $emojis) : '',
 				'total'  => $emojis[$verbs[$verb]]['total'] ?? '',
 				'title'  => $emojis[$verbs[$verb]]['title'] ?? '',
 			];
