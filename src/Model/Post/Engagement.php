@@ -39,6 +39,8 @@ use Friendica\Util\DateTimeFormat;
 
 class Engagement
 {
+	const KEYWORDS = ['source', 'server', 'from', 'to', 'group', 'tag', 'network', 'platform', 'visibility'];
+
 	/**
 	 * Store engagement data from an item array
 	 *
@@ -53,7 +55,7 @@ class Engagement
 		}
 
 		$parent = Post::selectFirst(['uri-id', 'created', 'author-id', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language', 'network',
-			'title', 'content-warning', 'body', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid', 'owner-contact-type', 'owner-nick', 'owner-addr'],
+			'title', 'content-warning', 'body', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid', 'owner-contact-type', 'owner-nick', 'owner-addr', 'owner-gsid'],
 			['uri-id' => $item['parent-uri-id']]);
 
 		if ($parent['created'] < self::getCreationDateLimit(false)) {
@@ -134,6 +136,7 @@ class Engagement
 			'owner-contact-type'  => $author['contact-type'],
 			'owner-nick'          => $author['nick'],
 			'owner-addr'          => $author['addr'],
+			'author-gsid'         => $author['gsid'],
 		];
 
 		foreach ($receivers as $receiver) {
@@ -157,11 +160,21 @@ class Engagement
 		$body = '[nosmile]network:' . $item['network'];
 
 		if (!empty($item['author-gsid'])) {
-			$gserver = DBA::selectFirst('gserver', ['platform'], ['id' => $item['author-gsid']]);
+			$gserver = DBA::selectFirst('gserver', ['platform', 'nurl'], ['id' => $item['author-gsid']]);
 			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
 			if (!empty($platform)) {
 				$body .= ' platform:' . $platform;
 			}
+			$body .= ' server:' . parse_url($gserver['nurl'], PHP_URL_HOST);
+		}
+
+		if (($item['owner-contact-type'] == Contact::TYPE_COMMUNITY) && !empty($item['owner-gsid']) && ($item['owner-gsid'] != ($item['author-gsid'] ?? 0))) {
+			$gserver = DBA::selectFirst('gserver', ['platform', 'nurl'], ['id' => $item['owner-gsid']]);
+			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
+			if (!empty($platform) && !strpos($body, 'platform:' . $platform)) {
+				$body .= ' platform:' . $platform;
+			}
+			$body .= ' server:' . parse_url($gserver['nurl'], PHP_URL_HOST);
 		}
 
 		switch ($item['private']) {
@@ -174,6 +187,18 @@ class Engagement
 			case Item::PRIVATE:
 				$body .= ' visibility:private';
 				break;
+		}
+
+		if (in_array(Contact::TYPE_COMMUNITY, [$item['author-contact-type'], $item['owner-contact-type']])) {
+			$body .= ' source:group';
+		} elseif ($item['author-contact-type'] == Contact::TYPE_PERSON) {
+			$body .= ' source:person';
+		} elseif ($item['author-contact-type'] == Contact::TYPE_NEWS) {
+			$body .= ' source:service';
+		} elseif ($item['author-contact-type'] == Contact::TYPE_ORGANISATION) {
+			$body .= ' source:organization';
+		} elseif ($item['author-contact-type'] == Contact::TYPE_RELAY) {
+			$body .= ' source:application';
 		}
 
 		if ($item['author-contact-type'] == Contact::TYPE_COMMUNITY) {

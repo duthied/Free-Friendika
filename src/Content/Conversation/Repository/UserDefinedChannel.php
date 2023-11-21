@@ -27,6 +27,7 @@ use Friendica\Content\Conversation\Entity;
 use Friendica\Content\Conversation\Factory;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Database\Database;
+use Friendica\Model\Post\Engagement;
 use Friendica\Model\User;
 use Psr\Log\LoggerInterface;
 
@@ -155,10 +156,10 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 
 		$store = false;
 		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
-		$channels = $this->db->select(self::$table_name, ['full-text-search', 'uid', 'label'], ["`full-text-search` != ?", '']);
+		$channels = $this->db->select(self::$table_name, ['full-text-search', 'uid', 'label'], ["`full-text-search` != ? AND `circle` = ?", '', 0]);
 		while ($channel = $this->db->fetch($channels)) {
 			$channelsearchtext = $channel['full-text-search'];
-			foreach (['from', 'to', 'group', 'tag', 'network', 'platform', 'visibility'] as $keyword) {
+			foreach (Engagement::KEYWORDS as $keyword) {
 				$channelsearchtext = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $channelsearchtext);
 			}
 			if ($this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $channelsearchtext])) {

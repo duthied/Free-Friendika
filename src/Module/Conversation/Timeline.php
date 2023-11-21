@@ -40,6 +40,7 @@ use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Model\Post\Engagement;
 use Friendica\Module\Response;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -384,6 +385,8 @@ class Timeline extends BaseModule
 				$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))", $uid, Contact::SHARING, Contact::FRIEND];
 			} elseif ($channel->circle == -2) {
 				$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $uid, Contact::FOLLOWER];
+			} elseif ($channel->circle == -3) {
+				$condition = ["EXISTS(SELECT `uri-id` FROM `post-thread-user` WHERE `uid` = ? AND `post-thread-user`.`uri-id` = `post-engagement`.`uri-id`)", $uid];
 			} elseif ($channel->circle > 0) {
 				$condition = DBA::mergeConditions($condition, ["`owner-id` IN (SELECT `pid` FROM `group_member` INNER JOIN `account-user-view` ON `group_member`.`contact-id` = `account-user-view`.`id` WHERE `gid` = ? AND `account-user-view`.`uid` = ?)", $channel->circle, $uid]);
 			}
@@ -391,7 +394,7 @@ class Timeline extends BaseModule
 
 		if (!empty($channel->fullTextSearch)) {
 			$search = $channel->fullTextSearch;
-			foreach (['from', 'to', 'group', 'tag', 'network', 'platform', 'visibility'] as $keyword) {
+			foreach (Engagement::KEYWORDS as $keyword) {
 				$search = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $search);
 			}
 			$condition = DBA::mergeConditions($condition, ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", $search]);
