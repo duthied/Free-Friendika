@@ -84,8 +84,7 @@ class Notifier
 			$uid = $message['uid'];
 			$recipients[] = $message['contact-id'];
 
-			$mail = ActivityPub\Transmitter::getItemArrayFromMail($target_id);
-			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($mail, $uid, true);
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxesFromMail($target_id);
 			foreach ($inboxes as $inbox => $receivers) {
 				$ap_contacts = array_merge($ap_contacts, $receivers);
 				Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'target' => $target_id, 'inbox' => $inbox]);
