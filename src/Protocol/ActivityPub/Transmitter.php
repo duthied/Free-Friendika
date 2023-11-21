@@ -978,13 +978,12 @@ class Transmitter
 	 * Fetches a list of inboxes of followers of a given user
 	 *
 	 * @param integer $uid      User ID
-	 * @param boolean $personal fetch personal inboxes
 	 * @param boolean $all_ap   Retrieve all AP enabled inboxes
 	 * @return array of follower inboxes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchTargetInboxesforUser(int $uid, bool $personal = false, bool $all_ap = false): array
+	public static function fetchTargetInboxesforUser(int $uid, bool $all_ap = false): array
 	{
 		$inboxes = [];
 
@@ -1034,7 +1033,7 @@ class Transmitter
 
 			$profile = APContact::getByURL($contact['url'], false);
 			if (!empty($profile)) {
-				if (empty($profile['sharedinbox']) || $personal || Contact::isLocal($contact['url'])) {
+				if (empty($profile['sharedinbox']) || Contact::isLocal($contact['url'])) {
 					$target = $profile['inbox'];
 				} else {
 					$target = $profile['sharedinbox'];
@@ -1054,12 +1053,11 @@ class Transmitter
 	 *
 	 * @param array   $item     Item array
 	 * @param integer $uid      User ID
-	 * @param boolean $personal fetch personal inboxes
 	 * @return array with inboxes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchTargetInboxes(array $item, int $uid, bool $personal = false): array
+	public static function fetchTargetInboxes(array $item, int $uid): array
 	{
 		$permissions = self::getReceiversForUriId($item['uri-id'], true);
 		if (empty($permissions)) {
@@ -1093,13 +1091,13 @@ class Transmitter
 				}
 
 				if ($item_profile && ($receiver == $item_profile['followers']) && ($uid == $profile_uid)) {
-					$inboxes = array_merge_recursive($inboxes, self::fetchTargetInboxesforUser($uid, $personal, true));
+					$inboxes = array_merge_recursive($inboxes, self::fetchTargetInboxesforUser($uid, true));
 				} else {
 					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
 						$contact = Contact::getByURLForUser($receiver, $uid, false, ['id']);
 
-						if (empty($profile['sharedinbox']) || $personal || $blindcopy || Contact::isLocal($receiver)) {
+						if (empty($profile['sharedinbox']) || $blindcopy || Contact::isLocal($receiver)) {
 							$target = $profile['inbox'];
 						} else {
 							$target = $profile['sharedinbox'];
@@ -1113,6 +1111,29 @@ class Transmitter
 		}
 
 		return $inboxes;
+	}
+
+	/**
+	 * Fetch the target inboxes for a given mail id
+	 *
+	 * @param integer $mail_id
+	 * @return array
+	 */
+	public static function fetchTargetInboxesFromMail(int $mail_id): array
+	{
+		$mail = DBA::selectFirst('mail', ['uid', 'parent-uri', 'from-url'], ['id' => $mail_id]);
+		if (!DBA::isResult($mail)) {
+			return [];
+		}
+
+		$reply = DBA::selectFirst('mail', ['from-url'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
+		if (!DBA::isResult($reply)) {
+			$reply = $mail;
+		}
+
+		$apcontact = APContact::getByURL($reply['from-url'], false);
+
+		return [$apcontact['inbox'] => [Contact::getIdForURL($reply['from-url'])]];
 	}
 
 	/**
