@@ -1121,19 +1121,17 @@ class Transmitter
 	 */
 	public static function fetchTargetInboxesFromMail(int $mail_id): array
 	{
-		$mail = DBA::selectFirst('mail', ['uid', 'parent-uri', 'from-url'], ['id' => $mail_id]);
+		$mail = DBA::selectFirst('mail', ['contact-id'], ['id' => $mail_id]);
 		if (!DBA::isResult($mail)) {
 			return [];
 		}
 
-		$reply = DBA::selectFirst('mail', ['from-url'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
-		if (!DBA::isResult($reply)) {
-			$reply = $mail;
+		$account = DBA::selectFirst('account-user-view', ['ap-inbox'], ['id' => $mail['contact-id']]);
+		if (empty($account['ap-inbox'])) {
+			return [];
 		}
 
-		$apcontact = APContact::getByURL($reply['from-url'], false);
-
-		return [$apcontact['inbox'] => [Contact::getIdForURL($reply['from-url'])]];
+		return [$account['ap-inbox'] => [$mail['contact-id']]];
 	}
 
 	/**
