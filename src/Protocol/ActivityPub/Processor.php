@@ -1111,6 +1111,10 @@ class Processor
 			}
 
 			if (!empty($activity['directmessage']) && self::postMail($item)) {
+				if (!empty($item['source']) && DI::config()->get('debug', 'store_source')) {
+					Post\Activity::insert($item['uri-id'], $item['source']);
+				}
+		
 				continue;
 			}
 

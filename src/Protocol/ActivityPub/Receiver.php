@@ -436,15 +436,11 @@ class Receiver
 
 			$object_data['object_id'] = $object_id;
 
-			// Test if it is an answer to a mail
-			if (DBA::exists('mail', ['uri' => $object_data['reply-to-id']])) {
+			// Test if it is a direct message
+			if (self::checkForDirectMessage($object_data, $activity)) {
 				$object_data['directmessage'] = true;
-			} else {
-				$object_data['directmessage'] = JsonLD::fetchElement($activity, 'litepub:directMessage');
-
-				if (!empty(JsonLD::fetchElement($activity['as:object'], 'misskey:_misskey_talk'))) {
-					$object_data = self::setChatData($object_data, $receivers);
-				}
+			} elseif (!empty(JsonLD::fetchElement($activity['as:object'], 'misskey:_misskey_talk'))) {
+				$object_data = self::setChatData($object_data, $receivers);
 			}
 		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Announce', 'as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
@@ -521,6 +517,57 @@ class Receiver
 		Logger::info('Processing', ['type' => $object_data['type'], 'object_type' => $object_data['object_type'], 'id' => $object_data['id'], 'actor' => $actor, 'platform' => $platform]);
 
 		return $object_data;
+	}
+
+	/**
+	 * Check if the received message is a direct message
+	 *
+	 * @param array $object_data
+	 * @param array $activity
+	 * @return boolean
+	 */
+	private static function checkForDirectMessage(array $object_data, array $activity): bool
+	{
+		if (DBA::exists('mail', ['uri' => $object_data['reply-to-id']])) {
+			return true;
+		}
+
+		if ($object_data['id'] != $object_data['reply-to-id']) {
+			return false;
+		}
+
+		if (JsonLD::fetchElement($activity, 'litepub:directMessage')) {
+			return true;
+		}
+
+		if (!empty($object_data['attachments'])) {
+			return false;
+		}
+
+		if (!empty($object_data['receiver_urls']['as:cc']) || empty($object_data['receiver_urls']['as:to'])) {
+			return false;
+		}
+
+		if ((count($object_data['receiver_urls']['as:to']) != 1) || !User::getIdForURL($object_data['receiver_urls']['as:to'][0])) {
+			return false;
+		}
+
+		$mentions = 0;
+		foreach ($object_data['tags'] as $mention) {
+			if ($mention['type'] != 'Mention') {
+				continue;
+			}
+			if (!User::getIdForURL($mention['href'])) {
+				return false;
+			}
+			++$mentions;
+		}
+
+		if ($mentions > 1) {
+			return false;
+		}
+
+		return true;
 	}
 
 	private static function setChatData(array $object_data, array $receivers): array
