@@ -79,7 +79,7 @@ class Channels extends BaseSettings
 			return;
 		}
 
-		foreach (array_keys($request['label']) as $id) {
+		foreach (array_keys((array)$request['label']) as $id) {
 			if ($request['delete'][$id]) {
 				$success = $this->channel->deleteById($id, $uid);
 				$this->logger->debug('Channel deleted', ['id' => $id, 'success' => $success]);
@@ -116,6 +116,7 @@ class Channels extends BaseSettings
 
 		$circles = [
 			0  => $this->l10n->t('Global Community'),
+			-3 => $this->l10n->t('Network'),
 			-1 => $this->l10n->t('Following'),
 			-2 => $this->l10n->t('Followers'),
 		];

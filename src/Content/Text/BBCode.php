@@ -291,7 +291,7 @@ class BBCode
 		// Remove all unneeded white space
 		do {
 			$oldtext = $text;
-			$text = str_replace(['  ', "\n", "\r", '"', '_'], ' ', $text);
+			$text = str_replace(['  ', "\n", "\r", '"'], ' ', $text);
 		} while ($oldtext != $text);
 
 		return trim($text);

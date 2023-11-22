@@ -66,6 +66,11 @@ class Relay
 	{
 		$config = DI::config();
 
+		if (Contact::hasFollowers($authorid)) {
+			Logger::info('Author has got followers on this server - accepted', ['network' => $network, 'url' => $url, 'author' => $authorid, 'tags' => $tags]);
+			return true;
+		}
+
 		$scope = $config->get('system', 'relay_scope');
 
 		if ($scope == self::SCOPE_NONE) {

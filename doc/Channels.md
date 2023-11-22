@@ -57,6 +57,13 @@ Additionally to the search for content, there are additional keywords that can b
 * from - Use "from:nickname" or "from:nickname@domain.tld" to search for posts from a specific author.
 * to - Use "from:nickname" or "from:nickname@domain.tld" to search for posts with the given contact as receiver.
 * group - Use "from:nickname" or "from:nickname@domain.tld" to search for group post of the given group.
+* server - Use "server:hostname" to search for posts from a specific server. In the case of group postings, the search text contains both the hostname of the group server and the author's hostname.
+* source - The ActivityPub type of the post source. Use this for example to include or exclude group posts or posts from services (aka bots).
+    * source:person - The post is created by a regular user account.
+    * source:organization - The post is created by an organisation.
+    * source:group - The post is created by or distributed via a group.
+    * source:service - The posts originates from a service account. This source type is often used to mark bot accounts.
+    * source:application - The post is created by an application. This is most likely unused in the fediverse for post creation.
 * tag - Use "tag:tagname" to search for a specific tag.
 * network - Use this to include or exclude some networks from your channel.
     * network:apub - ActivityPub (Used by the systems in the Fediverse)
@@ -68,7 +75,7 @@ Additionally to the search for content, there are additional keywords that can b
     * network:dscs - Posts that are received by the Discourse connector.
     * network:tmbl - Posts that are received by the Tumblr connector.
     * network:bsky - Posts that are received by the Bluesky connector.
-* platform - Use this to include or exclude some platforms from your channel, e.g. "+platform:friendica".
+* platform - Use this to include or exclude some platforms from your channel, e.g. "+platform:friendica". In the case of group postings, the search text contains both the platform of the group server and the author's platform.
 * visibility - You have the choice between different visibilities. You can only see unlisted or private posts that you have the access for.
     * visibility:public
     * visibility:unlisted
