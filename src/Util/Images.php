@@ -244,12 +244,12 @@ class Images
 		$filesize = strlen($img_str);
 
 		try {
-			$data = (array)@getimagesizefromstring($img_str);
+			$data = @getimagesizefromstring($img_str);
 		} catch (\Exception $e) {
 			return [];
 		}
 
-		if (empty($data)) {
+		if (!$data) {
 			return [];
 		}
 
