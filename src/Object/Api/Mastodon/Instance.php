@@ -31,6 +31,7 @@ use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\Register;
 use Friendica\Network\HTTPException;
+use Friendica\Object\Api\Mastodon\InstanceV2\Configuration;
 
 /**
  * Class Instance
@@ -68,6 +69,8 @@ class Instance extends BaseDataTransferObject
 	/** @var bool */
 	protected $invites_enabled;
 	/** @var Account|null */
+	/** @var Configuration  */
+	protected $configuration;
 	protected $contact_account = null;
 	/** @var array */
 	protected $rules = [];
@@ -81,7 +84,7 @@ class Instance extends BaseDataTransferObject
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public function __construct(IManageConfigValues $config, BaseURL $baseUrl, Database $database, array $rules = [])
+	public function __construct(IManageConfigValues $config, BaseURL $baseUrl, Database $database, array $rules = [], Configuration $configuration)
 	{
 		$register_policy = intval($config->get('config', 'register_policy'));
 
@@ -98,6 +101,7 @@ class Instance extends BaseDataTransferObject
 		$this->registrations     = ($register_policy != Register::CLOSED);
 		$this->approval_required = ($register_policy == Register::APPROVE);
 		$this->invites_enabled   = false;
+		$this->configuration     = $configuration;
 		$this->contact_account   = [];
 		$this->rules             = $rules;
 

@@ -119,13 +119,21 @@ class InstanceV2 extends BaseApi
 			'config',
 			'api_import_size',
 			$this->config->get('config', 'max_import_size')
-		));
+		), 99, 23);
 
 		$image_size_limit = Strings::getBytesFromShorthand($this->config->get('system', 'maximagesize'));
+		$max_image_length = $this->config->get('system', 'max_image_length');
+		if ($max_image_length > 0) {
+			$image_matrix_limit = pow($max_image_length, 2);
+		} else {
+			$image_matrix_limit = 33177600; // 5760^2
+		}
 
 		return new InstanceEntity\Configuration(
 			$statuses_config,
-			new InstanceEntity\MediaAttachmentsConfig(Images::supportedTypes(), $image_size_limit),
+			new InstanceEntity\MediaAttachmentsConfig(array_keys(Images::supportedTypes()), $image_size_limit, $image_matrix_limit),
+			new InstanceEntity\Polls(),
+			new InstanceEntity\Accounts(),
 		);
 	}
 
