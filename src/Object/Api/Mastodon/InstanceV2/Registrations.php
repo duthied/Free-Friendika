@@ -34,6 +34,10 @@ class Registrations extends BaseDataTransferObject
 	protected $enabled;
 	/** @var bool */
 	protected $approval_required;
+	/** @var string|null */
+	protected $message;
+	/** @var string|null */
+	protected $url;
 
 	/**
 	 * @param bool $enabled
