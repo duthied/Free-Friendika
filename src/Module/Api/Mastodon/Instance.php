@@ -29,7 +29,10 @@ use Friendica\Database\Database;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Object\Api\Mastodon\Instance as InstanceEntity;
+use Friendica\Object\Api\Mastodon\InstanceV2 as InstanceV2Entity;
+use Friendica\Util\Images;
 use Friendica\Util\Profiler;
+use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -59,6 +62,30 @@ class Instance extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		$this->jsonExit(new InstanceEntity($this->config, $this->baseUrl, $this->database, System::getRules()));
+		$this->jsonExit(new InstanceEntity($this->config, $this->baseUrl, $this->database, System::getRules(), $this->buildConfigurationInfo()));
+	}
+
+	private function buildConfigurationInfo(): InstanceV2Entity\Configuration
+	{
+		$statuses_config = new InstanceV2Entity\StatusesConfig((int)$this->config->get(
+			'config',
+			'api_import_size',
+			$this->config->get('config', 'max_import_size')
+		), 99, 23);
+
+		$image_size_limit = Strings::getBytesFromShorthand($this->config->get('system', 'maximagesize'));
+		$max_image_length = $this->config->get('system', 'max_image_length');
+		if ($max_image_length > 0) {
+			$image_matrix_limit = pow($max_image_length, 2);
+		} else {
+			$image_matrix_limit = 33177600; // 5760^2
+		}
+
+		return new InstanceV2Entity\Configuration(
+			$statuses_config,
+			new InstanceV2Entity\MediaAttachmentsConfig(array_keys(Images::supportedTypes()), $image_size_limit, $image_matrix_limit),
+			new InstanceV2Entity\Polls(),
+			new InstanceV2Entity\Accounts(),
+		);
 	}
 }
