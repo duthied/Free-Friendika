@@ -231,7 +231,7 @@ class Network extends Timeline
 			} else {
 				$this->systemMessages->addNotice($this->l10n->t('Invalid contact.'));
 			}
-		} elseif (Profile::displayEventList($this->session->getLocalUserId(), $this->mode)) {
+		} elseif (Profile::shouldDisplayEventList($this->session->getLocalUserId(), $this->mode)) {
 			$o .= Profile::getBirthdays($this->session->getLocalUserId());
 			$o .= Profile::getEventsReminderHTML($this->session->getLocalUserId(), $this->session->getPublicContactId());
 		}

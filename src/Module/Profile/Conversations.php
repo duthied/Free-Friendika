@@ -220,7 +220,7 @@ class Conversations extends BaseProfile
 		$last_updated_array[$last_updated_key] = time();
 		$this->session->set('last_updated', $last_updated_array);
 
-		if ($is_owner && ProfileModel::displayEventList($this->session->getLocalUserId(), $this->mode)) {
+		if ($is_owner && ProfileModel::shouldDisplayEventList($this->session->getLocalUserId(), $this->mode)) {
 			$o .= ProfileModel::getBirthdays($this->session->getLocalUserId());
 			$o .= ProfileModel::getEventsReminderHTML($this->session->getLocalUserId(), $this->session->getPublicContactId());
 		}

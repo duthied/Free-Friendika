@@ -514,7 +514,7 @@ class Profile
 	 * @param Mode $mode
 	 * @return boolean
 	 */
-	public static function displayEventList(int $uid, Mode $mode): bool
+	public static function shouldDisplayEventList(int $uid, Mode $mode): bool
 	{
 		if (empty($uid) || $mode->isMobile()) {
 			return false;
