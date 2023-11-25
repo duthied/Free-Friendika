@@ -87,9 +87,10 @@ class Engagement
 
 		$searchtext = self::getSearchTextForItem($parent);
 		if (!$store) {
-			$content  = trim(($parent['title'] ?? '') . ' ' . ($parent['content-warning'] ?? '') . ' ' . ($parent['body'] ?? ''));
-			$language = array_key_first(Item::getLanguageArray($content, 1, 0, $parent['author-id']));
-			$store    = DI::userDefinedChannel()->match($searchtext, $language);
+			$content   = trim(($parent['title'] ?? '') . ' ' . ($parent['content-warning'] ?? '') . ' ' . ($parent['body'] ?? ''));
+			$languages = Item::getLanguageArray($content, 1, 0, $parent['author-id']);
+			$language  = !empty($languages) ? array_key_first($languages) : '';
+			$store     = DI::userDefinedChannel()->match($searchtext, $language);
 		}
 
 		$engagement = [
