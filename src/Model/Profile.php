@@ -22,6 +22,7 @@
 namespace Friendica\Model;
 
 use Friendica\App;
+use Friendica\App\Mode;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Cache\Enum\Duration;
@@ -507,29 +508,39 @@ class Profile
 	}
 
 	/**
+	 * Check if the event list should be displayed
+	 *
+	 * @param integer $uid
+	 * @param Mode $mode
+	 * @return boolean
+	 */
+	public static function displayEventList(int $uid, Mode $mode): bool
+	{
+		if (empty($uid) || $mode->isMobile()) {
+			return false;
+		}
+
+		if (!DI::pConfig()->get($uid, 'system', 'display_eventlist', true)) {
+			return false;
+		}
+
+		return !DI::config()->get('theme', 'hide_eventlist');
+	}
+
+	/**
 	 * Returns the upcoming birthdays of contacts of the current user as HTML content
+	 * @param int $uid  User Id
 	 *
 	 * @return string The upcoming birthdays (HTML)
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\ServiceUnavailableException
 	 * @throws \ImagickException
 	 */
-	public static function getBirthdays(): string
+	public static function getBirthdays(int $uid): string
 	{
-		if (!DI::userSession()->getLocalUserId() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
-			return '';
-		}
-
-		/*
-		* $mobile_detect = new Mobile_Detect();
-		* $is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
-		* 		if ($is_mobile)
-		* 			return $o;
-		*/
-
 		$bd_short = DI::l10n()->t('F d');
 
-		$cacheKey = 'get_birthdays:' . DI::userSession()->getLocalUserId();
+		$cacheKey = 'get_birthdays:' . $uid;
 		$events   = DI::cache()->get($cacheKey);
 		if (is_null($events)) {
 			$result = DBA::p(
@@ -546,7 +557,7 @@ class Profile
 				ORDER BY `start`",
 				Contact::SHARING,
 				Contact::FRIEND,
-				DI::userSession()->getLocalUserId(),
+				$uid,
 				DateTimeFormat::utc('now + 6 days'),
 				DateTimeFormat::utcNow()
 			);
@@ -610,30 +621,18 @@ class Profile
 
 	/**
 	 * Renders HTML for event reminder (e.g. contact birthdays
+	 * @param int $uid  User Id
+	 * @param int $pcid Public Contact Id
 	 *
 	 * @return string Rendered HTML
 	 */
-	public static function getEventsReminderHTML(): string
+	public static function getEventsReminderHTML(int $uid, int $pcid): string
 	{
-		$a = DI::app();
-		$o = '';
-
-		if (!DI::userSession()->getLocalUserId() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
-			return $o;
-		}
-
-		/*
-		* 	$mobile_detect = new Mobile_Detect();
-		* 		$is_mobile = $mobile_detect->isMobile() || $mobile_detect->isTablet();
-		* 		if ($is_mobile)
-		* 			return $o;
-		*/
-
 		$bd_format = DI::l10n()->t('g A l F d'); // 8 AM Friday January 18
 		$classtoday = '';
 
 		$condition = ["`uid` = ? AND `type` != 'birthday' AND `start` < ? AND `start` >= ?",
-			DI::userSession()->getLocalUserId(), DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utc('now - 1 days')];
+			$uid, DateTimeFormat::utc('now + 7 days'), DateTimeFormat::utc('now - 1 days')];
 		$s = DBA::select('event', [], $condition, ['order' => ['start']]);
 
 		$r = [];
@@ -643,7 +642,7 @@ class Profile
 			$total = 0;
 
 			while ($rr = DBA::fetch($s)) {
-				$condition = ['parent-uri' => $rr['uri'], 'uid' => $rr['uid'], 'author-id' => DI::userSession()->getPublicContactId(),
+				$condition = ['parent-uri' => $rr['uri'], 'uid' => $rr['uid'], 'author-id' => $pcid,
 					'vid' => [Verb::getID(Activity::ATTEND), Verb::getID(Activity::ATTENDMAYBE)],
 					'visible' => true, 'deleted' => false];
 				if (!Post::exists($condition)) {
