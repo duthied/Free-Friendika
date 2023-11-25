@@ -664,6 +664,8 @@ class Notify extends BaseRepository
 
 			$email = $emailBuilder->build();
 
+			$this->logger->debug('Send mail', $datarray);
+
 			// use the Emailer class to send the message
 			return $this->emailer->send($email);
 		}
@@ -796,7 +798,7 @@ class Notify extends BaseRepository
 				}
 			}
 		}
-
+// todo - check
 		$msg = $this->notification->getMessageFromNotification($Notification);
 		if (empty($msg)) {
 			$this->logger->info('No notification message, quitting', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
