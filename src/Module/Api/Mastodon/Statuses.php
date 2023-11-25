@@ -52,12 +52,13 @@ class Statuses extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		$request = $this->getRequest([
-			'status'         => '',    // Text content of the status. If media_ids is provided, this becomes optional. Attaching a poll is optional while status is provided.
-			'media_ids'      => [],    // Array of Attachment ids to be attached as media. If provided, status becomes optional, and poll cannot be used.
-			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
-			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
-			'language'       => '',    // ISO 639 language code for this status.
-			'friendica'      => [],
+			'status'           => '',    // Text content of the status. If media_ids is provided, this becomes optional. Attaching a poll is optional while status is provided.
+			'media_ids'        => [],    // Array of Attachment ids to be attached as media. If provided, status becomes optional, and poll cannot be used.
+			'in_reply_to_id'   => 0,     // ID of the status being replied to, if status is a reply
+			'spoiler_text'     => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
+			'language'         => '',    // ISO 639 language code for this status.
+			'media_attributes' => [],
+			'friendica'        => [],
 		], $request);
 
 		$owner = User::getOwnerDataById($uid);
@@ -119,6 +120,12 @@ class Statuses extends BaseApi
 		*/
 		$media_ids      = [];
 		$existing_media = array_column(Post\Media::getByURIId($post['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE]), 'id');
+
+		foreach ($request['media_attributes'] as $attributes) {
+			if (in_array($attributes['id'], $existing_media)) {
+				Post\Media::updateById(['description' => $attributes['description']], $attributes['id']);
+			}
+		}
 
 		foreach ($request['media_ids'] as $media) {
 			if (!in_array($media, $existing_media)) {
