@@ -2566,9 +2566,12 @@ class Item
 			$result = self::insert($datarray2);
 			Logger::info('remote-self post original item', ['contact' => $contact['url'], 'result' => $result, 'item' => $datarray2]);
 		} else {
-			$datarray['private'] = self::PUBLIC;
 			$datarray['app'] = 'Feed';
 			$result = true;
+		}
+
+		if ($result) {
+			unset($datarray['private']);
 		}
 
 		return (bool)$result;
