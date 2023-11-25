@@ -3629,7 +3629,7 @@ class Contact
 		];
 
 		if (!$show_blocked) {
-			$condition['server-blocked'] = true;
+			$condition['server-blocked'] = false;
 		}
 
 		if ($uid == 0) {
