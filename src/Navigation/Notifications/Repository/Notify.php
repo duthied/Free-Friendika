@@ -664,6 +664,8 @@ class Notify extends BaseRepository
 
 			$email = $emailBuilder->build();
 
+			$this->logger->debug('Send mail', $datarray);
+
 			// use the Emailer class to send the message
 			return $this->emailer->send($email);
 		}
