@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Protocol\ActivityPub;
 
+use Friendica\Core\Hook;
 use Friendica\DI;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub\Transmitter;
@@ -33,6 +34,9 @@ class TransmitterTest extends FixtureTest
 		parent::setUp();
 
 		DI::config()->set('system', 'no_smilies', false);
+
+		Hook::register('smilie', 'tests/Util/SmileyWhitespaceAddon.php', 'add_test_unicode_smilies');
+		Hook::loadHooks();
 	}
 
 	public function testEmojiPost()
@@ -42,8 +46,8 @@ class TransmitterTest extends FixtureTest
 		$note = Transmitter::createNote($post);
 		$this->assertNotNull($note);
 
-		$this->assertEquals(':like: :friendica: no <code>:dislike</code> :p: :embarrassed: ❤', $note['content']);
-		$emojis = array_fill_keys(['like', 'friendica', 'p', 'embarrassed'], true);
+		$this->assertEquals(':like: :friendica: no <code>:dislike</code> :p: :embarrassed: 🤗 ❤ :smileyheart333: 🔥', $note['content']);
+		$emojis = array_fill_keys(['like', 'friendica', 'p', 'embarrassed', 'smileyheart333'], true);
 		$this->assertEquals(count($emojis), count($note['tag']));
 		foreach ($note['tag'] as $emoji) {
 			$this->assertTrue(array_key_exists($emoji['name'], $emojis));

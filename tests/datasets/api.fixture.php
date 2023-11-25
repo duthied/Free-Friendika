@@ -371,7 +371,7 @@ return [
 		[
 			'uri-id' => 100,
 			'title'  => 'item_title',
-			'body'   => ':like ~friendica no [code]:dislike[/code] :-p :-[ <3',
+			'body'   => ':like ~friendica no [code]:dislike[/code] :-p :-[ :hugging face: <3 :smiley heart 333: ⽕',
 			'plink'  => 'https://friendica.local/post/100',
 		],
 	],
