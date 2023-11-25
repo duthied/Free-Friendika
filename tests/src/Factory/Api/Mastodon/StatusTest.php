@@ -21,8 +21,9 @@
 
 namespace Friendica\Test\src\Factory\Api\Mastodon;
 
-use Friendica\Model\Post;
+use Friendica\Core\Hook;
 use Friendica\DI;
+use Friendica\Model\Post;
 use Friendica\Test\FixtureTest;
 
 class StatusTest extends FixtureTest
@@ -35,6 +36,9 @@ class StatusTest extends FixtureTest
 
 		DI::config()->set('system', 'no_smilies', false);
 		$this->status = DI::mstdnStatus();
+
+		Hook::register('smilie', 'tests/Util/SmileyWhitespaceAddon.php', 'add_test_unicode_smilies');
+		Hook::loadHooks();
 	}
 
 	public function testSimpleStatus()
@@ -50,8 +54,8 @@ class StatusTest extends FixtureTest
 		$post = Post::selectFirst([], ['id' => 14]);
 		$this->assertNotNull($post);
 		$result = $this->status->createFromUriId($post['uri-id'])->toArray();
-		$this->assertEquals(':like: :friendica: no <code>:dislike</code> :p: :embarrassed: ❤', $result['content']);
-		$emojis = array_fill_keys(['like', 'friendica', 'p', 'embarrassed'], true);
+		$this->assertEquals(':like: :friendica: no <code>:dislike</code> :p: :embarrassed: 🤗 ❤ :smileyheart333: 🔥', $result['content']);
+		$emojis = array_fill_keys(['like', 'friendica', 'p', 'embarrassed', 'smileyheart333'], true);
 		$this->assertEquals(count($emojis), count($result['emojis']));
 		foreach ($result['emojis'] as $emoji) {
 			$this->assertTrue(array_key_exists($emoji['shortcode'], $emojis));

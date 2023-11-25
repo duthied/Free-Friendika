@@ -154,43 +154,6 @@ class Smilies
 	}
 
 	/**
-	 * Normalizes smiley shortcodes into texts with no special symbols.
-	 *
-	 * @return array
-	 *    'texts' => smilie shortcut
-	 *    'icons' => icon url or an empty string
-	 *    'norms' => normalized shortcut
-	 */
-	public static function getNormalizedList(): array
-	{
-		$smilies = self::getList();
-		$norms = [];
-		$icons = $smilies['icons'];
-		foreach ($smilies['texts'] as $i => $shortcode) {
-			// Extract urls
-			$icon = $icons[$i];
-			if (preg_match('/src="(.+?)"/', $icon, $match)) {
-				$icon = $match[1];
-			} else {
-				$icon = '';
-			}
-			$icons[$i] = $icon;
-
-			// Normalize name
-			$norm = preg_replace('/[\s\-:#~]/', '', $shortcode);
-			if (ctype_alnum($norm)) {
-				$norms[] = $norm;
-			} elseif (preg_match('#/smiley-(\w+)\.gif#', $icon, $match)) {
-				$norms[] = $match[1];
-			} else {
-				$norms[] = 'smiley' . $i;
-			}
-		}
-		$smilies['norms'] = $norms;
-		return $smilies;
-	}
-
-	/**
 	 * Finds all used smilies (denoted by quoting colons like :heart:) in the provided text and normalizes their usages.
 	 *
 	 * @param string $text that might contain smiley usages
@@ -206,18 +169,36 @@ class Smilies
 				if (strpos($text, '[nosmile]') !== false || self::noSmilies()) {
 					return $text;
 				}
-				$smilies = self::getNormalizedList();
-				$normalized = array_combine($smilies['texts'], $smilies['norms']);
+				$smilies = self::getList();
+				$normalized = [];
 				return self::performForEachWordMatch(
 					array_combine($smilies['texts'], $smilies['icons']),
 					$text,
 					function (string $name, string $image) use($normalized, &$emojis) {
-						$name = $normalized[$name];
-						if (preg_match('/src="(.+?)"/', $image, $match)) {
-							$image = $match[1];
-							$emojis[$name] = $image;
+						if (array_key_exists($name, $normalized)) {
+							return $normalized[$name];
 						}
-						return ':' . $name . ':';
+						if (preg_match('/src="(.+?)"/', $image, $match)) {
+							$url = $match[1];
+							// Image smilies, which should be normalized instead of being embedded for some protocols like ActivityPub.
+							// Normalize name
+							$norm = preg_replace('/[\s\-:#~]/', '', $name);
+							if (!ctype_alnum($norm)) {
+								if (preg_match('#/smiley-(\w+)\.gif#', $url, $match)) {
+									$norm = $match[1];
+								} else {
+									$norm = 'smiley' . count($normalized);
+								}
+							}
+							$shortcode = ':' . $norm . ':';
+							$normalized[$name] = $shortcode;
+							$emojis[$norm] = $url;
+							return $shortcode;
+						} else {
+							$normalized[$name] = $image;
+							// Probably text-substitution smilies (e.g., Unicode ones).
+							return $image;
+						}
 					},
 				);
 			});
@@ -240,11 +221,15 @@ class Smilies
 		$ord2_bitset = 0;
 		$prefixes = [];
 		foreach ($words as $word => $_) {
-			if (strlen($word) < 2 || !ctype_graph($word)) {
+			if (strlen($word) < 2) {
 				continue;
 			}
 			$ord1 = ord($word);
 			$ord2 = ord($word[1]);
+			// A smiley shortcode must not begin or end with whitespaces.
+			if (ctype_space($ord1) || ctype_space($word[strlen($word) - 1])) {
+				continue;
+			}
 			$ord1_bitset |= 1 << ($ord1 & 31);
 			$ord2_bitset |= 1 << ($ord2 & 31);
 			if (!array_key_exists($word[0], $prefixes)) {
@@ -253,52 +238,37 @@ class Smilies
 			$prefixes[$word[0]][] = $word;
 		}
 
+		$slength = strlen($subject);
 		$result = '';
+		// $processed is used to delay string concatenation since appending a char every loop is inefficient.
 		$processed = 0;
-		$s_start = 0; // Segment start
-		// No spaces are allowed in smilies, so they can serve as delimiters.
-		// Splitting by some delimiters may not necessary though?
-		while (true) {
-			if ($s_start >= strlen($subject)) {
-				$result .= substr($subject, $processed);
-				break;
-			}
-			if (preg_match('/\s+?(?=\S|$)/', $subject, $match, PREG_OFFSET_CAPTURE, $s_start)) {
-				[$whitespaces, $s_end] = $match[0];
-			} else {
-				$s_end = strlen($subject);
-				$whitespaces = '';
-			}
-			$s_length = $s_end - $s_start;
-			if ($s_length > 1) {
-				$segment = substr($subject, $s_start, $s_length);
-				// Find possible starting points for smilies.
-				// For built-in smilies, the two bitsets should make attempts quite efficient.
-				// However, presuming custom smilies follow the format of ":shortcode" or ":shortcode:",
-				// if the user adds more smilies (with addons), the second bitset may eventually become useless.
-				for ($i = 0; $i < $s_length - 1; $i++) {
-					$c = $segment[$i];
-					$d = $segment[$i + 1];
-					if (($ord1_bitset & (1 << (ord($c) & 31))) && ($ord2_bitset & (1 << (ord($d) & 31))) && array_key_exists($c, $prefixes)) {
-						foreach ($prefixes[$c] as $word) {
-							$wlength = strlen($word);
-							if ($wlength <= $s_length - $i && substr($segment, $i, $wlength) === $word) {
-								// Check for boundaries
-								if (($i === 0 || ctype_space($segment[$i - 1]) || ctype_punct($segment[$i - 1]))
-									&& ($i + $wlength >= $s_length || ctype_space($segment[$i + $wlength]) || ctype_punct($segment[$i + $wlength]))) {
-									$result .= substr($subject, $processed, $s_start - $processed + $i);
-									$result .= call_user_func($callback, $word, $words[$word]);
-									$i += $wlength;
-									$processed = $s_start + $i;
-									$i--;
-									break;
-								}
-							}
+		// Find possible starting points for smilies.
+		// For built-in smilies, the two bitsets should make attempts quite efficient.
+		// However, presuming custom smilies follow the format of ":shortcode" or ":shortcode:",
+		// if the user adds more smilies (with addons), the second bitset may eventually become useless.
+		for ($i = 0; $i < $slength - 1; $i++) {
+			$c = $subject[$i];
+			$d = $subject[$i + 1];
+			if (($ord1_bitset & (1 << (ord($c) & 31))) && ($ord2_bitset & (1 << (ord($d) & 31))) && array_key_exists($c, $prefixes)) {
+				foreach ($prefixes[$c] as $word) {
+					$wlength = strlen($word);
+					if (substr($subject, $i, $wlength) === $word) {
+						// Check for boundaries
+						if (($i === 0 || ctype_space($subject[$i - 1]) || ctype_punct($subject[$i - 1]))
+							&& ($i + $wlength >= $slength || ctype_space($subject[$i + $wlength]) || ctype_punct($subject[$i + $wlength]))) {
+							$result .= substr($subject, $processed, $i - $processed);
+							$result .= call_user_func($callback, $word, $words[$word]);
+							$i += $wlength;
+							$processed = $i;
+							$i--;
+							break;
 						}
 					}
 				}
 			}
-			$s_start = $s_end + strlen($whitespaces);
+		}
+		if ($processed < $slength) {
+			$result .= substr($subject, $processed);
 		}
 		return $result;
 	}

@@ -26,6 +26,7 @@
 namespace Friendica\Test\src\Content;
 
 use Friendica\Content\Smilies;
+use Friendica\Core\Hook;
 use Friendica\DI;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Test\FixtureTest;
@@ -37,6 +38,9 @@ class SmiliesTest extends FixtureTest
 		parent::setUp();
 
 		DI::config()->set('system', 'no_smilies', false);
+
+		Hook::register('smilie', 'tests/Util/SmileyWhitespaceAddon.php', 'add_test_unicode_smilies');
+		Hook::loadHooks();
 	}
 
 	public function dataLinks()
@@ -184,6 +188,26 @@ class SmiliesTest extends FixtureTest
 				'expected' => '(3&lt;33)',
 				'body' => '(3&lt;33)',
 			],
+			'space' => [
+				'expected' => 'alt="smiley-heart"',
+				'body' => ':smiley heart 333:',
+			],
+			'substitution-1' => [
+				'expected' => '&#x1F525;',
+				'body' => '⽕',
+			],
+			'substitution-2' => [
+				'expected' => '&#x1F917;',
+				'body' => ':hugging face:',
+			],
+			'substitution-3' => [
+				'expected' => '&#x1F92D;',
+				'body' => ':face with hand over mouth:',
+			],
+			'mixed' => [
+				'expected' => '&#x1F525; &#x1F92D; invalid:hugging face: &#x1F917;',
+				'body' => '⽕ :face with hand over mouth: invalid:hugging face: :hugging face:',
+			],
 		];
 		foreach ([':-[', ':-D', 'o.O'] as $emoji) {
 			foreach (['A', '_', ':', '-'] as $prefix) {
@@ -244,6 +268,31 @@ class SmiliesTest extends FixtureTest
 				'expected' => ['friendica'],
 				'body' => '~friendica',
 				'normalized' => ':friendica:'
+			],
+			'space' => [
+				'expected' => ['smileyheart333'],
+				'body' => ':smiley heart 333:',
+				'normalized' => ':smileyheart333:'
+			],
+			'substitution-1' => [
+				'expected' => [],
+				'body' => '⽕',
+				'normalized' => '&#x1F525;',
+			],
+			'substitution-2' => [
+				'expected' => [],
+				'body' => ':hugging face:',
+				'normalized' => '&#x1F917;',
+			],
+			'substitution-3' => [
+				'expected' => [],
+				'body' => ':face with hand over mouth:',
+				'normalized' => '&#x1F92D;',
+			],
+			'mixed' => [
+				'expected' => [],
+				'body' => '⽕ :face with hand over mouth: invalid:hugging face: :hugging face:',
+				'normalized' => '&#x1F525; &#x1F92D; invalid:hugging face: &#x1F917;',
 			],
 		];
 	}
