@@ -20,6 +20,7 @@
 	{{include file="field_checkbox.tpl" field=$display_resharer}}
 	{{include file="field_checkbox.tpl" field=$stay_local}}
 	{{include file="field_checkbox.tpl" field=$show_page_drop}}
+	{{include file="field_checkbox.tpl" field=$display_eventlist}}
 	{{include file="field_select.tpl" field=$preview_mode}}
 
 	<h2>{{$timeline_title}}</h2>

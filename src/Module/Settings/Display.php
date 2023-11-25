@@ -108,6 +108,7 @@ class Display extends BaseSettings
 		$display_resharer       = (bool)$request['display_resharer'];
 		$stay_local             = (bool)$request['stay_local'];
 		$show_page_drop         = (bool)$request['show_page_drop'];
+		$display_eventlist      = (bool)$request['display_eventlist'];
 		$preview_mode           = (int)$request['preview_mode'];
 		$browser_update         = (int)$request['browser_update'];
 		if ($browser_update != -1) {
@@ -158,6 +159,7 @@ class Display extends BaseSettings
 		$this->pConfig->set($uid, 'system', 'display_resharer'        , $display_resharer);
 		$this->pConfig->set($uid, 'system', 'stay_local'              , $stay_local);
 		$this->pConfig->set($uid, 'system', 'show_page_drop'          , $show_page_drop);
+		$this->pConfig->set($uid, 'system', 'display_eventlist'       , $display_eventlist);
 		$this->pConfig->set($uid, 'system', 'preview_mode'            , $preview_mode);
 
 		$this->pConfig->set($uid, 'system', 'network_timelines'       , $network_timelines);
@@ -251,6 +253,7 @@ class Display extends BaseSettings
 		$display_resharer       =  $this->pConfig->get($uid, 'system', 'display_resharer', false);
 		$stay_local             =  $this->pConfig->get($uid, 'system', 'stay_local', false);
 		$show_page_drop         =  $this->pConfig->get($uid, 'system', 'show_page_drop', true);
+		$display_eventlist      =  $this->pConfig->get($uid, 'system', 'display_eventlist', true);
 
 		$preview_mode  =  $this->pConfig->get($uid, 'system', 'preview_mode', BBCode::PREVIEW_LARGE);
 		$preview_modes = [
@@ -329,6 +332,7 @@ class Display extends BaseSettings
 			'$display_resharer'         => ['display_resharer'        , $this->t('Display the resharer'), $display_resharer, $this->t('Display the first resharer as icon and text on a reshared item.')],
 			'$stay_local'               => ['stay_local'              , $this->t('Stay local'), $stay_local, $this->t("Don't go to a remote system when following a contact link.")],
 			'$show_page_drop'           => ['show_page_drop'          , $this->t('Show the post deletion checkbox'), $show_page_drop, $this->t("Display the checkbox for the post deletion on the network page.")],
+			'$display_eventlist'        => ['display_eventlist'       , $this->t('DIsplay the event list'), $display_eventlist, $this->t("Display the birthday reminder and event list on the network page.")],
 			'$preview_mode'             => ['preview_mode'            , $this->t('Link preview mode'), $preview_mode, $this->t('Appearance of the link preview that is added to each post with a link.'), $preview_modes, false],
 
 			'$timeline_label'       => $this->t('Label'),
