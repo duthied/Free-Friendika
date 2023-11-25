@@ -47,7 +47,7 @@ class Configuration extends BaseDataTransferObject
 		StatusesConfig $statuses,
 		MediaAttachmentsConfig $media_attachments,
 		Polls $polls,
-		Accounts $accounts,
+		Accounts $accounts
 	) {
 		$this->accounts          = $accounts;
 		$this->statuses          = $statuses;
