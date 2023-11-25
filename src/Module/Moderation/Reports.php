@@ -76,7 +76,7 @@ class Reports extends BaseModeration
 		while ($post = $this->database->fetch($posts)) {
 			if (in_array($post['rid'], array_keys($reports))) {
 				$post['created'] = DateTimeFormat::local($post['created'], DateTimeFormat::MYSQL);
-				$post['body']    = BBCode::toPlaintext($post['body']);
+				$post['body']    = BBCode::toPlaintext($post['body'] ?? '');
 
 				$reports[$post['rid']]['posts'][] = $post;
 			}
