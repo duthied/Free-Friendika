@@ -798,7 +798,7 @@ class Notify extends BaseRepository
 				}
 			}
 		}
-// todo - check
+
 		$msg = $this->notification->getMessageFromNotification($Notification);
 		if (empty($msg)) {
 			$this->logger->info('No notification message, quitting', ['uid' => $Notification->uid, 'id' => $Notification->id, 'type' => $Notification->type]);
