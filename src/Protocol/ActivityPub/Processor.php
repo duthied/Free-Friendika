@@ -606,7 +606,7 @@ class Processor
 		} catch (\Exception $exception) {
 			Logger::notice('Error fetching url', ['url' => $url, 'exception' => $exception]);
 			return true;
-		}	
+		}
 
 		// @todo To ensure that the remote system is working correctly, we can check if the "Content-Type" contains JSON
 		if (in_array($curlResult->getReturnCode(), [401, 404])) {
@@ -1114,7 +1114,7 @@ class Processor
 				if (!empty($item['source']) && DI::config()->get('debug', 'store_source')) {
 					Post\Activity::insert($item['uri-id'], $item['source']);
 				}
-		
+
 				continue;
 			}
 
@@ -1613,7 +1613,7 @@ class Processor
 		} else {
 			return null;
 		}
-	
+
 		$ldactivity['recursion-depth'] = !empty($child['recursion-depth']) ? $child['recursion-depth'] + 1 : 0;
 
 		if ($object_actor != $actor) {
@@ -1725,7 +1725,7 @@ class Processor
 		$tags = Receiver::processTags(JsonLD::fetchElementArray($activity['as:object'], 'as:tag') ?? []);
 		if (!empty($tags)) {
 			foreach ($tags as $tag) {
-				if (($tag['type'] != 'Hashtag') && !strpos($tag['type'], ':Hashtag')) {
+				if (($tag['type'] != 'Hashtag') && !strpos($tag['type'], ':Hashtag') || empty($tag['name'])) {
 					continue;
 				}
 				$messageTags[] = ltrim(mb_strtolower($tag['name']), '#');
