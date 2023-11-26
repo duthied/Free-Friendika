@@ -224,10 +224,10 @@ class Smilies
 			if (strlen($word) < 2) {
 				continue;
 			}
-			$ord1 = ord($word);
+			$ord1 = ord($word[0]);
 			$ord2 = ord($word[1]);
 			// A smiley shortcode must not begin or end with whitespaces.
-			if (ctype_space($ord1) || ctype_space($word[strlen($word) - 1])) {
+			if (ctype_space($word[0]) || ctype_space($word[strlen($word) - 1])) {
 				continue;
 			}
 			$ord1_bitset |= 1 << ($ord1 & 31);
