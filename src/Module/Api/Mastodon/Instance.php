@@ -26,6 +26,8 @@ use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\Database;
+use Friendica\Factory\Api\Mastodon\Account as AccountFactory;
+use Friendica\Model\User;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
 use Friendica\Object\Api\Mastodon\Instance as InstanceEntity;
@@ -46,12 +48,16 @@ class Instance extends BaseApi
 	/** @var IManageConfigValues */
 	private $config;
 
-	public function __construct(\Friendica\Factory\Api\Mastodon\Error $errorFactory, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, Database $database, IManageConfigValues $config, array $server, array $parameters = [])
+	/** @var AccountFactory */
+	private $accountFactory;
+
+	public function __construct(AccountFactory $accountFactory, \Friendica\Factory\Api\Mastodon\Error $errorFactory, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, Database $database, IManageConfigValues $config, array $server, array $parameters = [])
 	{
 		parent::__construct($errorFactory, $app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->database = $database;
 		$this->config = $config;
+		$this->accountFactory = $accountFactory;
 	}
 
 	/**
@@ -62,7 +68,13 @@ class Instance extends BaseApi
 	 */
 	protected function rawContent(array $request = [])
 	{
-		$this->jsonExit(new InstanceEntity($this->config, $this->baseUrl, $this->database, System::getRules(), $this->buildConfigurationInfo()));
+		$administrator = User::getFirstAdmin(['nickname']);
+		if ($administrator) {
+			$adminContact = $this->database->selectFirst('contact', ['uri-id'], ['nick' => $administrator['nickname'], 'self' => true]);
+			$contact_account = $this->accountFactory->createFromUriId($adminContact['uri-id']);
+		}
+
+		$this->jsonExit(new InstanceEntity($this->config, $this->baseUrl, $this->database, $this->buildConfigurationInfo(), $contact_account ?? null, System::getRules()));
 	}
 
 	private function buildConfigurationInfo(): InstanceV2Entity\Configuration
