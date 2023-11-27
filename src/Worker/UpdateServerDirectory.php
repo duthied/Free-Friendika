@@ -36,6 +36,10 @@ class UpdateServerDirectory
 	 */
 	public static function execute(array $gserver)
 	{
+		if (!DI::config()->get('system', 'poco_discovery')) {
+			return;
+		}
+
 		if ($gserver['directory-type'] == GServer::DT_MASTODON) {
 			self::discoverMastodonDirectory($gserver);
 		} elseif (!empty($gserver['poco'])) {
