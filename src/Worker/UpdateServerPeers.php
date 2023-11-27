@@ -40,6 +40,10 @@ class UpdateServerPeers
 	 */
 	public static function execute(string $url)
 	{
+		if (!DI::config()->get('system', 'poco_discovery')) {
+			return;
+		}
+
 		$ret = DI::httpClient()->get($url . '/api/v1/instance/peers', HttpClientAccept::JSON);
 		if (!$ret->isSuccess() || empty($ret->getBody())) {
 			Logger::info('Server is not reachable or does not offer the "peers" endpoint', ['url' => $url]);

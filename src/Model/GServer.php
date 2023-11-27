@@ -2373,16 +2373,16 @@ class GServer
 	 */
 	public static function discover()
 	{
+		if (!DI::config('system', 'discover_servers')) {
+			return;
+		}
+
 		// Update the server list
 		self::discoverFederation();
 
 		$no_of_queries = 5;
 
 		$requery_days = intval(DI::config()->get('system', 'poco_requery_days'));
-
-		if ($requery_days == 0) {
-			$requery_days = 7;
-		}
 
 		$last_update = date('c', time() - (60 * 60 * 24 * $requery_days));
 

@@ -76,7 +76,9 @@ class Cron
 		Worker::add(Worker::PRIORITY_LOW, 'UpdateGServers');
 
 		// run the process to update server directories in the background
-		Worker::add(Worker::PRIORITY_LOW, 'UpdateServerDirectories');
+		if (DI::config()->get('system', 'poco_discovery')) {
+			Worker::add(Worker::PRIORITY_LOW, 'UpdateServerDirectories');
+		}
 
 		// Expire and remove user entries
 		Worker::add(Worker::PRIORITY_MEDIUM, 'ExpireAndRemoveUsers');

@@ -212,6 +212,14 @@ return [
 		// The fully-qualified URL of this Friendica node.
 		// Used by the worker in a non-HTTP execution environment.
 		'url' => '',
+
+		// poco_discovery (Boolean)
+		// If enabled, the system will check for the existance of other contacts and servers
+		'poco_discovery' => false,
+
+		// poco_requery_days (Integer)
+		// Number of days after which a server is requeried for their contacts and servers it knows of.
+		'poco_requery_days' => 30,
 	],
 
 	// Used in the admin settings to lock certain features

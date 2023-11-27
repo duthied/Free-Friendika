@@ -111,6 +111,7 @@ class Site extends BaseAdmin
 		$min_memory             = (!empty($_POST['min_memory'])             ? intval(trim($_POST['min_memory']))             : 0);
 		$optimize_tables        = (!empty($_POST['optimize_tables'])        ? intval(trim($_POST['optimize_tables']))        : false);
 		$contact_discovery      = (!empty($_POST['contact_discovery'])      ? intval(trim($_POST['contact_discovery']))      : Contact\Relation::DISCOVERY_NONE);
+		$update_active_contacts = (!empty($_POST['update_active_contacts']) ? intval(trim($_POST['update_active_contacts'])) : false);
 		$synchronize_directory  = (!empty($_POST['synchronize_directory'])  ? intval(trim($_POST['synchronize_directory']))  : false);
 		$poco_requery_days      = (!empty($_POST['poco_requery_days'])      ? intval(trim($_POST['poco_requery_days']))      : 7);
 		$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : false);
@@ -156,15 +157,16 @@ class Site extends BaseAdmin
 			$diaspora_enabled = false;
 		}
 
-		$transactionConfig->set('system', 'maxloadavg'            , $maxloadavg);
-		$transactionConfig->set('system', 'min_memory'            , $min_memory);
-		$transactionConfig->set('system', 'optimize_tables'       , $optimize_tables);
-		$transactionConfig->set('system', 'contact_discovery'     , $contact_discovery);
-		$transactionConfig->set('system', 'synchronize_directory' , $synchronize_directory);
-		$transactionConfig->set('system', 'poco_requery_days'     , $poco_requery_days);
-		$transactionConfig->set('system', 'poco_discovery'        , $poco_discovery);
-		$transactionConfig->set('system', 'poco_local_search'     , $poco_local_search);
-		$transactionConfig->set('system', 'nodeinfo'              , $nodeinfo);
+		$transactionConfig->set('system', 'maxloadavg'             , $maxloadavg);
+		$transactionConfig->set('system', 'min_memory'             , $min_memory);
+		$transactionConfig->set('system', 'optimize_tables'        , $optimize_tables);
+		$transactionConfig->set('system', 'contact_discovery'      , $contact_discovery);
+		$transactionConfig->set('system', 'update_active_contacts' , $update_active_contacts);
+		$transactionConfig->set('system', 'synchronize_directory'  , $synchronize_directory);
+		$transactionConfig->set('system', 'poco_requery_days'      , $poco_requery_days);
+		$transactionConfig->set('system', 'poco_discovery'         , $poco_discovery);
+		$transactionConfig->set('system', 'poco_local_search'      , $poco_local_search);
+		$transactionConfig->set('system', 'nodeinfo'               , $nodeinfo);
 		if (DI::config()->isWritable('config', 'sitename')) {
 			$transactionConfig->set('config', 'sitename', $sitename);
 		}
@@ -486,10 +488,11 @@ class Site extends BaseAdmin
 				'<li>' . DI::l10n()->t('Local contacts - contacts of our local contacts are discovered for their followers/followings.') . '</li>' .
 				'<li>' . DI::l10n()->t('Interactors - contacts of our local contacts and contacts who interacted on locally visible postings are discovered for their followers/followings.') . '</li></ul>',
 				$discovery_choices],
+			'$update_active_contacts' => ['update_active_contacts', DI::l10n()->t('Only update contacts/servers with local data'), DI::config()->get('system', 'update_active_contacts'), DI::l10n()->t('If enabled, the system will only look for changes in contacts and servers that engaged on this system by either being in a contact list of a user or when posts or comments exists from the contact on this system.')],	
 			'$synchronize_directory'  => ['synchronize_directory', DI::l10n()->t('Synchronize the contacts with the directory server'), DI::config()->get('system', 'synchronize_directory'), DI::l10n()->t('if enabled, the system will check periodically for new contacts on the defined directory server.')],
 
-			'$poco_requery_days'      => ['poco_requery_days', DI::l10n()->t('Days between requery'), DI::config()->get('system', 'poco_requery_days'), DI::l10n()->t('Number of days after which a server is requeried for his contacts.')],
-			'$poco_discovery'         => ['poco_discovery', DI::l10n()->t('Discover contacts from other servers'), DI::config()->get('system', 'poco_discovery'), DI::l10n()->t('Periodically query other servers for contacts. The system queries Friendica, Mastodon and Hubzilla servers.')],
+			'$poco_discovery'         => ['poco_discovery', DI::l10n()->t('Discover contacts from other servers'), DI::config()->get('system', 'poco_discovery'), DI::l10n()->t('Periodically query other servers for contacts and servers that they know of. The system queries Friendica, Mastodon and Hubzilla servers. Keep it deactivated on small machines to decrease the database size and load.')],
+			'$poco_requery_days'      => ['poco_requery_days', DI::l10n()->t('Days between requery'), DI::config()->get('system', 'poco_requery_days'), DI::l10n()->t('Number of days after which a server is requeried for their contacts and servers it knows of. This is only used when the discovery is activated.')],
 			'$poco_local_search'      => ['poco_local_search', DI::l10n()->t('Search the local directory'), DI::config()->get('system', 'poco_local_search'), DI::l10n()->t('Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.')],
 
 			'$nodeinfo'               => ['nodeinfo', DI::l10n()->t('Publish server information'), DI::config()->get('system', 'nodeinfo'), DI::l10n()->t('If enabled, general server and usage data will be published. The data contains the name and version of the server, number of users with public profiles, number of posts and the activated protocols and connectors. See <a href="http://the-federation.info/">the-federation.info</a> for details.')],
