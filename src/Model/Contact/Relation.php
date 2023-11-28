@@ -482,12 +482,11 @@ class Relation
 	 */
 	public static function countFollows(int $cid, array $condition = []): int
 	{
-		$condition = DBA::mergeConditions($condition, [
-			'`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`)',
-			$cid,
-		]);
+		$condition = DBA::mergeConditions($condition, ["`cid` = ? and `follows`", $cid]);
+		$sql = "SELECT COUNT(*) AS `total` FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `relation-cid` WHERE " . array_shift($condition);
 
-		return DI::dba()->count('contact', $condition);
+		$result = DBA::fetchFirst($sql, $condition);
+		return $result['total'] ?? 0;
 	}
 
 	/**
@@ -497,20 +496,18 @@ class Relation
 	 * @param array $condition Additional condition on the contact table
 	 * @param int   $count
 	 * @param int   $offset
-	 * @param bool  $shuffle
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function listFollows(int $cid, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
+	public static function listFollows(int $cid, array $condition = [], int $count = 30, int $offset = 0)
 	{
-		$condition = DBA::mergeConditions($condition,
-			['`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`)',
-			$cid]
-		);
-
-		return DI::dba()->selectToArray('contact', [], $condition,
-			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
-		);
+		$condition = DBA::mergeConditions($condition, ["`cid` = ? and `follows`", $cid]);
+		$sql = "SELECT `contact`.* FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `relation-cid` WHERE " . array_shift($condition);
+		if ($count > 0) {
+			$sql .= " LIMIT ?, ?";
+			$condition = array_merge($condition, [$offset, $count]);
+		}
+		return DBA::toArray(DBA::p($sql, $condition));
 	}
 
 	/**
@@ -523,12 +520,11 @@ class Relation
 	 */
 	public static function countFollowers(int $cid, array $condition = [])
 	{
-		$condition = DBA::mergeConditions($condition,
-			['`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`)',
-			$cid]
-		);
+		$condition = DBA::mergeConditions($condition, ["`relation-cid` = ? and `follows`", $cid]);
+		$sql = "SELECT COUNT(*) AS `total` FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `cid` WHERE " . array_shift($condition);
 
-		return DI::dba()->count('contact', $condition);
+		$result = DBA::fetchFirst($sql, $condition);
+		return $result['total'] ?? 0;
 	}
 
 	/**
@@ -538,19 +534,18 @@ class Relation
 	 * @param array $condition Additional condition on the contact table
 	 * @param int   $count
 	 * @param int   $offset
-	 * @param bool  $shuffle
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function listFollowers(int $cid, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
+	public static function listFollowers(int $cid, array $condition = [], int $count = 30, int $offset = 0)
 	{
-		$condition = DBA::mergeConditions($condition,
-			['`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`)', $cid]
-		);
-
-		return DI::dba()->selectToArray('contact', [], $condition,
-			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
-		);
+		$condition = DBA::mergeConditions($condition, ["`relation-cid` = ? and `follows`", $cid]);
+		$sql = "SELECT `contact`.* FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `cid` WHERE " . array_shift($condition);
+		if ($count > 0) {
+			$sql .= " LIMIT ?, ?";
+			$condition = array_merge($condition, [$offset, $count]);
+		}
+		return DBA::toArray(DBA::p($sql, $condition));
 	}
 
 	/**
@@ -563,13 +558,21 @@ class Relation
 	 */
 	public static function countMutuals(int $cid, array $condition = [])
 	{
-		$condition = DBA::mergeConditions($condition,
-			['`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
-			AND `id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`)',
-			$cid, $cid]
-		);
+		$condition1 = DBA::mergeConditions($condition, ["`cid` = ? and `follows`", $cid]);
+		$condition2 = DBA::mergeConditions($condition, ["`relation-cid` = ? and `follows`", $cid]);
+		$sql1 = "SELECT `contact`.`id` FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `relation-cid` WHERE " . array_shift($condition1);
+		$sql2 = "SELECT `contact`.`id` FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `cid` WHERE " . array_shift($condition2);
+		$union = array_merge($condition1, $condition2);
+		$sql = $sql1 . " INTERSECT " . $sql2;
 
-		return DI::dba()->count('contact', $condition);
+		$contacts = 0;
+		$query = DBA::p($sql, $union);
+		while (DBA::fetch($query)) {
+			$contacts++;
+		}
+		DBA::close($query);
+
+		return $contacts;
 	}
 
 	/**
@@ -579,23 +582,23 @@ class Relation
 	 * @param array $condition Additional condition on the contact table
 	 * @param int   $count
 	 * @param int   $offset
-	 * @param bool  $shuffle
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function listMutuals(int $cid, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
+	public static function listMutuals(int $cid, array $condition = [], int $count = 30, int $offset = 0)
 	{
-		$condition = DBA::mergeConditions($condition,
-			['`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
-			AND `id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`)',
-			$cid, $cid]
-		);
-
-		return DI::dba()->selectToArray('contact', [], $condition,
-			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
-		);
+		$condition1 = DBA::mergeConditions($condition, ["`cid` = ? and `follows`", $cid]);
+		$condition2 = DBA::mergeConditions($condition, ["`relation-cid` = ? and `follows`", $cid]);
+		$sql1 = "SELECT `contact`.* FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `relation-cid` WHERE " . array_shift($condition1);
+		$sql2 = "SELECT `contact`.* FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `cid` WHERE " . array_shift($condition2);
+		$union = array_merge($condition1, $condition2);
+		$sql = $sql1 . " INTERSECT " . $sql2;
+		if ($count > 0) {
+			$sql .= " LIMIT ?, ?";
+			$union = array_merge($union, [$offset, $count]);
+		}
+		return DBA::toArray(DBA::p($sql, $union));
 	}
-
 
 	/**
 	 * Counts the number of contacts with any relationship with the provided public contact.
@@ -607,13 +610,21 @@ class Relation
 	 */
 	public static function countAll(int $cid, array $condition = [])
 	{
-		$condition = DBA::mergeConditions($condition,
-			['(`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
-			OR `id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`))',
-				$cid, $cid]
-		);
+		$condition1 = DBA::mergeConditions($condition, ["`cid` = ? and `follows`", $cid]);
+		$condition2 = DBA::mergeConditions($condition, ["`relation-cid` = ? and `follows`", $cid]);
+		$sql1 = "SELECT `contact`.`id` FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `relation-cid` WHERE " . array_shift($condition1);
+		$sql2 = "SELECT `contact`.`id` FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `cid` WHERE " .array_shift($condition2);
+		$union = array_merge($condition1, $condition2);
+		$sql = $sql1 . " UNION " . $sql2;
 
-		return DI::dba()->count('contact', $condition);
+		$contacts = 0;
+		$query = DBA::p($sql, $union);
+		while (DBA::fetch($query)) {
+			$contacts++;
+		}
+		DBA::close($query);
+
+		return $contacts;
 	}
 
 	/**
@@ -623,21 +634,22 @@ class Relation
 	 * @param array $condition Additional condition on the contact table
 	 * @param int   $count
 	 * @param int   $offset
-	 * @param bool  $shuffle
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function listAll(int $cid, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
+	public static function listAll(int $cid, array $condition = [], int $count = 30, int $offset = 0)
 	{
-		$condition = DBA::mergeConditions($condition,
-			['(`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
-			OR `id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`))',
-				$cid, $cid]
-		);
-
-		return DI::dba()->selectToArray('contact', [], $condition,
-			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
-		);
+		$condition1 = DBA::mergeConditions($condition, ["`cid` = ? and `follows`", $cid]);
+		$condition2 = DBA::mergeConditions($condition, ["`relation-cid` = ? and `follows`", $cid]);
+		$sql1 = "SELECT `contact`.* FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `relation-cid` WHERE " . array_shift($condition1);
+		$sql2 = "SELECT `contact`.* FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `cid` WHERE " .array_shift($condition2);
+		$union = array_merge($condition1, $condition2);
+		$sql = $sql1 . " UNION " . $sql2;
+		if ($count > 0) {
+			$sql .= " LIMIT ?, ?";
+			$union = array_merge($union, [$offset, $count]);
+		}
+		return DBA::toArray(DBA::p($sql, $union));
 	}
 
 	/**
@@ -652,13 +664,21 @@ class Relation
 	 */
 	public static function countCommon(int $sourceId, int $targetId, array $condition = [])
 	{
-		$condition = DBA::mergeConditions($condition,
-			['`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ?) 
-			AND `id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ?)',
-			$sourceId, $targetId]
-		);
+		$condition1 = DBA::mergeConditions($condition, ["`relation-cid` = ?", $sourceId]);
+		$condition2 = DBA::mergeConditions($condition, ["`relation-cid` = ?", $targetId]);
+		$sql1 = "SELECT `contact`.`id` FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `cid` WHERE " . array_shift($condition1);
+		$sql2 = "SELECT `contact`.`id` FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `cid` WHERE " .array_shift($condition2);
+		$union = array_merge($condition1, $condition2);
+		$sql = $sql1 . " INTERSECT " . $sql2;
 
-		return DI::dba()->count('contact', $condition);
+		$contacts = 0;
+		$query = DBA::p($sql, $union);
+		while (DBA::fetch($query)) {
+			$contacts++;
+		}
+		DBA::close($query);
+
+		return $contacts;
 	}
 
 	/**
@@ -670,21 +690,22 @@ class Relation
 	 * @param array $condition Additional condition on the contact table
 	 * @param int   $count
 	 * @param int   $offset
-	 * @param bool  $shuffle
 	 * @return array|bool Array on success, false on failure
 	 * @throws Exception
 	 */
-	public static function listCommon(int $sourceId, int $targetId, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
+	public static function listCommon(int $sourceId, int $targetId, array $condition = [], int $count = 30, int $offset = 0)
 	{
-		$condition = DBA::mergeConditions($condition,
-			["`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ?) 
-			AND `id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ?)",
-			$sourceId, $targetId]
-		);
-
-		return DI::dba()->selectToArray('contact', [], $condition,
-			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
-		);
+		$condition1 = DBA::mergeConditions($condition, ["`relation-cid` = ?", $sourceId]);
+		$condition2 = DBA::mergeConditions($condition, ["`relation-cid` = ?", $targetId]);
+		$sql1 = "SELECT `contact`.* FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `cid` WHERE " . array_shift($condition1);
+		$sql2 = "SELECT `contact`.* FROM `contact-relation` INNER JOIN `contact` ON `contact`.`id` = `cid` WHERE " .array_shift($condition2);
+		$union = array_merge($condition1, $condition2);
+		$sql = $sql1 . " INTERSECT " . $sql2;
+		if ($count > 0) {
+			$sql .= " LIMIT ?, ?";
+			$union = array_merge($union, [$offset, $count]);
+		}
+		return DBA::toArray(DBA::p($sql, $union));
 	}
 
 	/**
