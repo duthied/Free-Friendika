@@ -93,10 +93,6 @@ return [
 		'php_path' => 'php',
 	],
 	'system' => [
-		// adjust_poll_frequency (Boolean)
-		// Automatically detect and set the best feed poll frequency.
-		'adjust_poll_frequency' => false,
-
 		// allowed_link_protocols (Array)
 		// Allowed protocols in links URLs, add at your own risk. http(s) is always allowed.
 		'allowed_link_protocols' => ['ftp://', 'ftps://', 'mailto:', 'cid:', 'gopher://'],
@@ -138,7 +134,7 @@ return [
 
 		// big_emojis (Boolean)
 		// Display "Emoji Only" posts in big.
-		'big_emojis' => false,
+		'big_emojis' => true,
 
 		// bulk_delivery (Boolean)
 		// Delivers AP messages in a bulk (experimental)
@@ -168,10 +164,6 @@ return [
 		// Whether to use Memcache, Memcached, Redis or APCu to store temporary cache.
 		'cache_driver' => 'database',
 
-		// decoupled_receiver (Boolean)
-		// Decouple incoming AP posts by doing the processing in the background.
-		'decoupled_receiver' => false,
-
 		// distributed_cache_driver (database|memcache|memcached|redis)
 		// Whether to use database, Memcache, Memcached or Redis as a distributed cache.
 		'distributed_cache_driver' => 'database',
@@ -183,10 +175,6 @@ return [
 		// config_adapter (jit|preload)
 		// Allow to switch the configuration adapter to improve performances at the cost of memory consumption.
 		'config_adapter' => 'jit',
-
-		// curl_range_bytes (Integer)
-		// Maximum number of bytes that should be fetched. Default is 0, which mean "no limit".
-		'curl_range_bytes' => 0,
 
 		// crawl_permit_period (Integer)
 		// Period in seconds between allowed searches when the number of free searches is reached and "permit_crawling" is activated.
@@ -372,13 +360,9 @@ return [
 		// Used in conjunction with "block_public".
 		'local_block' => false,
 
-		// local_search (Boolean)
-		// Blocks search for users who are not logged in to prevent crawlers from blocking your system.
-		'local_search' => false,
-
 		// local_tags (Boolean)
 		// If activated, all hashtags will point to the local server.
-		'local_tags' => false,
+		'local_tags' => true,
 
 		// lock_driver (semaphore|database|memcache|memcached|redis|apcu)
 		// Whether to use semaphores, the database, Memcache, Memcached, Redis or APCu to handle locks.
@@ -636,10 +620,6 @@ return [
 		// Transmit pending events upon accepted contact request for groups
 		'transmit_pending_events' => false,
 
-		// update_active_contacts (Boolean)
-		// When activated, only public contacts will be activated regularly that are used for example in items or tags.
-		'update_active_contacts' => false,
-
 		// username_min_length (Integer)
 		// The minimum character length a username can be.
 		// This length is checked once the username has been trimmed and multiple spaces have been collapsed into one.
@@ -676,10 +656,6 @@ return [
 		// worker_jpm_range (String)
 		// List of minutes for the jobs per minute (JPM) calculation
 		'worker_jpm_range' => '1, 10, 60',
-
-		// worker_load_cooldown (Integer)
-		// Maximum load that causes a cooldown before each worker function call.
-		'worker_load_cooldown' => 0,
 
 		// worker_load_exponent (Integer)
 		// Default 3, which allows only 25% of the maximum worker queues when server load reaches around 37% of maximum load.
