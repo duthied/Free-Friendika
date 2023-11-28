@@ -103,7 +103,7 @@ class Channel extends Timeline
 			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => $this->args->getQueryString()]);
 		}
 
-		if (empty($request['mode']) || ($request['mode'] != 'raw')) {
+		if (!$this->raw) {
 			$tabs = $this->getTabArray($this->channel->getTimelines($this->session->getLocalUserId()), 'channel');
 			$tabs = array_merge($tabs, $this->getTabArray($this->channelRepository->selectByUid($this->session->getLocalUserId()), 'channel'));
 			$tabs = array_merge($tabs, $this->getTabArray($this->community->getTimelines(true), 'channel'));

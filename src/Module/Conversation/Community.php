@@ -97,7 +97,7 @@ class Community extends Timeline
 			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => $this->args->getQueryString()]);
 		}
 
-		if (empty($request['mode']) || ($request['mode'] != 'raw')) {
+		if (!$this->raw) {
 			$tabs    = $this->getTabArray($this->community->getTimelines($this->session->isAuthenticated()), 'community');
 			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 			$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
