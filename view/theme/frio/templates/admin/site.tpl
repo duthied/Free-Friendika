@@ -167,7 +167,7 @@
 						{{include file="field_checkbox.tpl" field=$explicit_content}}
 						{{include file="field_checkbox.tpl" field=$proxify_content}}
 						{{include file="field_checkbox.tpl" field=$local_search}}
-						</div>
+					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
