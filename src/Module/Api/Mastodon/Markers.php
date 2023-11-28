@@ -21,9 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Util\DateTimeFormat;
 
@@ -76,12 +74,12 @@ class Markers extends BaseApi
 		$this->jsonExit($this->fetchTimelines($application['id'], $uid));
 	}
 
-	private function fetchTimelines(int $application_id, int $uid)
+	private function fetchTimelines(int $application_id, int $uid): \stdClass
 	{
-		$values = [];
+		$values = new \stdClass();
 		$markers = DBA::select('application-marker', [], ['application-id' => $application_id, 'uid' => $uid]);
 		while ($marker = DBA::fetch($markers)) {
-			$values[$marker['timeline']] = [
+			$values->{$marker['timeline']} = [
 				'last_read_id' => $marker['last_read_id'],
 				'version'      => $marker['version'],
 				'updated_at'   => $marker['updated_at']
