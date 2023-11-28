@@ -175,7 +175,6 @@ class Image
 				$this->valid  = true;
 				imagealphablending($this->image, false);
 				imagesavealpha($this->image, true);
-				imageinterlace($this->image, true);
 
 				return true;
 			}
@@ -544,7 +543,6 @@ class Image
 			$dest = imagecreatetruecolor($dest_width, $dest_height);
 			imagealphablending($dest, false);
 			imagesavealpha($dest, true);
-			imageinterlace($dest, true);
 
 			if ($this->type=='image/png') {
 				imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
@@ -614,7 +612,7 @@ class Image
 		$dest = imagecreatetruecolor($max, $max);
 		imagealphablending($dest, false);
 		imagesavealpha($dest, true);
-		imageinterlace($dest, true);
+
 		if ($this->type=='image/png') {
 			imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
 		}
