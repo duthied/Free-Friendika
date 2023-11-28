@@ -157,7 +157,7 @@ class Network extends Timeline
 			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => $this->args->getQueryString()]);
 		}
 
-		if (!(isset($_GET['mode']) and ($_GET['mode'] == 'raw'))) {
+		if (!$this->raw) {
 			$o .= $this->getTabsHTML();
 
 			Nav::setSelected($this->args->get(0));
@@ -210,30 +210,30 @@ class Network extends Timeline
 			];
 
 			$o .= $this->conversation->statusEditor($x);
-		}
 
-		if ($this->circleId) {
-			$circle = $this->database->selectFirst('group', ['name'], ['id' => $this->circleId, 'uid' => $this->session->getLocalUserId()]);
-			if (!$this->database->isResult($circle)) {
-				$this->systemMessages->addNotice($this->l10n->t('No such circle'));
-			}
+			if ($this->circleId) {
+				$circle = $this->database->selectFirst('group', ['name'], ['id' => $this->circleId, 'uid' => $this->session->getLocalUserId()]);
+				if (!$this->database->isResult($circle)) {
+					$this->systemMessages->addNotice($this->l10n->t('No such circle'));
+				}
 
-			$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
-				'$title' => $this->l10n->t('Circle: %s', $circle['name'])
-			]) . $o;
-		} elseif ($this->groupContactId) {
-			$contact = Contact::getById($this->groupContactId);
-			if ($this->database->isResult($contact)) {
-				$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('contact/list.tpl'), [
-					'contacts' => [ModuleContact::getContactTemplateVars($contact)],
-					'id' => $this->args->get(0),
+				$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
+					'$title' => $this->l10n->t('Circle: %s', $circle['name'])
 				]) . $o;
-			} else {
-				$this->systemMessages->addNotice($this->l10n->t('Invalid contact.'));
+			} elseif ($this->groupContactId) {
+				$contact = Contact::getById($this->groupContactId);
+				if ($this->database->isResult($contact)) {
+					$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('contact/list.tpl'), [
+						'contacts' => [ModuleContact::getContactTemplateVars($contact)],
+						'id' => $this->args->get(0),
+					]) . $o;
+				} else {
+					$this->systemMessages->addNotice($this->l10n->t('Invalid contact.'));
+				}
+			} elseif (Profile::shouldDisplayEventList($this->session->getLocalUserId(), $this->mode)) {
+				$o .= Profile::getBirthdays($this->session->getLocalUserId());
+				$o .= Profile::getEventsReminderHTML($this->session->getLocalUserId(), $this->session->getPublicContactId());
 			}
-		} elseif (Profile::shouldDisplayEventList($this->session->getLocalUserId(), $this->mode)) {
-			$o .= Profile::getBirthdays($this->session->getLocalUserId());
-			$o .= Profile::getEventsReminderHTML($this->session->getLocalUserId(), $this->session->getPublicContactId());
 		}
 
 		try {
