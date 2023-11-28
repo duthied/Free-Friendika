@@ -83,8 +83,10 @@
 		{{include file="field_checkbox.tpl" field=$private_addons}}
 		{{include file="field_checkbox.tpl" field=$disable_embedded}}
 		{{include file="field_checkbox.tpl" field=$allow_users_remote_self}}
+		{{include file="field_checkbox.tpl" field=$adjust_poll_frequency}}
 		{{include file="field_checkbox.tpl" field=$explicit_content}}
 		{{include file="field_checkbox.tpl" field=$proxify_content}}
+		{{include file="field_checkbox.tpl" field=$local_search}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$advanced}}</h2>
@@ -125,7 +127,9 @@
 		{{include file="field_input.tpl" field=$maxloadavg}}
 		{{include file="field_input.tpl" field=$min_memory}}
 		{{include file="field_input.tpl" field=$worker_queues}}
+		{{include file="field_input.tpl" field=$worker_load_cooldown}}
 		{{include file="field_checkbox.tpl" field=$worker_fastlane}}
+		{{include file="field_checkbox.tpl" field=$decoupled_receiver}}
 
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 

@@ -612,6 +612,7 @@ class Image
 		$dest = imagecreatetruecolor($max, $max);
 		imagealphablending($dest, false);
 		imagesavealpha($dest, true);
+
 		if ($this->type=='image/png') {
 			imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
 		}

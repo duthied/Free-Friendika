@@ -56,6 +56,10 @@ return [
 		// Checks for missing entries in "post", "post-thread" or "post-thread-user" and creates them
 		'add_missing_posts' => false,
 
+		// adjust_poll_frequency (Boolean)
+		// Automatically detect and set the best feed poll frequency.
+		'adjust_poll_frequency' => false,
+
 		// allowed_themes (Comma-separated list)
 		// Themes users can change to in their settings.
 		'allowed_themes' => 'frio,vier',
@@ -96,6 +100,10 @@ return [
 		// Enable/Disable Debugging (logging)
 		'debugging' => false,
 
+		// decoupled_receiver (Boolean)
+		// Decouple incoming AP posts by doing the processing in the background.
+		'decoupled_receiver' => false,
+
 		// default_timezone (String)
 		// Choose a default timezone. See https://secure.php.net/manual/en/timezones.php
 		// It only applies to timestamps for anonymous viewers.
@@ -126,6 +134,10 @@ return [
 		// System default language, including admin-created user default language.
 		// Two-letters ISO 639-1 code.
 		'language' => 'en',
+
+		// local_search (Boolean)
+		// Blocks search for users who are not logged in to prevent crawlers from blocking your system.
+		'local_search' => false,
 
 		// logfile (String)
 		// The logfile for storing logs.
@@ -208,6 +220,10 @@ return [
 		// System theme name.
 		'theme' => 'frio',
 
+		// update_active_contacts (Boolean)
+		// When activated, only public contacts will be activated regularly that are used for example in items or tags.
+		'update_active_contacts' => false,
+
 		// url (String)
 		// The fully-qualified URL of this Friendica node.
 		// Used by the worker in a non-HTTP execution environment.
@@ -220,6 +236,10 @@ return [
 		// poco_requery_days (Integer)
 		// Number of days after which a server is requeried for their contacts and servers it knows of.
 		'poco_requery_days' => 30,
+
+		// worker_load_cooldown (Integer)
+		// Maximum load that causes a cooldown before each worker function call.
+		'worker_load_cooldown' => 0,
 	],
 
 	// Used in the admin settings to lock certain features
