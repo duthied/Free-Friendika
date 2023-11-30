@@ -1070,17 +1070,32 @@ class Item
 		}
 	}
 
-	public function copyPermissions(int $fromUriId, int $toUriId)
+	public function copyPermissions(int $fromUriId, int $toUriId, int $parentUriId)
 	{
-		$from        = Post::selectFirstPost(['author-id'], ['uri-id' => $fromUriId]);
-		$from_author = DBA::selectFirst('account-view', ['ap-followers'], ['id' => $from['author-id']]);
-		$to          = Post::selectFirstPost(['author-id'], ['uri-id' => $toUriId]);
-		$to_author   = DBA::selectFirst('account-view', ['ap-followers'], ['id' => $to['author-id']]);
+		$from          = Post::selectFirstPost(['author-id'], ['uri-id' => $fromUriId]);
+		$from_author   = DBA::selectFirst('account-view', ['ap-followers'], ['id' => $from['author-id']]);
+		$to            = Post::selectFirstPost(['author-id'], ['uri-id' => $toUriId]);
+		$to_author     = DBA::selectFirst('account-view', ['ap-followers'], ['id' => $to['author-id']]);
+		$parent        = Post::selectFirstPost(['author-id'], ['uri-id' => $parentUriId]);
+		$parent_author = DBA::selectFirst('account-view', ['ap-followers'], ['id' => $parent['author-id']]);
+		
+		$followers = '';
+		foreach (array_column(Tag::getByURIId($parentUriId, [Tag::TO, Tag::CC, Tag::BCC]), 'url') as $url) {
+			if ($url == $parent_author['ap-followers']) {
+				$followers = $url;
+				break;
+			}
+		}
 
 		$existing = array_column(Tag::getByURIId($toUriId, [Tag::TO, Tag::CC, Tag::BCC]), 'url');
 
 		foreach (Tag::getByURIId($fromUriId, [Tag::TO, Tag::CC, Tag::BCC]) as $receiver) {
 			if ($receiver['url'] == $from_author['ap-followers']) {
+				if (!empty($followers)) {
+					$receiver['url']  = $followers;
+					$receiver['name'] = trim(parse_url($receiver['url'], PHP_URL_PATH), '/');
+					Tag::store($toUriId, $receiver['type'], $receiver['name'], $receiver['url']);
+				}
 				$receiver['url']  = $to_author['ap-followers'];
 				$receiver['name'] = trim(parse_url($receiver['url'], PHP_URL_PATH), '/');
 			}

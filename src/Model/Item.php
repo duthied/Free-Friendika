@@ -1366,7 +1366,7 @@ class Item
 		if ($notify) {
 			DI::contentItem()->postProcessPost($posted_item);
 			if ($copy_permissions && ($posted_item['thr-parent-id'] != $posted_item['uri-id']) && ($posted_item['private'] == self::PRIVATE)) {
-				DI::contentItem()->copyPermissions($posted_item['thr-parent-id'], $posted_item['uri-id']);
+				DI::contentItem()->copyPermissions($posted_item['thr-parent-id'], $posted_item['uri-id'], $posted_item['parent-uri-id']);
 			}
 		} else {
 			Hook::callAll('post_remote_end', $posted_item);
@@ -3758,7 +3758,7 @@ class Item
 		DI::profiler()->startRecording('rendering');
 		$trailing = '';
 		foreach ($PostMedias as $PostMedia) {
-			if (strpos($item['body'], $PostMedia->url)) {
+			if (strpos($item['body'], (string)$PostMedia->url)) {
 				continue;
 			}
 
