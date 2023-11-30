@@ -1099,7 +1099,7 @@ class Receiver
 	 *
 	 * @return int   user id
 	 */
-	public static function getBestUserForActivity(array $activity, string $actor = '', string $http_signer): int
+	private static function getBestUserForActivity(array $activity, string $actor, string $http_signer): int
 	{
 		$uid = 0;
 		$actor = $actor ?: JsonLD::fetchElement($activity, 'as:actor', '@id') ?? '';
