@@ -333,7 +333,7 @@ class Receiver
 		$fetched = false;
 
 		if (!empty($id) && !$trust_source) {
-			$fetch_uid = $uid ?: self::getBestUserForActivity($activity, $original_actor, '');
+			$fetch_uid = $uid ?: self::getBestUserForActivity($activity, $original_actor);
 
 			$fetched_activity = Processor::fetchCachedActivity($fetch_id, $fetch_uid);
 			if (!empty($fetched_activity)) {
@@ -1099,7 +1099,7 @@ class Receiver
 	 *
 	 * @return int   user id
 	 */
-	private static function getBestUserForActivity(array $activity, string $actor, string $http_signer): int
+	private static function getBestUserForActivity(array $activity, string $actor, string $http_signer = ''): int
 	{
 		$uid = 0;
 		$actor = $actor ?: JsonLD::fetchElement($activity, 'as:actor', '@id') ?? '';
@@ -1164,7 +1164,7 @@ class Receiver
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceivers(array $activity, string $actor, array $tags, bool $fetch_unlisted, bool $push, string $http_signer): array
+	private static function getReceivers(array $activity, string $actor, array $tags, bool $fetch_unlisted, bool $push, string $http_signer = ''): array
 	{
 		$reply = $receivers = $profile = [];
 
@@ -1964,7 +1964,7 @@ class Receiver
 
 		$object_data = self::getObjectDataFromActivity($object);
 
-		$receiverdata = self::getReceivers($object, $actor ?: $object_data['actor'] ?? '', $object_data['tags'], true, false, '');
+		$receiverdata = self::getReceivers($object, $actor ?: $object_data['actor'] ?? '', $object_data['tags'], true, false);
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];
