@@ -498,19 +498,6 @@ class Receiver
 		$object_data['receiver'] = array_replace($object_data['receiver'] ?? [], $receivers);
 		$object_data['reception_type'] = array_replace($object_data['reception_type'] ?? [], $reception_types);
 
-		//		This check here interferes with Hubzilla posts where the author host differs from the host the post was created
-		//		$author = $object_data['author'] ?? $actor;
-		//		if (!empty($author) && !empty($object_data['id'])) {
-		//			$author_host = parse_url($author, PHP_URL_HOST);
-		//			$id_host = parse_url($object_data['id'], PHP_URL_HOST);
-		//			if ($author_host == $id_host) {
-		//				Logger::info('Valid hosts', ['type' => $type, 'host' => $id_host]);
-		//			} else {
-		//				Logger::notice('Differing hosts on author and id', ['type' => $type, 'author' => $author_host, 'id' => $id_host]);
-		//				$trust_source = false;
-		//			}
-		//		}
-
 		$account = Contact::selectFirstAccount(['platform'], ['nurl' => Strings::normaliseLink($actor)]);
 		$platform = $account['platform'] ?? '';
 
