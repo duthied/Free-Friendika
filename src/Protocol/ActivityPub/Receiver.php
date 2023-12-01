@@ -246,7 +246,7 @@ class Receiver
 			} else {
 				Logger::notice('Relayed message had not been fetched', ['id' => $object_id, 'actor' => $actor, 'activity' => $activity]);
 			}
-	 	} elseif (!Fetch::hasWorker($object_id)) {
+		} elseif (!Fetch::hasWorker($object_id)) {
 			Logger::notice('Fetching is done by worker.', ['id' => $object_id]);
 			Fetch::add($object_id);
 			$activity['recursion-depth'] = 0;
@@ -308,13 +308,12 @@ class Receiver
 	 * @param boolean $push           Message had been pushed to our system
 	 * @param boolean $trust_source   Do we trust the source?
 	 * @param string  $original_actor Actor of the original activity. Used for receiver detection. (Optional)
-	 * @param string  $http_signer    Actor who has signed the HTTP request
 	 *
 	 * @return array with object data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function prepareObjectData(array $activity, int $uid, bool $push, bool &$trust_source, string $original_actor = '', string $http_signer = ''): array
+	public static function prepareObjectData(array $activity, int $uid, bool $push, bool &$trust_source, string $original_actor = ''): array
 	{
 		$id        = JsonLD::fetchElement($activity, '@id');
 		$type      = JsonLD::fetchElement($activity, '@type');
@@ -369,7 +368,7 @@ class Receiver
 		$type = JsonLD::fetchElement($activity, '@type');
 
 		// Fetch all receivers from to, cc, bto and bcc
-		$receiverdata = self::getReceivers($activity, $original_actor ?: $actor, [], false, $push || $fetched, $http_signer);
+		$receiverdata = self::getReceivers($activity, $original_actor ?: $actor, [], false, $push || $fetched);
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];
@@ -393,7 +392,7 @@ class Receiver
 
 		// We possibly need some user to fetch private content,
 		// so we fetch one out of the receivers if no uid is provided.
-		$fetch_uid = $uid ?: self::getBestUserForActivity($activity, $original_actor, $http_signer);
+		$fetch_uid = $uid ?: self::getBestUserForActivity($activity, $original_actor);
 
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
 		if (empty($object_id)) {
@@ -499,18 +498,18 @@ class Receiver
 		$object_data['receiver'] = array_replace($object_data['receiver'] ?? [], $receivers);
 		$object_data['reception_type'] = array_replace($object_data['reception_type'] ?? [], $reception_types);
 
-//		This check here interferes with Hubzilla posts where the author host differs from the host the post was created
-//		$author = $object_data['author'] ?? $actor;
-//		if (!empty($author) && !empty($object_data['id'])) {
-//			$author_host = parse_url($author, PHP_URL_HOST);
-//			$id_host = parse_url($object_data['id'], PHP_URL_HOST);
-//			if ($author_host == $id_host) {
-//				Logger::info('Valid hosts', ['type' => $type, 'host' => $id_host]);
-//			} else {
-//				Logger::notice('Differing hosts on author and id', ['type' => $type, 'author' => $author_host, 'id' => $id_host]);
-//				$trust_source = false;
-//			}
-//		}
+		//		This check here interferes with Hubzilla posts where the author host differs from the host the post was created
+		//		$author = $object_data['author'] ?? $actor;
+		//		if (!empty($author) && !empty($object_data['id'])) {
+		//			$author_host = parse_url($author, PHP_URL_HOST);
+		//			$id_host = parse_url($object_data['id'], PHP_URL_HOST);
+		//			if ($author_host == $id_host) {
+		//				Logger::info('Valid hosts', ['type' => $type, 'host' => $id_host]);
+		//			} else {
+		//				Logger::notice('Differing hosts on author and id', ['type' => $type, 'author' => $author_host, 'id' => $id_host]);
+		//				$trust_source = false;
+		//			}
+		//		}
 
 		$account = Contact::selectFirstAccount(['platform'], ['nurl' => Strings::normaliseLink($actor)]);
 		$platform = $account['platform'] ?? '';
@@ -683,7 +682,7 @@ class Receiver
 		}
 
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
-		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source, $original_actor, $trust_source ? $http_signer : '');
+		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source, $original_actor);
 		if (empty($object_data)) {
 			Logger::info('No object data found', ['activity' => $activity]);
 			return true;
@@ -1061,7 +1060,7 @@ class Receiver
 	 * @param boolean $unknown      "true" if the activity is unknown, "false" if it is unhandled
 	 * @param string  $type         Activity type
 	 * @param array   $object_data  Preprocessed array that is generated out of the received activity
- 	 * @param array   $activity     Array with activity data
+	 * @param array   $activity     Array with activity data
 	 * @param string  $body         The unprocessed body
 	 * @param integer $uid          User ID
 	 * @param boolean $trust_source Do we trust the source?
@@ -1095,16 +1094,15 @@ class Receiver
 	 *
 	 * @param array  $activity
 	 * @param string $actor
-	 * @param string $http_signer
 	 *
 	 * @return int   user id
 	 */
-	private static function getBestUserForActivity(array $activity, string $actor, string $http_signer = ''): int
+	private static function getBestUserForActivity(array $activity, string $actor): int
 	{
 		$uid = 0;
 		$actor = $actor ?: JsonLD::fetchElement($activity, 'as:actor', '@id') ?? '';
 
-		$receivers = self::getReceivers($activity, $actor, [], false, false, $http_signer);
+		$receivers = self::getReceivers($activity, $actor, [], false, false);
 		foreach ($receivers as $receiver) {
 			if ($receiver['type'] == self::TARGET_GLOBAL) {
 				return 0;
@@ -1159,12 +1157,11 @@ class Receiver
 	 * @param array  $tags
 	 * @param bool   $fetch_unlisted
 	 * @param bool   $push
-	 * @param string $http_signer
 	 *
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceivers(array $activity, string $actor, array $tags, bool $fetch_unlisted, bool $push, string $http_signer = ''): array
+	private static function getReceivers(array $activity, string $actor, array $tags, bool $fetch_unlisted, bool $push): array
 	{
 		$reply = $receivers = $profile = [];
 
@@ -1200,17 +1197,19 @@ class Receiver
 			$isGroup  = false;
 		}
 
+		$parent_followers = '';
+		$parent = Post::selectFirstPost(['parent-author-link'], ['uri' => $reply]);
+		if (!empty($parent['parent-author-link'])) {
+			$parent_profile = APContact::getByURL($parent['parent-author-link']);
+			if (!in_array($parent_profile['followers'] ?? '', ['', $followers])) {
+				$parent_followers = $parent_profile['followers'];
+			}
+		}
+
 		// We have to prevent false follower assumptions upon thread completions
 		$follower_target = empty($activity['thread-completion']) ? self::TARGET_FOLLOWER : self::TARGET_UNKNOWN;
 
-		if (($actor != $http_signer) && ($http_signer != '') && ($follower_target == self::TARGET_FOLLOWER)) {
-			$signer_profile   = APContact::getByURL($http_signer);
-			$signer_followers = $signer_profile['followers'] ?? '';
-		} else {
-			$signer_followers = '';
-		}
-
-		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc','as:audience'] as $element) {
+		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc', 'as:audience'] as $element) {
 			$receiver_list = JsonLD::fetchElementArray($activity, $element, '@id');
 			if (empty($receiver_list)) {
 				continue;
@@ -1228,12 +1227,12 @@ class Receiver
 
 				// Fetch the receivers for the public and the followers collection
 				if ((($receiver == $followers) || (($receiver == self::PUBLIC_COLLECTION) && !$isGroup) || ($isGroup && ($element == 'as:audience'))) && !empty($actor)) {
-					$receivers = self::getReceiverForActor($actor, $tags, $receivers, $follower_target, $profile);
+					$receivers = self::getReceiverForActor($tags, $receivers, $follower_target, $profile);
 					continue;
 				}
 
-				if ($receiver == $signer_followers) {
-					$receivers = self::getReceiverForActor($http_signer, [], $receivers, $follower_target, $signer_profile);
+				if ($receiver == $parent_followers) {
+					$receivers = self::getReceiverForActor([], $receivers, $follower_target, $parent_profile);
 					continue;
 				}
 
@@ -1317,7 +1316,6 @@ class Receiver
 	/**
 	 * Fetch the receiver list of a given actor
 	 *
-	 * @param string  $actor
 	 * @param array   $tags
 	 * @param array   $receivers
 	 * @param integer $target_type
@@ -1326,41 +1324,20 @@ class Receiver
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceiverForActor(string $actor, array $tags, array $receivers, int $target_type, array $profile): array
+	private static function getReceiverForActor(array $tags, array $receivers, int $target_type, array $profile): array
 	{
 		$basecondition = ['rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
 			'network' => Protocol::FEDERATED, 'archive' => false, 'pending' => false];
 
-		if (!empty($profile['uri-id'])) {
-			$condition = DBA::mergeConditions($basecondition, ["`uri-id` = ? AND `uid` != ?", $profile['uri-id'], 0]);
-			$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
-			while ($contact = DBA::fetch($contacts)) {
-				if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
-					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
-				}
+		$condition = DBA::mergeConditions($basecondition, ["`uri-id` = ? AND `uid` != ?", $profile['uri-id'], 0]);
+		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
+		while ($contact = DBA::fetch($contacts)) {
+			if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
+				$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
 			}
-			DBA::close($contacts);
-		} else {
-			// This part will only be called while post update 1426 wasn't finished
-			$condition = DBA::mergeConditions($basecondition, ["`nurl` = ? AND `uid` != ?", Strings::normaliseLink($actor), 0]);
-			$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
-			while ($contact = DBA::fetch($contacts)) {
-				if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
-					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
-				}
-			}
-			DBA::close($contacts);
-
-			// The queries are split because of performance issues
-			$condition = DBA::mergeConditions($basecondition, ["`alias` IN (?, ?) AND `uid` != ?", Strings::normaliseLink($actor), $actor, 0]);
-			$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
-			while ($contact = DBA::fetch($contacts)) {
-				if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
-					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
-				}
-			}
-			DBA::close($contacts);
 		}
+		DBA::close($contacts);
+
 		return $receivers;
 	}
 
@@ -1596,9 +1573,11 @@ class Receiver
 				continue;
 			}
 
-			$element = ['type' => str_replace('as:', '', JsonLD::fetchElement($tag, '@type') ?? ''),
+			$element = [
+				'type' => str_replace('as:', '', JsonLD::fetchElement($tag, '@type') ?? ''),
 				'href' => JsonLD::fetchElement($tag, 'as:href', '@id'),
-				'name' => JsonLD::fetchElement($tag, 'as:name', '@value')];
+				'name' => JsonLD::fetchElement($tag, 'as:name', '@value')
+			];
 
 			if (empty($element['type'])) {
 				continue;
@@ -1629,8 +1608,10 @@ class Receiver
 			}
 
 			$url = JsonLD::fetchElement($emoji['as:icon'], 'as:url', '@id');
-			$element = ['name' => JsonLD::fetchElement($emoji, 'as:name', '@value'),
-				'href' => $url];
+			$element = [
+				'name' => JsonLD::fetchElement($emoji, 'as:name', '@value'),
+				'href' => $url
+			];
 
 			$emojilist[] = $element;
 		}
