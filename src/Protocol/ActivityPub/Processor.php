@@ -1235,7 +1235,7 @@ class Processor
 
 		$has_parents = false;
 
-		if (!empty($item['parent-uri-id'])) {
+		if (($item['private'] != Item::PRIVATE) && !empty($item['parent-uri-id'])) {
 			if (Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $receiver])) {
 				$has_parents = true;
 			} elseif ($add_parent && Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => 0])) {
@@ -1254,7 +1254,7 @@ class Processor
 			}
 		}
 
-		if (empty($item['parent-uri-id']) || ($item['thr-parent-id'] != $item['parent-uri-id'])) {
+		if (($item['private'] == Item::PRIVATE) || empty($item['parent-uri-id']) || ($item['thr-parent-id'] != $item['parent-uri-id'])) {
 			if (Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $receiver])) {
 				$has_parents = true;
 			} elseif (($has_parents || $add_parent) && Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => 0])) {
