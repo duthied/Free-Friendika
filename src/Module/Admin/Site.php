@@ -93,6 +93,7 @@ class Site extends BaseAdmin
 		$disable_embedded       = !empty($_POST['disable_embedded']);
 		$allow_users_remote_self = !empty($_POST['allow_users_remote_self']);
 		$adjust_poll_frequency  = !empty($_POST['adjust_poll_frequency']);
+		$min_poll_interval      = (!empty($_POST['min_poll_interval']) ? intval(trim($_POST['min_poll_interval']))                : 0);
 		$explicit_content       = !empty($_POST['explicit_content']);
 		$proxify_content        = !empty($_POST['proxify_content']);
 		$local_search           = !empty($_POST['local_search']);
@@ -252,6 +253,7 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'disable_embedded'       , $disable_embedded);
 		$transactionConfig->set('system', 'allow_users_remote_self', $allow_users_remote_self);
 		$transactionConfig->set('system', 'adjust_poll_frequency'  , $adjust_poll_frequency);
+		$transactionConfig->set('system', 'min_poll_interval'      , $min_poll_interval);
 		$transactionConfig->set('system', 'explicit_content'       , $explicit_content);
 		$transactionConfig->set('system', 'proxify_content'        , $proxify_content);
 		$transactionConfig->set('system', 'local_search'           , $local_search);
@@ -493,6 +495,7 @@ class Site extends BaseAdmin
 			'$cache_contact_avatar'   => ['cache_contact_avatar', DI::l10n()->t('Cache contact avatars'), DI::config()->get('system', 'cache_contact_avatar'), DI::l10n()->t('Locally store the avatar pictures of the contacts. This uses a lot of storage space but it increases the performance.')],
 			'$allow_users_remote_self'=> ['allow_users_remote_self', DI::l10n()->t('Allow Users to set remote_self'), DI::config()->get('system', 'allow_users_remote_self'), DI::l10n()->t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
 			'$adjust_poll_frequency'  => ['adjust_poll_frequency', DI::l10n()->t('Adjust the feed poll frequency'), DI::config()->get('system', 'adjust_poll_frequency'), DI::l10n()->t('Automatically detect and set the best feed poll frequency.')],
+			'$min_poll_interval'      => ['min_poll_interval', DI::l10n()->t('Minimum poll interval'), DI::config()->get('system', 'min_poll_interval'), DI::l10n()->t('Minimal distance in minutes between two polls for mail and feed contacts. Reasonable values are between 1 and 59.')],
 			'$enable_multi_reg'       => ['enable_multi_reg', DI::l10n()->t('Enable multiple registrations'), !DI::config()->get('system', 'block_extended_register'), DI::l10n()->t('Enable users to register additional accounts for use as pages.')],
 			'$enable_openid'          => ['enable_openid', DI::l10n()->t('Enable OpenID'), !DI::config()->get('system', 'no_openid'), DI::l10n()->t('Enable OpenID support for registration and logins.')],
 			'$enable_regfullname'     => ['enable_regfullname', DI::l10n()->t('Enable full name check'), !DI::config()->get('system', 'no_regfullname'), DI::l10n()->t('Prevents users from registering with a display name with fewer than two parts separated by spaces.')],

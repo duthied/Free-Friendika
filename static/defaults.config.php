@@ -459,10 +459,6 @@ return [
 			['127.0.0.1', '11211'],
 		],
 
-		// min_poll_interval (Integer)
-		// minimal distance in minutes between two polls for a contact. Reasonable values are between 1 and 59.
-		'min_poll_interval' => 15,
-
 		// minimum_posting_interval (Integer)
 		// Minimum interval between two feed posts per user
 		'minimum_posting_interval' => 0,

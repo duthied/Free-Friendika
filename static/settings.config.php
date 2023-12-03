@@ -172,6 +172,10 @@ return [
 		// Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).
 		'min_memory' => 0,
 
+		// min_poll_interval (Integer)
+		// minimal distance in minutes between two polls for a contact. Reasonable values are between 1 and 59.
+		'min_poll_interval' => 15,
+
 		// no_regfullname (Boolean)
 		// Allow users to register with a display name comporting fewer than two parts separated by spaces.
 		'no_regfullname' => true,
