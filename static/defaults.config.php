@@ -542,18 +542,6 @@ return [
 		// Redistribute incoming activities via ActivityPub
 		'redistribute_activities' => true,
 
-		// relay_deny_undetected_language (Boolean)
-		// Deny undetected languages
-		'relay_deny_undetected_language' => false,
-
-		// relay_language_quality (Float)
-		// Minimum value for the language detection quality for relay posts. The value must be between 0 and 1.
-		'relay_language_quality' => 0,
-
-		// relay_languages (Integer)
-		// Number of languages that are used per post to check for acceptable posts.
-		'relay_languages' => 10,
-
 		// session_handler (database|cache|native)
 		// Whether to use Cache to store session data or to use PHP native session storage.
 		'session_handler' => 'database',
@@ -771,26 +759,5 @@ return [
 		// public (Boolean)
 		// Wether the blocklist is publicly listed under /about (or in any later API)
 		'public' => true,
-	],
-	'channel' => [
-		// engagement_hours (Integer)
-		// Maximum age of incoming posts for the engagement table, when the engagement post limit is 0 or hasn't been reached yet.
-		'engagement_hours' => 24,
-
-		// engagement_post_limit (Integer)
-		// NUmber of posts that are held in the engagement table
-		'engagement_post_limit' => 20000,
-
-		// interaction_score_days (Integer)
-		// Number of days that are used to calculate the interaction score.
-		'interaction_score_days' => 30,
-
-		// max_posts_per_author (Integer)
-		// Maixmum number of posts per page by author
-		'max_posts_per_author' => 2,
-
-		// sharer_interaction_days (Integer)
-		// Number of days of the last interaction that are used to define which sharers are used for the "sharers of sharers" channel.
-		'sharer_interaction_days' => 90,
 	],
 ];

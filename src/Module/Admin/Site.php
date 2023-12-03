@@ -147,6 +147,17 @@ class Site extends BaseAdmin
 		$relay_server_tags = (!empty($_POST['relay_server_tags']) ? trim($_POST['relay_server_tags'])  : '');
 		$relay_deny_tags   = (!empty($_POST['relay_deny_tags'])   ? trim($_POST['relay_deny_tags'])    : '');
 		$relay_user_tags   = !empty($_POST['relay_user_tags']);
+
+		$relay_deny_undetected_language = !empty($_POST['relay_deny_undetected_language']);
+		$relay_language_quality         = (!empty($_POST['relay_language_quality']) ? (float)($_POST['relay_language_quality']) : 0);
+		$relay_languages                = (!empty($_POST['relay_languages'])        ? intval($_POST['relay_languages'])       : 0);
+
+		$engagement_hours        = (!empty($_POST['engagement_hours'])        ? intval($_POST['engagement_hours'])     : 0);
+		$engagement_post_limit   = (!empty($_POST['engagement_post_limit'])   ? intval($_POST['engagement_post_limit']) : 0);
+		$interaction_score_days  = (!empty($_POST['interaction_score_days'])  ? intval($_POST['interaction_score_days']) : 0);
+		$max_posts_per_author    = (!empty($_POST['max_posts_per_author'])    ? intval($_POST['max_posts_per_author']) : 0);
+		$sharer_interaction_days = (!empty($_POST['sharer_interaction_days']) ? intval($_POST['sharer_interaction_days']) : 0);
+
 		$active_panel      = (!empty($_POST['active_panel'])      ? "#" . trim($_POST['active_panel']) : '');
 
 		$transactionConfig = DI::config()->beginTransaction();
@@ -293,11 +304,20 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'worker_fastlane'     , $worker_fastlane);
 		$transactionConfig->set('system', 'decoupled_receiver'  , $decoupled_receiver);
 
-		$transactionConfig->set('system', 'relay_directly'   , $relay_directly);
-		$transactionConfig->set('system', 'relay_scope'      , $relay_scope);
-		$transactionConfig->set('system', 'relay_server_tags', $relay_server_tags);
-		$transactionConfig->set('system', 'relay_deny_tags'  , $relay_deny_tags);
-		$transactionConfig->set('system', 'relay_user_tags'  , $relay_user_tags);
+		$transactionConfig->set('system', 'relay_directly'                , $relay_directly);
+		$transactionConfig->set('system', 'relay_scope'                   , $relay_scope);
+		$transactionConfig->set('system', 'relay_server_tags'             , $relay_server_tags);
+		$transactionConfig->set('system', 'relay_deny_tags'               , $relay_deny_tags);
+		$transactionConfig->set('system', 'relay_user_tags'               , $relay_user_tags);
+		$transactionConfig->set('system', 'relay_deny_undetected_language', $relay_deny_undetected_language);
+		$transactionConfig->set('system', 'relay_language_quality'        , $relay_language_quality);
+		$transactionConfig->set('system', 'relay_languages'               , $relay_languages);
+
+		$transactionConfig->set('channel', 'engagement_hours'       , $engagement_hours);
+		$transactionConfig->set('channel', 'engagement_post_limit'  , $engagement_post_limit);
+		$transactionConfig->set('channel', 'interaction_score_days' , $interaction_score_days);
+		$transactionConfig->set('channel', 'max_posts_per_author'   , $max_posts_per_author);
+		$transactionConfig->set('channel', 'sharer_interaction_days', $sharer_interaction_days);
 
 		$transactionConfig->commit();
 
@@ -422,6 +442,7 @@ class Site extends BaseAdmin
 			'$no_relay_list'     => DI::l10n()->t('The system is not subscribed to any relays at the moment.'),
 			'$relay_list_title'  => DI::l10n()->t('The system is currently subscribed to the following relays:'),
 			'$relay_list'        => Relay::getList(['url']),
+			'$channel_title'     => DI::l10n()->t('Channels'),
 			'$relocate'          => DI::l10n()->t('Relocate Node'),
 			'$relocate_msg'      => DI::l10n()->t('Relocating your node enables you to change the DNS domain of this node and keep all the existing users and posts. This process takes a while and can only be started from the relocate console command like this:'),
 			'$relocate_cmd'      => DI::l10n()->t('(Friendica directory)# bin/console relocate https://newdomain.com'),
@@ -524,11 +545,20 @@ class Site extends BaseAdmin
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],
 			'$decoupled_receiver'     => ['decoupled_receiver', DI::l10n()->t('Decoupled receiver'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Decouple incoming ActivityPub posts by processing them in the background via a worker process. Only enable this on fast systems.')],
 
-			'$relay_directly'         => ['relay_directly', DI::l10n()->t('Direct relay transfer'), DI::config()->get('system', 'relay_directly'), DI::l10n()->t('Enables the direct transfer to other servers without using the relay servers')],
-			'$relay_scope'            => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), [Relay::SCOPE_NONE => DI::l10n()->t('Disabled'), Relay::SCOPE_ALL => DI::l10n()->t('all'), Relay::SCOPE_TAGS => DI::l10n()->t('tags')]],
-			'$relay_server_tags'      => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],
-			'$relay_deny_tags'        => ['relay_deny_tags', DI::l10n()->t('Deny Server tags'), DI::config()->get('system', 'relay_deny_tags'), DI::l10n()->t('Comma separated list of tags that are rejected.')],
-			'$relay_user_tags'        => ['relay_user_tags', DI::l10n()->t('Allow user tags'), DI::config()->get('system', 'relay_user_tags'), DI::l10n()->t('If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".')],
+			'$relay_directly'                 => ['relay_directly', DI::l10n()->t('Direct relay transfer'), DI::config()->get('system', 'relay_directly'), DI::l10n()->t('Enables the direct transfer to other servers without using the relay servers')],
+			'$relay_scope'                    => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), [Relay::SCOPE_NONE => DI::l10n()->t('Disabled'), Relay::SCOPE_ALL => DI::l10n()->t('all'), Relay::SCOPE_TAGS => DI::l10n()->t('tags')]],
+			'$relay_server_tags'              => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],
+			'$relay_deny_tags'                => ['relay_deny_tags', DI::l10n()->t('Deny Server tags'), DI::config()->get('system', 'relay_deny_tags'), DI::l10n()->t('Comma separated list of tags that are rejected.')],
+			'$relay_user_tags'                => ['relay_user_tags', DI::l10n()->t('Allow user tags'), DI::config()->get('system', 'relay_user_tags'), DI::l10n()->t('If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".')],
+			'$relay_deny_undetected_language' => ['relay_deny_undetected_language', DI::l10n()->t('Deny undetected languages'), DI::config()->get('system', 'relay_deny_undetected_language'), DI::l10n()->t('If enabled, posts with undetected languages will be rejected.')],
+			'$relay_language_quality'         => ['relay_language_quality', DI::l10n()->t('Language Quality'), DI::config()->get('system', 'relay_language_quality'), DI::l10n()->t('The minimum language quality that is required to accept the post.')],
+			'$relay_languages'                => ['relay_languages', DI::l10n()->t('Number of languages for the language detection'), DI::config()->get('system', 'relay_languages'), DI::l10n()->t('The system detects a list of languages per post. Only if the desired languages are in the list, the message will be accepted. The higher the number, the more posts will be falsely detected.')],
+
+			'$engagement_hours'        => ['engagement_hours', DI::l10n()->t('Maximum age of channel'), DI::config()->get('channel', 'engagement_hours'), DI::l10n()->t('This defines the maximum age of items that should be displayed in channels. This affects the channel performance.')],
+			'$engagement_post_limit'   => ['engagement_post_limit', DI::l10n()->t('Maximum number of channel posts'), DI::config()->get('channel', 'engagement_post_limit'), DI::l10n()->t('For performance reasons, the channels use a dedicated table to store content. The higher the value the slower the channels.')],
+			'$interaction_score_days'  => ['interaction_score_days', DI::l10n()->t('Interaction score days'), DI::config()->get('channel', 'interaction_score_days'), DI::l10n()->t('Number of days that are used to calculate the interaction score.')],
+			'$max_posts_per_author'    => ['max_posts_per_author', DI::l10n()->t('Maximum number of posts per author'), DI::config()->get('channel', 'max_posts_per_author'), DI::l10n()->t('Maximum number of posts per page by author. If there are more posts, then the post with the most interactions will be displayed.')],
+			'$sharer_interaction_days' => ['sharer_interaction_days', DI::l10n()->t('Sharer interaction days'), DI::config()->get('channel', 'sharer_interaction_days'), DI::l10n()->t('Number of days of the last interaction that are used to define which sharers are used for the "sharers of sharers" channel.')],
 
 			'$form_security_token'    => self::getFormSecurityToken('admin_site'),
 			'$relocate_button'        => DI::l10n()->t('Start Relocation'),

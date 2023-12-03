@@ -150,6 +150,16 @@
 		{{include file="field_input.tpl" field=$relay_deny_tags}}
 		{{include file="field_checkbox.tpl" field=$relay_user_tags}}
 		{{include file="field_checkbox.tpl" field=$relay_directly}}
+		{{include file="field_checkbox.tpl" field=$relay_deny_undetected_language}}
+		{{include file="field_input.tpl" field=$relay_language_quality}}
+		{{include file="field_input.tpl" field=$relay_languages}}
+
+		<h2>{{$channel_title}}</h2>
+		{{include file="field_input.tpl" field=$engagement_hours}}
+		{{include file="field_input.tpl" field=$engagement_post_limit}}
+		{{include file="field_input.tpl" field=$interaction_score_days}}
+		{{include file="field_input.tpl" field=$max_posts_per_author}}
+		{{include file="field_input.tpl" field=$sharer_interaction_days}}
 
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 

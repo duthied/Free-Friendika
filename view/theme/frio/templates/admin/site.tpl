@@ -319,6 +319,34 @@
 						{{include file="field_input.tpl" field=$relay_deny_tags}}
 						{{include file="field_checkbox.tpl" field=$relay_user_tags}}
 						{{include file="field_checkbox.tpl" field=$relay_directly}}
+						{{include file="field_checkbox.tpl" field=$relay_deny_undetected_language}}
+						{{include file="field_input.tpl" field=$relay_language_quality}}
+						{{include file="field_input.tpl" field=$relay_languages}}
+					</div>
+					<div class="panel-footer">
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
+					</div>
+				</div>
+			</div>
+			<!--
+			/*
+			 *    Channel
+			 */ -->
+			<div class="panel">
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-channel">
+					<h2>
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-channel-collapse" aria-expanded="false" aria-controls="admin-settings-channel-collapse">
+							{{$channel_title}}
+						</button>
+					</h2>
+				</div>
+				<div id="admin-settings-channel-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-channel">
+					<div class="panel-body">
+						{{include file="field_input.tpl" field=$engagement_hours}}
+						{{include file="field_input.tpl" field=$engagement_post_limit}}
+						{{include file="field_input.tpl" field=$interaction_score_days}}
+						{{include file="field_input.tpl" field=$max_posts_per_author}}
+						{{include file="field_input.tpl" field=$sharer_interaction_days}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>

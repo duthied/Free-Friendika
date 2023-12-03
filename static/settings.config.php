@@ -192,6 +192,18 @@ return [
 		// Comma separated list of tags that are rejected.
 		'relay_deny_tags' => '',
 
+		// relay_deny_undetected_language (Boolean)
+		// Deny undetected languages
+		'relay_deny_undetected_language' => false,
+
+		// relay_languages (Integer)
+		// Number of languages that are used per post to check for acceptable posts.
+		'relay_languages' => 10,
+
+		// relay_language_quality (Float)
+		// Minimum value for the language detection quality for relay posts. The value must be between 0 and 1.
+		'relay_language_quality' => 0,
+
 		// proxify_content (Boolean)
 		// Use the proxy functionality for fetching external content
 		'proxify_content' => true,
@@ -240,6 +252,28 @@ return [
 		// worker_load_cooldown (Integer)
 		// Maximum load that causes a cooldown before each worker function call.
 		'worker_load_cooldown' => 0,
+	],
+
+	'channel' => [
+		// engagement_hours (Integer)
+		// Maximum age of incoming posts for the engagement table, when the engagement post limit is 0 or hasn't been reached yet.
+		'engagement_hours' => 24,
+
+		// engagement_post_limit (Integer)
+		// NUmber of posts that are held in the engagement table
+		'engagement_post_limit' => 20000,
+
+		// interaction_score_days (Integer)
+		// Number of days that are used to calculate the interaction score.
+		'interaction_score_days' => 30,
+
+		// max_posts_per_author (Integer)
+		// Maixmum number of posts per page by author
+		'max_posts_per_author' => 2,
+
+		// sharer_interaction_days (Integer)
+		// Number of days of the last interaction that are used to define which sharers are used for the "sharers of sharers" channel.
+		'sharer_interaction_days' => 90,
 	],
 
 	// Used in the admin settings to lock certain features
