@@ -115,7 +115,7 @@ class Channel extends Timeline
 
 			$this->page['aside'] .= Widget::accountTypes('channel/' . $this->selectedTab, $this->accountTypeString);
 
-			if (!in_array($this->selectedTab, [ChannelEntity::FOLLOWERS, ChannelEntity::FORYOU]) && $this->config->get('system', 'community_no_sharer')) {
+			if (!in_array($this->selectedTab, [ChannelEntity::FOLLOWERS, ChannelEntity::FORYOU])) {
 				$this->page['aside'] .= $this->getNoSharerWidget('channel');
 			}
 
