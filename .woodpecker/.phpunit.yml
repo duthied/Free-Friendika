@@ -69,9 +69,9 @@ steps:
       - if [ "${PHP_MAJOR_VERSION}" = "7.4" -a "${CI_REPO}" = "friendica/friendica" ]; then
           phpenmod xdebug;
           export XDEBUG_MODE=coverage;
-          phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml;
+          phpunit --configuration tests/phpunit.xml -d memory_limit=-1 --coverage-clover clover.xml;
         else
-          phpunit --configuration tests/phpunit.xml;
+          phpunit --configuration tests/phpunit.xml -d memory_limit=-1;
         fi
   codecov:
     image: friendicaci/codecov
