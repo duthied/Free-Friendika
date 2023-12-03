@@ -116,6 +116,8 @@
 		{{include file="field_checkbox.tpl" field=$only_tag_search}}
 		{{include file="field_input.tpl" field=$max_comments}}
 		{{include file="field_input.tpl" field=$max_display_comments}}
+		{{include file="field_input.tpl" field=$itemspage_network}}
+		{{include file="field_input.tpl" field=$itemspage_network_mobile}}
 		{{include file="field_checkbox.tpl" field=$dbclean}}
 		{{include file="field_input.tpl" field=$dbclean_expire_days}}
 		{{include file="field_input.tpl" field=$dbclean_unclaimed}}

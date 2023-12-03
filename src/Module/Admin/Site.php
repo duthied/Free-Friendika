@@ -133,6 +133,8 @@ class Site extends BaseAdmin
 		$suppress_tags          = !empty($_POST['suppress_tags']);
 		$max_comments           = (!empty($_POST['max_comments'])           ? intval($_POST['max_comments'])                  : 0);
 		$max_display_comments   = (!empty($_POST['max_display_comments'])   ? intval($_POST['max_display_comments'])          : 0);
+		$itemspage_network      = (!empty($_POST['itemspage_network'])      ? intval($_POST['itemspage_network'])             : 0);
+		$itemspage_network_mobile = (!empty($_POST['itemspage_network_mobile']) ? intval($_POST['itemspage_network_mobile'])  : 0);
 		$temppath               = (!empty($_POST['temppath'])               ? trim($_POST['temppath'])   : '');
 		$singleuser             = (!empty($_POST['singleuser'])             ? trim($_POST['singleuser']) : '');
 		$only_tag_search        = !empty($_POST['only_tag_search']);
@@ -297,6 +299,8 @@ class Site extends BaseAdmin
 
 		$transactionConfig->set('system', 'max_comments', $max_comments);
 		$transactionConfig->set('system', 'max_display_comments', $max_display_comments);
+		$transactionConfig->set('system', 'itemspage_network', $itemspage_network);
+		$transactionConfig->set('system', 'itemspage_network_mobile', $itemspage_network_mobile);
 
 		if ($temppath != '') {
 			$temppath = BasePath::getRealPath($temppath);
@@ -550,6 +554,8 @@ class Site extends BaseAdmin
 			'$dbclean_expire_conv'    => ['dbclean_expire_conv', DI::l10n()->t('Lifespan of raw conversation data'), DI::config()->get('system', 'dbclean_expire_conversation'), DI::l10n()->t('The conversation data is used for ActivityPub and OStatus, as well as for debug purposes. It should be safe to remove it after 14 days, default is 90 days.')],
 			'$max_comments'           => ['max_comments', DI::l10n()->t('Maximum numbers of comments per post'), DI::config()->get('system', 'max_comments'), DI::l10n()->t('How much comments should be shown for each post? Default value is 100.')],
 			'$max_display_comments'   => ['max_display_comments', DI::l10n()->t('Maximum numbers of comments per post on the display page'), DI::config()->get('system', 'max_display_comments'), DI::l10n()->t('How many comments should be shown on the single view for each post? Default value is 1000.')],
+			'$itemspage_network'      => ['itemspage_network', DI::l10n()->t('Items per page'), DI::config()->get('system', 'itemspage_network'), DI::l10n()->t('Number of items per page in stream pages (network, community, profile/contact statuses, search).')],
+			'$itemspage_network_mobile' => ['itemspage_network_mobile', DI::l10n()->t('Items per page for mobile devices'), DI::config()->get('system', 'itemspage_network_mobile'), DI::l10n()->t('Number of items per page in stream pages (network, community, profile/contact statuses, search) for mobile devices.')],
 			'$temppath'               => ['temppath', DI::l10n()->t('Temp path'), DI::config()->get('system', 'temppath'), DI::l10n()->t('If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.')],
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
 			'$compute_circle_counts'  => ['compute_circle_counts', DI::l10n()->t('Generate counts per contact circle when calculating network count'), DI::config()->get('system', 'compute_circle_counts'), DI::l10n()->t('On systems with users that heavily use contact circles the query can be very expensive.')],
