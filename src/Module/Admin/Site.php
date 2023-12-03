@@ -97,6 +97,7 @@ class Site extends BaseAdmin
 		$explicit_content       = !empty($_POST['explicit_content']);
 		$proxify_content        = !empty($_POST['proxify_content']);
 		$local_search           = !empty($_POST['local_search']);
+		$blocked_tags           = (!empty($_POST['blocked_tags']) ? trim($_POST['blocked_tags'])  : '');
 		$cache_contact_avatar   = !empty($_POST['cache_contact_avatar']);
 
 		$enable_multi_reg       = !empty($_POST['enable_multi_reg']);
@@ -136,6 +137,8 @@ class Site extends BaseAdmin
 		$singleuser             = (!empty($_POST['singleuser'])             ? trim($_POST['singleuser']) : '');
 		$only_tag_search        = !empty($_POST['only_tag_search']);
 		$compute_circle_counts  = !empty($_POST['compute_circle_counts']);
+		$process_view           = !empty($_POST['process_view']);
+		$archival_days          = (!empty($_POST['archival_days'])          ? intval($_POST['archival_days'])                 : 0);
 		$check_new_version_url  = (!empty($_POST['check_new_version_url'])  ? trim($_POST['check_new_version_url']) : 'none');
 
 		$worker_queues        = (!empty($_POST['worker_queues'])              ? intval($_POST['worker_queues'])                 : 10);
@@ -143,6 +146,7 @@ class Site extends BaseAdmin
 		$worker_fastlane      = !empty($_POST['worker_fastlane']);
 		$decoupled_receiver   = (!empty($_POST['decoupled_receiver'])         ? intval(trim($_POST['decoupled_receiver'])) : false);
 		$cron_interval        = (!empty($_POST['cron_interval'])              ? intval($_POST['cron_interval'])            : 0);
+		$worker_defer_limit   = (!empty($_POST['worker_defer_limit'])         ? intval($_POST['worker_defer_limit'])       : 15);
 
 		$relay_directly    = !empty($_POST['relay_directly']);
 		$relay_scope       = (!empty($_POST['relay_scope'])       ? trim($_POST['relay_scope'])        : '');
@@ -258,6 +262,7 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'explicit_content'       , $explicit_content);
 		$transactionConfig->set('system', 'proxify_content'        , $proxify_content);
 		$transactionConfig->set('system', 'local_search'           , $local_search);
+		$transactionConfig->set('system', 'blocked_tags'           , $blocked_tags);
 		$transactionConfig->set('system', 'cache_contact_avatar'   , $cache_contact_avatar);
 		$transactionConfig->set('system', 'check_new_version_url'  , $check_new_version_url);
 
@@ -301,12 +306,15 @@ class Site extends BaseAdmin
 
 		$transactionConfig->set('system', 'only_tag_search'  , $only_tag_search);
 		$transactionConfig->set('system', 'compute_circle_counts', $compute_circle_counts);
+		$transactionConfig->set('system', 'process_view', $process_view);
+		$transactionConfig->set('system', 'archival_days', $archival_days);
 
 		$transactionConfig->set('system', 'worker_queues'       , $worker_queues);
 		$transactionConfig->set('system', 'worker_load_cooldown', $worker_load_cooldown);
 		$transactionConfig->set('system', 'worker_fastlane'     , $worker_fastlane);
 		$transactionConfig->set('system', 'decoupled_receiver'  , $decoupled_receiver);
 		$transactionConfig->set('system', 'cron_interval'       , $cron_interval);
+		$transactionConfig->set('system', 'worker_defer_limit'  , $worker_defer_limit);
 
 		$transactionConfig->set('system', 'relay_directly'                , $relay_directly);
 		$transactionConfig->set('system', 'relay_scope'                   , $relay_scope);
@@ -494,6 +502,7 @@ class Site extends BaseAdmin
 			'$explicit_content'       => ['explicit_content', DI::l10n()->t('Explicit Content'), DI::config()->get('system', 'explicit_content'), DI::l10n()->t('Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.')],
 			'$proxify_content'        => ['proxify_content', DI::l10n()->t('Proxify external content'), DI::config()->get('system', 'proxify_content'), DI::l10n()->t('Route external content via the proxy functionality. This is used for example for some OEmbed accesses and in some other rare cases.')],
 			'$local_search'           => ['local_search', DI::l10n()->t('Only local search'), DI::config()->get('system', 'local_search'), DI::l10n()->t('Blocks search for users who are not logged in to prevent crawlers from blocking your system.')],
+			'$blocked_tags'           => ['blocked_tags', DI::l10n()->t('Blocked tags for trending tags'), DI::config()->get('system', 'blocked_tags'), DI::l10n()->t("Comma separated list of hashtags that shouldn't be displayed in the trending tags.")],
 			'$cache_contact_avatar'   => ['cache_contact_avatar', DI::l10n()->t('Cache contact avatars'), DI::config()->get('system', 'cache_contact_avatar'), DI::l10n()->t('Locally store the avatar pictures of the contacts. This uses a lot of storage space but it increases the performance.')],
 			'$allow_users_remote_self'=> ['allow_users_remote_self', DI::l10n()->t('Allow Users to set remote_self'), DI::config()->get('system', 'allow_users_remote_self'), DI::l10n()->t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
 			'$adjust_poll_frequency'  => ['adjust_poll_frequency', DI::l10n()->t('Adjust the feed poll frequency'), DI::config()->get('system', 'adjust_poll_frequency'), DI::l10n()->t('Automatically detect and set the best feed poll frequency.')],
@@ -544,13 +553,16 @@ class Site extends BaseAdmin
 			'$temppath'               => ['temppath', DI::l10n()->t('Temp path'), DI::config()->get('system', 'temppath'), DI::l10n()->t('If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.')],
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
 			'$compute_circle_counts'  => ['compute_circle_counts', DI::l10n()->t('Generate counts per contact circle when calculating network count'), DI::config()->get('system', 'compute_circle_counts'), DI::l10n()->t('On systems with users that heavily use contact circles the query can be very expensive.')],
+			'$process_view'           => ['process_view', DI::l10n()->t('Process "view" activities'), DI::config()->get('system', 'process_view'), DI::l10n()->t('"view" activities are mostly geberated by Peertube systems. Per default they are not processed for performance reasons. Only activate this option on performant system.')],
+			'$archival_days'          => ['archival_days', DI::l10n()->t('Days, after which a contact is archived'), DI::config()->get('system', 'archival_days'), DI::l10n()->t('Number of days that we try to deliver content or to update the contact data before we archive a contact.')],
 
 			'$worker_queues'          => ['worker_queues', DI::l10n()->t('Maximum number of parallel workers'), DI::config()->get('system', 'worker_queues'), DI::l10n()->t('On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.', 5, 20, 10)],
 			'$worker_load_cooldown'   => ['worker_load_cooldown', DI::l10n()->t('Maximum load for workers'), DI::config()->get('system', 'worker_load_cooldown'), DI::l10n()->t('Maximum load that causes a cooldown before each worker function call.')],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],
 			'$decoupled_receiver'     => ['decoupled_receiver', DI::l10n()->t('Decoupled receiver'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Decouple incoming ActivityPub posts by processing them in the background via a worker process. Only enable this on fast systems.')],
 			'$cron_interval'          => ['cron_interval', DI::l10n()->t('Cron interval'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Minimal period in minutes between two calls of the "Cron" worker job.')],
-			
+			'$worker_defer_limit'     => ['worker_defer_limit', DI::l10n()->t('Worker defer limit'), DI::config()->get('system', 'worker_defer_limit'), DI::l10n()->t('Per default the systems tries delivering for 15 times before dropping it.')],
+
 			'$relay_directly'                 => ['relay_directly', DI::l10n()->t('Direct relay transfer'), DI::config()->get('system', 'relay_directly'), DI::l10n()->t('Enables the direct transfer to other servers without using the relay servers')],
 			'$relay_scope'                    => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), [Relay::SCOPE_NONE => DI::l10n()->t('Disabled'), Relay::SCOPE_ALL => DI::l10n()->t('all'), Relay::SCOPE_TAGS => DI::l10n()->t('tags')]],
 			'$relay_server_tags'              => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],

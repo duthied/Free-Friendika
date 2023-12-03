@@ -64,9 +64,17 @@ return [
 		// Themes users can change to in their settings.
 		'allowed_themes' => 'frio,vier',
 
+		// archival_days (Integer)
+		// Number of days that we try to deliver content before we archive a contact.
+		'archival_days' => 32,
+
 		// banner (HTML string)
 		// HTML snippet of the top navigation banner. Not supported by frio.
 		'banner' => '<a href="https://friendi.ca"><img id="logo-img" width="32" height="32" src="images/friendica.svg" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>',
+
+		// blocked_tags (String)
+		// Comma separated list of hashtags that shouldn't be displayed in the trending tags
+		'blocked_tags' => '',
 
 		// cache_contact_avatar (Boolean)
 		// Cache versions of the contact avatars. Uses a lot of storage space
@@ -188,6 +196,10 @@ return [
 		// Periodically (once an hour) run an "optimize table" command for cache tables
 		'optimize_tables' => false,
 
+		// process_view (Boolean)
+		// Process the "View" activity that is used by Peertube.
+		'process_view' => false,
+
 		// register_notification (Boolean)
 		// Send a notification mail to the admin for each new registration.
 		'register_notification' => true,
@@ -252,6 +264,10 @@ return [
 		// poco_requery_days (Integer)
 		// Number of days after which a server is requeried for their contacts and servers it knows of.
 		'poco_requery_days' => 30,
+
+		// worker_defer_limit (Integer)
+		// Per default the systems tries delivering for 15 times before dropping it.
+		'worker_defer_limit' => 15,
 
 		// worker_load_cooldown (Integer)
 		// Maximum load that causes a cooldown before each worker function call.

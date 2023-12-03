@@ -105,10 +105,6 @@ return [
 		// Addresses non-mentioned ActivityPub receivers by BCC instead of CC. Increases privacy, decreases performance.
 		'ap_always_bcc' => false,
 
-		// archival_days (Integer)
-		// Number of days that we try to deliver content before we archive a contact.
-		'archival_days' => 32,
-
 		// auth_cookie_lifetime (Integer)
 		// Number of days that should pass without any activity before a user who
 		// chose "Remember me" when logging in is considered logged out.
@@ -143,10 +139,6 @@ return [
 		// block_local_dir (Boolean)
 		// Deny public access to the local user directory.
 		'block_local_dir' => false,
-
-		// blocked_tags (String)
-		// Comma separated list of hashtags that shouldn't be displayed in the trending tags
-		'blocked_tags' => '',
 
 		// community_no_sharer (Boolean)
 		// Don't display sharing accounts on the global community
@@ -499,10 +491,6 @@ return [
 		// Sets the ImageMagick compression level for PNG images. Values range from 0 (uncompressed) to 9 (most compressed).
 		'png_quality' => 8,
 
-		// process_view (Boolean)
-		// Process the "View" activity that is used by Peertube.
-		'process_view' => false,
-
 		// profiler (Boolean)
 		// Enable internal timings to help optimize code. Needed for "rendertime" addon.
 		'profiler' => false,
@@ -666,10 +654,6 @@ return [
 		// This is an experimental setting without knowing the performance impact.
 		// Does not work when "worker_fork" is enabled (Needs more testing)
 		'worker_multiple_fetch' => false,
-
-		// worker_defer_limit (Integer)
-		// Per default the systems tries delivering for 15 times before dropping it.
-		'worker_defer_limit' => 15,
 
 		// xrd_timeout (Integer)
 		// Timeout in seconds for fetching the XRD links and other requests with an expected shorter timeout

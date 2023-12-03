@@ -87,6 +87,7 @@
 		{{include file="field_checkbox.tpl" field=$explicit_content}}
 		{{include file="field_checkbox.tpl" field=$proxify_content}}
 		{{include file="field_checkbox.tpl" field=$local_search}}
+		{{include file="field_input.tpl" field=$blocked_tags}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$advanced}}</h2>
@@ -123,6 +124,8 @@
 		{{include file="field_checkbox.tpl" field=$cache_contact_avatar}}
 		{{include file="field_input.tpl" field=$min_poll_interval}}
 		{{include file="field_input.tpl" field=$cron_interval}}
+		{{include file="field_checkbox.tpl" field=$process_view}}
+		{{include file="field_input.tpl" field=$archival_days}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$worker_title}}</h2>
@@ -132,6 +135,7 @@
 		{{include file="field_input.tpl" field=$worker_load_cooldown}}
 		{{include file="field_checkbox.tpl" field=$worker_fastlane}}
 		{{include file="field_checkbox.tpl" field=$decoupled_receiver}}
+		{{include file="field_input.tpl" field=$worker_defer_limit}}
 
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
