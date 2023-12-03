@@ -148,10 +148,6 @@ return [
 		// Comma separated list of hashtags that shouldn't be displayed in the trending tags
 		'blocked_tags' => '',
 
-		// community_no_sharer (Boolean)
-		// Don't display sharing accounts on the global community
-		'community_no_sharer' => false,
-
 		// contact_update_limit (Integer)
 		// How many contacts should be checked at a time?
 		'contact_update_limit' => 100,

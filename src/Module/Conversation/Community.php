@@ -106,7 +106,7 @@ class Community extends Timeline
 
 			$this->page['aside'] .= Widget::accountTypes('community/' . $this->selectedTab, $this->accountTypeString);
 
-			if ($this->session->getLocalUserId() && $this->config->get('system', 'community_no_sharer')) {
+			if ($this->session->getLocalUserId()) {
 				$this->page['aside'] .= $this->getNoSharerWidget('community');
 			}
 
