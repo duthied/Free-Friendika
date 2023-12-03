@@ -608,10 +608,6 @@ return [
 		// If enabled, it prints out the number of running processes split by priority.
 		'worker_debug' => false,
 
-		// worker_fetch_limit (Integer)
-		// Number of worker tasks that are fetched in a single query.
-		'worker_fetch_limit' => 1,
-
 		// worker_fork (Boolean)
 		// Experimental setting. Use pcntl_fork to spawn a new worker process.
 		// Does not work when "worker_multiple_fetch" is enabled (Needs more testing)

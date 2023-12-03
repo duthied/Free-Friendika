@@ -149,6 +149,8 @@ class Site extends BaseAdmin
 		$decoupled_receiver   = (!empty($_POST['decoupled_receiver'])         ? intval(trim($_POST['decoupled_receiver'])) : false);
 		$cron_interval        = (!empty($_POST['cron_interval'])              ? intval($_POST['cron_interval'])            : 0);
 		$worker_defer_limit   = (!empty($_POST['worker_defer_limit'])         ? intval($_POST['worker_defer_limit'])       : 15);
+		$worker_fetch_limit   = (!empty($_POST['worker_fetch_limit'])         ? intval($_POST['worker_fetch_limit'])       : 1);
+		
 
 		$relay_directly    = !empty($_POST['relay_directly']);
 		$relay_scope       = (!empty($_POST['relay_scope'])       ? trim($_POST['relay_scope'])        : '');
@@ -319,7 +321,8 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'decoupled_receiver'  , $decoupled_receiver);
 		$transactionConfig->set('system', 'cron_interval'       , $cron_interval);
 		$transactionConfig->set('system', 'worker_defer_limit'  , $worker_defer_limit);
-
+		$transactionConfig->set('system', 'worker_fetch_limit'  , $worker_fetch_limit);
+		
 		$transactionConfig->set('system', 'relay_directly'                , $relay_directly);
 		$transactionConfig->set('system', 'relay_scope'                   , $relay_scope);
 		$transactionConfig->set('system', 'relay_server_tags'             , $relay_server_tags);
@@ -568,6 +571,7 @@ class Site extends BaseAdmin
 			'$decoupled_receiver'     => ['decoupled_receiver', DI::l10n()->t('Decoupled receiver'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Decouple incoming ActivityPub posts by processing them in the background via a worker process. Only enable this on fast systems.')],
 			'$cron_interval'          => ['cron_interval', DI::l10n()->t('Cron interval'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Minimal period in minutes between two calls of the "Cron" worker job.')],
 			'$worker_defer_limit'     => ['worker_defer_limit', DI::l10n()->t('Worker defer limit'), DI::config()->get('system', 'worker_defer_limit'), DI::l10n()->t('Per default the systems tries delivering for 15 times before dropping it.')],
+			'$worker_fetch_limit'     => ['worker_fetch_limit', DI::l10n()->t('Worker fetch limit'), DI::config()->get('system', 'worker_fetch_limit'), DI::l10n()->t('Number of worker tasks that are fetched in a single query. Higher values should increase the performance, too high values will mostly likely decrease it. Only change it, when you know how to measure the performance of your system.')],
 
 			'$relay_directly'                 => ['relay_directly', DI::l10n()->t('Direct relay transfer'), DI::config()->get('system', 'relay_directly'), DI::l10n()->t('Enables the direct transfer to other servers without using the relay servers')],
 			'$relay_scope'                    => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), [Relay::SCOPE_NONE => DI::l10n()->t('Disabled'), Relay::SCOPE_ALL => DI::l10n()->t('all'), Relay::SCOPE_TAGS => DI::l10n()->t('tags')]],

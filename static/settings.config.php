@@ -269,6 +269,10 @@ return [
 		// Per default the systems tries delivering for 15 times before dropping it.
 		'worker_defer_limit' => 15,
 
+		// worker_fetch_limit (Integer)
+		// Number of worker tasks that are fetched in a single query.
+		'worker_fetch_limit' => 1,
+
 		// worker_load_cooldown (Integer)
 		// Maximum load that causes a cooldown before each worker function call.
 		'worker_load_cooldown' => 0,

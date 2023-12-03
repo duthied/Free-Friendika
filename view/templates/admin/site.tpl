@@ -138,6 +138,7 @@
 		{{include file="field_checkbox.tpl" field=$worker_fastlane}}
 		{{include file="field_checkbox.tpl" field=$decoupled_receiver}}
 		{{include file="field_input.tpl" field=$worker_defer_limit}}
+		{{include file="field_input.tpl" field=$worker_fetch_limit}}
 
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
