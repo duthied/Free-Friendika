@@ -1213,7 +1213,7 @@ class Receiver
 				}
 
 				// Fetch the receivers for the public and the followers collection
-				if ((($receiver == $followers) || (($receiver == self::PUBLIC_COLLECTION) && !$isGroup) || ($isGroup && ($element == 'as:audience'))) && !empty($actor)) {
+				if ((($receiver == $followers) || (($receiver == self::PUBLIC_COLLECTION) && !$isGroup) || ($isGroup && ($element == 'as:audience'))) && !empty($profile)) {
 					$receivers = self::getReceiverForActor($tags, $receivers, $follower_target, $profile);
 					continue;
 				}

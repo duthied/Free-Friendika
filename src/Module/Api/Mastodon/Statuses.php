@@ -122,8 +122,8 @@ class Statuses extends BaseApi
 		$existing_media = array_column(Post\Media::getByURIId($post['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE]), 'id');
 
 		foreach ($request['media_attributes'] as $attributes) {
-			if (in_array($attributes['id'], $existing_media)) {
-				Post\Media::updateById(['description' => $attributes['description']], $attributes['id']);
+			if (!empty($attributes['id']) && in_array($attributes['id'], $existing_media)) {
+				Post\Media::updateById(['description' => $attributes['description'] ?? null], $attributes['id']);
 			}
 		}
 
@@ -227,7 +227,7 @@ class Statuses extends BaseApi
 						break;
 					}
 				}
-			
+
 				if (!empty($owner['allow_cid'] . $owner['allow_gid'] . $owner['deny_cid'] . $owner['deny_gid'])) {
 					$item['allow_cid'] = $owner['allow_cid'];
 					$item['allow_gid'] = $owner['allow_gid'];
@@ -306,7 +306,7 @@ class Statuses extends BaseApi
 		}
 
 		$item = DI::contentItem()->expandTags($item, $request['visibility'] == 'direct');
-		
+
 		if (!empty($request['media_ids'])) {
 			$item = $this->storeMediaIds($request['media_ids'], $item);
 		}
