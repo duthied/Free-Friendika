@@ -142,6 +142,7 @@ class Site extends BaseAdmin
 		$worker_load_cooldown = (!empty($_POST['worker_load_cooldown'])       ? intval($_POST['worker_load_cooldown'])          : 0);
 		$worker_fastlane      = !empty($_POST['worker_fastlane']);
 		$decoupled_receiver   = (!empty($_POST['decoupled_receiver'])         ? intval(trim($_POST['decoupled_receiver'])) : false);
+		$cron_interval        = (!empty($_POST['cron_interval'])              ? intval($_POST['cron_interval'])            : 0);
 
 		$relay_directly    = !empty($_POST['relay_directly']);
 		$relay_scope       = (!empty($_POST['relay_scope'])       ? trim($_POST['relay_scope'])        : '');
@@ -305,6 +306,7 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'worker_load_cooldown', $worker_load_cooldown);
 		$transactionConfig->set('system', 'worker_fastlane'     , $worker_fastlane);
 		$transactionConfig->set('system', 'decoupled_receiver'  , $decoupled_receiver);
+		$transactionConfig->set('system', 'cron_interval'       , $cron_interval);
 
 		$transactionConfig->set('system', 'relay_directly'                , $relay_directly);
 		$transactionConfig->set('system', 'relay_scope'                   , $relay_scope);
@@ -547,7 +549,8 @@ class Site extends BaseAdmin
 			'$worker_load_cooldown'   => ['worker_load_cooldown', DI::l10n()->t('Maximum load for workers'), DI::config()->get('system', 'worker_load_cooldown'), DI::l10n()->t('Maximum load that causes a cooldown before each worker function call.')],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],
 			'$decoupled_receiver'     => ['decoupled_receiver', DI::l10n()->t('Decoupled receiver'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Decouple incoming ActivityPub posts by processing them in the background via a worker process. Only enable this on fast systems.')],
-
+			'$cron_interval'          => ['cron_interval', DI::l10n()->t('Cron interval'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Minimal period in minutes between two calls of the "Cron" worker job.')],
+			
 			'$relay_directly'                 => ['relay_directly', DI::l10n()->t('Direct relay transfer'), DI::config()->get('system', 'relay_directly'), DI::l10n()->t('Enables the direct transfer to other servers without using the relay servers')],
 			'$relay_scope'                    => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), [Relay::SCOPE_NONE => DI::l10n()->t('Disabled'), Relay::SCOPE_ALL => DI::l10n()->t('all'), Relay::SCOPE_TAGS => DI::l10n()->t('tags')]],
 			'$relay_server_tags'              => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],
