@@ -93,9 +93,11 @@ class Site extends BaseAdmin
 		$disable_embedded       = !empty($_POST['disable_embedded']);
 		$allow_users_remote_self = !empty($_POST['allow_users_remote_self']);
 		$adjust_poll_frequency  = !empty($_POST['adjust_poll_frequency']);
+		$min_poll_interval      = (!empty($_POST['min_poll_interval']) ? intval(trim($_POST['min_poll_interval']))                : 0);
 		$explicit_content       = !empty($_POST['explicit_content']);
 		$proxify_content        = !empty($_POST['proxify_content']);
 		$local_search           = !empty($_POST['local_search']);
+		$blocked_tags           = (!empty($_POST['blocked_tags']) ? trim($_POST['blocked_tags'])  : '');
 		$cache_contact_avatar   = !empty($_POST['cache_contact_avatar']);
 
 		$enable_multi_reg       = !empty($_POST['enable_multi_reg']);
@@ -131,22 +133,41 @@ class Site extends BaseAdmin
 		$suppress_tags          = !empty($_POST['suppress_tags']);
 		$max_comments           = (!empty($_POST['max_comments'])           ? intval($_POST['max_comments'])                  : 0);
 		$max_display_comments   = (!empty($_POST['max_display_comments'])   ? intval($_POST['max_display_comments'])          : 0);
+		$itemspage_network      = (!empty($_POST['itemspage_network'])      ? intval($_POST['itemspage_network'])             : 0);
+		$itemspage_network_mobile = (!empty($_POST['itemspage_network_mobile']) ? intval($_POST['itemspage_network_mobile'])  : 0);
 		$temppath               = (!empty($_POST['temppath'])               ? trim($_POST['temppath'])   : '');
 		$singleuser             = (!empty($_POST['singleuser'])             ? trim($_POST['singleuser']) : '');
 		$only_tag_search        = !empty($_POST['only_tag_search']);
 		$compute_circle_counts  = !empty($_POST['compute_circle_counts']);
+		$process_view           = !empty($_POST['process_view']);
+		$archival_days          = (!empty($_POST['archival_days'])          ? intval($_POST['archival_days'])                 : 0);
 		$check_new_version_url  = (!empty($_POST['check_new_version_url'])  ? trim($_POST['check_new_version_url']) : 'none');
 
 		$worker_queues        = (!empty($_POST['worker_queues'])              ? intval($_POST['worker_queues'])                 : 10);
 		$worker_load_cooldown = (!empty($_POST['worker_load_cooldown'])       ? intval($_POST['worker_load_cooldown'])          : 0);
 		$worker_fastlane      = !empty($_POST['worker_fastlane']);
 		$decoupled_receiver   = (!empty($_POST['decoupled_receiver'])         ? intval(trim($_POST['decoupled_receiver'])) : false);
+		$cron_interval        = (!empty($_POST['cron_interval'])              ? intval($_POST['cron_interval'])            : 0);
+		$worker_defer_limit   = (!empty($_POST['worker_defer_limit'])         ? intval($_POST['worker_defer_limit'])       : 15);
+		$worker_fetch_limit   = (!empty($_POST['worker_fetch_limit'])         ? intval($_POST['worker_fetch_limit'])       : 1);
+		
 
 		$relay_directly    = !empty($_POST['relay_directly']);
 		$relay_scope       = (!empty($_POST['relay_scope'])       ? trim($_POST['relay_scope'])        : '');
 		$relay_server_tags = (!empty($_POST['relay_server_tags']) ? trim($_POST['relay_server_tags'])  : '');
 		$relay_deny_tags   = (!empty($_POST['relay_deny_tags'])   ? trim($_POST['relay_deny_tags'])    : '');
 		$relay_user_tags   = !empty($_POST['relay_user_tags']);
+
+		$relay_deny_undetected_language = !empty($_POST['relay_deny_undetected_language']);
+		$relay_language_quality         = (!empty($_POST['relay_language_quality']) ? (float)($_POST['relay_language_quality']) : 0);
+		$relay_languages                = (!empty($_POST['relay_languages'])        ? intval($_POST['relay_languages'])       : 0);
+
+		$engagement_hours        = (!empty($_POST['engagement_hours'])        ? intval($_POST['engagement_hours'])     : 0);
+		$engagement_post_limit   = (!empty($_POST['engagement_post_limit'])   ? intval($_POST['engagement_post_limit']) : 0);
+		$interaction_score_days  = (!empty($_POST['interaction_score_days'])  ? intval($_POST['interaction_score_days']) : 0);
+		$max_posts_per_author    = (!empty($_POST['max_posts_per_author'])    ? intval($_POST['max_posts_per_author']) : 0);
+		$sharer_interaction_days = (!empty($_POST['sharer_interaction_days']) ? intval($_POST['sharer_interaction_days']) : 0);
+
 		$active_panel      = (!empty($_POST['active_panel'])      ? "#" . trim($_POST['active_panel']) : '');
 
 		$transactionConfig = DI::config()->beginTransaction();
@@ -241,9 +262,11 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'disable_embedded'       , $disable_embedded);
 		$transactionConfig->set('system', 'allow_users_remote_self', $allow_users_remote_self);
 		$transactionConfig->set('system', 'adjust_poll_frequency'  , $adjust_poll_frequency);
+		$transactionConfig->set('system', 'min_poll_interval'      , $min_poll_interval);
 		$transactionConfig->set('system', 'explicit_content'       , $explicit_content);
 		$transactionConfig->set('system', 'proxify_content'        , $proxify_content);
 		$transactionConfig->set('system', 'local_search'           , $local_search);
+		$transactionConfig->set('system', 'blocked_tags'           , $blocked_tags);
 		$transactionConfig->set('system', 'cache_contact_avatar'   , $cache_contact_avatar);
 		$transactionConfig->set('system', 'check_new_version_url'  , $check_new_version_url);
 
@@ -278,6 +301,8 @@ class Site extends BaseAdmin
 
 		$transactionConfig->set('system', 'max_comments', $max_comments);
 		$transactionConfig->set('system', 'max_display_comments', $max_display_comments);
+		$transactionConfig->set('system', 'itemspage_network', $itemspage_network);
+		$transactionConfig->set('system', 'itemspage_network_mobile', $itemspage_network_mobile);
 
 		if ($temppath != '') {
 			$temppath = BasePath::getRealPath($temppath);
@@ -287,17 +312,31 @@ class Site extends BaseAdmin
 
 		$transactionConfig->set('system', 'only_tag_search'  , $only_tag_search);
 		$transactionConfig->set('system', 'compute_circle_counts', $compute_circle_counts);
+		$transactionConfig->set('system', 'process_view', $process_view);
+		$transactionConfig->set('system', 'archival_days', $archival_days);
 
 		$transactionConfig->set('system', 'worker_queues'       , $worker_queues);
 		$transactionConfig->set('system', 'worker_load_cooldown', $worker_load_cooldown);
 		$transactionConfig->set('system', 'worker_fastlane'     , $worker_fastlane);
 		$transactionConfig->set('system', 'decoupled_receiver'  , $decoupled_receiver);
+		$transactionConfig->set('system', 'cron_interval'       , $cron_interval);
+		$transactionConfig->set('system', 'worker_defer_limit'  , $worker_defer_limit);
+		$transactionConfig->set('system', 'worker_fetch_limit'  , $worker_fetch_limit);
+		
+		$transactionConfig->set('system', 'relay_directly'                , $relay_directly);
+		$transactionConfig->set('system', 'relay_scope'                   , $relay_scope);
+		$transactionConfig->set('system', 'relay_server_tags'             , $relay_server_tags);
+		$transactionConfig->set('system', 'relay_deny_tags'               , $relay_deny_tags);
+		$transactionConfig->set('system', 'relay_user_tags'               , $relay_user_tags);
+		$transactionConfig->set('system', 'relay_deny_undetected_language', $relay_deny_undetected_language);
+		$transactionConfig->set('system', 'relay_language_quality'        , $relay_language_quality);
+		$transactionConfig->set('system', 'relay_languages'               , $relay_languages);
 
-		$transactionConfig->set('system', 'relay_directly'   , $relay_directly);
-		$transactionConfig->set('system', 'relay_scope'      , $relay_scope);
-		$transactionConfig->set('system', 'relay_server_tags', $relay_server_tags);
-		$transactionConfig->set('system', 'relay_deny_tags'  , $relay_deny_tags);
-		$transactionConfig->set('system', 'relay_user_tags'  , $relay_user_tags);
+		$transactionConfig->set('channel', 'engagement_hours'       , $engagement_hours);
+		$transactionConfig->set('channel', 'engagement_post_limit'  , $engagement_post_limit);
+		$transactionConfig->set('channel', 'interaction_score_days' , $interaction_score_days);
+		$transactionConfig->set('channel', 'max_posts_per_author'   , $max_posts_per_author);
+		$transactionConfig->set('channel', 'sharer_interaction_days', $sharer_interaction_days);
 
 		$transactionConfig->commit();
 
@@ -422,6 +461,7 @@ class Site extends BaseAdmin
 			'$no_relay_list'     => DI::l10n()->t('The system is not subscribed to any relays at the moment.'),
 			'$relay_list_title'  => DI::l10n()->t('The system is currently subscribed to the following relays:'),
 			'$relay_list'        => Relay::getList(['url']),
+			'$channel_title'     => DI::l10n()->t('Channels'),
 			'$relocate'          => DI::l10n()->t('Relocate Node'),
 			'$relocate_msg'      => DI::l10n()->t('Relocating your node enables you to change the DNS domain of this node and keep all the existing users and posts. This process takes a while and can only be started from the relocate console command like this:'),
 			'$relocate_cmd'      => DI::l10n()->t('(Friendica directory)# bin/console relocate https://newdomain.com'),
@@ -469,9 +509,11 @@ class Site extends BaseAdmin
 			'$explicit_content'       => ['explicit_content', DI::l10n()->t('Explicit Content'), DI::config()->get('system', 'explicit_content'), DI::l10n()->t('Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.')],
 			'$proxify_content'        => ['proxify_content', DI::l10n()->t('Proxify external content'), DI::config()->get('system', 'proxify_content'), DI::l10n()->t('Route external content via the proxy functionality. This is used for example for some OEmbed accesses and in some other rare cases.')],
 			'$local_search'           => ['local_search', DI::l10n()->t('Only local search'), DI::config()->get('system', 'local_search'), DI::l10n()->t('Blocks search for users who are not logged in to prevent crawlers from blocking your system.')],
+			'$blocked_tags'           => ['blocked_tags', DI::l10n()->t('Blocked tags for trending tags'), DI::config()->get('system', 'blocked_tags'), DI::l10n()->t("Comma separated list of hashtags that shouldn't be displayed in the trending tags.")],
 			'$cache_contact_avatar'   => ['cache_contact_avatar', DI::l10n()->t('Cache contact avatars'), DI::config()->get('system', 'cache_contact_avatar'), DI::l10n()->t('Locally store the avatar pictures of the contacts. This uses a lot of storage space but it increases the performance.')],
 			'$allow_users_remote_self'=> ['allow_users_remote_self', DI::l10n()->t('Allow Users to set remote_self'), DI::config()->get('system', 'allow_users_remote_self'), DI::l10n()->t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
 			'$adjust_poll_frequency'  => ['adjust_poll_frequency', DI::l10n()->t('Adjust the feed poll frequency'), DI::config()->get('system', 'adjust_poll_frequency'), DI::l10n()->t('Automatically detect and set the best feed poll frequency.')],
+			'$min_poll_interval'      => ['min_poll_interval', DI::l10n()->t('Minimum poll interval'), DI::config()->get('system', 'min_poll_interval'), DI::l10n()->t('Minimal distance in minutes between two polls for mail and feed contacts. Reasonable values are between 1 and 59.')],
 			'$enable_multi_reg'       => ['enable_multi_reg', DI::l10n()->t('Enable multiple registrations'), !DI::config()->get('system', 'block_extended_register'), DI::l10n()->t('Enable users to register additional accounts for use as pages.')],
 			'$enable_openid'          => ['enable_openid', DI::l10n()->t('Enable OpenID'), !DI::config()->get('system', 'no_openid'), DI::l10n()->t('Enable OpenID support for registration and logins.')],
 			'$enable_regfullname'     => ['enable_regfullname', DI::l10n()->t('Enable full name check'), !DI::config()->get('system', 'no_regfullname'), DI::l10n()->t('Prevents users from registering with a display name with fewer than two parts separated by spaces.')],
@@ -515,20 +557,36 @@ class Site extends BaseAdmin
 			'$dbclean_expire_conv'    => ['dbclean_expire_conv', DI::l10n()->t('Lifespan of raw conversation data'), DI::config()->get('system', 'dbclean_expire_conversation'), DI::l10n()->t('The conversation data is used for ActivityPub and OStatus, as well as for debug purposes. It should be safe to remove it after 14 days, default is 90 days.')],
 			'$max_comments'           => ['max_comments', DI::l10n()->t('Maximum numbers of comments per post'), DI::config()->get('system', 'max_comments'), DI::l10n()->t('How much comments should be shown for each post? Default value is 100.')],
 			'$max_display_comments'   => ['max_display_comments', DI::l10n()->t('Maximum numbers of comments per post on the display page'), DI::config()->get('system', 'max_display_comments'), DI::l10n()->t('How many comments should be shown on the single view for each post? Default value is 1000.')],
+			'$itemspage_network'      => ['itemspage_network', DI::l10n()->t('Items per page'), DI::config()->get('system', 'itemspage_network'), DI::l10n()->t('Number of items per page in stream pages (network, community, profile/contact statuses, search).')],
+			'$itemspage_network_mobile' => ['itemspage_network_mobile', DI::l10n()->t('Items per page for mobile devices'), DI::config()->get('system', 'itemspage_network_mobile'), DI::l10n()->t('Number of items per page in stream pages (network, community, profile/contact statuses, search) for mobile devices.')],
 			'$temppath'               => ['temppath', DI::l10n()->t('Temp path'), DI::config()->get('system', 'temppath'), DI::l10n()->t('If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.')],
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
 			'$compute_circle_counts'  => ['compute_circle_counts', DI::l10n()->t('Generate counts per contact circle when calculating network count'), DI::config()->get('system', 'compute_circle_counts'), DI::l10n()->t('On systems with users that heavily use contact circles the query can be very expensive.')],
+			'$process_view'           => ['process_view', DI::l10n()->t('Process "view" activities'), DI::config()->get('system', 'process_view'), DI::l10n()->t('"view" activities are mostly geberated by Peertube systems. Per default they are not processed for performance reasons. Only activate this option on performant system.')],
+			'$archival_days'          => ['archival_days', DI::l10n()->t('Days, after which a contact is archived'), DI::config()->get('system', 'archival_days'), DI::l10n()->t('Number of days that we try to deliver content or to update the contact data before we archive a contact.')],
 
 			'$worker_queues'          => ['worker_queues', DI::l10n()->t('Maximum number of parallel workers'), DI::config()->get('system', 'worker_queues'), DI::l10n()->t('On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.', 5, 20, 10)],
 			'$worker_load_cooldown'   => ['worker_load_cooldown', DI::l10n()->t('Maximum load for workers'), DI::config()->get('system', 'worker_load_cooldown'), DI::l10n()->t('Maximum load that causes a cooldown before each worker function call.')],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],
 			'$decoupled_receiver'     => ['decoupled_receiver', DI::l10n()->t('Decoupled receiver'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Decouple incoming ActivityPub posts by processing them in the background via a worker process. Only enable this on fast systems.')],
+			'$cron_interval'          => ['cron_interval', DI::l10n()->t('Cron interval'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Minimal period in minutes between two calls of the "Cron" worker job.')],
+			'$worker_defer_limit'     => ['worker_defer_limit', DI::l10n()->t('Worker defer limit'), DI::config()->get('system', 'worker_defer_limit'), DI::l10n()->t('Per default the systems tries delivering for 15 times before dropping it.')],
+			'$worker_fetch_limit'     => ['worker_fetch_limit', DI::l10n()->t('Worker fetch limit'), DI::config()->get('system', 'worker_fetch_limit'), DI::l10n()->t('Number of worker tasks that are fetched in a single query. Higher values should increase the performance, too high values will mostly likely decrease it. Only change it, when you know how to measure the performance of your system.')],
 
-			'$relay_directly'         => ['relay_directly', DI::l10n()->t('Direct relay transfer'), DI::config()->get('system', 'relay_directly'), DI::l10n()->t('Enables the direct transfer to other servers without using the relay servers')],
-			'$relay_scope'            => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), [Relay::SCOPE_NONE => DI::l10n()->t('Disabled'), Relay::SCOPE_ALL => DI::l10n()->t('all'), Relay::SCOPE_TAGS => DI::l10n()->t('tags')]],
-			'$relay_server_tags'      => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],
-			'$relay_deny_tags'        => ['relay_deny_tags', DI::l10n()->t('Deny Server tags'), DI::config()->get('system', 'relay_deny_tags'), DI::l10n()->t('Comma separated list of tags that are rejected.')],
-			'$relay_user_tags'        => ['relay_user_tags', DI::l10n()->t('Allow user tags'), DI::config()->get('system', 'relay_user_tags'), DI::l10n()->t('If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".')],
+			'$relay_directly'                 => ['relay_directly', DI::l10n()->t('Direct relay transfer'), DI::config()->get('system', 'relay_directly'), DI::l10n()->t('Enables the direct transfer to other servers without using the relay servers')],
+			'$relay_scope'                    => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), [Relay::SCOPE_NONE => DI::l10n()->t('Disabled'), Relay::SCOPE_ALL => DI::l10n()->t('all'), Relay::SCOPE_TAGS => DI::l10n()->t('tags')]],
+			'$relay_server_tags'              => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],
+			'$relay_deny_tags'                => ['relay_deny_tags', DI::l10n()->t('Deny Server tags'), DI::config()->get('system', 'relay_deny_tags'), DI::l10n()->t('Comma separated list of tags that are rejected.')],
+			'$relay_user_tags'                => ['relay_user_tags', DI::l10n()->t('Allow user tags'), DI::config()->get('system', 'relay_user_tags'), DI::l10n()->t('If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".')],
+			'$relay_deny_undetected_language' => ['relay_deny_undetected_language', DI::l10n()->t('Deny undetected languages'), DI::config()->get('system', 'relay_deny_undetected_language'), DI::l10n()->t('If enabled, posts with undetected languages will be rejected.')],
+			'$relay_language_quality'         => ['relay_language_quality', DI::l10n()->t('Language Quality'), DI::config()->get('system', 'relay_language_quality'), DI::l10n()->t('The minimum language quality that is required to accept the post.')],
+			'$relay_languages'                => ['relay_languages', DI::l10n()->t('Number of languages for the language detection'), DI::config()->get('system', 'relay_languages'), DI::l10n()->t('The system detects a list of languages per post. Only if the desired languages are in the list, the message will be accepted. The higher the number, the more posts will be falsely detected.')],
+
+			'$engagement_hours'        => ['engagement_hours', DI::l10n()->t('Maximum age of channel'), DI::config()->get('channel', 'engagement_hours'), DI::l10n()->t('This defines the maximum age of items that should be displayed in channels. This affects the channel performance.')],
+			'$engagement_post_limit'   => ['engagement_post_limit', DI::l10n()->t('Maximum number of channel posts'), DI::config()->get('channel', 'engagement_post_limit'), DI::l10n()->t('For performance reasons, the channels use a dedicated table to store content. The higher the value the slower the channels.')],
+			'$interaction_score_days'  => ['interaction_score_days', DI::l10n()->t('Interaction score days'), DI::config()->get('channel', 'interaction_score_days'), DI::l10n()->t('Number of days that are used to calculate the interaction score.')],
+			'$max_posts_per_author'    => ['max_posts_per_author', DI::l10n()->t('Maximum number of posts per author'), DI::config()->get('channel', 'max_posts_per_author'), DI::l10n()->t('Maximum number of posts per page by author. If there are more posts, then the post with the most interactions will be displayed.')],
+			'$sharer_interaction_days' => ['sharer_interaction_days', DI::l10n()->t('Sharer interaction days'), DI::config()->get('channel', 'sharer_interaction_days'), DI::l10n()->t('Number of days of the last interaction that are used to define which sharers are used for the "sharers of sharers" channel.')],
 
 			'$form_security_token'    => self::getFormSecurityToken('admin_site'),
 			'$relocate_button'        => DI::l10n()->t('Start Relocation'),

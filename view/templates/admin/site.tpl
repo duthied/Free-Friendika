@@ -87,6 +87,7 @@
 		{{include file="field_checkbox.tpl" field=$explicit_content}}
 		{{include file="field_checkbox.tpl" field=$proxify_content}}
 		{{include file="field_checkbox.tpl" field=$local_search}}
+		{{include file="field_input.tpl" field=$blocked_tags}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$advanced}}</h2>
@@ -115,12 +116,18 @@
 		{{include file="field_checkbox.tpl" field=$only_tag_search}}
 		{{include file="field_input.tpl" field=$max_comments}}
 		{{include file="field_input.tpl" field=$max_display_comments}}
+		{{include file="field_input.tpl" field=$itemspage_network}}
+		{{include file="field_input.tpl" field=$itemspage_network_mobile}}
 		{{include file="field_checkbox.tpl" field=$dbclean}}
 		{{include file="field_input.tpl" field=$dbclean_expire_days}}
 		{{include file="field_input.tpl" field=$dbclean_unclaimed}}
 		{{include file="field_input.tpl" field=$dbclean_expire_conv}}
 		{{include file="field_checkbox.tpl" field=$optimize_tables}}
 		{{include file="field_checkbox.tpl" field=$cache_contact_avatar}}
+		{{include file="field_input.tpl" field=$min_poll_interval}}
+		{{include file="field_input.tpl" field=$cron_interval}}
+		{{include file="field_checkbox.tpl" field=$process_view}}
+		{{include file="field_input.tpl" field=$archival_days}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$worker_title}}</h2>
@@ -130,6 +137,8 @@
 		{{include file="field_input.tpl" field=$worker_load_cooldown}}
 		{{include file="field_checkbox.tpl" field=$worker_fastlane}}
 		{{include file="field_checkbox.tpl" field=$decoupled_receiver}}
+		{{include file="field_input.tpl" field=$worker_defer_limit}}
+		{{include file="field_input.tpl" field=$worker_fetch_limit}}
 
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
@@ -150,6 +159,16 @@
 		{{include file="field_input.tpl" field=$relay_deny_tags}}
 		{{include file="field_checkbox.tpl" field=$relay_user_tags}}
 		{{include file="field_checkbox.tpl" field=$relay_directly}}
+		{{include file="field_checkbox.tpl" field=$relay_deny_undetected_language}}
+		{{include file="field_input.tpl" field=$relay_language_quality}}
+		{{include file="field_input.tpl" field=$relay_languages}}
+
+		<h2>{{$channel_title}}</h2>
+		{{include file="field_input.tpl" field=$engagement_hours}}
+		{{include file="field_input.tpl" field=$engagement_post_limit}}
+		{{include file="field_input.tpl" field=$interaction_score_days}}
+		{{include file="field_input.tpl" field=$max_posts_per_author}}
+		{{include file="field_input.tpl" field=$sharer_interaction_days}}
 
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 

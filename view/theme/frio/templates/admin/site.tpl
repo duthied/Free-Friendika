@@ -167,7 +167,8 @@
 						{{include file="field_checkbox.tpl" field=$explicit_content}}
 						{{include file="field_checkbox.tpl" field=$proxify_content}}
 						{{include file="field_checkbox.tpl" field=$local_search}}
-					</div>
+						{{include file="field_input.tpl" field=$blocked_tags}}
+						</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
@@ -249,12 +250,18 @@
 						{{include file="field_checkbox.tpl" field=$only_tag_search}}
 						{{include file="field_input.tpl" field=$max_comments}}
 						{{include file="field_input.tpl" field=$max_display_comments}}
+						{{include file="field_input.tpl" field=$itemspage_network}}
+						{{include file="field_input.tpl" field=$itemspage_network_mobile}}
 						{{include file="field_checkbox.tpl" field=$dbclean}}
 						{{include file="field_input.tpl" field=$dbclean_expire_days}}
 						{{include file="field_input.tpl" field=$dbclean_unclaimed}}
 						{{include file="field_input.tpl" field=$dbclean_expire_conv}}
 						{{include file="field_checkbox.tpl" field=$optimize_tables}}
 						{{include file="field_checkbox.tpl" field=$cache_contact_avatar}}
+						{{include file="field_input.tpl" field=$min_poll_interval}}
+						{{include file="field_input.tpl" field=$cron_interval}}
+						{{include file="field_checkbox.tpl" field=$process_view}}
+						{{include file="field_input.tpl" field=$archival_days}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
@@ -282,6 +289,8 @@
 						{{include file="field_input.tpl" field=$worker_load_cooldown}}
 						{{include file="field_checkbox.tpl" field=$worker_fastlane}}
 						{{include file="field_checkbox.tpl" field=$decoupled_receiver}}
+						{{include file="field_input.tpl" field=$worker_defer_limit}}
+						{{include file="field_input.tpl" field=$worker_fetch_limit}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
@@ -319,6 +328,34 @@
 						{{include file="field_input.tpl" field=$relay_deny_tags}}
 						{{include file="field_checkbox.tpl" field=$relay_user_tags}}
 						{{include file="field_checkbox.tpl" field=$relay_directly}}
+						{{include file="field_checkbox.tpl" field=$relay_deny_undetected_language}}
+						{{include file="field_input.tpl" field=$relay_language_quality}}
+						{{include file="field_input.tpl" field=$relay_languages}}
+					</div>
+					<div class="panel-footer">
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
+					</div>
+				</div>
+			</div>
+			<!--
+			/*
+			 *    Channel
+			 */ -->
+			<div class="panel">
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-channel">
+					<h2>
+						<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-channel-collapse" aria-expanded="false" aria-controls="admin-settings-channel-collapse">
+							{{$channel_title}}
+						</button>
+					</h2>
+				</div>
+				<div id="admin-settings-channel-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-channel">
+					<div class="panel-body">
+						{{include file="field_input.tpl" field=$engagement_hours}}
+						{{include file="field_input.tpl" field=$engagement_post_limit}}
+						{{include file="field_input.tpl" field=$interaction_score_days}}
+						{{include file="field_input.tpl" field=$max_posts_per_author}}
+						{{include file="field_input.tpl" field=$sharer_interaction_days}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>

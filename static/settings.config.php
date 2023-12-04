@@ -64,9 +64,17 @@ return [
 		// Themes users can change to in their settings.
 		'allowed_themes' => 'frio,vier',
 
+		// archival_days (Integer)
+		// Number of days that we try to deliver content before we archive a contact.
+		'archival_days' => 32,
+
 		// banner (HTML string)
 		// HTML snippet of the top navigation banner. Not supported by frio.
 		'banner' => '<a href="https://friendi.ca"><img id="logo-img" width="32" height="32" src="images/friendica.svg" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>',
+
+		// blocked_tags (String)
+		// Comma separated list of hashtags that shouldn't be displayed in the trending tags
+		'blocked_tags' => '',
 
 		// cache_contact_avatar (Boolean)
 		// Cache versions of the contact avatars. Uses a lot of storage space
@@ -172,6 +180,10 @@ return [
 		// Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).
 		'min_memory' => 0,
 
+		// min_poll_interval (Integer)
+		// minimal distance in minutes between two polls for a contact. Reasonable values are between 1 and 59.
+		'min_poll_interval' => 15,
+
 		// no_regfullname (Boolean)
 		// Allow users to register with a display name comporting fewer than two parts separated by spaces.
 		'no_regfullname' => true,
@@ -184,6 +196,10 @@ return [
 		// Periodically (once an hour) run an "optimize table" command for cache tables
 		'optimize_tables' => false,
 
+		// process_view (Boolean)
+		// Process the "View" activity that is used by Peertube.
+		'process_view' => false,
+
 		// register_notification (Boolean)
 		// Send a notification mail to the admin for each new registration.
 		'register_notification' => true,
@@ -191,6 +207,18 @@ return [
 		// relay_deny_tags (String)
 		// Comma separated list of tags that are rejected.
 		'relay_deny_tags' => '',
+
+		// relay_deny_undetected_language (Boolean)
+		// Deny undetected languages
+		'relay_deny_undetected_language' => false,
+
+		// relay_languages (Integer)
+		// Number of languages that are used per post to check for acceptable posts.
+		'relay_languages' => 10,
+
+		// relay_language_quality (Float)
+		// Minimum value for the language detection quality for relay posts. The value must be between 0 and 1.
+		'relay_language_quality' => 0,
 
 		// proxify_content (Boolean)
 		// Use the proxy functionality for fetching external content
@@ -237,9 +265,39 @@ return [
 		// Number of days after which a server is requeried for their contacts and servers it knows of.
 		'poco_requery_days' => 30,
 
+		// worker_defer_limit (Integer)
+		// Per default the systems tries delivering for 15 times before dropping it.
+		'worker_defer_limit' => 15,
+
+		// worker_fetch_limit (Integer)
+		// Number of worker tasks that are fetched in a single query.
+		'worker_fetch_limit' => 1,
+
 		// worker_load_cooldown (Integer)
 		// Maximum load that causes a cooldown before each worker function call.
 		'worker_load_cooldown' => 0,
+	],
+
+	'channel' => [
+		// engagement_hours (Integer)
+		// Maximum age of incoming posts for the engagement table, when the engagement post limit is 0 or hasn't been reached yet.
+		'engagement_hours' => 24,
+
+		// engagement_post_limit (Integer)
+		// NUmber of posts that are held in the engagement table
+		'engagement_post_limit' => 20000,
+
+		// interaction_score_days (Integer)
+		// Number of days that are used to calculate the interaction score.
+		'interaction_score_days' => 30,
+
+		// max_posts_per_author (Integer)
+		// Maixmum number of posts per page by author
+		'max_posts_per_author' => 2,
+
+		// sharer_interaction_days (Integer)
+		// Number of days of the last interaction that are used to define which sharers are used for the "sharers of sharers" channel.
+		'sharer_interaction_days' => 90,
 	],
 
 	// Used in the admin settings to lock certain features

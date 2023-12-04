@@ -105,10 +105,6 @@ return [
 		// Addresses non-mentioned ActivityPub receivers by BCC instead of CC. Increases privacy, decreases performance.
 		'ap_always_bcc' => false,
 
-		// archival_days (Integer)
-		// Number of days that we try to deliver content before we archive a contact.
-		'archival_days' => 32,
-
 		// auth_cookie_lifetime (Integer)
 		// Number of days that should pass without any activity before a user who
 		// chose "Remember me" when logging in is considered logged out.
@@ -143,10 +139,6 @@ return [
 		// block_local_dir (Boolean)
 		// Deny public access to the local user directory.
 		'block_local_dir' => false,
-
-		// blocked_tags (String)
-		// Comma separated list of hashtags that shouldn't be displayed in the trending tags
-		'blocked_tags' => '',
 
 		// contact_update_limit (Integer)
 		// How many contacts should be checked at a time?
@@ -455,10 +447,6 @@ return [
 			['127.0.0.1', '11211'],
 		],
 
-		// min_poll_interval (Integer)
-		// minimal distance in minutes between two polls for a contact. Reasonable values are between 1 and 59.
-		'min_poll_interval' => 15,
-
 		// minimum_posting_interval (Integer)
 		// Minimum interval between two feed posts per user
 		'minimum_posting_interval' => 0,
@@ -499,10 +487,6 @@ return [
 		// Sets the ImageMagick compression level for PNG images. Values range from 0 (uncompressed) to 9 (most compressed).
 		'png_quality' => 8,
 
-		// process_view (Boolean)
-		// Process the "View" activity that is used by Peertube.
-		'process_view' => false,
-
 		// profiler (Boolean)
 		// Enable internal timings to help optimize code. Needed for "rendertime" addon.
 		'profiler' => false,
@@ -537,18 +521,6 @@ return [
 		// redistribute_activities (Boolean)
 		// Redistribute incoming activities via ActivityPub
 		'redistribute_activities' => true,
-
-		// relay_deny_undetected_language (Boolean)
-		// Deny undetected languages
-		'relay_deny_undetected_language' => false,
-
-		// relay_language_quality (Float)
-		// Minimum value for the language detection quality for relay posts. The value must be between 0 and 1.
-		'relay_language_quality' => 0,
-
-		// relay_languages (Integer)
-		// Number of languages that are used per post to check for acceptable posts.
-		'relay_languages' => 10,
 
 		// session_handler (database|cache|native)
 		// Whether to use Cache to store session data or to use PHP native session storage.
@@ -636,10 +608,6 @@ return [
 		// If enabled, it prints out the number of running processes split by priority.
 		'worker_debug' => false,
 
-		// worker_fetch_limit (Integer)
-		// Number of worker tasks that are fetched in a single query.
-		'worker_fetch_limit' => 1,
-
 		// worker_fork (Boolean)
 		// Experimental setting. Use pcntl_fork to spawn a new worker process.
 		// Does not work when "worker_multiple_fetch" is enabled (Needs more testing)
@@ -678,10 +646,6 @@ return [
 		// This is an experimental setting without knowing the performance impact.
 		// Does not work when "worker_fork" is enabled (Needs more testing)
 		'worker_multiple_fetch' => false,
-
-		// worker_defer_limit (Integer)
-		// Per default the systems tries delivering for 15 times before dropping it.
-		'worker_defer_limit' => 15,
 
 		// xrd_timeout (Integer)
 		// Timeout in seconds for fetching the XRD links and other requests with an expected shorter timeout
@@ -767,26 +731,5 @@ return [
 		// public (Boolean)
 		// Wether the blocklist is publicly listed under /about (or in any later API)
 		'public' => true,
-	],
-	'channel' => [
-		// engagement_hours (Integer)
-		// Maximum age of incoming posts for the engagement table, when the engagement post limit is 0 or hasn't been reached yet.
-		'engagement_hours' => 24,
-
-		// engagement_post_limit (Integer)
-		// NUmber of posts that are held in the engagement table
-		'engagement_post_limit' => 20000,
-
-		// interaction_score_days (Integer)
-		// Number of days that are used to calculate the interaction score.
-		'interaction_score_days' => 30,
-
-		// max_posts_per_author (Integer)
-		// Maixmum number of posts per page by author
-		'max_posts_per_author' => 2,
-
-		// sharer_interaction_days (Integer)
-		// Number of days of the last interaction that are used to define which sharers are used for the "sharers of sharers" channel.
-		'sharer_interaction_days' => 90,
 	],
 ];
