@@ -52,10 +52,6 @@ return [
 		// Enter 0 for no time limit.
 		'account_abandon_days' => 0,
 
-		// add_missing_posts (boolean)
-		// Checks for missing entries in "post", "post-thread" or "post-thread-user" and creates them
-		'add_missing_posts' => false,
-
 		// adjust_poll_frequency (Boolean)
 		// Automatically detect and set the best feed poll frequency.
 		'adjust_poll_frequency' => false,
@@ -79,6 +75,10 @@ return [
 		// cache_contact_avatar (Boolean)
 		// Cache versions of the contact avatars. Uses a lot of storage space
 		'cache_contact_avatar' => true,
+
+		// cron_interval (Integer)
+		// Minimal period in minutes between two calls of the "Cron" worker job.
+		'cron_interval' => 5,
 
 		// curl_timeout (Integer)
 		// Value is in seconds. Set to 0 for unlimited (not recommended).
@@ -134,6 +134,15 @@ return [
 		// Compute contact circle level when counting unseen network posts.
 		'compute_circle_counts' => true,
 
+		// itemspage_network (Integer)
+		// default number of items per page in stream pages (network, community, profile/contact statuses, search)
+		'itemspage_network' => 40,
+
+		// itemspage_network_mobile (Integer)
+		// default number of items per page in stream pages (network, community, profile/contact statuses, search)
+		// on detected mobile devices
+		'itemspage_network_mobile' => 20,
+
 		// jpeg_quality (Integer)
 		// Sets the ImageMagick quality level for JPEG images. Values ranges from 50 (awful) to 100 (near perfect).
 		'jpeg_quality' => 100,
@@ -163,10 +172,6 @@ return [
 		// Pictures longer than this length will be resized to be this length (on the longest side, the other side will be scaled appropriately).
 		// If you don't want to set a maximum length, set to -1.
 		'max_image_length' => -1,
-
-		// max_receivers (Integer)
-		// The maximum number of displayed receivers of posts
-		'max_receivers' => 10,
 
 		// maximagesize (Integer)
 		// Maximum size in bytes of an uploaded photo.

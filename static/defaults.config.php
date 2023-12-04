@@ -93,6 +93,10 @@ return [
 		'php_path' => 'php',
 	],
 	'system' => [
+		// add_missing_posts (boolean)
+		// Checks for missing entries in "post", "post-thread" or "post-thread-user" and creates them
+		'add_missing_posts' => false,
+
 		// allowed_link_protocols (Array)
 		// Allowed protocols in links URLs, add at your own risk. http(s) is always allowed.
 		'allowed_link_protocols' => ['ftp://', 'ftps://', 'mailto:', 'cid:', 'gopher://'],
@@ -143,10 +147,6 @@ return [
 		// contact_update_limit (Integer)
 		// How many contacts should be checked at a time?
 		'contact_update_limit' => 100,
-
-		// cron_interval (Integer)
-		// Minimal period in minutes between two calls of the "Cron" worker job.
-		'cron_interval' => 5,
 
 		// cache_driver (database|memcache|memcached|redis|apcu)
 		// Whether to use Memcache, Memcached, Redis or APCu to store temporary cache.
@@ -250,10 +250,6 @@ return [
 		// Disable the exposition check against the remote haveibeenpwned API on password change.
 		'disable_password_exposed' => false,
 
-		// disable_polling (Boolean)
-		// Disable the polling of DFRN and OStatus contacts through onepoll.php.
-		'disable_polling' => false,
-
 		// display_resharer (Boolean)
 		// Display the first resharer as icon and text on a reshared item.
 		'display_resharer' => false,
@@ -325,28 +321,9 @@ return [
 		// If set true registration is only possible after a current member of the node has sent an invitation.
 		'invitation_only' => false,
 
-		// itemspage_network (Integer)
-		// default number of items per page in stream pages (network, community, profile/contact statuses, search)
-		'itemspage_network' => 40,
-
-		// itemspage_network_mobile (Integer)
-		// default number of items per page in stream pages (network, community, profile/contact statuses, search)
-		// on detected mobile devices
-		'itemspage_network_mobile' => 20,
-
-		// jpeg_quality (Integer)
-		//
-		// Lower numbers save space at cost of image detail
-		// where n is between 1 and 100, and with very poor results below about 50
-		'jpeg_quality' => 100,
-
 		// like_no_comment (Boolean)
 		// Don't update the "commented" value of an item when it is liked.
 		'like_no_comment' => false,
-
-		// local_block (Boolean)
-		// Used in conjunction with "block_public".
-		'local_block' => false,
 
 		// local_tags (Boolean)
 		// If activated, all hashtags will point to the local server.
@@ -361,11 +338,11 @@ return [
 		// Sets the logging adapter of Friendica globally (monolog, syslog, stream)
 		'logger_config' => 'stream',
 
-		// syslog flags (Integer)
+		// syslog_flags (Integer)
 		// Sets the syslog flags in case 'logger_config' is set to 'syslog'
 		'syslog_flags' => LOG_CONS | LOG_PID | LOG_ODELAY,
 
-		// syslog flags (Integer)
+		// syslog_facility (Integer)
 		// Sets the syslog facility in case 'logger_config' is set to 'syslog'
 		'syslog_facility' => LOG_USER,
 
@@ -379,10 +356,6 @@ return [
 		// The system timezone is used when no timezone is defined here.
 		'maintenance_end' => '03:00 +00:00',
 
-		// max_batch_queue (Integer)
-		// Maximum number of batched queue items for a single contact before subsequent messages are discarded.
-		'max_batch_queue' => 1000,
-
 		// max_connections (Integer)
 		// The maximum number of database connections which can be in use before the worker process is deferred to its next interval.
 		// When the system can't detect the maximum numbers of connection then this value can be used. Use 0 for auto-detection.
@@ -391,10 +364,6 @@ return [
 		// max_connections_level (Integer 0-100)
 		// The maximum percentage of connections that are allowed to let the worker start.
 		'max_connections_level' => 75,
-
-		// max_contact_queue (Integer)
-		// Maximum number of queue items for a single contact before subsequent messages are discarded.
-		'max_contact_queue' => 500,
 
 		// max_csv_file_size (Integer)
 		// When uploading a CSV with account addresses to follow
@@ -425,13 +394,13 @@ return [
 		// Maximum number of concurrent database processes for foreground tasks.
 		'max_processes_frontend' => 20,
 
+		// max_receivers (Integer)
+		// The maximum number of displayed receivers of posts
+		'max_receivers' => 10,
+
 		// max_recursion_depth (Integer)
 		// Maximum recursion depth when fetching posts until the job is delegated to a worker task or finished.
 		'max_recursion_depth' => 50,
-
-		// maximagesize (Integer)
-		// Maximum size in bytes of an uploaded photo.
-		'maximagesize' => 800000,
 
 		// memcache_host (String)
 		// Host name of the memcache daemon.
@@ -490,17 +459,6 @@ return [
 		// profiler (Boolean)
 		// Enable internal timings to help optimize code. Needed for "rendertime" addon.
 		'profiler' => false,
-
-		// pushpoll_frequency (Integer)
-		// Frequency of contact poll for subhub contact using the DFRN or OStatus network.
-		// Available values:
-		// - 5 = every month
-		// - 4 = every week
-		// - 3 = every day
-		// - 2 = twice a day
-		// - 1 = every hour
-		// - 0 = every minute
-		'pushpoll_frequency' => 3,
 
 		// redis_host (String)
 		// Host name or the path to the Unix domain socket of the Redis daemon.
