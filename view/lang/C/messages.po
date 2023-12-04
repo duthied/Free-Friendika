@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2023.09-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-03 22:46+0000\n"
+"POT-Creation-Date: 2023-12-04 22:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5445,8 +5445,8 @@ msgstr ""
 
 #: src/Module/Admin/Site.php:585
 msgid ""
-"This defines the maximum age of items that should be displayed in channels. "
-"This affects the channel performance."
+"This defines the maximum age in hours of items that should be displayed in "
+"channels. This affects the channel performance."
 msgstr ""
 
 #: src/Module/Admin/Site.php:586
@@ -5473,8 +5473,9 @@ msgstr ""
 
 #: src/Module/Admin/Site.php:588
 msgid ""
-"Maximum number of posts per page by author. If there are more posts, then "
-"the post with the most interactions will be displayed."
+"Maximum number of posts per page by author if the contact frequency is set "
+"to \"Display only few posts\". If there are more posts, then the post with "
+"the most interactions will be displayed."
 msgstr ""
 
 #: src/Module/Admin/Site.php:589
