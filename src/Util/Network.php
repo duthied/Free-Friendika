@@ -660,23 +660,22 @@ class Network
 	}
 
 	/**
-	 * Check if a provided URI is valid
+	 * Creates an Uri object out of a given Uri string
 	 *
 	 * @param string|null $uri
-	 * @return boolean
+	 * @return UriInterface|null
 	 */
-	public static function isValidUri(string $uri = null): bool
+	public static function createUriFromString(string $uri = null): ?UriInterface
 	{
 		if (empty($uri)) {
-			return false;
+			return null;
 		}
 
 		try {
-			new Uri($uri);
+			return new Uri($uri);
 		} catch (\Exception $e) {
 			Logger::debug('Invalid URI', ['code' => $e->getCode(), 'message' => $e->getMessage(), 'uri' => $uri]);
-			return false;
+			return null;
 		}
-		return true;
 	}
 }
