@@ -163,9 +163,14 @@ if (!$foreground) {
 		exit(1);
 	} elseif ($pid) {
 		// The parent process continues here
+		if (!file_put_contents($pidfile, $pid)) {
+			echo "Pid file wasn't written.\n";
+			Logger::warning('Could not store pid file');
+			posix_kill($pid, SIGTERM);
+			exit(1);
+		}
 		echo 'Child process started with pid ' . $pid . ".\n";
 		Logger::notice('Child process started', ['pid' => $pid]);
-		file_put_contents($pidfile, $pid);
 		exit(0);
 	}
 
