@@ -49,7 +49,7 @@ class PostMedia extends BaseFactory implements ICanCreateFromTableRow
 	{
 		return new Entity\PostMedia(
 			$row['uri-id'],
-			UtilNetwork::createUriFromString($row['url']) ?: '',
+			UtilNetwork::createUriFromString($row['url']),
 			$row['type'],
 			$this->mimeTypeFactory->createFromContentType($row['mimetype']),
 			$row['media-uri-id'],
