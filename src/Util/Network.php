@@ -658,4 +658,25 @@ class Network
 		$scheme = parse_url($url, PHP_URL_SCHEME);
 		return !empty($scheme) && in_array($scheme, ['http', 'https']) && parse_url($url, PHP_URL_HOST);
 	}
+
+	/**
+	 * Check if a provided URI is valid
+	 *
+	 * @param string|null $uri
+	 * @return boolean
+	 */
+	public static function isValidUri(string $uri = null): bool
+	{
+		if (empty($uri)) {
+			return false;
+		}
+
+		try {
+			new Uri($uri);
+		} catch (\Exception $e) {
+			Logger::debug('Invalid URI', ['code' => $e->getCode(), 'message' => $e->getMessage(), 'uri' => $uri]);
+			return false;
+		}
+		return true;
+	}
 }

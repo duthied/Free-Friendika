@@ -25,6 +25,7 @@ use Friendica\BaseFactory;
 use Friendica\Capabilities\ICanCreateFromTableRow;
 use Friendica\Content\Post\Entity;
 use Friendica\Network;
+use Friendica\Util\Network as UtilNetwork;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -48,24 +49,24 @@ class PostMedia extends BaseFactory implements ICanCreateFromTableRow
 	{
 		return new Entity\PostMedia(
 			$row['uri-id'],
-			$row['url'] ? new Uri($row['url']) : null,
+			UtilNetwork::isValidUri($row['url']) ? new Uri($row['url']) : '',
 			$row['type'],
 			$this->mimeTypeFactory->createFromContentType($row['mimetype']),
 			$row['media-uri-id'],
 			$row['width'],
 			$row['height'],
 			$row['size'],
-			$row['preview'] ? new Uri($row['preview']) : null,
+			UtilNetwork::isValidUri($row['preview']) ? new Uri($row['preview']) : null,
 			$row['preview-width'],
 			$row['preview-height'],
 			$row['description'],
 			$row['name'],
-			$row['author-url'] ? new Uri($row['author-url']) : null,
+			UtilNetwork::isValidUri($row['author-url']) ? new Uri($row['author-url']) : null,
 			$row['author-name'],
-			$row['author-image'] ? new Uri($row['author-image']) : null,
-			$row['publisher-url'] ? new Uri($row['publisher-url']) : null,
+			UtilNetwork::isValidUri($row['author-image']) ? new Uri($row['author-image']) : null,
+			UtilNetwork::isValidUri($row['publisher-url']) ? new Uri($row['publisher-url']) : null,
 			$row['publisher-name'],
-			$row['publisher-image'] ? new Uri($row['publisher-image']) : null,
+			UtilNetwork::isValidUri($row['publisher-image']) ? new Uri($row['publisher-image']) : null,
 			$row['blurhash'],
 			$row['id']
 		);
