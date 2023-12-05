@@ -163,8 +163,7 @@ if (!$foreground) {
 		exit(1);
 	} elseif ($pid) {
 		// The parent process continues here
-		file_put_contents($pidfile, $pid);
-		if (!is_readable($pidfile)) {
+		if (!file_put_contents($pidfile, $pid)) {
 			echo "Pid file wasn't written.\n";
 			Logger::warning('Could not store pid file');
 			posix_kill($pid, SIGTERM);
