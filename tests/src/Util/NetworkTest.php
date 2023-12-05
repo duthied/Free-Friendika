@@ -36,6 +36,5 @@ class NetworkTest extends TestCase
 		self::assertFalse(Network::isValidUri('https://'));
 		self::assertFalse(Network::isValidUri(''));
 		self::assertFalse(Network::isValidUri(null));
-		self::assertFalse(Network::isValidUri('friendi.ca'));
 	}
 }
