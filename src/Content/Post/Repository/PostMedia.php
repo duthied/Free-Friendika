@@ -45,7 +45,11 @@ class PostMedia extends BaseRepository
 
 		$Entities = new Collection\PostMedias();
 		foreach ($rows as $fields) {
-			$Entities[] = $this->factory->createFromTableRow($fields);
+			try {
+				$Entities[] = $this->factory->createFromTableRow($fields);
+			} catch (\Exception $e) {
+				$this->logger->warning('Invalid media row', ['code' => $e->getCode(), 'message' => $e->getMessage(), 'fields' => $fields]);
+			}
 		}
 
 		return $Entities;
