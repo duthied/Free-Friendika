@@ -147,7 +147,7 @@ class Site extends BaseAdmin
 		$worker_load_cooldown = (!empty($_POST['worker_load_cooldown'])       ? intval($_POST['worker_load_cooldown'])          : 0);
 		$worker_fastlane      = !empty($_POST['worker_fastlane']);
 		$decoupled_receiver   = (!empty($_POST['decoupled_receiver'])         ? intval(trim($_POST['decoupled_receiver'])) : false);
-		$cron_interval        = (!empty($_POST['cron_interval'])              ? intval($_POST['cron_interval'])            : 0);
+		$cron_interval        = (!empty($_POST['cron_interval'])              ? intval($_POST['cron_interval'])            : 1);
 		$worker_defer_limit   = (!empty($_POST['worker_defer_limit'])         ? intval($_POST['worker_defer_limit'])       : 15);
 		$worker_fetch_limit   = (!empty($_POST['worker_fetch_limit'])         ? intval($_POST['worker_fetch_limit'])       : 1);
 		
@@ -319,9 +319,9 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'worker_load_cooldown', $worker_load_cooldown);
 		$transactionConfig->set('system', 'worker_fastlane'     , $worker_fastlane);
 		$transactionConfig->set('system', 'decoupled_receiver'  , $decoupled_receiver);
-		$transactionConfig->set('system', 'cron_interval'       , $cron_interval);
+		$transactionConfig->set('system', 'cron_interval'       , max($cron_interval, 1));
 		$transactionConfig->set('system', 'worker_defer_limit'  , $worker_defer_limit);
-		$transactionConfig->set('system', 'worker_fetch_limit'  , $worker_fetch_limit);
+		$transactionConfig->set('system', 'worker_fetch_limit'  , max($worker_fetch_limit, 1));
 		
 		$transactionConfig->set('system', 'relay_directly'                , $relay_directly);
 		$transactionConfig->set('system', 'relay_scope'                   , $relay_scope);
@@ -330,7 +330,7 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'relay_user_tags'               , $relay_user_tags);
 		$transactionConfig->set('system', 'relay_deny_undetected_language', $relay_deny_undetected_language);
 		$transactionConfig->set('system', 'relay_language_quality'        , $relay_language_quality);
-		$transactionConfig->set('system', 'relay_languages'               , $relay_languages);
+		$transactionConfig->set('system', 'relay_languages'               , max($relay_languages, 1));
 
 		$transactionConfig->set('channel', 'engagement_hours'       , $engagement_hours);
 		$transactionConfig->set('channel', 'engagement_post_limit'  , $engagement_post_limit);
@@ -569,7 +569,7 @@ class Site extends BaseAdmin
 			'$worker_load_cooldown'   => ['worker_load_cooldown', DI::l10n()->t('Maximum load for workers'), DI::config()->get('system', 'worker_load_cooldown'), DI::l10n()->t('Maximum load that causes a cooldown before each worker function call.')],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],
 			'$decoupled_receiver'     => ['decoupled_receiver', DI::l10n()->t('Decoupled receiver'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Decouple incoming ActivityPub posts by processing them in the background via a worker process. Only enable this on fast systems.')],
-			'$cron_interval'          => ['cron_interval', DI::l10n()->t('Cron interval'), DI::config()->get('system', 'decoupled_receiver'), DI::l10n()->t('Minimal period in minutes between two calls of the "Cron" worker job.')],
+			'$cron_interval'          => ['cron_interval', DI::l10n()->t('Cron interval'), DI::config()->get('system', 'cron_interval'), DI::l10n()->t('Minimal period in minutes between two calls of the "Cron" worker job.')],
 			'$worker_defer_limit'     => ['worker_defer_limit', DI::l10n()->t('Worker defer limit'), DI::config()->get('system', 'worker_defer_limit'), DI::l10n()->t('Per default the systems tries delivering for 15 times before dropping it.')],
 			'$worker_fetch_limit'     => ['worker_fetch_limit', DI::l10n()->t('Worker fetch limit'), DI::config()->get('system', 'worker_fetch_limit'), DI::l10n()->t('Number of worker tasks that are fetched in a single query. Higher values should increase the performance, too high values will mostly likely decrease it. Only change it, when you know how to measure the performance of your system.')],
 
