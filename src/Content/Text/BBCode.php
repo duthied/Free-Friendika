@@ -2171,6 +2171,9 @@ class BBCode
 		// Maybe we should make this newline at every time before a quote.
 		$text = str_replace(['</a><blockquote>'], ['</a><br><blockquote>'], $text);
 
+		// The converter doesn't convert these elements
+		$text = str_replace(['<div>', '</div>'], ['<p>', '</p>'], $text);
+
 		// Now convert HTML to Markdown
 		$text = HTML::toMarkdown($text);
 

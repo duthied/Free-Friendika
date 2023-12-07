@@ -3403,7 +3403,8 @@ class Diaspora
 			if ($item['event-id'] > 0) {
 				$event = self::buildEvent($item['event-id']);
 				if (count($event)) {
-					$message['event'] = $event;
+					// Deactivated, since Diaspora seems to have problems with the processing.
+					// $message['event'] = $event;
 
 					if (
 						!empty($event['location']['address']) &&
