@@ -3805,16 +3805,16 @@ class Item
 			foreach ($options as $key => $option) {
 				if ($question['voters'] > 0) {
 					$percent = $option['replies'] / $question['voters'] * 100;
-					$options[$key]['vote'] = DI::l10n()->tt('%2$s (%3$d%%, %1$d vote)', '%2$s (%3$d%%, %1$d votes)', $option['replies'], $option['name'], round($percent, 1));
+					$options[$key]['vote'] = DI::l10n()->tt('%2$s (%3$d%%, %1$d vote)', '%2$s (%3$d%%, %1$d votes)', $option['replies'] ?? 0, $option['name'], round($percent, 1));
 				} else {
-					$options[$key]['vote'] = DI::l10n()->tt('%2$s (%1$d vote)', '%2$s (%1$d votes)', $option['replies'], $option['name']);
+					$options[$key]['vote'] = DI::l10n()->tt('%2$s (%1$d vote)', '%2$s (%1$d votes)', $option['replies'] ?? 0, $option['name']);
 				}
 			}
 
 			if (!empty($question['voters']) && !empty($question['endtime'])) {
-				$summary = DI::l10n()->tt('%d voter. Poll end: %s', '%d voters. Poll end: %s', $question['voters'], Temporal::getRelativeDate($question['endtime']));
+				$summary = DI::l10n()->tt('%d voter. Poll end: %s', '%d voters. Poll end: %s', $question['voters'] ?? 0, Temporal::getRelativeDate($question['endtime']));
 			} elseif (!empty($question['voters'])) {
-				$summary = DI::l10n()->tt('%d voter.', '%d voters.', $question['voters']);
+				$summary = DI::l10n()->tt('%d voter.', '%d voters.', $question['voters'] ?? 0);
 			} elseif (!empty($question['endtime'])) {
 				$summary = DI::l10n()->t('Poll end: %s', Temporal::getRelativeDate($question['endtime']));
 			} else {
