@@ -3310,7 +3310,7 @@ class Diaspora
 
 		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
-//			return $result;
+			return $result;
 		}
 
 		$myaddr = self::myHandle($owner);
