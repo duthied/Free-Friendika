@@ -3310,7 +3310,7 @@ class Diaspora
 
 		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
-			return $result;
+//			return $result;
 		}
 
 		$myaddr = self::myHandle($owner);
@@ -3403,7 +3403,8 @@ class Diaspora
 			if ($item['event-id'] > 0) {
 				$event = self::buildEvent($item['event-id']);
 				if (count($event)) {
-					$message['event'] = $event;
+					// Deactivated, since Diaspora seems to have problems with the processing.
+					// $message['event'] = $event;
 
 					if (
 						!empty($event['location']['address']) &&
