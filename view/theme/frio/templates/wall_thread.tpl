@@ -46,12 +46,7 @@ as the value of $top_child_total (this is done at the end of this file)
 {{/if}}
 {{/if}}
 
-{{* Use a different div container in dependence max thread-level = 7 *}}
-{{if $item.thread_level<7}}
 <div class="item-{{$item.id}} wall-item-container {{$item.indent}} {{$item.network}} thread_level_{{$item.thread_level}} {{if $item.thread_level==1}}panel-body h-entry{{else}}u-comment h-cite{{/if}}" id="item-{{$item.guid}}"><!-- wall-item-container -->
-{{else}}
-<div class="item-{{$item.id}} wall-item-container {{$item.indent}} {{$item.network}} thread_level_7 u-comment h-cite" id="item-{{$item.guid}}">
-{{/if}}
 {{if $item.thread_level==1}}
 <span class="commented" style="display: none;">{{$item.commented}}</span>
 <span class="received" style="display: none;">{{$item.received}}</span>
@@ -169,7 +164,7 @@ as the value of $top_child_total (this is done at the end of this file)
 								&bull;
 								<small><i class="fa fa-plug" title="{{$item.connector}}" aria-hidden="true"></i></small>
 							{{else}}
-								&bull;	
+								&bull;
 								<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.privacy}}" data-toggle="tooltip">
 									<small><i class="fa {{if $item.private == 1}}fa-lock{{elseif $item.private == 0}}fa-globe{{else}}fa-low-vision{{/if}}" aria-hidden="true"></i></small>
 								</span>
@@ -341,7 +336,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{/if}}
 				</span>
 			{{/if}}
-			
+
 			{{* Buttons for like and dislike *}}
 			{{if $item.vote}}
 				<span class="wall-item-response">
