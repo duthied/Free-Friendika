@@ -185,8 +185,8 @@ class Federation extends BaseAdmin
 
 			$gserver['platform']    = $systems[$platform]['name'];
 			$gserver['totallbl']    = DI::l10n()->tt('%2$s total system'                   , '%2$s total systems'                     , $gserver['total'], number_format($gserver['total']));
-			$gserver['monthlbl']    = DI::l10n()->tt('%2$s active user last month'         , '%2$s active users last month'           , $gserver['month'] ?? 0, number_format($gserver['month']));
-			$gserver['halfyearlbl'] = DI::l10n()->tt('%2$s active user last six months'    , '%2$s active users last six months'      , $gserver['halfyear'] ?? 0, number_format($gserver['halfyear']));
+			$gserver['monthlbl']    = DI::l10n()->tt('%2$s active user last month'         , '%2$s active users last month'           , $gserver['month'] ?? 0, number_format($gserver['month'] ?? 0));
+			$gserver['halfyearlbl'] = DI::l10n()->tt('%2$s active user last six months'    , '%2$s active users last six months'      , $gserver['halfyear'] ?? 0, number_format($gserver['halfyear'] ?? 0));
 			$gserver['userslbl']    = DI::l10n()->tt('%2$s registered user'                , '%2$s registered users'                  , $gserver['users'], number_format($gserver['users']));
 			$gserver['postslbl']    = DI::l10n()->tt('%2$s locally created post or comment', '%2$s locally created posts and comments', $gserver['posts'], number_format($gserver['posts']));
 
