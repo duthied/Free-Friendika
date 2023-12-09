@@ -79,7 +79,7 @@ class AbstractSession implements IHandleSessions
 	 */
 	public function setMultiple(array $values)
 	{
-		$_SESSION = $values + $_SESSION;
+		$_SESSION = $values + ($_SESSION ?? []);
 	}
 
 	/**
