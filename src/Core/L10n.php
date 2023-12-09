@@ -308,13 +308,13 @@ class L10n
 	 *
 	 * @param string $singular
 	 * @param string $plural
-	 * @param int    $count
+	 * @param float  $count
 	 * @param array  $vars Variables to interpolate in the translation string
 	 *
 	 * @return string
 	 * @throws \Exception
 	 */
-	public function tt(string $singular, string $plural, int $count, ...$vars): string
+	public function tt(string $singular, string $plural, float $count, ...$vars): string
 	{
 		$s = null;
 
@@ -361,9 +361,9 @@ class L10n
 	 *
 	 * @return bool
 	 */
-	private function stringPluralSelectDefault(int $n): bool
+	private function stringPluralSelectDefault(float $n): bool
 	{
-		return $n != 1;
+		return intval($n) != 1;
 	}
 
 	/**
