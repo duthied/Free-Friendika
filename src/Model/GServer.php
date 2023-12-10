@@ -1266,9 +1266,13 @@ class GServer
 
 		if (!empty($nodeinfo['protocols'])) {
 			$protocols = [];
-			foreach ($nodeinfo['protocols'] as $protocol) {
-				if (is_string($protocol)) {
-					$protocols[$protocol] = true;
+			if (is_string($nodeinfo['protocols'])) {
+				$protocols[$nodeinfo['protocols']] = true;
+			} else {
+				foreach ($nodeinfo['protocols'] as $protocol) {
+					if (is_string($protocol)) {
+						$protocols[$protocol] = true;
+					}
 				}
 			}
 
@@ -1367,9 +1371,13 @@ class GServer
 
 		if (!empty($nodeinfo['protocols'])) {
 			$protocols = [];
-			foreach ($nodeinfo['protocols'] as $protocol) {
-				if (is_string($protocol)) {
-					$protocols[$protocol] = true;
+			if (is_string($nodeinfo['protocols'])) {
+				$protocols[$nodeinfo['protocols']] = true;
+			} else {
+				foreach ($nodeinfo['protocols'] as $protocol) {
+					if (is_string($protocol)) {
+						$protocols[$protocol] = true;
+					}
 				}
 			}
 
