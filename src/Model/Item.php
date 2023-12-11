@@ -138,7 +138,7 @@ class Item
 		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type', 'post-reason',
 		'private', 'pubmail', 'visible', 'starred',
 		'unseen', 'deleted', 'origin', 'mention', 'global', 'network',
-		'title', 'content-warning', 'body', 'location', 'coord', 'app',
+		'title', 'content-warning', 'body', 'language', 'location', 'coord', 'app',
 		'rendered-hash', 'rendered-html', 'object-type', 'object', 'target-type', 'target',
 		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'causer-id'
@@ -1541,7 +1541,25 @@ class Item
 			return;
 		}
 
+		$languages = $item['language'] ? array_keys(json_decode($item['language'], true)) : [];
+		
 		foreach (Tag::getUIDListByURIId($item['uri-id']) as $uid => $tags) {
+			if (!empty($languages)) {
+				$keep = false;
+				$user_languages = User::getWantedLanguages($uid);
+				foreach ($user_languages as $language) {
+					if (in_array($language, $languages)) {
+						$keep = true;
+					}
+				}
+				if ($keep) {
+					Logger::debug('Wanted languages found', ['uid' => $uid, 'user-languages' => $user_languages, 'item-languages' => $languages]);
+				} else {
+					Logger::debug('No wanted languages found', ['uid' => $uid, 'user-languages' => $user_languages, 'item-languages' => $languages]);
+					continue;
+				}
+			}
+
 			$stored = self::storeForUserByUriId($item['uri-id'], $uid, ['post-reason' => self::PR_TAG]);
 			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
 			foreach ($tags as $tag) {

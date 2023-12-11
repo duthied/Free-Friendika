@@ -576,6 +576,17 @@ class User
 	}
 
 	/**
+	 * Fetch the wanted languages for a given user
+	 *
+	 * @param integer $uid
+	 * @return array
+	 */
+	public static function getWantedLanguages(int $uid): array
+	{
+		return DI::pConfig()->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]) ?? [];
+	}
+
+	/**
 	 * Get a list of all languages that are used by the users
 	 *
 	 * @return array
