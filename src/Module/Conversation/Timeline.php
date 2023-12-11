@@ -426,7 +426,7 @@ class Timeline extends BaseModule
 	private function addLanguageCondition(int $uid, array $condition): array
 	{
 		$conditions = [];
-		$languages  = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]);
+		$languages  = User::getWantedLanguages($uid);
 		foreach ($languages as $language) {
 			$conditions[] = "JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?";
 			$condition[]  = $language;
@@ -439,7 +439,7 @@ class Timeline extends BaseModule
 
 	private function getMedianComments(int $uid, int $divider): int
 	{
-		$languages = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]);
+		$languages = User::getWantedLanguages($uid);
 		$cache_key = 'Channel:getMedianComments:' . $divider . ':' . implode(':', $languages);
 		$comments  = $this->cache->get($cache_key);
 		if (!empty($comments)) {
@@ -463,7 +463,7 @@ class Timeline extends BaseModule
 
 	private function getMedianActivities(int $uid, int $divider): int
 	{
-		$languages  = $this->pConfig->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]);
+		$languages  = User::getWantedLanguages($uid);
 		$cache_key  = 'Channel:getMedianActivities:' . $divider . ':' . implode(':', $languages);
 		$activities = $this->cache->get($cache_key);
 		if (!empty($activities)) {
