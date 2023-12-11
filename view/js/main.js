@@ -641,6 +641,11 @@ function liveUpdate(src) {
 	});
 }
 
+function updateItem(itemNo) {
+	force_update = true;
+	update_item = itemNo;	
+}
+
 function imgbright(node) {
 	$(node).removeClass("drophide").addClass("drop");
 }

@@ -865,6 +865,7 @@ function doActivityItemAction(ident, verb, un) {
 					$('button[id^=shareMenuOptions-' + ident.toString() + ']').addClass('active');
 				}
 			}
+			updateItem(ident.toString());
 		} else {
 			/* server-response was not ok. Database-problems or some changes in
 			 * data?
