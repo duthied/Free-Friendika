@@ -21,14 +21,32 @@
 
 namespace Friendica\Module\Profile;
 
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile as ProfileModel;
 use Friendica\Module\BaseProfile;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 class Media extends BaseProfile
 {
+	/**
+	 * @var IHandleUserSessions
+	 */
+	private $userSession;
+
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IHandleUserSessions $userSession, $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->userSession = $userSession;
+	}
+
 	protected function content(array $request = []): string
 	{
 		$a = DI::app();
@@ -46,7 +64,7 @@ class Media extends BaseProfile
 
 		$o = self::getTabsHTML('media', $is_owner, $profile['nickname'], $profile['hide-friends']);
 
-		$o .= Contact::getPostsFromUrl($profile['url'], false, 0, 0, true);
+		$o .= Contact::getPostsFromUrl($profile['url'], $this->userSession->getLocalUserId(), true);
 
 		return $o;
 	}

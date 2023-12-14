@@ -1566,23 +1566,20 @@ class Contact
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromUrl(string $contact_url, bool $thread_mode = false, int $update = 0, int $parent = 0, bool $only_media = false): string
+	public static function getPostsFromUrl(string $contact_url, int $uid, bool $only_media = false): string
 	{
-		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update, $parent, $only_media);
+		return self::getPostsFromId(self::getIdForURL($contact_url), $uid, $only_media);
 	}
 
 	/**
 	 * Returns posts from a given contact id
 	 *
 	 * @param int  $cid         Contact ID
-	 * @param bool $thread_mode
-	 * @param int  $update      Update mode
-	 * @param int  $parent      Item parent ID for the update mode
 	 * @param bool $only_media  Only display media content
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromId(int $cid, bool $thread_mode = false, int $update = 0, int $parent = 0, bool $only_media = false): string
+	public static function getPostsFromId(int $cid, int $uid, bool $only_media = false, string $last_created = null): string
 	{
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
@@ -1590,32 +1587,17 @@ class Contact
 		}
 
 		if (empty($contact["network"]) || in_array($contact["network"], Protocol::FEDERATED)) {
-			$sql = "(`uid` = 0 OR (`uid` = ? AND NOT `global`))";
+			$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))", $uid];
 		} else {
-			$sql = "`uid` = ?";
+			$condition = ["`uid` = ?", $uid];
 		}
 
 		$contact_field = ((($contact["contact-type"] == self::TYPE_COMMUNITY) || ($contact['network'] == Protocol::MAIL)) ? 'owner-id' : 'author-id');
 
-		if ($thread_mode) {
-			$condition = [
-				"((`$contact_field` = ? AND `gravity` = ?) OR (`author-id` = ? AND `gravity` = ? AND `vid` = ? AND `protocol` != ? AND `thr-parent-id` = `parent-uri-id`)) AND " . $sql,
-				$cid, Item::GRAVITY_PARENT, $cid, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), Conversation::PARCEL_DIASPORA, DI::userSession()->getLocalUserId()
-			];
-		} else {
-			$condition = [
-				"`$contact_field` = ? AND `gravity` IN (?, ?) AND " . $sql,
-				$cid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT, DI::userSession()->getLocalUserId()
-			];
-		}
+		$condition = DBA::mergeConditions($condition, ["`$contact_field` = ? AND `gravity` IN (?, ?)", $cid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]);
 
-		if (!empty($parent)) {
-			$condition = DBA::mergeConditions($condition, ['parent' => $parent]);
-		} else {
-			$last_received = isset($_GET['last_received']) ? DateTimeFormat::utc($_GET['last_received']) : '';
-			if (!empty($last_received)) {
-				$condition = DBA::mergeConditions($condition, ["`received` < ?", $last_received]);
-			}
+		if (!empty($last_created)) {
+			$condition = DBA::mergeConditions($condition, ["`created` < ?", $last_created]);
 		}
 
 		if ($only_media) {
@@ -1626,66 +1608,108 @@ class Contact
 		}
 
 		if (DI::mode()->isMobile()) {
-			$itemsPerPage = DI::pConfig()->get(
-				DI::userSession()->getLocalUserId(),
-				'system',
-				'itemspage_mobile_network',
-				DI::config()->get('system', 'itemspage_network_mobile')
-			);
+			$itemsPerPage = DI::pConfig()->get($uid, 'system', 'itemspage_mobile_network', DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemsPerPage = DI::pConfig()->get(
-				DI::userSession()->getLocalUserId(),
-				'system',
-				'itemspage_network',
-				DI::config()->get('system', 'itemspage_network')
-			);
+			$itemsPerPage = DI::pConfig()->get($uid, 'system', 'itemspage_network', DI::config()->get('system', 'itemspage_network'));
 		}
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
-		$params = ['order' => ['received' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+		$params = ['order' => ['created' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
-		if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get($uid, 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 			$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		} else {
 			$o = '';
 		}
 
-		if ($thread_mode) {
-			$fields = ['uri-id', 'thr-parent-id', 'gravity', 'author-id', 'commented'];
-			$items = Post::toArray(Post::selectForUser(DI::userSession()->getLocalUserId(), $fields, $condition, $params));
+		$fields = array_merge(Item::DISPLAY_FIELDLIST, ['featured']);
+		$items = Post::toArray(Post::selectForUser($uid, $fields, $condition, $params));
 
-			if ($pager->getStart() == 0) {
-				$cdata = self::getPublicAndUserContactID($cid, DI::userSession()->getLocalUserId());
-				if (!empty($cdata['public'])) {
-					$pinned = Post\Collection::selectToArrayForContact($cdata['public'], Post\Collection::FEATURED, $fields);
-					$items = array_merge($items, $pinned);
-				}
-			}
+		$o .= DI::conversation()->render($items, ConversationContent::MODE_CONTACT_POSTS);
 
-			$o .= DI::conversation()->render($items, ConversationContent::MODE_CONTACTS, $update, false, 'pinned_commented', DI::userSession()->getLocalUserId());
+		if (DI::pConfig()->get($uid, 'system', 'infinite_scroll')) {
+			$o .= HTML::scrollLoader();
 		} else {
-			$fields = array_merge(Item::DISPLAY_FIELDLIST, ['featured']);
-			$items = Post::toArray(Post::selectForUser(DI::userSession()->getLocalUserId(), $fields, $condition, $params));
-
-			if ($pager->getStart() == 0) {
-				$cdata = self::getPublicAndUserContactID($cid, DI::userSession()->getLocalUserId());
-				if (!empty($cdata['public'])) {
-					$condition = [
-						"`uri-id` IN (SELECT `uri-id` FROM `collection-view` WHERE `cid` = ? AND `type` = ?)",
-						$cdata['public'], Post\Collection::FEATURED
-					];
-					$pinned = Post::toArray(Post::selectForUser(DI::userSession()->getLocalUserId(), $fields, $condition, $params));
-					$items = array_merge($pinned, $items);
-				}
-			}
-
-			$o .= DI::conversation()->render($items, ConversationContent::MODE_CONTACT_POSTS, $update);
+			$o .= $pager->renderMinimal(count($items));
 		}
 
+		return $o;
+	}
+
+	/**
+	 * Returns threads from a given contact id
+	 *
+	 * @param int  $cid         Contact ID
+	 * @param int  $update      Update mode
+	 * @param int  $parent      Item parent ID for the update mode
+	 * @return string posts in HTML
+	 * @throws \Exception
+	 */
+	public static function getThreadsFromId(int $cid, int $uid, int $update = 0, int $parent = 0, string $last_created = ''): string
+	{
+		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
+		if (!DBA::isResult($contact)) {
+			return '';
+		}
+
+		if (empty($contact["network"]) || in_array($contact["network"], Protocol::FEDERATED)) {
+			$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))", $uid];
+		} else {
+			$condition = ["`uid` = ?", $uid];
+		}
+
+		if (!empty($parent)) {
+			$condition = DBA::mergeConditions($condition, ['parent' => $parent]);
+		} elseif (!empty($last_created)) {
+			$condition = DBA::mergeConditions($condition, ["`created` < ?", $last_created]);
+		}
+
+		$contact_field = ((($contact["contact-type"] == self::TYPE_COMMUNITY) || ($contact['network'] == Protocol::MAIL)) ? 'owner-id' : 'author-id');
+
+		if (DI::mode()->isMobile()) {
+			$itemsPerPage = DI::pConfig()->get($uid, 'system', 'itemspage_mobile_network', DI::config()->get('system', 'itemspage_network_mobile'));
+		} else {
+			$itemsPerPage = DI::pConfig()->get($uid, 'system', 'itemspage_network', DI::config()->get('system', 'itemspage_network'));
+		}
+
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
+
+		if (DI::pConfig()->get($uid, 'system', 'infinite_scroll')) {
+			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
+			$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
+		} else {
+			$o = '';
+		}
+
+		$condition1 = DBA::mergeConditions($condition, ["`$contact_field` = ? AND `gravity` = ?", $cid, Item::GRAVITY_PARENT]);
+
+		$condition2 = DBA::mergeConditions($condition, [
+			"`author-id` = ? AND `gravity` = ? AND `vid` = ? AND `protocol` != ? AND `thr-parent-id` = `parent-uri-id`",
+			$cid, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), Conversation::PARCEL_DIASPORA
+		]);
+
+		$sql1 = "SELECT `uri-id`, `created` FROM `post-thread-user-view` WHERE " . array_shift($condition1);
+		$sql2 = "SELECT `thr-parent-id` AS `uri-id`, `created` FROM `post-user-view` WHERE " . array_shift($condition2);
+
+		$union = array_merge($condition1, $condition2);
+		$sql = $sql1 . " UNION " . $sql2;
+
+		$sql .= " ORDER BY `created` DESC LIMIT ?, ?";
+		$union = array_merge($union, [$pager->getStart(), $pager->getItemsPerPage()]);
+		$items = Post::toArray(DBA::p($sql, $union));
+
+		if (empty($last_created) && ($pager->getStart() == 0)) {
+			$fields = ['uri-id', 'thr-parent-id', 'gravity', 'author-id', 'created'];
+			$pinned = Post\Collection::selectToArrayForContact($cid, Post\Collection::FEATURED, $fields);
+			$items = array_merge($items, $pinned);
+		}
+
+		$o .= DI::conversation()->render($items, ConversationContent::MODE_CONTACTS, $update, false, 'pinned_created', $uid);
+
 		if (!$update) {
-			if (DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'infinite_scroll')) {
+			if (DI::pConfig()->get($uid, 'system', 'infinite_scroll')) {
 				$o .= HTML::scrollLoader();
 			} else {
 				$o .= $pager->renderMinimal(count($items));

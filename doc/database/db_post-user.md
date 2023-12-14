@@ -58,7 +58,8 @@ Indexes
 | event-id             | event-id                |
 | psid                 | psid                    |
 | author-id_uid        | author-id, uid          |
-| author-id_received   | author-id, received     |
+| author-id_created    | author-id, created      |
+| owner-id_created     | owner-id, created       |
 | parent-uri-id_uid    | parent-uri-id, uid      |
 | uid_wall_received    | uid, wall, received     |
 | uid_contactid        | uid, contact-id         |

@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1540);
+	define('DB_UPDATE_VERSION', 1541);
 }
 
 return [
@@ -1551,7 +1551,8 @@ return [
 			"event-id" => ["event-id"],
 			"psid" => ["psid"],
 			"author-id_uid" => ["author-id", "uid"],
-			"author-id_received" => ["author-id", "received"],
+			"author-id_created" => ["author-id", "created"],
+			"owner-id_created" => ["owner-id", "created"],
 			"parent-uri-id_uid" => ["parent-uri-id", "uid"],
 			"uid_wall_received" => ["uid", "wall", "received"],
 			"uid_contactid" => ["uid", "contact-id"],
@@ -1601,6 +1602,8 @@ return [
 			"post-user-id" => ["post-user-id"],
 			"commented" => ["commented"],
 			"received" => ["received"],
+			"author-id_created" => ["author-id", "created"],
+			"owner-id_created" => ["owner-id", "created"],
 			"uid_received" => ["uid", "received"],
 			"uid_wall_received" => ["uid", "wall", "received"],
 			"uid_commented" => ["uid", "commented"],

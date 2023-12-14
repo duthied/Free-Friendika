@@ -21,19 +21,37 @@
 
 namespace Friendica\Module\Contact;
 
+use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Widget;
+use Friendica\Core\L10n;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\Contact as ModelContact;
 use Friendica\Module\Contact;
+use Friendica\Module\Response;
 use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * GUI for media posts of a contact
  */
 class Media extends BaseModule
 {
+	/**
+	 * @var IHandleUserSessions
+	 */
+	private $userSession;
+
+	public function __construct(L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IHandleUserSessions $userSession, $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$this->userSession = $userSession;
+	}
+
 	protected function content(array $request = []): string
 	{
 		$cid = $this->parameters['id'];
@@ -47,7 +65,7 @@ class Media extends BaseModule
 
 		$o = Contact::getTabsHTML($contact, Contact::TAB_MEDIA);
 
-		$o .= ModelContact::getPostsFromUrl($contact['url'], false, 0, 0, true);
+		$o .= ModelContact::getPostsFromUrl($contact['url'], $this->userSession->getLocalUserId(), true);
 
 		return $o;
 	}

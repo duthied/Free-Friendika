@@ -1298,6 +1298,8 @@ class Conversation
 			usort($parents, [$this, 'sortThrFeaturedReceived']);
 		} elseif (stristr($order, 'pinned_commented')) {
 			usort($parents, [$this, 'sortThrFeaturedCommented']);
+		} elseif (stristr($order, 'pinned_created')) {
+			usort($parents, [$this, 'sortThrFeaturedCreated']);
 		} elseif (stristr($order, 'received')) {
 			usort($parents, [$this, 'sortThrReceived']);
 		} elseif (stristr($order, 'commented')) {
@@ -1373,6 +1375,24 @@ class Conversation
 		}
 
 		return strcmp($b['commented'], $a['commented']);
+	}
+
+	/**
+	 * usort() callback to sort item arrays by featured and the created key
+	 *
+	 * @param array $a
+	 * @param array $b
+	 * @return int
+	 */
+	private function sortThrFeaturedCreated(array $a, array $b): int
+	{
+		if ($b['featured'] && !$a['featured']) {
+			return 1;
+		} elseif (!$b['featured'] && $a['featured']) {
+			return -1;
+		}
+
+		return strcmp($b['created'], $a['created']);
 	}
 
 	/**

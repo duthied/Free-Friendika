@@ -138,7 +138,7 @@ class Unfollow extends \Friendica\BaseModule
 		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => $this->t('Posts and Replies')]);
 
 		// Show last public posts
-		$o .= Contact::getPostsFromUrl($contact['url']);
+		$o .= Contact::getPostsFromUrl($contact['url'], $this->userSession->getLocalUserId());
 
 		return $o;
 	}

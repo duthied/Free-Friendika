@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1540
+-- DB_UPDATE_VERSION 1541
 -- ------------------------------------------
 
 
@@ -1534,7 +1534,8 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	 INDEX `event-id` (`event-id`),
 	 INDEX `psid` (`psid`),
 	 INDEX `author-id_uid` (`author-id`,`uid`),
-	 INDEX `author-id_received` (`author-id`,`received`),
+	 INDEX `author-id_created` (`author-id`,`created`),
+	 INDEX `owner-id_created` (`owner-id`,`created`),
 	 INDEX `parent-uri-id_uid` (`parent-uri-id`,`uid`),
 	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
 	 INDEX `uid_contactid` (`uid`,`contact-id`),
@@ -1595,6 +1596,8 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	 INDEX `post-user-id` (`post-user-id`),
 	 INDEX `commented` (`commented`),
 	 INDEX `received` (`received`),
+	 INDEX `author-id_created` (`author-id`,`created`),
+	 INDEX `owner-id_created` (`owner-id`,`created`),
 	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
 	 INDEX `uid_commented` (`uid`,`commented`),

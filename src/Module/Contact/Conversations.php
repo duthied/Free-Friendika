@@ -113,7 +113,7 @@ class Conversations extends BaseModule
 		$o = $this->conversation->statusEditor([], 0, true);
 
 		$o .= Contact::getTabsHTML($contact, Contact::TAB_CONVERSATIONS);
-		$o .= Model\Contact::getPostsFromId($contact['id'], true);
+		$o .= Model\Contact::getThreadsFromId($contact['id'], $this->userSession->getLocalUserId(), 0, 0, $request['last_created'] ?? '');
 
 		return $o;
 	}

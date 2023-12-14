@@ -50,6 +50,8 @@ Indexes
 | post-user-id      | post-user-id        |
 | commented         | commented           |
 | received          | received            |
+| author-id_created | author-id, created  |
+| owner-id_created  | owner-id, created   |
 | uid_received      | uid, received       |
 | uid_wall_received | uid, wall, received |
 | uid_commented     | uid, commented      |
