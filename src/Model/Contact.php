@@ -1579,7 +1579,7 @@ class Contact
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromId(int $cid, int $uid, bool $only_media = false, string $last_received = null): string
+	public static function getPostsFromId(int $cid, int $uid, bool $only_media = false, string $last_created = null): string
 	{
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
@@ -1596,8 +1596,8 @@ class Contact
 
 		$condition = DBA::mergeConditions($condition, ["`$contact_field` = ? AND `gravity` IN (?, ?)", $cid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]);
 
-		if (!empty($last_received)) {
-			$condition = DBA::mergeConditions($condition, ["`received` < ?", $last_received]);
+		if (!empty($last_created)) {
+			$condition = DBA::mergeConditions($condition, ["`created` < ?", $last_created]);
 		}
 
 		if ($only_media) {
@@ -1615,7 +1615,7 @@ class Contact
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
-		$params = ['order' => ['received' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+		$params = ['order' => ['created' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
 		if (DI::pConfig()->get($uid, 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
@@ -1647,7 +1647,7 @@ class Contact
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getThreadsFromId(int $cid, int $uid, int $update = 0, int $parent = 0, string $last_received = ''): string
+	public static function getThreadsFromId(int $cid, int $uid, int $update = 0, int $parent = 0, string $last_created = ''): string
 	{
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
@@ -1662,8 +1662,8 @@ class Contact
 
 		if (!empty($parent)) {
 			$condition = DBA::mergeConditions($condition, ['parent' => $parent]);
-		} elseif (!empty($last_received)) {
-			$condition = DBA::mergeConditions($condition, ["`received` < ?", $last_received]);
+		} elseif (!empty($last_created)) {
+			$condition = DBA::mergeConditions($condition, ["`created` < ?", $last_created]);
 		}
 
 		$contact_field = ((($contact["contact-type"] == self::TYPE_COMMUNITY) || ($contact['network'] == Protocol::MAIL)) ? 'owner-id' : 'author-id');
@@ -1683,30 +1683,30 @@ class Contact
 			$o = '';
 		}
 
-		$condition1 = DBA::mergeConditions($condition, ["`$contact_field` = ?", $cid]);
+		$condition1 = DBA::mergeConditions($condition, ["`$contact_field` = ? AND `gravity` = ?", $cid, Item::GRAVITY_PARENT]);
 
 		$condition2 = DBA::mergeConditions($condition, [
 			"`author-id` = ? AND `gravity` = ? AND `vid` = ? AND `protocol` != ? AND `thr-parent-id` = `parent-uri-id`",
 			$cid, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), Conversation::PARCEL_DIASPORA
 		]);
 
-		$sql1 = "SELECT `uri-id`, `received` FROM `post-thread-user-view` WHERE " . array_shift($condition1);
-		$sql2 = "SELECT `thr-parent-id` AS `uri-id`, `received` FROM `post-user-view` WHERE " . array_shift($condition2);
+		$sql1 = "SELECT `uri-id`, `created` FROM `post-thread-user-view` WHERE " . array_shift($condition1);
+		$sql2 = "SELECT `thr-parent-id` AS `uri-id`, `created` FROM `post-user-view` WHERE " . array_shift($condition2);
 
 		$union = array_merge($condition1, $condition2);
 		$sql = $sql1 . " UNION " . $sql2;
 
-		$sql .= " ORDER BY `received` DESC LIMIT ?, ?";
+		$sql .= " ORDER BY `created` DESC LIMIT ?, ?";
 		$union = array_merge($union, [$pager->getStart(), $pager->getItemsPerPage()]);
 		$items = Post::toArray(DBA::p($sql, $union));
 
-		if ($pager->getStart() == 0) {
-			$fields = ['uri-id', 'thr-parent-id', 'gravity', 'author-id', 'received'];
+		if (empty($last_created) && ($pager->getStart() == 0)) {
+			$fields = ['uri-id', 'thr-parent-id', 'gravity', 'author-id', 'created'];
 			$pinned = Post\Collection::selectToArrayForContact($cid, Post\Collection::FEATURED, $fields);
 			$items = array_merge($items, $pinned);
 		}
 
-		$o .= DI::conversation()->render($items, ConversationContent::MODE_CONTACTS, $update, false, 'pinned_received', $uid);
+		$o .= DI::conversation()->render($items, ConversationContent::MODE_CONTACTS, $update, false, 'pinned_created', $uid);
 
 		if (!$update) {
 			if (DI::pConfig()->get($uid, 'system', 'infinite_scroll')) {
