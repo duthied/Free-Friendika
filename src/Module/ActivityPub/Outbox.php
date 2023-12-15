@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\ActivityPub;
 
-use Friendica\Core\System;
 use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Protocol\ActivityPub;
@@ -36,7 +35,7 @@ class Outbox extends BaseApi
 	protected function rawContent(array $request = [])
 	{
 		if (empty($this->parameters['nickname'])) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
+			$this->jsonExit([], 'application/activity+json');
 		}
 
 		$owner = User::getOwnerDataByNick($this->parameters['nickname']);
