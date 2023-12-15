@@ -452,6 +452,7 @@ return [
 	'/following/{nickname}' => [Module\ActivityPub\Following::class, [R::GET]],
 	'/friendica[/{format:json}]' => [Module\Friendica::class,        [R::GET]],
 	'/friendica/inbox'      => [Module\ActivityPub\Inbox::class,     [R::GET, R::POST]],
+	'/friendica/outbox'     => [Module\ActivityPub\Outbox::class,    [R::GET]],
 
 	'/fsuggest/{contact:\d+}' => [Module\FriendSuggest::class,  [R::GET, R::POST]],
 

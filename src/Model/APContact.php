@@ -385,18 +385,18 @@ class APContact
 		}
 
 		// When the photo is too large, try to shorten it by removing parts
-		if (strlen($apcontact['photo'] ?? '') > 255) {
+		if (strlen($apcontact['photo'] ?? '') > 383) {
 			$parts = parse_url($apcontact['photo']);
 			unset($parts['fragment']);
 			$apcontact['photo'] = (string)Uri::fromParts((array)$parts);
 
-			if (strlen($apcontact['photo']) > 255) {
+			if (strlen($apcontact['photo']) > 383) {
 				unset($parts['query']);
 				$apcontact['photo'] = (string)Uri::fromParts((array)$parts);
 			}
 
-			if (strlen($apcontact['photo']) > 255) {
-				$apcontact['photo'] = substr($apcontact['photo'], 0, 255);
+			if (strlen($apcontact['photo']) > 383) {
+				$apcontact['photo'] = substr($apcontact['photo'], 0, 383);
 			}
 		}
 
