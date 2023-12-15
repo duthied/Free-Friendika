@@ -82,6 +82,7 @@ class GServer
 	const DETECT_STATUS_PHP = 17; // Nextcloud
 	const DETECT_V1_CONFIG = 18;
 	const DETECT_SYSTEM_ACTOR = 20; // Mistpark, Osada, Roadhouse, Zap
+	const DETECT_THREADS = 21;
 
 	// Standardized endpoints
 	const DETECT_STATISTICS_JSON = 100;
@@ -671,6 +672,12 @@ class GServer
 					return false;
 				}
 
+				if (in_array($url, ['https://www.threads.net', 'https://threads.net'])) {
+					$serverdata['detection-method'] = self::DETECT_THREADS;
+					$serverdata['network']          = Protocol::ACTIVITYPUB;
+					$serverdata['platform']         = 'threads';
+				}
+		
 				if (($serverdata['network'] == Protocol::PHANTOM) || in_array($serverdata['detection-method'], self::DETECT_UNSPECIFIC)) {
 					$serverdata = self::detectMastodonAlikes($url, $serverdata);
 				}
