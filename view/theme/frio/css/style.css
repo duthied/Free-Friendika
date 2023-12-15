@@ -1608,6 +1608,9 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
 .fbrowser.photo .photo-album-image-wrapper .caption {
 	pointer-events: none;
 }
+.fbrowser.photo .photo-album-image-wrapper .jg-caption {
+	pointer-events: none;
+}
 .fbrowser .profile-rotator-wrapper {
 	min-height: 200px;
 }
