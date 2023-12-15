@@ -368,7 +368,8 @@ class Transmitter
 			$data['outbox']    = DI::baseUrl() . '/outbox/' . $owner['nick'];
 			$data['featured']  = DI::baseUrl() . '/featured/' . $owner['nick'];
 		} else {
-			$data['inbox'] = DI::baseUrl() . '/friendica/inbox';
+			$data['inbox']  = DI::baseUrl() . '/friendica/inbox';
+			$data['outbox'] = DI::baseUrl() . '/friendica/outbox';
 		}
 
 		$data['preferredUsername'] = $owner['nick'];
