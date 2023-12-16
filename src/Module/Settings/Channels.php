@@ -125,9 +125,11 @@ class Channels extends BaseSettings
 			$circles[$circle['id']] = $circle['name'];
 		}
 
-		$blocklistform = [];
+		$id       = 0;
+		$channels = [];
 		foreach ($this->channel->selectByUid($uid) as $channel) {
-			$blocklistform[] = [
+			$channels[] = [
+				'id'           => ++$id,
 				'label'        => ["label[$channel->code]", $this->t('Label'), $channel->label, '', $this->t('Required')],
 				'description'  => ["description[$channel->code]", $this->t("Description"), $channel->description],
 				'access_key'   => ["access_key[$channel->code]", $this->t("Access Key"), $channel->accessKey],
@@ -166,7 +168,7 @@ class Channels extends BaseSettings
 				'delentry'       => $this->t('Delete entry from the channel list'),
 				'confirm_delete' => $this->t('Delete entry from the channel list?'),
 			],
-			'$entries' => $blocklistform,
+			'$entries' => $channels,
 			'$baseurl' => $this->baseUrl,
 
 			'$form_security_token' => self::getFormSecurityToken('settings_channels'),
