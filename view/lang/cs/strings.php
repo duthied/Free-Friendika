@@ -194,7 +194,6 @@ $a->strings['The form security token was not correct. This probably happened bec
 $a->strings['All contacts'] = 'Všechny kontakty';
 $a->strings['Followers'] = 'Sledující';
 $a->strings['Following'] = 'Sleduji';
-$a->strings['Mutual friends'] = 'Vzájemní přátelé';
 $a->strings['Could not find any unarchived contact entry for this URL (%s)'] = 'Nelze najít žádný nearchivovaný záznam kontaktu pro tuto URL adresu (%s)';
 $a->strings['The contact entries have been archived'] = 'Záznamy kontaktů byly archivovány';
 $a->strings['Could not find any contact entry for this URL (%s)'] = 'Nelze nalézt žádnou položku v kontaktech pro tuto URL adresu (%s)';
@@ -848,9 +847,8 @@ $a->strings['Maximum Load Average'] = 'Maximální průměrné zatížení';
 $a->strings['Maximum system load before delivery and poll processes are deferred - default %d.'] = 'Maximální systémová zátěž, než budou procesy pro doručení a dotazování odloženy - výchozí hodnota %d.';
 $a->strings['Minimal Memory'] = 'Minimální paměť';
 $a->strings['Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).'] = 'Minimální volná paměť v MB pro pracovníka. Potřebuje přístup do /proc/meminfo - výchozí hodnota 0 (deaktivováno)';
-$a->strings['Days between requery'] = 'Dny mezi dotazy';
-$a->strings['Number of days after which a server is requeried for his contacts.'] = 'Počet dnů, po kterých je server znovu dotázán na své kontakty';
 $a->strings['Discover contacts from other servers'] = 'Objevit kontakty z ostatních serverů';
+$a->strings['Days between requery'] = 'Dny mezi dotazy';
 $a->strings['Search the local directory'] = 'Hledat  v místním adresáři';
 $a->strings['Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.'] = 'Prohledat místní adresář místo globálního adresáře. Při místním prohledávání bude každé hledání provedeno v globálním adresáři na pozadí. To vylepšuje výsledky při zopakování hledání.';
 $a->strings['Publish server information'] = 'Zveřejnit informace o serveru';
@@ -1176,8 +1174,6 @@ $a->strings['Converted localtime: %s'] = 'Převedený místní čas : %s';
 $a->strings['Please select your timezone:'] = 'Prosím, vyberte své časové pásmo:';
 $a->strings['Only logged in users are permitted to perform a probing.'] = 'Pouze přihlášení uživatelé mohou zkoušet adresy.';
 $a->strings['Lookup address'] = 'Najít adresu';
-$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Přepínání mezi různými identitami nebo komunitními/skupinovými stránkami, které sdílí vaše detaily účtu, nebo kterým jste přidělil/a oprávnění nastavovat přístupová práva.';
-$a->strings['Select an identity to manage: '] = 'Vyberte identitu ke spravování: ';
 $a->strings['No entries (some entries may be hidden).'] = 'Žádné záznamy (některé položky mohou být skryty).';
 $a->strings['Find on this site'] = 'Najít na tomto webu';
 $a->strings['Results for:'] = 'Výsledky pro:';
@@ -1432,7 +1428,6 @@ $a->strings['Note for the admin'] = 'Poznámka pro administrátora';
 $a->strings['Leave a message for the admin, why you want to join this node'] = 'Zanechejte administrátorovi zprávu, proč se k tomuto serveru chcete připojit';
 $a->strings['Membership on this site is by invitation only.'] = 'Členství na tomto webu je pouze na pozvání.';
 $a->strings['Your invitation code: '] = 'Váš kód pozvánky: ';
-$a->strings['Your Full Name (e.g. Joe Smith, real or real-looking): '] = 'Celé jméno (např. Jan Novák, skutečné či skutečně vypadající):';
 $a->strings['Your Email Address: (Initial information will be send there, so this has to be an existing address.)'] = 'Vaše e-mailová adresa: (Budou sem poslány počáteční informace, musí to proto být existující adresa.)';
 $a->strings['New Password:'] = 'Nové heslo:';
 $a->strings['Leave empty for an auto generated password.'] = 'Ponechte prázdné pro automatické vygenerovaní hesla.';
@@ -1540,6 +1535,7 @@ $a->strings['If you have moved this profile from another server, and some of you
 $a->strings['Resend relocate message to contacts'] = 'Znovu odeslat správu o přemístění Vašim kontaktům';
 $a->strings['Addon Settings'] = 'Nastavení doplňků';
 $a->strings['No Addon settings configured'] = 'Žádná nastavení doplňků nenakonfigurována';
+$a->strings['Add'] = 'Přidat';
 $a->strings['Failed to connect with email account using the settings provided.'] = 'Nepodařilo se připojit k e-mailovému účtu pomocí dodaného nastavení.';
 $a->strings['Diaspora (Socialhome, Hubzilla)'] = 'Diaspora (Socialhome, Hubzilla)';
 $a->strings['Email access is disabled on this site.'] = 'Přístup k e-mailu je na tomto serveru zakázán.';
@@ -1566,7 +1562,6 @@ $a->strings['Delegates'] = 'Delegáti';
 $a->strings['Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'] = 'Delegáti jsou schopni řídit všechny aspekty tohoto účtu/stránky, kromě základních nastavení účtu. Prosím, nedelegujte svůj osobní účet nikomu, komu zcela nedůvěřujete.';
 $a->strings['Existing Page Delegates'] = 'Stávající delegáti stránky ';
 $a->strings['Potential Delegates'] = 'Potenciální delegáti';
-$a->strings['Add'] = 'Přidat';
 $a->strings['No entries.'] = 'Žádné záznamy.';
 $a->strings['The theme you chose isn\'t available.'] = 'Motiv, který jste si vybral/a, není dostupný.';
 $a->strings['%s - (Unsupported)'] = '%s - (Nepodporováno)';
@@ -1685,6 +1680,8 @@ $a->strings['At the time of registration, and for providing communications betwe
 $a->strings['This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.'] = 'Tato data jsou vyžadována ke komunikaci a jsou předávána serverům komunikačních partnerů a jsou tam ukládána. Uživatelé mohou zadávat dodatečná soukromá data, která mohou být odeslána na účty komunikačních partnerů.';
 $a->strings['Privacy Statement'] = 'Prohlášení o soukromí';
 $a->strings['The requested item doesn\'t exist or has been deleted.'] = 'Požadovaná položka neexistuje nebo byla smazána.';
+$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Přepínání mezi různými identitami nebo komunitními/skupinovými stránkami, které sdílí vaše detaily účtu, nebo kterým jste přidělil/a oprávnění nastavovat přístupová práva.';
+$a->strings['Select an identity to manage: '] = 'Vyberte identitu ke spravování: ';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'Importy uživatelů na uzavřených serverech může provést pouze administrátor.';
 $a->strings['Move account'] = 'Přesunout účet';
 $a->strings['You can import an account from another Friendica server.'] = 'Můžete importovat účet z jiného serveru Friendica.';
@@ -1770,11 +1767,6 @@ $a->strings['Please visit %s  if you wish to make any changes to this relationsh
 $a->strings['registration request'] = 'požadavek o registraci';
 $a->strings['You\'ve received a registration request from \'%1$s\' at %2$s'] = 'Obdržel/a jste požadavek o registraci od uživatele „%1$s“ na %2$s';
 $a->strings['You\'ve received a [url=%1$s]registration request[/url] from %2$s.'] = 'Obdržel/a jste [url=%1$s]požadavek o registraci[/url] od uživatele %2$s.';
-$a->strings['Full Name:	%s
-Site Location:	%s
-Login Name:	%s (%s)'] = 'Celé jméno:		%s
-Adresa stránky:		%s
-Přihlašovací jméno:	%s (%s)';
 $a->strings['Please visit %s to approve or reject the request.'] = 'Prosím navštivte %s k odsouhlasení nebo k zamítnutí požadavku.';
 $a->strings['This message was sent to you by %s, a member of the Friendica social network.'] = 'Tuto zprávu vám poslal/a %s, člen sociální sítě Friendica.';
 $a->strings['You may visit them online at %s'] = 'Můžete jej/ji navštívit online na adrese %s';

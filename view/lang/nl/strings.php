@@ -199,7 +199,6 @@ $a->strings['The form security token was not correct. This probably happened bec
 $a->strings['All contacts'] = 'Alle contacten';
 $a->strings['Followers'] = 'Volgers';
 $a->strings['Following'] = 'Volgend';
-$a->strings['Mutual friends'] = 'Gemeenschappelijke vrienden';
 $a->strings['Common'] = 'Algemeen';
 $a->strings['Could not find any unarchived contact entry for this URL (%s)'] = 'Kon geen niet-gearchiveerde contacten vinden voor deze URL (%s)';
 $a->strings['The contact entries have been archived'] = 'The contacten zijn gearchiveerd';
@@ -871,9 +870,8 @@ $a->strings['Value is in seconds. Set to 0 for unlimited (not recommended).'] = 
 $a->strings['Maximum Load Average'] = 'Maximum gemiddelde belasting';
 $a->strings['Minimal Memory'] = 'Minimaal Geheugen';
 $a->strings['Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).'] = 'Minimum vrij geheugen in MB voor de worker. Toegang nodig tot /proc/meminfo - standaard waarde 0 (gedeactiveerd).';
-$a->strings['Days between requery'] = 'Dagen tussen herbevraging';
-$a->strings['Number of days after which a server is requeried for his contacts.'] = 'Aantal dagen waarna de server opnieuw bevraagd wordt naar zijn contacten.';
 $a->strings['Discover contacts from other servers'] = 'Ontdek contacten van andere servers';
+$a->strings['Days between requery'] = 'Dagen tussen herbevraging';
 $a->strings['Search the local directory'] = 'Doorzoek de lokale gids';
 $a->strings['Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.'] = 'Doorzoek de lokale gids in plaats van de globale gids. Bij lokale doorzoeking wordt elke opzoeking in de globale gids op de achtergrond uitgevoerd. Dit verbetert de zoekresultaten wanneer de zoekopdracht herhaald wordt.';
 $a->strings['Publish server information'] = 'Publiceer server informatie';
@@ -1173,8 +1171,6 @@ $a->strings['Converted localtime: %s'] = 'Omgerekende lokale tijd: %s';
 $a->strings['Please select your timezone:'] = 'Selecteer je tijdzone:';
 $a->strings['Only logged in users are permitted to perform a probing.'] = 'Alleen ingelogde gebruikers hebben toelating om aan probing te doen.';
 $a->strings['Lookup address'] = 'Opzoekadres';
-$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Wissel tussen verschillende identiteiten of forum/groeppagina\'s die jouw accountdetails delen of waar je "beheerdersrechten" hebt gekregen.';
-$a->strings['Select an identity to manage: '] = 'Selecteer een identiteit om te beheren:';
 $a->strings['No entries (some entries may be hidden).'] = 'Geen gegevens (sommige gegevens kunnen verborgen zijn).';
 $a->strings['Find on this site'] = 'Op deze website zoeken';
 $a->strings['Results for:'] = 'Resultaten voor:';
@@ -1423,7 +1419,6 @@ $a->strings['Note for the admin'] = 'Nota voor de beheerder';
 $a->strings['Leave a message for the admin, why you want to join this node'] = 'Laat een boodschap na voor de beheerder, waarom je bij deze node wil komen';
 $a->strings['Membership on this site is by invitation only.'] = 'Lidmaatschap van deze website is uitsluitend op uitnodiging.';
 $a->strings['Your invitation code: '] = 'Je uitnodigingscode:';
-$a->strings['Your Full Name (e.g. Joe Smith, real or real-looking): '] = 'Je volledige naam (bvb. Jan Smit, echt of echt lijkend):';
 $a->strings['Your Email Address: (Initial information will be send there, so this has to be an existing address.)'] = 'Je Email Adres: (Initiële informatie zal hier naartoe gezonden worden, dus dit moet een bestaand adres zijn.)';
 $a->strings['Please repeat your e-mail address:'] = 'Herhaal uw e-mailadres:';
 $a->strings['New Password:'] = 'Nieuw Wachtwoord:';
@@ -1575,6 +1570,8 @@ $a->strings['If you have moved this profile from another server, and some of you
 $a->strings['Resend relocate message to contacts'] = 'Stuur verhuis boodschap naar contacten';
 $a->strings['Addon Settings'] = 'Addon instellingen';
 $a->strings['No Addon settings configured'] = 'Geen Addon instellingen geconfigureerd';
+$a->strings['Description'] = 'Omschrijving';
+$a->strings['Add'] = 'Toevoegen';
 $a->strings['Failed to connect with email account using the settings provided.'] = 'Ik kon geen verbinding maken met het e-mail account met de gegeven instellingen.';
 $a->strings['Diaspora (Socialhome, Hubzilla)'] = 'Diaspora (Socialhome, Hubzilla)';
 $a->strings['Email access is disabled on this site.'] = 'E-mailtoegang is op deze website uitgeschakeld.';
@@ -1611,7 +1608,6 @@ $a->strings['Delegates'] = 'Gemachtigden';
 $a->strings['Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'] = 'Personen waaraan het beheer is uitbesteed kunnen alle onderdelen van een account/pagina beheren, behalve de basisinstellingen van een account. Besteed je persoonlijke account daarom niet uit aan personen die je niet volledig vertrouwt.';
 $a->strings['Existing Page Delegates'] = 'Bestaande personen waaraan het paginabeheer is uitbesteed';
 $a->strings['Potential Delegates'] = 'Mogelijke personen waaraan het paginabeheer kan worden uitbesteed ';
-$a->strings['Add'] = 'Toevoegen';
 $a->strings['No entries.'] = 'Geen gegevens.';
 $a->strings['The theme you chose isn\'t available.'] = 'Het thema dat je koos is niet beschikbaar';
 $a->strings['%s - (Unsupported)'] = '%s - (Niet ondersteund)';
@@ -1689,7 +1685,6 @@ $a->strings['App-specific password successfully revoked.'] = 'App-specifiek wach
 $a->strings['Two-factor app-specific passwords'] = 'Twee-factor app-specifieke wachtwoorden';
 $a->strings['<p>App-specific passwords are randomly generated passwords used instead your regular password to authenticate your account on third-party applications that don\'t support two-factor authentication.</p>'] = '<p>App-specifieke wachtwoorden zijn willekeurig gegenereerde wachtwoorden die in plaats daarvan uw normale wachtwoord worden gebruikt om uw account te verifiëren bij applicaties van derden die geen tweefactorauthenticatie ondersteunen.</p>';
 $a->strings['Make sure to copy your new app-specific password now. You won’t be able to see it again!'] = 'Zorg ervoor dat u nu uw nieuwe app-specifieke wachtwoord kopieert. U zult het niet meer kunnen zien!';
-$a->strings['Description'] = 'Omschrijving';
 $a->strings['Last Used'] = 'Laatst gebruikt';
 $a->strings['Revoke'] = 'Intrekken';
 $a->strings['Revoke All'] = 'Alles intrekken';
@@ -1765,6 +1760,8 @@ $a->strings['At the time of registration, and for providing communications betwe
 $a->strings['This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.'] = 'Deze data is vereist voor communicatie en wordt doorgegeven aan de nodes van de communicatie partners en wordt daar opgeslagen. Gebruikers kunnen bijkomende privé data opgeven die mag doorgegeven worden aan de accounts van de communicatie partners.';
 $a->strings['Privacy Statement'] = 'Privacy Verklaring';
 $a->strings['The requested item doesn\'t exist or has been deleted.'] = 'Het gevraagde item bestaat niet of is verwijderd';
+$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Wissel tussen verschillende identiteiten of forum/groeppagina\'s die jouw accountdetails delen of waar je "beheerdersrechten" hebt gekregen.';
+$a->strings['Select an identity to manage: '] = 'Selecteer een identiteit om te beheren:';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'Importen van een gebruiker op een gesloten node kan enkel gedaan worden door een administrator';
 $a->strings['Move account'] = 'Account verplaatsen';
 $a->strings['You can import an account from another Friendica server.'] = 'Je kunt een account van een andere Friendica server importeren.';
@@ -1861,11 +1858,6 @@ $a->strings['Please visit %s  if you wish to make any changes to this relationsh
 $a->strings['registration request'] = 'registratie verzoek';
 $a->strings['You\'ve received a registration request from \'%1$s\' at %2$s'] = 'Je kreeg een registratieaanvraag van \'%1$s\' op %2$s';
 $a->strings['You\'ve received a [url=%1$s]registration request[/url] from %2$s.'] = 'Je kreeg een [url=%1$s]registratieaanvraag[/url] van %2$s.';
-$a->strings['Full Name:	%s
-Site Location:	%s
-Login Name:	%s (%s)'] = 'Volledige naam:	%s
-Adres van de site:	%s
-Loginnaam:	%s (%s)';
 $a->strings['Please visit %s to approve or reject the request.'] = 'Bezoek %s om de aanvraag goed of af te keuren.';
 $a->strings['%s %s tagged you'] = '%s %s heeft jou getagged';
 $a->strings['%s %s shared a new post'] = '%s %s deelde een nieuwe post';

@@ -210,7 +210,6 @@ $a->strings['The form security token was not correct. This probably happened bec
 $a->strings['All contacts'] = 'كل المتراسلين';
 $a->strings['Followers'] = 'متابِعون';
 $a->strings['Following'] = 'متابَعون';
-$a->strings['Mutual friends'] = 'أصدقاء مشتركون';
 $a->strings['Common'] = 'الشائع';
 $a->strings['Addon not found'] = 'لم يُعثر على الإضافة';
 $a->strings['Addon already enabled'] = 'الإضافة مفعلة سلفًا';
@@ -511,6 +510,7 @@ $a->strings['Trending Tags (last %d hour)'] = [
 	5 => 'الوسوم الشائعة (آخر %d ساعة)',
 ];
 $a->strings['More Trending Tags'] = 'المزيد من الوسوم الشائعة';
+$a->strings['Mention'] = 'ذكر';
 $a->strings['XMPP:'] = 'XMPP:';
 $a->strings['Matrix:'] = 'مايتركس:';
 $a->strings['Location:'] = 'الموقع:';
@@ -972,8 +972,6 @@ $a->strings['Enable multiple registrations'] = 'فعّل تعدد التسجيل
 $a->strings['Enable users to register additional accounts for use as pages.'] = 'يمكن المستخدمين من تسجيل حسابات إضافية لتستخدم كصفحات.';
 $a->strings['Enable OpenID'] = 'فعّل OpenID';
 $a->strings['Enable OpenID support for registration and logins.'] = 'فعّل دعم OpenID للتسجيل والولوج.';
-$a->strings['Enable Fullname check'] = 'افرض استخدام الأسماء الكاملة';
-$a->strings['Enable check to only allow users to register with a space between the first name and the last name in their full name.'] = 'يفرض على المستخدمين تضمين مسافة واحدة في اسم المستخدم الخاص بهم بين الاسم الأول والاسم الأخير.';
 $a->strings['Community pages for visitors'] = 'عرض صفحة المجتمع للزوار';
 $a->strings['Which community pages should be available for visitors. Local users always see both pages.'] = 'صفحات المجتمع المتاحة للزوار. المستخدمون المحليون يمكنهم مشاهدة كلا النوعين.';
 $a->strings['Posts per user on community page'] = 'حد المشاركات لكل مستخدم في صفحة المجتمع';
@@ -994,9 +992,8 @@ $a->strings['Local contacts - contacts of our local contacts are discovered for 
 $a->strings['Interactors - contacts of our local contacts and contacts who interacted on locally visible postings are discovered for their followers/followings.'] = 'المتفاعلون: متراسلو مستخدمي هذا الخادم والمتراسلون الذين تفاعلوا مع المشاركات المحلية لهذا الخادم.';
 $a->strings['Synchronize the contacts with the directory server'] = 'زامن المتراسلين مع خادم الدليل';
 $a->strings['if enabled, the system will check periodically for new contacts on the defined directory server.'] = 'إذا فُعل سيقوم النظام بالتحقق دوريا للبحث عن متراسلين جدد على خادم الدليل المحدد.';
-$a->strings['Days between requery'] = 'المهلة بالأيام بين الطلبات';
 $a->strings['Discover contacts from other servers'] = 'اكتشف متراسلين من خوادم أخرى';
-$a->strings['Periodically query other servers for contacts. The system queries Friendica, Mastodon and Hubzilla servers.'] = 'يجلب دوريا متراسلين من خوادم أخرى. يُطبّق على خوادم فرنديكا وماستدون وهوبزيلا.';
+$a->strings['Days between requery'] = 'المهلة بالأيام بين الطلبات';
 $a->strings['Search the local directory'] = 'ابحث في الدليل المحلي';
 $a->strings['Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.'] = 'يبحث في الدليل المحلي بدلاً من الدليل العالمي. عند إجراء بحث محلي ، يجرى نفس البحث في الدليل العالمي في الخلفية. هذا يحسن نتائج البحث إذا تكررت.';
 $a->strings['Publish server information'] = 'انشر معلومات الخادم';
@@ -1377,9 +1374,6 @@ $a->strings['Please select your timezone:'] = 'رجاء اختر منطقتك ا
 $a->strings['Output'] = 'الخَرْج';
 $a->strings['Lookup address'] = 'عنوان المسح';
 $a->strings['Lookup address:'] = 'عنوان المسح:';
-$a->strings['Switch between your accounts'] = 'بدّل الحساب';
-$a->strings['Manage your accounts'] = 'إدارة حسابك';
-$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'تنقل بين مختلف الهويات أو الصفحات (المجموعات / المجتمعات) التي تملكها أو التي خوّل لك إدارتها';
 $a->strings['No entries (some entries may be hidden).'] = 'لا توجد مدخلات (قد تكون بعض المدخلات مخفية).';
 $a->strings['Find on this site'] = 'ابحث في هذا الموقع';
 $a->strings['Results for:'] = 'نتائج:';
@@ -1570,7 +1564,6 @@ $a->strings['Tag'] = 'وسم';
 $a->strings['Type'] = 'نوع';
 $a->strings['Term'] = 'مصطلح';
 $a->strings['URL'] = 'رابط';
-$a->strings['Mention'] = 'ذكر';
 $a->strings['Implicit Mention'] = 'ذِكر صريح';
 $a->strings['Item not found'] = 'لم يُعثر على العنصر';
 $a->strings['Normal Account'] = 'حساب عادي';
@@ -1744,7 +1737,6 @@ $a->strings['Note for the admin'] = 'ملاحظة للمدير';
 $a->strings['Leave a message for the admin, why you want to join this node'] = 'اترك رسالة للمدير، تحوي سبب رغبتك الانضمام إلى هذه العقدة';
 $a->strings['Membership on this site is by invitation only.'] = 'العضوية في هذا الموقع عن طريق دعوة فقط.';
 $a->strings['Your invitation code: '] = 'رمز الدعوة: ';
-$a->strings['Your Full Name (e.g. Joe Smith, real or real-looking): '] = 'اسمك الكامل (على سبيل المثال جو سميث): ';
 $a->strings['Please repeat your e-mail address:'] = 'رجاء أعد إدخال عنوان بريدك الإلكتروني:';
 $a->strings['New Password:'] = 'كلمة المرور الجديدة:';
 $a->strings['Confirm:'] = 'التأكيد:';
@@ -1896,6 +1888,8 @@ $a->strings['If you have moved this profile from another server, and some of you
 $a->strings['Resend relocate message to contacts'] = 'أعد إرسال رسالة الانتقال للمتراسلين';
 $a->strings['Addon Settings'] = 'إعدادات الإضافة';
 $a->strings['No Addon settings configured'] = 'لم تضبط إعدادات الإضافة';
+$a->strings['Description'] = 'الوصف';
+$a->strings['Add'] = 'أضف';
 $a->strings['Failed to connect with email account using the settings provided.'] = 'فشل الاتصال بحساب البريد الإلكتروني باستخدام الإعدادات المقدمة.';
 $a->strings['Diaspora (Socialhome, Hubzilla)'] = 'دياسبورا (سوشل-هوم، هوب-زيلا)';
 $a->strings['OStatus (GNU Social)'] = 'OStatus (غنو سوشل)';
@@ -1943,7 +1937,6 @@ $a->strings['Delegates'] = 'المندوبون';
 $a->strings['Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'] = 'يستطيع المندوبون إدارة جميع جوانب هذا الحساب/الصفحة باستثناء إعدادات الحساب الأساسية. يرجى عدم تفويض حسابك الشخصي لأي شخص لا تثق به.';
 $a->strings['Existing Page Delegates'] = 'مندوبو الصفحة الحاليون';
 $a->strings['Potential Delegates'] = 'المندوبون المحتملون';
-$a->strings['Add'] = 'أضف';
 $a->strings['No entries.'] = 'لا مدخلات.';
 $a->strings['The theme you chose isn\'t available.'] = 'السمة التي اخترتها غير متوفرة.';
 $a->strings['%s - (Unsupported)'] = '%s - (غير مدعوم)';
@@ -2024,7 +2017,6 @@ $a->strings['This will completely remove your account. Once this has been done i
 $a->strings['Please enter your password for verification:'] = 'يرجى إدخال كلمة المرور للتأكيد:';
 $a->strings['Please enter your password to access this page.'] = 'يرجى إدخال كلمة المرور للوصول إلى هذه الصفحة.';
 $a->strings['New app-specific password generated.'] = 'أُنشئت كلمة مرور جديدة خاصة بالتطبيق بنجاح.';
-$a->strings['Description'] = 'الوصف';
 $a->strings['Last Used'] = 'آخر استخدام';
 $a->strings['Revoke'] = 'أبطل';
 $a->strings['Revoke All'] = 'أبطل الكل';
@@ -2093,6 +2085,9 @@ $a->strings['Export Contacts to CSV'] = 'صدّر المتراسلين الى م
 $a->strings['Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.'] = 'صدّر قائمة الحسابات المتابَعة إلى ملف csv. هذا الملف متوافق مع ماستدون.';
 $a->strings['Privacy Statement'] = 'بيان الخصوصية';
 $a->strings['The requested item doesn\'t exist or has been deleted.'] = 'العنصر غير موجود أو حُذف.';
+$a->strings['Switch between your accounts'] = 'بدّل الحساب';
+$a->strings['Manage your accounts'] = 'إدارة حسابك';
+$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'تنقل بين مختلف الهويات أو الصفحات (المجموعات / المجتمعات) التي تملكها أو التي خوّل لك إدارتها';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'يمكن للمدراء فقط استيراد المستخدمين في الخوادم المغلقة.';
 $a->strings['Move account'] = 'أنقل الحساب';
 $a->strings['You can import an account from another Friendica server.'] = 'يمكنك استيراد حساب من خادم فرَندِكا آخر.';
@@ -2212,11 +2207,6 @@ $a->strings['Please visit %s  if you wish to make any changes to this relationsh
 $a->strings['registration request'] = 'طلب تسجيل';
 $a->strings['You\'ve received a registration request from \'%1$s\' at %2$s'] = 'تلقيت طلب تسجيل من \'%1$s\' على %2$s';
 $a->strings['You\'ve received a [url=%1$s]registration request[/url] from %2$s.'] = 'تلقيت [url=%1$s]طلب تسجيل[/url] من %2$s.';
-$a->strings['Full Name:	%s
-Site Location:	%s
-Login Name:	%s (%s)'] = 'الاسم الكامل:	%s
-الموقع:	%s
-اسم الولوج:	%s (%s)';
 $a->strings['Please visit %s to approve or reject the request.'] = 'من فضلك زر %s لقبول أو رفض الطلب.';
 $a->strings['%s %s tagged you'] = 'ذكرك %s%s';
 $a->strings['%s %s shared a new post'] = 'شارك %s%s مشاركة جديدة';

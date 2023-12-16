@@ -208,7 +208,6 @@ $a->strings['The form security token was not correct. This probably happened bec
 $a->strings['All contacts'] = 'Wszystkie kontakty';
 $a->strings['Followers'] = 'Zwolenników';
 $a->strings['Following'] = 'Kolejny';
-$a->strings['Mutual friends'] = 'Wspólni znajomi';
 $a->strings['Common'] = 'Wspólne';
 $a->strings['Addon not found'] = 'Dodatek nie został odnaleziony';
 $a->strings['Addon already enabled'] = 'Dodatek już włączony';
@@ -530,6 +529,7 @@ $a->strings['Trending Tags (last %d hour)'] = [
 	3 => 'Popularne znaczniki (ostatnie %d godzin)',
 ];
 $a->strings['More Trending Tags'] = 'Więcej popularnych znaczników';
+$a->strings['Mention'] = 'Wzmianka';
 $a->strings['XMPP:'] = 'XMPP:';
 $a->strings['Matrix:'] = 'Matrix:';
 $a->strings['Location:'] = 'Lokalizacja:';
@@ -1033,8 +1033,6 @@ $a->strings['Enable multiple registrations'] = 'Włącz wiele rejestracji';
 $a->strings['Enable users to register additional accounts for use as pages.'] = 'Zezwól użytkownikom na rejestrowanie dodatkowych kont do użytku jako strony.';
 $a->strings['Enable OpenID'] = 'Włącz OpenID';
 $a->strings['Enable OpenID support for registration and logins.'] = 'Włącz obsługę OpenID dla rejestracji i logowania.';
-$a->strings['Enable Fullname check'] = 'Włącz sprawdzanie pełnej nazwy';
-$a->strings['Enable check to only allow users to register with a space between the first name and the last name in their full name.'] = 'Włącz sprawdzenie, aby zezwolić użytkownikom tylko na rejestrację ze spacją między imieniem a nazwiskiem w ich pełnym imieniu.';
 $a->strings['If enabled and the system is set to an open registration, an email for each new registration is sent to the administrators.'] = 'Jeśli ta opcja jest włączona, a system jest ustawiony na otwartą rejestrację, wiadomość e-mail dla każdej nowej rejestracji jest wysyłana do administratorów.';
 $a->strings['Community pages for visitors'] = 'Strony społecznościowe dla odwiedzających';
 $a->strings['Which community pages should be available for visitors. Local users always see both pages.'] = 'Które strony społeczności powinny być dostępne dla odwiedzających. Lokalni użytkownicy zawsze widzą obie strony.';
@@ -1069,10 +1067,8 @@ $a->strings['Local contacts - contacts of our local contacts are discovered for 
 $a->strings['Interactors - contacts of our local contacts and contacts who interacted on locally visible postings are discovered for their followers/followings.'] = 'Interaktorzy - kontakty naszych lokalnych kontaktów i kontakty, które wchodziły w interakcję z lokalnie widocznymi wpisami, są wykrywane dla ich obserwujących/obserwowanych.';
 $a->strings['Synchronize the contacts with the directory server'] = 'Synchronizuj kontakty z serwerem katalogowym';
 $a->strings['if enabled, the system will check periodically for new contacts on the defined directory server.'] = 'jeśli ta opcja jest włączona, system będzie okresowo sprawdzać nowe kontakty na zdefiniowanym serwerze katalogowym.';
-$a->strings['Days between requery'] = 'Dni między żądaniem';
-$a->strings['Number of days after which a server is requeried for his contacts.'] = 'Liczba dni, po upływie których serwer jest żądany dla swoich kontaktów.';
 $a->strings['Discover contacts from other servers'] = 'Odkryj kontakty z innych serwerów';
-$a->strings['Periodically query other servers for contacts. The system queries Friendica, Mastodon and Hubzilla servers.'] = 'Okresowo pytaj inne serwery o kontakty. System wysyła zapytania do serwerów Friendica, Mastodon i Hubzilla.';
+$a->strings['Days between requery'] = 'Dni między żądaniem';
 $a->strings['Search the local directory'] = 'Wyszukaj w lokalnym katalogu';
 $a->strings['Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.'] = 'Wyszukaj lokalny katalog zamiast katalogu globalnego. Podczas wyszukiwania lokalnie każde wyszukiwanie zostanie wykonane w katalogu globalnym w tle. Poprawia to wyniki wyszukiwania, gdy wyszukiwanie jest powtarzane.';
 $a->strings['Publish server information'] = 'Publikuj informacje o serwerze';
@@ -1481,11 +1477,6 @@ $a->strings['Output'] = 'Wyjście';
 $a->strings['Lookup address'] = 'Wyszukaj adres';
 $a->strings['Webfinger Diagnostic'] = 'Diagnostyka Webfinger';
 $a->strings['Lookup address:'] = 'Wyszukaj adres:';
-$a->strings['You are now logged in as %s'] = 'Jesteś teraz zalogowany jako %s';
-$a->strings['Switch between your accounts'] = 'Przełącz się pomiędzy kontami';
-$a->strings['Manage your accounts'] = 'Zarządzaj swoimi kontami';
-$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Przełącz między różnymi tożsamościami lub stronami społeczność/grupy, które udostępniają dane Twojego konta lub które otrzymałeś uprawnienia "zarządzaj"';
-$a->strings['Select an identity to manage: '] = 'Wybierz tożsamość do zarządzania: ';
 $a->strings['No entries (some entries may be hidden).'] = 'Brak odwiedzin (niektóre odwiedziny mogą być ukryte).';
 $a->strings['Find on this site'] = 'Znajdź na tej stronie';
 $a->strings['Results for:'] = 'Wyniki dla:';
@@ -1692,7 +1683,6 @@ $a->strings['Tag'] = 'Znacznik';
 $a->strings['Type'] = 'Typu';
 $a->strings['Term'] = 'Zasada';
 $a->strings['URL'] = 'URL';
-$a->strings['Mention'] = 'Wzmianka';
 $a->strings['Implicit Mention'] = 'Wzmianka niejawna';
 $a->strings['Item not found'] = 'Nie znaleziono elementu';
 $a->strings['Item Guid'] = 'Element Guid';
@@ -1885,7 +1875,6 @@ $a->strings['Note for the admin'] = 'Uwaga dla administratora';
 $a->strings['Leave a message for the admin, why you want to join this node'] = 'Pozostaw wiadomość dla administratora, dlaczego chcesz dołączyć do tego węzła';
 $a->strings['Membership on this site is by invitation only.'] = 'Członkostwo na tej stronie możliwe tylko dzięki zaproszeniu.';
 $a->strings['Your invitation code: '] = 'Twój kod zaproszenia: ';
-$a->strings['Your Full Name (e.g. Joe Smith, real or real-looking): '] = 'Twoje imię i nazwisko (np. Jan Kowalski, prawdziwe lub wyglądające na prawdziwe): ';
 $a->strings['Your Email Address: (Initial information will be send there, so this has to be an existing address.)'] = 'Twój adres e-mail: (Informacje początkowe zostaną wysłane tam, więc musi to być istniejący adres).';
 $a->strings['Please repeat your e-mail address:'] = 'Powtórz swój adres e-mail:';
 $a->strings['New Password:'] = 'Nowe hasło:';
@@ -2065,6 +2054,8 @@ $a->strings['If you have moved this profile from another server, and some of you
 $a->strings['Resend relocate message to contacts'] = 'Wyślij ponownie przenieść wiadomości do kontaktów';
 $a->strings['Addon Settings'] = 'Ustawienia dodatków';
 $a->strings['No Addon settings configured'] = 'Brak skonfigurowanych ustawień dodatków';
+$a->strings['Description'] = 'Opis';
+$a->strings['Add'] = 'Dodaj';
 $a->strings['Failed to connect with email account using the settings provided.'] = 'Połączenie z kontem email używając wybranych ustawień nie powiodło się.';
 $a->strings['Diaspora (Socialhome, Hubzilla)'] = 'Diaspora (Socialhome, Hubzilla)';
 $a->strings['OStatus (GNU Social)'] = 'OStatus (GNU Social)';
@@ -2115,7 +2106,6 @@ $a->strings['Delegates'] = 'Oddeleguj';
 $a->strings['Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'] = 'Delegaci mogą zarządzać wszystkimi aspektami tego konta/strony, z wyjątkiem podstawowych ustawień konta. Nie przekazuj swojego konta osobistego nikomu, komu nie ufasz całkowicie.';
 $a->strings['Existing Page Delegates'] = 'Obecni delegaci stron';
 $a->strings['Potential Delegates'] = 'Potencjalni delegaci';
-$a->strings['Add'] = 'Dodaj';
 $a->strings['No entries.'] = 'Brak wpisów.';
 $a->strings['The theme you chose isn\'t available.'] = 'Wybrany motyw jest niedostępny.';
 $a->strings['%s - (Unsupported)'] = '%s - (Nieobsługiwane)';
@@ -2207,7 +2197,6 @@ $a->strings['App-specific password successfully revoked.'] = 'Hasło specyficzne
 $a->strings['Two-factor app-specific passwords'] = 'Dwuskładnikowe hasła aplikacji';
 $a->strings['<p>App-specific passwords are randomly generated passwords used instead your regular password to authenticate your account on third-party applications that don\'t support two-factor authentication.</p>'] = '<p>Hasła aplikacji to losowo generowane hasła używane zamiast zwykłego hasła do uwierzytelniania konta w aplikacjach innych firm, które nie obsługują uwierzytelniania dwuskładnikowego.</p>';
 $a->strings['Make sure to copy your new app-specific password now. You won’t be able to see it again!'] = 'Pamiętaj, aby teraz skopiować nowe hasło aplikacji. Nie będziesz mógł go zobaczyć ponownie!';
-$a->strings['Description'] = 'Opis';
 $a->strings['Last Used'] = 'Ostatnio używane';
 $a->strings['Revoke'] = 'Unieważnij';
 $a->strings['Revoke All'] = 'Unieważnij wszyskie';
@@ -2298,6 +2287,11 @@ $a->strings['At the time of registration, and for providing communications betwe
 $a->strings['This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.'] = 'Te dane są wymagane do komunikacji i są przekazywane do węzłów partnerów komunikacyjnych i są tam przechowywane. Użytkownicy mogą wprowadzać dodatkowe prywatne dane, które mogą być przesyłane na konta partnerów komunikacyjnych.';
 $a->strings['Privacy Statement'] = 'Oświadczenie o prywatności';
 $a->strings['The requested item doesn\'t exist or has been deleted.'] = 'Żądany element nie istnieje lub został usunięty.';
+$a->strings['You are now logged in as %s'] = 'Jesteś teraz zalogowany jako %s';
+$a->strings['Switch between your accounts'] = 'Przełącz się pomiędzy kontami';
+$a->strings['Manage your accounts'] = 'Zarządzaj swoimi kontami';
+$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Przełącz między różnymi tożsamościami lub stronami społeczność/grupy, które udostępniają dane Twojego konta lub które otrzymałeś uprawnienia "zarządzaj"';
+$a->strings['Select an identity to manage: '] = 'Wybierz tożsamość do zarządzania: ';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'Import użytkowników na zamkniętych serwerach może być wykonywany tylko przez administratora.';
 $a->strings['Move account'] = 'Przenieś konto';
 $a->strings['You can import an account from another Friendica server.'] = 'Możesz zaimportować konto z innego serwera Friendica.';
@@ -2423,11 +2417,6 @@ $a->strings['Please visit %s  if you wish to make any changes to this relationsh
 $a->strings['registration request'] = 'prośba o rejestrację';
 $a->strings['You\'ve received a registration request from \'%1$s\' at %2$s'] = 'Otrzymałeś wniosek rejestracyjny od \'%1$s\' na %2$s';
 $a->strings['You\'ve received a [url=%1$s]registration request[/url] from %2$s.'] = 'Otrzymałeś [url=%1$s] żądanie rejestracji [/url] od %2$s.';
-$a->strings['Full Name:	%s
-Site Location:	%s
-Login Name:	%s (%s)'] = 'Imię i nazwisko:	%s
-Lokalizacja witryny:	%s
-Nazwa użytkownika:	%s(%s)';
 $a->strings['Please visit %s to approve or reject the request.'] = 'Odwiedź stronę %s, aby zatwierdzić lub odrzucić wniosek.';
 $a->strings['%s %s tagged you'] = '%s %s oznaczył Cię';
 $a->strings['%s %s shared a new post'] = '%s %s udostępnił nowy wpis';

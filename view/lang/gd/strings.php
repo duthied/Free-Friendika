@@ -228,7 +228,6 @@ $a->strings['The form security token was not correct. This probably happened bec
 $a->strings['All contacts'] = 'A h-uile neach-aithne';
 $a->strings['Followers'] = 'Luchd-leantainn';
 $a->strings['Following'] = 'A’ leantainn';
-$a->strings['Mutual friends'] = 'Caraidean an cumantas';
 $a->strings['Common'] = 'Cumanta';
 $a->strings['Addon not found'] = 'Cha deach an tuilleadan a lorg';
 $a->strings['Addon already enabled'] = 'Tha an tuilleadan an comas mu thràth';
@@ -643,6 +642,7 @@ $a->strings['Trending Tags (last %d hour)'] = [
 	3 => 'Tagaichean a’ treandadh (san %d uair a thìde seo chaidh)',
 ];
 $a->strings['More Trending Tags'] = 'Barrachd thagaichean a’ treandadh';
+$a->strings['Mention'] = 'Iomradh';
 $a->strings['XMPP:'] = 'XMPP:';
 $a->strings['Matrix:'] = 'Matrix:';
 $a->strings['Location:'] = 'Ionad:';
@@ -982,58 +982,6 @@ $a->strings['
 			the administrator of %2$s has set up an account for you.'] = '
 		%1$s, a charaid,
 			shuidhich rianaire %2$s cunntas dhut.';
-$a->strings['
-		The login details are as follows:
-
-		Site Location:	%1$s
-		Login Name:		%2$s
-		Password:		%3$s
-
-		You may change your password from your account "Settings" page after logging
-		in.
-
-		Please take a few moments to review the other account settings on that page.
-
-		You may also wish to add some basic information to your default profile
-		(on the "Profiles" page) so that other people can easily find you.
-
-		We recommend setting your full name, adding a profile photo,
-		adding some profile "keywords" (very useful in making new friends) - and
-		perhaps what country you live in; if you do not wish to be more specific
-		than that.
-
-		We fully respect your right to privacy, and none of these items are necessary.
-		If you are new and do not know anybody here, they may help
-		you to make some new and interesting friends.
-
-		If you ever want to delete your account, you can do so at %1$s/settings/removeme
-
-		Thank you and welcome to %4$s.'] = '
-		Seo am fiosrachadh clàraidh a-steach:
-
-		Seòladh na làraich:	%1$s
-		Ainm clàraidh a-steach:		%2$s
-		Facal-faire:		%3$s
-
-		’S urrainn dhut am facal-faire agad atharrachadh air duilleag “Roghainnean” a’ chunntais agad
-		às dèidh clàradh a-steach.
-
-		Fhad ’s a bhios tu ris, thoir sùil air roghainnean eile a’ chunntais air an duilleag sin.
-
-		Dh’fhaoidte gum bu mhiann leat fiosrachadh bunasach a chur ris a’ phròifil bhunaiteach agad
-		(air duilleag na “Pròifil”) ach am faigh daoine lorg ort gun duilgheadas.
-
-		Mholamaid gun suidhich thu d’ ainm slàn, gun cuir thu dealbh pròifil ris,
-		gun cuir thu “facal-luirg” no dhà ris a’ phròifil (glè fheumail airson caraidean ùra fhaighinn) – agus is dòcha
-		an dùthaich far a bheil thu mur eil thu airson a bhith nas mionaidiche na sin.
-
-		Tha suim againn dha do phrìobhaideachd is chan eil gin sam bith dhe na nithean sin riatanach idir.
-		Ma tha thu ùr an-seo is mur eil thu eòlach air duine sam bith, b’ urrainn dha na nithean seo
-		do chuideachadh ach am cuir thu an aithne air caraidean inntinneach ùra.
-
-		Ma tha thu airson an cunntas agad a sguabadh às uair sam bith, ’s urrainn dhut sin a dhèanamh air %1$s/settings/removeme
-
-		Mòran taing agus fàilte gu %4$s.';
 $a->strings['Registration details for %s'] = 'Am fiosrachadh clàraidh airson %s';
 $a->strings['
 			Dear %1$s,
@@ -1062,58 +1010,6 @@ $a->strings['
 				%1$s, a charaid,
 				Mòran taing airson clàradh air %2$s. Chaidh an cunntas agad a chruthachadh.
 			';
-$a->strings['
-			The login details are as follows:
-
-			Site Location:	%3$s
-			Login Name:		%1$s
-			Password:		%5$s
-
-			You may change your password from your account "Settings" page after logging
-			in.
-
-			Please take a few moments to review the other account settings on that page.
-
-			You may also wish to add some basic information to your default profile
-			(on the "Profiles" page) so that other people can easily find you.
-
-			We recommend setting your full name, adding a profile photo,
-			adding some profile "keywords" (very useful in making new friends) - and
-			perhaps what country you live in; if you do not wish to be more specific
-			than that.
-
-			We fully respect your right to privacy, and none of these items are necessary.
-			If you are new and do not know anybody here, they may help
-			you to make some new and interesting friends.
-
-			If you ever want to delete your account, you can do so at %3$s/settings/removeme
-
-			Thank you and welcome to %2$s.'] = '
-			Seo am fiosrachadh clàraidh a-steach:
-
-			Seòladh na làraich:	%3$s
-			Ainm clàraidh a-steach:		%1$s
-			Facal-faire:		%5$s
-
-			’S urrainn dhut am facal-faire agad atharrachadh air duilleag “Roghainnean” a’ chunntais agad
-		\às dèidh clàradh a-steach.
-
-			Fhad ’s a bhios tu ris, thoir sùil air roghainnean eile a’ chunntais air an duilleag sin.
-
-			Dh’fhaoidte gum bu mhiann leat fiosrachadh bunasach a chur ris a’ phròifil bhunaiteach agad
-			(air duilleag na “Pròifil”) ach am faigh daoine lorg ort gun duilgheadas.
-
-			Mholamaid gun suidhich thu d’ ainm slàn, gun cuir thu dealbh pròifil ris,
-			gun cuir thu “facal-luirg” no dhà ris a’ phròifil (glè fheumail airson caraidean ùra fhaighinn) – agus is dòcha
-			an dùthaich far a bheil thu mur eil thu airson a bhith nas mionaidiche na sin.
-
-			Tha suim againn dha do phrìobhaideachd is chan eil gin sam bith dhe na nithean sin riatanach idir.
-			Ma tha thu ùr an-seo is mur eil thu eòlach air duine sam bith, b’ urrainn dha na nithean seo
-			do chuideachadh ach am cuir thu an aithne air caraidean inntinneach ùra.
-
-			Ma tha thu airson an cunntas agad a sguabadh às uair sam bith, ’s urrainn dhut sin a dhèanamh air %3$s/settings/removeme
-
-			Mòran taing agus fàilte gu %2$s.';
 $a->strings['Addon not found.'] = 'Cha deach an tuilleadan a lorg.';
 $a->strings['Addon %s disabled.'] = 'Tha an tuilleadan %s à comas.';
 $a->strings['Addon %s enabled.'] = 'Tha an tuilleadan %s an comas.';
@@ -1352,8 +1248,6 @@ $a->strings['Enable multiple registrations'] = 'Cuir clàradh iomadach an comas'
 $a->strings['Enable users to register additional accounts for use as pages.'] = 'Bheir seo an comas dha na cleachdaichean gun clàraich iad cunntasan a bharrachd airson an cleachdadh ’nan duilleagan.';
 $a->strings['Enable OpenID'] = 'Cuir OpenID an comas';
 $a->strings['Enable OpenID support for registration and logins.'] = 'Cuir an comas taic dha OpenID airson clàradh is clàradh a-steach.';
-$a->strings['Enable Fullname check'] = 'Cuir an comas dearbhadh ainm shlàin';
-$a->strings['Enable check to only allow users to register with a space between the first name and the last name in their full name.'] = 'Cuid an comas an dearbhadh nach leig le cleachdaichean clàradh ach le beàrn eadar ainm is sloinneadh an ainm shlàin.';
 $a->strings['Email administrators on new registration'] = 'Cuir puist-d dha na rianairean do chlàraidhean ùra';
 $a->strings['If enabled and the system is set to an open registration, an email for each new registration is sent to the administrators.'] = 'Nuair a bhios seo an comas agus an siostam air a shuidheachadh air clàraidhean fosgailte, thèid post-d a chur dha na rianairean do gach clàradh ùr.';
 $a->strings['Community pages for visitors'] = 'Duilleagan coimhearsnachd do dh’aoighean';
@@ -1389,10 +1283,8 @@ $a->strings['Local contacts - contacts of our local contacts are discovered for 
 $a->strings['Interactors - contacts of our local contacts and contacts who interacted on locally visible postings are discovered for their followers/followings.'] = 'Luchd co-luadair – thèid dàimhean leantainn an luchd-aithne ionadail agus aig an fheadhainn a rinn co-luadar le postaichean poblach a lorg.';
 $a->strings['Synchronize the contacts with the directory server'] = 'Sioncronaich an luchd-aithne le frithealaiche an eòlaire';
 $a->strings['if enabled, the system will check periodically for new contacts on the defined directory server.'] = 'Ma tha seo an comas, bheir an siostam sùil gu cunbhalach airson luchd-aithne ùr air frithealaiche an eòlaire a chaidh a mhìneachadh.';
-$a->strings['Days between requery'] = 'Làithean eadar ceasnachaidhean';
-$a->strings['Number of days after which a server is requeried for his contacts.'] = 'An àireamh de làithean mus dèid am frithealaiche ceasnachadh airson an luchd-aithne aige a-rithist.';
 $a->strings['Discover contacts from other servers'] = 'Lorg luchd-aithne o fhrithealaichean eile';
-$a->strings['Periodically query other servers for contacts. The system queries Friendica, Mastodon and Hubzilla servers.'] = 'Ceasnaich frithealaichean eile airson an luchd-aithne aca gu cunbhalach. Ceasnaichidh an siostam frithealaichean Friendica, Mastodon i Hubzilla.';
+$a->strings['Days between requery'] = 'Làithean eadar ceasnachaidhean';
 $a->strings['Search the local directory'] = 'Lorg san eòlaire ionadail';
 $a->strings['Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.'] = 'Lorg san eòlaire ionadail seach san eòlaire cho-naisgte. Nuair a nì thu lorg gu h-ionadail, thèid gach lorg a ghnìomhachadh san eòlaire cho-naisgte sa chùlaibh. Cuiridh seo piseach air na toraidhean luirg nuair a nithear an t-aon lorg a-rithist.';
 $a->strings['Publish server information'] = 'Foillsich fiosrachadh an fhrithealaiche';
@@ -1860,11 +1752,6 @@ $a->strings['Output'] = 'Às-chur';
 $a->strings['Lookup address'] = 'Rannsaich an seòladh';
 $a->strings['Webfinger Diagnostic'] = 'Diagnosachd Webfinger';
 $a->strings['Lookup address:'] = 'Rannsaich an seòladh:';
-$a->strings['You are now logged in as %s'] = 'Tha thu air do chlàradh a-steach mar %s';
-$a->strings['Switch between your accounts'] = 'Geàrr leum eadar na cunntasan agad';
-$a->strings['Manage your accounts'] = 'Stiùirich na cunntasan agad';
-$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Geàrr leum eadar dearbh-aithnean no duilleagan coimhearsnachd/buidhinn a tha a’ co-roinneadh fiosrachadh a’ chunntais agad no a fhuair thu ceadan “stiùir” dhaibh';
-$a->strings['Select an identity to manage: '] = 'Tagh dearbh-aithne ri stiùireadh: ';
 $a->strings['No entries (some entries may be hidden).'] = 'Gun innteart (’s dòcha gu bheil cuid a dh’innteartan falaichte).';
 $a->strings['Find on this site'] = 'Lorg air an làrach seo';
 $a->strings['Results for:'] = 'Toraidhean airson:';
@@ -2107,7 +1994,6 @@ $a->strings['Tag'] = 'Taga';
 $a->strings['Type'] = 'Seòrsa';
 $a->strings['Term'] = 'Briathar';
 $a->strings['URL'] = 'URL';
-$a->strings['Mention'] = 'Iomradh';
 $a->strings['Implicit Mention'] = 'Iomradh fillte';
 $a->strings['Item not found'] = 'Cha deach an nì a lorg';
 $a->strings['No source recorded'] = 'Cha deach tùs a chlàradh';
@@ -2417,6 +2303,11 @@ $a->strings['Manage app-specific passwords'] = 'Stiùir na faclan-faire sònraic
 $a->strings['Manage trusted browsers'] = 'Stiùir brabhsairean earbsach';
 $a->strings['At the time of registration, and for providing communications between the user account and their contacts, the user has to provide a display name (pen name), an username (nickname) and a working email address. The names will be accessible on the profile page of the account by any visitor of the page, even if other profile details are not displayed. The email address will only be used to send the user notifications about interactions, but wont be visibly displayed. The listing of an account in the node\'s user directory or the global user directory is optional and can be controlled in the user settings, it is not necessary for communication.'] = 'Aig àm a’ chlàraidh agus a chùm conaltraidh eadar cunntas a’ chleachdaiche ’s an luchd-aithne aca, feumaidh an cleachdaiche ainm taisbeanaidh (ainm-pinn), ainm-cleachdaiche (far-ainm) agus seòladh puist-d a tha ag obair a thoirt seachad. Gabhaidh na h-ainmean inntrigeadh air duilleag pròifil a’ chunntais le duine sam bith a thadhlas air an duilleag, fiù mura dèid fiosrachadh eile na pròifil a shealltainn. Cha dèid an seòladh puist-d a chleachdadh ach airson brathan a chur dhan chleachdaiche mu co-luadar agus cha dèid a shealltainn gu poblach. Tha cur a’ chunntais ri liosta nan cleachdaichean ann an eòlaire an nòid no san eòlaire cho-naisgte roghainneil agus gabhaidh sin a shuidheachadh ann an roghainnean a’ chleachdaiche; chan eil e riatanach dhan chonaltradh.';
 $a->strings['The requested item doesn\'t exist or has been deleted.'] = 'Chan eil am an nì a dh’iarr thu ann no chaidh a sguabadh às.';
+$a->strings['You are now logged in as %s'] = 'Tha thu air do chlàradh a-steach mar %s';
+$a->strings['Switch between your accounts'] = 'Geàrr leum eadar na cunntasan agad';
+$a->strings['Manage your accounts'] = 'Stiùirich na cunntasan agad';
+$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Geàrr leum eadar dearbh-aithnean no duilleagan coimhearsnachd/buidhinn a tha a’ co-roinneadh fiosrachadh a’ chunntais agad no a fhuair thu ceadan “stiùir” dhaibh';
+$a->strings['Select an identity to manage: '] = 'Tagh dearbh-aithne ri stiùireadh: ';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'Chan fhaod ach rianairean cleachdaichean ion-phortadh gu frithealaichean dùinte.';
 $a->strings['Move account'] = 'Imrich an cunntas';
 $a->strings['You can import an account from another Friendica server.'] = '’S urrainn dhut cunntas ion-phortadh o fhrithealaiche Friendica eile.';

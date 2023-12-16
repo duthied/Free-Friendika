@@ -202,7 +202,6 @@ $a->strings['The form security token was not correct. This probably happened bec
 $a->strings['All contacts'] = 'すべてのコンタクト';
 $a->strings['Followers'] = 'フォロワー';
 $a->strings['Following'] = 'フォロー中';
-$a->strings['Mutual friends'] = '共通の友人';
 $a->strings['Could not find any unarchived contact entry for this URL (%s)'] = 'このURL（ %s ）のアーカイブされていないコンタクトエントリが見つかりませんでした';
 $a->strings['The contact entries have been archived'] = 'コンタクトエントリがアーカイブされました';
 $a->strings['Could not find any contact entry for this URL (%s)'] = 'このURL（ %s ）のコンタクトエントリが見つかりませんでした';
@@ -863,9 +862,8 @@ $a->strings['Maximum Load Average'] = '最大負荷平均';
 $a->strings['Maximum system load before delivery and poll processes are deferred - default %d.'] = 'このシステム 負荷/Load を超えると、配信・ポーリングプロセスの実行は延期されます。 - 既定の値は%dです。';
 $a->strings['Minimal Memory'] = '最小限のメモリ';
 $a->strings['Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).'] = 'ワーカーの最小空きメモリ（MB）。 / proc / meminfoへのアクセスが必要-デフォルトは0（無効）。';
-$a->strings['Days between requery'] = '再クエリの間隔';
-$a->strings['Number of days after which a server is requeried for his contacts.'] = 'コンタクトについてサーバーが再照会されるまでの日数。';
 $a->strings['Discover contacts from other servers'] = '他のサーバーからコンタクトを発見する';
+$a->strings['Days between requery'] = '再クエリの間隔';
 $a->strings['Search the local directory'] = 'ローカルディレクトリを検索する';
 $a->strings['Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.'] = 'グローバルディレクトリではなくローカルディレクトリを検索します。ローカルで検索する場合、すべての検索はバックグラウンドでグローバルディレクトリで実行されます。これにより、同じ検索を繰り返した場合の検索結果が改善されます。';
 $a->strings['Publish server information'] = 'サーバー情報を公開する';
@@ -1176,8 +1174,6 @@ $a->strings['Please select your timezone:'] = 'タイムゾーンを選択して
 $a->strings['Only logged in users are permitted to perform a probing.'] = 'ログインしているユーザーのみがプローブを実行できます。';
 $a->strings['Output'] = '出力';
 $a->strings['Lookup address'] = 'ルックアップアドレス';
-$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'アカウントの詳細を共有する、または「管理」権限が付与されているさまざまなIDまたはコミュニティ/グループページを切り替える';
-$a->strings['Select an identity to manage: '] = '管理するIDを選択します。';
 $a->strings['No entries (some entries may be hidden).'] = 'エントリなし（一部のエントリは非表示になる場合があります）';
 $a->strings['Find on this site'] = 'このサイトで見つける';
 $a->strings['Results for:'] = 'の結果：';
@@ -1444,7 +1440,6 @@ $a->strings['Note for the admin'] = '管理者への注意';
 $a->strings['Leave a message for the admin, why you want to join this node'] = 'このノードに参加する理由、管理者へのメッセージを残す';
 $a->strings['Membership on this site is by invitation only.'] = 'このサイトのメンバーシップは招待のみです。';
 $a->strings['Your invitation code: '] = '招待コード：';
-$a->strings['Your Full Name (e.g. Joe Smith, real or real-looking): '] = 'あなたの氏名（例：ジョー・スミス、本物または本物のような）：';
 $a->strings['Your Email Address: (Initial information will be send there, so this has to be an existing address.)'] = 'あなたのメールアドレス：（初回の情報はそこに送信されますので、これは既存のアドレスでなければなりません。）';
 $a->strings['Please repeat your e-mail address:'] = 'メールアドレスを再入力してください。';
 $a->strings['New Password:'] = '新しいパスワード：';
@@ -1599,6 +1594,8 @@ $a->strings['If you have moved this profile from another server, and some of you
 $a->strings['Resend relocate message to contacts'] = '再配置メッセージをコンタクトに再送信する';
 $a->strings['Addon Settings'] = 'アドオン設定';
 $a->strings['No Addon settings configured'] = 'アドオン設定は構成されていません';
+$a->strings['Description'] = '説明';
+$a->strings['Add'] = '追加';
 $a->strings['Failed to connect with email account using the settings provided.'] = '提供された設定を使用してメールアカウントに接続できませんでした。';
 $a->strings['Diaspora (Socialhome, Hubzilla)'] = 'Diaspora（Socialhome、Hubzilla）';
 $a->strings['OStatus (GNU Social)'] = 'OStatus （GNU Social）';
@@ -1636,7 +1633,6 @@ $a->strings['Delegates'] = '移譲';
 $a->strings['Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'] = '移譲された人は、このアカウント/ページの管理について、基本的なアカウント設定を除いた、すべての権限を得ます。 完全に信頼していない人には、あなたの個人アカウントを移譲しないでください。';
 $a->strings['Existing Page Delegates'] = '既存のページの移譲';
 $a->strings['Potential Delegates'] = '移譲先の候補';
-$a->strings['Add'] = '追加';
 $a->strings['No entries.'] = 'エントリは有りません。';
 $a->strings['The theme you chose isn\'t available.'] = '選択したテーマは使用できません。';
 $a->strings['%s - (Unsupported)'] = '%s （サポートされていません）';
@@ -1702,7 +1698,6 @@ $a->strings['App-specific password successfully revoked.'] = 'アプリ固有の
 $a->strings['Two-factor app-specific passwords'] = '二要素アプリ固有のパスワード';
 $a->strings['<p>App-specific passwords are randomly generated passwords used instead your regular password to authenticate your account on third-party applications that don\'t support two-factor authentication.</p>'] = '<p>アプリ固有のパスワードは、二要素認証をサポートしないサードパーティアプリケーションでアカウントを認証するために、通常のパスワードの代わりに使用されるランダムに生成されたパスワードです。</p>';
 $a->strings['Make sure to copy your new app-specific password now. You won’t be able to see it again!'] = '今すぐ新しいアプリ固有のパスワードをコピーしてください。あなたは再びそれを見ることができなくなります！';
-$a->strings['Description'] = '説明';
 $a->strings['Last Used'] = '最終使用';
 $a->strings['Revoke'] = '取り消す';
 $a->strings['Revoke All'] = 'すべて取り消す';
@@ -1782,6 +1777,8 @@ $a->strings['At the time of registration, and for providing communications betwe
 $a->strings['This data is required for communication and is passed on to the nodes of the communication partners and is stored there. Users can enter additional private data that may be transmitted to the communication partners accounts.'] = 'このデータは通信に必要であり、通信パートナーのノードに渡されてそこに保存されます。ユーザーは、通信パートナーアカウントに送信される可能性のある追加のプライベートデータを入力できます。';
 $a->strings['Privacy Statement'] = 'プライバシーに関する声明';
 $a->strings['The requested item doesn\'t exist or has been deleted.'] = '要求された項目は存在しないか、削除されました。';
+$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'アカウントの詳細を共有する、または「管理」権限が付与されているさまざまなIDまたはコミュニティ/グループページを切り替える';
+$a->strings['Select an identity to manage: '] = '管理するIDを選択します。';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'クローズドなサーバでのユーザーインポートは、管理者のみが実行できます。';
 $a->strings['Move account'] = 'アカウントの移動';
 $a->strings['You can import an account from another Friendica server.'] = '別のFriendicaサーバーからアカウントをインポートできます。';
@@ -1866,11 +1863,6 @@ $a->strings['Please visit %s  if you wish to make any changes to this relationsh
 $a->strings['registration request'] = '登録リクエスト';
 $a->strings['You\'ve received a registration request from \'%1$s\' at %2$s'] = '\'%1$s\' より %2$s に 登録リクエストを受け取りました';
 $a->strings['You\'ve received a [url=%1$s]registration request[/url] from %2$s.'] = '[url=%1$s]登録リクエスト[/url] が %2$s から来ています。';
-$a->strings['Full Name:	%s
-Site Location:	%s
-Login Name:	%s (%s)'] = 'フルネーム:	%s
-サイト:	%s
-ログイン名:	%s (%s)';
 $a->strings['Please visit %s to approve or reject the request.'] = '%s を開いて、リクエストを承諾・拒否してください。';
 $a->strings['This message was sent to you by %s, a member of the Friendica social network.'] = 'このメッセージは、Friendicaソーシャルネットワークのメンバーである%sから送信されました。';
 $a->strings['You may visit them online at %s'] = 'あなたは%sでそれらをオンラインで訪れることができます';
