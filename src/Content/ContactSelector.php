@@ -222,7 +222,7 @@ class ContactSelector
 			'pleroma' => 'pleroma', 'red' => 'hubzilla', 'redmatrix' => 'hubzilla',
 			'socialhome' => 'social-home', 'wordpress' => 'wordpress', 'lemmy' => 'users',
 			'plume' => 'plume', 'funkwhale' => 'funkwhale', 'nextcloud' => 'nextcloud', 'drupal' => 'drupal',
-			'firefish' => 'fire', 'calckey' => 'calculator', 'kbin' => 'check'];
+			'firefish' => 'fire', 'calckey' => 'calculator', 'kbin' => 'check', 'threads' => 'instagram'];
 
 		$search  = array_keys($nets);
 		$replace = array_values($nets);
