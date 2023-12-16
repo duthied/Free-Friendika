@@ -228,7 +228,6 @@ $a->strings['The form security token was not correct. This probably happened bec
 $a->strings['All contacts'] = 'Все контакты';
 $a->strings['Followers'] = 'Подписаны на вас';
 $a->strings['Following'] = 'Ваши подписки';
-$a->strings['Mutual friends'] = 'Взаимные друзья';
 $a->strings['Common'] = 'Общее';
 $a->strings['Addon not found'] = 'Дополнение не найдено';
 $a->strings['Addon already enabled'] = 'Дополнение уже включено';
@@ -984,59 +983,6 @@ $a->strings['
 			the administrator of %2$s has set up an account for you.'] = '
 		Уважаемый(ая) %1$s,
 			администратор  %2$s создал для вас учётную запись.';
-$a->strings['
-		The login details are as follows:
-
-		Site Location:	%1$s
-		Login Name:		%2$s
-		Password:		%3$s
-
-		You may change your password from your account "Settings" page after logging
-		in.
-
-		Please take a few moments to review the other account settings on that page.
-
-		You may also wish to add some basic information to your default profile
-		(on the "Profiles" page) so that other people can easily find you.
-
-		We recommend setting your full name, adding a profile photo,
-		adding some profile "keywords" (very useful in making new friends) - and
-		perhaps what country you live in; if you do not wish to be more specific
-		than that.
-
-		We fully respect your right to privacy, and none of these items are necessary.
-		If you are new and do not know anybody here, they may help
-		you to make some new and interesting friends.
-
-		If you ever want to delete your account, you can do so at %1$s/settings/removeme
-
-		Thank you and welcome to %4$s.'] = '
-		Ваши данные для входа:
-
-		Адрес:	%1$s
-		Имя для входа:		%2$s
-		Пароль:		%3$s
-
-		Вы можете сменить пароль после входа на странице настроек.
-		
-
-		Пожалуйста, ознакомьтесь с другими настройками на этой же странице.
-
-		Вы так же можете захотеть добавить некоторую информацию о вас
-		(на странице профиля), чтобы другие смогли легко найти вас.
-
-		Мы рекомендуем указать имя и поставить изображение профиля,
-		добавить несколько ключевых слов (очень полезны для поиска друзей),
-		вероятно, страну вашего проживания, если вы не хотите давать больше деталей.
-		
-
-		Мы полностью уважаем вашу приватность и ничто из перечисленного не является обязательным.
-		Если вы новичок и не знаете здесь никого, то эти рекомендации
-		могут помочь найти вам новых интересных друзей.
-
-		Если вы захотите удалить вашу учётную запись, то всегда сможете сделать это на %1$s/settings/removeme
-
-		Спасибо и добро пожаловать на %4$s.';
 $a->strings['Registration details for %s'] = 'Подробности регистрации для %s';
 $a->strings['
 			Dear %1$s,
@@ -1065,59 +1011,6 @@ $a->strings['
 				Уважаемый(ая) %1$s,
 				Спасибо за регистрацию на %2$s. Ваша учётная запись создана.
 			';
-$a->strings['
-			The login details are as follows:
-
-			Site Location:	%3$s
-			Login Name:		%1$s
-			Password:		%5$s
-
-			You may change your password from your account "Settings" page after logging
-			in.
-
-			Please take a few moments to review the other account settings on that page.
-
-			You may also wish to add some basic information to your default profile
-			(on the "Profiles" page) so that other people can easily find you.
-
-			We recommend setting your full name, adding a profile photo,
-			adding some profile "keywords" (very useful in making new friends) - and
-			perhaps what country you live in; if you do not wish to be more specific
-			than that.
-
-			We fully respect your right to privacy, and none of these items are necessary.
-			If you are new and do not know anybody here, they may help
-			you to make some new and interesting friends.
-
-			If you ever want to delete your account, you can do so at %3$s/settings/removeme
-
-			Thank you and welcome to %2$s.'] = '
-			Ваши данные для входа:
-
-			Адрес:	%3$s
-			Имя для входа:		%1$s
-			Пароль:		%5$s
-
-			Вы можете сменить пароль после входа на странице настроек.
-			
-
-			Пожалуйста, ознакомьтесь с другими настройками на этой же странице.
-
-			Вы так же можете захотеть добавить некоторую информацию о вас
-			(на странице профиля), чтобы другие смогли легко найти вас.
-
-			Мы рекомендуем указать имя и поставить изображение профиля,
-			добавить несколько ключевых слов (очень полезны для поиска друзей),
-			вероятно, страну вашего проживания, если вы не хотите давать больше деталей.
-			
-
-			Мы полностью уважаем вашу приватность и ничто из перечисленного не является обязательным.
-			Если вы новичок и не знаете здесь никого, то эти рекомендации
-			могут помочь найти вам новых интересных друзей.
-
-			Если вы захотите удалить вашу учётную запись, то всегда сможете сделать это на  %3$s/settings/removeme
-
-			Спасибо и добро пожаловать на %2$s.';
 $a->strings['Addon not found.'] = 'Дополнение не найдено.';
 $a->strings['Addon %s disabled.'] = 'Дополнение %s отключено.';
 $a->strings['Addon %s enabled.'] = 'Дополнение %s включено.';
@@ -1349,8 +1242,6 @@ $a->strings['Enable multiple registrations'] = 'Разрешить нескол�
 $a->strings['Enable users to register additional accounts for use as pages.'] = 'Разрешить пользователям регистрировать дополнительные аккаунты для использования в качестве страниц.';
 $a->strings['Enable OpenID'] = 'Включить OpenID';
 $a->strings['Enable OpenID support for registration and logins.'] = 'Включить поддержку OpenID для регистрации и входа.';
-$a->strings['Enable Fullname check'] = 'Включить проверку полноты имени';
-$a->strings['Enable check to only allow users to register with a space between the first name and the last name in their full name.'] = 'Проверять при регистрации, чтобы пользователь имел пробел в указанном имени между именем и фамилией.';
 $a->strings['Email administrators on new registration'] = 'Уведомлять администраторов о новых регистрациях';
 $a->strings['If enabled and the system is set to an open registration, an email for each new registration is sent to the administrators.'] = 'Если включено и регистрации открыты, то о каждой новой регистрации будет сообщаться администраторам по электронной почте.';
 $a->strings['Community pages for visitors'] = 'Публичная лента для посетителей';
@@ -1386,10 +1277,8 @@ $a->strings['Local contacts - contacts of our local contacts are discovered for 
 $a->strings['Interactors - contacts of our local contacts and contacts who interacted on locally visible postings are discovered for their followers/followings.'] = 'Interactors - местные контакты и те контакты, кто взаимодействовал с локально видимыми записями, будут проверяться на наличие подписчиков и друзей.';
 $a->strings['Synchronize the contacts with the directory server'] = 'Синхронизировать контакты с сервером каталога';
 $a->strings['if enabled, the system will check periodically for new contacts on the defined directory server.'] = 'Если включено, то система будет периодически проверять новые контакты на указанном сервере каталога.';
-$a->strings['Days between requery'] = 'Интервал запросов';
-$a->strings['Number of days after which a server is requeried for his contacts.'] = 'Интервал в днях, с которым контакты сервера будут перепроверяться.';
 $a->strings['Discover contacts from other servers'] = 'Обнаруживать контакты с других серверов';
-$a->strings['Periodically query other servers for contacts. The system queries Friendica, Mastodon and Hubzilla servers.'] = 'Периодически опрашивать контакты с других серверов. В них входят Friendica, Mastodon и Hubzilla.';
+$a->strings['Days between requery'] = 'Интервал запросов';
 $a->strings['Search the local directory'] = 'Искать в местном каталоге';
 $a->strings['Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.'] = 'Искать в локальном каталоге вместо глобального. При локальном поиске каждый запрос будет выполняться в глобальном каталоге в фоновом режиме. Это улучшит результаты поиска при повторных запросах.';
 $a->strings['Publish server information'] = 'Опубликовать информацию о сервере';
@@ -2294,7 +2183,7 @@ $a->strings['Note for the admin'] = 'Сообщение для админист�
 $a->strings['Leave a message for the admin, why you want to join this node'] = 'Сообщения для администратора сайта на тему "почему я хочу присоединиться к вам"';
 $a->strings['Membership on this site is by invitation only.'] = 'Членство на сайте только по приглашению.';
 $a->strings['Your invitation code: '] = 'Ваш код приглашения:';
-$a->strings['Your Full Name (e.g. Joe Smith, real or real-looking): '] = 'Ваше полное имя (например, Иван Иванов):';
+$a->strings['Your Display Name (as you would like it to be displayed on this system'] = 'Ваше полное имя (как вы бы хотели его видеть здесь';
 $a->strings['Your Email Address: (Initial information will be send there, so this has to be an existing address.)'] = 'Ваш адрес электронной почты: (Информация для входа будет отправлена туда, это должен быть существующий адрес.)';
 $a->strings['Please repeat your e-mail address:'] = 'Пожалуйста, введите адрес электронной почты ещё раз:';
 $a->strings['New Password:'] = 'Новый пароль:';
@@ -2597,6 +2486,10 @@ $a->strings['Display the resharer'] = 'Показывать поделившег
 $a->strings['Display the first resharer as icon and text on a reshared item.'] = 'Показывать первого из поделившихся записью в виде значка над этой записью.';
 $a->strings['Stay local'] = 'Оставаться локально';
 $a->strings['Don\'t go to a remote system when following a contact link.'] = 'Не переходить на другие серверы по ссылкам профилей.';
+$a->strings['Show the post deletion checkbox'] = 'Показывать отметку для удаления записи';
+$a->strings['Display the checkbox for the post deletion on the network page.'] = 'Показывать галочку отметки записей для удаления на странице ленты';
+$a->strings['DIsplay the event list'] = 'Показывать события';
+$a->strings['Display the birthday reminder and event list on the network page.'] = 'Показывать напоминания о днях рождения и список событий на странице ленты.';
 $a->strings['Link preview mode'] = 'Предпросмотр ссылок';
 $a->strings['Appearance of the link preview that is added to each post with a link.'] = 'Внешний вид предпросмотра ссылок,  который появляется в записях со ссылками.';
 $a->strings['Bookmark'] = 'Главное меню';
@@ -2924,7 +2817,7 @@ $a->strings['Please visit %s  if you wish to make any changes to this relationsh
 $a->strings['registration request'] = 'запрос регистрации';
 $a->strings['You\'ve received a registration request from \'%1$s\' at %2$s'] = 'Вы получили запрос на регистрацию от \'%1$s\' на %2$s';
 $a->strings['You\'ve received a [url=%1$s]registration request[/url] from %2$s.'] = 'Вы получили [url=%1$s]запрос регистрации[/url] от %2$s.';
-$a->strings['Full Name:	%s
+$a->strings['Display Name:	%s
 Site Location:	%s
 Login Name:	%s (%s)'] = 'Полное имя:	%s
 Расположение:	%s
@@ -3009,7 +2902,9 @@ $a->strings['Disliked by: %s'] = 'Не понравилось: %s';
 $a->strings['Attended by: %s'] = 'Присутствуют: %s';
 $a->strings['Maybe attended by: %s'] = 'Под вопросом: %s';
 $a->strings['Not attended by: %s'] = 'Не присутствуют: %s';
+$a->strings['Commented by: %s'] = 'Прокомментировали: %s';
 $a->strings['Reacted with %s by: %s'] = 'Отреагировали как %s : %s';
+$a->strings['Quote shared by: %s'] = 'Процитировано: %s';
 $a->strings['Chat'] = 'Чат';
 $a->strings['(no subject)'] = '(нет темы)';
 $a->strings['%s is now following %s.'] = '%s теперь подписан на %s.';

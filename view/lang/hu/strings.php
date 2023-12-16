@@ -229,7 +229,6 @@ $a->strings['The form security token was not correct. This probably happened bec
 $a->strings['All contacts'] = 'Összes partner';
 $a->strings['Followers'] = 'Követők';
 $a->strings['Following'] = 'Követés';
-$a->strings['Mutual friends'] = 'Kölcsönösen ismerősök';
 $a->strings['Common'] = 'Közös';
 $a->strings['Addon not found'] = 'A bővítmény nem található';
 $a->strings['Addon already enabled'] = 'A bővítmény már engedélyezve van';
@@ -961,62 +960,6 @@ $a->strings['
 			the administrator of %2$s has set up an account for you.'] = '
 		Kedves %1$s!
 			A(z) %2$s adminisztrátora beállított egy fiókot Önnek.';
-$a->strings['
-		The login details are as follows:
-
-		Site Location:	%1$s
-		Login Name:		%2$s
-		Password:		%3$s
-
-		You may change your password from your account "Settings" page after logging
-		in.
-
-		Please take a few moments to review the other account settings on that page.
-
-		You may also wish to add some basic information to your default profile
-		(on the "Profiles" page) so that other people can easily find you.
-
-		We recommend setting your full name, adding a profile photo,
-		adding some profile "keywords" (very useful in making new friends) - and
-		perhaps what country you live in; if you do not wish to be more specific
-		than that.
-
-		We fully respect your right to privacy, and none of these items are necessary.
-		If you are new and do not know anybody here, they may help
-		you to make some new and interesting friends.
-
-		If you ever want to delete your account, you can do so at %1$s/settings/removeme
-
-		Thank you and welcome to %4$s.'] = '
-		A bejelentkezés részletei a következők:
-
-		Oldal címe:	%1$s
-		Bejelentkezési név:		%2$s
-		Jelszó:		%3$s
-
-		A jelszavát a fiókja „Beállítások” oldalán változtathatja meg, miután
-		bejelentkezett.
-
-		Szánjon pár percet a többi fiókbeállítás felülvizsgálatára is azon az oldalon.
-
-		Érdemes lehet néhány alapvető információt is hozzáadnia az
-		alapértelmezett profiljához (a „Profilok” oldalon), azért hogy más
-		emberek egyszerűen megtalálják Önt.
-
-		Azt ajánljuk, hogy állítsa be a teljes nevét, adjon hozzá
-		profilfényképet, adjon hozzá néhány profil „kulcsszót” (nagyon hasznos
-		új ismerősök kereséséhez), valamint talán azt, hogy mely országban él,
-		ha nem szeretne annál pontosabbat megadni.
-
-		Teljes mértékben tiszteletben tartjuk az adatvédelemmel kapcsolatos
-		jogát, és ezen elemek egyike sem kötelező. Ha még új itt, és senkit
-		sem ismer, akkor ezek segíthetnek Önnek néhány új és érdekes
-		ismerőst találni.
-
-		Ha bármikor törölni szeretné a fiókját, akkor megteheti azt a
-		következő címen: %1$s/settings/removeme
-
-			Köszönjük, és üdvözöljük a %4$s oldalon.';
 $a->strings['Registration details for %s'] = 'Regisztrációs részletek ehhez: %s';
 $a->strings['
 			Dear %1$s,
@@ -1045,62 +988,6 @@ $a->strings['
 				Kedves %1$s!
 				Köszönjük, hogy regisztrált itt: %2$s. A fiókja létrejött.
 			';
-$a->strings['
-			The login details are as follows:
-
-			Site Location:	%3$s
-			Login Name:		%1$s
-			Password:		%5$s
-
-			You may change your password from your account "Settings" page after logging
-			in.
-
-			Please take a few moments to review the other account settings on that page.
-
-			You may also wish to add some basic information to your default profile
-			(on the "Profiles" page) so that other people can easily find you.
-
-			We recommend setting your full name, adding a profile photo,
-			adding some profile "keywords" (very useful in making new friends) - and
-			perhaps what country you live in; if you do not wish to be more specific
-			than that.
-
-			We fully respect your right to privacy, and none of these items are necessary.
-			If you are new and do not know anybody here, they may help
-			you to make some new and interesting friends.
-
-			If you ever want to delete your account, you can do so at %3$s/settings/removeme
-
-			Thank you and welcome to %2$s.'] = '
-			A bejelentkezés részletei a következők:
-
-			Oldal címe:	%3$s
-			Bejelentkezési név:		%1$s
-			Jelszó:		%5$s
-
-			A jelszavát a fiókja „Beállítások” oldalán változtathatja meg, miután
-			bejelentkezett.
-
-			Szánjon pár percet a többi fiókbeállítás felülvizsgálatára is azon az oldalon.
-
-			Érdemes lehet néhány alapvető információt is hozzáadnia az
-			alapértelmezett profiljához (a „Profilok” oldalon), azért hogy más
-			emberek egyszerűen megtalálják Önt.
-
-			Azt ajánljuk, hogy állítsa be a teljes nevét, adjon hozzá
-			profilfényképet, adjon hozzá néhány profil „kulcsszót” (nagyon hasznos
-			új ismerősök kereséséhez), valamint talán azt, hogy mely országban él,
-			ha nem szeretne annál pontosabbat megadni.
-
-			Teljes mértékben tiszteletben tartjuk az adatvédelemmel kapcsolatos
-			jogát, és ezen elemek egyike sem kötelező. Ha még új itt, és senkit
-			sem ismer, akkor ezek segíthetnek Önnek néhány új és érdekes
-			ismerőst találni.
-
-			Ha bármikor törölni szeretné a fiókját, akkor megteheti azt a
-			következő címen: %3$s/settings/removeme
-
-			Köszönjük, és üdvözöljük a %2$s oldalon.';
 $a->strings['Addon not found.'] = 'A bővítmény nem található.';
 $a->strings['Addon %s disabled.'] = 'A(z) „%s” bővítmény letiltva.';
 $a->strings['Addon %s enabled.'] = 'A(z) „%s” bővítmény engedélyezve.';
@@ -1323,8 +1210,6 @@ $a->strings['Enable multiple registrations'] = 'Többszörös regisztrációk en
 $a->strings['Enable users to register additional accounts for use as pages.'] = 'Lehetővé teszi a felhasználóknak, hogy további fiókokat regisztráljanak oldalakként történő használathoz.';
 $a->strings['Enable OpenID'] = 'OpenID engedélyezése';
 $a->strings['Enable OpenID support for registration and logins.'] = 'Az OpenID támogatás engedélyezése a regisztrációnál és a bejelentkezéseknél.';
-$a->strings['Enable Fullname check'] = 'Teljes név ellenőrzésének engedélyezése';
-$a->strings['Enable check to only allow users to register with a space between the first name and the last name in their full name.'] = 'Lehetővé teszi annak ellenőrzését, hogy a felhasználóknak csak a teljes nevükben lévő vezetéknév és a keresztnév közti szóközzel legyen lehetőségük regisztrálniuk.';
 $a->strings['Email administrators on new registration'] = 'E-mail küldése az adminisztrátoroknak új regisztrációkor';
 $a->strings['If enabled and the system is set to an open registration, an email for each new registration is sent to the administrators.'] = 'Ha engedélyezve van, és a rendszer nyitott regisztrációhoz van beállítva, akkor minden új regisztrációról e-mail lesz küldve az adminisztrátoroknak.';
 $a->strings['Community pages for visitors'] = 'Közösségi oldalak a látogatók számára';
@@ -1360,10 +1245,8 @@ $a->strings['Local contacts - contacts of our local contacts are discovered for 
 $a->strings['Interactors - contacts of our local contacts and contacts who interacted on locally visible postings are discovered for their followers/followings.'] = 'Interaktorok: a helyi partnereink partnerei és a helyileg látható beküldésekkel kapcsolatba került partnerek lesznek felfedezve a követőik vagy követésiek számára.';
 $a->strings['Synchronize the contacts with the directory server'] = 'A partnerek szinkronizálása a könyvtárkiszolgálóval';
 $a->strings['if enabled, the system will check periodically for new contacts on the defined directory server.'] = 'Ha engedélyezve van, akkor a rendszer időszakosan ellenőrizni fogja az új partnereket a meghatározott könyvtárkiszolgálón.';
-$a->strings['Days between requery'] = 'Ismételt lekérdezések közti napok';
-$a->strings['Number of days after which a server is requeried for his contacts.'] = 'A napok száma, amely után egy kiszolgáló ismét lekérdezésre kerül a partnereiért.';
 $a->strings['Discover contacts from other servers'] = 'Partnerek felfedezése más kiszolgálókról';
-$a->strings['Periodically query other servers for contacts. The system queries Friendica, Mastodon and Hubzilla servers.'] = 'Más kiszolgálók időszakos lekérdezése partnerek után. A rendszer Friendica, Mastodon és Hubzilla kiszolgálókat kérdez le.';
+$a->strings['Days between requery'] = 'Ismételt lekérdezések közti napok';
 $a->strings['Search the local directory'] = 'A helyi könyvtár keresése';
 $a->strings['Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.'] = 'A helyi könyvtár keresése a globális könyvtár helyett. Helyi kereséskor minden egyes keresés a globális könyvtárban lesz végrehajtva a háttérben. Ez javítja a keresési eredményeket, ha a keresést megismétlik.';
 $a->strings['Publish server information'] = 'Kiszolgálóinformációk közzététele';
@@ -2295,7 +2178,6 @@ $a->strings['Note for the admin'] = 'Jegyzet az adminisztrátornak';
 $a->strings['Leave a message for the admin, why you want to join this node'] = 'Hagyjon üzenetet az adminisztrátornak, hogy miért szeretne ehhez a csomóponthoz csatlakozni';
 $a->strings['Membership on this site is by invitation only.'] = 'Ezen az oldalon a tagság csak meghívás alapján van.';
 $a->strings['Your invitation code: '] = 'A meghívási kódja: ';
-$a->strings['Your Full Name (e.g. Joe Smith, real or real-looking): '] = 'A teljes neve (például Kovács János, valódi vagy valódinak látszó): ';
 $a->strings['Your Email Address: (Initial information will be send there, so this has to be an existing address.)'] = 'Az e-mail-címe (a kezdeti információk ide lesznek elküldve, szóval ennek létező címnek kell lennie):';
 $a->strings['Please repeat your e-mail address:'] = 'Ismételje meg az e-mail-címét:';
 $a->strings['New Password:'] = 'Új jelszó:';
@@ -2895,11 +2777,6 @@ $a->strings['Please visit %s  if you wish to make any changes to this relationsh
 $a->strings['registration request'] = 'regisztrációs kérés';
 $a->strings['You\'ve received a registration request from \'%1$s\' at %2$s'] = 'Kapott egy regisztrációs kérést „%1$s” partnertől itt: %2$s';
 $a->strings['You\'ve received a [url=%1$s]registration request[/url] from %2$s.'] = 'Kapott egy %2$s által elküldött [url=%1$s]regisztrációs kérést[/url].';
-$a->strings['Full Name:	%s
-Site Location:	%s
-Login Name:	%s (%s)'] = 'Teljes név:	%s
-Oldal címe:	%s
-Bejelentkezési név:	%s (%s)';
 $a->strings['Please visit %s to approve or reject the request.'] = 'Látogassa meg a(z) %s oldalt a kérés jóváhagyásához vagy visszautasításához.';
 $a->strings['new registration'] = 'új regisztráció';
 $a->strings['You\'ve received a new registration from \'%1$s\' at %2$s'] = 'Kapott egy új regisztrációs kérést „%1$s” partnertől itt: %2$s';

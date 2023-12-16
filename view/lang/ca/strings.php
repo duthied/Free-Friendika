@@ -735,8 +735,6 @@ $a->strings['UTC time: %s'] = 'hora UTC: %s';
 $a->strings['Current timezone: %s'] = 'Zona horària actual: %s';
 $a->strings['Converted localtime: %s'] = 'Conversión de hora local: %s';
 $a->strings['Please select your timezone:'] = 'Si us plau, seleccioneu la vostra zona horària:';
-$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Alternar entre les diferents identitats o les pàgines de comunitats/grups que comparteixen les dades del seu compte o que se li ha concedit els permisos de "administrar"';
-$a->strings['Select an identity to manage: '] = 'Seleccionar identitat a administrar:';
 $a->strings['No entries (some entries may be hidden).'] = 'No hi ha entrades (algunes de les entrades poden estar amagades).';
 $a->strings['Find on this site'] = 'Trobat en aquest lloc';
 $a->strings['Site Directory'] = 'Directori Local';
@@ -876,7 +874,6 @@ $a->strings['Note for the admin'] = 'Nota per a l\'administrador';
 $a->strings['Leave a message for the admin, why you want to join this node'] = 'Deixa un missatge per a l\'administrador, per què vols unir-te a aquest node';
 $a->strings['Membership on this site is by invitation only.'] = 'Lloc accesible mitjançant invitació.';
 $a->strings['Your invitation code: '] = 'El vostre codi d\'invitació:';
-$a->strings['Your Full Name (e.g. Joe Smith, real or real-looking): '] = 'El vostre nom complet (per exemple, Joe Smith, amb aspecte real o real):';
 $a->strings['Your Email Address: (Initial information will be send there, so this has to be an existing address.)'] = 'La vostra adreça de correu electrònic: (la informació inicial s’enviarà allà, així que ha de ser una adreça existent.)';
 $a->strings['New Password:'] = 'Nova Contrasenya:';
 $a->strings['Leave empty for an auto generated password.'] = 'Deixeu-lo buit per obtenir una contrasenya generat automàticament.';
@@ -950,6 +947,8 @@ $a->strings['Change the behaviour of this account for special situations'] = 'Ca
 $a->strings['Relocate'] = 'traslladar-se';
 $a->strings['If you have moved this profile from another server, and some of your contacts don\'t receive your updates, try pushing this button.'] = 'Si heu mogut aquest perfil d\'un altre servidor i alguns dels vostres contactes no reben les vostres actualitzacions, proveu de prémer aquest botó.';
 $a->strings['Resend relocate message to contacts'] = 'Torneu a enviar el missatge a contactes';
+$a->strings['Description'] = 'Descripció';
+$a->strings['Add'] = 'Afegir';
 $a->strings['Failed to connect with email account using the settings provided.'] = 'Connexió fracassada amb el compte de correu emprant la configuració proveïda.';
 $a->strings['Email access is disabled on this site.'] = 'L\'accés al correu està deshabilitat en aquest lloc.';
 $a->strings['None'] = 'Cap';
@@ -975,7 +974,6 @@ $a->strings['Delegates'] = 'delegada';
 $a->strings['Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'] = 'Els delegats poden gestionar tots els aspectes d\'aquest compte/pàgina, excepte per als ajustaments bàsics del compte. Si us plau, no deleguin el seu compte personal a ningú que no confiïn completament.';
 $a->strings['Existing Page Delegates'] = 'Actuals Delegats de Pàgina';
 $a->strings['Potential Delegates'] = 'Delegats Potencials';
-$a->strings['Add'] = 'Afegir';
 $a->strings['No entries.'] = 'Sense entrades';
 $a->strings['%s - (Unsupported)'] = '%s - (No és compatible)';
 $a->strings['Display Settings'] = 'Ajustos de Pantalla';
@@ -1030,7 +1028,6 @@ $a->strings['App-specific password successfully revoked.'] = 'La contrasenya esp
 $a->strings['Two-factor app-specific passwords'] = 'Contrasenyes específiques per a l\'aplicació de dos factors';
 $a->strings['<p>App-specific passwords are randomly generated passwords used instead your regular password to authenticate your account on third-party applications that don\'t support two-factor authentication.</p>'] = '<p>Les contrasenyes específiques de l’aplicació són contrasenyes generades aleatòriament en lloc de la contrasenya habitual per autenticar el vostre compte en aplicacions de tercers que no admeten l’autenticació de dos factors</p>';
 $a->strings['Make sure to copy your new app-specific password now. You won’t be able to see it again!'] = 'Assegureu-vos de copiar la vostra nova contrasenya específica de l\'aplicació ara. No el podreu tornar a veure!';
-$a->strings['Description'] = 'Descripció';
 $a->strings['Last Used'] = 'Últim utilitzat';
 $a->strings['Revoke'] = 'Revocar';
 $a->strings['Revoke All'] = 'Revoca tot';
@@ -1042,6 +1039,8 @@ $a->strings['Two-factor authentication successfully disabled.'] = 'S\'ha desacti
 $a->strings['Export account'] = 'Exportar compte';
 $a->strings['Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.'] = 'Exportar la teva informació del compte i de contactes. Empra això per fer una còpia de seguretat del teu compte i/o moure\'l cap altre servidor. ';
 $a->strings['Export all'] = 'Exportar tot';
+$a->strings['Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'] = 'Alternar entre les diferents identitats o les pàgines de comunitats/grups que comparteixen les dades del seu compte o que se li ha concedit els permisos de "administrar"';
+$a->strings['Select an identity to manage: '] = 'Seleccionar identitat a administrar:';
 $a->strings['User imports on closed servers can only be done by an administrator.'] = 'Les administracions de servidors tancats només poden ser realitzades per un administrador.';
 $a->strings['Move account'] = 'Moure el compte';
 $a->strings['You can import an account from another Friendica server.'] = 'Pots importar un compte d\'un altre servidor Friendica';
@@ -1123,11 +1122,6 @@ $a->strings['Please visit %s  if you wish to make any changes to this relationsh
 $a->strings['registration request'] = 'sol·licitud de registre';
 $a->strings['You\'ve received a registration request from \'%1$s\' at %2$s'] = 'Heu rebut una sol·licitud de registre de \'%1$s\' a %2$s';
 $a->strings['You\'ve received a [url=%1$s]registration request[/url] from %2$s.'] = 'Heu rebut un [url=%1$s]sol·licitud de registre[/url] from %2$s.';
-$a->strings['Full Name:	%s
-Site Location:	%s
-Login Name:	%s (%s)'] = 'Nom complet:	%s
-Ubicació del lloc:	%s
-Nom d\'usuari:	%s (%s)';
 $a->strings['Please visit %s to approve or reject the request.'] = 'Visiteu %s per aprovar o rebutjar la sol·licitud.';
 $a->strings['This message was sent to you by %s, a member of the Friendica social network.'] = 'Aquest missatge va ser enviat a vostè per %s, un membre de la xarxa social Friendica.';
 $a->strings['You may visit them online at %s'] = 'El pot visitar en línia a %s';
