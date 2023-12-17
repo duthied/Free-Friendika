@@ -29,18 +29,18 @@
 		</form>
 
 		{{if $entries}}
-			<form action="{{$baseurl}}/settings/channels" method="post">
-			<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 			{{foreach $entries as $e}}
-				<div class="panel">
+				<form class="panel" action="{{$baseurl}}/settings/channels" method="post">
 					<div class="section-subtitle-wrapper panel-heading" role="tab" id="{{$e.id}}-settings-title">
 						<h2>
-							<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings-channels" href="#{{$e.id}}-settings-content" aria-expanded="false" aria-controls="{{$e.id}}-settings-content">
+							<button class="btn-link accordion-toggle{{if !$e.open}} collapsed{{/if}}" data-toggle="collapse" data-parent="#settings-channels" href="#{{$e.id}}-settings-content" aria-expanded="false" aria-controls="{{$e.id}}-settings-content">
 								{{$e.label.2}}
 							</button>
 						</h2>
 					</div>
-					<div id="{{$e.id}}-settings-content" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{$e.id}}-settings-title">
+					<div id="{{$e.id}}-settings-content" class="panel-collapse collapse{{if $e.open}} in{{/if}}" role="tabpanel" aria-labelledby="{{$e.id}}-settings-title">
+						<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
+						<input type="hidden" name="id" value="{{$e.id}}">
 						{{include file="field_input.tpl" field=$e.label}}
 						{{include file="field_input.tpl" field=$e.description}}
 						{{include file="field_input.tpl" field=$e.access_key}}
@@ -56,9 +56,8 @@
 							<button type="submit" class="btn btn-primary" name="edit_channel" value="{{$l10n.savechanges}}">{{$l10n.savechanges}}</button>
 						</div>
 					</div>
-				</div>
+				</form>
 			{{/foreach}}
-			{{/if}}
-		</form>
+		{{/if}}
 	</div>
 </div>

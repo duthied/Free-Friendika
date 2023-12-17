@@ -101,8 +101,6 @@ class Channels extends BaseSettings
 			$saved = $this->channel->save($channel);
 			$this->logger->debug('Save channel', ['id' => $id, 'saved' => $saved]);
 		}
-
-		$this->baseUrl->redirect('/settings/channels');
 	}
 
 	protected function content(array $request = []): string
@@ -125,11 +123,19 @@ class Channels extends BaseSettings
 			$circles[$circle['id']] = $circle['name'];
 		}
 
-		$id       = 0;
 		$channels = [];
 		foreach ($this->channel->selectByUid($uid) as $channel) {
+			if (!empty($request['id'])) {
+				$open = $channel->code == $request['id'];
+			} elseif (!empty($request['new_label'])) {
+				$open = $channel->label == $request['new_label'];
+			} else {
+				$open = false;
+			}
+
 			$channels[] = [
-				'id'           => ++$id,
+				'id'           => $channel->code,
+				'open'         => $open,
 				'label'        => ["label[$channel->code]", $this->t('Label'), $channel->label, '', $this->t('Required')],
 				'description'  => ["description[$channel->code]", $this->t("Description"), $channel->description],
 				'access_key'   => ["access_key[$channel->code]", $this->t("Access Key"), $channel->accessKey],
