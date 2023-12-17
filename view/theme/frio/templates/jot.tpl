@@ -100,7 +100,7 @@
 
 					{{* The jot text field in which the post text is inserted *}}
 					<div id="jot-text-wrap" class="dropzone">
-						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;" dir="auto" onkeydown="sendOnCtrlEnter(event, 'profile-jot-submit')">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
+						<textarea rows="8" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;" dir="auto" onkeydown="sendOnCtrlEnter(event, 'profile-jot-submit')">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
 					</div>
 
 					<ul id="profile-jot-submit-wrapper" class="jothidden nav nav-pills">
