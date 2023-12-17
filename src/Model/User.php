@@ -567,10 +567,12 @@ class User
 	 */
 	public static function getLanguageCode(int $uid): string
 	{
-		$owner    = self::getOwnerDataById($uid);
-		$language = DI::l10n()->toISO6391($owner['language']);
-		if (in_array($language, array_keys(DI::l10n()->getLanguageCodes()))) {
-			return $language;
+		$owner = self::getOwnerDataById($uid);
+		if (!empty($owner['language'])) {
+			$language = DI::l10n()->toISO6391($owner['language']);
+			if (in_array($language, array_keys(DI::l10n()->getLanguageCodes()))) {
+				return $language;
+			}
 		}
 		return DI::l10n()->toISO6391(DI::config()->get('system', 'language'));
 	}
