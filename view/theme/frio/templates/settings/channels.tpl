@@ -5,12 +5,12 @@
 		<form class="panel" action="{{$baseurl}}/settings/channels" method="post">
 			<div class="section-subtitle-wrapper panel-heading" role="tab" id="add-settings-title">
 				<h2>
-					<button class="btn-link accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings-channels" href="#add-settings-content" aria-expanded="false" aria-controls="add-settings-content">
+					<button class="btn-link accordion-toggle{{if !$open}} collapsed{{/if}}" data-toggle="collapse" data-parent="#settings-channels" href="#add-settings-content" aria-expanded="false" aria-controls="add-settings-content">
 						{{$l10n.addtitle}}
 					</button>
 				</h2>
 			</div>
-			<div id="add-settings-content" class="panel-collapse collapse" role="tabpanel" aria-labelledby="add-settings-title">
+			<div id="add-settings-content" class="panel-collapse collapse{{if $open}} in{{/if}}" role="tabpanel" aria-labelledby="add-settings-title">
 				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 				{{include file="field_input.tpl" field=$label}}
 				{{include file="field_input.tpl" field=$description}}

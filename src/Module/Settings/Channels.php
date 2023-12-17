@@ -152,6 +152,7 @@ class Channels extends BaseSettings
 
 		$t = Renderer::getMarkupTemplate('settings/channels.tpl');
 		return Renderer::replaceMacros($t, [
+			'open'         => count($channels) == 0,
 			'label'        => ["new_label", $this->t('Label'), '', $this->t('Short name for the channel. It is displayed on the channels widget.'), $this->t('Required')],
 			'description'  => ["new_description", $this->t("Description"), '', $this->t('This should describe the content of the channel in a few word.')],
 			'access_key'   => ["new_access_key", $this->t("Access Key"), '', $this->t('When you want to access this channel via an access key, you can define it here. Pay attention to not use an already used one.')],
