@@ -101,8 +101,6 @@ class Channels extends BaseSettings
 			$saved = $this->channel->save($channel);
 			$this->logger->debug('Save channel', ['id' => $id, 'saved' => $saved]);
 		}
-
-		$this->baseUrl->redirect('/settings/channels');
 	}
 
 	protected function content(array $request = []): string
@@ -125,9 +123,19 @@ class Channels extends BaseSettings
 			$circles[$circle['id']] = $circle['name'];
 		}
 
-		$blocklistform = [];
+		$channels = [];
 		foreach ($this->channel->selectByUid($uid) as $channel) {
-			$blocklistform[] = [
+			if (!empty($request['id'])) {
+				$open = $channel->code == $request['id'];
+			} elseif (!empty($request['new_label'])) {
+				$open = $channel->label == $request['new_label'];
+			} else {
+				$open = false;
+			}
+
+			$channels[] = [
+				'id'           => $channel->code,
+				'open'         => $open,
 				'label'        => ["label[$channel->code]", $this->t('Label'), $channel->label, '', $this->t('Required')],
 				'description'  => ["description[$channel->code]", $this->t("Description"), $channel->description],
 				'access_key'   => ["access_key[$channel->code]", $this->t("Access Key"), $channel->accessKey],
@@ -144,6 +152,7 @@ class Channels extends BaseSettings
 
 		$t = Renderer::getMarkupTemplate('settings/channels.tpl');
 		return Renderer::replaceMacros($t, [
+			'open'         => count($channels) == 0,
 			'label'        => ["new_label", $this->t('Label'), '', $this->t('Short name for the channel. It is displayed on the channels widget.'), $this->t('Required')],
 			'description'  => ["new_description", $this->t("Description"), '', $this->t('This should describe the content of the channel in a few word.')],
 			'access_key'   => ["new_access_key", $this->t("Access Key"), '', $this->t('When you want to access this channel via an access key, you can define it here. Pay attention to not use an already used one.')],
@@ -166,7 +175,7 @@ class Channels extends BaseSettings
 				'delentry'       => $this->t('Delete entry from the channel list'),
 				'confirm_delete' => $this->t('Delete entry from the channel list?'),
 			],
-			'$entries' => $blocklistform,
+			'$entries' => $channels,
 			'$baseurl' => $this->baseUrl,
 
 			'$form_security_token' => self::getFormSecurityToken('settings_channels'),
