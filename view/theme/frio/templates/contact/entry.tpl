@@ -76,7 +76,7 @@
 			{{* The button to add or remove contacts from a contact group - group edit page *}}
 			{{if $contact.change_member}}
 			<div class="contact-group-actions pull-right nav-pills preferences">
-				<button type="button" class="contact-action-link btn contact-group-link btn-default" onclick="circleChangeMember({{$contact.change_member.gid}},{{$contact.change_member.cid}},'{{$contact.change_member.sec_token}}'); return true;" data-toggle="tooltip" title="{{$contact.change_member.title}}">
+				<button type="button" class="contact-action-link btn contact-group-link btn-default contact-circle-actions contact-circle-link" onclick="circleChangeMember({{$contact.change_member.gid}},{{$contact.change_member.cid}},'{{$contact.change_member.sec_token}}'); return true;" data-toggle="tooltip" title="{{$contact.change_member.title}}">
 					{{if $contact.label == "members"}}
 					<i class="fa fa-times-circle" aria-hidden="true"></i>
 					{{elseif $contact.label == "contacts"}}
