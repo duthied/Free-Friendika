@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2023.09-rc (Giant Rhubarb)
--- DB_UPDATE_VERSION 1541
+-- DB_UPDATE_VERSION 1542
 -- ------------------------------------------
 
 
@@ -1601,8 +1601,12 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
 	 INDEX `uid_commented` (`uid`,`commented`),
+	 INDEX `uid_created` (`uid`,`created`),
 	 INDEX `uid_starred` (`uid`,`starred`),
 	 INDEX `uid_mention` (`uid`,`mention`),
+	 INDEX `contact-id_commented` (`contact-id`,`commented`),
+	 INDEX `contact-id_received` (`contact-id`,`received`),
+	 INDEX `contact-id_created` (`contact-id`,`created`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`conversation-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
