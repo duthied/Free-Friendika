@@ -46,7 +46,7 @@
 			</p>
 			<div id="dropzone-{{$id}}" class="dropzone">
 				<p>
-					<textarea id="comment-edit-text-{{$id}}" class="dropzone comment-edit-text-empty form-control text-autosize" name="body" placeholder="{{$comment}}" rows="3" data-default="{{$default}}" dir="auto" onkeydown="sendOnCtrlEnter(event, 'comment-edit-submit-{{$id}}')">{{$default}}</textarea>
+					<textarea id="comment-edit-text-{{$id}}" class="dropzone comment-edit-text-empty form-control text-autosize" name="body" placeholder="{{$comment}}" rows="8" data-default="{{$default}}" dir="auto" onkeydown="sendOnCtrlEnter(event, 'comment-edit-submit-{{$id}}')">{{$default}}</textarea>
 				</p>
 			</div>
 	{{if $qcomment}}
