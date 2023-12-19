@@ -196,6 +196,10 @@ class Item
 			$previous = Post::selectFirst(['edited'], $condition);
 		}
 
+		if (!empty($fields['body'])) {
+			$fields['body'] = self::setHashtags($fields['body']);
+		}
+
 		$rows = Post::update($fields, $condition);
 		if (is_bool($rows)) {
 			return $rows;
