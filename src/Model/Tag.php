@@ -338,7 +338,7 @@ class Tag
 	/**
 	 * Store raw tags (not encapsulated in links) from the body
 	 * This function is needed in the intermediate phase.
-	 * Later we can call item::setHashtags in advance to have all tags converted.
+	 * Later we can call Item::setHashtags in advance to have all tags converted.
 	 *
 	 * @param integer $uriId URI-Id
 	 * @param string  $body   Body of the post
