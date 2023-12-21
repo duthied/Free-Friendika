@@ -1943,11 +1943,27 @@ class Receiver
 		$object_data['receiver']       = $receivers;
 		$object_data['reception_type'] = $reception_types;
 
+		if (!empty($object['pixelfed:capabilities'])) {
+			$object_data['capabilities'] = self::getCapabilities($object);
+		}
+
 		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
 		unset($object_data['receiver'][-1]);
 		unset($object_data['reception_type'][-1]);
 
 		return $object_data;
+	}
+
+	private static function getCapabilities($object) {
+		$capabilities = [];
+		foreach (['pixelfed:canAnnounce', 'pixelfed:canLike', 'pixelfed:canReply'] as $element) {
+			$capabilities_list = JsonLD::fetchElementArray($object['pixelfed:capabilities'], $element, '@id');
+			if (empty($capabilities_list)) {
+				continue;
+			}
+			$capabilities[$element] = $capabilities_list;
+		}
+		return $capabilities;
 	}
 
 	/**
@@ -2056,6 +2072,11 @@ class Receiver
 		if (in_array($object_data['object_type'], ['as:Audio', 'as:Video'])) {
 			$object_data['alternate-url'] = self::extractAlternateUrl($object['as:url'] ?? []) ?: $object_data['alternate-url'];
 			$object_data['attachments'] = array_merge($object_data['attachments'], self::processAttachmentUrls($object['as:url'] ?? []));
+		}
+
+		$object_data['can-comment'] = JsonLD::fetchElement($object, 'pt:commentsEnabled', '@value');
+		if (is_null($object_data['can-comment'])) {
+			$object_data['can-comment'] = JsonLD::fetchElement($object, 'pixelfed:commentsEnabled', '@value');
 		}
 
 		// Support for quoted posts (Pleroma, Fedibird and Misskey)

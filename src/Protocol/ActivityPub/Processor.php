@@ -918,6 +918,16 @@ class Processor
 
 		self::storeReceivers($item['uri-id'], $activity['receiver_urls'] ?? []);
 
+		if (!empty($activity['capabilities'])) {
+			$restrictions = self::storeCapabilities($item['uri-id'], $activity['capabilities']);
+		} elseif (!is_null($activity['can-comment']) && !$activity['can-comment']) {
+			$restrictions = [Tag::CAN_REPLY];
+		} else {
+			$restrictions = [];
+		}
+
+		// @todo Store restrictions
+
 		$item['location'] = $activity['location'];
 
 		if (!empty($activity['latitude']) && !empty($activity['longitude'])) {
@@ -1322,25 +1332,51 @@ class Processor
 	public static function storeReceivers(int $uriid, array $receivers)
 	{
 		foreach (['as:to' => Tag::TO, 'as:cc' => Tag::CC, 'as:bto' => Tag::BTO, 'as:bcc' => Tag::BCC, 'as:audience' => Tag::AUDIENCE, 'as:attributedTo' => Tag::ATTRIBUTED] as $element => $type) {
-			if (!empty($receivers[$element])) {
-				foreach ($receivers[$element] as $receiver) {
-					if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
-						$name = Receiver::PUBLIC_COLLECTION;
-					} elseif ($path = parse_url($receiver, PHP_URL_PATH)) {
-						$name = trim($path, '/');
-					} elseif ($host = parse_url($receiver, PHP_URL_HOST)) {
-						$name = $host;
-					} else {
-						Logger::warning('Unable to coerce name from receiver', ['element' => $element, 'type' => $type, 'receiver' => $receiver]);
-						$name = '';
-					}
-
-					$target = Tag::getTargetType($receiver);
-					Logger::debug('Got target type', ['type' => $target, 'url' => $receiver]);
-					Tag::store($uriid, $type, $name, $receiver, $target);
+			foreach ($receivers[$element] ?? [] as $receiver) {
+				if ($receiver == ActivityPub::PUBLIC_COLLECTION) {
+					$name = Receiver::PUBLIC_COLLECTION;
+				} elseif ($path = parse_url($receiver, PHP_URL_PATH)) {
+					$name = trim($path, '/');
+				} elseif ($host = parse_url($receiver, PHP_URL_HOST)) {
+					$name = $host;
+				} else {
+					Logger::warning('Unable to coerce name from receiver', ['element' => $element, 'type' => $type, 'receiver' => $receiver]);
+					$name = '';
 				}
+
+				$target = Tag::getTargetType($receiver);
+				Logger::debug('Got target type', ['type' => $target, 'url' => $receiver]);
+				Tag::store($uriid, $type, $name, $receiver, $target);
 			}
 		}
+	}
+
+	private static function storeCapabilities(int $uriid, array $capabilities): array
+	{
+		$restrictions = [];
+		foreach (['pixelfed:canAnnounce' => Tag::CAN_ANNOUNCE, 'pixelfed:canLike' => Tag::CAN_LIKE, 'pixelfed:canReply' => Tag::CAN_REPLY] as $element => $type) {
+			$restricted = true;
+			foreach ($capabilities[$element] ?? [] as $capability) {
+				if ($capability == ActivityPub::PUBLIC_COLLECTION) {
+					$name = Receiver::PUBLIC_COLLECTION;
+				} elseif (empty($capability) || ($capability == '[]')) {
+					continue;
+				} elseif ($path = parse_url($capability, PHP_URL_PATH)) {
+					$name = trim($path, '/');
+				} elseif ($host = parse_url($capability, PHP_URL_HOST)) {
+					$name = $host;
+				} else {
+					Logger::warning('Unable to coerce name from capability', ['element' => $element, 'type' => $type, 'capability' => $capability]);
+ 					$name = '';
+				}
+				$restricted = false;
+				Tag::store($uriid, $type, $name, $capability);
+			}
+			if ($restricted) {
+				$restrictions[] = $type;
+			}
+		}
+		return $restrictions;
 	}
 
 	/**
