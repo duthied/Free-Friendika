@@ -171,6 +171,7 @@ class JsonLD
 			'mobilizon' => (object)['@id' => 'https://joinmobilizon.org/ns#', '@type' => '@id'],
 			'fedibird' => (object)['@id' => 'http://fedibird.com/ns#', '@type' => '@id'],
 			'misskey' => (object)['@id' => 'https://misskey-hub.net/ns#', '@type' => '@id'],
+			'pixelfed' => (object)['@id' => 'http://pixelfed.org/ns#', '@type' => '@id'],
 		];
 
 		$orig_json = $json;

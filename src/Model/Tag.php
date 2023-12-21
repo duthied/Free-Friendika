@@ -60,6 +60,10 @@ class Tag
 	const AUDIENCE   = 14;
 	const ATTRIBUTED = 15;
 
+	const CAN_ANNOUNCE = 20;
+	const CAN_LIKE     = 21;
+	const CAN_REPLY    = 22;
+
 	const ACCOUNT             = 1;
 	const GENERAL_COLLECTION  = 2;
 	const FOLLOWER_COLLECTION = 3;

@@ -1943,11 +1943,27 @@ class Receiver
 		$object_data['receiver']       = $receivers;
 		$object_data['reception_type'] = $reception_types;
 
+		if (!empty($object['pixelfed:capabilities'])) {
+			$object_data['capabilities'] = self::getCapabilities($object);
+		}
+
 		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
 		unset($object_data['receiver'][-1]);
 		unset($object_data['reception_type'][-1]);
 
 		return $object_data;
+	}
+
+	private static function getCapabilities($object) {
+		$capabilities = [];
+		foreach (['pixelfed:canAnnounce', 'pixelfed:canLike', 'pixelfed:canReply'] as $element) {
+			$capabilities_list = JsonLD::fetchElementArray($object['pixelfed:capabilities'], $element, '@id');
+			if (empty($capabilities_list)) {
+				continue;
+			}
+			$capabilities[$element] = $capabilities_list;
+		}
+		return $capabilities;
 	}
 
 	/**
