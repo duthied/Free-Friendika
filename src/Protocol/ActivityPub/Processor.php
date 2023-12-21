@@ -918,7 +918,15 @@ class Processor
 
 		self::storeReceivers($item['uri-id'], $activity['receiver_urls'] ?? []);
 
-		self::storeCapabilities($item['uri-id'], $activity['capabilities'] ?? []);
+		if (!empty($activity['capabilities'])) {
+			$restrictions = self::storeCapabilities($item['uri-id'], $activity['capabilities']);
+		} elseif (!is_null($activity['can-comment']) && !$activity['can-comment']) {
+			$restrictions = [Tag::CAN_REPLY];
+		} else {
+			$restrictions = [];
+		}
+
+		// @todo Store restrictions
 
 		$item['location'] = $activity['location'];
 
@@ -1343,9 +1351,11 @@ class Processor
 		}
 	}
 
-	private static function storeCapabilities(int $uriid, array $capabilities)
+	private static function storeCapabilities(int $uriid, array $capabilities): array
 	{
+		$restrictions = [];
 		foreach (['pixelfed:canAnnounce' => Tag::CAN_ANNOUNCE, 'pixelfed:canLike' => Tag::CAN_LIKE, 'pixelfed:canReply' => Tag::CAN_REPLY] as $element => $type) {
+			$restricted = true;
 			foreach ($capabilities[$element] ?? [] as $capability) {
 				if ($capability == ActivityPub::PUBLIC_COLLECTION) {
 					$name = Receiver::PUBLIC_COLLECTION;
@@ -1359,9 +1369,14 @@ class Processor
 					Logger::warning('Unable to coerce name from capability', ['element' => $element, 'type' => $type, 'capability' => $capability]);
  					$name = '';
 				}
+				$restricted = false;
 				Tag::store($uriid, $type, $name, $capability);
 			}
+			if ($restricted) {
+				$restrictions[] = $type;
+			}
 		}
+		return $restrictions;
 	}
 
 	/**

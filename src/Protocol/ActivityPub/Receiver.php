@@ -2074,6 +2074,11 @@ class Receiver
 			$object_data['attachments'] = array_merge($object_data['attachments'], self::processAttachmentUrls($object['as:url'] ?? []));
 		}
 
+		$object_data['can-comment'] = JsonLD::fetchElement($object, 'pt:commentsEnabled', '@value');
+		if (is_null($object_data['can-comment'])) {
+			$object_data['can-comment'] = JsonLD::fetchElement($object, 'pixelfed:commentsEnabled', '@value');
+		}
+
 		// Support for quoted posts (Pleroma, Fedibird and Misskey)
 		$object_data['quote-url'] = JsonLD::fetchElement($object, 'as:quoteUrl', '@value');
 		if (empty($object_data['quote-url'])) {
