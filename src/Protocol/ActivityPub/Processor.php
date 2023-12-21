@@ -1118,7 +1118,7 @@ class Processor
 				continue;
 			}
 
-			if (($receiver != 0) && ($item['gravity'] == Item::GRAVITY_PARENT) && !in_array($item['post-reason'], [Item::PR_FOLLOWER, Item::PR_TAG, item::PR_TO, Item::PR_CC, Item::PR_AUDIENCE])) {
+			if (($receiver != 0) && ($item['gravity'] == Item::GRAVITY_PARENT) && !in_array($item['post-reason'], [Item::PR_FOLLOWER, Item::PR_TAG, Item::PR_TO, Item::PR_CC, Item::PR_AUDIENCE])) {
 				if (!$item['isGroup']) {
 					if ($item['post-reason'] == Item::PR_BCC) {
 						Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id'], 'url' => $item['uri']]);

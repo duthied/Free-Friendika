@@ -605,7 +605,7 @@ class UserNotification
 		if (empty($item['quote-uri-id']) || ($item['quote-uri-id'] == $item['uri-id'])) {
 			return false;
 		}
-		$condition = ['uri-id' => $item['quote-uri-id'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => [item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]];
+		$condition = ['uri-id' => $item['quote-uri-id'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => [Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT]];
 		return Post::exists($condition);
 	}
 
