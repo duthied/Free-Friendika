@@ -325,6 +325,10 @@ return [
 		// Don't update the "commented" value of an item when it is liked.
 		'like_no_comment' => false,
 
+		// limited_servers (String)
+		// A comma separated list of server hostnames that should get limited profile data
+		'limited_servers' => '',
+
 		// local_tags (Boolean)
 		// If activated, all hashtags will point to the local server.
 		'local_tags' => true,

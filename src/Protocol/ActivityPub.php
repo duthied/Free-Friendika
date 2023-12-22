@@ -24,6 +24,7 @@ namespace Friendica\Protocol;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
@@ -303,6 +304,15 @@ class ActivityPub
 		if (!empty($contact) && Contact\User::isBlocked($contact['id'], $uid)) {
 			Logger::info('Requesting contact is blocked', ['uid' => $uid, 'id' => $contact['id'], 'signer' => $signer, 'baseurl' => $contact['baseurl'], 'called_by' => $called_by]);
 			return false;
+		}
+
+		$limited = DI::config()->get('system', 'limited_servers');
+		if (!empty($limited)) {
+			$servers = explode(',', str_replace(' ', '', $limited));
+			$host = parse_url($contact['baseurl'], PHP_URL_HOST);
+			if (!empty($host) && in_array($host, $servers)) {
+				return false;
+			}
 		}
 
 		// @todo Look for user blocked domains
