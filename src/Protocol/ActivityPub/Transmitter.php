@@ -373,9 +373,9 @@ class Transmitter
 		}
 
 		$data['preferredUsername'] = $owner['nick'];
-		$data['name'] = $owner['name'];
+		$data['name'] = $full ? $owner['name'] : $owner['nick'];
 
-		if (!$full && !empty($owner['country-name'] . $owner['region'] . $owner['locality'])) {
+		if ($full && !empty($owner['country-name'] . $owner['region'] . $owner['locality'])) {
 			$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $owner['country-name'],
 				'vcard:region' => $owner['region'], 'vcard:locality' => $owner['locality']];
 		}
