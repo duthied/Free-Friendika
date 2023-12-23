@@ -329,10 +329,10 @@ as the value of $top_child_total (this is done at the end of this file)
 				</span>
 				<span class="wall-item-response">
 				{{if $item.vote.share}}
-					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-share" aria-hidden="true"></i></button>
+					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-quote-right" aria-hidden="true"></i></button>
 					<span title="{{$item.quoteshares.title}}">{{$item.quoteshares.total}}</span>
 				{{else}}
-					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" disabled><i class="fa fa-share" aria-hidden="true"></i></button>
+					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" disabled><i class="fa fa-quote-right" aria-hidden="true"></i></button>
 				{{/if}}
 				</span>
 			{{/if}}
@@ -529,7 +529,7 @@ as the value of $top_child_total (this is done at the end of this file)
 							{{if $item.vote.share}}
 							<li role="menuitem">
 								<a class="btn-link" id="share-{{$item.id}}" href="javascript:jotShare({{$item.id}});" title="{{$item.vote.share.0}}">
-									<i class="fa fa-share" aria-hidden="true"></i> {{$item.vote.share.1}}
+									<i class="fa fa-quote-right" aria-hidden="true"></i> {{$item.vote.share.1}}
 								</a>
 							</li>
 							{{/if}}
