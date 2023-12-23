@@ -309,7 +309,7 @@ class ActivityPub
 		$limited = DI::config()->get('system', 'limited_servers');
 		if (!empty($limited)) {
 			$servers = explode(',', str_replace(' ', '', $limited));
-			$host = parse_url($contact['baseurl'], PHP_URL_HOST);
+			$host = parse_url($apcontact['baseurl'], PHP_URL_HOST);
 			if (!empty($host) && in_array($host, $servers)) {
 				return false;
 			}
