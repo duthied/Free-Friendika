@@ -2769,6 +2769,11 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .photo-album-actions .photos-order-link {
 	float: right;
 }
+
+#photo-edit-submit-button {
+	margin-top: 15px;
+}
+
 /* Events page */
 
 .fc .fc-month-view .fc-content .fc-title .item-desc:hover {
