@@ -1,9 +1,121 @@
-Version 2023.09 (unreleased)
+Version 2023.12 (unreleased)
   Friendica Core
+    Raised minimal PHP version to 7.4
+    Updates to the translations AR, BG, CA, CS, DE, EN GB, EN US, EO, ES, ET, FI, FR, GD, HU, IS, IT, JA, NL, PL, RO, RU, SV
+    Updates to the themes (frio, vier) [AlfredSK, annando, anubis2814, haheute, foss-, MrPetovan, Raroun, xundeenergie]
+    Updates to the documentation [AndyHee, BirdboyBolu, foss-, MrPetovan]
+    Fixed a bug in notification links [annando,  keithhacks]
+    Fixed a bug in content negotiation [GidiKroon]
+    Fixed the link in invitations [Raroun]
+    Fixed 0Auth connection with Buffer and redirection problems [annando, HankG]
+    Fixed a visibility bug with Calendar entries [MrPetovan]
+    Fixed a JsonLD parsing issue [annando]
+    Fixed confusion about nickname and username [MrPetovan, Raroun]
+    Fixed a problem with viewing remote contact profiles [MrPetovan]
+    Fixed a bug with previewing linked postings [annando]
+    Fixed a problem parsing Mastodon WebFingers [MrPetovan]
+    Fixed a bug that could lead to deleting your own account unintended [MrPetovan]
+    Fixed redirection in 2FA settings page [MrPetovan]
+    Fixed a problem with distributing some comments [annando]
+    Fixed a bug that caused public groups not being able to hide members [annando]
+    Fixed RSS/Atom feed of group accounts [MrPetovan]
+    Fixed a bug that prevented bi-directional delivery of DMs [annando]
+    Fixed a bug in privacy settings for remote-self [annando]
+    Fixed a bug that prevented the selection of photos with captions [Raroun]
+    Fixed a bug in Magic Auth [git-marijus]
+    Fixed a bug convertig local tags to external on receiving updates to the post [annando]
+    Improved Bluesky connector core [annando]
+    Improved SSL handling of reverse http proxies [MrPetovan]
+    Improved performance [annando]
+    Improved language detection [annando]
+    Improved display of contact relationships [annando]
+    Improved display of notifications [annando, MrPetovan]
+    Improved Mastodon compatible API [annando, gudzpoz, HankG, MrPetovan, Quix0r]
+    Improved federation with Diaspora, Firefish, GoToSocial, Lemmy, Pixelfed, Threads [annando]
+    Improved display of quoted posts [annando]
+    Improved BBCode conversion [annando]
+    Improved addon hook loading [annando, nupplaphil]
+    Improved handling of relay servers [annando]
+    Improved blocked users feature [MrPetovan]
+    Improved robots.txt to include ChatGPT and Google Extended [annando, haheute]
+    Improved handling of resizing images [annando]
+    Improved the image grid at the end of postings [MrPetovan]
+    Improved raw content output [annando]
+    Improved handling of smileys [gudzpoz]
+    Improved the admin panel [annando]
+    Improved handling of the background worker [annando]
+    Improved the processing of relayed posts [annando]
+    Improved compatibility with Mastodon Clients [annando]
+    Improved nodeinfo [MrPetovan]
+    Improved the federation statistics in the admin panel [annando]
+    General code cleanup [AlfredSK, annando, jlamothe, mexon, MrPetovan, nupplaphil, Quix0r, toddy15]
+    Renamed "group" to "circle"
+    Renamed "forum" to "group"
+    Added possibility to hide the server block list [MrPetovan, Quix0r]
+    Added creation of moderation reports [AlfredSK, annando, MrPetovan]
+    Added user controlled ignore server functionality [MrPetovan]
+    Added support for Unix domain sockets to Redis [MrPetovan]
+    Added user controlled channels for the network stream [annando]
+    Added support of MacOS emoji picker in text fields [MrPetovan]
+    Added lazy loading for images [FarisKarim, xundeenergie]
+    Added image caption display in Fancybox gallery [MrPetovan]
+    Added shortcut (ctrl+enter) to send postings using Frio theme [xundeenergie]
+    Added support for CORS requests to nodeinfo [palant]
+    Added setting for servers that should only receive limited profile information [annando]
 
   Friendica Addons
+    Updates to the translation AR, CS, DE, ES, ET, FR, HU, IT, JA, NL, PL, RU, SV, ZH CN
+    Advancedcontentfilter
+      General code cleanup [MrPetovan]
+    Audon
+      Added audon addon [loma-one]
+    Blockem
+      Deprecated the addon [AndyHee]
+    Bluesky
+      Added bidirectional communication to the Bluesky connector [annando]
+      Added support for pinned postings [annando]
+      Added support for transmitted language [annando]
+      Improved thread handling [annando]
+      Improved handling of hashtags [annando]
+      Improved image uploading [annando]
+    CLD
+      Added addon for detection of the language of postings using CLD2 library [annando]
+    invidious
+      Added addon [loma-one]
+    langfilter
+      Use two letter codes for detected languages [annando]
+    Mailstream
+      Improved error handling [mexon]
+    Monolog
+      General code cleanup [nupplaphil]
+    NSFW
+      General code cleanup [MrPetovan]
+    pageheader
+      Improved styling of message box [loma-one]
+    s3_storage
+      Bumped library version [MrPetovan]
+    Showmore Dyn
+      Improved styling on mobile devices [csolisr]
+    Smileybutton
+      Improved conversation from float to int [MrPetovan]
+    Tumblr
+      Improved the import of feeds [annando]
+    Twitter
+      Improved image uploading [annando]
+      Removed the import of postings from Twitter [annando]
 
   Closed Issues
+     8542, 10369, 12530, 12743, 12815, 13020, 13039, 13114, 13129,
+    13173, 13174, 13180, 13182, 13184, 13195, 13201, 13209, 13216,
+    13217, 13221, 13228, 13240, 13288, 13232, 13240, 13265, 13277,
+    13286, 13287, 13289, 13304, 13311, 13312, 13316, 13318, 13332,
+    13333, 13334, 13343, 13352, 13353, 13355, 13359, 13363, 13365,
+    13367, 13369, 13370, 13378, 13389, 13398, 13403, 13439, 13440,
+    13455, 13457, 13462, 13467, 13471, 13478, 13486, 13506, 13511,
+    13515, 13520, 13524, 13534, 13535, 13542, 13554, 13556, 13560,
+    13566, 13573, 13577, 13588, 13603, 13607, 13615, 13617, 13621,
+    13624, 13625, 13627, 13637, 13639, 13649, 13662, 13665, 13673,
+    13693, 13699, 13719, 13720, 13731, 13748
 
 Version 2023.05 (2023-05-23)
   Friendica Core
