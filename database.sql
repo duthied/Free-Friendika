@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 2023.09-rc (Giant Rhubarb)
+-- Friendica 2023.12 (Yellow archangel)
 -- DB_UPDATE_VERSION 1542
 -- ------------------------------------------
 
