@@ -3520,15 +3520,15 @@ section .profile-match-wrapper {
 	align-items: center;
 	display: flex;
 	justify-content: center;
-	text-align:center;
+	text-align: center;
 }
 
 .profile-match-break {
-	display:none;
+	display: none;
 }
 
 .profile-match-end {
-	display:none;
+	display: none;
 }
 
 /**
