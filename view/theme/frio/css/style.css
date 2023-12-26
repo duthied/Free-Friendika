@@ -3510,12 +3510,14 @@ section .profile-match-wrapper {
 	justify-content: center;
 
 }
+
 .profile-match-name {
 	align-items: center;
 	display: flex;
 	justify-content: center;
 	text-align:center;
 }
+
 .profile-match-break {
 	display:none;
 }
