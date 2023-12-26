@@ -3490,7 +3490,7 @@ body .tread-wrapper .hovercard:hover .hover-card-content a {
  * elsewhere (e.g. new templates)
  */
 #remote-friends-in-common {
-	background-color: #fff;
+	background-color: rgba(247, 247, 247, $contentbg_transp)
 	border-radius: 4px;
 	color: #444;
 	display: grid;
