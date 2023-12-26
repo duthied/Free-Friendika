@@ -3489,8 +3489,39 @@ body .tread-wrapper .hovercard:hover .hover-card-content a {
  * some temporary workarounds until this will solved
  * elsewhere (e.g. new templates)
  */
+#remote-friends-in-common {
+	background-color: #fff;
+	border-radius: 4px;
+	color: #444;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	grid-gap: 10px;
+	margin-bottom: 15px;
+	padding: 10px;
+}
+
 section .profile-match-wrapper {
 	float: left;
+}
+
+.profile-match-photo {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+
+}
+.profile-match-name {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	text-align:center;
+}
+.profile-match-break {
+	display:none;
+}
+
+.profile-match-end {
+	display:none;
 }
 
 /**
