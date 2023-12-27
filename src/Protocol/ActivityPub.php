@@ -315,7 +315,9 @@ class ActivityPub
 			}
 		}
 
-		// @todo Look for user blocked domains
+		if (DI::userGServer()->isIgnoredByUser($uid, $apcontact['gsid'])) {
+			return false;
+		}
 
 		Logger::debug('Server is an accepted requester', ['uid' => $uid, 'id' => $apcontact['gsid'], 'url' => $apcontact['baseurl'], 'signer' => $signer, 'called_by' => $called_by]);
 
