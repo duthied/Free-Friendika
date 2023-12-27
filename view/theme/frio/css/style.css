@@ -2231,6 +2231,8 @@ img.acpopup-img {
 /* Birthday and Event Reminders  */
 #birthday-notice,
 #birthday-wrapper,
+#rfic-desc,
+#remote-friends-in-common,
 #event-notice,
 #event-wrapper {
 	margin-bottom: 5px;
@@ -2241,6 +2243,20 @@ img.acpopup-img {
 	-webkit-box-shadow: 0 0 3px #dadada;
 	-moz-box-shadow: 0 0 3px #dadada;
 	border-radius: 4px;
+	cursor: pointer;
+}
+#remote-friends-in-common {
+	background-color: rgba(247, 247, 247, $contentbg_transp)
+	border-radius: 4px;
+	color: #444;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	grid-gap: 10px;
+	margin-bottom: 15px;
+	padding: 10px;
+}
+#remote-friends-in-common-wrapper{
+	display: none;
 }
 
 /* Menubar Tabs */
@@ -3489,8 +3505,30 @@ body .tread-wrapper .hovercard:hover .hover-card-content a {
  * some temporary workarounds until this will solved
  * elsewhere (e.g. new templates)
  */
+
 section .profile-match-wrapper {
 	float: left;
+}
+
+.profile-match-photo {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+}
+
+.profile-match-name {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	text-align: center;
+}
+
+.profile-match-break {
+	display: none;
+}
+
+.profile-match-end {
+	display: none;
 }
 
 /**
