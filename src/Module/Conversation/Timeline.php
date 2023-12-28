@@ -538,7 +538,6 @@ class Timeline extends BaseModule
 				$maxposts = round((count($items) / $this->itemsPerPage) * $maxpostperauthor);
 				$minId = $items[array_key_first($items)]['received'];
 				$maxId = $items[array_key_last($items)]['received'];
-				$this->logger->debug('Blubb', ['tab' => $this->selectedTab, 'count' => $count, 'min' => $minId, 'max' => $maxId]);
 
 				foreach ($items as $item) {
 					$author_posts[$item[$key]][$item['uri-id']] = $item['received'];
