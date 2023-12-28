@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.03-dev (Yellow Archangel)
--- DB_UPDATE_VERSION 1542
+-- DB_UPDATE_VERSION 1543
 -- ------------------------------------------
 
 
@@ -1235,6 +1235,23 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
+
+--
+-- TABLE post-counts
+--
+CREATE TABLE IF NOT EXISTS `post-counts` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`vid` smallint unsigned NOT NULL COMMENT 'Id of the verb table entry that contains the activity verbs',
+	`reaction` varchar(1) NOT NULL COMMENT 'Emoji Reaction',
+	`parent-uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the parent uri',
+	`count` int unsigned DEFAULT 0 COMMENT 'Number of activities',
+	 PRIMARY KEY(`uri-id`,`vid`,`reaction`),
+	 INDEX `vid` (`vid`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Original remote activity';
 
 --
 -- TABLE post-collection

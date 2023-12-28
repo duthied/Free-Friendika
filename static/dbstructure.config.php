@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1542);
+	define('DB_UPDATE_VERSION', 1543);
 }
 
 return [
@@ -1262,6 +1262,21 @@ return [
 			"PRIMARY" => ["uri-id", "uid", "type", "tid"],
 			"tid" => ["tid"],
 			"uid_uri-id" => ["uid", "uri-id"],
+		]
+	],
+	"post-counts" => [
+		"comment" => "Original remote activity",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"vid" => ["type" => "smallint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
+			"reaction" => ["type" => "varchar(1)", "not null" => "1", "primary" => "1", "comment" => "Emoji Reaction"],
+			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the parent uri"],
+			"count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of activities"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id", "vid", "reaction"],
+			"vid" => ["vid"],
+			"parent-uri-id" => ["parent-uri-id"],
 		]
 	],
 	"post-collection" => [

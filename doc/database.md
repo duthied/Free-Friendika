@@ -61,6 +61,7 @@ Database Tables
 | [post-category](help/database/db_post-category) | post relation to categories |
 | [post-collection](help/database/db_post-collection) | Collection of posts |
 | [post-content](help/database/db_post-content) | Content for all posts |
+| [post-counts](help/database/db_post-counts) | Original remote activity |
 | [post-delivery](help/database/db_post-delivery) | Delivery data for posts for the batch processing |
 | [post-delivery-data](help/database/db_post-delivery-data) | Delivery data for items |
 | [post-engagement](help/database/db_post-engagement) | Engagement data per post |

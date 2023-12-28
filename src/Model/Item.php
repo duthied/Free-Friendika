@@ -1432,6 +1432,10 @@ class Item
 			self::updateDisplayCache($posted_item['uri-id']);
 		}
 
+		if (in_array($posted_item['gravity'], [self::GRAVITY_ACTIVITY, self::GRAVITY_COMMENT]) && ($posted_item['uid'] == 0)) {
+			Post\Counts::update($posted_item['thr-parent-id'], $posted_item['parent-uri-id'], $posted_item['vid'], $posted_item['verb'], $posted_item['body']);
+		}
+
 		if ($inserted) {
 			Post\Engagement::storeFromItem($posted_item);
 		}
