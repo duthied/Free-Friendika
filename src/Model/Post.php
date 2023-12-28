@@ -72,7 +72,7 @@ class Post
 				if (array_key_exists('title', $row)) {
 					$row['title'] = '';
 				}
-				if (array_key_exists('body', $row)) {
+				if (array_key_exists('body', $row) && empty($row['body'])) {
 					$row['body'] = $row['verb'];
 				}
 				if (array_key_exists('object', $row)) {

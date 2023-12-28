@@ -32,6 +32,7 @@ use Friendica\Model\ItemURI;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Post\Category;
+use Friendica\Model\Post\Counts;
 use Friendica\Model\Tag;
 use Friendica\Model\Verb;
 use Friendica\Protocol\ActivityPub\Processor;
@@ -51,7 +52,7 @@ class PostUpdate
 	// Needed for the helper function to read from the legacy term table
 	const OBJECT_TYPE_POST  = 1;
 
-	const VERSION = 1507;
+	const VERSION = 1543;
 
 	/**
 	 * Calls the post update functions
@@ -122,6 +123,9 @@ class PostUpdate
 			return false;
 		}
 		if (!self::update1507()) {
+			return false;
+		}
+		if (!self::update1543()) {
 			return false;
 		}
 		return true;
@@ -1297,6 +1301,53 @@ class PostUpdate
 
 		if ($start_id == $id) {
 			DI::keyValue()->set('post_update_version', 1507);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Create "post-counts" entries for old entries.
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1543()
+	{
+		// Was the script completed?
+		if (DI::keyValue()->get('post_update_version') >= 1543) {
+			return true;
+		}
+
+		$id = DI::keyValue()->get('post_update_version_1543_id') ?? 0;
+
+		Logger::info('Start', ['uri-id' => $id]);
+
+		$rows = 0;
+
+		$posts = Post::selectPosts(['uri-id', 'parent-uri-id'], ["`uri-id` > ? AND `gravity` IN (?, ?)", $id, Item::GRAVITY_COMMENT, Item::GRAVITY_PARENT], ['order' => ['uri-id'], 'limit' => 1000]);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($post = Post::fetch($posts)) {
+			$id = $post['uri-id'];
+			Counts::updateForPost($post['uri-id'], $post['parent-uri-id']);
+			++$rows;
+		}
+		DBA::close($posts);
+
+		DI::keyValue()->set('post_update_version_1543_id', $id);
+
+		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
+
+		if ($rows <= 100) {
+			DI::keyValue()->set('post_update_version', 1543);
 			Logger::info('Done');
 			return true;
 		}

@@ -1272,6 +1272,11 @@ class Receiver
 			}
 		}
 
+		if (empty($receivers) && !empty($parent['parent-author-link'])) {
+			$uid = User::getIdForURL($parent['parent-author-link']);
+			$receivers[$uid] = ['uid' => $uid, 'type' => self::TARGET_BTO];
+		}
+
 		if (!empty($reply) && (!empty($receivers[0]) || !empty($receivers[-1]))) {
 			$parents = Post::select(['uid'], DBA::mergeConditions(['uri' => $reply], ["`uid` != ?", 0]));
 			while ($parent = Post::fetch($parents)) {
