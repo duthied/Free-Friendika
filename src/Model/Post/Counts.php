@@ -22,7 +22,6 @@
 namespace Friendica\Model\Post;
 
 use Friendica\Content\Smilies;
-use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -43,7 +42,7 @@ class Counts
 
 		if ($body == $verb) {
 			$condition['body'] = null;
-			$body = '';
+			$body              = '';
 		} elseif (($verb != Activity::POST) && (mb_strlen($body) == 1) && Smilies::isEmojiPost($body)) {
 			$condition['body'] = $body;
 		} else {
