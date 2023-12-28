@@ -117,16 +117,16 @@ class User
 	{
 		switch ($accounttype) {
 			case 'person':
-				return User::ACCOUNT_TYPE_PERSON;
+				return self::ACCOUNT_TYPE_PERSON;
 
 			case 'organisation':
-				return User::ACCOUNT_TYPE_ORGANISATION;
+				return self::ACCOUNT_TYPE_ORGANISATION;
 
 			case 'news':
-				return User::ACCOUNT_TYPE_NEWS;
+				return self::ACCOUNT_TYPE_NEWS;
 
 			case 'community':
-				return User::ACCOUNT_TYPE_COMMUNITY;
+				return self::ACCOUNT_TYPE_COMMUNITY;
 		}
 		return null;
 	}
@@ -161,7 +161,7 @@ class User
 		$system['sprvkey'] = $system['uprvkey'] = $system['prvkey'];
 		$system['spubkey'] = $system['upubkey'] = $system['pubkey'];
 		$system['nickname'] = $system['nick'];
-		$system['page-flags'] = User::PAGE_FLAGS_SOAPBOX;
+		$system['page-flags'] = self::PAGE_FLAGS_SOAPBOX;
 		$system['account-type'] = $system['contact-type'];
 		$system['guid'] = '';
 		$system['picdate'] = '';
@@ -193,8 +193,8 @@ class User
 				'sprvkey' => $system['sprvkey'],
 				'guid' => System::createUUID(),
 				'verified' => true,
-				'page-flags' => User::PAGE_FLAGS_SOAPBOX,
-				'account-type' => User::ACCOUNT_TYPE_RELAY,
+				'page-flags' => self::PAGE_FLAGS_SOAPBOX,
+				'account-type' => self::ACCOUNT_TYPE_RELAY,
 			];
 
 			DBA::update('user', $fields, ['uid' => 0]);
@@ -351,7 +351,7 @@ class User
 	public static function setCommunityUserSettings(int $uid)
 	{
 		$user = self::getById($uid, ['account-type', 'page-flags']);
-		if ($user['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
+		if ($user['account-type'] != self::ACCOUNT_TYPE_COMMUNITY) {
 			return;
 		}
 
@@ -359,14 +359,14 @@ class User
 
 		$fields = [
 			'allow_cid'  => '',
-			'allow_gid'  => $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP ? '<' . Circle::FOLLOWERS . '>' : '',
+			'allow_gid'  => $user['page-flags'] == self::PAGE_FLAGS_PRVGROUP ? '<' . Circle::FOLLOWERS . '>' : '',
 			'deny_cid'   => '',
 			'deny_gid'   => '',
 			'blockwall'  => true,
 			'blocktags'  => true,
 		];
 
-		User::update($fields, $uid);
+		self::update($fields, $uid);
 
 		Profile::update(['hide-friends' => true], $uid);
 	}
@@ -585,7 +585,7 @@ class User
 	 */
 	public static function getWantedLanguages(int $uid): array
 	{
-		return DI::pConfig()->get($uid, 'channel', 'languages', [User::getLanguageCode($uid)]) ?? [];
+		return DI::pConfig()->get($uid, 'channel', 'languages', [self::getLanguageCode($uid)]) ?? [];
 	}
 
 	/**
@@ -822,7 +822,7 @@ class User
 			return;
 		}
 
-		$user = User::getById($uid, ['last-activity']);
+		$user = self::getById($uid, ['last-activity']);
 		if (empty($user)) {
 			return;
 		}
@@ -830,7 +830,7 @@ class User
 		$current_day = DateTimeFormat::utcNow('Y-m-d');
 
 		if ($user['last-activity'] != $current_day) {
-			User::update(['last-activity' => $current_day], $uid);
+			self::update(['last-activity' => $current_day], $uid);
 			// Set the last activity for all identities of the user
 			DBA::update('user', ['last-activity' => $current_day], ['parent-uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
 		}
@@ -1271,7 +1271,7 @@ class User
 			throw new Exception(DI::l10n()->t('Nickname is already registered. Please choose another.'));
 		}
 
-		$new_password = strlen($password) ? $password : User::generateNewPassword();
+		$new_password = strlen($password) ? $password : self::generateNewPassword();
 		$new_password_encoded = self::hashPassword($new_password);
 
 		$return['password'] = $new_password;
@@ -1492,7 +1492,7 @@ class User
 			return false;
 		}
 
-		$user = User::getById($register['uid']);
+		$user = self::getById($register['uid']);
 		if (!DBA::isResult($user)) {
 			return false;
 		}
@@ -1510,7 +1510,7 @@ class User
 
 		$l10n = DI::l10n()->withLang($register['language']);
 
-		return User::sendRegisterOpenEmail(
+		return self::sendRegisterOpenEmail(
 			$l10n,
 			$user,
 			DI::config()->get('config', 'sitename'),
@@ -1538,7 +1538,7 @@ class User
 			return false;
 		}
 
-		$user = User::getById($register['uid']);
+		$user = self::getById($register['uid']);
 		if (!DBA::isResult($user)) {
 			return false;
 		}
