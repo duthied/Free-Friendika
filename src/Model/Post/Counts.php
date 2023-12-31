@@ -38,11 +38,20 @@ class Counts
 	 */
 	public static function update(int $uri_id, int $parent_uri_id, int $vid, string $verb, string $body = null)
 	{
-		$condition = ['thr-parent-id' => $uri_id, 'vid' => $vid];
+		if (!in_array($verb, [Activity::POST, Activity::LIKE, Activity::DISLIKE,
+			Activity::ATTEND, Activity::ATTENDMAYBE, Activity::ATTENDNO,
+			Activity::EMOJIREACT, Activity::ANNOUNCE, Activity::VIEW, Activity::READ])) {
+			return true;
+		}
+	
+		$condition = ['thr-parent-id' => $uri_id, 'vid' => $vid, 'deleted' => false];
 
 		if ($body == $verb) {
 			$condition['body'] = null;
 			$body              = '';
+		} elseif ($verb == Activity::POST) {
+			$condition['gravity'] = Item::GRAVITY_COMMENT;
+			$body                 = '';
 		} elseif (($verb != Activity::POST) && (mb_strlen($body) == 1) && Smilies::isEmojiPost($body)) {
 			$condition['body'] = $body;
 		} else {
@@ -58,6 +67,7 @@ class Counts
 		];
 
 		if ($fields['count'] == 0) {
+			DBA::delete('post-counts', ['uri-id' => $uri_id, 'vid' => $vid, 'reaction' => $body]);
 			return true;
 		}
 
@@ -76,14 +86,41 @@ class Counts
 	}
 
 	/**
-	 * Retrieves counts of the given uri-id
+	 * Retrieves counts of the given condition
 	 *
-	 * @param int $uriId
+	 * @param array $condition
 	 *
 	 * @return array
 	 */
-	public static function getByURIId(int $uriId): array
+	public static function get(array $condition): array
 	{
-		return DBA::selectToArray('post-counts', [], ['uri-id' => $uriId]);
+		$counts = [];
+
+		$activity_emoji = [
+			Activity::LIKE        => '👍',
+			Activity::DISLIKE     => '👎',
+			Activity::ATTEND      => '✔️',
+			Activity::ATTENDMAYBE => '❓',
+			Activity::ATTENDNO    => '❌',
+			Activity::ANNOUNCE    => '♻',
+			Activity::VIEW        => '📺',
+			Activity::READ        => '📖',
+		];
+
+		$verbs = array_merge(array_keys($activity_emoji), [Activity::EMOJIREACT, Activity::POST]);
+
+		$condition  = DBA::mergeConditions($condition, ['verb' => $verbs]);
+		$countquery = DBA::select('post-counts-view', [], $condition);
+		while ($count = DBA::fetch($countquery)) {
+			if (!empty($count['reaction'])) {
+				$count['verb'] = Activity::EMOJIREACT;
+				$count['vid']  = Verb::getID($count['verb']);
+			} elseif (!empty($activity_emoji[$count['verb']])) {
+				$count['reaction'] = $activity_emoji[$count['verb']];
+			}
+			$counts[] = $count;
+		}
+		DBA::close($counts);
+		return $counts;
 	}
 }

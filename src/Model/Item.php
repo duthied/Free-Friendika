@@ -338,7 +338,7 @@ class Item
 		// locate item to be deleted
 		$fields = [
 			'id', 'uri', 'uri-id', 'uid', 'parent', 'parent-uri-id', 'origin',
-			'deleted', 'resource-id', 'event-id',
+			'thr-parent-id', 'deleted', 'resource-id', 'event-id', 'vid', 'body',
 			'verb', 'object-type', 'object', 'target', 'contact-id', 'psid', 'gravity'
 		];
 		$item = Post::selectFirst($fields, ['id' => $item_id]);
@@ -417,6 +417,10 @@ class Item
 
 		DI::notify()->deleteForItem($item['uri-id']);
 		DI::notification()->deleteForItem($item['uri-id']);
+
+		if (in_array($item['gravity'], [self::GRAVITY_ACTIVITY, self::GRAVITY_COMMENT])) {
+			Post\Counts::update($item['thr-parent-id'], $item['parent-uri-id'], $item['vid'], $item['verb'], $item['body']);
+		}
 
 		Logger::info('Item has been marked for deletion.', ['id' => $item_id]);
 
@@ -1427,16 +1431,15 @@ class Item
 			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, (int)$posted_item['uri-id'], (int)$posted_item['uid']);
 		}
 
-		// Fill the cache with the rendered content.
-		if (in_array($posted_item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]) && ($posted_item['uid'] == 0)) {
-			self::updateDisplayCache($posted_item['uri-id']);
-		}
-
-		if (in_array($posted_item['gravity'], [self::GRAVITY_ACTIVITY, self::GRAVITY_COMMENT]) && ($posted_item['uid'] == 0)) {
-			Post\Counts::update($posted_item['thr-parent-id'], $posted_item['parent-uri-id'], $posted_item['vid'], $posted_item['verb'], $posted_item['body']);
-		}
-
 		if ($inserted) {
+			// Fill the cache with the rendered content.
+			if (in_array($posted_item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT])) {
+				self::updateDisplayCache($posted_item['uri-id']);
+			}
+
+			if (in_array($posted_item['gravity'], [self::GRAVITY_ACTIVITY, self::GRAVITY_COMMENT])) {
+				Post\Counts::update($posted_item['thr-parent-id'], $posted_item['parent-uri-id'], $posted_item['vid'], $posted_item['verb'], $posted_item['body']);
+			}
 			Post\Engagement::storeFromItem($posted_item);
 		}
 
