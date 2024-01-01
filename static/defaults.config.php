@@ -162,6 +162,7 @@ return [
 
 		// config_adapter (jit|preload)
 		// Allow to switch the configuration adapter to improve performances at the cost of memory consumption.
+		// jit is slightly slower, while preload consumes marginally more memory
 		'config_adapter' => 'jit',
 
 		// crawl_permit_period (Integer)
