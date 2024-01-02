@@ -1,5 +1,5 @@
 # FRIENDICA Distributed Social Network
-# Copyright (C) 2010-2023, the Friendica project
+# Copyright (C) 2010-2024, the Friendica project
 # This file is distributed under the same license as the Friendica package.
 # Mike Macgirvin, 2010
 #
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2024.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-30 21:51+0000\n"
+"POT-Creation-Date: 2024-01-02 20:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -293,7 +293,7 @@ msgid "Insert web link"
 msgstr ""
 
 #: mod/message.php:201 mod/message.php:357 mod/photos.php:1301
-#: src/Content/Conversation.php:401 src/Content/Conversation.php:1589
+#: src/Content/Conversation.php:401 src/Content/Conversation.php:1586
 #: src/Module/Item/Compose.php:206 src/Module/Post/Edit.php:145
 #: src/Module/Profile/UnkMail.php:154 src/Object/Post.php:609
 msgid "Please wait"
@@ -625,12 +625,12 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: mod/photos.php:1236 src/Content/Conversation.php:1504
+#: mod/photos.php:1236 src/Content/Conversation.php:1501
 #: src/Object/Post.php:261
 msgid "Select"
 msgstr ""
 
-#: mod/photos.php:1237 src/Content/Conversation.php:1505
+#: mod/photos.php:1237 src/Content/Conversation.php:1502
 #: src/Module/Moderation/Users/Active.php:136
 #: src/Module/Moderation/Users/Blocked.php:136
 #: src/Module/Moderation/Users/Index.php:151
@@ -1490,30 +1490,30 @@ msgstr ""
 msgid "Pushed to us"
 msgstr ""
 
-#: src/Content/Conversation.php:1532 src/Object/Post.php:248
+#: src/Content/Conversation.php:1529 src/Object/Post.php:248
 msgid "Pinned item"
 msgstr ""
 
-#: src/Content/Conversation.php:1549 src/Object/Post.php:548
+#: src/Content/Conversation.php:1546 src/Object/Post.php:548
 #: src/Object/Post.php:549
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr ""
 
-#: src/Content/Conversation.php:1562 src/Object/Post.php:536
+#: src/Content/Conversation.php:1559 src/Object/Post.php:536
 msgid "Categories:"
 msgstr ""
 
-#: src/Content/Conversation.php:1563 src/Object/Post.php:537
+#: src/Content/Conversation.php:1560 src/Object/Post.php:537
 msgid "Filed under:"
 msgstr ""
 
-#: src/Content/Conversation.php:1571 src/Object/Post.php:562
+#: src/Content/Conversation.php:1568 src/Object/Post.php:562
 #, php-format
 msgid "%s from %s"
 msgstr ""
 
-#: src/Content/Conversation.php:1587
+#: src/Content/Conversation.php:1584
 msgid "View in context"
 msgstr ""
 
@@ -1770,7 +1770,7 @@ msgstr ""
 msgid "Create new group"
 msgstr ""
 
-#: src/Content/Item.php:332 src/Model/Item.php:3162
+#: src/Content/Item.php:332 src/Model/Item.php:3166
 msgid "event"
 msgstr ""
 
@@ -1778,7 +1778,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:341 src/Model/Item.php:3164
+#: src/Content/Item.php:341 src/Model/Item.php:3168
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -2190,8 +2190,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:994 src/Model/Item.php:3895
-#: src/Model/Item.php:3901 src/Model/Item.php:3902
+#: src/Content/Text/BBCode.php:994 src/Model/Item.php:3899
+#: src/Model/Item.php:3905 src/Model/Item.php:3906
 msgid "Link to source"
 msgstr ""
 
@@ -3408,91 +3408,91 @@ msgstr ""
 msgid "Happy Birthday %s"
 msgstr ""
 
-#: src/Model/Item.php:2213
+#: src/Model/Item.php:2217
 #, php-format
 msgid "%s (%s - %s): %s"
 msgstr ""
 
-#: src/Model/Item.php:2215
+#: src/Model/Item.php:2219
 #, php-format
 msgid "%s (%s): %s"
 msgstr ""
 
-#: src/Model/Item.php:2218
+#: src/Model/Item.php:2222
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:3166
+#: src/Model/Item.php:3170
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:3168
+#: src/Model/Item.php:3172
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:3171 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:3175 src/Module/Post/Tag/Add.php:123
 msgid "post"
-msgstr ""
-
-#: src/Model/Item.php:3341
-#, php-format
-msgid "%s is blocked"
-msgstr ""
-
-#: src/Model/Item.php:3343
-#, php-format
-msgid "%s is ignored"
 msgstr ""
 
 #: src/Model/Item.php:3345
 #, php-format
-msgid "Content from %s is collapsed"
+msgid "%s is blocked"
+msgstr ""
+
+#: src/Model/Item.php:3347
+#, php-format
+msgid "%s is ignored"
 msgstr ""
 
 #: src/Model/Item.php:3349
 #, php-format
+msgid "Content from %s is collapsed"
+msgstr ""
+
+#: src/Model/Item.php:3353
+#, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3802
+#: src/Model/Item.php:3806
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3833
+#: src/Model/Item.php:3837
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3835
+#: src/Model/Item.php:3839
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3840
+#: src/Model/Item.php:3844
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3842
+#: src/Model/Item.php:3846
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3844
+#: src/Model/Item.php:3848
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3878 src/Model/Item.php:3879
+#: src/Model/Item.php:3882 src/Model/Item.php:3883
 msgid "View on separate page"
 msgstr ""
 
@@ -3935,7 +3935,7 @@ msgid "Enable"
 msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:111 src/Module/Admin/Addons/Index.php:67
-#: src/Module/Admin/Federation.php:214 src/Module/Admin/Logs/Settings.php:85
+#: src/Module/Admin/Federation.php:218 src/Module/Admin/Logs/Settings.php:85
 #: src/Module/Admin/Logs/View.php:83 src/Module/Admin/Queue.php:72
 #: src/Module/Admin/Site.php:449 src/Module/Admin/Storage.php:138
 #: src/Module/Admin/Summary.php:196 src/Module/Admin/Themes/Details.php:90
@@ -4065,77 +4065,77 @@ msgstr ""
 msgid "Manage Additional Features"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:76
+#: src/Module/Admin/Federation.php:80
 #: src/Module/Moderation/Report/Create.php:191
 #: src/Module/Moderation/Report/Create.php:316
 msgid "Other"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:154 src/Module/Admin/Federation.php:403
+#: src/Module/Admin/Federation.php:158 src/Module/Admin/Federation.php:407
 msgid "unknown"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:187
+#: src/Module/Admin/Federation.php:191
 #, php-format
 msgid "%2$s total system"
 msgid_plural "%2$s total systems"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:188
+#: src/Module/Admin/Federation.php:192
 #, php-format
 msgid "%2$s active user last month"
 msgid_plural "%2$s active users last month"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:189
+#: src/Module/Admin/Federation.php:193
 #, php-format
 msgid "%2$s active user last six months"
 msgid_plural "%2$s active users last six months"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:190
+#: src/Module/Admin/Federation.php:194
 #, php-format
 msgid "%2$s registered user"
 msgid_plural "%2$s registered users"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:191
+#: src/Module/Admin/Federation.php:195
 #, php-format
 msgid "%2$s locally created post or comment"
 msgid_plural "%2$s locally created posts and comments"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:194
+#: src/Module/Admin/Federation.php:198
 #, php-format
 msgid "%2$s post per user"
 msgid_plural "%2$s posts per user"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:199
+#: src/Module/Admin/Federation.php:203
 #, php-format
 msgid "%2$s user per system"
 msgid_plural "%2$s users per system"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Module/Admin/Federation.php:209
+#: src/Module/Admin/Federation.php:213
 msgid ""
 "This page offers you some numbers to the known part of the federated social "
 "network your Friendica node is part of. These numbers are not complete but "
 "only reflect the part of the network your node is aware of."
 msgstr ""
 
-#: src/Module/Admin/Federation.php:215 src/Module/BaseAdmin.php:87
+#: src/Module/Admin/Federation.php:219 src/Module/BaseAdmin.php:87
 msgid "Federation Statistics"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:219
+#: src/Module/Admin/Federation.php:223
 #, php-format
 msgid ""
 "Currently this node is aware of %2$s node (%3$s active users last month, "
