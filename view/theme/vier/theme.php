@@ -208,7 +208,7 @@ function vier_community_info()
 
 	//Community_Pages at right_aside
 	if ($show_pages && DI::userSession()->getLocalUserId()) {
-		$aside['$page'] = GroupManager::widget('network/group', DI::userSession()->getLocalUserId());;
+		$aside['$page'] = GroupManager::widget(DI::userSession()->getLocalUserId());
 	}
 	// END Community Page
 
