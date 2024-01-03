@@ -34,7 +34,7 @@ function showHideGroupList() {
 			<a href="{{$group.external_url}}" title="{{$group.link_desc}}" class="label sparkle" target="_blank" rel="noopener noreferrer">
 				<img class="group-list-img" src="{{$group.micro}}" alt="{{$group.link_desc}}" />
 			</a>
-			<a class="group-widget-link {{if $group.selected}}group-selected{{/if}}" id="group-widget-link-{{$group.id}}" href="{{$group.url}}">{{$group.name}}</a>
+			<a class="group-widget-link" id="group-widget-link-{{$group.id}}" href="{{$group.url}}">{{$group.name}}</a>
 		</li>
 		{{/if}}
 
@@ -44,7 +44,7 @@ function showHideGroupList() {
 			<a href="{{$group.external_url}}" title="{{$group.link_desc}}" class="label sparkle" target="_blank" rel="noopener noreferrer">
 				<img class="group-list-img" src="{{$group.micro}}" alt="{{$group.link_desc}}" />
 			</a>
-			<a class="group-widget-link {{if $group.selected}}group-selected{{/if}}" id="group-widget-link-{{$group.id}}" href="{{$group.url}}">{{$group.name}}</a>
+			<a class="group-widget-link" id="group-widget-link-{{$group.id}}" href="{{$group.url}}">{{$group.name}}</a>
 		</li>
 		{{/if}}
 		{{/foreach}}
