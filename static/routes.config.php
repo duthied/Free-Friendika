@@ -41,7 +41,6 @@ $profileRoutes = [
 	'/restricted'                                     => [Module\Profile\Restricted::class,    [R::GET         ]],
 	'/schedule'                                       => [Module\Profile\Schedule::class,      [R::GET, R::POST]],
 	'/conversations[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Conversations::class, [R::GET]],
-	'/unkmail'                                        => [Module\Profile\UnkMail::class,       [R::GET, R::POST]],
 ];
 
 $apiRoutes = [
@@ -125,7 +124,7 @@ $apiRoutes = [
 		'/list[.{extension:json|xml|rss|atom}]'                    => [Module\Api\Twitter\Lists\Lists::class,     [R::GET         ]],
 		'/ownerships[.{extension:json|xml|rss|atom}]'              => [Module\Api\Twitter\Lists\Ownership::class, [R::GET         ]],
 		'/statuses[.{extension:json|xml|rss|atom}]'                => [Module\Api\Twitter\Lists\Statuses::class,  [R::GET         ]],
-		'/subscriptions[.{extension:json|xml|rss|atom}]'           => [Module\Api\Friendica\Lists\Lists::class,   [R::GET         ]],
+		'/subscriptions[.{extension:json|xml|rss|atom}]'           => [Module\Api\Twitter\Lists\Lists::class,     [R::GET         ]],
 		'/update[.{extension:json|xml|rss|atom}]'                  => [Module\Api\Twitter\Lists\Update::class,    [        R::POST]],
 	],
 

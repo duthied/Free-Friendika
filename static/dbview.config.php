@@ -1002,8 +1002,6 @@
 			"blockwall" => ["user", "blockwall"],
 			"hidewall" => ["user", "hidewall"],
 			"blocktags" => ["user", "blocktags"],
-			"unkmail" => ["user", "unkmail"],
-			"cntunkmail" => ["user", "cntunkmail"],
 			"notify-flags" => ["user", "notify-flags"],
 			"page-flags" => ["user", "page-flags"],
 			"account-type" => ["user", "account-type"],

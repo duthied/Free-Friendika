@@ -160,8 +160,6 @@ class Account extends BaseSettings
 			$hidewall     = !empty($request['hidewall']);
 			$blockwall    = empty($request['blockwall']); // this setting is inverted!
 			$blocktags    = empty($request['blocktags']); // this setting is inverted!
-			$unkmail      = !empty($request['unkmail']);
-			$cntunkmail   = intval($request['cntunkmail'] ?? 0);
 			$def_gid      = intval($request['circle-selection'] ?? 0);
 
 			$aclFormatter = DI::aclFormatter();
@@ -185,8 +183,6 @@ class Account extends BaseSettings
 				'blockwall'  => $blockwall,
 				'hidewall'   => $hidewall,
 				'blocktags'  => $blocktags,
-				'unkmail'    => $unkmail,
-				'cntunkmail' => $cntunkmail,
 			];
 
 			$profile_fields = [
@@ -408,8 +404,6 @@ class Account extends BaseSettings
 		$openid           = $user['openid'];
 		$maxreq           = $user['maxreq'];
 		$expire           = $user['expire'] ?: '';
-		$unkmail          = $user['unkmail'];
-		$cntunkmail       = $user['cntunkmail'];
 
 		$expire_items        = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'expire', 'items', true);
 		$expire_notes        = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'expire', 'notes', true);
@@ -571,8 +565,6 @@ class Account extends BaseSettings
 			'$accessiblephotos'   => ['accessible-photos', DI::l10n()->t('Make all posted pictures accessible'), DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'accessible-photos'), DI::l10n()->t("This option makes every posted picture accessible via the direct link. This is a workaround for the problem that most other networks can't handle permissions on pictures. Non public pictures still won't be visible for the public on your photo albums though.")],
 			'$blockwall'          => ['blockwall', DI::l10n()->t('Allow friends to post to your profile page?'), (intval($user['blockwall']) ? '0' : '1'), DI::l10n()->t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts')],
 			'$blocktags'          => ['blocktags', DI::l10n()->t('Allow friends to tag your posts?'), (intval($user['blocktags']) ? '0' : '1'), DI::l10n()->t('Your contacts can add additional tags to your posts.')],
-			'$unkmail'            => ['unkmail', DI::l10n()->t('Permit unknown people to send you private mail?'), $unkmail, DI::l10n()->t('Friendica network users may send you private messages even if they are not in your contact list.')],
-			'$cntunkmail'         => ['cntunkmail', DI::l10n()->t('Maximum private messages per day from unknown people:'), $cntunkmail, DI::l10n()->t("(to prevent spam abuse)")],
 			'$circle_select'      => Circle::getSelectorHTML(DI::userSession()->getLocalUserId(), $user['def_gid'], 'circle-selection', DI::l10n()->t('Default privacy circle for new contacts')),
 			'$circle_select_group' => Circle::getSelectorHTML(DI::userSession()->getLocalUserId(), DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'system', 'default-group-gid', $user['def_gid']), 'circle-selection-group', DI::l10n()->t('Default privacy circle for new group contacts')),
 			'$permissions'        => DI::l10n()->t('Default Post Permissions'),
