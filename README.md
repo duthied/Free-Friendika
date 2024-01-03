@@ -16,8 +16,8 @@ Being part of the Fediverse allows you to be free from data-harvesting corporati
 ### Friendica on mobile
 
 <p float="left">
-<img src ="/images/screenshots/friendica-2023-10-frio-mobile-timeline-dark-blue.png" width="370" alt="frio on mobile, dark color scheme">
-<img src="/images/screenshots/friendica-2023-10-frio-mobile-options-light-blue.png" width="370" alt="frio on mobile, light color scheme">
+<img src="/friendica/friendica/blob/HEAD/images/screenshots/friendica-2023-10-frio-mobile-timeline-dark-blue.png" width="370" alt="frio on mobile, dark color scheme">
+<img src="/friendica/friendica/blob/HEAD/images/screenshots/friendica-2023-10-frio-mobile-options-light-blue.png" width="370" alt="frio on mobile, light color scheme">
 </p>
 
 ## Endorsements
