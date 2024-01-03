@@ -22,7 +22,6 @@
 namespace Friendica\Content\Conversation\Factory;
 
 use Friendica\Capabilities\ICanCreateFromTableRow;
-use Friendica\Content\Conversation\Collection\Timelines;
 use Friendica\Content\Conversation\Entity;
 
 final class UserDefinedChannel extends Timeline implements ICanCreateFromTableRow
@@ -34,6 +33,10 @@ final class UserDefinedChannel extends Timeline implements ICanCreateFromTableRo
 
 	public function createFromTableRow(array $row): Entity\UserDefinedChannel
 	{
+		if (is_string($row['languages'])) {
+			$row['languages'] = unserialize($row['languages']);
+		}
+
 		return new Entity\UserDefinedChannel(
 			$row['id'] ?? null,
 			$row['label'],
@@ -46,6 +49,7 @@ final class UserDefinedChannel extends Timeline implements ICanCreateFromTableRo
 			$row['full-text-search'] ?? null,
 			$row['media-type'] ?? null,
 			$row['circle'] ?? null,
+			$row['languages'] ?? null,
 		);
 	}
 }

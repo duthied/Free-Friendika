@@ -312,10 +312,10 @@ class Timeline extends BaseModule
 		} elseif ($this->selectedTab == ChannelEntity::LANGUAGE) {
 			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", User::getLanguageCode($uid)];
 		} elseif (is_numeric($this->selectedTab)) {
-			$condition = $this->getUserChannelConditions($this->selectedTab, $this->session->getLocalUserId());
+			$condition = $this->getUserChannelConditions($this->selectedTab, $uid);
 		}
 
-		if ($this->selectedTab != ChannelEntity::LANGUAGE) {
+		if (($this->selectedTab != ChannelEntity::LANGUAGE) && !is_numeric($this->selectedTab)) {
 			$condition = $this->addLanguageCondition($uid, $condition);
 		}
 
@@ -422,13 +422,15 @@ class Timeline extends BaseModule
 		}
 
 		// For "addLanguageCondition" to work, the condition must not be empty
-		return $condition ?: ["true"];
+		$condition = $this->addLanguageCondition($uid, $condition ?: ["true"], $channel->languages);
+
+		return $condition;
 	}
 
-	private function addLanguageCondition(int $uid, array $condition): array
+	private function addLanguageCondition(int $uid, array $condition, $languages = null): array
 	{
 		$conditions = [];
-		$languages  = User::getWantedLanguages($uid);
+		$languages  = $languages ?: User::getWantedLanguages($uid);
 		foreach ($languages as $language) {
 			$conditions[] = "JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?";
 			$condition[]  = $language;

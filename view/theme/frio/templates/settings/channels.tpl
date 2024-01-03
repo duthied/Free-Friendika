@@ -22,6 +22,7 @@
 				{{include file="field_checkbox.tpl" field=$image}}
 				{{include file="field_checkbox.tpl" field=$video}}
 				{{include file="field_checkbox.tpl" field=$audio}}
+				{{include file="field_select.tpl" field=$languages}}
 				<div class="submit">
 					<button type="submit" class="btn btn-primary" name="add_channel" value="{{$l10n.addsubmit}}">{{$l10n.addsubmit}}</button>
 				</div>
@@ -51,6 +52,7 @@
 						{{include file="field_checkbox.tpl" field=$e.image}}
 						{{include file="field_checkbox.tpl" field=$e.video}}
 						{{include file="field_checkbox.tpl" field=$e.audio}}
+						{{include file="field_select.tpl" field=$e.languages}}
 						{{include file="field_checkbox.tpl" field=$e.delete}}
 						<div class="submit">
 							<button type="submit" class="btn btn-primary" name="edit_channel" value="{{$l10n.savechanges}}">{{$l10n.savechanges}}</button>

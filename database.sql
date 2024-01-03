@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.03-dev (Yellow Archangel)
--- DB_UPDATE_VERSION 1544
+-- DB_UPDATE_VERSION 1545
 -- ------------------------------------------
 
 
@@ -504,6 +504,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
 	`exclude-tags` varchar(1023) COMMENT 'Comma separated list of tags that aren\'t allowed in the channel',
 	`full-text-search` varchar(1023) COMMENT 'Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode',
 	`media-type` smallint unsigned COMMENT 'Filtered media types',
+	`languages` mediumtext COMMENT 'Desired languages',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE

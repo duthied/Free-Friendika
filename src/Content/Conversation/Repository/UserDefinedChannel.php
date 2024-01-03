@@ -124,6 +124,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			'exclude-tags'     => $Channel->excludeTags,
 			'full-text-search' => $Channel->fullTextSearch,
 			'media-type'       => $Channel->mediaType,
+			'languages'        => serialize($Channel->languages),
 		];
 
 		if ($Channel->code) {

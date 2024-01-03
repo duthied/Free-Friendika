@@ -28,6 +28,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
 use Friendica\Model\Circle;
+use Friendica\Model\User;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
@@ -62,7 +63,13 @@ class Channels extends BaseSettings
 
 		self::checkFormSecurityTokenRedirectOnError('/settings/channels', 'settings_channels');
 
+		$channel_languages = User::getWantedLanguages($uid);
+
 		if (!empty($request['add_channel'])) {
+			if (!array_diff((array)$request['new_languages'], $channel_languages)) {
+				$request['new_languages'] = null;
+			}
+
 			$channel = $this->userDefinedChannel->createFromTableRow([
 				'label'            => $request['new_label'],
 				'description'      => $request['new_description'],
@@ -73,6 +80,7 @@ class Channels extends BaseSettings
 				'exclude-tags'     => $this->cleanTags($request['new_exclude_tags']),
 				'full-text-search' => $request['new_text_search'],
 				'media-type'       => ($request['new_image'] ? 1 : 0) | ($request['new_video'] ? 2 : 0) | ($request['new_audio'] ? 4 : 0),
+				'languages'        => $request['new_languages'],
 			]);
 			$saved = $this->channel->save($channel);
 			$this->logger->debug('New channel added', ['saved' => $saved]);
@@ -86,6 +94,10 @@ class Channels extends BaseSettings
 				continue;
 			}
 
+			if (!array_diff((array)$request['languages'][$id], $channel_languages)) {
+				$request['languages'][$id] = null;
+			}
+
 			$channel = $this->userDefinedChannel->createFromTableRow([
 				'id'               => $id,
 				'label'            => $request['label'][$id],
@@ -97,6 +109,7 @@ class Channels extends BaseSettings
 				'exclude-tags'     => $this->cleanTags($request['exclude_tags'][$id]),
 				'full-text-search' => $request['text_search'][$id],
 				'media-type'       => ($request['image'][$id] ? 1 : 0) | ($request['video'][$id] ? 2 : 0) | ($request['audio'][$id] ? 4 : 0),
+				'languages'        => $request['languages'][$id],
 			]);
 			$saved = $this->channel->save($channel);
 			$this->logger->debug('Save channel', ['id' => $id, 'saved' => $saved]);
@@ -123,6 +136,9 @@ class Channels extends BaseSettings
 			$circles[$circle['id']] = $circle['name'];
 		}
 
+		$languages = $this->l10n->getLanguageCodes(true);
+		$channel_languages = User::getWantedLanguages($uid);
+
 		$channels = [];
 		foreach ($this->channel->selectByUid($uid) as $channel) {
 			if (!empty($request['id'])) {
@@ -146,6 +162,7 @@ class Channels extends BaseSettings
 				'image'        => ["image[$channel->code]", $this->t("Images"), $channel->mediaType & 1],
 				'video'        => ["video[$channel->code]", $this->t("Videos"), $channel->mediaType & 2],
 				'audio'        => ["audio[$channel->code]", $this->t("Audio"), $channel->mediaType & 4],
+				'languages'    => ["languages[$channel->code][]", $this->t('Languages'), $channel->languages ?? $channel_languages, $this->t('Select all languages that you want to see in this channel.'), $languages, 'multiple'],
 				'delete'       => ["delete[$channel->code]", $this->t("Delete channel") . ' (' . $channel->label . ')', false, $this->t("Check to delete this entry from the channel list")]
 			];
 		}
@@ -163,6 +180,7 @@ class Channels extends BaseSettings
 			'image'        => ['new_image', $this->t("Images"), false, $this->t("Check to display images in the channel.")],
 			'video'        => ["new_video", $this->t("Videos"), false, $this->t("Check to display videos in the channel.")],
 			'audio'        => ["new_audio", $this->t("Audio"), false, $this->t("Check to display audio in the channel.")],
+			'languages'    => ["new_languages[]", $this->t('Languages'), $channel_languages, $this->t('Select all languages that you want to see in this channel.'), $languages, 'multiple'],
 			'$l10n'        => [
 				'title'          => $this->t('Channels'),
 				'intro'          => $this->t('This page can be used to define your own channels.'),

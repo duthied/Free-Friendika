@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1544);
+	define('DB_UPDATE_VERSION', 1545);
 }
 
 return [
@@ -562,6 +562,7 @@ return [
 			"exclude-tags" => ["type" => "varchar(1023)", "comment" => "Comma separated list of tags that aren't allowed in the channel"],
 			"full-text-search" => ["type" => "varchar(1023)", "comment" => "Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode"],
 			"media-type" => ["type" => "smallint unsigned", "comment" => "Filtered media types"],
+			"languages" => ["type" => "mediumtext", "comment" => "Desired languages"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
