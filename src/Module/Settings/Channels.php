@@ -129,8 +129,12 @@ class Channels extends BaseSettings
 		$account_type = $user['account-type'];
 
 		if ($account_type == User::ACCOUNT_TYPE_RELAY) {
-			$circles = [0 => $this->l10n->t('Global Community')];
+			$intro   = $this->t('This page can be used to define the channels that will automatically be reshared by your account.');
+			$circles = [
+				0 => $this->l10n->t('Global Community')
+			];
 		} else {
+			$intro   = $this->t('This page can be used to define your own channels.');
 			$circles = [
 				0  => $this->l10n->t('Global Community'),
 				-3 => $this->l10n->t('Network'),
@@ -172,12 +176,6 @@ class Channels extends BaseSettings
 				'languages'    => ["languages[$channel->code][]", $this->t('Languages'), $channel->languages ?? $channel_languages, $this->t('Select all languages that you want to see in this channel.'), $languages, 'multiple'],
 				'delete'       => ["delete[$channel->code]", $this->t("Delete channel") . ' (' . $channel->label . ')', false, $this->t("Check to delete this entry from the channel list")]
 			];
-		}
-
-		if ($account_type == User::ACCOUNT_TYPE_RELAY) {
-			$intro = $this->t('This page can be used to define the channels that will automatically be reshared by your account.');
-		} else {
-			$intro = $this->t('This page can be used to define your own channels.');
 		}
 
 		$t = Renderer::getMarkupTemplate('settings/channels.tpl');
