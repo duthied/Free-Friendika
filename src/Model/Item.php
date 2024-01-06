@@ -1440,10 +1440,39 @@ class Item
 			if (in_array($posted_item['gravity'], [self::GRAVITY_ACTIVITY, self::GRAVITY_COMMENT])) {
 				Post\Counts::update($posted_item['thr-parent-id'], $posted_item['parent-uri-id'], $posted_item['vid'], $posted_item['verb'], $posted_item['body']);
 			}
-			Post\Engagement::storeFromItem($posted_item);
+
+			$engagement_uri_id = Post\Engagement::storeFromItem($posted_item);
+			if ($engagement_uri_id) {
+				self::reshareChannelPost($engagement_uri_id);
+			}
 		}
 
 		return $post_user_id;
+	}
+
+	private static function reshareChannelPost(int $uri_id)
+	{
+		$item = Post::selectFirst(['id', 'private', 'network', 'language', 'author-id'], ['uri-id' => $uri_id, 'uid' => 0]);
+		if (empty($item['id'])) {
+			return;
+		}
+
+		if (($item['private'] != self::PUBLIC) || !in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+			return;
+		}
+
+		$engagement = DBA::selectFirst('post-engagement', ['searchtext', 'media-type'], ['uri-id' => $uri_id]);
+		if (empty($engagement['searchtext'])) {
+			return;
+		}
+
+		$language = !empty($item['language']) ? array_key_first(json_decode($item['language'], true)) : '';
+		$tags     = array_column(Tag::getByURIId($uri_id, [Tag::HASHTAG]), 'name');
+
+		foreach (DI::userDefinedChannel()->getMatchingChannelUsers($engagement['searchtext'], $language, $tags, $engagement['media-type'], $item['author-id']) as $uid) {
+			Logger::debug('Reshare post', ['uid' => $uid, 'uri-id' => $uri_id, 'language' => $language, 'tags' => $tags, 'searchtext' => $engagement['searchtext'], 'media_type' => $engagement['media-type']]);
+			self::performActivity($item['id'], 'announce', $uid);
+		}
 	}
 
 	/**

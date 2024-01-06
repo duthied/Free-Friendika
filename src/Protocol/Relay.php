@@ -157,20 +157,16 @@ class Relay
 	 */
 	public static function getSubscribedTags(): array
 	{
-		$systemTags  = [];
-		$server_tags = DI::config()->get('system', 'relay_server_tags');
-
-		foreach (explode(',', mb_strtolower($server_tags)) as $tag) {
-			$systemTags[] = trim($tag, '# ');
+		$tags  = [];
+		foreach (explode(',', mb_strtolower(DI::config()->get('system', 'relay_server_tags'))) as $tag) {
+			$tags[] = trim($tag, '# ');
 		}
 
 		if (DI::config()->get('system', 'relay_user_tags')) {
-			$userTags = Search::getUserTags();
-		} else {
-			$userTags = [];
+			$tags = array_merge($tags, Search::getUserTags());
 		}
 
-		return array_unique(array_merge($systemTags, $userTags));
+		return array_unique($tags);
 	}
 
 	/**

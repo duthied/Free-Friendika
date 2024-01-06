@@ -436,7 +436,7 @@ class L10n
 	{
 		$iso639 = new \Matriphe\ISO639\ISO639;
 
-		$languages = [];
+		$languages = ['un' => $this->t('Undeteced Language')];
 
 		foreach ($this->getDetectableLanguages() as $code) {
 			$code     = $this->toISO6391($code);

@@ -316,6 +316,8 @@ class Account extends BaseSettings
 				$page_flags = User::PAGE_FLAGS_SOAPBOX;
 			} elseif ($account_type == User::ACCOUNT_TYPE_COMMUNITY && !in_array($page_flags, [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
 				$page_flags = User::PAGE_FLAGS_COMMUNITY;
+			} elseif ($account_type == User::ACCOUNT_TYPE_RELAY && $page_flags != User::PAGE_FLAGS_SOAPBOX) {
+				$page_flags = User::PAGE_FLAGS_SOAPBOX;
 			}
 
 			$fields = [
@@ -433,6 +435,7 @@ class Account extends BaseSettings
 			'$type_organisation' => User::ACCOUNT_TYPE_ORGANISATION,
 			'$type_news'         => User::ACCOUNT_TYPE_NEWS,
 			'$type_community'    => User::ACCOUNT_TYPE_COMMUNITY,
+			'$type_relay'        => User::ACCOUNT_TYPE_RELAY,
 			'$account_person'    => [
 				'account-type',
 				DI::l10n()->t('Personal Page'),
@@ -460,6 +463,13 @@ class Account extends BaseSettings
 				User::ACCOUNT_TYPE_COMMUNITY,
 				DI::l10n()->t('Account for community discussions.'),
 				$user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY
+			],
+			'$account_relay' => [
+				'account-type',
+				DI::l10n()->t('Channel Relay'),
+				User::ACCOUNT_TYPE_RELAY,
+				DI::l10n()->t('Account for a service that automatically shares content based on user defined channels.'),
+				$user['account-type'] == User::ACCOUNT_TYPE_RELAY
 			],
 			'$page_normal' => [
 				'page-flags',
