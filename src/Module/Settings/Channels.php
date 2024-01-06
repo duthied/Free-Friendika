@@ -125,12 +125,19 @@ class Channels extends BaseSettings
 			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
 		}
 
-		$circles = [
-			0  => $this->l10n->t('Global Community'),
-			-3 => $this->l10n->t('Network'),
-			-1 => $this->l10n->t('Following'),
-			-2 => $this->l10n->t('Followers'),
-		];
+		$user = User::getById($uid, ['account-type']);
+		$account_type = $user['account-type'];
+
+		if ($account_type == User::ACCOUNT_TYPE_RELAY) {
+			$circles = [0 => $this->l10n->t('Global Community')];
+		} else {
+			$circles = [
+				0  => $this->l10n->t('Global Community'),
+				-3 => $this->l10n->t('Network'),
+				-1 => $this->l10n->t('Following'),
+				-2 => $this->l10n->t('Followers'),
+			];
+		}
 
 		foreach (Circle::getByUserId($uid) as $circle) {
 			$circles[$circle['id']] = $circle['name'];
@@ -167,6 +174,12 @@ class Channels extends BaseSettings
 			];
 		}
 
+		if ($account_type == User::ACCOUNT_TYPE_RELAY) {
+			$intro = $this->t('This page can be used to define the channels that will automatically be reshared by your account.');
+		} else {
+			$intro = $this->t('This page can be used to define your own channels.');
+		}
+
 		$t = Renderer::getMarkupTemplate('settings/channels.tpl');
 		return Renderer::replaceMacros($t, [
 			'open'         => count($channels) == 0,
@@ -183,7 +196,7 @@ class Channels extends BaseSettings
 			'languages'    => ["new_languages[]", $this->t('Languages'), $channel_languages, $this->t('Select all languages that you want to see in this channel.'), $languages, 'multiple'],
 			'$l10n'        => [
 				'title'          => $this->t('Channels'),
-				'intro'          => $this->t('This page can be used to define your own channels.'),
+				'intro'          => $intro,
 				'addtitle'       => $this->t('Add new entry to the channel list'),
 				'addsubmit'      => $this->t('Add'),
 				'savechanges'    => $this->t('Save'),
