@@ -2128,11 +2128,10 @@ class Item
 			}
 		}
 
+		$result = self::compactLanguages($result);
 		if (empty($result)) {
 			return $default;
 		}
-
-		$result = self::compactLanguages($result);
 
 		arsort($result);
 		return array_slice($result, 0, $count);

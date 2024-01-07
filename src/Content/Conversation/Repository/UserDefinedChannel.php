@@ -66,7 +66,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		return $Entities;
 	}
 
-	public function select(array $condition, array $params = []): BaseCollection
+	public function select(array $condition, array $params = []): UserDefinedChannels
 	{
 		return $this->_select($condition, $params);
 	}
@@ -133,6 +133,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			'full-text-search' => $Channel->fullTextSearch,
 			'media-type'       => $Channel->mediaType,
 			'languages'        => serialize($Channel->languages),
+			'publish'          => $Channel->publish,
 		];
 
 		if ($Channel->code) {
@@ -160,14 +161,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 	 */
 	public function match(string $searchtext, string $language, array $tags, int $media_type): bool
 	{
-		$condition = ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `user`.`uid` > ?", 0];
-
-		$abandon_days = intval($this->config->get('system', 'account_abandon_days'));
-		if (!empty($abandon_days)) {
-			$condition = DBA::mergeConditions($condition, ["`last-activity` > ?", DateTimeFormat::utc('now - ' . $abandon_days . ' days')]);
-		}
-
-		$users = $this->db->selectToArray('user', ['uid'], $condition);
+		$users = $this->db->selectToArray('user', ['uid'], $this->getUserCondition());
 		if (empty($users)) {
 			return [];
 		}
@@ -187,7 +181,9 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 	 */
 	public function getMatchingChannelUsers(string $searchtext, string $language, array $tags, int $media_type, int $owner_id): array
 	{
-		$users = $this->db->selectToArray('user', ['uid'], ["`account-type` = ? AND `uid` != ?", User::ACCOUNT_TYPE_RELAY, 0]);
+		$condition = $this->getUserCondition();
+		$condition = DBA::mergeConditions($condition, ["`account-type` IN (?, ?) AND `uid` != ?", User::ACCOUNT_TYPE_RELAY, User::ACCOUNT_TYPE_COMMUNITY, 0]);
+		$users = $this->db->selectToArray('user', ['uid'], $condition);
 		if (empty($users)) {
 			return [];
 		}
@@ -208,6 +204,8 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		$condition = ['uid' => $channelUids];
 		if (!$relayMode) {
 			$condition = DBA::mergeConditions($condition, ["`full-text-search` != ?", '']);
+		} else {
+			$condition = DBA::mergeConditions($condition, ['publish' => true]);
 		}
 
 		foreach ($this->select($condition) as $channel) {
@@ -277,5 +275,16 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 
 		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
 		return $uids;
+	}
+
+	private function getUserCondition()
+	{
+		$condition = ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `user`.`uid` > ?", 0];
+
+		$abandon_days = intval($this->config->get('system', 'account_abandon_days'));
+		if (!empty($abandon_days)) {
+			$condition = DBA::mergeConditions($condition, ["`last-activity` > ?", DateTimeFormat::utc('now - ' . $abandon_days . ' days')]);
+		}
+		return $condition;
 	}
 }
