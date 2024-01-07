@@ -1452,7 +1452,7 @@ class Item
 
 	private static function reshareChannelPost(int $uri_id)
 	{
-		$item = Post::selectFirst(['id', 'private', 'network', 'language', 'author-id'], ['uri-id' => $uri_id, 'uid' => 0]);
+		$item = Post::selectFirst(['id', 'private', 'network', 'language', 'owner-id'], ['uri-id' => $uri_id, 'uid' => 0]);
 		if (empty($item['id'])) {
 			return;
 		}
@@ -1469,7 +1469,7 @@ class Item
 		$language = !empty($item['language']) ? array_key_first(json_decode($item['language'], true)) : '';
 		$tags     = array_column(Tag::getByURIId($uri_id, [Tag::HASHTAG]), 'name');
 
-		foreach (DI::userDefinedChannel()->getMatchingChannelUsers($engagement['searchtext'], $language, $tags, $engagement['media-type'], $item['author-id']) as $uid) {
+		foreach (DI::userDefinedChannel()->getMatchingChannelUsers($engagement['searchtext'], $language, $tags, $engagement['media-type'], $item['owner-id']) as $uid) {
 			Logger::debug('Reshare post', ['uid' => $uid, 'uri-id' => $uri_id, 'language' => $language, 'tags' => $tags, 'searchtext' => $engagement['searchtext'], 'media_type' => $engagement['media-type']]);
 			self::performActivity($item['id'], 'announce', $uid);
 		}

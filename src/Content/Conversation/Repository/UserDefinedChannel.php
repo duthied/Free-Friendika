@@ -180,20 +180,21 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 	 *
 	 * @param string $searchtext
 	 * @param string $language
-	 * @param array $tags
-	 * @param integer $media_type
+	 * @param array  $tags
+	 * @param int    $media_type
+	 * @param int    $owner_id
 	 * @return array
 	 */
-	public function getMatchingChannelUsers(string $searchtext, string $language, array $tags, int $media_type, int $author_id): array
+	public function getMatchingChannelUsers(string $searchtext, string $language, array $tags, int $media_type, int $owner_id): array
 	{
 		$users = $this->db->selectToArray('user', ['uid'], ["`account-type` = ? AND `uid` != ?", User::ACCOUNT_TYPE_RELAY, 0]);
 		if (empty($users)) {
 			return [];
 		}
-		return $this->getMatches($searchtext, $language, $tags, $media_type, $author_id, array_column($users, 'uid'), true);
+		return $this->getMatches($searchtext, $language, $tags, $media_type, $owner_id, array_column($users, 'uid'), true);
 	}
 
-	private function getMatches(string $searchtext, string $language, array $tags, int $media_type, int $author_id, array $channelUids, bool $relayMode): array
+	private function getMatches(string $searchtext, string $language, array $tags, int $media_type, int $owner_id, array $channelUids, bool $relayMode): array
 	{
 		if (!in_array($language, User::getLanguages())) {
 			$this->logger->debug('Unwanted language found. No matched channel found.', ['language' => $language, 'searchtext' => $searchtext]);
@@ -214,7 +215,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 				continue;
 			}
 			if (!empty($channel->circle) && ($channel->circle > 0) && !in_array($channel->uid, $uids)) {
-				$account = Contact::selectFirstAccountUser(['id'], ['pid' => $author_id, 'uid' => $channel->uid]);
+				$account = Contact::selectFirstAccountUser(['id'], ['pid' => $owner_id, 'uid' => $channel->uid]);
 				if (empty($account['id']) || !$this->db->exists('group_member', ['gid' => $channel->circle, 'contact-id' => $account['id']])) {
 					continue;
 				}
