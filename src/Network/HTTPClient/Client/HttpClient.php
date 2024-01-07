@@ -73,7 +73,7 @@ class HttpClient implements ICanSendHttpRequests
 			throw new \InvalidArgumentException('Unable to retrieve the host in URL: ' . $url);
 		}
 
-		if(!filter_var($host, FILTER_VALIDATE_IP) && !@dns_get_record($host . '.', DNS_A + DNS_AAAA)) {
+		if(!filter_var($host, FILTER_VALIDATE_IP) && !@dns_get_record($host . '.', DNS_A) && !@dns_get_record($host . '.', DNS_AAAA)) {
 			$this->logger->debug('URL cannot be resolved.', ['url' => $url]);
 			$this->profiler->stopRecording();
 			return CurlResult::createErrorCurl($this->logger, $url);
