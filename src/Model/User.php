@@ -644,6 +644,10 @@ class User
 			}
 		}
 
+		if (!DI::config()->get('system', 'relay_deny_undetected_language')) {
+			$languages['un'] = 'un';
+		}
+
 		ksort($languages);
 		$languages = array_keys($languages);
 		DI::cache()->set($cachekey, $languages);

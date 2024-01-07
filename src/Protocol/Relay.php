@@ -188,34 +188,31 @@ class Relay
 			}
 		}
 
-		if (empty($languages) && empty($detected) && (empty($body) || Smilies::isEmojiPost($body))) {
+		if (empty($detected)) {
+			$detected = ['un'];
+		}
+
+		if (empty($body) || Smilies::isEmojiPost($body)) {
 			Logger::debug('Empty body or only emojis', ['body' => $body]);
 			return true;
 		}
 
-		if (!empty($languages) || !empty($detected)) {
-			$user_languages = User::getLanguages();
+		$user_languages = User::getLanguages();
 
-			foreach ($detected as $language) {
-				if (in_array($language, $user_languages)) {
-					Logger::debug('Wanted language found in detected languages', ['language' => $language, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
-					return true;
-				}
+		foreach ($detected as $language) {
+			if (in_array($language, $user_languages)) {
+				Logger::debug('Wanted language found in detected languages', ['language' => $language, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
+				return true;
 			}
-			foreach ($languages as $language) {
-				if (in_array($language, $user_languages)) {
-					Logger::debug('Wanted language found in defined languages', ['language' => $language, 'languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
-					return true;
-				}
-			}
-			Logger::debug('No wanted language found', ['languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
-			return false;
-		} elseif (DI::config()->get('system', 'relay_deny_undetected_language')) {
-			Logger::info('Undetected language found', ['body' => $body]);
-			return false;
 		}
-
-		return true;
+		foreach ($languages as $language) {
+			if (in_array($language, $user_languages)) {
+				Logger::debug('Wanted language found in defined languages', ['language' => $language, 'languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
+				return true;
+			}
+		}
+		Logger::debug('No wanted language found', ['languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
+		return false;
 	}
 
 	/**
