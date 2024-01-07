@@ -1,4 +1,4 @@
-{{include file='field_input.tpl' field=$field}}
+{{include file="field_input.tpl" field=$field}}
 
 <script type="text/javascript">
 	$(function () {
