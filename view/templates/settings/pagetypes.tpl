@@ -18,7 +18,9 @@
 	{{include file="field_radio.tpl" field=$page_prvgroup}}
 </div>
 
-{{include file="field_radio.tpl" field=$account_relay}}
+{{if $account_relay}}
+	{{include file="field_radio.tpl" field=$account_relay}}
+{{/if}}
 
 <script language="javascript" type="text/javascript">
 	// This js part changes the state of page-flags radio buttons according

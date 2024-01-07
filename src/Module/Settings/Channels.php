@@ -24,6 +24,7 @@ namespace Friendica\Module\Settings;
 use Friendica\App;
 use Friendica\Content\Conversation\Factory;
 use Friendica\Content\Conversation\Repository\UserDefinedChannel;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
@@ -41,13 +42,16 @@ class Channels extends BaseSettings
 	private $channel;
 	/** @var Factory\UserDefinedChannel */
 	private $userDefinedChannel;
+	/** @var IManageConfigValues */
+	private $config;
 
-	public function __construct(Factory\UserDefinedChannel $userDefinedChannel, UserDefinedChannel $channel, App\Page $page, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(Factory\UserDefinedChannel $userDefinedChannel, UserDefinedChannel $channel, App\Page $page, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManageConfigValues $config, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->userDefinedChannel = $userDefinedChannel;
 		$this->channel            = $channel;
+		$this->config             = $config;
 	}
 
 	protected function post(array $request = [])
@@ -161,7 +165,7 @@ class Channels extends BaseSettings
 				$open = false;
 			}
 
-			if (in_array($account_type, [User::ACCOUNT_TYPE_COMMUNITY, User::ACCOUNT_TYPE_RELAY])) {
+			if ($this->config->get('system', 'allow_relay_channels') && in_array($account_type, [User::ACCOUNT_TYPE_COMMUNITY, User::ACCOUNT_TYPE_RELAY])) {
 				$publish = ["publish[$channel->code]", $this->t("Publish"), $channel->publish, $this->t("When selected, the channel results are reshared. This only works for public ActivityPub posts from the public timeline or the user defined circles.")];
 			} else {
 				$publish = null;

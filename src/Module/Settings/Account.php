@@ -425,6 +425,18 @@ class Account extends BaseSettings
 			$user['account-type'] = User::ACCOUNT_TYPE_COMMUNITY;
 		}
 
+		if (DI::config()->get('system', 'allow_relay_channels')) {
+			$account_relay = [
+				'account-type',
+				DI::l10n()->t('Channel Relay'),
+				User::ACCOUNT_TYPE_RELAY,
+				DI::l10n()->t('Account for a service that automatically shares content based on user defined channels.'),
+				$user['account-type'] == User::ACCOUNT_TYPE_RELAY
+			];
+		} else {
+			$account_relay = null;
+		}
+
 		$pageset_tpl = Renderer::getMarkupTemplate('settings/pagetypes.tpl');
 		$pagetype    = Renderer::replaceMacros($pageset_tpl, [
 			'$account_types'     => DI::l10n()->t("Account Types"),
@@ -464,13 +476,7 @@ class Account extends BaseSettings
 				DI::l10n()->t('Account for community discussions.'),
 				$user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY
 			],
-			'$account_relay' => [
-				'account-type',
-				DI::l10n()->t('Channel Relay'),
-				User::ACCOUNT_TYPE_RELAY,
-				DI::l10n()->t('Account for a service that automatically shares content based on user defined channels.'),
-				$user['account-type'] == User::ACCOUNT_TYPE_RELAY
-			],
+			'$account_relay' => $account_relay,
 			'$page_normal' => [
 				'page-flags',
 				DI::l10n()->t('Normal Account Page'),

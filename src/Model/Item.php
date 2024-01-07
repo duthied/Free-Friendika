@@ -1452,6 +1452,10 @@ class Item
 
 	private static function reshareChannelPost(int $uri_id)
 	{
+		if (!DI::config()->get('system', 'allow_relay_channels')) {
+			return;
+		}
+
 		$item = Post::selectFirst(['id', 'private', 'network', 'language', 'owner-id'], ['uri-id' => $uri_id, 'uid' => 0]);
 		if (empty($item['id'])) {
 			return;
