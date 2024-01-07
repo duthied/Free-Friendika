@@ -188,7 +188,7 @@ class Relay
 			}
 		}
 
-		if (empty($detected)) {
+		if (empty($detected) && empty($languages)) {
 			$detected = ['un'];
 		}
 

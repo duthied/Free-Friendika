@@ -2071,10 +2071,7 @@ class Item
 			return !empty($transmitted) ? json_encode($transmitted) : null;
 		}
 
-		$languages = self::getLanguageArray($content, 3, $item['uri-id'], $item['author-id']);
-		if (empty($languages)) {
-			return !empty($transmitted) ? json_encode($transmitted) : null;
-		}
+		$languages = self::getLanguageArray($content, 3, $item['uri-id'], $item['author-id'], $transmitted);
 
 		if (!empty($transmitted)) {
 			$languages = array_merge($transmitted, $languages);
@@ -2091,9 +2088,10 @@ class Item
 	 * @param integer $count
 	 * @param integer $uri_id
 	 * @param integer $author_id
+	 * @param array   $default
 	 * @return array
 	 */
-	public static function getLanguageArray(string $body, int $count, int $uri_id = 0, int $author_id = 0): array
+	public static function getLanguageArray(string $body, int $count, int $uri_id = 0, int $author_id = 0, array $default = ['un' => 1]): array
 	{
 		$searchtext = BBCode::toSearchText($body, $uri_id);
 
@@ -2107,7 +2105,7 @@ class Item
 		}
 
 		if (empty($searchtext)) {
-			return ['un' => 1];
+			return $default;
 		}
 
 		$ld = new Language(DI::l10n()->getDetectableLanguages());
@@ -2131,7 +2129,7 @@ class Item
 		}
 
 		if (empty($result)) {
-			return ['un' => 1];
+			return $default;
 		}
 
 		$result = self::compactLanguages($result);
