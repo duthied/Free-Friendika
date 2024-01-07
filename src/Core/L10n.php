@@ -436,7 +436,9 @@ class L10n
 	{
 		$iso639 = new \Matriphe\ISO639\ISO639;
 
-		$languages = ['un' => $this->t('Undeteced Language')];
+		// In ISO 639-2 undetermined languages have got the code "und".
+		// There is no official code for ISO 639-1, but "un" is not assigned to any language.   
+		$languages = ['un' => $this->t('Undetermined')];
 
 		foreach ($this->getDetectableLanguages() as $code) {
 			$code     = $this->toISO6391($code);

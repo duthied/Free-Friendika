@@ -2107,7 +2107,7 @@ class Item
 		}
 
 		if (empty($searchtext)) {
-			return [];
+			return ['un' => 1];
 		}
 
 		$ld = new Language(DI::l10n()->getDetectableLanguages());
@@ -2128,6 +2128,10 @@ class Item
 			foreach ($data['detected'] as $language => $quality) {
 				$result[$language] = max($result[$language] ?? 0, $quality * (strlen($block) / strlen($searchtext)));
 			}
+		}
+
+		if (empty($result)) {
+			return ['un' => 1];
 		}
 
 		$result = self::compactLanguages($result);
@@ -2240,8 +2244,13 @@ class Item
 		foreach (json_decode($item['language'], true) as $language => $reliability) {
 			$code = DI::l10n()->toISO6391($language);
 
-			$native   = $iso639->nativeByCode1($code);
-			$language = $iso639->languageByCode1($code);
+			if ($code == 'un') {
+				$native = $language = DI::l10n()->t('Undetermined');
+			} else {
+				$native   = $iso639->nativeByCode1($code);
+				$language = $iso639->languageByCode1($code);
+			}
+
 			if ($native != $language) {
 				$used_languages .= DI::l10n()->t('%s (%s - %s): %s', $native, $language, $code, number_format($reliability, 5)) . '\n';
 			} else {

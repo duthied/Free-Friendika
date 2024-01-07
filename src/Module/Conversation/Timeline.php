@@ -432,12 +432,8 @@ class Timeline extends BaseModule
 		$conditions = [];
 		$languages  = $languages ?: User::getWantedLanguages($uid);
 		foreach ($languages as $language) {
-			if ($language == 'un') {
-				$conditions[] = "`language` IS NULL";
-			} else {
-				$conditions[] = "JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?";
-				$condition[]  = $language;
-			}
+			$conditions[] = "JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?";
+			$condition[]  = $language;
 		}
 		if (!empty($conditions)) {
 			$condition[0] .= " AND (" . implode(' OR ', $conditions) . ")";
