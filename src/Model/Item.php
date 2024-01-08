@@ -2075,6 +2075,13 @@ class Item
 
 		$content = trim(($item['title'] ?? '') . ' ' . ($item['content-warning'] ?? '') . ' ' . ($item['body'] ?? ''));
 
+		if (empty($content) && !empty($item['quote-uri-id'])) {
+			$quoted = Post::selectFirstPost(['language'], ['uri-id' => $item['quote-uri-id']]);
+			if (!empty($quoted['language'])) {
+				return $quoted['language'];
+			}
+		}
+
 		$languages = self::getLanguageArray($content, 3, $item['uri-id'], $item['author-id'], $transmitted);
 
 		if (!empty($transmitted)) {
