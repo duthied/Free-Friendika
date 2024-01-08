@@ -2069,11 +2069,11 @@ class Item
 			$transmitted[$language] = 0;
 		}
 
-		$content = trim(($item['title'] ?? '') . ' ' . ($item['content-warning'] ?? '') . ' ' . ($item['body'] ?? ''));
-
-		if (!in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]) || empty($content)) {
+		if (!in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT])) {
 			return !empty($transmitted) ? json_encode($transmitted) : null;
 		}
+
+		$content = trim(($item['title'] ?? '') . ' ' . ($item['content-warning'] ?? '') . ' ' . ($item['body'] ?? ''));
 
 		$languages = self::getLanguageArray($content, 3, $item['uri-id'], $item['author-id'], $transmitted);
 
