@@ -69,10 +69,14 @@ class Engagement
 			$store = Contact::hasFollowers($parent['owner-id']);
 		}
 
+		if (!$store && ($parent['owner-id'] != $parent['author-id'])) {
+			$store = Contact::hasFollowers($parent['author-id']);
+		}
+
 		if (!$store) {
 			$tagList = Relay::getSubscribedTags();
 			foreach (array_column(Tag::getByURIId($item['parent-uri-id'], [Tag::HASHTAG]), 'name') as $tag) {
-				if (in_array($tag, $tagList)) {
+				if (in_array(mb_strtolower($tag), $tagList)) {
 					$store = true;
 					break;
 				}
@@ -120,7 +124,7 @@ class Engagement
 			$ret = DBA::insert('post-engagement', $engagement);
 			Logger::debug('Engagement inserted', ['uri-id' => $engagement['uri-id'], 'ret' => $ret]);
 		}
-		return ($ret || !$exists) ? $engagement['uri-id'] : 0;
+		return ($ret && !$exists) ? $engagement['uri-id'] : 0;
 	}
 
 	public static function getSearchTextForActivity(string $content, int $author_id, array $tags, array $receivers): string

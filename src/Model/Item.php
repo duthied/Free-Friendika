@@ -1458,25 +1458,34 @@ class Item
 
 		$item = Post::selectFirst(['id', 'private', 'network', 'language', 'owner-id'], ['uri-id' => $uri_id, 'uid' => 0]);
 		if (empty($item['id'])) {
+			Logger::debug('Post not found', ['uri-id' => $uri_id]);
 			return;
 		}
 
 		if (($item['private'] != self::PUBLIC) || !in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+			Logger::debug('Not a public post or no AP or DFRN post', ['uri-id' => $uri_id]);
 			return;
 		}
 
 		$engagement = DBA::selectFirst('post-engagement', ['searchtext', 'media-type'], ['uri-id' => $uri_id]);
 		if (empty($engagement['searchtext'])) {
+			Logger::debug('No engagement found', ['uri-id' => $uri_id]);
 			return;
 		}
 
 		$language = !empty($item['language']) ? array_key_first(json_decode($item['language'], true)) : '';
 		$tags     = array_column(Tag::getByURIId($uri_id, [Tag::HASHTAG]), 'name');
 
+		Logger::debug('Prepare check', ['uri-id' => $uri_id, 'language' => $language, 'tags' => $tags, 'searchtext' => $engagement['searchtext'], 'media_type' => $engagement['media-type'], 'owner' => $item['owner-id']]);
+
+		$count = 0;
 		foreach (DI::userDefinedChannel()->getMatchingChannelUsers($engagement['searchtext'], $language, $tags, $engagement['media-type'], $item['owner-id']) as $uid) {
-			Logger::debug('Reshare post', ['uid' => $uid, 'uri-id' => $uri_id, 'language' => $language, 'tags' => $tags, 'searchtext' => $engagement['searchtext'], 'media_type' => $engagement['media-type']]);
+			Logger::debug('Reshare post', ['uid' => $uid, 'uri-id' => $uri_id]);
 			self::performActivity($item['id'], 'announce', $uid);
+			$count++;
 		}
+
+		Logger::debug('Check done', ['uri-id' => $uri_id, 'count' => $count]);
 	}
 
 	/**

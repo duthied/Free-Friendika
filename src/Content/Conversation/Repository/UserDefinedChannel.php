@@ -197,6 +197,10 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			return [];
 		}
 
+		array_walk($tags, function (&$value) {
+			$value = mb_strtolower($value);
+		});
+
 		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
 
 		$uids = [];
