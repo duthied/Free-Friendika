@@ -1442,7 +1442,10 @@ class Item
 			}
 
 			$engagement_uri_id = Post\Engagement::storeFromItem($posted_item);
-			if ($engagement_uri_id) {
+
+			if (($posted_item['gravity'] == self::GRAVITY_ACTIVITY) && ($posted_item['verb'] == Activity::ANNOUNCE) && ($posted_item['parent-uri-id'] == $posted_item['thr-parent-id'])) {
+				self::reshareChannelPost($posted_item['thr-parent-id'], $posted_item['author-id']);
+			} elseif ($engagement_uri_id) {
 				self::reshareChannelPost($engagement_uri_id);
 			}
 		}
@@ -1450,7 +1453,7 @@ class Item
 		return $post_user_id;
 	}
 
-	private static function reshareChannelPost(int $uri_id)
+	private static function reshareChannelPost(int $uri_id, int $reshare_id = 0)
 	{
 		if (!DI::config()->get('system', 'allow_relay_channels')) {
 			return;
@@ -1476,12 +1479,20 @@ class Item
 		$language = !empty($item['language']) ? array_key_first(json_decode($item['language'], true)) : '';
 		$tags     = array_column(Tag::getByURIId($uri_id, [Tag::HASHTAG]), 'name');
 
-		Logger::debug('Prepare check', ['uri-id' => $uri_id, 'language' => $language, 'tags' => $tags, 'searchtext' => $engagement['searchtext'], 'media_type' => $engagement['media-type'], 'owner' => $item['owner-id']]);
+		Logger::debug('Prepare check', ['uri-id' => $uri_id, 'language' => $language, 'tags' => $tags, 'searchtext' => $engagement['searchtext'], 'media_type' => $engagement['media-type'], 'owner' => $item['owner-id'], 'reshare' => $reshare_id]);
 
 		$count = 0;
-		foreach (DI::userDefinedChannel()->getMatchingChannelUsers($engagement['searchtext'], $language, $tags, $engagement['media-type'], $item['owner-id']) as $uid) {
-			Logger::debug('Reshare post', ['uid' => $uid, 'uri-id' => $uri_id]);
-			self::performActivity($item['id'], 'announce', $uid);
+		foreach (DI::userDefinedChannel()->getMatchingChannelUsers($engagement['searchtext'], $language, $tags, $engagement['media-type'], $item['owner-id'], $reshare_id) as $uid) {
+			$condition = [
+				'verb' => Activity::ANNOUNCE, 'deleted' => false, 'gravity' => self::GRAVITY_ACTIVITY,
+				'author-id' => Contact::getPublicIdByUserId($uid), 'uid' => $uid, 'thr-parent-id' => $uri_id
+			];
+			if (!Post::exists($condition)) {
+				Logger::debug('Reshare post', ['uid' => $uid, 'uri-id' => $uri_id]);
+				self::performActivity($item['id'], 'announce', $uid);
+			} else {
+				Logger::debug('Reshare already exists', ['uid' => $uid, 'uri-id' => $uri_id]);
+			}
 			$count++;
 		}
 

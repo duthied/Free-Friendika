@@ -166,7 +166,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			return [];
 		}
 
-		return !empty($this->getMatches($searchtext, $language, $tags, $media_type, 0, array_column($users, 'uid'), false));
+		return !empty($this->getMatches($searchtext, $language, $tags, $media_type, 0, 0, array_column($users, 'uid'), false));
 	}
 
 	/**
@@ -177,9 +177,10 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 	 * @param array  $tags
 	 * @param int    $media_type
 	 * @param int    $owner_id
+	 * @param int    $reshare_id
 	 * @return array
 	 */
-	public function getMatchingChannelUsers(string $searchtext, string $language, array $tags, int $media_type, int $owner_id): array
+	public function getMatchingChannelUsers(string $searchtext, string $language, array $tags, int $media_type, int $owner_id, int $reshare_id): array
 	{
 		$condition = $this->getUserCondition();
 		$condition = DBA::mergeConditions($condition, ["`account-type` IN (?, ?) AND `uid` != ?", User::ACCOUNT_TYPE_RELAY, User::ACCOUNT_TYPE_COMMUNITY, 0]);
@@ -187,19 +188,15 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		if (empty($users)) {
 			return [];
 		}
-		return $this->getMatches($searchtext, $language, $tags, $media_type, $owner_id, array_column($users, 'uid'), true);
+		return $this->getMatches($searchtext, $language, $tags, $media_type, $owner_id, $reshare_id, array_column($users, 'uid'), true);
 	}
 
-	private function getMatches(string $searchtext, string $language, array $tags, int $media_type, int $owner_id, array $channelUids, bool $relayMode): array
+	private function getMatches(string $searchtext, string $language, array $tags, int $media_type, int $owner_id, int $reshare_id, array $channelUids, bool $relayMode): array
 	{
 		if (!in_array($language, User::getLanguages())) {
 			$this->logger->debug('Unwanted language found. No matched channel found.', ['language' => $language, 'searchtext' => $searchtext]);
 			return [];
 		}
-
-		array_walk($tags, function (&$value) {
-			$value = mb_strtolower($value);
-		});
 
 		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
 
@@ -217,8 +214,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 				continue;
 			}
 			if (!empty($channel->circle) && ($channel->circle > 0) && !in_array($channel->uid, $uids)) {
-				$account = Contact::selectFirstAccountUser(['id'], ['pid' => $owner_id, 'uid' => $channel->uid]);
-				if (empty($account['id']) || !$this->db->exists('group_member', ['gid' => $channel->circle, 'contact-id' => $account['id']])) {
+				if (!$this->inCircle($channel->circle, $channel->uid, $owner_id) && !$this->inCircle($channel->circle, $channel->uid, $reshare_id)) {
 					continue;
 				}
 			}
@@ -230,29 +226,12 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 				continue;
 			}
 			if (!empty($channel->includeTags) && !in_array($channel->uid, $uids)) {
-				if (empty($tags)) {
-					continue;
-				}
-				$match = false;
-				foreach (explode(',', $channel->includeTags) as $tag) {
-					if (in_array($tag, $tags)) {
-						$match = true;
-						break;
-					}
-				}
-				if (!$match) {
+				if (!$this->inTaglist($channel->includeTags, $tags)) {
 					continue;
 				}
 			}
-			if (!empty($tags) && !empty($channel->excludeTags) && !in_array($channel->uid, $uids)) {
-				$match = false;
-				foreach (explode(',', $channel->excludeTags) as $tag) {
-					if (in_array($tag, $tags)) {
-						$match = true;
-						break;
-					}
-				}
-				if ($match) {
+			if (!empty($channel->excludeTags) && !in_array($channel->uid, $uids)) {
+				if ($this->inTaglist($channel->excludeTags, $tags)) {
 					continue;
 				}
 			}
@@ -262,11 +241,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 				}
 			}
 			if (!empty($channel->fullTextSearch) && !in_array($channel->uid, $uids)) {
-				$channelsearchtext = $channel->fullTextSearch;
-				foreach (Engagement::KEYWORDS as $keyword) {
-					$channelsearchtext = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $channelsearchtext);
-				}
-				if (!$this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $channelsearchtext])) {
+				if (!$this->inFulltext($channel->fullTextSearch)) {
 					continue;
 				}
 			}
@@ -279,6 +254,43 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 
 		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
 		return $uids;
+	}
+
+	private function inCircle(int $circleId, int $uid, int $cid): bool
+	{
+		if ($cid == 0) {
+			return false;
+		}
+
+		$account = Contact::selectFirstAccountUser(['id'], ['pid' => $cid, 'uid' => $uid]);
+		if (empty($account['id'])) {
+			return false;
+		}
+		return $this->db->exists('group_member', ['gid' => $circleId, 'contact-id' => $account['id']]);
+	}
+
+	private function inTaglist(string $tagList, array $tags): bool
+	{
+		if (empty($tags)) {
+			return false;
+		}
+		array_walk($tags, function (&$value) {
+			$value = mb_strtolower($value);
+		});
+		foreach (explode(',', $tagList) as $tag) {
+			if (in_array($tag, $tags)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function inFulltext(string $fullTextSearch): bool
+	{
+		foreach (Engagement::KEYWORDS as $keyword) {
+			$fullTextSearch = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $fullTextSearch);
+		}
+		return $this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $fullTextSearch]);
 	}
 
 	private function getUserCondition()
