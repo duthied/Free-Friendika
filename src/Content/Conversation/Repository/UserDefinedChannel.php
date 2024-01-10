@@ -217,11 +217,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		if (empty($users)) {
 			return [];
 		}
-		return $this->getMatches($searchtext, $language, $tags, $media_type, $owner_id, $reshare_id, array_column($users, 'uid'), true);
-	}
 
-	private function getMatches(string $searchtext, string $language, array $tags, int $media_type, int $owner_id, int $reshare_id, array $channelUids, bool $relayMode): array
-	{
 		if (!in_array($language, User::getLanguages())) {
 			$this->logger->debug('Unwanted language found. No matched channel found.', ['language' => $language, 'searchtext' => $searchtext]);
 			return [];
@@ -231,14 +227,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 
 		$uids = [];
 
-		$condition = ['uid' => $channelUids, 'valid' => true];
-		if (!$relayMode) {
-			$condition = DBA::mergeConditions($condition, ["`full-text-search` != ?", '']);
-		} else {
-			$condition = DBA::mergeConditions($condition, ['publish' => true]);
-		}
-
-		foreach ($this->select($condition) as $channel) {
+		foreach ($this->select(['uid' => array_column($users, 'uid'), 'publish' => true, 'valid' => true]) as $channel) {
 			if (in_array($channel->uid, $uids)) {
 				continue;
 			}
@@ -276,9 +265,6 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			}
 			$uids[] = $channel->uid;
 			$this->logger->debug('Matching channel found.', ['uid' => $channel->uid, 'label' => $channel->label, 'language' => $language, 'tags' => $tags, 'media_type' => $media_type, 'searchtext' => $searchtext]);
-			if (!$relayMode) {
-				return $uids;
-			}
 		}
 
 		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
