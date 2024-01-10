@@ -564,6 +564,7 @@ return [
 			"media-type" => ["type" => "smallint unsigned", "comment" => "Filtered media types"],
 			"languages" => ["type" => "mediumtext", "comment" => "Desired languages"],
 			"publish" => ["type" => "boolean", "comment" => "publish channel content"],
+			"valid" => ["type" => "boolean", "comment" => "Set, when the full-text-search is valid"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],

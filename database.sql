@@ -506,6 +506,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
 	`media-type` smallint unsigned COMMENT 'Filtered media types',
 	`languages` mediumtext COMMENT 'Desired languages',
 	`publish` boolean COMMENT 'publish channel content',
+	`valid` boolean COMMENT 'Set, when the full-text-search is valid',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE

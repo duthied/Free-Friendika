@@ -64,8 +64,10 @@ class Timeline extends \Friendica\BaseEntity
 	protected $languages;
 	/** @var bool */
 	protected $publish;
+	/** @var bool */
+	protected $valid;
 
-	public function __construct(string $code = null, string $label = null, string $description = null, string $accessKey = null, string $path = null, int $uid = null, string $includeTags = null, string $excludeTags = null, string $fullTextSearch = null, int $mediaType = null, int $circle = null, array $languages = null, bool $publish = null)
+	public function __construct(string $code = null, string $label = null, string $description = null, string $accessKey = null, string $path = null, int $uid = null, string $includeTags = null, string $excludeTags = null, string $fullTextSearch = null, int $mediaType = null, int $circle = null, array $languages = null, bool $publish = null, bool $valid = null)
 	{
 		$this->code           = $code;
 		$this->label          = $label;
@@ -80,5 +82,6 @@ class Timeline extends \Friendica\BaseEntity
 		$this->circle         = $circle;
 		$this->languages      = $languages;
 		$this->publish        = $publish;
+		$this->valid          = $valid;
 	}
 }

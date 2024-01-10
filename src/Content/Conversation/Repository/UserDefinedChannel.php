@@ -134,6 +134,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			'media-type'       => $Channel->mediaType,
 			'languages'        => serialize($Channel->languages),
 			'publish'          => $Channel->publish,
+			'valid'            => $this->isValid($Channel->fullTextSearch),
 		];
 
 		if ($Channel->code) {
@@ -147,6 +148,18 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		}
 
 		return $Channel;
+	}
+
+	private function isValid(string $searchtext): bool
+	{
+		if ($searchtext == '') {
+			return true;
+		}
+
+		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
+		$result = $this->db->select('check-full-text-search', [], ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $this->escapeKeywords($searchtext)]);
+		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
+		return $result !== false;
 	}
 
 	/**
@@ -214,7 +227,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 
 		$uids = [];
 
-		$condition = ['uid' => $channelUids];
+		$condition = ['uid' => $channelUids, 'valid' => true];
 		if (!$relayMode) {
 			$condition = DBA::mergeConditions($condition, ["`full-text-search` != ?", '']);
 		} else {
@@ -299,10 +312,15 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 
 	private function inFulltext(string $fullTextSearch): bool
 	{
+		return $this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $this->escapeKeywords($fullTextSearch)]);
+	}
+
+	private function escapeKeywords(string $fullTextSearch): string
+	{
 		foreach (Engagement::KEYWORDS as $keyword) {
 			$fullTextSearch = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $fullTextSearch);
 		}
-		return $this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $fullTextSearch]);
+		return $fullTextSearch;
 	}
 
 	private function getUserCondition()

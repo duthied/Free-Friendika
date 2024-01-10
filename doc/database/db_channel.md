@@ -20,6 +20,7 @@ Fields
 | media-type       | Filtered media types                                                                              | smallint unsigned  | YES  |     | NULL    |                |
 | languages        | Desired languages                                                                                 | mediumtext         | YES  |     | NULL    |                |
 | publish          | publish channel content                                                                           | boolean            | YES  |     | NULL    |                |
+| valid            | Set, when the full-text-search is valid                                                           | boolean            | YES  |     | NULL    |                |
 
 Indexes
 ------------
