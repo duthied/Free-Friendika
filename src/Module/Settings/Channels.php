@@ -114,7 +114,7 @@ class Channels extends BaseSettings
 				'full-text-search' => $request['text_search'][$id],
 				'media-type'       => ($request['image'][$id] ? 1 : 0) | ($request['video'][$id] ? 2 : 0) | ($request['audio'][$id] ? 4 : 0),
 				'languages'        => $request['languages'][$id],
-				'publish'          => $request['publish'][$id],
+				'publish'          => $request['publish'][$id] ?? false,
 			]);
 			$saved = $this->channel->save($channel);
 			$this->logger->debug('Save channel', ['id' => $id, 'saved' => $saved]);
