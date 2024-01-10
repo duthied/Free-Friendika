@@ -151,7 +151,8 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 
 	/**
 	 * Checks, if one of the user defined channels matches with the given search text
-	 * @todo To increase the performance, this functionality should be replaced with a single SQL call.
+	 * @todo Combine all the full text statements in a single search text to improve the performance.
+	 * Add a "valid" field for the channel that is set when the full text statement doesn't contain errors.
 	 *
 	 * @param string $searchtext
 	 * @param string $language
@@ -166,7 +167,18 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			return [];
 		}
 
-		return !empty($this->getMatches($searchtext, $language, $tags, $media_type, 0, 0, array_column($users, 'uid'), false));
+		$uids = array_column($users, 'uid');
+
+		$condition = ['uid' => $uids];
+		$condition = DBA::mergeConditions($condition, ["`languages` != ? AND `include-tags` = ? AND `full-text-search` = ? AND circle = ?", '', '', '', 0]);
+
+		foreach ($this->select($condition) as $channel) {
+			if (!empty($channel->languages) && in_array($language, $channel->languages)) {
+				return true;
+			}
+		}
+
+		return !empty($this->getMatches($searchtext, $language, $tags, $media_type, 0, 0, $uids, false));
 	}
 
 	/**
