@@ -163,17 +163,13 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 	}
 
 	/**
-	 * Checks, if one of the user defined channels matches with the given search text
-	 * @todo Combine all the full text statements in a single search text to improve the performance.
-	 * Add a "valid" field for the channel that is set when the full text statement doesn't contain errors.
+	 * Checks, if one of the user defined channels matches with the given search text or languages
 	 *
 	 * @param string $searchtext
 	 * @param string $language
-	 * @param array  $tags
-	 * @param int    $media_type
 	 * @return boolean
 	 */
-	public function match(string $searchtext, string $language, array $tags, int $media_type): bool
+	public function match(string $searchtext, string $language): bool
 	{
 		$users = $this->db->selectToArray('user', ['uid'], $this->getUserCondition());
 		if (empty($users)) {
@@ -182,16 +178,24 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 
 		$uids = array_column($users, 'uid');
 
-		$condition = ['uid' => $uids];
-		$condition = DBA::mergeConditions($condition, ["`languages` != ? AND `include-tags` = ? AND `full-text-search` = ? AND circle = ?", '', '', '', 0]);
-
+		$usercondition = ['uid' => $uids];
+		$condition = DBA::mergeConditions($usercondition, ["`languages` != ? AND `include-tags` = ? AND `full-text-search` = ? AND `circle` = ?", '', '', '', 0]);
 		foreach ($this->select($condition) as $channel) {
 			if (!empty($channel->languages) && in_array($language, $channel->languages)) {
 				return true;
 			}
 		}
 
-		return !empty($this->getMatches($searchtext, $language, $tags, $media_type, 0, 0, $uids, false));
+		$search = '';
+		$condition = DBA::mergeConditions($usercondition, ["`full-text-search` != ? AND `circle` = ? AND `valid`", '', 0]);
+		foreach ($this->select($condition) as $channel) {
+			$search .= '(' . $channel->fullTextSearch . ') ';
+		}
+
+		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
+		$result = $this->inFulltext($search);
+		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
+		return $result;
 	}
 
 	/**

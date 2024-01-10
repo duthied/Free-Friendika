@@ -91,9 +91,8 @@ class Engagement
 
 		$searchtext = self::getSearchTextForItem($parent);
 		if (!$store) {
-			$tags     = array_column(Tag::getByURIId($item['parent-uri-id'], [Tag::HASHTAG]), 'name');
 			$language = !empty($parent['language']) ? (array_key_first(json_decode($parent['language'], true)) ?? '') : '';
-			$store    = DI::userDefinedChannel()->match($searchtext, $language, $tags, $mediatype);
+			$store    = DI::userDefinedChannel()->match($searchtext, $language);
 		}
 
 		$engagement = [
