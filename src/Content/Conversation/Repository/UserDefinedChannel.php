@@ -156,10 +156,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			return true;
 		}
 
-		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
-		$result = $this->db->select('check-full-text-search', [], ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $this->escapeKeywords($searchtext)]);
-		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
-		return $result !== false;
+		return $this->db->select('check-full-text-search', [], ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $this->escapeKeywords($searchtext)]) !== false;
 	}
 
 	/**
