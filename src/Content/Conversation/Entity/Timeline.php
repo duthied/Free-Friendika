@@ -35,6 +35,7 @@ namespace Friendica\Content\Conversation\Entity;
  * @property-read array  $languages      Channel languages
  * @property-read int    $circle         Circle or timeline this channel is based on
  * @property-read bool   $publish        Publish the channel
+ * @property-read bool   $valid          Signalizes that the search condiions are valid
  */
 class Timeline extends \Friendica\BaseEntity
 {
