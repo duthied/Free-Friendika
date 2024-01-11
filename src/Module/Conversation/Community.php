@@ -132,8 +132,8 @@ class Community extends Timeline
 		$pager = new BoundariesPager(
 			$this->l10n,
 			$this->args->getQueryString(),
-			$items[0]['received'],
-			$items[count($items) - 1]['received'],
+			$items[array_key_first($items)]['received'],
+			$items[array_key_last($items)]['received'],
 			$this->itemsPerPage
 		);
 
