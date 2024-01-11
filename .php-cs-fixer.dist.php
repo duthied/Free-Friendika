@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/bin/dev/php-cs-fixer/vendor/autoload.php';
-
 $finder = PhpCsFixer\Finder::create()
 	->in(__DIR__)
 	->notPath('bin/dev')
