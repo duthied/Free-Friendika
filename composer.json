@@ -150,6 +150,8 @@
 		"cs:fix": [
 			"@cs:install",
 			"bin/dev/php-cs-fixer/vendor/bin/php-cs-fixer fix"
-		]
+		],
+		"cs:check-v3": "vendor/bin/php-cs-fixer check --diff",
+		"cs:fix-v3": "vendor/bin/php-cs-fixer fix"
 	}
 }
