@@ -1345,7 +1345,7 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
 	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Person, organisation, news, community, relay',
 	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
-	`language` varbinary(128) COMMENT 'Language information about this post',
+	`language` varchar(128) COMMENT 'Language information about this post',
 	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
 	`created` datetime COMMENT '',
 	`restricted` boolean NOT NULL DEFAULT '0' COMMENT 'If true, this post is either unlisted or not from a federated network',
