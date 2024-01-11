@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 $finder = PhpCsFixer\Finder::create()
 	->in(__DIR__)
+	->notPath('addon')
 	->notPath('bin/dev')
 	->notPath('config')
 	->notPath('doc')
