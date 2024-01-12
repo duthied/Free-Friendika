@@ -96,7 +96,7 @@ class Subscribe extends \Friendica\BaseModule
 					return $o . $this->t('Couldn\'t fetch friends for contact.');
 				}
 
-				$friends = $curlResult->getBody();
+				$friends = $curlResult->getBodyString();
 				if (empty($friends)) {
 					$this->pConfig->delete($uid, 'ostatus', 'legacy_contact');
 					return $o . $this->t('Couldn\'t fetch following contacts.');

@@ -433,12 +433,12 @@ class HTTPSignature
 			return [];
 		}
 
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+		if (!$curlResult->isSuccess() || empty($curlResult->getBodyString())) {
 			Logger::debug('Fetching was unsuccessful', ['url' => $request, 'return-code' => $curlResult->getReturnCode(), 'error-number' => $curlResult->getErrorNumber(), 'error' => $curlResult->getError()]);
 			return [];
 		}
 
-		$content = json_decode($curlResult->getBody(), true);
+		$content = json_decode($curlResult->getBodyString(), true);
 		if (empty($content) || !is_array($content)) {
 			return [];
 		}

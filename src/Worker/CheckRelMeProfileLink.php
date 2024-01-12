@@ -70,7 +70,7 @@ class CheckRelMeProfileLink
 			return;
 		}
 
-		$content = $curlResult->getBody();
+		$content = $curlResult->getBodyString();
 		if (!$content) {
 			Logger::notice('Empty body of the fetched homepage link). Cannot verify the relation to profile of UID %s.', ['uid' => $uid, 'owner homepage' => $owner['homepage']]);
 			return;
