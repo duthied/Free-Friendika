@@ -2122,8 +2122,10 @@ class Item
 	 * @param array   $default
 	 * @return array
 	 */
-	public static function getLanguageArray(string $body, int $count, int $uri_id = 0, int $author_id = 0, array $default = ['un' => 1]): array
+	public static function getLanguageArray(string $body, int $count, int $uri_id = 0, int $author_id = 0, array $default = []): array
 	{
+		$default = $default ?: ['un' => 1];
+
 		$searchtext = BBCode::toSearchText($body, $uri_id);
 
 		if ((count(explode(' ', $searchtext)) < 10) && (mb_strlen($searchtext) < 30) && $author_id) {
