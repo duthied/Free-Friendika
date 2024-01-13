@@ -271,7 +271,7 @@ class HttpClient implements ICanSendHttpRequests
 	{
 		$ret = $this->fetchFull($url, $accept_content, $timeout, $cookiejar);
 
-		return $ret->getBody();
+		return $ret->getBodyString();
 	}
 
 	/**

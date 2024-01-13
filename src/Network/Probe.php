@@ -225,7 +225,7 @@ class Probe
 		$curlResult = DI::httpClient()->get($ssl_url, HttpClientAccept::XRD_XML, [HttpClientOptions::TIMEOUT => $xrd_timeout]);
 		$ssl_connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 		if ($curlResult->isSuccess()) {
-			$xml = $curlResult->getBody();
+			$xml = $curlResult->getBodyString();
 			$xrd = XML::parseString($xml, true);
 			if (!empty($url)) {
 				$host_url = 'https://' . $host;
@@ -250,7 +250,7 @@ class Probe
 				return [];
 			}
 
-			$xml = $curlResult->getBody();
+			$xml = $curlResult->getBodyString();
 			$xrd = XML::parseString($xml, true);
 			$host_url = 'http://'.$host;
 		}
@@ -426,7 +426,7 @@ class Probe
 
 		if (!empty($data['baseurl']) && empty($data['gsid'])) {
 			$data['gsid'] = GServer::getID($data['baseurl']);
-		}	
+		}
 
 		// Ensure that local connections always are DFRN
 		if (($network == '') && ($data['network'] != Protocol::PHANTOM) && (self::ownHost($data['baseurl'] ?? '') || self::ownHost($data['url']))) {
@@ -459,7 +459,7 @@ class Probe
 			return false;
 		}
 
-		$body = $curlResult->getBody();
+		$body = $curlResult->getBodyString();
 		if (empty($body)) {
 			return false;
 		}
@@ -865,7 +865,7 @@ class Probe
 		if ($curlResult->isTimeout()) {
 			return $data;
 		}
-		$content = $curlResult->getBody();
+		$content = $curlResult->getBodyString();
 		if (!$content) {
 			return $data;
 		}
@@ -971,7 +971,7 @@ class Probe
 			self::$isTimeout = true;
 			return [];
 		}
-		$data = $curlResult->getBody();
+		$data = $curlResult->getBodyString();
 
 		$webfinger = json_decode($data, true);
 		if (!empty($webfinger)) {
@@ -1040,7 +1040,7 @@ class Probe
 			self::$isTimeout = true;
 			return $data;
 		}
-		$content = $curlResult->getBody();
+		$content = $curlResult->getBodyString();
 		if (!$content) {
 			Logger::info('Empty body', ['url' => $noscrape_url]);
 			return $data;
@@ -1303,7 +1303,7 @@ class Probe
 			self::$isTimeout = true;
 			return [];
 		}
-		$content = $curlResult->getBody();
+		$content = $curlResult->getBodyString();
 		if (empty($content)) {
 			return [];
 		}
@@ -1580,7 +1580,7 @@ class Probe
 							return $short ? false : [];
 						}
 						Logger::debug('Fetched public key', ['Content-Type' => $curlResult->getHeader('Content-Type'), 'url' => $pubkey]);
-						$pubkey = $curlResult->getBody();
+						$pubkey = $curlResult->getBodyString();
 					}
 
 					try {
@@ -1612,7 +1612,7 @@ class Probe
 			self::$isTimeout = true;
 			return [];
 		}
-		$feed = $curlResult->getBody();
+		$feed = $curlResult->getBodyString();
 		$feed_data = Feed::import($feed);
 		if (!$feed_data) {
 			return [];
@@ -1660,12 +1660,12 @@ class Probe
 	private static function pumpioProfileData(string $profile_link, string $baseurl): array
 	{
 		$curlResult = DI::httpClient()->get($profile_link, HttpClientAccept::HTML);
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+		if (!$curlResult->isSuccess() || empty($curlResult->getBodyString())) {
 			return [];
 		}
 
 		$doc = new DOMDocument();
-		if (!@$doc->loadHTML($curlResult->getBody())) {
+		if (!@$doc->loadHTML($curlResult->getBodyString())) {
 			return [];
 		}
 
@@ -1887,7 +1887,7 @@ class Probe
 			return [];
 		}
 
-		$feed = $curlResult->getBody();
+		$feed = $curlResult->getBodyString();
 		$feed_data = Feed::import($feed);
 
 		if (!$feed_data) {
@@ -2112,8 +2112,8 @@ class Probe
 
 		$curlResult = DI::httpClient()->get($gserver['noscrape'] . '/' . $data['nick'], HttpClientAccept::JSON);
 
-		if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
-			$noscrape = json_decode($curlResult->getBody(), true);
+		if ($curlResult->isSuccess() && !empty($curlResult->getBodyString())) {
+			$noscrape = json_decode($curlResult->getBodyString(), true);
 			if (!empty($noscrape) && !empty($noscrape['updated'])) {
 				return DateTimeFormat::utc($noscrape['updated'], DateTimeFormat::MYSQL);
 			}
@@ -2187,12 +2187,12 @@ class Probe
 	{
 		// Search for the newest entry in the feed
 		$curlResult = DI::httpClient()->get($data['poll'], HttpClientAccept::ATOM_XML);
-		if (!$curlResult->isSuccess() || !$curlResult->getBody()) {
+		if (!$curlResult->isSuccess() || !$curlResult->getBodyString()) {
 			return '';
 		}
 
 		$doc = new DOMDocument();
-		@$doc->loadXML($curlResult->getBody());
+		@$doc->loadXML($curlResult->getBodyString());
 
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', 'http://www.w3.org/2005/Atom');

@@ -135,7 +135,7 @@ class Link
 		}
 		$fields = ['mimetype' => $curlResult->getHeader('Content-Type')[0]];
 
-		$img_str = $curlResult->getBody();
+		$img_str = $curlResult->getBodyString();
 		$image = new Image($img_str, Images::getMimeTypeByData($img_str));
 		if ($image->isValid()) {
 			$fields['mimetype'] = $image->getType();

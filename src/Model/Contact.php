@@ -2300,7 +2300,7 @@ class Contact
 					try {
 						$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
 
-						$img_str = $fetchResult->getBody();
+						$img_str = $fetchResult->getBodyString();
 						if (!empty($img_str)) {
 							$image = new Image($img_str, Images::getMimeTypeByData($img_str));
 							if ($image->isValid()) {

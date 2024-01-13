@@ -250,7 +250,7 @@ class ExAuth
 			return false;
 		}
 
-		$json = @json_decode($curlResult->getBody());
+		$json = @json_decode($curlResult->getBodyString());
 		if (!is_object($json)) {
 			return false;
 		}
