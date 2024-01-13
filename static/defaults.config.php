@@ -441,6 +441,10 @@ return [
 		// Don't show smilies.
 		'no_smilies' => false,
 
+		// tesseract_ocr (Boolean)
+		// Use Tesseract OCR to use OCR to fetch text from images
+		'tesseract_ocr' => false,
+
 		// optimize_all_tables (Boolean)
 		// Optimizes all tables instead of only tables like workerqueue or the cache
 		'optimize_all_tables' => false,
