@@ -258,6 +258,10 @@ class BBCode
 		// Add images because of possible alt texts
 		if (!empty($uri_id)) {
 			$text = Post\Media::addAttachmentsToBody($uri_id, $text, [Post\Media::IMAGE]);
+
+			foreach (Post\Media::getByURIId($uri_id, [Post\Media::HTML]) as $media) {
+				$text .= ' ' . $media['name'] . ' ' . $media['description'];
+			}
 		}
 
 		if (empty($text)) {
