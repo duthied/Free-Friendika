@@ -283,7 +283,7 @@ class BBCode
 		// Removes mentions, remove links from hashtags
 		$text = preg_replace('/[@!]\[url\=.*?\].*?\[\/url\]/ism', ' ', $text);
 		$text = preg_replace('/[#]\[url\=.*?\](.*?)\[\/url\]/ism', ' #$1 ', $text);
-		$text = preg_replace('/[@!#]?\[url.*?\[\/url\]/ism', ' ', $text);
+		$text = preg_replace('/[@!#]+?\[url.*?\[\/url\]/ism', ' ', $text);
 		$text = preg_replace("/\[url=[^\[\]]*\](.*)\[\/url\]/Usi", ' $1 ', $text);
 
 		// Convert it to plain text
