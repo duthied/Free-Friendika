@@ -1553,16 +1553,17 @@ class User
 	/**
 	 * Creates a new user based on a minimal set and sends an email to this user
 	 *
-	 * @param string $name  The user's name
-	 * @param string $email The user's email address
-	 * @param string $nick  The user's nick name
-	 * @param string $lang  The user's language (default is english)
+	 * @param string $name   The user's name
+	 * @param string $email  The user's email address
+	 * @param string $nick   The user's nick name
+	 * @param string $lang   The user's language (default is english)
+	 * @param string $avatar URL to an image to use as avatar (default is to prompt user at first login)
 	 * @return bool True, if the user was created successfully
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ErrorException
 	 * @throws ImagickException
 	 */
-	public static function createMinimal(string $name, string $email, string $nick, string $lang = L10n::DEFAULT): bool
+	public static function createMinimal(string $name, string $email, string $nick, string $lang = L10n::DEFAULT, string $avatar = ''): bool
 	{
 		if (empty($name) ||
 		    empty($email) ||
@@ -1575,7 +1576,8 @@ class User
 			'email' => $email,
 			'nickname' => $nick,
 			'verified' => 1,
-			'language' => $lang
+			'language' => $lang,
+			'photo' => $avatar
 		]);
 
 		$user = $result['user'];
