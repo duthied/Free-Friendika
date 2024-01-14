@@ -21,13 +21,12 @@
 
 namespace Friendica\Util;
 
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Object\Image;
-use thiagoalessio\TesseractOCR\TesseractOCR;
 
 /**
  * Image utilities
@@ -262,15 +261,12 @@ class Images
 		if ($image->isValid()) {
 			$data['blurhash'] = $image->getBlurHash();
 			
-			if ($ocr && DI::config()->get('system', 'tesseract_ocr')) {
-				$ocr = new TesseractOCR();
-				try {
-					$ocr->tempDir(System::getTempPath());
-					$ocr->imageData($img_str, strlen($img_str));
-					$data['description'] = $ocr->run();
-				} catch (\Throwable $th) {
-					Logger::info('Error calling TesseractOCR', ['message' => $th->getMessage()]);
-				}			
+			if ($ocr) {
+				$media = ['img_str' => $img_str];
+				Hook::callAll('ocr-detection', $media);
+				if (!empty($media['description'])) {
+					$data['description'] = $media['description'];
+				}
 			}
 		}
 
