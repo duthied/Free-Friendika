@@ -614,7 +614,7 @@ class Processor
 		}
 
 		if ($curlResult->isSuccess()) {
-			$object = json_decode($curlResult->getBody(), true);
+			$object = json_decode($curlResult->getBodyString(), true);
 			if (!empty($object)) {
 				$activity = JsonLD::compact($object);
 				if (JsonLD::fetchElement($activity, '@type') == 'as:Tombstone') {
@@ -1584,7 +1584,7 @@ class Processor
 			return '';
 		}
 
-		$body = $curlResult->getBody();
+		$body = $curlResult->getBodyString();
 		if (!$curlResult->isSuccess() || empty($body)) {
 			if (in_array($curlResult->getReturnCode(), [403, 404, 406, 410])) {
 				return null;

@@ -330,7 +330,7 @@ class CurlResult implements ICanHandleHttpResponses
 	}
 
 	/** {@inheritDoc} */
-	public function getBody(): string
+	public function getBodyString(): string
 	{
 		return $this->body;
 	}

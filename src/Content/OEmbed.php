@@ -120,7 +120,7 @@ class OEmbed
 								['https://www.youtube.com/', 'https://player.vimeo.com/'], $href);
 							$result = DI::httpClient()->fetchFull($href . '&maxwidth=' . $a->getThemeInfoValue('videowidth'));
 							if ($result->getReturnCode() === 200) {
-								$json_string = $result->getBody();
+								$json_string = $result->getBodyString();
 								break;
 							}
 						}

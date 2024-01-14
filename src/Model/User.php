@@ -1383,7 +1383,7 @@ class User
 			$curlResult = DI::httpClient()->get($photo, HttpClientAccept::IMAGE);
 			if ($curlResult->isSuccess()) {
 				Logger::debug('Got picture', ['Content-Type' => $curlResult->getHeader('Content-Type'), 'url' => $photo]);
-				$img_str = $curlResult->getBody();
+				$img_str = $curlResult->getBodyString();
 				$type = $curlResult->getContentType();
 			} else {
 				$img_str = '';
@@ -1597,8 +1597,8 @@ class User
 		You may also wish to add some basic information to your default profile
 		(on the "Profiles" page) so that other people can easily find you.
 
-		We recommend adding a profile photo, adding some profile "keywords" 
-		(very useful in making new friends) - and perhaps what country you live in; 
+		We recommend adding a profile photo, adding some profile "keywords"
+		(very useful in making new friends) - and perhaps what country you live in;
 		if you do not wish to be more specific than that.
 
 		We fully respect your right to privacy, and none of these items are necessary.

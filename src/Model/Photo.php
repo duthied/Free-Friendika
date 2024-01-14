@@ -597,7 +597,7 @@ class Photo
 		if (!empty($image_url)) {
 			$ret = DI::httpClient()->get($image_url, HttpClientAccept::IMAGE);
 			Logger::debug('Got picture', ['Content-Type' => $ret->getHeader('Content-Type'), 'url' => $image_url]);
-			$img_str = $ret->getBody();
+			$img_str = $ret->getBodyString();
 			$type = $ret->getContentType();
 		} else {
 			$img_str = '';
@@ -1047,7 +1047,7 @@ class Photo
 		if (!empty($image_url)) {
 			$ret = DI::httpClient()->get($image_url, HttpClientAccept::IMAGE);
 			Logger::debug('Got picture', ['Content-Type' => $ret->getHeader('Content-Type'), 'url' => $image_url]);
-			$img_str = $ret->getBody();
+			$img_str = $ret->getBodyString();
 			$type = $ret->getContentType();
 		} else {
 			$img_str = '';

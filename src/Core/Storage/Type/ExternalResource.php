@@ -70,12 +70,12 @@ class ExternalResource implements ICanReadFromStorage
 		}
 		if (!empty($fetchResult) && $fetchResult->isSuccess()) {
 			$this->logger->debug('Got picture', ['Content-Type' => $fetchResult->getHeader('Content-Type'), 'uid' => $data->uid, 'url' => $data->url]);
-			return $fetchResult->getBody();
+			return $fetchResult->getBodyString();
 		} else {
 			if (empty($fetchResult)) {
 				throw new ReferenceStorageException(sprintf('External resource failed to get %s', $reference));
 			} else {
-				throw new ReferenceStorageException(sprintf('External resource failed to get %s', $reference), $fetchResult->getReturnCode(), new Exception($fetchResult->getBody()));
+				throw new ReferenceStorageException(sprintf('External resource failed to get %s', $reference), $fetchResult->getReturnCode(), new Exception($fetchResult->getBodyString()));
 			}
 		}
 	}

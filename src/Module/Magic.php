@@ -155,7 +155,7 @@ class Magic extends BaseModule
 			System::externalRedirect($dest);
 		}
 
-		$j = json_decode($curlResult->getBody(), true);
+		$j = json_decode($curlResult->getBodyString(), true);
 		if (empty($j) || !$j['success']) {
 			$this->logger->notice('Invalid JSON, redirecting to destination.', ['json' => $j, 'dest' => $dest]);
 			$this->app->redirect($dest);
