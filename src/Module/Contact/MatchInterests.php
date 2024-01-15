@@ -132,7 +132,7 @@ class MatchInterests extends BaseModule
 				}
 			}
 
-			$entries = $this->parseContacts(json_decode($result->getBody()), $entries, $limit);
+			$entries = $this->parseContacts(json_decode($result->getBodyString()), $entries, $limit);
 		}
 
 		if (empty($entries)) {

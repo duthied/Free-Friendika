@@ -21,6 +21,7 @@
 
 namespace Friendica\Util;
 
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\Photo;
@@ -181,10 +182,11 @@ class Images
 	 * Gets info array from given URL, cached data has priority
 	 *
 	 * @param string $url
+	 * @param bool   $ocr
 	 * @return array Info
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getInfoFromURLCached(string $url): array
+	public static function getInfoFromURLCached(string $url, bool $ocr = false): array
 	{
 		$data = [];
 
@@ -192,12 +194,12 @@ class Images
 			return $data;
 		}
 
-		$cacheKey = 'getInfoFromURL:' . sha1($url);
+		$cacheKey = 'getInfoFromURL:' . sha1($url . $ocr);
 
 		$data = DI::cache()->get($cacheKey);
 
 		if (empty($data) || !is_array($data)) {
-			$data = self::getInfoFromURL($url);
+			$data = self::getInfoFromURL($url, $ocr);
 
 			DI::cache()->set($cacheKey, $data);
 		}
@@ -209,10 +211,11 @@ class Images
 	 * Gets info from URL uncached
 	 *
 	 * @param string $url
+	 * @param bool   $ocr
 	 * @return array Info array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getInfoFromURL(string $url): array
+	public static function getInfoFromURL(string $url, bool $ocr = false): array
 	{
 		$data = [];
 
@@ -257,6 +260,14 @@ class Images
 
 		if ($image->isValid()) {
 			$data['blurhash'] = $image->getBlurHash();
+			
+			if ($ocr) {
+				$media = ['img_str' => $img_str];
+				Hook::callAll('ocr-detection', $media);
+				if (!empty($media['description'])) {
+					$data['description'] = $media['description'];
+				}
+			}
 		}
 
 		$data['size'] = $filesize;

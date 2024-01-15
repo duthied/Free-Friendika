@@ -154,7 +154,7 @@ class PubSubHubBub extends \Friendica\BaseModule
 		$separator    = parse_url($hub_callback, PHP_URL_QUERY) === null ? '?' : '&';
 
 		$fetchResult = $this->httpClient->fetchFull($hub_callback . $separator . $params);
-		$body        = $fetchResult->getBody();
+		$body        = $fetchResult->getBodyString();
 		$returnCode  = $fetchResult->getReturnCode();
 
 		// give up if the HTTP return code wasn't a success (2xx)

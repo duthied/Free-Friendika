@@ -45,12 +45,12 @@ class UpdateServerPeers
 		}
 
 		$ret = DI::httpClient()->get($url . '/api/v1/instance/peers', HttpClientAccept::JSON);
-		if (!$ret->isSuccess() || empty($ret->getBody())) {
+		if (!$ret->isSuccess() || empty($ret->getBodyString())) {
 			Logger::info('Server is not reachable or does not offer the "peers" endpoint', ['url' => $url]);
 			return;
 		}
 
-		$peers = json_decode($ret->getBody());
+		$peers = json_decode($ret->getBodyString());
 		if (empty($peers) || !is_array($peers)) {
 			Logger::info('Server does not have any peers listed', ['url' => $url]);
 			return;

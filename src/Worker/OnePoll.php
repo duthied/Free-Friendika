@@ -172,7 +172,7 @@ class OnePoll
 			return false;
 		}
 
-		$xml = $curlResult->getBody();
+		$xml = $curlResult->getBodyString();
 		if (empty($xml)) {
 			Logger::notice('Empty content', ['id' => $contact['id'], 'url' => $contact['poll']]);
 			return false;

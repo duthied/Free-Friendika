@@ -234,7 +234,7 @@ class Search
 			$p = $page > 1 ? 'p=' . $page : '';
 			$curlResult = DI::httpClient()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), HttpClientAccept::JSON);
 			if ($curlResult->isSuccess()) {
-				$searchResult = json_decode($curlResult->getBody(), true);
+				$searchResult = json_decode($curlResult->getBodyString(), true);
 				if (!empty($searchResult['profiles'])) {
 					// Converting Directory Search results into contact-looking records
 					$return = array_map(function ($result) {

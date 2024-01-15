@@ -874,7 +874,7 @@ class User
 		try {
 			$passwordExposedChecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
 
-			return $passwordExposedChecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
+			return $passwordExposedChecker->passwordExposed($password) === PasswordExposed\Enums\PasswordStatus::EXPOSED;
 		} catch (Exception $e) {
 			Logger::error('Password Exposed Exception: ' . $e->getMessage(), [
 				'code' => $e->getCode(),
@@ -1393,7 +1393,7 @@ class User
 			$curlResult = DI::httpClient()->get($photo, HttpClientAccept::IMAGE);
 			if ($curlResult->isSuccess()) {
 				Logger::debug('Got picture', ['Content-Type' => $curlResult->getHeader('Content-Type'), 'url' => $photo]);
-				$img_str = $curlResult->getBody();
+				$img_str = $curlResult->getBodyString();
 				$type = $curlResult->getContentType();
 			} else {
 				$img_str = '';
@@ -1563,16 +1563,17 @@ class User
 	/**
 	 * Creates a new user based on a minimal set and sends an email to this user
 	 *
-	 * @param string $name  The user's name
-	 * @param string $email The user's email address
-	 * @param string $nick  The user's nick name
-	 * @param string $lang  The user's language (default is english)
+	 * @param string $name   The user's name
+	 * @param string $email  The user's email address
+	 * @param string $nick   The user's nick name
+	 * @param string $lang   The user's language (default is english)
+	 * @param string $avatar URL to an image to use as avatar (default is to prompt user at first login)
 	 * @return bool True, if the user was created successfully
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ErrorException
 	 * @throws ImagickException
 	 */
-	public static function createMinimal(string $name, string $email, string $nick, string $lang = L10n::DEFAULT): bool
+	public static function createMinimal(string $name, string $email, string $nick, string $lang = L10n::DEFAULT, string $avatar = ''): bool
 	{
 		if (empty($name) ||
 		    empty($email) ||
@@ -1585,7 +1586,8 @@ class User
 			'email' => $email,
 			'nickname' => $nick,
 			'verified' => 1,
-			'language' => $lang
+			'language' => $lang,
+			'photo' => $avatar
 		]);
 
 		$user = $result['user'];
@@ -1607,8 +1609,8 @@ class User
 		You may also wish to add some basic information to your default profile
 		(on the "Profiles" page) so that other people can easily find you.
 
-		We recommend adding a profile photo, adding some profile "keywords" 
-		(very useful in making new friends) - and perhaps what country you live in; 
+		We recommend adding a profile photo, adding some profile "keywords"
+		(very useful in making new friends) - and perhaps what country you live in;
 		if you do not wish to be more specific than that.
 
 		We fully respect your right to privacy, and none of these items are necessary.

@@ -97,10 +97,9 @@ interface ICanHandleHttpResponses
 	/**
 	 * Getter for body
 	 *
-	 * @see MessageInterface::getBody()
 	 * @return string
 	 */
-	public function getBody();
+	public function getBodyString();
 
 	/**
 	 * @return boolean

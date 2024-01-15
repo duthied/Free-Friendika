@@ -208,13 +208,17 @@ class Media
 		$filetype = !empty($media['mimetype']) ? strtolower(current(explode('/', $media['mimetype']))) : '';
 
 		if (($media['type'] == self::IMAGE) || ($filetype == 'image')) {
-			$imagedata = Images::getInfoFromURLCached($media['url']);
+			$imagedata = Images::getInfoFromURLCached($media['url'], empty($media['description']));
 			if ($imagedata) {
 				$media['mimetype'] = $imagedata['mime'];
 				$media['size'] = $imagedata['size'];
 				$media['width'] = $imagedata[0];
 				$media['height'] = $imagedata[1];
 				$media['blurhash'] = $imagedata['blurhash'] ?? null;
+				if (!empty($imagedata['description']) && empty($media['description'])) {
+					$media['description'] = $imagedata['description'];
+					Logger::debug('Detected text for image', $media);
+				}
 			} else {
 				Logger::notice('No image data', ['media' => $media]);
 			}
