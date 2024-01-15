@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2024.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-14 07:50+0000\n"
+"POT-Creation-Date: 2024-01-15 16:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -953,7 +953,7 @@ msgstr ""
 msgid "All pending post updates are done."
 msgstr ""
 
-#: src/Console/User.php:158 src/Console/User.php:245
+#: src/Console/User.php:158 src/Console/User.php:246
 msgid "Enter user nickname: "
 msgstr ""
 
@@ -980,44 +980,48 @@ msgstr ""
 msgid "Password changed."
 msgstr ""
 
-#: src/Console/User.php:237
+#: src/Console/User.php:238
 msgid "Enter user name: "
 msgstr ""
 
-#: src/Console/User.php:253
+#: src/Console/User.php:254
 msgid "Enter user email address: "
 msgstr ""
 
-#: src/Console/User.php:261
+#: src/Console/User.php:262
 msgid "Enter a language (optional): "
 msgstr ""
 
-#: src/Console/User.php:286
+#: src/Console/User.php:267
+msgid "Enter URL of an image to use as avatar (optional): "
+msgstr ""
+
+#: src/Console/User.php:292
 msgid "User is not pending."
 msgstr ""
 
-#: src/Console/User.php:318
+#: src/Console/User.php:324
 msgid "User has already been marked for deletion."
 msgstr ""
 
-#: src/Console/User.php:323
+#: src/Console/User.php:329
 #, php-format
 msgid "Type \"yes\" to delete %s"
 msgstr ""
 
-#: src/Console/User.php:325
+#: src/Console/User.php:331
 msgid "Deletion aborted."
 msgstr ""
 
-#: src/Console/User.php:450
+#: src/Console/User.php:456
 msgid "Enter category: "
 msgstr ""
 
-#: src/Console/User.php:460
+#: src/Console/User.php:466
 msgid "Enter key: "
 msgstr ""
 
-#: src/Console/User.php:494
+#: src/Console/User.php:500
 msgid "Enter value: "
 msgstr ""
 
@@ -3785,7 +3789,7 @@ msgstr ""
 msgid "Profile Photos"
 msgstr ""
 
-#: src/Model/User.php:1582
+#: src/Model/User.php:1584
 #, php-format
 msgid ""
 "\n"
@@ -3793,7 +3797,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1585
+#: src/Model/User.php:1587
 #, php-format
 msgid ""
 "\n"
@@ -3829,12 +3833,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1617 src/Model/User.php:1723
+#: src/Model/User.php:1619 src/Model/User.php:1725
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: src/Model/User.php:1637
+#: src/Model/User.php:1639
 #, php-format
 msgid ""
 "\n"
@@ -3850,12 +3854,12 @@ msgid ""
 "\t\t"
 msgstr ""
 
-#: src/Model/User.php:1656
+#: src/Model/User.php:1658
 #, php-format
 msgid "Registration at %s"
 msgstr ""
 
-#: src/Model/User.php:1680
+#: src/Model/User.php:1682
 #, php-format
 msgid ""
 "\n"
@@ -3864,7 +3868,7 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: src/Model/User.php:1688
+#: src/Model/User.php:1690
 #, php-format
 msgid ""
 "\n"
@@ -3902,7 +3906,7 @@ msgid ""
 "\t\t\tThank you and welcome to %2$s."
 msgstr ""
 
-#: src/Model/User.php:1750
+#: src/Model/User.php:1752
 msgid ""
 "User with delegates can't be removed, please remove delegate users first"
 msgstr ""
