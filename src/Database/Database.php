@@ -440,28 +440,6 @@ class Database
 	}
 
 	/**
-	 * Replaces ANY_VALUE() function by MIN() function,
-	 * if the database server does not support ANY_VALUE().
-	 *
-	 * Considerations for Standard SQL, or MySQL with ONLY_FULL_GROUP_BY (default since 5.7.5).
-	 * ANY_VALUE() is available from MySQL 5.7.5 https://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html
-	 * A standard fall-back is to use MIN().
-	 *
-	 * @param string $sql An SQL string without the values
-	 *
-	 * @return string The input SQL string modified if necessary.
-	 */
-	public function anyValueFallback(string $sql): string
-	{
-		$server_info = $this->serverInfo();
-		if (version_compare($server_info, '5.7.5', '<') ||
-			(stripos($server_info, 'MariaDB') !== false)) {
-			$sql = str_ireplace('ANY_VALUE(', 'MIN(', $sql);
-		}
-		return $sql;
-	}
-
-	/**
 	 * Replaces the ? placeholders with the parameters in the $args array
 	 *
 	 * @param string $sql  SQL query
@@ -532,7 +510,6 @@ class Database
 		}
 
 		$sql = DBA::cleanQuery($sql);
-		$sql = $this->anyValueFallback($sql);
 
 		$orig_sql = $sql;
 
@@ -1440,7 +1417,7 @@ class Database
 	private function escapeFields(array $fields, array $options): array
 	{
 		// In the case of a "GROUP BY" we have to add all the ORDER fields to the fieldlist.
-		// This needs to done to apply the "ANY_VALUE(...)" treatment from below to them.
+		// This needs to done to apply the "MIN(...)" treatment from below to them.
 		// Otherwise MySQL would report errors.
 		if (!empty($options['group_by']) && !empty($options['order'])) {
 			foreach ($options['order'] as $key => $field) {
@@ -1461,7 +1438,7 @@ class Database
 			$value = DBA::quoteIdentifier($field);
 
 			if (!empty($options['group_by']) && !in_array($field, $options['group_by'])) {
-				$value = 'ANY_VALUE(' . $value . ') AS ' . $value;
+				$value = 'MIN(' . $value . ') AS ' . $value;
 			}
 		});
 
