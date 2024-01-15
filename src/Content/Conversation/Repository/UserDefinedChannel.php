@@ -189,9 +189,10 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			$search .= '(' . $channel->fullTextSearch . ') ';
 		}
 
-		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
+		$this->insertCheckFullTextSearch($searchtext);
 		$result = $this->inFulltext($search);
-		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
+		$this->deleteCheckFullTextSearch();
+
 		return $result;
 	}
 
@@ -220,7 +221,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			return [];
 		}
 
-		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
+		$this->insertCheckFullTextSearch($searchtext);
 
 		$uids = [];
 
@@ -264,8 +265,18 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			$this->logger->debug('Matching channel found.', ['uid' => $channel->uid, 'label' => $channel->label, 'language' => $language, 'tags' => $tags, 'media_type' => $media_type, 'searchtext' => $searchtext]);
 		}
 
-		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
+		$this->deleteCheckFullTextSearch();
 		return $uids;
+	}
+
+	private function insertCheckFullTextSearch(string $searchtext)
+	{
+		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
+	}
+
+	private function deleteCheckFullTextSearch()
+	{
+		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
 	}
 
 	private function inCircle(int $circleId, int $uid, int $cid): bool
