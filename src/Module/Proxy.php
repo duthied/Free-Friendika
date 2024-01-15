@@ -85,7 +85,7 @@ class Proxy extends BaseModule
 		// Fetch the content with the local user
 		try {
 			$fetchResult = HTTPSignature::fetchRaw($request['url'], DI::userSession()->getLocalUserId(), [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE], 'timeout' => 10]);
-			$img_str = $fetchResult->getBody();
+			$img_str = $fetchResult->getBodyString();
 
 			if (!$fetchResult->isSuccess() || empty($img_str)) {
 				Logger::notice('Error fetching image', ['image' => $request['url'], 'return' => $fetchResult->getReturnCode(), 'empty' => empty($img_str)]);

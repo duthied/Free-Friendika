@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2024.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-07 19:57+0000\n"
+"POT-Creation-Date: 2024-01-15 06:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -953,7 +953,7 @@ msgstr ""
 msgid "All pending post updates are done."
 msgstr ""
 
-#: src/Console/User.php:158 src/Console/User.php:245
+#: src/Console/User.php:158 src/Console/User.php:246
 msgid "Enter user nickname: "
 msgstr ""
 
@@ -980,44 +980,48 @@ msgstr ""
 msgid "Password changed."
 msgstr ""
 
-#: src/Console/User.php:237
+#: src/Console/User.php:238
 msgid "Enter user name: "
 msgstr ""
 
-#: src/Console/User.php:253
+#: src/Console/User.php:254
 msgid "Enter user email address: "
 msgstr ""
 
-#: src/Console/User.php:261
+#: src/Console/User.php:262
 msgid "Enter a language (optional): "
 msgstr ""
 
-#: src/Console/User.php:286
+#: src/Console/User.php:267
+msgid "Enter URL of an image to use as avatar (optional): "
+msgstr ""
+
+#: src/Console/User.php:292
 msgid "User is not pending."
 msgstr ""
 
-#: src/Console/User.php:318
+#: src/Console/User.php:324
 msgid "User has already been marked for deletion."
 msgstr ""
 
-#: src/Console/User.php:323
+#: src/Console/User.php:329
 #, php-format
 msgid "Type \"yes\" to delete %s"
 msgstr ""
 
-#: src/Console/User.php:325
+#: src/Console/User.php:331
 msgid "Deletion aborted."
 msgstr ""
 
-#: src/Console/User.php:450
+#: src/Console/User.php:456
 msgid "Enter category: "
 msgstr ""
 
-#: src/Console/User.php:460
+#: src/Console/User.php:466
 msgid "Enter key: "
 msgstr ""
 
-#: src/Console/User.php:494
+#: src/Console/User.php:500
 msgid "Enter value: "
 msgstr ""
 
@@ -1377,7 +1381,7 @@ msgstr ""
 msgid "Public post"
 msgstr ""
 
-#: src/Content/Conversation.php:426 src/Content/Widget/VCard.php:131
+#: src/Content/Conversation.php:426 src/Content/Widget/VCard.php:127
 #: src/Model/Profile.php:483 src/Module/Admin/Logs/View.php:92
 #: src/Module/Post/Edit.php:181
 msgid "Message"
@@ -1766,7 +1770,7 @@ msgstr ""
 msgid "Create new group"
 msgstr ""
 
-#: src/Content/Item.php:332 src/Model/Item.php:3205
+#: src/Content/Item.php:332 src/Model/Item.php:3234
 msgid "event"
 msgstr ""
 
@@ -1774,7 +1778,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:341 src/Model/Item.php:3207
+#: src/Content/Item.php:341 src/Model/Item.php:3236
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -2176,39 +2180,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:751 src/Content/Text/BBCode.php:1696
-#: src/Content/Text/BBCode.php:1697
+#: src/Content/Text/BBCode.php:755 src/Content/Text/BBCode.php:1700
+#: src/Content/Text/BBCode.php:1701
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:969
+#: src/Content/Text/BBCode.php:973
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:994 src/Model/Item.php:3938
-#: src/Model/Item.php:3944 src/Model/Item.php:3945
+#: src/Content/Text/BBCode.php:998 src/Model/Item.php:3967
+#: src/Model/Item.php:3973 src/Model/Item.php:3974
 msgid "Link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1603 src/Content/Text/HTML.php:904
+#: src/Content/Text/BBCode.php:1607 src/Content/Text/HTML.php:904
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1636
+#: src/Content/Text/BBCode.php:1640
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1701 src/Content/Text/BBCode.php:1702
+#: src/Content/Text/BBCode.php:1705 src/Content/Text/BBCode.php:1706
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1957
+#: src/Content/Text/BBCode.php:1961
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1976
+#: src/Content/Text/BBCode.php:1980
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -2220,7 +2224,7 @@ msgstr ""
 msgid "The end"
 msgstr ""
 
-#: src/Content/Text/HTML.php:859 src/Content/Widget/VCard.php:127
+#: src/Content/Text/HTML.php:859 src/Content/Widget/VCard.php:123
 #: src/Model/Profile.php:477 src/Module/Contact/Profile.php:471
 msgid "Follow"
 msgstr ""
@@ -2420,27 +2424,27 @@ msgstr[1] ""
 msgid "More Trending Tags"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:106 src/Model/Contact.php:1209
+#: src/Content/Widget/VCard.php:102 src/Model/Contact.php:1209
 #: src/Model/Profile.php:461
 msgid "Post to group"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:110 src/Model/Contact.php:1214
+#: src/Content/Widget/VCard.php:106 src/Model/Contact.php:1214
 #: src/Model/Profile.php:466 src/Module/Moderation/Item/Source.php:85
 msgid "Mention"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:120 src/Model/Profile.php:380
+#: src/Content/Widget/VCard.php:116 src/Model/Profile.php:380
 #: src/Module/Contact/Profile.php:408 src/Module/Profile/Profile.php:199
 msgid "XMPP:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:121 src/Model/Profile.php:381
+#: src/Content/Widget/VCard.php:117 src/Model/Profile.php:381
 #: src/Module/Contact/Profile.php:410 src/Module/Profile/Profile.php:203
 msgid "Matrix:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:122 src/Model/Event.php:82
+#: src/Content/Widget/VCard.php:118 src/Model/Event.php:82
 #: src/Model/Event.php:109 src/Model/Event.php:471 src/Model/Event.php:963
 #: src/Model/Profile.php:375 src/Module/Contact/Profile.php:406
 #: src/Module/Directory.php:147 src/Module/Notifications/Introductions.php:187
@@ -2448,18 +2452,18 @@ msgstr ""
 msgid "Location:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:125 src/Model/Profile.php:490
+#: src/Content/Widget/VCard.php:121 src/Model/Profile.php:490
 #: src/Module/Notifications/Introductions.php:201
 msgid "Network:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:129 src/Model/Contact.php:1242
+#: src/Content/Widget/VCard.php:125 src/Model/Contact.php:1242
 #: src/Model/Contact.php:1254 src/Model/Profile.php:479
 #: src/Module/Contact/Profile.php:463
 msgid "Unfollow"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:135 src/Model/Contact.php:1211
+#: src/Content/Widget/VCard.php:131 src/Model/Contact.php:1211
 #: src/Model/Profile.php:463
 msgid "View group"
 msgstr ""
@@ -2851,7 +2855,7 @@ msgstr ""
 msgid "Could not connect to database."
 msgstr ""
 
-#: src/Core/L10n.php:441 src/Model/Item.php:2249
+#: src/Core/L10n.php:441 src/Model/Item.php:2278
 msgid "Undetermined"
 msgstr ""
 
@@ -3409,95 +3413,95 @@ msgstr ""
 msgid "Happy Birthday %s"
 msgstr ""
 
-#: src/Model/Item.php:2256
+#: src/Model/Item.php:2285
 #, php-format
 msgid "%s (%s - %s): %s"
 msgstr ""
 
-#: src/Model/Item.php:2258
+#: src/Model/Item.php:2287
 #, php-format
 msgid "%s (%s): %s"
 msgstr ""
 
-#: src/Model/Item.php:2261
+#: src/Model/Item.php:2290
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:3209
+#: src/Model/Item.php:3238
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:3211
+#: src/Model/Item.php:3240
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:3214 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:3243 src/Module/Post/Tag/Add.php:123
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:3384
+#: src/Model/Item.php:3413
 #, php-format
 msgid "%s is blocked"
 msgstr ""
 
-#: src/Model/Item.php:3386
+#: src/Model/Item.php:3415
 #, php-format
 msgid "%s is ignored"
 msgstr ""
 
-#: src/Model/Item.php:3388
+#: src/Model/Item.php:3417
 #, php-format
 msgid "Content from %s is collapsed"
 msgstr ""
 
-#: src/Model/Item.php:3392
+#: src/Model/Item.php:3421
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3845
+#: src/Model/Item.php:3874
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3876
+#: src/Model/Item.php:3905
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3878
+#: src/Model/Item.php:3907
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3883
+#: src/Model/Item.php:3912
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3885
+#: src/Model/Item.php:3914
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3887
+#: src/Model/Item.php:3916
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3921 src/Model/Item.php:3922
+#: src/Model/Item.php:3950 src/Model/Item.php:3951
 msgid "View on separate page"
 msgstr ""
 
-#: src/Model/Mail.php:135
+#: src/Model/Mail.php:137 src/Model/Mail.php:266
 msgid "[no subject]"
 msgstr ""
 
@@ -3789,7 +3793,7 @@ msgstr ""
 msgid "Profile Photos"
 msgstr ""
 
-#: src/Model/User.php:1592
+#: src/Model/User.php:1594
 #, php-format
 msgid ""
 "\n"
@@ -3797,7 +3801,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1595
+#: src/Model/User.php:1597
 #, php-format
 msgid ""
 "\n"
@@ -3817,9 +3821,9 @@ msgid ""
 "\t\tYou may also wish to add some basic information to your default profile\n"
 "\t\t(on the \"Profiles\" page) so that other people can easily find you.\n"
 "\n"
-"\t\tWe recommend adding a profile photo, adding some profile \"keywords\" \n"
+"\t\tWe recommend adding a profile photo, adding some profile \"keywords\"\n"
 "\t\t(very useful in making new friends) - and perhaps what country you live "
-"in; \n"
+"in;\n"
 "\t\tif you do not wish to be more specific than that.\n"
 "\n"
 "\t\tWe fully respect your right to privacy, and none of these items are "
@@ -3833,12 +3837,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1627 src/Model/User.php:1733
+#: src/Model/User.php:1629 src/Model/User.php:1735
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: src/Model/User.php:1647
+#: src/Model/User.php:1649
 #, php-format
 msgid ""
 "\n"
@@ -3854,12 +3858,12 @@ msgid ""
 "\t\t"
 msgstr ""
 
-#: src/Model/User.php:1666
+#: src/Model/User.php:1668
 #, php-format
 msgid "Registration at %s"
 msgstr ""
 
-#: src/Model/User.php:1690
+#: src/Model/User.php:1692
 #, php-format
 msgid ""
 "\n"
@@ -3868,7 +3872,7 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: src/Model/User.php:1698
+#: src/Model/User.php:1700
 #, php-format
 msgid ""
 "\n"
@@ -3906,7 +3910,7 @@ msgid ""
 "\t\t\tThank you and welcome to %2$s."
 msgstr ""
 
-#: src/Model/User.php:1760
+#: src/Model/User.php:1762
 msgid ""
 "User with delegates can't be removed, please remove delegate users first"
 msgstr ""

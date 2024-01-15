@@ -6,7 +6,7 @@
 		<label for="id_{{$field.0}}">{{$field.1}}</label>
 		<select class="form-control" name="{{$field.0}}" id="id_{{$field.0}}" {{if $field.5=="preview"}}onchange="previewTheme(this);"{{/if}} aria-describedby="{{$field.0}}_tip">
 	{{foreach $field.4 as $opt=>$val}}
-			<option value="{{$opt}}" {{if $opt==$field.2}}selected="selected"{{/if}}>{{$val}}</option>
+			<option value="{{$opt}}" {{if $opt==$field.2}}selected{{/if}}>{{$val}}</option>
 	{{/foreach}}
 		</select>
 	{{if $field.3}}

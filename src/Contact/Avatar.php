@@ -80,7 +80,7 @@ class Avatar
 			return $fields;
 		}
 
-		$img_str = $fetchResult->getBody();
+		$img_str = $fetchResult->getBodyString();
 		if (empty($img_str)) {
 			Logger::debug('Avatar is invalid', ['avatar' => $avatar]);
 			return $fields;

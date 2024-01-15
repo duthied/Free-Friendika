@@ -163,8 +163,7 @@ class GuzzleResponse extends Response implements ICanHandleHttpResponses, Respon
 		return $this->isTimeout;
 	}
 
-	/// @todo - fix mismatching use of "getBody()" as string here and parent "getBody()" as streaminterface
-	public function getBody(): string
+	public function getBodyString(): string
 	{
 		return (string) parent::getBody();
 	}

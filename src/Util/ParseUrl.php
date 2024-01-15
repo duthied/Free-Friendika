@@ -238,7 +238,7 @@ class ParseUrl
 		}
 
 		$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+		if (!$curlResult->isSuccess() || empty($curlResult->getBodyString())) {
 			Logger::info('Empty body or error when fetching', ['url' => $url, 'success' => $curlResult->isSuccess(), 'code' => $curlResult->getReturnCode()]);
 			return $siteinfo;
 		}
@@ -252,7 +252,7 @@ class ParseUrl
 			}
 		}
 
-		$body = $curlResult->getBody();
+		$body = $curlResult->getBodyString();
 
 		if ($do_oembed) {
 			$oembed_data = OEmbed::fetchURL($url, false, false);
