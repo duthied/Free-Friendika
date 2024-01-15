@@ -28,6 +28,7 @@ use Friendica\Content\Post\Entity\PostMedia;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -2124,7 +2125,7 @@ class Item
 	 */
 	public static function getLanguageArray(string $body, int $count, int $uri_id = 0, int $author_id = 0, array $default = []): array
 	{
-		$default = $default ?: ['un' => 1];
+		$default = $default ?: [L10n::UNDETERMINED_LANGUAGE => 1];
 
 		$searchtext = BBCode::toSearchText($body, $uri_id);
 
@@ -2274,7 +2275,7 @@ class Item
 		foreach (json_decode($item['language'], true) as $language => $reliability) {
 			$code = DI::l10n()->toISO6391($language);
 
-			if ($code == 'un') {
+			if ($code == L10n::UNDETERMINED_LANGUAGE) {
 				$native = $language = DI::l10n()->t('Undetermined');
 			} else {
 				$native   = $iso639->nativeByCode1($code);

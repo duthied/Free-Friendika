@@ -23,7 +23,7 @@ namespace Friendica\Protocol;
 
 use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Cache\Enum\Duration;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -189,7 +189,7 @@ class Relay
 		}
 
 		if (empty($detected) && empty($languages)) {
-			$detected = ['un'];
+			$detected = [L10n::UNDETERMINED_LANGUAGE];
 		}
 
 		if (empty($body) || Smilies::isEmojiPost($body)) {

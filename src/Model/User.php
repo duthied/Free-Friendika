@@ -645,7 +645,7 @@ class User
 		}
 
 		if (!DI::config()->get('system', 'relay_deny_undetected_language')) {
-			$languages['un'] = 'un';
+			$languages[L10n::UNDETERMINED_LANGUAGE] = L10n::UNDETERMINED_LANGUAGE;
 		}
 
 		ksort($languages);
