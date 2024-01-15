@@ -762,9 +762,10 @@ class Photo
 				));
 			} else {
 				// This query doesn't do the count and is much faster
-				$albums = DBA::toArray(DBA::p("SELECT DISTINCT(`album`), '' AS `total`
+				$albums = DBA::toArray(DBA::p("SELECT '' AS `total`, `album`, MIN(`created`) AS `created`
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
-					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra",
+					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra
+					GROUP BY `album` ORDER BY `created` DESC",
 					$uid,
 					self::DEFAULT,
 					$banner_type,
