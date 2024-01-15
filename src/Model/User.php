@@ -874,7 +874,7 @@ class User
 		try {
 			$passwordExposedChecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
 
-			return $passwordExposedChecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
+			return $passwordExposedChecker->passwordExposed($password) === PasswordExposed\Enums\PasswordStatus::EXPOSED;
 		} catch (Exception $e) {
 			Logger::error('Password Exposed Exception: ' . $e->getMessage(), [
 				'code' => $e->getCode(),
