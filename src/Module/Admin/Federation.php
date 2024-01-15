@@ -97,7 +97,7 @@ class Federation extends BaseAdmin
 			SUM(IFNULL(`local-posts`, 0) + IFNULL(`local-comments`, 0)) AS `posts`,
 			SUM(IFNULL(`active-month-users`, `active-week-users`)) AS `month`,
 			SUM(IFNULL(`active-halfyear-users`, `active-week-users`)) AS `halfyear`, `platform`,
-			ANY_VALUE(`network`) AS `network`, MAX(`version`) AS `version`
+			MIN(`network`) AS `network`, MAX(`version`) AS `version`
 			FROM `gserver` WHERE NOT `failed` AND `platform` != ? AND `detection-method` != ? AND NOT `network` IN (?, ?) GROUP BY `platform`",
 				'', GServer::DETECT_MANUAL, Protocol::PHANTOM, Protocol::FEED);
 		while ($gserver = DBA::fetch($gservers)) {

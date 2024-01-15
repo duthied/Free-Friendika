@@ -229,8 +229,8 @@ class Photo
 
 		return DBA::toArray(
 			DBA::p(
-				"SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
-					min(`scale`) AS `hiq`, max(`scale`) AS `loq`, ANY_VALUE(`desc`) AS `desc`, ANY_VALUE(`created`) AS `created`
+				"SELECT `resource-id`, MIN(`id`) AS `id`, MIN(`filename`) AS `filename`, MIN(`type`) AS `type`,
+					min(`scale`) AS `hiq`, max(`scale`) AS `loq`, MIN(`desc`) AS `desc`, MIN(`created`) AS `created`
 					FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sqlExtra
 					GROUP BY `resource-id` $sqlExtra2",
 				$values
@@ -751,7 +751,7 @@ class Photo
 			if (!DI::config()->get('system', 'no_count', false)) {
 				/// @todo This query needs to be renewed. It is really slow
 				// At this time we just store the data in the cache
-				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
+				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, MIN(`created`) AS `created`
 					FROM `photo`
 					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
