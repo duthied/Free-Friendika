@@ -145,45 +145,42 @@
 	});
 
 	function deleteCheckedItems() {
-		if(confirm('{{$delitems}}')) {
-			var checkedstr = '';
-			var ItemsToDelete = {};
+		if (confirm('{{$delitems}}')) {
+			let checkedstr = '';
+			const ItemsToDelete = {};
 
-			$("#item-delete-selected").hide();
-			$('#item-delete-selected-rotator').show();
-			$('body').css('cursor', 'wait');
+			$('#item-delete-selected').prop('disabled', true);
+			$('#item-delete-selected i').toggleClass('fa-trash fa-hourglass fa-spin');
 
-			$('.item-select').each( function() {
-				if($(this).is(':checked')) {
-					if(checkedstr.length != 0) {
+			$('.item-select').each(function () {
+				if ($(this).is(':checked')) {
+					if (checkedstr.length > 0) {
 						checkedstr = checkedstr + ',' + $(this).val();
-						var deleteItem = this.closest(".wall-item-container");
-						ItemsToDelete[deleteItem.id] = deleteItem;
-					}
-					else {
+					} else {
 						checkedstr = $(this).val();
 					}
 
 					// Get the corresponding item container
-					var deleteItem = this.closest(".wall-item-container");
+					const deleteItem = this.closest(".wall-item-container");
 					ItemsToDelete[deleteItem.id] = deleteItem;
 				}
 			});
 
 			// Fade the container from the items we want to delete
-			for(var key in  ItemsToDelete) {
+			for (const key in ItemsToDelete) {
 				$(ItemsToDelete[key]).fadeTo('fast', 0.33);
-			};
+			}
 
-			$.post('item', { dropitems: checkedstr }, function(data) {
-			}).done(function() {
+			$.post('item', {dropitems: checkedstr}, function (data) {
+			}).done(function () {
 				// Loop through the ItemsToDelete Object and remove
 				// corresponding item div
-				for(var key in  ItemsToDelete) {
+				for (const key in ItemsToDelete) {
 					$(ItemsToDelete[key]).remove();
 				}
-				$('body').css('cursor', 'auto');
-				$('#item-delete-selected-rotator').hide();
+
+				$('#item-delete-selected i').toggleClass('fa-trash fa-hourglass fa-spin')
+				$('#item-delete-selected').prop('disabled', false).hide();
 			});
 		}
 	}
