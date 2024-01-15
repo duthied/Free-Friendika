@@ -751,7 +751,7 @@ class Photo
 			if (!DI::config()->get('system', 'no_count', false)) {
 				/// @todo This query needs to be renewed. It is really slow
 				// At this time we just store the data in the cache
-				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
+				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, MIN(`created`) AS `created`
 					FROM `photo`
 					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
@@ -762,9 +762,10 @@ class Photo
 				));
 			} else {
 				// This query doesn't do the count and is much faster
-				$albums = DBA::toArray(DBA::p("SELECT DISTINCT(`album`), '' AS `total`, ANY_VALUE(`created`) AS `created`
+				$albums = DBA::toArray(DBA::p("SELECT '' AS `total`, `album`, MIN(`created`) AS `created`
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
-					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra",
+					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra
+					GROUP BY `album` ORDER BY `created` DESC",
 					$uid,
 					self::DEFAULT,
 					$banner_type,
