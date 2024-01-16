@@ -613,6 +613,10 @@ return [
 		// xrd_timeout (Integer)
 		// Timeout in seconds for fetching the XRD links and other requests with an expected shorter timeout
 		'xrd_timeout' => 20,
+
+		// max_response_data_size (Integer)
+		// Maximum allowed response data size in Bytes, default is hard-coded value from code
+		'max_response_data_size' => 1000000,
 	],
 	'proxy' => [
 		// forwarded_for_headers (String)
