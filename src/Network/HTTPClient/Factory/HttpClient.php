@@ -123,7 +123,7 @@ class HttpClient extends BaseFactory
 		$resolver->setMaxRedirects(10);
 		$resolver->setRequestTimeout(10);
 		// if the file is too large then exit
-		$resolver->setMaxResponseDataSize($this->config->get('system', 'max_response_data_size', 1000000));
+		$resolver->setMaxResponseDataSize($this->config->get('http_client', 'max_response_data_size', 1000000));
 		// Designate a temporary file that will store cookies during the session.
 		// Some websites test the browser for cookie support, so this enhances results.
 		$resolver->setCookieJar(System::getTempPath() .'/resolver-cookie-' . Strings::getRandomName(10));
