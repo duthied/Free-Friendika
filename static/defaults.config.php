@@ -614,6 +614,12 @@ return [
 		// Timeout in seconds for fetching the XRD links and other requests with an expected shorter timeout
 		'xrd_timeout' => 20,
 	],
+	'performance' => [
+		// max_response_data_size (Integer)
+		// Maximum allowed outgoing HTTP request response data size in Bytes. Does not affect incoming requests to this node.
+		// Warning: Lowering this value can help with some PHP memory exhaustion issues, but can also partially break some federation features e.g. large posts may not be fetched or received from remote servers.
+		'max_response_data_size' => 1000000,
+	],
 	'proxy' => [
 		// forwarded_for_headers (String)
 		// A comma separated list of all allowed header values to retrieve the real client IP
