@@ -28,6 +28,7 @@ use Friendica\Content\Conversation\Factory;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Database\DisposableFullTextSearch;
 use Friendica\Model\Contact;
 use Friendica\Model\Post\Engagement;
 use Friendica\Model\User;
@@ -38,8 +39,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 {
 	protected static $table_name = 'channel';
 
-	/** @var IManageConfigValues */
-	private $config;
+	private IManageConfigValues $config;
 
 	public function __construct(Database $database, LoggerInterface $logger, Factory\UserDefinedChannel $factory, IManageConfigValues $config)
 	{
@@ -160,17 +160,18 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 	}
 
 	/**
-	 * Checks, if one of the user defined channels matches with the given search text or languages
+	 * Checks if one of the user-defined channels matches the given language or item text via full-text search
 	 *
-	 * @param string $searchtext
+	 * @param string $haystack
 	 * @param string $language
 	 * @return boolean
+	 * @throws \Exception
 	 */
-	public function match(string $searchtext, string $language): bool
+	public function match(string $haystack, string $language): bool
 	{
 		$users = $this->db->selectToArray('user', ['uid'], $this->getUserCondition());
 		if (empty($users)) {
-			return [];
+			return false;
 		}
 
 		$uids = array_column($users, 'uid');
@@ -189,15 +190,11 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			$search .= '(' . $channel->fullTextSearch . ') ';
 		}
 
-		$this->insertCheckFullTextSearch($searchtext);
-		$result = $this->inFulltext($search);
-		$this->deleteCheckFullTextSearch();
-
-		return $result;
+		return (new DisposableFullTextSearch($this->db, $haystack))->match(Engagement::escapeKeywords($search));
 	}
 
 	/**
-	 * Fetch the channel users that have got matching channels
+	 * List the IDs of the relay/group users that have matching user-defined channels based on an item details
 	 *
 	 * @param string $searchtext
 	 * @param string $language
@@ -206,6 +203,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 	 * @param int    $owner_id
 	 * @param int    $reshare_id
 	 * @return array
+	 * @throws \Exception
 	 */
 	public function getMatchingChannelUsers(string $searchtext, string $language, array $tags, int $media_type, int $owner_id, int $reshare_id): array
 	{
@@ -221,62 +219,53 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			return [];
 		}
 
-		$this->insertCheckFullTextSearch($searchtext);
+		$disposableFullTextSearch = new DisposableFullTextSearch($this->db, $searchtext);
 
-		$uids = [];
+		$filteredChannels = $this->select(['uid' => array_column($users, 'uid'), 'publish' => true, 'valid' => true])->filter(
+			function (Entity\UserDefinedChannel $channel) use ($owner_id, $reshare_id, $language, $tags, $media_type, $disposableFullTextSearch, $searchtext) {
+				static $uids = [];
 
-		foreach ($this->select(['uid' => array_column($users, 'uid'), 'publish' => true, 'valid' => true]) as $channel) {
-			if (in_array($channel->uid, $uids)) {
-				continue;
-			}
-			if (!empty($channel->circle) && ($channel->circle > 0) && !in_array($channel->uid, $uids)) {
-				if (!$this->inCircle($channel->circle, $channel->uid, $owner_id) && !$this->inCircle($channel->circle, $channel->uid, $reshare_id)) {
-					continue;
+				// Filter out channels from already picked users
+				if (in_array($channel->uid, $uids)) {
+					return false;
 				}
-			}
-			if (!empty($channel->languages) && !in_array($channel->uid, $uids)) {
-				if (!in_array($language, $channel->languages)) {
-					continue;
-				}
-			} elseif (!in_array($language, User::getWantedLanguages($channel->uid))) {
-				continue;
-			}
-			if (!empty($channel->includeTags) && !in_array($channel->uid, $uids)) {
-				if (!$this->inTaglist($channel->includeTags, $tags)) {
-					continue;
-				}
-			}
-			if (!empty($channel->excludeTags) && !in_array($channel->uid, $uids)) {
-				if ($this->inTaglist($channel->excludeTags, $tags)) {
-					continue;
-				}
-			}
-			if (!empty($channel->mediaType) && !in_array($channel->uid, $uids)) {
-				if (!($channel->mediaType & $media_type)) {
-					continue;
-				}
-			}
-			if (!empty($channel->fullTextSearch) && !in_array($channel->uid, $uids)) {
-				if (!$this->inFulltext($channel->fullTextSearch)) {
-					continue;
-				}
-			}
-			$uids[] = $channel->uid;
-			$this->logger->debug('Matching channel found.', ['uid' => $channel->uid, 'label' => $channel->label, 'language' => $language, 'tags' => $tags, 'media_type' => $media_type, 'searchtext' => $searchtext]);
-		}
 
-		$this->deleteCheckFullTextSearch();
-		return $uids;
-	}
+				if (
+					($channel->circle ?? 0)
+					&& !$this->inCircle($channel->circle, $channel->uid, $owner_id)
+					&& !$this->inCircle($channel->circle, $channel->uid, $reshare_id)
+				) {
+					return false;
+				}
 
-	private function insertCheckFullTextSearch(string $searchtext)
-	{
-		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
-	}
+				if (!in_array($language, $channel->languages ?: User::getWantedLanguages($channel->uid))) {
+					return false;
+				}
 
-	private function deleteCheckFullTextSearch()
-	{
-		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
+				if ($channel->includeTags && !$this->inTaglist($channel->includeTags, $tags)) {
+					return false;
+				}
+
+				if ($channel->excludeTags && $this->inTaglist($channel->excludeTags, $tags)) {
+					return false;
+				}
+
+				if ($channel->mediaType && !($channel->mediaType & $media_type)) {
+					return false;
+				}
+
+				if ($channel->fullTextSearch && !$disposableFullTextSearch->match(Engagement::escapeKeywords($channel->fullTextSearch))) {
+					return false;
+				}
+
+				$uids[] = $channel->uid;
+				$this->logger->debug('Matching channel found.', ['uid' => $channel->uid, 'label' => $channel->label, 'language' => $language, 'tags' => $tags, 'media_type' => $media_type, 'searchtext' => $searchtext]);
+
+				return true;
+			}
+		);
+
+		return $filteredChannels->column('uid');
 	}
 
 	private function inCircle(int $circleId, int $uid, int $cid): bool
@@ -308,12 +297,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		return false;
 	}
 
-	private function inFulltext(string $fullTextSearch): bool
-	{
-		return $this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), Engagement::escapeKeywords($fullTextSearch)]);
-	}
-
-	private function getUserCondition()
+	private function getUserCondition(): array
 	{
 		$condition = ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `user`.`uid` > ?", 0];
 
