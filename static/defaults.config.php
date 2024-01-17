@@ -616,7 +616,7 @@ return [
 	],
 	'performance' => [
 		// max_response_data_size (Integer)
-		// Maximum allowed response data size in Bytes, default is hard-coded value from code
+		// Maximum allowed outgoing HTTP request response data size in Bytes. Does not affect incoming requests to this node.
 		'max_response_data_size' => 1000000,
 	],
 	'proxy' => [
