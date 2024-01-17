@@ -258,6 +258,10 @@ class BBCode
 		// Add images because of possible alt texts
 		if (!empty($uri_id)) {
 			$text = Post\Media::addAttachmentsToBody($uri_id, $text, [Post\Media::IMAGE]);
+
+			foreach (Post\Media::getByURIId($uri_id, [Post\Media::HTML]) as $media) {
+				$text .= ' ' . $media['name'] . ' ' . $media['description'];
+			}
 		}
 
 		if (empty($text)) {
@@ -279,7 +283,7 @@ class BBCode
 		// Removes mentions, remove links from hashtags
 		$text = preg_replace('/[@!]\[url\=.*?\].*?\[\/url\]/ism', ' ', $text);
 		$text = preg_replace('/[#]\[url\=.*?\](.*?)\[\/url\]/ism', ' #$1 ', $text);
-		$text = preg_replace('/[@!#]?\[url.*?\[\/url\]/ism', ' ', $text);
+		$text = preg_replace('/[@!#]+?\[url.*?\[\/url\]/ism', ' ', $text);
 		$text = preg_replace("/\[url=[^\[\]]*\](.*)\[\/url\]/Usi", ' $1 ', $text);
 
 		// Convert it to plain text

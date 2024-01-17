@@ -638,6 +638,16 @@ class User
 		}
 		DBA::close($channels);
 
+		foreach (DI::userDefinedChannel()->select(["NOT `languages` IS NULL"]) as $channel) {
+			foreach ($channel->languages ?? [] as $language) {
+				$languages[$language] = $language;
+			}
+		}
+
+		if (!DI::config()->get('system', 'relay_deny_undetected_language')) {
+			$languages[L10n::UNDETERMINED_LANGUAGE] = L10n::UNDETERMINED_LANGUAGE;
+		}
+
 		ksort($languages);
 		$languages = array_keys($languages);
 		DI::cache()->set($cachekey, $languages);

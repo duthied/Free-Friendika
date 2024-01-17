@@ -24,6 +24,7 @@ namespace Friendica\Module\Settings;
 use Friendica\App;
 use Friendica\Content\Conversation\Factory;
 use Friendica\Content\Conversation\Repository\UserDefinedChannel;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
@@ -41,13 +42,16 @@ class Channels extends BaseSettings
 	private $channel;
 	/** @var Factory\UserDefinedChannel */
 	private $userDefinedChannel;
+	/** @var IManageConfigValues */
+	private $config;
 
-	public function __construct(Factory\UserDefinedChannel $userDefinedChannel, UserDefinedChannel $channel, App\Page $page, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	public function __construct(Factory\UserDefinedChannel $userDefinedChannel, UserDefinedChannel $channel, App\Page $page, IHandleUserSessions $session, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, IManageConfigValues $config, array $server, array $parameters = [])
 	{
 		parent::__construct($session, $page, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
 		$this->userDefinedChannel = $userDefinedChannel;
 		$this->channel            = $channel;
+		$this->config             = $config;
 	}
 
 	protected function post(array $request = [])
@@ -110,6 +114,7 @@ class Channels extends BaseSettings
 				'full-text-search' => $request['text_search'][$id],
 				'media-type'       => ($request['image'][$id] ? 1 : 0) | ($request['video'][$id] ? 2 : 0) | ($request['audio'][$id] ? 4 : 0),
 				'languages'        => $request['languages'][$id],
+				'publish'          => $request['publish'][$id] ?? false,
 			]);
 			$saved = $this->channel->save($channel);
 			$this->logger->debug('Save channel', ['id' => $id, 'saved' => $saved]);
@@ -125,12 +130,23 @@ class Channels extends BaseSettings
 			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
 		}
 
-		$circles = [
-			0  => $this->l10n->t('Global Community'),
-			-3 => $this->l10n->t('Network'),
-			-1 => $this->l10n->t('Following'),
-			-2 => $this->l10n->t('Followers'),
-		];
+		$user = User::getById($uid, ['account-type']);
+		$account_type = $user['account-type'];
+
+		if (in_array($account_type, [User::ACCOUNT_TYPE_COMMUNITY, User::ACCOUNT_TYPE_RELAY])) {
+			$intro   = $this->t('This page can be used to define the channels that will automatically be reshared by your account.');
+			$circles = [
+				0 => $this->l10n->t('Global Community')
+			];
+		} else {
+			$intro   = $this->t('This page can be used to define your own channels.');
+			$circles = [
+				0  => $this->l10n->t('Global Community'),
+				-3 => $this->l10n->t('Network'),
+				-1 => $this->l10n->t('Following'),
+				-2 => $this->l10n->t('Followers'),
+			];
+		}
 
 		foreach (Circle::getByUserId($uid) as $circle) {
 			$circles[$circle['id']] = $circle['name'];
@@ -149,6 +165,12 @@ class Channels extends BaseSettings
 				$open = false;
 			}
 
+			if ($this->config->get('system', 'allow_relay_channels') && in_array($account_type, [User::ACCOUNT_TYPE_COMMUNITY, User::ACCOUNT_TYPE_RELAY])) {
+				$publish = ["publish[$channel->code]", $this->t("Publish"), $channel->publish, $this->t("When selected, the channel results are reshared. This only works for public ActivityPub posts from the public timeline or the user defined circles.")];
+			} else {
+				$publish = null;
+			}
+
 			$channels[] = [
 				'id'           => $channel->code,
 				'open'         => $open,
@@ -163,6 +185,7 @@ class Channels extends BaseSettings
 				'video'        => ["video[$channel->code]", $this->t("Videos"), $channel->mediaType & 2],
 				'audio'        => ["audio[$channel->code]", $this->t("Audio"), $channel->mediaType & 4],
 				'languages'    => ["languages[$channel->code][]", $this->t('Languages'), $channel->languages ?? $channel_languages, $this->t('Select all languages that you want to see in this channel.'), $languages, 'multiple'],
+				'publish'      => $publish,
 				'delete'       => ["delete[$channel->code]", $this->t("Delete channel") . ' (' . $channel->label . ')', false, $this->t("Check to delete this entry from the channel list")]
 			];
 		}
@@ -183,7 +206,7 @@ class Channels extends BaseSettings
 			'languages'    => ["new_languages[]", $this->t('Languages'), $channel_languages, $this->t('Select all languages that you want to see in this channel.'), $languages, 'multiple'],
 			'$l10n'        => [
 				'title'          => $this->t('Channels'),
-				'intro'          => $this->t('This page can be used to define your own channels.'),
+				'intro'          => $intro,
 				'addtitle'       => $this->t('Add new entry to the channel list'),
 				'addsubmit'      => $this->t('Add'),
 				'savechanges'    => $this->t('Save'),

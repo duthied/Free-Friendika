@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.03-dev (Yellow Archangel)
--- DB_UPDATE_VERSION 1545
+-- DB_UPDATE_VERSION 1546
 -- ------------------------------------------
 
 
@@ -505,6 +505,8 @@ CREATE TABLE IF NOT EXISTS `channel` (
 	`full-text-search` varchar(1023) COMMENT 'Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode',
 	`media-type` smallint unsigned COMMENT 'Filtered media types',
 	`languages` mediumtext COMMENT 'Desired languages',
+	`publish` boolean COMMENT 'publish channel content',
+	`valid` boolean COMMENT 'Set, when the full-text-search is valid',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
@@ -1343,7 +1345,7 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
 	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Person, organisation, news, community, relay',
 	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
-	`language` varbinary(128) COMMENT 'Language information about this post',
+	`language` varchar(128) COMMENT 'Language information about this post',
 	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
 	`created` datetime COMMENT '',
 	`restricted` boolean NOT NULL DEFAULT '0' COMMENT 'If true, this post is either unlisted or not from a federated network',

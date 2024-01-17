@@ -23,7 +23,7 @@ namespace Friendica\Protocol;
 
 use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Cache\Enum\Duration;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -157,20 +157,16 @@ class Relay
 	 */
 	public static function getSubscribedTags(): array
 	{
-		$systemTags  = [];
-		$server_tags = DI::config()->get('system', 'relay_server_tags');
-
-		foreach (explode(',', mb_strtolower($server_tags)) as $tag) {
-			$systemTags[] = trim($tag, '# ');
+		$tags  = [];
+		foreach (explode(',', mb_strtolower(DI::config()->get('system', 'relay_server_tags'))) as $tag) {
+			$tags[] = trim($tag, '# ');
 		}
 
 		if (DI::config()->get('system', 'relay_user_tags')) {
-			$userTags = Search::getUserTags();
-		} else {
-			$userTags = [];
+			$tags = array_merge($tags, Search::getUserTags());
 		}
 
-		return array_unique(array_merge($systemTags, $userTags));
+		return array_unique($tags);
 	}
 
 	/**
@@ -192,34 +188,31 @@ class Relay
 			}
 		}
 
-		if (empty($languages) && empty($detected) && (empty($body) || Smilies::isEmojiPost($body))) {
+		if (empty($detected) && empty($languages)) {
+			$detected = [L10n::UNDETERMINED_LANGUAGE];
+		}
+
+		if (empty($body) || Smilies::isEmojiPost($body)) {
 			Logger::debug('Empty body or only emojis', ['body' => $body]);
 			return true;
 		}
 
-		if (!empty($languages) || !empty($detected)) {
-			$user_languages = User::getLanguages();
+		$user_languages = User::getLanguages();
 
-			foreach ($detected as $language) {
-				if (in_array($language, $user_languages)) {
-					Logger::debug('Wanted language found in detected languages', ['language' => $language, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
-					return true;
-				}
+		foreach ($detected as $language) {
+			if (in_array($language, $user_languages)) {
+				Logger::debug('Wanted language found in detected languages', ['language' => $language, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
+				return true;
 			}
-			foreach ($languages as $language) {
-				if (in_array($language, $user_languages)) {
-					Logger::debug('Wanted language found in defined languages', ['language' => $language, 'languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
-					return true;
-				}
-			}
-			Logger::debug('No wanted language found', ['languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
-			return false;
-		} elseif (DI::config()->get('system', 'relay_deny_undetected_language')) {
-			Logger::info('Undetected language found', ['body' => $body]);
-			return false;
 		}
-
-		return true;
+		foreach ($languages as $language) {
+			if (in_array($language, $user_languages)) {
+				Logger::debug('Wanted language found in defined languages', ['language' => $language, 'languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
+				return true;
+			}
+		}
+		Logger::debug('No wanted language found', ['languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
+		return false;
 	}
 
 	/**

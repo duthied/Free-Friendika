@@ -65,6 +65,9 @@ class L10n
 		'zh-cn' => '简体中文',
 	];
 
+	/** @var string Undetermined language */
+	const UNDETERMINED_LANGUAGE = 'un';
+
 	/**
 	 * A string indicating the current language used for translation:
 	 * - Two-letter ISO 639-1 code.
@@ -436,7 +439,9 @@ class L10n
 	{
 		$iso639 = new \Matriphe\ISO639\ISO639;
 
-		$languages = [];
+		// In ISO 639-2 undetermined languages have got the code "und".
+		// There is no official code for ISO 639-1, but "un" is not assigned to any language.   
+		$languages = [self::UNDETERMINED_LANGUAGE => $this->t('Undetermined')];
 
 		foreach ($this->getDetectableLanguages() as $code) {
 			$code     = $this->toISO6391($code);

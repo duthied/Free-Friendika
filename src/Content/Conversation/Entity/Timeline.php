@@ -34,6 +34,8 @@ namespace Friendica\Content\Conversation\Entity;
  * @property-read int    $mediaType      Media types that are included in the channel
  * @property-read array  $languages      Channel languages
  * @property-read int    $circle         Circle or timeline this channel is based on
+ * @property-read bool   $publish        Publish the channel
+ * @property-read bool   $valid          Indicates that the search conditions are valid
  */
 class Timeline extends \Friendica\BaseEntity
 {
@@ -61,8 +63,12 @@ class Timeline extends \Friendica\BaseEntity
 	protected $mediaType;
 	/** @var array */
 	protected $languages;
+	/** @var bool */
+	protected $publish;
+	/** @var bool */
+	protected $valid;
 
-	public function __construct(string $code = null, string $label = null, string $description = null, string $accessKey = null, string $path = null, int $uid = null, string $includeTags = null, string $excludeTags = null, string $fullTextSearch = null, int $mediaType = null, int $circle = null, array $languages = null)
+	public function __construct(string $code = null, string $label = null, string $description = null, string $accessKey = null, string $path = null, int $uid = null, string $includeTags = null, string $excludeTags = null, string $fullTextSearch = null, int $mediaType = null, int $circle = null, array $languages = null, bool $publish = null, bool $valid = null)
 	{
 		$this->code           = $code;
 		$this->label          = $label;
@@ -76,5 +82,7 @@ class Timeline extends \Friendica\BaseEntity
 		$this->mediaType      = $mediaType;
 		$this->circle         = $circle;
 		$this->languages      = $languages;
+		$this->publish        = $publish;
+		$this->valid          = $valid;
 	}
 }

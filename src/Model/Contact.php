@@ -172,6 +172,11 @@ class Contact
 		return DBA::selectFirst('account-view', $fields, $condition, $params);
 	}
 
+	public static function selectFirstAccountUser(array $fields = [], array $condition = [], array $params = [])
+	{
+		return DBA::selectFirst('account-user-view', $fields, $condition, $params);
+	}
+
 	/**
 	 * Insert a row into the contact table
 	 * Important: You can't use DBA::lastInsertId() after this call since it will be set to 0.

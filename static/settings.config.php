@@ -56,6 +56,10 @@ return [
 		// Automatically detect and set the best feed poll frequency.
 		'adjust_poll_frequency' => false,
 
+		// allow_relay_channels (Boolean)
+		// Allow Users to set remote_self
+		'allow_relay_channels' => true,
+
 		// allowed_themes (Comma-separated list)
 		// Themes users can change to in their settings.
 		'allowed_themes' => 'frio,vier',

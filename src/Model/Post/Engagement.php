@@ -45,13 +45,13 @@ class Engagement
 	 * Store engagement data from an item array
 	 *
 	 * @param array $item
-	 * @return void
+	 * @return int uri-id of the engagement post if newly inserted, 0 on update
 	 */
-	public static function storeFromItem(array $item)
+	public static function storeFromItem(array $item): int
 	{
 		if (in_array($item['verb'], [Activity::FOLLOW, Activity::VIEW, Activity::READ])) {
 			Logger::debug('Technical activities are not stored', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'verb' => $item['verb']]);
-			return;
+			return 0;
 		}
 
 		$parent = Post::selectFirst(['uri-id', 'created', 'author-id', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language', 'network',
@@ -60,7 +60,7 @@ class Engagement
 
 		if ($parent['created'] < self::getCreationDateLimit(false)) {
 			Logger::debug('Post is too old', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'created' => $parent['created']]);
-			return;
+			return 0;
 		}
 
 		$store = ($item['gravity'] != Item::GRAVITY_PARENT);
@@ -69,10 +69,14 @@ class Engagement
 			$store = Contact::hasFollowers($parent['owner-id']);
 		}
 
+		if (!$store && ($parent['owner-id'] != $parent['author-id'])) {
+			$store = Contact::hasFollowers($parent['author-id']);
+		}
+
 		if (!$store) {
 			$tagList = Relay::getSubscribedTags();
 			foreach (array_column(Tag::getByURIId($item['parent-uri-id'], [Tag::HASHTAG]), 'name') as $tag) {
-				if (in_array($tag, $tagList)) {
+				if (in_array(mb_strtolower($tag), $tagList)) {
 					$store = true;
 					break;
 				}
@@ -87,10 +91,8 @@ class Engagement
 
 		$searchtext = self::getSearchTextForItem($parent);
 		if (!$store) {
-			$content   = trim(($parent['title'] ?? '') . ' ' . ($parent['content-warning'] ?? '') . ' ' . ($parent['body'] ?? ''));
-			$languages = Item::getLanguageArray($content, 1, 0, $parent['author-id']);
-			$language  = !empty($languages) ? array_key_first($languages) : '';
-			$store     = DI::userDefinedChannel()->match($searchtext, $language);
+			$language = !empty($parent['language']) ? (array_key_first(json_decode($parent['language'], true)) ?? '') : '';
+			$store    = DI::userDefinedChannel()->match($searchtext, $language);
 		}
 
 		$engagement = [
@@ -111,10 +113,17 @@ class Engagement
 		];
 		if (!$store && ($engagement['comments'] == 0) && ($engagement['activities'] == 0)) {
 			Logger::debug('No media, follower, subscribed tags, comments or activities. Engagement not stored', ['fields' => $engagement]);
-			return;
+			return 0;
 		}
-		$ret = DBA::insert('post-engagement', $engagement, Database::INSERT_UPDATE);
-		Logger::debug('Engagement stored', ['fields' => $engagement, 'ret' => $ret]);
+		$exists = DBA::exists('post-engagement', ['uri-id' => $engagement['uri-id']]);
+		if ($exists) {
+			$ret = DBA::update('post-engagement', $engagement, ['uri-id' => $engagement['uri-id']]);
+			Logger::debug('Engagement updated', ['uri-id' => $engagement['uri-id'], 'ret' => $ret]);
+		} else {
+			$ret = DBA::insert('post-engagement', $engagement);
+			Logger::debug('Engagement inserted', ['uri-id' => $engagement['uri-id'], 'ret' => $ret]);
+		}
+		return ($ret && !$exists) ? $engagement['uri-id'] : 0;
 	}
 
 	public static function getSearchTextForActivity(string $content, int $author_id, array $tags, array $receivers): string

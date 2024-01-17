@@ -19,6 +19,8 @@ Fields
 | full-text-search | Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode | varchar(1023)      | YES  |     | NULL    |                |
 | media-type       | Filtered media types                                                                              | smallint unsigned  | YES  |     | NULL    |                |
 | languages        | Desired languages                                                                                 | mediumtext         | YES  |     | NULL    |                |
+| publish          | publish channel content                                                                           | boolean            | YES  |     | NULL    |                |
+| valid            | Set, when the full-text-search is valid                                                           | boolean            | YES  |     | NULL    |                |
 
 Indexes
 ------------

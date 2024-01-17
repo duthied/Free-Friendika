@@ -436,7 +436,7 @@ class Timeline extends BaseModule
 			$condition[]  = $language;
 		}
 		if (!empty($conditions)) {
-			$condition[0] .= " AND (`language` IS NULL OR " . implode(' OR ', $conditions) . ")";
+			$condition[0] .= " AND (" . implode(' OR ', $conditions) . ")";
 		}
 		return $condition;
 	}

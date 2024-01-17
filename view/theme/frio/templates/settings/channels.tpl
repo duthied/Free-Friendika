@@ -53,6 +53,9 @@
 						{{include file="field_checkbox.tpl" field=$e.video}}
 						{{include file="field_checkbox.tpl" field=$e.audio}}
 						{{include file="field_select.tpl" field=$e.languages}}
+						{{if $e.publish}}
+							{{include file="field_checkbox.tpl" field=$e.publish}}
+						{{/if}}
 						{{include file="field_checkbox.tpl" field=$e.delete}}
 						<div class="submit">
 							<button type="submit" class="btn btn-primary" name="edit_channel" value="{{$l10n.savechanges}}">{{$l10n.savechanges}}</button>

@@ -25,24 +25,27 @@ use Friendica\BaseCollection;
 use Friendica\Content\Conversation\Collection\UserDefinedChannels;
 use Friendica\Content\Conversation\Entity;
 use Friendica\Content\Conversation\Factory;
-use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
+use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Database\Database;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\Post\Engagement;
 use Friendica\Model\User;
+use Friendica\Util\DateTimeFormat;
 use Psr\Log\LoggerInterface;
 
 class UserDefinedChannel extends \Friendica\BaseRepository
 {
 	protected static $table_name = 'channel';
 
-	/** @var IManagePersonalConfigValues */
-	private $pConfig;
+	/** @var IManageConfigValues */
+	private $config;
 
-	public function __construct(Database $database, LoggerInterface $logger, Factory\UserDefinedChannel $factory, IManagePersonalConfigValues $pConfig)
+	public function __construct(Database $database, LoggerInterface $logger, Factory\UserDefinedChannel $factory, IManageConfigValues $config)
 	{
 		parent::__construct($database, $logger, $factory);
 
-		$this->pConfig = $pConfig;
+		$this->config = $config;
 	}
 
 	/**
@@ -61,6 +64,11 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		}
 
 		return $Entities;
+	}
+
+	public function select(array $condition, array $params = []): UserDefinedChannels
+	{
+		return $this->_select($condition, $params);
 	}
 
 	/**
@@ -125,6 +133,8 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			'full-text-search' => $Channel->fullTextSearch,
 			'media-type'       => $Channel->mediaType,
 			'languages'        => serialize($Channel->languages),
+			'publish'          => $Channel->publish,
+			'valid'            => $this->isValid($Channel->fullTextSearch),
 		];
 
 		if ($Channel->code) {
@@ -140,9 +150,17 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 		return $Channel;
 	}
 
+	private function isValid(string $searchtext): bool
+	{
+		if ($searchtext == '') {
+			return true;
+		}
+
+		return $this->db->select('check-full-text-search', [], ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $this->escapeKeywords($searchtext)]) !== false;
+	}
+
 	/**
-	 * Checks, if one of the user defined channels matches with the given search text
-	 * @todo To increase the performance, this functionality should be replaced with a single SQL call.
+	 * Checks, if one of the user defined channels matches with the given search text or languages
 	 *
 	 * @param string $searchtext
 	 * @param string $language
@@ -150,30 +168,167 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 	 */
 	public function match(string $searchtext, string $language): bool
 	{
+		$users = $this->db->selectToArray('user', ['uid'], $this->getUserCondition());
+		if (empty($users)) {
+			return [];
+		}
+
+		$uids = array_column($users, 'uid');
+
+		$usercondition = ['uid' => $uids];
+		$condition = DBA::mergeConditions($usercondition, ["`languages` != ? AND `include-tags` = ? AND `full-text-search` = ? AND `circle` = ?", '', '', '', 0]);
+		foreach ($this->select($condition) as $channel) {
+			if (!empty($channel->languages) && in_array($language, $channel->languages)) {
+				return true;
+			}
+		}
+
+		$search = '';
+		$condition = DBA::mergeConditions($usercondition, ["`full-text-search` != ? AND `circle` = ? AND `valid`", '', 0]);
+		foreach ($this->select($condition) as $channel) {
+			$search .= '(' . $channel->fullTextSearch . ') ';
+		}
+
+		$this->insertCheckFullTextSearch($searchtext);
+		$result = $this->inFulltext($search);
+		$this->deleteCheckFullTextSearch();
+
+		return $result;
+	}
+
+	/**
+	 * Fetch the channel users that have got matching channels
+	 *
+	 * @param string $searchtext
+	 * @param string $language
+	 * @param array  $tags
+	 * @param int    $media_type
+	 * @param int    $owner_id
+	 * @param int    $reshare_id
+	 * @return array
+	 */
+	public function getMatchingChannelUsers(string $searchtext, string $language, array $tags, int $media_type, int $owner_id, int $reshare_id): array
+	{
+		$condition = $this->getUserCondition();
+		$condition = DBA::mergeConditions($condition, ["`account-type` IN (?, ?) AND `uid` != ?", User::ACCOUNT_TYPE_RELAY, User::ACCOUNT_TYPE_COMMUNITY, 0]);
+		$users = $this->db->selectToArray('user', ['uid'], $condition);
+		if (empty($users)) {
+			return [];
+		}
+
 		if (!in_array($language, User::getLanguages())) {
 			$this->logger->debug('Unwanted language found. No matched channel found.', ['language' => $language, 'searchtext' => $searchtext]);
+			return [];
+		}
+
+		$this->insertCheckFullTextSearch($searchtext);
+
+		$uids = [];
+
+		foreach ($this->select(['uid' => array_column($users, 'uid'), 'publish' => true, 'valid' => true]) as $channel) {
+			if (in_array($channel->uid, $uids)) {
+				continue;
+			}
+			if (!empty($channel->circle) && ($channel->circle > 0) && !in_array($channel->uid, $uids)) {
+				if (!$this->inCircle($channel->circle, $channel->uid, $owner_id) && !$this->inCircle($channel->circle, $channel->uid, $reshare_id)) {
+					continue;
+				}
+			}
+			if (!empty($channel->languages) && !in_array($channel->uid, $uids)) {
+				if (!in_array($language, $channel->languages)) {
+					continue;
+				}
+			} elseif (!in_array($language, User::getWantedLanguages($channel->uid))) {
+				continue;
+			}
+			if (!empty($channel->includeTags) && !in_array($channel->uid, $uids)) {
+				if (!$this->inTaglist($channel->includeTags, $tags)) {
+					continue;
+				}
+			}
+			if (!empty($channel->excludeTags) && !in_array($channel->uid, $uids)) {
+				if ($this->inTaglist($channel->excludeTags, $tags)) {
+					continue;
+				}
+			}
+			if (!empty($channel->mediaType) && !in_array($channel->uid, $uids)) {
+				if (!($channel->mediaType & $media_type)) {
+					continue;
+				}
+			}
+			if (!empty($channel->fullTextSearch) && !in_array($channel->uid, $uids)) {
+				if (!$this->inFulltext($channel->fullTextSearch)) {
+					continue;
+				}
+			}
+			$uids[] = $channel->uid;
+			$this->logger->debug('Matching channel found.', ['uid' => $channel->uid, 'label' => $channel->label, 'language' => $language, 'tags' => $tags, 'media_type' => $media_type, 'searchtext' => $searchtext]);
+		}
+
+		$this->deleteCheckFullTextSearch();
+		return $uids;
+	}
+
+	private function insertCheckFullTextSearch(string $searchtext)
+	{
+		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
+	}
+
+	private function deleteCheckFullTextSearch()
+	{
+		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
+	}
+
+	private function inCircle(int $circleId, int $uid, int $cid): bool
+	{
+		if ($cid == 0) {
 			return false;
 		}
 
-		$store = false;
-		$this->db->insert('check-full-text-search', ['pid' => getmypid(), 'searchtext' => $searchtext], Database::INSERT_UPDATE);
-		$channels = $this->db->select(self::$table_name, ['full-text-search', 'uid', 'label'], ["`full-text-search` != ? AND `circle` = ?", '', 0]);
-		while ($channel = $this->db->fetch($channels)) {
-			$channelsearchtext = $channel['full-text-search'];
-			foreach (Engagement::KEYWORDS as $keyword) {
-				$channelsearchtext = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $channelsearchtext);
-			}
-			if ($this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $channelsearchtext])) {
-				if (in_array($language, $this->pConfig->get($channel['uid'], 'channel', 'languages', [User::getLanguageCode($channel['uid'])]))) {
-					$store = true;
-					$this->logger->debug('Matching channel found.', ['uid' => $channel['uid'], 'label' => $channel['label'], 'language' => $language, 'channelsearchtext' => $channelsearchtext, 'searchtext' => $searchtext]);
-					break;
-				}
+		$account = Contact::selectFirstAccountUser(['id'], ['pid' => $cid, 'uid' => $uid]);
+		if (empty($account['id'])) {
+			return false;
+		}
+		return $this->db->exists('group_member', ['gid' => $circleId, 'contact-id' => $account['id']]);
+	}
+
+	private function inTaglist(string $tagList, array $tags): bool
+	{
+		if (empty($tags)) {
+			return false;
+		}
+		array_walk($tags, function (&$value) {
+			$value = mb_strtolower($value);
+		});
+		foreach (explode(',', $tagList) as $tag) {
+			if (in_array($tag, $tags)) {
+				return true;
 			}
 		}
-		$this->db->close($channels);
+		return false;
+	}
 
-		$this->db->delete('check-full-text-search', ['pid' => getmypid()]);
-		return $store;
+	private function inFulltext(string $fullTextSearch): bool
+	{
+		return $this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $this->escapeKeywords($fullTextSearch)]);
+	}
+
+	private function escapeKeywords(string $fullTextSearch): string
+	{
+		foreach (Engagement::KEYWORDS as $keyword) {
+			$fullTextSearch = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $fullTextSearch);
+		}
+		return $fullTextSearch;
+	}
+
+	private function getUserCondition()
+	{
+		$condition = ["`verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired` AND `user`.`uid` > ?", 0];
+
+		$abandon_days = intval($this->config->get('system', 'account_abandon_days'));
+		if (!empty($abandon_days)) {
+			$condition = DBA::mergeConditions($condition, ["`last-activity` > ?", DateTimeFormat::utc('now - ' . $abandon_days . ' days')]);
+		}
+		return $condition;
 	}
 }

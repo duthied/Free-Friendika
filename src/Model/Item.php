@@ -28,6 +28,7 @@ use Friendica\Content\Post\Entity\PostMedia;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -1440,10 +1441,63 @@ class Item
 			if (in_array($posted_item['gravity'], [self::GRAVITY_ACTIVITY, self::GRAVITY_COMMENT])) {
 				Post\Counts::update($posted_item['thr-parent-id'], $posted_item['parent-uri-id'], $posted_item['vid'], $posted_item['verb'], $posted_item['body']);
 			}
-			Post\Engagement::storeFromItem($posted_item);
+
+			$engagement_uri_id = Post\Engagement::storeFromItem($posted_item);
+
+			if (($posted_item['gravity'] == self::GRAVITY_ACTIVITY) && ($posted_item['verb'] == Activity::ANNOUNCE) && ($posted_item['parent-uri-id'] == $posted_item['thr-parent-id'])) {
+				self::reshareChannelPost($posted_item['thr-parent-id'], $posted_item['author-id']);
+			} elseif ($engagement_uri_id) {
+				self::reshareChannelPost($engagement_uri_id);
+			}
 		}
 
 		return $post_user_id;
+	}
+
+	private static function reshareChannelPost(int $uri_id, int $reshare_id = 0)
+	{
+		if (!DI::config()->get('system', 'allow_relay_channels')) {
+			return;
+		}
+
+		$item = Post::selectFirst(['id', 'private', 'network', 'language', 'owner-id'], ['uri-id' => $uri_id, 'uid' => 0]);
+		if (empty($item['id'])) {
+			Logger::debug('Post not found', ['uri-id' => $uri_id]);
+			return;
+		}
+
+		if (($item['private'] != self::PUBLIC) || !in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+			Logger::debug('Not a public post or no AP or DFRN post', ['uri-id' => $uri_id]);
+			return;
+		}
+
+		$engagement = DBA::selectFirst('post-engagement', ['searchtext', 'media-type'], ['uri-id' => $uri_id]);
+		if (empty($engagement['searchtext'])) {
+			Logger::debug('No engagement found', ['uri-id' => $uri_id]);
+			return;
+		}
+
+		$language = !empty($item['language']) ? array_key_first(json_decode($item['language'], true)) : '';
+		$tags     = array_column(Tag::getByURIId($uri_id, [Tag::HASHTAG]), 'name');
+
+		Logger::debug('Prepare check', ['uri-id' => $uri_id, 'language' => $language, 'tags' => $tags, 'searchtext' => $engagement['searchtext'], 'media_type' => $engagement['media-type'], 'owner' => $item['owner-id'], 'reshare' => $reshare_id]);
+
+		$count = 0;
+		foreach (DI::userDefinedChannel()->getMatchingChannelUsers($engagement['searchtext'], $language, $tags, $engagement['media-type'], $item['owner-id'], $reshare_id) as $uid) {
+			$condition = [
+				'verb' => Activity::ANNOUNCE, 'deleted' => false, 'gravity' => self::GRAVITY_ACTIVITY,
+				'author-id' => Contact::getPublicIdByUserId($uid), 'uid' => $uid, 'thr-parent-id' => $uri_id
+			];
+			if (!Post::exists($condition)) {
+				Logger::debug('Reshare post', ['uid' => $uid, 'uri-id' => $uri_id]);
+				self::performActivity($item['id'], 'announce', $uid);
+			} else {
+				Logger::debug('Reshare already exists', ['uid' => $uid, 'uri-id' => $uri_id]);
+			}
+			$count++;
+		}
+
+		Logger::debug('Check done', ['uri-id' => $uri_id, 'count' => $count]);
 	}
 
 	/**
@@ -2036,16 +2090,20 @@ class Item
 			$transmitted[$language] = 0;
 		}
 
+		if (!in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT])) {
+			return !empty($transmitted) ? json_encode($transmitted) : null;
+		}
+
 		$content = trim(($item['title'] ?? '') . ' ' . ($item['content-warning'] ?? '') . ' ' . ($item['body'] ?? ''));
 
-		if (!in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]) || empty($content)) {
-			return !empty($transmitted) ? json_encode($transmitted) : null;
+		if (empty($content) && !empty($item['quote-uri-id'])) {
+			$quoted = Post::selectFirstPost(['language'], ['uri-id' => $item['quote-uri-id']]);
+			if (!empty($quoted['language'])) {
+				return $quoted['language'];
+			}
 		}
 
-		$languages = self::getLanguageArray($content, 3, $item['uri-id'], $item['author-id']);
-		if (empty($languages)) {
-			return !empty($transmitted) ? json_encode($transmitted) : null;
-		}
+		$languages = self::getLanguageArray($content, 3, $item['uri-id'], $item['author-id'], $transmitted);
 
 		if (!empty($transmitted)) {
 			$languages = array_merge($transmitted, $languages);
@@ -2062,10 +2120,13 @@ class Item
 	 * @param integer $count
 	 * @param integer $uri_id
 	 * @param integer $author_id
+	 * @param array   $default
 	 * @return array
 	 */
-	public static function getLanguageArray(string $body, int $count, int $uri_id = 0, int $author_id = 0): array
+	public static function getLanguageArray(string $body, int $count, int $uri_id = 0, int $author_id = 0, array $default = []): array
 	{
+		$default = $default ?: [L10n::UNDETERMINED_LANGUAGE => 1];
+
 		$searchtext = BBCode::toSearchText($body, $uri_id);
 
 		if ((count(explode(' ', $searchtext)) < 10) && (mb_strlen($searchtext) < 30) && $author_id) {
@@ -2078,7 +2139,7 @@ class Item
 		}
 
 		if (empty($searchtext)) {
-			return [];
+			return $default;
 		}
 
 		$ld = new Language(DI::l10n()->getDetectableLanguages());
@@ -2102,6 +2163,9 @@ class Item
 		}
 
 		$result = self::compactLanguages($result);
+		if (empty($result)) {
+			return $default;
+		}
 
 		arsort($result);
 		return array_slice($result, 0, $count);
@@ -2211,8 +2275,13 @@ class Item
 		foreach (json_decode($item['language'], true) as $language => $reliability) {
 			$code = DI::l10n()->toISO6391($language);
 
-			$native   = $iso639->nativeByCode1($code);
-			$language = $iso639->languageByCode1($code);
+			if ($code == L10n::UNDETERMINED_LANGUAGE) {
+				$native = $language = DI::l10n()->t('Undetermined');
+			} else {
+				$native   = $iso639->nativeByCode1($code);
+				$language = $iso639->languageByCode1($code);
+			}
+
 			if ($native != $language) {
 				$used_languages .= DI::l10n()->t('%s (%s - %s): %s', $native, $language, $code, number_format($reliability, 5)) . '\n';
 			} else {
