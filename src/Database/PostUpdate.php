@@ -52,7 +52,7 @@ class PostUpdate
 	// Needed for the helper function to read from the legacy term table
 	const OBJECT_TYPE_POST  = 1;
 
-	const VERSION = 1544;
+	const VERSION = 1547;
 
 	/**
 	 * Calls the post update functions
@@ -126,6 +126,9 @@ class PostUpdate
 			return false;
 		}
 		if (!self::update1544()) {
+			return false;
+		}
+		if (!self::update1547()) {
 			return false;
 		}
 		return true;
@@ -1352,6 +1355,57 @@ class PostUpdate
 
 		if ($rows <= 100) {
 			DI::keyValue()->set('post_update_version', 1544);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Create "post-searchindex" entries for old entries.
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1547()
+	{
+		// Was the script completed?
+		if (DI::keyValue()->get('post_update_version') >= 1547) {
+			return true;
+		}
+
+		$id = (int)(DI::keyValue()->get('post_update_version_1547_id') ?? 0);
+		if ($id == 0) {
+			$post = Post::selectFirstPost(['uri-id'], [], ['order' => ['uri-id' => true]]);
+			$id = (int)($post['uri-id'] ?? 0);
+		}
+
+		Logger::info('Start', ['uri-id' => $id]);
+
+		$rows = 0;
+
+		$posts = Post::selectPosts(['uri-id', 'network', 'private'], ["`uri-id` < ? AND `gravity` IN (?, ?)", $id, Item::GRAVITY_COMMENT, Item::GRAVITY_PARENT], ['order' => ['uri-id' => true], 'limit' => 1000]);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($post = Post::fetch($posts)) {
+			$id = $post['uri-id'];
+			Post\SearchIndex::insert($post['uri-id'], $post['network'], $post['private']);
+			++$rows;
+		}
+		DBA::close($posts);
+
+		DI::keyValue()->set('post_update_version_1547_id', $id);
+
+		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
+
+		if ($rows <= 100) {
+			DI::keyValue()->set('post_update_version', 1547);
 			Logger::info('Done');
 			return true;
 		}

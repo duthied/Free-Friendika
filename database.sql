@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.03-dev (Yellow Archangel)
--- DB_UPDATE_VERSION 1546
+-- DB_UPDATE_VERSION 1547
 -- ------------------------------------------
 
 
@@ -1459,6 +1459,19 @@ CREATE TABLE IF NOT EXISTS `post-question-option` (
 	 PRIMARY KEY(`uri-id`,`id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Question option';
+
+--
+-- TABLE post-searchindex
+--
+CREATE TABLE IF NOT EXISTS `post-searchindex` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`network` char(4) COMMENT '',
+	`private` tinyint unsigned COMMENT '0=public, 1=private, 2=unlisted',
+	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
+	 PRIMARY KEY(`uri-id`),
+	 FULLTEXT INDEX `searchtext` (`searchtext`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
 -- TABLE post-tag

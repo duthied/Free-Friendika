@@ -247,8 +247,7 @@ class Item
 
 				$searchtext = Post\Engagement::getSearchTextForUriId($item['uri-id'], true);
 				DBA::update('post-engagement', ['searchtext' => $searchtext], ['uri-id' => $item['uri-id']]);
-				DBA::update('post-searchindex', ['searchtext' => $searchtext], ['uri-id' => $item['uri-id']]);
-
+				Post\SearchIndex::update($item['uri-id']);
 			}
 
 			if (!empty($fields['file'])) {
@@ -1450,14 +1449,8 @@ class Item
 
 			$engagement_uri_id = Post\Engagement::storeFromItem($posted_item);
 			
-			if (in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT])) {
-				$search = [
-					'uri-id' => $posted_item['uri-id'],
-					'network' => $posted_item['network'],
-					'private' => $posted_item['private'],
-					'searchtext' => Post\Engagement::getSearchTextForUriId($posted_item['uri-id']),
-				];
-				DBA::insert('post-searchindex', $search, Database::INSERT_IGNORE);
+			if (in_array($posted_item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT])) {
+				Post\SearchIndex::insert($posted_item['uri-id'], $posted_item['network'], $posted_item['private']);
 			}
 
 			if (($posted_item['gravity'] == self::GRAVITY_ACTIVITY) && ($posted_item['verb'] == Activity::ANNOUNCE) && ($posted_item['parent-uri-id'] == $posted_item['thr-parent-id'])) {
