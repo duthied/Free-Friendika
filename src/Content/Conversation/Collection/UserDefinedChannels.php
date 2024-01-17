@@ -21,6 +21,12 @@
 
 namespace Friendica\Content\Conversation\Collection;
 
+use Friendica\Content\Conversation\Entity;
+
 class UserDefinedChannels extends Timelines
 {
+	public function current(): Entity\UserDefinedChannel
+	{
+		return parent::current();
+	}
 }
