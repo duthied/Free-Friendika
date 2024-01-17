@@ -24,7 +24,6 @@ namespace Friendica\Model\Post;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -39,7 +38,7 @@ use Friendica\Util\DateTimeFormat;
 
 class Engagement
 {
-	const KEYWORDS = ['source', 'server', 'from', 'to', 'group', 'tag', 'network', 'platform', 'visibility'];
+	const KEYWORDS = ['source', 'server', 'from', 'to', 'group', 'tag', 'network', 'platform', 'visibility', 'language'];
 
 	/**
 	 * Store engagement data from an item array
@@ -204,26 +203,26 @@ class Engagement
 
 		switch ($item['private']) {
 			case Item::PUBLIC:
-				$body .= ' visibility:public';
+				$body .= ' visibility_public';
 				break;
 			case Item::UNLISTED:
-				$body .= ' visibility:unlisted';
+				$body .= ' visibility_unlisted';
 				break;
 			case Item::PRIVATE:
-				$body .= ' visibility:private';
+				$body .= ' visibility_private';
 				break;
 		}
 
 		if (in_array(Contact::TYPE_COMMUNITY, [$item['author-contact-type'], $item['owner-contact-type']])) {
-			$body .= ' source:group';
+			$body .= ' source_group';
 		} elseif ($item['author-contact-type'] == Contact::TYPE_PERSON) {
-			$body .= ' source:person';
+			$body .= ' source_person';
 		} elseif ($item['author-contact-type'] == Contact::TYPE_NEWS) {
-			$body .= ' source:service';
+			$body .= ' source_service';
 		} elseif ($item['author-contact-type'] == Contact::TYPE_ORGANISATION) {
-			$body .= ' source:organization';
+			$body .= ' source_organization';
 		} elseif ($item['author-contact-type'] == Contact::TYPE_RELAY) {
-			$body .= ' source:application';
+			$body .= ' source_application';
 		}
 
 		if ($item['author-contact-type'] == Contact::TYPE_COMMUNITY) {
@@ -255,6 +254,11 @@ class Engagement
 
 		foreach ($tags as $tag) {
 			$body .= ' tag_' . $tag;
+		}
+
+		if (!empty($item['language'])) {
+			$languages = json_decode($item['language'], true);
+			$body .= ' language_' . array_key_first($languages);
 		}
 
 		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
