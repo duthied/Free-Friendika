@@ -23,7 +23,6 @@ namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -154,10 +153,9 @@ class Search extends BaseApi
 				substr($q, 1), 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
 			$table = 'tag-search-view';
 		} else {
-			$condition = ["`uri-id` IN (SELECT `uri-id` FROM `post-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
-				AND (`uid` = ? OR (`uid` = ? AND NOT `global`)) AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
-				str_replace('@', ' ', $q), 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
-			$table = 'post-user-view';
+			$q = Post\Engagement::escapeKeywords($q);
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) and (private = ? OR  `uri-id` in (SELECT `uri-id` FROM `post-user` where `uid` = ?))", $q, Item::PUBLIC, $uid];
+			$table = 'post-searchindex';
 		}
 
 		if (!empty($max_id)) {

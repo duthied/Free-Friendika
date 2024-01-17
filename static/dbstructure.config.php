@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1546);
+	define('DB_UPDATE_VERSION', 1547);
 }
 
 return [
@@ -1478,6 +1478,19 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id", "id"],
+		]
+	],
+	"post-searchindex" => [
+		"comment" => "Content for all posts",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"network" => ["type" => "char(4)", "comment" => ""],
+			"private" => ["type" => "tinyint unsigned", "comment" => "0=public, 1=private, 2=unlisted"],
+			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
+			"searchtext" => ["FULLTEXT", "searchtext"],
 		]
 	],
 	"post-tag" => [

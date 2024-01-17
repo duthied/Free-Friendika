@@ -255,12 +255,15 @@ class BBCode
 		// Removes attachments
 		$text = self::removeAttachment($text);
 
-		// Add images because of possible alt texts
+		// Add text from attached media
 		if (!empty($uri_id)) {
-			$text = Post\Media::addAttachmentsToBody($uri_id, $text, [Post\Media::IMAGE]);
-
-			foreach (Post\Media::getByURIId($uri_id, [Post\Media::HTML]) as $media) {
-				$text .= ' ' . $media['name'] . ' ' . $media['description'];
+			foreach (Post\Media::getByURIId($uri_id) as $media) {
+				if (!empty($media['description']) && (stripos($text, $media['description']) === false)) {
+					$text .= ' ' . $media['description'];
+				}
+				if (in_array($media['type'], [Post\Media::HTML, Post\Media::ACTIVITY]) && !empty($media['name']) && (stripos($text, $media['name']) === false)) {
+					$text .= ' ' . $media['name'];
+				}
 			}
 		}
 

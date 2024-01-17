@@ -146,7 +146,7 @@ class Engagement
 			'owner-contact-type'  => $author['contact-type'],
 			'owner-nick'          => $author['nick'],
 			'owner-addr'          => $author['addr'],
-			'author-gsid'         => $author['gsid'],
+			'owner-gsid'          => $author['gsid'],
 		];
 
 		foreach ($receivers as $receiver) {
@@ -158,6 +158,21 @@ class Engagement
 		return self::getSearchText($item, $receivers, $tags);
 	}
 
+	public static function getSearchTextForUriId(int $uri_id, bool $refresh = false): string
+	{
+		if (!$refresh) {
+			$engagement = DBA::selectFirst('post-engagement', ['searchtext'], ['uri-id' => $uri_id]);
+			if (!empty($engagement['searchtext'])) {
+				return $engagement['searchtext'];
+			}
+		}
+
+		$post = Post::selectFirstPost(['uri-id', 'network', 'title', 'content-warning', 'body', 'private',
+			'author-id', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid',
+			'owner-id', 'owner-contact-type', 'owner-nick', 'owner-addr', 'owner-gsid'], ['uri-id' => $uri_id]);
+		return self::getSearchTextForItem($post);
+	}
+
 	private static function getSearchTextForItem(array $item): string
 	{
 		$receivers = array_column(Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION, Tag::AUDIENCE]), 'url');
@@ -167,24 +182,24 @@ class Engagement
 
 	private static function getSearchText(array $item, array $receivers, array $tags): string
 	{
-		$body = '[nosmile]network:' . $item['network'];
+		$body = '[nosmile]network_' . $item['network'];
 
 		if (!empty($item['author-gsid'])) {
 			$gserver = DBA::selectFirst('gserver', ['platform', 'nurl'], ['id' => $item['author-gsid']]);
 			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
 			if (!empty($platform)) {
-				$body .= ' platform:' . $platform;
+				$body .= ' platform_' . $platform;
 			}
-			$body .= ' server:' . parse_url($gserver['nurl'], PHP_URL_HOST);
+			$body .= ' server_' . parse_url($gserver['nurl'], PHP_URL_HOST);
 		}
 
 		if (($item['owner-contact-type'] == Contact::TYPE_COMMUNITY) && !empty($item['owner-gsid']) && ($item['owner-gsid'] != ($item['author-gsid'] ?? 0))) {
 			$gserver = DBA::selectFirst('gserver', ['platform', 'nurl'], ['id' => $item['owner-gsid']]);
 			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
-			if (!empty($platform) && !strpos($body, 'platform:' . $platform)) {
-				$body .= ' platform:' . $platform;
+			if (!empty($platform) && !strpos($body, 'platform_' . $platform)) {
+				$body .= ' platform_' . $platform;
 			}
-			$body .= ' server:' . parse_url($gserver['nurl'], PHP_URL_HOST);
+			$body .= ' server_' . parse_url($gserver['nurl'], PHP_URL_HOST);
 		}
 
 		switch ($item['private']) {
@@ -212,16 +227,16 @@ class Engagement
 		}
 
 		if ($item['author-contact-type'] == Contact::TYPE_COMMUNITY) {
-			$body .= ' group:' . $item['author-nick'] . ' group:' . $item['author-addr'];
+			$body .= ' group_' . $item['author-nick'] . ' group_' . $item['author-addr'];
 		} elseif (in_array($item['author-contact-type'], [Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION])) {
-			$body .= ' from:' . $item['author-nick'] . ' from:' . $item['author-addr'];
+			$body .= ' from_' . $item['author-nick'] . ' from_' . $item['author-addr'];
 		}
 
 		if ($item['author-id'] !=  $item['owner-id']) {
 			if ($item['owner-contact-type'] == Contact::TYPE_COMMUNITY) {
-				$body .= ' group:' . $item['owner-nick'] . ' group:' . $item['owner-addr'];
+				$body .= ' group_' . $item['owner-nick'] . ' group_' . $item['owner-addr'];
 			} elseif (in_array($item['owner-contact-type'], [Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION])) {
-				$body .= ' from:' . $item['owner-nick'] . ' from:' . $item['owner-addr'];
+				$body .= ' from_' . $item['owner-nick'] . ' from_' . $item['owner-addr'];
 			}
 		}
 
@@ -231,15 +246,15 @@ class Engagement
 				continue;
 			}
 
-			if (($contact['contact-type'] == Contact::TYPE_COMMUNITY) && !strpos($body, 'group:' . $contact['addr'])) {
-				$body .= ' group:' . $contact['nick'] . ' group:' . $contact['addr'];
+			if (($contact['contact-type'] == Contact::TYPE_COMMUNITY) && !strpos($body, 'group_' . $contact['addr'])) {
+				$body .= ' group_' . $contact['nick'] . ' group_' . $contact['addr'];
 			} elseif (in_array($contact['contact-type'], [Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION])) {
-				$body .= ' to:' . $contact['nick'] . ' to:' . $contact['addr'];
+				$body .= ' to_' . $contact['nick'] . ' to_' . $contact['addr'];
 			}
 		}
 
 		foreach ($tags as $tag) {
-			$body .= ' tag:' . $tag;
+			$body .= ' tag_' . $tag;
 		}
 
 		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
@@ -292,5 +307,13 @@ class Engagement
 		}
 
 		return DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour');
+	}
+
+	public static function escapeKeywords(string $fullTextSearch): string
+	{
+		foreach (Engagement::KEYWORDS as $keyword) {
+			$fullTextSearch = preg_replace('~(' . $keyword . '):(.[\w\*@\.-]+)~', '$1_$2', $fullTextSearch);
+		}
+		return $fullTextSearch;
 	}
 }
