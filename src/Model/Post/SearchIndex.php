@@ -47,10 +47,10 @@ class SearchIndex
 		}
 
 		$search = [
-			'uri-id' => $uri_id,
-			'network' => $network,
-			'private' => $private,
-			'created' => $created,
+			'uri-id'     => $uri_id,
+			'network'    => $network,
+			'private'    => $private,
+			'created'    => $created,
 			'searchtext' => Post\Engagement::getSearchTextForUriId($uri_id, $refresh),
 		];
 		return DBA::insert('post-searchindex', $search, Database::INSERT_UPDATE);
@@ -66,7 +66,12 @@ class SearchIndex
 		$searchtext = Post\Engagement::getSearchTextForUriId($uri_id, true);
 		return DBA::update('post-searchindex', ['searchtext' => $searchtext], ['uri-id' => $uri_id]);
 	}
-	
+
+	/**
+	 * Expire old searchindex entries
+	 *
+	 * @return void
+	 */
 	public static function expire()
 	{
 		$limit = self::searchAgeDateLimit();
