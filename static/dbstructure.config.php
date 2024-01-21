@@ -1319,7 +1319,6 @@ return [
 			"PRIMARY" => ["uri-id"],
 			"plink" => ["plink(191)"],
 			"resource-id" => ["resource-id"],
-			"title-content-warning-body" => ["FULLTEXT", "title", "content-warning", "body"],
 			"quote-uri-id" => ["quote-uri-id"],
 		]
 	],
@@ -1723,7 +1722,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid_is-default" => ["uid", "is-default"],
-			"pub_keywords" => ["FULLTEXT", "pub_keywords"],
 		]
 	],
 	"profile_field" => [

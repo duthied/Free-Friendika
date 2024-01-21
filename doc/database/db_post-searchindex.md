@@ -12,6 +12,7 @@ Fields
 | network    |                                                           | char(4)          | YES  |     | NULL    |       |
 | private    | 0=public, 1=private, 2=unlisted                           | tinyint unsigned | YES  |     | NULL    |       |
 | searchtext | Simplified text for the full text search                  | mediumtext       | YES  |     | NULL    |       |
+| created    |                                                           | datetime         | YES  |     | NULL    |       |
 
 Indexes
 ------------
@@ -19,6 +20,7 @@ Indexes
 | Name       | Fields               |
 | ---------- | -------------------- |
 | PRIMARY    | uri-id               |
+| created    | created              |
 | searchtext | FULLTEXT, searchtext |
 
 Foreign Keys

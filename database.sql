@@ -1293,7 +1293,6 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	 PRIMARY KEY(`uri-id`),
 	 INDEX `plink` (`plink`(191)),
 	 INDEX `resource-id` (`resource-id`),
-	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
 	 INDEX `quote-uri-id` (`quote-uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`quote-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
@@ -1468,7 +1467,9 @@ CREATE TABLE IF NOT EXISTS `post-searchindex` (
 	`network` char(4) COMMENT '',
 	`private` tinyint unsigned COMMENT '0=public, 1=private, 2=unlisted',
 	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
+	`created` datetime COMMENT '',
 	 PRIMARY KEY(`uri-id`),
+	 INDEX `created` (`created`),
 	 FULLTEXT INDEX `searchtext` (`searchtext`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
@@ -1724,7 +1725,6 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`net-publish` boolean NOT NULL DEFAULT '0' COMMENT 'publish profile in global directory',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_is-default` (`uid`,`is-default`),
-	 FULLTEXT INDEX `pub_keywords` (`pub_keywords`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='user profiles data';
 
