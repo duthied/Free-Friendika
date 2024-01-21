@@ -1487,9 +1487,11 @@ return [
 			"network" => ["type" => "char(4)", "comment" => ""],
 			"private" => ["type" => "tinyint unsigned", "comment" => "0=public, 1=private, 2=unlisted"],
 			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
+			"created" => ["type" => "datetime", "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id"],
+			"created" => ["created"],
 			"searchtext" => ["FULLTEXT", "searchtext"],
 		]
 	],

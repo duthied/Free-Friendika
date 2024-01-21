@@ -1386,7 +1386,14 @@ class PostUpdate
 
 		$rows = 0;
 
-		$posts = Post::selectPosts(['uri-id', 'network', 'private'], ["`uri-id` < ? AND `gravity` IN (?, ?)", $id, Item::GRAVITY_COMMENT, Item::GRAVITY_PARENT], ['order' => ['uri-id' => true], 'limit' => 1000]);
+		$condition = ["`uri-id` < ? AND `gravity` IN (?, ?)", $id, Item::GRAVITY_COMMENT, Item::GRAVITY_PARENT];
+
+		$limit = Post\SearchIndex::searchAgeDateLimit();
+		if (!empty($limit)) {
+			DBA::mergeConditions($condition, ["`created` > ?", $limit]);
+		}
+
+		$posts = Post::selectPosts(['uri-id', 'network', 'private', 'created'], $condition, ['order' => ['uri-id' => true], 'limit' => 1000]);
 
 		if (DBA::errorNo() != 0) {
 			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
@@ -1395,7 +1402,7 @@ class PostUpdate
 
 		while ($post = Post::fetch($posts)) {
 			$id = $post['uri-id'];
-			Post\SearchIndex::insert($post['uri-id'], $post['network'], $post['private']);
+			Post\SearchIndex::insert($post['uri-id'], $post['network'], $post['private'], $post['created'], true);
 			++$rows;
 		}
 		DBA::close($posts);

@@ -261,8 +261,12 @@ class BBCode
 				if (!empty($media['description']) && (stripos($text, $media['description']) === false)) {
 					$text .= ' ' . $media['description'];
 				}
-				if (in_array($media['type'], [Post\Media::HTML, Post\Media::ACTIVITY]) && !empty($media['name']) && (stripos($text, $media['name']) === false)) {
-					$text .= ' ' . $media['name'];
+				if (in_array($media['type'], [Post\Media::HTML, Post\Media::ACTIVITY])) {
+					foreach (['name', 'author-name', 'publisher-name'] as $key) {
+						if (!empty($media[$key] && stripos($text, $media[$key]) === false)) {
+							$text .= ' ' . $media[$key];
+						}
+					}
 				}
 			}
 		}

@@ -169,6 +169,9 @@ class Engagement
 		$post = Post::selectFirstPost(['uri-id', 'network', 'title', 'content-warning', 'body', 'private',
 			'author-id', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid',
 			'owner-id', 'owner-contact-type', 'owner-nick', 'owner-addr', 'owner-gsid'], ['uri-id' => $uri_id]);
+		if (empty($post['uri-id'])) {
+			return '';
+		}
 		return self::getSearchTextForItem($post);
 	}
 
@@ -316,7 +319,7 @@ class Engagement
 	public static function escapeKeywords(string $fullTextSearch): string
 	{
 		foreach (Engagement::KEYWORDS as $keyword) {
-			$fullTextSearch = preg_replace('~(' . $keyword . '):(.[\w\*@\.-]+)~', '$1_$2', $fullTextSearch);
+			$fullTextSearch = preg_replace('~(' . $keyword . '):(.[\w\*@\.-]+)~', '"$1_$2"', $fullTextSearch);
 		}
 		return $fullTextSearch;
 	}

@@ -21,9 +21,12 @@
 
 namespace Friendica\Model\Post;
 
+use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Post;
+use Friendica\Util\DateTimeFormat;
 
 class SearchIndex
 {
@@ -33,14 +36,22 @@ class SearchIndex
 	 * @param int $uri_id
 	 * @param string $network
 	 * @param int $private
+	 * @param string $created
+	 * @param bool $refresh
 	 */
-	public static function insert(int $uri_id, string $network, int $private)
+	public static function insert(int $uri_id, string $network, int $private, string $created, bool $refresh = false)
 	{
+		$limit = self::searchAgeDateLimit();
+		if (!empty($limit) && (strtotime($created) < strtotime($limit))) {
+			return;
+		}
+
 		$search = [
 			'uri-id' => $uri_id,
 			'network' => $network,
 			'private' => $private,
-			'searchtext' => Post\Engagement::getSearchTextForUriId($uri_id),
+			'created' => $created,
+			'searchtext' => Post\Engagement::getSearchTextForUriId($uri_id, $refresh),
 		];
 		return DBA::insert('post-searchindex', $search, Database::INSERT_UPDATE);
 	}
@@ -54,5 +65,24 @@ class SearchIndex
 	{
 		$searchtext = Post\Engagement::getSearchTextForUriId($uri_id, true);
 		return DBA::update('post-searchindex', ['searchtext' => $searchtext], ['uri-id' => $uri_id]);
+	}
+	
+	public static function expire()
+	{
+		$limit = self::searchAgeDateLimit();
+		if (empty($limit)) {
+			return;
+		}
+		DBA::delete('post-searchindex', ["`created` < ?", $limit]);
+		Logger::notice('Cleared expired searchindex entries', ['limit' => $limit, 'rows' => DBA::affectedRows()]);
+	}
+
+	public static function searchAgeDateLimit(): string
+	{
+		$days = DI::config()->get('system', 'search_age_days');
+		if (empty($days)) {
+			return '';
+		}
+		return DateTimeFormat::utc('now - ' . $days . ' day');
 	}
 }

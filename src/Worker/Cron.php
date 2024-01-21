@@ -123,6 +123,8 @@ class Cron
 
 			Worker::add(Worker::PRIORITY_LOW, 'ExpireActivities');
 
+			Worker::add(Worker::PRIORITY_LOW, 'ExpireSearchIndex');
+
 			Worker::add(Worker::PRIORITY_LOW, 'RemoveUnusedTags');
 
 			Worker::add(Worker::PRIORITY_LOW, 'RemoveUnusedContacts');
