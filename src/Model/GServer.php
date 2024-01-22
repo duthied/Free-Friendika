@@ -2207,7 +2207,7 @@ class GServer
 	 */
 	private static function analyseRootBody($curlResult, array $serverdata): array
 	{
-		if (empty($curlResult->getBody())) {
+		if (empty($curlResult->getBodyString())) {
 			return $serverdata;
 		}
 
@@ -2220,7 +2220,7 @@ class GServer
 		$platforms = array_merge($ap_platforms, $dfrn_platforms, $zap_platforms, $platforms);
 
 		$doc = new DOMDocument();
-		@$doc->loadHTML($curlResult->getBody());
+		@$doc->loadHTML($curlResult->getBodyString());
 		$xpath = new DOMXPath($doc);
 		$assigned = false;
 
