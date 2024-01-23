@@ -156,7 +156,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			return true;
 		}
 
-		return $this->db->select('check-full-text-search', [], ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $this->escapeKeywords($searchtext)]) !== false;
+		return $this->db->select('check-full-text-search', [], ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), Engagement::escapeKeywords($searchtext)]) !== false;
 	}
 
 	/**
@@ -310,15 +310,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 
 	private function inFulltext(string $fullTextSearch): bool
 	{
-		return $this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), $this->escapeKeywords($fullTextSearch)]);
-	}
-
-	private function escapeKeywords(string $fullTextSearch): string
-	{
-		foreach (Engagement::KEYWORDS as $keyword) {
-			$fullTextSearch = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $fullTextSearch);
-		}
-		return $fullTextSearch;
+		return $this->db->exists('check-full-text-search', ["`pid` = ? AND MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", getmypid(), Engagement::escapeKeywords($fullTextSearch)]);
 	}
 
 	private function getUserCondition()

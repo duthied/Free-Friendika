@@ -30,13 +30,12 @@ Fields
 Indexes
 ------------
 
-| Name                       | Fields                                 |
-| -------------------------- | -------------------------------------- |
-| PRIMARY                    | uri-id                                 |
-| plink                      | plink(191)                             |
-| resource-id                | resource-id                            |
-| title-content-warning-body | FULLTEXT, title, content-warning, body |
-| quote-uri-id               | quote-uri-id                           |
+| Name         | Fields       |
+| ------------ | ------------ |
+| PRIMARY      | uri-id       |
+| plink        | plink(191)   |
+| resource-id  | resource-id  |
+| quote-uri-id | quote-uri-id |
 
 Foreign Keys
 ------------

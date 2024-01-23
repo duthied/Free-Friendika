@@ -140,6 +140,7 @@ class Site extends BaseAdmin
 		$temppath               = (!empty($_POST['temppath'])               ? trim($_POST['temppath'])   : '');
 		$singleuser             = (!empty($_POST['singleuser'])             ? trim($_POST['singleuser']) : '');
 		$only_tag_search        = !empty($_POST['only_tag_search']);
+		$search_age_days        = (!empty($_POST['search_age_days'])        ? intval($_POST['search_age_days'])               : 0);
 		$compute_circle_counts  = !empty($_POST['compute_circle_counts']);
 		$process_view           = !empty($_POST['process_view']);
 		$archival_days          = (!empty($_POST['archival_days'])          ? intval($_POST['archival_days'])                 : 0);
@@ -314,7 +315,8 @@ class Site extends BaseAdmin
 
 		$transactionConfig->set('system', 'temppath', $temppath);
 
-		$transactionConfig->set('system', 'only_tag_search'  , $only_tag_search);
+		$transactionConfig->set('system', 'only_tag_search', $only_tag_search);
+		$transactionConfig->set('system', 'search_age_days', $search_age_days);
 		$transactionConfig->set('system', 'compute_circle_counts', $compute_circle_counts);
 		$transactionConfig->set('system', 'process_view', $process_view);
 		$transactionConfig->set('system', 'archival_days', $archival_days);
@@ -567,6 +569,7 @@ class Site extends BaseAdmin
 			'$itemspage_network_mobile' => ['itemspage_network_mobile', DI::l10n()->t('Items per page for mobile devices'), DI::config()->get('system', 'itemspage_network_mobile'), DI::l10n()->t('Number of items per page in stream pages (network, community, profile/contact statuses, search) for mobile devices.')],
 			'$temppath'               => ['temppath', DI::l10n()->t('Temp path'), DI::config()->get('system', 'temppath'), DI::l10n()->t('If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.')],
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
+			'$search_age_days'        => ['search_age_days', DI::l10n()->t('Maximum age of items in the search table'), DI::config()->get('system', 'search_age_days'), DI::l10n()->t('Maximum age of items in the search table in days. Lower values will increase the performance and reduce disk usage. 0 means no age restriction.')],
 			'$compute_circle_counts'  => ['compute_circle_counts', DI::l10n()->t('Generate counts per contact circle when calculating network count'), DI::config()->get('system', 'compute_circle_counts'), DI::l10n()->t('On systems with users that heavily use contact circles the query can be very expensive.')],
 			'$process_view'           => ['process_view', DI::l10n()->t('Process "view" activities'), DI::config()->get('system', 'process_view'), DI::l10n()->t('"view" activities are mostly geberated by Peertube systems. Per default they are not processed for performance reasons. Only activate this option on performant system.')],
 			'$archival_days'          => ['archival_days', DI::l10n()->t('Days, after which a contact is archived'), DI::config()->get('system', 'archival_days'), DI::l10n()->t('Number of days that we try to deliver content or to update the contact data before we archive a contact.')],

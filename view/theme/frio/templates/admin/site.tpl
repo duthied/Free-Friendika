@@ -250,6 +250,7 @@
 					<div class="panel-body">
 						{{include file="field_checkbox.tpl" field=$compute_circle_counts}}
 						{{include file="field_checkbox.tpl" field=$only_tag_search}}
+						{{include file="field_input.tpl" field=$search_age_days}}
 						{{include file="field_input.tpl" field=$max_comments}}
 						{{include file="field_input.tpl" field=$max_display_comments}}
 						{{include file="field_input.tpl" field=$itemspage_network}}

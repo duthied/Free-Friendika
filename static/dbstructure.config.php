@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1546);
+	define('DB_UPDATE_VERSION', 1547);
 }
 
 return [
@@ -1319,7 +1319,6 @@ return [
 			"PRIMARY" => ["uri-id"],
 			"plink" => ["plink(191)"],
 			"resource-id" => ["resource-id"],
-			"title-content-warning-body" => ["FULLTEXT", "title", "content-warning", "body"],
 			"quote-uri-id" => ["quote-uri-id"],
 		]
 	],
@@ -1478,6 +1477,21 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id", "id"],
+		]
+	],
+	"post-searchindex" => [
+		"comment" => "Content for all posts",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"network" => ["type" => "char(4)", "comment" => ""],
+			"private" => ["type" => "tinyint unsigned", "comment" => "0=public, 1=private, 2=unlisted"],
+			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
+			"created" => ["type" => "datetime", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
+			"created" => ["created"],
+			"searchtext" => ["FULLTEXT", "searchtext"],
 		]
 	],
 	"post-tag" => [
@@ -1708,7 +1722,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid_is-default" => ["uid", "is-default"],
-			"pub_keywords" => ["FULLTEXT", "pub_keywords"],
 		]
 	],
 	"profile_field" => [

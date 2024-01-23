@@ -398,11 +398,7 @@ class Timeline extends BaseModule
 		}
 
 		if (!empty($channel->fullTextSearch)) {
-			$search = $channel->fullTextSearch;
-			foreach (Engagement::KEYWORDS as $keyword) {
-				$search = preg_replace('~(' . $keyword . ':.[\w@\.-]+)~', '"$1"', $search);
-			}
-			$condition = DBA::mergeConditions($condition, ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", $search]);
+			$condition = DBA::mergeConditions($condition, ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", Engagement::escapeKeywords($channel->fullTextSearch)]);
 		}
 
 		if (!empty($channel->includeTags)) {

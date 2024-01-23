@@ -34,6 +34,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post\Category;
@@ -243,6 +244,10 @@ class Item
 				$content_fields['raw-body'] = BBCode::removeAttachment($content_fields['raw-body']);
 
 				Post\Content::update($item['uri-id'], $content_fields);
+
+				$searchtext = Post\Engagement::getSearchTextForUriId($item['uri-id'], true);
+				DBA::update('post-engagement', ['searchtext' => $searchtext], ['uri-id' => $item['uri-id']]);
+				Post\SearchIndex::update($item['uri-id']);
 			}
 
 			if (!empty($fields['file'])) {
@@ -1443,6 +1448,10 @@ class Item
 			}
 
 			$engagement_uri_id = Post\Engagement::storeFromItem($posted_item);
+			
+			if (in_array($posted_item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT])) {
+				Post\SearchIndex::insert($posted_item['uri-id'], $posted_item['network'], $posted_item['private'], $posted_item['created']);
+			}
 
 			if (($posted_item['gravity'] == self::GRAVITY_ACTIVITY) && ($posted_item['verb'] == Activity::ANNOUNCE) && ($posted_item['parent-uri-id'] == $posted_item['thr-parent-id'])) {
 				self::reshareChannelPost($posted_item['thr-parent-id'], $posted_item['author-id']);
