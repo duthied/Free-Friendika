@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2024.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-20 14:09+0000\n"
+"POT-Creation-Date: 2024-01-23 22:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2136,7 +2136,7 @@ msgstr ""
 #: src/Module/Moderation/Blocklist/Server/Import.php:118
 #: src/Module/Moderation/Blocklist/Server/Index.php:95
 #: src/Module/Moderation/Item/Delete.php:61
-#: src/Module/Moderation/Reports.php:89 src/Module/Moderation/Summary.php:76
+#: src/Module/Moderation/Reports.php:89 src/Module/Moderation/Summary.php:75
 #: src/Module/Moderation/Users/Active.php:133
 #: src/Module/Moderation/Users/Blocked.php:133
 #: src/Module/Moderation/Users/Deleted.php:80
@@ -3615,7 +3615,7 @@ msgstr ""
 
 #: src/Model/Profile.php:1043 src/Module/Admin/Summary.php:197
 #: src/Module/Moderation/Report/Create.php:280
-#: src/Module/Moderation/Summary.php:77
+#: src/Module/Moderation/Summary.php:76
 msgid "Summary"
 msgstr ""
 
@@ -7855,19 +7855,23 @@ msgstr ""
 msgid "Private Group"
 msgstr ""
 
-#: src/Module/Moderation/BaseUsers.php:126 src/Module/Settings/Account.php:453
+#: src/Module/Moderation/BaseUsers.php:126 src/Module/Moderation/Summary.php:53
+#: src/Module/Settings/Account.php:453
 msgid "Personal Page"
 msgstr ""
 
-#: src/Module/Moderation/BaseUsers.php:127 src/Module/Settings/Account.php:460
+#: src/Module/Moderation/BaseUsers.php:127 src/Module/Moderation/Summary.php:54
+#: src/Module/Settings/Account.php:460
 msgid "Organisation Page"
 msgstr ""
 
-#: src/Module/Moderation/BaseUsers.php:128 src/Module/Settings/Account.php:467
+#: src/Module/Moderation/BaseUsers.php:128 src/Module/Moderation/Summary.php:55
+#: src/Module/Settings/Account.php:467
 msgid "News Page"
 msgstr ""
 
-#: src/Module/Moderation/BaseUsers.php:129 src/Module/Settings/Account.php:474
+#: src/Module/Moderation/BaseUsers.php:129 src/Module/Moderation/Summary.php:56
+#: src/Module/Settings/Account.php:474
 msgid "Community Group"
 msgstr ""
 
@@ -8511,35 +8515,15 @@ msgstr[1] ""
 msgid "URL of the reported contact."
 msgstr ""
 
-#: src/Module/Moderation/Summary.php:53
-msgid "Normal Account"
+#: src/Module/Moderation/Summary.php:57 src/Module/Settings/Account.php:431
+msgid "Channel Relay"
 msgstr ""
 
-#: src/Module/Moderation/Summary.php:54
-msgid "Automatic Follower Account"
-msgstr ""
-
-#: src/Module/Moderation/Summary.php:55
-msgid "Public Group Account"
-msgstr ""
-
-#: src/Module/Moderation/Summary.php:56
-msgid "Automatic Friend Account"
-msgstr ""
-
-#: src/Module/Moderation/Summary.php:57
-msgid "Blog Account"
-msgstr ""
-
-#: src/Module/Moderation/Summary.php:58
-msgid "Private Group Account"
-msgstr ""
-
-#: src/Module/Moderation/Summary.php:78
+#: src/Module/Moderation/Summary.php:77
 msgid "Registered users"
 msgstr ""
 
-#: src/Module/Moderation/Summary.php:80
+#: src/Module/Moderation/Summary.php:79
 msgid "Pending registrations"
 msgstr ""
 
@@ -9682,10 +9666,6 @@ msgstr ""
 
 #: src/Module/Settings/Account.php:391
 msgid "Unable to find your profile. Please contact your admin."
-msgstr ""
-
-#: src/Module/Settings/Account.php:431
-msgid "Channel Relay"
 msgstr ""
 
 #: src/Module/Settings/Account.php:433
