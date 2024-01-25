@@ -291,6 +291,20 @@ class Timeline extends BaseModule
 				$cid, $this->getMedianRelationThreadScore($cid, 4), $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $cid,
 				$uid, Contact\User::FREQUENCY_ALWAYS
 			];
+		} elseif ($this->selectedTab == ChannelEntity::DISCOVER) {
+			$cid = Contact::getPublicIdByUserId($uid);
+
+			$condition = [
+				"`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND NOT `follows`) AND
+				(`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND NOT `follows` AND `relation-thread-score` > ?) OR
+				`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `cid` = ? AND `relation-thread-score` > ?) OR
+				((`comments` >= ? OR `activities` >= ?) AND 
+				(`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `cid` = ? AND `relation-thread-score` > ?)) OR 
+				(`owner-id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `relation-thread-score` > ?))))",
+				$cid, $cid, $this->getMedianRelationThreadScore($cid, 4), $cid, $this->getMedianRelationThreadScore($cid, 4),
+				$this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $cid, 0, $cid, 0 
+			];
+
 		} elseif ($this->selectedTab == ChannelEntity::FOLLOWERS) {
 			$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $uid, Contact::FOLLOWER];
 		} elseif ($this->selectedTab == ChannelEntity::SHARERSOFSHARERS) {

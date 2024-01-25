@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2024.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-23 22:10+0000\n"
+"POT-Creation-Date: 2024-01-25 10:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -791,7 +791,7 @@ msgstr ""
 msgid "All contacts"
 msgstr ""
 
-#: src/BaseModule.php:439 src/Content/Conversation/Factory/Channel.php:45
+#: src/BaseModule.php:439 src/Content/Conversation/Factory/Channel.php:46
 #: src/Content/Widget.php:239 src/Core/ACL.php:195 src/Module/Contact.php:414
 #: src/Module/PermissionTooltip.php:141 src/Module/PermissionTooltip.php:163
 #: src/Module/Settings/Channels.php:147
@@ -1526,54 +1526,62 @@ msgid "Posts from contacts you interact with and who interact with you"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Channel.php:43
-msgid "What's Hot"
+msgid "Discover"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Channel.php:43
-msgid "Posts with a lot of interactions"
+msgid "Posts from accounts that you don't follow, but that you might like."
 msgstr ""
 
 #: src/Content/Conversation/Factory/Channel.php:44
+msgid "What's Hot"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:44
+msgid "Posts with a lot of interactions"
+msgstr ""
+
+#: src/Content/Conversation/Factory/Channel.php:45
 #, php-format
 msgid "Posts in %s"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:45
+#: src/Content/Conversation/Factory/Channel.php:46
 msgid "Posts from your followers that you don't follow"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:46
+#: src/Content/Conversation/Factory/Channel.php:47
 msgid "Sharers of sharers"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:46
+#: src/Content/Conversation/Factory/Channel.php:47
 msgid "Posts from accounts that are followed by accounts that you follow"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:47
+#: src/Content/Conversation/Factory/Channel.php:48
 #: src/Module/Settings/Channels.php:184 src/Module/Settings/Channels.php:203
 msgid "Images"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:47
+#: src/Content/Conversation/Factory/Channel.php:48
 msgid "Posts with images"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:48
+#: src/Content/Conversation/Factory/Channel.php:49
 #: src/Module/Settings/Channels.php:186 src/Module/Settings/Channels.php:205
 msgid "Audio"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:48
+#: src/Content/Conversation/Factory/Channel.php:49
 msgid "Posts with audio"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:49
+#: src/Content/Conversation/Factory/Channel.php:50
 #: src/Module/Settings/Channels.php:185 src/Module/Settings/Channels.php:204
 msgid "Videos"
 msgstr ""
 
-#: src/Content/Conversation/Factory/Channel.php:49
+#: src/Content/Conversation/Factory/Channel.php:50
 msgid "Posts with videos"
 msgstr ""
 

@@ -25,6 +25,10 @@ Predefined Channels
     * Posts from people you interact with on a more than average level.
     * Posts from the accounts that you follow with a more than average number of interactions-
     * Posts from accounts where you activated "notify on new posts" or where you have set the channel frequency accordingly.
+* Discover: Posts from contacts you don't follow, but that might be of interest for you to follow. In detail, it consists of:
+    * Posts from people you don't follow but you interact with on a more than average level.
+    * Posts from people you don't follow but that interact with you on a more than average level.
+    * Popular posts from people you don't follow but you interacted with or who interacted with you on any level.
 * What's Hot: Posts with a more than average number of interactions.
 * Language: Posts in your language.
 * Followers: Posts from your followers that you don't follow.

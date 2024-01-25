@@ -40,6 +40,7 @@ final class Channel extends Timeline
 
 		$tabs = [
 			new ChannelEntity(ChannelEntity::FORYOU, $this->l10n->t('For you'), $this->l10n->t('Posts from contacts you interact with and who interact with you'), 'y'),
+			new ChannelEntity(ChannelEntity::DISCOVER, $this->l10n->t('Discover'), $this->l10n->t('Posts from accounts that you don\'t follow, but that you might like.'), 'o'),
 			new ChannelEntity(ChannelEntity::WHATSHOT, $this->l10n->t('What\'s Hot'), $this->l10n->t('Posts with a lot of interactions'), 'h'),
 			new ChannelEntity(ChannelEntity::LANGUAGE, $native, $this->l10n->t('Posts in %s', $native), 'g'),
 			new ChannelEntity(ChannelEntity::FOLLOWERS, $this->l10n->t('Followers'), $this->l10n->t('Posts from your followers that you don\'t follow'), 'f'),
@@ -54,6 +55,6 @@ final class Channel extends Timeline
 
 	public function isTimeline(string $selectedTab): bool
 	{
-		return in_array($selectedTab, [ChannelEntity::WHATSHOT, ChannelEntity::FORYOU, ChannelEntity::FOLLOWERS, ChannelEntity::SHARERSOFSHARERS, ChannelEntity::IMAGE, ChannelEntity::VIDEO, ChannelEntity::AUDIO, ChannelEntity::LANGUAGE]);
+		return in_array($selectedTab, [ChannelEntity::WHATSHOT, ChannelEntity::FORYOU, ChannelEntity::DISCOVER, ChannelEntity::FOLLOWERS, ChannelEntity::SHARERSOFSHARERS, ChannelEntity::IMAGE, ChannelEntity::VIDEO, ChannelEntity::AUDIO, ChannelEntity::LANGUAGE]);
 	}
 }
