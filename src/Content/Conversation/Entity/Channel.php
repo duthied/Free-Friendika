@@ -25,6 +25,7 @@ class Channel extends Timeline
 {
 	const WHATSHOT         = 'whatshot';
 	const FORYOU           = 'foryou';
+	const DISCOVER         = 'discover';
 	const FOLLOWERS        = 'followers';
 	const SHARERSOFSHARERS = 'sharersofsharers';
 	const IMAGE            = 'image';

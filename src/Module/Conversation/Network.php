@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
+use Friendica\Content\Conversation\Entity\Channel;
 use Friendica\Content\Conversation\Entity\Network as NetworkEntity;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
 use Friendica\Content\Conversation\Repository\UserDefinedChannel;
@@ -141,6 +142,11 @@ class Network extends Timeline
 		$this->page['aside'] .= Widget::channels($module, $this->selectedTab, $this->session->getLocalUserId());
 		$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
 		$this->page['aside'] .= Widget::fileAs('filed', '');
+
+		if (($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) &&
+			!in_array($this->selectedTab, [Channel::FOLLOWERS, Channel::FORYOU, Channel::DISCOVER])) {
+			$this->page['aside'] .= $this->getNoSharerWidget('network');
+		}
 
 		if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
 			$this->page['aside'] .= TrendingTags::getHTML($this->selectedTab);
