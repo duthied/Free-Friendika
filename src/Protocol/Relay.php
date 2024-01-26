@@ -113,13 +113,18 @@ class Relay
 		}
 
 		if (!empty($tagList) || !empty($denyTags)) {
+			$content = mb_strtolower(BBCode::toPlaintext($body, false));
+
 			$max_tags = $config->get('system', 'relay_max_tags');
 			if ($max_tags && (count($tags) > $max_tags) && preg_match('/[^@!#]\[url\=.*?\].*?\[\/url\]/ism', $body)) {
-				Logger::info('Possible hashtag spam detected - rejected', ['hashtags' => $tags, 'network' => $network, 'url' => $url, 'causer' => $causer, 'body' => $body]);
-				return false;
-			}
+				$cleaned = preg_replace('/[@!#]\[url\=.*?\].*?\[\/url\]/ism', '', $body);
+				$content_cleaned = mb_strtolower(BBCode::toPlaintext($cleaned, false));
 
-			$content = mb_strtolower(BBCode::toPlaintext($body, false));
+				if (strlen($content_cleaned) < strlen($content) / 2) {
+					Logger::info('Possible hashtag spam detected - rejected', ['hashtags' => $tags, 'network' => $network, 'url' => $url, 'causer' => $causer, 'body' => $body]);
+					return false;
+				}
+			}
 
 			foreach ($tags as $tag) {
 				$tag = mb_strtolower($tag);
