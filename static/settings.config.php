@@ -239,7 +239,7 @@ return [
 
 		// relay_max_tags (Integer)
 		// Maximum amount of tags in a post before it is rejected as spam.
-		'relay_max_tags' => 10,
+		'relay_max_tags' => 20,
 
 		// proxify_content (Boolean)
 		// Use the proxy functionality for fetching external content
