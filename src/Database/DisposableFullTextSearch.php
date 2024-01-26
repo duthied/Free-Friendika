@@ -30,12 +30,15 @@ namespace Friendica\Database;
 class DisposableFullTextSearch
 {
 	private Database $db;
+	/** @var int Unique identifier of the haystack in the database. */
 	private int $identifier;
 
 	public function __construct(Database $database, string $haystack)
 	{
 		$this->db = $database;
 
+		// Unique identifier generation. Two DisposableFullTextSearch object should never have the same as the first object destruction
+		// would delete both check-full-text-search rows, before the second object destruction is called, leading to unexpected behavior.
 		// Maximum value is indicated by the INT UNSIGNED type of the check-full-text-search.pid field
 		$this->identifier = random_int(0, pow(2, 32) - 1);
 
