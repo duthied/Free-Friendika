@@ -37,12 +37,12 @@ class DisposableFullTextSearch
 	{
 		$this->db = $database;
 
-		// Unique identifier generation. Two DisposableFullTextSearch object should never have the same as the first object destruction
-		// would delete both check-full-text-search rows, before the second object destruction is called, leading to unexpected behavior.
-		// Maximum value is indicated by the INT UNSIGNED type of the check-full-text-search.pid field
-		$this->identifier = random_int(0, pow(2, 32) - 1);
-
-		$this->db->insert('check-full-text-search', ['pid' => $this->identifier, 'searchtext' => $haystack], Database::INSERT_UPDATE);
+		do {
+			// Unique identifier generation. Two DisposableFullTextSearch object should never have the same as the first object destruction
+			// would delete both check-full-text-search rows before the second object destruction is called, leading to unexpected behavior.
+			// Maximum value is indicated by the INT UNSIGNED type of the check-full-text-search.pid field
+			$this->identifier = random_int(0, pow(2, 32) - 1);
+		} while($this->db->insert('check-full-text-search', ['pid' => $this->identifier, 'searchtext' => $haystack]));
 	}
 
 	public function __destruct()
