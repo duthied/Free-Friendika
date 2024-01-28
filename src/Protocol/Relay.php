@@ -114,7 +114,7 @@ class Relay
 				$content_cleaned = mb_strtolower(BBCode::toPlaintext($cleaned, false));
 
 				if (strlen($content_cleaned) < strlen($content) / 2) {
-					Logger::info('Possible hashtag spam detected - rejected', ['hashtags' => $tags, 'network' => $network, 'url' => $url, 'causer' => $causer, 'body' => $body]);
+					Logger::info('Possible hashtag spam detected - rejected', ['hashtags' => $tags, 'network' => $network, 'url' => $url, 'causer' => $causer, 'content' => $content]);
 					return false;
 				}
 			}
