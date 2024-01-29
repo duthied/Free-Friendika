@@ -188,7 +188,7 @@ class Engagement
 
 		if (!empty($item['author-gsid'])) {
 			$gserver = DBA::selectFirst('gserver', ['platform', 'nurl'], ['id' => $item['author-gsid']]);
-			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
+			$platform = preg_replace('/[\W]/', '', $gserver['platform'] ?? '');
 			if (!empty($platform)) {
 				$body .= ' platform_' . $platform;
 			}
@@ -197,7 +197,7 @@ class Engagement
 
 		if (($item['owner-contact-type'] == Contact::TYPE_COMMUNITY) && !empty($item['owner-gsid']) && ($item['owner-gsid'] != ($item['author-gsid'] ?? 0))) {
 			$gserver = DBA::selectFirst('gserver', ['platform', 'nurl'], ['id' => $item['owner-gsid']]);
-			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
+			$platform = preg_replace('/[\W]/', '', $gserver['platform'] ?? '');
 			if (!empty($platform) && !strpos($body, 'platform_' . $platform)) {
 				$body .= ' platform_' . $platform;
 			}
@@ -285,13 +285,13 @@ class Engagement
 				case Contact::TYPE_COMMUNITY:
 					$prefix = ' group_';
 					break;
-				}
-				$nick = $prefix . $reshare['author-nick'];
-				$addr = $prefix . $reshare['author-addr'];
+			}
+			$nick = $prefix . $reshare['author-nick'];
+			$addr = $prefix . $reshare['author-addr'];
 
-				if (stripos($text, $addr) === false) {
-					$text .= $nick . $addr;
-				}
+			if (stripos($text, $addr) === false) {
+				$text .= $nick . $addr;
+			}
 		}
 		DBA::close($result);
 
