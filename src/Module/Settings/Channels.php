@@ -34,6 +34,7 @@ use Friendica\Module\BaseSettings;
 use Friendica\Module\Response;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Profiler;
+use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 class Channels extends BaseSettings
@@ -80,8 +81,8 @@ class Channels extends BaseSettings
 				'access-key'       => substr(mb_strtolower($request['new_access_key']), 0, 1),
 				'uid'              => $uid,
 				'circle'           => (int)$request['new_circle'],
-				'include-tags'     => $this->cleanTags($request['new_include_tags']),
-				'exclude-tags'     => $this->cleanTags($request['new_exclude_tags']),
+				'include-tags'     => Strings::cleanTags($request['new_include_tags']),
+				'exclude-tags'     => Strings::cleanTags($request['new_exclude_tags']),
 				'full-text-search' => $request['new_text_search'],
 				'media-type'       => ($request['new_image'] ? 1 : 0) | ($request['new_video'] ? 2 : 0) | ($request['new_audio'] ? 4 : 0),
 				'languages'        => $request['new_languages'],
@@ -109,8 +110,8 @@ class Channels extends BaseSettings
 				'access-key'       => substr(mb_strtolower($request['access_key'][$id]), 0, 1),
 				'uid'              => $uid,
 				'circle'           => (int)$request['circle'][$id],
-				'include-tags'     => $this->cleanTags($request['include_tags'][$id]),
-				'exclude-tags'     => $this->cleanTags($request['exclude_tags'][$id]),
+				'include-tags'     => Strings::cleanTags($request['include_tags'][$id]),
+				'exclude-tags'     => Strings::cleanTags($request['exclude_tags'][$id]),
 				'full-text-search' => $request['text_search'][$id],
 				'media-type'       => ($request['image'][$id] ? 1 : 0) | ($request['video'][$id] ? 2 : 0) | ($request['audio'][$id] ? 4 : 0),
 				'languages'        => $request['languages'][$id],
@@ -221,19 +222,5 @@ class Channels extends BaseSettings
 
 			'$form_security_token' => self::getFormSecurityToken('settings_channels'),
 		]);
-	}
-
-	private function cleanTags(string $tag_list): string
-	{
-		$tags = [];
-
-		$tagitems = explode(',', mb_strtolower($tag_list));
-		foreach ($tagitems as $tag) {
-			$tag = trim($tag, '# ');
-			if (!empty($tag)) {
-				$tags[] = preg_replace('#\s#u', '', $tag);
-			}
-		}
-		return implode(',', $tags);
 	}
 }

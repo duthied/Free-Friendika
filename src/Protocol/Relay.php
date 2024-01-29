@@ -97,20 +97,13 @@ class Relay
 
 		$body = ActivityPub\Processor::normalizeMentionLinks($body);
 
-		$denyTags = [];
-
 		if ($scope == self::SCOPE_TAGS) {
 			$tagList = self::getSubscribedTags();
 		} else {
 			$tagList  = [];
 		}
 
-		$deny_tags = $config->get('system', 'relay_deny_tags');
-		$tagitems = explode(',', mb_strtolower($deny_tags));
-		foreach ($tagitems as $tag) {
-			$tag = trim($tag, '# ');
-			$denyTags[] = $tag;
-		}
+		$denyTags = Strings::getTagArrayByString($config->get('system', 'relay_deny_tags'));
 
 		if (!empty($tagList) || !empty($denyTags)) {
 			$content = mb_strtolower(BBCode::toPlaintext($body, false));
@@ -121,7 +114,7 @@ class Relay
 				$content_cleaned = mb_strtolower(BBCode::toPlaintext($cleaned, false));
 
 				if (strlen($content_cleaned) < strlen($content) / 2) {
-					Logger::info('Possible hashtag spam detected - rejected', ['hashtags' => $tags, 'network' => $network, 'url' => $url, 'causer' => $causer, 'body' => $body]);
+					Logger::info('Possible hashtag spam detected - rejected', ['hashtags' => $tags, 'network' => $network, 'url' => $url, 'causer' => $causer, 'content' => $content]);
 					return false;
 				}
 			}
@@ -168,10 +161,7 @@ class Relay
 	 */
 	public static function getSubscribedTags(): array
 	{
-		$tags  = [];
-		foreach (explode(',', mb_strtolower(DI::config()->get('system', 'relay_server_tags'))) as $tag) {
-			$tags[] = trim($tag, '# ');
-		}
+		$tags = Strings::getTagArrayByString(DI::config()->get('system', 'relay_server_tags'));
 
 		if (DI::config()->get('system', 'relay_user_tags')) {
 			$tags = array_merge($tags, Search::getUserTags());

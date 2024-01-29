@@ -271,7 +271,7 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'explicit_content'       , $explicit_content);
 		$transactionConfig->set('system', 'proxify_content'        , $proxify_content);
 		$transactionConfig->set('system', 'local_search'           , $local_search);
-		$transactionConfig->set('system', 'blocked_tags'           , $blocked_tags);
+		$transactionConfig->set('system', 'blocked_tags'           , Strings::cleanTags($blocked_tags));
 		$transactionConfig->set('system', 'cache_contact_avatar'   , $cache_contact_avatar);
 		$transactionConfig->set('system', 'check_new_version_url'  , $check_new_version_url);
 
@@ -332,8 +332,8 @@ class Site extends BaseAdmin
 		
 		$transactionConfig->set('system', 'relay_directly'                , $relay_directly);
 		$transactionConfig->set('system', 'relay_scope'                   , $relay_scope);
-		$transactionConfig->set('system', 'relay_server_tags'             , $relay_server_tags);
-		$transactionConfig->set('system', 'relay_deny_tags'               , $relay_deny_tags);
+		$transactionConfig->set('system', 'relay_server_tags'             , Strings::cleanTags($relay_server_tags));
+		$transactionConfig->set('system', 'relay_deny_tags'               , Strings::cleanTags($relay_deny_tags));
 		$transactionConfig->set('system', 'relay_max_tags'                , $relay_max_tags);
 		$transactionConfig->set('system', 'relay_user_tags'               , $relay_user_tags);
 		$transactionConfig->set('system', 'relay_deny_undetected_language', $relay_deny_undetected_language);

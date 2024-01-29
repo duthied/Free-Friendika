@@ -667,12 +667,11 @@ class Tag
 	 */
 	private static function getBlockedSQL(): string
 	{
-		$blocked_txt = DI::config()->get('system', 'blocked_tags');
-		if (empty($blocked_txt)) {
+		$blocked = Strings::getTagArrayByString(DI::config()->get('system', 'blocked_tags'));
+		if (empty($blocked)) {
 			return '';
 		}
 
-		$blocked = explode(',', $blocked_txt);
 		array_walk($blocked, function (&$value) {
 			$value = "'" . DBA::escape(trim($value)) . "'";
 		});

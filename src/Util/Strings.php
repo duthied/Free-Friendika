@@ -578,4 +578,36 @@ class Strings
 
 		return $styled_url;
 	}
+
+	/**
+	 * Sort a comma separated list of hashtags, convert them to lowercase and remove duplicates
+	 *
+	 * @param string $tag_list
+	 * @return string
+	 */
+	public static function cleanTags(string $tag_list): string
+	{
+		$tags = [];
+
+		$tagitems = explode(',', str_replace([' ', ';', '#'], ',', mb_strtolower($tag_list)));
+		foreach ($tagitems as $tag) {
+			if (!empty($tag)) {
+				$tags[] = preg_replace('#\s#u', '', $tag);
+			}
+		}
+		$tags = array_unique($tags);
+		asort($tags);
+		return implode(',', $tags);
+	}
+
+	/**
+	 * Get a tag array out of a comma separated list of tags
+	 *
+	 * @param string $tag_list
+	 * @return array
+	 */
+	public static function getTagArrayByString(string $tag_list): array
+	{
+		return explode(',', self::cleanTags($tag_list));
+	}
 }
