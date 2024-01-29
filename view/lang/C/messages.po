@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2024.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-29 06:23+0000\n"
+"POT-Creation-Date: 2024-01-29 06:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2372,9 +2372,8 @@ msgstr ""
 msgid "News"
 msgstr ""
 
-#: src/Content/Widget.php:538 src/Model/Contact.php:1754
-#: src/Module/Moderation/BaseUsers.php:130
-msgid "Relay"
+#: src/Content/Widget.php:538
+msgid "Relays"
 msgstr ""
 
 #: src/Content/Widget.php:543 src/Module/Settings/Account.php:442
@@ -3258,6 +3257,10 @@ msgstr ""
 
 #: src/Model/Contact.php:1750
 msgid "Group"
+msgstr ""
+
+#: src/Model/Contact.php:1754 src/Module/Moderation/BaseUsers.php:130
+msgid "Relay"
 msgstr ""
 
 #: src/Model/Contact.php:3057
