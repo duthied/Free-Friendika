@@ -127,6 +127,9 @@ class User
 
 			case 'community':
 				return self::ACCOUNT_TYPE_COMMUNITY;
+
+			case 'relay':
+				return self::ACCOUNT_TYPE_RELAY;
 		}
 		return null;
 	}
@@ -477,7 +480,7 @@ class User
 
 		// Check for correct url and normalised nurl
 		$url = DI::baseUrl() . '/profile/' . $owner['nickname'];
-		$repair = empty($owner['network']) || ($owner['url'] != $url) || ($owner['nurl'] != Strings::normaliseLink($owner['url']));
+		$repair = empty($owner['baseurl']) || empty($owner['network']) || ($owner['url'] != $url) || ($owner['nurl'] != Strings::normaliseLink($owner['url']));
 
 		if (!$repair) {
 			// Check if "addr" is present and correct

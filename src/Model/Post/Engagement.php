@@ -38,7 +38,7 @@ use Friendica\Util\DateTimeFormat;
 
 class Engagement
 {
-	const KEYWORDS = ['source', 'server', 'from', 'to', 'group', 'tag', 'network', 'platform', 'visibility', 'language'];
+	const KEYWORDS = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language'];
 
 	/**
 	 * Store engagement data from an item array
@@ -188,7 +188,7 @@ class Engagement
 
 		if (!empty($item['author-gsid'])) {
 			$gserver = DBA::selectFirst('gserver', ['platform', 'nurl'], ['id' => $item['author-gsid']]);
-			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
+			$platform = preg_replace('/[\W]/', '', $gserver['platform'] ?? '');
 			if (!empty($platform)) {
 				$body .= ' platform_' . $platform;
 			}
@@ -197,7 +197,7 @@ class Engagement
 
 		if (($item['owner-contact-type'] == Contact::TYPE_COMMUNITY) && !empty($item['owner-gsid']) && ($item['owner-gsid'] != ($item['author-gsid'] ?? 0))) {
 			$gserver = DBA::selectFirst('gserver', ['platform', 'nurl'], ['id' => $item['owner-gsid']]);
-			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
+			$platform = preg_replace('/[\W]/', '', $gserver['platform'] ?? '');
 			if (!empty($platform) && !strpos($body, 'platform_' . $platform)) {
 				$body .= ' platform_' . $platform;
 			}
@@ -230,6 +230,8 @@ class Engagement
 
 		if ($item['author-contact-type'] == Contact::TYPE_COMMUNITY) {
 			$body .= ' group_' . $item['author-nick'] . ' group_' . $item['author-addr'];
+		} elseif ($item['author-contact-type'] == Contact::TYPE_RELAY) {
+			$body .= ' application_' . $item['author-nick'] . ' application_' . $item['author-addr'];
 		} elseif (in_array($item['author-contact-type'], [Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION])) {
 			$body .= ' from_' . $item['author-nick'] . ' from_' . $item['author-addr'];
 		}
@@ -241,6 +243,8 @@ class Engagement
 				$body .= ' from_' . $item['owner-nick'] . ' from_' . $item['owner-addr'];
 			}
 		}
+
+		$body = self::addResharers($body, $item['uri-id']);
 
 		foreach ($receivers as $receiver) {
 			$contact = Contact::getByURL($receiver, false, ['nick', 'addr', 'contact-type']);
@@ -267,6 +271,31 @@ class Engagement
 		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
 
 		return BBCode::toSearchText($body, $item['uri-id']);
+	}
+
+	private static function addResharers(string $text, int $uri_id): string
+	{
+		$result = Post::selectPosts(['author-addr', 'author-nick', 'author-contact-type'],
+			['thr-parent-id' => $uri_id, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::ANNOUNCE, 'author-contact-type' => [Contact::TYPE_RELAY, Contact::TYPE_COMMUNITY]]);
+		while ($reshare = Post::fetch($result)) {
+			switch ($reshare['author-contact-type']) {
+				case Contact::TYPE_RELAY:
+					$prefix = ' application_';
+					break;
+				case Contact::TYPE_COMMUNITY:
+					$prefix = ' group_';
+					break;
+			}
+			$nick = $prefix . $reshare['author-nick'];
+			$addr = $prefix . $reshare['author-addr'];
+
+			if (stripos($text, $addr) === false) {
+				$text .= $nick . $addr;
+			}
+		}
+		DBA::close($result);
+
+		return $text;
 	}
 
 	private static function getMediaType(int $uri_id): int

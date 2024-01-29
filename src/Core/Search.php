@@ -245,6 +245,7 @@ class Search
 							'Group'        => Contact::TYPE_COMMUNITY,
 							'Organization' => Contact::TYPE_ORGANISATION,
 							'News'         => Contact::TYPE_NEWS,
+							'Relay'        => Contact::TYPE_RELAY,
 						];
 
 						return [

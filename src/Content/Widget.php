@@ -535,6 +535,7 @@ class Widget
 			['ref' => 'organisation', 'name' => DI::l10n()->t('Organisations')],
 			['ref' => 'news', 'name' => DI::l10n()->t('News')],
 			['ref' => 'community', 'name' => DI::l10n()->t('Groups')],
+			['ref' => 'relay', 'name' => DI::l10n()->t('Relays')],
 		];
 
 		return self::filter(
