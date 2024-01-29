@@ -42,7 +42,7 @@ class DisposableFullTextSearch
 		do {
 			// Maximum value is indicated by the INT UNSIGNED type of the check-full-text-search.pid field
 			$this->identifier = random_int(0, pow(2, 32) - 1);
-		} while($this->db->exists('check-full-text-search', ['pid' => $this->identifier, 'searchtext' => $haystack]));
+		} while ($this->db->exists('check-full-text-search', ['pid' => $this->identifier]));
 
 		// If the `exists()` call fails and return false because the database is unavailable, the `insert()` call will likely fail as well, which means
 		// all subsequent calls to `match()` will return false because the haystack won't have been inserted.
