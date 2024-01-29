@@ -63,7 +63,7 @@ class SearchIndex
 	 */
 	public static function update(int $uri_id)
 	{
-		$searchtext = Post\Engagement::getSearchTextForUriId($uri_id, true);
+		$searchtext = Post\Engagement::getSearchTextForUriId($uri_id);
 		return DBA::update('post-searchindex', ['searchtext' => $searchtext], ['uri-id' => $uri_id]);
 	}
 

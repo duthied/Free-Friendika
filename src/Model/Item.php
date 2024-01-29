@@ -1451,6 +1451,8 @@ class Item
 			
 			if (in_array($posted_item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT])) {
 				Post\SearchIndex::insert($posted_item['uri-id'], $posted_item['network'], $posted_item['private'], $posted_item['created']);
+			} elseif ($posted_item['verb'] == Activity::ANNOUNCE) {
+				Post\SearchIndex::update($posted_item['thr-parent-id']);
 			}
 
 			if (($posted_item['gravity'] == self::GRAVITY_ACTIVITY) && ($posted_item['verb'] == Activity::ANNOUNCE) && ($posted_item['parent-uri-id'] == $posted_item['thr-parent-id'])) {
