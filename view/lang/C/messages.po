@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2024.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-25 18:12+0000\n"
+"POT-Creation-Date: 2024-01-29 06:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,8 +66,8 @@ msgstr ""
 #: src/Module/Register.php:77 src/Module/Register.php:90
 #: src/Module/Register.php:206 src/Module/Register.php:245
 #: src/Module/Search/Directory.php:37 src/Module/Settings/Account.php:50
-#: src/Module/Settings/Account.php:386 src/Module/Settings/Channels.php:61
-#: src/Module/Settings/Channels.php:130 src/Module/Settings/Delegation.php:90
+#: src/Module/Settings/Account.php:386 src/Module/Settings/Channels.php:62
+#: src/Module/Settings/Channels.php:131 src/Module/Settings/Delegation.php:90
 #: src/Module/Settings/Display.php:90 src/Module/Settings/Display.php:197
 #: src/Module/Settings/Profile/Photo/Crop.php:165
 #: src/Module/Settings/Profile/Photo/Index.php:112
@@ -382,7 +382,7 @@ msgstr ""
 
 #: mod/notes.php:57 src/Content/Text/HTML.php:860
 #: src/Module/Admin/Storage.php:142 src/Module/Filer/SaveTag.php:74
-#: src/Module/Post/Edit.php:129 src/Module/Settings/Channels.php:212
+#: src/Module/Post/Edit.php:129 src/Module/Settings/Channels.php:213
 msgid "Save"
 msgstr ""
 
@@ -794,12 +794,12 @@ msgstr ""
 #: src/BaseModule.php:439 src/Content/Conversation/Factory/Channel.php:46
 #: src/Content/Widget.php:239 src/Core/ACL.php:195 src/Module/Contact.php:414
 #: src/Module/PermissionTooltip.php:141 src/Module/PermissionTooltip.php:163
-#: src/Module/Settings/Channels.php:147
+#: src/Module/Settings/Channels.php:148
 msgid "Followers"
 msgstr ""
 
 #: src/BaseModule.php:444 src/Content/Widget.php:240 src/Module/Contact.php:417
-#: src/Module/Settings/Channels.php:146
+#: src/Module/Settings/Channels.php:147
 msgid "Following"
 msgstr ""
 
@@ -957,7 +957,7 @@ msgstr ""
 msgid "Enter user nickname: "
 msgstr ""
 
-#: src/Console/User.php:182 src/Model/User.php:816
+#: src/Console/User.php:182 src/Model/User.php:819
 #: src/Module/Api/Twitter/ContactEndpoint.php:74
 #: src/Module/Moderation/Users/Active.php:71
 #: src/Module/Moderation/Users/Blocked.php:71
@@ -1559,7 +1559,7 @@ msgid "Posts from accounts that are followed by accounts that you follow"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Channel.php:48
-#: src/Module/Settings/Channels.php:184 src/Module/Settings/Channels.php:203
+#: src/Module/Settings/Channels.php:185 src/Module/Settings/Channels.php:204
 msgid "Images"
 msgstr ""
 
@@ -1568,7 +1568,7 @@ msgid "Posts with images"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Channel.php:49
-#: src/Module/Settings/Channels.php:186 src/Module/Settings/Channels.php:205
+#: src/Module/Settings/Channels.php:187 src/Module/Settings/Channels.php:206
 msgid "Audio"
 msgstr ""
 
@@ -1577,7 +1577,7 @@ msgid "Posts with audio"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Channel.php:50
-#: src/Module/Settings/Channels.php:185 src/Module/Settings/Channels.php:204
+#: src/Module/Settings/Channels.php:186 src/Module/Settings/Channels.php:205
 msgid "Videos"
 msgstr ""
 
@@ -1594,7 +1594,7 @@ msgid "Posts from local users on this server"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Community.php:47
-#: src/Module/Settings/Channels.php:139 src/Module/Settings/Channels.php:144
+#: src/Module/Settings/Channels.php:140 src/Module/Settings/Channels.php:145
 msgid "Global Community"
 msgstr ""
 
@@ -1755,26 +1755,26 @@ msgid ""
 "Contact birthday events are private to you."
 msgstr ""
 
-#: src/Content/GroupManager.php:147 src/Content/Nav.php:278
+#: src/Content/GroupManager.php:148 src/Content/Nav.php:278
 #: src/Content/Text/HTML.php:881 src/Content/Widget.php:537
-#: src/Model/User.php:1378
+#: src/Model/User.php:1381
 msgid "Groups"
 msgstr ""
 
-#: src/Content/GroupManager.php:149
+#: src/Content/GroupManager.php:150
 msgid "External link to group"
 msgstr ""
 
-#: src/Content/GroupManager.php:153 src/Content/Widget.php:512
+#: src/Content/GroupManager.php:154 src/Content/Widget.php:512
 msgid "show less"
 msgstr ""
 
-#: src/Content/GroupManager.php:154 src/Content/Widget.php:410
+#: src/Content/GroupManager.php:155 src/Content/Widget.php:410
 #: src/Content/Widget.php:513
 msgid "show more"
 msgstr ""
 
-#: src/Content/GroupManager.php:155
+#: src/Content/GroupManager.php:156
 msgid "Create new group"
 msgstr ""
 
@@ -1800,31 +1800,31 @@ msgstr ""
 msgid "Follow Thread"
 msgstr ""
 
-#: src/Content/Item.php:430 src/Model/Contact.php:1247
+#: src/Content/Item.php:430 src/Model/Contact.php:1250
 msgid "View Status"
 msgstr ""
 
-#: src/Content/Item.php:431 src/Content/Item.php:452 src/Model/Contact.php:1181
-#: src/Model/Contact.php:1238 src/Model/Contact.php:1248
+#: src/Content/Item.php:431 src/Content/Item.php:452 src/Model/Contact.php:1184
+#: src/Model/Contact.php:1241 src/Model/Contact.php:1251
 #: src/Module/Directory.php:157 src/Module/Settings/Profile/Index.php:259
 msgid "View Profile"
 msgstr ""
 
-#: src/Content/Item.php:432 src/Model/Contact.php:1249
+#: src/Content/Item.php:432 src/Model/Contact.php:1252
 msgid "View Photos"
 msgstr ""
 
-#: src/Content/Item.php:433 src/Model/Contact.php:1216
+#: src/Content/Item.php:433 src/Model/Contact.php:1219
 #: src/Model/Profile.php:468
 msgid "Network Posts"
 msgstr ""
 
-#: src/Content/Item.php:434 src/Model/Contact.php:1240
-#: src/Model/Contact.php:1251
+#: src/Content/Item.php:434 src/Model/Contact.php:1243
+#: src/Model/Contact.php:1254
 msgid "View Contact"
 msgstr ""
 
-#: src/Content/Item.php:435 src/Model/Contact.php:1252
+#: src/Content/Item.php:435 src/Model/Contact.php:1255
 msgid "Send PM"
 msgstr ""
 
@@ -1854,13 +1854,13 @@ msgstr ""
 msgid "Ignore %s server"
 msgstr ""
 
-#: src/Content/Item.php:443 src/Module/Settings/Channels.php:187
-#: src/Module/Settings/Channels.php:206 src/Object/Post.php:509
+#: src/Content/Item.php:443 src/Module/Settings/Channels.php:188
+#: src/Module/Settings/Channels.php:207 src/Object/Post.php:509
 msgid "Languages"
 msgstr ""
 
 #: src/Content/Item.php:449 src/Content/Widget.php:80
-#: src/Model/Contact.php:1241 src/Model/Contact.php:1253
+#: src/Model/Contact.php:1244 src/Model/Contact.php:1256
 #: src/Module/Contact/Follow.php:167 view/theme/vier/theme.php:195
 msgid "Connect/Follow"
 msgstr ""
@@ -2058,7 +2058,7 @@ msgstr ""
 msgid "Terms of Service of this Friendica instance"
 msgstr ""
 
-#: src/Content/Nav.php:306 src/Module/Settings/Channels.php:145
+#: src/Content/Nav.php:306 src/Module/Settings/Channels.php:146
 #: view/theme/frio/theme.php:239
 msgid "Network"
 msgstr ""
@@ -2368,20 +2368,25 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: src/Content/Widget.php:536 src/Model/Contact.php:1743
+#: src/Content/Widget.php:536 src/Model/Contact.php:1746
 msgid "News"
 msgstr ""
 
-#: src/Content/Widget.php:542 src/Module/Settings/Account.php:442
+#: src/Content/Widget.php:538 src/Model/Contact.php:1754
+#: src/Module/Moderation/BaseUsers.php:130
+msgid "Relay"
+msgstr ""
+
+#: src/Content/Widget.php:543 src/Module/Settings/Account.php:442
 msgid "Account Types"
 msgstr ""
 
-#: src/Content/Widget.php:544 src/Module/Moderation/BaseUsers.php:69
+#: src/Content/Widget.php:545 src/Module/Moderation/BaseUsers.php:69
 msgid "All"
 msgstr ""
 
-#: src/Content/Widget.php:591 src/Module/Admin/Site.php:472
-#: src/Module/BaseSettings.php:125 src/Module/Settings/Channels.php:208
+#: src/Content/Widget.php:592 src/Module/Admin/Site.php:472
+#: src/Module/BaseSettings.php:125 src/Module/Settings/Channels.php:209
 #: src/Module/Settings/Display.php:315
 msgid "Channels"
 msgstr ""
@@ -2432,12 +2437,12 @@ msgstr[1] ""
 msgid "More Trending Tags"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:102 src/Model/Contact.php:1209
+#: src/Content/Widget/VCard.php:102 src/Model/Contact.php:1212
 #: src/Model/Profile.php:461
 msgid "Post to group"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:106 src/Model/Contact.php:1214
+#: src/Content/Widget/VCard.php:106 src/Model/Contact.php:1217
 #: src/Model/Profile.php:466 src/Module/Moderation/Item/Source.php:85
 msgid "Mention"
 msgstr ""
@@ -2465,13 +2470,13 @@ msgstr ""
 msgid "Network:"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:125 src/Model/Contact.php:1242
-#: src/Model/Contact.php:1254 src/Model/Profile.php:479
+#: src/Content/Widget/VCard.php:125 src/Model/Contact.php:1245
+#: src/Model/Contact.php:1257 src/Model/Profile.php:479
 #: src/Module/Contact/Profile.php:463
 msgid "Unfollow"
 msgstr ""
 
-#: src/Content/Widget/VCard.php:131 src/Model/Contact.php:1211
+#: src/Content/Widget/VCard.php:131 src/Model/Contact.php:1214
 #: src/Model/Profile.php:463
 msgid "View group"
 msgstr ""
@@ -3241,82 +3246,82 @@ msgstr ""
 msgid "Edit circles"
 msgstr ""
 
-#: src/Model/Contact.php:1261 src/Module/Moderation/Users/Pending.php:102
+#: src/Model/Contact.php:1264 src/Module/Moderation/Users/Pending.php:102
 #: src/Module/Notifications/Introductions.php:132
 #: src/Module/Notifications/Introductions.php:204
 msgid "Approve"
 msgstr ""
 
-#: src/Model/Contact.php:1739
+#: src/Model/Contact.php:1742
 msgid "Organisation"
 msgstr ""
 
-#: src/Model/Contact.php:1747
+#: src/Model/Contact.php:1750
 msgid "Group"
 msgstr ""
 
-#: src/Model/Contact.php:3050
+#: src/Model/Contact.php:3057
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: src/Model/Contact.php:3055 src/Module/Friendica.php:101
+#: src/Model/Contact.php:3062 src/Module/Friendica.php:101
 msgid "Blocked domain"
 msgstr ""
 
-#: src/Model/Contact.php:3060
+#: src/Model/Contact.php:3067
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:3069
+#: src/Model/Contact.php:3076
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:3087
+#: src/Model/Contact.php:3094
 #, php-format
 msgid "Expected network %s does not match actual network %s"
 msgstr ""
 
-#: src/Model/Contact.php:3104
+#: src/Model/Contact.php:3111
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:3106
+#: src/Model/Contact.php:3113
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:3109
+#: src/Model/Contact.php:3116
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:3112
+#: src/Model/Contact.php:3119
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:3115
+#: src/Model/Contact.php:3122
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:3116
+#: src/Model/Contact.php:3123
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:3122
+#: src/Model/Contact.php:3129
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:3127
+#: src/Model/Contact.php:3134
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:3193
+#: src/Model/Contact.php:3200
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -3663,145 +3668,145 @@ msgstr ""
 msgid "Contact information and Social Networks"
 msgstr ""
 
-#: src/Model/User.php:225 src/Model/User.php:1291
+#: src/Model/User.php:228 src/Model/User.php:1294
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr ""
 
-#: src/Model/User.php:725 src/Model/User.php:758
+#: src/Model/User.php:728 src/Model/User.php:761
 msgid "Login failed"
 msgstr ""
 
-#: src/Model/User.php:790
+#: src/Model/User.php:793
 msgid "Not enough information to authenticate"
 msgstr ""
 
-#: src/Model/User.php:911
+#: src/Model/User.php:914
 msgid "Password can't be empty"
 msgstr ""
 
-#: src/Model/User.php:953
+#: src/Model/User.php:956
 msgid "Empty passwords are not allowed."
 msgstr ""
 
-#: src/Model/User.php:957
+#: src/Model/User.php:960
 msgid ""
 "The new password has been exposed in a public data dump, please choose "
 "another."
 msgstr ""
 
-#: src/Model/User.php:961
+#: src/Model/User.php:964
 msgid "The password length is limited to 72 characters."
 msgstr ""
 
-#: src/Model/User.php:965
+#: src/Model/User.php:968
 msgid "The password can't contain white spaces nor accentuated letters"
 msgstr ""
 
-#: src/Model/User.php:1174
+#: src/Model/User.php:1177
 msgid "Passwords do not match. Password unchanged."
 msgstr ""
 
-#: src/Model/User.php:1181
+#: src/Model/User.php:1184
 msgid "An invitation is required."
 msgstr ""
 
-#: src/Model/User.php:1185
+#: src/Model/User.php:1188
 msgid "Invitation could not be verified."
 msgstr ""
 
-#: src/Model/User.php:1193
+#: src/Model/User.php:1196
 msgid "Invalid OpenID url"
 msgstr ""
 
-#: src/Model/User.php:1206 src/Security/Authentication.php:241
+#: src/Model/User.php:1209 src/Security/Authentication.php:241
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr ""
 
-#: src/Model/User.php:1206 src/Security/Authentication.php:241
+#: src/Model/User.php:1209 src/Security/Authentication.php:241
 msgid "The error message was:"
 msgstr ""
 
-#: src/Model/User.php:1212
+#: src/Model/User.php:1215
 msgid "Please enter the required information."
 msgstr ""
 
-#: src/Model/User.php:1226
+#: src/Model/User.php:1229
 #, php-format
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
 msgstr ""
 
-#: src/Model/User.php:1233
+#: src/Model/User.php:1236
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1237
+#: src/Model/User.php:1240
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/User.php:1245
+#: src/Model/User.php:1248
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr ""
 
-#: src/Model/User.php:1250
+#: src/Model/User.php:1253
 msgid "Your email domain is not among those allowed on this site."
 msgstr ""
 
-#: src/Model/User.php:1254
+#: src/Model/User.php:1257
 msgid "Not a valid email address."
 msgstr ""
 
-#: src/Model/User.php:1257
+#: src/Model/User.php:1260
 msgid "The nickname was blocked from registration by the nodes admin."
 msgstr ""
 
-#: src/Model/User.php:1261 src/Model/User.php:1267
+#: src/Model/User.php:1264 src/Model/User.php:1270
 msgid "Cannot use that email."
 msgstr ""
 
-#: src/Model/User.php:1273
+#: src/Model/User.php:1276
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr ""
 
-#: src/Model/User.php:1281 src/Model/User.php:1338
+#: src/Model/User.php:1284 src/Model/User.php:1341
 msgid "Nickname is already registered. Please choose another."
 msgstr ""
 
-#: src/Model/User.php:1325 src/Model/User.php:1329
+#: src/Model/User.php:1328 src/Model/User.php:1332
 msgid "An error occurred during registration. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1352
+#: src/Model/User.php:1355
 msgid "An error occurred creating your default profile. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1359
+#: src/Model/User.php:1362
 msgid "An error occurred creating your self contact. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1364
+#: src/Model/User.php:1367
 msgid "Friends"
 msgstr ""
 
-#: src/Model/User.php:1368
+#: src/Model/User.php:1371
 msgid ""
 "An error occurred creating your default contact circle. Please try again."
 msgstr ""
 
-#: src/Model/User.php:1412
+#: src/Model/User.php:1415
 msgid "Profile Photos"
 msgstr ""
 
-#: src/Model/User.php:1594
+#: src/Model/User.php:1597
 #, php-format
 msgid ""
 "\n"
@@ -3809,7 +3814,7 @@ msgid ""
 "\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: src/Model/User.php:1597
+#: src/Model/User.php:1600
 #, php-format
 msgid ""
 "\n"
@@ -3845,12 +3850,12 @@ msgid ""
 "\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: src/Model/User.php:1629 src/Model/User.php:1735
+#: src/Model/User.php:1632 src/Model/User.php:1738
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: src/Model/User.php:1649
+#: src/Model/User.php:1652
 #, php-format
 msgid ""
 "\n"
@@ -3866,12 +3871,12 @@ msgid ""
 "\t\t"
 msgstr ""
 
-#: src/Model/User.php:1668
+#: src/Model/User.php:1671
 #, php-format
 msgid "Registration at %s"
 msgstr ""
 
-#: src/Model/User.php:1692
+#: src/Model/User.php:1695
 #, php-format
 msgid ""
 "\n"
@@ -3880,7 +3885,7 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: src/Model/User.php:1700
+#: src/Model/User.php:1703
 #, php-format
 msgid ""
 "\n"
@@ -3918,7 +3923,7 @@ msgid ""
 "\t\t\tThank you and welcome to %2$s."
 msgstr ""
 
-#: src/Model/User.php:1762
+#: src/Model/User.php:1765
 msgid ""
 "User with delegates can't be removed, please remove delegate users first"
 msgstr ""
@@ -6163,7 +6168,7 @@ msgstr ""
 #: src/Module/Moderation/Blocklist/Server/Index.php:116
 #: src/Module/Moderation/Item/Delete.php:67 src/Module/Register.php:148
 #: src/Module/Security/TwoFactor/Verify.php:101
-#: src/Module/Settings/Channels.php:177 src/Module/Settings/Channels.php:196
+#: src/Module/Settings/Channels.php:178 src/Module/Settings/Channels.php:197
 #: src/Module/Settings/TwoFactor/Index.php:161
 #: src/Module/Settings/TwoFactor/Verify.php:158
 msgid "Required"
@@ -7044,21 +7049,21 @@ msgstr ""
 msgid "Not available."
 msgstr ""
 
-#: src/Module/Conversation/Network.php:200
+#: src/Module/Conversation/Network.php:206
 msgid "No such circle"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:204
+#: src/Module/Conversation/Network.php:210
 #, php-format
 msgid "Circle: %s"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:223
+#: src/Module/Conversation/Network.php:229
 #, php-format
 msgid "Error %d (%s) while fetching the timeline."
 msgstr ""
 
-#: src/Module/Conversation/Network.php:300
+#: src/Module/Conversation/Network.php:306
 msgid "Network feed not available."
 msgstr ""
 
@@ -7416,7 +7421,7 @@ msgstr ""
 #: src/Module/Friendica.php:102
 #: src/Module/Moderation/Blocklist/Server/Index.php:87
 #: src/Module/Moderation/Blocklist/Server/Index.php:111
-#: src/Module/Settings/Channels.php:215
+#: src/Module/Settings/Channels.php:216
 msgid "Reason for the block"
 msgstr ""
 
@@ -7894,10 +7899,6 @@ msgstr ""
 msgid "Community Group"
 msgstr ""
 
-#: src/Module/Moderation/BaseUsers.php:130
-msgid "Relay"
-msgstr ""
-
 #: src/Module/Moderation/Blocklist/Contact.php:70
 msgid "You can't block a local contact, please block the user instead"
 msgstr ""
@@ -8168,7 +8169,7 @@ msgstr ""
 
 #: src/Module/Moderation/Blocklist/Server/Index.php:86
 #: src/Module/Moderation/Blocklist/Server/Index.php:110
-#: src/Module/Settings/Channels.php:214
+#: src/Module/Settings/Channels.php:215
 msgid "Blocked server domain pattern"
 msgstr ""
 
@@ -10142,100 +10143,100 @@ msgstr ""
 msgid "No Addon settings configured"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:137
+#: src/Module/Settings/Channels.php:138
 msgid ""
 "This page can be used to define the channels that will automatically be "
 "reshared by your account."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:142
+#: src/Module/Settings/Channels.php:143
 msgid "This page can be used to define your own channels."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:169
+#: src/Module/Settings/Channels.php:170
 msgid "Publish"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:169
+#: src/Module/Settings/Channels.php:170
 msgid ""
 "When selected, the channel results are reshared. This only works for public "
 "ActivityPub posts from the public timeline or the user defined circles."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:177 src/Module/Settings/Channels.php:196
+#: src/Module/Settings/Channels.php:178 src/Module/Settings/Channels.php:197
 #: src/Module/Settings/Display.php:338
 msgid "Label"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:178 src/Module/Settings/Channels.php:197
+#: src/Module/Settings/Channels.php:179 src/Module/Settings/Channels.php:198
 #: src/Module/Settings/Display.php:339
 #: src/Module/Settings/TwoFactor/AppSpecific.php:137
 msgid "Description"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:179 src/Module/Settings/Channels.php:198
+#: src/Module/Settings/Channels.php:180 src/Module/Settings/Channels.php:199
 msgid "Access Key"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:180 src/Module/Settings/Channels.php:199
+#: src/Module/Settings/Channels.php:181 src/Module/Settings/Channels.php:200
 msgid "Circle/Channel"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:181 src/Module/Settings/Channels.php:200
+#: src/Module/Settings/Channels.php:182 src/Module/Settings/Channels.php:201
 msgid "Include Tags"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:182 src/Module/Settings/Channels.php:201
+#: src/Module/Settings/Channels.php:183 src/Module/Settings/Channels.php:202
 msgid "Exclude Tags"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:183 src/Module/Settings/Channels.php:202
+#: src/Module/Settings/Channels.php:184 src/Module/Settings/Channels.php:203
 msgid "Full Text Search"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:187 src/Module/Settings/Channels.php:206
+#: src/Module/Settings/Channels.php:188 src/Module/Settings/Channels.php:207
 msgid "Select all languages that you want to see in this channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:189
+#: src/Module/Settings/Channels.php:190
 msgid "Delete channel"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:189
+#: src/Module/Settings/Channels.php:190
 msgid "Check to delete this entry from the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:196
+#: src/Module/Settings/Channels.php:197
 msgid "Short name for the channel. It is displayed on the channels widget."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:197
+#: src/Module/Settings/Channels.php:198
 msgid "This should describe the content of the channel in a few word."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:198
+#: src/Module/Settings/Channels.php:199
 msgid ""
 "When you want to access this channel via an access key, you can define it "
 "here. Pay attention to not use an already used one."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:199
+#: src/Module/Settings/Channels.php:200
 msgid "Select a circle or channel, that your channel should be based on."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:200
+#: src/Module/Settings/Channels.php:201
 msgid ""
 "Comma separated list of tags. A post will be used when it contains any of "
 "the listed tags."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:201
+#: src/Module/Settings/Channels.php:202
 msgid ""
 "Comma separated list of tags. If a post contain any of these tags, then it "
 "will not be part of nthis channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:202
+#: src/Module/Settings/Channels.php:203
 #, php-format
 msgid ""
 "Search terms for the body, supports the \"boolean mode\" operators from "
@@ -10243,35 +10244,35 @@ msgid ""
 "keywords: %s"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:203
+#: src/Module/Settings/Channels.php:204
 msgid "Check to display images in the channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:204
+#: src/Module/Settings/Channels.php:205
 msgid "Check to display videos in the channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:205
+#: src/Module/Settings/Channels.php:206
 msgid "Check to display audio in the channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:210
+#: src/Module/Settings/Channels.php:211
 msgid "Add new entry to the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:211
+#: src/Module/Settings/Channels.php:212
 msgid "Add"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:213
+#: src/Module/Settings/Channels.php:214
 msgid "Current Entries in the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:216
+#: src/Module/Settings/Channels.php:217
 msgid "Delete entry from the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:217
+#: src/Module/Settings/Channels.php:218
 msgid "Delete entry from the channel list?"
 msgstr ""
 

@@ -784,6 +784,7 @@ class Contact
 			'name-date'   => DateTimeFormat::utcNow(),
 			'uri-date'    => DateTimeFormat::utcNow(),
 			'avatar-date' => DateTimeFormat::utcNow(),
+			'baseurl'     => DI::baseUrl(),
 			'closeness'   => 0
 		];
 
@@ -819,7 +820,7 @@ class Contact
 		$fields = [
 			'id', 'uri-id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey', 'manually-approve',
 			'xmpp', 'matrix', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
-			'photo', 'thumb', 'micro', 'header', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network'
+			'photo', 'thumb', 'micro', 'header', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network', 'baseurl', 'gsid'
 		];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
@@ -902,6 +903,8 @@ class Contact
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 		$fields['unsearchable'] = !$profile['net-publish'];
 		$fields['manually-approve'] = in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
+		$fields['baseurl'] = DI::baseUrl();
+		$fields['gsid'] = GServer::getID($fields['baseurl'], true);
 
 		$update = false;
 
@@ -1745,6 +1748,10 @@ class Contact
 
 			case self::TYPE_COMMUNITY:
 				$account_type = DI::l10n()->t("Group");
+				break;
+
+			case self::TYPE_RELAY:
+				$account_type = DI::l10n()->t("Relay");
 				break;
 
 			default:
