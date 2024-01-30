@@ -41,8 +41,7 @@ class Engagement
 	const KEYWORDS     = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language'];
 	const SHORTCUTS    = ['lang' => 'language', 'net' => 'network', 'relay' => 'application'];
 	const ALTERNATIVES = ['source:news' => 'source:service', 'source:relay' => 'source:application',
-		'network:activitypub' => 'network:apub', 'network:friendica' => 'network:dfrn', 'network:diaspora' => 'network:dspr',
-		'network:ostatus' => 'network:stat', 'network:ostatus' => 'network:stat', 'network:pumpio' => 'network:pump',
+		'network:activitypub' => 'network:apub', 'network:friendica' => 'network:dfrn', 'network:diaspora' => 'network:dspr', 'network:ostatus' => 'network:stat',
 		'network:discourse' => 'network:dscs', 'network:tumblr' => 'network:tmbl', 'network:bluesky' => 'network:bsky'];
 
 	/**

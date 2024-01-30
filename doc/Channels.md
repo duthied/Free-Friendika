@@ -56,36 +56,36 @@ Each channel is defined by these values:
 Additional keywords for the full text search
 ---
 
-Additionally to the search for content, there are additional keywords that can be used in the full text search:
+Additionally to the search for content, there are additional keywords that can be used in the full text search. Alternatives are presented via "|".
 
 * from - Use "from:nickname" or "from:nickname@domain.tld" to search for posts from a specific author.
 * to - Use "from:nickname" or "from:nickname@domain.tld" to search for posts with the given contact as receiver.
 * group - Use "group:nickname" or "group:nickname@domain.tld" to search for group post of the given group.
-* application - Use "application:nickname" or "application:nickname@domain.tld" to search for posts that had been reshared by the given relay application.
+* application | relay - Use "application:nickname" or "application:nickname@domain.tld" to search for posts that had been reshared by the given relay application.
 * server - Use "server:hostname" to search for posts from a specific server. In the case of group postings, the search text contains both the hostname of the group server and the author's hostname.
 * source - The ActivityPub type of the post source. Use this for example to include or exclude group posts or posts from services (aka bots).
     * source:person - The post is created by a regular user account.
     * source:organization - The post is created by an organisation.
     * source:group - The post is created by or distributed via a group.
-    * source:service - The posts originates from a service account. This source type is often used to mark bot accounts.
-    * source:application - The post is created by an application. This is most likely unused in the fediverse for post creation.
+    * source:service | source:news - The posts originates from a service account. This source type is often used to mark bot accounts.
+    * source:application | source:relay - The post is created by an application. This is most likely unused in the fediverse for post creation.
 * tag - Use "tag:tagname" to search for a specific tag.
-* network - Use this to include or exclude some networks from your channel.
-    * network:apub - ActivityPub (Used by the systems in the Fediverse)
-    * network:dfrn - Legacy Friendica protocol. Nowayday Friendica mostly uses ActivityPub.
-    * network:dspr - The Diaspora protocol is mainly used by Diaspora itself. Some other systems support the protocol as well like Hubzilla, Socialhome or Ganggo.
+* network | net - Use this to include or exclude some networks from your channel.
+    * network:apub | network:activitypub - ActivityPub (Used by the systems in the Fediverse)
+    * network:dfrn | network:friendica - Legacy Friendica protocol. Nowayday Friendica mostly uses ActivityPub.
+    * network:dspr | network:diaspora - The Diaspora protocol is mainly used by Diaspora itself. Some other systems support the protocol as well like Hubzilla, Socialhome or Ganggo.
     * network:feed - RSS/Atom feeds
     * network:mail - Mails that had been imported via IMAP.
-    * network:stat - The OStatus protocol is mainly used by old GNU Social installations.
-    * network:dscs - Posts that are received by the Discourse connector.
-    * network:tmbl - Posts that are received by the Tumblr connector.
-    * network:bsky - Posts that are received by the Bluesky connector.
+    * network:stat | network:ostatus - The OStatus protocol is mainly used by old GNU Social installations.
+    * network:dscs | network:discourse - Posts that are received by the Discourse connector.
+    * network:tmbl | network:tumblr - Posts that are received by the Tumblr connector.
+    * network:bsky | network:bluesky - Posts that are received by the Bluesky connector.
 * platform - Use this to include or exclude some platforms from your channel, e.g. "+platform:friendica". In the case of group postings, the search text contains both the platform of the group server and the author's platform.
 * visibility - You have the choice between different visibilities. You can only see unlisted or private posts that you have the access for.
     * visibility:public
     * visibility:unlisted
     * visibility:private
-* language - Use "language:code" to search for posts with the given language in the [ISO 639-1](https://en.wikipedia.org/wiki/ISO_639-1) format. 
+* language | lang - Use "language:code" to search for posts with the given language in the [ISO 639-1](https://en.wikipedia.org/wiki/ISO_639-1) format. 
 
 Remember that you can combine these kerywords.
 So for example you can create a channel with all posts that talk about the Fediverse - that aren't posted in the Fediverse with the search terms: "fediverse -network:apub -network:dfrn"
