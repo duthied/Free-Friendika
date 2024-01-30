@@ -38,8 +38,12 @@ use Friendica\Util\DateTimeFormat;
 
 class Engagement
 {
-	const KEYWORDS  = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language'];
-	const SHORTCUTS = ['lang' => 'language', 'net' => 'network', 'relay' => 'application'];
+	const KEYWORDS     = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language'];
+	const SHORTCUTS    = ['lang' => 'language', 'net' => 'network', 'relay' => 'application'];
+	const ALTERNATIVES = ['source:news' => 'source:service', 'source:relay' => 'source:application',
+		'network:activitypub' => 'network:apub', 'network:friendica' => 'network:dfrn', 'network:diaspora' => 'network:dspr',
+		'network:ostatus' => 'network:stat', 'network:ostatus' => 'network:stat', 'network:pumpio' => 'network:pump',
+		'network:discourse' => 'network:dscs', 'network:tumblr' => 'network:tmbl', 'network:bluesky' => 'network:bsky'];
 
 	/**
 	 * Store engagement data from an item array
@@ -363,6 +367,10 @@ class Engagement
 	{
 		foreach (SELF::SHORTCUTS as $search => $replace) {
 			$fullTextSearch = preg_replace('~' . $search . ':(.[\w\*@\.-]+)~', $replace . ':$1', $fullTextSearch);
+		}
+
+		foreach (SELF::ALTERNATIVES as $search => $replace) {
+			$fullTextSearch = str_replace($search, $replace, $fullTextSearch);
 		}
 
 		foreach (self::KEYWORDS as $keyword) {
