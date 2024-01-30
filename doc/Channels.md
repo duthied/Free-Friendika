@@ -56,7 +56,8 @@ Each channel is defined by these values:
 Additional keywords for the full text search
 ---
 
-Additionally to the search for content, there are additional keywords that can be used in the full text search. Alternatives are presented via "|".
+Additionally to the search for content, there are keywords that can be used in the full text search.
+Alternatives are presented with "|".
 
 * from - Use "from:nickname" or "from:nickname@domain.tld" to search for posts from a specific author.
 * to - Use "from:nickname" or "from:nickname@domain.tld" to search for posts with the given contact as receiver.
