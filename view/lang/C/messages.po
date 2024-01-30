@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2024.03-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-29 06:46+0000\n"
+"POT-Creation-Date: 2024-01-30 10:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,7 +67,7 @@ msgstr ""
 #: src/Module/Register.php:206 src/Module/Register.php:245
 #: src/Module/Search/Directory.php:37 src/Module/Settings/Account.php:50
 #: src/Module/Settings/Account.php:386 src/Module/Settings/Channels.php:62
-#: src/Module/Settings/Channels.php:131 src/Module/Settings/Delegation.php:90
+#: src/Module/Settings/Channels.php:135 src/Module/Settings/Delegation.php:90
 #: src/Module/Settings/Display.php:90 src/Module/Settings/Display.php:197
 #: src/Module/Settings/Profile/Photo/Crop.php:165
 #: src/Module/Settings/Profile/Photo/Index.php:112
@@ -382,7 +382,7 @@ msgstr ""
 
 #: mod/notes.php:57 src/Content/Text/HTML.php:860
 #: src/Module/Admin/Storage.php:142 src/Module/Filer/SaveTag.php:74
-#: src/Module/Post/Edit.php:129 src/Module/Settings/Channels.php:213
+#: src/Module/Post/Edit.php:129 src/Module/Settings/Channels.php:221
 msgid "Save"
 msgstr ""
 
@@ -794,12 +794,12 @@ msgstr ""
 #: src/BaseModule.php:439 src/Content/Conversation/Factory/Channel.php:46
 #: src/Content/Widget.php:239 src/Core/ACL.php:195 src/Module/Contact.php:414
 #: src/Module/PermissionTooltip.php:141 src/Module/PermissionTooltip.php:163
-#: src/Module/Settings/Channels.php:148
+#: src/Module/Settings/Channels.php:152
 msgid "Followers"
 msgstr ""
 
 #: src/BaseModule.php:444 src/Content/Widget.php:240 src/Module/Contact.php:417
-#: src/Module/Settings/Channels.php:147
+#: src/Module/Settings/Channels.php:151
 msgid "Following"
 msgstr ""
 
@@ -1559,7 +1559,7 @@ msgid "Posts from accounts that are followed by accounts that you follow"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Channel.php:48
-#: src/Module/Settings/Channels.php:185 src/Module/Settings/Channels.php:204
+#: src/Module/Settings/Channels.php:191 src/Module/Settings/Channels.php:212
 msgid "Images"
 msgstr ""
 
@@ -1568,7 +1568,7 @@ msgid "Posts with images"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Channel.php:49
-#: src/Module/Settings/Channels.php:187 src/Module/Settings/Channels.php:206
+#: src/Module/Settings/Channels.php:193 src/Module/Settings/Channels.php:214
 msgid "Audio"
 msgstr ""
 
@@ -1577,7 +1577,7 @@ msgid "Posts with audio"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Channel.php:50
-#: src/Module/Settings/Channels.php:186 src/Module/Settings/Channels.php:205
+#: src/Module/Settings/Channels.php:192 src/Module/Settings/Channels.php:213
 msgid "Videos"
 msgstr ""
 
@@ -1594,7 +1594,7 @@ msgid "Posts from local users on this server"
 msgstr ""
 
 #: src/Content/Conversation/Factory/Community.php:47
-#: src/Module/Settings/Channels.php:140 src/Module/Settings/Channels.php:145
+#: src/Module/Settings/Channels.php:144 src/Module/Settings/Channels.php:149
 msgid "Global Community"
 msgstr ""
 
@@ -1778,7 +1778,7 @@ msgstr ""
 msgid "Create new group"
 msgstr ""
 
-#: src/Content/Item.php:332 src/Model/Item.php:3244
+#: src/Content/Item.php:332 src/Model/Item.php:3246
 msgid "event"
 msgstr ""
 
@@ -1786,7 +1786,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:341 src/Model/Item.php:3246
+#: src/Content/Item.php:341 src/Model/Item.php:3248
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -1854,8 +1854,8 @@ msgstr ""
 msgid "Ignore %s server"
 msgstr ""
 
-#: src/Content/Item.php:443 src/Module/Settings/Channels.php:188
-#: src/Module/Settings/Channels.php:207 src/Object/Post.php:509
+#: src/Content/Item.php:443 src/Module/Settings/Channels.php:194
+#: src/Module/Settings/Channels.php:215 src/Object/Post.php:509
 msgid "Languages"
 msgstr ""
 
@@ -2058,7 +2058,7 @@ msgstr ""
 msgid "Terms of Service of this Friendica instance"
 msgstr ""
 
-#: src/Content/Nav.php:306 src/Module/Settings/Channels.php:146
+#: src/Content/Nav.php:306 src/Module/Settings/Channels.php:150
 #: view/theme/frio/theme.php:239
 msgid "Network"
 msgstr ""
@@ -2199,8 +2199,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1005 src/Model/Item.php:3977
-#: src/Model/Item.php:3983 src/Model/Item.php:3984
+#: src/Content/Text/BBCode.php:1005 src/Model/Item.php:3979
+#: src/Model/Item.php:3985 src/Model/Item.php:3986
 msgid "Link to source"
 msgstr ""
 
@@ -2385,7 +2385,7 @@ msgid "All"
 msgstr ""
 
 #: src/Content/Widget.php:592 src/Module/Admin/Site.php:472
-#: src/Module/BaseSettings.php:125 src/Module/Settings/Channels.php:209
+#: src/Module/BaseSettings.php:125 src/Module/Settings/Channels.php:217
 #: src/Module/Settings/Display.php:315
 msgid "Channels"
 msgstr ""
@@ -2867,7 +2867,7 @@ msgstr ""
 msgid "Could not connect to database."
 msgstr ""
 
-#: src/Core/L10n.php:444 src/Model/Item.php:2288
+#: src/Core/L10n.php:444 src/Model/Item.php:2290
 msgid "Undetermined"
 msgstr ""
 
@@ -3429,91 +3429,91 @@ msgstr ""
 msgid "Happy Birthday %s"
 msgstr ""
 
-#: src/Model/Item.php:2295
+#: src/Model/Item.php:2297
 #, php-format
 msgid "%s (%s - %s): %s"
 msgstr ""
 
-#: src/Model/Item.php:2297
+#: src/Model/Item.php:2299
 #, php-format
 msgid "%s (%s): %s"
 msgstr ""
 
-#: src/Model/Item.php:2300
+#: src/Model/Item.php:2302
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:3248
+#: src/Model/Item.php:3250
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:3250
+#: src/Model/Item.php:3252
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:3253 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:3255 src/Module/Post/Tag/Add.php:123
 msgid "post"
-msgstr ""
-
-#: src/Model/Item.php:3423
-#, php-format
-msgid "%s is blocked"
 msgstr ""
 
 #: src/Model/Item.php:3425
 #, php-format
-msgid "%s is ignored"
+msgid "%s is blocked"
 msgstr ""
 
 #: src/Model/Item.php:3427
 #, php-format
+msgid "%s is ignored"
+msgstr ""
+
+#: src/Model/Item.php:3429
+#, php-format
 msgid "Content from %s is collapsed"
 msgstr ""
 
-#: src/Model/Item.php:3431
+#: src/Model/Item.php:3433
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3884
+#: src/Model/Item.php:3886
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3915
+#: src/Model/Item.php:3917
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3917
+#: src/Model/Item.php:3919
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3922
+#: src/Model/Item.php:3924
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3924
+#: src/Model/Item.php:3926
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3926
+#: src/Model/Item.php:3928
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3960 src/Model/Item.php:3961
+#: src/Model/Item.php:3962 src/Model/Item.php:3963
 msgid "View on separate page"
 msgstr ""
 
@@ -6171,7 +6171,7 @@ msgstr ""
 #: src/Module/Moderation/Blocklist/Server/Index.php:116
 #: src/Module/Moderation/Item/Delete.php:67 src/Module/Register.php:148
 #: src/Module/Security/TwoFactor/Verify.php:101
-#: src/Module/Settings/Channels.php:178 src/Module/Settings/Channels.php:197
+#: src/Module/Settings/Channels.php:182 src/Module/Settings/Channels.php:203
 #: src/Module/Settings/TwoFactor/Index.php:161
 #: src/Module/Settings/TwoFactor/Verify.php:158
 msgid "Required"
@@ -7424,7 +7424,7 @@ msgstr ""
 #: src/Module/Friendica.php:102
 #: src/Module/Moderation/Blocklist/Server/Index.php:87
 #: src/Module/Moderation/Blocklist/Server/Index.php:111
-#: src/Module/Settings/Channels.php:216
+#: src/Module/Settings/Channels.php:224
 msgid "Reason for the block"
 msgstr ""
 
@@ -8172,7 +8172,7 @@ msgstr ""
 
 #: src/Module/Moderation/Blocklist/Server/Index.php:86
 #: src/Module/Moderation/Blocklist/Server/Index.php:110
-#: src/Module/Settings/Channels.php:215
+#: src/Module/Settings/Channels.php:223
 msgid "Blocked server domain pattern"
 msgstr ""
 
@@ -10146,100 +10146,120 @@ msgstr ""
 msgid "No Addon settings configured"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:138
+#: src/Module/Settings/Channels.php:142
 msgid ""
 "This page can be used to define the channels that will automatically be "
 "reshared by your account."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:143
+#: src/Module/Settings/Channels.php:147
 msgid "This page can be used to define your own channels."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:170
+#: src/Module/Settings/Channels.php:174
 msgid "Publish"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:170
+#: src/Module/Settings/Channels.php:174
 msgid ""
 "When selected, the channel results are reshared. This only works for public "
 "ActivityPub posts from the public timeline or the user defined circles."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:178 src/Module/Settings/Channels.php:197
+#: src/Module/Settings/Channels.php:182 src/Module/Settings/Channels.php:203
 #: src/Module/Settings/Display.php:338
 msgid "Label"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:179 src/Module/Settings/Channels.php:198
+#: src/Module/Settings/Channels.php:183 src/Module/Settings/Channels.php:204
 #: src/Module/Settings/Display.php:339
 #: src/Module/Settings/TwoFactor/AppSpecific.php:137
 msgid "Description"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:180 src/Module/Settings/Channels.php:199
+#: src/Module/Settings/Channels.php:184 src/Module/Settings/Channels.php:205
 msgid "Access Key"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:181 src/Module/Settings/Channels.php:200
+#: src/Module/Settings/Channels.php:185 src/Module/Settings/Channels.php:206
 msgid "Circle/Channel"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:182 src/Module/Settings/Channels.php:201
+#: src/Module/Settings/Channels.php:186 src/Module/Settings/Channels.php:207
 msgid "Include Tags"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:183 src/Module/Settings/Channels.php:202
+#: src/Module/Settings/Channels.php:187 src/Module/Settings/Channels.php:208
 msgid "Exclude Tags"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:184 src/Module/Settings/Channels.php:203
+#: src/Module/Settings/Channels.php:188 src/Module/Settings/Channels.php:209
+msgid "Minimum Size"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:189 src/Module/Settings/Channels.php:210
+msgid "Maximum Size"
+msgstr ""
+
+#: src/Module/Settings/Channels.php:190 src/Module/Settings/Channels.php:211
 msgid "Full Text Search"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:188 src/Module/Settings/Channels.php:207
+#: src/Module/Settings/Channels.php:194 src/Module/Settings/Channels.php:215
 msgid "Select all languages that you want to see in this channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:190
+#: src/Module/Settings/Channels.php:196
 msgid "Delete channel"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:190
+#: src/Module/Settings/Channels.php:196
 msgid "Check to delete this entry from the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:197
+#: src/Module/Settings/Channels.php:203
 msgid "Short name for the channel. It is displayed on the channels widget."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:198
+#: src/Module/Settings/Channels.php:204
 msgid "This should describe the content of the channel in a few word."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:199
+#: src/Module/Settings/Channels.php:205
 msgid ""
 "When you want to access this channel via an access key, you can define it "
 "here. Pay attention to not use an already used one."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:200
+#: src/Module/Settings/Channels.php:206
 msgid "Select a circle or channel, that your channel should be based on."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:201
+#: src/Module/Settings/Channels.php:207
 msgid ""
 "Comma separated list of tags. A post will be used when it contains any of "
 "the listed tags."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:202
+#: src/Module/Settings/Channels.php:208
 msgid ""
 "Comma separated list of tags. If a post contain any of these tags, then it "
 "will not be part of nthis channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:203
+#: src/Module/Settings/Channels.php:209
+msgid ""
+"Minimum post size. Leave empty for no minimum size. The size is calculated "
+"without links, attached posts, mentions or hashtags."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:210
+msgid ""
+"Maximum post size. Leave empty for no maximum size. The size is calculated "
+"without links, attached posts, mentions or hashtags."
+msgstr ""
+
+#: src/Module/Settings/Channels.php:211
 #, php-format
 msgid ""
 "Search terms for the body, supports the \"boolean mode\" operators from "
@@ -10247,35 +10267,35 @@ msgid ""
 "keywords: %s"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:204
+#: src/Module/Settings/Channels.php:212
 msgid "Check to display images in the channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:205
+#: src/Module/Settings/Channels.php:213
 msgid "Check to display videos in the channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:206
+#: src/Module/Settings/Channels.php:214
 msgid "Check to display audio in the channel."
 msgstr ""
 
-#: src/Module/Settings/Channels.php:211
+#: src/Module/Settings/Channels.php:219
 msgid "Add new entry to the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:212
+#: src/Module/Settings/Channels.php:220
 msgid "Add"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:214
+#: src/Module/Settings/Channels.php:222
 msgid "Current Entries in the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:217
+#: src/Module/Settings/Channels.php:225
 msgid "Delete entry from the channel list"
 msgstr ""
 
-#: src/Module/Settings/Channels.php:218
+#: src/Module/Settings/Channels.php:226
 msgid "Delete entry from the channel list?"
 msgstr ""
 
