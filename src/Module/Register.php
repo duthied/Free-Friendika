@@ -284,7 +284,21 @@ class Register extends BaseModule
 			$regdata = ['email' => $arr['email'], 'nickname' => $arr['nickname'], 'username' => $arr['username']];
 			DI::baseUrl()->redirect('register?' . http_build_query($regdata));
 		}
-
+		
+		//Check if nickname contains only US-ASCII and do not start with a digit
+		if (!preg_match('/^[a-zA-Z][a-zA-Z0-9]*$/', $arr['nickname'])) {
+        		if (is_numeric(substr($arr['nickname'], 0, 1))) {
+				Logger::info('Nickname with a leading digit not allowed', $arr);
+				DI::sysmsg()->addNotice(DI::l10n()->t("Nickname cannot start with a digit."));
+        		} else {
+				Logger::info('nickname with non us-ascii characters not allowed', $arr);
+				DI::sysmsg()->addNotice(DI::l10n()->t("Nickname can only contain US-ASCII characters."));
+			}
+			$regdata = ['email' => $arr['email'], 'nickname' => $arr['nickname'], 'username' => $arr['username']];
+			DI::baseUrl()->redirect('register?' . http_build_query($regdata));
+			return;
+		}
+		
 		$arr['blocked'] = $blocked;
 		$arr['verified'] = $verified;
 		$arr['language'] = L10n::detectLanguage($_SERVER, $_GET, DI::config()->get('system', 'language'));
