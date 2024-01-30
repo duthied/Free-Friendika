@@ -18,6 +18,8 @@
 				{{include file="field_select.tpl" field=$circle}}
 				{{include file="field_textarea.tpl" field=$include_tags}}
 				{{include file="field_textarea.tpl" field=$exclude_tags}}
+				{{include file="field_input.tpl" field=$min_size}}
+				{{include file="field_input.tpl" field=$max_size}}
 				{{include file="field_textarea.tpl" field=$text_search}}
 				{{include file="field_checkbox.tpl" field=$image}}
 				{{include file="field_checkbox.tpl" field=$video}}
@@ -48,6 +50,8 @@
 						{{include file="field_select.tpl" field=$e.circle}}
 						{{include file="field_textarea.tpl" field=$e.include_tags}}
 						{{include file="field_textarea.tpl" field=$e.exclude_tags}}
+						{{include file="field_input.tpl" field=$e.min_size}}
+						{{include file="field_input.tpl" field=$e.max_size}}
 						{{include file="field_textarea.tpl" field=$e.text_search}}
 						{{include file="field_checkbox.tpl" field=$e.image}}
 						{{include file="field_checkbox.tpl" field=$e.video}}

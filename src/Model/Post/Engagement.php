@@ -38,7 +38,8 @@ use Friendica\Util\DateTimeFormat;
 
 class Engagement
 {
-	const KEYWORDS = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language'];
+	const KEYWORDS  = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language'];
+	const SHORTCUTS = ['lang' => 'language', 'net' => 'network', 'relay' => 'application'];
 
 	/**
 	 * Store engagement data from an item array
@@ -101,6 +102,7 @@ class Engagement
 			'media-type'   => $mediatype,
 			'language'     => $parent['language'],
 			'searchtext'   => $searchtext,
+			'size'         => self::getContentSize($parent),
 			'created'      => $parent['created'],
 			'restricted'   => !in_array($item['network'], Protocol::FEDERATED) || ($parent['private'] != Item::PUBLIC),
 			'comments'     => DBA::count('post', ['parent-uri-id' => $item['parent-uri-id'], 'gravity' => Item::GRAVITY_COMMENT]),
@@ -123,6 +125,18 @@ class Engagement
 			Logger::debug('Engagement inserted', ['uri-id' => $engagement['uri-id'], 'ret' => $ret]);
 		}
 		return ($ret && !$exists) ? $engagement['uri-id'] : 0;
+	}
+
+	private static function getContentSize(array $item): int 
+	{
+		$body = ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
+		$body = BBCode::removeAttachment($body);
+		$body = BBCode::removeSharedData($body);
+		$body = preg_replace('/[^@!#]\[url\=.*?\].*?\[\/url\]/ism', '', $body);
+		$body = BBCode::removeLinks($body);
+		$msg = BBCode::toPlaintext($body, false);
+
+		return mb_strlen($msg);
 	}
 
 	public static function getSearchTextForActivity(string $content, int $author_id, array $tags, array $receivers): string
@@ -347,7 +361,11 @@ class Engagement
 
 	public static function escapeKeywords(string $fullTextSearch): string
 	{
-		foreach (Engagement::KEYWORDS as $keyword) {
+		foreach (SELF::SHORTCUTS as $search => $replace) {
+			$fullTextSearch = preg_replace('~' . $search . ':(.[\w\*@\.-]+)~', $replace . ':$1', $fullTextSearch);
+		}
+
+		foreach (self::KEYWORDS as $keyword) {
 			$fullTextSearch = preg_replace('~(' . $keyword . '):(.[\w\*@\.-]+)~', '"$1_$2"', $fullTextSearch);
 		}
 		return $fullTextSearch;

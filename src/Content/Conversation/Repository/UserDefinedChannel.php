@@ -130,6 +130,8 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			'circle'           => $Channel->circle,
 			'include-tags'     => $Channel->includeTags,
 			'exclude-tags'     => $Channel->excludeTags,
+			'min-size'         => $Channel->minSize,
+			'max-size'         => $Channel->maxSize,
 			'full-text-search' => $Channel->fullTextSearch,
 			'media-type'       => $Channel->mediaType,
 			'languages'        => serialize($Channel->languages),
