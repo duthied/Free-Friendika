@@ -288,10 +288,8 @@ class Register extends BaseModule
 		//Check if nickname contains only US-ASCII and do not start with a digit
 		if (!preg_match('/^[a-zA-Z][a-zA-Z0-9]*$/', $arr['nickname'])) {
         		if (is_numeric(substr($arr['nickname'], 0, 1))) {
-				Logger::info('Nickname with a leading digit not allowed', $arr);
 				DI::sysmsg()->addNotice(DI::l10n()->t("Nickname cannot start with a digit."));
         		} else {
-				Logger::info('nickname with non us-ascii characters not allowed', $arr);
 				DI::sysmsg()->addNotice(DI::l10n()->t("Nickname can only contain US-ASCII characters."));
 			}
 			$regdata = ['email' => $arr['email'], 'nickname' => $arr['nickname'], 'username' => $arr['username']];
