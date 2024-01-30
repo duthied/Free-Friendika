@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1548);
+	define('DB_UPDATE_VERSION', 1549);
 }
 
 return [
@@ -560,6 +560,8 @@ return [
 			"access-key" => ["type" => "varchar(1)", "comment" => "Access key"],
 			"include-tags" => ["type" => "varchar(1023)", "comment" => "Comma separated list of tags that will be included in the channel"],
 			"exclude-tags" => ["type" => "varchar(1023)", "comment" => "Comma separated list of tags that aren't allowed in the channel"],
+			"min-size" => ["type" => "int unsigned", "comment" => "Minimum post size"],
+			"max-size" => ["type" => "int unsigned", "comment" => "Maximum post size"],
 			"full-text-search" => ["type" => "varchar(1023)", "comment" => "Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode"],
 			"media-type" => ["type" => "smallint unsigned", "comment" => "Filtered media types"],
 			"languages" => ["type" => "mediumtext", "comment" => "Desired languages"],
@@ -1367,6 +1369,7 @@ return [
 			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
 			"language" => ["type" => "varchar(128)", "comment" => "Language information about this post"],
 			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
+			"size" => ["type" => "int unsigned", "comment" => "Body size"],
 			"created" => ["type" => "datetime", "comment" => ""],
 			"restricted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "If true, this post is either unlisted or not from a federated network"],
 			"comments" => ["type" => "mediumint unsigned", "comment" => "Number of comments"],

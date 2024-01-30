@@ -427,6 +427,14 @@ class Timeline extends BaseModule
 			$condition    = DBA::mergeConditions($condition, array_merge(["NOT `uri-id` IN (SELECT `uri-id` FROM `post-tag` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` WHERE `post-tag`.`type` = 1 AND `name` IN (" . $placeholders . "))"], $search));
 		}
 
+		if (!is_null($channel->minSize)) {
+			$condition = DBA::mergeConditions($condition, ["`size` >= ?", $channel->minSize]);
+		}
+
+		if (!is_null($channel->maxSize)) {
+			$condition = DBA::mergeConditions($condition, ["`size` <= ?", $channel->maxSize]);
+		}
+
 		if (!empty($channel->mediaType)) {
 			$condition = DBA::mergeConditions($condition, ["`media-type` & ?", $channel->mediaType]);
 		}

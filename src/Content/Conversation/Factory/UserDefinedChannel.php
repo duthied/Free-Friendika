@@ -52,6 +52,8 @@ final class UserDefinedChannel extends Timeline implements ICanCreateFromTableRo
 			$row['languages'] ?? null,
 			$row['publish'] ?? null,
 			$row['valid'] ?? null,
+			$row['min-size'] ?? null,
+			$row['max-size'] ?? null,
 		);
 	}
 }

@@ -16,6 +16,8 @@ Fields
 | access-key       | Access key                                                                                        | varchar(1)         | YES  |     | NULL    |                |
 | include-tags     | Comma separated list of tags that will be included in the channel                                 | varchar(1023)      | YES  |     | NULL    |                |
 | exclude-tags     | Comma separated list of tags that aren't allowed in the channel                                   | varchar(1023)      | YES  |     | NULL    |                |
+| min-size         | Minimum post size                                                                                 | int unsigned       | YES  |     | NULL    |                |
+| max-size         | Maximum post size                                                                                 | int unsigned       | YES  |     | NULL    |                |
 | full-text-search | Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode | varchar(1023)      | YES  |     | NULL    |                |
 | media-type       | Filtered media types                                                                              | smallint unsigned  | YES  |     | NULL    |                |
 | languages        | Desired languages                                                                                 | mediumtext         | YES  |     | NULL    |                |
