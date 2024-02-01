@@ -110,9 +110,9 @@ class Content
 	{
 		$search = Post\Engagement::escapeKeywords($search);
 		if ($uid != 0) {
-			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) and (private = ? OR  `uri-id` in (SELECT `uri-id` FROM `post-user` where `uid` = ?))", $search, Item::PUBLIC, $uid];
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) AND (NOT `restricted` OR `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `uid` = ?))", $search, $uid];
 		} else {
-			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) and private = ?", $search, Item::PUBLIC];
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) AND NOT `restricted`", $search];
 		}
 
 		if (!empty($last_uriid)) {
@@ -139,9 +139,9 @@ class Content
 	{
 		$search = Post\Engagement::escapeKeywords($search);
 		if ($uid != 0) {
-			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) and (private = ? OR  `uri-id` in (SELECT `uri-id` FROM `post-user` where `uid` = ?))", $search, Item::PUBLIC, $uid];
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) AND (NOT `restricted` OR `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `uid` = ?))", $search, $uid];
 		} else {
-			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) and private = ?", $search, Item::PUBLIC];
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) AND NOT `restricted", $search];
 		}
 		return DBA::count('post-searchindex', $condition);
 	}

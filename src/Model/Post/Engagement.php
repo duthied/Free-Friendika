@@ -22,6 +22,7 @@
 namespace Friendica\Model\Post;
 
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -93,9 +94,9 @@ class Engagement
 		}
 
 		$searchtext = self::getSearchTextForItem($parent);
+		$language   = !empty($parent['language']) ? (array_key_first(json_decode($parent['language'], true)) ?? L10n::UNDETERMINED_LANGUAGE) : L10n::UNDETERMINED_LANGUAGE;
 		if (!$store) {
-			$language = !empty($parent['language']) ? (array_key_first(json_decode($parent['language'], true)) ?? '') : '';
-			$store    = DI::userDefinedChannel()->match($searchtext, $language);
+			$store = DI::userDefinedChannel()->match($searchtext, $language);
 		}
 
 		$engagement = [
@@ -103,7 +104,7 @@ class Engagement
 			'owner-id'     => $parent['owner-id'],
 			'contact-type' => $parent['contact-contact-type'],
 			'media-type'   => $mediatype,
-			'language'     => $parent['language'],
+			'iso-639-1'    => $language,
 			'searchtext'   => $searchtext,
 			'size'         => self::getContentSize($parent),
 			'created'      => $parent['created'],
@@ -130,7 +131,7 @@ class Engagement
 		return ($ret && !$exists) ? $engagement['uri-id'] : 0;
 	}
 
-	private static function getContentSize(array $item): int 
+	public static function getContentSize(array $item): int 
 	{
 		$body = ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
 		$body = BBCode::removeAttachment($body);
@@ -315,7 +316,7 @@ class Engagement
 		return $text;
 	}
 
-	private static function getMediaType(int $uri_id): int
+	public static function getMediaType(int $uri_id): int
 	{
 		$media = Post\Media::getByURIId($uri_id);
 		$type  = 0;

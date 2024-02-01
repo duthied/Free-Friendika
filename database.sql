@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.03-dev (Yellow Archangel)
--- DB_UPDATE_VERSION 1549
+-- DB_UPDATE_VERSION 1550
 -- ------------------------------------------
 
 
@@ -1346,7 +1346,7 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
 	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Person, organisation, news, community, relay',
 	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
-	`language` varchar(128) COMMENT 'Language information about this post',
+	`iso-639-1` char(2) COMMENT 'Language information about this post in the ISO 639-1 format',
 	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
 	`size` int unsigned COMMENT 'Body size',
 	`created` datetime COMMENT '',
@@ -1467,14 +1467,19 @@ CREATE TABLE IF NOT EXISTS `post-question-option` (
 --
 CREATE TABLE IF NOT EXISTS `post-searchindex` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`network` char(4) COMMENT '',
-	`private` tinyint unsigned COMMENT '0=public, 1=private, 2=unlisted',
+	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
+	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
+	`iso-639-1` char(2) COMMENT 'Language information about this post in the ISO 639-1 format',
 	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
+	`size` int unsigned COMMENT 'Body size',
 	`created` datetime COMMENT '',
+	`restricted` boolean NOT NULL DEFAULT '0' COMMENT 'If true, this post is either unlisted or not from a federated network',
 	 PRIMARY KEY(`uri-id`),
+	 INDEX `owner-id` (`owner-id`),
 	 INDEX `created` (`created`),
 	 FULLTEXT INDEX `searchtext` (`searchtext`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --

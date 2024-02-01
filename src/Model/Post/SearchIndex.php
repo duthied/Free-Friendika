@@ -21,10 +21,13 @@
 
 namespace Friendica\Model\Post;
 
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Util\DateTimeFormat;
 
@@ -34,24 +37,27 @@ class SearchIndex
 	 * Insert a post-searchindex entry
 	 *
 	 * @param int $uri_id
-	 * @param string $network
-	 * @param int $private
 	 * @param string $created
 	 * @param bool $refresh
 	 */
-	public static function insert(int $uri_id, string $network, int $private, string $created, bool $refresh = false)
+	public static function insert(int $uri_id, string $created, bool $refresh = false)
 	{
 		$limit = self::searchAgeDateLimit();
 		if (!empty($limit) && (strtotime($created) < strtotime($limit))) {
 			return;
 		}
 
+		$item = Post::selectFirstPost(['created', 'owner-id', 'private', 'language', 'network', 'title', 'content-warning', 'body'], ['uri-id' => $uri_id]);
+
 		$search = [
 			'uri-id'     => $uri_id,
-			'network'    => $network,
-			'private'    => $private,
-			'created'    => $created,
+			'owner-id'   => $item['owner-id'],
+			'media-type' => Engagement::getMediaType($uri_id),
+			'iso-639-1'  => !empty($item['language']) ? (array_key_first(json_decode($item['language'], true)) ?? L10n::UNDETERMINED_LANGUAGE) : L10n::UNDETERMINED_LANGUAGE,
 			'searchtext' => Post\Engagement::getSearchTextForUriId($uri_id, $refresh),
+			'size'       => Engagement::getContentSize($item),
+			'created'    => $item['created'],
+			'restricted' => !in_array($item['network'], Protocol::FEDERATED) || ($item['private'] != Item::PUBLIC),
 		];
 		return DBA::insert('post-searchindex', $search, Database::INSERT_UPDATE);
 	}

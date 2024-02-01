@@ -52,7 +52,7 @@ class PostUpdate
 	// Needed for the helper function to read from the legacy term table
 	const OBJECT_TYPE_POST  = 1;
 
-	const VERSION = 1547;
+	const VERSION = 1550;
 
 	/**
 	 * Calls the post update functions
@@ -128,7 +128,7 @@ class PostUpdate
 		if (!self::update1544()) {
 			return false;
 		}
-		if (!self::update1547()) {
+		if (!self::update1550()) {
 			return false;
 		}
 		return true;
@@ -1369,14 +1369,24 @@ class PostUpdate
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function update1547()
+	private static function update1550()
 	{
 		// Was the script completed?
-		if (DI::keyValue()->get('post_update_version') >= 1547) {
+		if (DI::keyValue()->get('post_update_version') >= 1550) {
 			return true;
 		}
 
-		$id = (int)(DI::keyValue()->get('post_update_version_1547_id') ?? 0);
+		$engagements = DBA::select('post-engagement', ['uri-id'], ["`iso-639-1` IS NULL"], ['order' => ['uri-id' => true], 'limit' => 1000]);
+		while ($engagement = DBA::fetch($engagements)) {
+			$item = Post::selectFirst([], ['uri-id' => $engagement['uri-id']]);
+			if (empty($item)) {
+				continue;
+			}
+			Post\Engagement::storeFromItem($item);
+		}
+		DBA::close($engagements);
+
+		$id = (int)(DI::keyValue()->get('post_update_version_1550_id') ?? 0);
 		if ($id == 0) {
 			$post = Post::selectFirstPost(['uri-id'], [], ['order' => ['uri-id' => true]]);
 			$id = (int)($post['uri-id'] ?? 0);
@@ -1393,7 +1403,7 @@ class PostUpdate
 			DBA::mergeConditions($condition, ["`created` > ?", $limit]);
 		}
 
-		$posts = Post::selectPosts(['uri-id', 'network', 'private', 'created'], $condition, ['order' => ['uri-id' => true], 'limit' => 1000]);
+		$posts = Post::selectPosts(['uri-id', 'created'], $condition, ['order' => ['uri-id' => true], 'limit' => 1000]);
 
 		if (DBA::errorNo() != 0) {
 			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
@@ -1402,17 +1412,17 @@ class PostUpdate
 
 		while ($post = Post::fetch($posts)) {
 			$id = $post['uri-id'];
-			Post\SearchIndex::insert($post['uri-id'], $post['network'], $post['private'], $post['created'], true);
+			Post\SearchIndex::insert($post['uri-id'], $post['created'], true);
 			++$rows;
 		}
 		DBA::close($posts);
 
-		DI::keyValue()->set('post_update_version_1547_id', $id);
+		DI::keyValue()->set('post_update_version_1550_id', $id);
 
 		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
 
 		if ($rows <= 100) {
-			DI::keyValue()->set('post_update_version', 1547);
+			DI::keyValue()->set('post_update_version', 1550);
 			Logger::info('Done');
 			return true;
 		}

@@ -154,7 +154,7 @@ class Search extends BaseApi
 			$table = 'tag-search-view';
 		} else {
 			$q = Post\Engagement::escapeKeywords($q);
-			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) and (private = ? OR  `uri-id` in (SELECT `uri-id` FROM `post-user` where `uid` = ?))", $q, Item::PUBLIC, $uid];
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) AND (NOT `restricted` OR `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `uid` = ?))", $q, $uid];
 			$table = 'post-searchindex';
 		}
 
