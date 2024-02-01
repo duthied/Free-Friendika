@@ -1778,7 +1778,7 @@ msgstr ""
 msgid "Create new group"
 msgstr ""
 
-#: src/Content/Item.php:332 src/Model/Item.php:3246
+#: src/Content/Item.php:332 src/Model/Item.php:3250
 msgid "event"
 msgstr ""
 
@@ -1786,7 +1786,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: src/Content/Item.php:341 src/Model/Item.php:3248
+#: src/Content/Item.php:341 src/Model/Item.php:3252
 #: src/Module/Post/Tag/Add.php:123
 msgid "photo"
 msgstr ""
@@ -2199,8 +2199,8 @@ msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1005 src/Model/Item.php:3979
-#: src/Model/Item.php:3985 src/Model/Item.php:3986
+#: src/Content/Text/BBCode.php:1005 src/Model/Item.php:3983
+#: src/Model/Item.php:3989 src/Model/Item.php:3990
 msgid "Link to source"
 msgstr ""
 
@@ -2867,7 +2867,7 @@ msgstr ""
 msgid "Could not connect to database."
 msgstr ""
 
-#: src/Core/L10n.php:444 src/Model/Item.php:2290
+#: src/Core/L10n.php:444 src/Model/Item.php:2294
 msgid "Undetermined"
 msgstr ""
 
@@ -3429,91 +3429,91 @@ msgstr ""
 msgid "Happy Birthday %s"
 msgstr ""
 
-#: src/Model/Item.php:2297
+#: src/Model/Item.php:2301
 #, php-format
 msgid "%s (%s - %s): %s"
 msgstr ""
 
-#: src/Model/Item.php:2299
+#: src/Model/Item.php:2303
 #, php-format
 msgid "%s (%s): %s"
 msgstr ""
 
-#: src/Model/Item.php:2302
+#: src/Model/Item.php:2306
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:3250
+#: src/Model/Item.php:3254
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:3252
+#: src/Model/Item.php:3256
 msgid "comment"
 msgstr ""
 
-#: src/Model/Item.php:3255 src/Module/Post/Tag/Add.php:123
+#: src/Model/Item.php:3259 src/Module/Post/Tag/Add.php:123
 msgid "post"
-msgstr ""
-
-#: src/Model/Item.php:3425
-#, php-format
-msgid "%s is blocked"
-msgstr ""
-
-#: src/Model/Item.php:3427
-#, php-format
-msgid "%s is ignored"
 msgstr ""
 
 #: src/Model/Item.php:3429
 #, php-format
-msgid "Content from %s is collapsed"
+msgid "%s is blocked"
+msgstr ""
+
+#: src/Model/Item.php:3431
+#, php-format
+msgid "%s is ignored"
 msgstr ""
 
 #: src/Model/Item.php:3433
 #, php-format
+msgid "Content from %s is collapsed"
+msgstr ""
+
+#: src/Model/Item.php:3437
+#, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:3886
+#: src/Model/Item.php:3890
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3917
+#: src/Model/Item.php:3921
 #, php-format
 msgid "%2$s (%3$d%%, %1$d vote)"
 msgid_plural "%2$s (%3$d%%, %1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3919
+#: src/Model/Item.php:3923
 #, php-format
 msgid "%2$s (%1$d vote)"
 msgid_plural "%2$s (%1$d votes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3924
+#: src/Model/Item.php:3928
 #, php-format
 msgid "%d voter. Poll end: %s"
 msgid_plural "%d voters. Poll end: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3926
+#: src/Model/Item.php:3930
 #, php-format
 msgid "%d voter."
 msgid_plural "%d voters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:3928
+#: src/Model/Item.php:3932
 #, php-format
 msgid "Poll end: %s"
 msgstr ""
 
-#: src/Model/Item.php:3962 src/Model/Item.php:3963
+#: src/Model/Item.php:3966 src/Model/Item.php:3967
 msgid "View on separate page"
 msgstr ""
 
