@@ -1501,7 +1501,11 @@ class Item
 			];
 			if (!Post::exists($condition)) {
 				Logger::debug('Reshare post', ['uid' => $uid, 'uri-id' => $uri_id]);
-				self::performActivity($item['id'], 'announce', $uid);
+				$allow_cid = '';
+				$allow_gid = '<' . Circle::FOLLOWERS . '>';
+				$deny_cid  = '';
+				$deny_gid  = '';
+				self::performActivity($item['id'], 'announce', $uid, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
 			} else {
 				Logger::debug('Reshare already exists', ['uid' => $uid, 'uri-id' => $uri_id]);
 			}
