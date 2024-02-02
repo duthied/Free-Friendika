@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1549);
+	define('DB_UPDATE_VERSION', 1550);
 }
 
 return [
@@ -1245,7 +1245,7 @@ return [
 	"post-activity" => [
 		"comment" => "Original remote activity",
 		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"activity" => ["type" => "mediumtext", "comment" => "Original activity"],
 			"received" => ["type" => "datetime", "comment" => ""],
 		],
@@ -1256,7 +1256,7 @@ return [
 	"post-category" => [
 		"comment" => "post relation to categories",
 		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
 			"tid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["tag" => "id", "on delete" => "restrict"], "comment" => ""],
@@ -1363,11 +1363,11 @@ return [
 	"post-engagement" => [
 		"comment" => "Engagement data per post",
 		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "Item owner"],
 			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Person, organisation, news, community, relay"],
 			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
-			"language" => ["type" => "varchar(128)", "comment" => "Language information about this post"],
+			"language" => ["type" => "char(2)", "comment" => "Language information about this post in the ISO 639-1 format"],
 			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
 			"size" => ["type" => "int unsigned", "comment" => "Body size"],
 			"created" => ["type" => "datetime", "comment" => ""],
@@ -1486,13 +1486,17 @@ return [
 		"comment" => "Content for all posts",
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"network" => ["type" => "char(4)", "comment" => ""],
-			"private" => ["type" => "tinyint unsigned", "comment" => "0=public, 1=private, 2=unlisted"],
+			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "Item owner"],
+			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
+			"language" => ["type" => "char(2)", "comment" => "Language information about this post in the ISO 639-1 format"],
 			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
+			"size" => ["type" => "int unsigned", "comment" => "Body size"],
 			"created" => ["type" => "datetime", "comment" => ""],
+			"restricted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "If true, this post is either unlisted or not from a federated network"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id"],
+			"owner-id" => ["owner-id"],
 			"created" => ["created"],
 			"searchtext" => ["FULLTEXT", "searchtext"],
 		]

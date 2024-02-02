@@ -324,7 +324,7 @@ class Timeline extends BaseModule
 		} elseif ($this->selectedTab == ChannelEntity::AUDIO) {
 			$condition = ["`media-type` & ?", 4];
 		} elseif ($this->selectedTab == ChannelEntity::LANGUAGE) {
-			$condition = ["JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?", User::getLanguageCode($uid)];
+			$condition = ["`language` = ?", User::getLanguageCode($uid)];
 		} elseif (is_numeric($this->selectedTab)) {
 			$condition = $this->getUserChannelConditions($this->selectedTab, $uid);
 		}
@@ -412,19 +412,50 @@ class Timeline extends BaseModule
 		}
 
 		if (!empty($channel->fullTextSearch)) {
-			$condition = DBA::mergeConditions($condition, ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", Engagement::escapeKeywords($channel->fullTextSearch)]);
-		}
+			if (!empty($channel->includeTags)) {
+				$additional = self:: addIncludeTags($channel->includeTags);
+			} else {
+				$additional = '';
+			}
 
-		if (!empty($channel->includeTags)) {
-			$search       = explode(',', mb_strtolower($channel->includeTags));
-			$placeholders = substr(str_repeat("?, ", count($search)), 0, -2);
-			$condition    = DBA::mergeConditions($condition, array_merge(["`uri-id` IN (SELECT `uri-id` FROM `post-tag` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` WHERE `post-tag`.`type` = 1 AND `name` IN (" . $placeholders . "))"], $search));
-		}
+			if (!empty($channel->excludeTags)) {
+				foreach (explode(',', mb_strtolower($channel->excludeTags)) as $tag) {
+					$additional .= ' -tag:' . $tag;
+				}
+			}
 
-		if (!empty($channel->excludeTags)) {
-			$search       = explode(',', mb_strtolower($channel->excludeTags));
-			$placeholders = substr(str_repeat("?, ", count($search)), 0, -2);
-			$condition    = DBA::mergeConditions($condition, array_merge(["NOT `uri-id` IN (SELECT `uri-id` FROM `post-tag` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` WHERE `post-tag`.`type` = 1 AND `name` IN (" . $placeholders . "))"], $search));
+			if (!empty($channel->mediaType)) {
+				$additional .= self::addMediaTerms($channel->mediaType);
+			}
+
+			$additional .= self::addLanguageSearchTerms($uid, $channel->languages);
+
+			if ($additional) {
+				$searchterms = '+(' . trim($channel->fullTextSearch) . ')' . $additional;
+			} else {
+				$searchterms = $channel->fullTextSearch;
+			}
+
+			$condition = DBA::mergeConditions($condition, ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE)", Engagement::escapeKeywords($searchterms)]);
+		} else {
+			if (!empty($channel->includeTags)) {
+				$search       = explode(',', mb_strtolower($channel->includeTags));
+				$placeholders = substr(str_repeat("?, ", count($search)), 0, -2);
+				$condition    = DBA::mergeConditions($condition, array_merge(["`uri-id` IN (SELECT `uri-id` FROM `post-tag` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` WHERE `post-tag`.`type` = 1 AND `name` IN (" . $placeholders . "))"], $search));
+			}
+	
+			if (!empty($channel->excludeTags)) {
+				$search       = explode(',', mb_strtolower($channel->excludeTags));
+				$placeholders = substr(str_repeat("?, ", count($search)), 0, -2);
+				$condition    = DBA::mergeConditions($condition, array_merge(["NOT `uri-id` IN (SELECT `uri-id` FROM `post-tag` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` WHERE `post-tag`.`type` = 1 AND `name` IN (" . $placeholders . "))"], $search));
+			}
+
+			if (!empty($channel->mediaType)) {
+				$condition = DBA::mergeConditions($condition, ["`media-type` & ?", $channel->mediaType]);
+			}
+	
+			// For "addLanguageCondition" to work, the condition must not be empty
+			$condition = $this->addLanguageCondition($uid, $condition ?: ["true"], $channel->languages);
 		}
 
 		if (!is_null($channel->minSize)) {
@@ -435,24 +466,67 @@ class Timeline extends BaseModule
 			$condition = DBA::mergeConditions($condition, ["`size` <= ?", $channel->maxSize]);
 		}
 
-		if (!empty($channel->mediaType)) {
-			$condition = DBA::mergeConditions($condition, ["`media-type` & ?", $channel->mediaType]);
+		return $condition;
+	}
+
+	private function addIncludeTags(string $includeTags): string
+	{
+		$tagterms = '';
+		foreach (explode(',', mb_strtolower($includeTags)) as $tag) {
+			$tagterms .= ' tag:' . $tag;
 		}
 
-		// For "addLanguageCondition" to work, the condition must not be empty
-		$condition = $this->addLanguageCondition($uid, $condition ?: ["true"], $channel->languages);
+		if ($tagterms) {
+			return ' +(' . trim($tagterms) . ')';
+		} else {
+			return '';
+		}
+	}
 
-		return $condition;
+	private function addMediaTerms(int $mediaType): string
+	{
+		$mediaterms = '';
+		if ($mediaType & 1) {
+			$mediaterms .= ' media:image';
+		}
+
+		if ($mediaType & 2) {
+			$mediaterms .= ' media:video';
+		}
+
+		if ($mediaType & 4) {
+			$mediaterms .= ' media:audio';
+		}
+
+		if ($mediaterms) {
+			return ' +(' . trim($mediaterms) . ')';
+		} else {
+			return '';
+		}
+	}
+
+	private function addLanguageSearchTerms(int $uid, $languages = null): string
+	{
+		$langterms = '';
+		foreach ($languages ?: User::getWantedLanguages($uid) as $language) {
+			$langterms .= ' language:' . $language;
+		}
+
+		if ($langterms) {
+			return ' +(' . trim($langterms) . ')';
+		} else {
+			return '';
+		}
 	}
 
 	private function addLanguageCondition(int $uid, array $condition, $languages = null): array
 	{
 		$conditions = [];
-		$languages  = $languages ?: User::getWantedLanguages($uid);
-		foreach ($languages as $language) {
-			$conditions[] = "JSON_EXTRACT(JSON_KEYS(language), '$[0]') = ?";
+		foreach ($languages ?: User::getWantedLanguages($uid) as $language) {
+			$conditions[] = "`language` = ?";
 			$condition[]  = $language;
 		}
+
 		if (!empty($conditions)) {
 			$condition[0] .= " AND (" . implode(' OR ', $conditions) . ")";
 		}

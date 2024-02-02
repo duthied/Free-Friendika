@@ -1411,3 +1411,14 @@ function update_1539()
 
 	return Update::SUCCESS;
 }
+
+function pre_update_1550()
+{
+	if (DBStructure::existsTable('post-engagement') && DBStructure::existsColumn('post-engagement', ['language'])) {
+		DBA::e("ALTER TABLE `post-engagement` DROP `language`");
+	}
+	if (DBStructure::existsTable('post-searchindex') && DBStructure::existsColumn('post-searchindex', ['network'])) {
+		DBA::e("ALTER TABLE `post-searchindex` DROP `network`, DROP `private`");
+	}
+	return Update::SUCCESS;
+}

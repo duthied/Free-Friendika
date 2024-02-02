@@ -22,6 +22,7 @@
 namespace Friendica\Model\Post;
 
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -38,10 +39,12 @@ use Friendica\Util\DateTimeFormat;
 
 class Engagement
 {
-	const KEYWORDS     = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language'];
+	const KEYWORDS     = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language', 'media'];
 	const SHORTCUTS    = ['lang' => 'language', 'net' => 'network', 'relay' => 'application'];
 	const ALTERNATIVES = ['source:news' => 'source:service', 'source:relay' => 'source:application',
-		'network:activitypub' => 'network:apub', 'network:friendica' => 'network:dfrn', 'network:diaspora' => 'network:dspr', 'network:ostatus' => 'network:stat',
+		'media:picture' => 'media:image', 'media:photo' => 'media:image',
+		'network:activitypub' => 'network:apub', 'network:friendica' => 'network:dfrn',
+		'network:diaspora' => 'network:dspr', 'network:ostatus' => 'network:stat',
 		'network:discourse' => 'network:dscs', 'network:tumblr' => 'network:tmbl', 'network:bluesky' => 'network:bsky'];
 
 	/**
@@ -92,10 +95,10 @@ class Engagement
 			$store = !empty($mediatype);
 		}
 
-		$searchtext = self::getSearchTextForItem($parent);
+		$searchtext = self::getSearchTextForItem($parent, $mediatype);
+		$language   = !empty($parent['language']) ? (array_key_first(json_decode($parent['language'], true)) ?? L10n::UNDETERMINED_LANGUAGE) : L10n::UNDETERMINED_LANGUAGE;
 		if (!$store) {
-			$language = !empty($parent['language']) ? (array_key_first(json_decode($parent['language'], true)) ?? '') : '';
-			$store    = DI::userDefinedChannel()->match($searchtext, $language);
+			$store = DI::userDefinedChannel()->match($searchtext, $language);
 		}
 
 		$engagement = [
@@ -103,7 +106,7 @@ class Engagement
 			'owner-id'     => $parent['owner-id'],
 			'contact-type' => $parent['contact-contact-type'],
 			'media-type'   => $mediatype,
-			'language'     => $parent['language'],
+			'language'     => $language,
 			'searchtext'   => $searchtext,
 			'size'         => self::getContentSize($parent),
 			'created'      => $parent['created'],
@@ -130,7 +133,7 @@ class Engagement
 		return ($ret && !$exists) ? $engagement['uri-id'] : 0;
 	}
 
-	private static function getContentSize(array $item): int 
+	public static function getContentSize(array $item): int 
 	{
 		$body = ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
 		$body = BBCode::removeAttachment($body);
@@ -171,7 +174,7 @@ class Engagement
 			}
 		}
 
-		return self::getSearchText($item, $receivers, $tags);
+		return self::getSearchText($item, $receivers, $tags, 0);
 	}
 
 	public static function getSearchTextForUriId(int $uri_id, bool $refresh = false): string
@@ -189,17 +192,18 @@ class Engagement
 		if (empty($post['uri-id'])) {
 			return '';
 		}
-		return self::getSearchTextForItem($post);
+		$mediatype = self::getMediaType($uri_id);
+		return self::getSearchTextForItem($post, $mediatype);
 	}
 
-	private static function getSearchTextForItem(array $item): string
+	private static function getSearchTextForItem(array $item, int $mediatype): string
 	{
 		$receivers = array_column(Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION, Tag::AUDIENCE]), 'url');
 		$tags      = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
-		return self::getSearchText($item, $receivers, $tags);
+		return self::getSearchText($item, $receivers, $tags, $mediatype);
 	}
 
-	private static function getSearchText(array $item, array $receivers, array $tags): string
+	private static function getSearchText(array $item, array $receivers, array $tags, int $mediatype): string
 	{
 		$body = '[nosmile]network_' . $item['network'];
 
@@ -285,6 +289,18 @@ class Engagement
 			$body .= ' language_' . array_key_first($languages);
 		}
 
+		if ($mediatype & 1) {
+			$body .= ' media_image';
+		}
+
+		if ($mediatype & 2) {
+			$body .= ' media_video';
+		}
+
+		if ($mediatype & 4) {
+			$body .= ' media_audio';
+		}
+
 		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
 
 		return BBCode::toSearchText($body, $item['uri-id']);
@@ -315,7 +331,7 @@ class Engagement
 		return $text;
 	}
 
-	private static function getMediaType(int $uri_id): int
+	public static function getMediaType(int $uri_id): int
 	{
 		$media = Post\Media::getByURIId($uri_id);
 		$type  = 0;

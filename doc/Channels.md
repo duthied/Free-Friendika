@@ -71,6 +71,10 @@ Alternatives are presented with "|".
     * source:service | source:news - The posts originates from a service account. This source type is often used to mark bot accounts.
     * source:application | source:relay - The post is created by an application. This is most likely unused in the fediverse for post creation.
 * tag - Use "tag:tagname" to search for a specific tag.
+* media - With this keyword you can search for attached media.
+    * media:image | media:photo | media:picture - The post contains an image
+    * media:video - The post contains a video
+    * media:audio - The post contains audio
 * network | net - Use this to include or exclude some networks from your channel.
     * network:apub | network:activitypub - ActivityPub (Used by the systems in the Fediverse)
     * network:dfrn | network:friendica - Legacy Friendica protocol. Nowayday Friendica mostly uses ActivityPub.
