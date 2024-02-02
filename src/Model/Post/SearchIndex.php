@@ -53,7 +53,7 @@ class SearchIndex
 			'uri-id'     => $uri_id,
 			'owner-id'   => $item['owner-id'],
 			'media-type' => Engagement::getMediaType($uri_id),
-			'iso-639-1'  => !empty($item['language']) ? (array_key_first(json_decode($item['language'], true)) ?? L10n::UNDETERMINED_LANGUAGE) : L10n::UNDETERMINED_LANGUAGE,
+			'language'   => !empty($item['language']) ? (array_key_first(json_decode($item['language'], true)) ?? L10n::UNDETERMINED_LANGUAGE) : L10n::UNDETERMINED_LANGUAGE,
 			'searchtext' => Post\Engagement::getSearchTextForUriId($uri_id, $refresh),
 			'size'       => Engagement::getContentSize($item),
 			'created'    => $item['created'],

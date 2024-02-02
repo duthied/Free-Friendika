@@ -104,7 +104,7 @@ class Engagement
 			'owner-id'     => $parent['owner-id'],
 			'contact-type' => $parent['contact-contact-type'],
 			'media-type'   => $mediatype,
-			'iso-639-1'    => $language,
+			'language'     => $language,
 			'searchtext'   => $searchtext,
 			'size'         => self::getContentSize($parent),
 			'created'      => $parent['created'],

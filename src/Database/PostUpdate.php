@@ -1376,7 +1376,7 @@ class PostUpdate
 			return true;
 		}
 
-		$engagements = DBA::select('post-engagement', ['uri-id'], ["`iso-639-1` IS NULL"], ['order' => ['uri-id' => true], 'limit' => 1000]);
+		$engagements = DBA::select('post-engagement', ['uri-id'], ["`language` IS NULL"], ['order' => ['uri-id' => true], 'limit' => 1000]);
 		while ($engagement = DBA::fetch($engagements)) {
 			$item = Post::selectFirst([], ['uri-id' => $engagement['uri-id']]);
 			if (empty($item)) {
