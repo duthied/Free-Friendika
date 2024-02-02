@@ -39,10 +39,12 @@ use Friendica\Util\DateTimeFormat;
 
 class Engagement
 {
-	const KEYWORDS     = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language'];
+	const KEYWORDS     = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language', 'media'];
 	const SHORTCUTS    = ['lang' => 'language', 'net' => 'network', 'relay' => 'application'];
 	const ALTERNATIVES = ['source:news' => 'source:service', 'source:relay' => 'source:application',
-		'network:activitypub' => 'network:apub', 'network:friendica' => 'network:dfrn', 'network:diaspora' => 'network:dspr', 'network:ostatus' => 'network:stat',
+		'media:picture' => 'media:image', 'media:photo' => 'media:image',
+		'network:activitypub' => 'network:apub', 'network:friendica' => 'network:dfrn',
+		'network:diaspora' => 'network:dspr', 'network:ostatus' => 'network:stat',
 		'network:discourse' => 'network:dscs', 'network:tumblr' => 'network:tmbl', 'network:bluesky' => 'network:bsky'];
 
 	/**
@@ -93,7 +95,7 @@ class Engagement
 			$store = !empty($mediatype);
 		}
 
-		$searchtext = self::getSearchTextForItem($parent);
+		$searchtext = self::getSearchTextForItem($parent, $mediatype);
 		$language   = !empty($parent['language']) ? (array_key_first(json_decode($parent['language'], true)) ?? L10n::UNDETERMINED_LANGUAGE) : L10n::UNDETERMINED_LANGUAGE;
 		if (!$store) {
 			$store = DI::userDefinedChannel()->match($searchtext, $language);
@@ -172,7 +174,7 @@ class Engagement
 			}
 		}
 
-		return self::getSearchText($item, $receivers, $tags);
+		return self::getSearchText($item, $receivers, $tags, 0);
 	}
 
 	public static function getSearchTextForUriId(int $uri_id, bool $refresh = false): string
@@ -190,17 +192,18 @@ class Engagement
 		if (empty($post['uri-id'])) {
 			return '';
 		}
-		return self::getSearchTextForItem($post);
+		$mediatype = self::getMediaType($uri_id);
+		return self::getSearchTextForItem($post, $mediatype);
 	}
 
-	private static function getSearchTextForItem(array $item): string
+	private static function getSearchTextForItem(array $item, int $mediatype): string
 	{
 		$receivers = array_column(Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION, Tag::AUDIENCE]), 'url');
 		$tags      = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
-		return self::getSearchText($item, $receivers, $tags);
+		return self::getSearchText($item, $receivers, $tags, $mediatype);
 	}
 
-	private static function getSearchText(array $item, array $receivers, array $tags): string
+	private static function getSearchText(array $item, array $receivers, array $tags, int $mediatype): string
 	{
 		$body = '[nosmile]network_' . $item['network'];
 
@@ -284,6 +287,18 @@ class Engagement
 		if (!empty($item['language'])) {
 			$languages = json_decode($item['language'], true);
 			$body .= ' language_' . array_key_first($languages);
+		}
+
+		if ($mediatype & 1) {
+			$body .= ' media_image';
+		}
+
+		if ($mediatype & 2) {
+			$body .= ' media_video';
+		}
+
+		if ($mediatype & 4) {
+			$body .= ' media_audio';
 		}
 
 		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
