@@ -101,7 +101,7 @@ class Channels extends BaseSettings
 				continue;
 			}
 
-			if (!array_diff((array)$request['languages'][$id], $channel_languages)) {
+			if (!array_diff((array)$request['languages'][$id], $channel_languages) && (count((array)$request['languages'][$id]) == count($channel_languages))) {
 				$request['languages'][$id] = null;
 			}
 

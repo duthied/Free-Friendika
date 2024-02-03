@@ -275,6 +275,9 @@ class Timeline extends BaseModule
 	{
 		$uid = $this->session->getLocalUserId();
 
+		$table  = 'post-engagement';
+		$fields = ['uri-id', 'created', 'owner-id', 'comments', 'activities'];
+
 		if ($this->selectedTab == ChannelEntity::WHATSHOT) {
 			if (!is_null($this->accountType)) {
 				$condition = ["(`comments` > ? OR `activities` > ?) AND `contact-type` = ?", $this->getMedianComments($uid, 4), $this->getMedianActivities($uid, 4), $this->accountType];
@@ -327,15 +330,17 @@ class Timeline extends BaseModule
 			$condition = ["`language` = ?", User::getLanguageCode($uid)];
 		} elseif (is_numeric($this->selectedTab)) {
 			$condition = $this->getUserChannelConditions($this->selectedTab, $uid);
+			//$table  = 'post-searchindex';
+			//$fields = ['uri-id', 'created', 'owner-id'];
 		}
 
 		if (($this->selectedTab != ChannelEntity::LANGUAGE) && !is_numeric($this->selectedTab)) {
 			$condition = $this->addLanguageCondition($uid, $condition);
 		}
 
-		$condition = DBA::mergeConditions($condition, ["(NOT `restricted` OR EXISTS(SELECT `id` FROM `post-user` WHERE `uid` = ? AND `uri-id` = `post-engagement`.`uri-id`))", $uid]);
+		$condition = DBA::mergeConditions($condition, ["(NOT `restricted` OR EXISTS(SELECT `id` FROM `post-user` WHERE `uid` = ? AND `uri-id` = `$table`.`uri-id`))", $uid]);
 
-		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed` OR `is-blocked` OR `channel-frequency` = ?))", $uid, Contact\User::FREQUENCY_NEVER]);
+		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `$table`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed` OR `is-blocked` OR `channel-frequency` = ?))", $uid, Contact\User::FREQUENCY_NEVER]);
 
 		if (($this->selectedTab != ChannelEntity::WHATSHOT) && !is_null($this->accountType)) {
 			$condition = DBA::mergeConditions($condition, ['contact-type' => $this->accountType]);
@@ -347,7 +352,7 @@ class Timeline extends BaseModule
 			$condition = DBA::mergeConditions($condition, ['uri-id' => $this->itemUriId]);
 		} else {
 			if ($this->noSharer) {
-				$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-engagement`.`uri-id`)", $this->session->getLocalUserId()]);
+				$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `$table`.`uri-id`)", $this->session->getLocalUserId()]);
 			}
 
 			if (isset($this->maxId)) {
@@ -365,7 +370,7 @@ class Timeline extends BaseModule
 		}
 
 		$items = [];
-		$result = $this->database->select('post-engagement', ['uri-id', 'created', 'owner-id', 'comments', 'activities'], $condition, $params);
+		$result = $this->database->select($table, $fields, $condition, $params);
 		if ($this->database->errorNo()) {
 			throw new \Exception($this->database->errorMessage(), $this->database->errorNo());
 		}
