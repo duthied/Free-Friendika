@@ -74,8 +74,6 @@ class Network extends Timeline
 	protected $star;
 	/** @var int */
 	protected $mention;
-	/** @var string */
-	protected $order;
 
 	/** @var App */
 	protected $app;
@@ -215,7 +213,7 @@ class Network extends Timeline
 
 		try {
 			if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
-				$items = $this->getChannelItems();
+				$items = $this->getChannelItems($request);
 			} elseif ($this->community->isTimeline($this->selectedTab)) {
 				$items = $this->getCommunityItems();
 			} else {
@@ -360,24 +358,7 @@ class Network extends Timeline
 		$this->dateFrom = $this->parameters['from'] ?? '';
 		$this->dateTo = $this->parameters['to'] ?? '';
 
-		switch ($this->order) {
-			case 'received':
-				$this->maxId = $request['last_received'] ?? $this->maxId;
-				$this->minId = $request['first_received'] ?? $this->minId;
-				break;
-			case 'created':
-				$this->maxId = $request['last_created'] ?? $this->maxId;
-				$this->minId = $request['first_created'] ?? $this->minId;
-				break;
-			case 'uriid':
-				$this->maxId = $request['last_uriid'] ?? $this->maxId;
-				$this->minId = $request['first_uriid'] ?? $this->minId;
-				break;
-			default:
-				$this->order = 'commented';
-				$this->maxId = $request['last_commented'] ?? $this->maxId;
-				$this->minId = $request['first_commented'] ?? $this->minId;
-		}
+		$this->setMaxMinByOrder($request);
 	}
 
 	protected function getItems()

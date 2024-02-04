@@ -42,7 +42,7 @@ class Network extends NetworkModule
 		}
 
 		if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
-			$items = $this->getChannelItems();
+			$items = $this->getChannelItems($request);
 		} elseif ($this->community->isTimeline($this->selectedTab)) {
 			$items = $this->getCommunityItems();
 		} else {

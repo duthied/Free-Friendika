@@ -26,6 +26,7 @@ use Friendica\App\Mode;
 use Friendica\BaseModule;
 use Friendica\Content\Conversation\Collection\Timelines;
 use Friendica\Content\Conversation\Entity\Channel as ChannelEntity;
+use Friendica\Content\Conversation\Entity\UserDefinedChannel as UserDefinedChannelEntity;
 use Friendica\Content\Conversation\Repository\UserDefinedChannel;
 use Friendica\Core\Cache\Capability\ICanCache;
 use Friendica\Core\Cache\Enum\Duration;
@@ -41,7 +42,6 @@ use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Post\Engagement;
-use Friendica\Model\Verb;
 use Friendica\Module\Response;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
@@ -72,6 +72,8 @@ class Timeline extends BaseModule
 	protected $update;
 	/** @var bool */
 	protected $raw;
+	/** @var string */
+	protected $order;
 
 	/** @var App\Mode $mode */
 	protected $mode;
@@ -138,6 +140,8 @@ class Timeline extends BaseModule
 			$this->itemUriId = 0;
 		}
 
+		$this->order = 'created';
+
 		$this->minId = $request['min_id'] ?? null;
 		$this->maxId = $request['max_id'] ?? null;
 
@@ -145,6 +149,28 @@ class Timeline extends BaseModule
 		$this->force    = !empty($request['force']) && !empty($request['item']);
 		$this->update   = !empty($request['force']) && !empty($request['first_received']) && !empty($request['first_created']) && !empty($request['first_uriid']) && !empty($request['first_commented']);
 		$this->raw      = !empty($request['mode']) && ($request['mode'] == 'raw');
+	}
+
+	protected function setMaxMinByOrder(array $request)
+	{
+		switch ($this->order) {
+			case 'received':
+				$this->maxId = $request['last_received'] ?? $this->maxId;
+				$this->minId = $request['first_received'] ?? $this->minId;
+				break;
+			case 'created':
+				$this->maxId = $request['last_created'] ?? $this->maxId;
+				$this->minId = $request['first_created'] ?? $this->minId;
+				break;
+			case 'uriid':
+				$this->maxId = $request['last_uriid'] ?? $this->maxId;
+				$this->minId = $request['first_uriid'] ?? $this->minId;
+				break;
+			default:
+				$this->order = 'commented';
+				$this->maxId = $request['last_commented'] ?? $this->maxId;
+				$this->minId = $request['first_commented'] ?? $this->minId;
+		}
 	}
 
 	protected function getNoSharerWidget(string $base): string
@@ -204,9 +230,9 @@ class Timeline extends BaseModule
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected function getChannelItems()
+	protected function getChannelItems(array $request)
 	{
-		$items = $this->getRawChannelItems();
+		$items = $this->getRawChannelItems($request);
 
 		$contacts = $this->database->selectToArray('user-contact', ['cid'], ['channel-frequency' => Contact\User::FREQUENCY_REDUCED, 'cid' => array_column($items, 'owner-id')]);
 		$reduced  = array_column($contacts, 'cid');
@@ -220,8 +246,8 @@ class Timeline extends BaseModule
 
 			while (count($selected_items) < $this->itemsPerPage && ++$count < 50 && count($items) > 0) {
 				$maxposts = round((count($items) / $this->itemsPerPage) * $maxpostperauthor);
-				$minId = $items[array_key_first($items)]['created'];
-				$maxId = $items[array_key_last($items)]['created'];
+				$minId = $items[array_key_first($items)][$this->order];
+				$maxId = $items[array_key_last($items)][$this->order];
 
 				foreach ($items as $item) {
 					if (!in_array($item['owner-id'], $reduced)) {
@@ -252,7 +278,7 @@ class Timeline extends BaseModule
 				}
 
 				if (count($selected_items) < $this->itemsPerPage) {
-					$items = $this->getRawChannelItems();
+					$items = $this->getRawChannelItems($request);
 				}
 			}
 		} else {
@@ -271,9 +297,11 @@ class Timeline extends BaseModule
 	 * @return array
 	 * @throws \Exception
 	 */
-	private function getRawChannelItems()
+	private function getRawChannelItems(array $request)
 	{
 		$uid = $this->session->getLocalUserId();
+
+		$table = 'post-engagement';
 
 		if ($this->selectedTab == ChannelEntity::WHATSHOT) {
 			if (!is_null($this->accountType)) {
@@ -325,47 +353,57 @@ class Timeline extends BaseModule
 			$condition = ["`media-type` & ?", 4];
 		} elseif ($this->selectedTab == ChannelEntity::LANGUAGE) {
 			$condition = ["`language` = ?", User::getLanguageCode($uid)];
-		} elseif (is_numeric($this->selectedTab)) {
-			$condition = $this->getUserChannelConditions($this->selectedTab, $uid);
+		} elseif (is_numeric($this->selectedTab) && !empty($channel = $this->channelRepository->selectById($this->selectedTab, $uid))) {
+			$condition = $this->getUserChannelConditions($channel, $uid);
+			if (in_array($channel->circle, [-3, -4, -5])) {
+				$table = 'post-searchindex-user-view';
+				$condition = DBA::mergeConditions($condition, ['uid' => $uid]);
+				$orders = ['-3' => 'created', '-4' => 'received', '-5' => 'commented'];
+				$this->order = $orders[$channel->circle];
+			}
 		}
+
+		$this->setMaxMinByOrder($request);
 
 		if (($this->selectedTab != ChannelEntity::LANGUAGE) && !is_numeric($this->selectedTab)) {
 			$condition = $this->addLanguageCondition($uid, $condition);
 		}
 
-		$condition = DBA::mergeConditions($condition, ["(NOT `restricted` OR EXISTS(SELECT `id` FROM `post-user` WHERE `uid` = ? AND `uri-id` = `post-engagement`.`uri-id`))", $uid]);
+		$condition = DBA::mergeConditions($condition, ["(NOT `restricted` OR EXISTS(SELECT `id` FROM `post-user` WHERE `uid` = ? AND `uri-id` = `$table`.`uri-id`))", $uid]);
 
-		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `post-engagement`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed` OR `is-blocked` OR `channel-frequency` = ?))", $uid, Contact\User::FREQUENCY_NEVER]);
+		$condition = DBA::mergeConditions($condition, ["NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `$table`.`owner-id` AND (`ignored` OR `blocked` OR `collapsed` OR `is-blocked` OR `channel-frequency` = ?))", $uid, Contact\User::FREQUENCY_NEVER]);
 
 		if (($this->selectedTab != ChannelEntity::WHATSHOT) && !is_null($this->accountType)) {
 			$condition = DBA::mergeConditions($condition, ['contact-type' => $this->accountType]);
 		}
 
-		$params = ['order' => ['created' => true], 'limit' => $this->itemsPerPage];
+		$params = ['order' => [$this->order => true], 'limit' => $this->itemsPerPage];
 
 		if (!empty($this->itemUriId)) {
 			$condition = DBA::mergeConditions($condition, ['uri-id' => $this->itemUriId]);
 		} else {
 			if ($this->noSharer) {
-				$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `post-engagement`.`uri-id`)", $this->session->getLocalUserId()]);
+				$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uid` = ? AND `post-user`.`uri-id` = `$table`.`uri-id`)", $this->session->getLocalUserId()]);
 			}
 
 			if (isset($this->maxId)) {
-				$condition = DBA::mergeConditions($condition, ["`created` < ?", $this->maxId]);
+				$condition = DBA::mergeConditions($condition, ["`$this->order` < ?", $this->maxId]);
 			}
 
 			if (isset($this->minId)) {
-				$condition = DBA::mergeConditions($condition, ["`created` > ?", $this->minId]);
+				$condition = DBA::mergeConditions($condition, ["`$this->order` > ?", $this->minId]);
 
 				// Previous page case: we want the items closest to min_id but for that we need to reverse the query order
 				if (!isset($this->maxId)) {
-					$params['order']['created'] = false;
+					$params['order'][$this->order] = false;
 				}
 			}
 		}
 
 		$items = [];
-		$result = $this->database->select('post-engagement', ['uri-id', 'created', 'owner-id', 'comments', 'activities'], $condition, $params);
+		$fields = ['uri-id', 'owner-id', 'comments', 'activities'];
+		$fields[] = $this->order;
+		$result = $this->database->select($table, $fields, $condition, $params);
 		if ($this->database->errorNo()) {
 			throw new \Exception($this->database->errorMessage(), $this->database->errorNo());
 		}
@@ -390,13 +428,8 @@ class Timeline extends BaseModule
 		return $items;
 	}
 
-	private function getUserChannelConditions(int $id, int $uid): array
+	private function getUserChannelConditions(UserDefinedChannelEntity $channel, int $uid): array
 	{
-		$channel = $this->channelRepository->selectById($id, $uid);
-		if (empty($channel)) {
-			return [];
-		}
-
 		$condition = [];
 
 		if (!empty($channel->circle)) {
@@ -404,8 +437,6 @@ class Timeline extends BaseModule
 				$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` IN (?, ?))", $uid, Contact::SHARING, Contact::FRIEND];
 			} elseif ($channel->circle == -2) {
 				$condition = ["`owner-id` IN (SELECT `pid` FROM `account-user-view` WHERE `uid` = ? AND `rel` = ?)", $uid, Contact::FOLLOWER];
-			} elseif ($channel->circle == -3) {
-				$condition = ["EXISTS(SELECT `uri-id` FROM `post-thread-user` WHERE `uid` = ? AND `post-thread-user`.`uri-id` = `post-engagement`.`uri-id`)", $uid];
 			} elseif ($channel->circle > 0) {
 				$condition = DBA::mergeConditions($condition, ["`owner-id` IN (SELECT `pid` FROM `group_member` INNER JOIN `account-user-view` ON `group_member`.`contact-id` = `account-user-view`.`id` WHERE `gid` = ? AND `account-user-view`.`uid` = ?)", $channel->circle, $uid]);
 			}
@@ -683,6 +714,8 @@ class Timeline extends BaseModule
 	 */
 	private function selectItems()
 	{
+		$this->order = 'received';
+
 		if ($this->selectedTab == 'local') {
 			$condition = ["`wall` AND `origin` AND `private` = ?", Item::PUBLIC];
 		} elseif ($this->selectedTab == 'global') {

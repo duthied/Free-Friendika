@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.03-dev (Yellow Archangel)
--- DB_UPDATE_VERSION 1550
+-- DB_UPDATE_VERSION 1551
 -- ------------------------------------------
 
 
@@ -2105,6 +2105,37 @@ CREATE VIEW `post-timeline-view` AS SELECT
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
 			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`;
+
+--
+-- VIEW post-searchindex-user-view
+--
+DROP VIEW IF EXISTS `post-searchindex-user-view`;
+CREATE VIEW `post-searchindex-user-view` AS SELECT 
+	`post-thread-user`.`uid` AS `uid`,
+	`post-searchindex`.`uri-id` AS `uri-id`,
+	`post-searchindex`.`owner-id` AS `owner-id`,
+	`post-searchindex`.`media-type` AS `media-type`,
+	`post-searchindex`.`language` AS `language`,
+	`post-searchindex`.`searchtext` AS `searchtext`,
+	`post-searchindex`.`size` AS `size`,
+	`post-thread-user`.`commented` AS `commented`,
+	`post-thread-user`.`received` AS `received`,
+	`post-thread-user`.`created` AS `created`,
+	`post-searchindex`.`language` AS `restricted`,
+	0 AS `comments`,
+	0 AS `activities`
+	FROM `post-thread-user`
+			INNER JOIN `post-searchindex` ON `post-searchindex`.`uri-id` = `post-thread-user`.`uri-id`
+			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `authorcontact` ON `authorcontact`.`id` = `post-thread-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
+			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
+			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
+			AND NOT `authorcontact`.`blocked` AND NOT `ownercontact`.`blocked`
+			AND NOT EXISTS(SELECT `cid`  FROM `user-contact` WHERE `uid` = `post-thread-user`.`uid` AND `cid` IN (`authorcontact`.`id`, `ownercontact`.`id`) AND (`blocked` OR `ignored`))
+			AND NOT EXISTS(SELECT `gsid` FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`);
 
 --
 -- VIEW post-user-view
