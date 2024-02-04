@@ -466,6 +466,7 @@ class Processor
 		}
 
 		$item['uri'] = $activity['id'];
+		$item['sensitive'] = $activity['sensitive'];
 
 		if (empty($activity['published']) || empty($activity['updated'])) {
 			DI::logger()->notice('published or updated keys are empty for activity', ['activity' => $activity]);

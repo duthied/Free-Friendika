@@ -99,7 +99,7 @@ class Item
 		'uid', 'id', 'parent', 'guid', 'network', 'gravity',
 		'uri-id', 'uri', 'thr-parent-id', 'thr-parent', 'parent-uri-id', 'parent-uri', 'conversation',
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
-		'wall', 'private', 'starred', 'origin', 'parent-origin', 'title', 'body', 'language',
+		'wall', 'private', 'starred', 'origin', 'parent-origin', 'title', 'body', 'language', 'sensitive',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 		'quote-uri', 'quote-uri-id', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'mention', 'global',
 		'author-id', 'author-link', 'author-alias', 'author-name', 'author-avatar', 'author-network', 'author-updated', 'author-gsid', 'author-baseurl', 'author-addr', 'author-uri-id',
@@ -1280,6 +1280,15 @@ class Item
 			}
 		}
 
+		// Store tags from the body if this hadn't been handled previously in the protocol classes
+		if (!Tag::existsForPost($item['uri-id'])) {
+			Tag::storeFromBody($item['uri-id'], $item['body']);
+		}
+
+		if (in_array($item['gravity'], [self::GRAVITY_PARENT, self::GRAVITY_COMMENT]) && (!isset($item['sensitive']) || is_null($item['sensitive']))) {
+			$item['sensitive'] = Tag::existsTagForPost($item['uri-id'], 'nsfw');
+		}
+
 		$item['language'] = self::getLanguage($item);
 
 		$inserted = Post::insert($item['uri-id'], $item);
@@ -1317,11 +1326,6 @@ class Item
 
 		if (!empty($item['origin']) || !empty($item['wall']) || !empty($delivery_data['postopts']) || !empty($delivery_data['inform'])) {
 			Post\DeliveryData::insert($item['uri-id'], $delivery_data);
-		}
-
-		// Store tags from the body if this hadn't been handled previously in the protocol classes
-		if (!Tag::existsForPost($item['uri-id'])) {
-			Tag::storeFromBody($item['uri-id'], $item['body']);
 		}
 
 		$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid']];
@@ -3467,7 +3471,7 @@ class Item
 		}
 
 		if (!empty($sharedSplitAttachments)) {
-			$s = self::addGallery($s, $sharedSplitAttachments['visual']);
+			$s = self::addGallery($s, $sharedSplitAttachments['visual'], (bool)$item['sensitive']);
 			$s = self::addVisualAttachments($sharedSplitAttachments['visual'], $shared_item, $s, true);
 			$s = self::addLinkAttachment($shared_uri_id ?: $item['uri-id'], $sharedSplitAttachments, $body, $s, true, $quote_shared_links);
 			$s = self::addNonVisualAttachments($sharedSplitAttachments['additional'], $item, $s, true);
@@ -3480,7 +3484,7 @@ class Item
 			$s = substr($s, 0, $pos);
 		}
 
-		$s = self::addGallery($s, $itemSplitAttachments['visual']);
+		$s = self::addGallery($s, $itemSplitAttachments['visual'], (bool)$item['sensitive']);
 		$s = self::addVisualAttachments($itemSplitAttachments['visual'], $item, $s, false);
 		$s = self::addLinkAttachment($item['uri-id'], $itemSplitAttachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($itemSplitAttachments['additional'], $item, $s, false);
@@ -3516,9 +3520,10 @@ class Item
 	 *
 	 * @param string     $s
 	 * @param PostMedias $PostMedias
+	 * @param bool       $sensitive
 	 * @return string
 	 */
-	private static function addGallery(string $s, PostMedias $PostMedias): string
+	private static function addGallery(string $s, PostMedias $PostMedias, bool $sensitive): string
 	{
 		foreach ($PostMedias as $PostMedia) {
 			if (!$PostMedia->preview || ($PostMedia->type !== Post\Media::IMAGE)) {
@@ -3528,9 +3533,10 @@ class Item
 			if ($PostMedia->hasDimensions()) {
 				$pattern = '#<a href="' . preg_quote($PostMedia->url) . '">(.*?)"></a>#';
 
-				$s = preg_replace_callback($pattern, function () use ($PostMedia) {
+				$s = preg_replace_callback($pattern, function () use ($PostMedia, $sensitive) {
 					return Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image/single_with_height_allocation.tpl'), [
 						'$image' => $PostMedia,
+						'$sensitive' => $sensitive,
 						'$allocated_height' => $PostMedia->getAllocatedHeight(),
 						'$allocated_max_width' => ($PostMedia->previewWidth ?? $PostMedia->width) . 'px',
 					]);

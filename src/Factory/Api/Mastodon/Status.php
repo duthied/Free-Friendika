@@ -112,7 +112,7 @@ class Status extends BaseFactory
 	{
 		$fields = ['uri-id', 'uid', 'author-id', 'causer-id', 'author-uri-id', 'author-link', 'causer-uri-id', 'post-reason', 'starred', 'app', 'title', 'body', 'raw-body', 'content-warning', 'question-id',
 			'created', 'edited', 'commented', 'received', 'changed', 'network', 'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity', 'featured', 'has-media', 'quote-uri-id',
-			'delivery_queue_count', 'delivery_queue_done','delivery_queue_failed', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'];
+			'delivery_queue_count', 'delivery_queue_done','delivery_queue_failed', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid', 'sensitive'];
 		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
 			$mail = DBA::selectFirst('mail', ['id'], ['uri-id' => $uriId, 'uid' => $uid]);
@@ -217,7 +217,7 @@ class Status extends BaseFactory
 			$item['featured']
 		);
 
-		$sensitive   = $this->dba->exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw', 'type' => TagModel::HASHTAG]);
+		$sensitive   = (bool)$item['sensitive'];
 		$application = new \Friendica\Object\Api\Mastodon\Application($item['app'] ?: ContactSelector::networkToName($item['network'], $item['author-link']));
 
 		$mentions    = $this->mstdnMentionFactory->createFromUriId($uriId)->getArrayCopy();
