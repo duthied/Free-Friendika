@@ -134,7 +134,7 @@ class UserDefinedChannel extends \Friendica\BaseRepository
 			'max-size'         => $Channel->maxSize,
 			'full-text-search' => $Channel->fullTextSearch,
 			'media-type'       => $Channel->mediaType,
-			'languages'        => serialize($Channel->languages),
+			'languages'        => !empty($Channel->languages) ? serialize($Channel->languages) : null,
 			'publish'          => $Channel->publish,
 			'valid'            => $this->isValid($Channel->fullTextSearch),
 		];
