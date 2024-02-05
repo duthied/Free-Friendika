@@ -142,6 +142,35 @@
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
 			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`"
 	],
+	"post-searchindex-user-view" => [
+		"fields" => [
+			"uid" => ["post-thread-user", "uid"],
+			"uri-id" => ["post-searchindex", "uri-id"],
+			"owner-id" => ["post-searchindex", "owner-id"],
+			"media-type" => ["post-searchindex", "media-type"],
+			"language" => ["post-searchindex", "language"],
+			"searchtext" => ["post-searchindex", "searchtext"],
+			"size" => ["post-searchindex", "size"],
+			"commented" => ["post-thread-user", "commented"],
+			"received" => ["post-thread-user", "received"],
+			"created" => ["post-thread-user", "created"],
+			"restricted" => ["post-searchindex", "language"],
+			"comments" => "0",
+			"activities" => "0",
+		],
+		"query" => "FROM `post-thread-user`
+			INNER JOIN `post-searchindex` ON `post-searchindex`.`uri-id` = `post-thread-user`.`uri-id`
+			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `authorcontact` ON `authorcontact`.`id` = `post-thread-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
+			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
+			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
+			AND NOT `authorcontact`.`blocked` AND NOT `ownercontact`.`blocked`
+			AND NOT EXISTS(SELECT `cid`  FROM `user-contact` WHERE `uid` = `post-thread-user`.`uid` AND `cid` IN (`authorcontact`.`id`, `ownercontact`.`id`) AND (`blocked` OR `ignored`))
+			AND NOT EXISTS(SELECT `gsid` FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`)"
+	],
 	"post-user-view" => [
 		"fields" => [
 			"id" => ["post-user", "id"],

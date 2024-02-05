@@ -147,7 +147,9 @@ class Channels extends BaseSettings
 			$intro   = $this->t('This page can be used to define your own channels.');
 			$circles = [
 				0  => $this->l10n->t('Global Community'),
-				-3 => $this->l10n->t('Network'),
+				-5 => $this->l10n->t('Latest Activity'),
+				-4 => $this->l10n->t('Latest Posts'),
+				-3 => $this->l10n->t('Latest Creation'),
 				-1 => $this->l10n->t('Following'),
 				-2 => $this->l10n->t('Followers'),
 			];
