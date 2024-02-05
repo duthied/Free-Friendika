@@ -119,7 +119,7 @@ class Item
 	const DELIVER_FIELDLIST = [
 		'uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid',
 		'parent-guid', 'conversation', 'received', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
-		'private', 'title', 'body', 'raw-body', 'language', 'location', 'coord', 'app',
+		'private', 'title', 'body', 'raw-body', 'language', 'location', 'coord', 'app', 'sensitive',
 		'inform', 'deleted', 'extid', 'post-type', 'post-reason', 'gravity',
 		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 		'author-id', 'author-addr', 'author-link', 'author-name', 'author-avatar', 'owner-id', 'owner-link', 'contact-uid',
