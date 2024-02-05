@@ -175,6 +175,7 @@ class Image
 				$this->valid  = true;
 				imagealphablending($this->image, false);
 				imagesavealpha($this->image, true);
+				imageinterlace($this->image, true);
 
 				return true;
 			}
@@ -666,9 +667,6 @@ class Image
 		}
 
 		$stream = fopen('php://memory','r+');
-
-		// Enable interlacing
-		imageinterlace($this->image, true);
 
 		switch ($this->getType()) {
 			case 'image/png':
