@@ -75,6 +75,8 @@ Alternatives are presented with "|".
     * media:image | media:photo | media:picture - The post contains an image
     * media:video - The post contains a video
     * media:audio - The post contains audio
+    * media:card - The post contains a link preview card
+    * media:post - The post links another post, means it is a quoted post
 * network | net - Use this to include or exclude some networks from your channel.
     * network:apub | network:activitypub - ActivityPub (Used by the systems in the Fediverse)
     * network:dfrn | network:friendica - Legacy Friendica protocol. Nowayday Friendica mostly uses ActivityPub.

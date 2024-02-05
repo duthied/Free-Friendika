@@ -60,8 +60,10 @@ class Engagement
 			return 0;
 		}
 
-		$parent = Post::selectFirst(['uri-id', 'created', 'author-id', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language', 'network',
-			'title', 'content-warning', 'body', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid', 'owner-contact-type', 'owner-nick', 'owner-addr', 'owner-gsid'],
+		$parent = Post::selectFirst(['uri-id', 'created', 'uid', 'private', 'quote-uri-id',
+			'contact-contact-type', 'network', 'title', 'content-warning', 'body', 'language',
+			'author-id', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid',
+			'owner-id', 'owner-contact-type', 'owner-nick', 'owner-addr', 'owner-gsid'],
 			['uri-id' => $item['parent-uri-id']]);
 
 		if ($parent['created'] < self::getCreationDateLimit(false)) {
@@ -89,7 +91,7 @@ class Engagement
 			}
 		}
 
-		$mediatype = self::getMediaType($item['parent-uri-id']);
+		$mediatype = self::getMediaType($item['parent-uri-id'], $parent['quote-uri-id']);
 
 		if (!$store) {
 			$store = !empty($mediatype);
@@ -166,6 +168,7 @@ class Engagement
 			'owner-nick'          => $author['nick'],
 			'owner-addr'          => $author['addr'],
 			'owner-gsid'          => $author['gsid'],
+			'quote-uri-id'        => 0,
 		];
 
 		foreach ($receivers as $receiver) {
@@ -187,12 +190,12 @@ class Engagement
 		}
 
 		$post = Post::selectFirstPost(['uri-id', 'network', 'title', 'content-warning', 'body', 'private',
-			'author-id', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid',
+			'author-id', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid', 'quote-uri-id',
 			'owner-id', 'owner-contact-type', 'owner-nick', 'owner-addr', 'owner-gsid'], ['uri-id' => $uri_id]);
 		if (empty($post['uri-id'])) {
 			return '';
 		}
-		$mediatype = self::getMediaType($uri_id);
+		$mediatype = self::getMediaType($uri_id, $post['quote-uri-id']);
 		return self::getSearchTextForItem($post, $mediatype);
 	}
 
@@ -301,6 +304,14 @@ class Engagement
 			$body .= ' media_audio';
 		}
 
+		if ($mediatype & 8) {
+			$body .= ' media_card';
+		}
+
+		if ($mediatype & 16) {
+			$body .= ' media_post';
+		}
+
 		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
 
 		return BBCode::toSearchText($body, $item['uri-id']);
@@ -331,10 +342,10 @@ class Engagement
 		return $text;
 	}
 
-	public static function getMediaType(int $uri_id): int
+	public static function getMediaType(int $uri_id, int $quote_uri_id = null): int
 	{
 		$media = Post\Media::getByURIId($uri_id);
-		$type  = 0;
+		$type  = !empty($quote_uri_id) ? 16 : 0;
 		foreach ($media as $entry) {
 			if ($entry['type'] == Post\Media::IMAGE) {
 				$type = $type | 1;
@@ -342,6 +353,10 @@ class Engagement
 				$type = $type | 2;
 			} elseif ($entry['type'] == Post\Media::AUDIO) {
 				$type = $type | 4;
+			} elseif ($entry['type'] == Post\Media::HTML) {
+				$type = $type | 8;
+			} elseif ($entry['type'] == Post\Media::ACTIVITY) {
+				$type = $type | 16;
 			}
 		}
 		return $type;
