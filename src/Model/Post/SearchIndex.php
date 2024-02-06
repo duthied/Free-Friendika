@@ -47,13 +47,13 @@ class SearchIndex
 			return;
 		}
 
-		$item = Post::selectFirstPost(['created', 'owner-id', 'private', 'language', 'network', 'title', 'content-warning', 'body'], ['uri-id' => $uri_id]);
+		$item = Post::selectFirstPost(['created', 'owner-id', 'private', 'language', 'network', 'title', 'content-warning', 'body', 'quote-uri-id'], ['uri-id' => $uri_id]);
 
 		$search = [
 			'uri-id'     => $uri_id,
 			'owner-id'   => $item['owner-id'],
-			'media-type' => Engagement::getMediaType($uri_id),
-			'language'   => !empty($item['language']) ? (array_key_first(json_decode($item['language'], true)) ?? L10n::UNDETERMINED_LANGUAGE) : L10n::UNDETERMINED_LANGUAGE,
+			'media-type' => Engagement::getMediaType($uri_id, $item['quote-uri-id']),
+			'language'   => substr(!empty($item['language']) ? (array_key_first(json_decode($item['language'], true)) ?? L10n::UNDETERMINED_LANGUAGE) : L10n::UNDETERMINED_LANGUAGE, 0, 2),
 			'searchtext' => Post\Engagement::getSearchTextForUriId($uri_id, $refresh),
 			'size'       => Engagement::getContentSize($item),
 			'created'    => $item['created'],
