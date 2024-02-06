@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.03-dev (Yellow Archangel)
--- DB_UPDATE_VERSION 1551
+-- DB_UPDATE_VERSION 1552
 -- ------------------------------------------
 
 
@@ -1283,6 +1283,7 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	`location` varchar(255) NOT NULL DEFAULT '' COMMENT 'text location where this item originated',
 	`coord` varchar(255) NOT NULL DEFAULT '' COMMENT 'longitude/latitude pair representing location where this item originated',
 	`language` text COMMENT 'Language information about this post',
+	`sensitive` boolean COMMENT 'If true, this post contains sensitive content',
 	`app` varchar(255) NOT NULL DEFAULT '' COMMENT 'application which generated this item',
 	`rendered-hash` varchar(32) NOT NULL DEFAULT '' COMMENT '',
 	`rendered-html` mediumtext COMMENT 'item.body converted to html',
@@ -2194,6 +2195,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-content`.`plink` AS `plink`,
 	`post-content`.`location` AS `location`,
 	`post-content`.`coord` AS `coord`,
+	`post-content`.`sensitive` AS `sensitive`,
 	`post-content`.`app` AS `app`,
 	`post-content`.`object-type` AS `object-type`,
 	`post-content`.`object` AS `object`,
@@ -2378,6 +2380,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-content`.`plink` AS `plink`,
 	`post-content`.`location` AS `location`,
 	`post-content`.`coord` AS `coord`,
+	`post-content`.`sensitive` AS `sensitive`,
 	`post-content`.`app` AS `app`,
 	`post-content`.`object-type` AS `object-type`,
 	`post-content`.`object` AS `object`,
@@ -2548,6 +2551,7 @@ CREATE VIEW `post-view` AS SELECT
 	`post-content`.`plink` AS `plink`,
 	`post-content`.`location` AS `location`,
 	`post-content`.`coord` AS `coord`,
+	`post-content`.`sensitive` AS `sensitive`,
 	`post-content`.`app` AS `app`,
 	`post-content`.`object-type` AS `object-type`,
 	`post-content`.`object` AS `object`,
@@ -2694,6 +2698,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post-content`.`plink` AS `plink`,
 	`post-content`.`location` AS `location`,
 	`post-content`.`coord` AS `coord`,
+	`post-content`.`sensitive` AS `sensitive`,
 	`post-content`.`app` AS `app`,
 	`post-content`.`object-type` AS `object-type`,
 	`post-content`.`object` AS `object`,

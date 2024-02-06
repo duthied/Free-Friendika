@@ -1698,18 +1698,6 @@ class Transmitter
 	}
 
 	/**
-	 * Returns if the post contains sensitive content ("nsfw")
-	 *
-	 * @param integer $uri_id URI id
-	 * @return boolean Whether URI id was found
-	 * @throws \Exception
-	 */
-	private static function isSensitive(int $uri_id): bool
-	{
-		return DBA::exists('tag-view', ['uri-id' => $uri_id, 'name' => 'nsfw', 'type' => Tag::HASHTAG]);
-	}
-
-	/**
 	 * Creates event data
 	 *
 	 * @param array $item Item array
@@ -1812,7 +1800,7 @@ class Transmitter
 		} else {
 			$data['attributedTo'] = $item['author-link'];
 		}
-		$data['sensitive'] = self::isSensitive($item['uri-id']);
+		$data['sensitive'] = (bool)$item['sensitive'];
 
 		if (!empty($item['conversation']) && ($item['conversation'] != './')) {
 			$data['conversation'] = $data['context'] = $item['conversation'];

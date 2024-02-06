@@ -379,6 +379,18 @@ class Tag
 	}
 
 	/**
+	 * Check for a given hashtag on a given post
+	 *
+	 * @param integer $uriId
+	 * @param string $tag
+	 * @return boolean
+	 */
+	public static function existsTagForPost(int $uriId, string $tag): bool
+	{
+		return DBA::exists('tag-view', ['uri-id' => $uriId, 'type' => self::HASHTAG, 'name' => $tag]);
+	}
+
+	/**
 	 * Remove tag/mention
 	 *
 	 * @param integer $uriId

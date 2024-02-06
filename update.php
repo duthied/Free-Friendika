@@ -1422,3 +1422,10 @@ function pre_update_1550()
 	}
 	return Update::SUCCESS;
 }
+
+function update_1552()
+{
+	DBA::e("UPDATE `post-content` INNER JOIN `post-tag` ON `post-tag`.`uri-id` = `post-content`.`uri-id` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` SET `sensitive` = ? WHERE `name` = ?", true, 'nsfw');
+
+	return Update::SUCCESS;
+}
