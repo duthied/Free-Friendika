@@ -1,0 +1,5 @@
+*[1.0.4] - 2019-08-01*
+
+*Fixed*
+
+* Invalid SemVer version generation, when the current branch does not have commits ahead of tag/checked out on a tag

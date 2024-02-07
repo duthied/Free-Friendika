@@ -1,0 +1,168 @@
+/*
+    Licence    : AGPL
+
+    Created on : 29.06.2018, 15:03:06
+    Author     : hoergen
+    Color picker   : https://www.w3schools.com/colors/colors_names.asp
+    CSS UTF8 icons : https://www.utf8icons.com 
+
+*/
+
+body {
+	background: url(scheme/plusminus.jpg);
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-attachment: fixed;
+	height: auto;
+}
+
+aside .widget,
+.form-control,
+.panel,
+.nav-container,
+.wall-item-content,
+.e-content,
+.p-name,
+.topbar,
+post,
+shiny,
+tread-wrapper,
+#topbar-second {
+	color: #000;
+	background-color: #f5f5f5;
+}
+
+.form-control {
+	font-family: ".SFNSText-Regular", "San Francisco", "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande",
+		Helvetica, Arial, sans-serif;
+}
+
+#topbar-first #nav-notifications-menu li.notification-unseen {
+	border-left: 3px solid #e3eff3;
+	background-color: antiquewhite;
+}
+
+#topbar-first #nav-notifications-menu li.notif-entry {
+	padding: 0px;
+}
+
+.birthday-notice {
+	background-color: #cc0000;
+	color: white;
+}
+
+#birthday-title {
+	background-color: #ff0000;
+	color: white;
+	text-indent: 6px;
+}
+
+.birthday-list:before {
+	content: "\1F382 ";
+}
+
+.birthday-list {
+	margin: 1px;
+	color: black;
+	background-color: yellow;
+	text-indent: 10px;
+	border-radius: 5px;
+}
+
+#event-notice {
+	color: white;
+	background-color: #004c5b;
+	text-indent: 2px;
+}
+
+#event-title {
+	color: whitesmoke;
+	background-color: #006c83;
+	text-indent: 6px;
+}
+
+.event-list:before {
+	content: "\1F5D3 ";
+}
+
+.event-list {
+	margin: 1px;
+	color: black;
+	background-color: #00c7f0;
+	text-indent: 10px;
+	border-radius: 5px;
+}
+
+.panel .panel-body {
+	padding-top: 1px;
+	padding-bottom: 1px;
+	padding-left: 5px;
+	padding-right: 5px;
+	border: 1px;
+}
+
+.wall-item-network {
+	font-size: 12px;
+}
+
+.wall-item-content
+	.clearfix
+	.post
+	.comment-container
+	.well
+	.well-sm
+	.wall-item-body
+	.e-content
+	.p-name
+	.media
+	.comment
+	.wall-item-bottom
+	.wall-item-links
+	.wall-item-tags
+	.wall-item-actions
+	.wall-item-responses
+	#hr {
+	box-sizing: border-box;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	border: 0px;
+	padding: 0px;
+	color: black;
+}
+
+.wall-spacer {
+	height: 0px;
+}
+
+/* Contact-page */
+#connect-desc {
+	color: grey;
+}
+
+.search-input.form-control.form-search {
+	background-color: #ebebeb;
+	border-color: lightgrey;
+}
+
+.search-input.form-control.form-search:focus {
+	background-color: white;
+	border-color: grey;
+}
+
+/* Addon-Showmore*/
+.showmore-wrap {
+	background-color: lightgrey;
+	text-decoration: underline;
+	text-decoration-color: black;
+	text-decoration-style: wavy;
+}
+
+/* New compose popup */
+.profile-jot-net {
+	background: #dff0d8;
+}
+
+.profile-jot-net summary {
+	color: #3c763d;
+	font-weight: bold;
+}

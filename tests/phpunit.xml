@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		bootstrap="bootstrap.php"
+		verbose="true"
+		timeoutForSmallTests="900"
+		timeoutForMediumTests="900"
+		timeoutForLargeTests="900"
+		xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+	<testsuite name="friendica">
+		<directory suffix=".php">functional/</directory>
+		<directory suffix=".php">src/</directory>
+	</testsuite>
+	<!-- Filters for Code Coverage -->
+	<coverage>
+		<include>
+			<directory suffix=".php">..</directory>
+		</include>
+		<exclude>
+			<directory suffix=".php">../config/</directory>
+			<directory suffix=".php">../doc/</directory>
+			<directory suffix=".php">../images/</directory>
+			<directory suffix=".php">../library/</directory>
+			<directory suffix=".php">../spec/</directory>
+			<directory suffix=".php">../tests/</directory>
+			<directory suffix=".php">../view/</directory>
+			<directory suffix=".php">../vendor/</directory>
+		</exclude>
+	</coverage>
+</phpunit>

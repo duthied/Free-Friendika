@@ -1,0 +1,9 @@
+Contact: mailto:info@friendi.ca
+
+Expires: 2024-10-30T23:59:59Z
+
+Preferred-Languages: en
+
+Canonical: https://git.friendi.ca/friendica/friendica/raw/branch/stable/security.txt
+
+Policy: https://friendi.ca/security-policy/

@@ -1,0 +1,50 @@
+--43395968-f65c-437e-b536-5b33e3e3c7e5
+Content-Disposition: form-data; name="display_name"
+Content-Transfer-Encoding: binary
+Content-Type: multipart/form-data; charset=utf-8
+Content-Length: 9
+
+User Name
+--43395968-f65c-437e-b536-5b33e3e3c7e5
+Content-Disposition: form-data; name="note"
+Content-Transfer-Encoding: binary
+Content-Type: multipart/form-data; charset=utf-8
+Content-Length: 8
+
+About me
+--43395968-f65c-437e-b536-5b33e3e3c7e5
+Content-Disposition: form-data; name="locked"
+Content-Transfer-Encoding: binary
+Content-Type: multipart/form-data; charset=utf-8
+Content-Length: 5
+
+false
+--43395968-f65c-437e-b536-5b33e3e3c7e5
+Content-Disposition: form-data; name="fields_attributes[0][name]"
+Content-Transfer-Encoding: binary
+Content-Type: multipart/form-data; charset=utf-8
+Content-Length: 10
+
+variable 1
+--43395968-f65c-437e-b536-5b33e3e3c7e5
+Content-Disposition: form-data; name="fields_attributes[0][value]"
+Content-Transfer-Encoding: binary
+Content-Type: multipart/form-data; charset=utf-8
+Content-Length: 7
+
+value 1
+--43395968-f65c-437e-b536-5b33e3e3c7e5
+Content-Disposition: form-data; name="fields_attributes[1][name]"
+Content-Transfer-Encoding: binary
+Content-Type: multipart/form-data; charset=utf-8
+Content-Length: 10
+
+variable 2
+--43395968-f65c-437e-b536-5b33e3e3c7e5
+Content-Disposition: form-data; name="fields_attributes[1][value]"
+Content-Transfer-Encoding: binary
+Content-Type: multipart/form-data; charset=utf-8
+Content-Length: 7
+
+value 2
+--43395968-f65c-437e-b536-5b33e3e3c7e5--
