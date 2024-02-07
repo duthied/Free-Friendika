@@ -177,15 +177,20 @@ class PostMedia extends BaseEntity
 	/**
 	 * Get preview path for given media id relative to the base URL
 	 *
-	 * @param string  $size One of the Proxy::SIZE_* constants
+	 * @param string  $size     One of the Proxy::SIZE_* constants
+	 * @param bool     $vlurred If "true", the preview will be blurred
 	 * @return string preview link
 	 */
-	public function getPreviewPath(string $size = ''): string
+	public function getPreviewPath(string $size = '', bool $blurred = false): string
 	{
-		return '/photo/preview/' .
+		$path = '/photo/preview/' .
 			(Proxy::getPixelsFromSize($size) ? Proxy::getPixelsFromSize($size) . '/' : '') .
 			$this->id;
 
+		if ($blurred) {
+			$path .= '?' . http_build_query(['blur' => true]);
+		}
+		return $path;
 	}
 
 	/**

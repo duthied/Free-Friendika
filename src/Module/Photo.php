@@ -166,7 +166,9 @@ class Photo extends BaseApi
 
 		$stamp = microtime(true);
 
-		$imgdata = MPhoto::getImageDataForPhoto($photo);
+		if (empty($request['blur']) || empty($photo['blurhash'])) {
+			$imgdata = MPhoto::getImageDataForPhoto($photo);
+		}
 		if (empty($imgdata) && empty($photo['blurhash'])) {
 			throw new HTTPException\NotFoundException();
 		} elseif (empty($imgdata) && !empty($photo['blurhash'])) {
