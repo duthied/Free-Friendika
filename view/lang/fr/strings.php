@@ -267,6 +267,7 @@ $a->strings['Password changed.'] = 'Mot de passe changé.';
 $a->strings['Enter user name: '] = 'Entrer le nom d\'utilisateur :';
 $a->strings['Enter user email address: '] = 'Entrer l\'adresse courriel de l\'utilisateur :';
 $a->strings['Enter a language (optional): '] = 'Entrer la langue (optionnel) :';
+$a->strings['Enter URL of an image to use as avatar (optional): '] = 'Saisissez l\'URL de l\'image à utiliser comme avatar (optionnel) :';
 $a->strings['User is not pending.'] = 'L\'utilisateur n\'est pas en attente.';
 $a->strings['User has already been marked for deletion.'] = 'L\'utilisateur a déjà été marqué pour suppression.';
 $a->strings['Type "yes" to delete %s'] = 'Saisir "yes" pour supprimer %s';
@@ -428,6 +429,8 @@ $a->strings['%s from %s'] = '%s de %s';
 $a->strings['View in context'] = 'Voir dans le contexte';
 $a->strings['For you'] = 'Pour vous';
 $a->strings['Posts from contacts you interact with and who interact with you'] = 'Publications de contacts qui interagissent avec vous';
+$a->strings['Discover'] = 'Découvrir';
+$a->strings['Posts from accounts that you don\'t follow, but that you might like.'] = 'Publications de comptes que vous ne suivez pas, mais qui pourrait vous intéresser.';
 $a->strings['What\'s Hot'] = 'Quoi de neuf';
 $a->strings['Posts with a lot of interactions'] = 'Publications avec beaucoup d\'interactions';
 $a->strings['Posts in %s'] = 'Publications dans %s';
@@ -734,6 +737,7 @@ $a->strings['ImageMagick PHP extension is installed'] = 'L’extension PHP Image
 $a->strings['ImageMagick supports GIF'] = 'ImageMagick supporte le format GIF';
 $a->strings['Database already in use.'] = 'Base de données déjà en cours d\'utilisation.';
 $a->strings['Could not connect to database.'] = 'Impossible de se connecter à la base.';
+$a->strings['Undetermined'] = 'Indéterminé';
 $a->strings['%s (%s)'] = '%s (%s)';
 $a->strings['Monday'] = 'Lundi';
 $a->strings['Tuesday'] = 'Mardi';
@@ -830,6 +834,7 @@ $a->strings['Edit circles'] = 'Modifier les cercles';
 $a->strings['Approve'] = 'Approuver';
 $a->strings['Organisation'] = 'Organisation';
 $a->strings['Group'] = 'Groupe';
+$a->strings['Relay'] = 'Relai';
 $a->strings['Disallowed profile URL.'] = 'URL de profil interdite.';
 $a->strings['Blocked domain'] = 'Domaine bloqué';
 $a->strings['Connect URL missing.'] = 'URL de connexion manquante.';
@@ -996,8 +1001,8 @@ $a->strings['
 		You may also wish to add some basic information to your default profile
 		(on the "Profiles" page) so that other people can easily find you.
 
-		We recommend adding a profile photo, adding some profile "keywords" 
-		(very useful in making new friends) - and perhaps what country you live in; 
+		We recommend adding a profile photo, adding some profile "keywords"
+		(very useful in making new friends) - and perhaps what country you live in;
 		if you do not wish to be more specific than that.
 
 		We fully respect your right to privacy, and none of these items are necessary.
@@ -1011,7 +1016,7 @@ $a->strings['
 
 		Adresse :	%1$s
 		Identifiant :		%2$s
-		Mot de passe :		%3$s
+		Mot de passe:		%3$s
 
 		Vous pouvez modifier votre mot de passe à partir de la page "Paramètres"
 		de votre compte après vous être connecté.
@@ -1344,6 +1349,7 @@ $a->strings['Cache contact avatars'] = 'Mettre en cache les avatars des contacts
 $a->strings['Locally store the avatar pictures of the contacts. This uses a lot of storage space but it increases the performance.'] = 'Stocker localement les images d\'avatar des contacts. Cela utilise beaucoup d\'espace disque mais améliore les performances.';
 $a->strings['Allow Users to set remote_self'] = 'Autoriser les utilisateurs à définir remote_self';
 $a->strings['With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.'] = 'Cocher cette case, permet à chaque utilisateur de marquer chaque contact comme un remote_self dans la boîte de dialogue de réparation des contacts. Activer cette fonction à un contact engendre la réplique de toutes les publications d\'un contact dans le flux d\'activités des utilisateurs.';
+$a->strings['Allow Users to set up relay channels'] = 'Autorise les utilisateurs à créer les chaînes relais';
 $a->strings['Adjust the feed poll frequency'] = 'Régler la fréquence d\'interrogation';
 $a->strings['Automatically detect and set the best feed poll frequency.'] = 'Détecte automatiquement et défini la meilleure fréquence d\'interrogation.';
 $a->strings['Minimum poll interval'] = 'Intervalle minimum de requêtage';
@@ -2027,7 +2033,6 @@ $a->strings['Personal Page'] = 'Page personnelle';
 $a->strings['Organisation Page'] = 'Page Associative';
 $a->strings['News Page'] = 'Page d\'informations';
 $a->strings['Community Group'] = 'Groupe Communautaire';
-$a->strings['Relay'] = 'Relai';
 $a->strings['You can\'t block a local contact, please block the user instead'] = 'Vous ne pouvez pas bloquer un contact local. Merci de bloquer l\'utilisateur à la place';
 $a->strings['%s contact unblocked'] = [
 	0 => '%s contact débloqué',
@@ -2197,12 +2202,7 @@ $a->strings['%s total report'] = [
 	2 => '%s signalements au total',
 ];
 $a->strings['URL of the reported contact.'] = 'URL du contact signalé.';
-$a->strings['Normal Account'] = 'Compte normal';
-$a->strings['Automatic Follower Account'] = 'Compte d\'abonné automatique';
-$a->strings['Public Group Account'] = 'Compte de groupe public';
-$a->strings['Automatic Friend Account'] = 'Compte personnel public';
-$a->strings['Blog Account'] = 'Compte de blog';
-$a->strings['Private Group Account'] = 'Compte de groupe privé';
+$a->strings['Channel Relay'] = 'Relai de chaîne';
 $a->strings['Registered users'] = 'Utilisateurs inscrits';
 $a->strings['Pending registrations'] = 'Inscriptions en attente';
 $a->strings['%s user blocked'] = [
@@ -2371,14 +2371,6 @@ $a->strings['This profile has been restricted which prevents access to their pub
 $a->strings['Scheduled'] = 'Programmé';
 $a->strings['Content'] = 'Contenu';
 $a->strings['Remove post'] = 'Supprimer la publication';
-$a->strings['Empty message body.'] = 'Corps du message vide.';
-$a->strings['Unable to check your home location.'] = 'Impossible de vérifier votre localisation.';
-$a->strings['Recipient not found.'] = 'Destinataire non trouvé.';
-$a->strings['Number of daily wall messages for %s exceeded. Message failed.'] = 'Nombre de messages de mur quotidiens pour %s dépassé. Échec du message.';
-$a->strings['If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.'] = 'Si vous souhaitez que %s réponde, merci de vérifier vos réglages pour autoriser les messages privés venant d\'inconnus.';
-$a->strings['To'] = 'À';
-$a->strings['Subject'] = 'Sujet';
-$a->strings['Your message'] = 'Votre message';
 $a->strings['Only parent users can create additional accounts.'] = 'Seuls les comptes parent peuvent créer des comptes supplémentaires.';
 $a->strings['This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'] = 'Le nombre d\'inscriptions quotidiennes pour ce site a été dépassé. Merci de réessayer demain.';
 $a->strings['You may (optionally) fill in this form via OpenID by supplying your OpenID and clicking "Register".'] = 'Vous pouvez (si vous le souhaitez) remplir ce formulaire via OpenID en fournissant votre OpenID et en cliquant sur "S\'inscrire".';
@@ -2406,6 +2398,8 @@ $a->strings['Password doesn\'t match.'] = 'Le mot de passe ne correspond pas.';
 $a->strings['Please enter your password.'] = 'Veuillez saisir votre mot de passe.';
 $a->strings['You have entered too much information.'] = 'Vous avez entré trop d\'informations.';
 $a->strings['Please enter the identical mail address in the second field.'] = 'Veuillez entrer une adresse e-mail identique dans le deuxième champ.';
+$a->strings['Nickname cannot start with a digit.'] = 'Le pseudo ne peut pas commencer par un chiffre.';
+$a->strings['Nickname can only contain US-ASCII characters.'] = 'Le pseudo ne peut contenir que des caractères US-ASCII.';
 $a->strings['The additional account was created.'] = 'Le compte additionnel a bien été créé.';
 $a->strings['Registration successful. Please check your email for further instructions.'] = 'Inscription réussie. Vérifiez vos courriels pour la suite des instructions.';
 $a->strings['Failed to send email message. Here your accout details:<br> login: %s<br> password: %s<br><br>You can change your password after login.'] = 'Impossible d’envoyer le courriel de confirmation. Voici vos informations de connexion:<br> identifiant : %s<br> mot de passe : %s<br><br>Vous pourrez changer votre mot de passe une fois connecté.';
@@ -2477,6 +2471,7 @@ $a->strings['Contact CSV file upload error'] = 'Erreur de téléversement du fic
 $a->strings['Importing Contacts done'] = 'Import des contacts effectué';
 $a->strings['Relocate message has been send to your contacts'] = 'Un message de relocalisation a été envoyé à vos contacts.';
 $a->strings['Unable to find your profile. Please contact your admin.'] = 'Impossible de trouver votre profile. Merci de contacter votre administrateur.';
+$a->strings['Account for a service that automatically shares content based on user defined channels.'] = 'Compte de service qui partage automatiquement du contenu basés les chaînes de l\'utilisateur';
 $a->strings['Personal Page Subtypes'] = 'Sous-catégories de page personnelle';
 $a->strings['Community Group Subtypes'] = 'Sous-catégories de groupe communautaire';
 $a->strings['Account for a personal profile.'] = 'Compte pour profil personnel.';
@@ -2526,9 +2521,6 @@ $a->strings['Allow friends to post to your profile page?'] = 'Autoriser vos cont
 $a->strings['Your contacts may write posts on your profile wall. These posts will be distributed to your contacts'] = 'Vos contacts peuvent partager des publications sur votre mur. Ces publication seront visibles par vos abonnés.';
 $a->strings['Allow friends to tag your posts?'] = 'Autoriser vos contacts à ajouter des tags à vos publications ?';
 $a->strings['Your contacts can add additional tags to your posts.'] = 'Vos contacts peuvent ajouter des tags à vos publications.';
-$a->strings['Permit unknown people to send you private mail?'] = 'Autoriser les messages privés d\'inconnus?';
-$a->strings['Friendica network users may send you private messages even if they are not in your contact list.'] = 'Les utilisateurs de Friendica peuvent vous envoyer des messages privés même s\'ils ne sont pas dans vos contacts.';
-$a->strings['Maximum private messages per day from unknown people:'] = 'Maximum de messages privés d\'inconnus par jour :';
 $a->strings['Default privacy circle for new contacts'] = 'Cercle de contacts par défaut pour les nouveaux contacts';
 $a->strings['Default privacy circle for new group contacts'] = 'Cercle de contacts par défaut pour les nouveaux contacts du groupe';
 $a->strings['Default Post Permissions'] = 'Permissions de publication par défaut';
@@ -2579,13 +2571,20 @@ $a->strings['If you have moved this profile from another server, and some of you
 $a->strings['Resend relocate message to contacts'] = 'Renvoyer un message de relocalisation aux contacts.';
 $a->strings['Addon Settings'] = 'Paramètres d\'extension';
 $a->strings['No Addon settings configured'] = 'Aucuns paramètres d\'Extension paramétré.';
+$a->strings['This page can be used to define the channels that will automatically be reshared by your account.'] = 'Cette page peut être utilisée pour définir les chaînes qui seront automatiquement repartagées par votre compte.';
+$a->strings['This page can be used to define your own channels.'] = 'Cette page permet de définir votre propres chaînes.';
+$a->strings['Publish'] = 'Publier';
+$a->strings['When selected, the channel results are reshared. This only works for public ActivityPub posts from the public timeline or the user defined circles.'] = 'Si sélectionné, les résultats de la chaîne sont repartagés. Ceci ne fonctionne que pour les publications ActivityPub publiques ou pour les cercles définis par l\'utilisateur.';
 $a->strings['Label'] = 'Titre';
 $a->strings['Description'] = 'Description';
 $a->strings['Access Key'] = 'Clé d\'accès';
 $a->strings['Circle/Channel'] = 'Cercle/Chaîne';
 $a->strings['Include Tags'] = 'Inclure des tags';
 $a->strings['Exclude Tags'] = 'Exclure des tags';
+$a->strings['Minimum Size'] = 'Taille minimum';
+$a->strings['Maximum Size'] = 'Taille maximum';
 $a->strings['Full Text Search'] = 'Recherche de texte intégral';
+$a->strings['Select all languages that you want to see in this channel.'] = 'Sélectionnez les langues que vous souhaitez voir sur cette chaîne.';
 $a->strings['Delete channel'] = 'Supprimer la chaîne';
 $a->strings['Check to delete this entry from the channel list'] = 'Cochez pour supprimer cette entrée de la liste de chaîne';
 $a->strings['Short name for the channel. It is displayed on the channels widget.'] = 'Nom court de la chaîne. Il est affiché dans le widget des chaînes.';
@@ -2594,11 +2593,12 @@ $a->strings['When you want to access this channel via an access key, you can def
 $a->strings['Select a circle or channel, that your channel should be based on.'] = 'Choisissez un cercle ou une chaîne sur lequel se basera votre chaîne.';
 $a->strings['Comma separated list of tags. A post will be used when it contains any of the listed tags.'] = 'Liste de tags séparés par des virgules. Une publication sera affichée si elle contient au moins un de ces tags.';
 $a->strings['Comma separated list of tags. If a post contain any of these tags, then it will not be part of nthis channel.'] = 'Liste de tags séparés par des virgules. Si une publication contient un de ces tags, elle ne sera pas affichée sur cette chaîne.';
+$a->strings['Minimum post size. Leave empty for no minimum size. The size is calculated without links, attached posts, mentions or hashtags.'] = 'Taille minimum d\'une publication. Laisser vide pour aucune limite. La taille est calculée sans prendre en compte les liens, les publications attachées, les mentions ou les mots-clés.';
+$a->strings['Maximum post size. Leave empty for no maximum size. The size is calculated without links, attached posts, mentions or hashtags.'] = 'Taille maximum d\'une publication. Laisser vide pour aucune limite. La taille est calculée sans prendre en compte les liens, les publications attachées, les mentions ou les mots-clés.';
 $a->strings['Search terms for the body, supports the "boolean mode" operators from MariaDB. See the help for a complete list of operators and additional keywords: %s'] = 'Recherche les termes dans le corps, supporte les opérateurs "boolean mode" de MariaDB. Consultez l\'aide pour une liste complète des opérateurs et des mots clés additionnels : %s';
 $a->strings['Check to display images in the channel.'] = 'Cochez pour afficher les images dans la chaîne.';
 $a->strings['Check to display videos in the channel.'] = 'Cochez pour afficher la vidéo dans la chaîne.';
 $a->strings['Check to display audio in the channel.'] = 'Cochez pour afficher l\'audio dans la chaîne.';
-$a->strings['This page can be used to define your own channels.'] = 'Cette page permet de définir votre propres chaînes.';
 $a->strings['Add new entry to the channel list'] = 'Ajoute une nouvelle entrée dans la liste des chaînes';
 $a->strings['Add'] = 'Ajouter';
 $a->strings['Current Entries in the channel list'] = 'Entrées actuelles dans la liste des chaînes';
