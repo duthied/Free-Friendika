@@ -267,6 +267,7 @@ $a->strings['Password changed.'] = 'Passwort geändert.';
 $a->strings['Enter user name: '] = 'Nutzername angeben';
 $a->strings['Enter user email address: '] = 'E-Mail Adresse angeben:';
 $a->strings['Enter a language (optional): '] = 'Sprache angeben (optional):';
+$a->strings['Enter URL of an image to use as avatar (optional): '] = 'Gib die URL eines Bildes ein, das als Avatar verwendet werden soll (optional):';
 $a->strings['User is not pending.'] = 'Benutzer wartet nicht.';
 $a->strings['User has already been marked for deletion.'] = 'User wurde bereits zum Löschen ausgewählt';
 $a->strings['Type "yes" to delete %s'] = '"yes" eingeben um %s zu löschen';
@@ -816,6 +817,7 @@ $a->strings['Edit circles'] = 'Circles bearbeiten';
 $a->strings['Approve'] = 'Genehmigen';
 $a->strings['Organisation'] = 'Organisation';
 $a->strings['Group'] = 'Gruppe';
+$a->strings['Relay'] = 'Relais';
 $a->strings['Disallowed profile URL.'] = 'Nicht erlaubte Profil-URL.';
 $a->strings['Blocked domain'] = 'Blockierte Domain';
 $a->strings['Connect URL missing.'] = 'Connect-URL fehlt';
@@ -961,51 +963,6 @@ $a->strings['
 			the administrator of %2$s has set up an account for you.'] = '
 Hallo %1$s
 ein Admin von %2$s hat dir ein Nutzerkonto angelegt.';
-$a->strings['
-		The login details are as follows:
-
-		Site Location:	%1$s
-		Login Name:		%2$s
-		Password:		%3$s
-
-		You may change your password from your account "Settings" page after logging
-		in.
-
-		Please take a few moments to review the other account settings on that page.
-
-		You may also wish to add some basic information to your default profile
-		(on the "Profiles" page) so that other people can easily find you.
-
-		We recommend adding a profile photo, adding some profile "keywords" 
-		(very useful in making new friends) - and perhaps what country you live in; 
-		if you do not wish to be more specific than that.
-
-		We fully respect your right to privacy, and none of these items are necessary.
-		If you are new and do not know anybody here, they may help
-		you to make some new and interesting friends.
-
-		If you ever want to delete your account, you can do so at %1$s/settings/removeme
-
-		Thank you and welcome to %4$s.'] = '
-Nachfolgend die Anmeldedetails:
-
-Adresse der Seite: %1$s
-Benutzername: %2$s
-Passwort: %3$s
-
-Du kannst dein Passwort unter "Einstellungen" ändern, sobald du dich angemeldet hast. 
-
-Bitte nimm dir ein paar Minuten, um die anderen Einstellungen auf dieser Seite zu kontrollieren. 
-
-Eventuell magst du ja auch einige Informationen über dich in deinem Profil veröffentlichen, damit andere Leute dich einfacher finden können. Bearbeite hierfür einfach dein Standard-Profil (über die Profil-Seite). 
-
-Wir empfehlen dir, ein zu dir passendes Profilbild zu wählen, damit dich alte Bekannte wiederfinden. Außerdem ist es nützlich, wenn du auf deinem Profil Schlüsselwörter angibst. Das erleichtert es, Leute zu finden, die deine Interessen teilen.
-
-Wir respektieren deine Privatsphäre - keine dieser Angaben ist nötig. Wenn du neu im Netzwerk bist und noch niemanden kennst, dann können sie allerdings dabei helfen, neue und interessante Kontakte zu knüpfen.
-
-Du kannst dein Nutzerkonto  jederzeit unter %1$s/settings/removeme wieder löschen.
-
-Danke und willkommen auf %4$s.';
 $a->strings['Registration details for %s'] = 'Details der Registration von %s';
 $a->strings['
 			Dear %1$s,
@@ -1980,11 +1937,10 @@ $a->strings['Personal Page'] = 'Persönliche Seite';
 $a->strings['Organisation Page'] = 'Organisationsseite';
 $a->strings['News Page'] = 'Nachrichtenseite';
 $a->strings['Community Group'] = 'Gemeinschaftsgruppe';
-$a->strings['Relay'] = 'Relais';
 $a->strings['You can\'t block a local contact, please block the user instead'] = 'Lokale Kontakte können nicht geblockt werden. Bitte blocke den Nutzer stattdessen.';
 $a->strings['%s contact unblocked'] = [
 	0 => '%sKontakt wieder freigegeben',
-	1 => '%sKontakte wieder freigegeben',
+	1 => '%s Kontakte wieder freigegeben',
 ];
 $a->strings['Remote Contact Blocklist'] = 'Blockliste entfernter Kontakte';
 $a->strings['This page allows you to prevent any message from a remote contact to reach your node.'] = 'Auf dieser Seite kannst du Accounts von anderen Knoten blockieren und damit verhindern, dass ihre Beiträge von deinem Knoten angenommen werden.';
@@ -2142,12 +2098,6 @@ $a->strings['%s total report'] = [
 	1 => '%s Reports insgesamt',
 ];
 $a->strings['URL of the reported contact.'] = 'URL des gemeldeten Kontakts.';
-$a->strings['Normal Account'] = 'Normales Konto';
-$a->strings['Automatic Follower Account'] = 'Automatisch folgendes Konto (Marktschreier)';
-$a->strings['Public Group Account'] = 'Öffentliches Gruppen-Konto';
-$a->strings['Automatic Friend Account'] = 'Automatische Freunde-Seite';
-$a->strings['Blog Account'] = 'Blog-Konto';
-$a->strings['Private Group Account'] = 'Privates Gruppen-Konto';
 $a->strings['Registered users'] = 'Registrierte Personen';
 $a->strings['Pending registrations'] = 'Anstehende Anmeldungen';
 $a->strings['%s user blocked'] = [
@@ -2310,14 +2260,6 @@ $a->strings['This profile has been restricted which prevents access to their pub
 $a->strings['Scheduled'] = 'Zeitplan';
 $a->strings['Content'] = 'Inhalt';
 $a->strings['Remove post'] = 'Beitrag entfernen';
-$a->strings['Empty message body.'] = 'Leerer Nachrichtenkörper.';
-$a->strings['Unable to check your home location.'] = 'Konnte Deinen Heimatort nicht bestimmen.';
-$a->strings['Recipient not found.'] = 'Empfänger nicht gefunden.';
-$a->strings['Number of daily wall messages for %s exceeded. Message failed.'] = 'Maximale Anzahl der täglichen Pinnwand-Nachrichten für %s ist überschritten. Zustellung fehlgeschlagen.';
-$a->strings['If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.'] = 'Wenn du möchtest, dass %s dir antworten kann, überprüfe deine Privatsphären-Einstellungen und erlaube private Nachrichten von unbekannten Absendern.';
-$a->strings['To'] = 'An';
-$a->strings['Subject'] = 'Betreff';
-$a->strings['Your message'] = 'Deine Nachricht';
 $a->strings['Only parent users can create additional accounts.'] = 'Zusätzliche Nutzerkonten können nur von Verwaltern angelegt werden.';
 $a->strings['This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'] = 'Die maximale Anzahl täglicher Registrierungen auf dieser Seite wurde überschritten. Bitte versuche es morgen noch einmal.';
 $a->strings['You may (optionally) fill in this form via OpenID by supplying your OpenID and clicking "Register".'] = 'Du kannst dieses Formular auch (optional) mit deiner OpenID ausfüllen, indem du deine OpenID angibst und \'Registrieren\' klickst.';
@@ -2345,6 +2287,8 @@ $a->strings['Password doesn\'t match.'] = 'Das Passwort stimmt nicht.';
 $a->strings['Please enter your password.'] = 'Bitte gib dein Passwort an.';
 $a->strings['You have entered too much information.'] = 'Du hast zu viele Informationen eingegeben.';
 $a->strings['Please enter the identical mail address in the second field.'] = 'Bitte gib die gleiche E-Mail Adresse noch einmal an.';
+$a->strings['Nickname cannot start with a digit.'] = 'Der Spitzname darf nicht mit einer Zahl beginnen.';
+$a->strings['Nickname can only contain US-ASCII characters.'] = 'Spitzname darf nur US-ASCII-Zeichen enthalten.';
 $a->strings['The additional account was created.'] = 'Das zusätzliche Nutzerkonto wurde angelegt.';
 $a->strings['Registration successful. Please check your email for further instructions.'] = 'Registrierung erfolgreich. Eine E-Mail mit weiteren Anweisungen wurde an dich gesendet.';
 $a->strings['Failed to send email message. Here your accout details:<br> login: %s<br> password: %s<br><br>You can change your password after login.'] = 'Versenden der E-Mail fehlgeschlagen. Hier sind Deine Account-Details:
@@ -2470,9 +2414,6 @@ $a->strings['Allow friends to post to your profile page?'] = 'Dürfen deine Kont
 $a->strings['Your contacts may write posts on your profile wall. These posts will be distributed to your contacts'] = 'Deine Kontakte können Beiträge auf deiner Pinnwand hinterlassen. Diese werden an deine Kontakte verteilt.';
 $a->strings['Allow friends to tag your posts?'] = 'Dürfen deine Kontakte deine Beiträge mit Schlagwörtern versehen?';
 $a->strings['Your contacts can add additional tags to your posts.'] = 'Deine Kontakte dürfen deine Beiträge mit zusätzlichen Schlagworten versehen.';
-$a->strings['Permit unknown people to send you private mail?'] = 'Dürfen dir Unbekannte private Nachrichten schicken?';
-$a->strings['Friendica network users may send you private messages even if they are not in your contact list.'] = 'Nutzer des Friendica Netzwerks können dir private Nachrichten senden, selbst wenn sie nicht in deine Kontaktliste sind.';
-$a->strings['Maximum private messages per day from unknown people:'] = 'Maximale Anzahl privater Nachrichten von Unbekannten pro Tag:';
 $a->strings['Default privacy circle for new contacts'] = 'Voreingestellter Circle für neue Kontakte';
 $a->strings['Default privacy circle for new group contacts'] = 'Voreingestellter Circle für neue Gruppenkontakte';
 $a->strings['Default Post Permissions'] = 'Standard-Zugriffsrechte für Beiträge';
@@ -2523,13 +2464,18 @@ $a->strings['If you have moved this profile from another server, and some of you
 $a->strings['Resend relocate message to contacts'] = 'Umzugsbenachrichtigung erneut an Kontakte senden';
 $a->strings['Addon Settings'] = 'Addon Einstellungen';
 $a->strings['No Addon settings configured'] = 'Keine Addon-Einstellungen konfiguriert';
+$a->strings['This page can be used to define your own channels.'] = 'Auf dieser Seite kannst du deine eigenen Kanäle definieren.';
+$a->strings['Publish'] = 'Veröffentlichen';
 $a->strings['Label'] = 'Bezeichnung';
 $a->strings['Description'] = 'Beschreibung';
 $a->strings['Access Key'] = 'Zugriffsschlüssel';
 $a->strings['Circle/Channel'] = 'Circle/Kanal';
 $a->strings['Include Tags'] = 'Tags einschließen';
 $a->strings['Exclude Tags'] = 'Tags ausschließen';
+$a->strings['Minimum Size'] = 'Mindestgröße';
+$a->strings['Maximum Size'] = 'Maximale Größe';
 $a->strings['Full Text Search'] = 'Volltextsuche';
+$a->strings['Select all languages that you want to see in this channel.'] = 'Wähle alle Sprachen aus, die du in diesem Kanal sehen willst.';
 $a->strings['Delete channel'] = 'Lösche Kanal';
 $a->strings['Check to delete this entry from the channel list'] = 'Haken setzen, um diesen Eintrag aus der Kanalliste zu löschen';
 $a->strings['Short name for the channel. It is displayed on the channels widget.'] = 'Kurzname für den Kanal. Er wird im Widget für die Kanäle angezeigt.';
@@ -2538,11 +2484,12 @@ $a->strings['When you want to access this channel via an access key, you can def
 $a->strings['Select a circle or channel, that your channel should be based on.'] = 'Wähle einen Circle oder Kanal, auf dem Ihr Kanal basieren soll.';
 $a->strings['Comma separated list of tags. A post will be used when it contains any of the listed tags.'] = 'Durch Kommata getrennte Liste von Tags. Ein Beitrag wird verwendet, wenn er eines der aufgeführten Tags enthält.';
 $a->strings['Comma separated list of tags. If a post contain any of these tags, then it will not be part of nthis channel.'] = 'Durch Kommata getrennte Liste von Tags. Wenn ein Beitrag eines dieser Tags enthält, wird er nicht Teil dieses Kanals sein.';
+$a->strings['Minimum post size. Leave empty for no minimum size. The size is calculated without links, attached posts, mentions or hashtags.'] = 'Mindestbeitragsgröße. Lass dieses Feld leer um die Mindestgröße nicht anzugeben. Die Größe wird ohne Links, angehängte Beiträge, Erwähnungen oder Hashtags berechnet.';
+$a->strings['Maximum post size. Leave empty for no maximum size. The size is calculated without links, attached posts, mentions or hashtags.'] = 'Maximalbeitragsgröße. Lass dieses Feld leer um die Maximalgröße nicht anzugeben. Die Größe wird ohne Links, angehängte Beiträge, Erwähnungen oder Hashtags berechnet.';
 $a->strings['Search terms for the body, supports the "boolean mode" operators from MariaDB. See the help for a complete list of operators and additional keywords: %s'] = 'Suchbegriffe für den Body, unterstützt die "boolean mode"-Operatoren von MariaDB. In der Hilfe findest du eine vollständige Liste der Operatoren und zusätzliche Schlüsselwörter: %s';
 $a->strings['Check to display images in the channel.'] = 'Aktiviere diese Option, um Bilder im Kanal anzuzeigen.';
 $a->strings['Check to display videos in the channel.'] = 'Aktiviere diese Option, um Videos im Kanal anzuzeigen.';
 $a->strings['Check to display audio in the channel.'] = 'Aktiviere diese Option, um Audio im Kanal anzuzeigen.';
-$a->strings['This page can be used to define your own channels.'] = 'Auf dieser Seite kannst du deine eigenen Kanäle definieren.';
 $a->strings['Add new entry to the channel list'] = 'Neuen Eintrag zur Kanalliste hinzufügen';
 $a->strings['Add'] = 'Hinzufügen';
 $a->strings['Current Entries in the channel list'] = 'Aktuelle Einträge in der Kanalliste';
