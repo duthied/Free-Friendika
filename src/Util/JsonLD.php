@@ -26,6 +26,7 @@ use Friendica\Core\Logger;
 use Exception;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * This class contain methods to work with JsonLD data
@@ -178,6 +179,10 @@ class JsonLD
 		];
 
 		$orig_json = $json;
+
+		if (empty($json['@context'])) {
+			$json['@context'] = ActivityPub::CONTEXT;
+		}
 
 		// Preparation for adding possibly missing content to the context
 		if (!empty($json['@context']) && is_string($json['@context'])) {
