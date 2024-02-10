@@ -89,7 +89,7 @@ class Tos extends BaseModule
 				$rules = "[ol]";
 				foreach (explode("\n", $lines) as $line) {
 					if (trim($line)) {
-						$rules .= "\n[*]" . trim($line);
+						$rules .= "\n[li]" . trim($line);
 					}
 				}
 				$rules .= "\n[/ol]\n";
