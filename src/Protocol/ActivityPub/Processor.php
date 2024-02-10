@@ -1538,6 +1538,11 @@ class Processor
 		}
 
 		$object = HTTPSignature::fetch($url, $uid);
+
+		if (!empty($object)) {
+			$object = self::refetchObjectOnHostDifference($object, $url);
+		}
+
 		if (empty($object)) {
 			Logger::notice('Activity was not fetchable, aborting.', ['url' => $url, 'uid' => $uid]);
 			// We perform negative caching.
@@ -1549,6 +1554,11 @@ class Processor
 			Logger::notice('Activity has got not id, aborting. ', ['url' => $url, 'object' => $object]);
 			return [];
 		}
+
+		if (!self::isValidObject($object, $url)) {
+			return [];
+		}
+
 		DI::cache()->set($cachekey, $object, Duration::FIVE_MINUTES);
 
 		Logger::debug('Activity was fetched successfully', ['url' => $url, 'uid' => $uid]);
@@ -1594,6 +1604,11 @@ class Processor
 		}
 
 		$object = json_decode($body, true);
+
+		if (!empty($object)) {
+			$object = self::refetchObjectOnHostDifference($object, $url);
+		}
+
 		if (empty($object) || !is_array($object)) {
 			$element = explode(';', $curlResult->getContentType());
 			if (!in_array($element[0], ['application/activity+json', 'application/ld+json', 'application/json'])) {
@@ -1601,6 +1616,10 @@ class Processor
 				return null;
 			}
 			Logger::notice('Invalid JSON data', ['url' => $url, 'content-type' => $curlResult->getContentType(), 'body' => $body]);
+			return '';
+		}
+
+		if (!self::isValidObject($object, $url)) {
 			return '';
 		}
 
@@ -1691,6 +1710,79 @@ class Processor
 		}
 
 		return $activity['id'];
+	}
+
+	private static function refetchObjectOnHostDifference(array $object, string $url): array
+	{
+		$ldobject = JsonLD::compact($object);
+		if (empty($ldobject)) {
+			Logger::info('Invalid object', ['url' => $url]);
+			return $object;
+		}
+
+		$id = JsonLD::fetchElement($ldobject, '@id');
+		if (empty($id)) {
+			Logger::info('No id found in object', ['url' => $url, 'object' => $object]);
+			return $object;
+		}
+
+		$url_host = parse_url($url, PHP_URL_HOST);
+		$id_host  = parse_url($id, PHP_URL_HOST);
+
+		if ($id_host == $url_host) {
+			return $object;
+		}
+
+		Logger::notice('Refetch activity because of a host mismatch between requested and received id', ['url-host' => $url_host, 'id-host' => $id_host, 'url' => $url, 'id' => $id]);
+		return HTTPSignature::fetch($id);
+	}
+
+	private static function isValidObject(array $object): bool
+	{
+		$ldobject = JsonLD::compact($object);
+		if (empty($ldobject)) {
+			Logger::info('Invalid object');
+			return false;
+		}
+
+		$id = JsonLD::fetchElement($ldobject, '@id');
+		if (empty($id)) {
+			Logger::info('No id found in object');
+			return false;
+		}
+
+		$type          = JsonLD::fetchElement($ldobject, '@type');
+		$object_id     = JsonLD::fetchElement($ldobject, 'as:object', '@id');
+		$object_type   = JsonLD::fetchElement($ldobject, 'as:object', '@type');
+		$actor         = JsonLD::fetchElement($ldobject, 'as:actor', '@id');
+		$attributed_to = JsonLD::fetchElement($ldobject, 'as:attributedTo', '@id');
+
+		$id_host  = parse_url($id, PHP_URL_HOST);
+
+		if (!empty($actor) && !in_array($type, Receiver::CONTENT_TYPES) && !empty($object_id)) {
+			$actor_host = parse_url($actor, PHP_URL_HOST);
+			if ($actor_host != $id_host) {
+				Logger::notice('Host mismatch between received id and actor', ['id-host' => $id_host, 'actor-host' => $actor_host, 'id' => $id, 'type' => $type, 'object-id' => $object_id, 'object_type' => $object_type, 'actor' => $actor, 'attributed_to' => $attributed_to]);
+				return false;
+			}
+			if (!empty($object_type)) {
+				$object_attributed_to = JsonLD::fetchElement($ldobject['as:object'], 'as:attributedTo', '@id');
+				$attributed_to_host   = parse_url($object_attributed_to, PHP_URL_HOST);
+				$object_id_host       = parse_url($object_id, PHP_URL_HOST);
+				if (!empty($attributed_to_host) && ($attributed_to_host != $object_id_host)) {
+					Logger::notice('Host mismatch between received object id and attributed actor', ['id-object-host' => $object_id_host, 'attributed-host' => $attributed_to_host, 'id' => $id, 'type' => $type, 'object-id' => $object_id, 'object_type' => $object_type, 'actor' => $actor, 'object_attributed_to' => $object_attributed_to]);
+					return false;
+				}
+			}
+		} elseif (!empty($attributed_to)) {
+			$attributed_to_host = parse_url($attributed_to, PHP_URL_HOST);
+			if ($attributed_to_host != $id_host) {
+				Logger::notice('Host mismatch between received id and attributed actor', ['id-host' => $id_host, 'attributed-host' => $attributed_to_host, 'id' => $id, 'type' => $type, 'object-id' => $object_id, 'object_type' => $object_type, 'actor' => $actor, 'attributed_to' => $attributed_to]);
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	private static function getActivityForObject(array $object, string $actor): array
