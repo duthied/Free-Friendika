@@ -1549,9 +1549,6 @@ class BBCode
 				// Check for centered text
 				$text = preg_replace("(\[center\](.*?)\[\/center\])ism", '<div style="text-align:center;">$1</div>', $text);
 
-				// Check for list text
-				$text = str_replace("[*]", "<li>", $text);
-
 				// Check for block-level custom CSS
 				$text = preg_replace('#(?<=^|\n)\[style=(.*?)](.*?)\[/style](?:\n|$)#ism', '<div style="$1">$2</div>', $text);
 
@@ -1590,6 +1587,10 @@ class BBCode
 					$text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '</p><ol>$1</ol><p>', $text);
 					$text = preg_replace("/\[li\](.*?)\[\/li\]/ism", '<li>$1</li>', $text);
 				}
+
+				// Check for list text
+				$text = str_replace("[*]", "<li>", $text);
+				$text = str_replace("[li]", "<li>", $text);
 
 				$text = preg_replace("/\[th\](.*?)\[\/th\]/sm", '<th>$1</th>', $text);
 				$text = preg_replace("/\[td\](.*?)\[\/td\]/sm", '<td>$1</td>', $text);

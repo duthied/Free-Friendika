@@ -356,8 +356,8 @@ Zeilen</code></td>
 &nbsp;&nbsp;[li] Zweites Listenelement<br>
 [/ul]<br>
 [list]<br>
-&nbsp;&nbsp;[*] Erstes Listenelement<br>
-&nbsp;&nbsp;[*] Zweites Listenelement<br>
+&nbsp;&nbsp;[li] Erstes Listenelement<br>
+&nbsp;&nbsp;[li] Zweites Listenelement<br>
 [/list]</td>
   <td>
 	<ul class="listbullet" style="list-style-type: circle;">
@@ -368,12 +368,12 @@ Zeilen</code></td>
 </tr>
 <tr>
   <td>[ol]<br>
-&nbsp;&nbsp;[*] Erstes Listenelement<br>
-&nbsp;&nbsp;[*] Zweites Listenelement<br>
+&nbsp;&nbsp;[li] Erstes Listenelement<br>
+&nbsp;&nbsp;[li] Zweites Listenelement<br>
 [/ol]<br>
 [list=1]<br>
-&nbsp;&nbsp;[*] Erstes Listenelement<br>
-&nbsp;&nbsp;[*] Zweites Listenelement<br>
+&nbsp;&nbsp;[li] Erstes Listenelement<br>
+&nbsp;&nbsp;[li] Zweites Listenelement<br>
 [/list]</td>
   <td>
     <ul class="listdecimal" style="list-style-type: decimal;">
@@ -384,8 +384,8 @@ Zeilen</code></td>
 </tr>
 <tr>
   <td>[list=]<br>
-&nbsp;&nbsp;[*] Erstes Listenelement<br>
-&nbsp;&nbsp;[*] Zweites Listenelement<br>
+&nbsp;&nbsp;[li] Erstes Listenelement<br>
+&nbsp;&nbsp;[li] Zweites Listenelement<br>
 [/list]</td>
   <td>
     <ul class="listnone" style="list-style-type: none;">
@@ -396,8 +396,8 @@ Zeilen</code></td>
 </tr>
 <tr>
   <td>[list=i]<br>
-&nbsp;&nbsp;[*] Erstes Listenelement<br>
-&nbsp;&nbsp;[*] Zweites Listenelement<br>
+&nbsp;&nbsp;[li] Erstes Listenelement<br>
+&nbsp;&nbsp;[li] Zweites Listenelement<br>
 [/list]</td>
   <td>
     <ul class="listlowerroman" style="list-style-type: lower-roman;">
@@ -408,8 +408,8 @@ Zeilen</code></td>
 </tr>
 <tr>
   <td>[list=I]<br>
-&nbsp;&nbsp;[*] Erstes Listenelement<br>
-&nbsp;&nbsp;[*] Zweites Listenelement<br>
+&nbsp;&nbsp;[li] Erstes Listenelement<br>
+&nbsp;&nbsp;[li] Zweites Listenelement<br>
 [/list]</td>
   <td>
     <ul class="listupperroman" style="list-style-type: upper-roman;">
@@ -420,8 +420,8 @@ Zeilen</code></td>
 </tr>
 <tr>
   <td>[list=a]<br>
-&nbsp;&nbsp;[*] Erstes Listenelement<br>
-&nbsp;&nbsp;[*] Zweites Listenelement<br>
+&nbsp;&nbsp;[li] Erstes Listenelement<br>
+&nbsp;&nbsp;[li] Zweites Listenelement<br>
 [/list]</td>
   <td>
     <ul class="listloweralpha" style="list-style-type: lower-alpha;">
@@ -432,8 +432,8 @@ Zeilen</code></td>
 </tr>
 <tr>
   <td>[list=A]<br>
-&nbsp;&nbsp;[*] Erstes Listenelement<br>
-&nbsp;&nbsp;[*] Zweites Listenelement<br>
+&nbsp;&nbsp;[li] Erstes Listenelement<br>
+&nbsp;&nbsp;[li] Zweites Listenelement<br>
 [/list]</td>
   <td>
     <ul class="listupperalpha" style="list-style-type: upper-alpha;">
