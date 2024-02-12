@@ -434,7 +434,7 @@ class BBCode
 			return $text;
 		}
 
-		$data['url'] = self::sanitizedLink($data['url']);
+		$data['url'] = self::sanitizeLink($data['url']);
 
 		if (isset($data['title'])) {
 			$data['title'] = strip_tags($data['title']);
@@ -487,7 +487,7 @@ class BBCode
 			}
 
 			if (!empty($data['provider_url']) && !empty($data['provider_name'])) {
-				$data['provider_url'] = self::sanitizedLink($data['provider_url']);
+				$data['provider_url'] = self::sanitizeLink($data['provider_url']);
 				if (!empty($data['author_name'])) {
 					$return .= sprintf('<sup><a href="%s" target="_blank" rel="noopener noreferrer">%s (%s)</a></sup>', $data['provider_url'], $data['author_name'], $data['provider_name']);
 				} else {
@@ -1073,7 +1073,7 @@ class BBCode
 	 * @param string $url
 	 * @return string sanitized URL
 	 */
-	private static function sanitizedLink(string $url): string
+	private static function sanitizeLink(string $url): string
 	{
 		$sanitzed = $url = trim($url);
 
@@ -1099,9 +1099,9 @@ class BBCode
 	private static function sanitizeLinksCallback(array $match): string
 	{
 		if (count($match) == 3) {
-			return '[' . $match[1] . ']' . self::sanitizedLink($match[2]) . '[/' . $match[1] . ']';
+			return '[' . $match[1] . ']' . self::sanitizeLink($match[2]) . '[/' . $match[1] . ']';
 		} else {
-			return '[' . $match[1] . '=' . self::sanitizedLink($match[2]) . ']' . $match[3] . '[/' . $match[1] . ']';
+			return '[' . $match[1] . '=' . self::sanitizeLink($match[2]) . ']' . $match[3] . '[/' . $match[1] . ']';
 		}
 	}
 
@@ -2353,7 +2353,7 @@ class BBCode
 
 					case '#':
 					default:
-						return $match[1] . '[url=' . DI::baseUrl() . '/search?tag=' . $match[2] . ']' . $match[2] . '[/url]';
+						return $match[1] . '[url=' . DI::baseUrl() . '/search?tag=' . rawurlencode($match[2]) . ']' . $match[2] . '[/url]';
 				}
 			},
 			$body
