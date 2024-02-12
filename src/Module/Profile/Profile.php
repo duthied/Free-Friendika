@@ -226,7 +226,7 @@ class Profile extends BaseProfile
 			// Separator is defined in Module\Settings\Profile\Index::cleanKeywords
 			foreach (explode(', ', $profile['pub_keywords']) as $tag_label) {
 				$tags[] = [
-					'url'   => '/search?tag=' . $tag_label,
+					'url'   => '/search?tag=' . urlencode($tag_label),
 					'label' => Tag::TAG_CHARACTER[Tag::HASHTAG] . $tag_label,
 				];
 			}

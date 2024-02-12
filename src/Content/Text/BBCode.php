@@ -41,6 +41,7 @@ use Friendica\Model\Tag;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\Map;
+use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
@@ -124,7 +125,7 @@ class BBCode
 						break;
 
 					case 'publisher_url':
-						$data['provider_url'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+						$data['provider_url'] = Network::sanitizeUrl(html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
 						break;
 
 					case 'author_name':
@@ -135,7 +136,7 @@ class BBCode
 						break;
 
 					case 'author_url':
-						$data['author_url'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+						$data['author_url'] = Network::sanitizeUrl(html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
 						if ($data['provider_url'] == $data['author_url']) {
 							$data['author_url'] = '';
 						}
@@ -434,6 +435,8 @@ class BBCode
 			return $text;
 		}
 
+		$data['url'] = Network::sanitizeUrl($data['url']);
+
 		if (isset($data['title'])) {
 			$data['title'] = strip_tags($data['title']);
 			$data['title'] = str_replace(['http://', 'https://'], '', $data['title']);
@@ -485,6 +488,7 @@ class BBCode
 			}
 
 			if (!empty($data['provider_url']) && !empty($data['provider_name'])) {
+				$data['provider_url'] = Network::sanitizeUrl($data['provider_url']);
 				if (!empty($data['author_name'])) {
 					$return .= sprintf('<sup><a href="%s" target="_blank" rel="noopener noreferrer">%s (%s)</a></sup>', $data['provider_url'], $data['author_name'], $data['provider_name']);
 				} else {
@@ -1065,6 +1069,21 @@ class BBCode
 	}
 
 	/**
+	 * Callback: Sanitize links from given $match array
+	 *
+	 * @param array $match Array with link match
+	 * @return string BBCode
+	 */
+	private static function sanitizeLinksCallback(array $match): string
+	{
+		if (count($match) == 3) {
+			return '[' . $match[1] . ']' . Network::sanitizeUrl($match[2]) . '[/' . $match[1] . ']';
+		} else {
+			return '[' . $match[1] . '=' . Network::sanitizeUrl($match[2]) . ']' . $match[3] . '[/' . $match[1] . ']';
+		}
+	}
+
+	/**
 	 * Callback: Expands links from given $match array
 	 *
 	 * @param array $match Array with link match
@@ -1455,7 +1474,7 @@ class BBCode
 
 				// Replace non graphical smilies for external posts
 				if (!$nosmile) {
-					$text = self::performWithEscapedTags($text, ['img'], function ($text) use ($simple_html, $for_plaintext) {
+					$text = self::performWithEscapedTags($text, ['url', 'img', 'audio', 'video', 'youtube', 'vimeo', 'share', 'attachment', 'iframe', 'bookmark'], function ($text) use ($simple_html, $for_plaintext) {
 						return Smilies::replace($text, ($simple_html != self::INTERNAL) || $for_plaintext);
 					});
 				}
@@ -1717,6 +1736,9 @@ class BBCode
 				// Simplify "video" element
 				$text = preg_replace('(\[video[^\]]*?\ssrc\s?=\s?([^\s\]]+)[^\]]*?\].*?\[/video\])ism', '[video]$1[/video]', $text);
 
+				$text = preg_replace_callback("/\[(video)\](.*?)\[\/video\]/ism", [self::class, 'sanitizeLinksCallback'], $text);
+				$text = preg_replace_callback("/\[(audio)\](.*?)\[\/audio\]/ism", [self::class, 'sanitizeLinksCallback'], $text);
+
 				if ($simple_html == self::NPF) {
 					$text = preg_replace(
 						"/\[video\](.*?)\[\/video\]/ism",
@@ -1759,6 +1781,7 @@ class BBCode
 				}
 
 				// Backward compatibility, [iframe] support has been removed in version 2020.12
+				$text = preg_replace_callback("/\[(iframe)\](.*?)\[\/iframe\]/ism", [self::class, 'sanitizeLinksCallback'], $text);
 				$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1">$1</a>', $text);
 
 				$text = self::normalizeVideoLinks($text);
@@ -1810,6 +1833,9 @@ class BBCode
 				if (!$for_plaintext && DI::config()->get('system', 'big_emojis') && ($simple_html != self::DIASPORA) && Smilies::isEmojiPost($text)) {
 					$text = '<span style="font-size: xx-large; line-height: normal;">' . $text . '</span>';
 				}
+
+				$text = preg_replace_callback("/\[(url)\](.*?)\[\/url\]/ism", [self::class, 'sanitizeLinksCallback'], $text);
+				$text = preg_replace_callback("/\[(url)\=(.*?)\](.*?)\[\/url\]/ism", [self::class, 'sanitizeLinksCallback'], $text);
 
 				// Handle mentions and hashtag links
 				if ($simple_html == self::DIASPORA) {
@@ -1913,11 +1939,11 @@ class BBCode
 				self::performWithEscapedTags($text, ['url', 'share'], function ($text) use ($simple_html) {
 					$text = preg_replace_callback("/(?:#\[url\=[^\[\]]*\]|\[url\=[^\[\]]*\]#)(.*?)\[\/url\]/ism", function ($matches) use ($simple_html) {
 						if ($simple_html == self::ACTIVITYPUB) {
-							return '<a href="' . DI::baseUrl() . '/search?tag=' . rawurlencode($matches[1])
+							return '<a href="' . DI::baseUrl() . '/search?tag=' . urlencode($matches[1])
 								. '" data-tag="' . XML::escape($matches[1]) . '" rel="tag ugc">#'
 								. XML::escape($matches[1]) . '</a>';
 						} else {
-							return '#<a href="' . DI::baseUrl() . '/search?tag=' . rawurlencode($matches[1])
+							return '#<a href="' . DI::baseUrl() . '/search?tag=' . urlencode($matches[1])
 								. '" class="tag" rel="tag" title="' . XML::escape($matches[1]) . '">'
 								. XML::escape($matches[1]) . '</a>';
 						}
@@ -1944,6 +1970,7 @@ class BBCode
 				$text = preg_replace('/acct:([^@]+)@((?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63})/', '<a href="' . DI::baseUrl() . '/acctlink?addr=$1@$2" target="extlink">acct:$1@$2</a>', $text);
 
 				// Perform MAIL Search
+				$text = preg_replace_callback("/\[(mail)\](.*?)\[\/mail\]/ism", [self::class, 'sanitizeLinksCallback'], $text);
 				$text = preg_replace("/\[mail\](.*?)\[\/mail\]/", '<a href="mailto:$1">$1</a>', $text);
 				$text = preg_replace("/\[mail\=(.*?)\](.*?)\[\/mail\]/", '<a href="mailto:$1">$2</a>', $text);
 
@@ -2304,7 +2331,7 @@ class BBCode
 
 					case '#':
 					default:
-						return $match[1] . '[url=' . DI::baseUrl() . '/search?tag=' . $match[2] . ']' . $match[2] . '[/url]';
+						return $match[1] . '[url=' . DI::baseUrl() . '/search?tag=' . urlencode($match[2]) . ']' . $match[2] . '[/url]';
 				}
 			},
 			$body
