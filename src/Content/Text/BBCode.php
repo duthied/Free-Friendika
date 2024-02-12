@@ -125,7 +125,7 @@ class BBCode
 						break;
 
 					case 'publisher_url':
-						$data['provider_url'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+						$data['provider_url'] = Network::sanitizeUrl(html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
 						break;
 
 					case 'author_name':
@@ -136,7 +136,7 @@ class BBCode
 						break;
 
 					case 'author_url':
-						$data['author_url'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+						$data['author_url'] = Network::sanitizeUrl(html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
 						if ($data['provider_url'] == $data['author_url']) {
 							$data['author_url'] = '';
 						}

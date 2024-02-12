@@ -274,13 +274,13 @@ class ParseUrl
 						$siteinfo['author_name'] = trim($oembed_data->author_name);
 					}
 					if (!empty($oembed_data->author_url)) {
-						$siteinfo['author_url'] = trim($oembed_data->author_url);
+						$siteinfo['author_url'] = Network::sanitizeUrl($oembed_data->author_url);
 					}
 					if (!empty($oembed_data->provider_name)) {
 						$siteinfo['publisher_name'] = trim($oembed_data->provider_name);
 					}
 					if (!empty($oembed_data->provider_url)) {
-						$siteinfo['publisher_url'] = trim($oembed_data->provider_url);
+						$siteinfo['publisher_url'] = Network::sanitizeUrl($oembed_data->provider_url);
 					}
 					if (!empty($oembed_data->thumbnail_url)) {
 						$siteinfo['image'] = $oembed_data->thumbnail_url;
@@ -884,7 +884,7 @@ class ParseUrl
 
 			$content = JsonLD::fetchElement($jsonld, 'publisher', 'url');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['publisher_url'] = trim($content);
+				$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
 			}
 
 			$brand = JsonLD::fetchElement($jsonld, 'publisher', 'brand', '@type', 'Organization');
@@ -896,7 +896,7 @@ class ParseUrl
 
 				$content = JsonLD::fetchElement($brand, 'url');
 				if (!empty($content) && is_string($content)) {
-					$jsonldinfo['publisher_url'] = trim($content);
+					$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
 				}
 
 				$content = JsonLD::fetchElement($brand, 'logo', 'url');
@@ -924,12 +924,12 @@ class ParseUrl
 
 			$content = JsonLD::fetchElement($jsonld, 'author', 'sameAs');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['author_url'] = trim($content);
+				$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
 			}
 
 			$content = JsonLD::fetchElement($jsonld, 'author', 'url');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['author_url'] = trim($content);
+				$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
 			}
 
 			$logo = JsonLD::fetchElement($jsonld, 'author', 'logo');
@@ -1084,7 +1084,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
 		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['publisher_url'] = trim($content);
+			$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
@@ -1123,7 +1123,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
 		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['publisher_url'] = trim($content);
+			$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'logo', 'url', '@type', 'ImageObject');
@@ -1140,7 +1140,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'brand', 'url', '@type', 'Organization');
 		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['publisher_url'] = trim($content);
+			$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
 		}
 
 		Logger::info('Fetched Organization information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
@@ -1172,12 +1172,12 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'sameAs');
 		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['author_url'] = trim($content);
+			$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
 		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['author_url'] = trim($content);
+			$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'image', 'url', '@type', 'ImageObject');
