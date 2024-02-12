@@ -660,6 +660,29 @@ class Network
 	}
 
 	/**
+	 * Remove invalid parts from an URL
+	 *
+	 * @param string $url
+	 * @return string sanitized URL
+	 */
+	public static function sanitizeUrl(string $url): string
+	{
+		$sanitized = $url = trim($url);
+
+		foreach (['"', ' '] as $character) {
+			$pos = strpos($sanitized, $character);
+			if ($pos !== false) {
+				$sanitized = trim(substr($sanitized, 0, $pos));
+			}
+		}
+
+		if ($sanitized != $url) {
+			Logger::debug('Link got sanitized', ['url' => $url, 'sanitzed' => $sanitized]);
+		}
+		return $sanitized;
+	}
+
+	/**
 	 * Creates an Uri object out of a given Uri string
 	 *
 	 * @param string|null $uri

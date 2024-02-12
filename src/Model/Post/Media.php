@@ -96,6 +96,7 @@ class Media
 			return false;
 		}
 
+		$media['url'] = Network::sanitizeUrl($media['url']);
 		$media = self::unsetEmptyFields($media);
 		$media = DI::dbaDefinition()->truncateFieldsForTable('post-media', $media);
 

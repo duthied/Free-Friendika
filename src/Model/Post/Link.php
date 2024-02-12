@@ -31,6 +31,7 @@ use Friendica\Util\HTTPSignature;
 use Friendica\Util\Images;
 use Friendica\Util\Proxy;
 use Friendica\Object\Image;
+use Friendica\Util\Network;
 
 /**
  * Class Link
@@ -77,7 +78,7 @@ class Link
 		} else {
 			$fields = self::fetchMimeType($url);
 			$fields['uri-id'] = $uriId;
-			$fields['url'] = $url;
+			$fields['url'] = Network::sanitizeUrl($url);
 
 			DBA::insert('post-link', $fields, Database::INSERT_IGNORE);
 			$id = DBA::lastInsertId();

@@ -41,6 +41,7 @@ use Friendica\Model\Tag;
 use Friendica\Network\HTTPClient\Client\HttpClientAccept;
 use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Util\Map;
+use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
@@ -434,7 +435,7 @@ class BBCode
 			return $text;
 		}
 
-		$data['url'] = self::sanitizeLink($data['url']);
+		$data['url'] = Network::sanitizeUrl($data['url']);
 
 		if (isset($data['title'])) {
 			$data['title'] = strip_tags($data['title']);
@@ -487,7 +488,7 @@ class BBCode
 			}
 
 			if (!empty($data['provider_url']) && !empty($data['provider_name'])) {
-				$data['provider_url'] = self::sanitizeLink($data['provider_url']);
+				$data['provider_url'] = Network::sanitizeUrl($data['provider_url']);
 				if (!empty($data['author_name'])) {
 					$return .= sprintf('<sup><a href="%s" target="_blank" rel="noopener noreferrer">%s (%s)</a></sup>', $data['provider_url'], $data['author_name'], $data['provider_name']);
 				} else {
@@ -1068,29 +1069,6 @@ class BBCode
 	}
 
 	/**
-	 * Remove invalid parts from an URL
-	 *
-	 * @param string $url
-	 * @return string sanitized URL
-	 */
-	private static function sanitizeLink(string $url): string
-	{
-		$sanitzed = $url = trim($url);
-
-		foreach (['"', ' '] as $character) {
-			$pos = strpos($sanitzed, $character);
-			if ($pos !== false) {
-				$sanitzed = trim(substr($sanitzed, 0, $pos));
-			}
-		}
-
-		if ($sanitzed != $url) {
-			Logger::debug('Link got sanitized', ['url' => $url, 'sanitzed' => $sanitzed]);
-		}
-		return $sanitzed;
-	}
-
-	/**
 	 * Callback: Sanitize links from given $match array
 	 *
 	 * @param array $match Array with link match
@@ -1099,9 +1077,9 @@ class BBCode
 	private static function sanitizeLinksCallback(array $match): string
 	{
 		if (count($match) == 3) {
-			return '[' . $match[1] . ']' . self::sanitizeLink($match[2]) . '[/' . $match[1] . ']';
+			return '[' . $match[1] . ']' . Network::sanitizeUrl($match[2]) . '[/' . $match[1] . ']';
 		} else {
-			return '[' . $match[1] . '=' . self::sanitizeLink($match[2]) . ']' . $match[3] . '[/' . $match[1] . ']';
+			return '[' . $match[1] . '=' . Network::sanitizeUrl($match[2]) . ']' . $match[3] . '[/' . $match[1] . ']';
 		}
 	}
 
