@@ -558,7 +558,7 @@ class Tag
 		);
 		while ($tag = DBA::fetch($taglist)) {
 			if ($tag['url'] == '') {
-				$tag['url'] = $searchpath . rawurlencode($tag['name']);
+				$tag['url'] = $searchpath . urlencode($tag['name']);
 			}
 
 			$orig_tag = $tag['url'];

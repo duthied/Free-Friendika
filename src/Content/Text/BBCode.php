@@ -1496,7 +1496,7 @@ class BBCode
 
 				// Replace non graphical smilies for external posts
 				if (!$nosmile) {
-					$text = self::performWithEscapedTags($text, ['img'], function ($text) use ($simple_html, $for_plaintext) {
+					$text = self::performWithEscapedTags($text, ['url', 'img', 'audio', 'video', 'youtube', 'vimeo', 'share', 'attachment', 'iframe', 'bookmark'], function ($text) use ($simple_html, $for_plaintext) {
 						return Smilies::replace($text, ($simple_html != self::INTERNAL) || $for_plaintext);
 					});
 				}
@@ -1961,11 +1961,11 @@ class BBCode
 				self::performWithEscapedTags($text, ['url', 'share'], function ($text) use ($simple_html) {
 					$text = preg_replace_callback("/(?:#\[url\=[^\[\]]*\]|\[url\=[^\[\]]*\]#)(.*?)\[\/url\]/ism", function ($matches) use ($simple_html) {
 						if ($simple_html == self::ACTIVITYPUB) {
-							return '<a href="' . DI::baseUrl() . '/search?tag=' . rawurlencode($matches[1])
+							return '<a href="' . DI::baseUrl() . '/search?tag=' . urlencode($matches[1])
 								. '" data-tag="' . XML::escape($matches[1]) . '" rel="tag ugc">#'
 								. XML::escape($matches[1]) . '</a>';
 						} else {
-							return '#<a href="' . DI::baseUrl() . '/search?tag=' . rawurlencode($matches[1])
+							return '#<a href="' . DI::baseUrl() . '/search?tag=' . urlencode($matches[1])
 								. '" class="tag" rel="tag" title="' . XML::escape($matches[1]) . '">'
 								. XML::escape($matches[1]) . '</a>';
 						}
@@ -2353,7 +2353,7 @@ class BBCode
 
 					case '#':
 					default:
-						return $match[1] . '[url=' . DI::baseUrl() . '/search?tag=' . rawurlencode($match[2]) . ']' . $match[2] . '[/url]';
+						return $match[1] . '[url=' . DI::baseUrl() . '/search?tag=' . urlencode($match[2]) . ']' . $match[2] . '[/url]';
 				}
 			},
 			$body

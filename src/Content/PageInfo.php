@@ -170,7 +170,7 @@ class PageInfo
 			foreach ($data['keywords'] as $keyword) {
 				/// @TODO make a positive list of allowed characters
 				$hashtag = str_replace([' ', '+', '/', '.', '#', '@', "'", '"', '’', '`', '(', ')', '„', '“'], '', $keyword);
-				$hashtags .= '#[url=' . DI::baseUrl() . '/search?tag=' . $hashtag . ']' . $hashtag . '[/url] ';
+				$hashtags .= '#[url=' . DI::baseUrl() . '/search?tag=' . urlencode($hashtag) . ']' . $hashtag . '[/url] ';
 			}
 		}
 
