@@ -104,12 +104,17 @@ HELP;
 			$actor = $this->getArgument(1);
 
 			$apcontact = APContact::getByURL($actor);
-			if (empty($apcontact) || !in_array($apcontact['type'], ['Application', 'Service'])) {
-				$this->out($actor . ' is no relay actor');
+			if (empty($apcontact)) {
+				$this->out($actor . ' wasn\'t found');
 				return 1;
 			}
 
 			if ($mode == 'add') {
+				if (!APContact::isRelay($apcontact)) {
+					$this->out($actor . ' is no relay actor');
+					return 1;
+				}
+
 				if (Transmitter::sendRelayFollow($actor)) {
 					$this->out('Successfully added ' . $actor);
 				} else {
