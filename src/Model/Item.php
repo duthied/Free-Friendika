@@ -3823,6 +3823,12 @@ class Item
 		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {
 			$data = BBCode::getAttachmentData($match[1]);
 		}
+
+		if ($sensitive) {
+			$data['image']   = '';
+			$data['preview'] = '';
+		}
+
 		DI::profiler()->stopRecording();
 
 		if (isset($data['url']) && !in_array(strtolower($data['url']), $ignore_links)) {
