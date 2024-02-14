@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 2024.03-dev (Yellow Archangel)
+-- Friendica 2024.03-rc (Yellow Archangel)
 -- DB_UPDATE_VERSION 1552
 -- ------------------------------------------
 
