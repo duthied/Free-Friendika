@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.03-rc (Yellow Archangel)
--- DB_UPDATE_VERSION 1552
+-- DB_UPDATE_VERSION 1553
 -- ------------------------------------------
 
 
@@ -539,6 +539,7 @@ CREATE TABLE IF NOT EXISTS `contact-relation` (
 	`relation-score` smallint unsigned COMMENT 'score for interactions of relation-cid on cid',
 	`thread-score` smallint unsigned COMMENT 'score for interactions of cid on threads of relation-cid',
 	`relation-thread-score` smallint unsigned COMMENT 'score for interactions of relation-cid on threads of cid',
+	`post-score` smallint unsigned COMMENT 'score for the amount of posts from cid that can be seen by relation-cid',
 	 PRIMARY KEY(`cid`,`relation-cid`),
 	 INDEX `relation-cid` (`relation-cid`),
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
