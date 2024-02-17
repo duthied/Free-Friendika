@@ -106,8 +106,8 @@ class Proxy extends BaseModule
 			// stop.
 		}
 
-		// reduce quality - if it is supported for this image type
-		if (Images::canResize($image->getType())) {
+		// reduce quality - if it isn't a GIF
+		if ($image->getImageType() != IMAGETYPE_GIF) {
 			$image->scaleDown($request['size']);
 		}
 
