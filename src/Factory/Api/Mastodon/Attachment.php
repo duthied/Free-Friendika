@@ -84,7 +84,7 @@ class Attachment extends BaseFactory
 			$type = 'audio';
 		} elseif (($filetype == 'video') || ($attachment['type'] == Post\Media::VIDEO)) {
 			$type = 'video';
-		} elseif ($attachment['mimetype'] == 'image/gif') {
+		} elseif ($attachment['mimetype'] == image_type_to_mime_type(IMAGETYPE_GIF)) {
 			$type = 'gifv';
 		} elseif (($filetype == 'image') || ($attachment['type'] == Post\Media::IMAGE)) {
 			$type = 'image';
@@ -130,14 +130,13 @@ class Attachment extends BaseFactory
 			'blurhash'    => $photo['blurhash'],
 		];
 
-		$photoTypes = Images::supportedTypes();
-		$ext        = $photoTypes[$photo['type']];
+		$ext = Images::getExtensionByMimeType($photo['type']);
 
-		$url = $this->baseUrl . '/photo/' . $photo['resource-id'] . '-0.' . $ext;
+		$url = $this->baseUrl . '/photo/' . $photo['resource-id'] . '-0' . $ext;
 
 		$preview = Photo::selectFirst(['scale'], ["`resource-id` = ? AND `uid` = ? AND `scale` > ?", $photo['resource-id'], $photo['uid'], 0], ['order' => ['scale']]);
 		if (!empty($preview)) {
-			$preview_url = $this->baseUrl . '/photo/' . $photo['resource-id'] . '-' . $preview['scale'] . '.' . $ext;
+			$preview_url = $this->baseUrl . '/photo/' . $photo['resource-id'] . '-' . $preview['scale'] . $ext;
 		} else {
 			$preview_url = '';
 		}
