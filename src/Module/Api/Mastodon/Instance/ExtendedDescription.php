@@ -25,23 +25,22 @@ use DateTime;
 use Friendica\App;
 use Friendica\Core\Config\Capability\IManageConfigValues;
 use Friendica\Core\L10n;
-use Friendica\Database\Database;
 use Friendica\Model\User;
 use Friendica\Module\Api\ApiResponse;
 use Friendica\Module\BaseApi;
-use Friendica\Object\Api\Mastodon\ExtendedDescription;
+use Friendica\Network\HTTPException;
+use Friendica\Object\Api\Mastodon;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
 /**
- * Undocumented API endpoint that is implemented by both Mastodon and Pleroma
+ * @see https://docs.joinmastodon.org/methods/instance/#extended_description
  */
-class Extended extends BaseApi
+class ExtendedDescription extends BaseApi
 {
-	/** @var IManageConfigValues */
-	private $config;
+	private IManageConfigValues $config;
 
-	public function __construct(\Friendica\Factory\Api\Mastodon\Error $errorFactory, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, Database $database, IManageConfigValues $config, array $server, array $parameters = [])
+	public function __construct(\Friendica\Factory\Api\Mastodon\Error $errorFactory, App $app, L10n $l10n, App\BaseURL $baseUrl, App\Arguments $args, LoggerInterface $logger, Profiler $profiler, ApiResponse $response, IManageConfigValues $config, array $server, array $parameters = [])
 	{
 		parent::__construct($errorFactory, $app, $l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
 
@@ -55,6 +54,6 @@ class Extended extends BaseApi
 	{
 		$account = User::getSystemAccount();
 
-		$this->jsonExit(new ExtendedDescription(new DateTime($account['updated']), $this->config->get('config', 'info')));
+		$this->jsonExit(new Mastodon\ExtendedDescription(new DateTime($account['updated']), $this->config->get('config', 'info')));
 	}
 }
