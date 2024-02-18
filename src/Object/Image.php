@@ -53,7 +53,7 @@ class Image
 	 *
 	 * @param string $data     Image data
 	 * @param string $type     optional, default ''
-	 * @param string $filename optional, default '' 
+	 * @param string $filename optional, default ''
 	 * @param string $imagick  optional, default 'true'
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -100,7 +100,7 @@ class Image
 		}
 
 		if ($this->imageType == IMAGETYPE_GIF) {
-			$count = @preg_match_all("#\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)#s", $data);
+			$count = preg_match_all("#\\x00\\x21\\xF9\\x04.{4}\\x00[\\x2C\\x21]#s", $data);
 			return ($count > 0);
 		}
 
@@ -748,7 +748,7 @@ class Image
 			case IMAGETYPE_GIF:
 				imagegif($this->image, $stream);
 				break;
-				
+
 			case IMAGETYPE_WEBP:
 				imagewebp($this->image, $stream, DI::config()->get('system', 'jpeg_quality'));
 				break;
