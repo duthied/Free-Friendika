@@ -137,7 +137,8 @@ class Search extends BaseApi
 	private static function searchStatuses(int $uid, string $q, string $account_id, int $max_id, int $min_id, int $limit, int $offset)
 	{
 		if (Network::isValidHttpUrl($q)) {
-			if ($offset != 0) {
+			// Unique post search, any offset greater than 0 should return empty result
+			if ($offset > 0) {
 				return [];
 			}
 			$q = Network::convertToIdn($q);
