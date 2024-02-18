@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1552);
+	define('DB_UPDATE_VERSION', 1553);
 }
 
 return [
@@ -598,6 +598,7 @@ return [
 			"relation-score" => ["type" => "smallint unsigned", "comment" => "score for interactions of relation-cid on cid"],
 			"thread-score" => ["type" => "smallint unsigned", "comment" => "score for interactions of cid on threads of relation-cid"],
 			"relation-thread-score" => ["type" => "smallint unsigned", "comment" => "score for interactions of relation-cid on threads of cid"],
+			"post-score" => ["type" => "smallint unsigned", "comment" => "score for the amount of posts from cid that can be seen by relation-cid"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["cid", "relation-cid"],

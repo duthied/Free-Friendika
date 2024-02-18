@@ -103,6 +103,7 @@ class Widget
 	{
 		// Always hide content from these networks
 		$networks = [Protocol::PHANTOM, Protocol::FACEBOOK, Protocol::APPNET, Protocol::TWITTER, Protocol::ZOT];
+		Addon::loadAddons();
 
 		if (!Addon::isEnabled("discourse")) {
 			$networks[] = Protocol::DISCOURSE;

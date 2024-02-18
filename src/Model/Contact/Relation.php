@@ -22,6 +22,7 @@
 namespace Friendica\Model\Contact;
 
 use Exception;
+use Friendica\Content\Widget;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\Database;
@@ -78,14 +79,14 @@ class Relation
 	 */
 	public static function discoverByUser(int $uid)
 	{
-		$contact = Contact::selectFirst(['id', 'url', 'network'], ['uid' => $uid, 'self' => true]);
+		$contact = Contact::selectFirst(['id', 'url', 'network'], ['id' => Contact::getPublicIdByUserId($uid)]);
 		if (empty($contact)) {
 			Logger::warning('Self contact for user not found', ['uid' => $uid]);
 			return;
 		}
 
-		$followers = self::getContacts($uid, [Contact::FOLLOWER, Contact::FRIEND]);
-		$followings = self::getContacts($uid, [Contact::SHARING, Contact::FRIEND]);
+		$followers  = self::getContacts($uid, [Contact::FOLLOWER, Contact::FRIEND], false);
+		$followings = self::getContacts($uid, [Contact::SHARING, Contact::FRIEND], false);
 
 		self::updateFollowersFollowings($contact, $followers, $followings);
 	}
@@ -207,10 +208,11 @@ class Relation
 	 * Fetch contact url list from the given local user
 	 *
 	 * @param integer $uid
-	 * @param array $rel
+	 * @param array   $rel
+	 * @param bool    $only_ap
 	 * @return array contact list
 	 */
-	private static function getContacts(int $uid, array $rel): array
+	private static function getContacts(int $uid, array $rel, bool $only_ap = true): array
 	{
 		$list = [];
 		$profile = Profile::getByUID($uid);
@@ -219,15 +221,22 @@ class Relation
 		}
 
 		$condition = [
-			'rel' => $rel,
-			'uid' => $uid,
-			'self' => false,
+			'rel'     => $rel,
+			'uid'     => $uid,
+			'self'    => false,
 			'deleted' => false,
-			'hidden' => false,
+			'hidden'  => false,
 			'archive' => false,
 			'pending' => false,
+			'blocked' => false,
+			'failed'  => false,
 		];
-		$condition = DBA::mergeConditions($condition, ["`url` IN (SELECT `url` FROM `apcontact`)"]);
+		if ($only_ap) {
+			$condition = DBA::mergeConditions($condition, ["`url` IN (SELECT `url` FROM `apcontact`)"]);
+		} else {
+			$networks  = Widget::unavailableNetworks();
+			$condition = DBA::mergeConditions($condition, array_merge(["NOT `network` IN (" . substr(str_repeat("?, ", count($networks)), 0, -2) . ")"], $networks));
+		}
 		$contacts = DBA::select('contact', ['url'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
 			$list[] = $contact['url'];
@@ -870,6 +879,20 @@ class Relation
 			DBA::update('contact-relation', ['thread-score' => $score], ['relation-cid' => $contact_id, 'cid' => $interaction['author-id']]);
 		}
 		DBA::close($interactions);
+
+		$total = DBA::fetchFirst("SELECT count(*) AS `posts` FROM `post-thread-user` WHERE EXISTS(SELECT `cid` FROM `contact-relation` WHERE `cid` = `post-thread-user`.`author-id` AND `relation-cid` = ? AND `follows`) AND `uid` = ? AND `created` > ?",
+			$contact_id, $uid, DateTimeFormat::utc('now - ' . $days . ' day'));
+
+		Logger::debug('Calculate post-score', ['uid' => $uid, 'total' => $total['posts']]);
+
+		$posts = DBA::p("SELECT `author-id`, count(*) AS `posts` FROM `post-thread-user` WHERE EXISTS(SELECT `cid` FROM `contact-relation` WHERE `cid` = `post-thread-user`.`author-id` AND `relation-cid` = ? AND `follows`) AND `uid` = ? AND `created` > ? GROUP BY `author-id`",
+			$contact_id, $uid, DateTimeFormat::utc('now - ' . $days . ' day'));
+		while ($post = DBA::fetch($posts)) {
+			$score = min((int)(($post['posts'] / $total['posts']) * 65535), 65535);
+			DBA::update('contact-relation', ['post-score' => $score], ['relation-cid' => $contact_id, 'cid' => $post['author-id']]);
+		}
+		DBA::close($posts);
+
 		Logger::debug('Calculation - end', ['uid' => $uid]);
 	}
 }
