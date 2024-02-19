@@ -57,11 +57,11 @@ class Index extends BaseModeration
 
 		// Edit the entries from blocklist
 		$blocklist = [];
-		foreach ($request['domain'] as $id => $domain) {
+		foreach ((array)$request['domain'] as $id => $domain) {
 			// Trimming whitespaces as well as any lingering slashes
 			$domain = trim($domain);
 			$reason = trim($request['reason'][$id]);
-			if (empty($request['delete'][$id])) {
+			if (empty($request['delete'][$id]) && !empty($domain)) {
 				$blocklist[] = [
 					'domain' => $domain,
 					'reason' => $reason
