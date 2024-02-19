@@ -1610,16 +1610,16 @@ class Processor
 		}
 
 		if (empty($object) || !is_array($object)) {
-			$element = explode(';', $curlResult->getContentType());
-			if (!in_array($element[0], ['application/activity+json', 'application/ld+json', 'application/json'])) {
-				Logger::debug('Unexpected content-type', ['url' => $url, 'content-type' => $curlResult->getContentType()]);
-				return null;
-			}
 			Logger::notice('Invalid JSON data', ['url' => $url, 'content-type' => $curlResult->getContentType(), 'body' => $body]);
 			return '';
 		}
 
 		if (!self::isValidObject($object, $url)) {
+			return '';
+		}
+
+		if (!HTTPSignature::isValidContentType($curlResult->getContentType())) {
+			Logger::notice('Unexpected content type', ['content-type' => $curlResult->getContentType(), 'url' => $url]);
 			return '';
 		}
 

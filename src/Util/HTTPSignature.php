@@ -443,7 +443,23 @@ class HTTPSignature
 			return [];
 		}
 
+		if (!self::isValidContentType($curlResult->getContentType())) {
+			Logger::notice('Unexpected content type', ['content-type' => $curlResult->getContentType(), 'url' => $request]);
+			return [];
+		}
+
 		return $content;
+	}
+
+	/**
+	 * Check if the provided content type is a valid LD JSON mime type
+	 *
+	 * @param string $contentType
+	 * @return boolean
+	 */
+	public static function isValidContentType(string $contentType): bool
+	{
+		return in_array(current(explode(';', $contentType)), ['application/activity+json', 'application/ld+json']);
 	}
 
 	/**
