@@ -100,7 +100,6 @@ class Photo extends BaseApi
 				$id = $account['id'];
 			}
 
-			// Contact Id Fallback, to remove after version 2021.12
 			if (isset($this->parameters['contact_id'])) {
 				$id = intval($this->parameters['contact_id']);
 			}
@@ -115,12 +114,6 @@ class Photo extends BaseApi
 				$id = $user['uid'];
 			}
 
-			// User Id Fallback, to remove after version 2021.12
-			if (!empty($this->parameters['uid_ext'])) {
-				$id = intval(pathinfo($this->parameters['uid_ext'], PATHINFO_FILENAME));
-			}
-
-			// Please refactor this for the love of everything that's good
 			if (isset($this->parameters['id'])) {
 				$id = $this->parameters['id'];
 			}

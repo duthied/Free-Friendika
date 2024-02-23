@@ -575,21 +575,12 @@ return [
 		'/{name}'                                                  => [Module\Photo::class, [R::GET]],
 		'/{type}/{id:\d+}'                                         => [Module\Photo::class, [R::GET]],
 		'/{type:contact|header}/{guid}'                            => [Module\Photo::class, [R::GET]],
-		// User Id Fallback, to remove after version 2021.12
-		'/{type}/{uid_ext:\d+\..*}'                                => [Module\Photo::class, [R::GET]],
 		'/{type}/{nickname_ext}'                                   => [Module\Photo::class, [R::GET]],
-		// Contact Id Fallback, to remove after version 2021.12
 		'/{type:contact|header}/{customsize:\d+}/{contact_id:\d+}' => [Module\Photo::class, [R::GET]],
 		'/{type:contact|header}/{customsize:\d+}/{guid}'           => [Module\Photo::class, [R::GET]],
 		'/{type}/{customsize:\d+}/{id:\d+}'                        => [Module\Photo::class, [R::GET]],
-		// User Id Fallback, to remove after version 2021.12
-		'/{type}/{customsize:\d+}/{uid_ext:\d+\..*}'               => [Module\Photo::class, [R::GET]],
 		'/{type}/{customsize:\d+}/{nickname_ext}'                  => [Module\Photo::class, [R::GET]],
 	],
-
-	// Kept for backwards-compatibility
-	// @TODO remove by version 2023.12
-	'/photos/{nickname}' => [Module\Profile\Photos::class, [R::GET]],
 
 	'/ping'              => [Module\Notifications\Ping::class, [R::GET]],
 
