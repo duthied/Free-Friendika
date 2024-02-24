@@ -23,6 +23,7 @@ namespace Friendica\Util;
 
 use DOMDocument;
 use DOMXPath;
+use Friendica\Content\OEmbed;
 use Friendica\Content\Text\HTML;
 use Friendica\Protocol\HTTP\MediaType;
 use Friendica\Core\Hook;
@@ -98,6 +99,8 @@ class ParseUrl
 	 * Search for cached embeddable data of an url otherwise fetch it
 	 *
 	 * @param string $url         The url of the page which should be scraped
+	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
+	 *                            to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
 	 *    string 'url'      => The url of the parsed page
@@ -112,7 +115,7 @@ class ParseUrl
 	 * @see   ParseUrl::getSiteinfo() for more information about scraping
 	 * embeddable content
 	 */
-	public static function getSiteinfoCached(string $url): array
+	public static function getSiteinfoCached(string $url, bool $do_oembed = true): array
 	{
 		if (empty($url)) {
 			return [
@@ -123,13 +126,15 @@ class ParseUrl
 
 		$urlHash = hash('sha256', $url);
 
-		$parsed_url = DBA::selectFirst('parsed_url', ['content'], ['url_hash' => $urlHash]);
+		$parsed_url = DBA::selectFirst('parsed_url', ['content'],
+			['url_hash' => $urlHash, 'oembed' => $do_oembed]
+		);
 		if (!empty($parsed_url['content'])) {
 			$data = unserialize($parsed_url['content']);
 			return $data;
 		}
 
-		$data = self::getSiteinfo($url);
+		$data = self::getSiteinfo($url, $do_oembed);
 
 		$expires = $data['expires'];
 
@@ -139,7 +144,7 @@ class ParseUrl
 			'parsed_url',
 			[
 				'url_hash' => $urlHash,
-				'oembed'   => false,
+				'oembed'   => $do_oembed,
 				'url'      => $url,
 				'content'  => serialize($data),
 				'created'  => DateTimeFormat::utcNow(),
@@ -162,6 +167,8 @@ class ParseUrl
 	 * \<meta name="description" content="An awesome description"\>
 	 *
 	 * @param string $url         The url of the page which should be scraped
+	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
+	 *                            to avoid endless loops
 	 * @param int    $count       Internal counter to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
@@ -187,7 +194,7 @@ class ParseUrl
 	 * </body>
 	 * @endverbatim
 	 */
-	public static function getSiteinfo(string $url, int $count = 1): array
+	public static function getSiteinfo(string $url, bool $do_oembed = true, int $count = 1): array
 	{
 		if (empty($url)) {
 			return [
@@ -246,6 +253,41 @@ class ParseUrl
 		}
 
 		$body = $curlResult->getBodyString();
+
+		if ($do_oembed) {
+			$oembed_data = OEmbed::fetchURL($url, false, false);
+
+			if (!empty($oembed_data->type)) {
+				if (!in_array($oembed_data->type, ['error', 'rich', 'image', 'video', 'audio', ''])) {
+					$siteinfo['type'] = $oembed_data->type;
+				}
+
+				// See https://github.com/friendica/friendica/pull/5763#discussion_r217913178
+				if ($siteinfo['type'] != 'photo') {
+					if (!empty($oembed_data->title)) {
+						$siteinfo['title'] = trim($oembed_data->title);
+					}
+					if (!empty($oembed_data->description)) {
+						$siteinfo['text'] = trim($oembed_data->description);
+					}
+					if (!empty($oembed_data->author_name)) {
+						$siteinfo['author_name'] = trim($oembed_data->author_name);
+					}
+					if (!empty($oembed_data->author_url)) {
+						$siteinfo['author_url'] = Network::sanitizeUrl($oembed_data->author_url);
+					}
+					if (!empty($oembed_data->provider_name)) {
+						$siteinfo['publisher_name'] = trim($oembed_data->provider_name);
+					}
+					if (!empty($oembed_data->provider_url)) {
+						$siteinfo['publisher_url'] = Network::sanitizeUrl($oembed_data->provider_url);
+					}
+					if (!empty($oembed_data->thumbnail_url)) {
+						$siteinfo['image'] = $oembed_data->thumbnail_url;
+					}
+				}
+			}
+		}
 
 		$charset = '';
 		try {
@@ -309,7 +351,7 @@ class ParseUrl
 					}
 				}
 				if ($content != '') {
-					$siteinfo = self::getSiteinfo($content, ++$count);
+					$siteinfo = self::getSiteinfo($content, $do_oembed, ++$count);
 					return $siteinfo;
 				}
 			}
