@@ -95,12 +95,12 @@ class Attachment extends BaseFactory
 		$remote = $attachment['url'];
 		if ($type == 'image') {
 			$url     = Post\Media::getPreviewUrlForId($attachment['id']);
-			$preview = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_SMALL);
+			$preview = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_MEDIUM);
 		} else {
 			$url = $attachment['url'];
 
 			if (!empty($attachment['preview'])) {
-				$preview = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_SMALL);
+				$preview = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_MEDIUM);
 			} else {
 				$preview = '';
 			}
