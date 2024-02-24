@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2024.03-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-19 05:46+0000\n"
+"POT-Creation-Date: 2024-02-24 11:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -71,11 +71,11 @@ msgstr ""
 #: src/Module/Settings/Display.php:90 src/Module/Settings/Display.php:199
 #: src/Module/Settings/Profile/Photo/Crop.php:165
 #: src/Module/Settings/Profile/Photo/Index.php:110
-#: src/Module/Settings/RemoveMe.php:119 src/Module/Settings/UserExport.php:80
+#: src/Module/Settings/RemoveMe.php:119 src/Module/Settings/UserExport.php:78
 #: src/Module/Settings/UserExport.php:114
-#: src/Module/Settings/UserExport.php:215
-#: src/Module/Settings/UserExport.php:235
-#: src/Module/Settings/UserExport.php:300 src/Module/User/Delegation.php:154
+#: src/Module/Settings/UserExport.php:213
+#: src/Module/Settings/UserExport.php:233
+#: src/Module/Settings/UserExport.php:298 src/Module/User/Delegation.php:154
 #: src/Module/User/Import.php:84 src/Module/User/Import.php:91
 msgid "Permission denied."
 msgstr ""
@@ -302,7 +302,7 @@ msgstr ""
 #: src/Module/Calendar/Event/Form.php:250 src/Module/Contact/Advanced.php:132
 #: src/Module/Contact/Profile.php:364
 #: src/Module/Debug/ActivityPubConversion.php:140
-#: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
+#: src/Module/Debug/Babel.php:315 src/Module/Debug/Localtime.php:64
 #: src/Module/Debug/Probe.php:54 src/Module/Debug/WebFinger.php:51
 #: src/Module/FriendSuggest.php:145 src/Module/Install.php:234
 #: src/Module/Install.php:274 src/Module/Install.php:309
@@ -1080,7 +1080,7 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: src/Content/ContactSelector.php:130 src/Module/Debug/Babel.php:307
+#: src/Content/ContactSelector.php:130 src/Module/Debug/Babel.php:309
 msgid "Diaspora"
 msgstr ""
 
@@ -2174,12 +2174,8 @@ msgstr ""
 msgid "Site map"
 msgstr ""
 
-#: src/Content/OEmbed.php:316
+#: src/Content/OEmbed.php:312
 msgid "Embedding disabled"
-msgstr ""
-
-#: src/Content/OEmbed.php:440
-msgid "Embedded content"
 msgstr ""
 
 #: src/Content/Pager.php:216
@@ -2467,7 +2463,7 @@ msgid "Matrix:"
 msgstr ""
 
 #: src/Content/Widget/VCard.php:121 src/Model/Event.php:82
-#: src/Model/Event.php:109 src/Model/Event.php:471 src/Model/Event.php:963
+#: src/Model/Event.php:109 src/Model/Event.php:471 src/Model/Event.php:960
 #: src/Model/Profile.php:375 src/Module/Contact/Profile.php:406
 #: src/Module/Directory.php:147 src/Module/Notifications/Introductions.php:187
 #: src/Module/Profile/Profile.php:221
@@ -3343,12 +3339,12 @@ msgid "l F d, Y \\@ g:i A \\G\\M\\TP (e)"
 msgstr ""
 
 #: src/Model/Event.php:75 src/Model/Event.php:92 src/Model/Event.php:469
-#: src/Model/Event.php:945
+#: src/Model/Event.php:942
 msgid "Starts:"
 msgstr ""
 
 #: src/Model/Event.php:78 src/Model/Event.php:98 src/Model/Event.php:470
-#: src/Model/Event.php:949
+#: src/Model/Event.php:946
 msgid "Finishes:"
 msgstr ""
 
@@ -3421,20 +3417,20 @@ msgstr ""
 msgid "g:i A"
 msgstr ""
 
-#: src/Model/Event.php:964 src/Model/Event.php:966
+#: src/Model/Event.php:961 src/Model/Event.php:963
 msgid "Show map"
 msgstr ""
 
-#: src/Model/Event.php:965
+#: src/Model/Event.php:962
 msgid "Hide map"
 msgstr ""
 
-#: src/Model/Event.php:1058
+#: src/Model/Event.php:1055
 #, php-format
 msgid "%s's birthday"
 msgstr ""
 
-#: src/Model/Event.php:1059
+#: src/Model/Event.php:1056
 #, php-format
 msgid "Happy Birthday %s"
 msgstr ""
@@ -6157,11 +6153,11 @@ msgstr ""
 msgid "Failed to remove event"
 msgstr ""
 
-#: src/Module/Calendar/Event/API.php:186 src/Module/Calendar/Event/API.php:188
+#: src/Module/Calendar/Event/API.php:187 src/Module/Calendar/Event/API.php:189
 msgid "Event can not end before it has started."
 msgstr ""
 
-#: src/Module/Calendar/Event/API.php:195 src/Module/Calendar/Event/API.php:197
+#: src/Module/Calendar/Event/API.php:196 src/Module/Calendar/Event/API.php:198
 msgid "Event title and start time are required."
 msgstr ""
 
@@ -7072,33 +7068,33 @@ msgstr ""
 msgid "Not available."
 msgstr ""
 
-#: src/Module/Conversation/Network.php:202
+#: src/Module/Conversation/Network.php:200
 msgid "No such circle"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:206
+#: src/Module/Conversation/Network.php:204
 #, php-format
 msgid "Circle: %s"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:225
+#: src/Module/Conversation/Network.php:223
 #, php-format
 msgid "Error %d (%s) while fetching the timeline."
 msgstr ""
 
-#: src/Module/Conversation/Network.php:302
+#: src/Module/Conversation/Network.php:300
 msgid "Network feed not available."
 msgstr ""
 
-#: src/Module/Conversation/Timeline.php:194
+#: src/Module/Conversation/Timeline.php:196
 msgid "Own Contacts"
 msgstr ""
 
-#: src/Module/Conversation/Timeline.php:198
+#: src/Module/Conversation/Timeline.php:200
 msgid "Include"
 msgstr ""
 
-#: src/Module/Conversation/Timeline.php:199
+#: src/Module/Conversation/Timeline.php:201
 msgid "Hide"
 msgstr ""
 
@@ -7130,7 +7126,7 @@ msgid "Result Item"
 msgstr ""
 
 #: src/Module/Debug/ActivityPubConversion.php:129
-#: src/Module/Debug/Babel.php:293 src/Module/Moderation/Item/Source.php:87
+#: src/Module/Debug/Babel.php:294 src/Module/Moderation/Item/Source.php:87
 #: src/Module/Security/TwoFactor/Verify.php:98
 msgid "Error"
 msgid_plural "Errors"
@@ -7141,179 +7137,179 @@ msgstr[1] ""
 msgid "Source activity"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:51
+#: src/Module/Debug/Babel.php:52
 msgid "Source input"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:57
+#: src/Module/Debug/Babel.php:58
 msgid "BBCode::toPlaintext"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:63
+#: src/Module/Debug/Babel.php:64
 msgid "BBCode::convert (raw HTML)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:68
+#: src/Module/Debug/Babel.php:69
 msgid "BBCode::convert (hex)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:73
+#: src/Module/Debug/Babel.php:74
 msgid "BBCode::convert"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:79
+#: src/Module/Debug/Babel.php:80
 msgid "BBCode::convert => HTML::toBBCode"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:85
+#: src/Module/Debug/Babel.php:86
 msgid "BBCode::toMarkdown"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:91
+#: src/Module/Debug/Babel.php:92
 msgid "BBCode::toMarkdown => Markdown::convert (raw HTML)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:95
+#: src/Module/Debug/Babel.php:96
 msgid "BBCode::toMarkdown => Markdown::convert"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:101
+#: src/Module/Debug/Babel.php:102
 msgid "BBCode::toMarkdown => Markdown::toBBCode"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:107
+#: src/Module/Debug/Babel.php:108
 msgid "BBCode::toMarkdown =>  Markdown::convert => HTML::toBBCode"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:115
+#: src/Module/Debug/Babel.php:116
 msgid "Item Body"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:119
+#: src/Module/Debug/Babel.php:120
 msgid "Item Tags"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:125
+#: src/Module/Debug/Babel.php:126
 msgid "PageInfo::appendToBody"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:130
+#: src/Module/Debug/Babel.php:131
 msgid "PageInfo::appendToBody => BBCode::convert (raw HTML)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:134
+#: src/Module/Debug/Babel.php:135
 msgid "PageInfo::appendToBody => BBCode::convert"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:141
+#: src/Module/Debug/Babel.php:142
 msgid "Source input (Diaspora format)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:150
+#: src/Module/Debug/Babel.php:151
 msgid "Source input (Markdown)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:156
+#: src/Module/Debug/Babel.php:157
 msgid "Markdown::convert (raw HTML)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:161
+#: src/Module/Debug/Babel.php:162
 msgid "Markdown::convert"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:167
+#: src/Module/Debug/Babel.php:168
 msgid "Markdown::toBBCode"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:174
+#: src/Module/Debug/Babel.php:175
 msgid "Raw HTML input"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:179
+#: src/Module/Debug/Babel.php:180
 msgid "HTML Input"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:186
+#: src/Module/Debug/Babel.php:187
 msgid "HTML Purified (raw)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:191
+#: src/Module/Debug/Babel.php:192
 msgid "HTML Purified (hex)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:196
+#: src/Module/Debug/Babel.php:197
 msgid "HTML Purified"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:202
+#: src/Module/Debug/Babel.php:203
 msgid "HTML::toBBCode"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:208
+#: src/Module/Debug/Babel.php:209
 msgid "HTML::toBBCode => BBCode::convert"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:213
+#: src/Module/Debug/Babel.php:214
 msgid "HTML::toBBCode => BBCode::convert (raw HTML)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:219
+#: src/Module/Debug/Babel.php:220
 msgid "HTML::toBBCode => BBCode::toPlaintext"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:225
+#: src/Module/Debug/Babel.php:226
 msgid "HTML::toMarkdown"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:231
+#: src/Module/Debug/Babel.php:232
 msgid "HTML::toPlaintext"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:237
+#: src/Module/Debug/Babel.php:238
 msgid "HTML::toPlaintext (compact)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:255
+#: src/Module/Debug/Babel.php:256
 msgid "Decoded post"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:276
+#: src/Module/Debug/Babel.php:277
 msgid "Post array before expand entities"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:283
+#: src/Module/Debug/Babel.php:284
 msgid "Post converted"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:288
+#: src/Module/Debug/Babel.php:289
 msgid "Converted body"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:294
+#: src/Module/Debug/Babel.php:295
 msgid "Twitter addon is absent from the addon/ folder."
 msgstr ""
 
-#: src/Module/Debug/Babel.php:304
+#: src/Module/Debug/Babel.php:305
 msgid "Babel Diagnostic"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:305
+#: src/Module/Debug/Babel.php:307
 msgid "Source text"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:306
+#: src/Module/Debug/Babel.php:308
 msgid "BBCode"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:308
+#: src/Module/Debug/Babel.php:310
 msgid "Markdown"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:309
+#: src/Module/Debug/Babel.php:311
 msgid "HTML"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:311
+#: src/Module/Debug/Babel.php:313
 msgid "Twitter Source / Tweet URL (requires API key)"
 msgstr ""
 
@@ -9023,21 +9019,21 @@ msgstr ""
 msgid "<b>Attributed To:</b> %s<br>"
 msgstr ""
 
-#: src/Module/Photo.php:130
+#: src/Module/Photo.php:123
 msgid "The Photo is not available."
 msgstr ""
 
-#: src/Module/Photo.php:155
+#: src/Module/Photo.php:148
 #, php-format
 msgid "The Photo with id %s is not available."
 msgstr ""
 
-#: src/Module/Photo.php:196
+#: src/Module/Photo.php:189
 #, php-format
 msgid "Invalid external resource with url %s."
 msgstr ""
 
-#: src/Module/Photo.php:198
+#: src/Module/Photo.php:191
 #, php-format
 msgid "Invalid photo with id %s."
 msgstr ""
