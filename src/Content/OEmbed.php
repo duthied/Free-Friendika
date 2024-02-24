@@ -22,8 +22,6 @@
 namespace Friendica\Content;
 
 use DOMDocument;
-use DOMNode;
-use DOMText;
 use DOMXPath;
 use Exception;
 use Friendica\Core\Cache\Enum\Duration;
@@ -161,7 +159,7 @@ class OEmbed
 			return $oembed;
 		}
 
-		if (!self::isAllowedURL($oembed->url) || ($oembed->type == 'error')) {
+		if (!self::isAllowedURL($embedurl) || ($oembed->type == 'error')) {
 			$oembed->html = '';
 			$oembed->type = $data['type'];
 
@@ -332,14 +330,12 @@ class OEmbed
 			return false;
 		}
 
-		$str_allowed = DI::config()->get('system', 'allowed_oembed', '');
-		if (empty($str_allowed)) {
+		$allowed = DI::config()->get('system', 'allowed_oembed', '');
+		if (empty($allowed)) {
 			return false;
 		}
 
-		$allowed = explode(',', $str_allowed);
-
-		return Network::isDomainMatch($domain, $allowed);
+		return Network::isDomainMatch($domain, explode(',', $allowed));
 	}
 
 	/**
