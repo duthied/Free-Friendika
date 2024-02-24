@@ -2058,9 +2058,6 @@ class BBCode
 
 		// Default iframe allowed domains/path
 		$allowedIframeDomains = [
-			DI::baseUrl()->getHost()
-				. (DI::baseUrl()->getPath() ? '/' . DI::baseUrl()->getPath() : '')
-				. '/oembed/', # The path part has to change with the source in Content\Oembed::iframe
 			'www.youtube.com/embed/',
 			'player.vimeo.com/video/',
 		];
