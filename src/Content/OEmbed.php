@@ -24,6 +24,7 @@ namespace Friendica\Content;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
@@ -47,21 +48,6 @@ use Friendica\Util\Strings;
  */
 class OEmbed
 {
-	/**
-	 * Callback for fetching URL, checking allowance and returning formatted HTML
-	 *
-	 * @param array $matches
-	 * @return string Formatted HTML
-	 */
-	public static function replaceCallback(array $matches): string
-	{
-		$embedurl = $matches[1];
-		$j = self::fetchURL($embedurl);
-		$s = self::formatObject($j);
-
-		return $s;
-	}
-
 	/**
 	 * Get data from an URL to embed its content.
 	 *
@@ -213,9 +199,10 @@ class OEmbed
 	 * Returns a formatted string from OEmbed object
 	 *
 	 * @param \Friendica\Object\OEmbed $oembed
+	 * @param int $uriid
 	 * @return string
 	 */
-	private static function formatObject(\Friendica\Object\OEmbed $oembed): string
+	private static function formatObject(\Friendica\Object\OEmbed $oembed, int $uriid): string
 	{
 		$ret = '<div class="oembed ' . $oembed->type . '">';
 
@@ -235,7 +222,7 @@ class OEmbed
 						'$escapedhtml' => base64_encode($oembed->html),
 						'$tw' => $tw,
 						'$th' => $th,
-						'$turl' => $oembed->thumbnail_url,
+						'$turl' => BBCode::proxyUrl($oembed->thumbnail_url, BBCode::INTERNAL, $uriid, Proxy::SIZE_SMALL),
 					]);
 				} else {
 					$ret = $oembed->html;
@@ -243,14 +230,14 @@ class OEmbed
 				break;
 
 			case 'photo':
-				$ret .= '<img width="' . $oembed->width . '" src="' . Proxy::proxifyUrl($oembed->url) . '">';
+				$ret .= '<img width="' . $oembed->width . '" src="' . BBCode::proxyUrl($oembed->url, BBCode::INTERNAL, $uriid, Proxy::SIZE_MEDIUM) . '">';
 				break;
 
 			case 'link':
 				break;
 
 			case 'rich':
-				$ret .= Proxy::proxifyHtml($oembed->html);
+				$ret .= Proxy::proxifyHtml($oembed->html, $uriid);
 				break;
 		}
 
@@ -288,12 +275,21 @@ class OEmbed
 				$ret .= '<a href="' . $oembed->embed_url . '" rel="oembed">' . $oembed->embed_url . '</a>';
 			}
 			$ret .= "</h4>";
+			if ($oembed->type == 'link') {
+				if (!empty($oembed->thumbnail_url)) {
+					$ret .= '<img width="' . $oembed->width . '" src="' . BBCode::proxyUrl($oembed->thumbnail_url, BBCode::INTERNAL, $uriid, Proxy::SIZE_MEDIUM) . '">';
+				}
+				if (!empty($oembed->description)) {
+					$ret .= '<p>' . $oembed->description . '</p>';
+				}
+			}
 		} elseif (!strpos($oembed->html, $oembed->embed_url)) {
 			// add <a> for html2bbcode conversion
 			$ret .= '<a href="' . $oembed->embed_url . '" rel="oembed">' . $oembed->title . '</a>';
 		}
 
 		$ret .= '</div>';
+$test = Proxy::proxifyHtml($ret, $uriid);
 
 		return str_replace("\n", "", $ret);
 	}
@@ -302,14 +298,19 @@ class OEmbed
 	 * Converts BBCode to HTML code
 	 *
 	 * @param string $text
+	 * @param int    $uriid
 	 * @return string
 	 */
-	public static function BBCode2HTML(string $text): string
+	public static function BBCode2HTML(string $text, int $uriid): string
 	{
-		if (DI::config()->get('system', 'no_oembed')) {
-			return preg_replace("/\[embed\](.+?)\[\/embed\]/is", "<!-- oembed $1 --><i>" . DI::l10n()->t('Embedding disabled') . " : $1</i><!-- /oembed $1 -->", $text);
+		if (!preg_match_all("/\[embed\](.+?)\[\/embed\]/is", $text, $matches, PREG_SET_ORDER)) {
+			return $text;
 		}
-		return preg_replace_callback("/\[embed\](.+?)\[\/embed\]/is", [self::class, 'replaceCallback'], $text);
+		foreach ($matches as $match) {
+			$data = self::fetchURL($match[1]);
+			$text = str_replace($match[0], self::formatObject($data, $uriid), $text);
+		}
+		return $text;
 	}
 
 	/**
@@ -342,10 +343,11 @@ class OEmbed
 	 * Returns a formatted HTML code from given URL and sets optional title
 	 *
 	 * @param string $url URL to fetch
-	 * @param string $title Optional title (default: what comes from OEmbed object)
+	 * @param string $title title (default: what comes from OEmbed object)
+	 * @param int    $uriid
 	 * @return string Formatted HTML
 	 */
-	public static function getHTML(string $url, string $title = ''): string
+	public static function getHTML(string $url, string $title, int $uriid): string
 	{
 		$o = self::fetchURL($url);
 
@@ -357,7 +359,7 @@ class OEmbed
 			$o->title = $title;
 		}
 
-		$html = self::formatObject($o);
+		$html = self::formatObject($o, $uriid);
 
 		return $html;
 	}
