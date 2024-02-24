@@ -452,11 +452,7 @@ class BBCode
 
 		$return = '';
 		try {
-			if ($tryoembed && OEmbed::isAllowedURL($data['url'])) {
-				$return = OEmbed::getHTML($data['url'], $data['title']);
-			} else {
-				throw new Exception('OEmbed is disabled for this attachment.');
-			}
+			$return = OEmbed::getHTML($data['url'], $data['title'], $uriid);
 		} catch (Exception $e) {
 			$data['title'] = ($data['title'] ?? '') ?: $data['url'];
 
@@ -1358,12 +1354,12 @@ class BBCode
 				 * $match[1] = $url
 				 * $match[2] = $title or absent
 				 */
-				$try_oembed_callback = function (array $match) {
+				$try_oembed_callback = function (array $match) use ($uriid) {
 					$url = $match[1];
 					$title = $match[2] ?? '';
 
 					try {
-						$return = OEmbed::getHTML($url, $title);
+						$return = OEmbed::getHTML($url, $title, $uriid);
 					} catch (Exception $ex) {
 						$return = $match[0];
 					}
@@ -1381,6 +1377,7 @@ class BBCode
 				$text = preg_replace("#\[(\w*)](\n*)#ism", '$2[$1]', $text);
 				$text = preg_replace("#(\n*)\[/(\w*)]#ism", '[/$2]$1', $text);
 
+				// oembed
 				// Extract the private images which use data urls since preg has issues with
 				// large data sizes. Stash them away while we do bbcode conversion, and then put them back
 				// in after we've done all the regex matching. We cannot use any preg functions to do this.
@@ -1810,7 +1807,7 @@ class BBCode
 				}
 
 				// oembed tag
-				$text = OEmbed::BBCode2HTML($text);
+				$text = OEmbed::BBCode2HTML($text, $uriid);
 
 				// Avoid triple linefeeds through oembed
 				$text = str_replace("<br style='clear:left'></span><br><br>", "<br style='clear:left'></span><br>", $text);
@@ -2058,9 +2055,6 @@ class BBCode
 
 		// Default iframe allowed domains/path
 		$allowedIframeDomains = [
-			DI::baseUrl()->getHost()
-				. (DI::baseUrl()->getPath() ? '/' . DI::baseUrl()->getPath() : '')
-				. '/oembed/', # The path part has to change with the source in Content\Oembed::iframe
 			'www.youtube.com/embed/',
 			'player.vimeo.com/video/',
 		];
