@@ -473,7 +473,7 @@ class System
 			return false;
 		}
 
-		return max($load_arr[0], $load_arr[1]);
+		return round(max($load_arr[0], $load_arr[1]), 2);
 	}
 
 	/**
