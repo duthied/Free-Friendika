@@ -21,8 +21,8 @@
 
 namespace Friendica\Util;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\DI;
 use GuzzleHttp\Psr7\Uri;
 
@@ -133,15 +133,24 @@ class Proxy
 	 * proxy storage directory.
 	 *
 	 * @param string $html Un-proxified HTML code
+	 * @param int $uriid
 	 *
 	 * @return string Proxified HTML code
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function proxifyHtml(string $html): string
+	public static function proxifyHtml(string $html, int $uriid): string
 	{
 		$html = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/', DI::baseUrl() . '/', $html);
 
-		return preg_replace_callback('/(<img [^>]*src *= *["\'])([^"\']+)(["\'][^>]*>)/siU', [self::class, 'replaceUrl'], $html);
+		if (!preg_match_all('/(<img [^>]*src *= *["\'])([^"\']+)(["\'][^>]*>)/siU', $html, $matches, PREG_SET_ORDER)) {
+			return $html;
+		}
+
+		foreach ($matches as $match) {
+			$html = str_replace($match[0], self::replaceUrl($match, $uriid), $html);
+		}
+
+		return $html;
 	}
 
 	/**
@@ -193,7 +202,7 @@ class Proxy
 	 * @return string Proxified HTML image tag
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function replaceUrl(array $matches): string
+	private static function replaceUrl(array $matches, int $uriid): string
 	{
 		// if the picture seems to be from another picture cache then take the original source
 		$queryvar = self::parseQuery($matches[2]);
@@ -208,7 +217,7 @@ class Proxy
 		}
 
 		// Return proxified HTML
-		return $matches[1] . self::proxifyUrl(htmlspecialchars_decode($matches[2])) . $matches[3];
+		return $matches[1] . BBCode::proxyUrl(htmlspecialchars_decode($matches[2]), BBCode::INTERNAL, $uriid, Proxy::SIZE_MEDIUM) . $matches[3];
 	}
 
 	public static function getPixelsFromSize(string $size): int

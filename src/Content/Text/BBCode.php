@@ -310,7 +310,7 @@ class BBCode
 		return trim($text);
 	}
 
-	private static function proxyUrl(string $image, int $simplehtml = self::INTERNAL, int $uriid = 0, string $size = ''): string
+	public static function proxyUrl(string $image, int $simplehtml = self::INTERNAL, int $uriid = 0, string $size = ''): string
 	{
 		// Only send proxied pictures to API and for internal display
 		if (!in_array($simplehtml, [self::INTERNAL, self::MASTODON_API, self::TWITTER_API])) {
@@ -453,7 +453,7 @@ class BBCode
 		$return = '';
 		try {
 			if ($tryoembed && OEmbed::isAllowedURL($data['url'])) {
-				$return = OEmbed::getHTML($data['url'], $data['title']);
+				$return = OEmbed::getHTML($data['url'], $data['title'], $uriid);
 			} else {
 				throw new Exception('OEmbed is disabled for this attachment.');
 			}
@@ -1358,12 +1358,12 @@ class BBCode
 				 * $match[1] = $url
 				 * $match[2] = $title or absent
 				 */
-				$try_oembed_callback = function (array $match) {
+				$try_oembed_callback = function (array $match) use ($uriid) {
 					$url = $match[1];
 					$title = $match[2] ?? '';
 
 					try {
-						$return = OEmbed::getHTML($url, $title);
+						$return = OEmbed::getHTML($url, $title, $uriid);
 					} catch (Exception $ex) {
 						$return = $match[0];
 					}
@@ -1810,7 +1810,7 @@ class BBCode
 				}
 
 				// oembed tag
-				$text = OEmbed::BBCode2HTML($text);
+				$text = OEmbed::BBCode2HTML($text, $uriid);
 
 				// Avoid triple linefeeds through oembed
 				$text = str_replace("<br style='clear:left'></span><br><br>", "<br style='clear:left'></span><br>", $text);
@@ -2058,9 +2058,6 @@ class BBCode
 
 		// Default iframe allowed domains/path
 		$allowedIframeDomains = [
-			DI::baseUrl()->getHost()
-				. (DI::baseUrl()->getPath() ? '/' . DI::baseUrl()->getPath() : '')
-				. '/oembed/', # The path part has to change with the source in Content\Oembed::iframe
 			'www.youtube.com/embed/',
 			'player.vimeo.com/video/',
 		];

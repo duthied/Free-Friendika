@@ -22,10 +22,9 @@
 namespace Friendica\Content;
 
 use DOMDocument;
-use DOMNode;
-use DOMText;
 use DOMXPath;
 use Exception;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Enum\Duration;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
@@ -50,31 +49,14 @@ use Friendica\Util\Strings;
 class OEmbed
 {
 	/**
-	 * Callback for fetching URL, checking allowance and returning formatted HTML
-	 *
-	 * @param array $matches
-	 * @return string Formatted HTML
-	 */
-	public static function replaceCallback(array $matches): string
-	{
-		$embedurl = $matches[1];
-		$j = self::fetchURL($embedurl, !self::isAllowedURL($embedurl));
-		$s = self::formatObject($j);
-
-		return $s;
-	}
-
-	/**
 	 * Get data from an URL to embed its content.
 	 *
-	 * @param string $embedurl     The URL from which the data should be fetched.
-	 * @param bool   $no_rich_type If set to true rich type content won't be fetched.
-	 * @param bool   $use_parseurl Use the "ParseUrl" functionality to add additional data
+	 * @param string $embedurl The URL from which the data should be fetched.
 	 *
 	 * @return \Friendica\Object\OEmbed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchURL(string $embedurl, bool $no_rich_type = false, bool $use_parseurl = true): \Friendica\Object\OEmbed
+	private static function fetchURL(string $embedurl): \Friendica\Object\OEmbed
 	{
 		$embedurl = trim($embedurl, '\'"');
 
@@ -119,7 +101,7 @@ class OEmbed
 							$href = str_replace(['http://www.youtube.com/', 'http://player.vimeo.com/'],
 								['https://www.youtube.com/', 'https://player.vimeo.com/'], $href);
 							$result = DI::httpClient()->fetchFull($href . '&maxwidth=' . $a->getThemeInfoValue('videowidth'));
-							if ($result->getReturnCode() === 200) {
+							if ($result->isSuccess()) {
 								$json_string = $result->getBodyString();
 								break;
 							}
@@ -157,57 +139,55 @@ class OEmbed
 		}
 
 		// Improve the OEmbed data with data from OpenGraph, Twitter cards and other sources
-		if ($use_parseurl) {
-			$data = ParseUrl::getSiteinfoCached($embedurl, false);
+		$data = ParseUrl::getSiteinfoCached($embedurl);
 
-			if (($oembed->type == 'error') && empty($data['title']) && empty($data['text'])) {
-				return $oembed;
-			}
+		if (($oembed->type == 'error') && empty($data['title']) && empty($data['text'])) {
+			return $oembed;
+		}
 
-			if ($no_rich_type || ($oembed->type == 'error')) {
-				$oembed->html = '';
-				$oembed->type = $data['type'];
+		if (!self::isAllowedURL($embedurl) || ($oembed->type == 'error')) {
+			$oembed->html = '';
+			$oembed->type = $data['type'];
 
-				if ($oembed->type == 'photo') {
-					if (!empty($data['images'])) {
-						$oembed->url = $data['images'][0]['src'];
-						$oembed->width = $data['images'][0]['width'];
-						$oembed->height = $data['images'][0]['height'];
-					} else {
-						$oembed->type = 'link';
-					}
+			if ($oembed->type == 'photo') {
+				if (!empty($data['images'])) {
+					$oembed->url = $data['images'][0]['src'];
+					$oembed->width = $data['images'][0]['width'];
+					$oembed->height = $data['images'][0]['height'];
+				} else {
+					$oembed->type = 'link';
 				}
 			}
+		}
 
-			if (!empty($data['title'])) {
-				$oembed->title = $data['title'];
-			}
+		if (!empty($data['title'])) {
+			$oembed->title = $data['title'];
+		}
 
-			if (!empty($data['text'])) {
-				$oembed->description = $data['text'];
-			}
+		if (!empty($data['text'])) {
+			$oembed->description = $data['text'];
+		}
 
-			if (!empty($data['publisher_name'])) {
-				$oembed->provider_name = $data['publisher_name'];
-			}
+		if (!empty($data['publisher_name'])) {
+			$oembed->provider_name = $data['publisher_name'];
+		}
 
-			if (!empty($data['publisher_url'])) {
-				$oembed->provider_url = $data['publisher_url'];
-			}
+		if (!empty($data['publisher_url'])) {
+			$oembed->provider_url = $data['publisher_url'];
+		}
 
-			if (!empty($data['author_name'])) {
-				$oembed->author_name = $data['author_name'];
-			}
+		if (!empty($data['author_name'])) {
+			$oembed->author_name = $data['author_name'];
+		}
 
-			if (!empty($data['author_url'])) {
-				$oembed->author_url = $data['author_url'];
-			}
+		if (!empty($data['author_url'])) {
+			$oembed->author_url = $data['author_url'];
+		}
 
-			if (!empty($data['images']) && ($oembed->type != 'photo')) {
-				$oembed->thumbnail_url = $data['images'][0]['src'];
-				$oembed->thumbnail_width = $data['images'][0]['width'];
-				$oembed->thumbnail_height = $data['images'][0]['height'];
-			}
+		if (!empty($data['images']) && ($oembed->type != 'photo')) {
+			$oembed->thumbnail_url = $data['images'][0]['src'];
+			$oembed->thumbnail_width = $data['images'][0]['width'];
+			$oembed->thumbnail_height = $data['images'][0]['height'];
 		}
 
 		Hook::callAll('oembed_fetch_url', $embedurl, $oembed);
@@ -219,9 +199,10 @@ class OEmbed
 	 * Returns a formatted string from OEmbed object
 	 *
 	 * @param \Friendica\Object\OEmbed $oembed
+	 * @param int $uriid
 	 * @return string
 	 */
-	private static function formatObject(\Friendica\Object\OEmbed $oembed): string
+	private static function formatObject(\Friendica\Object\OEmbed $oembed, int $uriid): string
 	{
 		$ret = '<div class="oembed ' . $oembed->type . '">';
 
@@ -241,7 +222,7 @@ class OEmbed
 						'$escapedhtml' => base64_encode($oembed->html),
 						'$tw' => $tw,
 						'$th' => $th,
-						'$turl' => $oembed->thumbnail_url,
+						'$turl' => BBCode::proxyUrl($oembed->thumbnail_url, BBCode::INTERNAL, $uriid, Proxy::SIZE_SMALL),
 					]);
 				} else {
 					$ret = $oembed->html;
@@ -249,14 +230,14 @@ class OEmbed
 				break;
 
 			case 'photo':
-				$ret .= '<img width="' . $oembed->width . '" src="' . Proxy::proxifyUrl($oembed->url) . '">';
+				$ret .= '<img width="' . $oembed->width . '" src="' . BBCode::proxyUrl($oembed->url, BBCode::INTERNAL, $uriid, Proxy::SIZE_MEDIUM) . '">';
 				break;
 
 			case 'link':
 				break;
 
 			case 'rich':
-				$ret .= Proxy::proxifyHtml($oembed->html);
+				$ret .= Proxy::proxifyHtml($oembed->html, $uriid);
 				break;
 		}
 
@@ -294,12 +275,21 @@ class OEmbed
 				$ret .= '<a href="' . $oembed->embed_url . '" rel="oembed">' . $oembed->embed_url . '</a>';
 			}
 			$ret .= "</h4>";
+			if ($oembed->type == 'link') {
+				if (!empty($oembed->thumbnail_url)) {
+					$ret .= '<img width="' . $oembed->width . '" src="' . BBCode::proxyUrl($oembed->thumbnail_url, BBCode::INTERNAL, $uriid, Proxy::SIZE_MEDIUM) . '">';
+				}
+				if (!empty($oembed->description)) {
+					$ret .= '<p>' . $oembed->description . '</p>';
+				}
+			}
 		} elseif (!strpos($oembed->html, $oembed->embed_url)) {
 			// add <a> for html2bbcode conversion
 			$ret .= '<a href="' . $oembed->embed_url . '" rel="oembed">' . $oembed->title . '</a>';
 		}
 
 		$ret .= '</div>';
+$test = Proxy::proxifyHtml($ret, $uriid);
 
 		return str_replace("\n", "", $ret);
 	}
@@ -308,51 +298,19 @@ class OEmbed
 	 * Converts BBCode to HTML code
 	 *
 	 * @param string $text
+	 * @param int    $uriid
 	 * @return string
 	 */
-	public static function BBCode2HTML(string $text): string
+	public static function BBCode2HTML(string $text, int $uriid): string
 	{
-		if (DI::config()->get('system', 'no_oembed')) {
-			return preg_replace("/\[embed\](.+?)\[\/embed\]/is", "<!-- oembed $1 --><i>" . DI::l10n()->t('Embedding disabled') . " : $1</i><!-- /oembed $1 -->", $text);
-		}
-		return preg_replace_callback("/\[embed\](.+?)\[\/embed\]/is", [self::class, 'replaceCallback'], $text);
-	}
-
-	/**
-	 * Find <span class='oembed'>..<a href='url' rel='oembed'>..</a></span>
-	 * and replace it with [embed]url[/embed]
-	 *
-	 * @param string $text
-	 * @return string
-	 */
-	public static function HTML2BBCode(string $text): string
-	{
-		// start parser only if 'oembed' is in text
-		if (strpos($text, 'oembed')) {
-			// convert non ascii chars to html entities
-			$html_text = mb_convert_encoding($text, 'HTML-ENTITIES', mb_detect_encoding($text));
-
-			// If it doesn't parse at all, just return the text.
-			$dom = new DOMDocument();
-			if (!@$dom->loadHTML($html_text)) {
-				return $text;
-			}
-			$xpath = new DOMXPath($dom);
-
-			$xattr = self::buildXPath('class', 'oembed');
-			$entries = $xpath->query("//div[$xattr]");
-
-			$xattr = "@rel='oembed'"; //oe_build_xpath("rel","oembed");
-			foreach ($entries as $e) {
-				$href = $xpath->evaluate("a[$xattr]/@href", $e)->item(0)->nodeValue;
-				if (!is_null($href)) {
-					$e->parentNode->replaceChild(new DOMText('[embed]' . $href . '[/embed]'), $e);
-				}
-			}
-			return self::getInnerHTML($dom->getElementsByTagName('body')->item(0));
-		} else {
+		if (!preg_match_all("/\[embed\](.+?)\[\/embed\]/is", $text, $matches, PREG_SET_ORDER)) {
 			return $text;
 		}
+		foreach ($matches as $match) {
+			$data = self::fetchURL($match[1]);
+			$text = str_replace($match[0], self::formatObject($data, $uriid), $text);
+		}
+		return $text;
 	}
 
 	/**
@@ -373,26 +331,25 @@ class OEmbed
 			return false;
 		}
 
-		$str_allowed = DI::config()->get('system', 'allowed_oembed', '');
-		if (empty($str_allowed)) {
+		$allowed = DI::config()->get('system', 'allowed_oembed', '');
+		if (empty($allowed)) {
 			return false;
 		}
 
-		$allowed = explode(',', $str_allowed);
-
-		return Network::isDomainMatch($domain, $allowed);
+		return Network::isDomainMatch($domain, explode(',', $allowed));
 	}
 
 	/**
 	 * Returns a formatted HTML code from given URL and sets optional title
 	 *
 	 * @param string $url URL to fetch
-	 * @param string $title Optional title (default: what comes from OEmbed object)
+	 * @param string $title title (default: what comes from OEmbed object)
+	 * @param int    $uriid
 	 * @return string Formatted HTML
 	 */
-	public static function getHTML(string $url, string $title = ''): string
+	public static function getHTML(string $url, string $title, int $uriid): string
 	{
-		$o = self::fetchURL($url, !self::isAllowedURL($url));
+		$o = self::fetchURL($url);
 
 		if (!is_object($o) || property_exists($o, 'type') && $o->type == 'error') {
 			throw new Exception('OEmbed failed for URL: ' . $url);
@@ -402,74 +359,8 @@ class OEmbed
 			$o->title = $title;
 		}
 
-		$html = self::formatObject($o);
+		$html = self::formatObject($o, $uriid);
 
 		return $html;
 	}
-
-	/**
-	 * Generates the iframe HTML for an oembed attachment.
-	 *
-	 * Width and height are given by the remote, and are regularly too small for
-	 * the generated iframe.
-	 *
-	 * The width is entirely discarded for the actual width of the post, while fixed
-	 * height is used as a starting point before the inevitable resizing.
-	 *
-	 * Since the iframe is automatically resized on load, there are no need for ugly
-	 * and impractical scrollbars.
-	 *
-	 * @todo  This function is currently unused until someone™ adds support for a separate OEmbed domain
-	 *
-	 * @param string $src Original remote URL to embed
-	 * @param string $width
-	 * @param string $height
-	 * @return string Formatted HTML
-	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @see   oembed_format_object()
-	 */
-	private static function iframe(string $src, string $width, string $height): string
-	{
-		if (!$height || strstr($height, '%')) {
-			$height = '200';
-		}
-		$width = '100%';
-
-		$src = DI::baseUrl() . '/oembed/' . Strings::base64UrlEncode($src);
-		return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $src . '" allowfullscreen scrolling="no" frameborder="no">' . DI::l10n()->t('Embedded content') . '</iframe>';
-	}
-
-	/**
-	 * Generates attribute search XPath string
-	 *
-	 * Generates an XPath query to select elements whose provided attribute contains
-	 * the provided value in a space-separated list.
-	 *
-	 * @param string $attr Name of the attribute to search
-	 * @param string $value Value to search in a space-separated list
-	 * @return string
-	 */
-	private static function buildXPath(string $attr, $value): string
-	{
-		// https://www.westhoffswelt.de/blog/2009/6/9/select-html-elements-with-more-than-one-css-class-using-xpath
-		return "contains(normalize-space(@$attr), ' $value ') or substring(normalize-space(@$attr), 1, string-length('$value') + 1) = '$value ' or substring(normalize-space(@$attr), string-length(@$attr) - string-length('$value')) = ' $value' or @$attr = '$value'";
-	}
-
-	/**
-	 * Returns the inner XML string of a provided DOMNode
-	 *
-	 * @param DOMNode $node
-	 * @return string
-	 */
-	private static function getInnerHTML(DOMNode $node): string
-	{
-		$innerHTML = '';
-		$children = $node->childNodes;
-		foreach ($children as $child) {
-			$innerHTML .= $child->ownerDocument->saveXML($child);
-		}
-		return $innerHTML;
-	}
-
 }
