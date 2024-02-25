@@ -45,7 +45,8 @@ class Image
 	private $width;
 	private $height;
 	private $valid;
-	private $imageType;
+	private $outputType;
+	private $originType;
 	private $filename;
 
 	/**
@@ -65,9 +66,10 @@ class Image
 		$type = Images::addMimeTypeByExtensionIfInvalid($type, $filename);
 
 		if (Images::isSupportedMimeType($type)) {
-			$this->imageType = Images::getImageTypeByMimeType($type);
+			$this->originType = $this->outputType = Images::getImageTypeByMimeType($type);
 		} elseif (($type == '') || substr($type, 0, 6) == 'image/' || substr($type, 0, 12) == ' application/') {
-			$this->imageType = IMAGETYPE_WEBP;
+			$this->originType = IMAGETYPE_UNKNOWN;
+			$this->outputType = IMAGETYPE_WEBP;
 			DI::logger()->debug('Unhandled image mime type, use WebP instead', ['type' => $type, 'filename' => $filename, 'size' => strlen($data)]);
 		} else {
 			DI::logger()->debug('Unhandled mime type', ['type' => $type, 'filename' => $filename, 'size' => strlen($data)]);
@@ -99,12 +101,16 @@ class Image
 			return false;
 		}
 
-		if ($this->imageType == IMAGETYPE_GIF) {
+		if ($this->outputType == IMAGETYPE_PNG) {
+			return true;
+		}
+
+		if ($this->originType == IMAGETYPE_GIF) {
 			$count = preg_match_all("#\\x00\\x21\\xF9\\x04.{4}\\x00[\\x2C\\x21]#s", $data);
 			return ($count > 0);
 		}
 
-		return (($this->imageType == IMAGETYPE_WEBP) && $this->isAnimatedWebP(substr($data, 0, 90)));
+		return (($this->originType == IMAGETYPE_WEBP) && $this->isAnimatedWebP(substr($data, 0, 90)));
 	}
 
 	/**
@@ -180,7 +186,7 @@ class Image
 			/*
 			 * Setup the image to the format it will be saved to
 			 */
-			$this->image->setFormat(Images::getImagickFormatByImageType($this->imageType));
+			$this->image->setFormat(Images::getImagickFormatByImageType($this->outputType));
 
 			// Always coalesce, if it is not a multi-frame image it won't hurt anyway
 			try {
@@ -310,7 +316,7 @@ class Image
 			return false;
 		}
 
-		return image_type_to_mime_type($this->imageType);
+		return image_type_to_mime_type($this->outputType);
 	}
 
 	/**
@@ -322,7 +328,7 @@ class Image
 			return false;
 		}
 
-		return $this->imageType;
+		return $this->outputType;
 	}
 
 	/**
@@ -334,7 +340,7 @@ class Image
 			return false;
 		}
 
-		return Images::getExtensionByImageType($this->imageType);
+		return Images::getExtensionByImageType($this->outputType);
 	}
 
 	/**
@@ -611,7 +617,7 @@ class Image
 			imagealphablending($dest, false);
 			imagesavealpha($dest, true);
 
-			if ($this->imageType == IMAGETYPE_PNG) {
+			if ($this->outputType == IMAGETYPE_PNG) {
 				imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
 			}
 
@@ -636,13 +642,13 @@ class Image
 	 */
 	public function toStatic()
 	{
-		if ($this->imageType != IMAGETYPE_GIF) {
+		if ($this->outputType != IMAGETYPE_GIF) {
 			return;
 		}
 
 		if ($this->isImagick()) {
-			$this->imageType = IMAGETYPE_PNG;
-			$this->image->setFormat(Images::getImagickFormatByImageType($this->imageType));
+			$this->outputType = IMAGETYPE_PNG;
+			$this->image->setFormat(Images::getImagickFormatByImageType($this->outputType));
 		}
 	}
 
@@ -680,7 +686,7 @@ class Image
 		imagealphablending($dest, false);
 		imagesavealpha($dest, true);
 
-		if ($this->imageType == IMAGETYPE_PNG) {
+		if ($this->outputType == IMAGETYPE_PNG) {
 			imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
 		}
 		imagecopyresampled($dest, $this->image, 0, 0, $x, $y, $max, $max, $w, $h);
@@ -750,7 +756,7 @@ class Image
 				break;
 
 			case IMAGETYPE_WEBP:
-				imagewebp($this->image, $stream, DI::config()->get('system', 'jpeg_quality'));
+				@imagewebp($this->image, $stream, DI::config()->get('system', 'jpeg_quality'));
 				break;
 
 			case IMAGETYPE_BMP:
