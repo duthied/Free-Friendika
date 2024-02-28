@@ -77,6 +77,11 @@ class Inbox extends BaseApi
 			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
+		if (!HTTPSignature::isValidContentType($this->server['CONTENT_TYPE'] ?? '')) {
+			Logger::notice('Unexpected content type', ['content-type' => $this->server['CONTENT_TYPE'] ?? '', 'agent' => $this->server['HTTP_USER_AGENT'] ?? '']);
+			throw new \Friendica\Network\HTTPException\UnsupportedMediaTypeException();
+		}
+
 		if (DI::config()->get('debug', 'ap_inbox_log')) {
 			if (HTTPSignature::getSigner($postdata, $_SERVER)) {
 				$filename = 'signed-activitypub';
