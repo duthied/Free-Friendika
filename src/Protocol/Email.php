@@ -259,7 +259,7 @@ class Email
 
 		if ((isset($params['filename']) && $params['filename']) || (isset($params['name']) && $params['name'])) {
 			// filename may be given as 'Filename' or 'Name' or both
-			$filename = ($params['filename'])? $params['filename'] : $params['name'];
+			$filename = $params['filename'] ?? $params['name'];
 			// filename may be encoded, so see imap_mime_header_decode()
 			$attachments[$filename] = $data;  // this is a problem if two files have same name
 		}

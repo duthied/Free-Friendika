@@ -235,7 +235,12 @@ class ParseUrl
 			return $siteinfo;
 		}
 
-		$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
+		try {
+			$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
+		} catch (\Throwable $th) {
+			Logger::info('Exception when fetching', ['url' => $url, 'code' => $th->getCode(), 'message' => $th->getMessage()]);
+			return $siteinfo;
+		}
 		if (!$curlResult->isSuccess() || empty($curlResult->getBodyString())) {
 			Logger::info('Empty body or error when fetching', ['url' => $url, 'success' => $curlResult->isSuccess(), 'code' => $curlResult->getReturnCode()]);
 			return $siteinfo;
