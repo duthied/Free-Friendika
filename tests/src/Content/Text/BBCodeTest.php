@@ -35,7 +35,6 @@ class BBCodeTest extends FixtureTest
 	{
 		parent::setUp();
 		DI::config()->set('system', 'remove_multiplicated_lines', false);
-		DI::config()->set('system', 'no_oembed', false);
 		DI::config()->set('system', 'allowed_link_protocols', []);
 		DI::config()->set('system', 'url', 'https://friendica.local');
 		DI::config()->set('system', 'no_smilies', false);

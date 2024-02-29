@@ -429,10 +429,6 @@ return [
 		// Don't do count calculations (currently only when showing photo albums).
 		'no_count' => false,
 
-		// no_oembed (Boolean)
-		// Don't use OEmbed to fetch more information about a link.
-		'no_oembed' => false,
-
 		// no_redirect_list (Array)
 		// List of domains where HTTP redirects should be ignored.
 		'no_redirect_list' => [],
