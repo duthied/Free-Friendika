@@ -1788,7 +1788,7 @@ class BBCode
 				$text = self::normalizeVideoLinks($text);
 
 				// Youtube extensions
-				if ($try_oembed && OEmbed::isAllowedURL('https://www.youtube.com')) {
+				if ($try_oembed && OEmbed::isAllowedURL('https://www.youtube.com/embed/')) {
 					$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="' . $a->getThemeInfoValue('videowidth') . '" height="' . $a->getThemeInfoValue('videoheight') . '" src="https://www.youtube.com/embed/$1" frameborder="0" ></iframe>', $text);
 				} else {
 					$text = preg_replace(
@@ -1799,7 +1799,7 @@ class BBCode
 				}
 
 				// Vimeo extensions
-				if ($try_oembed && OEmbed::isAllowedURL('https://vimeo.com')) {
+				if ($try_oembed && OEmbed::isAllowedURL('https://player.vimeo.com/video')) {
 					$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->getThemeInfoValue('videowidth') . '" height="' . $a->getThemeInfoValue('videoheight') . '" src="https://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $text);
 				} else {
 					$text = preg_replace(
