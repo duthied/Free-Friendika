@@ -21,10 +21,7 @@
 
 namespace Friendica\Module\OAuth;
 
-use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Module\Special\HTTPException;
 use Psr\Http\Message\ResponseInterface;

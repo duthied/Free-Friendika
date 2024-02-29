@@ -29,7 +29,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Util\DateTimeFormat;
-use GuzzleHttp\Psr7\Uri;
 
 /**
  * OAuth Server

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.03-rc (Yellow Archangel)
--- DB_UPDATE_VERSION 1554
+-- DB_UPDATE_VERSION 1555
 -- ------------------------------------------
 
 
@@ -2017,7 +2017,8 @@ CREATE VIEW `application-view` AS SELECT
 	`application-token`.`follow` AS `follow`,
 	`application-token`.`push` AS `push`
 	FROM `application-token`
-			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`;
+			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`
+			INNER JOIN `user` ON `user`.`uid` = `application-token`.`uid` AND `user`.`verified` AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND NOT `user`.`account_expired`;
 
 --
 -- VIEW circle-member-view
