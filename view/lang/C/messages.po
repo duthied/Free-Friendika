@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2024.03-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-24 15:29+0000\n"
+"POT-Creation-Date: 2024-03-01 08:51-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -244,7 +244,7 @@ msgstr ""
 msgid "Discard"
 msgstr ""
 
-#: mod/message.php:135 src/Content/Nav.php:318 view/theme/frio/theme.php:241
+#: mod/message.php:135 src/Content/Nav.php:318 view/theme/frio/theme.php:244
 msgid "Messages"
 msgstr ""
 
@@ -315,7 +315,7 @@ msgstr ""
 #: src/Module/Profile/Profile.php:274 src/Module/Settings/Profile/Index.php:257
 #: src/Module/Settings/Server/Action.php:79 src/Module/User/Delegation.php:189
 #: src/Object/Post.php:1154 view/theme/duepuntozero/config.php:85
-#: view/theme/frio/config.php:171 view/theme/quattro/config.php:87
+#: view/theme/frio/config.php:150 view/theme/quattro/config.php:87
 #: view/theme/vier/config.php:135
 msgid "Submit"
 msgstr ""
@@ -1807,7 +1807,7 @@ msgstr ""
 msgid "%1$s tagged %2$s's %3$s with %4$s"
 msgstr ""
 
-#: src/Content/Item.php:429 view/theme/frio/theme.php:262
+#: src/Content/Item.php:429 view/theme/frio/theme.php:265
 msgid "Follow Thread"
 msgstr ""
 
@@ -1925,42 +1925,42 @@ msgstr ""
 #: src/Content/Nav.php:230 src/Module/BaseProfile.php:49
 #: src/Module/BaseSettings.php:98 src/Module/Contact.php:503
 #: src/Module/Contact/Profile.php:419 src/Module/Profile/Profile.php:268
-#: src/Module/Welcome.php:57 view/theme/frio/theme.php:230
+#: src/Module/Welcome.php:57 view/theme/frio/theme.php:233
 msgid "Profile"
 msgstr ""
 
-#: src/Content/Nav.php:230 view/theme/frio/theme.php:230
+#: src/Content/Nav.php:230 view/theme/frio/theme.php:233
 msgid "Your profile page"
 msgstr ""
 
 #: src/Content/Nav.php:231 src/Module/BaseProfile.php:65
-#: src/Module/Media/Photo/Browser.php:74 view/theme/frio/theme.php:234
+#: src/Module/Media/Photo/Browser.php:74 view/theme/frio/theme.php:237
 msgid "Photos"
 msgstr ""
 
-#: src/Content/Nav.php:231 view/theme/frio/theme.php:234
+#: src/Content/Nav.php:231 view/theme/frio/theme.php:237
 msgid "Your photos"
 msgstr ""
 
 #: src/Content/Nav.php:232 src/Module/BaseProfile.php:73
 #: src/Module/BaseProfile.php:76 src/Module/Contact.php:527
-#: view/theme/frio/theme.php:235
+#: view/theme/frio/theme.php:238
 msgid "Media"
 msgstr ""
 
-#: src/Content/Nav.php:232 view/theme/frio/theme.php:235
+#: src/Content/Nav.php:232 view/theme/frio/theme.php:238
 msgid "Your postings with media"
 msgstr ""
 
 #: src/Content/Nav.php:233 src/Content/Nav.php:293
 #: src/Module/BaseProfile.php:85 src/Module/BaseProfile.php:88
 #: src/Module/BaseProfile.php:96 src/Module/BaseProfile.php:99
-#: src/Module/Settings/Display.php:319 view/theme/frio/theme.php:236
-#: view/theme/frio/theme.php:240
+#: src/Module/Settings/Display.php:319 view/theme/frio/theme.php:239
+#: view/theme/frio/theme.php:243
 msgid "Calendar"
 msgstr ""
 
-#: src/Content/Nav.php:233 view/theme/frio/theme.php:236
+#: src/Content/Nav.php:233 view/theme/frio/theme.php:239
 msgid "Your calendar"
 msgstr ""
 
@@ -2030,7 +2030,7 @@ msgstr ""
 #: src/Content/Nav.php:274 src/Content/Nav.php:329
 #: src/Content/Text/HTML.php:877 src/Module/BaseProfile.php:127
 #: src/Module/BaseProfile.php:130 src/Module/Contact.php:426
-#: src/Module/Contact.php:535 view/theme/frio/theme.php:243
+#: src/Module/Contact.php:535 view/theme/frio/theme.php:246
 msgid "Contacts"
 msgstr ""
 
@@ -2069,15 +2069,15 @@ msgstr ""
 msgid "Terms of Service of this Friendica instance"
 msgstr ""
 
-#: src/Content/Nav.php:306 view/theme/frio/theme.php:239
+#: src/Content/Nav.php:306 view/theme/frio/theme.php:242
 msgid "Network"
 msgstr ""
 
-#: src/Content/Nav.php:306 view/theme/frio/theme.php:239
+#: src/Content/Nav.php:306 view/theme/frio/theme.php:242
 msgid "Conversations from your friends"
 msgstr ""
 
-#: src/Content/Nav.php:308 view/theme/frio/theme.php:229
+#: src/Content/Nav.php:308 view/theme/frio/theme.php:232
 msgid "Your posts and conversations"
 msgstr ""
 
@@ -2106,7 +2106,7 @@ msgstr ""
 msgid "Mark all system notifications as seen"
 msgstr ""
 
-#: src/Content/Nav.php:318 view/theme/frio/theme.php:241
+#: src/Content/Nav.php:318 view/theme/frio/theme.php:244
 msgid "Private mail"
 msgstr ""
 
@@ -2128,15 +2128,15 @@ msgstr ""
 
 #: src/Content/Nav.php:327 src/Module/Admin/Addons/Details.php:114
 #: src/Module/Admin/Themes/Details.php:93 src/Module/BaseSettings.php:182
-#: src/Module/Welcome.php:52 view/theme/frio/theme.php:242
+#: src/Module/Welcome.php:52 view/theme/frio/theme.php:245
 msgid "Settings"
 msgstr ""
 
-#: src/Content/Nav.php:327 view/theme/frio/theme.php:242
+#: src/Content/Nav.php:327 view/theme/frio/theme.php:245
 msgid "Account settings"
 msgstr ""
 
-#: src/Content/Nav.php:329 view/theme/frio/theme.php:243
+#: src/Content/Nav.php:329 view/theme/frio/theme.php:246
 msgid "Manage/edit friends and contacts"
 msgstr ""
 
@@ -6892,7 +6892,7 @@ msgid "Actions"
 msgstr ""
 
 #: src/Module/Contact/Profile.php:417
-#: src/Module/Settings/TwoFactor/Index.php:140 view/theme/frio/theme.php:229
+#: src/Module/Settings/TwoFactor/Index.php:140 view/theme/frio/theme.php:232
 msgid "Status"
 msgstr ""
 
@@ -8875,7 +8875,7 @@ msgstr ""
 msgid "Unsupported or missing response type"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:78
+#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:75
 msgid "Incomplete request data"
 msgstr ""
 
@@ -8886,11 +8886,11 @@ msgid ""
 "close this window: %s"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:83
+#: src/Module/OAuth/Token.php:80
 msgid "Invalid data or unknown client"
 msgstr ""
 
-#: src/Module/OAuth/Token.php:108
+#: src/Module/OAuth/Token.php:105
 msgid "Unsupported or missing grant type"
 msgstr ""
 
@@ -10630,7 +10630,7 @@ msgid "Content Settings"
 msgstr ""
 
 #: src/Module/Settings/Display.php:316 view/theme/duepuntozero/config.php:86
-#: view/theme/frio/config.php:172 view/theme/quattro/config.php:88
+#: view/theme/frio/config.php:151 view/theme/quattro/config.php:88
 #: view/theme/vier/config.php:136
 msgid "Theme settings"
 msgstr ""
@@ -12696,124 +12696,100 @@ msgstr ""
 msgid "Variations"
 msgstr ""
 
-#: view/theme/frio/config.php:153
-msgid "Light (Accented)"
-msgstr ""
-
-#: view/theme/frio/config.php:154
-msgid "Dark (Accented)"
-msgstr ""
-
-#: view/theme/frio/config.php:155
-msgid "Black (Accented)"
-msgstr ""
-
-#: view/theme/frio/config.php:167
+#: view/theme/frio/config.php:146
 msgid "Note"
 msgstr ""
 
-#: view/theme/frio/config.php:167
+#: view/theme/frio/config.php:146
 msgid "Check image permissions if all users are allowed to see the image"
 msgstr ""
 
-#: view/theme/frio/config.php:173
-msgid "Custom"
+#: view/theme/frio/config.php:152
+msgid "Appearance"
 msgstr ""
 
-#: view/theme/frio/config.php:174
-msgid "Legacy"
+#: view/theme/frio/config.php:153
+msgid "Accent color"
 msgstr ""
 
-#: view/theme/frio/config.php:175
-msgid "Accented"
-msgstr ""
-
-#: view/theme/frio/config.php:176
-msgid "Select color scheme"
-msgstr ""
-
-#: view/theme/frio/config.php:177
-msgid "Select scheme accent"
-msgstr ""
-
-#: view/theme/frio/config.php:177
+#: view/theme/frio/config.php:153
 msgid "Blue"
 msgstr ""
 
-#: view/theme/frio/config.php:177
+#: view/theme/frio/config.php:153
 msgid "Red"
 msgstr ""
 
-#: view/theme/frio/config.php:177
+#: view/theme/frio/config.php:153
 msgid "Purple"
 msgstr ""
 
-#: view/theme/frio/config.php:177
+#: view/theme/frio/config.php:153
 msgid "Green"
 msgstr ""
 
-#: view/theme/frio/config.php:177
+#: view/theme/frio/config.php:153
 msgid "Pink"
 msgstr ""
 
-#: view/theme/frio/config.php:178
+#: view/theme/frio/config.php:154
 msgid "Copy or paste schemestring"
 msgstr ""
 
-#: view/theme/frio/config.php:178
+#: view/theme/frio/config.php:154
 msgid ""
 "You can copy this string to share your theme with others. Pasting here "
 "applies the schemestring"
 msgstr ""
 
-#: view/theme/frio/config.php:179
+#: view/theme/frio/config.php:155
 msgid "Navigation bar background color"
 msgstr ""
 
-#: view/theme/frio/config.php:180
+#: view/theme/frio/config.php:156
 msgid "Navigation bar icon color "
 msgstr ""
 
-#: view/theme/frio/config.php:181
+#: view/theme/frio/config.php:157
 msgid "Link color"
 msgstr ""
 
-#: view/theme/frio/config.php:182
+#: view/theme/frio/config.php:158
 msgid "Set the background color"
 msgstr ""
 
-#: view/theme/frio/config.php:183
+#: view/theme/frio/config.php:159
 msgid "Content background opacity"
 msgstr ""
 
-#: view/theme/frio/config.php:184
+#: view/theme/frio/config.php:160
 msgid "Set the background image"
 msgstr ""
 
-#: view/theme/frio/config.php:185
+#: view/theme/frio/config.php:161
 msgid "Background image style"
 msgstr ""
 
-#: view/theme/frio/config.php:188
+#: view/theme/frio/config.php:164
 msgid "Always open Compose page"
 msgstr ""
 
-#: view/theme/frio/config.php:188
+#: view/theme/frio/config.php:164
 msgid ""
 "The New Post button always open the <a href=\"/compose\">Compose page</a> "
 "instead of the modal form. When this is disabled, the Compose page can be "
 "accessed with a middle click on the link or from the modal."
 msgstr ""
 
-#: view/theme/frio/config.php:192
+#: view/theme/frio/config.php:168
 msgid "Login page background image"
 msgstr ""
 
-#: view/theme/frio/config.php:196
+#: view/theme/frio/config.php:172
 msgid "Login page background color"
 msgstr ""
 
-#: view/theme/frio/config.php:196
+#: view/theme/frio/config.php:172
 msgid "Leave background image and color empty for theme defaults"
 msgstr ""
 
@@ -12853,19 +12829,35 @@ msgstr ""
 msgid "Repeat image to fill the screen."
 msgstr ""
 
-#: view/theme/frio/php/default.php:81 view/theme/frio/php/standard.php:40
+#: view/theme/frio/php/default.php:82 view/theme/frio/php/standard.php:40
 msgid "Skip to main content"
 msgstr ""
 
-#: view/theme/frio/php/default.php:152 view/theme/frio/php/standard.php:75
+#: view/theme/frio/php/default.php:153 view/theme/frio/php/standard.php:75
 msgid "Back to top"
 msgstr ""
 
-#: view/theme/frio/theme.php:211
-msgid "Guest"
+#: view/theme/frio/php/scheme.php:105
+msgid "Light"
+msgstr ""
+
+#: view/theme/frio/php/scheme.php:106
+msgid "Dark"
+msgstr ""
+
+#: view/theme/frio/php/scheme.php:107
+msgid "Black"
+msgstr ""
+
+#: view/theme/frio/php/scheme.php:118
+msgid "Custom"
 msgstr ""
 
 #: view/theme/frio/theme.php:214
+msgid "Guest"
+msgstr ""
+
+#: view/theme/frio/theme.php:217
 msgid "Visitor"
 msgstr ""
 
