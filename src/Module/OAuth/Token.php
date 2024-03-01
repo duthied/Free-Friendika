@@ -22,15 +22,12 @@
 namespace Friendica\Module\OAuth;
 
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Module\Special\HTTPException;
 use Friendica\Security\OAuth;
 use Friendica\Util\DateTimeFormat;
-use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\ResponseInterface;
 
 /**

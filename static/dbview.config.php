@@ -56,7 +56,8 @@
 			"push" => ["application-token", "push"],
 		],
 		"query" => "FROM `application-token`
-			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`"
+			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`
+			INNER JOIN `user` ON `user`.`uid` = `application-token`.`uid` AND `user`.`verified` AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND NOT `user`.`account_expired`"
 	],
 	"circle-member-view" => [
 		"fields" => [
