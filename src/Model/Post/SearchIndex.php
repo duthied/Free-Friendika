@@ -48,6 +48,9 @@ class SearchIndex
 		}
 
 		$item = Post::selectFirstPost(['created', 'owner-id', 'private', 'language', 'network', 'title', 'content-warning', 'body', 'quote-uri-id'], ['uri-id' => $uri_id]);
+		if (empty($item)) {
+			return;
+		}
 
 		$search = [
 			'uri-id'     => $uri_id,
