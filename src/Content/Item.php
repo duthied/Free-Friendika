@@ -695,7 +695,7 @@ class Item
 			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 		}
 
-		$shared_content = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid'], $item['uri']);
+		$shared_content = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'] ?? $item['uri'], $item['created'], $item['guid'], $item['uri']);
 
 		if (!empty($item['title'])) {
 			$shared_content .= '[h3]' . $item['title'] . "[/h3]\n";
