@@ -24,10 +24,9 @@ use Friendica\Network\HTTPException\NotModifiedException;
 use Friendica\Util\Strings;
 
 require_once 'view/theme/frio/theme.php';
+require_once 'view/theme/frio/php/scheme.php';
 require_once 'view/theme/frio/php/PHPColors/Color.php';
 
-$scheme = '';
-$schemecss = '';
 $schemecssfile = false;
 $scheme_modified = 0;
 
@@ -35,7 +34,7 @@ $scheme_modified = 0;
  * This script can be included when the maintenance mode is on, which requires us to avoid any config call and
  * use the following hardcoded defaults
  */
-$scheme           = null;
+$scheme           = FRIO_DEFAULT_SCHEME;
 $scheme_accent    = FRIO_SCHEME_ACCENT_BLUE;
 $nav_bg           = '#708fa0';
 $nav_icon_color   = '#ffffff';
@@ -52,7 +51,7 @@ if (DI::mode()->has(\Friendica\App\Mode::MAINTENANCEDISABLED)) {
 	DI::config()->reload();
 
 	// Default to hard-coded values for empty settings
-	$scheme           = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
+	$scheme           = frio_scheme_get_current();
 	$scheme_accent    = DI::config()->get('frio', 'scheme_accent')    ?: $scheme_accent;
 	$nav_bg           = DI::config()->get('frio', 'nav_bg')           ?: $nav_bg;
 	$nav_icon_color   = DI::config()->get('frio', 'nav_icon_color')   ?: $nav_icon_color;
@@ -71,7 +70,7 @@ if (DI::mode()->has(\Friendica\App\Mode::MAINTENANCEDISABLED)) {
 		DI::pConfig()->load($uid, 'frio');
 
 		// Only override display settings that have actually been set
-		$scheme           = DI::pConfig()->get($uid, 'frio', 'scheme', DI::pConfig()->get($uid, 'frio', 'schema')) ?: $scheme;
+		$scheme           = frio_scheme_get_current_for_user($uid);
 		$scheme_accent    = DI::pConfig()->get($uid, 'frio', 'scheme_accent')    ?: $scheme_accent;
 		$nav_bg           = DI::pConfig()->get($uid, 'frio', 'nav_bg')           ?: $nav_bg;
 		$nav_icon_color   = DI::pConfig()->get($uid, 'frio', 'nav_icon_color')   ?: $nav_icon_color;
@@ -89,37 +88,15 @@ if (!$login_bg_image && !$login_bg_color) {
 }
 $login_bg_color = $login_bg_color ?: '#ededed';
 
-// Now load the scheme.  If a value is changed above, we'll keep the settings
-// If not, we'll keep those defined by the scheme
-// Setting $scheme to '' wasn't working for some reason, so we'll check it's
-// not --- like the mobile theme does instead.
-// Allow layouts to over-ride the scheme.
-if (!empty($_REQUEST['scheme'])) {
-	$scheme = $_REQUEST['scheme'];
-}
+$scheme = Strings::sanitizeFilePathItem($scheme);
 
-$scheme = Strings::sanitizeFilePathItem($scheme ?? '');
-
-if ($scheme && ($scheme != '---')) {
+if ($scheme != FRIO_CUSTOM_SCHEME) {
 	if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
 		$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
 		require_once $schemefile;
 	}
 	if (file_exists('view/theme/frio/scheme/' . $scheme . '.css')) {
 		$schemecssfile = 'view/theme/frio/scheme/' . $scheme . '.css';
-	}
-}
-
-// If we haven't got a scheme, load the default.  We shouldn't touch this - we
-// should leave it for admins to define for themselves.
-// default.php and default.css MUST be symlinks to existing scheme files.
-if (!$scheme) {
-	if (file_exists('view/theme/frio/scheme/default.php')) {
-		$schemefile = 'view/theme/frio/scheme/default.php';
-		require_once $schemefile;
-	}
-	if (file_exists('view/theme/frio/scheme/default.css')) {
-		$schemecssfile = 'view/theme/frio/scheme/default.css';
 	}
 }
 

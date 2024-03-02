@@ -29,6 +29,7 @@ use Friendica\Model\Profile;
 
 require_once 'view/theme/frio/theme.php';
 require_once 'view/theme/frio/php/frio_boot.php';
+require_once 'view/theme/frio/php/scheme.php';
 
 //	$minimal = is_modal();
 if (!isset($minimal)) {
@@ -59,8 +60,8 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 		// Add the theme color meta
 		// It makes mobile Chrome UI match Frio's top bar color.
 		$uid = Profile::getThemeUid($a);
-		$scheme = DI::pConfig()->get($uid, 'frio', 'scheme', DI::pConfig()->get($uid, 'frio', 'schema'));
-		if ($scheme && is_string($scheme) && $scheme != '---') {
+		$scheme = frio_scheme_get_current_for_user($uid);
+		if ($scheme != FRIO_CUSTOM_SCHEME) {
 			if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
 				$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
 				$scheme_accent =
