@@ -1602,7 +1602,7 @@ class Diaspora
 			$datarray['diaspora_signed_text'] = json_encode($data);
 		}
 
-		if (Item::isTooOld($datarray)) {
+		if (DI::contentItem()->isTooOld($datarray['created'], $datarray['uid'])) {
 			Logger::info('Comment is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
 			return false;
 		}
@@ -1860,7 +1860,7 @@ class Diaspora
 			$datarray['diaspora_signed_text'] = json_encode($data);
 		}
 
-		if (Item::isTooOld($datarray)) {
+		if (DI::contentItem()->isTooOld($datarray['created'], $datarray['uid'])) {
 			Logger::info('Like is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
 			return false;
 		}
@@ -2023,7 +2023,7 @@ class Diaspora
 		// Diaspora doesn't provide a date for a participation
 		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = DateTimeFormat::utcNow();
 
-		if (Item::isTooOld($datarray)) {
+		if (DI::contentItem()->isTooOld($datarray['created'], $datarray['uid'])) {
 			Logger::info('Participation is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
 			return false;
 		}
@@ -2393,7 +2393,7 @@ class Diaspora
 
 		self::fetchGuid($datarray);
 
-		if (Item::isTooOld($datarray)) {
+		if (DI::contentItem()->isTooOld($datarray['created'], $datarray['uid'])) {
 			Logger::info('Reshare is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
 			return false;
 		}
@@ -2738,7 +2738,7 @@ class Diaspora
 
 		self::fetchGuid($datarray);
 
-		if (Item::isTooOld($datarray)) {
+		if (DI::contentItem()->isTooOld($datarray['created'], $datarray['uid'])) {
 			Logger::info('Status is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
 			return false;
 		}

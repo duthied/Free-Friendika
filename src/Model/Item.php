@@ -690,38 +690,6 @@ class Item
 	}
 
 	/**
-	 * Check if the item array is too old
-	 *
-	 * @param array $item Item record
-	 * @return boolean item is too old
-	 */
-	public static function isTooOld(array $item): bool
-	{
-		// check for create date and expire time
-		$expire_interval = DI::config()->get('system', 'dbclean-expire-days', 0);
-
-		$user = DBA::selectFirst('user', ['expire'], ['uid' => $item['uid']]);
-		if (DBA::isResult($user) && ($user['expire'] > 0) && (($user['expire'] < $expire_interval) || ($expire_interval == 0))) {
-			$expire_interval = $user['expire'];
-		}
-
-		if (($expire_interval > 0) && !empty($item['created'])) {
-			$expire_date = time() - ($expire_interval * 86400);
-			$created_date = strtotime($item['created']);
-			if ($created_date < $expire_date) {
-				Logger::notice('Item created before expiration interval.', [
-					'created' => date('c', $created_date),
-					'expired' => date('c', $expire_date),
-					'$item' => $item
-				]);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * Return the id of the given item array if it has been stored before
 	 *
 	 * @param array $item Item record
@@ -1032,7 +1000,7 @@ class Item
 
 		if (
 			!empty($item['direction']) && in_array($item['direction'], [Conversation::PUSH, Conversation::RELAY]) &&
-			empty($item['origin']) && self::isTooOld($item)
+			empty($item['origin']) && DI::contentItem()->isTooOld($item['created'], $item['uid'])
 		) {
 			Logger::info('Item is too old', ['item' => $item]);
 			return 0;
