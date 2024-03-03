@@ -1105,4 +1105,35 @@ class Item
 			Tag::store($toUriId, $receiver['type'], $receiver['name'], $receiver['url']);
 		}
 	}
+
+	/**
+	 * Check if the item is too old
+	 *
+	 * @param string $created
+	 * @param integer $uid
+	 * @return boolean item is too old
+	 */
+	public function isTooOld(string $created, int $uid = 0): bool
+	{
+		// check for create date and expire time
+		$expire_interval = DI::config()->get('system', 'dbclean-expire-days', 0);
+
+		if ($uid) {
+			$user = DBA::selectFirst('user', ['expire'], ['uid' => $uid]);
+			if (DBA::isResult($user) && ($user['expire'] > 0) && (($user['expire'] < $expire_interval) || ($expire_interval == 0))) {
+				$expire_interval = $user['expire'];
+			}
+		}
+
+		if (($expire_interval > 0) && !empty($created)) {
+			$expire_date = time() - ($expire_interval * 86400);
+			$created_date = strtotime($created);
+			if ($created_date < $expire_date) {
+				Logger::notice('Item created before expiration interval.', ['created' => date('c', $created_date), 'expired' => date('c', $expire_date)]);
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
