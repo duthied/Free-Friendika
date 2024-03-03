@@ -365,7 +365,7 @@ class Media
 	 */
 	private static function addPage(array $media): array
 	{
-		$data = ParseUrl::getSiteinfoCached($media['url'], false);
+		$data = ParseUrl::getSiteinfoCached($media['url']);
 		$media['preview'] = $data['images'][0]['src'] ?? null;
 		$media['preview-height'] = $data['images'][0]['height'] ?? null;
 		$media['preview-width'] = $data['images'][0]['width'] ?? null;

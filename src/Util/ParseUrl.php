@@ -23,7 +23,6 @@ namespace Friendica\Util;
 
 use DOMDocument;
 use DOMXPath;
-use Friendica\Content\OEmbed;
 use Friendica\Content\Text\HTML;
 use Friendica\Protocol\HTTP\MediaType;
 use Friendica\Core\Hook;
@@ -165,8 +164,6 @@ class ParseUrl
 	 * \<meta name="description" content="An awesome description"\>
 	 *
 	 * @param string $url         The url of the page which should be scraped
-	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
-	 *                            to avoid endless loops
 	 * @param int    $count       Internal counter to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
