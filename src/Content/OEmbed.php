@@ -225,7 +225,7 @@ class OEmbed
 						'$turl' => BBCode::proxyUrl($oembed->thumbnail_url, BBCode::INTERNAL, $uriid, Proxy::SIZE_SMALL),
 					]);
 				} else {
-					$ret = $oembed->html;
+					$ret .= Proxy::proxifyHtml($oembed->html, $uriid);
 				}
 				break;
 
