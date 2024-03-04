@@ -1,9 +1,53 @@
 Version 2024.03 (unreleased)
   Friendica Core
+    Updates to the translations AR, BG, CS, DE, EO, ES, FR, GD, HU, IS, IT, JA, PL, RO, RU, SV
+    Updates to the themes (frio, vier) [annando, foss-, haheute, MrPetovan, Raroun, toddy15]
+    Improved the channel feature [annando]
+    Improved the search performance [annando]
+    Improved spam detection [annando]
+    Improved the account overview on the moderation page [annando]
+    Improved account creation via CLI console [mexon]
+    Improved the Mastodon compatible API [annando, MrPetovan]
+    Improved logging of the system load value [annando]
+    Improved image handling [annando]
+    Fixed an issue that could lead to empty URLs in the server block list [annando]
+    Fixed XSS attacks [leoOliver, MrPetovan, snajafov]
+    Fixed enumberation attack on photo URLs [MrPetovan]
+    Fixed an issue when importing emails [annando]
+    Fixed an issue that blocked users could still use the API [annando]
+    Fixed an issue when fetching remote content [anndndo, arcanicanis]
+    General code cleanup [annando, MrPetovan]
+    Updated the PasswordExposed usage [mexon]
+    Removed fpostit (Friendica post bookmarklet) [MrPetovan]
+    Removed the possibility for users to follow relays directly [annando]
+    Removed unused OEmbed functionality [annando]
+    Removed legacy schemes from frio theme [MrPetovan]
+    Added blur effect to sensitive images and user setting against it [annando]
+    Added account type Channel Relay [annando]
+    Added OCR generated image descriptions via tesseract addon [annando]
+    Added WebP and BMP support [annando]
+    Added blocked email addresses for registration [annando]
 
   Friendica Addons
+    advancedcontentfilter
+      Updated dependency for PHP8.2 compatibility [MrPetovan]
+    bluesky
+      Overhaul of the Bluesky connector [annando]
+      Fixed problem with empty quoted shares [annando]
+    openstreetmap
+      Fix a config problem [haheute]
+    pnut:
+      Connector addon was added [spacenerdmo]
+    tesseract
+      Added the addon to generate image descriptions from images via OCR [annando]
+    url_replace
+      Added addon to replace URLs from Twitter, Youtube and some others using 12ft.io [toddy15]
 
   Closed Issues
+      903,  7732,  8768, 11142, 13220, 13293, 13765, 13768, 13809,
+    13814, 13814, 13818, 13819, 13822, 13823, 13828, 13839, 13844,
+    13845, 13859, 13863, 13877, 13886, 13887, 13897, 13899, 13905,
+    13909, 13922, 13940, 13949, 13953, 13955
 
 Version 2023.12 (2023-12-24)
   Friendica Core
