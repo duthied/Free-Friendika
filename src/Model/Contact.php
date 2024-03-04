@@ -755,7 +755,7 @@ class Contact
 		$user = DBA::selectFirst(
 			'user',
 			['uid', 'username', 'nickname', 'pubkey', 'prvkey'],
-			['uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]
+			['uid' => $uid, 'account_removed' => false, 'account_expired' => false]
 		);
 		if (!DBA::isResult($user)) {
 			return false;
