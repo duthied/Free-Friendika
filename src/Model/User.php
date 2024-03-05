@@ -833,7 +833,7 @@ class User
 	public static function updateLastActivity(array $user, bool $refresh_login)
 	{
 		$current_day = DateTimeFormat::utcNow('Y-m-d');
-		if (($user['last-activity'] == $current_day) && (!$refresh_login || DateTimeFormat::utc($user['login_date'], 'z-H') == date('z-H'))) {
+		if (($user['last-activity'] == $current_day) && (!$refresh_login || DateTimeFormat::utc($user['login_date'], 'z-H') == DateTimeFormat::utcNow('z-H'))) {
 			return;
 		}
 
