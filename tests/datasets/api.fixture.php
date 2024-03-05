@@ -215,7 +215,7 @@ return [
 			'id'       => 48,
 			'uid'      => 0,
 			'uri-id'   => 42,
-			'name'     => 'Self contact',
+			'name'     => 'Test user',
 			'nick'     => 'selfcontact',
 			'self'     => 0,
 			'nurl'     => 'http://friendica.local/profile/selfcontact',
@@ -928,6 +928,7 @@ return [
 		[
 			'id'  => 1,
 			'uid' => 42,
+			'locality' => 'DFRN',
 		],
 	],
 	'group' => [
