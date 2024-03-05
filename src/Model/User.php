@@ -826,27 +826,26 @@ class User
 	/**
 	 * Update the day of the last activity of the given user
 	 *
-	 * @param integer $uid
+	 * @param array $user
+	 * @param bool  $refresh_login
 	 * @return void
 	 */
-	public static function updateLastActivity(int $uid)
+	public static function updateLastActivity(array $user, bool $refresh_login)
 	{
-		if (!$uid) {
-			return;
-		}
-
-		$user = self::getById($uid, ['last-activity']);
-		if (empty($user)) {
-			return;
-		}
-
 		$current_day = DateTimeFormat::utcNow('Y-m-d');
-
-		if ($user['last-activity'] != $current_day) {
-			self::update(['last-activity' => $current_day], $uid);
-			// Set the last activity for all identities of the user
-			DBA::update('user', ['last-activity' => $current_day], ['parent-uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
+		if (($user['last-activity'] == $current_day) && (!$refresh_login || DateTimeFormat::utc($user['login_date'], 'z-H') == DateTimeFormat::utcNow('z-H'))) {
+			return;
 		}
+
+		$fields = ['last-activity' => $current_day];
+		if ($refresh_login) {
+			$fields['login_date'] = DateTimeFormat::utcNow();
+		}
+
+		Logger::debug('Set last activity for user', ['uid' => $user['uid'], 'fields' => $fields]);
+		self::update($fields, $user['uid']);
+		// Set the last activity for all identities of the user
+		DBA::update('user', $fields, ['parent-uid' => $user['uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
 	}
 
 	/**

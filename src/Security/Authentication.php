@@ -194,18 +194,7 @@ class Authentication
 					$this->baseUrl->redirect();
 				}
 
-				// Make sure to refresh the last login time for the user if the user
-				// stays logged in for a long time, e.g. with "Remember Me"
-				$login_refresh = false;
-				if (!$this->session->get('last_login_date')) {
-					$this->session->set('last_login_date', DateTimeFormat::utcNow());
-				}
-				if (strcmp(DateTimeFormat::utc('now - 12 hours'), $this->session->get('last_login_date')) > 0) {
-					$this->session->set('last_login_date', DateTimeFormat::utcNow());
-					$login_refresh = true;
-				}
-
-				$this->setForUser($a, $user, false, false, $login_refresh);
+				$this->setForUser($a, $user);
 			}
 		}
 	}
@@ -283,7 +272,6 @@ class Authentication
 
 		// if we haven't failed up this point, log them in.
 		$this->session->set('remember', $remember);
-		$this->session->set('last_login_date', DateTimeFormat::utcNow());
 
 		$openid_identity = $this->session->get('openid_identity');
 		$openid_server   = $this->session->get('openid_server');
@@ -311,7 +299,7 @@ class Authentication
 	 * @param array $user_record The current "user" record
 	 * @param bool  $login_initial
 	 * @param bool  $interactive
-	 * @param bool  $login_refresh
+	 * @param bool  $refresh_login
 	 *
 	 * @throws HTTPException\FoundException
 	 * @throws HTTPException\MovedPermanentlyException
@@ -321,7 +309,7 @@ class Authentication
 	 * @throws HTTPException\InternalServerErrorException In case of Friendica specific exceptions
 	 *
 	 */
-	public function setForUser(App $a, array $user_record, bool $login_initial = false, bool $interactive = false, bool $login_refresh = false)
+	public function setForUser(App $a, array $user_record, bool $login_initial = false, bool $interactive = false, bool $refresh_login = true)
 	{
 		$my_url = $this->baseUrl . '/profile/' . $user_record['nickname'];
 
@@ -354,13 +342,9 @@ class Authentication
 
 		$this->setXAccMgmtStatusHeader($user_record);
 
-		if ($login_initial || $login_refresh) {
-			$this->dba->update('user', ['last-activity' => DateTimeFormat::utcNow('Y-m-d'), 'login_date' => DateTimeFormat::utcNow()], ['uid' => $user_record['uid']]);
+		User::updateLastActivity($user_record, $refresh_login);
 
-			// Set the login date for all identities of the user
-			$this->dba->update('user', ['last-activity' => DateTimeFormat::utcNow('Y-m-d'), 'login_date' => DateTimeFormat::utcNow()],
-				['parent-uid' => $user_record['uid'], 'account_removed' => false]);
-
+		if ($login_initial) {
 			// Regularly update suggestions
 			if (Contact\Relation::areSuggestionsOutdated($user_record['uid'])) {
 				Worker::add(Worker::PRIORITY_MEDIUM, 'UpdateSuggestions', $user_record['uid']);

@@ -43,7 +43,7 @@ abstract class ApiTest extends FixtureTest
 	// User data that the test database is populated with
 	const SELF_USER = [
 		'id'   => 42,
-		'name' => 'Self contact',
+		'name' => 'Test user',
 		'nick' => 'selfcontact',
 		'nurl' => 'http://localhost/profile/selfcontact'
 	];
