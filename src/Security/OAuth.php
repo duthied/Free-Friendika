@@ -104,7 +104,10 @@ class OAuth
 		}
 		Logger::debug('Token found', $token);
 
-		User::updateLastActivity($token['uid']);
+		$user = User::getById($token['uid'], ['uid', 'last-activity', 'login_date']);
+		if (!empty($user)) {
+			User::updateLastActivity($user, false);
+		}
 
 		// Regularly update suggestions
 		if (Contact\Relation::areSuggestionsOutdated($token['uid'])) {

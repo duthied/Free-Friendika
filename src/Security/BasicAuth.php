@@ -183,10 +183,7 @@ class BasicAuth
 			throw new UnauthorizedException("This API requires login");
 		}
 
-		// Don't refresh the login date more often than twice a day to spare database writes
-		$login_refresh = strcmp(DateTimeFormat::utc('now - 12 hours'), $record['login_date']) > 0;
-
-		DI::auth()->setForUser($a, $record, false, false, $login_refresh);
+		DI::auth()->setForUser($a, $record, false, false, false);
 
 		Hook::callAll('logged_in', $record);
 
