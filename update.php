@@ -1436,3 +1436,14 @@ function update_1554()
 
 	return Update::SUCCESS;
 }
+
+function update_1556()
+{
+	$users = DBA::select('user', ['uid'], ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
+	while ($user = DBA::fetch($users)) {
+		Worker::add(Worker::PRIORITY_LOW, 'ProfileUpdate', $user['uid']);
+	}
+	DBA::close($users);
+
+	return Update::SUCCESS;
+}

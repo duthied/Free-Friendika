@@ -48,6 +48,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use GuzzleHttp\Psr7\Uri;
@@ -3886,7 +3887,7 @@ class Diaspora
 	 */
 	private static function createProfileData(int $uid): array
 	{
-		$profile = DBA::selectFirst('owner-view', ['uid', 'addr', 'name', 'location', 'net-publish', 'dob', 'about', 'pub_keywords', 'updated'], ['uid' => $uid]);
+		$profile = User::getOwnerDataById($uid);
 
 		if (!DBA::isResult($profile)) {
 			return [];
@@ -3900,9 +3901,9 @@ class Diaspora
 			'full_name'        => $profile['name'],
 			'first_name'       => $split_name['first'],
 			'last_name'        => $split_name['last'],
-			'image_url'        => DI::baseUrl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
-			'image_url_medium' => DI::baseUrl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
-			'image_url_small'  => DI::baseUrl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
+			'image_url'        => User::getAvatarUrl($profile, Proxy::SIZE_SMALL),
+			'image_url_medium' => User::getAvatarUrl($profile, Proxy::SIZE_THUMB),
+			'image_url_small'  => User::getAvatarUrl($profile, Proxy::SIZE_MICRO),
 			'bio'              => null,
 			'birthday'         => null,
 			'gender'           => null,
