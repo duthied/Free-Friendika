@@ -3643,6 +3643,13 @@ class Item
 			}
 
 			if ($PostMedia->mimetype->type == 'video') {
+				if (($PostMedia->height ?? 0) > ($PostMedia->width ?? 0)) {
+					$height = min(DI::config()->get('system', 'max_video_height'), $PostMedia->height);
+					$width  = 'auto';
+				} else {
+					$height = 'auto';
+					$width  = '100%';
+				}
 				/// @todo Move the template to /content as well
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 					'$video' => [
@@ -3651,6 +3658,8 @@ class Item
 						'name'    => $PostMedia->name ?: $PostMedia->url,
 						'preview' => $preview_url,
 						'mime'    => (string)$PostMedia->mimetype,
+						'height'  => $height,
+						'width'   => $width,
 					],
 				]);
 				if (($item['post-type'] ?? null) == Item::PT_VIDEO) {
