@@ -1039,7 +1039,7 @@ function photos_content(App $a)
 			$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 			$params = ['order' => ['id'], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
-			$items = Post::toArray(Post::selectForUser($link_item['uid'], Item::ITEM_FIELDLIST, $condition, $params));
+			$items = Post::toArray(Post::selectForUser($link_item['uid'], array_merge(Item::ITEM_FIELDLIST, ['author-alias']), $condition, $params));
 
 			if (DI::userSession()->getLocalUserId() == $link_item['uid']) {
 				Item::update(['unseen' => false], ['parent' => $link_item['parent']]);
