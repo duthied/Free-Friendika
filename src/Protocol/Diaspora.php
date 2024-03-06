@@ -3886,7 +3886,7 @@ class Diaspora
 	 */
 	private static function createProfileData(int $uid): array
 	{
-		$profile = DBA::selectFirst('owner-view', ['uid', 'addr', 'name', 'location', 'net-publish', 'dob', 'about', 'pub_keywords', 'updated'], ['uid' => $uid]);
+		$profile = DBA::selectFirst('owner-view', ['uid', 'addr', 'name', 'location', 'net-publish', 'dob', 'about', 'pub_keywords', 'updated', 'photo', 'thumb', 'micro'], ['uid' => $uid]);
 
 		if (!DBA::isResult($profile)) {
 			return [];
@@ -3900,9 +3900,9 @@ class Diaspora
 			'full_name'        => $profile['name'],
 			'first_name'       => $split_name['first'],
 			'last_name'        => $split_name['last'],
-			'image_url'        => DI::baseUrl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
-			'image_url_medium' => DI::baseUrl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
-			'image_url_small'  => DI::baseUrl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
+			'image_url'        => $profile['photo'],
+			'image_url_medium' => $profile['thumb'],
+			'image_url_small'  => $profile['micro'],
 			'bio'              => null,
 			'birthday'         => null,
 			'gender'           => null,
