@@ -43,7 +43,7 @@ class Counts
 			Activity::EMOJIREACT, Activity::ANNOUNCE, Activity::VIEW, Activity::READ])) {
 			return true;
 		}
-	
+
 		$condition = ['thr-parent-id' => $uri_id, 'vid' => $vid, 'deleted' => false];
 
 		if ($body == $verb) {
@@ -52,7 +52,7 @@ class Counts
 		} elseif ($verb == Activity::POST) {
 			$condition['gravity'] = Item::GRAVITY_COMMENT;
 			$body                 = '';
-		} elseif (($verb != Activity::POST) && (mb_strlen($body) == 1) && Smilies::isEmojiPost($body)) {
+		} elseif ($body && mb_strlen($body) == 1 && Smilies::isEmojiPost($body)) {
 			$condition['body'] = $body;
 		} else {
 			$body = '';
