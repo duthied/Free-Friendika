@@ -407,6 +407,10 @@ return [
 		// Maximum recursion depth when fetching posts until the job is delegated to a worker task or finished.
 		'max_recursion_depth' => 50,
 
+		// max_video_height (Integer)
+		// Maximum height of videos in portrait mode.
+		'max_video_height' => 640,
+
 		// memcache_host (String)
 		// Host name of the memcache daemon.
 		'memcache_host' => '127.0.0.1',

@@ -3644,7 +3644,7 @@ class Item
 
 			if ($PostMedia->mimetype->type == 'video') {
 				if (($PostMedia->height ?? 0) > ($PostMedia->width ?? 0)) {
-					$height = min(DI::config()->get('system', 'max_video_height'), $PostMedia->height);
+					$height = min(DI::config()->get('system', 'max_video_height') ?: '100%', $PostMedia->height);
 					$width  = 'auto';
 				} else {
 					$height = 'auto';
