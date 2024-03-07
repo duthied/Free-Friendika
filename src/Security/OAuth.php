@@ -104,7 +104,7 @@ class OAuth
 		}
 		Logger::debug('Token found', $token);
 
-		$user = User::getById($token['uid'], ['uid', 'last-activity', 'login_date']);
+		$user = User::getById($token['uid'], ['uid', 'parent-uid', 'last-activity', 'login_date']);
 		if (!empty($user)) {
 			User::updateLastActivity($user, false);
 		}

@@ -846,6 +846,11 @@ class User
 		self::update($fields, $user['uid']);
 		// Set the last activity for all identities of the user
 		DBA::update('user', $fields, ['parent-uid' => $user['uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
+
+		if (!empty($user['parent-uid'])) {
+			self::update($fields, $user['parent-uid']);
+			DBA::update('user', $fields, ['parent-uid' => $user['parent-uid'], 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
+		}
 	}
 
 	/**
