@@ -66,7 +66,7 @@ class Login extends BaseModule
 			$this->baseUrl->redirect($return_path);
 		}
 
-		return self::form($return_path, intval($this->config->get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
+		return self::form($return_path, \Friendica\Module\Register::getPolicy() !== \Friendica\Module\Register::CLOSED);
 	}
 
 	protected function post(array $request = [])
@@ -118,7 +118,7 @@ class Login extends BaseModule
 		}
 
 		$reg = false;
-		if ($register && intval(DI::config()->get('config', 'register_policy')) !== Register::CLOSED) {
+		if ($register && Register::getPolicy() !== Register::CLOSED) {
 			$reg = [
 				'title' => DI::l10n()->t('Create a New Account'),
 				'desc' => DI::l10n()->t('Register'),

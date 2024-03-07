@@ -97,6 +97,10 @@ return [
 		// Checks for missing entries in "post", "post-thread" or "post-thread-user" and creates them
 		'add_missing_posts' => false,
 
+		// admin_inactivity_limit (Integer)
+		// Days of inactivity after which an admin is considered inactive. "0" means that there will be no check for inactivity.
+		'admin_inactivity_limit' => 30,
+
 		// allowed_link_protocols (Array)
 		// Allowed protocols in links URLs, add at your own risk. http(s) is always allowed.
 		'allowed_link_protocols' => ['ftp://', 'ftps://', 'mailto:', 'cid:', 'gopher://'],

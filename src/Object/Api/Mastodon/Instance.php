@@ -75,7 +75,7 @@ class Instance extends BaseDataTransferObject
 
 	public function __construct(IManageConfigValues $config, BaseURL $baseUrl, Database $database, Configuration $configuration, ?Account $contact_account, array $rules)
 	{
-		$register_policy = intval($config->get('config', 'register_policy'));
+		$register_policy = Register::getPolicy();
 
 		$this->uri               = $baseUrl->getHost();
 		$this->title             = $config->get('config', 'sitename');
@@ -87,8 +87,8 @@ class Instance extends BaseDataTransferObject
 		$this->thumbnail         = $baseUrl . (new Header($config))->getMastodonBannerPath();
 		$this->languages         = [$config->get('system', 'language')];
 		$this->max_toot_chars    = (int)$config->get('config', 'api_import_size', $config->get('config', 'max_import_size'));
-		$this->registrations     = ($register_policy != Register::CLOSED);
-		$this->approval_required = ($register_policy == Register::APPROVE);
+		$this->registrations     = ($register_policy !== Register::CLOSED);
+		$this->approval_required = ($register_policy === Register::APPROVE);
 		$this->invites_enabled   = false;
 		$this->configuration     = $configuration;
 		$this->contact_account   = $contact_account ?? [];

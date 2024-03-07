@@ -80,7 +80,7 @@ class Import extends \Friendica\BaseModule
 
 	protected function post(array $request = [])
 	{
-		if ($this->config->get('config', 'register_policy') != \Friendica\Module\Register::OPEN && !$this->app->isSiteAdmin()) {
+		if (\Friendica\Module\Register::getPolicy() !== \Friendica\Module\Register::OPEN && !$this->app->isSiteAdmin()) {
 			throw new HttpException\ForbiddenException($this->t('Permission denied.'));
 		}
 
@@ -99,7 +99,7 @@ class Import extends \Friendica\BaseModule
 
 	protected function content(array $request = []): string
 	{
-		if (($this->config->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !$this->app->isSiteAdmin()) {
+		if ((\Friendica\Module\Register::getPolicy() !== \Friendica\Module\Register::OPEN) && !$this->app->isSiteAdmin()) {
 			$this->systemMessages->addNotice($this->t('User imports on closed servers can only be done by an administrator.'));
 		}
 

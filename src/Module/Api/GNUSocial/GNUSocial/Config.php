@@ -47,7 +47,7 @@ class Config extends BaseApi
 				'broughtby'    => '',
 				'broughtbyurl' => '',
 				'timezone'     => DI::config()->get('system', 'default_timezone'),
-				'closed'       => (DI::config()->get('config', 'register_policy') == Register::CLOSED),
+				'closed'       => Register::getPolicy() === Register::CLOSED,
 				'inviteonly'   => (bool)DI::config()->get('system', 'invitation_only'),
 				'private'      => (bool)DI::config()->get('system', 'block_public'),
 				'textlimit'    => (string) DI::config()->get('config', 'api_import_size', DI::config()->get('config', 'max_import_size')),

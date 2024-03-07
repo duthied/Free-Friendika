@@ -32,7 +32,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Circle;
@@ -175,7 +174,7 @@ class Ping extends BaseModule
 			$myurl      = $this->session->getMyUrl();
 			$mail_count = $this->database->count('mail', ["`uid` = ? AND NOT `seen` AND `from-url` != ?", $this->session->getLocalUserId(), $myurl]);
 
-			if (intval($this->config->get('config', 'register_policy')) === Register::APPROVE && $this->session->isSiteAdmin()) {
+			if (Register::getPolicy() === Register::APPROVE && $this->session->isSiteAdmin()) {
 				$registrations = \Friendica\Model\Register::getPending();
 				$register_count = count($registrations);
 			}
