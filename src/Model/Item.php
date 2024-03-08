@@ -4097,7 +4097,7 @@ class Item
 		}
 
 		$curlResult = DI::httpClient()->head($uri, [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON_AS]);
-		if (HTTPSignature::isValidContentType($curlResult->getContentType())) {
+		if (HTTPSignature::isValidContentType($curlResult->getContentType(), $uri)) {
 			$fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri, [], '', $completion, $uid);
 		}
 
