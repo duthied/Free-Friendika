@@ -208,8 +208,7 @@ class APContact
 
 				if (!$failed && ($curlResult->getReturnCode() == 410)) {
 					$data = ['@context' => ActivityPub::CONTEXT, 'id' => $url, 'type' => 'Tombstone'];
-				} elseif (!$failed && !HTTPSignature::isValidContentType($curlResult->getContentType())) {
-					Logger::debug('Unexpected content type', ['content-type' => $curlResult->getContentType(), 'url' => $url]);
+				} elseif (!$failed && !HTTPSignature::isValidContentType($curlResult->getContentType(), $url)) {
 					$failed = true;
 				}
 			} catch (\Exception $exception) {

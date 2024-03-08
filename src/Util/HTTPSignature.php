@@ -443,8 +443,7 @@ class HTTPSignature
 			return [];
 		}
 
-		if (!self::isValidContentType($curlResult->getContentType())) {
-			Logger::notice('Unexpected content type', ['content-type' => $curlResult->getContentType(), 'url' => $request]);
+		if (!self::isValidContentType($curlResult->getContentType(), $request)) {
 			return [];
 		}
 
@@ -457,9 +456,16 @@ class HTTPSignature
 	 * @param string $contentType
 	 * @return boolean
 	 */
-	public static function isValidContentType(string $contentType): bool
+	public static function isValidContentType(string $contentType, string $url = ''): bool
 	{
-		return in_array(current(explode(';', $contentType)), ['application/activity+json', 'application/ld+json']);
+		if (in_array(current(explode(';', $contentType)), ['application/activity+json', 'application/ld+json'])) {
+			return true;
+		}
+
+		if (current(explode(';', $contentType)) == 'application/json') {
+			Logger::notice('Unexpected content type, possibly from a remote system that is not standard compliant.', ['content-type' => $contentType, 'url' => $url]);
+		}
+		return false;
 	}
 
 	/**

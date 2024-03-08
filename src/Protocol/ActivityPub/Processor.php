@@ -1618,8 +1618,7 @@ class Processor
 			return '';
 		}
 
-		if (!HTTPSignature::isValidContentType($curlResult->getContentType())) {
-			Logger::notice('Unexpected content type', ['content-type' => $curlResult->getContentType(), 'url' => $url]);
+		if (!HTTPSignature::isValidContentType($curlResult->getContentType(), $url)) {
 			return '';
 		}
 
