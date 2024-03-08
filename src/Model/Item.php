@@ -34,10 +34,11 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post\Category;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\ServiceUnavailableException;
 use Friendica\Protocol\Activity;
@@ -45,6 +46,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Delivery;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy;
@@ -4094,9 +4096,12 @@ class Item
 			return is_numeric($hookData['item_id']) ? $hookData['item_id'] : 0;
 		}
 
-		$fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri, [], '', $completion, $uid);
+		$curlResult = DI::httpClient()->head($uri, [HttpClientOptions::ACCEPT_CONTENT => HttpClientAccept::JSON_AS]);
+		if (HTTPSignature::isValidContentType($curlResult->getContentType())) {
+			$fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri, [], '', $completion, $uid);
+		}
 
-		if ($fetched_uri) {
+		if (!empty($fetched_uri)) {
 			$item_id = self::searchByLink($fetched_uri, $uid);
 		} else {
 			$item_id = Diaspora::fetchByURL($uri);

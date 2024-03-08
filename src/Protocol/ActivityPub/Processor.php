@@ -1610,7 +1610,7 @@ class Processor
 		}
 
 		if (empty($object) || !is_array($object)) {
-			Logger::notice('Invalid JSON data', ['url' => $url, 'content-type' => $curlResult->getContentType(), 'body' => $body]);
+			Logger::notice('Invalid JSON data', ['url' => $url, 'content-type' => $curlResult->getContentType()]);
 			return '';
 		}
 
