@@ -851,6 +851,7 @@ class Processor
 		}
 
 		$item['title'] = trim(BBCode::toPlaintext($item['title']));
+		$item['content-warning'] = HTML::toBBCode($activity['summary'] ?? '');
 
 		if (!empty($activity['languages'])) {
 			$item['language'] = self::processLanguages($activity['languages']);
@@ -897,7 +898,6 @@ class Processor
 				}
 				$content = self::removeImplicitMentionsFromBody($content, $parent);
 			}
-			$item['content-warning'] = HTML::toBBCode($activity['summary'] ?? '');
 			$item['raw-body'] = $item['body'] = $content;
 		}
 
