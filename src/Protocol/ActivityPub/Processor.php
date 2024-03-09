@@ -1611,15 +1611,15 @@ class Processor
 
 		if (empty($object) || !is_array($object)) {
 			Logger::notice('Invalid JSON data', ['url' => $url, 'content-type' => $curlResult->getContentType()]);
-			return '';
+			return null;
 		}
 
 		if (!self::isValidObject($object, $url)) {
-			return '';
+			return null;
 		}
 
 		if (!HTTPSignature::isValidContentType($curlResult->getContentType(), $url)) {
-			return '';
+			return null;
 		}
 
 		$ldobject = JsonLD::compact($object);
