@@ -27,6 +27,7 @@ use Friendica\Content\Post\Collection;
 use Friendica\Content\Post\Entity;
 use Friendica\Content\Post\Factory;
 use Friendica\Database\Database;
+use Friendica\Model\Post;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
@@ -62,7 +63,7 @@ class PostMedia extends BaseRepository
 
 	public function selectByUriId(int $uriId): Collection\PostMedias
 	{
-		return $this->_select(['uri-id' => $uriId]);
+		return $this->_select(["`uri-id` = ? AND `type` != ?", $uriId, Post\Media::UNKNOWN]);
 	}
 
 	public function save(Entity\PostMedia $PostMedia): Entity\PostMedia
