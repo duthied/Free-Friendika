@@ -1164,6 +1164,7 @@ class Transmitter
 		}
 
 		$mail['content-warning']  = '';
+		$mail['sensitive']        = false;
 		$mail['author-link']      = $mail['owner-link'] = $mail['from-url'];
 		$mail['owner-id']         = $mail['author-id'];
 		$mail['allow_cid']        = '<'.$mail['contact-id'].'>';
