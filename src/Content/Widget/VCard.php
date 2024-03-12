@@ -104,7 +104,7 @@ class VCard
 					$mention_label  = DI::l10n()->t('Post to group');
 					$mention_link   = 'compose/0?body=!' . $contact['addr'];
 				}
-				$showgroup_link = 'network/group/' . $id;
+				$showgroup_link = 'contact/' . $id . '/conversations';
 			} elseif (!$hide_mention) {
 				$mention_label = DI::l10n()->t('Mention');
 				$mention_link  = 'compose/0?body=@' . $contact['addr'];
