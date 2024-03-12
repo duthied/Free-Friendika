@@ -1205,13 +1205,12 @@ class Contact
 			$mention_label = DI::l10n()->t('Post to group');
 			$mention_url = 'compose/0?body=!' . $contact['addr'];
 			$network_label = DI::l10n()->t('View group');
-			$network_url = 'network/group/' . $contact['id'];
 		} else {
 			$mention_label = DI::l10n()->t('Mention');
 			$mention_url = 'compose/0?body=@' . $contact['addr'];
 			$network_label = DI::l10n()->t('Network Posts');
-			$network_url = 'contact/' . $contact['id'] . '/conversations';
 		}
+		$network_url = 'contact/' . $contact['id'] . '/conversations';
 
 		$follow_link   = '';
 		$unfollow_link = '';

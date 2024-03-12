@@ -461,13 +461,12 @@ class Profile
 			$mention_label = DI::l10n()->t('Post to group');
 			$mention_url   = 'compose/0?body=!' . $profile['addr'];
 			$network_label = DI::l10n()->t('View group');
-			$network_url   = 'network/group/' . $cid;
 		} else {
 			$mention_label = DI::l10n()->t('Mention');
 			$mention_url   = 'compose/0?body=@' . $profile['addr'];
 			$network_label = DI::l10n()->t('Network Posts');
-			$network_url   = 'contact/' . $cid . '/conversations';
 		}
+		$network_url   = 'contact/' . $cid . '/conversations';
 
 		$tpl = Renderer::getMarkupTemplate('profile/vcard.tpl');
 		$o .= Renderer::replaceMacros($tpl, [

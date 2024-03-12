@@ -662,7 +662,6 @@ return [
 	'/network' => [
 		'[/{content}]'                => [Module\Conversation\Network::class, [R::GET]],
 		'/archive/{from:\d\d\d\d-\d\d-\d\d}[/{to:\d\d\d\d-\d\d-\d\d}]' => [Module\Conversation\Network::class, [R::GET]],
-		'/group/{contact_id:\d+}'     => [Module\Conversation\Network::class, [R::GET]],
 		'/circle/{circle_id:\d+}'     => [Module\Conversation\Network::class, [R::GET]],
 	],
 
