@@ -912,6 +912,8 @@ class Media
 				$body .= "\n[audio]" . $media['url'] . "[/audio]\n";
 			} elseif ($media['type'] == self::VIDEO) {
 				$body .= "\n[video]" . $media['url'] . "[/video]\n";
+			} else {
+				$body .= "\n[url]" . $media['url'] . "[/url]\n";
 			}
 		}
 
