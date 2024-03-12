@@ -1246,6 +1246,42 @@ class BBCode
 	}
 
 	/**
+	 * Replace mention links
+	 *
+	 * @param string $body HTML/BBCode
+	 * @return string Body with replaced mentions
+	 */
+	public static function setMentionsToAddr(string $body): string
+	{
+		DI::profiler()->startRecording('rendering');
+		$regexp = "/([@!])\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
+		$body = preg_replace_callback($regexp, [self::class, 'mentionToAddrCallback'], $body);
+		DI::profiler()->stopRecording();
+		return $body;
+	}
+
+	/**
+	 * Callback function to replace a Friendica style mention in a mention with the addr
+	 *
+	 * @param array $match Matching values for the callback
+	 * @return string Replaced mention or empty string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function mentionToAddrCallback(array $match): string
+	{
+		if (empty($match[2])) {
+			return '';
+		}
+
+		$data = Contact::getByURL($match[2], false, ['url', 'nick', 'addr']);
+		if (empty($data['nick'])) {
+			return $match[0];
+		}
+
+		return $match[1] . ($data['addr'] ?: $data['nick']);
+	}
+
+	/**
 	 * Normalize links to Youtube and Vimeo to a unified format.
 	 *
 	 * @param string $text

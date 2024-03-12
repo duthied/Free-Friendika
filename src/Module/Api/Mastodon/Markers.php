@@ -82,7 +82,7 @@ class Markers extends BaseApi
 			$values->{$marker['timeline']} = [
 				'last_read_id' => $marker['last_read_id'],
 				'version'      => $marker['version'],
-				'updated_at'   => $marker['updated_at']
+				'updated_at'   => DateTimeFormat::utc($marker['updated_at'], DateTimeFormat::JSON)
 			];
 		}
 		return $values;
