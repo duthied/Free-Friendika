@@ -891,34 +891,6 @@
 			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`
 			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`"
 	],
-	"network-item-view" => [
-		"fields" => [
-			"uri-id" => ["post-user", "uri-id"],
-			"parent" => ["post-thread-user", "post-user-id"],
-			"received" => ["post-user", "received"],
-			"commented" => ["post-thread-user", "commented"],
-			"created" => ["post-user", "created"],
-			"uid" => ["post-user", "uid"],
-			"starred" => ["post-thread-user", "starred"],
-			"mention" => ["post-thread-user", "mention"],
-			"network" => ["post-user", "network"],
-			"unseen" => ["post-user", "unseen"],
-			"gravity" => ["post-user", "gravity"],
-			"contact-id" => ["post-user", "contact-id"],
-			"contact-type" => ["ownercontact", "contact-type"],
-		],
-		"query" => "FROM `post-user`
-			INNER JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			STRAIGHT_JOIN `contact` AS `authorcontact` ON `authorcontact`.`id` = `post-thread-user`.`author-id`
-			STRAIGHT_JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
-			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
-			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
-			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
-			AND NOT `authorcontact`.`blocked` AND NOT `ownercontact`.`blocked`
-			AND NOT EXISTS(SELECT `cid`    FROM `user-contact` WHERE `uid` = `post-thread-user`.`uid` AND `cid` IN (`authorcontact`.`id`, `ownercontact`.`id`) AND (`blocked` OR `ignored`))
-			AND NOT EXISTS(SELECT `gsid`   FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`)"
-	],
 	"network-thread-view" => [
 		"fields" => [
 			"uri-id" => ["post-thread-user", "uri-id"],
@@ -942,8 +914,8 @@
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
 			AND NOT `authorcontact`.`blocked` AND NOT `ownercontact`.`blocked`
-			AND NOT EXISTS(SELECT `cid`    FROM `user-contact` WHERE `uid` = `post-thread-user`.`uid` AND `cid` IN (`authorcontact`.`id`, `ownercontact`.`id`) AND (`blocked` OR `ignored`))
-			AND NOT EXISTS(SELECT `gsid`   FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`)"
+			AND NOT EXISTS(SELECT `cid`  FROM `user-contact` WHERE `uid` = `post-thread-user`.`uid` AND `cid` IN (`post-thread-user`.`author-id`, `post-thread-user`.`owner-id`, `post-thread-user`.`causer-id`) AND (`blocked` OR `ignored` OR `channel-only`))
+			AND NOT EXISTS(SELECT `gsid` FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`)"
 	],
 	"owner-view" => [
 		"fields" => [

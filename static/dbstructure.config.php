@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1557);
+	define('DB_UPDATE_VERSION', 1558);
 }
 
 return [
@@ -1937,6 +1937,7 @@ return [
 			"ignored" => ["type" => "boolean", "comment" => "Posts from this contact are ignored"],
 			"collapsed" => ["type" => "boolean", "comment" => "Posts from this contact are collapsed"],
 			"hidden" => ["type" => "boolean", "comment" => "This contact is hidden from the others"],
+			"channel-only" => ["type" => "boolean", "comment" => "This contact is displayed only in channels, but not in the network stream."],
 			"is-blocked" => ["type" => "boolean", "comment" => "User is blocked by this contact"],
 			"channel-frequency" => ["type" => "tinyint unsigned", "comment" => "Controls the frequency of the appearance of this contact in channels"],
 			"pending" => ["type" => "boolean", "comment" => ""],

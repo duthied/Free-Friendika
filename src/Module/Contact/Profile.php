@@ -95,32 +95,32 @@ class Profile extends BaseModule
 			return;
 		}
 
-		Hook::callAll('contact_edit_post', $_POST);
+		Hook::callAll('contact_edit_post', $request);
 
 		$fields = [];
 
-		if (isset($_POST['hidden'])) {
-			$fields['hidden'] = !empty($_POST['hidden']);
+		if (isset($request['hidden'])) {
+			$fields['hidden'] = !empty($request['hidden']);
 		}
 
-		if (isset($_POST['notify_new_posts'])) {
-			$fields['notify_new_posts'] = !empty($_POST['notify_new_posts']);
+		if (isset($request['notify_new_posts'])) {
+			$fields['notify_new_posts'] = !empty($request['notify_new_posts']);
 		}
 
-		if (isset($_POST['fetch_further_information'])) {
-			$fields['fetch_further_information'] = intval($_POST['fetch_further_information']);
+		if (isset($request['fetch_further_information'])) {
+			$fields['fetch_further_information'] = intval($request['fetch_further_information']);
 		}
 
-		if (isset($_POST['remote_self'])) {
-			$fields['remote_self'] = intval($_POST['remote_self']);
+		if (isset($request['remote_self'])) {
+			$fields['remote_self'] = intval($request['remote_self']);
 		}
 
-		if (isset($_POST['ffi_keyword_denylist'])) {
-			$fields['ffi_keyword_denylist'] = $_POST['ffi_keyword_denylist'];
+		if (isset($request['ffi_keyword_denylist'])) {
+			$fields['ffi_keyword_denylist'] = $request['ffi_keyword_denylist'];
 		}
 
-		if (isset($_POST['poll'])) {
-			$priority = intval($_POST['poll']);
+		if (isset($request['poll'])) {
+			$priority = intval($request['poll']);
 			if ($priority > 5 || $priority < 0) {
 				$priority = 0;
 			}
@@ -128,12 +128,16 @@ class Profile extends BaseModule
 			$fields['priority'] = $priority;
 		}
 
-		if (isset($_POST['info'])) {
-			$fields['info'] = $_POST['info'];
+		if (isset($request['info'])) {
+			$fields['info'] = $request['info'];
 		}
 
-		if (isset($_POST['channel_frequency'])) {
-			Contact\User::setChannelFrequency($cdata['user'], $this->session->getLocalUserId(), $_POST['channel_frequency']);
+		if (isset($request['channel_frequency'])) {
+			Contact\User::setChannelFrequency($cdata['user'], $this->session->getLocalUserId(), $request['channel_frequency']);
+		}
+
+		if (isset($request['channel_only'])) {
+			Contact\User::setChannelOnly($cdata['user'], $this->session->getLocalUserId(), $request['channel_only']);
 		}
 
 		if (!Contact::update($fields, ['id' => $cdata['user'], 'uid' => $this->session->getLocalUserId()])) {
@@ -340,7 +344,8 @@ class Profile extends BaseModule
 			];
 		}
 
-		$channel_frequency     = Contact\User::getChannelFrequency($contact['id'], $this->session->getLocalUserId());
+		$channel_frequency = Contact\User::getChannelFrequency($contact['id'], $this->session->getLocalUserId());
+		$channel_only      = Contact\User::getChannelOnly($contact['id'], $this->session->getLocalUserId());
 
 		$poll_interval = null;
 		if ((($contact['network'] == Protocol::FEED) && !$this->config->get('system', 'adjust_poll_frequency')) || ($contact['network'] == Protocol::MAIL)) {
@@ -432,6 +437,7 @@ class Profile extends BaseModule
 			'$frequency_always'       => ['channel_frequency', $this->t('Display all posts of this contact'), Contact\User::FREQUENCY_ALWAYS, $this->t('All posts from this contact will appear on the "for you" channel'), $channel_frequency == Contact\User::FREQUENCY_ALWAYS],
 			'$frequency_reduced'      => ['channel_frequency', $this->t('Display only few posts'), Contact\User::FREQUENCY_REDUCED, $this->t('When a contact creates a lot of posts in a short period, this setting reduces the number of displayed posts in every channel.'), $channel_frequency == Contact\User::FREQUENCY_REDUCED],
 			'$frequency_never'        => ['channel_frequency', $this->t('Never display posts'), Contact\User::FREQUENCY_NEVER, $this->t('Posts from this contact will never be displayed in any channel'), $channel_frequency == Contact\User::FREQUENCY_NEVER],
+			'$channel_only'           => ['channel_only', $this->t('Channel Only'), $channel_only, $this->t('If enabled, posts from this contact will only appear in channels, but not in the network stream.')],
 		]);
 
 		$arr = ['contact' => $contact, 'output' => $o];

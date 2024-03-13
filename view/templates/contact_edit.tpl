@@ -93,6 +93,7 @@
 			{{/if}}
 			{{if $channel_settings_label}}
 				<h4>{{$channel_settings_label}}</h4>
+				{{include file="field_checkbox.tpl" field=$channel_only}}
 				<label>{{$frequency_label}}</label>
 				{{include file="field_radio.tpl" field=$frequency_default}}
 				{{include file="field_radio.tpl" field=$frequency_always}}
