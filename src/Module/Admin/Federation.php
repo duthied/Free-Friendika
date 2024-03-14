@@ -43,6 +43,7 @@ class Federation extends BaseAdmin
 			'birdsitelive' => ['name' => 'BirdsiteLIVE', 'color' => '#1b6ec2'], // Color from the page
 			'bookwyrm'     => ['name' => 'BookWyrm', 'color' => '#00d1b2'], // Color from the page
 			'castopod'     => ['name' => 'Castopod', 'color' => '#00564a'], // Background color from the page
+			'cherrypick'   => ['name' => 'Cherrypick', 'color' => 'pink'], // Color from one of the instabces
 			'diaspora'     => ['name' => 'Diaspora', 'color' => '#a1a1a1'], // logo is black and white, makes a gray
 			'calckey'      => ['name' => 'firefish (Calckey)', 'color' => '#1c4a5c'], // Color from the page
 			'sharkey'      => ['name' => 'Sharkey', 'color' => 'lightpink'], // Font color from the homepage
@@ -58,6 +59,7 @@ class Federation extends BaseAdmin
 			'kbin'         => ['name' => 'kbin', 'color' => '#61366b'], // Color from their main instance
 			'lemmy'        => ['name' => 'Lemmy', 'color' => '#00c853'], // Green from the page
 			'mastodon'     => ['name' => 'Mastodon', 'color' => '#1a9df9'], // blue from the Mastodon logo
+			'mbin'         => ['name' => 'mbin', 'color' => '#3c3c3c'], // Color from one of their instances
 			'microblog'    => ['name' => 'Microblog', 'color' => '#fdb52b'], // Color from the page
 			'misskey'      => ['name' => 'Misskey', 'color' => '#ccfefd'], // Font color of the homepage
 			'mobilizon'    => ['name' => 'Mobilizon', 'color' => '#ffd599'], // Background color of parts of the homepage
