@@ -10,11 +10,14 @@ Version 2024.03 (unreleased)
     Improved the Mastodon compatible API [annando, MrPetovan]
     Improved logging of the system load value [annando]
     Improved image handling [annando]
+		Improved detection of user activity [annando]
+		Improved display of embedded videos [annando]
     Fixed an issue that could lead to empty URLs in the server block list [annando]
     Fixed XSS attacks [leoOliver, MrPetovan, snajafov]
     Fixed an issue when importing emails [annando]
     Fixed an issue that blocked users could still use the API [annando]
     Fixed an issue when fetching remote content [annando, arcanicanis]
+		Fixed an issue with unescaped HTML characters for RSS feeds [MrPetovan, r1pu5u]
     General code cleanup [annando, MrPetovan]
     Updated the PasswordExposed usage [mexon]
     Removed fpostit (Friendica post bookmarklet) [MrPetovan]
@@ -30,6 +33,9 @@ Version 2024.03 (unreleased)
   Friendica Addons
     advancedcontentfilter
       Updated dependency for PHP8.2 compatibility [MrPetovan]
+    blockbot
+      Fixed an issue preventing the creation of previews on remote systems [annando]
+			Updated block lists [annando]
     bluesky
       Overhaul of the Bluesky connector [annando]
       Fixed problem with empty quoted shares [annando]
@@ -39,14 +45,19 @@ Version 2024.03 (unreleased)
       Connector addon was added [spacenerdmo]
     tesseract
       Added the addon to generate image descriptions from images via OCR [annando]
+		tumblr
+		  Improved handling of quoted shares [annando]
     url_replace
       Added addon to replace URLs from Twitter, Youtube and some others using 12ft.io [toddy15]
+			Fixed an issue with empty config vars [MrPetovan]
 
   Closed Issues
       903,  7732,  8768, 11142, 13220, 13293, 13765, 13768, 13809,
     13814, 13814, 13818, 13819, 13822, 13823, 13828, 13839, 13844,
-    13845, 13859, 13863, 13877, 13886, 13887, 13897, 13899, 13905,
-    13909, 13922, 13940, 13949, 13953, 13955
+    13845, 13859, 13863, 13873, 13877, 13886, 13887, 13897, 13899,
+		13905, 13909, 13922, 13925, 13930, 13939, 13940, 13946, 13947,
+		13949, 13950, 13953, 13955, 13959, 13968, 13969, 13972, 13985,
+		13986
 
 Version 2023.12 (2023-12-24)
   Friendica Core
@@ -548,7 +559,7 @@ Version 2022.02 (2022-02-06)
     Added a media tab on profile pages [annando]
     Removed video tab on profile pages [annando]
     Bumped the minimal version of PHP to 7.3
-  
+
   Friendica Addons
     Updates to the translations AR, DE, FR, HU, IT, PL, SV [translation teams]
     Deprecated addons: blogger, buffer, jappixmini, notimeline, xmpp
@@ -573,7 +584,7 @@ Version 2022.02 (2022-02-06)
       Fixed API calls [MrPetovan]
       Fixed a problem leading to duplicated links [annando]
       Updated twitteroauth dependency [nupplaphil]
-  
+
   Closed Issues
      9720, 10301, 10365, 10454, 10634, 10691, 10725, 10726, 10729, 10734,
     10737, 10739, 10745, 10754, 10767, 10791, 10829, 10832, 10839, 10841,
@@ -677,7 +688,7 @@ Version 2021.07 (2021-07-04)
     The "authenticate" hook was moved deeper into the process [very-ape]
     Added support for RTL languages [MrPetovan]
     Added download link for the calendar entries [annando]
-  
+
   Friendica Addons
       Updates to the translations DE, HU, IT, JA [translation teams]
     nitter
@@ -702,7 +713,7 @@ Version 2021.07 (2021-07-04)
       adaptation of new addon functionalities and code improvements [mexon]
     phpmailer
       updated dependencies [nupplaphil]
-  
+
   Closed Issues
     7967, 8262, 9715, 9064, 9993, 10055, 10147, 10184, 10198, 10205, 10210,
     10219, 10232, 10254, 10287, 10293, 10306, 10312, 10314, 10342, 10364,
@@ -1096,7 +1107,7 @@ Version 2020.03 "Red Hot Poker"  (2020-03-30)
       Added fetching of contact relations [annando]
     unicode emoticons:
       Extended the list of supported emoticons [loma-one]
-      
+
   Closed Issues:
     4599, 5562, 6205, 6418, 6757, 7558, 7560, 7771, 7808, 7817, 7892,
     7964, 7968, 7978, 7984, 7991, 7992, 7994, 8002, 8008, 8014, 8058,
@@ -1333,7 +1344,7 @@ Version 2019.06 (2019-06-23)
 Version 2019.04 (2019-04-28)
   Friendica Core:
     Fixed a privacy problem with postings accessed by feed [MrPetovan]
-	
+
 Version 2019.03 (2019-03-22)
   Friendica Core:
     Update to the translation (CS, DE, EN-GB, EN-US, ES, FR, IT, PL, SV, ZH-CN) [translation teams]
@@ -1508,7 +1519,7 @@ Version 2019.01 (2019-01-21)
     6268, 6282, 6283, 6208, 6289, 6294, 6308, 6309, 6313, 6316, 6323,
     6329, 6334, 6344, 6347, 6343, 6349, 6350, 6355, 6358, 6360, 6361,
     6363, 6368, 6370, 6391, 6394, 6424, 6425, 6439, 6459
- 
+
 Version 2018.09 (2018-09-23)
   Friendica Core:
     Update to the translation (CS, DE, EN-US, FI, IT, NL, PL, ZH-CN) [translation teams]
@@ -1543,13 +1554,13 @@ Version 2018.09 (2018-09-23)
     Fixed a bug in the daemon mode of the background worker [annando]
     Fixed a bug in the frio theme that contact filtering [rabuzarus]
     Fixed a bug that mangled the display of some additional smileys [abanink]
-    Fixed a bug in generating registration mails [MrPetovan] 
+    Fixed a bug in generating registration mails [MrPetovan]
     Fixed a bug that caused blank re-share bodies [MrPetovon]
     Fixed a bug in the API handling of private mails [fabrixxm]
     Fixed a bug when calling the mail() function [miqrogroove]
     Fixed a bug that caused deleted accounts being displayed in the local directory [miqrogroove]
     Fixed a bug when checking the domain of an email address [VVelox]
-    Fixed a bug that prevented re-shares from Twitter to be shown as this [annando] 
+    Fixed a bug that prevented re-shares from Twitter to be shown as this [annando]
     Fixed a bug that caused broken profile links [miqrogroove]
     Fixed a bug that caused content from unknown accounts appearing in the timeline [annando]
     Fixed a bug with the ignoring and blocking of contacts [annando]
