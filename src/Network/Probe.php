@@ -118,7 +118,8 @@ class Probe
 				'following', 'followers', 'inbox', 'outbox', 'sharedinbox',
 				'priority', 'network', 'pubkey', 'manually-approve', 'baseurl', 'gsid'];
 
-		$numeric_fields = ['gsid', 'hide', 'account-type', 'manually-approve'];
+		$numeric_fields = ['gsid', 'account-type'];
+		$boolean_fields = ['hide', 'manually-approve'];
 
 		if (!empty($data['photo'])) {
 			$data['photo'] = Network::addBasePath($data['photo'], $data['url']);
@@ -134,6 +135,8 @@ class Probe
 			if (isset($data[$field])) {
 				if (in_array($field, $numeric_fields)) {
 					$newdata[$field] = (int)$data[$field];
+				} elseif (in_array($field, $boolean_fields)) {
+					$newdata[$field] = (bool)$data[$field];
 				} else {
 					$newdata[$field] = trim($data[$field]);
 				}
