@@ -18,7 +18,6 @@ labels:
 steps:
   php-lint:
     image: php:${PHP_MAJOR_VERSION}
-    group: lint
     commands:
       - find . -name \*.php -not -path './vendor/*' -not -path './view/asset/*' -print0 | xargs -0 -n1 php -l
   restore_cache:
