@@ -1130,7 +1130,7 @@ class Contact
 	{
 		// Always unarchive the relay contact entry
 		if (!empty($contact['batch']) && !empty($contact['term-date']) && ($contact['term-date'] > DBA::NULL_DATETIME)) {
-			$fields = ['failed' => false, 'term-date' => DBA::NULL_DATETIME, 'archive' => false];
+			$fields = ['failed' => false, 'term-date' => DBA::NULL_DATETIME, 'archive' => false, 'unsearchable' => true];
 			$condition = ['uid' => 0, 'network' => Protocol::FEDERATED, 'batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
 			if (!DBA::exists('contact', array_merge($condition, $fields))) {
 				self::update($fields, $condition);

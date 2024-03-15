@@ -376,6 +376,9 @@ class APContact
 		}
 
 		$apcontact['discoverable'] = JsonLD::fetchElement($compacted, 'toot:discoverable', '@value');
+		if (is_null($apcontact['discoverable']) && ($apcontact['type'] == 'Application')) {
+			$apcontact['discoverable'] = false;
+		}
 
 		if (!empty($apcontact['photo'])) {
 			$apcontact['photo'] = Network::addBasePath($apcontact['photo'], $apcontact['url']);

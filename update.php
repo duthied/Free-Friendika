@@ -63,6 +63,7 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\Delivery;
 use Friendica\Security\PermissionSet\Repository\PermissionSet;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Worker\UpdateContact;
 
 // Post-update script of PR 5751
 function update_1298()
@@ -1445,5 +1446,15 @@ function update_1556()
 	}
 	DBA::close($users);
 
+	return Update::SUCCESS;
+}
+
+function update_1557()
+{
+	$contacts = DBA::select('account-view', ['id'], ['platform' => 'friendica', 'contact-type' => Contact::TYPE_RELAY]);
+	while ($contact = DBA::fetch($contacts)) {
+		UpdateContact::add(Worker::PRIORITY_LOW, $contact['id']);
+	}
+	DBA::close($contacts);
 	return Update::SUCCESS;
 }

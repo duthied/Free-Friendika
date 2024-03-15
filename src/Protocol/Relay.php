@@ -246,13 +246,14 @@ class Relay
 				$fields['contact-type'] = Contact::TYPE_RELAY;
 				Logger::info('Assigning missing data for relay contact', ['server' => $gserver['url'], 'id' => $old['id']]);
 			}
-		} elseif (empty($fields)) {
+		} elseif (empty($fields) && $old['unsearchable']) {
 			Logger::info('No content to update, quitting', ['server' => $gserver['url']]);
 			return;
 		}
 
 		if (DBA::isResult($old)) {
-			$fields['updated'] = DateTimeFormat::utcNow();
+			$fields['updated']      = DateTimeFormat::utcNow();
+			$fields['unsearchable'] = true;
 
 			Logger::info('Update relay contact', ['server' => $gserver['url'], 'id' => $old['id'], 'fields' => $fields]);
 			Contact::update($fields, ['id' => $old['id']], $old);
@@ -265,6 +266,7 @@ class Relay
 				'rel' => Contact::FOLLOWER, 'blocked' => false,
 				'pending' => false, 'writable' => true,
 				'gsid' => $gserver['id'],
+				'unsearchable' => true,
 				'baseurl' => $gserver['url'], 'contact-type' => Contact::TYPE_RELAY];
 
 			$fields = array_merge($default, $fields);
