@@ -140,7 +140,7 @@ class Probe
 				} else {
 					$newdata[$field] = trim($data[$field]);
 				}
-			} elseif (!in_array($field, $numeric_fields)) {
+			} elseif (!in_array($field, $numeric_fields) && !in_array($field, $boolean_fields)) {
 				$newdata[$field] = '';
 			} else {
 				$newdata[$field] = null;
